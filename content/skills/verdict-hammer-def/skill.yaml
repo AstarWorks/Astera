@@ -12,6 +12,16 @@ gameplay:
     - {id: range, param: reach}
   timeline:
     - {id: t0, at: 0, do: [{id: attr, op: modify_attribute, attribute: resist.physical, operation: add, amount: 0.7, duration_ticks: 95, target: caster}]}
+    - id: t82
+      at: 82
+      do:
+        - id: sel
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
     - id: t97
       at: 97
       do:

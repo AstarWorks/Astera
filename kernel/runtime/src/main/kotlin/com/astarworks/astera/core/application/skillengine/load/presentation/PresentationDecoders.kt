@@ -7,10 +7,12 @@ import com.astarworks.astera.core.domain.skillengine.model.AxisRef
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.TargetRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
+import com.astarworks.astera.core.domain.skillengine.model.literal
 import com.astarworks.astera.core.domain.skillengine.op.BodyOp
 import com.astarworks.astera.core.domain.skillengine.op.FxOp
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
+import com.astarworks.astera.core.domain.skillengine.op.Repeat
 import com.astarworks.astera.core.domain.skillengine.op.ScreenOp
 import com.astarworks.astera.core.domain.skillengine.op.SkillOp
 import com.astarworks.astera.core.domain.skillengine.op.TrackKey
@@ -124,15 +126,18 @@ private fun OpReader.trackKeys(): List<TrackKey> {
     if (list.isEmpty()) fail("track 'keys' must not be empty")
     return list.mapIndexed { i, e ->
         val m = e as? Map<*, *> ?: fail("keys[$i] must be a map")
-        m.keys.firstOrNull { it !in setOf("t", "offset", "turn", "scale", "ease") }
+        m.keys.firstOrNull { it !in setOf("t", "offset", "turn", "scale", "ease", "alpha", "color", "block") }
             ?.let { fail("unknown key '$it' in keys[$i]") }
         val t = (m["t"] as? Number)?.toInt() ?: fail("keys[$i] needs integer 't'")
         val offset = m["offset"]?.let { vecValue(it) ?: fail("keys[$i].offset must be [x,y,z], \${param} or = expr") }
         val turn = m["turn"]?.let { vecValue(it) ?: fail("keys[$i].turn must be a rotation vector [x,y,z] (axis * degrees), \${param} or = expr") }
         val scale = m["scale"]?.let { scaleValue(it) ?: fail("keys[$i].scale must be a number, [x,y,z], \${param} or = expr") }
         val ease = m["ease"]?.let { it as? String ?: fail("keys[$i].ease must be a string") }
-        if (ease != null && ease !in EASES) fail("keys[$i].ease must be one of $EASES")
-        TrackKey(t, offset, turn, scale, ease)
+        if (ease != null && com.astarworks.astera.core.domain.animation.Easing.fromKey(ease) == null) fail("keys[$i].ease must be linear, step or in_/out_/in_out_ + sine, quad, cubic, quart, quint, expo, circ, back, elastic, bounce")
+        val alpha = m["alpha"]?.let { numValue(it) ?: fail("keys[$i].alpha must be a number, \${param} or = expr") }
+        val color = m["color"]?.let { c -> (c as? String)?.takeIf { Regex("#[0-9a-fA-F]{6}").matches(it) } ?: fail("keys[$i].color must be #rrggbb") }
+        val block = m["block"]?.let { it as? String ?: fail("keys[$i].block must be a vanilla block id") }
+        TrackKey(t, offset, turn, scale, ease, alpha, color, block)
     }
 }
 
@@ -181,21 +186,53 @@ private fun OpReader.trailRim(): TrailRim? {
     return TrailRim(hexColor("dark_rim.color", m["color"]), fraction("dark_rim.alpha", m["alpha"], 1.0), positive("dark_rim.width", m["width"], 0.18))
 }
 
-private val TRAIL_STYLES = setOf("soft", "crisp", "both")
+/** `brightness:` is vanilla Display.brightness, 0..15. */
+private fun OpReader.brightness(): Int? = int("brightness")?.also { if (it !in 0..15) fail("brightness must be 0..15") }
 
-private val EASES = setOf("linear", "ease_in", "ease_out", "ease_in_out")
+/** `times:` / `every:` / `life:` of a repeated display (see [Repeat]); null when none is given. */
+private fun OpReader.repeat(allowLife: Boolean = true): Repeat? {
+    val times = number("times")
+    val every = int("every")
+    val life = int("life")
+    if (times == null && every == null && life == null) return null
+    if (times == null && every != null) fail("'every' needs 'times'")
+    if (every != null && every < 0) fail("every must be >= 0")
+    if (life != null && life < 1) fail("life must be >= 1")
+    if (life != null && !allowLife) fail("'life' is not used by this op")
+    return Repeat(times ?: Value.Literal(1.0), every ?: 0, life)
+}
+
+/** `size:` of a block / quad: a number (uniform), `[a, b]` (z = 1), `[a, b, c]`, `${param}` or `= expr`. */
+private fun OpReader.sizeVec(key: String, uniform: Boolean): Value<Vec3> {
+    val r = raw(key) ?: fail("missing '$key'")
+    if (r is Number) { val d = r.toDouble(); return Value.Literal(if (uniform) Vec3(d, d, d) else Vec3(d, d, 1.0)) }
+    if (r is List<*> && r.size == 2 && r.all { it is Number }) return Value.Literal(Vec3((r[0] as Number).toDouble(), (r[1] as Number).toDouble(), 1.0))
+    return vecValue(r) ?: fail("'$key' must be a number, [a, b], [a, b, c], \${param} or = expr")
+}
+
+private val TRAIL_STYLES = setOf("soft", "crisp", "both")
 
 private object VisualOpDecoder : OpDecoder {
     override val section = OpSection.PRESENTATION
-    override val opNames = setOf("mesh", "plate", "line", "trail", "track", "remove")
+    override val opNames = setOf("mesh", "plate", "block", "quad", "line", "trail", "track", "remove")
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "mesh" -> VisualOp.Mesh(id, whenExpr, requireString("frame"), requireString("item"), string("part"), number("scale"),
-                vec3("pivot"), vec3("rest_turn"), vec3("tilt_turn"))
+                vec3("pivot"), vec3("rest_turn"), vec3("tilt_turn"), brightness())
             "plate" -> VisualOp.Plate(
                 id, whenExpr, requireString("parent"), face(null), requireString("sprite"),
                 numberOr("size", 1.0), numberOr("alpha", 1.0),
                 int("frame_ticks")?.also { if (it < 1) fail("frame_ticks must be >= 1") }, bool("loop") ?: false, stringValue("color"),
+                vec3("at"), vec3("turn"), brightness(), repeat(),
+            )
+            "block" -> VisualOp.Block(
+                id, whenExpr, requireString("parent"), requireString("block"), sizeVec("size", uniform = true),
+                vec3("at"), vec3("turn"), brightness(), repeat(),
+            )
+            "quad" -> VisualOp.Quad(
+                id, whenExpr, requireString("parent"), face(PlateFace.ViewerCenter), sizeVec("size", uniform = false),
+                colorOr("color", "#ffffff"), numberOr("alpha", 1.0), string("text"), bool("shadow") ?: false, bool("see_through") ?: false,
+                vec3("at"), vec3("turn"), brightness(), repeat(),
             )
             "line" -> VisualOp.Line(
                 id, whenExpr, requirePoint("from"), requirePoint("to"), numberOr("thickness", 0.05),
@@ -227,6 +264,7 @@ private object FxOpDecoder : OpDecoder {
                 id, whenExpr, requirePoint("at"), requireString("particle"), number("count"),
                 vec3("offset"), number("speed"), stringValue("data"), number("data_size"),
                 vec3("dir"), number("spread_deg"), number("inherit_velocity"), string("seed"), number("spacing"),
+                vec3("shift"), repeat(allowLife = false),
             )
             "sound" -> FxOp.Sound(
                 id, whenExpr, requireString("sound"), requirePoint("at"), number("volume"), number("pitch"),
@@ -251,7 +289,7 @@ private object BodyOpDecoder : OpDecoder {
 
 private object ScreenOpDecoder : OpDecoder {
     override val section = OpSection.PRESENTATION
-    override val opNames = setOf("title", "action_bar", "camera_shake")
+    override val opNames = setOf("title", "action_bar", "camera_shake", "screen_flash", "screen_veil", "stop_sound")
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = with(reader) {
         when (op) {
             "title" -> ScreenOp.Title(
@@ -261,6 +299,28 @@ private object ScreenOpDecoder : OpDecoder {
             "camera_shake" -> ScreenOp.CameraShake(
                 id, whenExpr, target(TargetRef.Caster), requireNumber("intensity"), int("ticks") ?: 10,
             )
+            "screen_flash" -> {
+                val overlay = requireString("overlay")
+                if (com.astarworks.astera.core.domain.effect.ScreenOverlay.fromYaml(overlay) == null) {
+                    fail("unknown overlay '$overlay' (one of ${com.astarworks.astera.core.domain.effect.ScreenOverlay.entries.joinToString { it.yamlName }})")
+                }
+                val color = string("color")?.also { if (!Regex("#[0-9a-fA-F]{6}").matches(it)) fail("color '$it' is not #RRGGBB") }
+                ScreenOp.Flash(
+                    id, whenExpr, target(TargetRef.Caster), overlay, color?.substring(1)?.toInt(16),
+                    int("fade_in") ?: 0, int("stay") ?: 1, int("fade_out") ?: 2,
+                )
+            }
+            "screen_veil" -> {
+                val color = string("color")?.also { if (!Regex("#[0-9a-fA-F]{6}").matches(it)) fail("color '$it' is not #RRGGBB") }
+                val ticks = int("ticks") ?: fail("missing 'ticks'")
+                if (ticks < 1) fail("ticks must be >= 1")
+                ScreenOp.Veil(
+                    id, whenExpr, target(TargetRef.Caster), requireString("sprite"), color?.substring(1)?.toInt(16),
+                    number("distance") ?: literal(0.6), number("scale") ?: literal(1.0),
+                    number("max_screen_fraction") ?: literal(0.15), ticks,
+                )
+            }
+            "stop_sound" -> ScreenOp.StopSound(id, whenExpr, target(TargetRef.Caster), requireString("sound"))
             else -> fail("not a screen op: $op")
         }
     }

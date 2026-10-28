@@ -236,7 +236,7 @@ internal class CastInstance(
         val due = scheduled.filter { it.dueTick <= tick }
         scheduled.removeAll(due.toSet())
         for (s in due) {
-            if (s.ops != null) runScheduledOps(s) else queue += CastEvent(s.event!!, tick, s.source)
+            if (s.ops != null) runScheduledOps(s) else queue += CastEvent(s.event!!, tick, s.source, victim = s.victim)
         }
         drain()
 
@@ -351,10 +351,16 @@ internal class CastInstance(
         tickEvents += e
         try {
             prepareContact(e)
+            val bound = e.victim?.takeIf { e.contact == null }
+            if (bound != null && bound != lastVictim) {
+                victims += bound
+                lastVictim = bound
+                refreshEnemy(bound)
+            }
             bus.raise(e)
             motion.raise(e.name)
-            def.gameplay.on[e.name]?.let { run(it) }
-            def.presentation.on[e.name]?.let { run(it) }
+            val v = e.victim
+            if (v != null) withVictim(v) { runHandlers(e) } else runHandlers(e)
             for (l in listeners.toList()) {
                 if (l.event != e.name || l.source != e.source) continue
                 try {
@@ -368,8 +374,13 @@ internal class CastInstance(
         }
     }
 
+    private fun runHandlers(e: CastEvent) {
+        def.gameplay.on[e.name]?.let { run(it) }
+        def.presentation.on[e.name]?.let { run(it) }
+    }
+
     override fun raise(event: String) {
-        queue += CastEvent(event, tick, source = currentOpId)
+        queue += CastEvent(event, tick, source = currentOpId, victim = currentVictim)
     }
 
     fun hasRaised(name: String): Boolean = bus.hasRaised(name)
@@ -433,7 +444,7 @@ internal class CastInstance(
     }
 
     override fun schedule(afterTicks: Int, event: String, source: String) {
-        scheduled += Scheduled(tick + maxOf(0, afterTicks), event, source, null, null)
+        scheduled += Scheduled(tick + maxOf(0, afterTicks), event, source, null, currentVictim)
     }
 
     override fun openWindow(op: ControlOp.Window, ticks: Int) {
@@ -536,8 +547,25 @@ internal class CastInstance(
         }
     }
 
+    private var copyIndex = 0
+    private var copyCount = 1
+
+    override fun withIndex(index: Int, count: Int, block: () -> Unit) {
+        val (oi, on) = copyIndex to copyCount
+        copyIndex = index; copyCount = count
+        try {
+            block()
+        } finally {
+            copyIndex = oi; copyCount = on
+        }
+    }
+
     override fun fail(opId: String, reason: String) {
         report(opId, reason)
+    }
+
+    override fun failHere(reason: String) {
+        report(currentOpId, reason)
     }
 
     // ----------------------------------------------------------- SkillCastScope
@@ -602,6 +630,7 @@ internal class CastInstance(
 
     override fun location(ctx: OpContext, spec: LocationSpec): Vec3? = when (spec) {
         is LocationSpec.AtPoint -> tree.pointWorld(FrameId(spec.point.frame), spec.point.point).getOrNull()
+            ?: run { failHere("location '${spec.point}' does not resolve"); null }
         is LocationSpec.AtValue -> values.vec3(spec.value)
     }
 
@@ -890,6 +919,8 @@ internal class CastInstance(
         vars["event.name"] = ExprValue.Str(currentEvent?.name ?: "")
         vars["event.source"] = ExprValue.Str(currentEvent?.source ?: "")
         vars["world.up"] = ExprValue.Vec3(UP)
+        vars["i"] = ExprValue.Num(copyIndex.toDouble())
+        vars["n"] = ExprValue.Num(copyCount.toDouble())
         vars["incoming.amount"] = ExprValue.Num(incomingAmount)
         activeContact()?.let { c ->
             vars["contact.point"] = ExprValue.Vec3(c.pointWorld)

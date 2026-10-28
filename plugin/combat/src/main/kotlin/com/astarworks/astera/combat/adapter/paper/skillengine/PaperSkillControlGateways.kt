@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runLaterTicks
+import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillCooldownGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillItemGateway
 import com.astarworks.astera.combat.application.trace.SkillEngineTrace
@@ -25,6 +26,15 @@ import org.bukkit.Server
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
+import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway
+import com.astarworks.astera.core.domain.effect.DisplayBillboard
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.geometry.math.Frame
+import com.astarworks.astera.core.domain.sprite.SpriteGlyphs
+import com.astarworks.astera.core.domain.sprite.SpriteId
+import com.astarworks.astera.core.domain.world.WorldId
 
 /** `set_cooldown` op: starts the player's Astera cooldown for a skill id (the HUD and the cast gate read the same tracker). */
 public class PaperSkillCooldownGateway(private val tracker: () -> ICooldownTracker?) : ISkillCooldownGateway {
@@ -56,6 +66,7 @@ public class PaperSkillCasterAnimGateway(
             return
         }
         val result = poses()?.playCustomAnimation(player, id, ticks.toLong().coerceAtLeast(1))
+        if (result == null) log.error("[skill-error] caster_anim '{}': no player animation gateway, nothing plays", anim)
         trace("caster_anim play $anim (pose, $ticks ticks) -> ${result ?: "no gateway"}")
     }
 
@@ -80,13 +91,77 @@ public class PaperSkillCasterAnimGateway(
 public class PaperSkillScreenGateway(
     private val feedback: IPlayerFeedbackGateway,
     private val scheduler: IScheduler,
+    private val server: Server,
+    private val displays: IDisplayEntityGateway,
+    /** Cell size in pixels of a sprite (`content/sprites/<id>.yaml`); 8 (the 0.2-block base cell) when unknown. */
+    private val spritePx: (String) -> Int = { 8 },
 ) : ISkillScreenGateway {
+    private val liveVeils = ConcurrentHashMap<UUID, AtomicInteger>()
+
+    /**
+     * `screen_veil` (v1 ScreenVeilHandler): a CENTER-billboard text-display glyph quad `distance` blocks along the look direction
+     * from the eye, brightness 15, view range 8, shown to the viewer only. Re-anchored every tick through 1-tick teleport
+     * interpolation on the viewer's entity scope; opacity `(1 - age / ticks) * 255`; removed after `ticks`. At most 2 live per viewer.
+     */
+    override fun veil(viewer: UUID, sprite: String, colorRgb: Int, side: Double, distance: Double, ticks: Int) {
+        val player = server.getPlayer(viewer) ?: return
+        val counter = liveVeils.computeIfAbsent(viewer) { AtomicInteger() }
+        if (counter.incrementAndGet() > MAX_LIVE_VEILS) {
+            counter.decrementAndGet()
+            return
+        }
+        val glyph = SpriteGlyphs.text(SpriteId(sprite), 0, colorRgb)
+        val intrinsic = Intrinsic.textGlyph(spritePx(sprite))
+        val write = toDisplayWrite(Frame(Vec3.ZERO), Vec3(side, side, 1.0), intrinsic, DisplayBillboard.CENTER, 0)
+        val spec = SkillDisplaySpecs.plate(glyph, 1.0, write.transform, DisplayBillboard.CENTER, 15).copy(lifetimeTicks = (ticks + 2).toLong(), viewRange = 8f)
+        val (at, yaw, pitch) = anchor(player, distance)
+        val handle = displays.spawnFor(WorldId(player.world.name), at, spec, listOf(glyph), PlayerId(viewer))
+        if (handle == null) {
+            counter.decrementAndGet()
+            LoggerFactory.getLogger(javaClass).error("[skill-error] screen_veil: display was not spawned for {}", viewer)
+            return
+        }
+        var age = 0
+        var task: IScheduler.TaskHandle? = null
+        fun finish() {
+            task?.cancel()
+            displays.remove(handle)
+            counter.decrementAndGet()
+        }
+        task = scheduler.repeat(ExecutionScope.Entity(viewer), ticks(1), ticks(1)) {
+            age++
+            val p = server.getPlayer(viewer)
+            if (age > ticks || p == null) return@repeat finish()
+            val (pos, y, pt) = anchor(p, distance)
+            displays.moveTo(handle, pos, y, pt, 1)
+            displays.setTextStyle(handle, 0, SkillDisplaySpecs.opacity(1.0 - age.toDouble() / ticks).coerceAtLeast(1), null)
+        }
+    }
+
+    private fun anchor(player: org.bukkit.entity.Player, distance: Double): Triple<Vec3, Float, Float> {
+        val eye = player.eyeLocation
+        val d = eye.direction
+        return Triple(Vec3(eye.x + d.x * distance, eye.y + d.y * distance, eye.z + d.z * distance), eye.yaw, eye.pitch)
+    }
+
     override fun title(viewer: UUID, text: String, subtitle: String?, ticks: Int) {
         feedback.sendTitle(PlayerId(viewer), text, subtitle, 5, ticks.coerceAtLeast(1), 10)
     }
 
     override fun actionBar(viewer: UUID, text: String) {
         feedback.postActionBar(PlayerId(viewer), text)
+    }
+
+    override fun flash(viewer: UUID, overlay: com.astarworks.astera.core.domain.effect.ScreenOverlay, colorRgb: Int, fadeIn: Int, stay: Int, fadeOut: Int) {
+        feedback.sendScreenFlash(PlayerId(viewer), overlay, colorRgb, fadeIn, stay, fadeOut)
+    }
+
+    override fun stopSound(viewer: UUID, sound: String) {
+        feedback.stopSound(PlayerId(viewer), sound)
+    }
+
+    private companion object {
+        const val MAX_LIVE_VEILS = 2
     }
 
     override fun cameraShake(viewer: UUID, intensity: Double, ticks: Int) {
@@ -108,7 +183,10 @@ public class PaperSkillItemGateway(
 ) : ISkillItemGateway {
     override fun give(entity: UUID, itemId: String, count: Int) {
         val player = server.getPlayer(entity) ?: return
-        val stack = build(ItemId(itemId), PlayerId(entity), count) ?: return
+        val stack = build(ItemId(itemId), PlayerId(entity), count) ?: run {
+            LoggerFactory.getLogger(javaClass).error("[skill-error] give_item: item '{}' does not resolve to a stack", itemId)
+            return
+        }
         player.inventory.addItem(stack).values.forEach { player.world.dropItem(player.location, it) }
     }
 

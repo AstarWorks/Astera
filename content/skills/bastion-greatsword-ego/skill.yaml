@@ -1,6 +1,5 @@
 # Converted from content/skills/bastion-greatsword-ego.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-TODO sound: stop_sound has no v2 op (the sound keeps playing to its end) (x1): "block.amethyst_block.resonate"
 apiVersion: "astera/v2"
 kind: Skill
 id: bastion-greatsword-ego
@@ -12,6 +11,8 @@ meta:
   resource_cost: 0
   ego_cost: 100
   tags: [aoe, physical, finisher, charge]
+frames:
+  - {id: tele, kind: body, parent: world, inactive: true}
 gameplay:
   params: {propel: 0.3, dash_distance: 2.8, arc_deg: 110, reach: 3.8, dmg_physical: 140, knockback: 1.6}
   expose:
@@ -22,6 +23,7 @@ gameplay:
     - id: t20
       at: 20
       do:
+        - {id: place_tele, op: place, frame: tele, like: caster}
         - {id: propel, op: propel, direction: "= vec(0.0, 1.0, 0.0)", strength: "${propel}"}
         - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 6, radius: 0.3, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 1.6}
     - id: t31

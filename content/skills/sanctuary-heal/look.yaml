@@ -1,6 +1,5 @@
 # Converted from content/skills/sanctuary-heal.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT particle animation ring (emit has no shape / ring / path: one burst at the anchor) (x1): {"end_radius": 4.0, "period_ticks": 8, "points": 16, "start_radius": 0.4}
 apiVersion: "astera/v2"
 kind: Skill
 id: sanctuary-heal
@@ -13,6 +12,169 @@ presentation:
       at: 0
       do:
         - {id: snd, op: sound, sound: "astera:skills/heal-chime", at: caster, volume: 0.7, pitch: 1.0}
-        - {id: emit, op: emit, at: pt_caster_0_0p15_0, particle: happy_villager, count: 0, speed: 0.02}
-        - {id: emit_2, op: emit, at: pt_caster_0_0p15_0, particle: dust, count: 1, data: "#5ae65a", data_size: 1.4}
-        - {id: emit_3, op: emit, at: pt_caster_0_1_0, particle: verdant-heal}
+        - id: emit
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: happy_villager
+          count: 0
+          speed: 0.02
+          times: 16
+          shift: "= vec(0.4*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.4*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_2
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#5ae65a"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(0.4*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.4*cos((3.6112 + 6.283185307179586*i/16)))"
+        - {id: emit_17, op: emit, at: pt_caster_0_1_0, particle: verdant-heal}
+    - id: fx1
+      at: 1
+      do:
+        - id: emit_3
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: happy_villager
+          count: 0
+          speed: 0.02
+          times: 16
+          shift: "= vec(0.9143*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.9143*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_4
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#5ae65a"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(0.9143*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.9143*cos((3.6112 + 6.283185307179586*i/16)))"
+    - id: fx2
+      at: 2
+      do:
+        - id: emit_5
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: happy_villager
+          count: 0
+          speed: 0.02
+          times: 16
+          shift: "= vec(1.4286*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.4286*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_6
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#5ae65a"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(1.4286*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.4286*cos((3.6112 + 6.283185307179586*i/16)))"
+    - id: fx3
+      at: 3
+      do:
+        - id: emit_7
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: happy_villager
+          count: 0
+          speed: 0.02
+          times: 16
+          shift: "= vec(1.9429*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.9429*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_8
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#5ae65a"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(1.9429*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.9429*cos((3.6112 + 6.283185307179586*i/16)))"
+    - id: fx4
+      at: 4
+      do:
+        - id: emit_9
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: happy_villager
+          count: 0
+          speed: 0.02
+          times: 16
+          shift: "= vec(2.4571*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 2.4571*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_10
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#5ae65a"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(2.4571*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 2.4571*cos((3.6112 + 6.283185307179586*i/16)))"
+    - id: fx5
+      at: 5
+      do:
+        - id: emit_11
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: happy_villager
+          count: 0
+          speed: 0.02
+          times: 16
+          shift: "= vec(2.9714*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 2.9714*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_12
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#5ae65a"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(2.9714*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 2.9714*cos((3.6112 + 6.283185307179586*i/16)))"
+    - id: fx6
+      at: 6
+      do:
+        - id: emit_13
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: happy_villager
+          count: 0
+          speed: 0.02
+          times: 16
+          shift: "= vec(3.4857*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 3.4857*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_14
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#5ae65a"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(3.4857*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 3.4857*cos((3.6112 + 6.283185307179586*i/16)))"
+    - id: fx7
+      at: 7
+      do:
+        - id: emit_15
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: happy_villager
+          count: 0
+          speed: 0.02
+          times: 16
+          shift: "= vec(4.0*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 4.0*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_16
+          op: emit
+          at: pt_caster_0_0p15_0
+          particle: dust
+          count: 1
+          data: "#5ae65a"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(4.0*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 4.0*cos((3.6112 + 6.283185307179586*i/16)))"

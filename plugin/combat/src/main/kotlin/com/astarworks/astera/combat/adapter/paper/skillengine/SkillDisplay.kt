@@ -28,8 +28,8 @@ public data class Intrinsic(val unit: Vec3, val centre: Vec3 = Vec3.ZERO) {
         /** `item_display` fixed mode: the model is one block per scale unit, centred on the origin. */
         public val ITEM_FIXED: Intrinsic = Intrinsic(Vec3(1.0, 1.0, 1.0))
 
-        /** `block_display`: one block per scale unit (its origin is a corner, which the callers do not use). */
-        public val BLOCK: Intrinsic = Intrinsic(Vec3(1.0, 1.0, 1.0))
+        /** `block_display`: one block per scale unit; its origin is a corner, so the middle of what is drawn is half a unit toward +x +y +z. */
+        public val BLOCK: Intrinsic = Intrinsic(Vec3(1.0, 1.0, 1.0), Vec3(-0.5, -0.5, -0.5))
 
         /** Ribbon scale units per block of length and thickness; the one-line text quad of MC 26.3, calibrated against a client capture. */
         public const val SOLID_SCALE_X: Double = 8.0

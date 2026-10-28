@@ -21,7 +21,13 @@ internal fun OpContext.passes(whenExpr: Value<Boolean>?): Boolean = whenExpr == 
 
 internal fun OpContext.pointWorld(ref: PointRef, self: FrameId? = null): Vec3? {
     val frame = if (ref.frame == "self" && self != null) self else FrameId(ref.frame)
-    return tree.pointWorld(frame, ref.point).getOrNull()
+    return when (val r = tree.pointWorld(frame, ref.point)) {
+        is com.astarworks.astera.core.domain.Result.Success -> r.value
+        is com.astarworks.astera.core.domain.Result.Failure -> {
+            host.failHere("point '$ref' does not resolve: ${r.error}")
+            null
+        }
+    }
 }
 
 internal fun OpContext.locate(loc: LocationSpec): Vec3? = when (loc) {

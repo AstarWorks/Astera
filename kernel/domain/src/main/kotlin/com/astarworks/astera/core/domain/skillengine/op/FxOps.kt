@@ -35,6 +35,10 @@ public sealed interface FxOp : PresentationOp {
         val seed: String?,
         /** Blocks between plays along the segment the frame of [at] covered since the last tick (a fast body keeps a continuous trail); null = one play. */
         val spacing: Value<Double>? = null,
+        /** Where the burst plays relative to [at], in the axes of [at]'s frame `[left, up, forward]` (a ring slot, a helix point). */
+        val shift: Value<Vec3>? = null,
+        /** `times` plays, play k `every * k` ticks after the op runs; `i` / `n` are bound in the op's values. `life` is not used by an emit. */
+        val repeat: Repeat? = null,
     ) : FxOp
 
     /** Positional sound: `at` is required, there are no unlocated sounds. */

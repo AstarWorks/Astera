@@ -38,16 +38,33 @@ public object SkillDisplaySpecs {
         MeshModel.HeldItem -> null
     }
 
-    public fun mesh(kind: DisplayKind.Item, first: DisplayTransform): DisplaySpec =
-        DisplaySpec(kind = kind, transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED, weaponRigShading = true)
+    public fun mesh(kind: DisplayKind.Item, first: DisplayTransform, brightness: Int? = null): DisplaySpec =
+        DisplaySpec(kind = kind, transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED, brightness = brightness, weaponRigShading = brightness == null)
 
-    public fun plate(glyph: String, alpha: Double, first: DisplayTransform, billboard: DisplayBillboard): DisplaySpec =
+    public fun block(blockKey: String, first: DisplayTransform, brightness: Int?): DisplaySpec =
+        DisplaySpec(kind = DisplayKind.Block(blockKey), transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED, brightness = brightness)
+
+    /** A solid-colour quad (`text` null: one blank line on a background of [colorHex] at [alpha]) or a text glyph drawn over it. */
+    public fun quad(colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, first: DisplayTransform, billboard: DisplayBillboard, brightness: Int?): DisplaySpec {
+        val a = (alpha.coerceIn(0.0, 1.0) * 255.0).roundToInt()
+        val bg = (a shl 24) or (argb(colorHex) and 0xFFFFFF)
+        val shown = text ?: " "
+        return DisplaySpec(
+            kind = DisplayKind.Text(
+                lines = listOf(LocalizedText(mapOf(LocaleCode.EN to shown, LocaleCode.JA to shown))),
+                backgroundArgb = bg, shadow = shadow, seeThrough = seeThrough, textOpacity = 255,
+            ),
+            transform = first, lifetimeTicks = LIFETIME, billboard = billboard, brightness = brightness,
+        )
+    }
+
+    public fun plate(glyph: String, alpha: Double, first: DisplayTransform, billboard: DisplayBillboard, brightness: Int? = 15): DisplaySpec =
         DisplaySpec(
             kind = DisplayKind.Text(
                 lines = listOf(LocalizedText(mapOf(LocaleCode.EN to glyph, LocaleCode.JA to glyph))),
                 backgroundArgb = 0, shadow = false, seeThrough = false, textOpacity = opacity(alpha),
             ),
-            transform = first, lifetimeTicks = LIFETIME, billboard = billboard, brightness = 15,
+            transform = first, lifetimeTicks = LIFETIME, billboard = billboard, brightness = brightness,
         )
 
     public fun line(colorHex: String, first: DisplayTransform): DisplaySpec =

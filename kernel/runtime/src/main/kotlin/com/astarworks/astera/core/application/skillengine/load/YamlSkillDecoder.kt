@@ -83,8 +83,8 @@ public class YamlSkillDecoder(private val registry: OpDecoderRegistry) : SkillDe
                 resourceCost = nat("resource_cost"),
                 egoCost = nat("ego_cost") ?: 0,
                 reloadTicks = nat("reload_ticks") ?: 0,
-                readyCue = raw["ready_cue"] as? Boolean,
-                tags = (raw["tags"] as? List<*>)?.map { it.toString() } ?: emptyList(),
+                readyCue = raw["ready_cue"]?.let { it as? Boolean ?: bad("ready_cue", "expected a boolean") },
+                tags = raw["tags"]?.let { t -> (t as? List<*> ?: bad("tags", "expected a list")).map { it.toString() } } ?: emptyList(),
             )
         }
 

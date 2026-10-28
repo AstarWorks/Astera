@@ -20,6 +20,7 @@ import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.model.ValueResolver
 import com.astarworks.astera.core.domain.skillengine.op.PlateFace
+import com.astarworks.astera.core.domain.skillengine.op.Repeat
 import com.astarworks.astera.core.domain.skillengine.op.TrackKey
 import com.astarworks.astera.core.domain.skillengine.op.VisualOp
 import kotlin.math.abs
@@ -63,6 +64,17 @@ public class PresentationRuntime(
         /** The tree node of a mesh / plate is named by its op id. */
         val node: FrameId get() = FrameId(opId)
 
+        /** Cast tick at which a repeated copy is removed (Repeat.life); null = stays. */
+        var dieAt: Int? = null
+
+        /** Last look a track key pushed to the gateway (writes only on change). */
+        var shownAlpha: Double? = null
+        var shownColor: String? = null
+        var shownBlock: String? = null
+
+        /** Id of the repeated op this is a copy of; a track on that id moves every copy in its own slot axes. */
+        val group: String? get() = if (opId.contains('#')) opId.substringBeforeLast('#') else null
+
         /** A model on a node: base local origin [pivot], base turn [tilt], resting orientation [rest] inside the track turn. */
         class Mesh(
             override val opId: String,
@@ -85,9 +97,20 @@ public class PresentationRuntime(
             val loop: Boolean = false,
             val tint: String? = null,
             val spawnTick: Int = 0,
+            val at: Vec3 = Vec3.ZERO,
+            val turn: Quaternion = Quaternion.IDENTITY,
         ) : Live() {
             var shownFrame: Int = 0
         }
+
+        /** A block display on a node: per-axis [size] in blocks, base local origin [at] and base turn [turn]. */
+        class Block(override val opId: String, val parent: String, val size: Vec3, val at: Vec3, val turn: Quaternion) : Live()
+
+        /** A text-display quad on a node: [size] = (width, height) in blocks (a text glyph: blocks per text unit). */
+        class Quad(
+            override val opId: String, val parent: String, val face: PlateFace, val size: Vec3, val billboard: DisplayBillboard,
+            val at: Vec3, val turn: Quaternion,
+        ) : Live()
 
         class Line(override val opId: String, val from: PointRef, val to: PointRef, val thickness: Double, val face: PlateFace) : Live()
 
@@ -121,7 +144,16 @@ public class PresentationRuntime(
         val lastOrigin = HashMap<String, Vec3>()
         val velocity = HashMap<String, Vec3>()
         val watched = LinkedHashSet<String>()
+
+        /** Later copies of repeated displays / emits that have not run yet. */
+        val pending = ArrayList<Pending>()
+
+        /** Ids of the group nodes made for repeated displays. */
+        val groups = LinkedHashSet<String>()
     }
+
+    /** One later copy of the repeated op [group], due at cast tick [due]. */
+    internal class Pending(val group: String, val due: Int, val run: () -> Unit)
 
     internal fun state(ctx: OpContext): CastState = casts.getOrPut(ctx.cast) { CastState(ctx) }
 
@@ -137,7 +169,7 @@ public class PresentationRuntime(
      */
     internal fun settleFrame(s: CastState, frame: String) {
         for (t in s.tracks.values) {
-            if (t.op.target != frame || s.live.containsKey(frame)) continue
+            if (t.op.target != frame || s.live.containsKey(frame) || frame in s.groups) continue
             val node = s.ctx.tree.node(FrameId(frame)) ?: continue
             val parent = node.parent ?: continue
             val sample = sampleTrack(s, t, s.tick - t.startTick)
@@ -185,7 +217,7 @@ public class PresentationRuntime(
         when (live) {
             is Live.Mesh -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
-                val t = tracked(s, live.opId, parentW)
+                val t = tracked(s, live.opId, parentW, live.group)
                 tree.setLocal(live.node, Frame(live.pivot + t.offset, (live.tilt * t.turn * live.rest).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
                 val k = live.scale
@@ -193,15 +225,33 @@ public class PresentationRuntime(
             }
             is Live.Plate -> {
                 val parentW = frameWorld(s, live.parent) ?: return null
-                val t = tracked(s, live.opId, parentW)
+                val t = tracked(s, live.opId, parentW, live.group)
                 val base = (live.face as? PlateFace.Plane)?.let { planeRotation(s, it) }
                     ?.let { parentW.rotation.conjugate() * it } ?: Quaternion.IDENTITY
-                tree.setLocal(live.node, Frame(t.offset, (base * t.turn).normalized()))
+                tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset), (base * live.turn * t.turn).normalized()))
                 val world = tree.worldOf(live.node).getOrNull() ?: return null
                 val fixed = live.billboard == DisplayBillboard.FIXED
                 // A viewer face is the vanilla billboard: it owns the rotation, so the written frame carries only the origin.
                 val frame = if (fixed) world else Frame(world.origin)
                 return VisualPose(frame, Vec3(live.size * t.scale.x, live.size * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
+            }
+            is Live.Block -> {
+                val parentW = frameWorld(s, live.parent) ?: return null
+                val t = tracked(s, live.opId, parentW, live.group)
+                tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset), (live.turn * t.turn).normalized()))
+                val world = tree.worldOf(live.node).getOrNull() ?: return null
+                return VisualPose(world, Vec3(live.size.x * t.scale.x, live.size.y * t.scale.y, live.size.z * t.scale.z), DisplayBillboard.FIXED, anchorFeet(s, live.parent))
+            }
+            is Live.Quad -> {
+                val parentW = frameWorld(s, live.parent) ?: return null
+                val t = tracked(s, live.opId, parentW, live.group)
+                val base = (live.face as? PlateFace.Plane)?.let { planeRotation(s, it) }
+                    ?.let { parentW.rotation.conjugate() * it } ?: Quaternion.IDENTITY
+                tree.setLocal(live.node, Frame(live.at + live.turn.rotate(t.offset), (base * live.turn * t.turn).normalized()))
+                val world = tree.worldOf(live.node).getOrNull() ?: return null
+                val fixed = live.billboard == DisplayBillboard.FIXED
+                val frame = if (fixed) world else Frame(world.origin)
+                return VisualPose(frame, Vec3(live.size.x * t.scale.x, live.size.y * t.scale.y, 1.0), live.billboard, anchorFeet(s, live.parent))
             }
             else -> return null
         }
@@ -246,12 +296,12 @@ public class PresentationRuntime(
     private class Tracked(val offset: Vec3, val turn: Quaternion, val scale: Vec3)
 
     /** Sum of every track on [target] at this tick; offsets are expressed in the track's space and returned in the parent's axes. */
-    private fun tracked(s: CastState, target: String, parentW: Frame): Tracked {
+    private fun tracked(s: CastState, target: String, parentW: Frame, group: String? = null): Tracked {
         var offset = Vec3.ZERO
         var turn = Quaternion.IDENTITY
         var scale = ONE
         for (t in s.tracks.values) {
-            if (t.op.target != target) continue
+            if (t.op.target != target && (group == null || t.op.target != group)) continue
             val sample = sampleTrack(s, t, s.tick - t.startTick + DISPLAY_LEAD)
             val space = t.op.space?.let { frameWorld(s, it) } ?: parentW
             offset += parentW.rotation.conjugate().rotate(space.directionToWorld(sample.offset))
@@ -259,6 +309,37 @@ public class PresentationRuntime(
             scale = Vec3(scale.x * sample.scale.x, scale.y * sample.scale.y, scale.z * sample.scale.z)
         }
         return Tracked(offset, turn, scale)
+    }
+
+    // ------------------------------------------------------------------ repeated ops
+
+    /**
+     * Runs [body] once per copy of [repeat] with `i` / `n` bound; copy k runs `every * k` ticks later. A display gets a plain
+     * group node named [group] under [parent] first (a track / remove on it moves / removes every copy); [body] gets the
+     * copy's id and parent and returns the live it spawned so `life` can be stamped. A null [repeat] runs [body] once.
+     */
+    internal fun repeated(
+        s: CastState, ctx: OpContext, group: String, parent: String?, repeat: Repeat?,
+        body: (id: String, parent: String?) -> Live?,
+    ) {
+        if (repeat == null) { body(group, parent); return }
+        val n = Math.round(ctx.values.num(repeat.times)).toInt().coerceAtLeast(0)
+        removeIds(s, listOf(group))
+        if (parent != null) {
+            if (s.ctx.tree.node(FrameId(parent)) == null) return
+            s.ctx.tree.add(FrameNode(FrameId(group), FrameKind.PART, FrameId(parent), IDENTITY)).getOrNull() ?: return
+            s.groups += group
+        }
+        for (k in 0 until n) {
+            val run = {
+                ctx.host.withIndex(k, n) {
+                    val made = body("$group#$k", if (parent != null) group else null)
+                    val life = repeat.life
+                    if (made != null && life != null) made.dieAt = s.tick + life
+                }
+            }
+            if (k * repeat.every <= 0) run() else s.pending += Pending(group, s.tick + k * repeat.every, run)
+        }
     }
 
     // ------------------------------------------------------------------ lifecycle
@@ -270,9 +351,15 @@ public class PresentationRuntime(
     /** Remove everything created by the listed op ids (objects, their tree nodes, repeating sounds, tracks). */
     internal fun removeIds(s: CastState, ids: List<String>) {
         for (id in ids) {
+            s.pending.removeAll { it.group == id }
+            if (id in s.groups) {
+                for (copy in s.live.keys.filter { it.startsWith("$id#") }) removeIds(s, listOf(copy))
+                s.groups.remove(id)
+                s.ctx.tree.remove(FrameId(id))
+            }
             s.live.remove(id)?.let {
                 s.ctx.ports.visuals.remove(it.handle)
-                if (it is Live.Mesh || it is Live.Plate) s.ctx.tree.remove(it.node)
+                if (it !is Live.Line && it !is Live.Trail) s.ctx.tree.remove(it.node)
             }
             s.sounds.remove(id)
             s.tracks.remove(id)
@@ -289,7 +376,7 @@ public class PresentationRuntime(
     /** A projectile body ended (hit, block, expire): the meshes and plates riding that body go with it, on that tick. */
     public fun endBody(cast: CastId, body: String) {
         val s = casts[cast] ?: return
-        val gone = s.live.values.filter { (it is Live.Mesh && it.parent == body) || (it is Live.Plate && it.parent == body) }
+        val gone = s.live.values.filter { (it is Live.Mesh && it.parent == body) || (it is Live.Plate && it.parent == body) || (it is Live.Block && it.parent == body) || (it is Live.Quad && it.parent == body) }
         removeIds(s, gone.map { it.opId })
     }
 
@@ -301,7 +388,13 @@ public class PresentationRuntime(
             s.lastOrigin[f]?.let { prev -> s.velocity[f] = o - prev }
             s.lastOrigin[f] = o
         }
-        for (target in s.tracks.values.map { it.op.target }.distinct()) if (!s.live.containsKey(target)) settleFrame(s, target)
+        if (s.pending.isNotEmpty()) {
+            val due = s.pending.filter { it.due <= s.tick - 1 }
+            s.pending.removeAll(due.toSet())
+            due.forEach { it.run() }
+        }
+        for (l in s.live.values.filter { val d = it.dieAt; d != null && s.tick - 1 >= d }) removeIds(s, listOf(l.opId))
+        for (target in s.tracks.values.map { it.op.target }.distinct()) if (!s.live.containsKey(target) && target !in s.groups) settleFrame(s, target)
         val visuals = s.ctx.ports.visuals
         for (l in s.live.values.toList()) {
             when (l) {
@@ -309,6 +402,11 @@ public class PresentationRuntime(
                 is Live.Plate -> {
                     update(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
                     tickFlipbook(s, l)
+                    tickLook(s, l)
+                }
+                is Live.Block, is Live.Quad -> {
+                    update(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
+                    tickLook(s, l)
                 }
                 is Live.Line -> linePose(s, l)?.let { visuals.write(l.handle, it, DISPLAY_TICKS) }
                 is Live.Trail -> tickTrail(s, l)
@@ -363,6 +461,47 @@ public class PresentationRuntime(
         val raw = max(0, age) / frameTicks
         return if (loop) raw % frames else minOf(raw, frames - 1)
     }
+
+    /** Pushes the alpha / colour / block a track key sets on [l] (the last track that keys a channel wins); only on change. */
+    private fun tickLook(s: CastState, l: Live) {
+        val group = l.group
+        var alpha: Double? = null
+        var color: String? = null
+        var block: String? = null
+        for (t in s.tracks.values) {
+            if (t.op.target != l.opId && (group == null || t.op.target != group)) continue
+            val look = sampleLook(s, t, s.tick - t.startTick + DISPLAY_LEAD)
+            look.alpha?.let { alpha = it }
+            look.color?.let { color = it }
+            look.block?.let { block = it }
+        }
+        val visuals = s.ctx.ports.visuals
+        val a = alpha?.takeIf { it != l.shownAlpha }
+        val c = color?.takeIf { it != l.shownColor }
+        if (a != null || c != null) {
+            visuals.setLook(l.handle, a, c)
+            if (a != null) l.shownAlpha = a
+            if (c != null) l.shownColor = c
+        }
+        block?.takeIf { it != l.shownBlock }?.let { visuals.setBlock(l.handle, it); l.shownBlock = it }
+    }
+
+    private class Look(val alpha: Double?, val color: String?, val block: String?)
+
+    private fun sampleLook(s: CastState, t: TrackState, elapsed: Int): Look {
+        val keys = t.op.keys.sortedBy { it.tick }
+        val v = s.ctx.values
+        val alphaKeys = keys.filter { it.alpha != null }
+        val alpha = if (alphaKeys.isEmpty()) null else channel(alphaKeys, elapsed, { v.num(it.alpha!!) }, 1.0) { a, b, f -> a + (b - a) * f }
+        val colorKeys = keys.filter { it.color != null }
+        val color = if (colorKeys.isEmpty()) null else channel(colorKeys, elapsed, { rgbOf(it.color!!) }, Vec3(1.0, 1.0, 1.0)) { a, b, f -> a + (b - a) * f }
+            .let { c -> "#%02x%02x%02x".format(Math.round(c.x).toInt().coerceIn(0, 255), Math.round(c.y).toInt().coerceIn(0, 255), Math.round(c.z).toInt().coerceIn(0, 255)) }
+        val block = keys.lastOrNull { it.block != null && it.tick <= elapsed }?.block
+            ?: keys.firstOrNull { it.block != null }?.block
+        return Look(alpha, color, block)
+    }
+
+    private fun rgbOf(hex: String): Vec3 = Vec3(hex.substring(1, 3).toInt(16).toDouble(), hex.substring(3, 5).toInt(16).toDouble(), hex.substring(5, 7).toInt(16).toDouble())
 
     private fun tickFlipbook(s: CastState, l: Live.Plate) {
         val frame = flipbookFrame(l.frames, l.frameTicks, l.loop, s.tick - l.spawnTick)
@@ -432,10 +571,5 @@ public class PresentationRuntime(
         return lerp(value(a), value(b), ease(b.ease, raw))
     }
 
-    private fun ease(name: String?, f: Double): Double = when (name) {
-        "ease_in" -> f * f
-        "ease_out" -> 1.0 - (1.0 - f) * (1.0 - f)
-        "ease_in_out" -> if (f < 0.5) 2.0 * f * f else 1.0 - 2.0 * (1.0 - f) * (1.0 - f)
-        else -> f
-    }
+    private fun ease(name: String?, f: Double): Double = name?.let { com.astarworks.astera.core.domain.animation.Easing.fromKey(it) }?.apply(f) ?: f
 }

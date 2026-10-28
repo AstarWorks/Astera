@@ -1,6 +1,5 @@
 # Converted from content/skills/regrowth.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: buff). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-PRESENT particle animation ring (emit has no shape / ring / path: one burst at the anchor) (x3): {"end_radius": 2.2, "period_ticks": 8, "points": 16, "start_radius": 0.4} | {"end_radius": 0.7, "period_ticks": 14, "points": 10, "rise": 2.2, "start_radius": 1.1}
 apiVersion: "astera/v2"
 kind: Skill
 id: regrowth
@@ -14,14 +13,654 @@ presentation:
       do:
         - {id: snd, op: sound, sound: "astera:skills/heal-chime", at: caster, volume: 0.5}
         - {id: emit, op: emit, at: pt_caster_0_1_0, particle: verdant-heal}
-        - {id: emit_2, op: emit, at: pt_caster_0_0p1_0, particle: happy_villager, count: 0, speed: 0.02}
-        - {id: emit_3, op: emit, at: pt_caster_0_0p1_0, particle: dust, count: 1, data: "#5ae65a", data_size: 1.4}
-        - {id: emit_4, op: emit, at: pt_caster_0_0p1_0, particle: happy_villager, count: 1}
-        - {id: emit_5, op: emit, at: pt_caster_0_0p1_0, particle: dust, count: 1, data: "#8cff78", data_size: 1.2}
-        - {id: emit_8, op: emit, at: pt_caster_0_0p1_0, particle: heart, count: 8, offset: [0.8, 0.8, 0.8]}
-        - {id: emit_9, op: emit, at: pt_caster_0_0p1_0, particle: happy_villager, count: 22, offset: [0.7, 1.0, 0.7]}
+        - id: emit_2
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 0
+          speed: 0.02
+          times: 16
+          shift: "= vec(0.4*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.4*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_3
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#5ae65a"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(0.4*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.4*cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_18
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(1.1*sin((3.6213 + 6.283185307179586*i/10)), 0.0, 1.1*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_19
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(1.1*sin((3.6213 + 6.283185307179586*i/10)), 0.0, 1.1*cos((3.6213 + 6.283185307179586*i/10)))"
+        - {id: emit_74, op: emit, at: pt_caster_0_0p1_0, particle: heart, count: 8, offset: [0.8, 0.8, 0.8]}
+        - {id: emit_75, op: emit, at: pt_caster_0_0p1_0, particle: happy_villager, count: 22, offset: [0.7, 1.0, 0.7]}
+    - id: fx1
+      at: 1
+      do:
+        - id: emit_4
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 0
+          speed: 0.02
+          times: 16
+          shift: "= vec(0.6571*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.6571*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_5
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#5ae65a"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(0.6571*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.6571*cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_20
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(1.0692*sin((3.6213 + 6.283185307179586*i/10)), 0.1692, 1.0692*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_21
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(1.0692*sin((3.6213 + 6.283185307179586*i/10)), 0.1692, 1.0692*cos((3.6213 + 6.283185307179586*i/10)))"
+    - id: fx2
+      at: 2
+      do:
+        - id: emit_6
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 0
+          speed: 0.02
+          times: 16
+          shift: "= vec(0.9143*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.9143*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_7
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#5ae65a"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(0.9143*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 0.9143*cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_22
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(1.0385*sin((3.6213 + 6.283185307179586*i/10)), 0.3385, 1.0385*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_23
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(1.0385*sin((3.6213 + 6.283185307179586*i/10)), 0.3385, 1.0385*cos((3.6213 + 6.283185307179586*i/10)))"
+    - id: fx3
+      at: 3
+      do:
+        - id: emit_8
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 0
+          speed: 0.02
+          times: 16
+          shift: "= vec(1.1714*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.1714*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_9
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#5ae65a"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(1.1714*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.1714*cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_24
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(1.0077*sin((3.6213 + 6.283185307179586*i/10)), 0.5077, 1.0077*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_25
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(1.0077*sin((3.6213 + 6.283185307179586*i/10)), 0.5077, 1.0077*cos((3.6213 + 6.283185307179586*i/10)))"
+    - id: fx4
+      at: 4
+      do:
+        - id: emit_10
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 0
+          speed: 0.02
+          times: 16
+          shift: "= vec(1.4286*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.4286*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_11
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#5ae65a"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(1.4286*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.4286*cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_26
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.9769*sin((3.6213 + 6.283185307179586*i/10)), 0.6769, 0.9769*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_27
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.9769*sin((3.6213 + 6.283185307179586*i/10)), 0.6769, 0.9769*cos((3.6213 + 6.283185307179586*i/10)))"
+    - id: fx5
+      at: 5
+      do:
+        - id: emit_12
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 0
+          speed: 0.02
+          times: 16
+          shift: "= vec(1.6857*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.6857*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_13
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#5ae65a"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(1.6857*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.6857*cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_28
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.9462*sin((3.6213 + 6.283185307179586*i/10)), 0.8462, 0.9462*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_29
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.9462*sin((3.6213 + 6.283185307179586*i/10)), 0.8462, 0.9462*cos((3.6213 + 6.283185307179586*i/10)))"
     - id: fx6
       at: 6
       do:
-        - {id: emit_6, op: emit, at: pt_caster_0_0p1_0, particle: happy_villager, count: 1}
-        - {id: emit_7, op: emit, at: pt_caster_0_0p1_0, particle: dust, count: 1, data: "#8cff78", data_size: 1.2}
+        - id: emit_14
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 0
+          speed: 0.02
+          times: 16
+          shift: "= vec(1.9429*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.9429*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_15
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#5ae65a"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(1.9429*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 1.9429*cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_30
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.9154*sin((3.6213 + 6.283185307179586*i/10)), 1.0154, 0.9154*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_31
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.9154*sin((3.6213 + 6.283185307179586*i/10)), 1.0154, 0.9154*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_46
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.7*sin((2.0382 + 6.283185307179586*i/10)), 0.0, 0.7*cos((2.0382 + 6.283185307179586*i/10)))"
+        - id: emit_47
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.7*sin((2.0382 + 6.283185307179586*i/10)), 0.0, 0.7*cos((2.0382 + 6.283185307179586*i/10)))"
+    - id: fx7
+      at: 7
+      do:
+        - id: emit_16
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 0
+          speed: 0.02
+          times: 16
+          shift: "= vec(2.2*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 2.2*cos((3.6112 + 6.283185307179586*i/16)))"
+          offset: "= vec(sin((3.6112 + 6.283185307179586*i/16)), 0, cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_17
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#5ae65a"
+          data_size: 1.4
+          times: 16
+          shift: "= vec(2.2*sin((3.6112 + 6.283185307179586*i/16)), 0.0, 2.2*cos((3.6112 + 6.283185307179586*i/16)))"
+        - id: emit_32
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.8846*sin((3.6213 + 6.283185307179586*i/10)), 1.1846, 0.8846*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_33
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.8846*sin((3.6213 + 6.283185307179586*i/10)), 1.1846, 0.8846*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_48
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.7308*sin((2.0382 + 6.283185307179586*i/10)), 0.1692, 0.7308*cos((2.0382 + 6.283185307179586*i/10)))"
+        - id: emit_49
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.7308*sin((2.0382 + 6.283185307179586*i/10)), 0.1692, 0.7308*cos((2.0382 + 6.283185307179586*i/10)))"
+    - id: fx8
+      at: 8
+      do:
+        - id: emit_34
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.8538*sin((3.6213 + 6.283185307179586*i/10)), 1.3538, 0.8538*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_35
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.8538*sin((3.6213 + 6.283185307179586*i/10)), 1.3538, 0.8538*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_50
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.7615*sin((2.0382 + 6.283185307179586*i/10)), 0.3385, 0.7615*cos((2.0382 + 6.283185307179586*i/10)))"
+        - id: emit_51
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.7615*sin((2.0382 + 6.283185307179586*i/10)), 0.3385, 0.7615*cos((2.0382 + 6.283185307179586*i/10)))"
+    - id: fx9
+      at: 9
+      do:
+        - id: emit_36
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.8231*sin((3.6213 + 6.283185307179586*i/10)), 1.5231, 0.8231*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_37
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.8231*sin((3.6213 + 6.283185307179586*i/10)), 1.5231, 0.8231*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_52
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.7923*sin((2.0382 + 6.283185307179586*i/10)), 0.5077, 0.7923*cos((2.0382 + 6.283185307179586*i/10)))"
+        - id: emit_53
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.7923*sin((2.0382 + 6.283185307179586*i/10)), 0.5077, 0.7923*cos((2.0382 + 6.283185307179586*i/10)))"
+    - id: fx10
+      at: 10
+      do:
+        - id: emit_38
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.7923*sin((3.6213 + 6.283185307179586*i/10)), 1.6923, 0.7923*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_39
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.7923*sin((3.6213 + 6.283185307179586*i/10)), 1.6923, 0.7923*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_54
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.8231*sin((2.0382 + 6.283185307179586*i/10)), 0.6769, 0.8231*cos((2.0382 + 6.283185307179586*i/10)))"
+        - id: emit_55
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.8231*sin((2.0382 + 6.283185307179586*i/10)), 0.6769, 0.8231*cos((2.0382 + 6.283185307179586*i/10)))"
+    - id: fx11
+      at: 11
+      do:
+        - id: emit_40
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.7615*sin((3.6213 + 6.283185307179586*i/10)), 1.8615, 0.7615*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_41
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.7615*sin((3.6213 + 6.283185307179586*i/10)), 1.8615, 0.7615*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_56
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.8538*sin((2.0382 + 6.283185307179586*i/10)), 0.8462, 0.8538*cos((2.0382 + 6.283185307179586*i/10)))"
+        - id: emit_57
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.8538*sin((2.0382 + 6.283185307179586*i/10)), 0.8462, 0.8538*cos((2.0382 + 6.283185307179586*i/10)))"
+    - id: fx12
+      at: 12
+      do:
+        - id: emit_42
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.7308*sin((3.6213 + 6.283185307179586*i/10)), 2.0308, 0.7308*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_43
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.7308*sin((3.6213 + 6.283185307179586*i/10)), 2.0308, 0.7308*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_58
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.8846*sin((2.0382 + 6.283185307179586*i/10)), 1.0154, 0.8846*cos((2.0382 + 6.283185307179586*i/10)))"
+        - id: emit_59
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.8846*sin((2.0382 + 6.283185307179586*i/10)), 1.0154, 0.8846*cos((2.0382 + 6.283185307179586*i/10)))"
+    - id: fx13
+      at: 13
+      do:
+        - id: emit_44
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.7*sin((3.6213 + 6.283185307179586*i/10)), 2.2, 0.7*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_45
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.7*sin((3.6213 + 6.283185307179586*i/10)), 2.2, 0.7*cos((3.6213 + 6.283185307179586*i/10)))"
+        - id: emit_60
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.9154*sin((2.0382 + 6.283185307179586*i/10)), 1.1846, 0.9154*cos((2.0382 + 6.283185307179586*i/10)))"
+        - id: emit_61
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.9154*sin((2.0382 + 6.283185307179586*i/10)), 1.1846, 0.9154*cos((2.0382 + 6.283185307179586*i/10)))"
+    - id: fx14
+      at: 14
+      do:
+        - id: emit_62
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.9462*sin((2.0382 + 6.283185307179586*i/10)), 1.3538, 0.9462*cos((2.0382 + 6.283185307179586*i/10)))"
+        - id: emit_63
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.9462*sin((2.0382 + 6.283185307179586*i/10)), 1.3538, 0.9462*cos((2.0382 + 6.283185307179586*i/10)))"
+    - id: fx15
+      at: 15
+      do:
+        - id: emit_64
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(0.9769*sin((2.0382 + 6.283185307179586*i/10)), 1.5231, 0.9769*cos((2.0382 + 6.283185307179586*i/10)))"
+        - id: emit_65
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(0.9769*sin((2.0382 + 6.283185307179586*i/10)), 1.5231, 0.9769*cos((2.0382 + 6.283185307179586*i/10)))"
+    - id: fx16
+      at: 16
+      do:
+        - id: emit_66
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(1.0077*sin((2.0382 + 6.283185307179586*i/10)), 1.6923, 1.0077*cos((2.0382 + 6.283185307179586*i/10)))"
+        - id: emit_67
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(1.0077*sin((2.0382 + 6.283185307179586*i/10)), 1.6923, 1.0077*cos((2.0382 + 6.283185307179586*i/10)))"
+    - id: fx17
+      at: 17
+      do:
+        - id: emit_68
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(1.0385*sin((2.0382 + 6.283185307179586*i/10)), 1.8615, 1.0385*cos((2.0382 + 6.283185307179586*i/10)))"
+        - id: emit_69
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(1.0385*sin((2.0382 + 6.283185307179586*i/10)), 1.8615, 1.0385*cos((2.0382 + 6.283185307179586*i/10)))"
+    - id: fx18
+      at: 18
+      do:
+        - id: emit_70
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(1.0692*sin((2.0382 + 6.283185307179586*i/10)), 2.0308, 1.0692*cos((2.0382 + 6.283185307179586*i/10)))"
+        - id: emit_71
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(1.0692*sin((2.0382 + 6.283185307179586*i/10)), 2.0308, 1.0692*cos((2.0382 + 6.283185307179586*i/10)))"
+    - id: fx19
+      at: 19
+      do:
+        - id: emit_72
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: happy_villager
+          count: 1
+          times: 10
+          shift: "= vec(1.1*sin((2.0382 + 6.283185307179586*i/10)), 2.2, 1.1*cos((2.0382 + 6.283185307179586*i/10)))"
+        - id: emit_73
+          op: emit
+          at: pt_caster_0_0p1_0
+          particle: dust
+          count: 1
+          data: "#8cff78"
+          data_size: 1.2
+          times: 10
+          shift: "= vec(1.1*sin((2.0382 + 6.283185307179586*i/10)), 2.2, 1.1*cos((2.0382 + 6.283185307179586*i/10)))"
