@@ -4,7 +4,6 @@
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x4): 2 parts | 3 parts
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x4): 2 keys | 14 keys
 # CONVERT-PRESENT element kind text has no v2 op (x11): {'type': 'text', 'text': '<#FFF1A0>✦', 'background': '#00000000', 'shadow': Fals | {'type': 'text', 'text': '<#ffb020>✦', 'background': '#00000000', 'shadow': Fals
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x4): ember-hoop-hit | ember-smoke-puff
 apiVersion: "astera/v2"
 kind: Skill
 id: ember-gauntlet-s3

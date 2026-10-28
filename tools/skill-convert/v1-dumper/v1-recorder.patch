@@ -1,5 +1,5 @@
 diff --git a/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/GameSim.kt b/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/GameSim.kt
-index d6e59c9c7..dceb3213f 100644
+index d6e59c9c7..64a8029da 100644
 --- a/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/GameSim.kt
 +++ b/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/GameSim.kt
 @@ -130,6 +130,8 @@ public class GameSim private constructor(
@@ -11,18 +11,26 @@ index d6e59c9c7..dceb3213f 100644
      public lateinit var match: MatchWiringResult
          private set
      /** Spectator-mode recorder behind the `ISpectator` port (death cam / eliminated teams). */
-@@ -638,6 +640,10 @@ public class GameSim private constructor(
+@@ -551,6 +553,7 @@ public class GameSim private constructor(
+                 isAlive = alive,
+                 resolver = { services.get<ProjectileImpactResolver>() },
+                 worldGateway = { worldGateway },
++                displays = { sim.displays },
+             )
+ 
+             sim = GameSim(scenarioName, world, scheduler, services, recorder, mcServer, projectiles, broadcaster, contexts)
+@@ -638,6 +641,10 @@ public class GameSim private constructor(
                          SimDamageGateway(world, svc.getOrThrow<IPlayerAttributeContainerStore>(), scheduler, svc.getOrThrow<IDomainEventBus>())
                      },
                      statusEffectContainer = { statusContainer.value },
 +                    knockbackGateway = { object : com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway {
-+                        override fun applyImpulse(target: PlayerId, impulse: Vec3) { sim.pushes += Triple(scheduler.currentTick(), target, impulse) }
++                        override fun applyImpulse(target: PlayerId, impulse: Vec3) { sim.pushes += Triple(scheduler.currentTick(), target, impulse); world.find(target)?.let { it.velocity = it.velocity + impulse } }
 +                        override fun applyPush(target: PlayerId, push: com.astarworks.astera.combat.domain.damage.KnockbackPush) {}
 +                    } },
                      entityEffectsGateway = { SimEntityEffectsGateway(world, recorder) { scheduler.currentTick() } },
                      playerFeedbackGateway = { feedback },
                      displayEntityGateway = { sim.displays },
-@@ -651,6 +657,7 @@ public class GameSim private constructor(
+@@ -651,6 +658,7 @@ public class GameSim private constructor(
                              damageApplier = applier,
                              isAlive = alive,
                              recorder = recorder,
@@ -30,6 +38,97 @@ index d6e59c9c7..dceb3213f 100644
                          )
                      },
                  ),
+diff --git a/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/SimProjectileService.kt b/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/SimProjectileService.kt
+index 095d098f0..bc4165c77 100644
+--- a/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/SimProjectileService.kt
++++ b/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/SimProjectileService.kt
+@@ -43,12 +43,51 @@ public class SimProjectileService(
+     private val resolver: () -> ProjectileImpactResolver?,
+     /** Trail particles (resolved lazily; `null` => no trail). */
+     worldGateway: () -> IWorldGateway? = { null },
++    /** Vanilla-parity recorder: the display gateway the projectile's own display entity is recorded through. */
++    private val displays: () -> com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway? = { null },
+ ) : IProjectileService {
+ 
+     private val stepper = ProjectileStepper(resolver)
+ 
+     private val flights: MutableList<ProjectileFlight> = mutableListOf()
+ 
++    private val displayOf = java.util.IdentityHashMap<ProjectileFlight, com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayHandle>()
++
++    /** Mirrors PaperProjectileService.spawnDisplay: item or block entity, uniform scale, billboard from the spec. */
++    private fun spawnDisplay(f: ProjectileFlight) {
++        val d = f.spec.visual.display ?: return
++        val gw = displays() ?: return
++        val key = d.materialKey.removePrefix("minecraft:")
++        val kind = when (d.variant) {
++            com.astarworks.astera.combat.domain.projectile.DisplayVariant.ITEM_DISPLAY ->
++                com.astarworks.astera.core.domain.effect.DisplayKind.Item(com.astarworks.astera.core.domain.item.ItemId(key.replace('_', '-')))
++            com.astarworks.astera.combat.domain.projectile.DisplayVariant.BLOCK_DISPLAY -> com.astarworks.astera.core.domain.effect.DisplayKind.Block(key)
++            com.astarworks.astera.combat.domain.projectile.DisplayVariant.TEXT_DISPLAY -> return
++        }
++        val spec = com.astarworks.astera.core.domain.effect.DisplaySpec(
++            kind = kind,
++            transform = com.astarworks.astera.core.domain.effect.DisplayTransform(scale = d.scale),
++            lifetimeTicks = 1_000_000L,
++            billboard = com.astarworks.astera.core.domain.effect.DisplayBillboard.valueOf(d.billboard.name),
++        )
++        gw.spawn(com.astarworks.astera.core.domain.world.WorldId("world"), f.position, spec, emptyList())?.let { displayOf[f] = it }
++    }
++
++    /** Mirrors moveDisplay: teleported to the flight point each tick, facing the velocity. */
++    private fun moveDisplay(f: ProjectileFlight) {
++        val h = displayOf[f] ?: return
++        val v = f.velocity
++        val horiz = Math.sqrt(v.x * v.x + v.z * v.z)
++        val yaw = if (horiz == 0.0) 0f else Math.toDegrees(Math.atan2(-v.x, v.z)).toFloat()
++        val pitch = if (horiz == 0.0 && v.y == 0.0) 0f else Math.toDegrees(Math.atan2(-v.y, horiz)).toFloat()
++        displays()?.teleport(h, f.position, yaw, pitch, 1)
++    }
++
++    private fun removeDisplay(f: ProjectileFlight) {
++        val h = displayOf.remove(f) ?: return
++        displays()?.remove(h)
++    }
++
+     private var stepTask: IScheduler.TaskHandle? = null
+ 
+     /** Starts the per-tick stepper. Idempotent. */
+@@ -79,6 +118,7 @@ public class SimProjectileService(
+             spawnTick = scheduler.currentTick(),
+         )
+         flights += flight
++        spawnDisplay(flight)
+         recorder.recordProjectileEvent(scheduler.currentTick(), flight.id.toString(), "spawn", origin, owner)
+         return Handle(flight)
+     }
+@@ -89,6 +129,7 @@ public class SimProjectileService(
+         override val position: Vec3? get() = flight.position
+         override fun cancel() {
+             if (!flights.remove(flight)) return
++            removeDisplay(flight)
+             recorder.recordProjectileEvent(
+                 scheduler.currentTick(), flight.id.toString(), "cancel", flight.position, flight.owner,
+             )
+@@ -99,8 +140,9 @@ public class SimProjectileService(
+         val now = scheduler.currentTick()
+         for (f in flights.toList()) {
+             if (flights.none { it === f }) continue // cancelled by an earlier impact this tick
+-            stepper.step(f, now, probe) { terminal ->
++            val outcome = stepper.step(f, now, probe) { terminal ->
+                 flights.remove(f)
++                removeDisplay(f)
+                 when (terminal) {
+                     is ProjectileStepOutcome.HitEntity ->
+                         recorder.recordProjectileEvent(now, f.id.toString(), "hit_entity", terminal.at, f.owner, terminal.target)
+@@ -111,6 +153,7 @@ public class SimProjectileService(
+                     ProjectileStepOutcome.Flying -> Unit
+                 }
+             }
++            if (!outcome.isTerminal) moveDisplay(f)
+         }
+     }
+ 
 diff --git a/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/SimWorldPorts.kt b/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/SimWorldPorts.kt
 index c185bbe4b..42cb69734 100644
 --- a/tools/game-sim/src/main/kotlin/com/astarworks/astera/gamesim/SimWorldPorts.kt

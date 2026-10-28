@@ -1,11 +1,8 @@
 # Converted from content/skills/vendetta-rifle-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x18): orient="yaw"
-# CONVERT-PRESENT rig respect_hit_stop / weapon points (x6): {"respect_hit_stop": true}
 # CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x6): 11 parts
-# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x6): 17 keys
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x17): vendetta-slash-b | vendetta-thrust-flash
-# CONVERT-PRESENT play_vfx freeze (no v2 equivalent) (x5): [{"at": 5, "ticks": 2}]
+# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x6): 17 keys | 19 keys
 # CONVERT-PRESENT vfx frame scale (frames carry no orientation / scale) (x2): scale=0.65
 apiVersion: "astera/v2"
 kind: Skill
@@ -584,10 +581,10 @@ presentation:
             - {t: 5, offset: [-0.1727, 0.20984, 1.76747], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
             - {t: 6, offset: [-0.1976, 0.03628, 1.71953], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
             - {t: 7, offset: [-0.22002, -0.13612, 1.67637], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
-    - {id: fx59, at: 59, do: [{id: rm, op: remove, ids: [fx2_vendetta_slash_b_bayonet_cut]}]}
     - id: fx61
       at: 61
       do:
+        - {id: rm, op: remove, ids: [fx2_vendetta_slash_b_bayonet_cut]}
         - {id: rm_2, op: remove, ids: [fx3_vendetta_thrust_flash_rim, fx3_vendetta_thrust_flash_bloom, fx3_vendetta_thrust_flash_core]}
         - {id: fx4_vendetta_burst_smoke_atrk, op: track, target: fx4_vendetta_burst_smoke_at, space: fx4_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx62
@@ -867,10 +864,10 @@ presentation:
             - {t: 5, offset: [-0.1727, 0.20984, 1.76747], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
             - {t: 6, offset: [-0.1976, 0.03628, 1.71953], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
             - {t: 7, offset: [-0.22002, -0.13612, 1.67637], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
-    - {id: fx77, at: 77, do: [{id: rm_5, op: remove, ids: [fx5_vendetta_slash_b_bayonet_cut]}]}
     - id: fx79
       at: 79
       do:
+        - {id: rm_5, op: remove, ids: [fx5_vendetta_slash_b_bayonet_cut]}
         - {id: rm_6, op: remove, ids: [fx6_vendetta_thrust_flash_rim, fx6_vendetta_thrust_flash_bloom, fx6_vendetta_thrust_flash_core]}
         - {id: fx7_vendetta_burst_smoke_atrk, op: track, target: fx7_vendetta_burst_smoke_at, space: fx7_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx80
@@ -1150,10 +1147,10 @@ presentation:
             - {t: 5, offset: [-0.1727, 0.20984, 1.76747], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
             - {t: 6, offset: [-0.1976, 0.03628, 1.71953], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
             - {t: 7, offset: [-0.22002, -0.13612, 1.67637], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
-    - {id: fx114, at: 114, do: [{id: rm_9, op: remove, ids: [fx8_vendetta_slash_a_bayonet_cut]}]}
     - id: fx116
       at: 116
       do:
+        - {id: rm_9, op: remove, ids: [fx8_vendetta_slash_a_bayonet_cut]}
         - {id: rm_10, op: remove, ids: [fx9_vendetta_thrust_flash_rim, fx9_vendetta_thrust_flash_bloom, fx9_vendetta_thrust_flash_core]}
         - {id: fx10_vendetta_burst_smoke_atrk, op: track, target: fx10_vendetta_burst_smoke_at, space: fx10_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx117
@@ -1433,10 +1430,10 @@ presentation:
             - {t: 5, offset: [-0.1727, 0.20984, 1.76747], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
             - {t: 6, offset: [-0.1976, 0.03628, 1.71953], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
             - {t: 7, offset: [-0.22002, -0.13612, 1.67637], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
-    - {id: fx147, at: 147, do: [{id: rm_13, op: remove, ids: [fx11_vendetta_slash_b_bayonet_cut]}]}
     - id: fx149
       at: 149
       do:
+        - {id: rm_13, op: remove, ids: [fx11_vendetta_slash_b_bayonet_cut]}
         - {id: rm_14, op: remove, ids: [fx12_vendetta_thrust_flash_rim, fx12_vendetta_thrust_flash_bloom, fx12_vendetta_thrust_flash_core]}
         - {id: fx13_vendetta_burst_smoke_atrk, op: track, target: fx13_vendetta_burst_smoke_at, space: fx13_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx150
@@ -1954,10 +1951,10 @@ presentation:
             - {t: 5, offset: [-0.1727, 0.20984, 1.76747], scale: [0.045714, 0.045714, 1.0], alpha: 0.27143, turn: [0.0, 0.0, 90.0]}
             - {t: 6, offset: [-0.1976, 0.03628, 1.71953], scale: [0.022857, 0.022857, 1.0], alpha: 0.13571, turn: [0.0, 0.0, 105.0]}
             - {t: 7, offset: [-0.22002, -0.13612, 1.67637], scale: [0.0, 0.0, 1.0], alpha: 0.0, turn: [0.0, 0.0, 120.0]}
-    - {id: fx237, at: 237, do: [{id: rm_17, op: remove, ids: [fx14_vendetta_slash_a_bayonet_cut]}]}
     - id: fx239
       at: 239
       do:
+        - {id: rm_17, op: remove, ids: [fx14_vendetta_slash_a_bayonet_cut]}
         - {id: rm_18, op: remove, ids: [fx15_vendetta_thrust_flash_rim, fx15_vendetta_thrust_flash_bloom, fx15_vendetta_thrust_flash_core]}
         - {id: fx16_vendetta_burst_smoke_atrk, op: track, target: fx16_vendetta_burst_smoke_at, space: fx16_vendetta_burst, keys: [{t: 0, offset: [0, 0.4, 2]}]}
     - id: fx240

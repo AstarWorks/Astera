@@ -8,4 +8,4 @@ frames:
 presentation:
   timeline:
     - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: "astera:weapons/dash-whoosh", at: caster, volume: 1.0, pitch: 1.4}, {id: emit, op: emit, at: pt_caster_0_0p2_0, particle: dash-cloud}]}
-  "on": {dash_hit: [{id: snd_2, op: sound, sound: "astera:weapons/blade-hit", at: enemy, when: "= event.source == 'dash'"}]}
+  "on": {dash_fx: [{id: snd_2, op: sound, sound: "astera:weapons/blade-hit", at: enemy}]}

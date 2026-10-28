@@ -6,16 +6,30 @@ id: couture-rapier-def
 item: couture-rapier
 meta: {name: {ja: "返し裁ち", en: "Trimming Guard"}, description: {ja: "構えて近距離の攻撃を受けると、一度だけ攻撃者を裁つ。", en: "Trimming Guard"}, cooldown_ticks: 85, resource_cost: 10}
 gameplay:
+  params: {dmg_physical: 30}
+  expose:
+    - {id: damage, param: dmg_physical}
   timeline:
     - id: t0
       at: 0
       do:
-        # v1 counter: window 30 ticks, range 3.5, one shot. The parried hit is negated (absorb: true, SKL-15 row 1); the riposte follows 7 ticks later.
-        - id: parry
+        - {id: pin, op: place, frame: fx1_couture_rapier_guard, like: caster}
+        - id: counter
           op: window
           listen: incoming_hit
           absorb: true
           ticks: 30
           filter: "= dist(caster, victim) <= 3.5"
           do:
-            - {id: riposte, op: delay, after: 7, do: [{id: riposte_dmg, op: damage, target: victim, components: [{kind: physical, amount: 30}], ignore_invulnerability: true, when: "= dist(caster, victim) < 3.5"}]}
+            - {id: raise, op: raise_event, name: counter_fx}
+            - {id: sch, op: schedule, after: 16, event: counter_fx16}
+            - id: delay
+              op: delay
+              after: 7
+              do:
+                - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= dist(caster, victim) < 3.5"}
+            - {id: delay_2, op: delay, after: 7, do: [{id: pin_2, op: place, frame: fx3_couture_rapier_cross, like: enemy, when: "= dist(caster, victim) < 3.5"}]}
+            - {id: sch_2, op: schedule, after: 7, event: counter_fx7}
+            - {id: sch_3, op: schedule, after: 13, event: counter_fx13}
+            - {id: sch_4, op: schedule, after: 14, event: counter_fx14}
+            - {id: sch_5, op: schedule, after: 15, event: counter_fx15}

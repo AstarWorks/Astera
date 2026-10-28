@@ -590,3 +590,24 @@ public class SimSpectator : ISpectator {
     /** The player [viewer]'s camera is attached to, or null (free-cam / not spectating). */
     public fun cameraTargetOf(viewer: PlayerId): PlayerId? = targets[viewer]
 }
+
+/**
+ * [com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway] writing onto the [SimEntity] like
+ * `PaperKnockbackGateway` does on the Bukkit entity: a push is the horizontal unit vector away from the source times
+ * the strength, and an impulse replaces the velocity (zero impulses keep it). The sim has no knockback resistance.
+ */
+public class SimKnockbackGateway(private val world: SimWorld) : com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway {
+    override fun applyImpulse(target: PlayerId, impulse: Vec3) {
+        if (impulse.x == 0.0 && impulse.y == 0.0 && impulse.z == 0.0) return
+        world.find(target)?.velocity = impulse
+    }
+
+    override fun applyPush(target: PlayerId, push: com.astarworks.astera.combat.domain.damage.KnockbackPush) {
+        val e = world.find(target) ?: return
+        val dx = e.position.x - push.awayFrom.x
+        val dz = e.position.z - push.awayFrom.z
+        val length = kotlin.math.sqrt(dx * dx + dz * dz)
+        if (length < 1.0e-6) return
+        applyImpulse(target, Vec3(dx / length * push.strength, 0.0, dz / length * push.strength))
+    }
+}

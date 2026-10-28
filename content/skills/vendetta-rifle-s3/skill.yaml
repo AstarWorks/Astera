@@ -15,6 +15,7 @@ gameplay:
       at: 4
       do:
         - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 3, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.8}
+    - {id: t7, at: 7, do: [{id: pin, op: place, frame: fx2_vendetta_gold_rise, like: caster}]}
     - id: t8
       at: 8
       do:
@@ -29,6 +30,7 @@ gameplay:
       at: 12
       do:
         - {id: dash_2, op: dash_strike, distance: "${dash_distance}", ticks: 3, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.8}
+    - {id: t15, at: 15, do: [{id: pin_3, op: place, frame: fx5_vendetta_gold_sweep, like: caster}]}
     - id: t16
       at: 16
       do:
@@ -43,6 +45,7 @@ gameplay:
       at: 40
       do:
         - {id: dash_3, op: dash_strike, distance: "${dash_distance}", ticks: 3, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false, stop_before_target: 1.8}
+    - {id: t43, at: 43, do: [{id: pin_5, op: place, frame: fx8_vendetta_gold_sweep, like: caster}]}
     - id: t44
       at: 44
       do:
@@ -56,5 +59,9 @@ gameplay:
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
+      - {id: pin_2, op: place, frame: fx3_vendetta_thrust_flash, like: contact, when: "= event.source == 'sel'"}
       - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
+      - {id: pin_4, op: place, frame: fx6_vendetta_thrust_flash, like: contact, when: "= event.source == 'sel_2'"}
       - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
+      - {id: pin_6, op: place, frame: fx9_vendetta_thrust_flash, like: contact, when: "= event.source == 'sel_3'"}
+      - {id: pin_7, op: place, frame: fx10_vendetta_contact_ring, like: contact, when: "= event.source == 'sel_3'"}

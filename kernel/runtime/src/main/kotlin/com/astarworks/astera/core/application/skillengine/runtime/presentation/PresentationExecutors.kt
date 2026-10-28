@@ -25,7 +25,7 @@ public fun presentationExecutors(rt: PresentationRuntime): List<OpExecutor<*>> =
     MeshExecutor(rt), PlateExecutor(rt), BlockExecutor(rt), QuadExecutor(rt), LineExecutor(rt), TrailExecutor(rt), TrackExecutor(rt), RemoveExecutor(rt),
     EmitExecutor(rt), SoundExecutor(rt),
     VictimAnimExecutor(rt), CasterAnimExecutor(rt),
-    TitleExecutor(rt), ActionBarExecutor(rt), CameraShakeExecutor(rt), FlashExecutor(rt), StopSoundExecutor(rt),
+    TitleExecutor(rt), ActionBarExecutor(rt), CameraShakeExecutor(rt), FlashExecutor(rt), VeilExecutor(rt), StopSoundExecutor(rt),
 )
 
 /** Hold time of a pose-only caster clip (crouch, hide-main-hand) when the op gives no `ticks:`. */
@@ -291,6 +291,17 @@ internal class FlashExecutor(private val rt: PresentationRuntime) : OpExecutor<S
             ?: return ctx.host.fail(op.id, "screen_flash: unknown overlay '${op.overlay}'")
         val rgb = op.colorRgb ?: overlay.defaultColor
         for (v in rt.info.targets(ctx.cast, op.target)) rt.screen.flash(v, overlay, rgb, op.fadeIn, op.stay, op.fadeOut)
+    }
+}
+
+internal class VeilExecutor(private val rt: PresentationRuntime) : OpExecutor<ScreenOp.Veil> {
+    override val opClass: KClass<ScreenOp.Veil> = ScreenOp.Veil::class
+    override fun execute(op: ScreenOp.Veil, ctx: OpContext) {
+        if (!ctx.passes(op)) return
+        val math = com.astarworks.astera.core.domain.effect.ScreenVeilMath
+        val distance = ctx.values.num(op.distance).coerceIn(math.MIN_DISTANCE, math.MAX_DISTANCE)
+        val side = math.clampSide(math.SPRITE_BASE_SIDE * ctx.values.num(op.scale), distance, ctx.values.num(op.maxScreenFraction))
+        for (v in rt.info.targets(ctx.cast, op.target)) rt.screen.veil(v, op.sprite, op.colorRgb ?: 0xFFFFFF, side, distance, op.ticks)
     }
 }
 

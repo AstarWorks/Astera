@@ -14,4 +14,7 @@ gameplay:
     - {id: flight_speed, param: launch_speed}
   timeline:
     - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
-  "on": {hit: [{id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true}]}
+  "on":
+    hit:
+      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true}
+      - {id: pin, op: place, frame: fx1_crimson_chain_axe_impact, like: contact}

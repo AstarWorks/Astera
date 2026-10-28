@@ -11,6 +11,16 @@ gameplay:
     - {id: damage, param: dmg_physical}
     - {id: range, param: reach}
   timeline:
+    - id: t4
+      at: 4
+      do:
+        - id: sel
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
     - id: t19
       at: 19
       do:
@@ -21,4 +31,8 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
-  "on": {hit: [{id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}]}
+  "on":
+    hit:
+      - {id: pin, op: place, frame: fx1_verdict_summoned_nails, like: contact, when: "= event.source == 'sel'"}
+      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
+      - {id: pin_2, op: place, frame: fx2_verdict_impact, like: contact, when: "= event.source == 'sel_2'"}

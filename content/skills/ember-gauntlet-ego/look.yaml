@@ -5,7 +5,6 @@
 # CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x5): 2 keys | 13 keys
 # CONVERT-PRESENT vfx frame scale (frames carry no orientation / scale) (x5): scale=1
 # CONVERT-PRESENT element kind text has no v2 op (x8): {'type': 'text', 'text': '<#FFF1A0>✦', 'background': '#00000000', 'shadow': Fals | {'type': 'text', 'text': '<#FFD426>▲', 'background': '#00000000', 'shadow': Fals
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): ember-smoke-puff
 apiVersion: "astera/v2"
 kind: Skill
 id: ember-gauntlet-ego

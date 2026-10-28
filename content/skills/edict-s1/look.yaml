@@ -2,7 +2,6 @@
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
 # CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x7): orient="yaw"
 # CONVERT-PRESENT element kind text has no v2 op (x1): {'type': 'text', 'text': '<#4f8fff><b>★</b>', 'background': '#00000000', 'shadow
-# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x4): edict-cuff-sweep | edict-impact
 apiVersion: "astera/v2"
 kind: Skill
 id: edict-s1

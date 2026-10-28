@@ -11,10 +11,30 @@ gameplay:
     - {id: damage, param: dmg_physical}
     - {id: range, param: reach}
   timeline:
+    - id: t24
+      at: 24
+      do:
+        - id: sel
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
     - id: t30
       at: 30
       do:
         - id: sel_2
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
+    - id: t40
+      at: 40
+      do:
+        - id: sel_3
           op: hit
           frames: [caster]
           sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
@@ -31,6 +51,18 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+    - {id: t58, at: 58, do: [{id: pin_5, op: place, frame: fx7_couture_shear_overhead, like: caster}]}
+    - {id: t89, at: 89, do: [{id: pin_6, op: place, frame: fx8_couture_rapier_thread, like: caster}]}
+    - id: t107
+      at: 107
+      do:
+        - id: sel_5
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
     - id: t113
       at: 113
       do:
@@ -41,8 +73,25 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+    - id: t127
+      at: 127
+      do:
+        - id: sel_7
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
   "on":
     hit:
+      - {id: pin, op: place, frame: fx2_couture_shears_remote, like: contact, when: "= event.source == 'sel'"}
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
+      - {id: pin_2, op: place, frame: fx3_couture_rapier_cross, like: contact, when: "= event.source == 'sel_2'"}
+      - {id: pin_3, op: place, frame: fx5_couture_shears_remote, like: contact, when: "= event.source == 'sel_3'"}
       - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_4'"}
+      - {id: pin_4, op: place, frame: fx6_couture_rapier_cross, like: contact, when: "= event.source == 'sel_4'"}
+      - {id: pin_7, op: place, frame: fx9_couture_shears_remote, like: contact, when: "= event.source == 'sel_5'"}
       - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_6'"}
+      - {id: pin_8, op: place, frame: fx10_couture_rapier_cross, like: contact, when: "= event.source == 'sel_6'"}
+      - {id: pin_9, op: place, frame: fx11_couture_target_rosette, like: contact, when: "= event.source == 'sel_7'"}

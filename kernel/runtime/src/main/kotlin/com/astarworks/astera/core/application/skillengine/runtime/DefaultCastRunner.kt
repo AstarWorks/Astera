@@ -167,6 +167,7 @@ public class DefaultCastRunner(private val deps: CastRunnerDeps) : CastRunner, I
         deps.dashes.tick()
         deps.locks.tick()
         deps.world.tick()
+        deps.hosts.tick()
     }
 
     @Synchronized

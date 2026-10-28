@@ -29,12 +29,17 @@ public sealed interface CastError {
     public data class ExprFailed(val path: String, val reason: String) : CastError
 }
 
-/** One event on a cast's private bus. [contact] is set for hit/block. */
+/**
+ * One event on a cast's private bus. [contact] is set for hit/block. [victim] is the entity that was the current victim when a
+ * gameplay op raised or scheduled the event: its `on:` handlers run in that victim's binding (a presentation op written for a
+ * dash `on_hit` or a window body still addresses the entity it hit).
+ */
 public data class CastEvent(
     val name: String,
     val tick: Int,
     val source: String? = null,
     val contact: ContactEvent? = null,
+    val victim: java.util.UUID? = null,
 )
 
 /** Per-cast event bus: gameplay raises, both sections' `on:` handlers (and `until:` clauses) consume. */

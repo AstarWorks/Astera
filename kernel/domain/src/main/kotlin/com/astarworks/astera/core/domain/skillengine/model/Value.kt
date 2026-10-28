@@ -43,7 +43,8 @@ public sealed interface TargetRef {
     public data object Caster : TargetRef
     /** Non-allies within [radius] of [around]; [maxCount] keeps only the nearest N to [around] (v1 `max_count`). */
     public data class Enemies(val around: PointRef, val radius: Value<Double>, val maxCount: Int? = null) : TargetRef
-    public data class Allies(val around: PointRef, val radius: Value<Double>, val maxCount: Int? = null) : TargetRef
+    /** Team mates (never the caster) within [radius] of [around]; the caster is listed first, unconditionally, only when [includeSelf] (v1 `include_self`, default false). */
+    public data class Allies(val around: PointRef, val radius: Value<Double>, val maxCount: Int? = null, val includeSelf: Boolean = false) : TargetRef
 }
 
 /** A place: a frame point or a computed vector (world space). */
