@@ -187,6 +187,8 @@ public class SimSkillEngine private constructor(
                 )
             },
             casterAnim = object : ISkillCasterAnimGateway {
+                override fun clip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation? = null
+                override fun isSlim(caster: UUID) = false
                 override fun play(caster: UUID, anim: String, speed: Double, ticks: Int) { recording.casterAnims += "play $anim" }
                 override fun stop(caster: UUID, anim: String) { recording.casterAnims += "stop $anim" }
                 override fun release(caster: UUID, anim: String) { recording.casterAnims += "release $anim" }
@@ -390,6 +392,7 @@ private class SimSkillVisuals(
     }
 
     override fun spawnMesh(castOwner: UUID, item: String, part: String?, pose: VisualPose, brightness: Int?) = spawn()
+    override fun spawnSkinBone(castOwner: UUID, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) = spawn()
     override fun spawnPlate(castOwner: UUID, sprite: String, alpha: Double, pose: VisualPose, brightness: Int?) = spawn()
     override fun spawnBlock(castOwner: UUID, block: String, pose: VisualPose, brightness: Int?) = spawn()
     override fun spawnQuad(castOwner: UUID, colorHex: String, alpha: Double, text: String?, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?) = spawn()

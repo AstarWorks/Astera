@@ -172,6 +172,45 @@ public sealed interface VisualOp : PresentationOp {
         val space: String?,
     ) : VisualOp
 
+    /**
+     * The skin rig as frame-tree nodes (ADR-0303, skin-rig section). The op drives the node [frame] (a declared `body` frame,
+     * child of [parent]) with the rig motion of the former VFX rig: `frame` = grip origin and `arm * wrist` rotation, so a
+     * mesh / block / emit under [frame] rides the animated hand. With [anim] it also spawns the six skin-bone displays
+     * (nodes `<id>_<bone>` under [parent]) playing that clip on the same clock; without it the arm stays at rest.
+     * [hand] false anchors the rig about [pivot] instead of the right arm. Poses are sent pose to pose: a state only when it
+     * differs, a `step` key (clip or [swing]) is a cut with interpolation 0.
+     */
+    public data class Rig(
+        override val id: String,
+        override val whenExpr: Value<Boolean>?,
+        val frame: String,
+        val parent: String,
+        val anim: String?,
+        val hand: Boolean,
+        /** Grip offset (hand) or rotation centre (anchored) in the parent's axes `[left, up, forward]`. */
+        val pivot: Vec3,
+        /** `(yaw, pitch, roll)` degrees applied OUTSIDE the swing. */
+        val tilt: Vec3,
+        /** `(yaw, pitch, roll)` degrees of the rig at swing zero, applied INSIDE the swing. */
+        val rest: Vec3,
+        /** Absolute rotation-vector wrist keys, slerped with the segment ease; empty = static. */
+        val swing: List<RigSwingKey>,
+        /** Longest client interpolation chunk of the swing, in ticks. */
+        val sampleTicks: Int,
+        /** Ticks the performance lasts; the bones and driven displays are not updated after it. */
+        val durationTicks: Int,
+        /** The freeze windows stop the swing clock (weapon / frame). */
+        val respectHitStop: Boolean,
+        /** The freeze windows also stop the skin body. */
+        val bodyRespectHitStop: Boolean,
+        /** Hit-stop windows (rig-relative ticks). */
+        val freezes: List<RigFreeze>,
+        /** Blade landmarks in the rig frame (blocks): defined as points `tip`, `root` and the direction `edge` of [frame]. */
+        val tip: Vec3? = null,
+        val root: Vec3? = null,
+        val edge: Vec3? = null,
+    ) : VisualOp
+
     /** Remove presentation objects created earlier by the listed op ids. */
     public data class Remove(
         override val id: String,
@@ -209,3 +248,10 @@ public data class TrailEdge(val color: String, val width: Double)
 
 /** Dark rim outside the tip of a [VisualOp.Trail]: `#rrggbb` at [alpha], [width] blocks wide. */
 public data class TrailRim(val color: String, val alpha: Double, val width: Double)
+
+/** One wrist key of a [VisualOp.Rig]: absolute rotation-vector [rotate] (null keeps the previous), [ease] of the segment ENDING here (`step` = cut). */
+public data class RigSwingKey(val tick: Int, val rotate: Vec3?, val ease: String?, val sample: Boolean = false)
+// [sample]: a pre-eased sample between two real keys; it is not a chunk boundary of the rig clock
+
+/** A hit-stop window of a [VisualOp.Rig]: [ticks] frozen ticks starting at rig-relative tick [at]. */
+public data class RigFreeze(val at: Int, val ticks: Int)

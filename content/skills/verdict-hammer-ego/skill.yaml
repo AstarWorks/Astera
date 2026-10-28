@@ -11,10 +11,10 @@ meta:
   resource_cost: 0
   ego_cost: 100
 frames:
-  - {id: snap, kind: body, parent: world, inactive: true}
   - {id: snap_2, kind: body, parent: world, inactive: true}
-  - {id: snap_3, kind: body, parent: world, inactive: true}
-  - {id: snap_4, kind: body, parent: world, inactive: true}
+  - {id: snap_5, kind: body, parent: world, inactive: true}
+  - {id: snap_8, kind: body, parent: world, inactive: true}
+  - {id: snap_11, kind: body, parent: world, inactive: true}
 gameplay:
   params: {radius: 5.8, dmg_physical: 60.0, dash_distance: 3.0}
   expose:
@@ -25,43 +25,43 @@ gameplay:
       at: 8
       do:
         - {id: dash, op: dash_strike, distance: "${dash_distance}", ticks: 8, radius: 0.3, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 1.8}
-    - {id: t18, at: 18, do: [{id: pin, op: place, frame: fx1_verdict_ego_field, like: pt_aim_0_m1p62_8}]}
-    - {id: t32, at: 32, do: [{id: pin_13, op: place, frame: fx13_verdict_ego_hammer, like: caster}]}
+    - {id: t18, at: 18, do: [{id: snap, op: place, frame: fx1_verdict_ego_field, like: caster}]}
+    - {id: t32, at: 32, do: [{id: pin_4, op: place, frame: fx13_verdict_ego_hammer, like: caster}]}
     - id: t71
       at: 71
       do:
-        - {id: place_snap, op: place, frame: snap, like: caster}
-        - {id: sel, op: hit, frames: [snap], sphere: {at: snap, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
-        - {id: pin_2, op: place, frame: fx2_verdict_impact, like: pt_aim_0_m1p62_8}
-        - {id: pin_3, op: place, frame: fx3_verdict_ego_ring, like: pt_aim_0_m1p62_8}
+        - {id: place_snap_2, op: place, frame: snap_2, like: caster}
+        - {id: sel, op: hit, frames: [snap_2], sphere: {at: snap_2, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: snap_3, op: place, frame: fx2_verdict_impact, like: caster}
+        - {id: snap_4, op: place, frame: fx3_verdict_ego_ring, like: caster}
     - id: t93
       at: 93
       do:
         - {id: dash_2, op: dash_strike, distance: "${dash_distance}", ticks: 8, radius: 0.3, hit_once: true, invulnerable: true, stop_on_block: true, follow_pitch: false, stop_before_target: 1.8}
-        - {id: pin_10, op: place, frame: fx10_verdict_ego_hammer, like: caster}
+        - {id: pin, op: place, frame: fx10_verdict_ego_hammer, like: caster}
     - id: t102
       at: 102
       do:
-        - {id: place_snap_2, op: place, frame: snap_2, like: caster}
-        - {id: sel_2, op: hit, frames: [snap_2], sphere: {at: snap_2, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
-        - {id: pin_4, op: place, frame: fx4_verdict_impact, like: pt_aim_0_m1p62_8}
-        - {id: pin_5, op: place, frame: fx5_verdict_ego_ring, like: pt_aim_0_m1p62_8}
-    - {id: t119, at: 119, do: [{id: pin_11, op: place, frame: fx11_verdict_ego_hammer, like: caster}]}
+        - {id: place_snap_5, op: place, frame: snap_5, like: caster}
+        - {id: sel_2, op: hit, frames: [snap_5], sphere: {at: snap_5, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: snap_6, op: place, frame: fx4_verdict_impact, like: caster}
+        - {id: snap_7, op: place, frame: fx5_verdict_ego_ring, like: caster}
+    - {id: t119, at: 119, do: [{id: pin_2, op: place, frame: fx11_verdict_ego_hammer, like: caster}]}
     - id: t128
       at: 128
       do:
-        - {id: place_snap_3, op: place, frame: snap_3, like: caster}
-        - {id: sel_3, op: hit, frames: [snap_3], sphere: {at: snap_3, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
-        - {id: pin_6, op: place, frame: fx6_verdict_impact, like: pt_aim_0_m1p62_8}
-        - {id: pin_7, op: place, frame: fx7_verdict_ego_ring, like: pt_aim_0_m1p62_8}
-    - {id: t182, at: 182, do: [{id: pin_12, op: place, frame: fx12_verdict_ego_hammer, like: caster}]}
+        - {id: place_snap_8, op: place, frame: snap_8, like: caster}
+        - {id: sel_3, op: hit, frames: [snap_8], sphere: {at: snap_8, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: snap_9, op: place, frame: fx6_verdict_impact, like: caster}
+        - {id: snap_10, op: place, frame: fx7_verdict_ego_ring, like: caster}
+    - {id: t182, at: 182, do: [{id: pin_3, op: place, frame: fx12_verdict_ego_hammer, like: caster}]}
     - id: t191
       at: 191
       do:
-        - {id: place_snap_4, op: place, frame: snap_4, like: caster}
-        - {id: sel_4, op: hit, frames: [snap_4], sphere: {at: snap_4, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
-        - {id: pin_8, op: place, frame: fx8_verdict_impact, like: pt_aim_0_m1p62_8}
-        - {id: pin_9, op: place, frame: fx9_verdict_ego_ring, like: pt_aim_0_m1p62_8}
+        - {id: place_snap_11, op: place, frame: snap_11, like: caster}
+        - {id: sel_4, op: hit, frames: [snap_11], sphere: {at: snap_11, radius: "${radius}"}, max_count: 3, window: once, ticks: 1}
+        - {id: snap_12, op: place, frame: fx8_verdict_impact, like: caster}
+        - {id: snap_13, op: place, frame: fx9_verdict_ego_ring, like: caster}
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
