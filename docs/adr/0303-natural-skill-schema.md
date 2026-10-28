@@ -93,7 +93,7 @@ gameplay ops (`hit`, `damage`, `status`, `impulse`, `knockback`, `projectile`). 
 |---|---|
 | `at` | start: a tick (since cast start, or since the event inside a handler) or an event, with optional offset: `at: 8`, `at: release`, `at: "release+2"`. Inherited from the enclosing timeline group, overridable per op. |
 | `for` | duration in ticks of the op's window; `for: cast` = until the cast ends. **Extended kinds** (display, ribbon) without `every`: the instance lives `for` ticks. **Point kinds** (particle, sound, hit, damage) with `every`: the window in which they repeat. |
-| `every` | repeat period in ticks: occurrences at `at + k * every` (exact multiples, k = 0, 1, ...) inside the window. Absent = one occurrence. |
+| `every` | repeat period in ticks: occurrences at `at + k * every` (exact multiples, k = 0, 1, ...) inside the window. Absent = one occurrence. May be a range with an `ease` (3.7.1): `every: {from, to, ease}`, fire ticks computed statically. |
 | `times` | maximum number of occurrences (with `every`). |
 | `until` | an event; ends the window (and every live instance of an extended kind) the first time it fires. |
 | `lasts` | extended kinds WITH `every` only: how long each occurrence lives. Required there (no hidden default), so repeats cannot pile up. |
@@ -202,7 +202,7 @@ The vanilla order is `T * L * S * R`: `translation` is NOT rotated by `left_rota
 Motion is a list on the object (`motion:`) or on an anchor (`motion:` in `anchors`, presentation anchors only). Laws are composable.
 
 Every law has its own window: `from` (ticks since the instance started, default 0), `for` (ticks; or `until: <event>`; default to the end of the
-instance), and `ease` (`linear` default). A law is an ordinary part of the timing grammar (2.0): same words, same meaning, relative to the instance. Axes are named (3.1) and RESOLVED ONCE at law start, then frozen in the parent basis (a spinning object does not wobble).
+instance), and `ease` (`linear` default, names and total-vs-rate semantics in 3.7). A law is an ordinary part of the timing grammar (2.0): same words, same meaning, relative to the instance. Axes are named (3.1) and RESOLVED ONCE at law start, then frozen in the parent basis (a spinning object does not wobble).
 Closed-form: all laws are evaluated as functions of `tau = ticks since law start`, never integrated tick by tick.
 
 | law | fields | meaning |
@@ -285,6 +285,7 @@ Every numeric or vector field of every op, law and key accepts `"= <CEL>"` (0301
 |---|---|
 | `t` | ticks since the instance (occurrence) started; `lt`: ticks since the current law's window started |
 | `i`, `n` | repeat index of `every` (0-based), and the occurrence count (see 2.0) |
+| `ease(name, u)`, `lerp(a, b, k)`, `slerp(qa, qb, k)` | easing and interpolation functions (3.7); `ease` takes any easing name as a string |
 | `rand()` | seeded, deterministic uniform [0,1): seed = (cast id, op id, i, call-site order), so replays and the game-sim are identical |
 | `forward`, `left`, `up`, `long`, `edge`, `face` | the object's axes as WORLD vectors (anchor axes first, then item part axes) |
 | `caster`, `target`, `contact` | positions with `.pos`, `.forward`, `.eye`; `contact.normal`, `contact.point`; `target` is the victim or aim target |
@@ -327,6 +328,75 @@ from `wp/se-grammar` `e5aedb5b0`); `mode` is required, the other fields are requ
 
 Displays anchored on `bolt` end with `until: end` (or `until: unstick` for a stuck prop) and follow the gameplay frame through the bounce; the
 bounce is a gameplay `move` reflection, the display needs no extra law.
+
+#### 3.7 Easing: how anything advances over a window
+
+**One rule, stated once: any value or rate that changes over a window takes `ease`.** It is not attached per kind. It applies to every law on any kind
+(display transform, particle `count`/`offset`/`extra`, sound `volume`/`pitch`, ribbon `width_frac`), to `keys` segments, to speed (a `move` law's `speed`, a
+`projectile`'s speed ramp: a dash that eases out, a shot that accelerates in), and to **timing itself** (the spacing of `every`, 3.7.1). If a quantity moves from
+one value to another across a window, the window's `ease` says how it advances.
+
+Every law (`move`, `spin`, `grow`, `fade`, `orbit`, `stretch`, `align`, `follow` blend, every `prop` law of 3.4) and every `keys` segment takes `ease:`.
+`linear` is the identity default (written in the field table, 2.0b). Names are the standard easing set:
+
+| family | names |
+|---|---|
+| `linear` | identity |
+| `in_` / `out_` / `in_out_` + shape | `sine`, `quad`, `cubic`, `quart`, `quint`, `expo`, `circ`, `back`, `elastic`, `bounce` (for example `out_cubic`, `in_out_back`) |
+| parametric | `cubic_bezier(x1, y1, x2, y2)` (CSS meaning, x in [0, 1]), `steps(n)` (n equal jumps, jump at the end of each step) |
+
+The 0301 short names `in` / `out` / `in_out` stay valid ONLY as written inside a `keys` segment of the same law and mean `in_quad` / `out_quad` / `in_out_quad`;
+the converter writes the full name (R8), so no content depends on the alias.
+
+**Semantics.** Easing maps the normalized progress of the law's own window to the eased progress: `u = lt / for` in [0, 1], `E(u)` the eased value
+(`E(0) = 0`, `E(1) = 1`; `back`/`elastic` may leave [0, 1] in between, which is overshoot by design). A law with `ease` other than `linear` MUST
+have a finite window (`for`); an open `until:` window has no `u` and is a load error. A `keys` segment uses its own segment-local `u` between the two keys.
+
+**Rate laws: ease shapes the accumulated TOTAL, not the rate** (recommended and adopted). `spin {deg_per_tick: 18, for: 20, ease: out_cubic}` means
+"turn `18 * 20 = 360` degrees over 20 ticks, decelerating", `angle(lt) = 360 * E(u)`. The same for the other rate laws:
+
+| law | with `ease` |
+|---|---|
+| `spin` | `angle = deg_per_tick * for * E(u)` |
+| `move` | `displacement = velocity * for * E(u)` (the direction is the frozen axis; `speed` is the average speed) |
+| `grow per_tick` | `value = v0 + per_tick * for * E(u)`; `grow to` is `v0 + (to - v0) * E(u)` |
+| `fade` | `a = (1 - E(u)) ^ exponent` |
+| `orbit` | `angle = deg_per_tick * for * E(u)` |
+| `stretch`, `align`, `follow` | blend factor `E(u)` between the window start and end values |
+
+Why total: it is the natural reading ("360 degrees over 20 ticks, ease out") and it is how animators and every tween library think. Shaping the rate
+would mean integrating a curve, so the total would change with the curve; with total semantics the end state is fixed by `deg_per_tick * for` whatever the ease.
+`ease` and `accel` are mutually exclusive on one law (load error; `accel` already defines the time profile). For an eased law that must also have a
+different rate shape, give it two laws with their own windows.
+
+**CEL** (3.5): `ease('out_cubic', u)` returns `E(u)` (names as above, `ease('cubic_bezier(0.2,0.8,0.2,1)', u)` for a parametric one), `lerp(a, b, k)` linear
+for numbers and vectors, `slerp(qa, qb, k)` for rotations. Example: `offset: {up: "= lerp(0.2, 1.4, ease('out_back', t / 10))}"`. The `t` argument makes this a T-class expression (3.5).
+
+**Static expansion and the client.** An eased law is a **T-class** expression: a closed-form function of the law's own `u`, evaluated at expand time. The vanilla client
+interpolates LINEARLY within `interpolation_duration`, so the curve is reproduced by sending a chain of linear segments:
+
+1. Split the window into `m` equal sub-segments (`h = for / m` ticks). Linear interpolation error on a segment is at most `h^2 * max|f''| / 8` where `f''` is the
+   second derivative of the eased quantity (value, degrees or blocks). `m = ceil(for / h)` with `h = sqrt(8 * budget / max|f''|)`; the budget is the section 4
+   error budget (0.03 blocks / 2 degrees; for a unitless property, 1 percent of its range).
+2. `m` is clamped to `[1, for]`. If `m >= for / 2` the object is simply written EVERY tick (`h = 1`); a tick is the finest granularity anyway.
+3. **Write count rule**: writes of an eased law = `m + 1` including the first (the law's start and the `m` segment ends), and these boundaries are shared with the other
+   laws and keys of the same object (one write per object per boundary, 4). Smooth curves (`sine`, `quad`, `cubic`, `circ`) of rotation up to 360 degrees need about 3-6 segments; `back`,
+   `elastic`, `bounce` (large `f''`) usually reach the per-tick rule; `steps(n)` is exactly `n` writes with `interpolation_duration: 0` (a jump, no sub-segments).
+4. The sub-segment endpoints are sampled from `E`, so the first and last of the window always match the unmodified end values exactly.
+
+`expand` (11) prints, for each eased law, `m`, `h`, the max error and the writes, and the lint warns above one write per tick as it does for any T expression.
+
+#### 3.7.1 Speed and spacing take the same `ease`
+
+- **Speed**: `move {speed, for, ease}` follows the total rule (`displacement = velocity * for * E(u)`), so `ease: out_cubic` is a dash that decelerates and `in_quad` is
+  an acceleration. `projectile` takes `speed: {from, to, for, ease}` for a speed ramp (a shot that accelerates in): the speed at lt is `lerp(from, to, E(lt / for))`
+  and the path is the exact integral, computed at expand time (a T expression); the gameplay body and the display share it.
+- **Spacing (timing)**: `every` may be a range, `every: {from: 6, to: 2, ease: in_quad}`: the period shrinks from 6 to 2 ticks across the op's `for` window. The fire ticks are computed
+  STATICALLY at expand time by `t0 = at`, `t(k+1) = t(k) + max(1, round_half_up(lerp(from, to, E((t(k) - at) / for))))`, while `t(k) < at + for` (bounded by `times` if given), and listed in the table (11).
+  A plain number `every: M` keeps the exact-multiples rule of 2.0 and is the same as `from == to`, `ease: linear`. Spacing ease needs a finite `for` (an `until`-only window is a load error, as for any ease).
+
+**Particles and sounds** (fire-and-forget, 3.4): the law is sampled at each occurrence's `lt`; an eased `count`/`offset`/`extra`/`volume`/`pitch` changes the sampled value per
+occurrence and needs no segments; the occurrence train IS the sampling.
 
 ### 4. Sending to the client (RC1)
 
@@ -387,7 +457,7 @@ Output laws first, keys last.
 | R5 | Axis snapping: a rotation axis within 5 degrees of an object/anchor axis uses that name (sprite roll is `face`); otherwise `{in: <anchor>, vec: {...}}`. |
 | R6 | A run of constant second difference in the world-up direction -> `move` with `gravity`; otherwise not merged. |
 | R7 | Everything that remains -> `keys` with named-axis `pose` lists (rotation as one `{axis, deg}` from rest, snapped by R5) and name-keyed offsets. Never Euler triples. |
-| R8 | v1 `ease` stays on the law/key segment as `ease`. |
+| R8 | v1 `ease` stays on the law/key segment as `ease`, written with the full name (`in` -> `in_quad`, `out` -> `out_quad`); a segment with no v1 ease gets `linear` explicitly. A v1 sampled curve that matches a standard ease within the error budget is recognised and written as `ease:` (otherwise it stays `keys`). |
 | R9 | Generated point frames (`pt_caster_0_m0p2_1`) become inline `{at, offset: {...}}` on the object; no synthetic frame ids. `like: contact` hit anchors default to the contact point (RC6). |
 | R10 | v1 particle parts map 1:1 to `particle` (count, offset, extra, data, count 0 included). No default sphere, no `vanilla` flag. |
 | R11 | Sprite sizes are written as `size` in blocks from the v1 plan and the sprite file's `px`; no x5, no frame-distance factor. |
@@ -409,6 +479,7 @@ Full examples are in `docs/adr/0303-examples/`:
 - (a) [a-couture-rapier-s2-coin1.yaml](0303-examples/a-couture-rapier-s2-coin1.yaml): coin 1, rewritten from `coin1.yaml`.
 - (b) [b-frost-shard-projectile.yaml](0303-examples/b-frost-shard-projectile.yaml): a simple-shoot projectile skill (`frost-shard`).
 - (c) [c-bastion-greatsword-s1-swing.yaml](0303-examples/c-bastion-greatsword-s1-swing.yaml): a melee sweep with a weapon swing (`bastion-greatsword-s1`).
+- (i) [i-easing-display-particle-sound.yaml](0303-examples/i-easing-display-particle-sound.yaml): a display, a particle count and a sound pitch with eases in one timing block.
 - (h) [h-same-effect-two-notations.yaml](0303-examples/h-same-effect-two-notations.yaml): one effect written declaratively and with `seq:`, with the identical expanded table.
 - (e) [e-couture-rapier-def-parry-part.yaml](0303-examples/e-couture-rapier-def-parry-part.yaml): the `parry` part and `couture-rapier-def` calling it with its riposte branch.
 - (f) [f-shoot-with-bounce-and-explosion-parts.yaml](0303-examples/f-shoot-with-bounce-and-explosion-parts.yaml): a shoot skill calling `projectile` (block mode `bounce`) and `explosion` on contact.
@@ -444,6 +515,8 @@ Sizes in the examples are illustrative: the converter computes them from the spr
 | `projectile {block_mode, stick_ticks, restitution, max_bounces, max_ticks}` | `projectile {for, block: {mode, for, restitution, times}}` | n/a (gameplay) |
 | literal-only numbers | any numeric/vector field accepts `"= CEL"` with `t`, `i`, `n`, `rand()`, axes, `caster/target/contact` | n/a |
 | (new) free `wait`/`seq` sequences | `for N, every M` is primary; `seq:` is sugar that desugars to the same ops, equality asserted by lint | n/a |
+| (new) eased spacing and speed ramps | `every: {from, to, ease}`, `projectile speed: {from, to, for, ease}`, `move ease`; fire ticks listed in the expansion table | n/a |
+| (new) per-law `ease` names | `ease: linear\|<in_\|out_\|in_out_><shape>\|cubic_bezier(..)\|steps(n)`; ease shapes the accumulated total (3.7) | n/a, sent as linear segments within the budget |
 | (new) L-expression timing | `bound: [lo, hi]` declared or load error (11) | n/a |
 | v1 part: `sequence` timeline groups, `window`, `delay`, `schedule`, event handlers (`on: hit/block/expire/reel/arrive`) | states with `for`/`then`, transitions, nested parts | n/a |
 | ad hoc repeated blocks copied between skills (a dash, a guard, a projectile with block handling) | `use: <part>` with typed `with:` and `frames:` binding | n/a |
