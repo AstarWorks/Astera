@@ -77,6 +77,7 @@ object VanillaDump {
             }
         }
         sim = CastSim(mapOf(simVictim(1) to ahead(feet, 0.0, 5.0)), particleGateway = sink, visualGateway = visuals, halfWidth = 0.3)
+        // v1's recorder spawns a real `mob("dummy")` (100 hp, killed and respawned at the origin); an immortal dummy keeps being hit by later selectors v1 never saw.
         sim.victimHp = GameplayDump.DUMMY_HP
         lines += "{\"e\":\"meta\",\"id\":\"$id\"}"
         runCatching { sim.cast(id, ticks, drainWorld = false) }.onFailure { lines += "{\"e\":\"error\",\"msg\":\"${esc((it::class.simpleName ?: "") + ": " + it.message.orEmpty().take(200))}\"}" }
@@ -122,6 +123,8 @@ object VanillaDump {
             val n = ord[h] ?: continue
             lines += "{\"t\":$t,\"e\":\"swap\",\"id\":$n,\"what\":\"item_model\",\"v\":${m?.let { "\"${esc(it)}\"" } ?: "null"}}"
         }
+        // A trail is a ribbon of quads on Paper; v1 wrote it as block / text displays. One line per front-face piece.
+        for (q in visuals.ribbonQuads.filter { !it.backFace }) lines += "{\"t\":${q.tick},\"e\":\"ribbon\",\"piece\":\"${q.kind.name.lowercase()}\",\"index\":${q.index}}"
         for ((h, life) in visuals.lives) {
             val n = ord[h] ?: continue
             life.removeTick?.let { lines += "{\"t\":$it,\"e\":\"remove\",\"id\":$n}" }

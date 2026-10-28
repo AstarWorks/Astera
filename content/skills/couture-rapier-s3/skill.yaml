@@ -31,10 +31,17 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+        - id: sel_3
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
     - id: t40
       at: 40
       do:
-        - id: sel_3
+        - id: sel_4
           op: hit
           frames: [caster]
           sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
@@ -44,7 +51,14 @@ gameplay:
     - id: t46
       at: 46
       do:
-        - id: sel_4
+        - id: sel_5
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
+        - id: sel_6
           op: hit
           frames: [caster]
           sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
@@ -54,7 +68,7 @@ gameplay:
     - id: t107
       at: 107
       do:
-        - id: sel_5
+        - id: sel_7
           op: hit
           frames: [caster]
           sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
@@ -64,7 +78,14 @@ gameplay:
     - id: t113
       at: 113
       do:
-        - id: sel_6
+        - id: sel_8
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
+        - id: sel_9
           op: hit
           frames: [caster]
           sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
@@ -74,7 +95,7 @@ gameplay:
     - id: t127
       at: 127
       do:
-        - id: sel_7
+        - id: sel_10
           op: hit
           frames: [caster]
           sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
@@ -84,5 +105,5 @@ gameplay:
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
-      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_4'"}
-      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_6'"}
+      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_5'"}
+      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_8'"}

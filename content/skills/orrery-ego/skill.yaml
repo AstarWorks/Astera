@@ -18,7 +18,11 @@ gameplay:
   expose:
     - {id: damage, param: dmg_physical}
   timeline:
-    - {id: t24, at: 24, do: [{id: sel, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_13, radius: 0.3}, window: once, ticks: 1}]}
+    - id: t24
+      at: 24
+      do:
+        - {id: sel, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_13, radius: 0.3}, window: once, ticks: 1}
+        - {id: sel_2, op: hit, frames: [caster], capsule: {from: aim, to: pt_aim_0_0_13, radius: 0.3}, window: once, ticks: 1}
   "on":
     hit:
       - id: dmg
@@ -28,5 +32,5 @@ gameplay:
         target: victim
         ignore_invulnerability: true
         when: "= event.source == 'sel'"
-      - {id: stop, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel'"}
-      - {id: st_sinking, op: status, status: sinking, duration_ticks: "${sinking_ticks}", target: victim, stacks: "${sinking_stacks}", when: "= event.source == 'sel'"}
+      - {id: stop, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel_2'"}
+      - {id: st_sinking, op: status, status: sinking, duration_ticks: "${sinking_ticks}", target: victim, stacks: "${sinking_stacks}", when: "= event.source == 'sel_2'"}

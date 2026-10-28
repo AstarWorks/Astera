@@ -287,8 +287,10 @@ internal class EmitExecutor(private val rt: PresentationRuntime) : OpExecutor<Fx
             else -> rt.velocityOf(s, op.at.frame)
         }
         val distance = sweep.length()
-        // One play per `spacing` blocks along the segment covered since the last tick, ending at `at`. (at most 24, v1 VfxTimeline.kt:99 MAX_PATH_POINTS)
-        val steps = if (distance > spacing && spacing > 0.0) kotlin.math.ceil(distance / spacing).toInt().coerceAtMost(MAX_PATH_POINTS) else 1
+        // One play per `spacing` blocks along the segment covered since the last tick, ending at `at`. (at most 24, v1 VfxTimeline.kt:99 MAX_PATH_POINTS); v1 also adds one per 12 degrees the frame turned (VfxRigPlanner.kt:399-440).
+        val turnSteps = if (spacing > 0.0) kotlin.math.ceil(rt.turnedDegrees(s, op.at.frame) / 12.0).toInt() else 0
+        val moveSteps = if (distance > spacing && spacing > 0.0) kotlin.math.ceil(distance / spacing).toInt().coerceAtMost(MAX_PATH_POINTS) else 1
+        val steps = maxOf(moveSteps, turnSteps, 1)
         for (i in 1..steps) {
             // shift / offset are evaluated per play (v1 re-planned its shape per sample), so `rand` re-rolls per sample
             ctx.host.withSample(i - 1) {

@@ -783,6 +783,8 @@ internal class CastInstance(
                 snapBody(reg.reg.frame, wall.point)
                 queue += CastEvent(SkillEvents.BLOCK, tick, source = reg.reg.id, contact = blockContact(reg.reg, wall.point, wall.normal, wall.blockKey, hitterVel))
             }
+            // v1 runs each effect's targeter after the effects before it: this selection's handlers (a kill included) land before the next one looks.
+            drain()
         }
     }
 

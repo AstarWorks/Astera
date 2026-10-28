@@ -1,5 +1,5 @@
 {
- "source": "v1 engine at 4f756eea1 (content/skills/<id>.yaml params); defaults from SkillParams: hit_radius 0.5, muzzle_forward 0.5, aim_distance 0, trail_spacing 0.5, lifetime 0 -> 100",
+ "source": "lightning-bolt and thorn-bolt trail = v1 vanilla dump tick-1 particle calls per flight step (audit/vanilla/v1); v1 engine at 4f756eea1 (content/skills/<id>.yaml params); defaults from SkillParams: hit_radius 0.5, muzzle_forward 0.5, aim_distance 0, trail_spacing 0.5, lifetime 0 -> 100",
  "projectiles": [
   {
    "id": "chain-lightning",
@@ -297,19 +297,91 @@
    "trail": [
     {
      "particle": "electric_spark",
-     "count": 4
-    },
-    {
-     "particle": "end_rod",
-     "count": 1
+     "count": 0
     },
     {
      "particle": "electric_spark",
-     "count": 1
+     "count": 0
+    },
+    {
+     "particle": "electric_spark",
+     "count": 0
+    },
+    {
+     "particle": "electric_spark",
+     "count": 0
+    },
+    {
+     "particle": "electric_spark",
+     "count": 0
+    },
+    {
+     "particle": "electric_spark",
+     "count": 0
+    },
+    {
+     "particle": "electric_spark",
+     "count": 0
+    },
+    {
+     "particle": "electric_spark",
+     "count": 0
+    },
+    {
+     "particle": "electric_spark",
+     "count": 0
+    },
+    {
+     "particle": "electric_spark",
+     "count": 0
+    },
+    {
+     "particle": "electric_spark",
+     "count": 0
     },
     {
      "particle": "end_rod",
-     "count": 1
+     "count": 0
+    },
+    {
+     "particle": "end_rod",
+     "count": 0
+    },
+    {
+     "particle": "end_rod",
+     "count": 0
+    },
+    {
+     "particle": "end_rod",
+     "count": 0
+    },
+    {
+     "particle": "end_rod",
+     "count": 0
+    },
+    {
+     "particle": "end_rod",
+     "count": 0
+    },
+    {
+     "particle": "end_rod",
+     "count": 0
+    },
+    {
+     "particle": "end_rod",
+     "count": 0
+    },
+    {
+     "particle": "end_rod",
+     "count": 0
+    },
+    {
+     "particle": "end_rod",
+     "count": 0
+    },
+    {
+     "particle": "end_rod",
+     "count": 0
     }
    ]
   },
@@ -635,19 +707,43 @@
    "trail": [
     {
      "particle": "happy_villager",
-     "count": 1
+     "count": 0
     },
     {
      "particle": "composter",
-     "count": 2
+     "count": 0
     },
     {
      "particle": "dust",
-     "count": 2
+     "count": 0
     },
     {
      "particle": "dust",
-     "count": 1
+     "count": 0
+    },
+    {
+     "particle": "dust",
+     "count": 0
+    },
+    {
+     "particle": "dust",
+     "count": 0
+    },
+    {
+     "particle": "dust",
+     "count": 0
+    },
+    {
+     "particle": "dust",
+     "count": 0
+    },
+    {
+     "particle": "dust",
+     "count": 0
+    },
+    {
+     "particle": "dust",
+     "count": 0
     }
    ]
   },

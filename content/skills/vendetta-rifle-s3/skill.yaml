@@ -25,6 +25,13 @@ gameplay:
           max_count: 1
           window: once
           ticks: 1
+        - id: sel_2
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
     - id: t12
       at: 12
       do:
@@ -32,7 +39,14 @@ gameplay:
     - id: t16
       at: 16
       do:
-        - id: sel_2
+        - id: sel_3
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
+        - id: sel_4
           op: hit
           frames: [caster]
           sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
@@ -46,7 +60,14 @@ gameplay:
     - id: t44
       at: 44
       do:
-        - id: sel_3
+        - id: sel_5
+          op: hit
+          frames: [caster]
+          sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
+          max_count: 1
+          window: once
+          ticks: 1
+        - id: sel_6
           op: hit
           frames: [caster]
           sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}
@@ -56,5 +77,5 @@ gameplay:
   "on":
     hit:
       - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
-      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
-      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
+      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
+      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_5'"}

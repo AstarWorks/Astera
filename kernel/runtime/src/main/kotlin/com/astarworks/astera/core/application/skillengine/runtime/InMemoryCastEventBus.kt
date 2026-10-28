@@ -26,6 +26,9 @@ public class InMemoryCastEventBus : CastEventBus {
     /** Absolute server tick at which [name] was first raised, or null. */
     public fun firstRaisedAt(name: String): Int? = firstTick[name]
 
+    /** Every raise of [name], in order (an `at: name+N` row times itself from the first one its guard accepts). */
+    public fun raises(name: String): List<CastEvent> = log.filter { it.name == name }
+
     /** Every event raised so far, in order. */
     public fun history(): List<CastEvent> = log.toList()
 }
