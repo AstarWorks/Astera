@@ -306,6 +306,9 @@ internal class RigPerformer(
     var driven: Int? = null
         private set
 
+    /** Rig-relative effect tick at which the `item_model` key of rig tick [t] lands: spawn for 0, else the arrival tick of rig tick [t] (v1 VfxBodyPlanner.withModelSwaps). */
+    fun modelTick(t: Int): Int = if (t == 0) 0 else motion.effectTickEnd(t)
+
     /** Advances the performance to effect tick [e]; returns false once it is over. */
     fun tick(s: PresentationRuntime.CastState, visuals: com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway, e: Int): Boolean {
         driven = null

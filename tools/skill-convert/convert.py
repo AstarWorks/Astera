@@ -1426,7 +1426,8 @@ class Conv:
         if vd.get("body_respect_hit_stop"):
             op["body_respect_hit_stop"] = True
         if freeze:
-            op["freezes"] = [{"at": int(f["at"]), "ticks": int(f["ticks"])} for f in freeze]
+            # rig-relative: the engine subtracts its 1-tick animation delay itself (RigMotion.base)
+            op["freezes"] = [{"at": int(f["at"]) - int(r.get("start_tick", 0)), "ticks": int(f["ticks"])} for f in freeze]
         for key, name in (("weapon_tip", "tip"), ("weapon_root", "root"), ("weapon_edge", "edge")):
             if r.get(key):
                 op[name] = [float(x) for x in r[key]]
@@ -1449,8 +1450,8 @@ class Conv:
             pr = "caster"
         if self.frame_parent(pr) is None:
             raise UnhandledV1Key("rig parent %s is not a known frame" % pr)
-        if r.get("weapon_model"):
-            self.present("rig weapon_model (item_model swap on the weapon display)", short(r["weapon_model"], 80))
+        if r.get("weapon_model") and not r.get("weapon"):
+            raise UnhandledV1Key("rig weapon_model without a weapon display")
         if "." in pr:  # the rig op's parent is a frame in the tree; a point (caster.right_hand) needs a body frame standing on it
             anchor = rid + "_at"
             self.look_frames[anchor] = {"id": anchor, "kind": "body", "parent": pr}
@@ -1467,6 +1468,8 @@ class Conv:
             if hand:
                 mesh["scale"] = 0.9375
                 mesh["rest_turn"] = [float(x) for x in euler_to_vec([0.0, 72.0, 0.0])]
+            if r.get("weapon_model"):  # v1 VfxWeaponModelKey: item_model step keys on the same display (rig ticks)
+                mesh["models"] = [{"t": int(k["t"]), "model": k["model"]} for k in r["weapon_model"]]
             self.p(where, start, self._w(mesh, when))
             removes.setdefault(end, []).append(first)
         # v1 VfxRigPlanner.partPlan: a part is a block display at pivotWorld + R(t) * offset (R = anchorRot * tilt * swing * rest),

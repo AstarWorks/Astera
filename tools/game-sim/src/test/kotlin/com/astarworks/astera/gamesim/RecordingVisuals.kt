@@ -200,6 +200,11 @@ class RecordingVisuals(
 
     override fun setBlock(handle: VisualHandle, block: String) { blockSwaps += Triple(now(), handle.id, block) }
 
+    /** Every item-model switch of a mesh (rig `weapon_model` keys): (tick, handle, model). */
+    val modelSwaps = ArrayList<Triple<Int, Long, String?>>()
+
+    override fun setItemModel(handle: VisualHandle, model: String?) { modelSwaps += Triple(now(), handle.id, model) }
+
     override fun sprite(sprite: String): SpriteInfo = SpriteInfo(spriteFrames(sprite), spritePixels(sprite))
 
     override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {

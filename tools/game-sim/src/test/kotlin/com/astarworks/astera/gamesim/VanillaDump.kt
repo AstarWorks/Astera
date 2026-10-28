@@ -85,6 +85,10 @@ object VanillaDump {
             val n = ord[h] ?: continue
             lines += "{\"t\":$t,\"e\":\"plate\",\"id\":$n,\"frame\":${f.first},\"tint\":${f.second?.let { "\"$it\"" } ?: "null"}}"
         }
+        for ((t, h, m) in visuals.modelSwaps) {
+            val n = ord[h] ?: continue
+            lines += "{\"t\":$t,\"e\":\"swap\",\"id\":$n,\"what\":\"item_model\",\"v\":${m?.let { "\"${esc(it)}\"" } ?: "null"}}"
+        }
         for ((h, life) in visuals.lives) {
             val n = ord[h] ?: continue
             life.removeTick?.let { lines += "{\"t\":$it,\"e\":\"remove\",\"id\":$n}" }

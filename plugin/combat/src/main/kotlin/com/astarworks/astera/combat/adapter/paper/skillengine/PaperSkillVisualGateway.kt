@@ -229,6 +229,11 @@ public class PaperSkillVisualGateway(
         }
     }
 
+    override fun setItemModel(handle: VisualHandle, model: String?) {
+        val e = entries[handle.id] as? MeshEntry ?: return
+        displays.setItemModel(e.handle, model)
+    }
+
     override fun setBlock(handle: VisualHandle, block: String) {
         val e = entries[handle.id] as? BlockEntry ?: return
         displays.setBlock(e.handle, block)
