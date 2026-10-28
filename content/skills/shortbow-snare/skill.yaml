@@ -1,5 +1,4 @@
 # astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
-# GAP: gameplay.expose [damage <- dmg_physical, flight_speed <- launch_speed] -> none (no v3 spelling; the numbers are inline below)
 apiVersion: astera/v3
 kind: Skill
 id: shortbow-snare
@@ -8,7 +7,7 @@ meta: {name: {ja: "足止めの矢", en: "Snare Arrow"}, description: {ja: "当�
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}   # projectile origin
   - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}}        # was pt_aim_0_m0p25_0p9
-  - {id: heart,   anchor: victim, offset: {up: 1.2}}                            # was pt_enemy_0_1p2_0 (enemy frame)
+  - {id: heart,   anchor: victim, offset: {up: 1.2}}                            # GAP(Q2): v2 enemy frame (feet +0.8 fixed) vs v3 victim anchors; was pt_enemy_0_1p2_0
 machine:
   start: fly
   states:

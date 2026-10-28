@@ -1,5 +1,4 @@
 # astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
-# GAP: gameplay.expose [damage <- dmg_physical, range <- range] -> none (no v3 spelling; the numbers are inline below)
 apiVersion: astera/v3
 kind: Skill
 id: shotgun-blast
@@ -12,10 +11,9 @@ meta:
   tags: [ranged, gun, burst]
 anchors:
   - {id: eye,    anchor: caster.eye}
-  - {id: aim,    anchor: caster.eye}                                      # the v2 `aim` frame, origin of break_area
   - {id: muzzle, anchor: caster.eye, offset: {up: -0.25, forward: 1.2}}   # was pt_aim_0_m0p25_1p2
   - {id: cone,   anchor: caster.eye, offset: {up: -0.2, forward: 2.4}}    # was pt_aim_0_m0p2_2p4
-  - {id: heart,  anchor: victim, offset: {up: 1.2}}                       # was pt_enemy_0_1p2_0 (enemy frame)
+  - {id: heart,  anchor: victim, offset: {up: 1.2}}                       # GAP(Q2): v2 enemy frame (feet +0.8 fixed) vs v3 victim anchors; was pt_enemy_0_1p2_0
 machine:
   start: cast
   states:
@@ -30,14 +28,16 @@ machine:
           op: hit
           at: 0
           anchor: eye
-          shape: {sector: {deg: 50.0, range: 6.0, height: 2.0}}
+          shape: {sector: {deg: 50.0, range: 6.0, height: 2.0, forward: look}}
           targets: enemies
+          # GAP(Q1): v2 has no cap (unlimited, nearest-first); spelling A `max_count: all`, B omitted
+          window: once
+          ignore_invulnerability: false
           damage: {physical: 25.0}
-          # GAP: inline `on: hit` handler on a hit op is not in ADR 10.1b (closest: projectile on: 3.6)
           on:
             hit:
-              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: victim}
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 0.9}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact}
               - {id: fx_hit, op: particle_def, def: gun-impact, anchor: heart}
-        # GAP: op break_area has no v3 spelling in ADR-0303 -> none; v2 fields carried verbatim, v2 `at: aim` (a frame) is written `anchor: aim`
-        - {id: chip, op: break_area, at: 0, shape: ray, radius: 0.5, block_damage: 30, breaks: true, staged: false, length: 4.0, anchor: aim}
+        - {id: chip, op: break_area, at: 0, anchor: caster.eye, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 30, ripple: 0, revert: 200, outside_arena: false}
     end: {final: true}
