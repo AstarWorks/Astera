@@ -413,9 +413,12 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun raycastBlock(cast: CastRef, from: Vec3, to: Vec3): BlockHit? {
             seen("query.raycastBlock", cast)
-            return null
+            return blockRaycast(cast, from, to)
         }
     }
+
+    /** The world a projectile's swept segment is cast against; the oracle recorder has none (no block ever hit), the sim engine plugs in its block world. */
+    var blockRaycast: (CastRef, Vec3, Vec3) -> BlockHit? = { _, _, _ -> null }
 
     /** Caster motion (R40): `teleport` moves [casterPosition] (feet + 1) so the next `rootOf` sees it; [wall] answers `probeBlock`. */
     var wall: (Vec3, Vec3) -> BlockHit? = { _, _ -> null }
