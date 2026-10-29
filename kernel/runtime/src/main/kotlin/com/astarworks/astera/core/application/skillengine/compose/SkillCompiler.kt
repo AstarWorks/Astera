@@ -71,7 +71,8 @@ public class SkillCompiler(
     private val config: EngineConfig,
     private val sprites: SpriteCatalog = NoSprites,
 ) {
-    public fun compile(def: SkillDef, parts: PartCatalog, skills: SkillCatalogView, sampleSeed: Long = 0L): Result<CompiledSkill, SkillDecodeError> {
+    public fun compile(def: SkillDef, shared: PartCatalog, skills: SkillCatalogView, sampleSeed: Long = 0L): Result<CompiledSkill, SkillDecodeError> {
+        val parts = PartInliner.withFragments(def, shared)
         val inlined = when (val r = SkillCallInliner.inline(def, skills, parts, config)) {
             is Result.Failure -> return r
             is Result.Success -> r.value

@@ -111,6 +111,14 @@ object SkillEngineSchemaGenerator {
                 "mount" to string, "mode" to linkedMapOf("enum" to listOf("follow", "snapshot")),
             ),
         )
+        val fragment = obj(
+            listOf("do"),
+            linkedMapOf(
+                "params" to linkedMapOf("type" to "object", "additionalProperties" to param),
+                "frames_in" to stringMap(),
+                "do" to opList(),
+            ),
+        )
         val i18n = linkedMapOf("type" to "object", "additionalProperties" to string)
         val meta = obj(
             emptyList(),
@@ -139,6 +147,7 @@ object SkillEngineSchemaGenerator {
                 "emits" to linkedMapOf("type" to "array", "items" to string),
                 "anchors" to linkedMapOf("type" to "array", "items" to anchor),
                 "conditions" to linkedMapOf("type" to "object", "additionalProperties" to celString),
+                "fragments" to linkedMapOf("type" to "object", "additionalProperties" to fragment),
                 "machine" to machine,
             ),
         )

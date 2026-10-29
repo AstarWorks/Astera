@@ -138,10 +138,12 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
             conditions[name] = body
         }
         val meta = meta(boot, tree["meta"])
+        val fragments = SkillFragments.read(boot, id, tree["fragments"])
+        SkillFragments.check(boot, fragments, tree["fragments"], tree["machine"])
         val machine = machine(ctx, tree)
         return SkillDef(
             id = id, item = item, importance = importance, meta = meta,
-            params = params, framesIn = framesIn, emits = emits, anchors = anchors, conditions = conditions, machine = machine,
+            params = params, framesIn = framesIn, emits = emits, anchors = anchors, conditions = conditions, fragments = fragments, machine = machine,
         )
     }
 
@@ -305,7 +307,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
 
     private companion object {
         val TOP_KEYS = setOf(
-            "apiVersion", "kind", "id", "item", "importance", "meta", "params", "frames_in", "emits", "anchors", "conditions", "machine",
+            "apiVersion", "kind", "id", "item", "importance", "meta", "params", "frames_in", "emits", "anchors", "conditions", "fragments", "machine",
         )
         val META_KEYS = setOf("name", "description", "cooldown_ticks", "resource_type", "resource_cost", "ego_cost", "reload_ticks", "ready_cue", "tags")
         val STATE_KEYS = setOf("for", "then", "final", "enter", "do", "exit", "on", "use", "with", "frames", "start", "states", "parallel")

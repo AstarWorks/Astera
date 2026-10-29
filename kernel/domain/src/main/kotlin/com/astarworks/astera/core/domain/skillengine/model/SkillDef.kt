@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.domain.skillengine.model
 
 import com.astarworks.astera.core.domain.skillengine.part.Machine
+import com.astarworks.astera.core.domain.skillengine.part.Part
 import com.astarworks.astera.core.domain.skillengine.part.ParamSpec
 
 /** Well-known event names (authors may define more). */
@@ -48,6 +49,8 @@ public data class SkillDef(
     val anchors: List<AnchorDecl> = emptyList(),
     /** Named conditions (3.8), CEL source. */
     val conditions: Map<String, String> = emptyMap(),
+    /** Skill-local fragments (`fragments:`): flat op lists called by `use: fragment:<name>`; part ids are `<skill>#<name>`. */
+    val fragments: Map<String, Part> = emptyMap(),
     val machine: Machine = Machine(start = "", states = emptyMap()),
 ) {
     /** Base id without `@variant`. */

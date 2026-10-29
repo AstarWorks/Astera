@@ -97,6 +97,9 @@ internal object SameTickDepth {
         states.firstOrNull()?.let { s -> for (e in entryEvents(s)) worst = maxOf(worst, depth(e, null) - 1) }
         // a branch fires in wave 1 (a timer, or an external event) or later; either way its products are delivered one wave after it
         for ((s, b) in allBranches) for (e in fired(s, b)) worst = maxOf(worst, depth(e, if (b.target != null) s.state.value else null))
+        // a handler table no branch points at (`<hit>.hit` / `.miss`) is pasted when its event is delivered, and its tick-0 events are one wave later
+        val reached = allBranches.mapNotNull { it.second.subTable }.toSet()
+        for ((key, sub) in subs) if (key !in reached) for (e in eventsOf(sub.rows)) worst = maxOf(worst, depth(e, null))
         return Result(worst, cycle)
     }
 }

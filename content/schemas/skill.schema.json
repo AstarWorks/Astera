@@ -153,6 +153,81 @@
                 "pattern": "^= .+"
             }
         },
+        "fragments": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "required": [
+                    "do"
+                ],
+                "properties": {
+                    "params": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                                "type"
+                            ],
+                            "properties": {
+                                "type": {
+                                    "enum": [
+                                        "ticks",
+                                        "blocks",
+                                        "number",
+                                        "bool",
+                                        "string"
+                                    ]
+                                },
+                                "required": {
+                                    "type": "boolean"
+                                },
+                                "default": {}
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "frames_in": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "do": {
+                        "type": "array",
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/definitions/op"
+                                },
+                                {
+                                    "type": "object",
+                                    "required": [
+                                        "emit"
+                                    ],
+                                    "properties": {
+                                        "emit": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "required": [
+                                        "use"
+                                    ],
+                                    "properties": {
+                                        "use": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
         "machine": {
             "type": "object",
             "required": [
