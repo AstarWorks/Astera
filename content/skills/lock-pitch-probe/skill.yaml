@@ -1,3 +1,4 @@
+# e2e probe: holds the look pitch for 40 ticks.
 apiVersion: astera/v3
 kind: Skill
 id: lock-pitch-probe
