@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.load.motion
 
+import com.astarworks.astera.core.application.skillengine.compose.Occurrence
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Every
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
@@ -48,8 +49,9 @@ import kotlin.math.roundToInt
  *
  * Window words: `at` (start tick, default 0; `from` is a load error, it was renamed to match the Timing block), `for` (length in ticks,
  * REQUIRED; an open window is not lowerable), `every` + `times` (repeat: a fixed period or `{from, to, ease}`, the same static spacing rule as
- * ADR-0303 3.7.1; the period must exceed `for`, copies of one law never overlap). Numbers are literals or numeric `${param}`s; a CEL `= expr`
- * is a load error because the law is expanded while the file loads.
+ * ADR-0303 3.7.1; the period must exceed `for`, copies of one law never overlap). Numbers are literals, numeric `${param}`s, or a `= expr` of constants, params and the copy
+ * index (`i`, `n`, `parent.i`), evaluated once per copy and baked (ADR-0303 3.5); an expression that needs a runtime value (`t`, a frame or
+ * world function, `rand`) is a named load error because the law is expanded while the file loads.
  *
  * Rates add (ADR-0303 section 3): laws on the SAME channel may overlap. Laws whose windows overlap or touch form a cluster; inside the
  * cluster's span every law is sampled per tick (its own key table, holding its first / last value outside its window) and the samples are
@@ -85,6 +87,7 @@ public object MotionLaws {
     private val growStartF = Field.optional("start", ScaleType(strict = true), ScaleVal.Uniform(Value.Literal(1.0)), "scale the growth begins from (number or all of forward, up, left)")
     private val perTickF = Field.optional("per_tick", Types.nullable(ScaleType(strict = false)), null, "scale change per tick (number = uniform); exactly one of per_tick, to")
     private val toF = Field.optional("to", Types.nullable(ScaleType(strict = true)), null, "scale reached at the end of the window; exactly one of per_tick, to")
+    private val growPropF = Field.optional("prop", Types.enumOf("scale", "offset"), "scale", "scale (default) or offset: with offset, start / per_tick / accel / to are positions {forward, up, left} or [left, up, forward], and the law moves the object (a decaying move)")
     private val growAccelF = Field.optional("accel", ScaleType(strict = false), ScaleVal.Uniform(Value.Literal(0.0)), "scale change per tick^2; excludes ease")
 
     // fade
@@ -124,7 +127,7 @@ public object MotionLaws {
         "spin" to (Fields.of("spin-law", lawField("spin")) + window + Fields.of("spin", axisF, degPerTickF, spinStartF, spinAccelF)),
         "move" to (Fields.of("move-law", lawField("move")) + window + Fields.of("move", velocityF, speedF, moveStartF)),
         "orbit" to (Fields.of("orbit-law", lawField("orbit")) + window + Fields.of("orbit", centerF, axisF, degPerTickF, phaseF, faceF)),
-        "grow" to (Fields.of("grow-law", lawField("grow")) + window + Fields.of("grow", growStartF, perTickF, toF, growAccelF)),
+        "grow" to (Fields.of("grow-law", lawField("grow")) + window + Fields.of("grow", growPropF, growStartF, perTickF, toF, growAccelF)),
         "align" to (Fields.of("align-law", lawField("align")) + window + Fields.of("align", alignToF, alignAxisF, alignUpF, stepF)),
         "follow" to (Fields.of("follow-law", lawField("follow")) + window + Fields.of("follow", targetF, stepF)),
         "stretch" to (Fields.of("stretch-law", lawField("stretch")) + window + Fields.of("stretch", baseF, tipF, stretchAxisF, stepF)),
@@ -224,7 +227,7 @@ public object MotionLaws {
             "grow" -> grow(v, ease, forTicks, ctx, n, path)
             else -> fade(v, ease, forTicks, ctx, n, path)
         }
-        val channel = when (name) { "spin" -> "turn"; "move" -> "offset"; "grow" -> "scale"; else -> "alpha" }
+        val channel = when (name) { "spin" -> "turn"; "move" -> "offset"; "grow" -> if (v[growPropF] == "offset") "offset" else "scale"; else -> "alpha" }
         val laws = starts.map { s ->
             try {
                 make(s)
@@ -335,7 +338,14 @@ public object MotionLaws {
     }
 
     private fun grow(v: FieldValues, ease: String?, forTicks: Int, ctx: GrammarContext, n: LawNumbers, path: String): (Int) -> RateLaw {
-        val start = n.scale(v[growStartF], "$path.start")
+        val offsetProp = v[growPropF] == "offset"
+        val startRaw = v[growStartF]
+        if (offsetProp) {
+            for ((f, key) in listOf(growStartF to "start", perTickF to "per_tick", toF to "to", growAccelF to "accel")) {
+                if (v.isPresent(f) && v[f] is ScaleVal.Uniform) ctx.fail("$path.$key", "grow prop: offset takes a position per axis, {forward, up, left} or [left, up, forward], not a single number")
+            }
+        }
+        val start = if (offsetProp && !v.isPresent(growStartF)) Vec3.ZERO else n.scale(startRaw, "$path.start")
         val perTick = v[perTickF]
         val to = v[toF]
         if ((perTick == null) == (to == null)) ctx.fail(path, "grow needs exactly one of per_tick, to")
@@ -343,6 +353,7 @@ public object MotionLaws {
         val rate: Vec3 = if (perTick != null) n.scale(perTick, "$path.per_tick") else (n.scale(to!!, "$path.to") - start) * (1.0 / forTicks)
         if (accel.lengthSquared() != 0.0 && ease != null) ctx.fail("$path.ease", "ease and accel are mutually exclusive on one law (accel already defines the time profile)")
         if (to != null && accel.lengthSquared() != 0.0) ctx.fail("$path.accel", "accel and a 'to' target both define the end value; use per_tick with accel")
+        if (offsetProp) return { s -> MoveRate(s, forTicks, start, rate, ease, accel) }
         return { s -> GrowRate(s, forTicks, start, rate, accel, ease) }
     }
 
@@ -554,6 +565,26 @@ public object MotionLaws {
 
     private fun GrammarContext.abortMissing(path: String, field: String): Nothing =
         abort(SkillDecodeError.MissingField(file, path, field))
+}
+
+/**
+ * A display's `motion:` list kept as written, with the context it was decoded in. A law number may read the copy index (`i`, `n`,
+ * `parent.i`, ADR-0303 3.5), which only exists once the family is unrolled, so the list is read again per copy by [laws] and every
+ * expression is baked into a constant for that copy. [probe] reads it once for a first copy at decode, so a bad law is a load error at the
+ * display and not only at its first lowering.
+ */
+public class LawSource(private val raw: Any?, private val ctx: GrammarContext, private val path: String) {
+    internal fun probe() {
+        var occ = Occurrence(0, 1, null)
+        repeat(PROBE_DEPTH) { occ = Occurrence(0, 1, occ) }
+        laws(occ)
+    }
+
+    public fun laws(occurrence: Occurrence): List<MotionLaw> = MotionLaws.readLaws(raw, ctx.forCopy(occurrence), path)
+
+    private companion object {
+        const val PROBE_DEPTH = 8
+    }
 }
 
 /**

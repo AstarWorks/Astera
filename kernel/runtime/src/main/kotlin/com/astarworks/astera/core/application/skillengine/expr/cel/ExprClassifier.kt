@@ -41,6 +41,8 @@ public object ExprClassifier {
         val usesLive: Boolean,
         /** `contact.*` / `target.*` / `caster.*`: a position only known when the cast / hit happens (C4c). */
         val usesRuntimePosition: Boolean,
+        /** The first live function the source calls (`aim_point`, `dist`, ...), for error messages; null when [usesLive] is false. */
+        val liveCall: String? = null,
     )
 
     /** [basisOf] gives the basis class of an anchor name, null when [name] is not an anchor. */
@@ -51,14 +53,15 @@ public object ExprClassifier {
         val usesRuntimePosition = idents.any { V3Bindings.isRuntimePosition(it) }
         val usesRand = RAND.containsMatchIn(text)
         var live = false
+        var liveCall: String? = null
         for (m in CALL.findAll(text)) {
             val fn = m.groupValues[1]
             val args = argumentText(text, m.range.last + 1)
-            if (fn in LIVE_WORLD_FUNCTIONS) live = true
+            if (fn in LIVE_WORLD_FUNCTIONS) { live = true; if (liveCall == null) liveCall = fn }
             if (fn in LIVE_FRAME_FUNCTIONS) {
                 for (a in IDENT.findAll(args).map { it.value }) {
                     val root = a.substringBefore('.')
-                    if (root in LIVE_ENTITIES || basisOf(root) == ExprClass.L) live = true
+                    if (root in LIVE_ENTITIES || basisOf(root) == ExprClass.L) { live = true; if (liveCall == null) liveCall = fn }
                 }
             }
         }
@@ -68,7 +71,7 @@ public object ExprClassifier {
             usesTime -> ExprClass.T
             else -> ExprClass.S
         }
-        return Analysis(cls, usesRand, usesTime, live, usesRuntimePosition)
+        return Analysis(cls, usesRand, usesTime, live, usesRuntimePosition, liveCall)
     }
 
     private fun argumentText(text: String, from: Int): String {

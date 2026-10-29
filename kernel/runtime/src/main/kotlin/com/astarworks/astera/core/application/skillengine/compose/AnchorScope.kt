@@ -29,8 +29,8 @@ public data class ResolvedAnchor(val instance: InstanceId, val basis: ExprClass)
  * declaration order. [at] re-binds `i` / `parent.i` to another occurrence (a family member, a group occurrence) over the same declarations.
  */
 public interface AnchorRegistry : AnchorScope {
-    /** [instance] is the instance of an op WITHOUT its family index; [family] = N for `times: N` (instances `id[0..N-1]`), null for a single one. [laws] are the closed-form laws that move the anchor (a projectile body's `motion:`): riders compose them into their own Key rows (item 16). */
-    public fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw> = emptyList())
+    /** [instance] is the instance of an op WITHOUT its family index; [family] = N for `times: N` (instances `id[0..N-1]`), null for a single one. [laws] are the closed-form laws that move the anchor (a projectile body's `motion:`); [copy] is the family index they were baked for (a law number may read `i`), so a rider addressing `id[k]` composes copy k's laws: riders compose them into their own Key rows (item 16). */
+    public fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw> = emptyList(), copy: Int? = null)
 
     public fun at(occurrence: Occurrence): AnchorScope
 }
@@ -103,18 +103,22 @@ public class DefaultAnchorScope private constructor(
 
     override fun document(id: String): AnchorDecl? = documents[id]
 
-    internal data class Entry(val instance: InstanceId, val family: Int?, val basis: ExprClass, val laws: List<MotionLaw>)
+    internal data class Entry(val instance: InstanceId, val family: Int?, val basis: ExprClass, val laws: List<MotionLaw>, val copies: Map<Int, List<MotionLaw>> = emptyMap())
 
-    override fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw>) {
+    override fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw>, copy: Int?) {
         val id = instance.path.last().op
         require(family == null || family >= 1) { "family of '${id.value}' must be >= 1 (was $family)" }
-        entries[id.value.substringAfterLast('/')] = Entry(instance, family, basis, laws)
+        val key = id.value.substringAfterLast('/')
+        val prior = entries[key]?.takeIf { copy != null && it.instance == instance }
+        entries[key] = Entry(instance, family, basis, laws, if (copy != null) prior?.copies.orEmpty() + (copy to laws) else emptyMap())
     }
 
     override fun laws(anchor: String): List<MotionLaw> {
         val parts = AnchorNames.split(anchor) ?: return emptyList()
         if (parts.state != null) return other(parts)?.laws(bareOf(parts)) ?: emptyList()
-        return (entries[parts.base] ?: published(parts.base))?.laws ?: emptyList()
+        val e = entries[parts.base] ?: published(parts.base) ?: return emptyList()
+        val k = parts.index?.let { indexValue(it) }
+        return (if (k != null) e.copies[k] else null) ?: e.laws
     }
 
     override fun at(occurrence: Occurrence): AnchorScope = DefaultAnchorScope(occurrence, entries, documents, foreign, published)

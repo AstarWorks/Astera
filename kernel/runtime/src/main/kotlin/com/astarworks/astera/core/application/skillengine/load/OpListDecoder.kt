@@ -200,7 +200,7 @@ public class OpListDecoder(private val specs: OpSpecRegistry) {
 }
 
 /** Keys that never take a per-index list: the timing counters themselves and nested op lists. */
-private val NOT_PER_INDEX = setOf("times", "every", "for", "until", "lasts", "do", "on")
+private val NOT_PER_INDEX = setOf("times", "every", "for", "until", "lasts", "do", "on", "motion")
 
 /**
  * Field types for nested op lists (a group's `do:`, a projectile's `on:`). They resolve the [OpListDecoder] that is decoding the
