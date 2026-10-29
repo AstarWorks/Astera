@@ -52,6 +52,7 @@ public object ExpansionDump {
             put("action", verb(r.action))
             put("payload", payload(r.action))
             put("src", r.src.value)
+            r.sample?.let { put("sample", "${it.k}/${it.n}") }
         }
         val rows = table.states.flatMap { st -> st.rows.map { rowJson(st.state.value, it) } } +
             table.worldRows.map { rowJson("world", it) } +
@@ -232,7 +233,8 @@ public object ExpansionDump {
         val args = payloadText(r.action)
         val mask = if (r.maskUntil.isEmpty()) "" else " mask_until=" + r.maskUntil.joinToString(",", "[", "]") { it.value }
         val guard = when (val g = r.guard) { null -> ""; is Guard.Named -> " when=${g.cond}"; is Guard.Expr -> " when==_" + g.source.replace(' ', '_') }
-        return "@${r.tick} ${r.instance.text} ${verb(r.action)}" + (if (args.isEmpty()) "" else " $args") + mask + guard
+        val sample = r.sample?.let { " sample=${it.k}/${it.n}" } ?: ""
+        return "@${r.tick} ${r.instance.text} ${verb(r.action)}" + (if (args.isEmpty()) "" else " $args") + sample + mask + guard
     }
 
     private fun verb(a: Action): String = when (a) {

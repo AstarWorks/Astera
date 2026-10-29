@@ -100,7 +100,7 @@ public class OpListDecoder(private val specs: OpSpecRegistry) {
 
     /**
      * R28: on `times: n` (a literal, no `every`) a field whose own type does not take a list may carry a list of exactly n entries,
-     * entry k read when `i` = k. Rewritten here, before field decoding, into `= [e0, e1, ...][int(i)]`; a wrong length is a load error.
+     * entry k read when `i` = k (numbers, `= CEL`, `[x, y, z]` triples and strings such as a display `block:`; a string entry is quoted). Rewritten here, before field decoding, into `= [e0, e1, ...][int(i)]`; a wrong length is a load error.
      * A list the field's type does decode on its own (a positional `[x, y, z]` offset) stays as written.
      */
     private fun expandIndexed(body: MutableMap<String, Any?>, fields: Fields, ctx: GrammarContext, p: String) {
@@ -168,9 +168,13 @@ public class OpListDecoder(private val specs: OpSpecRegistry) {
     private fun indexedEntry(e: Any?, ctx: GrammarContext, path: String): String = when {
         e is Number -> e.toDouble().toString()
         e is String && e.startsWith("= ") -> "(" + e.substring(2).trim() + ")"
+        e is String -> quoted(e)
         e is List<*> && e.size == 3 -> "vec(" + e.mapIndexed { k, c -> indexedEntry(c, ctx, "$path[$k]") }.joinToString(", ") + ")"
-        else -> ctx.mismatch(path, "number, '= expr' or [x, y, z] triple", e)
+        else -> ctx.mismatch(path, "number, string, '= expr' or [x, y, z] triple", e)
     }
+
+    /** A string entry of a per-index list as a CEL string literal (an id such as `gray_concrete`). */
+    private fun quoted(e: String): String = "\"" + e.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
     private fun find(section: OpSection, name: String): OpSpec<*>? {
         specs.find(section, name)?.let { return it }
