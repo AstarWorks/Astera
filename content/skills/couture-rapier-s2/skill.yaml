@@ -1,5 +1,5 @@
-# v3 draft (wave 2, w2-couture). Hand-ported from the v2 skill.yaml + look.yaml; per-tick values come from the v2 tracks.
-# Each linear run of a v2 track channel is one law (laws sum and hold).
+# Pattern Trim: a whirling overhead cut, the shears thrown to stick and reeled back, then a dash through the target.
+# Written in the ADR-0303 high-level form: one op per visual object, copies as `times:` families, shape as laws and keys.
 apiVersion: astera/v3
 kind: Skill
 id: couture-rapier-s2
@@ -24,9 +24,6 @@ params:
   c3_dash_distance: {type: blocks, default: 9}
   thread_thick: {type: number, default: 0.06}
   spark_count: {type: number, default: 14}
-  thread_color: {type: string, default: "#ff5fa2"}
-  trail_color: {type: string, default: "#59ff5fa2"}
-  spark_particle: {type: string, default: crit}
 # Four hits: coin1 30 (sector 30 deg, 9 blocks, height 2.0), throw 18 + bleed 2x60, reel 6, coin3 50 (dash 9 blocks, 3 ticks).
 anchors:
   - {id: shears, anchor: body_anim.hand_r, mount: caster}
@@ -36,7 +33,7 @@ machine:
   start: windup
   # v1 couture-s2-rig.yaml (0c9e986ef~1) spans windup+throw+..: body anim lastTick 63 (v1 rig t 0..62) is longer than windup (34), so it lives in the machine-wide world list.
   world:
-    - {id: body_anim, op: body, target: caster, anim: couture-s2-body, speed: 1.0, for: 63}
+    - {id: body_anim, op: body, anim: couture-s2-body, speed: 1.0, for: 63}
     # v1 couture-s2-rig.yaml:45-50 weapon_model: couture-rapier-hidden from t20 to t57 (then couture-rapier again).
     - {id: hide_held, op: held_model, at: 20, model: "astera:couture-rapier-hidden", for: 37}
     # The volley outlives its spawning state (flies for 7, sticks for stick_ticks): ADR-0303 10.1 "owner": a machine-level world: list owns things for the whole machine. It is released at tick 34 (= windup length).
@@ -48,9 +45,10 @@ machine:
       speed: "= throw_speed"
       range: "= throw_range"
       radius: 0.22
-      hit: {targets: enemies, once: true, attach: false}
+      hit: {targets: enemies, once: true}
       block: {mode: stick, for: "= stick_ticks"}
-      # GAP: v2 hit shape is a capsule root->tip of both blades (radius 0.22), window once -> projectile sphere radius 0.22 (hit.shape frames need live blade frames; G7 does not add them)
+      # GAP: v2 hit shape is a capsule root->tip of both blades (radius 0.22), window once -> projectile capsule radius 0.22 (axis follows velocity)
+      # GAP: v2 lane_a/lane_b blade offsets +-left * blade length * lane -> none (no blade length in the engine)
       # GAP: v2 align velocity axis with world.up reference -> default
       motion:
         - {law: spin, axis: left, deg_per_tick: 54, at: 0, for: 7}   # ENGINE: projectile motion lowers without params; 54 = spin_dpt, 7 = ceil(throw_range / throw_speed) + 2
@@ -62,13 +60,13 @@ machine:
           - {id: hitstop, op: freeze, at: 0, ticks: 2, scope: [caster, volley]}
           - {id: stab_snd, op: sound, sound: couture.stab, anchor: contact, pitch: "= 1.2 - 0.2 * clamp(length(velocity(volley) - velocity(victim)) / 2.0, 0.0, 1.0)"}
           # GAP: v2 victim_anim stagger_back (strength = clamp(|rel_velocity| / 2, 0.3, 1.0)) has no victim body op (R41 covers the caster only)
-          - {id: sparks, op: particle, particle: "= spark_particle", anchor: contact, count: "= spark_count", offset: [0.4, 0.4, 0.4], extra: 0.4}
+          - {id: sparks, op: particle, particle: crit, anchor: contact, count: "= spark_count", offset: [0.4, 0.4, 0.4], extra: 0.4}
         block:
           - {id: crumb, op: particle_def, def: couture-s2-p-crumb, anchor: contact}
           - {id: wall_snd, op: sound, sound: couture.stab_wall, anchor: contact}
     # v1 tip-glint (couture-s2-*-flight): ticks 3..10 of the flight rig clock, i.e. from the release at 34: world-owned so they follow the flight whichever state it is in.
-    - {id: tip_glint_a, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: "= -lane * part_length(piece_a)", up: 0.12, forward: 0.05}}, at: 37, every: 1, times: 8}
-    - {id: tip_glint_b, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: "= lane * part_length(piece_b)", up: -0.1, forward: 0.95}}, at: 37, every: 1, times: 8}
+    - {id: tip_glint_a, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: -0.6, up: 0.12, forward: 0.05}}, at: 37, every: 1, times: 8}
+    - {id: tip_glint_b, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: 0.6, up: -0.1, forward: 0.95}}, at: 37, every: 1, times: 8}
     - {id: tip_glint_body, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: 0.0, up: 0.0, forward: 0.45}}, at: 37, every: 1, times: 8}
   states:
     windup:
@@ -107,8 +105,8 @@ machine:
         - {id: piece_b_m, op: display, kind: item, item: "astera:couture-rapier-blade-b", anchor: piece_b, at: 4, for: 30}
         # v2 spin op on the shears frame (54 deg/tick about caster.left, ticks 4-34): carried by the spin law on each piece above (R34: laws live on displays / the projectile body, never on an anchor).
         # v1 trail: ticks 6, width_frac 0.6, alpha 0.35 = byte 0x59 of the colour (ribbon opacity is the colour alpha byte), fade_power default 1.5 (ADR-0303 s.260); the colour is a literal (ribbon colour takes no param), crimson patches it.
-        - {id: trail_a, op: ribbon, of: piece_a.tip, root: piece_a.root, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "= trail_color", at: 4, for: 30}
-        - {id: trail_b, op: ribbon, of: piece_b.tip, root: piece_b.root, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "= trail_color", at: 4, for: 30}
+        - {id: trail_a, op: ribbon, of: piece_a.tip, root: piece_a.root, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "#59ff5fa2", at: 4, for: 30}
+        - {id: trail_b, op: ribbon, of: piece_b.tip, root: piece_b.root, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "#59ff5fa2", at: 4, for: 30}
         # v1 volume / pitch read the tip speed: piece_a.tip (frame-op point, ADR-0303 3.5).
         - {id: whoosh,op: sound, sound: couture.whoosh, anchor: shears, at: 4, every: 4, for: 30, volume: "= clamp(speed(piece_a.tip) / 1.5, 0.2, 1.0)", pitch: "= 0.9 + 0.3 * clamp(speed(piece_a.tip) / 2.0, 0.0, 1.0)"}
         # coin1: 30 degree / 9 block cone around the caster pose of tick 8; damage lands one tick after the selector (v2 delay op)
@@ -125,879 +123,97 @@ machine:
           on:
             hit:
               - {id: c1_damage, op: damage, at: 1, target: event.victim, damage: {physical: "= dmg_coin1"}, ignore_invulnerability: true}
-              - id: h0
-                op: group
-                at: 0
-                do:
-                  - id: fx4_couture_s2_hit1
-                    op: frame
-                    anchor: victim
-                    axes: caster
-                    mode: snapshot
-                    for: 6
-                  - id: fx4_couture_s2_hit1_p_orange
-                    op: particle_def
-                    def: couture-s2-p-orange
-                    anchor: fx4_couture_s2_hit1
-                    every: 1
-                    times: 3
-                  - id: fx4_couture_s2_hit1_p_spark
-                    op: particle_def
-                    def: couture-s2-p-spark
-                    anchor: fx4_couture_s2_hit1
-                    every: 3
-                    times: 2
-                  - id: fx4_couture_s2_hit1_ps_orange_0
-                    op: particle_def
-                    def: couture-s2-p-orange
-                    anchor: fx4_couture_s2_hit1
-                    every: 1
-                    times: 3
-                  - id: fx4_couture_s2_hit1_ps_orange_1
-                    op: particle_def
-                    def: couture-s2-p-orange
-                    anchor: fx4_couture_s2_hit1
-                    every: 1
-                    times: 3
-                  - id: fx4_couture_s2_hit1_ps_orange_2
-                    op: particle_def
-                    def: couture-s2-p-orange
-                    anchor: fx4_couture_s2_hit1
-                    every: 1
-                    times: 3
-                  - id: fx4_couture_s2_hit1_ps_orange_3
-                    op: particle_def
-                    def: couture-s2-p-orange
-                    anchor: fx4_couture_s2_hit1
-                    every: 1
-                    times: 3
-                  - id: fx4_couture_s2_hit1_ps_orange_4
-                    op: particle_def
-                    def: couture-s2-p-orange
-                    anchor: fx4_couture_s2_hit1
-                    every: 1
-                    times: 3
-                  - id: fx4_couture_s2_hit1_star_0
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-feather
-                    anchor: fx4_couture_s2_hit1
-                    offset: {left: 0, up: 1.2, forward: 0}
-                    size: [0.6528, 0.1024]
-                    billboard: center
-                    for: 6
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [], alpha: 0}, {t: 1, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 8.66667, up: 13, forward: 1.0}, pose: [], alpha: 0.7, ease: out_expo}, {t: 6, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 11.21569, up: 0.5, forward: 1.0}, pose: [], alpha: 0, ease: in_quad}]}
-                  - id: fx4_couture_s2_hit1_star_1
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-feather
-                    anchor: fx4_couture_s2_hit1
-                    offset: {left: 0, up: 1.2, forward: 0}
-                    rotate: [{axis: forward, deg: 45}]
-                    size: [0.6528, 0.1024]
-                    billboard: center
-                    for: 6
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 45}], alpha: 0}, {t: 1, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 8.66667, up: 13, forward: 1.0}, pose: [{axis: forward, deg: 45}], alpha: 0.7, ease: out_expo}, {t: 6, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 11.21569, up: 0.5, forward: 1.0}, pose: [{axis: forward, deg: 45}], alpha: 0, ease: in_quad}]}
-                  - id: fx4_couture_s2_hit1_star_2
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-feather
-                    anchor: fx4_couture_s2_hit1
-                    offset: {left: 0, up: 1.2, forward: 0}
-                    rotate: [{axis: forward, deg: 90}]
-                    size: [0.6528, 0.1024]
-                    billboard: center
-                    for: 6
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 90}], alpha: 0}, {t: 1, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 8.66667, up: 13, forward: 1.0}, pose: [{axis: forward, deg: 90}], alpha: 0.7, ease: out_expo}, {t: 6, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 11.21569, up: 0.5, forward: 1.0}, pose: [{axis: forward, deg: 90}], alpha: 0, ease: in_quad}]}
-                  - id: fx4_couture_s2_hit1_star_3
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-feather
-                    anchor: fx4_couture_s2_hit1
-                    offset: {left: 0, up: 1.2, forward: 0}
-                    rotate: [{axis: forward, deg: 135}]
-                    size: [0.6528, 0.1024]
-                    billboard: center
-                    for: 6
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 135}], alpha: 0}, {t: 1, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 8.66667, up: 13, forward: 1.0}, pose: [{axis: forward, deg: 135}], alpha: 0.7, ease: out_expo}, {t: 6, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 11.21569, up: 0.5, forward: 1.0}, pose: [{axis: forward, deg: 135}], alpha: 0, ease: in_quad}]}
-                  - id: fx4_couture_s2_hit1_p_crit
-                    op: particle_def
-                    def: couture-s2-p-crit
-                    anchor: fx4_couture_s2_hit1
-                  - id: fx4_couture_s2_hit1_p_crit2
-                    op: particle_def
-                    def: couture-s2-p-crit
-                    anchor: fx4_couture_s2_hit1
+              # hit1 flash: four feather bars (0/45/90/135 deg) swell and fade over the victim, orange/crit sparks
+              - {id: h1_frame, op: frame, anchor: victim, axes: caster, mode: snapshot, at: 0, for: 6}
+              - {id: h1_feather, op: display, kind: sprite, sprite: couture-s2-feather, anchor: h1_frame, at: 0, for: 6, times: 4, offset: {up: 1.2}, rotate: [[{axis: forward, deg: 0}], [{axis: forward, deg: 45}], [{axis: forward, deg: 90}], [{axis: forward, deg: 135}]], size: [0.6528, 0.1024], billboard: center, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 1, scale: [8.66667, 13, 1], alpha: 0.7, ease: out_expo}, {t: 6, scale: [11.21569, 0.5, 1], alpha: 0, ease: in_quad}]}]}
+              - {id: h1_orange, op: particle_def, def: couture-s2-p-orange, anchor: h1_frame, every: 1, times: 3}
+              - {id: h1_spark, op: particle_def, def: couture-s2-p-spark, anchor: h1_frame, every: 3, times: 2}
+              - {id: h1_crit, op: particle_def, def: couture-s2-p-crit, anchor: h1_frame}
         # GAP(Q6): v2 delay 1 between hit and damage is the handler row `at: 1` (option A); option B would be `damage_delay: 1` on the hit.
         # max_count: 1 = the nearest 1 target (v2 hit cap; founder 10/28 ruling, TablePlayer.kt:933-935 sorts nearest-first then takes N).
-        - id: w0
-          op: group
-          at: 0
-          do:
-            - id: snd_5
-              op: sound
-              sound: entity.player.attack.sweep
-              anchor: caster
-              volume: 0.5
-              pitch: 0.6
-            - id: snd_6
-              op: sound
-              sound: item.armor.equip_chain
-              anchor: caster
-              volume: 0.6
-              pitch: 1.4
-        - id: w3
-          op: group
-          at: 3
-          do:
-            - id: fx6_couture_s2_haze
-              op: frame
-              anchor: caster
-              mode: snapshot
-              for: 8
-            - id: fx6_couture_s2_haze_haze_hip
-              op: display
-              kind: sprite
-              sprite: couture-s2-haze-soft
-              color: "#8A5CFF"
-              anchor: fx6_couture_s2_haze
-              offset: {left: 0, up: 0.9, forward: -0.1}
-              size: [2.56, 2.56]
-              billboard: center
-              for: 8
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 0.9, forward: -0.1}, scale: {left: 1, up: 1, forward: 1.0}, pose: [], alpha: 0}, {t: 3, offset: {left: 0, up: 0.9, forward: -0.1}, scale: {left: 2, up: 2, forward: 1.0}, pose: [], alpha: 0.3, ease: out_quad}, {t: 8, offset: {left: 0, up: 0.9, forward: -0.1}, scale: {left: 2, up: 2, forward: 1.0}, pose: [], alpha: 0, ease: in_quad}]}
-            - id: snd_7
-              op: sound
-              sound: block.amethyst_block.resonate
-              anchor: caster
-              volume: 0.5
-              pitch: 1.6
-        - id: w7
-          op: group
+        - {id: snd_5, op: sound, sound: entity.player.attack.sweep, anchor: caster, at: 0, volume: 0.5, pitch: 0.6}
+        - {id: snd_6, op: sound, sound: item.armor.equip_chain, anchor: caster, at: 0, volume: 0.6, pitch: 1.4}
+        - {id: snd_7, op: sound, sound: block.amethyst_block.resonate, anchor: caster, at: 3, volume: 0.5, pitch: 1.6}
+        - {id: snd_8, op: sound, sound: entity.player.attack.sweep, anchor: caster, at: 9, volume: 0.9, pitch: 1.3}
+        - {id: snd_9, op: sound, sound: entity.sheep.shear, anchor: caster, at: 9, volume: 1, pitch: 1}
+        - {id: snd_10, op: sound, sound: block.amethyst_cluster.break, anchor: caster, at: 11, volume: 0.5, pitch: 1.5}
+        - {id: snd_11, op: sound, sound: item.trident.throw, anchor: caster, at: 18, volume: 0.5, pitch: 1.2}
+        - {id: snd_13, op: sound, sound: block.amethyst_block.chime, anchor: caster, at: 33, volume: 0.6, pitch: 0.7}
+
+        # --- tick 2..: a lavender haze gathers and a white line draws in front of the caster
+        - {id: pre_f, op: frame, anchor: caster, mode: snapshot, at: 2, for: 22}
+        - {id: line, op: display, kind: block, block: white_concrete, anchor: pre_f, at: 2, for: 9, offset: {up: 0.8}, rotate: [{axis: left, deg: -14}], scale: [0.05, 0.05, 9], brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, scale: [0.05, 0.05, 0.01]}, {t: 1, scale: [0.05, 0.05, 9], ease: out_expo}, {t: 9, scale: [0, 0, 9], ease: in_quad}]}]}
+        - {id: haze, op: display, kind: sprite, sprite: couture-s2-haze-soft, color: "#8A5CFF", anchor: pre_f, at: 3, for: 8, offset: {up: 0.9, forward: -0.1}, size: [2.56, 2.56], billboard: center, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 4, scale: [1.5, 1.5, 1], alpha: 0.3}, {t: 8, scale: [2, 2, 1], alpha: 0}]}]}
+
+        # --- tick 7..17: coin1 cut. Five streaks fly out along the arc, a crescent core flashes, white/orange sparks and 30 petal sparks scatter
+        - {id: c1_f, op: frame, anchor: caster, mode: snapshot, at: 7, for: 11}
+        - id: streak
+          op: display
+          kind: sprite
+          sprite: couture-s2-streak
+          anchor: c1_f
           at: 7
-          do:
-            - id: fx3_couture_s2_coin1
-              op: frame
-              anchor: caster
-              mode: snapshot
-              for: 11
-            - id: fx3_couture_s2_coin1_streak_0
-              op: display
-              kind: sprite
-              sprite: couture-s2-streak
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0, up: 0.9, forward: 0.8}
-              rotate: [{axis: forward, deg: 6}]
-              size: [1.28, 1.28]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 0.9, forward: 0.8}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 6}], alpha: 0}, {t: 1, offset: {left: 0, up: 0.9, forward: 2}, scale: {left: 2.5, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 6}], alpha: 1, ease: out_expo}, {t: 5, offset: {left: 0, up: 1, forward: 3.4}, scale: {left: 1.5, up: 0.6, forward: 1.0}, pose: [{axis: forward, deg: 6}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_streak_3
-              op: display
-              kind: sprite
-              sprite: couture-s2-streak
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0, up: 2.1, forward: 1.2}
-              rotate: [{axis: forward, deg: -8}]
-              size: [1.28, 1.28]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 2.1, forward: 1.2}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: -8}], alpha: 0}, {t: 1, offset: {left: 0, up: 2.1, forward: 2.4}, scale: {left: 2.5, up: 1, forward: 1.0}, pose: [{axis: forward, deg: -8}], alpha: 1, ease: out_expo}, {t: 5, offset: {left: 0, up: 2.2, forward: 3.8}, scale: {left: 1.5, up: 0.6, forward: 1.0}, pose: [{axis: forward, deg: -8}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_line
-              op: display
-              kind: block
-              block: white_concrete
-              # v1 couture-s2-coin1 line: block (translate = element centre in v1), out_expo grow then in_quad thin to 0
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0, up: 0.8, forward: 0}
-              rotate: [{axis: left, deg: -14}]
-              scale: [0.02, 0.02, 0.02]
-              brightness: {block: 15, sky: 15}
-              at: 2
-              for: 9
-              motion:
-                - law: keys
-                  keys:
-                    - {t: 0, offset: {left: 0, up: 0.8, forward: 0}, scale: {left: 0.02, up: 0.02, forward: 0.02}}
-                    - {t: 1, offset: {left: 0, up: 1.3, forward: 4.2}, scale: {left: 0.05, up: 0.05, forward: 9}, ease: out_expo}
-                    - {t: 9, scale: {left: 0, up: 0, forward: 9}, ease: in_quad}
-            - id: fx3_couture_s2_coin1_core
-              op: display
-              kind: sprite
-              sprite: couture-s2-crescent-core
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0, up: 1, forward: -0.2}
-              rotate: [{axis: forward, deg: -164}]
-              size: [3.2, 2.56]
-              billboard: center
-              for: 8
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1, forward: -0.2}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 196}], alpha: 0}, {t: 1, offset: {left: 0, up: 1, forward: 0.5}, scale: {left: 1.6, up: 1.55, forward: 1.0}, pose: [{axis: forward, deg: 190}], alpha: 1, ease: out_expo}, {t: 4, offset: {left: 0, up: 1, forward: 0.3}, scale: {left: 1.48, up: 1.55, forward: 1.0}, pose: [{axis: forward, deg: 186}], alpha: 0.9, ease: out_quad}, {t: 6, offset: {left: 0, up: 1, forward: -1.1}, scale: {left: 0.32, up: 1.25, forward: 1.0}, pose: [{axis: forward, deg: 176}], alpha: 0.3, ease: in_quad}, {t: 7, offset: {left: 0, up: 1, forward: -1.5}, scale: {left: 0.12, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 174}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_sp_0
-              op: particle_def
-              def: couture-s2-p-white
-              anchor: fx3_couture_s2_coin1
-              every: 1
-              times: 7
-            - id: fx3_couture_s2_coin1_sp_1
-              op: particle_def
-              def: couture-s2-p-white
-              anchor: fx3_couture_s2_coin1
-              every: 1
-              times: 7
-            - id: fx3_couture_s2_coin1_sp_2
-              op: particle_def
-              def: couture-s2-p-white
-              anchor: fx3_couture_s2_coin1
-              every: 1
-              times: 7
-            - id: fx3_couture_s2_coin1_sp_3
-              op: particle_def
-              def: couture-s2-p-white
-              anchor: fx3_couture_s2_coin1
-              every: 1
-              times: 7
-            - id: fx3_couture_s2_coin1_sp_4
-              op: particle_def
-              def: couture-s2-p-white
-              anchor: fx3_couture_s2_coin1
-              every: 1
-              times: 7
-            - id: fx3_couture_s2_coin1_or_0
-              op: particle_def
-              def: couture-s2-p-orange
-              anchor: fx3_couture_s2_coin1
-              every: 1
-              times: 6
-            - id: fx3_couture_s2_coin1_or_1
-              op: particle_def
-              def: couture-s2-p-orange
-              anchor: fx3_couture_s2_coin1
-              every: 1
-              times: 6
-        - id: w8
-          op: group
-          at: 8
-          do:
-            - id: fx3_couture_s2_coin1_streak_1
-              op: display
-              kind: sprite
-              sprite: couture-s2-streak
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0, up: 1.3, forward: 1.4}
-              rotate: [{axis: forward, deg: -4}]
-              size: [1.28, 1.28]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.3, forward: 1.4}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: -4}], alpha: 0}, {t: 1, offset: {left: 0, up: 1.3, forward: 2.6}, scale: {left: 2.5, up: 1, forward: 1.0}, pose: [{axis: forward, deg: -4}], alpha: 1, ease: out_expo}, {t: 5, offset: {left: 0, up: 1.4, forward: 4}, scale: {left: 1.5, up: 0.6, forward: 1.0}, pose: [{axis: forward, deg: -4}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_streak_4
-              op: display
-              kind: sprite
-              sprite: couture-s2-streak
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0, up: 2.5, forward: 0.9}
-              rotate: [{axis: forward, deg: 3}]
-              size: [1.28, 1.28]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 2.5, forward: 0.9}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 3}], alpha: 0}, {t: 1, offset: {left: 0, up: 2.5, forward: 2.1}, scale: {left: 2.5, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 3}], alpha: 1, ease: out_expo}, {t: 5, offset: {left: 0, up: 2.6, forward: 3.5}, scale: {left: 1.5, up: 0.6, forward: 1.0}, pose: [{axis: forward, deg: 3}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_0
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: -0.65, up: 0.65, forward: 1.68}
-              rotate: [{axis: forward, deg: -51}]
-              size: [0.1664, 0.1664]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: -0.65, up: 0.65, forward: 1.68}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 309}], alpha: 0}, {t: 1, offset: {left: -0.65, up: 0.65, forward: 1.88}, scale: {left: 2.46154, up: 1.96154, forward: 1.0}, pose: [{axis: forward, deg: 349}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: -0.65, up: 0.76, forward: 3.52}, scale: {left: 1.73077, up: 1.23077, forward: 1.0}, pose: [{axis: forward, deg: 509}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_5
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0.43, up: 0.47, forward: 0.15}
-              rotate: [{axis: forward, deg: -64}]
-              size: [0.1792, 0.1792]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0.43, up: 0.47, forward: 0.15}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 296}], alpha: 0}, {t: 1, offset: {left: 0.43, up: 0.47, forward: 0.35}, scale: {left: 2.5, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 336}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: -0.17, up: 1.05, forward: 1.97}, scale: {left: 1.75, up: 1.25, forward: 1.0}, pose: [{axis: forward, deg: 496}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_10
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0.34, up: 0.91, forward: 1.95}
-              rotate: [{axis: forward, deg: -173}]
-              size: [0.2112, 0.2112]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0.34, up: 0.91, forward: 1.95}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 187}], alpha: 0}, {t: 1, offset: {left: 0.34, up: 0.91, forward: 2.15}, scale: {left: 2.51515, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 227}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: 0.8, up: 1.07, forward: 3.79}, scale: {left: 1.75758, up: 1.24242, forward: 1.0}, pose: [{axis: forward, deg: 387}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_15
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: -0.81, up: 0.5, forward: 3.46}
-              rotate: [{axis: forward, deg: 61}]
-              size: [0.2304, 0.2304]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: -0.81, up: 0.5, forward: 3.46}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 61}], alpha: 0}, {t: 1, offset: {left: -0.81, up: 0.5, forward: 3.66}, scale: {left: 2.5, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 101}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: -0.27, up: 0.69, forward: 5.43}, scale: {left: 1.75, up: 1.25, forward: 1.0}, pose: [{axis: forward, deg: 261}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_20
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: -0.53, up: 1.31, forward: 3.21}
-              rotate: [{axis: forward, deg: 42}]
-              size: [0.1728, 0.1728]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: -0.53, up: 1.31, forward: 3.21}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 42}], alpha: 0}, {t: 1, offset: {left: -0.53, up: 1.31, forward: 3.41}, scale: {left: 2.55556, up: 2.03704, forward: 1.0}, pose: [{axis: forward, deg: 82}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: -0.48, up: 1.71, forward: 4.58}, scale: {left: 1.77778, up: 1.25926, forward: 1.0}, pose: [{axis: forward, deg: 242}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_25
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0.2, up: 0.96, forward: -0.33}
-              rotate: [{axis: forward, deg: 96}]
-              size: [0.16, 0.16]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0.2, up: 0.96, forward: -0.33}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 96}], alpha: 0}, {t: 1, offset: {left: 0.2, up: 0.96, forward: -0.13}, scale: {left: 2.48, up: 1.96, forward: 1.0}, pose: [{axis: forward, deg: 136}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: -0.31, up: 1.26, forward: 1.28}, scale: {left: 1.72, up: 1.24, forward: 1.0}, pose: [{axis: forward, deg: 296}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_30
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0.33, up: 1.18, forward: -0.47}
-              rotate: [{axis: forward, deg: 52}]
-              size: [0.2176, 0.2176]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0.33, up: 1.18, forward: -0.47}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 52}], alpha: 0}, {t: 1, offset: {left: 0.33, up: 1.18, forward: -0.27}, scale: {left: 2.52941, up: 2.02941, forward: 1.0}, pose: [{axis: forward, deg: 92}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: 0.46, up: 1.41, forward: 0.34}, scale: {left: 1.76471, up: 1.26471, forward: 1.0}, pose: [{axis: forward, deg: 252}], alpha: 0, ease: in_quad}]}
-        - id: w9
-          op: group
-          at: 9
-          do:
-            - id: fx3_couture_s2_coin1_streak_2
-              op: display
-              kind: sprite
-              sprite: couture-s2-streak
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0, up: 1.7, forward: 0.6}
-              rotate: [{axis: forward, deg: 10}]
-              size: [1.28, 1.28]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.7, forward: 0.6}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 10}], alpha: 0}, {t: 1, offset: {left: 0, up: 1.7, forward: 1.8}, scale: {left: 2.5, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 10}], alpha: 1, ease: out_expo}, {t: 5, offset: {left: 0, up: 1.8, forward: 3.2}, scale: {left: 1.5, up: 0.6, forward: 1.0}, pose: [{axis: forward, deg: 10}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_1
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: -0.83, up: 0.98, forward: 2.11}
-              rotate: [{axis: forward, deg: -144}]
-              size: [0.1728, 0.1728]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: -0.83, up: 0.98, forward: 2.11}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 216}], alpha: 0}, {t: 1, offset: {left: -0.83, up: 0.98, forward: 2.31}, scale: {left: 2.51852, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 256}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: -0.88, up: 1.43, forward: 3.36}, scale: {left: 1.77778, up: 1.25926, forward: 1.0}, pose: [{axis: forward, deg: 416}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_6
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0.71, up: 0.6, forward: 3.51}
-              rotate: [{axis: forward, deg: -67}]
-              size: [0.2176, 0.2176]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0.71, up: 0.6, forward: 3.51}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 293}], alpha: 0}, {t: 1, offset: {left: 0.71, up: 0.6, forward: 3.71}, scale: {left: 2.5, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 333}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: 0.71, up: 1.15, forward: 4.47}, scale: {left: 1.73529, up: 1.23529, forward: 1.0}, pose: [{axis: forward, deg: 493}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_11
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0.13, up: 1.48, forward: 1.39}
-              rotate: [{axis: forward, deg: -139}]
-              size: [0.1664, 0.1664]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0.13, up: 1.48, forward: 1.39}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 221}], alpha: 0}, {t: 1, offset: {left: 0.13, up: 1.48, forward: 1.59}, scale: {left: 2.53846, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 261}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: -0.07, up: 1.98, forward: 2.21}, scale: {left: 1.76923, up: 1.26923, forward: 1.0}, pose: [{axis: forward, deg: 421}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_16
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: -0.52, up: 0.23, forward: -0.44}
-              rotate: [{axis: forward, deg: -179}]
-              size: [0.192, 0.192]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: -0.52, up: 0.23, forward: -0.44}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 181}], alpha: 0}, {t: 1, offset: {left: -0.52, up: 0.23, forward: -0.24}, scale: {left: 2.46667, up: 1.96667, forward: 1.0}, pose: [{axis: forward, deg: 221}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: 0.04, up: 0.64, forward: 0.82}, scale: {left: 1.73333, up: 1.23333, forward: 1.0}, pose: [{axis: forward, deg: 381}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_21
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0.06, up: 1.43, forward: 1.77}
-              rotate: [{axis: forward, deg: -137}]
-              size: [0.224, 0.224]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0.06, up: 1.43, forward: 1.77}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 223}], alpha: 0}, {t: 1, offset: {left: 0.06, up: 1.43, forward: 1.97}, scale: {left: 2.48571, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 263}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: 0.66, up: 1.54, forward: 3.7}, scale: {left: 1.74286, up: 1.25714, forward: 1.0}, pose: [{axis: forward, deg: 423}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_26
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: -0.85, up: 0.26, forward: 3.04}
-              rotate: [{axis: forward, deg: 38}]
-              size: [0.1984, 0.1984]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: -0.85, up: 0.26, forward: 3.04}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 38}], alpha: 0}, {t: 1, offset: {left: -0.85, up: 0.26, forward: 3.24}, scale: {left: 2.48387, up: 1.96774, forward: 1.0}, pose: [{axis: forward, deg: 78}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: -0.88, up: 0.64, forward: 4.59}, scale: {left: 1.74194, up: 1.22581, forward: 1.0}, pose: [{axis: forward, deg: 238}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_31
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: -0.04, up: 1.36, forward: 1.46}
-              rotate: [{axis: forward, deg: -12}]
-              size: [0.192, 0.192]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: -0.04, up: 1.36, forward: 1.46}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 348}], alpha: 0}, {t: 1, offset: {left: -0.04, up: 1.36, forward: 1.66}, scale: {left: 2.46667, up: 1.96667, forward: 1.0}, pose: [{axis: forward, deg: 388}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: 0.12, up: 1.9, forward: 2.64}, scale: {left: 1.73333, up: 1.23333, forward: 1.0}, pose: [{axis: forward, deg: 548}], alpha: 0, ease: in_quad}]}
-            - id: snd_8
-              op: sound
-              sound: entity.player.attack.sweep
-              anchor: caster
-              volume: 0.9
-              pitch: 1.3
-            - id: snd_9
-              op: sound
-              sound: entity.sheep.shear
-              anchor: caster
-              volume: 1
-              pitch: 1
-        - id: w10
-          op: group
-          at: 10
-          do:
-            - id: fx3_couture_s2_coin1_petal_2
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0.01, up: 0.3, forward: 0.62}
-              rotate: [{axis: forward, deg: -164}]
-              size: [0.256, 0.256]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0.01, up: 0.3, forward: 0.62}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 196}], alpha: 0}, {t: 1, offset: {left: 0.01, up: 0.3, forward: 0.82}, scale: {left: 2.475, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 236}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: 0.34, up: 0.69, forward: 2.53}, scale: {left: 1.75, up: 1.25, forward: 1.0}, pose: [{axis: forward, deg: 396}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_7
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: -0.18, up: 0.72, forward: 3.83}
-              rotate: [{axis: forward, deg: 88}]
-              size: [0.2752, 0.2752]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: -0.18, up: 0.72, forward: 3.83}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 88}], alpha: 0}, {t: 1, offset: {left: -0.18, up: 0.72, forward: 4.03}, scale: {left: 2.48837, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 128}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: -0.09, up: 0.86, forward: 5.39}, scale: {left: 1.74419, up: 1.23256, forward: 1.0}, pose: [{axis: forward, deg: 288}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_12
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0.57, up: 0.51, forward: 0.54}
-              rotate: [{axis: forward, deg: 28}]
-              size: [0.16, 0.16]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0.57, up: 0.51, forward: 0.54}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 28}], alpha: 0}, {t: 1, offset: {left: 0.57, up: 0.51, forward: 0.74}, scale: {left: 2.44, up: 1.96, forward: 1.0}, pose: [{axis: forward, deg: 68}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: 0.59, up: 0.76, forward: 1.71}, scale: {left: 1.72, up: 1.24, forward: 1.0}, pose: [{axis: forward, deg: 228}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_17
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0.83, up: 0.52, forward: 1.76}
-              rotate: [{axis: forward, deg: -145}]
-              size: [0.2112, 0.2112]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0.83, up: 0.52, forward: 1.76}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 215}], alpha: 0}, {t: 1, offset: {left: 0.83, up: 0.52, forward: 1.96}, scale: {left: 2.51515, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 255}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: 0.37, up: 0.77, forward: 3.46}, scale: {left: 1.75758, up: 1.24242, forward: 1.0}, pose: [{axis: forward, deg: 415}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_22
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0.74, up: 0.88, forward: 1.96}
-              rotate: [{axis: forward, deg: 153}]
-              size: [0.16, 0.16]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0.74, up: 0.88, forward: 1.96}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 153}], alpha: 0}, {t: 1, offset: {left: 0.74, up: 0.88, forward: 2.16}, scale: {left: 2.52, up: 2.04, forward: 1.0}, pose: [{axis: forward, deg: 193}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: 0.79, up: 1.3, forward: 2.84}, scale: {left: 1.76, up: 1.28, forward: 1.0}, pose: [{axis: forward, deg: 353}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_27
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0.82, up: 0.16, forward: 3.18}
-              rotate: [{axis: forward, deg: 70}]
-              size: [0.1664, 0.1664]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0.82, up: 0.16, forward: 3.18}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 70}], alpha: 0}, {t: 1, offset: {left: 0.82, up: 0.16, forward: 3.38}, scale: {left: 2.5, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 110}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: 1.4, up: 0.75, forward: 4.69}, scale: {left: 1.76923, up: 1.26923, forward: 1.0}, pose: [{axis: forward, deg: 270}], alpha: 0, ease: in_quad}]}
-        - id: w11
-          op: group
-          at: 11
-          do:
-            - id: fx3_couture_s2_coin1_petal_3
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: -0.53, up: 1.39, forward: 3.67}
-              rotate: [{axis: forward, deg: 136}]
-              size: [0.2688, 0.2688]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: -0.53, up: 1.39, forward: 3.67}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 136}], alpha: 0}, {t: 1, offset: {left: -0.53, up: 1.39, forward: 3.87}, scale: {left: 2.52381, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 176}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: -0.06, up: 1.89, forward: 4.74}, scale: {left: 1.7619, up: 1.2619, forward: 1.0}, pose: [{axis: forward, deg: 336}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_8
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: -0.41, up: 0.21, forward: 2.88}
-              rotate: [{axis: forward, deg: -66}]
-              size: [0.2816, 0.2816]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: -0.41, up: 0.21, forward: 2.88}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 294}], alpha: 0}, {t: 1, offset: {left: -0.41, up: 0.21, forward: 3.08}, scale: {left: 2.5, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 334}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: -0.12, up: 0.73, forward: 4.5}, scale: {left: 1.75, up: 1.25, forward: 1.0}, pose: [{axis: forward, deg: 494}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_13
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0, up: 1.24, forward: 3.17}
-              rotate: [{axis: forward, deg: -143}]
-              size: [0.2368, 0.2368]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.24, forward: 3.17}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 217}], alpha: 0}, {t: 1, offset: {left: 0, up: 1.24, forward: 3.37}, scale: {left: 2.48649, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 257}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: 0.28, up: 1.46, forward: 4.82}, scale: {left: 1.75676, up: 1.24324, forward: 1.0}, pose: [{axis: forward, deg: 417}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_18
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: -0.21, up: 1.18, forward: 2.81}
-              rotate: [{axis: forward, deg: -55}]
-              size: [0.2688, 0.2688]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: -0.21, up: 1.18, forward: 2.81}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 305}], alpha: 0}, {t: 1, offset: {left: -0.21, up: 1.18, forward: 3.01}, scale: {left: 2.47619, up: 1.97619, forward: 1.0}, pose: [{axis: forward, deg: 345}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: 0.05, up: 1.37, forward: 4.67}, scale: {left: 1.7381, up: 1.2381, forward: 1.0}, pose: [{axis: forward, deg: 505}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_23
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: -0.72, up: 0.34, forward: 0.55}
-              rotate: [{axis: forward, deg: 27}]
-              size: [0.2432, 0.2432]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: -0.72, up: 0.34, forward: 0.55}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 27}], alpha: 0}, {t: 1, offset: {left: -0.72, up: 0.34, forward: 0.75}, scale: {left: 2.47368, up: 1.97368, forward: 1.0}, pose: [{axis: forward, deg: 67}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: -0.25, up: 0.47, forward: 1.94}, scale: {left: 1.73684, up: 1.23684, forward: 1.0}, pose: [{axis: forward, deg: 227}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_28
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0.5, up: 0.46, forward: 1.14}
-              rotate: [{axis: forward, deg: 61}]
-              size: [0.16, 0.16]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0.5, up: 0.46, forward: 1.14}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 61}], alpha: 0}, {t: 1, offset: {left: 0.5, up: 0.46, forward: 1.34}, scale: {left: 2.56, up: 2.04, forward: 1.0}, pose: [{axis: forward, deg: 101}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: 0.04, up: 0.67, forward: 2.17}, scale: {left: 1.8, up: 1.28, forward: 1.0}, pose: [{axis: forward, deg: 261}], alpha: 0, ease: in_quad}]}
-            - id: snd_10
-              op: sound
-              sound: block.amethyst_cluster.break
-              anchor: caster
-              volume: 0.5
-              pitch: 1.5
-        - id: w12
-          op: group
-          at: 12
-          do:
-            - id: fx3_couture_s2_coin1_petal_4
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: -0.82, up: 0.61, forward: 1.36}
-              rotate: [{axis: forward, deg: -167}]
-              size: [0.2624, 0.2624]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: -0.82, up: 0.61, forward: 1.36}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 193}], alpha: 0}, {t: 1, offset: {left: -0.82, up: 0.61, forward: 1.56}, scale: {left: 2.4878, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 233}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: -0.93, up: 0.71, forward: 3.01}, scale: {left: 1.7561, up: 1.2439, forward: 1.0}, pose: [{axis: forward, deg: 393}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_9
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0.81, up: 1.1, forward: 0.07}
-              rotate: [{axis: forward, deg: -173}]
-              size: [0.2624, 0.2624]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0.81, up: 1.1, forward: 0.07}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 187}], alpha: 0}, {t: 1, offset: {left: 0.81, up: 1.1, forward: 0.27}, scale: {left: 2.4878, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 227}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: 0.26, up: 1.51, forward: 1.15}, scale: {left: 1.7561, up: 1.2439, forward: 1.0}, pose: [{axis: forward, deg: 387}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_14
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: 0.02, up: 1.18, forward: -0.05}
-              rotate: [{axis: forward, deg: 148}]
-              size: [0.1728, 0.1728]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0.02, up: 1.18, forward: -0.05}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 148}], alpha: 0}, {t: 1, offset: {left: 0.02, up: 1.18, forward: 0.15}, scale: {left: 2.55556, up: 2.03704, forward: 1.0}, pose: [{axis: forward, deg: 188}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: -0.42, up: 1.56, forward: 1.9}, scale: {left: 1.77778, up: 1.25926, forward: 1.0}, pose: [{axis: forward, deg: 348}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_19
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: -0.81, up: 0.28, forward: 1.82}
-              rotate: [{axis: forward, deg: 43}]
-              size: [0.1728, 0.1728]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: -0.81, up: 0.28, forward: 1.82}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 43}], alpha: 0}, {t: 1, offset: {left: -0.81, up: 0.28, forward: 2.02}, scale: {left: 2.51852, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 83}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: -0.66, up: 0.47, forward: 3.26}, scale: {left: 1.77778, up: 1.25926, forward: 1.0}, pose: [{axis: forward, deg: 243}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_24
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: -0.07, up: 0.48, forward: -0.36}
-              rotate: [{axis: forward, deg: -107}]
-              size: [0.2688, 0.2688]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: -0.07, up: 0.48, forward: -0.36}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 253}], alpha: 0}, {t: 1, offset: {left: -0.07, up: 0.48, forward: -0.16}, scale: {left: 2.47619, up: 1.97619, forward: 1.0}, pose: [{axis: forward, deg: 293}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: 0.01, up: 1.06, forward: 0.88}, scale: {left: 1.7381, up: 1.2381, forward: 1.0}, pose: [{axis: forward, deg: 453}], alpha: 0, ease: in_quad}]}
-            - id: fx3_couture_s2_coin1_petal_29
-              op: display
-              kind: sprite
-              sprite: couture-s2-petal-spark
-              anchor: fx3_couture_s2_coin1
-              offset: {left: -0.71, up: 0.26, forward: 2.53}
-              rotate: [{axis: forward, deg: -36}]
-              size: [0.1664, 0.1664]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: -0.71, up: 0.26, forward: 2.53}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 324}], alpha: 0}, {t: 1, offset: {left: -0.71, up: 0.26, forward: 2.73}, scale: {left: 2.46154, up: 1.96154, forward: 1.0}, pose: [{axis: forward, deg: 364}], alpha: 1, ease: out_quad}, {t: 5, offset: {left: -1.07, up: 0.67, forward: 3.36}, scale: {left: 1.73077, up: 1.23077, forward: 1.0}, pose: [{axis: forward, deg: 524}], alpha: 0, ease: in_quad}]}
-        - id: w15
-          op: group
-          at: 15
-          do:
-            - id: fx7_couture_s2_trail
-              op: frame
-              anchor: caster
-              mode: snapshot
-              for: 6
-            - id: fx7_couture_s2_trail_wisp
-              op: display
-              kind: sprite
-              sprite: couture-s2-crescent-core
-              anchor: fx7_couture_s2_trail
-              offset: {left: 0, up: 1.3, forward: -1.6}
-              rotate: [{axis: forward, deg: 176}]
-              size: [0.512, 3.2]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.3, forward: -1.6}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 176}], alpha: 0}, {t: 1, offset: {left: 0, up: 1.3, forward: -1.9}, scale: {left: 1.25, up: 1.04, forward: 1.0}, pose: [{axis: forward, deg: 174}], alpha: 0.4, ease: out_quad}, {t: 5, offset: {left: 0, up: 1.3, forward: -2.4}, scale: {left: 0.375, up: 0.8, forward: 1.0}, pose: [{axis: forward, deg: 172}], alpha: 0, ease: in_quad}]}
-        - id: w18
-          op: group
-          at: 18
-          do:
-            - id: snd_11
-              op: sound
-              sound: item.trident.throw
-              anchor: caster
-              volume: 0.5
-              pitch: 1.2
-        - id: w22
-          op: group
+          for: 6
+          times: 5
+          offset: [{up: 0.9, forward: 0.8}, {up: 1.3, forward: 1.4}, {up: 1.7, forward: 0.6}, {up: 2.1, forward: 1.2}, {up: 2.5, forward: 0.9}]
+          rotate: [[{axis: forward, deg: 6}], [{axis: forward, deg: -4}], [{axis: forward, deg: 10}], [{axis: forward, deg: -8}], [{axis: forward, deg: 3}]]
+          size: [1.28, 1.28]
+          billboard: center
+          motion:
+            - {law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 1, scale: [2.5, 1, 1], alpha: 1, ease: out_expo}, {t: 5, scale: [1.5, 0.6, 1], alpha: 0, ease: in_quad}]}
+            - {law: move, velocity: {forward: 1.3}, at: 0, for: 5}
+        - {id: core, op: display, kind: sprite, sprite: couture-s2-crescent-core, anchor: c1_f, at: 7, for: 8, offset: {up: 1, forward: -0.2}, size: [3.2, 2.56], billboard: center, motion: [{law: keys, keys: [{t: 0, scale: [0.6, 0.6, 1], alpha: 0}, {t: 1, scale: [1, 1, 1], alpha: 1, ease: out_expo}, {t: 8, scale: [1.3, 1.3, 1], alpha: 0, ease: in_quad}]}]}
+        - {id: white_spark, op: particle_def, def: couture-s2-p-white, anchor: c1_f, at: 7, every: 1, times: 7}
+        - {id: orange_spark, op: particle_def, def: couture-s2-p-orange, anchor: c1_f, at: 7, every: 1, times: 6}
+        # 30 petal sparks over ticks 8-12 (6 per tick), spread on a golden-angle fan in front of the caster
+        - id: petal
+          op: display
+          kind: sprite
+          sprite: couture-s2-petal-spark
+          anchor: c1_f
+          at: "= 8 + floor(i / 6)"
+          for: 6
+          times: 30
+          offset: {left: "= 0.9 * sin(rad(137.5 * i))", up: "= 1.3 + 0.7 * cos(rad(77 * i))", forward: "= 0.6 + 0.04 * i"}
+          rotate: [{axis: forward, deg: 40}]
+          size: [0.22, 0.22]
+          billboard: center
+          motion:
+            - {law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 2, scale: [1, 1, 1], alpha: 1}, {t: 6, scale: [0.4, 0.4, 1], alpha: 0, ease: in_quad}]}
+            - {law: move, velocity: {forward: 0.4}, at: 0, for: 4}
+        - {id: wisp_f, op: frame, anchor: caster, mode: snapshot, at: 15, for: 6}
+        - {id: wisp, op: display, kind: sprite, sprite: couture-s2-crescent-core, anchor: wisp_f, at: 15, for: 6, offset: {up: 1.3, forward: -1.6}, size: [0.512, 3.2], billboard: center, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 1, scale: [1, 1, 1], alpha: 0.8, ease: out_expo}, {t: 6, scale: [1.4, 0.6, 1], alpha: 0, ease: in_quad}]}]}
+
+        # --- tick 22..32: overhead slash loops spin about the caster's forward axis, one family each way, shrinking away
+        - {id: over_f, op: frame, anchor: caster, mode: follow, at: 22, for: 10}
+        - id: over_a
+          op: display
+          kind: sprite
+          sprite: couture-s2-overhead-slash
+          anchor: over_f
           at: 22
-          do:
-            - id: fx1_couture_s2_rig
-              op: frame
-              anchor: caster
-              mode: follow
-              for: 10
-            - id: fx1_couture_s2_rig_loop_a
-              op: display
-              kind: sprite
-              sprite: couture-s2-overhead-slash
-              anchor: fx1_couture_s2_rig
-              offset: {left: 0, up: 2.6, forward: 0.2}
-              size: [1.70304, 1.70304]
-              billboard: center
-              for: 6
-              motion:
-                - {law: spin, axis: forward, deg_per_tick: -60, at: 0, for: 3}
-                - {law: spin, axis: forward, deg_per_tick: 300, at: 3, for: 1}
-                - {law: spin, axis: forward, deg_per_tick: -60, at: 4, for: 2}
-                - {law: grow, per_tick: {left: -0.00704, up: -0.00704, forward: 0}, at: 0, for: 1}
-                - {law: grow, per_tick: {left: -0.02112, up: -0.02112, forward: 0}, at: 1, for: 1}
-                - {law: grow, per_tick: {left: -0.03584, up: -0.03584, forward: 0}, at: 2, for: 1}
-                - {law: grow, per_tick: {left: -0.04928, up: -0.04928, forward: 0}, at: 3, for: 1}
-                - {law: grow, per_tick: {left: -0.03904, up: -0.03904, forward: 0}, at: 4, for: 1}
-            - id: fx1_couture_s2_rig_loop_a_m
-              op: display
-              kind: sprite
-              sprite: couture-s2-overhead-slash
-              anchor: fx1_couture_s2_rig
-              offset: {left: 0, up: 2.6, forward: 0.2}
-              size: [1.70304, 1.70304]
-              billboard: center
-              for: 6
-              motion:
-                - {law: spin, axis: forward, deg_per_tick: 60, at: 0, for: 3}
-                - {law: spin, axis: forward, deg_per_tick: -300, at: 3, for: 1}
-                - {law: spin, axis: forward, deg_per_tick: 60, at: 4, for: 2}
-                - {law: grow, per_tick: {left: -0.00704, up: -0.00704, forward: 0}, at: 0, for: 1}
-                - {law: grow, per_tick: {left: -0.02112, up: -0.02112, forward: 0}, at: 1, for: 1}
-                - {law: grow, per_tick: {left: -0.03584, up: -0.03584, forward: 0}, at: 2, for: 1}
-                - {law: grow, per_tick: {left: -0.04928, up: -0.04928, forward: 0}, at: 3, for: 1}
-                - {law: grow, per_tick: {left: -0.03904, up: -0.03904, forward: 0}, at: 4, for: 1}
-        - id: w25
-          op: group
-          at: 25
-          do:
-            - id: fx1_couture_s2_rig_loop_b
-              op: display
-              kind: sprite
-              sprite: couture-s2-overhead-slash
-              anchor: fx1_couture_s2_rig
-              offset: {left: 0, up: 2.6, forward: 0.2}
-              rotate: [{axis: forward, deg: 180}]
-              size: [1.61024, 1.61024]
-              billboard: center
-              for: 4
-              motion:
-                - {law: spin, axis: forward, deg_per_tick: -60, at: 0, for: 4}
-                - {law: grow, per_tick: {left: -0.0128, up: -0.0128, forward: 0}, at: 0, for: 1}
-                - {law: grow, per_tick: {left: -0.03968, up: -0.03968, forward: 0}, at: 1, for: 1}
-                - {law: grow, per_tick: {left: -0.00704, up: -0.00704, forward: 0}, at: 2, for: 1}
-            - id: fx1_couture_s2_rig_loop_b_m
-              op: display
-              kind: sprite
-              sprite: couture-s2-overhead-slash
-              anchor: fx1_couture_s2_rig
-              offset: {left: 0, up: 2.6, forward: 0.2}
-              rotate: [{axis: forward, deg: -180}]
-              size: [1.61024, 1.61024]
-              billboard: center
-              for: 4
-              motion:
-                - {law: spin, axis: forward, deg_per_tick: 60, at: 0, for: 4}
-                - {law: grow, per_tick: {left: -0.0128, up: -0.0128, forward: 0}, at: 0, for: 1}
-                - {law: grow, per_tick: {left: -0.03968, up: -0.03968, forward: 0}, at: 1, for: 1}
-                - {law: grow, per_tick: {left: -0.00704, up: -0.00704, forward: 0}, at: 2, for: 1}
-        - id: w27
-          op: group
-          at: 27
-          do:
-            - id: fx1_couture_s2_rig_loop_gc
-              op: display
-              kind: sprite
-              sprite: couture-s2-overhead-slash
-              anchor: fx1_couture_s2_rig
-              offset: {left: 0, up: 2.4, forward: 0}
-              size: [1.65696, 1.65696]
-              billboard: center
-              for: 5
-              motion:
-                - {law: spin, axis: forward, deg_per_tick: -60, at: 0, for: 3}
-                - {law: spin, axis: forward, deg_per_tick: 300, at: 3, for: 1}
-                - {law: spin, axis: forward, deg_per_tick: -60, at: 4, for: 1}
-                - {law: grow, per_tick: {left: -0.0096, up: -0.0096, forward: 0}, at: 0, for: 1}
-                - {law: grow, per_tick: {left: -0.02816, up: -0.02816, forward: 0}, at: 1, for: 1}
-                - {law: grow, per_tick: {left: -0.04608, up: -0.04608, forward: 0}, at: 2, for: 1}
-                - {law: grow, per_tick: {left: -0.0224, up: -0.0224, forward: 0}, at: 3, for: 1}
-            - id: fx1_couture_s2_rig_loop_gc_m
-              op: display
-              kind: sprite
-              sprite: couture-s2-overhead-slash
-              anchor: fx1_couture_s2_rig
-              offset: {left: 0, up: 2.4, forward: 0}
-              size: [1.65696, 1.65696]
-              billboard: center
-              for: 5
-              motion:
-                - {law: spin, axis: forward, deg_per_tick: 60, at: 0, for: 3}
-                - {law: spin, axis: forward, deg_per_tick: -300, at: 3, for: 1}
-                - {law: spin, axis: forward, deg_per_tick: 60, at: 4, for: 1}
-                - {law: grow, per_tick: {left: -0.0096, up: -0.0096, forward: 0}, at: 0, for: 1}
-                - {law: grow, per_tick: {left: -0.02816, up: -0.02816, forward: 0}, at: 1, for: 1}
-                - {law: grow, per_tick: {left: -0.04608, up: -0.04608, forward: 0}, at: 2, for: 1}
-                - {law: grow, per_tick: {left: -0.0224, up: -0.0224, forward: 0}, at: 3, for: 1}
-        - id: w33
-          op: group
-          at: 33
-          do:
-            - id: snd_13
-              op: sound
-              sound: block.amethyst_block.chime
-              anchor: caster
-              volume: 0.6
-              pitch: 0.7
+          for: 10
+          times: 3
+          offset: [{up: 2.6}, {up: 2.4}, {up: 2.5}]
+          size: [1.65, 1.65]
+          billboard: fixed
+          motion:
+            - {law: spin, axis: forward, deg_per_tick: -60, at: 0, for: 10}
+            - {law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 2, scale: [1, 1, 1], alpha: 0.9}, {t: 10, scale: [0.4, 0.4, 1], alpha: 0, ease: in_quad}]}
+        - id: over_b
+          op: display
+          kind: sprite
+          sprite: couture-s2-overhead-slash
+          anchor: over_f
+          at: 22
+          for: 10
+          times: 3
+          offset: [{up: 2.6}, {up: 2.4}, {up: 2.5}]
+          size: [1.65, 1.65]
+          billboard: fixed
+          motion:
+            - {law: spin, axis: forward, deg_per_tick: 60, at: 0, for: 10}
+            - {law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 2, scale: [1, 1, 1], alpha: 0.9}, {t: 10, scale: [0.4, 0.4, 1], alpha: 0, ease: in_quad}]}
     throw:
       # v2 release: volley placed at the shears, pieces reparented, fly tip-first at throw_speed, gravity 0, drag 0, max_ticks = ceil(range / speed) + 2
       for: 7   # = ceil(throw_range / throw_speed) + 2 = ceil(7 / 1.7) + 2 = 5 + 2 = 7 with the current params (C5: for is a compile-time tick count)
@@ -1012,13 +228,13 @@ machine:
         - {id: fly_b_m, op: display, kind: item, item: "astera:couture-rapier-blade-b", anchor: fly_b, until: reel.end}
         - {id: throw_snd, op: sound, sound: couture.throw, anchor: shears, pitch: 1.1}
         # v2 dust: vanilla directed form (R34); v2 speed 0 so the velocity is only inherit_velocity 0.5 x the volley velocity.
-        - {id: puff, op: particle, particle: dust, anchor: palm, times: 6, count: 0, offset: "= velocity(volley) * 0.5", extra: 1.0, color: "= thread_color", size: 1.0}
+        - {id: puff, op: particle, particle: dust, anchor: palm, times: 6, count: 0, offset: "= velocity(volley) * 0.5", extra: 1.0, color: "#ff5fa2", size: 1.0}
         # v2 thread lines palm -> blade_a.root / blade_b.root / body.pivot (R34: live ribbons).
         - {id: palm_f, op: frame, anchor: palm, until: reel.end}   # ribbon ends resolve frame-op ids only (RibbonOpSpec.anchorOf), not document anchors
         # ENGINE GAP: RibbonOpSpec.kt:179 demands a static `for`, but the reel ends on arrival (runtime distance, v2), so its length is not fixed; kept until: reel.end (not a literal 51) until the engine accepts it.
-        - {id: thread_a, op: ribbon, from: palm_f, to: fly_a.root, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
-        - {id: thread_b, op: ribbon, from: palm_f, to: fly_b.root, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
-        - {id: thread_body, op: ribbon, from: palm_f, to: fly_body.pivot, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
+        - {id: thread_a, op: ribbon, from: palm_f, to: fly_a.root, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
+        - {id: thread_b, op: ribbon, from: palm_f, to: fly_b.root, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
+        - {id: thread_body, op: ribbon, from: palm_f, to: fly_body.pivot, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
         # v1 plate flight_fan: slash_fan (= couture-s2-crescent) in the plane [axis, up] of the volley, alpha 0.5, removed on hit/block (the throw state ends then). Size 1.9 is the v2 value. ASSUMPTION: a fixed sprite faces +forward, so up 90 lays its x axis along the flight axis.
         - {id: flight_fan, op: display, kind: sprite, sprite: couture-s2-crescent, size: [1.9, 1.9], color: "#80ffffff", anchor: /windup/volley, billboard: fixed, rotate: [{axis: up, deg: 90}], for: 7}
         # v1 tip-glint (couture-s2-*-flight): couture-s2-p-tip every tick, ticks 3..10, per piece, at the v1 vfx-local lane point. v1 VfxDefinition.kt:372 documents x = left, y = up, z = forward, so offsets are copied unchanged.
@@ -1030,327 +246,80 @@ machine:
       then: reel
       do:
         # v1 stick-spark / stick-pink (couture-s2-*-stuck): ticks 0..2 per piece at the v1 vfx-local point (x lane, y 1.48, z 0.05). same axis mapping as tip-glint; the anchor is the volley, not the hit point.
-        - {id: stick_a_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /windup/volley, offset: {left: "= -lane * part_length(piece_a)", up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
-        - {id: stick_a_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: /windup/volley, offset: {left: "= -lane * part_length(piece_a)", up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
-        - {id: stick_b_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /windup/volley, offset: {left: "= lane * part_length(piece_b)", up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
-        - {id: stick_b_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: /windup/volley, offset: {left: "= lane * part_length(piece_b)", up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_a_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /windup/volley, offset: {left: -0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_a_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: /windup/volley, offset: {left: -0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_b_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /windup/volley, offset: {left: 0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_b_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: /windup/volley, offset: {left: 0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
         - {id: stick_body_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /windup/volley, offset: {left: 0.0, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
         - {id: stick_body_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: /windup/volley, offset: {left: 0.0, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
-        - id: t2
-          op: group
+        # --- hit2 burst at the contact point, ticks 2..: pink plumes/stars/shards/flares swell and collapse, embers and sparks, then a shadow spike ring on the ground
+        - {id: hit2_f, op: frame, anchor: contact, mode: snapshot, at: 2, for: 25}
+        - {id: burst_soft, op: display, kind: sprite, sprite: couture-s2-burst-soft, color: "#FFB8D8", anchor: hit2_f, at: 2, for: 6, offset: {left: 0.1, up: 1.3}, rotate: [{axis: forward, deg: 170}], size: [0.45568, 0.5472], billboard: center, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 1, scale: [2.0014, 1.66667, 1], ease: out_expo}, {t: 3, scale: [2.20225, 1.50058, 1]}, {t: 5, scale: [0.80056, 0.16725, 1], ease: in_quad}]}]}
+        - id: burst_plume
+          op: display
+          kind: sprite
+          sprite: couture-s2-burst-plume
+          color: "#FFB8D8"
+          anchor: hit2_f
           at: 2
-          do:
-            - id: fx1_couture_s2_hit2
-              op: frame
-              anchor: contact
-              mode: snapshot
-              for: 25
-            - id: fx1_couture_s2_hit2_burst_soft_0
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-soft
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0.1, up: 1.3, forward: 0}
-              rotate: [{axis: forward, deg: 170}]
-              size: [0.45568, 0.5472]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0.1, up: 1.3, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 170}]}, {t: 1, offset: {left: 0.1, up: 1.3, forward: 0}, scale: {left: 2.0014, up: 1.66667, forward: 1.0}, pose: [{axis: forward, deg: 170}], ease: out_expo}, {t: 3, offset: {left: 0.1, up: 1.3, forward: 0}, scale: {left: 2.20225, up: 1.50058, forward: 1.0}, pose: [{axis: forward, deg: 170}]}, {t: 5, offset: {left: 0.1, up: 1.3, forward: 0}, scale: {left: 0.80056, up: 0.16725, forward: 1.0}, pose: [{axis: forward, deg: 170}], ease: in_quad}]}
-            - id: fx1_couture_s2_hit2_burst_plume_0
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-plume
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 1.3, forward: 0}
-              rotate: [{axis: forward, deg: 168}]
-              size: [1.2352, 1.0112]
-              billboard: center
-              for: 5
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 168}]}, {t: 1, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 1.81865, up: 1.77722, forward: 1.0}, pose: [{axis: forward, deg: 168}], ease: out_expo}, {t: 2, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 2.00052, up: 1.55506, forward: 1.0}, pose: [{axis: forward, deg: 168}]}, {t: 4, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 0.5456, up: 0.06709, forward: 1.0}, pose: [{axis: forward, deg: 168}], ease: in_quad}]}
-            - id: fx1_couture_s2_hit2_burst_plume_1
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-plume
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 1.3, forward: 0}
-              rotate: [{axis: forward, deg: 152}]
-              size: [1.30432, 1.06688]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 152}]}, {t: 1, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 1.81796, up: 1.77804, forward: 1.0}, pose: [{axis: forward, deg: 152}], ease: out_expo}, {t: 2, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 2, up: 1.55609, forward: 1.0}, pose: [{axis: forward, deg: 152}]}, {t: 5, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 0.54514, up: 0.06659, forward: 1.0}, pose: [{axis: forward, deg: 152}], ease: in_quad}]}
-            - id: fx1_couture_s2_hit2_burst_plume_2
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-plume
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 1.3, forward: 0}
-              rotate: [{axis: forward, deg: 136}]
-              size: [1.16672, 0.95488]
-              billboard: center
-              for: 5
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 136}]}, {t: 1, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 1.81843, up: 1.77748, forward: 1.0}, pose: [{axis: forward, deg: 136}], ease: out_expo}, {t: 2, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 2, up: 1.55563, forward: 1.0}, pose: [{axis: forward, deg: 136}]}, {t: 4, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 0.54526, up: 0.06702, forward: 1.0}, pose: [{axis: forward, deg: 136}], ease: in_quad}]}
-            - id: fx1_couture_s2_hit2_burst_star_0
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-star
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 1.3, forward: 0}
-              size: [0.1728, 0.1728]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: []}, {t: 1, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 1.66667, up: 1.66667, forward: 1.0}, pose: [], ease: out_expo}, {t: 3, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 1.75185, up: 1.75185, forward: 1.0}, pose: [{axis: forward, deg: 6}]}, {t: 5, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 0.24815, up: 0.24815, forward: 1.0}, pose: [{axis: forward, deg: 10}], ease: in_quad}]}
-            - id: fx1_couture_s2_hit2_burst_star_1
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-star
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 1.3, forward: 0}
-              rotate: [{axis: forward, deg: 9}]
-              size: [0.1152, 0.1152]
-              billboard: center
-              for: 5
-              motion:
-                - {law: spin, axis: forward, deg_per_tick: 3, at: 1, for: 2}
-                - {law: spin, axis: forward, deg_per_tick: 4, at: 3, for: 1}
-                - {law: grow, per_tick: {left: 0.0768, up: 0.0768, forward: 0}, at: 0, for: 1}
-                - {law: grow, per_tick: {left: 0.0048, up: 0.0048, forward: 0}, at: 1, for: 2}
-                - {law: grow, per_tick: {left: -0.1728, up: -0.1728, forward: 0}, at: 3, for: 1}
-            - id: fx1_couture_s2_hit2_burst_shard_0
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-shard
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 1.387, forward: -0.295}
-              rotate: [{axis: forward, deg: 170}]
-              size: [0.2016, 0.28224]
-              billboard: center
-              for: 5
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.387, forward: -0.295}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 170}]}, {t: 1, offset: {left: 0, up: 1.844, forward: -1.852}, scale: {left: 2, up: 1.28571, forward: 1.0}, pose: [{axis: forward, deg: 170}], ease: out_expo}, {t: 4, offset: {left: 0, up: 2.203, forward: -3.073}, scale: {left: 0.4, up: 0.14286, forward: 1.0}, pose: [{axis: forward, deg: 170}], ease: in_quad}]}
-            - id: fx1_couture_s2_hit2_burst_shard_3
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-shard
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 1.621, forward: -0.23}
-              rotate: [{axis: forward, deg: 140}]
-              size: [0.144, 0.2016]
-              billboard: center
-              for: 5
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.621, forward: -0.23}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 140}]}, {t: 1, offset: {left: 0, up: 2.891, forward: -1.138}, scale: {left: 2, up: 1.28571, forward: 1.0}, pose: [{axis: forward, deg: 140}], ease: out_expo}, {t: 4, offset: {left: 0, up: 3.871, forward: -1.838}, scale: {left: 0.4, up: 0.14286, forward: 1.0}, pose: [{axis: forward, deg: 140}], ease: in_quad}]}
-            - id: fx1_couture_s2_hit2_burst_shard_6
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-shard
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 1.738, forward: -0.539}
-              rotate: [{axis: forward, deg: 154}]
-              size: [0.1344, 0.18816]
-              billboard: center
-              for: 5
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.738, forward: -0.539}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 154}]}, {t: 1, offset: {left: 0, up: 2.698, forward: -1.72}, scale: {left: 2, up: 1.28571, forward: 1.0}, pose: [{axis: forward, deg: 154}], ease: out_expo}, {t: 4, offset: {left: 0, up: 3.404, forward: -2.588}, scale: {left: 0.4, up: 0.14286, forward: 1.0}, pose: [{axis: forward, deg: 154}], ease: in_quad}]}
-            - id: fx1_couture_s2_hit2_burst_core_0
-              op: display
-              kind: sprite
-              sprite: couture-s2-haze-soft
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: -0.1, up: 1.3, forward: 0}
-              size: [0.2304, 0.2304]
-              billboard: center
-              for: 6
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: -0.1, up: 1.3, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: []}, {t: 1, offset: {left: -0.1, up: 1.3, forward: 0}, scale: {left: 1.83333, up: 1.83333, forward: 1.0}, pose: [], ease: out_expo}, {t: 3, offset: {left: -0.1, up: 1.3, forward: 0}, scale: {left: 2, up: 2, forward: 1.0}, pose: [{axis: forward, deg: 10}]}, {t: 5, offset: {left: -0.1, up: 1.3, forward: 0}, scale: {left: 0.4, up: 0.4, forward: 1.0}, pose: [{axis: forward, deg: 20}], ease: in_quad}]}
-            - id: fx1_couture_s2_hit2_burst_ember_0
-              op: particle_def
-              def: couture-s2-burst-ember
-              anchor: fx1_couture_s2_hit2
-              every: 1
-              times: 9
-            - id: fx1_couture_s2_hit2_burst_ember_2
-              op: particle_def
-              def: couture-s2-burst-ember
-              anchor: fx1_couture_s2_hit2
-              every: 1
-              times: 9
-            - id: fx1_couture_s2_hit2_burst_ember_4
-              op: particle_def
-              def: couture-s2-burst-ember
-              anchor: fx1_couture_s2_hit2
-              every: 1
-              times: 9
-            - id: fx1_couture_s2_hit2_p_orange
-              op: particle_def
-              def: couture-s2-p-orange
-              anchor: fx1_couture_s2_hit2
-              every: 1
-              times: 2
-            - id: fx1_couture_s2_hit2_p_spark
-              op: particle_def
-              def: couture-s2-p-spark
-              anchor: fx1_couture_s2_hit2
-              every: 3
-              times: 2
-        - id: t3
-          op: group
+          for: 6
+          times: 5
+          offset: {left: "= 0.25 * sin(rad(72 * i))", up: "= 1.3 + 0.2 * cos(rad(72 * i))"}
+          rotate: [[{axis: forward, deg: 168}], [{axis: forward, deg: 100}], [{axis: forward, deg: 30}], [{axis: forward, deg: -40}], [{axis: forward, deg: -110}]]
+          size: [1.2352, 1.0112]
+          billboard: center
+          motion:
+            - {law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 1, scale: [1.81865, 1.77722, 1], ease: out_expo}, {t: 2, scale: [2.00052, 1.55506, 1]}, {t: 4, scale: [0.5456, 0.06709, 1], ease: in_quad}]}
+        - id: burst_star
+          op: display
+          kind: sprite
+          sprite: couture-s2-burst-star
+          color: "#FFB8D8"
+          anchor: hit2_f
+          at: 2
+          for: 6
+          times: 2
+          offset: [{left: -0.2, up: 1.5}, {left: 0.25, up: 1.1}]
+          rotate: [[{axis: forward, deg: 0}], [{axis: forward, deg: 6}]]
+          size: [0.1728, 0.1728]
+          billboard: center
+          motion:
+            - {law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 1, scale: [1.66667, 1.66667, 1], ease: out_expo}, {t: 3, scale: [1.75185, 1.75185, 1]}, {t: 5, scale: [0.24815, 0.24815, 1], ease: in_quad}]}
+        - id: burst_shard
+          op: display
+          kind: sprite
+          sprite: couture-s2-burst-shard
+          color: "#FFB8D8"
+          anchor: hit2_f
+          at: 2
+          for: 5
+          times: 8
+          offset: {left: "= 0.45 * sin(rad(45 * i))", up: "= 1.3 + 0.45 * cos(rad(45 * i))"}
+          rotate: [[{axis: forward, deg: 170}], [{axis: forward, deg: 125}], [{axis: forward, deg: 80}], [{axis: forward, deg: 35}], [{axis: forward, deg: -10}], [{axis: forward, deg: -55}], [{axis: forward, deg: -100}], [{axis: forward, deg: -145}]]
+          size: [0.2016, 0.28224]
+          billboard: center
+          motion:
+            - {law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 1, scale: [2, 1.28571, 1], ease: out_expo}, {t: 4, scale: [0.4, 0.14286, 1], ease: in_quad}]}
+        - {id: burst_core, op: display, kind: sprite, sprite: couture-s2-haze-soft, color: "#FFB8D8", anchor: hit2_f, at: 2, for: 6, offset: {up: 1.3}, size: [0.2304, 0.2304], billboard: center, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 1, scale: [1.83333, 1.83333, 1], ease: out_expo}, {t: 3, scale: [2, 2, 1]}, {t: 5, scale: [0.4, 0.4, 1], ease: in_quad}]}]}
+        - id: burst_flare
+          op: display
+          kind: sprite
+          sprite: couture-s2-burst-flare
+          color: "#FFB8D8"
+          anchor: hit2_f
           at: 3
-          do:
-            - id: fx1_couture_s2_hit2_burst_plume_3
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-plume
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 1.3, forward: 0}
-              rotate: [{axis: forward, deg: 160}]
-              size: [1.02976, 0.84224]
-              billboard: center
-              for: 5
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 160}]}, {t: 1, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 1.8179, up: 1.77812, forward: 1.0}, pose: [{axis: forward, deg: 160}], ease: out_expo}, {t: 2, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 1.99938, up: 1.55547, forward: 1.0}, pose: [{axis: forward, deg: 160}]}, {t: 4, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 0.54506, up: 0.06687, forward: 1.0}, pose: [{axis: forward, deg: 160}], ease: in_quad}]}
-            - id: fx1_couture_s2_hit2_burst_plume_4
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-plume
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 1.3, forward: 0}
-              rotate: [{axis: forward, deg: 144}]
-              size: [0.96128, 0.78656]
-              billboard: center
-              for: 5
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 144}]}, {t: 1, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 1.81758, up: 1.77705, forward: 1.0}, pose: [{axis: forward, deg: 144}], ease: out_expo}, {t: 2, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 1.99933, up: 1.55492, forward: 1.0}, pose: [{axis: forward, deg: 144}]}, {t: 4, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 0.54527, up: 0.06672, forward: 1.0}, pose: [{axis: forward, deg: 144}], ease: in_quad}]}
-            - id: fx1_couture_s2_hit2_burst_shard_1
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-shard
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 1.45, forward: -0.223}
-              rotate: [{axis: forward, deg: 158}]
-              size: [0.1632, 0.22848]
-              billboard: center
-              for: 5
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.45, forward: -0.223}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 158}]}, {t: 1, offset: {left: 0, up: 2.289, forward: -1.469}, scale: {left: 2, up: 1.28571, forward: 1.0}, pose: [{axis: forward, deg: 158}], ease: out_expo}, {t: 4, offset: {left: 0, up: 2.948, forward: -2.448}, scale: {left: 0.4, up: 0.14286, forward: 1.0}, pose: [{axis: forward, deg: 158}], ease: in_quad}]}
-            - id: fx1_couture_s2_hit2_burst_shard_4
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-shard
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 1.548, forward: -0.519}
-              rotate: [{axis: forward, deg: 164}]
-              size: [0.1728, 0.24192]
-              billboard: center
-              for: 5
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.548, forward: -0.519}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 164}]}, {t: 1, offset: {left: 0, up: 2.346, forward: -2.189}, scale: {left: 2, up: 1.28571, forward: 1.0}, pose: [{axis: forward, deg: 164}], ease: out_expo}, {t: 4, offset: {left: 0, up: 2.954, forward: -3.461}, scale: {left: 0.4, up: 0.14286, forward: 1.0}, pose: [{axis: forward, deg: 164}], ease: in_quad}]}
-            - id: fx1_couture_s2_hit2_burst_shard_7
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-shard
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 1.476, forward: -0.146}
-              rotate: [{axis: forward, deg: 144}]
-              size: [0.1824, 0.25536]
-              billboard: center
-              for: 5
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.476, forward: -0.146}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 144}]}, {t: 1, offset: {left: 0, up: 3.143, forward: -1.522}, scale: {left: 2, up: 1.28571, forward: 1.0}, pose: [{axis: forward, deg: 144}], ease: out_expo}, {t: 4, offset: {left: 0, up: 4.474, forward: -2.621}, scale: {left: 0.4, up: 0.14286, forward: 1.0}, pose: [{axis: forward, deg: 144}], ease: in_quad}]}
-            - id: fx1_couture_s2_hit2_burst_flare_0
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-flare
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 1.3, forward: 0}
-              size: [0.31872, 0.31872]
-              billboard: center
-              for: 5
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: []}, {t: 1, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 2.28916, up: 2.28916, forward: 1.0}, pose: [], ease: out_expo}, {t: 2, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 2.1747, up: 2.1747, forward: 1.0}, pose: [{axis: forward, deg: 8}]}, {t: 4, offset: {left: 0, up: 1.3, forward: 0}, scale: {left: 0.6004, up: 0.6004, forward: 1.0}, pose: [{axis: forward, deg: 14}], ease: in_quad}]}
-            - id: fx1_couture_s2_hit2_burst_flare_1
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-flare
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 1.3, forward: 0}
-              rotate: [{axis: forward, deg: 28}]
-              size: [0.2016, 0.2016]
-              billboard: center
-              for: 5
-              motion:
-                - {law: spin, axis: forward, deg_per_tick: 8, at: 1, for: 1}
-                - {law: spin, axis: forward, deg_per_tick: 6, at: 2, for: 1}
-                - {law: grow, per_tick: {left: 0.2592, up: 0.2592, forward: 0}, at: 0, for: 1}
-                - {law: grow, per_tick: {left: -0.02304, up: -0.02304, forward: 0}, at: 1, for: 1}
-                - {law: grow, per_tick: {left: -0.3168, up: -0.3168, forward: 0}, at: 2, for: 1}
-        - id: t4
-          op: group
-          at: 4
-          do:
-            - id: fx1_couture_s2_hit2_burst_shard_2
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-shard
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 1.65, forward: -0.364}
-              rotate: [{axis: forward, deg: 150}]
-              size: [0.2208, 0.30912]
-              billboard: center
-              for: 5
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.65, forward: -0.364}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 150}]}, {t: 1, offset: {left: 0, up: 3.032, forward: -1.801}, scale: {left: 2, up: 1.28571, forward: 1.0}, pose: [{axis: forward, deg: 150}], ease: out_expo}, {t: 4, offset: {left: 0, up: 4.1, forward: -2.91}, scale: {left: 0.4, up: 0.14286, forward: 1.0}, pose: [{axis: forward, deg: 150}], ease: in_quad}]}
-            - id: fx1_couture_s2_hit2_burst_shard_5
-              op: display
-              kind: sprite
-              sprite: couture-s2-burst-shard
-              color: "#FFB8D8"
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 1.76, forward: -0.232}
-              rotate: [{axis: forward, deg: 130}]
-              size: [0.144, 0.2016]
-              billboard: center
-              for: 5
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.76, forward: -0.232}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 130}]}, {t: 1, offset: {left: 0, up: 3.07, forward: -0.891}, scale: {left: 2, up: 1.28571, forward: 1.0}, pose: [{axis: forward, deg: 130}], ease: out_expo}, {t: 4, offset: {left: 0, up: 4.058, forward: -1.388}, scale: {left: 0.4, up: 0.14286, forward: 1.0}, pose: [{axis: forward, deg: 130}], ease: in_quad}]}
-        - id: t8
-          op: group
-          at: 8
-          do:
-            - id: fx1_couture_s2_hit2_shadow_0
-              op: display
-              kind: sprite
-              sprite: couture-s2-shadow-spikes
-              anchor: fx1_couture_s2_hit2
-              offset: {left: 0, up: 0.02, forward: 0}
-              rotate: [{axis: up, deg: -90}]
-              size: [0.096, 0.096]
-              billboard: fixed
-              for: 19
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 0.02, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: up, deg: -90}]}, {t: 2, offset: {left: 0, up: 0.02, forward: 0}, scale: {left: 32, up: 11, forward: 1.0}, pose: [{axis: up, deg: -90}], ease: out_expo}, {t: 17, offset: {left: 0, up: 0.02, forward: 0}, scale: {left: 32.93333, up: 11.33333, forward: 1.0}, pose: [{axis: up, deg: -90}]}, {t: 19, offset: {left: 0, up: 0.02, forward: 0}, scale: {left: 29.46667, up: 1.13333, forward: 1.0}, pose: [{axis: up, deg: -90}], ease: in_quad}]}
+          for: 5
+          times: 2
+          offset: [{left: -0.15, up: 1.4}, {left: 0.15, up: 1.2}]
+          rotate: [[{axis: forward, deg: 0}], [{axis: forward, deg: 8}]]
+          size: [0.31872, 0.31872]
+          billboard: center
+          motion:
+            - {law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 1, scale: [2.28916, 2.28916, 1], ease: out_expo}, {t: 2, scale: [2.1747, 2.1747, 1]}, {t: 4, scale: [0.6004, 0.6004, 1], ease: in_quad}]}
+        - {id: burst_ember, op: particle_def, def: couture-s2-burst-ember, anchor: hit2_f, at: 2, every: 1, times: 9}
+        - {id: hit2_orange, op: particle_def, def: couture-s2-p-orange, anchor: hit2_f, at: 2, every: 1, times: 3}
+        - {id: hit2_spark, op: particle_def, def: couture-s2-p-spark, anchor: hit2_f, at: 2, every: 3, times: 2}
+        - {id: shadow, op: display, kind: sprite, sprite: couture-s2-shadow-spikes, anchor: hit2_f, at: 8, for: 19, offset: {up: 0.02}, rotate: [{axis: up, deg: -90}], size: [0.096, 0.096], billboard: fixed, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 2, scale: [32, 11, 1], ease: out_expo}, {t: 17, scale: [32.93333, 11.33333, 1]}, {t: 19, scale: [29.46667, 1.13333, 1], ease: in_quad}]}]}
     reel:
       # v2 reel: volley flies back to the palm at reel_speed 0.45 with ease_in; reel_hit capsule (radius 0.2) 6 dmg once; ends on arrive (runtime distance)
       for: 16
@@ -1358,7 +327,7 @@ machine:
       do:
         - {id: reel, op: reel, anchor: /windup/volley, to: /throw/palm_f, speed: "= reel_speed", ease: in}
         # ignore_invulnerability: false is the vanilla default (v2 reel_hit had no flag).
-        - {id: reel_hit, op: hit, anchor: /throw/fly_a, targets: enemies, shape: {capsule: 0.2, from: root, to: tip}, window: once, ignore_invulnerability: false, damage: {physical: "= dmg_reel"}, on: {hit: [{id: pull, op: impulse, target: event.victim, vector: "= normalize(pos(palm) - pos(event.victim)) * 0.25"}, {id: reel_sparks, op: particle, particle: "= spark_particle", anchor: contact, count: 6}, {id: slash_snd, op: sound, sound: couture.slash_light, anchor: contact}]}}
+        - {id: reel_hit, op: hit, anchor: /throw/fly_a, targets: enemies, shape: {capsule: 0.2, from: root, to: tip}, window: once, ignore_invulnerability: false, damage: {physical: "= dmg_reel"}, on: {hit: [{id: pull, op: impulse, target: event.victim, vector: "= normalize(pos(palm) - pos(event.victim)) * 0.25"}, {id: reel_sparks, op: particle, particle: crit, anchor: contact, count: 6}, {id: slash_snd, op: sound, sound: couture.slash_light, anchor: contact}]}}
         - {id: reel_snd, op: sound, sound: couture.reel, anchor: /windup/volley, every: 3, for: 16, volume: 1.0, pitch: "= 1.0 + 0.4 * (1 - dist(volley, palm) / throw_range)"}
         - {id: catch_snd, op: sound, sound: couture.catch, anchor: shears, at: 15}
       on:
@@ -1383,477 +352,100 @@ machine:
           ignore_invulnerability: true
           on:
             hit:
-              - id: d0
-                op: group
-                at: 0
-                do:
-                  - id: fx2_couture_s2_hit3
-                    op: frame
-                    anchor: caster
-                    offset: {up: 0.9, forward: 1.3}
-                    # v2 dash_hit_anchor: caster-relative 0.9 up, 1.3 forward, snapshot of the caster basis at the hit tick
-                    mode: snapshot
-                    for: 25
-                  - id: fx2_couture_s2_hit3_p_orange
-                    op: particle_def
-                    def: couture-s2-p-pink
-                    anchor: fx2_couture_s2_hit3
-                    every: 1
-                    times: 4
-                  - id: fx2_couture_s2_hit3_p_spark
-                    op: particle_def
-                    def: couture-s2-p-spark
-                    anchor: fx2_couture_s2_hit3
-                    every: 3
-                    times: 2
-                  - id: fx2_couture_s2_hit3_flash_0
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-feather
-                    anchor: fx2_couture_s2_hit3
-                    offset: {left: 0, up: 1.2, forward: 0}
-                    size: [0.816, 0.128]
-                    billboard: center
-                    for: 5
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [], alpha: 0}, {t: 1, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 12, up: 18, forward: 1.0}, pose: [], alpha: 0.9, ease: out_expo}, {t: 5, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 15.52941, up: 0.5, forward: 1.0}, pose: [], alpha: 0, ease: in_quad}]}
-                  - id: fx2_couture_s2_hit3_flash_1
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-feather
-                    anchor: fx2_couture_s2_hit3
-                    offset: {left: 0, up: 1.2, forward: 0}
-                    rotate: [{axis: forward, deg: 60}]
-                    size: [0.816, 0.128]
-                    billboard: center
-                    for: 5
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 60}], alpha: 0}, {t: 1, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 12, up: 18, forward: 1.0}, pose: [{axis: forward, deg: 60}], alpha: 0.9, ease: out_expo}, {t: 5, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 15.52941, up: 0.5, forward: 1.0}, pose: [{axis: forward, deg: 60}], alpha: 0, ease: in_quad}]}
-                  - id: fx2_couture_s2_hit3_flash_2
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-feather
-                    anchor: fx2_couture_s2_hit3
-                    offset: {left: 0, up: 1.2, forward: 0}
-                    rotate: [{axis: forward, deg: 120}]
-                    size: [0.816, 0.128]
-                    billboard: center
-                    for: 5
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 120}], alpha: 0}, {t: 1, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 12, up: 18, forward: 1.0}, pose: [{axis: forward, deg: 120}], alpha: 0.9, ease: out_expo}, {t: 5, offset: {left: 0, up: 1.2, forward: 0}, scale: {left: 15.52941, up: 0.5, forward: 1.0}, pose: [{axis: forward, deg: 120}], alpha: 0, ease: in_quad}]}
-                  - id: c3_snd_0
-                    op: sound
-                    sound: entity.player.attack.sweep
-                    anchor: victim
-                    volume: 1
-                    pitch: 0.55
-                  - id: c3_snd_1
-                    op: sound
-                    sound: entity.sheep.shear
-                    anchor: victim
-                    volume: 1
-                    pitch: 0.7
-                  - id: c3_snd_2
-                    op: sound
-                    sound: item.trident.riptide_1
-                    anchor: victim
-                    volume: 0.8
-                    pitch: 1.5
-                  - id: c3_snd_3
-                    op: sound
-                    sound: entity.player.attack.crit
-                    anchor: victim
-                    volume: 1
-                    pitch: 0.6
-                  - id: c3_snd_4
-                    op: sound
-                    sound: block.anvil.land
-                    anchor: victim
-                    volume: 0.5
-                    pitch: 1.4
-              - id: d1
-                op: group
+              # hit3: pink sparks, three feather flashes (0/60/120 deg), an X cut, falling petals and shard debris around the dash end point
+              - {id: h3_frame, op: frame, anchor: caster, offset: {up: 0.9, forward: 1.3}, mode: snapshot, at: 0, for: 25}
+              - {id: h3_pink, op: particle_def, def: couture-s2-p-pink, anchor: h3_frame, every: 1, times: 4}
+              - {id: h3_spark, op: particle_def, def: couture-s2-p-spark, anchor: h3_frame, every: 3, times: 2}
+              - {id: h3_feather, op: display, kind: sprite, sprite: couture-s2-feather, anchor: h3_frame, at: 0, for: 5, times: 3, offset: {up: 1.2}, rotate: [[{axis: forward, deg: 0}], [{axis: forward, deg: 60}], [{axis: forward, deg: 120}]], size: [0.816, 0.128], billboard: center, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 1, scale: [8, 12, 1], alpha: 0.8, ease: out_expo}, {t: 5, scale: [10, 0.5, 1], alpha: 0, ease: in_quad}]}]}
+              - {id: h3_cut, op: display, kind: text, text: " ", background: "#FFFFFF", anchor: h3_frame, at: 1, for: 6, times: 2, offset: {up: 1.2}, rotate: [[{axis: forward, deg: 48}], [{axis: forward, deg: -48}]], scale: [0.06, 6, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, alpha: 0.9, scale: [0.06, 0.2, 1]}, {t: 1, alpha: 0.9, scale: [0.06, 6, 1], ease: out_expo}, {t: 6, alpha: 0, scale: [0, 6, 1], ease: in_quad}]}]}
+              - id: h3_petal
+                op: display
+                kind: sprite
+                sprite: couture-s2-petal
+                anchor: h3_frame
                 at: 1
-                do:
-                  - id: fx2_couture_s2_hit3_cut_x_a
-                    op: display
-                    kind: text
-                    text: " "
-                    # v1 couture-s2-hit3 cut_x_a: solid white quad (scale x8 / x4 per block), roll 48, out_expo then in_quad width to 0
-                    background: "#FFFFFF"
-                    anchor: fx2_couture_s2_hit3
-                    offset: {left: 0, up: 1.2, forward: 0}
-                    rotate: [{axis: forward, deg: 48}]
-                    scale: [3.2, 1.2, 1]
-                    billboard: center
-                    brightness: {block: 15, sky: 15}
-                    for: 11
-                    motion:
-                      - law: keys
-                        keys:
-                          - {t: 0, scale: {left: 3.2, up: 1.2, forward: 1}}
-                          - {t: 1, scale: {left: 3.2, up: 15.2, forward: 1}, ease: out_expo}
-                          - {t: 9, scale: {left: 0, up: 15.2, forward: 1}, ease: in_quad}
-                  - id: fx2_couture_s2_hit3_cut_x_b
-                    op: display
-                    kind: text
-                    text: " "
-                    # v1 couture-s2-hit3 cut_x_b: solid white quad (scale x8 / x4 per block), roll -48, out_expo then in_quad width to 0
-                    background: "#FFFFFF"
-                    anchor: fx2_couture_s2_hit3
-                    offset: {left: 0, up: 1.2, forward: 0}
-                    rotate: [{axis: forward, deg: -48}]
-                    scale: [3.2, 1.2, 1]
-                    billboard: center
-                    brightness: {block: 15, sky: 15}
-                    for: 11
-                    motion:
-                      - law: keys
-                        keys:
-                          - {t: 0, scale: {left: 3.2, up: 1.2, forward: 1}}
-                          - {t: 1, scale: {left: 3.2, up: 13.6, forward: 1}, ease: out_expo}
-                          - {t: 9, scale: {left: 0, up: 13.6, forward: 1}, ease: in_quad}
-                  - id: fx2_couture_s2_hit3_pet_0
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-petal
-                    anchor: fx2_couture_s2_hit3
-                    offset: {left: 0.3, up: 1.19, forward: 0}
-                    rotate: [{axis: forward, deg: -2.8}]
-                    size: [0.16, 0.096]
-                    billboard: center
-                    for: 9
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: 0.3, up: 1.19, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: -2.8}], alpha: 0}, {t: 1, offset: {left: 1.03, up: 1.15, forward: 0}, scale: {left: 4, up: 4, forward: 1.0}, pose: [{axis: forward, deg: 12.2}], alpha: 1, ease: out_expo}, {t: 8, offset: {left: 2.05, up: 1.1, forward: 0}, scale: {left: 3.2, up: 3, forward: 1.0}, pose: [{axis: forward, deg: 57.2}], alpha: 0, ease: in_quad}]}
-                  - id: fx2_couture_s2_hit3_pet_1
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-petal
-                    anchor: fx2_couture_s2_hit3
-                    offset: {left: 0.28, up: 1.32, forward: 0}
-                    rotate: [{axis: forward, deg: 23.2}]
-                    size: [0.16, 0.096]
-                    billboard: center
-                    for: 9
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: 0.28, up: 1.32, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 23.2}], alpha: 0}, {t: 1, offset: {left: 1.22, up: 1.72, forward: 0}, scale: {left: 4, up: 4, forward: 1.0}, pose: [{axis: forward, deg: 38.2}], alpha: 1, ease: out_expo}, {t: 8, offset: {left: 2.44, up: 2.24, forward: 0}, scale: {left: 3.2, up: 3, forward: 1.0}, pose: [{axis: forward, deg: 83.2}], alpha: 0, ease: in_quad}]}
-                  - id: fx2_couture_s2_hit3_pet_2
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-petal
-                    anchor: fx2_couture_s2_hit3
-                    offset: {left: 0.18, up: 1.44, forward: 0}
-                    rotate: [{axis: forward, deg: 52.9}]
-                    size: [0.16, 0.096]
-                    billboard: center
-                    for: 9
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: 0.18, up: 1.44, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 52.9}], alpha: 0}, {t: 1, offset: {left: 0.79, up: 2.24, forward: 0}, scale: {left: 4, up: 4, forward: 1.0}, pose: [{axis: forward, deg: 67.9}], alpha: 1, ease: out_expo}, {t: 8, offset: {left: 1.57, up: 3.28, forward: 0}, scale: {left: 3.2, up: 3, forward: 1.0}, pose: [{axis: forward, deg: 112.9}], alpha: 0, ease: in_quad}]}
-                  - id: fx2_couture_s2_hit3_pet_3
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-petal
-                    anchor: fx2_couture_s2_hit3
-                    offset: {left: 0.01, up: 1.5, forward: 0}
-                    rotate: [{axis: forward, deg: 88.9}]
-                    size: [0.16, 0.096]
-                    billboard: center
-                    for: 9
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: 0.01, up: 1.5, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 88.9}], alpha: 0}, {t: 1, offset: {left: 0.01, up: 2.16, forward: 0}, scale: {left: 4, up: 4, forward: 1.0}, pose: [{axis: forward, deg: 103.9}], alpha: 1, ease: out_expo}, {t: 8, offset: {left: 0.04, up: 3.12, forward: 0}, scale: {left: 3.2, up: 3, forward: 1.0}, pose: [{axis: forward, deg: 148.9}], alpha: 0, ease: in_quad}]}
-                  - id: fx2_couture_s2_hit3_pet_4
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-petal
-                    anchor: fx2_couture_s2_hit3
-                    offset: {left: -0.14, up: 1.46, forward: 0}
-                    rotate: [{axis: forward, deg: 118.8}]
-                    size: [0.16, 0.096]
-                    billboard: center
-                    for: 9
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: -0.14, up: 1.46, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 118.8}], alpha: 0}, {t: 1, offset: {left: -0.75, up: 2.57, forward: 0}, scale: {left: 4, up: 4, forward: 1.0}, pose: [{axis: forward, deg: 133.8}], alpha: 1, ease: out_expo}, {t: 8, offset: {left: -1.49, up: 3.93, forward: 0}, scale: {left: 3.2, up: 3, forward: 1.0}, pose: [{axis: forward, deg: 178.8}], alpha: 0, ease: in_quad}]}
-                  - id: fx2_couture_s2_hit3_pet_5
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-petal
-                    anchor: fx2_couture_s2_hit3
-                    offset: {left: -0.25, up: 1.37, forward: 0}
-                    rotate: [{axis: forward, deg: 145.6}]
-                    size: [0.16, 0.096]
-                    billboard: center
-                    for: 9
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: -0.25, up: 1.37, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 145.6}], alpha: 0}, {t: 1, offset: {left: -1.16, up: 1.99, forward: 0}, scale: {left: 4, up: 4, forward: 1.0}, pose: [{axis: forward, deg: 160.6}], alpha: 1, ease: out_expo}, {t: 8, offset: {left: -2.31, up: 2.79, forward: 0}, scale: {left: 3.2, up: 3, forward: 1.0}, pose: [{axis: forward, deg: 205.6}], alpha: 0, ease: in_quad}]}
-                  - id: fx2_couture_s2_hit3_pet_6
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-petal
-                    anchor: fx2_couture_s2_hit3
-                    offset: {left: -0.3, up: 1.19, forward: 0}
-                    rotate: [{axis: forward, deg: -178.8}]
-                    size: [0.16, 0.096]
-                    billboard: center
-                    for: 9
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: -0.3, up: 1.19, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 181.2}], alpha: 0}, {t: 1, offset: {left: -1.22, up: 1.17, forward: 0}, scale: {left: 4, up: 4, forward: 1.0}, pose: [{axis: forward, deg: 196.2}], alpha: 1, ease: out_expo}, {t: 8, offset: {left: -2.44, up: 1.15, forward: 0}, scale: {left: 3.2, up: 3, forward: 1.0}, pose: [{axis: forward, deg: 241.2}], alpha: 0, ease: in_quad}]}
-                  - id: fx2_couture_s2_hit3_pet_7
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-petal
-                    anchor: fx2_couture_s2_hit3
-                    offset: {left: -0.28, up: 1.08, forward: 0}
-                    rotate: [{axis: forward, deg: -157.3}]
-                    size: [0.16, 0.096]
-                    billboard: center
-                    for: 9
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: -0.28, up: 1.08, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 202.7}], alpha: 0}, {t: 1, offset: {left: -1.46, up: 0.59, forward: 0}, scale: {left: 4, up: 4, forward: 1.0}, pose: [{axis: forward, deg: 217.7}], alpha: 1, ease: out_expo}, {t: 8, offset: {left: -2.91, up: -0.02, forward: 0}, scale: {left: 3.2, up: 3, forward: 1.0}, pose: [{axis: forward, deg: 262.7}], alpha: 0, ease: in_quad}]}
-              - id: d6
-                op: group
+                for: 9
+                times: 8
+                offset: {left: "= 0.55 * sin(rad(45 * i))", up: "= 1.15 + 0.3 * cos(rad(45 * i))"}
+                rotate: [[{axis: forward, deg: -178}], [{axis: forward, deg: -157}], [{axis: forward, deg: -130}], [{axis: forward, deg: -100}], [{axis: forward, deg: -70}], [{axis: forward, deg: -40}], [{axis: forward, deg: -10}], [{axis: forward, deg: 20}]]
+                size: [0.16, 0.096]
+                billboard: center
+                motion:
+                  - {law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 1, scale: [1, 1, 1], alpha: 1}, {t: 9, scale: [0.5, 0.5, 1], alpha: 0, ease: in_quad}]}
+                  - {law: move, velocity: {up: -0.05}, at: 0, for: 9}
+              - id: h3_debris
+                op: display
+                kind: sprite
+                sprite: couture-s2-burst-shard
+                anchor: h3_frame
                 at: 6
-                do:
-                  - id: fx2_couture_s2_hit3_dbris_0
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-burst-shard
-                    anchor: fx2_couture_s2_hit3
-                    offset: {left: 1.14, up: 0.88, forward: 0}
-                    rotate: [{axis: forward, deg: 3.6}]
-                    size: [0.768, 1.792]
-                    billboard: center
-                    for: 19
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: 1.14, up: 0.88, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 3.6}], alpha: 0}, {t: 2, offset: {left: 1.25, up: 0.88, forward: 0}, scale: {left: 1.16667, up: 1.28571, forward: 1.0}, pose: [{axis: forward, deg: 23.6}], alpha: 0.85, ease: out_quad}, {t: 18, offset: {left: 1.42, up: 0.38, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 63.6}], alpha: 0, ease: in_quad}]}
-                  - id: fx2_couture_s2_hit3_dbris_1
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-burst-shard
-                    anchor: fx2_couture_s2_hit3
-                    offset: {left: 0.75, up: 1.45, forward: 0}
-                    rotate: [{axis: forward, deg: 44.1}]
-                    size: [0.832, 1.92]
-                    billboard: center
-                    for: 19
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: 0.75, up: 1.45, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 44.1}], alpha: 0}, {t: 2, offset: {left: 0.83, up: 1.45, forward: 0}, scale: {left: 1.15385, up: 1.26667, forward: 1.0}, pose: [{axis: forward, deg: 64.1}], alpha: 0.85, ease: out_quad}, {t: 18, offset: {left: 0.94, up: 0.95, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 104.1}], alpha: 0, ease: in_quad}]}
-                  - id: fx2_couture_s2_hit3_dbris_2
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-burst-shard
-                    anchor: fx2_couture_s2_hit3
-                    offset: {left: 0.11, up: 1.13, forward: 0}
-                    rotate: [{axis: forward, deg: 84.9}]
-                    size: [0.896, 2.112]
-                    billboard: center
-                    for: 19
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: 0.11, up: 1.13, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 84.9}], alpha: 0}, {t: 2, offset: {left: 0.12, up: 1.13, forward: 0}, scale: {left: 1.21429, up: 1.24242, forward: 1.0}, pose: [{axis: forward, deg: 104.9}], alpha: 0.85, ease: out_quad}, {t: 18, offset: {left: 0.14, up: 0.63, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 144.9}], alpha: 0, ease: in_quad}]}
-                  - id: fx2_couture_s2_hit3_dbris_3
-                    op: display
-                    kind: sprite
-                    sprite: couture-s2-burst-shard
-                    anchor: fx2_couture_s2_hit3
-                    offset: {left: -0.78, up: 1.68, forward: 0}
-                    rotate: [{axis: forward, deg: 139.6}]
-                    size: [0.576, 1.344]
-                    billboard: center
-                    for: 19
-                    motion:
-                      - {law: keys, keys: [{t: 0, offset: {left: -0.78, up: 1.68, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 139.6}], alpha: 0}, {t: 2, offset: {left: -0.86, up: 1.68, forward: 0}, scale: {left: 1.11111, up: 1.2381, forward: 1.0}, pose: [{axis: forward, deg: 159.6}], alpha: 0.85, ease: out_quad}, {t: 18, offset: {left: -0.98, up: 1.18, forward: 0}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 199.6}], alpha: 0, ease: in_quad}]}
+                for: 19
+                times: 4
+                offset: [{left: 1.14, up: 0.88}, {left: 0.75, up: 1.45}, {left: 0.11, up: 1.13}, {left: -0.78, up: 1.68}]
+                rotate: [[{axis: forward, deg: 3.6}], [{axis: forward, deg: 44.1}], [{axis: forward, deg: 84.9}], [{axis: forward, deg: 139.6}]]
+                size: [0.768, 1.792]
+                billboard: center
+                motion:
+                  - {law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 2, scale: [1, 1, 1], alpha: 1}, {t: 19, scale: [0.3, 0.3, 1], alpha: 0, ease: in_quad}]}
+                  - {law: move, velocity: {up: -0.03}, at: 0, for: 19}
+              - {id: c3_snd_0, op: sound, sound: entity.player.attack.sweep, anchor: victim, volume: 1, pitch: 0.55}
+              - {id: c3_snd_1, op: sound, sound: entity.sheep.shear, anchor: victim, volume: 1, pitch: 0.7}
+              - {id: c3_snd_2, op: sound, sound: item.trident.riptide_1, anchor: victim, volume: 0.8, pitch: 1.5}
+              - {id: c3_snd_3, op: sound, sound: entity.player.attack.crit, anchor: victim, volume: 1, pitch: 0.6}
+              - {id: c3_snd_4, op: sound, sound: block.anvil.land, anchor: victim, volume: 0.5, pitch: 1.4}
       do:
-        - id: k0
-          op: group
-          at: 0
-          do:
-            - id: canim_2
-              op: body
-              target: caster
-              anim: couture-s2-body-b
-              speed: 1.0
-              for: 35
-        - id: k3
-          op: group
-          at: 3
-          do:
-            - id: snd_15
-              op: sound
-              sound: block.amethyst_block.resonate
-              anchor: caster
-              volume: 0.6
-              pitch: 0.6
-        - id: k7
-          op: group
-          at: 7
-          do:
-            - id: snd_16
-              op: sound
-              sound: item.armor.equip_iron
-              anchor: caster
-              volume: 0.5
-              pitch: 0.8
-        - id: k9
-          op: group
+        - {id: canim_2, op: body, anim: couture-s2-body-b, speed: 1.0, at: 0, for: 35}
+        - {id: snd_15, op: sound, sound: block.amethyst_block.resonate, anchor: caster, at: 3, volume: 0.6, pitch: 0.6}
+        - {id: snd_16, op: sound, sound: item.armor.equip_iron, anchor: caster, at: 7, volume: 0.5, pitch: 0.8}
+        - {id: snd_17, op: sound, sound: entity.player.attack.sweep, anchor: caster, at: 10, volume: 0.7, pitch: 0.5}
+        - {id: snd_18, op: sound, sound: block.amethyst_cluster.break, anchor: caster, at: 17, volume: 0.5, pitch: 1}
+        # --- dash visuals: nine smear streaks (three per tick, ticks 9/10/11) race ahead of the caster, pink sparks, a pink crescent trails behind
+        - {id: dash_f, op: frame, anchor: caster, mode: snapshot, at: 9, for: 26}
+        - id: smear_a
+          op: display
+          kind: sprite
+          sprite: couture-s2-smear
+          anchor: dash_f
           at: 9
-          do:
-            - id: fx8_couture_s2_dash
-              op: frame
-              anchor: caster
-              mode: snapshot
-              for: 26
-            - id: fx8_couture_s2_dash_streak_0
-              op: display
-              kind: sprite
-              sprite: couture-s2-smear
-              anchor: fx8_couture_s2_dash
-              offset: {left: 0, up: 0.1, forward: -1.5}
-              rotate: [{axis: forward, deg: 2}]
-              size: [66.56, 0.6464]
-              billboard: center
-              for: 3
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 0.1, forward: -1.5}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 2}]}, {t: 1, offset: {left: 0, up: 0.1, forward: 3.5}, scale: {left: 2.5, up: 4.9901, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: out_expo}, {t: 3, offset: {left: 0, up: 0.1, forward: 10}, scale: {left: 2.5, up: 0.17822, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: in_quad}]}
-            - id: fx8_couture_s2_dash_streak_3
-              op: display
-              kind: sprite
-              sprite: couture-s2-smear
-              anchor: fx8_couture_s2_dash
-              offset: {left: 0, up: 1.3, forward: -1.5}
-              rotate: [{axis: forward, deg: 2}]
-              size: [76.8, 0.5504]
-              billboard: center
-              for: 3
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.3, forward: -1.5}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 2}]}, {t: 1, offset: {left: 0, up: 1.3, forward: 3.5}, scale: {left: 2.5, up: 5.02326, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: out_expo}, {t: 3, offset: {left: 0, up: 1.3, forward: 10}, scale: {left: 2.5, up: 0.2093, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: in_quad}]}
-            - id: fx8_couture_s2_dash_streak_6
-              op: display
-              kind: sprite
-              sprite: couture-s2-smear
-              anchor: fx8_couture_s2_dash
-              offset: {left: 0, up: 2.5, forward: -1.5}
-              rotate: [{axis: forward, deg: 2}]
-              size: [87.04, 0.6912]
-              billboard: center
-              for: 3
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 2.5, forward: -1.5}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 2}]}, {t: 1, offset: {left: 0, up: 2.5, forward: 3.5}, scale: {left: 2.5, up: 5, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: out_expo}, {t: 3, offset: {left: 0, up: 2.5, forward: 10}, scale: {left: 2.5, up: 0.16667, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: in_quad}]}
-        - id: k10
-          op: group
+          for: 3
+          times: 3
+          offset: [{up: 0.1, forward: -1.5}, {up: 1.3, forward: -1.5}, {up: 2.1, forward: -1.5}]
+          rotate: [{axis: forward, deg: 2}]
+          size: [76.8, 0.5504]
+          billboard: center
+          motion:
+            - {law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 1, scale: [2.5, 5, 1], ease: out_expo}, {t: 3, scale: [2.5, 0.2, 1], ease: in_quad}]}
+            - {law: move, velocity: {forward: 4.2}, at: 0, for: 3}
+        - id: smear_b
+          op: display
+          kind: sprite
+          sprite: couture-s2-smear
+          anchor: dash_f
           at: 10
-          do:
-            - id: fx8_couture_s2_dash_streak_1
-              op: display
-              kind: sprite
-              sprite: couture-s2-smear
-              anchor: fx8_couture_s2_dash
-              offset: {left: 0, up: 0.5, forward: -1.5}
-              rotate: [{axis: forward, deg: 2}]
-              size: [81.92, 0.4608]
-              billboard: center
-              for: 3
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 0.5, forward: -1.5}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 2}]}, {t: 1, offset: {left: 0, up: 0.5, forward: 3.5}, scale: {left: 2.5, up: 5, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: out_expo}, {t: 3, offset: {left: 0, up: 0.5, forward: 10}, scale: {left: 2.5, up: 0.25, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: in_quad}]}
-            - id: fx8_couture_s2_dash_streak_4
-              op: display
-              kind: sprite
-              sprite: couture-s2-smear
-              anchor: fx8_couture_s2_dash
-              offset: {left: 0, up: 1.7, forward: -1.5}
-              rotate: [{axis: forward, deg: 2}]
-              size: [97.28, 0.736]
-              billboard: center
-              for: 3
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.7, forward: -1.5}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 2}]}, {t: 1, offset: {left: 0, up: 1.7, forward: 3.5}, scale: {left: 2.5, up: 5.0087, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: out_expo}, {t: 3, offset: {left: 0, up: 1.7, forward: 10}, scale: {left: 2.5, up: 0.15652, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: in_quad}]}
-            - id: fx8_couture_s2_dash_streak_7
-              op: display
-              kind: sprite
-              sprite: couture-s2-smear
-              anchor: fx8_couture_s2_dash
-              offset: {left: 0, up: 2.9, forward: -1.5}
-              rotate: [{axis: forward, deg: 2}]
-              size: [61.44, 0.416]
-              billboard: center
-              for: 3
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 2.9, forward: -1.5}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 2}]}, {t: 1, offset: {left: 0, up: 2.9, forward: 3.5}, scale: {left: 2.5, up: 4.98462, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: out_expo}, {t: 3, offset: {left: 0, up: 2.9, forward: 10}, scale: {left: 2.5, up: 0.27692, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: in_quad}]}
-            - id: snd_17
-              op: sound
-              sound: entity.player.attack.sweep
-              anchor: caster
-              volume: 0.7
-              pitch: 0.5
-        - id: k11
-          op: group
+          for: 3
+          times: 3
+          offset: [{up: 0.5, forward: -1.5}, {up: 0.9, forward: -1.5}, {up: 1.7, forward: -1.5}]
+          rotate: [{axis: forward, deg: 2}]
+          size: [76.8, 0.5504]
+          billboard: center
+          motion:
+            - {law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 1, scale: [2.5, 5, 1], ease: out_expo}, {t: 3, scale: [2.5, 0.2, 1], ease: in_quad}]}
+            - {law: move, velocity: {forward: 4.2}, at: 0, for: 3}
+        - id: smear_c
+          op: display
+          kind: sprite
+          sprite: couture-s2-smear
+          anchor: dash_f
           at: 11
-          do:
-            - id: fx8_couture_s2_dash_streak_2
-              op: display
-              kind: sprite
-              sprite: couture-s2-smear
-              anchor: fx8_couture_s2_dash
-              offset: {left: 0, up: 0.9, forward: -1.5}
-              rotate: [{axis: forward, deg: 2}]
-              size: [92.16, 0.832]
-              billboard: center
-              for: 3
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 0.9, forward: -1.5}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 2}]}, {t: 1, offset: {left: 0, up: 0.9, forward: 3.5}, scale: {left: 2.5, up: 4.98462, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: out_expo}, {t: 3, offset: {left: 0, up: 0.9, forward: 10}, scale: {left: 2.5, up: 0.13846, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: in_quad}]}
-            - id: fx8_couture_s2_dash_streak_5
-              op: display
-              kind: sprite
-              sprite: couture-s2-smear
-              anchor: fx8_couture_s2_dash
-              offset: {left: 0, up: 2.1, forward: -1.5}
-              rotate: [{axis: forward, deg: 2}]
-              size: [71.68, 0.5056]
-              billboard: center
-              for: 3
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 2.1, forward: -1.5}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 2}]}, {t: 1, offset: {left: 0, up: 2.1, forward: 3.5}, scale: {left: 2.5, up: 5.01266, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: out_expo}, {t: 3, offset: {left: 0, up: 2.1, forward: 10}, scale: {left: 2.5, up: 0.22785, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: in_quad}]}
-            - id: fx8_couture_s2_dash_streak_8
-              op: display
-              kind: sprite
-              sprite: couture-s2-smear
-              anchor: fx8_couture_s2_dash
-              offset: {left: 0, up: 0.3, forward: -1.5}
-              rotate: [{axis: forward, deg: 2}]
-              size: [102.4, 1.0112]
-              billboard: center
-              for: 3
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 0.3, forward: -1.5}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: forward, deg: 2}]}, {t: 1, offset: {left: 0, up: 0.3, forward: 3.5}, scale: {left: 2.5, up: 5.01266, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: out_expo}, {t: 3, offset: {left: 0, up: 0.3, forward: 10}, scale: {left: 2.5, up: 0.11392, forward: 1.0}, pose: [{axis: forward, deg: 2}], ease: in_quad}]}
-            - id: fx8_couture_s2_dash_p_orange
-              op: particle_def
-              def: couture-s2-p-pink
-              anchor: fx8_couture_s2_dash
-              every: 1
-              times: 4
-        - id: k15
-          op: group
-          at: 15
-          do:
-            - id: fx8_couture_s2_dash_pink_crescent
-              op: display
-              kind: sprite
-              sprite: couture-orbit
-              color: "#FFC8DC"
-              anchor: fx8_couture_s2_dash
-              offset: {left: 0, up: 1.1, forward: -1.6}
-              rotate: [{axis: left, deg: 90}]
-              size: [5.76, 5.76]
-              billboard: fixed
-              for: 20
-              motion:
-                - {law: keys, keys: [{t: 0, offset: {left: 0, up: 1.1, forward: -1.6}, scale: {left: 1, up: 1, forward: 1.0}, pose: [{axis: left, deg: 90}]}, {t: 18, offset: {left: 0, up: 1.1, forward: -2.2}, scale: {left: 1.11111, up: 1.11111, forward: 1.0}, pose: [{axis: left, deg: 90}], ease: out_quad}]}
-        - id: k17
-          op: group
-          at: 17
-          do:
-            - id: snd_18
-              op: sound
-              sound: block.amethyst_cluster.break
-              anchor: caster
-              volume: 0.5
-              pitch: 1
+          for: 3
+          times: 3
+          offset: [{up: 0.3, forward: -1.5}, {up: 1.1, forward: -1.5}, {up: 1.9, forward: -1.5}]
+          rotate: [{axis: forward, deg: 2}]
+          size: [76.8, 0.5504]
+          billboard: center
+          motion:
+            - {law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 1, scale: [2.5, 5, 1], ease: out_expo}, {t: 3, scale: [2.5, 0.2, 1], ease: in_quad}]}
+            - {law: move, velocity: {forward: 4.2}, at: 0, for: 3}
+        - {id: dash_pink, op: particle_def, def: couture-s2-p-pink, anchor: dash_f, at: 11, every: 1, times: 4}
+        - {id: pink_crescent, op: display, kind: sprite, sprite: couture-orbit, color: "#FFC8DC", anchor: dash_f, at: 15, for: 20, offset: {up: 1.1, forward: -1.6}, rotate: [{axis: left, deg: 90}], size: [5.76, 5.76], billboard: fixed, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 18, scale: [1.11111, 1.11111, 1], ease: out_quad}]}, {law: move, velocity: {forward: -0.033}, at: 0, for: 18}]}
     end: {final: true}
