@@ -1,0 +1,20 @@
+# Point table for the dagger (frame and chain as content/frames/couture-rapier.yaml).
+# content/models/items/dagger.model.json (100 elements, model +Y = blade direction, +X = broad-face side):
+#   grip = centre of the leather grip (8,5,8) = pivot; root = blade base at y=8.5; tip = blade tip at y=18.84; long = model +Y; edge = model +X; length = pommel bottom y=0.65 to tip.
+# held_hand = the same elements under the model's thirdperson_righthand display, the transform the rig's main-hand mesh draws with; hand_anchor = model centre (8,8,8).
+apiVersion: astera/v3
+kind: ItemFrames
+item: dagger
+parts:
+  held:
+    model: astera:dagger
+    display: fixed
+    length: 1.3893
+    points: { grip: [-0.1847, -0.2842, 0.0954], pivot: [-0.1847, -0.2842, 0.0954], root: [-0.0314, -0.0652, 0.0954], tip: [0.4216, 0.5817, 0.0954] }
+    axes: { long: [0.5736, 0.8192, 0.0], edge: [0.8192, -0.5736, 0.0] }
+  held_hand:
+    model: astera:dagger
+    display: thirdperson_righthand
+    length: 0.8526
+    points: { grip: [-0.0, 0.0, 0.0], pivot: [-0.0, 0.0, 0.0], root: [0.0, 0.1344, -0.0941], tip: [0.0, 0.5314, -0.3721], hand_anchor: [0.0, 0.1152, -0.0807] }
+    axes: { long: [0.0, 0.8191, -0.5736], edge: [0.0, -0.5736, -0.8192] }

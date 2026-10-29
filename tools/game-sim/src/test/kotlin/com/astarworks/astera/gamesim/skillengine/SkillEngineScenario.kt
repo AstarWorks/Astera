@@ -266,6 +266,7 @@ abstract class SkillEngineScenario {
         var state: StateTable? = table.states.firstOrNull()
         var entry = 0
         var guard = 0
+        var anyCut = false
         while (state != null && guard++ < 64) {
             val st: StateTable = state
             val length = when (val d = st.duration) {
@@ -276,7 +277,7 @@ abstract class SkillEngineScenario {
                 .mapNotNull { e -> st.branches.firstOrNull { it.event == e.path && inWindow(it, e.tick - entry) }?.let { e to it } }
                 .minByOrNull { it.first.tick }
             val cut = firing?.takeIf { it.second.target != null }?.first?.tick
-            st.rows.forEach { if (cut == null || entry + it.tick <= cut) emit(entry, it) }
+            st.rows.forEach { if (cut == null || entry + it.tick <= cut || it.detached) emit(entry, it) }
             // The sim has no victims, so a single-pass hit with a final detection raises `<op>.miss` on its own tick (TablePlayer.hit).
             for (r in st.rows) {
                 val h = r.action as? Action.Hit ?: continue
@@ -290,6 +291,7 @@ abstract class SkillEngineScenario {
                 b.subTable?.let { sub -> table.subTables[sub]?.rows?.forEach { emit(e.tick, it) } }
             }
             if (cut != null) {
+                anyCut = true
                 state = firing.second.target?.let { byState[it.value] }
                 entry = cut
             } else {
@@ -299,7 +301,10 @@ abstract class SkillEngineScenario {
         }
         pending.sortedBy { it.first }.forEach { (t, r) -> render(t, r) }
         instanceNames = ordinals.entries.associate { "#${it.value}" to it.key }
+        // an early cast end (a scripted event) moves the run end to cast end + tail: detached visuals stop there, a live instance is removed there
+        val runEnd = if (anyCut) entry + table.bounds.tail else null
         return out.sortedBy { it.first }.map { it.second }
+            .mapNotNull { c -> if (runEnd == null || c.tick <= runEnd) c else if (c.verb == "remove") c.copy(tick = runEnd) else null }
     }
 
     private fun inWindow(b: Branch, rel: Int): Boolean = rel >= b.window.min && rel <= b.window.max

@@ -1,4 +1,5 @@
-# Wave 2 v3 draft (basic-ac): ported 1:1 from the v2 skill.yaml + look.yaml. GAP comments mark what v3 cannot spell yet.
+# Wind-up W = 3 ticks (round_half_up(5 / attack_speed 1.7)): the blade is drawn back, the dash and the every-tick hit start at tick 3.
+# The cast ends with the dash; the rig (draw back -> thrust-slash along the dash -> settle) and trail are detach: true.
 apiVersion: astera/v3
 kind: Skill
 id: iron-blade-lunge
@@ -16,16 +17,33 @@ params:
 anchors:
   - {id: feet, anchor: caster, offset: {up: 0.2}, mode: snapshot}                  # was pt_caster_0_0p2_0
 machine:
-  start: dash
+  start: windup
+  tail: 11
   states:
+    windup:
+      for: 3
+      then: dash
+      do:
+        - id: rig
+          op: rig
+          parent: caster
+          mount: caster.hand_r
+          part: held_hand
+          rest: [{axis: left, deg: 72}]
+          for: 14
+          detach: true
+          swing:
+            - {at: 0, for: 3, from: {left: 0.1, up: 0.2, forward: 0.9}, to: {left: -0.3, up: -0.4, forward: 0.4}, edge: trailing, ease: in_out_sine}
+            - {at: 3, for: 4, to: {left: 0.5, up: -0.1, forward: 0.85}, edge: leading, ease: out_cubic}
+            - {at: 7, for: 7, to: {left: 0.0, up: 0.5, forward: 0.85}, edge: trailing, ease: in_out_sine}
     dash:
       for: "= ${dash_ticks}"
       then: end
       enter:
-        - {id: snd_dash, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.1}
-        - {id: fx_dash, op: particle_def, def: dash-cloud, anchor: feet}
+        - {id: snd_dash, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.1, detach: true}
+        - {id: fx_dash, op: particle_def, def: dash-cloud, anchor: feet, detach: true}
         - {id: lunge, op: dash, speed: "= ${dash_distance} / ${dash_ticks}", for: "= ${dash_ticks}", direction: {forward: 1}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
-        # v2 dash_strike corridor: capsule radius 1.0, hit_once, no early end (the dash runs through everyone); `until` omitted for 1:1.
+        # v2 dash_strike corridor: capsule radius 1.0, hit_once, no early end (the dash runs through everyone).
         - id: strike
           op: hit
           anchor: caster.body
@@ -40,5 +58,6 @@ machine:
           damage: {physical: "= ${dmg_physical}"}
           on:
             hit:
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 1.0, pitch: 1.0}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 1.0, pitch: 1.0, detach: true}
+        - {id: trail_fx, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 6}, count: 1, extra: 0.04, at: 0, every: 1, for: 8, detach: true}
     end: {final: true}

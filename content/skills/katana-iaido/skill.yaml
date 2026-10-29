@@ -1,3 +1,5 @@
+# Wind-up W = 2 ticks (round_half_up(5 / attack_speed 2.5)): the katana is held low at the hip (sheathed draw), the dash and the every-tick hit start at tick 2.
+# The cast ends with the dash; the rig (draw -> rising cut along the dash -> settle) and trail are detach: true.
 apiVersion: astera/v3
 kind: Skill
 id: katana-iaido
@@ -15,14 +17,31 @@ params:
 anchors:
   - {id: feet, anchor: caster, offset: {up: 0.2}, mode: snapshot}                  # was pt_caster_0_0p2_0
 machine:
-  start: dash
+  start: windup
+  tail: 11
   states:
+    windup:
+      for: 2
+      then: dash
+      do:
+        - id: rig
+          op: rig
+          parent: caster
+          mount: caster.hand_r
+          part: held_hand
+          rest: [{axis: left, deg: 72}]
+          for: 13
+          detach: true
+          swing:
+            - {at: 0, for: 2, from: {left: 0.2, up: -0.1, forward: 0.9}, to: {left: -0.9, up: -0.3, forward: 0.2}, edge: trailing, ease: in_out_sine}
+            - {at: 2, for: 3, to: {left: 0.9, up: 0.3, forward: 0.4}, edge: leading, roll: 15, ease: out_cubic}
+            - {at: 5, for: 8, to: {left: 0.0, up: 0.55, forward: 0.8}, edge: trailing, ease: in_out_sine}
     dash:
       for: "= dash_ticks"
       then: end
       enter:
-        - {id: snd_dash, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.4}
-        - {id: fx_dash, op: particle_def, def: dash-cloud, anchor: feet}
+        - {id: snd_dash, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.4, detach: true}
+        - {id: fx_dash, op: particle_def, def: dash-cloud, anchor: feet, detach: true}
         - {id: lunge, op: dash, speed: "= ${dash_distance} / ${dash_ticks}", for: "${dash_ticks}", direction: {forward: 1}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
         # v2 dash_strike corridor: capsule radius 1.0, hit_once, no early end (the dash runs through everyone).
         - id: strike
@@ -38,5 +57,6 @@ machine:
           damage: {physical: "${dmg_physical}"}
           on:
             hit:
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 1.0, pitch: 1.0}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 1.0, pitch: 1.0, detach: true}
+        - {id: trail_fx, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 6}, count: 1, extra: 0.04, at: 0, every: 1, for: 8, detach: true}
     end: {final: true}
