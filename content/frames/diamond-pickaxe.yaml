@@ -1,0 +1,21 @@
+# Point table for the diamond-pickaxe: a flat handheld sprite (content/textures/generated/items/diamond-pickaxe.png, vanilla item/handheld parent), no 3D model (docs/art/arsenal-flat-art.md).
+# Same chain and conventions as content/frames/war-axe.yaml: q = RotY(180) * ( T + Rxyz * ( S * (p/16 - 0.5) ) ) on the sprite plane (z = 8), 16 px = 1 block.
+# Display transforms are vanilla item/handheld: fixed = rot [0,180,0] tr [0,0,0] scale 0.5; thirdperson_righthand = rot [0,-90,55] tr [0,4,0.5] scale 0.85.
+# Points are sprite centroids along the handle-to-head diagonal: grip = the lowest 18% (pivot = grip), root = the 30-36% band (head base), tip = the farthest opaque pixel.
+# long = the sprite diagonal (1,1,0) grip -> tip; edge = (1,-1,0) in the sprite plane, perpendicular to long. The sprite has no visible cutting-edge side, so edge: leading|trailing in a swing is only a convention.
+apiVersion: astera/v3
+kind: ItemFrames
+item: diamond-pickaxe
+parts:
+  held:
+    model: astera:diamond-pickaxe
+    display: fixed
+    length: 0.5644
+    points: { grip: [-0.1746, -0.1746, 0.0000], pivot: [-0.1746, -0.1746, 0.0000], root: [-0.0807, -0.0755, 0.0000], tip: [0.1484, 0.2266, 0.0000] }
+    axes: { long: [0.7071, 0.7071, 0.0000], edge: [0.7071, -0.7071, 0.0000] }
+  held_hand:
+    model: astera:diamond-pickaxe
+    display: thirdperson_righthand
+    length: 0.9596
+    points: { grip: [0.0000, -0.1634, -0.1041], pivot: [0.0000, -0.1634, -0.1041], root: [0.0000, 0.0639, -0.0577], tip: [0.0000, 0.6776, 0.1395], hand_anchor: [0.0000, 0.2500, -0.0312] }
+    axes: { long: [0.0000, 0.9848, 0.1736], edge: [0.0000, 0.1736, -0.9848] }
