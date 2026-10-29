@@ -71,6 +71,8 @@ internal class SimSkillEngine private constructor(
     private val ledger: LedgerWorldGateway,
     /** The sim's display gateway of the skill engine: what each main-hand mesh was drawn with is recorded on it. */
     val visuals: SimSkillVisuals,
+    /** The sim's seed: every cast's random stream derives from it, never from the (random) caster uuid, so a scenario replays identically. */
+    private val simSeed: Long,
 ) {
     private class SimLedgerWorld(blocks: SimBlockAccess) : LedgerWorldGateway(blocks) {
         override fun explode(cast: CastRef, at: Vec3, power: Double, breakBlocks: Boolean, fire: Boolean) = Unit
@@ -138,7 +140,7 @@ internal class SimSkillEngine private constructor(
             casterFeet = entity.position,
             casterYawDeg = atan2(-d.x, d.z) * 180.0 / PI,
             casterPitchDeg = -asin(max(-1.0, min(1.0, d.y))) * 180.0 / PI,
-            seed = (event.atTick xor event.caster.uuid.leastSignificantBits) xor (sequence++ * -0x61c8864680b583ebL),
+            seed = (event.atTick xor simSeed) xor (sequence++ * -0x61c8864680b583ebL),
             startTick = scheduler.currentTick().toInt(),
             heldItem = event.sourceItemId?.value ?: skill.def.item?.takeIf { it != "any" },
         )
@@ -177,6 +179,7 @@ internal class SimSkillEngine private constructor(
             statusContainer: IStatusEffectContainer,
             feedback: IPlayerFeedbackGateway,
             alive: (PlayerId) -> Boolean,
+            simSeed: Long,
         ): SimSkillEngine {
             val applyDamage = checkNotNull(combat.applyDamage) { "sim skill engine: combat wired no ApplyDamageUseCase" }
             val applyStatus = checkNotNull(combat.applyStatus) { "sim skill engine: combat wired no ApplyStatusUseCase" }
@@ -206,7 +209,7 @@ internal class SimSkillEngine private constructor(
             val hooks = SimPlayerHooks(scheduler, gameplay, live)
             player.config = combat.engineConfig
             player.hooks = hooks
-            val engine = SimSkillEngine(sim, scheduler, services.getOrThrow<IDomainEventBus>(), combat, live, movement, hooks, player, ledger, visuals)
+            val engine = SimSkillEngine(sim, scheduler, services.getOrThrow<IDomainEventBus>(), combat, live, movement, hooks, player, ledger, visuals, simSeed)
             applyDamage.incomingInterceptor = engine.interceptor()
             return engine
         }

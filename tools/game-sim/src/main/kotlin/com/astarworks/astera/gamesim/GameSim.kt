@@ -670,7 +670,7 @@ public class GameSim private constructor(
             // Post-wiring host step (CombatPaperPlatform.bind): tick loops and the
             // rerouted-damage kill publisher.
             projectiles.start()
-            sim.skillEngine = SimSkillEngine.create(world, scheduler, services, sim.combat, mcServer, recorder, statusContainer.value, feedback, alive).also { it.start() }
+            sim.skillEngine = SimSkillEngine.create(world, scheduler, services, sim.combat, mcServer, recorder, statusContainer.value, feedback, alive, seed).also { it.start() }
             if (statusContainer.isInitialized()) statusContainer.value.start()
             val killResolver = VanillaKillResolver(
                 com.astarworks.astera.core.application.service.combat.CombatContextResolver { services.get<IMatchTeamLookup>() },
