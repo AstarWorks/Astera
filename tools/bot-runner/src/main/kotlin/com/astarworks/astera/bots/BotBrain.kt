@@ -60,6 +60,12 @@ fun interface ObjectiveSource {
     /** Team (`red`/`blue`) whose spawn is nearest ([spawnX], [spawnZ]) and every team of the stage. */
     fun ownTeamAt(spawnX: Double, spawnZ: Double): String? = null
     fun teams(): List<String> = emptyList()
+
+    /** Stage-local shop, base ore generators and Mid ore nodes of [team] for the lull-time [EconomyPlanner]; null = the stage has no shop. */
+    fun economySites(team: String): EconomyPlanner.Sites? = null
+
+    /** Upgrade prices of the base shop, cheapest rung first. */
+    fun economyLadder(): List<Map<String, Int>> = emptyList()
 }
 
 /**
@@ -181,6 +187,11 @@ class BotBrain(
     private val stuck = StuckEscapePolicy()
     private val ineffective = IneffectiveTargets()
     private var planner: ModePlanner? = null
+    private var economy: EconomyPlanner? = null
+    private var econSliceStart = 0L
+    private var econCooldownUntil = 0L
+    /** Kind (`shop` / `collect` / `mine`) of the last economy step, for reports and tests. */
+    @Volatile var economyKind: String = "-"; private set
     private var observed: ObservedModeFacts? = null
     private var lastStrikeAt = 0L
     private var lastToolCastAt = 0L
@@ -252,6 +263,9 @@ class BotBrain(
             retreating = false
             stuck.reset()
             planner = buildPlanner(originX, originZ)
+            economy = buildEconomy(originX, originZ)
+            econSliceStart = 0L
+            econCooldownUntil = if (planner != null) now + ECON_OPENING_MS else 0L
         }
         trackFall()
         if (now - lastTraceAt >= 2_500) {
@@ -432,6 +446,7 @@ class BotBrain(
                     .minByOrNull { hypot(it.x - bot.x, it.z - bot.z) }?.let { bot.interact(it.id); lastClickAt = now }
             }
         }
+        economyDest(now)?.let { return it }
         if (now >= modePausedUntil) planner?.step(now, bot.x, bot.z)?.let { st ->
             return Dest(st.x, st.z, st.y, st.arrive, "mode", zone = st.zone, strike = st.strike, affinity = st.affinity)
         }
@@ -566,6 +581,43 @@ class BotBrain(
             val team = name?.let { bot.teamOf(it)?.first }
             if (bot.playerGameModes[e.uuid] == GameMode.SPECTATOR || (team != null && team == myTeam)) null else Sighting(name, e.x, e.z)
         }
+    }
+
+    /** The lull-time shop economy for the bot's team (null when the stage has no shop or no upgrade ladder). */
+    private fun buildEconomy(originX: Double, originZ: Double): EconomyPlanner? {
+        val src = objectives ?: return null
+        val team = src.ownTeamAt(spawnX - originX, spawnZ - originZ) ?: return null
+        val ladder = src.economyLadder().takeIf { it.isNotEmpty() } ?: return null
+        val sites = src.economySites(team)?.shifted(originX, originZ) ?: return null
+        return EconomyPlanner(sites, ladder)
+    }
+
+    /** Ore the bot carries by item id (the bag's display names, see [EconomyPlanner.oreOfName]). */
+    private fun carriedOre(): Map<String, Int> =
+        EconomyPlanner.oreCounts((bot.contents[0] ?: emptyList()).filter { it.amount > 0 }.map { it.name to it.amount })
+
+    /**
+     * Lull-time economy: collect base-generator ore, mine Mid ore nodes, walk to the own base shop once the next upgrade is
+     * affordable. The mode objective and fights keep priority: with a mode plan the economy runs only in slices of
+     * [ECON_SLICE_MS] after [ECON_OPENING_MS] of match start, never while carrying the objective or with an enemy seen in the last
+     * [LULL_MS], and hands over to the plan for [OBJECTIVE_SLICE_MS] after each slice. (Enemies in sight never reach here: the fight branch wins.)
+     */
+    private fun economyDest(now: Long): Dest? {
+        val eco = economy ?: return null
+        val pl = planner
+        if (pl != null) {
+            if (pl.holdingTnt || pl.carried > 0 || pl.clickWanted) { econSliceStart = 0L; return null }
+            if (now < econCooldownUntil || now - lastEnemyAt < LULL_MS) return null
+            if (econSliceStart != 0L && now - econSliceStart > ECON_SLICE_MS) {
+                econSliceStart = 0L; econCooldownUntil = now + OBJECTIVE_SLICE_MS
+                return null
+            }
+        }
+        val st = eco.step(now, bot.x, bot.z, carriedOre(), toolSlots.containsKey(LoadoutClassifier.Affinity.PICKAXE))
+        if (st == null) { econSliceStart = 0L; return null }
+        if (pl != null && econSliceStart == 0L) econSliceStart = now
+        economyKind = st.kind
+        return Dest(st.x, st.z, null, st.arrive, "econ-${st.kind}", strike = st.strike, affinity = st.strike?.let { LoadoutClassifier.Affinity.PICKAXE })
     }
 
     private fun buildPlanner(originX: Double, originZ: Double): ModePlanner? {
@@ -956,6 +1008,10 @@ class BotBrain(
         /** How far ahead of a travelling bot the floor must exist for it to jump. */
         const val JUMP_LOOKAHEAD = 2.5
         const val STAR_YIELD_RANGE = 12.0
+        const val ECON_OPENING_MS = 30_000L
+        const val ECON_SLICE_MS = 60_000L
+        const val OBJECTIVE_SLICE_MS = 45_000L
+        const val LULL_MS = 10_000L
         const val KILL_DETOUR_RANGE = 4.0
         const val STAR_SIGHT_RANGE = 90.0
         const val NORMA_HOME_ARRIVE = 6.0

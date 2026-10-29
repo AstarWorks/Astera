@@ -2,7 +2,9 @@ package com.astarworks.astera.bots
 
 import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.stage.StageId
+import com.astarworks.astera.match.application.config.GeneratorYamlConfig
 import com.astarworks.astera.match.application.contents.GeneratorContents
+import com.astarworks.astera.match.application.contents.OreNodeContents
 import com.astarworks.astera.match.application.contents.StageContents
 import java.io.File
 
@@ -13,7 +15,23 @@ class StageObjectives private constructor(
     private val generators: List<Pair<Double, Double>>,
     private val graph: ArenaRouteGraph?,
     private val pillars: List<ModePlanner.PillarSite> = emptyList(),
+    private val economy: Economy = Economy(),
 ) : ObjectiveSource {
+    /** Stage-local shop NPCs, base ore generators and Mid ore nodes of every team, plus the shop's upgrade-price ladder. */
+    class Economy(
+        val shops: Map<String, EconomyPlanner.Site> = emptyMap(),
+        val generators: Map<String, List<EconomyPlanner.Site>> = emptyMap(),
+        val nodes: List<EconomyPlanner.Site> = emptyList(),
+        val ladder: List<Map<String, Int>> = emptyList(),
+    )
+
+    override fun economySites(team: String): EconomyPlanner.Sites? {
+        val shop = economy.shops[team] ?: return null
+        return EconomyPlanner.Sites(shop, economy.generators[team].orEmpty(), economy.nodes)
+    }
+
+    override fun economyLadder(): List<Map<String, Int>> = economy.ladder
+
     override fun starPoints(): List<Pair<Double, Double>> = generators
     override fun routeGraph(): ArenaRouteGraph? = graph
 
@@ -57,7 +75,7 @@ class StageObjectives private constructor(
         private val STAGE = Regex("^\\s*stage:\\s*(\\S+)")
 
         /** Objectives of an already loaded [stage] with its star pedestals; shared with the offline arena traversal check. */
-        fun of(stage: Stage, starPoints: List<Pair<Double, Double>>): StageObjectives = StageObjectives(
+        fun of(stage: Stage, starPoints: List<Pair<Double, Double>>, economy: Economy = Economy()): StageObjectives = StageObjectives(
             stage.spawnPoints.mapNotNull { point -> point.team?.let { Spawn(it.value, point.position.x, point.position.z) } },
             stage.regions.mapNotNull { region -> region.name?.let { Region(it, (region.min.x + region.max.x) / 2, region.min.y, (region.min.z + region.max.z) / 2) } },
             starPoints,
@@ -65,6 +83,7 @@ class StageObjectives private constructor(
             stage.pillars.map {
                 ModePlanner.PillarSite(it.team.value, it.tier.ordinalValue, Math.floor(it.position.x).toInt(), Math.floor(it.position.y).toInt(), Math.floor(it.position.z).toInt(), it.affinity.name.lowercase())
             },
+            economy,
         )
 
         fun load(contentDir: File, lane: String): StageObjectives? = runCatching {
@@ -74,8 +93,41 @@ class StageObjectives private constructor(
             val stage = contents.find(StageId(stageId)) ?: return null
             val generators = GeneratorContents()
             check(generators.bootstrap(contentDir.toPath().resolve("generators")).failed == 0)
-            of(stage, generators.all().filter { it.matchStageId == stageId }.map { it.position.x to it.position.z })
+            of(
+                stage,
+                generators.all().filter { it.matchStageId == stageId }.map { it.position.x to it.position.z },
+                economyOf(contentDir, stage, stageId, generators.all().filter { it.matchStageId == stageId }),
+            )
         }.onFailure { System.err.println("Bot stage '$lane' could not load: ${it.message}") }.getOrNull()
+
+        /** Shop NPCs of [stage], the team base ore generators of [stageId] and the pickaxe Mid nodes of its `content/ore-nodes/` file. */
+        private fun economyOf(contentDir: File, stage: Stage, stageId: String, stageGenerators: Collection<GeneratorYamlConfig>): Economy {
+            val shops = stage.shopNpcs.associate { it.team.value to EconomyPlanner.Site(it.x, it.y, it.z) }
+            val gens = stageGenerators.filter { it.dropItem != null && it.affiliation.kind.equals("team", ignoreCase = true) && it.affiliation.teamId != null }
+                .groupBy({ it.affiliation.teamId!! }, { EconomyPlanner.Site(it.position.x, it.position.y, it.position.z, it.dropItem!!) })
+            val nodes = ArrayList<EconomyPlanner.Site>()
+            val nodeFile = contentDir.toPath().resolve("ore-nodes")
+            val oreNodes = OreNodeContents()
+            if (java.nio.file.Files.isDirectory(nodeFile)) {
+                check(oreNodes.bootstrap(nodeFile).failed == 0)
+                oreNodes.find(stage.templateId.value)?.nodes?.forEach { group ->
+                    val ore = group.drops.singleOrNull()?.itemId ?: return@forEach
+                    if (!isPickaxeNode(group.block)) return@forEach
+                    for (p in group.positions) nodes += EconomyPlanner.Site(p.x + 0.5, p.y, p.z + 0.5, ore)
+                    group.region?.let { r ->
+                        for (x in r.min.x.toInt()..r.max.x.toInt()) for (y in r.min.y.toInt()..r.max.y.toInt()) for (z in r.min.z.toInt()..r.max.z.toInt()) {
+                            nodes += EconomyPlanner.Site(x + 0.5, y.toDouble(), z + 0.5, ore)
+                        }
+                    }
+                }
+            }
+            val shopYaml = File(contentDir, "shops/match-shop.yaml")
+            val ladder = if (shopYaml.isFile) EconomyPlanner.parseLadder(shopYaml.readText()) else emptyList()
+            return Economy(shops, gens, nodes, ladder)
+        }
+
+        /** Stone ores are the pickaxe's; the wood (axe) and clay / silt (shovel) nodes are not dug by the economy. */
+        private fun isPickaxeNode(block: String) = listOf("wood", "timber", "silt", "clay").none { block.contains(it) }
 
         private fun stageOf(lines: List<String>, lane: String): String? {
             var current: String? = null
