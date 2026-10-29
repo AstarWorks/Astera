@@ -557,7 +557,8 @@ public class TablePlayer(
         }
     }
 
-    private fun worldOf(run: Run, rec: Rec, local: PoseV, binding: EventBinding?, t: Int, depth: Int = 0): PoseV {
+    private fun worldOf(run: Run, rec: Rec, local: PoseV, bindingIn: EventBinding?, t: Int, depth: Int = 0): PoseV {
+        val binding = bindingIn ?: rec.binding
         var pp = Vector3d()
         var pr = Quaterniond()
         val parent = rec.anchor?.let { run.recs[it] ?: run.finished[it] }
@@ -682,6 +683,7 @@ public class TablePlayer(
         val rec = Rec(a.kind, if (body) null else a.anchor, if (body) "" else a.anchorName, now, ctx.owner, local)
         rec.billboard = a.look.fields["billboard"]?.let { runCatching { DisplayBillboard.valueOf(strOf(run, it, ctx).uppercase()) }.getOrNull() } ?: DisplayBillboard.FIXED
         rec.axes = a.look.fields["axes"]?.let { strOf(run, it, ctx) }
+        rec.binding = ctx.binding
         run.finished.remove(id)
         run.recs[id] = rec
         for ((key, v) in a.look.fields) if (key.startsWith("point.")) rec.points[key.removePrefix("point.")] = any(run, v, ctx) as Vector3d
@@ -1895,6 +1897,8 @@ public class TablePlayer(
         val owner: StatePath?,
         var to: PoseV,
     ) {
+        /** The hit binding the instance was spawned under: `victim` / `contact` anchors still resolve when it ends or is cancelled outside any row. */
+        var binding: EventBinding? = null
         var real: VisualHandle? = null
         var flight: Flight? = null
         /** R16: the tick the flight ends by range / `for` (-1 none), the body events that end it early, and whether one did. */

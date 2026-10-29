@@ -468,7 +468,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             val root = bare.substringBefore('.')
             if (root == "caster") return bare == "caster" || bare.removePrefix("caster.") in PAPER_CASTER_FIELDS
             if (bare == "event.victim" || bare == "event.attacker") return true
-            return bare == "contact" || (bare.contains('.') && (root == "contact" || root == "target"))
+            return bare == "contact" || bare == "victim" || bare == "target" || (bare.contains('.') && (root == "contact" || root == "target"))
         }
 
         /** The `caster.<field>` names `PaperLiveValueSource` answers (feet, pos, position, look, eye, body, forward). */
@@ -478,7 +478,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         private fun paperRotatable(name: String): Boolean {
             if (name.startsWith("= ") || name.startsWith("expr:")) return true
             val bare = name.removePrefix("anchor:")
-            return bare == "caster" || bare.startsWith("caster.") || bare == "contact"
+            return bare == "caster" || bare.startsWith("caster.") || bare == "contact" || bare == "victim" || bare == "target"
         }
 
         private fun requireResolvable(name: String, wanted: String) {
@@ -584,6 +584,10 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         /** `PaperLiveValueSource.bindingVec`: `contact`, `event.victim` / `event.attacker`, `contact.*` and `target.*`. */
         private fun bindingVec(name: String, binding: EventBinding?): Vector3d? {
             if (name == "contact") return contactBinding(binding).point.let { Vector3d(it.x, it.y, it.z) }
+            if (name == "victim" || name == "target") {
+                val at = victimOf(binding)?.feet ?: throw IllegalArgumentException("'$name' needs a hit event binding")
+                return Vector3d(at.x, at.y, at.z)
+            }
             if (name == "event.victim" || name == "event.attacker") {
                 val at = if (name == "event.victim") victimOf(binding)?.feet else if (binding?.attacker == caster) feet else null
                 at ?: throw IllegalArgumentException("'$name' needs a hit event binding")
@@ -629,6 +633,11 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             requireResolvable(name, "a rotation")
             if (faithfulPose) {
                 val bare = name.removePrefix("anchor:")
+                if (bare == "victim" || bare == "target") {
+                    val v = victimOf(binding) ?: throw IllegalArgumentException("'$name' needs a hit event binding")
+                    val q = SimFrame.fromYawPitch(v.feet, v.yawDeg, 0.0).rotation
+                    return Quaterniond(q.x, q.y, q.z, q.w)
+                }
                 if (bare == "caster" || bare.startsWith("caster.")) {
                     val pitched = bare == "caster.look" || bare == "caster.eye" || bare.removePrefix("caster.") in setOf("hand_r", "hand_l", "palm")
                     val q = SimFrame.fromYawPitch(feet, casterYawDeg, if (pitched) casterPitchDeg else 0.0).rotation

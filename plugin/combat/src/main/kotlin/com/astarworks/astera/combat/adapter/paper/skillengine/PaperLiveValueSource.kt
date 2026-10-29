@@ -181,6 +181,9 @@ public class PaperLiveValueSource(
             val pitched = bare == "$CASTER.look" || bare == "$CASTER.eye"
             return quat(Frame.fromYawPitch(p.feet, p.yaw, if (pitched) p.pitch else 0.0).rotation)
         }
+        if (bare == "victim" || bare == "target") {
+            return quat(victimFrame(binding, null)?.rotation ?: throw IllegalArgumentException("'$name' needs a hit event binding"))
+        }
         if (bare == "contact") return quat(frames(cast, binding).worldPose("contact", null)?.rotation ?: unsupported(name, "a rotation (no contact bound)"))
         return when (val v = evalExpr(cast, request, name, binding, scope)) {
             is ExprValue.Quat -> quat(v.value)
@@ -258,6 +261,11 @@ public class PaperLiveValueSource(
 
     private fun bindingVec(name: String, binding: EventBinding?): Vector3d? {
         if (name == "contact") return contactOf(binding).point.let { Vector3d(it.x, it.y, it.z) }
+        // bare `victim` / `target` anchor: the hit victim's feet (where it stood when it was gone)
+        if (name == "victim" || name == "target") {
+            val o = victimFrame(binding, "feet")?.origin ?: throw IllegalArgumentException("'$name' needs a hit event binding")
+            return Vector3d(o.x, o.y, o.z)
+        }
         if (name == "event.victim" || name == "event.attacker") return eventEntityVec(name, binding)
         val root = name.substringBefore('.', "")
         if (root != "contact" && root != "target") return null

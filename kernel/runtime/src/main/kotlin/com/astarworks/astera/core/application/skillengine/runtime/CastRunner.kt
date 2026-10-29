@@ -59,6 +59,7 @@ public interface CastRunner {
 /** [CastRunner] over the table player; remembers which caster owns which handle. */
 public class DefaultCastRunner(private val player: ISkillTablePlayer) : CastRunner {
     private val owners = HashMap<CastHandle, UUID>()
+    private val log = org.slf4j.LoggerFactory.getLogger(DefaultCastRunner::class.java)
 
     override fun start(request: CastRequest): Result<CastHandle, CastError> {
         val started = player.start(request, request.skill)
@@ -86,7 +87,14 @@ public class DefaultCastRunner(private val player: ISkillTablePlayer) : CastRunn
 
     override fun cancelAll(): Int {
         val all = player.live()
-        all.forEach { player.cancel(it, CancelScope.Cast) }
+        // one cast failing to wind down must not leave the rest running (nor throw out of a MatchEnded handler): log it loudly, carry on
+        all.forEach { cast ->
+            try {
+                player.cancel(cast, CancelScope.Cast)
+            } catch (t: Exception) {
+                log.error("skill engine: cancelling cast {} failed", cast.value, t)
+            }
+        }
         return all.size
     }
 

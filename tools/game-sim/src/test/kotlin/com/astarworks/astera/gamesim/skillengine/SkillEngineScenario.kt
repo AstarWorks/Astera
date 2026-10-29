@@ -163,7 +163,7 @@ abstract class SkillEngineScenario {
     fun play(skill: CompiledSkill, seed: Long, events: List<RuntimeEvent> = emptyList(), ticks: Int? = null): List<RecordedCall> =
         play(skill, seed, events, ticks, GatewayRecorder())
 
-    fun play(skill: CompiledSkill, seed: Long, events: List<RuntimeEvent>, ticks: Int?, rec: GatewayRecorder, yawDeg: Double = 0.0, pitchDeg: Double = 0.0): List<RecordedCall> {
+    fun play(skill: CompiledSkill, seed: Long, events: List<RuntimeEvent>, ticks: Int?, rec: GatewayRecorder, yawDeg: Double = 0.0, pitchDeg: Double = 0.0, cancelAtEnd: Boolean = false): List<RecordedCall> {
         rec.casterYawDeg = yawDeg
         rec.casterPitchDeg = pitchDeg
         val player = TablePlayer(rec.visual, rec.particles, rec.sounds, rec.gameplay, rec.query, rec.live, rec, rec.movement, rec.items, rec.world)
@@ -189,6 +189,8 @@ abstract class SkillEngineScenario {
             events.filter { it.tick == now }.forEach { player.deliver(cast, it) }
             player.tick(now)
         }
+        // MatchEnded / quit: the cast is cancelled outside any row, with its instances still running
+        if (cancelAtEnd) player.cancel(cast, com.astarworks.astera.core.domain.skillengine.table.CancelScope.Cast)
         // a row the player could not play is a Paper `[skill-error]` too: the recorded calls alone would only show a smaller trace
         check(player.faults().isEmpty()) { "${skill.def.id} faulted while playing: " + player.faults().joinToString("; ") { "tick ${it.tick} ${it.src}: ${it.message}" } }
         return rec.calls
