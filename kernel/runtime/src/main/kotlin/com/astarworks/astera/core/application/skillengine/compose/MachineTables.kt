@@ -236,7 +236,7 @@ public object MachineTables {
                 branches += Branch(
                     event = EventPath(if (timer) "timer($after)" else t.event!!),
                     window = if (timer) TickRange(after, after) else TickRange(0, forTicks ?: config.maxCastTicks),
-                    guard = guard(t), target = StatePath(t.to), subTable = sub,
+                    guard = guard(t), target = StatePath(t.to), subTable = sub, absorb = t.absorb,
                 )
             }
             val thenId = st.then

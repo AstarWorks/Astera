@@ -36,6 +36,7 @@ import com.astarworks.astera.core.domain.skillengine.hit.ContactEvent
 import com.astarworks.astera.core.domain.skillengine.hit.DefaultContactResolver
 import com.astarworks.astera.core.domain.skillengine.hit.ResolvedVolume
 import com.astarworks.astera.core.domain.skillengine.model.AnchorDecl
+import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.model.AnchorMode
 import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
 import com.astarworks.astera.core.domain.skillengine.table.Action
@@ -187,6 +188,19 @@ public class TablePlayer(
 
     override fun deliver(cast: CastHandle, event: RuntimeEvent) {
         runs[cast.value]?.external?.add(event)
+    }
+
+    override fun absorbs(cast: CastHandle, event: RuntimeEvent, now: Int): Boolean {
+        val run = runs[cast.value]?.takeIf { !it.finalized } ?: return false
+        val binding = EventBinding(event.path, event.index, event.contact, event.victim, event.attacker)
+        for (lvl in run.cursor.levels.sortedByDescending { it.depth }) {
+            if (lvl.done) continue
+            val st = run.states[lvl.state] ?: continue
+            val lt = now - lvl.enteredAt
+            val br = st.branches.firstOrNull { b -> b.event == event.path && lt in b.window.min..b.window.max && guardOk(run, b, binding, lt, now) } ?: continue
+            return br.absorb
+        }
+        return false
     }
 
     override fun cancel(cast: CastHandle, scope: CancelScope) {
@@ -452,6 +466,7 @@ public class TablePlayer(
             consumed += lvl
             generateSequence(lvl.parent) { it.parent }.forEach { consumed += it }
             br.subTable?.let { pasted += it }
+            if (br.absorb) gameplay.cancelIncomingHit(castRef(run), ev.attacker)
             transition(run, lvl, br.target, br.subTable, if (ev.path.value == "cancel") ExitReason.CANCEL else ExitReason.EVENT, now, binding)
         }
         return Offered(any, pasted)
@@ -716,6 +731,7 @@ public class TablePlayer(
             rec.shapeFrames = generateSequence(0) { it + 1 }.takeWhile { lf.containsKey("hit.shape.frame.$it") }.map { i ->
                 ShapeFrame(strOf(run, lf.getValue("hit.shape.frame.$i"), ctx), strOf(run, lf.getValue("hit.shape.frame.$i.from"), ctx), strOf(run, lf.getValue("hit.shape.frame.$i.to"), ctx))
             }.toList()
+            rec.shapeSelf = lf["hit.shape.self.from"]?.let { f -> ShapeSelf(strOf(run, f, ctx), strOf(run, lf.getValue("hit.shape.self.to"), ctx)) }
             rec.blockDespawn = mode == "despawn"
             rec.stickTicks = stuck
             rec.attachTo = lf["hit.attach_to"]?.let { strOf(run, it, ctx) }
@@ -1139,20 +1155,8 @@ public class TablePlayer(
                 .filter { it.entityId !in rec.hitVictims && targetKindOk(run, rec.hitTargets, it.entityId) }
             raw += resolver.narrow(id.text, now, id.text, vol, velocity, cands)
         }
-        if (rec.shapeFrames.isEmpty()) test(ResolvedVolume.Capsule(start, Vec3(cur.x, cur.y, cur.z), rec.hitRadius), delta)
-        else for (sf in rec.shapeFrames) {
-            // R43: one swept capsule per rider frame, swept back along the frame's own last-tick displacement (the same poses rule as the `hit` op, item 14.7)
-            val fr = run.recs.entries.firstOrNull { (k, r) ->
-                r.kind == SpawnKind.FRAME && k.path.size == id.path.size && k.path.dropLast(1) == id.path.dropLast(1) && k.path.last().op.value == sf.frame &&
-                    k.path.last().index == id.path.last().index
-            }?.value
-            if (fr == null) {
-                fault(run, now, id.text, "hit.shape frame '${sf.frame}' is not a live frame of this projectile")
-                continue
-            }
-            val d = Vector3d(worldOf(run, fr, fr.localAt(now), null, now).pos).sub(worldOf(run, fr, fr.localAt(now - 1), null, now - 1).pos)
-            val f = live.vec(run.cursor.handle, sf.from, null, RowScope.cast(run.request.seed))
-            val t = live.vec(run.cursor.handle, sf.to, null, RowScope.cast(run.request.seed))
+        /** One capsule swept back along the last-tick displacement [d] of whatever carries it (the same poses rule as the `hit` op, item 14.7). */
+        fun sweep(f: Vector3d, t: Vector3d, d: Vector3d) {
             val travel = d.length()
             val poses = if (travel < 1e-9) 1 else min(config.maxSweepSteps.toDouble(), ceil(travel / max(rec.shapeRadius, 1e-6)) + 1.0).toInt().coerceAtLeast(1)
             for (i in 0 until poses) {
@@ -1164,6 +1168,30 @@ public class TablePlayer(
                     Vec3(d.x, d.y, d.z),
                 )
             }
+        }
+        val self = rec.shapeSelf
+        if (rec.shapeFrames.isEmpty() && self == null) test(ResolvedVolume.Capsule(start, Vec3(cur.x, cur.y, cur.z), rec.hitRadius), delta)
+        if (self != null) {
+            // E1: the body's own axis. Its points ride its live rotation; the displacement is the body's own, so the capsule is swept along the flight.
+            val w = worldOf(run, rec, rec.localAt(now), null, now)
+            val d = Vector3d(w.pos).sub(prev.x, prev.y, prev.z)
+            fun at(name: String): Vector3d = Vector3d(rec.points.getValue(name)).rotate(w.rot).add(w.pos)
+            sweep(at(self.from), at(self.to), d)
+        }
+        for (sf in rec.shapeFrames) {
+            // R43: one swept capsule per rider frame, swept back along the frame's own last-tick displacement
+            val fr = run.recs.entries.firstOrNull { (k, r) ->
+                r.kind == SpawnKind.FRAME && k.path.size == id.path.size && k.path.dropLast(1) == id.path.dropLast(1) && k.path.last().op.value == sf.frame &&
+                    k.path.last().index == id.path.last().index
+            }?.value
+            if (fr == null) {
+                fault(run, now, id.text, "hit.shape frame '${sf.frame}' is not a live frame of this projectile")
+                continue
+            }
+            val d = Vector3d(worldOf(run, fr, fr.localAt(now), null, now).pos).sub(worldOf(run, fr, fr.localAt(now - 1), null, now - 1).pos)
+            val f = live.vec(run.cursor.handle, sf.from, null, RowScope.cast(run.request.seed))
+            val t = live.vec(run.cursor.handle, sf.to, null, RowScope.cast(run.request.seed))
+            sweep(Vector3d(f.x, f.y, f.z), Vector3d(t.x, t.y, t.z), d)
         }
         val found = raw.distinctBy { it.victim }.sortedBy { it.pointWorld.distance(start) }
         for (ce in found) {
@@ -1714,7 +1742,12 @@ public class TablePlayer(
                 "forward" -> Vector3d(0.0, 0.0, 1.0)
                 else -> throw IllegalArgumentException("document anchor '${decl.id}' offset key '$axis' is not forward / up / left")
             }
-            pos.add(local.mul(v).rotate(rot))
+            val amount = when (v) {
+                is Value.Literal -> v.value
+                is Value.ParamRef -> (paramOf(run, "param:${v.name}") as? Number)?.toDouble() ?: throw IllegalArgumentException("document anchor '${decl.id}' offset '$axis': param '${v.name}' is not a number")
+                is Value.Expr -> live.num(run.cursor.handle, "= ${v.source}", binding, scope)
+            }
+            pos.add(local.mul(amount).rotate(rot))
         }
         val pose = PoseV(pos, rot, Vector3d(1.0, 1.0, 1.0))
         if (decl.mode == AnchorMode.SNAPSHOT) run.snapshots[decl.id] = PoseV(Vector3d(pos), Quaterniond(rot), Vector3d(1.0, 1.0, 1.0))
@@ -1936,6 +1969,9 @@ public class TablePlayer(
 
     private class ShapeFrame(val frame: String, val from: String, val to: String)
 
+    /** E1 `hit.shape` on a body with a `part:`: the capsule runs between two of the body's own points. */
+    private class ShapeSelf(val from: String, val to: String)
+
     private class LockRec(val owner: StatePath?, val move: LockMove, val pitch: Boolean, val yaw: Boolean, val untilAbs: Int)
 
     /** A live thing: its local pose moves along one interpolation segment (closed form, same as the client's). */
@@ -1965,6 +2001,7 @@ public class TablePlayer(
         /** R43 `hit.shape`: capsule radius and the rider frames (op id, `from` / `to` point names); empty = the body sphere [hitRadius]. */
         var shapeRadius: Double = 0.0
         var shapeFrames: List<ShapeFrame> = emptyList()
+        var shapeSelf: ShapeSelf? = null
         var blockDespawn: Boolean = false
 
         /** `hit.attach_to`: the victim anchor a hit mounts the body on (null = `attach: false`); `block.for` ticks stuck; [stuckUntil] the tick it comes off (-1 flying). */

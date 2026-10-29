@@ -257,7 +257,7 @@ public object PartParser {
 
     private fun transition(raw: Any?, where: String): MachineTransition {
         val m = raw.asMap(where)
-        checkKeys(m, where, setOf("event", "after", "when", "to", "do"))
+        checkKeys(m, where, setOf("event", "after", "when", "to", "do", "absorb"))
         val event = m["event"] as String?
         if (m["event"] != null && m["event"] !is String) abort("$where.event", "event must be a name")
         val after = m["after"]
@@ -266,7 +266,12 @@ public object PartParser {
         val to = m["to"] as? String ?: abort("$where.to", "missing 'to'")
         val whenExpr = m["when"] as String?
         if (whenExpr != null && !whenExpr.startsWith("= ")) abort("$where.when", "when must be a CEL string starting with '= '")
-        return MachineTransition(event, after, whenExpr, to, ops(m["do"], "$where.do"))
+        val absorb = m["absorb"]?.let { a ->
+            if (a != true) abort("$where.absorb", "absorb is written only as 'absorb: true' (a false flag is dead text; delete the key)")
+            if (event != "hurt" && event?.startsWith("hurt.") != true) abort(where, "transition on '${event ?: "tick"}': absorb only applies to a hurt event (the hit that would damage the caster is cancelled)")
+            true
+        } ?: false
+        return MachineTransition(event, after, whenExpr, to, ops(m["do"], "$where.do"), absorb)
     }
 
     private fun ops(raw: Any?, where: String): List<OpMap> {

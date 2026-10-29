@@ -21,7 +21,7 @@ id: proj-display-case
 item: any
 meta: {cooldown_ticks: 0, resource_cost: 0}
 anchors:
-  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}}
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: follow}
 machine:
   start: cast
   states:

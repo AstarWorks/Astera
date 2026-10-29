@@ -15,6 +15,7 @@ meta:
 anchors:
 - id: surface
   anchor: caster
+  mode: follow
   offset:
     up: 2.4
     forward: 3

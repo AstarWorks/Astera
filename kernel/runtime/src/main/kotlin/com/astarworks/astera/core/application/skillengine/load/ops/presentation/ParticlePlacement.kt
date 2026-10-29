@@ -49,7 +49,8 @@ internal object ParticlePlacement {
                 val terms = ArrayList(parent.terms)
                 for ((axis, v) in doc.offset) {
                     if (axis !in OFFSET_AXES) return invalid("document anchor '${parts.base}' offset key '$axis' is not forward / up / left")
-                    if (v != 0.0) terms += "axis(${parent.frame}, '$axis') * $v"
+                    val src = componentSource(v) ?: return invalid("document anchor '${parts.base}' offset '$axis': a \${param} was not substituted before lowering")
+                    if (src != "0.0") terms += "axis(${parent.frame}, '$axis') * $src"
                 }
                 return Result.Success(Base(parent.frame, terms, parent.live))
             }

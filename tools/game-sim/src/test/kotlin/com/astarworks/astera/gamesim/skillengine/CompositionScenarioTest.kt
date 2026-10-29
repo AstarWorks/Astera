@@ -34,7 +34,7 @@ class CompositionScenarioTest : SkillEngineScenario() {
         id: caller
         meta: {cooldown_ticks: 20, resource_cost: 0}
         anchors:
-          - {id: blade, anchor: caster.eye, mount: caster}
+          - {id: blade, anchor: caster.eye, mode: follow}
         machine:
           start: p
           states:
@@ -123,7 +123,7 @@ class CompositionScenarioTest : SkillEngineScenario() {
         id: caller
         meta: {cooldown_ticks: 20, resource_cost: 0}
         anchors:
-          - {id: blade, anchor: caster.eye, mount: caster}
+          - {id: blade, anchor: caster.eye, mode: follow}
         machine:
           start: s
           states:

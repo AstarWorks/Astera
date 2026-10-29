@@ -9,7 +9,7 @@ params:
   knockback:    {type: number, default: 1.6}
   dmg_physical: {type: number, default: 10.0}
 anchors:
-  - {id: cast_fx, anchor: caster, offset: {forward: 1.5}}       # was pt_caster_0_0_1p5
+  - {id: cast_fx, anchor: caster, offset: {forward: 1.5}, mode: follow}       # was pt_caster_0_0_1p5
 machine:
   start: cast
   states:

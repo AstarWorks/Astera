@@ -19,7 +19,7 @@ item: any
 meta: {cooldown_ticks: 0, resource_cost: 0}
 $header
 anchors:
-  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.6}}
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.6}, mode: follow}
 machine:
   start: cast
   states:

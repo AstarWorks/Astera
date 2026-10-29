@@ -16,6 +16,7 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVec
 import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVecs
 import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
+import com.astarworks.astera.core.application.skillengine.load.grammar.ItemPart
 import com.astarworks.astera.core.application.skillengine.load.grammar.LocalAxes
 import com.astarworks.astera.core.application.skillengine.load.grammar.Rotation
 import com.astarworks.astera.core.application.skillengine.load.grammar.Rotations
@@ -90,7 +91,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
     override val timing: TimingKind? = TimingKind.EXTENDED
 
     private val anchorF = Field.required("anchor", Types.id, "parent: caster, victim/target, world, contact, a declared anchor, or another frame (blade[i])")
-    private val partF = Field.optional("part", Types.nullable(Types.id), null, "weapon part of content/frames/<item>.yaml whose points and axes this frame takes")
+    private val partF = ItemPart.field
     private val offsetF = Field.optional("offset", FrameVecs.type, FrameVec.Parts(Value.Literal(0.0), Value.Literal(0.0), Value.Literal(0.0)), "initial position in the parent's axes {forward, up, left}")
     private val turnF = Field.optional("turn", Rotations.type, Rotation.Turns(emptyList()), "initial orientation relative to the parent basis, [{axis, deg}, ...] (axes long/edge/face need part)")
     private val modeF = Field.optional("mode", Types.enumOf("follow", "snapshot"), "follow", "follow: re-read the parent at every send; snapshot: copy the pose once")
@@ -144,14 +145,14 @@ public object FrameOpSpec : OpSpec<FrameOp> {
         // A family is `times` WITHOUT `every`; with `every` the unroller owns the repeat and each occurrence is one frame (2.0, rev4.1).
         val family: Int? = if (t?.times != null && t.every == null) staticTicks(lc, ctx, "$src.times", "times", t.times) else null
 
-        val item = if (op.part != null) {
-            lc.skills.skill(lc.skillId)?.item
-                ?: ctx.fail("$src.part", "part '${op.part}' needs the skill's item to find content/frames/<item>.yaml, but this skill has no item")
-        } else null
-        val modelPart = if (op.part != null) {
-            lc.frames.item(item!!)?.partFor(op.part)
-                ?: ctx.fail("$src.part", "content/frames/$item.yaml has no part '${op.part}'")
-        } else null
+        val resolved = op.part?.let { part ->
+            when (val r = ItemPart.resolve(lc, part)) {
+                is Result.Success -> r.value
+                is Result.Failure -> ctx.fail("$src.part", r.error)
+            }
+        }
+        val item = resolved?.item
+        val modelPart = resolved?.part
 
         val life: Int? = lifeTicks(op, lc, ctx, src)
         val rows = ArrayList<Row>()

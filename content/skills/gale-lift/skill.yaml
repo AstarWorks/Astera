@@ -7,7 +7,7 @@ params:
   propel:   {type: number, default: 1.0}
   propel_2: {type: number, default: 0.6}
 anchors:
-  - {id: feet_fx, anchor: caster, offset: {up: 0.2}}   # was pt_caster_0_0p2_0
+  - {id: feet_fx, anchor: caster, offset: {up: 0.2}, mode: follow}   # was pt_caster_0_0p2_0
 machine:
   start: lift
   states:

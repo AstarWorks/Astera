@@ -5,7 +5,7 @@ kind: Skill
 id: frost-shard
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}   # was pt_caster_0_m0p2_1 / pt_caster_eye_...
-  - {id: heart,  anchor: victim.root, offset: {up: 1.0}}                       # was pt_enemy_0_1_0 (v2 enemy frame = victim feet, yaw-only)
+  - {id: heart,  anchor: victim.root, offset: {up: 1.0}, mode: follow}                       # was pt_enemy_0_1_0 (v2 enemy frame = victim feet, yaw-only)
 machine:
   start: cast
   states:

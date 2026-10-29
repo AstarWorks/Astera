@@ -2,6 +2,9 @@ package com.astarworks.astera.gamesim.skillengine
 
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.hit.HitBox
+import com.astarworks.astera.core.domain.skillengine.hit.HitCandidate
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
 import com.astarworks.astera.core.domain.skillengine.table.Row
@@ -20,7 +23,7 @@ class ProjectileScenarioTest : SkillEngineScenario() {
         item: couture-rapier
         meta: {cooldown_ticks: 60, resource_cost: 0}
         anchors:
-          - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}}
+          - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: follow}
         machine:
           start: cast
           states:
@@ -88,4 +91,31 @@ class ProjectileScenarioTest : SkillEngineScenario() {
         assertTrue(failure("{$base, for: 40, hit: {targets: enemies, once: true, attach: false}}").toString().contains("block"))
     }
 
+    // ---- E1: `part:` sweeps the capsule along the body's own axis ----------------------------------------------------------
+
+    private val bodyShape = "id: bolt, op: projectile, origin: muzzle, velocity: \"= look(caster) * 1.0\", part: blade_a, for: 30, " +
+        "hit: {targets: enemies, once: true, attach: false, shape: {capsule: 0.3, from: root, to: tip}}, " +
+        "block: {mode: despawn}, on: {hit: [{id: h, op: sound, sound: \"astera:hit\", anchor: caster}]}"
+
+    private fun hits(z: Double, x: Double): Int {
+        val rec = GatewayRecorder()
+        rec.faithfulPose = true
+        rec.victims = listOf(
+            HitCandidate(java.util.UUID(0L, 21L), Vec3(x, 0.0, z), 0.0, HitBox(Vec3(x - 0.3, 0.0, z - 0.3), Vec3(x + 0.3, 1.8, z + 0.3))),
+        )
+        play(compile("{$bodyShape}"), seed = 1L, events = emptyList(), ticks = 40, rec = rec)
+        return rec.calls.count { it.verb == "sound" && it.payload.startsWith("sound=astera:hit") }
+    }
+
+    @Test
+    fun bodyCapsuleHitsAlongOwnAxis() {
+        assertEquals(1, hits(z = 4.0, x = 0.0)) // on the flight line
+        assertEquals(0, hits(z = 4.0, x = 3.0)) // three blocks to the side: the blade capsule never reaches it
+    }
+
+    @Test
+    fun partNeedsItsPointAndAShape() {
+        assertTrue(failure("{${bodyShape.replace("to: tip", "to: nope")}}").toString().contains("part 'blade_a' has no point 'nope'"))
+        assertTrue(failure("{${bodyShape.replace("part: blade_a, ", "")}}").toString().contains("frames"))
+    }
 }

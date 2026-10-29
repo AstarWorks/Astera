@@ -19,7 +19,7 @@ id: shield-brace
 item: shield-bulwark
 meta: {name: {ja: "防御姿勢", en: Brace}, cooldown_ticks: 180, resource_cost: 0}
 anchors:
-  - {id: chest, anchor: caster, offset: {up: 1.0}}
+  - {id: chest, anchor: caster, offset: {up: 1.0}, mode: follow}
 machine:
   start: cast
   states:

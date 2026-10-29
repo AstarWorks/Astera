@@ -34,6 +34,8 @@ public data class MachineTransition(
     val whenExpr: String?,
     val to: String,
     val effects: List<OpMap>,
+    /** F2 `absorb: true` (hurt events only): the hit that would damage the caster is cancelled when this transition fires. */
+    val absorb: Boolean = false,
 )
 
 /** [forTicks] is a number or a CEL string; with [then] it is the implicit timer transition. */

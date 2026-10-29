@@ -11,7 +11,7 @@ meta:
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: cast_fx, anchor: caster, offset: {up: -0.2, forward: 1.0}, mode: snapshot}
-  - {id: heart,   anchor: victim.root, offset: {up: 1.0}}   # was pt_enemy_0_1_0 (v2 enemy frame = victim feet, yaw-only)
+  - {id: heart,   anchor: victim.root, offset: {up: 1.0}, mode: follow}   # was pt_enemy_0_1_0 (v2 enemy frame = victim feet, yaw-only)
 machine:
   start: cast
   states:

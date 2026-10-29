@@ -9,7 +9,7 @@ meta:
   resource_cost: 0
   tags: [tool, cover]
 anchors:
-  - {id: aim, anchor: caster, offset: {forward: 2.0}}   # was pt_caster_0_0_2 (caster feet, yaw-only)
+  - {id: aim, anchor: caster, offset: {forward: 2.0}, mode: follow}   # was pt_caster_0_0_2 (caster feet, yaw-only)
 machine:
   start: place
   states:

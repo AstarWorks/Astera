@@ -303,6 +303,8 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                 "skill=${OracleFmt.s(skillId)} at=${OracleFmt.v(hitPoint)} ignoreinv=$ignoreInvulnerability ignorearmor=$ignoreArmor",
             )
 
+        override fun cancelIncomingHit(cast: CastRef, attacker: UUID?) = add("cancelIncomingHit", "-", "attacker=${attacker ?: "-"}")
+
         override fun statusStacks(entity: UUID, statusId: String): Int = 0
 
         override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) =

@@ -150,6 +150,9 @@ public class PaperSkillGameplayGateway(
         entityEffects.thaw(target)
     }
 
+    /** The hit was already negated inside the damage pipeline (`SkillEnginePaperRuntime`'s incoming interceptor asks `CastRunner.absorbsAnyOf` before it lands); the queued `hurt` event arrives after, so there is nothing left to cancel. */
+    override fun cancelIncomingHit(cast: CastRef, attacker: UUID?) {}
+
     override fun consumeStatus(cast: CastRef, entity: UUID, status: String) = removeStatus(entity, status)
 
     override fun cameraShake(cast: CastRef, viewer: UUID, intensity: Double, ticks: Int, from: Vec3?) {

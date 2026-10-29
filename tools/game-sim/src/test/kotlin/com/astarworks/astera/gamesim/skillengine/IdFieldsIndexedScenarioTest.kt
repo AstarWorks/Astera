@@ -18,7 +18,7 @@ class IdFieldsIndexedScenarioTest : SkillEngineScenario() {
     private fun skill(vararg ops: String): String = (
         listOf(
             "apiVersion: astera/v3", "kind: Skill", "id: id-fields", "item: couture-rapier",
-            "anchors:", "  - {id: body, anchor: caster}",
+            "anchors:", "  - {id: body, anchor: caster, mode: follow}",
             "machine:", "  start: s", "  states:", "    s:", "      for: 100", "      enter:",
         ) + ops.map { "        - $it" }
         ).joinToString("\n") + "\n"

@@ -1,6 +1,7 @@
 package com.astarworks.astera.gamesim.skillengine
 
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpecRegistry
+import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.SkillEngineSpecs
 import com.astarworks.astera.core.domain.Result
 import kotlinx.serialization.json.JsonArray
@@ -90,5 +91,46 @@ class StrictDecodeScenarioTest : SkillEngineScenario() {
         is JsonArray -> v.isEmpty() || v.map { (it as? JsonPrimitive)?.doubleOrNull }.let { n -> n.all { it == 0.0 } || n.all { it == 1.0 } }
         is JsonObject -> v.isEmpty()
         is JsonPrimitive -> v.booleanOrNull == false || v.doubleOrNull?.let { it == 0.0 || it == 1.0 } == true || (v.isString && (v.content.isEmpty() || v.content in vanillaWords))
+    }
+
+    // ---- E2: document anchors -------------------------------------------------------------------------------------------
+
+    private fun anchorSkill(entry: String) = """
+        apiVersion: astera/v3
+        kind: Skill
+        id: doc-anchor
+        anchors:
+          - $entry
+        machine:
+          start: s
+          states:
+            s:
+              for: 4
+              do:
+                - {id: snd, op: sound, sound: entity.player.attack.sweep, anchor: tip, at: 0}
+    """.trimIndent()
+
+    private fun failureOf(yaml: String): SkillDecodeError = when (val r = loadInline(yaml)) {
+        is Result.Success -> throw AssertionError("expected a load error")
+        is Result.Failure -> r.error
+    }
+
+    @Test
+    fun documentAnchorMountIsUnknownKey() {
+        val e = failureOf(anchorSkill("{id: tip, anchor: caster.eye, mode: follow, mount: caster}"))
+        assertThat(e).isInstanceOf(SkillDecodeError.UnknownKey::class.java)
+        assertThat(e.toString()).contains("mount")
+    }
+
+    @Test
+    fun documentAnchorModeRequired() {
+        val e = failureOf(anchorSkill("{id: tip, anchor: caster.eye}"))
+        assertThat(e.toString()).contains("anchors[0] 'tip': mode is required: follow (re-read every tick) or snapshot (sampled once when the cast starts)")
+    }
+
+    @Test
+    fun documentAnchorOffsetAcceptsCel() {
+        val r = loadInline(anchorSkill("{id: tip, anchor: caster.eye, mode: follow, offset: {forward: \"= 0.25 * 2\", up: 0.1}}"))
+        assertThat(r).isInstanceOf(Result.Success::class.java)
     }
 }
