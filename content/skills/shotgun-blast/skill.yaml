@@ -43,5 +43,5 @@ machine:
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: "${knockback}"}
               - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact}
               - {id: fx_hit, op: particle_def, def: gun-impact, anchor: heart}
-        - {id: chip, op: break_area, at: 0, anchor: {of: caster.eye, offset: {forward: 4}}, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 30, ripple: 29, revert: 200, outside_arena: false}
+        - {id: chip, op: break_area, at: 0, anchor: {of: caster.eye, offset: {forward: 4}}, shape: {sphere: {radius: 1.0}}, tool: none, block_damage: 30, ripple: 29, revert: 200, outside_arena: false}
     end: {final: true}

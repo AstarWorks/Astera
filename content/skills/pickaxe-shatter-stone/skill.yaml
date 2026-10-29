@@ -1,4 +1,4 @@
-# Shatters blocks in a sphere ahead of the caster; the tiers differ in radius. Base of the pickaxe-shatter tiers (this is the stone tier);
+# Shatters blocks in a sphere at the face the caster looks at (within `ahead` blocks); the tiers differ in radius. Base of the pickaxe-shatter tiers (this is the stone tier);
 # pickaxe-shatter-iron / -diamond extend it (ADR-0303 9.3): same document, other id / item / meta and the `with:` values below.
 apiVersion: astera/v3
 kind: Skill
@@ -12,7 +12,7 @@ meta:
   tags: [tool, cover]
 params:
   radius: {type: number, default: 2}
-  ahead: {type: number, default: 4.0}
+  ahead: {type: number, default: 6.0}
   stone_pitch: {type: number, default: 0.8}
   thud_vol: {type: number, default: 0.7}
   thud_pitch: {type: number, default: 1.2}
@@ -28,7 +28,7 @@ machine:
       for: 1
       then: end
       do:
-        - {id: break, op: break_area, anchor: {of: caster, offset: {forward: "${ahead}"}}, shape: {sphere: {radius: "${radius}"}}, tool: pickaxe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
+        - {id: break, op: break_area, anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster) + vec(0.0, 1.62, 0.0), aim_point(caster, ${ahead}))"}}, shape: {sphere: {radius: "${radius}"}}, tool: pickaxe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
         - {id: snd, op: sound, sound: block.stone.break, anchor: caster, volume: 1.0, pitch: "${stone_pitch}"}
         - {id: snd_2, op: sound, sound: item.trident.hit_ground, anchor: caster, volume: "${thud_vol}", pitch: "${thud_pitch}", when: "= ${thud}"}
         - {id: snd_3, op: sound, sound: block.amethyst_cluster.break, anchor: caster, volume: 0.8, pitch: 1.0, when: "= ${amethyst}"}
