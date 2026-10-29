@@ -1,6 +1,6 @@
 # skill-preview
 
-`make skill-preview SKILL=<skill-id>` renders a skill performance from the skill-compare camera without Minecraft: about 5 s for 54 frames at 1280x720 once the plan exists (plus ~10 s for `make skill-lint-plan` unless `REUSE=1`). It replaces `tools/vfx-preview` (deleted). Tool: `tools/skill-viewer/scripts/skill-preview.mjs` + `src/preview.js` (three.js in headless Chromium, same display math as the trace viewer, see `tools/skill-viewer/DISPLAY-SEMANTICS.md`).
+`make skill-preview SKILL=<skill-id>` renders a skill performance from the skill-compare camera without Minecraft: about 5 s for 54 frames at 1280x720 once the plan exists. It replaces `tools/vfx-preview` (deleted). Tool: `tools/skill-viewer/scripts/skill-preview.mjs` + `src/preview.js` (three.js in headless Chromium, same display math as the trace viewer, see `tools/skill-viewer/DISPLAY-SEMANTICS.md`).
 
 Output in `build/skill-preview/<skill>/`: `frames/tick_NNN.png` (1280x720, tick 0 = cast), `ref/` (reference video frames), `strip.png` (per picked tick, rows: reference / preview / published real-client capture), `meta.json` (timings, warnings).
 
@@ -26,14 +26,14 @@ Exact to the planner: poses, timing (state at integer ticks, display interpolati
 
 ## make skill-trace / OVERLAY=1 (v2, SKL-08)
 
-`make skill-trace SKILL=<id>` casts a v2 skill once in game-sim and writes `tools/game-sim/build/sim-traces/v2/<id>.json` (`astera-sim-trace/2`). `make skill-preview SKILL=<id>` runs it first, then renders and publishes `preview` and `preview-side`; `OVERLAY=1` also renders hit volumes (cyan), victim hitboxes (yellow) and contacts (red, with normal) and publishes them as the `lint` view. The interactive `skill-3d`, `particle-sim` and the plan.json feed were removed.
+`make skill-trace SKILL=<id>` casts a v2 skill once in game-sim and writes `tools/game-sim/build/sim-traces/v2/<id>.json` (`astera-sim-trace/2`). `make skill-preview SKILL=<id>` runs it first, then renders and publishes `preview` and `preview-side`; `OVERLAY=1` also renders hit volumes (cyan), victim hitboxes (yellow) and contacts (red, with normal) and publishes them as the `lint` view. The interactive `structure stills`, `particle-sim` and the plan.json feed were removed.
 
 ## First-person check (caster's own view)
 
 A skill is judged from the caster's own eyes as well as from the camera that films the reference. For anything the caster sees up close
 (a weapon rig, a screen veil, a windup telegraph), run this before the round goes to review:
 
-1. Run `make skill-lint SKILL=<id>` first. Check 1 (`visibleWeapons`) must PASS: the first-person view is where a doubled or missing held weapon is most obvious. Check 8 must PASS if the skill has a `windup`.
+1. Check the held weapon count in the first-person view: a doubled or missing held weapon is most obvious there.
 2. Film the two views of the same tick range, back to back, with the same `TICKS`:
    - `make vfx-shot SKILL=<id> VIEW=caster TICKS=<range>` (the caster, first person; 640x360)
    - `make vfx-shot SKILL=<id> VIEW=compare CASE=<case> TICKS=<range>` (the case camera; 1280x720)
@@ -41,5 +41,5 @@ A skill is judged from the caster's own eyes as well as from the camera that fil
 4. Screen veils: the `caster` frames are the only place the veil's real size shows. It must cover no more than 15 percent of the frame (hard maximum 18 percent) and must be visible in `caster` only, never in `compare` or `opponent` (default `viewers: caster`).
 5. Windup telegraphs: in `opponent` (the target's view) the rim is at full size on the first windup tick and the fill reaches the rim on the impact tick; `caster` shows the same ground marker unless `viewers` says otherwise.
 
-`make skill-3d ... VIEWS=fp` is the planner's first-person still; it does not replace the real-client `VIEW=caster` capture.
+The real-client `VIEW=caster` capture is the only first-person authority.
 

@@ -8,7 +8,7 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 - **アーキテクチャの全体像** → [architecture/overview.md](architecture/overview.md)
 - **構想と今の範囲 (2026-10)** → [vision/VISION.md](vision/VISION.md) — 柱・現スコープ・範囲外・施主の判断尺度。領域別の現状/理想/未決は [vision/areas/](vision/areas/)。次にやることは Board (`.claude/rules/board.md`)
 - **遊んでみる** → [contributing/playtest.md](contributing/playtest.md) — Docker 起動 → 武器 → マッチ
-- **VFX チーム (単一 author + fresh reviewer + manager; Limbus 再現は一用途)** → [contributing/vfx-team/README.md](contributing/vfx-team/README.md) — round note / `make round-gate`: [round-template.md](contributing/vfx-team/round-template.md), 2026-10-27 retro: [retro-2026-10-27.md](contributing/vfx-team/retro-2026-10-27.md)
+- **VFX チーム (単一 author + fresh reviewer + manager; Limbus 再現は一用途)** → [contributing/vfx-team/README.md](contributing/vfx-team/README.md) — round note / the manager's round-note review on skill-compare: [round-template.md](contributing/vfx-team/round-template.md), 2026-10-27 retro: [retro-2026-10-27.md](contributing/vfx-team/retro-2026-10-27.md)
 - **ヘッドレス・シミュレータ** → [`tools/game-sim/README.md`](../tools/game-sim/README.md) + [ADR-0174](adr/0174-host-neutral-wiring-and-headless-game-simulator.md)
 - **コマンド (`/astera <area> <action>` 単一ツリー)** → [ADR-0184](adr/0184-single-astera-command-tree.md) — 権限スキーム・補完・help・追加方法
 - **Board と領域仕様が tracker/roadmap を置き換えた経緯** → [adr/0266-board-and-area-specs-replace-trackers.md](adr/0266-board-and-area-specs-replace-trackers.md)

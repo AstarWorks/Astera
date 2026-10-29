@@ -16,8 +16,7 @@ export const SLOTS = [
 const stripTags = (s) => String(s ?? "").replace(/<[^>]+>/g, "").trim();
 // ADR-0230 roster. YAML comments are not identifiers and may disappear when an author saves an item.
 const PERSONA_WEAPONS = new Set([
-  "couture-rapier", "gossamer-katana", "vendetta-rifle", "ember-gauntlet", "bastion-greatsword",
-  "verdict-hammer", "crimson-chain-axe", "sigil-rifle", "orrery-staff", "edict-blade",
+  "couture-rapier", "bastion-greatsword",
 ]);
 const yaml = (p) => { try { return Bun.YAML.parse(readFileSync(p, "utf8")); } catch { return null; } };
 
