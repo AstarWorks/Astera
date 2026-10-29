@@ -5,8 +5,8 @@ import kotlin.math.ceil
 
 /** `break_area` volume (ADR-0303 10.1c). Sphere and line follow the true look; box follows [WorldAim.forward] (v2 `WorldShapes` 1:1). */
 public sealed interface AreaShape {
-    /** Centre = origin + look * [ahead]. */
-    public data class Sphere(val radius: Double, val ahead: Double) : AreaShape
+    /** Centre = the op's anchor point; an offset from it is written on the anchor. */
+    public data class Sphere(val radius: Double) : AreaShape
 
     /** 0.5-block steps along the look up to [length]; each step fills a ball of diameter [width]. */
     public data class Line(val length: Double, val width: Double, val height: Int = 1) : AreaShape
@@ -57,8 +57,7 @@ public object WorldShapes {
     public const val MAX_SHAPE_BLOCKS: Int = 512
 
     /** Centre used to order a break so it ripples outward. */
-    public fun breakCentre(shape: AreaShape, aim: WorldAim): Vec3 =
-        if (shape is AreaShape.Sphere) aim.origin + aim.look * shape.ahead else aim.origin
+    public fun breakCentre(aim: WorldAim): Vec3 = aim.origin
 
     public fun breakCells(shape: AreaShape, aim: WorldAim): List<BlockCell> {
         val out = LinkedHashSet<BlockCell>()
@@ -66,7 +65,7 @@ public object WorldShapes {
             is AreaShape.Sphere -> {
                 val r = shape.radius
                 val n = ceil(r).toInt()
-                val base = BlockCell.containing(breakCentre(shape, aim))
+                val base = BlockCell.containing(breakCentre(aim))
                 for (dx in -n..n) for (dy in -n..n) for (dz in -n..n) {
                     if (dx * dx + dy * dy + dz * dz <= r * r) out += BlockCell(base.x + dx, base.y + dy, base.z + dz)
                 }

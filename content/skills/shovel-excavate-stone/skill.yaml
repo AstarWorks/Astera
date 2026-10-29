@@ -1,3 +1,5 @@
+# Digs out a box of soft blocks in front of the caster; the tiers differ in box size. Base of the shovel-excavate tiers (this is the stone tier);
+# shovel-excavate-iron / -diamond extend it (ADR-0303 9.3): same document, other id / item / meta and the `with:` values below.
 apiVersion: astera/v3
 kind: Skill
 id: shovel-excavate-stone
@@ -8,6 +10,16 @@ meta:
   cooldown_ticks: 140
   resource_cost: 0
   tags: [tool, cover]
+params:
+  width: {type: number, default: 3}
+  height: {type: number, default: 2}
+  length: {type: number, default: 3}
+  gravel_pitch: {type: number, default: 0.8}
+  dirt_vol: {type: number, default: 0.8}
+  dirt_pitch: {type: number, default: 0.9}
+  dirt: {type: bool, default: false}
+  flatten: {type: bool, default: false}
+  spark: {type: string, default: tool-shovel-stone}
 anchors:
   - {id: spark, anchor: caster, offset: {forward: 2.0}, mode: follow}
 machine:
@@ -17,5 +29,9 @@ machine:
       for: 1
       then: end
       do:
-        - {id: excavate, use: shovel-excavate, with: {width: 3, height: 2, length: 3, tier: 1, gravel_pitch: 0.8}, frames: {spot: spark}}
+        - {id: dig, op: break_area, anchor: caster, shape: {box: {width: "${width}", height: "${height}", length: "${length}"}}, tool: shovel, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
+        - {id: snd, op: sound, sound: block.gravel.break, anchor: caster, volume: 1.0, pitch: "${gravel_pitch}"}
+        - {id: snd_2, op: sound, sound: block.rooted_dirt.break, anchor: caster, volume: "${dirt_vol}", pitch: "${dirt_pitch}", when: "= ${dirt}"}
+        - {id: snd_3, op: sound, sound: item.shovel.flatten, anchor: caster, volume: 0.8, pitch: 0.9, when: "= ${flatten}"}
+        - {id: spark, op: particle_def, def: "${spark}", anchor: spark}
     end: {final: true}

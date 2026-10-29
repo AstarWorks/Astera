@@ -1,6 +1,7 @@
 apiVersion: astera/v3
 kind: Skill
 id: pickaxe-bore-diamond
+extends: pickaxe-bore-stone
 item: diamond-pickaxe
 meta:
   name: {ja: "ダイヤの掘削", en: "Diamond Bore"}
@@ -8,14 +9,11 @@ meta:
   cooldown_ticks: 90
   resource_cost: 0
   tags: [tool, cover]
-anchors:
-  - {id: dust, anchor: caster, offset: {forward: 2.0}, mode: snapshot}
-machine:
-  start: cast
-  states:
-    cast:
-      for: 1
-      then: end
-      do:
-        - {id: bore, use: pickaxe-bore, with: {length: 8, tier: 3, stone_pitch: 0.6, thud_vol: 0.8, thud_pitch: 1.0}, frames: {spot: dust}}
-    end: {final: true}
+with:
+  length: 8
+  stone_pitch: 0.6
+  thud_vol: 0.8
+  thud_pitch: 1.0
+  thud: true
+  amethyst: true
+  spark: tool-pick-diamond

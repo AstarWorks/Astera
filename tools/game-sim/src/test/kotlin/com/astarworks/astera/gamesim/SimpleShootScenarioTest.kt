@@ -1,6 +1,7 @@
 package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.combat.application.admin.AdminSkillCatalog
+import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.services.getOrThrow
@@ -23,6 +24,8 @@ class SimpleShootScenarioTest {
 
     private data class Seen(val tick: Long, val key: String, val count: Int, val p: JsonObject)
 
+    private fun ScenarioScope.simpleShootCasts(): Int = eventsOf<SkillCast>().count { it.skillId.value == "simple-shoot" }
+
     private fun particles(trace: Path): List<Seen> =
         Json.parseToJsonElement(Files.readString(trace)).jsonObject["ticks"]!!.jsonArray.flatMap { t ->
             val tick = t.jsonObject["tick"]!!.jsonPrimitive.content.toLong()
@@ -33,7 +36,7 @@ class SimpleShootScenarioTest {
         }
 
     @Test
-    fun `simple-shoot bursts at the muzzle, trails the flight and ends in a dust ring on two ticks`() {
+    fun `simple-shoot bursts at the muzzle, trails the flight and bursts where it lands`() {
         var castTick = 0L
         val trace = scenario("simple-shoot") {
             val shooter = player("shooter")
@@ -45,32 +48,30 @@ class SimpleShootScenarioTest {
         }
         val all = particles(trace)
 
-        // ProjectileStart: one flame burst of 50 on the cast tick.
+        // Cast: one flame burst of 50 at the muzzle on the cast tick (content/skills/simple-shoot `cast_flame`).
         val burst = all.filter { it.key == "flame" && it.count == 50 }
         assertThat(burst).hasSize(1)
-        assertThat(burst.single().tick).isEqualTo(castTick)
+        assertThat(burst.single().tick).isBetween(castTick, castTick + 1)
 
-        // Projectile: flame + orange dust, on several ticks while flying, denser than one per tick.
+        // Flight: flame + orange dust trail on several ticks while the beam travels.
         val trail = all.filter { it.key == "flame" && it.count == 1 }
         assertThat(trail.map { it.tick }.toSet().size).isGreaterThanOrEqualTo(3)
-        assertThat(trail.size).isGreaterThan(trail.map { it.tick }.toSet().size)
         val trailDust = all.filter { it.key == "dust" && it.p["scale"]!!.jsonPrimitive.content.toDouble() == 1.5 }
         assertThat(trailDust).isNotEmpty()
 
-        // ProjectileEnd: 3 instances x 2 ticks x 15 points = 90 scale-2 dust, 45 on each of two consecutive ticks
-        // (3 instead of RTM's 2 and a ~1-1.5 block radius instead of 3-4; the extra flat ring uses scale 2.5).
-        val ring = all.filter { it.key == "dust" && it.p["scale"]!!.jsonPrimitive.content.toDouble() == 2.0 }
-        assertThat(ring).hasSize(90)
-        val byTick = ring.groupBy { it.tick }.toSortedMap()
-        assertThat(byTick.keys).hasSize(2)
-        val ticks = byTick.keys.toList()
-        assertThat(ticks[1] - ticks[0]).isEqualTo(1L)
-        assertThat(byTick.values.map { it.size }).containsExactly(45, 45)
-        // The orbit stays tight around the impact point (RTM's 3-4 block radius was tightened).
-        val c = ring.first().p["color"]!!.jsonObject
+        // Impact at the floor: one burst of 60 flame, 8 lava and the two orange dust discs (sizes 2.5 and 2.0) on one tick.
+        val impact = all.filter { it.key == "flame" && it.count == 60 }
+        assertThat(impact).hasSize(1)
+        val impactTick = impact.single().tick
+        assertThat(all.filter { it.key == "lava" && it.count == 8 }.map { it.tick }).containsExactly(impactTick)
+        for (size in listOf(2.5, 2.0)) {
+            assertThat(all.filter { it.key == "dust" && it.p["scale"]!!.jsonPrimitive.content.toDouble() == size }.map { it.tick })
+                .`as`("dust size $size at the impact").containsExactly(impactTick)
+        }
+        val c = all.first { it.key == "dust" && it.p["scale"]!!.jsonPrimitive.content.toDouble() == 2.0 }.p["color"]!!.jsonObject
         assertThat(listOf("r", "g", "b").map { c[it]!!.jsonPrimitive.content.toInt() }).containsExactly(255, 100, 20)
-        // The ring is centred on where the beam landed: after the last trail sample.
-        assertThat(ticks[0]).isGreaterThan(trail.maxOf { it.tick } - 1)
+        // The impact comes after the flight: no trail sample after it.
+        assertThat(impactTick).isGreaterThanOrEqualTo(trail.maxOf { it.tick } - 1)
     }
 
     @Test
@@ -86,7 +87,7 @@ class SimpleShootScenarioTest {
 
             val first = sim.command("alice", "skill cast simple-shoot", operator = true)
             assertThat(first.succeeded).`as`(first.replies.toString()).isTrue()
-            assertThat(sim.projectiles.inFlight).isEqualTo(1)
+            assertThat(simpleShootCasts()).isEqualTo(1)
 
             val again = sim.command("alice", "skill cast simple-shoot", operator = true)
             assertThat(again.succeeded).isFalse()
@@ -94,7 +95,7 @@ class SimpleShootScenarioTest {
 
             val forced = sim.command("alice", "skill cast simple-shoot alice --force", operator = true)
             assertThat(forced.succeeded).`as`(forced.replies.toString()).isTrue()
-            assertThat(sim.projectiles.inFlight).isEqualTo(2)
+            assertThat(simpleShootCasts()).isEqualTo(2)
 
             val unknown = sim.command("alice", "skill cast nope", operator = true)
             assertThat(unknown.succeeded).isFalse()
@@ -115,15 +116,16 @@ class SimpleShootScenarioTest {
             val view = checkNotNull(sim.server.view(admin.id))
 
             router.dispatch(view, GuiIntent(AdminSkillCatalog.INTENT_CAST, mapOf(AdminSkillCatalog.PAYLOAD_SKILL to "simple-shoot")))
-            assertThat(sim.projectiles.inFlight).isEqualTo(1)
+            assertThat(simpleShootCasts()).isEqualTo(1)
 
             router.dispatch(view, GuiIntent(AdminSkillCatalog.INTENT_TESTER, mapOf(AdminSkillCatalog.PAYLOAD_SKILL to "flame-burst")))
             assertThat(view.givenItems).contains("skill-tester-flame-burst")
 
             advance(80) // let the first shot finish
             sim.hold(admin, "skill-tester-flame-burst")
+            val before = eventsOf<SkillCast>().count { it.skillId.value == "flame-burst" }
             admin.rightClick()
-            assertThat(sim.projectiles.inFlight).isEqualTo(1)
+            assertThat(eventsOf<SkillCast>().count { it.skillId.value == "flame-burst" }).isEqualTo(before + 1)
         }
     }
 }

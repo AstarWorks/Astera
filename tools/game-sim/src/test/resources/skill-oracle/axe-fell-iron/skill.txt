@@ -1,13 +1,13 @@
 ## pose yaw=0 pitch=0
-@0 sound - op=cast/fell/snd sound=item.axe.strip cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
-@0 sound - op=cast/fell/snd_2 sound=block.wood.break cat=master vol=0.9 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 sound - op=cast/fell/snd_3 sound=entity.player.attack.strong cat=master vol=0.6 pitch=0.9 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fell/spark_2 type=tool-axe-iron at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1610497725050930452
+@0 sound - op=cast/snd sound=item.axe.strip cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
+@0 sound - op=cast/snd_2 sound=block.wood.break cat=master vol=0.9 pitch=0.8 at=0.000000,0.000000,0.000000
+@0 sound - op=cast/snd_3 sound=entity.player.attack.strong cat=master vol=0.6 pitch=0.9 at=0.000000,0.000000,0.000000
+@0 particle - op=cast/spark type=tool-axe-iron at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2263435844055114989
 ## pose yaw=37 pitch=-20
-@0 sound - op=cast/fell/snd sound=item.axe.strip cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
-@0 sound - op=cast/fell/snd_2 sound=block.wood.break cat=master vol=0.9 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 sound - op=cast/fell/snd_3 sound=entity.player.attack.strong cat=master vol=0.6 pitch=0.9 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fell/spark_2 type=tool-axe-iron at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1610497725050930452
+@0 sound - op=cast/snd sound=item.axe.strip cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
+@0 sound - op=cast/snd_2 sound=block.wood.break cat=master vol=0.9 pitch=0.8 at=0.000000,0.000000,0.000000
+@0 sound - op=cast/snd_3 sound=entity.player.attack.strong cat=master vol=0.6 pitch=0.9 at=0.000000,0.000000,0.000000
+@0 particle - op=cast/spark type=tool-axe-iron at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2263435844055114989
 ## gameplay-static
 g @0..1 cast-length | cast
 g @1 state-end then=end final=false | state=cast

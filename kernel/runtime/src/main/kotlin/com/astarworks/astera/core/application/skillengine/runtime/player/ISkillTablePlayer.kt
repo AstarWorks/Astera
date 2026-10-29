@@ -27,6 +27,8 @@ public data class EventBinding(
     val victim: EntityRef?,
     /** `event.attacker`: who dealt the damage of a `hurt` event; null when the event has no attacker. */
     val attacker: UUID? = null,
+    /** `from` (chain targeting, ADR-0303 9.4): the previous victim of the chain, bound while a chain hop's rows run; null outside a chain. */
+    val from: EntityRef? = null,
 )
 
 public data class RuntimeEvent(

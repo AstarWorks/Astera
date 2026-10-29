@@ -37,6 +37,8 @@ public data class Timing(
     val times: Value<Double>?,
     val until: String?,
     val lasts: Value<Double>?,
+    /** `detach: true`: what this op makes outlives its state, owned by the cast (ADR-0303 rev4.12). */
+    val detach: Boolean = false,
 )
 
 /** The timing block every timed op shares (ADR-0303 2.0). Merge [fields] into an op's own [Fields] with `+`, then [from]. */
@@ -98,11 +100,21 @@ public object TimingSpec {
     public val until: Field<String?> = Field.optional("until", Types.nullable(Types.id), null, "event that ends the window")
     public val lasts: Field<Value<Double>?> = Field.optional("lasts", Types.nullable(timingNumber("lasts")), null, "life of each occurrence (extended ops with every)")
 
-    public val fields: Fields = Fields.of("timing", at, forSpan, every, times, until, lasts)
+    /** A literal `true` / `false`: detaching is decided at load, never by a value. */
+    private val literalBool: FieldType<Boolean> = object : FieldType<Boolean> {
+        override val label = "true or false"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): Boolean =
+            raw as? Boolean ?: ctx.fail(path, "detach must be the literal true or false, got '$raw'")
+        override fun schema(): Map<String, Any?> = linkedMapOf("type" to "boolean")
+    }
+
+    public val detach: Field<Boolean> = Field.optional("detach", literalBool, false, "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail")
+
+    public val fields: Fields = Fields.of("timing", at, forSpan, every, times, until, lasts, detach)
 
     /** Reads the timing block out of [v] (the op's fields merged with [fields]) and checks the rules of ADR-0303 2.0. */
     public fun from(v: FieldValues, ctx: GrammarContext, path: String, kind: TimingKind): Timing {
-        val t = Timing(v[at], v[forSpan], v[every], v[times], v[until], v[lasts])
+        val t = Timing(v[at], v[forSpan], v[every], v[times], v[until], v[lasts], v[detach])
         // founder 10/29: random never decides a schedule. Refused here for every timing cell, whether or not the op's kind goes on to read it.
         fun noRand(field: String, value: Value<Double>?) {
             if (value is Value.Expr && ExprClassifier.analyse(value.source).usesRand) {

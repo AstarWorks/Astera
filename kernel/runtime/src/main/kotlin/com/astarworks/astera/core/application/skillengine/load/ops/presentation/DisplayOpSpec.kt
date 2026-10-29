@@ -398,7 +398,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 val hi = lc.clockOffset + (end ?: lc.config.maxLifeTicks)
                 subTables += SubTable(
                     EventPath(ev), lc.state, TickRange(lc.clockOffset, maxOf(lc.clockOffset, hi)), 1,
-                    listOf(Row(0, instance, Action.End(instance), src)), emptyList(),
+                    listOf(Row(0, instance, Action.End(instance), src)), emptyList(), mask = true,
                 )
             }
 
@@ -725,6 +725,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         times = t.times?.let { foldNum(it, ctx) },
         until = t.until,
         lasts = t.lasts?.let { foldNum(it, ctx) },
+        detach = t.detach,
     )
 
     /** A whole number in [lo, hi] when it is a literal; a CEL / unresolved value is checked when it is evaluated. */

@@ -91,6 +91,31 @@ class ProjectileScenarioTest : SkillEngineScenario() {
         assertTrue(failure("{$base, for: 40, hit: {targets: enemies, once: true, attach: false}}").toString().contains("block"))
     }
 
+    @Test
+    fun unboundedLifeIsALoadError() {
+        val tail = "hit: {targets: enemies, once: true, attach: false}, block: {mode: despawn}"
+        // neither `for` nor `range`: no finite life, nothing to cap it with
+        failure("{$base, $tail}").toString().let { assertTrue(it.contains("no default flight length"), it) }
+        // a flight longer than the server cap is refused, not clamped
+        failure("{$base, for: 5000, $tail}").toString().let { assertTrue(it.contains("max_life_ticks"), it) }
+        // a range the speed never covers within the cap is refused, not left to run to the cap
+        assertTrue(failure("{id: bolt, op: projectile, origin: muzzle, velocity: \"= look(caster) * 0.0\", radius: 0.4, range: 10, $tail}").toString().isNotEmpty())
+    }
+
+    @Test
+    fun untilMaskNeverWidensTheEndWindow() {
+        val s = compile("{$base, for: 30, hit: {targets: enemies, once: true, attach: false}, block: {mode: despawn}}")
+        assertEquals(1, s.sub("end").window.min)
+        assertEquals(30, s.sub("end").window.max)
+        val withDisplay = loadInline(
+            skill("{$base, for: 30, hit: {targets: enemies, once: true, attach: false}, block: {mode: despawn}}")
+                .replace("\n    done: {final: true}", "\n        - {id: slug, op: display, kind: item, item: \"minecraft:iron_nugget\", context: fixed, anchor: bolt, at: 0, until: bolt.end}\n    done: {final: true}"),
+        )
+        val d = (withDisplay as? Result.Success)?.value ?: error("expected a clean decode, got $withDisplay")
+        assertEquals(1, d.sub("end").window.min)
+        assertEquals(30, d.sub("end").window.max)
+    }
+
     // ---- E1: `part:` sweeps the capsule along the body's own axis ----------------------------------------------------------
 
     private val bodyShape = "id: bolt, op: projectile, origin: muzzle, velocity: \"= look(caster) * 1.0\", part: blade_a, for: 30, " +

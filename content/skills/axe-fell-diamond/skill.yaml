@@ -1,6 +1,7 @@
 apiVersion: astera/v3
 kind: Skill
 id: axe-fell-diamond
+extends: axe-fell-stone
 item: diamond-axe
 meta:
   name: {ja: "ダイヤの木断ち", en: "Diamond Fell"}
@@ -8,14 +9,10 @@ meta:
   cooldown_ticks: 80
   resource_cost: 0
   tags: [tool, cover]
-anchors:
-  - {id: aim_pt, anchor: caster, offset: {forward: 2.0}, mode: follow}
-machine:
-  start: cast
-  states:
-    cast:
-      for: 1
-      then: end
-      do:
-        - {id: fell, use: axe-fell, with: {length: 9, tier: 3, strip_pitch: 0.6, break_vol: 1.0, break_pitch: 0.7}, frames: {spot: aim_pt}}
-    end: {final: true}
+with:
+  length: 9
+  strip_pitch: 0.6
+  break_vol: 1.0
+  break_pitch: 0.7
+  crit: true
+  spark: tool-axe-diamond

@@ -35,4 +35,4 @@ public fun announceCommands(announcer: IAnnouncer, table: IPresentationTable, se
                 is Result.Failure -> CommandResult.Failure(MessageKey("astera.announce.failed"), mapOf("reason" to result.error.toString()))
             }
         },
-    ).requirePermission(Permission("astera.announce"))
+    ).requirePermission(Permission("astera.announce.send"))

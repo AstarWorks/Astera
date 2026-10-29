@@ -434,9 +434,12 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun raycastBlock(cast: CastRef, from: Vec3, to: Vec3): BlockHit? {
             seen("query.raycastBlock", cast)
-            return null
+            return blockRaycast(cast, from, to)
         }
     }
+
+    /** The world a projectile's swept segment is cast against; the oracle recorder has none (no block ever hit), the sim engine plugs in its block world. */
+    var blockRaycast: (CastRef, Vec3, Vec3) -> BlockHit? = { _, _, _ -> null }
 
     /** Caster motion (R40): `teleport` moves [casterPosition] (feet + 1) so the next `rootOf` sees it; [wall] answers `probeBlock`. */
     var wall: (Vec3, Vec3) -> BlockHit? = { _, _ -> null }
@@ -753,8 +756,11 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             }
         }
 
-        override fun targets(cast: CastHandle, rule: TargetRule, binding: EventBinding?): TargetSet =
-            TargetSet(victims.map { EntityRef(it.entityId) })
+        override fun targets(cast: CastHandle, rule: TargetRule, binding: EventBinding?): TargetSet {
+            // inside a chain hop (`from` bound) `event.victim` is that hop's own victim; everywhere else every scripted victim answers (the oracle goldens rely on it)
+            val bound = (rule as? TargetRule.Entity)?.takeIf { it.ref == "event.victim" && binding?.from != null }?.let { binding?.victim }
+            return if (bound != null) TargetSet(listOf(bound)) else TargetSet(victims.map { EntityRef(it.entityId) })
+        }
     }
 }
 

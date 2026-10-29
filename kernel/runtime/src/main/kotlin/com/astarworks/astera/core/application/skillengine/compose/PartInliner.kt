@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.skillengine.compose
 
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.part.PartExpander
+import com.astarworks.astera.core.application.skillengine.part.TickFields
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
 import com.astarworks.astera.core.domain.skillengine.model.SkillDef
@@ -53,6 +54,7 @@ public object PartInliner {
         val rootEnv = LinkedHashMap<String, Any?>()
         for ((name, spec) in def.params) if (spec.default != null) rootEnv[name] = spec.default
         val rootMachine = ParamSubst(rootEnv, strict = false).machine(def.machine)
+        TickFields.checkFolded(def.id, rootMachine, "machine")?.let { return Result.failure(it) }
         if (rootMachine.states.isEmpty()) return Result.success(Inlined(def.copy(machine = rootMachine), 0))
         val resolved = LinkedHashMap<String, Part>()
         val scope = HashSet(AnchorNames.BUILTIN_FRAMES).apply {
@@ -81,17 +83,19 @@ public object PartInliner {
      * never sees a [com.astarworks.astera.core.domain.skillengine.model.Value.ParamRef]. A CEL argument (`= e`) is pasted as `(e)`
      * inside another CEL string and stays itself when it is the whole value; an unknown `${x}` is an [SkillDecodeError.UndefinedReference].
      */
-    public fun bind(skillId: String, at: String, part: Part, args: Map<String, Any?>): Result<Part, SkillDecodeError> {
+    public fun bind(skillId: String, at: String, part: Part, args: Map<String, Any?>, extra: Map<String, Any?> = emptyMap()): Result<Part, SkillDecodeError> {
         val env = LinkedHashMap<String, Any?>()
         for ((name, spec) in part.params) {
             val v = if (name in args) args[name] else spec.default
             if (v != null) env[name] = v
         }
+        env.putAll(extra)
         val subst = ParamSubst(env, strict = true)
         val machine = subst.machine(part.machine)
         subst.missing?.let {
             return Result.failure(SkillDecodeError.UndefinedReference(skillId, "$at.with", "\${$it} (part '${part.id}' has no such param)"))
         }
+        TickFields.checkFolded(skillId, machine, "$at.part:${part.id}")?.let { return Result.failure(it) }
         return Result.success(part.copy(params = emptyMap(), machine = machine))
     }
 
@@ -187,11 +191,11 @@ internal class ParamSubst(private val env: Map<String, Any?>, private val strict
     fun machine(m: Machine): Machine = m.copy(states = m.states.mapValues { (_, s) -> state(s) }, world = ops(m.world))
 
     private fun state(s: MachineState): MachineState = s.copy(
-        forTicks = any(s.forTicks),
+        forTicks = TickFields.fold(any(s.forTicks)),
         enter = ops(s.enter),
         doOps = ops(s.doOps),
         exit = ops(s.exit),
-        on = s.on.map { t -> t.copy(afterTicks = any(t.afterTicks), whenExpr = any(t.whenExpr) as String?, effects = ops(t.effects)) },
+        on = s.on.map { t -> t.copy(afterTicks = TickFields.fold(any(t.afterTicks)), whenExpr = any(t.whenExpr) as String?, effects = ops(t.effects)) },
         use = s.use?.let { c -> c.copy(args = c.args.mapValues { (_, v) -> any(v) }) },
         parallel = s.parallel.map { machine(it) },
     )

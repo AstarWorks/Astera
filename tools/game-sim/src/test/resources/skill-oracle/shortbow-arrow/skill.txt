@@ -6,10 +6,11 @@
 @0 particle - op=fly/trail[0]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#bea064 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2862907801785208463
 @1 particle - op=fly/trail[1]/wake type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4064924585375109741
 @1 particle - op=fly/trail[1]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#bea064 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-32496506395722141
-@1 hit - op=fly/arrow at=0.000000,1.620000,3.100000 r=0.500000 shape=capsule a=0.000000,1.620000,3.100000 b=0.000000,1.620000,3.100000 rad=0.500000
+@1 hit - op=fly/arrow at=0.000000,1.620000,1.800000 r=1.800000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.100000 rad=0.500000
 @1 remove #0 op=fly/shaft
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
+r @3 run-end tail=2 | pose
 ## pose yaw=37 pitch=-20
 @0 spawn #0 op=fly/shaft kind=item item=arrow part=- pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.900000,0.900000,0.900000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=astera:weapons/sword-swing cat=master vol=0.7 pitch=1.3 at=0.000000,0.000000,0.000000
@@ -18,16 +19,17 @@ g @1 cast-end | pose
 @0 particle - op=fly/trail[0]/dust type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#bea064 size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2862907801785208463
 @1 particle - op=fly/trail[1]/wake type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4064924585375109741
 @1 particle - op=fly/trail[1]/dust type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#bea064 size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-32496506395722141
-@1 hit - op=fly/arrow at=-1.753116,2.680262,2.326463 r=0.500000 shape=capsule a=-1.753116,2.680262,2.326463 b=-1.753116,2.680262,2.326463 rad=0.500000
+@1 hit - op=fly/arrow at=-1.017938,2.235636,1.350849 r=1.800000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.753116,2.680262,2.326463 rad=0.500000
 @1 remove #0 op=fly/shaft
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
+r @3 run-end tail=2 | pose
 ## gameplay-static
 g @0..40 cast-length | cast
 g @40 state-end then=end final=false | state=fly
 g @0 state-end then=- final=true | state=end
 g.absorbed @1..40 handler max=1 | sub=fly/arrow.absorbed
 g.block @1..40 handler max=1 | sub=fly/arrow.block
-g.end @0..40 handler max=1 | sub=fly/arrow.end
+g.end @1..40 handler max=1 | sub=fly/arrow.end
 g.hit @1..40 handler max=1 | sub=fly/arrow.hit
 g.hit @0 damage physical=14.000000 | sub=fly/arrow.hit

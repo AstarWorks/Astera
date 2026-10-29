@@ -20,9 +20,10 @@ public object ExpansionDump {
     public fun render(table: ExpansionTable): String = buildString {
         appendLine("skill ${table.skillId} seed=${table.sampleSeed}")
         appendLine("# engine: " + engineText(table.config))
+        if (table.bounds.tail > 0) appendLine("# run: path=[${table.bounds.path.min},${table.bounds.path.max}] tail=${table.bounds.tail} run=[${table.bounds.path.min},${table.bounds.path.max + table.bounds.tail}]")
         for (st in table.states) {
             appendLine("state ${st.state.value} duration=${duration(st.duration)} then=${st.then?.value ?: "-"} final=${st.isFinal}")
-            st.rows.forEach { appendLine("  " + row(it)) }
+            st.rows.forEach { appendLine("  " + row(it, st.state.value)) }
             st.branches.forEach { appendLine("  " + branch(it)) }
         }
         if (table.worldRows.isNotEmpty()) {
@@ -31,7 +32,7 @@ public object ExpansionDump {
         }
         for (sub in table.subTables.values.sortedBy { it.event.value }) {
             appendLine("sub ${sub.event.value} owner=${sub.owner.value} window=[${sub.window.min},${sub.window.max}] max=${sub.maxFirings}")
-            sub.rows.forEach { appendLine("  " + row(it)) }
+            sub.rows.forEach { appendLine("  " + row(it, sub.owner.value)) }
             sub.branches.forEach { appendLine("  " + branch(it)) }
         }
     }
@@ -80,6 +81,8 @@ public object ExpansionDump {
         val subs = LinkedHashMap<EventPath, SubTable>()
         var cur: Cur? = null
         var world: List<Row> = emptyList()
+        var runTail = 0
+        var runPath = TickRange(0, 0)
 
         fun flush() {
             val c = cur ?: return
@@ -91,6 +94,12 @@ public object ExpansionDump {
         for (raw in text.lines()) {
             if (raw.isBlank()) continue
             val line = raw.trim()
+            if (line.startsWith("# run:")) {
+                val kv = kvs(line.removePrefix("# run:").trim().split(' '))
+                runTail = kv["tail"]?.toIntOrNull() ?: 0
+                runPath = kv["path"]?.let { parseRange(it) } ?: TickRange(0, 0)
+                continue
+            }
             if (line.startsWith("#")) continue // `# engine:` header: the config is not rebuilt (parse is lossy)
             val tok = line.split(' ')
             when {
@@ -134,7 +143,7 @@ public object ExpansionDump {
         }
         flush()
         val id = skillId ?: return null
-        val empty = Bounds(emptyMap(), 0, 0, 0, 0, TickRange(0, 0), 0)
+        val empty = Bounds(emptyMap(), 0, 0, 0, 0, runPath, 0, tail = runTail)
         return ExpansionTable(id, seed, emptyMap(), empty, states, subs, emptyMap(), emptyMap(), EngineConfig(), world)
     }
 
@@ -202,7 +211,7 @@ public object ExpansionDump {
 
     private val VERBS = setOf(
         "spawn", "key", "teleport", "trail", "particle", "particle_def", "set", "sound",
-        "hit", "damage", "status", "effect", "world", "call",
+        "hit", "damage", "status", "effect", "world", "call", "pick",
     )
 
     private val BRANCH = Regex("""branch (\S+) (\[\d+,\d+]) guard=(.*?)( absorb)? target=(\S+) sub=(\S+)""")
@@ -225,17 +234,18 @@ public object ExpansionDump {
         return "branch ${b.event.value} [${b.window.min},${b.window.max}] guard=$g${if (b.absorb) " absorb" else ""} target=${b.target?.value ?: "-"} sub=${b.subTable?.value ?: "-"}"
     }
 
-    private fun row(r: Row): String {
+    private fun row(r: Row, from: String? = null): String {
         val a = r.action
         if (a is Action.Effect && a.op.value.startsWith(DUMPED)) {
             val text = (a.payload["args"] as? Val.Known<*>)?.value as? String ?: ""
-            return "@${r.tick} ${r.instance.text} ${a.op.value.removePrefix(DUMPED)}" + (if (text.isEmpty()) "" else " $text")
+            return "@${r.tick} ${r.instance.text} ${a.op.value.removePrefix(DUMPED)}" + (if (text.isEmpty()) "" else " $text") + (if (r.detached) " detached from=${from ?: "world"}" else "")
         }
         val args = payloadText(r.action)
         val mask = if (r.maskUntil.isEmpty()) "" else " mask_until=" + r.maskUntil.joinToString(",", "[", "]") { it.value }
         val guard = when (val g = r.guard) { null -> ""; is Guard.Named -> " when=${g.cond}"; is Guard.Expr -> " when==_" + g.source.replace(' ', '_') }
         val sample = r.sample?.let { " sample=${it.k}/${it.n}" } ?: ""
-        return "@${r.tick} ${r.instance.text} ${verb(r.action)}" + (if (args.isEmpty()) "" else " $args") + sample + mask + guard
+        val detached = if (r.detached) " detached from=${from ?: "world"}" else ""
+        return "@${r.tick} ${r.instance.text} ${verb(r.action)}" + (if (args.isEmpty()) "" else " $args") + sample + mask + guard + detached
     }
 
     private fun verb(a: Action): String = when (a) {
@@ -253,6 +263,7 @@ public object ExpansionDump {
         is Action.Effect -> "effect"
         is Action.World -> "world"
         is Action.Lock -> "lock"
+        is Action.Pick -> "pick"
         is Action.Call -> "call"
         is Action.Emit -> "emit"
         is Action.End -> "end"
@@ -277,6 +288,7 @@ public object ExpansionDump {
         is Action.Effect -> listOf("op" to a.op, "payload" to a.payload)
         is Action.World -> listOf("op" to a.op, "origin" to a.origin, "forward" to a.forward, "payload" to a.payload)
         is Action.Lock -> listOf("move" to a.move, "pitch" to a.pitch, "yaw" to a.yaw, "until" to a.until)
+        is Action.Pick -> listOf("chain" to a.chain, "hop" to a.hop, "kind" to a.area.kind, "around" to a.area.aroundName, "r" to a.area.radius, "nearest" to 1, "exclude" to "chain")
         is Action.Call -> listOf("callee" to a.callee, "id" to a.callId, "with" to a.with, "frames" to a.frames)
         is Action.Emit -> listOf("event" to a.event)
         is Action.End -> listOf("instance" to a.instance)

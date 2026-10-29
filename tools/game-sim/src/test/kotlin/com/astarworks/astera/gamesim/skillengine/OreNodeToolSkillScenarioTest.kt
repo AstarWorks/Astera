@@ -56,7 +56,7 @@ class OreNodeToolSkillScenarioTest : SkillEngineScenario() {
     }
 
     private fun strike(toolClass: String) =
-        "{id: b, op: break_area, anchor: body, shape: {sphere: {radius: 0.5, ahead: 0.0}}, tool: $toolClass, block_damage: 100, ripple: 0, revert: 4000, outside_arena: false}"
+        "{id: b, op: break_area, anchor: body, shape: {sphere: {radius: 0.5}}, tool: $toolClass, block_damage: 100, ripple: 0, revert: 4000, outside_arena: false}"
 
     @Test
     fun `break_area chips an ore node by tool affinity, finishes it into drops and regrowth, and respects the Norma level gate`() {

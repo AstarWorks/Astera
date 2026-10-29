@@ -18,6 +18,7 @@ anchors:
   - {id: heart,   anchor: victim.center, mode: follow}
 machine:
   start: cast
+  tail: 2
   states:
     cast:
       start: fly
@@ -42,47 +43,26 @@ machine:
           for: 50
           radius: 0.5
           hit: {targets: enemies, once: true, attach: false}
-          block: {mode: bounce, restitution: 0.4, times: 2}
+          block: {mode: bounce, restitution: 0.4, friction: 0.2, times: 2}
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {water: "${dmg_water}"}}
               - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: "${freeze_ticks}", when: "= rand() < 0.7"}
               - {id: st_wet, op: status, target: event.victim, status: wet, stacks: 1, for: "${wet_ticks}"}
-              - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
-              - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: heart, volume: 0.7, pitch: 1.5}
-              - {id: line, op: particle, particle: end_rod, anchor: {of: contact, to: heart, samples: 5}, count: 1, extra: 0.05}
+              - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
+              - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: heart, volume: 0.7, pitch: 1.5, detach: true}
+              - {id: line, op: particle, particle: end_rod, anchor: {of: contact, to: heart, samples: 5}, count: 1, extra: 0.05, detach: true}
               - {id: burst, use: skill:frost-shard-burst, with: {snow: 30, rod: 10, dust: 20}, frames: {spot: heart}}
             bounce:
-              - {id: chip_b, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
-              - {id: snd_blk, op: sound, sound: "astera:skills/frost-impact", anchor: contact.point, volume: "= 0.5 - 0.1 * event.i", pitch: "= 1.6 + 0.1 * event.i"}
-              - {id: fx_blk, op: particle_def, def: frost-impact, anchor: contact.point}
-              - {id: fx_blk_dust, op: particle_def, def: frost-impact-dust, anchor: contact.point}
+              - {id: chip_b, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
+              - {id: snd_blk, op: sound, sound: "astera:skills/frost-impact", anchor: contact.point, volume: "= 0.5 - 0.1 * event.i", pitch: "= 1.6 + 0.1 * event.i", detach: true}
+              - {id: fx_blk, op: particle_def, def: frost-impact, anchor: contact.point, detach: true}
+              - {id: fx_blk_dust, op: particle_def, def: frost-impact-dust, anchor: contact.point, detach: true}
             end:
-              - {id: fx_end, op: particle_def, def: frost-impact, anchor: contact.point}
+              - {id: fx_end, op: particle_def, def: frost-impact, anchor: contact.point, detach: true}
       states:
         fly:
           for: 50
           then: recover
         recover: {final: true}
     done: {final: true}
----
-apiVersion: astera/v3
-kind: Skill
-id: frost-shard-burst
-meta: {cooldown_ticks: 0, resource_cost: 0}
-frames_in: {spot: anchor}
-params:
-  snow: {type: number, required: true}
-  rod:  {type: number, required: true}
-  dust: {type: number, required: true}
-machine:
-  start: s
-  states:
-    s:
-      for: 1
-      then: e
-      enter:
-        - {id: fx_snow, op: particle, particle: snowflake, anchor: spot, count: "${snow}", extra: 0.15, at: 0}
-        - {id: fx_rod, op: particle, particle: end_rod, anchor: spot, count: "${rod}", extra: 0.2, at: 0}
-        - {id: fx_dust, op: particle, particle: dust, anchor: spot, count: "${dust}", offset: [0.4, 0.4, 0.4], color: "#bee6ff", size: 1.4, at: 0}
-    e: {final: true}

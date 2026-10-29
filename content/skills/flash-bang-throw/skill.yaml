@@ -1,4 +1,5 @@
-# Flash bang: a thrown body pops a flash where it lands (victim or block) and shocks enemies near the spot.
+# Flash bang: a lobbed body bounces and rolls, then pops a flash at a fixed fuse tick after the throw (fuse_ticks = the
+# projectile `for`, fixed at load) and shocks enemies near the spot.
 apiVersion: astera/v3
 kind: Skill
 id: flash-bang-throw
@@ -11,13 +12,12 @@ meta:
   tags: [ranged, utility, control]
 params:
   launch_speed: {type: number, default: 1.4}
-  flight_ticks: {type: ticks, default: 50}
+  fuse_ticks:   {type: ticks, default: 50}
   radius:       {type: blocks, default: 4.0}
   shock_ticks:  {type: ticks, default: 30}
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
-  - {id: heart,   anchor: victim.root, offset: {up: 0.8}, mode: follow}
 fragments:
   flash:
     params:
@@ -26,15 +26,16 @@ fragments:
     frames_in: {spot: anchor}
     do:
       - {id: shock, op: status, target: {kind: enemies, around: spot, radius: "${radius}"}, status: shock, stacks: 1, for: "${shock}"}
-      - {id: glint, op: particle, particle: end_rod, anchor: spot, count: 0, extra: 0.08}
-      - {id: core, op: particle, particle: dust, anchor: spot, count: 1, color: "#ffffe6", size: 1.4}
-      - {id: snd, op: sound, sound: "entity.firework_rocket.blast", anchor: contact, volume: 0.9, pitch: 1.3}
+      - {id: glint, op: particle, particle: end_rod, anchor: spot, count: 0, extra: 0.08, detach: true}
+      - {id: core, op: particle, particle: dust, anchor: spot, count: 1, color: "#ffffe6", size: 1.4, detach: true}
+      - {id: snd, op: sound, sound: "entity.firework_rocket.blast", anchor: spot, volume: 0.9, pitch: 1.3, detach: true}
 machine:
   start: cast
+  tail: 2
   states:
     cast:
-      on:
-        - {event: bolt.end, to: done}
+      for: "= fuse_ticks"
+      then: done
       enter:
         - {id: snd, op: sound, sound: "entity.snowball.throw", anchor: caster, volume: 0.9, pitch: 1.2}
         - {id: fx, op: particle_def, def: gun-muzzle-flash, anchor: cast_fx}
@@ -44,13 +45,13 @@ machine:
           origin: muzzle
           velocity: "= look(caster) * ${launch_speed}"
           speed: "${launch_speed}"
-          for: "${flight_ticks}"
+          for: "${fuse_ticks}"
+          gravity: 0.04
           radius: 0.5
-          hit: {targets: enemies, once: true, attach: false}
-          block: {mode: despawn}
+          hit: {targets: enemies, once: true, attach: false, reflect: true}
+          block: {mode: bounce, restitution: 0.45, friction: 0.15, times: 3}
           on:
-            hit:   [{op: use, use: "fragment:flash", with: {radius: "${radius}", shock: "${shock_ticks}"}, frames: {spot: heart}}]
-            block: [{op: use, use: "fragment:flash", with: {radius: "${radius}", shock: "${shock_ticks}"}, frames: {spot: contact}}]
+            end: [{op: use, use: "fragment:flash", with: {radius: "${radius}", shock: "${shock_ticks}"}, frames: {spot: bolt}}]
         - {id: shell, op: display, kind: item, item: "minecraft:glowstone_dust", context: fixed, anchor: bolt, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
         - {id: trail, op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], at: 0, every: 1, until: bolt.end}
     done: {final: true}

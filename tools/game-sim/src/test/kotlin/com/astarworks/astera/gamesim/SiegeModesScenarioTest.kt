@@ -195,7 +195,7 @@ class SiegeModesScenarioTest {
     @Test
     fun `capture wool - a contested zone does not progress, holding every zone counts the team down to a knockout`() {
         scenario("siege-capture-wool") {
-            val stage = stageOf("siege-isles")
+            val stage = stageOf("temple-trouble")
             val zones = stage.regionsWithPrefix("wool-")
             val holder = player("holder", at = nowhere)
             val rival = player("rival", at = nowhere)
@@ -225,7 +225,7 @@ class SiegeModesScenarioTest {
     @Test
     fun `capture wool - retaking a zone costs the new owner a penalty before its count moves`() {
         scenario("siege-capture-wool-penalty") {
-            val stage = stageOf("siege-isles")
+            val stage = stageOf("temple-trouble")
             val zones = stage.regionsWithPrefix("wool-")
             val holder = player("holder", at = nowhere)
             val rival = player("rival", at = nowhere)

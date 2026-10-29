@@ -10,7 +10,7 @@
 @1 particle - op=fly/trail[1]/spore type=composter count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8311772919423436946
 @1 particle - op=fly/trail[1]/green type=dust count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2050136544335172419
 @1 particle - op=fly/trail[1]/dark type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1294668849303772580
-@1 hit - op=fly/bolt at=0.000000,1.620000,2.900000 r=0.500000 shape=capsule a=0.000000,1.620000,2.900000 b=0.000000,1.620000,2.900000 rad=0.500000
+@1 hit - op=fly/bolt at=0.000000,1.620000,1.700000 r=1.700000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,2.900000 rad=0.500000
 @1 remove #0 op=fly/thorn
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
@@ -26,7 +26,7 @@ g @1 cast-end | pose
 @1 particle - op=fly/trail[1]/spore type=composter count=2 at=-0.282761,1.791010,0.375236 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8311772919423436946
 @1 particle - op=fly/trail[1]/green type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2050136544335172419
 @1 particle - op=fly/trail[1]/dark type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1294668849303772580
-@1 hit - op=fly/bolt at=-1.640011,2.611858,2.176368 r=0.500000 shape=capsule a=-1.640011,2.611858,2.176368 b=-1.640011,2.611858,2.176368 rad=0.500000
+@1 hit - op=fly/bolt at=-0.961386,2.201434,1.275802 r=1.700000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.640011,2.611858,2.176368 rad=0.500000
 @1 remove #0 op=fly/thorn
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
@@ -36,7 +36,7 @@ g @51 state-end then=end final=false | state=fly
 g @0 state-end then=- final=true | state=end
 g.absorbed @1..50 handler max=1 | sub=fly/bolt.absorbed
 g.block @1..50 handler max=1 | sub=fly/bolt.block
-g.end @0..51 handler max=1 | sub=fly/bolt.end
+g.end @1..50 handler max=1 | sub=fly/bolt.end
 g.expire @50..50 handler max=1 | sub=fly/bolt.expire
 g.hit @1..50 handler max=1 | sub=fly/bolt.hit
 g.hit @0 damage earth=23.500000 | sub=fly/bolt.hit

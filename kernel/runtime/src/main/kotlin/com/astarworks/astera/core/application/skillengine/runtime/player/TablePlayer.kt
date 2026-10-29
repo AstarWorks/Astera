@@ -67,6 +67,7 @@ import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
 import com.astarworks.astera.core.domain.skillengine.table.StatePath
 import com.astarworks.astera.core.domain.skillengine.table.StateTable
 import com.astarworks.astera.core.domain.skillengine.table.SubTable
+import com.astarworks.astera.core.domain.skillengine.table.TickRange
 import com.astarworks.astera.core.domain.skillengine.table.LockEnd
 import com.astarworks.astera.core.domain.skillengine.table.HitWindow
 import com.astarworks.astera.core.domain.skillengine.table.TargetRule
@@ -108,6 +109,12 @@ public interface PlayerHooks {
 }
 
 private object NoHooks : PlayerHooks
+
+/** A bounce whose rebound is slower than this (blocks per tick) rolls instead of counting. */
+private const val REST_SPEED = 0.05
+
+/** A bounced body restarts this far off the surface along its normal, so the next tick's ray does not begin inside the block. */
+private const val CONTACT_SKIN = 0.02
 
 /**
  * Plays the expansion table (ADR-0303 C7). It chooses no schedule: it looks up rows, pastes sub-tables at event ticks and
@@ -229,12 +236,19 @@ public class TablePlayer(
         val run = runs[cast.value] ?: return
         if (run.finalized) return
         val now = lastTick
+        // a cast already ended and only lingering for its detached visuals: cancel cuts them
+        if (run.finishing) {
+            run.cutting = true
+            finalize(run, now)
+            runs.values.removeAll { it.finalized }
+            return
+        }
         cancelScope(run, scope, now, null)
         settle(run, now)
         runs.values.removeAll { it.finalized }
     }
 
-    override fun live(): List<CastHandle> = runs.values.filter { !it.finalized }.map { it.cursor.handle }
+    override fun live(): List<CastHandle> = runs.values.filter { !it.finalized && !it.finishing }.map { it.cursor.handle }
 
     // ------------------------------------------------------------------ one tick (10.2a)
 
@@ -244,6 +258,8 @@ public class TablePlayer(
             finalize(run, now)
             return
         }
+        // a run in its tail is not a live cast: it takes no input
+        if (run.finishing) run.external.clear()
         run.pending += run.external.toList().also { run.external.clear() }
         run.inTick = true
         // 0. R45: the machine-root `world` rows ride the cast clock, owned by no state
@@ -342,13 +358,42 @@ public class TablePlayer(
                 hooks.unlock(run.request.caster, l.move, l.pitch, l.yaw)
             }
         }
-        if (run.finishing) finalize(run, now)
+        if (run.finishing) {
+            val tail = run.cursor.skill.table.bounds.tail
+            if (tail <= 0 || run.cutting) {
+                finalize(run, now)
+            } else {
+                if (run.tailEnd == Int.MIN_VALUE) {
+                    beginTail(run)
+                    run.tailEnd = now + tail
+                }
+                if (now >= run.tailEnd) finalize(run, now)
+            }
+        }
+    }
+
+    /**
+     * The cast ended this tick (locks, drivers and every instance the cast's states own end, exactly as without a tail); what stays is the
+     * `detach: true` visuals, which play on until [Run.tailEnd] (rev4.12). The run is no longer a live cast.
+     */
+    private fun beginTail(run: Run) {
+        for (id in run.recs.keys.toList().asReversed()) if (run.recs[id]?.detached == false) endInstance(run, id)
+        stopDrivers(run, keepDetached = true)
+        for (l in run.locks.toList()) hooks.unlock(run.request.caster, l.move, l.pitch, l.yaw)
+        run.locks.clear()
+        val keep = run.cursor.subCursors.mapNotNull { sc ->
+            val rest = sc.sub.rows.drop(sc.nextRow).filter { it.detached }
+            if (rest.isEmpty()) null else SubCursor(sc.sub.copy(rows = rest), sc.firedAt, 0, sc.binding).also { it.owner = sc.owner }
+        }
+        run.cursor.subCursors.clear()
+        run.cursor.subCursors += keep
+        run.external.clear()
     }
 
     private fun finalize(run: Run, now: Int) {
         if (run.finalized) return
         for (id in run.recs.keys.toList().asReversed()) endInstance(run, id)
-        stopDrivers(run)
+        stopDrivers(run, keepDetached = false)
         for (l in run.locks.toList()) hooks.unlock(run.request.caster, l.move, l.pitch, l.yaw)
         run.locks.clear()
         run.cursor.subCursors.clear()
@@ -369,7 +414,7 @@ public class TablePlayer(
     private fun advanceSub(run: Run, sc: SubCursor, now: Int) {
         while (sc.nextRow < sc.sub.rows.size && sc.sub.rows[sc.nextRow].tick + sc.firedAt <= now) {
             val row = sc.sub.rows[sc.nextRow++]
-            playRow(run, row, RowCtx(sc.firedAt, sc.binding, sc.owner, null), now)
+            playRow(run, row, RowCtx(sc.firedAt, sc.binding, sc.owner, null, chain = sc.chain), now)
         }
     }
 
@@ -416,10 +461,11 @@ public class TablePlayer(
     private fun exitLevel(run: Run, lvl: LevelCursor, reason: ExitReason, now: Int, binding: EventBinding?) {
         for (child in run.cursor.levels.filter { it.parent === lvl }.asReversed()) exitLevel(run, child, ExitReason.PREEMPT, now, binding)
         pasteSub(run, EventPath("${lvl.state.value}.exit[${reason.name.lowercase()}]"), now, binding, owner = null, direct = true)
+        handOffDetached(run, lvl, now)
         // End rows the table already played this tick are the contract and run in row order; the sweep below only closes what is still alive
         for (id in run.pendingEnds.toList()) endInstance(run, id)
         run.pendingEnds.clear()
-        for ((id, rec) in run.recs.entries.toList().asReversed()) if (rec.owner == lvl.state && !endsInOtherState(run, id, lvl.state)) endInstance(run, id)
+        for ((id, rec) in run.recs.entries.toList().asReversed()) if (rec.owner == lvl.state && !rec.detached && !endsInOtherState(run, id, lvl.state)) endInstance(run, id)
         // a reel is a driver, not an instance: it belongs to the state that started it and stops when that state leaves (timer before arrival)
         for (id in run.reels.keys.toList()) if (id.text.startsWith(lvl.state.value + "/")) endDrivers(run, id)
         run.regionEnds.remove(lvl.state)
@@ -428,6 +474,24 @@ public class TablePlayer(
             hooks.unlock(run.request.caster, l.move, l.pitch, l.yaw)
         }
         run.cursor.levels = run.cursor.levels.filter { it !== lvl }
+    }
+
+    /**
+     * `detach: true` (rev4.12): the rows of [lvl]'s table that are still to come and belong to the cast keep playing after the state left, on the
+     * state's own clock (base = its entry tick). Everything else of the table is dropped with the state, as before.
+     */
+    private fun handOffDetached(run: Run, lvl: LevelCursor, now: Int) {
+        if (run.cutting) return
+        val st = run.states[lvl.state] ?: return
+        val rest = st.rows.drop(lvl.nextRow).filter { it.detached }
+        if (rest.isEmpty()) return
+        val key = EventPath("${lvl.state.value}.detached")
+        val sc = SubCursor(SubTable(key, lvl.state, TickRange(0, 0), 1, rest, emptyList()), lvl.enteredAt, 0, lvl.entryBinding ?: EventBinding(key, null, null, null))
+        sc.owner = lvl.state
+        lvl.nextRow = st.rows.size
+        run.cursor.subCursors += sc
+        advanceSub(run, sc, now)
+        if (sc.nextRow >= sc.sub.rows.size) run.cursor.subCursors.remove(sc)
     }
 
     /** exit of the source, the transition's `do`, entry of the target (10.1). A null [target] is an internal handler. */
@@ -553,6 +617,7 @@ public class TablePlayer(
     private fun cancelScope(run: Run, scope: CancelScope, now: Int, ctx: RowCtx?) {
         when (scope) {
             CancelScope.Cast -> {
+                run.cutting = true
                 val binding = ctx?.binding
                 // event `cancel` to the innermost level (an `on: cancel` handler), CANCEL reason up the chain, then End(root)
                 val innermost = run.cursor.levels.maxByOrNull { it.depth }
@@ -598,7 +663,11 @@ public class TablePlayer(
     private fun endInstance(run: Run, id: InstanceId) {
         val prefix = id.path
         endDrivers(run, id)
-        val doomed = run.recs.keys.filter { k -> k.path.size >= prefix.size && k.path.subList(0, prefix.size) == prefix }
+        // a state's (or the cast root's) sweep leaves the instances it does not own: detached ones end by their own End row or at the run's end
+        val sweeperDetached = run.recs[id]?.detached ?: false
+        val doomed = run.recs.entries.filter { (k, r) ->
+            k.path.size >= prefix.size && k.path.subList(0, prefix.size) == prefix && (k == id || sweeperDetached || !r.detached)
+        }.map { it.key }
         for (k in doomed.asReversed()) {
             val rec = run.recs[k] ?: continue
             // ADR-0303 9 (`frames_out`, l.166/170/808): a finished body stays readable to its caller as a frozen frame at its last pose
@@ -608,7 +677,7 @@ public class TablePlayer(
                 val ridesCaster = rec.body != null
                 val w = worldOf(run, rec, rec.localAt(lastTick), null, lastTick)
                 val frozen = if (ridesCaster) PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0)) else PoseV(Vector3d(w.pos), Quaterniond(w.rot), Vector3d(w.scale))
-                run.finished[k] = Rec(rec.kind, null, if (ridesCaster) "caster" else "world", lastTick, rec.owner, frozen).also { it.points.putAll(rec.points) }
+                run.finished[k] = Rec(rec.kind, null, if (ridesCaster) "caster" else "world", lastTick, rec.owner, rec.detached, frozen).also { it.points.putAll(rec.points) }
             }
             run.recs.remove(k)
             run.lines.remove(k)
@@ -654,11 +723,53 @@ public class TablePlayer(
     // ------------------------------------------------------------------ rows
 
     /** [scope] is set by [playRow] before the row's cells are read (the row's seed and copy index); the bare default is the cast's. */
-    private class RowCtx(val base: Int, val binding: EventBinding?, val owner: StatePath?, val level: LevelCursor?, var scope: RowScope = RowScope.cast(0L))
+    private class RowCtx(val base: Int, val binding: EventBinding?, val owner: StatePath?, val level: LevelCursor?, var scope: RowScope = RowScope.cast(0L), val chain: ChainState? = null) {
+        /** The row being played is `detach: true`: what it spawns is owned by the cast ([playRow] sets it). */
+        var detached: Boolean = false
+    }
 
-    private fun playRow(run: Run, row: Row, ctx: RowCtx, now: Int) {
+    /**
+     * Chain targeting (ADR-0303 9.4): a row of hop k runs with the hop's pick bound as `victim` and the previous pick as `from`; once a hop
+     * found nobody, its rows and every later hop's are skipped. Null = the row does not play.
+     */
+    private fun chainCtx(row: Row, ctx: RowCtx): RowCtx? {
+        val rc = row.chain ?: return ctx
+        val st = ctx.chain ?: return null
+        if (rc.chain in st.dead) return null
+        val picks = st.picks[rc.chain].orEmpty()
+        val prev = ctx.binding?.victim
+        val base = ctx.binding ?: EventBinding(EventPath(rc.chain), null, null, null)
+        val from = if (rc.hop >= 2) picks.getOrNull(rc.hop - 2) else prev
+        val victim = if (row.action is Action.Pick) prev else picks.getOrNull(rc.hop - 1) ?: return null
+        return RowCtx(ctx.base, base.copy(victim = victim, from = from), ctx.owner, ctx.level, ctx.scope, st)
+    }
+
+    /** The pick row of hop k: the nearest enemy to `from` that the chain has not picked yet (and that is not the event's own victim). */
+    private fun pickRow(run: Run, row: Row, a: Action.Pick, ctx: RowCtx, now: Int, src: String) {
+        val st = ctx.chain
+        val b = ctx.binding
+        if (st == null || b?.from == null) {
+            fault(run, now, src, "chain pick has no 'from' binding")
+            return
+        }
+        val picks = st.picks.getOrPut(a.chain) { ArrayList() }
+        // the row's victim is the event's own (chainCtx keeps it for the pick row); `from` is the previous hop's pick
+        val excluded = HashSet<UUID>()
+        picks.forEach { excluded += it.id }
+        b.victim?.let { excluded += it.id }
+        val chosen = areaTargets(run, a.area, ctx).firstOrNull { it !in excluded }
+        trace.pick(run.cursor.handle, row.instance, now, chosen)
+        if (chosen == null) st.dead += a.chain else picks += EntityRef(chosen)
+    }
+
+    private fun playRow(run: Run, row: Row, ctx0: RowCtx, now: Int) {
         // ADR-0303 2.0a: `until` is a mask over candidate rows; the named event cuts every remaining candidate
         if (row.maskUntil.isNotEmpty() && row.maskUntil.any { it in run.seen }) return
+        val ctx = chainCtx(row, ctx0)
+        if (ctx == null) {
+            if (row.action is Action.Pick) trace.pick(run.cursor.handle, row.instance, now, null)
+            return
+        }
         val src = row.src.value.ifEmpty { row.instance.text }
         val g = row.guard
         if (g != null) {
@@ -668,6 +779,7 @@ public class TablePlayer(
             if (!ok) return
         }
         ctx.scope = rowScope(run, row, ctx.binding)
+        ctx.detached = row.detached
         trace.row(run.cursor.handle, row.instance, now)
         try {
             when (val a = row.action) {
@@ -680,6 +792,7 @@ public class TablePlayer(
                     }
                 }
                 is Action.Exit -> trace.exit(run.cursor.handle, a.state, a.reason, now)
+                is Action.Pick -> pickRow(run, row, a, ctx, now, src)
                 is Action.Spawn -> spawn(run, row, a, ctx, now)
                 is Action.Key -> key(run, a, ctx, now)
                 is Action.Teleport -> teleport(run, a, ctx, now)
@@ -746,7 +859,7 @@ public class TablePlayer(
         val local = PoseV(vec(run, a.pose.position, ctx), quat(run, a.pose.rotation, ctx, if (a.kind == SpawnKind.PROJECTILE_BODY) null else a.anchor, if (a.kind == SpawnKind.PROJECTILE_BODY) "" else a.anchorName), vec(run, a.pose.scale, ctx))
         // a body's spawn pose is already the origin anchor's WORLD pose (`anchor:<origin>.position`); anchoring it again would count the anchor twice
         val body = a.kind == SpawnKind.PROJECTILE_BODY
-        val rec = Rec(a.kind, if (body) null else a.anchor, if (body) "" else a.anchorName, now, ctx.owner, local)
+        val rec = Rec(a.kind, if (body) null else a.anchor, if (body) "" else a.anchorName, now, ctx.owner, ctx.detached, local)
         rec.binding = ctx.binding
         rec.billboard = a.look.fields["billboard"]?.let { runCatching { DisplayBillboard.valueOf(strOf(run, it, ctx).uppercase()) }.getOrNull() } ?: DisplayBillboard.FIXED
         rec.axes = a.look.fields["axes"]?.let { strOf(run, it, ctx) }
@@ -767,13 +880,23 @@ public class TablePlayer(
             }.toList()
             rec.shapeSelf = lf["hit.shape.self.from"]?.let { f -> ShapeSelf(strOf(run, f, ctx), strOf(run, lf.getValue("hit.shape.self.to"), ctx)) }
             rec.blockDespawn = mode == "despawn"
+            if (mode == "bounce") {
+                rec.bounceMode = true
+                rec.restitution = lf["block.restitution"]?.let { dbl(run, it, ctx) } ?: 0.0
+                rec.friction = lf["block.friction"]?.let { dbl(run, it, ctx) } ?: 0.0
+                rec.bounceTimes = lf["block.times"]?.let { dbl(run, it, ctx).toInt() } ?: 0
+            }
+            rec.fused = lf["block.fused"]?.let { any(run, it, ctx) } == true
+            rec.reflect = lf["hit.reflect"]?.let { any(run, it, ctx) } == true
             rec.stickTicks = stuck
             rec.attachTo = lf["hit.attach_to"]?.let { strOf(run, it, ctx) }
             val once = lf["hit.once"]?.let { any(run, it, ctx) } == true
             rec.hitTimes = if (once) 1 else lf["hit.times"]?.let { dbl(run, it, ctx).toInt() } ?: 1
             rec.endsOn = buildSet {
-                if (lf["hit.once"]?.let { any(run, it, ctx) } == true) add("hit")
-                if (mode == "despawn" || mode == "stick") add("block")
+                // a reflecting body bounces off its victim: the hit does not end the flight
+                if (!rec.reflect && lf["hit.once"]?.let { any(run, it, ctx) } == true) add("hit")
+                // a fused stick holds to the flight end: its block does not end the body, the End row at the fuse tick does
+                if (mode == "despawn" || (mode == "stick" && !rec.fused)) add("block")
             }
         }
         val world = worldOf(run, rec, local, ctx.binding, now)
@@ -1040,7 +1163,7 @@ public class TablePlayer(
         a.anchor?.let { if (isFrozen(run, it, now)) return }
         val delta = a.anchor?.let { run.recs[it] }?.let { r ->
             val cur = worldOf(run, r, r.localAt(now), ctx.binding, now).pos
-            val prev = worldOf(run, r, r.localAt(now - 1), ctx.binding, now - 1).pos
+            val prev = worldOf(run, r, r.prevLocal(now), ctx.binding, now - 1).pos
             Vector3d(cur).sub(prev)
         } ?: Vector3d()
         fun back(p: Vector3d, k: Double) = Vec3(p.x - delta.x * k, p.y - delta.y * k, p.z - delta.z * k)
@@ -1185,7 +1308,7 @@ public class TablePlayer(
             }
             rec.flight?.let { fl ->
                 val cur = rec.localAt(now)
-                rec.moveTo(PoseV(fl.at(now - rec.spawnTick - rec.frozenTicks), cur.rot, cur.scale), now, 0)
+                rec.moveTo(PoseV(fl.at(now - rec.spawnTick - rec.frozenTicks - rec.clockBase), cur.rot, cur.scale), now, 0)
             }
             if (rec.stuckUntil >= 0) {
                 // stuck (a block in stick mode, or `hit.attach` on a victim): the body holds its place / rides its anchor until `unstick`, then the flight ends
@@ -1214,20 +1337,64 @@ public class TablePlayer(
         return false
     }
 
-    /** Fires `<body>.block` for a block on this tick's segment; true when that block ends the flight (despawn / stick), so no entity is tested behind it. */
+    /**
+     * A block on this tick's segment. despawn / stick fire `<body>.block` (when listened) and end / stop the flight; true when that block ends the flight, so no
+     * entity is tested behind it. bounce never ends the flight: [bounceOff] reflects the velocity (the same path in the sim and on Paper).
+     */
     private fun blockContact(run: Run, id: InstanceId, rec: Rec, now: Int): Boolean {
         val path = EventPath(id.text + ".block")
-        if (path !in run.listened) return false
+        if (!rec.bounceMode && path !in run.listened) return false
         val cur = worldOf(run, rec, rec.localAt(now), null, now).pos
-        val prev = worldOf(run, rec, rec.localAt(now - 1), null, now - 1).pos
+        val prev = worldOf(run, rec, rec.poseAtEndOf(now - 1), null, now - 1).pos
         if (cur.distanceSquared(prev) < 1e-12) return false
         val b = query.raycastBlock(castRef(run), Vec3(prev.x, prev.y, prev.z), Vec3(cur.x, cur.y, cur.z)) ?: return false
-        run.pending += RuntimeEvent(
-            path, now, id.path.lastOrNull()?.index, ContactInfo(Vector3d(b.point.x, b.point.y, b.point.z), Vector3d(b.normal.x, b.normal.y, b.normal.z)), null,
-        )
+        val contact = ContactInfo(Vector3d(b.point.x, b.point.y, b.point.z), Vector3d(b.normal.x, b.normal.y, b.normal.z))
+        if (rec.bounceMode) {
+            bounceOff(run, id, rec, now, Vector3d(cur).sub(prev), contact, path)
+            return false
+        }
+        run.pending += RuntimeEvent(path, now, id.path.lastOrNull()?.index, contact, null)
         if (rec.blockDespawn) endByContact(run, id, rec, now)
-        if (rec.stickTicks > 0) stick(run, id, rec, now, null)
+        if (rec.stickTicks > 0 || rec.fused) stick(run, id, rec, now, null)
         return "block" in rec.endsOn
+    }
+
+    /**
+     * `block.mode bounce`: the velocity [v] (the last tick's displacement) is reflected at [contact]: the normal part comes back scaled by `restitution`, the
+     * tangent part keeps `1 - friction`. The first `times` such contacts are counted bounces (`<body>.block` then `<body>.bounce`); a later contact, or one whose
+     * rebound would be below [REST_SPEED], only rolls: the normal part is dropped, friction applies, no event. The body never ends here, only at its `for`.
+     */
+    private fun bounceOff(run: Run, id: InstanceId, rec: Rec, now: Int, v: Vector3d, contact: ContactInfo, blockPath: EventPath) {
+        val n = Vector3d(contact.normal)
+        if (n.lengthSquared() < 1e-12) return
+        n.normalize()
+        val vn = v.x * n.x + v.y * n.y + v.z * n.z
+        if (vn >= 0.0) return
+        val keep = 1.0 - rec.friction
+        val rebound = -vn * rec.restitution
+        val counted = rec.bounces < rec.bounceTimes && rebound >= REST_SPEED
+        val along = if (counted) rebound else 0.0
+        val out = Vector3d(v.x - vn * n.x, v.y - vn * n.y, v.z - vn * n.z).mul(keep).add(n.x * along, n.y * along, n.z * along)
+        rebase(rec, now, Vector3d(contact.point).add(n.x * CONTACT_SKIN, n.y * CONTACT_SKIN, n.z * CONTACT_SKIN), out)
+        if (!counted) return
+        rec.bounces++
+        // `event.i` of a bounce is its ordinal (0-based) on a single body; a family member keeps its family index
+        val index = id.path.lastOrNull()?.index ?: (rec.bounces - 1)
+        val bouncePath = EventPath(id.text + ".bounce")
+        val tables = run.cursor.skill.table.subTables
+        if (blockPath in run.listened || blockPath in tables) run.pending += RuntimeEvent(blockPath, now, index, contact, null)
+        if (bouncePath in run.listened || bouncePath in tables) run.pending += RuntimeEvent(bouncePath, now, index, contact, null)
+    }
+
+    /** The body continues from [pos] with the per-tick velocity [vel]: a fresh flight (same gravity / drag) whose clock starts at this tick. */
+    private fun rebase(rec: Rec, now: Int, pos: Vector3d, vel: Vector3d) {
+        val old = rec.flight ?: return
+        val speed = vel.length()
+        val dir = if (speed < 1e-9) Vector3d(0.0, -1.0, 0.0) else Vector3d(vel).mul(1.0 / speed)
+        rec.flight = Flight(dir, ProjectileKinematics.constant(speed), Vector3d(pos), old.gravity, old.drag)
+        val cur = rec.localAt(now)
+        rec.moveTo(PoseV(Vector3d(pos), cur.rot, cur.scale), now, 0)
+        rec.clockBase = now - rec.spawnTick - rec.frozenTicks
     }
 
     /**
@@ -1238,7 +1405,11 @@ public class TablePlayer(
     private fun stick(run: Run, id: InstanceId, rec: Rec, now: Int, victim: EventBinding?) {
         val at = worldOf(run, rec, rec.localAt(now), null, now)
         rec.flight = null
-        rec.stuckUntil = now + rec.stickTicks
+        // fused: the body stays until its flight end (the End row at the fixed fuse tick), which is neither an unstick nor an expire
+        if (rec.fused) {
+            rec.stuckUntil = Int.MAX_VALUE
+            rec.expireTick = -1
+        } else rec.stuckUntil = now + rec.stickTicks
         val anchor = rec.attachTo
         if (victim != null && anchor != null) {
             rec.binding = victim
@@ -1270,10 +1441,10 @@ public class TablePlayer(
         val path = EventPath(id.text + ".hit")
         val absorbedPath = EventPath(id.text + ".absorbed")
         val tables = run.cursor.skill.table.subTables
-        if (path !in run.listened && path !in tables && absorbedPath !in run.listened && absorbedPath !in tables) return
+        if (!rec.reflect && path !in run.listened && path !in tables && absorbedPath !in run.listened && absorbedPath !in tables) return
         if (rec.hitTargets == "blocks_only") return
         val cur = worldOf(run, rec, rec.localAt(now), null, now).pos
-        val prev = worldOf(run, rec, rec.localAt(now - 1), null, now - 1).pos
+        val prev = worldOf(run, rec, rec.poseAtEndOf(now - 1), null, now - 1).pos
         val delta = Vec3(cur.x - prev.x, cur.y - prev.y, cur.z - prev.z)
         val start = Vec3(prev.x, prev.y, prev.z)
         val raw = ArrayList<ContactEvent>()
@@ -1316,7 +1487,7 @@ public class TablePlayer(
                 fault(run, now, id.text, "hit.shape frame '${sf.frame}' is not a live frame of this projectile")
                 continue
             }
-            val d = Vector3d(worldOf(run, fr, fr.localAt(now), null, now).pos).sub(worldOf(run, fr, fr.localAt(now - 1), null, now - 1).pos)
+            val d = Vector3d(worldOf(run, fr, fr.localAt(now), null, now).pos).sub(worldOf(run, fr, fr.poseAtEndOf(now - 1), null, now - 1).pos)
             val f = live.vec(run.cursor.handle, sf.from, null, RowScope.cast(run.request.seed))
             val t = live.vec(run.cursor.handle, sf.to, null, RowScope.cast(run.request.seed))
             sweep(Vector3d(f.x, f.y, f.z), Vector3d(t.x, t.y, t.z), d)
@@ -1324,10 +1495,24 @@ public class TablePlayer(
         val found = raw.distinctBy { it.victim }.sortedBy { it.pointWorld.distance(start) }
         // an absorbed contact (the victim's `absorb: true` transition) uses up a hit and ends the flight like any other, but raises `absorbed`, not `hit`
         val absorbedVictims = HashSet<UUID>()
+        var reflected = false
         for (ce in found) {
             if (rec.hitTimes <= 0) break
             rec.hitVictims += ce.victim
-            rec.hitTimes--
+            // hit.reflect: a victim never uses up the hit, the body bounces off it (once per victim, one rebound per tick)
+            if (!rec.reflect) rec.hitTimes--
+            if (rec.reflect && !reflected) {
+                reflected = true
+                val body = worldOf(run, rec, rec.localAt(now), null, now).pos
+                val v = Vector3d(body).sub(prev.x, prev.y, prev.z)
+                val n = Vector3d(ce.normalWorld.x, ce.normalWorld.y, ce.normalWorld.z)
+                if (n.lengthSquared() < 1e-12) { n.x = -v.x; n.y = -v.y; n.z = -v.z }
+                if (n.lengthSquared() > 1e-12) {
+                    n.normalize()
+                    if (n.x * v.x + n.y * v.y + n.z * v.z > 0.0) n.mul(-1.0)
+                    bounceOff(run, id, rec, now, v, ContactInfo(Vector3d(body), n), EventPath(id.text + ".block"))
+                }
+            }
             val wasAbsorbed = absorbedBy(run, ce.victim, now)
             if (wasAbsorbed) absorbedVictims += ce.victim
             run.pending += RuntimeEvent(
@@ -1442,7 +1627,7 @@ public class TablePlayer(
                 // `target:` picks whose body plays it (the caster, or the victim / attacker of the event this op runs in); the instance rides that entity
                 val who = victims.firstOrNull() ?: throw IllegalArgumentException("body: target resolved to no entity")
                 val targetName = (p["target"] as? Val.Live)?.name ?: "caster"
-                val bodyRec = Rec(SpawnKind.FRAME, null, if (targetName.startsWith("caster")) "caster" else if (targetName == "victim") "victim" else "world", now, ctx.owner, PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0)))
+                val bodyRec = Rec(SpawnKind.FRAME, null, if (targetName.startsWith("caster")) "caster" else if (targetName == "victim") "victim" else "world", now, ctx.owner, ctx.detached, PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0)))
                 bodyRec.binding = ctx.binding
                 run.recs[id] = bodyRec
                 run.cursor.instances[id] = GatewayHandle(nextSynthetic--)
@@ -1459,7 +1644,7 @@ public class TablePlayer(
                 val id = row.instance
                 run.recs[id]?.let { endInstance(run, id) }
                 // like `body`: the swap lives as long as its instance (End / state exit / cast end all go through endInstance)
-                run.recs[id] = Rec(SpawnKind.FRAME, null, "", now, ctx.owner, PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0)))
+                run.recs[id] = Rec(SpawnKind.FRAME, null, "", now, ctx.owner, ctx.detached, PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0)))
                 run.cursor.instances[id] = GatewayHandle(nextSynthetic--)
                 run.heldModels += id
                 gameplay.setHeldModel(castRef(run), caster, s("model"))
@@ -1472,7 +1657,7 @@ public class TablePlayer(
                 val id = row.instance
                 run.recs[id]?.let { endInstance(run, id) }
                 // like `held_model`: the quads live as long as their instance (End at `ticks` / state exit / cast end go through endInstance)
-                run.recs[id] = Rec(SpawnKind.FRAME, null, "", now, ctx.owner, PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0)))
+                run.recs[id] = Rec(SpawnKind.FRAME, null, "", now, ctx.owner, ctx.detached, PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0)))
                 run.cursor.instances[id] = GatewayHandle(nextSynthetic--)
                 val ticks = d("ticks").toInt()
                 val color = p["color"]?.let { s("color") }
@@ -1584,7 +1769,7 @@ public class TablePlayer(
         if (run.recs[carrier] != null) endInstance(run, carrier)
         val identity = PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0))
         val parentRec = if (of == null) run.recs[parent] else null
-        val carrierRec = Rec(SpawnKind.FRAME, parentRec?.let { parent }, if (of != null || parentRec != null) "" else parent.text, now, ctx.owner, identity)
+        val carrierRec = Rec(SpawnKind.FRAME, parentRec?.let { parent }, if (of != null || parentRec != null) "" else parent.text, now, ctx.owner, ctx.detached, identity)
         run.recs[carrier] = carrierRec
         // points first: the carrier is already addressable, so a refused visual spawn below must not leave point(rig, ..) unresolvable for every later row
         for ((key, v) in p) if (key.startsWith("point.")) carrierRec.points[key.removePrefix("point.")] = any(run, v, ctx) as Vector3d
@@ -1595,7 +1780,7 @@ public class TablePlayer(
             run.cursor.instances[carrier] = GatewayHandle(nextSynthetic--)
             val heldId = InstanceId(carrier.path + InstanceId.Segment(OpId("held"), null))
             val local = PoseV(Vector3d(), Quaterniond(), Vector3d(SkinRigTransforms.PLAYER_SCALE))
-            val rec = Rec(SpawnKind.ITEM, carrier, "", now, ctx.owner, local)
+            val rec = Rec(SpawnKind.ITEM, carrier, "", now, ctx.owner, ctx.detached, local)
             val h = visual.spawnMesh(
                 castRef(run), MeshModels.MAIN_HAND, null, visualPose(rec, worldOf(run, rec, local, ctx.binding, now)), null, MeshLook(rigShading = true),
             )
@@ -1684,11 +1869,11 @@ public class TablePlayer(
         run.recs[id]?.let { rec -> rec.rig?.let { rigStop(run, it) }; rec.rig = null }
     }
 
-    private fun stopDrivers(run: Run) {
+    private fun stopDrivers(run: Run, keepDetached: Boolean = false) {
         run.dash.cancelAll()
         run.reel.stopAll()
         run.reels.clear()
-        for (rec in run.recs.values) rec.rig?.let { rigStop(run, it); rec.rig = null }
+        for (rec in run.recs.values) if (!(keepDetached && rec.detached)) rec.rig?.let { rigStop(run, it); rec.rig = null }
     }
 
     // ------------------------------------------------------------------ Val.Live resolution (C4c)
@@ -1821,6 +2006,10 @@ public class TablePlayer(
      * parent point and offset, so every host serves the same set; anything else is the host's own name ([live]).
      */
     private fun namedVec(run: Run, name: String, binding: EventBinding?, scope: RowScope): Vector3d {
+        // chain targeting (ADR-0303 9.4): the `from` frame is the previous victim, answered by the host as `victim` of a binding that carries it
+        if (name == "from" || name.startsWith("from.")) {
+            return namedVec(run, "victim" + name.removePrefix("from"), binding?.copy(victim = binding.from), scope)
+        }
         val doc = documentOf(run, name) ?: return live.vec(run.cursor.handle, name, binding, scope)
         if (doc.second == "rotation") throw IllegalArgumentException("'$name' is a rotation, not a vector")
         val pose = documentPose(run, doc.first, binding, scope)
@@ -1833,6 +2022,9 @@ public class TablePlayer(
     }
 
     private fun namedRot(run: Run, name: String, binding: EventBinding?, scope: RowScope): Quaterniond {
+        if (name == "from" || name.startsWith("from.")) {
+            return namedRot(run, "victim" + name.removePrefix("from"), binding?.copy(victim = binding.from), scope)
+        }
         val doc = documentOf(run, name) ?: return live.rot(run.cursor.handle, name, binding, scope)
         if (doc.second != "" && doc.second != "rotation") throw IllegalArgumentException("'$name' is a ${doc.second}, not a rotation")
         return Quaterniond(documentPose(run, doc.first, binding, scope).rot)
@@ -2108,6 +2300,8 @@ public class TablePlayer(
         var anchorName: String,
         val spawnTick: Int,
         val owner: StatePath?,
+        /** `detach: true` (rev4.12): owned by the cast, not by [owner]; a state exit or a cast-end sweep of a non-detached owner skips it. */
+        val detached: Boolean,
         var to: PoseV,
     ) {
         var real: VisualHandle? = null
@@ -2130,6 +2324,18 @@ public class TablePlayer(
         var shapeFrames: List<ShapeFrame> = emptyList()
         var shapeSelf: ShapeSelf? = null
         var blockDespawn: Boolean = false
+
+        /** `block.mode bounce`: restitution / friction / counted-bounce budget and how many were used; [reflect] (`hit.reflect`) bounces off victims too; [fused] (`block.fused`) a stick that holds to the flight end. */
+        var bounceMode: Boolean = false
+        var restitution: Double = 0.0
+        var friction: Double = 0.0
+        var bounceTimes: Int = 0
+        var bounces: Int = 0
+        var reflect: Boolean = false
+        var fused: Boolean = false
+
+        /** Ticks of the current [flight]'s clock origin: a bounce rebases the flight, so its clock restarts at that tick. */
+        var clockBase: Int = 0
 
         /** `hit.attach_to`: the victim anchor a hit mounts the body on (null = `attach: false`); `block.for` ticks stuck; [stuckUntil] the tick it comes off (-1 flying). */
         var attachTo: String? = null
@@ -2161,9 +2367,21 @@ public class TablePlayer(
             segDur = duration
         }
 
-        /** The local pose one tick before [t] (what the instance was at the end of the previous tick). */
+        /**
+         * The local pose the rows of tick [t] - 1 saw: rows run before a tick's motion, so a duration-0 move made during tick [t] - 1 is
+         * not visible to them yet. `localAt(t) - prevLocal(t)` is the true one-tick displacement a row of tick [t] sweeps (`localAt(t - 1)`
+         * would return the post-move pose for a per-tick `moveTo` and collapse the segment to a point).
+         */
         fun prevLocal(t: Int): PoseV =
             if (segDur <= 0) (if (segStart >= t - 1) from else to) else if (t - 1 < segStart) from else localAt(t - 1)
+
+        /**
+         * The local pose at the end of tick [t]. A duration-0 move made during tick [t] + 1 (a projectile's per-tick `moveTo`) is not yet
+         * visible, so a swept contact segment `poseAtEndOf(now - 1) -> localAt(now)` has the true one-tick length ([localAt] would already
+         * return the post-move pose for [t] and collapse the segment to a point).
+         */
+        fun poseAtEndOf(t: Int): PoseV =
+            if (segDur <= 0) (if (segStart > t) from else to) else localAt(t)
 
         fun localAt(t: Int): PoseV {
             if (segDur <= 0 || t >= segStart + segDur) return to
@@ -2257,6 +2475,12 @@ public class TablePlayer(
         val hitLast = HashMap<InstanceId, HashMap<UUID, Int>>()
         var inTick = false
         var finishing = false
+
+        /** A cancel cut the run: no tail (detached visuals end with it). */
+        var cutting = false
+
+        /** The tick the tail ends (the run finalizes after its rows); [Int.MIN_VALUE] until the cast has ended. */
+        var tailEnd = Int.MIN_VALUE
         var finalized = false
     }
 }

@@ -58,7 +58,8 @@ object SkillEngineSchemaGenerator {
     private val string: Map<String, Any?> = linkedMapOf("type" to "string")
     private val integer: Map<String, Any?> = linkedMapOf("type" to "integer")
     private val celString: Map<String, Any?> = linkedMapOf("type" to "string", "pattern" to "^= .+")
-    private val ticks: Map<String, Any?> = linkedMapOf("oneOf" to listOf(linkedMapOf("type" to "integer", "minimum" to 0), celString))
+    private val paramRef: Map<String, Any?> = linkedMapOf("type" to "string", "pattern" to "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$")
+    private val ticks: Map<String, Any?> = linkedMapOf("oneOf" to listOf(linkedMapOf("type" to "integer", "minimum" to 0), celString, paramRef))
     private fun stringMap(): Map<String, Any?> = linkedMapOf("type" to "object", "additionalProperties" to string)
 
     /** An op list: a registered op, or the `emit:` / `use:` shorthands of the machine grammar. */
@@ -134,9 +135,11 @@ object SkillEngineSchemaGenerator {
             ),
         )
         val envelope = obj(
-            listOf("apiVersion", "kind", "id", "machine"),
+            listOf("apiVersion", "kind", "id"),
             linkedMapOf(
                 "apiVersion" to linkedMapOf("const" to "astera/v3"),
+                "extends" to string,
+                "with" to linkedMapOf("type" to "object"),
                 "kind" to linkedMapOf("const" to "Skill"),
                 "id" to linkedMapOf("type" to "string", "minLength" to 1),
                 "item" to string,
@@ -151,7 +154,12 @@ object SkillEngineSchemaGenerator {
                 "machine" to machine,
             ),
         )
-        return envelope
+        // a tier (extends:) carries item, meta and with only (ADR-0303 9.3); any other skill carries a machine
+        return envelope + linkedMapOf<String, Any?>(
+            "if" to linkedMapOf("required" to listOf("extends")),
+            "then" to linkedMapOf("required" to listOf("meta"), "not" to linkedMapOf("anyOf" to listOf("machine", "params", "anchors", "fragments", "conditions", "frames_in", "emits", "importance").map { linkedMapOf("required" to listOf(it)) })),
+            "else" to linkedMapOf("required" to listOf("machine"), "not" to linkedMapOf("anyOf" to listOf("with").map { linkedMapOf("required" to listOf(it)) })),
+        )
     }
 
     /** Writes `<outputDir>/skill.schema.json` and returns its path. */

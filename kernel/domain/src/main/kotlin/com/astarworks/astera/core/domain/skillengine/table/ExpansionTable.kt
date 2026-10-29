@@ -19,7 +19,14 @@ public data class Row(
     val guard: Guard? = null,
     val sample: SegmentSample? = null,
     val seed: Long = 0L,
+    /** `detach: true` (ADR-0303 rev4.12): the instance this row makes is owned by the cast, not by the state that wrote it, so a state exit does not end it. */
+    val detached: Boolean = false,
+    /** Chain targeting (ADR-0303 9.4): the row belongs to hop [RowChain.hop] of a chain and runs with that hop's pick bound as `victim`. */
+    val chain: RowChain? = null,
 )
+
+/** Hop [hop] (1-based) of the chain [chain] (the call instance path of the `chain:` call, unique within its handler sub-table). */
+public data class RowChain(val chain: String, val hop: Int)
 
 /** Row [k] of [n] along a sampled segment (ADR-0303 1, rev4.8). */
 public data class SegmentSample(val k: Int, val n: Int)
@@ -56,6 +63,12 @@ public data class SubTable(
     val maxFirings: Int,
     val rows: List<Row>,
     val branches: List<Branch>,
+    /**
+     * True for an `until:` end row an op contributes to an event somebody else produces (a display, frame, body, held model or ribbon
+     * that ends with `bolt.end`). Its [window] is only the contributor's own life; it never widens the event's firing window, which belongs
+     * to the producer (a projectile ends at 1..flight, nothing else decides it).
+     */
+    val mask: Boolean = false,
 )
 
 public data class Bounds(
@@ -70,6 +83,8 @@ public data class Bounds(
     val path: TickRange,
     /** Longest chain of @0 rows that produce events within one tick (10.2a). */
     val sameTickDepth: Int,
+    /** `machine.tail`: ticks the run lives past the final-state entry so detached rows can finish (0 = no detached rows). */
+    val tail: Int = 0,
 )
 
 public data class WriteStats(val segments: Int, val maxWritesPerTick: Int)

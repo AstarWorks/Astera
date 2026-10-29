@@ -1,4 +1,5 @@
-# Sticky bomb: lobbed body, fire blast where it lands (victim or block). Same shape as the frag grenade: one fragment is the blast.
+# Sticky bomb: a lobbed body that sticks to the first block or enemy it touches and still bursts at the fixed fuse tick after
+# the throw (fuse_ticks = the projectile `for`, fixed at load). One fragment is the blast, called on the body end.
 apiVersion: astera/v3
 kind: Skill
 id: sticky-bomb-throw
@@ -11,12 +12,11 @@ meta:
   tags: [ranged, fire]
 params:
   launch_speed: {type: number, default: 1.2}
-  flight_ticks: {type: ticks, default: 60}
+  fuse_ticks:   {type: ticks, default: 60}
   blast_radius: {type: blocks, default: 3.0}
   blast_damage: {type: number, default: 30.0}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: foe,    anchor: victim.root, mode: follow}
   - {id: flash,  anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: follow}
   - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
 fragments:
@@ -28,13 +28,14 @@ fragments:
     do:
       - {id: boom, op: explode, at: 0, anchor: spot, power: 1.5, break_blocks: false, fire: false}
       - {id: dmg, op: damage, at: 0, target: {kind: enemies, around: spot, radius: "${radius}"}, damage: {fire: "${damage}"}}
-      - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.0, ahead: 4.0}}, tool: none, block_damage: 25, ripple: 29, revert: 200, outside_arena: false}
+      - {id: chip, op: break_area, at: 0, anchor: spot, shape: {sphere: {radius: 1.0}}, tool: none, block_damage: 25, ripple: 29, revert: 200, outside_arena: false}
 machine:
   start: fly
+  tail: 2
   states:
     fly:
-      on:
-        - {event: bolt.end, to: end}
+      for: "= fuse_ticks"
+      then: end
       do:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.8, pitch: 0.8, at: 0}
         - {id: puff, op: particle_def, def: fire-cast, anchor: flash, at: 0}
@@ -42,19 +43,20 @@ machine:
           op: projectile
           origin: muzzle
           velocity: "= look(caster) * ${launch_speed}"
-          for: "${flight_ticks}"
+          for: "${fuse_ticks}"
+          gravity: 0.04
           radius: 0.5
-          hit: {targets: enemies, once: true, attach: false}
-          block: {mode: despawn}
+          hit: {targets: enemies, once: true, attach: true, attach_to: victim.root}
+          block: {mode: stick, fused: true}
           on:
             hit:
-              - {op: use, use: "fragment:blast", with: {radius: "${blast_radius}", damage: "${blast_damage}"}, frames: {spot: foe}}
-              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact, volume: 0.7, pitch: 1.2}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact, volume: 0.7, pitch: 1.2, detach: true}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
             block:
-              - {op: use, use: "fragment:blast", with: {radius: "${blast_radius}", damage: "${blast_damage}"}, frames: {spot: contact}}
-              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
-              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact}
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5, detach: true}
+              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact, detach: true}
+            end:
+              - {op: use, use: "fragment:blast", with: {radius: "${blast_radius}", damage: "${blast_damage}"}, frames: {spot: bolt}}
         - {id: shell, op: display, kind: item, item: "minecraft:slime_ball", context: fixed, anchor: bolt, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
         - {id: smoke, op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], at: 0, every: 1, until: bolt.end}
         - {id: ember, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, color: "#78c850", size: 1.0, at: 0, every: 1, until: bolt.end}

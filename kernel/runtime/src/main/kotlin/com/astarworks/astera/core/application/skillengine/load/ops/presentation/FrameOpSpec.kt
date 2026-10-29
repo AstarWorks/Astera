@@ -223,7 +223,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
                 val hi = lc.clockOffset + (life ?: lc.config.maxLifeTicks)
                 subTables += SubTable(
                     EventPath(ev), lc.state, TickRange(lc.clockOffset, maxOf(lc.clockOffset, hi)), 1,
-                    listOf(Row(0, instance, Action.End(instance), lc.src)), emptyList(),
+                    listOf(Row(0, instance, Action.End(instance), lc.src)), emptyList(), mask = true,
                 )
             }
             writes[instance] = WriteStats(segments, if (segments > 0) 1 else 0)
@@ -231,7 +231,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
 
         // a frame with laws declares its pose chain: a rider skips the frame's rec and composes the chain into its own absolute keys, so the laws count once
         // (a projectile body has no rows and exports its `laws` instead)
-        (lc.anchors as? AnchorRegistry)?.declare(declared, family, basis, emptyList(), if (family != null) occ.i else null, chainOut)
+        (lc.anchors as? AnchorRegistry)?.declare(declared, family, basis, emptyList(), if (family != null) occ.i else null, chainOut, modelPart?.points?.keys)
         return Lowered(rows = rows, subTables = subTables, instances = listOf(instance), writes = writes)
     }
 
@@ -256,6 +256,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
      * a name (the compiler checks declared anchors). A bare family name is ambiguous and is a load error.
      */
     private fun resolveParent(name: String, scope: com.astarworks.astera.core.application.skillengine.compose.AnchorScope, src: String, ctx: GrammarContext, id: OpId): InstanceId? {
+        AnchorNames.pointError(scope, name, "frame '${id.value.substringAfterLast('/')}'")?.let { ctx.fail("$src.anchor", it) }
         scope.resolve(name)?.let { return it.instance }
         val parts = AnchorNames.split(name) ?: ctx.fail("$src.anchor", "'$name' is not an anchor name")
         if (parts.index != null) {

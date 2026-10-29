@@ -68,6 +68,12 @@ public sealed interface SkillDecodeError {
         override val message: String get() = "op '$op' reaches tick $lastTick but state '$state' lasts $forTicks"
     }
 
+    /** Check 8 (rev4.12): a `detach: true` row ends after `<machine>.end + machine.tail`. */
+    public data class TailOverrun(val op: String, val lastTick: Int, val run: Int, val tail: Int, val needs: Int, override val skillId: String = "") : SkillDecodeError {
+        override val path: String get() = op
+        override val message: String get() = "TailOverrun(op=$op, lastTick=$lastTick, run=$run): a detached row ends after cast.end + tail (tail=$tail, needs tail >= $needs)"
+    }
+
     /** 3.8: `cond:<name>` / `cond.<name>` without a `conditions:` entry. */
     public data class UnknownCondition(override val path: String, val name: String, override val skillId: String = "") : SkillDecodeError {
         override val message: String get() = "unknown condition '$name'"

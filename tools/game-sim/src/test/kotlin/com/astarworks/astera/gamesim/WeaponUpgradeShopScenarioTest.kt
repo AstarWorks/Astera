@@ -51,7 +51,8 @@ class WeaponUpgradeShopScenarioTest {
         scenario("weapon-upgrade-buy") {
             val red = player("red-buyer", team = "red")
             val blue = player("blue-victim", team = "blue")
-            startMatch("annihilation", mapOf(red to "red", blue to "blue"), stage = "annihilation-arena")
+            val yellow0 = player("yellow-0", team = "yellow") // the annihilation lane starts only with 3 teams
+            startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow0 to "yellow"), stage = "annihilation-arena")
             advance(5)
 
             // Refused without the base pistol (ore alone is not enough).
@@ -85,10 +86,10 @@ class WeaponUpgradeShopScenarioTest {
             assertThat(casts).`as`("the tier item casts its own skill").contains("pistol-shot-t2").doesNotContain("pistol-shot")
 
             val skills = GameSim.defaultContentDir().resolve("skills")
-            // Literal `damage: {physical: N}` (sword) or the `dmg` param default the damage op reads (pistol).
+            // Literal `damage: {physical: N}`, the `dmg` param default, or a tier's `with: {dmg: N}`.
             fun damageOf(skill: String): Double {
                 val text = Files.readString(skills.resolve("$skill/skill.yaml"))
-                val literal = Regex("""damage:\s*\{\s*physical:\s*([0-9.]+)""").find(text) ?: Regex("""\bdmg:\s*\{type: number, default: ([0-9.]+)""").find(text)
+                val literal = Regex("""damage:\s*\{\s*physical:\s*([0-9.]+)""").find(text) ?: Regex("""(?m)^\s+dmg: ([0-9.]+)\s*$""").find(text) ?: Regex("""\bdmg:\s*\{type: number, default: ([0-9.]+)""").find(text)
                 return checkNotNull(literal) { "$skill has no readable damage" }.groupValues[1].toDouble()
             }
             for ((base, tiers) in mapOf("pistol-shot" to listOf("", "-t2", "-t3", "-t4"), "sword-slash" to listOf("", "-t2", "-t3", "-t4"))) {

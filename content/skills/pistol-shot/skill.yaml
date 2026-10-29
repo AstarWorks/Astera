@@ -1,4 +1,4 @@
-# pistol-shot: base of the pistol tiers. pistol-shot-t2..t4 are this document with another id, item and dmg default (a skill compiles alone, so there is no cross-file template).
+# pistol-shot: base of the pistol tiers. pistol-shot-t2..t4 extend it (ADR-0303 9.3): another id, item, meta and dmg.
 # Schedule: the bullet flies `life` ticks at constant speed; hit tick, damage and end tick are arithmetic (speed, life), randomness is not used.
 apiVersion: astera/v3
 kind: Skill
@@ -31,7 +31,7 @@ fragments:
       - {id: snd, op: sound, sound: "${snd}", anchor: spot, volume: "${vol}", pitch: "${pitch}"}
       - {id: fx, op: particle_def, def: gun-impact, anchor: spot}
       - {id: fx_smoke, op: particle_def, def: gun-impact-smoke, anchor: spot, when: "= ${smoke}"}
-      - {id: chip, op: break_area, anchor: spot, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 12, ripple: 29, revert: 200, outside_arena: false}
+      - {id: chip, op: break_area, anchor: spot, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 12, ripple: 29, revert: 200, outside_arena: false}
 machine:
   start: fire
   states:

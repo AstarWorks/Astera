@@ -114,7 +114,7 @@ class WorldOpsAndHasItemScenarioTest : SkillEngineScenario() {
                 s:
                   for: 20
                   do:
-                    - {id: b, op: break_area, anchor: body, shape: {sphere: {radius: "${'$'}{r}", ahead: 0.0}}, tool: shovel, block_damage: "= 50 * 2", ripple: 0, revert: 4000, outside_arena: false}
+                    - {id: b, op: break_area, anchor: body, shape: {sphere: {radius: "${'$'}{r}"}}, tool: shovel, block_damage: "= 50 * 2", ripple: 0, revert: 4000, outside_arena: false}
             """.trimIndent(),
         )
         val world = FakeSkillWorldGateway()

@@ -123,7 +123,8 @@ class BotModeRolesScenarioTest {
                 advance(10)
                 now += 500
             }
-            assertThat(kinds.take(2)).containsExactly("tnt", "deliver")
+            // siege-isles-tnt has checkpoints: the carrier secures them (route kind "checkpoint") before the final "deliver" leg.
+            assertThat(kinds.take(2)).containsExactly("tnt", "checkpoint")
             assertThat(carrier.role).isEqualTo(Role.CARRIER)
             assertThat(escortStep?.role).isEqualTo(Role.ESCORT)
             assertThat(escortStep?.kind).isEqualTo("escort")
@@ -199,12 +200,12 @@ class BotModeRolesScenarioTest {
             assertThat(holders.values.single()?.zone).isEqualTo(names.first())
             assertThat(owned.filter { it.value?.role != Role.HOLDER }.values.map { it?.zone }).doesNotContain(names.first())
 
-            // One planner remembers it held the zone, then loses it: it is retaken, not just contested.
-            val memory = make("r2")
+            // The holder (first mate) remembers it held the zone, then loses it: it is retaken, not just contested.
+            val memory = make("r1")
             memory.step(0, spawn.first, spawn.third)
             facts.owners[names.first()] = "blue"
-            val lost = rn.associateWith { n -> if (n == "r2") memory.step(500, spawn.first, spawn.third) else make(n).step(500, spawn.first, spawn.third) }
-            assertThat(lost.getValue("r2")?.let { it.role to it.zone }).isNotNull
+            val lost = rn.associateWith { n -> if (n == "r1") memory.step(500, spawn.first, spawn.third) else make(n).step(500, spawn.first, spawn.third) }
+            assertThat(lost.getValue("r1")?.let { it.role to it.zone }).isNotNull
             assertThat(lost.values.map { it?.role }).contains(Role.RETAKER)
         }
     }
@@ -241,10 +242,10 @@ class BotModeRolesScenarioTest {
             assertThat(threatened).containsEntry("r3", Role.BASKET_GUARD).containsEntry("r4", Role.BASKET_GUARD)
             assertThat(make("r4").step(0, redBase.first, redBase.third)?.let { it.kind to it.x }).isEqualTo("intercept" to 5.0)
 
-            // Our holder throws at the enemy basket; it waits outside while the barrier is shut.
+            // Our holder throws at the enemy basket even while its barrier is shut: the power TNT is what opens it (ModePlanner THROWER).
             facts.power = PowerTntFact("red", "r1", redBase.first, redBase.third)
             facts.barrier["blue"] = false
-            assertThat(make("r1").step(0, redBase.first, redBase.third)?.kind).isEqualTo("stage")
+            assertThat(make("r1").step(0, redBase.first, redBase.third)?.kind).isEqualTo("throw")
             facts.barrier["blue"] = true
             assertThat(make("r1").step(0, redBase.first, redBase.third)?.let { it.role to it.kind }).isEqualTo(Role.THROWER to "throw")
 
@@ -362,7 +363,7 @@ class BotModeRolesScenarioTest {
     /** The sidebar count of [team] as [viewer] sees it. */
     private fun ScenarioScope.countOf(viewer: SimEntity, team: String): Int? =
         checkNotNull(sim.hud.sidebar(viewer.id)).lines.map { it as HudComponent.Text }
-            .filter { it.messageKey.value == "astera.hud.sidebar.count" && it.placeholders["team"] == team }
+            .filter { it.messageKey.value == "astera.hud.sidebar.count" && it.placeholders["color"] == team }
             .firstNotNullOfOrNull { it.placeholders["count"]?.toIntOrNull() }
 
     /** [ModeFacts] read from the mode's own state query, like a bot sharing a process with the server. */

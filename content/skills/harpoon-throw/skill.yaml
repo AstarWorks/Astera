@@ -24,6 +24,7 @@ fragments:
       - {id: fleck, op: particle, at: 0, particle: dust, anchor: spot, count: 4, offset: [0.15, 0.15, 0.15], color: "#5abec8", size: 1.0}
 machine:
   start: fly
+  tail: 2
   states:
     fly:
       for: 40      # = max_lifetime_ticks (a state `for` cannot read a param yet)
@@ -46,10 +47,10 @@ machine:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
               - {id: reel, op: knockback, target: event.victim, direction: "= normalize(pos(caster) - pos(event.victim)) + vec(0.0, 0.2, 0.0)", strength: "${reel_strength}"}
-              - {id: hit_fx, use: "fragment:impact", frames: {spot: heart}}
+              - {id: hit_fx, use: "fragment:impact", frames: {spot: heart}, detach: true}
             block:
-              - {id: block_snd, op: sound, at: 0, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
-              - {id: block_fx, op: particle_def, at: 0, def: hit-spark, anchor: contact.point}
+              - {id: block_snd, op: sound, at: 0, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5, detach: true}
+              - {id: block_fx, op: particle_def, at: 0, def: hit-spark, anchor: contact.point, detach: true}
         - {id: shaft, op: display, kind: item, item: trident, context: fixed, anchor: bolt, scale: [1.2, 1.2, 1.2], at: 0, until: bolt.end}
         - id: trail
           op: group

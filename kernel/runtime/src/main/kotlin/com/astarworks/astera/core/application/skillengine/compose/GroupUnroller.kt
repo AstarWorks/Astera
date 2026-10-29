@@ -17,6 +17,7 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.Span
 import com.astarworks.astera.core.application.skillengine.load.grammar.TimeAt
 import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
 import com.astarworks.astera.core.application.skillengine.load.ops.control.GroupOp
+import com.astarworks.astera.core.application.skillengine.load.ops.control.UseOp
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
 import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
 import com.astarworks.astera.core.domain.Result
@@ -50,6 +51,7 @@ public object GroupUnroller {
      *   Used only where the timing block has no bound of its own (`every` + `until`, `for: cast`).
      */
     public fun unroll(node: OpNode, base: LowerContext, horizon: Int?, lowerOnce: ChildLowering): Result<Lowered, SkillDecodeError> {
+        if (node is UseOp && node.chain != null) return ChainUnroller.unroll(node, base, lowerOnce)
         val sched = when (val r = schedule(node, base, horizon)) {
             is Result.Success -> r.value
             is Result.Failure -> return r
@@ -98,6 +100,7 @@ public object GroupUnroller {
             }
             for (r in lo.rows) {
                 var shifted = r.copy(tick = r.tick + s)
+                if (node.timing?.detach == true) shifted = shifted.copy(detached = true)
                 if (mask != null) shifted = shifted.copy(maskUntil = shifted.maskUntil + EventPath(mask))
                 if (guard != null && shifted.guard == null) shifted = shifted.copy(guard = guard)
                 rows += shifted

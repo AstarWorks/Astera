@@ -8,16 +8,18 @@ import java.nio.file.Path
  * `:tools:item-art`). The files are flat `key: value` lines, so they are read as such; a file without `id` and `size` is skipped
  * and a missing directory is an empty catalog (an unknown sprite then fails at the op as `UndefinedReference`).
  */
-public class ContentSpriteCatalog private constructor(private val sizes: Map<String, Vec2Px>, private val frameCounts: Map<String, Int>) : SpriteCatalog {
+public class ContentSpriteCatalog private constructor(private val sizes: Map<String, Vec2Px>, private val frameCounts: Map<String, Int>, private val clips: Map<String, Int> = emptyMap()) : SpriteCatalog {
     override fun natural(id: String): Vec2Px? = sizes[id]
 
     override fun frames(id: String): Int? = frameCounts[id]
 
+    override fun clipTicks(anim: String): Int? = clips[anim]
+
     public companion object {
         public fun load(dir: Path): ContentSpriteCatalog {
-            if (!Files.isDirectory(dir)) return ContentSpriteCatalog(emptyMap(), emptyMap())
+            if (!Files.isDirectory(dir)) return ContentSpriteCatalog(emptyMap(), emptyMap(), loadClips(dir.resolveSibling("animations")))
             val out = LinkedHashMap<String, Vec2Px>()
-        val counts = LinkedHashMap<String, Int>()
+            val counts = LinkedHashMap<String, Int>()
             Files.list(dir).use { files ->
                 files.filter { it.fileName.toString().endsWith(".yaml") }.sorted().forEach { f ->
                     val kv = Files.readAllLines(f).mapNotNull { line ->
@@ -30,7 +32,24 @@ public class ContentSpriteCatalog private constructor(private val sizes: Map<Str
                     counts[id] = kv["frames"]?.toIntOrNull() ?: 1
                 }
             }
-            return ContentSpriteCatalog(out, counts)
+            return ContentSpriteCatalog(out, counts, loadClips(dir.resolveSibling("animations")))
+        }
+
+        /** `id` -> `length_ticks` of every clip of the sibling `content/animations` directory (flat `key: value` header lines). */
+        private fun loadClips(dir: Path): Map<String, Int> {
+            if (!Files.isDirectory(dir)) return emptyMap()
+            val out = LinkedHashMap<String, Int>()
+            Files.list(dir).use { files ->
+                files.filter { it.fileName.toString().endsWith(".yaml") }.sorted().forEach { f ->
+                    val kv = Files.readAllLines(f).mapNotNull { line ->
+                        if (line.startsWith("#") || line.startsWith(" ") || !line.contains(':')) null
+                        else line.substringBefore(':').trim() to line.substringAfter(':').trim()
+                    }.toMap()
+                    val id = kv["id"] ?: return@forEach
+                    out[id] = kv["length_ticks"]?.toIntOrNull() ?: return@forEach
+                }
+            }
+            return out
         }
     }
 }

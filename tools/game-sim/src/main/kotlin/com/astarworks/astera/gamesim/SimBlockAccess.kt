@@ -10,6 +10,7 @@ import com.astarworks.astera.core.application.port.outbound.IStructureTargets
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockDamageOutcome
+import com.astarworks.astera.core.application.skillengine.runtime.port.BlockHit
 import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillBlockAccess
 import com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase
@@ -27,6 +28,9 @@ import com.astarworks.astera.core.domain.world.ToolType
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.domain.block.BlockDamageOutcome as DomainOutcome
 import com.astarworks.astera.core.domain.Result as AsteraResult
+import kotlin.math.abs
+import kotlin.math.floor
+import kotlin.math.sqrt
 
 /**
  * The sim's block seam for the skill engine's world ops: the same rules as the Paper `PaperBlockAccess` (cover blocks through

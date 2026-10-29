@@ -44,7 +44,7 @@ class CountModelScenarioTest {
     private fun ScenarioScope.counts(viewer: SimEntity): Map<String?, String?> =
         checkNotNull(sim.hud.sidebar(viewer.id)).texts()
             .filter { it.messageKey.value == "astera.hud.sidebar.count" }
-            .associate { it.placeholders["team"] to it.placeholders["count"] }
+            .associate { it.placeholders["color"] to it.placeholders["count"] }
 
     @Test
     fun `knockout - every banked jewel counts the sidebar down and the fifth one wins at once`() {

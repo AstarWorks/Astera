@@ -36,7 +36,7 @@ class CommandTreeTest {
             assertThat(tree.keys).containsExactlyInAnyOrder(
                 "help", "menu", "settings", "social", "travel", "vault", "lang", "volume", "friend", "party", "chat", "tutorial",
                 "news", "patch", "report", "queue", "match", "items", "shop", "economy", "stats", "mod", "admin", "skill",
-                "daily", "missions", "quests", "achievements", "status",
+                "daily", "missions", "quests", "achievements", "status", "emote", "announce", "norma", "rules",
             )
             assertThat(tree.getValue("queue")).containsExactlyInAnyOrder("join", "leave", "status")
             assertThat(tree.getValue("match")).contains(
@@ -44,7 +44,7 @@ class CommandTreeTest {
                 "replay start", "replay stop", "replay export",
             )
             assertThat(tree.getValue("items")).containsExactlyInAnyOrder("give", "refresh")
-            assertThat(tree.getValue("skill")).containsExactlyInAnyOrder("list", "cast")
+            assertThat(tree.getValue("skill")).containsExactlyInAnyOrder("list", "cast", "trace", "reload", "expand")
             assertThat(tree.getValue("economy")).containsExactlyInAnyOrder("balance", "grant", "withdraw", "transfer")
             assertThat(tree.getValue("stats")).containsExactlyInAnyOrder("show", "last", "leaderboard", "xp grant")
             assertThat(tree.getValue("admin")).contains(

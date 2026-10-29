@@ -57,7 +57,7 @@ class ToolSkillBlockScenarioTest : SkillEngineScenario() {
         WorldRows.execute(world, CastRef(castId, caster, WorldId("world"), item), worldRow(opLine), origin, east) { v -> ((v as Val.Known<*>).value as Number).toDouble() }
 
     private fun strike(toolClass: String) =
-        "{id: b, op: break_area, anchor: body, shape: {sphere: {radius: 0.5, ahead: 0.0}}, tool: $toolClass, block_damage: 100, ripple: 0, revert: 4000, outside_arena: false}"
+        "{id: b, op: break_area, anchor: body, shape: {sphere: {radius: 0.5}}, tool: $toolClass, block_damage: 100, ripple: 0, revert: 4000, outside_arena: false}"
 
     /** Casts until [block] is broken by [item]'s [toolClass] skill; -1 when it survives [limit] casts. */
     private fun castsToBreak(block: String, toolClass: String, item: String, limit: Int = 30): Int {
@@ -110,7 +110,7 @@ class ToolSkillBlockScenarioTest : SkillEngineScenario() {
         val world = FakeSkillWorldGateway(tierOf = ::tierOfItem, excluded = { it == node })
         world.setBlock(node, "minecraft:raw_iron_block")
         world.setBlock(BlockCell(1, 64, 0), "minecraft:stone")
-        cast(world, "diamond-pickaxe", "{id: b, op: break_area, anchor: body, shape: {sphere: {radius: 2.0, ahead: 0.0}}, tool: pickaxe, block_damage: 100, ripple: 0, revert: 4000, outside_arena: true}", 1L)
+        cast(world, "diamond-pickaxe", "{id: b, op: break_area, anchor: body, shape: {sphere: {radius: 2.0}}, tool: pickaxe, block_damage: 100, ripple: 0, revert: 4000, outside_arena: true}", 1L)
         assertThat(world.block(node)).isEqualTo("minecraft:raw_iron_block")
         assertThat(world.strikes.map { it.second }).doesNotContain(node)
         assertThat(world.block(BlockCell(1, 64, 0))).isNull()

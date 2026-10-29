@@ -152,7 +152,7 @@ public object PartParser {
 
     private fun machine(raw: Any?, where: String): Machine {
         val m = raw.asMap(where)
-        checkKeys(m, where, setOf("start", "states", "world"))
+        checkKeys(m, where, setOf("start", "states", "world", "tail"))
         val start = m["start"] as? String ?: abort("$where.start", "missing 'start'")
         val statesRaw = m["states"].asMap("$where.states")
         if (statesRaw.isEmpty()) abort("$where.states", "a machine needs at least one state")
@@ -177,7 +177,8 @@ public object PartParser {
                 on = s.on.mapIndexed { i, t -> t.copy(to = resolve(t.to, id, "$where.states.$id.on[$i].to")) },
             )
         }
-        return Machine(start, states, world = ops(m["world"], "$where.world"))
+        val tail = m["tail"]?.let { t -> (t as? Int)?.takeIf { it >= 0 } ?: abort("$where.tail", "machine.tail must be a whole number of ticks >= 0, got '$t'") }
+        return Machine(start, states, world = ops(m["world"], "$where.world"), tail = tail)
     }
 
     /** Parses state [id] (a flat path) and, recursively, its `states:` children into [out] as `<id>/<child>`. */
@@ -219,9 +220,7 @@ public object PartParser {
         } ?: emptyList()
         val forTicks = m["for"]
         if (forTicks != null) {
-            if (!(forTicks is Number && forTicks.toDouble() >= 0 && forTicks.toDouble() == Math.floor(forTicks.toDouble())) && !(forTicks is String && forTicks.startsWith("= "))) {
-                abort("$where.for", "for must be a non-negative integer of ticks or a CEL string, got '$forTicks'")
-            }
+            if (!TickFields.parseable(forTicks)) abort("$where.for", "for must be ${TickFields.EXPECTED}, got '$forTicks'")
         }
         val then = m["then"] as String?
         if (m["then"] != null && m["then"] !is String) abort("$where.then", "then must be a state id")
@@ -242,7 +241,7 @@ public object PartParser {
         if (m["event"] != null && m["event"] !is String) abort("$where.event", "event must be a name")
         val after = m["after"]
         if ((event == null) == (after == null)) abort(where, "a transition has exactly one of 'event' or 'after'")
-        if (after != null && !(after is Number && after.toDouble() >= 0) && !(after is String && after.startsWith("= "))) abort("$where.after", "after must be ticks or a CEL string")
+        if (after != null && !TickFields.parseable(after)) abort("$where.after", "after must be ${TickFields.EXPECTED}, got '$after'")
         val to = m["to"] as? String ?: abort("$where.to", "missing 'to'")
         val whenExpr = m["when"] as String?
         if (whenExpr != null && !whenExpr.startsWith("= ")) abort("$where.when", "when must be a CEL string starting with '= '")

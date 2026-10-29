@@ -56,12 +56,13 @@ class MilestoneSoundScenarioTest {
         scenario("milestone-sounds-match") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
+            val yellow0 = player("yellow-0", team = "yellow") // the annihilation lane starts only with 3 teams
             val bgm = sim.services.getOrThrow<IPlayerBgm>()
             assertThat(bgm.moodOf(red.id)).`as`("joining the server starts the lobby BGM").isEqualTo(MusicMood.LOBBY)
             assertThat(bgm.trackOf(red.id)).isEqualTo(MusicTrackId("lobby-loop"))
 
             sim.playerSounds.clear()
-            val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue"), stage = "annihilation-arena")
+            val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow0 to "yellow"), stage = "annihilation-arena", skipCountdown = false)
             sim.eventBus.publish(PlayerEnteredMatch(matchId, red.id))
             assertThat(bgm.moodOf(red.id)).`as`("entering the match switches BGM").isEqualTo(MusicMood.MATCH)
             assertThat(bgm.trackOf(red.id)).isEqualTo(MusicTrackId("match-default"))
@@ -82,13 +83,13 @@ class MilestoneSoundScenarioTest {
             // Red shoots blue (1 HP) dead: kill cue for the killer, death cue for the victim, respawn cue later.
             sim.setMaxHealth(blue, 1.0)
             val blueSpawn = blue.position
-            red.moveTo(blueSpawn + Vec3(0.0, 0.0, 6.0))
-            red.holds("pistol")
+            red.moveTo(blueSpawn + Vec3(0.0, 0.0, 1.5))
+            red.holds("knight-sword")
             red.faces(blue)
             sim.playerSounds.clear()
             repeat(20) {
                 if (eventsOf<PlayerKilled>().none { it.victim == blue.id }) {
-                    red.rightClick()
+                    red.leftClick()
                     advance(10)
                 }
             }
@@ -167,13 +168,13 @@ class MilestoneSoundScenarioTest {
             stars.add(matchId, blue.id, 6)
             sim.setMaxHealth(blue, 1.0)
             val deathSpot = blue.position
-            red.moveTo(deathSpot + Vec3(0.0, 0.0, 6.0))
-            red.holds("pistol")
+            red.moveTo(deathSpot + Vec3(0.0, 0.0, 1.5))
+            red.holds("knight-sword")
             red.faces(blue)
             sim.playerSounds.clear()
             repeat(20) {
                 if (eventsOf<PlayerKilled>().none { it.victim == blue.id }) {
-                    red.rightClick()
+                    red.leftClick()
                     advance(10)
                 }
             }
@@ -208,13 +209,13 @@ class MilestoneSoundScenarioTest {
             bus.publish(LeveledUp(alice.id, Level(1), Level(2), Xp(100L)))
             assertThat(heard(alice, SoundCues.UI_LEVEL_UP)).`as`("player level up cue").isEqualTo(1)
 
-            // A real shop purchase (knight-sword, confirmed by a second click).
+            // A real shop purchase (the 150-gold dagger offer, confirmed by a second click).
             sim.services.getOrThrow<ICurrencyLedger>().credit(alice.id, Currency.GOLD, 150L)
             val view = checkNotNull(sim.server.view(alice.id))
             val router = sim.services.getOrThrow<IGuiIntentRouter>()
             router.dispatch(view, GuiIntent("lobby.shop.open", emptyMap()))
             sim.playerSounds.clear()
-            repeat(2) { router.dispatch(view, GuiIntent("shop.purchase", mapOf("shop_id" to "example-shop", "offer_id" to "knight-sword"))) }
+            repeat(2) { router.dispatch(view, GuiIntent("shop.purchase", mapOf("shop_id" to "example-shop", "offer_id" to "dagger"))) }
             assertThat(heard(alice, SoundCues.UI_PURCHASE)).`as`("purchase cue").isEqualTo(1)
         }
     }

@@ -63,7 +63,7 @@ g @0..1200 cast-length | cast
 g @0..1200 state-end then=- final=false | state=cast
 g @3 state-end then=cast/recover final=false | state=cast/burst
 g @0 damage water=live(%3D%2025.0%20*%20(1.0%20-%200.5%20*%20dist(pos(caster),%20pos(event.victim))%20/%205.0)) | state=cast/burst
-g @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D2.5,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D20,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | state=cast/burst
+g @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D2.5),%20tool%3Dnone,%20blockDamage%3D20,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | state=cast/burst
 g @0 state-end then=- final=true | state=cast/recover
 g @0 state-end then=- final=true | state=done
 g.hit @0..0 handler max=2147483647 | sub=cast/burst/burst.hit

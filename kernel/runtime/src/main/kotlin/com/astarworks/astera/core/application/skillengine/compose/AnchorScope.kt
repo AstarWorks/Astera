@@ -30,6 +30,9 @@ public interface AnchorScope {
 
     /** The document `anchors:` entry [id] (ADR-0303 1); null for any other name. Document anchors are not frame instances, so [resolve] does not answer for them. */
     public fun document(id: String): AnchorDecl? = null
+
+    /** The model points the instance behind [anchor] declares (`root`, `tip`); null when the anchor is not a model-backed instance, so any point is accepted. */
+    public fun points(anchor: String): Set<String>? = null
 }
 
 public data class ResolvedAnchor(val instance: InstanceId, val basis: ExprClass)
@@ -46,7 +49,7 @@ public data class AnchorChain(val base: Pose, val parent: InstanceId?, val paren
  */
 public interface AnchorRegistry : AnchorScope {
     /** [instance] is the instance of an op WITHOUT its family index; [family] = N for `times: N` (instances `id[0..N-1]`), null for a single one. [laws] are the closed-form laws that move the anchor (a projectile body's `motion:`); [copy] is the family index they were baked for (a law number may read `i`), so a rider addressing `id[k]` composes copy k's laws: riders compose them into their own Key rows (item 16). */
-    public fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw> = emptyList(), copy: Int? = null, chain: AnchorChain? = null)
+    public fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw> = emptyList(), copy: Int? = null, chain: AnchorChain? = null, points: Set<String>? = null)
 
     public fun at(occurrence: Occurrence, family: Int? = null): AnchorRegistry
 }
@@ -59,7 +62,7 @@ public object AnchorNames {
     private val NAME = Regex("""^(?:/([A-Za-z_][A-Za-z0-9_-]*(?:/[A-Za-z_][A-Za-z0-9_-]*)*)/)?([A-Za-z_][A-Za-z0-9_-]*)(?:\[([A-Za-z0-9_.]+)])?(?:\.([A-Za-z_][A-Za-z0-9_]*))?$""")
 
     /** The frames every op and expression may name without declaring them: the cast's own entities and the handler's contact (ADR-0303 anchors table). */
-    public val BUILTIN_FRAMES: Set<String> = setOf("caster", "target", "victim", "enemy", "contact", "world", "attacker", "aim", "cast")
+    public val BUILTIN_FRAMES: Set<String> = setOf("caster", "target", "victim", "enemy", "contact", "world", "attacker", "aim", "cast", "from")
 
     /** Names no declaration may take: the builtin frames plus the expression variables and `event` / `self` / `parent`. */
     public val RESERVED: Set<String> = BUILTIN_FRAMES + setOf("event", "self", "i", "n", "t", "lt", "parent")
@@ -69,7 +72,7 @@ public object AnchorNames {
         if (name !in RESERVED) return null
         val meaning = when (name) {
             "contact" -> "the hit point of the current handler"
-            "caster", "target", "victim", "enemy", "attacker", "aim", "cast", "world" -> "a frame every op may name"
+            "caster", "target", "victim", "enemy", "attacker", "aim", "cast", "world", "from" -> "a frame every op may name"
             else -> "a name the engine reads in expressions and paths"
         }
         return "$what: '$name' is a builtin name ($meaning) and cannot be declared"
@@ -102,6 +105,18 @@ public object AnchorNames {
     /** Null when [name] is not of the shape `id`, `id[index]`, `id.point` or `id[index].point` (e.g. `body_anim.hand_r` splits as base `body_anim`, point `hand_r`). */
     public fun split(name: String): Parts? =
         NAME.matchEntire(name.trim())?.let { Parts(it.groupValues[2], it.groupValues[3].ifEmpty { null }, it.groupValues[4].ifEmpty { null }, it.groupValues[1].ifEmpty { null }) }
+
+    /**
+     * The load error text when [name] names a point the model-backed anchor does not declare (`rig.root` on a part whose points are grip, pivot, tip), else null.
+     * [what] is `particle 'spark'`.
+     */
+    public fun pointError(scope: AnchorScope, name: String, what: String): String? {
+        val parts = split(name) ?: return null
+        val point = parts.point ?: return null
+        val declared = scope.points(name) ?: return null
+        if (point in declared) return null
+        return "$what: anchor '${name.trim()}' has no point '$point' (the valid points of '${parts.base}' are: ${declared.sorted().joinToString(", ")})"
+    }
 
     /** The name without its state qualifier (`/throw/volley[1].tip` -> `volley[1].tip`): the spelling an expression uses. */
     public fun bare(name: String): String = split(name)?.takeIf { it.state != null }?.let { name.trim().substringAfterLast('/') } ?: name
@@ -151,17 +166,24 @@ public class DefaultAnchorScope private constructor(
     internal data class Entry(
         val instance: InstanceId, val family: Int?, val basis: ExprClass, val laws: List<MotionLaw>, val copies: Map<Int, List<MotionLaw>> = emptyMap(),
         val chain: AnchorChain? = null, val chains: Map<Int, AnchorChain> = emptyMap(),
+        val points: Set<String>? = null,
     )
 
-    override fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw>, copy: Int?, chain: AnchorChain?) {
+    override fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw>, copy: Int?, chain: AnchorChain?, points: Set<String>?) {
         val id = instance.path.last().op
         require(family == null || family >= 1) { "family of '${id.value}' must be >= 1 (was $family)" }
         val key = id.value.substringAfterLast('/')
         val prior = entries[key]?.takeIf { copy != null && it.instance == instance }
         entries[key] = Entry(
             instance, family, basis, laws, if (copy != null) prior?.copies.orEmpty() + (copy to laws) else emptyMap(),
-            chain, if (copy != null && chain != null) prior?.chains.orEmpty() + (copy to chain) else emptyMap(),
+            chain, if (copy != null && chain != null) prior?.chains.orEmpty() + (copy to chain) else emptyMap(), points,
         )
+    }
+
+    override fun points(anchor: String): Set<String>? {
+        val parts = AnchorNames.split(anchor) ?: return null
+        if (parts.state != null) return other(parts)?.points(bareOf(parts))
+        return (entries[parts.base] ?: published(parts.base))?.points
     }
 
     override fun chain(anchor: String): AnchorChain? {
