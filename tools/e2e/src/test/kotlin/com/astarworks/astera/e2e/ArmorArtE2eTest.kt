@@ -22,7 +22,8 @@ class ArmorArtE2eTest : E2eBase() {
                 val path = "Inventory[{Slot:${nbtSlot}b}].components.\"minecraft:equippable\""
                 // Change just the visual component, keeping Astera's item/armor identity intact.
                 rcon("item modify entity ${wearer.name} armor.$slot {type:\"minecraft:set_components\",components:{\"minecraft:equippable\":{slot:\"$slot\",asset_id:\"minecraft:iron\"}}}")
-                assertThat(rcon("data get entity ${wearer.name} $path.asset_id")).contains("minecraft:iron")
+                val afterModify = rcon("data get entity ${wearer.name} $path.asset_id")
+                assertThat(afterModify).describedAs("equippable.asset_id of worn $id after item modify (raw RCON reply)").contains("minecraft:iron")
                 wearer.command("astera items refresh")
                 assertThat(wearer.waitUntil(5_000) {
                     "astera:$set" in rcon("data get entity ${wearer.name} $path.asset_id")
