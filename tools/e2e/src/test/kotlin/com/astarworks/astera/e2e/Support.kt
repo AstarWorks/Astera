@@ -15,8 +15,9 @@ const val E2E_NORMA_MAX_LEVEL = 3
  */
 fun grantsStars(line: String): Boolean =
     // "Rising Star" is the Lv 3 name-colour cosmetic that the reward preview names ("Next level reward: Lv 3 - 100 GOLD, Rising Star").
+    // "Not ready yet: N more stars needed." answers an explicit /astera norma check issued right after the auto check already levelled the player up; it grants nothing.
     // The first-match beginner guide (briefing.first-time.stars) teaches the in-match star item; it is not a grant.
-    STAR_WORD.containsMatchIn(line.replace("Rising Star", "")) && listOf("Norma:", "To win:", "Time limit", "Norma goal:", "Pick up stars from generators").none { line.trimStart().startsWith(it) }
+    STAR_WORD.containsMatchIn(line.replace("Rising Star", "")) && listOf("Norma:", "To win:", "Time limit", "Norma goal:", "Pick up stars from generators", "Not ready yet:").none { line.trimStart().startsWith(it) }
 
 fun rawKeys(lines: Collection<String>): List<String> = lines.filter { RAW_KEY.containsMatchIn(it.trim()) }
 

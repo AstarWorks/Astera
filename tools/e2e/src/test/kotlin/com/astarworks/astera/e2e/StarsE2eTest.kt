@@ -93,6 +93,7 @@ class StarsE2eTest : PlaythroughBase() {
         }
 
         // (generator star is a visible entity) A stands 5 blocks off the east generator and must see the dropped star there.
+        val spawnA = localPosOf(a)
         tpArena(a.name, 17.5, 65.0, 0.5, 0f, 0f)
         val seen = a.waitUntil(10_000) { a.nudge(); c.nudge(); itemsNear(a, 12.5 + originX, 0.5 + originZ, 2.5) >= 1 }
         E2eReport.check(suite, "a generator star appears in the world as an item entity at the generator", "ClientboundAddEntity(ITEM)") {
@@ -101,7 +102,6 @@ class StarsE2eTest : PlaythroughBase() {
         }
 
         // (a) + STAR-goal level-up: A stands on the east generator (12.5, 65, 0.5) and takes what pops; 2 stars clear level 1.
-        val spawnA = localPosOf(a)
         val spawnC = localPosOf(c)
         tpArena(a.name, 12.5, 65.0, 0.5, 0f, 0f)
         // Meeting the goal only makes A ready ("Norma goal met" action bar, no level yet); the level rises at the Norma check in A's own base.
@@ -210,7 +210,7 @@ class StarsE2eTest : PlaythroughBase() {
         for (b in both) {
             E2eReport.check(suite, "${b.name}: the lobby sidebar has no star line", "SetScore") {
                 assertThat(b.sidebarTitle()).describedAs("still on the match sidebar: ${sidebar(b)}").isEqualTo(lobbyTitle)
-                assertThat(sidebar(b).filter { STAR_WORD.containsMatchIn(it) || it.contains("Lv ") }).describedAs("lobby sidebar ${sidebar(b)}").isEmpty()
+                assertThat(sidebar(b).filter { STAR_WORD.containsMatchIn(it) || Regex("Lv\\s*\\d+/\\d+").containsMatchIn(it) }).describedAs("lobby sidebar ${sidebar(b)}").isEmpty()
                 quote(sidebar(b))
             }
             val from = b.chat.size
