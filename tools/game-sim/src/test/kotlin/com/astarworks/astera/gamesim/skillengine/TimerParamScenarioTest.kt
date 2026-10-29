@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
  * `${ticks}` skill must equal the literal one.
  */
 class TimerParamScenarioTest : SkillEngineScenario() {
-    private fun skill(ticks: String, decl: String = "ticks: {type: number, default: 6}", stateFor: String = "\"\${ticks}\"", after: String = "\"\${ticks}\"", wait: String = "\"\${ticks}\"") = """
+    private fun skill(ticks: String, decl: String = "ticks: {type: number, default: 6}", stateFor: String = "\"\${ticks}\"", after: String = "\"= ticks + 1\"", wait: String = "\"\${ticks}\"") = """
         apiVersion: astera/v3
         kind: Skill
         id: timer-param
@@ -42,7 +42,7 @@ class TimerParamScenarioTest : SkillEngineScenario() {
         is Result.Failure -> error("expected to load: ${r.error.message}")
     }
 
-    private fun literal(n: Int) = skill("", decl = "other: {type: number, default: 1}", stateFor = "$n", after = "$n", wait = "$n")
+    private fun literal(n: Int) = skill("", decl = "other: {type: number, default: 1}", stateFor = "$n", after = "${n + 1}", wait = "$n")
 
     @Test
     fun paramTimersEqualLiteralRows() {
