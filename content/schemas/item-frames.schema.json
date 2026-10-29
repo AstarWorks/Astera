@@ -11,7 +11,7 @@
     ],
     "properties": {
         "apiVersion": {
-            "const": "astera/v2"
+            "const": "astera/v3"
         },
         "kind": {
             "const": "ItemFrames"

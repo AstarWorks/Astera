@@ -16,7 +16,7 @@ Proposed. Board SKL-16 (rev1-3), SKL-20 (rev4). Design only; no engine code chan
 **rev4 (2026-10-29, Fable, SKL-20)**: adds the **precompute contract** (section C, the centre of this ADR), generic nesting of timing groups
 (2.0), the rewritten projectile op (3.6), named conditions (3.8), `lock` and `cancel` (10.6), the expansion dump format and static checks
 9-12 (11.3, 11.4), the acceptance suite A1-A9 (12) and example j. Resolves every open spelling: the law window starts at `at` (never
-`from`), `then_event` is gone, `bound:` has one form. The converter (6) is retired; migration is hand-written v3.
+`from`), `then_event` is gone, `bound:` has one form. Skills are hand-written in v3 (section 6).
 
 **rev4.1 (2026-10-29, Fable, after the RTM research `design/rtm-lessons.md`, Codex)**: timing is never class L, bounded or not (C5, check 9);
 `until` is a mask over a finite horizon, never a bound, so `n` is never -1 (2.0); occurrence count is `ceil(for / every)` (2.0, C6); a family
@@ -57,6 +57,8 @@ Founder questions Q2, Q3, Q5, Q6 are OPEN (Q1 = B and Q4 = A resolved 10/29, Q7 
 
 **rev4.9 / G6 (2026-10-29, foundation audit P17)**: the named body points of rev4.8 move out of the clips. `points:` is deleted from `content/animations/*.yaml` (a clip with `points:` is an unknown-key load error); ONE shared skeleton `content/frames/body.yaml` (`apiVersion: astera/v3`, `kind: BodyFrames`, `points: {hand_r: {bone, offset}, hand_l: ...}`, offset in pixels from the bone joint, rest axes) serves every `body` op through the port `ISkillGameplayGateway.bodySkeleton()`; the spelling `<body op id>.hand_r` is unchanged. The slim (Alex) arm stays applied by `SkinRigTransforms.point`, so there is no second table. A missing or malformed `body.yaml` is a named load error (`BodyFramesDecoder`, content-lint runtimeDecode) and `ItemFramesDecoder` skips that file.
 
+**rev4.9 (2026-10-29, foundation audit section 4, label and wording only)**: the v2 conversion residue is removed. The converter rules (section 6) and every converter reference are gone; section 6 now only says that content is hand-written. The v1 presentation parity additions section and the Skin rig `tools/skill-convert` sentences are deleted. The fade default note (2.0b) no longer mentions a converter, and the 0301 short easing names are removed from the text. `ItemFrames` documents are `apiVersion: astera/v3`; the decoder accepts that value only. No field is added or removed.
+
 
 **rev4.7 (2026-10-29, founder Q7 = A)**: `screen_flash` and `screen_veil` are presentation ops again (10.1b rows; strict decode: overlay enum, `#RRGGBB`, veil distance 0.3..1.0 and `max_screen_fraction` up to 0.18 refused instead of coerced). `screen_flash` is a point effect through `ISkillGameplayGateway.screenFlash`; `screen_veil` is instance-lived (`spawnScreenVeil` / `updateScreenVeil` per tick, `End` at `ticks`). Sources: v1 `MechanicYaml.kt:1065-1098,1131-1163`, `PaperPlayerFeedbackGateway.kt:53-71`, `ScreenVeilHandler`. Q7 is closed; `bastion-greatsword-s2` and `-ego` carry their v2 cues again.
 state-qualified spelling `/<state>/<id>` (`/throw/volley`, `/throw/fly_a.root`; 10.1 `/x` is absolute from the machine root, ids are state-qualified,
@@ -85,7 +87,7 @@ The audit of v2 against v1 (`/tmp/claude-1000/skill-engine/audit/root-causes.md`
 the two things the client really has: a Display entity (location, yaw/pitch, `Transformation`, interpolation fields) and
 `spawnParticle(count, offset, extra, data)`. The layers (Euler triples composed in a hidden order, x5 glyph scale, frame-distance-dependent
 plate size, a 0.3 random-sphere particle model, per-tick sampled rotation, world-teleported "attached" weapons) produce the founder's
-rejections: wrong rotation, late rotation, floating weapon, particles that are not the v1 particles. The converter then made it worse:
+rejections: wrong rotation, late rotation, floating weapon, particles that are not the v1 particles. v2 then made it worse:
 `coin1.yaml` is 621 lines of per-tick keyframe dumps, and e.g. petal roll `309 -> 349 -> 509` is only "spin 40 degrees per tick".
 
 Founder direction 2026-10-28: motion is animation (say the change per tick and its direction, not the value at every tick); the schema
@@ -281,11 +283,11 @@ Example j (7) is the full form with its expansion table.
 #### 2.0b No hidden defaults
 
 Every field is either **required** or defaults to the **identity value** (0, 1, empty, absent, or the plain vanilla default), and that default is
-written in the field table. A value that differed in v1 is written EXPLICITLY by the converter, never supplied by the engine.
+written in the field table. A value that differed in v1 is written EXPLICITLY in the skill, never supplied by the engine.
 
 | field | choice | why |
 |---|---|---|
-| `fade.exponent` / ribbon `fade` (v1 `fade_power`) | identity default **1.0** (linear); the converter writes `exponent: 1.5` on every v1 element, because v1 defaulted to 1.5 (v2 silently changed it to 1.0, unapproved) | the schema default is the neutral value, and the v1 look is visible in the content instead of in the engine |
+| `fade.exponent` / ribbon `fade` (v1 `fade_power`) | identity default **1.0** (linear); a v1 look that used 1.5 writes `exponent: 1.5` on that element (v1 defaulted to 1.5, v2 silently changed it to 1.0, unapproved) | the schema default is the neutral value, and the v1 look is visible in the content instead of in the engine |
 | `count`, `offset`, `extra` (particle) | identity 1, [0,0,0], 0 | vanilla overload arguments, written down |
 | `scale`, `size` growth, `volume`, `pitch` | identity 1 (volume/pitch: vanilla sound defaults) | |
 | `billboard`, `context`, `view_range`, `yaw`, `pitch` | vanilla `fixed`, `fixed` (decision), 1.0, 0, 0 | |
@@ -415,8 +417,7 @@ Closed-form: all laws are evaluated as functions of `tau = ticks since law start
 #### 3.1 Named axes
 
 Resolution order: the object's own axes (`long`, `edge`, `face` for item parts; `face` = display normal for sprites), then its anchor's
-(`forward`, `left`, `up`), then `world.up` / `world.forward`. An axis may also be `{in: <anchor>, vec: {forward: 0.2, up: 0.9}}` for a non-named direction (the converter uses this when
-nothing is within 5 degrees of a named axis).
+(`forward`, `left`, `up`), then `world.up` / `world.forward`. An axis may also be `{in: <anchor>, vec: {forward: 0.2, up: 0.9}}` for a non-named direction.
 
 #### 3.2 Composition order
 
@@ -599,8 +600,6 @@ Every law (`move`, `spin`, `grow`, `fade`, `orbit`, `stretch`, `align`, `follow`
 | `in_` / `out_` / `in_out_` + shape | `sine`, `quad`, `cubic`, `quart`, `quint`, `expo`, `circ`, `back`, `elastic`, `bounce` (for example `out_cubic`, `in_out_back`) |
 | parametric | `cubic_bezier(x1, y1, x2, y2)` (CSS meaning, x in [0, 1]); `steps(n)` does not exist (it is n jumps: write n keys) |
 
-The 0301 short names `in` / `out` / `in_out` stay valid ONLY as written inside a `keys` segment of the same law and mean `in_quad` / `out_quad` / `in_out_quad`;
-the converter writes the full name (R8), so no content depends on the alias.
 
 **Semantics.** Easing maps the normalized progress of the law's own window to the eased progress: `u = lt / for` in [0, 1], `E(u)` the eased value
 (`E(0) = 0`, `E(1) = 1`; `back`/`elastic` may leave [0, 1] in between, which is overshoot by design). A law with `ease` other than `linear` MUST
@@ -736,48 +735,16 @@ Ribbon fields (no hidden default, 2.0b):
   (`max_life_ticks`, server config, default 1200) applies even to `for: cast`.
 - Every spawned entity carries the PDC tag `astera:cast=<uuid>`; at boot and on chunk load a sweeper removes tagged entities with no live owner.
 - `remove: [ids]` stays for early ends; it is never the only end.
-- **Converter carries the v1 end (patch on wp/se-streak, `bea1b2641`, added a remove by hand because the converter read `end_tick` but
-  dropped it for plates):** `for = end_tick - start_tick`; an element WITHOUT `end_tick` takes the v1 effect's `duration - start_tick`
-  (v1 despawned the whole effect at its duration). The converter FAILS (does not warn) when it cannot determine an end.
 - Content known or suspected to rely on a missing end, to be confirmed by the load-time check on first run of this schema (not yet audited by
   capture): `couture-rapier-s2` coin 1 streaks (confirmed by founder); `bastion-greatsword-def` `bastion-rim`/`crest` (5 plates, one remove at
   tick 162 while the v1 elements live 71-99 ticks); `orrery-s2` orb/impact/glint (plates `impact_violet_flash`, `impact_long_violet_flash`, annulus
   removed only by event handlers that fire on hit; staff trails, emitter light removed at fixed ticks).
 
-### 6. Converter strategy (`tools/skill-convert`) - RETIRED in rev4
+### 6. Migration (no converter)
 
-Founder 2026-10-29 (memory `project_skill_engine_v3_decisions`): the converter is retired; the kept Limbus skills (`bastion-greatsword-*` x4,
-`couture-rapier-*` x5) and every basic skill are **hand-written in v3**, one migration package each (work-breakdown wave 2). The rules below are
-kept as the reading guide for v1 tracks (what a run of keys means as a law) and as the spec of what the hand migration must preserve
-(R6 gravity, R8 explicit `linear`, R10 particle 1:1, R12 explicit non-defaults). `tools/skill-convert` is deleted with the v2 purge; `expand`
-moves to `astera skill expand` (11.3).
-
-Input v1 vfx element tracks: per-key `offset`, `rotation` (Euler yaw/pitch/roll in the v1/0301 convention `Ry(-yaw) Rx(pitch) Rz(roll)`), `scale`.
-Output laws first, keys last.
-
-| # | rule |
-|---|---|
-| R1 | Unwrap each Euler channel (309, 349, 509 are continuous), convert keys to quaternions, then process per channel (rotation, offset, scale) independently. |
-| R2 | Per consecutive key pair compute the segment. **Two keys are a single segment = one constant-rate law by definition.** |
-| R3 | Adjacent segments merge when rate is within 1% (or 0.5 deg/tick; 0.005 blocks/tick) and, for rotation, the axis is within 1 degree. |
-| R4 | Rotation run -> `spin {axis, deg_per_tick, at, for}`; offset run -> `move {velocity, at, for}`; scale run -> `grow {per_tick, at, for}`. Non-zero starting values become the object's static `rotate`/`offset`/`size`. |
-| R5 | Axis snapping: a rotation axis within 5 degrees of an object/anchor axis uses that name (sprite roll is `face`); otherwise `{in: <anchor>, vec: {...}}`. |
-| R6 | A run of constant second difference in the world-up direction -> `move` with `gravity`; otherwise not merged. |
-| R7 | Everything that remains -> `keys` with named-axis `pose` lists (rotation as one `{axis, deg}` from rest, snapped by R5) and name-keyed offsets. Never Euler triples. |
-| R8 | v1 `ease` stays on the law/key segment as `ease`, written with the full name (`in` -> `in_quad`, `out` -> `out_quad`); a segment with no v1 ease gets `linear` explicitly. A v1 sampled curve that matches a standard ease within the error budget is recognised and written as `ease:` (otherwise it stays `keys`). |
-| R9 | Generated point frames (`pt_caster_0_m0p2_1`) become inline `{at, offset: {...}}` on the object; no synthetic frame ids. `like: contact` hit anchors default to the contact point (RC6). |
-| R10 | v1 particle parts map 1:1 to `particle` (count, offset, extra, data, count 0 included). No default sphere, no `vanilla` flag. |
-| R11 | Sprite sizes are written as `size` in blocks from the v1 plan and the sprite file's `px`; no x5, no frame-distance factor. |
-| R14 | **v1 parts map to states**: each v1 timeline group becomes a state (`for` = distance to the next group's `at`, `then` = the next state); `window`+`do` becomes a state with a `hurt` transition; `delay` becomes a state or an `{after}` transition; event handlers (`hit`, `block`, `expire`, `reel`, `arrive`) become transitions with the handler ops as transition `do`/target `enter`. Sequences like coin1 -> raise -> flight -> stuck -> reel -> coin3 become a linear machine plus event transitions. |
-| R15 | **Part extraction**: when the converter finds the same op-subgraph (after frame renaming) in two or more skills (guard windows, dashes, projectile + block handler), it emits it once to `content/skill-parts/*.gen.yaml` and replaces the sites with `use:`. Parameters are the values that differ; none is defaulted: every parameter is `required`. A part that cannot be proven identical is NOT extracted (kept inline; no fuzzy matching). |
-| R17 | The converter emits only the declarative form (`at`/`for`/`every`); it never writes `seq:`. After conversion it runs `expand` and stores the table next to the skill for review. |
-| R16 | **Lint closes the loop**: the converted machine must pass the static checks of 10.4 (the converter fails, not warns, on an unterminated state or an unowned display). |
-| R12 | `end_tick` becomes `for` (section 5); v1 `start_tick` becomes `at`, v1 loops (`every`/`for`) become the same fields on the op, and v1 non-default values such as `fade_power: 1.5` are written explicitly (2.0b). |
-| R13 | **The PROTECTED set is dropped.** Hand edits live in a `kind: Patch` document keyed by `id` (0301 composition); the converter writes only `*.gen.yaml`, so re-conversion never touches hand-written files and nothing needs to be skipped. |
-
-Worked check (coin 1 petal 0): offset forward 1.68 -> 1.88 over 1 tick, then -> 3.52 over 4 ticks => `move 0.2/tick` for 1 tick then `move 0.41/tick`
-for 4; roll 309 -> 349 -> 509 => `spin face 40` for 5 ticks (rate equal in both segments, merged by R3, start 309 static); scale 0.026 -> 0.064 -> 0.045 =>
-`grow +0.038` for 1 tick then `grow -0.0048/tick` for 4. The petal goes from 12 numbers to 4 laws.
+Founder 2026-10-29 (memory `project_skill_engine_v3_decisions`): no converter. The kept Limbus skills (`bastion-greatsword-*` x4,
+`couture-rapier-*` x5) and every basic skill are **hand-written in v3** from their beat sheet, one migration package each (work-breakdown
+wave 2). A v1 or v2 file is not an input: it is re-authored, and a file on another `apiVersion` fails to load.
 
 ### 7. Examples
 
@@ -809,7 +776,7 @@ the error named in its first comment line (A8).** An example that stops loading 
 
 ### 8. Old field -> new field -> vanilla argument
 
-| old (0301 / converter) | new | vanilla argument |
+| old (0301 / v1) | new | vanilla argument |
 |---|---|---|
 | `mesh {frame, item, part, scale, pivot, rest, tilt}` | `display {kind: item, at, item, context, rotate, translation, scale}` | `ItemDisplay` item_model + `item_display` context + Transformation |
 | `plate {parent, face, sprite, size_frac, alpha}` | `display {kind: sprite, at, sprite, size, billboard, fade}` | `TextDisplay` glyph + scale + billboard + text_opacity |
@@ -830,7 +797,7 @@ the error named in its first comment line (A8).** An example that stops loading 
 | world-teleported "attached" mesh | `mount: caster` | passenger |
 | `size_frac` (x parent frame distance), glyph x5 | `size` in blocks | `scale` |
 | timeline group `every` loops, separate `sound every`, `emit spacing` loops, `at` + `until` scattered | the one timing block `at / for / every / times / until / lasts` on every op | n/a |
-| `fade` default 1.0 (v1 `fade_power` 1.5) | `fade.exponent` identity 1.0, converter writes 1.5 explicitly | n/a |
+| `fade` default 1.0 (v1 `fade_power` 1.5) | `fade.exponent` identity 1.0, a 1.5 is written explicitly | n/a |
 | `projectile {block_mode, stick_ticks, restitution, max_bounces, max_ticks, from}` | `projectile {origin, velocity, speed, range/for, radius, hit, motion, block: {mode, for, restitution, times}, on: {hit, bounce, stick, unstick, block, end}}` (3.6) | n/a (gameplay) |
 | `loop {count, every_ticks, do}`, `delay {after, do}`, `schedule`, timeline group as default block | nested timing group `{at, every, for, times, until, lasts, do}` with per-level `i`/`n`, `parent.i` (2.0a) | n/a |
 | `cancel` / `finishNow` from code, `lock`/`unlock` movement ops | `cancel {scope}` and `lock {move, pitch, for}` ops (10.6) | n/a |
@@ -1149,7 +1116,7 @@ path lengths are exact integers from S/T values, events' windows and horizons al
 Both expand to the **identical table**. A check enforces it: the content lint (and a game-sim scenario) takes every `seq:` and asserts that the declarative form it
 desugars to produces the same table as the `seq:` itself, tick for tick; a mismatch fails the load. Example h shows one effect written both ways with the same expanded table.
 
-**Recommendation for content: the declarative form by default.** Reasons: (1) cadence and extent are readable in one place ("every 4 ticks for 24"), where the imperative form spreads them across `wait`s; (2) edits are local (change `every: 4` to `3`), where an imperative edit changes every later tick; (3) it expands by arithmetic, with no order dependence, so the lint can compare and diff tables; (4) it is what the converter emits and the laws use. Use `seq:` only for a short one-off sequence of distinct beats where each step differs (for example hit-stop, then flash, then sound) and the count is 2-4.
+**Recommendation for content: the declarative form by default.** Reasons: (1) cadence and extent are readable in one place ("every 4 ticks for 24"), where the imperative form spreads them across `wait`s; (2) edits are local (change `every: 4` to `3`), where an imperative edit changes every later tick; (3) it expands by arithmetic, with no order dependence, so the lint can compare and diff tables. Use `seq:` only for a short one-off sequence of distinct beats where each step differs (for example hit-stop, then flash, then sound) and the count is 2-4.
 
 #### 11.2 Static check 8 and what the table also gives
 
@@ -1285,7 +1252,7 @@ Every port call takes `cast: CastRef(castId, caster, world)` as its first parame
   default 0.3 sphere) are removed rather than guarded.
 
 ### Negative / Trade-offs
-- Breaking change to every converted skill and to the presentation half of 0301 (accepted: pre-release posture, no shims).
+- Breaking change to every skill written before rev4 and to the presentation half of 0301 (accepted: pre-release posture, no shims).
 - Pivot-offset rotation and gravity arcs cost more writes than constant rates; reactive laws cost one per step.
 - The passenger attachment height and heading behaviour of mounted displays are calibrated, not derived; they need a real-client capture.
 - CEL in every field makes the write count data-dependent; the lint prints it and warns above one write per tick per object.
@@ -1352,19 +1319,6 @@ Resolved (not founder decisions; engine facts, rev3/rev4):
 | Q5 | couture `absorb` (example e) | transition `absorb: true` | `modify_attribute resist.physical` | example e (also option C: a `parry {for, scale: 0}` op) |
 | Q6 | coin1 delay | handler `at: 1` | `hit` gets `damage_delay: 1` | example a / g |
 | Q7 | screen ops | **RESOLVED 2026-10-29: A.** `screen_flash` / `screen_veil` revived as presentation ops (10.1b, rev4.7) | (was: drop them) | 10.1b |
-
-## v1 presentation parity additions (2026-10-28)
-
-Added so the converter can express v1 presentation without dropping it (each maps 1:1 to a vanilla Display / `spawnParticle` field):
-
-- `block` op: `parent`, `block`, `size` (number | `[a,b,c]` | expr), `at`, `turn`, `brightness`, `times`/`every`/`life`.
-- `quad` / `plate`: `brightness`, repeat (`times`/`every`/`life`, with CEL `i` / `n`); `quad` `text`, `shadow`, `see_through`.
-- `emit`: repeat with `i`/`n`, `shift` (an offset in the `at` frame's axes, per copy), expression `offset`.
-- `track` key: `alpha`, `color` (`#rrggbb`), `block` swap, and the full v1 ease set (31 names).
-- `stop_sound` op (decoder, executor, Paper gateway); `screen_flash` / `screen_veil` done in rev4.7.
-- Converter bakes (no engine field): formation / count / reverse / stagger / slot lifetime become `times` + per-copy `at`/`turn` tables and
-  per-copy tracks; jitter becomes `rand('<stream>')`; oscillate and group keyframes become dense absolute track keys; ring particle
-  animations become one `emit` per period tick with `times: points` and a `shift` table (random phase fixed per instance).
 
 ## Skin rig (SKL-17)
 
