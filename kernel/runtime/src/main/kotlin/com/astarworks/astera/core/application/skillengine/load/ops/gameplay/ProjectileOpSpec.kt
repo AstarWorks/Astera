@@ -25,7 +25,6 @@ import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
 import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
 import com.astarworks.astera.core.domain.Result
-import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ParticlePlacement
 import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.model.Value
@@ -329,11 +328,13 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                     is Result.Failure -> return r
                     is Result.Success -> r.value
                 }
-                val live = when (val r = ParticlePlacement.base(lc, op.origin, "projectile")) {
+                val base = when (val r = ParticlePlacement.base(lc, op.origin, "projectile")) {
                     is Result.Failure -> return r
-                    is Result.Success -> r.value?.live ?: return bad("origin '${op.origin}' is not declared in this scope")
+                    is Result.Success -> r.value ?: return bad("origin '${op.origin}' is not declared in this scope")
                 }
-                originRotation = Val.Live("anchor:$live.rotation", null)
+                // the shot's aim is the rotation of the anchor's parent frame; a `point(frame, 'name')` parent reads as the cell `frame.name`
+                val frameName = Regex("^point\\((.+), '(.+)'\\)$").matchEntire(base.frame)?.let { "${it.groupValues[1]}.${it.groupValues[2]}" } ?: base.frame
+                originRotation = Val.Live("anchor:$frameName", null)
             } else {
                 if (anchor == null) {
                     // not an instance and not a document anchor: it must be a builtin (`caster`, `contact`, ...); an undeclared name would only fail at the first cast
