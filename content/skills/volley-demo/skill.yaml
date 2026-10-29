@@ -17,7 +17,7 @@ let:
   petals: 6
   petal_step: "= 360 / petals"
 anchors:
-  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.6}}
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.6}, mode: follow}
 
 # one skill-local fragment, called from the ball's on.hit (the handler's victim / contact are visible to the rows)
 fragments:
