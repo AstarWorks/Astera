@@ -1,0 +1,20 @@
+# Point table for the knight-sword-t4 (same geometry, display and points as knight-sword; only the steel tint differs) (frame and chain as content/frames/couture-rapier.yaml).
+# content/models/items/knight-sword.model.json (117 elements, model +Y = blade direction, +X = broad-face side):
+#   grip = centre of the leather grip (8,4.5,8) = pivot; root = blade base at y=9; tip = blade tip at y=26.52; long = model +Y; edge = model +X; length = pommel bottom y=0.05 to tip.
+# held_hand = the same elements under the model's thirdperson_righthand display, the transform the rig's main-hand mesh draws with; hand_anchor = model centre (8,8,8).
+apiVersion: astera/v3
+kind: ItemFrames
+item: knight-sword-t4
+parts:
+  held:
+    model: astera:knight-sword-t4
+    display: fixed
+    length: 1.2325
+    points: { grip: [-0.246, -0.361, 0.0726], pivot: [-0.246, -0.361, 0.0726], root: [-0.1258, -0.1893, 0.0726], tip: [0.3421, 0.4789, 0.0726] }
+    axes: { long: [0.5736, 0.8192, 0.0], edge: [0.8192, -0.5736, 0.0] }
+  held_hand:
+    model: astera:knight-sword-t4
+    display: thirdperson_righthand
+    length: 1.2407
+    points: { grip: [-0.0, 0.0, 0.0], pivot: [-0.0, 0.0, 0.0], root: [0.0, 0.1728, -0.121], tip: [0.0, 0.8455, -0.592], hand_anchor: [0.0, 0.1344, -0.0941] }
+    axes: { long: [0.0, 0.8192, -0.5736], edge: [0.0, -0.5736, -0.8192] }

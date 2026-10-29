@@ -1,3 +1,5 @@
+# Wind-up W = 3 ticks (round_half_up(5 / attack_speed 1.6)): the spear is drawn back, the thrust hits at tick 3, the cast ends one tick later.
+# The rig is the tip's travel (back -> straight forward, edge leading); rig, trail and spark are detach: true.
 apiVersion: astera/v3
 kind: Skill
 id: spear-thrust
@@ -17,26 +19,53 @@ anchors:
   - {id: stab_pt, anchor: caster, offset: {up: -0.2, forward: 1.4}, mode: follow}
   - {id: heart, anchor: victim.center, mode: follow}
 machine:
-  start: swing
+  start: cast
+  tail: 9
   states:
-    swing:
-      for: 1
-      then: end
+    cast:
+      start: windup
+      on:
+        - {event: end, to: done}
       do:
-        - id: swing
-          op: hit
-          at: 0
-          anchor: caster.eye
-          shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
-          targets: enemies
-          ignore_invulnerability: false
-          damage: {physical: "${dmg_physical}"}
-          window: once
-          on:
-            hit:
-              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster))", strength: "${knockback}"}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
-        - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 1.0, pitch: 1.5}
-        - {id: fx, op: particle_def, def: stab-spark, anchor: stab_pt}
-    end: {final: true}
+        - id: rig
+          op: rig
+          parent: caster
+          mount: caster.hand_r
+          part: held_hand
+          rest: [{axis: left, deg: 72}]
+          for: 12
+          detach: true
+          swing:
+            - {at: 0, for: 3, from: {left: 0.1, up: 0.1, forward: 0.95}, to: {left: -0.2, up: -0.3, forward: 0.4}, edge: trailing, ease: in_out_sine}
+            - {at: 3, for: 3, to: {left: 0.0, up: 0.0, forward: 1.0}, edge: leading, ease: out_cubic}
+            - {at: 6, for: 6, to: {left: -0.1, up: 0.25, forward: 0.9}, edge: trailing, ease: in_out_sine}
+        - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 1.0, pitch: 1.5, at: 3, detach: true}
+        - {id: fx, op: particle_def, def: stab-spark, anchor: stab_pt, at: 3, detach: true}
+        - id: trail
+          op: group
+          at: 2
+          detach: true
+          do:
+            - {id: trail_fx, op: particle, particle: crit, anchor: {of: rig.root, to: rig.tip, samples: 6}, count: 1, extra: 0.03, every: 1, for: 7}
+      states:
+        windup: {for: 3, then: strike}
+        strike:
+          for: 1
+          then: recover
+          enter:
+            - id: swing
+              op: hit
+              at: 0
+              anchor: caster.eye
+              shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
+              targets: enemies
+              ignore_invulnerability: false
+              damage: {physical: "${dmg_physical}"}
+              window: once
+              on:
+                hit:
+                  - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster))", strength: "${knockback}"}
+                  - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2, detach: true}
+                  - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
+        recover: {final: true}
+    done: {final: true}

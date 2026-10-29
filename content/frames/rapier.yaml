@@ -1,0 +1,20 @@
+# Point table for the rapier (frame and chain as content/frames/dagger.yaml).
+# content/models/items/rapier.model.json (36 elements, model +Y = blade direction, +X = blade edge side): Slender thrusting blade with swept cup/knuckle-bow hilt (bow on -Z so it never crosses the edge side); +X = blade edge.
+# grip = hold point [8, 4.5, 8] = pivot; root = blade base [8, 9.5, 8]; tip = blade tip [8, 28.8, 8]; long = root->tip; edge = model +X; length = -1.4 (lowest point) to tip.
+# held_hand = the same elements under the model's thirdperson_righthand display, the transform the rig's main-hand mesh draws with; hand_anchor = model centre (8,8,8).
+apiVersion: astera/v3
+kind: ItemFrames
+item: rapier
+parts:
+  held:
+    model: astera:rapier
+    display: fixed
+    length: 1.4
+    points: { grip: [-0.2526, -0.3607, -0.0], pivot: [-0.2526, -0.3607, -0.0], root: [-0.1196, -0.1709, 0.0], tip: [0.3935, 0.562, 0.0] }
+    axes: { long: [0.5736, 0.8192, 0.0], edge: [0.8192, -0.5736, 0.0] }
+  held_hand:
+    model: astera:rapier
+    display: thirdperson_righthand
+    length: 1.4156
+    points: { grip: [0.0, 0.0, 0.0], pivot: [0.0, 0.0, 0.0], root: [0.0, 0.192, -0.1344], tip: [0.0, 0.9331, -0.6533], hand_anchor: [0.0, 0.1344, -0.0941] }
+    axes: { long: [0.0, 0.8192, -0.5736], edge: [-0.0, -0.5736, -0.8192] }
