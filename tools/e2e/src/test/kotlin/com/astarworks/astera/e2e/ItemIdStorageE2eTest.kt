@@ -22,7 +22,7 @@ class ItemIdStorageE2eTest : E2eBase() {
         fun pickaxe(): String = rcon("data get entity $name Inventory[{id:\"minecraft:diamond_pickaxe\"}].components.\"minecraft:tooltip_style\"")
         first.waitUntil(5_000) { pickaxe().contains("astera:rare") }
         // Stale derived data on the live stack: only the item id and the PDC remain truthful.
-        rcon("item modify entity $name hotbar.0 {function:\"minecraft:set_components\",components:{\"minecraft:tooltip_style\":\"minecraft:wrong\",\"minecraft:custom_name\":\"stale\"}}")
+        rcon("item modify entity $name hotbar.0 {type:\"minecraft:set_components\",components:{\"minecraft:tooltip_style\":\"minecraft:wrong\",\"minecraft:custom_name\":\"stale\"}}")
         assertThat(pickaxe()).contains("minecraft:wrong")
 
         first.close()
