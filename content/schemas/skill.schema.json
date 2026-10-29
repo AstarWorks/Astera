@@ -8447,7 +8447,7 @@
                                     "type": "null"
                                 }
                             ],
-                            "description": "line: start anchor",
+                            "description": "line: start anchor (a frame instance, or a live name: caster.eye, victim.center, from.center, a document anchor)",
                             "default": null
                         },
                         "to": {
@@ -8460,7 +8460,7 @@
                                     "type": "null"
                                 }
                             ],
-                            "description": "line: end anchor",
+                            "description": "line: end anchor (as from)",
                             "default": null
                         },
                         "thickness": {
