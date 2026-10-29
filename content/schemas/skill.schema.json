@@ -7749,6 +7749,26 @@
                             "description": "per-copy displacement of the emission point: {forward, up, left} in the anchor's axes, or a whole world vec; reads i, n, draw, roll",
                             "default": null
                         },
+                        "count": {
+                            "anyOf": [
+                                {
+                                    "oneOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string",
+                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "particles per emission (whole number >= 0; absent = the definition's own count); a literal, a param or an = expression over i / n",
+                            "default": null
+                        },
                         "at": {
                             "anyOf": [
                                 {
