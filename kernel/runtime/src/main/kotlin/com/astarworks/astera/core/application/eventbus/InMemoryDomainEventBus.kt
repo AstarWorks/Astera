@@ -38,7 +38,7 @@ public class InMemoryDomainEventBus : IDomainEventBus {
                     // One failing handler must never skip the handlers after it (a thrown MatchEnded handler once
                     // swallowed the result screen and the rewards): log loudly and carry on.
                     if (t is VirtualMachineError) throw t
-                    log.error("Event handler failed for {}; the remaining handlers still run", event::class.qualifiedName, t)
+                    log.error("Event handler {} failed for {}; the remaining handlers still run", entry.handler.javaClass.name, event::class.qualifiedName, t)
                 }
             }
         }

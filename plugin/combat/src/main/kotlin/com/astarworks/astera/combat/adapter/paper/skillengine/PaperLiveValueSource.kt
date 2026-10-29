@@ -236,16 +236,21 @@ public class PaperLiveValueSource(
 
     /**
      * The hit victim as a frame (`victim`, `victim.root`, `target`): yaw-only like the v2 `pt_enemy_*` anchors. A bare frame is the body centre,
-     * `feet` / `root` the feet, `eye` the eye; null when no victim is bound.
+     * `feet` / `root` the feet, `eye` the eye (the top for a non-living entity such as a crystal, interaction or display); null when no victim is bound or it is gone with no contact point.
      */
     private fun victimFrame(binding: EventBinding?, point: String?): Frame? {
         val id = binding?.victim?.id ?: return null
-        val e = server.getEntity(id) as? LivingEntity ?: return null
+        val e = server.getEntity(id)
+        if (e == null) {
+            // Gone by the time the row runs (an earlier `damage` row of the same hit killed and removed it): it stood where the hit landed.
+            val c = binding?.contact ?: return null
+            return Frame.fromYawPitch(Vec3(c.point.x, c.point.y, c.point.z), 0.0, 0.0)
+        }
         val loc = e.location
         val origin = when (point) {
             null, "body" -> Vec3(loc.x, loc.y + e.height / 2.0, loc.z)
             "feet", "root" -> Vec3(loc.x, loc.y, loc.z)
-            "eye" -> Vec3(loc.x, loc.y + e.eyeHeight, loc.z)
+            "eye" -> Vec3(loc.x, loc.y + ((e as? LivingEntity)?.eyeHeight ?: e.height), loc.z)
             else -> return null
         }
         return Frame.fromYawPitch(origin, loc.yaw.toDouble(), 0.0)
