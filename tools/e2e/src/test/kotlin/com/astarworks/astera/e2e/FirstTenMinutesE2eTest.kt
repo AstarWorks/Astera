@@ -149,7 +149,7 @@ class FirstTenMinutesE2eTest : PlaythroughBase() {
         assertThat(blue).hasSize(2)
 
         // --- 4. gun, sword, staff: one kill each climbs the Norma ladder ---------------------------------------------
-        // red[0] is the learner: kill 1 (gun) clears level 1, kills 2 (sword) and 3 (staff) clear level 2 and reach the top.
+        // red[0] is the learner: kill 1 (gun) clears level 1, kills 2 (sword) and 3 (staff) clear level 2 and reach the top; each clear is banked by `astera norma check` at the own base.
         val learner = red[0]
         val victims = listOf(blue[0], blue[1], blue[0])
         val kinds = listOf("gun", "sword", "staff")
@@ -157,6 +157,8 @@ class FirstTenMinutesE2eTest : PlaythroughBase() {
         val castSound = listOf("astera:weapons/gun-shot", "astera:weapons/sword-swing", "astera:skill/wand/cast")
         val upLevels = intArrayOf(2, 2, 3)
         val duelNotes = mutableListOf<String>()
+        // The level rises only at the Norma check in the player's own base: after the goal-clearing kills (1st and 3rd) go home and run it.
+        val home = localPosOf(learner)
 
         for (i in 0..2) {
             val victim = victims[i]
@@ -194,6 +196,11 @@ class FirstTenMinutesE2eTest : PlaythroughBase() {
                 victim.waitUntil(5_000) { victim.deaths.isNotEmpty() }
             } else if (!killed) {
                 rcon("damage ${victim.name} 1000 minecraft:magic by ${learner.name}")
+            }
+            if (i == 0 || i == 2) {
+                tpArena(learner.name, home?.first ?: -30.0, home?.second ?: 65.0, home?.third ?: 0.0, 0f, 0f)
+                Thread.sleep(800)
+                learner.command("astera norma check")
             }
             if (i < 2) {
                 // Level 2 needs two kills from here (goal 2): after kill 2 the player is still on level 2, so only kill 1 announces a level.

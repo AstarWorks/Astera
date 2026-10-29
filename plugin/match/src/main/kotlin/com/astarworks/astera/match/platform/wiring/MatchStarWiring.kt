@@ -184,7 +184,7 @@ internal object MatchStarWiring {
             )
         }
         // Command teleports raise no move event: a short poll covers them and redraws the drop markers.
-        env.scheduledTasks += env.scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 10L, periodTicks = 10L) { drops.poll() }
+        env.scheduledTasks += env.scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 10L, periodTicks = 10L) { drops.poll(); norma.autoCheckReady() }
         return Wired(store, registry, env.stages, norma, drops, configOf)
     }
 }

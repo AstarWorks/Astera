@@ -22,7 +22,7 @@ defaults:
   # (`/astera norma choose star|kill`, STAR by default): carry norma_stars_goal[level] stars (not consumed) or make
   # norma_kills_goal[level] kills at that level. Lists are indexed by the level being cleared.
   # Meeting the goal only makes the player READY (action bar + sidebar); the level rises at the Norma check
-  # (`/astera norma check`) run inside the OWN team's base while the goal still holds (stars lost on a death un-ready).
+  # (automatic on standing in the OWN team base while ready; `/astera norma check` for bots/tests) while the goal still holds (stars lost on a death un-ready).
   # Pace (docs/game-design/stars-and-norma.md "Pace"): every generator pops 5 stars per 20 s (15/min; 4 generators = 60/min
   # on the stage). The best collector of a 4v4 lane nets ~14/min, so 100 stars lands ~7 min into the 10 min limit;
   # a 2v2 lane is faster (~5.5 min).

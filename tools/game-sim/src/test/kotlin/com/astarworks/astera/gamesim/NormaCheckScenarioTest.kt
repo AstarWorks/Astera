@@ -32,7 +32,9 @@ class NormaCheckScenarioTest {
             val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"))
             val stars = sim.services.getOrThrow<IMatchStarStore>()
             val norma = sim.services.getOrThrow<IMatchNormaStore>()
-            walkToBase(matchId, red, TeamId("red"))
+            // Away from every base first, so the auto-check cannot fire while the goal is met.
+            red.moveTo(baseCentre(matchId, TeamId("red")).copy(y = 200.0))
+            advance(2)
 
             // Goal met: no level yet, a ready notice goes out once.
             stars.add(matchId, red.id, 10)
@@ -42,31 +44,28 @@ class NormaCheckScenarioTest {
             assertThat(eventsOf<NormaLevelUp>().filter { it.playerId == red.id }).isEmpty()
             assertThat(eventsOf<NormaCheckReady>().filter { it.playerId == red.id }).hasSize(1)
 
-            // Enemy base: refused.
-            walkToBase(matchId, red, TeamId("blue"))
-            assertThat(sim.failureKey("red-1")).isEqualTo("astera.match.norma-check.enemy-base")
-            // Neither base (the stage centre / far away): refused.
-            red.moveTo(baseCentre(matchId, TeamId("red")).copy(y = 200.0))
-            advance(2)
+            // Neither base (far away): refused.
             assertThat(sim.failureKey("red-1")).isEqualTo("astera.match.norma-check.not-at-base")
+            // Enemy base: refused, and standing there for a while does not level up either.
+            walkToBase(matchId, red, TeamId("blue"))
+            advance(25)
+            assertThat(sim.failureKey("red-1")).isEqualTo("astera.match.norma-check.enemy-base")
             assertThat(norma.get(matchId, red.id).level).isEqualTo(1)
 
-            // Own base, but the stars were lost (died): no longer ready, the shortfall is reported.
-            walkToBase(matchId, red, TeamId("red"))
+            // Stars lost (died) while away: no longer ready; at the own base the shortfall is reported.
             stars.spend(matchId, red.id, 4)
+            walkToBase(matchId, red, TeamId("red"))
             val run = sim.command("red-1", "norma check")
             val failure = (run.outcome as CommandTreeRunner.Outcome.Executed).result as CommandResult.Failure
             assertThat(failure.messageKey.value).isEqualTo("astera.match.norma-check.not-ready-star")
             assertThat(failure.placeholders["missing"]).isEqualTo("4")
             assertThat(norma.get(matchId, red.id).level).isEqualTo(1)
 
-            // Back above the goal, the notice fires again; the check at the own base now levels up (stars are kept).
+            // Back above the goal, the notice fires again; standing in the own base, the check runs by itself (stars are kept).
             stars.add(matchId, red.id, 4)
             sim.eventBus.publish(StarsCollected(matchId, red.id, 4, stars.get(matchId, red.id)))
-            advance(2)
+            advance(25)
             assertThat(eventsOf<NormaCheckReady>().filter { it.playerId == red.id }).hasSize(2)
-            assertThat(sim.command("red-1", "norma check").succeeded).isTrue()
-            advance(2)
             assertThat(norma.get(matchId, red.id).level).isEqualTo(2)
             assertThat(eventsOf<NormaLevelUp>().filter { it.playerId == red.id }.map { it.level }).containsExactly(2)
             assertThat(stars.get(matchId, red.id)).`as`("stars are not consumed").isEqualTo(10)

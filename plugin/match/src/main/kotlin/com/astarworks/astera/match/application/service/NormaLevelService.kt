@@ -99,6 +99,24 @@ public class NormaLevelService(
         return Result.success(up)
     }
 
+    /**
+     * Players who met their goal and still owe the check. Polled by [autoCheckReady]: walking into the own base zone while
+     * ready runs the check by itself (the command stays for bots and tests).
+     */
+    private val awaitingCheck: MutableSet<PlayerId> = java.util.concurrent.ConcurrentHashMap.newKeySet()
+
+    /** Runs the Norma check for every ready player standing in their own base; the rest stay queued, dead ends drop out. */
+    public fun autoCheckReady() {
+        for (id in awaitingCheck.toList()) {
+            val err = (check(id) as? Result.Failure)?.error
+            when (err) {
+                null, is NormaCheckError.NotReady, NormaCheckError.NotInMatch, NormaCheckError.ModeHasNoNorma,
+                NormaCheckError.MatchNotRunning, NormaCheckError.AtMaxLevel -> awaitingCheck.remove(id)
+                NormaCheckError.EnemyBase, NormaCheckError.NotAtBase -> Unit
+            }
+        }
+    }
+
     /** The sidebar block of [playerId], or `null` outside a live Norma match. */
     public fun hudOf(playerId: PlayerId): NormaHud? {
         val match = matches.findMatchOf(playerId)?.takeIf { isNorma(it.id) } ?: return null
@@ -168,6 +186,7 @@ public class NormaLevelService(
         if (p.level >= cfg.maxLevel || p.readyNotified) return
         if (shortfall(match, p, playerId, cfg) > 0) return
         norma.put(match.id, playerId, p.copy(readyNotified = true))
+        awaitingCheck += playerId
         eventBus.publish(NormaCheckReady(match.id, playerId, p.level))
     }
 

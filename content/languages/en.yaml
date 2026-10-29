@@ -2730,7 +2730,7 @@ astera:
   match.hint.respawn: "<gray>You respawn in seconds. Press <white>F</white> for the menu</gray>"
   match.hint.norma-rank: "<gray>Higher levels unlock new skills and ultimates (max Lv {max}). Levels never decide the match</gray>"
   match.hint.time: "<gray>Time limit: {minutes} min</gray>"
-  match.hint.norma-check-ready: "<green><bold>Norma goal met!</bold></green> <gray>Return to your base and run the check: <white>/astera norma check</white></gray>"
+  match.hint.norma-check-ready: "<green><bold>Norma goal met!</bold></green> <gray>Return to your base: the Norma check runs by itself <dark_gray>(or <white>/astera norma check</white>)</dark_gray></gray>"
   match.hint.norma-choice-star: "<gray>Next goal: hold <gold>★ {target}</gold>. Change: <white>/astera norma choose kill</white></gray>"
   match.hint.norma-choice-kill: "<gray>Next goal: <red>⚔ {target} kills</red>. Change: <white>/astera norma choose star</white></gray>"
   match.summary.subtitle.time-draw: "<gray>Time up - tied</gray>"

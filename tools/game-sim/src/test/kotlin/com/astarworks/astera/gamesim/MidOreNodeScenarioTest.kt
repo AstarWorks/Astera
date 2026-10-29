@@ -128,12 +128,14 @@ class MidOreNodeScenarioTest {
             assertThat(sim.oreNodes.denied).contains(Triple(gold.x.toInt(), 65, gold.z.toInt()))
             assertThat(sim.oreNodes.crackAt(gold.x.toInt(), 65, gold.z.toInt())).isNull()
 
-            // Ten stars clear level 1 (STAR goal): gold opens, with the level-2 speed multiplier (1.15 x 120 = 138 per iron-pickaxe hit).
+            // Ten stars + the base check clear level 1 (STAR goal): gold opens, with the level-2 speed multiplier (1.15 x 120 = 138 per iron-pickaxe hit).
             val bus = sim.services.getOrThrow<IDomainEventBus>()
             val stars = sim.services.getOrThrow<IMatchStarStore>()
             stars.add(matchId, red.id, 10)
             bus.publish(StarsCollected(matchId, red.id, 1, stars.get(matchId, red.id)))
             advance(5)
+            // Ready only: the level rises at the Norma check in the own base.
+            normaCheckAtHome(matchId, red) // the auto-check may already have banked it; the node below proves the level
             assertThat(nodes.mine(red.id, worldId, gold, ItemId("iron-pickaxe"))).isEqualTo(OreNodeService.Outcome.Hit(1062, 1200))
 
             // Emerald (level 4) is still locked at level 2.

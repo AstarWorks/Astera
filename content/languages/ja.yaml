@@ -2718,7 +2718,7 @@ astera:
   match.hint.respawn: "<gray>倒されても数秒で復活。<white>F</white> キーでメニューを開けます</gray>"
   match.hint.norma-rank: "<gray>レベルを上げると新しいスキルやアルティメットが解放される (最高 Lv {max})。レベルで勝敗は決まらない</gray>"
   match.hint.time: "<gray>制限時間は {minutes} 分です</gray>"
-  match.hint.norma-check-ready: "<green><bold>ノルマ達成！</bold></green> <gray>自拠点に戻ってチェックを: <white>/astera norma check</white></gray>"
+  match.hint.norma-check-ready: "<green><bold>ノルマ達成！</bold></green> <gray>自拠点に戻ると自動でチェックされます <dark_gray>(<white>/astera norma check</white> でも可)</dark_gray></gray>"
   match.hint.norma-choice-star: "<gray>次の目標: <gold>★ {target}個</gold> を持つ。変更: <white>/astera norma choose kill</white></gray>"
   match.hint.norma-choice-kill: "<gray>次の目標: <red>⚔ {target}キル</red>。変更: <white>/astera norma choose star</white></gray>"
   match.summary.subtitle.time-draw: "<gray>時間切れ - 同点</gray>"
