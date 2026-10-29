@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.adapter.paper.skillengine
 
+import com.astarworks.astera.combat.application.port.outbound.DamageOutcome
 import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
 import com.astarworks.astera.combat.application.port.outbound.IPlayerFeedbackGateway
@@ -86,8 +87,8 @@ public class PaperSkillGameplayGateway(
     override fun damage(
         skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3,
         ignoreInvulnerability: Boolean, ignoreArmor: Boolean,
-    ) {
-        if (components.isEmpty()) return
+    ): Boolean {
+        if (components.isEmpty()) return false
         val profile = DamageProfile(
             components.map { DamageComponent(base = NumericValue.Literal(it.amount), attribute = attributeOf(it.kind)) },
         )
@@ -109,6 +110,7 @@ public class PaperSkillGameplayGateway(
         )
         // A refused hit (immune, friendly fire, gateway failure) used to vanish; e2e could only see "no damage".
         if (result is Result.Failure) log.info("skill engine: damage by {} from {} on {} refused: {}", skillId, caster, victim, result.error)
+        return result is Result.Success && result.value is DamageOutcome.Killed
     }
 
     override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) {

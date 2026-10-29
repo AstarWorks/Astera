@@ -176,11 +176,13 @@ public interface ISkillGameplayGateway {
      * entry point: [ignoreInvulnerability] bypasses the victim's i-frames, [ignoreArmor] skips armor / resist reduction.
      * There are no convenience overloads on purpose: a gateway or test fake implements this one member, so a flag added
      * later cannot fall through a delegating no-op.
+     *
+     * Returns true when this damage killed [victim]: the player then skips every later `status` op on that victim (a corpse gets none).
      */
     public fun damage(
         skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3,
         ignoreInvulnerability: Boolean, ignoreArmor: Boolean,
-    )
+    ): Boolean
 
     /** Current stacks of [statusId] on [entity] (0 when the entity does not carry it). */
     public fun statusStacks(entity: UUID, statusId: String): Int

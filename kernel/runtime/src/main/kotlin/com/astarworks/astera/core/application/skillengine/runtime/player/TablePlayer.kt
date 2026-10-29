@@ -808,6 +808,11 @@ public class TablePlayer(
                 is Action.ParticleDef -> particleDef(run, row, a, ctx)
                 is Action.Set -> set(run, row, a, ctx, now, src)
                 is Action.Status -> for (v in ruleTargets(run, a.targets, ctx)) {
+                    // a victim this cast's damage already killed gets no status (named in the trace, never silently dropped)
+                    if (v in run.killed) {
+                        trace.statusSkippedDead(run.cursor.handle, row.instance, now, v)
+                        continue
+                    }
                     gameplay.applyStatus(run.request.caster, v, a.status, int(run, a.stacks, ctx), a.forTicks)
                 }
                 is Action.Effect -> effect(run, row, a, ctx, now, src)
@@ -1273,7 +1278,7 @@ public class TablePlayer(
             once += victim
             last[victim] = now
             val comps = amounts[n]
-            if (comps.isNotEmpty()) gameplay.damage(run.cursor.skill.def.id, caster, victim, comps, seen.getValue(victim).first, a.ignoreInvulnerability, false)
+            if (comps.isNotEmpty() && gameplay.damage(run.cursor.skill.def.id, caster, victim, comps, seen.getValue(victim).first, a.ignoreInvulnerability, false)) run.killed += victim
         }
         for ((v, b) in all) {
             if (v in absorbed) {
@@ -1547,7 +1552,7 @@ public class TablePlayer(
         val comps = a.components.map { c -> SkillDamage(c.attribute.name.lowercase(), liveAmount(run, c, ctx)) }
         for (v in ruleTargets(run, a.targets, ctx)) {
             val point = ctx.binding?.contact?.point?.let { Vec3(it.x, it.y, it.z) } ?: query.rootOf(castRef(run), v)?.feet ?: Vec3.ZERO
-            gameplay.damage(run.cursor.skill.def.id, run.request.caster, v, comps, point, false, false)
+            if (gameplay.damage(run.cursor.skill.def.id, run.request.caster, v, comps, point, false, false)) run.killed += v
         }
     }
 
@@ -2470,6 +2475,9 @@ public class TablePlayer(
         /** Frames and bodies that ended, frozen at their last pose: what a caller reads through a part's `frames_out` after the child is gone. */
         val finished = HashMap<InstanceId, Rec>()
         val pending = ArrayList<RuntimeEvent>()
+
+        /** Victims this cast's own damage killed: later `status` ops skip them. */
+        val killed = HashSet<UUID>()
         val external = ConcurrentLinkedQueue<RuntimeEvent>()
         val firings = HashMap<EventPath, Int>()
 

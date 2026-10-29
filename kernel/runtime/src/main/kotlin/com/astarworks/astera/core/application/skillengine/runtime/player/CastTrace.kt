@@ -33,6 +33,9 @@ public interface CastTrace {
     /** A `react player:` clip row did not play because [victim] is not a player (a mob plays the flinch / push / hold of the same `react` and no clip). */
     public fun reactClipSkipped(cast: CastHandle, op: InstanceId, tick: Int, victim: java.util.UUID?) {}
 
+    /** A `status` op did not apply to [victim] because this cast's damage already killed it. */
+    public fun statusSkippedDead(cast: CastHandle, op: InstanceId, tick: Int, victim: java.util.UUID?) {}
+
     public companion object {
         public val NONE: CastTrace = object : CastTrace {
             override fun enter(cast: CastHandle, state: StatePath, tick: Int) {}
