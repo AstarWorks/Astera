@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
  * ore generator, the free stone tool loan, Mid ore nodes (tier gate, drops, regrow), a pickaxe tool skill (break_area) and hand-mining speed.
  *
  * Stage-local coordinates (the compact debug-siege-isles copy the e2e image bakes): shop NPCs at (-70.5, 65, 7.5) red / (70.5, 65, 7.5) blue,
- * Mid iron node at (5, 65, 5) (STONE), gold node at (0, 65, 12) (IRON), red iron generator at (-81.5, 65, -6).
+ * Mid iron node at (7, 65, 7) (STONE; production ore-nodes/siege-isles*.yaml), gold node at (0, 65, 15) (IRON), red iron generator at (-81.5, 65, -6).
  */
 class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
 
@@ -171,38 +171,38 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
         // --- 5. Mid ore nodes ---------------------------------------------------------------------------------------------
         val ironBefore = count(a, "iron_ingot")
         E2eReport.check(suite, "the Mid iron ore node exists at match start", "RCON execute if block") {
-            assertThat(arenaBlockIs(5, 65, 5, "minecraft:iron_ore")).describedAs("no iron_ore at stage-local (5,65,5)").isTrue()
-            "iron_ore at (5,65,5)"
+            assertThat(arenaBlockIs(7, 65, 7, "minecraft:iron_ore")).describedAs("no iron_ore at stage-local (7,65,7)").isTrue()
+            "iron_ore at (7,65,7)"
         }
         E2eReport.check(suite, "mining the gold node with a stone pickaxe is refused with a hint and the block stays", "ClientboundSetActionBar + block") {
             selectTool(a, "stone_pickaxe")
-            tpArena(a.name, 0.5, 65.0, 10.5, 0f, 0f)
+            tpArena(a.name, 0.5, 65.0, 13.5, 0f, 0f)
             Thread.sleep(1_500)
             val barsFrom = a.actionBars.size
             val goldBefore = count(a, "gold_ingot")
-            a.dig(0 + originX, 65, 12 + originZ)
+            a.dig(0 + originX, 65, 15 + originZ)
             Thread.sleep(800)
             val bars = a.actionBars.drop(barsFrom).map { clean(it.text) }
             assertThat(bars.any { it.contains("pickaxe") }).describedAs("no tier hint on the action bar; bars=$bars").isTrue()
             assertThat(count(a, "gold_ingot")).describedAs("gold ore was given anyway").isEqualTo(goldBefore)
-            assertThat(arenaBlockIs(0, 65, 12, "minecraft:gold_ore")).describedAs("gold node was removed").isTrue()
+            assertThat(arenaBlockIs(0, 65, 15, "minecraft:gold_ore")).describedAs("gold node was removed").isTrue()
             "bars=$bars"
         }
         E2eReport.check(suite, "mining the iron node with a stone pickaxe gives 2 iron ore (after two hits) and turns it into cobblestone", "RCON clear + block") {
             selectTool(a, "stone_pickaxe")
-            tpArena(a.name, 5.5, 65.0, 3.5, 0f, 0f)
+            tpArena(a.name, 7.5, 65.0, 5.5, 0f, 0f)
             Thread.sleep(1_500)
             // an ore node has HP (ore-iron-node base_durability 200; stone pickaxe hit 100): the first swing cracks it, the second mines it (b01e628be)
-            a.dig(5 + originX, 65, 5 + originZ)
+            a.dig(7 + originX, 65, 7 + originZ)
             Thread.sleep(1_500)
-            assertThat(arenaBlockIs(5, 65, 5, "minecraft:iron_ore")).describedAs("one stone-pickaxe hit already mined the 200-HP node").isTrue()
-            a.dig(5 + originX, 65, 5 + originZ)
+            assertThat(arenaBlockIs(7, 65, 7, "minecraft:iron_ore")).describedAs("one stone-pickaxe hit already mined the 200-HP node").isTrue()
+            a.dig(7 + originX, 65, 7 + originZ)
             val got = a.waitUntil(4_000) { count(a, "iron_ingot") > ironBefore }
             Thread.sleep(500)
             assertThat(got).describedAs("no ore item arrived; iron=${count(a, "iron_ingot")} (before $ironBefore); chat=${a.chatTexts().takeLast(3)}").isTrue()
             assertThat(count(a, "iron_ingot") - ironBefore).describedAs("drop count").isEqualTo(2)
-            assertThat(arenaBlockIs(5, 65, 5, "minecraft:cobblestone")).describedAs("node did not turn into cobblestone; now ${clean(inArena("run data get block ${5 + originX} 65 ${5 + originZ} id"))}").isTrue()
-            "iron +${count(a, "iron_ingot") - ironBefore}; block now ${clean(inArena("run data get block ${5 + originX} 65 ${5 + originZ} id"))}"
+            assertThat(arenaBlockIs(7, 65, 7, "minecraft:cobblestone")).describedAs("node did not turn into cobblestone; now ${clean(inArena("run data get block ${7 + originX} 65 ${7 + originZ} id"))}").isTrue()
+            "iron +${count(a, "iron_ingot") - ironBefore}; block now ${clean(inArena("run data get block ${7 + originX} 65 ${7 + originZ} id"))}"
         }
         E2eReport.check(suite, "the iron node regrows after its regrow time (20 s)", "RCON execute if block") {
             var back = false
@@ -211,29 +211,29 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
                 keep.forEach { it.nudge() }
                 a.nudge()
                 Thread.sleep(1_000)
-                back = arenaBlockIs(5, 65, 5, "minecraft:iron_ore")
+                back = arenaBlockIs(7, 65, 7, "minecraft:iron_ore")
             }
             assertThat(back).describedAs("iron_ore did not return within 45s").isTrue()
             "node back"
         }
         E2eReport.check(suite, "the regrown iron node can be mined again: ore, cobblestone, ore, mined (second cycle)", "RCON clear + block") {
             selectTool(a, "stone_pickaxe")
-            tpArena(a.name, 5.5, 65.0, 3.5, 0f, 0f)
+            tpArena(a.name, 7.5, 65.0, 5.5, 0f, 0f)
             Thread.sleep(1_000)
             val before = count(a, "iron_ingot")
-            a.dig(5 + originX, 65, 5 + originZ)
+            a.dig(7 + originX, 65, 7 + originZ)
             Thread.sleep(1_500)
-            a.dig(5 + originX, 65, 5 + originZ)
+            a.dig(7 + originX, 65, 7 + originZ)
             val got = a.waitUntil(4_000) { count(a, "iron_ingot") > before }
             Thread.sleep(500)
             assertThat(got).describedAs("second mining gave no ore; iron=${count(a, "iron_ingot")} (before $before)").isTrue()
             assertThat(count(a, "iron_ingot") - before).describedAs("second drop count").isEqualTo(2)
-            assertThat(arenaBlockIs(5, 65, 5, "minecraft:cobblestone")).describedAs("node is not cobblestone after the second mine").isTrue()
+            assertThat(arenaBlockIs(7, 65, 7, "minecraft:cobblestone")).describedAs("node is not cobblestone after the second mine").isTrue()
             // While regrowing the cobblestone cell must not be breakable by hand.
             val cobbleIron = count(a, "iron_ingot")
-            a.dig(5 + originX, 65, 5 + originZ)
+            a.dig(7 + originX, 65, 7 + originZ)
             Thread.sleep(1_000)
-            assertThat(arenaBlockIs(5, 65, 5, "minecraft:cobblestone")).describedAs("regrowing cobblestone was broken by hand").isTrue()
+            assertThat(arenaBlockIs(7, 65, 7, "minecraft:cobblestone")).describedAs("regrowing cobblestone was broken by hand").isTrue()
             assertThat(count(a, "iron_ingot")).describedAs("regrowing node gave ore").isEqualTo(cobbleIron)
             var back = false
             val end = System.currentTimeMillis() + 45_000
@@ -241,19 +241,19 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
                 keep.forEach { it.nudge() }
                 a.nudge()
                 Thread.sleep(1_000)
-                back = arenaBlockIs(5, 65, 5, "minecraft:iron_ore")
+                back = arenaBlockIs(7, 65, 7, "minecraft:iron_ore")
             }
             assertThat(back).describedAs("iron_ore did not return after the second mine").isTrue()
             "second cycle ok: +2 iron, cobblestone, ore back"
         }
 
         E2eReport.check(suite, "bore leaves ore-node cells untouched", "ore-node exclusion after timed cast") {
-            tpArena(a.name, 1.5, 65.0, 5.5, 270f, 0f)
+            tpArena(a.name, 3.5, 65.0, 7.5, 270f, 0f)
             selectTool(a, "stone_pickaxe")
             Thread.sleep(8_000)
             a.useItem(270f, 0f)
             Thread.sleep(1_500)
-            assertThat(arenaBlockIs(5, 65, 5, "minecraft:iron_ore")).isTrue()
+            assertThat(arenaBlockIs(7, 65, 7, "minecraft:iron_ore")).isTrue()
             "iron node survived the entire bore"
         }
 

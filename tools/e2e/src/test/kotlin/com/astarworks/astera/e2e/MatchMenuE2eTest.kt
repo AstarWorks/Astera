@@ -90,8 +90,12 @@ class MatchMenuE2eTest : PlaythroughBase() {
         E2eReport.check(suite, "confirming Leave puts the player back in the lobby with the kit", "inventory + RCON") {
             click(a, c.containerId, 2)
             // A deliberate leave forfeits at once (MODE-14): seat released, match inventory swapped for the lobby kit.
-            assertThat(a.waitUntil(30_000) { a.hotbar()[8] != matchSlot8 })
-                .describedAs("no lobby kit after Leave; hotbar=${a.hotbar()} chat=${a.chatTexts().takeLast(4)}").isTrue()
+            // The lobby kit's compass and the match compass share slot 8 (same item), so the hotbar cannot tell them apart: the leave
+            // message marks the return, a short wait lets the kit swap land, and slot 8 must still hold the compass.
+            assertThat(a.waitUntil(30_000) { a.chatTexts().any { it.contains("Returning to the lobby") } })
+                .describedAs("no return-to-lobby message after Leave; hotbar=${a.hotbar()} chat=${a.chatTexts().takeLast(4)}").isTrue()
+            Thread.sleep(2_000)
+            assertThat(a.hotbar()[8]).describedAs("no lobby kit compass after Leave; hotbar=${a.hotbar()}").isNotEqualTo(-1)
             // Every slot (lobby included) lives in the one overworld; "back in the lobby" = left the match slot.
             val local = localPosOf(a)
             assertThat(local).describedAs("no position").isNotNull()

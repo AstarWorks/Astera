@@ -321,8 +321,25 @@ public class PaperLiveValueSource(
             return gameplay.statusStacks(id, status).toDouble()
         }
 
-        override fun aimPoint(caster: ExprValue.Ref, range: Double): Vec3 = throw ExprEvalException("aim_point is not served by the Paper live-value host")
-        override fun lookDirection(caster: ExprValue.Ref): Vec3 = throw ExprEvalException("look_dir is not served by the Paper live-value host")
+        override fun aimPoint(caster: ExprValue.Ref, range: Double): Vec3 {
+            requireCaster(caster, "aim_point")
+            val pose = casterPose(request)
+            val d = Frame.fromYawPitch(pose.eye, pose.yaw, pose.pitch).forward()
+            val e = server.getEntity(request.caster) as? LivingEntity
+            val hit = e?.rayTraceBlocks(range)?.hitPosition
+            return if (hit != null) Vec3(hit.x, hit.y, hit.z) else Vec3(pose.eye.x + d.x * range, pose.eye.y + d.y * range, pose.eye.z + d.z * range)
+        }
+
+        override fun lookDirection(caster: ExprValue.Ref): Vec3 {
+            requireCaster(caster, "look")
+            val pose = casterPose(request)
+            return Frame.fromYawPitch(pose.eye, pose.yaw, pose.pitch).forward()
+        }
+
+        private fun requireCaster(ref: ExprValue.Ref, fn: String) {
+            if (ref.name != CASTER) throw ExprEvalException("$fn('${ref.name}'): only the caster is served on Paper")
+        }
+
         override fun bladeLen(frame: ExprValue.Ref): Double = throw ExprEvalException("blade_len is not served by the Paper live-value host")
     }
 

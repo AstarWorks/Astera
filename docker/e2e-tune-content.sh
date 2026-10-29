@@ -35,6 +35,19 @@ for stage in example-arena siege-isles annihilation-arena pve-proving-grounds; d
   sed -e "s/^id: debug-$stage$/id: $stage/" "$source" > "$root/stages/$stage.yaml"
   rm "$source"
 done
+# The production siege-isles base generators sit on the full-size team islands (x +-101.5/102.5); the compact debug fixture keeps its red/blue
+# islands at r22 around (-68,0)/(68,0), so move the base ore generators back onto them (stage-local, same z rows as production).
+for g in "$root"/generators/siege-isles*-base-*.yaml; do
+  n="generators/$(basename "$g")"
+  case "$n" in
+    *-base-red-iron.yaml) pos='{ x: -81.5, y: 65.0, z: -6.0 }' ;;
+    *-base-red-gold.yaml) pos='{ x: -81.5, y: 65.0, z: 7.0 }' ;;
+    *-base-blue-iron.yaml) pos='{ x: 82.5, y: 65.0, z: -6.0 }' ;;
+    *-base-blue-gold.yaml) pos='{ x: 82.5, y: 65.0, z: 7.0 }' ;;
+    *) echo "e2e-tune: unexpected base generator $n" >&2; exit 1 ;;
+  esac
+  patch "$n" "s/^position:.*/position: $pos/" '^position:'
+done
 # Compact Norma fixture generator coordinates (the production positions are route outposts).
 patch generators/arena-east.yaml 's/^position:.*/position: { x: 12.5, y: 65.0, z: 0.5 }/' '^position:'
 patch generators/arena-west.yaml 's/^position:.*/position: { x: -11.5, y: 65.0, z: 0.5 }/' '^position:'
