@@ -299,11 +299,14 @@ fi
 if [ -n "$FOV" ] && [ -z "$FOV_OPT" ]; then
   FOV_OPT="$(python3 -c 'import sys; print("%.4f" % ((float(sys.argv[1]) - 70.0) / 40.0))' "$FOV")"
 fi
-# default held item: the `item:` of the skill's own yaml (greatsword-cleave -> greatsword); the id minus -sN / -def only when the skill has none
+# Held item = the item that binds the skill: content/items/*.yaml `skill_id: <skill>` (greatsword-cleave -> greatsword,
+# rifle-shot -> rifle), else the skill yaml's own `item:`. Never guessed from the skill id: an unbound skill needs an
+# explicit ITEM=<item-id> (or ITEM=none for a skill cast with nothing in hand), and a capture without one fails loudly.
 if [ -z "$ITEM" ] && [ -n "$SKILL" ]; then
-  ITEM="$(sed -nE 's/^item:[[:space:]]*([A-Za-z0-9_.-]+).*/\1/p' "$ROOT/content/skills/${SKILL%%@*}/skill.yaml" 2>/dev/null | head -1)"
+  ITEM="$(grep -lE "^[[:space:]]*-?[[:space:]]*skill_id:[[:space:]]*${SKILL%%@*}[[:space:]]*$" "$ROOT"/content/items/*.yaml 2>/dev/null | head -1 | xargs -r basename -s .yaml)"
+  [ -n "$ITEM" ] || ITEM="$(sed -nE 's/^item:[[:space:]]*([A-Za-z0-9_.-]+).*/\1/p' "$ROOT/content/skills/${SKILL%%@*}/skill.yaml" 2>/dev/null | head -1)"
 fi
-[ -n "$ITEM" ] || ITEM="$(printf '%s' "$SKILL" | sed -E 's/@.*$//;s/-(s[0-9]+|def)$//')"
+[ "$CMD" != capture ] || [ -z "$SKILL" ] || [ -n "$ITEM" ] || die "no item binds skill '$SKILL' (content/items/*.yaml skill_id); set ITEM=<item-id> or ITEM=none"
 
 CACHE="${SHOT_CACHE:-$HOME/.cache/astera-vfx-shot}"
 VENV="$CACHE/venv"
@@ -813,7 +816,8 @@ target_z() { awk -v z="$CZ" -v d="$DISTANCE" 'BEGIN{printf "%.1f", z+d}'; }
 
 give_item() { # player
   rcon "clear $1" >/dev/null
-  grep -qi "gave" <<<"$(rcon "astera items give $1 $ITEM")" || log "WARN: could not give item '$ITEM' (set ITEM=<item-id>)"
+  [ "$ITEM" = none ] && return 0
+  grep -qi "gave" <<<"$(rcon "astera items give $1 $ITEM")" || die "could not give item '$ITEM' to $1 (set ITEM=<item-id>)"
 }
 
 # ---------------------------------------------------------------- capture
