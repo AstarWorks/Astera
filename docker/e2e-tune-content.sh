@@ -123,3 +123,29 @@ patch norma-layer/layer.yaml 's/^(  norma_max_level:).*/\1 "3"/' '^  norma_max_l
 patch norma-layer/layer.yaml 's/^(  norma_stars_goal:).*/\1 "2,3"/' '^  norma_stars_goal:'
 patch norma-layer/layer.yaml 's/^(  norma_kills_goal:).*/\1 "1,2"/' '^  norma_kills_goal:'
 patch norma-layer/layer.yaml 's/^(  death_drop_ratio:).*/\1 "1.0"/' '^  death_drop_ratio:'
+
+# SkillEngineV3E2eTest#reloadOneSkillChangesNextCastOnly: an e2e-only probe skill whose directory is a named volume
+# (docker-compose.e2e.yml `e2e-skill-probe`, mounted read-write into the runner) so the suite can rewrite its YAML and
+# run `astera skill reload reload-probe`. Not shipped: this script runs for the E2E_FAST image only.
+mkdir -p "$root/skills/reload-probe"
+cat > "$root/skills/reload-probe/skill.yaml" <<'YAML'
+apiVersion: astera/v3
+kind: Skill
+id: reload-probe
+item: diamond-axe
+meta:
+  name: {ja: 再読込プローブ, en: Reload Probe}
+  description: {ja: "e2e 用。skill reload が次の cast だけを変えることの確認。", en: "e2e probe. Proves skill reload changes only the next cast."}
+  cooldown_ticks: 0
+  resource_cost: 0
+  tags: [probe]
+machine:
+  start: hold
+  states:
+    hold:
+      for: 40
+      then: done
+      do:
+        - {id: pin, op: lock, at: 0, for: 40, pitch: true}
+    done: {final: true}
+YAML
