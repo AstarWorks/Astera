@@ -50,7 +50,7 @@ import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 
 /** The events a projectile body produces (ADR-0303 3.6). [key] is the yaml key of `on:` and the suffix of the event path (`ball.hit`). */
 public enum class ProjectileEvent(public val key: String) {
-    HIT("hit"), BOUNCE("bounce"), STICK("stick"), UNSTICK("unstick"), BLOCK("block"), EXPIRE("expire"), END("end");
+    HIT("hit"), ABSORBED("absorbed"), BOUNCE("bounce"), STICK("stick"), UNSTICK("unstick"), BLOCK("block"), EXPIRE("expire"), END("end");
 
     public companion object {
         public fun ofKey(key: String): ProjectileEvent? = entries.firstOrNull { it.key == key }
@@ -248,7 +248,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
 
     /** The events a body of this mode can fire (3.6): `pass` has no block events; `blocks_only` has no victim hit. */
     internal fun produces(mode: String, targets: String, event: ProjectileEvent): Boolean = when (event) {
-        ProjectileEvent.HIT -> targets != "blocks_only"
+        ProjectileEvent.HIT, ProjectileEvent.ABSORBED -> targets != "blocks_only"
         ProjectileEvent.BLOCK -> mode != "pass"
         ProjectileEvent.BOUNCE -> mode == "bounce"
         ProjectileEvent.STICK, ProjectileEvent.UNSTICK -> mode == "stick"
@@ -434,7 +434,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                 val path = eventPath(e)
                 events += path
                 val follows: Branch? = when {
-                    e == ProjectileEvent.HIT && once && !op.hit.attach -> Branch(endPath, TickRange(0, 0), null, null, endPath)
+                    (e == ProjectileEvent.HIT || e == ProjectileEvent.ABSORBED) && once && !op.hit.attach -> Branch(endPath, TickRange(0, 0), null, null, endPath)
                     e == ProjectileEvent.BLOCK && op.block.mode == "despawn" -> Branch(endPath, TickRange(0, 0), null, null, endPath)
                     e == ProjectileEvent.UNSTICK -> Branch(endPath, TickRange(0, 0), null, null, endPath)
                     else -> null
@@ -448,7 +448,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                     val prefix = InstanceId(body.path.dropLast(1) + InstanceId.Segment(OpId(op.id.value + "." + e.key), body.path.last().index))
                     val hc = LowerContext(
                         lc.skillId, lc.state, prefix, lc.occurrence, 0, lc.anchors, lc.frames, lc.parts, lc.skills, lc.item, lc.sprites, lc.conditions, lc.exprs,
-                        lc.config, lc.seed, com.astarworks.astera.core.domain.skillengine.table.SrcPath(src.value + ".on." + e.key), hitScope = e == ProjectileEvent.HIT,
+                        lc.config, lc.seed, com.astarworks.astera.core.domain.skillengine.table.SrcPath(src.value + ".on." + e.key), hitScope = e == ProjectileEvent.HIT || e == ProjectileEvent.ABSORBED,
                     )
                     val lo = when (val r = lowering.lower(handlerNodes, hc)) {
                         is Result.Success -> r.value
@@ -461,7 +461,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                     writes.putAll(lo.writes)
                 }
                 val (win, firings) = when (e) {
-                    ProjectileEvent.HIT -> absolute to (if (once) 1 else pierce)
+                    ProjectileEvent.HIT, ProjectileEvent.ABSORBED -> absolute to (if (once) 1 else pierce)
                     ProjectileEvent.BLOCK -> absolute to (if (op.block.mode == "bounce") bounces + 1 else 1)
                     ProjectileEvent.BOUNCE -> absolute to bounces
                     ProjectileEvent.STICK -> firstStick to 1

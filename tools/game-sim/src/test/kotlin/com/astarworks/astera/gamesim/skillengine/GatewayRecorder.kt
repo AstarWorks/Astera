@@ -412,7 +412,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun rootOf(cast: CastRef, entity: UUID): EntityRoot? {
             seen("query.rootOf", cast)
-            victims.firstOrNull { it.entityId == entity }?.let { return EntityRoot(it.feet, it.yawDeg, 0.0, it.eyeHeight, 1.8) }
+            victims.firstOrNull { it.entityId == entity }?.let { return EntityRoot(it.feet, it.yawDeg, 0.0, it.eyeHeight ?: 0.0, 1.8) }
             return if (entity == caster) EntityRoot(Vec3(casterPosition.x, casterPosition.y - 1.0, casterPosition.z), casterYawDeg, casterPitchDeg, 1.62, 1.8) else null
         }
 
@@ -532,7 +532,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                 null, "body" -> c.box.center
                 "feet", "root" -> c.feet
                 "eye" -> Vec3(c.feet.x, c.box.max.y - 0.1, c.feet.z)
-                "center" -> Vec3(c.feet.x, c.feet.y + c.eyeHeight / 2.0, c.feet.z)
+                "center" -> c.center
                 else -> return null
             }
             return SimFrame.fromYawPitch(o, c.yawDeg, 0.0)
@@ -556,7 +556,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                             null, "body" -> Vec3(v.feet.x, v.feet.y + 0.9, v.feet.z)
                             "feet", "root" -> v.feet
                             "eye" -> Vec3(v.feet.x, v.feet.y + 1.62, v.feet.z)
-                            "center" -> Vec3(v.feet.x, v.feet.y + v.eyeHeight / 2.0, v.feet.z)
+                            "center" -> v.center
                             else -> null
                         }
                         origin?.let { SimFrame.fromYawPitch(it, v.yawDeg, 0.0) }

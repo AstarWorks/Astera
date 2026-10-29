@@ -101,7 +101,7 @@ class ProjectileScenarioTest : SkillEngineScenario() {
         val rec = GatewayRecorder()
         rec.faithfulPose = true
         rec.victims = listOf(
-            HitCandidate(java.util.UUID(0L, 21L), Vec3(x, 0.0, z), 0.0, HitBox(Vec3(x - 0.3, 0.0, z - 0.3), Vec3(x + 0.3, 1.8, z + 0.3))),
+            HitCandidate(java.util.UUID(0L, 21L), Vec3(x, 0.0, z), 0.0, HitBox(Vec3(x - 0.3, 0.0, z - 0.3), Vec3(x + 0.3, 1.8, z + 0.3)), 1.62),
         )
         play(compile("{$bodyShape}"), seed = 1L, events = emptyList(), ticks = 40, rec = rec)
         return rec.calls.count { it.verb == "sound" && it.payload.startsWith("sound=astera:hit") }

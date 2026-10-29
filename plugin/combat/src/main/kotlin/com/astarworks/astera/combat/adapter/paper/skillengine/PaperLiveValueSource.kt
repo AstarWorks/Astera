@@ -27,6 +27,7 @@ import com.astarworks.astera.core.domain.skillengine.table.EntityRef
 import com.astarworks.astera.core.domain.skillengine.table.TargetRule
 import com.astarworks.astera.core.domain.skillengine.table.TargetSet
 import org.bukkit.Server
+import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.LivingEntity
 import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
 import com.astarworks.astera.core.domain.skillengine.math.Vector3d
@@ -269,7 +270,8 @@ public class PaperLiveValueSource(
             "feet", "root" -> Vec3(loc.x, loc.y, loc.z)
             "eye" -> Vec3(loc.x, loc.y + ((e as? LivingEntity)?.eyeHeight ?: e.height), loc.z)
             // centre = (feet + eye) / 2 (founder 2026-10-29), read live like every other victim point
-            "center" -> Vec3(loc.x, loc.y + ((e as? LivingEntity)?.eyeHeight ?: e.height) / 2.0, loc.z)
+            "center" -> (e as? LivingEntity)?.takeUnless { it is ArmorStand }?.let { Vec3(loc.x, loc.y + it.eyeHeight / 2.0, loc.z) }
+                ?: e.boundingBox.center.let { Vec3(it.x, it.y, it.z) } // no eye height: the hitbox centre
             else -> return null
         }
         return Frame.fromYawPitch(origin, loc.yaw.toDouble(), 0.0)

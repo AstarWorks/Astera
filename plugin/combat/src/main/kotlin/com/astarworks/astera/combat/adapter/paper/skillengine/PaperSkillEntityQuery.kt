@@ -55,7 +55,7 @@ public class PaperSkillEntityQuery(
                 feet = Vec3(loc.x, loc.y, loc.z),
                 yawDeg = loc.yaw.toDouble(),
                 box = HitBox(Vec3(bb.minX, bb.minY, bb.minZ), Vec3(bb.maxX, bb.maxY, bb.maxZ)),
-                eyeHeight = e.eyeHeight,
+                eyeHeight = if (e is ArmorStand) null else e.eyeHeight,
                 velocity = e.velocity.let { Vec3(it.x, it.y, it.z) },
             )
         }
@@ -68,7 +68,7 @@ public class PaperSkillEntityQuery(
                 feet = Vec3(c.x, c.y - 0.5, c.z),
                 yawDeg = 0.0,
                 box = HitBox(Vec3(c.x - 0.5, c.y - 0.5, c.z - 0.5), Vec3(c.x + 0.5, c.y + 0.5, c.z + 0.5)),
-                eyeHeight = 1.0,
+                eyeHeight = null,
                 velocity = Vec3.ZERO,
             )
         }
