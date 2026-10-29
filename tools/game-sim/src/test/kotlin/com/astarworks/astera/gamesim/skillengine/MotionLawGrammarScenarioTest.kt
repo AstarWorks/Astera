@@ -1,6 +1,7 @@
 package com.astarworks.astera.gamesim.skillengine
 
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
 import com.astarworks.astera.core.domain.skillengine.table.Row
@@ -123,5 +124,25 @@ class MotionLawGrammarScenarioTest : SkillEngineScenario() {
         )
         val rider = keyRows(s).filter { it.instance.toString().contains("rider") }
         assertThat(rotDegrees(rider.maxBy { it.tick + key(it).durationTicks })).isCloseTo(24.0, within(1e-3))
+    }
+
+    @Test
+    fun degreeTrigAndMod() {
+        // C1: copy k sits at left = cosd(120 k) and up = mod(k, 2) * 180 (i is a double, `%` is not available on it)
+        val s = compiled(
+            "{id: p, op: frame, anchor: caster, times: 3, offset: {left: \"= cosd(i * 120)\", up: \"= mod(i, 2) * 180\"}, for: 10}",
+        )
+        val rows = s.table.states.flatMap { it.rows }.filter { it.action is Action.Spawn }.sortedBy { it.instance.path.last().index }
+        assertThat(rows).hasSize(3)
+        val want = listOf(1.0 to 0.0, -0.5 to 180.0, -0.5 to 0.0)
+        rows.forEachIndexed { k, r ->
+            @Suppress("UNCHECKED_CAST")
+            val v = ((r.action as Action.Spawn).pose.position as Val.Known<Vector3d>).value
+            assertThat(Math.abs(v.x)).isCloseTo(Math.abs(want[k].first), within(1e-9))
+            assertThat(v.y).isCloseTo(want[k].second, within(1e-9))
+        }
+        val r = loadInline(skill("{id: p, op: frame, anchor: caster, times: 3, offset: {up: \"= i % 2\"}, for: 10}"))
+        assertThat(r).isInstanceOf(Result.Failure::class.java)
+        assertThat((r as Result.Failure).error.toString()).contains("'%' is integer-only in CEL; write mod(a, b)")
     }
 }

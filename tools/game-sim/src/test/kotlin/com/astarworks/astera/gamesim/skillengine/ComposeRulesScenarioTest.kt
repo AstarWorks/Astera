@@ -1,7 +1,11 @@
 package com.astarworks.astera.gamesim.skillengine
 
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
+import com.astarworks.astera.core.domain.skillengine.table.Action
+import com.astarworks.astera.core.domain.skillengine.table.Val
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.Test
 
 /**
@@ -94,4 +98,52 @@ $body
         assertThat(msg).containsIgnoringCase("nosuchfn")
     }
 
+    private val petals =
+        "        - {id: petal, op: frame, anchor: muzzle, times: 8, offset: {left: \"= cosd(ang) * r\", forward: \"= sind(ang) * r\"}, at: 0, for: 10}"
+
+    @Test
+    fun letBindingsFoldPerCopy() {
+        val yaml = skill(petals, "let:\n  ang: \"= i * 360 / n\"\n  r: \"= 0.6 + 0.1 * i\"")
+        val s = when (val r = loadInline(yaml)) {
+            is Result.Success -> r.value
+            is Result.Failure -> error("did not load: ${r.error}")
+        }
+        val rows = s.table.states.flatMap { it.rows }.filter { it.action is Action.Spawn }.sortedBy { it.instance.path.last().index }
+        assertThat(rows).hasSize(8)
+        rows.forEachIndexed { k, row ->
+            @Suppress("UNCHECKED_CAST")
+            val v = ((row.action as Action.Spawn).pose.position as Val.Known<Vector3d>).value
+            val r = 0.6 + 0.1 * k
+            assertThat(v.length()).isCloseTo(r, within(1e-9))
+            assertThat(Math.abs(v.z)).isCloseTo(Math.abs(Math.sin(Math.toRadians(k * 45.0)) * r), within(1e-9))
+        }
+    }
+
+    @Test
+    fun letNameCollisionIsLoadError() {
+        assertThat(failure(skill(petals, "let:\n  i: \"= 1\""))).contains("'i' is a builtin copy index and cannot be rebound")
+        assertThat(failure(skill(petals, "let:\n  muzzle: \"= 1\""))).contains("cannot be rebound by a let")
+        assertThat(failure(skill(petals, "let:\n  cosd: \"= 1\""))).contains("expression function")
+    }
+
+    @Test
+    fun letUsedInTimingNamesTheLet() {
+        val op = "        - {id: petal, op: display, kind: text, text: \"x\", anchor: muzzle, at: \"= start_tick\", for: 5}"
+        val msg = failure(skill(op, "let:\n  start_tick: \"= dist(caster, target) / 0.8\""))
+        assertThat(msg).contains("display 'petal' at: '= start_tick' uses let 'start_tick' = (dist(caster, target) / 0.8)").contains("(C5)")
+    }
+
+    @Test
+    fun victimOutsideHandlerIsLoadError() {
+        val op = "        - {id: mark, op: sound, sound: block.note_block.hat, anchor: muzzle, volume: \"= dot(pos(victim), vec(0, 1, 0))\", pitch: 1.0, at: 0}"
+        assertThat(failure(skill(op))).contains("'victim' is only bound inside a hit handler").contains("state 'cast' do: list")
+        val display = "        - {id: mark, op: frame, anchor: muzzle, offset: {up: \"= dot(pos(victim), vec(0, 1, 0))\"}, at: 0, for: 5}"
+        assertThat(failure(skill(display))).contains("'victim' is only bound inside a hit handler").contains("machine.states.cast.do[0]")
+    }
+
+    @Test
+    fun targetAttackerNamesEventAttacker() {
+        val op = "        - {id: ouch, op: damage, at: 0, target: attacker, damage: {physical: 1.0}}"
+        assertThat(failure(skill(op))).contains("target 'attacker' is spelled event.attacker")
+    }
 }

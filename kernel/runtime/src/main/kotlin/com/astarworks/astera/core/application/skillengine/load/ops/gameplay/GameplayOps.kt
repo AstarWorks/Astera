@@ -74,6 +74,7 @@ internal object GameplayOps {
             "victim", "event.victim" -> TargetRef.Victim
             "caster" -> TargetRef.Caster
             "event.attacker" -> TargetRef.Attacker
+            "attacker" -> ctx.fail(path, "target 'attacker' is spelled event.attacker (the entity that hit the caster; valid only in a hurt handler)")
             is Map<*, *> -> decodeArea(raw, ctx, path)
             else -> ctx.mismatch(path, label, raw)
         }

@@ -252,6 +252,16 @@ internal object CelFunctions {
         def("mix", "mix_num", D, listOf(NUM, NUM, NUM), listOf(OBJ, OBJ, OBJ)) { n(it[0]) + (n(it[1]) - n(it[0])) * n(it[2]) }
         scalar1("deg") { it * 180.0 / PI }
         scalar1("rad") { it * PI / 180.0 }
+        // degree trig (C1): degrees in / out, so `sind(i * 120)` needs no rad() round trip; `pi` is the constant (CelExprCompiler)
+        scalar1("sind") { sin(Math.toRadians(it)) }
+        scalar1("cosd") { cos(Math.toRadians(it)) }
+        scalar1("tand") { tan(Math.toRadians(it)) }
+        scalar1("asind") { Math.toDegrees(asin(it)) }
+        scalar1("acosd") { Math.toDegrees(acos(it)) }
+        scalar2("atan2d") { y, x -> Math.toDegrees(atan2(y, x)) }
+        // `%` is int-only in CEL; mod is the double remainder with the sign of the divisor (mod(-1, 3) = 2), fract the part above floor
+        scalar2("mod") { a, b -> a - b * floor(a / b) }
+        scalar1("fract") { it - floor(it) }
 
         // seeded randomness: uniform [0,1), deterministic per cast seed + stream name
         def("rand", "rand_stream", D, listOf(SimpleType.STRING), listOf(STR)) { stream(it[0] as String).nextDouble() }
@@ -359,6 +369,9 @@ internal object CelFunctions {
         }
         return null
     }
+
+    /** Every function name an expression can call, for the `let:` collision check. */
+    fun functionNames(): Set<String> = defs.map { it.name }.toSet()
 
     fun declarations(): List<CelFunctionDecl> =
         defs.groupBy { it.name }.map { (name, list) ->

@@ -10,6 +10,8 @@ import com.astarworks.astera.core.domain.skillengine.part.ParamType
 import com.astarworks.astera.core.domain.skillengine.part.Part
 import com.astarworks.astera.core.domain.skillengine.part.PartCall
 import com.astarworks.astera.core.domain.skillengine.part.PartError
+import com.astarworks.astera.core.application.skillengine.load.LetBindings
+import com.astarworks.astera.core.application.skillengine.load.LetError
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.LoaderOptions
 import org.yaml.snakeyaml.Yaml
@@ -125,7 +127,12 @@ public object PartParser {
 
     // ---- parsing ----------------------------------------------------------------------------------------------
 
-    public fun part(doc: Map<String, Any?>, where: String): Part {
+    public fun part(rawDoc: Map<String, Any?>, where: String): Part {
+        val doc = try {
+            LetBindings.resolve(rawDoc)
+        } catch (e: LetError) {
+            abort("$where.${e.path}", e.message)
+        }
         checkKeys(doc, where, setOf("apiVersion", "kind", "id", "params", "frames_in", "frames_out", "emits", "machine"))
         if (doc["apiVersion"] != API_VERSION) abort("$where.apiVersion", "apiVersion must be $API_VERSION, was '${doc["apiVersion"]}'")
         val id = doc["id"] as? String ?: abort("$where.id", "missing string 'id'")

@@ -96,9 +96,13 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
 
     private fun skill(file: String, root: YamlNode, env: GrammarEnv): SkillDef {
         val boot = GrammarContext(file)
-        val tree = root as? Map<*, *> ?: boot.mismatch("", "map (a skill document)", root)
+        val rawTree = root as? Map<*, *> ?: boot.mismatch("", "map (a skill document)", root)
         @Suppress("UNCHECKED_CAST")
-        tree as Map<String, Any?>
+        val tree = try {
+            LetBindings.resolve(rawTree as Map<String, Any?>)
+        } catch (e: LetError) {
+            boot.fail(e.path, e.message)
+        }
         checkKeys(boot, tree, "", TOP_KEYS)
         when (val kind = tree["kind"]) {
             null -> boot.abortWith(SkillDecodeError.MissingField(file, "", "kind"))
