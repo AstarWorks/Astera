@@ -159,6 +159,17 @@ public object RigOpSpec : OpSpec<RigOp> {
         val driven = op.of?.let { name ->
             lc.anchors.resolve(name)?.instance ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, name))
         }
+        op.anim?.let { anim ->
+            val clip = lc.sprites.clipTicks(anim)
+            if (clip != null && clip != duration) {
+                return Result.Failure(
+                    SkillDecodeError.Invalid(
+                        lc.skillId, path,
+                        "rig '${op.id.value}': clip '$anim' is $clip ticks but for: $duration; a rig with anim: lasts exactly its clip (write for: $clip; use detach: true when the state is shorter)",
+                    ),
+                )
+            }
+        }
         val inst = CasterMotion.instance(op, lc)
         val tilt = Vec3(op.tilt.x, op.tilt.y, op.tilt.z)
         val rest = Vec3(op.rest.x, op.rest.y, op.rest.z)
@@ -213,7 +224,7 @@ public object RigOpSpec : OpSpec<RigOp> {
             (lc.anchors as? AnchorRegistry)?.declare(InstanceId(inst.path.dropLast(1) + InstanceId.Segment(op.id, null)), null, ExprClass.L)
         }
         val rows = listOf(
-            Row(0, inst, Action.Effect(op.id, payload), lc.src),
+            Row(0, inst, Action.Effect(op.id, payload, spawnsAnchor = true), lc.src),
             Row(duration, inst, Action.End(inst), lc.src),
         )
         return Result.Success(Lowered(rows = rows, instances = listOf(inst)))

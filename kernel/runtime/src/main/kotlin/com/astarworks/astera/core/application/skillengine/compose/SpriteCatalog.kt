@@ -13,4 +13,7 @@ public interface SpriteCatalog {
 
     /** Number of glyph frames of [id] (`flipbook` checks against it), or null when the sprite does not exist. */
     public fun frames(id: String): Int?
+
+    /** Length in ticks of the skin-rig clip [anim] (`content/animations/<anim>.yaml`, `length_ticks`), or null when the catalog does not know the clip (the player then checks at play time). */
+    public fun clipTicks(anim: String): Int? = null
 }

@@ -41,8 +41,11 @@ public sealed interface Action {
     public data class Damage(val targets: TargetRule, val components: List<DamageComponent>, val ignoreInvulnerability: Boolean) : Action
     public data class Status(val targets: TargetRule, val status: String, val stacks: Val<Int>, val forTicks: Int) : Action
 
-    /** impulse, knockback, heal, resource, modify_attribute, dash, reel, rig. */
-    public data class Effect(val op: OpId, val payload: Map<String, Val<Any>>) : Action
+    /**
+     * impulse, knockback, heal, resource, modify_attribute, dash, reel, rig. [spawnsAnchor] marks an effect that declares an anchor
+     * instance (the `rig`, whose points `<id>.root` / `<id>.tip` are readable from its spawn tick): it plays in the spawn phase, frames first.
+     */
+    public data class Effect(val op: OpId, val payload: Map<String, Val<Any>>, val spawnsAnchor: Boolean = false) : Action
 
     /**
      * A world edit or world-scale effect (`break_area`, `place_shape`, `explode`, `lightning`). [origin] is where it
@@ -73,7 +76,8 @@ public val Action.phase: Phase
         is Action.Spawn -> Phase.SPAWN
         is Action.Key, is Action.Teleport, is Action.TrailPoint -> Phase.WRITE
         is Action.Particle, is Action.ParticleDef, is Action.Sound, is Action.Set -> Phase.PRESENTATION
-        is Action.Hit, is Action.Damage, is Action.Status, is Action.Effect, is Action.World -> Phase.GAMEPLAY
+        is Action.Effect -> if (spawnsAnchor) Phase.SPAWN else Phase.GAMEPLAY
+        is Action.Hit, is Action.Damage, is Action.Status, is Action.World -> Phase.GAMEPLAY
         is Action.Lock -> Phase.LOCK
         is Action.Call -> Phase.CALL
         is Action.Emit, is Action.Cancel -> Phase.EMIT
