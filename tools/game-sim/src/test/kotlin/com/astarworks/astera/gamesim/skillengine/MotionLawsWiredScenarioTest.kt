@@ -249,7 +249,7 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
     @Test
     fun stretchReplaysBetweenSkillDeclaredAnchors() {
         val rec = replay(
-            "anchors: [{id: foot, anchor: caster}, {id: head, anchor: caster.eye}]",
+            "anchors: [{id: foot, anchor: caster, mode: follow}, {id: head, anchor: caster.eye, mode: follow}]",
             "{law: stretch, base: foot, tip: head, for: 4, step: 2}",
         )
         val sized = rec.writtenPoses.map { it.third.size }
@@ -259,7 +259,7 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
 
     @Test
     fun followReplaysOnASkillDeclaredAnchor() {
-        val rec = replay("anchors: [{id: head, anchor: caster.eye}]", "{law: follow, anchor: head, for: 6, step: 3}")
+        val rec = replay("anchors: [{id: head, anchor: caster.eye, mode: follow}]", "{law: follow, anchor: head, for: 6, step: 3}")
         assertThat(rec.writtenPoses).isNotEmpty
     }
 

@@ -122,7 +122,7 @@ class CalleeFramesInScenarioTest : SkillEngineScenario() {
         val skill = ok(loadInline(fragmentSkill()))
         val enemy = UUID(0L, 11L)
         val rec = GatewayRecorder()
-        rec.victims = listOf(HitCandidate(enemy, Vec3(0.0, 0.0, 2.0), 0.0, HitBox(Vec3(-0.3, 0.0, 1.7), Vec3(0.3, 1.8, 2.3))))
+        rec.victims = listOf(HitCandidate(enemy, Vec3(0.0, 0.0, 2.0), 0.0, HitBox(Vec3(-0.3, 0.0, 1.7), Vec3(0.3, 1.8, 2.3)), 1.62))
         val calls = play(skill, seed = 1L, events = emptyList(), ticks = 8, rec = rec)
         val fire = calls.filter { it.verb == "damage" && it.instance == enemy.toString() && "fire=12" in it.payload }
         assertThat(fire).describedAs("area damage around the bound frame, calls=%s", calls).hasSize(1)

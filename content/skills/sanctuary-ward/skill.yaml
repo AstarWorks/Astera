@@ -15,7 +15,7 @@ params:
 anchors:
   - {id: ground, anchor: caster, offset: {up: 0.05}, mode: snapshot}   # the ward stays where it was raised
   - {id: sky,    anchor: caster, offset: {up: 2.4}, mode: snapshot}
-  - {id: chest,  anchor: caster, offset: {up: 1.0}}
+  - {id: chest,  anchor: caster, offset: {up: 1.0}, mode: follow}
 machine:
   start: ward
   states:
