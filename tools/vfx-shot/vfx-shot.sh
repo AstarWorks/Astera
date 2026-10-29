@@ -1065,7 +1065,8 @@ place_scene() { # view target_z
       # films from the victim's spot with the Target as an immune spectator, and a husk dummy at the same spot takes the hit.
       summon_target
       rcon "gamemode spectator Target" >/dev/null
-      tp Target "$CX" "$Y" "$tz" 180 0 ;;
+      # 1.6 blocks behind the dummy and a little above its head, looking at the caster: inside the husk the screen is its face
+      tp Target "$CX" "$(awk -v y="$Y" 'BEGIN{printf "%.2f", y+0.6}')" "$(awk -v z="$tz" 'BEGIN{printf "%.2f", z+1.6}')" 180 5 ;;
     compare)
       # caster faces +x (yaw -90); enemy ENEMY_X ahead looking back; spectator camera from the plan
       rcon "team add cmp" >/dev/null 2>&1
