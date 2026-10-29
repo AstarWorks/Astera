@@ -16598,13 +16598,27 @@
                                             ],
                                             "properties": {
                                                 "radius": {
-                                                    "type": "number",
-                                                    "exclusiveMinimum": 0,
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
                                                     "description": "sphere radius in blocks"
                                                 },
                                                 "ahead": {
-                                                    "type": "number",
-                                                    "minimum": 0,
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
                                                     "description": "centre = origin + look * ahead"
                                                 }
                                             }
@@ -16626,19 +16640,39 @@
                                             ],
                                             "properties": {
                                                 "length": {
-                                                    "type": "number",
-                                                    "exclusiveMinimum": 0,
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
                                                     "description": "blocks along the look"
                                                 },
                                                 "width": {
-                                                    "type": "number",
-                                                    "exclusiveMinimum": 0,
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
                                                     "description": "diameter of the ball filled at each 0.5-block step"
                                                 },
                                                 "height": {
-                                                    "type": "integer",
-                                                    "minimum": 1,
-                                                    "maximum": 64,
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
                                                     "description": "cells tall: 1 sweeps a ball of `width` along the look, more sweeps a `width` disc stretched to a column of this height",
                                                     "default": 1
                                                 }
@@ -16662,21 +16696,39 @@
                                             ],
                                             "properties": {
                                                 "width": {
-                                                    "type": "integer",
-                                                    "minimum": 1,
-                                                    "maximum": 64,
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
                                                     "description": "blocks, centred on the caster"
                                                 },
                                                 "height": {
-                                                    "type": "integer",
-                                                    "minimum": 1,
-                                                    "maximum": 64,
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
                                                     "description": "blocks up from the feet"
                                                 },
                                                 "length": {
-                                                    "type": "integer",
-                                                    "minimum": 1,
-                                                    "maximum": 64,
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
                                                     "description": "blocks ahead"
                                                 }
                                             }
@@ -16696,21 +16748,39 @@
                             "description": "tool class the strike counts as"
                         },
                         "block_damage": {
-                            "type": "integer",
-                            "minimum": 0,
-                            "maximum": 2000,
+                            "oneOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "string",
+                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                }
+                            ],
                             "description": "block HP removed per strike, 0..2000"
                         },
                         "ripple": {
-                            "type": "integer",
-                            "minimum": 0,
-                            "maximum": 6000,
+                            "oneOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "string",
+                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                }
+                            ],
                             "description": "ticks the cells strike over, nearest first; 0 = all in the same tick"
                         },
                         "revert": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 6000,
+                            "oneOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "string",
+                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                }
+                            ],
                             "description": "ticks until a broken plain block is restored, 1..6000"
                         },
                         "outside_arena": {
@@ -17059,15 +17129,27 @@
                                             ],
                                             "properties": {
                                                 "width": {
-                                                    "type": "integer",
-                                                    "minimum": 1,
-                                                    "maximum": 64,
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
                                                     "description": "blocks, centred on the caster"
                                                 },
                                                 "height": {
-                                                    "type": "integer",
-                                                    "minimum": 1,
-                                                    "maximum": 64,
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
                                                     "description": "blocks up from the feet"
                                                 }
                                             }
@@ -17089,15 +17171,27 @@
                                             ],
                                             "properties": {
                                                 "length": {
-                                                    "type": "integer",
-                                                    "minimum": 1,
-                                                    "maximum": 64,
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
                                                     "description": "blocks ahead, starting 1 ahead at feet - 1"
                                                 },
                                                 "width": {
-                                                    "type": "integer",
-                                                    "minimum": 1,
-                                                    "maximum": 64,
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
                                                     "description": "blocks"
                                                 }
                                             }
@@ -17118,9 +17212,15 @@
                                             ],
                                             "properties": {
                                                 "height": {
-                                                    "type": "integer",
-                                                    "minimum": 1,
-                                                    "maximum": 64,
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
                                                     "description": "blocks, 2 ahead"
                                                 }
                                             }
@@ -17142,15 +17242,27 @@
                                             ],
                                             "properties": {
                                                 "width": {
-                                                    "type": "integer",
-                                                    "minimum": 1,
-                                                    "maximum": 64,
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
                                                     "description": "blocks"
                                                 },
                                                 "length": {
-                                                    "type": "integer",
-                                                    "minimum": 1,
-                                                    "maximum": 64,
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
                                                     "description": "blocks"
                                                 }
                                             }
@@ -17171,15 +17283,27 @@
                             "description": "item id taken per placed cell, or none"
                         },
                         "ripple": {
-                            "type": "integer",
-                            "minimum": 0,
-                            "maximum": 6000,
+                            "oneOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "string",
+                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                }
+                            ],
                             "description": "ticks the cells are placed over, nearest first; 0 = all in the same tick"
                         },
                         "revert": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "maximum": 6000,
+                            "oneOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "string",
+                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                }
+                            ],
                             "description": "ticks until a placed plain block is removed, 1..6000"
                         },
                         "outside_arena": {

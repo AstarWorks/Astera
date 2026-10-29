@@ -136,7 +136,8 @@ internal class SkillEnginePaperRuntime(
             bodySkeleton = wired.bodySkeleton,
         )
         val entityQuery = PaperSkillEntityQuery(server, teams = { services.get<IMatchTeamLookup>() }, structures = { services.get<IStructureTargets>() })
-        val live = PaperLiveValueSource(server, scheduler, gameplay, entityQuery)
+        val itemGateway = PaperSkillItemGateway(server, { wired.skillGate }, { services.get<ICooldownTracker>() }, { services.get<IResourcePoolService>() })
+        val live = PaperLiveValueSource(server, scheduler, gameplay, entityQuery, itemGateway)
         val movementGateway = PaperSkillMovementGateway(server)
         movement = movementGateway
         val toolBlocks by lazy { ports.toolBlocks?.invoke(services) }
@@ -163,7 +164,7 @@ internal class SkillEnginePaperRuntime(
             query = entityQuery,
             live = live,
             movement = movementGateway,
-            items = PaperSkillItemGateway(server, { wired.skillGate }, { services.get<ICooldownTracker>() }, { services.get<IResourcePoolService>() }),
+            items = itemGateway,
             world = worldGateway3,
         )
         val playerHooks = PaperPlayerHooks(server, scheduler, gameplay, live, visualGateway)

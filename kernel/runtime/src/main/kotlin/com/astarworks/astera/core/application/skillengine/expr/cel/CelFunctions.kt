@@ -318,6 +318,7 @@ internal object CelFunctions {
             host().enemyInCone(feet(ref), axisOf(worldPose(ref), "forward"), n(it[1]), n(it[2]))
         }
         def("stacks", "stacks_ref_str", D, listOf(REF, SimpleType.STRING), listOf(R, STR)) { host().stacks(it[0] as ExprValue.Ref, it[1] as String) }
+        def("has_item", "has_item_ref_str", SimpleType.BOOL, listOf(REF, SimpleType.STRING), listOf(R, STR)) { host().hasItem(it[0] as ExprValue.Ref, it[1] as String) }
 
         // spatial tests (angles in degrees)
         def("dist", "dist_any", D, listOf(NUM, NUM), listOf(OBJ, OBJ)) { feet(it[0]).distance(feet(it[1])) }
