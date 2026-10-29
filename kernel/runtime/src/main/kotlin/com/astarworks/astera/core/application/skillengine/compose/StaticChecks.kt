@@ -533,6 +533,7 @@ public object StaticChecks {
                 val cells = ArrayList<Pair<String, String>>()
                 liveCells(row.action, "", cells)
                 (row.guard as? Guard.Expr)?.let { cells += "when" to it.source }
+                cells += ribbonEnds(row.action)
                 for ((cell, source) in cells) scopedIdent(source, eventBound)?.let { return hitScopeError(g, row, cell, source, it, where(row)) }
             }
             for (b in branches) {
@@ -551,7 +552,26 @@ public object StaticChecks {
             scan(rows, sub.branches, bound(sub.owner)) { "sub-table '$key'" }?.let { return it }
         }
         g.table.worldRows.takeIf { it.isNotEmpty() }?.let { rows -> scan(rows, emptyList(), false) { "machine.world" }?.let { return it } }
+        // a line ribbon end `from` is the previous victim of a `chain:` hop: only the rows a chain copy lowered are tagged with it, in any table
+        val allRows = g.table.states.flatMap { it.rows } + g.table.subTables.values.flatMap { it.rows } + g.table.worldRows
+        for (row in allRows) {
+            if (row.chain != null) continue
+            for ((cell, source) in ribbonEnds(row.action)) {
+                val ident = SCOPED_IDENT.findAll(source).map { it.value }.firstOrNull { it == "from" || it.startsWith("from.") } ?: continue
+                val id = row.instance.path.lastOrNull()?.op?.value
+                return SkillDecodeError.MachineCheck(15, "ribbon '$id' $cell '$source': '$ident' is only bound inside a fragment called with chain: (the previous victim of the hop)", g.skillId)
+            }
+        }
         return null
+    }
+
+    /** The live-name ends (`victim.center`, `from.center`, ...) of a line ribbon spawn, as (field, name); frame-instance ends (`anchor:...`) are not event-bound. */
+    private fun ribbonEnds(a: Action?): List<Pair<String, String>> {
+        val spawn = a as? Action.Spawn ?: return emptyList()
+        if (spawn.kind != SpawnKind.RIBBON) return emptyList()
+        return listOf("from", "to").mapNotNull { k ->
+            (spawn.look.fields[k] as? Val.Known<*>)?.value?.toString()?.takeIf { !it.startsWith("anchor:") }?.let { k to it }
+        }
     }
 
     private fun stateSection(src: String?, fallbackState: String): String {

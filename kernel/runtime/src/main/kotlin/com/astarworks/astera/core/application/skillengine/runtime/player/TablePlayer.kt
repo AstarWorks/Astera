@@ -929,8 +929,8 @@ public class TablePlayer(
             SpawnKind.RIBBON -> if (strOf(run, look.fields["shape"] ?: throw IllegalArgumentException("ribbon look needs 'shape'"), ctx) == "line") {
                 // ADR-0303 section 5 `shape: line`: both ends are live anchors read again every tick (lineStep), so the thread follows its frames
                 val argb = look.fields["argb"]?.let { dbl(run, it, ctx).toLong().toInt() } ?: -1
-                val fromCell = "anchor:" + a.anchorName
-                val toCell = "anchor:" + strOf(run, look.fields["to"] ?: throw IllegalArgumentException("line ribbon look needs 'to'"), ctx)
+                val fromCell = strOf(run, look.fields["from"] ?: throw IllegalArgumentException("line ribbon look needs 'from'"), ctx)
+                val toCell = strOf(run, look.fields["to"] ?: throw IllegalArgumentException("line ribbon look needs 'to'"), ctx)
                 val rec = LineRec(fromCell, toCell, ctx.scope, ctx.binding, ctx.owner, ctx.level, ctx.base)
                 val (f, t) = lineEnds(run, rec, ctx)
                 visual.spawnLine(
@@ -1817,8 +1817,14 @@ public class TablePlayer(
         run.dash.tick()
         for ((id, line) in run.lines.entries.toList()) {
             val h = run.recs[id]?.real ?: continue
-            val (f, t) = lineEnds(run, line, RowCtx(line.base, line.binding, line.owner, line.level, line.scope))
-            visual.updateLine(h, f, t)
+            // an end that cannot be read now (its entity left the world) keeps the line where it was: named, never dropped silently
+            val ends = try {
+                lineEnds(run, line, RowCtx(line.base, line.binding, line.owner, line.level, line.scope))
+            } catch (e: IllegalArgumentException) {
+                fault(run, now, id.text, "ribbon line '${id.text}': end '${line.fromCell}' / '${line.toCell}' unreadable (${e.message}); the line stays at its last position")
+                continue
+            }
+            visual.updateLine(h, ends.first, ends.second)
         }
         for (veil in run.veils.values) {
             val age = (now - veil.start).coerceAtMost(veil.ticks)

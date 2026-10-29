@@ -1,5 +1,6 @@
 # chain-lightning: a bolt whose impact arcs to every enemy near the victim in one tick. Written from zero on the rev4.10 grammar.
 # The bolt hits its victim, then the arc jumps 3 times (every 3 ticks) to the nearest enemy not yet hit; each hop deals less (decay) and shocks for less.
+# Each hop draws a line ribbon from the previous victim (from) to the new one; the ribbon reads both bodies live for its 3 ticks.
 apiVersion: astera/v3
 kind: Skill
 id: chain-lightning
@@ -31,8 +32,9 @@ fragments:
     do:
       - {id: dmg,   op: damage, target: victim, damage: {electric: "= dmg * pow(decay, hop)"}}
       - {id: shock, op: status, target: victim, status: shock, stacks: 1, for: "= shock - 4 * hop"}
-      - {id: spark, op: particle, particle: electric_spark, anchor: spot, count: 12, offset: [0.3, 0.6, 0.3], extra: 0.2, at: 0}
-      - {id: snd,   op: sound, sound: "astera:skills/lightning-impact", anchor: spot, volume: "= 0.8 * pow(0.85, hop - 1)", pitch: "= 1.0 + 0.1 * hop"}
+      - {id: arc,   op: ribbon, from: from.center, to: victim.center, thickness: 0.14, color: "#b8e0ff", at: 0, for: 3, detach: true}
+      - {id: spark, op: particle, particle: electric_spark, anchor: spot, count: 12, offset: [0.3, 0.6, 0.3], extra: 0.2, at: 0, detach: true}
+      - {id: snd,   op: sound, sound: "astera:skills/lightning-impact", anchor: spot, volume: "= 0.8 * pow(0.85, hop - 1)", pitch: "= 1.0 + 0.1 * hop", detach: true}
   impact:
     frames_in: {spot: anchor}
     do:
@@ -41,6 +43,7 @@ fragments:
       - {id: pop, op: particle, particle: end_rod, anchor: spot, count: 6, offset: [0.15, 0.15, 0.15], extra: 0.12, at: 0}
 machine:
   start: cast
+  tail: 12
   states:
     cast:
       on:

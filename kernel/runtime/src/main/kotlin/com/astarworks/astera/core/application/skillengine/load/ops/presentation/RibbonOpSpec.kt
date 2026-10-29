@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.load.ops.presentation
 
+import com.astarworks.astera.core.application.skillengine.compose.AnchorNames
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
@@ -94,8 +95,8 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
 
     private val of = Field.optional("of", Types.nullable(Types.id), null, "trail: tip anchor whose history is drawn")
     private val root = Field.optional("root", Types.nullable(Types.id), null, "trail: second anchor the ribbon fans out from")
-    private val from = Field.optional("from", Types.nullable(Types.id), null, "line: start anchor")
-    private val to = Field.optional("to", Types.nullable(Types.id), null, "line: end anchor")
+    private val from = Field.optional("from", Types.nullable(Types.id), null, "line: start anchor (a frame instance, or a live name: caster.eye, victim.center, from.center, a document anchor)")
+    private val to = Field.optional("to", Types.nullable(Types.id), null, "line: end anchor (as from)")
     private val thickness = Field.optional("thickness", Types.nullable(Types.number), null, "line: bar thickness in blocks")
     private val color = Field.required("color", Types.loadText, "#RRGGBB or #AARRGGBB")
     private val style = Field.optional("style", Types.nullable(Types.enumOf("soft", "crisp", "both")), null, "trail: edge style (required for a trail)")
@@ -202,6 +203,22 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
         return Result.Success(resolved.instance to sub)
     }
 
+    /**
+     * One end of a line ribbon: a frame instance (`palm`, `blade[i].tip`, cell `anchor:<instance>`), or a name the engine answers live every
+     * tick: a builtin frame with an optional point (`caster.eye`, `victim.center`, `from.center`, `contact`) or a document `anchors:` entry.
+     * `victim` / `from` are bound by the event of the row (checked after lowering, StaticChecks check 15); an undeclared name is a load error.
+     * The instance is null for a live name; the cell is what the player reads each tick.
+     */
+    private fun lineEnd(text: String, k: Int, lc: LowerContext, path: String): Result<Pair<InstanceId?, String>, SkillDecodeError> {
+        anchorOf(text, k, lc, path).let { if (it is Result.Success) return Result.Success(it.value.first to "anchor:" + it.value.second) }
+        AnchorNames.removedCasterPoint(text)?.let { return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "ribbon: $it")) }
+        val parts = AnchorNames.split(text) ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, text))
+        val live = parts.index == null && parts.state == null && (parts.base in AnchorNames.BUILTIN_FRAMES || lc.anchors.document(parts.base) != null)
+        if (!live) return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, parts.base))
+        AnchorNames.pointError(lc.anchors, text, "ribbon")?.let { return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "ribbon: $it")) }
+        return Result.Success(null to text)
+    }
+
     override fun lower(op: RibbonOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val p = lc.src.value
         val timing = op.timing ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, p, "ribbon has no timing"))
@@ -246,12 +263,12 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
                     look["style"] = Val.Known(s.style)
                 }
                 is RibbonShape.Line -> {
-                    val a = when (val r = anchorOf(s.from, k, lc, "$p.from")) { is Result.Success -> r.value; is Result.Failure -> return r }
-                    val b = when (val r = anchorOf(s.to, k, lc, "$p.to")) { is Result.Success -> r.value; is Result.Failure -> return r }
-                    tipAnchor = a.first; tipName = a.second
+                    val a = when (val r = lineEnd(s.from, k, lc, "$p.from")) { is Result.Success -> r.value; is Result.Failure -> return r }
+                    val b = when (val r = lineEnd(s.to, k, lc, "$p.to")) { is Result.Success -> r.value; is Result.Failure -> return r }
+                    tipAnchor = a.first; tipName = s.from.replace("[i]", "[$k]")
                     look["shape"] = Val.Known("line")
+                    look["from"] = Val.Known(a.second)
                     look["to"] = Val.Known(b.second)
-                    look["to_anchor"] = Val.Known(b.first.text)
                     look["thickness"] = when (val r = known(s.thickness, "$p.thickness", lc)) { is Result.Success -> r.value; is Result.Failure -> return r }
                 }
             }
