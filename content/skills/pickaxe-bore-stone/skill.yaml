@@ -1,5 +1,6 @@
 # Bores a 3x3 tunnel straight ahead; the tiers differ in tunnel length. Base of the pickaxe-bore tiers (this is the stone tier);
 # pickaxe-bore-iron / -diamond extend it (ADR-0303 9.3): same document, other id / item / meta and the `with:` values below.
+# Wind-up W = 4 ticks (round_half_up(5 / attack_speed 1.2 (vanilla pickaxe))): the held rig swings in the wind-up and the blocks give way at tick 4 (the impact), as the melee skills.
 apiVersion: astera/v3
 kind: Skill
 id: pickaxe-bore-stone
@@ -21,8 +22,26 @@ params:
 anchors:
   - {id: dust, anchor: caster, offset: {forward: 2.0}, mode: snapshot}
 machine:
-  start: cast
+  start: windup
+  tail: 10
   states:
+    windup:
+      for: 4
+      then: cast
+      do:
+        # held rig: one performance in the wind-up, detached so it plays on through the impact and the tail. Overhead strike written as the head's travel (caster frame left/up/forward):
+        # drawn back over 3 ticks, the cut starts at tick 3 so the head crosses the target at the impact (tick 4), then 6 ticks of follow-through.
+        - id: rig
+          op: rig
+          parent: caster
+          mount: caster.hand_r
+          rest: [{axis: left, deg: 72}]
+          detach: true
+          for: 12
+          swing:
+            - {at: 0, for: 3, from: {left: 0.000, up: 0.507, forward: 0.862}, to: {left: 0.100, up: 0.949, forward: -0.300}, edge: trailing, roll: 0, ease: out_quad}
+            - {at: 3, for: 3, to: {left: 0.000, up: -0.447, forward: 0.894}, edge: leading, roll: 0, ease: out_cubic}
+            - {at: 6, for: 6, to: {left: 0.000, up: -0.786, forward: 0.618}, edge: leading, roll: 0, ease: out_cubic}
     cast:
       for: 1
       then: end
@@ -32,4 +51,5 @@ machine:
         - {id: snd_2, op: sound, sound: item.trident.hit_ground, anchor: caster, volume: "${thud_vol}", pitch: "${thud_pitch}", when: "= ${thud}"}
         - {id: snd_3, op: sound, sound: block.amethyst_cluster.break, anchor: caster, volume: 0.8, pitch: 1.0, when: "= ${amethyst}"}
         - {id: spark, op: particle_def, def: "${spark}", anchor: dust}
+        - {id: trail, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 6}, count: 1, extra: 0.04, at: 0, every: 1, for: 8, detach: true}
     end: {final: true}

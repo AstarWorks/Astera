@@ -1,5 +1,6 @@
 # Digs out a box of soft blocks in front of the caster; the tiers differ in box size. Base of the shovel-excavate tiers (this is the stone tier);
 # shovel-excavate-iron / -diamond extend it (ADR-0303 9.3): same document, other id / item / meta and the `with:` values below.
+# Wind-up W = 5 ticks (round_half_up(5 / attack_speed 1.0 (vanilla shovel))): the held rig swings in the wind-up and the blocks give way at tick 5 (the impact), as the melee skills.
 apiVersion: astera/v3
 kind: Skill
 id: shovel-excavate-stone
@@ -23,8 +24,26 @@ params:
 anchors:
   - {id: spark, anchor: caster, offset: {forward: 2.0}, mode: follow}
 machine:
-  start: cast
+  start: windup
+  tail: 10
   states:
+    windup:
+      for: 5
+      then: cast
+      do:
+        # held rig: one performance in the wind-up, detached so it plays on through the impact and the tail. Scoop written as the head's travel (caster frame left/up/forward):
+        # drawn back over 4 ticks, the cut starts at tick 4 so the head crosses the target at the impact (tick 5), then 6 ticks of follow-through.
+        - id: rig
+          op: rig
+          parent: caster
+          mount: caster.hand_r
+          rest: [{axis: left, deg: 72}]
+          detach: true
+          for: 13
+          swing:
+            - {at: 0, for: 4, from: {left: -0.200, up: 0.300, forward: 0.300}, to: {left: -0.350, up: 0.500, forward: -0.200}, edge: trailing, roll: 0, ease: out_quad}
+            - {at: 4, for: 3, to: {left: 0.000, up: -0.600, forward: 0.800}, edge: leading, roll: 0, ease: out_cubic}
+            - {at: 7, for: 6, to: {left: 0.000, up: -0.850, forward: 0.500}, edge: leading, roll: 0, ease: out_cubic}
     cast:
       for: 1
       then: end
@@ -34,4 +53,5 @@ machine:
         - {id: snd_2, op: sound, sound: block.rooted_dirt.break, anchor: caster, volume: "${dirt_vol}", pitch: "${dirt_pitch}", when: "= ${dirt}"}
         - {id: snd_3, op: sound, sound: item.shovel.flatten, anchor: caster, volume: 0.8, pitch: 0.9, when: "= ${flatten}"}
         - {id: spark, op: particle_def, def: "${spark}", anchor: spark}
+        - {id: trail, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 6}, count: 1, extra: 0.04, at: 0, every: 1, for: 8, detach: true}
     end: {final: true}

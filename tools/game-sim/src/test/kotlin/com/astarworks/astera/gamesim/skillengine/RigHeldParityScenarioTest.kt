@@ -65,11 +65,55 @@ class RigHeldParityScenarioTest : SkillEngineScenario() {
         return apply(y180, moved) to apply(y180, apply(m, doubleArrayOf(0.0, 1.0, 0.0)))
     }
 
+    /**
+     * A flat handheld sprite (content/models/generated/items/<id>.model.json, parent minecraft:item/handheld, docs/art/arsenal-flat-art.md): the tip is
+     * the farthest opaque pixel along the handle-to-head diagonal (x + y) of the texture, `long` is that diagonal (1,1,0) in the sprite plane, both through
+     * the vanilla handheld display chain.
+     */
+    private fun measureSprite(item: String, part: ModelPart, modelFile: java.nio.file.Path): Row {
+        val json = Json.parseToJsonElement(Files.readString(modelFile)).jsonObject
+        val layer = json["textures"]?.jsonObject?.get("layer0")?.jsonPrimitive?.content?.substringAfter(':')
+            ?: return Row(item, part.name, Double.NaN, Double.NaN, "sprite model has no textures.layer0")
+        val png = contentDir.resolve("textures/$layer.png")
+        val image = javax.imageio.ImageIO.read(png.toFile()) ?: return Row(item, part.name, Double.NaN, Double.NaN, "texture $layer.png is unreadable")
+        val k = 16.0 / image.width
+        var best = Double.NEGATIVE_INFINITY
+        var px = 0.0
+        var py = 0.0
+        for (r in 0 until image.height) for (c in 0 until image.width) {
+            if ((image.getRGB(c, r) ushr 24) == 0) continue
+            val x = (c + 0.5) * k
+            val y = 16.0 - (r + 0.5) * k
+            if (x + y > best) { best = x + y; px = x; py = y }
+        }
+        val display = when (part.display) {
+            "fixed" -> mapOf("rotation" to doubleArrayOf(0.0, 180.0, 0.0), "translation" to doubleArrayOf(0.0, 0.0, 0.0), "scale" to doubleArrayOf(0.5, 0.5, 0.5))
+            "thirdperson_righthand" -> mapOf("rotation" to doubleArrayOf(0.0, -90.0, 55.0), "translation" to doubleArrayOf(0.0, 4.0, 0.5), "scale" to doubleArrayOf(0.85, 0.85, 0.85))
+            else -> return Row(item, part.name, Double.NaN, Double.NaN, "no vanilla handheld display for ${part.display}")
+        }
+        val r = display.getValue("rotation")
+        val m = mul(mul(rot('x', r[0]), rot('y', r[1])), rot('z', r[2]))
+        val t = display.getValue("translation").map { it / 16.0 }
+        val s = display.getValue("scale")
+        val local = doubleArrayOf(s[0] * (px / 16.0 - 0.5), s[1] * (py / 16.0 - 0.5), s[2] * (8.0 / 16.0 - 0.5))
+        val y180 = rot('y', 180.0)
+        val moved = apply(m, local).let { doubleArrayOf(t[0] + it[0], t[1] + it[1], t[2] + it[2]) }
+        val tip = apply(y180, moved)
+        val long = apply(y180, apply(m, doubleArrayOf(1.0, 1.0, 0.0)))
+        val fileTip = part.points["tip"] ?: return Row(item, part.name, Double.NaN, Double.NaN, "frames part declares no tip point")
+        val fileLong = part.axes["long"] ?: return Row(item, part.name, Double.NaN, Double.NaN, "frames part declares no long axis")
+        val tipErr = sqrt((tip[0] - fileTip.x).let { it * it } + (tip[1] - fileTip.y).let { it * it } + (tip[2] - fileTip.z).let { it * it })
+        val fl = doubleArrayOf(fileLong.x, fileLong.y, fileLong.z)
+        val dot = (0..2).sumOf { long[it] * fl[it] } / (sqrt(long.sumOf { it * it }) * sqrt(fl.sumOf { it * it }))
+        return Row(item, part.name, tipErr, Math.toDegrees(acos(dot.coerceIn(-1.0, 1.0))), "")
+    }
+
     private val tipName = Regex("(^|_)tip(_point)?$")
 
     private fun measure(item: String, part: ModelPart): Row {
         val model = part.model.substringAfter(':')
         val file = sequenceOf("items", "").map { contentDir.resolve("models/$it/$model.model.json".replace("//", "/")) }.firstOrNull { Files.isRegularFile(it) }
+            ?: contentDir.resolve("models/generated/items/$model.model.json").takeIf { Files.isRegularFile(it) }?.let { return measureSprite(item, part, it) }
             ?: return Row(item, part.name, Double.NaN, Double.NaN, "model '${part.model}' has no content/models/**/$model.model.json")
         val json = Json.parseToJsonElement(Files.readString(file)).jsonObject
         val display = json["display"]?.jsonObject?.get(part.display)?.jsonObject
