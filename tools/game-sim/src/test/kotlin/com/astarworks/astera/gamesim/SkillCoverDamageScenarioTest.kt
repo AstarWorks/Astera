@@ -72,7 +72,7 @@ class SkillCoverDamageScenarioTest {
             // ADR-0297: floor(block_damage * matrix% / 100), both read from shipped content. A stone pickaxe is the case where
             // six floored portions (16/17 each, scaled) would have summed to less than the single strike.
             val content = Paths.get(System.getProperty("astera.sim.contentDir"))
-            val yaml = Files.readString(content.resolve("skills/pickaxe-bore-stone/skill.yaml"))
+            val yaml = Files.readString(content.resolve("skill-parts/pickaxe-bore.yaml"))
             val blockDamage = checkNotNull(Regex("""op: break_area[^\n]*?block_damage: (\d+)""").find(yaml)).groupValues[1].toInt()
             val percent = checkNotNull(spec.toolEffectiveness?.get(ToolType(ToolKind.PICKAXE, ToolTier.STONE)))
             val perCast = blockDamage * percent / 100

@@ -36,7 +36,9 @@ class ToolSkillCustomBlockScenarioTest {
 
     /** `block_damage` of the skill's break_area op, read from the shipped skill file. */
     private fun blockDamageOf(skill: String): Int {
-        val text = Files.readString(contentDir.resolve("skills/$skill/skill.yaml"))
+        val skillText = Files.readString(contentDir.resolve("skills/$skill/skill.yaml"))
+        val part = checkNotNull(Regex("""use: ([\w-]+)""").find(skillText)) { "$skill uses no skill part" }.groupValues[1]
+        val text = Files.readString(contentDir.resolve("skill-parts/$part.yaml"))
         val match = checkNotNull(Regex("""op: break_area[^\n]*?block_damage: (\d+)""").find(text)) { "$skill has no break_area block_damage" }
         return match.groupValues[1].toInt()
     }
