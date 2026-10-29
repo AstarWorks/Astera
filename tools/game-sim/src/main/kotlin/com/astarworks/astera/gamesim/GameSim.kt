@@ -129,6 +129,9 @@ public class GameSim private constructor(
         private set
     public lateinit var combat: CombatWiringResult
 
+    /** Skill engine v3 host: runs every `SkillCast` on the table player (world ops over the sim's block map). */
+    internal lateinit var skillEngine: SimSkillEngine
+
     public lateinit var match: MatchWiringResult
         private set
     /** Spectator-mode recorder behind the `ISpectator` port (death cam / eliminated teams). */
@@ -461,6 +464,7 @@ public class GameSim private constructor(
         runCatching { economy.shutdown() }
         runCatching { stats.shutdown() }
         runCatching { match.shutdown() }
+        runCatching { skillEngine.shutdown() }
         runCatching { combat.shutdown() }
         contexts.asReversed().forEach { runCatching { it.close() } }
         runCatching { core.shutdown() }
@@ -661,6 +665,7 @@ public class GameSim private constructor(
             // Post-wiring host step (CombatPaperPlatform.bind): tick loops and the
             // rerouted-damage kill publisher.
             projectiles.start()
+            sim.skillEngine = SimSkillEngine(world, scheduler, services, services.getOrThrow<IDomainEventBus>(), sim.combat).also { it.start() }
             if (statusContainer.isInitialized()) statusContainer.value.start()
             val killResolver = VanillaKillResolver(
                 com.astarworks.astera.core.application.service.combat.CombatContextResolver { services.get<IMatchTeamLookup>() },

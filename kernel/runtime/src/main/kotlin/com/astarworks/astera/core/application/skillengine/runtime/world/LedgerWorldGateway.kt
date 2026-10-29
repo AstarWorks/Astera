@@ -19,12 +19,6 @@ import com.astarworks.astera.core.domain.skillengine.world.WorldShapes
  * runs every cell inline in the calling tick.
  */
 public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess) : ISkillWorldGateway {
-    private companion object {
-        /** v1 PowerToolMining.CAST_TICKS / WORK_TICKS (PowerToolMining.kt:8-9). */
-        const val CAST_TICKS = 30
-        const val WORK_TICKS = 24
-    }
-
     protected val editor: SkillWorldEditor = SkillWorldEditor(blocks)
 
     override fun breakArea(cast: CastRef, spec: BreakAreaSpec, aim: WorldAim) {
@@ -35,8 +29,6 @@ public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess
             if (!blocks.canEdit(cast, cell, spec.outsideArena)) continue
             val type = blocks.blockAt(cast, cell)
             if (blocks.isCover(cast, cell)) {
-                // v1 WorldMechanics.kt:259-260: cover is struck only when its base material is within the skill's power
-                if (type != null && !WorldBlockRules.breakable(type, spec.power, null)) continue
                 scheduleCoverStrikes(cast, spec, toolClass, cell, index, ordered.size)
                 continue
             }
@@ -45,27 +37,19 @@ public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess
             // A structure cell (Annihilation pillar) always reaches damage(): the access scales it by tier and tool class.
             if (!blocks.isStructure(cast, cell)) {
                 if (WorldBlockRules.isAir(type) || WorldBlockRules.isProtected(type!!)) continue
-                // The power gate keeps the hardness tiers; the tool CLASS is not a gate: a wrong class digs at x0.1 in damage().
-                if (!WorldBlockRules.breakable(type, spec.power, null)) continue
             }
             schedule(cast, index, ordered.size, spec.rippleTicks) { strikeTerrain(cast, spec, toolClass, cell) }
         }
     }
 
     /**
-     * v2 `scheduleCoverStrikes` (v1 WorldMechanics.kt:262-308): a cover cell works for the cast window ([CAST_TICKS], [WORK_TICKS]). It starts at
-     * `1 + index * (CAST_TICKS - WORK_TICKS) / total` and lands six integer portions of the block damage at work steps 4, 8, ..., 24
-     * (`damage * k / 6 - damage * (k - 1) / 6`, so the remainder is preserved), each at tick `delay + step - 1`.
+     * ADR-0297: one strike per cast. A cover cell takes the full `block_damage` in a single `damage()` call on the same
+     * centre-out ripple as terrain; the block-HP store accumulates it, so there are no per-cell portions or work windows.
      */
     private fun scheduleCoverStrikes(cast: CastRef, spec: BreakAreaSpec, toolClass: String?, cell: BlockCell, index: Int, total: Int) {
-        val delay = 1 + index * (CAST_TICKS - WORK_TICKS) / total.coerceAtLeast(1)
-        for (step in 1..minOf(WORK_TICKS, CAST_TICKS - delay + 1)) {
-            if (step % 4 != 0) continue
-            val portion = spec.blockDamage * (step / 4) / 6 - spec.blockDamage * (step / 4 - 1) / 6
-            if (portion <= 0) continue
-            editor.later(cast, (delay + step - 1).toLong()) {
-                if (blocks.canEdit(cast, cell, spec.outsideArena) && blocks.isCover(cast, cell)) blocks.damage(cast, cell, portion, toolClass)
-            }
+        if (spec.blockDamage <= 0) return
+        schedule(cast, index, total, spec.rippleTicks) {
+            if (blocks.canEdit(cast, cell, spec.outsideArena) && blocks.isCover(cast, cell)) blocks.damage(cast, cell, spec.blockDamage, toolClass)
         }
     }
 
