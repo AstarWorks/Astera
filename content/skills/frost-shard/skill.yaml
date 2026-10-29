@@ -51,7 +51,7 @@ machine:
               - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: heart, volume: 0.7, pitch: 1.5}
               - {id: line, op: particle, particle: end_rod, anchor: {of: contact, to: heart, samples: 5}, count: 1, extra: 0.05}
-              - {id: burst, use: skill:frost-shard-burst, with: {snow: 30, rod: 10, dust: 20}}
+              - {id: burst, use: skill:frost-shard-burst, with: {snow: 30, rod: 10, dust: 20}, frames: {spot: heart}}
             bounce:
               - {id: chip_b, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_blk, op: sound, sound: "astera:skills/frost-impact", anchor: contact.point, volume: "= 0.5 - 0.1 * event.i", pitch: "= 1.6 + 0.1 * event.i"}
@@ -70,6 +70,7 @@ apiVersion: astera/v3
 kind: Skill
 id: frost-shard-burst
 meta: {cooldown_ticks: 0, resource_cost: 0}
+frames_in: {spot: anchor}
 params:
   snow: {type: number, required: true}
   rod:  {type: number, required: true}
@@ -81,7 +82,7 @@ machine:
       for: 1
       then: e
       enter:
-        - {id: fx_snow, op: particle, particle: snowflake, anchor: contact, count: "${snow}", extra: 0.15, at: 0}
-        - {id: fx_rod, op: particle, particle: end_rod, anchor: contact, count: "${rod}", extra: 0.2, at: 0}
-        - {id: fx_dust, op: particle, particle: dust, anchor: contact, count: "${dust}", offset: [0.4, 0.4, 0.4], color: "#bee6ff", size: 1.4, at: 0}
+        - {id: fx_snow, op: particle, particle: snowflake, anchor: spot, count: "${snow}", extra: 0.15, at: 0}
+        - {id: fx_rod, op: particle, particle: end_rod, anchor: spot, count: "${rod}", extra: 0.2, at: 0}
+        - {id: fx_dust, op: particle, particle: dust, anchor: spot, count: "${dust}", offset: [0.4, 0.4, 0.4], color: "#bee6ff", size: 1.4, at: 0}
     e: {final: true}
