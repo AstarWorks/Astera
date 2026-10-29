@@ -26,7 +26,7 @@ public object TableAssembler {
      * body in the document (example b: `shard` before `bolt`) still finds its parent when it spawns; declaration order breaks every other tie.
      */
     private fun spawnRank(a: Action): Int =
-        if (a is Action.Spawn && (a.kind == SpawnKind.FRAME || a.kind == SpawnKind.PROJECTILE_BODY)) 0 else 1
+        if ((a is Action.Spawn && (a.kind == SpawnKind.FRAME || a.kind == SpawnKind.PROJECTILE_BODY)) || (a is Action.Effect && a.spawnsAnchor)) 0 else 1
 
     public fun assemble(
         skillId: String,
