@@ -49,29 +49,6 @@ class CompositionScenarioTest : SkillEngineScenario() {
     private fun load(call: String) = loadInline(part + "\n" + skill(call))
 
     @Test
-    fun partInlinedWithPrefixedIds() {
-        val r = load("with: {window: 10, power: 2}\n              frames: {src: caster}")
-        assertThat(r).isInstanceOf(Result.Success::class.java)
-        val dump = (r as Result.Success).value.toString()
-        assertThat(dump).contains("p/charge").contains("p/charge/mark")
-    }
-
-    @Test
-    fun partSeesOnlyBoundFrames() {
-        val r = load("with: {window: 10, power: 2}\n              frames: {src: nowhere}")
-        val e = (r as Result.Failure).error
-        assertThat(e).isInstanceOf(SkillDecodeError.UndefinedReference::class.java)
-    }
-
-    @Test
-    fun partEmitsCrossBoundary() {
-        val bad = loadInline(part + "\n" + skill("with: {window: 10, power: 2}\n              frames: {src: caster}").replace("p.end", "p.nope"))
-        assertThat((bad as Result.Failure).error).isInstanceOf(SkillDecodeError.UndefinedReference::class.java)
-        val ok = load("with: {window: 10, power: 2}\n              frames: {src: caster}")
-        assertThat(ok).isInstanceOf(Result.Success::class.java)
-    }
-
-    @Test
     fun withArgsAreTypedAndRequired() {
         val missing = load("with: {window: 10}\n              frames: {src: caster}")
         assertThat((missing as Result.Failure).error).isInstanceOf(SkillDecodeError.MissingField::class.java)

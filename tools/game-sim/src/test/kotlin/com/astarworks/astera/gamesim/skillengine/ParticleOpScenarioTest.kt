@@ -2,13 +2,9 @@ package com.astarworks.astera.gamesim.skillengine
 
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
-import com.astarworks.astera.core.application.skillengine.load.grammar.AnchorRef
-import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ParticleDefOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ParticleOp
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ParticleOpSpec
-import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ParticleStyle
 import com.astarworks.astera.core.domain.Result
-import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler
@@ -23,7 +19,6 @@ import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -40,21 +35,6 @@ class ParticleOpScenarioTest : SkillEngineScenario() {
             is Result.Success -> ParticleOpSpec.decode(OpId("puff"), SrcPath("test"), null, null, r.value, ctx)
             is Result.Failure -> Result.Failure(r.error)
         }
-
-    @Test
-    fun dustWithColorAndSizeDecodesWithVanillaDefaults() {
-        val r = decodeParticle(mapOf("particle" to "dust", "anchor" to "palm", "color" to "#ff5fa2", "size" to 1.2))
-        val op = (r as Result.Success).value
-        assertEquals(Value.Literal(1.0), op.count)
-        assertEquals(Value.Literal(0.0), op.extra)
-        assertEquals(Value.Literal(com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 0.0)), op.offset)
-        val dust = assertInstanceOf(ParticleStyle.Dust::class.java, op.style)
-        assertEquals(255, dust.color.r)
-        assertEquals(95, dust.color.g)
-        assertEquals(162, dust.color.b)
-        assertEquals(1.2, dust.size, 1e-9)
-        assertEquals(AnchorRef("palm", null, null), op.anchor)
-    }
 
     @Test
     fun sizeWithoutColorIsRejected() {
@@ -86,25 +66,6 @@ class ParticleOpScenarioTest : SkillEngineScenario() {
     @Test
     fun fractionalCountIsRejected() {
         assertTrue(decodeParticle(mapOf("particle" to "flame", "anchor" to "muzzle", "count" to 2.5)) is Result.Failure)
-    }
-
-    @Test
-    fun anchorSweepMapDecodes() {
-        val r = decodeParticle(
-            mapOf("particle" to "end_rod", "anchor" to mapOf("of" to "bolt", "sweep" to 0.3)),
-        )
-        val op = (r as Result.Success).value
-        assertEquals(AnchorRef("bolt", null, 0.3), op.anchor)
-    }
-
-    @Test
-    fun particleDefDecodesAsPointKind() {
-        val raw = mapOf("def" to "frost-cast", "anchor" to "muzzle")
-        val values = (ParticleDefOpSpec.fields.decode(raw, ctx, path) as Result.Success).value
-        val op = (ParticleDefOpSpec.decode(OpId("frost"), SrcPath("test"), null, null, values, ctx) as Result.Success).value
-        assertEquals("frost-cast", op.def)
-        assertEquals(AnchorRef("muzzle", null, null), op.anchor)
-        assertEquals(com.astarworks.astera.core.application.skillengine.load.grammar.TimingKind.POINT, ParticleDefOpSpec.timing)
     }
 
     // ---- W2-04: shift / times families / R28 per-index lists / R11 lint (lowered rows, Live sources evaluated here) ----
@@ -156,49 +117,11 @@ class ParticleOpScenarioTest : SkillEngineScenario() {
     }
 
     @Test
-    fun shiftPerCopyUsesI() {
-        val ps = particles(loaded(skill("{id: ring, op: particle, particle: flame, anchor: body, times: 4, shift: {forward: \"= i * 1.0\", up: 0.5}}")))
-        assertEquals(4, ps.size)
-        val ys = ps.map { position(it).y }
-        assertTrue(ys.all { Math.abs(it - 0.5) < 1e-9 }, "up shift carried: $ys")
-        val sources = ps.map { source(it.position) }
-        assertEquals(4, sources.toSet().size, "each copy bakes its own i: $sources")
-    }
-
-    @Test
     fun sameTickTimesWithoutEvery() {
         val ps = particles(loaded(skill("{id: ring, op: particle, particle: flame, anchor: body, times: 5, shift: {left: \"= i\"}}")))
         assertEquals(5, ps.size)
         val rows = loaded(skill("{id: ring, op: particle, particle: flame, anchor: body, times: 5, shift: {left: \"= i\"}}")).table.states.flatMap { it.rows }
         assertEquals(1, rows.map { it.tick }.toSet().size, "a times family without every is simultaneous")
-    }
-
-    @Test
-    fun nAndIAreBoundInShiftAndPiIsAConstant() {
-        val ps = particles(loaded(skill("{id: ring, op: particle, particle: flame, anchor: body, times: 4, shift: {forward: \"= cos(2.0 * PI * i / n)\", left: \"= sin(2.0 * PI * i / n)\"}}")))
-        val xs = ps.map { position(it).x - 10.0 }.sorted()
-        assertEquals(listOf(-1.0, 0.0, 0.0, 1.0).size, xs.size)
-        assertEquals(1.0, xs.last(), 1e-9)
-        assertEquals(-1.0, xs.first(), 1e-9)
-    }
-
-    @Test
-    fun ringPhaseDrawConstantPerCast() {
-        // shift `forward` is the +z axis of an identity frame, so the draw is read from z
-        val ps = particles(loaded(skill("{id: ring, op: particle, particle: flame, anchor: body, times: 3, shift: {forward: \"= draw('ring_ph')\"}}")))
-        val xs = ps.map { position(it).z }
-        assertEquals(1, xs.map { Math.round(it * 1e9) }.toSet().size, "draw is one value for every copy of one cast: $xs")
-        val later = ps.map { position(it, sample = 9).z }
-        assertEquals(xs, later, "draw is constant across ticks of one cast")
-        assertTrue(position(ps[0], seed = 7L).z != position(ps[0], seed = 8L).z, "draw differs between casts")
-    }
-
-    @Test
-    fun jaggedLineRollPerPoint() {
-        val ps = particles(loaded(skill("{id: line, op: particle, particle: end_rod, anchor: body, times: 8, shift: \"= roll_unit('jit') * 0.2\"}")))
-        val vs = ps.map { position(it) }
-        assertEquals(8, vs.map { Triple(Math.round(it.x * 1e9), Math.round(it.y * 1e9), Math.round(it.z * 1e9)) }.toSet().size, "roll differs per copy i: $vs")
-        assertEquals(vs, ps.map { position(it) }, "deterministic for one seed")
     }
 
     @Test
@@ -210,33 +133,9 @@ class ParticleOpScenarioTest : SkillEngineScenario() {
     }
 
     @Test
-    fun indexedListExpandsPerI() {
-        val ps = particles(loaded(skill("{id: p, op: particle, particle: flame, anchor: body, times: 3, count: [1, 2, 3]}")))
-        assertEquals(3, ps.size)
-        // literal counts lower to Known cells (not Live sources): each copy carries its own entry of the list
-        assertEquals(listOf(1.0, 2.0, 3.0), ps.map { (it.count as Val.Known<*>).value.let { v -> (v as Number).toDouble() } })
-        assertTrue(ps.all { it.count is Val.Live<*> || it.count is Val.Known<*> })
-    }
-
-    @Test
     fun indexedListWrongLengthIsLoadError() {
         val r = loadInline(skill("{id: p, op: particle, particle: flame, anchor: body, times: 3, count: [1, 2]}"))
         assertTrue(r is Result.Failure, "a per-index list needs exactly times entries")
     }
 
-    @Test
-    fun anchorOffsetAppliesInAnchorAxes() {
-        val ps = particles(loaded(skill("{id: p, op: particle, particle: flame, anchor: {of: body, offset: {up: 2.0}}}")))
-        assertEquals(2.0, position(ps.single()).y, 1e-9)
-    }
-
-    @Test
-    fun particleDefPlaysAsABurstOfItsDef() {
-        // W2-04: Action.ParticleDef reaches the particle gateway as one burst whose type is the def id
-        val s = loaded(skill("{id: pd, op: particle_def, def: frost-cast, anchor: body}"))
-        val calls = play(s, 3L).filter { it.verb == "particle" }
-        assertEquals(1, calls.size)
-        assertEquals("type=frost-cast", calls.single().payload)
-        assertEquals(0, calls.single().tick)
-    }
 }

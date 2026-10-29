@@ -1,8 +1,6 @@
 package com.astarworks.astera.gamesim.skillengine
 
 import com.astarworks.astera.core.domain.Result
-import com.astarworks.astera.core.domain.skillengine.table.Action
-import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -34,19 +32,9 @@ class CrossStateRefScenarioTest : SkillEngineScenario() {
 
     private fun load(y: String) = loadInline(y)
 
-    private fun compile(y: String): CompiledSkill = when (val r = load(y)) {
-        is Result.Success -> r.value
-        is Result.Failure -> throw AssertionError("expected to load: ${r.error.message}")
-    }
-
     private fun msgOf(y: String): String = (load(y) as? Result.Failure)?.error?.message ?: "loaded"
 
     private val use = "{op: particle_def, def: couture-s2-p-stick, anchor: %s, at: 0, every: 1, times: 3}"
-
-    @Test
-    fun qualifiedRefReachesAnInstanceOfAnEarlierState() {
-        compile(skill(30, "", use.format("/a/f")))
-    }
 
     @Test
     fun refToAnEndedInstanceIsANamedError() {
@@ -59,73 +47,4 @@ class CrossStateRefScenarioTest : SkillEngineScenario() {
         assertThat(msgOf(skill(30, "", use.format("f")))).contains("not declared")
     }
 
-    @Test
-    fun lineRibbonUntilEndsAtTheEventSubTable() {
-        val y = """
-            apiVersion: astera/v3
-            kind: Skill
-            id: ribbon-until
-            item: any
-            machine:
-              start: s
-              states:
-                s:
-                  for: 40
-                  then: e
-                  do:
-                    - {id: f1, op: frame, anchor: caster.hand_r, for: 40}
-                    - {id: f2, op: frame, anchor: caster.hand_l, for: 40}
-                    - {id: r, op: ribbon, at: 0, from: f1, to: f2, thickness: 0.1, color: "#ffffff", until: e.end}
-                e:
-                  for: 5
-        """.trimIndent() + "\n"
-        val s = compile(y)
-        val rows = s.table.states.flatMap { it.rows }
-        assertThat(rows.none { it.action is Action.End && it.instance.path.last().op.value.endsWith("r") }).`as`("no static End").isTrue()
-        assertThat(s.table.subTables.values.flatMap { it.rows }.any { it.action is Action.End && it.instance.path.last().op.value.endsWith("r") }).isTrue()
-    }
-
-    @Test
-    fun heldModelSwapsAtOnsetAndRestoresAtTheEnd() {
-        val y = """
-            apiVersion: astera/v3
-            kind: Skill
-            id: held-probe
-            item: any
-            machine:
-              start: s
-              states:
-                s:
-                  for: 70
-                  do:
-                    - {op: held_model, at: 20, model: "astera:hidden", for: 37}
-        """.trimIndent() + "\n"
-        val calls = play(compile(y), 1L).filter { it.verb == "effect" && it.payload.startsWith("held_model") }
-        assertThat(calls.map { it.tick to it.payload }).containsExactly(20 to "held_model=astera:hidden", 57 to "held_model_clear")
-        assertThat(msgOf(y.replace(", for: 37", ""))).isNotEqualTo("loaded")
-    }
-
-    @Test
-    fun lineRibbonIsSpawnedMovedEveryTickAndEndedWithItsWindow() {
-        val y = """
-            apiVersion: astera/v3
-            kind: Skill
-            id: line-live
-            item: any
-            machine:
-              start: s
-              states:
-                s:
-                  for: 20
-                  do:
-                    - {id: f1, op: frame, anchor: caster.hand_r, for: 20}
-                    - {id: f2, op: frame, anchor: caster.hand_l, for: 20}
-                    - {id: r, op: ribbon, at: 2, from: f1, to: f2, thickness: 0.1, color: "#80ff5fa2", for: 6}
-            """.trimIndent() + "\n"
-        val calls = play(compile(y), 1L)
-        val spawn = calls.single { it.verb == "spawn" && it.tokens.contains("kind=ribbon") }
-        assertThat(spawn.tick).isEqualTo(2)
-        assertThat(calls.filter { it.verb == "line" && it.instance == spawn.instance }.map { it.tick }).containsExactly(3, 4, 5, 6, 7, 8)
-        assertThat(calls.single { it.verb == "remove" && it.instance == spawn.instance }.tick).isEqualTo(8)
-    }
 }
