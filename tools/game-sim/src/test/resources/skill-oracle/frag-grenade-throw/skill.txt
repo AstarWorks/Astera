@@ -6,6 +6,8 @@
 @1 particle - op=throw/trail0[1] type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8326041921287778536
 @1 particle - op=throw/trail1[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5431180113488938716
 @1 hit - op=throw/bolt at=0.000000,1.620000,1.900000 r=0.500000 shape=capsule a=0.000000,1.620000,1.900000 b=0.000000,1.620000,1.900000 rad=0.500000
+g @1 state-exit reason=EVENT | state=throw
+g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 sound - op=throw/snd sound=entity.snowball.throw cat=master vol=0.9 pitch=0.7 at=0.000000,0.000000,0.000000
 @0 particle - op=throw/fx type=gun-muzzle-smoke at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4243670878610807533
@@ -14,3 +16,21 @@
 @1 particle - op=throw/trail0[1] type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8326041921287778536
 @1 particle - op=throw/trail1[1] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5431180113488938716
 @1 hit - op=throw/bolt at=-1.074490,2.269838,1.425897 r=0.500000 shape=capsule a=-1.074490,2.269838,1.425897 b=-1.074490,2.269838,1.425897 rad=0.500000
+g @1 state-exit reason=EVENT | state=throw
+g @1 cast-end | pose
+## gameplay-static
+g @0..1200 cast-length | cast
+g @0..1200 state-end then=- final=false | state=throw
+g @0 state-end then=- final=true | state=end
+g.absorbed @1..60 handler max=1 | sub=throw/bolt.absorbed
+g.block @1..60 handler max=1 | sub=throw/bolt.block
+g.block @0 world explode break_blocks=false fire=false power=1.300000 | sub=throw/bolt.block
+g.block @0 damage physical=35.000000 to=enemies@3.500000 | sub=throw/bolt.block
+g.block @0 status bleed stacks=1.000000 for=20 to=enemies@3.500000 | sub=throw/bolt.block
+g.block @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D1.5,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D35,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse,%20power%3D3.0) | sub=throw/bolt.block
+g.end @1..60 handler max=1 | sub=throw/bolt.end
+g.hit @1..60 handler max=1 | sub=throw/bolt.hit
+g.hit @0 world explode break_blocks=false fire=false power=1.300000 | sub=throw/bolt.hit
+g.hit @0 damage physical=35.000000 to=enemies@3.500000 | sub=throw/bolt.hit
+g.hit @0 status bleed stacks=1.000000 for=20 to=enemies@3.500000 | sub=throw/bolt.hit
+g.hit @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D1.5,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D35,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse,%20power%3D3.0) | sub=throw/bolt.hit

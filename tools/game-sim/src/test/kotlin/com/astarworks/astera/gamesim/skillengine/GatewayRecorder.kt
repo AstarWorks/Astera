@@ -342,9 +342,9 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun silence(caster: UUID, victim: UUID, durationTicks: Int) = add("effect", victim.toString(), "silence=$durationTicks")
 
         override fun modifyAttribute(caster: UUID, victim: UUID, attribute: String, operation: String, amount: Double, durationTicks: Int?) =
-            add("effect", victim.toString(), "attribute=$attribute")
+            add("effect", victim.toString(), "attribute=$attribute op=$operation amount=${RecordedCall.num(amount)} for=${durationTicks ?: "-"}")
 
-        override fun restoreResource(victim: UUID, resource: String, amount: Double) = add("effect", victim.toString(), "resource=$resource")
+        override fun restoreResource(victim: UUID, resource: String, amount: Double) = add("effect", victim.toString(), "resource=$resource amount=${RecordedCall.num(amount)}")
 
         override fun impulse(victim: UUID, vector: Vec3) = add("effect", victim.toString(), "impulse x=${RecordedCall.num(vector.x)} y=${RecordedCall.num(vector.y)} z=${RecordedCall.num(vector.z)}")
 

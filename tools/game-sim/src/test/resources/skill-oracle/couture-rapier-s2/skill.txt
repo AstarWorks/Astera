@@ -1656,6 +1656,10 @@
 @96 frame throw/palm_f op=throw/palm_f pos=-0.351563,0.768018,3.292518 rot=0.000000,0.000000,0.000000,1.000000
 @96 frame coin3/dash_f op=coin3/dash_f pos=0.000000,0.000000,3.000000 rot=0.000000,0.000000,0.000000,1.000000
 @96 frame coin3/c3_hit.hit/h3_frame op=coin3/c3_hit.hit/h3_frame pos=0.000000,0.900000,4.300000 rot=0.000000,0.000000,0.000000,1.000000
+g @36 state-exit reason=EVENT | state=throw
+g @64 state-exit reason=TIMER | state=stuck
+g @76 state-exit reason=EVENT | state=reel
+g @76 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=couture-s2-body speed=1
 @0 spawn #0 op=windup/held_m kind=item item=astera:couture-rapier part=- pos=-0.520665,0.895497,0.174974 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
@@ -3204,3 +3208,38 @@
 @94 remove #57 op=throw/flight_fan
 @94 remove #56 op=throw/thread_body
 @94 remove #55 op=throw/thread_b
+g @41 state-exit reason=TIMER | state=throw
+g @57 state-exit reason=TIMER | state=reel
+g @94 state-exit reason=TIMER | state=coin3
+g @94 cast-end | pose
+## gameplay-static
+g @0..94 cast-length | cast
+g @34 state-end then=throw final=false | state=windup
+g @7 state-end then=reel final=false | state=throw
+g @28 state-end then=reel final=false | state=stuck
+g @16 state-end then=coin3 final=false | state=reel
+g @0 reel ease=in frame=InstanceId(path%3D[Segment(op%3DOpId(value%3Dvolley),%20index%3Dnull)]) speed=0.450000 to=InstanceId(path%3D[Segment(op%3DOpId(value%3Dthrow/palm_f),%20index%3Dnull)]) | state=reel
+g @0 damage physical=6.000000 | state=reel
+g @37 state-end then=end final=false | state=coin3
+g @9 dash direction=0.000000,0.000000,1.000000 ease=linear face_movement=false follow_pitch=false invulnerable=false speed=live(%3D%209.0%20/%203) stop_on_block=true ticks=3.000000 | state=coin3
+g @9 damage physical=50.000000 | state=coin3
+g @10 damage physical=50.000000 | state=coin3
+g @11 damage physical=50.000000 | state=coin3
+g @12 dash.end | state=coin3
+g @0 state-end then=- final=true | state=end
+g.hit @9..12 handler max=2147483647 | sub=coin3/c3_hit.hit
+g.hit @0 dash.end | sub=coin3/c3_hit.hit
+g.end @0..7 handler max=1 | sub=reel.end
+g.hit @0..0 handler max=2147483647 | sub=reel/reel_hit.hit
+g.hit @0 impulse target=live(victim) vector=live(%3D%20normalize(pos(palm)%20-%20pos(event.victim))%20*%200.25) | sub=reel/reel_hit.hit
+g.absorbed @34..34 handler max=1 | sub=volley.absorbed
+g.block @34..34 handler max=1 | sub=volley.block
+g.end @34..34 handler max=1 | sub=volley.end
+g.hit @34..34 handler max=1 | sub=volley.hit
+g.hit @0 damage physical=18.000000 | sub=volley.hit
+g.hit @0 status bleed stacks=2.000000 for=60 | sub=volley.hit
+g.hit @0 impulse target=live(victim) vector=live(%3D%20-contact.normal%20*%200.35%20+%20vec(0,%200.12,%200)) | sub=volley.hit
+g.hit @0 freeze scope=caster;instance:volley ticks=2.000000 | sub=volley.hit
+g.unstick @34..34 handler max=1 | sub=volley.unstick
+g.hit @8..8 handler max=2147483647 | sub=windup/c1_hit.hit
+g.hit @1 damage physical=30.000000 | sub=windup/c1_hit.hit

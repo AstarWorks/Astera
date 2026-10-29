@@ -146,3 +146,11 @@
 @38 write #0 op=ward/ring dur=2 pos=0.000000,0.050000,0.000000 rot=-0.500000,-0.500000,-0.500000,0.500000 scale=9.000000,9.000000,9.000000 bb=FIXED
 @40 remove #0 op=ward/ring
 @40 remove #1 op=ward/spine
+## gameplay-static
+g @0..40 cast-length | cast
+g @40 state-end then=end final=false | state=ward
+g @10 world lightning visual_only=true | state=ward
+g @10 damage electric=12.000000 to=enemies@5.000000x3 | state=ward
+g @10 heal amount=20.000000 target=allies@5.000000+self | state=ward
+g @10 cleanse negative_only=true target=allies@5.000000+self | state=ward
+g @0 state-end then=- final=true | state=end

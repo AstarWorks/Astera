@@ -2928,3 +2928,18 @@
 @70 remove #48 op=slam/blade_inset
 @70 remove #49 op=slam/blade_guard
 @70 remove #50 op=slam/blade_grip
+## gameplay-static
+g @0..70 cast-length | cast
+g @70 state-end then=end final=false | state=slam
+g @0 lock move=WALK pitch=false yaw=false until=20 | state=slam
+g @20 impulse target=live(caster) vector=0.000000,0.300000,0.000000 | state=slam
+g @20 dash direction=0.000000,0.000000,1.000000 ease=linear face_movement=false follow_pitch=false invulnerable=true speed=live(%3D%202.8%20/%206) stop_on_block=true ticks=6.000000 | state=slam
+g @26 dash.end | state=slam
+g @31 damage physical=live(%3D%20140.0%20+%200.5%20*%20stacks(caster,%20'charge')) | state=slam
+g @31 consume_status status=charge target=live(caster) | state=slam
+g @0 state-end then=- final=true | state=end
+g.hit @20..26 handler max=1 | sub=slam/dash_hit.hit
+g.hit @0 dash.end | sub=slam/dash_hit.hit
+g.hit @31..31 handler max=2147483647 | sub=slam/hit1.hit
+g.hit @0 freeze scope=caster;event.victim ticks=4.000000 | sub=slam/hit1.hit
+g.hit @0 knockback direction=live(%3D%20normalize(flat(pos(event.victim)%20-%20pos(caster)))%20+%20vec(0.0,%200.3,%200.0)) strength=1.600000 target=live(victim) | sub=slam/hit1.hit

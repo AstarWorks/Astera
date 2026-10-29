@@ -1,4 +1,27 @@
 ## pose yaw=0 pitch=0
 @0 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+g @1 state-exit reason=PREEMPT | state=cast/wind
+g @1 state-exit reason=EVENT | state=cast
+g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+g @1 state-exit reason=PREEMPT | state=cast/wind
+g @1 state-exit reason=EVENT | state=cast
+g @1 cast-end | pose
+## gameplay-static
+g @0..37 cast-length | cast
+g @37 state-end then=end final=false | state=cast
+g @11 state-end then=cast/dash final=false | state=cast/wind
+g @14 state-end then=cast/settle final=false | state=cast/dash
+g @0 dash direction=0.000000,0.000000,1.000000 ease=linear face_movement=false follow_pitch=false invulnerable=false speed=live(%3D%209.0%20/%205) stop_on_block=true ticks=5.000000 | state=cast/dash
+g @0 damage physical=40.000000 | state=cast/dash
+g @1 damage physical=40.000000 | state=cast/dash
+g @2 damage physical=40.000000 | state=cast/dash
+g @3 damage physical=40.000000 | state=cast/dash
+g @4 damage physical=40.000000 | state=cast/dash
+g @5 dash.end | state=cast/dash
+g @12 state-end then=cast/done final=false | state=cast/settle
+g @0 state-end then=- final=true | state=cast/done
+g @0 state-end then=- final=true | state=end
+g.hit @0..5 handler max=2147483647 | sub=cast/dash/dash_hit.hit
+g.hit @0 dash.end | sub=cast/dash/dash_hit.hit

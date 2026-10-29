@@ -16,3 +16,10 @@
 @0 sound - op=quake/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=tremor stacks=1 for=60
 @0 status 00000000-0000-0000-0000-00000000000b op=- status=tremor stacks=1 for=60
+## gameplay-static
+g @0..1 cast-length | cast
+g @1 state-end then=end final=false | state=quake
+g @0 damage physical=live(%3D%2030.0%20*%20(1.0%20-%200.5%20*%20dist(event.victim,%20caster)%20/%203.5)) | state=quake
+g @0 state-end then=- final=true | state=end
+g.hit @0..0 handler max=2147483647 | sub=quake/burst.hit
+g.hit @0 status tremor stacks=1.000000 for=60 | sub=quake/burst.hit

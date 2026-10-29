@@ -512,3 +512,28 @@
 @36 remove #4 op=cast/fin[0]
 @36 remove #5 op=cast/fin[1]
 @36 remove #6 op=cast/fin[2]
+## gameplay-static
+g @0..40 cast-length | cast
+g @40 state-end then=end final=false | state=cast
+g @0 state-end then=- final=true | state=end
+g.end @1..40 handler max=1 | sub=ball.end
+g.absorbed @2..13 handler max=1 | sub=cast/volley[0]/ball.absorbed
+g.block @2..13 handler max=1 | sub=cast/volley[0]/ball.block
+g.end @2..13 handler max=1 | sub=cast/volley[0]/ball.end
+g.hit @2..13 handler max=1 | sub=cast/volley[0]/ball.hit
+g.hit @0 damage fire=cel(6%20*%202.0) to=enemies@2.500000x8 | sub=cast/volley[0]/ball.hit
+g.absorbed @7..18 handler max=1 | sub=cast/volley[1]/ball.absorbed
+g.block @7..18 handler max=1 | sub=cast/volley[1]/ball.block
+g.end @7..18 handler max=1 | sub=cast/volley[1]/ball.end
+g.hit @7..18 handler max=1 | sub=cast/volley[1]/ball.hit
+g.hit @0 damage fire=cel(6%20*%202.0) to=enemies@2.500000x8 | sub=cast/volley[1]/ball.hit
+g.absorbed @12..23 handler max=1 | sub=cast/volley[2]/ball.absorbed
+g.block @12..23 handler max=1 | sub=cast/volley[2]/ball.block
+g.end @12..23 handler max=1 | sub=cast/volley[2]/ball.end
+g.hit @12..23 handler max=1 | sub=cast/volley[2]/ball.hit
+g.hit @0 damage fire=cel(6%20*%202.0) to=enemies@2.500000x8 | sub=cast/volley[2]/ball.hit
+g.absorbed @17..28 handler max=1 | sub=cast/volley[3]/ball.absorbed
+g.block @17..28 handler max=1 | sub=cast/volley[3]/ball.block
+g.end @17..28 handler max=1 | sub=cast/volley[3]/ball.end
+g.hit @17..28 handler max=1 | sub=cast/volley[3]/ball.hit
+g.hit @0 damage fire=cel(6%20*%202.0) to=enemies@2.500000x8 | sub=cast/volley[3]/ball.hit

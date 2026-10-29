@@ -16,3 +16,10 @@
 @0 sound - op=cast/blast.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589
 @0 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.662 y=0.33 z=0.8785
 @0 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=-0.662 y=0.33 z=0.8785
+## gameplay-static
+g @0..1 cast-length | cast
+g @1 state-end then=done final=false | state=cast
+g @0 damage physical=live(%3D%2016.0%20*%20(1.0%20-%200.5%20*%20dist(event.victim,%20caster)%20/%203.0)) | state=cast
+g @0 state-end then=- final=true | state=done
+g.hit @0..0 handler max=2147483647 | sub=cast/blast.hit
+g.hit @0 knockback direction=live(%3D%20normalize(pos(event.victim)%20-%20pos(caster))%20+%20vec(0,%200.3,%200)) strength=1.100000 target=live(victim) | sub=cast/blast.hit

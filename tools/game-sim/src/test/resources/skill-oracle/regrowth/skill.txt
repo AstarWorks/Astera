@@ -26,3 +26,10 @@
 @0 hit - op=bloom/st_regen at=0.000000,0.000000,0.000000 r=3.000000 shape=area
 @6 particle - op=bloom/leaf_c type=happy_villager count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4009841010415924598
 @6 particle - op=bloom/dust_c type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#8cff78 size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1102138341692021807
+## gameplay-static
+g @0..7 cast-length | cast
+g @7 state-end then=end final=false | state=bloom
+g @0 status regen stacks=1.000000 for=160 to=caster | state=bloom
+g @0 cleanse negative_only=true target=allies@3.000000+self | state=bloom
+g @0 status regen stacks=1.000000 for=160 to=allies@3.000000 | state=bloom
+g @0 state-end then=- final=true | state=end

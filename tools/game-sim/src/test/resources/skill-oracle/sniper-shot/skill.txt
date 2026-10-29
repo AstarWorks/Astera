@@ -6,6 +6,8 @@
 @1 particle - op=fly/trail[1] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4765216629532801463
 @1 particle - op=fly/trail_2[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4852566514223921507
 @1 hit - op=fly/bolt at=0.000000,1.620000,6.500000 r=0.500000 shape=capsule a=0.000000,1.620000,6.500000 b=0.000000,1.620000,6.500000 rad=0.500000
+g @1 state-exit reason=EVENT | state=fly
+g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 sound - op=fly/snd sound=astera:weapons/rifle-crack cat=master vol=0.9 pitch=0.8 at=0.000000,0.000000,0.000000
 @0 particle - op=fly/puff type=gun-muzzle-flash at=-0.601815,-0.250000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3923876023132563240
@@ -14,3 +16,14 @@
 @1 particle - op=fly/trail[1] type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4765216629532801463
 @1 particle - op=fly/trail_2[1] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4852566514223921507
 @1 hit - op=fly/bolt at=-3.675887,3.843131,4.878067 r=0.500000 shape=capsule a=-3.675887,3.843131,4.878067 b=-3.675887,3.843131,4.878067 rad=0.500000
+g @1 state-exit reason=EVENT | state=fly
+g @1 cast-end | pose
+## gameplay-static
+g @0..1200 cast-length | cast
+g @0..1200 state-end then=- final=false | state=fly
+g @0 state-end then=- final=true | state=end
+g.absorbed @1..50 handler max=1 | sub=fly/bolt.absorbed
+g.block @1..50 handler max=1 | sub=fly/bolt.block
+g.end @1..50 handler max=1 | sub=fly/bolt.end
+g.hit @1..50 handler max=1 | sub=fly/bolt.hit
+g.hit @0 damage physical=47.500000 | sub=fly/bolt.hit

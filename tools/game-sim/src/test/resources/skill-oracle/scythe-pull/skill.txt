@@ -10,3 +10,10 @@
 @0 sound - op=cast/snd sound=entity.player.attack.sweep cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=slash-sweep at=-1.203630,-0.100000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7489806503170483581
 @0 hit - op=cast/sel at=0.000000,1.620000,0.000000 r=7.000000 shape=sector fwd=-0.565521,0.342020,0.750472 left=0.798636,0.000000,0.601815 deg=50.000000 range=5.000000 height=2.000000
+## gameplay-static
+g @0..1 cast-length | cast
+g @1 state-end then=end final=false | state=cast
+g @0 state-end then=- final=true | state=end
+g.hit @0..0 handler max=2147483647 | sub=cast/sel.hit
+g.hit @0 knockback direction=live(%3D%20normalize(pos(caster)%20-%20pos(event.victim))%20+%20vec(0.0,%200.2,%200.0)) strength=1.300000 target=live(victim) | sub=cast/sel.hit
+g.hit @0 damage physical=14.000000 | sub=cast/sel.hit

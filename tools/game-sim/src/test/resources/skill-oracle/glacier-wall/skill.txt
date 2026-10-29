@@ -4,3 +4,8 @@
 ## pose yaw=37 pitch=-20
 @0 sound - op=cast/snd sound=astera:skills/frost-cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=frost-cast at=-1.203630,0.200000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-259008262026026705
+## gameplay-static
+g @0..1 cast-length | cast
+g @1 state-end then=end final=false | state=cast
+g @0 world place_shape spec=PlaceShapeSpec(shape%3DWall(width%3D3,%20height%3D3),%20block%3Dastera:tempered_glass,%20consume%3Dnull,%20rippleTicks%3D29,%20revertTicks%3D160,%20outsideArena%3Dfalse) | state=cast
+g @0 state-end then=- final=true | state=end

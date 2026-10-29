@@ -11,3 +11,10 @@
 @0 sound - op=swing/snd_swing sound=astera:weapons/sword-swing cat=master vol=1 pitch=1.5 at=0.000000,0.000000,0.000000
 @0 particle - op=swing/fx_swing type=slash-sweep at=-0.842541,-0.200000,1.118090 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8394047095100170233
 @0 hit - op=swing/swing at=0.000000,1.620000,0.000000 r=5.300000 shape=sector fwd=-0.565521,0.342020,0.750472 left=0.798636,0.000000,0.601815 deg=70.000000 range=3.300000 height=2.000000
+## gameplay-static
+g @0..1 cast-length | cast
+g @1 state-end then=end final=false | state=swing
+g @0 damage physical=26.000000 | state=swing
+g @0 state-end then=- final=true | state=end
+g.hit @0..0 handler max=2147483647 | sub=swing/swing.hit
+g.hit @0 knockback direction=live(%3D%20normalize(pos(event.victim)%20-%20pos(caster))) strength=0.200000 target=live(victim) | sub=swing/swing.hit

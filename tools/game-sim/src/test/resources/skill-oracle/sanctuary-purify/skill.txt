@@ -8,3 +8,8 @@
 @0 particle - op=bless/pts type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3908550969281822914
 @0 particle - op=bless/dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#f0f0aa size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-796176313248982766
 @0 hit - op=bless/cleanse at=0.000000,0.000000,0.000000 r=6.000000 shape=area
+## gameplay-static
+g @0..1 cast-length | cast
+g @1 state-end then=end final=false | state=bless
+g @0 cleanse negative_only=true target=allies@6.000000+self | state=bless
+g @0 state-end then=- final=true | state=end

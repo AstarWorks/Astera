@@ -10,3 +10,10 @@
 @0 status 00000000-0000-0000-0000-000000000001 op=- status=evasive stacks=1 for=25
 @0 effect 00000000-0000-0000-0000-000000000001 op=- impulse x=0.662 y=0 z=-0.8785
 @0 effect 00000000-0000-0000-0000-000000000001 op=- impulse x=0 y=0.35 z=0
+## gameplay-static
+g @0..1 cast-length | cast
+g @1 state-end then=end final=false | state=cast
+g @0 status evasive stacks=1.000000 for=25 to=caster | state=cast
+g @0 impulse target=live(caster) vector=live(%3D%20forward(caster)%20*%20-1.1) | state=cast
+g @0 impulse target=live(caster) vector=0.000000,0.350000,0.000000 | state=cast
+g @0 state-end then=- final=true | state=end

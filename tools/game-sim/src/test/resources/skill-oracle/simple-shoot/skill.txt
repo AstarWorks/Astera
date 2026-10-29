@@ -7,6 +7,8 @@
 @1 particle - op=fly/trail_flame[1] type=flame count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8928085373508146426
 @1 particle - op=fly/trail_dust[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8480432604492404447
 @1 hit - op=fly/beam at=0.000000,1.620000,2.500000 r=0.500000 shape=capsule a=0.000000,1.620000,2.500000 b=0.000000,1.620000,2.500000 rad=0.500000
+g @1 state-exit reason=EVENT | state=fly
+g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
 @0 particle - op=fly/cast_flame type=flame count=50 at=-0.722178,0.000000,0.958363 off=0.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8291142774835724825
@@ -16,3 +18,15 @@
 @1 particle - op=fly/trail_flame[1] type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8928085373508146426
 @1 particle - op=fly/trail_dust[1] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8480432604492404447
 @1 hit - op=fly/beam at=-1.413803,2.475050,1.876180 r=0.500000 shape=capsule a=-1.413803,2.475050,1.876180 b=-1.413803,2.475050,1.876180 rad=0.500000
+g @1 state-exit reason=EVENT | state=fly
+g @1 cast-end | pose
+## gameplay-static
+g @0..1200 cast-length | cast
+g @0..1200 state-end then=- final=false | state=fly
+g @0 state-end then=- final=true | state=end
+g.absorbed @1..40 handler max=1 | sub=fly/beam.absorbed
+g.block @1..40 handler max=1 | sub=fly/beam.block
+g.end @1..40 handler max=1 | sub=fly/beam.end
+g.expire @40..40 handler max=1 | sub=fly/beam.expire
+g.hit @1..40 handler max=1 | sub=fly/beam.hit
+g.hit @0 damage fire=25.000000 | sub=fly/beam.hit
