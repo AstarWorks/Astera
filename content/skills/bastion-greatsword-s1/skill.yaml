@@ -1,10 +1,8 @@
 # Wave 2 v3 draft of bastion-greatsword-s1 (v2: skill.yaml + look.yaml), generated from the v2 files by a scratch script, gameplay hand-authored.
 # Offsets [left, up, forward] -> name-keyed maps. Euler turn [pitch, yaw, roll] (v1: Ry(-yaw) Rx(pitch) Rz(roll)) -> pose list [up -yaw, left pitch, forward roll].
-# Weapon rig: v2 had 48 per-tick wrist rotation vectors (rig swing keys). Here they are edge-travel steps (tip direction from/to, edge leading|trailing, roll),
-# one `for: 1` step per moving tick, holds are gaps. Steps reproduce the v2 per-tick pose within 0.0001 deg (replica of RigSwings.lower); a burst that starts after a hold
-# carries a 0.5 deg `via` detour so that Q0 equals the held pose.
-# Example c (docs/adr/0303-examples/c-bastion-greatsword-s1-swing.yaml) is illustrative only: it uses 7 `keys` poses of an item display (98/-12 deg etc), one sound and an
-# edge_trail ribbon; v2 has 27 swing steps, 25 sounds, 2 dashes, plates and ~330 particle emitters and NO ribbon, so v2 is followed.
+# Weapon rig: three swings of three keys each (founder 2026-10-29: few keys + ease, no per-tick replica of v2). Each step is one great-circle arc of the tip (from/to),
+# the edge side (leading|trailing) and a roll; hit ticks (7, 31), freezes, damage and the end tick are the v2 values. Blade particles are segments between the rig anchor's
+# root and tip points (anchor: {of: rig.root, to: rig.tip, samples: N}), not baked positions.
 apiVersion: astera/v3
 kind: Skill
 id: bastion-greatsword-s1
@@ -55,44 +53,26 @@ machine:
         - id: rig
           op: rig
           parent: caster
+          mount: caster.hand_r
           anim: bastion-s1-body
           part: held_hand
           rest: [{axis: left, deg: 72}]
-          sample_ticks: 1
           respect_hit_stop: true
           freezes: [{at: 7, ticks: 2}, {at: 31, ticks: 2}]
-          tip: {left: 0.0, up: 1.4503, forward: -0.9786}
-          root: {left: 0.0, up: 0.0731, forward: -0.2251}
-          edge: {left: 0.0, up: 0.5593, forward: 0.8289}
           for: 58
           swing:
-            - {at: 2, for: 1, from: {left: -0.95553, up: -0.0235, forward: -0.29395}, via: {left: -0.95298, up: -0.025991, forward: -0.301916}, to: {left: -0.79928, up: -0.29781, forward: -0.52197}, edge: leading, roll: 37.189}
-            - {for: 1, from: {left: -0.79928, up: -0.29781, forward: -0.52197}, to: {left: -0.57397, up: -0.17028, forward: -0.80097}, edge: trailing, roll: -11.993}
-            - {for: 1, from: {left: -0.57397, up: -0.17028, forward: -0.80097}, to: {left: -0.7562, up: -0.45452, forward: -0.47072}, edge: leading, roll: 136.577}
-            - {for: 1, from: {left: -0.7562, up: -0.45452, forward: -0.47072}, to: {left: -0.50143, up: -0.76907, forward: -0.39635}, edge: trailing, roll: 26.497}
-            - {for: 1, from: {left: -0.50143, up: -0.76907, forward: -0.39635}, to: {left: -0.24629, up: -0.96705, forward: -0.06444}, edge: trailing, roll: 14.027}
-            - {for: 1, from: {left: -0.24629, up: -0.96705, forward: -0.06444}, to: {left: -0.01733, up: -0.68206, forward: 0.73109}, edge: trailing, roll: 147.98}
-            - {for: 1, from: {left: -0.01733, up: -0.68206, forward: 0.73109}, to: {left: -0.04789, up: -0.70079, forward: 0.71176}, edge: trailing, roll: -8.075}
-            - {for: 1, from: {left: -0.04789, up: -0.70079, forward: 0.71176}, to: {left: -0.04507, up: -0.69948, forward: 0.71323}, edge: leading, roll: -4.667}
-            - {for: 1, from: {left: -0.04507, up: -0.69948, forward: 0.71323}, to: {left: -0.04234, up: -0.69757, forward: 0.71526}, edge: leading, roll: -18.492}
-            - {for: 1, from: {left: -0.04234, up: -0.69757, forward: 0.71526}, to: {left: -0.03966, up: -0.69505, forward: 0.71787}, edge: leading, roll: -29.561}
-            - {for: 1, from: {left: -0.03966, up: -0.69505, forward: 0.71787}, to: {left: -0.03695, up: -0.6919, forward: 0.72105}, edge: leading, roll: -37.93}
-            - {for: 1, from: {left: -0.03695, up: -0.6919, forward: 0.72105}, to: {left: 0.53139, up: -0.14142, forward: 0.83524}, edge: leading, roll: 24.489}
-            - {for: 1, from: {left: 0.53139, up: -0.14142, forward: 0.83524}, to: {left: 0.09958, up: -0.18948, forward: 0.97682}, edge: trailing, roll: 77.536}
-            - {for: 1, from: {left: 0.09958, up: -0.18948, forward: 0.97682}, to: {left: -0.1298, up: -0.21654, forward: 0.96761}, edge: trailing, roll: 80.911}
-            - {at: 24, for: 1, from: {left: -0.1298, up: -0.21654, forward: 0.96761}, via: {left: -0.129496, up: -0.208029, forward: 0.969513}, to: {left: 0.68894, up: 0.05507, forward: 0.72272}, edge: leading, roll: 51.286}
-            - {for: 1, from: {left: 0.68894, up: 0.05507, forward: 0.72272}, to: {left: 0.65704, up: -0.15487, forward: 0.73778}, edge: trailing, roll: -1.641}
-            - {for: 1, from: {left: 0.65704, up: -0.15487, forward: 0.73778}, to: {left: 0.55215, up: -0.6934, forward: 0.46295}, edge: trailing, roll: 5.633}
-            - {for: 1, from: {left: 0.55215, up: -0.6934, forward: 0.46295}, to: {left: 0.44818, up: -0.54623, forward: 0.70765}, edge: leading, roll: -41.587}
-            - {for: 1, from: {left: 0.44818, up: -0.54623, forward: 0.70765}, to: {left: 0.4445, up: -0.54123, forward: 0.71379}, edge: leading, roll: -40.689}
-            - {for: 1, from: {left: 0.4445, up: -0.54123, forward: 0.71379}, to: {left: 0.44078, up: -0.53733, forward: 0.71902}, edge: leading, roll: -44.634}
-            - {for: 1, from: {left: 0.44078, up: -0.53733, forward: 0.71902}, to: {left: 0.44383, up: -0.539, forward: 0.71589}, edge: trailing, roll: -58.037}
-            - {for: 1, from: {left: 0.44383, up: -0.539, forward: 0.71589}, to: {left: -0.37137, up: -0.91282, forward: -0.16986}, edge: trailing, roll: -121.239}
-            - {for: 1, from: {left: -0.37137, up: -0.91282, forward: -0.16986}, to: {left: -0.36418, up: -0.91523, forward: -0.17242}, edge: leading, roll: -50.465}
-            - {for: 1, from: {left: -0.36418, up: -0.91523, forward: -0.17242}, to: {left: 0.72305, up: 0.00384, forward: -0.69079}, edge: leading, roll: 37.791}
-            - {for: 1, from: {left: 0.72305, up: 0.00384, forward: -0.69079}, to: {left: 0.98384, up: 0.17755, forward: -0.02334}, edge: leading, roll: -15.437}
-            - {for: 1, from: {left: 0.98384, up: 0.17755, forward: -0.02334}, to: {left: 0.94723, up: 0.09866, forward: 0.305}, edge: leading, roll: -57.329}
-            - {at: 46, for: 1, from: {left: 0.94723, up: 0.09866, forward: 0.305}, via: {left: 0.944669, up: 0.104536, forward: 0.310922}, to: {left: -0.03872, up: 0.78715, forward: 0.61554}, edge: leading, roll: -77.486}
+            # swing 1 (ticks 2-22): wind-up behind, cut down at the hit (tick 7), sweep up and over to the front
+            - {at: 2, for: 5, from: {left: -0.95553, up: -0.0235, forward: -0.29395}, to: {left: -0.24629, up: -0.96705, forward: -0.06444}, edge: trailing, roll: 39.9, ease: in_quad}
+            - {at: 7, for: 7, to: {left: 0.53139, up: -0.14142, forward: 0.83524}, edge: trailing, roll: -70.2, ease: out_cubic}
+            - {at: 14, for: 8, to: {left: -0.1298, up: -0.21654, forward: 0.96761}, edge: leading, roll: 11.3, ease: in_out_sine}
+            # swing 2 (ticks 24-44): lift to the left, cut across at the hit (tick 31), follow through to the right
+            - {at: 24, for: 5, from: {left: -0.1298, up: -0.21654, forward: 0.96761}, to: {left: 0.68894, up: 0.05507, forward: 0.72272}, edge: trailing, roll: 62.2, ease: in_quad}
+            - {at: 29, for: 7, to: {left: -0.37137, up: -0.91282, forward: -0.16986}, edge: leading, roll: -31.9, ease: out_cubic}
+            - {at: 36, for: 8, to: {left: 0.94723, up: 0.09866, forward: 0.305}, edge: trailing, roll: 34.7, ease: in_out_sine}
+            # swing 3 (ticks 46-56): raise, slam down; the rest pose comes back at 56
+            - {at: 46, for: 4, from: {left: 0.94723, up: 0.09866, forward: 0.305}, to: {left: -0.03872, up: 0.78715, forward: 0.61554}, edge: trailing, roll: -79.1, ease: in_quad}
+            - {at: 50, for: 6, to: {left: 0.0, up: -0.51, forward: 0.86}, edge: leading, roll: 0.0, ease: out_cubic}
+            - {at: 56, reset: true}
         # --- presentation (v2 look.yaml timeline groups, folded from the former top-level `presentation:`) ---
         - id: fx0
           op: group
@@ -120,18 +100,6 @@ machine:
           do:
             - {id: fx2_fx_high_s1h1_ring_q1, op: display, kind: sprite, see_through: true, sprite: bastion-s1-hring-q1, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: 1.138, up: 1.543, forward: 1.508}, rotate: [{axis: up, deg: 0.35418}, {axis: left, deg: 85.96954}, {axis: forward, deg: 0.3301}], for: 12}
             - {id: fx2_fx_high_s1h1_ring_bq1, op: display, kind: sprite, see_through: true, sprite: bastion-s1-hring-bq1, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: 1.138, up: 1.543, forward: 1.508}, rotate: [{axis: up, deg: 179.6}, {axis: left, deg: -85.97}], for: 12}
-            - {id: fx2_fx_high_s1h1_p_trail_at, op: frame, anchor: fx2_fx_high, offset: {left: -1.082, up: 0.078, forward: -1.629}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.924, up: 0.172, forward: -1.332}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_at}
-            - {id: fx2_fx_high_s1h1_p_slash_at, op: frame, anchor: fx2_fx_high, offset: {left: -1.043, up: 0.101, forward: -1.555}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_slash, op: particle_def, def: bastion-s1-p-slash, anchor: fx2_fx_high_s1h1_p_slash_at}
-            - {id: fx2_fx_high_s1h1_p_trail_2_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.735, up: 0.67, forward: -1.996}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_2, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_2_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_2_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.62, up: 0.67, forward: -1.666}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_2, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_2_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.793, up: 0.67, forward: -2.161}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_at}
             - {id: fx2_fx_high_s1h1_p_gather_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.586, up: 0.993, forward: -2.293}, for: 1}
             - {id: fx2_fx_high_s1h1_p_gather, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_at}
             - {id: fx2_fx_high_s1h1_p_gather_2_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.452, up: 0.921, forward: -1.791}, for: 1}
@@ -150,34 +118,6 @@ machine:
           op: group
           at: 5
           do:
-            - {id: fx2_fx_high_s1h1_p_trail_3_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.542, up: 0.969, forward: -2.125}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_3, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_3_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_3_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.452, up: 0.921, forward: -1.791}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_3, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_3_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_2_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.586, up: 0.993, forward: -2.293}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_2, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_2_at}
-            - {id: fx2_fx_high_s1h1_p_slash_2_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.519, up: 0.957, forward: -2.042}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_slash_2, op: particle_def, def: bastion-s1-p-slash, anchor: fx2_fx_high_s1h1_p_slash_2_at}
-            - {id: fx2_fx_high_s1h1_p_trail_4_at, op: frame, anchor: fx2_fx_high, offset: {left: -1.365, up: 1.205, forward: -1.676}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_4, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_4_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_4_at, op: frame, anchor: fx2_fx_high, offset: {left: -1.134, up: 1.156, forward: -1.417}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_4, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_4_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_3_at, op: frame, anchor: fx2_fx_high, offset: {left: -1.481, up: 1.229, forward: -1.805}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_3, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_3_at}
-            - {id: fx2_fx_high_s1h1_p_trail_5_at, op: frame, anchor: fx2_fx_high, offset: {left: -1.969, up: 1.395, forward: -0.981}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_5, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_5_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_5_at, op: frame, anchor: fx2_fx_high, offset: {left: -1.646, up: 1.356, forward: -0.853}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_5, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_5_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_4_at, op: frame, anchor: fx2_fx_high, offset: {left: -2.131, up: 1.414, forward: -1.044}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_4, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_4_at}
-            - {id: fx2_fx_high_s1h1_p_trail_6_at, op: frame, anchor: fx2_fx_high, offset: {left: -2.266, up: 1.548, forward: -0.165}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_6, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_6_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_6_at, op: frame, anchor: fx2_fx_high, offset: {left: -1.918, up: 1.527, forward: -0.195}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_6, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_6_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_5_at, op: frame, anchor: fx2_fx_high, offset: {left: -2.44, up: 1.558, forward: -0.15}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_5, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_5_at}
-            - {id: fx2_fx_high_s1h1_p_slash_3_at, op: frame, anchor: fx2_fx_high, offset: {left: -2.179, up: 1.543, forward: -0.172}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_slash_3, op: particle_def, def: bastion-s1-p-slash, anchor: fx2_fx_high_s1h1_p_slash_3_at}
             - {id: fx2_fx_high_s1h1_p_gather_5_at, op: frame, anchor: fx2_fx_high, offset: {left: -2.44, up: 1.558, forward: -0.15}, for: 1}
             - {id: fx2_fx_high_s1h1_p_gather_5, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_5_at}
             - {id: fx2_fx_high_s1h1_p_gather_6_at, op: frame, anchor: fx2_fx_high, offset: {left: -1.918, up: 1.527, forward: -0.195}, for: 1}
@@ -192,34 +132,6 @@ machine:
           do:
             - {id: fx2_fx_high_s1h1_streak_main, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [2.4998, 1.92], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: -0.439, up: 1.58, forward: 1.5}, rotate: [{axis: forward, deg: 6.0}], for: 7, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.439, up: 1.58, forward: 1.5}, pose: [{axis: forward, deg: 6.0}], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: -0.439, up: 1.58, forward: 1.5}, pose: [{axis: forward, deg: 6.0}], scale: {left: 1.2002, up: 1.0, forward: 1.0}, ease: out_quad}, {t: 6, offset: {left: -0.439, up: 1.58, forward: 1.5}, pose: [{axis: forward, deg: 6.0}], scale: {left: 0.9201, up: 0.1, forward: 1.0}, ease: in_quad}]}]}
             - {id: fx2_fx_high_s1h1_flash, op: display, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.1002, 1.1002], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: -0.439, up: 1.54, forward: 1.59}, for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.439, up: 1.54, forward: 1.59}, pose: [], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: -0.439, up: 1.54, forward: 1.59}, pose: [], scale: {left: 0.8633, up: 0.8633, forward: 1.0}, ease: out_quad}, {t: 3, offset: {left: -0.439, up: 1.54, forward: 1.59}, pose: [], scale: {left: 0.409, up: 0.409, forward: 1.0}, ease: in_quad}]}]}
-            - {id: fx2_fx_high_s1h1_p_trail_7_at, op: frame, anchor: fx2_fx_high, offset: {left: -2.266, up: 1.548, forward: -0.165}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_7, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_7_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_7_at, op: frame, anchor: fx2_fx_high, offset: {left: -1.918, up: 1.527, forward: -0.195}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_7, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_7_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_6_at, op: frame, anchor: fx2_fx_high, offset: {left: -2.44, up: 1.558, forward: -0.15}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_6, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_6_at}
-            - {id: fx2_fx_high_s1h1_p_slash_4_at, op: frame, anchor: fx2_fx_high, offset: {left: -2.179, up: 1.543, forward: -0.172}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_slash_4, op: particle_def, def: bastion-s1-p-slash, anchor: fx2_fx_high_s1h1_p_slash_4_at}
-            - {id: fx2_fx_high_s1h1_p_trail_8_at, op: frame, anchor: fx2_fx_high, offset: {left: -1.761, up: 1.565, forward: 0.941}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_8, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_8_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_8_at, op: frame, anchor: fx2_fx_high, offset: {left: -1.465, up: 1.533, forward: 0.758}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_8, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_8_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_7_at, op: frame, anchor: fx2_fx_high, offset: {left: -1.91, up: 1.581, forward: 1.032}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_7, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_7_at}
-            - {id: fx2_fx_high_s1h1_p_trail_9_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.974, up: 1.552, forward: 1.872}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_9, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_9_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_9_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.792, up: 1.516, forward: 1.576}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_9, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_9_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_8_at, op: frame, anchor: fx2_fx_high, offset: {left: -1.066, up: 1.57, forward: 2.02}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_8, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_8_at}
-            - {id: fx2_fx_high_s1h1_p_trail_10_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.013, up: 1.505, forward: 2.522}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_10, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_10_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_10_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.017, up: 1.473, forward: 2.175}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_10, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_10_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_9_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.028, up: 1.521, forward: 2.695}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_9, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_9_at}
-            - {id: fx2_fx_high_s1h1_p_slash_5_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.006, up: 1.497, forward: 2.435}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_slash_5, op: particle_def, def: bastion-s1-p-slash, anchor: fx2_fx_high_s1h1_p_slash_5_at}
             - {id: fx2_fx_high_s1h1_p_gather_11_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.028, up: 1.521, forward: 2.695}, for: 1}
             - {id: fx2_fx_high_s1h1_p_gather_11, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_11_at}
             - {id: fx2_fx_high_s1h1_p_gather_12_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.017, up: 1.473, forward: 2.175}, for: 1}
@@ -230,48 +142,6 @@ machine:
           do:
             - {id: fx2_fx_high_s1h1_ring_q3, op: display, kind: sprite, see_through: true, sprite: bastion-s1-hring-q3, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: 1.162, up: 1.332, forward: -1.485}, rotate: [{axis: up, deg: 0.35418}, {axis: left, deg: 85.96954}, {axis: forward, deg: 0.3301}], for: 9}
             - {id: fx2_fx_high_s1h1_ring_bq3, op: display, kind: sprite, see_through: true, sprite: bastion-s1-hring-bq3, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: 1.162, up: 1.332, forward: -1.485}, rotate: [{axis: up, deg: 179.6}, {axis: left, deg: -85.97}], for: 9}
-            - {id: fx2_fx_high_s1h1_p_trail_11_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.013, up: 1.505, forward: 2.522}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_11, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_11_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_11_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.017, up: 1.473, forward: 2.175}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_11, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_11_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_10_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.028, up: 1.521, forward: 2.695}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_10, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_10_at}
-            - {id: fx2_fx_high_s1h1_p_slash_6_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.006, up: 1.497, forward: 2.435}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_slash_6, op: particle_def, def: bastion-s1-p-slash, anchor: fx2_fx_high_s1h1_p_slash_6_at}
-            - {id: fx2_fx_high_s1h1_p_trail_12_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.399, up: 1.493, forward: 2.072}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_12, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_12_at}
-            - {id: fx2_fx_high_s1h1_p_trail_13_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.462, up: 1.539, forward: 2.503}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_13, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_13_at}
-            - {id: fx2_fx_high_s1h1_p_trail_14_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.874, up: 1.527, forward: 2.057}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_14, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_14_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_12_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.746, up: 1.487, forward: 1.734}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_12, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_12_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_11_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.938, up: 1.547, forward: 2.218}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_11, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_11_at}
-            - {id: fx2_fx_high_s1h1_p_trail_15_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.131, up: 1.493, forward: 1.491}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_15, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_15_at}
-            - {id: fx2_fx_high_s1h1_p_trail_16_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.38, up: 1.545, forward: 1.847}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_16, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_16_at}
-            - {id: fx2_fx_high_s1h1_p_slash_7_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.231, up: 1.514, forward: 1.634}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_slash_7, op: particle_def, def: bastion-s1-p-slash, anchor: fx2_fx_high_s1h1_p_slash_7_at}
-            - {id: fx2_fx_high_s1h1_p_trail_17_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.639, up: 1.511, forward: 1.284}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_17, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_17_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_13_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.379, up: 1.47, forward: 1.054}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_13, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_13_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_12_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.769, up: 1.531, forward: 1.4}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_12, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_12_at}
-            - {id: fx2_fx_high_s1h1_p_trail_18_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.705, up: 1.46, forward: 0.685}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_18, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_18_at}
-            - {id: fx2_fx_high_s1h1_p_trail_19_at, op: frame, anchor: fx2_fx_high, offset: {left: 2.089, up: 1.506, forward: 0.891}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_19, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_19_at}
-            - {id: fx2_fx_high_s1h1_p_trail_20_at, op: frame, anchor: fx2_fx_high, offset: {left: 2.158, up: 1.456, forward: 0.293}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_20, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_20_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_14_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.821, up: 1.424, forward: 0.204}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_14, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_14_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_13_at, op: frame, anchor: fx2_fx_high, offset: {left: 2.326, up: 1.472, forward: 0.338}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_13, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_13_at}
-            - {id: fx2_fx_high_s1h1_p_slash_8_at, op: frame, anchor: fx2_fx_high, offset: {left: 2.073, up: 1.448, forward: 0.271}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_slash_8, op: particle_def, def: bastion-s1-p-slash, anchor: fx2_fx_high_s1h1_p_slash_8_at}
             - {id: fx2_fx_high_s1h1_p_impact_dust_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.036, up: 1.529, forward: 2.782}, for: 1}
             - {id: fx2_fx_high_s1h1_p_impact_dust, op: particle_def, def: bastion-s1-p-impact-dust, anchor: fx2_fx_high_s1h1_p_impact_dust_at}
             - {id: fx2_fx_high_s1h1_p_impact_crit_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.036, up: 1.529, forward: 2.782}, for: 1}
@@ -355,26 +225,6 @@ machine:
           op: group
           at: 10
           do:
-            - {id: fx2_fx_high_s1h1_p_trail_21_at, op: frame, anchor: fx2_fx_high, offset: {left: 2.158, up: 1.456, forward: 0.293}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_21, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_21_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_15_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.821, up: 1.424, forward: 0.204}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_15, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_15_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_14_at, op: frame, anchor: fx2_fx_high, offset: {left: 2.326, up: 1.472, forward: 0.338}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_14, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_14_at}
-            - {id: fx2_fx_high_s1h1_p_slash_9_at, op: frame, anchor: fx2_fx_high, offset: {left: 2.073, up: 1.448, forward: 0.271}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_slash_9, op: particle_def, def: bastion-s1-p-slash, anchor: fx2_fx_high_s1h1_p_slash_9_at}
-            - {id: fx2_fx_high_s1h1_p_trail_22_at, op: frame, anchor: fx2_fx_high, offset: {left: 2.061, up: 1.416, forward: -0.474}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_22, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_22_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_16_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.716, up: 1.384, forward: -0.422}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_16, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_16_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_15_at, op: frame, anchor: fx2_fx_high, offset: {left: 2.233, up: 1.433, forward: -0.5}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_15, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_15_at}
-            - {id: fx2_fx_high_s1h1_p_trail_23_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.71, up: 1.353, forward: -1.202}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_23, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_23_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_17_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.414, up: 1.325, forward: -1.017}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_17, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_17_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_16_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.857, up: 1.367, forward: -1.295}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_16, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_16_at}
             - {id: fx2_fx_high_s1h1_p_gather_23_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.857, up: 1.367, forward: -1.295}, for: 1}
             - {id: fx2_fx_high_s1h1_p_gather_23, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_23_at}
             - {id: fx2_fx_high_s1h1_p_gather_24_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.414, up: 1.325, forward: -1.017}, for: 1}
@@ -387,42 +237,10 @@ machine:
           op: group
           at: 11
           do:
-            - {id: fx2_fx_high_s1h1_p_trail_24_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.71, up: 1.353, forward: -1.202}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_24, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_24_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_18_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.414, up: 1.325, forward: -1.017}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_18, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_18_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_17_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.857, up: 1.367, forward: -1.295}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_17, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_17_at}
-            - {id: fx2_fx_high_s1h1_p_slash_10_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.636, up: 1.346, forward: -1.156}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_slash_10, op: particle_def, def: bastion-s1-p-slash, anchor: fx2_fx_high_s1h1_p_slash_10_at}
-            - {id: fx2_fx_high_s1h1_p_trail_25_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.399, up: 1.332, forward: -1.515}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_25, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_25_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_19_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.154, up: 1.306, forward: -1.266}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_19, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_19_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_18_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.522, up: 1.345, forward: -1.639}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_18, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_18_at}
             - {id: fx2_fx_high_s1h1_p_gather_29_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.328, up: 1.331, forward: -1.787}, for: 1}
             - {id: fx2_fx_high_s1h1_p_gather_29, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_29_at}
             - {id: fx2_fx_high_s1h1_p_gather_30_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.006, up: 1.295, forward: -1.374}, for: 1}
             - {id: fx2_fx_high_s1h1_p_gather_30, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_30_at}
-        - id: fx12
-          op: group
-          at: 12
-          do:
-            - {id: fx2_fx_high_s1h1_p_trail_26_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.221, up: 1.319, forward: -1.649}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_26, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_26_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_20_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.006, up: 1.295, forward: -1.374}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_20, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_20_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_19_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.328, up: 1.331, forward: -1.787}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_19, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_19_at}
-            - {id: fx2_fx_high_s1h1_p_slash_11_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.167, up: 1.313, forward: -1.581}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_slash_11, op: particle_def, def: bastion-s1-p-slash, anchor: fx2_fx_high_s1h1_p_slash_11_at}
-            - {id: fx2_fx_high_s1h1_p_trail_27_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.063, up: 1.301, forward: -1.717}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_27, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_27_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_21_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.875, up: 1.28, forward: -1.423}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_21, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_21_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_20_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.157, up: 1.312, forward: -1.865}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_20, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_20_at}
         - id: fx14
           op: group
           at: 14
@@ -463,20 +281,6 @@ machine:
           op: group
           at: 17
           do:
-            - {id: fx2_fx_high_s1h1_p_trail_28_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.891, up: 1.298, forward: -1.818}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_28, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_28_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_22_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.733, up: 1.277, forward: -1.507}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_22, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_22_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_21_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.97, up: 1.308, forward: -1.974}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_21, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_21_at}
-            - {id: fx2_fx_high_s1h1_p_slash_12_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.851, up: 1.293, forward: -1.741}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_slash_12, op: particle_def, def: bastion-s1-p-slash, anchor: fx2_fx_high_s1h1_p_slash_12_at}
-            - {id: fx2_fx_high_s1h1_p_trail_29_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.744, up: 1.075, forward: -1.856}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_29, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_29_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_23_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.612, up: 1.031, forward: -1.535}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_23, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_23_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_22_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.809, up: 1.097, forward: -2.016}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_22, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_22_at}
             - {id: fx2_fx_high_s1h1_p_gather_41_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.726, up: 0.991, forward: -2.031}, for: 1}
             - {id: fx2_fx_high_s1h1_p_gather_41, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_41_at}
             - {id: fx2_fx_high_s1h1_p_gather_42_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.549, up: 0.907, forward: -1.544}, for: 1}
@@ -489,43 +293,11 @@ machine:
           op: group
           at: 18
           do:
-            - {id: fx2_fx_high_s1h1_p_trail_30_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.667, up: 0.963, forward: -1.868}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_30, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_30_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_24_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.549, up: 0.907, forward: -1.544}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_24, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_24_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_23_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.726, up: 0.991, forward: -2.031}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_23, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_23_at}
-            - {id: fx2_fx_high_s1h1_p_slash_13_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.638, up: 0.949, forward: -1.787}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_slash_13, op: particle_def, def: bastion-s1-p-slash, anchor: fx2_fx_high_s1h1_p_slash_13_at}
-            - {id: fx2_fx_high_s1h1_p_trail_31_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.524, up: 0.55, forward: -1.943}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_31, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_31_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_25_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.429, up: 0.581, forward: -1.608}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_25, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_25_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_24_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.572, up: 0.535, forward: -2.111}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_24, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_24_at}
             - {id: fx2_fx_high_s1h1_p_gather_47_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.483, up: 0.309, forward: -2.109}, for: 1}
             - {id: fx2_fx_high_s1h1_p_gather_47, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_47_at}
             - {id: fx2_fx_high_s1h1_p_gather_48_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.359, up: 0.42, forward: -1.611}, for: 1}
             - {id: fx2_fx_high_s1h1_p_gather_48, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_48_at}
             - {id: snd_12, op: sound, sound: item.armor.equip_iron, anchor: caster, volume: 1.0, pitch: 0.8}
-        - id: fx19
-          op: group
-          at: 19
-          do:
-            - {id: fx2_fx_high_s1h1_p_trail_32_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.442, up: 0.346, forward: -1.943}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_32, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_32_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_26_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.359, up: 0.42, forward: -1.611}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_26, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_26_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_25_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.483, up: 0.309, forward: -2.109}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_25, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_25_at}
-            - {id: fx2_fx_high_s1h1_p_slash_14_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.421, up: 0.364, forward: -1.86}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_slash_14, op: particle_def, def: bastion-s1-p-slash, anchor: fx2_fx_high_s1h1_p_slash_14_at}
-            - {id: fx2_fx_high_s1h1_p_trail_33_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.38, up: 0.177, forward: -1.924}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_trail_33, op: particle_def, def: bastion-s1-p-trail, anchor: fx2_fx_high_s1h1_p_trail_33_at}
-            - {id: fx2_fx_high_s1h1_p_csteel_27_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.307, up: 0.284, forward: -1.599}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_csteel_27, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_csteel_27_at}
-            - {id: fx2_fx_high_s1h1_p_tcrit_26_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.416, up: 0.123, forward: -2.086}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_tcrit_26, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx2_fx_high_s1h1_p_tcrit_26_at}
         - id: fx22
           op: group
           at: 22
@@ -544,48 +316,6 @@ machine:
           at: 28
           do:
             - {id: fx3_fx_low_s1h2_ring_q0, op: display, kind: sprite, see_through: true, sprite: bastion-s1-ring-q0, size: [2.6502, 2.6502], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: 0.98, up: 0.77, forward: -1.029}, rotate: [{axis: up, deg: -136}, {axis: left, deg: -84.5}, {axis: forward, deg: 45.87}], for: 14}
-            - {id: fx3_fx_low_s1h2_p_sheath_0_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.013, up: 0.683, forward: -0.595}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_sheath_0, op: particle_def, def: bastion-s1-p-sheath, anchor: fx3_fx_low_s1h2_p_sheath_0_at}
-            - {id: fx3_fx_low_s1h2_p_sheath_1_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.039, up: 0.661, forward: -0.979}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_sheath_1, op: particle_def, def: bastion-s1-p-sheath, anchor: fx3_fx_low_s1h2_p_sheath_1_at}
-            - {id: fx3_fx_low_s1h2_p_sheath_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.065, up: 0.639, forward: -1.362}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_sheath_2, op: particle_def, def: bastion-s1-p-sheath, anchor: fx3_fx_low_s1h2_p_sheath_2_at}
-            - {id: fx3_fx_low_s1h2_p_sheath_3_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.092, up: 0.617, forward: -1.745}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_sheath_3, op: particle_def, def: bastion-s1-p-sheath, anchor: fx3_fx_low_s1h2_p_sheath_3_at}
-            - {id: fx3_fx_low_s1h2_p_sheath_4_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.118, up: 0.596, forward: -2.129}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_sheath_4, op: particle_def, def: bastion-s1-p-sheath, anchor: fx3_fx_low_s1h2_p_sheath_4_at}
-            - {id: fx3_fx_low_s1h2_p_hot_0_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.094, up: 0.615, forward: -1.78}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_hot_0, op: particle_def, def: bastion-s1-p-sheath-hot, anchor: fx3_fx_low_s1h2_p_hot_0_at}
-            - {id: fx3_fx_low_s1h2_p_mid_0_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.058, up: 0.645, forward: -1.258}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_mid_0, op: particle_def, def: bastion-s1-p-sheath, anchor: fx3_fx_low_s1h2_p_mid_0_at}
-            - {id: fx3_fx_low_s1h2_p_steel_0_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.046, up: 0.655, forward: -1.083}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_steel_0, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_steel_0_at}
-            - {id: fx3_fx_low_s1h2_p_steel_1_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.094, up: 0.615, forward: -1.78}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_steel_1, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_steel_1_at}
-            - {id: fx3_fx_low_s1h2_p_fleck_0_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.07, up: 0.635, forward: -1.432}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_fleck_0, op: particle_def, def: bastion-s1-p-fleck, anchor: fx3_fx_low_s1h2_p_fleck_0_at}
-            - {id: fx3_fx_low_s1h2_p_trail_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.348, up: 0.094, forward: -1.909}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.28, up: 0.218, forward: -1.589}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_at}
-            - {id: fx3_fx_low_s1h2_p_slash_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.331, up: 0.125, forward: -1.829}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_slash, op: particle_def, def: bastion-s1-p-slash, anchor: fx3_fx_low_s1h2_p_slash_at}
-            - {id: fx3_fx_low_s1h2_p_trail_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.23, up: 0.328, forward: -1.693}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_2, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_2_at}
-            - {id: fx3_fx_low_s1h2_p_trail_3_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.297, up: 0.215, forward: -2.11}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_3, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_3_at}
-            - {id: fx3_fx_low_s1h2_p_trail_4_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.189, up: 0.431, forward: -1.958}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_4, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_4_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.15, up: 0.487, forward: -1.615}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel_2, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_2_at}
-            - {id: fx3_fx_low_s1h2_p_tcrit_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.209, up: 0.404, forward: -2.13}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_tcrit, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx3_fx_low_s1h2_p_tcrit_at}
-            - {id: fx3_fx_low_s1h2_p_trail_5_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.088, up: 0.62, forward: -1.693}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_5, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_5_at}
-            - {id: fx3_fx_low_s1h2_p_trail_6_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.118, up: 0.596, forward: -2.129}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_6, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_6_at}
-            - {id: fx3_fx_low_s1h2_p_slash_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.1, up: 0.611, forward: -1.867}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_slash_2, op: particle_def, def: bastion-s1-p-slash, anchor: fx3_fx_low_s1h2_p_slash_2_at}
             - {id: fx3_fx_low_s1h2_p_gather_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.118, up: 0.596, forward: -2.129}, for: 1}
             - {id: fx3_fx_low_s1h2_p_gather, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx3_fx_low_s1h2_p_gather_at}
             - {id: fx3_fx_low_s1h2_p_gather_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.082, up: 0.625, forward: -1.606}, for: 1}
@@ -605,48 +335,6 @@ machine:
           do:
             - {id: fx3_fx_low_s1h2_floor_fill, op: display, kind: sprite, sprite: bastion-s1-ink, size: [4.4, 4.4], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: 0.25, up: 0.03, forward: 0.5}, rotate: [{axis: left, deg: -90}, {axis: forward, deg: 90}], for: 2}
             - {id: fx3_fx_low_s1h2_line_1, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.5, 0.64], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.5, up: 0.6, forward: 1.2}, for: 3, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: {left: 4.8003, up: 1.0, forward: 1.0}, ease: out_expo}, {t: 2, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: {left: 3.3602, up: 0.2, forward: 1.0}, ease: in_quad}]}]}
-            - {id: fx3_fx_low_s1h2_p_trail_7_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.132, up: 0.676, forward: -1.905}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_7, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_7_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_3_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.12, up: 0.682, forward: -1.555}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel_3, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_3_at}
-            - {id: fx3_fx_low_s1h2_p_tcrit_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.138, up: 0.673, forward: -2.079}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_tcrit_2, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx3_fx_low_s1h2_p_tcrit_2_at}
-            - {id: fx3_fx_low_s1h2_p_slash_3_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.129, up: 0.677, forward: -1.817}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_slash_3, op: particle_def, def: bastion-s1-p-slash, anchor: fx3_fx_low_s1h2_p_slash_3_at}
-            - {id: fx3_fx_low_s1h2_p_trail_8_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.535, up: 0.712, forward: -1.541}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_8, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_8_at}
-            - {id: fx3_fx_low_s1h2_p_trail_9_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.657, up: 0.72, forward: -1.961}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_9, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_9_at}
-            - {id: fx3_fx_low_s1h2_p_trail_10_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.057, up: 0.756, forward: -1.587}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_10, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_10_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_4_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.88, up: 0.737, forward: -1.286}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel_4, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_4_at}
-            - {id: fx3_fx_low_s1h2_p_tcrit_3_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.146, up: 0.766, forward: -1.738}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_tcrit_3, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx3_fx_low_s1h2_p_tcrit_3_at}
-            - {id: fx3_fx_low_s1h2_p_trail_11_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.272, up: 0.767, forward: -1.111}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_11, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_11_at}
-            - {id: fx3_fx_low_s1h2_p_trail_12_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.579, up: 0.805, forward: -1.421}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_12, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_12_at}
-            - {id: fx3_fx_low_s1h2_p_slash_4_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.395, up: 0.782, forward: -1.235}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_slash_4, op: particle_def, def: bastion-s1-p-slash, anchor: fx3_fx_low_s1h2_p_slash_4_at}
-            - {id: fx3_fx_low_s1h2_p_trail_13_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.786, up: 0.815, forward: -0.937}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_13, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_13_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_5_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.488, up: 0.775, forward: -0.758}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel_5, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_5_at}
-            - {id: fx3_fx_low_s1h2_p_tcrit_4_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.936, up: 0.834, forward: -1.026}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_tcrit_4, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx3_fx_low_s1h2_p_tcrit_4_at}
-            - {id: fx3_fx_low_s1h2_p_trail_14_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.783, up: 0.794, forward: -0.452}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_14, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_14_at}
-            - {id: fx3_fx_low_s1h2_p_trail_15_at, op: frame, anchor: fx3_fx_low, offset: {left: 2.199, up: 0.852, forward: -0.575}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_15, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_15_at}
-            - {id: fx3_fx_low_s1h2_p_trail_16_at, op: frame, anchor: fx3_fx_low, offset: {left: 2.185, up: 0.83, forward: -0.088}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_16, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_16_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_6_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.839, up: 0.78, forward: -0.076}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel_6, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_6_at}
-            - {id: fx3_fx_low_s1h2_p_tcrit_5_at, op: frame, anchor: fx3_fx_low, offset: {left: 2.358, up: 0.855, forward: -0.094}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_tcrit_5, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx3_fx_low_s1h2_p_tcrit_5_at}
-            - {id: fx3_fx_low_s1h2_p_slash_5_at, op: frame, anchor: fx3_fx_low, offset: {left: 2.098, up: 0.817, forward: -0.085}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_slash_5, op: particle_def, def: bastion-s1-p-slash, anchor: fx3_fx_low_s1h2_p_slash_5_at}
             - {id: fx3_fx_low_s1h2_p_gather_5_at, op: frame, anchor: fx3_fx_low, offset: {left: 2.358, up: 0.855, forward: -0.094}, for: 1}
             - {id: fx3_fx_low_s1h2_p_gather_5, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx3_fx_low_s1h2_p_gather_5_at}
             - {id: fx3_fx_low_s1h2_p_gather_6_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.839, up: 0.78, forward: -0.076}, for: 1}
@@ -667,48 +355,6 @@ machine:
             - {id: fx3_fx_low_s1h2_flash_x, op: display, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: left, deg: 90.0}], for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: {left: 1.9168, up: 1.9168, forward: 1.0}, ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: {left: 0.7499, up: 0.7499, forward: 1.0}, ease: out_quad}]}]}
             - {id: fx3_fx_low_s1h2_flash_f, op: display, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: up, deg: -90}], for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: {left: 1.9168, up: 1.9168, forward: 1.0}, ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: {left: 0.7499, up: 0.7499, forward: 1.0}, ease: out_quad}]}]}
             - {id: fx3_fx_low_s1h2_streak_x, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.6, 2.048], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: 0.062, up: 1.773, forward: 1.604}, rotate: [{axis: left, deg: 90}, {axis: forward, deg: -4}], for: 6, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: {left: 9.3333, up: 1.0, forward: 1.0}, ease: out_expo}, {t: 6, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: {left: 6.0, up: 0.125, forward: 1.0}, ease: in_quad}]}]}
-            - {id: fx3_fx_low_s1h2_p_trail_17_at, op: frame, anchor: fx3_fx_low, offset: {left: 2.185, up: 0.83, forward: -0.088}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_17, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_17_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_7_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.839, up: 0.78, forward: -0.076}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel_7, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_7_at}
-            - {id: fx3_fx_low_s1h2_p_tcrit_6_at, op: frame, anchor: fx3_fx_low, offset: {left: 2.358, up: 0.855, forward: -0.094}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_tcrit_6, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx3_fx_low_s1h2_p_tcrit_6_at}
-            - {id: fx3_fx_low_s1h2_p_slash_6_at, op: frame, anchor: fx3_fx_low, offset: {left: 2.098, up: 0.817, forward: -0.085}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_slash_6, op: particle_def, def: bastion-s1-p-slash, anchor: fx3_fx_low_s1h2_p_slash_6_at}
-            - {id: fx3_fx_low_s1h2_p_trail_18_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.789, up: 0.855, forward: 0.381}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_18, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_18_at}
-            - {id: fx3_fx_low_s1h2_p_trail_19_at, op: frame, anchor: fx3_fx_low, offset: {left: 2.209, up: 0.927, forward: 0.477}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_19, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_19_at}
-            - {id: fx3_fx_low_s1h2_p_trail_20_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.797, up: 0.95, forward: 0.942}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_20, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_20_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_8_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.493, up: 0.888, forward: 0.78}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel_8, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_8_at}
-            - {id: fx3_fx_low_s1h2_p_tcrit_7_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.949, up: 0.981, forward: 1.022}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_tcrit_7, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx3_fx_low_s1h2_p_tcrit_7_at}
-            - {id: fx3_fx_low_s1h2_p_trail_21_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.272, up: 0.937, forward: 1.219}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_21, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_21_at}
-            - {id: fx3_fx_low_s1h2_p_trail_22_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.586, up: 1.013, forward: 1.514}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_22, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_22_at}
-            - {id: fx3_fx_low_s1h2_p_slash_7_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.398, up: 0.967, forward: 1.337}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_slash_7, op: particle_def, def: bastion-s1-p-slash, anchor: fx3_fx_low_s1h2_p_slash_7_at}
-            - {id: fx3_fx_low_s1h2_p_trail_23_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.049, up: 0.997, forward: 1.78}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_23, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_23_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_9_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.867, up: 0.94, forward: 1.486}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel_9, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_9_at}
-            - {id: fx3_fx_low_s1h2_p_tcrit_8_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.14, up: 1.026, forward: 1.926}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_tcrit_8, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx3_fx_low_s1h2_p_tcrit_8_at}
-            - {id: fx3_fx_low_s1h2_p_trail_24_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.507, up: 0.957, forward: 1.827}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_24, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_24_at}
-            - {id: fx3_fx_low_s1h2_p_trail_25_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.633, up: 1.019, forward: 2.241}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_25, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_25_at}
-            - {id: fx3_fx_low_s1h2_p_trail_26_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.086, up: 0.977, forward: 2.271}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_26, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_26_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_10_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.074, up: 0.939, forward: 1.923}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel_10, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_10_at}
-            - {id: fx3_fx_low_s1h2_p_tcrit_9_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.092, up: 0.996, forward: 2.445}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_tcrit_9, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx3_fx_low_s1h2_p_tcrit_9_at}
-            - {id: fx3_fx_low_s1h2_p_slash_8_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.083, up: 0.967, forward: 2.184}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_slash_8, op: particle_def, def: bastion-s1-p-slash, anchor: fx3_fx_low_s1h2_p_slash_8_at}
             - {id: fx3_fx_low_s1h2_p_impact_dust_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.096, up: 1.005, forward: 2.532}, for: 1}
             - {id: fx3_fx_low_s1h2_p_impact_dust, op: particle_def, def: bastion-s1-p-impact-dust, anchor: fx3_fx_low_s1h2_p_impact_dust_at}
             - {id: fx3_fx_low_s1h2_p_impact_crit_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.096, up: 1.005, forward: 2.532}, for: 1}
@@ -839,40 +485,6 @@ machine:
           op: group
           at: 39
           do:
-            - {id: fx3_fx_low_s1h2_p_trail_27_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.358, up: 0.928, forward: 2.297}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_27, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_27_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_11_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.297, up: 0.898, forward: 1.953}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel_11, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_11_at}
-            - {id: fx3_fx_low_s1h2_p_tcrit_10_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.388, up: 0.943, forward: 2.468}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_tcrit_10, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx3_fx_low_s1h2_p_tcrit_10_at}
-            - {id: fx3_fx_low_s1h2_p_slash_9_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.342, up: 0.921, forward: 2.211}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_slash_9, op: particle_def, def: bastion-s1-p-slash, anchor: fx3_fx_low_s1h2_p_slash_9_at}
-            - {id: fx3_fx_low_s1h2_p_trail_28_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.698, up: 0.852, forward: 1.803}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_28, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_28_at}
-            - {id: fx3_fx_low_s1h2_p_trail_29_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.875, up: 0.89, forward: 2.201}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_29, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_29_at}
-            - {id: fx3_fx_low_s1h2_p_trail_30_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.213, up: 0.813, forward: 1.701}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_30, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_30_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_12_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.998, up: 0.784, forward: 1.427}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel_12, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_12_at}
-            - {id: fx3_fx_low_s1h2_p_tcrit_11_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.321, up: 0.828, forward: 1.838}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_tcrit_11, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx3_fx_low_s1h2_p_tcrit_11_at}
-            - {id: fx3_fx_low_s1h2_p_trail_31_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.359, up: 0.724, forward: 1.127}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_31, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_31_at}
-            - {id: fx3_fx_low_s1h2_p_trail_32_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.703, up: 0.757, forward: 1.395}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_32, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_32_at}
-            - {id: fx3_fx_low_s1h2_p_slash_10_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.496, up: 0.737, forward: 1.234}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_slash_10, op: particle_def, def: bastion-s1-p-slash, anchor: fx3_fx_low_s1h2_p_slash_10_at}
-            - {id: fx3_fx_low_s1h2_p_trail_33_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.844, up: 0.667, forward: 0.817}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_33, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_33_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_13_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.524, up: 0.645, forward: 0.676}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel_13, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_13_at}
-            - {id: fx3_fx_low_s1h2_p_tcrit_12_at, op: frame, anchor: fx3_fx_low, offset: {left: -2.003, up: 0.678, forward: 0.888}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_tcrit_12, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx3_fx_low_s1h2_p_tcrit_12_at}
-            - {id: fx3_fx_low_s1h2_p_trail_34_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.779, up: 0.573, forward: 0.264}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_34, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_34_at}
-            - {id: fx3_fx_low_s1h2_p_trail_35_at, op: frame, anchor: fx3_fx_low, offset: {left: -2.209, up: 0.593, forward: 0.339}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_35, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_35_at}
             - {id: fx3_fx_low_s1h2_p_gather_17_at, op: frame, anchor: fx3_fx_low, offset: {left: -2.209, up: 0.593, forward: 0.339}, for: 1}
             - {id: fx3_fx_low_s1h2_p_gather_17, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx3_fx_low_s1h2_p_gather_17_at}
             - {id: fx3_fx_low_s1h2_p_gather_18_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.693, up: 0.569, forward: 0.249}, for: 1}
@@ -886,184 +498,41 @@ machine:
           at: 40
           do:
             - {id: snd_25, op: sound, sound: item.armor.equip_iron, anchor: caster, volume: 1.0, pitch: 0.8}
-            - {id: fx3_fx_low_s1h2_p_trail_36_at, op: frame, anchor: fx3_fx_low, offset: {left: -2.037, up: 0.585, forward: 0.309}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_36, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_36_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_14_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.693, up: 0.569, forward: 0.249}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel_14, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_14_at}
-            - {id: fx3_fx_low_s1h2_p_tcrit_13_at, op: frame, anchor: fx3_fx_low, offset: {left: -2.209, up: 0.593, forward: 0.339}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_tcrit_13, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx3_fx_low_s1h2_p_tcrit_13_at}
-            - {id: fx3_fx_low_s1h2_p_slash_11_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.951, up: 0.581, forward: 0.294}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_slash_11, op: particle_def, def: bastion-s1-p-slash, anchor: fx3_fx_low_s1h2_p_slash_11_at}
-            - {id: fx3_fx_low_s1h2_p_trail_37_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.78, up: 0.507, forward: -0.094}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_37, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_37_at}
-            - {id: fx3_fx_low_s1h2_p_trail_38_at, op: frame, anchor: fx3_fx_low, offset: {left: -2.216, up: 0.504, forward: -0.112}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_38, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_38_at}
-            - {id: fx3_fx_low_s1h2_p_trail_39_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.968, up: 0.426, forward: -0.515}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_39, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_39_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_15_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.631, up: 0.447, forward: -0.426}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel_15, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_15_at}
-            - {id: fx3_fx_low_s1h2_p_tcrit_14_at, op: frame, anchor: fx3_fx_low, offset: {left: -2.137, up: 0.415, forward: -0.56}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_tcrit_14, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx3_fx_low_s1h2_p_tcrit_14_at}
-            - {id: fx3_fx_low_s1h2_p_trail_40_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.588, up: 0.38, forward: -0.786}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_40, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_40_at}
-            - {id: fx3_fx_low_s1h2_p_trail_41_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.974, up: 0.332, forward: -0.986}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_41, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_41_at}
-            - {id: fx3_fx_low_s1h2_p_slash_12_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.742, up: 0.361, forward: -0.866}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_slash_12, op: particle_def, def: bastion-s1-p-slash, anchor: fx3_fx_low_s1h2_p_slash_12_at}
-            - {id: fx3_fx_low_s1h2_p_trail_42_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.602, up: 0.285, forward: -1.261}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_42, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_42_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_16_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.337, up: 0.34, forward: -1.038}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel_16, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_16_at}
-            - {id: fx3_fx_low_s1h2_p_tcrit_15_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.734, up: 0.258, forward: -1.372}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_tcrit_15, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx3_fx_low_s1h2_p_tcrit_15_at}
             - {id: fx3_fx_low_s1h2_p_gather_23_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.734, up: 0.258, forward: -1.372}, for: 1}
             - {id: fx3_fx_low_s1h2_p_gather_23, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx3_fx_low_s1h2_p_gather_23_at}
             - {id: fx3_fx_low_s1h2_p_gather_24_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.337, up: 0.34, forward: -1.038}, for: 1}
             - {id: fx3_fx_low_s1h2_p_gather_24, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx3_fx_low_s1h2_p_gather_24_at}
-        - id: fx41
-          op: group
-          at: 41
-          do:
-            - {id: fx3_fx_low_s1h2_p_trail_43_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.602, up: 0.285, forward: -1.261}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_43, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_43_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_17_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.337, up: 0.34, forward: -1.038}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel_17, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_17_at}
-            - {id: fx3_fx_low_s1h2_p_tcrit_16_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.734, up: 0.258, forward: -1.372}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_tcrit_16, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx3_fx_low_s1h2_p_tcrit_16_at}
-            - {id: fx3_fx_low_s1h2_p_slash_13_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.536, up: 0.299, forward: -1.205}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_slash_13, op: particle_def, def: bastion-s1-p-slash, anchor: fx3_fx_low_s1h2_p_slash_13_at}
-            - {id: fx3_fx_low_s1h2_p_trail_44_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.27, up: 0.262, forward: -1.215}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_44, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_44_at}
-            - {id: fx3_fx_low_s1h2_p_trail_45_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.561, up: 0.176, forward: -1.53}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_45, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_45_at}
-            - {id: fx3_fx_low_s1h2_p_trail_46_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.27, up: 0.141, forward: -1.528}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_46, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_46_at}
-            - {id: fx3_fx_low_s1h2_p_csteel_18_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.073, up: 0.223, forward: -1.25}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_csteel_18, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_csteel_18_at}
-            - {id: fx3_fx_low_s1h2_p_tcrit_17_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.369, up: 0.1, forward: -1.666}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_tcrit_17, op: particle_def, def: bastion-s1-p-trail-crit, anchor: fx3_fx_low_s1h2_p_tcrit_17_at}
-            - {id: fx3_fx_low_s1h2_p_trail_47_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.962, up: 0.148, forward: -1.407}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_trail_47, op: particle_def, def: bastion-s1-p-trail, anchor: fx3_fx_low_s1h2_p_trail_47_at}
-            - {id: fx3_fx_low_s1h2_p_slash_14_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.041, up: 0.101, forward: -1.556}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_slash_14, op: particle_def, def: bastion-s1-p-slash, anchor: fx3_fx_low_s1h2_p_slash_14_at}
-        - id: loop1
+        # --- blade fx: segments between the rig anchor's points (ADR-0303 10.5), no baked positions ---
+        - id: blade1
           op: group
           at: 4
           do:
-            - {id: fx2_fx_high_s1h1_p_sheath_0_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.192, up: 0.781, forward: -0.82}, for: 16, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.192, up: 0.781, forward: -0.82}}, {t: 1, offset: {left: -0.909, up: 1.467, forward: -0.284}}, {t: 2, offset: {left: 0.105, up: 1.38, forward: 1.168}}, {t: 3, offset: {left: 0.844, up: 1.332, forward: -0.056}}, {t: 4, offset: {left: 0.844, up: 1.332, forward: -0.056}}, {t: 5, offset: {left: 0.844, up: 1.332, forward: -0.056}}, {t: 6, offset: {left: 0.556, up: 1.244, forward: -0.481}}, {t: 7, offset: {left: 0.385, up: 1.225, forward: -0.575}}, {t: 8, offset: {left: 0.302, up: 1.214, forward: -0.566}}, {t: 9, offset: {left: 0.295, up: 1.215, forward: -0.576}}, {t: 10, offset: {left: 0.288, up: 1.217, forward: -0.585}}, {t: 11, offset: {left: 0.281, up: 1.218, forward: -0.595}}, {t: 12, offset: {left: 0.273, up: 1.219, forward: -0.604}}, {t: 13, offset: {left: 0.208, up: 0.744, forward: -0.602}}, {t: 14, offset: {left: 0.121, up: 0.634, forward: -0.648}}, {t: 15, offset: {left: 0.082, up: 0.576, forward: -0.66}}]}]}
-            - {id: fx2_fx_high_s1h1_p_sheath_0, op: particle_def, def: bastion-s1-p-sheath, anchor: fx2_fx_high_s1h1_p_sheath_0_at, every: 1, for: 16}
-        - id: loop2
+            - {id: b1_trail, op: particle_def, def: bastion-s1-p-trail, anchor: {of: rig.root, to: rig.tip, samples: 11}, every: 1, for: 16}
+            - {id: b1_sheath, op: particle_def, def: bastion-s1-p-sheath, anchor: {of: rig.root, to: rig.tip, samples: 5}, every: 1, for: 16}
+            - {id: b1_steel, op: particle_def, def: bastion-s1-p-steel, anchor: rig.tip, every: 1, for: 16}
+            - {id: b1_fleck, op: particle_def, def: bastion-s1-p-fleck, anchor: {of: rig.root, to: rig.tip, samples: 3}, every: 1, for: 16}
+        - id: blade1_hit
           op: group
-          at: 4
+          at: 7
           do:
-            - {id: fx2_fx_high_s1h1_p_sheath_1_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.291, up: 0.834, forward: -1.188}, for: 16, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.291, up: 0.834, forward: -1.188}}, {t: 1, offset: {left: -1.292, up: 1.49, forward: -0.25}}, {t: 2, offset: {left: 0.071, up: 1.415, forward: 1.55}}, {t: 3, offset: {left: 1.215, up: 1.367, forward: 0.042}}, {t: 4, offset: {left: 1.215, up: 1.367, forward: 0.042}}, {t: 5, offset: {left: 1.215, up: 1.367, forward: 0.042}}, {t: 6, offset: {left: 0.882, up: 1.275, forward: -0.684}}, {t: 7, offset: {left: 0.62, up: 1.252, forward: -0.878}}, {t: 8, offset: {left: 0.493, up: 1.236, forward: -0.899}}, {t: 9, offset: {left: 0.482, up: 1.238, forward: -0.911}}, {t: 10, offset: {left: 0.47, up: 1.239, forward: -0.923}}, {t: 11, offset: {left: 0.459, up: 1.24, forward: -0.935}}, {t: 12, offset: {left: 0.448, up: 1.241, forward: -0.947}}, {t: 13, offset: {left: 0.337, up: 0.806, forward: -0.959}}, {t: 14, offset: {left: 0.211, up: 0.553, forward: -1.013}}, {t: 15, offset: {left: 0.157, up: 0.44, forward: -1.013}}]}]}
-            - {id: fx2_fx_high_s1h1_p_sheath_1, op: particle_def, def: bastion-s1-p-sheath, anchor: fx2_fx_high_s1h1_p_sheath_1_at, every: 1, for: 16}
-        - id: loop3
+            - {id: b1_crit, op: particle_def, def: bastion-s1-p-trail-crit, anchor: {of: rig.root, to: rig.tip, samples: 11}, every: 1, for: 3}
+        - id: blade2
           op: group
-          at: 4
+          at: 29
           do:
-            - {id: fx2_fx_high_s1h1_p_sheath_2_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.389, up: 0.887, forward: -1.556}, for: 16, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.389, up: 0.887, forward: -1.556}}, {t: 1, offset: {left: -1.674, up: 1.513, forward: -0.217}}, {t: 2, offset: {left: 0.038, up: 1.45, forward: 1.932}}, {t: 3, offset: {left: 1.585, up: 1.402, forward: 0.141}}, {t: 4, offset: {left: 1.585, up: 1.402, forward: 0.141}}, {t: 5, offset: {left: 1.585, up: 1.402, forward: 0.141}}, {t: 6, offset: {left: 1.207, up: 1.306, forward: -0.888}}, {t: 7, offset: {left: 0.856, up: 1.278, forward: -1.181}}, {t: 8, offset: {left: 0.685, up: 1.258, forward: -1.232}}, {t: 9, offset: {left: 0.668, up: 1.26, forward: -1.247}}, {t: 10, offset: {left: 0.652, up: 1.262, forward: -1.262}}, {t: 11, offset: {left: 0.637, up: 1.263, forward: -1.276}}, {t: 12, offset: {left: 0.622, up: 1.263, forward: -1.289}}, {t: 13, offset: {left: 0.467, up: 0.867, forward: -1.317}}, {t: 14, offset: {left: 0.302, up: 0.471, forward: -1.378}}, {t: 15, offset: {left: 0.232, up: 0.304, forward: -1.365}}]}]}
-            - {id: fx2_fx_high_s1h1_p_sheath_2, op: particle_def, def: bastion-s1-p-sheath, anchor: fx2_fx_high_s1h1_p_sheath_2_at, every: 1, for: 16}
-        - id: loop4
+            - {id: b2_trail, op: particle_def, def: bastion-s1-p-trail, anchor: {of: rig.root, to: rig.tip, samples: 11}, every: 1, for: 15}
+            - {id: b2_sheath, op: particle_def, def: bastion-s1-p-sheath-hot, anchor: {of: rig.root, to: rig.tip, samples: 5}, every: 1, for: 15}
+            - {id: b2_steel, op: particle_def, def: bastion-s1-p-steel, anchor: rig.tip, every: 1, for: 15}
+            - {id: b2_fleck, op: particle_def, def: bastion-s1-p-fleck, anchor: {of: rig.root, to: rig.tip, samples: 3}, every: 1, for: 15}
+        - id: blade2_hit
           op: group
-          at: 4
+          at: 31
           do:
-            - {id: fx2_fx_high_s1h1_p_sheath_3_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.488, up: 0.94, forward: -1.924}, for: 16, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.488, up: 0.94, forward: -1.924}}, {t: 1, offset: {left: -2.057, up: 1.535, forward: -0.183}}, {t: 2, offset: {left: 0.005, up: 1.486, forward: 2.314}}, {t: 3, offset: {left: 1.955, up: 1.437, forward: 0.24}}, {t: 4, offset: {left: 1.955, up: 1.437, forward: 0.24}}, {t: 5, offset: {left: 1.955, up: 1.437, forward: 0.24}}, {t: 6, offset: {left: 1.532, up: 1.336, forward: -1.091}}, {t: 7, offset: {left: 1.092, up: 1.305, forward: -1.484}}, {t: 8, offset: {left: 0.876, up: 1.28, forward: -1.565}}, {t: 9, offset: {left: 0.855, up: 1.283, forward: -1.583}}, {t: 10, offset: {left: 0.835, up: 1.285, forward: -1.6}}, {t: 11, offset: {left: 0.815, up: 1.286, forward: -1.616}}, {t: 12, offset: {left: 0.796, up: 1.285, forward: -1.632}}, {t: 13, offset: {left: 0.597, up: 0.929, forward: -1.674}}, {t: 14, offset: {left: 0.392, up: 0.39, forward: -1.744}}, {t: 15, offset: {left: 0.307, up: 0.168, forward: -1.717}}]}]}
-            - {id: fx2_fx_high_s1h1_p_sheath_3, op: particle_def, def: bastion-s1-p-sheath, anchor: fx2_fx_high_s1h1_p_sheath_3_at, every: 1, for: 16}
-        - id: loop5
+            - {id: b2_crit, op: particle_def, def: bastion-s1-p-trail-crit, anchor: {of: rig.root, to: rig.tip, samples: 11}, every: 1, for: 3}
+        - id: blade3
           op: group
-          at: 4
+          at: 50
           do:
-            - {id: fx2_fx_high_s1h1_p_sheath_4_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.586, up: 0.993, forward: -2.293}, for: 15, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.586, up: 0.993, forward: -2.293}}, {t: 1, offset: {left: -2.44, up: 1.558, forward: -0.15}}, {t: 2, offset: {left: -0.028, up: 1.521, forward: 2.695}}, {t: 3, offset: {left: 2.326, up: 1.472, forward: 0.338}}, {t: 4, offset: {left: 2.326, up: 1.472, forward: 0.338}}, {t: 5, offset: {left: 2.326, up: 1.472, forward: 0.338}}, {t: 6, offset: {left: 1.857, up: 1.367, forward: -1.295}}, {t: 7, offset: {left: 1.328, up: 1.331, forward: -1.787}}, {t: 8, offset: {left: 1.068, up: 1.302, forward: -1.899}}, {t: 9, offset: {left: 1.042, up: 1.306, forward: -1.919}}, {t: 10, offset: {left: 1.017, up: 1.307, forward: -1.938}}, {t: 11, offset: {left: 0.993, up: 1.308, forward: -1.956}}, {t: 12, offset: {left: 0.97, up: 1.308, forward: -1.974}}, {t: 13, offset: {left: 0.726, up: 0.991, forward: -2.031}}, {t: 14, offset: {left: 0.483, up: 0.309, forward: -2.109}}]}]}
-            - {id: fx2_fx_high_s1h1_p_sheath_4, op: particle_def, def: bastion-s1-p-sheath, anchor: fx2_fx_high_s1h1_p_sheath_4_at, every: 1, for: 15}
-        - id: loop6
-          op: group
-          at: 4
-          do:
-            - {id: fx2_fx_high_s1h1_p_hot_0_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.497, up: 0.945, forward: -1.958}, for: 16, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.497, up: 0.945, forward: -1.958}}, {t: 1, offset: {left: -2.092, up: 1.538, forward: -0.18}}, {t: 2, offset: {left: 0.002, up: 1.489, forward: 2.348}}, {t: 3, offset: {left: 1.989, up: 1.44, forward: 0.248}}, {t: 4, offset: {left: 1.989, up: 1.44, forward: 0.248}}, {t: 5, offset: {left: 1.989, up: 1.44, forward: 0.248}}, {t: 6, offset: {left: 1.562, up: 1.339, forward: -1.11}}, {t: 7, offset: {left: 1.114, up: 1.307, forward: -1.512}}, {t: 8, offset: {left: 0.894, up: 1.282, forward: -1.596}}, {t: 9, offset: {left: 0.872, up: 1.285, forward: -1.613}}, {t: 10, offset: {left: 0.851, up: 1.287, forward: -1.631}}, {t: 11, offset: {left: 0.831, up: 1.288, forward: -1.647}}, {t: 12, offset: {left: 0.812, up: 1.287, forward: -1.663}}, {t: 13, offset: {left: 0.608, up: 0.935, forward: -1.706}}, {t: 14, offset: {left: 0.4, up: 0.383, forward: -1.777}}, {t: 15, offset: {left: 0.314, up: 0.156, forward: -1.749}}]}]}
-            - {id: fx2_fx_high_s1h1_p_hot_0, op: particle_def, def: bastion-s1-p-sheath-hot, anchor: fx2_fx_high_s1h1_p_hot_0_at, every: 1, for: 16}
-        - id: loop7
-          op: group
-          at: 4
-          do:
-            - {id: fx2_fx_high_s1h1_p_mid_0_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.362, up: 0.873, forward: -1.456}, for: 16, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.362, up: 0.873, forward: -1.456}}, {t: 1, offset: {left: -1.57, up: 1.506, forward: -0.226}}, {t: 2, offset: {left: 0.047, up: 1.441, forward: 1.828}}, {t: 3, offset: {left: 1.484, up: 1.392, forward: 0.114}}, {t: 4, offset: {left: 1.484, up: 1.392, forward: 0.114}}, {t: 5, offset: {left: 1.484, up: 1.392, forward: 0.114}}, {t: 6, offset: {left: 1.118, up: 1.297, forward: -0.832}}, {t: 7, offset: {left: 0.792, up: 1.271, forward: -1.098}}, {t: 8, offset: {left: 0.633, up: 1.252, forward: -1.141}}, {t: 9, offset: {left: 0.618, up: 1.254, forward: -1.156}}, {t: 10, offset: {left: 0.603, up: 1.256, forward: -1.169}}, {t: 11, offset: {left: 0.588, up: 1.257, forward: -1.183}}, {t: 12, offset: {left: 0.574, up: 1.257, forward: -1.196}}, {t: 13, offset: {left: 0.432, up: 0.851, forward: -1.219}}, {t: 14, offset: {left: 0.277, up: 0.494, forward: -1.279}}, {t: 15, offset: {left: 0.212, up: 0.341, forward: -1.269}}]}]}
-            - {id: fx2_fx_high_s1h1_p_mid_0, op: particle_def, def: bastion-s1-p-sheath, anchor: fx2_fx_high_s1h1_p_mid_0_at, every: 1, for: 16}
-        - id: loop8
-          op: group
-          at: 4
-          do:
-            - {id: fx2_fx_high_s1h1_p_steel_0_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.318, up: 0.849, forward: -1.288}, for: 16, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.318, up: 0.849, forward: -1.288}}, {t: 1, offset: {left: -1.396, up: 1.496, forward: -0.241}}, {t: 2, offset: {left: 0.062, up: 1.425, forward: 1.654}}, {t: 3, offset: {left: 1.316, up: 1.376, forward: 0.069}}, {t: 4, offset: {left: 1.316, up: 1.376, forward: 0.069}}, {t: 5, offset: {left: 1.316, up: 1.376, forward: 0.069}}, {t: 6, offset: {left: 0.97, up: 1.283, forward: -0.74}}, {t: 7, offset: {left: 0.685, up: 1.259, forward: -0.961}}, {t: 8, offset: {left: 0.546, up: 1.242, forward: -0.99}}, {t: 9, offset: {left: 0.533, up: 1.244, forward: -1.003}}, {t: 10, offset: {left: 0.52, up: 1.245, forward: -1.016}}, {t: 11, offset: {left: 0.507, up: 1.247, forward: -1.028}}, {t: 12, offset: {left: 0.495, up: 1.247, forward: -1.04}}, {t: 13, offset: {left: 0.373, up: 0.823, forward: -1.057}}, {t: 14, offset: {left: 0.236, up: 0.531, forward: -1.113}}, {t: 15, offset: {left: 0.178, up: 0.403, forward: -1.109}}]}]}
-            - {id: fx2_fx_high_s1h1_p_steel_0, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_steel_0_at, every: 1, for: 16}
-        - id: loop9
-          op: group
-          at: 4
-          do:
-            - {id: fx2_fx_high_s1h1_p_steel_1_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.497, up: 0.945, forward: -1.958}, for: 16, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.497, up: 0.945, forward: -1.958}}, {t: 1, offset: {left: -2.092, up: 1.538, forward: -0.18}}, {t: 2, offset: {left: 0.002, up: 1.489, forward: 2.348}}, {t: 3, offset: {left: 1.989, up: 1.44, forward: 0.248}}, {t: 4, offset: {left: 1.989, up: 1.44, forward: 0.248}}, {t: 5, offset: {left: 1.989, up: 1.44, forward: 0.248}}, {t: 6, offset: {left: 1.562, up: 1.339, forward: -1.11}}, {t: 7, offset: {left: 1.114, up: 1.307, forward: -1.512}}, {t: 8, offset: {left: 0.894, up: 1.282, forward: -1.596}}, {t: 9, offset: {left: 0.872, up: 1.285, forward: -1.613}}, {t: 10, offset: {left: 0.851, up: 1.287, forward: -1.631}}, {t: 11, offset: {left: 0.831, up: 1.288, forward: -1.647}}, {t: 12, offset: {left: 0.812, up: 1.287, forward: -1.663}}, {t: 13, offset: {left: 0.608, up: 0.935, forward: -1.706}}, {t: 14, offset: {left: 0.4, up: 0.383, forward: -1.777}}, {t: 15, offset: {left: 0.314, up: 0.156, forward: -1.749}}]}]}
-            - {id: fx2_fx_high_s1h1_p_steel_1, op: particle_def, def: bastion-s1-p-steel, anchor: fx2_fx_high_s1h1_p_steel_1_at, every: 1, for: 16}
-        - id: loop10
-          op: group
-          at: 4
-          do:
-            - {id: fx2_fx_high_s1h1_p_fleck_0_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.407, up: 0.897, forward: -1.623}, for: 16, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.407, up: 0.897, forward: -1.623}}, {t: 1, offset: {left: -1.744, up: 1.517, forward: -0.211}}, {t: 2, offset: {left: 0.032, up: 1.457, forward: 2.001}}, {t: 3, offset: {left: 1.652, up: 1.408, forward: 0.159}}, {t: 4, offset: {left: 1.652, up: 1.408, forward: 0.159}}, {t: 5, offset: {left: 1.652, up: 1.408, forward: 0.159}}, {t: 6, offset: {left: 1.266, up: 1.311, forward: -0.925}}, {t: 7, offset: {left: 0.899, up: 1.283, forward: -1.236}}, {t: 8, offset: {left: 0.72, up: 1.262, forward: -1.293}}, {t: 9, offset: {left: 0.702, up: 1.264, forward: -1.308}}, {t: 10, offset: {left: 0.686, up: 1.266, forward: -1.323}}, {t: 11, offset: {left: 0.669, up: 1.267, forward: -1.337}}, {t: 12, offset: {left: 0.653, up: 1.267, forward: -1.351}}, {t: 13, offset: {left: 0.49, up: 0.879, forward: -1.381}}, {t: 14, offset: {left: 0.318, up: 0.457, forward: -1.445}}, {t: 15, offset: {left: 0.246, up: 0.279, forward: -1.429}}]}]}
-            - {id: fx2_fx_high_s1h1_p_fleck_0, op: particle_def, def: bastion-s1-p-fleck, anchor: fx2_fx_high_s1h1_p_fleck_0_at, every: 1, for: 16}
-        - id: loop11
-          op: group
-          at: 30
-          do:
-            - {id: fx3_fx_low_s1h2_p_sheath_0_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.835, up: 0.635, forward: -0.04}, for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.835, up: 0.635, forward: -0.04}}, {t: 1, offset: {left: 0.038, up: 0.829, forward: 0.915}}, {t: 2, offset: {left: 0.038, up: 0.829, forward: 0.915}}, {t: 3, offset: {left: 0.038, up: 0.829, forward: 0.915}}, {t: 4, offset: {left: -0.005, up: 0.829, forward: 0.921}}, {t: 5, offset: {left: -0.048, up: 0.83, forward: 0.924}}, {t: 6, offset: {left: -0.078, up: 0.83, forward: 0.927}}, {t: 7, offset: {left: -0.093, up: 0.811, forward: 0.956}}, {t: 8, offset: {left: -0.121, up: 0.811, forward: 0.958}}, {t: 9, offset: {left: -0.694, up: 0.522, forward: 0.073}}, {t: 10, offset: {left: -0.57, up: 0.497, forward: -0.393}}, {t: 11, offset: {left: -0.465, up: 0.447, forward: -0.469}}]}]}
-            - {id: fx3_fx_low_s1h2_p_sheath_0_2, op: particle_def, def: bastion-s1-p-sheath, anchor: fx3_fx_low_s1h2_p_sheath_0_2_at, every: 1, for: 12}
-        - id: loop12
-          op: group
-          at: 30
-          do:
-            - {id: fx3_fx_low_s1h2_p_sheath_1_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.216, up: 0.69, forward: -0.054}, for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: 1.216, up: 0.69, forward: -0.054}}, {t: 1, offset: {left: 0.051, up: 0.871, forward: 1.298}}, {t: 2, offset: {left: 0.051, up: 0.871, forward: 1.298}}, {t: 3, offset: {left: 0.051, up: 0.871, forward: 1.298}}, {t: 4, offset: {left: -0.012, up: 0.868, forward: 1.304}}, {t: 5, offset: {left: -0.075, up: 0.867, forward: 1.306}}, {t: 6, offset: {left: -0.118, up: 0.867, forward: 1.308}}, {t: 7, offset: {left: -0.146, up: 0.844, forward: 1.336}}, {t: 8, offset: {left: -0.188, up: 0.844, forward: 1.336}}, {t: 9, offset: {left: -1.073, up: 0.54, forward: 0.14}}, {t: 10, offset: {left: -0.861, up: 0.438, forward: -0.638}}, {t: 11, offset: {left: -0.638, up: 0.343, forward: -0.797}}]}]}
-            - {id: fx3_fx_low_s1h2_p_sheath_1_2, op: particle_def, def: bastion-s1-p-sheath, anchor: fx3_fx_low_s1h2_p_sheath_1_2_at, every: 1, for: 12}
-        - id: loop13
-          op: group
-          at: 30
-          do:
-            - {id: fx3_fx_low_s1h2_p_sheath_2_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.596, up: 0.745, forward: -0.067}, for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: 1.596, up: 0.745, forward: -0.067}}, {t: 1, offset: {left: 0.065, up: 0.913, forward: 1.68}}, {t: 2, offset: {left: 0.065, up: 0.913, forward: 1.68}}, {t: 3, offset: {left: 0.065, up: 0.913, forward: 1.68}}, {t: 4, offset: {left: -0.018, up: 0.907, forward: 1.686}}, {t: 5, offset: {left: -0.102, up: 0.904, forward: 1.688}}, {t: 6, offset: {left: -0.159, up: 0.905, forward: 1.689}}, {t: 7, offset: {left: -0.2, up: 0.877, forward: 1.716}}, {t: 8, offset: {left: -0.255, up: 0.877, forward: 1.713}}, {t: 9, offset: {left: -1.452, up: 0.558, forward: 0.206}}, {t: 10, offset: {left: -1.152, up: 0.378, forward: -0.883}}, {t: 11, offset: {left: -0.812, up: 0.238, forward: -1.124}}]}]}
-            - {id: fx3_fx_low_s1h2_p_sheath_2_2, op: particle_def, def: bastion-s1-p-sheath, anchor: fx3_fx_low_s1h2_p_sheath_2_2_at, every: 1, for: 12}
-        - id: loop14
-          op: group
-          at: 30
-          do:
-            - {id: fx3_fx_low_s1h2_p_sheath_3_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.977, up: 0.8, forward: -0.08}, for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: 1.977, up: 0.8, forward: -0.08}}, {t: 1, offset: {left: 0.079, up: 0.954, forward: 2.063}}, {t: 2, offset: {left: 0.079, up: 0.954, forward: 2.063}}, {t: 3, offset: {left: 0.079, up: 0.954, forward: 2.063}}, {t: 4, offset: {left: -0.025, up: 0.947, forward: 2.069}}, {t: 5, offset: {left: -0.129, up: 0.942, forward: 2.071}}, {t: 6, offset: {left: -0.199, up: 0.942, forward: 2.07}}, {t: 7, offset: {left: -0.253, up: 0.91, forward: 2.095}}, {t: 8, offset: {left: -0.321, up: 0.91, forward: 2.091}}, {t: 9, offset: {left: -1.83, up: 0.575, forward: 0.273}}, {t: 10, offset: {left: -1.443, up: 0.318, forward: -1.127}}, {t: 11, offset: {left: -0.986, up: 0.134, forward: -1.451}}]}]}
-            - {id: fx3_fx_low_s1h2_p_sheath_3_2, op: particle_def, def: bastion-s1-p-sheath, anchor: fx3_fx_low_s1h2_p_sheath_3_2_at, every: 1, for: 12}
-        - id: loop15
-          op: group
-          at: 30
-          do:
-            - {id: fx3_fx_low_s1h2_p_sheath_4_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 2.358, up: 0.855, forward: -0.094}, for: 11, motion: [{law: keys, keys: [{t: 0, offset: {left: 2.358, up: 0.855, forward: -0.094}}, {t: 1, offset: {left: 0.092, up: 0.996, forward: 2.445}}, {t: 2, offset: {left: 0.092, up: 0.996, forward: 2.445}}, {t: 3, offset: {left: 0.092, up: 0.996, forward: 2.445}}, {t: 4, offset: {left: -0.032, up: 0.986, forward: 2.452}}, {t: 5, offset: {left: -0.156, up: 0.979, forward: 2.453}}, {t: 6, offset: {left: -0.24, up: 0.98, forward: 2.45}}, {t: 7, offset: {left: -0.307, up: 0.943, forward: 2.475}}, {t: 8, offset: {left: -0.388, up: 0.943, forward: 2.468}}, {t: 9, offset: {left: -2.209, up: 0.593, forward: 0.339}}, {t: 10, offset: {left: -1.734, up: 0.258, forward: -1.372}}]}]}
-            - {id: fx3_fx_low_s1h2_p_sheath_4_2, op: particle_def, def: bastion-s1-p-sheath, anchor: fx3_fx_low_s1h2_p_sheath_4_2_at, every: 1, for: 11}
-        - id: loop16
-          op: group
-          at: 30
-          do:
-            - {id: fx3_fx_low_s1h2_p_hot_0_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 2.012, up: 0.805, forward: -0.082}, for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: 2.012, up: 0.805, forward: -0.082}}, {t: 1, offset: {left: 0.08, up: 0.958, forward: 2.097}}, {t: 2, offset: {left: 0.08, up: 0.958, forward: 2.097}}, {t: 3, offset: {left: 0.08, up: 0.958, forward: 2.097}}, {t: 4, offset: {left: -0.026, up: 0.95, forward: 2.104}}, {t: 5, offset: {left: -0.131, up: 0.945, forward: 2.105}}, {t: 6, offset: {left: -0.203, up: 0.945, forward: 2.104}}, {t: 7, offset: {left: -0.258, up: 0.913, forward: 2.13}}, {t: 8, offset: {left: -0.327, up: 0.913, forward: 2.125}}, {t: 9, offset: {left: -1.865, up: 0.577, forward: 0.279}}, {t: 10, offset: {left: -1.469, up: 0.313, forward: -1.149}}, {t: 11, offset: {left: -1.002, up: 0.125, forward: -1.481}}]}]}
-            - {id: fx3_fx_low_s1h2_p_hot_0_2, op: particle_def, def: bastion-s1-p-sheath-hot, anchor: fx3_fx_low_s1h2_p_hot_0_2_at, every: 1, for: 12}
-        - id: loop17
-          op: group
-          at: 30
-          do:
-            - {id: fx3_fx_low_s1h2_p_mid_0_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.493, up: 0.73, forward: -0.063}, for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: 1.493, up: 0.73, forward: -0.063}}, {t: 1, offset: {left: 0.061, up: 0.901, forward: 1.576}}, {t: 2, offset: {left: 0.061, up: 0.901, forward: 1.576}}, {t: 3, offset: {left: 0.061, up: 0.901, forward: 1.576}}, {t: 4, offset: {left: -0.017, up: 0.897, forward: 1.582}}, {t: 5, offset: {left: -0.094, up: 0.894, forward: 1.584}}, {t: 6, offset: {left: -0.148, up: 0.894, forward: 1.585}}, {t: 7, offset: {left: -0.185, up: 0.868, forward: 1.612}}, {t: 8, offset: {left: -0.236, up: 0.868, forward: 1.61}}, {t: 9, offset: {left: -1.348, up: 0.553, forward: 0.188}}, {t: 10, offset: {left: -1.072, up: 0.394, forward: -0.816}}, {t: 11, offset: {left: -0.765, up: 0.267, forward: -1.035}}]}]}
-            - {id: fx3_fx_low_s1h2_p_mid_0_2, op: particle_def, def: bastion-s1-p-sheath, anchor: fx3_fx_low_s1h2_p_mid_0_2_at, every: 1, for: 12}
-        - id: loop18
-          op: group
-          at: 30
-          do:
-            - {id: fx3_fx_low_s1h2_p_steel_0_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.319, up: 0.705, forward: -0.057}, for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: 1.319, up: 0.705, forward: -0.057}}, {t: 1, offset: {left: 0.055, up: 0.882, forward: 1.402}}, {t: 2, offset: {left: 0.055, up: 0.882, forward: 1.402}}, {t: 3, offset: {left: 0.055, up: 0.882, forward: 1.402}}, {t: 4, offset: {left: -0.013, up: 0.879, forward: 1.408}}, {t: 5, offset: {left: -0.082, up: 0.877, forward: 1.41}}, {t: 6, offset: {left: -0.129, up: 0.877, forward: 1.412}}, {t: 7, offset: {left: -0.161, up: 0.853, forward: 1.44}}, {t: 8, offset: {left: -0.206, up: 0.853, forward: 1.439}}, {t: 9, offset: {left: -1.176, up: 0.545, forward: 0.158}}, {t: 10, offset: {left: -0.94, up: 0.421, forward: -0.705}}, {t: 11, offset: {left: -0.686, up: 0.314, forward: -0.886}}]}]}
-            - {id: fx3_fx_low_s1h2_p_steel_0_2, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_steel_0_2_at, every: 1, for: 12}
-        - id: loop19
-          op: group
-          at: 30
-          do:
-            - {id: fx3_fx_low_s1h2_p_steel_1_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 2.012, up: 0.805, forward: -0.082}, for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: 2.012, up: 0.805, forward: -0.082}}, {t: 1, offset: {left: 0.08, up: 0.958, forward: 2.097}}, {t: 2, offset: {left: 0.08, up: 0.958, forward: 2.097}}, {t: 3, offset: {left: 0.08, up: 0.958, forward: 2.097}}, {t: 4, offset: {left: -0.026, up: 0.95, forward: 2.104}}, {t: 5, offset: {left: -0.131, up: 0.945, forward: 2.105}}, {t: 6, offset: {left: -0.203, up: 0.945, forward: 2.104}}, {t: 7, offset: {left: -0.258, up: 0.913, forward: 2.13}}, {t: 8, offset: {left: -0.327, up: 0.913, forward: 2.125}}, {t: 9, offset: {left: -1.865, up: 0.577, forward: 0.279}}, {t: 10, offset: {left: -1.469, up: 0.313, forward: -1.149}}, {t: 11, offset: {left: -1.002, up: 0.125, forward: -1.481}}]}]}
-            - {id: fx3_fx_low_s1h2_p_steel_1_2, op: particle_def, def: bastion-s1-p-steel, anchor: fx3_fx_low_s1h2_p_steel_1_2_at, every: 1, for: 12}
-        - id: loop20
-          op: group
-          at: 30
-          do:
-            - {id: fx3_fx_low_s1h2_p_fleck_0_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.666, up: 0.755, forward: -0.069}, for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: 1.666, up: 0.755, forward: -0.069}}, {t: 1, offset: {left: 0.068, up: 0.92, forward: 1.75}}, {t: 2, offset: {left: 0.068, up: 0.92, forward: 1.75}}, {t: 3, offset: {left: 0.068, up: 0.92, forward: 1.75}}, {t: 4, offset: {left: -0.02, up: 0.915, forward: 1.756}}, {t: 5, offset: {left: -0.107, up: 0.911, forward: 1.758}}, {t: 6, offset: {left: -0.166, up: 0.911, forward: 1.758}}, {t: 7, offset: {left: -0.21, up: 0.883, forward: 1.785}}, {t: 8, offset: {left: -0.267, up: 0.883, forward: 1.782}}, {t: 9, offset: {left: -1.521, up: 0.561, forward: 0.218}}, {t: 10, offset: {left: -1.205, up: 0.367, forward: -0.927}}, {t: 11, offset: {left: -0.844, up: 0.219, forward: -1.184}}]}]}
-            - {id: fx3_fx_low_s1h2_p_fleck_0_2, op: particle_def, def: bastion-s1-p-fleck, anchor: fx3_fx_low_s1h2_p_fleck_0_2_at, every: 1, for: 12}
+            - {id: b3_slash, op: particle_def, def: bastion-s1-p-slash, anchor: {of: rig.root, to: rig.tip, samples: 11}, every: 1, for: 6}
+            - {id: b3_steel, op: particle_def, def: bastion-s1-p-steel, anchor: rig.tip, every: 1, for: 6}
     end: {final: true}

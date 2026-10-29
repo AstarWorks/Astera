@@ -23,14 +23,14 @@ import kotlin.math.acos
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
-/** Which way the blade's cutting edge faces while the tip travels: along the travel direction, or against it. */
+/** Which way the part's edge faces while the tip travels: along the travel direction, or against it. */
 public enum class SwingEdge { LEADING, TRAILING }
 
 /**
  * One v3 swing segment (ADR-0303 rig section): the TIP travels from [from] to [to] (unit directions in the rig's parent frame),
  * optionally through [via], with [turns] extra full revolutions of the same great circle, over [ticks] ticks eased by [easeName].
  * [from] null = continue from the previous step's [to]. [at] null = start when the previous step ends (0 for the first).
- * [roll] is extra degrees of roll about the blade's long axis reached at the end (right-handed, eased like the swing).
+ * [roll] is extra degrees of roll about the driven part's long axis reached at the end (right-handed, eased like the swing).
  */
 public data class SwingStep(
     val at: Int?,
@@ -47,14 +47,14 @@ public data class SwingStep(
 )
 
 /**
- * The blade in the rig frame (the same axes as `tip - root` and `edge` of `VisualOp.Rig`): [long] points root to tip, [edge] is
- * the cutting-edge direction, perpendicular to [long] in the blade plane (`content/frames/<item>.yaml` `axes.long` / `axes.edge`).
+ * The mounted part in the rig frame (the axes of its entry in `content/frames/<item>.yaml`): [long] points root to tip, [edge] is
+ * the cutting-edge direction, perpendicular to [long] in the part's plane (`content/frames/<item>.yaml` `axes.long` / `axes.edge`).
  */
-public data class RigBlade(val long: Vec3, val edge: Vec3)
+public data class FrameAxes(val long: Vec3, val edge: Vec3)
 
 /**
  * The v3 rig swing (SKL-20 E6, founder 2026-10-29): a swing is written as WHERE THE TIP GOES and which way the EDGE faces, never as
- * cw / ccw. [load] lowers it at load time to the existing absolute rotation-vector wrist keys of `VisualOp.Rig.swing`, one key per
+ * cw / ccw. [load] lowers it at load time to the existing absolute rotation-vector pose keys of `VisualOp.Rig.swing`, one key per
  * tick, so the runtime sampling (slerp between keys) needs no change and can never take the short way round: every step of the
  * lowered path is at most [MAX_STEP_DEG] degrees (a swing needing more per tick is a load error).
  *
@@ -68,7 +68,7 @@ public data class RigBlade(val long: Vec3, val edge: Vec3)
  * (extra revolutions, default 0; with `via` they are added to the via-to-`to` arc), `for` (ticks), `at` (default: previous end),
  * `ease` (default linear), `roll` (default 0). Orientation: Q(t) = R(axis, angle(t)) * Q0 * R(long, roll(t)), `axis` = from x to
  * (so the tip turns right-handed about it: the short way from `from` to `to`; more than 180 degrees needs `via` or `turns`), and
- * Q0 puts the blade's long axis on `from` and its edge on `axis x from` (leading) or the opposite (trailing).
+ * Q0 puts the driven part's long axis on `from` and its edge on `axis x from` (leading) or the opposite (trailing).
  */
 public object RigSwings {
     /** No lowered step (tip, edge or roll) turns more than this in one tick, so slerp between keys is unambiguous. */
@@ -84,7 +84,7 @@ public object RigSwings {
     private val reset: Field<Value<Boolean>> = Field.optional("reset", Types.bool, Value.Literal(false), "true = a duration-0 write of the rest pose at 'at'; takes no other swing field")
     private val turns: Field<Value<Double>> = Field.optional("turns", Types.number, Value.Literal(0.0), "extra full revolutions of the swing circle (integer >= 0)")
     private val ease: Field<String> = Field.optional("ease", Types.id, "linear", "easing of the whole segment (any v1 easing name except step)")
-    private val roll: Field<Value<Double>> = Field.optional("roll", Types.number, Value.Literal(0.0), "extra degrees of roll about the blade's long axis reached at the end (right-handed)")
+    private val roll: Field<Value<Double>> = Field.optional("roll", Types.number, Value.Literal(0.0), "extra degrees of roll about the driven part's long axis reached at the end (right-handed)")
 
     public val step: Fields = Fields.of("rig-swing-step", from, via, to, edge, turns, TimingSpec.at, TimingSpec.forSpan, ease, roll, reset)
 
@@ -165,21 +165,21 @@ public object RigSwings {
     /** Decode [raw] (the `swing:` list) and lower it. Load errors come back as values. */
     public fun load(
         raw: Any?,
-        blade: RigBlade,
+        axes: FrameAxes,
         tilt: Vec3,
         rest: Vec3,
         ctx: GrammarContext,
         path: String,
-    ): Result<List<RigSwingKey>, SkillDecodeError> = Grammar.guard { lower(type.decode(raw, ctx, path), blade, tilt, rest, ctx, path) }
+    ): Result<List<RigSwingKey>, SkillDecodeError> = Grammar.guard { lower(type.decode(raw, ctx, path), axes, tilt, rest, ctx, path) }
 
     /**
-     * Lowers [steps] to absolute rotation-vector wrist keys for a rig with the given [tilt] / [rest] rotation vectors (the rig
-     * frame is `tilt * wrist * rest`, so `wrist = tilt^-1 * Q * rest^-1`). Aborts through [ctx] on a bad swing.
+     * Lowers [steps] to absolute rotation-vector pose keys for a rig with the given [tilt] / [rest] rotation vectors (the rig
+     * frame is `tilt * pose * rest`, so `pose = tilt^-1 * Q * rest^-1`). Aborts through [ctx] on a bad swing.
      */
-    public fun lower(steps: List<SwingStep>, blade: RigBlade, tilt: Vec3, rest: Vec3, ctx: GrammarContext, path: String): List<RigSwingKey> {
-        val long = blade.long.normalize()
-        val edgeRaw = blade.edge - long * blade.edge.dot(long)
-        if (long.lengthSquared() < EPS || edgeRaw.lengthSquared() < EPS) ctx.fail(path, "blade long / edge axes must be non-zero and not parallel")
+    public fun lower(steps: List<SwingStep>, axes: FrameAxes, tilt: Vec3, rest: Vec3, ctx: GrammarContext, path: String): List<RigSwingKey> {
+        val long = axes.long.normalize()
+        val edgeRaw = axes.edge - long * axes.edge.dot(long)
+        if (long.lengthSquared() < EPS || edgeRaw.lengthSquared() < EPS) ctx.fail(path, "part long / edge axes must be non-zero and not parallel")
         val edgeAxis = edgeRaw.normalize()
         val tiltInv = Quaternion.fromRotationVector(tilt).conjugate()
         val restInv = Quaternion.fromRotationVector(rest).conjugate()
@@ -193,7 +193,7 @@ public object RigSwings {
             val start = s.at ?: (if (prevEndTick >= 0) prevEndTick else 0)
             if (start < prevEndTick) ctx.fail("$p.at", "step starts at $start but the previous step runs until $prevEndTick")
             if (s.reset) {
-                // R30: the rest pose is wrist = identity (rig frame = tilt * wrist * rest); a cut, never a sweep, so MAX_STEP_DEG does not apply.
+                // R30: the rest pose is pose = identity (rig frame = tilt * pose * rest); a cut, never a sweep, so MAX_STEP_DEG does not apply.
                 keys += RigSwingKey(start, Vec3(0.0, 0.0, 0.0), if (keys.isEmpty()) "linear" else "step")
                 prevEndTick = start
                 prevEndQ = null
@@ -219,7 +219,7 @@ public object RigSwings {
                     if (prev != null) {
                         val gap = Math.toDegrees(prev.angleTo(q))
                         if (gap > MAX_STEP_DEG) {
-                            ctx.fail("$p.edge", "this step starts with the blade ${"%.0f".format(gap)} degrees away from where the previous step ended: reverse a there-and-back with 'edge: trailing', or add a 'roll'")
+                            ctx.fail("$p.edge", "this step starts with the part ${"%.0f".format(gap)} degrees away from where the previous step ended: reverse a there-and-back with 'edge: trailing', or add a 'roll'")
                         }
                     } else {
                         keys += RigSwingKey(start, rotationVector(tiltInv * q * restInv), if (keys.isEmpty()) "linear" else "step")
@@ -270,7 +270,7 @@ public object RigSwings {
         return out
     }
 
-    /** Orientation that puts the blade's [long] on [d] and its [edge] on [t] ([t] perpendicular to [d]). */
+    /** Orientation that puts the part's [long] on [d] and its [edge] on [t] ([t] perpendicular to [d]). */
     private fun basis(long: Vec3, edge: Vec3, d: Vec3, t: Vec3): Quaternion {
         val q1 = between(long, d)
         val e1 = q1.rotate(edge)

@@ -10,13 +10,12 @@ import com.astarworks.astera.core.domain.animation.skinrig.SkinRigEase
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigTransforms
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
-import kotlin.math.roundToInt
 
 /** One `freezes:` window: [ticks] frozen ticks at rig tick [at]. */
 internal class RigFreezeWindow(val at: Int, val ticks: Int)
 
-/** One lowered wrist key: [rot] is the absolute rotation vector of the key (a null `rotate` holds the previous one). */
-internal class RigWristKey(val tick: Int, val rotate: Vec3?, val ease: String, val sample: Boolean)
+/** One lowered pose key: [rotate] is the absolute rotation vector of the key (a null `rotate` holds the previous one). */
+internal class RigPoseKey(val tick: Int, val rotate: Vec3?, val ease: String)
 
 /** The performance body sampled once per rig tick (v2 `RigBodyTrack` at 93cd534e4~1): no blend, a `step` key is a cut. */
 internal class RigBodyTrack(private val animation: SkinRigAnimation, private val slim: Boolean) {
@@ -74,32 +73,27 @@ internal class RigBodyTrack(private val animation: SkinRigAnimation, private val
 }
 
 /**
- * What the client shows of a rig's swing (v2 `RigMotion` at 93cd534e4~1, a port of the v1 `VfxRigMotion`): rotation-vector wrist
- * keys cut into chunks of at most [sampleTicks] ticks, halved while a chunk turns more than 60 degrees; hit-stop windows stop the
- * rig clock (`respect_hit_stop`).
+ * What the client shows of a rig's swing: the rotation-vector pose keys are read at every rig tick (slerp between keys, the key's
+ * ease on the segment ending there); hit-stop windows stop the rig clock (`respect_hit_stop`). A [mounted] rig rides the caster's arm.
  */
 internal class RigMotion(
-    swing: List<RigWristKey>,
+    swing: List<RigPoseKey>,
     tilt: Vec3,
     rest: Vec3,
     private val pivot: Vec3,
-    private val hand: Boolean,
-    private val sampleTicks: Int,
+    private val mounted: Boolean,
     freezes: List<RigFreezeWindow>,
     respectHitStop: Boolean,
     private val body: RigBodyTrack?,
     slim: Boolean,
 ) {
-    private class Key(val t: Int, val rot: Quaternion, val ease: Easing, val sample: Boolean)
-    private class Chunk(val start: Int, val end: Int, val from: Quaternion, val to: Quaternion)
+    private class Key(val t: Int, val rot: Quaternion, val ease: Easing)
 
     /** The rig clock starts one tick after the rig row (v2 `base`). */
     val base: Int = 1
     private val keys: List<Key>
     private val tilt = Quaternion.fromRotationVector(tilt)
     private val rest = Quaternion.fromRotationVector(rest)
-    private val rotCache = HashMap<Int, Quaternion>()
-    private val chunks: List<Chunk>
     private val stops: List<Pair<Int, Int>>
     private val restArm = RigBodyTrack.restArm(slim)
 
@@ -107,7 +101,7 @@ internal class RigMotion(
         var cur = Quaternion.IDENTITY
         keys = swing.map { k ->
             cur = k.rotate?.let { Quaternion.fromRotationVector(it) } ?: cur
-            Key(k.tick, cur, Easing.fromKey(k.ease) ?: error("rig: unknown swing ease '${k.ease}'"), k.sample)
+            Key(k.tick, cur, Easing.fromKey(k.ease) ?: error("rig: unknown swing ease '${k.ease}'"))
         }
         val windows = if (respectHitStop) merge(freezes) else emptyList()
         val stopList = ArrayList<Pair<Int, Int>>()
@@ -120,21 +114,6 @@ internal class RigMotion(
             }
         }
         stops = stopList
-        val points = (listOf(0) + keys.filter { !it.sample }.map { it.t } + stops.map { it.first }.filter { it <= (keys.lastOrNull()?.t ?: 0) }).distinct().sorted()
-        val out = ArrayList<Chunk>()
-        for (k in 1 until points.size) {
-            val a = points[k - 1]
-            val b = points[k]
-            val d = b - a
-            val n = (d + sampleTicks - 1) / sampleTicks
-            var prev = a
-            for (j in 1..n) {
-                val cut = a + (j.toDouble() * d / n).roundToInt()
-                split(prev, cut, out)
-                prev = cut
-            }
-        }
-        chunks = out
     }
 
     private fun merge(freezes: List<RigFreezeWindow>): List<RigFreezeWindow> {
@@ -150,7 +129,7 @@ internal class RigMotion(
         return out
     }
 
-    private fun wristAt(u: Int): Quaternion {
+    private fun poseKeyAt(u: Double): Quaternion {
         if (keys.isEmpty()) return Quaternion.IDENTITY
         val first = keys.first()
         if (u <= first.t) return first.rot
@@ -159,19 +138,7 @@ internal class RigMotion(
         val k = keys.indexOfFirst { it.t >= u }
         val a = keys[k - 1]
         val b = keys[k]
-        return Quaternion.slerp(a.rot, b.rot, b.ease.apply((u - a.t).toDouble() / (b.t - a.t)))
-    }
-
-    private fun exact(u: Int): Quaternion = rotCache.getOrPut(u) { tilt * wristAt(u) * rest }
-
-    private fun split(start: Int, end: Int, out: MutableList<Chunk>) {
-        if (end - start >= 2 && Math.toDegrees(exact(start).angleTo(exact(end))) > MAX_STEP_DEG) {
-            val mid = (start + end) / 2
-            split(start, mid, out)
-            split(mid, end, out)
-        } else {
-            out += Chunk(start, end, exact(start), exact(end))
-        }
+        return Quaternion.slerp(a.rot, b.rot, b.ease.apply((u - a.t) / (b.t - a.t)))
     }
 
     /** The rig tick shown [elapsed] ticks after the rig row: the clock runs from [base] and stands still inside every hit-stop window. */
@@ -188,31 +155,21 @@ internal class RigMotion(
         return (s - acc).toDouble()
     }
 
-    /** Wrist orientation (tilt, swing, rest) at rig tick [s]. */
-    fun rotationAt(s: Double): Quaternion {
-        if (chunks.isEmpty()) return exact(0)
-        if (s <= chunks.first().start) return chunks.first().from
-        if (s >= chunks.last().end) return chunks.last().to
-        val c = chunks.first { s < it.end }
-        return Quaternion.slerp(c.from, c.to, (s - c.start) / (c.end - c.start))
-    }
+    /** Part orientation (tilt, pose keys, rest) at rig tick [s]. */
+    fun rotationAt(s: Double): Quaternion = tilt * poseKeyAt(s) * rest
 
     private fun armAt(s: Double): RigBodyTrack.Landmark =
-        if (!hand) RigBodyTrack.Landmark(Vec3.ZERO, Quaternion.IDENTITY) else body?.armAt(s) ?: restArm
+        if (!mounted) RigBodyTrack.Landmark(Vec3.ZERO, Quaternion.IDENTITY) else body?.armAt(s) ?: restArm
 
-    /** Rig-frame orientation in the parent: the arm carries the wrist swing. [bodyS] is the body clip's own rig tick. */
+    /** Rig-frame orientation in the parent: the arm carries the pose. [bodyS] is the body clip's own rig tick. */
     fun frameRotationAt(s: Double, bodyS: Double): Quaternion = armAt(bodyS).rotation * rotationAt(s)
 
     /** Origin of the rig frame (the grip, or the pivot of an anchored rig) in the parent's axes. */
     fun originAt(bodyS: Double): Vec3 {
-        if (!hand) return pivot
+        if (!mounted) return pivot
         val arm = armAt(bodyS)
         val off = SkinRigTransforms.HELD_GRIP_OFFSET
         val o = arm.rotation.rotate(Vec3(off.x + pivot.x, off.y + pivot.y, off.z + pivot.z))
         return Vec3(arm.position.x + o.x, arm.position.y + o.y, arm.position.z + o.z)
-    }
-
-    companion object {
-        const val MAX_STEP_DEG: Double = 60.0
     }
 }
