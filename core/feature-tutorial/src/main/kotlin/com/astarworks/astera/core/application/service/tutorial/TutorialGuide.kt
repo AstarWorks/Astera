@@ -78,7 +78,20 @@ public class TutorialGuide(
         }
     }
 
-    public fun tick() { players.toList().forEach { id -> scheduler.run(ExecutionScope.Entity(id.uuid), kotlin.time.Duration.ZERO) { tickPlayer(id) } } }
+    private val log = org.slf4j.LoggerFactory.getLogger(javaClass)
+
+    /** A hint is cosmetic: one player's failing output (title / action bar / hologram) never breaks the tick or anything after it. */
+    public fun tick() {
+        players.toList().forEach { id ->
+            scheduler.run(ExecutionScope.Entity(id.uuid), kotlin.time.Duration.ZERO) {
+                try {
+                    tickPlayer(id)
+                } catch (e: Throwable) {
+                    log.warn("Tutorial hint for {} failed; skipped this tick", id, e)
+                }
+            }
+        }
+    }
 
     private fun tickPlayer(id: PlayerId) {
         val player = server.findPlayer(id)
