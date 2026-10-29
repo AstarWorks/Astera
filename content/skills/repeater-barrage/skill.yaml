@@ -19,7 +19,7 @@ anchors:
   - {id: heart,  anchor: victim.center, mode: follow}
 machine:
   start: fire
-  tail: 2
+  tail: 14
   states:
     fire:
       for: 40
@@ -30,6 +30,7 @@ machine:
         - {id: snd, op: sound, sound: "item.crossbow.shoot", anchor: caster, volume: 0.9, pitch: 0.8}
         - {id: fl0, op: particle_def, def: gun-muzzle-flash, anchor: muzzle}
       do:
+        - {id: draw, op: body, target: caster, anim: crossbow-aim, speed: 1.0, at: 0, for: 14, detach: true}
         - id: bolt
           op: projectile
           origin: start
