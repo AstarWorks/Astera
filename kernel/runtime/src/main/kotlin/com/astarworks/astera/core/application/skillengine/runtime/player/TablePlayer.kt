@@ -900,19 +900,26 @@ public class TablePlayer(
         return Stretch(liveVec(run, ends.substringBefore('>'), ctx), liveVec(run, ends.substringAfter('>'), ctx), Vec3(a[0], a[1], a[2]))
     }
 
-    /** The local rotation that points the object's axis from the base to the tip (up kept toward world up); a zero-length stretch keeps the held rotation. */
+    /**
+     * The local rotation that points the object's axis from the base to the tip: the shortest arc from the axis to the direction (no roll
+     * reference, so an axis already along the direction is the identity and a vertical stretch has no degenerate up), expressed in the
+     * rider's parent space. A zero-length stretch keeps the held rotation.
+     */
     private fun stretchRot(run: Run, rec: Rec, st: Stretch, ctx: RowCtx, now: Int): Quaterniond {
         val d = Vector3d(st.tip).sub(st.base)
         if (d.length() < 1e-9) return Quaterniond(rec.localAt(now).rot)
-        val z = Vec3(0.0, 0.0, 1.0)
         val a = st.axis.normalize()
-        val toZ = when {
-            a.dot(z) > 1.0 - 1e-12 -> Quaternion.IDENTITY
-            a.dot(z) < -1.0 + 1e-12 -> Quaternion.axisAngle(Vec3(0.0, 1.0, 0.0), Math.PI)
-            else -> Quaternion.axisAngle(a.cross(z), Math.acos(a.dot(z).coerceIn(-1.0, 1.0)))
+        val n = Vec3(d.x, d.y, d.z).normalize()
+        val dot = a.x * n.x + a.y * n.y + a.z * n.z
+        val world = if (dot < -1.0 + 1e-12) {
+            // opposite: a half turn about any axis perpendicular to the object axis
+            val perp = if (Math.abs(a.x) < 0.9) Vec3(1.0, 0.0, 0.0).cross(a) else Vec3(0.0, 1.0, 0.0).cross(a)
+            val p = perp.normalize()
+            Quaterniond(p.x, p.y, p.z, 0.0)
+        } else {
+            Quaterniond(a.y * n.z - a.z * n.y, a.z * n.x - a.x * n.z, a.x * n.y - a.y * n.x, 1.0 + dot).normalize()
         }
-        val w = Basis.facing(Vec3(d.x, d.y, d.z), Vec3(0.0, 1.0, 0.0)) * toZ
-        return Quaterniond(parentPose(run, rec, ctx, now).rot).conjugate().mul(Quaterniond(w.x, w.y, w.z, w.w)).normalize()
+        return Quaterniond(parentPose(run, rec, ctx, now).rot).conjugate().mul(world).normalize()
     }
 
     private fun teleport(run: Run, a: Action.Teleport, ctx: RowCtx, now: Int) {

@@ -230,10 +230,10 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
         is Result.Failure -> error("expected to load: ${r.error.message}")
     }
 
-    private fun replay(top: String, motion: String): GatewayRecorder {
+    private fun replay(top: String, motion: String, yawDeg: Double = 0.0): GatewayRecorder {
         val rec = GatewayRecorder()
         rec.faithfulPose = true
-        play(replaySkill(top, motion), seed = 1L, events = emptyList(), ticks = 8, rec = rec)
+        play(replaySkill(top, motion), seed = 1L, events = emptyList(), ticks = 8, rec = rec, yawDeg = yawDeg)
         return rec
     }
 
@@ -255,6 +255,24 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
         val sized = rec.writtenPoses.map { it.third.size }
         assertThat(sized).isNotEmpty
         assertThat(sized.maxOf { maxOf(it.x, it.y, it.z) }).isCloseTo(1.62, within(1e-3))
+    }
+
+    @Test
+    fun stretchRotationIsTheShortestArcFromTheAxisToTheSpan() {
+        // caster feet -> eye is straight up; the caster yaw must not leak into the rotation (it is a world direction)
+        for (yaw in listOf(0.0, 90.0, 37.0)) {
+            val up = replay("", "{law: stretch, base: caster, tip: caster.eye, axis: up, for: 4, step: 2}", yaw)
+            assertThat(up.writtenPoses).isNotEmpty
+            // axis already along the span: the object keeps its own orientation, no roll about an arbitrary up
+            up.writtenPoses.forEach { assertThat(it.third.frame.rotation.angleTo(Quaternion.IDENTITY)).isCloseTo(0.0, within(1e-6)) }
+            val fwd = replay("", "{law: stretch, base: caster, tip: caster.eye, axis: forward, for: 4, step: 2}", yaw)
+            fwd.writtenPoses.forEach {
+                val a = it.third.frame.rotation.rotate(Vec3(0.0, 0.0, 1.0))
+                assertThat(a.x).isCloseTo(0.0, within(1e-6))
+                assertThat(a.y).isCloseTo(1.0, within(1e-6))
+                assertThat(a.z).isCloseTo(0.0, within(1e-6))
+            }
+        }
     }
 
     @Test
