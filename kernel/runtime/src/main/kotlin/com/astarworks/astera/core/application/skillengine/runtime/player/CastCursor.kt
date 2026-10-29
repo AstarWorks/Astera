@@ -39,7 +39,11 @@ public data class SubCursor(val sub: SubTable, val firedAt: Int, var nextRow: In
     public var owner: StatePath? = null
 
     /** Per-chain picks made so far by this firing's chain rows (ADR-0303 9.4). */
-    internal val chain: ChainState = ChainState()
+    internal var chain: ChainState = ChainState()
+
+    /** This firing with only [rows] left to play (rows keep their load ticks relative to [firedAt]): same owner, binding and chain picks, so a chain hop's later rows still know their pick. */
+    internal fun withRows(rows: List<com.astarworks.astera.core.domain.skillengine.table.Row>): SubCursor =
+        SubCursor(sub.copy(rows = rows), firedAt, 0, binding).also { it.owner = owner; it.chain = chain }
 }
 
 /** The picks of the chains of one sub-table firing: chain id -> victims chosen by hops 1..k, and the chains that ran out of candidates. */

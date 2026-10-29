@@ -397,7 +397,7 @@ public class TablePlayer(
         releaseCast(run)
         val keep = run.cursor.subCursors.mapNotNull { sc ->
             val rest = sc.sub.rows.drop(sc.nextRow).filter { it.detached }
-            if (rest.isEmpty()) null else SubCursor(sc.sub.copy(rows = rest), sc.firedAt, 0, sc.binding).also { it.owner = sc.owner }
+            if (rest.isEmpty()) null else sc.withRows(rest)
         }
         run.cursor.subCursors.clear()
         run.cursor.subCursors += keep
@@ -510,7 +510,7 @@ public class TablePlayer(
             val cut = rest.filter { !it.detached && !it.drainsAfterExit && it.action !is Action.End }
             if (cut.isEmpty()) continue
             for (row in cut) trace.cut(run.cursor.handle, row.src.value, now, lvl.state, reason)
-            val kept = SubCursor(sc.sub.copy(rows = rest.filter { it !in cut }), sc.firedAt, 0, sc.binding).also { it.owner = sc.owner }
+            val kept = sc.withRows(rest.filter { it !in cut })
             // the new cursor replaces the old in place, keeping the rows' ticks relative to the firing
             val at = run.cursor.subCursors.indexOf(sc)
             run.cursor.subCursors.removeAt(at)
@@ -1596,7 +1596,8 @@ public class TablePlayer(
     private fun damage(run: Run, row: Row, a: Action.Damage, ctx: RowCtx, now: Int) {
         val comps = a.components.map { c -> SkillDamage(c.attribute.name.lowercase(), liveAmount(run, c, ctx)) }
         for (v in ruleTargets(run, a.targets, ctx)) {
-            val point = ctx.binding?.contact?.point?.let { Vec3(it.x, it.y, it.z) } ?: query.rootOf(castRef(run), v)?.feet ?: Vec3.ZERO
+            // the event's contact point is where the bolt met the event's victim; a chain hop's victim is somebody else, hit where it stands
+            val point = ctx.binding?.contact?.point?.takeIf { row.chain == null }?.let { Vec3(it.x, it.y, it.z) } ?: query.rootOf(castRef(run), v)?.feet ?: Vec3.ZERO
             if (gameplay.damage(run.cursor.skill.def.id, run.request.caster, v, comps, point, false, false)) run.killed += v
         }
     }

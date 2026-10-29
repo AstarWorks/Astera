@@ -69,7 +69,7 @@ r @13 run-end tail=12 | pose
 @4 spawn #1 op=- kind=ribbon from=0.000000,0.810000,2.500000 to=-2.000000,0.810000,3.000000 thick=0.140000 color=#b8e0ff alpha=1.000000 quads=[-2.000000,0.000000,0.500000|0.033955,0.000000,0.135820],[-2.000000,0.000000,0.500000|0.000000,0.140000,0.000000]
 @4 particle - op=cast/bolt.hit/jump[1]/spark type=electric_spark count=12 at=-2.000000,1.200000,3.000000 off=0.300000,0.600000,0.300000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2883072080208897496
 @4 sound - op=cast/bolt.hit/jump[1]/snd sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=-2.000000,1.200000,3.000000
-@4 damage 00000000-0000-0000-0000-00000000000b op=- electric=12.6 skill=chain-lightning at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@4 damage 00000000-0000-0000-0000-00000000000b op=- electric=12.6 skill=chain-lightning at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
 @4 status 00000000-0000-0000-0000-00000000000b op=- status=shock stacks=1 for=16
 @5 line #1 op=- from=0.000000,0.810000,2.500000 to=-2.000000,0.810000,3.000000
 @6 line #1 op=- from=0.000000,0.810000,2.500000 to=-2.000000,0.810000,3.000000
@@ -78,7 +78,7 @@ r @13 run-end tail=12 | pose
 @7 spawn #2 op=- kind=ribbon from=-2.000000,0.810000,3.000000 to=-3.000000,0.810000,4.500000 thick=0.140000 color=#b8e0ff alpha=1.000000 quads=[-1.000000,0.000000,1.500000|0.116487,0.000000,0.077658],[-1.000000,0.000000,1.500000|0.000000,0.140000,0.000000]
 @7 particle - op=cast/bolt.hit/jump[2]/spark type=electric_spark count=12 at=-3.000000,1.200000,4.500000 off=0.300000,0.600000,0.300000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4397761120142537302
 @7 sound - op=cast/bolt.hit/jump[2]/snd sound=astera:skills/lightning-impact cat=master vol=0.68 pitch=1.2 at=-3.000000,1.200000,4.500000
-@7 damage 00000000-0000-0000-0000-00000000000c op=- electric=8.82 skill=chain-lightning at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@7 damage 00000000-0000-0000-0000-00000000000c op=- electric=8.82 skill=chain-lightning at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
 @7 status 00000000-0000-0000-0000-00000000000c op=- status=shock stacks=1 for=12
 @7 remove #1 op=-
 @8 line #2 op=- from=-2.000000,0.810000,3.000000 to=-3.000000,0.810000,4.500000
@@ -88,22 +88,13 @@ r @13 run-end tail=12 | pose
 @10 spawn #3 op=- kind=ribbon from=-3.000000,0.810000,4.500000 to=-4.500000,0.810000,5.500000 thick=0.140000 color=#b8e0ff alpha=1.000000 quads=[-1.500000,0.000000,1.000000|0.077658,0.000000,0.116487],[-1.500000,0.000000,1.000000|0.000000,0.140000,0.000000]
 @10 particle - op=cast/bolt.hit/jump[3]/spark type=electric_spark count=12 at=-4.500000,1.200000,5.500000 off=0.300000,0.600000,0.300000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3774472178716577463
 @10 sound - op=cast/bolt.hit/jump[3]/snd sound=astera:skills/lightning-impact cat=master vol=0.578 pitch=1.3 at=-4.500000,1.200000,5.500000
-@10 damage 00000000-0000-0000-0000-00000000000d op=- electric=6.174 skill=chain-lightning at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@10 damage 00000000-0000-0000-0000-00000000000d op=- electric=6.174 skill=chain-lightning at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
 @10 status 00000000-0000-0000-0000-00000000000d op=- status=shock stacks=1 for=8
 @10 remove #2 op=-
 @11 line #3 op=- from=-3.000000,0.810000,4.500000 to=-4.500000,0.810000,5.500000
 @12 line #3 op=- from=-3.000000,0.810000,4.500000 to=-4.500000,0.810000,5.500000
 @13 line #3 op=- from=-3.000000,0.810000,4.500000 to=-4.500000,0.810000,5.500000
-@14 line #3 op=- from=-3.000000,0.810000,4.500000 to=-4.500000,0.810000,5.500000
-@15 line #3 op=- from=-3.000000,0.810000,4.500000 to=-4.500000,0.810000,5.500000
-@16 line #3 op=- from=-3.000000,0.810000,4.500000 to=-4.500000,0.810000,5.500000
-@17 line #3 op=- from=-3.000000,0.810000,4.500000 to=-4.500000,0.810000,5.500000
-@18 line #3 op=- from=-3.000000,0.810000,4.500000 to=-4.500000,0.810000,5.500000
-@19 line #3 op=- from=-3.000000,0.810000,4.500000 to=-4.500000,0.810000,5.500000
-@20 line #3 op=- from=-3.000000,0.810000,4.500000 to=-4.500000,0.810000,5.500000
-@21 line #3 op=- from=-3.000000,0.810000,4.500000 to=-4.500000,0.810000,5.500000
-@22 line #3 op=- from=-3.000000,0.810000,4.500000 to=-4.500000,0.810000,5.500000
-@22 remove #3 op=-
+@13 remove #3 op=-
 g @1 state-exit reason=EVENT | state=cast
 g @1 cast-end drain=15 until=10 | pose
 r @22 run-end tail=12 | pose
@@ -150,7 +141,7 @@ r @22 run-end tail=12 | pose
 @4 spawn #1 op=- kind=ribbon from=-1.504538,0.810000,1.996589 to=-3.402716,0.810000,1.192276 thick=0.140000 color=#b8e0ff alpha=1.000000 quads=[-1.898179,0.000000,-0.804312|-0.054621,0.000000,0.128905],[-1.898179,0.000000,-0.804312|0.000000,0.140000,0.000000]
 @4 particle - op=cast/bolt.hit/jump[1]/spark type=electric_spark count=12 at=-3.402716,1.200000,1.192276 off=0.300000,0.600000,0.300000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2883072080208897496
 @4 sound - op=cast/bolt.hit/jump[1]/snd sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=-3.402716,1.200000,1.192276
-@4 damage 00000000-0000-0000-0000-00000000000b op=- electric=12.6 skill=chain-lightning at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@4 damage 00000000-0000-0000-0000-00000000000b op=- electric=12.6 skill=chain-lightning at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
 @4 status 00000000-0000-0000-0000-00000000000b op=- status=shock stacks=1 for=16
 @5 line #1 op=- from=-1.504538,0.810000,1.996589 to=-3.402716,0.810000,1.192276
 @6 line #1 op=- from=-1.504538,0.810000,1.996589 to=-3.402716,0.810000,1.192276
@@ -159,7 +150,7 @@ r @22 run-end tail=12 | pose
 @7 spawn #2 op=- kind=ribbon from=-3.402716,0.810000,1.192276 to=-5.104074,0.810000,1.788415 thick=0.140000 color=#b8e0ff alpha=1.000000 quads=[-1.701358,0.000000,0.596138|0.046295,0.000000,0.132124],[-1.701358,0.000000,0.596138|0.000000,0.140000,0.000000]
 @7 particle - op=cast/bolt.hit/jump[2]/spark type=electric_spark count=12 at=-5.104074,1.200000,1.788415 off=0.300000,0.600000,0.300000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4397761120142537302
 @7 sound - op=cast/bolt.hit/jump[2]/snd sound=astera:skills/lightning-impact cat=master vol=0.68 pitch=1.2 at=-5.104074,1.200000,1.788415
-@7 damage 00000000-0000-0000-0000-00000000000c op=- electric=8.82 skill=chain-lightning at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@7 damage 00000000-0000-0000-0000-00000000000c op=- electric=8.82 skill=chain-lightning at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
 @7 status 00000000-0000-0000-0000-00000000000c op=- status=shock stacks=1 for=12
 @7 remove #1 op=-
 @8 line #2 op=- from=-3.402716,0.810000,1.192276 to=-5.104074,0.810000,1.788415
@@ -169,22 +160,13 @@ r @22 run-end tail=12 | pose
 @10 spawn #3 op=- kind=ribbon from=-5.104074,0.810000,1.788415 to=-6.903842,0.810000,1.684328 thick=0.140000 color=#b8e0ff alpha=1.000000 quads=[-1.799768,0.000000,-0.104087|-0.008083,0.000000,0.139766],[-1.799768,0.000000,-0.104087|0.000000,0.140000,0.000000]
 @10 particle - op=cast/bolt.hit/jump[3]/spark type=electric_spark count=12 at=-6.903842,1.200000,1.684328 off=0.300000,0.600000,0.300000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3774472178716577463
 @10 sound - op=cast/bolt.hit/jump[3]/snd sound=astera:skills/lightning-impact cat=master vol=0.578 pitch=1.3 at=-6.903842,1.200000,1.684328
-@10 damage 00000000-0000-0000-0000-00000000000d op=- electric=6.174 skill=chain-lightning at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@10 damage 00000000-0000-0000-0000-00000000000d op=- electric=6.174 skill=chain-lightning at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false
 @10 status 00000000-0000-0000-0000-00000000000d op=- status=shock stacks=1 for=8
 @10 remove #2 op=-
 @11 line #3 op=- from=-5.104074,0.810000,1.788415 to=-6.903842,0.810000,1.684328
 @12 line #3 op=- from=-5.104074,0.810000,1.788415 to=-6.903842,0.810000,1.684328
 @13 line #3 op=- from=-5.104074,0.810000,1.788415 to=-6.903842,0.810000,1.684328
-@14 line #3 op=- from=-5.104074,0.810000,1.788415 to=-6.903842,0.810000,1.684328
-@15 line #3 op=- from=-5.104074,0.810000,1.788415 to=-6.903842,0.810000,1.684328
-@16 line #3 op=- from=-5.104074,0.810000,1.788415 to=-6.903842,0.810000,1.684328
-@17 line #3 op=- from=-5.104074,0.810000,1.788415 to=-6.903842,0.810000,1.684328
-@18 line #3 op=- from=-5.104074,0.810000,1.788415 to=-6.903842,0.810000,1.684328
-@19 line #3 op=- from=-5.104074,0.810000,1.788415 to=-6.903842,0.810000,1.684328
-@20 line #3 op=- from=-5.104074,0.810000,1.788415 to=-6.903842,0.810000,1.684328
-@21 line #3 op=- from=-5.104074,0.810000,1.788415 to=-6.903842,0.810000,1.684328
-@22 line #3 op=- from=-5.104074,0.810000,1.788415 to=-6.903842,0.810000,1.684328
-@22 remove #3 op=-
+@13 remove #3 op=-
 g @1 state-exit reason=EVENT | state=cast
 g @1 cast-end drain=15 until=10 | pose
 r @22 run-end tail=12 | pose

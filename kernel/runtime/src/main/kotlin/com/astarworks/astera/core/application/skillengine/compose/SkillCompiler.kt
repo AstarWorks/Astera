@@ -50,6 +50,7 @@ import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
+import com.astarworks.astera.core.domain.skillengine.table.StateTable
 import com.astarworks.astera.core.domain.skillengine.table.StatePath
 import com.astarworks.astera.core.domain.skillengine.table.SubTable
 import com.astarworks.astera.core.domain.skillengine.table.TickRange
@@ -109,20 +110,36 @@ public class SkillCompiler(
         }
         val instanceCounts = m.instances.distinct().groupBy { it.path.last().op }.mapValues { (_, v) -> v.size }
         val stateByPath = m.states.associateBy { it.state.value }
+        // The cast's load-time length (ADR-0303 rev4.14 D4) is the longest path through the state graph: a state's own length (its duration, or its last
+        // non-detached row), then either its `then:` at that length or an event branch at the latest tick the event may fire (a hit that sends `throw` into a
+        // longer `stuck` is a longer cast than the timer chain). A back edge into a state already on the path is not followed (a loop has no longest path).
+        val entryMax = HashMap<String, Int>()
         var pathMax = 0
         run {
-            var cur = m.states.firstOrNull()
-            val seen = HashSet<String>()
-            while (cur != null && seen.add(cur.state.value)) {
-                pathMax += maxOf(when (val d = cur.duration) { is Duration.Fixed -> d.ticks; is Duration.Bounded -> d.range.max }, cur.rows.filter { !it.detached }.maxOfOrNull { it.tick } ?: 0)
-                cur = cur.then?.let { stateByPath[it.value] }
+            fun length(st: StateTable): Int = maxOf(when (val d = st.duration) { is Duration.Fixed -> d.ticks; is Duration.Bounded -> d.range.max }, st.rows.filter { !it.detached }.maxOfOrNull { it.tick } ?: 0)
+            val onPath = HashSet<String>()
+            fun visit(st: StateTable, entry: Int) {
+                entryMax[st.state.value] = entry
+                val len = length(st)
+                pathMax = maxOf(pathMax, entry + len)
+                onPath += st.state.value
+                val edges = ArrayList<Pair<StatePath, Int>>()
+                st.then?.let { edges += it to len }
+                for (b in st.branches) b.target?.let { edges += it to minOf(b.window.max, len) }
+                for ((target, off) in edges) {
+                    val next = stateByPath[target.value] ?: continue
+                    if (next.state.value in onPath || entry + off <= (entryMax[next.state.value] ?: -1)) continue
+                    visit(next, entry + off)
+                }
+                onPath -= st.state.value
             }
+            m.states.firstOrNull()?.let { visit(it, 0) }
         }
         // rev4.14 rule D (D4): a handler's gameplay rows after its event tick are cast-owned, so the cast lasts until the latest of them
-        // (the event window's last tick + the row's tick); a handler whose rows are all at its event tick adds nothing
+        // (the latest tick its owner can be entered + the event window's last tick + the row's tick); a handler whose rows are all at its event tick adds nothing
         for (sub in subs.values) {
             val last = sub.rows.filter { it.drainsAfterExit }.maxOfOrNull { it.tick } ?: 0
-            if (last > 0) pathMax = maxOf(pathMax, sub.window.max + last)
+            if (last > 0) pathMax = maxOf(pathMax, (entryMax[sub.owner.value] ?: 0) + sub.window.max + last)
         }
         val sameTick = SameTickDepth.of(m.states, subs)
         sameTick.cycle?.let {
