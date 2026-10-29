@@ -2935,3 +2935,14 @@ astera:
   match.nav.annihilation.defend: "<green>Defend your pillar!</green>"
   match.compass.name: "<gold>Navigation Compass</gold>"
   match.compass.lore: "<gray>Hold it to see where the enemy pillars are.</gray>"
+
+  # announce.* — cross-server moment announcements (ADR-0306)
+  announce.rare-drop.title: "&6&lRARE DROP!"
+  announce.rare-drop.subtitle: "&f{name} obtained {item}"
+  announce.rare-drop.chat: "&6[Rare Drop] &f{name} obtained {item}"
+  announce.server-boost.title: "&d&lSERVER BOOST!"
+  announce.server-boost.subtitle: "&f{name} boosted x{multiplier} ({minutes} min)"
+  announce.server-boost.chat: "&d[Server Boost] &f{name} boosted x{multiplier} ({minutes} min)"
+  announce.invalid: "&cUse unique key=value arguments."
+  announce.sent: "&aAnnouncement sent."
+  announce.failed: "&cAnnouncement failed: {reason}"

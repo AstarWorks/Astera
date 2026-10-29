@@ -33,7 +33,7 @@ public class AsteraChatPlugin : JavaPlugin() {
         http = client
         val display = PaperChatDisplay(this, config.format, core.services.getOrThrow<IMessageRenderer>())
         val chat = ChatRelay(core.serverEnvironment.name, config, core.services.getOrThrow<IProxyMessenger>(),
-            GoogleKanjiConverter(client), display::chat, display::title,
+            GoogleKanjiConverter(client), display::chat,
             discordOutbound = { origin, frame -> discord?.send(origin, frame) }, warn = { logger.warning(it) })
         relay = chat
         commands = core.services.getOrThrow<IAsteraCommandRegistry>().register(name, chatCommands(chat))

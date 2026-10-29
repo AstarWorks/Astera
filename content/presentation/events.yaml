@@ -8,7 +8,8 @@
 #   particle      id of a preset below, shown per viewer and filtered by that viewer's particle-visibility setting
 #   chain_*       consecutive plays within chain_window_ms rise chain_pitch_semitones each (up to chain_max_steps)
 #
-# Not here: the countdown / death / result titles (HUD subtitle layouts, ADR-0206) and chat lines. Their sounds are.
+#   chat          i18n key sent per viewer locale using & legacy colours only
+# Countdown / death / result titles still use HUD subtitle layouts (ADR-0206).
 # Every moment in PresentationMoments.ALL must have a row (PresentationCueCoverageScenarioTest).
 
 particles:
@@ -268,3 +269,18 @@ moments:
     cue: "astera:ui/confirm"
   ui-deny:
     cue: "astera:ui/deny"
+
+  rare-drop:
+    cue: "astera:norma/level-max"
+    title: "astera.announce.rare-drop.title"
+    subtitle: "astera.announce.rare-drop.subtitle"
+    chat: "astera.announce.rare-drop.chat"
+    action_bar: "astera.announce.rare-drop.subtitle"
+    particle: star-burst-spark
+    title_stay_ticks: 70
+  server-boost:
+    cue: "astera:norma/level-up"
+    title: "astera.announce.server-boost.title"
+    subtitle: "astera.announce.server-boost.subtitle"
+    chat: "astera.announce.server-boost.chat"
+    title_stay_ticks: 70

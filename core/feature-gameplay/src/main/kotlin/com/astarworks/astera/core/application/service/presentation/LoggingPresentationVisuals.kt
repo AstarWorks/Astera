@@ -12,6 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 public class LoggingPresentationVisuals : IPresentationVisuals {
     public sealed interface Call {
         public data class Title(val player: PlayerId, val title: MessageKey?, val subtitle: MessageKey?, val args: Map<String, String>) : Call
+        public data class Chat(val player: PlayerId, val key: MessageKey, val args: Map<String, String>) : Call
         public data class ActionBar(val player: PlayerId, val key: MessageKey, val args: Map<String, String>) : Call
         public data class Particles(val preset: ParticlePreset, val viewers: List<PlayerId>, val anchor: PlayerId, val at: Vec3?) : Call
     }
@@ -20,6 +21,10 @@ public class LoggingPresentationVisuals : IPresentationVisuals {
 
     override fun title(player: PlayerId, title: MessageKey?, subtitle: MessageKey?, args: Map<String, String>, stayTicks: Int) {
         calls += Call.Title(player, title, subtitle, args)
+    }
+
+    override fun chat(player: PlayerId, key: MessageKey, args: Map<String, String>) {
+        calls += Call.Chat(player, key, args)
     }
 
     override fun actionBar(player: PlayerId, key: MessageKey, args: Map<String, String>) {

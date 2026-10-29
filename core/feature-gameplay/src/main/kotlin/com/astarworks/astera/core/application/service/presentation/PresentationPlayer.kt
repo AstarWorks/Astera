@@ -52,6 +52,7 @@ public class PresentationPlayer(
         e.cue?.let { cues.play(subject, it, at, world, pitchScale(subject, e)) }
         e.audienceCue?.let { cue -> cues.playAll(audience.filter { it != subject }, cue, at, world) }
         if (e.title != null || e.subtitle != null) visuals().title(subject, e.title, e.subtitle, args, e.titleStayTicks)
+        e.chat?.let { visuals().chat(subject, it, args) }
         e.actionBar?.let { visuals().actionBar(subject, resolve(it, args), args) }
         val preset = e.particle?.let { id ->
             table.preset(id).also { if (it == null && warned.add("preset:$id")) log.warn("Particle preset '{}' (moment '{}') is not defined", id, moment) }

@@ -1,7 +1,6 @@
 package com.astarworks.astera.chat.adapter.paper
 
 import com.astarworks.astera.chat.application.config.ChatFrame
-import com.astarworks.astera.chat.application.config.TitleFrame
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.service.cosmetic.CosmeticService
@@ -13,9 +12,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
-import net.kyori.adventure.title.Title
 import org.bukkit.plugin.java.JavaPlugin
-import java.time.Duration
 
 public class PaperChatDisplay(
     private val plugin: JavaPlugin,
@@ -70,9 +67,4 @@ public class PaperChatDisplay(
         }
     }
 
-    public fun title(frame: TitleFrame) {
-        val title = Title.title(legacy.deserialize(frame.title), legacy.deserialize(frame.subtitle),
-            Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(1000)))
-        plugin.server.onlinePlayers.forEach { player -> player.scheduler.run(plugin, { player.showTitle(title) }, null) }
-    }
 }

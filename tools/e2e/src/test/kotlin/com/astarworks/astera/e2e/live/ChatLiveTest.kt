@@ -9,7 +9,7 @@ class ChatLiveTest : LiveBase() {
     private val suite = "Live chat"
 
     @Test
-    fun `chat and screen titles cross backends once`() {
+    fun `chat and moment announcements cross backends once`() {
         val a = bot("chata")
         // Ignore lobby-return Connect requests: game rejects players without a match assignment.
         // Pin only this probe to game so it can observe Redis delivery; match/transfer behaviour is out of scope.
@@ -72,22 +72,16 @@ class ChatLiveTest : LiveBase() {
             }
         }
 
+        val chatFrom = b.chat.size
         val titleFrom = b.titles.size
-        val titlePackets = b.packetCounts["ClientboundSetTitleTextPacket"]?.get() ?: 0
-        val subtitlePackets = b.packetCounts["ClientboundSetSubtitleTextPacket"]?.get() ?: 0
-        val gameBefore = rcon("game", "list")
-        val reply = rcon("lobby", "astera chat title all &#ffaa00&lTest&r | &aSub")
-        b.waitUntil(10_000) { b.titles.drop(titleFrom).map { it.text }.containsAll(listOf("Test", "Sub")) }
-        E2eReport.check(suite, "ampersand hex and legacy titles deliver Test and Sub across backends", "SetTitleText + SetSubtitleText") {
-            val texts = b.titles.drop(titleFrom).map { it.text }
-            val gameAfter = rcon("game", "list")
-            assertThat(gameBefore).contains(b.name)
-            assertThat(gameAfter).contains(b.name)
-            assertThat(b.joined && b.endpoint == LiveEnv.game).isTrue()
-            assertThat(texts).describedAs("RCON: $reply; B titles: $texts").contains("Test", "Sub")
-            assertThat(b.packetCounts["ClientboundSetTitleTextPacket"]?.get() ?: 0).isGreaterThan(titlePackets)
-            assertThat(b.packetCounts["ClientboundSetSubtitleTextPacket"]?.get() ?: 0).isGreaterThan(subtitlePackets)
-            "RCON lobby: $reply\nB game title/subtitle: $texts\ngame before: $gameBefore\ngame after: $gameAfter"
+        val reply = rcon("lobby", "astera announce rare-drop all name=${a.name} item=AnnounceProbe")
+        b.waitUntil(10_000) { b.chat.drop(chatFrom).any { "AnnounceProbe" in it.text } }
+        E2eReport.check(suite, "rare-drop reaches game with chat and title", "SystemChat + SetTitleText") {
+            val lines = b.chat.drop(chatFrom).filter { "AnnounceProbe" in it.text }
+            assertThat(lines).describedAs("RCON: $reply").hasSize(1)
+            assertThat(lines.single().text).contains(a.name)
+            assertThat(b.titles.drop(titleFrom)).isNotEmpty()
+            "RCON lobby: $reply; game: ${lines.single().text}"
         }
     }
 }

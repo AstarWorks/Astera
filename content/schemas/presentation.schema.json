@@ -1,0 +1,94 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://astera.astarworks.com/schemas/presentation.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "particles": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "particle"
+        ],
+        "properties": {
+          "particle": {
+            "type": "string",
+            "minLength": 1
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "spread": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "speed": {
+            "type": "number"
+          },
+          "y_offset": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "moments": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "cue": {
+            "type": "string",
+            "minLength": 1
+          },
+          "audience_cue": {
+            "type": "string",
+            "minLength": 1
+          },
+          "particle": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]*(\\.[a-z0-9_-]+)*$"
+          },
+          "subtitle": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]*(\\.[a-z0-9_-]+)*$"
+          },
+          "chat": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]*(\\.[a-z0-9_-]+)*$"
+          },
+          "action_bar": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title_stay_ticks": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "chain_window_ms": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "chain_max_steps": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "chain_pitch_semitones": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  }
+}

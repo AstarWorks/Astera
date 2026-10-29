@@ -3,7 +3,6 @@ package com.astarworks.astera.chat.application
 import com.astarworks.astera.chat.application.config.ChatConfig
 import com.astarworks.astera.chat.application.config.ChatFrame
 import com.astarworks.astera.chat.application.config.ChatRank
-import com.astarworks.astera.chat.application.config.TitleFrame
 import com.astarworks.astera.chat.application.port.outbound.IKanjiConverter
 import com.astarworks.astera.chat.domain.Romaji
 import com.astarworks.astera.core.application.port.outbound.IProxyMessenger
@@ -23,7 +22,6 @@ public class ChatRelay(
     private val messenger: IProxyMessenger,
     private val kanji: IKanjiConverter,
     private val display: (String, ChatFrame) -> Unit,
-    private val displayTitle: (TitleFrame) -> Unit,
     private val discordOutbound: (String, ChatFrame) -> Unit = { _, _ -> },
     private val warn: (String) -> Unit = {},
 ) : AutoCloseable {
@@ -35,12 +33,6 @@ public class ChatRelay(
             if (active && message.fromServer != server) {
                 val frame = runCatching { json.decodeFromString<ChatFrame>(message.payload.decodeToString()) }.getOrNull()
                 if (frame != null) deliver(message.fromServer.value, frame) else warn("Malformed chat frame dropped")
-            }
-        },
-        messenger.subscribe(ProxyChannel.TITLE) { message ->
-            if (active && message.fromServer != server) {
-                val frame = runCatching { json.decodeFromString<TitleFrame>(message.payload.decodeToString()) }.getOrNull()
-                if (frame != null) titleHere(frame) else warn("Malformed title frame dropped")
             }
         },
     )
@@ -77,17 +69,6 @@ public class ChatRelay(
     private fun deliver(origin: String, frame: ChatFrame) {
         display(origin, frame)
         if (!frame.discord) discordOutbound(origin, frame)
-    }
-
-    public fun title(target: String, title: String, subtitle: String) {
-        val frame = TitleFrame(target, title, subtitle)
-        titleHere(frame)
-        if (messenger.broadcast(ProxyChannel.TITLE, json.encodeToString(TitleFrame.serializer(), frame).encodeToByteArray()) is Result.Failure)
-            warn("Title could not be relayed to other servers")
-    }
-
-    private fun titleHere(frame: TitleFrame) {
-        if (frame.target == "all" || frame.target == server.value) displayTitle(frame)
     }
 
     override fun close() { active = false; subscriptions.forEach { it.cancel() }; toggles.clear() }
