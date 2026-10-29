@@ -416,7 +416,6 @@
 @31 effect 00000000-0000-0000-0000-00000000000a op=- screen_flash=gold_burst color=#ffc84a in=0 stay=2 out=2
 @31 effect 00000000-0000-0000-0000-00000000000b op=- screen_flash=gold_burst color=#ffc84a in=0 stay=2 out=2
 @31 effect 00000000-0000-0000-0000-00000000000a op=- hurt
-@31 effect 00000000-0000-0000-0000-00000000000b op=- hurt
 @31 effect 00000000-0000-0000-0000-000000000001 op=- freeze=4
 @31 effect 00000000-0000-0000-0000-00000000000a op=- freeze=4
 @31 effect 00000000-0000-0000-0000-00000000000a op=- camera_shake=1 ticks=10 from=hit
@@ -1880,7 +1879,6 @@
 @31 effect 00000000-0000-0000-0000-00000000000a op=- screen_flash=gold_burst color=#ffc84a in=0 stay=2 out=2
 @31 effect 00000000-0000-0000-0000-00000000000b op=- screen_flash=gold_burst color=#ffc84a in=0 stay=2 out=2
 @31 effect 00000000-0000-0000-0000-00000000000a op=- hurt
-@31 effect 00000000-0000-0000-0000-00000000000b op=- hurt
 @31 effect 00000000-0000-0000-0000-000000000001 op=- freeze=4
 @31 effect 00000000-0000-0000-0000-00000000000a op=- freeze=4
 @31 effect 00000000-0000-0000-0000-00000000000a op=- camera_shake=1 ticks=10 from=hit

@@ -33,7 +33,6 @@ machine:
           op: rig
           parent: caster
           mount: caster.hand_r
-          part: held_hand
           detach: true
           for: 10
           swing:
