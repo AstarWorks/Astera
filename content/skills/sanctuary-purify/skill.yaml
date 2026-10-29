@@ -5,7 +5,7 @@ id: sanctuary-purify
 item: sanctuary-staff
 meta: {name: {ja: "浄化", en: Purify}, description: {ja: "自分と周囲の味方の状態異常を取り除く。", en: "Clears harmful effects from you and nearby allies."}, cooldown_ticks: 200, resource_cost: 20, tags: [magic, support]}
 anchors:
-  - {id: feet,  anchor: caster, offset: {up: 0.15}}                   # was pt_caster_0_0p15_0
+  - {id: feet,  anchor: caster, offset: {up: 0.15}, mode: follow}                   # was pt_caster_0_0p15_0
 machine:
   start: bless
   states:

@@ -15,9 +15,6 @@ frames:
 
 gameplay:
   params: {throw_speed: 1.7, throw_range: 7.0, spin_dpt: 54, stick_ticks: 10, dmg_throw: 18}
-  expose:
-    - {id: range, param: throw_range, min: 2.0, max: 12.0}
-    - {id: damage, param: dmg_throw}
   timeline:
     - id: spin_up
       at: 4

@@ -9,7 +9,7 @@ meta:
   resource_cost: 0
   tags: [tool, cover]
 anchors:
-  - {id: aim_pt, anchor: caster, offset: {forward: 2.0}}
+  - {id: aim_pt, anchor: caster, offset: {forward: 2.0}, mode: follow}
 machine:
   start: cast
   states:

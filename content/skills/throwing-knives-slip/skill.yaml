@@ -9,7 +9,7 @@ meta:
   resource_cost: 0
   tags: [buff, movement]
 anchors:
-  - {id: puff_pt, anchor: caster, offset: {up: 0.2}}
+  - {id: puff_pt, anchor: caster, offset: {up: 0.2}, mode: follow}
 machine:
   start: main
   states:

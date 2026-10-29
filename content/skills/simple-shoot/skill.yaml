@@ -14,7 +14,7 @@ params:
   dmg_fire:           {type: number, default: 25.0}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}   # projectile origin
-  - {id: front,  anchor: caster, offset: {forward: 1.2}}                    # cast burst, was pt_caster_0_0_1p2 (feet frame)
+  - {id: front,  anchor: caster, offset: {forward: 1.2}, mode: follow}                    # cast burst, was pt_caster_0_0_1p2 (feet frame)
 machine:
   start: fly
   states:

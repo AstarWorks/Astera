@@ -214,7 +214,7 @@ public object StaticChecks {
     // ---- check 5: events have producers ----
 
     private val GLOBAL_EVENTS = setOf("cancel", "end", "hurt", "hit", "block", "timer", "input", "contact", "expire", "bounce", "stick", "unstick")
-    private val INSTANCE_EVENTS = setOf("hit", "block", "end", "bounce", "stick", "unstick", "expire", "arrive", "pass", "despawn")
+    private val INSTANCE_EVENTS = setOf("hit", "absorbed", "block", "end", "bounce", "stick", "unstick", "expire", "arrive", "pass", "despawn")
 
     private fun check5(g: TableGraph): SkillDecodeError? {
         val emitted = HashSet<String>()

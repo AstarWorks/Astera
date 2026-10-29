@@ -57,14 +57,12 @@ public data class SkillDef(
     val baseId: String get() = id.substringBefore('@')
 }
 
-/** `anchors:` entry (ADR-0303 1): a named point on the caster or a frame, with an optional offset. */
+/** `anchors:` entry (ADR-0303 1): a named point on the caster or a frame, with an optional offset (a number, `${param}` or `= CEL`) and a mandatory [mode]. */
 public data class AnchorDecl(
     val id: String,
     val anchor: PointRef,
-    val offset: Map<String, Double> = emptyMap(),
-    /** `caster` or null (ADR-0303 1). */
-    val mount: String? = null,
-    val mode: AnchorMode = AnchorMode.FOLLOW,
+    val offset: Map<String, Value<Double>>,
+    val mode: AnchorMode,
 )
 
 /** `follow` re-reads the parent at every send (the identity); `snapshot` copies the pose once at activation. */

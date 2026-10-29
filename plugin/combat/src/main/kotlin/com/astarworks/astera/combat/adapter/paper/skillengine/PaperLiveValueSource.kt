@@ -27,6 +27,7 @@ import com.astarworks.astera.core.domain.skillengine.table.EntityRef
 import com.astarworks.astera.core.domain.skillengine.table.TargetRule
 import com.astarworks.astera.core.domain.skillengine.table.TargetSet
 import org.bukkit.Server
+import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.LivingEntity
 import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
 import com.astarworks.astera.core.domain.skillengine.math.Vector3d
@@ -111,6 +112,7 @@ public class PaperLiveValueSource(
                     null, "feet" -> Frame.fromYawPitch(p.feet, p.yaw, 0.0)
                     "eye" -> Frame.fromYawPitch(p.eye, p.yaw, p.pitch)
                     "look" -> Frame.fromYawPitch(p.feet, p.yaw, p.pitch)
+                    "center" -> Frame.fromYawPitch(centerOf(p.feet, p.eye), p.yaw, 0.0)
                     else -> null
                 }
             }
@@ -128,6 +130,7 @@ public class PaperLiveValueSource(
                 val now = when (point) {
                     null, "feet", "look" -> p.feet
                     "eye" -> p.eye
+                    "center" -> centerOf(p.feet, p.eye)
                     else -> return Vec3.ZERO
                 }
                 return casterVelocity(cast, point ?: "", now)
@@ -230,16 +233,20 @@ public class PaperLiveValueSource(
         )
     }
 
+    /** `<entity>.center`: halfway between the feet and the eye (founder 2026-10-29). */
+    private fun centerOf(feet: Vec3, eye: Vec3): Vec3 = Vec3((feet.x + eye.x) / 2.0, (feet.y + eye.y) / 2.0, (feet.z + eye.z) / 2.0)
+
     private fun casterVec(request: CastRequest, name: String): Vector3d? {
         if (name != CASTER && !name.startsWith("$CASTER.")) return null
         val p = casterPose(request)
         val v = when (name.removePrefix(CASTER).removePrefix(".")) {
             "", "feet", "pos", "position", "look" -> p.feet
             "eye" -> p.eye
+            "center" -> centerOf(p.feet, p.eye)
             "body" -> p.body
             "forward" -> Frame.fromYawPitch(p.feet, p.yaw, p.pitch).forward()
             else -> throw IllegalArgumentException(
-                AnchorNames.removedCasterPoint(name) ?: "caster field '$name' is not one of feet, eye, body, look, forward",
+                AnchorNames.removedCasterPoint(name) ?: "caster field '$name' is not one of feet, eye, center, body, look, forward",
             )
         }
         return Vector3d(v.x, v.y, v.z)
@@ -247,7 +254,7 @@ public class PaperLiveValueSource(
 
     /**
      * The hit victim as a frame (`victim`, `victim.root`, `target`): yaw-only like the v2 `pt_enemy_*` anchors. A bare frame is the body centre,
-     * `feet` / `root` the feet, `eye` the eye (the top for a non-living entity such as a crystal, interaction or display); null when no victim is bound or it is gone with no contact point.
+     * `feet` / `root` the feet, `eye` the eye, `center` halfway between feet and eye (the top for a non-living entity such as a crystal, interaction or display); null when no victim is bound or it is gone with no contact point.
      */
     private fun victimFrame(binding: EventBinding?, point: String?): Frame? {
         val id = binding?.victim?.id ?: return null
@@ -262,6 +269,9 @@ public class PaperLiveValueSource(
             null, "body" -> Vec3(loc.x, loc.y + e.height / 2.0, loc.z)
             "feet", "root" -> Vec3(loc.x, loc.y, loc.z)
             "eye" -> Vec3(loc.x, loc.y + ((e as? LivingEntity)?.eyeHeight ?: e.height), loc.z)
+            // centre = (feet + eye) / 2 (founder 2026-10-29), read live like every other victim point
+            "center" -> (e as? LivingEntity)?.takeUnless { it is ArmorStand }?.let { Vec3(loc.x, loc.y + it.eyeHeight / 2.0, loc.z) }
+                ?: e.boundingBox.center.let { Vec3(it.x, it.y, it.z) } // no eye height: the hitbox centre
             else -> return null
         }
         return Frame.fromYawPitch(origin, loc.yaw.toDouble(), 0.0)

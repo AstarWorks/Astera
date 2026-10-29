@@ -20,7 +20,7 @@ class MaxCountOptionalScenarioTest : SkillEngineScenario() {
     }
 
     private fun foe(i: Long, z: Double) =
-        HitCandidate(UUID(0L, 10L + i), Vec3(0.0, 0.0, z), 0.0, HitBox(Vec3(-0.3, 0.0, z - 0.3), Vec3(0.3, 1.8, z + 0.3)))
+        HitCandidate(UUID(0L, 10L + i), Vec3(0.0, 0.0, z), 0.0, HitBox(Vec3(-0.3, 0.0, z - 0.3), Vec3(0.3, 1.8, z + 0.3)), 1.62)
 
     private val foes = listOf(foe(1, 1.0), foe(2, 2.0), foe(3, 3.0), foe(4, 4.0))
 

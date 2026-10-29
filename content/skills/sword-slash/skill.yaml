@@ -8,8 +8,8 @@ meta:
   cooldown_ticks: 10
   tags: [melee, physical]
 anchors:
-  - {id: sweep_pt, anchor: caster, offset: {up: -0.3, forward: 1.6}}
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}}   # was pt_enemy_0_1p2_0 (victim feet, yaw-only)
+  - {id: sweep_pt, anchor: caster, offset: {up: -0.3, forward: 1.6}, mode: follow}
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}   # was pt_enemy_0_1p2_0 (victim feet, yaw-only)
 machine:
   start: swing
   states:

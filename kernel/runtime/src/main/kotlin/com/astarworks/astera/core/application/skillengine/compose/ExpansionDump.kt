@@ -115,7 +115,7 @@ public object ExpansionDump {
                     val c = cur ?: return null
                     // the guard of an expression branch prints as "= <source with _ for spaces>", so its text can hold a space: match the whole line
                     val m = BRANCH.matchEntire(line) ?: return null
-                    val (event, window, guard, target, sub) = m.destructured
+                    val (event, window, guard, absorb, target, sub) = m.destructured
                     c.branches += Branch(
                         EventPath(event), parseRange(window) ?: return null,
                         when {
@@ -125,6 +125,7 @@ public object ExpansionDump {
                         },
                         target.takeIf { it != "-" }?.let(::StatePath),
                         sub.takeIf { it != "-" }?.let(::EventPath),
+                        absorb.isNotEmpty(),
                     )
                 }
                 line.startsWith("@") -> (cur ?: return null).rows += (parseRow(line) ?: return null)
@@ -204,7 +205,7 @@ public object ExpansionDump {
         "hit", "damage", "status", "effect", "world", "call",
     )
 
-    private val BRANCH = Regex("""branch (\S+) (\[\d+,\d+]) guard=(.*) target=(\S+) sub=(\S+)""")
+    private val BRANCH = Regex("""branch (\S+) (\[\d+,\d+]) guard=(.*?)( absorb)? target=(\S+) sub=(\S+)""")
 
     private const val DUMPED = "dump:"
 
@@ -221,7 +222,7 @@ public object ExpansionDump {
 
     private fun branch(b: Branch): String {
         val g = when (val g = b.guard) { null -> "-"; is Guard.Named -> g.cond; is Guard.Expr -> "= " + g.source.replace(' ', '_') }
-        return "branch ${b.event.value} [${b.window.min},${b.window.max}] guard=$g target=${b.target?.value ?: "-"} sub=${b.subTable?.value ?: "-"}"
+        return "branch ${b.event.value} [${b.window.min},${b.window.max}] guard=$g${if (b.absorb) " absorb" else ""} target=${b.target?.value ?: "-"} sub=${b.subTable?.value ?: "-"}"
     }
 
     private fun row(r: Row): String {

@@ -9,7 +9,7 @@ id: mythic-volley
 item: couture-rapier
 meta: {cooldown_ticks: 60, resource_cost: 10}
 anchors:
-  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.6}}        # follow: each occurrence reads the caster's look at ITS tick (class S per occurrence)
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.6}, mode: follow}        # follow: each occurrence reads the caster's look at ITS tick (class S per occurrence)
 machine:
   start: cast
   states:

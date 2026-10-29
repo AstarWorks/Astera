@@ -9,7 +9,7 @@ meta:
   resource_cost: 15
   tags: [aoe, physical]
 anchors:
-  - {id: ring_pt, anchor: caster, offset: {up: 0.15}}
+  - {id: ring_pt, anchor: caster, offset: {up: 0.15}, mode: follow}
 machine:
   start: whirl
   states:

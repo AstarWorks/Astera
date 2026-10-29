@@ -55,7 +55,7 @@ class VictimSideScenarioTest : SkillEngineScenario() {
 
     private fun run(s: CompiledSkill, rec: GatewayRecorder = GatewayRecorder()): GatewayRecorder {
         rec.faithfulPose = true
-        rec.victims = listOf(HitCandidate(foe, Vec3(0.0, 0.0, 4.0), 0.0, HitBox(Vec3(-0.3, 0.0, 3.7), Vec3(0.3, 1.8, 4.3))))
+        rec.victims = listOf(HitCandidate(foe, Vec3(0.0, 0.0, 4.0), 0.0, HitBox(Vec3(-0.3, 0.0, 3.7), Vec3(0.3, 1.8, 4.3)), 1.62))
         play(s, seed = 1L, events = emptyList(), ticks = 30, rec = rec)
         return rec
     }

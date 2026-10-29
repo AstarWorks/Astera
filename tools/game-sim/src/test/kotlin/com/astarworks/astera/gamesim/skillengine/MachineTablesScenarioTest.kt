@@ -1,8 +1,10 @@
 package com.astarworks.astera.gamesim.skillengine
 
+import com.astarworks.astera.core.application.skillengine.compose.ExpansionDump
 import com.astarworks.astera.core.application.skillengine.compose.MachineTables
 import com.astarworks.astera.core.application.skillengine.compose.SectionLowerer
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
+import com.astarworks.astera.core.application.skillengine.runtime.player.RuntimeEvent
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
 import com.astarworks.astera.core.domain.skillengine.part.Machine
@@ -87,4 +89,58 @@ class MachineTablesScenarioTest : SkillEngineScenario() {
         assertThat((error as SkillDecodeError.StartNamesChild).start).isEqualTo("p/c")
     }
 
+    // ---- F2: `absorb: true` cancels the incoming hit --------------------------------------------------------------------
+
+    private fun absorbSkill(event: String, extra: String = "absorb: true") = """
+        apiVersion: astera/v3
+        kind: Skill
+        id: absorb-skill
+        machine:
+          start: guard
+          states:
+            guard:
+              for: 12
+              then: done
+              on:
+                - {event: $event, $extra, to: riposte}
+            riposte:
+              for: 4
+              then: done
+              do:
+                - {id: snd, op: sound, sound: entity.player.attack.sweep, anchor: caster, at: 0}
+            done: { final: true }
+    """.trimIndent()
+
+    @Test
+    fun absorbCancelsIncomingHit() {
+        val skill = (loadInline(absorbSkill("hurt")) as Result.Success).value
+        val attacker = java.util.UUID.randomUUID()
+        val calls = play(skill, 1L, listOf(RuntimeEvent(EventPath("hurt"), 3, null, null, null, attacker)), 20)
+        // the caster's HP is never touched (no damage call), the hit is cancelled once, and the cast moved on to riposte (its sound plays)
+        assertThat(calls.filter { it.verb == "cancelIncomingHit" }).hasSize(1)
+        assertThat(calls.single { it.verb == "cancelIncomingHit" }.payload).contains("attacker=$attacker")
+        assertThat(calls.count { it.verb == "sound" }).isEqualTo(1)
+        assertThat(calls.none { it.verb == "damage" }).isTrue()
+        assertThat(ExpansionDump.render(skill.table)).contains("guard=- absorb target=riposte")
+    }
+
+    @Test
+    fun withoutAbsorbTheHitIsNotCancelled() {
+        val skill = (loadInline(absorbSkill("hurt", "when: \"= true\"")) as Result.Success).value
+        val calls = play(skill, 1L, listOf(RuntimeEvent(EventPath("hurt"), 3, null, null, null, java.util.UUID.randomUUID())), 20)
+        assertThat(calls.none { it.verb == "cancelIncomingHit" }).isTrue()
+        assertThat(calls.count { it.verb == "sound" }).isEqualTo(1)
+    }
+
+    @Test
+    fun absorbOnTickIsLoadError() {
+        val error = failureOf(absorbSkill("timer"))
+        assertThat(error.toString()).contains("absorb only applies to a hurt event")
+    }
+
+    @Test
+    fun absorbFalseIsLoadError() {
+        val error = failureOf(absorbSkill("hurt", "absorb: false"))
+        assertThat(error.toString()).contains("absorb: true")
+    }
 }

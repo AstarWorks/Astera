@@ -11,7 +11,7 @@ meta:
 params:
   heal: {type: number, default: 40.0}
 anchors:
-  - {id: body, anchor: caster, offset: {up: 1.0}}   # was pt_caster_0_1_0
+  - {id: body, anchor: caster, offset: {up: 1.0}, mode: follow}   # was pt_caster_0_1_0
 machine:
   start: use
   states:

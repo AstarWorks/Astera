@@ -10,9 +10,9 @@ meta:
   tags: [ranged, utility, support]
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: foe,    anchor: victim.root}
-  - {id: flash,  anchor: caster, offset: {up: -0.25, forward: 0.9}}  # v2 pt_caster (feet, yaw-only)
-  - {id: smoke_hit, anchor: victim.root, offset: {up: 0.5}}
+  - {id: foe,    anchor: victim.root, mode: follow}
+  - {id: flash,  anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: follow}  # v2 pt_caster (feet, yaw-only)
+  - {id: smoke_hit, anchor: victim.root, offset: {up: 0.5}, mode: follow}
 machine:
   start: fly
   states:

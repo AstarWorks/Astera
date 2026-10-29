@@ -28,7 +28,8 @@ public data class SegmentSample(val k: Int, val n: Int)
 @JvmInline
 public value class SrcPath(public val value: String)
 
-public data class Branch(val event: EventPath, val window: TickRange, val guard: Guard?, val target: StatePath?, val subTable: EventPath?)
+/** [absorb] (F2): when this branch fires on a `hurt` event the incoming hit is cancelled before it is applied. */
+public data class Branch(val event: EventPath, val window: TickRange, val guard: Guard?, val target: StatePath?, val subTable: EventPath?, val absorb: Boolean = false)
 
 public sealed interface Guard {
     public data class Named(val cond: String) : Guard

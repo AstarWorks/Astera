@@ -12,7 +12,7 @@ params:
   swift_ticks: {type: ticks, default: 40}
   propel:      {type: number, default: -1.0}
 anchors:
-  - {id: puff_pt, anchor: caster, offset: {up: 0.2}}
+  - {id: puff_pt, anchor: caster, offset: {up: 0.2}, mode: follow}
 machine:
   start: main
   states:

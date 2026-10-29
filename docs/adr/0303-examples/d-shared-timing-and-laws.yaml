@@ -4,7 +4,7 @@ apiVersion: astera/v3
 kind: Skill
 id: example-charge-orb
 anchors:
-  - {id: palm, anchor: caster.eye, mount: caster}
+  - {id: palm, anchor: caster.eye, mode: follow}
 machine:
   start: charge
   states:

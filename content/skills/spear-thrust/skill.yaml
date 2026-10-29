@@ -9,8 +9,8 @@ meta:
   resource_cost: 6
   tags: [melee, physical]
 anchors:
-  - {id: stab_pt, anchor: caster, offset: {up: -0.2, forward: 1.4}}
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}}  # was pt_enemy_0_1p2_0 (v2 enemy frame = victim feet)
+  - {id: stab_pt, anchor: caster, offset: {up: -0.2, forward: 1.4}, mode: follow}
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}  # was pt_enemy_0_1p2_0 (v2 enemy frame = victim feet)
 machine:
   start: swing
   states:

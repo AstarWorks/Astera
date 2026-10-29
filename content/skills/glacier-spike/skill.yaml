@@ -6,7 +6,7 @@ meta: {name: {ja: "氷柱", en: "Ice Spike"}, description: {ja: "氷の礫を飛
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
-  - {id: heart,   anchor: victim.root, offset: {up: 1.2}}   # was pt_enemy_0_1p2_0 (victim feet, yaw-only)
+  - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}   # was pt_enemy_0_1p2_0 (victim feet, yaw-only)
 machine:
   start: fly
   states:

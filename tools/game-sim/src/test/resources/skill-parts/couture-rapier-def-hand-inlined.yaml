@@ -8,7 +8,7 @@ id: couture-rapier-def
 item: couture-rapier
 meta: {cooldown_ticks: 85, resource_cost: 10}
 anchors:
-  - {id: blade, anchor: caster.eye, mount: caster}
+  - {id: blade, anchor: caster.eye, mode: follow}
 gameplay:
   timeline:
     - id: t0

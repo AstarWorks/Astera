@@ -1099,7 +1099,7 @@
                                     "type": "null"
                                 }
                             ],
-                            "description": "weapon part of content/frames/<item>.yaml whose points and axes this frame takes",
+                            "description": "weapon part of content/frames/<item>.yaml whose points and axes this frame or body takes",
                             "default": null
                         },
                         "offset": {
@@ -8623,6 +8623,19 @@
                             "pattern": "^\\S+$",
                             "description": "anchor the body is spawned at (muzzle, caster.eye, contact, a frame id)"
                         },
+                        "part": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^\\S+$"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "weapon part of content/frames/<item>.yaml whose points and axes this frame or body takes",
+                            "default": null
+                        },
                         "velocity": {
                             "oneOf": [
                                 {
@@ -8812,8 +8825,7 @@
                                             "required": [
                                                 "capsule",
                                                 "from",
-                                                "to",
-                                                "frames"
+                                                "to"
                                             ],
                                             "properties": {
                                                 "capsule": {
@@ -8844,7 +8856,8 @@
                                                         "type": "string",
                                                         "pattern": "^\\S+$"
                                                     },
-                                                    "description": "rider `frame` ops anchored on this projectile; one swept capsule each"
+                                                    "description": "rider `frame` ops anchored on this projectile; one swept capsule each; absent = the body's own `part` points",
+                                                    "default": []
                                                 }
                                             }
                                         },
@@ -9027,6 +9040,15 @@
                                                 "type": "object"
                                             },
                                             "description": "ops run at the hit event tick (at: 0), event-relative",
+                                            "default": null
+                                        },
+                                        "absorbed": {
+                                            "type": "array",
+                                            "minItems": 1,
+                                            "items": {
+                                                "type": "object"
+                                            },
+                                            "description": "ops run at the absorbed event tick (at: 0), event-relative",
                                             "default": null
                                         },
                                         "bounce": {
@@ -9621,7 +9643,7 @@
                                             "items": {
                                                 "type": "object"
                                             },
-                                            "description": "ops run per victim (hit) / once when nobody was found (miss); event-relative",
+                                            "description": "ops run per victim (hit) / once when nobody was hit (miss) / per victim that absorbed the hit (absorbed); event-relative",
                                             "default": null
                                         },
                                         "miss": {
@@ -9630,7 +9652,16 @@
                                             "items": {
                                                 "type": "object"
                                             },
-                                            "description": "ops run per victim (hit) / once when nobody was found (miss); event-relative",
+                                            "description": "ops run per victim (hit) / once when nobody was hit (miss) / per victim that absorbed the hit (absorbed); event-relative",
+                                            "default": null
+                                        },
+                                        "absorbed": {
+                                            "type": "array",
+                                            "minItems": 1,
+                                            "items": {
+                                                "type": "object"
+                                            },
+                                            "description": "ops run per victim (hit) / once when nobody was hit (miss) / per victim that absorbed the hit (absorbed); event-relative",
                                             "default": null
                                         }
                                     }
@@ -9639,7 +9670,7 @@
                                     "type": "null"
                                 }
                             ],
-                            "description": "handlers by event: hit (one per victim), miss (once)",
+                            "description": "handlers by event: hit (one per victim), miss (once), absorbed (one per victim that absorbed the hit)",
                             "default": null
                         },
                         "at": {

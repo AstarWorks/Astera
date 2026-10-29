@@ -125,7 +125,7 @@ class SkillPatchReloadScenarioTest {
         kind: Skill
         id: caller
         anchors:
-          - {id: feet, anchor: caster.feet}
+          - {id: feet, anchor: caster.feet, mode: follow}
         machine:
           start: step
           states:
@@ -428,7 +428,7 @@ class SkillPatchReloadScenarioTest {
           shared: {type: string, default: crit}
           reach: {type: number, default: 3.0}
         anchors:
-          - {id: hand, anchor: caster.eye}
+          - {id: hand, anchor: caster.eye, mode: follow}
         machine:
           start: cast
           states:

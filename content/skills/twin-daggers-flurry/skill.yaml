@@ -9,8 +9,8 @@ meta:
   resource_cost: 4
   tags: [melee, physical]
 anchors:
-  - {id: stab_pt, anchor: caster, offset: {up: -0.2, forward: 1.4}}  # v2 pt_caster (feet, yaw-only)
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}}
+  - {id: stab_pt, anchor: caster, offset: {up: -0.2, forward: 1.4}, mode: follow}  # v2 pt_caster (feet, yaw-only)
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}
 machine:
   start: swing
   states:

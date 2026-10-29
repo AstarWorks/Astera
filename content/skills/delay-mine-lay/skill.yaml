@@ -14,7 +14,7 @@ params:
   explode_physical: {type: number, default: 55}
 anchors:
   - {id: spot, anchor: caster, offset: {forward: 2.5}, mode: snapshot}
-  - {id: smoke_at, anchor: caster, offset: {forward: 2.5, up: 0.1}}
+  - {id: smoke_at, anchor: caster, offset: {forward: 2.5, up: 0.1}, mode: follow}
 machine:
   start: cast
   states:

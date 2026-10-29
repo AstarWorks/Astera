@@ -8,8 +8,8 @@ meta: {name: {ja: "毒霧の瓶", en: "Poison Cloud"}, description: {ja: "着弾
 anchors:
   - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}            # was pt_aim_0_0_0p5
   - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot} # was pt_caster_0_m0p25_0p9
-  - {id: foe,    anchor: victim.root}
-  - {id: foe_low, anchor: victim.root, offset: {up: 0.15}}   # v2 pt_enemy_0_0p15_0
+  - {id: foe,    anchor: victim.root, mode: follow}
+  - {id: foe_low, anchor: victim.root, offset: {up: 0.15}, mode: follow}   # v2 pt_enemy_0_0p15_0
 machine:
   start: throw
   states:

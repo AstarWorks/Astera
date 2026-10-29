@@ -12,7 +12,7 @@ class SoundOpScenarioTest : SkillEngineScenario() {
         kind: Skill
         id: sound-probe
         anchors:
-          - {id: body, anchor: caster}
+          - {id: body, anchor: caster, mode: follow}
         machine:
           start: s
           states:
