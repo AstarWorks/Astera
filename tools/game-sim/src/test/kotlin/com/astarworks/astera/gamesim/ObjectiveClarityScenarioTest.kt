@@ -18,12 +18,12 @@ class ObjectiveClarityScenarioTest {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
             startMatch("carry-mini-tnt", mapOf(red to "red", blue to "blue"))
-            advance(40)
+            advance(260)
 
             val titles = checkNotNull(sim.server.view(red.id)).titles.map { it.value }
             assertThat(titles).`as`("the objective is flashed as a title").contains("astera.match.objective.carry-mini-tnt.title")
             val start = chat(red)
-            assertThat(start).contains("Rules").contains("ENEMY base")
+            assertThat(start).contains("Rules").contains("ENEMY basket")
             assertThat(start).`as`("a player who never finished a match gets the beginner guide").contains("Quick guide")
             assertThat(start).doesNotContain("Reminder - how to win")
 

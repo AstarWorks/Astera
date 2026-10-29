@@ -16,6 +16,7 @@ import com.astarworks.astera.core.domain.event.PlayerActiveWeaponChanged
 import com.astarworks.astera.core.domain.event.TutorialCompleted
 import com.astarworks.astera.core.domain.gui.GuiIntent
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.hologram.HologramVisibilityScope
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.shop.ShopId
 import com.astarworks.astera.core.domain.shop.ShopOfferId
@@ -27,7 +28,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class TutorialScenarioTest {
-    private val lobby = WorldId("lobby")
+    private val lobby = WorldId("world")
 
     @Test
     fun `first join walks the seven progress steps, resumes after skip and reconnect, and graduates once`() {
@@ -38,19 +39,20 @@ class TutorialScenarioTest {
             val states = sim.services.getOrThrow<IPlayerTutorialStateRepository>()
             val holograms = sim.services.getOrThrow<IHologramGateway>()
             val router = sim.services.getOrThrow<IGuiIntentRouter>()
+            fun assists() = holograms.all().count { holograms.snapshot(it)?.visibilityScope is HologramVisibilityScope.PerPlayer } // lobby boards are world-wide, only the guide is per player
             fun action(): String? = (runner.currentStep(learner.id) as? TutorialStep.WaitForAction)?.actionId
             fun titles() = checkNotNull(sim.server.view(learner.id)).titles
             assertThat(action()).isEqualTo("menu") // CreateFirstTimeProfile started it, no direct sequencer start.
             advance(10)
             assertThat(titles()).contains(TutorialGuide.key("menu", "title"))
-            val bubbleOnly = holograms.all().size // menu step: speech bubble, no arrow.
+            val bubbleOnly = assists() // menu step: speech bubble, no arrow.
             learner.heldItem = null // F is a lobby key only with an empty hand / the compass.
             assertThat(sim.swapHands(learner)).isTrue() // F -> real kit entry -> rendered menu.
             assertThat(action()).isEqualTo("queue")
             advance(100)
             assertThat(action()).isEqualTo("queue") // waiting is never enough.
             assertThat(titles()).contains(TutorialGuide.key("done", "title")) // completion feedback.
-            assertThat(holograms.all().size).isEqualTo(bubbleOnly + 1) // queue step: bubble + arrow over the Play guide.
+            assertThat(assists()).isEqualTo(bubbleOnly + 1) // queue step: bubble + arrow over the Play guide.
             val reconnectId = learner.id
             sim.detachPlayer(reconnectId)
             learner = sim.attachPlayer(reconnectId, "learner").also { it.world = lobby }
@@ -60,7 +62,7 @@ class TutorialScenarioTest {
 
             assertThat(sim.command("learner", "tutorial skip").succeeded).isTrue()
             assertThat(states.find(learner.id)?.paused).isTrue()
-            assertThat(holograms.all().size).isEqualTo(bubbleOnly - 1) // hologram assist is removed on skip.
+            assertThat(assists()).isEqualTo(bubbleOnly - 1) // hologram assist is removed on skip.
             val id = learner.id
             sim.detachPlayer(id)
             learner = sim.attachPlayer(id, "learner").also { it.world = lobby; it.position = Vec3(0.5, 65.0, 6.5) }
@@ -95,7 +97,7 @@ class TutorialScenarioTest {
             assertThat(states.find(id)?.completed).isTrue()
             assertThat(eventsOf<TutorialCompleted>().filter { it.playerId == id }).hasSize(1)
             assertThat(sim.services.getOrThrow<ICurrencyLedger>().balance(id, Currency.GOLD)).isGreaterThan(before - 1)
-            assertThat(holograms.all().size).isEqualTo(bubbleOnly - 1) // no assist left after the last step.
+            assertThat(assists()).isEqualTo(bubbleOnly - 1) // no assist left after the last step.
             learner.moveTo(pad)
             assertThat(eventsOf<TutorialCompleted>().filter { it.playerId == id }).hasSize(1)
         }

@@ -184,7 +184,7 @@ internal class SimSkillEngine private constructor(
                 services.getOrThrow<IEntityEffectsGateway>(), attributes, scheduler, services.getOrThrow<IDamageRandomizer>(),
                 { services.get<IResourcePoolService>() }, { services.get<IPlayerHealthGateway>() }, feedback, combat.bodySkeleton,
             )
-            val query = SimSkillEntityQuery(sim, alive) { services.get<IMatchTeamLookup>() }
+            val query = SimSkillEntityQuery(sim, alive, { services.get<IMatchTeamLookup>() }, { services.get<com.astarworks.astera.core.application.port.outbound.IStructureTargets>() })
             val live = SimLiveValueSource(sim, { id -> healthRatio(attributes, id) }, scheduler, gameplay, query)
             val movement = SimSkillMovement(sim)
             val ledger = SimLedgerWorld(SimBlockAccess(sim, services))

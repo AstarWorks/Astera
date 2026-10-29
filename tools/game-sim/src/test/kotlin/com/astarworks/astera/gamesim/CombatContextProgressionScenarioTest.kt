@@ -40,7 +40,7 @@ import java.util.UUID
  */
 class CombatContextProgressionScenarioTest {
 
-    private val lobby = WorldId("lobby")
+    private val lobby = WorldId("world")
 
     /** Everything the progression loop could have changed for [id]. */
     private data class Snapshot(
@@ -159,7 +159,7 @@ class CombatContextProgressionScenarioTest {
             assertThat(after.missions).isNotEqualTo(before.missions)
             assertThat(after.messages).describedAs("kill feed line").isGreaterThan(before.messages)
             // XP never converts to a currency: only the match-end table pays GOLD.
-            assertThat(after.gold).isEqualTo(before.gold)
+            assertThat(after.gold).describedAs("gold changes: " + eventsOf<com.astarworks.astera.core.domain.event.CurrencyChanged>().map { it.reason to it.delta }).isEqualTo(before.gold)
         }
     }
 }

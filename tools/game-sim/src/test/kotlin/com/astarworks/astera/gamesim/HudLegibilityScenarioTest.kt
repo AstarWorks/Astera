@@ -22,7 +22,10 @@ class HudLegibilityScenarioTest {
             val shooter = player("shooter", team = "red", at = Vec3(0.0, groundY, 0.0))
             val victim = player("victim", team = "blue", at = Vec3(0.0, groundY, 10.0))
             startMatch("carry-tnt", mapOf(shooter to "red", victim to "blue"))
-            advance(40)
+            // startMatch seats everybody at their stage team spawn; the duel happens in pistol range, past the 3 s spawn protection
+            shooter.moveTo(Vec3(0.0, groundY, 0.0))
+            victim.moveTo(Vec3(0.0, groundY, 10.0))
+            advance(80)
 
             val labels = sim.services.getOrThrow<IPlayerLabelGateway>() as InMemoryPlayerLabelGateway
             for (viewer in listOf(shooter, victim)) {

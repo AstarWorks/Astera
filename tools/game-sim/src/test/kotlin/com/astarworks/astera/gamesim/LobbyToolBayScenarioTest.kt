@@ -20,7 +20,7 @@ import java.nio.file.Paths
  */
 class LobbyToolBayScenarioTest {
 
-    private val lobby = WorldId("lobby")
+    private val lobby = WorldId("world")
 
     /** The generated lobby as a block grid with overrides, standing in for the Paper world. */
     private class GridWorld(private val generated: Map<LobbyBlockPos, String>) : IToolBayWorld {
@@ -62,9 +62,10 @@ class LobbyToolBayScenarioTest {
                 "stone-shovel", "iron-shovel", "diamond-shovel",
                 "stone-axe", "iron-axe", "diamond-axe",
             )
-            val visitor = player("visitor", at = bayPlan.entry)
+            val visitor = player("visitor", at = Vec3(bayPlan.area.minX + 1.5, bayPlan.entry.y, bayPlan.entry.z)) // inside the yard: the gate cell itself lies just outside the claim area
             visitor.world = lobby
-            assertThat(rack.claim(visitor.id, ItemId("iron-pickaxe")).isSuccess).describedAs("claim from the tool rack in the bay").isTrue()
+            val claim = rack.claim(visitor.id, ItemId("iron-pickaxe"))
+            assertThat(claim.isSuccess).describedAs("claim from the tool rack in the bay: $claim").isTrue()
 
             // hand-mining (policy true, journaled) and a skill edit both come back once the bay has been idle 10 s
             val stone = bayPlan.region.let { LobbyBlockPos(it.minX.toInt() + 1, it.minY.toInt(), it.minZ.toInt()) }

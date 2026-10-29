@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 /** F3-11: the lobby training range - travel button, weapon rack, dummies, immune bystanders, lobby-only items. */
 class LobbyTrainingScenarioTest {
 
-    private val lobby = WorldId("lobby")
+    private val lobby = WorldId("world")
 
     /** The range plan; also "loads the lobby world" so the dummies may stand up. */
     private fun ScenarioScope.range(): ILobbyTrainingRange {
