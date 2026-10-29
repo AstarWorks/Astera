@@ -209,7 +209,7 @@ public class PaperLiveValueSource(
         return when (rule) {
             is TargetRule.Entity -> when (rule.ref) {
                 "caster" -> TargetSet(listOf(EntityRef(request.caster)))
-                "event.victim" -> TargetSet(listOfNotNull(binding?.victim))
+                "event.victim" -> TargetSet(listOf(binding?.victim ?: throw IllegalArgumentException("target 'event.victim' needs a hit event binding with a victim")))
                 "event.attacker" -> TargetSet(listOfNotNull(binding?.attacker?.let { EntityRef(it) }))
                 else -> throw IllegalArgumentException("target rule '${rule.ref}' has no Paper resolver")
             }

@@ -74,6 +74,10 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
             }
         }
         problems += checkOracle(oracle)
+        // every status id a shipped row names must be a content/status file or a mechanic builtin (the server refuses to enable the engine otherwise)
+        val statusFiles = Files.list(contentDir.resolve("status")).use { st -> st.map { it.fileName.toString().substringBeforeLast('.') }.toList().toSet() }
+        val builtin = setOf("freeze", "silence", "immunity")
+        problems += com.astarworks.astera.core.application.skillengine.load.SkillIdAudit.unknownStatuses(oracle.values) { it in statusFiles || it in builtin }
         Files.createDirectories(evidenceDir)
         Files.writeString(evidenceDir.resolve("shipped-summary.txt"), "v3 checked: $checked\n")
         assertThat(problems).`as`("A9 problems ($checked composed skill ids checked)").isEmpty()

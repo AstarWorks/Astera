@@ -48,7 +48,7 @@ public object ResourceOpSpec : OpSpec<ResourceOp> {
 
     override fun lower(op: ResourceOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value
-        return GameplayOps.targetCell(op.target, lc, path).flatMap { target ->
+        return GameplayOps.resourceId(lc, path, op.resource).flatMap { _ -> GameplayOps.targetCell(op.target, lc, path) }.flatMap { target ->
             Result.Success(
                 GameplayOps.effect(
                     lc,

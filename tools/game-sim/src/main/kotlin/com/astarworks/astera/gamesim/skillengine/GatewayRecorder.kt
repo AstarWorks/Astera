@@ -757,9 +757,11 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         }
 
         override fun targets(cast: CastHandle, rule: TargetRule, binding: EventBinding?): TargetSet {
-            // inside a chain hop (`from` bound) `event.victim` is that hop's own victim; everywhere else every scripted victim answers (the oracle goldens rely on it)
-            val bound = (rule as? TargetRule.Entity)?.takeIf { it.ref == "event.victim" && binding?.from != null }?.let { binding?.victim }
-            return if (bound != null) TargetSet(listOf(bound)) else TargetSet(victims.map { EntityRef(it.entityId) })
+            // as the Paper resolver: `event.victim` is the hit event's own bound victim, nothing else; an unbound victim is a named error, never "every scripted victim"
+            val ref = (rule as? TargetRule.Entity)?.ref ?: throw IllegalArgumentException("target rule $rule has no sim resolver here")
+            if (ref != "event.victim") throw IllegalArgumentException("target rule '$ref' is resolved by the player, not the live source")
+            val victim = binding?.victim ?: throw IllegalArgumentException("target 'event.victim' needs a hit event binding with a victim")
+            return TargetSet(listOf(victim))
         }
     }
 }

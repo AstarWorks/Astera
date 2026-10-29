@@ -148,6 +148,23 @@ internal object GameplayOps {
     /** Whole-number value from a literal (stacks). */
     fun whole(v: Value<Double>, lc: LowerContext, path: String): Result<Int, SkillDecodeError> = literal(v, lc, path).map { Math.round(it).toInt() }
 
+    /** A status id the status registry could hold (lower-kebab-case): a malformed one is refused at load, never skipped at play time. Whether it exists is [com.astarworks.astera.core.application.skillengine.load.SkillIdAudit]'s boot check. */
+    fun statusId(lc: LowerContext, path: String, field: String, id: String): Result<String, SkillDecodeError> =
+        if (com.astarworks.astera.core.domain.status.StatusEffectId.isValid(id)) Result.Success(id)
+        else Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "$field '$id' is not a status id (lower-kebab-case: a-z, 0-9, -)"))
+
+    /** An attribute key: namespaced lower-snake (`resist.physical`). */
+    fun attributeKey(lc: LowerContext, path: String, id: String): Result<String, SkillDecodeError> =
+        if (com.astarworks.astera.core.domain.attribute.AttributeKey.isValid(id)) Result.Success(id)
+        else Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "attribute '$id' is not a namespaced lower-snake key such as resist.physical"))
+
+    /** The resource ids the gameplay gateway can restore. */
+    val RESOURCES: Set<String> = setOf("health", "ammo", "energy", "mana", "stamina")
+
+    fun resourceId(lc: LowerContext, path: String, id: String): Result<String, SkillDecodeError> =
+        if (id.lowercase() in RESOURCES) Result.Success(id)
+        else Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "resource '$id' is not one of ${RESOURCES.joinToString()}"))
+
     /** Window length of a `for:` span in ticks; `cast` and an absent span are errors the table cannot express yet. */
     fun duration(timing: Timing?, lc: LowerContext, path: String, field: String): Result<Int, SkillDecodeError> = when (val span = timing?.span) {
         null -> Result.Failure(SkillDecodeError.MissingField(lc.skillId, path, field))

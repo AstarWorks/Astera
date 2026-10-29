@@ -66,7 +66,7 @@ public object ModifyAttributeOpSpec : OpSpec<ModifyAttributeOp> {
 
     override fun lower(op: ModifyAttributeOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value
-        return GameplayOps.targetCell(op.target, lc, path).flatMap { target ->
+        return GameplayOps.attributeKey(lc, path, op.attribute).flatMap { _ -> GameplayOps.targetCell(op.target, lc, path) }.flatMap { target ->
             GameplayOps.duration(op.timing, lc, path, "for").flatMap { forTicks ->
                 run {
                     val amount = GameplayOps.live(op.amount)

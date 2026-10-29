@@ -59,7 +59,7 @@ public object StatusOpSpec : OpSpec<StatusOp> {
 
     override fun lower(op: StatusOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value
-        return GameplayOps.targetRule(op.target, lc, path).flatMap { targets ->
+        return GameplayOps.statusId(lc, path, "status", op.status).flatMap { _ -> GameplayOps.targetRule(op.target, lc, path) }.flatMap { targets ->
             GameplayOps.duration(op.timing, lc, path, "for").flatMap { forTicks ->
                 GameplayOps.whole(op.stacks, lc, "$path.stacks").map { stacks ->
                     GameplayOps.lowered(lc, Action.Status(targets, op.status, Val.Known(stacks), forTicks))

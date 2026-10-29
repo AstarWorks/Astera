@@ -20,7 +20,7 @@ public class PaperSkillVictimAnimGateway(
 ) : ISkillVictimAnimGateway {
 
     override fun play(victim: UUID, anim: String, strength: Double, awayFrom: Vec3) {
-        val e = server.getEntity(victim) as? LivingEntity ?: return
+        val e = server.getEntity(victim) as? LivingEntity ?: return EntityGone.skipped("victimAnim.play", victim)
         val loc = e.location
         val dx = awayFrom.x - loc.x
         val dz = awayFrom.z - loc.z

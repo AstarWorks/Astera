@@ -33,5 +33,7 @@ public value class AttributeKey(public val namespaced: String) {
 
     public companion object {
         private val VALID: Regex = Regex("^[a-z]+(\\.[a-z0-9_]+)+$")
+
+        public fun isValid(value: String): Boolean = VALID.matches(value)
     }
 }

@@ -335,7 +335,7 @@ internal class SimSkillMovement(private val world: SimWorld) : ISkillMovementGat
         }
     }
 
-    override fun velocity(cast: CastRef, entity: UUID): Vec3 = world.find(PlayerId(entity))?.velocity ?: Vec3.ZERO
+    override fun velocity(cast: CastRef, entity: UUID): Vec3 = (world.find(PlayerId(entity)) ?: error("sim velocity: entity $entity is not in the world")).velocity
 
     override fun addVelocity(cast: CastRef, entity: UUID, v: Vec3) {
         val e = world.find(PlayerId(entity)) ?: return

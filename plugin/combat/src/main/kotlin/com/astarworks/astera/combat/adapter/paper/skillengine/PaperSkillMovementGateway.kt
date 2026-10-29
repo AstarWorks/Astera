@@ -29,16 +29,16 @@ public class PaperSkillMovementGateway(
     private fun living(entity: UUID): LivingEntity? = server.getEntity(entity) as? LivingEntity
 
     override fun teleport(cast: CastRef, entity: UUID, pos: Vec3, yaw: Double?, pitch: Double?) {
-        val e = living(entity) ?: return
+        val e = living(entity) ?: return EntityGone.skipped("movement.teleport", entity)
         val at = e.location
         e.teleportAsync(Location(e.world, pos.x, pos.y, pos.z, yaw?.toFloat() ?: at.yaw, pitch?.toFloat() ?: at.pitch))
     }
 
     override fun velocity(cast: CastRef, entity: UUID): Vec3 =
-        living(entity)?.velocity?.let { Vec3(it.x, it.y, it.z) } ?: Vec3.ZERO
+        (living(entity) ?: error("skill engine: velocity of entity $entity: not a loaded living entity")).velocity.let { Vec3(it.x, it.y, it.z) }
 
     override fun addVelocity(cast: CastRef, entity: UUID, v: Vec3) {
-        val e = living(entity) ?: return
+        val e = living(entity) ?: return EntityGone.skipped("movement.addVelocity", entity)
         e.velocity = e.velocity.add(Vector(v.x, v.y, v.z))
     }
 
@@ -55,7 +55,7 @@ public class PaperSkillMovementGateway(
     }
 
     override fun invulnerable(cast: CastRef, entity: UUID, ticks: Int) {
-        val e = living(entity) ?: return
+        val e = living(entity) ?: return EntityGone.skipped("movement.invulnerable", entity)
         if (ticks <= 0) {
             invulnerableUntil.remove(entity)
             e.isInvulnerable = false
@@ -66,7 +66,7 @@ public class PaperSkillMovementGateway(
     }
 
     override fun faceMovement(cast: CastRef, entity: UUID, dir: Vec3) {
-        val e = living(entity) ?: return
+        val e = living(entity) ?: return EntityGone.skipped("movement.faceMovement", entity)
         val horizontal = sqrt(dir.x * dir.x + dir.z * dir.z)
         val yaw = Math.toDegrees(atan2(-dir.x, dir.z))
         val pitch = -Math.toDegrees(atan2(dir.y, horizontal))
