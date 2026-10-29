@@ -20,9 +20,8 @@ import org.junit.jupiter.api.Test
 import java.nio.file.Files
 
 /**
- * The shared `ProjectileImpactResolver` runs exactly once per projectile, whichever way
- * it ends: a shot into empty air expires (`expire` then `miss`), a shot into the ground
- * hits a block (`hit_block` then `miss`).
+ * The v3 pistol-shot bolt ends exactly one way: a shot into empty air expires without an impact cue,
+ * a shot into the ground plays the block impact once, a shot at a player plays the body impact on the tick the shared stepper predicts.
  */
 class ProjectileLifecycleScenarioTest {
 
@@ -33,12 +32,11 @@ class ProjectileLifecycleScenarioTest {
             shooter.holds("pistol")
             shooter.rightClick()
             advance(80)
-            assertThat(sim.projectiles.inFlight).isZero()
         }
-        val kinds = projectileEventKinds(trace)
-        assertThat(kinds).containsExactly("spawn", "expire")
-        // pistol-shot's `cast` phase plays one report; `miss` / `expire` are empty.
-        assertThat(soundCount(trace, "entity.firework_rocket.blast")).isEqualTo(1)
+        // pistol-shot's `fire` state plays one report; a bolt that expires in the air plays no impact cue.
+        assertThat(soundCount(trace, GUN_SHOT)).isEqualTo(1)
+        assertThat(soundCount(trace, GUN_IMPACT)).isZero()
+        assertThat(soundCount(trace, GUN_IMPACT_BLOCK)).isZero()
     }
 
     @Test
@@ -49,10 +47,10 @@ class ProjectileLifecycleScenarioTest {
             shooter.lookAt(Vec3(0.0, groundY, 6.0)) // down at the floor, 6 blocks ahead
             shooter.rightClick()
             advance(40)
-            assertThat(sim.projectiles.inFlight).isZero()
         }
-        assertThat(projectileEventKinds(trace)).containsExactly("spawn", "hit_block")
-        assertThat(soundCount(trace, "entity.firework_rocket.blast")).isEqualTo(1)
+        assertThat(soundCount(trace, GUN_SHOT)).isEqualTo(1)
+        assertThat(soundCount(trace, GUN_IMPACT_BLOCK)).`as`("the block impact plays once").isEqualTo(1)
+        assertThat(soundCount(trace, GUN_IMPACT)).isZero()
     }
 
     @Test
@@ -102,18 +100,15 @@ class ProjectileLifecycleScenarioTest {
             shooter.rightClick()
             advance(20)
         }
-        val events = ticks(trace).flatMap { t ->
-            t["projectileEvents"]!!.jsonArray.map { t["tick"]!!.jsonPrimitive.content.toLong() to it.jsonObject }
-        }
-        val spawnTick = events.single { it.second["kind"]!!.jsonPrimitive.content == "spawn" }.first
-        val hitTick = events.single { it.second["kind"]!!.jsonPrimitive.content == "hit_entity" }.first
+        val spawnTick = soundTicks(trace, GUN_SHOT).single()
+        val hitTick = soundTicks(trace, GUN_IMPACT).single()
         assertThat(predictedTicks).isEqualTo(4L)
         assertThat(hitTick - spawnTick).isEqualTo(predictedTicks)
     }
 
-    private fun projectileEventKinds(trace: java.nio.file.Path): List<String> =
-        ticks(trace).flatMap { it["projectileEvents"]!!.jsonArray }
-            .map { it.jsonObject["kind"]!!.jsonPrimitive.content }
+    private fun soundTicks(trace: java.nio.file.Path, key: String): List<Long> =
+        ticks(trace).filter { t -> t["sounds"]!!.jsonArray.any { it.jsonObject["key"]!!.jsonPrimitive.content == key } }
+            .map { it["tick"]!!.jsonPrimitive.content.toLong() }
 
     private fun soundCount(trace: java.nio.file.Path, key: String): Int =
         ticks(trace).flatMap { it["sounds"]!!.jsonArray }
@@ -121,4 +116,10 @@ class ProjectileLifecycleScenarioTest {
 
     private fun ticks(trace: java.nio.file.Path) =
         Json.parseToJsonElement(Files.readString(trace)).jsonObject["ticks"]!!.jsonArray.map { it.jsonObject }
+
+    private companion object {
+        const val GUN_SHOT = "astera:weapons/gun-shot"
+        const val GUN_IMPACT = "astera:weapons/gun-impact"
+        const val GUN_IMPACT_BLOCK = "astera:weapons/gun-impact-block"
+    }
 }

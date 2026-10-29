@@ -47,6 +47,8 @@ public class CommandTreeRunner(
             var bound = 0
             for (arg in node.arguments) {
                 if (pos >= tokens.size) break
+                // Brigadier parity: a literal child named by the next token wins over an optional argument at the same node.
+                if (arg.optional && node.literals.any { it.name == tokens[pos] && authorizer.isVisible(actor, it) }) break
                 val raw = if (isGreedy(arg)) tokens.drop(pos).joinToString(" ") else tokens[pos]
                 val value = parse(arg.type, raw)
                 if (value == null) {
@@ -64,7 +66,8 @@ public class CommandTreeRunner(
                 if (node.executor == null || bound < node.requiredArgumentCount) return usage(reply, path, node)
                 return Outcome.Executed(invoker.invoke(node, actor, args, reply))
             }
-            if (bound < node.arguments.size) return usage(reply, path, node)
+            val literalNext = node.literals.any { it.name == tokens[pos] && authorizer.isVisible(actor, it) }
+            if (bound < node.arguments.size && !literalNext) return usage(reply, path, node)
             val child = node.literals.firstOrNull { it.name == tokens[pos] && authorizer.isVisible(actor, it) }
                 ?: return usage(reply, path, node)
             node = child
@@ -85,6 +88,7 @@ public class CommandTreeRunner(
             var bound = 0
             for (arg in node.arguments) {
                 if (pos >= complete.size) break
+                if (arg.optional && node.literals.any { it.name == complete[pos] && authorizer.isVisible(actor, it) }) break
                 val value = parse(arg.type, complete[pos]) ?: return emptyList()
                 if (value is Missing) return emptyList()
                 args[arg.name] = value
@@ -99,7 +103,8 @@ public class CommandTreeRunner(
                 }
                 return candidates.filter { it.startsWith(partial, ignoreCase = true) }.distinct()
             }
-            if (bound < node.arguments.size) return emptyList()
+            val literalNext = node.literals.any { it.name == complete[pos] && authorizer.isVisible(actor, it) }
+            if (bound < node.arguments.size && !literalNext) return emptyList()
             node = node.literals.firstOrNull { it.name == complete[pos] && authorizer.isVisible(actor, it) }
                 ?: return emptyList()
             pos++

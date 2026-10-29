@@ -21,7 +21,8 @@ class DeathRespawnScenarioTest {
         scenario("death-respawn-flow") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            startMatch("annihilation", mapOf(red to "red", blue to "blue"), stage = "annihilation-arena")
+            val yellow0 = player("yellow-0", team = "yellow") // the annihilation lane starts only with 3 teams
+            startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow0 to "yellow"), stage = "annihilation-arena")
             val blueSpawn = blue.position
             val protection = sim.services.getOrThrow<ISpawnProtectionGateway>()
 

@@ -26,7 +26,9 @@ class PluginLoadOrderTest {
             val name = yml.lines().first { it.startsWith("name:") }.substringAfter(':').trim()
             name to (list(yml, "depend") + list(yml, "softdepend"))
         }
-        assertThat(GameSim.WIRING_ORDER).containsExactlyInAnyOrderElementsOf(deps.keys)
+        // Chat is exercised by its own scenario tests, Persistence needs a database: the sim wires the rest.
+        assertThat(GameSim.WIRING_ORDER).isSubsetOf(deps.keys)
+        assertThat(deps.keys - GameSim.WIRING_ORDER.toSet()).containsExactlyInAnyOrder("Astera-Chat")
         GameSim.WIRING_ORDER.forEachIndexed { index, name ->
             val earlier = GameSim.WIRING_ORDER.take(index).toSet()
             deps.getValue(name).filter { it in deps }.forEach { dep ->

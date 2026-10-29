@@ -76,7 +76,7 @@ class BotLoadoutScenarioTest {
             (bots + human).forEach { matchmaker.enqueue(it.id, MatchmakingMode.CARRY_TNT) }
             assertThat(sim.stepUntil(900) { sim.eventsOf<PlayerEnteredMatch>().size == 3 }).isTrue()
 
-            assertThat(checkNotNull(sim.server.view(human.id)).givenItems).containsExactlyElementsOf(humanBefore)
+            assertThat(checkNotNull(sim.server.view(human.id)).givenItems).containsExactlyElementsOf(humanBefore + ShippedStarterGrant.matchTools)
             bots.forEach { bot ->
                 val weapons = weaponsOf(sim, bot)
                 assertThat(weapons).hasSize(2)

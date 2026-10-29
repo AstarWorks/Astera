@@ -17,24 +17,25 @@ class EgoGaugeScenarioTest {
             val shooter = player("shooter", team = "red")
             val dummy = mob("dummy", at = Vec3(0.0, groundY, 12.0), team = "blue")
             sim.setMaxHealth(dummy, 500.0)
-            shooter.holds("pistol")
+            // The pistol reloads on a plain Q (499e39513, tutorial); the rifle keeps Shift+Q so Q stays the E.G.O slot.
+            shooter.holds("rifle")
             shooter.faces(dummy)
 
             repeat(3) {
                 shooter.rightClick()
-                advance(6)
+                advance(30)
             }
-            assertThat(ammo(shooter)).isEqualTo(9)
+            assertThat(ammo(shooter)).isEqualTo(17)
 
-            // Q alone is the E.G.O slot: the pistol binds none, so nothing happens.
+            // Q alone is the E.G.O slot: the rifle binds none, so nothing happens.
             assertThat(sim.drop(shooter)).isFalse()
             advance(40)
-            assertThat(ammo(shooter)).isEqualTo(9)
+            assertThat(ammo(shooter)).isEqualTo(17)
 
             // Shift+Q is the reload.
             assertThat(sim.drop(shooter, sneaking = true)).isTrue()
             advance(40)
-            assertThat(ammo(shooter)).isEqualTo(12)
+            assertThat(ammo(shooter)).isEqualTo(20)
             assertThat(eventsOf<ResourceReloaded>()).hasSize(1)
         }
     }

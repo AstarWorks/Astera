@@ -165,6 +165,7 @@ class AdminConsoleScenarioTest {
             val choose = intents(admin).first { it.key == AdminCommandConsole.SET && it.payload["v"] == "greatsword" }
             click(admin, choose.key, *choose.payload.map { it.key to it.value }.toTypedArray())
             click(admin, AdminCommandConsole.RUN)
+            advance(2) // the run is dispatched on the player's entity scope, one tick later
 
             val given = checkNotNull(sim.server.view(bob.id)).givenItems.drop(before.size)
             assertThat(given).contains("greatsword")
@@ -184,6 +185,7 @@ class AdminConsoleScenarioTest {
             roster(admin)
             click(admin, AdminCommandConsole.FORM, "a" to "admin health")
             click(admin, AdminCommandConsole.RUN)
+            advance(2) // the run is dispatched on the player's entity scope, one tick later
             val s = spec(admin)
             assertThat(s.id).isEqualTo(AdminCommandConsole.RESULT_ID)
             val lines = s.slots.values.filterIsInstance<GuiSlot.Static>()
@@ -201,11 +203,13 @@ class AdminConsoleScenarioTest {
             click(admin, AdminCommandConsole.FORM, "a" to "admin maintenance")
             click(admin, AdminCommandConsole.SET, "arg" to "action", "v" to "on")
             click(admin, AdminCommandConsole.RUN)
+            advance(2) // the run is dispatched on the player's entity scope, one tick later
             assertThat(spec(admin).id).isEqualTo(AdminCommandConsole.CONFIRM_ID)
             val audit = sim.services.getOrThrow<IAuditLogRepository>()
             assertThat(audit.recent(50).filterIsInstance<AuditEvent.AdminActionPerformed>().filter { it.action == "cmd:admin maintenance" }).isEmpty()
 
             click(admin, AdminCommandConsole.RUN, "confirm" to "1")
+            advance(2)
             assertThat(spec(admin).id).isEqualTo(AdminCommandConsole.RESULT_ID)
             assertThat(audit.recent(50).filterIsInstance<AuditEvent.AdminActionPerformed>().filter { it.action == "cmd:admin maintenance" }).hasSize(1)
         }

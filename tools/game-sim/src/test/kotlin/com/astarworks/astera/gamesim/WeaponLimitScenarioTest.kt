@@ -39,7 +39,7 @@ class WeaponLimitScenarioTest {
             assertThat(sim.stepUntil(600) { sim.eventsOf<PlayerEnteredMatch>().size == 2 }).isTrue()
 
             // 5 slots in, the first MAIN + SUB stay; the same-family and over-total weapons are set aside. Non-weapons stay.
-            assertThat(items).containsExactly("rifle", "knight-sword", "gui-pane-dark")
+            assertThat(items).containsExactly("rifle", "knight-sword", "gui-pane-dark", *ShippedStarterGrant.matchTools.toTypedArray())
             assertThat(checkNotNull(sim.server.view(loaded.id)).messages).anyMatch { "Weapon limit" in it }
 
             // At the cap: another weapon is refused with the total-cap blocker, a non-weapon is not.
@@ -78,7 +78,7 @@ class WeaponLimitScenarioTest {
             assertThat(sim.stepUntil(600) { sim.eventsOf<PlayerEnteredMatch>().size == 2 }).isTrue()
 
             // gun:1 drops the pistol, total:2 drops the staff; the sword keeps the second slot.
-            assertThat(items).containsExactly("rifle", "knight-sword")
+            assertThat(items).containsExactly("rifle", "knight-sword", *ShippedStarterGrant.matchTools.toTypedArray())
         } finally {
             sim.shutdown()
         }

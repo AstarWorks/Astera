@@ -18,7 +18,8 @@ class MatchEndKillRaceScenarioTest {
         scenario("end-kill-race") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue"), stage = "annihilation-arena")
+            val yellow0 = player("yellow-0", team = "yellow") // the annihilation lane starts only with 3 teams
+            val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow0 to "yellow"), stage = "annihilation-arena")
             sim.setMaxHealth(blue, 1.0)
             red.moveTo(blue.position + Vec3(0.0, 0.0, 6.0))
             red.holds("pistol")
