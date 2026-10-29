@@ -714,6 +714,7 @@ astera:
         tools: "<yellow>Tools</yellow>"
         blocks: "<aqua>Blocks</aqua>"
         armor: "<green>Armor</green>"
+        upgrades: "<light_purple>Upgrades</light_purple>"
         current: "<gray>Showing this tab.</gray>"
         switch: "<yellow>Click to open this tab.</yellow>"
       ore:
@@ -726,11 +727,14 @@ astera:
         stack: "<gray>You get: <white>x{amount}</white></gray>"
         buy: "<yellow>Click to buy.</yellow>"
         short: "<red>Not enough ore.</red>"
+        upgrade: "<gray>Upgrades your <white>{from}</white> (it is replaced).</gray>"
+        need-base: "<red>You need {from} first.</red>"
       bought: "<green>Bought {item} x{amount}.</green>"
       short: "<red>You need {need} {ore} ore but carry {have}.</red>"
       wrong-team: "<red>This is the {team} team's shop. Use your own base's shop.</red>"
       not-in-match: "<red>The ore shop only works inside a match.</red>"
       failed: "<red>The purchase failed. Nothing was taken.</red>"
+      need-base: "<red>You need a {from} in your inventory to buy this upgrade.</red>"
     shop:
       example-shop:
         title: "Example Shop"

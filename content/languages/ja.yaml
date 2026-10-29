@@ -722,6 +722,7 @@ astera:
         tools: "<yellow>ツール</yellow>"
         blocks: "<aqua>ブロック</aqua>"
         armor: "<green>防具</green>"
+        upgrades: "<light_purple>強化</light_purple>"
         current: "<gray>表示中のタブです。</gray>"
         switch: "<yellow>クリックでこのタブを開く</yellow>"
       ore:
@@ -734,11 +735,14 @@ astera:
         stack: "<gray>入手数: <white>x{amount}</white></gray>"
         buy: "<yellow>クリックで購入</yellow>"
         short: "<red>鉱石が足りません。</red>"
+        upgrade: "<gray>所持中の <white>{from}</white> を強化します (置き換わります)。</gray>"
+        need-base: "<red>先に {from} が必要です。</red>"
       bought: "<green>{item} x{amount} を購入しました。</green>"
       short: "<red>{ore} 鉱石が {need} 個必要です (所持 {have})。</red>"
       wrong-team: "<red>これは {team} チームのショップです。自陣のショップを使ってください。</red>"
       not-in-match: "<red>鉱石ショップは試合中のみ使えます。</red>"
       failed: "<red>購入に失敗しました。何も消費していません。</red>"
+      need-base: "<red>この強化には {from} の所持が必要です。</red>"
     shop:
       example-shop:
         title: "サンプルショップ"

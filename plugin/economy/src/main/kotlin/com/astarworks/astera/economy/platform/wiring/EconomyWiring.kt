@@ -395,6 +395,21 @@ public object EconomyWiring {
                 matchShopNpcs.onStarted(event)
             }
             subscriptions += eventBus.subscribe(MatchEnded::class) { event -> matchShopNpcs.onEnded(event) }
+            // Bots cannot click the shop GUI: every second a bot standing at its own base shop buys the weapon upgrades it
+            // holds the base for and can pay in ore (same purchase path and prices as a player).
+            val matchShopBotBuyer = com.astarworks.astera.economy.application.service.MatchShopBotBuyer(
+                matches = matchRepository,
+                stages = matchShopStages,
+                server = mcServer,
+                bots = { services.get<com.astarworks.astera.core.application.port.outbound.IBotPlayers>() },
+                purchase = matchShopPurchase,
+                stock = ownedStock,
+                catalog = { matchShopLoader.catalog },
+            )
+            scheduledTasks += services.getOrThrow<IScheduler>().runRepeatingTicks(ExecutionScope.Global,
+                initialDelayTicks = 20L,
+                periodTicks = 20L,
+            ) { matchShopBotBuyer.tick() }
         } else {
             logger.severe(
                 "Match shop NPCs DISABLED - players get no base shop: entity spawner=${matchShopSpawner != null}, " +
