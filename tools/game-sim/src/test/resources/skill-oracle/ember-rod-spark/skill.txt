@@ -1,21 +1,30 @@
 ## pose yaw=0 pitch=0
+@0 spawn #0 op=cast/core kind=sprite sprite=flame alpha=1.000000 tint=#ff9030 seethrough=false pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.687500,0.687500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=cast/core dur=7 pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.994522,0.104528 scale=0.687500,0.687500,1.000000 bb=CENTER
 @0 sound - op=cast/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.2 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx1 type=fire-cast at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8223201284274687293
-@0 particle - op=cast/t1[0] type=flame count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5571728810801292861
-@0 particle - op=cast/t2[0] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8204453201539997411
-@1 particle - op=cast/t1[1] type=flame count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5690466958577503588
-@1 particle - op=cast/t2[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7481515924511405039
+@0 particle - op=cast/trail[0]/t1 type=flame count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4337410884802707335
+@0 particle - op=cast/trail[0]/t2 type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5257178822861720458
+@1 particle - op=cast/trail[1]/t1 type=flame count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7113630354027015377
+@1 particle - op=cast/trail[1]/t2 type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-180357378418760300
 @1 hit - op=cast/bolt at=0.000000,1.620000,2.700000 r=0.500000 shape=capsule a=0.000000,1.620000,2.700000 b=0.000000,1.620000,2.700000 rad=0.500000
+<<<<<<< HEAD
 g @1 state-exit reason=EVENT | state=cast
 g @1 cast-end | pose
+=======
+@1 remove #0 op=cast/core
+>>>>>>> se-re-magic-bolt
 ## pose yaw=37 pitch=-20
+@0 spawn #0 op=cast/core kind=sprite sprite=flame alpha=1.000000 tint=#ff9030 seethrough=false pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.687500,0.687500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=cast/core dur=7 pos=-0.282761,1.791010,0.375236 rot=-0.327985,0.131109,0.923041,0.152418 scale=0.687500,0.687500,1.000000 bb=CENTER
 @0 sound - op=cast/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.2 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx1 type=fire-cast at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8223201284274687293
-@0 particle - op=cast/t1[0] type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5571728810801292861
-@0 particle - op=cast/t2[0] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8204453201539997411
-@1 particle - op=cast/t1[1] type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5690466958577503588
-@1 particle - op=cast/t2[1] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7481515924511405039
+@0 particle - op=cast/trail[0]/t1 type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4337410884802707335
+@0 particle - op=cast/trail[0]/t2 type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5257178822861720458
+@1 particle - op=cast/trail[1]/t1 type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7113630354027015377
+@1 particle - op=cast/trail[1]/t2 type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-180357378418760300
 @1 hit - op=cast/bolt at=-1.526907,2.543454,2.026274 r=0.500000 shape=capsule a=-1.526907,2.543454,2.026274 b=-1.526907,2.543454,2.026274 rad=0.500000
+<<<<<<< HEAD
 g @1 state-exit reason=EVENT | state=cast
 g @1 cast-end | pose
 ## gameplay-static
@@ -28,3 +37,6 @@ g.end @1..45 handler max=1 | sub=cast/bolt.end
 g.hit @1..45 handler max=1 | sub=cast/bolt.hit
 g.hit @0 damage fire=20.000000 | sub=cast/bolt.hit
 g.hit @0 status burn stacks=1.000000 for=20 when | sub=cast/bolt.hit
+=======
+@1 remove #0 op=cast/core
+>>>>>>> se-re-magic-bolt

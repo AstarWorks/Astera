@@ -1,3 +1,4 @@
+# ember-rod-burst: a fire nova around the caster, damage falling off with distance. Written from zero on the rev4.10 grammar.
 apiVersion: astera/v3
 kind: Skill
 id: ember-rod-burst
@@ -11,7 +12,8 @@ meta:
 params:
   radius:     {type: blocks, default: 3.5}
   dmg_fire:   {type: number, default: 22.5}
-  burn_ticks: {type: ticks, default: 20}
+  falloff:    {type: number, default: 0.5}
+  burn_ticks: {type: ticks,  default: 20}
 anchors:
   - {id: ground, anchor: caster, offset: {up: 0.15}, mode: follow}
 machine:
@@ -22,8 +24,12 @@ machine:
       then: end
       do:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 1.0, pitch: 0.9, at: 0}
-        - {id: flame, op: particle, particle: flame, anchor: ground, count: 0, offset: [0, 0, 0], extra: 0.03, at: 0}
-        - {id: dust, op: particle, particle: dust, anchor: ground, count: 1, offset: [0, 0, 0], extra: 0, color: "#ff6e14", size: 1.4, at: 0}
+        - {id: flame, op: particle, particle: flame, anchor: ground, count: 0, extra: 0.03, at: 0}
+        - {id: dust, op: particle, particle: dust, anchor: ground, count: 1, color: "#ff6e14", size: 1.4, at: 0}
+        # the shock ring: 24 flames flung outward on the ground plane, two lifted rings behind it; the burst lasts one tick so these are instant rows
+        - {id: ring, op: particle, particle: flame, anchor: ground, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 0.45}
+        - {id: ring_hi, op: particle, particle: lava, anchor: ground, times: 12, at: 0, count: 0, offset: "= vec(0.6 * cos(i * 2 * pi / 12), 0.8, 0.6 * sin(i * 2 * pi / 12))", extra: 0.3}
+        - {id: embers, op: particle, particle: smoke, anchor: ground, count: 20, offset: "= vec(1.2, 0.3, 1.2)", extra: 0.04, at: 0}
       enter:
         - id: blast
           op: hit
@@ -33,7 +39,7 @@ machine:
           targets: enemies
           window: once
           ignore_invulnerability: false
-          damage: {fire: "= ${dmg_fire} * (1.0 - 0.5 * dist(event.victim, caster) / ${radius})"}
+          damage: {fire: "= ${dmg_fire} * (1.0 - ${falloff} * dist(event.victim, caster) / ${radius})"}
           on:
             hit:
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}

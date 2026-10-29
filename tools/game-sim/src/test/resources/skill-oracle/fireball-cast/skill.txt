@@ -1,21 +1,30 @@
 ## pose yaw=0 pitch=0
+@0 spawn #0 op=fly/core kind=sprite sprite=flame alpha=1.000000 tint=#ffc060 seethrough=false pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.250000,1.250000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=fly/core dur=7 pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.994522,0.104528 scale=1.250000,1.250000,1.000000 bb=CENTER
 @0 sound - op=fly/snd sound=entity.blaze.shoot cat=master vol=0.9 pitch=0.9 at=0.000000,0.000000,0.000000
 @0 particle - op=fly/fx type=fire-cast at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4848228399944453433
-@0 particle - op=fly/trail_flame[0] type=flame count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1866239125283851465
-@0 particle - op=fly/trail_smoke[0] type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7369656028164390784
-@1 particle - op=fly/trail_flame[1] type=flame count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8313771698192291572
-@1 particle - op=fly/trail_smoke[1] type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2403224595754814996
+@0 particle - op=fly/trail[0]/flame type=flame count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1969173257528137369
+@0 particle - op=fly/trail[0]/smoke type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2828688969168149660
+@1 particle - op=fly/trail[1]/flame type=flame count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2718674414731052622
+@1 particle - op=fly/trail[1]/smoke type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6069210810847179412
 @1 hit - op=fly/bolt at=0.000000,1.620000,2.000000 r=0.500000 shape=capsule a=0.000000,1.620000,2.000000 b=0.000000,1.620000,2.000000 rad=0.500000
+<<<<<<< HEAD
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
+=======
+@1 remove #0 op=fly/core
+>>>>>>> se-re-magic-bolt
 ## pose yaw=37 pitch=-20
+@0 spawn #0 op=fly/core kind=sprite sprite=flame alpha=1.000000 tint=#ffc060 seethrough=false pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=1.250000,1.250000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=fly/core dur=7 pos=-0.282761,1.791010,0.375236 rot=-0.327985,0.131109,0.923041,0.152418 scale=1.250000,1.250000,1.000000 bb=CENTER
 @0 sound - op=fly/snd sound=entity.blaze.shoot cat=master vol=0.9 pitch=0.9 at=0.000000,0.000000,0.000000
 @0 particle - op=fly/fx type=fire-cast at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4848228399944453433
-@0 particle - op=fly/trail_flame[0] type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1866239125283851465
-@0 particle - op=fly/trail_smoke[0] type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7369656028164390784
-@1 particle - op=fly/trail_flame[1] type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8313771698192291572
-@1 particle - op=fly/trail_smoke[1] type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2403224595754814996
+@0 particle - op=fly/trail[0]/flame type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1969173257528137369
+@0 particle - op=fly/trail[0]/smoke type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2828688969168149660
+@1 particle - op=fly/trail[1]/flame type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2718674414731052622
+@1 particle - op=fly/trail[1]/smoke type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6069210810847179412
 @1 hit - op=fly/bolt at=-1.131042,2.304040,1.500944 r=0.500000 shape=capsule a=-1.131042,2.304040,1.500944 b=-1.131042,2.304040,1.500944 rad=0.500000
+<<<<<<< HEAD
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
 ## gameplay-static
@@ -31,3 +40,6 @@ g.hit @1..60 handler max=1 | sub=fly/bolt.hit
 g.hit @0 world explode break_blocks=false fire=false power=1.200000 | sub=fly/bolt.hit
 g.hit @0 damage fire=27.500000 to=enemies@2.500000 | sub=fly/bolt.hit
 g.hit @0 status burn stacks=1.000000 for=20 | sub=fly/bolt.hit
+=======
+@1 remove #0 op=fly/core
+>>>>>>> se-re-magic-bolt

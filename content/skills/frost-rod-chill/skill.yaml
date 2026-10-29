@@ -1,12 +1,19 @@
+# frost-rod-chill: a cold nova around the caster that freezes whoever it touches. Written from zero on the rev4.10 grammar.
 apiVersion: astera/v3
 kind: Skill
 id: frost-rod-chill
 item: frost-rod
-meta: {name: {ja: "冷気", en: Chill}, description: {ja: "周囲に冷気を放ち、敵を凍らせる。", en: "A cold wave that freezes nearby enemies."}, cooldown_ticks: 160, resource_cost: 16, tags: [aoe, water]}
+meta:
+  name: {ja: "冷気", en: Chill}
+  description: {ja: "周囲に冷気を放ち、敵を凍らせる。", en: "A cold wave that freezes nearby enemies."}
+  cooldown_ticks: 160
+  resource_cost: 16
+  tags: [aoe, water]
 params:
   radius:       {type: blocks, default: 4.0}
   dmg_water:    {type: number, default: 12.5}
-  freeze_ticks: {type: ticks, default: 40}
+  falloff:      {type: number, default: 0.5}
+  freeze_ticks: {type: ticks,  default: 40}
 anchors:
   - {id: cast_pt, anchor: caster, offset: {up: 0.15}, mode: follow}
 machine:
@@ -17,17 +24,21 @@ machine:
       then: done
       do:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 1.0, pitch: 1.0, at: 0}
-        - {id: snow, op: particle, particle: snowflake, anchor: cast_pt, count: 0, offset: [0, 0, 0], extra: 0.03, at: 0}
-        - {id: mist, op: particle, particle: dust, anchor: cast_pt, count: 1, offset: [0, 0, 0], extra: 0, color: "#c8ebff", size: 1.4, at: 0}
+        - {id: snow, op: particle, particle: snowflake, anchor: cast_pt, count: 0, extra: 0.03, at: 0}
+        - {id: mist, op: particle, particle: dust, anchor: cast_pt, count: 1, color: "#c8ebff", size: 1.4, at: 0}
+        # the cold wave: 24 flakes flung outward on the ground plane, a lifted ring of frost behind it (instant rows: the state lasts one tick)
+        - {id: ring, op: particle, particle: snowflake, anchor: cast_pt, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 0.5}
+        - {id: ring_hi, op: particle, particle: end_rod, anchor: cast_pt, times: 12, at: 0, count: 0, offset: "= vec(0.6 * cos(i * 2 * pi / 12), 0.8, 0.6 * sin(i * 2 * pi / 12))", extra: 0.3}
+        - {id: haze, op: particle, particle: dust, anchor: cast_pt, count: 20, offset: "= vec(1.4, 0.3, 1.4)", color: "#dff3ff", size: 1.2, at: 0}
         - id: burst
           op: hit
-          anchor: caster
           at: 0
+          anchor: caster
           shape: {sphere: "${radius}"}
           targets: enemies
           window: once
           ignore_invulnerability: false
-          damage: {water: "= ${dmg_water} * (1.0 - 0.5 * dist(event.victim, caster) / ${radius})"}
+          damage: {water: "= ${dmg_water} * (1.0 - ${falloff} * dist(event.victim, caster) / ${radius})"}
           on:
             hit:
               - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: "${freeze_ticks}"}
