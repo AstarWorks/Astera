@@ -618,6 +618,7 @@ public class TablePlayer(
             if (!ok) return
         }
         ctx.scope = rowScope(run, row, ctx.binding)
+        trace.row(run.cursor.handle, row.instance, now)
         try {
             when (val a = row.action) {
                 is Action.Enter -> {
@@ -973,6 +974,7 @@ public class TablePlayer(
         for (i in 0 until poses) {
             val k = if (poses == 1) 0.0 else (poses - 1 - i).toDouble() / (poses - 1)
             val vol = volumes(k)
+            trace.hitVolume(run.cursor.handle, row.instance, vol, now)
             val cands = query.nearby(castRef(run), vol.broadCenter, vol.broadRadius, caster).filter { it.entityId !in seen }
             for (c in cands) feetOf[c.entityId] = c.feet
             for (ce in resolver.narrow(row.instance.text, now, row.instance.text, vol, Vec3(delta.x, delta.y, delta.z), cands)) {
@@ -1098,6 +1100,7 @@ public class TablePlayer(
         val start = Vec3(prev.x, prev.y, prev.z)
         val raw = ArrayList<ContactEvent>()
         fun test(vol: ResolvedVolume, velocity: Vec3) {
+            trace.hitVolume(run.cursor.handle, id, vol, now)
             val cands = query.nearby(castRef(run), vol.broadCenter, vol.broadRadius, run.request.caster)
                 .filter { it.entityId !in rec.hitVictims && targetKindOk(run, rec.hitTargets, it.entityId) }
             raw += resolver.narrow(id.text, now, id.text, vol, velocity, cands)
@@ -1227,10 +1230,7 @@ public class TablePlayer(
             "camera_shake" -> {
                 val ticks = d("ticks").toInt()
                 val dir = s("direction")
-                // `from_hit` leans the shake away from the hit that raised the event: outside an `on.hit` row there is none, which is a content error (no silent fallback)
-                if (dir == "from_hit" && ctx.binding?.victim == null) {
-                    throw IllegalStateException("camera_shake direction: from_hit is only valid inside an on.hit row (no hit victim is bound here); use direction: none")
-                }
+                // `from_hit` outside an on.hit handler is refused at load (CameraShakeOpSpec.lower), so a victim is bound here
                 val from = if (dir == "from_hit") liveVec(run, "event.victim", ctx).let { Vec3(it.x, it.y, it.z) } else null
                 victims.forEach { gameplay.cameraShake(castRef(run), it, d("intensity"), ticks, from) }
             }

@@ -1,18 +1,18 @@
 ## pose yaw=0 pitch=0
-@0 sound - op=- sound=astera:weapons/rifle-crack cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=gun-muzzle-flash at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7026404406233930879
-@0 particle - op=- type=gun-muzzle-smoke at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5182567936881979915
-@0 particle - op=- type=crit count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3740801515171757124
-@0 particle - op=- type=white_smoke count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2410208898875182041
-@1 particle - op=- type=crit count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4973623900090019611
-@1 particle - op=- type=white_smoke count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8327850991914629986
-@1 hit - op=- at=0.000000,1.620000,5.000000 r=0.500000
+@0 sound - op=fire/snd sound=astera:weapons/rifle-crack cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
+@0 particle - op=fire/fl0 type=gun-muzzle-flash at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7026404406233930879
+@0 particle - op=fire/fl1 type=gun-muzzle-smoke at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5182567936881979915
+@0 particle - op=fire/trail0[0] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3740801515171757124
+@0 particle - op=fire/trail1[0] type=white_smoke count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2410208898875182041
+@1 particle - op=fire/trail0[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4973623900090019611
+@1 particle - op=fire/trail1[1] type=white_smoke count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8327850991914629986
+@1 hit - op=fire/bolt at=0.000000,1.620000,5.000000 r=0.500000 shape=capsule a=0.000000,1.620000,5.000000 b=0.000000,1.620000,5.000000 rad=0.500000
 ## pose yaw=37 pitch=-20
-@0 sound - op=- sound=astera:weapons/rifle-crack cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=gun-muzzle-flash at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7026404406233930879
-@0 particle - op=- type=gun-muzzle-smoke at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5182567936881979915
-@0 particle - op=- type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3740801515171757124
-@0 particle - op=- type=white_smoke count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2410208898875182041
-@1 particle - op=- type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4973623900090019611
-@1 particle - op=- type=white_smoke count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8327850991914629986
-@1 hit - op=- at=-2.827606,3.330101,3.752359 r=0.500000
+@0 sound - op=fire/snd sound=astera:weapons/rifle-crack cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
+@0 particle - op=fire/fl0 type=gun-muzzle-flash at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7026404406233930879
+@0 particle - op=fire/fl1 type=gun-muzzle-smoke at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5182567936881979915
+@0 particle - op=fire/trail0[0] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3740801515171757124
+@0 particle - op=fire/trail1[0] type=white_smoke count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2410208898875182041
+@1 particle - op=fire/trail0[1] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4973623900090019611
+@1 particle - op=fire/trail1[1] type=white_smoke count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8327850991914629986
+@1 hit - op=fire/bolt at=-2.827606,3.330101,3.752359 r=0.500000 shape=capsule a=-2.827606,3.330101,3.752359 b=-2.827606,3.330101,3.752359 rad=0.500000

@@ -52,6 +52,9 @@ public object CameraShakeOpSpec : OpSpec<CameraShakeOp> {
 
     override fun lower(op: CameraShakeOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value
+        if (op.direction == "from_hit" && !lc.hitScope) {
+            return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "camera_shake direction: from_hit is only valid inside an on.hit handler (no hit victim is bound here); use direction: none"))
+        }
         return GameplayOps.targetCell(op.target, lc, path).flatMap { target ->
             GameplayOps.duration(op.timing, lc, path, "for").map { ticks ->
                 GameplayOps.effect(

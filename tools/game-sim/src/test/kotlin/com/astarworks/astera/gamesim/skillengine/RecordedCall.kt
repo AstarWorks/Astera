@@ -18,6 +18,9 @@ data class RecordedCall(val tick: Int, val verb: String, val instance: String, v
      */
     var detail: String = ""
 
+    /** The op instance that issued this call when the gateway call itself names none (particle, sound, hit volume); null = take it from [instance]. */
+    var op: String? = null
+
     val tokens: Set<String> get() = payload.split(' ').filter { it.isNotEmpty() }.toSet()
 
     override fun toString(): String = "@$tick $verb $instance $payload".trimEnd()

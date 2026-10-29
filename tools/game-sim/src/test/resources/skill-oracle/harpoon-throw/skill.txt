@@ -1,16 +1,16 @@
 ## pose yaw=0 pitch=0
-@0 sound - op=- sound=item.trident.throw cat=master vol=0.9 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=hit-spark at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6493627341443752086
-@0 particle - op=- type=crit count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2748902817651166426
-@0 particle - op=- type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5abec8 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1177268440606872201
-@1 particle - op=- type=crit count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5424416491477297027
-@1 particle - op=- type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5abec8 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7488334316207741938
-@1 hit - op=- at=0.000000,1.620000,2.700000 r=0.500000
+@0 sound - op=fly/snd_cast sound=item.trident.throw cat=master vol=0.9 pitch=1 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/fx_cast type=hit-spark at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6493627341443752086
+@0 particle - op=fly/tr0[0] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2748902817651166426
+@0 particle - op=fly/tr1[0] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5abec8 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1177268440606872201
+@1 particle - op=fly/tr0[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5424416491477297027
+@1 particle - op=fly/tr1[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5abec8 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7488334316207741938
+@1 hit - op=fly/bolt at=0.000000,1.620000,2.700000 r=0.500000 shape=capsule a=0.000000,1.620000,2.700000 b=0.000000,1.620000,2.700000 rad=0.500000
 ## pose yaw=37 pitch=-20
-@0 sound - op=- sound=item.trident.throw cat=master vol=0.9 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=hit-spark at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6493627341443752086
-@0 particle - op=- type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2748902817651166426
-@0 particle - op=- type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5abec8 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1177268440606872201
-@1 particle - op=- type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5424416491477297027
-@1 particle - op=- type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5abec8 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7488334316207741938
-@1 hit - op=- at=-1.526907,2.543454,2.026274 r=0.500000
+@0 sound - op=fly/snd_cast sound=item.trident.throw cat=master vol=0.9 pitch=1 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/fx_cast type=hit-spark at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6493627341443752086
+@0 particle - op=fly/tr0[0] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2748902817651166426
+@0 particle - op=fly/tr1[0] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5abec8 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1177268440606872201
+@1 particle - op=fly/tr0[1] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5424416491477297027
+@1 particle - op=fly/tr1[1] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5abec8 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7488334316207741938
+@1 hit - op=fly/bolt at=-1.526907,2.543454,2.026274 r=0.500000 shape=capsule a=-1.526907,2.543454,2.026274 b=-1.526907,2.543454,2.026274 rad=0.500000

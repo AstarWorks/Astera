@@ -1,13 +1,13 @@
 ## pose yaw=0 pitch=0
-@0 sound - op=- sound=astera:weapons/blade-heavy-swing cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=slash-sweep at=0.000000,-0.200000,1.400000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8321456056528429744
-@0 hit - op=- at=0.000000,1.620000,0.000000 r=5.000000
+@0 sound - op=swing/snd_swing sound=astera:weapons/blade-heavy-swing cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
+@0 particle - op=swing/fx_swing type=slash-sweep at=0.000000,-0.200000,1.400000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8321456056528429744
+@0 hit - op=swing/swing at=0.000000,1.620000,0.000000 r=5.000000 shape=sector fwd=0.000000,0.000000,1.000000 left=1.000000,0.000000,0.000000 deg=100.000000 range=3.000000 height=2.000000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- physical=60 skill=mace-smash at=0.000000,0.900000,2.500000 ignoreinv=false ignorearmor=false
-@0 sound - op=- sound=astera:weapons/blade-crit cat=master vol=0.7 pitch=1.2 at=0.000000,0.900000,2.500000
-@0 particle - op=- type=hit-spark at=0.000000,1.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-232162093191417419
+@0 sound - op=swing/swing.hit/snd_hit sound=astera:weapons/blade-crit cat=master vol=0.7 pitch=1.2 at=0.000000,0.900000,2.500000
+@0 particle - op=swing/swing.hit/fx_hit type=hit-spark at=0.000000,1.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-232162093191417419
 @0 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0 z=1
 @0 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0 z=1
 ## pose yaw=37 pitch=-20
-@0 sound - op=- sound=astera:weapons/blade-heavy-swing cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=slash-sweep at=-0.842541,-0.200000,1.118090 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8321456056528429744
-@0 hit - op=- at=0.000000,1.620000,0.000000 r=5.000000
+@0 sound - op=swing/snd_swing sound=astera:weapons/blade-heavy-swing cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
+@0 particle - op=swing/fx_swing type=slash-sweep at=-0.842541,-0.200000,1.118090 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8321456056528429744
+@0 hit - op=swing/swing at=0.000000,1.620000,0.000000 r=5.000000 shape=sector fwd=-0.565521,0.342020,0.750472 left=0.798636,0.000000,0.601815 deg=100.000000 range=3.000000 height=2.000000

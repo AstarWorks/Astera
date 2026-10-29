@@ -3,6 +3,7 @@ package com.astarworks.astera.gamesim.skillengine
 import com.astarworks.astera.core.application.skillengine.runtime.player.EventBinding
 import com.astarworks.astera.core.application.skillengine.runtime.player.CastHandle
 import com.astarworks.astera.core.application.skillengine.runtime.player.CastTrace
+import com.astarworks.astera.core.domain.skillengine.hit.ResolvedVolume
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillItemGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillMovementGateway
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
@@ -90,6 +91,15 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     override fun event(cast: CastHandle, path: EventPath, tick: Int, index: Int?) { traceLog += "event:${path.value}@$tick" }
     override fun call(cast: CastHandle, callId: InstanceId, tick: Int) { traceLog += "call:${callId.text}@$tick" }
 
+    /** The op instance whose row is playing; particle, sound and area-query rows are attributed to it. */
+    private var rowOp: String? = null
+
+    /** The volume + op the player announced just before its next `nearby` broad phase (consumed by that call). */
+    private var pendingVolume: Pair<String, ResolvedVolume>? = null
+
+    override fun row(cast: CastHandle, op: InstanceId, tick: Int) { rowOp = op.text }
+    override fun hitVolume(cast: CastHandle, op: InstanceId, volume: ResolvedVolume, tick: Int) { pendingVolume = op.text to volume }
+
     private fun seen(port: String, cast: CastRef) {
         refs += port to cast
     }
@@ -107,14 +117,16 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     private fun add(verb: String, instance: String, payload: String, detail: String = "") {
         val c = RecordedCall(tick, verb, instance, payload)
         c.detail = detail
+        if (verb == "particle" || verb == "sound") c.op = if (faithfulPose) rowOp ?: error("$verb row issued outside any row: no op to attribute it to") else rowOp
         log += c
         oracleLog += c
     }
 
     /** A row only the oracle golden sees; [calls] (and so every other scenario) is untouched. */
-    private fun oracleOnly(verb: String, instance: String, detail: String) {
+    private fun oracleOnly(verb: String, instance: String, detail: String, op: String? = null) {
         val c = RecordedCall(tick, verb, instance, "")
         c.detail = detail
+        c.op = op
         oracleLog += c
     }
 
@@ -380,7 +392,10 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun nearby(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> {
             seen("query.nearby", cast)
-            oracleOnly("hit", "-", "at=${OracleFmt.v(point)} r=${OracleFmt.f(radius)}")
+            val announced = pendingVolume
+            pendingVolume = null
+            val shape = announced?.second?.let { OracleFmt.volume(it) } ?: "shape=area"
+            oracleOnly("hit", "-", "at=${OracleFmt.v(point)} r=${OracleFmt.f(radius)} $shape", announced?.first ?: if (faithfulPose) rowOp ?: error("hit query outside any row: no op to attribute it to") else rowOp)
             return victims.filter { it.entityId != excluding }
         }
 
@@ -721,6 +736,16 @@ internal object OracleFmt {
     fun pose(p: VisualPose): String =
         "pos=${v(p.frame.origin)} rot=${q(p.frame.rotation)} scale=${v(p.size)} bb=${p.billboard}" +
             (p.anchorFeet?.let { " feet=${v(it)}" } ?: "") + (p.teleportTicks?.let { " tp=$it" } ?: "")
+
+    /** A resolved hit volume: kind and its dimensions (capsule a/b/radius, sphere radius, sector origin/forward/left/deg/range/height, box centre/half/rotation). */
+    fun volume(vol: com.astarworks.astera.core.domain.skillengine.hit.ResolvedVolume): String = when (vol) {
+        is com.astarworks.astera.core.domain.skillengine.hit.ResolvedVolume.Capsule -> "shape=capsule a=${v(vol.a)} b=${v(vol.b)} rad=${f(vol.radius)}"
+        is com.astarworks.astera.core.domain.skillengine.hit.ResolvedVolume.Sphere -> "shape=sphere rad=${f(vol.radius)}"
+        is com.astarworks.astera.core.domain.skillengine.hit.ResolvedVolume.Sector ->
+            "shape=sector fwd=${v(vol.forward)} left=${v(vol.left)} deg=${f(vol.angleDeg)} range=${f(vol.range)} height=${f(vol.height)}"
+        is com.astarworks.astera.core.domain.skillengine.hit.ResolvedVolume.Box ->
+            "shape=box half=${v(vol.halfExtents)} rot=${q(com.astarworks.astera.core.domain.geometry.math.Quaternion(vol.rotation.x, vol.rotation.y, vol.rotation.z, vol.rotation.w))}"
+    }
 
     fun view(v: DisplayView): String = "aud=${v.audience} lane=${v.lane} target=${v.target ?: "-"}"
 

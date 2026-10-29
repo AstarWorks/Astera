@@ -1,14 +1,14 @@
 ## pose yaw=0 pitch=0
-@0 sound - op=- sound=astera:weapons/blade-heavy-swing cat=master vol=1 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=crit count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-706761530027202085
-@0 particle - op=- type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#dcdcdc size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6617895111723111885
-@0 hit - op=- at=0.000000,0.000000,0.000000 r=3.500000
+@0 sound - op=whirl/snd sound=astera:weapons/blade-heavy-swing cat=master vol=1 pitch=1.2 at=0.000000,0.000000,0.000000
+@0 particle - op=whirl/fx_crit type=crit count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-706761530027202085
+@0 particle - op=whirl/fx_dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#dcdcdc size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6617895111723111885
+@0 hit - op=whirl/burst at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- physical=22.5 skill=war-axe-whirl at=0.000000,0.000000,2.200000 ignoreinv=false ignorearmor=false
-@0 sound - op=- sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=0.000000,0.000000,2.200000
+@0 sound - op=whirl/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=0.000000,0.000000,2.200000
 ## pose yaw=37 pitch=-20
-@0 sound - op=- sound=astera:weapons/blade-heavy-swing cat=master vol=1 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=crit count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-706761530027202085
-@0 particle - op=- type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#dcdcdc size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6617895111723111885
-@0 hit - op=- at=0.000000,0.000000,0.000000 r=3.500000
+@0 sound - op=whirl/snd sound=astera:weapons/blade-heavy-swing cat=master vol=1 pitch=1.2 at=0.000000,0.000000,0.000000
+@0 particle - op=whirl/fx_crit type=crit count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-706761530027202085
+@0 particle - op=whirl/fx_dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#dcdcdc size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6617895111723111885
+@0 hit - op=whirl/burst at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- physical=22.5 skill=war-axe-whirl at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
-@0 sound - op=- sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589
+@0 sound - op=whirl/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589

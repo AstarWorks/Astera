@@ -156,7 +156,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     private val offsetF = Field.optional("offset", Types.nullable(FrameVecs.type), null, "{forward, up, left} in the anchor's axes, folded into the entity location; absent = none")
 
     // item
-    private val itemF = Field.optional("item", Types.nullable(Types.id), null, "kind item: item_model id (main_hand = the held item's model, resolved at cast start)")
+    private val itemF = Field.optional("item", Types.nullable(Types.idValue), null, "kind item: item_model id (main_hand = the held item's model, resolved at cast start); under times a per-index list or '= CEL' over i")
     private val shaderEffectF = Field.optional("shader_effect", Types.nullable(Types.id), null, "kind item: isolated effect id from content/shader-patches/effects; excludes brightness")
     private val partF = Field.optional("part", Types.nullable(Types.id), null, "kind item: weapon part of content/frames/<item>.yaml whose axes (long, edge, face) the rotations read")
     private val contextF = Field.optional("context", Types.enumOf(*CONTEXTS), "fixed", "kind item: ItemDisplayContext, decision default fixed")
@@ -174,7 +174,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     private val shadowF = Field.optional("shadow", Types.bool, Value.Literal(false), "kind text: vanilla default false")
 
     // sprite
-    private val spriteF = Field.optional("sprite", Types.nullable(Types.id), null, "kind sprite: content/sprites id")
+    private val spriteF = Field.optional("sprite", Types.nullable(Types.idValue), null, "kind sprite: content/sprites id; under times a per-index list or '= CEL' over i")
     private val sizeF = Field.optional("size", Types.nullable(SIZE), null, "kind sprite: [w, h] in BLOCKS (2.1)")
     private val pivotF = Field.optional("pivot", Types.enumOf("center"), "center", "kind sprite: the glyph is centred on the entity by the sprite font (ADR-0239), so center is the only pivot")
     private val colorF = Field.optional("color", Types.nullable(Types.text), null, "kind text | sprite: colour #rrggbb or #aarrggbb; absent = the glyph's own colours")
@@ -252,14 +252,14 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 }
             }
             val subject: Value<String> = when (kind) {
-                DisplayKind.ITEM -> values[itemF]?.let { Value.Literal(it) } ?: ctx.abortMissing(p, "item")
+                DisplayKind.ITEM -> values[itemF]?.let { foldText(it, ctx) } ?: ctx.abortMissing(p, "item")
                 DisplayKind.BLOCK -> values[blockF]?.let { foldText(it, ctx) } ?: ctx.abortMissing(p, "block")
                 DisplayKind.TEXT -> values[textF]?.let { foldText(it, ctx) } ?: ctx.abortMissing(p, "text")
-                DisplayKind.SPRITE -> values[spriteF]?.let { Value.Literal(it) } ?: ctx.abortMissing(p, "sprite")
+                DisplayKind.SPRITE -> values[spriteF]?.let { foldText(it, ctx) } ?: ctx.abortMissing(p, "sprite")
             }
             val shaderEffect = values[shaderEffectF]
             if (shaderEffect != null) {
-                val item = (subject as? Value.Literal)?.value.orEmpty()
+                val item = (subject as? Value.Literal)?.value ?: ctx.fail("$p.shader_effect", "shader_effect needs a literal item id (it is checked against main_hand / minecraft: ids at load)")
                 if (!Regex("[a-z][a-z0-9-]*").matches(shaderEffect)) ctx.fail("$p.shader_effect", "invalid shader effect id")
                 if (item == "main_hand" || item.startsWith("minecraft:") || values.isPresent(brightnessF)) {
                     ctx.fail("$p.shader_effect", "shader_effect requires an Astera pack item and excludes brightness")
@@ -329,7 +329,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                     ?: gc.fail("${src.value}.part", "part '${op.part}' needs the skill's item to find content/frames/<item>.yaml, but this skill has no item")
                 (lc.frames.item(skillItem)?.partFor(op.part)
                     ?: gc.fail("${src.value}.part", "content/frames/$skillItem.yaml has no part '${op.part}'")).axes
-            } else lc.frames.item((op.subject as? Value.Literal<String>)?.value ?: "")?.partFor(null)?.axes
+            } else lc.frames.item(literalSubject(op, lc, "item"))?.partFor(null)?.axes
             val axes = AxisResolver { n -> LocalAxes.axis(n) ?: if (n == "face") FACE else itemAxes?.get(n) }
             for ((r, f) in listOf(op.rotate to "rotate", op.right to "right")) {
                 if (r is Rotation.Turns) r.turns.forEachIndexed { i, turn ->
@@ -402,8 +402,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
      * display's end (the cast's `maxLifeTicks` when the display has no `for`). `loop` wraps, otherwise the last frame holds with no more rows.
      */
     private fun flipbookRows(op: DisplayOp, fb: Flipbook, instance: InstanceId, end: Int?, lc: LowerContext): List<Row> {
-        val id = (op.subject as? Value.Literal<String>)?.value
-            ?: throw DecodeAbort(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "a sprite id is a literal"))
+        val id = literalSubject(op, lc, "sprite")
         val known = lc.sprites.frames(id) ?: throw DecodeAbort(SkillDecodeError.UndefinedReference(lc.skillId, lc.src.value, id))
         if (fb.frames > known) {
             throw DecodeAbort(SkillDecodeError.Invalid(lc.skillId, "${lc.src.value}.flipbook.frames", "sprite '$id' has $known frame(s), flipbook asks for ${fb.frames}"))
@@ -424,8 +423,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     private class SpriteScale(val scale: Val<Vector3d>, val sizeLaws: List<MotionLaw> = emptyList(), val spawnSize: Val<Vector3d>? = null)
 
     private fun spriteScale(op: DisplayOp, lc: LowerContext, end: Int?): SpriteScale {
-        val id = (op.subject as? Value.Literal<String>)?.value
-            ?: throw DecodeAbort(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "a sprite id is a literal"))
+        val id = literalSubject(op, lc, "sprite")
         val natural = lc.sprites.natural(id)
             ?: throw DecodeAbort(SkillDecodeError.UndefinedReference(lc.skillId, lc.src.value, id))
         val nw = natural.w * SPRITE_BLOCKS_PER_PX
@@ -566,7 +564,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         val f = LinkedHashMap<String, Val<Any>>()
         when (op.kind) {
             DisplayKind.ITEM -> {
-                f["item"] = cell(op.subject)
+                f["item"] = Val.Known(literalSubject(op, lc, "item"))
                 op.part?.let { f["part"] = Val.Known(it) }
                 f["context"] = Val.Known(op.context)
                 op.shaderEffect?.let { f["shader_effect"] = Val.Known(it) }
@@ -585,7 +583,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             }
             DisplayKind.SPRITE -> {
                 val (w, h) = op.spriteSize!!
-                f["sprite"] = cell(op.subject)
+                f["sprite"] = Val.Known(literalSubject(op, lc, "sprite"))
                 f["size"] = sprite?.spawnSize ?: vecCell(w, h)
                 f["pivot"] = Val.Known(op.spritePivot!!)
                 f["scale"] = sprite!!.scale
@@ -605,6 +603,14 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         f["interpolation_duration"] = cell(op.interpolationDuration)
         f["teleport_duration"] = cell(op.teleportDuration)
         return Look(f)
+    }
+
+    /** The item / sprite id of [op] for this copy: a literal, or a `= CEL` over `i` / `n` folded here; anything that stays live is a named load error (the id picks the model axes / sprite size at lowering). */
+    private fun literalSubject(op: DisplayOp, lc: LowerContext, what: String): String = when (val s = op.subject) {
+        is Value.Literal -> s.value
+        is Value.Expr -> (OccurrenceBake.fold(lc, s.source, ExprType.STR) as? ExprValue.Str)?.value
+            ?: throw DecodeAbort(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "display $what '= ${s.source}' must fold at compile time (only i, n and literals); a live value cannot pick the $what"))
+        is Value.ParamRef -> throw DecodeAbort(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "display $what param '${s.name}' is not a known param at load"))
     }
 
     /** A string id cell: a `= CEL` over `i` / `n` is folded for this copy (class S) so the table holds the constant; anything live stays baked. */
