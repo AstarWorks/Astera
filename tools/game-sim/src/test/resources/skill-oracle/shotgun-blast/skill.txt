@@ -20,7 +20,7 @@
 g @0..1 cast-length | cast
 g @1 state-end then=end final=false | state=cast
 g @0 damage physical=25.000000 | state=cast
-g @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D0.5),%20tool%3Dnone,%20blockDamage%3D30,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | state=cast
+g @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D1.0),%20tool%3Dnone,%20blockDamage%3D30,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | state=cast
 g @0 state-end then=- final=true | state=end
 g.hit @0..0 handler max=2147483647 | sub=cast/swing.hit
 g.hit @0 knockback direction=live(%3D%20normalize(pos(event.victim)%20-%20pos(caster))) strength=0.900000 target=live(victim) | sub=cast/swing.hit

@@ -31,7 +31,7 @@ machine:
           op: hit
           at: 0
           anchor: eye
-          shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: yaw}}
+          shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
           targets: enemies
           window: once
           ignore_invulnerability: false
