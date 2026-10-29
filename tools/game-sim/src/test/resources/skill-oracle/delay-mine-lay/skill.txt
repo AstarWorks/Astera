@@ -1,4 +1,5 @@
 ## pose yaw=0 pitch=0
+<<<<<<< HEAD
 @0 sound - op=cast/snd sound=block.stone_pressure_plate.click_on cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/smoke type=gun-smoke at=0.000000,0.100000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3301030241687634875
 g @1 state-exit reason=PREEMPT | state=cast/armed
@@ -18,3 +19,16 @@ g @50 world explode break_blocks=false fire=false power=1.000000 | state=cast/ar
 g @50 damage physical=55.000000 to=enemies@2.500000 | state=cast/armed
 g @0 state-end then=- final=true | state=cast/recover
 g @0 state-end then=- final=true | state=done
+=======
+@0 sound - op=armed/click sound=block.stone_pressure_plate.click_on cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
+@0 particle - op=armed/smoke type=gun-smoke at=0.000000,0.100000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3301030241687634875
+@50 hit - op=armed/blast at=0.000000,0.000000,2.500000 r=2.500000 shape=area
+@50 damage 00000000-0000-0000-0000-00000000000a op=- physical=55 skill=delay-mine-lay at=0.000000,0.000000,2.500000 ignoreinv=false ignorearmor=false
+@50 damage 00000000-0000-0000-0000-00000000000b op=- physical=55 skill=delay-mine-lay at=0.000000,0.000000,5.000000 ignoreinv=false ignorearmor=false
+## pose yaw=37 pitch=-20
+@0 sound - op=armed/click sound=block.stone_pressure_plate.click_on cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
+@0 particle - op=armed/smoke type=gun-smoke at=-1.504538,0.100000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3301030241687634875
+@50 hit - op=armed/blast at=-1.504538,0.000000,1.996589 r=2.500000 shape=area
+@50 damage 00000000-0000-0000-0000-00000000000a op=- physical=55 skill=delay-mine-lay at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
+@50 damage 00000000-0000-0000-0000-00000000000b op=- physical=55 skill=delay-mine-lay at=-3.009075,0.000000,3.993178 ignoreinv=false ignorearmor=false
+>>>>>>> se-re-throwables

@@ -1,13 +1,13 @@
 ## pose yaw=0 pitch=0
-@0 sound - op=use/snd_drink sound=entity.generic.drink cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
-@0 sound - op=use/snd_chime sound=block.amethyst_block.chime cat=master vol=0.7 pitch=1.3 at=0.000000,0.000000,0.000000
-@0 particle - op=use/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8309024391654983124
+@0 sound - op=use/drink sound=entity.generic.drink cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
+@0 sound - op=use/chime sound=block.amethyst_block.chime cat=master vol=0.7 pitch=1.3 at=0.000000,0.000000,0.000000
+@0 particle - op=use/glow type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8309024391654983124
 @0 item heal-potion op=- consume=1
 @0 effect 00000000-0000-0000-0000-000000000001 op=- resource=health amount=40
 ## pose yaw=37 pitch=-20
-@0 sound - op=use/snd_drink sound=entity.generic.drink cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
-@0 sound - op=use/snd_chime sound=block.amethyst_block.chime cat=master vol=0.7 pitch=1.3 at=0.000000,0.000000,0.000000
-@0 particle - op=use/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8309024391654983124
+@0 sound - op=use/drink sound=entity.generic.drink cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
+@0 sound - op=use/chime sound=block.amethyst_block.chime cat=master vol=0.7 pitch=1.3 at=0.000000,0.000000,0.000000
+@0 particle - op=use/glow type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8309024391654983124
 @0 item heal-potion op=- consume=1
 @0 effect 00000000-0000-0000-0000-000000000001 op=- resource=health amount=40
 ## gameplay-static
