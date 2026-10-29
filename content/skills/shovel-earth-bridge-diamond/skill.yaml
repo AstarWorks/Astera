@@ -1,11 +1,15 @@
-# astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
 apiVersion: astera/v3
 kind: Skill
 id: shovel-earth-bridge-diamond
 item: diamond-shovel
-meta: {name: {ja: "ダイヤの土橋", en: "Diamond Earth Bridge"}, description: {ja: "目の前に固めた粘土の橋を架ける。", en: "Lays a packed-clay bridge ahead of you."}, cooldown_ticks: 160, resource_cost: 0, tags: [tool, cover]}
+meta:
+  name: {ja: "ダイヤの土橋", en: "Diamond Earth Bridge"}
+  description: {ja: "目の前に固めた粘土の橋を架ける。", en: "Lays a packed-clay bridge ahead of you."}
+  cooldown_ticks: 160
+  resource_cost: 0
+  tags: [tool, cover]
 anchors:
-  - {id: spark,  anchor: caster, offset: {forward: 2.0}, mode: follow}      # was pt_caster_0_0_2 (feet, yaw-only)
+  - {id: spark, anchor: caster, offset: {forward: 2.0}, mode: follow}
 machine:
   start: cast
   states:
@@ -13,9 +17,5 @@ machine:
       for: 1
       then: end
       do:
-        - {id: bridge, op: place_shape, at: 0, anchor: caster, shape: {bridge: {length: 9, width: 3}}, block: "astera:packed_clay", consume: none, ripple: 29, revert: 200, outside_arena: false}
-        - {id: snd, op: sound, sound: block.gravel.break, anchor: caster, volume: 1.0, pitch: 0.6}
-        - {id: snd_2, op: sound, sound: block.rooted_dirt.break, anchor: caster, volume: 0.9, pitch: 0.8}
-        - {id: snd_3, op: sound, sound: item.shovel.flatten, anchor: caster, volume: 0.8, pitch: 0.9}
-        - {id: fx, op: particle_def, def: tool-shovel-diamond, anchor: spark}
+        - {id: earth_bridge, use: shovel-earth-bridge, with: {length: 9, width: 3, tier: 3, gravel_pitch: 0.6, dirt_vol: 0.9, dirt_pitch: 0.8}, frames: {spot: spark}}
     end: {final: true}

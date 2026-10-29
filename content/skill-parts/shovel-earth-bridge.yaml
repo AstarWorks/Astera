@@ -1,0 +1,33 @@
+# Lays a packed-clay bridge ahead of the caster; the tiers differ in bridge size.
+# Template for shovel-earth-bridge-{stone,iron,diamond}: the tier skills own item, cooldown, names and the effect anchor; this part owns the one
+# world op plus its sound / particle rows. Tiers differ only by the `with:` params. `sound:` / `def:` are literal ids,
+# so the per-tier ids are rows gated on `tier`.
+apiVersion: astera/v3
+kind: Part
+id: shovel-earth-bridge
+params:
+  length:       {type: number, required: true}
+  width:        {type: number, required: true}
+  tier:         {type: number, required: true}   # 1 stone, 2 iron, 3 diamond: gates the per-tier rows
+  gravel_pitch: {type: number, required: true}
+  dirt_vol:     {type: number, default: 0.8}     # tier 2+ rooted-dirt layer
+  dirt_pitch:   {type: number, default: 0.9}
+  ripple:       {type: number, default: 29}
+  revert:       {type: number, default: 200}
+frames_in: {spot: anchor}
+emits: [end]
+machine:
+  start: cast
+  states:
+    cast:
+      for: 1
+      then: end
+      do:
+        - {id: bridge, op: place_shape, anchor: caster, shape: {bridge: {length: "${length}", width: "${width}"}}, block: "astera:packed_clay", consume: none, ripple: "${ripple}", revert: "${revert}", outside_arena: false}
+        - {id: snd, op: sound, sound: block.gravel.break, anchor: caster, volume: 1.0, pitch: "${gravel_pitch}"}
+        - {id: snd_2, op: sound, sound: block.rooted_dirt.break, anchor: caster, volume: "${dirt_vol}", pitch: "${dirt_pitch}", when: "= tier >= 2.0"}
+        - {id: snd_3, op: sound, sound: item.shovel.flatten, anchor: caster, volume: 0.8, pitch: 0.9, when: "= tier == 3.0"}
+        - {id: fx_1, op: particle_def, def: tool-shovel-stone, anchor: spot, when: "= tier == 1.0"}
+        - {id: fx_2, op: particle_def, def: tool-shovel-iron, anchor: spot, when: "= tier == 2.0"}
+        - {id: fx_3, op: particle_def, def: tool-shovel-diamond, anchor: spot, when: "= tier == 3.0"}
+    end: {final: true}

@@ -1,0 +1,33 @@
+# Cuts a line of wooden blocks ahead; the tiers differ in reach.
+# Template for axe-fell-{stone,iron,diamond}: the tier skills own item, cooldown, names and the effect anchor; this part owns the one
+# world op plus its sound / particle rows. Tiers differ only by the `with:` params. `sound:` / `def:` are literal ids,
+# so the per-tier ids are rows gated on `tier`.
+apiVersion: astera/v3
+kind: Part
+id: axe-fell
+params:
+  length:       {type: number, required: true}
+  tier:         {type: number, required: true}   # 1 stone, 2 iron, 3 diamond: gates the per-tier rows
+  strip_pitch:  {type: number, required: true}
+  break_vol:    {type: number, required: true}
+  break_pitch:  {type: number, required: true}
+  ripple:       {type: number, default: 29}
+  revert:       {type: number, default: 200}
+frames_in: {spot: anchor}
+emits: [end]
+machine:
+  start: cast
+  states:
+    cast:
+      for: 1
+      then: end
+      do:
+        - {id: fell, op: break_area, anchor: caster, shape: {line: {length: "${length}", width: 1, height: 3}}, tool: axe, block_damage: 100, ripple: "${ripple}", revert: "${revert}", outside_arena: false}
+        - {id: snd, op: sound, sound: item.axe.strip, anchor: caster, volume: 1.0, pitch: "${strip_pitch}"}
+        - {id: snd_2, op: sound, sound: block.wood.break, anchor: caster, volume: "${break_vol}", pitch: "${break_pitch}"}
+        - {id: snd_3, op: sound, sound: entity.player.attack.strong, anchor: caster, volume: 0.6, pitch: 0.9, when: "= tier == 2.0"}
+        - {id: snd_4, op: sound, sound: entity.player.attack.crit, anchor: caster, volume: 0.8, pitch: 0.9, when: "= tier == 3.0"}
+        - {id: spark_1, op: particle_def, def: tool-axe-stone, anchor: spot, when: "= tier == 1.0"}
+        - {id: spark_2, op: particle_def, def: tool-axe-iron, anchor: spot, when: "= tier == 2.0"}
+        - {id: spark_3, op: particle_def, def: tool-axe-diamond, anchor: spot, when: "= tier == 3.0"}
+    end: {final: true}
