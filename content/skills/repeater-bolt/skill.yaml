@@ -1,22 +1,31 @@
-# v3 hand port of the v2 skill (ADR-0303 rev4.2). v2 params launch_speed 3.0, max_lifetime_ticks 35, dmg_physical 7.5.
+# repeater-bolt: rapid light bolts. The state lasts exactly the flight (life) and also ends on the body end.
 apiVersion: astera/v3
 kind: Skill
 id: repeater-bolt
 item: repeater-crossbow
-meta: {name: {ja: "連射ボルト", en: "Repeater Bolt"}, description: {ja: "軽いボルトを連続で撃つ。", en: "Rapid light bolts."}, cooldown_ticks: 6, resource_cost: 2, tags: [ranged, physical]}
+meta:
+  name: {ja: "連射ボルト", en: "Repeater Bolt"}
+  description: {ja: "軽いボルトを連続で撃つ。", en: "Rapid light bolts."}
+  cooldown_ticks: 6
+  resource_cost: 2
+  tags: [ranged, physical]
+params:
+  dmg:   {type: number, default: 7.5}
+  speed: {type: number, default: 3.0}
+  life:  {type: ticks, default: 35}
 anchors:
-  - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}            # was pt_aim_0_0_0p5
-  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot} # was pt_caster_0_m0p25_0p9
+  - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
   - {id: foe,    anchor: victim.root, mode: follow}
-  - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
+  - {id: heart,  anchor: victim.center, mode: follow}
 machine:
   start: fire
   states:
     fire:
-      for: 35                       # = max_lifetime_ticks; covers the whole flight
+      for: 35
       then: end
       on:
-        - {event: bolt.end, to: end}      # v2: the cast ends when the projectile body ends
+        - {event: bolt.end, to: end}
       enter:
         - {id: snd, op: sound, sound: "item.crossbow.shoot", anchor: caster, volume: 0.6, pitch: 1.3}
         - {id: fl0, op: particle_def, def: gun-muzzle-flash, anchor: muzzle}
@@ -24,20 +33,21 @@ machine:
         - id: bolt
           op: projectile
           origin: start
-          velocity: "= look(caster) * 3.0"
-          for: 35
+          velocity: "= look(caster) * ${speed}"
+          for: "${life}"
           radius: 0.5
           hit: {targets: enemies, once: true, attach: false}
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, damage: {physical: 7.5}}
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg}"}}
               - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: foe, volume: 0.6, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
               - {id: fx_blk0, op: particle_def, def: hit-spark, anchor: contact}
-        # trail: one call per `spacing` blocks of bolt travel
-        - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], extra: 0, every: 1, until: bolt.end}
-        - {id: trail1, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0, 0, 0], extra: 0, color: "#aa9678", size: 0.8, every: 1, until: bolt.end}
+        # the visible round, riding the body
+        - {id: slug, op: display, kind: item, item: "minecraft:arrow", context: fixed, anchor: bolt, scale: [0.6, 0.6, 0.6], at: 0, until: bolt.end}
+        - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], at: 0, every: 1, until: bolt.end}
+        - {id: trail1, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, color: "#aa9678", size: 0.8, at: 0, every: 1, until: bolt.end}
     end: {final: true}

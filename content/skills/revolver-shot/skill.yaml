@@ -1,18 +1,27 @@
-# v3 hand port of the v2 skill (ADR-0303 rev4.2). v2 params launch_speed 3.6, max_lifetime_ticks 40, dmg_physical 30.
+# revolver-shot: slow heavy bullet. The state lasts exactly the flight (life) and also ends on the body end.
 apiVersion: astera/v3
 kind: Skill
 id: revolver-shot
 item: revolver
-meta: {name: {ja: "リボルバー射撃", en: "Revolver Shot"}, description: {ja: "一発一発が重い銃撃。", en: "Slow, heavy shots."}, cooldown_ticks: 16, resource_cost: 6, tags: [ranged, gun, physical]}
+meta:
+  name: {ja: "リボルバー射撃", en: "Revolver Shot"}
+  description: {ja: "一発一発が重い銃撃。", en: "Slow, heavy shots."}
+  cooldown_ticks: 16
+  resource_cost: 6
+  tags: [ranged, gun, physical]
+params:
+  dmg:   {type: number, default: 30}
+  speed: {type: number, default: 3.6}
+  life:  {type: ticks, default: 40}
 anchors:
-  - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}            # was pt_aim_0_0_0p5
-  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot} # was pt_caster_0_m0p25_0p9 (feet, yaw-only)
-  - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}   # was pt_enemy_0_1p2_0 (victim feet, yaw-only)
+  - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
+  - {id: heart,  anchor: victim.center, mode: follow}
 machine:
   start: fire
   states:
     fire:
-      for: 40                       # = max_lifetime_ticks; covers the whole flight
+      for: 40
       then: end
       on:
         - {event: bolt.end, to: end}
@@ -23,20 +32,21 @@ machine:
         - id: bolt
           op: projectile
           origin: start
-          velocity: "= look(caster) * 3.6"
-          for: 40
+          velocity: "= look(caster) * ${speed}"
+          for: "${life}"
           radius: 0.5
           hit: {targets: enemies, once: true, attach: false}
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, damage: {physical: 30}}
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg}"}}
               - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact.point, volume: 0.8, pitch: 1.0}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
               - {id: fx_blk0, op: particle_def, def: hit-spark, anchor: contact}
-        # trail: one call per `spacing` blocks of bolt travel
-        - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], extra: 0, every: 1, until: bolt.end}
-        - {id: trail1, op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.02, 0.02, 0.02], extra: 0, every: 1, until: bolt.end}
+        # the visible round, riding the body
+        - {id: slug, op: display, kind: item, item: "minecraft:gold_nugget", context: fixed, anchor: bolt, scale: [0.6, 0.6, 0.6], at: 0, until: bolt.end}
+        - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], at: 0, every: 1, until: bolt.end}
+        - {id: trail1, op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.02, 0.02, 0.02], at: 0, every: 1, until: bolt.end}
     end: {final: true}
