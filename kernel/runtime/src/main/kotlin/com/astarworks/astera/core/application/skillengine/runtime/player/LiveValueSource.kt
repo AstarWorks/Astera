@@ -16,6 +16,8 @@ public class RowScope(
     public val indices: List<Int> = emptyList(),
     /** The cast's live instances (frame / projectile ops and their part points) at the row's tick, for expressions that name them; null for a read outside a row. */
     public val frames: com.astarworks.astera.core.domain.skillengine.expr.FrameLookup? = null,
+    /** The names the skill declares for its anchors, frame / projectile instances and their model points (what the compiler declares): an expression may name them. */
+    public val frameNames: Set<String> = emptySet(),
 ) {
     public companion object {
         public fun cast(castSeed: Long): RowScope = RowScope(castSeed, castSeed)

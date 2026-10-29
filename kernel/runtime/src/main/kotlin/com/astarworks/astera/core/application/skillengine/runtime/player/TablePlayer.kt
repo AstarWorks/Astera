@@ -1774,15 +1774,24 @@ public class TablePlayer(
             return PoseV(Vector3d(p.x * w.scale.x, p.y * w.scale.y, p.z * w.scale.z).rotate(w.rot).add(w.pos), w.rot, w.scale)
         }
 
+        /** A document `anchors:` entry named as a frame (`pos(palm)`): its pose now. A model point of an anchor does not exist. */
+        private fun documentFrame(name: String, point: String?): Frame? {
+            val decl = run.cursor.skill.def.anchors.firstOrNull { it.id == name } ?: return null
+            if (point != null) return null
+            val w = documentPose(run, decl, binding, RowScope.cast(run.request.seed))
+            return Frame(Vec3(w.pos.x, w.pos.y, w.pos.z), Quaternion(w.rot.x, w.rot.y, w.rot.z, w.rot.w))
+        }
+
         override fun worldPose(frame: String, point: String?): Frame? {
-            val rec = find(frame) ?: return null
+            val rec = find(frame) ?: return documentFrame(frame, point)
             val w = at(rec, point, rec.localAt(lastTick), lastTick) ?: return null
             return Frame(Vec3(w.pos.x, w.pos.y, w.pos.z), Quaternion(w.rot.x, w.rot.y, w.rot.z, w.rot.w))
         }
 
         override fun velocity(frame: String, point: String?): Vec3 {
             val zero = Vec3(0.0, 0.0, 0.0)
-            val rec = find(frame) ?: return zero
+            val rec = find(frame)
+                ?: if (run.cursor.skill.def.anchors.any { it.id == frame }) throw IllegalArgumentException("speed / velocity of the document anchor '$frame' is not served (name a frame op on it)") else return zero
             val now = at(rec, point, rec.localAt(lastTick), lastTick) ?: return zero
             val before = at(rec, point, rec.prevLocal(lastTick), lastTick - 1) ?: return zero
             return Vec3(now.pos.x - before.pos.x, now.pos.y - before.pos.y, now.pos.z - before.pos.z)
@@ -1790,9 +1799,9 @@ public class TablePlayer(
     }
 
     private fun rowScope(run: Run, row: Row, binding: EventBinding? = null): RowScope {
-        val last = row.instance.path.lastOrNull() ?: return RowScope(run.request.seed, run.request.seed, emptyList(), framesOf(run, row, binding))
+        val last = row.instance.path.lastOrNull() ?: return RowScope(run.request.seed, run.request.seed, emptyList(), framesOf(run, row, binding), run.frameNames)
         val indices = row.instance.path.mapNotNull { it.index }.asReversed()
-        return RowScope(V3Bindings.seed(run.request.seed, last.op, last.index ?: 0), run.request.seed, indices, framesOf(run, row, binding))
+        return RowScope(V3Bindings.seed(run.request.seed, last.op, last.index ?: 0), run.request.seed, indices, framesOf(run, row, binding), run.frameNames)
     }
 
     private fun rowStream(run: Run, row: Row, ctx: RowCtx): SeededStream =
@@ -1923,6 +1932,12 @@ public class TablePlayer(
         val reels = LinkedHashMap<InstanceId, ReelRec>()
         val rigs = LinkedHashMap<InstanceId, RigRec>()
         val recs = LinkedHashMap<InstanceId, Rec>()
+
+        /** The names an expression of this skill may use for its own anchors and instances: the compiler's declaration, rebuilt from the compiled definition. */
+        val frameNames: Set<String> by lazy {
+            val def = cursor.skill.def
+            def.anchors.map { it.id }.toSet() + def.framesIn.keys + com.astarworks.astera.core.application.skillengine.load.grammar.ExprFrames.ofMachine(def.machine)
+        }
 
         /** Document anchors with `mode: snapshot`, sampled at their first read. */
         val snapshots = HashMap<String, PoseV>()

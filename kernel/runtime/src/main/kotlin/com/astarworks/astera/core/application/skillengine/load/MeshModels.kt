@@ -21,9 +21,12 @@ public object MeshModels {
     public const val MAIN_HAND: String = "main_hand"
     private const val NAMESPACE: String = "astera"
 
-    public fun resolve(item: String, part: String?, tables: Map<String, ItemFrames>): MeshModel {
-        if (item == MAIN_HAND) return MeshModel.HeldItem
-        if (item.startsWith("minecraft:")) return MeshModel.Vanilla(item.removePrefix("minecraft:"), part)
+    public fun resolve(rawItem: String, part: String?, tables: Map<String, ItemFrames>): MeshModel {
+        if (rawItem == MAIN_HAND) return MeshModel.HeldItem
+        if (rawItem.startsWith("minecraft:")) return MeshModel.Vanilla(rawItem.removePrefix("minecraft:"), part)
+        // a pack item may be spelled with its namespace (`astera:couture-rapier-blade-a`); the namespace is added exactly once below
+        val item = rawItem.removePrefix("$NAMESPACE:")
+        require(':' !in item) { "mesh item '$rawItem': only the minecraft: and $NAMESPACE: namespaces exist" }
         val declared = tables[item]?.partFor(part)?.model
         if (declared != null) return MeshModel.Pack(if (':' in declared) declared else "$NAMESPACE:$declared")
         return MeshModel.Pack(if (part == null) "$NAMESPACE:$item" else "$NAMESPACE:$item-${part.replace('_', '-')}")

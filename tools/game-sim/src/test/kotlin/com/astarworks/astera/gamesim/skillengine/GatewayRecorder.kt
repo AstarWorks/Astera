@@ -26,6 +26,13 @@ import com.astarworks.astera.core.application.skillengine.runtime.port.DisplayVi
 import com.astarworks.astera.core.application.skillengine.runtime.port.ParticleBurst
 import com.astarworks.astera.core.application.skillengine.runtime.port.SkillDamage
 import com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInfo
+import com.astarworks.astera.core.application.skillengine.runtime.player.CellExprs
+import com.astarworks.astera.core.application.skillengine.runtime.player.EntityQueryExprHost
+import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
+import com.astarworks.astera.core.domain.skillengine.expr.ExprHost
+import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
+import com.astarworks.astera.core.domain.skillengine.expr.FrameLookup
+import com.astarworks.astera.core.domain.geometry.math.Frame as SimFrame
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -88,6 +95,10 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     private fun add(verb: String, instance: String, payload: String) {
         log += RecordedCall(tick, verb, instance, payload)
     }
+
+    private val cells = CellExprs()
+
+    private val PACK_KEY = Regex("[a-z0-9_.-]+:[a-z0-9_./-]+")
 
     private fun spawned(cast: CastRef, kind: String): VisualHandle {
         seen("visual.spawn.$kind", cast)
@@ -166,7 +177,13 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         }
 
     val visual: ISkillVisualGateway = object : ISkillVisualGateway {
-        override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView, glow: String?) = spawned(cast, "item")
+        override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView, glow: String?): VisualHandle {
+            // the Paper gateway refuses a model id NamespacedKey.fromString rejects (e.g. a doubled `astera:astera:`)
+            (com.astarworks.astera.core.application.skillengine.load.MeshModels.resolve(item, part, emptyMap()) as? com.astarworks.astera.core.application.skillengine.load.MeshModel.Pack)?.let {
+                check(PACK_KEY.matches(it.key)) { "invalid item model '${it.key}' (mesh item '$item' part '$part')" }
+            }
+            return spawned(cast, "item")
+        }
 
         override fun spawnSkinBone(cast: CastRef, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) = spawned(cast, "skin_bone")
 
@@ -433,9 +450,50 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             }
         }
 
+        /** The Paper CEL environment with the sim's caster standing at [casterPosition]: the same [CellExprs] (compile env + served host functions) Paper uses. */
+        private fun cell(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): ExprValue {
+            val yaw = casterYawDeg
+            val pos = Vec3(casterPosition.x, casterPosition.y, casterPosition.z)
+            val casterFrame = SimFrame.fromYawPitch(pos, yaw, 0.0)
+            val inst = scope.frames
+            val frames = object : FrameLookup {
+                override fun worldPose(frame: String, point: String?): SimFrame? = when {
+                    // as PaperLiveValueSource.frames: `contact` exists only under a contact-carrying event
+                    frame == "contact" -> binding?.contact?.let { c ->
+                        com.astarworks.astera.core.domain.skillengine.frame.ContactBasis.frame(
+                            Vec3(c.point.x, c.point.y, c.point.z), Vec3(c.normal.x, c.normal.y, c.normal.z), casterFrame.forward(),
+                        )
+                    }
+                    frame == "caster" -> casterFrame
+                    else -> inst?.worldPose(frame, point)
+                }
+                override fun velocity(frame: String, point: String?) = if (frame == "caster") Vec3(0.0, 0.0, 0.0) else inst?.velocity(frame, point) ?: Vec3(0.0, 0.0, 0.0)
+            }
+            val world = EntityQueryExprHost(query, CastRef(cast.value, this@GatewayRecorder.caster, castWorld, castItem))
+            val host = object : ExprHost {
+                override fun aimPoint(caster: ExprValue.Ref, range: Double): Vec3 {
+                    val d = SimFrame.fromYawPitch(pos, yaw, 0.0).forward()
+                    return Vec3(pos.x + d.x * range, pos.y + d.y * range, pos.z + d.z * range)
+                }
+                override fun lookDirection(caster: ExprValue.Ref): Vec3 = SimFrame.fromYawPitch(pos, yaw, 0.0).forward()
+                override fun bladeLen(frame: ExprValue.Ref): Double = error("blade_len is not served")
+                override fun nearestEnemyDist(from: Vec3): Double = world.nearestEnemyDist(from)
+                override fun enemyInCone(from: Vec3, dir: Vec3, range: Double, halfAngleDeg: Double): Boolean = world.enemyInCone(from, dir, range, halfAngleDeg)
+            }
+            val vars = V3Bindings.values(null, castTick = tick, eventI = binding?.index ?: 0)
+            return cells.eval(name, scope, vars, frames, host)
+        }
+
         override fun vec(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Vector3d {
             requireResolvable(name, "a vector")
-            // a direction cell (`caster.forward`) answers the caster's facing like Paper; every other cell answers the caster position
+            if (CellExprs.sourceOf(name) != null) {
+                return when (val v = cell(cast, name, binding, scope)) {
+                    is ExprValue.Vec3 -> Vector3d(v.value.x, v.value.y, v.value.z)
+                    is ExprValue.Num -> Vector3d(v.value, 0.0, 0.0)
+                    else -> throw IllegalArgumentException("live cell '$name' is not a vector")
+                }
+            }
+            // a direction cell (`caster.forward`) answers the caster's facing like Paper; every other field answers the caster position
             if (name.removePrefix("anchor:") == "caster.forward") {
                 val yaw = Math.toRadians(casterYawDeg)
                 return Vector3d(-Math.sin(yaw), 0.0, Math.cos(yaw))
@@ -445,26 +503,22 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun rot(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Quaterniond {
             requireResolvable(name, "a rotation")
+            if (CellExprs.sourceOf(name) != null) {
+                val v = cell(cast, name, binding, scope) as? ExprValue.Quat ?: throw IllegalArgumentException("live cell '$name' is not a rotation")
+                return Quaterniond(v.value.x, v.value.y, v.value.z, v.value.w)
+            }
             return Quaterniond()
         }
 
         override fun num(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Double {
             reads += name
             liveNums[name]?.let { return it }
-            // a constant `= 3 / 4` cell evaluates like Paper's CEL (a cell that needs the cast's variables keeps the stand-in 0)
-            val source = when {
-                name.startsWith("= ") -> name.removePrefix("= ")
-                name.startsWith("expr:") -> name.removePrefix("expr:")
-                else -> return 0.0
+            if (CellExprs.sourceOf(name) == null) return 0.0
+            return when (val v = cell(cast, name, binding, scope)) {
+                is ExprValue.Num -> v.value
+                is ExprValue.Bool -> if (v.value) 1.0 else 0.0
+                else -> throw IllegalArgumentException("live cell '$name' is not a number")
             }
-            val compiled = (com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler().compile(source, com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec(), null) as? com.astarworks.astera.core.domain.Result.Success)?.value ?: return 0.0
-            val none = object : com.astarworks.astera.core.domain.skillengine.expr.FrameLookup {
-                override fun worldPose(frame: String, point: String?): com.astarworks.astera.core.domain.geometry.math.Frame? = null
-                override fun velocity(frame: String, point: String?) = com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 0.0)
-            }
-            return try {
-                (compiled.eval(com.astarworks.astera.core.domain.skillengine.expr.ExprEnv(emptyMap(), none)) as? com.astarworks.astera.core.domain.skillengine.expr.ExprValue.Num)?.value ?: 0.0
-            } catch (e: RuntimeException) { 0.0 }
         }
 
         override fun targets(cast: CastHandle, rule: TargetRule, binding: EventBinding?): TargetSet =

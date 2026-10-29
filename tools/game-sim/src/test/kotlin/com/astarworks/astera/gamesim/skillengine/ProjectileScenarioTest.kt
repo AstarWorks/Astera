@@ -349,8 +349,8 @@ class ProjectileScenarioTest : SkillEngineScenario() {
                 "expire: [{id: x, op: sound, sound: \"astera:onexpire\", anchor: caster}]}}",
         )
         val rec = GatewayRecorder()
-        // the stand-in muzzle is (0, 1, 0) and the body flies +y one block per tick; the victim stands 2.5 blocks up its line
-        rec.victims = listOf(victimAt(Vec3(0.0, 2.5, 0.0)))
+        // the muzzle is the caster at (0, 1, 0) and `look(caster)` is +z (yaw 0, evaluated as Paper does): the body flies +z one block per tick; the victim stands 2.5 blocks down its line
+        rec.victims = listOf(victimAt(Vec3(0.0, 1.0, 2.5)))
         val calls = play(s, seed = 1L, events = emptyList(), ticks = 30, rec = rec)
         val hit = sounds(calls, "onhit")
         assertEquals(1, hit.size)
