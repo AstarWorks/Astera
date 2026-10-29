@@ -46,7 +46,7 @@ machine:
           for: "${fuse_ticks}"
           gravity: 0.04
           radius: 0.5
-          hit: {targets: enemies, once: true, attach: true, attach_to: victim.root}
+          hit: {targets: enemies, once: true, attach: {for: "${fuse_ticks}"}}
           block: {mode: stick, fused: true}
           on:
             hit:

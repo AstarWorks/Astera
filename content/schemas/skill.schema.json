@@ -9070,27 +9070,31 @@
                                 "attach": {
                                     "oneOf": [
                                         {
-                                            "type": "boolean"
+                                            "const": false
                                         },
                                         {
-                                            "type": "string",
-                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "required": [
+                                                "for"
+                                            ],
+                                            "properties": {
+                                                "for": {
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
+                                                    "description": "ticks the stuck body rides the victim (a static tick count); the victim dying ends it early"
+                                                }
+                                            }
                                         }
                                     ],
-                                    "description": "true: the first victim stops the body and it rides `attach_to` on that victim for `block.for` ticks (events stick / unstick); false: it flies on or ends"
-                                },
-                                "attach_to": {
-                                    "anyOf": [
-                                        {
-                                            "type": "string",
-                                            "pattern": "^\\S+$"
-                                        },
-                                        {
-                                            "type": "null"
-                                        }
-                                    ],
-                                    "description": "the victim point the body mounts on (`victim` = body centre, `victim.feet`, ...); required with attach: true, rejected otherwise",
-                                    "default": null
+                                    "description": "false: the body flies on or ends; {for: N}: the first victim stops the body and it rides that victim's feet basis (pose kept from the contact) for N ticks (events stick / unstick)"
                                 },
                                 "reflect": {
                                     "anyOf": [

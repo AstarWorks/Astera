@@ -95,7 +95,7 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
         live.forEach { r ->
             val rot = (r.action as Action.Key).leftRotation as Val.Live
             // item 15e: the live name carries the object axis; v3 (MotionLaws align `to`) names a direction `<anchor>.<axis>` and the kept-up direction (default world.up), see LawSegmenter live name
-            assertThat(rot.name).isEqualTo("align:forward>muzzle.forward^world.up")
+            assertThat(rot.name).isEqualTo("align:0.0,0.0,1.0>muzzle.forward^world.up")
         }
     }
 
@@ -191,13 +191,13 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
         val names = rows.sortedBy { it.tick }.map { ((it.action as Action.Key).leftRotation as Val.Live).name }
         assertThat(rows.map { it.tick }.sorted()).containsExactly(0, 1, 2, 3, 4, 5)
         assertThat(names.take(5)).containsExactly(
-            "align:forward>muzzle.forward^world.up@0.16666666666666666",
-            "align:forward>muzzle.forward^world.up@0.3333333333333333",
-            "align:forward>muzzle.forward^world.up@0.5",
-            "align:forward>muzzle.forward^world.up@0.6666666666666666",
-            "align:forward>muzzle.forward^world.up@0.8333333333333334",
+            "align:0.0,0.0,1.0>muzzle.forward^world.up@0.16666666666666666",
+            "align:0.0,0.0,1.0>muzzle.forward^world.up@0.3333333333333333",
+            "align:0.0,0.0,1.0>muzzle.forward^world.up@0.5",
+            "align:0.0,0.0,1.0>muzzle.forward^world.up@0.6666666666666666",
+            "align:0.0,0.0,1.0>muzzle.forward^world.up@0.8333333333333334",
         )
-        assertThat(names.last()).isEqualTo("align:forward>muzzle.forward^world.up")
+        assertThat(names.last()).isEqualTo("align:0.0,0.0,1.0>muzzle.forward^world.up")
     }
 
     @Test

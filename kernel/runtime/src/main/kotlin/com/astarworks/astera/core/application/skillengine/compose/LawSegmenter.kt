@@ -219,7 +219,7 @@ public object LawSegmenter {
                             val target = fromTo(law.axis, v)
                             rot *= if (law.ease == null) target else Quaternion.slerp(Quaternion.IDENTITY, target, ease(law.ease, unit(t, law.at, law.forTicks)))
                         } else {
-                            val cell = "align:${law.axisName}>${law.target}^${law.up}"
+                            val cell = "align:${law.axis.x},${law.axis.y},${law.axis.z}>${law.target}^${law.up}"
                             // ease on an anchor align = a blend weight w = ease(tau / for) from the rotation held at the window start to the aligned one; 1 (and after the window) = the plain cell
                             val w = if (law.ease == null) 1.0 else ease(law.ease, unit(t, law.at, law.forTicks))
                             liveRot = if (law.ease != null && t < law.at + law.forTicks) "$cell@$w" else cell

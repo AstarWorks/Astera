@@ -224,9 +224,9 @@ anchors:
 - {id: pose, op: body, target: caster, anim: bastion-s1-body, speed: 1.0, for: 12}   # target 必須: caster / event.victim / attacker
 - id: harpoon
   op: projectile
-  hit: {targets: enemies, once: true, attach: true, attach_to: victim.feet}   # attach 必須 (既定なし)
-  block: {mode: stick, for: 20}   # attach: true は once: true と block.mode: stick が必要
-  on: {stick: [...], unstick: [...]}   # 命中で stick、block.for tick 後に unstick して end
+  hit: {targets: enemies, once: true, attach: {for: 20}}   # attach 必須 (false か {for: N})。true は load error
+  block: {mode: stick, for: 20}   # attach: {for: N} は once: true と block.mode: stick が必要 (block.for は壁に刺さる tick 数)
+  on: {stick: [...], unstick: [...]}   # 命中で stick、attach.for tick 後 (被弾者が先に消えれば即) に unstick して end
 ```
 
-`attach_to` は作者が名前を付ける (`victim` か `victim.<point>`)。組み込みの被弾者 body 点はない。
+刺さった姿勢は命中時点の被弾者 feet 基底 (feet 原点 + yaw) で保存され、被弾者の位置と yaw に追従する。

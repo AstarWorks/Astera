@@ -108,3 +108,16 @@ public object Rotations {
         return ValueDecoding.text(raw, ctx.file, path) as Value<Quaternion>
     }
 }
+
+/** `long`, `edge`, `face = long x edge` from an item part's axis table, else the local frame axes. */
+public class PartAxes(private val axes: Map<String, Vec3>) : AxisResolver {
+    override fun axis(name: String): Vec3? = when (name) {
+        "long", "edge" -> axes[name]?.normalize()
+        "face" -> {
+            val l = axes["long"]
+            val e = axes["edge"]
+            if (l != null && e != null) l.cross(e).normalize() else null
+        }
+        else -> LocalAxes.axis(name)
+    }
+}

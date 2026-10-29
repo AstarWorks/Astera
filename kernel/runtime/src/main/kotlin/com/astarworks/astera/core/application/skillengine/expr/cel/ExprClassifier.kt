@@ -102,7 +102,20 @@ public object ExprClassifier {
             Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "timing field '$field' must be a whole number of ticks, found $d (a tick is never rounded)"))
         } else Result.Success(d.toInt())
 
-    private fun staticExpr(lc: LowerContext, path: String, field: String, source: String): Result<Int, SkillDecodeError> {
+    private fun staticExpr(lc: LowerContext, path: String, field: String, source: String): Result<Int, SkillDecodeError> =
+        when (val r = staticValue(lc, path, field, source, "timing field")) {
+            is Result.Success -> finite(lc, path, field, r.value)
+            is Result.Failure -> r
+        }
+
+    /** A class-S number field (a load-time constant, not a tick count): a literal, or a `${param}` / `= expr` that folds at load. */
+    public fun staticNumber(lc: LowerContext, path: String, field: String, v: Value<Double>): Result<Double, SkillDecodeError> = when (v) {
+        is Value.Literal -> Result.Success(v.value)
+        is Value.ParamRef -> Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "field '$field': \${${v.name}} was not substituted by the part / skill call before lowering"))
+        is Value.Expr -> staticValue(lc, path, field, v.source, "field")
+    }
+
+    private fun staticValue(lc: LowerContext, path: String, field: String, source: String, what: String): Result<Double, SkillDecodeError> {
         val spec = V3Bindings.spec(lc.occurrence)
         val compiled = when (val c = lc.exprs.compile(source, spec, com.astarworks.astera.core.domain.skillengine.expr.ExprType.NUM)) {
             is Result.Success -> c.value
@@ -121,11 +134,11 @@ public object ExprClassifier {
         val r = try {
             compiled.eval(env)
         } catch (e: ExprEvalException) {
-            return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "timing field '$field': ${e.message}"))
+            return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "$what '$field': ${e.message}"))
         }
         val d = (r as? ExprValue.Num)?.value
-            ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "timing field '$field' is not a number"))
-        return finite(lc, path, field, d)
+            ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "$what '$field' is not a number"))
+        return Result.Success(d)
     }
 
     private object NoFrames : FrameLookup {

@@ -64,7 +64,7 @@ public sealed interface SpeedSpec {
 }
 
 /** `hit:` (3.6). `times` is required exactly when `once` is false. */
-public data class ProjectileHit(val targets: String, val once: Value<Boolean>, val times: Value<Double>?, val shape: ProjectileHitShape? = null, val attach: Boolean = false, val attachTo: String? = null, val reflect: Boolean = false)
+public data class ProjectileHit(val targets: String, val once: Value<Boolean>, val times: Value<Double>?, val shape: ProjectileHitShape? = null, val attach: Boolean = false, val attachFor: Value<Double>? = null, val reflect: Boolean = false)
 
 /**
  * R43 `hit.shape`: swept capsules `from -> to` (points of each frame, e.g. `root` / `tip`) of radius [radius] on the rider [frames] and/or, when the body has a
@@ -168,10 +168,22 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
     private val shapeFrames = Field.optional("frames", Types.list(Types.id), emptyList(), "rider `frame` ops anchored on this projectile; one swept capsule each; absent = the body's own `part` points")
     private val shapeFields = Fields.of("projectile-hit-shape", shapeRadius, shapeFrom, shapeTo, shapeFrames)
     private val hitShape = Field.optional("shape", Types.nullable(Types.nested(shapeFields)), null, "R43: capsules on rider frames instead of `radius`; exactly one of the two")
-    private val hitAttach = Field.required("attach", Types.bool, "true: the first victim stops the body and it rides `attach_to` on that victim for `block.for` ticks (events stick / unstick); false: it flies on or ends")
-    private val hitAttachTo = Field.optional("attach_to", Types.nullable(Types.id), null, "the victim point the body mounts on (`victim` = body centre, `victim.feet`, ...); required with attach: true, rejected otherwise")
+    private val attachFor = Field.required("for", Types.number, "ticks the stuck body rides the victim (a static tick count); the victim dying ends it early")
+    private val attachFields = Fields.of("projectile-hit-attach", attachFor)
+    /** `false` (the body flies on or ends) or `{for: N}` (it sticks to the first victim and rides the victim's basis for N ticks). `true` is refused: a stuck blade needs an end tick. */
+    private val attachType: FieldType<Value<Double>?> = object : FieldType<Value<Double>?> {
+        override val label = "false or {for: ticks}"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): Value<Double>? = when {
+            raw == false -> null
+            raw == true -> ctx.fail(path, "write attach: {for: <ticks>}; a stuck blade needs an end tick")
+            raw is Map<*, *> -> attachFields.read(raw, ctx, path)[attachFor]
+            else -> ctx.mismatch(path, label, raw)
+        }
+        override fun schema(): Map<String, Any?> = linkedMapOf("oneOf" to listOf(linkedMapOf("const" to false), attachFields.jsonSchema()))
+    }
+    private val hitAttach = Field.required("attach", attachType, "false: the body flies on or ends; {for: N}: the first victim stops the body and it rides that victim's feet basis (pose kept from the contact) for N ticks (events stick / unstick)")
     private val hitReflect = Field.optional("reflect", Types.nullable(Types.bool), null, "true: a victim does not end the flight, the body bounces off it like off a block (block.mode bounce, once: true, attach: false); absent = false")
-    private val hitFields = Fields.of("projectile-hit", hitTargets, hitOnce, hitTimes, hitShape, hitAttach, hitAttachTo, hitReflect)
+    private val hitFields = Fields.of("projectile-hit", hitTargets, hitOnce, hitTimes, hitShape, hitAttach, hitReflect)
 
     private val blockMode = Field.required("mode", Types.enumOf(*MODES), "despawn / stick / bounce / pass")
     private val blockFor = Field.optional("for", Types.nullable(Types.number), null, "ticks stuck; required for stick, rejected otherwise")
@@ -218,24 +230,19 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             if (shape != null && shape.frames.isEmpty() && values[partF] == null) ctx.fail("$path.hit.shape.frames", "needs at least one rider frame, or a `part:` on the projectile (the capsule then follows the body's own axis)")
             if (shape != null && values[radius] != null) ctx.fail("$path.radius", "radius and hit.shape are exclusive: the shape replaces the body sphere")
             if (shape == null && values[radius] == null) ctx.fail("$path.radius", "radius (body sphere) or hit.shape (capsules on rider frames) is required")
-            val attachV = h[hitAttach]
-            if (attachV !is Value.Literal) ctx.fail("$path.hit.attach", "attach must be a literal true / false")
-            val attach = (attachV as? Value.Literal)?.value == true
-            val attachTo = h[hitAttachTo]
-            if (attach && attachTo == null) ctx.fail("$path.hit", "hit.attach is true: hit.attach_to (the victim point to ride, e.g. victim.feet) is required")
-            if (!attach && attachTo != null) ctx.fail("$path.hit.attach_to", "hit.attach_to only with attach: true")
-            if (attachTo != null && attachTo.substringBefore('.') != "victim") ctx.fail("$path.hit.attach_to", "must name a point of the victim ('victim' or 'victim.<point>'), got '$attachTo'")
+            val attachFor = h[hitAttach]
+            val attach = attachFor != null
             if (attach && once is Value.Literal && !once.value) ctx.fail("$path.hit", "hit.attach needs once: true (the body sticks to the first victim)")
             val reflectV = h[hitReflect]
             if (reflectV != null && reflectV !is Value.Literal) ctx.fail("$path.hit.reflect", "reflect must be a literal true / false")
             val reflect = (reflectV as? Value.Literal)?.value == true
-            val hitSpec = ProjectileHit(h[hitTargets], once, times, shape, attach, attachTo, reflect)
+            val hitSpec = ProjectileHit(h[hitTargets], once, times, shape, attach, attachFor, reflect)
 
             val b = values[block]
             val mode = b[blockMode]
             val needStick = mode == "stick"
             val needBounce = mode == "bounce"
-            if (attach && !needStick) ctx.fail("$path.block", "hit.attach needs block.mode stick: block.for is how long the body stays on the victim")
+            if (attach && !needStick) ctx.fail("$path.block", "hit.attach needs block.mode stick (block.for is how long the body stays on a block it hits)")
             val fusedV = b[blockFused]
             if (fusedV != null && fusedV !is Value.Literal) ctx.fail("$path.block.fused", "fused must be a literal true")
             val fused = (fusedV as? Value.Literal)?.value == true
@@ -276,7 +283,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                 }
             }
 
-            val keys = values[motion]?.let { m -> LawSource(m, ctx.forLaws(com.astarworks.astera.core.application.skillengine.load.grammar.LocalAxes), "$path.motion").also { it.probe(timing?.times?.let { t -> ctx.resolveNumber(t) }?.toInt()?.coerceAtLeast(1) ?: 1) } }
+            val keys = values[motion]?.let { m -> LawSource(m, ctx.forLaws(com.astarworks.astera.core.application.skillengine.load.grammar.PartAxes(ctx.lawAxes(values[partF]))), "$path.motion").also { it.probe(timing?.times?.let { t -> ctx.resolveNumber(t) }?.toInt()?.coerceAtLeast(1) ?: 1) } }
             ProjectileOp(id, src, whenExpr, timing, values[origin], values[partF], values[velocity], values[speed], values[range], values[radius], hitSpec, keys, blockSpec, values[gravity], values[drag], raw)
         }
 
@@ -330,7 +337,13 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             if (pierce < 1) return bad("hit.times must be at least 1")
             val once = (op.hit.once as? Value.Literal)?.value ?: return bad("hit.once must be a literal true / false")
 
-            val window = ProjectileKinematics.endWindow(flight, stickTicks)
+            val attachTicks = op.hit.attachFor?.let { ticks("hit.attach.for", it).getOr { return Result.Failure(it) } } ?: 0
+            if (op.hit.attach && attachTicks < 1) return bad("hit.attach.for must be at least 1 tick")
+            if (op.hit.attach && op.block.fused && attachTicks != flight) return bad("a fused body rides its victim until its flight end ($flight ticks): write hit.attach.for as the same $flight ticks, or use block.for instead of fused")
+            // a body stuck in a block stays block.for ticks, one stuck in a victim attach.for ticks: the window covers the longer, `stick` / `unstick` the shorter
+            val stickMax = if (op.block.fused) 0 else maxOf(stickTicks, attachTicks)
+            val stickMin = if (op.hit.attach && !op.block.fused) minOf(stickTicks, attachTicks) else stickTicks
+            val window = ProjectileKinematics.endWindow(flight, stickMax)
             // a bounce or fused-stick body that no victim can end ends only at its flight end: one fixed tick, not a window (grenade fuse)
             val victimEnds = op.hit.targets != "blocks_only" && !op.hit.attach && !op.hit.reflect
             val fixedEnd = (op.block.mode == "bounce" || op.block.fused) && !victimEnds
@@ -392,7 +405,10 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             }
             look["hit.targets"] = Val.Known(op.hit.targets)
             look["hit.once"] = Val.Known(once)
-            op.hit.attachTo?.let { look["hit.attach_to"] = Val.Known(it) }
+            if (op.hit.attach) {
+                look["hit.attach_to"] = Val.Known("victim.feet")
+                look["hit.attach.for"] = Val.Known(attachTicks.toDouble())
+            }
             look["hit.times"] = Val.Known(pierce.toDouble())
             look["block.mode"] = Val.Known(op.block.mode)
             op.block.restitution?.let { look["block.restitution"] = num(it) }
@@ -467,9 +483,9 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             val now = lc.clockOffset
             val absolute = TickRange(now + window.min, now + window.max)
             val endAt = TickRange(now + endTicks.min, now + endTicks.max)
-            val firstStick = TickRange(now + window.min, now + window.max - stickTicks)
+            val firstStick = TickRange(now + window.min, now + window.max - stickMax)
             val flightEnd = TickRange(now + flight, now + flight)
-            val afterStick = TickRange(now + window.min + stickTicks, now + window.max)
+            val afterStick = TickRange(now + window.min + stickMin, now + window.max)
 
             for (e in ProjectileEvent.entries) {
                 if (!produces(op.block.mode, op.hit.targets, e)) continue
