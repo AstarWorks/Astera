@@ -19,7 +19,7 @@ anchors:
   - {id: heart,  anchor: victim.center, mode: follow}
 machine:
   start: fire
-  tail: 3
+  tail: 4
   states:
     fire:
       for: 41
@@ -41,13 +41,13 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: tracer_h, op: ribbon, from: muzzle, to: contact, thickness: 0.07, color: "#EEFFF0B0", for: 3, detach: true}
+              - {id: tracer_h, op: ribbon, from: muzzle, to: contact, thickness: 0.14, color: "#FFFFE070", for: 4, detach: true}
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg}"}}
               - {id: chip, op: break_area, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact}
               - {id: fx_hit, op: particle_def, def: gun-impact, anchor: heart}
             block:
-              - {id: tracer_b, op: ribbon, from: muzzle, to: contact, thickness: 0.07, color: "#EEFFF0B0", for: 3, detach: true}
+              - {id: tracer_b, op: ribbon, from: muzzle, to: contact, thickness: 0.14, color: "#FFFFE070", for: 4, detach: true}
               - {id: chip_b, op: break_area, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.6, pitch: 1.6}
               - {id: fx_blk0, op: particle_def, def: gun-impact, anchor: contact}

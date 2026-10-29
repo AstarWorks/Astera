@@ -19,7 +19,7 @@ anchors:
   - {id: heart,  anchor: victim.center, mode: follow}
 machine:
   start: fire
-  tail: 3
+  tail: 4
   states:
     fire:
       for: 40
@@ -40,12 +40,12 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: tracer_h, op: ribbon, from: muzzle, to: contact, thickness: 0.06, color: "#EEFFF0B0", for: 3, detach: true}
+              - {id: tracer_h, op: ribbon, from: muzzle, to: contact, thickness: 0.12, color: "#FFFFE070", for: 4, detach: true}
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg}"}}
               - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact.point, volume: 0.8, pitch: 1.0, detach: true}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
             block:
-              - {id: tracer_b, op: ribbon, from: muzzle, to: contact, thickness: 0.06, color: "#EEFFF0B0", for: 3, detach: true}
+              - {id: tracer_b, op: ribbon, from: muzzle, to: contact, thickness: 0.12, color: "#FFFFE070", for: 4, detach: true}
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5, detach: true}
               - {id: fx_blk0, op: particle_def, def: hit-spark, anchor: contact, detach: true}
         # the visible round, riding the body
