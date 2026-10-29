@@ -9435,6 +9435,10 @@
                                 },
                                 {
                                     "const": "all"
+                                },
+                                {
+                                    "type": "string",
+                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                 }
                             ],
                             "description": "keep the nearest N victims (nearest first from the shape origin); `all` = unlimited",
@@ -9875,6 +9879,10 @@
                                                 },
                                                 {
                                                     "const": "all"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                                 }
                                             ],
                                             "description": "keep the nearest N to `around`; `all` = unlimited",
@@ -10257,6 +10265,10 @@
                                                 },
                                                 {
                                                     "const": "all"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                                 }
                                             ],
                                             "description": "keep the nearest N to `around`; `all` = unlimited",
@@ -10524,6 +10536,10 @@
                                                 },
                                                 {
                                                     "const": "all"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                                 }
                                             ],
                                             "description": "keep the nearest N to `around`; `all` = unlimited",
@@ -10797,6 +10813,10 @@
                                                 },
                                                 {
                                                     "const": "all"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                                 }
                                             ],
                                             "description": "keep the nearest N to `around`; `all` = unlimited",
@@ -11155,6 +11175,10 @@
                                                 },
                                                 {
                                                     "const": "all"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                                 }
                                             ],
                                             "description": "keep the nearest N to `around`; `all` = unlimited",
@@ -11431,6 +11455,10 @@
                                                 },
                                                 {
                                                     "const": "all"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                                 }
                                             ],
                                             "description": "keep the nearest N to `around`; `all` = unlimited",
@@ -11693,6 +11721,10 @@
                                                 },
                                                 {
                                                     "const": "all"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                                 }
                                             ],
                                             "description": "keep the nearest N to `around`; `all` = unlimited",
@@ -13660,6 +13692,10 @@
                                                 },
                                                 {
                                                     "const": "all"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                                 }
                                             ],
                                             "description": "keep the nearest N to `around`; `all` = unlimited",
@@ -13913,6 +13949,10 @@
                                                 },
                                                 {
                                                     "const": "all"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                                 }
                                             ],
                                             "description": "keep the nearest N to `around`; `all` = unlimited",
@@ -14178,6 +14218,10 @@
                                                 },
                                                 {
                                                     "const": "all"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                                 }
                                             ],
                                             "description": "keep the nearest N to `around`; `all` = unlimited",
@@ -14634,6 +14678,10 @@
                                                 },
                                                 {
                                                     "const": "all"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                                 }
                                             ],
                                             "description": "keep the nearest N to `around`; `all` = unlimited",
@@ -14886,6 +14934,10 @@
                                                 },
                                                 {
                                                     "const": "all"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                                 }
                                             ],
                                             "description": "keep the nearest N to `around`; `all` = unlimited",
@@ -15154,6 +15206,10 @@
                                                 },
                                                 {
                                                     "const": "all"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                                 }
                                             ],
                                             "description": "keep the nearest N to `around`; `all` = unlimited",
@@ -15407,6 +15463,10 @@
                                                 },
                                                 {
                                                     "const": "all"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                                 }
                                             ],
                                             "description": "keep the nearest N to `around`; `all` = unlimited",
@@ -15719,6 +15779,10 @@
                                                 },
                                                 {
                                                     "const": "all"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                                 }
                                             ],
                                             "description": "keep the nearest N to `around`; `all` = unlimited",
@@ -16055,6 +16119,10 @@
                                                 },
                                                 {
                                                     "const": "all"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                                 }
                                             ],
                                             "description": "keep the nearest N to `around`; `all` = unlimited",
