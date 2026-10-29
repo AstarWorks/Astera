@@ -32,5 +32,11 @@ g.absorbed @1..40 handler max=1 | sub=cast/bolt.absorbed
 g.block @1..40 handler max=1 | sub=cast/bolt.block
 g.end @1..40 handler max=1 | sub=cast/bolt.end
 g.hit @1..40 handler max=1 | sub=cast/bolt.hit
-g.hit @0 damage electric=18.000000 to=enemies@4.500000 | sub=cast/bolt.hit
+g.hit @0 damage electric=18.000000 | sub=cast/bolt.hit
 g.hit @0 status shock stacks=1.000000 for=20 when | sub=cast/bolt.hit
+g.hit @3 damage electric=cel(18.0%20*%20pow(0.7,%201.0)) | sub=cast/bolt.hit
+g.hit @3 status shock stacks=1.000000 for=16 | sub=cast/bolt.hit
+g.hit @6 damage electric=cel(18.0%20*%20pow(0.7,%202.0)) | sub=cast/bolt.hit
+g.hit @6 status shock stacks=1.000000 for=12 | sub=cast/bolt.hit
+g.hit @9 damage electric=cel(18.0%20*%20pow(0.7,%203.0)) | sub=cast/bolt.hit
+g.hit @9 status shock stacks=1.000000 for=8 | sub=cast/bolt.hit
