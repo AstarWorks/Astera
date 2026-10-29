@@ -181,7 +181,7 @@ public class PaperSkillGameplayGateway(
 
     override fun isPlayer(entity: UUID): Boolean = server.getPlayer(entity) != null
 
-    override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double) {
+    override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double, holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold>) {
         val id = CustomAnimationId(anim)
         // the skin rig and the pose clips animate players only: a `body target:` that is not an online player is reported, never dropped silently
         if (server.getPlayer(target) == null) {
@@ -189,7 +189,7 @@ public class PaperSkillGameplayGateway(
             return
         }
         val player = PlayerId(target)
-        if (bodyRegistry.find(id) != null) bodyRigs.play(player, id) else bodyPoses.playCustomAnimation(player, id, POSE_CLIP_TICKS)
+        if (bodyRegistry.find(id) != null) bodyRigs.play(player, id, holds = holds) else bodyPoses.playCustomAnimation(player, id, POSE_CLIP_TICKS)
     }
 
     override fun bodyClip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation? =

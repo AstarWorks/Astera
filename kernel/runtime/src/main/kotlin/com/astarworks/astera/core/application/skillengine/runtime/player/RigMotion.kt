@@ -97,6 +97,9 @@ internal class RigMotion(
     private val tilt = Quaternion.fromRotationVector(tilt)
     private val rest = Quaternion.fromRotationVector(rest)
     private val stops: List<Pair<Int, Int>>
+
+    /** The clock stand-stills as body-clip holds: the same windows [clock] applies, in unheld clock ticks. */
+    val holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold> get() = stops.map { (at, ticks) -> com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold(at, ticks) }
     private val restArm = RigBodyTrack.restArm(slim, off)
 
     init {

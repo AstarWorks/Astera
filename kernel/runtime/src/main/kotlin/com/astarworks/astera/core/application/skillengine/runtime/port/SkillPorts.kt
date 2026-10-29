@@ -253,7 +253,7 @@ public interface ISkillGameplayGateway {
     public fun stopSound(cast: CastRef, viewer: UUID, sound: String)
 
     /** `body` (R41): plays the clip [anim] on [target]'s body (skin rig, else a pose clip) at [speed]; [target] is the caster, or the victim / attacker of the event (`body target:`). */
-    public fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double)
+    public fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double, holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold>)
 
     /** True when [entity] is an online player (a body clip only plays on one; `react player:` is skipped for any other living entity). */
     public fun isPlayer(entity: UUID): Boolean
