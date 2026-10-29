@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.load
 
+import com.astarworks.astera.core.application.skillengine.part.PartParser
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.frame.FrameId
@@ -91,6 +92,7 @@ public object ItemFramesDecoder {
             throw DecodeAbort(SkillDecodeError.UnknownKey(source, "", it))
         }
         if (tree["kind"] != "ItemFrames") ValueDecoding.mismatch(source, "kind", "ItemFrames", tree["kind"])
+        if (tree["apiVersion"] != PartParser.API_VERSION) ValueDecoding.mismatch(source, "apiVersion", PartParser.API_VERSION, tree["apiVersion"])
         val item = tree["item"] as? String ?: throw DecodeAbort(SkillDecodeError.MissingField(source, "", "item"))
         val partsRaw = tree["parts"] as? Map<*, *> ?: throw DecodeAbort(SkillDecodeError.MissingField(source, "", "parts"))
         val parts = LinkedHashMap<String, ModelPart>()

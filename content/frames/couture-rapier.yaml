@@ -5,7 +5,7 @@
 # display.<display> block (identical in held / blade-a / blade-b / body models). Rxyz = JOML rotationXYZ(degrees).
 # +X/+Y/+Z are the Display entity's local axes (Y up, item facing -Z before the display roll).
 # Pieces reuse the held model's coordinates unchanged, so held == body + blade_a + blade_b (108 = 56 + 26 + 26 elements).
-apiVersion: astera/v2
+apiVersion: astera/v3
 kind: ItemFrames
 item: couture-rapier
 parts:

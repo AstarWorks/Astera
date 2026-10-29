@@ -8,7 +8,7 @@
 #   tip   = centre of tip_point at y=17.934 (8,17.934,8)
 #   long  = model +Y (root -> tip); edge = model +X, perpendicular to long in the blade plane
 #   length = pommel bottom y=-12.4696 to tip y=17.934
-apiVersion: astera/v2
+apiVersion: astera/v3
 kind: ItemFrames
 item: bastion-greatsword
 parts:
