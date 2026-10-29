@@ -69,6 +69,10 @@ ENV EULA=FALSE \
     ENABLE_RCON=true \
     RCON_PORT=25575
 
+# Docker copies this directory (including ownership) into a fresh named volume.
+RUN mkdir -p /data/plugins/Astera-Chat/preferences \
+ && chown 1000:1000 /data/plugins/Astera-Chat/preferences
+
 # Plugin jars: itzg copies /plugins -> /data/plugins on every start.
 COPY --from=builder /out/ /plugins/
 

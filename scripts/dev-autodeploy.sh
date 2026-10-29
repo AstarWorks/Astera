@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Host-local origin/main watcher. Runtime copy lives outside the detached checkout.
 #
-# Commands: up | down | status | run | once | mark-deployed <sha>
+# Commands: up | down | status | run | once | compose-dry <from> <to> | mark-deployed <sha>
 #   mark-deployed <sha>  Record a MANUAL deploy. Docker/compose changes are deployed automatically (stack step:
 #                        recreate with the remote overlay, then FORCE deploy); only postgres/redis/volume changes log
 #                        "manual deploy needed ... entire range held" and never advance last-sha. After deploying
@@ -14,6 +14,81 @@
 set -euo pipefail
 # Default dev VM (non-secret). Export ASTERA_DEV_HOST="" to deploy to the local daemon instead.
 export ASTERA_DEV_HOST="${ASTERA_DEV_HOST-astera@192.168.14.3}"
+# Compare only the data-bearing parts of our block-style Compose files. No Docker,
+# interpolation, env files or deployment state are needed, including in compose-dry.
+compose_safe() {
+  python3 - "$1" "$2" <<'PYTHON'
+import re
+import subprocess
+import sys
+
+
+def inventory(ref, path):
+    # A missing overlay at the old revision is an empty document; other git errors fail closed.
+    entry = subprocess.check_output(["git", "ls-tree", ref, "--", path], text=True)
+    if not entry:
+        return {"services": {}, "volumes": {}}
+    source = subprocess.check_output(["git", "show", f"{ref}:{path}"], text=True)
+    sections = {"services": {}, "volumes": {}}
+    section = block = None
+    # Repository convention: top-level sections, two-space service/volume keys.
+    for line in source.splitlines():
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        if not line.startswith(" "):
+            section = line.split(":", 1)[0]
+            block = None
+        elif section in sections:
+            key = re.match(r"^  ([\w.-]+):", line)
+            if key:
+                block = key[1]
+                sections[section][block] = []
+            if block:
+                sections[section][block].append(line)
+    return sections
+
+
+try:
+    pairs = [(path, inventory(sys.argv[1], path), inventory(sys.argv[2], path))
+             for path in ("docker/docker-compose.yml", "docker/docker-compose.remote.yml")]
+    # Include DB volume declarations even when mounts and declarations are in different files.
+    db_volumes = set()
+    for _, old, new in pairs:
+        for doc in (old, new):
+            for service in ("postgres", "redis"):
+                for line in doc["services"].get(service, []):
+                    mount = re.match(r"^\s+-\s+[\"']?([\w.-]+):/", line)
+                    source = re.match(r"^\s+(?:-\s+)?source:\s+[\"']?([\w.-]+)", line)
+                    if mount or source:
+                        db_volumes.add((mount or source)[1])
+    for path, old, new in pairs:
+        for service in ("postgres", "redis"):
+            if old["services"].get(service) != new["services"].get(service):
+                sys.exit(f"HOLD: {path}: {service} service changed")
+        removed = old["volumes"].keys() - new["volumes"].keys()
+        if removed:
+            sys.exit(f"HOLD: {path}: existing volumes removed/renamed: {', '.join(sorted(removed))}")
+        for volume in old["volumes"].keys() & new["volumes"].keys():
+            def volume_name(doc):
+                return [line.strip() for line in doc["volumes"][volume]
+                        if re.match(r"^    name:", line)]
+            if volume_name(old) != volume_name(new):
+                sys.exit(f"HOLD: {path}: existing volume {volume} renamed")
+        for volume in db_volumes:
+            if old["volumes"].get(volume) != new["volumes"].get(volume):
+                sys.exit(f"HOLD: {path}: DB volume {volume} changed")
+except (subprocess.CalledProcessError, OSError) as error:
+    sys.exit(f"HOLD: cannot inspect Compose revisions: {error}")
+print("AUTO: postgres/redis and existing volume names preserved")
+PYTHON
+}
+
+if [ "${1:-}" = compose-dry ]; then
+  [ "$#" = 3 ] || { echo "usage: $0 compose-dry <from> <to>" >&2; exit 2; }
+  compose_safe "$2" "$3"
+  exit $?
+fi
+
 ROOT=/IdeaProjects/Astera
 DEPLOY=$ROOT/.claude/worktrees/dev-deploy
 STATE=$ROOT/.claude/state/dev-deploy
@@ -211,9 +286,8 @@ deploy() (
     done < "$STATE/paths"
   fi
   if [ "$stack" = 1 ]; then
-    # Hold only for truly unsafe changes: anything touching the postgres/redis services or any volume definition.
-    if git diff -U0 --no-renames "$last" "$sha" -- docker/docker-compose.yml docker/docker-compose.remote.yml \
-        | grep -E '^[+-]' | grep -Ev '^(\+\+\+|---)' | grep -Eiq 'postgres|redis|pgdata|^[+-][[:space:]]*volumes:|[a-z]+-data'; then
+    # New services/volumes are safe; DB changes and removed volume names need a manual deploy.
+    if ! compose_safe "$last" "$sha" >> "$STATE/build.log" 2>&1; then
       manual=1
     else
       # Recreate lobby/game/velocity/bot-runner from the remote-overlay compose, then a FORCE deploy
@@ -380,5 +454,5 @@ case "${1:-run}" in
       log "deployed $sha [manual]"
     ) 9>"$LOCK"
     ;;
-  *) echo "usage: $0 up|down|status|run|once|stack-dry|mark-deployed <sha>" >&2; exit 2 ;;
+  *) echo "usage: $0 up|down|status|run|once|stack-dry|compose-dry <from> <to>|mark-deployed <sha>" >&2; exit 2 ;;
 esac
