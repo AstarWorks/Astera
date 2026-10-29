@@ -69,6 +69,8 @@ internal class SimSkillEngine private constructor(
     private val hooks: SimPlayerHooks,
     private val player: TablePlayer,
     private val ledger: LedgerWorldGateway,
+    /** The sim's display gateway of the skill engine: what each main-hand mesh was drawn with is recorded on it. */
+    val visuals: SimSkillVisuals,
 ) {
     private class SimLedgerWorld(blocks: SimBlockAccess) : LedgerWorldGateway(blocks) {
         override fun explode(cast: CastRef, at: Vec3, power: Double, breakBlocks: Boolean, fire: Boolean) = Unit
@@ -138,6 +140,7 @@ internal class SimSkillEngine private constructor(
             casterPitchDeg = -asin(max(-1.0, min(1.0, d.y))) * 180.0 / PI,
             seed = (event.atTick xor event.caster.uuid.leastSignificantBits) xor (sequence++ * -0x61c8864680b583ebL),
             startTick = scheduler.currentTick().toInt(),
+            heldItem = event.sourceItemId?.value ?: skill.def.item?.takeIf { it != "any" },
         )
         when (val started = runner.start(request)) {
             is Result.Failure -> problems += "could not start $id: ${started.error}"
@@ -188,8 +191,9 @@ internal class SimSkillEngine private constructor(
             val live = SimLiveValueSource(sim, { id -> healthRatio(attributes, id) }, scheduler, gameplay, query)
             val movement = SimSkillMovement(sim)
             val ledger = SimLedgerWorld(SimBlockAccess(sim, services))
+            val visuals = SimSkillVisuals()
             val player = TablePlayer(
-                visual = SimSkillVisuals(),
+                visual = visuals,
                 particles = PaperSkillParticleGateway(services.getOrThrow<IWorldGateway>()) { id -> particleRegistry?.find(ParticleId(id)) },
                 sounds = SimSkillSounds(recorder, scheduler),
                 gameplay = gameplay,
@@ -202,7 +206,7 @@ internal class SimSkillEngine private constructor(
             val hooks = SimPlayerHooks(scheduler, gameplay, live)
             player.config = combat.engineConfig
             player.hooks = hooks
-            val engine = SimSkillEngine(sim, scheduler, services.getOrThrow<IDomainEventBus>(), combat, live, movement, hooks, player, ledger)
+            val engine = SimSkillEngine(sim, scheduler, services.getOrThrow<IDomainEventBus>(), combat, live, movement, hooks, player, ledger, visuals)
             applyDamage.incomingInterceptor = engine.interceptor()
             return engine
         }

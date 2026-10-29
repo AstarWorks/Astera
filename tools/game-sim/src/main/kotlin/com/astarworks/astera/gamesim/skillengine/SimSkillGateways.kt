@@ -414,7 +414,15 @@ internal class SimSkillVisuals : ISkillVisualGateway {
     private val next = AtomicLong(1)
     private fun spawn() = VisualHandle(next.getAndIncrement())
 
-    override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView, glow: String?) = spawn()
+    /** The item each main-hand mesh was drawn with (CastRef.heldItem), in spawn order; the live main hand is never consulted. */
+    val heldMeshItems: MutableList<String> = java.util.concurrent.CopyOnWriteArrayList()
+
+    override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView, glow: String?): VisualHandle {
+        if (com.astarworks.astera.core.application.skillengine.load.MeshModels.resolve(item, part, emptyMap()) is com.astarworks.astera.core.application.skillengine.load.MeshModel.HeldItem) {
+            heldMeshItems += cast.heldItem ?: error("skill visual 'mesh $item (the cast carries no item)' could not be spawned: owner offline or display refused")
+        }
+        return spawn()
+    }
     override fun spawnSkinBone(cast: CastRef, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) = spawn()
     override fun spawnPlate(cast: CastRef, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView, glow: String?) = spawn()
     override fun spawnBlock(cast: CastRef, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView, glow: String?) = spawn()

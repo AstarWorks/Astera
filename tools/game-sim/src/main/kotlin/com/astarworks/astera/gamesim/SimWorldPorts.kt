@@ -138,7 +138,7 @@ public class SimDisplayGateway(
             is DisplayKind.Item -> "item ${kind.itemId.value}"
             is DisplayKind.Text -> "text ${renderedLines.joinToString(" / ")}"
             is DisplayKind.SkinBone -> "skin_bone ${kind.bone.yamlName}${if (kind.ghost) " ghost" else ""}"
-            DisplayKind.AnchorMainHand -> "main_hand_weapon"
+            is DisplayKind.AnchorHeldItem -> "main_hand_weapon"
         }
         recorder.recordEffect(scheduler.currentTick(), "display_spawn", at, "$what lifetime=${spec.lifetimeTicks}")
         recorder.recordDisplay(
@@ -150,7 +150,7 @@ public class SimDisplayGateway(
                     is DisplayKind.Block -> { put("kind", "block"); put("block", kind.blockKey) }
                     is DisplayKind.Item -> { put("kind", "item"); put("item", kind.itemId.value); put("mode", kind.displayMode.name.lowercase()) }
                     is DisplayKind.SkinBone -> { put("kind", "skin_bone"); put("bone", kind.bone.yamlName); if (kind.ghost) put("ghost", true) }
-                    DisplayKind.AnchorMainHand -> { put("kind", "main_hand_weapon") }
+                    is DisplayKind.AnchorHeldItem -> { put("kind", "main_hand_weapon") }
                     is DisplayKind.Text -> {
                         put("kind", "text")
                         put("lines", buildJsonArray { renderedLines.forEach { add(JsonPrimitive(it)) } })

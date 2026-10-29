@@ -3,6 +3,7 @@ package com.astarworks.astera.combat.domain.event
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerPose
 import java.time.Instant
@@ -20,6 +21,8 @@ public data class SkillCast(
     val at: Vec3,
     val atTick: Long,
     val pose: PlayerPose? = null,
+    /** The item whose binding fired the cast; null for a cast without a triggering item (admin / bot command). */
+    val sourceItemId: ItemId? = null,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent

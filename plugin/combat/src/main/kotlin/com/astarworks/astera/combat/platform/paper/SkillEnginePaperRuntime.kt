@@ -289,6 +289,8 @@ internal class SkillEnginePaperRuntime(
             // Per cast: tick and caster tell casts apart, the counter separates two casts of one caster in the same tick.
             seed = (event.atTick xor event.caster.uuid.leastSignificantBits) xor (castSequence++ * -0x61c8864680b583ebL),
             startTick = scheduler.currentTick().toInt(),
+            // fixed here, at cast start: the item that fired the cast, else the item the skill is bound to. The live main hand is never read again.
+            heldItem = event.sourceItemId?.value ?: skill.def.item?.takeIf { it != "any" },
         )
         val started = try {
             cast.start(request)

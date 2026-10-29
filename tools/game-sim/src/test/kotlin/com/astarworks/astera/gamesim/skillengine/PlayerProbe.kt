@@ -28,6 +28,7 @@ fun playProbe(
     val request = CastRequest(
         skill = skill, caster = rec.caster, world = WorldId("world"), casterFeet = Vec3(0.0, 0.0, 0.0),
         casterYawDeg = 0.0, casterPitchDeg = 0.0, seed = seed, startTick = 0,
+        heldItem = skill.def.item?.takeIf { it != "any" },
     )
     val cast = when (val s = player.start(request, skill)) {
         is Result.Success -> s.value

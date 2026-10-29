@@ -22,6 +22,7 @@ import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.effect.WeaponRigShading
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.world.WorldId
+import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.bukkit.entity.Player
 import net.kyori.adventure.text.Component
@@ -58,6 +59,8 @@ public class PaperDisplayEntityGateway(
     private val intensityOf: (PlayerId) -> VfxIntensity = { VfxIntensity.FULL },
     /** Server-wide cap on live skill displays; the quality floor and the hard stop derive from it. */
     private val maxLiveDisplays: Int = MAX_LIVE_DISPLAYS,
+    /** The stack that draws Astera item `itemId` for a viewer: built from the item registry, never read from a player's inventory. Null = unknown item. */
+    private val heldStack: (PlayerId?, ItemId) -> ItemStack? = { _, _ -> null },
 ) : IDisplayEntityGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -233,12 +236,11 @@ public class PaperDisplayEntityGateway(
                     it.shadowStrength = if (shadow) 1.0f else 0f
                 }
             }
-            DisplayKind.AnchorMainHand -> {
-                val player = owner ?: return unsupported("main-hand weapon needs an owner")
-                val held = player.inventory.itemInMainHand
-                if (held.type.isAir) return unsupported("main hand is empty")
+            is DisplayKind.AnchorHeldItem -> {
+                val player = owner ?: return unsupported("held weapon needs an owner")
+                val held = heldStack(PlayerId(player.uniqueId), kind.itemId) ?: return unsupported("held item '${kind.itemId.value}' is not a registered item")
                 bukkitWorld.spawn(location, ItemDisplay::class.java) {
-                    it.setItemStack(held.clone())
+                    it.setItemStack(held)
                     it.itemDisplayTransform = ItemDisplay.ItemDisplayTransform.THIRDPERSON_RIGHTHAND
                     configure(it, spec, hidden)
                     it.shadowRadius = 0f

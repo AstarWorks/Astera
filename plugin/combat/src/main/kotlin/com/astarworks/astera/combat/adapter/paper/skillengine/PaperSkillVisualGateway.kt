@@ -121,10 +121,12 @@ public class PaperSkillVisualGateway(
     override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView, glow: String?): VisualHandle {
         val castOwner = cast.caster
         val world = worldOf(cast) ?: return dead("mesh $item")
-        val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables), look)
-        val heldItem = kind == DisplayKind.AnchorMainHand
-        // The real stack is cloned (custom model, components) and drawn in THIRDPERSON_RIGHTHAND.
-        if (heldItem && server.getPlayer(castOwner)?.inventory?.itemInMainHand?.type?.isAir != false) return dead("mesh $item (empty main hand)")
+        val model = MeshModels.resolve(item, part, frameTables)
+        // A main-hand mesh draws the model of the item the cast was started with (CastRef.heldItem, fixed at cast start), drawn in
+        // THIRDPERSON_RIGHTHAND; the live main hand is never read, so an empty or swapped hand cannot abort the cast.
+        val heldItem = model == MeshModel.HeldItem
+        if (heldItem && cast.heldItem == null) return dead("mesh $item (the cast carries no item)")
+        val kind = SkillDisplaySpecs.meshKind(model, look, cast.heldItem)
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, 0)
         val spec = SkillDisplaySpecs.mesh(kind, first.transform, brightness, look.rigShading, look.shaderEffect).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null, view) ?: return dead("mesh $item")

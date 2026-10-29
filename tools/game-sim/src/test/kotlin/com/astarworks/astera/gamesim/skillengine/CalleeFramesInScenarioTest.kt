@@ -136,6 +136,7 @@ class CalleeFramesInScenarioTest : SkillEngineScenario() {
                 apiVersion: astera/v3
                 kind: Skill
                 id: held
+                item: stone-pickaxe
                 meta: {cooldown_ticks: 0, resource_cost: 0}
                 machine:
                   start: s
@@ -152,7 +153,9 @@ class CalleeFramesInScenarioTest : SkillEngineScenario() {
         play(skill, seed = 1L, ticks = 6)
         val ownerless = GatewayRecorder().also { it.casterOnline = false }
         assertThatThrownBy { play(skill, seed = 1L, events = emptyList(), ticks = 6, rec = ownerless) }.hasMessageContaining("owner offline")
-        val bareHand = GatewayRecorder().also { it.mainHandHeld = false }
-        assertThatThrownBy { play(skill, seed = 1L, events = emptyList(), ticks = 6, rec = bareHand) }.hasMessageContaining("empty main hand")
+        // the mesh comes from the cast's item, so a hand that is empty (or holds anything else) cannot refuse it
+        val drawn = GatewayRecorder()
+        play(skill, seed = 1L, events = emptyList(), ticks = 6, rec = drawn)
+        assertThat(drawn.heldMeshItems).containsExactly("stone-pickaxe")
     }
 }
