@@ -10,4 +10,5 @@ color:
 count: 5
 lifetime_ticks: 20
 vanilla_particle: flame
-speed: 0.08
+speed: 0.0
+velocity: {direction: from_caster_look, speed: 0.05, spread_degrees: 18, speed_jitter: 0.4}
