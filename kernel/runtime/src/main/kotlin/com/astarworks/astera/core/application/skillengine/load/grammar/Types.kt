@@ -82,12 +82,22 @@ public object Types {
             linkedMapOf("oneOf" to listOf(linkedMapOf("type" to "string", "pattern" to "^\\S+$"), ValueForms.specialSchema()))
     }
 
-    /** A bare identifier: event name, id, ease name. */
+    private val ID_PARAM = Regex("""^\$\{([A-Za-z_][A-Za-z0-9_]*)}$""")
+
+    /** A bare identifier: event name, id, ease name; or `"${p}"` of a string param with a default, folded at load. */
     public val id: FieldType<String> = object : FieldType<String> {
         override val label = "identifier"
         override fun decode(raw: Any?, ctx: GrammarContext, path: String): String {
             val s = raw as? String ?: ctx.mismatch(path, "identifier", raw)
             if (s.isBlank() || s.any { it.isWhitespace() }) ctx.fail(path, "'$s' is not an identifier")
+            // `"${p}"`: an id fixed at load, read from the string param's declared default (the loadText / max_count rule)
+            val name = ID_PARAM.matchEntire(s)?.groupValues?.get(1)
+            if (name != null) {
+                val known = ctx.paramDefaults ?: ctx.fail(path, "'$s' reads param '$name', but this context has no param defaults")
+                val value = known[name] ?: ctx.fail(path, "'$s' reads param '$name', which is not a declared param with a default")
+                return (value as? ParamValue.Text)?.value ?: ctx.fail(path, "param '$name' is not a string param")
+            }
+            if (s.contains("\${")) ctx.fail(path, "'$s' must be an identifier or exactly one '\${param}'")
             return s
         }
         override fun schema(): Map<String, Any?> = linkedMapOf("type" to "string", "pattern" to "^\\S+$")

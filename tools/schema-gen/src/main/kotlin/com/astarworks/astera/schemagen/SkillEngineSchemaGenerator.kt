@@ -58,7 +58,8 @@ object SkillEngineSchemaGenerator {
     private val string: Map<String, Any?> = linkedMapOf("type" to "string")
     private val integer: Map<String, Any?> = linkedMapOf("type" to "integer")
     private val celString: Map<String, Any?> = linkedMapOf("type" to "string", "pattern" to "^= .+")
-    private val ticks: Map<String, Any?> = linkedMapOf("oneOf" to listOf(linkedMapOf("type" to "integer", "minimum" to 0), celString))
+    private val paramRef: Map<String, Any?> = linkedMapOf("type" to "string", "pattern" to "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$")
+    private val ticks: Map<String, Any?> = linkedMapOf("oneOf" to listOf(linkedMapOf("type" to "integer", "minimum" to 0), celString, paramRef))
     private fun stringMap(): Map<String, Any?> = linkedMapOf("type" to "object", "additionalProperties" to string)
 
     /** An op list: a registered op, or the `emit:` / `use:` shorthands of the machine grammar. */
