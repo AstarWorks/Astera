@@ -299,7 +299,14 @@ fi
 if [ -n "$FOV" ] && [ -z "$FOV_OPT" ]; then
   FOV_OPT="$(python3 -c 'import sys; print("%.4f" % ((float(sys.argv[1]) - 70.0) / 40.0))' "$FOV")"
 fi
-[ -n "$ITEM" ] || ITEM="$(printf '%s' "$SKILL" | sed -E 's/@.*$//;s/-(s[0-9]+|def)$//')"
+# Held item = the item that binds the skill: content/items/*.yaml `skill_id: <skill>` (greatsword-cleave -> greatsword,
+# rifle-shot -> rifle), else the skill yaml's own `item:`. Never guessed from the skill id: an unbound skill needs an
+# explicit ITEM=<item-id> (or ITEM=none for a skill cast with nothing in hand), and a capture without one fails loudly.
+if [ -z "$ITEM" ] && [ -n "$SKILL" ]; then
+  ITEM="$(grep -lE "^[[:space:]]*-?[[:space:]]*skill_id:[[:space:]]*${SKILL%%@*}[[:space:]]*$" "$ROOT"/content/items/*.yaml 2>/dev/null | head -1 | xargs -r basename -s .yaml)"
+  [ -n "$ITEM" ] || ITEM="$(sed -nE 's/^item:[[:space:]]*([A-Za-z0-9_.-]+).*/\1/p' "$ROOT/content/skills/${SKILL%%@*}/skill.yaml" 2>/dev/null | head -1)"
+fi
+[ "$CMD" != capture ] || [ -z "$SKILL" ] || [ -n "$ITEM" ] || die "no item binds skill '$SKILL' (content/items/*.yaml skill_id); set ITEM=<item-id> or ITEM=none"
 
 CACHE="${SHOT_CACHE:-$HOME/.cache/astera-vfx-shot}"
 VENV="$CACHE/venv"
@@ -794,9 +801,9 @@ reset_arena() {
 
 # Target dummy: no AI behaviour (does not wander / hunt / hit / talk) but still takes knockback and velocity,
 # which NoAI:1b would suppress. Rotation is fixed at summon (it only "looks at" the caster, the one
-# non-spectator player). HP 200, fresh per run (the husk is killed at the start and end of every view).
+# non-spectator player). HP 1024 (the attribute cap: no skill kills it mid-capture, so the scene never changes), fresh per run (the husk is killed at the start and end of every view).
 dummy_nbt() { # yaw
-  printf '{Silent:1b,PersistenceRequired:1b,Rotation:[%sf,0f],attributes:[{id:"minecraft:max_health",base:200},{id:"minecraft:movement_speed",base:0},{id:"minecraft:follow_range",base:0},{id:"minecraft:attack_damage",base:0}],Health:200f}' "$1"
+  printf '{Silent:1b,PersistenceRequired:1b,Rotation:[%sf,0f],attributes:[{id:"minecraft:max_health",base:1024},{id:"minecraft:movement_speed",base:0},{id:"minecraft:follow_range",base:0},{id:"minecraft:attack_damage",base:0}],Health:1024f}' "$1"
 }
 
 summon_target() {
@@ -809,7 +816,8 @@ target_z() { awk -v z="$CZ" -v d="$DISTANCE" 'BEGIN{printf "%.1f", z+d}'; }
 
 give_item() { # player
   rcon "clear $1" >/dev/null
-  grep -qi "gave" <<<"$(rcon "astera items give $1 $ITEM")" || log "WARN: could not give item '$ITEM' (set ITEM=<item-id>)"
+  [ "$ITEM" = none ] && return 0
+  grep -qi "gave" <<<"$(rcon "astera items give $1 $ITEM")" || die "could not give item '$ITEM' to $1 (set ITEM=<item-id>)"
 }
 
 # ---------------------------------------------------------------- capture
@@ -1028,26 +1036,37 @@ watcher_camera_mode() {
   rcon "team modify cmp collisionRule never" >/dev/null
   rcon "team modify cmp nametagVisibility never" >/dev/null
   rcon "team join cmp Watcher" >/dev/null
-  rcon "gamemode creative Watcher" >/dev/null
+  rcon "gamemode spectator Watcher"  # out of reach: a spectator is no skill target and takes no knockback (creative was hit and flung by the sweep) >/dev/null
   rcon "attribute Watcher minecraft:gravity base set 0" >/dev/null
   rcon 'item replace entity Watcher weapon.mainhand with minecraft:stick[item_model="astera:shot_empty"]' >/dev/null
   rcon "item replace entity Watcher weapon.offhand with minecraft:air" >/dev/null
 }
 
 place_scene() { # view target_z
-  local view="$1" tz="$2"
+  local view="$1" tz="$2" who
   rcon "kill @e[type=minecraft:husk]" >/dev/null
+  # A client left parked by an earlier view (Target after `opponent`, Watcher after an orbit view) still stands where that
+  # view put it: in survival it is a second victim of the skill (a lethal hit sends it to the lobby, it replaces the dummy
+  # on screen and it hides / is hit instead of the target). Park every player this view does not use as an invisible
+  # spectator far from the arena; an offline name is a harmless rcon error.
+  for who in Watcher Caster Target; do
+    case " $(players_of "$view") " in *" $who "*) continue ;; esac
+    rcon "gamemode spectator $who" >/dev/null 2>&1
+    tp "$who" "$CX" "$((Y + 60))" "$((${CZ%.*} - 150))" 0 0 2>/dev/null
+  done
   rcon "gamemode survival Caster" >/dev/null
   [ "$view" = compare ] || tp Caster "$CX" "$Y" "$CZ" 0 0
   case "$view" in
     caster)
       summon_target ;;
     opponent)
-      rcon "gamemode survival Target" >/dev/null
-      # the target is a real survival player: without this a multi-hit skill kills it mid-capture (lobby return)
-      rcon "attribute Target minecraft:max_health base set 200" >/dev/null
-      rcon "effect give Target minecraft:instant_health 1 30 true" >/dev/null
-      tp Target "$CX" "$Y" "$tz" 180 0 ;;
+      # Player HP is Astera's CURRENT_HP/MAX_HP container (vanilla max_health / instant_health do not touch it), so a lethal
+      # skill kills a survival Target mid-capture and RespawnOnPlayerKilled sends it to the lobby. The opponent view therefore
+      # films from the victim's spot with the Target as an immune spectator, and a husk dummy at the same spot takes the hit.
+      summon_target
+      rcon "gamemode spectator Target" >/dev/null
+      # 1.6 blocks behind the dummy and a little above its head, looking at the caster: inside the husk the screen is its face
+      tp Target "$CX" "$(awk -v y="$Y" 'BEGIN{printf "%.2f", y+0.6}')" "$(awk -v z="$tz" 'BEGIN{printf "%.2f", z+1.6}')" 180 5 ;;
     compare)
       # caster faces +x (yaw -90); enemy ENEMY_X ahead looking back; spectator camera from the plan
       rcon "team add cmp" >/dev/null 2>&1
