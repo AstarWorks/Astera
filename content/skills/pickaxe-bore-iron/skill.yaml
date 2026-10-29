@@ -1,6 +1,7 @@
 apiVersion: astera/v3
 kind: Skill
 id: pickaxe-bore-iron
+extends: pickaxe-bore-stone
 item: iron-pickaxe
 meta:
   name: {ja: "鉄の掘削", en: "Iron Bore"}
@@ -8,14 +9,10 @@ meta:
   cooldown_ticks: 120
   resource_cost: 0
   tags: [tool, cover]
-anchors:
-  - {id: dust, anchor: caster, offset: {forward: 2.0}, mode: snapshot}
-machine:
-  start: cast
-  states:
-    cast:
-      for: 1
-      then: end
-      do:
-        - {id: bore, use: pickaxe-bore, with: {length: 6, tier: 2, stone_pitch: 0.7, thud_vol: 0.7, thud_pitch: 1.2}, frames: {spot: dust}}
-    end: {final: true}
+with:
+  length: 6
+  stone_pitch: 0.7
+  thud_vol: 0.7
+  thud_pitch: 1.2
+  thud: true
+  spark: tool-pick-iron

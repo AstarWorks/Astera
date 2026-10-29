@@ -1,3 +1,5 @@
+# Lays a packed-clay bridge ahead of the caster; the tiers differ in bridge size. Base of the shovel-earth-bridge tiers (this is the stone tier);
+# shovel-earth-bridge-iron / -diamond extend it (ADR-0303 9.3): same document, other id / item / meta and the `with:` values below.
 apiVersion: astera/v3
 kind: Skill
 id: shovel-earth-bridge-stone
@@ -8,6 +10,15 @@ meta:
   cooldown_ticks: 300
   resource_cost: 0
   tags: [tool, cover]
+params:
+  length: {type: number, default: 5}
+  width: {type: number, default: 2}
+  gravel_pitch: {type: number, default: 0.8}
+  dirt_vol: {type: number, default: 0.8}
+  dirt_pitch: {type: number, default: 0.9}
+  dirt: {type: bool, default: false}
+  flatten: {type: bool, default: false}
+  spark: {type: string, default: tool-shovel-stone}
 anchors:
   - {id: spark, anchor: caster, offset: {forward: 2.0}, mode: follow}
 machine:
@@ -17,5 +28,9 @@ machine:
       for: 1
       then: end
       do:
-        - {id: earth_bridge, use: shovel-earth-bridge, with: {length: 5, width: 2, tier: 1, gravel_pitch: 0.8}, frames: {spot: spark}}
+        - {id: bridge, op: place_shape, anchor: caster, shape: {bridge: {length: "${length}", width: "${width}"}}, block: "astera:packed_clay", consume: none, ripple: 29, revert: 200, outside_arena: false}
+        - {id: snd, op: sound, sound: block.gravel.break, anchor: caster, volume: 1.0, pitch: "${gravel_pitch}"}
+        - {id: snd_2, op: sound, sound: block.rooted_dirt.break, anchor: caster, volume: "${dirt_vol}", pitch: "${dirt_pitch}", when: "= ${dirt}"}
+        - {id: snd_3, op: sound, sound: item.shovel.flatten, anchor: caster, volume: 0.8, pitch: 0.9, when: "= ${flatten}"}
+        - {id: spark, op: particle_def, def: "${spark}", anchor: spark}
     end: {final: true}

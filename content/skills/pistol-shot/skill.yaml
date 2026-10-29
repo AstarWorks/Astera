@@ -1,4 +1,4 @@
-# pistol-shot: base of the pistol tiers. pistol-shot-t2..t4 are this document with another id, item and dmg default (a skill compiles alone, so there is no cross-file template).
+# pistol-shot: base of the pistol tiers. pistol-shot-t2..t4 extend it (ADR-0303 9.3): another id, item, meta and dmg.
 # Schedule: the bullet flies `life` ticks at constant speed; hit tick, damage and end tick are arithmetic (speed, life), randomness is not used.
 apiVersion: astera/v3
 kind: Skill
