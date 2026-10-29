@@ -177,6 +177,8 @@ on_exit() {
   local rc=$?
   trap - EXIT INT TERM
   docker rm -f "$RUNNER" >/dev/null 2>&1 || true
+  # Keep the game server log next to the report (stack traces the report lines may cut off), before the project goes.
+  "${C[@]}" logs --no-color --no-log-prefix e2e > build/e2e-server.log 2>&1 || true
   if [ -z "${E2E_KEEP:-}" ]; then
     if [ -n "${E2E_REUSE:-}" ]; then "${C[@]}" down --remove-orphans >/dev/null 2>&1 || true
     else "${C[@]}" down -v --remove-orphans >/dev/null 2>&1 || true; fi
