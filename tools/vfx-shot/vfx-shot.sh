@@ -299,6 +299,10 @@ fi
 if [ -n "$FOV" ] && [ -z "$FOV_OPT" ]; then
   FOV_OPT="$(python3 -c 'import sys; print("%.4f" % ((float(sys.argv[1]) - 70.0) / 40.0))' "$FOV")"
 fi
+# default held item: the `item:` of the skill's own yaml (greatsword-cleave -> greatsword); the id minus -sN / -def only when the skill has none
+if [ -z "$ITEM" ] && [ -n "$SKILL" ]; then
+  ITEM="$(sed -nE 's/^item:[[:space:]]*([A-Za-z0-9_.-]+).*/\1/p' "$ROOT/content/skills/${SKILL%%@*}/skill.yaml" 2>/dev/null | head -1)"
+fi
 [ -n "$ITEM" ] || ITEM="$(printf '%s' "$SKILL" | sed -E 's/@.*$//;s/-(s[0-9]+|def)$//')"
 
 CACHE="${SHOT_CACHE:-$HOME/.cache/astera-vfx-shot}"
@@ -794,9 +798,9 @@ reset_arena() {
 
 # Target dummy: no AI behaviour (does not wander / hunt / hit / talk) but still takes knockback and velocity,
 # which NoAI:1b would suppress. Rotation is fixed at summon (it only "looks at" the caster, the one
-# non-spectator player). HP 200, fresh per run (the husk is killed at the start and end of every view).
+# non-spectator player). HP 1024 (the attribute cap: no skill kills it mid-capture, so the scene never changes), fresh per run (the husk is killed at the start and end of every view).
 dummy_nbt() { # yaw
-  printf '{Silent:1b,PersistenceRequired:1b,Rotation:[%sf,0f],attributes:[{id:"minecraft:max_health",base:200},{id:"minecraft:movement_speed",base:0},{id:"minecraft:follow_range",base:0},{id:"minecraft:attack_damage",base:0}],Health:200f}' "$1"
+  printf '{Silent:1b,PersistenceRequired:1b,Rotation:[%sf,0f],attributes:[{id:"minecraft:max_health",base:1024},{id:"minecraft:movement_speed",base:0},{id:"minecraft:follow_range",base:0},{id:"minecraft:attack_damage",base:0}],Health:1024f}' "$1"
 }
 
 summon_target() {
@@ -1045,7 +1049,7 @@ place_scene() { # view target_z
     opponent)
       rcon "gamemode survival Target" >/dev/null
       # the target is a real survival player: without this a multi-hit skill kills it mid-capture (lobby return)
-      rcon "attribute Target minecraft:max_health base set 200" >/dev/null
+      rcon "attribute Target minecraft:max_health base set 1024" >/dev/null
       rcon "effect give Target minecraft:instant_health 1 30 true" >/dev/null
       tp Target "$CX" "$Y" "$tz" 180 0 ;;
     compare)
