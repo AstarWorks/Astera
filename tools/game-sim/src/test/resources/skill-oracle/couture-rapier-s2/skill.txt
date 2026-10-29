@@ -555,26 +555,26 @@
 @36 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.408606,1.633688,0.462354 to=-0.060351,1.595981,0.891367
 @36 hit - op=- at=-0.038342,1.624107,2.742390 r=0.220000
 @36 remove #63 op=coin3/k10/fx8_couture_s2_dash_streak_1
-@36 particle - op=- type=couture-s2-p-stick at=-0.638342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8308670281016903332
-@36 particle - op=- type=couture-s2-p-stick-pink at=-0.638342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4083779997820934758
-@36 particle - op=- type=couture-s2-p-stick at=0.561658,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4897631484423249630
-@36 particle - op=- type=couture-s2-p-stick-pink at=0.561658,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3171420522426302156
+@36 particle - op=- type=couture-s2-p-stick at=-0.391037,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8308670281016903332
+@36 particle - op=- type=couture-s2-p-stick-pink at=-0.391037,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4083779997820934758
+@36 particle - op=- type=couture-s2-p-stick at=0.314353,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4897631484423249630
+@36 particle - op=- type=couture-s2-p-stick-pink at=0.314353,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3171420522426302156
 @36 particle - op=- type=couture-s2-p-stick at=-0.038342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3797553011984560773
 @36 particle - op=- type=couture-s2-p-stick-pink at=-0.038342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4381629584425762884
-@37 particle - op=- type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4376021456379387432
-@37 particle - op=- type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2340294213429086979
+@37 particle - op=- type=couture-s2-p-tip at=-0.391037,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4376021456379387432
+@37 particle - op=- type=couture-s2-p-tip at=0.314353,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2340294213429086979
 @37 particle - op=- type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6858662239485392896
 @37 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.219184,1.416412,0.851090 to=-0.157357,1.786717,2.716726
 @37 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.219184,1.416412,0.851090 to=-0.020317,1.861958,2.727301
 @37 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.219184,1.416412,0.851090 to=-0.045042,1.728848,2.629498
-@37 particle - op=- type=couture-s2-p-stick at=-0.638342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6930543518478237182
-@37 particle - op=- type=couture-s2-p-stick-pink at=-0.638342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8729235479310641188
-@37 particle - op=- type=couture-s2-p-stick at=0.561658,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7876275007458610270
-@37 particle - op=- type=couture-s2-p-stick-pink at=0.561658,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1989191822315592861
+@37 particle - op=- type=couture-s2-p-stick at=-0.391037,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6930543518478237182
+@37 particle - op=- type=couture-s2-p-stick-pink at=-0.391037,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8729235479310641188
+@37 particle - op=- type=couture-s2-p-stick at=0.314353,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7876275007458610270
+@37 particle - op=- type=couture-s2-p-stick-pink at=0.314353,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1989191822315592861
 @37 particle - op=- type=couture-s2-p-stick at=-0.038342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3181789360705627630
 @37 particle - op=- type=couture-s2-p-stick-pink at=-0.038342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8808273008577069159
-@38 particle - op=- type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6066693832636724855
-@38 particle - op=- type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2621298410436253063
+@38 particle - op=- type=couture-s2-p-tip at=-0.391037,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6066693832636724855
+@38 particle - op=- type=couture-s2-p-tip at=0.314353,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2621298410436253063
 @38 particle - op=- type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4289455221101911150
 @38 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.250226,1.399399,0.842593 to=-0.157357,1.786717,2.716726
 @38 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.250226,1.399399,0.842593 to=-0.020317,1.861958,2.727301
@@ -599,10 +599,10 @@
 @38 write #71 op=- dur=0 pos=0.000000,1.621000,-0.230000 rot=0.000000,0.000000,0.939693,0.342020 scale=1.000000,1.000000,1.000000 bb=CENTER
 @38 write #72 op=- dur=0 pos=0.000000,1.738000,-0.539000 rot=0.000000,0.000000,0.974370,0.224951 scale=1.000000,1.000000,1.000000 bb=CENTER
 @38 write #73 op=- dur=0 pos=-0.100000,1.300000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
-@38 particle - op=- type=couture-s2-p-stick at=-0.638342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8676496642750650464
-@38 particle - op=- type=couture-s2-p-stick-pink at=-0.638342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4048471390072862288
-@38 particle - op=- type=couture-s2-p-stick at=0.561658,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5768859295231269288
-@38 particle - op=- type=couture-s2-p-stick-pink at=0.561658,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1501846891343737804
+@38 particle - op=- type=couture-s2-p-stick at=-0.391037,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8676496642750650464
+@38 particle - op=- type=couture-s2-p-stick-pink at=-0.391037,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4048471390072862288
+@38 particle - op=- type=couture-s2-p-stick at=0.314353,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5768859295231269288
+@38 particle - op=- type=couture-s2-p-stick-pink at=0.314353,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1501846891343737804
 @38 particle - op=- type=couture-s2-p-stick at=-0.038342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6901664994456015286
 @38 particle - op=- type=couture-s2-p-stick-pink at=-0.038342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8437924110457417739
 @38 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5379986154638759952
@@ -610,8 +610,8 @@
 @38 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4809906427518032420
 @38 particle - op=- type=couture-s2-p-orange at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2549680952144117520
 @38 particle - op=- type=couture-s2-p-spark at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4459906614942722210
-@39 particle - op=- type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3884115126507561370
-@39 particle - op=- type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2975934142369655882
+@39 particle - op=- type=couture-s2-p-tip at=-0.391037,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3884115126507561370
+@39 particle - op=- type=couture-s2-p-tip at=0.314353,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2975934142369655882
 @39 particle - op=- type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2004455044296063525
 @39 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.268657,1.387867,0.835520 to=-0.157357,1.786717,2.716726
 @39 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.268657,1.387867,0.835520 to=-0.020317,1.861958,2.727301
@@ -644,8 +644,8 @@
 @39 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6072510980147878704
 @39 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7169900446531761193
 @39 particle - op=- type=couture-s2-p-orange at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4239286471551519613
-@40 particle - op=- type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5717034864764444273
-@40 particle - op=- type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4407016239351433715
+@40 particle - op=- type=couture-s2-p-tip at=-0.391037,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5717034864764444273
+@40 particle - op=- type=couture-s2-p-tip at=0.314353,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4407016239351433715
 @40 particle - op=- type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2697207123683847758
 @40 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @40 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
@@ -674,8 +674,8 @@
 @40 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3475369261083812849
 @40 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1092526304522260253
 @40 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4499011642347690021
-@41 particle - op=- type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7525022389267704508
-@41 particle - op=- type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5439126424530227648
+@41 particle - op=- type=couture-s2-p-tip at=-0.391037,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7525022389267704508
+@41 particle - op=- type=couture-s2-p-tip at=0.314353,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5439126424530227648
 @41 particle - op=- type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=800553364532472243
 @41 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @41 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
@@ -703,8 +703,8 @@
 @41 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5244778669731903842
 @41 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6496084508372067431
 @41 particle - op=- type=couture-s2-p-spark at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8296402300836009785
-@42 particle - op=- type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4186215870224673516
-@42 particle - op=- type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2004185525560653910
+@42 particle - op=- type=couture-s2-p-tip at=-0.391037,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4186215870224673516
+@42 particle - op=- type=couture-s2-p-tip at=0.314353,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2004185525560653910
 @42 particle - op=- type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6637642790484898662
 @42 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @42 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
@@ -724,8 +724,8 @@
 @42 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4139793636404448862
 @42 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5312418589596672833
 @42 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3824624535984029423
-@43 particle - op=- type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5437047511709809062
-@43 particle - op=- type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1562651890384743945
+@43 particle - op=- type=couture-s2-p-tip at=-0.391037,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5437047511709809062
+@43 particle - op=- type=couture-s2-p-tip at=0.314353,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1562651890384743945
 @43 particle - op=- type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9208064320603914042
 @43 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @43 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
@@ -741,8 +741,8 @@
 @43 remove #70 op=-
 @43 remove #71 op=-
 @43 remove #72 op=-
-@44 particle - op=- type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1038930981970761298
-@44 particle - op=- type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1483973217964389004
+@44 particle - op=- type=couture-s2-p-tip at=-0.391037,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1038930981970761298
+@44 particle - op=- type=couture-s2-p-tip at=0.314353,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1483973217964389004
 @44 particle - op=- type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2408639562766955812
 @44 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @44 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
@@ -1716,38 +1716,38 @@
 @36 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.604579,1.633688,0.123347 to=-0.483120,2.287524,0.582054
 @36 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.604579,1.633688,0.123347 to=-0.533078,2.130159,0.607266
 @36 hit - op=- at=-1.577917,2.692464,2.030514 r=0.220000
-@37 particle - op=- type=couture-s2-p-tip at=-2.087189,2.812464,1.709357 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4376021456379387432
-@37 particle - op=- type=couture-s2-p-tip at=-1.670460,2.592464,3.150307 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2340294213429086979
+@37 particle - op=- type=couture-s2-p-tip at=-1.889682,2.812464,1.858188 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4376021456379387432
+@37 particle - op=- type=couture-s2-p-tip at=-1.867966,2.592464,3.001475 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2340294213429086979
 @37 particle - op=- type=couture-s2-p-tip at=-1.848734,2.692464,2.389900 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6858662239485392896
 @37 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.687247,1.416412,0.547802 to=-1.657522,2.855074,1.938393
 @37 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.687247,1.416412,0.547802 to=-1.554441,2.930315,2.029311
 @37 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.687247,1.416412,0.547802 to=-1.515328,2.797205,1.936322
 @37 write #63 op=coin3/k10/fx8_couture_s2_dash_streak_1 dur=3 pos=-1.577917,2.692464,2.030514 rot=-0.293048,-0.301775,-0.098053,0.901909 scale=1.000000,1.000000,1.000000 bb=FIXED
 @37 hit - op=- at=-2.537176,3.225003,3.329061 r=0.220000
-@38 particle - op=- type=couture-s2-p-tip at=-3.046448,3.345003,3.007904 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6066693832636724855
-@38 particle - op=- type=couture-s2-p-tip at=-2.629719,3.125003,4.448854 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2621298410436253063
+@38 particle - op=- type=couture-s2-p-tip at=-2.848942,3.345003,3.156735 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6066693832636724855
+@38 particle - op=- type=couture-s2-p-tip at=-2.827226,3.125003,4.300022 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2621298410436253063
 @38 particle - op=- type=couture-s2-p-tip at=-2.807993,3.225003,3.688447 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4289455221101911150
 @38 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.706924,1.399399,0.522335 to=-2.702319,3.341345,3.350452
 @38 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.706924,1.399399,0.522335 to=-2.633247,3.377015,3.486503
 @38 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.706924,1.399399,0.522335 to=-2.553589,3.377899,3.339708
 @38 hit - op=- at=-3.496436,3.757541,4.627608 r=0.220000
-@39 particle - op=- type=couture-s2-p-tip at=-4.005708,3.877541,4.306450 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3884115126507561370
-@39 particle - op=- type=couture-s2-p-tip at=-3.588979,3.657541,5.747400 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2975934142369655882
+@39 particle - op=- type=couture-s2-p-tip at=-3.808201,3.877541,4.455282 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3884115126507561370
+@39 particle - op=- type=couture-s2-p-tip at=-3.786485,3.657541,5.598569 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2975934142369655882
 @39 particle - op=- type=couture-s2-p-tip at=-3.767252,3.757541,4.986994 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2004455044296063525
 @39 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.717387,1.387867,0.505594 to=-3.689329,3.731700,4.685826
 @39 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.717387,1.387867,0.505594 to=-3.620982,3.698392,4.822838
 @39 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.717387,1.387867,0.505594 to=-3.582731,3.832541,4.730992
 @39 hit - op=- at=-4.455695,4.290080,5.926155 r=0.220000
-@40 particle - op=- type=couture-s2-p-tip at=-4.964967,4.410080,5.604997 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5717034864764444273
-@40 particle - op=- type=couture-s2-p-tip at=-4.548238,4.190080,7.045947 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4407016239351433715
+@40 particle - op=- type=couture-s2-p-tip at=-4.767461,4.410080,5.753829 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5717034864764444273
+@40 particle - op=- type=couture-s2-p-tip at=-4.745745,4.190080,6.897116 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4407016239351433715
 @40 particle - op=- type=couture-s2-p-tip at=-4.726512,4.290080,6.285541 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2697207123683847758
 @40 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.720637,1.383808,0.499780 to=-4.595674,4.143359,5.914153
 @40 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.720637,1.383808,0.499780 to=-4.494169,4.068533,6.007163
 @40 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.720637,1.383808,0.499780 to=-4.545140,4.225351,6.033719
 @40 write #63 op=coin3/k10/fx8_couture_s2_dash_streak_1 dur=1 pos=-4.455695,4.290080,5.926155 rot=0.148351,-0.313398,0.049637,0.936648 scale=1.000000,1.000000,1.000000 bb=FIXED
 @40 hit - op=- at=-5.414954,4.822618,7.224702 r=0.220000
-@41 particle - op=- type=couture-s2-p-tip at=-5.924227,4.942618,6.903544 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7525022389267704508
-@41 particle - op=- type=couture-s2-p-tip at=-5.507497,4.722618,8.344494 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5439126424530227648
+@41 particle - op=- type=couture-s2-p-tip at=-5.726720,4.942618,7.052376 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7525022389267704508
+@41 particle - op=- type=couture-s2-p-tip at=-5.705004,4.722618,8.195663 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5439126424530227648
 @41 particle - op=- type=couture-s2-p-tip at=-5.685771,4.822618,7.584088 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=800553364532472243
 @41 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.720637,1.383808,0.499780 to=-5.464978,4.675979,7.093325
 @41 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.720637,1.383808,0.499780 to=-5.323769,4.621324,7.133645
@@ -1756,22 +1756,22 @@
 @41 remove #63 op=coin3/k10/fx8_couture_s2_dash_streak_1
 @41 sound - op=- sound=couture.reel cat=master vol=1 pitch=0.795 at=-6.374214,5.355157,8.523249
 @41 hit - op=- at=-6.457812,5.436611,8.839805 r=0.703784
-@42 particle - op=- type=couture-s2-p-tip at=-6.883486,5.475157,8.202091 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4186215870224673516
-@42 particle - op=- type=couture-s2-p-tip at=-6.466757,5.255157,9.643041 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2004185525560653910
+@42 particle - op=- type=couture-s2-p-tip at=-6.685979,5.475157,8.350923 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4186215870224673516
+@42 particle - op=- type=couture-s2-p-tip at=-6.664263,5.255157,9.494209 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2004185525560653910
 @42 particle - op=- type=couture-s2-p-tip at=-6.645031,5.355157,8.882635 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6637642790484898662
 @42 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.720637,1.383808,0.499780 to=-6.424237,5.208518,8.391872
 @42 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.720637,1.383808,0.499780 to=-6.283028,5.153863,8.432192
 @42 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.720637,1.383808,0.499780 to=-6.397479,5.204063,8.542989
 @42 hit - op=- at=-6.314145,5.312961,8.437999 r=0.220000
-@43 particle - op=- type=couture-s2-p-tip at=-6.823417,5.432961,8.116842 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5437047511709809062
-@43 particle - op=- type=couture-s2-p-tip at=-6.406688,5.212961,9.557792 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1562651890384743945
+@43 particle - op=- type=couture-s2-p-tip at=-6.625910,5.432961,8.265674 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5437047511709809062
+@43 particle - op=- type=couture-s2-p-tip at=-6.604194,5.212961,9.408960 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1562651890384743945
 @43 particle - op=- type=couture-s2-p-tip at=-6.584961,5.312961,8.797385 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-9208064320603914042
 @43 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.720637,1.383808,0.499780 to=-6.364168,5.166322,8.306623
 @43 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.720637,1.383808,0.499780 to=-6.222959,5.111667,8.346943
 @43 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.720637,1.383808,0.499780 to=-6.337409,5.161868,8.457740
 @43 hit - op=- at=-6.252161,5.269420,8.350032 r=0.220000
-@44 particle - op=- type=couture-s2-p-tip at=-6.761433,5.389420,8.028875 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1038930981970761298
-@44 particle - op=- type=couture-s2-p-tip at=-6.344704,5.169420,9.469825 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1483973217964389004
+@44 particle - op=- type=couture-s2-p-tip at=-6.563926,5.389420,8.177707 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1038930981970761298
+@44 particle - op=- type=couture-s2-p-tip at=-6.542210,5.169420,9.320993 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1483973217964389004
 @44 particle - op=- type=couture-s2-p-tip at=-6.522977,5.269420,8.709418 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2408639562766955812
 @44 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.720637,1.383808,0.499780 to=-6.302184,5.122782,8.218656
 @44 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.720637,1.383808,0.499780 to=-6.160975,5.068126,8.258976

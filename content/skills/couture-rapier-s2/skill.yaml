@@ -47,8 +47,7 @@ machine:
       radius: 0.22
       hit: {targets: enemies, once: true}
       block: {mode: stick, for: "= stick_ticks"}
-      # GAP: v2 hit shape is a capsule root->tip of both blades (radius 0.22), window once -> projectile capsule radius 0.22 (axis follows velocity)
-      # GAP: v2 lane_a/lane_b blade offsets +-left * blade length * lane -> none (no blade length in the engine)
+      # GAP: v2 hit shape is a capsule root->tip of both blades (radius 0.22), window once -> projectile sphere radius 0.22 (hit.shape frames need live blade frames; G7 does not add them)
       # GAP: v2 align velocity axis with world.up reference -> default
       motion:
         - {law: spin, axis: left, deg_per_tick: 54, at: 0, for: 7}   # ENGINE: projectile motion lowers without params; 54 = spin_dpt, 7 = ceil(throw_range / throw_speed) + 2
@@ -65,8 +64,8 @@ machine:
           - {id: crumb, op: particle_def, def: couture-s2-p-crumb, anchor: contact}
           - {id: wall_snd, op: sound, sound: couture.stab_wall, anchor: contact}
     # v1 tip-glint (couture-s2-*-flight): ticks 3..10 of the flight rig clock, i.e. from the release at 34: world-owned so they follow the flight whichever state it is in.
-    - {id: tip_glint_a, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: -0.6, up: 0.12, forward: 0.05}}, at: 37, every: 1, times: 8}
-    - {id: tip_glint_b, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: 0.6, up: -0.1, forward: 0.95}}, at: 37, every: 1, times: 8}
+    - {id: tip_glint_a, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: "= -lane * part_length(piece_a)", up: 0.12, forward: 0.05}}, at: 37, every: 1, times: 8}
+    - {id: tip_glint_b, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: "= lane * part_length(piece_b)", up: -0.1, forward: 0.95}}, at: 37, every: 1, times: 8}
     - {id: tip_glint_body, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: 0.0, up: 0.0, forward: 0.45}}, at: 37, every: 1, times: 8}
   states:
     windup:
@@ -1028,10 +1027,10 @@ machine:
       then: reel
       do:
         # v1 stick-spark / stick-pink (couture-s2-*-stuck): ticks 0..2 per piece at the v1 vfx-local point (x lane, y 1.48, z 0.05). same axis mapping as tip-glint; the anchor is the volley, not the hit point.
-        - {id: stick_a_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /windup/volley, offset: {left: -0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
-        - {id: stick_a_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: /windup/volley, offset: {left: -0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
-        - {id: stick_b_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /windup/volley, offset: {left: 0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
-        - {id: stick_b_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: /windup/volley, offset: {left: 0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_a_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /windup/volley, offset: {left: "= -lane * part_length(piece_a)", up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_a_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: /windup/volley, offset: {left: "= -lane * part_length(piece_a)", up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_b_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /windup/volley, offset: {left: "= lane * part_length(piece_b)", up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
+        - {id: stick_b_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: /windup/volley, offset: {left: "= lane * part_length(piece_b)", up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
         - {id: stick_body_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /windup/volley, offset: {left: 0.0, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
         - {id: stick_body_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: /windup/volley, offset: {left: 0.0, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
         - id: t2
