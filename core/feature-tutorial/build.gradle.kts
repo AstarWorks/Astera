@@ -8,4 +8,5 @@ dependencies {
     api(project(":kernel:domain"))
     api(project(":kernel:mc-api"))
     api(project(":kernel:runtime"))
+    implementation(libs.slf4j.api)
 }
