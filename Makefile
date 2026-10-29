@@ -215,7 +215,7 @@ live-view-down: ## Stop this checkout's live viewer, clients, private audio daem
 .PHONY: vfx-shot
 vfx-shot: ## Film a skill with a real headless MC client (serialized host-wide, torn down on exit; SHOT_KEEP=1 keeps it warm for SHOT_KEEP_TTL): make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|compare|all] [CASE=<case>] [TICKS=60] [FOV=90] [BEAT_TICKS=case|0,8,16]
 	@test -n "$(SKILL)" || { echo "usage: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|compare|all] [CASE=<case>] [TICKS=60]"; exit 2; }
-	SKILL="$(SKILL)" VIEW="$(or $(VIEW),all)" TICKS="$(TICKS)" bash tools/vfx-shot/vfx-shot.sh
+	SKILL="$(SKILL)" VIEW="$(or $(VIEW),all)" TICKS="$(TICKS)" DUMMIES="$(DUMMIES)" bash tools/vfx-shot/vfx-shot.sh
 
 .PHONY: vfx-shot-up
 vfx-shot-up: ## Create/refresh this checkout's kept capture stack and park the clients for SHOT_KEEP_TTL s (VIEW=compare CASE=<case> | side), no capture
