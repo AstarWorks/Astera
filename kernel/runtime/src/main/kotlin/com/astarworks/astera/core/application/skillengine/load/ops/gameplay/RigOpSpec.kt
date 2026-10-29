@@ -143,7 +143,7 @@ public object RigOpSpec : OpSpec<RigOp> {
     /** The display transform the player draws the main-hand mesh with (`AnchorMainHand`); a rig carrying the held item takes its blade axes from a part with this display. */
     private const val HELD_DISPLAY = "thirdperson_righthand"
 
-    private val BUILTIN_PARENTS =setOf("caster", "caster.body", "caster.eye", "caster.look", "caster.hand_r", "caster.hand_l", "world")
+    private val BUILTIN_PARENTS = setOf("caster", "caster.body", "caster.eye", "caster.look", "world")
 
     override fun lower(op: RigOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value

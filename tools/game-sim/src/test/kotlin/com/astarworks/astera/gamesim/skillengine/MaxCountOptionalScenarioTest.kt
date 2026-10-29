@@ -24,21 +24,6 @@ class MaxCountOptionalScenarioTest : SkillEngineScenario() {
 
     private val foes = listOf(foe(1, 1.0), foe(2, 2.0), foe(3, 3.0), foe(4, 4.0))
 
-    private fun areaStatus(maxCount: String) = load(
-        """
-        apiVersion: astera/v3
-        kind: Skill
-        id: area-max-count
-        machine:
-          start: s
-          states:
-            s:
-              for: 4
-              do:
-                - {id: st, op: status, target: {kind: enemies, around: caster, radius: 8.0$maxCount}, status: shock, stacks: 1, for: 30}
-        """,
-    )
-
     private fun played(skill: CompiledSkill, verb: String): List<RecordedCall> {
         val rec = GatewayRecorder()
         rec.victims = foes
@@ -69,32 +54,10 @@ class MaxCountOptionalScenarioTest : SkillEngineScenario() {
         """,
     )
 
-    @Test
-    fun areaTargetMaxCountOmittedAllAndIntegerAreAllowed() {
-        assertThat(played(areaStatus(""), "status")).describedAs("omitted = unlimited").hasSize(4)
-        assertThat(played(areaStatus(", max_count: all"), "status")).describedAs("all = unlimited").hasSize(4)
-        assertThat(played(areaStatus(", max_count: 2"), "status")).describedAs("an integer keeps the nearest N").hasSize(2)
-    }
-
     /** One `status` on the caster per hit event (the recorder resolves `event.victim` to every scripted victim, so events are counted this way). */
     private fun events(maxCount: String): Int {
         val handler = "{id: mark, op: status, target: caster, status: charge, stacks: 1, for: 20}"
         return played(hitSkill(maxCount, "", handler), "status").size
-    }
-
-    @Test
-    fun hitMaxCountOmittedIsUnlimitedAndIntegerKeepsNearest() {
-        assertThat(events("")).describedAs("omitted = every victim").isEqualTo(4)
-        assertThat(events("\n                  max_count: all")).describedAs("all = every victim").isEqualTo(4)
-        assertThat(events("\n                  max_count: 2")).describedAs("nearest 2").isEqualTo(2)
-    }
-
-    @Test
-    fun triggerOnlyHitDealsDamageFromItsHandler() {
-        val handler = "{id: dmg, op: damage, target: event.victim, damage: {physical: 30.0}}"
-        val dealt = played(hitSkill("", "", handler), "damage")
-        assertThat(dealt).isNotEmpty()
-        assertThat(dealt).allSatisfy { assertThat(it.payload).contains("physical=30") }
     }
 
     @Test

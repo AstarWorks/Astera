@@ -53,3 +53,14 @@ tasks.withType<Test>().configureEach {
     // `make skill-trace SKILL=<id>` -> SkillTraceExportScenarioTest writes build/sim-traces/v2/<id>.json (ADR-0301 preview feed).
     providers.gradleProperty("skill").orNull?.let { systemProperty("astera.sim.skill", it) }
 }
+
+// Regenerates the shipped-skill parity oracle goldens (src/test/resources/skill-oracle) from the current content; review and commit the diff.
+tasks.register<Test>("regenSkillOracle") {
+    group = "verification"
+    description = "Rewrites tools/game-sim/src/test/resources/skill-oracle from the shipped content/skills (ShippedV3ContentScenarioTest in regen mode)."
+    val verification = tasks.named<Test>("test").get()
+    testClassesDirs = verification.testClassesDirs
+    classpath = verification.classpath
+    filter { includeTestsMatching("*ShippedV3ContentScenarioTest*") }
+    systemProperty("astera.oracle.regen", "true")
+}

@@ -26,8 +26,8 @@ params:
   spark_count: {type: number, default: 14}
 # Four hits: coin1 30 (sector 30 deg, 9 blocks, height 2.0), throw 18 + bleed 2x60, reel 6, coin3 50 (dash 9 blocks, 3 ticks).
 anchors:
-  - {id: shears, anchor: caster.hand_r, mount: caster}
-  - {id: palm, anchor: caster.palm, mount: caster}
+  - {id: shears, anchor: body_anim.hand_r, mount: caster}
+  - {id: palm, anchor: body_anim.hand_r, mount: caster}
   - {id: body_c, anchor: caster, offset: {up: 0.9}, mount: caster}
 machine:
   start: windup
@@ -48,7 +48,7 @@ machine:
       hit: {targets: enemies, once: true}
       block: {mode: stick, for: "= stick_ticks"}
       # GAP: v2 hit shape is a capsule root->tip of both blades (radius 0.22), window once -> projectile capsule radius 0.22 (axis follows velocity)
-      # GAP: v2 lane_a/lane_b blade offsets +-left * blade_len * lane -> none (blade_len is a frame-table value)
+      # GAP: v2 lane_a/lane_b blade offsets +-left * blade length * lane -> none (no blade length in the engine)
       # GAP: v2 align velocity axis with world.up reference -> default
       motion:
         - {law: spin, axis: left, deg_per_tick: 54, at: 0, for: 7}   # ENGINE: projectile motion lowers without params; 54 = spin_dpt, 7 = ceil(throw_range / throw_speed) + 2
@@ -1010,7 +1010,7 @@ machine:
         - {id: fly_b_m, op: display, kind: item, item: "astera:couture-rapier-blade-b", anchor: fly_b, until: reel.end}
         - {id: throw_snd, op: sound, sound: couture.throw, anchor: shears, pitch: 1.1}
         # v2 dust: vanilla directed form (R34); v2 speed 0 so the velocity is only inherit_velocity 0.5 x the volley velocity.
-        - {id: puff, op: particle, particle: dust, anchor: caster.palm, times: 6, count: 0, offset: "= velocity(volley) * 0.5", extra: 1.0, color: "#ff5fa2", size: 1.0}
+        - {id: puff, op: particle, particle: dust, anchor: palm, times: 6, count: 0, offset: "= velocity(volley) * 0.5", extra: 1.0, color: "#ff5fa2", size: 1.0}
         # v2 thread lines palm -> blade_a.root / blade_b.root / body.pivot (R34: live ribbons).
         - {id: palm_f, op: frame, anchor: palm, until: reel.end}   # ribbon ends resolve frame-op ids only (RibbonOpSpec.anchorOf), not document anchors
         # ENGINE GAP: RibbonOpSpec.kt:179 demands a static `for`, but the reel ends on arrival (runtime distance, v2), so its length is not fixed; kept until: reel.end (not a literal 51) until the engine accepts it.

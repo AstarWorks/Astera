@@ -1,0 +1,16 @@
+## pose yaw=0 pitch=0
+@0 sound - op=- sound=astera:skill/wand/cast cat=master vol=0.5 pitch=1.7 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=thunder-cast at=0.000000,-0.200000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=778546971586267044
+@0 particle - op=- type=electric_spark count=3 at=0.000000,1.620000,0.500000 off=0.120000,0.120000,0.120000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-600047974945191173
+@0 particle - op=- type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1100231700749960988
+@1 particle - op=- type=electric_spark count=3 at=0.000000,1.620000,0.500000 off=0.120000,0.120000,0.120000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4997974928357991592
+@1 particle - op=- type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5736040346842269169
+@1 hit - op=- at=0.000000,1.620000,3.100000 r=0.500000
+## pose yaw=37 pitch=-20
+@0 sound - op=- sound=astera:skill/wand/cast cat=master vol=0.5 pitch=1.7 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=thunder-cast at=-0.601815,-0.200000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=778546971586267044
+@0 particle - op=- type=electric_spark count=3 at=-0.282761,1.791010,0.375236 off=0.120000,0.120000,0.120000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-600047974945191173
+@0 particle - op=- type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1100231700749960988
+@1 particle - op=- type=electric_spark count=3 at=-0.282761,1.791010,0.375236 off=0.120000,0.120000,0.120000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4997974928357991592
+@1 particle - op=- type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5736040346842269169
+@1 hit - op=- at=-1.753116,2.680262,2.326463 r=0.500000

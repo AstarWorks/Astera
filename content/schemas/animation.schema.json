@@ -32,6 +32,12 @@
         },
         "two_hand_grip": {
             "type": "boolean"
+        },
+        "points": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/com.astarworks.astera.core.application.config.RigPointYaml"
+            }
         }
     },
     "required": [
@@ -39,6 +45,24 @@
         "length_ticks"
     ],
     "definitions": {
+        "com.astarworks.astera.core.application.config.RigPointYaml": {
+            "type": "object",
+            "properties": {
+                "bone": {
+                    "type": "string"
+                },
+                "offset": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                }
+            },
+            "required": [
+                "bone",
+                "offset"
+            ]
+        },
         "com.astarworks.astera.core.application.config.RigBoneTrackYaml": {
             "type": "object",
             "properties": {

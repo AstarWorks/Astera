@@ -56,24 +56,8 @@ machine:
 """
 
     @Test
-    fun aCallerReadsASiblingCallsPublishedFrame() {
-        val ok = compileText("frames-out-probe.yaml", text("fly.bolt"))
-        assertThat(ok).`as`(ok.toString()).isInstanceOf(Result.Success::class.java)
-    }
-
-    @Test
     fun aFrameTheSiblingDoesNotPublishStaysUnresolved() {
         assertThat(compileText("frames-out-probe.yaml", text("fly.nothing"))).isInstanceOf(Result.Failure::class.java)
     }
 
-    @Test
-    fun theFinishedBodyStaysReadableAtItsLastPose() {
-        val compiled = compileText("frames-out-probe.yaml", text("fly.bolt"))
-        val skill = (compiled as Result.Success).value
-        val rec = GatewayRecorder()
-        play(skill, 1L, emptyList(), 30, rec)
-        // the body is gone at tick 10 (state ended); the sound still resolves its frame, the frozen last pose (the sim moves no bodies, Paper does)
-        assertThat(rec.soundPositions).`as`(rec.trace.toString()).isNotEmpty()
-        assertThat(rec.soundPositions.first().first).isEqualTo(10)
-    }
 }

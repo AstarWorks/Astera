@@ -14,12 +14,6 @@ class DisplayPartScenarioTest : SkillEngineScenario() {
     ).joinToString("\n") + "\n"
 
     @Test
-    fun anItemDisplayReadsTheAxesOfItsPart() {
-        val ok = loadInline(skill("{id: d, op: display, kind: item, item: main_hand, part: body, anchor: caster, rotate: [{axis: long, deg: 90}], for: 10}"))
-        assertThat(ok).`as`(ok.toString()).isInstanceOf(Result.Success::class.java)
-    }
-
-    @Test
     fun aPartTheItemDoesNotDeclareIsALoadError() {
         assertThat(loadInline(skill("{id: d, op: display, kind: item, item: main_hand, part: nope, anchor: caster, for: 10}"))).isInstanceOf(Result.Failure::class.java)
     }

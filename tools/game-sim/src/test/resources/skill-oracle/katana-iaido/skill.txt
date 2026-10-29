@@ -1,0 +1,28 @@
+## pose yaw=0 pitch=0
+@0 sound - op=- sound=astera:weapons/dash-whoosh cat=master vol=1 pitch=1.4 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1159241364499534727
+@0 move - op=- to=0,0,1.3333 yaw=- pitch=-
+@0 hit - op=- at=0.000000,0.900000,1.333333 r=1.000000
+@0 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=katana-iaido at=0.000000,0.900000,2.200000 ignoreinv=false ignorearmor=false
+@0 sound - op=- sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=0.000000,0.900000,2.200000
+@1 move - op=- to=0,0,2.6667 yaw=- pitch=-
+@1 hit - op=- at=0.000000,0.900000,2.666667 r=1.000000
+@2 move - op=- to=0,0,4 yaw=- pitch=-
+@2 move - op=- add_velocity v=0.000000,0.000000,0.000000
+@2 hit - op=- at=0.000000,0.900000,4.000000 r=1.000000
+@2 damage 00000000-0000-0000-0000-00000000000b op=- physical=40 skill=katana-iaido at=0.000000,0.900000,4.700000 ignoreinv=false ignorearmor=false
+@2 sound - op=- sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=0.000000,0.900000,4.700000
+## pose yaw=37 pitch=-20
+@0 sound - op=- sound=astera:weapons/dash-whoosh cat=master vol=1 pitch=1.4 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1159241364499534727
+@0 move - op=- to=-0.8024,0,1.0648 yaw=- pitch=-
+@0 hit - op=- at=-0.802420,0.900000,1.064847 r=1.000000
+@0 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=katana-iaido at=-1.204538,0.900000,1.696589 ignoreinv=false ignorearmor=false
+@0 sound - op=- sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=-1.204538,0.900000,1.696589
+@1 move - op=- to=-1.6048,0,2.1297 yaw=- pitch=-
+@1 hit - op=- at=-1.604840,0.900000,2.129695 r=1.000000
+@2 move - op=- to=-2.4073,0,3.1945 yaw=- pitch=-
+@2 move - op=- add_velocity v=0.000000,0.000000,0.000000
+@2 hit - op=- at=-2.407260,0.900000,3.194542 r=1.000000
+@2 damage 00000000-0000-0000-0000-00000000000b op=- physical=40 skill=katana-iaido at=-2.709075,0.900000,3.693178 ignoreinv=false ignorearmor=false
+@2 sound - op=- sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=-2.709075,0.900000,3.693178

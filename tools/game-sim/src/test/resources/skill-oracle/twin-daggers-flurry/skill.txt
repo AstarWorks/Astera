@@ -1,0 +1,8 @@
+## pose yaw=0 pitch=0
+@0 sound - op=- sound=astera:weapons/sword-swing cat=master vol=1 pitch=1.7 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=stab-spark at=0.000000,-0.200000,1.400000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1334771420847429010
+@0 hit - op=- at=0.000000,1.620000,0.000000 r=4.500000
+## pose yaw=37 pitch=-20
+@0 sound - op=- sound=astera:weapons/sword-swing cat=master vol=1 pitch=1.7 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=stab-spark at=-0.842541,-0.200000,1.118090 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1334771420847429010
+@0 hit - op=- at=0.000000,1.620000,0.000000 r=4.500000

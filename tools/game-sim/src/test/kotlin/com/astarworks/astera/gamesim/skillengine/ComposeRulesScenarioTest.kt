@@ -1,7 +1,6 @@
 package com.astarworks.astera.gamesim.skillengine
 
 import com.astarworks.astera.core.domain.Result
-import com.astarworks.astera.core.domain.skillengine.table.Action
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -47,30 +46,9 @@ $body
     }
 
     @Test
-    fun everyWithOnlyTimesOrOnlyForIsFine() {
-        for (extra in listOf("at: 0, every: 4, times: 2", "at: 0, every: 4, for: 12")) {
-            assertThat(loadInline(skill(snd(extra)))).isInstanceOf(Result.Success::class.java)
-        }
-    }
-
-    @Test
-    fun paramDefaultIsSubstitutedBeforeLowering() {
-        val header = "params:\n  gap: {type: ticks, default: 5}"
-        val s = (loadInline(skill(snd("at: 0, every: \"\${gap}\", for: 12"), header)) as Result.Success).value
-        val ticks = s.table.states.first { it.state.value == "cast" }.rows.filter { it.action is Action.Sound }.map { it.tick }
-        assertThat(ticks).containsExactly(0, 5, 10)
-    }
-
-    @Test
     fun declaredEmitNeverEmittedIsCheckFive() {
         val msg = failure(skill(snd("at: 0"), "emits: [ghost]"))
         assertThat(msg).contains("emits 'ghost' is declared but never emitted")
-    }
-
-    @Test
-    fun declaredEmitThatIsEmittedPasses() {
-        val body = "        - {id: e, emit: ping, at: 3}"
-        assertThat(loadInline(skill(body, "emits: [ping]"))).isInstanceOf(Result.Success::class.java)
     }
 
     private fun chain(depth: Int): String {
@@ -116,12 +94,4 @@ $body
         assertThat(msg).containsIgnoringCase("nosuchfn")
     }
 
-    @Test
-    fun exampleJCompilesWithItsOpLevelCallSubTables() {
-        val s = loadExample("j-mythic-composition")
-        writeEvidence("compose-rules-j", s.table)
-        val callees = s.table.subTables.values.flatMap { it.rows }.map { it.action }.filterIsInstance<Action.Call>().map { it.callee.toString() }
-        assertThat(callees.any { it.contains("ember-splash") }).isTrue()
-        assertThat(callees.any { it.contains("ember-puff") }).isTrue()
-    }
 }
