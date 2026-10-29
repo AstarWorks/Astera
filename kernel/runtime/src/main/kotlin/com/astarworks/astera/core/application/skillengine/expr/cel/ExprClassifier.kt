@@ -98,7 +98,9 @@ public object ExprClassifier {
     private fun finite(lc: LowerContext, path: String, field: String, d: Double): Result<Int, SkillDecodeError> =
         if (d.isNaN() || d.isInfinite() || Math.abs(d) > Int.MAX_VALUE) {
             Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "timing field '$field' is not a finite tick count ($d)"))
-        } else Result.Success(Math.round(d).toInt())
+        } else if (d != Math.floor(d)) {
+            Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "timing field '$field' must be a whole number of ticks, found $d (a tick is never rounded)"))
+        } else Result.Success(d.toInt())
 
     private fun staticExpr(lc: LowerContext, path: String, field: String, source: String): Result<Int, SkillDecodeError> {
         val spec = V3Bindings.spec(lc.occurrence)

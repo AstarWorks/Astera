@@ -6,7 +6,7 @@
 @0 particle - op=fly/trail_2[0] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8773436987146381010
 @1 particle - op=fly/trail[1] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4765216629532801463
 @1 particle - op=fly/trail_2[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4852566514223921507
-@1 hit - op=fly/bolt at=0.000000,1.620000,6.500000 r=0.500000 shape=capsule a=0.000000,1.620000,6.500000 b=0.000000,1.620000,6.500000 rad=0.500000
+@1 hit - op=fly/bolt at=0.000000,1.620000,3.500000 r=3.500000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,6.500000 rad=0.500000
 @1 remove #0 op=fly/slug
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
@@ -18,7 +18,7 @@ g @1 cast-end | pose
 @0 particle - op=fly/trail_2[0] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8773436987146381010
 @1 particle - op=fly/trail[1] type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4765216629532801463
 @1 particle - op=fly/trail_2[1] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4852566514223921507
-@1 hit - op=fly/bolt at=-3.675887,3.843131,4.878067 r=0.500000 shape=capsule a=-3.675887,3.843131,4.878067 b=-3.675887,3.843131,4.878067 rad=0.500000
+@1 hit - op=fly/bolt at=-1.979324,2.817071,2.626652 r=3.500000 shape=capsule a=-0.282761,1.791010,0.375236 b=-3.675887,3.843131,4.878067 rad=0.500000
 @1 remove #0 op=fly/slug
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose

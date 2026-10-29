@@ -21,21 +21,22 @@ internal object SeqSugar {
         if (m.size != 1) fail(where, "a seq: item carries nothing else than the list")
         val items = m["seq"] as? List<*> ?: fail("$where.seq", "seq must be a list of ops and {wait: N}")
         var offset = 0
+        val refs = ArrayList<String>() // `wait: "${p}"`: the offset stays a sum that ParamSubst folds with the params (the TickFields rule)
         val out = ArrayList<OpMap>()
         items.forEachIndexed { j, item ->
             val at = "$where.seq[$j]"
             val im = item as? Map<*, *> ?: fail(at, "expected a mapping")
             if ("wait" in im) {
                 val w = im["wait"]
-                if (im.size != 1 || w !is Number || w.toDouble() < 0 || w.toDouble() != Math.floor(w.toDouble())) {
-                    fail(at, "wait must be the only key and a non-negative integer of ticks")
+                if (im.size != 1 || !(TickFields.isWholeTicks(w) || TickFields.isParamRef(w))) {
+                    fail(at, "wait must be the only key and a non-negative integer of ticks or \"\${param}\"")
                 }
-                offset += w.toInt()
+                if (w is Number) offset += w.toInt() else refs += w as String
             } else {
                 if ("at" in im || "seq" in im) fail(at, "a seq item takes its tick from the running offset: no 'at', no nested seq")
                 val op = LinkedHashMap<String, Any?>()
                 for ((k, v) in im) op[k as? String ?: fail(at, "non-string key '$k'")] = v
-                op["at"] = offset
+                op["at"] = if (refs.isEmpty()) offset else "= " + (if (offset != 0) listOf(offset.toString()) + refs else refs).joinToString(" + ")
                 out += op
             }
         }

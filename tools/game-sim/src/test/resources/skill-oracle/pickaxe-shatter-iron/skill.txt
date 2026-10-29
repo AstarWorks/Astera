@@ -9,5 +9,5 @@
 ## gameplay-static
 g @0..1 cast-length | cast
 g @1 state-end then=end final=false | state=cast
-g @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D3.0,%20ahead%3D4.0),%20tool%3Dpickaxe,%20blockDamage%3D100,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | state=cast
+g @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D3.0),%20tool%3Dpickaxe,%20blockDamage%3D100,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | state=cast
 g @0 state-end then=- final=true | state=end

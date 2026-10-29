@@ -32,7 +32,7 @@ fragments:
       - {id: boom, op: explode, at: 0, anchor: spot, power: 1.3, break_blocks: false, fire: false}
       - {id: dmg, op: damage, target: {kind: enemies, around: spot, radius: "${radius}"}, damage: {physical: "${damage}"}}
       - {id: bleed, op: status, target: {kind: enemies, around: spot, radius: "${radius}"}, status: bleed, stacks: 1, for: "${bleed}"}
-      - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.5, ahead: 4.0}}, tool: none, block_damage: 35, ripple: 29, revert: 200, outside_arena: false}
+      - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.5}}, tool: none, block_damage: 35, ripple: 29, revert: 200, outside_arena: false}
       - {id: snd, op: sound, sound: "entity.generic.explode", anchor: contact, volume: 0.7, pitch: 1.2}
 machine:
   start: throw

@@ -31,7 +31,7 @@ fragments:
       - {id: snd, op: sound, sound: "${snd}", anchor: spot, volume: "${vol}", pitch: "${pitch}"}
       - {id: fx, op: particle_def, def: gun-impact, anchor: spot}
       - {id: fx_smoke, op: particle_def, def: gun-impact-smoke, anchor: spot, when: "= ${smoke}"}
-      - {id: chip, op: break_area, anchor: spot, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 12, ripple: 29, revert: 200, outside_arena: false}
+      - {id: chip, op: break_area, anchor: spot, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 12, ripple: 29, revert: 200, outside_arena: false}
 machine:
   start: fire
   states:

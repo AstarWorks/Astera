@@ -204,6 +204,9 @@ internal object CelFunctions {
             Triple("_<=_", "le", { a, b -> a <= b }),
             Triple("_>_", "gt", { a, b -> a > b }),
             Triple("_>=_", "ge", { a, b -> a >= b }),
+            // number params are doubles: `tier == 2` compares by value (numeric promotion), not by type
+            Triple("_==_", "eq", { a, b -> a == b }),
+            Triple("_!=_", "ne", { a, b -> a != b }),
         )
         for ((op, tag, f) in compare) {
             def(op, "${tag}_double_int", SimpleType.BOOL, listOf(D, I), listOf(DBL, LNG)) { f(n(it[0]), n(it[1])) }

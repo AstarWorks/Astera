@@ -785,7 +785,7 @@
 @35 line #60 op=coin3/smear_a[2] from=-0.380919,1.760197,-0.097546 to=-0.075660,1.487654,-0.722199
 @35 write #56 op=throw/thread_body dur=1 pos=-0.068960,1.627387,-0.657470 rot=0.914513,-0.103966,-0.143097,0.363841 scale=1.000000,1.000000,1.000000 bb=FIXED
 @35 write #57 op=throw/flight_fan dur=1 pos=-0.068960,1.627387,-0.657470 rot=0.918166,-0.098748,-0.135915,0.358813 scale=1.000000,1.000000,1.000000 bb=FIXED
-@35 hit - op=volley at=-0.053651,1.625747,1.042460 r=0.220000 shape=capsule a=-0.053651,1.625747,1.042460 b=-0.053651,1.625747,1.042460 rad=0.220000
+@35 hit - op=volley at=-0.061305,1.626567,0.192495 r=1.070000 shape=capsule a=-0.068960,1.627387,-0.657470 b=-0.053651,1.625747,1.042460 rad=0.220000
 @35 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @35 frame throw/fly_body op=throw/fly_body pos=-0.053651,1.625747,1.042460 rot=0.453990,0.000000,0.000000,0.891007
 @35 frame throw/fly_a op=throw/fly_a pos=-0.053651,1.625747,1.042460 rot=0.243184,-0.176877,0.000000,0.953717
@@ -796,7 +796,7 @@
 @36 line #60 op=coin3/smear_a[2] from=-0.408606,1.633688,0.462354 to=-0.060351,1.595981,0.891367
 @36 write #56 op=throw/thread_body dur=1 pos=-0.053651,1.625747,1.042460 rot=-0.980017,0.027670,0.174700,0.090996 scale=1.000000,1.000000,1.000000 bb=FIXED
 @36 write #57 op=throw/flight_fan dur=1 pos=-0.053651,1.625747,1.042460 rot=-0.980990,0.026281,0.165932,0.097134 scale=1.000000,1.000000,1.000000 bb=FIXED
-@36 hit - op=volley at=-0.038342,1.624107,2.742390 r=0.220000 shape=capsule a=-0.038342,1.624107,2.742390 b=-0.038342,1.624107,2.742390 rad=0.220000
+@36 hit - op=volley at=-0.045997,1.624927,1.892425 r=1.070000 shape=capsule a=-0.053651,1.625747,1.042460 b=-0.038342,1.624107,2.742390 rad=0.220000
 @36 remove #61 op=coin3/smear_b[0]
 @36 particle - op=stuck/stick_a_stick[0] type=couture-s2-p-stick at=-0.638342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1945309706918226428
 @36 particle - op=stuck/stick_a_stick_pink[0] type=couture-s2-p-stick-pink at=-0.638342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1861609863531712386
@@ -832,188 +832,188 @@
 @38 line #58 op=coin3/smear_a[0] from=-0.250226,1.399399,0.842593 to=-0.157357,1.786717,2.716726
 @38 line #59 op=coin3/smear_a[1] from=-0.250226,1.399399,0.842593 to=-0.020317,1.861958,2.727301
 @38 line #60 op=coin3/smear_a[2] from=-0.250226,1.399399,0.842593 to=-0.045042,1.728848,2.629498
-@38 spawn #62 op=coin3/smear_b[1] kind=sprite sprite=couture-s2-burst-soft alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.241455,1.724107,4.026425 rot=-0.497563,0.417505,-0.582456,0.488739 scale=0.071200,0.085500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #63 op=coin3/smear_b[2] kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.272703,1.624107,4.223969 rot=-0.504774,0.408758,-0.590897,0.478499 scale=0.193000,0.158000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #64 op=coin3/smear_c[0] kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.251111,1.861871,4.087469 rot=-0.647051,0.056610,-0.757449,0.066268 scale=0.193000,0.158000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #65 op=coin3/smear_c[1] kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.216175,1.771054,3.866609 rot=0.562503,0.324761,0.658476,0.380171 scale=0.193000,0.158000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #66 op=coin3/smear_c[2] kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.216175,1.477161,3.866609 rot=0.274500,0.588667,0.321335,0.689104 scale=0.193000,0.158000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #67 op=coin3/pink_crescent kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.251111,1.386343,4.087469 rot=-0.112788,0.639655,-0.132032,0.748791 scale=0.193000,0.158000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #68 op=- kind=sprite sprite=couture-s2-burst-star alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.272703,1.424107,4.223969 rot=0.459282,0.459282,0.537643,0.537643 scale=0.027000,0.027000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #69 op=- kind=sprite sprite=couture-s2-burst-star alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.210207,1.874107,3.828881 rot=0.482689,0.434615,0.565044,0.508768 scale=0.027000,0.027000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #70 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.311763,1.624107,4.470899 rot=-0.497563,0.417505,-0.582456,0.488739 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #71 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.291171,1.942305,4.340715 rot=-0.619461,0.195315,-0.725151,0.228639 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #72 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.241455,2.074107,4.026425 rot=0.647051,0.056610,0.757449,0.066268 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #73 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.191740,1.942305,3.712135 rot=0.576134,0.299916,0.674432,0.351087 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #74 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.171147,1.624107,3.581951 rot=0.417505,0.497563,0.488739,0.582456 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #75 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.191740,1.305909,3.712135 rot=0.195315,0.619461,0.228639,0.725151 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #76 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.241455,1.174107,4.026425 rot=-0.056610,0.647051,-0.066268,0.757449 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #77 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.291171,1.305909,4.340715 rot=-0.299916,0.576134,-0.351087,0.674432 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #78 op=- kind=sprite sprite=couture-s2-haze-soft alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.241455,1.624107,4.026425 rot=0.459282,0.459282,0.537643,0.537643 scale=0.036000,0.036000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 write #62 op=coin3/smear_b[1] dur=1 pos=-0.241455,1.724107,4.026425 rot=-0.497563,0.417505,-0.582456,0.488739 scale=0.142500,0.142500,1.000000 bb=CENTER
-@38 write #63 op=coin3/smear_b[2] dur=1 pos=-0.272703,1.624107,4.223969 rot=-0.504774,0.408758,-0.590897,0.478499 scale=0.350999,0.280801,1.000000 bb=CENTER
-@38 write #64 op=coin3/smear_c[0] dur=1 pos=-0.251111,1.861871,4.087469 rot=-0.647051,0.056610,-0.757449,0.066268 scale=0.350999,0.280801,1.000000 bb=CENTER
-@38 write #65 op=coin3/smear_c[1] dur=1 pos=-0.216175,1.771054,3.866609 rot=0.562503,0.324761,0.658476,0.380171 scale=0.350999,0.280801,1.000000 bb=CENTER
-@38 write #66 op=coin3/smear_c[2] dur=1 pos=-0.216175,1.477161,3.866609 rot=0.274500,0.588667,0.321335,0.689104 scale=0.350999,0.280801,1.000000 bb=CENTER
-@38 write #67 op=coin3/pink_crescent dur=1 pos=-0.251111,1.386343,4.087469 rot=-0.112788,0.639655,-0.132032,0.748791 scale=0.350999,0.280801,1.000000 bb=CENTER
-@38 write #68 op=- dur=1 pos=-0.272703,1.424107,4.223969 rot=0.459282,0.459282,0.537643,0.537643 scale=0.045000,0.045000,1.000000 bb=CENTER
-@38 write #69 op=- dur=1 pos=-0.210207,1.874107,3.828881 rot=0.482689,0.434615,0.565044,0.508768 scale=0.045000,0.045000,1.000000 bb=CENTER
-@38 write #70 op=- dur=1 pos=-0.311763,1.624107,4.470899 rot=-0.497563,0.417505,-0.582456,0.488739 scale=0.063000,0.056700,1.000000 bb=CENTER
-@38 write #71 op=- dur=1 pos=-0.291171,1.942305,4.340715 rot=-0.619461,0.195315,-0.725151,0.228639 scale=0.063000,0.056700,1.000000 bb=CENTER
-@38 write #72 op=- dur=1 pos=-0.241455,2.074107,4.026425 rot=0.647051,0.056610,0.757449,0.066268 scale=0.063000,0.056700,1.000000 bb=CENTER
-@38 write #73 op=- dur=1 pos=-0.191740,1.942305,3.712135 rot=0.576134,0.299916,0.674432,0.351087 scale=0.063000,0.056700,1.000000 bb=CENTER
-@38 write #74 op=- dur=1 pos=-0.171147,1.624107,3.581951 rot=0.417505,0.497563,0.488739,0.582456 scale=0.063000,0.056700,1.000000 bb=CENTER
-@38 write #75 op=- dur=1 pos=-0.191740,1.305909,3.712135 rot=0.195315,0.619461,0.228639,0.725151 scale=0.063000,0.056700,1.000000 bb=CENTER
-@38 write #76 op=- dur=1 pos=-0.241455,1.174107,4.026425 rot=-0.056610,0.647051,-0.066268,0.757449 scale=0.063000,0.056700,1.000000 bb=CENTER
-@38 write #77 op=- dur=1 pos=-0.291171,1.305909,4.340715 rot=-0.299916,0.576134,-0.351087,0.674432 scale=0.063000,0.056700,1.000000 bb=CENTER
-@38 write #78 op=- dur=1 pos=-0.241455,1.624107,4.026425 rot=0.459282,0.459282,0.537643,0.537643 scale=0.066000,0.066000,1.000000 bb=CENTER
+@38 spawn #62 op=coin3/smear_b[1] kind=sprite sprite=couture-s2-burst-soft alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.228627,1.724631,0.913288 rot=0.501564,-0.420862,-0.579014,0.485850 scale=0.071200,0.085500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #63 op=coin3/smear_b[2] kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.257150,1.624631,0.715333 rot=0.508833,-0.412045,-0.587405,0.475671 scale=0.193000,0.158000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #64 op=coin3/smear_c[0] kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.237441,1.862395,0.852117 rot=0.652254,-0.057065,-0.752973,0.065877 scale=0.193000,0.158000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #65 op=coin3/smear_c[1] kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.205552,1.771577,1.073438 rot=-0.567026,-0.327373,0.654585,0.377925 scale=0.193000,0.158000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #66 op=coin3/smear_c[2] kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.205552,1.477684,1.073438 rot=-0.276708,-0.593401,0.319436,0.685032 scale=0.193000,0.158000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #67 op=coin3/pink_crescent kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.237441,1.386866,0.852117 rot=0.113695,-0.644799,-0.131252,0.744366 scale=0.193000,0.158000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #68 op=- kind=sprite sprite=couture-s2-burst-star alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.257150,1.424631,0.715333 rot=-0.462975,-0.462975,0.534466,0.534466 scale=0.027000,0.027000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #69 op=- kind=sprite sprite=couture-s2-burst-star alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.200104,1.874631,1.111244 rot=-0.486571,-0.438110,0.561705,0.505762 scale=0.027000,0.027000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #70 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.292804,1.624631,0.467888 rot=0.501564,-0.420862,-0.579014,0.485850 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #71 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.274007,1.942829,0.598343 rot=0.624442,-0.196886,-0.720866,0.227288 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #72 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.228627,2.074631,0.913288 rot=-0.652254,-0.057065,0.752973,0.065877 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #73 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.183247,1.942829,1.228234 rot=-0.580767,-0.302328,0.670446,0.349012 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #74 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.164450,1.624631,1.358689 rot=-0.420862,-0.501564,0.485850,0.579014 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #75 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.183247,1.306433,1.228234 rot=-0.196886,-0.624442,0.227288,0.720866 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #76 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.228627,1.174631,0.913288 rot=0.057065,-0.652254,-0.065877,0.752973 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #77 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.274007,1.306433,0.598343 rot=0.302328,-0.580767,-0.349012,0.670446 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #78 op=- kind=sprite sprite=couture-s2-haze-soft alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.228627,1.624631,0.913288 rot=-0.462975,-0.462975,0.534466,0.534466 scale=0.036000,0.036000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 write #62 op=coin3/smear_b[1] dur=1 pos=-0.228627,1.724631,0.913288 rot=0.501564,-0.420862,-0.579014,0.485850 scale=0.142500,0.142500,1.000000 bb=CENTER
+@38 write #63 op=coin3/smear_b[2] dur=1 pos=-0.257150,1.624631,0.715333 rot=0.508833,-0.412045,-0.587405,0.475671 scale=0.350999,0.280801,1.000000 bb=CENTER
+@38 write #64 op=coin3/smear_c[0] dur=1 pos=-0.237441,1.862395,0.852117 rot=0.652254,-0.057065,-0.752973,0.065877 scale=0.350999,0.280801,1.000000 bb=CENTER
+@38 write #65 op=coin3/smear_c[1] dur=1 pos=-0.205552,1.771577,1.073438 rot=-0.567026,-0.327373,0.654585,0.377925 scale=0.350999,0.280801,1.000000 bb=CENTER
+@38 write #66 op=coin3/smear_c[2] dur=1 pos=-0.205552,1.477684,1.073438 rot=-0.276708,-0.593401,0.319436,0.685032 scale=0.350999,0.280801,1.000000 bb=CENTER
+@38 write #67 op=coin3/pink_crescent dur=1 pos=-0.237441,1.386866,0.852117 rot=0.113695,-0.644799,-0.131252,0.744366 scale=0.350999,0.280801,1.000000 bb=CENTER
+@38 write #68 op=- dur=1 pos=-0.257150,1.424631,0.715333 rot=-0.462975,-0.462975,0.534466,0.534466 scale=0.045000,0.045000,1.000000 bb=CENTER
+@38 write #69 op=- dur=1 pos=-0.200104,1.874631,1.111244 rot=-0.486571,-0.438110,0.561705,0.505762 scale=0.045000,0.045000,1.000000 bb=CENTER
+@38 write #70 op=- dur=1 pos=-0.292804,1.624631,0.467888 rot=0.501564,-0.420862,-0.579014,0.485850 scale=0.063000,0.056700,1.000000 bb=CENTER
+@38 write #71 op=- dur=1 pos=-0.274007,1.942829,0.598343 rot=0.624442,-0.196886,-0.720866,0.227288 scale=0.063000,0.056700,1.000000 bb=CENTER
+@38 write #72 op=- dur=1 pos=-0.228627,2.074631,0.913288 rot=-0.652254,-0.057065,0.752973,0.065877 scale=0.063000,0.056700,1.000000 bb=CENTER
+@38 write #73 op=- dur=1 pos=-0.183247,1.942829,1.228234 rot=-0.580767,-0.302328,0.670446,0.349012 scale=0.063000,0.056700,1.000000 bb=CENTER
+@38 write #74 op=- dur=1 pos=-0.164450,1.624631,1.358689 rot=-0.420862,-0.501564,0.485850,0.579014 scale=0.063000,0.056700,1.000000 bb=CENTER
+@38 write #75 op=- dur=1 pos=-0.183247,1.306433,1.228234 rot=-0.196886,-0.624442,0.227288,0.720866 scale=0.063000,0.056700,1.000000 bb=CENTER
+@38 write #76 op=- dur=1 pos=-0.228627,1.174631,0.913288 rot=0.057065,-0.652254,-0.065877,0.752973 scale=0.063000,0.056700,1.000000 bb=CENTER
+@38 write #77 op=- dur=1 pos=-0.274007,1.306433,0.598343 rot=0.302328,-0.580767,-0.349012,0.670446 scale=0.063000,0.056700,1.000000 bb=CENTER
+@38 write #78 op=- dur=1 pos=-0.228627,1.624631,0.913288 rot=-0.462975,-0.462975,0.534466,0.534466 scale=0.066000,0.066000,1.000000 bb=CENTER
 @38 particle - op=stuck/stick_a_stick[2] type=couture-s2-p-stick at=-0.638342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4375844934308586808
 @38 particle - op=stuck/stick_a_stick_pink[2] type=couture-s2-p-stick-pink at=-0.638342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3528691899581665775
 @38 particle - op=stuck/stick_b_stick[2] type=couture-s2-p-stick at=0.561658,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8759121522942455608
 @38 particle - op=stuck/stick_b_stick_pink[2] type=couture-s2-p-stick-pink at=0.561658,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=600753189182168694
 @38 particle - op=stuck/stick_body_stick[2] type=couture-s2-p-stick at=-0.038342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9078878596970928773
 @38 particle - op=stuck/stick_body_stick_pink[2] type=couture-s2-p-stick-pink at=-0.038342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=488344051084497342
-@38 particle - op=stuck/burst_ember[0] type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1200950964189959599
-@38 particle - op=stuck/hit2_orange[0] type=couture-s2-p-orange at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8864991505033457350
-@38 particle - op=stuck/hit2_spark[0] type=couture-s2-p-spark at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8260199622328119986
+@38 particle - op=stuck/burst_ember[0] type=couture-s2-burst-ember at=-0.043227,1.624631,2.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1200950964189959599
+@38 particle - op=stuck/hit2_orange[0] type=couture-s2-p-orange at=-0.043227,1.624631,2.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8864991505033457350
+@38 particle - op=stuck/hit2_spark[0] type=couture-s2-p-spark at=-0.043227,1.624631,2.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8260199622328119986
 @38 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @38 frame throw/fly_body op=throw/fly_body pos=-0.038342,1.624107,2.742390 rot=0.987688,0.000000,0.000000,0.156434
 @38 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @38 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @38 frame throw/palm_f op=throw/palm_f pos=-0.250226,1.399399,0.842593 rot=0.000000,0.000000,0.000000,1.000000
-@38 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@38 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @39 particle - op=tip_glint_a[2] type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-243604402132938472
 @39 particle - op=tip_glint_b[2] type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8806937396685245454
 @39 particle - op=tip_glint_body[2] type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1609945892599741113
 @39 line #58 op=coin3/smear_a[0] from=-0.268657,1.387867,0.835520 to=-0.157357,1.786717,2.716726
 @39 line #59 op=coin3/smear_a[1] from=-0.268657,1.387867,0.835520 to=-0.020317,1.861958,2.727301
 @39 line #60 op=coin3/smear_a[2] from=-0.268657,1.387867,0.835520 to=-0.045042,1.728848,2.629498
-@39 spawn #79 op=- kind=sprite sprite=couture-s2-burst-flare alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.257079,1.474107,4.125197 rot=0.459282,0.459282,0.537643,0.537643 scale=0.049800,0.049800,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@39 spawn #80 op=- kind=sprite sprite=couture-s2-burst-flare alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.225831,1.774107,3.927653 rot=0.490201,0.426125,0.573838,0.498829 scale=0.049800,0.049800,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@39 write #62 op=coin3/smear_b[1] dur=1 pos=-0.241455,1.724107,4.026425 rot=-0.497563,0.417505,-0.582456,0.488739 scale=0.149650,0.135400,1.000000 bb=CENTER
-@39 write #63 op=coin3/smear_b[2] dur=1 pos=-0.272703,1.624107,4.223969 rot=-0.504774,0.408758,-0.590897,0.478499 scale=0.386100,0.245699,1.000000 bb=CENTER
-@39 write #64 op=coin3/smear_c[0] dur=1 pos=-0.251111,1.861871,4.087469 rot=-0.647051,0.056610,-0.757449,0.066268 scale=0.386100,0.245699,1.000000 bb=CENTER
-@39 write #65 op=coin3/smear_c[1] dur=1 pos=-0.216175,1.771054,3.866609 rot=0.562503,0.324761,0.658476,0.380171 scale=0.386100,0.245699,1.000000 bb=CENTER
-@39 write #66 op=coin3/smear_c[2] dur=1 pos=-0.216175,1.477161,3.866609 rot=0.274500,0.588667,0.321335,0.689104 scale=0.386100,0.245699,1.000000 bb=CENTER
-@39 write #67 op=coin3/pink_crescent dur=1 pos=-0.251111,1.386343,4.087469 rot=-0.112788,0.639655,-0.132032,0.748791 scale=0.386100,0.245699,1.000000 bb=CENTER
-@39 write #68 op=- dur=1 pos=-0.272703,1.424107,4.223969 rot=0.459282,0.459282,0.537643,0.537643 scale=0.046150,0.046150,1.000000 bb=CENTER
-@39 write #69 op=- dur=1 pos=-0.210207,1.874107,3.828881 rot=0.482689,0.434615,0.565044,0.508768 scale=0.046150,0.046150,1.000000 bb=CENTER
-@39 write #70 op=- dur=1 pos=-0.311763,1.624107,4.470899 rot=-0.497563,0.417505,-0.582456,0.488739 scale=0.057400,0.051100,1.000000 bb=CENTER
-@39 write #71 op=- dur=1 pos=-0.291171,1.942305,4.340715 rot=-0.619461,0.195315,-0.725151,0.228639 scale=0.057400,0.051100,1.000000 bb=CENTER
-@39 write #72 op=- dur=1 pos=-0.241455,2.074107,4.026425 rot=0.647051,0.056610,0.757449,0.066268 scale=0.057400,0.051100,1.000000 bb=CENTER
-@39 write #73 op=- dur=1 pos=-0.191740,1.942305,3.712135 rot=0.576134,0.299916,0.674432,0.351087 scale=0.057400,0.051100,1.000000 bb=CENTER
-@39 write #74 op=- dur=1 pos=-0.171147,1.624107,3.581951 rot=0.417505,0.497563,0.488739,0.582456 scale=0.057400,0.051100,1.000000 bb=CENTER
-@39 write #75 op=- dur=1 pos=-0.191740,1.305909,3.712135 rot=0.195315,0.619461,0.228639,0.725151 scale=0.057400,0.051100,1.000000 bb=CENTER
-@39 write #76 op=- dur=1 pos=-0.241455,1.174107,4.026425 rot=-0.056610,0.647051,-0.066268,0.757449 scale=0.057400,0.051100,1.000000 bb=CENTER
-@39 write #77 op=- dur=1 pos=-0.291171,1.305909,4.340715 rot=-0.299916,0.576134,-0.351087,0.674432 scale=0.057400,0.051100,1.000000 bb=CENTER
-@39 write #78 op=- dur=1 pos=-0.241455,1.624107,4.026425 rot=0.459282,0.459282,0.537643,0.537643 scale=0.069000,0.069000,1.000000 bb=CENTER
-@39 write #79 op=- dur=1 pos=-0.257079,1.474107,4.125197 rot=0.459282,0.459282,0.537643,0.537643 scale=0.114000,0.114000,1.000000 bb=CENTER
-@39 write #80 op=- dur=1 pos=-0.225831,1.774107,3.927653 rot=0.490201,0.426125,0.573838,0.498829 scale=0.114000,0.114000,1.000000 bb=CENTER
-@39 particle - op=stuck/burst_ember[1] type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5312469093040510361
-@39 particle - op=stuck/hit2_orange[1] type=couture-s2-p-orange at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1927820932777651118
+@39 spawn #79 op=- kind=sprite sprite=couture-s2-burst-flare alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.242889,1.474631,0.814311 rot=-0.462975,-0.462975,0.534466,0.534466 scale=0.049800,0.049800,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@39 spawn #80 op=- kind=sprite sprite=couture-s2-burst-flare alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.214366,1.774631,1.012266 rot=-0.494143,-0.429552,0.570447,0.495882 scale=0.049800,0.049800,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@39 write #62 op=coin3/smear_b[1] dur=1 pos=-0.228627,1.724631,0.913288 rot=0.501564,-0.420862,-0.579014,0.485850 scale=0.149650,0.135400,1.000000 bb=CENTER
+@39 write #63 op=coin3/smear_b[2] dur=1 pos=-0.257150,1.624631,0.715333 rot=0.508833,-0.412045,-0.587405,0.475671 scale=0.386100,0.245699,1.000000 bb=CENTER
+@39 write #64 op=coin3/smear_c[0] dur=1 pos=-0.237441,1.862395,0.852117 rot=0.652254,-0.057065,-0.752973,0.065877 scale=0.386100,0.245699,1.000000 bb=CENTER
+@39 write #65 op=coin3/smear_c[1] dur=1 pos=-0.205552,1.771577,1.073438 rot=-0.567026,-0.327373,0.654585,0.377925 scale=0.386100,0.245699,1.000000 bb=CENTER
+@39 write #66 op=coin3/smear_c[2] dur=1 pos=-0.205552,1.477684,1.073438 rot=-0.276708,-0.593401,0.319436,0.685032 scale=0.386100,0.245699,1.000000 bb=CENTER
+@39 write #67 op=coin3/pink_crescent dur=1 pos=-0.237441,1.386866,0.852117 rot=0.113695,-0.644799,-0.131252,0.744366 scale=0.386100,0.245699,1.000000 bb=CENTER
+@39 write #68 op=- dur=1 pos=-0.257150,1.424631,0.715333 rot=-0.462975,-0.462975,0.534466,0.534466 scale=0.046150,0.046150,1.000000 bb=CENTER
+@39 write #69 op=- dur=1 pos=-0.200104,1.874631,1.111244 rot=-0.486571,-0.438110,0.561705,0.505762 scale=0.046150,0.046150,1.000000 bb=CENTER
+@39 write #70 op=- dur=1 pos=-0.292804,1.624631,0.467888 rot=0.501564,-0.420862,-0.579014,0.485850 scale=0.057400,0.051100,1.000000 bb=CENTER
+@39 write #71 op=- dur=1 pos=-0.274007,1.942829,0.598343 rot=0.624442,-0.196886,-0.720866,0.227288 scale=0.057400,0.051100,1.000000 bb=CENTER
+@39 write #72 op=- dur=1 pos=-0.228627,2.074631,0.913288 rot=-0.652254,-0.057065,0.752973,0.065877 scale=0.057400,0.051100,1.000000 bb=CENTER
+@39 write #73 op=- dur=1 pos=-0.183247,1.942829,1.228234 rot=-0.580767,-0.302328,0.670446,0.349012 scale=0.057400,0.051100,1.000000 bb=CENTER
+@39 write #74 op=- dur=1 pos=-0.164450,1.624631,1.358689 rot=-0.420862,-0.501564,0.485850,0.579014 scale=0.057400,0.051100,1.000000 bb=CENTER
+@39 write #75 op=- dur=1 pos=-0.183247,1.306433,1.228234 rot=-0.196886,-0.624442,0.227288,0.720866 scale=0.057400,0.051100,1.000000 bb=CENTER
+@39 write #76 op=- dur=1 pos=-0.228627,1.174631,0.913288 rot=0.057065,-0.652254,-0.065877,0.752973 scale=0.057400,0.051100,1.000000 bb=CENTER
+@39 write #77 op=- dur=1 pos=-0.274007,1.306433,0.598343 rot=0.302328,-0.580767,-0.349012,0.670446 scale=0.057400,0.051100,1.000000 bb=CENTER
+@39 write #78 op=- dur=1 pos=-0.228627,1.624631,0.913288 rot=-0.462975,-0.462975,0.534466,0.534466 scale=0.069000,0.069000,1.000000 bb=CENTER
+@39 write #79 op=- dur=1 pos=-0.242889,1.474631,0.814311 rot=-0.462975,-0.462975,0.534466,0.534466 scale=0.114000,0.114000,1.000000 bb=CENTER
+@39 write #80 op=- dur=1 pos=-0.214366,1.774631,1.012266 rot=-0.494143,-0.429552,0.570447,0.495882 scale=0.114000,0.114000,1.000000 bb=CENTER
+@39 particle - op=stuck/burst_ember[1] type=couture-s2-burst-ember at=-0.043227,1.624631,2.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5312469093040510361
+@39 particle - op=stuck/hit2_orange[1] type=couture-s2-p-orange at=-0.043227,1.624631,2.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1927820932777651118
 @39 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @39 frame throw/fly_body op=throw/fly_body pos=-0.038342,1.624107,2.742390 rot=0.987688,0.000000,0.000000,0.156434
 @39 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @39 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @39 frame throw/palm_f op=throw/palm_f pos=-0.268657,1.387867,0.835520 rot=0.000000,0.000000,0.000000,1.000000
-@39 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@39 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @40 particle - op=tip_glint_a[3] type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1605563420566228667
 @40 particle - op=tip_glint_b[3] type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9193266820357119479
 @40 particle - op=tip_glint_body[3] type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5708119107986556800
 @40 line #58 op=coin3/smear_a[0] from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @40 line #59 op=coin3/smear_a[1] from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @40 line #60 op=coin3/smear_a[2] from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
-@40 write #62 op=coin3/smear_b[1] dur=1 pos=-0.241455,1.724107,4.026425 rot=-0.497563,0.417505,-0.582456,0.488739 scale=0.156800,0.128300,1.000000 bb=CENTER
-@40 write #63 op=coin3/smear_b[2] dur=1 pos=-0.272703,1.624107,4.223969 rot=-0.504774,0.408758,-0.590897,0.478499 scale=0.315900,0.186925,1.000000 bb=CENTER
-@40 write #64 op=coin3/smear_c[0] dur=1 pos=-0.251111,1.861871,4.087469 rot=-0.647051,0.056610,-0.757449,0.066268 scale=0.315900,0.186925,1.000000 bb=CENTER
-@40 write #65 op=coin3/smear_c[1] dur=1 pos=-0.216175,1.771054,3.866609 rot=0.562503,0.324761,0.658476,0.380171 scale=0.315900,0.186925,1.000000 bb=CENTER
-@40 write #66 op=coin3/smear_c[2] dur=1 pos=-0.216175,1.477161,3.866609 rot=0.274500,0.588667,0.321335,0.689104 scale=0.315900,0.186925,1.000000 bb=CENTER
-@40 write #67 op=coin3/pink_crescent dur=1 pos=-0.251111,1.386343,4.087469 rot=-0.112788,0.639655,-0.132032,0.748791 scale=0.315900,0.186925,1.000000 bb=CENTER
-@40 write #68 op=- dur=1 pos=-0.272703,1.424107,4.223969 rot=0.459282,0.459282,0.537643,0.537643 scale=0.047300,0.047300,1.000000 bb=CENTER
-@40 write #69 op=- dur=1 pos=-0.210207,1.874107,3.828881 rot=0.482689,0.434615,0.565044,0.508768 scale=0.047300,0.047300,1.000000 bb=CENTER
-@40 write #70 op=- dur=1 pos=-0.311763,1.624107,4.470899 rot=-0.497563,0.417505,-0.582456,0.488739 scale=0.040600,0.034300,1.000000 bb=CENTER
-@40 write #71 op=- dur=1 pos=-0.291171,1.942305,4.340715 rot=-0.619461,0.195315,-0.725151,0.228639 scale=0.040600,0.034300,1.000000 bb=CENTER
-@40 write #72 op=- dur=1 pos=-0.241455,2.074107,4.026425 rot=0.647051,0.056610,0.757449,0.066268 scale=0.040600,0.034300,1.000000 bb=CENTER
-@40 write #73 op=- dur=1 pos=-0.191740,1.942305,3.712135 rot=0.576134,0.299916,0.674432,0.351087 scale=0.040600,0.034300,1.000000 bb=CENTER
-@40 write #74 op=- dur=1 pos=-0.171147,1.624107,3.581951 rot=0.417505,0.497563,0.488739,0.582456 scale=0.040600,0.034300,1.000000 bb=CENTER
-@40 write #75 op=- dur=1 pos=-0.191740,1.305909,3.712135 rot=0.195315,0.619461,0.228639,0.725151 scale=0.040600,0.034300,1.000000 bb=CENTER
-@40 write #76 op=- dur=1 pos=-0.241455,1.174107,4.026425 rot=-0.056610,0.647051,-0.066268,0.757449 scale=0.040600,0.034300,1.000000 bb=CENTER
-@40 write #77 op=- dur=1 pos=-0.291171,1.305909,4.340715 rot=-0.299916,0.576134,-0.351087,0.674432 scale=0.040600,0.034300,1.000000 bb=CENTER
-@40 write #78 op=- dur=1 pos=-0.241455,1.624107,4.026425 rot=0.459282,0.459282,0.537643,0.537643 scale=0.072000,0.072000,1.000000 bb=CENTER
-@40 write #79 op=- dur=1 pos=-0.257079,1.474107,4.125197 rot=0.459282,0.459282,0.537643,0.537643 scale=0.108300,0.108300,1.000000 bb=CENTER
-@40 write #80 op=- dur=1 pos=-0.225831,1.774107,3.927653 rot=0.490201,0.426125,0.573838,0.498829 scale=0.108300,0.108300,1.000000 bb=CENTER
-@40 particle - op=stuck/burst_ember[2] type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1973622978814385608
-@40 particle - op=stuck/hit2_orange[2] type=couture-s2-p-orange at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3834169194620710048
+@40 write #62 op=coin3/smear_b[1] dur=1 pos=-0.228627,1.724631,0.913288 rot=0.501564,-0.420862,-0.579014,0.485850 scale=0.156800,0.128300,1.000000 bb=CENTER
+@40 write #63 op=coin3/smear_b[2] dur=1 pos=-0.257150,1.624631,0.715333 rot=0.508833,-0.412045,-0.587405,0.475671 scale=0.315900,0.186925,1.000000 bb=CENTER
+@40 write #64 op=coin3/smear_c[0] dur=1 pos=-0.237441,1.862395,0.852117 rot=0.652254,-0.057065,-0.752973,0.065877 scale=0.315900,0.186925,1.000000 bb=CENTER
+@40 write #65 op=coin3/smear_c[1] dur=1 pos=-0.205552,1.771577,1.073438 rot=-0.567026,-0.327373,0.654585,0.377925 scale=0.315900,0.186925,1.000000 bb=CENTER
+@40 write #66 op=coin3/smear_c[2] dur=1 pos=-0.205552,1.477684,1.073438 rot=-0.276708,-0.593401,0.319436,0.685032 scale=0.315900,0.186925,1.000000 bb=CENTER
+@40 write #67 op=coin3/pink_crescent dur=1 pos=-0.237441,1.386866,0.852117 rot=0.113695,-0.644799,-0.131252,0.744366 scale=0.315900,0.186925,1.000000 bb=CENTER
+@40 write #68 op=- dur=1 pos=-0.257150,1.424631,0.715333 rot=-0.462975,-0.462975,0.534466,0.534466 scale=0.047300,0.047300,1.000000 bb=CENTER
+@40 write #69 op=- dur=1 pos=-0.200104,1.874631,1.111244 rot=-0.486571,-0.438110,0.561705,0.505762 scale=0.047300,0.047300,1.000000 bb=CENTER
+@40 write #70 op=- dur=1 pos=-0.292804,1.624631,0.467888 rot=0.501564,-0.420862,-0.579014,0.485850 scale=0.040600,0.034300,1.000000 bb=CENTER
+@40 write #71 op=- dur=1 pos=-0.274007,1.942829,0.598343 rot=0.624442,-0.196886,-0.720866,0.227288 scale=0.040600,0.034300,1.000000 bb=CENTER
+@40 write #72 op=- dur=1 pos=-0.228627,2.074631,0.913288 rot=-0.652254,-0.057065,0.752973,0.065877 scale=0.040600,0.034300,1.000000 bb=CENTER
+@40 write #73 op=- dur=1 pos=-0.183247,1.942829,1.228234 rot=-0.580767,-0.302328,0.670446,0.349012 scale=0.040600,0.034300,1.000000 bb=CENTER
+@40 write #74 op=- dur=1 pos=-0.164450,1.624631,1.358689 rot=-0.420862,-0.501564,0.485850,0.579014 scale=0.040600,0.034300,1.000000 bb=CENTER
+@40 write #75 op=- dur=1 pos=-0.183247,1.306433,1.228234 rot=-0.196886,-0.624442,0.227288,0.720866 scale=0.040600,0.034300,1.000000 bb=CENTER
+@40 write #76 op=- dur=1 pos=-0.228627,1.174631,0.913288 rot=0.057065,-0.652254,-0.065877,0.752973 scale=0.040600,0.034300,1.000000 bb=CENTER
+@40 write #77 op=- dur=1 pos=-0.274007,1.306433,0.598343 rot=0.302328,-0.580767,-0.349012,0.670446 scale=0.040600,0.034300,1.000000 bb=CENTER
+@40 write #78 op=- dur=1 pos=-0.228627,1.624631,0.913288 rot=-0.462975,-0.462975,0.534466,0.534466 scale=0.072000,0.072000,1.000000 bb=CENTER
+@40 write #79 op=- dur=1 pos=-0.242889,1.474631,0.814311 rot=-0.462975,-0.462975,0.534466,0.534466 scale=0.108300,0.108300,1.000000 bb=CENTER
+@40 write #80 op=- dur=1 pos=-0.214366,1.774631,1.012266 rot=-0.494143,-0.429552,0.570447,0.495882 scale=0.108300,0.108300,1.000000 bb=CENTER
+@40 particle - op=stuck/burst_ember[2] type=couture-s2-burst-ember at=-0.043227,1.624631,2.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1973622978814385608
+@40 particle - op=stuck/hit2_orange[2] type=couture-s2-p-orange at=-0.043227,1.624631,2.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3834169194620710048
 @40 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @40 frame throw/fly_body op=throw/fly_body pos=-0.038342,1.624107,2.742390 rot=0.987688,0.000000,0.000000,0.156434
 @40 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @40 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @40 frame throw/palm_f op=throw/palm_f pos=-0.274751,1.383808,0.832832 rot=0.000000,0.000000,0.000000,1.000000
-@40 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@40 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @41 particle - op=tip_glint_a[4] type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3730627457859053852
 @41 particle - op=tip_glint_b[4] type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9180826580651361485
 @41 particle - op=tip_glint_body[4] type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3015950332812928866
 @41 line #58 op=coin3/smear_a[0] from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @41 line #59 op=coin3/smear_a[1] from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @41 line #60 op=coin3/smear_a[2] from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
-@41 write #62 op=coin3/smear_b[1] dur=1 pos=-0.241455,1.724107,4.026425 rot=-0.497563,0.417505,-0.582456,0.488739 scale=0.131850,0.099800,1.000000 bb=CENTER
-@41 write #63 op=coin3/smear_b[2] dur=1 pos=-0.272703,1.624107,4.223969 rot=-0.504774,0.408758,-0.590897,0.478499 scale=0.105301,0.010600,1.000000 bb=CENTER
-@41 write #64 op=coin3/smear_c[0] dur=1 pos=-0.251111,1.861871,4.087469 rot=-0.647051,0.056610,-0.757449,0.066268 scale=0.105301,0.010600,1.000000 bb=CENTER
-@41 write #65 op=coin3/smear_c[1] dur=1 pos=-0.216175,1.771054,3.866609 rot=0.562503,0.324761,0.658476,0.380171 scale=0.105301,0.010600,1.000000 bb=CENTER
-@41 write #66 op=coin3/smear_c[2] dur=1 pos=-0.216175,1.477161,3.866609 rot=0.274500,0.588667,0.321335,0.689104 scale=0.105301,0.010600,1.000000 bb=CENTER
-@41 write #67 op=coin3/pink_crescent dur=1 pos=-0.251111,1.386343,4.087469 rot=-0.112788,0.639655,-0.132032,0.748791 scale=0.105301,0.010600,1.000000 bb=CENTER
-@41 write #68 op=- dur=1 pos=-0.272703,1.424107,4.223969 rot=0.459282,0.459282,0.537643,0.537643 scale=0.037150,0.037150,1.000000 bb=CENTER
-@41 write #69 op=- dur=1 pos=-0.210207,1.874107,3.828881 rot=0.482689,0.434615,0.565044,0.508768 scale=0.037150,0.037150,1.000000 bb=CENTER
-@41 write #70 op=- dur=1 pos=-0.311763,1.624107,4.470899 rot=-0.497563,0.417505,-0.582456,0.488739 scale=0.012600,0.006300,1.000000 bb=CENTER
-@41 write #71 op=- dur=1 pos=-0.291171,1.942305,4.340715 rot=-0.619461,0.195315,-0.725151,0.228639 scale=0.012600,0.006300,1.000000 bb=CENTER
-@41 write #72 op=- dur=1 pos=-0.241455,2.074107,4.026425 rot=0.647051,0.056610,0.757449,0.066268 scale=0.012600,0.006300,1.000000 bb=CENTER
-@41 write #73 op=- dur=1 pos=-0.191740,1.942305,3.712135 rot=0.576134,0.299916,0.674432,0.351087 scale=0.012600,0.006300,1.000000 bb=CENTER
-@41 write #74 op=- dur=1 pos=-0.171147,1.624107,3.581951 rot=0.417505,0.497563,0.488739,0.582456 scale=0.012600,0.006300,1.000000 bb=CENTER
-@41 write #75 op=- dur=1 pos=-0.191740,1.305909,3.712135 rot=0.195315,0.619461,0.228639,0.725151 scale=0.012600,0.006300,1.000000 bb=CENTER
-@41 write #76 op=- dur=1 pos=-0.241455,1.174107,4.026425 rot=-0.056610,0.647051,-0.066268,0.757449 scale=0.012600,0.006300,1.000000 bb=CENTER
-@41 write #77 op=- dur=1 pos=-0.291171,1.305909,4.340715 rot=-0.299916,0.576134,-0.351087,0.674432 scale=0.012600,0.006300,1.000000 bb=CENTER
-@41 write #78 op=- dur=1 pos=-0.241455,1.624107,4.026425 rot=0.459282,0.459282,0.537643,0.537643 scale=0.057600,0.057600,1.000000 bb=CENTER
-@41 write #79 op=- dur=1 pos=-0.257079,1.474107,4.125197 rot=0.459282,0.459282,0.537643,0.537643 scale=0.088700,0.088700,1.000000 bb=CENTER
-@41 write #80 op=- dur=1 pos=-0.225831,1.774107,3.927653 rot=0.490201,0.426125,0.573838,0.498829 scale=0.088700,0.088700,1.000000 bb=CENTER
-@41 particle - op=stuck/burst_ember[3] type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3913647410774705194
-@41 particle - op=stuck/hit2_spark[1] type=couture-s2-p-spark at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7569852725293969039
+@41 write #62 op=coin3/smear_b[1] dur=1 pos=-0.228627,1.724631,0.913288 rot=0.501564,-0.420862,-0.579014,0.485850 scale=0.131850,0.099800,1.000000 bb=CENTER
+@41 write #63 op=coin3/smear_b[2] dur=1 pos=-0.257150,1.624631,0.715333 rot=0.508833,-0.412045,-0.587405,0.475671 scale=0.105301,0.010600,1.000000 bb=CENTER
+@41 write #64 op=coin3/smear_c[0] dur=1 pos=-0.237441,1.862395,0.852117 rot=0.652254,-0.057065,-0.752973,0.065877 scale=0.105301,0.010600,1.000000 bb=CENTER
+@41 write #65 op=coin3/smear_c[1] dur=1 pos=-0.205552,1.771577,1.073438 rot=-0.567026,-0.327373,0.654585,0.377925 scale=0.105301,0.010600,1.000000 bb=CENTER
+@41 write #66 op=coin3/smear_c[2] dur=1 pos=-0.205552,1.477684,1.073438 rot=-0.276708,-0.593401,0.319436,0.685032 scale=0.105301,0.010600,1.000000 bb=CENTER
+@41 write #67 op=coin3/pink_crescent dur=1 pos=-0.237441,1.386866,0.852117 rot=0.113695,-0.644799,-0.131252,0.744366 scale=0.105301,0.010600,1.000000 bb=CENTER
+@41 write #68 op=- dur=1 pos=-0.257150,1.424631,0.715333 rot=-0.462975,-0.462975,0.534466,0.534466 scale=0.037150,0.037150,1.000000 bb=CENTER
+@41 write #69 op=- dur=1 pos=-0.200104,1.874631,1.111244 rot=-0.486571,-0.438110,0.561705,0.505762 scale=0.037150,0.037150,1.000000 bb=CENTER
+@41 write #70 op=- dur=1 pos=-0.292804,1.624631,0.467888 rot=0.501564,-0.420862,-0.579014,0.485850 scale=0.012600,0.006300,1.000000 bb=CENTER
+@41 write #71 op=- dur=1 pos=-0.274007,1.942829,0.598343 rot=0.624442,-0.196886,-0.720866,0.227288 scale=0.012600,0.006300,1.000000 bb=CENTER
+@41 write #72 op=- dur=1 pos=-0.228627,2.074631,0.913288 rot=-0.652254,-0.057065,0.752973,0.065877 scale=0.012600,0.006300,1.000000 bb=CENTER
+@41 write #73 op=- dur=1 pos=-0.183247,1.942829,1.228234 rot=-0.580767,-0.302328,0.670446,0.349012 scale=0.012600,0.006300,1.000000 bb=CENTER
+@41 write #74 op=- dur=1 pos=-0.164450,1.624631,1.358689 rot=-0.420862,-0.501564,0.485850,0.579014 scale=0.012600,0.006300,1.000000 bb=CENTER
+@41 write #75 op=- dur=1 pos=-0.183247,1.306433,1.228234 rot=-0.196886,-0.624442,0.227288,0.720866 scale=0.012600,0.006300,1.000000 bb=CENTER
+@41 write #76 op=- dur=1 pos=-0.228627,1.174631,0.913288 rot=0.057065,-0.652254,-0.065877,0.752973 scale=0.012600,0.006300,1.000000 bb=CENTER
+@41 write #77 op=- dur=1 pos=-0.274007,1.306433,0.598343 rot=0.302328,-0.580767,-0.349012,0.670446 scale=0.012600,0.006300,1.000000 bb=CENTER
+@41 write #78 op=- dur=1 pos=-0.228627,1.624631,0.913288 rot=-0.462975,-0.462975,0.534466,0.534466 scale=0.057600,0.057600,1.000000 bb=CENTER
+@41 write #79 op=- dur=1 pos=-0.242889,1.474631,0.814311 rot=-0.462975,-0.462975,0.534466,0.534466 scale=0.088700,0.088700,1.000000 bb=CENTER
+@41 write #80 op=- dur=1 pos=-0.214366,1.774631,1.012266 rot=-0.494143,-0.429552,0.570447,0.495882 scale=0.088700,0.088700,1.000000 bb=CENTER
+@41 particle - op=stuck/burst_ember[3] type=couture-s2-burst-ember at=-0.043227,1.624631,2.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3913647410774705194
+@41 particle - op=stuck/hit2_spark[1] type=couture-s2-p-spark at=-0.043227,1.624631,2.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7569852725293969039
 @41 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @41 frame throw/fly_body op=throw/fly_body pos=-0.038342,1.624107,2.742390 rot=0.987688,0.000000,0.000000,0.156434
 @41 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @41 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @41 frame throw/palm_f op=throw/palm_f pos=-0.274751,1.383808,0.832832 rot=0.000000,0.000000,0.000000,1.000000
-@41 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@41 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @42 particle - op=tip_glint_a[5] type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3585733180776288476
 @42 particle - op=tip_glint_b[5] type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2251772157966798024
 @42 particle - op=tip_glint_body[5] type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5918430330892647968
 @42 line #58 op=coin3/smear_a[0] from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @42 line #59 op=coin3/smear_a[1] from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @42 line #60 op=coin3/smear_a[2] from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
-@42 write #62 op=coin3/smear_b[1] dur=1 pos=-0.241455,1.724107,4.026425 rot=-0.497563,0.417505,-0.582456,0.488739 scale=0.057000,0.014300,1.000000 bb=CENTER
-@42 write #68 op=- dur=1 pos=-0.272703,1.424107,4.223969 rot=0.459282,0.459282,0.537643,0.537643 scale=0.006700,0.006700,1.000000 bb=CENTER
-@42 write #69 op=- dur=1 pos=-0.210207,1.874107,3.828881 rot=0.482689,0.434615,0.565044,0.508768 scale=0.006700,0.006700,1.000000 bb=CENTER
-@42 write #78 op=- dur=1 pos=-0.241455,1.624107,4.026425 rot=0.459282,0.459282,0.537643,0.537643 scale=0.014400,0.014400,1.000000 bb=CENTER
-@42 write #79 op=- dur=1 pos=-0.257079,1.474107,4.125197 rot=0.459282,0.459282,0.537643,0.537643 scale=0.029900,0.029900,1.000000 bb=CENTER
-@42 write #80 op=- dur=1 pos=-0.225831,1.774107,3.927653 rot=0.490201,0.426125,0.573838,0.498829 scale=0.029900,0.029900,1.000000 bb=CENTER
-@42 particle - op=stuck/burst_ember[4] type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4759147673627482709
+@42 write #62 op=coin3/smear_b[1] dur=1 pos=-0.228627,1.724631,0.913288 rot=0.501564,-0.420862,-0.579014,0.485850 scale=0.057000,0.014300,1.000000 bb=CENTER
+@42 write #68 op=- dur=1 pos=-0.257150,1.424631,0.715333 rot=-0.462975,-0.462975,0.534466,0.534466 scale=0.006700,0.006700,1.000000 bb=CENTER
+@42 write #69 op=- dur=1 pos=-0.200104,1.874631,1.111244 rot=-0.486571,-0.438110,0.561705,0.505762 scale=0.006700,0.006700,1.000000 bb=CENTER
+@42 write #78 op=- dur=1 pos=-0.228627,1.624631,0.913288 rot=-0.462975,-0.462975,0.534466,0.534466 scale=0.014400,0.014400,1.000000 bb=CENTER
+@42 write #79 op=- dur=1 pos=-0.242889,1.474631,0.814311 rot=-0.462975,-0.462975,0.534466,0.534466 scale=0.029900,0.029900,1.000000 bb=CENTER
+@42 write #80 op=- dur=1 pos=-0.214366,1.774631,1.012266 rot=-0.494143,-0.429552,0.570447,0.495882 scale=0.029900,0.029900,1.000000 bb=CENTER
+@42 particle - op=stuck/burst_ember[4] type=couture-s2-burst-ember at=-0.043227,1.624631,2.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4759147673627482709
 @42 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @42 frame throw/fly_body op=throw/fly_body pos=-0.038342,1.624107,2.742390 rot=0.987688,0.000000,0.000000,0.156434
 @42 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @42 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @42 frame throw/palm_f op=throw/palm_f pos=-0.274751,1.383808,0.832832 rot=0.000000,0.000000,0.000000,1.000000
-@42 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@42 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @43 particle - op=tip_glint_a[6] type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6562688179941624128
 @43 particle - op=tip_glint_b[6] type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6549323969276461767
 @43 particle - op=tip_glint_body[6] type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6656973666506454493
 @43 line #58 op=coin3/smear_a[0] from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @43 line #59 op=coin3/smear_a[1] from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @43 line #60 op=coin3/smear_a[2] from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
-@43 particle - op=stuck/burst_ember[5] type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2083956110038267025
+@43 particle - op=stuck/burst_ember[5] type=couture-s2-burst-ember at=-0.043227,1.624631,2.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2083956110038267025
 @43 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @43 frame throw/fly_body op=throw/fly_body pos=-0.038342,1.624107,2.742390 rot=0.987688,0.000000,0.000000,0.156434
 @43 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @43 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @43 frame throw/palm_f op=throw/palm_f pos=-0.274751,1.383808,0.832832 rot=0.000000,0.000000,0.000000,1.000000
-@43 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@43 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @43 remove #70 op=-
 @43 remove #71 op=-
 @43 remove #72 op=-
@@ -1028,15 +1028,15 @@
 @44 line #58 op=coin3/smear_a[0] from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @44 line #59 op=coin3/smear_a[1] from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @44 line #60 op=coin3/smear_a[2] from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
-@44 spawn #81 op=- kind=sprite sprite=couture-s2-shadow-spikes alpha=1.000000 tint=- seethrough=false pos=-0.041467,1.624107,2.762145 rot=0.704932,-0.055410,0.055410,0.704932 scale=0.015000,0.015000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@44 write #81 op=- dur=1 pos=-0.041467,1.624107,2.762145 rot=0.704932,-0.055410,0.055410,0.704932 scale=0.465469,0.160313,1.000000 bb=FIXED
-@44 particle - op=stuck/burst_ember[6] type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4229150645736741417
+@44 spawn #81 op=- kind=sprite sprite=couture-s2-shadow-spikes alpha=1.000000 tint=- seethrough=false pos=-0.046079,1.624631,2.180204 rot=0.050552,-0.705297,0.705297,0.050552 scale=0.015000,0.015000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@44 write #81 op=- dur=1 pos=-0.046079,1.624631,2.180204 rot=0.050552,-0.705297,0.705297,0.050552 scale=0.465469,0.160313,1.000000 bb=FIXED
+@44 particle - op=stuck/burst_ember[6] type=couture-s2-burst-ember at=-0.043227,1.624631,2.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4229150645736741417
 @44 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @44 frame throw/fly_body op=throw/fly_body pos=-0.038342,1.624107,2.742390 rot=0.987688,0.000000,0.000000,0.156434
 @44 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @44 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @44 frame throw/palm_f op=throw/palm_f pos=-0.274751,1.383808,0.832832 rot=0.000000,0.000000,0.000000,1.000000
-@44 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@44 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @44 remove #62 op=coin3/smear_b[1]
 @44 remove #63 op=coin3/smear_b[2]
 @44 remove #64 op=coin3/smear_c[0]
@@ -1051,25 +1051,25 @@
 @45 line #58 op=coin3/smear_a[0] from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @45 line #59 op=coin3/smear_a[1] from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @45 line #60 op=coin3/smear_a[2] from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
-@45 write #81 op=- dur=1 pos=-0.041467,1.624107,2.762145 rot=0.704932,-0.055410,0.055410,0.704932 scale=0.480000,0.165000,1.000000 bb=FIXED
-@45 particle - op=stuck/burst_ember[7] type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8145771411001434130
+@45 write #81 op=- dur=1 pos=-0.046079,1.624631,2.180204 rot=0.050552,-0.705297,0.705297,0.050552 scale=0.480000,0.165000,1.000000 bb=FIXED
+@45 particle - op=stuck/burst_ember[7] type=couture-s2-burst-ember at=-0.043227,1.624631,2.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8145771411001434130
 @45 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @45 frame throw/fly_body op=throw/fly_body pos=-0.038342,1.624107,2.742390 rot=0.987688,0.000000,0.000000,0.156434
 @45 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @45 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @45 frame throw/palm_f op=throw/palm_f pos=-0.274751,1.383808,0.832832 rot=0.000000,0.000000,0.000000,1.000000
-@45 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@45 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @46 line #58 op=coin3/smear_a[0] from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @46 line #59 op=coin3/smear_a[1] from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @46 line #60 op=coin3/smear_a[2] from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
-@46 write #81 op=- dur=15 pos=-0.041467,1.624107,2.762145 rot=0.704932,-0.055410,0.055410,0.704932 scale=0.494000,0.170000,1.000000 bb=FIXED
-@46 particle - op=stuck/burst_ember[8] type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1743604913349403040
+@46 write #81 op=- dur=15 pos=-0.046079,1.624631,2.180204 rot=0.050552,-0.705297,0.705297,0.050552 scale=0.494000,0.170000,1.000000 bb=FIXED
+@46 particle - op=stuck/burst_ember[8] type=couture-s2-burst-ember at=-0.043227,1.624631,2.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1743604913349403040
 @46 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @46 frame throw/fly_body op=throw/fly_body pos=-0.038342,1.624107,2.742390 rot=0.987688,0.000000,0.000000,0.156434
 @46 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @46 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @46 frame throw/palm_f op=throw/palm_f pos=-0.274751,1.383808,0.832832 rot=0.000000,0.000000,0.000000,1.000000
-@46 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@46 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @47 line #58 op=coin3/smear_a[0] from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @47 line #59 op=coin3/smear_a[1] from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @47 line #60 op=coin3/smear_a[2] from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
@@ -1078,7 +1078,7 @@
 @47 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @47 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @47 frame throw/palm_f op=throw/palm_f pos=-0.274751,1.383808,0.832832 rot=0.000000,0.000000,0.000000,1.000000
-@47 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@47 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @48 line #58 op=coin3/smear_a[0] from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @48 line #59 op=coin3/smear_a[1] from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @48 line #60 op=coin3/smear_a[2] from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
@@ -1087,7 +1087,7 @@
 @48 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @48 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @48 frame throw/palm_f op=throw/palm_f pos=-0.274751,1.383808,0.832832 rot=0.000000,0.000000,0.000000,1.000000
-@48 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@48 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @49 line #58 op=coin3/smear_a[0] from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @49 line #59 op=coin3/smear_a[1] from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @49 line #60 op=coin3/smear_a[2] from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
@@ -1096,7 +1096,7 @@
 @49 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @49 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @49 frame throw/palm_f op=throw/palm_f pos=-0.274751,1.383808,0.832832 rot=0.000000,0.000000,0.000000,1.000000
-@49 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@49 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @50 line #58 op=coin3/smear_a[0] from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @50 line #59 op=coin3/smear_a[1] from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @50 line #60 op=coin3/smear_a[2] from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
@@ -1105,7 +1105,7 @@
 @50 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @50 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @50 frame throw/palm_f op=throw/palm_f pos=-0.274751,1.383808,0.832832 rot=0.000000,0.000000,0.000000,1.000000
-@50 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@50 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @51 line #58 op=coin3/smear_a[0] from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @51 line #59 op=coin3/smear_a[1] from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @51 line #60 op=coin3/smear_a[2] from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
@@ -1114,7 +1114,7 @@
 @51 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @51 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @51 frame throw/palm_f op=throw/palm_f pos=-0.274751,1.383808,0.832832 rot=0.000000,0.000000,0.000000,1.000000
-@51 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@51 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @52 line #58 op=coin3/smear_a[0] from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @52 line #59 op=coin3/smear_a[1] from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @52 line #60 op=coin3/smear_a[2] from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
@@ -1123,7 +1123,7 @@
 @52 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @52 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @52 frame throw/palm_f op=throw/palm_f pos=-0.274751,1.383808,0.832832 rot=0.000000,0.000000,0.000000,1.000000
-@52 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@52 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @53 line #58 op=coin3/smear_a[0] from=-0.267010,1.377107,0.846609 to=-0.157357,1.786717,2.716726
 @53 line #59 op=coin3/smear_a[1] from=-0.267010,1.377107,0.846609 to=-0.020317,1.861958,2.727301
 @53 line #60 op=coin3/smear_a[2] from=-0.267010,1.377107,0.846609 to=-0.045042,1.728848,2.629498
@@ -1132,7 +1132,7 @@
 @53 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @53 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @53 frame throw/palm_f op=throw/palm_f pos=-0.267010,1.377107,0.846609 rot=0.000000,0.000000,0.000000,1.000000
-@53 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@53 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @54 line #58 op=coin3/smear_a[0] from=-0.246829,1.359181,0.880024 to=-0.157357,1.786717,2.716726
 @54 line #59 op=coin3/smear_a[1] from=-0.246829,1.359181,0.880024 to=-0.020317,1.861958,2.727301
 @54 line #60 op=coin3/smear_a[2] from=-0.246829,1.359181,0.880024 to=-0.045042,1.728848,2.629498
@@ -1141,7 +1141,7 @@
 @54 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @54 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @54 frame throw/palm_f op=throw/palm_f pos=-0.246829,1.359181,0.880024 rot=0.000000,0.000000,0.000000,1.000000
-@54 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@54 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @55 line #58 op=coin3/smear_a[0] from=-0.238438,1.351550,0.892957 to=-0.157357,1.786717,2.716726
 @55 line #59 op=coin3/smear_a[1] from=-0.238438,1.351550,0.892957 to=-0.020317,1.861958,2.727301
 @55 line #60 op=coin3/smear_a[2] from=-0.238438,1.351550,0.892957 to=-0.045042,1.728848,2.629498
@@ -1150,7 +1150,7 @@
 @55 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @55 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @55 frame throw/palm_f op=throw/palm_f pos=-0.238438,1.351550,0.892957 rot=0.000000,0.000000,0.000000,1.000000
-@55 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@55 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @56 line #58 op=coin3/smear_a[0] from=-0.238438,1.404285,0.892957 to=-0.157357,1.786717,2.716726
 @56 line #59 op=coin3/smear_a[1] from=-0.238438,1.404285,0.892957 to=-0.020317,1.861958,2.727301
 @56 line #60 op=coin3/smear_a[2] from=-0.238438,1.404285,0.892957 to=-0.045042,1.728848,2.629498
@@ -1159,7 +1159,7 @@
 @56 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @56 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @56 frame throw/palm_f op=throw/palm_f pos=-0.238438,1.404285,0.892957 rot=0.000000,0.000000,0.000000,1.000000
-@56 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@56 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @57 line #58 op=coin3/smear_a[0] from=-0.238438,1.445300,0.892957 to=-0.157357,1.786717,2.716726
 @57 line #59 op=coin3/smear_a[1] from=-0.238438,1.445300,0.892957 to=-0.020317,1.861958,2.727301
 @57 line #60 op=coin3/smear_a[2] from=-0.238438,1.445300,0.892957 to=-0.045042,1.728848,2.629498
@@ -1168,7 +1168,7 @@
 @57 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @57 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @57 frame throw/palm_f op=throw/palm_f pos=-0.238438,1.445300,0.892957 rot=0.000000,0.000000,0.000000,1.000000
-@57 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@57 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @57 effect 00000000-0000-0000-0000-000000000001 op=- held_model_clear
 @58 line #58 op=coin3/smear_a[0] from=-0.238438,1.474597,0.892957 to=-0.157357,1.786717,2.716726
 @58 line #59 op=coin3/smear_a[1] from=-0.238438,1.474597,0.892957 to=-0.020317,1.861958,2.727301
@@ -1177,7 +1177,7 @@
 @58 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @58 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @58 frame throw/palm_f op=throw/palm_f pos=-0.238438,1.474597,0.892957 rot=0.000000,0.000000,0.000000,1.000000
-@58 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@58 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @59 line #58 op=coin3/smear_a[0] from=-0.393837,1.866188,-0.033933 to=-0.157357,1.786717,2.716726
 @59 line #59 op=coin3/smear_a[1] from=-0.393837,1.866188,-0.033933 to=-0.020317,1.861958,2.727301
 @59 line #60 op=coin3/smear_a[2] from=-0.393837,1.866188,-0.033933 to=-0.045042,1.728848,2.629498
@@ -1185,7 +1185,7 @@
 @59 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @59 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @59 frame throw/palm_f op=throw/palm_f pos=-0.393837,1.866188,-0.033933 rot=0.000000,0.000000,0.000000,1.000000
-@59 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@59 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @60 line #58 op=coin3/smear_a[0] from=-0.389101,1.790998,-0.371206 to=-0.157357,1.786717,2.716726
 @60 line #59 op=coin3/smear_a[1] from=-0.389101,1.790998,-0.371206 to=-0.020317,1.861958,2.727301
 @60 line #60 op=coin3/smear_a[2] from=-0.389101,1.790998,-0.371206 to=-0.045042,1.728848,2.629498
@@ -1193,25 +1193,25 @@
 @60 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @60 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @60 frame throw/palm_f op=throw/palm_f pos=-0.389101,1.790998,-0.371206 rot=0.000000,0.000000,0.000000,1.000000
-@60 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@60 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @61 line #58 op=coin3/smear_a[0] from=-0.389101,1.790998,-0.371206 to=-0.157357,1.786717,2.716726
 @61 line #59 op=coin3/smear_a[1] from=-0.389101,1.790998,-0.371206 to=-0.020317,1.861958,2.727301
 @61 line #60 op=coin3/smear_a[2] from=-0.389101,1.790998,-0.371206 to=-0.045042,1.728848,2.629498
-@61 write #81 op=- dur=1 pos=-0.041467,1.624107,2.762145 rot=0.704932,-0.055410,0.055410,0.704932 scale=0.481000,0.131750,1.000000 bb=FIXED
+@61 write #81 op=- dur=1 pos=-0.046079,1.624631,2.180204 rot=0.050552,-0.705297,0.705297,0.050552 scale=0.481000,0.131750,1.000000 bb=FIXED
 @61 frame throw/fly_body op=throw/fly_body pos=-0.038342,1.624107,2.742390 rot=0.987688,0.000000,0.000000,0.156434
 @61 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @61 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @61 frame throw/palm_f op=throw/palm_f pos=-0.389101,1.790998,-0.371206 rot=0.000000,0.000000,0.000000,1.000000
-@61 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@61 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @62 line #58 op=coin3/smear_a[0] from=-0.389101,1.790998,-0.371206 to=-0.157357,1.786717,2.716726
 @62 line #59 op=coin3/smear_a[1] from=-0.389101,1.790998,-0.371206 to=-0.020317,1.861958,2.727301
 @62 line #60 op=coin3/smear_a[2] from=-0.389101,1.790998,-0.371206 to=-0.045042,1.728848,2.629498
-@62 write #81 op=- dur=1 pos=-0.041467,1.624107,2.762145 rot=0.704932,-0.055410,0.055410,0.704932 scale=0.442000,0.017000,1.000000 bb=FIXED
+@62 write #81 op=- dur=1 pos=-0.046079,1.624631,2.180204 rot=0.050552,-0.705297,0.705297,0.050552 scale=0.442000,0.017000,1.000000 bb=FIXED
 @62 frame throw/fly_body op=throw/fly_body pos=-0.038342,1.624107,2.742390 rot=0.987688,0.000000,0.000000,0.156434
 @62 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @62 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @62 frame throw/palm_f op=throw/palm_f pos=-0.389101,1.790998,-0.371206 rot=0.000000,0.000000,0.000000,1.000000
-@62 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@62 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @63 line #58 op=coin3/smear_a[0] from=-0.351563,0.768018,0.292518 to=-0.157357,1.786717,2.716726
 @63 line #59 op=coin3/smear_a[1] from=-0.351563,0.768018,0.292518 to=-0.020317,1.861958,2.727301
 @63 line #60 op=coin3/smear_a[2] from=-0.351563,0.768018,0.292518 to=-0.045042,1.728848,2.629498
@@ -1219,7 +1219,7 @@
 @63 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @63 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
 @63 frame throw/palm_f op=throw/palm_f pos=-0.351563,0.768018,0.292518 rot=0.000000,0.000000,0.000000,1.000000
-@63 frame stuck/hit2_f op=stuck/hit2_f pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643
+@63 frame stuck/hit2_f op=stuck/hit2_f pos=-0.043227,1.624631,2.200000 rot=-0.462975,-0.462975,0.534466,0.534466
 @63 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=couture-s2-body
 @63 remove #81 op=-
 @64 line #58 op=coin3/smear_a[0] from=-0.351563,0.768018,0.292518 to=-0.157357,1.786717,2.716726
@@ -2470,7 +2470,7 @@ r @78 run-end tail=2 | pose
 @35 line #60 op=coin3/smear_a[2] from=-0.245510,1.760197,-0.307147 to=0.374206,1.487654,-0.622307
 @35 write #56 op=throw/thread_body dur=1 pos=0.340602,1.627387,-0.566580 rot=0.912660,-0.214042,0.154477,0.312050 scale=1.000000,1.000000,1.000000 bb=FIXED
 @35 write #57 op=throw/flight_fan dur=1 pos=0.340602,1.627387,-0.566580 rot=0.913845,-0.207498,0.162447,0.308937 scale=1.000000,1.000000,1.000000 bb=FIXED
-@35 hit - op=volley at=-0.618658,2.159926,0.731967 r=0.220000 shape=capsule a=-0.618658,2.159926,0.731967 b=-0.618658,2.159926,0.731967 rad=0.220000
+@35 hit - op=volley at=-0.139028,1.893656,0.082693 r=1.070000 shape=capsule a=0.340602,1.627387,-0.566580 b=-0.618658,2.159926,0.731967 rad=0.220000
 @35 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @35 frame throw/fly_body op=throw/fly_body pos=-0.618658,2.159926,0.731967 rot=0.430530,-0.282721,0.144053,0.844963
 @35 frame throw/fly_a op=throw/fly_a pos=-0.618658,2.159926,0.731967 rot=0.230617,-0.470356,0.077163,0.848308
@@ -2481,7 +2481,7 @@ r @78 run-end tail=2 | pose
 @36 line #60 op=coin3/smear_a[2] from=-0.604579,1.633688,0.123347 to=-0.533078,2.130159,0.607266
 @36 write #56 op=throw/thread_body dur=1 pos=-0.618658,2.159926,0.731967 rot=-0.984807,-0.002633,-0.145292,0.095073 scale=1.000000,1.000000,1.000000 bb=FIXED
 @36 write #57 op=throw/flight_fan dur=1 pos=-0.618658,2.159926,0.731967 rot=-0.982947,-0.005898,-0.153916,0.100454 scale=1.000000,1.000000,1.000000 bb=FIXED
-@36 hit - op=volley at=-1.577917,2.692464,2.030514 r=0.220000 shape=capsule a=-1.577917,2.692464,2.030514 b=-1.577917,2.692464,2.030514 rad=0.220000
+@36 hit - op=volley at=-1.098287,2.426195,1.381240 r=1.070000 shape=capsule a=-0.618658,2.159926,0.731967 b=-1.577917,2.692464,2.030514 rad=0.220000
 @36 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @36 frame throw/fly_body op=throw/fly_body pos=-1.577917,2.692464,2.030514 rot=0.767210,-0.186507,0.256705,0.557411
 @36 frame throw/fly_a op=throw/fly_a pos=-1.577917,2.692464,2.030514 rot=0.912660,-0.214042,0.154477,0.312050
@@ -2496,7 +2496,7 @@ r @78 run-end tail=2 | pose
 @37 write #56 op=throw/thread_body dur=3 pos=-1.577917,2.692464,2.030514 rot=-0.077498,-0.471180,0.031706,0.878054 scale=1.000000,1.000000,1.000000 bb=FIXED
 @37 write #57 op=throw/flight_fan dur=3 pos=-1.577917,2.692464,2.030514 rot=-0.071022,-0.463783,0.030980,0.882554 scale=1.000000,1.000000,1.000000 bb=FIXED
 @37 write #61 op=coin3/smear_b[0] dur=3 pos=-1.577917,2.692464,2.030514 rot=-0.276550,0.424359,0.137883,0.851133 scale=0.296875,0.296875,1.000000 bb=FIXED
-@37 hit - op=volley at=-2.537176,3.225003,3.329061 r=0.220000 shape=capsule a=-2.537176,3.225003,3.329061 b=-2.537176,3.225003,3.329061 rad=0.220000
+@37 hit - op=volley at=-2.057547,2.958733,2.679787 r=1.070000 shape=capsule a=-1.577917,2.692464,2.030514 b=-2.537176,3.225003,3.329061 rad=0.220000
 @37 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @37 frame throw/fly_body op=throw/fly_body pos=-2.537176,3.225003,3.329061 rot=0.936648,-0.049637,0.313398,0.148351
 @37 frame throw/fly_a op=throw/fly_a pos=-2.537176,3.225003,3.329061 rot=-0.984807,-0.002633,-0.145292,0.095073
@@ -2508,7 +2508,7 @@ r @78 run-end tail=2 | pose
 @38 line #58 op=coin3/smear_a[0] from=-0.706924,1.399399,0.522335 to=-2.702319,3.341345,3.350452
 @38 line #59 op=coin3/smear_a[1] from=-0.706924,1.399399,0.522335 to=-2.633247,3.377015,3.486503
 @38 line #60 op=coin3/smear_a[2] from=-0.706924,1.399399,0.522335 to=-2.553589,3.377899,3.339708
-@38 hit - op=volley at=-3.496436,3.757541,4.627608 r=0.220000 shape=capsule a=-3.496436,3.757541,4.627608 b=-3.496436,3.757541,4.627608 rad=0.220000
+@38 hit - op=volley at=-3.016806,3.491272,3.978334 r=1.070000 shape=capsule a=-2.537176,3.225003,3.329061 b=-3.496436,3.757541,4.627608 rad=0.220000
 @38 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @38 frame throw/fly_body op=throw/fly_body pos=-3.496436,3.757541,4.627608 rot=-0.901909,-0.098053,-0.301775,0.293048
 @38 frame throw/fly_a op=throw/fly_a pos=-3.496436,3.757541,4.627608 rot=-0.842279,-0.218735,-0.104435,0.481471
@@ -2520,7 +2520,7 @@ r @78 run-end tail=2 | pose
 @39 line #58 op=coin3/smear_a[0] from=-0.717387,1.387867,0.505594 to=-3.689329,3.731700,4.685826
 @39 line #59 op=coin3/smear_a[1] from=-0.717387,1.387867,0.505594 to=-3.620982,3.698392,4.822838
 @39 line #60 op=coin3/smear_a[2] from=-0.717387,1.387867,0.505594 to=-3.582731,3.832541,4.730992
-@39 hit - op=volley at=-4.455695,4.290080,5.926155 r=0.220000 shape=capsule a=-4.455695,4.290080,5.926155 b=-4.455695,4.290080,5.926155 rad=0.220000
+@39 hit - op=volley at=-3.976065,4.023810,5.276881 r=1.070000 shape=capsule a=-3.496436,3.757541,4.627608 b=-4.455695,4.290080,5.926155 rad=0.220000
 @39 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @39 frame throw/fly_body op=throw/fly_body pos=-4.455695,4.290080,5.926155 rot=-0.670566,-0.224368,-0.224368,0.670566
 @39 frame throw/fly_a op=throw/fly_a pos=-4.455695,4.290080,5.926155 rot=-0.516145,-0.387155,-0.040813,0.762915
@@ -2535,7 +2535,7 @@ r @78 run-end tail=2 | pose
 @40 write #56 op=throw/thread_body dur=1 pos=-4.455695,4.290080,5.926155 rot=0.378042,-0.452494,0.097314,0.801788 scale=1.000000,1.000000,1.000000 bb=FIXED
 @40 write #57 op=throw/flight_fan dur=1 pos=-4.455695,4.290080,5.926155 rot=0.383423,-0.443871,0.100578,0.803648 scale=1.000000,1.000000,1.000000 bb=FIXED
 @40 write #61 op=coin3/smear_b[0] dur=1 pos=-4.455695,4.290080,5.926155 rot=0.139999,0.440704,-0.069801,0.883916 scale=0.296875,0.296875,1.000000 bb=FIXED
-@40 hit - op=volley at=-5.414954,4.822618,7.224702 r=0.220000 shape=capsule a=-5.414954,4.822618,7.224702 b=-5.414954,4.822618,7.224702 rad=0.220000
+@40 hit - op=volley at=-4.935325,4.556349,6.575428 r=1.070000 shape=capsule a=-4.455695,4.290080,5.926155 b=-5.414954,4.822618,7.224702 rad=0.220000
 @40 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @40 frame throw/fly_body op=throw/fly_body pos=-5.414954,4.822618,7.224702 rot=-0.293048,-0.301775,-0.098053,0.901909
 @40 frame throw/fly_a op=throw/fly_a pos=-5.414954,4.822618,7.224702 rot=-0.077498,-0.471180,0.031706,0.878054
@@ -2547,7 +2547,7 @@ r @78 run-end tail=2 | pose
 @41 line #58 op=coin3/smear_a[0] from=-0.720637,1.383808,0.499780 to=-5.464978,4.675979,7.093325
 @41 line #59 op=coin3/smear_a[1] from=-0.720637,1.383808,0.499780 to=-5.323769,4.621324,7.133645
 @41 line #60 op=coin3/smear_a[2] from=-0.720637,1.383808,0.499780 to=-5.438219,4.671525,7.244442
-@41 hit - op=volley at=-6.374214,5.355157,8.523249 r=0.220000 shape=capsule a=-6.374214,5.355157,8.523249 b=-6.374214,5.355157,8.523249 rad=0.220000
+@41 hit - op=volley at=-5.894584,5.088887,7.873975 r=1.070000 shape=capsule a=-5.414954,4.822618,7.224702 b=-6.374214,5.355157,8.523249 rad=0.220000
 @41 remove #61 op=coin3/smear_b[0]
 @41 sound - op=reel/reel_snd[0] sound=couture.reel cat=master vol=1 pitch=0.795 at=-6.374214,5.355157,8.523249
 @41 hit - op=reel/reel_hit at=-6.457812,5.436611,8.839805 r=0.703784 shape=capsule a=-6.424237,5.208518,8.391872 b=-6.491386,5.664705,9.287739 rad=0.200000
@@ -2562,7 +2562,7 @@ r @78 run-end tail=2 | pose
 @42 line #58 op=coin3/smear_a[0] from=-0.720637,1.383808,0.499780 to=-6.424237,5.208518,8.391872
 @42 line #59 op=coin3/smear_a[1] from=-0.720637,1.383808,0.499780 to=-6.283028,5.153863,8.432192
 @42 line #60 op=coin3/smear_a[2] from=-0.720637,1.383808,0.499780 to=-6.397479,5.204063,8.542989
-@42 hit - op=volley at=-6.314145,5.312961,8.437999 r=0.220000 shape=capsule a=-6.314145,5.312961,8.437999 b=-6.314145,5.312961,8.437999 rad=0.220000
+@42 hit - op=volley at=-6.344179,5.334059,8.480624 r=0.276250 shape=capsule a=-6.374214,5.355157,8.523249 b=-6.314145,5.312961,8.437999 rad=0.220000
 @42 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @42 frame throw/fly_body op=throw/fly_body pos=-6.314145,5.312961,8.437999 rot=0.148351,-0.313398,0.049637,0.936648
 @42 frame throw/fly_a op=throw/fly_a pos=-6.314145,5.312961,8.437999 rot=0.378042,-0.452494,0.097314,0.801788
@@ -2574,7 +2574,7 @@ r @78 run-end tail=2 | pose
 @43 line #58 op=coin3/smear_a[0] from=-0.720637,1.383808,0.499780 to=-6.364168,5.166322,8.306623
 @43 line #59 op=coin3/smear_a[1] from=-0.720637,1.383808,0.499780 to=-6.222959,5.111667,8.346943
 @43 line #60 op=coin3/smear_a[2] from=-0.720637,1.383808,0.499780 to=-6.337409,5.161868,8.457740
-@43 hit - op=volley at=-6.252161,5.269420,8.350032 r=0.220000 shape=capsule a=-6.252161,5.269420,8.350032 b=-6.252161,5.269420,8.350032 rad=0.220000
+@43 hit - op=volley at=-6.283153,5.291191,8.394016 r=0.278043 shape=capsule a=-6.314145,5.312961,8.437999 b=-6.252161,5.269420,8.350032 rad=0.220000
 @43 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @43 frame throw/fly_body op=throw/fly_body pos=-6.252161,5.269420,8.350032 rot=0.148351,-0.313398,0.049637,0.936648
 @43 frame throw/fly_a op=throw/fly_a pos=-6.252161,5.269420,8.350032 rot=0.378042,-0.452494,0.097314,0.801788
@@ -2587,7 +2587,7 @@ r @78 run-end tail=2 | pose
 @44 line #59 op=coin3/smear_a[1] from=-0.720637,1.383808,0.499780 to=-6.160975,5.068126,8.258976
 @44 line #60 op=coin3/smear_a[2] from=-0.720637,1.383808,0.499780 to=-6.275425,5.118327,8.369773
 @44 sound - op=reel/reel_snd[1] sound=couture.reel cat=master vol=1 pitch=0.8149 at=-6.188201,5.224492,8.259262
-@44 hit - op=volley at=-6.188201,5.224492,8.259262 r=0.220000 shape=capsule a=-6.188201,5.224492,8.259262 b=-6.188201,5.224492,8.259262 rad=0.220000
+@44 hit - op=volley at=-6.220181,5.246956,8.304647 r=0.279893 shape=capsule a=-6.252161,5.269420,8.350032 b=-6.188201,5.224492,8.259262 rad=0.220000
 @44 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @44 frame throw/fly_body op=throw/fly_body pos=-6.188201,5.224492,8.259262 rot=0.148351,-0.313398,0.049637,0.936648
 @44 frame throw/fly_a op=throw/fly_a pos=-6.188201,5.224492,8.259262 rot=0.378042,-0.452494,0.097314,0.801788
@@ -2596,7 +2596,7 @@ r @78 run-end tail=2 | pose
 @45 line #58 op=coin3/smear_a[0] from=-0.720637,1.383808,0.499780 to=-6.238224,5.077853,8.127885
 @45 line #59 op=coin3/smear_a[1] from=-0.720637,1.383808,0.499780 to=-6.097015,5.023198,8.168206
 @45 line #60 op=coin3/smear_a[2] from=-0.720637,1.383808,0.499780 to=-6.211466,5.073399,8.279002
-@45 hit - op=volley at=-6.122202,5.178131,8.165598 r=0.220000 shape=capsule a=-6.122202,5.178131,8.165598 b=-6.122202,5.178131,8.165598 rad=0.220000
+@45 hit - op=volley at=-6.155202,5.201312,8.212430 r=0.281802 shape=capsule a=-6.188201,5.224492,8.259262 b=-6.122202,5.178131,8.165598 rad=0.220000
 @45 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @45 frame throw/fly_body op=throw/fly_body pos=-6.122202,5.178131,8.165598 rot=0.148351,-0.313398,0.049637,0.936648
 @45 frame throw/fly_a op=throw/fly_a pos=-6.122202,5.178131,8.165598 rot=0.378042,-0.452494,0.097314,0.801788
@@ -2605,7 +2605,7 @@ r @78 run-end tail=2 | pose
 @46 line #58 op=coin3/smear_a[0] from=-0.720637,1.383808,0.499780 to=-6.172226,5.031493,8.034221
 @46 line #59 op=coin3/smear_a[1] from=-0.720637,1.383808,0.499780 to=-6.031016,4.976837,8.074542
 @46 line #60 op=coin3/smear_a[2] from=-0.720637,1.383808,0.499780 to=-6.145467,5.027038,8.185338
-@46 hit - op=volley at=-6.054100,5.130293,8.068948 r=0.220000 shape=capsule a=-6.054100,5.130293,8.068948 b=-6.054100,5.130293,8.068948 rad=0.220000
+@46 hit - op=volley at=-6.088151,5.154212,8.117273 r=0.283772 shape=capsule a=-6.122202,5.178131,8.165598 b=-6.054100,5.130293,8.068948 rad=0.220000
 @46 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @46 frame throw/fly_body op=throw/fly_body pos=-6.054100,5.130293,8.068948 rot=0.148351,-0.313398,0.049637,0.936648
 @46 frame throw/fly_a op=throw/fly_a pos=-6.054100,5.130293,8.068948 rot=0.378042,-0.452494,0.097314,0.801788
@@ -2615,7 +2615,7 @@ r @78 run-end tail=2 | pose
 @47 line #59 op=coin3/smear_a[1] from=-0.720637,1.383808,0.499780 to=-5.962914,4.928999,7.977892
 @47 line #60 op=coin3/smear_a[2] from=-0.720637,1.383808,0.499780 to=-6.077365,4.979200,8.088689
 @47 sound - op=reel/reel_snd[2] sound=couture.reel cat=master vol=1 pitch=0.8367 at=-5.983827,5.080930,7.969218
-@47 hit - op=volley at=-5.983827,5.080930,7.969218 r=0.220000 shape=capsule a=-5.983827,5.080930,7.969218 b=-5.983827,5.080930,7.969218 rad=0.220000
+@47 hit - op=volley at=-6.018964,5.105612,8.019083 r=0.285805 shape=capsule a=-6.054100,5.130293,8.068948 b=-5.983827,5.080930,7.969218 rad=0.220000
 @47 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @47 frame throw/fly_body op=throw/fly_body pos=-5.983827,5.080930,7.969218 rot=0.148351,-0.313398,0.049637,0.936648
 @47 frame throw/fly_a op=throw/fly_a pos=-5.983827,5.080930,7.969218 rot=0.378042,-0.452494,0.097314,0.801788
@@ -2624,7 +2624,7 @@ r @78 run-end tail=2 | pose
 @48 line #58 op=coin3/smear_a[0] from=-0.720637,1.383808,0.499780 to=-6.033851,4.934291,7.837842
 @48 line #59 op=coin3/smear_a[1] from=-0.720637,1.383808,0.499780 to=-5.892641,4.879636,7.878162
 @48 line #60 op=coin3/smear_a[2] from=-0.720637,1.383808,0.499780 to=-6.007092,4.929837,7.988958
-@48 hit - op=volley at=-5.911314,5.029993,7.866309 r=0.220000 shape=capsule a=-5.911314,5.029993,7.866309 b=-5.911314,5.029993,7.866309 rad=0.220000
+@48 hit - op=volley at=-5.947571,5.055462,7.917763 r=0.287902 shape=capsule a=-5.983827,5.080930,7.969218 b=-5.911314,5.029993,7.866309 rad=0.220000
 @48 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @48 frame throw/fly_body op=throw/fly_body pos=-5.911314,5.029993,7.866309 rot=0.148351,-0.313398,0.049637,0.936648
 @48 frame throw/fly_a op=throw/fly_a pos=-5.911314,5.029993,7.866309 rot=0.378042,-0.452494,0.097314,0.801788
@@ -2633,7 +2633,7 @@ r @78 run-end tail=2 | pose
 @49 line #58 op=coin3/smear_a[0] from=-0.720637,1.383808,0.499780 to=-5.961338,4.883355,7.734932
 @49 line #59 op=coin3/smear_a[1] from=-0.720637,1.383808,0.499780 to=-5.820129,4.828699,7.775253
 @49 line #60 op=coin3/smear_a[2] from=-0.720637,1.383808,0.499780 to=-5.934579,4.878900,7.886049
-@49 hit - op=volley at=-5.836490,4.977433,7.760120 r=0.220000 shape=capsule a=-5.836490,4.977433,7.760120 b=-5.836490,4.977433,7.760120 rad=0.220000
+@49 hit - op=volley at=-5.873902,5.003713,7.813214 r=0.290067 shape=capsule a=-5.911314,5.029993,7.866309 b=-5.836490,4.977433,7.760120 rad=0.220000
 @49 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @49 frame throw/fly_body op=throw/fly_body pos=-5.836490,4.977433,7.760120 rot=0.148351,-0.313398,0.049637,0.936648
 @49 frame throw/fly_a op=throw/fly_a pos=-5.836490,4.977433,7.760120 rot=0.378042,-0.452494,0.097314,0.801788
@@ -2643,7 +2643,7 @@ r @78 run-end tail=2 | pose
 @50 line #59 op=coin3/smear_a[1] from=-0.720637,1.383808,0.499780 to=-5.745304,4.776139,7.669063
 @50 line #60 op=coin3/smear_a[2] from=-0.720637,1.383808,0.499780 to=-5.859755,4.826340,7.779860
 @50 sound - op=reel/reel_snd[3] sound=couture.reel cat=master vol=1 pitch=0.8608 at=-5.759281,4.923198,7.650545
-@50 hit - op=volley at=-5.759281,4.923198,7.650545 r=0.220000 shape=capsule a=-5.759281,4.923198,7.650545 b=-5.759281,4.923198,7.650545 rad=0.220000
+@50 hit - op=volley at=-5.797886,4.950315,7.705332 r=0.292300 shape=capsule a=-5.836490,4.977433,7.760120 b=-5.759281,4.923198,7.650545 rad=0.220000
 @50 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @50 frame throw/fly_body op=throw/fly_body pos=-5.759281,4.923198,7.650545 rot=0.148351,-0.313398,0.049637,0.936648
 @50 frame throw/fly_a op=throw/fly_a pos=-5.759281,4.923198,7.650545 rot=0.378042,-0.452494,0.097314,0.801788
@@ -2652,7 +2652,7 @@ r @78 run-end tail=2 | pose
 @51 line #58 op=coin3/smear_a[0] from=-0.720637,1.383808,0.499780 to=-5.809304,4.776559,7.519169
 @51 line #59 op=coin3/smear_a[1] from=-0.720637,1.383808,0.499780 to=-5.668095,4.721904,7.559489
 @51 line #60 op=coin3/smear_a[2] from=-0.720637,1.383808,0.499780 to=-5.782546,4.772104,7.670286
-@51 hit - op=volley at=-5.679611,4.867233,7.537479 r=0.220000 shape=capsule a=-5.679611,4.867233,7.537479 b=-5.679611,4.867233,7.537479 rad=0.220000
+@51 hit - op=volley at=-5.719446,4.895215,7.594012 r=0.294605 shape=capsule a=-5.759281,4.923198,7.650545 b=-5.679611,4.867233,7.537479 rad=0.220000
 @51 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @51 frame throw/fly_body op=throw/fly_body pos=-5.679611,4.867233,7.537479 rot=0.148351,-0.313398,0.049637,0.936648
 @51 frame throw/fly_a op=throw/fly_a pos=-5.679611,4.867233,7.537479 rot=0.378042,-0.452494,0.097314,0.801788
@@ -2661,7 +2661,7 @@ r @78 run-end tail=2 | pose
 @52 line #58 op=coin3/smear_a[0] from=-0.720637,1.383808,0.499780 to=-5.729634,4.720595,7.406102
 @52 line #59 op=coin3/smear_a[1] from=-0.720637,1.383808,0.499780 to=-5.588425,4.665939,7.446422
 @52 line #60 op=coin3/smear_a[2] from=-0.720637,1.383808,0.499780 to=-5.702875,4.716140,7.557219
-@52 hit - op=volley at=-5.597401,4.809485,7.420808 r=0.220000 shape=capsule a=-5.597401,4.809485,7.420808 b=-5.597401,4.809485,7.420808 rad=0.220000
+@52 hit - op=volley at=-5.638506,4.838359,7.479143 r=0.296983 shape=capsule a=-5.679611,4.867233,7.537479 b=-5.597401,4.809485,7.420808 rad=0.220000
 @52 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @52 frame throw/fly_body op=throw/fly_body pos=-5.597401,4.809485,7.420808 rot=0.148351,-0.313398,0.049637,0.936648
 @52 frame throw/fly_a op=throw/fly_a pos=-5.597401,4.809485,7.420808 rot=0.378042,-0.452494,0.097314,0.801788
@@ -2671,7 +2671,7 @@ r @78 run-end tail=2 | pose
 @53 line #59 op=coin3/smear_a[1] from=-0.722746,1.377107,0.515441 to=-5.506215,4.608191,7.329751
 @53 line #60 op=coin3/smear_a[2] from=-0.722746,1.377107,0.515441 to=-5.620666,4.658392,7.440548
 @53 sound - op=reel/reel_snd[4] sound=couture.reel cat=master vol=1 pitch=0.8878 at=-5.512332,4.749586,7.300300
-@53 hit - op=volley at=-5.512332,4.749586,7.300300 r=0.220000 shape=capsule a=-5.512332,4.749586,7.300300 b=-5.512332,4.749586,7.300300 rad=0.220000
+@53 hit - op=volley at=-5.554866,4.779535,7.360554 r=0.299603 shape=capsule a=-5.597401,4.809485,7.420808 b=-5.512332,4.749586,7.300300 rad=0.220000
 @53 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @53 frame throw/fly_body op=throw/fly_body pos=-5.512332,4.749586,7.300300 rot=0.148351,-0.313398,0.049637,0.936648
 @53 frame throw/fly_a op=throw/fly_a pos=-5.512332,4.749586,7.300300 rot=0.378042,-0.452494,0.097314,0.801788
@@ -2680,7 +2680,7 @@ r @78 run-end tail=2 | pose
 @54 line #58 op=coin3/smear_a[0] from=-0.726738,1.359181,0.554273 to=-5.562355,4.602947,7.168923
 @54 line #59 op=coin3/smear_a[1] from=-0.726738,1.359181,0.554273 to=-5.421146,4.548292,7.209244
 @54 line #60 op=coin3/smear_a[2] from=-0.726738,1.359181,0.554273 to=-5.535596,4.598492,7.320040
-@54 hit - op=volley at=-5.423960,4.686978,7.175726 r=0.220000 shape=capsule a=-5.423960,4.686978,7.175726 b=-5.423960,4.686978,7.175726 rad=0.220000
+@54 hit - op=volley at=-5.468146,4.718282,7.238013 r=0.302535 shape=capsule a=-5.512332,4.749586,7.300300 b=-5.423960,4.686978,7.175726 rad=0.220000
 @54 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @54 frame throw/fly_body op=throw/fly_body pos=-5.423960,4.686978,7.175726 rot=0.148351,-0.313398,0.049637,0.936648
 @54 frame throw/fly_a op=throw/fly_a pos=-5.423960,4.686978,7.175726 rot=0.378042,-0.452494,0.097314,0.801788
@@ -2689,7 +2689,7 @@ r @78 run-end tail=2 | pose
 @55 line #58 op=coin3/smear_a[0] from=-0.727820,1.351550,0.569652 to=-5.473983,4.540339,7.044350
 @55 line #59 op=coin3/smear_a[1] from=-0.727820,1.351550,0.569652 to=-5.332774,4.485684,7.084670
 @55 line #60 op=coin3/smear_a[2] from=-0.727820,1.351550,0.569652 to=-5.447225,4.535884,7.195467
-@55 hit - op=volley at=-5.332537,4.622045,7.047122 r=0.220000 shape=capsule a=-5.332537,4.622045,7.047122 b=-5.332537,4.622045,7.047122 rad=0.220000
+@55 hit - op=volley at=-5.378249,4.654511,7.111424 r=0.305313 shape=capsule a=-5.423960,4.686978,7.175726 b=-5.332537,4.622045,7.047122 rad=0.220000
 @55 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @55 frame throw/fly_body op=throw/fly_body pos=-5.332537,4.622045,7.047122 rot=0.148351,-0.313398,0.049637,0.936648
 @55 frame throw/fly_a op=throw/fly_a pos=-5.332537,4.622045,7.047122 rot=0.378042,-0.452494,0.097314,0.801788
@@ -2700,7 +2700,7 @@ r @78 run-end tail=2 | pose
 @56 line #60 op=coin3/smear_a[2] from=-0.727820,1.404285,0.569652 to=-5.355802,4.470951,7.066862
 @56 sound - op=reel/reel_snd[5] sound=couture.reel cat=master vol=1 pitch=0.9201 at=-5.237640,4.555731,6.913630
 @56 sound - op=reel/catch_snd sound=couture.catch cat=master vol=1 pitch=1 at=-0.727820,1.404285,0.569652
-@56 hit - op=volley at=-5.237640,4.555731,6.913630 r=0.220000 shape=capsule a=-5.237640,4.555731,6.913630 b=-5.237640,4.555731,6.913630 rad=0.220000
+@56 hit - op=volley at=-5.285089,4.588888,6.980376 r=0.308350 shape=capsule a=-5.332537,4.622045,7.047122 b=-5.237640,4.555731,6.913630 rad=0.220000
 @56 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @56 frame throw/fly_body op=throw/fly_body pos=-5.237640,4.555731,6.913630 rot=0.148351,-0.313398,0.049637,0.936648
 @56 frame throw/fly_a op=throw/fly_a pos=-5.237640,4.555731,6.913630 rot=0.378042,-0.452494,0.097314,0.801788
@@ -2709,7 +2709,7 @@ r @78 run-end tail=2 | pose
 @57 line #58 op=coin3/smear_a[0] from=-0.727820,1.445300,0.569652 to=-5.287664,4.409092,6.782253
 @57 line #59 op=coin3/smear_a[1] from=-0.727820,1.445300,0.569652 to=-5.146454,4.354437,6.822573
 @57 line #60 op=coin3/smear_a[2] from=-0.727820,1.445300,0.569652 to=-5.260905,4.404638,6.933370
-@57 hit - op=volley at=-5.139277,4.487890,6.775262 r=0.220000 shape=capsule a=-5.139277,4.487890,6.775262 b=-5.139277,4.487890,6.775262 rad=0.220000
+@57 hit - op=volley at=-5.188458,4.521810,6.844446 r=0.311410 shape=capsule a=-5.237640,4.555731,6.913630 b=-5.139277,4.487890,6.775262 rad=0.220000
 @57 effect 00000000-0000-0000-0000-000000000001 op=- held_model_clear
 @57 effect 00000000-0000-0000-0000-000000000001 op=- body=couture-s2-body-b speed=1
 @57 frame throw/fly_body op=throw/fly_body pos=-5.139277,4.487890,6.775262 rot=0.148351,-0.313398,0.049637,0.936648

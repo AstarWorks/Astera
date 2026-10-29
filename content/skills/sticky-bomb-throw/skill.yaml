@@ -28,7 +28,7 @@ fragments:
     do:
       - {id: boom, op: explode, at: 0, anchor: spot, power: 1.5, break_blocks: false, fire: false}
       - {id: dmg, op: damage, at: 0, target: {kind: enemies, around: spot, radius: "${radius}"}, damage: {fire: "${damage}"}}
-      - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.0, ahead: 4.0}}, tool: none, block_damage: 25, ripple: 29, revert: 200, outside_arena: false}
+      - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.0}}, tool: none, block_damage: 25, ripple: 29, revert: 200, outside_arena: false}
 machine:
   start: fly
   tail: 2

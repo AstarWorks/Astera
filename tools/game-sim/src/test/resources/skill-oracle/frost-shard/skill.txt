@@ -14,7 +14,7 @@
 @1 particle - op=cast/tr0[1] type=snowflake count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7241553289022869480
 @1 particle - op=cast/tr1[1] type=dust count=2 at=0.000000,1.620000,0.500000 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5352901070593633540
 @1 particle - op=cast/tr2[1] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6205581245844235060
-@1 hit - op=cast/ball at=0.000000,1.620000,3.084107 r=0.500000 shape=capsule a=0.000000,1.620000,3.084107 b=0.000000,1.620000,3.084107 rad=0.500000
+@1 hit - op=cast/ball at=0.000000,1.620000,1.792053 r=1.792053 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.084107 rad=0.500000
 @1 remove #0 op=cast/shell
 g @1 state-exit reason=PREEMPT | state=cast/fly
 g @1 state-exit reason=EVENT | state=cast
@@ -36,7 +36,7 @@ r @3 run-end tail=2 | pose
 @1 particle - op=cast/tr0[1] type=snowflake count=2 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7241553289022869480
 @1 particle - op=cast/tr1[1] type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5352901070593633540
 @1 particle - op=cast/tr2[1] type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6205581245844235060
-@1 hit - op=cast/ball at=-1.744128,2.674827,2.314535 r=0.500000 shape=capsule a=-1.744128,2.674827,2.314535 b=-1.744128,2.674827,2.314535 rad=0.500000
+@1 hit - op=cast/ball at=-1.013444,2.232918,1.344886 r=1.792053 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.744128,2.674827,2.314535 rad=0.500000
 @1 remove #0 op=cast/shell
 g @1 state-exit reason=PREEMPT | state=cast/fly
 g @1 state-exit reason=EVENT | state=cast
@@ -50,11 +50,11 @@ g @0 state-end then=- final=true | state=cast/recover
 g @0 state-end then=- final=true | state=done
 g.absorbed @1..43 handler max=1 | sub=cast/ball.absorbed
 g.bounce @1..43 handler max=2 | sub=cast/ball.bounce
-g.bounce @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D0.5,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D10,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=cast/ball.bounce
+g.bounce @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D0.5),%20tool%3Dnone,%20blockDamage%3D10,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=cast/ball.bounce
 g.end @0..1200 handler max=1 | sub=cast/ball.end
 g.hit @1..43 handler max=1 | sub=cast/ball.hit
 g.hit @0 damage water=25.000000 | sub=cast/ball.hit
 g.hit @0 status freeze stacks=1.000000 for=60 when | sub=cast/ball.hit
 g.hit @0 status wet stacks=1.000000 for=100 | sub=cast/ball.hit
-g.hit @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D0.5,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D10,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=cast/ball.hit
+g.hit @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D0.5),%20tool%3Dnone,%20blockDamage%3D10,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=cast/ball.hit
 g.hit @0 call skill:frost-shard-burst | sub=cast/ball.hit

@@ -40,8 +40,12 @@ internal class SimSkillEngine(
         override fun lightning(cast: CastRef, at: Vec3, visualOnly: Boolean) = Unit
     }
 
-    private val recorder = GatewayRecorder().also { it.faithfulPose = true }
-    private val ledger = SimLedgerWorld(SimBlockAccess(sim, services))
+    private val blockAccess = SimBlockAccess(sim, services)
+    private val recorder = GatewayRecorder().also {
+        it.faithfulPose = true
+        it.blockRaycast = blockAccess::raycast
+    }
+    private val ledger = SimLedgerWorld(blockAccess)
     private val player = TablePlayer(
         recorder.visual, recorder.particles, recorder.sounds, recorder.gameplay, recorder.query, recorder.live, recorder,
         recorder.movement, recorder.items, ledger,

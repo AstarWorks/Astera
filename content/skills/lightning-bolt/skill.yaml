@@ -60,7 +60,7 @@ machine:
               - {id: dmg, op: damage, target: event.victim, damage: {electric: "${dmg_electric}"}}
               - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}", when: "= roll('shock') < ${shock_chance}"}
               - {id: lightning, op: lightning, anchor: victim.root, visual_only: true}
-              - {id: chip, op: break_area, anchor: contact, shape: {sphere: {radius: "${chip_radius}", ahead: 4.0}}, tool: none, block_damage: "${chip_damage}", ripple: 29, revert: 200, outside_arena: false}
+              - {id: chip, op: break_area, anchor: contact, shape: {sphere: {radius: "${chip_radius}"}}, tool: none, block_damage: "${chip_damage}", ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", anchor: heart, volume: 0.7, pitch: 1.3, detach: true}
               - {id: fx_impact, op: particle_def, def: thunder-impact, anchor: heart, detach: true}
               - {id: sky_spark, op: particle, particle: electric_spark, anchor: sky, count: 1, detach: true}
@@ -68,7 +68,7 @@ machine:
               - {op: use, use: "fragment:flash", frames: {spot: feet}, detach: true}
               - {op: use, use: "fragment:impact", frames: {spot: heart}, detach: true}
             block:
-              - {id: chip_blk, op: break_area, anchor: contact, shape: {sphere: {radius: "${chip_radius}", ahead: 4.0}}, tool: none, block_damage: "${chip_damage}", ripple: 29, revert: 200, outside_arena: false}
+              - {id: chip_blk, op: break_area, anchor: contact, shape: {sphere: {radius: "${chip_radius}"}}, tool: none, block_damage: "${chip_damage}", ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_blk, op: sound, sound: "astera:skills/lightning-impact", anchor: contact, volume: 0.5, pitch: 1.6, detach: true}
               - {op: use, use: "fragment:flash", frames: {spot: contact}, detach: true}
               - {op: use, use: "fragment:impact", frames: {spot: contact}, detach: true}

@@ -257,6 +257,10 @@
                                     {
                                         "type": "string",
                                         "pattern": "^= .+"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                     }
                                 ]
                             },
@@ -382,6 +386,10 @@
                                                 {
                                                     "type": "string",
                                                     "pattern": "^= .+"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
                                                 }
                                             ]
                                         },
@@ -17008,8 +17016,7 @@
                                             "type": "object",
                                             "additionalProperties": false,
                                             "required": [
-                                                "radius",
-                                                "ahead"
+                                                "radius"
                                             ],
                                             "properties": {
                                                 "radius": {
@@ -17023,18 +17030,6 @@
                                                         }
                                                     ],
                                                     "description": "sphere radius in blocks"
-                                                },
-                                                "ahead": {
-                                                    "oneOf": [
-                                                        {
-                                                            "type": "number"
-                                                        },
-                                                        {
-                                                            "type": "string",
-                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
-                                                        }
-                                                    ],
-                                                    "description": "centre = origin + look * ahead"
                                                 }
                                             }
                                         }

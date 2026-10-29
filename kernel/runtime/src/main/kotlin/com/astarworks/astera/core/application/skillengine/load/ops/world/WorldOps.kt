@@ -88,8 +88,7 @@ internal object WorldOps {
     }
 
     private val sphereRadius = Field.required("radius", positive("number > 0"), "sphere radius in blocks")
-    private val sphereAhead = Field.required("ahead", nonNegative("number >= 0"), "centre = origin + look * ahead")
-    private val sphere = Fields.of("shape.sphere", sphereRadius, sphereAhead)
+    private val sphere = Fields.of("shape.sphere", sphereRadius)
     private val lineLength = Field.required("length", positive("number > 0"), "blocks along the look")
     private val lineWidth = Field.required("width", positive("number > 0"), "diameter of the ball filled at each 0.5-block step")
     private val lineHeight = Field.optional("height", size, 1, "cells tall: 1 sweeps a ball of `width` along the look, more sweeps a `width` disc stretched to a column of this height")
@@ -100,11 +99,11 @@ internal object WorldOps {
     private val box = Fields.of("shape.box", boxWidth, boxHeight, boxLength)
 
     val areaShape: FieldType<AreaShape> = object : FieldType<AreaShape> {
-        override val label = "{sphere: {radius, ahead}} | {line: {length, width}} | {box: {width, height, length}}"
+        override val label = "{sphere: {radius}} | {line: {length, width}} | {box: {width, height, length}}"
         override fun decode(raw: Any?, ctx: GrammarContext, path: String): AreaShape {
             val (kind, body) = single(raw, ctx, path, label)
             return when (kind) {
-                "sphere" -> sphere.read(body, ctx, "$path.sphere").let { AreaShape.Sphere(it[sphereRadius], it[sphereAhead]) }
+                "sphere" -> sphere.read(body, ctx, "$path.sphere").let { AreaShape.Sphere(it[sphereRadius]) }
                 "line" -> line.read(body, ctx, "$path.line").let { AreaShape.Line(it[lineLength], it[lineWidth], it[lineHeight]) }
                 "box" -> box.read(body, ctx, "$path.box").let { AreaShape.Box(it[boxWidth], it[boxHeight], it[boxLength]) }
                 else -> ctx.fail(path, "unknown shape '$kind', expected sphere, line or box")

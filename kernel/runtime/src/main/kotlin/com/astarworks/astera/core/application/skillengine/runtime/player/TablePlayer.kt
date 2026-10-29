@@ -1147,7 +1147,7 @@ public class TablePlayer(
         a.anchor?.let { if (isFrozen(run, it, now)) return }
         val delta = a.anchor?.let { run.recs[it] }?.let { r ->
             val cur = worldOf(run, r, r.localAt(now), ctx.binding, now).pos
-            val prev = worldOf(run, r, r.localAt(now - 1), ctx.binding, now - 1).pos
+            val prev = worldOf(run, r, r.prevLocal(now), ctx.binding, now - 1).pos
             Vector3d(cur).sub(prev)
         } ?: Vector3d()
         fun back(p: Vector3d, k: Double) = Vec3(p.x - delta.x * k, p.y - delta.y * k, p.z - delta.z * k)
@@ -1326,7 +1326,7 @@ public class TablePlayer(
         val path = EventPath(id.text + ".block")
         if (path !in run.listened) return false
         val cur = worldOf(run, rec, rec.localAt(now), null, now).pos
-        val prev = worldOf(run, rec, rec.localAt(now - 1), null, now - 1).pos
+        val prev = worldOf(run, rec, rec.poseAtEndOf(now - 1), null, now - 1).pos
         if (cur.distanceSquared(prev) < 1e-12) return false
         val b = query.raycastBlock(castRef(run), Vec3(prev.x, prev.y, prev.z), Vec3(cur.x, cur.y, cur.z)) ?: return false
         run.pending += RuntimeEvent(
@@ -1380,7 +1380,7 @@ public class TablePlayer(
         if (path !in run.listened && path !in tables && absorbedPath !in run.listened && absorbedPath !in tables) return
         if (rec.hitTargets == "blocks_only") return
         val cur = worldOf(run, rec, rec.localAt(now), null, now).pos
-        val prev = worldOf(run, rec, rec.localAt(now - 1), null, now - 1).pos
+        val prev = worldOf(run, rec, rec.poseAtEndOf(now - 1), null, now - 1).pos
         val delta = Vec3(cur.x - prev.x, cur.y - prev.y, cur.z - prev.z)
         val start = Vec3(prev.x, prev.y, prev.z)
         val raw = ArrayList<ContactEvent>()
@@ -1423,7 +1423,7 @@ public class TablePlayer(
                 fault(run, now, id.text, "hit.shape frame '${sf.frame}' is not a live frame of this projectile")
                 continue
             }
-            val d = Vector3d(worldOf(run, fr, fr.localAt(now), null, now).pos).sub(worldOf(run, fr, fr.localAt(now - 1), null, now - 1).pos)
+            val d = Vector3d(worldOf(run, fr, fr.localAt(now), null, now).pos).sub(worldOf(run, fr, fr.poseAtEndOf(now - 1), null, now - 1).pos)
             val f = live.vec(run.cursor.handle, sf.from, null, RowScope.cast(run.request.seed))
             val t = live.vec(run.cursor.handle, sf.to, null, RowScope.cast(run.request.seed))
             sweep(Vector3d(f.x, f.y, f.z), Vector3d(t.x, t.y, t.z), d)
@@ -2277,9 +2277,21 @@ public class TablePlayer(
             segDur = duration
         }
 
-        /** The local pose one tick before [t] (what the instance was at the end of the previous tick). */
+        /**
+         * The local pose the rows of tick [t] - 1 saw: rows run before a tick's motion, so a duration-0 move made during tick [t] - 1 is
+         * not visible to them yet. `localAt(t) - prevLocal(t)` is the true one-tick displacement a row of tick [t] sweeps (`localAt(t - 1)`
+         * would return the post-move pose for a per-tick `moveTo` and collapse the segment to a point).
+         */
         fun prevLocal(t: Int): PoseV =
             if (segDur <= 0) (if (segStart >= t - 1) from else to) else if (t - 1 < segStart) from else localAt(t - 1)
+
+        /**
+         * The local pose at the end of tick [t]. A duration-0 move made during tick [t] + 1 (a projectile's per-tick `moveTo`) is not yet
+         * visible, so a swept contact segment `poseAtEndOf(now - 1) -> localAt(now)` has the true one-tick length ([localAt] would already
+         * return the post-move pose for [t] and collapse the segment to a point).
+         */
+        fun poseAtEndOf(t: Int): PoseV =
+            if (segDur <= 0) (if (segStart > t) from else to) else localAt(t)
 
         fun localAt(t: Int): PoseV {
             if (segDur <= 0 || t >= segStart + segDur) return to

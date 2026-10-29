@@ -61,11 +61,11 @@ machine:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {fire: "${dmg_fire}"}}
               - {id: st_burn, op: status, target: event.victim, status: burn, stacks: 1, for: "${burn_ticks}", when: "= rand() < burn_chance"}
-              - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.5, ahead: 4.0}}, tool: none, block_damage: 35, ripple: 29, revert: 200, outside_arena: false}
+              - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.5}}, tool: none, block_damage: 35, ripple: 29, revert: 200, outside_arena: false}
               - {id: lava, op: particle, particle: lava, anchor: heart, count: 12, extra: 0.1}
               - {id: fx, op: use, use: "fragment:burst", with: {flame: 60, pitch: 1.3}, frames: {spot: heart}}
             block:
-              - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.5, ahead: 4.0}}, tool: none, block_damage: 35, ripple: 29, revert: 200, outside_arena: false}
+              - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.5}}, tool: none, block_damage: 35, ripple: 29, revert: 200, outside_arena: false}
               - {id: fx, op: use, use: "fragment:burst", with: {flame: 50, pitch: 1.4}, frames: {spot: contact.point}}
             expire:
               - {id: snd_end, op: sound, sound: "astera:skills/fire-impact", anchor: contact.point, volume: 0.4, pitch: 1.2}

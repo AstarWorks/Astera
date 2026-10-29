@@ -71,6 +71,6 @@ machine:
                   - {id: fx_dust, op: particle, particle: dust, anchor: foe_pt, count: 20, offset: [0.4, 0.8, 0.4], color: "#aae1ff", size: 1.4}
                   - {id: fx_rod, op: particle, particle: end_rod, anchor: foe_pt, count: 10, offset: [0.35, 0.8, 0.35], extra: 0.02}
                   - {id: fx_rod2, op: particle, particle: end_rod, anchor: foe_pt, count: 0, extra: 0.01}
-            - {id: chip, op: break_area, at: 0, anchor: caster, shape: {sphere: {radius: 2.5, ahead: 4.0}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
+            - {id: chip, op: break_area, at: 0, anchor: {of: caster, offset: {forward: 4}}, shape: {sphere: {radius: 2.5}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
         recover: {final: true}
     done: {final: true}

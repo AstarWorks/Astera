@@ -10,6 +10,7 @@ import com.astarworks.astera.core.application.port.outbound.IStructureTargets
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockDamageOutcome
+import com.astarworks.astera.core.application.skillengine.runtime.port.BlockHit
 import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillBlockAccess
 import com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase
@@ -27,6 +28,9 @@ import com.astarworks.astera.core.domain.world.ToolType
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.domain.block.BlockDamageOutcome as DomainOutcome
 import com.astarworks.astera.core.domain.Result as AsteraResult
+import kotlin.math.abs
+import kotlin.math.floor
+import kotlin.math.sqrt
 
 /**
  * The sim's block seam for the skill engine's world ops: the same rules as the Paper `PaperBlockAccess` (cover blocks through
@@ -113,6 +117,42 @@ internal class SimBlockAccess(private val sim: SimWorld, private val services: S
             is DomainOutcome.Damaged -> BlockDamageOutcome.CHIPPED
             is DomainOutcome.Broken -> { sim.removeBlock(cast.world, at); BlockDamageOutcome.BROKEN }
             else -> BlockDamageOutcome.NONE
+        }
+    }
+
+    /**
+     * The first solid cell on the segment [from] -> [to] (Amanatides-Woo voxel walk over [SimWorld]'s block map), as Paper's `rayTraceBlocks`
+     * does for the real world: the entry point on that cell's face and the face normal. A segment starting inside a block hits at [from].
+     */
+    fun raycast(cast: CastRef, from: Vec3, to: Vec3): BlockHit? {
+        val dx = to.x - from.x
+        val dy = to.y - from.y
+        val dz = to.z - from.z
+        val len = sqrt(dx * dx + dy * dy + dz * dz)
+        if (len < 1.0e-9) return null
+        fun solid(x: Int, y: Int, z: Int) = sim.blockAt(cast.world, Vec3(x.toDouble(), y.toDouble(), z.toDouble()))
+        var x = floor(from.x).toInt()
+        var y = floor(from.y).toInt()
+        var z = floor(from.z).toInt()
+        solid(x, y, z)?.let { return BlockHit(from, Vec3(-dx / len, -dy / len, -dz / len), it.key) }
+        val sx = if (dx > 0) 1 else -1
+        val sy = if (dy > 0) 1 else -1
+        val sz = if (dz > 0) 1 else -1
+        fun first(o: Double, d: Double, c: Int, s: Int) = if (d == 0.0) Double.POSITIVE_INFINITY else ((if (s > 0) c + 1 else c) - o) / d
+        var tx = first(from.x, dx, x, sx)
+        var ty = first(from.y, dy, y, sy)
+        var tz = first(from.z, dz, z, sz)
+        val ddx = if (dx == 0.0) Double.POSITIVE_INFINITY else abs(1.0 / dx)
+        val ddy = if (dy == 0.0) Double.POSITIVE_INFINITY else abs(1.0 / dy)
+        val ddz = if (dz == 0.0) Double.POSITIVE_INFINITY else abs(1.0 / dz)
+        while (true) {
+            val t: Double
+            val normal: Vec3
+            if (tx <= ty && tx <= tz) { t = tx; x += sx; tx += ddx; normal = Vec3(-sx.toDouble(), 0.0, 0.0) }
+            else if (ty <= tz) { t = ty; y += sy; ty += ddy; normal = Vec3(0.0, -sy.toDouble(), 0.0) }
+            else { t = tz; z += sz; tz += ddz; normal = Vec3(0.0, 0.0, -sz.toDouble()) }
+            if (t > 1.0) return null
+            solid(x, y, z)?.let { return BlockHit(Vec3(from.x + dx * t, from.y + dy * t, from.z + dz * t), normal, it.key) }
         }
     }
 
