@@ -179,6 +179,8 @@ public class PaperSkillGameplayGateway(
         feedback.stopSound(PlayerId(viewer), sound)
     }
 
+    override fun isPlayer(entity: UUID): Boolean = server.getPlayer(entity) != null
+
     override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double) {
         val id = CustomAnimationId(anim)
         // the skin rig and the pose clips animate players only: a `body target:` that is not an online player is reported, never dropped silently

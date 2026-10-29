@@ -30,6 +30,9 @@ public interface CastTrace {
     /** A live `frame` instance's world pose at the end of [tick] (frames are internal to the player, so the oracle sees them only here). */
     public fun frame(cast: CastHandle, op: InstanceId, tick: Int, position: Vec3, rotation: Quaternion) {}
 
+    /** A `react player:` clip row did not play because [victim] is not a player (a mob plays the flinch / push / hold of the same `react` and no clip). */
+    public fun reactClipSkipped(cast: CastHandle, op: InstanceId, tick: Int, victim: java.util.UUID?) {}
+
     public companion object {
         public val NONE: CastTrace = object : CastTrace {
             override fun enter(cast: CastHandle, state: StatePath, tick: Int) {}

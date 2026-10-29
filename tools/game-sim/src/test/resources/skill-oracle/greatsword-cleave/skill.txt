@@ -27,6 +27,8 @@
 @6 sound - op=strike/swing.hit/snd_hit sound=astera:weapons/blade-crit cat=master vol=1 pitch=1 at=0.000000,0.900000,2.500000
 @6 particle - op=strike/swing.hit/fx_hit type=hit-spark at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5699905757348736161
 @6 particle - op=strike/swing.hit/fx_ind type=hit-indicator at=0.000000,1.600000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3578562683566428263
+@6 effect 00000000-0000-0000-0000-00000000000a op=- hurt
+@6 effect 00000000-0000-0000-0000-00000000000b op=- hurt
 @6 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0 z=1.3
 @6 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.571128,-0.780851,0.170100,0.187483
 @7 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.185436,-0.521652,-0.601023,0.576424 scale=0.937500,0.937500,0.937500 bb=FIXED

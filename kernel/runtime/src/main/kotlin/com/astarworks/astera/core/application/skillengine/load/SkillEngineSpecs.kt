@@ -29,6 +29,7 @@ import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.Cons
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ConsumeStatusOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.FreezeOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.HurtOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ReactOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.BodyOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.HeldModelOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.CameraShakeOpSpec
@@ -76,6 +77,7 @@ public object SkillEngineSpecs {
         ConsumeStatusOpSpec,
         FreezeOpSpec,
         HurtOpSpec,
+        ReactOpSpec,
         CameraShakeOpSpec,
         StopSoundOpSpec,
         ScreenFlashOpSpec,

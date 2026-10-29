@@ -1621,6 +1621,11 @@ public class TablePlayer(
             "stop_sound" -> victims.forEach { gameplay.stopSound(castRef(run), it, s("sound")) }
             "body" -> {
                 val id = row.instance
+                // `react player:` lowers to a body row with only=player: a mob victim plays the rest of the reaction and skips the clip, by name (a trace, not a warn)
+                if (p["only"]?.let { strOf(run, it, ctx) } == "player" && victims.firstOrNull()?.let { gameplay.isPlayer(it) } != true) {
+                    trace.reactClipSkipped(run.cursor.handle, id, now, victims.firstOrNull())
+                    return
+                }
                 run.recs[id]?.let { endInstance(run, id) }
                 // the clip lives as long as its instance: End / state exit / cast end all go through endInstance
                 // the body instance rides the caster (feet, body yaw): the clip's named points are its model points, read through `<id>.<point>`

@@ -186,6 +186,11 @@ internal class SkillV3Lint(private val contentDir: Path, private val schemasDir:
                             out += "$where: op body '${n.get("id")?.asText()}': '$id' is neither a content/animations clip nor a pose-only clip ($POSE_ONLY_ANIMATIONS)"
                         }
                     }
+                    "react" -> n.get("player")?.get("anim")?.takeIf { it.isTextual }?.asText()?.let { id ->
+                        if (!id.startsWith("=") && !id.contains("\${") && id !in rigAnimations) {
+                            out += "$where: op react '${n.get("id")?.asText()}': player.anim '$id' is neither a content/animations clip nor a pose-only clip ($POSE_ONLY_ANIMATIONS)"
+                        }
+                    }
                     "sound" -> n.get("sound")?.takeIf { it.isTextual }?.asText()?.let(::folded)?.let { id ->
                         if (id.startsWith("astera:") && id !in soundCues) {
                             out += "$where: op sound '${n.get("id")?.asText()}': '$id' is not a content/sounds cue"

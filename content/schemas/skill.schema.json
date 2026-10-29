@@ -15265,6 +15265,406 @@
                     "type": "object",
                     "additionalProperties": false,
                     "required": [
+                        "target"
+                    ],
+                    "properties": {
+                        "target": {
+                            "oneOf": [
+                                {
+                                    "enum": [
+                                        "victim",
+                                        "event.victim",
+                                        "event.attacker",
+                                        "caster"
+                                    ]
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "required": [
+                                        "kind",
+                                        "around",
+                                        "radius"
+                                    ],
+                                    "properties": {
+                                        "kind": {
+                                            "enum": [
+                                                "enemies",
+                                                "allies"
+                                            ],
+                                            "description": "enemies or allies"
+                                        },
+                                        "around": {
+                                            "type": "string",
+                                            "pattern": "^\\S+$",
+                                            "description": "point or frame the area is centred on"
+                                        },
+                                        "radius": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                }
+                                            ],
+                                            "description": "radius in blocks"
+                                        },
+                                        "max_count": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 1
+                                                },
+                                                {
+                                                    "const": "all"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"
+                                                }
+                                            ],
+                                            "description": "keep the nearest N to `around`; `all` = unlimited",
+                                            "default": null
+                                        },
+                                        "include_self": {
+                                            "type": "boolean",
+                                            "description": "allies only: include the caster",
+                                            "default": false
+                                        }
+                                    }
+                                }
+                            ],
+                            "description": "the entity that reacts: event.victim (inside an on.hit handler)"
+                        },
+                        "flinch": {
+                            "anyOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "true: the vanilla hurt animation, tilted from the caster; absent = none",
+                            "default": null
+                        },
+                        "push": {
+                            "anyOf": [
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "required": [],
+                                    "properties": {
+                                        "back": {
+                                            "anyOf": [
+                                                {
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ],
+                                            "description": "blocks/tick away from the caster",
+                                            "default": null
+                                        },
+                                        "up": {
+                                            "anyOf": [
+                                                {
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ],
+                                            "description": "blocks/tick upwards",
+                                            "default": null
+                                        },
+                                        "forward": {
+                                            "anyOf": [
+                                                {
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ],
+                                            "description": "not allowed: write back: -x",
+                                            "default": null
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "velocity of the reaction, away from the caster (back) and up",
+                            "default": null
+                        },
+                        "hold": {
+                            "anyOf": [
+                                {
+                                    "oneOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string",
+                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "ticks the victim's movement is held (a whole number >= 1, folds at load); a weapon trait with balance weight",
+                            "default": null
+                        },
+                        "player": {
+                            "anyOf": [
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "required": [
+                                        "anim"
+                                    ],
+                                    "properties": {
+                                        "anim": {
+                                            "type": "string",
+                                            "pattern": "^\\S+$",
+                                            "description": "body animation clip id (content/animations)"
+                                        },
+                                        "speed": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                }
+                                            ],
+                                            "description": "playback speed, 1.0 = authored",
+                                            "default": 1.0
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "clip layer: played only when the victim is a player",
+                            "default": null
+                        },
+                        "at": {
+                            "anyOf": [
+                                {
+                                    "oneOf": [
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "string",
+                                            "pattern": "^[A-Za-z_][A-Za-z0-9_.]*(\\+\\d+)?$"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "start: tick since cast/event start, or an event with optional +offset; absent = inherited from the enclosing group",
+                            "default": null
+                        },
+                        "for": {
+                            "anyOf": [
+                                {
+                                    "oneOf": [
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "const": "cast"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "window length in ticks, or 'cast'",
+                            "default": null
+                        },
+                        "every": {
+                            "anyOf": [
+                                {
+                                    "oneOf": [
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "required": [
+                                                "from",
+                                                "to",
+                                                "ease"
+                                            ],
+                                            "properties": {
+                                                "from": {
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ]
+                                                },
+                                                "to": {
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ]
+                                                },
+                                                "ease": {
+                                                    "type": "string",
+                                                    "pattern": "^\\S+$"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "repeat period in ticks, or {from, to, ease}",
+                            "default": null
+                        },
+                        "times": {
+                            "anyOf": [
+                                {
+                                    "oneOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string",
+                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "with every: maximum occurrences in time; without every: a family of N simultaneous instances id[i]",
+                            "default": null
+                        },
+                        "until": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^\\S+$"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "event that ends the window",
+                            "default": null
+                        },
+                        "lasts": {
+                            "anyOf": [
+                                {
+                                    "oneOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string",
+                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "life of each occurrence (extended ops with every)",
+                            "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
+                        "op": {
+                            "const": "react"
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
                         "intensity"
                     ],
                     "properties": {
@@ -16541,7 +16941,7 @@
                                     }
                                 }
                             ],
-                            "description": "whose body plays the clip: caster | event.victim | event.attacker (one entity, never an area)"
+                            "description": "whose body plays the clip: caster (a victim reaction is op: react)"
                         },
                         "at": {
                             "anyOf": [

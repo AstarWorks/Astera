@@ -49,6 +49,7 @@ machine:
           damage: {physical: "${dmg_physical}"}
           on:
             hit:
+              - {id: react, op: react, target: event.victim, flinch: true, for: 6}
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster))", strength: "${knockback}"}
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2, detach: true}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}

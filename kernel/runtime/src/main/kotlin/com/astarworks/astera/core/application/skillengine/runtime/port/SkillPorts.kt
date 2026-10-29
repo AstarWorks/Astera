@@ -255,6 +255,9 @@ public interface ISkillGameplayGateway {
     /** `body` (R41): plays the clip [anim] on [target]'s body (skin rig, else a pose clip) at [speed]; [target] is the caster, or the victim / attacker of the event (`body target:`). */
     public fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double)
 
+    /** True when [entity] is an online player (a body clip only plays on one; `react player:` is skipped for any other living entity). */
+    public fun isPlayer(entity: UUID): Boolean
+
     /** The skin-rig clip [anim] (`rig anim:`): its length and arm track drive the rig's hand origin; null = no such skin-rig clip. */
     public fun bodyClip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation? = null
 
