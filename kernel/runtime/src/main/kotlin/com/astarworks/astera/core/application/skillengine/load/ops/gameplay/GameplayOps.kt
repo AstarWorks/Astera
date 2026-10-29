@@ -168,7 +168,14 @@ internal object GameplayOps {
     /** Window length of a `for:` span in ticks; `cast` and an absent span are errors the table cannot express yet. */
     fun duration(timing: Timing?, lc: LowerContext, path: String, field: String): Result<Int, SkillDecodeError> = when (val span = timing?.span) {
         null -> Result.Failure(SkillDecodeError.MissingField(lc.skillId, path, field))
-        is Span.Ticks -> lc.requireStaticTiming(path, field, span.ticks)
+        is Span.Ticks -> lc.requireStaticTiming(path, field, span.ticks).flatMap { n ->
+            val v = span.ticks
+            // an expression / param that folds to nothing (a per-copy `= shock_ticks - 4 * hop` at hop 3) names its copy
+            if (n < 1 && v !is Value.Literal) {
+                val shown = if (v is Value.Expr) "= ${v.source}" else v.toString()
+                Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "${lc.self.text}.$field: $shown folds to $n (must be a whole number >= 1 ticks)"))
+            } else Result.Success(n)
+        }
         Span.UntilCastEnds -> Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "'$field: cast' needs a tick count the table can end on"))
     }
 
