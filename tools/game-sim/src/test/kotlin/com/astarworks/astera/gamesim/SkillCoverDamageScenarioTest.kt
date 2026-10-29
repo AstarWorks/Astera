@@ -9,6 +9,11 @@ import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.world.BlockType
+import com.astarworks.astera.core.domain.world.ToolKind
+import com.astarworks.astera.core.domain.world.ToolTier
+import com.astarworks.astera.core.domain.world.ToolType
+import java.nio.file.Files
+import java.nio.file.Paths
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository
@@ -17,7 +22,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * ADR-0280: cover damage from skills. A gun/spell chips cover only through its `block_damage` field, the field
+ * ADR-0280 / ADR-0297: cover damage from skills, one strike per cast. A gun/spell chips cover only through its `block_damage` field, the field
  * tools' skills do the large-scale breaking and placing, and a finished match rebuilds all of it.
  */
 class SkillCoverDamageScenarioTest {
@@ -50,6 +55,38 @@ class SkillCoverDamageScenarioTest {
 
             // pistol-shot: block_damage amount 12 (flat, tool-independent) on a 400 HP wall.
             assertThat(hp(wall)).isEqualTo(388)
+        }
+    }
+
+    @Test
+    fun `a tool bore lands its whole block_damage on cover in one strike per cast`() {
+        scenario("skill-cover-one-strike") {
+            val caster = player("caster", at = Vec3(0.5, groundY, 0.0), team = "red", facing = Vec3(1.0, 0.0, 0.0))
+            caster.world = world
+            val blocks = sim.services.getOrThrow<IBlockStateGateway>()
+            val spec = checkNotNull(sim.services.getOrThrow<ICustomBlockRegistry>().find(BlockType("astera:stone_bulwark")))
+            val at = Vec3(2.0, groundY + 1, 0.0)
+            assertThat(blocks.placeCustomBlock(world, at, spec, caster.id)).isInstanceOf(Result.Success::class.java)
+            sim.world.placeBlock(world, at, BlockType(spec.id.key))
+
+            // ADR-0297: floor(block_damage * matrix% / 100), both read from shipped content. A stone pickaxe is the case where
+            // six floored portions (16/17 each, scaled) would have summed to less than the single strike.
+            val content = Paths.get(System.getProperty("astera.sim.contentDir"))
+            val yaml = Files.readString(content.resolve("skills/pickaxe-bore-stone/skill.yaml"))
+            val blockDamage = checkNotNull(Regex("""op: break_area[^\n]*?block_damage: (\d+)""").find(yaml)).groupValues[1].toInt()
+            val percent = checkNotNull(spec.toolEffectiveness?.get(ToolType(ToolKind.PICKAXE, ToolTier.STONE)))
+            val perCast = blockDamage * percent / 100
+            assertThat(perCast).isLessThan(spec.baseDurability)
+
+            sim.cast(caster, "pickaxe-bore-stone", "stone-pickaxe")
+            val seen = linkedSetOf<Int?>()
+            repeat(40) {
+                advance(1)
+                seen += hp(at)
+            }
+
+            // Only the untouched value and the one-strike value ever show: no intermediate portion states.
+            assertThat(seen).containsExactlyInAnyOrder(spec.baseDurability, spec.baseDurability - perCast)
         }
     }
 
