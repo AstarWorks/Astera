@@ -21,7 +21,12 @@ public data class Row(
     val seed: Long = 0L,
     /** `detach: true` (ADR-0303 rev4.12): the instance this row makes is owned by the cast, not by the state that wrote it, so a state exit does not end it. */
     val detached: Boolean = false,
+    /** Chain targeting (ADR-0303 9.4): the row belongs to hop [RowChain.hop] of a chain and runs with that hop's pick bound as `victim`. */
+    val chain: RowChain? = null,
 )
+
+/** Hop [hop] (1-based) of the chain [chain] (the call instance path of the `chain:` call, unique within its handler sub-table). */
+public data class RowChain(val chain: String, val hop: Int)
 
 /** Row [k] of [n] along a sampled segment (ADR-0303 1, rev4.8). */
 public data class SegmentSample(val k: Int, val n: Int)

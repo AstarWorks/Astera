@@ -211,7 +211,7 @@ public object ExpansionDump {
 
     private val VERBS = setOf(
         "spawn", "key", "teleport", "trail", "particle", "particle_def", "set", "sound",
-        "hit", "damage", "status", "effect", "world", "call",
+        "hit", "damage", "status", "effect", "world", "call", "pick",
     )
 
     private val BRANCH = Regex("""branch (\S+) (\[\d+,\d+]) guard=(.*?)( absorb)? target=(\S+) sub=(\S+)""")
@@ -263,6 +263,7 @@ public object ExpansionDump {
         is Action.Effect -> "effect"
         is Action.World -> "world"
         is Action.Lock -> "lock"
+        is Action.Pick -> "pick"
         is Action.Call -> "call"
         is Action.Emit -> "emit"
         is Action.End -> "end"
@@ -287,6 +288,7 @@ public object ExpansionDump {
         is Action.Effect -> listOf("op" to a.op, "payload" to a.payload)
         is Action.World -> listOf("op" to a.op, "origin" to a.origin, "forward" to a.forward, "payload" to a.payload)
         is Action.Lock -> listOf("move" to a.move, "pitch" to a.pitch, "yaw" to a.yaw, "until" to a.until)
+        is Action.Pick -> listOf("chain" to a.chain, "hop" to a.hop, "kind" to a.area.kind, "around" to a.area.aroundName, "r" to a.area.radius, "nearest" to 1, "exclude" to "chain")
         is Action.Call -> listOf("callee" to a.callee, "id" to a.callId, "with" to a.with, "frames" to a.frames)
         is Action.Emit -> listOf("event" to a.event)
         is Action.End -> listOf("instance" to a.instance)

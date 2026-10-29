@@ -24,6 +24,7 @@ import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
 import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
@@ -39,7 +40,20 @@ public class UseOp(
     public val frames: Map<String, String>,
     public val gateCooldown: Boolean = false,
     public val gateCost: Boolean = false,
+    /** `chain:` (ADR-0303 9.4): the call is unrolled into `hops` copies `id[1..hops]`, each preceded by a pick row. */
+    public val chain: ChainSpec? = null,
 ) : OpNode
+
+/**
+ * A decoded `chain:` block (ADR-0303 9.4). [hops] / [every] fold at load ([ChainUnroller]); the pick is the area the hop's victim is chosen from:
+ * [kind] enemies | allies within [radius] of the previous victim, nearest first, never a victim the chain already used.
+ */
+public class ChainSpec(
+    public val hops: Value<Double>,
+    public val every: Value<Double>,
+    public val kind: String,
+    public val radius: Value<Double>,
+)
 
 public object UseOpSpec : OpSpec<UseOp> {
     override val name: String = "use"
@@ -49,11 +63,18 @@ public object UseOpSpec : OpSpec<UseOp> {
     private val withField = Field.optional("with", RawMap, emptyMap())
     private val framesField = Field.optional("frames", StringMap, emptyMap())
     private val gateField = Field.optional("gate", GateType, null)
-    override val fields: Fields = Fields.of("use", useField, withField, framesField, gateField)
+    private val chainField = Field.optional("chain", ChainType, null)
+    override val fields: Fields = Fields.of("use", useField, withField, framesField, gateField, chainField)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<UseOp, SkillDecodeError> {
         val target = values[useField]
         val gate = values[gateField]
+        val rawChain = values[chainField]
+        if (rawChain != null) {
+            if (gate != null) ctx.fail("gate", "gate: applies to a skill call (use: skill:<id>); a part or fragment call has no cooldown or cost")
+            if (!target.startsWith(PartInliner.FRAGMENT_PREFIX)) ctx.fail("chain", "chain: only a use: fragment: call inside an on.hit list takes chain: (found on 'use $target', op ${id.value})")
+            return Result.success(UseOp(id, src, whenExpr, timing, target, values[withField], values[framesField], chain = decodeChain(id, timing, rawChain, ctx)))
+        }
         if (target.startsWith(SkillCallInliner.PREFIX)) {
             if (target.length == SkillCallInliner.PREFIX.length) ctx.fail("use", "'skill:' names no skill")
             return Result.success(UseOp(id, src, whenExpr, timing, target, values[withField], values[framesField], gate?.cooldown ?: false, gate?.cost ?: false))
@@ -62,6 +83,29 @@ public object UseOpSpec : OpSpec<UseOp> {
         if (gate != null) ctx.fail("gate", "gate: applies to a skill call (use: skill:<id>); a part or fragment call has no cooldown or cost")
         return Result.success(UseOp(id, src, whenExpr, timing, target, values[withField], values[framesField]))
     }
+
+    private fun decodeChain(id: OpId, timing: Timing?, raw: Map<String, Any?>, ctx: GrammarContext): ChainSpec {
+        fun bad(msg: String): Nothing = ctx.fail("chain", "chain '${id.value}': $msg")
+        if (timing != null && (timing.times != null || timing.every != null || timing.lasts != null)) bad("chain: excludes times:, every:, lasts: on the same call")
+        for (k in raw.keys) if (k !in CHAIN_KEYS) ctx.abort(SkillDecodeError.UnknownKey(ctx.file, "chain", k))
+        val hops = Types.number.decode(raw["hops"] ?: ctx.fail("chain", "chain '${id.value}': hops is required"), ctx, "chain.hops")
+        val every = Types.number.decode(raw["every"] ?: ctx.fail("chain", "chain '${id.value}': every is required"), ctx, "chain.every")
+        val pick = raw["pick"] as? Map<*, *> ?: ctx.fail("chain", "chain '${id.value}': pick is required (an area: {kind, around: from, radius, nearest: 1, exclude: chain})")
+        for (k in pick.keys) if (k !in PICK_KEYS) {
+            if (k == "max_count") bad("pick.nearest must be 1; use max_count without chain: for an area")
+            ctx.abort(SkillDecodeError.UnknownKey(ctx.file, "chain.pick", k.toString()))
+        }
+        val around = pick["around"] ?: bad("pick.around is required and must be 'from' (the previous victim)")
+        if (around != "from") bad("pick.around must be 'from' (the previous victim); '$around' is an anchor")
+        if (pick["nearest"] != 1) bad("pick.nearest must be 1; use max_count without chain: for an area")
+        if (pick["exclude"] != "chain") bad("pick.exclude must be 'chain'")
+        val kind = Types.enumOf("enemies", "allies").decode(pick["kind"] ?: bad("pick.kind is required (enemies or allies)"), ctx, "chain.pick.kind")
+        val radius = Types.number.decode(pick["radius"] ?: bad("pick.radius is required"), ctx, "chain.pick.radius")
+        return ChainSpec(hops, every, kind, radius)
+    }
+
+    private val CHAIN_KEYS = setOf("hops", "every", "pick")
+    private val PICK_KEYS = setOf("kind", "around", "radius", "nearest", "exclude")
 
     override fun lower(op: UseOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         if (op.target.startsWith(SkillCallInliner.PREFIX)) return SkillCallInliner.lowerCall(op, lc, UseLowering::lowerPartCall)
@@ -77,6 +121,36 @@ private object RawMap : FieldType<Map<String, Any?>> {
         return m.entries.associate { (k, v) -> (k as? String ?: ctx.fail(path, "key '$k' is not a string")) to v }
     }
     override fun schema(): Map<String, Any?> = linkedMapOf("type" to "object")
+}
+
+/** `chain:` of a fragment call (ADR-0303 9.4): kept as the raw map; [UseOpSpec] validates its keys with the op id in the message. */
+private object ChainType : FieldType<Map<String, Any?>?> {
+    override val label = "{hops, every, pick: {kind, around: from, radius, nearest: 1, exclude: chain}}"
+    override fun decode(raw: Any?, ctx: GrammarContext, path: String): Map<String, Any?> {
+        val m = raw as? Map<*, *> ?: ctx.mismatch(path, label, raw)
+        return m.entries.associate { (k, v) -> (k as? String ?: ctx.fail(path, "key '$k' is not a string")) to v }
+    }
+    override fun schema(): Map<String, Any?> = linkedMapOf(
+        "type" to "object",
+        "additionalProperties" to false,
+        "required" to listOf("hops", "every", "pick"),
+        "properties" to linkedMapOf(
+            "hops" to Types.number.schema(),
+            "every" to Types.number.schema(),
+            "pick" to linkedMapOf(
+                "type" to "object",
+                "additionalProperties" to false,
+                "required" to listOf("kind", "around", "radius", "nearest", "exclude"),
+                "properties" to linkedMapOf(
+                    "kind" to linkedMapOf("enum" to listOf("enemies", "allies")),
+                    "around" to linkedMapOf("const" to "from"),
+                    "radius" to Types.number.schema(),
+                    "nearest" to linkedMapOf("const" to 1),
+                    "exclude" to linkedMapOf("const" to "chain"),
+                ),
+            ),
+        ),
+    )
 }
 
 /** `gate:` of a skill call (ADR-0303 section 9): which of the caster's cooldown / resource cost the called skill also pays. */
@@ -145,6 +219,11 @@ private object UseLowering {
                 v is String && v.startsWith("= ") -> Val.Live(v.removePrefix("= "), null)
                 else -> Val.Known(v)
             }
+        }
+        if (op.chain != null) {
+            // chain copy k of n (ADR-0303 9.4): the constants the fragment folds like `i` / `n`
+            with["hop"] = Val.Known<Any>((lc.occurrence.i + 1).toDouble())
+            with["hops"] = Val.Known<Any>(lc.occurrence.n.toDouble())
         }
         val frames = op.frames.mapValues { (_, v) ->
             lc.anchors.resolve(v)?.instance ?: resolvedRoots[v.substringBefore('.').substringBefore('[')] ?: InstanceId(listOf(InstanceId.Segment(OpId(v), null)))
