@@ -1006,6 +1006,12 @@ astera:
       max-level: "<yellow>You are at the top Norma level.</yellow>"
     star:
       collected: "<gold><bold>+{amount} ★</bold></gold> <gray>(carrying {total})</gray>"
+      wave-warn:
+        title: "<gold><bold>★ Star wave incoming</bold></gold>"
+        subtitle: "<yellow>Mid, in {seconds}s</yellow>"
+        bar: "<gold>★ Star wave at Mid in {seconds}s (about {stars} stars)</gold>"
+      wave:
+        bar: "<gold><bold>★ The star wave has landed at Mid!</bold></gold>"
     # Wave 5lobby-content (ADR-0119) — lobby `lobby.queue.*` GuiIntent surface.
     queue:
       unknown-mode: "<red>Unknown queue mode.</red>"

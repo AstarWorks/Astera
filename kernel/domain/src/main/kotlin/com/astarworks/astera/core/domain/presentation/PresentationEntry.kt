@@ -61,6 +61,8 @@ public object PresentationMoments {
     public const val BLOCKED: String = "blocked"
     public const val SKILL_READY: String = "skill-ready"
     public const val EGO_READY: String = "ego-ready"
+    public const val STAR_WAVE_WARN: String = "star-wave-warn"
+    public const val STAR_WAVE: String = "star-wave"
     public const val STAR_POP: String = "star-pop"
     public const val STAR_PICKUP: String = "star-pickup"
     public const val STAR_BURST: String = "star-burst"
@@ -111,7 +113,7 @@ public object PresentationMoments {
 
     public val ALL: List<String> = listOf(
         COUNTDOWN_TICK, COUNTDOWN_GO, KILL, DEATH, RESPAWN, HIT, CRIT, BLOCKED, SKILL_READY, EGO_READY,
-        STAR_POP, STAR_PICKUP, STAR_BURST, STAR_BURST_KILLER, STAR_BURST_GOLD, STAR_BURST_SPARK,
+        STAR_WAVE_WARN, STAR_WAVE, STAR_POP, STAR_PICKUP, STAR_BURST, STAR_BURST_KILLER, STAR_BURST_GOLD, STAR_BURST_SPARK,
         NORMA_LEVEL_UP, NORMA_LEVEL_MAX,
         OBJECTIVE_PICKUP, OBJECTIVE_COLLECT, OBJECTIVE_ALERT, OBJECTIVE_DROP, OBJECTIVE_RETURN, OBJECTIVE_DELIVER,
         OBJECTIVE_DELIVER_AGAINST, OBJECTIVE_WARN, OBJECTIVE_CHANNEL, OBJECTIVE_TENSION, OBJECTIVE_CAPTURE,

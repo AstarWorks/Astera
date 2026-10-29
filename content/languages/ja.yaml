@@ -1013,6 +1013,12 @@ astera:
       max-level: "<yellow>最高ノルマレベルです。</yellow>"
     star:
       collected: "<gold><bold>+{amount} ★</bold></gold> <gray>(所持 {total})</gray>"
+      wave-warn:
+        title: "<gold><bold>★ スターウェーブ接近</bold></gold>"
+        subtitle: "<yellow>あと{seconds}秒で中央に降る</yellow>"
+        bar: "<gold>★ あと{seconds}秒で中央にスターウェーブ (約{stars}個)</gold>"
+      wave:
+        bar: "<gold><bold>★ 中央にスターウェーブが降った!</bold></gold>"
     # Wave 5lobby-content (ADR-0119) — ロビー `lobby.queue.*` GuiIntent 出力.
     queue:
       unknown-mode: "<red>未知のキューモードです。</red>"

@@ -21,12 +21,20 @@ defaults:
   # Norma levels: every player starts at level 1 and clears each level with ONE goal of their choice
   # (`/astera norma choose star|kill`, STAR by default): carry norma_stars_goal[level] stars (not consumed) or make
   # norma_kills_goal[level] kills at that level. Lists are indexed by the level being cleared.
-  # Pace (docs/game-design/stars-and-norma.md "Pace"): every generator pops 5 stars per 20 s (15/min; 4 generators = 60/min
-  # on the stage). The best collector of a 4v4 lane nets ~14/min, so 100 stars lands ~7 min into the 10 min limit;
-  # a 2v2 lane is faster (~5.5 min).
+  # Pace (docs/game-design/stars-and-norma.md "Pace"): the supply grows over the match (star_supply_* below) and the
+  # measured per-minute table and level times live in that doc (StarSupplyPaceScenarioTest prints them). Annihilation:
+  # Mid waves + small flank and per-team base generators put 100 stars ~7-8 min in for an active team player.
   norma_max_level: "5"
   norma_stars_goal: "10,30,60,100"
   norma_kills_goal: "1,2,3,4"
+
+  # Star supply formula (founder 2026-10-29, anti-snowball): every star generator's pop / Mid wave is scaled by
+  #   multiplier(t) = min(star_supply_max_multiplier, 1 + star_supply_growth * t / star_supply_ramp_seconds)
+  # with t = seconds since the match went active, amount = round(authored amount * multiplier). So stars keep growing
+  # as the match goes on and a comeback stays possible. Tunable after release.
+  star_supply_growth: "1.5"
+  star_supply_ramp_seconds: "600"
+  star_supply_max_multiplier: "2.5"
 
   # Share of a victim's carried stars that bursts out on death (floor(carried * ratio)); 0..1. Half: with a 100 goal a
   # full drop would reset a nearly-won run; the fountain is still ~30-50 stars at the late-game peak.
