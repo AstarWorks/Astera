@@ -30,15 +30,19 @@ private fun checkLaw(from: Int, forTicks: Int, ease: String?, hasAccel: Boolean)
     }
 }
 
-/** `move`: offset(tau) = [start] + [velocity] * tau (blocks, blocks/tick); [ease] shapes the accumulated total. */
+/**
+ * `move`: offset(tau) = [start] + [velocity] * tau + [accel] * tau^2 / 2 (blocks, blocks/tick, blocks/tick^2); [ease] shapes the accumulated total.
+ * [accel] is non-zero only for `grow` with `prop: offset` (a decaying move); a `move` law has none (ADR-0303 3.4).
+ */
 public data class MoveRate(
     override val from: Int,
     override val forTicks: Int,
     val start: Vec3,
     val velocity: Vec3,
     override val ease: String? = null,
+    val accel: Vec3 = Vec3(0.0, 0.0, 0.0),
 ) : RateLaw {
-    init { checkLaw(from, forTicks, ease, false) }
+    init { checkLaw(from, forTicks, ease, accel.lengthSquared() != 0.0) }
 }
 
 /**

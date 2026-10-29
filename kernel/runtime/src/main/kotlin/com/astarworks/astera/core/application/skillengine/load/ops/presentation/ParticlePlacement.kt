@@ -8,6 +8,7 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVec
 import com.astarworks.astera.core.application.skillengine.load.ops.OccurrenceBake
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.model.Value
+import com.astarworks.astera.core.domain.skillengine.table.SegmentSample
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 
@@ -17,7 +18,7 @@ import com.astarworks.astera.core.domain.skillengine.math.Vector3d
  * No displacement lowers to the bare anchor cell; otherwise to one `= expr` cell with the occurrence baked in ([OccurrenceBake]).
  */
 internal object ParticlePlacement {
-    class Placed(val position: Val<Vector3d>, val sweep: Double?)
+    class Placed(val position: Val<Vector3d>, val sweep: Double?, val sample: SegmentSample?)
 
     /**
      * Where a presentation anchor name points: [frame] is the CEL frame designator (`caster`, `point(caster, 'eye')`, an instance id),
@@ -75,48 +76,84 @@ internal object ParticlePlacement {
         return Result.Success(Val.Live("= $source", null))
     }
 
+    /** One position (a world op acts once): `samples` is a particle-only rider. */
     fun place(op: String, lc: LowerContext, anchor: AnchorRef, shift: FrameVec?): Result<Placed, SkillDecodeError> {
-        fun invalid(message: String): Result<Placed, SkillDecodeError> =
+        if (anchor.samples != null) {
+            return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "$op: anchor 'to' / 'samples' (a sampled segment) belongs to particle and particle_def only"))
+        }
+        return when (val r = placeAll(op, lc, anchor, shift)) {
+            is Result.Failure -> r
+            is Result.Success -> Result.Success(r.value.single())
+        }
+    }
+
+    /**
+     * The positions of one copy: one, or `samples` of them along the segment `of -> to` (k = 0..n-1 at `lerp(of, to, k / (n - 1))`, ADR-0303 1
+     * rev4.8). `offset` / `shift` displace every sample alike (the segment moves as a whole). The compile-time expansion: n rows, no runtime loop.
+     */
+    fun placeAll(op: String, lc: LowerContext, anchor: AnchorRef, shift: FrameVec?): Result<List<Placed>, SkillDecodeError> {
+        fun invalid(message: String): Result<List<Placed>, SkillDecodeError> =
             Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "$op: $message"))
 
         val resolved = when (val r = base(lc, anchor.of, op)) {
             is Result.Failure -> return r
             is Result.Success -> r.value ?: return invalid("anchor '${anchor.of}' is not declared in this scope")
         }
-        if (anchor.offset == null && shift == null) {
+        val segment = anchor.to != null
+        if (!segment && anchor.offset == null && shift == null) {
             val at = when (val r = position(lc, anchor.of, op)) {
                 is Result.Failure -> return r
                 is Result.Success -> r.value
             }
-            return Result.Success(Placed(at, anchor.sweep))
+            return Result.Success(listOf(Placed(at, anchor.sweep, null)))
         }
         val parts = AnchorNames.split(anchor.of)
         if (parts == null || parts.index != null) {
-            return invalid("anchor '${anchor.of}' is a family member; offset / shift need a plain anchor name (write the displacement on the family's own op)")
+            return invalid("anchor '${anchor.of}' is a family member; offset / shift / to need a plain anchor name (write the displacement on the family's own op)")
         }
         val frame = resolved.frame
 
-        val terms = ArrayList<String>()
-        terms += "pos($frame)"
-        terms += resolved.terms
+        val displacement = ArrayList<String>()
         for (v in listOf(anchor.offset, (shift as? FrameVec.Parts))) {
             if (v is FrameVec.Parts) {
                 for ((axis, c) in listOf("forward" to v.forward, "up" to v.up, "left" to v.left)) {
                     val src = componentSource(c) ?: return invalid("a \${param} in an offset / shift was not substituted before lowering")
-                    if (src != "0.0") terms += "axis($frame, '$axis') * $src"
+                    if (src != "0.0") displacement += "axis($frame, '$axis') * $src"
                 }
             }
         }
         if (shift is FrameVec.Whole) {
             val w = shift.value
-            terms += when (w) {
+            displacement += when (w) {
                 is Value.Expr -> "(${w.source})"
                 is Value.Literal -> "vec(${w.value.x}, ${w.value.y}, ${w.value.z})"
                 is Value.ParamRef -> return invalid("a \${param} in an offset / shift was not substituted before lowering")
             }
         }
-        val source = OccurrenceBake.bake(terms.joinToString(" + "), lc.occurrence)
-        return Result.Success(Placed(Val.Live("= $source", null), anchor.sweep))
+        fun end(b: Base) = (listOf("pos(${b.frame})") + b.terms).joinToString(" + ").let { if (b.terms.isEmpty()) it else "($it)" }
+
+        if (!segment) {
+            val source = OccurrenceBake.bake((listOf("pos($frame)") + resolved.terms + displacement).joinToString(" + "), lc.occurrence)
+            return Result.Success(listOf(Placed(Val.Live("= $source", null), anchor.sweep, null)))
+        }
+        val toName = anchor.to!!
+        val toParts = AnchorNames.split(toName)
+        if (toParts == null || toParts.index != null) {
+            return invalid("segment end 'to: $toName' is a family member; name a plain anchor")
+        }
+        val toBase = when (val r = base(lc, toName, op)) {
+            is Result.Failure -> return r
+            is Result.Success -> r.value ?: return invalid("anchor 'to: $toName' is not declared in this scope")
+        }
+        val n = anchor.samples!!
+        val a = end(resolved)
+        val b = end(toBase)
+        val rows = (0 until n).map { k ->
+            val t = k.toDouble() / (n - 1)
+            val source = OccurrenceBake.bake((listOf("lerp($a, $b, $t)") + displacement).joinToString(" + "), lc.occurrence)
+            Placed(Val.Live("= $source", null), anchor.sweep, SegmentSample(k, n))
+        }
+        return Result.Success(rows)
     }
 
     private fun componentSource(c: Value<Double>): String? = when (c) {
