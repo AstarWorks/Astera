@@ -76,7 +76,11 @@ public class SkillCompiler(
             is Result.Failure -> return r
             is Result.Success -> r.value
         }
-        val flat = inlined.def
+        val expanded = when (val r = PartFunctionExpander(def.id, inlined.def.item, frames).expand(inlined.def.machine, inlined.def.conditions)) {
+            is Result.Failure -> return r
+            is Result.Success -> r.value
+        }
+        val flat = inlined.def.copy(machine = expanded.first, conditions = expanded.second)
         val session = Session(def, flat, parts, skills, sampleSeed)
         val conditions = LinkedHashMap<String, CompiledExpr>()
         for ((name, source) in flat.conditions) {
