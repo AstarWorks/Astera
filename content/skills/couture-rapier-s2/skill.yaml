@@ -48,14 +48,15 @@ machine:
       velocity: "= normalize(aim_point(caster, throw_range) - pos(shears))"
       speed: "= throw_speed"
       range: "= throw_range"
+      part: held
       radius: 0.22
-      hit: {targets: enemies, once: true, attach: false}
+      # v2 hit shape: radius 0.22 around the volley's own held part (a rider frame of another state cannot carry a shape: it must be a sibling of the projectile).
+      hit: {targets: enemies, once: true, attach: {for: "= stick_ticks"}}
       block: {mode: stick, for: "= stick_ticks"}
-      # GAP: hit shape is a capsule root->tip of both blades (radius 0.22), window once -> projectile capsule radius 0.22 (axis follows velocity)
-      # GAP: lane_a/lane_b blade offsets +-left * blade length * lane -> none (no blade length in the engine)
-      # GAP: align velocity axis with world.up reference -> default
+      # v2 align: the long axis stands up (ease out) with heading caster.forward, then the volley spins about it. One turn channel, so the two laws run one after the other inside the 7-tick flight; the three riders (fly_a / fly_b / fly_body) carry the volley laws.
       motion:
-        - {law: spin, axis: left, deg_per_tick: 54, at: 0, for: 7}   # ENGINE: projectile motion lowers without params; 54 = spin_dpt, 7 = ceil(throw_range / throw_speed) + 2
+        - {law: align, axis: long, to: world.up, up: caster.forward, at: 0, for: 3, ease: out_cubic}
+        - {law: spin, axis: long, deg_per_tick: "${spin_dpt}", at: 4, for: 3}
       on:
         hit:
           - {id: throw_dmg, op: damage, at: 0, target: event.victim, damage: {physical: "= dmg_throw"}}
@@ -63,7 +64,6 @@ machine:
           - {id: push, op: impulse, at: 0, target: event.victim, vector: "= -contact.normal * 0.35 + vec(0, 0.12, 0)"}
           - {id: hitstop, op: freeze, at: 0, ticks: 2, scope: [caster, volley]}
           - {id: stab_snd, op: sound, sound: couture.stab, anchor: contact, pitch: "= 1.2 - 0.2 * clamp(length(velocity(volley) - velocity(victim)) / 2.0, 0.0, 1.0)", detach: true}
-          # GAP: victim_anim stagger_back (strength = clamp(|rel_velocity| / 2, 0.3, 1.0)) has no victim body op (R41 covers the caster only)
           - {id: sparks, op: particle, particle: "= spark_particle", anchor: contact, count: "= spark_count", offset: [0.4, 0.4, 0.4], extra: 0.4, detach: true}
         block:
           - {id: crumb, op: particle_def, def: couture-s2-p-crumb, anchor: contact, detach: true}
@@ -82,8 +82,7 @@ machine:
       do:
         # mesh_held (held part of the shears) shown ticks 0-4, then the three real pieces; raise 0-6: shears overhead (+0.9 up), long axis to world up, ease_out
         # frames carry the model part (content/frames/couture-rapier.yaml), the item displays ride on them.
-        - {id: held, op: frame, anchor: shears, part: held, for: 4, motion: [{law: move, velocity: {up: 0.9}, at: 0, for: 6, ease: out_quad}]}
-            # GAP: pose align {axis: shears.axis, to: world.up, up: caster.forward} over 6 ticks (ease_out) -> none (rotation to a world axis; the amount follows the hand pose)
+        - {id: held, op: frame, anchor: shears, part: held, for: 4, motion: [{law: move, velocity: {up: 0.9}, at: 0, for: 6, ease: out_quad}, {law: align, axis: long, to: world.up, up: caster.forward, at: 0, for: 6, ease: out_cubic}]}
         - {id: held_m, op: display, kind: item, item: "astera:couture-rapier", anchor: held, for: 4}
         # look/skill: spin was one op on frame `shears`; open_a/open_b (pose on blade_a/blade_b) were children of it. Spin lives on its own frame, the part frames hang under it (spin x pose).
         - {id: spin_frame, op: frame, anchor: shears, at: 4, for: 30, motion: [{law: spin, axis: left, deg_per_tick: "${spin_dpt}", at: 0, for: 30}]}
@@ -225,16 +224,16 @@ machine:
         # flying pieces (R34): displays on the volley, spin inherited from the projectile body `motion`, kept through stuck and reel until the reel ends.
         - {id: fly_body, op: frame, anchor: /windup/volley, part: body, until: reel.end}
         - {id: fly_body_m, op: display, kind: item, item: "astera:couture-s2-body", anchor: fly_body, until: reel.end}
-        - {id: fly_a, op: frame, anchor: /windup/volley, part: blade_a, until: reel.end, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: 35}]}]}]}
+        - {id: fly_a, op: frame, anchor: /windup/volley, offset: {left: "= lane * fly_a.length"}, part: blade_a, until: reel.end}
         - {id: fly_a_m, op: display, kind: item, item: "astera:couture-rapier-blade-a", anchor: fly_a, until: reel.end}
-        - {id: fly_b, op: frame, anchor: /windup/volley, part: blade_b, until: reel.end, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: -35}]}]}]}
+        - {id: fly_b, op: frame, anchor: /windup/volley, offset: {left: "= -lane * fly_b.length"}, part: blade_b, until: reel.end}
         - {id: fly_b_m, op: display, kind: item, item: "astera:couture-rapier-blade-b", anchor: fly_b, until: reel.end}
         - {id: throw_snd, op: sound, sound: couture.throw, anchor: shears, pitch: 1.1}
         # dust: vanilla directed form (R34); speed 0 so the velocity is only inherit_velocity 0.5 x the volley velocity.
         - {id: puff, op: particle, particle: dust, anchor: palm, times: 6, count: 0, offset: "= velocity(volley) * 0.5", extra: 1.0, color: "= thread_color", size: 1.0}
         # thread lines palm -> blade_a.root / blade_b.root / body.pivot (R34: live ribbons).
         - {id: palm_f, op: frame, anchor: palm, until: reel.end}   # ribbon ends resolve frame-op ids only (RibbonOpSpec.anchorOf), not document anchors
-        # ENGINE GAP: RibbonOpSpec.kt:179 demands a static `for`, but the reel ends on arrival (runtime distance), so its length is not fixed; kept until: reel.end (not a literal 51) until the engine accepts it.
+        # the reel ends on arrival (a runtime distance), so the threads have no static length: until: reel.end ends them the tick the reel lands.
         - {id: thread_a, op: ribbon, from: palm_f, to: fly_a.root, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
         - {id: thread_b, op: ribbon, from: palm_f, to: fly_b.root, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
         - {id: thread_body, op: ribbon, from: palm_f, to: fly_body.pivot, thickness: "= thread_thick", color: "= thread_color", until: reel.end}

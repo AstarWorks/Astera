@@ -12,7 +12,7 @@ import java.util.UUID
 
 /**
  * The victim side is first class (foundation audit G2 / P10): a `body` op names whose body plays (`target: event.victim`), and a projectile
- * `hit: {attach: true, attach_to: victim.feet}` sticks to the victim it hit, firing `stick` then `unstick` after `block.for` ticks.
+ * `hit: {attach: {for: N}}` sticks to the victim it hit (pose kept in the victim feet basis), firing `stick` then `unstick` after N ticks.
  */
 class VictimSideScenarioTest : SkillEngineScenario() {
     private val foe = UUID(0L, 11L)
@@ -65,8 +65,8 @@ class VictimSideScenarioTest : SkillEngineScenario() {
         "unstick: [{id: free_snd, op: sound, at: 0, sound: \"astera:free\", anchor: caster}]}"
 
     @Test
-    fun attachSticksToTheVictimAndUnsticksAfterBlockFor() {
-        val s = load("{targets: enemies, once: true, attach: true, attach_to: victim.feet}", attachOn)
+    fun attachSticksToTheVictimAndUnsticksAfterAttachFor() {
+        val s = load("{targets: enemies, once: true, attach: {for: 5}}", attachOn)
         val rec = run(s)
         val stuck = rec.calls.filter { it.verb == "sound" && it.payload.startsWith("sound=astera:stuck") }
         val free = rec.calls.filter { it.verb == "sound" && it.payload.startsWith("sound=astera:free") }
@@ -88,12 +88,37 @@ class VictimSideScenarioTest : SkillEngineScenario() {
     }
 
     @Test
-    fun attachIsRequiredAndNeedsItsAnchorAndStickMode() {
+    fun attachTrueIsLoadError() {
+        assertThat(fail("{targets: enemies, once: true, attach: true}").toString()).contains("attach: {for: <ticks>}")
+        assertThat(fail("{targets: enemies, once: true, attach: {for: 5}, attach_to: victim.feet}").toString()).contains("attach_to")
+    }
+
+    @Test
+    fun attachIsRequiredAndNeedsOnceAndAHit() {
         assertThat(fail("{targets: enemies, once: true}").toString()).contains("attach")
-        assertThat(fail("{targets: enemies, once: true, attach: true}").toString()).contains("attach_to")
-        assertThat(fail("{targets: enemies, once: true, attach: false, attach_to: victim.feet}").toString()).contains("attach_to")
-        assertThat(fail("{targets: enemies, once: true, attach: true, attach_to: caster.eye}").toString()).contains("victim")
-        assertThat(fail("{targets: enemies, once: false, times: 2, attach: true, attach_to: victim.feet}").toString()).contains("once")
+        assertThat(fail("{targets: enemies, once: false, times: 2, attach: {for: 5}}").toString()).contains("once")
+        assertThat(fail("{targets: enemies, once: true, attach: {}}").toString()).contains("for")
+    }
+
+    @Test
+    fun attachFollowsVictimYaw() {
+        val s = load("{targets: enemies, once: true, attach: {for: 12}}", attachOn)
+        val rec = GatewayRecorder()
+        rec.faithfulPose = true
+        // the victim stands still until tick 12, then turns 90 degrees about its feet
+        rec.victimMotion = { t ->
+            listOf(HitCandidate(foe, Vec3(0.0, 0.0, 4.0), if (t >= 12) 90.0 else 0.0, HitBox(Vec3(-0.3, 0.0, 3.7), Vec3(0.3, 1.8, 4.3)), 1.62))
+        }
+        play(s, seed = 1L, events = emptyList(), ticks = 30, rec = rec)
+        val stuck = rec.calls.single { it.verb == "sound" && it.payload.startsWith("sound=astera:stuck") }.tick
+        val before = rec.emittedAt.filter { it.second == "crit" && it.first in (stuck + 1)..11 }.map { it.third }
+        val after = rec.emittedAt.filter { it.second == "crit" && it.first in 13..(stuck + 11) }.map { it.third }
+        assertThat(before).isNotEmpty
+        assertThat(after).isNotEmpty
+        // the pose was kept in the victim basis: turning the victim 90 degrees swings the contact offset (a z offset from the feet) onto x
+        val b = before.last(); val a = after.last()
+        assertThat(Math.abs(b.x - 0.0)).isLessThan(0.05)
+        assertThat(Math.abs(a.x)).isGreaterThan(0.2)
     }
 
     @Test

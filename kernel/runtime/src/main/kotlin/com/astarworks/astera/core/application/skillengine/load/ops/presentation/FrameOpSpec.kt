@@ -10,6 +10,7 @@ import com.astarworks.astera.core.application.skillengine.compose.AnchorChain
 import com.astarworks.astera.core.application.skillengine.compose.PoseCompose
 import com.astarworks.astera.core.application.skillengine.load.DecodeAbort
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
+import com.astarworks.astera.core.application.skillengine.load.grammar.PartAxes
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
@@ -122,7 +123,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
                 id, src, whenExpr, timing,
                 values[anchorF], values[partF], values[offsetF], values[turnF],
                 if (values[modeF] == "snapshot") FrameMode.SNAPSHOT else FrameMode.FOLLOW,
-                values[axesF], values[motionF]?.let { m -> LawSource(m.raw, ctx.forLaws(AxisResolver(lawAxes(values[partF], ctx))), m.path).also { it.probe(probeCopies(times, ctx)) } },
+                values[axesF], values[motionF]?.let { m -> LawSource(m.raw, ctx.forLaws(PartAxes(ctx.lawAxes(values[partF]))), m.path).also { it.probe(probeCopies(times, ctx)) } },
             )
         }
 
@@ -134,12 +135,6 @@ public object FrameOpSpec : OpSpec<FrameOp> {
      * `long` / `edge` of the frame's `part`. The compiler's decode has the item frame table and gets the part's real axes (absent part = no axes);
      * the document decoder has no table, so it only validates the law grammar against stand-in axes (the compile-time decode re-reads the laws).
      */
-    private fun lawAxes(part: String?, ctx: GrammarContext): Map<String, Vec3> {
-        if (part == null) return emptyMap()
-        val table = ctx.partAxes ?: return mapOf("long" to Vec3(0.0, 1.0, 0.0), "edge" to Vec3(1.0, 0.0, 0.0))
-        return table(part) ?: emptyMap()
-    }
-
     override fun lower(op: FrameOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val ctx = GrammarContext(lc.skillId)
         return Grammar.guard { lowerOrAbort(op, lc, ctx) }
@@ -177,7 +172,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
 
             val parent = resolveParent(op.anchor, scope, src, ctx, op.id)
             val position = ev.vec(op.offset.toLocal(), "$src.offset")
-            val axes = AxisResolver(modelPart?.axes ?: emptyMap())
+            val axes = PartAxes(modelPart?.axes ?: emptyMap())
             val rotation = ev.quat(op.turn.toValue(ctx, "$src.turn", axes), "$src.turn")
             val live = position is Val.Live || rotation is Val.Live
             if (live) basis = ExprClass.L
@@ -264,19 +259,6 @@ public object FrameOpSpec : OpSpec<FrameOp> {
         }
         AnchorNames.bareFamilyError(scope, name, "frame '${id.value.substringAfterLast('/')}'")?.let { ctx.fail("$src.anchor", it) }
         return null
-    }
-
-    /** `long`, `edge`, `face = long x edge` from the part table, else the local frame axes. */
-    private class AxisResolver(private val axes: Map<String, Vec3>) : com.astarworks.astera.core.application.skillengine.load.grammar.AxisResolver {
-        override fun axis(name: String): Vec3? = when (name) {
-            "long", "edge" -> axes[name]?.normalize()
-            "face" -> {
-                val l = axes["long"]
-                val e = axes["edge"]
-                if (l != null && e != null) l.cross(e).normalize() else null
-            }
-            else -> LocalAxes.axis(name)
-        }
     }
 
     /** Static evaluation of the pose values of ONE instance: literals and expressions of `i`, `n`, `parent.i` fold to Known; the rest stays Live. */

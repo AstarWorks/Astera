@@ -690,7 +690,8 @@ public class TablePlayer(
     }
 
     private fun worldOf(run: Run, rec: Rec, local: PoseV, callerBinding: EventBinding?, t: Int, depth: Int = 0): PoseV {
-        val binding = callerBinding ?: rec.binding
+        // a body mounted on its victim (`hit.attach`) always resolves `victim.*` through the hit that mounted it, whoever asks
+        val binding = if (rec.attachTo != null && rec.binding?.victim != null) rec.binding else callerBinding ?: rec.binding
         var pp = Vector3d()
         var pr = Quaterniond()
         val parent = rec.anchor?.let { run.recs[it] ?: run.finished[it] }
@@ -890,6 +891,7 @@ public class TablePlayer(
             rec.reflect = lf["hit.reflect"]?.let { any(run, it, ctx) } == true
             rec.stickTicks = stuck
             rec.attachTo = lf["hit.attach_to"]?.let { strOf(run, it, ctx) }
+            rec.attachTicks = lf["hit.attach.for"]?.let { dbl(run, it, ctx).toInt() } ?: 0
             val once = lf["hit.once"]?.let { any(run, it, ctx) } == true
             rec.hitTimes = if (once) 1 else lf["hit.times"]?.let { dbl(run, it, ctx).toInt() } ?: 1
             rec.endsOn = buildSet {
@@ -1312,7 +1314,10 @@ public class TablePlayer(
             }
             if (rec.stuckUntil >= 0) {
                 // stuck (a block in stick mode, or `hit.attach` on a victim): the body holds its place / rides its anchor until `unstick`, then the flight ends
-                if (rec.stuckUntil == now) {
+                // a body riding a victim that is gone (died, left the world) ends with it
+                val rider = rec.binding?.victim
+                val victimGone = rider != null && rec.attachTo != null && query.rootOf(castRef(run), rider.id) == null
+                if (rec.stuckUntil == now || victimGone) {
                     run.pending += RuntimeEvent(EventPath(id.text + ".unstick"), now, id.path.lastOrNull()?.index, null, null)
                     endByContact(run, id, rec, now)
                 }
@@ -1398,7 +1403,7 @@ public class TablePlayer(
     }
 
     /**
-     * `block: {mode: stick}` and `hit: {attach: true}` share one state: the flight stops, `<body>.stick` fires, [Rec.stickTicks] later `<body>.unstick`
+     * `block: {mode: stick}` and `hit: {attach: {for: N}}` share one state: the flight stops, `<body>.stick` fires, [Rec.stickTicks] (block) or [Rec.attachTicks] (victim) later `<body>.unstick`
      * fires and the flight ends. With a [victim] the body is mounted on the author-named `hit.attach_to` anchor of that entity (the offset it had at the
      * hit is kept), so it rides the victim; with none it holds its place.
      */
@@ -1409,9 +1414,9 @@ public class TablePlayer(
         if (rec.fused) {
             rec.stuckUntil = Int.MAX_VALUE
             rec.expireTick = -1
-        } else rec.stuckUntil = now + rec.stickTicks
+        } else rec.stuckUntil = now + (if (victim?.victim != null && rec.attachTo != null) rec.attachTicks else rec.stickTicks)
         val anchor = rec.attachTo
-        if (victim != null && anchor != null) {
+        if (victim?.victim != null && anchor != null) {
             rec.binding = victim
             rec.anchorName = anchor
             val scope = RowScope.cast(run.request.seed)
@@ -1923,8 +1928,7 @@ public class TablePlayer(
             ?: if (anchorName.isNotEmpty() && anchorName != "world") PoseV(namedVec(run, anchorName, ctx.binding, ctx.scope), namedRot(run, anchorName, ctx.binding, ctx.scope), Vector3d(1.0, 1.0, 1.0)) else PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0))
         val dir = namedDirection(run, to, ctx)
         val upDir = namedDirection(run, up, ctx)
-        val objAxis = LocalAxes.axis(axisName.removePrefix("-"))?.let { if (axisName.startsWith("-")) it * -1.0 else it }
-            ?: throw IllegalArgumentException("align axis '$axisName' cannot be resolved")
+        val objAxis = axisName.split(',').map { it.toDouble() }.let { Vec3(it[0], it[1], it[2]) }
         val w = Basis.facing(dir, upDir, parentForward(parent.rot)) * axisToZ(objAxis)
         return Quaterniond(parent.rot).conjugate().mul(Quaterniond(w.x, w.y, w.z, w.w)).normalize()
     }
@@ -2359,6 +2363,8 @@ public class TablePlayer(
 
         /** `hit.attach_to`: the victim anchor a hit mounts the body on (null = `attach: false`); `block.for` ticks stuck; [stuckUntil] the tick it comes off (-1 flying). */
         var attachTo: String? = null
+        /** `hit.attach.for`: ticks the body rides the victim (its victim ends it early when it is gone). */
+        var attachTicks: Int = 0
         var stickTicks: Int = 0
         var stuckUntil: Int = -1
         var billboard: DisplayBillboard = DisplayBillboard.FIXED

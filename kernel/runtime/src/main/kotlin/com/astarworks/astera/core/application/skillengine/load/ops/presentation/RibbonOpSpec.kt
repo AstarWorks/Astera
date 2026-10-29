@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.skillengine.load.ops.presentation
 
 import com.astarworks.astera.core.application.skillengine.compose.AnchorNames
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
+import com.astarworks.astera.core.application.skillengine.expr.cel.ExprClassifier
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
@@ -173,7 +174,7 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
         val to = num("to")
         val perTick = num("per_tick")
         if ((to == null) == (perTick == null)) ctx.fail(path, "exactly one of to, per_tick")
-        val forTicks = num("for") ?: ctx.fail("$path.for", "ribbon width law: a width law needs a window: write for: <ticks> on the law (the ribbon itself needs for: <ticks> too; until: <event> alone is for a line, which has no width law)")
+        val forTicks = num("for") ?: ctx.fail("$path.for", "ribbon width law: a width law needs a window: write for: <ticks> on the law")
         if (forTicks < 1.0 || forTicks != Math.floor(forTicks)) ctx.fail("$path.for", "for must be a positive whole number of ticks")
         val at = num("at") ?: 0.0
         if (at < 0.0 || at != Math.floor(at)) ctx.fail("$path.at", "at must be a non-negative whole number of ticks")
@@ -182,16 +183,17 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
         return RibbonWidthLaw(to, perTick, at.toInt(), forTicks.toInt(), ease)
     }
 
+    /** A ribbon number is a load-time constant: a literal, or a `${param}` / `= expr` of class S that folds here. */
     private fun known(v: Value<Double>, path: String, lc: LowerContext): Result<Val<Double>, SkillDecodeError> =
-        when (v) {
-            is Value.Literal -> Result.Success(Val.Known(v.value))
-            else -> Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "ribbon field must be a literal until W1-24 lands live values (got ${v::class.simpleName})"))
+        when (val r = ExprClassifier.staticNumber(lc, path, path.substringAfterLast('.'), v)) {
+            is Result.Success -> Result.Success(Val.Known(r.value))
+            is Result.Failure -> r
         }
 
     private fun knownBool(v: Value<Boolean>, path: String, lc: LowerContext): Result<Val<Boolean>, SkillDecodeError> =
         when (v) {
             is Value.Literal -> Result.Success(Val.Known(v.value))
-            else -> Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "ribbon field must be a literal until W1-24 lands live values"))
+            else -> Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "ribbon flag must be a literal true / false"))
         }
 
     /** `blade[i].tip` -> anchor `blade[k]`, point `tip`. [i] is replaced by the family index. */
@@ -231,10 +233,11 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
             Span.UntilCastEnds -> return Result.Failure(SkillDecodeError.Invalid(lc.skillId, "$p.for", "ribbon: 'for: cast' is not supported; give a tick count"))
             null -> {
                 if (timing.until == null) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, p, "ribbon needs for or until"))
-                if (op.shape is RibbonShape.Trail) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, p, "a trail ribbon needs for (the trail points are enumerated over the window); until alone is for a line"))
                 null
             }
         }
+        // `until:` alone: the window is the cast horizon (the event's mask ends the ribbon the first time it fires), so a trail enumerates its points over it
+        val horizon = life ?: (lc.config.maxLifeTicks - lc.clockOffset).coerceAtLeast(1)
         // The unroller owns every repetition and id (item 5): this call lowers exactly one instance, `lc.self`.
         val self = lc.self
         val k = lc.occurrence.i
@@ -282,18 +285,20 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
             rows += Row(0, self, Action.Spawn(SpawnKind.RIBBON, tipAnchor, tipName, pose, Look(look)), lc.src)
             // ADR-0303 3.4 / 3.7: a width law is one `set` of the width per tick where it changes (as fade is), which the player hands to the trail
             op.motion?.let { laws ->
-                if (life == null) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, "$p.motion", "ribbon: a width law needs a window: write for: <ticks> on the ribbon"))
+                laws.forEachIndexed { i, l ->
+                    if (l.at + l.forTicks > horizon) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, "$p.motion[$i].for", "ribbon '${self.text}' motion[$i] ends at tick ${l.at + l.forTicks}, past the ribbon's window of $horizon ticks" + (timing.until?.let { " (until: $it)" } ?: "")))
+                }
                 val field = if (look.containsKey("width_frac")) "width_frac" else "width"
                 val base = ((look[field] as Val.Known<*>).value as Number).toDouble()
                 var prev = base
-                for (t in 0 until life) {
+                for (t in 0 until (laws.maxOf { it.at + it.forTicks }.coerceAtMost(horizon))) {
                     val w = base + laws.sumOf { it.contribution(base, t) }
                     if (w < 0.0) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, "$p.motion", "the width law drives the width below zero at tick $t"))
                     if (abs(w - prev) > 1e-9) { rows += Row(t, self, Action.Set(field, Val.Known(w)), lc.src); prev = w }
                 }
             }
             if (op.shape is RibbonShape.Trail) {
-                for (t in 0 until life!!) {
+                for (t in 0 until horizon) {
                     rows += Row(t, self, Action.TrailPoint(self, Val.Live("anchor:$tipName", null)), lc.src)
                 }
             }

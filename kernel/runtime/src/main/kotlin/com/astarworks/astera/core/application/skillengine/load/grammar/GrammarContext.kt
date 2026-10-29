@@ -47,13 +47,15 @@ public class GrammarContext(
     public val paramDefaults: Map<String, ParamValue>? = null,
     /** `part -> long/edge points of that part` of the skill item's `content/frames/<item>.yaml`; null = no item frame table. */
     public val partAxes: ((String) -> Map<String, Vec3>?)? = null,
+    /** The model constants of the frames with `part:` (`fly_a.length`), folded into every expression source this context checks. */
+    public val partConstants: PartConstants? = null,
 ) {
     /** The same context with [decoder] as the nested-list decoder. */
-    public fun withOpLists(decoder: OpListDecoder): GrammarContext = GrammarContext(file, params, exprs, env, decoder, paramDefaults, partAxes)
+    public fun withOpLists(decoder: OpListDecoder): GrammarContext = GrammarContext(file, params, exprs, env, decoder, paramDefaults, partAxes, partConstants)
 
     /** The context a load-time law is read with: the skill's param defaults are known, and [axes] are the object's own (item part) axes. */
     public fun forLaws(axes: AxisResolver): GrammarContext =
-        GrammarContext(file, paramDefaults ?: params, exprs, env, opLists, paramDefaults, partAxes).also { it.axes = axes }
+        GrammarContext(file, paramDefaults ?: params, exprs, env, opLists, paramDefaults, partAxes, partConstants).also { it.axes = axes }
 
     /** The copy ([Occurrence]) whose index `i` / `n` / `parent.i` a law number reads; null = this context has no copy index ([forCopy]). */
     public var occurrence: Occurrence? = null
@@ -61,7 +63,7 @@ public class GrammarContext(
 
     /** The same context bound to one copy of a family / repeat: a law number may then read `i`, `n` and the `parent.` chain (ADR-0303 3.5). */
     public fun forCopy(occurrence: Occurrence): GrammarContext =
-        GrammarContext(file, params, exprs, env, opLists, paramDefaults, partAxes).also {
+        GrammarContext(file, params, exprs, env, opLists, paramDefaults, partAxes, partConstants).also {
             it.axes = axes
             it.occurrence = occurrence
         }
@@ -89,18 +91,31 @@ public class GrammarContext(
                 }
             }
             is Value.Expr -> {
+                val source = foldParts(value.source, path)
                 val compiler = exprs
                 if (compiler != null) {
-                    when (val r = compiler.compile(value.source, env, expected)) {
+                    when (val r = compiler.compile(source, env, expected)) {
                         is Result.Success -> Unit
                         is Result.Failure -> abort(SkillDecodeError.BadExpr(file, path, r.error))
                     }
                 }
+                @Suppress("UNCHECKED_CAST")
+                if (source != value.source) return Value.Expr(source) as Value<T>
             }
             is Value.Literal -> Unit
         }
         return value
     }
+
+    /** The axes (`long`, `edge`) a motion law of an object with item part [part] may name; none without a part. */
+    public fun lawAxes(part: String?): Map<String, Vec3> {
+        if (part == null) return emptyMap()
+        val table = partAxes ?: return mapOf("long" to Vec3(0.0, 1.0, 0.0), "edge" to Vec3(1.0, 0.0, 0.0))
+        return table(part) ?: emptyMap()
+    }
+
+    /** [source] with the part constants (`<frame>.length`, `<frame>.<point>.<axis>`) folded in; a name on a frame without `part:` is a load error. */
+    public fun foldParts(source: String, path: String): String = partConstants?.fold(source) { fail(path, it) } ?: source
 
     /** Load-time resolution of a number: a literal, or a `${param}` with a numeric declared value; null for CEL / unknown. */
     public fun resolveNumber(value: Value<Double>): Double? = when (value) {
@@ -116,6 +131,10 @@ public class GrammarContext(
      */
     public fun lawNumber(source: String, path: String): Double {
         val compiler = exprs ?: fail(path, "cannot evaluate '$source': this context has no expression compiler")
+        return lawNumberFolded(foldParts(source, path), path, compiler)
+    }
+
+    private fun lawNumberFolded(source: String, path: String, compiler: ExprCompiler): Double {
         val a = ExprClassifier.analyse(source)
         val where = "a law number is baked into the expansion table when the file loads, so it may read only constants, params and the copy index (i, n, parent.i)"
         if (a.usesLive) fail(path, "'$source' calls ${a.liveCall ?: "a live function"}, which is a runtime value (class L); $where")
@@ -152,7 +171,8 @@ public class GrammarContext(
      * ADR-0303 3.5: a law number is class S when its expression names no variable, frame or random stream (a part's `= radius / ring_for` after
      * the call bound its params). It folds at load; anything that needs a runtime value stays null, i.e. the caller's "must be a literal" error.
      */
-    private fun constant(source: String): Double? {
+    private fun constant(raw: String): Double? {
+        val source = try { partConstants?.fold(raw) { throw IllegalStateException(it) } ?: raw } catch (_: IllegalStateException) { return null }
         val compiler = exprs ?: return null
         if (Regex("""\b(rand|draw)\s*\(""").containsMatchIn(source)) return null
         val compiled = (compiler.compile(source, ExprEnvSpec(), ExprType.NUM) as? Result.Success)?.value ?: return null

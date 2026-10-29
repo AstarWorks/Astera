@@ -29,7 +29,10 @@ internal object PoseCompose {
             val r = k.leftRotation
             val s = k.scale
             if (t !is Val.Known || r !is Val.Known || s !is Val.Known) {
-                return@map row   // a reactive row (follow / align / stretch) owns its channels; it is left as authored
+                // a reactive row (follow / align / stretch) owns its own channels and is left as authored there; a channel it does not own
+                // (an align leaves the offset) still takes the instance's own literal offset, so a lane offset survives the live turn
+                if (t is Val.Known && bp != null) return@map row.copy(action = k.copy(translation = Val.Known(Vector3d(bp).add(t.value))))
+                return@map row
             }
             if (br == null) fail("a motion on a live rotation cannot be re-based onto the instance's own rotate/turn")
             if (bs == null) fail("a motion on a live scale cannot be re-based onto the instance's own scale")
