@@ -3,7 +3,7 @@ kind: Skill
 id: axe-fell-iron
 item: iron-axe
 meta:
-  name: {ja: 鉄の木断ち, en: Iron Fell}
+  name: {ja: "鉄の木断ち", en: "Iron Fell"}
   description: {ja: "前方一直線の木のブロックを切り倒す。", en: "Cuts a line of wooden blocks ahead."}
   cooldown_ticks: 110
   resource_cost: 0
@@ -17,10 +17,5 @@ machine:
       for: 1
       then: end
       do:
-        - {id: snd, op: sound, sound: item.axe.strip, anchor: caster, volume: 1.0, pitch: 0.7}
-        - {id: snd_2, op: sound, sound: block.wood.break, anchor: caster, volume: 0.9, pitch: 0.8}
-        - {id: snd_3, op: sound, sound: entity.player.attack.strong, anchor: caster, volume: 0.6, pitch: 0.9}
-        - {id: spark, op: particle_def, def: tool-axe-iron, anchor: aim_pt}
-      enter:
-        - {id: fell, op: break_area, at: 0, anchor: caster, shape: {line: {length: 7, width: 1, height: 3}}, tool: axe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
+        - {id: fell, use: axe-fell, with: {length: 7, tier: 2, strip_pitch: 0.7, break_vol: 0.9, break_pitch: 0.8}, frames: {spot: aim_pt}}
     end: {final: true}

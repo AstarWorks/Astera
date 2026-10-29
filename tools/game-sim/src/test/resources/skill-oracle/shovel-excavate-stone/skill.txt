@@ -1,6 +1,6 @@
 ## pose yaw=0 pitch=0
-@0 sound - op=cast/snd sound=block.gravel.break cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx type=tool-shovel-stone at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7033566382307255696
+@0 sound - op=cast/excavate/snd sound=block.gravel.break cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
+@0 particle - op=cast/excavate/fx_1 type=tool-shovel-stone at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4404628500037341544
 ## pose yaw=37 pitch=-20
-@0 sound - op=cast/snd sound=block.gravel.break cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx type=tool-shovel-stone at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7033566382307255696
+@0 sound - op=cast/excavate/snd sound=block.gravel.break cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
+@0 particle - op=cast/excavate/fx_1 type=tool-shovel-stone at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4404628500037341544

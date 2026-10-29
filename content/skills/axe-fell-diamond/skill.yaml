@@ -3,7 +3,7 @@ kind: Skill
 id: axe-fell-diamond
 item: diamond-axe
 meta:
-  name: {ja: ダイヤの木断ち, en: Diamond Fell}
+  name: {ja: "ダイヤの木断ち", en: "Diamond Fell"}
   description: {ja: "前方一直線の木のブロックを切り倒す。", en: "Cuts a line of wooden blocks ahead."}
   cooldown_ticks: 80
   resource_cost: 0
@@ -15,11 +15,7 @@ machine:
   states:
     cast:
       for: 1
-      then: done
+      then: end
       do:
-        - {id: fell, op: break_area, at: 0, anchor: caster, shape: {line: {length: 9, width: 1, height: 3}}, tool: axe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
-        - {id: snd, op: sound, sound: item.axe.strip, anchor: caster, volume: 1.0, pitch: 0.6}
-        - {id: snd_2, op: sound, sound: block.wood.break, anchor: caster, volume: 1.0, pitch: 0.7}
-        - {id: snd_3, op: sound, sound: entity.player.attack.crit, anchor: caster, volume: 0.8, pitch: 0.9}
-        - {id: spark, op: particle_def, def: tool-axe-diamond, anchor: aim_pt}
-    done: {final: true}
+        - {id: fell, use: axe-fell, with: {length: 9, tier: 3, strip_pitch: 0.6, break_vol: 1.0, break_pitch: 0.7}, frames: {spot: aim_pt}}
+    end: {final: true}
