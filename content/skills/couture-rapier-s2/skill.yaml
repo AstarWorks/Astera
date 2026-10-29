@@ -34,7 +34,7 @@ anchors:
   - {id: body_c, anchor: caster, offset: {up: 0.9}, mode: follow}
 machine:
   start: windup
-  tail: 2
+  tail: 4
   # v1 couture-s2-rig.yaml (0c9e986ef~1) spans windup+throw+..: body anim lastTick 63 (v1 rig t 0..62) is longer than windup (34), so it lives in the machine-wide world list.
   world:
     - {id: body_anim, op: body, target: caster, anim: couture-s2-body, speed: 1.0, for: 63}
@@ -53,10 +53,10 @@ machine:
       # v2 hit shape: radius 0.22 around the volley's own held part (a rider frame of another state cannot carry a shape: it must be a sibling of the projectile).
       hit: {targets: enemies, once: true, attach: {for: "= stick_ticks"}}
       block: {mode: stick, for: "= stick_ticks"}
-      # v2 align: the long axis stands up (ease out) with heading caster.forward, then the volley spins about it. One turn channel, so the two laws run one after the other inside the 7-tick flight; the three riders (fly_a / fly_b / fly_body) carry the volley laws.
+      # v2 align: the long axis stands up (ease out) with heading caster.forward, then the volley spins about it for 7 ticks (one turn at spin_dpt 54). One turn channel, so the two laws run one after the other; the three riders (fly_a / fly_b / fly_body) carry the volley laws and run the spin for its own length, past the 7-tick throw state (the hit leaves the throw early; machine.tail covers the rest).
       motion:
         - {law: align, axis: long, to: world.up, up: caster.forward, at: 0, for: 3, ease: out_cubic}
-        - {law: spin, axis: long, deg_per_tick: "${spin_dpt}", at: 4, for: 3}
+        - {law: spin, axis: long, deg_per_tick: "${spin_dpt}", at: 4, for: 7}
       on:
         hit:
           - {id: throw_dmg, op: damage, at: 0, target: event.victim, damage: {physical: "= dmg_throw"}}
@@ -95,7 +95,7 @@ machine:
           at: 4
           for: 30
           motion:
-            - {law: keys, keys: [{t: 0, pose: []}, {t: 4, pose: [{axis: edge, deg: 35}]}]}      # open_deg / 2
+            - {law: spin, axis: edge, deg_per_tick: 8.75, at: 0, for: 4}      # opens to open_deg / 2 = 35 over 4 ticks (a rate law composes with the frame spin; a key tick inside that spin window is a load error)
         - {id: piece_a_m, op: display, kind: item, item: "astera:couture-rapier-blade-a", anchor: piece_a, at: 4, for: 30}
         - id: piece_b
           op: frame
@@ -104,7 +104,7 @@ machine:
           at: 4
           for: 30
           motion:
-            - {law: keys, keys: [{t: 0, pose: []}, {t: 4, pose: [{axis: edge, deg: -35}]}]}     # -open_deg / 2
+            - {law: spin, axis: edge, deg_per_tick: -8.75, at: 0, for: 4}     # -open_deg / 2
         - {id: piece_b_m, op: display, kind: item, item: "astera:couture-rapier-blade-b", anchor: piece_b, at: 4, for: 30}
         # v2 spin op on the shears frame (54 deg/tick about caster.left, ticks 4-34): carried by the spin law on each piece above (R34: laws live on displays / the projectile body, never on an anchor).
         # v1 trail: ticks 6, width_frac 0.6, alpha 0.35 = byte 0x59 of the colour (ribbon opacity is the colour alpha byte), fade_power default 1.5 (ADR-0303 s.260); the colour is a literal (ribbon colour takes no param), crimson patches it.
@@ -224,9 +224,9 @@ machine:
         # v2 flying pieces (R34): displays on the volley, spin inherited from the projectile body `motion`, kept through stuck and reel until the reel ends.
         - {id: fly_body, op: frame, anchor: /windup/volley, part: body, until: reel.end}
         - {id: fly_body_m, op: display, kind: item, item: "astera:couture-s2-body", anchor: fly_body, until: reel.end}
-        - {id: fly_a, op: frame, anchor: /windup/volley, offset: {left: "= lane * fly_a.length"}, part: blade_a, until: reel.end}
+        - {id: fly_a, op: frame, anchor: /windup/volley, offset: {left: "= lane * fly_a.length"}, turn: [{axis: edge, deg: 35}], part: blade_a, until: reel.end}
         - {id: fly_a_m, op: display, kind: item, item: "astera:couture-rapier-blade-a", anchor: fly_a, until: reel.end}
-        - {id: fly_b, op: frame, anchor: /windup/volley, offset: {left: "= -lane * fly_b.length"}, part: blade_b, until: reel.end}
+        - {id: fly_b, op: frame, anchor: /windup/volley, offset: {left: "= -lane * fly_b.length"}, turn: [{axis: edge, deg: -35}], part: blade_b, until: reel.end}
         - {id: fly_b_m, op: display, kind: item, item: "astera:couture-rapier-blade-b", anchor: fly_b, until: reel.end}
         - {id: throw_snd, op: sound, sound: couture.throw, anchor: shears, pitch: 1.1}
         # v2 dust: vanilla directed form (R34); v2 speed 0 so the velocity is only inherit_velocity 0.5 x the volley velocity.

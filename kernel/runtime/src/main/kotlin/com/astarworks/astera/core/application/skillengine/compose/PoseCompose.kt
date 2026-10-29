@@ -11,7 +11,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Val
  * A `Key` row is a whole pose (ADR-0303 3), so the law rows of an instance that has its own authored base pose (a frame's `offset` / `turn`,
  * a display's `offset` / `rotate` / `scale`) must carry that base or the first key overwrites it: `offset = base + law`, `rot = base * law`,
  * `scale = base * law`. A Known base folds; a live OFFSET base (`offset: = ...`) becomes a live sum cell. A live rotation or scale base cannot be re-based and fails the load;
- * a reactive law row (follow / align / stretch, live pose) owns its channels and is left as authored.
+ * a reactive law row (follow / align / stretch, live pose) owns its channels and is left as authored; a live align carries the instance's own turn after it (see [AlignCell]).
  */
 internal object PoseCompose {
     fun composeBase(
@@ -31,8 +31,11 @@ internal object PoseCompose {
             if (t !is Val.Known || r !is Val.Known || s !is Val.Known) {
                 // a reactive row (follow / align / stretch) owns its own channels and is left as authored there; a channel it does not own
                 // (an align leaves the offset) still takes the instance's own literal offset, so a lane offset survives the live turn
-                if (t is Val.Known && bp != null) return@map row.copy(action = k.copy(translation = Val.Known(Vector3d(bp).add(t.value))))
-                return@map row
+                // the instance's own turn rides on a live align as a numeric turn after it (the blade's tilt inside the upright volley)
+                var out = k
+                if (t is Val.Known && bp != null) out = out.copy(translation = Val.Known(Vector3d(bp).add(t.value)))
+                if (r is Val.Live && AlignCell.isAlign(r.name) && br != null) out = out.copy(leftRotation = Val.Live(AlignCell.withPost(r.name, br), null))
+                return@map if (out === k) row else row.copy(action = out)
             }
             if (br == null) fail("a motion on a live rotation cannot be re-based onto the instance's own rotate/turn")
             if (bs == null) fail("a motion on a live scale cannot be re-based onto the instance's own scale")

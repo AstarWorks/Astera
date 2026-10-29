@@ -61,6 +61,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Look
 import com.astarworks.astera.core.domain.skillengine.table.Num
 import com.astarworks.astera.core.domain.skillengine.table.Rot
 import com.astarworks.astera.core.domain.skillengine.table.Row
+import com.astarworks.astera.core.application.skillengine.compose.AlignCell
 import com.astarworks.astera.core.application.skillengine.compose.ProjectileKinematics
 import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
@@ -967,14 +968,19 @@ public class TablePlayer(
         val stretch = (stretchCell(a.translation) ?: stretchCell(a.leftRotation) ?: stretchCell(a.scale))?.let { stretchOf(run, it, ctx) }
         val translation = if (stretch != null && stretchCell(a.translation) != null) localPoint(run, rec, stretch.base, ctx, now)
         else (a.translation as? Val.Live)?.takeIf { it.name.startsWith("follow:") }?.let { followOffset(run, rec, it.name, ctx, now) } ?: vec(run, a.translation, ctx)
-        val rotCell = (a.leftRotation as? Val.Live)?.name
+        val fullCell = (a.leftRotation as? Val.Live)?.name
+        // `<align cell>#x,y,z,w`: the turns listed after the align (a spin about the aligned axis, a tilt) ride on top of the live rotation
+        val post = fullCell?.let { AlignCell.post(it) }
+        val rotCell = if (post != null) AlignCell.bare(fullCell) else fullCell
+        val leftRot: Rot = if (post != null) Val.Live(rotCell!!, null) else a.leftRotation
         val rotation = if (stretch != null && stretchCell(a.leftRotation) != null) {
             rec.alignFrom = null
             stretchRot(run, rec, stretch, ctx, now)
         } else if (rotCell != null && rotCell.startsWith("align:") && '@' in rotCell) blendedAlign(run, rec, rotCell, ctx, now) else {
             rec.alignFrom = null
-            quat(run, a.leftRotation, ctx, rec.anchor, rec.anchorName)
+            quat(run, leftRot, ctx, rec.anchor, rec.anchorName)
         }
+        if (post != null) rotation.mul(post)
         val scale = if (stretch != null && stretchCell(a.scale) != null) stretch.scale() else vec(run, a.scale, ctx)
         val target = PoseV(translation, rotation, scale)
         rec.moveTo(target, now, a.durationTicks)
