@@ -28,7 +28,7 @@ machine:
       for: 1
       then: end
       do:
-        - {id: break, op: break_area, anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster) + vec(0.0, 1.62, 0.0), aim_point(caster, ${ahead}))"}}, shape: {sphere: {radius: "${radius}"}}, tool: pickaxe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
+        - {id: break, op: break_area, anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster.eye), aim_point(caster, ${ahead}))"}}, shape: {sphere: {radius: "${radius}"}}, tool: pickaxe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
         - {id: snd, op: sound, sound: block.stone.break, anchor: caster, volume: 1.0, pitch: "${stone_pitch}"}
         - {id: snd_2, op: sound, sound: item.trident.hit_ground, anchor: caster, volume: "${thud_vol}", pitch: "${thud_pitch}", when: "= ${thud}"}
         - {id: snd_3, op: sound, sound: block.amethyst_cluster.break, anchor: caster, volume: 0.8, pitch: 1.0, when: "= ${amethyst}"}
