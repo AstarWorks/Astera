@@ -282,10 +282,21 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun spawnTrail(cast: CastRef, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) =
             spawned(cast, "ribbon", "ticks=$ticks width=${OracleFmt.f(widthFrac)} color=${OracleFmt.s(colorHex)} alpha=${OracleFmt.f(alpha)}")
 
-        override fun spawnLine(cast: CastRef, from: Vec3, to: Vec3, thickness: Double, colorHex: String, alpha: Double) =
-            spawned(cast, "ribbon", "from=${OracleFmt.v(from)} to=${OracleFmt.v(to)} thick=${OracleFmt.f(thickness)} color=${OracleFmt.s(colorHex)} alpha=${OracleFmt.f(alpha)} quads=${LineGeometry.planes(from, to, thickness, Vec3(0.0, 1.0, 0.0) + (from + to) * 0.5).joinToString(",") { "[${OracleFmt.v(it.along)}|${OracleFmt.v(it.across)}]" }}")
+        override fun spawnLine(cast: CastRef, vertices: List<Vec3>, thickness: Double, colorHex: String, alpha: Double): VisualHandle {
+            val from = vertices.first()
+            val to = vertices.last()
+            // a straight thread prints exactly the two-end form (goldens unchanged); a polyline adds its vertices and one crossed pair per segment
+            val quads = (0 until vertices.size - 1).joinToString(",") { s ->
+                val a = vertices[s]
+                val b = vertices[s + 1]
+                LineGeometry.planes(a, b, thickness, Vec3(0.0, 1.0, 0.0) + (a + b) * 0.5).joinToString(",") { "[${OracleFmt.v(it.along)}|${OracleFmt.v(it.across)}]" }
+            }
+            val verts = if (vertices.size > 2) " verts=${vertices.joinToString(";") { OracleFmt.v(it) }}" else ""
+            return spawned(cast, "ribbon", "from=${OracleFmt.v(from)} to=${OracleFmt.v(to)}$verts thick=${OracleFmt.f(thickness)} color=${OracleFmt.s(colorHex)} alpha=${OracleFmt.f(alpha)} quads=$quads")
+        }
 
-        override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) = add("line", name(handle), "", "from=${OracleFmt.v(from)} to=${OracleFmt.v(to)}")
+        override fun updateLine(handle: VisualHandle, vertices: List<Vec3>) =
+            add("line", name(handle), "", "from=${OracleFmt.v(vertices.first())} to=${OracleFmt.v(vertices.last())}" + if (vertices.size > 2) " verts=${vertices.joinToString(";") { OracleFmt.v(it) }}" else "")
 
         override fun spawnScreenVeil(cast: CastRef, viewer: UUID, sprite: String, distance: Double, scale: Double, colorHex: String?, maxScreenFraction: Double, ticks: Int) =
             spawned(cast, "veil", "viewer=$viewer sprite=${OracleFmt.s(sprite)} dist=${OracleFmt.f(distance)} scale=${OracleFmt.f(scale)} color=${OracleFmt.s(colorHex)} maxfrac=${OracleFmt.f(maxScreenFraction)} ticks=$ticks")

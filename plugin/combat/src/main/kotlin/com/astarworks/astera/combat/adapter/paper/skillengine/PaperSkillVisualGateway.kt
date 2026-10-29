@@ -223,38 +223,49 @@ public class PaperSkillVisualGateway(
         return register(castOwner, TrailEntry(world, ticks.coerceAtLeast(1), widthFrac, rgb, alpha.coerceIn(0.0, 1.0)))
     }
 
-    override fun spawnLine(cast: CastRef, from: Vec3, to: Vec3, thickness: Double, colorHex: String, alpha: Double): VisualHandle {
+    override fun spawnLine(cast: CastRef, vertices: List<Vec3>, thickness: Double, colorHex: String, alpha: Double): VisualHandle {
+        require(vertices.size >= 2) { "a line needs at least two vertices" }
         val castOwner = cast.caster
         val world = worldOf(cast) ?: return dead("line")
         val rgb = argb(colorHex) and 0xFFFFFF
         val argb = Color.fromARGB((alpha.coerceIn(0.0, 1.0) * 255.0).toInt(), rgb shr 16 and 0xFF, rgb shr 8 and 0xFF, rgb and 0xFF)
-        val mid = (from + to) * 0.5
-        val planes = LineGeometry.planes(from, to, thickness, eyeOf(castOwner, mid))
-        val displays = planes.map { plane ->
-            world.spawn(Location(world, mid.x, mid.y, mid.z), TextDisplay::class.java) {
-                PaperManagedEntities.mark(it, "skill-ribbon")
-                it.billboard = Display.Billboard.FIXED
-                it.text(Component.text(" "))
-                it.backgroundColor = argb
-                it.textOpacity = 255.toByte()
-                it.brightness = Display.Brightness(15, 15)
-                it.shadowRadius = 0f
-                it.teleportDuration = 1
-                it.interpolationDuration = 1
-                it.setTransformationMatrix(planeMatrix(plane))
+        // a jagged bolt (more than one segment) re-jags as a cut: no slide between two shapes; a straight thread keeps its one-tick glide
+        val glide = if (vertices.size > 2) 0 else 1
+        val displays = ArrayList<TextDisplay>(2 * (vertices.size - 1))
+        for (s in 0 until vertices.size - 1) {
+            val mid = (vertices[s] + vertices[s + 1]) * 0.5
+            val planes = LineGeometry.planes(vertices[s], vertices[s + 1], thickness, eyeOf(castOwner, mid))
+            for (plane in planes) {
+                displays += world.spawn(Location(world, mid.x, mid.y, mid.z), TextDisplay::class.java) {
+                    PaperManagedEntities.mark(it, "skill-ribbon")
+                    it.billboard = Display.Billboard.FIXED
+                    it.text(Component.text(" "))
+                    it.backgroundColor = argb
+                    it.textOpacity = 255.toByte()
+                    it.brightness = Display.Brightness(15, 15)
+                    it.shadowRadius = 0f
+                    it.teleportDuration = glide
+                    it.interpolationDuration = glide
+                    it.setTransformationMatrix(planeMatrix(plane))
+                }
             }
         }
         return register(castOwner, LineEntry(world, castOwner, displays, thickness))
     }
 
-    override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) {
+    override fun updateLine(handle: VisualHandle, vertices: List<Vec3>) {
         val e = entries[handle.id] as? LineEntry ?: return
-        val mid = (from + to) * 0.5
-        val planes = LineGeometry.planes(from, to, e.thickness, eyeOf(e.owner, mid))
-        e.displays.forEachIndexed { i, d ->
-            d.teleportAsync(Location(e.world, mid.x, mid.y, mid.z))
-            d.interpolationDelay = 0
-            d.setTransformationMatrix(planeMatrix(planes[i]))
+        if (vertices.size != e.displays.size / 2 + 1) return
+        var i = 0
+        for (s in 0 until vertices.size - 1) {
+            val mid = (vertices[s] + vertices[s + 1]) * 0.5
+            val planes = LineGeometry.planes(vertices[s], vertices[s + 1], e.thickness, eyeOf(e.owner, mid))
+            for (plane in planes) {
+                val d = e.displays[i++]
+                d.teleportAsync(Location(e.world, mid.x, mid.y, mid.z))
+                d.interpolationDelay = 0
+                d.setTransformationMatrix(planeMatrix(plane))
+            }
         }
     }
 

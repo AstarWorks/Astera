@@ -49,9 +49,16 @@ public sealed interface RibbonShape {
     /** History trail of the tip anchor [of]; [root] fans the ribbon from a second anchor (blade edge). [history] = ticks of tip history drawn. */
     public data class Trail(val of: String, val root: String?, val history: Value<Double>, val width: RibbonWidth, val style: String) : RibbonShape
 
-    /** Straight bar stretched between two anchors. */
-    public data class Line(val from: String, val to: String, val thickness: Value<Double>) : RibbonShape
+    /** Bar stretched between two anchors: one straight thread, or a polyline of [segments] pieces whose inner vertices are displaced by [jitter] (rev4.14). */
+    public data class Line(val from: String, val to: String, val thickness: Value<Double>, val segments: Int = 1, val jitter: RibbonJitter? = null) : RibbonShape
 }
+
+/**
+ * `jitter:` of a polyline line: [spread] blocks of perpendicular offset, [along] (fraction of one segment) of slide, re-rolled every [every] ticks from the spawn
+ * (null = rolled once). [follow] = the op id of another line ribbon of the same body whose vertex stream this line reuses (it hugs that line).
+ * All literals: the count, the re-jag ticks and the end are table facts; only the offsets are drawn.
+ */
+public data class RibbonJitter(val spread: Double, val along: Double, val every: Int?, val follow: String?)
 
 /** Decoded `ribbon` op. */
 public class RibbonOp(
@@ -94,11 +101,20 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
         override fun schema(): Map<String, Any?> = linkedMapOf("type" to "array")
     }
 
+    private val rawMap: FieldType<Map<*, *>> = object : FieldType<Map<*, *>> {
+        override val label = "map {spread, along, every, follow}"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): Map<*, *> =
+            raw as? Map<*, *> ?: ctx.mismatch(path, label, raw)
+        override fun schema(): Map<String, Any?> = linkedMapOf("type" to "object")
+    }
+
     private val of = Field.optional("of", Types.nullable(Types.id), null, "trail: tip anchor whose history is drawn")
     private val root = Field.optional("root", Types.nullable(Types.id), null, "trail: second anchor the ribbon fans out from")
     private val from = Field.optional("from", Types.nullable(Types.id), null, "line: start anchor (a frame instance, or a live name: caster.eye, victim.center, from.center, a document anchor)")
     private val to = Field.optional("to", Types.nullable(Types.id), null, "line: end anchor (as from)")
     private val thickness = Field.optional("thickness", Types.nullable(Types.number), null, "line: bar thickness in blocks")
+    private val segments = Field.optional("segments", Types.nullable(Types.number), null, "line: pieces of the polyline, a literal whole number 1..24 (absent = 1, a straight thread)")
+    private val jitter = Field.optional("jitter", Types.nullable(rawMap), null, "line: {spread, along?, every?, follow?} displacement of the inner vertices of a polyline (needs segments >= 2)")
     private val color = Field.required("color", Types.loadText, "#RRGGBB or #AARRGGBB")
     private val style = Field.optional("style", Types.nullable(Types.enumOf("soft", "crisp", "both")), null, "trail: edge style (required for a trail)")
     private val history = Field.optional("history", Types.nullable(Types.number), null, "trail: ticks of tip history drawn (required for a trail)")
@@ -111,7 +127,7 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
     private val motion = Field.optional("motion", Types.nullable(rawList), null, "motion laws (stretch / grow ...), lowered by the law segmenter")
 
     override val fields: Fields = Fields.of(
-        "ribbon", of, root, from, to, thickness, color, style, history, widthFrac, widthBlocks, fade, stepDeg, lagTicks, doubleSided, motion,
+        "ribbon", of, root, from, to, thickness, segments, jitter, color, style, history, widthFrac, widthBlocks, fade, stepDeg, lagTicks, doubleSided, motion,
     )
 
     private val ARGB = Regex("^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$")
@@ -124,14 +140,17 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
             if (timing.span == null && timing.until == null) ctx.fail(p, "a ribbon needs an end: for or until (ADR-0303 section 5)")
             val tip = values[of]
             val line = values[from] != null || values[to] != null || values[thickness] != null
+            val polyline = values[segments] != null || values[jitter] != null
             val trail = tip != null || values[root] != null || values[style] != null || values[widthFrac] != null || values[widthBlocks] != null || values[history] != null
+            if (polyline && !line) ctx.fail(p, "segments: / jitter: are line fields (from/to); a trail's shape is its history")
             if (line && trail) ctx.fail(p, "a ribbon is either a trail (of/root/style/width_frac) or a line (from/to/thickness), not both")
             val shape: RibbonShape = if (line) {
                 val f = values[from] ?: ctx.fail("$p.from", "a line ribbon needs from")
                 val t = values[to] ?: ctx.fail("$p.to", "a line ribbon needs to")
                 val th = values[thickness] ?: ctx.fail("$p.thickness", "a line ribbon needs thickness")
                 if (timing.lasts != null) ctx.fail("$p.lasts", "lasts is the history length of a trail; a line has none")
-                RibbonShape.Line(f, t, th)
+                val (n, jit) = polyline(values[segments], values[jitter], id, ctx)
+                RibbonShape.Line(f, t, th, n, jit)
             } else {
                 val o = tip ?: ctx.fail("$p.of", "a trail ribbon needs of (or write from/to for a line)")
                 val st = values[style] ?: ctx.fail("$p.style", "a trail ribbon needs style: soft, crisp or both (ADR-0303 section 2.0b)")
@@ -163,6 +182,41 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
             }
             RibbonOp(id, src, whenExpr, timing, shape, argb, values[fade], values[stepDeg], values[lagTicks], values[doubleSided], laws)
         }
+
+    private val JITTER_KEYS = setOf("spread", "along", "every", "follow")
+
+    /** `segments` / `jitter` of a line (design 2.5): literals only, so the vertex count and the re-jag ticks are fixed at load. */
+    private fun polyline(segs: Value<Double>?, raw: Map<*, *>?, id: OpId, ctx: GrammarContext): Pair<Int, RibbonJitter?> {
+        val p = "ribbon '${id.value}'"
+        fun literal(v: Any?): Double? = (v as? Number)?.toDouble()
+        val n = if (segs == null) 1 else {
+            val lit = (segs as? Value.Literal)?.value
+            if (lit == null || lit != Math.floor(lit) || lit < 1.0 || lit > 24.0) ctx.fail("$p.segments", "$p: segments must be a whole number 1..24 (got ${(segs as? Value.Literal)?.value ?: segs})")
+            lit.toInt()
+        }
+        if (raw == null) {
+            if (n >= 2) ctx.fail("$p.segments", "$p: segments: $n without jitter draws the same straight thread as segments: 1; drop it or add jitter")
+            return n to null
+        }
+        if (n < 2) ctx.fail("$p.jitter", "$p: jitter: needs segments >= 2 (a straight thread has no inner vertex)")
+        raw.keys.forEach { if (it !in JITTER_KEYS) ctx.fail("$p.jitter.$it", "$p: unknown key '$it' on jitter (allowed: ${JITTER_KEYS.joinToString()})") }
+        val spread = literal(raw["spread"])
+        if (spread == null || spread <= 0.0) ctx.fail("$p.jitter.spread", "$p: jitter.spread must be a literal > 0 (got ${raw["spread"]?.let { "\"$it\"" } ?: "nothing"})")
+        val along = if (raw.containsKey("along")) literal(raw["along"]) else 0.0
+        if (along == null || along < 0.0 || along >= 0.5) ctx.fail("$p.jitter.along", "$p: jitter.along must be a literal in [0, 0.5) (got ${raw["along"]?.let { "\"$it\"" }})")
+        val every = if (raw.containsKey("every")) {
+            val e = literal(raw["every"])
+            if (e == null || e != Math.floor(e) || e < 1.0) ctx.fail("$p.jitter.every", "$p: jitter.every must be a literal whole number >= 1 (got ${raw["every"]?.let { "\"$it\"" }})")
+            e.toInt()
+        } else null
+        val follow = if (raw.containsKey("follow")) {
+            val f = raw["follow"] as? String
+            if (f == null || f.isBlank()) ctx.fail("$p.jitter.follow", "$p: jitter.follow must be the id of another line ribbon (got ${raw["follow"]?.let { "\"$it\"" }})")
+            if (f == id.value) ctx.fail("$p.jitter.follow", "$p: jitter.follow cannot name the ribbon itself")
+            f
+        } else null
+        return n to RibbonJitter(spread, along, every, follow)
+    }
 
     private val LAW_KEYS = setOf("law", "prop", "to", "per_tick", "at", "for", "ease")
 
@@ -280,6 +334,14 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
                     look["from"] = Val.Known(a.second)
                     look["to"] = Val.Known(b.second)
                     look["thickness"] = when (val r = known(s.thickness, "$p.thickness", lc)) { is Result.Success -> r.value; is Result.Failure -> return r }
+                    // rev4.14 polyline: absent keys = a straight thread, so a shipped single-segment line lowers exactly as before
+                    if (s.segments > 1) look["segments"] = Val.Known(s.segments)
+                    s.jitter?.let { j ->
+                        look["jitter_spread"] = Val.Known(j.spread)
+                        look["jitter_along"] = Val.Known(j.along)
+                        j.every?.let { look["jitter_every"] = Val.Known(it) }
+                        j.follow?.let { look["jitter_follow"] = Val.Known(it) }
+                    }
                 }
             }
             look["fade"] = when (val r = known(op.fade, "$p.fade", lc)) { is Result.Success -> r.value; is Result.Failure -> return r }

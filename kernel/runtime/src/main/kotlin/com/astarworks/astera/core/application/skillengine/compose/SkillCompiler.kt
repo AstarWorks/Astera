@@ -149,6 +149,7 @@ public class SkillCompiler(
             instances = instanceCounts, liveDisplaysPeak = 0, liveDisplaysPeakTick = 0, groupDepth = 0,
             partDepth = maxOf(inlined.depth, session.maxCallDepth), path = TickRange(0, pathMax), sameTickDepth = sameTick.depth, tail = flat.machine.tail ?: 0,
         )
+        PolylineFollow.check(def.id, m.states, subs.values)?.let { return Result.Failure(it) }
         val table = TableAssembler.assemble(def.id, sampleSeed, emptyMap(), bounds, m.states, subs, m.writes, flat.conditions, config, m.world)
         when (val r = StaticChecks.run(table, config, def.emits)) {
             is Result.Failure -> return r

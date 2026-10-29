@@ -8,6 +8,7 @@ import com.astarworks.astera.core.application.skillengine.runtime.ops.DashDriver
 import com.astarworks.astera.core.application.skillengine.runtime.ops.ReelDriver
 import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.world.WorldRows
+import com.astarworks.astera.core.application.skillengine.runtime.port.LinePath
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillEntityQuery
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillItemGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillMovementGateway
@@ -980,10 +981,18 @@ public class TablePlayer(
                 val argb = look.fields["argb"]?.let { dbl(run, it, ctx).toLong().toInt() } ?: -1
                 val fromCell = strOf(run, look.fields["from"] ?: throw IllegalArgumentException("line ribbon look needs 'from'"), ctx)
                 val toCell = strOf(run, look.fields["to"] ?: throw IllegalArgumentException("line ribbon look needs 'to'"), ctx)
-                val rec = LineRec(fromCell, toCell, ctx.scope, ctx.binding, ctx.owner, ctx.level, ctx.base)
-                val (f, t) = lineEnds(run, rec, ctx)
+                // rev4.14 polyline: the vertex count, the re-jag epochs and the stream are fixed here; only the offsets are drawn (visual, from the row seed)
+                val segments = look.fields["segments"]?.let { dbl(run, it, ctx).toInt() } ?: 1
+                val jitter = if (segments > 1) LineJitter(
+                    dbl(run, look.fields["jitter_spread"] ?: throw IllegalArgumentException("polyline ribbon look needs 'jitter_spread'"), ctx),
+                    look.fields["jitter_along"]?.let { dbl(run, it, ctx) } ?: 0.0,
+                    look.fields["jitter_every"]?.let { dbl(run, it, ctx).toInt() },
+                    // follow: reuse the target line's seed (its spawn row's), so the two lines are one bolt; otherwise this row's own seed
+                    look.fields["jitter_follow"]?.let { followSeed(run, row, strOf(run, it, ctx)) } ?: ctx.scope.seed,
+                ) else null
+                val rec = LineRec(fromCell, toCell, ctx.scope, ctx.binding, ctx.owner, ctx.level, ctx.base, segments, jitter, now)
                 visual.spawnLine(
-                    cast, f, t, dbl(run, look.fields["thickness"] ?: throw IllegalArgumentException("line ribbon look needs 'thickness'"), ctx),
+                    cast, lineVertices(run, rec, ctx, now), dbl(run, look.fields["thickness"] ?: throw IllegalArgumentException("line ribbon look needs 'thickness'"), ctx),
                     "#%06x".format(argb and 0xFFFFFF), ((argb ushr 24) and 0xFF) / 255.0,
                 ).also { run.lines[id] = rec }
             } else {
@@ -1888,23 +1897,45 @@ public class TablePlayer(
 
     private fun driversStep(run: Run, now: Int) {
         run.dash.tick()
-        for ((id, line) in run.lines.entries.toList()) {
-            val h = run.recs[id]?.real ?: continue
-            // an end that cannot be read now (its entity left the world) keeps the line where it was: named, never dropped silently
-            val ends = try {
-                lineEnds(run, line, RowCtx(line.base, line.binding, line.owner, line.level, line.scope))
-            } catch (e: IllegalArgumentException) {
-                fault(run, now, id.text, "ribbon line '${id.text}': end '${line.fromCell}' / '${line.toCell}' unreadable (${e.message}); the line stays at its last position")
-                continue
-            }
-            visual.updateLine(h, ends.first, ends.second)
-        }
+        for ((id, line) in run.lines.entries.toList()) lineStep(run, id, line, now)
         for (veil in run.veils.values) {
             val age = (now - veil.start).coerceAtMost(veil.ticks)
             veil.handles.forEach { visual.updateScreenVeil(it, age) }
         }
         for ((id, reel) in run.reels.entries.toList()) reelStep(run, id, reel, now)
         for (rec in run.recs.values.toList()) rec.rig?.let { rigPose(run, it, now) }
+    }
+
+    /** One tick of a line ribbon: both ends are read again and the polyline is re-drawn between them (the one function W2 owns; the drain rule never touches it). */
+    private fun lineStep(run: Run, id: InstanceId, line: LineRec, now: Int) {
+        val h = run.recs[id]?.real ?: return
+        // an end that cannot be read now (its entity left the world) keeps the line where it was: named, never dropped silently
+        val vertices = try {
+            lineVertices(run, line, RowCtx(line.base, line.binding, line.owner, line.level, line.scope), now)
+        } catch (e: IllegalArgumentException) {
+            fault(run, now, id.text, "ribbon line '${id.text}': end '${line.fromCell}' / '${line.toCell}' unreadable (${e.message}); the line stays at its last position")
+            return
+        }
+        visual.updateLine(h, vertices)
+    }
+
+    /** The vertices of [line] at [now]: the two live ends, jagged by [LinePath] when the line has segments (epoch = ticks since spawn / every). */
+    private fun lineVertices(run: Run, line: LineRec, ctx: RowCtx, now: Int): List<Vec3> {
+        val (from, to) = lineEnds(run, line, ctx)
+        val j = line.jitter ?: return listOf(from, to)
+        val epoch = j.every?.let { (now - line.spawnTick) / it } ?: 0
+        return LinePath.vertices(from, to, line.segments, j.spread, j.along, j.seed, epoch)
+    }
+
+    /** The cast-level seed of the line row `jitter.follow` names: found in the same row list (load already proved it is there). */
+    private fun followSeed(run: Run, row: Row, followId: String): Long {
+        val table = run.cursor.skill.table
+        val lists = table.states.map { it.rows } + table.subTables.values.map { it.rows }
+        val rows = lists.firstOrNull { l -> l.any { it === row } || l.any { it.instance == row.instance && it.tick == row.tick } } ?: emptyList()
+        val target = rows.filter { (it.action as? Action.Spawn)?.kind == SpawnKind.RIBBON && LinePath.isFollowTarget(row.instance, followId, it) }
+            .let { c -> c.firstOrNull { it.tick == row.tick } ?: c.firstOrNull() }
+            ?: throw IllegalArgumentException("jitter.follow '$followId' has no line ribbon in this row list")
+        return V3Bindings.rowSeed(run.request.seed, target.seed)
     }
 
     private fun lineEnds(run: Run, line: LineRec, ctx: RowCtx): Pair<Vec3, Vec3> {
@@ -2497,7 +2528,11 @@ public class TablePlayer(
     /** A live `shape: line` ribbon: the cells of its two ends and the scope of the row that spawned it. */
     private class LineRec(
         val fromCell: String, val toCell: String, val scope: RowScope, val binding: EventBinding?, val owner: StatePath?, val level: LevelCursor?, val base: Int,
+        val segments: Int = 1, val jitter: LineJitter? = null, val spawnTick: Int = 0,
     )
+
+    /** Load-fixed polyline displacement of a line ribbon: [seed] is the row seed (or the followed line's), [every] the re-jag period in ticks (null = rolled once). */
+    private class LineJitter(val spread: Double, val along: Double, val every: Int?, val seed: Long)
 
     private class VeilRec(val start: Int, val ticks: Int, val handles: List<VisualHandle>)
 
