@@ -1,0 +1,169 @@
+# volley-demo: ADR-0303 feature showcase S7 (foundation audit section 5), written from zero on the rev4.10 grammar.
+# A hidden demo (item skill-tester, no real item binds it); nothing here is balance. Randomness is visual only
+# (particle spread); every tick of the schedule is arithmetic (C5).
+apiVersion: astera/v3
+kind: Skill
+id: volley-demo
+item: skill-tester
+meta:
+  name: {ja: ボレーデモ, en: Volley Demo}
+  description: {ja: "4 連の火球と扇状の飾りでタイミング文法を一通り使うデモ。", en: "Four fireballs and a fan of fins that exercise the timing grammar end to end."}
+  cooldown_ticks: 60
+  resource_cost: 0
+  tags: [demo, projectile]
+params:
+  burst_power: {type: number, default: 2}
+let:
+  petals: 6
+  petal_step: "= 360 / petals"
+anchors:
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.6}}
+
+# one skill-local fragment, called from the ball's on.hit (the handler's victim / contact are visible to the rows)
+fragments:
+  burst:
+    params:
+      power: {type: number, default: 1}
+    frames_in: {origin: anchor}
+    do:
+      # GAP: `around: origin` (a frames_in name) is not resolvable as an area-target centre on Paper; `contact` is, inside the on.hit handler
+      - {id: dmg, op: damage, target: {kind: enemies, around: contact, radius: 2.5, max_count: 8, include_self: false}, damage: {fire: "= 6 * ${power}"}}
+      - {id: crack, op: sound, sound: entity.generic.explode, anchor: origin, volume: 0.6, pitch: 1.3}
+      - id: embers
+        op: particle
+        particle: lava
+        anchor: origin
+        count: "= 4 * ${power}"
+        offset: [0.3, 0.3, 0.3]
+        extra: "= 0.02 + 0.03 * rand('embers')"       # visual spread only
+        at: 0
+        every: 2
+        times: 4
+
+machine:
+  start: cast
+  states:
+    cast:
+      for: 40                         # last occurrence 16 + flight 12 + burst 8 = 36; the fan ends at 36
+      then: end
+      do:
+        # seq: once. A chime, one tick, a spark; the lint asserts it equals its declarative desugaring
+        - seq:
+            - {id: charge_chime, op: sound, sound: block.amethyst_block.chime, anchor: caster, volume: 0.5, pitch: 1.0}
+            - {wait: 1}
+            - {id: charge_spark, op: particle_def, def: hit-spark, anchor: muzzle}
+
+        # the volley: occurrences at 1, 6, 11, 16 (n = 4), each occurrence lives 20 ticks
+        - id: volley
+          at: 1
+          every: 5
+          for: 20
+          lasts: 20
+          do:
+            - id: ball
+              op: projectile
+              origin: muzzle
+              velocity: "= look(caster) * 1.0"
+              speed: 1.0
+              range: 12
+              radius: 0.4
+              hit: {targets: enemies, once: true, attach: false}
+              motion:
+                - {law: spin, axis: forward, deg_per_tick: 30, for: 12}
+              block: {mode: despawn}
+              on:
+                hit:
+                  - {op: use, use: "fragment:burst", with: {power: "= 2 + parent.i"}, frames: {origin: contact}}
+            - id: core
+              op: display
+              kind: item
+              item: fire_charge
+              context: fixed
+              anchor: ball
+              scale: [0.6, 0.6, 0.6]
+              at: 0
+              until: ball.end
+              motion:
+                # the visible core drifts up and the drift decays (drag on move)
+                - {law: move, velocity: {up: 0.4}, drag: 0.3, at: 0, for: 6}
+            - id: trail
+              op: particle
+              particle: flame
+              anchor: ball
+              count: 3
+              offset: [0.1, 0.1, 0.1]
+              extra: 0.0
+              at: 0
+              every: 1
+              until: ball.end
+            - id: whoosh
+              op: sound
+              sound: entity.blaze.shoot
+              anchor: muzzle
+              volume: 0.8
+              pitch: "= 1.0 + 0.1 * i"
+              at: 0
+            # nested group: three sparkle bursts per occurrence (i = burst index, parent.i = volley index)
+            - id: sparkle
+              at: 1
+              every: 3
+              times: 3
+              do:
+                - id: wisp
+                  op: particle
+                  particle: end_rod
+                  anchor: muzzle
+                  count: "= 2 + parent.i + i"
+                  offset: "= vec(0.15, 0.15 + 0.1 * i, 0.15)"
+                  extra: "= 0.03 + 0.04 * rand('wisp')"       # visual spread only
+                  at: 0
+
+        # an eased cadence: the period shrinks 6 -> 2 over 14 ticks (fire ticks computed at load)
+        - id: ratchet
+          op: sound
+          sound: block.note_block.hat
+          anchor: caster
+          volume: 0.5
+          pitch: "= 1.0 + 0.05 * i"
+          at: 22
+          every: {from: 6, to: 2, ease: in_quad}
+          for: 14
+
+        # the fan: a frame family of 3 copies, leaning 25 degrees apart and swinging with drag
+        - id: fan
+          op: frame
+          anchor: caster
+          mode: follow
+          times: 3
+          at: 20
+          for: 16
+          offset: {up: 1.1, forward: 0.8}
+          turn: [{axis: up, deg: "= (i - 1) * 25 * sind(90)"}]
+          motion:
+            - {law: spin, axis: up, deg_per_tick: "= 8 * (i + 1)", drag: 0.15, at: 0, for: 16}
+        # riders: each fin binds its own member of `fan`; a per-index string list picks the block
+        - id: fin
+          op: display
+          kind: block
+          block: [gray_concrete, iron_block, black_concrete]
+          anchor: fan
+          times: 3
+          at: 20
+          for: 16
+          scale: [0.06, 0.06, 0.9]
+          offset: {forward: 0.45}
+          motion:
+            # the orientation blends from the held rotation to world up (align with ease)
+            - {law: align, axis: forward, to: world.up, up: caster.forward, at: 4, for: 6, ease: out_quad}
+            - {law: grow, to: 0, at: 13, for: 3}
+        # a ring of petals at the muzzle: pi, degree trig and let (petals, petal_step)
+        - id: petal
+          op: particle
+          particle: end_rod
+          anchor: muzzle
+          times: 6
+          at: 20
+          count: 0
+          offset: "= vec(cos(i * 2 * pi / petals), sind(i * petal_step), 0.0)"
+          extra: 0.08
+    end: {final: true}
