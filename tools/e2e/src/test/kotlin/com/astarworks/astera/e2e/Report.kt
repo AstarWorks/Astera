@@ -35,7 +35,7 @@ object SuiteOwners {
         )
         own("economy-life", "Shop purchase")
         own("presentation", "ClientReceives", "HUD")
-        own("skills-vfx", "Weapons", "PersonaWeapons", "SkinRig")
+        own("skills-vfx", "Weapons", "PersonaWeapons", "SkinRig", "Arsenal art", "ArmorArtE2eTest")
         own("bots-qa", "BootHealth", "Bot vs bot", "Commands", "Join", "Velocity", "CueGuard", "Live match", "Live smoke", "Live weapons", "Live chat")
     }
 
