@@ -116,12 +116,12 @@ machine:
             # t(theta) = (left 0, up -sin theta, forward cos theta) for theta = -125, -150, -97, 62, 65.5, 66 (block-part frame: content/frames/bastion-greatsword.yaml part slam_blocks, long = up, edge = forward).
             - id: fx4_slam_sword_rig
               op: rig
+              mount: caster.hand_r
               of: fx4_slam_sword
               part: slam_blocks
               parent: caster.body
               pivot: {left: 0.0, up: 1.4, forward: 0.3}
               rest: [{axis: left, deg: 90.0}]
-              sample_ticks: 1
               for: 43
               swing:
                 - {at: 0, for: 1, from: {left: 0.0, up: 0.81915, forward: -0.57358}, to: {left: 0.0, up: 0.5, forward: -0.86603}, edge: trailing}
@@ -134,10 +134,8 @@ machine:
               of: fx4_slam_sword_parts
               part: slam_blocks
               parent: caster.body
-              hand: false
               pivot: {left: 0.0, up: 1.4, forward: 0.3}
               rest: [{axis: left, deg: 90.0}]
-              sample_ticks: 1
               for: 43
               swing:
                 - {at: 0, for: 1, from: {left: 0.0, up: 0.81915, forward: -0.57358}, to: {left: 0.0, up: 0.5, forward: -0.86603}, edge: trailing}
