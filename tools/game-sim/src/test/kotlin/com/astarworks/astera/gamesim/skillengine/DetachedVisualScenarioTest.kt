@@ -41,8 +41,8 @@ class DetachedVisualScenarioTest : SkillEngineScenario() {
     @Test
     fun anInstancesOwnEndRowMayStandAtTheExitTick() {
         // the rig's end row is at tick 3 == the state's `for`: the exit would end it anyway
-        ok(skill(3, "{id: r, op: rig, parent: caster, part: held_hand, for: 3}"))
-        assertThat(failure(skill(3, "{id: r, op: rig, parent: caster, part: held_hand, for: 4}"))).contains("lasts 3")
+        ok(skill(3, "{id: r, op: rig, parent: caster, for: 3}"))
+        assertThat(failure(skill(3, "{id: r, op: rig, parent: caster, for: 4}"))).contains("lasts 3")
     }
 
     @Test
@@ -50,7 +50,7 @@ class DetachedVisualScenarioTest : SkillEngineScenario() {
         val s = ok(
             skill(
                 8,
-                "{id: rig, op: rig, parent: caster, part: held_hand, for: 6}",
+                "{id: rig, op: rig, parent: caster, for: 6}",
                 "{id: edge, op: particle, particle: flame, anchor: {of: rig.grip, to: rig.tip, samples: 6}, at: 0, count: 1}",
             ),
         )
@@ -67,10 +67,10 @@ class DetachedVisualScenarioTest : SkillEngineScenario() {
 
     @Test
     fun rigClipLengthMismatchIsALoadError() {
-        val msg = failure(skill(12, "{id: rig, op: rig, parent: caster, part: held_hand, anim: sword-swing, for: 2}"))
+        val msg = failure(skill(12, "{id: rig, op: rig, parent: caster, anim: sword-swing, for: 2}"))
         assertThat(msg).contains("clip 'sword-swing' is 12 ticks but for: 2").contains("lasts exactly its clip")
         // the exact length is fine; a rig without anim keeps `for` free
-        ok(skill(12, "{id: rig, op: rig, parent: caster, part: held_hand, anim: sword-swing, for: 12}"))
-        ok(skill(12, "{id: rig, op: rig, parent: caster, part: held_hand, for: 2}"))
+        ok(skill(12, "{id: rig, op: rig, parent: caster, anim: sword-swing, for: 12}"))
+        ok(skill(12, "{id: rig, op: rig, parent: caster, for: 2}"))
     }
 }

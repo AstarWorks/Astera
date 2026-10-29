@@ -3,6 +3,7 @@ package com.astarworks.astera.core.application.skillengine.load.ops.gameplay
 import com.astarworks.astera.core.application.skillengine.compose.AnchorRegistry
 import com.astarworks.astera.core.application.skillengine.compose.ExprClass
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
+import com.astarworks.astera.core.application.skillengine.load.ItemFrames
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
@@ -78,7 +79,7 @@ public object RigOpSpec : OpSpec<RigOp> {
     private val rest = Field.optional("rest", Rotations.type, Rotation.Turns(emptyList()), "rest orientation of the model (literal turns)")
     private val swing = Field.optional("swing", RigSwings.type, emptyList(), "edge-travel steps: from / via / to, edge leading|trailing")
 
-    private val part = Field.optional("part", Types.nullable(Types.id), null, "part of the skill item's content/frames/<item>.yaml; absent = held")
+    private val part = Field.optional("part", Types.nullable(Types.id), null, "axes source of the driven frame (needs of:); a held rig (no of) takes the item's thirdperson_righthand part, chosen by the engine, never written")
     private val respectHitStop = Field.optional("respect_hit_stop", Types.bool, Value.Literal(false), "the rig freezes during hit-stop")
     private val bodyRespectHitStop = Field.optional("body_respect_hit_stop", Types.bool, Value.Literal(false), "the body freezes during hit-stop")
     private val freezeAt = Field.required("at", Types.number, "rig-relative tick")
@@ -140,7 +141,7 @@ public object RigOpSpec : OpSpec<RigOp> {
     public const val ARM_MOUNT: String = "caster.hand_r"
 
     /** The display transform the player draws the main-hand mesh with (`AnchorMainHand`); a rig carrying the held item takes its long/edge axes from a part with this display. */
-    private const val HELD_DISPLAY = "thirdperson_righthand"
+    private const val HELD_DISPLAY = ItemFrames.HELD_HAND_DISPLAY
 
     private val BUILTIN_PARENTS = setOf("caster", "caster.body", "caster.eye", "caster.look", "world")
 
@@ -174,20 +175,34 @@ public object RigOpSpec : OpSpec<RigOp> {
         val tilt = Vec3(op.tilt.x, op.tilt.y, op.tilt.z)
         val rest = Vec3(op.rest.x, op.rest.y, op.rest.z)
 
-        val part = lc.frames.item(item)?.partFor(op.part)
-            ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, op.part?.let { "$item.$it" } ?: item))
+        val frames = lc.frames.item(item)
+            ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, item))
+        val part = if (op.of == null) {
+            // ADR-0303 decision 1: a held mesh is drawn as the client draws a held item; the engine takes the item's thirdperson_righthand part
+            if (op.part != null) {
+                return Result.Failure(
+                    SkillDecodeError.Invalid(lc.skillId, path, "rig '${op.id.value}': part: is for a rig driving a frame (of:); a held rig takes the part of content/frames/$item.yaml whose display is $HELD_DISPLAY, chosen by the engine"),
+                )
+            }
+            val hands = frames.handParts()
+            when (hands.size) {
+                0 -> return Result.Failure(
+                    SkillDecodeError.Invalid(
+                        lc.skillId, path,
+                        "rig '${op.id.value}': content/frames/$item.yaml has no part with display: $HELD_DISPLAY (a held mesh is drawn as the client draws a held item)",
+                    ),
+                )
+                1 -> hands.single()
+                else -> return Result.Failure(
+                    SkillDecodeError.Invalid(lc.skillId, path, "rig '${op.id.value}': content/frames/$item.yaml has ${hands.size} parts with display: $HELD_DISPLAY (${hands.joinToString { it.name }}); exactly one is the held mesh"),
+                )
+            }
+        } else {
+            frames.partFor(op.part) ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, op.part?.let { "$item.$it" } ?: item))
+        }
         val keys = if (op.swing.isEmpty()) {
             emptyList()
         } else {
-            if (op.of == null && part.display != HELD_DISPLAY) {
-                return Result.Failure(
-                    SkillDecodeError.Invalid(
-                        lc.skillId, path,
-                        "a rig without 'of' draws the caster's main-hand item with display $HELD_DISPLAY, but part '${part.name}' of '$item' has display '${part.display}': " +
-                            "its long / edge axes would not match the drawn part. Use a part declared with display: $HELD_DISPLAY (content/frames/$item.yaml)",
-                    ),
-                )
-            }
             val long = part.axes["long"] ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "frames of '$item' part '${part.name}' declare no 'long' axis"))
             val edge = part.axes["edge"] ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "frames of '$item' part '${part.name}' declare no 'edge' axis"))
             when (val r = Grammar.guard { RigSwings.lower(op.swing, FrameAxes(long, edge), tilt, rest, GrammarContext(lc.skillId), path) }) {
@@ -220,6 +235,8 @@ public object RigOpSpec : OpSpec<RigOp> {
         if (op.of == null) {
             // the rig is an anchor instance (ADR-0303 10.5): the part's model points ride in the table like a frame's (`rig.tip`, `rig.root`);
             // with `of` the driven frame already is the anchor and keeps its own points
+            payload["held_part"] = CasterMotion.known("${part.name} (${part.display})")
+            payload["held_length"] = CasterMotion.known(part.length)
             part.points.forEach { (name, p) -> payload["point.$name"] = CasterMotion.known(Vector3d(p.x, p.y, p.z)) }
             (lc.anchors as? AnchorRegistry)?.declare(InstanceId(inst.path.dropLast(1) + InstanceId.Segment(op.id, null)), null, ExprClass.L, points = part.points.keys)
         }
