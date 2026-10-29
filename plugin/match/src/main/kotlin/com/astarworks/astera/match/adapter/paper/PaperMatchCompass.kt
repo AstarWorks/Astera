@@ -60,6 +60,7 @@ public class PaperMatchCompass(
         if (MatchCompassTag.isCompass(inv.getItem(SLOT))) return
         // A stray compass elsewhere (e.g. dragged in before the lock) goes; the one true copy sits in the slot.
         strip(player)
+        org.slf4j.LoggerFactory.getLogger(PaperMatchCompass::class.java).info("Inventory write for {} (source=match-compass, slot={})", player.name, SLOT)
         inv.getItem(SLOT)?.takeIf { !it.isEmpty }?.let { displaced ->
             inv.setItem(SLOT, null)
             inv.addItem(displaced).values.forEach { player.world.dropItemNaturally(player.location, it) }

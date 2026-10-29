@@ -27,6 +27,11 @@
 @162 remove #3 op=brace/rim1[1]
 @162 remove #4 op=brace/crest
 @162 remove #5 op=brace/fill
+g @16 state-exit reason=TIMER | state=brace/guard/guard
+g @17 state-exit reason=TIMER | state=brace/guard/whiff
+g @17 state-exit reason=TIMER | state=brace/guard/end
+g @162 state-exit reason=PREEMPT | state=brace/held
+g @162 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 spawn #0 op=brace/rim0[0] kind=sprite sprite=bastion-rim alpha=1.000000 tint=- seethrough=true pos=-0.532360,1.300000,1.038794 rot=-0.486740,-0.486740,0.512917,0.512917 scale=0.580000,0.300000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @0 spawn #1 op=brace/rim0[1] kind=sprite sprite=bastion-rim alpha=1.000000 tint=- seethrough=true pos=-0.532360,1.300000,1.038794 rot=0.486740,-0.486740,-0.512917,0.512917 scale=0.580000,0.300000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
@@ -56,6 +61,11 @@
 @162 remove #3 op=brace/rim1[1]
 @162 remove #4 op=brace/crest
 @162 remove #5 op=brace/fill
+g @16 state-exit reason=TIMER | state=brace/guard/guard
+g @17 state-exit reason=TIMER | state=brace/guard/whiff
+g @17 state-exit reason=TIMER | state=brace/guard/end
+g @162 state-exit reason=PREEMPT | state=brace/held
+g @162 cast-end | pose
 ## gameplay-static
 g @0..162 cast-length | cast
 g @162 state-end then=end final=false | state=brace
@@ -64,4 +74,9 @@ g @0 modify_attribute amount=1.000000 attribute=resist.knockback for=162 operati
 g @0 status charge stacks=1.000000 for=400 to=caster | state=brace
 g @20 status charge stacks=1.000000 for=400 to=caster | state=brace
 g @40 status charge stacks=1.000000 for=400 to=caster | state=brace
+g @16 state-end then=brace/guard/whiff final=false | state=brace/guard/guard
+g @4 state-end then=brace/guard/end final=false | state=brace/guard/parried
+g @1 state-end then=brace/guard/end final=false | state=brace/guard/whiff
+g @0..0 state-end then=- final=false | state=brace/guard/end
+g @0 state-end then=- final=true | state=brace/held
 g @0 state-end then=- final=true | state=end

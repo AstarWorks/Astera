@@ -92,6 +92,11 @@ public class SkillCompiler(
             }
         }
         session.conditions = conditions
+        val guardEnv = V3Bindings.spec(DEEP, ExprEnvSpec(variables = ANCHOR_AXES.associate { "anchor.$it" to ExprType.VEC3 }, frames = flat.anchors.map { it.id }.toSet() + flat.framesIn.keys + com.astarworks.astera.core.application.skillengine.load.grammar.ExprFrames.ofMachine(flat.machine)))
+        when (val r = GuardCheck.check(def.id, flat.machine, flat.conditions, exprs, guardEnv)) {
+            is Result.Failure -> return r
+            is Result.Success -> Unit
+        }
 
         val m = when (val r = MachineTables.lower(def.id, flat.machine, session.sections, config)) {
             is Result.Failure -> return r

@@ -514,12 +514,20 @@ public object StaticChecks {
 
     private fun check15(g: TableGraph): SkillDecodeError? {
         val handlerOn = HashSet<String>()
-        for (b in g.allBranches()) {
-            val key = b.subTable ?: continue
-            if (HANDLER_EVENT.containsMatchIn(b.event.value)) handlerOn += key.value
-        }
-        val enteredByEvent = g.allBranches().filter { HANDLER_EVENT.containsMatchIn(it.event.value) }.mapNotNull { it.target?.value }
+        // an `emit:` row of a state the event bound (a hurt / hit transition target) carries the binding on: the runtime hands the emitted event the
+        // contact / victim / attacker (TablePlayer.emit), so a transition on it binds its target too (a part's `<call>.parried` reaching the caller)
+        val boundEvents = HashSet<String>()
+        val enteredByEvent = HashSet<String>()
         fun bound(state: StatePath): Boolean = enteredByEvent.any { state.value == it || state.value.startsWith("$it/") }
+        do {
+            var grew = false
+            for (b in g.allBranches()) {
+                if (!HANDLER_EVENT.containsMatchIn(b.event.value) && b.event.value !in boundEvents) continue
+                b.subTable?.let { handlerOn += it.value }
+                b.target?.value?.let { if (enteredByEvent.add(it)) grew = true }
+            }
+            for (st in g.table.states) if (bound(st.state)) for (r in st.rows) (r.action as? Action.Emit)?.let { if (boundEvents.add(it.event.value)) grew = true }
+        } while (grew)
         fun scan(rows: List<Row>, branches: List<Branch>, eventBound: Boolean, where: (Row?) -> String): SkillDecodeError? {
             for (row in rows) {
                 val cells = ArrayList<Pair<String, String>>()
