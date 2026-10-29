@@ -95,6 +95,16 @@ internal object YamlDocs {
                 else -> errors += ComposeError.InvalidDocument(file, "kind", "$where: kind must be Skill, Part or Patch, was '$kind'")
             }
         }
+        // one skill id per file (a tier lives in its own `<id>/skill.yaml`): `---` documents of one file are same-id fragments or Patches
+        val skills = docs.filter { it.kind == Doc.Kind.Skill }
+        val first = skills.firstOrNull()
+        val stray = if (first == null) null else skills.firstOrNull { it.baseId != first.baseId }
+        if (stray != null) {
+            errors += ComposeError.InvalidDocument(
+                file, "id",
+                "document ${stray.index + 1} has id '${stray.baseId}'; a file holds one skill id (plus its same-id fragments and Patches); put a tier in content/skills/${stray.baseId}/skill.yaml",
+            )
+        }
         return docs to errors
     }
 

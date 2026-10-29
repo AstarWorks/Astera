@@ -1,9 +1,9 @@
 ## pose yaw=0 pitch=0
-@0 sound - op=sweep/fx0/snd sound=block.gravel.step cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
-@0 sound - op=sweep/fx0/snd_2 sound=entity.ravager.step cat=master vol=0.6 pitch=0.8 at=0.000000,0.000000,0.000000
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=bastion-s1-body speed=1
 @0 spawn #0 op=sweep/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=sweep/rig dur=0 pos=-0.370145,0.503255,-0.290948 rot=-0.457398,0.358804,-0.774330,0.249918 scale=0.937500,0.937500,0.937500 bb=FIXED
+@0 sound - op=sweep/fx0/snd sound=block.gravel.step cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
+@0 sound - op=sweep/fx0/snd_2 sound=entity.ravager.step cat=master vol=0.6 pitch=0.8 at=0.000000,0.000000,0.000000
 @0 frame sweep/rig op=sweep/rig pos=-0.370145,0.503255,-0.290948 rot=-0.457398,0.358804,-0.774330,0.249918
 @1 write #0 op=sweep/rig dur=0 pos=-0.370145,0.503255,-0.290948 rot=-0.457398,0.358804,-0.774330,0.249918 scale=0.937500,0.937500,0.937500 bb=FIXED
 @1 frame sweep/rig op=sweep/rig pos=-0.370145,0.503255,-0.290948 rot=-0.457398,0.358804,-0.774330,0.249918
@@ -1417,11 +1417,11 @@
 @58 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=bastion-s1-body
 @58 remove #0 op=sweep/rig
 ## pose yaw=37 pitch=-20
-@0 sound - op=sweep/fx0/snd sound=block.gravel.step cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
-@0 sound - op=sweep/fx0/snd_2 sound=entity.ravager.step cat=master vol=0.6 pitch=0.8 at=0.000000,0.000000,0.000000
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=bastion-s1-body speed=1
 @0 spawn #0 op=sweep/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=sweep/rig dur=0 pos=-0.120514,0.503255,-0.455120 rot=-0.188063,0.260962,-0.879450,0.350854 scale=0.937500,0.937500,0.937500 bb=FIXED
+@0 sound - op=sweep/fx0/snd sound=block.gravel.step cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
+@0 sound - op=sweep/fx0/snd_2 sound=entity.ravager.step cat=master vol=0.6 pitch=0.8 at=0.000000,0.000000,0.000000
 @0 frame sweep/rig op=sweep/rig pos=-0.120514,0.503255,-0.455120 rot=-0.188063,0.260962,-0.879450,0.350854
 @1 write #0 op=sweep/rig dur=0 pos=-0.120514,0.503255,-0.455120 rot=-0.188063,0.260962,-0.879450,0.350854 scale=0.937500,0.937500,0.937500 bb=FIXED
 @1 frame sweep/rig op=sweep/rig pos=-0.120514,0.503255,-0.455120 rot=-0.188063,0.260962,-0.879450,0.350854

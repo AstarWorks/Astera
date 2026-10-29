@@ -294,7 +294,7 @@ public object StaticChecks {
     private fun check7(g: TableGraph): SkillDecodeError? {
         for (sub in g.table.subTables.values) {
             if (sub.event.value in g.deliveredSubs) continue
-            val dead = sub.rows.firstOrNull { it.action.phase == Phase.GAMEPLAY } ?: continue
+            val dead = sub.rows.firstOrNull { it.action.phase == Phase.GAMEPLAY || (it.action as? Action.Effect)?.spawnsAnchor == true } ?: continue
             return SkillDecodeError.MachineCheck(7, "'${dead.src.value}': ${dead.action::class.simpleName?.lowercase()} in sub-table '${sub.event.value}' is never reached by any transition", g.skillId)
         }
         return null
@@ -322,21 +322,35 @@ public object StaticChecks {
             if (sub.window.max > max) {
                 return SkillDecodeError.StateOverrun(owner.state.value, sub.event.value, sub.window.max, max, g.skillId)
             }
-            for (row in sub.rows) overrun(g, owner.state.value, row, sub.window.max, max)?.let { return it }
+            for (row in sub.rows) overrun(g, owner.state.value, row, sub.window.max, max, exitOwned = false)?.let { return it }
         }
         return null
     }
 
-    private fun overrun(g: TableGraph, state: String, row: Row, base: Int, max: Int): SkillDecodeError? {
+    /**
+     * [exitOwned]: the rows play at their own tick, so one at the exit tick is refused (ADR 10.1); false for event-handler rows, whose
+     * [base] is the latest tick the event can fire and so may legitimately equal the state's last tick (those keep `> max`).
+     */
+    private fun overrun(g: TableGraph, state: String, row: Row, base: Int, max: Int, exitOwned: Boolean = true): SkillDecodeError? {
         if (row.tick < 0) return SkillDecodeError.MachineCheck(8, "'${row.src.value}': negative tick ${row.tick}", g.skillId)
         val last = base + row.tick
-        if (last > max) return SkillDecodeError.StateOverrun(state, row.instance.text, last, max, g.skillId)
+        // ADR 10.1: a state owns the ticks [0, max); its exit is the first thing at lt == max, so a row there is never played.
+        // Exceptions: an instance's own end row (the exit would issue it anyway; a dash's driver stop is one), and a zero-length (final / instant) state, whose rows play on entry.
+        val atExit = if (!exitOwned || isEndRow(row) || max == 0) last > max else last >= max
+        if (atExit) return SkillDecodeError.StateOverrun(state, row.instance.text, last, max, g.skillId)
         val a = row.action
         val end = (a as? Action.Lock)?.until as? LockEnd.AtTick
         if (end != null && base + end.tick > max) {
             return SkillDecodeError.StateOverrun(state, row.instance.text.ifEmpty { "lock" }, base + end.tick, max, g.skillId)
         }
         return null
+    }
+
+    private fun isEndRow(row: Row): Boolean {
+        val a = row.action
+        if (a is Action.End) return true
+        val kind = ((a as? Action.Effect)?.payload?.get("kind") as? Val.Known<*>)?.value
+        return kind == "dash.end"
     }
 
     // ---- check 10: live display cap ----
