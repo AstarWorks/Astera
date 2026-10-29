@@ -26,3 +26,10 @@ ranks:
 discord:
   enabled: true
   bridge-server: lobby
+translation:
+  enabled: true
+  languages: [en, ja]
+  timeout_ms: 1500
+  marker: '&7[訳]&r'
+  # Must match TRANSLATOR_MODEL_PROFILE on the llama-server container.
+  model_profile: translategemma

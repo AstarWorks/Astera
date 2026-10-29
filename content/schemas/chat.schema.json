@@ -17,13 +17,17 @@
         },
         "discord": {
             "$ref": "#/definitions/com.astarworks.astera.chat.application.config.DiscordConfig"
+        },
+        "translation": {
+            "$ref": "#/definitions/com.astarworks.astera.chat.application.config.TranslationConfig"
         }
     },
     "required": [
         "format",
         "japanize",
         "ranks",
-        "discord"
+        "discord",
+        "translation"
     ],
     "definitions": {
         "com.astarworks.astera.chat.application.config.ChatRank": {
@@ -88,6 +92,51 @@
             "required": [
                 "enabled",
                 "kanji"
+            ]
+        },
+        "com.astarworks.astera.chat.application.config.TranslationConfig": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "languages": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "en",
+                            "ja",
+                            "ko",
+                            "es"
+                        ]
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                },
+                "timeout_ms": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 30000
+                },
+                "marker": {
+                    "type": "string"
+                },
+                "model_profile": {
+                    "type": "string",
+                    "enum": [
+                        "translategemma",
+                        "hy-mt",
+                        "lfm2"
+                    ]
+                }
+            },
+            "required": [
+                "enabled",
+                "languages",
+                "timeout_ms",
+                "marker",
+                "model_profile"
             ]
         }
     }

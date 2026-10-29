@@ -30,7 +30,11 @@ public object Romaji {
     private val words = Regex("(?i)&#[0-9a-f]{6}|&[0-9a-fk-or]|[a-z][a-z'-]*")
 
     /** Null means the input is deliberately bypassed or contains no convertible syllables. */
-    public fun hiragana(message: String): String? {
+    public fun hiragana(message: String, playerNames: Collection<String> = emptyList()): String? {
+        // Like URLs, known player names bypass whole-message Japanize so kanji conversion cannot rename them.
+        val plain = Regex("(?i)&#[0-9a-f]{6}|&[0-9a-fk-or]").replace(message, "")
+        if (playerNames.any { name -> name.isNotBlank() &&
+                Regex("(?<![A-Za-z0-9_])${Regex.escape(name)}(?![A-Za-z0-9_])").containsMatchIn(plain) }) return null
         if (message.any { it.code > 127 } || message.trimStart().startsWith('#') ||
             message.trimStart().startsWith('/') || url.containsMatchIn(message)) return null
         var changed = false
