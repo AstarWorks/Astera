@@ -62,8 +62,8 @@ public interface FrameLookup {
 }
 
 /**
- * Cast-level answers the CEL functions `aim_point` and `blade_len` need and a frame tree cannot give: the world
- * (blocks, entities) along the caster's look ray, and the item point table.
+ * Cast-level answers the CEL functions `aim_point` / `look` / `stacks` / `nearest_enemy_dist` / `enemy_in_cone` need and a frame tree cannot give:
+ * the world (blocks, entities) around the caster.
  */
 public interface ExprHost {
     /** Point on the look ray of [caster] at [range] blocks, clamped to the first block or entity the ray meets. */
@@ -71,9 +71,6 @@ public interface ExprHost {
 
     /** Unit look direction (yaw and pitch) of [caster]; the unclamped, world-blind form of `aim_point`. */
     public fun lookDirection(caster: ExprValue.Ref): GeoVec3
-
-    /** Grip-to-tip (or root-to-tip) distance of the item point table of [frame]. */
-    public fun bladeLen(frame: ExprValue.Ref): Double
 
     /** Stack count of status [status] on the entity behind [entity] (`caster`, `victim`); 0 when it has none. A host that cannot answer fails loudly. */
     public fun stacks(entity: ExprValue.Ref, status: String): Double =
@@ -84,15 +81,12 @@ public interface ExprHost {
 
     /** True when an enemy of the caster stands within [range] of [from] and within [halfAngleDeg] of [dir]. */
     public fun enemyInCone(from: GeoVec3, dir: GeoVec3, range: Double, halfAngleDeg: Double): Boolean = false
-
-    /** Health fraction 0..1 of the entity behind [who] (`caster`, `victim`); 1 when unknown. */
-    public fun hpRatio(who: ExprValue.Ref): Double = 1.0
 }
 
 /**
  * Values at eval time. [seed] makes `rand(stream)` deterministic per cast and tick; [castSeed] is the per-cast seed alone
  * (`draw(...)` values stay fixed for the whole cast); [sample] is the replay index of a spacing sweep, so `rand` re-rolls
- * per sample; [host] serves `aim_point` / `blade_len`.
+ * per sample; [host] serves `aim_point` / `look`.
  */
 public class ExprEnv(
     public val variables: Map<String, ExprValue>,

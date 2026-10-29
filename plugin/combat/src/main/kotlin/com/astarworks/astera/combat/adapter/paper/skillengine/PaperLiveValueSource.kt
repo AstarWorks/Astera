@@ -1,6 +1,7 @@
 package com.astarworks.astera.combat.adapter.paper.skillengine
 
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.skillengine.compose.AnchorNames
 import com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
@@ -110,7 +111,6 @@ public class PaperLiveValueSource(
                     null, "feet" -> Frame.fromYawPitch(p.feet, p.yaw, 0.0)
                     "eye" -> Frame.fromYawPitch(p.eye, p.yaw, p.pitch)
                     "look" -> Frame.fromYawPitch(p.feet, p.yaw, p.pitch)
-                    in HANDS -> Frame.fromYawPitch(handOrigin(p, point.orEmpty()), p.yaw, p.pitch)
                     else -> null
                 }
             }
@@ -121,7 +121,6 @@ public class PaperLiveValueSource(
                 val now = when (point) {
                     null, "feet", "look" -> p.feet
                     "eye" -> p.eye
-                    in HANDS -> handOrigin(p, point.orEmpty())
                     else -> return Vec3.ZERO
                 }
                 return casterVelocity(cast, point ?: "", now)
@@ -179,7 +178,7 @@ public class PaperLiveValueSource(
         val bare = name.removePrefix("anchor:")
         if (bare == CASTER || bare.startsWith("$CASTER.")) {
             val p = casterPose(request)
-            val pitched = bare == "$CASTER.look" || bare == "$CASTER.eye" || bare.removePrefix("$CASTER.") in HANDS
+            val pitched = bare == "$CASTER.look" || bare == "$CASTER.eye"
             return quat(Frame.fromYawPitch(p.feet, p.yaw, if (pitched) p.pitch else 0.0).rotation)
         }
         if (bare == "victim" || bare == "target" || bare.startsWith("victim.")) {
@@ -224,19 +223,6 @@ public class PaperLiveValueSource(
         )
     }
 
-    /**
-     * The caster's hand point (`hand_r`, `hand_l`, `palm` = the right palm): below the eye, to the side and in front of the body along the
-     * yaw heading, so objects glued to it ride the arm the item is held in. One calibrated rest-pose offset, not the animated arm.
-     */
-    private fun handOrigin(p: CasterPose, point: String): Vec3 {
-        val yawFrame = Frame.fromYawPitch(p.feet, p.yaw, 0.0)
-        val side = if (point == "hand_l") 1.0 else -1.0
-        val drop = (p.eye.y - p.feet.y) - HAND_BELOW_EYE
-        val left = yawFrame.left()
-        val fwd = yawFrame.forward()
-        return Vec3(p.feet.x + left.x * side * HAND_SIDE + fwd.x * HAND_FORWARD, p.feet.y + drop, p.feet.z + left.z * side * HAND_SIDE + fwd.z * HAND_FORWARD)
-    }
-
     private fun casterVec(request: CastRequest, name: String): Vector3d? {
         if (name != CASTER && !name.startsWith("$CASTER.")) return null
         val p = casterPose(request)
@@ -245,8 +231,9 @@ public class PaperLiveValueSource(
             "eye" -> p.eye
             "body" -> p.body
             "forward" -> Frame.fromYawPitch(p.feet, p.yaw, p.pitch).forward()
-            in HANDS -> handOrigin(p, name.removePrefix("$CASTER."))
-            else -> throw IllegalArgumentException("caster field '$name' is not one of feet, eye, body, look, forward, hand_r, hand_l, palm")
+            else -> throw IllegalArgumentException(
+                AnchorNames.removedCasterPoint(name) ?: "caster field '$name' is not one of feet, eye, body, look, forward",
+            )
         }
         return Vector3d(v.x, v.y, v.z)
     }
@@ -372,7 +359,6 @@ public class PaperLiveValueSource(
             if (ref.name != CASTER) throw ExprEvalException("$fn('${ref.name}'): only the caster is served on Paper")
         }
 
-        override fun bladeLen(frame: ExprValue.Ref): Double = throw ExprEvalException("blade_len is not served by the Paper live-value host")
     }
 
     private fun request(cast: CastHandle): CastRequest =
@@ -385,9 +371,5 @@ public class PaperLiveValueSource(
 
     private companion object {
         const val CASTER = "caster"
-        val HANDS = setOf("hand_r", "hand_l", "palm")
-        const val HAND_BELOW_EYE = 0.55
-        const val HAND_SIDE = 0.35
-        const val HAND_FORWARD = 0.45
     }
 }

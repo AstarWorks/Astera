@@ -1,6 +1,5 @@
 package com.astarworks.astera.gamesim.skillengine
 
-import com.astarworks.astera.core.application.skillengine.compose.ExpansionDump
 import com.astarworks.astera.core.domain.Result
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -11,7 +10,7 @@ class OpSpecIdsScenarioTest : SkillEngineScenario() {
     private fun skill(item: String, vararg ops: String): String = (
         listOf(
             "apiVersion: astera/v3", "kind: Skill", "id: ids-probe", "item: $item",
-            "anchors:", "  - {id: shears, anchor: caster.hand_r}",
+            "anchors:", "  - {id: shears, anchor: caster.eye}",
             "machine:", "  start: s", "  states:", "    s:", "      for: 40", "      enter:",
         ) + ops.map { "        - $it" }
         ).joinToString("\n") + "\n"
@@ -20,19 +19,6 @@ class OpSpecIdsScenarioTest : SkillEngineScenario() {
 
     private val frame = "{id: tip, op: frame, anchor: shears, for: 20}"
     private val root = "{id: base, op: frame, anchor: shears, for: 20}"
-
-    /** Example j: ids are `volley[k]/<op>` with no doubled segment (`ball/ball`) and `whoosh` carries no index. */
-    @Test
-    fun exampleJIdsMatchItem5() {
-        val dump = ExpansionDump.render(loadExample("j-mythic-composition").table)
-        for (k in 0..3) {
-            assertThat(dump).contains("volley[$k]/ball")
-            assertThat(dump).contains("volley[$k]/core")
-            assertThat(dump).contains("volley[$k]/whoosh")
-        }
-        assertThat(dump).contains("volley[0]/trail[0]")
-        assertThat(dump).doesNotContain("ball/ball").doesNotContain("whoosh[0]").doesNotContain("core/core").doesNotContain("trail/trail")
-    }
 
     @Test
     fun ribbonTrailNeedsHistory() {

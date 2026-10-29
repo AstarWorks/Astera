@@ -26,7 +26,7 @@ id: couture-rapier-s2
 item: couture-rapier
 meta: {cooldown_ticks: 125, resource_cost: 18}
 anchors:
-  - {id: shears, anchor: caster.hand_r, mount: caster}
+  - {id: shears, anchor: caster.eye, mount: caster}
 machine:
   start: coin1
   states:

@@ -1,0 +1,6 @@
+## pose yaw=0 pitch=0
+@0 spawn #0 op=show/surface kind=sprite sprite=sample-portal-swirl alpha=1.000000 tint=- seethrough=false pos=0.000000,2.400000,3.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=2.500000,2.500000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@40 remove #0 op=show/surface
+## pose yaw=37 pitch=-20
+@0 spawn #0 op=show/surface kind=sprite sprite=sample-portal-swirl alpha=1.000000 tint=- seethrough=false pos=-1.805445,2.400000,2.395907 rot=0.000000,-0.317305,0.000000,0.948324 scale=2.500000,2.500000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@40 remove #0 op=show/surface

@@ -1,0 +1,18 @@
+## pose yaw=0 pitch=0
+@0 sound - op=- sound=item.mace.smash_ground_heavy cat=master vol=0.8 pitch=1.2 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=crit count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8459183025602562029
+@0 particle - op=- type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#96785a size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2654256910292335300
+@0 hit - op=- at=0.000000,0.000000,0.000000 r=3.000000
+@0 damage 00000000-0000-0000-0000-00000000000a op=- physical=9.3333 skill=club-slam at=0.000000,0.000000,2.200000 ignoreinv=false ignorearmor=false
+@0 sound - op=- sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=0.000000,0.000000,2.200000
+@0 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0.33 z=1.1
+@0 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0.33 z=1.1
+## pose yaw=37 pitch=-20
+@0 sound - op=- sound=item.mace.smash_ground_heavy cat=master vol=0.8 pitch=1.2 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=crit count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8459183025602562029
+@0 particle - op=- type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#96785a size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2654256910292335300
+@0 hit - op=- at=0.000000,0.000000,0.000000 r=3.000000
+@0 damage 00000000-0000-0000-0000-00000000000a op=- physical=9.3333 skill=club-slam at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
+@0 sound - op=- sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589
+@0 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.662 y=0.33 z=0.8785
+@0 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=-0.662 y=0.33 z=0.8785

@@ -261,6 +261,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
             if (!seen.add(id)) ctx.abortWith(SkillDecodeError.DuplicateId(ctx.file, p, id))
             val anchor = m["anchor"] as? String ?: ctx.abortWith(SkillDecodeError.MissingField(ctx.file, p, "anchor"))
             if (anchor.isBlank() || anchor.startsWith('.') || anchor.endsWith('.')) ctx.mismatch("$p.anchor", "point reference (frame.point)", anchor)
+            com.astarworks.astera.core.application.skillengine.compose.AnchorNames.removedCasterPoint(anchor)?.let { ctx.mismatch("$p.anchor", "a live point", it) }
             val mount = m["mount"]?.let { it as? String ?: ctx.mismatch("$p.mount", "'caster' or an anchor id", it) }
             val mode = when (val raw = m["mode"]) {
                 null, "follow" -> AnchorMode.FOLLOW
