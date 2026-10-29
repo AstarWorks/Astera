@@ -63,7 +63,7 @@ internal object CelFunctions {
 
     private fun env(): ExprEnv = current.get() ?: throw ExprEvalException("expression evaluated outside CompiledExpr.eval")
 
-    private fun host(): ExprHost = env().host ?: throw ExprEvalException("this expression needs a cast (aim_point / blade_len)")
+    private fun host(): ExprHost = env().host ?: throw ExprEvalException("this expression needs a cast (aim_point / look)")
 
     private fun n(o: Any?): Double = (o as? Number)?.toDouble() ?: throw ExprEvalException("expected a number, got $o")
 
@@ -291,7 +291,6 @@ internal object CelFunctions {
             host().aimPoint(it[0] as ExprValue.Ref, n(it[1]))
         }
         def("look", "look_ref", VEC3, listOf(REF), listOf(R)) { host().lookDirection(it[0] as ExprValue.Ref) }
-        def("blade_len", "blade_len_ref", D, listOf(REF), listOf(R)) { host().bladeLen(it[0] as ExprValue.Ref) }
 
         // world queries about the caster's surroundings (cast required)
         def("nearest_enemy_dist", "nearest_enemy_dist_ref", D, listOf(REF), listOf(R)) { host().nearestEnemyDist(feet(it[0])) }
@@ -299,7 +298,6 @@ internal object CelFunctions {
             val ref = it[0] as ExprValue.Ref
             host().enemyInCone(feet(ref), axisOf(worldPose(ref), "forward"), n(it[1]), n(it[2]))
         }
-        def("hp_ratio", "hp_ratio_ref", D, listOf(REF), listOf(R)) { host().hpRatio(it[0] as ExprValue.Ref) }
         def("stacks", "stacks_ref_str", D, listOf(REF, SimpleType.STRING), listOf(R, STR)) { host().stacks(it[0] as ExprValue.Ref, it[1] as String) }
 
         // spatial tests (angles in degrees)

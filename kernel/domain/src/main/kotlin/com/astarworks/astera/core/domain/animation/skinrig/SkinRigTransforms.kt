@@ -149,6 +149,17 @@ public object SkinRigTransforms {
         )
     }
 
+    /**
+     * Where the named [point] is in this frame, in the rig frame (blocks, `PLAYER_SCALE` applied; +X is the player's left, +Z front):
+     * the point's offset from its bone's joint carried through the bone's full chain (root x spine x bone), the left-arm grip aim included.
+     */
+    public fun point(frame: RigFrame, slim: Boolean, point: RigPoint): Vec3 {
+        val bone = point.bone
+        val chain = parentXf(bone, frame, slim) * localXf(bone, frame, slim, boneRot(bone, frame, slim))
+        val w = chain.apply(vec(bone.rest(slim).pivot).add(vec(point.offset)))
+        return Vec3(w.x * PX * PLAYER_SCALE, w.y * PX * PLAYER_SCALE, w.z * PX * PLAYER_SCALE)
+    }
+
     /** Hip pivot (blocks) and root rotation of the whole rig: the `hips` landmark. */
     public fun hips(frame: RigFrame): ArmFrame {
         val rootRot = euler(frame.root.rotation)

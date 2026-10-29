@@ -37,7 +37,7 @@ class EffectOpScenarioTest : SkillEngineScenario() {
 
     @Test
     fun impulseFrameVecResolvesCasterAxes() {
-        val s = compile(skill("{op: impulse, at: 2, target: caster, vector: {of: me, forward: 1.5, up: 0.5}}", anchors = "{id: me, anchor: caster.hand_r}"))
+        val s = compile(skill("{op: impulse, at: 2, target: caster, vector: {of: me, forward: 1.5, up: 0.5}}", anchors = "{id: me, anchor: caster.eye}"))
         val v = effect(s, "impulse").payload.getValue("vector") as Val.Live<*>
         assertThat(v.name).startsWith("= ").contains("forward(").contains("up(").doesNotContain("left(")
         assertThat(fails(skill("{op: impulse, target: caster, vector: {of: nowhere, forward: 1}}"))).isTrue()
@@ -125,7 +125,7 @@ class EffectOpScenarioTest : SkillEngineScenario() {
 
     @Test
     fun hurtFacesAwayFromContact() {
-        val s = compile(skill("{id: src, op: frame, anchor: caster.hand_r, for: 10}", "{op: hurt, at: 0, target: event.victim, from: src}"))
+        val s = compile(skill("{id: src, op: frame, anchor: caster.eye, for: 10}", "{op: hurt, at: 0, target: event.victim, from: src}"))
         val p = effect(s, "hurt").payload
         assertThat(p.getValue("from")).isInstanceOf(Val.Known::class.java)
         assertThat(p.keys).containsExactlyInAnyOrder("target", "from")
@@ -167,7 +167,7 @@ class EffectOpScenarioTest : SkillEngineScenario() {
 
     @Test
     fun hurtResolvesItsFromInstanceAndCalls() {
-        val s = compile(skill("{id: src, op: frame, anchor: caster.hand_r, for: 10}", "{op: hurt, at: 2, target: caster, from: src}"))
+        val s = compile(skill("{id: src, op: frame, anchor: caster.eye, for: 10}", "{op: hurt, at: 2, target: caster, from: src}"))
         assertThat(effectCalls(s).map { it.tick to it.payload }).contains(2 to "hurt")
     }
 

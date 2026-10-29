@@ -359,7 +359,7 @@ class SkillPatchReloadScenarioTest {
         assertThat(forbidden(op("$cast.do[pack].do[dmg].amount", "replace", "50"))).startsWith("$cast.do[pack].do[dmg]")
         // params / anchors / a new state / state structure / use
         assertThat(forbidden(op("params.range", "replace", "20.0"))).startsWith("params")
-        assertThat(forbidden(op("anchors", "merge", "{hand: caster.hand_r}"))).startsWith("anchors")
+        assertThat(forbidden(op("anchors", "merge", "{hand: caster.eye}"))).startsWith("anchors")
         assertThat(forbidden(op("machine.states.extra", "merge", "{final: true}"))).startsWith("machine.states.extra")
         assertThat(forbidden(op("$cast.for", "replace", "9"))).startsWith("$cast.for")
         assertThat(forbidden(op("$cast.use", "replace", "flash"))).startsWith("$cast.use")

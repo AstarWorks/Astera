@@ -140,7 +140,7 @@ public object RigOpSpec : OpSpec<RigOp> {
             )
         }
 
-    private val BUILTIN_PARENTS = setOf("caster", "caster.body", "caster.eye", "caster.look", "caster.hand_r", "caster.hand_l", "world")
+    private val BUILTIN_PARENTS = setOf("caster", "caster.body", "caster.eye", "caster.look", "world")
 
     override fun lower(op: RigOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value

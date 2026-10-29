@@ -24,7 +24,7 @@ class CrossStateRefScenarioTest : SkillEngineScenario() {
               for: $aFor
               then: b
               do:
-                - {id: f, op: frame, anchor: caster.hand_r, ${span}}
+                - {id: f, op: frame, anchor: caster.eye, ${span}}
                 $aDo
             b:
               for: 20
@@ -73,8 +73,8 @@ class CrossStateRefScenarioTest : SkillEngineScenario() {
                   for: 40
                   then: e
                   do:
-                    - {id: f1, op: frame, anchor: caster.hand_r, for: 40}
-                    - {id: f2, op: frame, anchor: caster.hand_l, for: 40}
+                    - {id: f1, op: frame, anchor: caster.eye, for: 40}
+                    - {id: f2, op: frame, anchor: caster.body, for: 40}
                     - {id: r, op: ribbon, at: 0, from: f1, to: f2, thickness: 0.1, color: "#ffffff", until: e.end}
                 e:
                   for: 5
@@ -118,8 +118,8 @@ class CrossStateRefScenarioTest : SkillEngineScenario() {
                 s:
                   for: 20
                   do:
-                    - {id: f1, op: frame, anchor: caster.hand_r, for: 20}
-                    - {id: f2, op: frame, anchor: caster.hand_l, for: 20}
+                    - {id: f1, op: frame, anchor: caster.eye, for: 20}
+                    - {id: f2, op: frame, anchor: caster.body, for: 20}
                     - {id: r, op: ribbon, at: 2, from: f1, to: f2, thickness: 0.1, color: "#80ff5fa2", for: 6}
             """.trimIndent() + "\n"
         val calls = play(compile(y), 1L)
