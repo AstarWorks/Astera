@@ -834,13 +834,20 @@ public class TablePlayer(
 
     private fun key(run: Run, a: Action.Key, ctx: RowCtx, now: Int) {
         val rec = run.recs[a.display] ?: return
-        val translation = (a.translation as? Val.Live)?.takeIf { it.name.startsWith("follow:") }?.let { followOffset(run, rec, it.name, ctx, now) } ?: vec(run, a.translation, ctx)
+        fun stretchCell(v: Val<*>): String? = (v as? Val.Live)?.name?.takeIf { it.startsWith("stretch:") }
+        val stretch = (stretchCell(a.translation) ?: stretchCell(a.leftRotation) ?: stretchCell(a.scale))?.let { stretchOf(run, it, ctx) }
+        val translation = if (stretch != null && stretchCell(a.translation) != null) localPoint(run, rec, stretch.base, ctx, now)
+        else (a.translation as? Val.Live)?.takeIf { it.name.startsWith("follow:") }?.let { followOffset(run, rec, it.name, ctx, now) } ?: vec(run, a.translation, ctx)
         val rotCell = (a.leftRotation as? Val.Live)?.name
-        val rotation = if (rotCell != null && rotCell.startsWith("align:") && '@' in rotCell) blendedAlign(run, rec, rotCell, ctx, now) else {
+        val rotation = if (stretch != null && stretchCell(a.leftRotation) != null) {
+            rec.alignFrom = null
+            stretchRot(run, rec, stretch, ctx, now)
+        } else if (rotCell != null && rotCell.startsWith("align:") && '@' in rotCell) blendedAlign(run, rec, rotCell, ctx, now) else {
             rec.alignFrom = null
             quat(run, a.leftRotation, ctx, rec.anchor, rec.anchorName)
         }
-        val target = PoseV(translation, rotation, vec(run, a.scale, ctx))
+        val scale = if (stretch != null && stretchCell(a.scale) != null) stretch.scale() else vec(run, a.scale, ctx)
+        val target = PoseV(translation, rotation, scale)
         rec.moveTo(target, now, a.durationTicks)
         rec.real?.let { visual.write(it, visualPose(rec, worldOf(run, rec, target, ctx.binding, now)), a.durationTicks) }
     }
@@ -857,11 +864,51 @@ public class TablePlayer(
     }
 
     /** `follow:<anchor>` (law `follow`): the local translation, in the rider's parent space, that puts the rider on the followed anchor's world position. */
-    private fun followOffset(run: Run, rec: Rec, cell: String, ctx: RowCtx, now: Int): Vector3d {
-        val world = liveVec(run, cell.removePrefix("follow:"), ctx)
-        val parent = rec.anchor?.let { run.recs[it] ?: run.finished[it] }?.let { worldOf(run, it, it.localAt(now), ctx.binding, now) }
+    private fun followOffset(run: Run, rec: Rec, cell: String, ctx: RowCtx, now: Int): Vector3d =
+        localPoint(run, rec, liveVec(run, cell.removePrefix("follow:"), ctx), ctx, now)
+
+    /** The rider's parent pose: its anchor instance, else the named / document anchor, else the world. */
+    private fun parentPose(run: Run, rec: Rec, ctx: RowCtx, now: Int): PoseV =
+        rec.anchor?.let { run.recs[it] ?: run.finished[it] }?.let { worldOf(run, it, it.localAt(now), ctx.binding, now) }
             ?: if (rec.anchorName.isNotEmpty() && rec.anchorName != "world") PoseV(namedVec(run, rec.anchorName, ctx.binding, ctx.scope), namedRot(run, rec.anchorName, ctx.binding, ctx.scope), Vector3d(1.0, 1.0, 1.0)) else PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0))
+
+    /** The local translation, in the rider's parent space, of the world point [world]. */
+    private fun localPoint(run: Run, rec: Rec, world: Vector3d, ctx: RowCtx, now: Int): Vector3d {
+        val parent = parentPose(run, rec, ctx, now)
         return Vector3d(world).sub(parent.pos).rotate(Quaterniond(parent.rot).conjugate())
+    }
+
+    /** `stretch:<base>><tip>^<ax>,<ay>,<az>` (law `stretch`) read at one tick: both ends in world space and the object axis that spans them. */
+    private class Stretch(val base: Vector3d, val tip: Vector3d, val axis: Vec3) {
+        val length: Double get() = Vector3d(tip).sub(base).length()
+
+        /** [length] along [axis], 1 on the other axes (a display's unit length is one block). */
+        fun scale(): Vector3d = Vector3d(
+            1.0 + (length - 1.0) * Math.abs(axis.x), 1.0 + (length - 1.0) * Math.abs(axis.y), 1.0 + (length - 1.0) * Math.abs(axis.z),
+        )
+    }
+
+    /** Resolves both ends through [liveVec], so builtin anchors, skill-declared anchors and instance anchors answer the same on every host. */
+    private fun stretchOf(run: Run, cell: String, ctx: RowCtx): Stretch {
+        val body = cell.removePrefix("stretch:")
+        val ends = body.substringBeforeLast('^')
+        val a = body.substringAfterLast('^').split(',').map { it.toDouble() }
+        return Stretch(liveVec(run, ends.substringBefore('>'), ctx), liveVec(run, ends.substringAfter('>'), ctx), Vec3(a[0], a[1], a[2]))
+    }
+
+    /** The local rotation that points the object's axis from the base to the tip (up kept toward world up); a zero-length stretch keeps the held rotation. */
+    private fun stretchRot(run: Run, rec: Rec, st: Stretch, ctx: RowCtx, now: Int): Quaterniond {
+        val d = Vector3d(st.tip).sub(st.base)
+        if (d.length() < 1e-9) return Quaterniond(rec.localAt(now).rot)
+        val z = Vec3(0.0, 0.0, 1.0)
+        val a = st.axis.normalize()
+        val toZ = when {
+            a.dot(z) > 1.0 - 1e-12 -> Quaternion.IDENTITY
+            a.dot(z) < -1.0 + 1e-12 -> Quaternion.axisAngle(Vec3(0.0, 1.0, 0.0), Math.PI)
+            else -> Quaternion.axisAngle(a.cross(z), Math.acos(a.dot(z).coerceIn(-1.0, 1.0)))
+        }
+        val w = Basis.facing(Vec3(d.x, d.y, d.z), Vec3(0.0, 1.0, 0.0)) * toZ
+        return Quaterniond(parentPose(run, rec, ctx, now).rot).conjugate().mul(Quaterniond(w.x, w.y, w.z, w.w)).normalize()
     }
 
     private fun teleport(run: Run, a: Action.Teleport, ctx: RowCtx, now: Int) {

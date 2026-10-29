@@ -110,7 +110,7 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
     fun stretch() {
         val rows = lowerRows("- {law: stretch, base: hand, tip: target, for: 4, step: 2}")
         assertThat(rows.map { it.tick }).containsExactly(0, 2)
-        rows.forEach { assertThat(((it.action as Action.Key).scale as Val.Live).name).isEqualTo("stretch:hand>target") }
+        rows.forEach { assertThat(((it.action as Action.Key).scale as Val.Live).name).isEqualTo("stretch:hand>target^0.0,0.0,1.0") }
     }
 
     @Test
@@ -206,6 +206,61 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
             val r = MotionLaws.decodeLaws(Yaml().load<Any?>("- $law"), gctx, "motion")
             assertThat(r).isInstanceOf(Result.Failure::class.java)
         }
+    }
+
+    private fun replaySkill(top: String, motion: String) = when (
+        val r = loadInline(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: law-replay
+            item: couture-rapier
+            $top
+            machine:
+              start: s
+              states:
+                s:
+                  for: 8
+                  enter:
+                    - {id: d, op: display, kind: block, block: stone, anchor: caster, for: 8, motion: [$motion]}
+            """.trimIndent(),
+        )
+    ) {
+        is Result.Success -> r.value
+        is Result.Failure -> error("expected to load: ${r.error.message}")
+    }
+
+    private fun replay(top: String, motion: String): GatewayRecorder {
+        val rec = GatewayRecorder()
+        rec.faithfulPose = true
+        play(replaySkill(top, motion), seed = 1L, events = emptyList(), ticks = 8, rec = rec)
+        return rec
+    }
+
+    @Test
+    fun stretchReplaysBetweenBuiltinAnchors() {
+        // play() throws on a fault, so an unresolved stretch cell fails here; caster feet (0,0,0) -> eye (0,1.62,0), object axis forward
+        val rec = replay("", "{law: stretch, base: caster, tip: caster.eye, for: 4, step: 2}")
+        val sized = rec.writtenPoses.map { it.third.size }
+        assertThat(sized).isNotEmpty
+        assertThat(sized.maxOf { maxOf(it.x, it.y, it.z) }).isCloseTo(1.62, within(1e-3))
+    }
+
+    @Test
+    fun stretchReplaysBetweenSkillDeclaredAnchors() {
+        val rec = replay(
+            "anchors: [{id: foot, anchor: caster}, {id: head, anchor: caster.eye}]",
+            "{law: stretch, base: foot, tip: head, for: 4, step: 2}",
+        )
+        val sized = rec.writtenPoses.map { it.third.size }
+        assertThat(sized).isNotEmpty
+        assertThat(sized.maxOf { maxOf(it.x, it.y, it.z) }).isCloseTo(1.62, within(1e-3))
+    }
+
+    @Test
+    fun followReplaysOnASkillDeclaredAnchor() {
+        val rec = replay("anchors: [{id: head, anchor: caster.eye}]", "{law: follow, anchor: head, for: 6, step: 3}")
+        assertThat(rec.writtenPoses).isNotEmpty
     }
 
 }

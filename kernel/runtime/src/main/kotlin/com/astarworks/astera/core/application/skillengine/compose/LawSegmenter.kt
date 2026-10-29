@@ -231,7 +231,7 @@ public object LawSegmenter {
                         liveOpen = liveOpen || t < law.at + law.forTicks
                     }
                     is StretchMotion -> if (begun(t, law.at, left)) {
-                        val n = "stretch:${law.base}>${law.tip}"
+                        val n = "stretch:${law.base}>${law.tip}^${law.axis.x},${law.axis.y},${law.axis.z}"
                         liveOffset = n
                         liveRot = n
                         liveScale = n
