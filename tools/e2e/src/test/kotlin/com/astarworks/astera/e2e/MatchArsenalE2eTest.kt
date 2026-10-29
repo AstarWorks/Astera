@@ -188,10 +188,14 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             assertThat(arenaBlockIs(0, 65, 12, "minecraft:gold_ore")).describedAs("gold node was removed").isTrue()
             "bars=$bars"
         }
-        E2eReport.check(suite, "mining the iron node with a stone pickaxe gives 2 iron ore and turns it into cobblestone", "RCON clear + block") {
+        E2eReport.check(suite, "mining the iron node with a stone pickaxe gives 2 iron ore (after two hits) and turns it into cobblestone", "RCON clear + block") {
             selectTool(a, "stone_pickaxe")
             tpArena(a.name, 5.5, 65.0, 3.5, 0f, 0f)
             Thread.sleep(1_500)
+            // an ore node has HP (ore-iron-node base_durability 200; stone pickaxe hit 100): the first swing cracks it, the second mines it (b01e628be)
+            a.dig(5 + originX, 65, 5 + originZ)
+            Thread.sleep(1_500)
+            assertThat(arenaBlockIs(5, 65, 5, "minecraft:iron_ore")).describedAs("one stone-pickaxe hit already mined the 200-HP node").isTrue()
             a.dig(5 + originX, 65, 5 + originZ)
             val got = a.waitUntil(4_000) { count(a, "iron_ingot") > ironBefore }
             Thread.sleep(500)
@@ -217,6 +221,8 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             tpArena(a.name, 5.5, 65.0, 3.5, 0f, 0f)
             Thread.sleep(1_000)
             val before = count(a, "iron_ingot")
+            a.dig(5 + originX, 65, 5 + originZ)
+            Thread.sleep(1_500)
             a.dig(5 + originX, 65, 5 + originZ)
             val got = a.waitUntil(4_000) { count(a, "iron_ingot") > before }
             Thread.sleep(500)

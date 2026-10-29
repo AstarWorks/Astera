@@ -23,6 +23,7 @@ import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
 import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ParticlePlacement
 import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.model.Value
@@ -317,12 +318,23 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
 
             val anchor = lc.anchors.resolve(op.origin)?.instance
             val one = Val.Known(Vector3d(1.0, 1.0, 1.0))
+            // a document anchor (`anchors:` entry, e.g. `muzzle`) is not an instance: no live cell `anchor:muzzle.*` exists on Paper, so the spawn pose is
+            // lowered like a particle's (CEL position from its frame + declared offsets; rotation = that frame's rotation, the shot's aim)
+            var spawnPosition: Val<Vector3d> = Val.Live("anchor:${op.origin}.position", null)
+            var spawnRotation: Val<Quaterniond> = Val.Live("anchor:${op.origin}.rotation", null)
+            if (anchor == null && lc.anchors.document(op.origin) != null) {
+                val base = ParticlePlacement.base(lc, op.origin, "projectile").getOr { return Result.Failure(it) }
+                    ?: return bad("origin '${op.origin}' is a document anchor whose parent is not declared in this scope")
+                spawnPosition = ParticlePlacement.position(lc, op.origin, "projectile").getOr { return Result.Failure(it) }
+                val frameName = Regex("^point\\((.+), '(.+)'\\)$").matchEntire(base.frame)?.let { "${it.groupValues[1]}.${it.groupValues[2]}" } ?: base.frame
+                spawnRotation = Val.Live("anchor:$frameName", null)
+            }
             val rows = ArrayList<Row>()
             rows += Row(
                 0, body,
                 Action.Spawn(
                     SpawnKind.PROJECTILE_BODY, anchor, op.origin,
-                    Pose(Val.Live("anchor:${op.origin}.position", null), Val.Live<Quaterniond>("anchor:${op.origin}.rotation", null), one),
+                    Pose(spawnPosition, spawnRotation, one),
                     Look(look),
                 ),
                 src,

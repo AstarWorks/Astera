@@ -72,6 +72,17 @@ class ProjectileScenarioTest : SkillEngineScenario() {
     private val sibling = "\n" + " ".repeat(16) + "- "
 
     @Test
+    fun documentAnchorOriginLowersToResolvableCells() {
+        // `origin: muzzle` names an `anchors:` entry, not an instance: the spawn pose must be CEL / caster cells Paper can resolve, never `anchor:muzzle.*`
+        val s = compile("{$base, for: 40, hit: {targets: enemies, once: true}, block: {mode: despawn}}")
+        val spawn = s.rows().map { it.action }.filterIsInstance<Action.Spawn>().single { it.kind == com.astarworks.astera.core.domain.skillengine.table.SpawnKind.PROJECTILE_BODY }
+        val pos = spawn.pose.position as com.astarworks.astera.core.domain.skillengine.table.Val.Live
+        val rot = spawn.pose.rotation as com.astarworks.astera.core.domain.skillengine.table.Val.Live
+        assertTrue(pos.name.startsWith("= "), pos.name)
+        assertEquals("anchor:caster.eye", rot.name)
+    }
+
+    @Test
     fun rangeEnds() {
         val s = compile("{$base, speed: 1.0, range: 12, hit: {targets: enemies, once: true}, block: {mode: despawn}}")
         assertEquals(12, end(s).tick)
