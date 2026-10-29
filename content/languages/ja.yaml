@@ -2902,3 +2902,14 @@ astera:
   match.nav.annihilation.defend: "<green>自軍の柱を守れ!</green>"
   match.compass.name: "<gold>ナビコンパス</gold>"
   match.compass.lore: "<gray>持つと敵の柱の方角が表示される。</gray>"
+
+  # announce.* — cross-server moment announcements (ADR-0306)
+  announce.rare-drop.title: "&6&l激レア!"
+  announce.rare-drop.subtitle: "&f{name} が {item} を獲得"
+  announce.rare-drop.chat: "&6[激レア] &f{name} が {item} を獲得"
+  announce.server-boost.title: "&d&lサーバーブースト!"
+  announce.server-boost.subtitle: "&f{name} がブースト x{multiplier} ({minutes}分)"
+  announce.server-boost.chat: "&d[サーバーブースト] &f{name} がブースト x{multiplier} ({minutes}分)"
+  announce.invalid: "&c重複のない key=value 形式で指定してください。"
+  announce.sent: "&a通知を送信しました。"
+  announce.failed: "&c通知に失敗しました: {reason}"

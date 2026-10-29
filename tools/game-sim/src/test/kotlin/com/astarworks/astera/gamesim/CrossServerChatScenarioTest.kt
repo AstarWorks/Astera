@@ -4,7 +4,6 @@ import com.astarworks.astera.chat.application.ChatRelay
 import com.astarworks.astera.chat.application.chatCommands
 import com.astarworks.astera.chat.application.config.ChatConfig
 import com.astarworks.astera.chat.application.config.ChatFrame
-import com.astarworks.astera.chat.application.config.TitleFrame
 import com.astarworks.astera.chat.application.port.outbound.IKanjiConverter
 import com.astarworks.astera.core.application.service.InMemoryProxyMessenger
 import com.astarworks.astera.core.domain.proxy.ProxyMessage
@@ -17,7 +16,7 @@ import java.util.UUID
 /** Production content + relay/codec + two backend messengers, with recorded network hops. No Paper or external HTTP. */
 class CrossServerChatScenarioTest {
     @Test
-    fun `two backends convert once relay without echo bridge Discord once and route titles`() {
+    fun `two backends convert once relay without echo bridge Discord once`() {
         val shipped = ChatConfig.load(Path.of(System.getProperty("astera.sim.contentDir")).resolve("chat/chat.yaml"))
         val config = shipped.copy(japanize = shipped.japanize.copy(kanji = false))
         val lobbyName = ServerName("lobby")
@@ -27,13 +26,11 @@ class CrossServerChatScenarioTest {
         val lobbyLines = mutableListOf<Pair<String, ChatFrame>>()
         val gameLines = mutableListOf<Pair<String, ChatFrame>>()
         val discord = mutableListOf<ChatFrame>()
-        val lobbyTitles = mutableListOf<TitleFrame>()
-        val gameTitles = mutableListOf<TitleFrame>()
         val noHttp = IKanjiConverter { error("Kana-only configuration must not send text externally") }
         val lobby = ChatRelay(lobbyName, config, lobbyBus, noHttp,
-            { origin, frame -> lobbyLines += origin to frame }, { lobbyTitles += it }, { _, frame -> discord += frame })
+            { origin, frame -> lobbyLines += origin to frame }, { _, frame -> discord += frame })
         val game = ChatRelay(gameName, config, gameBus, noHttp,
-            { origin, frame -> gameLines += origin to frame }, { gameTitles += it })
+            { origin, frame -> gameLines += origin to frame })
         fun networkHop(from: InMemoryProxyMessenger, to: InMemoryProxyMessenger) {
             from.outboundRecorded().filter { it.targetServer == to.localServer }.forEach {
                 to.publishInbound(ProxyMessage(from.localServer, it.channel, it.payload))
@@ -85,7 +82,7 @@ class CrossServerChatScenarioTest {
             assertThat(lobbyLines.last().second.message).isEqualTo("&cX {name} <click:run_command:/op>")
             // Highest rank's flag wins, even if a lower matching rank permits decoration.
             val restricted = config.copy(ranks = config.ranks.map { if (it.id == "admin") it.copy(decoration = false) else it })
-            ChatRelay(gameName, restricted, gameBus, noHttp, { _, _ -> }, {}).use { relay ->
+            ChatRelay(gameName, restricted, gameBus, noHttp, { _, _ -> }).use { relay ->
                 assertThat(relay.rank(setOf("admin", "mod")).decoration).isFalse()
             }
             game.forget(player)
@@ -98,16 +95,7 @@ class CrossServerChatScenarioTest {
             assertThat(gameLines.last().second.discord).isTrue()
             assertThat(gameLines.last().second.message).isEqualTo("hello <click:run_command:/op>")
             assertThat(discord).hasSize(beforeDiscord)
-            game.title("lobby", "&#ffaa00&lHi&r", "Sub")
-            networkHop(gameBus, lobbyBus)
-            assertThat(lobbyTitles).hasSize(1)
-            assertThat(gameTitles).isEmpty()
-            assertThat(lobbyTitles.single().title).isEqualTo("&#ffaa00&lHi&r")
-            lobby.title("all", "Hello", "World")
-            networkHop(lobbyBus, gameBus)
-            assertThat(lobbyTitles).hasSize(2)
-            assertThat(gameTitles).hasSize(1)
-            assertThat(chatCommands(game).literals.map { it.name }).containsExactly("japanize", "title")
+            assertThat(chatCommands(game).literals.map { it.name }).containsExactly("japanize")
             lobby.close()
             game.send(player, "Alice", "bye", admin).toCompletableFuture().join()
             val count = lobbyLines.size

@@ -38,7 +38,9 @@ class PresentationCueCoverageScenarioTest {
             val sounds = sim.services.getOrThrow<ISoundRegistry>()
             for (moment in PresentationMoments.ALL) {
                 val entry = checkNotNull(table.entry(moment)) { "moment '$moment' has no row in content/presentation/events.yaml" }
-                assertThat(entry.cue ?: entry.audienceCue).`as`("moment '$moment' has a sound").isNotNull()
+                // Particle-only layers (star-burst-spark) are intentional table moments too.
+                assertThat(listOfNotNull(entry.cue, entry.audienceCue, entry.title, entry.subtitle, entry.chat, entry.actionBar, entry.particle))
+                    .`as`("moment '$moment' has a presentation").isNotEmpty()
                 listOfNotNull(entry.cue, entry.audienceCue).forEach {
                     assertThat(sounds.find(it)).`as`("cue $it of '$moment' is defined under content/sounds").isNotNull()
                 }

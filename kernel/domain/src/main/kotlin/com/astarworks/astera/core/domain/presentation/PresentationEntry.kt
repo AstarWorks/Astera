@@ -34,6 +34,7 @@ public data class PresentationEntry(
     public val audienceCue: SoundId? = null,
     public val title: MessageKey? = null,
     public val subtitle: MessageKey? = null,
+    public val chat: MessageKey? = null,
     /** Action bar message key; `{name}` placeholders are filled from the play args (e.g. `picked.{kind}`). */
     public val actionBar: String? = null,
     public val titleStayTicks: Int = 40,
@@ -51,6 +52,8 @@ public data class PresentationEntry(
 
 /** Ids of the game moments that must each have a row in `content/presentation/events.yaml`. */
 public object PresentationMoments {
+    public const val RARE_DROP: String = "rare-drop"
+    public const val SERVER_BOOST: String = "server-boost"
     public const val COUNTDOWN_TICK: String = "countdown-tick"
     public const val COUNTDOWN_GO: String = "countdown-go"
     public const val KILL: String = "kill"
@@ -110,7 +113,7 @@ public object PresentationMoments {
     public const val UI_DENY: String = "ui-deny"
 
     public val ALL: List<String> = listOf(
-        COUNTDOWN_TICK, COUNTDOWN_GO, KILL, DEATH, RESPAWN, HIT, CRIT, BLOCKED, SKILL_READY, EGO_READY,
+        RARE_DROP, SERVER_BOOST, COUNTDOWN_TICK, COUNTDOWN_GO, KILL, DEATH, RESPAWN, HIT, CRIT, BLOCKED, SKILL_READY, EGO_READY,
         STAR_POP, STAR_PICKUP, STAR_BURST, STAR_BURST_KILLER, STAR_BURST_GOLD, STAR_BURST_SPARK,
         NORMA_LEVEL_UP, NORMA_LEVEL_MAX,
         OBJECTIVE_PICKUP, OBJECTIVE_COLLECT, OBJECTIVE_ALERT, OBJECTIVE_DROP, OBJECTIVE_RETURN, OBJECTIVE_DELIVER,

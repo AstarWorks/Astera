@@ -1,10 +1,8 @@
 package com.astarworks.astera.chat.application
 
-import com.astarworks.astera.core.application.command.ArgumentType
 import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.command.forEveryone
-import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.permission.Permission
 
@@ -19,17 +17,5 @@ public fun chatCommands(relay: ChatRelay): CommandSpec.Literal = CommandSpec.Lit
                 CommandResult.Success
             }).forEveryone(Permission("astera.chat.japanize"))
         }),
-        CommandSpec.Literal(name = "title", subcommands = listOf(
-            CommandSpec.Argument("target", ArgumentType.StringArg()),
-            CommandSpec.Argument("text", ArgumentType.StringArg(ArgumentType.StringArg.Mode.Greedy)),
-        ), executor = action@ { ctx ->
-            val target = ctx.required<String>("target")
-            val parts = ctx.required<String>("text").split('|', limit = 2).map { it.trim() }
-            if (!target.matches(Regex("[a-z0-9][a-z0-9_-]*")) || parts[0].isBlank())
-                return@action CommandResult.Failure(MessageKey("astera.chat.title.invalid"))
-            relay.title(target, parts[0], parts.getOrElse(1) { "" })
-            ctx.reply(MessageKey("astera.chat.title.sent"), mapOf("target" to target))
-            CommandResult.Success
-        }).requirePermission(Permission("astera.chat.title")),
     ),
 )

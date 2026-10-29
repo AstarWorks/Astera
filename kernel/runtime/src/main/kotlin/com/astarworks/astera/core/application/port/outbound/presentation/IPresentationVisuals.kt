@@ -10,6 +10,8 @@ import com.astarworks.astera.core.domain.world.WorldId
 public interface IPresentationVisuals {
     public fun title(player: PlayerId, title: MessageKey?, subtitle: MessageKey?, args: Map<String, String>, stayTicks: Int)
 
+    public fun chat(player: PlayerId, key: MessageKey, args: Map<String, String>)
+
     public fun actionBar(player: PlayerId, key: MessageKey, args: Map<String, String>)
 
     /** Spawns [preset] for each of [viewers] only, centred on [at] (or above [anchor] when [at] is null). */

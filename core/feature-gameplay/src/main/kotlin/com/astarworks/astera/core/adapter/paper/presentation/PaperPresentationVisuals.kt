@@ -11,6 +11,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.presentation.ParticlePreset
 import com.astarworks.astera.core.domain.world.WorldId
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.title.Title
 import org.bukkit.Location
 import org.bukkit.Particle
@@ -25,6 +26,7 @@ public class PaperPresentationVisuals(
     private val actionBar: IActionBarChannel,
 ) : IPresentationVisuals {
 
+    private val legacy = LegacyComponentSerializer.builder().character('&').hexColors().build()
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun title(player: PlayerId, title: MessageKey?, subtitle: MessageKey?, args: Map<String, String>, stayTicks: Int) {
@@ -36,6 +38,10 @@ public class PaperPresentationVisuals(
                 Title.Times.times(Duration.ofMillis(200), Duration.ofMillis(stayTicks * 50L), Duration.ofMillis(500)),
             ),
         )
+    }
+
+    override fun chat(player: PlayerId, key: MessageKey, args: Map<String, String>) {
+        server.getPlayer(player.uuid)?.sendMessage(legacy.deserialize(renderer.render(player, key, args)))
     }
 
     override fun actionBar(player: PlayerId, key: MessageKey, args: Map<String, String>) {
@@ -58,5 +64,6 @@ public class PaperPresentationVisuals(
     }
 
     private fun render(player: PlayerId, key: MessageKey, args: Map<String, String>): Component =
-        AsteraTextDeserializer.deserialize(renderer.render(player, key, args))
+        if (key.value.startsWith("astera.announce.")) legacy.deserialize(renderer.render(player, key, args))
+        else AsteraTextDeserializer.deserialize(renderer.render(player, key, args))
 }

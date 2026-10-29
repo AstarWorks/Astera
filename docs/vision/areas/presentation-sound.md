@@ -10,6 +10,7 @@ Owner track `wp/presentation` (skill-level VFX/sound belongs to `skills-vfx`). I
 - `content/sounds/README.md`: weapons / skills / status / match / ui OGG, mono 44.1 kHz.
 
 ## 現状
+- Cross-server moments (ADR-0306): Core `IAnnouncer` relays the same presentation table over Redis ANNOUNCE to all or one backend, playing per online player with localized legacy-colour chat. `/astera announce` (operator default) replaces `/astera chat title`; `rare-drop` and `server-boost` reuse existing cues/presets. Successful LEGENDARY loot pickup (the existing PvE roll/item-entity path) calls `rare-drop`; no gacha/crate or booster feature exists.
 - `content/presentation/events.yaml` is the one moment table (ADR-0267 cue path): 34 moments (countdown, kill/death/respawn, hit/crit/blocked, star pop/pickup/burst, Norma level/choice, queue/found, sudden death, win/lose/draw, reward, purchase, quest, player level-up, UI click/confirm/deny) with cue, audience cue, title, action bar and particle presets. All cues are own synthesized OGGs (`tools/sound-gen`, ffmpeg only) under `content/sounds/`, 6 BGM tracks play through the Paper music gateway.
 - Death, respawn and player level-up are now visible as well as audible (soul / glint / spark presets; respawn action-bar line); `PresentationCueCoverageScenarioTest` covers them.
 - UI: click is central in the GUI intent router; confirm/deny are played only by the queue, shop and cosmetic handlers.

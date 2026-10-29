@@ -33,7 +33,14 @@ public class PresentationTable(
             }
             return runCatching {
                 val dto = Yaml.default.decodeFromString(PresentationYamlConfig.serializer(), path.readText())
-                PresentationTable(dto.entries(), dto.presets())
+                val presets = dto.presets()
+                val entries = dto.entries()
+                entries.forEach { entry ->
+                    require(entry.particle == null || presets.any { it.id == entry.particle }) {
+                        "moment '${entry.moment}': unknown particle '${entry.particle}'"
+                    }
+                }
+                PresentationTable(entries, presets)
             }.getOrElse {
                 log.warn("presentation table {} is invalid ({}); no moment has a presentation", path, it.message)
                 PresentationTable()

@@ -55,6 +55,3 @@ public data class ChatFrame(
     public val playerId: String = "",
     public val nameColor: String? = null,
 )
-
-@Serializable
-public data class TitleFrame(public val target: String, public val title: String, public val subtitle: String)
