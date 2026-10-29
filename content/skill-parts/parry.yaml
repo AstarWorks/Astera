@@ -1,0 +1,50 @@
+# Shared parry: a guard window in which a hurt from inside the guarded arc (and within reach) is absorbed (founder Q5 = A, ADR-0303 section 9).
+# Absorbed = the attacker's hit "did not land": no damage, no on.hit; the attacker's own skill runs its on.absorbed. A skill-engine hit, a projectile
+# and a vanilla melee / arrow all take this route. The caller decides what a parry buys (`<call>.parried`: event.attacker is bound; a hurt carries no contact, so the visuals ride the `weapon` frame).
+# The part has no damage reduction: "block 70 %" is another part, not a flag here.
+---
+apiVersion: astera/v3
+kind: Part
+id: parry
+params:
+  window:    {type: ticks,  required: true}   # how long the guard is up
+  arc:       {type: number, required: true}   # full degrees in front of the caster that are guarded
+  range:     {type: blocks, required: true}   # an attacker farther than this is not guarded (a shield part states a large value)
+  recover:   {type: ticks,  required: true}   # ticks after a parry before the part ends (the riposte opening); at least 4, the length of the spark flash
+  whiff_lag: {type: ticks,  required: true}   # ticks of recovery after a guard that caught nothing
+frames_in: {weapon: anchor}                   # the blade frame the visuals ride on
+emits: [parried, whiff, end]
+machine:
+  start: guard
+  states:
+    guard:
+      for: "${window}"
+      then: whiff
+      on:
+        - {event: hurt, when: "= in_arc(caster, pos(event.attacker), arc / 2, range)", absorb: true, to: parried}
+    parried:
+      for: "${recover}"
+      then: end
+      enter:
+        - {emit: parried}
+        - {id: clang, op: sound, sound: item.shield.block, anchor: weapon, volume: 1.0, pitch: 0.8}
+        - {id: spark, op: particle, particle: crit, anchor: weapon, count: 12, offset: [0.1, 0.1, 0.1], extra: 0.4}
+        - id: flash
+          op: display
+          kind: text
+          text: "✦"
+          color: "#FFF8ED"
+          see_through: true
+          anchor: weapon
+          billboard: center
+          scale: [0.5, 0.5, 1]
+          brightness: {block: 15, sky: 15}
+          for: 4
+          motion:
+            - {law: grow, per_tick: {left: 2.0, up: 2.0}, at: 0, for: 4, ease: out_cubic}
+            - {law: fade, at: 0, for: 4}
+    whiff:
+      for: "${whiff_lag}"
+      then: end
+      enter: [{emit: whiff}]
+    end: {final: true}
