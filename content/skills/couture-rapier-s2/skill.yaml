@@ -34,6 +34,7 @@ anchors:
   - {id: body_c, anchor: caster, offset: {up: 0.9}, mode: follow}
 machine:
   start: windup
+  tail: 2
   # v1 couture-s2-rig.yaml (0c9e986ef~1) spans windup+throw+..: body anim lastTick 63 (v1 rig t 0..62) is longer than windup (34), so it lives in the machine-wide world list.
   world:
     - {id: body_anim, op: body, target: caster, anim: couture-s2-body, speed: 1.0, for: 63}
@@ -61,12 +62,12 @@ machine:
           - {id: bleed, op: status, at: 0, target: event.victim, status: bleed, stacks: "= bleed_stacks", for: "= bleed_ticks"}
           - {id: push, op: impulse, at: 0, target: event.victim, vector: "= -contact.normal * 0.35 + vec(0, 0.12, 0)"}
           - {id: hitstop, op: freeze, at: 0, ticks: 2, scope: [caster, volley]}
-          - {id: stab_snd, op: sound, sound: couture.stab, anchor: contact, pitch: "= 1.2 - 0.2 * clamp(length(velocity(volley) - velocity(victim)) / 2.0, 0.0, 1.0)"}
+          - {id: stab_snd, op: sound, sound: couture.stab, anchor: contact, pitch: "= 1.2 - 0.2 * clamp(length(velocity(volley) - velocity(victim)) / 2.0, 0.0, 1.0)", detach: true}
           # GAP: v2 victim_anim stagger_back (strength = clamp(|rel_velocity| / 2, 0.3, 1.0)) has no victim body op (R41 covers the caster only)
-          - {id: sparks, op: particle, particle: "= spark_particle", anchor: contact, count: "= spark_count", offset: [0.4, 0.4, 0.4], extra: 0.4}
+          - {id: sparks, op: particle, particle: "= spark_particle", anchor: contact, count: "= spark_count", offset: [0.4, 0.4, 0.4], extra: 0.4, detach: true}
         block:
-          - {id: crumb, op: particle_def, def: couture-s2-p-crumb, anchor: contact}
-          - {id: wall_snd, op: sound, sound: couture.stab_wall, anchor: contact}
+          - {id: crumb, op: particle_def, def: couture-s2-p-crumb, anchor: contact, detach: true}
+          - {id: wall_snd, op: sound, sound: couture.stab_wall, anchor: contact, detach: true}
     # v1 tip-glint (couture-s2-*-flight): ticks 3..10 of the flight rig clock, i.e. from the release at 34: world-owned so they follow the flight whichever state it is in.
     - {id: tip_glint_a, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: -0.6, up: 0.12, forward: 0.05}}, at: 37, every: 1, times: 8}
     - {id: tip_glint_b, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: 0.6, up: -0.1, forward: 0.95}}, at: 37, every: 1, times: 8}
@@ -129,9 +130,9 @@ machine:
               # hit1 flash: four feather bars (0/45/90/135 deg) swell and fade over the victim, orange/crit sparks
               - {id: h1_frame, op: frame, anchor: victim, axes: caster, mode: snapshot, at: 0, for: 6}
               - {id: h1_feather, op: display, kind: sprite, sprite: couture-s2-feather, anchor: h1_frame, at: 0, for: 6, times: 4, offset: {up: 1.2}, rotate: [[{axis: forward, deg: 0}], [{axis: forward, deg: 45}], [{axis: forward, deg: 90}], [{axis: forward, deg: 135}]], size: [0.6528, 0.1024], billboard: center, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 1, scale: [8.66667, 13, 1], alpha: 0.7, ease: out_expo}, {t: 6, scale: [11.21569, 0.5, 1], alpha: 0, ease: in_quad}]}]}
-              - {id: h1_orange, op: particle_def, def: couture-s2-p-orange, anchor: h1_frame, every: 1, times: 3}
-              - {id: h1_spark, op: particle_def, def: couture-s2-p-spark, anchor: h1_frame, every: 3, times: 2}
-              - {id: h1_crit, op: particle_def, def: couture-s2-p-crit, anchor: h1_frame}
+              - {id: h1_orange, op: particle_def, def: couture-s2-p-orange, anchor: h1_frame, every: 1, times: 3, detach: true}
+              - {id: h1_spark, op: particle_def, def: couture-s2-p-spark, anchor: h1_frame, every: 3, times: 2, detach: true}
+              - {id: h1_crit, op: particle_def, def: couture-s2-p-crit, anchor: h1_frame, detach: true}
         # max_count: 1 = the nearest 1 target (v2 hit cap; founder 10/28 ruling, TablePlayer.kt:933-935 sorts nearest-first then takes N).
         - {id: snd_5, op: sound, sound: entity.player.attack.sweep, anchor: caster, at: 0, volume: 0.5, pitch: 0.6}
         - {id: snd_6, op: sound, sound: item.armor.equip_chain, anchor: caster, at: 0, volume: 0.6, pitch: 1.4}
@@ -356,8 +357,8 @@ machine:
             hit:
               # hit3: pink sparks, three feather flashes (0/60/120 deg), an X cut, falling petals and shard debris around the dash end point
               - {id: h3_frame, op: frame, anchor: caster, offset: {up: 0.9, forward: 1.3}, mode: snapshot, at: 0, for: 25}
-              - {id: h3_pink, op: particle_def, def: couture-s2-p-pink, anchor: h3_frame, every: 1, times: 4}
-              - {id: h3_spark, op: particle_def, def: couture-s2-p-spark, anchor: h3_frame, every: 3, times: 2}
+              - {id: h3_pink, op: particle_def, def: couture-s2-p-pink, anchor: h3_frame, every: 1, times: 4, detach: true}
+              - {id: h3_spark, op: particle_def, def: couture-s2-p-spark, anchor: h3_frame, every: 3, times: 2, detach: true}
               - {id: h3_feather, op: display, kind: sprite, sprite: couture-s2-feather, anchor: h3_frame, at: 0, for: 5, times: 3, offset: {up: 1.2}, rotate: [[{axis: forward, deg: 0}], [{axis: forward, deg: 60}], [{axis: forward, deg: 120}]], size: [0.816, 0.128], billboard: center, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 1, scale: [8, 12, 1], alpha: 0.8, ease: out_expo}, {t: 5, scale: [10, 0.5, 1], alpha: 0, ease: in_quad}]}]}
               - {id: h3_cut, op: display, kind: text, text: " ", background: "#FFFFFF", anchor: h3_frame, at: 1, for: 6, times: 2, offset: {up: 1.2}, rotate: [[{axis: forward, deg: 48}], [{axis: forward, deg: -48}]], scale: [0.06, 6, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, alpha: 0.9, scale: [0.06, 0.2, 1]}, {t: 1, alpha: 0.9, scale: [0.06, 6, 1], ease: out_expo}, {t: 6, alpha: 0, scale: [0, 6, 1], ease: in_quad}]}]}
               - id: h3_petal
@@ -390,11 +391,11 @@ machine:
                 motion:
                   - {law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 2, scale: [1, 1, 1], alpha: 1}, {t: 19, scale: [0.3, 0.3, 1], alpha: 0, ease: in_quad}]}
                   - {law: move, velocity: {up: -0.03}, at: 0, for: 19}
-              - {id: c3_snd_0, op: sound, sound: entity.player.attack.sweep, anchor: victim, volume: 1, pitch: 0.55}
-              - {id: c3_snd_1, op: sound, sound: entity.sheep.shear, anchor: victim, volume: 1, pitch: 0.7}
-              - {id: c3_snd_2, op: sound, sound: item.trident.riptide_1, anchor: victim, volume: 0.8, pitch: 1.5}
-              - {id: c3_snd_3, op: sound, sound: entity.player.attack.crit, anchor: victim, volume: 1, pitch: 0.6}
-              - {id: c3_snd_4, op: sound, sound: block.anvil.land, anchor: victim, volume: 0.5, pitch: 1.4}
+              - {id: c3_snd_0, op: sound, sound: entity.player.attack.sweep, anchor: victim, volume: 1, pitch: 0.55, detach: true}
+              - {id: c3_snd_1, op: sound, sound: entity.sheep.shear, anchor: victim, volume: 1, pitch: 0.7, detach: true}
+              - {id: c3_snd_2, op: sound, sound: item.trident.riptide_1, anchor: victim, volume: 0.8, pitch: 1.5, detach: true}
+              - {id: c3_snd_3, op: sound, sound: entity.player.attack.crit, anchor: victim, volume: 1, pitch: 0.6, detach: true}
+              - {id: c3_snd_4, op: sound, sound: block.anvil.land, anchor: victim, volume: 0.5, pitch: 1.4, detach: true}
       do:
         - {id: canim_2, op: body, target: caster, anim: couture-s2-body-b, speed: 1.0, at: 0, for: 35}
         - {id: snd_15, op: sound, sound: block.amethyst_block.resonate, anchor: caster, at: 3, volume: 0.6, pitch: 0.6}

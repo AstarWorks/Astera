@@ -221,7 +221,7 @@ public object RigOpSpec : OpSpec<RigOp> {
             // the rig is an anchor instance (ADR-0303 10.5): the part's model points ride in the table like a frame's (`rig.tip`, `rig.root`);
             // with `of` the driven frame already is the anchor and keeps its own points
             part.points.forEach { (name, p) -> payload["point.$name"] = CasterMotion.known(Vector3d(p.x, p.y, p.z)) }
-            (lc.anchors as? AnchorRegistry)?.declare(InstanceId(inst.path.dropLast(1) + InstanceId.Segment(op.id, null)), null, ExprClass.L)
+            (lc.anchors as? AnchorRegistry)?.declare(InstanceId(inst.path.dropLast(1) + InstanceId.Segment(op.id, null)), null, ExprClass.L, points = part.points.keys)
         }
         val rows = listOf(
             Row(0, inst, Action.Effect(op.id, payload, spawnsAnchor = true), lc.src),

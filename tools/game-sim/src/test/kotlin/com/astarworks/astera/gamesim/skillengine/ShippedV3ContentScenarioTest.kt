@@ -180,6 +180,8 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
                 castEnd = maxOf(castEnd, tick)
             }
             if (castEnd >= 0) out += "g @$castEnd cast-end | pose"
+            // the run outlives the cast by machine.tail ticks (detach: true visuals); not a gameplay line: the cast end above does not move
+            if (castEnd >= 0 && skill.table.bounds.tail > 0) out += "r @${castEnd + skill.table.bounds.tail} run-end tail=${skill.table.bounds.tail} | pose"
         }
         out += "## gameplay-static"
         out += OracleGameplay.lines(skill)

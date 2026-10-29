@@ -191,7 +191,7 @@ abstract class SkillEngineScenario {
             is Result.Success -> s.value
             is Result.Failure -> throw AssertionError("start failed: ${s.error}")
         }
-        val end = ticks ?: (skill.table.bounds.path.max + 2)
+        val end = ticks ?: (skill.table.bounds.path.max + skill.table.bounds.tail + 2)
         for (now in 0..end) {
             rec.tick = now
             events.filter { it.tick == now }.forEach { player.deliver(cast, it) }

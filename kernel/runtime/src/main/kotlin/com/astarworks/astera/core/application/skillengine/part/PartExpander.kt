@@ -26,7 +26,7 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
     public fun expand(machine: Machine): Result<Machine, PartError> = try {
         val out = Out()
         val entry = level(machine, "", "", 0, emptyList(), out).first
-        Result.success(Machine(entry, out.states, out.links, machine.world))
+        Result.success(Machine(entry, out.states, out.links, machine.world, machine.tail))
     } catch (e: PartAbort) {
         Result.failure(e.error)
     }

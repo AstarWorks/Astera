@@ -303,6 +303,7 @@ public object StaticChecks {
     // ---- check 8: bounded timing, nothing outlives its state ----
 
     private fun check8(g: TableGraph): SkillDecodeError? {
+        detachRules(g)?.let { return it }
         for (s in g.table.states) {
             val max = s.duration.max
             for (row in s.rows) overrun(g, s.state.value, row, 0, max)?.let { return it }
@@ -322,26 +323,87 @@ public object StaticChecks {
             if (sub.window.max > max) {
                 return SkillDecodeError.StateOverrun(owner.state.value, sub.event.value, sub.window.max, max, g.skillId)
             }
-            for (row in sub.rows) overrun(g, owner.state.value, row, sub.window.max, max, exitOwned = false)?.let { return it }
+            for (row in sub.rows) overrun(g, owner.state.value, row, sub.window.max, max)?.let { return it }
         }
         return null
     }
 
     /**
-     * [exitOwned]: the rows play at their own tick, so one at the exit tick is refused (ADR 10.1); false for event-handler rows, whose
-     * [base] is the latest tick the event can fire and so may legitimately equal the state's last tick (those keep `> max`).
+     * Rows play at their own tick, so one at the exit tick is refused (ADR 10.1); this holds for event-handler rows too ([base] is the latest
+     * tick the event can fire). A `detach: true` row is bounded by the run instead: `max + tail` (rev4.12).
      */
-    private fun overrun(g: TableGraph, state: String, row: Row, base: Int, max: Int, exitOwned: Boolean = true): SkillDecodeError? {
+    private fun overrun(g: TableGraph, state: String, row: Row, base: Int, max: Int): SkillDecodeError? {
         if (row.tick < 0) return SkillDecodeError.MachineCheck(8, "'${row.src.value}': negative tick ${row.tick}", g.skillId)
         val last = base + row.tick
+        if (row.detached) {
+            val tail = g.table.bounds.tail
+            return if (last > max + tail) SkillDecodeError.TailOverrun(row.instance.text.ifEmpty { row.src.value }, last, max + tail, tail, last - max, g.skillId) else null
+        }
         // ADR 10.1: a state owns the ticks [0, max); its exit is the first thing at lt == max, so a row there is never played.
-        // Exceptions: an instance's own end row (the exit would issue it anyway; a dash's driver stop is one), and a zero-length (final / instant) state, whose rows play on entry.
-        val atExit = if (!exitOwned || isEndRow(row) || max == 0) last > max else last >= max
+        // Exceptions: an instance's own end row (the exit would issue it anyway; a dash's driver stop is one), an `emit` (a call's `<id>.end` rides the callee's last tick; it is a signal, not a visual), and a zero-length (final / instant) state, whose rows play on entry, and a gameplay row of an event handler (damage / call / status at the hit tick is delivered with the event, which may fire on the state's last tick; only visuals are owned by the state and must be `detach: true`).
+        val atExit = if (isEndRow(row) || row.action is Action.Emit || max == 0 || (base > 0 && gameplayName(row) != null)) last > max else last >= max
         if (atExit) return SkillDecodeError.StateOverrun(state, row.instance.text, last, max, g.skillId)
         val a = row.action
         val end = (a as? Action.Lock)?.until as? LockEnd.AtTick
         if (end != null && base + end.tick > max) {
             return SkillDecodeError.StateOverrun(state, row.instance.text.ifEmpty { "lock" }, base + end.tick, max, g.skillId)
+        }
+        return null
+    }
+
+    /** The names of the effects that are presentation (they may be detached); everything else an [Action.Effect] carries is gameplay. */
+    private val PRESENTATION_EFFECTS = setOf("held_model", "body", "screen_flash", "screen_veil", "camera_shake", "stop_sound")
+
+    /** What a gameplay row is called in the `detach:` error, or null for a presentation row. */
+    private fun gameplayName(row: Row): String? = when (val a = row.action) {
+        is Action.Hit -> "hit"
+        is Action.Damage -> "damage"
+        is Action.Status -> "status"
+        is Action.World -> a.op.value
+        is Action.Lock -> "lock"
+        is Action.Emit -> "emit"
+        is Action.Cancel -> "cancel"
+        is Action.Call -> "call"
+        is Action.Spawn -> if (a.kind == SpawnKind.PROJECTILE_BODY) "projectile" else null
+        is Action.Effect -> {
+            val kind = (a.payload["kind"] as? Val.Known<*>)?.value as? String
+            when {
+                kind == "rig" -> null
+                kind != null -> kind
+                a.op.value in PRESENTATION_EFFECTS -> null
+                else -> a.op.value
+            }
+        }
+        else -> null
+    }
+
+    /** rev4.12: where `detach: true` and `machine.tail` must agree, and what may be detached. */
+    private fun detachRules(g: TableGraph): SkillDecodeError? {
+        val tail = g.table.bounds.tail
+        for (row in g.table.worldRows) if (row.detached) {
+            return SkillDecodeError.MachineCheck(8, "detach: world rows are already owned by the cast ('${row.src.value}')", g.skillId)
+        }
+        val detached = g.units.filter { it.name != WORLD_UNIT }.flatMap { u -> u.rows.filter { it.detached } }
+        for (row in detached) {
+            if (row.action is Action.Call || row.action is Action.Emit) continue // a `use: fragment:` call row and its `<call>.end` signal carry no instance; the fragment's own rows are checked one by one
+            val name = gameplayName(row) ?: continue
+            return SkillDecodeError.MachineCheck(8, "detach: '${row.src.value}' is gameplay ($name); only presentation rows may outlive their state (the schedule of effects is the state's)", g.skillId)
+        }
+        if (detached.isEmpty() && tail > 0) {
+            return SkillDecodeError.MachineCheck(8, "machine.tail: $tail but no row is detach: true; remove the tail or detach the rows that must outlive their state", g.skillId)
+        }
+        if (detached.isNotEmpty() && tail <= 0) {
+            return SkillDecodeError.MachineCheck(8, "'${detached.first().src.value}' is detach: true but machine.tail is missing or 0; write machine.tail: N (the run lingers N ticks after the cast ends)", g.skillId)
+        }
+        val detachedFrames = detached.filter { (it.action as? Action.Spawn)?.kind == SpawnKind.FRAME }.map { it.instance }.toSet()
+        if (detachedFrames.isNotEmpty()) {
+            for (u in g.units) for (row in u.rows) {
+                val a = row.action as? Action.Spawn ?: continue
+                val anchor = a.anchor ?: continue
+                if (!row.detached && anchor in detachedFrames) {
+                    return SkillDecodeError.MachineCheck(8, "rider '${row.instance.text}' of detached frame '${anchor.text}' must be detach: true (it would be ended by the state while its anchor lives)", g.skillId)
+                }
+            }
         }
         return null
     }
@@ -358,10 +420,16 @@ public object StaticChecks {
     private fun check10(g: TableGraph): SkillDecodeError? {
         var peak = g.table.bounds.liveDisplaysPeak
         var peakTick = g.table.bounds.liveDisplaysPeakTick
+        // rev4.12: detached displays outlive their state into the tail, so a state's peak also counts every detached display of the other units (worst case: all alive together)
+        fun detachedDisplays(rows: List<Row>) = rows.count { it.detached && (it.action as? Action.Spawn)?.kind in DISPLAY_KINDS }
+        val detachedAll = g.units.sumOf { detachedDisplays(it.rows) }
         for (s in g.table.states) {
             val (p, t) = g.displayPeak(s)
-            if (p > peak) { peak = p; peakTick = t }
+            val own = detachedDisplays(s.rows) + g.table.subTables.values.filter { it.owner == s.state }.sumOf { detachedDisplays(it.rows) }
+            val total = p + (detachedAll - own)
+            if (total > peak) { peak = total; peakTick = t }
         }
+        if (detachedAll > peak) { peak = detachedAll; peakTick = g.table.bounds.path.max }
         val cap = g.config.maxLiveDisplays
         return if (peak > cap) SkillDecodeError.LiveDisplayCap(peak, cap, peakTick, g.skillId) else null
     }
