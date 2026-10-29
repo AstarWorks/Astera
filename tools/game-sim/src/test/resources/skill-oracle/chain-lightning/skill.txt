@@ -30,7 +30,7 @@ g @0..1200 state-end then=- final=false | state=cast
 g @0 state-end then=- final=true | state=done
 g.absorbed @1..40 handler max=1 | sub=cast/bolt.absorbed
 g.block @1..40 handler max=1 | sub=cast/bolt.block
-g.end @0..1200 handler max=1 | sub=cast/bolt.end
+g.end @1..40 handler max=1 | sub=cast/bolt.end
 g.hit @1..40 handler max=1 | sub=cast/bolt.hit
 g.hit @0 damage electric=18.000000 to=enemies@4.500000 | sub=cast/bolt.hit
 g.hit @0 status shock stacks=1.000000 for=20 when | sub=cast/bolt.hit

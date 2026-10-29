@@ -73,7 +73,7 @@ public object HeldModelOpSpec : OpSpec<HeldModelOp> {
         // `until` is a mask (2.0), like a display's: the event's sub-table ends the clip the first time the event fires.
         val subTables = op.timing?.until?.let { ev ->
             val hi = lc.clockOffset + (end ?: lc.config.maxLifeTicks)
-            listOf(SubTable(EventPath(ev), lc.state, TickRange(lc.clockOffset, maxOf(lc.clockOffset, hi)), 1, listOf(Row(0, lc.self, Action.End(lc.self), lc.src)), emptyList()))
+            listOf(SubTable(EventPath(ev), lc.state, TickRange(lc.clockOffset, maxOf(lc.clockOffset, hi)), 1, listOf(Row(0, lc.self, Action.End(lc.self), lc.src)), emptyList(), mask = true))
         }.orEmpty()
         return Result.Success(Lowered(rows = rows, subTables = subTables, instances = listOf(lc.self)))
     }
