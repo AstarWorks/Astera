@@ -14,7 +14,7 @@ import kotlin.math.roundToInt
 
 /**
  * The vanilla display a skill mesh / plate / line spawns as (kind, text, billboard, brightness, shading). Pure, so the Paper
- * gateway and the vanilla-parity recorder (VanillaParityScenarioTest) build the very same spec.
+ * gateway and the game-sim recorder build the very same spec.
  */
 public object SkillDisplaySpecs {
     /** Lifetime handed to a skill display; the cast removes it explicitly. */
