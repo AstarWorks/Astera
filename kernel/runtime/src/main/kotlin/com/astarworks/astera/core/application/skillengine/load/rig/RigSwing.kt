@@ -47,14 +47,14 @@ public data class SwingStep(
 )
 
 /**
- * The blade in the rig frame (the same axes as `tip - root` and `edge` of `VisualOp.Rig`): [long] points root to tip, [edge] is
+ * The mounted part in the rig frame (the axes of its entry in `content/frames/<item>.yaml`): [long] points root to tip, [edge] is
  * the cutting-edge direction, perpendicular to [long] in the blade plane (`content/frames/<item>.yaml` `axes.long` / `axes.edge`).
  */
-public data class RigBlade(val long: Vec3, val edge: Vec3)
+public data class PartAxes(val long: Vec3, val edge: Vec3)
 
 /**
  * The v3 rig swing (SKL-20 E6, founder 2026-10-29): a swing is written as WHERE THE TIP GOES and which way the EDGE faces, never as
- * cw / ccw. [load] lowers it at load time to the existing absolute rotation-vector wrist keys of `VisualOp.Rig.swing`, one key per
+ * cw / ccw. [load] lowers it at load time to the existing absolute rotation-vector pose keys of `VisualOp.Rig.swing`, one key per
  * tick, so the runtime sampling (slerp between keys) needs no change and can never take the short way round: every step of the
  * lowered path is at most [MAX_STEP_DEG] degrees (a swing needing more per tick is a load error).
  *
@@ -165,21 +165,21 @@ public object RigSwings {
     /** Decode [raw] (the `swing:` list) and lower it. Load errors come back as values. */
     public fun load(
         raw: Any?,
-        blade: RigBlade,
+        axes: PartAxes,
         tilt: Vec3,
         rest: Vec3,
         ctx: GrammarContext,
         path: String,
-    ): Result<List<RigSwingKey>, SkillDecodeError> = Grammar.guard { lower(type.decode(raw, ctx, path), blade, tilt, rest, ctx, path) }
+    ): Result<List<RigSwingKey>, SkillDecodeError> = Grammar.guard { lower(type.decode(raw, ctx, path), axes, tilt, rest, ctx, path) }
 
     /**
-     * Lowers [steps] to absolute rotation-vector wrist keys for a rig with the given [tilt] / [rest] rotation vectors (the rig
-     * frame is `tilt * wrist * rest`, so `wrist = tilt^-1 * Q * rest^-1`). Aborts through [ctx] on a bad swing.
+     * Lowers [steps] to absolute rotation-vector pose keys for a rig with the given [tilt] / [rest] rotation vectors (the rig
+     * frame is `tilt * pose * rest`, so `pose = tilt^-1 * Q * rest^-1`). Aborts through [ctx] on a bad swing.
      */
-    public fun lower(steps: List<SwingStep>, blade: RigBlade, tilt: Vec3, rest: Vec3, ctx: GrammarContext, path: String): List<RigSwingKey> {
-        val long = blade.long.normalize()
-        val edgeRaw = blade.edge - long * blade.edge.dot(long)
-        if (long.lengthSquared() < EPS || edgeRaw.lengthSquared() < EPS) ctx.fail(path, "blade long / edge axes must be non-zero and not parallel")
+    public fun lower(steps: List<SwingStep>, axes: PartAxes, tilt: Vec3, rest: Vec3, ctx: GrammarContext, path: String): List<RigSwingKey> {
+        val long = axes.long.normalize()
+        val edgeRaw = axes.edge - long * axes.edge.dot(long)
+        if (long.lengthSquared() < EPS || edgeRaw.lengthSquared() < EPS) ctx.fail(path, "part long / edge axes must be non-zero and not parallel")
         val edgeAxis = edgeRaw.normalize()
         val tiltInv = Quaternion.fromRotationVector(tilt).conjugate()
         val restInv = Quaternion.fromRotationVector(rest).conjugate()
@@ -193,7 +193,7 @@ public object RigSwings {
             val start = s.at ?: (if (prevEndTick >= 0) prevEndTick else 0)
             if (start < prevEndTick) ctx.fail("$p.at", "step starts at $start but the previous step runs until $prevEndTick")
             if (s.reset) {
-                // R30: the rest pose is wrist = identity (rig frame = tilt * wrist * rest); a cut, never a sweep, so MAX_STEP_DEG does not apply.
+                // R30: the rest pose is pose = identity (rig frame = tilt * pose * rest); a cut, never a sweep, so MAX_STEP_DEG does not apply.
                 keys += RigSwingKey(start, Vec3(0.0, 0.0, 0.0), if (keys.isEmpty()) "linear" else "step")
                 prevEndTick = start
                 prevEndQ = null

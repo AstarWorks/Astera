@@ -14,6 +14,5 @@ public data class TrailEdge(val block: String, val width: Double)
 /** Dark rim outside the tip of a a trail: `#rrggbb` at [alpha], [width] blocks wide. */
 public data class TrailRim(val color: String, val alpha: Double, val width: Double)
 
-/** One wrist key of a a rig: absolute rotation-vector [rotate] (null keeps the previous), [ease] of the segment ENDING here (`step` = cut). */
-public data class RigSwingKey(val tick: Int, val rotate: Vec3?, val ease: String?, val sample: Boolean = false)
-// [sample]: a pre-eased sample between two real keys; it is not a chunk boundary of the rig clock
+/** One pose key of a rig: absolute rotation-vector [rotate] (null keeps the previous), [ease] of the segment ENDING here (`step` = cut). */
+public data class RigSwingKey(val tick: Int, val rotate: Vec3?, val ease: String?)

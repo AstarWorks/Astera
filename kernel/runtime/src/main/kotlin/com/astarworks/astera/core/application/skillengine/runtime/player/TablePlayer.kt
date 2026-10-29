@@ -1339,38 +1339,36 @@ public class TablePlayer(
         val track = clip?.let { RigBodyTrack(it, slim) }
         @Suppress("UNCHECKED_CAST")
         val swing = (any(run, cell("swing"), ctx) as List<Map<String, Any>>).map { m ->
-            RigWristKey((m["t"] as Number).toInt(), (m["rotate"] as? Vector3d)?.let { Vec3(it.x, it.y, it.z) }, m["ease"]?.toString() ?: "linear", m["sample"] as? Boolean ?: false)
+            RigPoseKey((m["t"] as Number).toInt(), (m["rotate"] as? Vector3d)?.let { Vec3(it.x, it.y, it.z) }, m["ease"]?.toString() ?: "linear")
         }
         val freezes = (any(run, cell("freezes"), ctx) as List<*>).map { f ->
             val m = f as Map<*, *>
             RigFreezeWindow((m["at"] as Number).toInt(), (m["ticks"] as Number).toInt())
         }
         fun v3(k: String): Vec3 = (any(run, cell(k), ctx) as Vector3d).let { Vec3(it.x, it.y, it.z) }
-        val hand = bool(run, cell("hand"), ctx)
-        val sampleTicks = (any(run, cell("sample_ticks"), ctx) as Number).toInt()
+        val mounted = p["mount"] != null
         val respect = bool(run, cell("respect_hit_stop"), ctx)
         val bodyRespect = bool(run, cell("body_respect_hit_stop"), ctx)
-        fun motion(hitStop: Boolean) = RigMotion(swing, v3("tilt"), v3("rest"), v3("pivot"), hand, sampleTicks, freezes, hitStop, track, slim)
-        val wrist = motion(respect)
-        val bodyClock = if (bodyRespect && !respect) motion(true) else wrist
+        fun motion(hitStop: Boolean) = RigMotion(swing, v3("tilt"), v3("rest"), v3("pivot"), mounted, freezes, hitStop, track, slim)
+        val pose = motion(respect)
+        val bodyClock = if (bodyRespect && !respect) motion(true) else pose
         if (anim != null) gameplay.playBodyClip(castRef(run), caster, anim, 1.0)
+        // the rig is an anchor instance (ADR-0303 10.5): its rec lives at the rig's own id, carries the part's model points
+        // (`rig.tip`, `rig.root`, ...) and holds the driver; with `of` the rec is only the carrier and the driven frame owns the pose.
+        val carrier = row.instance
+        if (run.recs[carrier] != null) endInstance(run, carrier)
+        val identity = PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0))
+        val parentRec = if (of == null) run.recs[parent] else null
+        val carrierRec = Rec(SpawnKind.FRAME, parentRec?.let { parent }, if (of != null || parentRec != null) "" else parent.text, now, ctx.owner, identity)
+        run.recs[carrier] = carrierRec
         var held: Rec? = null
-        val driven: InstanceId
-        if (of != null) {
-            driven = of
-        } else {
-            // no `of`: the rig is its own frame and the caster's held item rides it (R27). The frame is carried by the arm: its origin is the
-            // grip and its rotation arm * tilt * wrist * rest, and the held mesh sits on it unrotated, so the drawn blade (the part's `long`
-            // axis, display thirdperson_righthand) and the frame points (tip / root / edge) turn together, as the v1 weapon did.
-            driven = row.instance
-            if (run.recs[driven] != null) endInstance(run, driven)
-            val parentRec = run.recs[parent]
-            val identity = PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0))
-            run.recs[driven] = Rec(SpawnKind.FRAME, parentRec?.let { parent }, if (parentRec == null) parent.text else "", now, ctx.owner, identity)
-            run.cursor.instances[driven] = GatewayHandle(nextSynthetic--)
-            val heldId = InstanceId(driven.path + InstanceId.Segment(OpId("held"), null))
+        if (of == null) {
+            // no `of`: the rig frame is carried by the arm: its origin is the grip and its rotation arm * tilt * pose * rest, and the held mesh
+            // sits on it unrotated, so the drawn part (its `long` axis, display thirdperson_righthand) and the points turn together.
+            run.cursor.instances[carrier] = GatewayHandle(nextSynthetic--)
+            val heldId = InstanceId(carrier.path + InstanceId.Segment(OpId("held"), null))
             val local = PoseV(Vector3d(), Quaterniond(), Vector3d(SkinRigTransforms.PLAYER_SCALE))
-            val rec = Rec(SpawnKind.ITEM, driven, "", now, ctx.owner, local)
+            val rec = Rec(SpawnKind.ITEM, carrier, "", now, ctx.owner, local)
             val h = visual.spawnMesh(
                 castRef(run), MeshModels.MAIN_HAND, null, visualPose(rec, worldOf(run, rec, local, ctx.binding, now)), null, MeshLook(rigShading = true),
             )
@@ -1379,20 +1377,19 @@ public class TablePlayer(
             run.cursor.instances[heldId] = GatewayHandle(h.id)
             held = rec
         }
-        val frameRec = run.recs.getValue(driven)
-        for (k in listOf("tip", "root", "edge")) p[k]?.let { frameRec.points[k] = any(run, it, ctx) as Vector3d }
-        val rig = RigRec(driven, now, wrist, bodyClock, anim, caster, held)
-        run.rigs[row.instance] = rig
+        for ((key, v) in p) if (key.startsWith("point.")) carrierRec.points[key.removePrefix("point.")] = any(run, v, ctx) as Vector3d
+        val rig = RigRec(of ?: carrier, now, pose, bodyClock, anim, caster, held)
+        carrierRec.rig = rig
         rigPose(run, rig, now)
     }
 
     private fun rigPose(run: Run, rig: RigRec, now: Int) {
         val rec = run.recs[rig.driven] ?: return
         val elapsed = now - rig.start
-        val s = rig.wrist.clock(elapsed)
+        val s = rig.pose.clock(elapsed)
         val bodyS = rig.bodyClock.clock(elapsed)
-        val origin = rig.wrist.originAt(bodyS)
-        val q = rig.wrist.frameRotationAt(s, bodyS)
+        val origin = rig.pose.originAt(bodyS)
+        val q = rig.pose.frameRotationAt(s, bodyS)
         val cur = rec.localAt(now)
         val target = PoseV(Vector3d(origin.x, origin.y, origin.z), Quaterniond(q.x, q.y, q.z, q.w), Vector3d(cur.scale))
         rec.moveTo(target, now, 0)
@@ -1412,7 +1409,7 @@ public class TablePlayer(
             veil.handles.forEach { visual.updateScreenVeil(it, age) }
         }
         for ((id, reel) in run.reels.entries.toList()) reelStep(run, id, reel, now)
-        for (rig in run.rigs.values.toList()) rigPose(run, rig, now)
+        for (rec in run.recs.values.toList()) rec.rig?.let { rigPose(run, it, now) }
     }
 
     private fun lineEnds(run: Run, line: LineRec, ctx: RowCtx): Pair<Vec3, Vec3> {
@@ -1452,21 +1449,20 @@ public class TablePlayer(
     }
 
     private fun hasDriver(run: Run, id: InstanceId): Boolean =
-        id in run.reels || id in run.rigs || run.dash.isActive(id.text) || run.reel.isActive(id.text)
+        id in run.reels || run.recs[id]?.rig != null || run.dash.isActive(id.text) || run.reel.isActive(id.text)
 
     private fun endDrivers(run: Run, id: InstanceId) {
         run.dash.end(id.text)
         run.reel.stop(id.text)
         run.reels.remove(id)
-        run.rigs.remove(id)?.let { rigStop(run, it) }
+        run.recs[id]?.let { rec -> rec.rig?.let { rigStop(run, it) }; rec.rig = null }
     }
 
     private fun stopDrivers(run: Run) {
         run.dash.cancelAll()
         run.reel.stopAll()
         run.reels.clear()
-        run.rigs.values.toList().forEach { rigStop(run, it) }
-        run.rigs.clear()
+        for (rec in run.recs.values) rec.rig?.let { rigStop(run, it); rec.rig = null }
     }
 
     // ------------------------------------------------------------------ Val.Live resolution (C4c)
@@ -1873,7 +1869,7 @@ public class TablePlayer(
 
     private class ReelRec(val frame: InstanceId, val to: InstanceId)
 
-    private class RigRec(val driven: InstanceId, val start: Int, val wrist: RigMotion, val bodyClock: RigMotion, val anim: String?, val caster: UUID, val held: Rec?)
+    private class RigRec(val driven: InstanceId, val start: Int, val pose: RigMotion, val bodyClock: RigMotion, val anim: String?, val caster: UUID, val held: Rec?)
 
     private class ShapeFrame(val frame: String, val from: String, val to: String)
 
@@ -1889,6 +1885,8 @@ public class TablePlayer(
         var to: PoseV,
     ) {
         var real: VisualHandle? = null
+        /** A `rig` anchor instance: the driver that poses [RigRec.driven] each tick (this rec itself when the rig has no `of`). */
+        var rig: RigRec? = null
         var flight: Flight? = null
         /** R16: the tick the flight ends by range / `for` (-1 none), the body events that end it early, and whether one did. */
         var expireTick: Int = -1
@@ -1969,7 +1967,6 @@ public class TablePlayer(
     ) {
         val reel = ReelDriver()
         val reels = LinkedHashMap<InstanceId, ReelRec>()
-        val rigs = LinkedHashMap<InstanceId, RigRec>()
         val recs = LinkedHashMap<InstanceId, Rec>()
 
         /** The names an expression of this skill may use for its own anchors and instances: the compiler's declaration, rebuilt from the compiled definition. */
