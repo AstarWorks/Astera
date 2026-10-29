@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.skillengine.runtime.player
 
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.hit.ResolvedVolume
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.ExitReason
@@ -21,6 +23,9 @@ public interface CastTrace {
 
     /** The resolved volume [op] is about to run its broad phase with (a hit op, or a projectile body sweeping). */
     public fun hitVolume(cast: CastHandle, op: InstanceId, volume: ResolvedVolume, tick: Int) {}
+
+    /** A live `frame` instance's world pose at the end of [tick] (frames are internal to the player, so the oracle sees them only here). */
+    public fun frame(cast: CastHandle, op: InstanceId, tick: Int, position: Vec3, rotation: Quaternion) {}
 
     public companion object {
         public val NONE: CastTrace = object : CastTrace {

@@ -15,7 +15,7 @@ public sealed interface Action {
     public data class Particle(val type: String, val count: Val<Int>, val offset: Vec, val extra: Num, val data: ParticleData?, val position: Vec, val sweep: Double?) : Action
 
     /** A custom particle definition (`op: particle_def, def: <id>`), played with the same timing block as a vanilla particle. */
-    public data class ParticleDef(val def: String, val position: Vec) : Action
+    public data class ParticleDef(val def: String, val position: Vec, val count: Val<Int>? = null) : Action
     public data class Sound(val sound: String, val volume: Num, val pitch: Num, val position: Vec, val category: String) : Action
 
     /** One per-tick write of a non-transform field ([field] e.g. `text_opacity`, `count`, `volume`) of the row's instance (`fade`, 3.4). */

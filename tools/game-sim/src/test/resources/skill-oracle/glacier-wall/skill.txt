@@ -1,6 +1,6 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=cast/snd sound=astera:skills/frost-cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx type=frost-cast at=0.000000,0.200000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3613720893791086920
+@0 particle - op=cast/fx type=frost-cast at=0.000000,0.200000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-259008262026026705
 ## pose yaw=37 pitch=-20
 @0 sound - op=cast/snd sound=astera:skills/frost-cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx type=frost-cast at=-1.203630,0.200000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3613720893791086920
+@0 particle - op=cast/fx type=frost-cast at=-1.203630,0.200000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-259008262026026705

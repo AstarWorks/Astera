@@ -4,9 +4,6 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.animation.skinrig.BodySkeleton
 import com.astarworks.astera.core.domain.animation.skinrig.RigPoint
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone
-import org.yaml.snakeyaml.LoaderOptions
-import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.constructor.SafeConstructor
 import org.yaml.snakeyaml.error.YAMLException
 import java.nio.file.Files
 import java.nio.file.Path
@@ -33,8 +30,7 @@ public object BodyFramesDecoder {
 
     public fun parse(text: String, source: String): Result<BodySkeleton, SkillDecodeError> {
         val raw = try {
-            val opts = LoaderOptions().apply { isAllowDuplicateKeys = false }
-            Yaml(SafeConstructor(opts)).load<Any?>(text)
+            StrictYaml.newYaml().load<Any?>(text)
         } catch (e: YAMLException) {
             return Result.failure(SkillDecodeError.Invalid(source, "", e.message?.lineSequence()?.firstOrNull() ?: "invalid YAML"))
         }

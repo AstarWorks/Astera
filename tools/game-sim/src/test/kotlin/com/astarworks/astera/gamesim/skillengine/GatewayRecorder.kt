@@ -90,6 +90,8 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     override fun exit(cast: CastHandle, state: StatePath, reason: ExitReason, tick: Int) { traceLog += "exit:${state.value}:${reason.name}@$tick" }
     override fun event(cast: CastHandle, path: EventPath, tick: Int, index: Int?) { traceLog += "event:${path.value}@$tick" }
     override fun call(cast: CastHandle, callId: InstanceId, tick: Int) { traceLog += "call:${callId.text}@$tick" }
+    override fun frame(cast: CastHandle, op: InstanceId, tick: Int, position: Vec3, rotation: com.astarworks.astera.core.domain.geometry.math.Quaternion) =
+        oracleOnly("frame", op.text, "pos=${OracleFmt.v(position)} rot=${OracleFmt.q(rotation)}", op.text)
 
     /** The op instance whose row is playing; particle, sound and area-query rows are attributed to it. */
     private var rowOp: String? = null

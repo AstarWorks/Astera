@@ -1,6 +1,6 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.9 pitch=1.4 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/puff type=verdant-cast at=0.000000,-0.200000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-887453582306294037
+@0 particle - op=fly/puff type=verdant-cast at=0.000000,-0.200000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=133760482448849446
 @0 particle - op=fly/trail[0] type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6823945568864734391
 @0 particle - op=fly/trail_2[0] type=composter count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7718038791179150864
 @0 particle - op=fly/trail_3[0] type=dust count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1589769329064082501
@@ -12,7 +12,7 @@
 @1 hit - op=fly/bolt at=0.000000,1.620000,2.900000 r=0.500000 shape=capsule a=0.000000,1.620000,2.900000 b=0.000000,1.620000,2.900000 rad=0.500000
 ## pose yaw=37 pitch=-20
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.9 pitch=1.4 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/puff type=verdant-cast at=-0.601815,-0.200000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-887453582306294037
+@0 particle - op=fly/puff type=verdant-cast at=-0.601815,-0.200000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=133760482448849446
 @0 particle - op=fly/trail[0] type=happy_villager count=1 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6823945568864734391
 @0 particle - op=fly/trail_2[0] type=composter count=2 at=-0.282761,1.791010,0.375236 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7718038791179150864
 @0 particle - op=fly/trail_3[0] type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1589769329064082501

@@ -190,7 +190,7 @@ machine:
                 times: 3
                 offset: {up: 1.05}
                 rotate: [[{axis: left, deg: -45}], [{axis: left, deg: 45}], [{axis: left, deg: 0}]]
-                scale: [0.05, 3.3, 0.06]
+                scale: {left: 0.05, up: 3.3, forward: 0.06}
                 brightness: {block: 15, sky: 15}
                 motion:
                   - {law: grow, per_tick: {left: -0.005, forward: -0.006667}, at: 0, for: 3}
@@ -424,7 +424,7 @@ machine:
                 times: 3
                 offset: {up: 1.05}
                 rotate: [[{axis: left, deg: -45}], [{axis: left, deg: 45}], [{axis: left, deg: 0}]]
-                scale: [0.05, 3.3, 0.06]
+                scale: {left: 0.05, up: 3.3, forward: 0.06}
                 brightness: {block: 15, sky: 15}
                 motion:
                   - {law: grow, per_tick: {left: -0.005, forward: -0.006667}, at: 0, for: 3}

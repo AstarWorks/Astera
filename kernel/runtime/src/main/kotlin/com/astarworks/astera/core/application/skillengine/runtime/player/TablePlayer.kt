@@ -222,9 +222,20 @@ public class TablePlayer(
         projectileStep(run, now)
         // 3 + 4. events in 10.2 order, timers, same-tick cascade
         runWaves(run, now, withTimers = true)
-        // 5. cleanup
+        // 5. observers see every live frame at its settled pose, then cleanup
+        traceFrames(run, now)
+        // cleanup
         run.inTick = false
         cleanup(run, now)
+    }
+
+    /** [CastTrace.frame] for every live authored `frame` (not a body clip or a projectile body) at its world pose this tick. */
+    private fun traceFrames(run: Run, now: Int) {
+        for ((id, rec) in run.recs) {
+            if (rec.kind != SpawnKind.FRAME || rec.body != null) continue
+            val w = worldOf(run, rec, rec.localAt(now), null, now)
+            trace.frame(run.cursor.handle, id, now, Vec3(w.pos.x, w.pos.y, w.pos.z), Quaternion(w.rot.x, w.rot.y, w.rot.z, w.rot.w))
+        }
     }
 
     private fun advanceWorld(run: Run, now: Int) {
@@ -862,7 +873,7 @@ public class TablePlayer(
         particles.emit(
             castRef(run),
             ParticleBurst(
-                particle = a.def, at = Vec3(pos.x, pos.y, pos.z), count = run.fields[row.instance]?.get("count")?.toInt(), offset = Vec3.ZERO,
+                particle = a.def, at = Vec3(pos.x, pos.y, pos.z), count = run.fields[row.instance]?.get("count")?.toInt() ?: a.count?.let { int(run, it, ctx) }, offset = Vec3.ZERO,
                 speed = 0.0, colorHex = null, dataSize = null, dir = null, spreadDeg = 0.0, inheritVelocity = null,
                 look = Frame.fromYawPitch(Vec3.ZERO, req.casterYawDeg, req.casterPitchDeg).forward(),
                 seed = rowStream(run, row, ctx).nextLong(),

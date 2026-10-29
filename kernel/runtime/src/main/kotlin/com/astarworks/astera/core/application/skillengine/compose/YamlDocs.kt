@@ -1,17 +1,11 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
+import com.astarworks.astera.core.application.skillengine.load.StrictYaml
 import com.astarworks.astera.core.application.skillengine.part.PatchApplier
 import com.astarworks.astera.core.application.skillengine.part.PatchKind
 import com.astarworks.astera.core.application.skillengine.part.PatchOp
 import com.astarworks.astera.core.domain.Result
-import org.yaml.snakeyaml.DumperOptions
-import org.yaml.snakeyaml.LoaderOptions
-import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.constructor.SafeConstructor
 import org.yaml.snakeyaml.error.YAMLException
-import org.yaml.snakeyaml.nodes.Tag
-import org.yaml.snakeyaml.representer.Representer
-import org.yaml.snakeyaml.resolver.Resolver
 
 internal const val API_VERSION = "astera/v3"
 
@@ -48,27 +42,6 @@ internal data class Doc(
 internal object YamlDocs {
     private val v3Marker = Regex("""(?m)^apiVersion:\s*["']?astera/v3""")
 
-    private class StrictResolver : Resolver() {
-        override fun addImplicitResolvers() {
-            addImplicitResolver(Tag.BOOL, Regex("^(?:true|false)$").toPattern(), "tf")
-            addImplicitResolver(Tag.INT, INT, "-+0123456789")
-            addImplicitResolver(Tag.FLOAT, FLOAT, "-+0123456789.")
-            addImplicitResolver(Tag.MERGE, MERGE, "<")
-            addImplicitResolver(Tag.NULL, NULL, "~nN\u0000")
-            addImplicitResolver(Tag.NULL, EMPTY, null)
-        }
-    }
-
-    private fun newYaml(): Yaml {
-        val opts = LoaderOptions().apply {
-            isAllowDuplicateKeys = false
-            setAllowRecursiveKeys(false)
-            maxAliasesForCollections = 200
-        }
-        val dumper = DumperOptions()
-        return Yaml(SafeConstructor(opts), Representer(dumper), dumper, opts, StrictResolver())
-    }
-
     @Suppress("UNCHECKED_CAST")
     fun parse(file: String, group: String, text: String): Pair<List<Doc>, List<ComposeError>> {
         if (text.isBlank()) return emptyList<Doc>() to emptyList()
@@ -76,7 +49,7 @@ internal object YamlDocs {
             return emptyList<Doc>() to listOf(ComposeError.InvalidDocument(file, "apiVersion", "no 'apiVersion: astera/v3' document in this file (a skill file that is not v3 is an error, never skipped)"))
         }
         val raw = try {
-            newYaml().loadAll(text).toList()
+            StrictYaml.newYaml().loadAll(text).toList()
         } catch (e: YAMLException) {
             val first = (e.message?.lineSequence()?.firstOrNull() ?: "invalid YAML").let {
                 if (it.contains("undefined alias") || it.contains("undefined anchor")) {

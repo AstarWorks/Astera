@@ -2,9 +2,9 @@
 @0 sound - op=bore/snd_bore sound=block.stone.break cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
 @0 sound - op=bore/snd_bore_2 sound=item.trident.hit_ground cat=master vol=0.8 pitch=1 at=0.000000,0.000000,0.000000
 @0 sound - op=bore/snd_bore_3 sound=block.amethyst_cluster.break cat=master vol=0.8 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=bore/fx_bore type=tool-pick-diamond at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7298699454673118490
+@0 particle - op=bore/fx_bore type=tool-pick-diamond at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4401648890582537168
 ## pose yaw=37 pitch=-20
 @0 sound - op=bore/snd_bore sound=block.stone.break cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
 @0 sound - op=bore/snd_bore_2 sound=item.trident.hit_ground cat=master vol=0.8 pitch=1 at=0.000000,0.000000,0.000000
 @0 sound - op=bore/snd_bore_3 sound=block.amethyst_cluster.break cat=master vol=0.8 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=bore/fx_bore type=tool-pick-diamond at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7298699454673118490
+@0 particle - op=bore/fx_bore type=tool-pick-diamond at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4401648890582537168

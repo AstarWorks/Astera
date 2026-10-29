@@ -1,6 +1,6 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=cast/snd sound=astera:skill/wand/cast cat=master vol=0.5 pitch=1.7 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx1 type=thunder-cast at=0.000000,-0.200000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9043495632684191068
+@0 particle - op=cast/fx1 type=thunder-cast at=0.000000,-0.200000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1736634670558398974
 @0 particle - op=cast/t1[0] type=electric_spark count=3 at=0.000000,1.620000,0.500000 off=0.120000,0.120000,0.120000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=770179094664649834
 @0 particle - op=cast/t2[0] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6669797842144604265
 @1 particle - op=cast/t1[1] type=electric_spark count=3 at=0.000000,1.620000,0.500000 off=0.120000,0.120000,0.120000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5708727105982291376
@@ -8,7 +8,7 @@
 @1 hit - op=cast/bolt at=0.000000,1.620000,3.100000 r=0.500000 shape=capsule a=0.000000,1.620000,3.100000 b=0.000000,1.620000,3.100000 rad=0.500000
 ## pose yaw=37 pitch=-20
 @0 sound - op=cast/snd sound=astera:skill/wand/cast cat=master vol=0.5 pitch=1.7 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx1 type=thunder-cast at=-0.601815,-0.200000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-9043495632684191068
+@0 particle - op=cast/fx1 type=thunder-cast at=-0.601815,-0.200000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1736634670558398974
 @0 particle - op=cast/t1[0] type=electric_spark count=3 at=-0.282761,1.791010,0.375236 off=0.120000,0.120000,0.120000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=770179094664649834
 @0 particle - op=cast/t2[0] type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6669797842144604265
 @1 particle - op=cast/t1[1] type=electric_spark count=3 at=-0.282761,1.791010,0.375236 off=0.120000,0.120000,0.120000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5708727105982291376

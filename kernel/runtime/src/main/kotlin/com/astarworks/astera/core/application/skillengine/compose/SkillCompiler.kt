@@ -499,18 +499,10 @@ public class SkillCompiler(
 
         override fun laws(anchor: String) = own.laws(anchor)
         override fun document(id: String) = own.document(id)
-        override fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw>, copy: Int?) = own.declare(instance, family, basis, laws, copy)
-        override fun at(occurrence: Occurrence): AnchorScope = BoundAnchors(own, bound).let { BoundView(own.at(occurrence), bound) }
-    }
-
-    private class BoundView(private val own: AnchorScope, private val bound: Map<String, ResolvedAnchor>) : AnchorScope {
-        override fun resolve(name: String): ResolvedAnchor? {
-            val base = AnchorNames.split(name)?.base
-            return (if (base != null) bound[base] else null) ?: own.resolve(name)
-        }
-
-        override fun laws(anchor: String) = own.laws(anchor)
-        override fun document(id: String) = own.document(id)
+        override fun chain(anchor: String) = own.chain(anchor)
+        override fun familySize(anchor: String) = own.familySize(anchor)
+        override fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw>, copy: Int?, chain: AnchorChain?) = own.declare(instance, family, basis, laws, copy, chain)
+        override fun at(occurrence: Occurrence, family: Int?): AnchorRegistry = BoundAnchors(own.at(occurrence, family), bound)
     }
 }
 

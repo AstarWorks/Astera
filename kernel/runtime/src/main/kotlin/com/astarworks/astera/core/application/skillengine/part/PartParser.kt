@@ -10,14 +10,7 @@ import com.astarworks.astera.core.domain.skillengine.part.ParamType
 import com.astarworks.astera.core.domain.skillengine.part.Part
 import com.astarworks.astera.core.domain.skillengine.part.PartCall
 import com.astarworks.astera.core.domain.skillengine.part.PartError
-import org.yaml.snakeyaml.DumperOptions
-import org.yaml.snakeyaml.LoaderOptions
-import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.constructor.SafeConstructor
 import org.yaml.snakeyaml.error.YAMLException
-import org.yaml.snakeyaml.nodes.Tag
-import org.yaml.snakeyaml.representer.Representer
-import org.yaml.snakeyaml.resolver.Resolver
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -34,32 +27,11 @@ internal fun abort(path: String, message: String): Nothing = throw PartAbort(Par
 public object PartParser {
     public const val API_VERSION: String = "astera/v3"
 
-    private class StrictResolver : Resolver() {
-        override fun addImplicitResolvers() {
-            addImplicitResolver(Tag.BOOL, Regex("^(?:true|false)$").toPattern(), "tf")
-            addImplicitResolver(Tag.INT, INT, "-+0123456789")
-            addImplicitResolver(Tag.FLOAT, FLOAT, "-+0123456789.")
-            addImplicitResolver(Tag.MERGE, MERGE, "<")
-            addImplicitResolver(Tag.NULL, NULL, "~nN\u0000")
-            addImplicitResolver(Tag.NULL, EMPTY, null)
-        }
-    }
-
-    private fun newYaml(): Yaml {
-        val opts = LoaderOptions().apply {
-            isAllowDuplicateKeys = false
-            setAllowRecursiveKeys(false)
-            maxAliasesForCollections = 200
-        }
-        val dumper = DumperOptions()
-        return Yaml(SafeConstructor(opts), Representer(dumper), dumper, opts, StrictResolver())
-    }
-
     /** Every YAML document of [text] as a string-keyed tree (maps are insertion-ordered). */
     @Suppress("UNCHECKED_CAST")
     public fun documents(file: String, text: String): Result<List<Map<String, Any?>>, PartError> {
         val raw = try {
-            newYaml().loadAll(text).toList()
+            com.astarworks.astera.core.application.skillengine.load.StrictYaml.newYaml().loadAll(text).toList()
         } catch (e: YAMLException) {
             return Result.failure(PartError.Invalid(file, e.message?.lineSequence()?.firstOrNull() ?: "invalid YAML"))
         }
@@ -130,6 +102,7 @@ public object PartParser {
         if (doc["apiVersion"] != API_VERSION) abort("$where.apiVersion", "apiVersion must be $API_VERSION, was '${doc["apiVersion"]}'")
         val id = doc["id"] as? String ?: abort("$where.id", "missing string 'id'")
         if (!Regex("[a-z][a-z0-9_-]*").matches(id)) abort("$where.id", "part id '$id' must match [a-z][a-z0-9_-]*")
+        com.astarworks.astera.core.application.skillengine.compose.AnchorNames.reservedError("part", id)?.let { abort("$where.id", it) }
         val params = LinkedHashMap<String, ParamSpec>()
         for ((name, raw) in doc["params"].asMapOrEmpty("$where.params")) {
             params[name] = param(name, raw, "$where.params.$name")
