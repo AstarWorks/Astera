@@ -40,14 +40,13 @@ machine:
           text: "●"
           color: "#FFD66E"
           anchor: shield
-          rotate: [{axis: up, deg: -50}]
           billboard: fixed
           brightness: {block: 15, sky: 15}
           for: 162
           motion:
             - law: keys
               keys:
-                - {t: 0, scale: {left: 1.5, up: 3, forward: 1.0}, alpha: 0.0}
+                - {t: 0, pose: [{axis: up, deg: -50}], scale: {left: 1.5, up: 3, forward: 1.0}, alpha: 0.0}
                 - {t: 6, scale: {left: 7.5, up: 16.5, forward: 1.0}, alpha: 0.14, ease: out_cubic}
                 - {t: 152, alpha: 0.14}
                 - {t: 162, scale: {left: 7, up: 15.5, forward: 1.0}, alpha: 0, ease: in_quad}

@@ -4,23 +4,23 @@
 @0 spawn #2 op=brace/rim1[0] kind=sprite sprite=bastion-rim alpha=1.000000 tint=#FFF3C8 seethrough=true pos=0.200000,1.300000,1.150000 rot=-0.298836,-0.298836,0.640856,0.640856 scale=0.480000,0.220000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @0 spawn #3 op=brace/rim1[1] kind=sprite sprite=bastion-rim alpha=1.000000 tint=#FFF3C8 seethrough=true pos=0.200000,1.300000,1.150000 rot=0.298836,-0.298836,-0.640856,0.640856 scale=0.480000,0.220000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @0 spawn #4 op=brace/crest kind=sprite sprite=bastion-crest alpha=1.000000 tint=- seethrough=true pos=0.200000,1.350000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=0.260000,0.260000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@0 spawn #5 op=brace/fill kind=text text=● bg=#00000000 shadow=false seethrough=false pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- aud=ALL lane=CORE target=-
-@0 write #5 op=brace/fill dur=0 pos=0.200000,1.300000,1.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.500000,3.000000,1.000000 bb=FIXED
+@0 spawn #5 op=brace/fill kind=text text=● bg=#00000000 shadow=false seethrough=false pos=0.200000,1.300000,1.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- aud=ALL lane=CORE target=-
+@0 write #5 op=brace/fill dur=0 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=1.500000,3.000000,1.000000 bb=FIXED
 @0 sound - op=- sound=item.shield.block cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
 @0 effect 00000000-0000-0000-0000-000000000001 op=- attribute=resist.physical
 @0 effect 00000000-0000-0000-0000-000000000001 op=- attribute=resist.knockback
 @0 status 00000000-0000-0000-0000-000000000001 op=- status=charge stacks=1 for=400
-@1 write #5 op=brace/fill dur=1 pos=0.200000,1.300000,1.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=5.722222,12.500000,1.000000 bb=FIXED
-@2 write #5 op=brace/fill dur=1 pos=0.200000,1.300000,1.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=6.750000,14.812500,1.000000 bb=FIXED
-@3 write #5 op=brace/fill dur=1 pos=0.200000,1.300000,1.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=7.277778,16.000000,1.000000 bb=FIXED
-@4 write #5 op=brace/fill dur=1 pos=0.200000,1.300000,1.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=7.472222,16.437500,1.000000 bb=FIXED
-@5 write #5 op=brace/fill dur=1 pos=0.200000,1.300000,1.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=7.500000,16.500000,1.000000 bb=FIXED
-@6 write #5 op=brace/fill dur=39 pos=0.200000,1.300000,1.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=7.468750,16.437500,1.000000 bb=FIXED
+@1 write #5 op=brace/fill dur=1 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=5.722222,12.500000,1.000000 bb=FIXED
+@2 write #5 op=brace/fill dur=1 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=6.750000,14.812500,1.000000 bb=FIXED
+@3 write #5 op=brace/fill dur=1 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=7.277778,16.000000,1.000000 bb=FIXED
+@4 write #5 op=brace/fill dur=1 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=7.472222,16.437500,1.000000 bb=FIXED
+@5 write #5 op=brace/fill dur=1 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=7.500000,16.500000,1.000000 bb=FIXED
+@6 write #5 op=brace/fill dur=39 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=7.468750,16.437500,1.000000 bb=FIXED
 @20 status 00000000-0000-0000-0000-000000000001 op=- status=charge stacks=1 for=400
 @40 status 00000000-0000-0000-0000-000000000001 op=- status=charge stacks=1 for=400
-@45 write #5 op=brace/fill dur=39 pos=0.200000,1.300000,1.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=7.375000,16.250000,1.000000 bb=FIXED
-@84 write #5 op=brace/fill dur=39 pos=0.200000,1.300000,1.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=7.218750,15.937500,1.000000 bb=FIXED
-@123 write #5 op=brace/fill dur=39 pos=0.200000,1.300000,1.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=7.000000,15.500000,1.000000 bb=FIXED
+@45 write #5 op=brace/fill dur=39 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=7.375000,16.250000,1.000000 bb=FIXED
+@84 write #5 op=brace/fill dur=39 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=7.218750,15.937500,1.000000 bb=FIXED
+@123 write #5 op=brace/fill dur=39 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=7.000000,15.500000,1.000000 bb=FIXED
 @162 remove #0 op=brace/rim0[0]
 @162 remove #1 op=brace/rim0[1]
 @162 remove #2 op=brace/rim1[0]
@@ -33,23 +33,23 @@
 @0 spawn #2 op=brace/rim1[0] kind=sprite sprite=bastion-rim alpha=1.000000 tint=#FFF3C8 seethrough=true pos=-0.532360,1.300000,1.038794 rot=-0.486740,-0.486740,0.512917,0.512917 scale=0.480000,0.220000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @0 spawn #3 op=brace/rim1[1] kind=sprite sprite=bastion-rim alpha=1.000000 tint=#FFF3C8 seethrough=true pos=-0.532360,1.300000,1.038794 rot=0.486740,-0.486740,-0.512917,0.512917 scale=0.480000,0.220000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @0 spawn #4 op=brace/crest kind=sprite sprite=bastion-crest alpha=1.000000 tint=- seethrough=true pos=-0.532360,1.350000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=0.260000,0.260000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@0 spawn #5 op=brace/fill kind=text text=● bg=#00000000 shadow=false seethrough=false pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- aud=ALL lane=CORE target=-
-@0 write #5 op=brace/fill dur=0 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.500000,3.000000,1.000000 bb=FIXED
+@0 spawn #5 op=brace/fill kind=text text=● bg=#00000000 shadow=false seethrough=false pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- aud=ALL lane=CORE target=-
+@0 write #5 op=brace/fill dur=0 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=1.500000,3.000000,1.000000 bb=FIXED
 @0 sound - op=- sound=item.shield.block cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
 @0 effect 00000000-0000-0000-0000-000000000001 op=- attribute=resist.physical
 @0 effect 00000000-0000-0000-0000-000000000001 op=- attribute=resist.knockback
 @0 status 00000000-0000-0000-0000-000000000001 op=- status=charge stacks=1 for=400
-@1 write #5 op=brace/fill dur=1 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.317305,0.000000,0.948324 scale=5.722222,12.500000,1.000000 bb=FIXED
-@2 write #5 op=brace/fill dur=1 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.317305,0.000000,0.948324 scale=6.750000,14.812500,1.000000 bb=FIXED
-@3 write #5 op=brace/fill dur=1 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.317305,0.000000,0.948324 scale=7.277778,16.000000,1.000000 bb=FIXED
-@4 write #5 op=brace/fill dur=1 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.317305,0.000000,0.948324 scale=7.472222,16.437500,1.000000 bb=FIXED
-@5 write #5 op=brace/fill dur=1 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.317305,0.000000,0.948324 scale=7.500000,16.500000,1.000000 bb=FIXED
-@6 write #5 op=brace/fill dur=39 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.317305,0.000000,0.948324 scale=7.468750,16.437500,1.000000 bb=FIXED
+@1 write #5 op=brace/fill dur=1 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=5.722222,12.500000,1.000000 bb=FIXED
+@2 write #5 op=brace/fill dur=1 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=6.750000,14.812500,1.000000 bb=FIXED
+@3 write #5 op=brace/fill dur=1 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=7.277778,16.000000,1.000000 bb=FIXED
+@4 write #5 op=brace/fill dur=1 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=7.472222,16.437500,1.000000 bb=FIXED
+@5 write #5 op=brace/fill dur=1 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=7.500000,16.500000,1.000000 bb=FIXED
+@6 write #5 op=brace/fill dur=39 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=7.468750,16.437500,1.000000 bb=FIXED
 @20 status 00000000-0000-0000-0000-000000000001 op=- status=charge stacks=1 for=400
 @40 status 00000000-0000-0000-0000-000000000001 op=- status=charge stacks=1 for=400
-@45 write #5 op=brace/fill dur=39 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.317305,0.000000,0.948324 scale=7.375000,16.250000,1.000000 bb=FIXED
-@84 write #5 op=brace/fill dur=39 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.317305,0.000000,0.948324 scale=7.218750,15.937500,1.000000 bb=FIXED
-@123 write #5 op=brace/fill dur=39 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.317305,0.000000,0.948324 scale=7.000000,15.500000,1.000000 bb=FIXED
+@45 write #5 op=brace/fill dur=39 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=7.375000,16.250000,1.000000 bb=FIXED
+@84 write #5 op=brace/fill dur=39 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=7.218750,15.937500,1.000000 bb=FIXED
+@123 write #5 op=brace/fill dur=39 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=7.000000,15.500000,1.000000 bb=FIXED
 @162 remove #0 op=brace/rim0[0]
 @162 remove #1 op=brace/rim0[1]
 @162 remove #2 op=brace/rim1[0]
