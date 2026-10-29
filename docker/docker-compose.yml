@@ -80,6 +80,9 @@ x-astera-backend: &astera-backend
     ASTERA_PG_PASSWORD: "${POSTGRES_PASSWORD:-astera}"
     # Redis: cross-server assignments (RedisProxyMessenger) + event broadcast.
     ASTERA_REDIS_URI: "redis://redis:6379"
+    # Empty disables translation; opt in with http://translator:8080 or a remote GPU host.
+    ASTERA_TRANSLATE_URL: "${ASTERA_TRANSLATE_URL:-}"
+    ASTERA_CHAT_PREFERENCES_DIR: "/data/plugins/Astera-Chat/preferences"
     # Names in the Velocity [servers] table (docker/velocity/velocity.toml).
     ASTERA_LOBBY_SERVER: "lobby"
     ASTERA_GAME_SERVER: "game"
@@ -100,6 +103,33 @@ x-astera-backend: &astera-backend
       condition: service_started
 
 services:
+  # Optional inference process. Never makes Minecraft depend on model download/readiness.
+  translator:
+    profiles: [translation]
+    build:
+      context: ..
+      dockerfile: docker/translator/Dockerfile
+      args:
+        LLAMA_IMAGE: ghcr.io/ggml-org/llama.cpp:server@sha256:8052c13edd987de8858f8150031e025ac3d66823f09cf3ec8220899c4abce220
+    mem_limit: "${TRANSLATOR_MEMORY:-3g}"
+    cpus: "${TRANSLATOR_CPUS:-4}"
+    image: astera/translator:adr0308-cpu
+    restart: unless-stopped
+    environment:
+      TRANSLATOR_MODEL_PROFILE: "${TRANSLATOR_MODEL_PROFILE:-hy-mt}"
+      TRANSLATOR_THREADS: "${TRANSLATOR_THREADS:-4}"
+      HF_TOKEN: "${HF_TOKEN:-}"
+    volumes:
+      - translator-models:/models
+    ports:
+      - "${TRANSLATOR_BIND:-127.0.0.1}:${TRANSLATOR_PORT:-18080}:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 3s
+      start_period: 10m
+      retries: 3
+
   velocity:
     build:
       context: ./velocity
@@ -132,6 +162,7 @@ services:
       ASTERA_SERVER_NAME: "lobby"
     volumes:
       - lobby-data:/data
+      - chat-preferences:/data/plugins/Astera-Chat/preferences
       # /content comes from the image (baked in, see Dockerfile).
 
   game:
@@ -144,6 +175,7 @@ services:
       ASTERA_SERVER_NAME: "game"
     volumes:
       - game-data:/data
+      - chat-preferences:/data/plugins/Astera-Chat/preferences
 
   postgres:
     image: postgres:17-alpine
@@ -217,3 +249,5 @@ volumes:
   game-data:
   postgres-data:
   redis-data:
+  translator-models:
+  chat-preferences:

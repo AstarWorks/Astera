@@ -89,6 +89,7 @@ public class MatchShopIntentHandler(
                     mapOf("ore" to oreName(player.id, e.ore), "need" to e.need.toString(), "have" to e.have.toString()),
                 )
                 MatchShopError.NotInMatch -> send(player, MSG_NOT_IN_MATCH)
+                is MatchShopError.MissingBaseItem -> send(player, MSG_NEED_BASE, mapOf("from" to e.item.value))
                 MatchShopError.PlayerNotOnline -> Unit
                 is MatchShopError.DeliveryFailed -> {
                     log.warn("match shop delivery failed for {}: {}", player.id, e.detail)
@@ -113,7 +114,8 @@ public class MatchShopIntentHandler(
         return GuiSpec.build(id = GUI_ID, title = TITLE, size = size) {
             offers.forEachIndexed { index, offer -> slot(SlotIndex(index), offerSlot(playerId, current, index, offer)) }
             for (col in 0 until 9) slot(SlotIndex(footer + col), GuiSlot.Border(FOOTER_PANE))
-            MatchShopTab.entries.forEachIndexed { i, tab -> slot(SlotIndex(footer + 1 + i * 2), tabSlot(tab, tab == current)) }
+            // Tabs sit side by side in the middle of the footer row (columns 2..6 for five tabs).
+            MatchShopTab.entries.forEachIndexed { i, tab -> slot(SlotIndex(footer + 2 + i), tabSlot(tab, tab == current)) }
         }
     }
 
@@ -126,15 +128,24 @@ public class MatchShopIntentHandler(
 
     private fun offerSlot(playerId: PlayerId, tab: MatchShopTab, index: Int, offer: MatchShopOffer): GuiSlot.Static {
         val owned = stock()
-        val affordable = owned != null && offer.price.all { (ore, count) -> owned.count(playerId, ore) >= count }
+        val base = offer.upgradeFrom
+        val hasBase = base == null || (owned != null && owned.count(playerId, base) >= 1)
+        val affordable = hasBase && owned != null && offer.price.all { (ore, count) -> owned.count(playerId, ore) >= count }
         val price = offer.price.entries.joinToString(" ") { (ore, count) -> "${oreName(playerId, ore)} x$count" }
         return GuiSlot.Static(
             itemId = offer.itemId,
             lore = listOf(
                 GuiText(SPACER),
                 GuiText(LORE_PRICE, mapOf("price" to price)),
-                GuiText(LORE_STACK, mapOf("amount" to offer.stack.toString())),
-                GuiText(if (affordable) LORE_BUY else LORE_SHORT),
+                if (base != null) GuiText(LORE_UPGRADE, mapOf("from" to base.value)) else GuiText(LORE_STACK, mapOf("amount" to offer.stack.toString())),
+                GuiText(
+                    when {
+                        !hasBase -> LORE_NEED_BASE
+                        affordable -> LORE_BUY
+                        else -> LORE_SHORT
+                    },
+                    mapOf("from" to (base?.value ?: "")),
+                ),
             ),
             onLeftClick = GuiIntent(INTENT_BUY, mapOf(PAYLOAD_TAB to tab.key, PAYLOAD_INDEX to index.toString())),
         )
@@ -165,6 +176,9 @@ public class MatchShopIntentHandler(
         private val LORE_STACK = MessageKey("astera.economy.matchshop.lore.stack")
         private val LORE_BUY = MessageKey("astera.economy.matchshop.lore.buy")
         private val LORE_SHORT = MessageKey("astera.economy.matchshop.lore.short")
+        private val LORE_UPGRADE = MessageKey("astera.economy.matchshop.lore.upgrade")
+        private val LORE_NEED_BASE = MessageKey("astera.economy.matchshop.lore.need-base")
+        private val MSG_NEED_BASE = MessageKey("astera.economy.matchshop.need-base")
         private val MSG_BOUGHT = MessageKey("astera.economy.matchshop.bought")
         private val MSG_SHORT = MessageKey("astera.economy.matchshop.short")
         private val MSG_WRONG_TEAM = MessageKey("astera.economy.matchshop.wrong-team")
@@ -175,6 +189,7 @@ public class MatchShopIntentHandler(
             MatchShopTab.TOOLS to ItemId("iron-pickaxe"),
             MatchShopTab.BLOCKS to ItemId("iron-shovel"),
             MatchShopTab.ARMOR to ItemId("gui-admin-cat-all"),
+            MatchShopTab.UPGRADES to ItemId("knight-sword-t4"),
         )
     }
 }

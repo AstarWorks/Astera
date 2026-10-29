@@ -722,6 +722,7 @@ astera:
         tools: "<yellow>ツール</yellow>"
         blocks: "<aqua>ブロック</aqua>"
         armor: "<green>防具</green>"
+        upgrades: "<light_purple>強化</light_purple>"
         current: "<gray>表示中のタブです。</gray>"
         switch: "<yellow>クリックでこのタブを開く</yellow>"
       ore:
@@ -734,11 +735,14 @@ astera:
         stack: "<gray>入手数: <white>x{amount}</white></gray>"
         buy: "<yellow>クリックで購入</yellow>"
         short: "<red>鉱石が足りません。</red>"
+        upgrade: "<gray>所持中の <white>{from}</white> を強化します (置き換わります)。</gray>"
+        need-base: "<red>先に {from} が必要です。</red>"
       bought: "<green>{item} x{amount} を購入しました。</green>"
       short: "<red>{ore} 鉱石が {need} 個必要です (所持 {have})。</red>"
       wrong-team: "<red>これは {team} チームのショップです。自陣のショップを使ってください。</red>"
       not-in-match: "<red>鉱石ショップは試合中のみ使えます。</red>"
       failed: "<red>購入に失敗しました。何も消費していません。</red>"
+      need-base: "<red>この強化には {from} の所持が必要です。</red>"
     shop:
       example-shop:
         title: "サンプルショップ"
@@ -2799,6 +2803,9 @@ astera:
   chat.title.invalid: "使い方: /astera chat title <all|サーバー名> <タイトル> [| サブタイトル]"
   chat.title.sent: "{target} にタイトルを送信しました。"
   chat.discord.line: "&9[Discord]&r {name}: {message}"
+  chat.translate.on: "チャット翻訳を有効にしました。"
+  chat.translate.off: "チャット翻訳を無効にしました。"
+  chat.settings.failed: "チャット設定を保存できませんでした。もう一度お試しください。"
   command.help.chat-japanize-on: "この接続中の日本語変換を有効にします。"
   command.help.chat-japanize-off: "この接続中の日本語変換を無効にします。"
   command.help.chat-title: "指定サーバーまたは全サーバーに画面タイトルを送ります。"

@@ -1,5 +1,5 @@
 ---
-status: Accepted
+status: Superseded by ADR-0307
 date: 2026-05-16
 deciders: ryuzu
 ---
@@ -8,7 +8,7 @@ deciders: ryuzu
 
 ## Status
 
-Accepted
+Superseded by ADR-0307
 
 ## Context
 

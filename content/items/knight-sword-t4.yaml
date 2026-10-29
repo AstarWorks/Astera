@@ -1,0 +1,35 @@
+# Weapon upgrade tier 4 of knight-sword: same moves, harder hits. Match-scoped (match-end restore removes it); bought at the base shop.
+# WP1 sword roster: left-click = slash (melee), sneak + right-click = dash.
+
+id: knight-sword-t4
+
+material: IRON_SWORD
+
+name:
+  ja: "騎士の剣 IV"
+  en: "Knight's Sword IV"
+role:
+  ja: "近接 / 斬撃とダッシュ"
+  en: "Melee / slashes and a dash"
+
+rarity: common
+level_requirement: 1
+
+attributes:
+  attack_damage: 7.0
+  attack_speed: 1.6
+
+equip_slot: mainhand
+
+# Resource pool (WP2, optional for melee): energy per swing (the shared pool, ADR-0194).
+resource_type: energy
+resource_cost_per_use: 15
+
+skills:
+  - trigger: left_click
+    skill_id: sword-slash-t4
+  - trigger: sneak_right
+    skill_id: sword-dash
+
+pdc_tags:
+  astera:rarity: common

@@ -26,3 +26,76 @@ ranks:
 discord:
   enabled: true
   bridge-server: lobby
+translation:
+  enabled: true
+  languages: [en, ja]
+  timeout_ms: 1500
+  marker: '&7[訳]&r'
+  # Must match TRANSLATOR_MODEL_PROFILE on the llama-server container.
+  model_profile: hy-mt
+
+  # Model-independent intent; both profiles take a user turn (Gemma has no system role).
+  context: >-
+    Minecraft PvP chat between players. Keep it casual. Translate gaming slang by meaning.
+    Iron means the Minecraft resource, clutch means a last-second winning play, HP means health.
+    Preserve __ASTERA_ placeholders exactly once. Output only the translation.
+  prompts:
+    hy-mt: |-
+      Given the following context:
+      {context}
+      {examples}
+      Translate the following segment into {target}, without additional explanation.
+
+      {text}
+    translategemma: |-
+      You are a professional {source} ({from}) to {target} ({to}) translator.
+      {context}
+      {examples}
+      Please translate the following {source} text into {target}:
+
+
+      {text}
+  # Few-shot context is shared across model profiles and scoped to each direction.
+  examples:
+    ja-en: 'Example: 弾ない、一旦下がろう → Out of ammo, fall back for now.'
+    en-ja: 'Example: one hp, dont rush solo → HPあと1、一人で突っ込まないで'
+    ja-ko: 'Example: 鉄が必要、敵きてる → 철이 필요해, 적이 오고 있어'
+    ja-es: 'Example: 鉄が必要、敵きてる → Necesito hierro, vienen enemigos'
+    ko-en: 'Example: 적이 오른쪽에 있어 → Enemy on the right'
+    es-en: 'Example: enemigo a la derecha → Enemy on the right'
+  # Longest whole-message / whole-token match wins. Never rewrite substrings in names/words.
+  glossary:
+    ja-en:
+      おつ: gg
+      草: lol
+      それな: same
+      鉄: iron
+      ラグい: laggy
+      ｗ: lol
+      ｗｗ: lol
+      ｗｗｗ: lol
+    en-ja:
+      gg wp: おつ、ナイスゲーム
+      gg: おつ
+      brb: すぐ戻る
+      ty: ありがとう
+      cya: またね
+      nice clutch: ナイス逆転
+    ja-ko:
+      おつ: 수고했어
+      草: ㅋㅋ
+      それな: 내 말이
+      鉄: 철
+      ラグい: 렉 걸려
+      ｗ: ㅋㅋ
+      ｗｗ: ㅋㅋ
+      ｗｗｗ: ㅋㅋ
+    ja-es:
+      おつ: buena partida
+      草: jajaja
+      それな: tal cual
+      鉄: hierro
+      ラグい: va con lag
+      ｗ: jajaja
+      ｗｗ: jajaja
+      ｗｗｗ: jajaja

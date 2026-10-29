@@ -502,6 +502,9 @@ public object MatchWiring {
             registrations += services.register<com.astarworks.astera.core.application.port.outbound.item.IMatchEntryLoadout>(
                 botLoadoutService, priority = 0,
             )
+            registrations += services.register<com.astarworks.astera.core.application.port.outbound.IBotPlayers>(
+                botLoadoutService, priority = 0,
+            )
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) {
                 botLoadoutService.onMatchEnded(it.matchId)
             }

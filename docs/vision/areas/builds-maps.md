@@ -6,9 +6,10 @@ Owner track `wp/builds-maps`. Seed: audit 2026-10-26. Items: Board prefix `MAP-`
 - Pillars: Siege PvP + UGC (maps included) + Place (Phase 5, out of scope now) (`docs/game-design/vision.md`).
 - Lobby = procedural sky-island hub (ADR-0180). Arenas = server-built sky islands with the same look (ADR-0246).
 - **Matches target siege-scale maps** (founder 2026-10-26); keep a small debug arena for e2e.
-- AI-generated stages are Phase 6 (ADR-0010); third-party maps and schematics are not used (licence).
+- AI-generated stages are permitted under ADR-0307; map imports require a verified licence (ADR-0281).
 
 ## 現状
+- 2026-10-29 (ADR-0307): generative asset pipelines, including stages, are no longer deferred to Phase 6. This policy change adds no stage generator; the implementations below remain the current state.
 - Everything is Kotlin procedural: `LobbyIslandGenerator.kt` (~67k blocks, 6 islands), `ArenaIslandGenerator.kt` (690 lines). Inputs are YAML numbers only (positions, radii, bridges, seed, `marker_version`).
 - Lobby preview PNG via `:tools:lobby-gen`. No arena preview tool.
 - Stages: siege-isles (5 islands), annihilation-arena (7, 3 teams), pve-proving-grounds, example-arena. All use one generator and one palette (grass top, stone-brick centre), disc + cone shape, 3-wide bridges.
@@ -34,4 +35,4 @@ Two layers: keep the procedural base (island, bridge, marker management) and add
 - Several concurrent matches (instancing) vs one match slot per stage.
 
 ## Governing ADRs
-0010, 0033, 0036, 0180, 0245, 0246.
+0033, 0036, 0180, 0245, 0246, 0281, 0307.

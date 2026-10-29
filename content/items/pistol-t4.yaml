@@ -1,0 +1,40 @@
+# Weapon upgrade tier 4 of pistol: same moves, harder hits. Match-scoped (match-end restore removes it); bought at the base shop.
+# WP1 gun roster: right-click = shot, hold = auto-repeat (same shot, throttled
+# by the binding's cooldown override), drop key (Q) = reload (the drop is cancelled).
+# WP2: 12-round magazine (1 ammo per shot), refilled by the reload skill.
+
+id: pistol-t4
+
+material: IRON_HORSE_ARMOR
+
+name:
+  ja: "ピストル IV"
+  en: "Pistol IV"
+role:
+  ja: "銃 / 手軽な連射とリロード"
+  en: "Gun / easy rapid fire with reloads"
+
+rarity: common
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 4.0
+
+equip_slot: mainhand
+
+# Resource pool (WP2): the pistol spends ammo; the magazine only refills via reload.
+resource_type: ammo
+resource_cost_per_use: 1
+resource_max_pool: 12
+resource_reloadable: true
+
+skills:
+  - trigger: right_click
+    skill_id: pistol-shot-t4
+    cooldown_override_ticks: 6    # 0.3s between shots; wins over the skill's own cooldown_ticks
+  - trigger: drop
+    skill_id: pistol-reload
+
+pdc_tags:
+  astera:rarity: common

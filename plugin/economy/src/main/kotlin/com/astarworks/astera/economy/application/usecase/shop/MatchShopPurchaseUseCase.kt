@@ -14,7 +14,8 @@ import com.astarworks.astera.economy.domain.matchshop.MatchShopOffer
 /**
  * Buys one [MatchShopOffer] of the in-match ore shop: the price is paid in ore items taken out of the buyer's
  * inventory (all of them or nothing), the item is handed over, and armour goes straight into its free armour slot.
- * Works only for a player who is in a running match; the lobby GOLD shop ([ShopPurchaseUseCase]) stays blocked there.
+ * A weapon upgrade ([MatchShopOffer.upgradeFrom]) additionally hands in the carried lower tier, so the buyer ends up with
+ * exactly one weapon of that ladder. Works only for a player who is in a running match; the lobby GOLD shop ([ShopPurchaseUseCase]) stays blocked there.
  */
 public class MatchShopPurchaseUseCase(
     private val itemRegistry: IItemRegistry,
@@ -32,6 +33,8 @@ public class MatchShopPurchaseUseCase(
         val items = delivery() ?: return Result.failure(MatchShopError.DeliveryFailed("Item delivery is not available"))
         val owned = stock() ?: return Result.failure(MatchShopError.DeliveryFailed("Inventory access is not available"))
 
+        val base = offer.upgradeFrom
+        if (base != null && owned.count(playerId, base) < 1) return Result.failure(MatchShopError.MissingBaseItem(base))
         val missing = offer.price.entries.firstOrNull { (ore, count) -> owned.count(playerId, ore) < count }
         if (missing != null) {
             return Result.failure(MatchShopError.NotEnoughOre(missing.key, missing.value, owned.count(playerId, missing.key)))
@@ -44,10 +47,15 @@ public class MatchShopPurchaseUseCase(
             }
             taken += entry
         }
+        if (base != null && !owned.remove(playerId, base, 1)) {
+            taken.forEach { refund(items, player, it) }
+            return Result.failure(MatchShopError.MissingBaseItem(base))
+        }
         return when (val given = items.give(player, spec, offer.stack, ItemOrigin.EQUIP_IF_FREE)) {
             is DeliveryResult.Delivered, is DeliveryResult.InventoryFull -> Result.success(MatchShopReceipt(offer.itemId, offer.stack, offer.price))
             is DeliveryResult.UnknownTemplate -> {
                 taken.forEach { refund(items, player, it) }
+                base?.let { itemRegistry.find(it) }?.let { items.give(player, it, 1) }
                 Result.failure(MatchShopError.DeliveryFailed("Item template '${given.templateKey}' cannot be materialized"))
             }
         }
@@ -71,6 +79,9 @@ public sealed class MatchShopError {
 
     /** [ore] fell short: [need] required, [have] carried. */
     public data class NotEnoughOre(public val ore: ItemId, public val need: Int, public val have: Int) : MatchShopError()
+
+    /** An upgrade needs [item] in the inventory and the buyer carries none. */
+    public data class MissingBaseItem(public val item: ItemId) : MatchShopError()
 
     public data class DeliveryFailed(public val detail: String) : MatchShopError()
 }

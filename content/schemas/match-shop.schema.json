@@ -29,7 +29,10 @@
                 },
                 "tab": {
                     "type": "string",
-                    "enum": ["weapons", "tools", "blocks", "armor"]
+                    "enum": ["weapons", "tools", "blocks", "armor", "upgrades"]
+                },
+                "upgrade_from": {
+                    "type": "string"
                 },
                 "stack": {
                     "type": "integer",
