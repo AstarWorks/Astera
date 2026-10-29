@@ -42,7 +42,20 @@ public object AnchorNames {
 
     private val NAME = Regex("""^(?:/([A-Za-z_][A-Za-z0-9_-]*(?:/[A-Za-z_][A-Za-z0-9_-]*)*)/)?([A-Za-z_][A-Za-z0-9_-]*)(?:\[([A-Za-z0-9_.]+)])?(?:\.([A-Za-z_][A-Za-z0-9_]*))?$""")
 
-    /** Null when [name] is not of the shape `id`, `id[index]`, `id.point` or `id[index].point` (e.g. `caster.hand_r` splits as base `caster`, point `hand_r`). */
+    /** The caster points that were guessed geometry and are gone: a hand is a point of the skill's own body clip (`<body op id>.hand_r`). */
+    public val REMOVED_CASTER_POINTS: Set<String> = setOf("hand_r", "hand_l", "palm")
+
+    /** The load error text when [name] is a removed `caster.<point>`, else null. */
+    public fun removedCasterPoint(name: String): String? {
+        val bare = name.trim().removePrefix("anchor:")
+        if (!bare.startsWith("caster.")) return null
+        val point = bare.removePrefix("caster.")
+        if (point !in REMOVED_CASTER_POINTS) return null
+        return "'$bare' no longer exists: the engine does not guess a hand. Name a point of the skill's own body clip " +
+            "(a `body` op with an `id`, and `points:` in content/animations/<anim>.yaml), e.g. '<body id>.$point'"
+    }
+
+    /** Null when [name] is not of the shape `id`, `id[index]`, `id.point` or `id[index].point` (e.g. `body_anim.hand_r` splits as base `body_anim`, point `hand_r`). */
     public fun split(name: String): Parts? =
         NAME.matchEntire(name.trim())?.let { Parts(it.groupValues[2], it.groupValues[3].ifEmpty { null }, it.groupValues[4].ifEmpty { null }, it.groupValues[1].ifEmpty { null }) }
 
@@ -80,6 +93,9 @@ public class DefaultAnchorScope private constructor(
 
     /** The entry [name] of this scope that a PART published to its caller (ADR-0303 9 `frames_out`): declared by an op inside a called part's state (id `call/state/op`; a plain top-level op is `state/op` and is never read by bare name from another state). */
     internal fun publishedEntry(name: String): Any? = entries[name]?.takeIf { it.instance.path.last().op.value.count { c -> c == '/' } >= 2 }
+
+    /** The entry [name] declared in this scope, whatever its id shape (a machine `world:` body, read from another state). */
+    internal fun entryOf(name: String): Any? = entries[name]
 
     private fun other(parts: AnchorNames.Parts): AnchorScope? = parts.state?.let { st -> foreign(st)?.at(occurrence) }
     private fun bareOf(parts: AnchorNames.Parts): String =

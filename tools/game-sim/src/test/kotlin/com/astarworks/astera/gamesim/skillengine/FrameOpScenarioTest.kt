@@ -16,7 +16,7 @@ class FrameOpScenarioTest : SkillEngineScenario() {
     private fun skill(vararg ops: String): String = (
         listOf(
             "apiVersion: astera/v3", "kind: Skill", "id: frame-probe", "item: couture-rapier",
-            "anchors:", "  - {id: shears, anchor: caster.hand_r}",
+            "anchors:", "  - {id: shears, anchor: caster.eye}",
             "machine:", "  start: throw", "  states:", "    throw:", "      for: 40", "      enter:",
         ) + ops.map { "        - $it" }
         ).joinToString("\n") + "\n"

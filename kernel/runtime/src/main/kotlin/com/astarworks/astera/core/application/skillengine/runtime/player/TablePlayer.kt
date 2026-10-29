@@ -51,6 +51,8 @@ import com.astarworks.astera.core.domain.skillengine.table.LockMove
 import com.astarworks.astera.core.domain.skillengine.table.HitShape
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation
+import com.astarworks.astera.core.domain.animation.skinrig.SkinRigPlayback
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigTransforms
 import com.astarworks.astera.core.application.skillengine.load.MeshModels
 import com.astarworks.astera.core.domain.skillengine.table.Look
@@ -538,8 +540,12 @@ public class TablePlayer(
             val rec = run.recs[k] ?: continue
             // ADR-0303 9 (`frames_out`, l.166/170/808): a finished body stays readable to its caller as a frozen frame at its last pose
             if (rec.kind == SpawnKind.FRAME || rec.kind == SpawnKind.PROJECTILE_BODY) {
+                freshBody(rec)
+                // a finished `body` keeps riding the caster with its clip's last named points; any other frame freezes where it ended
+                val ridesCaster = rec.body != null
                 val w = worldOf(run, rec, rec.localAt(lastTick), null, lastTick)
-                run.finished[k] = Rec(rec.kind, null, "world", lastTick, rec.owner, PoseV(Vector3d(w.pos), Quaterniond(w.rot), Vector3d(w.scale))).also { it.points.putAll(rec.points) }
+                val frozen = if (ridesCaster) PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0)) else PoseV(Vector3d(w.pos), Quaterniond(w.rot), Vector3d(w.scale))
+                run.finished[k] = Rec(rec.kind, null, if (ridesCaster) "caster" else "world", lastTick, rec.owner, frozen).also { it.points.putAll(rec.points) }
             }
             run.recs.remove(k)
             run.lines.remove(k)
@@ -1212,11 +1218,18 @@ public class TablePlayer(
                 val id = row.instance
                 run.recs[id]?.let { endInstance(run, id) }
                 // the clip lives as long as its instance: End / state exit / cast end all go through endInstance
-                run.recs[id] = Rec(SpawnKind.FRAME, null, "", now, ctx.owner, PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0)))
+                // the body instance rides the caster (feet, body yaw): the clip's named points are its model points, read through `<id>.<point>`
+                val bodyRec = Rec(SpawnKind.FRAME, null, "caster", now, ctx.owner, PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0)))
+                run.recs[id] = bodyRec
                 run.cursor.instances[id] = GatewayHandle(nextSynthetic--)
                 val anim = s("anim")
+                val speed = d("speed")
                 run.bodyClips[id] = anim
-                gameplay.playBodyClip(castRef(run), caster, anim, d("speed"))
+                gameplay.bodyClip(anim)?.takeIf { it.points.isNotEmpty() }?.let { clip ->
+                    bodyRec.body = BodyPoints(clip, gameplay.isSlimSkin(caster), speed)
+                    freshBody(bodyRec)
+                }
+                gameplay.playBodyClip(castRef(run), caster, anim, speed)
             }
             "held_model" -> {
                 val id = row.instance
@@ -1564,6 +1577,7 @@ public class TablePlayer(
             // a finished body / frame stays readable at its last pose (frames_out, ADR-0303 9): live recs first, then the frozen ones
             val id = instanceNamed(run.recs.keys, base, owner) ?: instanceNamed(run.finished.keys, base, owner) ?: continue
             val rec = run.recs[id] ?: run.finished.getValue(id)
+            freshBody(rec)
             if (part !in PLAIN_PARTS && part !in rec.points) continue
             return rec to part
         }
@@ -1627,8 +1641,19 @@ public class TablePlayer(
     private fun documentPose(run: Run, decl: AnchorDecl, binding: EventBinding?, scope: RowScope): PoseV {
         run.snapshots[decl.id]?.let { return it }
         val parent = decl.anchor.toString()
-        val pos = Vector3d(namedVec(run, parent, binding, scope))
-        val rot = Quaterniond(namedRot(run, parent, binding, scope))
+        val pos: Vector3d
+        val rot: Quaterniond
+        val onInstance = anchorOf(run, parent)
+        if (onInstance != null) {
+            // a point of a live instance, e.g. a hand of the skill's own body clip (`body_anim.hand_r`)
+            val (rec, part) = onInstance
+            val w = worldOf(run, rec, rec.localAt(lastTick), binding, lastTick)
+            pos = if (part in PLAIN_PARTS || part == "edge") Vector3d(w.pos) else Vector3d(rec.points.getValue(part)).rotate(w.rot).add(w.pos)
+            rot = Quaterniond(w.rot)
+        } else {
+            pos = Vector3d(namedVec(run, parent, binding, scope))
+            rot = Quaterniond(namedRot(run, parent, binding, scope))
+        }
         for ((axis, v) in decl.offset) {
             val local = when (axis) {
                 "left" -> Vector3d(1.0, 0.0, 0.0)
@@ -1648,7 +1673,8 @@ public class TablePlayer(
         if (name == "motion.turn") return Quaterniond()
         paramOf(run, name)?.let { v -> return (v as? Quaterniond)?.let { Quaterniond(it) } ?: throw IllegalArgumentException("param '$name' is not a rotation") }
         anchorOf(run, name, ctx.owner)?.let { (rec, part) ->
-            if (part != "rotation" && part.isNotEmpty()) throw IllegalArgumentException("'$name' is a ${part}, not a rotation")
+            // a point of a body clip (`body_anim.hand_r`) is a position in the body's frame: its rotation is that frame's
+            if (part != "rotation" && part.isNotEmpty() && rec.body == null) throw IllegalArgumentException("'$name' is a ${part}, not a rotation")
             return worldOf(run, rec, rec.localAt(lastTick), ctx.binding, lastTick).rot
         }
         return namedRot(run, name, ctx.binding, ctx.scope)
@@ -1768,6 +1794,7 @@ public class TablePlayer(
         }
 
         private fun at(rec: Rec, point: String?, local: PoseV, t: Int): PoseV? {
+            freshBody(rec)
             val w = worldOf(run, rec, local, binding, t)
             if (point == null) return w
             val p = rec.points[point] ?: return null
@@ -1892,6 +1919,9 @@ public class TablePlayer(
 
         /** Rig frame points (v2 `FramePoint`): `tip` / `root` local offsets, `edge` a direction at the frame origin. */
         val points: MutableMap<String, Vector3d> = HashMap()
+
+        /** A `body` instance whose clip declares named points: [points] are re-sampled from the clip each tick ([freshBody]). */
+        var body: BodyPoints? = null
         private var from: PoseV = to
         private var segStart: Int = spawnTick
         private var segDur: Int = 0
@@ -1914,6 +1944,22 @@ public class TablePlayer(
             return PoseV(
                 Vector3d(from.pos).lerp(to.pos, f), Quaterniond(from.rot).slerp(to.rot, f), Vector3d(from.scale).lerp(to.scale, f),
             )
+        }
+    }
+
+    /** The clip of a `body` op with named points, how it plays on this caster ([slim] arm, clip [speed]). */
+    private class BodyPoints(val clip: SkinRigAnimation, val slim: Boolean, val speed: Double)
+
+    /**
+     * Re-samples the named points of a `body` instance at the current tick: the clip's pose at `(tick - spawn) * speed`, each point carried through
+     * its bone chain (`SkinRigTransforms.point`) into the caster's yaw frame (+X left, +Y up, +Z forward). A frozen (finished) instance keeps its last points.
+     */
+    private fun freshBody(rec: Rec) {
+        val b = rec.body ?: return
+        val frame = SkinRigPlayback(b.clip, b.speed).frameAt(lastTick - rec.spawnTick)
+        for ((name, point) in b.clip.points) {
+            val v = SkinRigTransforms.point(frame, b.slim, point)
+            rec.points[name] = Vector3d(v.x, v.y, v.z)
         }
     }
 

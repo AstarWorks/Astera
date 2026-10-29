@@ -231,7 +231,6 @@ hit は ダメージパイプライン (`ApplyDamageUseCase`、friendly-fire 判
 |---|---|
 | `nearest_enemy_dist(ref)` | `ref` から最寄りの敵までの距離。**足元 (feet) から足元 (feet) まで**で、hitbox の表面ではない。敵がいなければ非常に大きい値 |
 | `enemy_in_cone(ref, range, half_angle_deg)` | `ref` の前方 (水平) の扇形内に敵がいるか |
-| `hp_ratio(ref)` | `caster` / `victim` の HP 割合 0..1 (不明は 1) |
 | `dist(a, b)` / `counter("key")` | `dist` も entity ref (`caster` / `victim` / `enemy`) は feet to feet。frame / point は原点間 |
 
 距離はすべて feet to feet (SKL-15): `< 3.6` は「足元が 3.6 ブロック未満」。身長や hitbox 幅は効かない。

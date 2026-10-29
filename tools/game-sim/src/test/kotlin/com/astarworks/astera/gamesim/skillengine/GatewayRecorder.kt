@@ -141,7 +141,6 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                 val host = object : com.astarworks.astera.core.domain.skillengine.expr.ExprHost {
                     override fun aimPoint(caster: com.astarworks.astera.core.domain.skillengine.expr.ExprValue.Ref, range: Double): Vec3 = error("aim_point is not served by the sim guard host")
                     override fun lookDirection(caster: com.astarworks.astera.core.domain.skillengine.expr.ExprValue.Ref): Vec3 = error("look_dir is not served by the sim guard host")
-                    override fun bladeLen(frame: com.astarworks.astera.core.domain.skillengine.expr.ExprValue.Ref): Double = error("blade_len is not served by the sim guard host")
                     override fun nearestEnemyDist(from: Vec3): Double = world.nearestEnemyDist(from)
                     override fun enemyInCone(from: Vec3, dir: Vec3, range: Double, halfAngleDeg: Double): Boolean = world.enemyInCone(from, dir, range, halfAngleDeg)
                 }
@@ -343,11 +342,6 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             seen("query.raycastBlock", cast)
             return null
         }
-
-        override fun healthRatio(cast: CastRef, entity: UUID): Double {
-            seen("query.healthRatio", cast)
-            return 1.0
-        }
     }
 
     /** Caster motion (R40): `teleport` moves [casterPosition] (feet + 1) so the next `rootOf` sees it; [wall] answers `probeBlock`. */
@@ -434,10 +428,10 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             return bare == "contact" || (bare.contains('.') && (root == "contact" || root == "target"))
         }
 
-        /** The `caster.<field>` names `PaperLiveValueSource` answers (feet, pos, position, look, eye, body, forward and the hand points). */
-        private val PAPER_CASTER_FIELDS = setOf("feet", "pos", "position", "look", "eye", "body", "forward", "hand_r", "hand_l", "palm")
+        /** The `caster.<field>` names `PaperLiveValueSource` answers (feet, pos, position, look, eye, body, forward). */
+        private val PAPER_CASTER_FIELDS = setOf("feet", "pos", "position", "look", "eye", "body", "forward")
 
-        /** `PaperLiveValueSource.rot`: any `caster` / `caster.*` basis (yaw, plus pitch for look / eye / hands), or a CEL cell; the bare contact basis; no target rotation. */
+        /** `PaperLiveValueSource.rot`: any `caster` / `caster.*` basis (yaw, plus pitch for look / eye), or a CEL cell; the bare contact basis; no target rotation. */
         private fun paperRotatable(name: String): Boolean {
             if (name.startsWith("= ") || name.startsWith("expr:")) return true
             val bare = name.removePrefix("anchor:")
@@ -476,7 +470,6 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                     return Vec3(pos.x + d.x * range, pos.y + d.y * range, pos.z + d.z * range)
                 }
                 override fun lookDirection(caster: ExprValue.Ref): Vec3 = SimFrame.fromYawPitch(pos, yaw, 0.0).forward()
-                override fun bladeLen(frame: ExprValue.Ref): Double = error("blade_len is not served")
                 override fun nearestEnemyDist(from: Vec3): Double = world.nearestEnemyDist(from)
                 override fun enemyInCone(from: Vec3, dir: Vec3, range: Double, halfAngleDeg: Double): Boolean = world.enemyInCone(from, dir, range, halfAngleDeg)
             }

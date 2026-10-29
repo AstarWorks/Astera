@@ -52,6 +52,8 @@ Founder questions Q2, Q3, Q5, Q6 are OPEN (Q1 = B and Q4 = A resolved 10/29, Q7 
   `nearest_enemy_dist` / `enemy_in_cone` in guards and live cells; 3.5.1 records the CEL library policy.
 **rev4.6 (2026-10-29, SKL-22 couture-rapier-s2 load; NEW OP for the founder)**: (1) a state may name an instance an EARLIER state spawned with the (5) Line ribbon player semantics: a `ribbon from:/to:` (look `shape: line`) is spawned through `ISkillVisualGateway.spawnLine(cast, from, to, thickness, colorHex, alpha)` (colour alpha is the opacity) and both endpoints are re-read from their live frames every tick through `updateLine`; it ends with `until:`/`for`. Paper draws it as one FIXED text-display strip facing the caster's eye, as v1's `line` op did (`0c9e986ef~1`: `PresentationExecutors.kt` LineExecutor, `PaperSkillVisualGateway.spawnLine`/`lineTransform`).
 
+**rev4.8 (2026-10-29, founder: why does a generic engine know `blade_len`, why are hands guessed)**: (1) the CEL functions `blade_len` and `hp_ratio` are deleted from the host, the classifier, the compiler and the shared cell evaluator; a skill that calls one is a named load error (unknown function), no alias. (2) the builtin `caster.hand_r` / `caster.hand_l` / `caster.palm` (a rest-pose guess in the Paper host) are deleted; naming one is a load error. A hand is a NAMED POINT of the skill's own rig body animation: `points: {name: {bone, offset}}` in `content/animations/<anim>.yaml` (offset in pixels from the bone joint, rest axes), read per tick as `<body op id>.<point>` (a `body` op id is a frame name in CEL and an anchor parent), resolved by the one shared `CellExprs`/TablePlayer path in sim and Paper. A finished `body` keeps riding the caster at its last pose. The shipped bastion and couture body animations carry `hand_r` / `hand_l`; `couture-rapier-s2` reads `body_anim.hand_r`.
+
 **rev4.7 (2026-10-29, founder Q7 = A)**: `screen_flash` and `screen_veil` are presentation ops again (10.1b rows; strict decode: overlay enum, `#RRGGBB`, veil distance 0.3..1.0 and `max_screen_fraction` up to 0.18 refused instead of coerced). `screen_flash` is a point effect through `ISkillGameplayGateway.screenFlash`; `screen_veil` is instance-lived (`spawnScreenVeil` / `updateScreenVeil` per tick, `End` at `ticks`). Sources: v1 `MechanicYaml.kt:1065-1098,1131-1163`, `PaperPlayerFeedbackGateway.kt:53-71`, `ScreenVeilHandler`. Q7 is closed; `bastion-greatsword-s2` and `-ego` carry their v2 cues again.
 state-qualified spelling `/<state>/<id>` (`/throw/volley`, `/throw/fly_a.root`; 10.1 `/x` is absolute from the machine root, ids are state-qualified,
 11.3). The state must be written before the referencing one, must declare the instance, and the instance must not have ended by then (a static
@@ -140,7 +142,7 @@ An anchor = **origin + named axes** (forward, left, up; items add `long`, `edge`
 
 ```yaml
 anchors:
-  - {id: hand,   anchor: caster.hand_r}                                  # follows the caster every send
+  - {id: hand,   anchor: body_anim.hand_r}                               # a named point of the skill's own `body` clip; follows it every send
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}   # copied once at activation, then world-fixed
   - {id: blade,  anchor: shears.blade_a}                                 # part anchor; axes long/edge/face from content/frames
   - {id: flash,  anchor: contact, turn: [{axis: up, deg: 90}]}           # at a contact point; created when the event fires
@@ -148,7 +150,7 @@ anchors:
 
 | field | meaning |
 |---|---|
-| `anchor` | parent anchor: `world`, `caster` (feet, yaw-only basis), `caster.eye` (full look basis, no roll), `caster.hand_r`/`hand_l`, `<item-frame>.<part>` (axes from `content/frames/<item>.yaml`), `contact`, `victim.<root/body/head>`, or any declared anchor. A gameplay frame is a valid parent (read-only). |
+| `anchor` | parent anchor: `world`, `caster` (feet, yaw-only basis), `caster.eye` (full look basis, no roll), `<body op id>.<point>` (a named point of the `body` op's rig animation, `points:` in `content/animations/<anim>.yaml`; rev4.8), `<item-frame>.<part>` (axes from `content/frames/<item>.yaml`), `contact`, `victim.<root/body/head>`, or any declared anchor. A gameplay frame is a valid parent (read-only). |
 | `offset` | name-keyed map in the PARENT's axes. |
 | `turn` | list of `{axis, deg}` relative to the parent basis, applied in list order. |
 | `mode` | `follow` (default): origin and axes re-read from the parent at every send. `snapshot`: pose copied once at activation, parent becomes `world`. |
@@ -497,7 +499,7 @@ Every numeric or vector field of every op, law and key accepts `"= <CEL>"` (0301
 | `row.<name>` | the current `each:` row; `${param}` for params; `anchor.<id>` for any anchor |
 
 **Classification is a definition, not a heuristic.** An expression is T iff it reads `t`, `lt`, `cast.t` or `state.t`; L iff it calls a frame
-function (`pos vel speed axis forward up left right dist dist_xz in_cone behind hp_ratio`) on `caster` / `target` / `victim` / `enemy` or an anchor of
+function (`pos vel speed axis forward up left right dist dist_xz in_cone behind`) on `caster` / `target` / `victim` / `enemy` or an anchor of
 basis L, or a world function (`aim_point look_dir nearest_enemy_dist enemy_in_cone`) or `stacks` / `velocity`; S otherwise. The world function `counter` is removed (the `counter` op is gone, 10.1b).
 `draw`, `roll` and `rand(name, k)` are class S. **`RandomInTiming` (extends check 9, 10.4 / 11.4):** `rand`, `roll` or `draw` in `at`, `for`, `every`,
 `times`, `until`, `lasts` or a transition `then` is a load error; in an op `when` (and in any value field) it is allowed (C4d; rejected `r12`). Snapshot versus live is syntax: an

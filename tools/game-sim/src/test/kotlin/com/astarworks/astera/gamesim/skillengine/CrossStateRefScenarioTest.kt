@@ -22,7 +22,7 @@ class CrossStateRefScenarioTest : SkillEngineScenario() {
               for: $aFor
               then: b
               do:
-                - {id: f, op: frame, anchor: caster.hand_r, ${span}}
+                - {id: f, op: frame, anchor: caster.eye, ${span}}
                 $aDo
             b:
               for: 20
