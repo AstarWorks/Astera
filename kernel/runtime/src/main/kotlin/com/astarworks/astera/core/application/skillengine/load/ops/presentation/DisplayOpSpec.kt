@@ -406,7 +406,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             val flipRows = op.flipbook?.let { flipbookRows(op, it, instance, end, lc) }.orEmpty()
             rows += flipRows
             // The anchor's own laws ride first: left_rotation = anchor.rot(t) * rider (item 16).
-            val laws = (inChain?.laws ?: lc.anchors.laws(op.anchor)) + op.motion?.laws(lc.occurrence).orEmpty() + (sprite?.sizeLaws ?: emptyList())
+            val laws = MotionLaws.rider(inChain?.laws ?: lc.anchors.laws(op.anchor), op.motion?.laws(lc.occurrence).orEmpty() + (sprite?.sizeLaws ?: emptyList()), "skill '${lc.skillId}' rider '${op.id.value.substringAfterLast('/')}'") { gc.fail("${src.value}.motion", it) }
             if (laws.isNotEmpty()) {
                 val moved = LawSegmenter.segments(instance, laws, lc, FADE_FIELD)
                 when (moved) {

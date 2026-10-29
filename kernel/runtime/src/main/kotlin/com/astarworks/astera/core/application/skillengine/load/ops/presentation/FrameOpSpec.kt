@@ -196,7 +196,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
             var segments = 0
             // The anchor's own laws ride first (left_rotation = anchor.rot(t) * rider), then this frame's own.
             val own = op.motion?.laws(occ).orEmpty()
-            val laws = (inChain?.laws ?: lc.anchors.laws(op.anchor)) + own
+            val laws = MotionLaws.rider(inChain?.laws ?: lc.anchors.laws(op.anchor), own, "skill '${lc.skillId}' rider '${op.id.value.substringAfterLast('/')}'") { ctx.fail("$src.motion", it) }
             if (laws.isNotEmpty()) {
                 val moved = when (val r = LawSegmenter.segments(instance, laws, lc)) {
                     is Result.Failure -> throw DecodeAbort(r.error)

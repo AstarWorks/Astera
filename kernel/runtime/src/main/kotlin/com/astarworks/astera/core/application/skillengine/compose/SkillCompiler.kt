@@ -100,7 +100,7 @@ public class SkillCompiler(
 
         val m = when (val r = MachineTables.lower(def.id, flat.machine, session.sections, config)) {
             is Result.Failure -> return r
-            is Result.Success -> r.value
+            is Result.Success -> r.value.let { it.copy(states = RiderOwnLength.fold(it.states, it.subTables)) }
         }
         val subs = when (val r = EventScoper.scope(def.id, m.states, m.subTables, emptyList(), config)) {
             is Result.Failure -> return r

@@ -139,7 +139,7 @@ machine:
           offset: {up: 1.1, forward: 0.8}
           turn: [{axis: up, deg: "= (i - 1) * 25 * sind(90)"}]
           motion:
-            - {law: spin, axis: up, deg_per_tick: "= 8 * (i + 1)", drag: 0.15, at: 0, for: 16}
+            - {law: spin, axis: up, deg_per_tick: "= 8 * (i + 1)", drag: 0.15, at: 0, for: 3}
         # riders: each fin binds its own member of `fan`; a per-index string list picks the block
         - id: fin
           op: display

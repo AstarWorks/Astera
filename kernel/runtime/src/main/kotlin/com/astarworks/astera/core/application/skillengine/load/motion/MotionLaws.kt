@@ -520,6 +520,59 @@ public object MotionLaws {
         }
     }
 
+    /**
+     * The laws a rider runs: the [inherited] laws of the moving frame or projectile body it rides, then its [own]. Own laws compose after (inside)
+     * the inherited ones, so their list indices continue where the inherited ones stop. Two laws of different lists that write one channel over
+     * overlapping ticks are a load error ([fail] gets the message, which names [who], the channel and both tick ranges): a live law (`align` to an
+     * anchor, `follow`, `stretch`) owns its channel while it runs, and a key tick inside a rate window is absolute; the old reading dropped one of
+     * the two without a word.
+     */
+    internal fun rider(inherited: List<MotionLaw>, own: List<MotionLaw>, who: String, fail: (String) -> Nothing): List<MotionLaw> {
+        if (own.isEmpty()) return inherited
+        if (inherited.isEmpty()) return own
+        val a = inherited.flatMap { piecesOf(it) }
+        val b = own.flatMap { piecesOf(it) }
+        for (x in a) for (y in b) {
+            if (x.channel != y.channel || y.from > x.to || y.to < x.from) continue
+            val live = x.reactive || y.reactive
+            val keyInWindow = (x.keys == null && y.keys != null) || (y.keys == null && x.keys != null)
+            if (!live && !keyInWindow) continue
+            val why = if (live) "a live law owns its channel while it runs" else "keys are absolute and cannot be combined with another law on the same channel"
+            fail("$who: ${y.path} overlaps ${x.path} on the ${x.channel} channel (ticks ${x.from}..${x.to} and ${y.from}..${y.to}); $why")
+        }
+        val shift = inherited.maxOf { it.order } + 1
+        return inherited + own.map { reordered(it, it.order + shift) }
+    }
+
+    private fun reordered(law: MotionLaw, order: Int): MotionLaw = when (law) {
+        is RateMotion -> law.copy(order = order)
+        is KeysMotion -> law.copy(order = order)
+        is OrbitMotion -> law.copy(order = order)
+        is AlignMotion -> law.copy(order = order)
+        is FollowMotion -> law.copy(order = order)
+        is StretchMotion -> law.copy(order = order)
+    }
+
+    private fun piecesOf(law: MotionLaw): List<Piece> = when (law) {
+        is RateMotion -> {
+            val r = law.rate
+            val channel = when (r) { is MoveRate -> "offset"; is SpinRate -> "turn"; is GrowRate -> "scale"; is FadeRate -> "alpha" }
+            listOf(Piece(law.path, channel, r.from, r.from + r.forTicks, law.order, emptyList()))
+        }
+        is KeysMotion -> law.keys.flatMap { k ->
+            listOfNotNull(
+                k.offset?.let { "offset" }, k.pose?.let { "turn" }, k.scale?.let { "scale" }, k.alpha?.let { "alpha" },
+            ).map { Piece(law.path, it, k.tick, k.tick, law.order, null) }
+        }
+        is OrbitMotion -> buildList {
+            add(Piece(law.path, "offset", law.at, law.at + law.forTicks, law.order, emptyList()))
+            if (law.face != "keep") add(Piece(law.path, "turn", law.at, law.at + law.forTicks, law.order, emptyList()))
+        }
+        is AlignMotion -> listOf(Piece(law.path, "turn", law.at, law.at + law.forTicks, law.order, emptyList(), reactive = !law.toVelocity))
+        is FollowMotion -> listOf(Piece(law.path, "offset", law.at, law.at + law.forTicks, law.order, emptyList(), reactive = true))
+        is StretchMotion -> listOf("offset", "scale", "turn").map { Piece(law.path, it, law.at, law.at + law.forTicks, law.order, emptyList(), reactive = true) }
+    }
+
     private class Composed(val dropped: List<TrackKey>, val added: List<TrackKey>)
 
     /** Per channel, clusters of overlapping or touching rate windows are replaced by one key per tick of the combined samples. */

@@ -95,7 +95,7 @@ public object LawSegmenter {
                 Action.Key(
                     instance, s.durationTicks,
                     st.liveOffset?.let { Val.Live(it, null) } ?: Val.Known(Vector3d(st.offset.x, st.offset.y, st.offset.z)),
-                    st.liveRot?.let { Val.Live(it, null) } ?: Val.Known(Quaterniond(st.rot.x, st.rot.y, st.rot.z, st.rot.w)),
+                    st.liveRot?.let { Val.Live(AlignCell.withPost(it, Quaterniond(st.rot.x, st.rot.y, st.rot.z, st.rot.w)), null) } ?: Val.Known(Quaterniond(st.rot.x, st.rot.y, st.rot.z, st.rot.w)),
                     st.liveScale?.let { Val.Live(it, null) } ?: Val.Known(Vector3d(st.scale.x, st.scale.y, st.scale.z)),
                 ),
                 src,
@@ -223,6 +223,8 @@ public object LawSegmenter {
                             // ease on an anchor align = a blend weight w = ease(tau / for) from the rotation held at the window start to the aligned one; 1 (and after the window) = the plain cell
                             val w = if (law.ease == null) 1.0 else ease(law.ease, unit(t, law.at, law.forTicks))
                             liveRot = if (law.ease != null && t < law.at + law.forTicks) "$cell@$w" else cell
+                            // the align is absolute (world facing): numeric turns listed before it are overwritten, the ones listed after compose onto it (cell suffix, see [AlignCell])
+                            rot = Quaternion.IDENTITY
                             liveOpen = liveOpen || t < law.at + law.forTicks
                         }
                     }
