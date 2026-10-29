@@ -379,6 +379,13 @@ internal fun CoreWiringState.wireProgression() {
         scheduler = scheduler,
         eventBus = eventBus,
         isHeld = matchSnapshots::isHeld,
+        // Every arrival on a game server is a transfer (nobody logs in there directly): wait long for the token, because a
+        // stale fallback restore would be captured by the match entry snapshot and come back to the lobby as the inventory.
+        settings = if (ctx.serverRole == com.astarworks.astera.core.domain.proxy.ServerRole.GAME) {
+            com.astarworks.astera.core.application.service.handoff.PlayerHandoffService.HandoffSettings(maxWaitTicks = 200)
+        } else {
+            com.astarworks.astera.core.application.service.handoff.PlayerHandoffService.HandoffSettings()
+        },
     )
     ctx.registrations += services.register<com.astarworks.astera.core.application.service.handoff.PlayerHandoffService>(handoff, priority = 0)
     val transferNotice = com.astarworks.astera.core.application.eventbus.listeners.proxy.TransferNoticeListener(mcServer)

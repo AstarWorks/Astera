@@ -59,6 +59,8 @@ public class PlayerHandoffService(
         val maxWaitTicks: Long = 40,
         val pollEveryTicks: Long = 2,
         val tokenTtlTicks: Long = 600,
+        /** How long after a no-token fallback restore a late token still corrects the (possibly stale) inventory. */
+        val lateTokenTicks: Long = 200,
     )
 
     private class Waiting(val deadlineTick: Long) {
@@ -69,12 +71,33 @@ public class PlayerHandoffService(
 
     private class Stored(val token: HandoffToken, val atTick: Long)
 
+    /** An arrival restored by the no-token fallback: [appliedMillis] is the `savedAt` of what was applied (0 = nothing). */
+    private class Fallback(val appliedMillis: Long, val untilTick: Long)
+
     private val log = LoggerFactory.getLogger(javaClass)
     private val lastVersion: MutableMap<PlayerId, Long> = ConcurrentHashMap()
     private val handedOff: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
     private val tokens: MutableMap<PlayerId, Stored> = ConcurrentHashMap()
     private val waiting: MutableMap<PlayerId, Waiting> = ConcurrentHashMap()
     private val dropped: MutableMap<PlayerId, PlayerSession> = ConcurrentHashMap()
+
+    /**
+     * Arrivals restored by the no-token fallback, for [HandoffSettings.lateTokenTicks]. The source's token may still be
+     * on its way (slow save / slow channel): the inventory applied here can be hours old. While an entry lives the live
+     * inventory is not trusted (never captured or saved: that would overwrite the source's newer snapshot), and a token
+     * that arrives newer than what was applied triggers exactly one corrective apply of the matching snapshot.
+     */
+    private val fallbacks: MutableMap<PlayerId, Fallback> = ConcurrentHashMap()
+
+    private fun fallbackLive(playerId: PlayerId): Fallback? {
+        val fb = fallbacks[playerId] ?: return null
+        if (scheduler.currentTick() < fb.untilTick) return fb
+        fallbacks.remove(playerId, fb)
+        return null
+    }
+
+    /** A fallback restore that applied a real (possibly stale) snapshot: the live inventory is not trusted until the window ends. */
+    private fun fallbackActive(playerId: PlayerId): Boolean = (fallbackLive(playerId)?.appliedMillis ?: 0L) > 0L
 
     /** Arrived without a confirmed restore (timeout, stale/null snapshot, load or apply failure): the live inventory is not theirs. */
     private val unrestored: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
@@ -84,7 +107,7 @@ public class PlayerHandoffService(
      * `true` while [playerId] is waiting for the restore or arrived without a successful one. Nothing may capture or
      * save their live inventory then: it would overwrite the last good snapshot with an empty / default inventory.
      */
-    public fun isRestorePending(playerId: PlayerId): Boolean = playerId in waiting || playerId in unrestored
+    public fun isRestorePending(playerId: PlayerId): Boolean = playerId in waiting || playerId in unrestored || fallbackActive(playerId)
 
     /** Starts listening for tokens (only a networked server needs it). */
     public fun start() {
@@ -107,7 +130,7 @@ public class PlayerHandoffService(
     public fun onTransferRequested(playerId: PlayerId, target: ServerName): Long? {
         if (playerId in waiting) return null // never restored here; the stored snapshot is still the truth
         val version = try {
-            if (isHeld(playerId) || playerId in unrestored) {
+            if (isHeld(playerId) || playerId in unrestored || fallbackActive(playerId)) {
                 snapshots.findLatest(playerId)?.savedAt?.toEpochMilli() // the pre-match entry snapshot stays authoritative
             } else {
                 val captured = inventory()?.capture(playerId) ?: return null
@@ -135,6 +158,7 @@ public class PlayerHandoffService(
     public fun onJoin(playerId: PlayerId) {
         handedOff -= playerId
         unrestored -= playerId
+        fallbacks.remove(playerId)
         markLoading(playerId)
         if (!awaitToken || inventory() == null) { // single server, or a host without an inventory: nothing to order
             finish(playerId, applySnapshot(playerId, loadLatest(playerId)), null)
@@ -155,7 +179,8 @@ public class PlayerHandoffService(
 
     public fun onQuit(playerId: PlayerId) {
         val wait = waiting.remove(playerId)
-        val skipSave = unrestored.remove(playerId)
+        val skipSave = unrestored.remove(playerId) or fallbackActive(playerId)
+        fallbacks.remove(playerId)
         if (wait != null) {
             wait.poll?.cancel()
             dropped.remove(playerId)?.let { sessions.upsert(it) } // still dropped from the match: the window keeps running
@@ -184,6 +209,11 @@ public class PlayerHandoffService(
     private fun onToken(token: HandoffToken) {
         val entry = waiting[token.playerId]
         if (entry == null) {
+            val fb = fallbacks[token.playerId]
+            if (fb != null && fallbackLive(token.playerId) != null && token.version > fb.appliedMillis) {
+                correctLate(token, deadlineTick = scheduler.currentTick() + settings.maxWaitTicks)
+                return
+            }
             purgeTokens()
             tokens[token.playerId] = Stored(token, scheduler.currentTick())
             return
@@ -225,8 +255,39 @@ public class PlayerHandoffService(
                 }
                 waiting.remove(playerId, entry)
                 val applied = applySnapshot(playerId, snapshot)
+                if (applied && token == null) {
+                    fallbacks[playerId] = Fallback(snapshot?.savedAt?.toEpochMilli() ?: 0L, scheduler.currentTick() + settings.lateTokenTicks)
+                }
                 finish(playerId, applied && (fresh || token == null), token?.fromServer)
             }.onRetired { waiting.remove(playerId, entry) }
+        }
+    }
+
+    /** The token came after the fallback restore: apply the snapshot that matches it, once. */
+    private fun correctLate(token: HandoffToken, deadlineTick: Long) {
+        val playerId = token.playerId
+        val fb = fallbacks[playerId] ?: return
+        scheduler.run(ExecutionScope.Io, kotlin.time.Duration.ZERO) {
+            val snapshot = loadLatest(playerId)
+            scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) {
+                if (fallbacks[playerId] !== fb) return@run // quit, re-joined or already corrected
+                val fresh = snapshot != null && snapshot.savedAt.toEpochMilli() >= token.version
+                if (!fresh && scheduler.currentTick() < deadlineTick) {
+                    scheduler.run(ExecutionScope.Entity(playerId.uuid), ticks(settings.pollEveryTicks)) { correctLate(token, deadlineTick) }
+                    return@run
+                }
+                fallbacks.remove(playerId, fb)
+                if (!fresh) {
+                    log.warn("Late hand-off token for {} (version {}) but no matching snapshot; keeping the fallback restore.", playerId, token.version)
+                    return@run
+                }
+                if (isHeld(playerId)) {
+                    log.warn("Late hand-off token for {} arrived while a match holds them; not applying.", playerId)
+                    return@run
+                }
+                log.warn("Late hand-off token for {} (version {}): replacing the stale fallback restore.", playerId, token.version)
+                applySnapshot(playerId, snapshot)
+            }
         }
     }
 

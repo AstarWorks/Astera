@@ -356,6 +356,49 @@ class LobbyGameSplitScenarioTest {
     }
 
     @Test
+    fun `a late hand-off token with a slow save never lets the game server restore the stale lobby inventory`() {
+        val network = SimProxyNetwork()
+        val shared = SharedSnapshotRepository(readLag = 3)
+        val lobby = GameSim.boot("split-late-lobby", role = ServerRole.LOBBY, serverName = lobbyName, proxy = network.node(lobbyName), snapshots = shared)
+        val game = GameSim.boot("split-late-game", role = ServerRole.GAME, serverName = gameName, proxy = network.node(gameName), snapshots = shared)
+        network.register(lobbyName, lobby)
+        network.register(gameName, game)
+        try {
+            val player = lobby.spawnPlayer("p1")
+            // An hours-old row of the same player (the stale snapshot a slow save / late token would let the game pick up).
+            shared.save(
+                com.astarworks.astera.core.domain.player.PlayerInventorySnapshot
+                    .empty(player.id, java.time.Instant.now().minusSeconds(3 * 3600))
+                    .copy(hotbar = listOf<com.astarworks.astera.core.domain.player.InventoryItemSlot?>(
+                        com.astarworks.astera.core.domain.player.InventoryItemSlot.ContentItem("stale", 1),
+                    ) + List(8) { null }),
+            )
+            network.step(300) // lobby fallback restore ("stale") and its late-token window are over
+            checkNotNull(lobby.inventory).put(player.id, "sword")
+            val mate = lobby.spawnPlayer("p1b")
+            network.holdChannel(ProxyChannel.HANDOFF, true) // the token is late
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.CARRY_TNT)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(mate.id, MatchmakingMode.CARRY_TNT)
+
+            assertThat(arrivedOn(network, game, player.id, 800)).`as`("player reached the game server").isTrue()
+            network.step(100) // longer than the lobby's 40 ticks: a fallback restore here would apply the stale row
+            assertThat(game.eventsOf<PlayerArrivedOnServer>().map { it.playerId }).`as`("still waiting for the token").doesNotContain(player.id)
+            assertThat(checkNotNull(game.inventory).items(player.id)).`as`("nothing restored before the token").isEmpty()
+            assertThat(game.eventsOf<MatchStarted>()).`as`("the match waits for the arrival").isEmpty()
+
+            network.holdChannel(ProxyChannel.HANDOFF, false)
+            network.step(60)
+            assertThat(game.eventsOf<PlayerArrivedOnServer>().map { it.playerId }.count { it == player.id }).`as`("exactly one arrival").isEqualTo(1)
+            assertThat(checkNotNull(game.inventory).items(player.id)).`as`("the snapshot matching the token, not the stale row").containsExactly("sword")
+            assertThat(shared.staleReads).`as`("the lagging store was actually read stale").isGreaterThan(0)
+            assertThat(game.eventsOf<MatchStarted>()).hasSize(1)
+        } finally {
+            lobby.shutdown()
+            game.shutdown()
+        }
+    }
+
+    @Test
     fun `a failed restore on the game server never overwrites the saved lobby inventory`() {
         val network = SimProxyNetwork()
         val shared = SharedSnapshotRepository()
@@ -378,7 +421,7 @@ class LobbyGameSplitScenarioTest {
             lobby.services.getOrThrow<IMatchmaker>().enqueue(mate.id, MatchmakingMode.CARRY_TNT)
 
             assertThat(arrivedOn(network, game, player.id, 800)).isTrue()
-            network.step(80) // restore wait expires with the store down
+            network.step(240) // the game server's token wait (200 ticks) expires with the store down
             assertThat(game.eventsOf<MatchStarted>()).hasSize(1)
             assertThat(checkNotNull(game.inventory).items(player.id)).`as`("restore failed: nothing was applied").isEmpty()
             readsFail = false

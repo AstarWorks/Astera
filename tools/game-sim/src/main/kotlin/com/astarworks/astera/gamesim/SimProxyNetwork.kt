@@ -33,6 +33,13 @@ public class SimProxyNetwork {
 
     private val down: MutableSet<ServerName> = linkedSetOf()
 
+    private val held: MutableSet<ProxyChannel> = linkedSetOf()
+
+    /** While [hold]ing a channel its queued messages stay undelivered (a slow Redis hop / proxy); release delivers them on the next pump. */
+    public fun holdChannel(channel: ProxyChannel, hold: Boolean) {
+        if (hold) held += channel else held -= channel
+    }
+
     /** Takes [name] off the network (crashed: no ticks, no messages in or out) or brings it back. */
     public fun setDown(name: ServerName, isDown: Boolean) {
         if (isDown) down += name else down -= name
@@ -46,8 +53,10 @@ public class SimProxyNetwork {
 
     /** Delivers every queued message (and any a handler queues in turn). */
     public fun pump() {
-        while (queue.isNotEmpty()) {
-            val (target, message) = queue.removeAt(0)
+        while (true) {
+            val index = queue.indexOfFirst { it.second.channel !in held }
+            if (index < 0) break
+            val (target, message) = queue.removeAt(index)
             if (target !in down) nodes[target]?.deliver(message)
         }
     }
