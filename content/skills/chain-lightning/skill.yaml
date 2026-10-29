@@ -1,6 +1,6 @@
 # chain-lightning: a bolt whose impact arcs to every enemy near the victim in one tick. Written from zero on the rev4.10 grammar.
 # The bolt hits its victim, then the arc jumps 3 times (every 3 ticks) to the nearest enemy not yet hit; each hop deals less (decay) and shocks for less.
-# Every link is drawn as a jagged polyline (6 segments for the first link, 3 per hop: check 10 sums every unrolled detached display, 4 links x core+glow <= 64): the first from the wand tip (fx) to the bolt's victim, each hop from the previous victim to the new one.
+# Every link is drawn as a jagged polyline (8 segments on the first link, 7 per hop; check 10 counts the displays alive per tick, peak 64): the first from the wand tip (fx) to the bolt's victim, each hop from the previous victim to the new one.
 # A link = white core + wider blue glow (the glow follows the core's vertex stream), re-kinked every 2 ticks, alive 5 ticks; both ends are read live.
 # Rule D: the hops drain after bolt.end (last hop at +9), so tail 14 = last hop 9 + its 5-tick ribbons.
 apiVersion: astera/v3
@@ -34,8 +34,8 @@ fragments:
     do:
       - {id: dmg,   op: damage, target: victim, damage: {electric: "= dmg * pow(decay, hop)"}}
       - {id: shock, op: status, target: victim, status: shock, stacks: 1, for: "= shock - 4 * hop"}
-      - {id: arc_glow, op: ribbon, from: from.center, to: victim.center, thickness: 0.22, color: "#6690d0ff", segments: 3, jitter: {spread: 0.3, along: 0.2, every: 2, follow: arc}, at: 0, for: 5, detach: true}
-      - {id: arc,      op: ribbon, from: from.center, to: victim.center, thickness: 0.07, color: "#ffeaf6ff", segments: 3, jitter: {spread: 0.3, along: 0.2, every: 2}, at: 0, for: 5, detach: true}
+      - {id: arc_glow, op: ribbon, from: from.center, to: victim.center, thickness: 0.22, color: "#6690d0ff", segments: 7, jitter: {spread: 0.3, along: 0.2, every: 2, follow: arc}, at: 0, for: 5, detach: true}
+      - {id: arc,      op: ribbon, from: from.center, to: victim.center, thickness: 0.07, color: "#ffeaf6ff", segments: 7, jitter: {spread: 0.3, along: 0.2, every: 2}, at: 0, for: 5, detach: true}
       - {id: spark, op: particle, particle: electric_spark, anchor: spot, count: 12, offset: [0.3, 0.6, 0.3], extra: 0.2, at: 0, detach: true}
       - {id: snd,   op: sound, sound: "astera:skills/lightning-impact", anchor: spot, volume: "= 0.8 * pow(0.85, hop - 1)", pitch: "= 1.0 + 0.1 * hop", detach: true}
   impact:
@@ -69,8 +69,8 @@ machine:
               - {id: dmg, op: damage, target: event.victim, damage: {electric: "${dmg_electric}"}}
               - {id: shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}", when: "= rand() < ${shock_chance}"}
               - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", anchor: contact, volume: 0.7, pitch: 1.2}
-              - {id: link_glow, op: ribbon, from: fx, to: heart, thickness: 0.22, color: "#6690d0ff", segments: 6, jitter: {spread: 0.35, along: 0.2, every: 2, follow: link}, at: 0, for: 5, detach: true}
-              - {id: link, op: ribbon, from: fx, to: heart, thickness: 0.07, color: "#ffeaf6ff", segments: 6, jitter: {spread: 0.35, along: 0.2, every: 2}, at: 0, for: 5, detach: true}
+              - {id: link_glow, op: ribbon, from: fx, to: heart, thickness: 0.22, color: "#6690d0ff", segments: 8, jitter: {spread: 0.35, along: 0.2, every: 2, follow: link}, at: 0, for: 5, detach: true}
+              - {id: link, op: ribbon, from: fx, to: heart, thickness: 0.07, color: "#ffeaf6ff", segments: 8, jitter: {spread: 0.35, along: 0.2, every: 2}, at: 0, for: 5, detach: true}
               - {id: imp, op: particle_def, def: thunder-impact, anchor: heart}
               - {id: jump, op: use, use: "fragment:arc", chain: {hops: 3, every: 3, pick: {kind: enemies, around: from, radius: 4.5, nearest: 1, exclude: chain}}, frames: {spot: heart}, with: {dmg: "${dmg_electric}", decay: "${decay}", shock: "${shock_ticks}"}}
               - {op: use, use: "fragment:impact", frames: {spot: heart}}

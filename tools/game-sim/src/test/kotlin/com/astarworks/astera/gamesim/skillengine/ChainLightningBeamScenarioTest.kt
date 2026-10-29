@@ -76,7 +76,7 @@ class ChainLightningBeamScenarioTest : SkillEngineScenario() {
         // glow + core per link, 4 links
         assertThat(r).describedAs(r.toString()).hasSize(8)
         assertThat(r.map { it.tick }.distinct()).containsExactly(hit, hit + 3, hit + 6, hit + 9)
-        for (s in r) assertThat(verts(s.detail)).`as`(s.detail).hasSize(r.indexOf(s).let { if (it < 2) 7 else 4 })
+        for (s in r) assertThat(verts(s.detail)).`as`(s.detail).hasSize(r.indexOf(s).let { if (it < 2) 9 else 8 })
         // first link starts at the wand (near the caster), hops chain victim to victim
         assertThat(verts(r[0].detail).first().z).isLessThan(3.0)
         val tops = r.filter { it.detail.contains("#eaf6ff") }

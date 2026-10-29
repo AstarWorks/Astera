@@ -159,8 +159,14 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
                 if (l.startsWith("## ")) { check(); pose = l.removePrefix("## "); section = ArrayList() } else section += l
             }
             check()
-            // a detached chain hop ribbon (`for: 3`) is removed exactly 3 ticks after it spawned, not at the run end
+            // a detached chain ribbon is removed exactly its own `for:` ticks after it spawned (read from the table: the End row of each ribbon spawn), not at the run end
             if (skill.def.id == "chain-lightning") {
+                val allRows = skill.table.worldRows + skill.table.states.flatMap { it.rows } + skill.table.subTables.values.flatMap { it.rows }
+                val ribbonSpawn = allRows.filter { (it.action as? com.astarworks.astera.core.domain.skillengine.table.Action.Spawn)?.kind == com.astarworks.astera.core.domain.skillengine.table.SpawnKind.RIBBON }
+                val fors = ribbonSpawn.mapNotNull { sp ->
+                    allRows.firstOrNull { (it.action as? com.astarworks.astera.core.domain.skillengine.table.Action.End)?.instance == sp.instance }?.let { it.tick - sp.tick }
+                }.toSet()
+                check(fors.isNotEmpty()) { "chain-lightning: no ribbon with an end row found in the table" }
                 var posed = ""
                 val spawned = HashMap<String, Int>()
                 for (l in lines) {
@@ -169,7 +175,7 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
                     val tick = l.substringAfter("@").substringBefore(' ').toInt()
                     val f = l.split(' ')
                     if (f.getOrNull(1) == "spawn" && "kind=ribbon" in l) spawned[f[2]] = tick
-                    if (f.getOrNull(1) == "remove" && f[2] in spawned && tick - spawned.getValue(f[2]) != 3) problems += "$key [$posed]: ribbon ${f[2]} spawned @${spawned[f[2]]} removed @$tick, but its for: is 3"
+                    if (f.getOrNull(1) == "remove" && f[2] in spawned && tick - spawned.getValue(f[2]) !in fors) problems += "$key [$posed]: ribbon ${f[2]} spawned @${spawned[f[2]]} removed @$tick, but the table's for: is one of $fors"
                 }
             }
         }
