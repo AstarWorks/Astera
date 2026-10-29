@@ -2828,6 +2828,87 @@
           "tintindex": 4
         }
       }
+    },
+    {
+      "name": "tip",
+      "from": [
+        7.95,
+        28.59,
+        7.95
+      ],
+      "to": [
+        8.05,
+        28.79,
+        8.05
+      ],
+      "faces": {
+        "north": {
+          "texture": "#m",
+          "uv": [
+            8,
+            14,
+            8.16,
+            14.8
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#m",
+          "uv": [
+            8,
+            13,
+            8.600000000000001,
+            13.8
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#m",
+          "uv": [
+            9,
+            1,
+            9.16,
+            1.8000000000000007
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#m",
+          "uv": [
+            4,
+            13,
+            4.6000000000000005,
+            13.8
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#m",
+          "uv": [
+            13,
+            14,
+            13.16,
+            14.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#m",
+          "uv": [
+            0,
+            12,
+            0.16000000000000014,
+            12.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      }
     }
   ],
   "display": {

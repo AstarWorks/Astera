@@ -8779,6 +8779,87 @@
         "axis": "z",
         "angle": 45
       }
+    },
+    {
+      "name": "tip",
+      "from": [
+        7.95,
+        27.99,
+        7.95
+      ],
+      "to": [
+        8.05,
+        28.19,
+        8.05
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            0,
+            7,
+            0.8000000000000007,
+            7.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            10,
+            1,
+            10.8,
+            1.6000000000000014
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            10,
+            4,
+            10.350000000000001,
+            4.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            3,
+            3,
+            3.3500000000000005,
+            3.6000000000000014
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            3,
+            13,
+            3.8000000000000007,
+            13.350000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#material_iron_block",
+          "uv": [
+            0,
+            10,
+            0.8000000000000007,
+            10.350000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
     }
   ],
   "display": {

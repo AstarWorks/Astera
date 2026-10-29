@@ -9599,6 +9599,87 @@
           "tintindex": 4
         }
       }
+    },
+    {
+      "name": "tip",
+      "from": [
+        7.95,
+        29.05,
+        7.95
+      ],
+      "to": [
+        8.05,
+        29.25,
+        8.05
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            14,
+            5,
+            14.75,
+            5.520000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            13,
+            3,
+            13.75,
+            3.520000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            6,
+            8,
+            6.25,
+            8.520000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            5,
+            4,
+            5.25,
+            4.520000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            14,
+            6,
+            14.75,
+            6.25
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#material_iron_block",
+          "uv": [
+            1,
+            12,
+            1.75,
+            12.25
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
     }
   ],
   "display": {

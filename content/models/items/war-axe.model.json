@@ -4567,6 +4567,87 @@
           "tintindex": 1
         }
       }
+    },
+    {
+      "name": "tip",
+      "from": [
+        14.95,
+        28.99,
+        7.95
+      ],
+      "to": [
+        15.05,
+        29.19,
+        8.05
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            15,
+            2,
+            16.0,
+            3.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            15,
+            7,
+            16.0,
+            8.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            14,
+            12.3,
+            15.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            4,
+            0.3000000000000007,
+            5.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            15,
+            9.0,
+            15.3
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            15,
+            3.0,
+            15.3
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
     }
   ],
   "display": {

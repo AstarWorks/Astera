@@ -3353,6 +3353,87 @@
           "tintindex": 5
         }
       }
+    },
+    {
+      "name": "tip",
+      "from": [
+        6.5,
+        27.29,
+        7.95
+      ],
+      "to": [
+        6.6,
+        27.49,
+        8.05
+      ],
+      "faces": {
+        "north": {
+          "texture": "#m",
+          "uv": [
+            15,
+            1,
+            15.399999999999999,
+            3.5
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#m",
+          "uv": [
+            15,
+            2,
+            16.0,
+            4.5
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#m",
+          "uv": [
+            10,
+            0,
+            10.399999999999999,
+            2.5
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#m",
+          "uv": [
+            2,
+            9,
+            3.0,
+            11.5
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#m",
+          "uv": [
+            15,
+            12,
+            15.399999999999999,
+            13.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#m",
+          "uv": [
+            13,
+            7,
+            13.399999999999999,
+            8.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      }
     }
   ],
   "display": {

@@ -8312,6 +8312,87 @@
         "axis": "z",
         "angle": 22.5
       }
+    },
+    {
+      "name": "tip",
+      "from": [
+        7.95,
+        18.63,
+        7.95
+      ],
+      "to": [
+        8.05,
+        18.83,
+        8.05
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            1.1600000000000001,
+            4.925,
+            2.1400000000000006,
+            5.074999999999999
+          ],
+          "rotation": 90,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            1.1600000000000001,
+            4.925,
+            2.1400000000000006,
+            5.074999999999999
+          ],
+          "rotation": 90,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            14,
+            6,
+            14.385000000000002,
+            6.98
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            4,
+            6,
+            4.385000000000001,
+            6.98
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            14,
+            14,
+            14.149999999999999,
+            14.385000000000002
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "down": {
+          "texture": "#material_iron_block",
+          "uv": [
+            8,
+            9,
+            8.149999999999999,
+            9.385000000000002
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      }
     }
   ],
   "display": {
