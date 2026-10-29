@@ -312,7 +312,7 @@ public class PaperLiveValueSource(
     private fun evalExpr(cast: CastHandle, request: CastRequest, name: String, binding: EventBinding?, scope: RowScope): ExprValue {
         if (CellExprs.sourceOf(name) == null) unsupported(name, "a resolvable cell")
         val vars = variables(cast, binding, castTick = scheduler.currentTick().toInt() - request.startTick, stateTick = 0)
-        return cells.eval(name, scope, vars, withInstances(frames(cast), scope.frames), StackHost(request, cast, binding))
+        return cells.eval(name, scope, vars, withInstances(frames(cast, binding), scope.frames), StackHost(request, cast, binding))
     }
 
     /** The caster / contact frames first, then the cast's own frame / projectile instances ([inst], from the row's scope). */

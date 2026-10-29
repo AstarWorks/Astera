@@ -464,6 +464,9 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                             Vec3(c.point.x, c.point.y, c.point.z), Vec3(c.normal.x, c.normal.y, c.normal.z), casterFrame.forward(),
                         )
                     }
+                    // as PaperLiveValueSource.victimFrame: exists only when the event binds a victim, with the same point names (no world: caster stand-in pose)
+                    frame == "victim" || frame == "target" ->
+                        if (binding?.victim == null || point !in setOf(null, "body", "feet", "root", "eye")) null else casterFrame
                     frame == "caster" -> casterFrame
                     else -> inst?.worldPose(frame, point)
                 }
