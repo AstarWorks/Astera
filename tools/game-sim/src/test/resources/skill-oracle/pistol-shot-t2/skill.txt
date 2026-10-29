@@ -6,7 +6,7 @@
 @0 particle - op=fire/trail1[0] type=white_smoke count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5773465135384344530
 @1 particle - op=fire/trail0[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4422400065892599329
 @1 particle - op=fire/trail1[1] type=white_smoke count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3735225102261560443
-@1 hit - op=fire/bolt at=0.000000,1.620000,3.700000 r=0.500000 shape=capsule a=0.000000,1.620000,3.700000 b=0.000000,1.620000,3.700000 rad=0.500000
+@1 hit - op=fire/bolt at=0.000000,1.620000,2.100000 r=2.100000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.700000 rad=0.500000
 g @1 state-exit reason=EVENT | state=fire
 g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
@@ -17,7 +17,7 @@ g @1 cast-end | pose
 @0 particle - op=fire/trail1[0] type=white_smoke count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5773465135384344530
 @1 particle - op=fire/trail0[1] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4422400065892599329
 @1 particle - op=fire/trail1[1] type=white_smoke count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3735225102261560443
-@1 hit - op=fire/bolt at=-2.092428,2.885475,2.776746 r=0.500000 shape=capsule a=-2.092428,2.885475,2.776746 b=-2.092428,2.885475,2.776746 rad=0.500000
+@1 hit - op=fire/bolt at=-1.187594,2.338242,1.575991 r=2.100000 shape=capsule a=-0.282761,1.791010,0.375236 b=-2.092428,2.885475,2.776746 rad=0.500000
 g @1 state-exit reason=EVENT | state=fire
 g @1 cast-end | pose
 ## gameplay-static

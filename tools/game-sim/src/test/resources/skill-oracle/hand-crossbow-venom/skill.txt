@@ -5,7 +5,7 @@
 @0 particle - op=fly/tr1[0] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7836981488148271270
 @1 particle - op=fly/tr0[1] type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5684576145392259514
 @1 particle - op=fly/tr1[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3997312233728545174
-@1 hit - op=fly/bolt at=0.000000,1.620000,3.300000 r=0.500000 shape=capsule a=0.000000,1.620000,3.300000 b=0.000000,1.620000,3.300000 rad=0.500000
+@1 hit - op=fly/bolt at=0.000000,1.620000,1.900000 r=1.900000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.300000 rad=0.500000
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
@@ -15,7 +15,7 @@ g @1 cast-end | pose
 @0 particle - op=fly/tr1[0] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7836981488148271270
 @1 particle - op=fly/tr0[1] type=happy_villager count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5684576145392259514
 @1 particle - op=fly/tr1[1] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3997312233728545174
-@1 hit - op=fly/bolt at=-1.866220,2.748666,2.476557 r=0.500000 shape=capsule a=-1.866220,2.748666,2.476557 b=-1.866220,2.748666,2.476557 rad=0.500000
+@1 hit - op=fly/bolt at=-1.074490,2.269838,1.425897 r=1.900000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.866220,2.748666,2.476557 rad=0.500000
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
 ## gameplay-static

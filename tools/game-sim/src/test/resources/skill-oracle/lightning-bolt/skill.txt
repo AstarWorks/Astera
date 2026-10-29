@@ -10,7 +10,7 @@
 @1 particle - op=fly/tr_rod[1] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5159480202502471308
 @1 particle - op=fly/tr_spark2[1] type=electric_spark count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4309278712062444045
 @1 particle - op=fly/tr_rod2[1] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4877495816720073090
-@1 hit - op=fly/bolt at=0.000000,1.620000,3.500000 r=0.500000 shape=capsule a=0.000000,1.620000,3.500000 b=0.000000,1.620000,3.500000 rad=0.500000
+@1 hit - op=fly/bolt at=0.000000,1.620000,2.000000 r=2.000000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.500000 rad=0.500000
 @1 remove #0 op=fly/mesh
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
@@ -26,7 +26,7 @@ g @1 cast-end | pose
 @1 particle - op=fly/tr_rod[1] type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5159480202502471308
 @1 particle - op=fly/tr_spark2[1] type=electric_spark count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4309278712062444045
 @1 particle - op=fly/tr_rod2[1] type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4877495816720073090
-@1 hit - op=fly/bolt at=-1.979324,2.817071,2.626652 r=0.500000 shape=capsule a=-1.979324,2.817071,2.626652 b=-1.979324,2.817071,2.626652 rad=0.500000
+@1 hit - op=fly/bolt at=-1.131042,2.304040,1.500944 r=2.000000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.979324,2.817071,2.626652 rad=0.500000
 @1 remove #0 op=fly/mesh
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose

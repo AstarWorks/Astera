@@ -5,7 +5,7 @@
 @0 particle - op=fire/trail1[0] type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3813382198018039899
 @1 particle - op=fire/trail0[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7485954417098508404
 @1 particle - op=fire/trail1[1] type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8852078153865921306
-@1 hit - op=fire/bolt at=0.000000,1.620000,4.100000 r=0.500000 shape=capsule a=0.000000,1.620000,4.100000 b=0.000000,1.620000,4.100000 rad=0.500000
+@1 hit - op=fire/bolt at=0.000000,1.620000,2.300000 r=2.300000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,4.100000 rad=0.500000
 g @1 state-exit reason=EVENT | state=fire
 g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
@@ -15,7 +15,7 @@ g @1 cast-end | pose
 @0 particle - op=fire/trail1[0] type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3813382198018039899
 @1 particle - op=fire/trail0[1] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7485954417098508404
 @1 particle - op=fire/trail1[1] type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8852078153865921306
-@1 hit - op=fire/bolt at=-2.318637,3.022283,3.076935 r=0.500000 shape=capsule a=-2.318637,3.022283,3.076935 b=-2.318637,3.022283,3.076935 rad=0.500000
+@1 hit - op=fire/bolt at=-1.300699,2.406646,1.726085 r=2.300000 shape=capsule a=-0.282761,1.791010,0.375236 b=-2.318637,3.022283,3.076935 rad=0.500000
 g @1 state-exit reason=EVENT | state=fire
 g @1 cast-end | pose
 ## gameplay-static

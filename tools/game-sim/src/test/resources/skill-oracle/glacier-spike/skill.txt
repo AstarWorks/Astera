@@ -5,7 +5,7 @@
 @0 particle - op=fly/trail_dust[0] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#bee6ff size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4363735295466446303
 @1 particle - op=fly/trail_snow[1] type=snowflake count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7228729750688768997
 @1 particle - op=fly/trail_dust[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#bee6ff size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1904118900394177573
-@1 hit - op=fly/bolt at=0.000000,1.620000,2.700000 r=0.500000 shape=capsule a=0.000000,1.620000,2.700000 b=0.000000,1.620000,2.700000 rad=0.500000
+@1 hit - op=fly/bolt at=0.000000,1.620000,1.600000 r=1.600000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,2.700000 rad=0.500000
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
@@ -15,7 +15,7 @@ g @1 cast-end | pose
 @0 particle - op=fly/trail_dust[0] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#bee6ff size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4363735295466446303
 @1 particle - op=fly/trail_snow[1] type=snowflake count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7228729750688768997
 @1 particle - op=fly/trail_dust[1] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#bee6ff size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1904118900394177573
-@1 hit - op=fly/bolt at=-1.526907,2.543454,2.026274 r=0.500000 shape=capsule a=-1.526907,2.543454,2.026274 b=-1.526907,2.543454,2.026274 rad=0.500000
+@1 hit - op=fly/bolt at=-0.904834,2.167232,1.200755 r=1.600000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.526907,2.543454,2.026274 rad=0.500000
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
 ## gameplay-static
