@@ -1004,8 +1004,19 @@ astera:
       no-norma-mode: "<red>This mode has no Norma levels.</red>"
       match-not-running: "<yellow>The match is not running yet or is already over.</yellow>"
       max-level: "<yellow>You are at the top Norma level.</yellow>"
+    norma-check:
+      not-at-base: "<red>Go back to your own base to run the Norma check.</red>"
+      enemy-base: "<red>This is an enemy base. Run the Norma check at your own base.</red>"
+      not-ready-star: "<yellow>Not ready yet: {missing} more stars needed.</yellow>"
+      not-ready-kill: "<yellow>Not ready yet: {missing} more kills needed.</yellow>"
     star:
       collected: "<gold><bold>+{amount} ★</bold></gold> <gray>(carrying {total})</gray>"
+      wave-warn:
+        title: "<gold><bold>★ Star wave incoming</bold></gold>"
+        subtitle: "<yellow>Mid, in {seconds}s</yellow>"
+        bar: "<gold>★ Star wave at Mid in {seconds}s (about {stars} stars)</gold>"
+      wave:
+        bar: "<gold><bold>★ The star wave has landed at Mid!</bold></gold>"
     # Wave 5lobby-content (ADR-0119) — lobby `lobby.queue.*` GuiIntent surface.
     queue:
       unknown-mode: "<red>Unknown queue mode.</red>"
@@ -1371,6 +1382,7 @@ astera:
       next-unlock: "<gray>Next:</gray> <white>Lv {level}</white> <white>{rarity}</white>"
       objective-star: "<gray>Goal:</gray> <yellow>Stars</yellow> <white>{progress}/{target}</white>"
       objective-kill: "<gray>Goal:</gray> <red>Kills</red> <white>{progress}/{target}</white>"
+      objective-ready: "<green>Norma ready</green> <gray>- check at base</gray>"
       objective-max: "<gold>Top Norma level</gold>"
       gold: "<gray>Gold</gray> <gold><bold>{gold}</bold></gold>"
     lobby:
@@ -2721,13 +2733,16 @@ astera:
   armor.diamond-champion-chestplate.name: "Diamond Champion Chestplate"
   armor.diamond-champion-leggings.name: "Diamond Champion Leggings"
   armor.diamond-champion-boots.name: "Diamond Champion Boots"
-  ore.needs-tier: "<gray>Needs a <white>{tier}</white> pickaxe or better to mine this ore.</gray>"
+  ore.needs-tier: "<gray>Needs a <white>{tier}</white> tool or better to mine this ore.</gray>"
+  ore.needs-level: "<red>Norma level <white>{level}</white> or higher is needed to mine this ore.</red>"
+  ore.wrong-tool: "<gray>This tool can barely scratch this ore. Use the right tool (pickaxe / axe / shovel).</gray>"
   # match-ux: staged match-start hints (one action-bar line), result-title reason, re-open link
   match.hint.sidebar: "<gray>The sidebar on the right shows the objective and score</gray>"
   match.hint.stars: "<gold>★</gold> <gray>Grab stars and defeat enemies to level up</gray>"
   match.hint.respawn: "<gray>You respawn in seconds. Press <white>F</white> for the menu</gray>"
   match.hint.norma-rank: "<gray>Higher levels unlock new skills and ultimates (max Lv {max}). Levels never decide the match</gray>"
   match.hint.time: "<gray>Time limit: {minutes} min</gray>"
+  match.hint.norma-check-ready: "<green><bold>Norma goal met!</bold></green> <gray>Return to your base: the Norma check runs by itself <dark_gray>(or <white>/astera norma check</white>)</dark_gray></gray>"
   match.hint.norma-choice-star: "<gray>Next goal: hold <gold>★ {target}</gold>. Change: <white>/astera norma choose kill</white></gray>"
   match.hint.norma-choice-kill: "<gray>Next goal: <red>⚔ {target} kills</red>. Change: <white>/astera norma choose star</white></gray>"
   match.summary.subtitle.time-draw: "<gray>Time up - tied</gray>"

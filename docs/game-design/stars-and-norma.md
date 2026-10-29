@@ -52,7 +52,12 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
   STAR. Choose in the picker GUI that opens at match start and at each level-up (closes after 10 s; no pick = STAR) or with
   `/astera norma choose star|kill`. The choice is allowed any time before
   the goal is reached.
-- Reaching the goal raises the Norma level at once (no home check in v1), resets the kill progress, re-opens the choice.
+- Reaching the goal only marks the player READY (action bar + sidebar tell them to go home). The level rises when the player runs the
+  Norma check (`/astera norma check`) inside their OWN team's base zone while still meeting the goal (a player who died and lost
+  stars is no longer ready). The zone is a disc of `norma_check_radius` (default 16, `content/norma-layer/layer.yaml`) around the
+  centroid of the team's TEAM spawn points. Enemy base, outside any base, or an unmet goal: refused with a message (shortfall shown).
+  A successful check resets the kill progress and re-opens the choice. Stars are still NOT consumed by the check (founder to decide).
+  Proven by game-sim `NormaCheckScenarioTest`; bots walk home and check (`BotBrain.normaHomeDest`). A right-click/hotbar trigger is not built yet.
   Stars are kept.
 - **Presentation:** a level-up shows a title ("Norma cleared!" + Lv N/max), plays a level-up sound, bursts particles and
   a firework at the player and tells the whole match in chat; the top level gets a bigger version. When the picker
@@ -71,18 +76,54 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
   zones, banked jewels; skirmish and annihilation have none), then the most stars carried (sum over members); tie: the most
   kills; still tied: draw. Kills count for a player's KILL goal and, per team, as the last tie-break (ADR-0272). Winning pays the
   normal reward table (GOLD / XP), never stars.
-- **Pace (balance, content defaults, 2026-10-27):** 5 levels, star goals **10, 30, 60, 100** (cumulative "carry at least"; the
-  last clear is 100) and kill goals 1,2,3,4. Every generator pops **5 stars per 20 s** (15/min; the 4 arena generators = 60/min
-  on the stage; sudden death doubles each pop). A death bursts **half** of the carried stack (`death_drop_ratio` 0.5) as up to
-  16 items in a fountain; leaving the match still drops everything. Old values: goals 3,5,8,12; 1 star per 30 s per generator
-  (8/min); ratio 1.0; at most 6 items per burst.
-  Math (10 min limit = 600 s; "final third" = after 400 s): the stage income R = 4 generators x 15/min = 60 stars/min, shared by
-  a lane of up to 4v4. A good team takes ~60% of R; its best collector takes ~40% of that, so ~0.24 R = 14.4 stars/min. Time to
-  reach 10 / 30 / 60 / 100 = 0.7 / 2.1 / 4.2 / **6.9 min (~415 s, final third)**. A 2v2 lane has the best collector at ~0.30 R =
-  18/min: 100 in ~5.6 min. The average collector of a 4v4 lane nets R/8 = 7.5/min (100 in ~13 min, i.e. only the leaders reach
-  the top before the limit; the rest are ranked by Norma level, then stars). Deaths at 0.5 ratio cost a leader ~half the stack
-  but hand the killer's side a pile to grab, so the race stays live; stars are never created by kills. The kill goals (1+2+3+4 =
-  10 kills) are an alternate route, untuned here.
+- **Star supply formula (founder 2026-10-29, anti-snowball; tunable after release):** stars must keep growing as the match goes
+  on, so a trailing team always has more to take. Every star generator pop and every Mid wave is scaled by one formula in
+  `content/norma-layer/layer.yaml`: `multiplier(t) = min(star_supply_max_multiplier, 1 + star_supply_growth * t / star_supply_ramp_seconds)`
+  (`t` = seconds since the match went active), `stars = round(authored amount * multiplier)`. Values: growth 1.5, ramp 600 s,
+  max 2.5 (x1.0 at the start, x1.25 at 100 s, x2.5 from 600 s; sudden death still doubles each generator pop on top).
+  Code: `StarSupply` (domain), `StarSupplyClock`, applied in `StarDropService.onSpawned`. Each supply is published as
+  `StarSupplied`, which is what the pace scenario measures.
+- **Annihilation arena generators:** (1) **Mid star wave** (`annihilation-center-wave`): no always-on Mid pop. Every
+  `wave_period_seconds` (100) a wave lands, announced `wave_warn_seconds` (10) ahead (title, sound, action bar; moments
+  `star-wave-warn` / `star-wave`). Wave size = 30 x multiplier (38 at 100 s, 75 from 600 s), thrown one by one as up to 48 star
+  items over a disc of `scatter_radius` (16) around Mid within `scatter_seconds` (8). (2) **Flank generators** (3) stay, smaller:
+  2 per 20 s x multiplier. (3) **Team base generators** (`annihilation-base-<team>`): 2 per 20 s x multiplier at each base island;
+  only members of that team can pick the stars up (`StarDrop.team`).
+- **Pace (balance, content defaults, 2026-10-29):** 5 levels, star goals **10, 30, 60, 100** and kill goals 1,2,3,4. A death bursts
+  **half** of the carried stack (`death_drop_ratio` 0.5) as up to 16 items; leaving the match still drops everything.
+  Measured by `StarSupplyPaceScenarioTest` (game-sim, real content, real phase timeline build 60 s / engage 600 s / tier 3 300 s;
+  the clock starts at match start, so wave 1 lands 40 s into engage). Values below are the supply the formula produces
+  (computed from the shipped content with the same rounding; the scenario prints the same table and asserts it).
+
+  | minute | Mid wave + flanks (neutral) | one team base | stage total (neutral + 3 bases) |
+  |---|---|---|---|
+  | 0-1 | 12 | 4 | 24 |
+  | 1-2 | 59 | 7 | 80 |
+  | 2-3 | 27 | 9 | 54 |
+  | 3-4 | 72 | 9 | 99 |
+  | 4-5 | 27 | 9 | 54 |
+  | 5-6 | 89 | 12 | 125 |
+  | 6-7 | 96 | 12 | 132 |
+  | 7-8 | 36 | 12 | 72 |
+  | 8-9 | 110 | 14 | 152 |
+  | 9-10 | 45 | 15 | 90 |
+  | 10-15 (avg) | 90 | 15 | 135 |
+
+  Waves are 100 s apart, so single minutes are lumpy (a wave lands in 6 of 10 minutes); phases are the fair comparison:
+
+  | phase | neutral / min | one team base / min | stage total / min |
+  |---|---|---|---|
+  | build (0-60 s) | 12.0 | 4.0 | 24.0 |
+  | engage (60-660 s) | 68.1 | 11.4 | 102.3 |
+  | tier 3 (660-960 s) | 90.0 | 15.0 | 135.0 |
+
+  Best collector of a 4v4-per-team, 3-team lane (4 players per team): ~18% of the neutral supply (about 2x the average 1/12) plus ~40%
+  of its own team's base supply. Time to carry 10 / 30 / 60 / **100** stars = **1.7 / 3.3 / 5.0 / 7.3 min**, i.e. level 5 at
+  about 7-8 minutes for an active team player; one runner taking only the neutral share would need ~10 min, the average
+  collector more (the base stars and the teamwork are what carry a team to level 5). The scenario asserts level 5 lies in 6.5-8.5
+  min, that waves land on schedule (100 s, +-2.5 s) and are warned 10 s ahead, that tier 3 supplies > 1.2x engage and engage
+  > 1.5x build, and that another team cannot take a base generator's stars. Old values (2026-10-27): 5 stars per 20 s per
+  generator, 4 generators, flat all match.
   The e2e image shrinks it (3 levels, star goals 2,3, kill goals 1,2, generators 1 star every 3 s, ratio 1.0, 150 s cap).
 
 ### Kill fountain (presentation)

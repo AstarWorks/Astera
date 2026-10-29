@@ -34,6 +34,9 @@ import com.astarworks.astera.match.application.service.MatchStarLifecycle
 import com.astarworks.astera.match.application.service.NormaLevelGate
 import com.astarworks.astera.match.application.service.NormaLevelService
 import com.astarworks.astera.match.application.service.StarDropService
+import com.astarworks.astera.match.application.service.StarSupplyClock
+import com.astarworks.astera.match.application.service.StarWaveService
+import com.astarworks.astera.match.domain.star.StarSupply
 import com.astarworks.astera.match.domain.event.ResourceSpawned
 import com.astarworks.astera.match.domain.event.StarsCollected
 import com.astarworks.astera.match.domain.norma.NormaConfig
@@ -78,7 +81,10 @@ internal object MatchStarWiring {
         val configOf: (MatchId) -> NormaConfig = { id -> NormaConfig.parse(env.modeConfigOf(id)) }
 
         val dropWorld = env.ports.starDropWorld?.invoke(services)
+        val clock = StarSupplyClock(env.scheduler) { id -> StarSupply.parse(env.modeConfigOf(id)) }
+        val presentationPort = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>()
         val drops = StarDropService(
+            clock = clock,
             scheduler = env.scheduler,
             matches = env.matches,
             generators = generators,
@@ -98,6 +104,7 @@ internal object MatchStarWiring {
             configOf = configOf,
             isNorma = env.normaLayerOf,
             eventBus = eventBus,
+            baseZone = com.astarworks.astera.match.application.service.NormaBaseZone(env.stages, positions),
         )
         val lifecycle = MatchStarLifecycle(
             registry = registry,
@@ -109,6 +116,18 @@ internal object MatchStarWiring {
             onInvalid = { id, reason -> env.ctx.logger.warning("Generator $id not instantiated: $reason") },
         )
         val subs = env.ctx.subscriptions
+        val waves = StarWaveService(
+            matches = env.matches,
+            generators = generators,
+            matchWorlds = services.getOrThrow<IMatchWorldRepository>(),
+            drops = drops,
+            clock = clock,
+            scheduler = env.scheduler,
+            presentation = presentationPort,
+            eventBus = eventBus,
+        )
+        subs += eventBus.subscribe(MatchStarted::class) { clock.onStarted(it.matchId) }
+        subs += eventBus.subscribe(MatchEnded::class) { clock.onEnded(it.matchId); waves.clear(it.matchId) }
         subs += eventBus.subscribe(MatchStarted::class) { lifecycle.onStarted(it) }
         subs += eventBus.subscribe(MatchEnded::class) { lifecycle.onEnded(it) }
         subs += eventBus.subscribe(ResourceSpawned::class) { drops.onSpawned(it) }
@@ -129,10 +148,12 @@ internal object MatchStarWiring {
             server = services.getOrThrow<IMcServer>(),
             world = env.ports.oreNodeWorld?.invoke(services),
             scheduler = env.scheduler,
+            levelOf = { norma.levelOf(it) },
             onInvalid = { id, reason -> env.ctx.logger.warning("Ore nodes of stage $id not placed: $reason") },
         )
         env.ctx.registrations += services.register<com.astarworks.astera.match.application.service.OreNodeService>(oreNodes, priority = 0)
         env.ctx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion>(oreNodes, priority = 0)
+        env.ctx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IOreNodeStrikes>(oreNodes, priority = 0)
         subs += eventBus.subscribe(MatchStarted::class) { oreNodes.onStarted(it) }
         subs += eventBus.subscribe(MatchEnded::class) { oreNodes.onEnded(it) }
         val itemDrops = com.astarworks.astera.match.application.service.GeneratorItemDropService(
@@ -173,8 +194,15 @@ internal object MatchStarWiring {
             },
         )
         subs += eventBus.subscribe(NormaLevelUp::class) { e -> env.scheduler.runLaterTicks(ExecutionScope.Entity(e.playerId.uuid), LEVEL_UP_PROMPT_DELAY_TICKS) { prompter.hint(e.playerId) } }
+        // Goal met: the level does not rise yet. The player is told to go back to their own base for the Norma check.
+        subs += eventBus.subscribe(com.astarworks.astera.match.domain.event.NormaCheckReady::class) { e ->
+            services.get<IHudGateway>()?.showFor(
+                e.playerId,
+                HudLayout.ActionBar(HudComponent.Text(messageKey = MessageKey("astera.match.hint.norma-check-ready")), ttlTicks = HINT_TTL_TICKS, priority = 2),
+            )
+        }
         // Command teleports raise no move event: a short poll covers them and redraws the drop markers.
-        env.scheduledTasks += env.scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 10L, periodTicks = 10L) { drops.poll() }
+        env.scheduledTasks += env.scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 10L, periodTicks = 10L) { drops.poll(); norma.autoCheckReady(); waves.poll() }
         return Wired(store, registry, env.stages, norma, drops, configOf)
     }
 }

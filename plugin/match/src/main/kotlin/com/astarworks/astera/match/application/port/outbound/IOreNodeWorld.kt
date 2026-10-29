@@ -12,4 +12,7 @@ public interface IOreNodeWorld {
 
     /** The node is mined (or reset): clear its crack overlay. */
     public fun clearCrack(world: WorldId, pos: Vec3)
+
+    /** A player under the node's Norma level swung at it: play the deny sound at the node. */
+    public fun deny(world: WorldId, pos: Vec3)
 }

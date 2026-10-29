@@ -5,6 +5,7 @@ import com.astarworks.astera.combat.application.port.outbound.IToolBlockGateway
 import com.astarworks.astera.combat.application.port.outbound.aoe.ILightningGateway
 import com.astarworks.astera.combat.application.service.SkillWorldRules
 import com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion
+import com.astarworks.astera.core.application.port.outbound.IOreNodeStrikes
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
@@ -53,7 +54,8 @@ public class PaperSkillWorldGateway(
     toolBlocks: () -> IToolBlockGateway?,
     items: () -> IItemRegistry?,
     exclusion: () -> IAreaBreakExclusion?,
-) : LedgerWorldGateway(PaperBlockAccess(server, guard, blockStates, covers, structures, toolBay, coverService, toolBlocks, items, exclusion)) {
+    oreNodes: () -> IOreNodeStrikes?,
+) : LedgerWorldGateway(PaperBlockAccess(server, guard, blockStates, covers, structures, toolBay, coverService, toolBlocks, items, exclusion, oreNodes)) {
 
     override fun explode(cast: CastRef, at: Vec3, power: Double, breakBlocks: Boolean, fire: Boolean) {
         val owner = server.getEntity(cast.caster) ?: return
@@ -92,6 +94,8 @@ internal class PaperBlockAccess(
     private val toolBlocks: () -> IToolBlockGateway?,
     private val items: () -> IItemRegistry?,
     private val exclusion: () -> IAreaBreakExclusion?,
+    /** Lazy: Match registers the Mid ore nodes after Combat wires. A tool skill strikes a node through it. */
+    private val oreNodes: () -> IOreNodeStrikes? = { null },
 ) : ISkillBlockAccess {
 
     private fun worldOf(cast: CastRef): World? = server.getWorld(cast.world.value)
@@ -105,7 +109,8 @@ internal class PaperBlockAccess(
         val w = worldOf(cast) ?: return false
         // The lobby is protected except for the tool bay (MAP-A6): the bay policy outranks the outside-arena shortcut.
         toolBay()?.editPolicy(worldId(w), cell.x, cell.y, cell.z)?.let { return it }
-        if (exclusion()?.isExcluded(worldId(w), pos(cell)) == true) return false
+        // A Mid ore node is not editable by the plain block rules, but a tool skill may strike it (damage() routes it to the node).
+        if (!isOreNode(w, cell) && exclusion()?.isExcluded(worldId(w), pos(cell)) == true) return false
         if (outsideArena) return true
         return guard()?.canEdit(PlayerId(cast.caster), worldId(w), pos(cell)) ?: true
     }
@@ -117,8 +122,10 @@ internal class PaperBlockAccess(
 
     override fun isStructure(cast: CastRef, cell: BlockCell): Boolean {
         val w = worldOf(cast) ?: return false
-        return structures()?.targetAtBlock(worldId(w), pos(cell)) != null
+        return isOreNode(w, cell) || structures()?.targetAtBlock(worldId(w), pos(cell)) != null
     }
+
+    private fun isOreNode(w: World, cell: BlockCell): Boolean = oreNodes()?.isNode(worldId(w), pos(cell)) == true
 
     override fun isCoverBlock(blockKey: String): Boolean =
         runCatching { covers()?.resolve(BlockType(blockKey)) != null }.getOrDefault(false)
@@ -151,6 +158,7 @@ internal class PaperBlockAccess(
 
     override fun damage(cast: CastRef, cell: BlockCell, blockDamage: Int, toolClass: String?): BlockDamageOutcome {
         val w = worldOf(cast) ?: return BlockDamageOutcome.NONE
+        if (isOreNode(w, cell)) return strikeOreNode(cast, w, cell, blockDamage, toolClass)
         structures()?.targetAtBlock(worldId(w), pos(cell))?.let { return strikeStructure(cast, it, blockDamage, toolClass) }
         val gateway = blockStates() ?: return BlockDamageOutcome.NONE
         val kind = toolClass?.let { runCatching { ToolKind.valueOf(it.uppercase()) }.getOrNull() }?.takeIf { it != ToolKind.NONE }
@@ -215,6 +223,19 @@ internal class PaperBlockAccess(
         if (tools != null) tools.breakBlock(world, at, owner, toolData) else remove(cast, cell)
         surface?.let { tools?.effect(world, at, it.data, false) }
         return BlockDamageOutcome.BROKEN
+    }
+
+    /**
+     * A tool skill struck a Mid ore node: the node applies its own affinity / Norma level / HP rules and handles its drops and regrowth,
+     * so this never reports BROKEN (the ledger would otherwise restore the ore over the regrowing placeholder). A cast without a tool
+     * class (a weapon's contact chip) is skipped.
+     */
+    private fun strikeOreNode(cast: CastRef, w: World, cell: BlockCell, blockDamage: Int, toolClass: String?): BlockDamageOutcome {
+        val kind = toolClass?.let { c -> ToolKind.entries.firstOrNull { it != ToolKind.NONE && it.name.equals(c, ignoreCase = true) } }
+            ?: return BlockDamageOutcome.NONE
+        val nodes = oreNodes() ?: return BlockDamageOutcome.NONE
+        val result = nodes.strike(PlayerId(cast.caster), worldId(w), pos(cell), ToolType(kind, tierOf(cast)), blockDamage)
+        return if (result == IOreNodeStrikes.Result.NONE) BlockDamageOutcome.NONE else BlockDamageOutcome.CHIPPED
     }
 
     /**

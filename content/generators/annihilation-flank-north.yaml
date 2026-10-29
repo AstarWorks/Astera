@@ -4,7 +4,7 @@ id: annihilation-flank-north
 match_stage_id: annihilation-arena
 position: { x: 0.5, y: 65.0, z: 72.5 }
 period_seconds: 20.0
-amount: 5
+amount: 2
 tier: iron
 affiliation:
   kind: neutral

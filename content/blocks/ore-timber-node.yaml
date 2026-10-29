@@ -1,0 +1,17 @@
+# Mid ore node, wood-like: an ironwood knot. AXE-affinity (the pickaxe and shovel barely dent it).
+# 800 HP -> stone axe 8 hits (~2.4 s), iron 6, diamond 4. Pickaxe / shovel: 12 per hit (~67 hits, ~20 s).
+
+id: "astera:ore_timber_node"
+display_name:
+  en: "Ironwood Node"
+  ja: "鉄樹ノード"
+base_bukkit_material: "MANGROVE_LOG"
+material: "WOOD"
+base_durability: 800
+
+tool_effectiveness:
+  "AXE/STONE": 100
+  "AXE/IRON": 150
+  "AXE/DIAMOND": 250
+  "PICKAXE/STONE": 12
+  "SHOVEL/STONE": 12

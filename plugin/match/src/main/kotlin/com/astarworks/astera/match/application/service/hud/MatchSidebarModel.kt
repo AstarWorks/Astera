@@ -115,6 +115,8 @@ public object MatchSidebarModel {
                 add(HudComponent.Text(MessageKey("astera.hud.sidebar.level"), placeholders = levelParams))
                 if (norma.level >= norma.maxLevel) {
                     add(HudComponent.Text(MessageKey("astera.hud.sidebar.objective-max")))
+                } else if (norma.ready) {
+                    add(HudComponent.Text(MessageKey("astera.hud.sidebar.objective-ready")))
                 } else {
                     val key = if (norma.goal == NormaGoal.STAR) "astera.hud.sidebar.objective-star" else "astera.hud.sidebar.objective-kill"
                     add(HudComponent.Text(MessageKey(key), placeholders = mapOf("progress" to norma.progress.toString(), "target" to norma.target.toString())))

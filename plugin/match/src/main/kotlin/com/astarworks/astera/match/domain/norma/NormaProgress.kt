@@ -9,4 +9,6 @@ public data class NormaProgress(
     val goal: NormaGoal = NormaGoal.STAR,
     val killsAtLevel: Int = 0,
     val totalKills: Int = 0,
+    /** The "ready for the Norma check" notice was already sent for this level (re-armed when a check finds the goal unmet). */
+    val readyNotified: Boolean = false,
 )

@@ -1,0 +1,16 @@
+# Mid ore node, wood-like: a goldheart burl, the richer axe ore. AXE-affinity, needs an iron tool.
+# 1400 HP -> iron axe 12 hits (~3.6 s), diamond 6. Pickaxe / shovel: 20 per hit (70 hits, ~21 s).
+
+id: "astera:ore_heartwood_node"
+display_name:
+  en: "Goldheart Node"
+  ja: "金芯樹ノード"
+base_bukkit_material: "CRIMSON_STEM"
+material: "WOOD"
+base_durability: 1400
+
+tool_effectiveness:
+  "AXE/IRON": 120
+  "AXE/DIAMOND": 240
+  "PICKAXE/IRON": 20
+  "SHOVEL/IRON": 20

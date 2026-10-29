@@ -64,6 +64,16 @@ moments:
   # Stars (FX-04). pop = a star appears at a generator (heard and seen nearby); pickup = "+N" with a chime that
   # climbs a semitone-and-a-half per consecutive pickup; burst = the victim's stars fly out (victim feels the loss,
   # the killer sees the haul, bystanders hear it).
+  # Mid star wave: announced ahead (title, sound, action bar), then landed (sound, action bar).
+  star-wave-warn:
+    cue: "astera:norma/choice-open"
+    title: "astera.match.star.wave-warn.title"
+    subtitle: "astera.match.star.wave-warn.subtitle"
+    action_bar: "astera.match.star.wave-warn.bar"
+    title_stay_ticks: 40
+  star-wave:
+    cue: "astera:star/burst-boom"
+    action_bar: "astera.match.star.wave.bar"
   star-pop:
     cue: "astera:star/pop"
     particle: star-pop

@@ -21,7 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin
 
 /**
  * Mid ore nodes on Paper: a break (or the start of a dig) on a node block is cancelled and handed to [OreNodeService.mine],
- * which gives the drops and swaps the block for its placeholder. Blocks that are not nodes pass through untouched.
+ * which applies the tool affinity and Norma level rules, gives the drops and swaps the block for its placeholder. Blocks that are not nodes pass through untouched.
  */
 public class PaperOreNodeListener(
     private val service: () -> OreNodeService?,
@@ -95,6 +95,12 @@ public class PaperOreNodeWorld(private val plugin: JavaPlugin) : IOreNodeWorld {
             at.world.playSound(at, at.block.blockData.soundGroup.hitSound, 1.0f, 1.0f)
             at.world.players.forEach { it.sendBlockDamage(at, progress) }
         })
+    }
+
+    override fun deny(world: WorldId, pos: Vec3) {
+        val w = plugin.server.getWorld(world.value) ?: return
+        val at = Location(w, pos.x, pos.y, pos.z)
+        plugin.server.regionScheduler.execute(plugin, at, Runnable { at.world.playSound(at, org.bukkit.Sound.ENTITY_VILLAGER_NO, 0.8f, 1.0f) })
     }
 
     override fun clearCrack(world: WorldId, pos: Vec3) {

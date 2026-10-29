@@ -90,6 +90,7 @@ internal object MatchHudWiring {
         }
         subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.StarsCollected::class) { matchSidebar.refreshPlayer(it.playerId) }
         subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.NormaLevelUp::class) { matchSidebar.refreshPlayer(it.playerId) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.NormaCheckReady::class) { matchSidebar.refreshPlayer(it.playerId) }
 
         installNameplatesAndTab(env, modeOf)
 

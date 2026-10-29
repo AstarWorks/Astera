@@ -23,6 +23,7 @@ class NormaUnlockScenarioTest {
             stars.add(matchId, who.id, 25)
             sim.eventBus.publish(StarsCollected(matchId, who.id, 25, stars.get(matchId, who.id)))
             advance(2)
+            normaCheckAtHome(matchId, who)
         }
     }
 

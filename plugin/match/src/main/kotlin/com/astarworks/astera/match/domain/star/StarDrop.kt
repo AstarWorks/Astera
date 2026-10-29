@@ -24,4 +24,6 @@ public data class StarDrop(
     val entity: String? = null,
     /** The host holds the pickup back until this scheduler tick (a kill burst is seen flying out): becomes the item entity's pickup delay. */
     val readyAtTick: Long = 0L,
+    /** Only this team's members can take the drop (a team base generator), or `null` for anyone. */
+    val team: com.astarworks.astera.core.domain.match.TeamId? = null,
 )

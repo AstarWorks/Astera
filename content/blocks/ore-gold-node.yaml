@@ -1,4 +1,5 @@
-# Mid ore node: needs at least an iron pickaxe.
+# Mid ore node: needs at least an iron tool. Pickaxe-affinity.
+# 1200 HP -> iron pickaxe 10 hits (~3 s), diamond 5. Axe / shovel: 20 per hit (60 hits, ~18 s).
 
 id: "astera:ore_gold_node"
 display_name:
@@ -6,8 +7,10 @@ display_name:
   ja: "金鉱石ノード"
 base_bukkit_material: "GOLD_ORE"
 material: "STONE"
-base_durability: 300
+base_durability: 1200
 
 tool_effectiveness:
-  "PICKAXE/IRON": 100
-  "PICKAXE/DIAMOND": 200
+  "PICKAXE/IRON": 120
+  "PICKAXE/DIAMOND": 250
+  "AXE/IRON": 20
+  "SHOVEL/IRON": 20

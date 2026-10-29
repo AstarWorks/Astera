@@ -1011,8 +1011,19 @@ astera:
       no-norma-mode: "<red>このモードにはノルマレベルがありません。</red>"
       match-not-running: "<yellow>試合が始まっていないか、すでに終了しています。</yellow>"
       max-level: "<yellow>最高ノルマレベルです。</yellow>"
+    norma-check:
+      not-at-base: "<red>ノルマチェックは自チームの拠点で行ってください。</red>"
+      enemy-base: "<red>ここは敵の拠点です。自拠点でノルマチェックを行ってください。</red>"
+      not-ready-star: "<yellow>まだ条件未達: あと★{missing}個必要です。</yellow>"
+      not-ready-kill: "<yellow>まだ条件未達: あと{missing}キル必要です。</yellow>"
     star:
       collected: "<gold><bold>+{amount} ★</bold></gold> <gray>(所持 {total})</gray>"
+      wave-warn:
+        title: "<gold><bold>★ スターウェーブ接近</bold></gold>"
+        subtitle: "<yellow>あと{seconds}秒で中央に降る</yellow>"
+        bar: "<gold>★ あと{seconds}秒で中央にスターウェーブ (約{stars}個)</gold>"
+      wave:
+        bar: "<gold><bold>★ 中央にスターウェーブが降った!</bold></gold>"
     # Wave 5lobby-content (ADR-0119) — ロビー `lobby.queue.*` GuiIntent 出力.
     queue:
       unknown-mode: "<red>未知のキューモードです。</red>"
@@ -1377,6 +1388,7 @@ astera:
       next-unlock: "<gray>次:</gray> <white>Lv {level}</white> <white>{rarity}</white> <gray>解放</gray>"
       objective-star: "<gray>目標：</gray> <yellow>スター</yellow> <white>{progress}/{target}</white>"
       objective-kill: "<gray>目標：</gray> <red>キル</red> <white>{progress}/{target}</white>"
+      objective-ready: "<green>ノルマ達成</green> <gray>- 拠点でチェック</gray>"
       objective-max: "<gold>最高ノルマレベル</gold>"
       gold: "<gray>ゴールド</gray> <gold><bold>{gold}</bold></gold>"
     lobby:
@@ -2709,13 +2721,16 @@ astera:
   armor.diamond-champion-chestplate.name: "ダイヤチャンピオン チェストプレート"
   armor.diamond-champion-leggings.name: "ダイヤチャンピオン レギンス"
   armor.diamond-champion-boots.name: "ダイヤチャンピオン ブーツ"
-  ore.needs-tier: "<gray>この鉱石を掘るには <white>{tier}</white> 以上のツルハシが必要。</gray>"
+  ore.needs-tier: "<gray>この鉱石を掘るには <white>{tier}</white> 以上の道具が必要。</gray>"
+  ore.needs-level: "<red>この鉱石を掘るにはノルマレベル <white>{level}</white> 以上が必要。</red>"
+  ore.wrong-tool: "<gray>この道具ではほとんど削れない。合う道具(ツルハシ/斧/シャベル)を使おう。</gray>"
   # match-ux: 試合開始の段階表示(アクションバー1行ヒント)・結果タイトルの理由・結果の再表示リンク
   match.hint.sidebar: "<gray>右のサイドバーに目的とスコアが出ています</gray>"
   match.hint.stars: "<gold>★</gold> <gray>スターを拾い、敵を倒してレベルを上げよう</gray>"
   match.hint.respawn: "<gray>倒されても数秒で復活。<white>F</white> キーでメニューを開けます</gray>"
   match.hint.norma-rank: "<gray>レベルを上げると新しいスキルやアルティメットが解放される (最高 Lv {max})。レベルで勝敗は決まらない</gray>"
   match.hint.time: "<gray>制限時間は {minutes} 分です</gray>"
+  match.hint.norma-check-ready: "<green><bold>ノルマ達成！</bold></green> <gray>自拠点に戻ると自動でチェックされます <dark_gray>(<white>/astera norma check</white> でも可)</dark_gray></gray>"
   match.hint.norma-choice-star: "<gray>次の目標: <gold>★ {target}個</gold> を持つ。変更: <white>/astera norma choose kill</white></gray>"
   match.hint.norma-choice-kill: "<gray>次の目標: <red>⚔ {target}キル</red>。変更: <white>/astera norma choose star</white></gray>"
   match.summary.subtitle.time-draw: "<gray>時間切れ - 同点</gray>"

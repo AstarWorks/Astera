@@ -52,6 +52,8 @@ public data class StarGenerator(
     val lateGameMultiplier: Double = 1.0,
     /** Item id dropped on the ground instead of a star count (`drop_item:` in the YAML), or `null` for a star generator. */
     val dropItem: String? = null,
+    /** Wave mode (a Mid wave generator) instead of the periodic pop, or `null`. */
+    val wave: StarWave? = null,
 ) {
     init {
         require(amount >= 1) { "StarGenerator.amount must be >= 1 (was $amount)" }

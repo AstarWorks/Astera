@@ -24,12 +24,13 @@ class NormaLayerScenarioTest {
 
     private fun ScenarioScope.stars() = sim.services.getOrThrow<IMatchStarStore>()
 
-    /** Clears every level for [who]: carries enough stars and signals the pickup, once per level up to [levels]. */
+    /** Clears every level for [who]: carries enough stars, signals the pickup and runs the Norma check at the own base, once per level up to [levels]. */
     private fun ScenarioScope.climb(matchId: MatchId, who: SimEntity, levels: Int) {
         repeat(levels) {
             stars().add(matchId, who.id, 25)
             sim.eventBus.publish(StarsCollected(matchId, who.id, 25, stars().get(matchId, who.id)))
             advance(2)
+            normaCheckAtHome(matchId, who)
         }
     }
 
@@ -64,8 +65,8 @@ class NormaLayerScenarioTest {
             val yellow = player("yellow-1", team = "yellow")
             val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow to "yellow"), stage = "annihilation-arena")
 
-            // annihilation-center-east stands at 9.5, 65, 0.5 (stage-local) on the centre island.
-            red.moveTo(Vec3(9.5, 65.0, 0.5))
+            // annihilation-base-red (5.5, 65, -58.5) feeds the red team only; Mid has waves, not periodic pops.
+            red.moveTo(Vec3(5.5, 65.0, -58.5))
             blue.moveTo(Vec3(52.0, 65.0, 30.0))
             yellow.moveTo(Vec3(-52.0, 65.0, 30.0))
             advance(650)
@@ -94,6 +95,7 @@ class NormaLayerScenarioTest {
             stars().add(matchId, blue.id, 10)
             sim.eventBus.publish(StarsCollected(matchId, blue.id, 10, 10))
             advance(2)
+            normaCheckAtHome(matchId, blue)
             assertThat(eventsOf<NormaLevelUp>().any { it.playerId == blue.id && it.level == 2 }).isTrue()
 
             red.moveTo(Vec3(0.0, 65.0, -6.0))

@@ -1,0 +1,16 @@
+# Mid ore node, earth-like: a gold-flecked silt bed, the richer shovel ore. SHOVEL-affinity, needs an iron tool.
+# 1400 HP -> iron shovel 12 hits (~3.6 s), diamond 6. Pickaxe / axe: 20 per hit (70 hits, ~21 s).
+
+id: "astera:ore_silt_node"
+display_name:
+  en: "Gold Silt Node"
+  ja: "金砂ノード"
+base_bukkit_material: "PACKED_MUD"
+material: "SOIL"
+base_durability: 1400
+
+tool_effectiveness:
+  "SHOVEL/IRON": 120
+  "SHOVEL/DIAMOND": 240
+  "PICKAXE/IRON": 20
+  "AXE/IRON": 20

@@ -46,6 +46,8 @@ class MidMatchLeaveScenarioTest {
             stars.add(matchId, red.id, 20)
             sim.eventBus.publish(StarsCollected(matchId, red.id, 20, stars.get(matchId, red.id)))
             advance(2)
+            normaCheckAtHome(matchId, red)
+            red.moveTo(spot)
             assertThat(eventsOf<NormaLevelUp>().any { it.playerId == red.id && it.level == 2 }).isTrue()
             val carried = stars.get(matchId, red.id)
             val worldBefore = red.world
