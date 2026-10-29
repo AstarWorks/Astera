@@ -151,6 +151,7 @@ internal class SkillEnginePaperRuntime(
             toolBlocks = { toolBlocks },
             items = { services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>() },
             exclusion = { services.get<com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion>() },
+            oreNodes = { services.get<com.astarworks.astera.core.application.port.outbound.IOreNodeStrikes>() },
         )
         worldOps = worldGateway3
         val player = TablePlayer(

@@ -2715,7 +2715,9 @@ astera:
   armor.diamond-champion-chestplate.name: "Diamond Champion Chestplate"
   armor.diamond-champion-leggings.name: "Diamond Champion Leggings"
   armor.diamond-champion-boots.name: "Diamond Champion Boots"
-  ore.needs-tier: "<gray>Needs a <white>{tier}</white> pickaxe or better to mine this ore.</gray>"
+  ore.needs-tier: "<gray>Needs a <white>{tier}</white> tool or better to mine this ore.</gray>"
+  ore.needs-level: "<red>Norma level <white>{level}</white> or higher is needed to mine this ore.</red>"
+  ore.wrong-tool: "<gray>This tool can barely scratch this ore. Use the right tool (pickaxe / axe / shovel).</gray>"
   # match-ux: staged match-start hints (one action-bar line), result-title reason, re-open link
   match.hint.sidebar: "<gray>The sidebar on the right shows the objective and score</gray>"
   match.hint.stars: "<gold>★</gold> <gray>Grab stars and defeat enemies to level up</gray>"

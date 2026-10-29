@@ -1,16 +1,19 @@
 package com.astarworks.astera.testfixtures.skillengine
 
+import com.astarworks.astera.core.application.port.outbound.IOreNodeStrikes
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockDamageOutcome
 import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillBlockAccess
 import com.astarworks.astera.core.application.skillengine.runtime.world.LedgerWorldGateway
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skillengine.world.BlockCell
 import com.astarworks.astera.core.domain.world.BlockHpRules
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.world.ToolKind
 import com.astarworks.astera.core.domain.world.ToolTier
 import com.astarworks.astera.core.domain.world.ToolType
+import com.astarworks.astera.core.domain.world.WorldId
 import java.util.UUID
 
 /**
@@ -19,12 +22,15 @@ import java.util.UUID
  *
  * A tool strike (`toolClass` set) follows the production rule: HP = [BlockHpRules.maxHp] of the simulated hardness, damage =
  * [BlockHpRules.damage] with the tier [tierOf] gives the cast's item, so a cell takes several casts exactly as on Paper. A
- * toolless strike is a flat one-hit remove. [excluded] cells (ore nodes) are never editable, arena or not.
+ * toolless strike is a flat one-hit remove. [excluded] cells are never editable, arena or not. [oreNodes] (the real Mid ore node service)
+ * makes its node cells editable structure cells whose tool strikes it handles, as on Paper; [oreWorld] is the world id it is asked with.
  */
 public class FakeSkillWorldGateway(
     private val permit: (BlockCell) -> Boolean = { true },
     tierOf: (String?) -> ToolTier = { ToolTier.IRON },
     excluded: (BlockCell) -> Boolean = { false },
+    oreNodes: IOreNodeStrikes? = null,
+    oreWorld: WorldId = WorldId("sim"),
 ) : LedgerWorldGateway(FakeBlocks()) {
 
     public data class Explosion(val caster: UUID, val at: Vec3, val power: Double, val breakBlocks: Boolean, val fire: Boolean)
@@ -60,6 +66,8 @@ public class FakeSkillWorldGateway(
         fake.permit = permit
         fake.tierOf = tierOf
         fake.excluded = excluded
+        fake.oreNodes = oreNodes
+        fake.oreWorld = oreWorld
     }
 
     override fun tick() {
@@ -81,6 +89,8 @@ internal class FakeBlocks : ISkillBlockAccess {
     var permit: (BlockCell) -> Boolean = { true }
     var tierOf: (String?) -> ToolTier = { ToolTier.IRON }
     var excluded: (BlockCell) -> Boolean = { false }
+    var oreNodes: IOreNodeStrikes? = null
+    var oreWorld: WorldId = WorldId("sim")
     private val hp: MutableMap<BlockCell, Int> = HashMap()
     val world: MutableMap<BlockCell, String> = HashMap()
     val stock: MutableMap<String, Int> = HashMap()
@@ -90,7 +100,12 @@ internal class FakeBlocks : ISkillBlockAccess {
 
     override fun blockAt(cast: CastRef, cell: BlockCell): String? = world[cell]
 
-    override fun canEdit(cast: CastRef, cell: BlockCell, outsideArena: Boolean): Boolean = !excluded(cell) && (outsideArena || permit(cell))
+    private fun isOreNode(cell: BlockCell): Boolean = oreNodes?.isNode(oreWorld, Vec3(cell.x.toDouble(), cell.y.toDouble(), cell.z.toDouble())) == true
+
+    override fun canEdit(cast: CastRef, cell: BlockCell, outsideArena: Boolean): Boolean =
+        (isOreNode(cell) || !excluded(cell)) && (outsideArena || permit(cell))
+
+    override fun isStructure(cast: CastRef, cell: BlockCell): Boolean = isOreNode(cell)
 
     override fun isCover(cast: CastRef, cell: BlockCell): Boolean = false
 
@@ -111,6 +126,14 @@ internal class FakeBlocks : ISkillBlockAccess {
 
     override fun damage(cast: CastRef, cell: BlockCell, blockDamage: Int, toolClass: String?): BlockDamageOutcome {
         strikes += now to cell
+        if (isOreNode(cell)) {
+            val nodes = oreNodes!!
+            val kind = toolClass?.let { runCatching { ToolKind.valueOf(it.uppercase()) }.getOrNull() }?.takeIf { it != ToolKind.NONE }
+                ?: return BlockDamageOutcome.NONE
+            val at = Vec3(cell.x.toDouble(), cell.y.toDouble(), cell.z.toDouble())
+            val result = nodes.strike(PlayerId(cast.caster), oreWorld, at, ToolType(kind, tierOf(cast.item)), blockDamage)
+            return if (result == IOreNodeStrikes.Result.NONE) BlockDamageOutcome.NONE else BlockDamageOutcome.CHIPPED
+        }
         val key = world[cell]
         if (blockDamage <= 0 || key == null) return BlockDamageOutcome.NONE
         val kind = toolClass?.let { runCatching { ToolKind.valueOf(it.uppercase()) }.getOrNull() }?.takeIf { it != ToolKind.NONE }

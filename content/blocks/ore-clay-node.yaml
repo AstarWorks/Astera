@@ -1,0 +1,17 @@
+# Mid ore node, earth-like: an iron-streaked clay bank. SHOVEL-affinity (the pickaxe and axe barely dent it).
+# 800 HP -> stone shovel 8 hits (~2.4 s), iron 6, diamond 4. Pickaxe / axe: 12 per hit (~67 hits, ~20 s).
+
+id: "astera:ore_clay_node"
+display_name:
+  en: "Iron Clay Node"
+  ja: "鉄粘土ノード"
+base_bukkit_material: "CLAY"
+material: "SOIL"
+base_durability: 800
+
+tool_effectiveness:
+  "SHOVEL/STONE": 100
+  "SHOVEL/IRON": 150
+  "SHOVEL/DIAMOND": 250
+  "PICKAXE/STONE": 12
+  "AXE/STONE": 12
