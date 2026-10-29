@@ -396,7 +396,7 @@ public object StaticChecks {
 
     private val SCOPED_IDENT = Regex("""[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*""")
     private val QUOTED = Regex("""'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"""")
-    private val HANDLER_KEY = Regex("""\.(hit|hurt|stick|unstick)(/|$)""")
+    private val HANDLER_KEY = Regex("""\.(hit|hurt|absorbed|stick|unstick)(/|$)""")
     private val HANDLER_EVENT = Regex("""(^|\.)(hit|hurt)$""")
     private val STATE_SECTION = Regex("""states\.([^.\[]+)\.(enter|do|exit)""")
     private val WRAPPER_FIELDS = setOf("payload", "fields", "with", "look")
