@@ -274,12 +274,11 @@ ARENA_H=12                           # air cleared above the floor
 CMP_FOV_OPT=""
 CMP_FOV_DEG=""
 CAM0_CMD=""
-# DUMMIES=<1..3>: husks in the scene (default 1; chain-lightning 3). Extras stand 3.0 blocks from the first (within 4.5), offset on both axes so
-# that the side camera (which looks along x) sees them at different screen columns instead of stacked behind each other.
+# DUMMIES=<1..3>: husks in the scene (default 1; chain-lightning 3). Extras stand beyond the first (within 4.5 of each other), never toward the caster.
 case "$SKILL" in chain-lightning) DUMMIES="${DUMMIES:-3}" ;; esac
 DUMMIES="${DUMMIES:-1}"
 [[ "$DUMMIES" =~ ^[1-3]$ ]] || die "DUMMIES must be 1, 2 or 3"
-DUMMY_EXTRA_FRAME=0; [ "$DUMMIES" -gt 1 ] && DUMMY_EXTRA_FRAME=4   # side/right framing widened by this many blocks of forward extent
+DUMMY_EXTRA_FRAME=0; [ "$DUMMIES" -gt 1 ] && DUMMY_EXTRA_FRAME=6   # side/right framing widened by this many blocks of forward extent
 ENEMY_X="${SHOT_ENEMY_X:-4.2}"            # compare: dummy distance ahead of the caster
 ENEMY_Z="${SHOT_ENEMY_Z:-0}"              # compare: lateral offset of the dummy (miss-case captures: SHOT_ENEMY_Z=6)
 for _v in ${VIEW//,/ }; do   # VIEW=top,side films several orbit views in one run (one scene setup, one stack sync)
@@ -816,12 +815,12 @@ summon_target() {
   local tz
   tz="$(awk -v z="$CZ" -v d="$DISTANCE" 'BEGIN{printf "%.1f", z+d}')"
   rcon "execute in minecraft:overworld run summon minecraft:husk $CX $Y $tz $(dummy_nbt 180)" >/dev/null
-  # extra dummies relative to the first: (+1.2 sideways = further from the side camera, +2.7 forward) and (0, -2.7): 3.0 blocks away, spread along the side camera's screen axis
+  # extra dummies relative to the first: (+1.5 forward, 2 sideways) and (+3.5 forward, 2.5 sideways), on the far side from the side camera (it sits at -x): both beyond the first, never toward the caster, so the aim-line husk is nearest and hit first
   if [ "$DUMMIES" -ge 2 ]; then
-    rcon "execute in minecraft:overworld run summon minecraft:husk $(awk -v x="$CX" 'BEGIN{printf "%.2f", x+1.2}') $Y $(awk -v z="$tz" 'BEGIN{printf "%.2f", z+2.7}') $(dummy_nbt 180)" >/dev/null
+    rcon "execute in minecraft:overworld run summon minecraft:husk $(awk -v x="$CX" 'BEGIN{printf "%.2f", x+2}') $Y $(awk -v z="$tz" 'BEGIN{printf "%.2f", z+1.5}') $(dummy_nbt 180)" >/dev/null
   fi
   if [ "$DUMMIES" -ge 3 ]; then
-    rcon "execute in minecraft:overworld run summon minecraft:husk $CX $Y $(awk -v z="$tz" 'BEGIN{printf "%.2f", z-2.7}') $(dummy_nbt 180)" >/dev/null
+    rcon "execute in minecraft:overworld run summon minecraft:husk $(awk -v x="$CX" 'BEGIN{printf "%.2f", x+2.5}') $Y $(awk -v z="$tz" 'BEGIN{printf "%.2f", z+3.5}') $(dummy_nbt 180)" >/dev/null
   fi
 }
 
