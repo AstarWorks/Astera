@@ -71,6 +71,8 @@ public class PaperSkillGameplayGateway(
     private val bodyRigs: () -> ISkinRigAnimator?,
     private val bodyRegistry: () -> ISkinRigRegistry?,
     private val bodyPoses: () -> IPlayerAnimationGateway?,
+    /** `content/frames/body.yaml`: the named points every body clip is read through. */
+    private val bodySkeleton: com.astarworks.astera.core.domain.animation.skinrig.BodySkeleton,
     /** Resolves a caster for the look hold. */
     private val server: Server = org.bukkit.Bukkit.getServer(),
 ) : ISkillGameplayGateway {
@@ -202,6 +204,8 @@ public class PaperSkillGameplayGateway(
 
     override fun bodyClip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation? =
         runCatching { bodyRegistry()?.find(CustomAnimationId(anim)) }.getOrNull()
+
+    override fun bodySkeleton(): com.astarworks.astera.core.domain.animation.skinrig.BodySkeleton = bodySkeleton
 
     override fun isSlimSkin(caster: UUID): Boolean =
         server.getPlayer(caster)?.playerProfile?.textures?.skinModel == org.bukkit.profile.PlayerTextures.SkinModel.SLIM

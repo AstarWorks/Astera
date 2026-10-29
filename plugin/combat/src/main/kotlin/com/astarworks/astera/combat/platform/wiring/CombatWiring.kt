@@ -96,6 +96,8 @@ public class CombatWiringResult(
     public val reloadSkills: () -> com.astarworks.astera.core.application.service.ContentLoader.LoadReport,
     /** Decoded `content/frames` point tables for the v2 compiler and point source. */
     public val frameTables: Map<String, com.astarworks.astera.core.application.skillengine.load.ItemFrames>,
+    /** `content/frames/body.yaml`: the shared named points of the skin rig that `body` clips are read through. */
+    public val bodySkeleton: com.astarworks.astera.core.domain.animation.skinrig.BodySkeleton,
     /** `content/engine/skill-engine.yaml`; the Paper runtime hands it to the table player (server caps). */
     public val engineConfig: com.astarworks.astera.core.domain.skillengine.model.EngineConfig,
     public val statusContents: StatusContents,
@@ -142,6 +144,13 @@ public object CombatWiring {
         val (frameTables, frameErrors) = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries
             .frameTables(ctx.contentDir.resolve("frames"))
         frameErrors.forEach { logger.warning("skill engine frame table: $it") }
+        val bodySkeleton = when (val r = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries.bodySkeleton(ctx.contentDir.resolve("frames"))) {
+            is com.astarworks.astera.core.domain.Result.Success -> r.value
+            is com.astarworks.astera.core.domain.Result.Failure -> {
+                logger.severe("[skill-error] frames/body.yaml: ${r.error}")
+                com.astarworks.astera.core.domain.animation.skinrig.BodySkeleton(emptyMap())
+            }
+        }
         val skillParts = when (val r = com.astarworks.astera.core.application.skillengine.part.PartParser.loadDirectory(ctx.contentDir.resolve("skill-parts"))) {
             is com.astarworks.astera.core.domain.Result.Success -> r.value
             is com.astarworks.astera.core.domain.Result.Failure -> {
@@ -807,6 +816,7 @@ public object CombatWiring {
             engineConfig = engineConfig,
             reloadSkills = { skillEngineContents.reload(skillsContentDir) },
             frameTables = frameTables,
+            bodySkeleton = bodySkeleton,
             statusContents = statusContents,
             armorContents = armorContents,
             applyDamage = applyDamageOut,

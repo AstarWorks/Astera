@@ -51,6 +51,7 @@ import com.astarworks.astera.core.domain.skillengine.table.LockMove
 import com.astarworks.astera.core.domain.skillengine.table.HitShape
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.animation.skinrig.BodySkeleton
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigPlayback
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigTransforms
@@ -1246,8 +1247,8 @@ public class TablePlayer(
                 val anim = s("anim")
                 val speed = d("speed")
                 run.bodyClips[id] = anim
-                gameplay.bodyClip(anim)?.takeIf { it.points.isNotEmpty() }?.let { clip ->
-                    bodyRec.body = BodyPoints(clip, gameplay.isSlimSkin(caster), speed)
+                gameplay.bodyClip(anim)?.let { clip ->
+                    bodyRec.body = BodyPoints(clip, gameplay.bodySkeleton(), gameplay.isSlimSkin(caster), speed)
                     freshBody(bodyRec)
                 }
                 gameplay.playBodyClip(castRef(run), caster, anim, speed)
@@ -1964,8 +1965,8 @@ public class TablePlayer(
         }
     }
 
-    /** The clip of a `body` op with named points, how it plays on this caster ([slim] arm, clip [speed]). */
-    private class BodyPoints(val clip: SkinRigAnimation, val slim: Boolean, val speed: Double)
+    /** The clip of a `body` op, the shared skeleton its named points come from, how it plays on this caster ([slim] arm, clip [speed]). */
+    private class BodyPoints(val clip: SkinRigAnimation, val skeleton: BodySkeleton, val slim: Boolean, val speed: Double)
 
     /**
      * Re-samples the named points of a `body` instance at the current tick: the clip's pose at `(tick - spawn) * speed`, each point carried through
@@ -1974,7 +1975,7 @@ public class TablePlayer(
     private fun freshBody(rec: Rec) {
         val b = rec.body ?: return
         val frame = SkinRigPlayback(b.clip, b.speed).frameAt(lastTick - rec.spawnTick)
-        for ((name, point) in b.clip.points) {
+        for ((name, point) in b.skeleton.points) {
             val v = SkinRigTransforms.point(frame, b.slim, point)
             rec.points[name] = Vector3d(v.x, v.y, v.z)
         }

@@ -29,7 +29,7 @@ root:                      # optional whole-rig transform, same channel shape (r
 - Keyframes sorted by `t`, `0 <= t <= length_ticks`.
 - Hierarchy (ADR-0278): `root` (hips) → `body` (spine, waist pivot) → `head`, `right_arm`, `left_arm`; `root` → legs. Lean and twist on `body`; crouch with `root.position.y` plus leg rotations.
 - `two_hand_grip: true` (top level) aims the left arm at the right-hand grip every tick (its authored `left_arm` rotation is ignored).
-- `points:` (top level, optional) names points of the body a skill can read: `hand_r: {bone: right_arm, offset: [-1.0, -8.9, 5.0]}` (pixels from the bone joint, in its rest axes). A skill with a `body` op `{id: body_anim, anim: <this>}` uses `body_anim.hand_r` as an anchor or in CEL (`pos(point(body_anim, 'hand_r'))`); it follows the animated arm every tick, in sim and on Paper.
+- Named body points (`hand_r`, `hand_l`) are not per clip: they live once in `content/frames/body.yaml` (`kind: BodyFrames`, `points: {hand_r: {bone: right_arm, offset: [-1.0, -8.9, 5.0]}}`, pixels from the bone joint in its rest axes). A skill with a `body` op `{id: body_anim, anim: <this>}` uses `body_anim.hand_r` as an anchor or in CEL (`pos(point(body_anim, 'hand_r'))`); it follows the animated arm every tick, in sim and on Paper.
 - Extra bones (elbows/knees) are a later extension; the schema allows arbitrary bone names but the PoC rig only renders the six above (unknown bone = load error with clear message).
 
 ## Start in Blockbench

@@ -52,7 +52,7 @@ public object AnchorNames {
         val point = bare.removePrefix("caster.")
         if (point !in REMOVED_CASTER_POINTS) return null
         return "'$bare' no longer exists: the engine does not guess a hand. Name a point of the skill's own body clip " +
-            "(a `body` op with an `id`, and `points:` in content/animations/<anim>.yaml), e.g. '<body id>.$point'"
+            "(a `body` op with an `id`; the points are declared once in content/frames/body.yaml), e.g. '<body id>.$point'"
     }
 
     /** Null when [name] is not of the shape `id`, `id[index]`, `id.point` or `id[index].point` (e.g. `body_anim.hand_r` splits as base `body_anim`, point `hand_r`). */

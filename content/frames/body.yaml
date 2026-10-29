@@ -1,0 +1,8 @@
+# The shared skeleton of the skin rig: named points of the body that every `body` clip is read through.
+# A skill reads a point as `<body op id>.<name>` (`body_anim.hand_r`) in an anchor or CEL; it follows the animated bone every tick.
+# offset = pixels from the joint of `bone`, in the bone's rest axes. The slim (Alex) arm is applied by the engine, not by a second table.
+apiVersion: astera/v3
+kind: BodyFrames
+points:
+  hand_r: {bone: right_arm, offset: [-1.0, -8.8925, 4.9923]}
+  hand_l: {bone: left_arm, offset: [1.0, -8.8925, 4.9923]}

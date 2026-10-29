@@ -133,6 +133,7 @@ internal class SkillEnginePaperRuntime(
             bodyRigs = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() },
             bodyRegistry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
             bodyPoses = { services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>() },
+            bodySkeleton = wired.bodySkeleton,
         )
         val entityQuery = PaperSkillEntityQuery(server, teams = { services.get<IMatchTeamLookup>() }, structures = { services.get<IStructureTargets>() })
         val live = PaperLiveValueSource(server, scheduler, gameplay, entityQuery)

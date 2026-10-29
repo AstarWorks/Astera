@@ -252,6 +252,9 @@ public interface ISkillGameplayGateway {
     /** The skin-rig clip [anim] (`rig anim:`): its length and arm track drive the rig's hand origin; null = no such skin-rig clip. */
     public fun bodyClip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation? = null
 
+    /** The shared body skeleton (`content/frames/body.yaml`): the named points a `body` clip is read through (`<body id>.hand_r`). */
+    public fun bodySkeleton(): com.astarworks.astera.core.domain.animation.skinrig.BodySkeleton
+
     /** Whether [caster] wears a slim (Alex) skin: selects the arm of the skin rig. */
     public fun isSlimSkin(caster: UUID): Boolean = false
 
