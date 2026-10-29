@@ -16,6 +16,7 @@
 @1 remove #0 op=fire/slug
 g @1 state-exit reason=EVENT | state=fire
 g @1 cast-end | pose
+r @4 run-end tail=3 | pose
 ## pose yaw=37 pitch=-20
 @0 spawn #0 op=fire/slug kind=item item=minecraft:iron_nugget part=- pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.500000,0.500000,0.500000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 spawn #1 op=fire/tracer kind=ribbon ticks=3 width=0.050000 color=#fff0b0 alpha=0.933333
@@ -34,6 +35,7 @@ g @1 cast-end | pose
 @1 remove #0 op=fire/slug
 g @1 state-exit reason=EVENT | state=fire
 g @1 cast-end | pose
+r @4 run-end tail=3 | pose
 ## gameplay-static
 g @0..1200 cast-length | cast
 g @0..1200 state-end then=- final=false | state=fire
