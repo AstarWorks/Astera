@@ -22,6 +22,9 @@ public data class LevelCursor(val state: StatePath, val enteredAt: Int, var next
     /** The level that owns this one (the state whose rows entered it); null for the root. */
     public var parent: LevelCursor? = null
 
+    /** The event (contact, victim, attacker) whose transition entered this level; its rows resolve `contact` / `event.*` against it. Null for the root and for a level entered without an event. */
+    public var entryBinding: EventBinding? = null
+
     /** Entered a `final` state; the level plays nothing more. */
     public var done: Boolean = false
 
