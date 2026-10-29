@@ -1,6 +1,4 @@
-# Wave 2 v3 draft of bastion-greatsword-ego (v2: skill.yaml + look.yaml), generated from the v2 files by a scratch script, gameplay hand-authored.
-# Offsets [left, up, forward] -> name-keyed maps. Euler turn [pitch, yaw, roll] -> pose list [up -yaw, left pitch, forward roll].
-# The v2 slam sword is built from block parts parented to a rig frame (hand: false), not the held item blade: 2 `rig of:` ops drive the frames fx4_slam_sword / fx4_slam_sword_parts (R27).
+# Citadel Dawn (EGO): guard shield, leap, block-built sword slam, golden lightning. One visual object = one op; indexed families use times + CEL.
 apiVersion: astera/v3
 kind: Skill
 id: bastion-greatsword-ego
@@ -20,10 +18,7 @@ params:
   dmg_physical: {type: number, default: 140}
   knockback: {type: number, default: 1.6}
 anchors:
-  # v2: frame fx1_bastion_ego_guard at caster orient yaw follow, group tick 0
-  - {id: fx1_guard, anchor: caster, mode: follow}
-  # v2: frames fx4_bastion_ego_slam_sword / _sword_parts (parent caster, passenger false), driven by the two rigs of group fx27 (R27); declared as frame ops in fx27.
-  # (v2 fx4_bastion_ego_slam and fx2_telegraph_cone_2 / fx3_bastion_ego_trail were created at ticks 27 / 20: they are `frame` rows, R29.)
+  - {id: guard, anchor: caster, mode: follow, offset: {left: 0.2, up: 1.3, forward: 1.15}}
 machine:
   start: slam
   states:
@@ -31,161 +26,88 @@ machine:
       for: 70
       then: end
       do:
-        # --- gameplay (v2 gameplay.timeline t0 / t20 / t31) ---
-        # v2 lock speed 0.0 ticks 20 -> lock move for 20 ticks (pitch / yaw stay free; v2 locked only speed).
         - {id: windup_lock, op: lock, at: 0, for: 20, move: walk}
-        # v2 `place tele like caster` at tick 20 (R29): the telegraph anchor.
         - {id: tele, op: frame, at: 20, anchor: caster, mode: snapshot, for: 20}
-        # v2 propel direction (0,1,0) strength 0.3 -> impulse (0, 0.3, 0).
         - {id: propel, op: impulse, at: 20, target: caster, vector: {x: 0.0, y: "= propel", z: 0.0}}
-        # v2 dash_strike 2.8 over 6 ticks -> speed 2.8/6.
-        # v2 hit_once + stop_before_target 1.6 (R9): sibling trigger-only corridor hit, window once; the dash ends at its first victim (sphere 1.6 = the stop distance).
         - {id: dash_hit, op: hit, at: 20, for: 6, every: 1, anchor: caster.body, shape: {sphere: 1.6}, targets: enemies, window: once, ignore_invulnerability: false}
         - {id: dash, op: dash, at: 20, speed: "= dash_distance / 6", for: 6, until: dash_hit.hit, direction: {forward: 1.0}, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
-        # v2 sel (damage 140 per_stack charge 0.5 consume true, ignore_invulnerability) + sel_2 (freeze 4, knockback) are the same sector at the same tick: merged.
-        # sector {angle 110, range 3.8, height 2.0} at `eye` with forward caster.forward (yaw only) -> anchor caster.eye + `forward: yaw` (R31).
-        # max_count: 1 = the nearest 1 target (v2 hit cap; founder 10/28 ruling, TablePlayer hit sorts nearest-first then takes N).
-        # per_stack charge 0.5 consume TRUE: stacks() is read once before the first victim and consume_status lands after all victims (R24); hit-stop 4 = freeze row in `on: hit1`.
         - {id: hit1, op: hit, at: 31, anchor: caster.eye, shape: {sector: {deg: "${arc_deg}", range: "${reach}", height: 2.0, forward: yaw}}, targets: enemies, damage: {physical: "= dmg_physical + 0.5 * stacks(caster, 'charge')"}, window: once, ignore_invulnerability: true, on: {hit: [{id: stop, op: freeze, at: 0, ticks: 4, scope: [caster, event.victim]}, {id: shake, op: camera_shake, at: 0, target: event.victim, intensity: 1.0, for: 10, direction: from_hit}, {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.3, 0.0)", strength: "${knockback}"}]}}
         - {id: spend, op: consume_status, at: 31, target: caster, status: charge}
-        # --- presentation (v2 look.yaml timeline groups, folded from the former top-level `presentation:`) ---
-        - id: fx0
-          op: group
+        # --- guard shield (same plates as the defense skill) ---
+        - {id: guard_rim0, op: display, kind: sprite, sprite: bastion-rim, anchor: guard, times: 2, size: [3.712, 1.92], rotate: [{axis: up, deg: -50}, {axis: forward, deg: "= 90 - 180 * i"}], billboard: fixed, see_through: true, brightness: {block: 15, sky: 15}, at: 0, for: 30}
+        - {id: guard_rim1, op: display, kind: sprite, sprite: bastion-rim, anchor: guard, times: 2, size: [3.072, 1.408], color: "#FFF3C8", rotate: [{axis: up, deg: -50}, {axis: forward, deg: "= 90 - 180 * i"}], billboard: fixed, see_through: true, brightness: {block: 15, sky: 15}, at: 0, for: 30}
+        - {id: guard_crest, op: display, kind: sprite, sprite: bastion-crest, anchor: guard, offset: {up: 0.05}, rotate: [{axis: up, deg: -50}], size: [1.664, 1.664], billboard: fixed, see_through: true, brightness: {block: 15, sky: 15}, at: 0, for: 30}
+        - id: guard_fill
+          op: display
+          kind: text
+          text: "●"
+          color: "#FFD66E"
+          anchor: guard
+          billboard: fixed
+          brightness: {block: 15, sky: 15}
           at: 0
-          do:
-            - {id: fx1_guard_rim0r, op: display, kind: sprite, see_through: true, sprite: bastion-rim, flipbook: {frames: 1, every: 30, loop: false}, size: [3.712, 1.92], anchor: fx1_guard, brightness: {block: 15, sky: 15}, offset: {left: 0.2, up: 1.3, forward: 1.15}, rotate: [{axis: up, deg: -50}, {axis: forward, deg: 90}], for: 30}
-            - {id: fx1_guard_rim0l, op: display, kind: sprite, see_through: true, sprite: bastion-rim, flipbook: {frames: 1, every: 30, loop: false}, size: [3.712, 1.92], anchor: fx1_guard, brightness: {block: 15, sky: 15}, offset: {left: 0.2, up: 1.3, forward: 1.15}, rotate: [{axis: up, deg: -50}, {axis: forward, deg: -90}], for: 30}
-            - {id: fx1_guard_rim1r, op: display, kind: sprite, see_through: true, sprite: bastion-rim, flipbook: {frames: 1, every: 30, loop: false}, size: [3.072, 1.408], color: "#FFF3C8", anchor: fx1_guard, brightness: {block: 15, sky: 15}, offset: {left: 0.2, up: 1.3, forward: 1.15}, rotate: [{axis: up, deg: -50}, {axis: forward, deg: 90}], for: 30}
-            - {id: fx1_guard_rim1l, op: display, kind: sprite, see_through: true, sprite: bastion-rim, flipbook: {frames: 1, every: 30, loop: false}, size: [3.072, 1.408], color: "#FFF3C8", anchor: fx1_guard, brightness: {block: 15, sky: 15}, offset: {left: 0.2, up: 1.3, forward: 1.15}, rotate: [{axis: up, deg: -50}, {axis: forward, deg: -90}], for: 30}
-            - {id: fx1_guard_crest, op: display, kind: sprite, see_through: true, sprite: bastion-crest, flipbook: {frames: 1, every: 30, loop: false}, size: [1.664, 1.664], anchor: fx1_guard, brightness: {block: 15, sky: 15}, offset: {left: 0.2, up: 1.35, forward: 1.15}, rotate: [{axis: up, deg: -50}], for: 30}
-            # v2 quad "fill": text glyph "●", colour #FFD66E, keys on scale + alpha (out_cubic into t6, in_quad into t30).
-            - {id: fx1_guard_fill, op: display, kind: text, text: "●", color: "#FFD66E", anchor: fx1_guard, brightness: {block: 15, sky: 15}, offset: {left: 0.2, up: 1.3, forward: 1.15}, rotate: [{axis: up, deg: -50}], for: 30, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.2, up: 1.3, forward: 1.15}, scale: {left: 1.5, up: 3, forward: 1.0}, alpha: 0.0}, {t: 6, scale: {left: 7.5, up: 16.5, forward: 1.0}, alpha: 0.14, ease: out_cubic}, {t: 22, alpha: 0.14}, {t: 30, scale: {left: 7, up: 15.5, forward: 1.0}, alpha: 0.0, ease: in_quad}]}]}
-            # v2 sound pitch 0.6 -> 1.8 over 25 ticks (in_quad), every 5, until stop_sound at tick 30: unrolled to one sound per repeat with the pitch sampled at its tick
-            - {id: snd, op: sound, sound: block.amethyst_block.resonate, anchor: caster, at: 0, volume: 1.0, pitch: 0.6}
-            - {id: snd_1, op: sound, sound: block.amethyst_block.resonate, anchor: caster, at: 5, volume: 1.0, pitch: 0.648}
-            - {id: snd_2, op: sound, sound: block.amethyst_block.resonate, anchor: caster, at: 10, volume: 1.0, pitch: 0.792}
-            - {id: snd_3, op: sound, sound: block.amethyst_block.resonate, anchor: caster, at: 15, volume: 1.0, pitch: 1.032}
-            - {id: snd_4, op: sound, sound: block.amethyst_block.resonate, anchor: caster, at: 20, volume: 1.0, pitch: 1.368}
-            - {id: snd_5, op: sound, sound: block.amethyst_block.resonate, anchor: caster, at: 25, volume: 1.0, pitch: 1.8}
-        - id: fx20
-          op: group
-          at: 20
-          do:
-            # v2 caster_anim hide-main-hand 24 ticks (R41).
-            - {id: hide_hand, op: body, anim: hide-main-hand, speed: 1.0, for: 24}
-            - {id: fx3_trail, op: frame, at: 0, anchor: caster, mode: snapshot, for: 14}
-            # v2 telegraph cone: 26 plain coloured planes (#ff3b2f; rim alpha 0.85, fill alpha 0.35) on the world frame placed at tick 20, removed at tick 32 (R33 quad sprite).
-            # Offsets [left, up, forward]; turn [pitch, yaw, roll] -> rotate [up -yaw, left pitch, forward roll]; plane size = v2 track scale x [1, 1].
-            - {id: tele_rim_arc_0, op: display, kind: sprite, sprite: quad, size: [0.68173, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: -3.29314, up: 0.05, forward: 5.25311}, rotate: [{axis: up, deg: 25.13833}, {axis: left, deg: -87.42776}, {axis: forward, deg: -25.13833}], for: 12}
-            - {id: tele_rim_arc_1, op: display, kind: sprite, sprite: quad, size: [0.68173, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: -2.74219, up: 0.05, forward: 5.56061}, rotate: [{axis: up, deg: 20.58401}, {axis: left, deg: -88.27999}, {axis: forward, deg: -20.58401}], for: 12}
-            - {id: tele_rim_arc_2, op: display, kind: sprite, sprite: quad, size: [0.68173, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: -2.16284, up: 0.05, forward: 5.81052}, rotate: [{axis: up, deg: 16.01987}, {axis: left, deg: -88.96042}, {axis: forward, deg: -16.01987}], for: 12}
-            - {id: tele_rim_arc_3, op: display, kind: sprite, sprite: quad, size: [0.68173, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: -1.56108, up: 0.05, forward: 6.00025}, rotate: [{axis: up, deg: 11.44814}, {axis: left, deg: -89.46996}, {axis: forward, deg: -11.44814}], for: 12}
-            - {id: tele_rim_arc_4, op: display, kind: sprite, sprite: quad, size: [0.68173, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: -0.94316, up: 0.05, forward: 6.12784}, rotate: [{axis: up, deg: 6.87103}, {axis: left, deg: -89.80927}, {axis: forward, deg: -6.87103}], for: 12}
-            - {id: tele_rim_arc_5, op: display, kind: sprite, sprite: quad, size: [0.68173, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: -0.31548, up: 0.05, forward: 6.19197}, rotate: [{axis: up, deg: 2.2907}, {axis: left, deg: -89.97881}, {axis: forward, deg: -2.2907}], for: 12}
-            - {id: tele_rim_arc_6, op: display, kind: sprite, sprite: quad, size: [0.68173, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: 0.31548, up: 0.05, forward: 6.19197}, rotate: [{axis: up, deg: -2.2907}, {axis: left, deg: -89.97881}, {axis: forward, deg: 2.2907}], for: 12}
-            - {id: tele_rim_arc_7, op: display, kind: sprite, sprite: quad, size: [0.68173, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: 0.94316, up: 0.05, forward: 6.12784}, rotate: [{axis: up, deg: -6.87103}, {axis: left, deg: -89.80927}, {axis: forward, deg: 6.87103}], for: 12}
-            - {id: tele_rim_arc_8, op: display, kind: sprite, sprite: quad, size: [0.68173, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: 1.56108, up: 0.05, forward: 6.00025}, rotate: [{axis: up, deg: -11.44814}, {axis: left, deg: -89.46996}, {axis: forward, deg: 11.44814}], for: 12}
-            - {id: tele_rim_arc_9, op: display, kind: sprite, sprite: quad, size: [0.68173, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: 2.16284, up: 0.05, forward: 5.81052}, rotate: [{axis: up, deg: -16.01987}, {axis: left, deg: -88.96042}, {axis: forward, deg: 16.01987}], for: 12}
-            - {id: tele_rim_arc_10, op: display, kind: sprite, sprite: quad, size: [0.68173, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: 2.74219, up: 0.05, forward: 5.56061}, rotate: [{axis: up, deg: -20.58401}, {axis: left, deg: -88.27999}, {axis: forward, deg: 20.58401}], for: 12}
-            - {id: tele_rim_arc_11, op: display, kind: sprite, sprite: quad, size: [0.68173, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: 3.29314, up: 0.05, forward: 5.25311}, rotate: [{axis: up, deg: -25.13833}, {axis: left, deg: -87.42776}, {axis: forward, deg: 25.13833}], for: 12}
-            - {id: tele_rim_edge_0, op: display, kind: sprite, sprite: quad, size: [6.2, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: 1.77809, up: 0.05, forward: 2.53937}, rotate: [{axis: up, deg: 42.8902}, {axis: left, deg: -82.39131}, {axis: forward, deg: -42.8902}], for: 12}
-            - {id: tele_rim_edge_1, op: display, kind: sprite, sprite: quad, size: [6.2, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: -1.77809, up: 0.05, forward: 2.53937}, rotate: [{axis: up, deg: 94.15276}, {axis: left, deg: -49.01283}, {axis: forward, deg: -94.15276}], for: 12}
-            - {id: tele_fill_0_s0, op: display, kind: sprite, sprite: quad, size: [1.0, 1.0], color: "#59ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: -0.01647, up: 0.0006, forward: 0.02627}, rotate: [{axis: up, deg: 92.16149}, {axis: left, deg: -50.99837}, {axis: forward, deg: -92.16149}], for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.01647, up: 0.0006, forward: 0.02627}, scale: {left: 0.062, up: 0.006, forward: 1.0}}, {t: 10, offset: {left: -1.64657, up: 0.06, forward: 2.62656}, scale: {left: 6.2, up: 0.59967, forward: 1.0}}]}]}
-            - {id: tele_fill_1_s0, op: display, kind: sprite, sprite: quad, size: [1.0, 1.0], color: "#59ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: -0.01371, up: 0.0006, forward: 0.0278}, rotate: [{axis: up, deg: 88.12863}, {axis: left, deg: -54.80191}, {axis: forward, deg: -88.12863}], for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.01371, up: 0.0006, forward: 0.0278}, scale: {left: 0.062, up: 0.006, forward: 1.0}}, {t: 10, offset: {left: -1.37109, up: 0.06, forward: 2.78031}, scale: {left: 6.2, up: 0.59967, forward: 1.0}}]}]}
-            - {id: tele_fill_2_s0, op: display, kind: sprite, sprite: quad, size: [1.0, 1.0], color: "#59ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: -0.01081, up: 0.0006, forward: 0.02905}, rotate: [{axis: up, deg: 84.03341}, {axis: left, deg: -58.38661}, {axis: forward, deg: -84.03341}], for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.01081, up: 0.0006, forward: 0.02905}, scale: {left: 0.062, up: 0.006, forward: 1.0}}, {t: 10, offset: {left: -1.08142, up: 0.06, forward: 2.90526}, scale: {left: 6.2, up: 0.59967, forward: 1.0}}]}]}
-            - {id: tele_fill_3_s0, op: display, kind: sprite, sprite: quad, size: [1.0, 1.0], color: "#59ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: -0.00781, up: 0.0006, forward: 0.03}, rotate: [{axis: up, deg: 79.88112}, {axis: left, deg: -61.75771}, {axis: forward, deg: -79.88112}], for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.00781, up: 0.0006, forward: 0.03}, scale: {left: 0.062, up: 0.006, forward: 1.0}}, {t: 10, offset: {left: -0.78054, up: 0.06, forward: 3.00013}, scale: {left: 6.2, up: 0.59967, forward: 1.0}}]}]}
-            - {id: tele_fill_4_s0, op: display, kind: sprite, sprite: quad, size: [1.0, 1.0], color: "#59ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: -0.00472, up: 0.0006, forward: 0.03064}, rotate: [{axis: up, deg: 75.67668}, {axis: left, deg: -64.92006}, {axis: forward, deg: -75.67668}], for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.00472, up: 0.0006, forward: 0.03064}, scale: {left: 0.062, up: 0.006, forward: 1.0}}, {t: 10, offset: {left: -0.47158, up: 0.06, forward: 3.06392}, scale: {left: 6.2, up: 0.59967, forward: 1.0}}]}]}
-            - {id: tele_fill_5_s0, op: display, kind: sprite, sprite: quad, size: [1.0, 1.0], color: "#59ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: -0.00158, up: 0.0006, forward: 0.03096}, rotate: [{axis: up, deg: 71.42461}, {axis: left, deg: -67.8782}, {axis: forward, deg: -71.42461}], for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.00158, up: 0.0006, forward: 0.03096}, scale: {left: 0.062, up: 0.006, forward: 1.0}}, {t: 10, offset: {left: -0.15774, up: 0.06, forward: 3.09598}, scale: {left: 6.2, up: 0.59967, forward: 1.0}}]}]}
-            - {id: tele_fill_6_s0, op: display, kind: sprite, sprite: quad, size: [1.0, 1.0], color: "#59ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: 0.00158, up: 0.0006, forward: 0.03096}, rotate: [{axis: up, deg: 67.1291}, {axis: left, deg: -70.63637}, {axis: forward, deg: -67.1291}], for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.00158, up: 0.0006, forward: 0.03096}, scale: {left: 0.062, up: 0.006, forward: 1.0}}, {t: 10, offset: {left: 0.15774, up: 0.06, forward: 3.09598}, scale: {left: 6.2, up: 0.59967, forward: 1.0}}]}]}
-            - {id: tele_fill_7_s0, op: display, kind: sprite, sprite: quad, size: [1.0, 1.0], color: "#59ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: 0.00472, up: 0.0006, forward: 0.03064}, rotate: [{axis: up, deg: 62.79408}, {axis: left, deg: -73.19845}, {axis: forward, deg: -62.79408}], for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.00472, up: 0.0006, forward: 0.03064}, scale: {left: 0.062, up: 0.006, forward: 1.0}}, {t: 10, offset: {left: 0.47158, up: 0.06, forward: 3.06392}, scale: {left: 6.2, up: 0.59967, forward: 1.0}}]}]}
-            - {id: tele_fill_8_s0, op: display, kind: sprite, sprite: quad, size: [1.0, 1.0], color: "#59ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: 0.00781, up: 0.0006, forward: 0.03}, rotate: [{axis: up, deg: 58.4232}, {axis: left, deg: -75.56807}, {axis: forward, deg: -58.4232}], for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.00781, up: 0.0006, forward: 0.03}, scale: {left: 0.062, up: 0.006, forward: 1.0}}, {t: 10, offset: {left: 0.78054, up: 0.06, forward: 3.00013}, scale: {left: 6.2, up: 0.59967, forward: 1.0}}]}]}
-            - {id: tele_fill_9_s0, op: display, kind: sprite, sprite: quad, size: [1.0, 1.0], color: "#59ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: 0.01081, up: 0.0006, forward: 0.02905}, rotate: [{axis: up, deg: 54.01986}, {axis: left, deg: -77.74853}, {axis: forward, deg: -54.01986}], for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.01081, up: 0.0006, forward: 0.02905}, scale: {left: 0.062, up: 0.006, forward: 1.0}}, {t: 10, offset: {left: 1.08142, up: 0.06, forward: 2.90526}, scale: {left: 6.2, up: 0.59967, forward: 1.0}}]}]}
-            - {id: tele_fill_10_s0, op: display, kind: sprite, sprite: quad, size: [1.0, 1.0], color: "#59ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: 0.01371, up: 0.0006, forward: 0.0278}, rotate: [{axis: up, deg: 49.5873}, {axis: left, deg: -79.74286}, {axis: forward, deg: -49.5873}], for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.01371, up: 0.0006, forward: 0.0278}, scale: {left: 0.062, up: 0.006, forward: 1.0}}, {t: 10, offset: {left: 1.37109, up: 0.06, forward: 2.78031}, scale: {left: 6.2, up: 0.59967, forward: 1.0}}]}]}
-            - {id: tele_fill_11_s0, op: display, kind: sprite, sprite: quad, size: [1.0, 1.0], color: "#59ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, offset: {left: 0.01647, up: 0.0006, forward: 0.02627}, rotate: [{axis: up, deg: 45.12852}, {axis: left, deg: -81.55381}, {axis: forward, deg: -45.12852}], for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.01647, up: 0.0006, forward: 0.02627}, scale: {left: 0.062, up: 0.006, forward: 1.0}}, {t: 10, offset: {left: 1.64657, up: 0.06, forward: 2.62656}, scale: {left: 6.2, up: 0.59967, forward: 1.0}}]}]}
-            - {id: snd_shield, op: sound, sound: item.shield.block, anchor: caster, pitch: 0.8}
-            # v2 trail beads (plate "dot" x11, per-index at, R28): dot 0.8 x scale 0.336 = 0.2688, alpha 1 -> 0 over 14 ticks (in_quad), removed at tick 34.
-            - {id: fx3_trail_beads, op: display, kind: sprite, sprite: dot, size: [0.2688, 0.2688], color: "#FFE08A", anchor: fx3_trail, billboard: center, brightness: {block: 15, sky: 15}, times: 11, offset: {left: 0.0, up: "= 1.0 + 0.04 * i", forward: "= 0.2 + 0.28 * i"}, for: 14, motion: [{law: keys, keys: [{t: 0, alpha: 1.0}, {t: 14, alpha: 0.0, ease: in_quad}]}]}
-        - id: fx27
-          op: group
+          for: 30
+          motion:
+            - law: keys
+              keys:
+                - {t: 0, pose: [{axis: up, deg: -50}], scale: {left: 1.5, up: 3, forward: 1.0}, alpha: 0.0}
+                - {t: 6, scale: {left: 7.5, up: 16.5, forward: 1.0}, alpha: 0.14, ease: out_cubic}
+                - {t: 22, alpha: 0.14}
+                - {t: 30, scale: {left: 7, up: 15.5, forward: 1.0}, alpha: 0.0, ease: in_quad}
+        # Resonance rising 0.6 -> 1.8 (in_quad) every 5 ticks until stopsnd at 30.
+        - {id: hum, op: sound, sound: block.amethyst_block.resonate, anchor: caster, volume: 1.0, pitch: "= 0.6 + 1.2 * pow(i / 5.0, 2.0)", every: 5, times: 6, at: 0}
+        - {id: stopsnd, op: stop_sound, target: caster, sound: block.amethyst_block.resonate, at: 30}
+        - {id: hide_hand, op: body, anim: hide-main-hand, speed: 1.0, at: 20, for: 24}
+        # --- telegraph cone on the snapshot frame: arc rim, two edges, fan of fill slivers (flat planes on the ground; i walks the arc, +35 .. -35 degrees) ---
+        - {id: tele_arc, op: display, kind: sprite, sprite: quad, size: [0.68173, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, times: 12, offset: {left: "= -6.2 * sin(rad(35 - 70 * (i + 0.5) / 12))", up: 0.05, forward: "= 6.2 * cos(rad(35 - 70 * (i + 0.5) / 12))"}, rotate: [{axis: up, deg: "= -(35 - 70 * (i + 0.5) / 12)"}, {axis: left, deg: -90}], at: 20, for: 12}
+        - {id: tele_edge, op: display, kind: sprite, sprite: quad, size: [6.2, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, times: 2, offset: {left: "= -3.1 * sin(rad(70 * i - 35))", up: 0.05, forward: "= 3.1 * cos(rad(70 * i - 35))"}, rotate: [{axis: up, deg: "= -55 - 70 * i"}, {axis: left, deg: -90}], at: 20, for: 12}
+        - {id: tele_ray, op: frame, anchor: tele, mode: snapshot, times: 12, turn: [{axis: up, deg: "= -(35 - 70 * (i + 0.5) / 12)"}], at: 20, for: 12}
+        - {id: tele_fill, op: display, kind: sprite, sprite: quad, size: [1.0, 1.0], color: "#59ff3b2f", anchor: "tele_ray[i]", brightness: {block: 15, sky: 15}, times: 12, at: 20, for: 12, motion: [{law: keys, keys: [{t: 0, offset: {up: 0.0006, forward: 0.031}, pose: [{axis: up, deg: 90}, {axis: left, deg: -90}], scale: {left: 0.062, up: 0.006, forward: 1.0}}, {t: 10, offset: {up: 0.06, forward: 3.1}, scale: {left: 6.2, up: 0.6, forward: 1.0}}]}]}
+        - {id: snd_shield, op: sound, sound: item.shield.block, anchor: caster, pitch: 0.8, at: 20}
+        # --- leap trail: 11 beads along the dash line, fading out ---
+        - {id: trail, op: frame, anchor: caster, mode: snapshot, at: 20, for: 14}
+        - {id: trail_bead, op: display, kind: sprite, sprite: dot, size: [0.2688, 0.2688], color: "#FFE08A", anchor: trail, billboard: center, brightness: {block: 15, sky: 15}, times: 11, offset: {up: "= 1.0 + 0.04 * i", forward: "= 0.2 + 0.28 * i"}, at: 20, for: 14, motion: [{law: keys, keys: [{t: 0, alpha: 1.0}, {t: 14, alpha: 0.0, ease: in_quad}]}]}
+        # --- slam: caster-pinned frames, block sword swung by one rig ---
+        - {id: impact, op: frame, anchor: caster, mode: snapshot, at: 27, for: 43}
+        - {id: blade, op: frame, anchor: caster, mode: follow, at: 27}
+        # Pure pitch swing about pivot (0, 1.4, 0.3): tip directions -125 -> -150 (anticipation) -> -97 -> 62 (strike) -> 66 (settle).
+        - id: blade_rig
+          op: rig
+          of: blade
+          part: slam_blocks
+          parent: caster.body
+          hand: false
+          pivot: {up: 1.4, forward: 0.3}
+          rest: [{axis: left, deg: 90.0}]
+          sample_ticks: 1
           at: 27
-          do:
-            - {id: fx4_slam, op: frame, at: 0, anchor: caster, mode: snapshot, for: 43}
-            - {id: fx4_slam_sword, op: frame, anchor: caster, mode: follow}
-            - {id: fx4_slam_sword_parts, op: frame, anchor: caster, mode: follow}
-            # v2 slam sword: pure pitch swing (rotate [pitch,0,0] per tick, held 66 after tick 5), pivot [0, 1.4, 0.3], rest [90, 0, 0]; the swing steps are the tip directions
-            # t(theta) = (left 0, up -sin theta, forward cos theta) for theta = -125, -150, -97, 62, 65.5, 66 (block-part frame: content/frames/bastion-greatsword.yaml part slam_blocks, long = up, edge = forward).
-            - id: fx4_slam_sword_rig
-              op: rig
-              of: fx4_slam_sword
-              part: slam_blocks
-              parent: caster.body
-              pivot: {left: 0.0, up: 1.4, forward: 0.3}
-              rest: [{axis: left, deg: 90.0}]
-              sample_ticks: 1
-              for: 43
-              swing:
-                - {at: 0, for: 1, from: {left: 0.0, up: 0.81915, forward: -0.57358}, to: {left: 0.0, up: 0.5, forward: -0.86603}, edge: trailing}
-                - {for: 1, from: {left: 0.0, up: 0.5, forward: -0.86603}, to: {left: 0.0, up: 0.99255, forward: -0.12187}, edge: leading}
-                - {for: 1, from: {left: 0.0, up: 0.99255, forward: -0.12187}, to: {left: 0.0, up: -0.88295, forward: 0.46947}, edge: leading}
-                - {for: 1, from: {left: 0.0, up: -0.88295, forward: 0.46947}, to: {left: 0.0, up: -0.90996, forward: 0.41469}, edge: leading}
-                - {for: 1, from: {left: 0.0, up: -0.90996, forward: 0.41469}, to: {left: 0.0, up: -0.91355, forward: 0.40674}, edge: leading}
-            - id: fx4_slam_sword_parts_rig
-              op: rig
-              of: fx4_slam_sword_parts
-              part: slam_blocks
-              parent: caster.body
-              hand: false
-              pivot: {left: 0.0, up: 1.4, forward: 0.3}
-              rest: [{axis: left, deg: 90.0}]
-              sample_ticks: 1
-              for: 43
-              swing:
-                - {at: 0, for: 1, from: {left: 0.0, up: 0.81915, forward: -0.57358}, to: {left: 0.0, up: 0.5, forward: -0.86603}, edge: trailing}
-                - {for: 1, from: {left: 0.0, up: 0.5, forward: -0.86603}, to: {left: 0.0, up: 0.99255, forward: -0.12187}, edge: leading}
-                - {for: 1, from: {left: 0.0, up: 0.99255, forward: -0.12187}, to: {left: 0.0, up: -0.88295, forward: 0.46947}, edge: leading}
-                - {for: 1, from: {left: 0.0, up: -0.88295, forward: 0.46947}, to: {left: 0.0, up: -0.90996, forward: 0.41469}, edge: leading}
-                - {for: 1, from: {left: 0.0, up: -0.90996, forward: 0.41469}, to: {left: 0.0, up: -0.91355, forward: 0.40674}, edge: leading}
-            # 8 block parts of the sword (v2 `at` = offset, `size` = scale), anchored to the parts frame; removed at tick 70 (= rig end). v2 rig_shading has no v3 field (dropped).
-            - {id: fx4_slam_sword_face, op: display, kind: block, block: "minecraft:gray_concrete", scale: [0.46, 1.9, 0.07], anchor: fx4_slam_sword_parts, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 1.55, forward: 0.0}, for: 43}
-            - {id: fx4_slam_sword_rim_l, op: display, kind: block, block: "minecraft:white_concrete", scale: [0.07, 1.9, 0.12], anchor: fx4_slam_sword_parts, brightness: {block: 15, sky: 15}, offset: {left: 0.25, up: 1.55, forward: 0.0}, for: 43}
-            - {id: fx4_slam_sword_rim_r, op: display, kind: block, block: "minecraft:white_concrete", scale: [0.07, 1.9, 0.12], anchor: fx4_slam_sword_parts, brightness: {block: 15, sky: 15}, offset: {left: -0.25, up: 1.55, forward: 0.0}, for: 43}
-            - {id: fx4_slam_sword_tip, op: display, kind: block, block: "minecraft:white_concrete", scale: [0.58, 0.08, 0.12], anchor: fx4_slam_sword_parts, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 2.5, forward: 0.0}, for: 43}
-            - {id: fx4_slam_sword_base, op: display, kind: block, block: "minecraft:white_concrete", scale: [0.58, 0.08, 0.12], anchor: fx4_slam_sword_parts, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 0.62, forward: 0.0}, for: 43}
-            - {id: fx4_slam_sword_inset, op: display, kind: block, block: "minecraft:yellow_concrete", scale: [0.09, 0.2, 0.09], anchor: fx4_slam_sword_parts, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 0.86, forward: 0.0}, for: 43}
-            - {id: fx4_slam_sword_guard, op: display, kind: block, block: "minecraft:black_concrete", scale: [0.62, 0.1, 0.18], anchor: fx4_slam_sword_parts, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 0.5, forward: 0.0}, for: 43}
-            - {id: fx4_slam_sword_grip, op: display, kind: block, block: "minecraft:black_concrete", scale: [0.09, 0.8, 0.09], anchor: fx4_slam_sword_parts, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 0.05, forward: 0.0}, for: 43}
-            - {id: snd_trident, op: sound, sound: item.trident.return, anchor: caster, volume: 0.8, pitch: 0.6}
-        - id: fx30
-          op: group
-          at: 30
-          do:
-            - {id: stopsnd, op: stop_sound, target: caster, sound: block.amethyst_block.resonate}
-        - id: fx31
-          op: group
-          at: 31
-          do:
-            # v2 quad "flash": text glyph "✦", colour #FFF2B0 -> #FFD060, alpha 1 -> 0, removed at tick 37.
-            - {id: fx4_slam_flash, op: display, kind: text, text: "✦", color: "#FFF2B0", anchor: fx4_slam, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 1.0, forward: 1.7}, for: 6, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 1.0, forward: 1.7}, scale: {left: 2.25, up: 2.25, forward: 1.0}, alpha: 1.0, color: "#FFF2B0"}, {t: 1, scale: {left: 15, up: 15, forward: 1.0}, ease: out_back}, {t: 6, scale: {left: 7.5, up: 7.5, forward: 1.0}, alpha: 0.0, color: "#FFD060", ease: out_quad}]}]}
-            - {id: fx4_slam_pilcore, op: display, kind: block, block: "minecraft:white_concrete", scale: [0.15, 0.3, 0.15], anchor: fx4_slam, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 5.0, forward: 1.7}, for: 16, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 5.0, forward: 1.7}, scale: {left: 0.15, up: 0.3, forward: 0.15}}, {t: 1, scale: {left: 0.5, up: 10.0, forward: 0.5}, ease: out_expo}, {t: 10, scale: {left: 0.425, up: 10.0, forward: 0.425}}, {t: 16, scale: {left: 0.0, up: 10.0, forward: 0.0}, ease: in_quad}]}]}
-            # v2 lane: accent (render lane; no v3 field)
-            - {id: fx4_slam_pilbloom, op: display, kind: block, block: "minecraft:yellow_stained_glass", scale: [0.5, 0.3, 0.5], anchor: fx4_slam, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 4.8, forward: 1.7}, for: 16, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 4.8, forward: 1.7}, scale: {left: 0.5, up: 0.3, forward: 0.5}}, {t: 1, scale: {left: 1.4, up: 9.6, forward: 1.4}, ease: out_expo}, {t: 16, scale: {left: 0.0, up: 9.6, forward: 0.0}, ease: in_quad}]}]}
-            # v2 quad "pildisc": text glyph "●", colour #FFF2B0 -> #FFD060, alpha 0.95 -> 0, flat on the ground (turn [90,0,0]), removed at tick 43.
-            - {id: fx4_slam_pildisc, op: display, kind: text, text: "●", color: "#FFF2B0", anchor: fx4_slam, brightness: {block: 15, sky: 15}, offset: {left: 0.0, up: 1.25, forward: 1.7}, rotate: [{axis: left, deg: 90.0}], for: 12, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.0, up: 1.25, forward: 1.7}, pose: [{axis: left, deg: 90.0}], scale: {left: 2, up: 2, forward: 1.0}, alpha: 0.95, color: "#FFF2B0"}, {t: 2, scale: {left: 18, up: 18, forward: 1.0}, ease: out_expo}, {t: 12, scale: {left: 19.5, up: 19.5, forward: 1.0}, alpha: 0.0, color: "#FFD060", ease: out_quad}]}]}
-            # v2 dust (plate "smoke-puff" x6, per-index at, R28): size 0.8 x scale 1.2 -> 2.6, rise 0.7, alpha 0.9 -> 0 over 18 ticks (out_quad), removed at tick 49.
-            - {id: fx4_slam_dust, op: display, kind: sprite, sprite: smoke-puff, size: [0.8, 0.8], flipbook: {frames: 4, every: 6, loop: false}, color: "#8A8478", anchor: fx4_slam, billboard: center, brightness: {block: 9, sky: 9}, times: 6, offset: [{left: 0.0, up: 0.25, forward: 3.2}, {left: 1.29904, up: 0.25, forward: 2.45}, {left: 1.29904, up: 0.25, forward: 0.95}, {left: 0.0, up: 0.25, forward: 0.2}, {left: -1.29904, up: 0.25, forward: 0.95}, {left: -1.29904, up: 0.25, forward: 2.45}], for: 18, motion: [{law: keys, keys: [{t: 0, scale: {left: 1.2, up: 1.2, forward: 1.0}, alpha: 0.9}, {t: 18, offset: {left: 0.0, up: 0.7, forward: 0.0}, scale: {left: 2.6, up: 2.6, forward: 1.0}, alpha: 0.0, ease: out_quad}]}]}
-            - {id: snd_anvil, op: sound, sound: block.anvil.land, anchor: caster, pitch: 0.5}
-            # max_count: all (v2 had no cap; founder 10/28 ruling: max_count = nearest N, all = unlimited).
-            - {id: shake_2, op: camera_shake, target: caster, intensity: 0.5, for: 8, direction: none}
-            - {id: veil, op: screen_veil, target: caster, sprite: burst, ticks: 5, color: "#FFC84A", distance: 0.4, scale: 1.4, max_screen_fraction: 0.15}
-            - {id: flash, op: screen_flash, target: {kind: enemies, around: caster, radius: 5.0, max_count: all}, overlay: gold_burst, color: "#FFC84A", fade_in: 0, stay: 2, fade_out: 2}
-            - {id: snd_explode, op: sound, sound: entity.generic.explode, anchor: caster, pitch: 0.6}
-        - id: fx32
-          op: group
-          at: 32
-          do:
-            # v2 bolts (block x8 each, per-index at / turn, R28): scale [0.05,0.05,0.1] -> [0.12,0.12,0.76] (out_expo) -> [0.09,0.09,0.76] -> 0 (in_quad) over 12 ticks, removed at tick 44.
-            - {id: fx4_slam_bolt0, op: display, kind: block, block: "minecraft:yellow_concrete", scale: [0.05, 0.05, 0.1], anchor: fx4_slam, brightness: {block: 15, sky: 15}, times: 8, offset: [{left: 0.0, up: 0.2, forward: 1.7}, {left: 0.28338, up: 0.54567, forward: 2.116}, {left: 0.37053, up: 0.52729, forward: 2.72576}, {left: 0.87748, up: 0.58583, forward: 3.15688}, {left: 0.9999, up: 0.55851, forward: 3.75681}, {left: 1.1658, up: 1.09569, forward: 4.15121}, {left: 0.89036, up: 0.91213, forward: 4.94846}, {left: 1.29968, up: 1.4, forward: 5.27083}], rotate: [[{axis: up, deg: 41.93858}, {axis: left, deg: -38.64584}, {axis: forward, deg: 0}], [{axis: up, deg: -8.17712}, {axis: left, deg: 5.39317}, {axis: forward, deg: -0}], [{axis: up, deg: 61.1005}, {axis: left, deg: -9.59074}, {axis: forward, deg: 0}], [{axis: up, deg: 26.18889}, {axis: left, deg: 4.83922}, {axis: forward, deg: 0}], [{axis: up, deg: -2.43576}, {axis: left, deg: 0.21394}, {axis: forward, deg: -0}], [{axis: up, deg: 49.19945}, {axis: left, deg: -66.60696}, {axis: forward, deg: 0}], [{axis: up, deg: -25.16203}, {axis: left, deg: 26.11208}, {axis: forward, deg: -0}], [{axis: up, deg: 66.85224}, {axis: left, deg: -47.50522}, {axis: forward, deg: 0}]], for: 12, motion: [{law: keys, keys: [{t: 0, scale: {left: 0.05, up: 0.05, forward: 0.1}}, {t: 1, scale: {left: 0.12, up: 0.12, forward: 0.76}, ease: out_expo}, {t: 9, scale: {left: 0.09, up: 0.09, forward: 0.76}}, {t: 12, scale: {left: 0.0, up: 0.0, forward: 0.76}, ease: in_quad}]}]}
-            - {id: fx4_slam_bolt1, op: display, kind: block, block: "minecraft:white_concrete", scale: [0.05, 0.05, 0.1], anchor: fx4_slam, brightness: {block: 15, sky: 15}, times: 8, offset: [{left: 0.0, up: 0.2, forward: 1.7}, {left: 0.65425, up: 0.05053, forward: 1.49052}, {left: 1.06442, up: 0.43574, forward: 1.22748}, {left: 1.54153, up: 0.85146, forward: 1.18362}, {left: 1.93018, up: 1.13945, forward: 0.74929}, {left: 2.63746, up: 1.2519, forward: 0.98778}, {left: 3.00586, up: 1.77528, forward: 0.76948}, {left: 3.57083, up: 1.7, forward: 0.40032}], rotate: [[{axis: up, deg: 103.45205}, {axis: left, deg: 16.11688}, {axis: forward, deg: 0}], [{axis: up, deg: 143.76592}, {axis: left, deg: -21.21773}, {axis: forward, deg: 0}], [{axis: up, deg: 46.17997}, {axis: left, deg: -48.45395}, {axis: forward, deg: 0}], [{axis: up, deg: 155.71141}, {axis: left, deg: 12.24876}, {axis: forward, deg: 0}], [{axis: up, deg: 79.6611}, {axis: left, deg: -65.61678}, {axis: forward, deg: 0}], [{axis: up, deg: 69.5339}, {axis: left, deg: 16.97282}, {axis: forward, deg: 0}], [{axis: up, deg: 155.44336}, {axis: left, deg: -60.80747}, {axis: forward, deg: 0}], [{axis: up, deg: 120.44778}, {axis: left, deg: 15.55687}, {axis: forward, deg: 0}]], for: 12, motion: [{law: keys, keys: [{t: 0, scale: {left: 0.05, up: 0.05, forward: 0.1}}, {t: 1, scale: {left: 0.12, up: 0.12, forward: 0.76}, ease: out_expo}, {t: 9, scale: {left: 0.09, up: 0.09, forward: 0.76}}, {t: 12, scale: {left: 0.0, up: 0.0, forward: 0.76}, ease: in_quad}]}]}
-            - {id: fx4_slam_bolt2, op: display, kind: block, block: "minecraft:yellow_concrete", scale: [0.05, 0.05, 0.1], anchor: fx4_slam, brightness: {block: 15, sky: 15}, times: 8, offset: [{left: 0.0, up: 0.2, forward: 1.7}, {left: 0.04154, up: 0.523, forward: 1.15812}, {left: -0.1968, up: 0.70754, forward: 0.67158}, {left: -0.30993, up: 0.82733, forward: 0.11771}, {left: -0.80659, up: 0.82559, forward: -0.33741}, {left: -0.99574, up: 0.9298, forward: -0.86886}, {left: -1.19894, up: 0.86984, forward: -1.45035}, {left: -1.29968, up: 1.4, forward: -1.87083}], rotate: [[{axis: up, deg: 170.56429}, {axis: left, deg: -31.1147}, {axis: forward, deg: 0}], [{axis: up, deg: -145.26587}, {axis: left, deg: -20.71864}, {axis: forward, deg: 0}], [{axis: up, deg: -178.62322}, {axis: left, deg: -10.96974}, {axis: forward, deg: 0}], [{axis: up, deg: -150.48356}, {axis: left, deg: -12.80774}, {axis: forward, deg: 0}], [{axis: up, deg: -120.37254}, {axis: left, deg: 9.02888}, {axis: forward, deg: 0}], [{axis: up, deg: 168.06523}, {axis: left, deg: -21.88061}, {axis: forward, deg: 0}], [{axis: up, deg: -151.45983}, {axis: left, deg: 13.87472}, {axis: forward, deg: 0}], [{axis: up, deg: -169.97767}, {axis: left, deg: -57.25867}, {axis: forward, deg: 0}]], for: 12, motion: [{law: keys, keys: [{t: 0, scale: {left: 0.05, up: 0.05, forward: 0.1}}, {t: 1, scale: {left: 0.12, up: 0.12, forward: 0.76}, ease: out_expo}, {t: 9, scale: {left: 0.09, up: 0.09, forward: 0.76}}, {t: 12, scale: {left: 0.0, up: 0.0, forward: 0.76}, ease: in_quad}]}]}
-            - {id: fx4_slam_bolt3, op: display, kind: block, block: "minecraft:white_concrete", scale: [0.05, 0.05, 0.1], anchor: fx4_slam, brightness: {block: 15, sky: 15}, times: 8, offset: [{left: 0.0, up: 0.2, forward: 1.7}, {left: -0.3598, up: 0.70274, forward: 1.96575}, {left: -0.96933, up: 0.57318, forward: 2.27514}, {left: -1.54423, up: 0.81756, forward: 2.24808}, {left: -2.10851, up: 0.91888, forward: 2.41531}, {left: -2.5931, up: 1.10076, forward: 2.70854}, {left: -2.96595, up: 1.46281, forward: 3.1008}, {left: -3.57083, up: 1.7, forward: 2.99968}], rotate: [[{axis: up, deg: -57.31793}, {axis: left, deg: -57.98042}, {axis: forward, deg: -0}], [{axis: up, deg: -41.6331}, {axis: left, deg: 21.872}, {axis: forward, deg: -0}], [{axis: up, deg: -135.31154}, {axis: left, deg: -27.83322}, {axis: forward, deg: 0}], [{axis: up, deg: -17.81847}, {axis: left, deg: 11.11629}, {axis: forward, deg: -0}], [{axis: up, deg: -135.39631}, {axis: left, deg: -21.53771}, {axis: forward, deg: 0}], [{axis: up, deg: -18.47509}, {axis: left, deg: -1.81353}, {axis: forward, deg: -0}], [{axis: up, deg: -61.81297}, {axis: left, deg: -46.66974}, {axis: forward, deg: -0}], [{axis: up, deg: -102.91314}, {axis: left, deg: -17.35032}, {axis: forward, deg: 0}]], for: 12, motion: [{law: keys, keys: [{t: 0, scale: {left: 0.05, up: 0.05, forward: 0.1}}, {t: 1, scale: {left: 0.12, up: 0.12, forward: 0.76}, ease: out_expo}, {t: 9, scale: {left: 0.09, up: 0.09, forward: 0.76}}, {t: 12, scale: {left: 0.0, up: 0.0, forward: 0.76}, ease: in_quad}]}]}
+          for: 43
+          swing:
+            - {at: 0, for: 1, from: {up: 0.81915, forward: -0.57358}, to: {up: 0.5, forward: -0.86603}, edge: trailing}
+            - {for: 1, from: {up: 0.5, forward: -0.86603}, to: {up: 0.99255, forward: -0.12187}, edge: leading}
+            - {for: 1, from: {up: 0.99255, forward: -0.12187}, to: {up: -0.88295, forward: 0.46947}, edge: leading}
+            - {for: 2, from: {up: -0.88295, forward: 0.46947}, to: {up: -0.91355, forward: 0.40674}, edge: leading}
+        - {id: blade_face, op: display, kind: block, block: "minecraft:gray_concrete", scale: [0.46, 1.9, 0.07], anchor: blade, offset: {up: 1.55}, brightness: {block: 15, sky: 15}, at: 27, for: 43}
+        - {id: blade_rim, op: display, kind: block, block: "minecraft:white_concrete", scale: [0.07, 1.9, 0.12], anchor: blade, offset: {left: "= 0.25 - 0.5 * i", up: 1.55}, times: 2, brightness: {block: 15, sky: 15}, at: 27, for: 43}
+        - {id: blade_end, op: display, kind: block, block: "minecraft:white_concrete", scale: [0.58, 0.08, 0.12], anchor: blade, offset: {up: "= 2.5 - 1.88 * i"}, times: 2, brightness: {block: 15, sky: 15}, at: 27, for: 43}
+        - {id: blade_inset, op: display, kind: block, block: "minecraft:yellow_concrete", scale: [0.09, 0.2, 0.09], anchor: blade, offset: {up: 0.86}, brightness: {block: 15, sky: 15}, at: 27, for: 43}
+        - {id: blade_guard, op: display, kind: block, block: "minecraft:black_concrete", scale: [0.62, 0.1, 0.18], anchor: blade, offset: {up: 0.5}, brightness: {block: 15, sky: 15}, at: 27, for: 43}
+        - {id: blade_grip, op: display, kind: block, block: "minecraft:black_concrete", scale: [0.09, 0.8, 0.09], anchor: blade, offset: {up: 0.05}, brightness: {block: 15, sky: 15}, at: 27, for: 43}
+        - {id: snd_trident, op: sound, sound: item.trident.return, anchor: caster, volume: 0.8, pitch: 0.6, at: 27}
+        # --- impact (tick 31) ---
+        - {id: flash_star, op: display, kind: text, text: "✦", anchor: impact, brightness: {block: 15, sky: 15}, at: 31, for: 6, motion: [{law: keys, keys: [{t: 0, offset: {up: 1.0, forward: 1.7}, scale: {left: 2.25, up: 2.25, forward: 1.0}, alpha: 1.0, color: "#FFF2B0"}, {t: 1, scale: {left: 15, up: 15, forward: 1.0}, ease: out_back}, {t: 6, scale: {left: 7.5, up: 7.5, forward: 1.0}, alpha: 0.0, color: "#FFD060", ease: out_quad}]}]}
+        - {id: pillar_core, op: display, kind: block, block: "minecraft:white_concrete", anchor: impact, brightness: {block: 15, sky: 15}, at: 31, for: 16, motion: [{law: keys, keys: [{t: 0, offset: {up: 5.0, forward: 1.7}, scale: {left: 0.15, up: 0.3, forward: 0.15}}, {t: 1, scale: {left: 0.5, up: 10.0, forward: 0.5}, ease: out_expo}, {t: 10, scale: {left: 0.425, up: 10.0, forward: 0.425}}, {t: 16, scale: {left: 0.0, up: 10.0, forward: 0.0}, ease: in_quad}]}]}
+        - {id: pillar_bloom, op: display, kind: block, block: "minecraft:yellow_stained_glass", anchor: impact, brightness: {block: 15, sky: 15}, at: 31, for: 16, motion: [{law: keys, keys: [{t: 0, offset: {up: 4.8, forward: 1.7}, scale: {left: 0.5, up: 0.3, forward: 0.5}}, {t: 1, scale: {left: 1.4, up: 9.6, forward: 1.4}, ease: out_expo}, {t: 16, scale: {left: 0.0, up: 9.6, forward: 0.0}, ease: in_quad}]}]}
+        - {id: ground_disc, op: display, kind: text, text: "●", anchor: impact, brightness: {block: 15, sky: 15}, at: 31, for: 12, motion: [{law: keys, keys: [{t: 0, offset: {up: 1.25, forward: 1.7}, pose: [{axis: left, deg: 90.0}], scale: {left: 2, up: 2, forward: 1.0}, alpha: 0.95, color: "#FFF2B0"}, {t: 2, scale: {left: 18, up: 18, forward: 1.0}, ease: out_expo}, {t: 12, scale: {left: 19.5, up: 19.5, forward: 1.0}, alpha: 0.0, color: "#FFD060", ease: out_quad}]}]}
+        - {id: dust, op: display, kind: sprite, sprite: smoke-puff, size: [0.8, 0.8], flipbook: {frames: 4, every: 6, loop: false}, color: "#8A8478", anchor: impact, billboard: center, brightness: {block: 9, sky: 9}, times: 6, at: 31, for: 18, motion: [{law: keys, keys: [{t: 0, offset: {left: "= 1.5 * sin(rad(60 * i))", up: 0.25, forward: "= 1.7 + 1.5 * cos(rad(60 * i))"}, scale: {left: 1.2, up: 1.2, forward: 1.0}, alpha: 0.9}, {t: 18, offset: {left: "= 1.5 * sin(rad(60 * i))", up: 0.95, forward: "= 1.7 + 1.5 * cos(rad(60 * i))"}, scale: {left: 2.6, up: 2.6, forward: 1.0}, alpha: 0.0, ease: out_quad}]}]}
+        - {id: snd_anvil, op: sound, sound: block.anvil.land, anchor: caster, pitch: 0.5, at: 31}
+        - {id: shake_2, op: camera_shake, target: caster, intensity: 0.5, for: 8, direction: none, at: 31}
+        - {id: veil, op: screen_veil, target: caster, sprite: burst, ticks: 5, color: "#FFC84A", distance: 0.4, scale: 1.4, max_screen_fraction: 0.15, at: 31}
+        - {id: flash, op: screen_flash, target: {kind: enemies, around: caster, radius: 5.0, max_count: all}, overlay: gold_burst, color: "#FFC84A", fade_in: 0, stay: 2, fade_out: 2, at: 31}
+        - {id: snd_explode, op: sound, sound: entity.generic.explode, anchor: caster, pitch: 0.6, at: 31}
+        # --- lightning (tick 32): four jagged bolts of 8 segments fanned ahead of the impact, alternating yellow / white; each segment zig-zags in yaw and climbs ---
+        - {id: bolt_y_f, op: frame, anchor: impact, mode: snapshot, times: 16, offset: {left: "= (i - 8 * floor(i / 8)) * 0.75 * sin(rad(-45 + 30 * (2 * floor(i / 8)))) + 0.12 * (1 - 2 * (i - 2 * floor(i / 2)))", up: "= 0.2 + 0.17 * (i - 8 * floor(i / 8))", forward: "= 1.7 + (i - 8 * floor(i / 8)) * 0.75 * cos(rad(-45 + 30 * (2 * floor(i / 8))))"}, turn: [{axis: up, deg: "= -45 + 30 * (2 * floor(i / 8)) + 25 * (1 - 2 * (i - 2 * floor(i / 2)))"}, {axis: left, deg: -12.6}], at: 32, for: 12}
+        - {id: bolt_y, op: display, kind: block, block: "minecraft:yellow_concrete", anchor: "bolt_y_f[i]", brightness: {block: 15, sky: 15}, times: 16, at: 32, for: 12, motion: [{law: keys, keys: [{t: 0, scale: {left: 0.05, up: 0.05, forward: 0.1}}, {t: 1, scale: {left: 0.12, up: 0.12, forward: 0.76}, ease: out_expo}, {t: 9, scale: {left: 0.09, up: 0.09, forward: 0.76}}, {t: 12, scale: {left: 0.0, up: 0.0, forward: 0.76}, ease: in_quad}]}]}
+        - {id: bolt_w_f, op: frame, anchor: impact, mode: snapshot, times: 16, offset: {left: "= (i - 8 * floor(i / 8)) * 0.75 * sin(rad(-45 + 30 * (2 * floor(i / 8) + 1))) + 0.12 * (1 - 2 * (i - 2 * floor(i / 2)))", up: "= 0.2 + 0.17 * (i - 8 * floor(i / 8))", forward: "= 1.7 + (i - 8 * floor(i / 8)) * 0.75 * cos(rad(-45 + 30 * (2 * floor(i / 8) + 1)))"}, turn: [{axis: up, deg: "= -45 + 30 * (2 * floor(i / 8) + 1) + 25 * (1 - 2 * (i - 2 * floor(i / 2)))"}, {axis: left, deg: -12.6}], at: 32, for: 12}
+        - {id: bolt_w, op: display, kind: block, block: "minecraft:white_concrete", anchor: "bolt_w_f[i]", brightness: {block: 15, sky: 15}, times: 16, at: 32, for: 12, motion: [{law: keys, keys: [{t: 0, scale: {left: 0.05, up: 0.05, forward: 0.1}}, {t: 1, scale: {left: 0.12, up: 0.12, forward: 0.76}, ease: out_expo}, {t: 9, scale: {left: 0.09, up: 0.09, forward: 0.76}}, {t: 12, scale: {left: 0.0, up: 0.0, forward: 0.76}, ease: in_quad}]}]}
     end: {final: true}
