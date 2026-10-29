@@ -17,6 +17,10 @@ class ArsenalWeaponArtE2eTest : E2eBase() {
             "flash-bang", "shock-wand", "ember-rod", "frost-rod", "fireball-charge", "glacier-wand",
             "sanctuary-staff", "chain-rod", "gale-fan",
         )
+        val model3d = listOf(
+            "iron-blade", "war-axe", "spear", "mace", "twin-daggers", "katana", "halberd", "rapier", "cleaver", "scythe", "club",
+        )
+        val flat = custom - model3d.toSet()
         op(player)
         assertThat(player.waitUntil(10_000) { player.packPushes.isNotEmpty() }).isTrue()
         val connection = URI(player.packPushes.first().url).toURL().openConnection().apply {
@@ -32,8 +36,24 @@ class ArsenalWeaponArtE2eTest : E2eBase() {
                 }
             }
         }
-        E2eReport.check("Arsenal art", "all 31 weapon definitions resolve to generated flat handheld art", "pushed pack ZIP") {
-            for (id in custom) {
+        E2eReport.check("Arsenal art", "all 31 weapon definitions resolve to their intended real model", "pushed pack ZIP") {
+            assertThat(model3d + flat).describedAs("every weapon is classified exactly once").containsExactlyInAnyOrderElementsOf(custom)
+            // Studio override (ResourcePackBuilder.addGeneratedItemDefinitions): a hand-built content/models/items/<id> model replaces the generated icon.
+            for (id in model3d) {
+                val definition = assets.getValue("assets/astera/items/$id.json").toString(Charsets.UTF_8)
+                assertThat(definition).describedAs("$id definition").contains("\"astera:items/$id\"").doesNotContain("generated/items")
+                val tints = Regex("\"minecraft:constant\"").findAll(definition).count()
+                assertThat(tints).describedAs("$id definition tints").isGreaterThan(0)
+                val model = assets.getValue("assets/astera/models/items/$id.json").toString(Charsets.UTF_8)
+                assertThat(model).describedAs("$id 3D model").contains("\"elements\"").doesNotContain("astera_tints")
+                val used = Regex("\"tintindex\"\\s*:\\s*(\\d+)").findAll(model).map { it.groupValues[1].toInt() }.toList()
+                assertThat(used).describedAs("$id tintindex values stay inside its ${tints}-colour palette").allMatch { it < tints }
+                // Vanilla-pattern colour policy: textures are vanilla block textures, nothing derived from Mojang PNGs ships.
+                val textures = Regex("\"([a-z0-9_]+)\"\\s*:\\s*\"((?:minecraft|astera):[a-z0-9_/]+)\"").findAll(model.substringAfter("\"textures\"").substringBefore("}")).toList()
+                assertThat(textures).describedAs("$id textures").isNotEmpty()
+                assertThat(textures.map { it.groupValues[2] }).describedAs("$id textures").allMatch { it.startsWith("minecraft:block/") }
+            }
+            for (id in flat) {
                 assertCleanArsenalIcon(id, assets.getValue("assets/astera/textures/generated/items/$id.png"))
                 assertThat(assets.getValue("assets/astera/items/$id.json").toString(Charsets.UTF_8))
                     .contains("astera:generated/items/$id")
@@ -41,7 +61,7 @@ class ArsenalWeaponArtE2eTest : E2eBase() {
                     .contains("minecraft:item/handheld", "astera:generated/items/$id").doesNotContain("\"elements\"")
                 assertThat(assets).doesNotContainKey("assets/astera/models/items/$id.json")
             }
-            "31 flat handhelds; no retired cuboid models in the pack"
+            "${model3d.size} tinted 3D models (astera:items/<id>), ${flat.size} generated flat handhelds; every referenced model file exists in the pack"
         }
         for (id in custom) {
             rcon("clear ${player.name}")
