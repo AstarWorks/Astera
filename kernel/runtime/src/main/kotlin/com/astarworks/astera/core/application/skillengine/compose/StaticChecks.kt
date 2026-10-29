@@ -9,6 +9,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Branch
 import com.astarworks.astera.core.domain.skillengine.table.Callee
 import com.astarworks.astera.core.domain.skillengine.table.Duration
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
+import com.astarworks.astera.core.domain.skillengine.table.HitDamage
 import com.astarworks.astera.core.domain.skillengine.table.ExpansionTable
 import com.astarworks.astera.core.domain.skillengine.table.Guard
 import com.astarworks.astera.core.domain.skillengine.table.LockEnd
@@ -56,7 +57,7 @@ public object StaticChecks {
 
     /** Order matters only for which error a doubly-broken skill reports: cheap and local first, graph checks next, closure last. */
     private val CHECKS: List<(TableGraph) -> SkillDecodeError?> = listOf(
-        ::check9, ::check11, ::check1, ::check2, ::check3, ::check4, ::check5, ::check6, ::check7, ::check8, ::check10, ::check12,
+        ::check9, ::check11, ::check1, ::check2, ::check3, ::check4, ::check5, ::check6, ::check7, ::check8, ::check10, ::check12, ::check15,
     )
 
     // ---- check 9: no runtime timing ----
@@ -389,6 +390,98 @@ public object StaticChecks {
         worst = maxOf(worst, g.table.bounds.sameTickDepth)
         if (worst > cap) return SkillDecodeError.SameTickDepth(worstEvent.ifEmpty { "bounds" }, worst, cap, g.skillId)
         return null
+    }
+
+    // ---- check 15: hit scope (C3) ----
+
+    private val SCOPED_IDENT = Regex("""[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*""")
+    private val QUOTED = Regex("""'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"""")
+    private val HANDLER_KEY = Regex("""\.(hit|hurt|stick|unstick)(/|$)""")
+    private val HANDLER_EVENT = Regex("""(^|\.)(hit|hurt)$""")
+    private val STATE_SECTION = Regex("""states\.([^.\[]+)\.(enter|do|exit)""")
+    private val WRAPPER_FIELDS = setOf("payload", "fields", "with", "look")
+
+    private fun isScoped(ident: String, eventBound: Boolean): Boolean =
+        ident == "victim" || ident.startsWith("victim.") ||
+            !eventBound && (ident == "event.victim" || ident.startsWith("event.victim.") || ident == "event.attacker" || ident.startsWith("event.attacker."))
+
+    /** [eventBound]: the state was entered by a hit / hurt transition, so `event.victim` / `event.attacker` still name that event's entity (a `riposte` state reads `event.attacker`). */
+    private fun scopedIdent(source: String, eventBound: Boolean): String? =
+        SCOPED_IDENT.findAll(QUOTED.replace(source.removePrefix("=")) { " ".repeat(it.value.length) }).map { it.value }.firstOrNull { isScoped(it, eventBound) }
+
+    /** Every `= expr` cell of [obj] with the field / map key that holds it; [HitDamage] amounts are evaluated per victim and exempt. */
+    private fun liveCells(obj: Any?, name: String, out: MutableList<Pair<String, String>>) {
+        when (obj) {
+            null -> {}
+            is Val.Live<*> -> if (obj.name.startsWith("=")) out += name to obj.name
+            is Val.Known<*> -> {}
+            is HitDamage -> {}
+            is String, is Number, is Boolean, is Enum<*> -> {}
+            is Map<*, *> -> for ((k, v) in obj) liveCells(v, if (name.isEmpty()) k.toString() else "$name.$k", out)
+            is Iterable<*> -> for (v in obj) liveCells(v, name, out)
+            else -> if (obj.javaClass.name.startsWith("com.astarworks.astera.core.domain.skillengine.")) {
+                for (f in obj.javaClass.declaredFields) {
+                    if (java.lang.reflect.Modifier.isStatic(f.modifiers)) continue
+                    f.isAccessible = true
+                    val child = if (f.name in WRAPPER_FIELDS) name else if (name.isEmpty()) f.name else "$name.${f.name}"
+                    liveCells(f.get(obj), child, out)
+                }
+            }
+        }
+    }
+
+    private fun check15(g: TableGraph): SkillDecodeError? {
+        val handlerOn = HashSet<String>()
+        for (b in g.allBranches()) {
+            val key = b.subTable ?: continue
+            if (HANDLER_EVENT.containsMatchIn(b.event.value)) handlerOn += key.value
+        }
+        val enteredByEvent = g.allBranches().filter { HANDLER_EVENT.containsMatchIn(it.event.value) }.mapNotNull { it.target?.value }
+        fun bound(state: StatePath): Boolean = enteredByEvent.any { state.value == it || state.value.startsWith("$it/") }
+        fun scan(rows: List<Row>, branches: List<Branch>, eventBound: Boolean, where: (Row?) -> String): SkillDecodeError? {
+            for (row in rows) {
+                val cells = ArrayList<Pair<String, String>>()
+                liveCells(row.action, "", cells)
+                (row.guard as? Guard.Expr)?.let { cells += "when" to it.source }
+                for ((cell, source) in cells) scopedIdent(source, eventBound)?.let { return hitScopeError(g, row, cell, source, it, where(row)) }
+            }
+            for (b in branches) {
+                if (HANDLER_EVENT.containsMatchIn(b.event.value)) continue
+                val source = (b.guard as? Guard.Expr)?.source ?: continue
+                scopedIdent(source, eventBound)?.let { return hitScopeError(g, null, "when", source, it, where(null)) }
+            }
+            return null
+        }
+        for (s in g.table.states) scan(s.rows, s.branches, bound(s.state)) { r -> stateSection(r?.src?.value, s.state.value) }?.let { return it }
+        for (sub in g.table.subTables.values) {
+            val key = sub.event.value
+            val handler = HANDLER_KEY.containsMatchIn(key) || key in handlerOn
+            // an exit table pastes the rows of the transition's `on[k]` effects; those are judged in their own `on[k]` table
+            val rows = if (handler) emptyList() else if (".exit[" in key) sub.rows.filterNot { ".on[" in it.src.value } else sub.rows
+            scan(rows, sub.branches, bound(sub.owner)) { "sub-table '$key'" }?.let { return it }
+        }
+        g.table.worldRows.takeIf { it.isNotEmpty() }?.let { rows -> scan(rows, emptyList(), false) { "machine.world" }?.let { return it } }
+        return null
+    }
+
+    private fun stateSection(src: String?, fallbackState: String): String {
+        val m = src?.let { STATE_SECTION.findAll(it).lastOrNull() } ?: return "state '$fallbackState'"
+        return "state '${m.groupValues[1]}' ${m.groupValues[2]}: list"
+    }
+
+    private fun hitScopeError(g: TableGraph, row: Row?, cell: String, source: String, ident: String, where: String): SkillDecodeError {
+        val id = row?.instance?.path?.lastOrNull()?.op?.value
+        val kind = when (val a = row?.action) {
+            is Action.Spawn -> if (a.kind == SpawnKind.PROJECTILE_BODY) "projectile" else "display"
+            null -> "transition"
+            else -> a::class.simpleName.orEmpty().lowercase()
+        }
+        val subject = if (id != null) "$kind '$id' $cell '$source'" else "$kind $cell '$source'"
+        return SkillDecodeError.MachineCheck(
+            15,
+            "$subject: '$ident' is only bound inside a hit handler (on: {hit: [...]}) or a transition on a hurt event; this row is in $where",
+            g.skillId,
+        )
     }
 
     // ---- helpers ----

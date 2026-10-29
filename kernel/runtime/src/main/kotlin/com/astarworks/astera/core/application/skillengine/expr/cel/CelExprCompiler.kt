@@ -35,6 +35,7 @@ public class CelExprCompiler : ExprCompiler {
         for ((name, type) in spec.variables) b.addVar(name, celType(type))
         for (frame in spec.frames) if (frame !in spec.variables) b.addVar(frame, CelFunctions.REF)
         b.addVar("PI", SimpleType.DOUBLE)
+        b.addVar("pi", SimpleType.DOUBLE)
         b.addFunctionDeclarations(CelFunctions.declarations())
         b.build()
     }
@@ -79,7 +80,16 @@ public class CelExprCompiler : ExprCompiler {
 
     private fun error(issue: CelIssue, syntax: Boolean): ExprError {
         val col = issue.sourceLocation.column + 1
-        return if (syntax) ExprError.Syntax(issue.message, col) else ExprError.Type(issue.message, col)
+        if (syntax) return ExprError.Syntax(issue.message, col)
+        // C1: the author sees the compiler's "no matching overload" for a double `%`; say what to write instead
+        // C3: a display / frame field is not a hit handler, so `victim` is simply undeclared there
+        val hint = when {
+            "'_%_'" in issue.message -> ": '%' is integer-only in CEL; write mod(a, b) (or int(a) % int(b))"
+            "undeclared reference to 'victim'" in issue.message ->
+                ": 'victim' is only bound inside a hit handler (on: {hit: [...]}) or a transition on a hurt event"
+            else -> ""
+        }
+        return ExprError.Type(issue.message + hint, col)
     }
 
     private class CelCompiled(
@@ -93,6 +103,7 @@ public class CelExprCompiler : ExprCompiler {
             val activation = HashMap<String, Any?>(env.variables.size + frameRefs.size)
             activation.putAll(frameRefs)
             activation["PI"] = Math.PI
+            activation["pi"] = Math.PI
             for ((k, v) in env.variables) activation[k] = toRaw(v)
             CelFunctions.beginEval(env)
             try {
