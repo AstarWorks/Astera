@@ -203,11 +203,27 @@ abstract class PlaythroughBase : E2eBase() {
     protected fun scoreOf(b: Bot, team: String): Int? =
         sidebar(b).firstOrNull { it.contains(team, ignoreCase = true) }?.let { Regex("(\\d+)").find(it.substringAfter(team, it))?.groupValues?.get(1)?.toIntOrNull() }
 
-    /** Errors the server logged since line [from] (harness noise filtered). */
-    protected fun serverErrorsSince(from: Int): List<String> = ServerLog.read().lineSequence().drop(from)
-        .filter { !it.contains("authlib") && !it.contains("sessionserver.mojang.com") && !it.contains("SocketTimeoutException") }
-        .filter { it.contains("/ERROR]") || it.contains("NotImplementedError") || it.contains(" threw") || (it.contains("/WARN]") && it.contains("Exception")) }
-        .toList()
+    /** Errors the server logged since line [from] (harness noise filtered), each followed by up to 25 stack-trace continuation lines. */
+    protected fun serverErrorsSince(from: Int): List<String> {
+        val lines = ServerLog.read().lineSequence().drop(from).toList()
+        fun isError(it: String) = !it.contains("authlib") && !it.contains("sessionserver.mojang.com") && !it.contains("SocketTimeoutException") &&
+            (it.contains("/ERROR]") || it.contains("NotImplementedError") || it.contains(" threw") || (it.contains("/WARN]") && it.contains("Exception")))
+        fun isContinuation(it: String) = it.isNotEmpty() && (it.startsWith(" ") || it.startsWith("\t")) && it.trimStart().let { t -> t.startsWith("at ") || t.startsWith("... ") } ||
+            it.startsWith("Caused by") || it.trimStart().startsWith("Caused by") || it.trimStart().startsWith("Suppressed:")
+        val out = ArrayList<String>()
+        var i = 0
+        while (i < lines.size) {
+            if (isError(lines[i])) {
+                out += lines[i]
+                var n = 0
+                var j = i + 1
+                while (j < lines.size && isContinuation(lines[j]) && n < 25) { out += lines[j]; n++; j++ }
+                while (j < lines.size && isContinuation(lines[j])) j++ // beyond the cap: skip, do not re-scan as errors
+                i = j
+            } else i++
+        }
+        return out
+    }
 
     /** Vanilla death lines ("Sg1 was slain by Zombie") the server logged since line [from]: names the killer when a bot dies. */
     protected fun deathsSince(from: Int): List<String> = ServerLog.read().lineSequence().drop(from)

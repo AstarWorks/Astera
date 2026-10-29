@@ -181,6 +181,10 @@ public class PaperLiveValueSource(
             val pitched = bare == "$CASTER.look" || bare == "$CASTER.eye"
             return quat(Frame.fromYawPitch(p.feet, p.yaw, if (pitched) p.pitch else 0.0).rotation)
         }
+        if (bare == "victim" || bare == "target" || bare.startsWith("victim.")) {
+            val point = if (bare.contains('.')) bare.substringAfter('.') else null
+            return quat((victimFrame(binding, point) ?: unsupported(name, "a rotation (no victim bound)")).rotation)
+        }
         if (bare == "contact") return quat(frames(cast, binding).worldPose("contact", null)?.rotation ?: unsupported(name, "a rotation (no contact bound)"))
         return when (val v = evalExpr(cast, request, name, binding, scope)) {
             is ExprValue.Quat -> quat(v.value)
@@ -236,16 +240,21 @@ public class PaperLiveValueSource(
 
     /**
      * The hit victim as a frame (`victim`, `victim.root`, `target`): yaw-only like the v2 `pt_enemy_*` anchors. A bare frame is the body centre,
-     * `feet` / `root` the feet, `eye` the eye; null when no victim is bound.
+     * `feet` / `root` the feet, `eye` the eye (the top for a non-living entity such as a crystal, interaction or display); null when no victim is bound or it is gone with no contact point.
      */
     private fun victimFrame(binding: EventBinding?, point: String?): Frame? {
         val id = binding?.victim?.id ?: return null
-        val e = server.getEntity(id) as? LivingEntity ?: return null
+        val e = server.getEntity(id)
+        if (e == null) {
+            // Gone by the time the row runs (an earlier `damage` row of the same hit killed and removed it): it stood where the hit landed.
+            val c = binding?.contact ?: return null
+            return Frame.fromYawPitch(Vec3(c.point.x, c.point.y, c.point.z), 0.0, 0.0)
+        }
         val loc = e.location
         val origin = when (point) {
             null, "body" -> Vec3(loc.x, loc.y + e.height / 2.0, loc.z)
             "feet", "root" -> Vec3(loc.x, loc.y, loc.z)
-            "eye" -> Vec3(loc.x, loc.y + e.eyeHeight, loc.z)
+            "eye" -> Vec3(loc.x, loc.y + ((e as? LivingEntity)?.eyeHeight ?: e.height), loc.z)
             else -> return null
         }
         return Frame.fromYawPitch(origin, loc.yaw.toDouble(), 0.0)
@@ -254,6 +263,12 @@ public class PaperLiveValueSource(
     private fun bindingVec(name: String, binding: EventBinding?): Vector3d? {
         if (name == "contact") return contactOf(binding).point.let { Vector3d(it.x, it.y, it.z) }
         if (name == "event.victim" || name == "event.attacker") return eventEntityVec(name, binding)
+        // the bare victim frame (`victim`, `target`, `victim.feet` ...) as a point: the origin `frames()` serves, so an `on.hit` row reads it as game-sim does
+        if (name == "victim" || name == "target" || name.startsWith("victim.")) {
+            val point = if (name.contains('.')) name.substringAfter('.') else null
+            val o = (victimFrame(binding, point) ?: throw IllegalArgumentException("'$name' needs a hit event binding with a loaded victim")).origin
+            return Vector3d(o.x, o.y, o.z)
+        }
         val root = name.substringBefore('.', "")
         if (root != "contact" && root != "target") return null
         val b = if (root == "contact") contactOf(binding) else victimOf(binding)
@@ -299,7 +314,7 @@ public class PaperLiveValueSource(
     private fun evalExpr(cast: CastHandle, request: CastRequest, name: String, binding: EventBinding?, scope: RowScope): ExprValue {
         if (CellExprs.sourceOf(name) == null) unsupported(name, "a resolvable cell")
         val vars = variables(cast, binding, castTick = scheduler.currentTick().toInt() - request.startTick, stateTick = 0)
-        return cells.eval(name, scope, vars, withInstances(frames(cast), scope.frames), StackHost(request, cast, binding))
+        return cells.eval(name, scope, vars, withInstances(frames(cast, binding), scope.frames), StackHost(request, cast, binding))
     }
 
     /** The caster / contact frames first, then the cast's own frame / projectile instances ([inst], from the row's scope). */

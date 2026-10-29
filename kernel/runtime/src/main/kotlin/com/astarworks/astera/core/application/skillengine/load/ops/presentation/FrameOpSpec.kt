@@ -39,6 +39,7 @@ import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
 import com.astarworks.astera.core.domain.skillengine.expr.FrameLookup
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
+import com.astarworks.astera.core.application.skillengine.load.motion.LawSource
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
@@ -80,7 +81,7 @@ public class FrameOp(
     /** R23: whose axes the frame takes (`caster` / `victim` / `world`); null = the anchor's own axes. Re-read per send (follow) or once (snapshot). */
     public val axes: String?,
     /** Motion laws decoded by [MotionLaws]; segmented into `Key` rows by [LawSegmenter] at compile; null = a still frame. */
-    public val motion: List<MotionLaw>?,
+    public val motion: LawSource?,
 ) : OpNode
 
 public object FrameOpSpec : OpSpec<FrameOp> {
@@ -118,7 +119,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
                 id, src, whenExpr, timing,
                 values[anchorF], values[partF], values[offsetF], values[turnF],
                 if (values[modeF] == "snapshot") FrameMode.SNAPSHOT else FrameMode.FOLLOW,
-                values[axesF], values[motionF]?.let { m -> MotionLaws.readLaws(m.raw, ctx.forLaws(AxisResolver(lawAxes(values[partF], ctx))), m.path) },
+                values[axesF], values[motionF]?.let { m -> LawSource(m.raw, ctx.forLaws(AxisResolver(lawAxes(values[partF], ctx))), m.path).also { it.probe() } },
             )
         }
 
@@ -188,7 +189,8 @@ public object FrameOpSpec : OpSpec<FrameOp> {
 
             var segments = 0
             // The anchor's own laws ride first (left_rotation = anchor.rot(t) * rider), then this frame's own.
-            val laws = lc.anchors.laws(op.anchor) + op.motion.orEmpty()
+            val own = op.motion?.laws(occ).orEmpty()
+            val laws = lc.anchors.laws(op.anchor) + own
             if (laws.isNotEmpty()) {
                 val moved = when (val r = LawSegmenter.segments(instance, laws, lc)) {
                     is Result.Failure -> throw DecodeAbort(r.error)
@@ -212,7 +214,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
             writes[instance] = WriteStats(segments, if (segments > 0) 1 else 0)
         }
 
-        (lc.anchors as? AnchorRegistry)?.declare(declared, family, basis, op.motion.orEmpty())
+        (lc.anchors as? AnchorRegistry)?.declare(declared, family, basis, op.motion?.laws(occ).orEmpty(), if (family != null) occ.i else null)
         return Lowered(rows = rows, subTables = subTables, instances = listOf(instance), writes = writes)
     }
 

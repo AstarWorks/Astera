@@ -67,7 +67,7 @@ class SkillEngineLimbusE2eTest : E2eBase() {
 
         E2eReport.check(suite, "${o.id}: no skill-engine load or runtime error in the server log", "server log") {
             val errors = ServerLog.read().lineSequence().drop(logMark).toList().filter {
-                (it.contains("skillengine", true) || it.contains("skill engine", true) || it.contains(o.id)) &&
+                (it.contains("[skill-error]") || it.contains("skillengine", true) || it.contains("skill engine", true) || it.contains(o.id)) &&
                     (it.contains("ERROR") || it.contains("WARN") || it.contains("Exception"))
             }
             assertThat(errors).describedAs("skill-engine log problems; cast reply='$reply'").isEmpty()

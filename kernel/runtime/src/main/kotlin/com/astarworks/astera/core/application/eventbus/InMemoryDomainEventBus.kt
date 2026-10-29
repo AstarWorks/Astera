@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.eventbus
 
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.domain.event.DomainEvent
+import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 
 /**
@@ -10,9 +11,11 @@ import kotlin.reflect.KClass
  * Not thread-safe by design: Astera dispatches on the Paper main thread, so
  * `CopyOnWriteArrayList` would be overkill. Publish takes a snapshot before
  * dispatching so a handler can subscribe / cancel during dispatch without
- * `ConcurrentModificationException`.
+ * `ConcurrentModificationException`. A handler that throws is logged at ERROR and does not stop the others.
  */
 public class InMemoryDomainEventBus : IDomainEventBus {
+
+    private val log = LoggerFactory.getLogger(javaClass)
 
     private data class Entry<E : DomainEvent>(
         val type: KClass<E>,
@@ -28,8 +31,15 @@ public class InMemoryDomainEventBus : IDomainEventBus {
         for (entry in snapshot) {
             if (!entry.active) continue
             if (entry.type.isInstance(event)) {
-                @Suppress("UNCHECKED_CAST")
-                (entry.handler as (DomainEvent) -> Unit)(event)
+                try {
+                    @Suppress("UNCHECKED_CAST")
+                    (entry.handler as (DomainEvent) -> Unit)(event)
+                } catch (t: Throwable) {
+                    // One failing handler must never skip the handlers after it (a thrown MatchEnded handler once
+                    // swallowed the result screen and the rewards): log loudly and carry on.
+                    if (t is VirtualMachineError) throw t
+                    log.error("Event handler {} failed for {}; the remaining handlers still run", entry.handler.javaClass.name, event::class.qualifiedName, t)
+                }
             }
         }
     }

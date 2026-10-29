@@ -166,7 +166,20 @@ public class TablePlayer(
         world.tick()
         for (run in runs.values.toList()) {
             if (run.finalized || now < run.request.startTick) continue
-            tickRun(run, now)
+            // Rows fault inside playRow; anything else thrown here (drivers, sweeps, transitions) must end THIS cast only. An uncaught throw
+            // would abort the whole tick loop on every later tick, so a single poisoned cast silently froze every cast behind it.
+            try {
+                tickRun(run, now)
+            } catch (e: RuntimeException) {
+                fault(run, now, "tick", "cast aborted, ${e.javaClass.simpleName}: ${e.message}")
+                try {
+                    finalize(run, now)
+                } catch (cleanup: RuntimeException) {
+                    fault(run, now, "tick", "cleanup of the aborted cast threw ${cleanup.javaClass.simpleName}: ${cleanup.message}")
+                } finally {
+                    run.finalized = true
+                }
+            }
         }
         runs.values.removeAll { it.finalized }
     }
@@ -557,7 +570,8 @@ public class TablePlayer(
         }
     }
 
-    private fun worldOf(run: Run, rec: Rec, local: PoseV, binding: EventBinding?, t: Int, depth: Int = 0): PoseV {
+    private fun worldOf(run: Run, rec: Rec, local: PoseV, callerBinding: EventBinding?, t: Int, depth: Int = 0): PoseV {
+        val binding = callerBinding ?: rec.binding
         var pp = Vector3d()
         var pr = Quaterniond()
         val parent = rec.anchor?.let { run.recs[it] ?: run.finished[it] }
@@ -664,7 +678,9 @@ public class TablePlayer(
                         }
                         run.pending += RuntimeEvent(EventPath(a.instance.text + ".end"), now, idx, null, null)
                     }
-                    if (a.instance !in run.pendingEnds) run.pendingEnds += a.instance
+                    // a frame the reel is pulling back outlives its scheduled End (the flight window): it goes with the cast, not mid-reel
+                    val reeled = run.reels.values.any { it.frame == a.instance }
+                    if (!reeled && a.instance !in run.pendingEnds) run.pendingEnds += a.instance
                 }
                 is Action.Cancel -> cancelScope(run, a.scope, now, ctx)
             }
@@ -680,6 +696,7 @@ public class TablePlayer(
         // a body's spawn pose is already the origin anchor's WORLD pose (`anchor:<origin>.position`); anchoring it again would count the anchor twice
         val body = a.kind == SpawnKind.PROJECTILE_BODY
         val rec = Rec(a.kind, if (body) null else a.anchor, if (body) "" else a.anchorName, now, ctx.owner, local)
+        rec.binding = ctx.binding
         rec.billboard = a.look.fields["billboard"]?.let { runCatching { DisplayBillboard.valueOf(strOf(run, it, ctx).uppercase()) }.getOrNull() } ?: DisplayBillboard.FIXED
         rec.axes = a.look.fields["axes"]?.let { strOf(run, it, ctx) }
         run.finished.remove(id)
@@ -1210,6 +1227,10 @@ public class TablePlayer(
             "camera_shake" -> {
                 val ticks = d("ticks").toInt()
                 val dir = s("direction")
+                // `from_hit` leans the shake away from the hit that raised the event: outside an `on.hit` row there is none, which is a content error (no silent fallback)
+                if (dir == "from_hit" && ctx.binding?.victim == null) {
+                    throw IllegalStateException("camera_shake direction: from_hit is only valid inside an on.hit row (no hit victim is bound here); use direction: none")
+                }
                 val from = if (dir == "from_hit") liveVec(run, "event.victim", ctx).let { Vec3(it.x, it.y, it.z) } else null
                 victims.forEach { gameplay.cameraShake(castRef(run), it, d("intensity"), ticks, from) }
             }
@@ -1289,7 +1310,8 @@ public class TablePlayer(
         fun cell(k: String): Val<Any> = p[k] ?: throw IllegalArgumentException("effect 'reel' needs '$k'")
         val frame = any(run, cell("frame"), ctx) as InstanceId
         val to = any(run, cell("to"), ctx) as InstanceId
-        val rec = run.recs[frame]
+        // a body whose flight ended on a hit stays a frozen frame (frames_out); the reel pulls it back, so it is live again from here
+        val rec = run.recs[frame] ?: run.finished.remove(frame)?.also { run.recs[frame] = it }
         if (rec == null) {
             fault(run, now, src, "reel: frame '${frame.text}' is not a live instance")
             return
@@ -1887,6 +1909,8 @@ public class TablePlayer(
         var real: VisualHandle? = null
         /** A `rig` anchor instance: the driver that poses [RigRec.driven] each tick (this rec itself when the rig has no `of`). */
         var rig: RigRec? = null
+        /** The hit that spawned this instance (null outside `on.hit`): a `victim` anchor/axes keeps resolving to that victim after the row is gone (end-of-cast freeze, later ticks). */
+        var binding: EventBinding? = null
         var flight: Flight? = null
         /** R16: the tick the flight ends by range / `for` (-1 none), the body events that end it early, and whether one did. */
         var expireTick: Int = -1

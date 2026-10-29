@@ -64,16 +64,21 @@ public class MatchEndSummaryListener(
 
     public fun handle(event: MatchEnded) {
         val match = matches.findById(event.matchId) ?: run {
-            log.info("MatchEndSummary: match {} not found in repo at MatchEnded time; skipping.", event.matchId)
+            log.error("MatchEndSummary: match {} not found in repo at MatchEnded time; nobody gets the result screen.", event.matchId)
             return
         }
         val summary = buildSummary(match, event)
         val standings = normaStandings(event.matchId)
+        if (match.teams.all { it.members.isEmpty() }) log.error("MatchEndSummary: match {} has no members at MatchEnded time; nobody gets the result screen.", event.matchId)
 
         for (team in match.teams) {
             for (member in team.members) {
-                pushTitle(member, summary.outcomeOf(member), event, match, viewerReasonSubtitle(member, match, event))
-                pushChat(member, match, summary, event, standings)
+                try {
+                    pushTitle(member, summary.outcomeOf(member), event, match, viewerReasonSubtitle(member, match, event))
+                    pushChat(member, match, summary, event, standings)
+                } catch (t: Exception) {
+                    log.error("MatchEndSummary failed for {} in match {}; the other players still get theirs", member, event.matchId, t)
+                }
             }
         }
         eventBus.publish(MatchSummaryReady(summary))

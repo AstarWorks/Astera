@@ -1,0 +1,6 @@
+## pose yaw=0 pitch=0
+@0 lock - op=- pitch=true yaw=false until=40
+@40 unlock - op=-
+## pose yaw=37 pitch=-20
+@0 lock - op=- pitch=true yaw=false until=40
+@40 unlock - op=-

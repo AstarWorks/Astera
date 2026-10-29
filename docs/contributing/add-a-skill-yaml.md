@@ -358,3 +358,17 @@ hit handler の `freeze` で `scope: [enemy, caster]` と書くと、当たっ�
 
 `{op: lock, target: caster, speed: 0.0, ticks: 20}` で windup 中に caster を固定する (`speed` = 歩行速度の倍率、0 = 動けない)。
 bastion-greatsword-ego の windup がこれ。
+
+## v3 motion law の数値文法 (ADR-0303 3.4 / 3.5)
+
+`display` / `frame` / `projectile` の `motion:` に書く law の数値は、ロード時に評価して展開表へ焼く。
+
+- **CEL と copy index**: 数値の代わりに `"= 10 + i * 2"` と書ける。読めるのは定数・param・copy index (`i`, `n`, `parent.i`) だけ。
+  `times: N` の family は copy ごとに評価して焼く (copy k は `i = k`)。`frame` / `projectile` の `motion` も同じで、
+  `anchor: "blade[1]"` で乗る rider は copy 1 の law を受け取る。
+  `t` / live 値 (`nearest_enemy_dist(..)` など) / `rand` は焼けないので、値の名前を挙げた load error になる。
+- **`grow` の `prop: offset` と `accel`**: `{law: grow, prop: offset, per_tick: {forward: 1.0}, accel: {forward: -0.1}, for: 4}`。
+  位置 = `start + per_tick * tau + accel * tau^2 / 2` (start 省略時は 0)。`accel` が 0 でなければ 1 tick ごとに key を出す。
+- **三つ組**: `keys.scale` と `grow.to` / `grow.start` は `[left, up, forward]` の 3 要素 list でも書ける
+  (`{left: .., up: .., forward: ..}` の map と同値)。要素数が 3 以外は load error。
+- `motion` の値に CEL 文字列を書いても、family の per-index list とは見なされない (`"= ..."` は一つの数値式)。
