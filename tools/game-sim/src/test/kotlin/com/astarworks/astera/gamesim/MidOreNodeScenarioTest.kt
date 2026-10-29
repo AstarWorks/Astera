@@ -92,6 +92,7 @@ class MidOreNodeScenarioTest {
             val timberAxe = cell(-16, -4)
             val timberPick = cell(-16, 4)
             assertThat(nodes.mine(red.id, worldId, timberAxe, ItemId("stone-axe"))).isEqualTo(OreNodeService.Outcome.Hit(700, 800))
+            advance(6) // OreNodeService.HIT_COOLDOWN_TICKS
             assertThat(nodes.mine(red.id, worldId, timberPick, ItemId("stone-pickaxe"))).isEqualTo(OreNodeService.Outcome.Hit(788, 800))
 
             // Iron clay (shovel affinity, 800 HP): an iron shovel deals 150.

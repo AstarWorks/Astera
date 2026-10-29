@@ -30,7 +30,8 @@ class StaleWeaponStateNextMatchScenarioTest {
         scenario("stale-weapon-state-next-match") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            val first = startMatch("annihilation", mapOf(red to "red", blue to "blue"), stage = "annihilation-arena")
+            val yellow0 = player("yellow-0", team = "yellow") // the annihilation lane starts only with 3 teams
+            val first = startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow0 to "yellow"), stage = "annihilation-arena")
             red.holds("pistol")
             red.rightClick() // initialises the ammo pool for the pistol
             advance(10)
@@ -57,7 +58,7 @@ class StaleWeaponStateNextMatchScenarioTest {
             advance(5)
             assertThat(effects.has(red.id, silence)).`as`("the stale state is really there before match 2").isTrue()
 
-            startMatch("annihilation", mapOf(red to "red", blue to "blue"), stage = "annihilation-arena")
+            startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow0 to "yellow"), stage = "annihilation-arena")
             assertThat(effects.has(red.id, silence)).`as`("silence cleared at match start").isFalse()
             assertThat(cooldowns.isCoolingDown(red.id, cooldownKey)).`as`("cooldown cleared").isFalse()
             assertThat(checkNotNull(pools.currentPool(red.id)).ammo).`as`("magazine refilled").isGreaterThan(0)

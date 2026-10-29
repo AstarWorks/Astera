@@ -102,7 +102,7 @@ internal object MatchCommandSpecs {
                 ?: return@Literal CommandResult.Failure(MessageKey("astera.command.player-only"))
             if (cards.sendCurrent(senderId)) CommandResult.Success else CommandResult.Failure(MessageKey("astera.rules.not-in-match"))
         },
-    ).forEveryone(Permission("astera.rules"))
+    ).forEveryone(Permission("astera.rules.show"))
 
     /**
      * `/astera queue join <lane>` / `leave` / `status` (Wave 5w ADR-0089 delta, WP8).

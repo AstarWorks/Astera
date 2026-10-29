@@ -88,7 +88,8 @@ class GuiIntentCoverageScenarioTest {
             val view = checkNotNull(sim.server.view(p.id))
             val kit = LobbyMenuKitContents().also { assertThat(it.reload(GameSim.defaultContentDir()).failed).isZero() }.current()
 
-            assertThat(kit.entries(KitArea.HOTBAR)).hasSize(1)
+            // ADR-0248: the compass and "Leave queue" share slot 8 (visible_if state), so the hotbar still holds one item at a time.
+            assertThat(kit.entries(KitArea.HOTBAR).map { it.slot }.toSet()).hasSize(1)
             router.dispatch(view, kit.at(KitArea.KEY_SWAP, 0)!!.intent)
             assertThat(adapter.currentSpec(view)!!.id.value).isEqualTo("main-menu")
             // UI-02: no intermediate "customize" screen; the keybind's intent is the vault itself.

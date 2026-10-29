@@ -92,7 +92,7 @@ class CrossServerAnnounceScenarioTest {
                 .containsExactly(mapOf("name" to "Alice", "item" to legendary.id.value), mapOf("name" to "Alice", "item" to legendary.id.value))
 
             val command = announceCommands(announcer, a.services.getOrThrow<IPresentationTable>()) { setOf(aName, bName) }
-            assertThat(command.permission?.id).isEqualTo("astera.announce")
+            assertThat(command.permission?.id).isEqualTo("astera.announce.send")
             assertThat(command.arguments[0].completer!!(CommandSpec.PartialInput("rare"))).containsExactly("rare-drop")
             assertThat(command.arguments[1].completer!!(CommandSpec.PartialInput(""))).containsExactly("all", "game", "lobby")
             val context = CommandContext(null, mapOf("moment" to "rare-drop", "target" to "all", "args" to "name=Alice item=X"), a.scheduler)

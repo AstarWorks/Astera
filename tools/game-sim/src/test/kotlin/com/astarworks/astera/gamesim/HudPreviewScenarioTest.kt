@@ -56,8 +56,8 @@ class HudPreviewScenarioTest {
                         statuses.apply(StatusEffectInstance(spec, viewer.id, 200, 1, sim.tick))
                     }
                     advance(12)
-                    assertThat(SimHudRecorder.describe(checkNotNull(sim.hud.actionBar(viewer.id)).component))
-                        .contains("burn", "regen")
+                    // Status effects ride the status line as an icon row (FX-12), not the action bar.
+                    assertThat(sim.hud.statusLineText(viewer.id)).contains("effect:burn", "effect:regen")
                 }
                 "low-hp" -> {
                     val health = sim.services.getOrThrow<IPlayerHealthGateway>()

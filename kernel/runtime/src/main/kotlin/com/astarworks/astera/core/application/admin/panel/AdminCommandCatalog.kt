@@ -89,6 +89,7 @@ public object AdminCommandCatalog {
         AdminPanelAction("admin maintenance", AdminCategory.SERVER, destructive = true, presets = mapOf("reason" to restartReasons())),
         AdminPanelAction("admin health", AdminCategory.SERVER),
         AdminPanelAction("admin announce", AdminCategory.SERVER, presets = mapOf("message-key" to announcements())),
+        AdminPanelAction("announce", AdminCategory.SERVER),
         AdminPanelAction("admin restart", AdminCategory.SERVER, destructive = true, presets = mapOf("minutes" to raw("1", "5", "10", "30", "60"), "reason" to restartReasons())),
         AdminPanelAction("admin drain", AdminCategory.SERVER, destructive = true, presets = mapOf("target" to raw("lobby", "game"))),
         AdminPanelAction("admin backup", AdminCategory.SERVER, destructive = true, playerArg = "target"),
@@ -109,5 +110,8 @@ public object AdminCommandCatalog {
         // ---- Skills ----
         AdminPanelAction("skill list", AdminCategory.SKILLS),
         AdminPanelAction("skill cast", AdminCategory.SKILLS, playerArg = "target"),
+        AdminPanelAction("skill trace", AdminCategory.SKILLS),
+        AdminPanelAction("skill reload", AdminCategory.SKILLS),
+        AdminPanelAction("skill expand", AdminCategory.SKILLS),
     )
 }
