@@ -192,7 +192,7 @@ internal object GameplayOps {
             }
         }
         return num(radius, lc, "$path.radius").map { r ->
-            TargetRule.Area(kind, lc.anchors.resolve(around.frame)?.instance, name, r, maxCount, includeSelf)
+            TargetRule.Area(kind, lc.anchors.resolve(around.frame)?.instance, AnchorNames.host(lc.anchors, name), r, maxCount, includeSelf)
         }
     }
 

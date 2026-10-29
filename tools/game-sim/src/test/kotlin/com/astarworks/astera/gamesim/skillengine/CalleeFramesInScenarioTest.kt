@@ -1,0 +1,152 @@
+package com.astarworks.astera.gamesim.skillengine
+
+import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
+import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.hit.HitBox
+import com.astarworks.astera.core.domain.skillengine.hit.HitCandidate
+import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.Test
+import java.util.UUID
+
+/**
+ * ADR-0303 rev4.10 (callee frames): a called skill / skill-local fragment names a `frames_in` frame wherever a point is named
+ * (particle anchor, sound anchor, area `around`), compiles on its own with that name in its static scope, and at a call site
+ * the name means the caller's frame in sim and on Paper alike. An unbound `frames_in` stays a load error naming the frame.
+ */
+class CalleeFramesInScenarioTest : SkillEngineScenario() {
+    private val spotCallee = """
+        ---
+        apiVersion: astera/v3
+        kind: Skill
+        id: spark
+        meta: {cooldown_ticks: 0, resource_cost: 0}
+        frames_in: {spot: anchor}
+        machine:
+          start: s
+          states:
+            s:
+              for: 2
+              then: e
+              enter:
+                - {id: pf, op: particle, particle: flame, anchor: spot, count: 3, offset: [0.1, 0.1, 0.1], extra: 0.0, at: 0}
+                - {id: pg, op: particle, particle: smoke, anchor: spot, shift: {up: 1.0}, count: 2, offset: [0.0, 0.0, 0.0], extra: 0.0, at: 0}
+                - {id: sn, op: sound, sound: entity.generic.explode, anchor: spot, volume: 0.5, pitch: 1.0, at: 0}
+            e: {final: true}
+    """.trimIndent()
+
+    private fun caller(call: String) = """
+        ---
+        apiVersion: astera/v3
+        kind: Skill
+        id: caller
+        meta: {cooldown_ticks: 0, resource_cost: 0}
+        machine:
+          start: s
+          states:
+            s:
+              for: 4
+              then: e
+              enter:
+                - $call
+            e: {final: true}
+    """.trimIndent()
+
+    private fun ok(r: Result<CompiledSkill, SkillDecodeError>): CompiledSkill = when (r) {
+        is Result.Success -> r.value
+        is Result.Failure -> error("expected to load: ${r.error.message}")
+    }
+
+    @Test
+    fun calleeCompilesStandaloneWithItsFramesInAsPoints() {
+        ok(loadInline(spotCallee))
+    }
+
+    @Test
+    fun calleeParticleAndSoundLandOnTheCallersFrame() {
+        val skill = ok(loadInline(caller("{id: c, use: skill:spark, frames: {spot: caster}}") + "\n" + spotCallee))
+        val calls = play(skill, seed = 1L, ticks = 6)
+        assertThat(calls.filter { it.verb == "particle" }).hasSize(2)
+        assertThat(calls.filter { it.verb == "sound" }).hasSize(1)
+    }
+
+    @Test
+    fun unboundFramesInAtTheCallSiteIsALoadErrorNamingTheFrame() {
+        val r = loadInline(caller("{id: c, use: skill:spark}") + "\n" + spotCallee)
+        val e = (r as Result.Failure).error
+        assertThat(e.message).contains("spot")
+    }
+
+    private fun fragmentSkill() = """
+        apiVersion: astera/v3
+        kind: Skill
+        id: splash-owner
+        meta: {cooldown_ticks: 0, resource_cost: 0}
+        fragments:
+          splash:
+            params: {power: {type: number, required: true}}
+            frames_in: {origin: anchor}
+            do:
+              - {id: dmg, op: damage, target: {kind: enemies, around: origin, radius: 2.5, max_count: 8, include_self: false}, damage: {fire: "= 6 * ${'$'}{power}"}}
+        machine:
+          start: s
+          states:
+            s:
+              for: 6
+              then: e
+              do:
+                - id: sel
+                  op: hit
+                  at: 0
+                  anchor: caster
+                  shape: {sphere: 8.0}
+                  targets: enemies
+                  ignore_invulnerability: false
+                  damage: {physical: 1.0}
+                  on:
+                    hit:
+                      - {id: sp, use: fragment:splash, with: {power: 2}, frames: {origin: contact}}
+            e: {final: true}
+    """.trimIndent()
+
+    @Test
+    fun fragmentAreaDamageAroundFramesInHitsTheEnemyAtTheCallersContact() {
+        val skill = ok(loadInline(fragmentSkill()))
+        val enemy = UUID(0L, 11L)
+        val rec = GatewayRecorder()
+        rec.victims = listOf(HitCandidate(enemy, Vec3(0.0, 0.0, 2.0), 0.0, HitBox(Vec3(-0.3, 0.0, 1.7), Vec3(0.3, 1.8, 2.3))))
+        val calls = play(skill, seed = 1L, events = emptyList(), ticks = 8, rec = rec)
+        val fire = calls.filter { it.verb == "damage" && it.instance == enemy.toString() && "fire=12" in it.payload }
+        assertThat(fire).describedAs("area damage around the bound frame, calls=%s", calls).hasSize(1)
+    }
+
+    @Test
+    fun ownerlessMainHandMeshIsRefusedInTheSimLikeOnPaper() {
+        val skill = ok(
+            loadInline(
+                """
+                apiVersion: astera/v3
+                kind: Skill
+                id: held
+                meta: {cooldown_ticks: 0, resource_cost: 0}
+                machine:
+                  start: s
+                  states:
+                    s:
+                      for: 4
+                      then: e
+                      enter:
+                        - {id: d, op: display, kind: item, item: main_hand, anchor: caster, for: 4}
+                    e: {final: true}
+                """.trimIndent(),
+            ),
+        )
+        play(skill, seed = 1L, ticks = 6)
+        val ownerless = GatewayRecorder().also { it.casterOnline = false }
+        assertThatThrownBy { play(skill, seed = 1L, events = emptyList(), ticks = 6, rec = ownerless) }.hasMessageContaining("owner offline")
+        val bareHand = GatewayRecorder().also { it.mainHandHeld = false }
+        assertThatThrownBy { play(skill, seed = 1L, events = emptyList(), ticks = 6, rec = bareHand) }.hasMessageContaining("empty main hand")
+    }
+}
