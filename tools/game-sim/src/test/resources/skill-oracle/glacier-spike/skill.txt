@@ -2,7 +2,7 @@
 @0 spawn #0 op=fly/core kind=sprite sprite=frost-shatter alpha=1.000000 tint=#d8f0ff seethrough=false pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.875000,0.875000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=fly/core dur=7 pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.994522,0.104528 scale=0.875000,0.875000,1.000000 bb=CENTER
 @0 sound - op=fly/snd sound=astera:skills/frost-cast cat=master vol=0.7 pitch=1.3 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/fx type=frost-cast at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3806324741593634236
+@0 particle - op=fly/fx type=frost-cast at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5946142159668531175
 @0 particle - op=fly/trail[0]/snow type=snowflake count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2001178699543803006
 @0 particle - op=fly/trail[0]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#bee6ff size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5561416222374688182
 @1 particle - op=fly/trail[1]/snow type=snowflake count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1395873588067307823
@@ -16,7 +16,7 @@ r @3 run-end tail=2 | pose
 @0 spawn #0 op=fly/core kind=sprite sprite=frost-shatter alpha=1.000000 tint=#d8f0ff seethrough=false pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.875000,0.875000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=fly/core dur=7 pos=-0.282761,1.791010,0.375236 rot=-0.327985,0.131109,0.923041,0.152418 scale=0.875000,0.875000,1.000000 bb=CENTER
 @0 sound - op=fly/snd sound=astera:skills/frost-cast cat=master vol=0.7 pitch=1.3 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/fx type=frost-cast at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3806324741593634236
+@0 particle - op=fly/fx type=frost-cast at=-0.560427,1.692895,0.743712 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5946142159668531175
 @0 particle - op=fly/trail[0]/snow type=snowflake count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2001178699543803006
 @0 particle - op=fly/trail[0]/dust type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#bee6ff size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5561416222374688182
 @1 particle - op=fly/trail[1]/snow type=snowflake count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1395873588067307823

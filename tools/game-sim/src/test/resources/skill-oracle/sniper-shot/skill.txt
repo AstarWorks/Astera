@@ -1,7 +1,7 @@
 ## pose yaw=0 pitch=0
 @0 spawn #0 op=fly/slug kind=item item=minecraft:iron_nugget part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.700000,0.700000,0.700000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=astera:weapons/rifle-crack cat=master vol=0.9 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/puff type=gun-muzzle-flash at=0.000000,-0.250000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3923876023132563240
+@0 particle - op=fly/puff type=gun-muzzle-flash at=0.000000,1.370000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8569563787032467470
 @0 particle - op=fly/trail[0] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8918132665359641944
 @0 particle - op=fly/trail_2[0] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8773436987146381010
 @1 particle - op=fly/trail[1] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4765216629532801463
@@ -13,7 +13,7 @@ g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 spawn #0 op=fly/slug kind=item item=minecraft:iron_nugget part=- pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.700000,0.700000,0.700000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=astera:weapons/rifle-crack cat=master vol=0.9 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/puff type=gun-muzzle-flash at=-0.601815,-0.250000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3923876023132563240
+@0 particle - op=fly/puff type=gun-muzzle-flash at=-0.616979,1.727097,0.818759 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8569563787032467470
 @0 particle - op=fly/trail[0] type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8918132665359641944
 @0 particle - op=fly/trail_2[0] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8773436987146381010
 @1 particle - op=fly/trail[1] type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4765216629532801463
