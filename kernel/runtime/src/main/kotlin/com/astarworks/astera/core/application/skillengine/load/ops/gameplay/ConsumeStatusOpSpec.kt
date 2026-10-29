@@ -44,7 +44,7 @@ public object ConsumeStatusOpSpec : OpSpec<ConsumeStatusOp> {
         Result.Success(ConsumeStatusOp(id, src, whenExpr, timing, values[targetField], values[statusField]))
 
     override fun lower(op: ConsumeStatusOp, lc: LowerContext): Result<Lowered, SkillDecodeError> =
-        GameplayOps.targetCell(op.target, lc, lc.src.value).map { target ->
+        GameplayOps.statusId(lc, lc.src.value, "status", op.status).flatMap { _ -> GameplayOps.targetCell(op.target, lc, lc.src.value) }.map { target ->
             GameplayOps.effect(lc, "consume_status", mapOf<String, Val<Any>>("target" to target, "status" to Val.Known(op.status)))
         }
 }

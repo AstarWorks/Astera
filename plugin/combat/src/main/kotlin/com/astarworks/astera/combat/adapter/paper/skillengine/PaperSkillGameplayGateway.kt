@@ -65,12 +65,12 @@ public class PaperSkillGameplayGateway(
     private val randomizer: com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer,
     /** Lazily resolved: the pool service registers after the combat plugin enables. */
     private val resourcePool: () -> IResourcePoolService?,
-    /** Camera kicks and `stop_sound`; null = the output is dropped with a warning. */
-    private val feedback: () -> IPlayerFeedbackGateway?,
+    /** Camera kicks, screen flashes and `stop_sound`. Required: a host without it fails the skill engine at enable (wiring error), never per call. */
+    private val feedback: IPlayerFeedbackGateway,
     /** Caster body clips (`body`): a skin-rig clip plays on the rig, any other id is a pose clip. */
-    private val bodyRigs: () -> ISkinRigAnimator?,
-    private val bodyRegistry: () -> ISkinRigRegistry?,
-    private val bodyPoses: () -> IPlayerAnimationGateway?,
+    private val bodyRigs: ISkinRigAnimator,
+    private val bodyRegistry: ISkinRigRegistry,
+    private val bodyPoses: IPlayerAnimationGateway,
     /** `content/frames/body.yaml`: the named points every body clip is read through. */
     private val bodySkeleton: com.astarworks.astera.core.domain.animation.skinrig.BodySkeleton,
     /** Resolves a caster for the look hold. */
@@ -80,11 +80,7 @@ public class PaperSkillGameplayGateway(
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun statusStacks(entity: UUID, statusId: String): Int {
-        val id = runCatching { StatusEffectId(statusId) }.getOrElse {
-            log.warn("skill engine: invalid status id '{}' in a stacks query; reading 0", statusId)
-            return 0
-        }
-        return statusContainer.stacks(PlayerId(entity), id)
+        return statusContainer.stacks(PlayerId(entity), StatusEffectId(statusId))
     }
 
     override fun damage(
@@ -116,10 +112,7 @@ public class PaperSkillGameplayGateway(
     }
 
     override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) {
-        val id = runCatching { StatusEffectId(statusId) }.getOrElse {
-            log.warn("skill engine: invalid status id '{}'", statusId)
-            return
-        }
+        val id = StatusEffectId(statusId)
         val result = applyStatus.execute(
             targetId = PlayerId(victim),
             effectId = id,
@@ -133,10 +126,7 @@ public class PaperSkillGameplayGateway(
     override fun rollChance(chance: Double): Boolean = randomizer.nextDouble() <= chance
 
     override fun removeStatus(victim: UUID, statusId: String) {
-        val id = runCatching { StatusEffectId(statusId) }.getOrElse {
-            log.warn("skill engine: invalid status id '{}'; nothing removed", statusId)
-            return
-        }
+        val id = StatusEffectId(statusId)
         statusContainer.remove(PlayerId(victim), id)
     }
 
@@ -156,10 +146,7 @@ public class PaperSkillGameplayGateway(
     override fun consumeStatus(cast: CastRef, entity: UUID, status: String) = removeStatus(entity, status)
 
     override fun cameraShake(cast: CastRef, viewer: UUID, intensity: Double, ticks: Int, from: Vec3?) {
-        val out = feedback() ?: run {
-            log.warn("skill engine: camera_shake dropped, no player feedback gateway")
-            return
-        }
+        val out = feedback
         val player = server.getPlayer(viewer)
         val hit = if (from != null && player != null) {
             // The source in the viewer's own frame: yaw 0 looks along +z, -x is the viewer's right.
@@ -183,16 +170,13 @@ public class PaperSkillGameplayGateway(
     }
 
     override fun screenFlash(cast: CastRef, viewer: UUID, overlay: String, colorRgb: Int?, fadeInTicks: Int, stayTicks: Int, fadeOutTicks: Int) {
-        val out = feedback() ?: run {
-            log.warn("skill engine: screen_flash dropped, no player feedback gateway")
-            return
-        }
+        val out = feedback
         val glyph = ScreenOverlay.fromYaml(overlay) ?: error("screen_flash: unknown overlay '$overlay'")
         out.sendScreenFlash(PlayerId(viewer), glyph, colorRgb ?: glyph.defaultColor, fadeInTicks, stayTicks, fadeOutTicks)
     }
 
     override fun stopSound(cast: CastRef, viewer: UUID, sound: String) {
-        (feedback() ?: return).stopSound(PlayerId(viewer), sound)
+        feedback.stopSound(PlayerId(viewer), sound)
     }
 
     override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double) {
@@ -203,15 +187,11 @@ public class PaperSkillGameplayGateway(
             return
         }
         val player = PlayerId(target)
-        if (bodyRegistry()?.find(id) != null) {
-            bodyRigs()?.play(player, id) ?: log.warn("skill engine: body clip '{}' dropped, no rig animator", anim)
-        } else {
-            bodyPoses()?.playCustomAnimation(player, id, POSE_CLIP_TICKS) ?: log.warn("skill engine: body pose '{}' dropped, no animation gateway", anim)
-        }
+        if (bodyRegistry.find(id) != null) bodyRigs.play(player, id) else bodyPoses.playCustomAnimation(player, id, POSE_CLIP_TICKS)
     }
 
     override fun bodyClip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation? =
-        runCatching { bodyRegistry()?.find(CustomAnimationId(anim)) }.getOrNull()
+        bodyRegistry.find(CustomAnimationId(anim))
 
     override fun bodySkeleton(): com.astarworks.astera.core.domain.animation.skinrig.BodySkeleton = bodySkeleton
 
@@ -220,14 +200,14 @@ public class PaperSkillGameplayGateway(
 
     /** v2 `victim_anim` 1:1: only the hurt animation, tilted by the bearing of [from] relative to where [target] faces. */
     override fun hurt(cast: CastRef, target: UUID, from: Vec3) {
-        val entity = server.getEntity(target) as? org.bukkit.entity.LivingEntity ?: return
+        val entity = server.getEntity(target) as? org.bukkit.entity.LivingEntity ?: return EntityGone.skipped("gameplay.hurt", target)
         val loc = entity.location
         val bearing = Math.toDegrees(Math.atan2(from.z - loc.z, from.x - loc.x)).toFloat()
         entity.playHurtAnimation(bearing - loc.yaw)
     }
 
     override fun stopBodyClip(cast: CastRef, target: UUID, anim: String) {
-        val rig = bodyRigs() ?: return
+        val rig = bodyRigs
         if (rig.active(PlayerId(target)) == CustomAnimationId(anim)) rig.stop(PlayerId(target))
     }
 
@@ -235,18 +215,18 @@ public class PaperSkillGameplayGateway(
     private val heldOriginal = java.util.concurrent.ConcurrentHashMap<UUID, java.util.Optional<org.bukkit.NamespacedKey>>()
 
     override fun setHeldModel(cast: CastRef, caster: UUID, model: String) {
-        val key = org.bukkit.NamespacedKey.fromString(model) ?: run { log.warn("skill engine: invalid held model '{}'", model); return }
-        val player = server.getPlayer(caster) ?: return
+        val key = org.bukkit.NamespacedKey.fromString(model) ?: error("skill engine: held model '$model' is not a namespaced key")
+        val player = server.getPlayer(caster) ?: return EntityGone.skipped("gameplay.setHeldModel", caster)
         val held = player.inventory.itemInMainHand
-        if (held.type.isAir) return
+        if (held.type.isAir) return EntityGone.skipped("gameplay.setHeldModel", caster)
         heldOriginal.computeIfAbsent(caster) { java.util.Optional.ofNullable(held.itemMeta?.takeIf { it.hasItemModel() }?.itemModel) }
         held.editMeta { it.itemModel = key }
     }
 
     override fun clearHeldModel(cast: CastRef, caster: UUID) {
         val original = heldOriginal.remove(caster) ?: return
-        val held = server.getPlayer(caster)?.inventory?.itemInMainHand ?: return
-        if (held.type.isAir) return
+        val held = server.getPlayer(caster)?.inventory?.itemInMainHand ?: return EntityGone.skipped("gameplay.clearHeldModel", caster)
+        if (held.type.isAir) return EntityGone.skipped("gameplay.clearHeldModel", caster)
         held.editMeta { it.itemModel = original.orElse(null) }
     }
 
@@ -259,18 +239,12 @@ public class PaperSkillGameplayGateway(
     }
 
     override fun modifyAttribute(caster: UUID, victim: UUID, attribute: String, operation: String, amount: Double, durationTicks: Int?) {
-        val key = runCatching { AttributeKey(attribute) }.getOrElse {
-            log.warn("skill engine: invalid attribute key '{}'", attribute)
-            return
-        }
+        val key = AttributeKey(attribute)
         val (op, value) = when (operation) {
             "add" -> AttributeModifier.Operation.ADD to amount
             // The container multiplies by `value`; the op's amount is the fractional change (0.2 = +20 percent).
             "multiply_base", "multiply_total" -> AttributeModifier.Operation.MULTIPLY to (1.0 + amount)
-            else -> {
-                log.warn("skill engine: unknown attribute operation '{}'", operation)
-                return
-            }
+            else -> error("skill engine: attribute operation '$operation' is not add, multiply_base or multiply_total")
         }
         val container = attributes.containerFor(PlayerId(victim))
         val source = "skill-engine:modify_attribute:${UUID.randomUUID()}"
@@ -283,8 +257,8 @@ public class PaperSkillGameplayGateway(
     override fun restoreResource(victim: UUID, resource: String, amount: Double) {
         if (resource.equals("health", ignoreCase = true)) {
             // the `heal` op: hit points, not a pooled resource
-            val entity = server.getEntity(victim) as? org.bukkit.entity.LivingEntity ?: return
-            if (!entity.isValid || entity.isDead) return
+            val entity = server.getEntity(victim) as? org.bukkit.entity.LivingEntity ?: return EntityGone.skipped("gameplay.restoreResource", victim)
+            if (!entity.isValid || entity.isDead) return EntityGone.skipped("gameplay.restoreResource", victim)
             val max = entity.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value ?: entity.health
             entity.health = (entity.health + amount).coerceIn(0.0, max)
             return
@@ -292,15 +266,9 @@ public class PaperSkillGameplayGateway(
         val type = when (resource.lowercase()) {
             "ammo" -> ResourceType.Ammo
             "energy", "mana", "stamina" -> ResourceType.Energy
-            else -> {
-                log.warn("skill engine: unknown resource '{}'", resource)
-                return
-            }
+            else -> error("skill engine: resource '$resource' is not one of health, ammo, energy, mana, stamina")
         }
-        val pool = resourcePool() ?: run {
-            log.error("skill engine: restore_resource '{}' lost: the resource pool service is not registered", resource)
-            return
-        }
+        val pool = resourcePool() ?: error("skill engine: restore_resource '$resource': the resource pool service is not registered")
         val whole = amount.toInt()
         if (whole > 0) pool.applyRegen(PlayerId(victim), type, whole)
         else log.warn("skill engine: restore_resource '{}' amount {} is below one whole point; nothing restored", resource, amount)

@@ -24,5 +24,7 @@ public value class StatusEffectId(public val value: String) {
 
     public companion object {
         private val VALID = Regex("^[a-z][a-z0-9-]*$")
+
+        public fun isValid(value: String): Boolean = VALID.matches(value)
     }
 }

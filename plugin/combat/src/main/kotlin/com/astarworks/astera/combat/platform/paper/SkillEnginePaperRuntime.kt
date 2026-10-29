@@ -57,6 +57,9 @@ import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
+import com.astarworks.astera.combat.application.service.MechanicStatuses
+import com.astarworks.astera.core.application.skillengine.load.SkillIdAudit
+import com.astarworks.astera.core.domain.status.StatusEffectId
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
@@ -102,6 +105,14 @@ internal class SkillEnginePaperRuntime(
         // The custom block registry may not have existed when the skills first loaded: retry the ones that failed on it.
         wired.reloadSkills().failures.forEach { log.error("[skill-error] {}: {}", it.file, it.message) }
         val catalog = wired.skillCatalog
+        // An unknown status id would otherwise be a per-call "not applied" warn at play time: refuse to start, naming skill + row.
+        val statusIds = wired.statusContents
+        val builtin = setOf(MechanicStatuses.FREEZE_ID, MechanicStatuses.SILENCE_ID, MechanicStatuses.IMMUNITY_ID).map { it.value }.toSet()
+        val unknown = SkillIdAudit.unknownStatuses(catalog.ids().mapNotNull { catalog.get(it) }) { id -> id in builtin || statusIds.find(StatusEffectId(id)) != null }
+        if (unknown.isNotEmpty()) {
+            unknown.forEach { log.error("[skill-error] {}", it) }
+            startFailed("${unknown.size} skill row(s) name a status that is not registered (see [skill-error] lines)")
+        }
 
         val sprites = services.get<ISpriteRegistry>()
         val visualGateway = PaperSkillVisualGateway(
@@ -129,10 +140,10 @@ internal class SkillEnginePaperRuntime(
             scheduler = scheduler,
             randomizer = services.getOrThrow<IDamageRandomizer>(),
             resourcePool = { services.get<IResourcePoolService>() },
-            feedback = { ports.playerFeedbackGateway?.invoke(services) },
-            bodyRigs = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() },
-            bodyRegistry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
-            bodyPoses = { services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>() },
+            feedback = ports.playerFeedbackGateway?.invoke(services) ?: startFailed("no player feedback gateway (camera_shake / screen_flash / stop_sound)"),
+            bodyRigs = services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() ?: startFailed("no ISkinRigAnimator (body clips)"),
+            bodyRegistry = services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() ?: startFailed("no ISkinRigRegistry (body clips)"),
+            bodyPoses = services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>() ?: startFailed("no IPlayerAnimationGateway (body pose clips)"),
             bodySkeleton = wired.bodySkeleton,
         )
         val entityQuery = PaperSkillEntityQuery(server, teams = { services.get<IMatchTeamLookup>() }, structures = { services.get<IStructureTargets>() })
