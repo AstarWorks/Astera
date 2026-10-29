@@ -36,15 +36,15 @@ class NormaExplainedScenarioTest {
             startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "siege-isles-tnt")
             advance(40)
 
-            assertThat(chat(red)).contains("How to win").contains("carry it into the enemy base")
-            assertThat(chat(blue)).`as`("everybody is briefed").contains("How to win")
+            assertThat(chat(red)).contains("Goal").contains("Carry the TNT into the enemy base").contains("run it to the enemy goal")
+            assertThat(chat(blue)).`as`("everybody is briefed").contains("Carry the TNT into the enemy base")
             // The briefing is staged: the Norma-unlock and time-limit lines follow as spaced-out hints, not all at once.
             advance(1500)
             val briefing = chat(red)
-            assertThat(briefing).contains("unlock").contains("Time limit 20 min").doesNotContain("Lv 5 wins")
+            assertThat(briefing).contains("unlock").contains("Time limit 15 min").doesNotContain("Lv 5 wins")
 
             val sidebar = sim.hud.sidebarText(red.id).joinToString("\n")
-            assertThat(sidebar).`as`("the clock shows the limit (the sim shows the sidebar line keys with their placeholders)").contains("limit=20:00")
+            assertThat(sidebar).`as`("the clock shows the limit (the sim shows the sidebar line keys with their placeholders)").contains("phase.count-active{time=13:")
             assertThat(sidebar).`as`("the own Norma level is on the sidebar").contains("level=1,max=5")
 
             repeat(2) {

@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test
 /** F3-1: stepping onto a lobby lane pad joins that lane's queue; the pad hologram counts follow. */
 class LobbyLanePadScenarioTest {
 
-    private val lobby = WorldId("lobby")
+    private val lobby = WorldId("world")
 
     @Test
     fun `stepping on a lane pad queues the player, stepping off keeps them queued, another pad switches lane`() {
@@ -39,8 +39,8 @@ class LobbyLanePadScenarioTest {
 
             p.moveTo(pads.getValue("carry-tnt"))
             assertThat(matchmaker.queueStatus(p.id)?.mode).isEqualTo(MatchmakingMode.CARRY_TNT)
-            assertThat(view.titles.map { it.value }).containsExactly("astera.lobby.lane.joined.title")
-            assertThat(view.actionBars.map { it.value }).containsExactly("astera.lobby.lane.joined.actionbar")
+            assertThat(view.titles.map { it.value }.filterNot { it.startsWith("astera.tutorial.") }).containsExactly("astera.lobby.lane.joined.title")
+            assertThat(view.actionBars.map { it.value }.filterNot { it.startsWith("astera.tutorial.") }).containsExactly("astera.lobby.lane.joined.actionbar")
             assertThat(board.queued("carry-tnt")).isEqualTo(1)
 
             // stepping off does NOT leave the queue
@@ -63,6 +63,7 @@ class LobbyLanePadScenarioTest {
 
             // a player outside the lobby world never triggers a pad
             val other = player("p2", at = Vec3(0.5, 65.0, 6.5))
+            other.world = WorldId("arena")
             other.moveTo(pads.getValue("carry-tnt"))
             assertThat(matchmaker.queueStatus(other.id)).isNull()
             assertThat(eventsOf<LobbyLanePadEntered>()).hasSize(2)
