@@ -159,7 +159,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
         val m = raw as? Map<*, *> ?: ctx.mismatch("machine", "map {start, states}", raw)
         @Suppress("UNCHECKED_CAST")
         m as Map<String, Any?>
-        checkKeys(ctx, m, "machine", setOf("start", "states", "world"))
+        checkKeys(ctx, m, "machine", setOf("start", "states", "world", "tail"))
         val states = m["states"] as? Map<*, *> ?: ctx.mismatch("machine.states", "map of states", m["states"])
         val start = m["start"]
         if (start is String && '/' in start) ctx.abortWith(SkillDecodeError.StartNamesChild(ctx.file, start))

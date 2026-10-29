@@ -1623,10 +1623,33 @@
 @96 frame throw/palm_f op=throw/palm_f pos=-0.351563,0.768018,3.292518 rot=0.000000,0.000000,0.000000,1.000000
 @96 frame coin3/dash_f op=coin3/dash_f pos=0.000000,0.000000,3.000000 rot=0.000000,0.000000,0.000000,1.000000
 @96 frame coin3/c3_hit.hit/h3_frame op=coin3/c3_hit.hit/h3_frame pos=0.000000,0.900000,4.300000 rot=0.000000,0.000000,0.000000,1.000000
+@97 line #57 op=coin3/smear_a[0] from=-0.351563,0.768018,3.292518 to=-0.470577,0.930627,0.266854
+@97 line #58 op=coin3/smear_a[1] from=-0.351563,0.768018,3.292518 to=-0.333537,1.005868,0.277429
+@97 line #59 op=coin3/smear_a[2] from=-0.351563,0.768018,3.292518 to=-0.358263,0.872758,0.179626
+@97 write #104 op=- dur=5 pos=1.140000,1.450000,4.300000 rot=0.000000,0.000000,0.031411,0.999507 scale=0.096457,0.225066,1.000000 bb=CENTER
+@97 write #105 op=- dur=5 pos=0.750000,2.020000,4.300000 rot=0.000000,0.000000,0.375416,0.926857 scale=0.096457,0.225066,1.000000 bb=CENTER
+@97 write #106 op=- dur=5 pos=0.110000,1.700000,4.300000 rot=0.000000,0.000000,0.674947,0.737867 scale=0.096457,0.225066,1.000000 bb=CENTER
+@97 write #107 op=- dur=5 pos=-0.780000,2.250000,4.300000 rot=0.000000,0.000000,0.938493,0.345298 scale=0.096457,0.225066,1.000000 bb=CENTER
+@97 frame throw/fly_body op=throw/fly_body pos=-0.351563,0.768018,0.292518 rot=0.987688,0.000000,0.000000,0.156434
+@97 frame throw/fly_a op=throw/fly_a pos=-0.351563,0.768018,0.292518 rot=-0.980017,0.027670,0.174700,0.090996
+@97 frame throw/fly_b op=throw/fly_b pos=-0.351563,0.768018,0.292518 rot=-0.980990,0.026281,0.165932,0.097134
+@97 frame throw/palm_f op=throw/palm_f pos=-0.351563,0.768018,3.292518 rot=0.000000,0.000000,0.000000,1.000000
+@97 frame coin3/dash_f op=coin3/dash_f pos=0.000000,0.000000,3.000000 rot=0.000000,0.000000,0.000000,1.000000
+@97 frame coin3/c3_hit.hit/h3_frame op=coin3/c3_hit.hit/h3_frame pos=0.000000,0.900000,4.300000 rot=0.000000,0.000000,0.000000,1.000000
+@98 line #57 op=coin3/smear_a[0] from=-0.351563,0.768018,3.292518 to=-0.470577,0.930627,0.266854
+@98 line #58 op=coin3/smear_a[1] from=-0.351563,0.768018,3.292518 to=-0.333537,1.005868,0.277429
+@98 line #59 op=coin3/smear_a[2] from=-0.351563,0.768018,3.292518 to=-0.358263,0.872758,0.179626
+@98 frame throw/fly_body op=throw/fly_body pos=-0.351563,0.768018,0.292518 rot=0.987688,0.000000,0.000000,0.156434
+@98 frame throw/fly_a op=throw/fly_a pos=-0.351563,0.768018,0.292518 rot=-0.980017,0.027670,0.174700,0.090996
+@98 frame throw/fly_b op=throw/fly_b pos=-0.351563,0.768018,0.292518 rot=-0.980990,0.026281,0.165932,0.097134
+@98 frame throw/palm_f op=throw/palm_f pos=-0.351563,0.768018,3.292518 rot=0.000000,0.000000,0.000000,1.000000
+@98 frame coin3/dash_f op=coin3/dash_f pos=0.000000,0.000000,3.000000 rot=0.000000,0.000000,0.000000,1.000000
+@98 frame coin3/c3_hit.hit/h3_frame op=coin3/c3_hit.hit/h3_frame pos=0.000000,0.900000,4.300000 rot=0.000000,0.000000,0.000000,1.000000
 g @36 state-exit reason=EVENT | state=throw
 g @64 state-exit reason=TIMER | state=stuck
 g @76 state-exit reason=EVENT | state=reel
 g @76 cast-end | pose
+r @78 run-end tail=2 | pose
 ## pose yaw=37 pitch=-20
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=couture-s2-body speed=1
 @0 spawn #0 op=windup/held_m kind=item item=astera:couture-rapier part=- pos=-0.520665,0.895497,0.174974 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
@@ -3146,6 +3169,7 @@ g @41 state-exit reason=TIMER | state=throw
 g @57 state-exit reason=TIMER | state=reel
 g @94 state-exit reason=TIMER | state=coin3
 g @94 cast-end | pose
+r @96 run-end tail=2 | pose
 ## gameplay-static
 g @0..94 cast-length | cast
 g @34 state-end then=throw final=false | state=windup

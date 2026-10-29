@@ -16,6 +16,7 @@ anchors:
   - {id: puff_pt, anchor: caster, offset: {up: 0.2}, mode: follow}
 machine:
   start: charge
+  tail: 2
   states:
     charge:
       for: 6
@@ -37,5 +38,5 @@ machine:
           window: once
           on:
             hit:
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, detach: true}
     end: {final: true}

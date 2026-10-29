@@ -19,6 +19,7 @@ anchors:
   - {id: heart,  anchor: victim.center, mode: follow}
 machine:
   start: fire
+  tail: 2
   states:
     fire:
       for: 40
@@ -40,11 +41,11 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg}"}}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact.point, volume: 0.8, pitch: 1.0}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact.point, volume: 0.8, pitch: 1.0, detach: true}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
             block:
-              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
-              - {id: fx_blk0, op: particle_def, def: hit-spark, anchor: contact}
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5, detach: true}
+              - {id: fx_blk0, op: particle_def, def: hit-spark, anchor: contact, detach: true}
         # the visible round, riding the body
         - {id: slug, op: display, kind: item, item: "minecraft:gold_nugget", context: fixed, anchor: bolt, scale: [0.6, 0.6, 0.6], at: 0, until: bolt.end}
         - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], at: 0, every: 1, until: bolt.end}

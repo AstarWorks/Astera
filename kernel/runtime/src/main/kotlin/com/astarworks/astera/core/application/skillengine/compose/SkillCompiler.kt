@@ -108,7 +108,7 @@ public class SkillCompiler(
             var cur = m.states.firstOrNull()
             val seen = HashSet<String>()
             while (cur != null && seen.add(cur.state.value)) {
-                pathMax += maxOf(when (val d = cur.duration) { is Duration.Fixed -> d.ticks; is Duration.Bounded -> d.range.max }, cur.rows.maxOfOrNull { it.tick } ?: 0)
+                pathMax += maxOf(when (val d = cur.duration) { is Duration.Fixed -> d.ticks; is Duration.Bounded -> d.range.max }, cur.rows.filter { !it.detached }.maxOfOrNull { it.tick } ?: 0)
                 cur = cur.then?.let { stateByPath[it.value] }
             }
         }
@@ -118,7 +118,7 @@ public class SkillCompiler(
         }
         val bounds = Bounds(
             instances = instanceCounts, liveDisplaysPeak = 0, liveDisplaysPeakTick = 0, groupDepth = 0,
-            partDepth = maxOf(inlined.depth, session.maxCallDepth), path = TickRange(0, pathMax), sameTickDepth = sameTick.depth,
+            partDepth = maxOf(inlined.depth, session.maxCallDepth), path = TickRange(0, pathMax), sameTickDepth = sameTick.depth, tail = flat.machine.tail ?: 0,
         )
         val table = TableAssembler.assemble(def.id, sampleSeed, emptyMap(), bounds, m.states, subs, m.writes, flat.conditions, config, m.world)
         when (val r = StaticChecks.run(table, config, def.emits)) {
@@ -505,8 +505,9 @@ public class SkillCompiler(
         override fun laws(anchor: String) = own.laws(anchor)
         override fun document(id: String) = own.document(id)
         override fun chain(anchor: String) = own.chain(anchor)
+        override fun points(anchor: String) = own.points(anchor)
         override fun familySize(anchor: String) = own.familySize(anchor)
-        override fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw>, copy: Int?, chain: AnchorChain?) = own.declare(instance, family, basis, laws, copy, chain)
+        override fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw>, copy: Int?, chain: AnchorChain?, points: Set<String>?) = own.declare(instance, family, basis, laws, copy, chain, points)
         override fun at(occurrence: Occurrence, family: Int?): AnchorRegistry = BoundAnchors(own.at(occurrence, family), bound)
     }
 }

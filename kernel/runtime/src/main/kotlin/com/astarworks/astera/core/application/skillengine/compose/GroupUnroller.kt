@@ -98,6 +98,7 @@ public object GroupUnroller {
             }
             for (r in lo.rows) {
                 var shifted = r.copy(tick = r.tick + s)
+                if (node.timing?.detach == true) shifted = shifted.copy(detached = true)
                 if (mask != null) shifted = shifted.copy(maskUntil = shifted.maskUntil + EventPath(mask))
                 if (guard != null && shifted.guard == null) shifted = shifted.copy(guard = guard)
                 rows += shifted

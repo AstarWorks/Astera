@@ -62,7 +62,7 @@ abstract class SkillEngineScenario {
 
     private val specs = OpSpecRegistry(SkillEngineSpecs.all())
     private val exprs = CelExprCompiler()
-    private val decoder = SkillDocumentDecoder(specs, exprs)
+    protected val decoder = SkillDocumentDecoder(specs, exprs)
 
     private val frameTables: FrameTables by lazy {
         val tables = ItemFramesDecoder.loadDirectory(contentDir.resolve("frames")).first
@@ -74,7 +74,7 @@ abstract class SkillEngineScenario {
     private val compiler: SkillCompiler by lazy { SkillCompiler(specs, exprs, frameTables, EngineConfig(), com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(contentDir.resolve("sprites"))) }
 
     /** Parts shipped under `content/skill-parts` (empty until wave 2 migrates content). */
-    private val shippedParts: Map<String, Part> by lazy {
+    protected val shippedParts: Map<String, Part> by lazy {
         when (val r = PartParser.loadDirectory(contentDir.resolve("skill-parts"))) {
             is Result.Success -> r.value
             is Result.Failure -> emptyMap()
@@ -117,6 +117,14 @@ abstract class SkillEngineScenario {
         }
         return compiler.compile(def, parts, skills)
     }
+
+    /** Decodes one composed tree against a grammar that knows [skillIds] (so `use: skill:` names resolve). */
+    protected fun decodeTree(file: String, tree: Map<String, Any?>, skillIds: Set<String>): Result<SkillDef, SkillDecodeError> =
+        decoder.decode(file, tree, GrammarEnv(shippedParts.keys, skillIds))
+
+    /** Compiles [def] with every decoded skill of [catalog] resolvable by `use: skill:<id>`, as on the server. */
+    protected fun compileAgainst(def: SkillDef, catalog: Map<String, SkillDef>): Result<CompiledSkill, SkillDecodeError> =
+        compileMain(Loaded(catalog, shippedParts), def.id)
 
     /** Compile result of one composed tree (a skill after `kind: Patch` documents were applied, e.g. a skin variant `<id>@<variant>`). */
     protected fun compileTree(file: String, tree: Map<String, Any?>): Result<CompiledSkill, SkillDecodeError> {
@@ -183,7 +191,7 @@ abstract class SkillEngineScenario {
             is Result.Success -> s.value
             is Result.Failure -> throw AssertionError("start failed: ${s.error}")
         }
-        val end = ticks ?: (skill.table.bounds.path.max + 2)
+        val end = ticks ?: (skill.table.bounds.path.max + skill.table.bounds.tail + 2)
         for (now in 0..end) {
             rec.tick = now
             events.filter { it.tick == now }.forEach { player.deliver(cast, it) }

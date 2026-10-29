@@ -31,6 +31,7 @@ fragments:
       - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.0, ahead: 4.0}}, tool: none, block_damage: 25, ripple: 29, revert: 200, outside_arena: false}
 machine:
   start: fly
+  tail: 2
   states:
     fly:
       on:
@@ -49,12 +50,12 @@ machine:
           on:
             hit:
               - {op: use, use: "fragment:blast", with: {radius: "${blast_radius}", damage: "${blast_damage}"}, frames: {spot: foe}}
-              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact, volume: 0.7, pitch: 1.2}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact, volume: 0.7, pitch: 1.2, detach: true}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
             block:
               - {op: use, use: "fragment:blast", with: {radius: "${blast_radius}", damage: "${blast_damage}"}, frames: {spot: contact}}
-              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
-              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact}
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5, detach: true}
+              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact, detach: true}
         - {id: shell, op: display, kind: item, item: "minecraft:slime_ball", context: fixed, anchor: bolt, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
         - {id: smoke, op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], at: 0, every: 1, until: bolt.end}
         - {id: ember, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, color: "#78c850", size: 1.0, at: 0, every: 1, until: bolt.end}

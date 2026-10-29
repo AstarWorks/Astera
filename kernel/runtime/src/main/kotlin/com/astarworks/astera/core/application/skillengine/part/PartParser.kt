@@ -152,7 +152,7 @@ public object PartParser {
 
     private fun machine(raw: Any?, where: String): Machine {
         val m = raw.asMap(where)
-        checkKeys(m, where, setOf("start", "states", "world"))
+        checkKeys(m, where, setOf("start", "states", "world", "tail"))
         val start = m["start"] as? String ?: abort("$where.start", "missing 'start'")
         val statesRaw = m["states"].asMap("$where.states")
         if (statesRaw.isEmpty()) abort("$where.states", "a machine needs at least one state")
@@ -177,7 +177,8 @@ public object PartParser {
                 on = s.on.mapIndexed { i, t -> t.copy(to = resolve(t.to, id, "$where.states.$id.on[$i].to")) },
             )
         }
-        return Machine(start, states, world = ops(m["world"], "$where.world"))
+        val tail = m["tail"]?.let { t -> (t as? Int)?.takeIf { it >= 0 } ?: abort("$where.tail", "machine.tail must be a whole number of ticks >= 0, got '$t'") }
+        return Machine(start, states, world = ops(m["world"], "$where.world"), tail = tail)
     }
 
     /** Parses state [id] (a flat path) and, recursively, its `states:` children into [out] as `<id>/<child>`. */

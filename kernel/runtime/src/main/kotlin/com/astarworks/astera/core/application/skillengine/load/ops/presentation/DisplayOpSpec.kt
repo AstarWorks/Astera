@@ -725,6 +725,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         times = t.times?.let { foldNum(it, ctx) },
         until = t.until,
         lasts = t.lasts?.let { foldNum(it, ctx) },
+        detach = t.detach,
     )
 
     /** A whole number in [lo, hi] when it is a literal; a CEL / unresolved value is checked when it is evaluated. */

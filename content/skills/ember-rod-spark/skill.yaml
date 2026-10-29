@@ -28,6 +28,7 @@ fragments:
       - {id: pop, op: particle, particle: lava, anchor: spot, count: 5, offset: [0.15, 0.15, 0.15], extra: 0.12, at: 0}
 machine:
   start: cast
+  tail: 2
   states:
     cast:
       for: 45                       # literal: state `for` does not take ${param} yet (= max_lifetime_ticks)
@@ -50,13 +51,13 @@ machine:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {fire: "${dmg_fire}"}}
               - {id: burn, op: status, target: event.victim, status: burn, stacks: 1, for: "${burn_ticks}", when: "= rand() < ${burn_chance}"}
-              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact.point, volume: 0.7, pitch: 1.2}
-              - {id: spark, op: particle_def, def: hit-spark, anchor: heart}
-              - {op: use, use: "fragment:impact", frames: {spot: heart}}
+              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact.point, volume: 0.7, pitch: 1.2, detach: true}
+              - {id: spark, op: particle_def, def: hit-spark, anchor: heart, detach: true}
+              - {op: use, use: "fragment:impact", frames: {spot: heart}, detach: true}
             block:
-              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
-              - {id: spark_b, op: particle_def, def: hit-spark, anchor: contact.point}
-              - {op: use, use: "fragment:impact", frames: {spot: contact}}
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5, detach: true}
+              - {id: spark_b, op: particle_def, def: hit-spark, anchor: contact.point, detach: true}
+              - {op: use, use: "fragment:impact", frames: {spot: contact}, detach: true}
         - id: core
           op: display
           kind: sprite

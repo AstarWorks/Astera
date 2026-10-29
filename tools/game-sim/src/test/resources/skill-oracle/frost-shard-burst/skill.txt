@@ -1,0 +1,4 @@
+## gameplay-static
+g @0..1 cast-length | cast
+g @1 state-end then=e final=false | state=s
+g @0 state-end then=- final=true | state=e

@@ -54,6 +54,7 @@ internal object ParticlePlacement {
                 return Result.Success(Base(parent.frame, terms, parent.live))
             }
         }
+        AnchorNames.pointError(lc.anchors, name, op)?.let { return invalid(it) }
         // a frame a call bound (`frames_in`) is spelled by the caller's frame: the part's own name does not exist outside the part
         lc.anchors.resolve(name)?.let {
             val host = AnchorNames.host(lc.anchors, parts.base)

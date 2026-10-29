@@ -8,6 +8,7 @@ import com.astarworks.astera.core.domain.skillengine.hit.HitBox
 import com.astarworks.astera.core.domain.skillengine.hit.HitCandidate
 import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
+import com.astarworks.astera.core.domain.skillengine.model.SkillDef
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
@@ -15,8 +16,8 @@ import java.nio.file.Path
 import java.util.UUID
 
 /**
- * A9 (ADR-0303 section 12): every shipped v3 skill under content/skills decodes, compiles, and replays its own table. Files still
- * on `astera/v2` are listed in the evidence as pending migration (wave 2) and are not judged here.
+ * A9 (ADR-0303 section 12): every composed skill id under content/skills (one skill id per file) decodes, compiles, and replays its own table;
+ * the oracle holds one golden per composed id.
  *
  * Parity oracle (docs/contributing/vanilla-parity.md): the same replay is also recorded row by row (tick, op, kind, world position,
  * rotation, scale, colour, sound, hit volume, damage; see [GatewayRecorder.oracleRows]) with the caster at yaw 0 / pitch 0 and at
@@ -28,53 +29,45 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
     @Test
     fun everyShippedSkillLoadsExpandsAndReplays() {
         val dir = contentDir.resolve("skills")
-        val files = Files.walk(dir).use { s -> s.filter { Files.isRegularFile(it) && it.toString().endsWith(".yaml") }.sorted().toList() }
-        val pending = ArrayList<String>()
         val problems = ArrayList<String>()
         val oracle = LinkedHashMap<String, CompiledSkill>()
         var checked = 0
-        for (file in files) {
-            val text = Files.readString(file)
-            val rel = dir.relativize(file).toString()
-            // a `kind: Patch` document is applied to its target by the composer (second phase below), it is no skill of its own
-            if (text.lineSequence().any { it.trim() == "kind: Patch" }) continue
-            if (text.lineSequence().none { it.trim() == "apiVersion: astera/v3" }) {
-                pending += rel
-                continue
-            }
-            when (val r = compileText(rel, text)) {
-                is Result.Failure -> problems += "$rel: ${r.error}"
-                is Result.Success -> {
-                    checked++
-                    oracle[rel.removeSuffix(".yaml")] = r.value
-                    writeEvidence("shipped-" + rel.removeSuffix(".yaml").replace('/', '_'), r.value.table)
-                    try {
-                        assertPlays(r.value)
-                    } catch (e: AssertionError) {
-                        problems += "$rel: ${e.message}"
-                    } catch (e: Throwable) {
-                        problems += "$rel: replay crashed: $e @ ${e.stackTrace.firstOrNull { it.className.contains("astarworks") }}"
-                    }
-                }
-            }
-        }
-        // second phase: every patched base and skin variant, composed exactly as the server loads them (R35)
+        // every composed skill id exactly as the server loads it (patches applied, one skill id per file): one compile, one replay, one golden per id
         val composer = com.astarworks.astera.core.application.skillengine.compose.SkillComposer(dir)
         when (val c = composer.composeAll()) {
             is Result.Failure -> problems += "compose: ${c.error}"
-            is Result.Success -> for ((id, composed) in c.value.filter { (_, v) -> v.patch != com.astarworks.astera.core.application.skillengine.compose.PatchMeta.BASE }) {
-                when (val r = compileTree("$id (patched)", composed.tree)) {
-                    is Result.Failure -> problems += "$id (patched): ${r.error}"
-                    is Result.Success -> {
-                        checked++
-                        oracle["$id (patched)"] = r.value
-                        writeEvidence(id, r.value.table, "patched composition of $id")
-                        try {
-                            assertPlays(r.value)
-                        } catch (e: AssertionError) {
-                            problems += "$id (patched): ${e.message}"
-                        } catch (e: Throwable) {
-                            problems += "$id (patched): replay crashed: $e"
+            is Result.Success -> {
+                // pass 1: decode every composed tree, so a `use: skill:<id>` resolves against the whole catalog, as on the server
+                val ids = c.value.keys.toSet()
+                val defs = LinkedHashMap<String, SkillDef>()
+                val keys = LinkedHashMap<String, String>()
+                for ((id, composed) in c.value) {
+                    val patched = composed.patch != com.astarworks.astera.core.application.skillengine.compose.PatchMeta.BASE
+                    val key = oracleKey(id, patched)
+                    when (val d = decodeTree(key, composed.tree, ids)) {
+                        is Result.Failure -> problems += "$key: ${d.error}"
+                        is Result.Success -> { defs[id] = d.value; keys[id] = key }
+                    }
+                }
+                // pass 2: compile, replay, golden each id
+                for ((id, def) in defs) {
+                    val key = keys.getValue(id)
+                    val patched = key.endsWith("(patched)")
+                    when (val r = compileAgainst(def, defs)) {
+                        is Result.Failure -> problems += "$key: ${r.error}"
+                        is Result.Success -> {
+                            checked++
+                            oracle[key] = r.value
+                            writeEvidence(if (patched) id else "shipped-" + id.replace('/', '_') + "_skill", r.value.table, if (patched) "patched composition of $id" else null)
+                            // a callee-only skill (frames_in) cannot be cast directly; it is replayed inside its callers' goldens
+                            if (def.framesIn.isNotEmpty()) continue
+                            try {
+                                assertPlays(r.value)
+                            } catch (e: AssertionError) {
+                                problems += "$key: ${e.message}"
+                            } catch (e: Throwable) {
+                                problems += "$key: replay crashed: $e @ ${e.stackTrace.firstOrNull { it.className.contains("astarworks") }}"
+                            }
                         }
                     }
                 }
@@ -82,9 +75,27 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
         }
         problems += checkOracle(oracle)
         Files.createDirectories(evidenceDir)
-        Files.writeString(evidenceDir.resolve("shipped-summary.txt"), "v3 checked: $checked\nv2 pending migration: ${pending.size}\n" + pending.joinToString("\n") + "\n")
-        assertThat(problems).`as`("A9 problems ($checked v3 skills checked, ${pending.size} v2 pending)").isEmpty()
+        Files.writeString(evidenceDir.resolve("shipped-summary.txt"), "v3 checked: $checked\n")
+        assertThat(problems).`as`("A9 problems ($checked composed skill ids checked)").isEmpty()
     }
+
+    /** One golden per composed id (design 1.6): a skill id that composes without a golden file fails here by name, whatever its file layout. */
+    @Test
+    fun everyComposedIdHasAGolden() {
+        if (regenerate) return
+        val composer = com.astarworks.astera.core.application.skillengine.compose.SkillComposer(contentDir.resolve("skills"))
+        val composed = when (val c = composer.composeAll()) {
+            is Result.Failure -> throw AssertionError("compose: ${c.error}")
+            is Result.Success -> c.value
+        }
+        val missing = composed.filter { (id, v) ->
+            !Files.exists(goldenFile(oracleKey(id, v.patch != com.astarworks.astera.core.application.skillengine.compose.PatchMeta.BASE)))
+        }.keys
+        assertThat(missing).`as`("composed skill ids without a golden under skill-oracle/ (run :tools:game-sim:regenSkillOracle)").isEmpty()
+    }
+
+    /** Oracle key of a composed id: `<id>/skill` (golden `<id>/skill.txt`), or `<id> (patched)` for a patched variant (`<id>.patched.txt`). */
+    private fun oracleKey(id: String, patched: Boolean): String = if (patched) "$id (patched)" else "$id/skill"
 
     // ---- parity oracle ---------------------------------------------------------------------------------------------
 
@@ -132,7 +143,8 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
     /** All oracle rows of [skill] at every pose, as golden lines (`## pose` headers separate the poses). */
     private fun recordSkill(skill: CompiledSkill): List<String> {
         val out = ArrayList<String>()
-        for ((yaw, pitch) in poses) {
+        // a callee-only skill (frames_in) is not castable on its own: its golden is the static section; its rows play inside the callers' goldens
+        for ((yaw, pitch) in if (skill.def.framesIn.isNotEmpty()) emptyList() else poses) {
             val rec = GatewayRecorder()
             rec.faithfulPose = true
             val rad = Math.toRadians(yaw)
@@ -168,6 +180,8 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
                 castEnd = maxOf(castEnd, tick)
             }
             if (castEnd >= 0) out += "g @$castEnd cast-end | pose"
+            // the run outlives the cast by machine.tail ticks (detach: true visuals); not a gameplay line: the cast end above does not move
+            if (castEnd >= 0 && skill.table.bounds.tail > 0) out += "r @${castEnd + skill.table.bounds.tail} run-end tail=${skill.table.bounds.tail} | pose"
         }
         out += "## gameplay-static"
         out += OracleGameplay.lines(skill)

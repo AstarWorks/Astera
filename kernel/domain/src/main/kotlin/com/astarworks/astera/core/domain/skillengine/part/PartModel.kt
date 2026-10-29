@@ -67,6 +67,8 @@ public data class Machine(
     val links: List<EventLink> = emptyList(),
     /** R45 `machine.world`: op rows owned by the cast rather than by a state (skill machines only; a part declares none). */
     val world: List<OpMap> = emptyList(),
+    /** `machine.tail`: ticks the run outlives the cast end for `detach: true` rows (skill machines only). */
+    val tail: Int? = null,
 )
 
 public data class Part(

@@ -12,6 +12,7 @@ anchors:
   - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}   # was pt_enemy_0_1p2_0 (victim feet, yaw-only)
 machine:
   start: swing
+  tail: 2
   states:
     swing:
       for: 2   # v2 cast lasts until its last presentation row (snd_miss at tick 2)
@@ -29,11 +30,11 @@ machine:
           on:
             hit:
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 0.4}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, detach: true}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
             # v2 miss cue: sound at tick 2 when counter('swing_hits') == 0
             miss:
-              - {id: snd_miss, op: sound, at: 2, sound: "astera:weapons/blade-miss", anchor: caster}
+              - {id: snd_miss, op: sound, at: 2, sound: "astera:weapons/blade-miss", anchor: caster, detach: true}
         - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster}
         - {id: fx, op: particle_def, def: slash-sweep, anchor: sweep_pt}
     end: {final: true}

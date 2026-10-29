@@ -631,6 +631,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "group"
                         }
@@ -845,6 +850,11 @@
                             ],
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
                         },
                         "op": {
                             "const": "lock"
@@ -1071,6 +1081,11 @@
                             ],
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
                         },
                         "op": {
                             "const": "use"
@@ -3784,6 +3799,11 @@
                             ],
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
                         },
                         "op": {
                             "const": "frame"
@@ -6985,6 +7005,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "display"
                         }
@@ -7530,6 +7555,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "particle"
                         }
@@ -7938,6 +7968,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "particle_def"
                         }
@@ -8204,6 +8239,11 @@
                             ],
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
                         },
                         "op": {
                             "const": "sound"
@@ -8602,6 +8642,11 @@
                             ],
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
                         },
                         "op": {
                             "const": "ribbon"
@@ -9283,6 +9328,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "projectile"
                         }
@@ -9846,6 +9896,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "hit"
                         }
@@ -10231,6 +10286,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "damage"
                         }
@@ -10500,6 +10560,11 @@
                             ],
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
                         },
                         "op": {
                             "const": "status"
@@ -10779,6 +10844,11 @@
                             ],
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
                         },
                         "op": {
                             "const": "modify_attribute"
@@ -11141,6 +11211,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "impulse"
                         }
@@ -11423,6 +11498,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "knockback"
                         }
@@ -11686,6 +11766,11 @@
                             ],
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
                         },
                         "op": {
                             "const": "heal"
@@ -11956,6 +12041,11 @@
                             ],
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
                         },
                         "op": {
                             "const": "resource"
@@ -12271,6 +12361,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "dash"
                         }
@@ -12490,6 +12585,11 @@
                             ],
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
                         },
                         "op": {
                             "const": "reel"
@@ -13266,6 +13366,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "rig"
                         }
@@ -13471,6 +13576,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "emit"
                         }
@@ -13659,6 +13769,11 @@
                             ],
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
                         },
                         "op": {
                             "const": "remove"
@@ -13915,6 +14030,11 @@
                             ],
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
                         },
                         "op": {
                             "const": "cleanse"
@@ -14186,6 +14306,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "consume_item"
                         }
@@ -14443,6 +14568,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "consume_status"
                         }
@@ -14644,6 +14774,11 @@
                             ],
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
                         },
                         "op": {
                             "const": "freeze"
@@ -14901,6 +15036,11 @@
                             ],
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
                         },
                         "op": {
                             "const": "hurt"
@@ -15174,6 +15314,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "camera_shake"
                         }
@@ -15430,6 +15575,11 @@
                             ],
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
                         },
                         "op": {
                             "const": "stop_sound"
@@ -15745,6 +15895,11 @@
                             ],
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
                         },
                         "op": {
                             "const": "screen_flash"
@@ -16068,6 +16223,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "screen_veil"
                         }
@@ -16338,6 +16498,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "body"
                         }
@@ -16523,6 +16688,11 @@
                             ],
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
+                        },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
                         },
                         "op": {
                             "const": "held_model"
@@ -17055,6 +17225,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "break_area"
                         }
@@ -17578,6 +17753,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "place_shape"
                         }
@@ -17920,6 +18100,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "explode"
                         }
@@ -18244,6 +18429,11 @@
                             "description": "life of each occurrence (extended ops with every)",
                             "default": null
                         },
+                        "detach": {
+                            "type": "boolean",
+                            "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                            "default": false
+                        },
                         "op": {
                             "const": "lightning"
                         }
@@ -18424,6 +18614,11 @@
                     ],
                     "description": "life of each occurrence (extended ops with every)",
                     "default": null
+                },
+                "detach": {
+                    "type": "boolean",
+                    "description": "true = a presentation row the cast owns: the state's exit does not end it; it runs until its own end, inside machine.tail",
+                    "default": false
                 }
             }
         },

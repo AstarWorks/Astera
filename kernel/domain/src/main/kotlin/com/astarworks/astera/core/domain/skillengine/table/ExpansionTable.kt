@@ -19,6 +19,8 @@ public data class Row(
     val guard: Guard? = null,
     val sample: SegmentSample? = null,
     val seed: Long = 0L,
+    /** `detach: true` (ADR-0303 rev4.12): the instance this row makes is owned by the cast, not by the state that wrote it, so a state exit does not end it. */
+    val detached: Boolean = false,
 )
 
 /** Row [k] of [n] along a sampled segment (ADR-0303 1, rev4.8). */
@@ -70,6 +72,8 @@ public data class Bounds(
     val path: TickRange,
     /** Longest chain of @0 rows that produce events within one tick (10.2a). */
     val sameTickDepth: Int,
+    /** `machine.tail`: ticks the run lives past the final-state entry so detached rows can finish (0 = no detached rows). */
+    val tail: Int = 0,
 )
 
 public data class WriteStats(val segments: Int, val maxWritesPerTick: Int)
