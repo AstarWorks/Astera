@@ -12,7 +12,7 @@ params:
   poison_ticks: {type: ticks, default: 80}
 anchors:
   - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
+  - {id: muzzle, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
   - {id: foe,    anchor: victim.root, mode: follow}
 fragments:
   cloud:

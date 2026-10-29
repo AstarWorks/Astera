@@ -18,7 +18,7 @@ params:
   fly:          {type: ticks, default: 50}
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: cast_fx, anchor: caster, offset: {up: -0.2, forward: 1.0}, mode: snapshot}
+  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.2, forward: 1.0}, mode: snapshot}
   - {id: heart,   anchor: victim.root, offset: {up: 1.0}, mode: follow}
 fragments:
   burst:

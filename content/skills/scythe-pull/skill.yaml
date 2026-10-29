@@ -11,7 +11,7 @@ params:
   dmg_physical: {type: number, default: 14}
   pull:         {type: number, default: 1.3}
 anchors:
-  - {id: sweep, anchor: caster, offset: {up: -0.1, forward: 2.0}, mode: follow}
+  - {id: sweep, anchor: caster.eye, offset: {up: -0.1, forward: 2.0}, mode: follow}
 machine:
   start: windup
   tail: 10

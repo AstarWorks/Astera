@@ -10,7 +10,7 @@ params:
   dmg_physical: {type: number, default: 38}
   knockback:    {type: number, default: 0.6}
 anchors:
-  - {id: fx, anchor: caster, offset: {up: -0.1, forward: 1.6}, mode: follow}
+  - {id: fx, anchor: caster.eye, offset: {up: -0.1, forward: 1.6}, mode: follow}
   - {id: heart, anchor: victim.center, mode: follow}
 machine:
   start: windup

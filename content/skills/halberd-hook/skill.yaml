@@ -11,7 +11,7 @@ params:
   knockback:    {type: number, default: 0.2}
   tremor_ticks: {type: ticks, default: 40}
 anchors:
-  - {id: cast_fx, anchor: caster, offset: {up: -0.1, forward: 1.6}, mode: follow}
+  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.1, forward: 1.6}, mode: follow}
   - {id: heart, anchor: victim.center, mode: follow}
 machine:
   start: windup

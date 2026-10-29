@@ -15,7 +15,7 @@ params:
   dmg_physical: {type: number, default: 55}
   knockback:    {type: number, default: 0.6}
 anchors:
-  - {id: sweep_pt, anchor: caster, offset: {up: -0.2, forward: 1.4}, mode: follow}
+  - {id: sweep_pt, anchor: caster.eye, offset: {up: -0.2, forward: 1.4}, mode: follow}
   - {id: heart, anchor: victim.center, mode: follow}
 machine:
   start: windup

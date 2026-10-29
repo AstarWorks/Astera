@@ -16,7 +16,7 @@ params:
   knockback:    {type: number, default: 0.5}
 anchors:
   - {id: eye,    anchor: caster.eye, mode: follow}
-  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 1.1}, mode: snapshot}
+  - {id: muzzle, anchor: caster.eye, offset: {up: -0.25, forward: 1.1}, mode: snapshot}
   - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
 machine:
   start: strike

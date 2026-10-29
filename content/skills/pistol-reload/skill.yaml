@@ -11,7 +11,7 @@ meta:
   reload_ticks: 30
   tags: [gun, reload]
 anchors:
-  - {id: click, anchor: caster, offset: {up: -0.3, forward: 0.7}, mode: snapshot}
+  - {id: click, anchor: caster.eye, offset: {up: -0.3, forward: 0.7}, mode: snapshot}
 machine:
   start: reloading
   states:
