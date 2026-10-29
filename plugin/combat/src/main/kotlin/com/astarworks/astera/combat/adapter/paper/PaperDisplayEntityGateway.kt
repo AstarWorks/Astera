@@ -153,9 +153,11 @@ public class PaperDisplayEntityGateway(
         lane: VfxLane,
     ): DisplayHandle? {
         if (!budgetAdmits(lane)) return null
-        if (audience == Audience.ALL && lane == VfxLane.CORE) return spawn(world, at, spec, renderedLines)
+        // the caster is the owner of main-hand / skin-bone kinds; without it those kinds are refused
+        val owner = caster?.let { server.getPlayer(it.uuid) }
+        if (audience == Audience.ALL && lane == VfxLane.CORE) return spawn(world, at, spec, renderedLines, owner)
         val bukkitWorld = server.getWorld(world.value) ?: return null
-        val handle = spawn(world, at, spec, renderedLines, null, hidden = true) ?: return null
+        val handle = spawn(world, at, spec, renderedLines, owner, hidden = true) ?: return null
         val display = server.getEntity(handle.id) as? Display ?: return handle
         reveal(display, bukkitWorld, at, audience, caster, target, lane)
         return handle
