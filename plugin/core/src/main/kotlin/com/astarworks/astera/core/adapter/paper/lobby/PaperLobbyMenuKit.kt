@@ -172,6 +172,7 @@ internal class PaperLobbyMenuKit(
     }
 
     private fun give(player: Player) {
+        log.info("Inventory write for {} (source=lobby-menu-kit)", player.name)
         val inv = player.inventory
         val displaced = ArrayList<ItemStack>()
         val viewerKit = kitFor(player)
