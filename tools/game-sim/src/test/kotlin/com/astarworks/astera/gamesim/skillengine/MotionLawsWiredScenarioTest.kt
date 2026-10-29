@@ -257,21 +257,47 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
         assertThat(sized.maxOf { maxOf(it.x, it.y, it.z) }).isCloseTo(1.62, within(1e-3))
     }
 
+    /** Every pose written by [rec]: the object's local [axis] carried by the world rotation must equal [expected]. */
+    private fun assertAxisPoints(rec: GatewayRecorder, axis: Vec3, expected: Vec3) {
+        assertThat(rec.writtenPoses).isNotEmpty
+        rec.writtenPoses.forEach {
+            val v = it.third.frame.rotation.rotate(axis)
+            assertThat(v.x).isCloseTo(expected.x, within(1e-6))
+            assertThat(v.y).isCloseTo(expected.y, within(1e-6))
+            assertThat(v.z).isCloseTo(expected.z, within(1e-6))
+        }
+    }
+
     @Test
-    fun stretchRotationIsTheShortestArcFromTheAxisToTheSpan() {
-        // caster feet -> eye is straight up; the caster yaw must not leak into the rotation (it is a world direction)
+    fun stretchRollFollowsTheParentFrame() {
+        val ahead = "anchors: [{id: ahead, anchor: caster, offset: {forward: 2}, mode: follow}]"
         for (yaw in listOf(0.0, 90.0, 37.0)) {
-            val up = replay("", "{law: stretch, base: caster, tip: caster.eye, axis: up, for: 4, step: 2}", yaw)
-            assertThat(up.writtenPoses).isNotEmpty
-            // axis already along the span: the object keeps its own orientation, no roll about an arbitrary up
-            up.writtenPoses.forEach { assertThat(it.third.frame.rotation.angleTo(Quaternion.IDENTITY)).isCloseTo(0.0, within(1e-6)) }
-            val fwd = replay("", "{law: stretch, base: caster, tip: caster.eye, axis: forward, for: 4, step: 2}", yaw)
-            fwd.writtenPoses.forEach {
-                val a = it.third.frame.rotation.rotate(Vec3(0.0, 0.0, 1.0))
-                assertThat(a.x).isCloseTo(0.0, within(1e-6))
-                assertThat(a.y).isCloseTo(1.0, within(1e-6))
-                assertThat(a.z).isCloseTo(0.0, within(1e-6))
-            }
+            val rad = Math.toRadians(yaw)
+            val fwd = Vec3(-Math.sin(rad), 0.0, Math.cos(rad))
+            val up = Vec3(0.0, 1.0, 0.0)
+            val z = Vec3(0.0, 0.0, 1.0)
+            // vertical span (feet -> eye), axis up: identity in the caster frame, so the roll follows the caster yaw
+            val vertical = replay("", "{law: stretch, base: caster, tip: caster.eye, axis: up, for: 4, step: 2}", yaw)
+            assertAxisPoints(vertical, up, up)
+            assertAxisPoints(vertical, z, fwd)
+            // vertical span, axis forward: the object's forward points up and its up rolls back toward the caster
+            val pitched = replay("", "{law: stretch, base: caster, tip: caster.eye, axis: forward, for: 4, step: 2}", yaw)
+            assertAxisPoints(pitched, z, up)
+            assertAxisPoints(pitched, up, Vec3(-fwd.x, 0.0, -fwd.z))
+            // horizontal span ahead of the caster: the object's up stays world up
+            val horizontal = replay(ahead, "{law: stretch, base: caster, tip: ahead, axis: forward, for: 4, step: 2}", yaw)
+            assertAxisPoints(horizontal, z, fwd)
+            assertAxisPoints(horizontal, up, up)
+        }
+    }
+
+    @Test
+    fun alignToWorldUpRollsTowardTheParentForward() {
+        for (yaw in listOf(0.0, 90.0, 37.0)) {
+            val rad = Math.toRadians(yaw)
+            val rec = replay("", "{law: align, to: world.up, axis: forward, for: 4, step: 2}", yaw)
+            assertAxisPoints(rec, Vec3(0.0, 0.0, 1.0), Vec3(0.0, 1.0, 0.0))
+            assertAxisPoints(rec, Vec3(0.0, 1.0, 0.0), Vec3(Math.sin(rad), 0.0, -Math.cos(rad)))
         }
     }
 
