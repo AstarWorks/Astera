@@ -52,7 +52,7 @@ class SkillEngineV3E2eTest : E2eBase() {
 
         E2eReport.check(suite, "no skill-engine error in the server log", "server log") {
             val errors = ServerLog.read().lineSequence().drop(logMark).toList()
-                .filter { (it.contains("skillengine", true) || it.contains("skill engine", true)) && (it.contains("ERROR") || it.contains("WARN")) }
+                .filter { (it.contains("[skill-error]") || it.contains("skillengine", true) || it.contains("skill engine", true)) && (it.contains("ERROR") || it.contains("WARN")) }
             assertThat(errors).describedAs("skill-engine log problems").isEmpty()
             "clean"
         }
