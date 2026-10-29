@@ -1060,10 +1060,11 @@ place_scene() { # view target_z
     caster)
       summon_target ;;
     opponent)
-      rcon "gamemode survival Target" >/dev/null
-      # the target is a real survival player: without this a multi-hit skill kills it mid-capture (lobby return)
-      rcon "attribute Target minecraft:max_health base set 1024" >/dev/null
-      rcon "effect give Target minecraft:instant_health 1 30 true" >/dev/null
+      # Player HP is Astera's CURRENT_HP/MAX_HP container (vanilla max_health / instant_health do not touch it), so a lethal
+      # skill kills a survival Target mid-capture and RespawnOnPlayerKilled sends it to the lobby. The opponent view therefore
+      # films from the victim's spot with the Target as an immune spectator, and a husk dummy at the same spot takes the hit.
+      summon_target
+      rcon "gamemode spectator Target" >/dev/null
       tp Target "$CX" "$Y" "$tz" 180 0 ;;
     compare)
       # caster faces +x (yaw -90); enemy ENEMY_X ahead looking back; spectator camera from the plan
