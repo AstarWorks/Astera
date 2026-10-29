@@ -180,6 +180,55 @@ class ChatTranslationScenarioTest {
     }
 
     @Test
+    fun `shipped slang crosses backends without inference while whole tokens preserve names and URLs`() {
+        val config = config().let { it.copy(japanize = it.japanize.copy(enabled = false)) }
+        val network = Network()
+        val frames = mutableListOf<ChatFrame>()
+        val calls = mutableListOf<String>()
+        val translator = ITranslator { text, _, _ ->
+            calls += text
+            CompletableFuture.completedFuture(Result.Success(text))
+        }
+        ChatRelay(network.game.localServer, config, network.game, noKanji, { _, frame -> frames += frame }).use {
+            ChatRelay(network.lobby.localServer, config, network.lobby, noKanji, { _, _ -> },
+                translator = translator, playerNames = { listOf("ty") }).use { lobby ->
+                val samples = mapOf("おつ" to "gg", "草" to "lol", "それな" to "same", "鉄" to "iron",
+                    "ラグい" to "laggy", "ｗｗ" to "lol", "gg" to "おつ", "GG WP!" to "おつ、ナイスゲーム!",
+                    "brb" to "すぐ戻る", "cya" to "またね", "nice clutch!" to "ナイス逆転!")
+                for ((input, expected) in samples) {
+                    lobby.send(UUID.randomUUID(), "Alice", input, lobby.rank(emptySet())).toCompletableFuture().join()
+                    network.hop()
+                    val frame = frames.last()
+                    val target = if (frame.sourceLanguage == "ja") "en" else "ja"
+                    assertThat(ChatView.message(frame, target, true, config.translation.marker).text).isEqualTo(expected)
+                }
+                assertThat(calls).isEmpty()
+                lobby.fromDiscord("Alice", "ty brb https://example.com/gg")
+                network.hop()
+                assertThat(frames.last().translations["ja"]).isEqualTo("ty すぐ戻る https://example.com/gg")
+                assertThat(calls.single()).doesNotContain("https://", "brb").contains("すぐ戻る")
+                lobby.send(UUID.randomUUID(), "Alice", "brb123 style", lobby.rank(emptySet())).toCompletableFuture().join()
+                assertThat(calls.last()).isEqualTo("brb123 style")
+            }
+        }
+    }
+
+    @Test
+    fun `shipped glossary covers ty and configurable Korean and Spanish without a model request`() {
+        val config = config().let { it.copy(japanize = it.japanize.copy(enabled = false),
+            translation = it.translation.copy(languages = listOf("en", "ja", "ko", "es"))) }
+        val network = Network()
+        val frames = mutableListOf<ChatFrame>()
+        ChatRelay(network.lobby.localServer, config, network.lobby, noKanji, { _, frame -> frames += frame },
+            translator = ITranslator { _, _, _ -> CompletableFuture.completedFuture(Result.Success("other direction")) }).use { lobby ->
+            lobby.send(UUID.randomUUID(), "Alice", "ty", lobby.rank(emptySet())).toCompletableFuture().join()
+            assertThat(frames.last().translations["ja"]).isEqualTo("ありがとう")
+            lobby.send(UUID.randomUUID(), "Alice", "草", lobby.rank(emptySet())).toCompletableFuture().join()
+            assertThat(frames.last().translations).containsAllEntriesOf(mapOf("en" to "lol", "ko" to "ㅋㅋ", "es" to "jajaja"))
+        }
+    }
+
+    @Test
     fun `real HTTP adapter profiles and cache participate in sender relay`() {
         val requests = CopyOnWriteArrayList<String>()
         val stub = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
@@ -193,9 +242,9 @@ class ChatTranslationScenarioTest {
         stub.start()
         try {
             HttpClient.newHttpClient().use { http ->
-                for (profile in listOf("translategemma", "hy-mt", "lfm2")) {
+                for (profile in listOf("translategemma", "hy-mt")) {
                     val config = config().let { it.copy(translation = it.translation.copy(modelProfile = profile)) }
-                    val adapter = HttpTranslator(http, "http://127.0.0.1:${stub.address.port}", profile, 1500)
+                    val adapter = HttpTranslator(http, "http://127.0.0.1:${stub.address.port}", config.translation)
                     val network = Network()
                     val frames = mutableListOf<ChatFrame>()
                     ChatRelay(network.lobby.localServer, config, network.lobby, noKanji,
@@ -204,10 +253,10 @@ class ChatTranslationScenarioTest {
                         assertThat(frames).hasSize(2).allSatisfy { frame -> assertThat(frame.translations).containsEntry("en", "Hello") }
                     }
                 }
-                assertThat(requests).hasSize(3)
+                assertThat(requests).hasSize(2)
                 assertThat(requests[0]).contains("professional Japanese (ja) to English (en) translator")
                 assertThat(requests[1]).contains("Translate the following segment into English")
-                assertThat(requests[2]).contains("Translate to English.", "system")
+                assertThat(requests).allSatisfy { request -> assertThat(request).contains("Minecraft PvP chat", "Out of ammo") }
             }
         } finally { stub.stop(0) }
     }

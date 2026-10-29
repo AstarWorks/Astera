@@ -111,10 +111,12 @@ services:
       dockerfile: docker/translator/Dockerfile
       args:
         LLAMA_IMAGE: ghcr.io/ggml-org/llama.cpp:server@sha256:8052c13edd987de8858f8150031e025ac3d66823f09cf3ec8220899c4abce220
+    mem_limit: "${TRANSLATOR_MEMORY:-3g}"
+    cpus: "${TRANSLATOR_CPUS:-4}"
     image: astera/translator:adr0308-cpu
     restart: unless-stopped
     environment:
-      TRANSLATOR_MODEL_PROFILE: "${TRANSLATOR_MODEL_PROFILE:-translategemma}"
+      TRANSLATOR_MODEL_PROFILE: "${TRANSLATOR_MODEL_PROFILE:-hy-mt}"
       TRANSLATOR_THREADS: "${TRANSLATOR_THREADS:-4}"
       HF_TOKEN: "${HF_TOKEN:-}"
     volumes:

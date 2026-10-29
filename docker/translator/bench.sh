@@ -1,8 +1,12 @@
 #!/bin/sh
-# Usage: bench.sh [translategemma=http://host:18080] [hy-mt=http://host:18081] [lfm2=http://host:18082]
-# No dependencies beyond Python 3; no model downloads or container mutations.
+# Usage: bench.sh [hy-mt=http://host:18080] [translategemma=http://host:18081]
+# Requires Python 3 + PyYAML. Uses the shipped chat config; no model/container mutations.
+export ASTERA_CHAT_CONFIG=${ASTERA_CHAT_CONFIG:-$(dirname "$0")/../../content/chat/chat.yaml}
 exec python3 - "$@" <<'PY'
 import json
+import os
+import re
+import yaml
 import math
 import statistics
 import sys
@@ -33,52 +37,86 @@ samples = [
     ('en', 'dont rush solo'), ('en', 'ty for the carry'),
     ('en', 'Steve check https://example.com/map'), ('en', 'wait what 😂'),
 ]
-assert len(samples) == 40
-names = {'en': 'English', 'ja': 'Japanese'}
-endpoints = sys.argv[1:] or ['translategemma=http://localhost:18080', 'hy-mt=http://localhost:18081', 'lfm2=http://localhost:18082']
+samples = [(source, 'en' if source == 'ja' else 'ja', text, ()) for source, text in samples]
+samples += [
+    ('ja', 'en', 'おつ', ('gg', 'good game')), ('ja', 'en', '草', ('lol',)),
+    ('ja', 'en', 'それな', ('same',)), ('ja', 'en', '鉄', ('iron',)),
+    ('ja', 'en', 'ラグい', ('lag',)), ('ja', 'en', 'ｗｗ', ('lol',)),
+    ('en', 'ja', 'gg', ('おつ',)), ('en', 'ja', 'gg wp', ('おつ',)),
+    ('en', 'ja', 'brb', ('戻',)), ('en', 'ja', 'ty', ('ありがとう',)),
+    ('en', 'ja', 'cya', ('また',)), ('en', 'ja', 'nice clutch', ('逆転',)),
+    ('ja', 'en', '誰か鉄持ってる？', ('iron',)), ('ja', 'en', '今のラグい？', ('lag',)),
+    ('ja', 'ko', '誰か鉄持ってる？', ('철',)), ('ja', 'es', '誰か鉄持ってる？', ('hierro',)),
+    ('ko', 'en', '적이 오른쪽에 있어!', ('right',)), ('es', 'en', 'enemigo a la derecha!', ('right',)),
+    ('ja', 'ko', '草', ('ㅋㅋ',)), ('ja', 'es', 'ラグい', ('lag',)),
+]
+names = {'en': 'English', 'ja': 'Japanese', 'ko': 'Korean', 'es': 'Spanish'}
+with open(os.environ['ASTERA_CHAT_CONFIG']) as file:
+    config = yaml.safe_load(file)['translation']
+endpoints = sys.argv[1:] or ['hy-mt=http://localhost:18080', 'translategemma=http://localhost:18081']
 failed = False
 for endpoint in endpoints:
     profile, url = endpoint.split('=', 1)
-    if profile not in ('translategemma', 'hy-mt', 'lfm2'):
+    if profile not in ('translategemma', 'hy-mt'):
         raise SystemExit('Unknown profile: ' + profile)
     latencies = []
+    model_latencies = []
     print('\nPROFILE', profile, url, flush=True)
-    for source, text in samples:
-        target = 'en' if source == 'ja' else 'ja'
-        messages = []
-        if profile == 'lfm2':
-            messages.append({'role': 'system', 'content': f'Translate to {names[target]}.'})
-            prompt = text
-        elif profile == 'hy-mt':
-            prompt = f'Translate the following segment into {names[target]}, without additional explanation.\n\n{text}'
-        else:
-            src, dst = names[source], names[target]
-            prompt = (f'You are a professional {src} ({source}) to {dst} ({target}) translator. '
-                      f'Your goal is to accurately convey the meaning and nuances of the original {src} text '
-                      f'while adhering to {dst} grammar, vocabulary, and cultural sensitivities.\n'
-                      f'Produce only the {dst} translation, without any additional explanations or commentary. '
-                      f'Please translate the following {src} text into {dst}:\n\n\n{text}')
-        messages.append({'role': 'user', 'content': prompt})
+    passed = checked = 0
+    for source, target, text, expected in samples:
+        glossary = config['glossary'].get(source + '-' + target, {})
+        terms = sorted(glossary, key=len, reverse=True)
+        pattern = re.compile(r'(?<![\w])(?:' + '|'.join(re.escape(term) for term in terms) + r')(?![\w])', re.I) if terms else None
+        def substitute(match):
+            return next(value for key, value in glossary.items() if key.lower() == match[0].lower())
+        substituted = pattern.sub(substitute, text) if pattern else text
+        remainder = pattern.sub('', text) if pattern else text
+        deterministic = bool(pattern and pattern.search(text)) and not any(char.isalnum() for char in remainder)
+        values = dict(source=names[source], target=names[target])
+        values.update({'from': source, 'to': target, 'context': config['context'],
+                       'examples': config['examples'].get(source + '-' + target, ''), 'text': substituted})
+        prompt = config['prompts'][profile]
+        for key, value in values.items():
+            prompt = prompt.replace('{' + key + '}', value)
+        messages = [{'role': 'user', 'content': prompt}]
         request = urllib.request.Request(url.rstrip('/') + '/v1/chat/completions',
             data=json.dumps({'model': profile, 'messages': messages, 'temperature': 0,
                              'max_tokens': 512, 'stream': False}).encode(),
             headers={'Content-Type': 'application/json'})
         start = time.perf_counter()
         try:
-            with urllib.request.urlopen(request, timeout=120) as response:
-                choice = json.load(response)['choices'][0]
+            if deterministic:
+                output = substituted
+                finish = 'glossary'
+            else:
+                with urllib.request.urlopen(request, timeout=120) as response:
+                    choice = json.load(response)['choices'][0]
+                output = choice['message']['content']
+                finish = choice.get('finish_reason')
             elapsed = (time.perf_counter() - start) * 1000
             latencies.append(elapsed)
+            if not deterministic: model_latencies.append(elapsed)
+            status = '-'
+            if expected:
+                checked += 1
+                ok = finish in ('stop', 'glossary') and any(word.casefold() in output.casefold() for word in expected)
+                passed += ok
+                failed |= not ok
+                status = 'PASS' if ok else 'FAIL'
             print(json.dumps({'from': source, 'to': target, 'input': text,
-                              'output': choice['message']['content'], 'finish': choice.get('finish_reason'),
-                              'ms': round(elapsed, 1)}, ensure_ascii=False), flush=True)
+                              'output': output, 'finish': finish, 'check': status,
+                              'expected_any': expected, 'ms': round(elapsed, 1)}, ensure_ascii=False), flush=True)
         except Exception as error:
             failed = True
             print('ERROR', profile, type(error).__name__, str(error), flush=True)
-            break
+            continue
     if latencies:
         ordered = sorted(latencies)
-        print(f'SUMMARY {profile} n={len(latencies)} p50={statistics.median(latencies):.1f}ms '
+        if model_latencies:
+            model_ordered = sorted(model_latencies)
+            print(f'INFERENCE {profile} n={len(model_latencies)} p50={statistics.median(model_latencies):.1f}ms '
+                  f'p95={model_ordered[math.ceil(len(model_ordered)*.95)-1]:.1f}ms', flush=True)
+        print(f'SUMMARY {profile} meaning={passed}/{checked} n={len(latencies)} p50={statistics.median(latencies):.1f}ms '
               f'p95={ordered[math.ceil(len(ordered)*.95)-1]:.1f}ms max={max(latencies):.1f}ms '
               f'over_1500ms={sum(x > 1500 for x in latencies)}', flush=True)
 sys.exit(1 if failed else 0)

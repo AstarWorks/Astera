@@ -32,7 +32,17 @@ public class ChatTranslation(
         val original = frame.copy(sourceLanguage = source)
         if (!config.enabled || translator == null || plain.isBlank()) return CompletableFuture.completedFuture(original)
         val requests = config.languages.filter { it != source }.associateWith { target ->
-            translator.translate(plain, source, target).toCompletableFuture()
+            val entries = config.glossary["$source-$target"].orEmpty()
+            val terms = entries.keys.sortedByDescending { it.length }.joinToString("|") { Regex.escape(it) }
+            val tokens = if (terms.isEmpty()) null else Regex("(?<![\\p{L}\\p{N}_])(?:$terms)(?![\\p{L}\\p{N}_])", RegexOption.IGNORE_CASE)
+            val matches = tokens?.findAll(plain)?.toList().orEmpty()
+            val substituted = tokens?.replace(plain) { match ->
+                entries.entries.first { it.key.equals(match.value, ignoreCase = true) }.value
+            } ?: plain
+            val remainder = tokens?.replace(plain, "") ?: plain
+            if (matches.isNotEmpty() && remainder.none { it.isLetterOrDigit() })
+                CompletableFuture.completedFuture(Result.Success(substituted))
+            else translator.translate(substituted, source, target).toCompletableFuture()
         }
         val all = CompletableFuture.allOf(*requests.values.toTypedArray())
         return all.completeOnTimeout(null, config.timeoutMs, TimeUnit.MILLISECONDS).handle { _, failure ->
@@ -69,7 +79,7 @@ public class ChatTranslation(
         public val decoration: Regex = Regex("(?i)&#[0-9a-f]{6}|&[0-9a-fk-or]|§[0-9a-fk-orx]")
         // ponytail: ambiguous Latin defaults to English; expand this word list after chat benchmarks.
         public fun detect(text: String): String = when {
-            text.any { it in '\u3040'..'\u30ff' || it in '\u3400'..'\u9fff' } -> "ja"
+            text.any { it in '\u3040'..'\u30ff' || it in '\u3400'..'\u9fff' || it == 'ｗ' } -> "ja"
             text.any { it in '\uac00'..'\ud7af' || it in '\u1100'..'\u11ff' || it in '\u3130'..'\u318f' } -> "ko"
             Regex("(?i)[¿¡ñáéíóúü]|\\b(hola|gracias|ayuda|vamos|necesito|donde|dónde|por favor|enemigo)\\b").containsMatchIn(text) -> "es"
             else -> "en"

@@ -41,7 +41,7 @@ public class AsteraChatPlugin : JavaPlugin() {
         val preferences = ChatPreferences(storage::read, storage::write)
         val url = System.getenv("ASTERA_TRANSLATE_URL")?.takeIf { it.isNotBlank() }
         val translator = if (config.translation.enabled && url != null)
-            HttpTranslator(client, url, config.translation.modelProfile, config.translation.timeoutMs) else null
+            HttpTranslator(client, url, config.translation) else null
         if (translator == null) logger.info("Chat translation disabled (requires translation.enabled and ASTERA_TRANSLATE_URL)")
         val display = PaperChatDisplay(this, config.format, core.services.getOrThrow<IMessageRenderer>(),
             config.translation.marker, preferences,

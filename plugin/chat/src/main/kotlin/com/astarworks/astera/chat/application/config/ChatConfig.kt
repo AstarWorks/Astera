@@ -31,13 +31,18 @@ public data class TranslationConfig(
     @SerialName("timeout_ms") public val timeoutMs: Long,
     public val marker: String,
     @SerialName("model_profile") public val modelProfile: String,
+    public val context: String,
+    public val prompts: Map<String, String>,
+    public val examples: Map<String, String>,
+    public val glossary: Map<String, Map<String, String>>,
 ) {
     init {
         require(languages.isNotEmpty() && languages.distinct().size == languages.size)
         require(languages.all { it in setOf("en", "ja", "ko", "es") })
         require(timeoutMs in 1..30_000)
-        require(modelProfile in setOf("translategemma", "hy-mt", "lfm2"))
-        require(modelProfile != "lfm2" || languages.all { it in setOf("en", "ja") })
+        require(modelProfile in setOf("translategemma", "hy-mt"))
+        require(prompts.keys == setOf("translategemma", "hy-mt"))
+        require(glossary.values.all { entries -> entries.all { it.key.isNotBlank() && it.value.isNotBlank() } })
     }
 }
 

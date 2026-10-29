@@ -1,11 +1,11 @@
-# Local chat translation (ADR-0308)
+# Local chat translation (ADR-0308, ADR-0309)
 
 Inference runs in `llama-server`, outside Minecraft. No paid API or SDK. CPU is
 the default. The image is pinned by OCI digest in Compose; model URLs use
 immutable Hugging Face revision SHAs in `start.sh`. The first start downloads
 one Q4_K_M GGUF to `translator-models`; interrupted downloads are discarded.
 Review/accept the model's license before use (Gemma terms for TranslateGemma;
-Tencent/Liquid terms for the alternatives). Set `HF_TOKEN` if access requires it.
+Tencent terms for HY-MT). Set `HF_TOKEN` if access requires it.
 
 From the repo root, start **only** the optional translator service:
 
@@ -26,8 +26,9 @@ docker compose -f docker/docker-compose.yml -f docker/translator/compose.gpu.yml
   --profile translation up -d --build translator
 ```
 
-This overlay selects the pinned CUDA image, reserves one GPU and offloads all
-layers. For a separate machine, run the translator there and set the backends'
+This overlay selects the pinned CUDA image, TranslateGemma, reserves one GPU and
+offloads all layers. Set `translation.model_profile: translategemma` in the backend
+chat YAML too. For a separate machine, run the translator there and set the backends'
 URL to its private address. Set `TRANSLATOR_BIND` to the private interface address
 on that host; do not publish an unauthenticated inference endpoint publicly.
 No k8s manifest is added: the existing cluster deploys no similar inference sidecar.
@@ -36,35 +37,84 @@ No k8s manifest is added: the existing cluster deploys no similar inference side
 
 | `translation.model_profile` / `TRANSLATOR_MODEL_PROFILE` | Model | Directions |
 | --- | --- | --- |
-| `translategemma` (default) | TranslateGemma 4B Q4_K_M | en/ja/ko/es |
-| `hy-mt` | HY-MT1.5-1.8B Q4_K_M | en/ja/ko/es |
-| `lfm2` | LFM2-350M-ENJP-MT Q4_K_M | en↔ja only |
+| `hy-mt` (CPU default) | HY-MT1.5-1.8B Q4_K_M | en/ja/ko/es |
+| `translategemma` (GPU overlay) | TranslateGemma 4B Q4_K_M | en/ja/ko/es |
 
-Both the plugin YAML and the container environment must select the same profile.
+Both the plugin YAML and container environment must select the same profile.
+LFM2 is removed because its short chat translations did not preserve intent.
 Restart the translator after changing its environment. Each profile has a
-separate cached model file. TranslateGemma uses plain `--chat-template gemma`
-turn framing: the HTTP adapter provides its full official translation prompt,
-avoiding version-dependent structured content support. HY-MT uses its non-Chinese
-user prompt; LFM2 uses its required English/Japanese system prompt. The adapter
-rejects unsupported language directions. No model-specific prompt exists in the relay.
+separate cached model file. TranslateGemma uses `--no-jinja --chat-template gemma`:
+without `--no-jinja`, the pinned server treats `gemma` as literal Jinja text.
+`POST /apply-template` with a user message must return `<start_of_turn>user` and
+`<start_of_turn>model`, never a literal `gemma`. HY-MT uses its embedded template.
 
-Run the 40-line corpus against one profile at a time after selecting/loading it:
+`content/chat/chat.yaml` is the shared source for context, profile prompt templates,
+direction-specific few-shot examples and slang glossary. Both profiles receive a
+user turn describing casual Minecraft PvP chat. Glossary matching is longest-first,
+case-insensitive and bounded by Unicode letters/numbers/underscore; it replaces
+whole messages/tokens, never arbitrary substrings. Whole glossary messages (including
+punctuation) bypass inference. Tokens in longer messages are substituted before
+inference. Names and URLs are protected first. Fullwidth `ｗ` is detected as Japanese.
+A glossary supplies unambiguous short meanings; it is not a general classifier.
+
+Run the 60-line corpus (Python 3 and PyYAML required):
 
 ```sh
-docker/translator/bench.sh translategemma=http://localhost:18080
-# Change TRANSLATOR_MODEL_PROFILE=hy-mt, recreate only translator, then:
+python3 -m pip install PyYAML
 docker/translator/bench.sh hy-mt=http://localhost:18080
-# Repeat for lfm2. Or provide all three profile=URL arguments for separate servers.
+# Change TRANSLATOR_MODEL_PROFILE=translategemma, recreate only translator, then:
+docker/translator/bench.sh translategemma=http://localhost:18080
 ```
 
-With no arguments the script probes ports 18080/18081/18082 for the three
-profiles. It prints each translation, finish reason, wall latency, p50/p95/max and
-count over the default 1500 ms budget. Corpus includes short/slang/emoji/romaji
-**already converted** by Japanize, matching inference input. Benchmark calls are
-uncached and allow 120 seconds so slow CPU results remain visible; the plugin
-still cuts off after its configured total budget. Judge intent preservation
-from this output before picking a model; a model loading successfully does not
-establish translation quality or the RTX 3060 latency target.
+With no arguments, ports 18080/18081 represent HY-MT/TranslateGemma. Override
+`ASTERA_CHAT_CONFIG` to use another chat YAML. Output includes translations,
+`finish`, `check` (PASS/FAIL for 20 keyword-scored cases, `-` otherwise), expected
+keywords and latency. A keyword miss, request failure or unfinished scored response
+sets a nonzero exit code. Summaries separate uncached model latency from pipeline
+latency including dictionary bypasses. The corpus includes en/ja, ko/es directions,
+all requested slang, emoji and romaji **already converted** by Japanize.
+Keyword matches are a regression signal; read the actual translations to judge intent.
+The bench permits 120 seconds; the plugin retains its total 1500 ms budget.
+
+For a sandbox with unreachable host ports, run a Python helper on
+`--network container:<isolated-translator>`, install PyYAML, copy `bench.sh` and
+`chat.yaml`, and set `ASTERA_CHAT_CONFIG=/chat.yaml`. Use an isolated model container
+and the cached model volume; never attach to or mutate `astera-dev-*`.
+
+## Remote dev autodeploy
+
+`docker/docker-compose.remote.yml` enables translator by clearing its optional
+profile (`!reset []`), pins HY-MT to four threads/four CPUs and 3 GiB, and sets
+`ASTERA_TRANSLATE_URL=http://translator:8080` for lobby and game. The base stack
+keeps the optional profile and an empty backend URL. Makefile `dev-*` targets and
+`dev-deploy.sh` already select the remote overlay for `ASTERA_DEV_HOST`; no new
+Make target or host-specific secret is needed. Requires Docker Compose supporting
+`!reset` (the existing deployment Compose supports it).
+
+The watcher defaults to `astera@192.168.14.3`. Its stack step now builds translator
+on the development machine, streams its image to the VM with the other images,
+and starts it using `up --no-build --no-deps translator` before recreating backends.
+It never builds on the VM and never waits for model health to boot Minecraft.
+Model download/loading may take several minutes on the first start. No new volumes
+or postgres/redis changes are introduced, so this patch does not require manual deploy.
+
+**Manager rollout:** the active watcher runs a copied script outside Git. From a
+checkout containing this change, run `make dev-autodeploy-up` before pushing the
+integration commit so the supervisor uses the updated watcher; then push normally.
+If already pushed, refresh the watcher and inspect `last-sha`/`attempted-sha` first:
+a SHA already marked deployed needs the normal locked manual stack step (local
+build + image save/load + remote up without build), `FORCE=1 make dev-deploy`, then
+`mark-deployed <sha>`. Do not relabel an undeployed SHA.
+
+After push, verify `deploy.log` reports the integration SHA, translator `/health`
+is ready, its model profile/threads/memory cap are correct, both backend environments
+contain the URL, and `ChatLiveTest` passes in the manager's integration window.
+Then check two players with personal locales en/ja and Japanize off for English
+slang. A successful CPU bench alone does not establish live Paper behavior or
+RTX 3060 throughput. This worker performs no deployment.
+
+[2026-10-29 CPU results and before/after](benchmark-2026-10-29.md) record both
+profiles, unscored mistranslations and the remaining live/GPU checks.
 
 ## Chat behavior and settings
 
@@ -103,7 +153,9 @@ Core PlayerSettings/Postgres needs the Core/Persistence owners, not a chat shim.
 
 `ChatTranslationScenarioTest` exercises two backend relays, shipped config, viewer
 selection/marker/hover, timeout/late reply, protection, Discord, durable toggles
-and a local HTTP server through the real adapter (three profiles and LRU hits).
+and a local HTTP server through the real adapter (both profiles and LRU hits).
+It also proves dictionary bypass, Unicode/token boundaries, ko/es output and
+protection of names/URLs before token replacement.
 `live.ChatLiveTest` adds an English-viewer/Japanese-sender probe; it skips with a
 reason when inference `/health` is unreachable. The live runner defaults to
 `http://translator:8080`; for a remote URL, its harness must pass
@@ -112,5 +164,4 @@ URL on the backends fails the probe (it is not silently treated as success).
 The manager runs live tests; this track does not touch running dev backends.
 
 Prompt references: [llama.cpp Gemma template](https://github.com/ggml-org/llama.cpp/blob/master/models/templates/google-translategemma-4b-it.jinja),
-[HY-MT prompts](https://huggingface.co/tencent/HY-MT1.5-1.8B#prompts),
-[LFM2 required system prompts](https://huggingface.co/LiquidAI/LFM2-350M-ENJP-MT#-model-details).
+[HY-MT prompts](https://huggingface.co/tencent/HY-MT1.5-1.8B#prompts).

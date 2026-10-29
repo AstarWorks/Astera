@@ -1,5 +1,6 @@
 package com.astarworks.astera.chat.adapter.paper
 
+import com.astarworks.astera.chat.application.config.TranslationConfig
 import com.astarworks.astera.chat.application.port.outbound.ITranslator
 import com.astarworks.astera.chat.application.port.outbound.TranslateError
 import com.astarworks.astera.core.domain.Result
@@ -28,9 +29,10 @@ import kotlinx.serialization.json.putJsonArray
 public class HttpTranslator(
     private val http: HttpClient,
     baseUrl: String,
-    private val profile: String,
-    private val timeoutMs: Long,
+    private val config: TranslationConfig,
 ) : ITranslator {
+    private val profile = config.modelProfile
+    private val timeoutMs = config.timeoutMs
     private val endpoint = URI.create(baseUrl.trimEnd('/') + "/v1/chat/completions")
     private data class Key(val text: String, val from: String, val to: String)
     private val cache = Collections.synchronizedMap(object : LinkedHashMap<Key, String>(512, 0.75f, true) {
@@ -39,12 +41,11 @@ public class HttpTranslator(
 
     init {
         require(endpoint.scheme in setOf("http", "https") && endpoint.host != null)
-        require(profile in setOf("translategemma", "hy-mt", "lfm2"))
+        require(profile in setOf("translategemma", "hy-mt"))
     }
 
     override fun translate(text: String, from: String, to: String): CompletionStage<Result<String, TranslateError>> {
-        if (from !in languageNames || to !in languageNames ||
-            (profile == "lfm2" && (from !in setOf("en", "ja") || to !in setOf("en", "ja"))))
+        if (from !in languageNames || to !in languageNames)
             return CompletableFuture.completedFuture(Result.Failure(TranslateError.UnsupportedLanguage))
         val key = Key(text, from, to)
         cache[key]?.let { return CompletableFuture.completedFuture(Result.Success(it)) }
@@ -79,22 +80,16 @@ public class HttpTranslator(
         put("max_tokens", 512)
         put("stream", false)
         putJsonArray("messages") {
-            if (profile == "lfm2") addJsonObject {
-                put("role", "system"); put("content", "Translate to ${languageNames.getValue(to)}.")
-            }
             addJsonObject {
                 put("role", "user")
-                put("content", if (profile == "hy-mt")
-                    "Translate the following segment into ${languageNames.getValue(to)}, without additional explanation.\n\n$text"
-                    else if (profile == "translategemma") {
-                        val source = languageNames.getValue(from)
-                        val target = languageNames.getValue(to)
-                        "You are a professional $source ($from) to $target ($to) translator. " +
-                            "Your goal is to accurately convey the meaning and nuances of the original $source text " +
-                            "while adhering to $target grammar, vocabulary, and cultural sensitivities.\n" +
-                            "Produce only the $target translation, without any additional explanations or commentary. " +
-                            "Please translate the following $source text into $target:\n\n\n$text"
-                    } else text)
+                var prompt = config.prompts.getValue(profile)
+                // Substitute text last: player text is never interpreted as a template.
+                for ((key, value) in mapOf("source" to languageNames.getValue(from), "target" to languageNames.getValue(to),
+                    "from" to from, "to" to to, "context" to config.context,
+                    "examples" to config.examples["$from-$to"].orEmpty(), "text" to text)) {
+                    prompt = prompt.replace("{$key}", value)
+                }
+                put("content", prompt)
             }
         }
 

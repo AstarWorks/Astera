@@ -56,6 +56,7 @@ run() {
 # Service -> image tag (lobby and game share one image, so building `lobby` covers both).
 image_of() {
   case "$1" in
+    translator) echo astera/translator:adr0308-cpu ;;
     velocity) echo astera/velocity:dev ;;
     bot-runner) echo astera/bot-runner:dev ;;
     lobby|game) echo astera/minecraft-server:dev ;;
@@ -102,7 +103,13 @@ wait_backend() {
 # (lobby, then game once lobby answers; velocity and bot-runner last). Services whose image/config are unchanged
 # are left alone by compose. postgres/redis are never touched (--no-deps).
 stack_step() {
-  build_and_ship lobby velocity bot-runner || return 1
+  local services=(lobby velocity bot-runner)
+  # The remote overlay enables translation; explicit service selection also supports its base profile.
+  [ -z "${ASTERA_DEV_HOST:-}" ] || services+=(translator)
+  build_and_ship "${services[@]}" || return 1
+  if [ -n "${ASTERA_DEV_HOST:-}" ]; then
+    run compose up -d --no-build --no-deps translator || return 1
+  fi
   run compose up -d --no-build --no-deps lobby || return 1
   wait_backend lobby || return 1
   run compose up -d --no-build --no-deps game || return 1
@@ -193,7 +200,7 @@ deploy() (
       case "$path" in
         # E2E / docs / hotswap-only files never reach the dev stack.
         docker/e2e-*|docker/*e2e*|docker/README.md|docker/hotswap/*|docker/docker-compose.hotswap.yml|*Dockerfile.e2e-runner*) ;;
-        docker/*|*Dockerfile*|*compose*.yml|*compose*.yaml) stack=1 ;;
+        docker/*|scripts/dev-autodeploy.sh|*Dockerfile*|*compose*.yml|*compose*.yaml) stack=1 ;;
         content/models/*|content/textures/*|content/sounds/*|content/sprites/*|content/effects/*|content/hud/*|content/fonts/*|content/pack-assets/*|content/shader-patches/*|content/animations/*) pack=1 ;;
         content/*) content=1 ;;
         tools/resource-pack*) pack=1 ;;
