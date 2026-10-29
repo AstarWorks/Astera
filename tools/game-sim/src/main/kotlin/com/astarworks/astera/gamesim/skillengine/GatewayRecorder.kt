@@ -120,6 +120,9 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     override fun reactClipSkipped(cast: CastHandle, op: InstanceId, tick: Int, victim: UUID?) {
         add("react_skip", victim.toString(), "only=player target=mob")
     }
+    override fun statusSkippedDead(cast: CastHandle, op: InstanceId, tick: Int, victim: UUID?) {
+        add("status_skip", victim.toString(), "dead_victim")
+    }
     override fun hitVolume(cast: CastHandle, op: InstanceId, volume: ResolvedVolume, tick: Int) { pendingVolume = op.text to volume }
 
     private fun seen(port: String, cast: CastRef) {
@@ -338,11 +341,13 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     }
 
     val gameplay: ISkillGameplayGateway = object : ISkillGameplayGateway {
-        override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean, ignoreArmor: Boolean) =
+        override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean, ignoreArmor: Boolean): Boolean {
             add(
                 "damage", victim.toString(), components.joinToString(" ") { "${it.kind}=${RecordedCall.num(it.amount)}" },
                 "skill=${OracleFmt.s(skillId)} at=${OracleFmt.v(hitPoint)} ignoreinv=$ignoreInvulnerability ignorearmor=$ignoreArmor",
             )
+            return false
+        }
 
         override fun cancelIncomingHit(cast: CastRef, attacker: UUID?) = add("cancelIncomingHit", "-", "attacker=${attacker ?: "-"}")
 

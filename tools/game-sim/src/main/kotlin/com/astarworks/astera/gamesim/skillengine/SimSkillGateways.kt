@@ -1,5 +1,6 @@
 package com.astarworks.astera.gamesim.skillengine
 
+import com.astarworks.astera.combat.application.port.outbound.DamageOutcome
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillParticleGateway
 import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
 import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
@@ -111,8 +112,8 @@ internal class SimSkillGameplayGateway(
     override fun damage(
         skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3,
         ignoreInvulnerability: Boolean, ignoreArmor: Boolean,
-    ) {
-        if (components.isEmpty()) return
+    ): Boolean {
+        if (components.isEmpty()) return false
         val profile = DamageProfile(
             components.map { DamageComponent(base = NumericValue.Literal(it.amount), attribute = attributeOf(it.kind)) },
         )
@@ -130,6 +131,7 @@ internal class SimSkillGameplayGateway(
             ),
         )
         if (result is Result.Failure) log.info("skill engine: damage by {} from {} on {} refused: {}", skillId, caster, victim, result.error)
+        return result is Result.Success && result.value is DamageOutcome.Killed
     }
 
     override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) {
