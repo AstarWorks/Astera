@@ -8,49 +8,53 @@ meta:
   cooldown_ticks: 30
   resource_cost: 8
   tags: [ranged, ice-family, slow]
+params:
+  dmg_water:    {type: number, default: 25.0}
+  freeze_ticks: {type: ticks, default: 60}
+  wet_ticks:    {type: ticks, default: 100}
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: cast_fx, anchor: caster, offset: {up: -0.2, forward: 1.0}, mode: snapshot}
-  - {id: heart,   anchor: victim.root, offset: {up: 1.0}, mode: follow}   # was pt_enemy_0_1_0 (v2 enemy frame = victim feet, yaw-only)
+  - {id: heart,   anchor: victim.center, mode: follow}
 machine:
   start: cast
   states:
     cast:
       start: fly
       on:
-        - {event: bolt.end, to: done}
+        - {event: ball.end, to: done}
         - {event: end, to: done}
       do:
-        - {id: shell, op: display, kind: item, item: "minecraft:prismarine_shard", context: fixed, anchor: bolt, scale: [0.9, 0.9, 0.9], at: 0, until: bolt.end}
         - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 0.8, pitch: 1.4, at: 0}
         - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx, at: 0}
-        - {id: tr0, op: particle, particle: snowflake, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], extra: 0.01, at: 0, every: 1, until: bolt.end}
-        - {id: tr1, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.06, 0.06, 0.06], color: "#ebf5ff", size: 0.9, at: 0, every: 1, until: bolt.end}
-        - {id: tr2, op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.02, 0.02, 0.02], at: 0, every: 1, until: bolt.end}
-        - id: bolt
+        - {id: spray, op: particle, particle: snowflake, anchor: {of: muzzle, to: cast_fx, samples: 6}, count: 2, offset: [0.1, 0.1, 0.1], extra: 0.03, at: 0}
+        - {id: shell, op: display, kind: item, item: "minecraft:prismarine_shard", context: fixed, anchor: ball, scale: [0.9, 0.9, 0.9], at: 0, until: ball.end}
+        - {id: tr0, op: particle, particle: snowflake, anchor: {of: ball, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], extra: 0.01, at: 0, every: 1, until: ball.end}
+        - {id: tr1, op: particle, particle: dust, anchor: {of: ball, sweep: 0.3}, count: 2, offset: [0.06, 0.06, 0.06], color: "#ebf5ff", size: 0.9, at: 0, every: 1, until: ball.end}
+        - {id: tr2, op: particle, particle: end_rod, anchor: {of: ball, sweep: 0.3}, count: 1, offset: [0.02, 0.02, 0.02], at: 0, every: 1, until: ball.end}
+        - id: ball
           op: projectile
           at: 0
           origin: muzzle
-          velocity: "= look(caster) * 2.2"
+          velocity: "= look(caster)"
+          speed: {from: 2.6, to: 1.8, for: 50, ease: out_quad}
+          range: 90
           for: 50
           radius: 0.5
           hit: {targets: enemies, once: true, attach: false}
-          block: {mode: despawn}
+          block: {mode: bounce, restitution: 0.4, times: 2}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, damage: {water: 25.0}}
-              - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: 60, when: "= rand() < 0.7"}
-              - {id: st_wet, op: status, target: event.victim, status: wet, stacks: 1, for: 100}
+              - {id: dmg, op: damage, target: event.victim, damage: {water: "${dmg_water}"}}
+              - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: "${freeze_ticks}", when: "= rand() < 0.7"}
+              - {id: st_wet, op: status, target: event.victim, status: wet, stacks: 1, for: "${wet_ticks}"}
               - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: heart, volume: 0.7, pitch: 1.5}
-              - {id: fx_snow, op: particle, particle: snowflake, anchor: heart, count: 30, extra: 0.15}
-              - {id: fx_rod, op: particle, particle: end_rod, anchor: heart, count: 10, extra: 0.2}
-              - {id: fx_dust, op: particle, particle: dust, anchor: heart, count: 20, offset: [0.4, 0.4, 0.4], extra: 0.0, color: "#bee6ff", size: 1.4}
-              - {id: fx_snow2, op: particle, particle: snowflake, anchor: heart, count: 0, extra: 0.04}
-              - {id: fx_dust2, op: particle, particle: dust, anchor: heart, count: 1, color: "#bee6ff", size: 1.3}
-            block:
-              - {id: chip_2, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
-              - {id: snd_blk, op: sound, sound: "astera:skills/frost-impact", anchor: contact.point, volume: 0.5, pitch: 1.6}
+              - {id: line, op: particle, particle: end_rod, anchor: {of: contact, to: heart, samples: 5}, count: 1, extra: 0.05}
+              - {id: burst, use: skill:frost-shard-burst, with: {snow: 30, rod: 10, dust: 20}}
+            bounce:
+              - {id: chip_b, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
+              - {id: snd_blk, op: sound, sound: "astera:skills/frost-impact", anchor: contact.point, volume: "= 0.5 - 0.1 * event.i", pitch: "= 1.6 + 0.1 * event.i"}
               - {id: fx_blk, op: particle_def, def: frost-impact, anchor: contact.point}
               - {id: fx_blk_dust, op: particle_def, def: frost-impact-dust, anchor: contact.point}
             end:
@@ -61,3 +65,23 @@ machine:
           then: recover
         recover: {final: true}
     done: {final: true}
+---
+apiVersion: astera/v3
+kind: Skill
+id: frost-shard-burst
+meta: {cooldown_ticks: 0, resource_cost: 0}
+params:
+  snow: {type: number, required: true}
+  rod:  {type: number, required: true}
+  dust: {type: number, required: true}
+machine:
+  start: s
+  states:
+    s:
+      for: 1
+      then: e
+      enter:
+        - {id: fx_snow, op: particle, particle: snowflake, anchor: contact, count: "${snow}", extra: 0.15, at: 0}
+        - {id: fx_rod, op: particle, particle: end_rod, anchor: contact, count: "${rod}", extra: 0.2, at: 0}
+        - {id: fx_dust, op: particle, particle: dust, anchor: contact, count: "${dust}", offset: [0.4, 0.4, 0.4], color: "#bee6ff", size: 1.4, at: 0}
+    e: {final: true}
