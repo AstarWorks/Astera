@@ -1465,7 +1465,20 @@
                                                                 "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                                             }
                                                         ],
-                                                        "description": "deg/tick^2; excludes ease",
+                                                        "description": "deg/tick^2; excludes ease and drag",
+                                                        "default": 0.0
+                                                    },
+                                                    "drag": {
+                                                        "oneOf": [
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string",
+                                                                "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                            }
+                                                        ],
+                                                        "description": "0 < f < 1: the rate is multiplied by (1 - f) each tick (geometric decay, closed form); excludes accel and ease; spin and move only; absent = none",
                                                         "default": 0.0
                                                     }
                                                 }
@@ -1752,6 +1765,19 @@
                                                             0.0,
                                                             0.0
                                                         ]
+                                                    },
+                                                    "drag": {
+                                                        "oneOf": [
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string",
+                                                                "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                            }
+                                                        ],
+                                                        "description": "0 < f < 1: the rate is multiplied by (1 - f) each tick (geometric decay, closed form); excludes accel and ease; spin and move only; absent = none",
+                                                        "default": 0.0
                                                     }
                                                 }
                                             },
@@ -4639,7 +4665,20 @@
                                                                 "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                                             }
                                                         ],
-                                                        "description": "deg/tick^2; excludes ease",
+                                                        "description": "deg/tick^2; excludes ease and drag",
+                                                        "default": 0.0
+                                                    },
+                                                    "drag": {
+                                                        "oneOf": [
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string",
+                                                                "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                            }
+                                                        ],
+                                                        "description": "0 < f < 1: the rate is multiplied by (1 - f) each tick (geometric decay, closed form); excludes accel and ease; spin and move only; absent = none",
                                                         "default": 0.0
                                                     }
                                                 }
@@ -4926,6 +4965,19 @@
                                                             0.0,
                                                             0.0
                                                         ]
+                                                    },
+                                                    "drag": {
+                                                        "oneOf": [
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string",
+                                                                "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                            }
+                                                        ],
+                                                        "description": "0 < f < 1: the rate is multiplied by (1 - f) each tick (geometric decay, closed form); excludes accel and ease; spin and move only; absent = none",
+                                                        "default": 0.0
                                                     }
                                                 }
                                             },
@@ -18361,7 +18413,20 @@
                                         "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                     }
                                 ],
-                                "description": "deg/tick^2; excludes ease",
+                                "description": "deg/tick^2; excludes ease and drag",
+                                "default": 0.0
+                            },
+                            "drag": {
+                                "oneOf": [
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                    }
+                                ],
+                                "description": "0 < f < 1: the rate is multiplied by (1 - f) each tick (geometric decay, closed form); excludes accel and ease; spin and move only; absent = none",
                                 "default": 0.0
                             }
                         }
@@ -18648,6 +18713,19 @@
                                     0.0,
                                     0.0
                                 ]
+                            },
+                            "drag": {
+                                "oneOf": [
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                    }
+                                ],
+                                "description": "0 < f < 1: the rate is multiplied by (1 - f) each tick (geometric decay, closed form); excludes accel and ease; spin and move only; absent = none",
+                                "default": 0.0
                             }
                         }
                     },
