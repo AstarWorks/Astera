@@ -119,7 +119,7 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
                 problems += "oracle $key: no golden at $file (run :tools:game-sim:regenSkillOracle and commit it)"
                 continue
             }
-            firstDifference(key, Files.readAllLines(file), recorded)?.let { problems += it }
+            allDifferences(key, Files.readAllLines(file), recorded)?.let { problems += it }
         }
         if (!regenerate && Files.exists(goldenDir)) {
             val wanted = skills.keys.map { goldenFile(it) }.toSet()
@@ -162,34 +162,54 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
         return out
     }
 
-    /** Names the first row where [recorded] leaves [golden] by more than 1e-3 (number-wise) or at all (text-wise); null when equal. */
-    private fun firstDifference(key: String, golden: List<String>, recorded: List<String>): String? {
+    /**
+     * Compares golden and recording row by row (number-wise at 1e-3, text-wise exact). Returns null when equal, else one problem
+     * with a count per differing field (`op` = the op id token), the number of rows that differ only by op id, and the first 10 rows plus the first 3 rows of every other differing field.
+     */
+    private fun allDifferences(key: String, golden: List<String>, recorded: List<String>): String? {
         var pose = "?"
+        val perField = java.util.TreeMap<String, Int>()
+        val shown = ArrayList<String>()
+        val shownPerField = HashMap<String, Int>()
+        var rowsDiffer = 0
+        var opOnly = 0
+        fun numEq(p: String, q: String): Boolean {
+            val x = p.split(',', ';', '~')
+            val y = q.split(',', ';', '~')
+            return x.size == y.size && x.indices.all { k ->
+                val dx = x[k].toDoubleOrNull()
+                val dy = y[k].toDoubleOrNull()
+                if (dx != null && dy != null) Math.abs(dx - dy) <= 1e-3 + 1e-9 else x[k] == y[k]
+            }
+        }
         for (i in 0 until maxOf(golden.size, recorded.size)) {
             val old = golden.getOrNull(i)
             val new = recorded.getOrNull(i)
             if (new != null && new.startsWith("## ")) pose = new.removePrefix("## ")
-            if (old == null) return "oracle $key [$pose]: new row not in golden (row ${i + 1}): $new"
-            if (new == null) return "oracle $key [$pose]: golden row ${i + 1} no longer produced: $old"
             if (old == new) continue
-            val a = old.split(' ')
-            val b = new.split(' ')
-            val where = "oracle $key [$pose] ${b.getOrNull(0)} ${b.getOrNull(1)} ${b.getOrNull(2)} ${b.getOrNull(3)}"
-            if (a.size != b.size || a.take(4) != b.take(4)) return "$where: row layout differs (row ${i + 1})\n  old: $old\n  new: $new"
-            for (j in 4 until a.size) {
-                if (a[j] == b[j]) continue
-                val field = a[j].substringBefore('=')
-                if (field != b[j].substringBefore('=')) return "$where: field list differs (row ${i + 1})\n  old: $old\n  new: $new"
-                val x = a[j].substringAfter('=').split(',', ';', '~')
-                val y = b[j].substringAfter('=').split(',', ';', '~')
-                val same = x.size == y.size && x.indices.all { k ->
-                    val dx = x[k].toDoubleOrNull()
-                    val dy = y[k].toDoubleOrNull()
-                    if (dx != null && dy != null) Math.abs(dx - dy) <= 1e-3 + 1e-9 else x[k] == y[k]
+            rowsDiffer++
+            val diffs = ArrayList<String>()
+            if (old == null || new == null) {
+                diffs += if (old == null) "extra-row" else "missing-row"
+            } else {
+                val a = old.split(' ')
+                val b = new.split(' ')
+                if (a.size != b.size) diffs += "layout"
+                else for (j in a.indices) {
+                    if (a[j] == b[j]) continue
+                    if (j < 3) { diffs += if (j == 0) "tick" else if (j == 1) "verb" else "instance"; continue }
+                    val field = a[j].substringBefore('=')
+                    if (field != b[j].substringBefore('=')) { diffs += "fieldlist"; continue }
+                    if (j == 3) { diffs += "op"; continue }
+                    if (!numEq(a[j].substringAfter('='), b[j].substringAfter('='))) diffs += field
                 }
-                if (!same) return "$where: field $field old=${a[j].substringAfter('=')} new=${b[j].substringAfter('=')} (row ${i + 1})"
             }
+            if (diffs.isEmpty()) continue
+            if (diffs == listOf("op")) opOnly++
+            diffs.forEach { perField.merge(it, 1, Int::plus) }
+            if (shown.size < 10 || diffs.any { d -> shownPerField.merge(d, 1, Int::plus)!! <= 3 && d != "op" && d != "seed" }) shown += "  row ${i + 1} [$pose] ${diffs.joinToString(",")}\n    old: $old\n    new: $new"
         }
-        return null
+        if (perField.isEmpty()) return null
+        return "oracle $key: $rowsDiffer rows differ (op-id only: $opOnly); per field $perField\n" + shown.joinToString("\n")
     }
 }
