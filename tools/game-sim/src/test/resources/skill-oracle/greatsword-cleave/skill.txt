@@ -4,7 +4,7 @@
 @0 sound - op=cast/snd sound=astera:weapons/blade-heavy-swing cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=cleave-sweep at=0.000000,-0.300000,2.400000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5118477206298080189
 @0 sound - op=cast/strike/swing.hit/snd_hit sound=astera:weapons/blade-crit cat=master vol=1 pitch=1 at=0.000000,0.900000,2.500000
-@0 particle - op=cast/strike/swing.hit/fx_hit type=hit-spark at=0.000000,1.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2870465751899303418
+@0 particle - op=cast/strike/swing.hit/fx_hit type=hit-spark at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1762531437354658233
 @0 particle - op=cast/strike/swing.hit/fx_ind type=hit-indicator at=0.000000,1.600000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5525285280265957836
 @0 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0 z=1.3
 @0 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0 z=1.3

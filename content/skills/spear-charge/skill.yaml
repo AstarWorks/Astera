@@ -8,6 +8,10 @@ meta:
   cooldown_ticks: 140
   resource_cost: 14
   tags: [melee, movement, physical]
+params:
+  speed:        {type: number, default: 1.0}
+  ticks:        {type: ticks, default: 6}
+  dmg_physical: {type: number, default: 40}
 anchors:
   - {id: puff_pt, anchor: caster, offset: {up: 0.2}, mode: follow}
 machine:
@@ -19,21 +23,19 @@ machine:
       do:
         - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.1}
         - {id: puff, op: particle_def, def: dash-cloud, anchor: puff_pt}
-        # v2 dash_strike distance 6 over 6 ticks = 1.0 block per tick
-        - {id: dash, op: dash, at: 0, speed: 1.0, for: 6, until: strike.hit, direction: {forward: 1}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
+        - {id: dash, op: dash, at: 0, speed: "${speed}", for: "${ticks}", until: strike.hit, direction: {forward: 1}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
         - id: strike
           op: hit
           at: 0
           every: 1
-          for: 6
+          for: "${ticks}"
           anchor: caster.body
           shape: {sphere: 1.0}
           targets: enemies
           ignore_invulnerability: false
-          damage: {physical: 40.0}
+          damage: {physical: "${dmg_physical}"}
           window: once
           on:
             hit:
-              # v2 raise_event dash_fx: its only listener played blade-hit at the enemy, inlined here
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact}
     end: {final: true}

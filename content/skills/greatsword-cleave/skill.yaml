@@ -8,10 +8,15 @@ meta:
   cooldown_ticks: 28
   resource_cost: 35
   tags: [melee, physical, burst]
+params:
+  arc_deg:      {type: number, default: 150}
+  range:        {type: blocks, default: 4.2}
+  dmg_physical: {type: number, default: 65}
+  knockback:    {type: number, default: 1.3}
 anchors:
   - {id: cast_fx, anchor: caster, offset: {up: -0.3, forward: 2.4}, mode: snapshot}
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}   # v2 pt_enemy_0_1p2_0
-  - {id: head, anchor: victim.root, offset: {up: 1.6}, mode: follow}   # v2 pt_enemy_0_1p6_0
+  - {id: heart, anchor: victim.center, mode: follow}
+  - {id: head, anchor: victim.root, offset: {up: 1.6}, mode: follow}
 machine:
   start: cast
   states:
@@ -24,7 +29,7 @@ machine:
         - {event: end, to: done}
       states:
         strike:
-          for: 3   # v2 miss cue fires at tick 2, so the state must outlast it
+          for: 3   # outlasts the miss cue at tick 2
           then: recover
           enter:
             - id: swing
@@ -32,17 +37,16 @@ machine:
               anchor: caster.eye
               at: 0
               targets: enemies
-              shape: {sector: {deg: 150.0, range: 4.2, height: 2.0, forward: look}}
+              shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
               window: once
               ignore_invulnerability: false
-              damage: {physical: 65.0}
+              damage: {physical: "${dmg_physical}"}
               on:
                 hit:
                   - {id: snd_hit, op: sound, sound: "astera:weapons/blade-crit", anchor: contact, volume: 1.0, pitch: 1.0}
                   - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
                   - {id: fx_ind, op: particle_def, def: hit-indicator, anchor: head}
-                  - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 1.3}
-                # v2 miss cue: sound at tick 2 when counter('swing_hits') == 0 (same spelling as sword-slash)
+                  - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: "${knockback}"}
                 miss:
                   - {id: whiff, op: sound, at: 2, sound: "astera:weapons/blade-miss", anchor: caster}
         recover: {final: true}

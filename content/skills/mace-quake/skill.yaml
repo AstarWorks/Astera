@@ -1,4 +1,3 @@
-# Wave 2 v3 draft (basic-ac): ported 1:1 from the v2 skill.yaml + look.yaml. GAP comments mark what v3 cannot spell yet.
 apiVersion: astera/v3
 kind: Skill
 id: mace-quake
@@ -14,12 +13,12 @@ params:
   dmg_physical: {type: number, default: 30.0}
   tremor_ticks: {type: ticks, default: 60}
 anchors:
-  - {id: ground, anchor: caster, offset: {up: 0.15}, mode: snapshot}                 # was pt_caster_0_0p15_0
+  - {id: ground, anchor: caster, offset: {up: 0.15}, mode: snapshot}
 machine:
   start: quake
   states:
     quake:
-      for: 1   # v2 dev has no explicit cast length; the 6-tick span was the invented ring wave. 1 = v2 timeline (single row at 0), see report
+      for: 1
       then: end
       enter:
         - {id: snd_quake, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 0.6}
@@ -32,10 +31,10 @@ machine:
           max_count: all
           window: once
           ignore_invulnerability: false
-          damage: {physical: "= dmg_physical * (1.0 - 0.5 * dist(event.victim, caster) / radius)"}
+          damage: {physical: "= ${dmg_physical} * (1.0 - 0.5 * dist(event.victim, caster) / ${radius})"}
           on:
             hit:
-              - {id: st_tremor, op: status, target: event.victim, status: tremor, stacks: 1, for: "= tremor_ticks"}
+              - {id: st_tremor, op: status, target: event.victim, status: tremor, stacks: 1, for: "${tremor_ticks}"}
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
       do:
         - {id: fx_crit, op: particle, particle: crit, anchor: ground, at: 0, count: 0, extra: 0.03}
