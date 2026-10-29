@@ -185,7 +185,8 @@ class GrammarFieldsScenarioTest {
     fun `timing rules are load errors with path and field`() {
         assertThat(err(timing("{id: x, every: 4}", TimingKind.POINT)).path).isEqualTo("presentation.timeline[2].every")
         assertThat(err(timing("{id: x, every: 4, for: 8}", TimingKind.EXTENDED)).path).isEqualTo("presentation.timeline[2].lasts")
-        assertThat(err(timing("{id: x, times: 3}", TimingKind.POINT)).path).isEqualTo("presentation.timeline[2].times")
+        // times without every is a family of N simultaneous instances (Timing.kt field doc), not an error
+        assertThat(ok(timing("{id: x, times: 3}", TimingKind.POINT)).times).isNotNull()
         assertThat(err(timing("{id: x, lasts: 3}", TimingKind.POINT)).path).isEqualTo("presentation.timeline[2].lasts")
     }
 
@@ -239,7 +240,7 @@ class GrammarFieldsScenarioTest {
 
         val small = Fields.of("d", Field.required("a", Types.id), Field.optional("b", Types.enumOf("x", "y"), "x"))
         assertThat(SchemaJson.write(small.jsonSchema())).isEqualTo(
-            """{"type":"object","additionalProperties":false,"required":["a"],"properties":{"a":{"type":"string","pattern":"^\\S+$"},"b":{"enum":["x","y"],"default":"x"}}}""",
+            """{"type":"object","additionalProperties":false,"required":["a"],"properties":{"a":{"type":"string","pattern":"^\\S+$"},"b":{"enum":["x","y"],"x-listed-default":"x"}}}""",
         )
         val vecSchema = SchemaJson.write(FrameVecs.axes.jsonSchema())
         assertThat(vecSchema).contains("\"forward\"", "\"up\"", "\"left\"", "\"required\":[]")

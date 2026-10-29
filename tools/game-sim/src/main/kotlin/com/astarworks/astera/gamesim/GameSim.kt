@@ -344,8 +344,10 @@ public class GameSim private constructor(
         return opened
     }
 
-    public fun rightClick(entity: SimEntity, sneaking: Boolean = false): Boolean =
-        input(entity, IMcEvent.InputKind.RIGHT_CLICK, sneaking)
+    public fun rightClick(entity: SimEntity, sneaking: Boolean = false): Boolean {
+        skillEngine.noteRightClick(entity.id.uuid)
+        return input(entity, IMcEvent.InputKind.RIGHT_CLICK, sneaking)
+    }
 
     /** The drop key: the held binding decides (pistol Q reload; persona guns usually Shift+Q reload). */
     public fun drop(entity: SimEntity, sneaking: Boolean = false): Boolean =
@@ -665,7 +667,7 @@ public class GameSim private constructor(
             // Post-wiring host step (CombatPaperPlatform.bind): tick loops and the
             // rerouted-damage kill publisher.
             projectiles.start()
-            sim.skillEngine = SimSkillEngine(world, scheduler, services, services.getOrThrow<IDomainEventBus>(), sim.combat).also { it.start() }
+            sim.skillEngine = SimSkillEngine.create(world, scheduler, services, sim.combat, mcServer, recorder, statusContainer.value, feedback, alive).also { it.start() }
             if (statusContainer.isInitialized()) statusContainer.value.start()
             val killResolver = VanillaKillResolver(
                 com.astarworks.astera.core.application.service.combat.CombatContextResolver { services.get<IMatchTeamLookup>() },
