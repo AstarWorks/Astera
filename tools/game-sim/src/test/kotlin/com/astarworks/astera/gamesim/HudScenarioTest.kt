@@ -47,6 +47,18 @@ class HudScenarioTest {
                 .containsEntry("count", "2")
             assertThat(idle.keys()).contains("astera.hud.lobby.queue.idle")
             assertThat(idle.keys()).doesNotContain("astera.hud.sidebar.level")
+            // Decorated account block: level + XP bar, GOLD with a grouped value, server address as the very last row.
+            assertThat(idle.keys()).contains(
+                "astera.hud.sidebar.account.level",
+                "astera.hud.sidebar.account.bar",
+                "astera.hud.sidebar.gold",
+                "astera.hud.sidebar.separator",
+            )
+            assertThat(idle.texts().first { it.messageKey.value == "astera.hud.sidebar.account.bar" }.placeholders["bar"])
+                .contains("■", "□")
+            assertThat(idle.texts().first { it.messageKey.value == "astera.hud.sidebar.gold" }.placeholders).containsKey("gold")
+            assertThat(idle.keys().last()).isEqualTo("astera.hud.sidebar.footer")
+            assertThat(idle.lines.size).isLessThanOrEqualTo(15)
 
             val queued = sim.services.getOrThrow<IMatchmaker>().enqueue(alice.id, MatchmakingMode.CARRY_TNT)
             assertThat(queued).isInstanceOf(Result.Success::class.java)
