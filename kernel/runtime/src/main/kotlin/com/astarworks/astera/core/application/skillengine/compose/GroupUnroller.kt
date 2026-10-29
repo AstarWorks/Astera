@@ -260,17 +260,22 @@ public object GroupUnroller {
         }
         if (timesN != null && timesN < 1) return fail(SkillDecodeError.Invalid(lc.skillId, "$path.times", "times must be at least 1"))
 
-        // R28: a family of simultaneous copies (times without every) reads `i` in `at` as its OWN index (`at: [0, 2, 5, 9]`).
+        // R28: a family of simultaneous copies (times without every) reads `i` in `at` as its OWN index (`at: [0, 2, 5, 9]`, `at: "= 2 * i"`).
+        // Every copy start is folded here to a whole tick >= 0 that lies before the horizon, so the family's schedule is known at load.
         val atExpr = (t.at as? TimeAt.Tick)?.ticks as? Value.Expr
         if (every == null && timesN != null && atExpr != null) {
             val starts = ArrayList<Int>(timesN)
             for (k in 0 until timesN) {
-                when (val r = lc.child(node.id, k, timesN, 0).requireStaticTiming(path, "at", atExpr)) {
-                    is Result.Success -> starts += r.value
-                    is Result.Failure -> return r
+                val start = when (val r = lc.child(node.id, k, timesN, 0).requireStaticTiming(path, "at", atExpr)) {
+                    is Result.Success -> r.value
+                    is Result.Failure -> return fail(SkillDecodeError.Invalid(lc.skillId, "$path.at", "copy $k of $timesN: at does not fold to a whole number of ticks (${r.error})"))
                 }
+                if (start < 0) return fail(SkillDecodeError.Invalid(lc.skillId, "$path.at", "copy $k of $timesN: at must not be negative (folds to $start)"))
+                if (horizon != null && start >= horizon) {
+                    return fail(SkillDecodeError.Invalid(lc.skillId, "$path.at", "copy $k of $timesN: at folds to tick $start, past the end of its window ($horizon ticks)"))
+                }
+                starts += start
             }
-            if (starts.any { it < 0 }) return fail(SkillDecodeError.Invalid(lc.skillId, "$path.at", "at must not be negative"))
             return Result.Success(Schedule(starts, true, null))
         }
 

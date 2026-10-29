@@ -12,14 +12,14 @@
 @2 sound - op=sweep1/snd_4 sound=item.armor.equip_iron cat=master vol=0.6 pitch=0.6 at=0.000000,0.000000,0.000000
 @2 frame sweep1/rig op=sweep1/rig pos=-0.370145,0.503255,-0.290948 rot=-0.457398,0.358804,-0.774330,0.249918
 @3 write #0 op=sweep1/rig dur=0 pos=-0.370145,0.503255,-0.290948 rot=-0.457398,0.358804,-0.774330,0.249918 scale=0.937500,0.937500,0.937500 bb=FIXED
-@3 spawn #1 op=sweep1/fx2_fx_high_s1h1_ring_q0 kind=sprite sprite=bastion-s1-hring-q0 alpha=1.000000 tint=- seethrough=true pos=-1.862000,1.543000,1.485000 rot=0.681804,0.000297,0.000000,0.731535 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@3 spawn #2 op=sweep1/fx2_fx_high_s1h1_ring_q2 kind=sprite sprite=bastion-s1-hring-q2 alpha=1.000000 tint=- seethrough=true pos=-1.838000,1.332000,-1.508000 rot=0.681804,0.000297,0.000000,0.731535 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@3 spawn #3 op=sweep1/fx2_fx_high_s1h1_ring_bq0 kind=sprite sprite=bastion-s1-hring-bq0 alpha=1.000000 tint=- seethrough=true pos=-1.862000,1.543000,1.485000 rot=-0.002380,0.731528,0.681803,0.002554 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@3 spawn #4 op=sweep1/fx2_fx_high_s1h1_ring_bq2 kind=sprite sprite=bastion-s1-hring-bq2 alpha=1.000000 tint=- seethrough=true pos=-1.838000,1.332000,-1.508000 rot=-0.002380,0.731528,0.681803,0.002554 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@3 spawn #1 op=sweep1/fx2_fx_high_s1h1_ring_quarters[0] kind=sprite sprite=bastion-s1-hring-q0 alpha=1.000000 tint=- seethrough=true pos=-1.862000,1.543000,1.485000 rot=0.681804,0.000297,0.000000,0.731535 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@3 spawn #2 op=sweep1/fx2_fx_high_s1h1_ring_quarters[2] kind=sprite sprite=bastion-s1-hring-q2 alpha=1.000000 tint=- seethrough=true pos=-1.838000,1.332000,-1.508000 rot=0.681804,0.000297,0.000000,0.731535 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@3 spawn #3 op=sweep1/fx2_fx_high_s1h1_ring_bquarters[0] kind=sprite sprite=bastion-s1-hring-bq0 alpha=1.000000 tint=- seethrough=true pos=-1.862000,1.543000,1.485000 rot=-0.002380,0.731528,0.681803,0.002554 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@3 spawn #4 op=sweep1/fx2_fx_high_s1h1_ring_bquarters[2] kind=sprite sprite=bastion-s1-hring-bq2 alpha=1.000000 tint=- seethrough=true pos=-1.838000,1.332000,-1.508000 rot=-0.002380,0.731528,0.681803,0.002554 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @3 frame sweep1/rig op=sweep1/rig pos=-0.370145,0.503255,-0.290948 rot=-0.457398,0.358804,-0.774330,0.249918
 @4 write #0 op=sweep1/rig dur=0 pos=-0.138339,0.752451,-0.618644 rot=-0.552289,0.369732,-0.510629,0.545466 scale=0.937500,0.937500,0.937500 bb=FIXED
-@4 spawn #5 op=sweep1/fx2_fx_high_s1h1_ring_q1 kind=sprite sprite=bastion-s1-hring-q1 alpha=1.000000 tint=- seethrough=true pos=1.138000,1.543000,1.508000 rot=0.681804,0.000297,0.000000,0.731535 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@4 spawn #6 op=sweep1/fx2_fx_high_s1h1_ring_bq1 kind=sprite sprite=bastion-s1-hring-bq1 alpha=1.000000 tint=- seethrough=true pos=1.138000,1.543000,1.508000 rot=-0.002380,0.731528,0.681803,0.002554 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@4 spawn #5 op=sweep1/fx2_fx_high_s1h1_ring_quarters[1] kind=sprite sprite=bastion-s1-hring-q1 alpha=1.000000 tint=- seethrough=true pos=1.138000,1.543000,1.508000 rot=0.681804,0.000297,0.000000,0.731535 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@4 spawn #6 op=sweep1/fx2_fx_high_s1h1_ring_bquarters[1] kind=sprite sprite=bastion-s1-hring-bq1 alpha=1.000000 tint=- seethrough=true pos=1.138000,1.543000,1.508000 rot=-0.002380,0.731528,0.681803,0.002554 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @4 sound - op=sweep1/snd_5 sound=entity.player.attack.sweep cat=master vol=1 pitch=0.5 at=0.000000,0.000000,0.000000
 @4 sound - op=sweep1/snd_6 sound=item.trident.throw cat=master vol=0.7 pitch=0.6 at=0.000000,0.000000,0.000000
 @4 particle - op=sweep1/gather_a[0] type=bastion-s1-p-gather-1 at=-0.274410,0.689313,-0.901496 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4870897842634507945
@@ -112,8 +112,8 @@
 @6 hit - op=sweep1/dash_hit[2] at=0.000000,0.900000,1.600000 r=1.700000 shape=sphere rad=1.700000
 @6 frame sweep1/rig op=sweep1/rig pos=0.122765,1.360366,2.559873 rot=0.584690,0.639733,0.223990,0.445767
 @7 write #0 op=sweep1/rig dur=0 pos=0.642117,1.312475,1.490203 rot=-0.582730,-0.785908,0.194588,0.070067 scale=0.937500,0.937500,0.937500 bb=FIXED
-@7 spawn #9 op=sweep1/fx2_fx_high_s1h1_ring_q3 kind=sprite sprite=bastion-s1-hring-q3 alpha=1.000000 tint=- seethrough=true pos=1.162000,1.332000,0.115000 rot=0.681804,0.000297,0.000000,0.731535 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@7 spawn #10 op=sweep1/fx2_fx_high_s1h1_ring_bq3 kind=sprite sprite=bastion-s1-hring-bq3 alpha=1.000000 tint=- seethrough=true pos=1.162000,1.332000,0.115000 rot=-0.002380,0.731528,0.681803,0.002554 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@7 spawn #9 op=sweep1/fx2_fx_high_s1h1_ring_quarters[3] kind=sprite sprite=bastion-s1-hring-q3 alpha=1.000000 tint=- seethrough=true pos=1.162000,1.332000,0.115000 rot=0.681804,0.000297,0.000000,0.731535 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@7 spawn #10 op=sweep1/fx2_fx_high_s1h1_ring_bquarters[3] kind=sprite sprite=bastion-s1-hring-bq3 alpha=1.000000 tint=- seethrough=true pos=1.162000,1.332000,0.115000 rot=-0.002380,0.731528,0.681803,0.002554 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @7 write #7 op=sweep1/fx2_fx_high_s1h1_streak_main dur=0 pos=-0.878000,3.160000,4.600000 rot=0.000000,0.000000,0.104528,0.994522 scale=0.468791,0.300000,1.000000 bb=CENTER
 @7 write #8 op=sweep1/fx2_fx_high_s1h1_flash dur=0 pos=-0.878000,3.080000,4.780000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.148407,0.148407,1.000000 bb=CENTER
 @7 sound - op=sweep1/snd_7 sound=item.mace.smash_ground_heavy cat=master vol=1 pitch=0.9 at=0.000000,0.000000,1.600000
@@ -437,14 +437,14 @@
 @16 particle - op=sweep1/b1_fleck[12] type=bastion-s1-p-fleck at=1.211154,1.411063,0.895592 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4391928532180664084
 @16 particle - op=sweep1/b1_fleck[12] type=bastion-s1-p-fleck at=1.940872,1.555564,0.692625 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6978669651719760283
 @16 frame sweep1/rig op=sweep1/rig pos=0.178445,1.206564,1.182843 rot=-0.138679,-0.412142,-0.432481,0.789853
-@16 remove #1 op=sweep1/fx2_fx_high_s1h1_ring_q0
-@16 remove #2 op=sweep1/fx2_fx_high_s1h1_ring_q2
-@16 remove #3 op=sweep1/fx2_fx_high_s1h1_ring_bq0
-@16 remove #4 op=sweep1/fx2_fx_high_s1h1_ring_bq2
-@16 remove #5 op=sweep1/fx2_fx_high_s1h1_ring_q1
-@16 remove #6 op=sweep1/fx2_fx_high_s1h1_ring_bq1
-@16 remove #9 op=sweep1/fx2_fx_high_s1h1_ring_q3
-@16 remove #10 op=sweep1/fx2_fx_high_s1h1_ring_bq3
+@16 remove #1 op=sweep1/fx2_fx_high_s1h1_ring_quarters[0]
+@16 remove #5 op=sweep1/fx2_fx_high_s1h1_ring_quarters[1]
+@16 remove #2 op=sweep1/fx2_fx_high_s1h1_ring_quarters[2]
+@16 remove #9 op=sweep1/fx2_fx_high_s1h1_ring_quarters[3]
+@16 remove #3 op=sweep1/fx2_fx_high_s1h1_ring_bquarters[0]
+@16 remove #6 op=sweep1/fx2_fx_high_s1h1_ring_bquarters[1]
+@16 remove #4 op=sweep1/fx2_fx_high_s1h1_ring_bquarters[2]
+@16 remove #10 op=sweep1/fx2_fx_high_s1h1_ring_bquarters[3]
 @17 write #0 op=sweep1/rig dur=0 pos=0.136850,0.710824,1.192595 rot=-0.418089,-0.252766,0.029020,0.872049 scale=0.937500,0.937500,0.937500 bb=FIXED
 @17 particle - op=sweep1/wave[1]/w2[2] type=bastion-s1-p-gather-2 at=0.251864,0.751925,0.896639 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8636452700474717923
 @17 particle - op=sweep1/wave[1]/w2[2] type=bastion-s1-p-gather-2 at=0.805864,0.949942,-0.528889 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3003029298379346660
@@ -540,7 +540,7 @@
 @27 write #0 op=sweep1/rig dur=0 pos=0.041549,0.650590,1.131756 rot=-0.633294,-0.169626,0.127126,0.744315 scale=0.937500,0.937500,0.937500 bb=FIXED
 @27 frame sweep1/rig op=sweep1/rig pos=0.041549,0.650590,1.131756 rot=-0.633294,-0.169626,0.127126,0.744315
 @28 write #0 op=sweep1/rig dur=0 pos=-0.001704,0.694513,1.213818 rot=-0.808411,0.133426,-0.178526,0.544792 scale=0.937500,0.937500,0.937500 bb=FIXED
-@28 spawn #11 op=sweep2/fx3_fx_low_s1h2_ring_q0 kind=sprite sprite=bastion-s1-ring-q0 alpha=1.000000 tint=- seethrough=true pos=0.980000,0.770000,0.571000 rot=-0.499411,-0.533912,-0.466069,0.498304 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@28 spawn #11 op=sweep2/fx3_fx_low_s1h2_ring_quarters[0] kind=sprite sprite=bastion-s1-ring-q0 alpha=1.000000 tint=- seethrough=true pos=0.980000,0.770000,0.571000 rot=-0.499411,-0.533912,-0.466069,0.498304 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @28 particle - op=sweep2/gather2_c type=bastion-s1-p-gather-3 at=-0.096102,0.452253,1.026986 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3597293653766233272
 @28 particle - op=sweep2/gather2_c type=bastion-s1-p-gather-3 at=-0.550752,-0.714643,0.127039 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8903653541286974093
 @28 particle - op=sweep2/gather2_b type=bastion-s1-p-gather-2 at=-0.096102,0.452253,1.026986 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6978334533381341770
@@ -552,7 +552,7 @@
 @28 move - op=- invulnerable=0
 @28 frame sweep1/rig op=sweep1/rig pos=-0.001704,0.694513,2.080485 rot=-0.808411,0.133426,-0.178526,0.544792
 @29 write #0 op=sweep1/rig dur=0 pos=0.078148,0.702095,2.135626 rot=-0.730226,0.107200,-0.332556,0.587098 scale=0.937500,0.937500,0.937500 bb=FIXED
-@29 spawn #12 op=sweep2/fx3_fx_low_s1h2_ring_q1 kind=sprite sprite=bastion-s1-ring-q1 alpha=1.000000 tint=- seethrough=true pos=0.968000,0.953000,4.081667 rot=-0.499411,-0.533912,-0.466069,0.498304 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@29 spawn #12 op=sweep2/fx3_fx_low_s1h2_ring_quarters[1] kind=sprite sprite=bastion-s1-ring-q1 alpha=1.000000 tint=- seethrough=true pos=0.968000,0.953000,4.081667 rot=-0.499411,-0.533912,-0.466069,0.498304 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @29 particle - op=sweep2/b2_trail[0] type=bastion-s1-p-trail at=0.021490,0.492005,1.900765 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6173453578117086053
 @29 particle - op=sweep2/b2_trail[0] type=bastion-s1-p-trail at=-0.005796,0.390811,1.787638 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4820545063267337681
 @29 particle - op=sweep2/b2_trail[0] type=bastion-s1-p-trail at=-0.033082,0.289617,1.674511 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2367863368021936409
@@ -684,7 +684,7 @@
 @31 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0.1 z=0.5
 @31 frame sweep1/rig op=sweep1/rig pos=0.030329,0.806781,3.173324 rot=0.517045,-0.794430,-0.318645,0.003399
 @32 write #0 op=sweep1/rig dur=0 pos=0.030329,0.806781,3.173324 rot=0.517045,-0.794430,-0.318645,0.003399 scale=0.937500,0.937500,0.937500 bb=FIXED
-@32 spawn #22 op=sweep2/fx3_fx_low_s1h2_ring_q2 kind=sprite sprite=bastion-s1-ring-q2 alpha=1.000000 tint=- seethrough=true pos=-1.664000,0.593000,1.437667 rot=-0.499411,-0.533912,-0.466069,0.498304 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@32 spawn #22 op=sweep2/fx3_fx_low_s1h2_ring_quarters[2] kind=sprite sprite=bastion-s1-ring-q2 alpha=1.000000 tint=- seethrough=true pos=-1.664000,0.593000,1.437667 rot=-0.499411,-0.533912,-0.466069,0.498304 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @32 write #14 op=sweep2/fx3_fx_low_s1h2_line_1 dur=0 pos=1.000000,1.200000,4.866667 rot=0.000000,0.000000,0.000000,1.000000 scale=0.262516,0.020000,1.000000 bb=CENTER
 @32 write #16 op=sweep2/fx3_fx_low_s1h2_streak_main dur=0 pos=0.124000,3.546000,5.674667 rot=0.000000,0.000000,-0.069756,0.997564 scale=0.718697,0.320000,1.000000 bb=CENTER
 @32 write #17 op=sweep2/fx3_fx_low_s1h2_line_2 dur=0 pos=-1.000000,2.100000,5.266667 rot=0.000000,0.000000,0.000000,1.000000 scale=0.312523,0.100000,1.000000 bb=CENTER
@@ -738,7 +738,7 @@
 @32 frame sweep1/rig op=sweep1/rig pos=0.030329,0.806781,3.173324 rot=0.517045,-0.794430,-0.318645,0.003399
 @32 remove #13 op=sweep2/fx3_fx_low_s1h2_floor_fill
 @33 write #0 op=sweep1/rig dur=0 pos=0.030329,0.806781,3.173324 rot=0.517045,-0.794430,-0.318645,0.003399 scale=0.937500,0.937500,0.937500 bb=FIXED
-@33 spawn #23 op=sweep2/fx3_fx_low_s1h2_ring_q3 kind=sprite sprite=bastion-s1-ring-q3 alpha=1.000000 tint=- seethrough=true pos=-1.676000,0.776000,4.081667 rot=-0.499411,-0.533912,-0.466069,0.498304 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@33 spawn #23 op=sweep2/fx3_fx_low_s1h2_ring_quarters[3] kind=sprite sprite=bastion-s1-ring-q3 alpha=1.000000 tint=- seethrough=true pos=-1.676000,0.776000,4.081667 rot=-0.499411,-0.533912,-0.466069,0.498304 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @33 write #16 op=sweep2/fx3_fx_low_s1h2_streak_main dur=1 pos=0.124000,3.546000,5.674667 rot=0.000000,0.000000,-0.069756,0.997564 scale=0.693705,0.275200,1.000000 bb=CENTER
 @33 write #17 op=sweep2/fx3_fx_low_s1h2_line_2 dur=0 pos=-1.000000,2.100000,5.266667 rot=0.000000,0.000000,0.000000,1.000000 scale=0.218711,0.020000,1.000000 bb=CENTER
 @33 write #18 op=sweep2/fx3_fx_low_s1h2_flash dur=1 pos=0.224000,2.546000,5.474667 rot=0.000000,0.000000,0.000000,1.000000 scale=0.140606,0.140606,1.000000 bb=CENTER
@@ -1018,10 +1018,10 @@
 @42 particle - op=sweep2/b2_fleck[13] type=bastion-s1-p-fleck at=-0.252155,-0.272776,2.933729 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8199177026928255649
 @42 particle - op=sweep2/b2_fleck[13] type=bastion-s1-p-fleck at=-0.169018,-0.821249,3.469294 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8105726478850179362
 @42 frame sweep1/rig op=sweep1/rig pos=-0.369809,0.503427,2.175779 rot=0.967805,-0.084544,-0.217084,0.095294
-@42 remove #11 op=sweep2/fx3_fx_low_s1h2_ring_q0
-@42 remove #12 op=sweep2/fx3_fx_low_s1h2_ring_q1
-@42 remove #22 op=sweep2/fx3_fx_low_s1h2_ring_q2
-@42 remove #23 op=sweep2/fx3_fx_low_s1h2_ring_q3
+@42 remove #11 op=sweep2/fx3_fx_low_s1h2_ring_quarters[0]
+@42 remove #12 op=sweep2/fx3_fx_low_s1h2_ring_quarters[1]
+@42 remove #22 op=sweep2/fx3_fx_low_s1h2_ring_quarters[2]
+@42 remove #23 op=sweep2/fx3_fx_low_s1h2_ring_quarters[3]
 @43 write #0 op=sweep1/rig dur=0 pos=-0.369809,0.503427,2.175779 rot=-0.980264,0.087317,0.176766,0.014528 scale=0.937500,0.937500,0.937500 bb=FIXED
 @43 particle - op=sweep2/b2_trail[14] type=bastion-s1-p-trail at=-0.366514,0.233731,2.348291 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=944158011514482211
 @43 particle - op=sweep2/b2_trail[14] type=bastion-s1-p-trail at=-0.364925,0.103823,2.431382 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4187890318712591508
@@ -1165,14 +1165,14 @@ r @88 run-end tail=30 | pose
 @2 sound - op=sweep1/snd_4 sound=item.armor.equip_iron cat=master vol=0.6 pitch=0.6 at=0.000000,0.000000,0.000000
 @2 frame sweep1/rig op=sweep1/rig pos=-0.120514,0.503255,-0.455120 rot=-0.188063,0.260962,-0.879450,0.350854
 @3 write #0 op=sweep1/rig dur=0 pos=-0.120514,0.503255,-0.455120 rot=-0.188063,0.260962,-0.879450,0.350854 scale=0.937500,0.937500,0.937500 bb=FIXED
-@3 spawn #1 op=sweep1/fx2_fx_high_s1h1_ring_q0 kind=sprite sprite=bastion-s1-hring-q0 alpha=1.000000 tint=- seethrough=true pos=-2.380755,1.543000,0.065394 rot=0.646571,-0.231838,0.216340,0.693826 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@3 spawn #2 op=sweep1/fx2_fx_high_s1h1_ring_q2 kind=sprite sprite=bastion-s1-hring-q2 alpha=1.000000 tint=- seethrough=true pos=-0.560355,1.332000,-2.310478 rot=0.646571,-0.231838,0.216340,0.693826 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@3 spawn #3 op=sweep1/fx2_fx_high_s1h1_ring_bq0 kind=sprite sprite=bastion-s1-hring-bq0 alpha=1.000000 tint=- seethrough=true pos=-2.380755,1.543000,0.065394 rot=-0.218596,0.692915,0.645814,0.234539 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@3 spawn #4 op=sweep1/fx2_fx_high_s1h1_ring_bq2 kind=sprite sprite=bastion-s1-hring-bq2 alpha=1.000000 tint=- seethrough=true pos=-0.560355,1.332000,-2.310478 rot=-0.218596,0.692915,0.645814,0.234539 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@3 spawn #1 op=sweep1/fx2_fx_high_s1h1_ring_quarters[0] kind=sprite sprite=bastion-s1-hring-q0 alpha=1.000000 tint=- seethrough=true pos=-2.380755,1.543000,0.065394 rot=0.646571,-0.231838,0.216340,0.693826 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@3 spawn #2 op=sweep1/fx2_fx_high_s1h1_ring_quarters[2] kind=sprite sprite=bastion-s1-hring-q2 alpha=1.000000 tint=- seethrough=true pos=-0.560355,1.332000,-2.310478 rot=0.646571,-0.231838,0.216340,0.693826 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@3 spawn #3 op=sweep1/fx2_fx_high_s1h1_ring_bquarters[0] kind=sprite sprite=bastion-s1-hring-bq0 alpha=1.000000 tint=- seethrough=true pos=-2.380755,1.543000,0.065394 rot=-0.218596,0.692915,0.645814,0.234539 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@3 spawn #4 op=sweep1/fx2_fx_high_s1h1_ring_bquarters[2] kind=sprite sprite=bastion-s1-hring-bq2 alpha=1.000000 tint=- seethrough=true pos=-0.560355,1.332000,-2.310478 rot=-0.218596,0.692915,0.645814,0.234539 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @3 frame sweep1/rig op=sweep1/rig pos=-0.120514,0.503255,-0.455120 rot=-0.188063,0.260962,-0.879450,0.350854
 @4 write #0 op=sweep1/rig dur=0 pos=0.261827,0.752451,-0.577325 rot=-0.361724,0.177547,-0.659485,0.634596 scale=0.937500,0.937500,0.937500 bb=FIXED
-@4 spawn #5 op=sweep1/fx2_fx_high_s1h1_ring_q1 kind=sprite sprite=bastion-s1-hring-q1 alpha=1.000000 tint=- seethrough=true pos=0.001310,1.543000,1.889208 rot=0.646571,-0.231838,0.216340,0.693826 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@4 spawn #6 op=sweep1/fx2_fx_high_s1h1_ring_bq1 kind=sprite sprite=bastion-s1-hring-bq1 alpha=1.000000 tint=- seethrough=true pos=0.001310,1.543000,1.889208 rot=-0.218596,0.692915,0.645814,0.234539 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@4 spawn #5 op=sweep1/fx2_fx_high_s1h1_ring_quarters[1] kind=sprite sprite=bastion-s1-hring-q1 alpha=1.000000 tint=- seethrough=true pos=0.001310,1.543000,1.889208 rot=0.646571,-0.231838,0.216340,0.693826 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@4 spawn #6 op=sweep1/fx2_fx_high_s1h1_ring_bquarters[1] kind=sprite sprite=bastion-s1-hring-bq1 alpha=1.000000 tint=- seethrough=true pos=0.001310,1.543000,1.889208 rot=-0.218596,0.692915,0.645814,0.234539 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @4 sound - op=sweep1/snd_5 sound=entity.player.attack.sweep cat=master vol=1 pitch=0.5 at=0.000000,0.000000,0.000000
 @4 sound - op=sweep1/snd_6 sound=item.trident.throw cat=master vol=0.7 pitch=0.6 at=0.000000,0.000000,0.000000
 @4 particle - op=sweep1/gather_a[0] type=bastion-s1-p-gather-1 at=0.323381,0.689313,-0.885111 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4870897842634507945
@@ -1265,8 +1265,8 @@ r @88 run-end tail=30 | pose
 @6 hit - op=sweep1/dash_hit[2] at=-0.962904,0.900000,1.277817 r=1.700000 shape=sphere rad=1.700000
 @6 frame sweep1/rig op=sweep1/rig pos=-1.442525,1.360366,2.118287 rot=0.483402,0.465230,0.397939,0.625721
 @7 write #0 op=sweep1/rig dur=0 pos=-0.384009,1.312475,1.576565 rot=0.614360,0.767528,0.000370,0.182926 scale=0.937500,0.937500,0.937500 bb=FIXED
-@7 spawn #9 op=sweep1/fx2_fx_high_s1h1_ring_q3 kind=sprite sprite=bastion-s1-hring-q3 alpha=1.000000 tint=- seethrough=true pos=0.858806,1.332000,0.791152 rot=0.646571,-0.231838,0.216340,0.693826 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@7 spawn #10 op=sweep1/fx2_fx_high_s1h1_ring_bq3 kind=sprite sprite=bastion-s1-hring-bq3 alpha=1.000000 tint=- seethrough=true pos=0.858806,1.332000,0.791152 rot=-0.218596,0.692915,0.645814,0.234539 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@7 spawn #9 op=sweep1/fx2_fx_high_s1h1_ring_quarters[3] kind=sprite sprite=bastion-s1-hring-q3 alpha=1.000000 tint=- seethrough=true pos=0.858806,1.332000,0.791152 rot=0.646571,-0.231838,0.216340,0.693826 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@7 spawn #10 op=sweep1/fx2_fx_high_s1h1_ring_bquarters[3] kind=sprite sprite=bastion-s1-hring-bq3 alpha=1.000000 tint=- seethrough=true pos=0.858806,1.332000,0.791152 rot=-0.218596,0.692915,0.645814,0.234539 scale=0.476094,0.476094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @7 write #7 op=sweep1/fx2_fx_high_s1h1_streak_main dur=0 pos=-3.469551,3.160000,3.145330 rot=-0.033167,-0.315566,0.099127,0.943129 scale=0.468791,0.300000,1.000000 bb=CENTER
 @7 write #8 op=sweep1/fx2_fx_high_s1h1_flash dur=0 pos=-3.577878,3.080000,3.289084 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.148407,0.148407,1.000000 bb=CENTER
 @7 sound - op=sweep1/snd_7 sound=item.mace.smash_ground_heavy cat=master vol=1 pitch=0.9 at=-0.962904,0.000000,1.277817
@@ -1593,14 +1593,14 @@ r @88 run-end tail=30 | pose
 @16 particle - op=sweep1/b1_fleck[12] type=bastion-s1-p-fleck at=0.428290,1.411063,1.444142 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4391928532180664084
 @16 particle - op=sweep1/b1_fleck[12] type=bastion-s1-p-fleck at=1.133217,1.555564,1.721201 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6978669651719760283
 @16 frame sweep1/rig op=sweep1/rig pos=-0.569340,1.206564,1.052052 rot=0.005716,-0.641468,-0.454135,0.618262
-@16 remove #1 op=sweep1/fx2_fx_high_s1h1_ring_q0
-@16 remove #2 op=sweep1/fx2_fx_high_s1h1_ring_q2
-@16 remove #3 op=sweep1/fx2_fx_high_s1h1_ring_bq0
-@16 remove #4 op=sweep1/fx2_fx_high_s1h1_ring_bq2
-@16 remove #5 op=sweep1/fx2_fx_high_s1h1_ring_q1
-@16 remove #6 op=sweep1/fx2_fx_high_s1h1_ring_bq1
-@16 remove #9 op=sweep1/fx2_fx_high_s1h1_ring_q3
-@16 remove #10 op=sweep1/fx2_fx_high_s1h1_ring_bq3
+@16 remove #1 op=sweep1/fx2_fx_high_s1h1_ring_quarters[0]
+@16 remove #5 op=sweep1/fx2_fx_high_s1h1_ring_quarters[1]
+@16 remove #2 op=sweep1/fx2_fx_high_s1h1_ring_quarters[2]
+@16 remove #9 op=sweep1/fx2_fx_high_s1h1_ring_quarters[3]
+@16 remove #3 op=sweep1/fx2_fx_high_s1h1_ring_bquarters[0]
+@16 remove #6 op=sweep1/fx2_fx_high_s1h1_ring_bquarters[1]
+@16 remove #4 op=sweep1/fx2_fx_high_s1h1_ring_bquarters[2]
+@16 remove #10 op=sweep1/fx2_fx_high_s1h1_ring_bquarters[3]
 @17 write #0 op=sweep1/rig dur=0 pos=-0.608428,0.710824,1.034808 rot=-0.405691,-0.516409,-0.105141,0.746781 scale=0.937500,0.937500,0.937500 bb=FIXED
 @17 particle - op=sweep1/wave[1]/w2[2] type=bastion-s1-p-gather-2 at=-0.338464,0.751925,0.867663 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8636452700474717923
 @17 particle - op=sweep1/wave[1]/w2[2] type=bastion-s1-p-gather-2 at=0.961885,0.949942,0.062591 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3003029298379346660
@@ -1696,7 +1696,7 @@ r @88 run-end tail=30 | pose
 @27 write #0 op=sweep1/rig dur=0 pos=-0.647925,0.650590,0.928865 rot=-0.640905,-0.397035,-0.080391,0.652028 scale=0.937500,0.937500,0.937500 bb=FIXED
 @27 frame sweep1/rig op=sweep1/rig pos=-0.647925,0.650590,0.928865 rot=-0.640905,-0.397035,-0.080391,0.652028
 @28 write #0 op=sweep1/rig dur=0 pos=-0.731855,0.694513,0.968373 rot=-0.709988,-0.046334,-0.425813,0.558976 scale=0.937500,0.937500,0.937500 bb=FIXED
-@28 spawn #11 op=sweep2/fx3_fx_low_s1h2_ring_q0 kind=sprite sprite=bastion-s1-ring-q0 alpha=1.000000 tint=- seethrough=true pos=0.439026,0.770000,1.045800 rot=-0.325717,-0.664435,-0.600450,0.303141 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@28 spawn #11 op=sweep2/fx3_fx_low_s1h2_ring_quarters[0] kind=sprite sprite=bastion-s1-ring-q0 alpha=1.000000 tint=- seethrough=true pos=0.439026,0.770000,1.045800 rot=-0.325717,-0.664435,-0.600450,0.303141 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @28 particle - op=sweep2/gather2_c type=bastion-s1-p-gather-3 at=-0.694806,0.452253,0.762352 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3597293653766233272
 @28 particle - op=sweep2/gather2_c type=bastion-s1-p-gather-3 at=-0.516304,-0.714643,-0.229993 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8903653541286974093
 @28 particle - op=sweep2/gather2_b type=bastion-s1-p-gather-2 at=-0.694806,0.452253,0.762352 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6978334533381341770
@@ -1708,7 +1708,7 @@ r @88 run-end tail=30 | pose
 @28 move - op=- invulnerable=0
 @28 frame sweep1/rig op=sweep1/rig pos=-1.253428,0.694513,1.660524 rot=-0.709988,-0.046334,-0.425813,0.558976
 @29 write #0 op=sweep1/rig dur=0 pos=-1.222840,0.702095,1.752617 rot=-0.586969,-0.084629,-0.547075,0.590774 scale=0.937500,0.937500,0.937500 bb=FIXED
-@29 spawn #12 op=sweep2/fx3_fx_low_s1h2_ring_q1 kind=sprite sprite=bastion-s1-ring-q1 alpha=1.000000 tint=- seethrough=true pos=-1.683329,0.953000,3.842321 rot=-0.325717,-0.664435,-0.600450,0.303141 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@29 spawn #12 op=sweep2/fx3_fx_low_s1h2_ring_quarters[1] kind=sprite sprite=bastion-s1-ring-q1 alpha=1.000000 tint=- seethrough=true pos=-1.683329,0.953000,3.842321 rot=-0.325717,-0.664435,-0.600450,0.303141 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @29 particle - op=sweep2/b2_trail[0] type=bastion-s1-p-trail at=-1.126746,0.492005,1.530952 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6173453578117086053
 @29 particle - op=sweep2/b2_trail[0] type=bastion-s1-p-trail at=-1.080456,0.390811,1.424183 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4820545063267337681
 @29 particle - op=sweep2/b2_trail[0] type=bastion-s1-p-trail at=-1.034166,0.289617,1.317414 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2367863368021936409
@@ -1840,7 +1840,7 @@ r @88 run-end tail=30 | pose
 @31 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=-0.3009 y=0.1 z=0.3993
 @31 frame sweep1/rig op=sweep1/rig pos=-1.885532,0.806781,2.552581 rot=-0.591434,0.754455,0.138118,0.248852
 @32 write #0 op=sweep1/rig dur=0 pos=-1.885532,0.806781,2.552581 rot=-0.591434,0.754455,0.138118,0.248852 scale=0.937500,0.937500,0.937500 bb=FIXED
-@32 spawn #22 op=sweep2/fx3_fx_low_s1h2_ring_q2 kind=sprite sprite=bastion-s1-ring-q2 alpha=1.000000 tint=- seethrough=true pos=-2.194139,0.593000,0.146751 rot=-0.325717,-0.664435,-0.600450,0.303141 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@32 spawn #22 op=sweep2/fx3_fx_low_s1h2_ring_quarters[2] kind=sprite sprite=bastion-s1-ring-q2 alpha=1.000000 tint=- seethrough=true pos=-2.194139,0.593000,0.146751 rot=-0.325717,-0.664435,-0.600450,0.303141 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @32 write #14 op=sweep2/fx3_fx_low_s1h2_line_1 dur=0 pos=-2.130198,1.200000,4.488508 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.262516,0.020000,1.000000 bb=CENTER
 @32 write #16 op=sweep2/fx3_fx_low_s1h2_streak_main dur=0 pos=-3.316069,3.546000,4.606615 rot=0.022134,-0.316532,-0.066152,0.946014 scale=0.718697,0.320000,1.000000 bb=CENTER
 @32 write #17 op=sweep2/fx3_fx_low_s1h2_line_2 dur=0 pos=-3.968195,2.100000,3.604332 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.312523,0.100000,1.000000 bb=CENTER
@@ -1894,7 +1894,7 @@ r @88 run-end tail=30 | pose
 @32 frame sweep1/rig op=sweep1/rig pos=-1.885532,0.806781,2.552581 rot=-0.591434,0.754455,0.138118,0.248852
 @32 remove #13 op=sweep2/fx3_fx_low_s1h2_floor_fill
 @33 write #0 op=sweep1/rig dur=0 pos=-1.885532,0.806781,2.552581 rot=-0.591434,0.754455,0.138118,0.248852 scale=0.937500,0.937500,0.937500 bb=FIXED
-@33 spawn #23 op=sweep2/fx3_fx_low_s1h2_ring_q3 kind=sprite sprite=bastion-s1-ring-q3 alpha=1.000000 tint=- seethrough=true pos=-3.794921,0.776000,2.251122 rot=-0.325717,-0.664435,-0.600450,0.303141 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@33 spawn #23 op=sweep2/fx3_fx_low_s1h2_ring_quarters[3] kind=sprite sprite=bastion-s1-ring-q3 alpha=1.000000 tint=- seethrough=true pos=-3.794921,0.776000,2.251122 rot=-0.325717,-0.664435,-0.600450,0.303141 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @33 write #16 op=sweep2/fx3_fx_low_s1h2_streak_main dur=1 pos=-3.316069,3.546000,4.606615 rot=0.022134,-0.316532,-0.066152,0.946014 scale=0.693705,0.275200,1.000000 bb=CENTER
 @33 write #17 op=sweep2/fx3_fx_low_s1h2_line_2 dur=0 pos=-3.968195,2.100000,3.604332 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.218711,0.020000,1.000000 bb=CENTER
 @33 write #18 op=sweep2/fx3_fx_low_s1h2_flash dur=1 pos=-3.115842,2.546000,4.507070 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.140606,0.140606,1.000000 bb=CENTER
@@ -2174,10 +2174,10 @@ r @88 run-end tail=30 | pose
 @42 particle - op=sweep2/b2_fleck[13] type=bastion-s1-p-fleck at=-1.966942,-0.272776,2.191229 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8199177026928255649
 @42 particle - op=sweep2/b2_fleck[13] type=bastion-s1-p-fleck at=-2.222857,-0.821249,2.668984 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8105726478850179362
 @42 frame sweep1/rig op=sweep1/rig pos=-1.604759,0.503427,1.515097 rot=0.986674,-0.110413,0.101223,0.063543
-@42 remove #11 op=sweep2/fx3_fx_low_s1h2_ring_q0
-@42 remove #12 op=sweep2/fx3_fx_low_s1h2_ring_q1
-@42 remove #22 op=sweep2/fx3_fx_low_s1h2_ring_q2
-@42 remove #23 op=sweep2/fx3_fx_low_s1h2_ring_q3
+@42 remove #11 op=sweep2/fx3_fx_low_s1h2_ring_quarters[0]
+@42 remove #12 op=sweep2/fx3_fx_low_s1h2_ring_quarters[1]
+@42 remove #22 op=sweep2/fx3_fx_low_s1h2_ring_quarters[2]
+@42 remove #23 op=sweep2/fx3_fx_low_s1h2_ring_quarters[3]
 @43 write #0 op=sweep1/rig dur=0 pos=-1.604759,0.503427,1.515097 rot=-0.985697,0.078195,-0.143411,0.041483 scale=0.937500,0.937500,0.937500 bb=FIXED
 @43 particle - op=sweep2/b2_trail[14] type=bastion-s1-p-trail at=-1.705948,0.233731,1.654856 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=944158011514482211
 @43 particle - op=sweep2/b2_trail[14] type=bastion-s1-p-trail at=-1.754685,0.103823,1.722171 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4187890318712591508
