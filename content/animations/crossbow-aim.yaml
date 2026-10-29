@@ -1,0 +1,28 @@
+# Shared crossbow-shot body clip (loaded crossbow held up and aimed): both arms level, support hand tucked under the stock, small recoil at release.
+# both arms level and forward (X -90), bow arm (right, the main hand) turned slightly out, string arm (left) turned in toward the bow hand.
+# The arrow leaves at skill tick 0 (gameplay ticks are balance), so the drawn pose is held from t0, the string hand snaps back at release (t1-t2), then relaxes.
+id: crossbow-aim
+length_ticks: 14
+loop: false
+lock_movement: false
+blend_in_ticks: 0
+blend_out_ticks: 3
+bones:
+  right_arm:
+    rotation:
+      - { t: 0, v: [-88, -8, 0] }
+      - { t: 1, v: [-97, -8, 0], ease: ease_out }      # recoil kick
+      - { t: 4, v: [-88, -8, 0], ease: ease_in_out }
+      - { t: 9, v: [-88, -8, 0] }
+      - { t: 14, v: [0, 0, 0], ease: ease_in_out }
+  left_arm:
+    rotation:
+      - { t: 0, v: [-85, 38, 0] }                      # support hand reaches across to the stock
+      - { t: 1, v: [-90, 38, 0], ease: ease_out }
+      - { t: 9, v: [-85, 38, 0] }
+      - { t: 14, v: [0, 0, 0], ease: ease_in_out }
+  body:
+    rotation:
+      - { t: 0, v: [0, -8, 0] }
+      - { t: 9, v: [0, -8, 0] }
+      - { t: 14, v: [0, 0, 0], ease: ease_in_out }

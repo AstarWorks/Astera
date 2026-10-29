@@ -23,7 +23,7 @@ fragments:
       - {id: fleck, op: particle, at: 0, particle: dust, anchor: spot, count: 4, offset: [0.15, 0.15, 0.15], color: "#bea064", size: 0.9}
 machine:
   start: fly
-  tail: 2
+  tail: 14
   states:
     fly:
       for: 40      # = max_lifetime_ticks (a state `for` cannot read a param yet)
@@ -31,6 +31,7 @@ machine:
       on:
         - {event: arrow.end, to: end}
       do:
+        - {id: draw, op: body, target: caster, anim: bow-draw, speed: 1.0, at: 0, for: 14, detach: true}
         - {id: snd, op: sound, at: 0, sound: "astera:weapons/sword-swing", anchor: caster, volume: 0.7, pitch: 1.3}
         - {id: fx, op: particle_def, at: 0, def: gun-muzzle-smoke, anchor: cast_fx}
         - id: arrow

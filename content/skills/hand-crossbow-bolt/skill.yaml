@@ -23,11 +23,13 @@ fragments:
       - {id: fleck, op: particle, at: 0, particle: dust, anchor: spot, count: 4, offset: [0.15, 0.15, 0.15], color: "#d2d2d2", size: 1.0}
 machine:
   start: fly
+  tail: 14
   states:
     fly:
       on:
         - {event: bolt.end, to: end}
       do:
+        - {id: draw, op: body, target: caster, anim: crossbow-aim, speed: 1.0, at: 0, for: 14, detach: true}
         - {id: snd, op: sound, at: 0, sound: "astera:weapons/gun-shot", anchor: caster, volume: 0.8, pitch: 1.5}
         - {id: fx, op: particle_def, at: 0, def: gun-muzzle-flash, anchor: cast_fx}
         - id: bolt
