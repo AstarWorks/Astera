@@ -1,4 +1,5 @@
 ## pose yaw=0 pitch=0
+@0 spawn #0 op=cast/tracer/line kind=ribbon from=0.000000,1.370000,1.200000 to=0.000000,1.420000,6.000000 thick=0.140000 color=#ffe070 alpha=1.000000 quads=[0.000000,0.050000,4.800000|0.140000,0.000000,0.000000],[0.000000,0.050000,4.800000|0.000000,0.139992,-0.001458]
 @0 sound - op=cast/snd sound=astera:weapons/shotgun-blast cat=master vol=0.6 pitch=1.4 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=shotgun-muzzle at=0.000000,1.370000,1.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6887204834791625822
 @0 particle - op=cast/fx_2 type=shotgun-cone-smoke at=0.000000,1.420000,2.400000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5546567132215837783
@@ -11,16 +12,28 @@
 @0 sound - op=cast/swing.hit/snd_hit sound=astera:weapons/gun-impact cat=master vol=1 pitch=1 at=0.000000,0.900000,5.000000
 @0 particle - op=cast/swing.hit/fx_hit type=gun-impact at=0.000000,1.200000,5.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5117151482825228156
 @0 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0 z=0.9
+@1 line #0 op=cast/tracer/line from=0.000000,1.370000,1.200000 to=0.000000,1.420000,6.000000
+@2 line #0 op=cast/tracer/line from=0.000000,1.370000,1.200000 to=0.000000,1.420000,6.000000
+@3 line #0 op=cast/tracer/line from=0.000000,1.370000,1.200000 to=0.000000,1.420000,6.000000
+@4 line #0 op=cast/tracer/line from=0.000000,1.370000,1.200000 to=0.000000,1.420000,6.000000
+@4 remove #0 op=cast/tracer/line
 ## pose yaw=37 pitch=-20
+@0 spawn #0 op=cast/tracer/line kind=ribbon from=-0.730084,1.795501,0.968854 to=-3.434293,3.484182,4.557461 thick=0.140000 color=#ffe070 alpha=1.000000 quads=[-2.704210,1.688681,3.588608|0.111809,0.000000,0.084254],[-2.704210,1.688681,3.588608|0.029640,0.131051,-0.039333]
 @0 sound - op=cast/snd sound=astera:weapons/shotgun-blast cat=master vol=0.6 pitch=1.4 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=shotgun-muzzle at=-0.730084,1.795501,0.968854 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6887204834791625822
 @0 particle - op=cast/fx_2 type=shotgun-cone-smoke at=-1.398417,2.252910,1.855762 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5546567132215837783
 @0 hit - op=cast/swing at=0.000000,1.620000,0.000000 r=8.000000 shape=sector fwd=-0.565521,0.342020,0.750472 left=0.798636,0.000000,0.601815 deg=50.000000 range=6.000000 height=2.000000
+@1 line #0 op=cast/tracer/line from=-0.730084,1.795501,0.968854 to=-3.434293,3.484182,4.557461
+@2 line #0 op=cast/tracer/line from=-0.730084,1.795501,0.968854 to=-3.434293,3.484182,4.557461
+@3 line #0 op=cast/tracer/line from=-0.730084,1.795501,0.968854 to=-3.434293,3.484182,4.557461
+@4 line #0 op=cast/tracer/line from=-0.730084,1.795501,0.968854 to=-3.434293,3.484182,4.557461
+@4 remove #0 op=cast/tracer/line
 ## gameplay-static
 g @0..1 cast-length | cast
 g @1 state-end then=end final=false | state=cast
 g @0 damage physical=25.000000 | state=cast
 g @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D1.0),%20tool%3Dnone,%20blockDamage%3D30,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | state=cast
+g @0 call skill:gun-tracer | state=cast
 g @0 state-end then=- final=true | state=end
 g.hit @0..0 handler max=2147483647 | sub=cast/swing.hit
 g.hit @0 knockback direction=live(%3D%20normalize(pos(event.victim)%20-%20pos(caster))) strength=0.900000 target=live(victim) | sub=cast/swing.hit

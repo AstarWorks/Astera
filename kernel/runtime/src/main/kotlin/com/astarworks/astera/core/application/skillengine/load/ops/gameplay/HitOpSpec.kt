@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.load.ops.gameplay
 
+import com.astarworks.astera.core.application.skillengine.compose.AnchorNames
 import com.astarworks.astera.core.application.skillengine.compose.HandlerLowering
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
@@ -218,7 +219,7 @@ public object HitOpSpec : OpSpec<HitOp> {
         val hit = Action.Hit(
             shape = shape,
             anchor = anchorInstance,
-            anchorName = ref.frame,
+            anchorName = AnchorNames.host(lc.anchors, ref.frame),
             targets = HitTargets(op.targets, op.maxCount),
             window = op.window ?: HitWindow.Once,
             ignoreInvulnerability = op.ignoreInvulnerability,

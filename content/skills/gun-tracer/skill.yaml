@@ -1,0 +1,18 @@
+# gun-tracer: the one tracer line every gun draws. The caller binds both ends (frames: {muzzle: <anchor>, tip: <anchor>}); the line is
+# a volumetric ribbon that outlives the call (detach) for 4 ticks. One instant state, so the call ends on the tick it is made.
+apiVersion: astera/v3
+kind: Skill
+id: gun-tracer
+meta: {cooldown_ticks: 0, resource_cost: 0}
+frames_in: {muzzle: anchor, tip: anchor}
+params:
+  thickness: {type: number, default: 0.1}
+  color:     {type: string, default: "#FFFFE070"}
+machine:
+  tail: 4
+  start: s
+  states:
+    s:
+      final: true
+      enter:
+        - {id: line, op: ribbon, from: muzzle, to: tip, thickness: "${thickness}", color: "${color}", for: 4, detach: true}

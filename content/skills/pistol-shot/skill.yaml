@@ -33,6 +33,7 @@ fragments:
       - {id: fx_smoke, op: particle_def, def: gun-impact-smoke, anchor: spot, when: "= ${smoke}"}
       - {id: chip, op: break_area, anchor: spot, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 12, ripple: 29, revert: 200, outside_arena: false}
 machine:
+  tail: 4
   start: fire
   states:
     fire:
@@ -53,10 +54,14 @@ machine:
           block: {mode: despawn}
           on:
             hit:
+              - {id: tracer_h, use: skill:gun-tracer, with: {thickness: 0.1}, frames: {muzzle: muzzle, tip: contact}}
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg}"}}
               - {id: fx_hit, op: use, use: "fragment:impact", frames: {spot: heart}}
             block:
+              - {id: tracer_b, use: skill:gun-tracer, with: {thickness: 0.1}, frames: {muzzle: muzzle, tip: contact}}
               - {id: fx_blk, op: use, use: "fragment:impact", with: {snd: "astera:weapons/gun-impact-block", vol: 0.6, pitch: 1.6, smoke: true}, frames: {spot: contact}}
+            expire:
+              - {id: tracer_e, use: skill:gun-tracer, with: {thickness: 0.1}, frames: {muzzle: muzzle, tip: contact}}
         # the visible round and its trail, both riding the body
         - {id: slug, op: display, kind: item, item: "minecraft:iron_nugget", context: fixed, anchor: bolt, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
         - {id: trail_crit, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.5}, count: 1, at: 0, every: 1, until: bolt.end}

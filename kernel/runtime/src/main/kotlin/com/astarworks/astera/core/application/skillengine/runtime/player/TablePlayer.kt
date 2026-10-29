@@ -846,7 +846,7 @@ public class TablePlayer(
                     if (body != null) {
                         val idx = a.instance.path.lastOrNull()?.index
                         if (body.expireTick == now) {
-                            run.pending += RuntimeEvent(EventPath(a.instance.text + ".expire"), now, idx, null, null)
+                            run.pending += RuntimeEvent(EventPath(a.instance.text + ".expire"), now, idx, expireContact(run, body, now), null)
                             body.expireTick = -1
                         }
                         run.pending += RuntimeEvent(EventPath(a.instance.text + ".end"), now, idx, null, null)
@@ -1339,8 +1339,14 @@ public class TablePlayer(
             val blocked = blockContact(run, id, rec, now)
             if (!blocked) entityContact(run, id, rec, now)
             // R16: `expire` is the end by range / `for`, just before `end`; a hit / block end (rec.ended) never expires (checked at delivery)
-            if (rec.expireTick == now) run.pending += RuntimeEvent(EventPath(id.text + ".expire"), now, id.path.lastOrNull()?.index, null, null)
+            if (rec.expireTick == now) run.pending += RuntimeEvent(EventPath(id.text + ".expire"), now, id.path.lastOrNull()?.index, expireContact(run, rec, now), null)
         }
+    }
+
+    /** `contact` of an `expire` handler: where the body is when its range / `for` runs out (the end of the flight), facing up. */
+    private fun expireContact(run: Run, rec: Rec, now: Int): ContactInfo {
+        val w = worldOf(run, rec, rec.localAt(now), null, now).pos
+        return ContactInfo(Vector3d(w.x, w.y, w.z), Vector3d(0.0, 1.0, 0.0))
     }
 
     /** `isFrozen`: the instance or any frame it rides is inside its `freeze` window. */

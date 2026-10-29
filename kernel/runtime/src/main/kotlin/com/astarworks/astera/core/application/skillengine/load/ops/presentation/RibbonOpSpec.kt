@@ -202,7 +202,8 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
         val name = sub.substringBefore('.')
         val resolved = lc.anchors.resolve(name)
             ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, name))
-        return Result.Success(resolved.instance to sub)
+        // a `frames_in` name is spelled by the caller's frame (the one shared resolver, AnchorNames.host): the callee's own name does not exist at play time
+        return Result.Success(resolved.instance to AnchorNames.host(lc.anchors, sub))
     }
 
     /**
@@ -212,7 +213,13 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
      * The instance is null for a live name; the cell is what the player reads each tick.
      */
     private fun lineEnd(text: String, k: Int, lc: LowerContext, path: String): Result<Pair<InstanceId?, String>, SkillDecodeError> {
-        anchorOf(text, k, lc, path).let { if (it is Result.Success) return Result.Success(it.value.first to "anchor:" + it.value.second) }
+        anchorOf(text, k, lc, path).let {
+            if (it is Result.Success) {
+                // a name a call bound is the caller's frame, which may be a builtin or a document anchor as well as an instance: the bare name answers all three
+                val bound = it.value.second != text.replace("[i]", "[$k]")
+                return Result.Success(it.value.first to (if (bound) it.value.second else "anchor:" + it.value.second))
+            }
+        }
         AnchorNames.removedCasterPoint(text)?.let { return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "ribbon: $it")) }
         val parts = AnchorNames.split(text) ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, text))
         val live = parts.index == null && parts.state == null && (parts.base in AnchorNames.BUILTIN_FRAMES || lc.anchors.document(parts.base) != null)
@@ -268,7 +275,7 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
                 is RibbonShape.Line -> {
                     val a = when (val r = lineEnd(s.from, k, lc, "$p.from")) { is Result.Success -> r.value; is Result.Failure -> return r }
                     val b = when (val r = lineEnd(s.to, k, lc, "$p.to")) { is Result.Success -> r.value; is Result.Failure -> return r }
-                    tipAnchor = a.first; tipName = s.from.replace("[i]", "[$k]")
+                    tipAnchor = a.first; tipName = AnchorNames.host(lc.anchors, s.from.replace("[i]", "[$k]"))
                     look["shape"] = Val.Known("line")
                     look["from"] = Val.Known(a.second)
                     look["to"] = Val.Known(b.second)

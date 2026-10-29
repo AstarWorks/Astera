@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.skillengine.runtime.player.CastHan
 import com.astarworks.astera.core.application.skillengine.runtime.player.CastTrace
 import com.astarworks.astera.core.domain.skillengine.hit.ResolvedVolume
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillItemGateway
+import com.astarworks.astera.core.application.skillengine.runtime.port.LineGeometry
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillMovementGateway
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.ExitReason
@@ -280,7 +281,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             spawned(cast, "ribbon", "ticks=$ticks width=${OracleFmt.f(widthFrac)} color=${OracleFmt.s(colorHex)} alpha=${OracleFmt.f(alpha)}")
 
         override fun spawnLine(cast: CastRef, from: Vec3, to: Vec3, thickness: Double, colorHex: String, alpha: Double) =
-            spawned(cast, "ribbon", "from=${OracleFmt.v(from)} to=${OracleFmt.v(to)} thick=${OracleFmt.f(thickness)} color=${OracleFmt.s(colorHex)} alpha=${OracleFmt.f(alpha)}")
+            spawned(cast, "ribbon", "from=${OracleFmt.v(from)} to=${OracleFmt.v(to)} thick=${OracleFmt.f(thickness)} color=${OracleFmt.s(colorHex)} alpha=${OracleFmt.f(alpha)} quads=${LineGeometry.planes(from, to, thickness, Vec3(0.0, 1.0, 0.0) + (from + to) * 0.5).joinToString(",") { "[${OracleFmt.v(it.along)}|${OracleFmt.v(it.across)}]" }}")
 
         override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) = add("line", name(handle), "", "from=${OracleFmt.v(from)} to=${OracleFmt.v(to)}")
 

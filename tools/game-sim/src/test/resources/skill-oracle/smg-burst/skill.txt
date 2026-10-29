@@ -8,6 +8,7 @@
 @1 remove #0 op=fly/slug
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
+r @5 run-end tail=4 | pose
 ## pose yaw=37 pitch=-20
 @0 spawn #0 op=fly/slug kind=item item=minecraft:iron_nugget part=- pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.400000,0.400000,0.400000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=astera:weapons/gun-shot cat=master vol=0.5 pitch=1.6 at=0.000000,0.000000,0.000000
@@ -18,12 +19,17 @@ g @1 cast-end | pose
 @1 remove #0 op=fly/slug
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
+r @5 run-end tail=4 | pose
 ## gameplay-static
 g @0..1200 cast-length | cast
 g @0..1200 state-end then=- final=false | state=fly
 g @0 state-end then=- final=true | state=end
 g.absorbed @1..30 handler max=1 | sub=fly/bolt.absorbed
 g.block @1..30 handler max=1 | sub=fly/bolt.block
+g.block @0 call skill:gun-tracer | sub=fly/bolt.block
 g.end @1..30 handler max=1 | sub=fly/bolt.end
+g.expire @30..30 handler max=1 | sub=fly/bolt.expire
+g.expire @0 call skill:gun-tracer | sub=fly/bolt.expire
 g.hit @1..30 handler max=1 | sub=fly/bolt.hit
 g.hit @0 damage physical=5.500000 | sub=fly/bolt.hit
+g.hit @0 call skill:gun-tracer | sub=fly/bolt.hit

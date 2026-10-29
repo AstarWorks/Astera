@@ -10,7 +10,7 @@
 @1 remove #0 op=fire/slug
 g @1 state-exit reason=EVENT | state=fire
 g @1 cast-end | pose
-r @3 run-end tail=2 | pose
+r @5 run-end tail=4 | pose
 ## pose yaw=37 pitch=-20
 @0 spawn #0 op=fire/slug kind=item item=minecraft:gold_nugget part=- pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fire/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=0.8 at=0.000000,0.000000,0.000000
@@ -23,13 +23,17 @@ r @3 run-end tail=2 | pose
 @1 remove #0 op=fire/slug
 g @1 state-exit reason=EVENT | state=fire
 g @1 cast-end | pose
-r @3 run-end tail=2 | pose
+r @5 run-end tail=4 | pose
 ## gameplay-static
 g @0..40 cast-length | cast
 g @40 state-end then=end final=false | state=fire
 g @0 state-end then=- final=true | state=end
 g.absorbed @1..40 handler max=1 | sub=fire/bolt.absorbed
 g.block @1..40 handler max=1 | sub=fire/bolt.block
+g.block @0 call skill:gun-tracer | sub=fire/bolt.block
 g.end @1..40 handler max=1 | sub=fire/bolt.end
+g.expire @40..40 handler max=1 | sub=fire/bolt.expire
+g.expire @0 call skill:gun-tracer | sub=fire/bolt.expire
 g.hit @1..40 handler max=1 | sub=fire/bolt.hit
 g.hit @0 damage physical=30.000000 | sub=fire/bolt.hit
+g.hit @0 call skill:gun-tracer | sub=fire/bolt.hit

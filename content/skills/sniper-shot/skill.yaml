@@ -18,6 +18,7 @@ anchors:
   - {id: flash,  anchor: caster.eye, offset: {up: -0.25, forward: 1.0}, mode: follow}
   - {id: heart,  anchor: victim.center, mode: follow}
 machine:
+  tail: 4
   start: fly
   states:
     fly:
@@ -36,12 +37,16 @@ machine:
           block: {mode: despawn}
           on:
             hit:
+              - {id: tracer_h, use: skill:gun-tracer, with: {thickness: 0.16}, frames: {muzzle: flash, tip: contact}}
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg}"}}
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-crit", anchor: contact, volume: 0.8, pitch: 1.0}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
             block:
+              - {id: tracer_b, use: skill:gun-tracer, with: {thickness: 0.16}, frames: {muzzle: flash, tip: contact}}
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
               - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact}
+            expire:
+              - {id: tracer_e, use: skill:gun-tracer, with: {thickness: 0.16}, frames: {muzzle: flash, tip: contact}}
         # the visible round, riding the body
         - {id: slug, op: display, kind: item, item: "minecraft:iron_nugget", context: fixed, anchor: bolt, scale: [0.7, 0.7, 0.7], at: 0, until: bolt.end}
         - {id: trail,   op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.01, 0.01, 0.01], at: 0, every: 1, until: bolt.end}

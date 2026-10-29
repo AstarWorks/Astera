@@ -7,6 +7,8 @@ import com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities
 import com.astarworks.astera.core.application.skillengine.load.ItemFrames
 import com.astarworks.astera.core.application.skillengine.load.MeshModel
 import com.astarworks.astera.core.application.skillengine.load.MeshModels
+import com.astarworks.astera.core.application.skillengine.runtime.port.LineGeometry
+import com.astarworks.astera.core.application.skillengine.runtime.port.LinePlane
 import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook
@@ -100,7 +102,7 @@ public class PaperSkillVisualGateway(
     private class Slab(val axes: RibbonMesh.SlabAxes, val edge: Boolean, val thickness: Double)
     private class Seg(val display: UUID, var age: Int, val style: PieceStyle?, val slab: Slab?)
     /** A thread between two points: one text-display strip that the runtime re-ends every tick. */
-    private class LineEntry(val world: World, val owner: UUID, val display: TextDisplay, val thickness: Double) : Entry
+    private class LineEntry(val world: World, val owner: UUID, val displays: List<TextDisplay>, val thickness: Double) : Entry
     /** A camera-anchored quad on one viewer's screen; re-placed in front of the eye every tick. */
     private class VeilEntry(val handle: DisplayHandle, val viewer: UUID, val distance: Double, val side: Double, val ticks: Int) : Entry
 
@@ -227,27 +229,33 @@ public class PaperSkillVisualGateway(
         val rgb = argb(colorHex) and 0xFFFFFF
         val argb = Color.fromARGB((alpha.coerceIn(0.0, 1.0) * 255.0).toInt(), rgb shr 16 and 0xFF, rgb shr 8 and 0xFF, rgb and 0xFF)
         val mid = (from + to) * 0.5
-        val display = world.spawn(Location(world, mid.x, mid.y, mid.z), TextDisplay::class.java) {
-            PaperManagedEntities.mark(it, "skill-ribbon")
-            it.billboard = Display.Billboard.FIXED
-            it.text(Component.text(" "))
-            it.backgroundColor = argb
-            it.textOpacity = 255.toByte()
-            it.brightness = Display.Brightness(15, 15)
-            it.shadowRadius = 0f
-            it.teleportDuration = 1
-            it.interpolationDuration = 1
-            it.setTransformationMatrix(lineMatrix(from, to, thickness, eyeOf(castOwner, mid)))
+        val planes = LineGeometry.planes(from, to, thickness, eyeOf(castOwner, mid))
+        val displays = planes.map { plane ->
+            world.spawn(Location(world, mid.x, mid.y, mid.z), TextDisplay::class.java) {
+                PaperManagedEntities.mark(it, "skill-ribbon")
+                it.billboard = Display.Billboard.FIXED
+                it.text(Component.text(" "))
+                it.backgroundColor = argb
+                it.textOpacity = 255.toByte()
+                it.brightness = Display.Brightness(15, 15)
+                it.shadowRadius = 0f
+                it.teleportDuration = 1
+                it.interpolationDuration = 1
+                it.setTransformationMatrix(planeMatrix(plane))
+            }
         }
-        return register(castOwner, LineEntry(world, castOwner, display, thickness))
+        return register(castOwner, LineEntry(world, castOwner, displays, thickness))
     }
 
     override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) {
         val e = entries[handle.id] as? LineEntry ?: return
         val mid = (from + to) * 0.5
-        e.display.teleportAsync(Location(e.world, mid.x, mid.y, mid.z))
-        e.display.interpolationDelay = 0
-        e.display.setTransformationMatrix(lineMatrix(from, to, e.thickness, eyeOf(e.owner, mid)))
+        val planes = LineGeometry.planes(from, to, e.thickness, eyeOf(e.owner, mid))
+        e.displays.forEachIndexed { i, d ->
+            d.teleportAsync(Location(e.world, mid.x, mid.y, mid.z))
+            d.interpolationDelay = 0
+            d.setTransformationMatrix(planeMatrix(planes[i]))
+        }
     }
 
     override fun spawnScreenVeil(cast: CastRef, viewer: UUID, sprite: String, distance: Double, scale: Double, colorHex: String?, maxScreenFraction: Double, ticks: Int): VisualHandle {
@@ -282,19 +290,9 @@ public class PaperSkillVisualGateway(
     private fun eyeOf(owner: UUID, near: Vec3): Vec3 =
         server.getPlayer(owner)?.eyeLocation?.let { Vec3(it.x, it.y, it.z) } ?: (near + Vec3(0.0, 1.0, 0.0))
 
-    /** Line transform: length along the line, [thickness] across, the face turned about the line's own axis toward [eye] (`face: {viewer: axis, axis: line.along}`). */
-    private fun lineMatrix(from: Vec3, to: Vec3, thickness: Double, eye: Vec3): Matrix4f {
-        val along = to - from
-        val length = along.length()
-        val dir = if (length < 1e-9) Vec3(1.0, 0.0, 0.0) else along * (1.0 / length)
-        val mid = (from + to) * 0.5
-        val toEye = eye - mid
-        var facing = toEye - dir * toEye.dot(dir)
-        if (facing.lengthSquared() < 1e-9) facing = Vec3(0.0, 1.0, 0.0) - dir * dir.y
-        if (facing.lengthSquared() < 1e-9) facing = Vec3(0.0, 0.0, 1.0)
-        val normal = facing.normalize()
-        val across = normal.cross(dir)
-        val m = ribbonColumns(dir * length, across * thickness, normal)
+    /** One quad of a thread as a display transform: length along [LinePlane.along], [LinePlane.across] the other edge, the face on [LinePlane.normal]. */
+    private fun planeMatrix(plane: LinePlane): Matrix4f {
+        val m = ribbonColumns(plane.along, plane.across, plane.normal)
         return Matrix4f(
             m.col0.x.toFloat(), m.col0.y.toFloat(), m.col0.z.toFloat(), 0f,
             m.col1.x.toFloat(), m.col1.y.toFloat(), m.col1.z.toFloat(), 0f,
@@ -456,7 +454,7 @@ public class PaperSkillVisualGateway(
             is PlateEntry -> displays.remove(e.handle)
             is BlockEntry -> displays.remove(e.handle)
             is TextEntry -> displays.remove(e.handle)
-            is LineEntry -> e.display.remove()
+            is LineEntry -> e.displays.forEach { it.remove() }
             is VeilEntry -> displays.remove(e.handle)
             is TrailEntry -> {
                 e.segments.forEach { server.getEntity(it.display)?.remove() }
