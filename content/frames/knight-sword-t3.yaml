@@ -1,0 +1,12 @@
+# Point table for the knight-sword-t3 (flat 16x16 handheld sprite generated/items/knight-sword, thirdperson_righthand = rotation [0,-90,55] translation [0,4,0.5] scale 0.85; frame and chain as content/frames/knight-sword.yaml).
+# Sprite centreline u axis = bottom-left to top-right: root = widest cross-section (guard) at model (5.25,5.00); tip = tip pixel centreline (15.25,15.25); long = sprite diagonal; edge = the upper-left (cutting) side, perpendicular to long in the sprite plane; grip/pivot = the hand origin.
+apiVersion: astera/v3
+kind: ItemFrames
+item: knight-sword-t3
+parts:
+  held_hand:
+    model: minecraft:item/handheld
+    display: thirdperson_righthand
+    length: 1.0708
+    points: { grip: [0.0, 0.0, 0.0], pivot: [0.0, 0.0, 0.0], root: [-0.0, 0.0389, -0.078], tip: [0.0, 0.7864, 0.0633], hand_anchor: [0.0, 0.25, -0.0312] }
+    axes: { long: [0.0, 0.9848, 0.1736], edge: [0.0, -0.1736, 0.9848] }

@@ -1,0 +1,12 @@
+# Point table for the twin-daggers (flat 16x16 handheld sprite generated/items/twin-daggers, thirdperson_righthand = rotation [0,-90,55] translation [0,4,0.5] scale 0.85; frame and chain as content/frames/knight-sword.yaml).
+# Sprite centreline u axis = bottom-left to top-right: root = widest cross-section (guard) at model (8.70,8.05); tip = tip pixel centreline (15.08,13.58); long = sprite diagonal; edge = the upper-left (cutting) side, perpendicular to long in the sprite plane; grip/pivot = the hand origin.
+apiVersion: astera/v3
+kind: ItemFrames
+item: twin-daggers
+parts:
+  held_hand:
+    model: minecraft:item/handheld
+    display: thirdperson_righthand
+    length: 0.905
+    points: { grip: [0.0, 0.0, 0.0], pivot: [0.0, 0.0, 0.0], root: [-0.0, 0.282, -0.0507], tip: [0.0, 0.7284, -0.0041], hand_anchor: [0.0, 0.25, -0.0312] }
+    axes: { long: [0.0, 0.9848, 0.1736], edge: [0.0, -0.1736, 0.9848] }

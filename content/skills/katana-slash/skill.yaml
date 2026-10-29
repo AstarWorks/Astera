@@ -1,4 +1,5 @@
-# Wave 2 v3 draft (basic-ac): ported 1:1 from the v2 skill.yaml + look.yaml. GAP comments mark what v3 cannot spell yet.
+# Wind-up W = 2 ticks (round_half_up(5 / attack_speed 2.5)): the katana is drawn to the lower right, the slash hits at tick 2, the cast ends one tick later.
+# The rig is the blade's travel (rising diagonal cut, edge leading); rig, trail and sweep are detach: true.
 apiVersion: astera/v3
 kind: Skill
 id: katana-slash
@@ -19,27 +20,54 @@ anchors:
   - {id: sweep, anchor: caster, offset: {up: -0.2, forward: 1.4}, mode: snapshot}   # was pt_caster_0_m0p2_1p4
   - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}   # v2 pt_enemy_0_1p2_0
 machine:
-  start: swing
+  start: cast
+  tail: 9
   states:
-    swing:
-      for: 1
-      then: end
-      enter:
-        - {id: snd_swing, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 1.0, pitch: 1.5}
-        - {id: fx_swing, op: particle_def, def: slash-sweep, anchor: sweep}
-        - id: swing
-          op: hit
-          anchor: eye
-          at: 0
-          shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
-          targets: enemies
-          max_count: all
-          window: once
-          ignore_invulnerability: false
-          damage: {physical: "${dmg_physical}"}
-          on:
-            hit:
-              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: "${knockback}"}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
-    end: {final: true}
+    cast:
+      start: windup
+      on:
+        - {event: end, to: done}
+      do:
+        - id: rig
+          op: rig
+          parent: caster
+          mount: caster.hand_r
+          part: held_hand
+          rest: [{axis: left, deg: 72}]
+          for: 11
+          detach: true
+          swing:
+            - {at: 0, for: 2, from: {left: 0.0, up: 0.5, forward: 0.8}, to: {left: -0.8, up: -0.4, forward: 0.4}, edge: trailing, ease: in_out_sine}
+            - {at: 2, for: 4, to: {left: 0.75, up: 0.45, forward: 0.5}, edge: leading, roll: 15, ease: out_cubic}
+            - {at: 6, for: 5, to: {left: 0.0, up: 0.6, forward: 0.8}, edge: trailing, ease: in_out_sine}
+        - {id: snd_swing, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 1.0, pitch: 1.5, at: 2, detach: true}
+        - {id: fx_swing, op: particle_def, def: slash-sweep, anchor: sweep, at: 2, detach: true}
+        - id: trail
+          op: group
+          at: 2
+          detach: true
+          do:
+            - {id: trail_fx, op: particle, particle: crit, anchor: {of: rig.root, to: rig.tip, samples: 6}, count: 1, extra: 0.04, every: 1, for: 7}
+      states:
+        windup: {for: 2, then: strike}
+        strike:
+          for: 1
+          then: recover
+          enter:
+            - id: swing
+              op: hit
+              anchor: eye
+              at: 0
+              shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
+              targets: enemies
+              max_count: all
+              window: once
+              ignore_invulnerability: false
+              damage: {physical: "${dmg_physical}"}
+              on:
+                hit:
+                  - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: "${knockback}"}
+                  - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2, detach: true}
+                  - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
+        recover: {final: true}
+    done: {final: true}
