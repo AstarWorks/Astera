@@ -4,6 +4,16 @@
 ## pose yaw=37 pitch=-20
 @0 lock - op=- pitch=true yaw=false until=40
 @40 unlock - op=-
+## pose-hit yaw=0 pitch=0
+@0 lock - op=- pitch=true yaw=false until=40
+@40 unlock - op=-
+g @40 state-exit reason=TIMER | state=hold
+g @40 cast-end | pose
+## pose-hit yaw=37 pitch=0
+@0 lock - op=- pitch=true yaw=false until=40
+@40 unlock - op=-
+g @40 state-exit reason=TIMER | state=hold
+g @40 cast-end | pose
 ## gameplay-static
 g @0..40 cast-length | cast
 g @40 state-end then=done final=false | state=hold

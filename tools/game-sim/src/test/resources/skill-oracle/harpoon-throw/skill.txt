@@ -24,6 +24,42 @@ r @3 run-end tail=2 | pose
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
 r @3 run-end tail=2 | pose
+## pose-hit yaw=0 pitch=0
+@0 spawn #0 op=fly/shaft kind=item item=trident part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.200000,1.200000,1.200000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=fly/snd sound=item.trident.throw cat=master vol=0.9 pitch=1 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/fx type=hit-spark at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1702252200989243922
+@0 particle - op=fly/trail[0]/wake type=crit count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-654225619006938773
+@0 particle - op=fly/trail[0]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5abec8 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7842918035936164170
+@1 particle - op=fly/trail[1]/wake type=crit count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4342607256281746713
+@1 particle - op=fly/trail[1]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5abec8 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=495002397679731610
+@1 hit - op=fly/bolt at=0.000000,1.620000,1.600000 r=1.600000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,2.700000 rad=0.500000
+@1 sound - op=fly/bolt.hit/hit_fx/snd sound=item.trident.hit cat=master vol=0.8 pitch=1 at=0.000000,1.200000,2.500000
+@1 particle - op=fly/bolt.hit/hit_fx/spark type=hit-spark at=0.000000,1.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3486254098799717392
+@1 particle - op=fly/bolt.hit/hit_fx/fleck type=dust count=4 at=0.000000,1.200000,2.500000 off=0.150000,0.150000,0.150000 speed=0.000000 color=#5abec8 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8394881174027094886
+@1 damage 00000000-0000-0000-0000-00000000000a op=- physical=18 skill=harpoon-throw at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@1 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0.28 z=-1.4
+@1 remove #0 op=fly/shaft
+g @1 state-exit reason=EVENT | state=fly
+g @1 cast-end | pose
+r @3 run-end tail=2 | pose
+## pose-hit yaw=37 pitch=0
+@0 spawn #0 op=fly/shaft kind=item item=trident part=- pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.200000,1.200000,1.200000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=fly/snd sound=item.trident.throw cat=master vol=0.9 pitch=1 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/fx type=hit-spark at=-0.541634,1.370000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1702252200989243922
+@0 particle - op=fly/trail[0]/wake type=crit count=1 at=-0.300908,1.620000,0.399318 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-654225619006938773
+@0 particle - op=fly/trail[0]/dust type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5abec8 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7842918035936164170
+@1 particle - op=fly/trail[1]/wake type=crit count=1 at=-0.300908,1.620000,0.399318 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4342607256281746713
+@1 particle - op=fly/trail[1]/dust type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5abec8 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=495002397679731610
+@1 hit - op=fly/bolt at=-0.962904,1.620000,1.277817 r=1.600000 shape=capsule a=-0.300908,1.620000,0.399318 b=-1.624901,1.620000,2.156316 rad=0.500000
+@1 sound - op=fly/bolt.hit/hit_fx/snd sound=item.trident.hit cat=master vol=0.8 pitch=1 at=-1.504538,1.200000,1.996589
+@1 particle - op=fly/bolt.hit/hit_fx/spark type=hit-spark at=-1.504538,1.200000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3486254098799717392
+@1 particle - op=fly/bolt.hit/hit_fx/fleck type=dust count=4 at=-1.504538,1.200000,1.996589 off=0.150000,0.150000,0.150000 speed=0.000000 color=#5abec8 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8394881174027094886
+@1 damage 00000000-0000-0000-0000-00000000000a op=- physical=18 skill=harpoon-throw at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@1 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0.8425 y=0.28 z=-1.1181
+@1 remove #0 op=fly/shaft
+g @1 state-exit reason=EVENT | state=fly
+g @1 cast-end | pose
+r @3 run-end tail=2 | pose
 ## gameplay-static
 g @0..40 cast-length | cast
 g @40 state-end then=end final=false | state=fly

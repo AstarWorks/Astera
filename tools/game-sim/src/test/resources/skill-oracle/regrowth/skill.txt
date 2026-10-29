@@ -38,6 +38,50 @@
 @6 particle - op=bloom/leaf_c type=happy_villager count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4009841010415924598
 @6 particle - op=bloom/dust_c type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#8cff78 size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1102138341692021807
 @7 remove #0 op=bloom/ring
+## pose-hit yaw=0 pitch=0
+@0 spawn #0 op=bloom/ring kind=sprite sprite=ring alpha=1.000000 tint=#8cff78 seethrough=false pos=0.000000,0.100000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.250000,1.250000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=bloom/ring dur=2 pos=0.000000,0.100000,0.000000 rot=-0.707107,0.000000,0.000000,0.707107 scale=2.271137,2.271137,2.271137 bb=FIXED
+@0 sound - op=bloom/snd sound=astera:skills/heal-chime cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
+@0 particle - op=bloom/fx type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8309024391654983124
+@0 particle - op=bloom/leaf_a type=happy_villager count=0 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6524795273568179428
+@0 particle - op=bloom/dust_a type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5ae65a size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2090229397474415681
+@0 particle - op=bloom/leaf_b type=happy_villager count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4428284988552562355
+@0 particle - op=bloom/dust_b type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#8cff78 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5762170656191435542
+@0 particle - op=bloom/hearts type=heart count=8 at=0.000000,0.100000,0.000000 off=0.800000,0.800000,0.800000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7192470057333361248
+@0 particle - op=bloom/leaves type=happy_villager count=22 at=0.000000,0.100000,0.000000 off=0.700000,1.000000,0.700000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3322273766843718737
+@0 status 00000000-0000-0000-0000-000000000001 op=- status=regen stacks=1 for=160
+@0 hit - op=bloom/cleanse at=0.000000,0.000000,0.000000 r=3.000000 shape=area
+@0 hit - op=bloom/st_regen at=0.000000,0.000000,0.000000 r=3.000000 shape=area
+@2 write #0 op=bloom/ring dur=2 pos=0.000000,0.100000,0.000000 rot=-0.707107,0.000000,0.000000,0.707107 scale=2.842566,2.842566,2.842566 bb=FIXED
+@4 write #0 op=bloom/ring dur=2 pos=0.000000,0.100000,0.000000 rot=-0.707107,0.000000,0.000000,0.707107 scale=2.994169,2.994169,2.994169 bb=FIXED
+@6 write #0 op=bloom/ring dur=1 pos=0.000000,0.100000,0.000000 rot=-0.707107,0.000000,0.000000,0.707107 scale=3.000000,3.000000,3.000000 bb=FIXED
+@6 particle - op=bloom/leaf_c type=happy_villager count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4009841010415924598
+@6 particle - op=bloom/dust_c type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#8cff78 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1102138341692021807
+@7 remove #0 op=bloom/ring
+g @7 state-exit reason=TIMER | state=bloom
+g @7 cast-end | pose
+## pose-hit yaw=37 pitch=0
+@0 spawn #0 op=bloom/ring kind=sprite sprite=ring alpha=1.000000 tint=#8cff78 seethrough=false pos=0.000000,0.100000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.250000,1.250000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=bloom/ring dur=2 pos=0.000000,0.100000,0.000000 rot=-0.670566,-0.224368,-0.224368,0.670566 scale=2.271137,2.271137,2.271137 bb=FIXED
+@0 sound - op=bloom/snd sound=astera:skills/heal-chime cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
+@0 particle - op=bloom/fx type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8309024391654983124
+@0 particle - op=bloom/leaf_a type=happy_villager count=0 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6524795273568179428
+@0 particle - op=bloom/dust_a type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5ae65a size=1.400000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2090229397474415681
+@0 particle - op=bloom/leaf_b type=happy_villager count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4428284988552562355
+@0 particle - op=bloom/dust_b type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#8cff78 size=1.200000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5762170656191435542
+@0 particle - op=bloom/hearts type=heart count=8 at=0.000000,0.100000,0.000000 off=0.800000,0.800000,0.800000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7192470057333361248
+@0 particle - op=bloom/leaves type=happy_villager count=22 at=0.000000,0.100000,0.000000 off=0.700000,1.000000,0.700000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3322273766843718737
+@0 status 00000000-0000-0000-0000-000000000001 op=- status=regen stacks=1 for=160
+@0 hit - op=bloom/cleanse at=0.000000,0.000000,0.000000 r=3.000000 shape=area
+@0 hit - op=bloom/st_regen at=0.000000,0.000000,0.000000 r=3.000000 shape=area
+@2 write #0 op=bloom/ring dur=2 pos=0.000000,0.100000,0.000000 rot=-0.670566,-0.224368,-0.224368,0.670566 scale=2.842566,2.842566,2.842566 bb=FIXED
+@4 write #0 op=bloom/ring dur=2 pos=0.000000,0.100000,0.000000 rot=-0.670566,-0.224368,-0.224368,0.670566 scale=2.994169,2.994169,2.994169 bb=FIXED
+@6 write #0 op=bloom/ring dur=1 pos=0.000000,0.100000,0.000000 rot=-0.670566,-0.224368,-0.224368,0.670566 scale=3.000000,3.000000,3.000000 bb=FIXED
+@6 particle - op=bloom/leaf_c type=happy_villager count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4009841010415924598
+@6 particle - op=bloom/dust_c type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#8cff78 size=1.200000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1102138341692021807
+@7 remove #0 op=bloom/ring
+g @7 state-exit reason=TIMER | state=bloom
+g @7 cast-end | pose
 ## gameplay-static
 g @0..7 cast-length | cast
 g @7 state-end then=end final=false | state=bloom

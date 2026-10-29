@@ -24,6 +24,50 @@ r @5 run-end tail=4 | pose
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
 r @5 run-end tail=4 | pose
+## pose-hit yaw=0 pitch=0
+@0 spawn #0 op=fly/slug kind=item item=minecraft:iron_nugget part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.700000,0.700000,0.700000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=fly/snd sound=astera:weapons/rifle-crack cat=master vol=0.9 pitch=0.8 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/puff type=gun-muzzle-flash at=-0.350000,0.970000,0.550000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=394274950370535412
+@0 particle - op=fly/trail[0] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8918132665359641944
+@0 particle - op=fly/trail_2[0] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8773436987146381010
+@1 particle - op=fly/trail[1] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4765216629532801463
+@1 particle - op=fly/trail_2[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4852566514223921507
+@1 hit - op=fly/bolt at=0.000000,1.620000,3.500000 r=3.500000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,6.500000 rad=0.500000
+@1 spawn #1 op=- kind=ribbon from=-0.350000,0.970000,0.550000 to=0.000000,1.620000,2.200000 thick=0.160000 color=#ffe070 alpha=1.000000 quads=[0.350000,0.650000,1.650000|0.156517,0.000000,-0.033201],[0.350000,0.650000,1.650000|-0.011939,0.149298,-0.056282]
+@1 sound - op=fly/bolt.hit/snd_hit sound=astera:weapons/blade-crit cat=master vol=0.8 pitch=1 at=0.000000,1.620000,2.200000
+@1 particle - op=fly/bolt.hit/fx_hit type=hit-spark at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3086570504760286198
+@1 damage 00000000-0000-0000-0000-00000000000a op=- physical=47.5 skill=sniper-shot at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@1 remove #0 op=fly/slug
+@2 line #1 op=- from=-0.350000,0.970000,0.550000 to=0.000000,1.620000,2.200000
+@3 line #1 op=- from=-0.350000,0.970000,0.550000 to=0.000000,1.620000,2.200000
+@4 line #1 op=- from=-0.350000,0.970000,0.550000 to=0.000000,1.620000,2.200000
+@5 line #1 op=- from=-0.350000,0.970000,0.550000 to=0.000000,1.620000,2.200000
+@5 remove #1 op=-
+g @1 state-exit reason=EVENT | state=fly
+g @1 cast-end | pose
+r @5 run-end tail=4 | pose
+## pose-hit yaw=37 pitch=0
+@0 spawn #0 op=fly/slug kind=item item=minecraft:iron_nugget part=- pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.700000,0.700000,0.700000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=fly/snd sound=astera:weapons/rifle-crack cat=master vol=0.9 pitch=0.8 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/puff type=gun-muzzle-flash at=-0.610521,0.970000,0.228614 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=394274950370535412
+@0 particle - op=fly/trail[0] type=end_rod count=1 at=-0.300908,1.620000,0.399318 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8918132665359641944
+@0 particle - op=fly/trail_2[0] type=crit count=1 at=-0.300908,1.620000,0.399318 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8773436987146381010
+@1 particle - op=fly/trail[1] type=end_rod count=1 at=-0.300908,1.620000,0.399318 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4765216629532801463
+@1 particle - op=fly/trail_2[1] type=crit count=1 at=-0.300908,1.620000,0.399318 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4852566514223921507
+@1 hit - op=fly/bolt at=-2.106353,1.620000,2.795224 r=3.500000 shape=capsule a=-0.300908,1.620000,0.399318 b=-3.911798,1.620000,5.191131 rad=0.500000
+@1 spawn #1 op=- kind=ribbon from=-0.610521,0.970000,0.228614 to=-1.278471,1.620000,1.696589 thick=0.160000 color=#ffe070 alpha=1.000000 quads=[-0.667951,0.650000,1.467975|0.145633,0.000000,0.066265],[-0.667951,0.650000,1.467975|0.024771,0.148401,-0.054439]
+@1 sound - op=fly/bolt.hit/snd_hit sound=astera:weapons/blade-crit cat=master vol=0.8 pitch=1 at=-1.278471,1.620000,1.696589
+@1 particle - op=fly/bolt.hit/fx_hit type=hit-spark at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3086570504760286198
+@1 damage 00000000-0000-0000-0000-00000000000a op=- physical=47.5 skill=sniper-shot at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@1 remove #0 op=fly/slug
+@2 line #1 op=- from=-0.610521,0.970000,0.228614 to=-1.278471,1.620000,1.696589
+@3 line #1 op=- from=-0.610521,0.970000,0.228614 to=-1.278471,1.620000,1.696589
+@4 line #1 op=- from=-0.610521,0.970000,0.228614 to=-1.278471,1.620000,1.696589
+@5 line #1 op=- from=-0.610521,0.970000,0.228614 to=-1.278471,1.620000,1.696589
+@5 remove #1 op=-
+g @1 state-exit reason=EVENT | state=fly
+g @1 cast-end | pose
+r @5 run-end tail=4 | pose
 ## gameplay-static
 g @0..1200 cast-length | cast
 g @0..1200 state-end then=- final=false | state=fly

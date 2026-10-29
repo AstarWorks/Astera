@@ -10,6 +10,26 @@
 @50 hit - op=armed/blast at=-1.504538,0.000000,1.996589 r=2.500000 shape=area
 @50 damage 00000000-0000-0000-0000-00000000000a op=- physical=55 skill=delay-mine-lay at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
 @50 damage 00000000-0000-0000-0000-00000000000b op=- physical=55 skill=delay-mine-lay at=-3.009075,0.000000,3.993178 ignoreinv=false ignorearmor=false
+## pose-hit yaw=0 pitch=0
+@0 sound - op=armed/click sound=block.stone_pressure_plate.click_on cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
+@0 particle - op=armed/smoke type=gun-smoke at=0.000000,0.100000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3301030241687634875
+@50 hit - op=armed/blast at=0.000000,0.000000,2.500000 r=2.500000 shape=area
+@50 damage 00000000-0000-0000-0000-00000000000a op=- physical=55 skill=delay-mine-lay at=0.000000,0.000000,2.500000 ignoreinv=false ignorearmor=false
+@50 damage 00000000-0000-0000-0000-00000000000b op=- physical=55 skill=delay-mine-lay at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
+@50 damage 00000000-0000-0000-0000-00000000000c op=- physical=55 skill=delay-mine-lay at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
+@50 damage 00000000-0000-0000-0000-00000000000d op=- physical=55 skill=delay-mine-lay at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
+g @51 state-exit reason=TIMER | state=armed
+g @51 cast-end | pose
+## pose-hit yaw=37 pitch=0
+@0 sound - op=armed/click sound=block.stone_pressure_plate.click_on cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
+@0 particle - op=armed/smoke type=gun-smoke at=-1.504538,0.100000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3301030241687634875
+@50 hit - op=armed/blast at=-1.504538,0.000000,1.996589 r=2.500000 shape=area
+@50 damage 00000000-0000-0000-0000-00000000000a op=- physical=55 skill=delay-mine-lay at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
+@50 damage 00000000-0000-0000-0000-00000000000b op=- physical=55 skill=delay-mine-lay at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
+@50 damage 00000000-0000-0000-0000-00000000000c op=- physical=55 skill=delay-mine-lay at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
+@50 damage 00000000-0000-0000-0000-00000000000d op=- physical=55 skill=delay-mine-lay at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false
+g @51 state-exit reason=TIMER | state=armed
+g @51 cast-end | pose
 ## gameplay-static
 g @0..51 cast-length | cast
 g @51 state-end then=end final=false | state=armed

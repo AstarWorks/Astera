@@ -8,6 +8,20 @@
 @0 particle - op=step/fx type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1133636082597559419
 @0 status 00000000-0000-0000-0000-000000000001 op=- status=evasive stacks=1 for=20
 @0 effect 00000000-0000-0000-0000-000000000001 op=- impulse x=0.5416 y=0 z=-0.7188
+## pose-hit yaw=0 pitch=0
+@0 sound - op=step/snd sound=astera:weapons/dash-whoosh cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
+@0 particle - op=step/fx type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1133636082597559419
+@0 status 00000000-0000-0000-0000-000000000001 op=- status=evasive stacks=1 for=20
+@0 effect 00000000-0000-0000-0000-000000000001 op=- impulse x=0 y=0 z=-0.9
+g @1 state-exit reason=TIMER | state=step
+g @1 cast-end | pose
+## pose-hit yaw=37 pitch=0
+@0 sound - op=step/snd sound=astera:weapons/dash-whoosh cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
+@0 particle - op=step/fx type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1133636082597559419
+@0 status 00000000-0000-0000-0000-000000000001 op=- status=evasive stacks=1 for=20
+@0 effect 00000000-0000-0000-0000-000000000001 op=- impulse x=0.5416 y=0 z=-0.7188
+g @1 state-exit reason=TIMER | state=step
+g @1 cast-end | pose
 ## gameplay-static
 g @0..1 cast-length | cast
 g @1 state-end then=end final=false | state=step

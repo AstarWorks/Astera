@@ -26,6 +26,92 @@ r @3 run-end tail=2 | pose
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
 r @3 run-end tail=2 | pose
+## pose-hit yaw=0 pitch=0
+@0 spawn #0 op=fly/core kind=sprite sprite=thunder-spark alpha=1.000000 tint=#fff6a0 seethrough=false pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=fly/core dur=7 pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.994522,0.104528 scale=0.625000,0.625000,1.000000 bb=CENTER
+@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/fx type=thunder-cast at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4491508605533134465
+@0 particle - op=fly/trail[0]/trail_spark type=electric_spark count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=708294296797537319
+@0 particle - op=fly/trail[0]/trail_dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5563331071791171437
+@1 particle - op=fly/trail[1]/trail_spark type=electric_spark count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4565869327389702944
+@1 particle - op=fly/trail[1]/trail_dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-118987352647596964
+@1 hit - op=fly/bolt at=0.000000,1.620000,2.100000 r=2.100000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.700000 rad=0.500000
+@1 sound - op=fly/bolt.hit/snd_hit sound=astera:skills/lightning-impact cat=master vol=0.7 pitch=1.2 at=0.000000,1.620000,2.200000
+@1 particle - op=fly/bolt.hit/fx_hit type=hit-spark at=0.000000,1.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2399310534705720609
+@1 particle - op=fly/bolt.hit/use_4/ring[0] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=1.000000,0.000000,0.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2810551800493924814
+@1 particle - op=fly/bolt.hit/use_4/ring[1] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=0.923880,0.000000,0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8791832818483516776
+@1 particle - op=fly/bolt.hit/use_4/ring[2] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=0.707107,0.000000,0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7946455309648999312
+@1 particle - op=fly/bolt.hit/use_4/ring[3] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=0.382683,0.000000,0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4678744175322302149
+@1 particle - op=fly/bolt.hit/use_4/ring[4] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=0.000000,0.000000,1.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1798211368707091905
+@1 particle - op=fly/bolt.hit/use_4/ring[5] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=-0.382683,0.000000,0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7267361544192445463
+@1 particle - op=fly/bolt.hit/use_4/ring[6] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=-0.707107,0.000000,0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4219069330723696119
+@1 particle - op=fly/bolt.hit/use_4/ring[7] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=-0.923880,0.000000,0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3857701214035222600
+@1 particle - op=fly/bolt.hit/use_4/ring[8] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=-1.000000,0.000000,0.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2831102638948603647
+@1 particle - op=fly/bolt.hit/use_4/ring[9] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=-0.923880,0.000000,-0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5287243169350744228
+@1 particle - op=fly/bolt.hit/use_4/ring[10] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=-0.707107,0.000000,-0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7565364555446112569
+@1 particle - op=fly/bolt.hit/use_4/ring[11] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=-0.382683,0.000000,-0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6007560189093791021
+@1 particle - op=fly/bolt.hit/use_4/ring[12] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=0.000000,0.000000,-1.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2047456080896000226
+@1 particle - op=fly/bolt.hit/use_4/ring[13] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=0.382683,0.000000,-0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1927916168910752268
+@1 particle - op=fly/bolt.hit/use_4/ring[14] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=0.707107,0.000000,-0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3859745937730790464
+@1 particle - op=fly/bolt.hit/use_4/ring[15] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=0.923880,0.000000,-0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5088068577456041614
+@1 particle - op=fly/bolt.hit/use_4/ring_up[0] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=0.700000,0.700000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5315786025677814377
+@1 particle - op=fly/bolt.hit/use_4/ring_up[1] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=0.494975,0.700000,0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4081181342230442745
+@1 particle - op=fly/bolt.hit/use_4/ring_up[2] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=0.000000,0.700000,0.700000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-733042427151282958
+@1 particle - op=fly/bolt.hit/use_4/ring_up[3] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=-0.494975,0.700000,0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-294293913096299398
+@1 particle - op=fly/bolt.hit/use_4/ring_up[4] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=-0.700000,0.700000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=728061919753298577
+@1 particle - op=fly/bolt.hit/use_4/ring_up[5] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=-0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3743461523316662328
+@1 particle - op=fly/bolt.hit/use_4/ring_up[6] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=0.000000,0.700000,-0.700000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1913048188561466102
+@1 particle - op=fly/bolt.hit/use_4/ring_up[7] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5429309301718090398
+@1 particle - op=fly/bolt.hit/use_4/pop type=end_rod count=4 at=0.000000,1.200000,2.500000 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2458245937563359245
+@1 damage 00000000-0000-0000-0000-00000000000a op=- electric=16 skill=shock-wand-zap at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@1 status 00000000-0000-0000-0000-00000000000a op=- status=shock stacks=1 for=30
+@1 remove #0 op=fly/core
+g @1 state-exit reason=EVENT | state=fly
+g @1 cast-end | pose
+r @3 run-end tail=2 | pose
+## pose-hit yaw=37 pitch=0
+@0 spawn #0 op=fly/core kind=sprite sprite=thunder-spark alpha=1.000000 tint=#fff6a0 seethrough=false pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=fly/core dur=7 pos=-0.300908,1.620000,0.399318 rot=-0.315566,-0.033167,0.943129,0.099127 scale=0.625000,0.625000,1.000000 bb=CENTER
+@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/fx type=thunder-cast at=-0.541634,1.370000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4491508605533134465
+@0 particle - op=fly/trail[0]/trail_spark type=electric_spark count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=708294296797537319
+@0 particle - op=fly/trail[0]/trail_dust type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5563331071791171437
+@1 particle - op=fly/trail[1]/trail_spark type=electric_spark count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4565869327389702944
+@1 particle - op=fly/trail[1]/trail_dust type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-118987352647596964
+@1 hit - op=fly/bolt at=-1.263812,1.620000,1.677135 r=2.100000 shape=capsule a=-0.300908,1.620000,0.399318 b=-2.226716,1.620000,2.954951 rad=0.500000
+@1 sound - op=fly/bolt.hit/snd_hit sound=astera:skills/lightning-impact cat=master vol=0.7 pitch=1.2 at=-1.278471,1.620000,1.696589
+@1 particle - op=fly/bolt.hit/fx_hit type=hit-spark at=-1.504538,1.200000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2399310534705720609
+@1 particle - op=fly/bolt.hit/use_4/ring[0] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=1.000000,0.000000,0.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2810551800493924814
+@1 particle - op=fly/bolt.hit/use_4/ring[1] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=0.923880,0.000000,0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8791832818483516776
+@1 particle - op=fly/bolt.hit/use_4/ring[2] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=0.707107,0.000000,0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7946455309648999312
+@1 particle - op=fly/bolt.hit/use_4/ring[3] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=0.382683,0.000000,0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4678744175322302149
+@1 particle - op=fly/bolt.hit/use_4/ring[4] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=0.000000,0.000000,1.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1798211368707091905
+@1 particle - op=fly/bolt.hit/use_4/ring[5] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=-0.382683,0.000000,0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7267361544192445463
+@1 particle - op=fly/bolt.hit/use_4/ring[6] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=-0.707107,0.000000,0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4219069330723696119
+@1 particle - op=fly/bolt.hit/use_4/ring[7] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=-0.923880,0.000000,0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3857701214035222600
+@1 particle - op=fly/bolt.hit/use_4/ring[8] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=-1.000000,0.000000,0.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2831102638948603647
+@1 particle - op=fly/bolt.hit/use_4/ring[9] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=-0.923880,0.000000,-0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5287243169350744228
+@1 particle - op=fly/bolt.hit/use_4/ring[10] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=-0.707107,0.000000,-0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7565364555446112569
+@1 particle - op=fly/bolt.hit/use_4/ring[11] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=-0.382683,0.000000,-0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6007560189093791021
+@1 particle - op=fly/bolt.hit/use_4/ring[12] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=0.000000,0.000000,-1.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2047456080896000226
+@1 particle - op=fly/bolt.hit/use_4/ring[13] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=0.382683,0.000000,-0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1927916168910752268
+@1 particle - op=fly/bolt.hit/use_4/ring[14] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=0.707107,0.000000,-0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3859745937730790464
+@1 particle - op=fly/bolt.hit/use_4/ring[15] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=0.923880,0.000000,-0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5088068577456041614
+@1 particle - op=fly/bolt.hit/use_4/ring_up[0] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=0.700000,0.700000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5315786025677814377
+@1 particle - op=fly/bolt.hit/use_4/ring_up[1] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=0.494975,0.700000,0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4081181342230442745
+@1 particle - op=fly/bolt.hit/use_4/ring_up[2] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=0.000000,0.700000,0.700000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-733042427151282958
+@1 particle - op=fly/bolt.hit/use_4/ring_up[3] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=-0.494975,0.700000,0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-294293913096299398
+@1 particle - op=fly/bolt.hit/use_4/ring_up[4] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=-0.700000,0.700000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=728061919753298577
+@1 particle - op=fly/bolt.hit/use_4/ring_up[5] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=-0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3743461523316662328
+@1 particle - op=fly/bolt.hit/use_4/ring_up[6] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=0.000000,0.700000,-0.700000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1913048188561466102
+@1 particle - op=fly/bolt.hit/use_4/ring_up[7] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5429309301718090398
+@1 particle - op=fly/bolt.hit/use_4/pop type=end_rod count=4 at=-1.504538,1.200000,1.996589 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2458245937563359245
+@1 damage 00000000-0000-0000-0000-00000000000a op=- electric=16 skill=shock-wand-zap at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@1 status 00000000-0000-0000-0000-00000000000a op=- status=shock stacks=1 for=30
+@1 remove #0 op=fly/core
+g @1 state-exit reason=EVENT | state=fly
+g @1 cast-end | pose
+r @3 run-end tail=2 | pose
 ## gameplay-static
 g @0..40 cast-length | cast
 g @40 state-end then=end final=false | state=fly

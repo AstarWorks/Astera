@@ -88,6 +88,104 @@
 @0 damage 00000000-0000-0000-0000-00000000000a op=- electric=9.6429 skill=shock-wand-arc at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
 @0 sound - op=burst/area.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=shock stacks=1 for=30
+## pose-hit yaw=0 pitch=0
+@0 sound - op=burst/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1.1 at=0.000000,0.000000,0.000000
+@0 particle - op=burst/fx_spark type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2588716033807108782
+@0 particle - op=burst/fx_dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4989165672555977430
+@0 particle - op=burst/arc[0] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=1.000000,0.000000,0.000000 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-450191549481392754
+@0 particle - op=burst/arc[1] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.965926,0.000000,0.258819 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=807509084176763026
+@0 particle - op=burst/arc[2] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.866025,0.000000,0.500000 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=547587035044490418
+@0 particle - op=burst/arc[3] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.707107,0.000000,0.707107 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6692879892290514603
+@0 particle - op=burst/arc[4] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.500000,0.000000,0.866025 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3830997485757361029
+@0 particle - op=burst/arc[5] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.258819,0.000000,0.965926 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7228584836779664339
+@0 particle - op=burst/arc[6] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,1.000000 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8966164041216748332
+@0 particle - op=burst/arc[7] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.258819,0.000000,0.965926 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8010086892205958066
+@0 particle - op=burst/arc[8] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.500000,0.000000,0.866025 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8261468249179315126
+@0 particle - op=burst/arc[9] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.707107,0.000000,0.707107 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5267519777413989299
+@0 particle - op=burst/arc[10] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.866025,0.000000,0.500000 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-417111568765161489
+@0 particle - op=burst/arc[11] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.965926,0.000000,0.258819 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2100071467942231078
+@0 particle - op=burst/arc[12] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-1.000000,0.000000,0.000000 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4274528339621060361
+@0 particle - op=burst/arc[13] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.965926,0.000000,-0.258819 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=397244560959962287
+@0 particle - op=burst/arc[14] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.866025,0.000000,-0.500000 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1263926903180382469
+@0 particle - op=burst/arc[15] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.707107,0.000000,-0.707107 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3036602862761570986
+@0 particle - op=burst/arc[16] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.500000,0.000000,-0.866025 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8696109220112794354
+@0 particle - op=burst/arc[17] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.258819,0.000000,-0.965926 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1399401064179330977
+@0 particle - op=burst/arc[18] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,-1.000000 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8271073320365988248
+@0 particle - op=burst/arc[19] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.258819,0.000000,-0.965926 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1003586753955108887
+@0 particle - op=burst/arc[20] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.500000,0.000000,-0.866025 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4123459588356453034
+@0 particle - op=burst/arc[21] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.707107,0.000000,-0.707107 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7867424960297690425
+@0 particle - op=burst/arc[22] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.866025,0.000000,-0.500000 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4826743349430322437
+@0 particle - op=burst/arc[23] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.965926,0.000000,-0.258819 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1442256646782606324
+@0 particle - op=burst/arc_hi[0] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.600000,0.800000,0.000000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6376828846945410744
+@0 particle - op=burst/arc_hi[1] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.519615,0.800000,0.300000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4724792074746870055
+@0 particle - op=burst/arc_hi[2] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.300000,0.800000,0.519615 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3051805268573430771
+@0 particle - op=burst/arc_hi[3] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.800000,0.600000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3079033165380358764
+@0 particle - op=burst/arc_hi[4] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=-0.300000,0.800000,0.519615 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5660411578933020171
+@0 particle - op=burst/arc_hi[5] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=-0.519615,0.800000,0.300000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3841615938410666694
+@0 particle - op=burst/arc_hi[6] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=-0.600000,0.800000,0.000000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8614160430554658512
+@0 particle - op=burst/arc_hi[7] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=-0.519615,0.800000,-0.300000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8509449115220638587
+@0 particle - op=burst/arc_hi[8] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=-0.300000,0.800000,-0.519615 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1705169936133800924
+@0 particle - op=burst/arc_hi[9] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.800000,-0.600000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-846488863005022290
+@0 particle - op=burst/arc_hi[10] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.300000,0.800000,-0.519615 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4713991400172607709
+@0 particle - op=burst/arc_hi[11] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.519615,0.800000,-0.300000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3934316257464580646
+@0 particle - op=burst/glow type=dust count=16 at=0.000000,0.150000,0.000000 off=1.200000,0.300000,1.200000 speed=0.000000 color=#fff6a0 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8723830341599031877
+@0 hit - op=burst/area at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
+@0 damage 00000000-0000-0000-0000-00000000000a op=- electric=9.6429 skill=shock-wand-arc at=0.000000,0.000000,2.200000 ignoreinv=false ignorearmor=false
+@0 damage 00000000-0000-0000-0000-00000000000b op=- electric=7.2738 skill=shock-wand-arc at=-1.700000,0.000000,2.700000 ignoreinv=false ignorearmor=false
+@0 sound - op=burst/area.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=0.000000,0.000000,2.200000
+@0 status 00000000-0000-0000-0000-00000000000a op=- status=shock stacks=1 for=30
+@0 sound - op=burst/area.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.700000,0.000000,2.700000
+g @1 state-exit reason=TIMER | state=burst
+g @1 cast-end | pose
+## pose-hit yaw=37 pitch=0
+@0 sound - op=burst/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1.1 at=0.000000,0.000000,0.000000
+@0 particle - op=burst/fx_spark type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2588716033807108782
+@0 particle - op=burst/fx_dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.400000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4989165672555977430
+@0 particle - op=burst/arc[0] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=1.000000,0.000000,0.000000 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-450191549481392754
+@0 particle - op=burst/arc[1] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.965926,0.000000,0.258819 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=807509084176763026
+@0 particle - op=burst/arc[2] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.866025,0.000000,0.500000 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=547587035044490418
+@0 particle - op=burst/arc[3] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.707107,0.000000,0.707107 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6692879892290514603
+@0 particle - op=burst/arc[4] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.500000,0.000000,0.866025 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3830997485757361029
+@0 particle - op=burst/arc[5] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.258819,0.000000,0.965926 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7228584836779664339
+@0 particle - op=burst/arc[6] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,1.000000 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8966164041216748332
+@0 particle - op=burst/arc[7] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.258819,0.000000,0.965926 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8010086892205958066
+@0 particle - op=burst/arc[8] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.500000,0.000000,0.866025 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8261468249179315126
+@0 particle - op=burst/arc[9] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.707107,0.000000,0.707107 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5267519777413989299
+@0 particle - op=burst/arc[10] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.866025,0.000000,0.500000 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-417111568765161489
+@0 particle - op=burst/arc[11] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.965926,0.000000,0.258819 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2100071467942231078
+@0 particle - op=burst/arc[12] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-1.000000,0.000000,0.000000 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4274528339621060361
+@0 particle - op=burst/arc[13] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.965926,0.000000,-0.258819 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=397244560959962287
+@0 particle - op=burst/arc[14] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.866025,0.000000,-0.500000 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1263926903180382469
+@0 particle - op=burst/arc[15] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.707107,0.000000,-0.707107 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3036602862761570986
+@0 particle - op=burst/arc[16] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.500000,0.000000,-0.866025 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8696109220112794354
+@0 particle - op=burst/arc[17] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=-0.258819,0.000000,-0.965926 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1399401064179330977
+@0 particle - op=burst/arc[18] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,-1.000000 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8271073320365988248
+@0 particle - op=burst/arc[19] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.258819,0.000000,-0.965926 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1003586753955108887
+@0 particle - op=burst/arc[20] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.500000,0.000000,-0.866025 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4123459588356453034
+@0 particle - op=burst/arc[21] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.707107,0.000000,-0.707107 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7867424960297690425
+@0 particle - op=burst/arc[22] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.866025,0.000000,-0.500000 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4826743349430322437
+@0 particle - op=burst/arc[23] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.965926,0.000000,-0.258819 speed=0.500000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1442256646782606324
+@0 particle - op=burst/arc_hi[0] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.600000,0.800000,0.000000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6376828846945410744
+@0 particle - op=burst/arc_hi[1] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.519615,0.800000,0.300000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4724792074746870055
+@0 particle - op=burst/arc_hi[2] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.300000,0.800000,0.519615 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3051805268573430771
+@0 particle - op=burst/arc_hi[3] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.800000,0.600000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3079033165380358764
+@0 particle - op=burst/arc_hi[4] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=-0.300000,0.800000,0.519615 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5660411578933020171
+@0 particle - op=burst/arc_hi[5] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=-0.519615,0.800000,0.300000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3841615938410666694
+@0 particle - op=burst/arc_hi[6] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=-0.600000,0.800000,0.000000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8614160430554658512
+@0 particle - op=burst/arc_hi[7] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=-0.519615,0.800000,-0.300000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8509449115220638587
+@0 particle - op=burst/arc_hi[8] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=-0.300000,0.800000,-0.519615 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1705169936133800924
+@0 particle - op=burst/arc_hi[9] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.800000,-0.600000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-846488863005022290
+@0 particle - op=burst/arc_hi[10] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.300000,0.800000,-0.519615 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4713991400172607709
+@0 particle - op=burst/arc_hi[11] type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.519615,0.800000,-0.300000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3934316257464580646
+@0 particle - op=burst/glow type=dust count=16 at=0.000000,0.150000,0.000000 off=1.200000,0.300000,1.200000 speed=0.000000 color=#fff6a0 size=1.200000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8723830341599031877
+@0 hit - op=burst/area at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
+@0 damage 00000000-0000-0000-0000-00000000000a op=- electric=9.6429 skill=shock-wand-arc at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
+@0 damage 00000000-0000-0000-0000-00000000000b op=- electric=7.2738 skill=shock-wand-arc at=-3.102716,0.000000,0.892276 ignoreinv=false ignorearmor=false
+@0 sound - op=burst/area.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589
+@0 status 00000000-0000-0000-0000-00000000000a op=- status=shock stacks=1 for=30
+@0 sound - op=burst/area.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-3.102716,0.000000,0.892276
+g @1 state-exit reason=TIMER | state=burst
+g @1 cast-end | pose
 ## gameplay-static
 g @0..1 cast-length | cast
 g @1 state-end then=end final=false | state=burst

@@ -44,6 +44,200 @@ g @1 cast-end | pose
 g @1 state-exit reason=PREEMPT | state=cast/guard/guard
 g @1 state-exit reason=EVENT | state=cast
 g @1 cast-end | pose
+## pose-hit yaw=0 pitch=0
+@0 spawn #0 op=cast/thread[0] kind=block block=black_concrete pos=-0.550000,0.100000,-1.800000 rot=0.000000,0.104528,0.000000,0.994522 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=cast/thread[1] kind=block block=black_concrete pos=-0.330000,0.100000,-1.800000 rot=0.000000,0.061049,0.000000,0.998135 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #2 op=cast/thread[2] kind=block block=black_concrete pos=-0.110000,0.100000,-1.800000 rot=0.000000,0.017452,0.000000,0.999848 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #3 op=cast/thread[3] kind=block block=black_concrete pos=0.110000,0.100000,-1.800000 rot=0.000000,-0.026177,0.000000,0.999657 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #4 op=cast/thread[4] kind=block block=black_concrete pos=0.330000,0.100000,-1.800000 rot=0.000000,-0.069756,0.000000,0.997564 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #5 op=cast/thread[5] kind=block block=black_concrete pos=0.550000,0.100000,-1.800000 rot=0.000000,-0.113203,0.000000,0.993572 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=cast/thread[0] dur=29 pos=-0.550000,0.100000,-1.800000 rot=0.000000,0.104528,0.000000,0.994522 scale=0.000000,0.000625,10.240000 bb=FIXED
+@0 write #1 op=cast/thread[1] dur=29 pos=-0.330000,0.100000,-1.800000 rot=0.000000,0.061049,0.000000,0.998135 scale=0.000000,0.000625,10.240000 bb=FIXED
+@0 write #2 op=cast/thread[2] dur=29 pos=-0.110000,0.100000,-1.800000 rot=0.000000,0.017452,0.000000,0.999848 scale=0.000000,0.000625,10.240000 bb=FIXED
+@0 write #3 op=cast/thread[3] dur=29 pos=0.110000,0.100000,-1.800000 rot=0.000000,-0.026177,0.000000,0.999657 scale=0.000000,0.000625,10.240000 bb=FIXED
+@0 write #4 op=cast/thread[4] dur=29 pos=0.330000,0.100000,-1.800000 rot=0.000000,-0.069756,0.000000,0.997564 scale=0.000000,0.000625,10.240000 bb=FIXED
+@0 write #5 op=cast/thread[5] dur=29 pos=0.550000,0.100000,-1.800000 rot=0.000000,-0.113203,0.000000,0.993572 scale=0.000000,0.000625,10.240000 bb=FIXED
+@0 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@1 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@2 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@3 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@4 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@5 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@6 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@7 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@8 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@9 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@10 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@11 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@12 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@13 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@14 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@15 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@16 spawn #6 op=cast/guard_petal[0] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #7 op=cast/guard_petal[1] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #8 op=cast/guard_petal[2] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #9 op=cast/guard_petal[3] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #10 op=cast/guard_petal[4] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #11 op=cast/guard_petal[5] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #12 op=cast/guard_petal[6] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #13 op=cast/guard_petal[7] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #14 op=cast/guard_petal[8] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #15 op=cast/guard_petal[9] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #16 op=cast/guard_ring kind=text text=◯ bg=#00000000 shadow=false seethrough=false pos=0.000000,1.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=8.500000,10.500000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 write #6 op=cast/guard_petal[0] dur=7 pos=0.241810,1.699275,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #7 op=cast/guard_petal[1] dur=7 pos=-0.292088,1.588325,0.267649 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #8 op=cast/guard_petal[2] dur=7 pos=0.041872,1.477375,-0.478599 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #9 op=cast/guard_petal[3] dur=7 pos=0.322155,1.366425,0.419841 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #10 op=cast/guard_petal[4] dur=7 pos=-0.543584,1.255475,-0.095848 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #11 op=cast/guard_petal[5] dur=7 pos=0.465526,1.144525,-0.296573 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #12 op=cast/guard_petal[6] dur=7 pos=-0.136966,1.033575,0.511166 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #13 op=cast/guard_petal[7] dur=7 pos=-0.221837,0.922625,-0.426144 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #14 op=cast/guard_petal[8] dur=7 pos=0.372279,0.811675,0.135498 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #15 op=cast/guard_petal[9] dur=7 pos=-0.223403,0.700725,0.092537 rot=0.000000,0.000000,0.000000,1.000000 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=11.955250,14.768250,1.000000 bb=CENTER
+@16 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@17 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=14.722000,18.186000,1.000000 bb=CENTER
+@17 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@18 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=16.876750,20.847750,1.000000 bb=CENTER
+@18 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@19 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=18.496000,22.848000,1.000000 bb=CENTER
+@19 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@20 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=19.656250,24.281250,1.000000 bb=CENTER
+@20 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@21 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=20.434000,25.242000,1.000000 bb=CENTER
+@21 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@22 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=20.905750,25.824750,1.000000 bb=CENTER
+@22 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@23 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=21.148000,26.124000,1.000000 bb=CENTER
+@23 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@24 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=21.237250,26.234250,1.000000 bb=CENTER
+@24 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@24 remove #6 op=cast/guard_petal[0]
+@24 remove #7 op=cast/guard_petal[1]
+@24 remove #8 op=cast/guard_petal[2]
+@24 remove #9 op=cast/guard_petal[3]
+@24 remove #10 op=cast/guard_petal[4]
+@24 remove #11 op=cast/guard_petal[5]
+@24 remove #12 op=cast/guard_petal[6]
+@24 remove #13 op=cast/guard_petal[7]
+@24 remove #14 op=cast/guard_petal[8]
+@24 remove #15 op=cast/guard_petal[9]
+@25 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=21.250000,26.250000,1.000000 bb=CENTER
+@25 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@26 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@27 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@28 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@29 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@30 remove #0 op=cast/thread[0]
+@30 remove #1 op=cast/thread[1]
+@30 remove #2 op=cast/thread[2]
+@30 remove #3 op=cast/thread[3]
+@30 remove #4 op=cast/thread[4]
+@30 remove #5 op=cast/thread[5]
+@30 remove #16 op=cast/guard_ring
+g @30 state-exit reason=TIMER | state=cast/guard/guard
+g @31 state-exit reason=TIMER | state=cast/guard/whiff
+g @31 state-exit reason=TIMER | state=cast/guard/end
+g @31 state-exit reason=PREEMPT | state=cast/done
+g @31 state-exit reason=EVENT | state=cast
+g @31 cast-end | pose
+## pose-hit yaw=37 pitch=0
+@0 spawn #0 op=cast/thread[0] kind=block block=black_concrete pos=0.644018,0.100000,-1.768542 rot=0.000000,-0.216440,0.000000,0.976296 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=cast/thread[1] kind=block block=black_concrete pos=0.819717,0.100000,-1.636143 rot=0.000000,-0.258819,0.000000,0.965926 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #2 op=cast/thread[2] kind=block block=black_concrete pos=0.995417,0.100000,-1.503744 rot=0.000000,-0.300706,0.000000,0.953717 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #3 op=cast/thread[3] kind=block block=black_concrete pos=1.171117,0.100000,-1.371344 rot=0.000000,-0.342020,0.000000,0.939693 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #4 op=cast/thread[4] kind=block block=black_concrete pos=1.346817,0.100000,-1.238945 rot=0.000000,-0.382683,0.000000,0.923880 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #5 op=cast/thread[5] kind=block block=black_concrete pos=1.522517,0.100000,-1.106546 rot=0.000000,-0.422618,0.000000,0.906308 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=cast/thread[0] dur=29 pos=0.644018,0.100000,-1.768542 rot=0.000000,-0.216440,0.000000,0.976296 scale=0.000000,0.000625,10.240000 bb=FIXED
+@0 write #1 op=cast/thread[1] dur=29 pos=0.819717,0.100000,-1.636143 rot=0.000000,-0.258819,0.000000,0.965926 scale=0.000000,0.000625,10.240000 bb=FIXED
+@0 write #2 op=cast/thread[2] dur=29 pos=0.995417,0.100000,-1.503744 rot=0.000000,-0.300706,0.000000,0.953717 scale=0.000000,0.000625,10.240000 bb=FIXED
+@0 write #3 op=cast/thread[3] dur=29 pos=1.171117,0.100000,-1.371344 rot=0.000000,-0.342020,0.000000,0.939693 scale=0.000000,0.000625,10.240000 bb=FIXED
+@0 write #4 op=cast/thread[4] dur=29 pos=1.346817,0.100000,-1.238945 rot=0.000000,-0.382683,0.000000,0.923880 scale=0.000000,0.000625,10.240000 bb=FIXED
+@0 write #5 op=cast/thread[5] dur=29 pos=1.522517,0.100000,-1.106546 rot=0.000000,-0.422618,0.000000,0.906308 scale=0.000000,0.000625,10.240000 bb=FIXED
+@0 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@1 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@2 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@3 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@4 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@5 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@6 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@7 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@8 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@9 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@10 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@11 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@12 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@13 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@14 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@15 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@16 spawn #6 op=cast/guard_petal[0] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #7 op=cast/guard_petal[1] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #8 op=cast/guard_petal[2] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #9 op=cast/guard_petal[3] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #10 op=cast/guard_petal[4] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #11 op=cast/guard_petal[5] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #12 op=cast/guard_petal[6] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #13 op=cast/guard_petal[7] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #14 op=cast/guard_petal[8] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #15 op=cast/guard_petal[9] kind=text text=%20 bg=#FFF4EE shadow=false seethrough=false pos=0.000000,1.200000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 spawn #16 op=cast/guard_ring kind=text text=◯ bg=#00000000 shadow=false seethrough=false pos=0.000000,1.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=8.500000,10.500000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@16 write #6 op=cast/guard_petal[0] dur=7 pos=0.193118,1.699275,0.145525 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #7 op=cast/guard_petal[1] dur=7 pos=-0.394347,1.588325,0.037971 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #8 op=cast/guard_petal[2] dur=7 pos=0.321469,1.477375,-0.357027 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #9 op=cast/guard_petal[3] dur=7 pos=0.004618,1.366425,0.529178 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #10 op=cast/guard_petal[4] dur=7 pos=-0.376442,1.255475,-0.403685 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #11 op=cast/guard_petal[5] dur=7 pos=0.550268,1.144525,0.043307 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #12 op=cast/guard_petal[6] dur=7 pos=-0.417014,1.033575,0.325807 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #13 op=cast/guard_petal[7] dur=7 pos=0.079293,0.922625,-0.473839 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #14 op=cast/guard_petal[8] dur=7 pos=0.215770,0.811675,0.332257 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #15 op=cast/guard_petal[9] dur=7 pos=-0.234108,0.700725,-0.060544 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.120000,0.560000,1.000000 bb=CENTER
+@16 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=11.955250,14.768250,1.000000 bb=CENTER
+@16 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@17 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=14.722000,18.186000,1.000000 bb=CENTER
+@17 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@18 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=16.876750,20.847750,1.000000 bb=CENTER
+@18 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@19 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=18.496000,22.848000,1.000000 bb=CENTER
+@19 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@20 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=19.656250,24.281250,1.000000 bb=CENTER
+@20 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@21 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=20.434000,25.242000,1.000000 bb=CENTER
+@21 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@22 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=20.905750,25.824750,1.000000 bb=CENTER
+@22 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@23 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=21.148000,26.124000,1.000000 bb=CENTER
+@23 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@24 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=21.237250,26.234250,1.000000 bb=CENTER
+@24 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@24 remove #6 op=cast/guard_petal[0]
+@24 remove #7 op=cast/guard_petal[1]
+@24 remove #8 op=cast/guard_petal[2]
+@24 remove #9 op=cast/guard_petal[3]
+@24 remove #10 op=cast/guard_petal[4]
+@24 remove #11 op=cast/guard_petal[5]
+@24 remove #12 op=cast/guard_petal[6]
+@24 remove #13 op=cast/guard_petal[7]
+@24 remove #14 op=cast/guard_petal[8]
+@24 remove #15 op=cast/guard_petal[9]
+@25 write #16 op=cast/guard_ring dur=1 pos=0.000000,1.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=21.250000,26.250000,1.000000 bb=CENTER
+@25 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@26 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@27 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@28 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@29 frame cast/guard_at op=cast/guard_at pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@30 remove #0 op=cast/thread[0]
+@30 remove #1 op=cast/thread[1]
+@30 remove #2 op=cast/thread[2]
+@30 remove #3 op=cast/thread[3]
+@30 remove #4 op=cast/thread[4]
+@30 remove #5 op=cast/thread[5]
+@30 remove #16 op=cast/guard_ring
+g @30 state-exit reason=TIMER | state=cast/guard/guard
+g @31 state-exit reason=TIMER | state=cast/guard/whiff
+g @31 state-exit reason=TIMER | state=cast/guard/end
+g @31 state-exit reason=PREEMPT | state=cast/done
+g @31 state-exit reason=EVENT | state=cast
+g @31 cast-end | pose
 ## gameplay-static
 g @0..46 cast-length | cast
 g @46 state-end then=end final=false | state=cast

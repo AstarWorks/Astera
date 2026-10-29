@@ -109,6 +109,14 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
     /** The two caster poses every skill is recorded at: (yaw, pitch) in degrees. */
     private val poses = listOf(0.0 to 0.0, 37.0 to -20.0)
 
+    /**
+     * The hit poses (`## pose-hit`): the caster looks level and no event is injected, so the first hit query finds a victim and every `on.hit` handler runs
+     * from a real hit (a hit that ends the cast ends it at the tick the engine decides, drain rows included). Four dummies stand at (forward, right) metres:
+     * the first inside a bolt's reach, three more within 4.5 blocks of each other so a chain skill hops 3 times (chain-lightning).
+     */
+    private val hitPoses = listOf(0.0, 37.0)
+    private val hitLayout = listOf(2.5 to 0.0, 3.0 to 2.0, 4.5 to 3.0, 5.5 to 4.5)
+
     /** Golden file of a skill: its file path under content/skills (a patched variant: `<id>.patched` beside the files). */
     private fun goldenFile(key: String): Path = goldenDir.resolve(key.replace(" (patched)", ".patched") + ".txt")
 
@@ -148,49 +156,58 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
     private fun recordSkill(skill: CompiledSkill): List<String> {
         val out = ArrayList<String>()
         // a callee-only skill (frames_in) is not castable on its own: its golden is the static section; its rows play inside the callers' goldens
-        for ((yaw, pitch) in if (skill.def.framesIn.isNotEmpty()) emptyList() else poses) {
-            val rec = GatewayRecorder()
-            rec.faithfulPose = true
-            val rad = Math.toRadians(yaw)
-            val fwd = Vec3(-Math.sin(rad), 0.0, Math.cos(rad))
-            // two dummies ahead of the caster along its heading, so hit volumes that reach forward end in damage rows
-            rec.victims = listOf(2.5, 5.0).mapIndexed { i, d ->
-                val feet = Vec3(fwd.x * d, 0.0, fwd.z * d)
-                HitCandidate(UUID(0L, 10L + i), feet, yaw, HitBox(Vec3(feet.x - 0.3, 0.0, feet.z - 0.3), Vec3(feet.x + 0.3, 1.8, feet.z + 0.3)), 1.62)
-            }
-            val contact = ContactInfo(Vector3d(fwd.x * 4.0, 0.0, fwd.z * 4.0), Vector3d(0.0, 1.0, 0.0))
-            val events = scriptedEvents(skill).map { RuntimeEvent(it.path, it.tick, it.index, contact, it.victim) }
-            expectedCalls(skill, events)
-            val names = instanceNames
-            // a crash or fault is part of the record (with the dummies in reach a hit can raise cells that only exist on the hit); fixing it shows as a golden diff
-            val ended = try {
-                play(skill, 7L, events, null, rec, yaw, pitch)
-                null
-            } catch (e: Exception) {
-                (e.message ?: e.toString()).replace(Regex("\\s+"), "_")
-            }
-            out += "## pose yaw=${yaw.toInt()} pitch=${pitch.toInt()}"
-            if (ended != null) out += "!! play-ended-early msg=${ended.take(400)}"
-            for (c in rec.oracleRows) {
-                val op = c.op ?: names[c.instance] ?: "-"
-                out += listOf("@${c.tick}", c.verb, c.instance, "op=$op", c.payload, c.detail).filter { it.isNotEmpty() }.joinToString(" ")
-            }
-            // the cast's schedule as it ran: every state exit and the tick the cast ended (see OracleGameplay)
-            var castEnd = -1
-            for (t in rec.trace) if (t.startsWith("exit:")) {
-                val tick = t.substringAfterLast('@').toInt()
-                val (state, reason) = t.removePrefix("exit:").substringBeforeLast('@').let { it.substringBeforeLast(':') to it.substringAfterLast(':') }
-                out += "g @$tick state-exit reason=$reason | state=$state"
-                castEnd = maxOf(castEnd, tick)
-            }
-            // rev4.14 rule D: gameplay rows the handlers still hold at the cast end play on; the line says how many and until when
-            val drain = rec.trace.firstOrNull { it.startsWith("drain:") }?.let { t -> t.removePrefix("drain:").substringBeforeLast('@').split(':').let { it[0] to it[1].toInt() } }
-            if (castEnd >= 0) out += "g @$castEnd cast-end" + (drain?.let { " drain=${it.first} until=${it.second}" } ?: "") + " | pose"
-            // the run outlives the cast by machine.tail ticks (detach: true visuals), counted from the last drained row; not a gameplay line: the cast end above does not move
-            if (castEnd >= 0 && skill.table.bounds.tail > 0) out += "r @${maxOf(castEnd, drain?.second ?: 0) + skill.table.bounds.tail} run-end tail=${skill.table.bounds.tail} | pose"
+        if (skill.def.framesIn.isEmpty()) {
+            for ((yaw, pitch) in poses) out += recordPose(skill, yaw, pitch, "pose", hit = false)
+            for (yaw in hitPoses) out += recordPose(skill, yaw, 0.0, "pose-hit", hit = true)
         }
         out += "## gameplay-static"
         out += OracleGameplay.lines(skill)
+        return out
+    }
+
+    /** One pose of [skill]: [hit] false = the injected-event pose with two dummies ahead; true = no injected event, [hitLayout] dummies. */
+    private fun recordPose(skill: CompiledSkill, yaw: Double, pitch: Double, header: String, hit: Boolean): List<String> {
+        val out = ArrayList<String>()
+        val rec = GatewayRecorder()
+        rec.faithfulPose = true
+        val rad = Math.toRadians(yaw)
+        val fwd = Vec3(-Math.sin(rad), 0.0, Math.cos(rad))
+        // two dummies ahead of the caster along its heading, so hit volumes that reach forward end in damage rows
+        val spots = if (hit) hitLayout.map { (d, r) -> Vec3(fwd.x * d - fwd.z * r, 0.0, fwd.z * d + fwd.x * r) } else listOf(2.5, 5.0).map { d -> Vec3(fwd.x * d, 0.0, fwd.z * d) }
+        rec.victims = spots.mapIndexed { i, feet ->
+            HitCandidate(UUID(0L, 10L + i), feet, yaw, HitBox(Vec3(feet.x - 0.3, 0.0, feet.z - 0.3), Vec3(feet.x + 0.3, 1.8, feet.z + 0.3)), 1.62)
+        }
+        val contact = ContactInfo(Vector3d(fwd.x * 4.0, 0.0, fwd.z * 4.0), Vector3d(0.0, 1.0, 0.0))
+        val events = (if (hit) emptyList() else scriptedEvents(skill)).map { RuntimeEvent(it.path, it.tick, it.index, contact, it.victim) }
+        expectedCalls(skill, events)
+        val names = instanceNames
+        // a crash or fault is part of the record (with the dummies in reach a hit can raise cells that only exist on the hit); fixing it shows as a golden diff
+        val ended = try {
+            play(skill, 7L, events, null, rec, yaw, pitch)
+            null
+        } catch (e: Exception) {
+            (e.message ?: e.toString()).replace(Regex("\\s+"), "_")
+        }
+        out += "## $header yaw=${yaw.toInt()} pitch=${pitch.toInt()}"
+        if (ended != null) out += "!! play-ended-early msg=${ended.take(400)}"
+        for (c in rec.oracleRows) {
+            val op = c.op ?: names[c.instance] ?: "-"
+            out += listOf("@${c.tick}", c.verb, c.instance, "op=$op", c.payload, c.detail).filter { it.isNotEmpty() }.joinToString(" ")
+        }
+        // the cast's schedule as it ran: every state exit and the tick the cast ended (see OracleGameplay)
+        var castEnd = -1
+        for (t in rec.trace) if (t.startsWith("exit:")) {
+            val tick = t.substringAfterLast('@').toInt()
+            val (state, reason) = t.removePrefix("exit:").substringBeforeLast('@').let { it.substringBeforeLast(':') to it.substringAfterLast(':') }
+            out += "g @$tick state-exit reason=$reason | state=$state"
+            castEnd = maxOf(castEnd, tick)
+        }
+        // rev4.14 rule D: gameplay rows the handlers still hold at the cast end play on; the line says how many and until when
+        val drain = rec.trace.firstOrNull { it.startsWith("drain:") }?.let { t -> t.removePrefix("drain:").substringBeforeLast('@').split(':').let { it[0] to it[1].toInt() } }
+        if (castEnd >= 0) out += "g @$castEnd cast-end" + (drain?.let { " drain=${it.first} until=${it.second}" } ?: "") + " | pose"
+        // the run outlives the cast by machine.tail ticks (detach: true visuals), counted from the last drained row; not a gameplay line: the cast end above does not move
+        if (castEnd >= 0 && skill.table.bounds.tail > 0) out += "r @${maxOf(castEnd, drain?.second ?: 0) + skill.table.bounds.tail} run-end tail=${skill.table.bounds.tail} | pose"
+
         return out
     }
 

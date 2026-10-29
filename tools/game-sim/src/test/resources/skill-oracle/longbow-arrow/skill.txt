@@ -28,6 +28,44 @@ r @15 run-end tail=14 | pose
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
 r @15 run-end tail=14 | pose
+## pose-hit yaw=0 pitch=0
+@0 spawn #0 op=fly/shaft kind=item item=arrow part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=fly/snd sound=astera:weapons/sword-swing cat=master vol=0.8 pitch=0.9 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/fx type=gun-muzzle-smoke at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4137928540084312348
+@0 particle - op=fly/trail[0]/wake type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4798800060003474318
+@0 particle - op=fly/trail[0]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8aa6e size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4640387132274887230
+@0 effect 00000000-0000-0000-0000-000000000001 op=- body=bow-draw speed=1
+@1 particle - op=fly/trail[1]/wake type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8217551437484640204
+@1 particle - op=fly/trail[1]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8aa6e size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6126476763503148013
+@1 hit - op=fly/bolt at=0.000000,1.620000,2.200000 r=2.200000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.900000 rad=0.500000
+@1 sound - op=fly/bolt.hit/hit_fx/snd sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1.2 at=0.000000,1.200000,2.500000
+@1 particle - op=fly/bolt.hit/hit_fx/spark type=hit-spark at=0.000000,1.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3486254098799717392
+@1 particle - op=fly/bolt.hit/hit_fx/fleck type=dust count=4 at=0.000000,1.200000,2.500000 off=0.150000,0.150000,0.150000 speed=0.000000 color=#c8aa6e size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6580856832202758177
+@1 damage 00000000-0000-0000-0000-00000000000a op=- physical=24 skill=longbow-arrow at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@1 remove #0 op=fly/shaft
+@14 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=bow-draw
+g @1 state-exit reason=EVENT | state=fly
+g @1 cast-end | pose
+r @15 run-end tail=14 | pose
+## pose-hit yaw=37 pitch=0
+@0 spawn #0 op=fly/shaft kind=item item=arrow part=- pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=fly/snd sound=astera:weapons/sword-swing cat=master vol=0.8 pitch=0.9 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/fx type=gun-muzzle-smoke at=-0.541634,1.370000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4137928540084312348
+@0 particle - op=fly/trail[0]/wake type=crit count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4798800060003474318
+@0 particle - op=fly/trail[0]/dust type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8aa6e size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4640387132274887230
+@0 effect 00000000-0000-0000-0000-000000000001 op=- body=bow-draw speed=1
+@1 particle - op=fly/trail[1]/wake type=crit count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8217551437484640204
+@1 particle - op=fly/trail[1]/dust type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8aa6e size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6126476763503148013
+@1 hit - op=fly/bolt at=-1.323993,1.620000,1.756998 r=2.200000 shape=capsule a=-0.300908,1.620000,0.399318 b=-2.347079,1.620000,3.114678 rad=0.500000
+@1 sound - op=fly/bolt.hit/hit_fx/snd sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1.2 at=-1.504538,1.200000,1.996589
+@1 particle - op=fly/bolt.hit/hit_fx/spark type=hit-spark at=-1.504538,1.200000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3486254098799717392
+@1 particle - op=fly/bolt.hit/hit_fx/fleck type=dust count=4 at=-1.504538,1.200000,1.996589 off=0.150000,0.150000,0.150000 speed=0.000000 color=#c8aa6e size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6580856832202758177
+@1 damage 00000000-0000-0000-0000-00000000000a op=- physical=24 skill=longbow-arrow at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@1 remove #0 op=fly/shaft
+@14 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=bow-draw
+g @1 state-exit reason=EVENT | state=fly
+g @1 cast-end | pose
+r @15 run-end tail=14 | pose
 ## gameplay-static
 g @0..1200 cast-length | cast
 g @0..1200 state-end then=- final=false | state=fly

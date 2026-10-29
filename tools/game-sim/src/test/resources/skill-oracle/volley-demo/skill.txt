@@ -500,6 +500,516 @@ g @40 cast-end | pose
 @36 remove #6 op=cast/fin[2]
 g @40 state-exit reason=TIMER | state=cast
 g @40 cast-end | pose
+## pose-hit yaw=0 pitch=0
+@0 sound - op=cast/charge_chime sound=block.amethyst_block.chime cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
+@1 spawn #0 op=cast/volley[0]/core kind=item item=fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@1 write #0 op=cast/volley[0]/core dur=1 pos=0.000000,2.020000,0.600000 rot=0.000000,0.000000,0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
+@1 particle - op=cast/charge_spark type=hit-spark at=0.000000,1.620000,0.600000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1923973142911614861
+@1 particle - op=cast/volley[0]/trail[0] type=flame count=3 at=0.000000,1.620000,0.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8667216650699535687
+@1 sound - op=cast/volley[0]/whoosh sound=entity.blaze.shoot cat=master vol=0.8 pitch=1 at=0.000000,1.620000,0.600000
+@2 write #0 op=cast/volley[0]/core dur=1 pos=0.000000,2.300000,0.600000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.600000,0.600000,0.600000 bb=FIXED
+@2 particle - op=cast/volley[0]/trail[1] type=flame count=3 at=0.000000,1.620000,0.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1206620928002371443
+@2 particle - op=cast/volley[0]/sparkle[0]/wisp type=end_rod count=2 at=0.000000,1.620000,0.600000 off=0.150000,0.150000,0.150000 speed=0.069784 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4141027391317873762
+@2 hit - op=cast/volley[0]/ball at=0.000000,1.620000,1.100000 r=0.900000 shape=capsule a=0.000000,1.620000,0.600000 b=0.000000,1.620000,1.600000 rad=0.400000
+@3 write #0 op=cast/volley[0]/core dur=1 pos=0.000000,2.496000,1.600000 rot=0.000000,0.000000,0.707107,0.707107 scale=0.600000,0.600000,0.600000 bb=FIXED
+@3 particle - op=cast/volley[0]/trail[2] type=flame count=3 at=0.000000,1.620000,1.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5892039177609723342
+@3 hit - op=cast/volley[0]/ball at=0.000000,1.620000,2.100000 r=0.900000 shape=capsule a=0.000000,1.620000,1.600000 b=0.000000,1.620000,2.600000 rad=0.400000
+@3 sound - op=cast/volley[0]/ball.hit/use_0/crack sound=entity.generic.explode cat=master vol=0.6 pitch=1.3 at=0.000000,1.620000,2.200000
+@3 particle - op=cast/volley[0]/ball.hit/use_0/embers[0] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.041711 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7713979118873695570
+@3 hit - op=cast/volley[0]/ball.hit/use_0/dmg at=0.000000,1.620000,2.200000 r=2.500000 shape=area
+@3 damage 00000000-0000-0000-0000-00000000000a op=- fire=12 skill=volley-demo at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@3 damage 00000000-0000-0000-0000-00000000000b op=- fire=12 skill=volley-demo at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@3 damage 00000000-0000-0000-0000-00000000000c op=- fire=12 skill=volley-demo at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@3 damage 00000000-0000-0000-0000-00000000000d op=- fire=12 skill=volley-demo at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@4 write #0 op=cast/volley[0]/core dur=1 pos=0.000000,2.633200,2.600000 rot=0.000000,0.000000,0.866025,0.500000 scale=0.600000,0.600000,0.600000 bb=FIXED
+@4 particle - op=cast/volley[0]/trail[3] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8679321888913112156
+@5 write #0 op=cast/volley[0]/core dur=1 pos=0.000000,2.729240,2.600000 rot=0.000000,0.000000,0.965926,0.258819 scale=0.600000,0.600000,0.600000 bb=FIXED
+@5 particle - op=cast/volley[0]/trail[4] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8318142599431100352
+@5 particle - op=cast/volley[0]/sparkle[1]/wisp type=end_rod count=3 at=0.000000,1.620000,0.600000 off=0.150000,0.250000,0.150000 speed=0.041014 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8321382911658087873
+@5 particle - op=cast/volley[0]/ball.hit/use_0/embers[1] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.022680 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8642899042744109351
+@6 spawn #1 op=cast/volley[1]/core kind=item item=fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@6 write #0 op=cast/volley[0]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
+@6 write #1 op=cast/volley[1]/core dur=1 pos=0.000000,2.020000,0.600000 rot=0.000000,0.000000,0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
+@6 particle - op=cast/volley[0]/trail[5] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7878267149786681097
+@6 particle - op=cast/volley[1]/trail[0] type=flame count=3 at=0.000000,1.620000,0.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=502402220747031254
+@6 sound - op=cast/volley[1]/whoosh sound=entity.blaze.shoot cat=master vol=0.8 pitch=1.1 at=0.000000,1.620000,0.600000
+@7 write #0 op=cast/volley[0]/core dur=4 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,-0.500000,0.866025 scale=0.600000,0.600000,0.600000 bb=FIXED
+@7 write #1 op=cast/volley[1]/core dur=1 pos=0.000000,2.300000,0.600000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.600000,0.600000,0.600000 bb=FIXED
+@7 particle - op=cast/volley[0]/trail[6] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4268438706201983825
+@7 particle - op=cast/volley[1]/trail[1] type=flame count=3 at=0.000000,1.620000,0.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7462967269756514165
+@7 particle - op=cast/volley[1]/sparkle[0]/wisp type=end_rod count=3 at=0.000000,1.620000,0.600000 off=0.150000,0.150000,0.150000 speed=0.042543 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6409239607880698600
+@7 particle - op=cast/volley[0]/ball.hit/use_0/embers[2] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.033594 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7716069042441583270
+@7 hit - op=cast/volley[1]/ball at=0.000000,1.620000,1.100000 r=0.900000 shape=capsule a=0.000000,1.620000,0.600000 b=0.000000,1.620000,1.600000 rad=0.400000
+@8 write #1 op=cast/volley[1]/core dur=1 pos=0.000000,2.496000,1.600000 rot=0.000000,0.000000,0.707107,0.707107 scale=0.600000,0.600000,0.600000 bb=FIXED
+@8 particle - op=cast/volley[0]/trail[7] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7322012784313276325
+@8 particle - op=cast/volley[0]/sparkle[2]/wisp type=end_rod count=4 at=0.000000,1.620000,0.600000 off=0.150000,0.350000,0.150000 speed=0.042639 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=40339252875421227
+@8 particle - op=cast/volley[1]/trail[2] type=flame count=3 at=0.000000,1.620000,1.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6244192766448397565
+@8 hit - op=cast/volley[1]/ball at=0.000000,1.620000,2.100000 r=0.900000 shape=capsule a=0.000000,1.620000,1.600000 b=0.000000,1.620000,2.600000 rad=0.400000
+@8 sound - op=cast/volley[1]/ball.hit/use_0/crack sound=entity.generic.explode cat=master vol=0.6 pitch=1.3 at=0.000000,1.620000,2.200000
+@8 particle - op=cast/volley[1]/ball.hit/use_0/embers[0] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.037773 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9162991734748046407
+@8 hit - op=cast/volley[1]/ball.hit/use_0/dmg at=0.000000,1.620000,2.200000 r=2.500000 shape=area
+@8 damage 00000000-0000-0000-0000-00000000000a op=- fire=12 skill=volley-demo at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@8 damage 00000000-0000-0000-0000-00000000000b op=- fire=12 skill=volley-demo at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@8 damage 00000000-0000-0000-0000-00000000000c op=- fire=12 skill=volley-demo at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@8 damage 00000000-0000-0000-0000-00000000000d op=- fire=12 skill=volley-demo at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@9 write #1 op=cast/volley[1]/core dur=1 pos=0.000000,2.633200,2.600000 rot=0.000000,0.000000,0.866025,0.500000 scale=0.600000,0.600000,0.600000 bb=FIXED
+@9 particle - op=cast/volley[0]/trail[8] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5257532584773776874
+@9 particle - op=cast/volley[1]/trail[3] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=732637588239576177
+@9 particle - op=cast/volley[0]/ball.hit/use_0/embers[3] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.045508 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8476091796922414071
+@10 write #1 op=cast/volley[1]/core dur=1 pos=0.000000,2.729240,2.600000 rot=0.000000,0.000000,0.965926,0.258819 scale=0.600000,0.600000,0.600000 bb=FIXED
+@10 particle - op=cast/volley[0]/trail[9] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5382505322979549577
+@10 particle - op=cast/volley[1]/trail[4] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3708722050757303761
+@10 particle - op=cast/volley[1]/sparkle[1]/wisp type=end_rod count=4 at=0.000000,1.620000,0.600000 off=0.150000,0.250000,0.150000 speed=0.066951 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1528570405124832526
+@10 particle - op=cast/volley[1]/ball.hit/use_0/embers[1] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.032288 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4382037230619080182
+@11 spawn #2 op=cast/volley[2]/core kind=item item=fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@11 write #0 op=cast/volley[0]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,-0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
+@11 write #1 op=cast/volley[1]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
+@11 write #2 op=cast/volley[2]/core dur=1 pos=0.000000,2.020000,0.600000 rot=0.000000,0.000000,0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
+@11 particle - op=cast/volley[0]/trail[10] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5310894802754986095
+@11 particle - op=cast/volley[1]/trail[5] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2719906431880530317
+@11 particle - op=cast/volley[2]/trail[0] type=flame count=3 at=0.000000,1.620000,0.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-385784066918409594
+@11 sound - op=cast/volley[2]/whoosh sound=entity.blaze.shoot cat=master vol=0.8 pitch=1.2 at=0.000000,1.620000,0.600000
+@12 write #0 op=cast/volley[0]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
+@12 write #1 op=cast/volley[1]/core dur=4 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,-0.500000,0.866025 scale=0.600000,0.600000,0.600000 bb=FIXED
+@12 write #2 op=cast/volley[2]/core dur=1 pos=0.000000,2.300000,0.600000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.600000,0.600000,0.600000 bb=FIXED
+@12 particle - op=cast/volley[0]/trail[11] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5124011046498319565
+@12 particle - op=cast/volley[1]/trail[6] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6624058839594913110
+@12 particle - op=cast/volley[2]/trail[1] type=flame count=3 at=0.000000,1.620000,0.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-969706954171942106
+@12 particle - op=cast/volley[2]/sparkle[0]/wisp type=end_rod count=4 at=0.000000,1.620000,0.600000 off=0.150000,0.150000,0.150000 speed=0.066509 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7127014851836379574
+@12 particle - op=cast/volley[1]/ball.hit/use_0/embers[2] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.041110 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8935582081099170652
+@12 hit - op=cast/volley[2]/ball at=0.000000,1.620000,1.100000 r=0.900000 shape=capsule a=0.000000,1.620000,0.600000 b=0.000000,1.620000,1.600000 rad=0.400000
+@13 write #2 op=cast/volley[2]/core dur=1 pos=0.000000,2.496000,1.600000 rot=0.000000,0.000000,0.707107,0.707107 scale=0.600000,0.600000,0.600000 bb=FIXED
+@13 particle - op=cast/volley[1]/trail[7] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2824152795057814097
+@13 particle - op=cast/volley[1]/sparkle[2]/wisp type=end_rod count=5 at=0.000000,1.620000,0.600000 off=0.150000,0.350000,0.150000 speed=0.040553 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8030883833688087560
+@13 particle - op=cast/volley[2]/trail[2] type=flame count=3 at=0.000000,1.620000,1.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7934815848084308390
+@13 hit - op=cast/volley[2]/ball at=0.000000,1.620000,2.100000 r=0.900000 shape=capsule a=0.000000,1.620000,1.600000 b=0.000000,1.620000,2.600000 rad=0.400000
+@13 sound - op=cast/volley[2]/ball.hit/use_0/crack sound=entity.generic.explode cat=master vol=0.6 pitch=1.3 at=0.000000,1.620000,2.200000
+@13 particle - op=cast/volley[2]/ball.hit/use_0/embers[0] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.026753 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6122442441535804629
+@13 hit - op=cast/volley[2]/ball.hit/use_0/dmg at=0.000000,1.620000,2.200000 r=2.500000 shape=area
+@13 damage 00000000-0000-0000-0000-00000000000a op=- fire=12 skill=volley-demo at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@13 damage 00000000-0000-0000-0000-00000000000b op=- fire=12 skill=volley-demo at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@13 damage 00000000-0000-0000-0000-00000000000c op=- fire=12 skill=volley-demo at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@13 damage 00000000-0000-0000-0000-00000000000d op=- fire=12 skill=volley-demo at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@14 write #2 op=cast/volley[2]/core dur=1 pos=0.000000,2.633200,2.600000 rot=0.000000,0.000000,0.866025,0.500000 scale=0.600000,0.600000,0.600000 bb=FIXED
+@14 particle - op=cast/volley[1]/trail[8] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6427817166157906621
+@14 particle - op=cast/volley[2]/trail[3] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3745684364593361703
+@14 particle - op=cast/volley[1]/ball.hit/use_0/embers[3] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.028747 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3625305117805126828
+@15 write #2 op=cast/volley[2]/core dur=1 pos=0.000000,2.729240,2.600000 rot=0.000000,0.000000,0.965926,0.258819 scale=0.600000,0.600000,0.600000 bb=FIXED
+@15 particle - op=cast/volley[1]/trail[9] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5983193502912395040
+@15 particle - op=cast/volley[2]/trail[4] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3352554030345234104
+@15 particle - op=cast/volley[2]/sparkle[1]/wisp type=end_rod count=5 at=0.000000,1.620000,0.600000 off=0.150000,0.250000,0.150000 speed=0.045327 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1617094259205348312
+@15 particle - op=cast/volley[2]/ball.hit/use_0/embers[1] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.040530 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8229906039182244291
+@16 spawn #3 op=cast/volley[3]/core kind=item item=fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@16 write #1 op=cast/volley[1]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,-0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
+@16 write #2 op=cast/volley[2]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
+@16 write #3 op=cast/volley[3]/core dur=1 pos=0.000000,2.020000,0.600000 rot=0.000000,0.000000,0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
+@16 particle - op=cast/volley[1]/trail[10] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7228213106661809009
+@16 particle - op=cast/volley[2]/trail[5] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4143423423663207817
+@16 particle - op=cast/volley[3]/trail[0] type=flame count=3 at=0.000000,1.620000,0.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7669038082597001435
+@16 sound - op=cast/volley[3]/whoosh sound=entity.blaze.shoot cat=master vol=0.8 pitch=1.3 at=0.000000,1.620000,0.600000
+@17 write #1 op=cast/volley[1]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
+@17 write #2 op=cast/volley[2]/core dur=4 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,-0.500000,0.866025 scale=0.600000,0.600000,0.600000 bb=FIXED
+@17 write #3 op=cast/volley[3]/core dur=1 pos=0.000000,2.300000,0.600000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.600000,0.600000,0.600000 bb=FIXED
+@17 particle - op=cast/volley[1]/trail[11] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2343671236915719396
+@17 particle - op=cast/volley[2]/trail[6] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8905224057592591810
+@17 particle - op=cast/volley[3]/trail[1] type=flame count=3 at=0.000000,1.620000,0.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1314489957339326847
+@17 particle - op=cast/volley[3]/sparkle[0]/wisp type=end_rod count=5 at=0.000000,1.620000,0.600000 off=0.150000,0.150000,0.150000 speed=0.038423 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3172591884575801748
+@17 particle - op=cast/volley[2]/ball.hit/use_0/embers[2] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.049550 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2552145022089252758
+@17 hit - op=cast/volley[3]/ball at=0.000000,1.620000,1.100000 r=0.900000 shape=capsule a=0.000000,1.620000,0.600000 b=0.000000,1.620000,1.600000 rad=0.400000
+@18 write #3 op=cast/volley[3]/core dur=1 pos=0.000000,2.496000,1.600000 rot=0.000000,0.000000,0.707107,0.707107 scale=0.600000,0.600000,0.600000 bb=FIXED
+@18 particle - op=cast/volley[2]/trail[7] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9150738683704669302
+@18 particle - op=cast/volley[2]/sparkle[2]/wisp type=end_rod count=6 at=0.000000,1.620000,0.600000 off=0.150000,0.350000,0.150000 speed=0.042906 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1194428396520775395
+@18 particle - op=cast/volley[3]/trail[2] type=flame count=3 at=0.000000,1.620000,1.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3912320612892688141
+@18 hit - op=cast/volley[3]/ball at=0.000000,1.620000,2.100000 r=0.900000 shape=capsule a=0.000000,1.620000,1.600000 b=0.000000,1.620000,2.600000 rad=0.400000
+@18 sound - op=cast/volley[3]/ball.hit/use_0/crack sound=entity.generic.explode cat=master vol=0.6 pitch=1.3 at=0.000000,1.620000,2.200000
+@18 particle - op=cast/volley[3]/ball.hit/use_0/embers[0] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.038909 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-302760434496132800
+@18 hit - op=cast/volley[3]/ball.hit/use_0/dmg at=0.000000,1.620000,2.200000 r=2.500000 shape=area
+@18 damage 00000000-0000-0000-0000-00000000000a op=- fire=12 skill=volley-demo at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@18 damage 00000000-0000-0000-0000-00000000000b op=- fire=12 skill=volley-demo at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@18 damage 00000000-0000-0000-0000-00000000000c op=- fire=12 skill=volley-demo at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@18 damage 00000000-0000-0000-0000-00000000000d op=- fire=12 skill=volley-demo at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@19 write #3 op=cast/volley[3]/core dur=1 pos=0.000000,2.633200,2.600000 rot=0.000000,0.000000,0.866025,0.500000 scale=0.600000,0.600000,0.600000 bb=FIXED
+@19 particle - op=cast/volley[2]/trail[8] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1937159158244443560
+@19 particle - op=cast/volley[3]/trail[3] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5930381243206461628
+@19 particle - op=cast/volley[2]/ball.hit/use_0/embers[3] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.035887 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5823371849463500641
+@20 spawn #4 op=cast/fin[0] kind=block block=gray_concrete pos=0.000000,1.100000,1.250000 rot=0.000000,-0.216440,0.000000,0.976296 scale=0.060000,0.060000,0.900000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@20 spawn #5 op=cast/fin[1] kind=block block=iron_block pos=0.000000,1.100000,1.250000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,0.900000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@20 spawn #6 op=cast/fin[2] kind=block block=black_concrete pos=0.000000,1.100000,1.250000 rot=0.000000,0.216440,0.000000,0.976296 scale=0.060000,0.060000,0.900000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@20 write #3 op=cast/volley[3]/core dur=1 pos=0.000000,2.729240,2.600000 rot=0.000000,0.000000,0.965926,0.258819 scale=0.600000,0.600000,0.600000 bb=FIXED
+@20 write #4 op=cast/fin[0] dur=3 pos=0.000000,1.100000,1.250000 rot=0.000000,-0.038562,0.000000,0.999256 scale=0.060000,0.060000,0.900000 bb=FIXED
+@20 write #5 op=cast/fin[1] dur=1 pos=0.000000,1.100000,1.250000 rot=0.000000,0.139173,0.000000,0.990268 scale=0.060000,0.060000,0.900000 bb=FIXED
+@20 write #6 op=cast/fin[2] dur=1 pos=0.000000,1.100000,1.250000 rot=0.000000,0.414693,0.000000,0.909961 scale=0.060000,0.060000,0.900000 bb=FIXED
+@20 particle - op=cast/volley[2]/trail[9] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4209325009748586590
+@20 particle - op=cast/volley[3]/trail[4] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8100428703728122951
+@20 particle - op=cast/volley[3]/sparkle[1]/wisp type=end_rod count=6 at=0.000000,1.620000,0.600000 off=0.150000,0.250000,0.150000 speed=0.043064 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1570045199938487509
+@20 particle - op=cast/petal[0] type=end_rod count=0 at=0.000000,1.620000,0.600000 off=1.000000,0.000000,0.000000 speed=0.080000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7644047307981425731
+@20 particle - op=cast/petal[1] type=end_rod count=0 at=0.000000,1.620000,0.600000 off=0.500000,0.866025,0.000000 speed=0.080000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2165278777377368913
+@20 particle - op=cast/petal[2] type=end_rod count=0 at=0.000000,1.620000,0.600000 off=-0.500000,0.866025,0.000000 speed=0.080000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6773669138844870166
+@20 particle - op=cast/petal[3] type=end_rod count=0 at=0.000000,1.620000,0.600000 off=-1.000000,0.000000,0.000000 speed=0.080000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2154318547730428108
+@20 particle - op=cast/petal[4] type=end_rod count=0 at=0.000000,1.620000,0.600000 off=-0.500000,-0.866025,0.000000 speed=0.080000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8433475592154555295
+@20 particle - op=cast/petal[5] type=end_rod count=0 at=0.000000,1.620000,0.600000 off=0.500000,-0.866025,0.000000 speed=0.080000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8483048356235812651
+@20 particle - op=cast/volley[3]/ball.hit/use_0/embers[1] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.039346 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8472618637197205477
+@20 frame cast/fan[0] op=cast/fan[0] pos=0.000000,1.100000,0.800000 rot=0.000000,-0.216440,0.000000,0.976296
+@20 frame cast/fan[1] op=cast/fan[1] pos=0.000000,1.100000,0.800000 rot=0.000000,0.000000,0.000000,1.000000
+@20 frame cast/fan[2] op=cast/fan[2] pos=0.000000,1.100000,0.800000 rot=0.000000,0.216440,0.000000,0.976296
+@21 write #2 op=cast/volley[2]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,-0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
+@21 write #3 op=cast/volley[3]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
+@21 write #5 op=cast/fin[1] dur=1 pos=0.000000,1.100000,1.250000 rot=0.000000,0.255446,0.000000,0.966823 scale=0.060000,0.060000,0.900000 bb=FIXED
+@21 write #6 op=cast/fin[2] dur=1 pos=0.000000,1.100000,1.250000 rot=0.000000,0.569280,0.000000,0.822144 scale=0.060000,0.060000,0.900000 bb=FIXED
+@21 particle - op=cast/volley[2]/trail[10] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5682826322490185592
+@21 particle - op=cast/volley[3]/trail[5] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2152108935169372966
+@21 frame cast/fan[0] op=cast/fan[0] pos=0.000000,1.100000,0.800000 rot=0.000000,-0.157641,0.000000,0.987496
+@21 frame cast/fan[1] op=cast/fan[1] pos=0.000000,1.100000,0.800000 rot=0.000000,0.139173,0.000000,0.990268
+@21 frame cast/fan[2] op=cast/fan[2] pos=0.000000,1.100000,0.800000 rot=0.000000,0.414693,0.000000,0.909961
+@21 remove #0 op=cast/volley[0]/core
+@22 write #2 op=cast/volley[2]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
+@22 write #3 op=cast/volley[3]/core dur=4 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,-0.500000,0.866025 scale=0.600000,0.600000,0.600000 bb=FIXED
+@22 write #5 op=cast/fin[1] dur=1 pos=0.000000,1.100000,1.250000 rot=0.000000,0.351515,0.000000,0.936182 scale=0.060000,0.060000,0.900000 bb=FIXED
+@22 write #6 op=cast/fin[2] dur=1 pos=0.000000,1.100000,1.250000 rot=0.000000,0.686707,0.000000,0.726934 scale=0.060000,0.060000,0.900000 bb=FIXED
+@22 particle - op=cast/volley[2]/trail[11] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1403190943022210393
+@22 particle - op=cast/volley[3]/trail[6] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2746270121500140798
+@22 sound - op=cast/ratchet[0] sound=block.note_block.hat cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
+@22 particle - op=cast/volley[3]/ball.hit/use_0/embers[2] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.047769 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5862281227046853521
+@22 frame cast/fan[0] op=cast/fan[0] pos=0.000000,1.100000,0.800000 rot=0.000000,-0.098278,0.000000,0.995159
+@22 frame cast/fan[1] op=cast/fan[1] pos=0.000000,1.100000,0.800000 rot=0.000000,0.255446,0.000000,0.966823
+@22 frame cast/fan[2] op=cast/fan[2] pos=0.000000,1.100000,0.800000 rot=0.000000,0.569280,0.000000,0.822144
+@23 particle - op=cast/volley[3]/trail[7] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4078096221749150082
+@23 particle - op=cast/volley[3]/sparkle[2]/wisp type=end_rod count=7 at=0.000000,1.620000,0.600000 off=0.150000,0.350000,0.150000 speed=0.052135 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8661710743701806639
+@23 frame cast/fan[0] op=cast/fan[0] pos=0.000000,1.100000,0.800000 rot=0.000000,-0.038562,0.000000,0.999256
+@23 frame cast/fan[1] op=cast/fan[1] pos=0.000000,1.100000,0.800000 rot=0.000000,0.351515,0.000000,0.936182
+@23 frame cast/fan[2] op=cast/fan[2] pos=0.000000,1.100000,0.800000 rot=0.000000,0.686707,0.000000,0.726934
+@24 write #4 op=cast/fin[0] dur=1 pos=0.000000,1.100000,1.250000 rot=-0.069561,-0.536827,-0.313769,0.780081 scale=1.000000,1.000000,1.000000 bb=FIXED
+@24 write #5 op=cast/fin[1] dur=1 pos=0.000000,1.100000,1.250000 rot=0.000000,0.574372,0.286441,0.766843 scale=1.000000,1.000000,1.000000 bb=FIXED
+@24 write #6 op=cast/fin[2] dur=1 pos=0.000000,1.100000,1.250000 rot=-0.055909,0.889778,0.252188,0.376259 scale=1.000000,1.000000,1.000000 bb=FIXED
+@24 particle - op=cast/volley[3]/trail[8] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1029255705177790223
+@24 particle - op=cast/volley[3]/ball.hit/use_0/embers[3] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.029162 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4002540573596343270
+@24 frame cast/fan[0] op=cast/fan[0] pos=0.000000,1.100000,0.800000 rot=0.000000,-0.038562,0.000000,0.999256
+@24 frame cast/fan[1] op=cast/fan[1] pos=0.000000,1.100000,0.800000 rot=0.000000,0.351515,0.000000,0.936182
+@24 frame cast/fan[2] op=cast/fan[2] pos=0.000000,1.100000,0.800000 rot=0.000000,0.686707,0.000000,0.726934
+@25 write #4 op=cast/fin[0] dur=1 pos=0.000000,1.100000,1.250000 rot=-0.115779,-0.683157,-0.522246,0.497142 scale=1.000000,1.000000,1.000000 bb=FIXED
+@25 write #5 op=cast/fin[1] dur=1 pos=0.000000,1.100000,1.250000 rot=0.000000,0.689364,0.488518,0.534909 scale=1.000000,1.000000,1.000000 bb=FIXED
+@25 write #6 op=cast/fin[2] dur=1 pos=0.000000,1.100000,1.250000 rot=-0.097546,0.871188,0.440001,0.194719 scale=1.000000,1.000000,1.000000 bb=FIXED
+@25 particle - op=cast/volley[3]/trail[9] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1040247771335511095
+@25 frame cast/fan[0] op=cast/fan[0] pos=0.000000,1.100000,0.800000 rot=0.000000,-0.038562,0.000000,0.999256
+@25 frame cast/fan[1] op=cast/fan[1] pos=0.000000,1.100000,0.800000 rot=0.000000,0.351515,0.000000,0.936182
+@25 frame cast/fan[2] op=cast/fan[2] pos=0.000000,1.100000,0.800000 rot=0.000000,0.686707,0.000000,0.726934
+@26 write #3 op=cast/volley[3]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,-0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
+@26 write #4 op=cast/fin[0] dur=1 pos=0.000000,1.100000,1.250000 rot=-0.140221,-0.728102,-0.632495,0.223954 scale=1.000000,1.000000,1.000000 bb=FIXED
+@26 write #5 op=cast/fin[1] dur=1 pos=0.000000,1.100000,1.250000 rot=0.000000,0.727757,0.610194,0.313102 scale=1.000000,1.000000,1.000000 bb=FIXED
+@26 write #6 op=cast/fin[2] dur=1 pos=0.000000,1.100000,1.250000 rot=-0.125323,0.814158,0.565297,0.043359 scale=1.000000,1.000000,1.000000 bb=FIXED
+@26 particle - op=cast/volley[3]/trail[10] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4620274181882029883
+@26 frame cast/fan[0] op=cast/fan[0] pos=0.000000,1.100000,0.800000 rot=0.000000,-0.038562,0.000000,0.999256
+@26 frame cast/fan[1] op=cast/fan[1] pos=0.000000,1.100000,0.800000 rot=0.000000,0.351515,0.000000,0.936182
+@26 frame cast/fan[2] op=cast/fan[2] pos=0.000000,1.100000,0.800000 rot=0.000000,0.686707,0.000000,0.726934
+@26 remove #1 op=cast/volley[1]/core
+@27 write #3 op=cast/volley[3]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
+@27 write #4 op=cast/fin[0] dur=1 pos=0.000000,1.100000,1.250000 rot=-0.150088,-0.720356,-0.677004,0.015043 scale=1.000000,1.000000,1.000000 bb=FIXED
+@27 write #5 op=cast/fin[1] dur=1 pos=0.000000,1.100000,1.250000 rot=0.000000,0.726029,0.673010,0.141206 scale=1.000000,1.000000,1.000000 bb=FIXED
+@27 write #6 op=cast/fin[2] dur=1 pos=0.000000,1.100000,1.250000 rot=0.141954,-0.751970,-0.640311,0.066269 scale=1.000000,1.000000,1.000000 bb=FIXED
+@27 particle - op=cast/volley[3]/trail[11] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=431631038262830204
+@27 frame cast/fan[0] op=cast/fan[0] pos=0.000000,1.100000,0.800000 rot=0.000000,-0.038562,0.000000,0.999256
+@27 frame cast/fan[1] op=cast/fan[1] pos=0.000000,1.100000,0.800000 rot=0.000000,0.351515,0.000000,0.936182
+@27 frame cast/fan[2] op=cast/fan[2] pos=0.000000,1.100000,0.800000 rot=0.000000,0.686707,0.000000,0.726934
+@28 write #4 op=cast/fin[0] dur=1 pos=0.000000,1.100000,1.250000 rot=0.152726,0.699792,0.688904,0.111253 scale=1.000000,1.000000,1.000000 bb=FIXED
+@28 write #5 op=cast/fin[1] dur=1 pos=0.000000,1.100000,1.250000 rot=0.000000,0.713282,0.699982,0.035420 scale=1.000000,1.000000,1.000000 bb=FIXED
+@28 write #6 op=cast/fin[2] dur=1 pos=0.000000,1.100000,1.250000 rot=0.150467,-0.706691,-0.678715,0.131505 scale=1.000000,1.000000,1.000000 bb=FIXED
+@28 sound - op=cast/ratchet[1] sound=block.note_block.hat cat=master vol=0.5 pitch=1.05 at=0.000000,0.000000,0.000000
+@28 frame cast/fan[0] op=cast/fan[0] pos=0.000000,1.100000,0.800000 rot=0.000000,-0.038562,0.000000,0.999256
+@28 frame cast/fan[1] op=cast/fan[1] pos=0.000000,1.100000,0.800000 rot=0.000000,0.351515,0.000000,0.936182
+@28 frame cast/fan[2] op=cast/fan[2] pos=0.000000,1.100000,0.800000 rot=0.000000,0.686707,0.000000,0.726934
+@29 write #4 op=cast/fin[0] dur=1 pos=0.000000,1.100000,1.250000 rot=0.153046,0.690346,0.690346,0.153046 scale=1.000000,1.000000,1.000000 bb=FIXED
+@29 write #5 op=cast/fin[1] dur=1 pos=0.000000,1.100000,1.250000 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
+@29 write #6 op=cast/fin[2] dur=1 pos=0.000000,1.100000,1.250000 rot=0.153046,-0.690346,-0.690346,0.153046 scale=1.000000,1.000000,1.000000 bb=FIXED
+@29 frame cast/fan[0] op=cast/fan[0] pos=0.000000,1.100000,0.800000 rot=0.000000,-0.038562,0.000000,0.999256
+@29 frame cast/fan[1] op=cast/fan[1] pos=0.000000,1.100000,0.800000 rot=0.000000,0.351515,0.000000,0.936182
+@29 frame cast/fan[2] op=cast/fan[2] pos=0.000000,1.100000,0.800000 rot=0.000000,0.686707,0.000000,0.726934
+@30 frame cast/fan[0] op=cast/fan[0] pos=0.000000,1.100000,0.800000 rot=0.000000,-0.038562,0.000000,0.999256
+@30 frame cast/fan[1] op=cast/fan[1] pos=0.000000,1.100000,0.800000 rot=0.000000,0.351515,0.000000,0.936182
+@30 frame cast/fan[2] op=cast/fan[2] pos=0.000000,1.100000,0.800000 rot=0.000000,0.686707,0.000000,0.726934
+@31 frame cast/fan[0] op=cast/fan[0] pos=0.000000,1.100000,0.800000 rot=0.000000,-0.038562,0.000000,0.999256
+@31 frame cast/fan[1] op=cast/fan[1] pos=0.000000,1.100000,0.800000 rot=0.000000,0.351515,0.000000,0.936182
+@31 frame cast/fan[2] op=cast/fan[2] pos=0.000000,1.100000,0.800000 rot=0.000000,0.686707,0.000000,0.726934
+@31 remove #2 op=cast/volley[2]/core
+@32 frame cast/fan[0] op=cast/fan[0] pos=0.000000,1.100000,0.800000 rot=0.000000,-0.038562,0.000000,0.999256
+@32 frame cast/fan[1] op=cast/fan[1] pos=0.000000,1.100000,0.800000 rot=0.000000,0.351515,0.000000,0.936182
+@32 frame cast/fan[2] op=cast/fan[2] pos=0.000000,1.100000,0.800000 rot=0.000000,0.686707,0.000000,0.726934
+@33 write #4 op=cast/fin[0] dur=3 pos=0.000000,1.100000,1.250000 rot=0.153046,0.690346,0.690346,0.153046 scale=0.000000,0.000000,0.000000 bb=FIXED
+@33 write #5 op=cast/fin[1] dur=3 pos=0.000000,1.100000,1.250000 rot=0.000000,0.707107,0.707107,0.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
+@33 write #6 op=cast/fin[2] dur=3 pos=0.000000,1.100000,1.250000 rot=0.153046,-0.690346,-0.690346,0.153046 scale=0.000000,0.000000,0.000000 bb=FIXED
+@33 sound - op=cast/ratchet[2] sound=block.note_block.hat cat=master vol=0.5 pitch=1.1 at=0.000000,0.000000,0.000000
+@33 frame cast/fan[0] op=cast/fan[0] pos=0.000000,1.100000,0.800000 rot=0.000000,-0.038562,0.000000,0.999256
+@33 frame cast/fan[1] op=cast/fan[1] pos=0.000000,1.100000,0.800000 rot=0.000000,0.351515,0.000000,0.936182
+@33 frame cast/fan[2] op=cast/fan[2] pos=0.000000,1.100000,0.800000 rot=0.000000,0.686707,0.000000,0.726934
+@34 frame cast/fan[0] op=cast/fan[0] pos=0.000000,1.100000,0.800000 rot=0.000000,-0.038562,0.000000,0.999256
+@34 frame cast/fan[1] op=cast/fan[1] pos=0.000000,1.100000,0.800000 rot=0.000000,0.351515,0.000000,0.936182
+@34 frame cast/fan[2] op=cast/fan[2] pos=0.000000,1.100000,0.800000 rot=0.000000,0.686707,0.000000,0.726934
+@35 frame cast/fan[0] op=cast/fan[0] pos=0.000000,1.100000,0.800000 rot=0.000000,-0.038562,0.000000,0.999256
+@35 frame cast/fan[1] op=cast/fan[1] pos=0.000000,1.100000,0.800000 rot=0.000000,0.351515,0.000000,0.936182
+@35 frame cast/fan[2] op=cast/fan[2] pos=0.000000,1.100000,0.800000 rot=0.000000,0.686707,0.000000,0.726934
+@36 frame cast/fan[0] op=cast/fan[0] pos=0.000000,1.100000,0.800000 rot=0.000000,-0.038562,0.000000,0.999256
+@36 frame cast/fan[1] op=cast/fan[1] pos=0.000000,1.100000,0.800000 rot=0.000000,0.351515,0.000000,0.936182
+@36 frame cast/fan[2] op=cast/fan[2] pos=0.000000,1.100000,0.800000 rot=0.000000,0.686707,0.000000,0.726934
+@36 remove #3 op=cast/volley[3]/core
+@36 remove #4 op=cast/fin[0]
+@36 remove #5 op=cast/fin[1]
+@36 remove #6 op=cast/fin[2]
+g @40 state-exit reason=TIMER | state=cast
+g @40 cast-end | pose
+## pose-hit yaw=37 pitch=0
+@0 sound - op=cast/charge_chime sound=block.amethyst_block.chime cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
+@1 spawn #0 op=cast/volley[0]/core kind=item item=fire_charge part=- pos=-0.361089,1.620000,0.479181 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@1 write #0 op=cast/volley[0]/core dur=1 pos=-0.361089,2.020000,0.479181 rot=-0.082124,-0.306493,0.245444,0.916010 scale=0.600000,0.600000,0.600000 bb=FIXED
+@1 particle - op=cast/charge_spark type=hit-spark at=-0.361089,1.620000,0.479181 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1923973142911614861
+@1 particle - op=cast/volley[0]/trail[0] type=flame count=3 at=-0.361089,1.620000,0.479181 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8667216650699535687
+@1 sound - op=cast/volley[0]/whoosh sound=entity.blaze.shoot cat=master vol=0.8 pitch=1 at=-0.361089,1.620000,0.479181
+@2 write #0 op=cast/volley[0]/core dur=1 pos=-0.361089,2.300000,0.479181 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.600000,0.600000,0.600000 bb=FIXED
+@2 particle - op=cast/volley[0]/trail[1] type=flame count=3 at=-0.361089,1.620000,0.479181 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1206620928002371443
+@2 particle - op=cast/volley[0]/sparkle[0]/wisp type=end_rod count=2 at=-0.361089,1.620000,0.479181 off=0.150000,0.150000,0.150000 speed=0.069784 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4141027391317873762
+@2 hit - op=cast/volley[0]/ball at=-0.661997,1.620000,0.878499 r=0.900000 shape=capsule a=-0.361089,1.620000,0.479181 b=-0.962904,1.620000,1.277817 rad=0.400000
+@3 write #0 op=cast/volley[0]/core dur=1 pos=-0.962904,2.496000,1.277817 rot=-0.224368,-0.224368,0.670566,0.670566 scale=0.600000,0.600000,0.600000 bb=FIXED
+@3 particle - op=cast/volley[0]/trail[2] type=flame count=3 at=-0.962904,1.620000,1.277817 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5892039177609723342
+@3 hit - op=cast/volley[0]/ball at=-1.263812,1.620000,1.677135 r=0.900000 shape=capsule a=-0.962904,1.620000,1.277817 b=-1.564719,1.620000,2.076452 rad=0.400000
+@3 sound - op=cast/volley[0]/ball.hit/use_0/crack sound=entity.generic.explode cat=master vol=0.6 pitch=1.3 at=-1.278471,1.620000,1.696589
+@3 particle - op=cast/volley[0]/ball.hit/use_0/embers[0] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.041711 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7713979118873695570
+@3 hit - op=cast/volley[0]/ball.hit/use_0/dmg at=-1.278471,1.620000,1.696589 r=2.500000 shape=area
+@3 damage 00000000-0000-0000-0000-00000000000a op=- fire=12 skill=volley-demo at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@3 damage 00000000-0000-0000-0000-00000000000b op=- fire=12 skill=volley-demo at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@3 damage 00000000-0000-0000-0000-00000000000c op=- fire=12 skill=volley-demo at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@3 damage 00000000-0000-0000-0000-00000000000d op=- fire=12 skill=volley-demo at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@4 write #0 op=cast/volley[0]/core dur=1 pos=-1.564719,2.633200,2.076452 rot=-0.274794,-0.158652,0.821272,0.474162 scale=0.600000,0.600000,0.600000 bb=FIXED
+@4 particle - op=cast/volley[0]/trail[3] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8679321888913112156
+@5 write #0 op=cast/volley[0]/core dur=1 pos=-1.564719,2.729240,2.076452 rot=-0.306493,-0.082124,0.916010,0.245444 scale=0.600000,0.600000,0.600000 bb=FIXED
+@5 particle - op=cast/volley[0]/trail[4] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8318142599431100352
+@5 particle - op=cast/volley[0]/sparkle[1]/wisp type=end_rod count=3 at=-0.361089,1.620000,0.479181 off=0.150000,0.250000,0.150000 speed=0.041014 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8321382911658087873
+@5 particle - op=cast/volley[0]/ball.hit/use_0/embers[1] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.022680 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8642899042744109351
+@6 spawn #1 op=cast/volley[1]/core kind=item item=fire_charge part=- pos=-0.361089,1.620000,0.479181 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@6 write #0 op=cast/volley[0]/core dur=1 pos=-1.564719,2.796468,2.076452 rot=0.317305,0.000000,-0.948324,0.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
+@6 write #1 op=cast/volley[1]/core dur=1 pos=-0.361089,2.020000,0.479181 rot=-0.082124,-0.306493,0.245444,0.916010 scale=0.600000,0.600000,0.600000 bb=FIXED
+@6 particle - op=cast/volley[0]/trail[5] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7878267149786681097
+@6 particle - op=cast/volley[1]/trail[0] type=flame count=3 at=-0.361089,1.620000,0.479181 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=502402220747031254
+@6 sound - op=cast/volley[1]/whoosh sound=entity.blaze.shoot cat=master vol=0.8 pitch=1.1 at=-0.361089,1.620000,0.479181
+@7 write #0 op=cast/volley[0]/core dur=4 pos=-1.564719,2.796468,2.076452 rot=0.158652,-0.274794,-0.474162,0.821272 scale=0.600000,0.600000,0.600000 bb=FIXED
+@7 write #1 op=cast/volley[1]/core dur=1 pos=-0.361089,2.300000,0.479181 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.600000,0.600000,0.600000 bb=FIXED
+@7 particle - op=cast/volley[0]/trail[6] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4268438706201983825
+@7 particle - op=cast/volley[1]/trail[1] type=flame count=3 at=-0.361089,1.620000,0.479181 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7462967269756514165
+@7 particle - op=cast/volley[1]/sparkle[0]/wisp type=end_rod count=3 at=-0.361089,1.620000,0.479181 off=0.150000,0.150000,0.150000 speed=0.042543 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6409239607880698600
+@7 particle - op=cast/volley[0]/ball.hit/use_0/embers[2] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.033594 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7716069042441583270
+@7 hit - op=cast/volley[1]/ball at=-0.661997,1.620000,0.878499 r=0.900000 shape=capsule a=-0.361089,1.620000,0.479181 b=-0.962904,1.620000,1.277817 rad=0.400000
+@8 write #1 op=cast/volley[1]/core dur=1 pos=-0.962904,2.496000,1.277817 rot=-0.224368,-0.224368,0.670566,0.670566 scale=0.600000,0.600000,0.600000 bb=FIXED
+@8 particle - op=cast/volley[0]/trail[7] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7322012784313276325
+@8 particle - op=cast/volley[0]/sparkle[2]/wisp type=end_rod count=4 at=-0.361089,1.620000,0.479181 off=0.150000,0.350000,0.150000 speed=0.042639 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=40339252875421227
+@8 particle - op=cast/volley[1]/trail[2] type=flame count=3 at=-0.962904,1.620000,1.277817 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6244192766448397565
+@8 hit - op=cast/volley[1]/ball at=-1.263812,1.620000,1.677135 r=0.900000 shape=capsule a=-0.962904,1.620000,1.277817 b=-1.564719,1.620000,2.076452 rad=0.400000
+@8 sound - op=cast/volley[1]/ball.hit/use_0/crack sound=entity.generic.explode cat=master vol=0.6 pitch=1.3 at=-1.278471,1.620000,1.696589
+@8 particle - op=cast/volley[1]/ball.hit/use_0/embers[0] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.037773 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=9162991734748046407
+@8 hit - op=cast/volley[1]/ball.hit/use_0/dmg at=-1.278471,1.620000,1.696589 r=2.500000 shape=area
+@8 damage 00000000-0000-0000-0000-00000000000a op=- fire=12 skill=volley-demo at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@8 damage 00000000-0000-0000-0000-00000000000b op=- fire=12 skill=volley-demo at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@8 damage 00000000-0000-0000-0000-00000000000c op=- fire=12 skill=volley-demo at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@8 damage 00000000-0000-0000-0000-00000000000d op=- fire=12 skill=volley-demo at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@9 write #1 op=cast/volley[1]/core dur=1 pos=-1.564719,2.633200,2.076452 rot=-0.274794,-0.158652,0.821272,0.474162 scale=0.600000,0.600000,0.600000 bb=FIXED
+@9 particle - op=cast/volley[0]/trail[8] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5257532584773776874
+@9 particle - op=cast/volley[1]/trail[3] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=732637588239576177
+@9 particle - op=cast/volley[0]/ball.hit/use_0/embers[3] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.045508 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8476091796922414071
+@10 write #1 op=cast/volley[1]/core dur=1 pos=-1.564719,2.729240,2.076452 rot=-0.306493,-0.082124,0.916010,0.245444 scale=0.600000,0.600000,0.600000 bb=FIXED
+@10 particle - op=cast/volley[0]/trail[9] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5382505322979549577
+@10 particle - op=cast/volley[1]/trail[4] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3708722050757303761
+@10 particle - op=cast/volley[1]/sparkle[1]/wisp type=end_rod count=4 at=-0.361089,1.620000,0.479181 off=0.150000,0.250000,0.150000 speed=0.066951 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1528570405124832526
+@10 particle - op=cast/volley[1]/ball.hit/use_0/embers[1] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.032288 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4382037230619080182
+@11 spawn #2 op=cast/volley[2]/core kind=item item=fire_charge part=- pos=-0.361089,1.620000,0.479181 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@11 write #0 op=cast/volley[0]/core dur=1 pos=-1.564719,2.796468,2.076452 rot=0.082124,-0.306493,-0.245444,0.916010 scale=0.600000,0.600000,0.600000 bb=FIXED
+@11 write #1 op=cast/volley[1]/core dur=1 pos=-1.564719,2.796468,2.076452 rot=0.317305,0.000000,-0.948324,0.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
+@11 write #2 op=cast/volley[2]/core dur=1 pos=-0.361089,2.020000,0.479181 rot=-0.082124,-0.306493,0.245444,0.916010 scale=0.600000,0.600000,0.600000 bb=FIXED
+@11 particle - op=cast/volley[0]/trail[10] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5310894802754986095
+@11 particle - op=cast/volley[1]/trail[5] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2719906431880530317
+@11 particle - op=cast/volley[2]/trail[0] type=flame count=3 at=-0.361089,1.620000,0.479181 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-385784066918409594
+@11 sound - op=cast/volley[2]/whoosh sound=entity.blaze.shoot cat=master vol=0.8 pitch=1.2 at=-0.361089,1.620000,0.479181
+@12 write #0 op=cast/volley[0]/core dur=1 pos=-1.564719,2.796468,2.076452 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED
+@12 write #1 op=cast/volley[1]/core dur=4 pos=-1.564719,2.796468,2.076452 rot=0.158652,-0.274794,-0.474162,0.821272 scale=0.600000,0.600000,0.600000 bb=FIXED
+@12 write #2 op=cast/volley[2]/core dur=1 pos=-0.361089,2.300000,0.479181 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.600000,0.600000,0.600000 bb=FIXED
+@12 particle - op=cast/volley[0]/trail[11] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5124011046498319565
+@12 particle - op=cast/volley[1]/trail[6] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6624058839594913110
+@12 particle - op=cast/volley[2]/trail[1] type=flame count=3 at=-0.361089,1.620000,0.479181 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-969706954171942106
+@12 particle - op=cast/volley[2]/sparkle[0]/wisp type=end_rod count=4 at=-0.361089,1.620000,0.479181 off=0.150000,0.150000,0.150000 speed=0.066509 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7127014851836379574
+@12 particle - op=cast/volley[1]/ball.hit/use_0/embers[2] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.041110 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8935582081099170652
+@12 hit - op=cast/volley[2]/ball at=-0.661997,1.620000,0.878499 r=0.900000 shape=capsule a=-0.361089,1.620000,0.479181 b=-0.962904,1.620000,1.277817 rad=0.400000
+@13 write #2 op=cast/volley[2]/core dur=1 pos=-0.962904,2.496000,1.277817 rot=-0.224368,-0.224368,0.670566,0.670566 scale=0.600000,0.600000,0.600000 bb=FIXED
+@13 particle - op=cast/volley[1]/trail[7] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2824152795057814097
+@13 particle - op=cast/volley[1]/sparkle[2]/wisp type=end_rod count=5 at=-0.361089,1.620000,0.479181 off=0.150000,0.350000,0.150000 speed=0.040553 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8030883833688087560
+@13 particle - op=cast/volley[2]/trail[2] type=flame count=3 at=-0.962904,1.620000,1.277817 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7934815848084308390
+@13 hit - op=cast/volley[2]/ball at=-1.263812,1.620000,1.677135 r=0.900000 shape=capsule a=-0.962904,1.620000,1.277817 b=-1.564719,1.620000,2.076452 rad=0.400000
+@13 sound - op=cast/volley[2]/ball.hit/use_0/crack sound=entity.generic.explode cat=master vol=0.6 pitch=1.3 at=-1.278471,1.620000,1.696589
+@13 particle - op=cast/volley[2]/ball.hit/use_0/embers[0] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.026753 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6122442441535804629
+@13 hit - op=cast/volley[2]/ball.hit/use_0/dmg at=-1.278471,1.620000,1.696589 r=2.500000 shape=area
+@13 damage 00000000-0000-0000-0000-00000000000a op=- fire=12 skill=volley-demo at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@13 damage 00000000-0000-0000-0000-00000000000b op=- fire=12 skill=volley-demo at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@13 damage 00000000-0000-0000-0000-00000000000c op=- fire=12 skill=volley-demo at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@13 damage 00000000-0000-0000-0000-00000000000d op=- fire=12 skill=volley-demo at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@14 write #2 op=cast/volley[2]/core dur=1 pos=-1.564719,2.633200,2.076452 rot=-0.274794,-0.158652,0.821272,0.474162 scale=0.600000,0.600000,0.600000 bb=FIXED
+@14 particle - op=cast/volley[1]/trail[8] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6427817166157906621
+@14 particle - op=cast/volley[2]/trail[3] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3745684364593361703
+@14 particle - op=cast/volley[1]/ball.hit/use_0/embers[3] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.028747 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3625305117805126828
+@15 write #2 op=cast/volley[2]/core dur=1 pos=-1.564719,2.729240,2.076452 rot=-0.306493,-0.082124,0.916010,0.245444 scale=0.600000,0.600000,0.600000 bb=FIXED
+@15 particle - op=cast/volley[1]/trail[9] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5983193502912395040
+@15 particle - op=cast/volley[2]/trail[4] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3352554030345234104
+@15 particle - op=cast/volley[2]/sparkle[1]/wisp type=end_rod count=5 at=-0.361089,1.620000,0.479181 off=0.150000,0.250000,0.150000 speed=0.045327 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1617094259205348312
+@15 particle - op=cast/volley[2]/ball.hit/use_0/embers[1] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.040530 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8229906039182244291
+@16 spawn #3 op=cast/volley[3]/core kind=item item=fire_charge part=- pos=-0.361089,1.620000,0.479181 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@16 write #1 op=cast/volley[1]/core dur=1 pos=-1.564719,2.796468,2.076452 rot=0.082124,-0.306493,-0.245444,0.916010 scale=0.600000,0.600000,0.600000 bb=FIXED
+@16 write #2 op=cast/volley[2]/core dur=1 pos=-1.564719,2.796468,2.076452 rot=0.317305,0.000000,-0.948324,0.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
+@16 write #3 op=cast/volley[3]/core dur=1 pos=-0.361089,2.020000,0.479181 rot=-0.082124,-0.306493,0.245444,0.916010 scale=0.600000,0.600000,0.600000 bb=FIXED
+@16 particle - op=cast/volley[1]/trail[10] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7228213106661809009
+@16 particle - op=cast/volley[2]/trail[5] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4143423423663207817
+@16 particle - op=cast/volley[3]/trail[0] type=flame count=3 at=-0.361089,1.620000,0.479181 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7669038082597001435
+@16 sound - op=cast/volley[3]/whoosh sound=entity.blaze.shoot cat=master vol=0.8 pitch=1.3 at=-0.361089,1.620000,0.479181
+@17 write #1 op=cast/volley[1]/core dur=1 pos=-1.564719,2.796468,2.076452 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED
+@17 write #2 op=cast/volley[2]/core dur=4 pos=-1.564719,2.796468,2.076452 rot=0.158652,-0.274794,-0.474162,0.821272 scale=0.600000,0.600000,0.600000 bb=FIXED
+@17 write #3 op=cast/volley[3]/core dur=1 pos=-0.361089,2.300000,0.479181 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.600000,0.600000,0.600000 bb=FIXED
+@17 particle - op=cast/volley[1]/trail[11] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2343671236915719396
+@17 particle - op=cast/volley[2]/trail[6] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8905224057592591810
+@17 particle - op=cast/volley[3]/trail[1] type=flame count=3 at=-0.361089,1.620000,0.479181 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1314489957339326847
+@17 particle - op=cast/volley[3]/sparkle[0]/wisp type=end_rod count=5 at=-0.361089,1.620000,0.479181 off=0.150000,0.150000,0.150000 speed=0.038423 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3172591884575801748
+@17 particle - op=cast/volley[2]/ball.hit/use_0/embers[2] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.049550 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2552145022089252758
+@17 hit - op=cast/volley[3]/ball at=-0.661997,1.620000,0.878499 r=0.900000 shape=capsule a=-0.361089,1.620000,0.479181 b=-0.962904,1.620000,1.277817 rad=0.400000
+@18 write #3 op=cast/volley[3]/core dur=1 pos=-0.962904,2.496000,1.277817 rot=-0.224368,-0.224368,0.670566,0.670566 scale=0.600000,0.600000,0.600000 bb=FIXED
+@18 particle - op=cast/volley[2]/trail[7] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=9150738683704669302
+@18 particle - op=cast/volley[2]/sparkle[2]/wisp type=end_rod count=6 at=-0.361089,1.620000,0.479181 off=0.150000,0.350000,0.150000 speed=0.042906 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1194428396520775395
+@18 particle - op=cast/volley[3]/trail[2] type=flame count=3 at=-0.962904,1.620000,1.277817 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3912320612892688141
+@18 hit - op=cast/volley[3]/ball at=-1.263812,1.620000,1.677135 r=0.900000 shape=capsule a=-0.962904,1.620000,1.277817 b=-1.564719,1.620000,2.076452 rad=0.400000
+@18 sound - op=cast/volley[3]/ball.hit/use_0/crack sound=entity.generic.explode cat=master vol=0.6 pitch=1.3 at=-1.278471,1.620000,1.696589
+@18 particle - op=cast/volley[3]/ball.hit/use_0/embers[0] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.038909 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-302760434496132800
+@18 hit - op=cast/volley[3]/ball.hit/use_0/dmg at=-1.278471,1.620000,1.696589 r=2.500000 shape=area
+@18 damage 00000000-0000-0000-0000-00000000000a op=- fire=12 skill=volley-demo at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@18 damage 00000000-0000-0000-0000-00000000000b op=- fire=12 skill=volley-demo at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@18 damage 00000000-0000-0000-0000-00000000000c op=- fire=12 skill=volley-demo at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@18 damage 00000000-0000-0000-0000-00000000000d op=- fire=12 skill=volley-demo at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@19 write #3 op=cast/volley[3]/core dur=1 pos=-1.564719,2.633200,2.076452 rot=-0.274794,-0.158652,0.821272,0.474162 scale=0.600000,0.600000,0.600000 bb=FIXED
+@19 particle - op=cast/volley[2]/trail[8] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1937159158244443560
+@19 particle - op=cast/volley[3]/trail[3] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5930381243206461628
+@19 particle - op=cast/volley[2]/ball.hit/use_0/embers[3] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.035887 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5823371849463500641
+@20 spawn #4 op=cast/fin[0] kind=block block=gray_concrete pos=-0.752269,1.100000,0.998294 rot=0.000000,-0.515038,0.000000,0.857167 scale=0.060000,0.060000,0.900000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@20 spawn #5 op=cast/fin[1] kind=block block=iron_block pos=-0.752269,1.100000,0.998294 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,0.900000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@20 spawn #6 op=cast/fin[2] kind=block block=black_concrete pos=-0.752269,1.100000,0.998294 rot=0.000000,-0.104528,0.000000,0.994522 scale=0.060000,0.060000,0.900000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@20 write #3 op=cast/volley[3]/core dur=1 pos=-1.564719,2.729240,2.076452 rot=-0.306493,-0.082124,0.916010,0.245444 scale=0.600000,0.600000,0.600000 bb=FIXED
+@20 write #4 op=cast/fin[0] dur=3 pos=-0.752269,1.100000,0.998294 rot=0.000000,-0.353638,0.000000,0.935382 scale=0.060000,0.060000,0.900000 bb=FIXED
+@20 write #5 op=cast/fin[1] dur=1 pos=-0.752269,1.100000,0.998294 rot=0.000000,-0.182236,0.000000,0.983255 scale=0.060000,0.060000,0.900000 bb=FIXED
+@20 write #6 op=cast/fin[2] dur=1 pos=-0.752269,1.100000,0.998294 rot=0.000000,0.104528,0.000000,0.994522 scale=0.060000,0.060000,0.900000 bb=FIXED
+@20 particle - op=cast/volley[2]/trail[9] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4209325009748586590
+@20 particle - op=cast/volley[3]/trail[4] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8100428703728122951
+@20 particle - op=cast/volley[3]/sparkle[1]/wisp type=end_rod count=6 at=-0.361089,1.620000,0.479181 off=0.150000,0.250000,0.150000 speed=0.043064 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1570045199938487509
+@20 particle - op=cast/petal[0] type=end_rod count=0 at=-0.361089,1.620000,0.479181 off=1.000000,0.000000,0.000000 speed=0.080000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7644047307981425731
+@20 particle - op=cast/petal[1] type=end_rod count=0 at=-0.361089,1.620000,0.479181 off=0.500000,0.866025,0.000000 speed=0.080000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2165278777377368913
+@20 particle - op=cast/petal[2] type=end_rod count=0 at=-0.361089,1.620000,0.479181 off=-0.500000,0.866025,0.000000 speed=0.080000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6773669138844870166
+@20 particle - op=cast/petal[3] type=end_rod count=0 at=-0.361089,1.620000,0.479181 off=-1.000000,0.000000,0.000000 speed=0.080000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2154318547730428108
+@20 particle - op=cast/petal[4] type=end_rod count=0 at=-0.361089,1.620000,0.479181 off=-0.500000,-0.866025,0.000000 speed=0.080000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8433475592154555295
+@20 particle - op=cast/petal[5] type=end_rod count=0 at=-0.361089,1.620000,0.479181 off=0.500000,-0.866025,0.000000 speed=0.080000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8483048356235812651
+@20 particle - op=cast/volley[3]/ball.hit/use_0/embers[1] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.039346 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8472618637197205477
+@20 frame cast/fan[0] op=cast/fan[0] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.515038,0.000000,0.857167
+@20 frame cast/fan[1] op=cast/fan[1] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.317305,0.000000,0.948324
+@20 frame cast/fan[2] op=cast/fan[2] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.104528,0.000000,0.994522
+@21 write #2 op=cast/volley[2]/core dur=1 pos=-1.564719,2.796468,2.076452 rot=0.082124,-0.306493,-0.245444,0.916010 scale=0.600000,0.600000,0.600000 bb=FIXED
+@21 write #3 op=cast/volley[3]/core dur=1 pos=-1.564719,2.796468,2.076452 rot=0.317305,0.000000,-0.948324,0.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
+@21 write #5 op=cast/fin[1] dur=1 pos=-0.752269,1.100000,0.998294 rot=0.000000,-0.064532,0.000000,0.997916 scale=0.060000,0.060000,0.900000 bb=FIXED
+@21 write #6 op=cast/fin[2] dur=1 pos=-0.752269,1.100000,0.998294 rot=0.000000,0.278991,0.000000,0.960294 scale=0.060000,0.060000,0.900000 bb=FIXED
+@21 particle - op=cast/volley[2]/trail[10] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5682826322490185592
+@21 particle - op=cast/volley[3]/trail[5] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2152108935169372966
+@21 frame cast/fan[0] op=cast/fan[0] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.462832,0.000000,0.886446
+@21 frame cast/fan[1] op=cast/fan[1] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.182236,0.000000,0.983255
+@21 frame cast/fan[2] op=cast/fan[2] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.104528,0.000000,0.994522
+@21 remove #0 op=cast/volley[0]/core
+@22 write #2 op=cast/volley[2]/core dur=1 pos=-1.564719,2.796468,2.076452 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED
+@22 write #3 op=cast/volley[3]/core dur=4 pos=-1.564719,2.796468,2.076452 rot=0.158652,-0.274794,-0.474162,0.821272 scale=0.600000,0.600000,0.600000 bb=FIXED
+@22 write #5 op=cast/fin[1] dur=1 pos=-0.752269,1.100000,0.998294 rot=0.000000,0.036295,0.000000,0.999341 scale=0.060000,0.060000,0.900000 bb=FIXED
+@22 write #6 op=cast/fin[2] dur=1 pos=-0.752269,1.100000,0.998294 rot=0.000000,0.420561,0.000000,0.907264 scale=0.060000,0.060000,0.900000 bb=FIXED
+@22 particle - op=cast/volley[2]/trail[11] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1403190943022210393
+@22 particle - op=cast/volley[3]/trail[6] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2746270121500140798
+@22 sound - op=cast/ratchet[0] sound=block.note_block.hat cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
+@22 particle - op=cast/volley[3]/ball.hit/use_0/embers[2] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.047769 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5862281227046853521
+@22 frame cast/fan[0] op=cast/fan[0] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.408968,0.000000,0.912549
+@22 frame cast/fan[1] op=cast/fan[1] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.064532,0.000000,0.997916
+@22 frame cast/fan[2] op=cast/fan[2] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.278991,0.000000,0.960294
+@23 particle - op=cast/volley[3]/trail[7] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4078096221749150082
+@23 particle - op=cast/volley[3]/sparkle[2]/wisp type=end_rod count=7 at=-0.361089,1.620000,0.479181 off=0.150000,0.350000,0.150000 speed=0.052135 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8661710743701806639
+@23 frame cast/fan[0] op=cast/fan[0] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.353638,0.000000,0.935382
+@23 frame cast/fan[1] op=cast/fan[1] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.036295,0.000000,0.999341
+@23 frame cast/fan[2] op=cast/fan[2] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.420561,0.000000,0.907264
+@24 write #4 op=cast/fin[0] dur=1 pos=-0.752269,1.100000,0.998294 rot=0.033594,-0.756609,-0.319627,0.569432 scale=1.000000,1.000000,1.000000 bb=FIXED
+@24 write #5 op=cast/fin[1] dur=1 pos=-0.752269,1.100000,0.998294 rot=-0.090889,0.301368,0.271638,0.909466 scale=1.000000,1.000000,1.000000 bb=FIXED
+@24 write #6 op=cast/fin[2] dur=1 pos=-0.752269,1.100000,0.998294 rot=-0.133040,0.724408,0.221415,0.639146 scale=1.000000,1.000000,1.000000 bb=FIXED
+@24 particle - op=cast/volley[3]/trail[8] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1029255705177790223
+@24 particle - op=cast/volley[3]/ball.hit/use_0/embers[3] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.029162 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4002540573596343270
+@24 frame cast/fan[0] op=cast/fan[0] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.353638,0.000000,0.935382
+@24 frame cast/fan[1] op=cast/fan[1] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.036295,0.000000,0.999341
+@24 frame cast/fan[2] op=cast/fan[2] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.420561,0.000000,0.907264
+@25 write #4 op=cast/fin[0] dur=1 pos=-0.752269,1.100000,0.998294 rot=0.055915,-0.805600,-0.531996,0.254683 scale=1.000000,1.000000,1.000000 bb=FIXED
+@25 write #5 op=cast/fin[1] dur=1 pos=-0.752269,1.100000,0.998294 rot=-0.155009,0.484011,0.463273,0.726006 scale=1.000000,1.000000,1.000000 bb=FIXED
+@25 write #6 op=cast/fin[2] dur=1 pos=-0.752269,1.100000,0.998294 rot=-0.232120,0.764383,0.386312,0.461088 scale=1.000000,1.000000,1.000000 bb=FIXED
+@25 particle - op=cast/volley[3]/trail[9] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1040247771335511095
+@25 frame cast/fan[0] op=cast/fan[0] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.353638,0.000000,0.935382
+@25 frame cast/fan[1] op=cast/fan[1] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.036295,0.000000,0.999341
+@25 frame cast/fan[2] op=cast/fan[2] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.420561,0.000000,0.907264
+@26 write #3 op=cast/volley[3]/core dur=1 pos=-1.564719,2.796468,2.076452 rot=0.082124,-0.306493,-0.245444,0.916010 scale=0.600000,0.600000,0.600000 bb=FIXED
+@26 write #4 op=cast/fin[0] dur=1 pos=-0.752269,1.100000,0.998294 rot=-0.067719,0.761538,0.644303,0.018649 scale=1.000000,1.000000,1.000000 bb=FIXED
+@26 write #5 op=cast/fin[1] dur=1 pos=-0.752269,1.100000,0.998294 rot=-0.193618,0.590800,0.578662,0.527843 scale=1.000000,1.000000,1.000000 bb=FIXED
+@26 write #6 op=cast/fin[2] dur=1 pos=-0.752269,1.100000,0.998294 rot=-0.298218,0.758328,0.496319,0.299455 scale=1.000000,1.000000,1.000000 bb=FIXED
+@26 particle - op=cast/volley[3]/trail[10] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4620274181882029883
+@26 frame cast/fan[0] op=cast/fan[0] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.353638,0.000000,0.935382
+@26 frame cast/fan[1] op=cast/fan[1] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.036295,0.000000,0.999341
+@26 frame cast/fan[2] op=cast/fan[2] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.420561,0.000000,0.907264
+@26 remove #1 op=cast/volley[1]/core
+@27 write #3 op=cast/volley[3]/core dur=1 pos=-1.564719,2.796468,2.076452 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED
+@27 write #4 op=cast/fin[0] dur=1 pos=-0.752269,1.100000,0.998294 rot=-0.072484,0.687904,0.689643,0.214307 scale=1.000000,1.000000,1.000000 bb=FIXED
+@27 write #5 op=cast/fin[1] dur=1 pos=-0.752269,1.100000,0.998294 rot=-0.213549,0.643706,0.638231,0.364281 scale=1.000000,1.000000,1.000000 bb=FIXED
+@27 write #6 op=cast/fin[2] dur=1 pos=-0.752269,1.100000,0.998294 rot=-0.337792,0.734139,0.562180,0.175759 scale=1.000000,1.000000,1.000000 bb=FIXED
+@27 particle - op=cast/volley[3]/trail[11] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=431631038262830204
+@27 frame cast/fan[0] op=cast/fan[0] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.353638,0.000000,0.935382
+@27 frame cast/fan[1] op=cast/fan[1] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.036295,0.000000,0.999341
+@27 frame cast/fan[2] op=cast/fan[2] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.420561,0.000000,0.907264
+@28 write #4 op=cast/fin[0] dur=1 pos=-0.752269,1.100000,0.998294 rot=-0.073758,0.628328,0.701765,0.327551 scale=1.000000,1.000000,1.000000 bb=FIXED
+@28 write #5 op=cast/fin[1] dur=1 pos=-0.752269,1.100000,0.998294 rot=-0.222108,0.665183,0.663810,0.259917 scale=1.000000,1.000000,1.000000 bb=FIXED
+@28 write #6 op=cast/fin[2] dur=1 pos=-0.752269,1.100000,0.998294 rot=-0.358051,0.711899,0.595897,0.099527 scale=1.000000,1.000000,1.000000 bb=FIXED
+@28 sound - op=cast/ratchet[1] sound=block.note_block.hat cat=master vol=0.5 pitch=1.05 at=0.000000,0.000000,0.000000
+@28 frame cast/fan[0] op=cast/fan[0] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.353638,0.000000,0.935382
+@28 frame cast/fan[1] op=cast/fan[1] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.036295,0.000000,0.999341
+@28 frame cast/fan[2] op=cast/fan[2] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.420561,0.000000,0.907264
+@29 write #4 op=cast/fin[0] dur=1 pos=-0.752269,1.100000,0.998294 rot=-0.073913,0.606109,0.703233,0.364187 scale=1.000000,1.000000,1.000000 bb=FIXED
+@29 write #5 op=cast/fin[1] dur=1 pos=-0.752269,1.100000,0.998294 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED
+@29 write #6 op=cast/fin[2] dur=1 pos=-0.752269,1.100000,0.998294 rot=-0.364187,0.703233,0.606109,0.073913 scale=1.000000,1.000000,1.000000 bb=FIXED
+@29 frame cast/fan[0] op=cast/fan[0] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.353638,0.000000,0.935382
+@29 frame cast/fan[1] op=cast/fan[1] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.036295,0.000000,0.999341
+@29 frame cast/fan[2] op=cast/fan[2] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.420561,0.000000,0.907264
+@30 frame cast/fan[0] op=cast/fan[0] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.353638,0.000000,0.935382
+@30 frame cast/fan[1] op=cast/fan[1] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.036295,0.000000,0.999341
+@30 frame cast/fan[2] op=cast/fan[2] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.420561,0.000000,0.907264
+@31 frame cast/fan[0] op=cast/fan[0] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.353638,0.000000,0.935382
+@31 frame cast/fan[1] op=cast/fan[1] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.036295,0.000000,0.999341
+@31 frame cast/fan[2] op=cast/fan[2] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.420561,0.000000,0.907264
+@31 remove #2 op=cast/volley[2]/core
+@32 frame cast/fan[0] op=cast/fan[0] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.353638,0.000000,0.935382
+@32 frame cast/fan[1] op=cast/fan[1] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.036295,0.000000,0.999341
+@32 frame cast/fan[2] op=cast/fan[2] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.420561,0.000000,0.907264
+@33 write #4 op=cast/fin[0] dur=3 pos=-0.752269,1.100000,0.998294 rot=-0.073913,0.606109,0.703233,0.364187 scale=0.000000,0.000000,0.000000 bb=FIXED
+@33 write #5 op=cast/fin[1] dur=3 pos=-0.752269,1.100000,0.998294 rot=-0.224368,0.670566,0.670566,0.224368 scale=0.000000,0.000000,0.000000 bb=FIXED
+@33 write #6 op=cast/fin[2] dur=3 pos=-0.752269,1.100000,0.998294 rot=-0.364187,0.703233,0.606109,0.073913 scale=0.000000,0.000000,0.000000 bb=FIXED
+@33 sound - op=cast/ratchet[2] sound=block.note_block.hat cat=master vol=0.5 pitch=1.1 at=0.000000,0.000000,0.000000
+@33 frame cast/fan[0] op=cast/fan[0] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.353638,0.000000,0.935382
+@33 frame cast/fan[1] op=cast/fan[1] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.036295,0.000000,0.999341
+@33 frame cast/fan[2] op=cast/fan[2] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.420561,0.000000,0.907264
+@34 frame cast/fan[0] op=cast/fan[0] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.353638,0.000000,0.935382
+@34 frame cast/fan[1] op=cast/fan[1] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.036295,0.000000,0.999341
+@34 frame cast/fan[2] op=cast/fan[2] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.420561,0.000000,0.907264
+@35 frame cast/fan[0] op=cast/fan[0] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.353638,0.000000,0.935382
+@35 frame cast/fan[1] op=cast/fan[1] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.036295,0.000000,0.999341
+@35 frame cast/fan[2] op=cast/fan[2] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.420561,0.000000,0.907264
+@36 frame cast/fan[0] op=cast/fan[0] pos=-0.481452,1.100000,0.638908 rot=0.000000,-0.353638,0.000000,0.935382
+@36 frame cast/fan[1] op=cast/fan[1] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.036295,0.000000,0.999341
+@36 frame cast/fan[2] op=cast/fan[2] pos=-0.481452,1.100000,0.638908 rot=0.000000,0.420561,0.000000,0.907264
+@36 remove #3 op=cast/volley[3]/core
+@36 remove #4 op=cast/fin[0]
+@36 remove #5 op=cast/fin[1]
+@36 remove #6 op=cast/fin[2]
+g @40 state-exit reason=TIMER | state=cast
+g @40 cast-end | pose
 ## gameplay-static
 g @0..40 cast-length | cast
 g @40 state-end then=end final=false | state=cast
