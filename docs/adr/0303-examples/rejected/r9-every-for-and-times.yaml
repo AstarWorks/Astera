@@ -5,7 +5,7 @@ id: rejected-r9
 item: couture-rapier
 meta: {cooldown_ticks: 10, resource_cost: 0}
 anchors:
-  - {id: hand, anchor: caster.hand_r}
+  - {id: hand, anchor: caster.eye}
 machine:
   start: s
   states:

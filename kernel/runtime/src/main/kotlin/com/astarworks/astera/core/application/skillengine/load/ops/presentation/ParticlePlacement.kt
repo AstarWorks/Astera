@@ -35,6 +35,7 @@ internal object ParticlePlacement {
     fun base(lc: LowerContext, name: String, op: String): Result<Base?, SkillDecodeError> {
         fun invalid(message: String): Result<Base?, SkillDecodeError> =
             Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "$op: $message"))
+        AnchorNames.removedCasterPoint(name)?.let { return invalid(it) }
         val parts = AnchorNames.split(name) ?: return Result.Success(null)
         if (parts.index == null && parts.point == null) {
             val doc = lc.anchors.document(parts.base)

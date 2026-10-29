@@ -5,6 +5,7 @@ import com.astarworks.astera.core.domain.animation.player.CustomAnimationId
 import com.astarworks.astera.core.domain.animation.skinrig.RigBoneTrack
 import com.astarworks.astera.core.domain.animation.skinrig.RigChannel
 import com.astarworks.astera.core.domain.animation.skinrig.RigKeyframe
+import com.astarworks.astera.core.domain.animation.skinrig.RigPoint
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigEase
@@ -32,6 +33,8 @@ public sealed class SkinRigConfigError {
  * blend_in_ticks: 2
  * blend_out_ticks: 3
  * two_hand_grip: false     # true: the left hand follows the weapon grip
+ * points:                  # named points of the body a skill can read as `<body op id>.hand_r`
+ *   hand_r: { bone: right_arm, offset: [-1.0, -8.8925, 4.9923] }   # px from the bone's joint, in its rest axes
  * bones:                   # body carries head + arms (spine at the waist); legs hang from root
 
  *   right_arm:
@@ -52,6 +55,8 @@ public data class SkinRigAnimationYamlConfig(
     public val root: RigBoneTrackYaml? = null,
     /** Aim the left arm at the right-hand grip every tick (two-handed weapons); its authored `left_arm` rotation is ignored. */
     @SerialName("two_hand_grip") public val twoHandGrip: Boolean = false,
+    /** Named points carried by a bone; a skill reads one per tick through its `body` op (`body_anim.hand_r`). */
+    public val points: Map<String, RigPointYaml> = emptyMap(),
 ) {
     public fun toDefinition(): Result<SkinRigAnimation, SkinRigConfigError> = try {
         Result.success(
@@ -71,10 +76,25 @@ public data class SkinRigAnimationYamlConfig(
                 },
                 root = root?.toDomain("root"),
                 twoHandGrip = twoHandGrip,
+                points = points.mapValues { (name, p) -> p.toDomain("points.$name") },
             ),
         )
     } catch (e: IllegalArgumentException) {
         Result.failure(SkinRigConfigError.Invalid("animation '$id': ${e.message}"))
+    }
+}
+
+/** `{ bone: right_arm, offset: [-1, -8.8925, 4.9923] }`: a point [offset] pixels from the joint of [bone]. */
+@Serializable
+public data class RigPointYaml(
+    public val bone: String,
+    public val offset: List<Double>,
+) {
+    public fun toDomain(where: String): RigPoint {
+        require(offset.size == 3) { "$where: offset needs 3 numbers, got ${offset.size}" }
+        val b = SkinRigBone.fromYamlName(bone)
+            ?: throw IllegalArgumentException("$where: unknown bone '$bone' (the PoC rig has: ${SkinRigBone.yamlNames.joinToString(", ")})")
+        return RigPoint(b, Vec3(offset[0], offset[1], offset[2]))
     }
 }
 

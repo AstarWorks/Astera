@@ -90,10 +90,17 @@ public data class RigBoneTrack(
 }
 
 /**
+ * A named point carried by a bone of the rig (`points:` in `content/animations/<id>.yaml`): [offset] is in pixels from the bone's
+ * joint, in the bone's rest axes. A skill reads where it is each tick as `<body op id>.<name>` (`body_anim.hand_r`).
+ */
+public data class RigPoint(public val bone: SkinRigBone, public val offset: Vec3)
+
+/**
  * A keyframed pose animation for the skin rig (`content/animations/<id>.yaml`, ADR-0250).
  * Rotations are degrees relative to the rest pose around the bone's pivot, positions are pixels,
  * scales are multipliers; see [SkinRigTransforms] for the exact frame and rotation order.
  *
+ * @property points the named points of the body (hand, palm, ...) the skill's own pose carries; see [RigPoint].
  * @property twoHandGrip when true the left arm's authored rotation is replaced by an aim at the right-hand grip
  * (the held weapon's handle), so the off hand stays on the weapon whatever the body does.
  */
@@ -107,8 +114,12 @@ public class SkinRigAnimation(
     public val bones: Map<SkinRigBone, RigBoneTrack>,
     public val root: RigBoneTrack?,
     public val twoHandGrip: Boolean = false,
+    public val points: Map<String, RigPoint> = emptyMap(),
 ) {
     init {
+        for (name in points.keys) {
+            require(NAME.matches(name)) { "point name '$name' must match [a-z][a-z0-9_]*" }
+        }
         require(lengthTicks in 1..MAX_LENGTH_TICKS) { "length_ticks must be 1..$MAX_LENGTH_TICKS: $lengthTicks" }
         require(blendInTicks in 0..MAX_LENGTH_TICKS) { "blend_in_ticks must be 0..$MAX_LENGTH_TICKS: $blendInTicks" }
         require(blendOutTicks in 0..MAX_LENGTH_TICKS) { "blend_out_ticks must be 0..$MAX_LENGTH_TICKS: $blendOutTicks" }
@@ -124,6 +135,7 @@ public class SkinRigAnimation(
 
     public companion object {
         public const val MAX_LENGTH_TICKS: Int = 20 * 60
+        private val NAME = Regex("[a-z][a-z0-9_]*")
     }
 }
 

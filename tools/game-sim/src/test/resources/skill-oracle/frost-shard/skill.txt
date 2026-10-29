@@ -1,0 +1,24 @@
+## pose yaw=0 pitch=0
+@0 spawn #0 op=cast/shell kind=item item=minecraft:prismarine_shard part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.900000,0.900000,0.900000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=- sound=astera:skills/frost-cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=frost-cast at=0.000000,-0.200000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3608621315306519654
+@0 particle - op=- type=snowflake count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3202268377555882959
+@0 particle - op=- type=dust count=2 at=0.000000,1.620000,0.500000 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1157420256528057698
+@0 particle - op=- type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2639204864919234694
+@1 particle - op=- type=snowflake count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7480808802752222772
+@1 particle - op=- type=dust count=2 at=0.000000,1.620000,0.500000 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-16406494675862118
+@1 particle - op=- type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6125066295264026759
+@1 hit - op=- at=0.000000,1.620000,2.700000 r=0.500000
+@1 remove #0 op=cast/shell
+## pose yaw=37 pitch=-20
+@0 spawn #0 op=cast/shell kind=item item=minecraft:prismarine_shard part=- pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.900000,0.900000,0.900000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=- sound=astera:skills/frost-cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=frost-cast at=-0.601815,-0.200000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3608621315306519654
+@0 particle - op=- type=snowflake count=2 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3202268377555882959
+@0 particle - op=- type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1157420256528057698
+@0 particle - op=- type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2639204864919234694
+@1 particle - op=- type=snowflake count=2 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7480808802752222772
+@1 particle - op=- type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-16406494675862118
+@1 particle - op=- type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6125066295264026759
+@1 hit - op=- at=-1.526907,2.543454,2.026274 r=0.500000
+@1 remove #0 op=cast/shell

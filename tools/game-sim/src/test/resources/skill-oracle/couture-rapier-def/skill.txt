@@ -1,0 +1,38 @@
+## pose yaw=0 pitch=0
+@0 spawn #0 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_0 kind=block block=black_concrete pos=-0.550000,0.100000,-1.800000 rot=0.000000,0.104528,0.000000,0.994522 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_1 kind=block block=black_concrete pos=-0.330000,0.100000,-1.800000 rot=0.000000,0.061049,0.000000,0.998135 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #2 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_2 kind=block block=black_concrete pos=-0.110000,0.100000,-1.800000 rot=0.000000,0.017452,0.000000,0.999848 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #3 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_3 kind=block block=black_concrete pos=0.110000,0.100000,-1.800000 rot=0.000000,-0.026177,0.000000,0.999657 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #4 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_4 kind=block block=black_concrete pos=0.330000,0.100000,-1.800000 rot=0.000000,-0.069756,0.000000,0.997564 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #5 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_5 kind=block block=black_concrete pos=0.550000,0.100000,-1.800000 rot=0.000000,-0.113203,0.000000,0.993572 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_0 dur=29 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.960009,1.000000,1.000000 bb=FIXED
+@0 write #1 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_1 dur=29 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.960009,1.000000,1.000000 bb=FIXED
+@0 write #2 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_2 dur=29 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.960009,1.000000,1.000000 bb=FIXED
+@0 write #3 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_3 dur=29 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.960009,1.000000,1.000000 bb=FIXED
+@0 write #4 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_4 dur=29 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.960009,1.000000,1.000000 bb=FIXED
+@0 write #5 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_5 dur=29 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.960009,1.000000,1.000000 bb=FIXED
+@1 remove #5 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_5
+@1 remove #4 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_4
+@1 remove #3 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_3
+@1 remove #2 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_2
+@1 remove #1 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_1
+@1 remove #0 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_0
+## pose yaw=37 pitch=-20
+@0 spawn #0 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_0 kind=block block=black_concrete pos=0.644018,0.100000,-1.768542 rot=0.000000,-0.216440,0.000000,0.976296 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_1 kind=block block=black_concrete pos=0.819717,0.100000,-1.636143 rot=0.000000,-0.258819,0.000000,0.965926 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #2 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_2 kind=block block=black_concrete pos=0.995417,0.100000,-1.503744 rot=0.000000,-0.300706,0.000000,0.953717 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #3 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_3 kind=block block=black_concrete pos=1.171117,0.100000,-1.371344 rot=0.000000,-0.342020,0.000000,0.939693 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #4 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_4 kind=block block=black_concrete pos=1.346817,0.100000,-1.238945 rot=0.000000,-0.382683,0.000000,0.923880 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #5 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_5 kind=block block=black_concrete pos=1.522517,0.100000,-1.106546 rot=0.000000,-0.422618,0.000000,0.906308 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_0 dur=29 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.960009,1.000000,1.000000 bb=FIXED
+@0 write #1 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_1 dur=29 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.960009,1.000000,1.000000 bb=FIXED
+@0 write #2 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_2 dur=29 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.960009,1.000000,1.000000 bb=FIXED
+@0 write #3 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_3 dur=29 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.960009,1.000000,1.000000 bb=FIXED
+@0 write #4 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_4 dur=29 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.960009,1.000000,1.000000 bb=FIXED
+@0 write #5 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_5 dur=29 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.960009,1.000000,1.000000 bb=FIXED
+@1 remove #5 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_5
+@1 remove #4 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_4
+@1 remove #3 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_3
+@1 remove #2 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_2
+@1 remove #1 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_1
+@1 remove #0 op=cast/p0/fx1_couture_rapier_guard_trailing_thread_0

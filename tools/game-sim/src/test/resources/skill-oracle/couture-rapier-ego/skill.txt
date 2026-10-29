@@ -1,0 +1,132 @@
+## pose yaw=0 pitch=0
+!! play-ended-early msg=live_cell_'victim'_is_not_resolvable_as_a_vector_on_Paper_(instance_anchors,_param_cells_need_the_table_player's_own_state)
+@0 spawn #0 op=cast/p0/fx1_couture_shear_overhead_arc_0 kind=block block=white_stained_glass pos=0.000000,-0.574170,0.695200 rot=-0.087156,0.000000,0.000000,0.996195 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=cast/p0/fx1_couture_shear_overhead_arc_1 kind=block block=white_stained_glass pos=0.000000,-0.411020,1.178990 rot=-0.235759,0.000000,0.000000,0.971812 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #2 op=cast/p0/fx1_couture_shear_overhead_arc_2 kind=block block=white_stained_glass pos=0.000000,-0.111580,1.592510 rot=-0.379016,0.000000,0.000000,0.925390 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #3 op=cast/p0/fx1_couture_shear_overhead_arc_3 kind=block block=white_stained_glass pos=0.000000,0.297140,1.898470 rot=-0.513677,0.000000,0.000000,0.857983 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #4 op=cast/p0/fx1_couture_shear_overhead_arc_4 kind=block block=white_stained_glass pos=0.000000,0.778270,2.069280 rot=-0.636690,0.000000,0.000000,0.771120 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #5 op=cast/p0/fx1_couture_shear_overhead_arc_5 kind=block block=white_stained_glass pos=0.000000,1.288420,2.089530 rot=-0.745264,0.000000,0.000000,0.666769 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #6 op=cast/p0/fx1_couture_shear_overhead_arc_6 kind=block block=white_stained_glass pos=0.000000,1.781580,1.957380 rot=-0.836938,0.000000,0.000000,0.547298 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #7 op=cast/p0/fx1_couture_shear_overhead_arc_7 kind=block block=white_stained_glass pos=0.000000,2.213260,1.684770 rot=-0.909632,0.000000,0.000000,0.415415 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #8 op=cast/p0/fx1_couture_shear_overhead_arc_8 kind=block block=white_stained_glass pos=0.000000,2.544530,1.296280 rot=-0.961698,0.000000,0.000000,0.274112 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #9 op=cast/p0/fx1_couture_shear_overhead_arc_9 kind=block block=white_stained_glass pos=0.000000,2.745510,0.826950 rot=-0.991955,0.000000,0.000000,0.126592 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #10 op=cast/p0/fx1_couture_shear_overhead_arc_10 kind=block block=white_stained_glass pos=0.000000,2.798070,0.319110 rot=0.999717,0.000000,0.000000,0.023798 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #11 op=cast/p0/fx1_couture_shear_overhead_arc_11 kind=block block=white_stained_glass pos=0.000000,2.697480,-0.181430 rot=0.984808,0.000000,0.000000,0.173648 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=cast/p0/fx1_couture_shear_overhead_arc_0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.025000,1.026860,1.294685 bb=FIXED
+@0 write #1 op=cast/p0/fx1_couture_shear_overhead_arc_1 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.025000,1.040385,1.294685 bb=FIXED
+@0 write #2 op=cast/p0/fx1_couture_shear_overhead_arc_2 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.025000,1.052285,1.294685 bb=FIXED
+@0 write #3 op=cast/p0/fx1_couture_shear_overhead_arc_3 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.025000,1.061880,1.294685 bb=FIXED
+@0 write #4 op=cast/p0/fx1_couture_shear_overhead_arc_4 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.025000,1.068600,1.294685 bb=FIXED
+@0 write #5 op=cast/p0/fx1_couture_shear_overhead_arc_5 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.025000,1.072065,1.294685 bb=FIXED
+@0 write #6 op=cast/p0/fx1_couture_shear_overhead_arc_6 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.025000,1.072065,1.294685 bb=FIXED
+@0 write #7 op=cast/p0/fx1_couture_shear_overhead_arc_7 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.025000,1.068600,1.294685 bb=FIXED
+@0 write #8 op=cast/p0/fx1_couture_shear_overhead_arc_8 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.025000,1.061880,1.294685 bb=FIXED
+@0 write #9 op=cast/p0/fx1_couture_shear_overhead_arc_9 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.025000,1.052285,1.294685 bb=FIXED
+@0 write #10 op=cast/p0/fx1_couture_shear_overhead_arc_10 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.025000,1.040385,1.294685 bb=FIXED
+@0 write #11 op=cast/p0/fx1_couture_shear_overhead_arc_11 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.025000,1.026860,1.294685 bb=FIXED
+@1 write #0 op=cast/p0/fx1_couture_shear_overhead_arc_0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.050000,1.053720,1.589370 bb=FIXED
+@1 write #1 op=cast/p0/fx1_couture_shear_overhead_arc_1 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.050000,1.080770,1.589370 bb=FIXED
+@1 write #2 op=cast/p0/fx1_couture_shear_overhead_arc_2 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.050000,1.104570,1.589370 bb=FIXED
+@1 write #3 op=cast/p0/fx1_couture_shear_overhead_arc_3 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.050000,1.123760,1.589370 bb=FIXED
+@1 write #4 op=cast/p0/fx1_couture_shear_overhead_arc_4 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.050000,1.137200,1.589370 bb=FIXED
+@1 write #5 op=cast/p0/fx1_couture_shear_overhead_arc_5 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.050000,1.144130,1.589370 bb=FIXED
+@1 write #6 op=cast/p0/fx1_couture_shear_overhead_arc_6 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.050000,1.144130,1.589370 bb=FIXED
+@1 write #7 op=cast/p0/fx1_couture_shear_overhead_arc_7 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.050000,1.137200,1.589370 bb=FIXED
+@1 write #8 op=cast/p0/fx1_couture_shear_overhead_arc_8 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.050000,1.123760,1.589370 bb=FIXED
+@1 write #9 op=cast/p0/fx1_couture_shear_overhead_arc_9 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.050000,1.104570,1.589370 bb=FIXED
+@1 write #10 op=cast/p0/fx1_couture_shear_overhead_arc_10 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.050000,1.080770,1.589370 bb=FIXED
+@1 write #11 op=cast/p0/fx1_couture_shear_overhead_arc_11 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.050000,1.053720,1.589370 bb=FIXED
+@2 write #0 op=cast/p0/fx1_couture_shear_overhead_arc_0 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.997503,0.997114,1.214666 bb=FIXED
+@2 write #1 op=cast/p0/fx1_couture_shear_overhead_arc_1 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.997503,0.993479,1.214666 bb=FIXED
+@2 write #2 op=cast/p0/fx1_couture_shear_overhead_arc_2 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.997503,0.989068,1.214666 bb=FIXED
+@2 write #3 op=cast/p0/fx1_couture_shear_overhead_arc_3 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.997503,0.984683,1.214666 bb=FIXED
+@2 write #4 op=cast/p0/fx1_couture_shear_overhead_arc_4 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.997503,0.981168,1.214666 bb=FIXED
+@2 write #5 op=cast/p0/fx1_couture_shear_overhead_arc_5 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.997503,0.979231,1.214666 bb=FIXED
+@2 write #6 op=cast/p0/fx1_couture_shear_overhead_arc_6 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.997503,0.979231,1.214666 bb=FIXED
+@2 write #7 op=cast/p0/fx1_couture_shear_overhead_arc_7 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.997503,0.981168,1.214666 bb=FIXED
+@2 write #8 op=cast/p0/fx1_couture_shear_overhead_arc_8 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.997503,0.984683,1.214666 bb=FIXED
+@2 write #9 op=cast/p0/fx1_couture_shear_overhead_arc_9 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.997503,0.989068,1.214666 bb=FIXED
+@2 write #10 op=cast/p0/fx1_couture_shear_overhead_arc_10 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.997503,0.993479,1.214666 bb=FIXED
+@2 write #11 op=cast/p0/fx1_couture_shear_overhead_arc_11 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.997503,0.997114,1.214666 bb=FIXED
+@18 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@19 remove #0 op=cast/p0/fx1_couture_shear_overhead_arc_0
+@19 remove #1 op=cast/p0/fx1_couture_shear_overhead_arc_1
+@19 remove #2 op=cast/p0/fx1_couture_shear_overhead_arc_2
+@19 remove #3 op=cast/p0/fx1_couture_shear_overhead_arc_3
+@19 remove #4 op=cast/p0/fx1_couture_shear_overhead_arc_4
+@19 remove #5 op=cast/p0/fx1_couture_shear_overhead_arc_5
+@19 remove #6 op=cast/p0/fx1_couture_shear_overhead_arc_6
+@19 remove #7 op=cast/p0/fx1_couture_shear_overhead_arc_7
+@19 remove #8 op=cast/p0/fx1_couture_shear_overhead_arc_8
+@19 remove #9 op=cast/p0/fx1_couture_shear_overhead_arc_9
+@19 remove #10 op=cast/p0/fx1_couture_shear_overhead_arc_10
+@19 remove #11 op=cast/p0/fx1_couture_shear_overhead_arc_11
+@29 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@29 damage 00000000-0000-0000-0000-00000000000a op=- physical=75 skill=couture-rapier-ego at=0.000000,0.900000,2.500000 ignoreinv=true ignorearmor=false
+@29 sound - op=- sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=0.000000,0.900000,2.500000
+## pose yaw=37 pitch=-20
+!! play-ended-early msg=live_cell_'victim'_is_not_resolvable_as_a_vector_on_Paper_(instance_anchors,_param_cells_need_the_table_player's_own_state)
+@0 spawn #0 op=cast/p0/fx1_couture_shear_overhead_arc_0 kind=block block=white_stained_glass pos=-0.418382,-0.574170,0.555211 rot=-0.082652,-0.316097,-0.027655,0.944715 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=cast/p0/fx1_couture_shear_overhead_arc_1 kind=block block=white_stained_glass pos=-0.709534,-0.411020,0.941583 rot=-0.223576,-0.308360,-0.074807,0.921592 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #2 op=cast/p0/fx1_couture_shear_overhead_arc_2 kind=block block=white_stained_glass pos=-0.958396,-0.111580,1.271835 rot=-0.359430,-0.293631,-0.120263,0.877569 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #3 op=cast/p0/fx1_couture_shear_overhead_arc_3 kind=block block=white_stained_glass pos=-1.142528,0.297140,1.516186 rot=-0.487132,-0.272242,-0.162992,0.813646 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #4 op=cast/p0/fx1_couture_shear_overhead_arc_4 kind=block block=white_stained_glass pos=-1.245324,0.778270,1.652600 rot=-0.603788,-0.244680,-0.202025,0.731271 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #5 op=cast/p0/fx1_couture_shear_overhead_arc_5 kind=block block=white_stained_glass pos=-1.257511,1.288420,1.668773 rot=-0.706752,-0.211569,-0.236476,0.632313 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #6 op=cast/p0/fx1_couture_shear_overhead_arc_6 kind=block block=white_stained_glass pos=-1.177981,1.781580,1.563233 rot=-0.793688,-0.173660,-0.265564,0.519015 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #7 op=cast/p0/fx1_couture_shear_overhead_arc_7 kind=block block=white_stained_glass pos=-1.013920,2.213260,1.345517 rot=-0.862626,-0.131813,-0.288630,0.393948 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #8 op=cast/p0/fx1_couture_shear_overhead_arc_8 kind=block block=white_stained_glass pos=-0.780121,2.544530,1.035255 rot=-0.912001,-0.086977,-0.305151,0.259947 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #9 op=cast/p0/fx1_couture_shear_overhead_arc_9 kind=block block=white_stained_glass pos=-0.497671,2.745510,0.660432 rot=-0.940694,-0.040168,-0.314752,0.120051 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #10 op=cast/p0/fx1_couture_shear_overhead_arc_10 kind=block block=white_stained_glass pos=-0.192045,2.798070,0.254853 rot=0.948055,-0.007551,0.317215,0.022568 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 spawn #11 op=cast/p0/fx1_couture_shear_overhead_arc_11 kind=block block=white_stained_glass pos=0.109187,2.697480,-0.144896 rot=0.933916,-0.055099,0.312484,0.164675 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=cast/p0/fx1_couture_shear_overhead_arc_0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.025000,1.026860,1.294685 bb=FIXED
+@0 write #1 op=cast/p0/fx1_couture_shear_overhead_arc_1 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.025000,1.040385,1.294685 bb=FIXED
+@0 write #2 op=cast/p0/fx1_couture_shear_overhead_arc_2 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.025000,1.052285,1.294685 bb=FIXED
+@0 write #3 op=cast/p0/fx1_couture_shear_overhead_arc_3 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.025000,1.061880,1.294685 bb=FIXED
+@0 write #4 op=cast/p0/fx1_couture_shear_overhead_arc_4 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.025000,1.068600,1.294685 bb=FIXED
+@0 write #5 op=cast/p0/fx1_couture_shear_overhead_arc_5 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.025000,1.072065,1.294685 bb=FIXED
+@0 write #6 op=cast/p0/fx1_couture_shear_overhead_arc_6 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.025000,1.072065,1.294685 bb=FIXED
+@0 write #7 op=cast/p0/fx1_couture_shear_overhead_arc_7 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.025000,1.068600,1.294685 bb=FIXED
+@0 write #8 op=cast/p0/fx1_couture_shear_overhead_arc_8 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.025000,1.061880,1.294685 bb=FIXED
+@0 write #9 op=cast/p0/fx1_couture_shear_overhead_arc_9 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.025000,1.052285,1.294685 bb=FIXED
+@0 write #10 op=cast/p0/fx1_couture_shear_overhead_arc_10 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.025000,1.040385,1.294685 bb=FIXED
+@0 write #11 op=cast/p0/fx1_couture_shear_overhead_arc_11 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.025000,1.026860,1.294685 bb=FIXED
+@1 write #0 op=cast/p0/fx1_couture_shear_overhead_arc_0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.050000,1.053720,1.589370 bb=FIXED
+@1 write #1 op=cast/p0/fx1_couture_shear_overhead_arc_1 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.050000,1.080770,1.589370 bb=FIXED
+@1 write #2 op=cast/p0/fx1_couture_shear_overhead_arc_2 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.050000,1.104570,1.589370 bb=FIXED
+@1 write #3 op=cast/p0/fx1_couture_shear_overhead_arc_3 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.050000,1.123760,1.589370 bb=FIXED
+@1 write #4 op=cast/p0/fx1_couture_shear_overhead_arc_4 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.050000,1.137200,1.589370 bb=FIXED
+@1 write #5 op=cast/p0/fx1_couture_shear_overhead_arc_5 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.050000,1.144130,1.589370 bb=FIXED
+@1 write #6 op=cast/p0/fx1_couture_shear_overhead_arc_6 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.050000,1.144130,1.589370 bb=FIXED
+@1 write #7 op=cast/p0/fx1_couture_shear_overhead_arc_7 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.050000,1.137200,1.589370 bb=FIXED
+@1 write #8 op=cast/p0/fx1_couture_shear_overhead_arc_8 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.050000,1.123760,1.589370 bb=FIXED
+@1 write #9 op=cast/p0/fx1_couture_shear_overhead_arc_9 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.050000,1.104570,1.589370 bb=FIXED
+@1 write #10 op=cast/p0/fx1_couture_shear_overhead_arc_10 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.050000,1.080770,1.589370 bb=FIXED
+@1 write #11 op=cast/p0/fx1_couture_shear_overhead_arc_11 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.050000,1.053720,1.589370 bb=FIXED
+@2 write #0 op=cast/p0/fx1_couture_shear_overhead_arc_0 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.997503,0.997114,1.214666 bb=FIXED
+@2 write #1 op=cast/p0/fx1_couture_shear_overhead_arc_1 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.997503,0.993479,1.214666 bb=FIXED
+@2 write #2 op=cast/p0/fx1_couture_shear_overhead_arc_2 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.997503,0.989068,1.214666 bb=FIXED
+@2 write #3 op=cast/p0/fx1_couture_shear_overhead_arc_3 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.997503,0.984683,1.214666 bb=FIXED
+@2 write #4 op=cast/p0/fx1_couture_shear_overhead_arc_4 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.997503,0.981168,1.214666 bb=FIXED
+@2 write #5 op=cast/p0/fx1_couture_shear_overhead_arc_5 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.997503,0.979231,1.214666 bb=FIXED
+@2 write #6 op=cast/p0/fx1_couture_shear_overhead_arc_6 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.997503,0.979231,1.214666 bb=FIXED
+@2 write #7 op=cast/p0/fx1_couture_shear_overhead_arc_7 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.997503,0.981168,1.214666 bb=FIXED
+@2 write #8 op=cast/p0/fx1_couture_shear_overhead_arc_8 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.997503,0.984683,1.214666 bb=FIXED
+@2 write #9 op=cast/p0/fx1_couture_shear_overhead_arc_9 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.997503,0.989068,1.214666 bb=FIXED
+@2 write #10 op=cast/p0/fx1_couture_shear_overhead_arc_10 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.997503,0.993479,1.214666 bb=FIXED
+@2 write #11 op=cast/p0/fx1_couture_shear_overhead_arc_11 dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.997503,0.997114,1.214666 bb=FIXED
+@18 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@19 remove #0 op=cast/p0/fx1_couture_shear_overhead_arc_0
+@19 remove #1 op=cast/p0/fx1_couture_shear_overhead_arc_1
+@19 remove #2 op=cast/p0/fx1_couture_shear_overhead_arc_2
+@19 remove #3 op=cast/p0/fx1_couture_shear_overhead_arc_3
+@19 remove #4 op=cast/p0/fx1_couture_shear_overhead_arc_4
+@19 remove #5 op=cast/p0/fx1_couture_shear_overhead_arc_5
+@19 remove #6 op=cast/p0/fx1_couture_shear_overhead_arc_6
+@19 remove #7 op=cast/p0/fx1_couture_shear_overhead_arc_7
+@19 remove #8 op=cast/p0/fx1_couture_shear_overhead_arc_8
+@19 remove #9 op=cast/p0/fx1_couture_shear_overhead_arc_9
+@19 remove #10 op=cast/p0/fx1_couture_shear_overhead_arc_10
+@19 remove #11 op=cast/p0/fx1_couture_shear_overhead_arc_11
+@29 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@29 damage 00000000-0000-0000-0000-00000000000a op=- physical=75 skill=couture-rapier-ego at=-1.504538,0.900000,1.996589 ignoreinv=true ignorearmor=false
+@29 sound - op=- sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=-1.504538,0.900000,1.996589

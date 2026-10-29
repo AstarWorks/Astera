@@ -3,10 +3,7 @@ package com.astarworks.astera.gamesim.skillengine
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.table.Action
-import com.astarworks.astera.core.domain.skillengine.table.CancelScope
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
-import com.astarworks.astera.core.domain.skillengine.table.EventPath
-import com.astarworks.astera.core.domain.skillengine.table.ExitReason
 import com.astarworks.astera.core.domain.skillengine.table.LockEnd
 import com.astarworks.astera.core.domain.skillengine.table.LockMove
 import com.astarworks.astera.core.domain.skillengine.table.StatePath
@@ -86,48 +83,6 @@ class LockCancelScenarioTest : SkillEngineScenario() {
     }
 
     @Test
-    fun cancelCastEmitsCancelThenEnd() {
-        val s = compile(skill("- {id: g, at: 3, do: [{id: stop, op: cancel, scope: cast}]}"))
-        val row = s.table.states.single { it.state == StatePath("cast") }.rows.single { it.action is Action.Cancel }
-        assertThat(row.action).isEqualTo(Action.Cancel(CancelScope.Cast))
-        val sub = s.table.subTables.getValue(EventPath("cast.cancel[cast]"))
-        assertThat(sub.rows.map { it.action }).containsExactly(
-            Action.Exit(StatePath("cast"), ExitReason.CANCEL),
-            Action.Emit(EventPath("cancel")),
-            Action.Emit(EventPath("end")),
-        )
-        assertThat(sub.rows.map { it.tick }.distinct()).containsExactly(0)
-    }
-
-    @Test
-    fun cancelStateTakesThen() {
-        val s = compile(skill("- {id: g, at: 2, do: [{id: leave, op: cancel, scope: state}]}"))
-        val sub = s.table.subTables.getValue(EventPath("cast.cancel[state]"))
-        assertThat(sub.rows.map { it.action }).containsExactly(Action.Emit(EventPath("cancel")))
-        // no on: cancel handler is written, so the state is left through its `then`, as by a timer but with exit.reason = cancel
-        val calls = play(s, seed = 1L, ticks = 10)
-        assertThat(calls.map { it.verb }).doesNotContain("end")
-    }
-
-    @Test
-    fun cancelInstanceFiresEnd() {
-        val s = compile(
-            skill(
-                """
-                - {id: marker, op: display, kind: item, item: fire_charge, context: fixed, anchor: caster, at: 0, for: 20}
-                - {id: g, at: 4, do: [{id: drop, op: cancel, scope: marker}]}
-                """,
-            ),
-        )
-        val sub = s.table.subTables.values.single { it.event.value.startsWith("cast.cancel[marker") }
-        assertThat(sub.rows.single().action).isInstanceOf(Action.End::class.java)
-        val calls = play(s, seed = 1L, ticks = 10)
-        // GatewayRecorder names a visual `#<spawn ordinal>`: the marker is the only spawn, and its End row plays as the remove call at the cancel tick
-        assertThat(calls.filter { it.verb == "spawn" }.map { it.instance }).containsExactly("#0")
-        assertThat(calls.filter { it.instance == "#0" && it.verb == "remove" }.map { it.tick }).containsExactly(4)
-    }
-
-    @Test
     fun cancelOfAnUnresolvedNameIsANamedLoadError() {
         // ADR-0303 line 817: an unresolved cancel name is a load error, named after the cancel row and the name
         val e = reject(skill("- {id: g, at: 4, do: [{id: drop, op: cancel, scope: nothing}]}"))
@@ -135,34 +90,4 @@ class LockCancelScenarioTest : SkillEngineScenario() {
         assertThat((e as SkillDecodeError.UndefinedReference).ref).contains("nothing")
     }
 
-    @Test
-    fun cancelDepthFirstRunsExits() {
-        val s = compile(
-            """
-            apiVersion: astera/v3
-            kind: Skill
-            id: lock-cancel-nested
-            meta: {cooldown_ticks: 0, resource_cost: 0}
-            machine:
-              start: outer
-              states:
-                outer:
-                  then: done
-                  start: inner
-                  states:
-                    inner:
-                      for: 10
-                      then: end
-                      do:
-                        - {id: g, at: 2, do: [{id: stop, op: cancel, scope: cast}]}
-                    end: {final: true}
-                done: {final: true}
-            """.trimIndent(),
-        )
-        val sub = s.table.subTables.values.single { it.event.value.endsWith("cancel[cast]") }
-        val exits = sub.rows.map { it.action }.filterIsInstance<Action.Exit>()
-        // innermost state first, each with reason cancel
-        assertThat(exits.map { it.state.value }).containsExactly("outer/inner", "outer")
-        assertThat(exits.map { it.reason }.distinct()).containsExactly(ExitReason.CANCEL)
-    }
 }

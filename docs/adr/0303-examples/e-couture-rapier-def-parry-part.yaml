@@ -52,7 +52,7 @@ id: couture-rapier-def
 item: couture-rapier
 meta: {cooldown_ticks: 85, resource_cost: 10}
 anchors:
-  - {id: hand, anchor: caster.hand_r, mount: caster}
+  - {id: hand, anchor: caster.eye, mount: caster}
 machine:
   start: guard
   world:                                           # the weapon frame carries the item's points (content/frames/couture-rapier.yaml, part held): blade.tip / blade.long
