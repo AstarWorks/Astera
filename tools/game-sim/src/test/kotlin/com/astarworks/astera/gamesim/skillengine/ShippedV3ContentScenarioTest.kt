@@ -74,6 +74,7 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
             }
         }
         problems += checkOracle(oracle)
+        problems += lateRows(oracle)
         // every status id a shipped row names must be a content/status file or a mechanic builtin (the server refuses to enable the engine otherwise)
         val statusFiles = Files.list(contentDir.resolve("status")).use { st -> st.map { it.fileName.toString().substringBeforeLast('.') }.toList().toSet() }
         val builtin = setOf("freeze", "silence", "immunity")
@@ -120,6 +121,61 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
     /** Golden file of a skill: its file path under content/skills (a patched variant: `<id>.patched` beside the files). */
     private fun goldenFile(key: String): Path = goldenDir.resolve(key.replace(" (patched)", ".patched") + ".txt")
 
+    /** The golden lines recorded for each skill this run, kept for [lateRows]. */
+    private val recordings = LinkedHashMap<String, List<String>>()
+
+    /** Extra ticks every pose is replayed past the table's load-time end, so a row that outlives its schedule shows up as a row instead of being cut off by the harness. */
+    private val overrunTicks = 60
+
+    /**
+     * Schedule predictability (founder 10/29: the schedule is fixed at load): in every recorded pose of every shipped skill, the cast ends at or before the
+     * load-time cast length (`bounds.path.max`, drained gameplay rows included), the run ends at most `machine.tail` ticks after it, and no golden row
+     * (gameplay or presentation) lands after the run end. A chain hop's ribbon lives exactly its `for:` (3 ticks): hops that detach must not be kept
+     * alive by the run end. One problem line per offence, naming the skill, pose and row.
+     */
+    private fun lateRows(skills: Map<String, CompiledSkill>): List<String> {
+        val problems = ArrayList<String>()
+        for ((key, skill) in skills) {
+            val lines = recordings[key] ?: continue
+            val pathMax = skill.table.bounds.path.max
+            val tail = skill.table.bounds.tail
+            var pose = ""
+            var section = ArrayList<String>()
+            fun check() {
+                if (!pose.startsWith("pose")) return
+                val castEnd = section.firstOrNull { it.startsWith("g @") && " cast-end" in it }?.let { it.substringAfter("g @").substringBefore(' ').toInt() }
+                val drainUntil = section.firstOrNull { it.startsWith("g @") && " cast-end" in it }?.let { Regex("until=(\\d+)").find(it)?.groupValues?.get(1)?.toInt() }
+                val runEnd = section.firstOrNull { it.startsWith("r @") }?.substringAfter("r @")?.substringBefore(' ')?.toInt()
+                val where = "$key [$pose]"
+                // a cast that ends by reaching its final state without leaving a state writes no cast-end line: its bound is the load-time one
+                if (castEnd != null && castEnd > pathMax) problems += "$where: cast-end @$castEnd is after the load-time cast length @0..$pathMax"
+                if (drainUntil != null && drainUntil > pathMax) problems += "$where: drained rows run until @$drainUntil, after the load-time cast length @0..$pathMax"
+                val end = runEnd ?: if (castEnd != null) maxOf(castEnd, drainUntil ?: 0) else pathMax + tail
+                if (end > pathMax + tail) problems += "$where: run ends @$end, after cast length @0..$pathMax + tail $tail"
+                val late = section.filter { it.startsWith("@") }.filter { it.substringAfter("@").substringBefore(' ').toInt() > end }
+                if (late.isNotEmpty()) problems += "$where: ${late.size} rows land after the run end @$end; first: ${late.first().take(160)}"
+            }
+            for (l in lines) {
+                if (l.startsWith("## ")) { check(); pose = l.removePrefix("## "); section = ArrayList() } else section += l
+            }
+            check()
+            // a detached chain hop ribbon (`for: 3`) is removed exactly 3 ticks after it spawned, not at the run end
+            if (skill.def.id == "chain-lightning") {
+                var posed = ""
+                val spawned = HashMap<String, Int>()
+                for (l in lines) {
+                    if (l.startsWith("## ")) { posed = l.removePrefix("## "); spawned.clear(); continue }
+                    if (!l.startsWith("@")) continue
+                    val tick = l.substringAfter("@").substringBefore(' ').toInt()
+                    val f = l.split(' ')
+                    if (f.getOrNull(1) == "spawn" && "kind=ribbon" in l) spawned[f[2]] = tick
+                    if (f.getOrNull(1) == "remove" && f[2] in spawned && tick - spawned.getValue(f[2]) != 3) problems += "$key [$posed]: ribbon ${f[2]} spawned @${spawned[f[2]]} removed @$tick, but its for: is 3"
+                }
+            }
+        }
+        return problems
+    }
+
     /** Compares (or, with the regen flag, rewrites) the golden of every skill; returns one problem line per skill that differs. */
     private fun checkOracle(skills: Map<String, CompiledSkill>): List<String> {
         val problems = ArrayList<String>()
@@ -128,7 +184,7 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
         }
         for ((key, skill) in skills) {
             val recorded = try {
-                recordSkill(skill)
+                recordSkill(skill).also { recordings[key] = it }
             } catch (e: Throwable) {
                 problems += "oracle $key: recording crashed: $e"
                 continue
@@ -183,7 +239,7 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
         val names = instanceNames
         // a crash or fault is part of the record (with the dummies in reach a hit can raise cells that only exist on the hit); fixing it shows as a golden diff
         val ended = try {
-            play(skill, 7L, events, null, rec, yaw, pitch)
+            play(skill, 7L, events, skill.table.bounds.path.max + skill.table.bounds.tail + 2 + overrunTicks, rec, yaw, pitch)
             null
         } catch (e: Exception) {
             (e.message ?: e.toString()).replace(Regex("\\s+"), "_")
