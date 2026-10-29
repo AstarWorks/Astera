@@ -105,10 +105,18 @@ patch game-modes/carry-mini-tnt.yaml 's/^(  respawn_seconds:).*/\1 "3"/' '^  res
 patch game-modes/carry-mini-tnt.yaml 's/^(  time_limit_seconds:).*/\1 "300"/' '^  time_limit_seconds:'
 
 # Star generators (in-match stars): 30s -> 3s so a bot standing on a pedestal collects within the suite.
+# Wave generators (Mid, `wave:` block instead of period_seconds): a wave every 6 s, announced 2 s ahead, scattered over 2 s; the wave size
+# (amount) keeps its production value. A generator with neither shape fails loudly via patch().
 for gf in "$root"/generators/*.yaml; do
   g=$(basename "$gf" .yaml)
-  patch "generators/$g.yaml" 's/^period_seconds:.*/period_seconds: 3.0/' '^period_seconds:'
-  patch "generators/$g.yaml" 's/^amount:.*/amount: 1/' '^amount:'
+  if grep -Eq '^wave:' "$gf"; then
+    patch "generators/$g.yaml" 's/^(  wave_period_seconds:).*/\1 6.0/' '^  wave_period_seconds:'
+    patch "generators/$g.yaml" 's/^(  wave_warn_seconds:).*/\1 2.0/' '^  wave_warn_seconds:'
+    patch "generators/$g.yaml" 's/^(  scatter_seconds:).*/\1 2.0/' '^  scatter_seconds:'
+  else
+    patch "generators/$g.yaml" 's/^period_seconds:.*/period_seconds: 3.0/' '^period_seconds:'
+    patch "generators/$g.yaml" 's/^amount:.*/amount: 1/' '^amount:'
+  fi
 done
 
 # Norma levels (layer.yaml, every mode): 3 levels, small goals so a suite reaches them (star goal 2 then 3, kill goal 1 then 2), and the whole
