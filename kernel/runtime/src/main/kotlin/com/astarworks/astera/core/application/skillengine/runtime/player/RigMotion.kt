@@ -17,7 +17,7 @@ internal class RigFreezeWindow(val at: Int, val ticks: Int)
 /** One lowered pose key: [rotate] is the absolute rotation vector of the key (a null `rotate` holds the previous one). */
 internal class RigPoseKey(val tick: Int, val rotate: Vec3?, val ease: String)
 
-/** The performance body sampled once per rig tick (v2 `RigBodyTrack` at 93cd534e4~1): no blend, a `step` key is a cut. */
+/** The performance body sampled once per rig tick: no blend, a `step` key is a cut. */
 internal class RigBodyTrack(private val animation: SkinRigAnimation, private val slim: Boolean) {
     class Landmark(val position: Vec3, val rotation: Quaternion)
 
@@ -89,7 +89,7 @@ internal class RigMotion(
 ) {
     private class Key(val t: Int, val rot: Quaternion, val ease: Easing)
 
-    /** The rig clock starts one tick after the rig row (v2 `base`). */
+    /** The rig clock starts one tick after the rig row. */
     val base: Int = 1
     private val keys: List<Key>
     private val tilt = Quaternion.fromRotationVector(tilt)

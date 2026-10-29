@@ -1,6 +1,6 @@
 // Keypoint annotation page (/annotate.html?skill=<skill id>): drag the proposed keypoints onto the reference frame of each held beat.
 // Data: GET/POST /api/keypoints/<skill> (content/skill-lint/<skill>.keypoints.yaml, validated by tools/pose-solve/kp.py);
-// frames: /api/keypoints/<skill>/frame/<tick>.png (ffmpeg from the cached reference video); overlay: the last `make skill-lint` run.
+// frames: /api/keypoints/<skill>/frame/<tick>.png (ffmpeg from the cached reference video); (no overlay: the lint producer was removed).
 const $ = (id) => document.getElementById(id);
 const skill = new URLSearchParams(location.search).get("skill") || "";
 const POINTS = ["head_top", "neck", "r_shoulder", "l_shoulder", "r_elbow", "l_elbow", "r_wrist", "l_wrist", "pelvis", "r_knee", "l_knee",
@@ -56,9 +56,6 @@ function refresh() {
   $("fBF").value = bl.face || "unknown";
   $("fFloor").checked = !!bl.floor;
   renderList();
-  const ov = $("ov");
-  ov.hidden = !$("showOv").checked;
-  if ($("showOv").checked) ov.src = `/api/keypoints/${encodeURIComponent(skill)}/overlay/${encodeURIComponent(b.id)}.png?t=${Date.now()}`;
   draw();
 }
 
@@ -160,7 +157,6 @@ $("fConf").onchange = (e) => { beat().confidence = e.target.value; S.dirty = tru
 $("fBD").onchange = (e) => { beat().blade.depth = e.target.value; S.dirty = true; };
 $("fBF").onchange = (e) => { beat().blade.face = e.target.value; S.dirty = true; };
 $("fFloor").onchange = (e) => { if (e.target.checked) beat().blade.floor = true; else delete beat().blade.floor; S.dirty = true; };
-$("showOv").onchange = refresh;
 $("bSave").onclick = save;
 addEventListener("beforeunload", (e) => { if (S.dirty) e.preventDefault(); });
 

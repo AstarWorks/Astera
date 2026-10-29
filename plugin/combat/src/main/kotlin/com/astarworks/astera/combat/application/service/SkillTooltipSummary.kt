@@ -12,7 +12,7 @@ import com.astarworks.astera.core.domain.skill.SkillId
 import java.util.Locale
 
 /**
- * Item-tooltip effect lines of a skill, read from the skill's v2 `meta:` block (ADR-0301) through the cast gate's
+ * Item-tooltip effect lines of a skill, read from the skill's `meta:` block (ADR-0301) through the cast gate's
  * [ISkillRegistry]: the localized name, the short description and the cooldown / cost numbers.
  */
 public class SkillTooltipSummary(

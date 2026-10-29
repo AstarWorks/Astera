@@ -109,7 +109,7 @@ public class SimLiveValueSource(
                 if (frame != CASTER) return null
                 val p = casterPose(request)
                 return when (point) {
-                    // bare `caster` is yaw only, as v2 `CastInstance.casterLocal` (CastInstance.kt:210, 807 at 9d4c4a3db); pitch is `look` / `eye`
+                    // bare `caster` is yaw only, as the caster-local frame; pitch is `look` / `eye`
                     null, "feet" -> Frame.fromYawPitch(p.feet, p.yaw, 0.0)
                     "eye" -> Frame.fromYawPitch(p.eye, p.yaw, p.pitch)
                     "look" -> Frame.fromYawPitch(p.feet, p.yaw, p.pitch)
@@ -227,7 +227,7 @@ public class SimLiveValueSource(
             return CasterPose(feet, feet, feet, request.casterYawDeg, request.casterPitchDeg)
         }
         val loc = e.location
-        // body = feet + hitbox height / 2, the v2 body centre (ConeSelector, v2 at 9d4c4a3db)
+        // body = feet + hitbox height / 2, the body centre (ConeSelector)
         return CasterPose(
             Vec3(loc.x, loc.y, loc.z), Vec3(loc.x, loc.y + e.eyeHeight, loc.z), Vec3(loc.x, loc.y + e.height / 2.0, loc.z),
             loc.yaw.toDouble(), loc.pitch.toDouble(),
@@ -254,7 +254,7 @@ public class SimLiveValueSource(
     }
 
     /**
-     * The hit victim as a frame (`victim`, `victim.root`, `target`): yaw-only like the v2 `pt_enemy_*` anchors. A bare frame is the body centre,
+     * The hit victim as a frame (`victim`, `victim.root`, `target`): yaw-only like the `pt_enemy_*` anchors. A bare frame is the body centre,
      * `feet` / `root` the feet, `eye` the eye, `center` halfway between feet and eye (the top for a non-living entity such as a crystal, interaction or display); null when no victim is bound or it is gone with no contact point.
      */
     private fun victimFrame(binding: EventBinding?, point: String?): Frame? {

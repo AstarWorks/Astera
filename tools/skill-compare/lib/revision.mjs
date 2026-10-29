@@ -1,5 +1,5 @@
 // Tree provenance shared by the compare server (current tree), skill-preview (stamps its meta.json) and the publish scripts.
-// contentRevision is the same fingerprint as tools/vfx-shot/capture_meta.py and tools/skill-lint/skill_lint.py:
+// contentRevision is the same fingerprint as tools/vfx-shot/capture_meta.py:
 // `git rev-parse HEAD:content` plus "+dirty-<sha256[:12]>" over the uncommitted/untracked files under content/.
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";

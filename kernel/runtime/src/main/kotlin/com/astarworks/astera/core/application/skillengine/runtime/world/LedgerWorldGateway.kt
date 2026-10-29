@@ -32,7 +32,7 @@ public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess
                 scheduleCoverStrikes(cast, spec, toolClass, cell, index, ordered.size)
                 continue
             }
-            // a flat chip (no tool) only ever hurts cover; terrain is the tool skills' to break (v2 BreakAreaExecutor)
+            // a flat chip (no tool) only ever hurts cover; terrain is the tool skills' to break
             if (toolClass == null) continue
             // A structure cell (Annihilation pillar) always reaches damage(): the access scales it by tier and tool class.
             if (!blocks.isStructure(cast, cell)) {

@@ -152,7 +152,7 @@ public object RigOpSpec : OpSpec<RigOp> {
             is Result.Success -> d.value
             is Result.Failure -> return d
         }
-        // a builtin frame is a valid rig parent as in v2: it rides the caster by name (the player resolves a non-instance parent by its text)
+        // a builtin frame is a valid rig parent it rides the caster by name (the player resolves a non-instance parent by its text)
         val parentInstance = lc.anchors.resolve(op.parent)?.instance
             ?: op.parent.takeIf { it in BUILTIN_PARENTS }?.let { InstanceId(listOf(InstanceId.Segment(OpId(it), null))) }
             ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, op.parent))

@@ -1,4 +1,4 @@
-// Atomic, immutable-revision publication used by publish-preview / publish-lint / publish-round (same scheme as publish-capture.mjs):
+// Atomic, immutable-revision publication used by publish-preview / publish-round (same scheme as publish-capture.mjs):
 // <root>/<skill>/<kind>/<revision>/{files..., manifest.json} is written under a staging dir and renamed into place, then
 // <root>/<skill>/<kind>/current.json is replaced by rename. An open page keeps reading its own revision directory.
 import { mkdirSync, writeFileSync, renameSync, rmSync, existsSync } from "node:fs";

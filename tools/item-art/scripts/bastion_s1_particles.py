@@ -3,8 +3,7 @@
 to the fx files.
 
 Run AFTER tools/item-art/scripts/bastion_s1_fx.py (that script rewrites the fx files from scratch and drops the marked
-particle block) and after `make skill-lint-plan SKILL=bastion-greatsword-s1` (rig_path reads the blade per tick from the
-plan dump); this script removes its own previous block and re-appends it, so it is idempotent:
+particle block) and after the rig is final (rig_path needs the blade per tick; the skill-lint plan dump that supplied it is removed, so this input needs a replacement); this script removes its own previous block and re-appends it, so it is idempotent:
 
     python3 tools/item-art/scripts/bastion_s1_particles.py
 
@@ -119,7 +118,7 @@ def patch(path, fx):
 # entity_effect / cloud are avoided, so nothing reads as a custom sprite) emitted EVERY tick ON the blade, root to tip, while
 # a pose is held, plus the swept trail of every cut and an impact burst on each damage tick. Every position is read from the
 # rig through rig_path.py (plan dump = the runtime's own blade per tick), nothing is hand-placed, so a re-keyed motion moves
-# the whole layer with it: re-run this script after any rig / skill timing change (and `make skill-lint-plan` first).
+# the whole layer with it: re-run this script after any rig / skill timing change .
 #
 # Volume: every emitter is a vanilla scatter (`shape: burst` = gaussian position spread in all three axes, `speed` = random
 # velocity in all three axes) or a random-direction `outward` spray, so the particles form a sheath AROUND the blade, not a

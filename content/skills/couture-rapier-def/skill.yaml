@@ -74,7 +74,7 @@ machine:
             - {law: fade, start: 0.4, to: 0, at: 0, for: 10, ease: out_cubic}
       states:
         guard:
-          # v2 window: listen incoming_hit, ticks 30, filter dist(caster, victim) <= 3.5
+          # window: listen incoming_hit, ticks 30, filter dist(caster, victim) <= 3.5
           for: 30
           then: done
           on:
@@ -83,10 +83,10 @@ machine:
               absorb: true
               to: riposte
               do:
-                # v2: delay 7, damage only when dist < 3.5 (strict); at is relative to the hurt tick
+                # delay 7, damage only when dist < 3.5 (strict); at is relative to the hurt tick
                 - {id: riposte_hit, op: damage, target: event.attacker, damage: {physical: "= dmg_physical"}, ignore_invulnerability: true, at: 7, when: "= dist(caster, event.attacker) < 3.5"}
         riposte:
-          # v2 counter_fx events: raise (0), +7, +13, +14, +15, +16; damage via delay 7 when dist < 3.5 (strict)
+          # counter_fx events: raise (0), +7, +13, +14, +15, +16; damage via delay 7 when dist < 3.5 (strict)
           for: 16
           then: done
           do:

@@ -423,10 +423,6 @@ export function makeHandler(opts = {}) {
       const r = kpRun(["frame", m[1], m[2]]);
       return r.status === 0 ? file(r.stdout.trim(), "image/png") : err(404, (r.stderr || "no frame").trim().split("\n").pop());
     }
-    if ((m = /^\/api\/keypoints\/([a-z0-9-]+)\/overlay\/([A-Za-z0-9-]+)\.png$/.exec(p))) {
-      const f = join(repo, "build", "skill-lint", m[1], "overlay", m[2] + ".png");
-      return inside(join(repo, "build"), f) ? file(f, "image/png") : err(400, "bad path");
-    }
     if ((m = /^\/round\/([a-z0-9-]+)\/([a-f0-9]{64})\/img\/([A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|jpg|webp))$/.exec(p))) {
       const f = join(publishedDir, m[1], "round", m[2], "img", m[3]);
       if (!existsSync(f) || !statSync(f).isFile()) return err(404, "not found");

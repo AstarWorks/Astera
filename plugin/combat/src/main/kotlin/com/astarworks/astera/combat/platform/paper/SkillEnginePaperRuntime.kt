@@ -23,7 +23,6 @@ import com.astarworks.astera.combat.application.trace.SkillEngineTrace
 import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
 import com.astarworks.astera.combat.domain.event.SkillCast
-import com.astarworks.astera.combat.domain.event.SkillChargeStarted
 import com.astarworks.astera.combat.domain.event.SkillReleased
 import com.astarworks.astera.combat.platform.wiring.CombatPlatformPorts
 import com.astarworks.astera.combat.platform.wiring.CombatWiringResult
@@ -228,9 +227,6 @@ internal class SkillEnginePaperRuntime(
             movementGateway.releaseAll()
             visualGateway.removeAll()
             playerHooks.releaseAll()
-        }
-        ctx.subscriptions += eventBus.subscribe(SkillChargeStarted::class) { event ->
-            cast.raiseAllOf(event.caster.uuid, "input.use", event.atTick.toInt())
         }
         ctx.subscriptions += eventBus.subscribe(SkillReleased::class) { event ->
             cast.raiseAllOf(event.caster.uuid, "input.release", event.atTick.toInt())

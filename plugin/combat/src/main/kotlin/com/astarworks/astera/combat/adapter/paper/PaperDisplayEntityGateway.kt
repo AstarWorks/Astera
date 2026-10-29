@@ -56,7 +56,7 @@ public class PaperDisplayEntityGateway(
     private val scheduler: IScheduler,
     /** A viewer's own `vfx_intensity`; read when the display is spawned. */
     private val intensityOf: (PlayerId) -> VfxIntensity = { VfxIntensity.FULL },
-    /** Server-wide cap on live skill displays (v1 `VfxPlayer.MAX_LIVE_DISPLAYS`); the quality floor and the hard stop derive from it. */
+    /** Server-wide cap on live skill displays; the quality floor and the hard stop derive from it. */
     private val maxLiveDisplays: Int = MAX_LIVE_DISPLAYS,
 ) : IDisplayEntityGateway {
 
@@ -75,7 +75,7 @@ public class PaperDisplayEntityGateway(
     private val live = LinkedHashSet<DisplayHandle>()
     private var prunedAt = -1L
 
-    /** The live-display budget (v1 `reserved` of `maxLiveDisplays`): count of valid displays after dropping the ones that expired. */
+    /** The live-display budget (`reserved` of `maxLiveDisplays`): count of valid displays after dropping the ones that expired. */
     private fun liveCount(): Int {
         val now = scheduler.currentTick()
         if (now != prunedAt) {
@@ -85,7 +85,7 @@ public class PaperDisplayEntityGateway(
         return live.size
     }
 
-    /** v1 VfxPlayer.spawn:593 -- budget pressure downgrades everyone: ambient (then accent) displays are not spawned at all. */
+    /** Budget pressure downgrades everyone: ambient (then accent) displays are not spawned at all. */
     private fun budgetAdmits(lane: VfxLane): Boolean {
         val used = liveCount()
         return used < maxLiveDisplays && VfxQualityProfile.admits(VfxQualityProfile.serverFloor(used, maxLiveDisplays), lane)
@@ -137,7 +137,7 @@ public class PaperDisplayEntityGateway(
     private fun IDisplayEntityGateway.DisplayScope.isOpen(): Boolean = audience == Audience.ALL && lane == VfxLane.CORE
 
     /**
-     * Audience-scoped spawn (v1 PaperDisplayEntityGateway). The display is created `visibleByDefault = false` (before it is
+     * Audience-scoped spawn. The display is created `visibleByDefault = false` (before it is
      * added to the world, so no tracker ever sends it unasked) and revealed with `Player.showEntity` to exactly the resolved
      * viewers: the audience relative to the caster / target, minus viewers whose `vfx_intensity` drops [lane]. Candidates are
      * the players near the display plus the caster and target; each reveal runs on that viewer's entity scheduler.
@@ -429,7 +429,7 @@ public class PaperDisplayEntityGateway(
         /** Players within this many blocks of an audience-scoped display are revealed candidates (beyond any display view range). */
         const val VIEWER_RADIUS = 128.0
 
-        /** Server-wide cap on live skill displays (v1 `VfxPlayer.MAX_LIVE_DISPLAYS`). */
+        /** Server-wide cap on live skill displays. */
         const val MAX_LIVE_DISPLAYS = 600
     }
 

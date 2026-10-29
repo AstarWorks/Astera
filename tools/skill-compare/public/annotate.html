@@ -32,14 +32,12 @@
     <h1 id="title">loading&hellip;</h1>
     <span class="sub" id="sub"></span>
   </div>
-  <p class="note">基準フレーム上の点をドラッグして直す。点を選んで空きをクリックすると置ける。矢印キー: 1px、Shift+矢印: 5px、0: 見えない (c=0)。Ctrl+S: 保存。保存後は <code>make pose-solve SKILL=…</code> と <code>make skill-lint SKILL=…</code>。</p>
+  <p class="note">基準フレーム上の点をドラッグして直す。点を選んで空きをクリックすると置ける。矢印キー: 1px、Shift+矢印: 5px、0: 見えない (c=0)。Ctrl+S: 保存。保存後は <code>make pose-solve SKILL=…</code> で解く。</p>
   <div class="ann">
     <div>
       <div class="beats" id="beats"></div>
       <div class="stage"><canvas id="cv" width="1280" height="720"></canvas><canvas id="mag" width="160" height="160"></canvas></div>
       <div class="msg" id="msg"></div>
-      <label class="chk"><input type="checkbox" id="showOv"> 直近の skill-lint overlay を見る (build/skill-lint/&lt;skill&gt;/overlay)</label>
-      <img id="ov" alt="overlay" hidden style="width:100%;margin-top:6px;border:1px solid var(--line)">
     </div>
     <div class="side">
       <div class="form">

@@ -3,7 +3,7 @@ package com.astarworks.astera.core.application.skillengine.runtime.ops
 import com.astarworks.astera.core.domain.geometry.Vec3
 
 /**
- * Per-tick law of the `reel` effect rows (R9; v2 `ReelLaw`): return along the straight thread to a (possibly moving) point at
+ * Per-tick law of the `reel` effect rows (R9): return along the straight thread to a (possibly moving) point at
  * `speed` blocks per tick. `ease` "in" ramps the speed up from 25 %, "out" ramps it down, "linear" is constant. It arrives when one
  * step covers the rest: the frame is placed on the point and [Step.arrived] is true. Pure arithmetic: the player reads the two world
  * positions and writes the result, so a reel of a projectile body and of a displayed frame are the same code.

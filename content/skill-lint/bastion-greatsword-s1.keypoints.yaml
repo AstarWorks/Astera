@@ -1,8 +1,8 @@
 # Reference keypoints for bastion-greatsword-s1 (月輪の薙ぎ): first annotation pass by a vision agent reading the 1280x720 reference frames
 # (video Svaaq9F7Ty8, t = 11.633 + 0.05 * tick). Correct them by dragging on the skill-compare annotate page:
 #   make skill-compare  ->  http://localhost:8097/annotate.html?skill=bastion-greatsword-s1
-# Then `make pose-solve SKILL=bastion-greatsword-s1` solves keys + targets from these points and `make skill-lint` draws them back on the frames.
-# Format and conventions: docs/contributing/vfx-team/skill-lint.md section "Keypoints and the overlay check".
+# Then `make pose-solve SKILL=bastion-greatsword-s1` solves keys + targets from these points.
+# Format and validator: tools/pose-solve/kp.py.
 # xy = pixel in the reference frame; c = confidence 0..1 (0 = hidden, solved from priors); depth = near | mid | far relative to the pelvis (toward the camera = near).
 # r_/l_ are the CHARACTER's right / left (the sword is in her right hand). blade.depth: tip toward / away from the camera vs the grip, or inplane. blade.face: up | camera | edge | unknown. blade.floor: true when the blade lies on the floor (picks the depth solution whose tip is at floor level).
 # `view` is written by the solver (image-space pan/zoom fit of the camera estimate).

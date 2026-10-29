@@ -43,9 +43,9 @@ public sealed interface TargetRef {
     public data object Caster : TargetRef
     /** Who dealt the damage of a `hurt` event (`event.attacker`, ADR-0303 10.3). */
     public data object Attacker : TargetRef
-    /** Non-allies within [radius] of [around]; [maxCount] keeps only the nearest N to [around] (v1 `max_count`). */
+    /** Non-allies within [radius] of [around]; [maxCount] keeps only the nearest N to [around] (`max_count`). */
     public data class Enemies(val around: PointRef, val radius: Value<Double>, val maxCount: Int? = null) : TargetRef
-    /** Team mates (never the caster) within [radius] of [around]; the caster is listed first, unconditionally, only when [includeSelf] (v1 `include_self`, default false). */
+    /** Team mates (never the caster) within [radius] of [around]; the caster is listed first, unconditionally, only when [includeSelf] (`include_self`, default false). */
     public data class Allies(val around: PointRef, val radius: Value<Double>, val maxCount: Int? = null, val includeSelf: Boolean = false) : TargetRef
 }
 

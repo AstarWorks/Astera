@@ -27,7 +27,7 @@ import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Val
 
 /**
- * Decoded `screen_veil` op (ADR-0303 10.1b, founder Q7 = A 2026-10-29; fields of v1 `screen_veil`,
+ * Decoded `screen_veil` op (ADR-0303 10.1b, founder Q7 = A 2026-10-29; fields of `screen_veil`,
  * `0c9e986ef~1:core/feature-gameplay/.../config/skill/MechanicYaml.kt:1131-1163`): a camera-anchored sprite quad on the target's screen,
  * fading out over [ticks]. The op's instance owns the quad, so `ticks` lowers to an `End` row, and a state exit or cast cancel removes it.
  */
@@ -62,7 +62,7 @@ public object ScreenVeilOpSpec : OpSpec<ScreenVeilOp> {
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ScreenVeilOp, SkillDecodeError> {
         val p = "screen_veil(${id.value})"
         values[colorField]?.let { screenHexRgb(it, "screen_veil", "$p.color", ctx) }
-        // v1 coerced a distance / fraction outside its range silently; the table refuses it (a literal is known now, `${param}` / `=` are checked by the player)
+        // a distance / fraction outside its range is refused, never coerced; the table refuses it (a literal is known now, `${param}` / `=` are checked by the player)
         (values[distanceField] as? Value.Literal)?.value?.let {
             if (it < ScreenVeilMath.MIN_DISTANCE || it > ScreenVeilMath.MAX_DISTANCE) ctx.fail("$p.distance", "$it is outside ${ScreenVeilMath.MIN_DISTANCE}..${ScreenVeilMath.MAX_DISTANCE}")
         }

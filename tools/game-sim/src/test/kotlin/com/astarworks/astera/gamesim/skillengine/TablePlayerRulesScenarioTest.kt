@@ -150,7 +150,7 @@ class TablePlayerRulesScenarioTest {
 
     // ---- live values: num, params, sound category -------------------------------------------------------------------
 
-    // ---- rig: held item and frame points (v2 RigPerformer, 93cd534e4~1) -------------------------------------------
+    // ---- rig: held item and frame points -------------------------------------------
 
     // ---- set rows + particle_def (item 15c) -------------------------------------------------------------------------
 

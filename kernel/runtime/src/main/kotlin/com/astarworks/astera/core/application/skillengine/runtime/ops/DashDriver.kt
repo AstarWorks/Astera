@@ -8,7 +8,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 
 /**
- * Per-tick driver of the `dash` effect rows (R9, R40; v2 `DashStrikeDriver` semantics): one teleport per tick along a fixed
+ * Per-tick driver of the `dash` effect rows (R9, R40): one teleport per tick along a fixed
  * heading, distance accumulated over `ticks` steps through `ease`, travel clamped `stop_before_target` short of the first body in
  * the corridor, optional immunity for the whole dash. The corridor hit is a sibling `hit` row, not the driver's business.
  *

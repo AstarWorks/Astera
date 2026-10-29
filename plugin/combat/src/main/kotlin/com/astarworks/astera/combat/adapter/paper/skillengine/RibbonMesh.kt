@@ -101,14 +101,14 @@ public class RibbonMesh {
     public companion object {
         private const val MAX_SPLITS: Int = 12
 
-        /** Slabs / quads are this much longer than the interval they cover so neighbours overlap (v1 VfxRigPlanner.kt OVERLAP). */
+        /** Slabs / quads are this much longer than the interval they cover so neighbours overlap. */
         public const val OVERLAP: Double = 1.06
 
-        /** Thickness of a crisp band slab (v1 VfxRigPlanner.kt SLAB_THICKNESS). */
+        /** Thickness of a crisp band slab. */
         public const val SLAB_THICKNESS: Double = 0.02
 
         /**
-         * The displays v1 spawns for [pieces] of one sample (VfxRigPlanner.trailPlans, VfxRigPlanner.kt:328-360): per band a soft quad when
+         * The displays spawned for [pieces] of one sample: per band a soft quad when
          * the style is not `crisp` and a slab when the style is not `soft` and the band names a block; the edge always a slab; the rim a soft
          * quad unless `crisp`; a double-sided trail repeats every soft quad reversed.
          */
@@ -134,7 +134,7 @@ public class RibbonMesh {
             return out
         }
 
-        /** The slab axes of [s] (v1 VfxRigPlanner.surface: radial = blade direction, chord = travel across it); null when the segment is degenerate. */
+        /** The slab axes of [s] (radial = blade direction, chord = travel across it); null when the segment is degenerate. */
         public fun slabAxes(s: Segment): SlabAxes? {
             val radial = s.v.length()
             if (radial < 1e-6) return null
@@ -147,8 +147,8 @@ public class RibbonMesh {
         }
 
         /**
-         * Size of a slab at fade factor [k] (v1 VfxRigPlanner.slab, VfxRigPlanner.kt:510-545): an edge ([thickness] = its width) thins radially and in
-         * depth, a band slab shortens along the chord. [k] is clamped at 0.02 like v1.
+         * Size of a slab at fade factor [k]: an edge ([thickness] = its width) thins radially and in
+         * depth, a band slab shortens along the chord. [k] is clamped at 0.02.
          */
         public fun slabSize(a: SlabAxes, edge: Boolean, thickness: Double, k: Double): Vec3 {
             val kk = k.coerceAtLeast(0.02)

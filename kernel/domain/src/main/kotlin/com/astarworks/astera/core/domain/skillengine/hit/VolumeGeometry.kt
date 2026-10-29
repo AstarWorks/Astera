@@ -54,7 +54,7 @@ internal object VolumeGeometry {
 
     /**
      * Sector vs box. The sector is a horizontal wedge about `forward` (full opening `angleDeg`,
-     * radius `range`) with total vertical extent `height` centred on the origin. As in v1's cone
+     * radius `range`) with total vertical extent `height` centred on the origin. As in the cone
      * selector (melee reach), a target counts when its BODY CENTRE (hitbox centre) is inside: the
      * hitbox width adds no reach, so `range` is the eye-to-body-centre distance.
      */

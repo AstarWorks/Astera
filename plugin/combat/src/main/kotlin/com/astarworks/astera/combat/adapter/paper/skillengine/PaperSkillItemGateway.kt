@@ -14,7 +14,7 @@ import org.bukkit.persistence.PersistentDataType
 import java.util.UUID
 
 /**
- * Paper [ISkillItemGateway] (R40). Astera items are found in the holder's inventory by their PDC `item_id` (v2 behaviour, kept
+ * Paper [ISkillItemGateway] (R40). Astera items are found in the holder's inventory by their PDC `item_id` (kept
  * 1:1). The per-skill cooldown goes to [ICooldownTracker] under the key `CastSkillUseCase` uses; a gated `use: skill:<id>` call
  * spends the called skill's own cooldown and resource cost. Trackers are looked up lazily: Items / Stats register them after
  * Combat wires.

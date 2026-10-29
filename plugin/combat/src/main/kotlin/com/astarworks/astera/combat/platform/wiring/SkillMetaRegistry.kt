@@ -13,7 +13,7 @@ import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.core.domain.skillengine.model.SkillMeta
 
 /**
- * The cast gate's skill registry (ADR-0301). The v2 [SkillCatalog] is the only skill store; each skill's gate data
+ * The cast gate's skill registry (ADR-0301). The [SkillCatalog] is the only skill store; each skill's gate data
  * (skin variants `id@skin` are not skills; cooldown, resource, E.G.O cost, reload, ready cue, name, tags) comes from its `meta:` block and is turned into a
  * [SkillSpec] with a placeholder archetype / params (the spec type is now the gate's record, nothing executes from it).
  */

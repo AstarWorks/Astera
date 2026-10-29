@@ -35,10 +35,10 @@ anchors:
 machine:
   start: windup
   tail: 2
-  # v1 couture-s2-rig.yaml (0c9e986ef~1) spans windup+throw+..: body anim lastTick 63 (v1 rig t 0..62) is longer than windup (34), so it lives in the machine-wide world list.
+  # The body anim (lastTick 63) is longer than windup (34), so it lives in the machine-wide world list.
   world:
     - {id: body_anim, op: body, target: caster, anim: couture-s2-body, speed: 1.0, for: 63}
-    # v1 couture-s2-rig.yaml:45-50 weapon_model: couture-rapier-hidden from t20 to t57 (then couture-rapier again).
+    # couture-s2-rig.yaml:45-50 weapon_model: couture-rapier-hidden from t20 to t57 (then couture-rapier again).
     - {id: hide_held, op: held_model, at: 20, model: "astera:couture-rapier-hidden", for: 37}
     # The volley outlives its spawning state (flies for 7, sticks for stick_ticks): ADR-0303 10.1 "owner": a machine-level world: list owns things for the whole machine. It is released at tick 34 (= windup length).
     - id: volley
@@ -51,9 +51,9 @@ machine:
       radius: 0.22
       hit: {targets: enemies, once: true, attach: false}
       block: {mode: stick, for: "= stick_ticks"}
-      # GAP: v2 hit shape is a capsule root->tip of both blades (radius 0.22), window once -> projectile capsule radius 0.22 (axis follows velocity)
-      # GAP: v2 lane_a/lane_b blade offsets +-left * blade length * lane -> none (no blade length in the engine)
-      # GAP: v2 align velocity axis with world.up reference -> default
+      # GAP: hit shape is a capsule root->tip of both blades (radius 0.22), window once -> projectile capsule radius 0.22 (axis follows velocity)
+      # GAP: lane_a/lane_b blade offsets +-left * blade length * lane -> none (no blade length in the engine)
+      # GAP: align velocity axis with world.up reference -> default
       motion:
         - {law: spin, axis: left, deg_per_tick: 54, at: 0, for: 7}   # ENGINE: projectile motion lowers without params; 54 = spin_dpt, 7 = ceil(throw_range / throw_speed) + 2
       on:
@@ -63,29 +63,29 @@ machine:
           - {id: push, op: impulse, at: 0, target: event.victim, vector: "= -contact.normal * 0.35 + vec(0, 0.12, 0)"}
           - {id: hitstop, op: freeze, at: 0, ticks: 2, scope: [caster, volley]}
           - {id: stab_snd, op: sound, sound: couture.stab, anchor: contact, pitch: "= 1.2 - 0.2 * clamp(length(velocity(volley) - velocity(victim)) / 2.0, 0.0, 1.0)", detach: true}
-          # GAP: v2 victim_anim stagger_back (strength = clamp(|rel_velocity| / 2, 0.3, 1.0)) has no victim body op (R41 covers the caster only)
+          # GAP: victim_anim stagger_back (strength = clamp(|rel_velocity| / 2, 0.3, 1.0)) has no victim body op (R41 covers the caster only)
           - {id: sparks, op: particle, particle: "= spark_particle", anchor: contact, count: "= spark_count", offset: [0.4, 0.4, 0.4], extra: 0.4, detach: true}
         block:
           - {id: crumb, op: particle_def, def: couture-s2-p-crumb, anchor: contact, detach: true}
           - {id: wall_snd, op: sound, sound: couture.stab_wall, anchor: contact, detach: true}
-    # v1 tip-glint (couture-s2-*-flight): ticks 3..10 of the flight rig clock, i.e. from the release at 34: world-owned so they follow the flight whichever state it is in.
+    # tip-glint (couture-s2-*-flight): ticks 3..10 of the flight rig clock, i.e. from the release at 34: world-owned so they follow the flight whichever state it is in.
     - {id: tip_glint_a, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: -0.6, up: 0.12, forward: 0.05}}, at: 37, every: 1, times: 8}
     - {id: tip_glint_b, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: 0.6, up: -0.1, forward: 0.95}}, at: 37, every: 1, times: 8}
     - {id: tip_glint_body, op: particle_def, def: couture-s2-p-tip, anchor: {of: volley, offset: {left: 0.0, up: 0.0, forward: 0.45}}, at: 37, every: 1, times: 8}
   states:
     windup:
-      # v2: coin1 (hit at 8) runs inside the overhead spin; the release event fires at tick 34.
+      # coin1 (hit at 8) runs inside the overhead spin; the release event fires at tick 34.
       for: 34
       then: throw
       enter:
         - {id: raise_snd, op: sound, sound: couture.raise, anchor: shears, volume: 0.6}
       do:
-        # v2 mesh_held (held part of the shears) shown ticks 0-4, then the three real pieces; raise 0-6: shears overhead (+0.9 up), long axis to world up, ease_out
+        # mesh_held (held part of the shears) shown ticks 0-4, then the three real pieces; raise 0-6: shears overhead (+0.9 up), long axis to world up, ease_out
         # frames carry the model part (content/frames/couture-rapier.yaml), the item displays ride on them.
         - {id: held, op: frame, anchor: shears, part: held, for: 4, motion: [{law: move, velocity: {up: 0.9}, at: 0, for: 6, ease: out_quad}]}
-            # GAP: v2 pose align {axis: shears.axis, to: world.up, up: caster.forward} over 6 ticks (ease_out) -> none (rotation to a world axis; the amount follows the hand pose)
+            # GAP: pose align {axis: shears.axis, to: world.up, up: caster.forward} over 6 ticks (ease_out) -> none (rotation to a world axis; the amount follows the hand pose)
         - {id: held_m, op: display, kind: item, item: "astera:couture-rapier", anchor: held, for: 4}
-        # v1 look/skill: spin was one op on frame `shears`; open_a/open_b (pose on blade_a/blade_b) were children of it. Spin lives on its own frame, the part frames hang under it (spin x pose).
+        # look/skill: spin was one op on frame `shears`; open_a/open_b (pose on blade_a/blade_b) were children of it. Spin lives on its own frame, the part frames hang under it (spin x pose).
         - {id: spin_frame, op: frame, anchor: shears, at: 4, for: 30, motion: [{law: spin, axis: left, deg_per_tick: "${spin_dpt}", at: 0, for: 30}]}
         - {id: piece_body, op: frame, anchor: spin_frame, part: body, at: 4, for: 30}
         - {id: piece_body_m, op: display, kind: item, item: "astera:couture-s2-body", anchor: piece_body, at: 4, for: 30}
@@ -107,13 +107,13 @@ machine:
           motion:
             - {law: keys, keys: [{t: 0, pose: []}, {t: 4, pose: [{axis: edge, deg: -35}]}]}     # -open_deg / 2
         - {id: piece_b_m, op: display, kind: item, item: "astera:couture-rapier-blade-b", anchor: piece_b, at: 4, for: 30}
-        # v2 spin op on the shears frame (54 deg/tick about caster.left, ticks 4-34): carried by the spin law on each piece above (R34: laws live on displays / the projectile body, never on an anchor).
-        # v1 trail: ticks 6, width_frac 0.6, alpha 0.35 = byte 0x59 of the colour (ribbon opacity is the colour alpha byte), fade_power default 1.5 (ADR-0303 s.260); the colour is a literal (ribbon colour takes no param), crimson patches it.
+        # spin op on the shears frame (54 deg/tick about caster.left, ticks 4-34): carried by the spin law on each piece above (R34: laws live on displays / the projectile body, never on an anchor).
+        # trail: ticks 6, width_frac 0.6, alpha 0.35 = byte 0x59 of the colour (ribbon opacity is the colour alpha byte), fade_power default 1.5 (ADR-0303 s.260); the colour is a literal (ribbon colour takes no param), crimson patches it.
         - {id: trail_a, op: ribbon, of: piece_a.tip, root: piece_a.root, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "= trail_color", at: 4, for: 30}
         - {id: trail_b, op: ribbon, of: piece_b.tip, root: piece_b.root, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "= trail_color", at: 4, for: 30}
-        # v1 volume / pitch read the tip speed: piece_a.tip (frame-op point, ADR-0303 3.5).
+        # volume / pitch read the tip speed: piece_a.tip (frame-op point, ADR-0303 3.5).
         - {id: whoosh,op: sound, sound: couture.whoosh, anchor: shears, at: 4, every: 4, for: 30, volume: "= clamp(speed(piece_a.tip) / 1.5, 0.2, 1.0)", pitch: "= 0.9 + 0.3 * clamp(speed(piece_a.tip) / 2.0, 0.0, 1.0)"}
-        # coin1: 30 degree / 9 block cone around the caster pose of tick 8; damage lands one tick after the selector (v2 delay op)
+        # coin1: 30 degree / 9 block cone around the caster pose of tick 8; damage lands one tick after the selector (delay op)
         - {id: slash, op: frame, anchor: caster, mode: snapshot, at: 8, for: 1}
         - id: c1_hit
           op: hit
@@ -133,7 +133,7 @@ machine:
               - {id: h1_orange, op: particle_def, def: couture-s2-p-orange, anchor: h1_frame, every: 1, times: 3, detach: true}
               - {id: h1_spark, op: particle_def, def: couture-s2-p-spark, anchor: h1_frame, every: 3, times: 2, detach: true}
               - {id: h1_crit, op: particle_def, def: couture-s2-p-crit, anchor: h1_frame, detach: true}
-        # max_count: 1 = the nearest 1 target (v2 hit cap; founder 10/28 ruling, TablePlayer.kt:933-935 sorts nearest-first then takes N).
+        # max_count: 1 = the nearest 1 target (hit cap; founder 10/28 ruling, TablePlayer.kt:933-935 sorts nearest-first then takes N).
         - {id: snd_5, op: sound, sound: entity.player.attack.sweep, anchor: caster, at: 0, volume: 0.5, pitch: 0.6}
         - {id: snd_6, op: sound, sound: item.armor.equip_chain, anchor: caster, at: 0, volume: 0.6, pitch: 1.4}
         - {id: snd_7, op: sound, sound: block.amethyst_block.resonate, anchor: caster, at: 3, volume: 0.5, pitch: 1.6}
@@ -218,11 +218,11 @@ machine:
             - {law: spin, axis: forward, deg_per_tick: 60, at: 0, for: 10}
             - {law: keys, keys: [{t: 0, scale: [1, 1, 1], alpha: 0}, {t: 2, scale: [1, 1, 1], alpha: 0.9}, {t: 10, scale: [0.4, 0.4, 1], alpha: 0, ease: in_quad}]}
     throw:
-      # v2 release: volley placed at the shears, pieces reparented, fly tip-first at throw_speed, gravity 0, drag 0, max_ticks = ceil(range / speed) + 2
+      # release: volley placed at the shears, pieces reparented, fly tip-first at throw_speed, gravity 0, drag 0, max_ticks = ceil(range / speed) + 2
       for: 7   # = ceil(throw_range / throw_speed) + 2 = ceil(7 / 1.7) + 2 = 5 + 2 = 7 with the current params (C5: for is a compile-time tick count)
       then: reel
       enter:
-        # v2 flying pieces (R34): displays on the volley, spin inherited from the projectile body `motion`, kept through stuck and reel until the reel ends.
+        # flying pieces (R34): displays on the volley, spin inherited from the projectile body `motion`, kept through stuck and reel until the reel ends.
         - {id: fly_body, op: frame, anchor: /windup/volley, part: body, until: reel.end}
         - {id: fly_body_m, op: display, kind: item, item: "astera:couture-s2-body", anchor: fly_body, until: reel.end}
         - {id: fly_a, op: frame, anchor: /windup/volley, part: blade_a, until: reel.end, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: 35}]}]}]}
@@ -230,17 +230,17 @@ machine:
         - {id: fly_b, op: frame, anchor: /windup/volley, part: blade_b, until: reel.end, motion: [{law: keys, keys: [{t: 0, pose: [{axis: edge, deg: -35}]}]}]}
         - {id: fly_b_m, op: display, kind: item, item: "astera:couture-rapier-blade-b", anchor: fly_b, until: reel.end}
         - {id: throw_snd, op: sound, sound: couture.throw, anchor: shears, pitch: 1.1}
-        # v2 dust: vanilla directed form (R34); v2 speed 0 so the velocity is only inherit_velocity 0.5 x the volley velocity.
+        # dust: vanilla directed form (R34); speed 0 so the velocity is only inherit_velocity 0.5 x the volley velocity.
         - {id: puff, op: particle, particle: dust, anchor: palm, times: 6, count: 0, offset: "= velocity(volley) * 0.5", extra: 1.0, color: "= thread_color", size: 1.0}
-        # v2 thread lines palm -> blade_a.root / blade_b.root / body.pivot (R34: live ribbons).
+        # thread lines palm -> blade_a.root / blade_b.root / body.pivot (R34: live ribbons).
         - {id: palm_f, op: frame, anchor: palm, until: reel.end}   # ribbon ends resolve frame-op ids only (RibbonOpSpec.anchorOf), not document anchors
-        # ENGINE GAP: RibbonOpSpec.kt:179 demands a static `for`, but the reel ends on arrival (runtime distance, v2), so its length is not fixed; kept until: reel.end (not a literal 51) until the engine accepts it.
+        # ENGINE GAP: RibbonOpSpec.kt:179 demands a static `for`, but the reel ends on arrival (runtime distance), so its length is not fixed; kept until: reel.end (not a literal 51) until the engine accepts it.
         - {id: thread_a, op: ribbon, from: palm_f, to: fly_a.root, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
         - {id: thread_b, op: ribbon, from: palm_f, to: fly_b.root, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
         - {id: thread_body, op: ribbon, from: palm_f, to: fly_body.pivot, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
-        # v1 plate flight_fan: slash_fan (= couture-s2-crescent) in the plane [axis, up] of the volley, alpha 0.5, removed on hit/block (the throw state ends then). Size 1.9 is the v2 value. ASSUMPTION: a fixed sprite faces +forward, so up 90 lays its x axis along the flight axis.
+        # plate flight_fan: slash_fan (= couture-s2-crescent) in the plane [axis, up] of the volley, alpha 0.5, removed on hit/block (the throw state ends then). Size 1.9. ASSUMPTION: a fixed sprite faces +forward, so up 90 lays its x axis along the flight axis.
         - {id: flight_fan, op: display, kind: sprite, sprite: couture-s2-crescent, size: [1.9, 1.9], color: "#80ffffff", anchor: /windup/volley, billboard: fixed, rotate: [{axis: up, deg: 90}], for: 7}
-        # v1 tip-glint (couture-s2-*-flight): couture-s2-p-tip every tick, ticks 3..10, per piece, at the v1 vfx-local lane point. v1 VfxDefinition.kt:372 documents x = left, y = up, z = forward, so offsets are copied unchanged.
+        # tip-glint (couture-s2-*-flight): couture-s2-p-tip every tick, ticks 3..10, per piece, at the vfx-local lane point: x = left, y = up, z = forward, so offsets are copied unchanged.
       on:
         - {event: volley.hit, to: stuck}
         - {event: volley.block, to: stuck}
@@ -248,7 +248,7 @@ machine:
       for: "= stick_ticks"
       then: reel
       do:
-        # v1 stick-spark / stick-pink (couture-s2-*-stuck): ticks 0..2 per piece at the v1 vfx-local point (x lane, y 1.48, z 0.05). same axis mapping as tip-glint; the anchor is the volley, not the hit point.
+        # stick-spark / stick-pink (couture-s2-*-stuck): ticks 0..2 per piece at the vfx-local point (x lane, y 1.48, z 0.05). same axis mapping as tip-glint; the anchor is the volley, not the hit point.
         - {id: stick_a_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /windup/volley, offset: {left: -0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
         - {id: stick_a_stick_pink, op: particle_def, def: couture-s2-p-stick-pink, anchor: {of: /windup/volley, offset: {left: -0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
         - {id: stick_b_stick, op: particle_def, def: couture-s2-p-stick, anchor: {of: /windup/volley, offset: {left: 0.6, up: 1.48, forward: 0.05}}, at: 0, every: 1, times: 3}
@@ -324,24 +324,24 @@ machine:
         - {id: hit2_spark, op: particle_def, def: couture-s2-p-spark, anchor: hit2_f, at: 2, every: 3, times: 2}
         - {id: shadow, op: display, kind: sprite, sprite: couture-s2-shadow-spikes, anchor: hit2_f, at: 8, for: 19, offset: {up: 0.02}, rotate: [{axis: up, deg: -90}], size: [0.096, 0.096], billboard: fixed, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 2, scale: [32, 11, 1], ease: out_expo}, {t: 17, scale: [32.93333, 11.33333, 1]}, {t: 19, scale: [29.46667, 1.13333, 1], ease: in_quad}]}]}
     reel:
-      # v2 reel: volley flies back to the palm at reel_speed 0.45 with ease_in; reel_hit capsule (radius 0.2) 6 dmg once; ends on arrive (runtime distance)
+      # reel: volley flies back to the palm at reel_speed 0.45 with ease_in; reel_hit capsule (radius 0.2) 6 dmg once; ends on arrive (runtime distance)
       for: 16
       then: coin3
       do:
         - {id: reel, op: reel, anchor: /windup/volley, to: /throw/palm_f, speed: "= reel_speed", ease: in}
-        # ignore_invulnerability: false is the vanilla default (v2 reel_hit had no flag).
+        # ignore_invulnerability: false is the vanilla default (reel_hit had no flag).
         - {id: reel_hit, op: hit, anchor: /throw/fly_a, targets: enemies, shape: {capsule: 0.2, from: root, to: tip}, window: once, ignore_invulnerability: false, damage: {physical: "= dmg_reel"}, on: {hit: [{id: pull, op: impulse, target: event.victim, vector: "= normalize(pos(palm) - pos(event.victim)) * 0.25"}, {id: reel_sparks, op: particle, particle: crit, anchor: contact, count: 6}, {id: slash_snd, op: sound, sound: couture.slash_light, anchor: contact}]}}
         - {id: reel_snd, op: sound, sound: couture.reel, anchor: /windup/volley, every: 3, for: 16, volume: 1.0, pitch: "= 1.0 + 0.4 * (1 - dist(volley, palm) / throw_range)"}
         - {id: catch_snd, op: sound, sound: couture.catch, anchor: shears, at: 15}
       on:
         - {event: reel.end, to: coin3}
     coin3:
-      # v2: starts on the coin3_start event (caster_anim body-b at +0, dash at +9, 3 ticks, radius 0.8, hit_once, stop_before_target 1.0)
+      # starts on the coin3_start event (caster_anim body-b at +0, dash at +9, 3 ticks, radius 0.8, hit_once, stop_before_target 1.0)
       for: 37
       then: end
       enter:
         - {id: dash, op: dash, at: 9, speed: "= c3_dash_distance / 3", for: 3, until: c3_hit.hit, direction: {forward: 1.0}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
-        # v2 dash_strike radius 0.8 + stop_before_target 1.0: the corridor sphere reaches 0.8 + 1.0 and its first victim ends the dash (R9).
+        # dash_strike radius 0.8 + stop_before_target 1.0: the corridor sphere reaches 0.8 + 1.0 and its first victim ends the dash (R9).
         - id: c3_hit
           op: hit
           at: 9
@@ -349,7 +349,7 @@ machine:
           for: 3
           anchor: body_c
           targets: enemies
-          shape: {sphere: 0.8}   # v2 dash_strike radius 0.8, hit_once: true (9d4c4a3db content/skills/couture-rapier-s2/coin3.yaml:20-21); window: once = hit_once
+          shape: {sphere: 0.8}   # dash_strike radius 0.8, hit_once: true (9d4c4a3db content/skills/couture-rapier-s2/coin3.yaml:20-21); window: once = hit_once
           window: once
           damage: {physical: = dmg_coin3}
           ignore_invulnerability: true

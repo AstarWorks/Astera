@@ -1,7 +1,7 @@
 // Publish a plain stills grid (pose-review cases): rows of reference | preview | in-game images, no overlay, no lint.
 //   node publish-stills.mjs <skill> <spec.json> [--root <published root>]
 // spec.json: { "title": "...", "rows": [ { "label": "side", "reference": "<png>", "preview": "<png>", "ingame": "<png>" } ] }
-// Image paths are absolute or relative to the spec file; "reference" is optional. Same atomic revision scheme as publish-lint.mjs.
+// Image paths are absolute or relative to the spec file; "reference" is optional. Same atomic revision scheme as publish-preview.mjs.
 import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";

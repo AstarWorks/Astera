@@ -22,7 +22,7 @@ public data class LoweredMachine(
 )
 
 /**
- * ADR-0303 section 10 lowering of a flat (expanded) [Machine] to the existing v2 ops, at exactly the same ticks:
+ * ADR-0303 section 10 lowering of a flat (expanded) [Machine] to the existing ops, at exactly the same ticks:
  *
  * | machine | existing ops |
  * |---|---|

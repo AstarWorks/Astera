@@ -8,7 +8,7 @@ import com.astarworks.astera.core.domain.animation.skinrig.SkinRigError
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-/** ADR-0250: a `content/animations/` clip runs the skin-rig timeline end to end (headless animator). The v2 `caster_anim` op that starts it from a skill is covered by CasterAnimScenarioTest. */
+/** ADR-0250: a `content/animations/` clip runs the skin-rig timeline end to end (headless animator). The `caster_anim` op that starts it from a skill is covered by CasterAnimScenarioTest. */
 class SkinRigAnimationScenarioTest {
 
     @Test

@@ -1,5 +1,5 @@
 # chain-lightning: a bolt whose impact arcs to every enemy near the victim in one tick. Written from zero on the rev4.10 grammar.
-# The arc is a single area damage around the victim (the v2 behaviour, kept). Per-victim jumps are a GAP: see the report.
+# The arc is a single area damage around the victim (the behaviour, kept). Per-victim jumps are a GAP: see the report.
 apiVersion: astera/v3
 kind: Skill
 id: chain-lightning

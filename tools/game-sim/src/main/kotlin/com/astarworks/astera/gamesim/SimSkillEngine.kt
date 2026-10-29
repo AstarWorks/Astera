@@ -3,7 +3,6 @@ package com.astarworks.astera.gamesim
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillParticleGateway
 import com.astarworks.astera.combat.application.port.outbound.IIncomingDamageInterceptor
 import com.astarworks.astera.combat.domain.event.SkillCast
-import com.astarworks.astera.combat.domain.event.SkillChargeStarted
 import com.astarworks.astera.combat.domain.event.SkillReleased
 import com.astarworks.astera.combat.platform.wiring.CombatWiringResult
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
@@ -105,7 +104,6 @@ internal class SimSkillEngine private constructor(
             runner.cancelAll()
             ledger.revertAll()
         }
-        subscriptions += eventBus.subscribe(SkillChargeStarted::class) { runner.raiseAllOf(it.caster.uuid, "input.use", it.atTick.toInt()) }
         subscriptions += eventBus.subscribe(SkillReleased::class) { runner.raiseAllOf(it.caster.uuid, "input.release", it.atTick.toInt()) }
         subscriptions += eventBus.subscribe(SkillCast::class) { onSkillCast(it) }
     }

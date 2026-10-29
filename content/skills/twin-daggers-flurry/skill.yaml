@@ -9,7 +9,7 @@ meta:
   resource_cost: 4
   tags: [melee, physical]
 anchors:
-  - {id: stab_pt, anchor: caster, offset: {up: -0.2, forward: 1.4}, mode: follow}  # v2 pt_caster (feet, yaw-only)
+  - {id: stab_pt, anchor: caster, offset: {up: -0.2, forward: 1.4}, mode: follow}  # pt_caster (feet, yaw-only)
   - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}
 machine:
   start: swing
@@ -30,7 +30,7 @@ machine:
           on:
             hit:
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 0.1}
-              # v2 status bleed chance 0.4 -> rand() gate (chance field removed in v3)
+              # status bleed chance 0.4 -> rand() gate (chance field removed in v3)
               - {id: bleed, op: status, target: event.victim, status: bleed, stacks: 1, for: 80, when: "= rand() < 0.4"}
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}

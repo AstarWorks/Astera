@@ -1,7 +1,6 @@
-# Wave 2 v3 draft of bastion-greatsword-s1 (v2: skill.yaml + look.yaml), generated from the v2 files by a scratch script, gameplay hand-authored.
-# Offsets [left, up, forward] -> name-keyed maps. Euler turn [pitch, yaw, roll] (v1: Ry(-yaw) Rx(pitch) Rz(roll)) -> pose list [up -yaw, left pitch, forward roll].
-# Weapon rig: three swings of three keys each (founder 2026-10-29: few keys + ease, no per-tick replica of v2). Each step is one great-circle arc of the tip (from/to),
-# the edge side (leading|trailing) and a roll; hit ticks (7, 31), freezes, damage and the end tick are the v2 values. Blade particles are segments between the rig anchor's
+# Offsets [left, up, forward] -> name-keyed maps. Euler turn [pitch, yaw, roll] (Ry(-yaw) Rx(pitch) Rz(roll)) -> pose list [up -yaw, left pitch, forward roll].
+# Weapon rig: three swings of three keys each (founder 2026-10-29: few keys + ease, no per-tick replica of the previous rig). Each step is one great-circle arc of the tip (from/to),
+# the edge side (leading|trailing) and a roll; hit ticks (7, 31), freezes, damage and the end tick are the values. Blade particles are segments between the rig anchor's
 # root and tip points (anchor: {of: rig.root, to: rig.tip, samples: N}), not baked positions.
 apiVersion: astera/v3
 kind: Skill
@@ -23,11 +22,7 @@ params:
   dash_distance_2: {type: blocks, default: 2.6}
   knockback: {type: number, default: 0.5}
 anchors:
-  # v2: frame fx2_bastion_s1_fx_high at caster orient yaw follow, group tick 3
-  # NOTE: v2 created this frame at tick 3; a doc-level anchor exists from tick 0 and follows the caster the same way
   - {id: fx2_fx_high, anchor: caster, mode: follow}
-  # v2: frame fx3_bastion_s1_fx_low at caster orient yaw follow, group tick 27
-  # NOTE: v2 created this frame at tick 27; a doc-level anchor exists from tick 0 and follows the caster the same way
   - {id: fx3_fx_low, anchor: caster, mode: follow}
 machine:
   start: sweep
@@ -36,20 +31,20 @@ machine:
       for: 58
       then: end
       do:
-        # --- gameplay (v2 gameplay.timeline t4 / t7 / t28 / t31) ---
-        # v2 dash_strike D over 3 ticks -> dash speed D/3 blocks/tick.
-        # v2 hit_once + stop_before_target 1.7 (R9): sibling trigger-only corridor hit, window once; the dash ends at its first victim (sphere 1.7 = the stop distance).
+        # --- gameplay (t4 / t7 / t28 / t31) ---
+        # dash_strike D over 3 ticks -> dash speed D/3 blocks/tick.
+        # hit_once + stop_before_target 1.7 (R9): sibling trigger-only corridor hit, window once; the dash ends at its first victim (sphere 1.7 = the stop distance).
         - {id: dash_hit, op: hit, at: 4, for: 3, every: 1, anchor: caster.body, shape: {sphere: 1.7}, targets: enemies, window: once, ignore_invulnerability: false}
         - {id: dash, op: dash, at: 4, speed: "= dash_distance / 3", for: 3, until: dash_hit.hit, direction: {forward: 1.0}, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
-        # v2 sel (damage 35, ignore_invulnerability) + sel_2 (freeze 2, scope enemy+caster) are the same sphere at the same tick: one hit with the damage.
+        # sel (damage 35, ignore_invulnerability) + sel_2 (freeze 2, scope enemy+caster) are the same sphere at the same tick: one hit with the damage.
         # The hit-stop of sel_2 is the freeze row in `on: hit1` below (R25); rig.freezes holds the weapon rig only.
         - {id: hit1, op: hit, at: 7, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "${dmg_physical}"}, window: once, ignore_invulnerability: true, on: {hit: [{id: stop, op: freeze, at: 0, ticks: 2, scope: [caster, event.victim]}]}}
         - {id: st_charge, op: status, at: 7, target: caster, status: charge, stacks: "${charge_stacks}", for: "${charge_ticks}", when: "= nearest_enemy_dist(caster) < 3.6"}
         - {id: dash_hit_2, op: hit, at: 28, for: 3, every: 1, anchor: caster.body, shape: {sphere: 1.7}, targets: enemies, window: once, ignore_invulnerability: false}
         - {id: dash_2, op: dash, at: 28, speed: "= dash_distance_2 / 3", for: 3, until: dash_hit_2.hit, direction: {forward: 1.0}, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
-        # v2 sel_3 (damage 45, ignore_invulnerability) + sel_4 (freeze 2 + knockback) merged the same way.
+        # sel_3 (damage 45, ignore_invulnerability) + sel_4 (freeze 2 + knockback) merged the same way.
         - {id: hit2, op: hit, at: 31, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "${dmg_physical_2}"}, window: once, ignore_invulnerability: true, on: {hit: [{id: stop_2, op: freeze, at: 0, ticks: 2, scope: [caster, event.victim]}, {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback}"}]}}
-        # --- weapon rig (v2 look.yaml group fx0, rig duration 58) ---
+        # --- weapon rig (group fx0, rig duration 58) ---
         - id: rig
           op: rig
           parent: caster
@@ -73,7 +68,7 @@ machine:
             - {at: 46, for: 4, from: {left: 0.94723, up: 0.09866, forward: 0.305}, to: {left: -0.03872, up: 0.78715, forward: 0.61554}, edge: trailing, roll: -79.1, ease: in_quad}
             - {at: 50, for: 6, to: {left: 0.0, up: -0.51, forward: 0.86}, edge: leading, roll: 0.0, ease: out_cubic}
             - {at: 56, reset: true}
-        # --- presentation (v2 look.yaml timeline groups, folded from the former top-level `presentation:`) ---
+        # --- presentation (timeline groups, folded from the former top-level `presentation:`) ---
         - id: fx0
           op: group
           at: 0

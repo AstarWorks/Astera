@@ -29,7 +29,7 @@ public interface IDisplayEntityGateway {
      * `screen_veil`). Null when the world is not loaded, the viewer is offline or the kind is unsupported.
      */
     /**
-     * Audience-scoped spawn (v1 `spawn(..., audience, caster, target, lane)`): only the viewers selected by [audience]
+     * Audience-scoped spawn only the viewers selected by [audience]
      * (relative to [caster] / [target]) see the display, and only those whose own `vfx_intensity` admits [lane].
      */
     public fun spawn(

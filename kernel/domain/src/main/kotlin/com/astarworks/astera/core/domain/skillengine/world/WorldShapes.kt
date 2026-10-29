@@ -3,7 +3,7 @@ package com.astarworks.astera.core.domain.skillengine.world
 import com.astarworks.astera.core.domain.geometry.Vec3
 import kotlin.math.ceil
 
-/** `break_area` volume (ADR-0303 10.1c). Sphere and line follow the true look; box follows [WorldAim.forward] (v2 `WorldShapes` 1:1). */
+/** `break_area` volume (ADR-0303 10.1c). Sphere and line follow the true look; box follows [WorldAim.forward]. */
 public sealed interface AreaShape {
     /** Centre = the op's anchor point; an offset from it is written on the anchor. */
     public data class Sphere(val radius: Double) : AreaShape

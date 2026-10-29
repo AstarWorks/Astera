@@ -11,7 +11,7 @@ import java.util.PriorityQueue
  * Tick-driven ledger of temporary block edits. Every plain block a skill changes is restored after its revert
  * delay (there are no permanent skill edits); overlapping edits keep the very first original and belong to the
  * cast that touched the cell last. [revertCast] restores only that cast's cells and drops its pending ripple
- * (v2 `BreakAreaExecutor` cancel); [revertAll] (match end, reload, shutdown) restores everything at once. Call [tick] once per server tick.
+ * (the break-area cancel); [revertAll] (match end, reload, shutdown) restores everything at once. Call [tick] once per server tick.
  */
 public class SkillWorldEditor(public val blocks: ISkillBlockAccess) {
 

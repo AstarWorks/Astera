@@ -5,7 +5,7 @@ import kotlin.math.abs
 
 /**
  * Where a shape is anchored and which way it faces. [look] is the caster's look direction; builds and boxes follow
- * its dominant horizontal axis. [eye] is the caster's eye point (v2 `caster.eye`): a build places its cells nearest-to-eye first; absent = [origin].
+ * its dominant horizontal axis. [eye] is the caster's eye point (`caster.eye`): a build places its cells nearest-to-eye first; absent = [origin].
  */
 public class WorldAim(public val origin: Vec3, look: Vec3, public val eye: Vec3 = origin) {
     public val look: Vec3 = if (look.lengthSquared() > 0.0) look.normalize() else Vec3(1.0, 0.0, 0.0)

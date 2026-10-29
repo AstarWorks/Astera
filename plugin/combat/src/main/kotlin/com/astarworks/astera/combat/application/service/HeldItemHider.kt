@@ -12,7 +12,7 @@ import com.astarworks.astera.core.domain.presentation.PresentationMask
 
 /**
  * `hide_held_item` for skills WITHOUT a performance rig (ADR-0276): a plain timed lease on the hand. A performance
- * (`VfxPlayer`) claims its own lease and needs no `hide_held_item` step. All packets, ordering and restoration are owned by
+ * (the skill display path) claims its own lease and needs no `hide_held_item` step. All packets, ordering and restoration are owned by
  * [IPlayerPresentation]; this class only decides when the lease ends.
  */
 public class HeldItemHider(

@@ -83,7 +83,7 @@ public object RigSwings {
     private val edge: Field<String?> = Field.optional("edge", Types.nullable(Types.enumOf("leading", "trailing")), null, "the cutting edge faces the tip's travel direction (leading) or against it (trailing); required unless reset")
     private val reset: Field<Value<Boolean>> = Field.optional("reset", Types.bool, Value.Literal(false), "true = a duration-0 write of the rest pose at 'at'; takes no other swing field")
     private val turns: Field<Value<Double>> = Field.optional("turns", Types.number, Value.Literal(0.0), "extra full revolutions of the swing circle (integer >= 0)")
-    private val ease: Field<String> = Field.optional("ease", Types.id, "linear", "easing of the whole segment (any v1 easing name except step)")
+    private val ease: Field<String> = Field.optional("ease", Types.id, "linear", "easing of the whole segment (any easing name except step)")
     private val roll: Field<Value<Double>> = Field.optional("roll", Types.number, Value.Literal(0.0), "extra degrees of roll about the driven part's long axis reached at the end (+deg carries forward -> left -> up -> forward)")
 
     public val step: Fields = Fields.of("rig-swing-step", from, via, to, edge, turns, TimingSpec.at, TimingSpec.forSpan, ease, roll, reset)
