@@ -172,6 +172,9 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
     /** Every display `write` as (tick, handle name, pose): kept out of [calls] so the oracle diff still compares verbs and payloads only. */
     val writtenPoses = ArrayList<Triple<Int, String, VisualPose>>()
+    /** [casterPosition] at the moment of each entry of [writtenPoses] (same index): lets a scenario compare a mesh with the caster's pose of that tick. */
+    var lastBodyHolds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold> = emptyList()
+    val writtenCasterAt = ArrayList<Vector3d>()
 
     /** Where a guard sees the guarded caster (feet, yaw): null = the origin facing +z. A duel sets it to the victim's pose. */
     var guardCaster: com.astarworks.astera.core.domain.geometry.math.Frame? = null
@@ -285,6 +288,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {
             writtenPoses += Triple(tick, name(handle), pose)
+            writtenCasterAt += Vector3d(casterPosition.x, casterPosition.y, casterPosition.z)
             add("write", name(handle), "dur=$interpolationTicks", OracleFmt.pose(pose))
         }
 
@@ -397,7 +401,8 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun isPlayer(entity: UUID): Boolean = entity !in mobs
 
-        override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double) {
+        override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double, holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold>) {
+            lastBodyHolds = holds
             seen("gameplay.playBodyClip", cast)
             add("effect", target.toString(), "body=$anim speed=${RecordedCall.num(speed)}")
         }

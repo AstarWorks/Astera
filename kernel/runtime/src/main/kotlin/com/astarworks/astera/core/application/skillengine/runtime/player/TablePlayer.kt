@@ -1656,7 +1656,7 @@ public class TablePlayer(
                     bodyRec.body = BodyPoints(clip, gameplay.bodySkeleton(), gameplay.isSlimSkin(who), speed)
                     freshBody(bodyRec)
                 }
-                gameplay.playBodyClip(castRef(run), who, anim, speed)
+                gameplay.playBodyClip(castRef(run), who, anim, speed, emptyList())
             }
             "held_model" -> {
                 val id = row.instance
@@ -1781,7 +1781,7 @@ public class TablePlayer(
         fun motion(hitStop: Boolean) = RigMotion(swing, v3("tilt"), v3("rest"), v3("pivot"), mounted, freezes, hitStop, track, slim, off)
         val pose = motion(respect)
         val bodyClock = if (bodyRespect && !respect) motion(true) else pose
-        if (anim != null) gameplay.playBodyClip(castRef(run), caster, anim, 1.0)
+        if (anim != null) gameplay.playBodyClip(castRef(run), caster, anim, 1.0, bodyClock.holds)
         // the rig is an anchor instance (ADR-0303 10.5): its rec lives at the rig's own id, carries the part's model points
         // (`rig.tip`, `rig.root`, ...) and holds the driver; with `of` the rec is only the carrier and the driven frame owns the pose.
         val carrier = row.instance
@@ -1791,7 +1791,7 @@ public class TablePlayer(
         val carrierRec = Rec(SpawnKind.FRAME, parentRec?.let { parent }, if (of != null || parentRec != null) "" else parent.text, now, ctx.owner, ctx.detached, identity)
         run.recs[carrier] = carrierRec
         // points first: the carrier is already addressable, so a refused visual spawn below must not leave point(rig, ..) unresolvable for every later row
-        for ((key, v) in p) if (key.startsWith("point.")) carrierRec.points[key.removePrefix("point.")] = any(run, v, ctx) as Vector3d
+        for ((key, v) in p) if (key.startsWith("point.")) carrierRec.points[key.removePrefix("point.")] = (any(run, v, ctx) as Vector3d).let { if (of == null) Vector3d(it.x * SkinRigTransforms.PLAYER_SCALE, it.y * SkinRigTransforms.PLAYER_SCALE, it.z * SkinRigTransforms.PLAYER_SCALE) else it }
         var held: Rec? = null
         if (of == null) {
             // no `of`: the rig frame is carried by the arm: its origin is the grip and its rotation arm * tilt * pose * rest, and the held mesh

@@ -13,13 +13,18 @@ import com.astarworks.astera.core.domain.geometry.Vec3
  *    linearly to 0 over `blend_out_ticks`. At weight 0 the pose is exactly the rest pose, so the real player
  *    can be shown again without a visible pop.
  */
-public class SkinRigPlayback(public val animation: SkinRigAnimation, speed: Double = 1.0) {
+public class SkinRigPlayback(
+    public val animation: SkinRigAnimation,
+    speed: Double = 1.0,
+    /** Clip positions where the clock stands still (hit-stop of a performance rig), sorted, in clip ticks of the unheld clock. */
+    public val holds: List<SkinRigHold> = emptyList(),
+) {
 
     /** Clip time per server tick (vanilla `AnimationState.speed`): 2.0 plays the clip, its blends included, in half the time. */
     public val speed: Double = speed.coerceIn(MIN_SPEED, MAX_SPEED)
 
     /** The clip clock: ticks advanced scaled by [speed]. */
-    private val clock: Double get() = tick * this.speed
+    private val clock: Double get() = held(tick) * this.speed
 
     public var tick: Int = 0
         private set
@@ -43,7 +48,20 @@ public class SkinRigPlayback(public val animation: SkinRigAnimation, speed: Doub
     public fun frame(): RigFrame = frameAtClock(clock)
 
     /** The pose [ticks] server ticks after the start (no stop requested): the same curve [frame] walks, sampled at an arbitrary tick. */
-    public fun frameAt(ticks: Int): RigFrame = frameAtClock(ticks * this.speed)
+    public fun frameAt(ticks: Int): RigFrame = frameAtClock(held(ticks) * this.speed)
+
+    /** Ticks advanced -> clip ticks: the clock stands still for [SkinRigHold.ticks] ticks once it reaches [SkinRigHold.at]. */
+    private fun held(ticks: Int): Double {
+        if (ticks <= 0) return 0.0
+        var acc = 0
+        for (h in holds) {
+            val local = ticks - acc
+            if (local <= h.at) break
+            if (local <= h.at + h.ticks) return h.at.toDouble()
+            acc += h.ticks
+        }
+        return (ticks - acc).toDouble()
+    }
 
     private fun frameAtClock(clock: Double): RigFrame {
         val weight = inWeight(clock) * outWeight(clock)

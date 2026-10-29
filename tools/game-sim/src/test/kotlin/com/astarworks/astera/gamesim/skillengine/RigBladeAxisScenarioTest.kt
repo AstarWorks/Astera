@@ -1,6 +1,7 @@
 package com.astarworks.astera.gamesim.skillengine
 
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.animation.skinrig.SkinRigTransforms
 import com.astarworks.astera.core.domain.geometry.Vec3
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -14,6 +15,8 @@ import kotlin.math.sqrt
  * points. Fails when the part axes, the rest, the mount or the anchor's points are wrong.
  */
 class RigBladeAxisScenarioTest : SkillEngineScenario() {
+    private fun Vec3.scale(k: Double) = Vec3(x * k, y * k, z * k)
+
     private fun dist(a: Vec3, b: Vec3): Double = sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) + (a.z - b.z) * (a.z - b.z))
 
     @Test
@@ -30,8 +33,8 @@ class RigBladeAxisScenarioTest : SkillEngineScenario() {
         assertThat(frames).isNotEmpty
 
         // points of the frame file's held_hand part (content/frames/bastion-greatsword.yaml)
-        val tip = Vec3(-0.0721, 1.5432, -1.04)
-        val root = Vec3(-0.0124, 0.2653, -0.1788)
+        val tip = Vec3(-0.0721, 1.5432, -1.04).scale(SkinRigTransforms.PLAYER_SCALE)
+        val root = Vec3(-0.0124, 0.2653, -0.1788).scale(SkinRigTransforms.PLAYER_SCALE)
 
         // swing 1 emits at ticks 4..19 (blade1 group); compare each tick's emissions with the mesh frame of the same tick
         var worstTip = 0.0
