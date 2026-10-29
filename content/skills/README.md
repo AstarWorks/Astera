@@ -52,6 +52,7 @@ e.g. for system-fired skills via `SkillCastRequested` published directly).
 
 ## Reading the grammar
 
+- Rotation sign: positive `deg` carries the basis axes forward -> left -> up -> forward (`+deg about up` turns forward toward left); negative is the other way. Reverse check: if a swing runs the wrong way, negate `deg`, never swap the axis. Vanilla `yaw` is not a skill field. Worked examples: `docs/contributing/add-a-skill-yaml.md`.
 - Timing (`at`, `for`, `every`, `until`), anchors and laws: ADR-0303 sections 0-3.
 - Gameplay ops (`hit`, `dash`, `projectile`, `body`, `lock`, `held_model`, ...): section 10.1b.
 - Static checks the loader runs: section 10.4 and 11.4. A file that fails them is a named load error, never a silent drop.

@@ -67,7 +67,7 @@ public object Rotations {
     private val AXIS_NAMES = setOf("forward", "back", "up", "down", "left", "right", "long", "edge", "face")
 
     public val axisField: Field<String> = Field.required("axis", Types.id, "forward|back|up|down|left|right|long|edge|face, optionally '<frame>.' prefixed and '-' negated")
-    public val degField: Field<Value<Double>> = Field.required("deg", Types.number, "degrees, plain right-handed about the axis tip (counter-clockwise looking from the tip toward the origin); a swing direction is not written with this, see RigSwings")
+    public val degField: Field<Value<Double>> = Field.required("deg", Types.number, "degrees about the axis; +deg carries the basis axes forward -> left -> up -> forward (+deg about up carries forward toward left); a swing direction is not written with this, see RigSwings")
     public val turn: Fields = Fields.of("rotate-step", axisField, degField)
 
     public val type: FieldType<Rotation> = object : FieldType<Rotation> {

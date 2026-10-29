@@ -74,7 +74,7 @@ public object MotionLaws {
 
     // spin
     private val axisF = Field.required("axis", Types.id, "forward|back|up|down|left|right, '-' negated; frozen in the parent basis")
-    private val degPerTickF = Field.required("deg_per_tick", Types.number, "degrees per tick about axis (right-handed)")
+    private val degPerTickF = Field.required("deg_per_tick", Types.number, "degrees per tick about axis; +deg carries forward -> left -> up -> forward (spin up, +12: the tip travels forward toward left)")
     private val spinStartF = Field.optional("start", Rotations.type, Rotation.Turns(emptyList()), "orientation the spin begins from, [{axis, deg}, ...]; absent = none")
     private val spinAccelF = Field.optional("accel", Types.number, Value.Literal(0.0), "deg/tick^2; excludes ease")
 

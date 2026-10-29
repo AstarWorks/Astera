@@ -1,5 +1,7 @@
 package com.astarworks.astera.gamesim.skillengine
 
+import com.astarworks.astera.core.domain.Result
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
@@ -28,4 +30,17 @@ class AdrExampleBehaviourScenarioTest : SkillEngineScenario() {
     @Test fun iEasingDisplayParticleSoundPlaysItsTable() = check("i-easing-display-particle-sound")
 
     @Test fun jMythicCompositionPlaysItsTable() = check("j-mythic-composition")
+
+    /** H2 (rev4.10): vanilla `yaw` is never written in a skill file; the UnknownKey error names `rotate`. */
+    @Test fun displayYawIsAnUnknownKeyNamingRotate() {
+        val yaml = listOf(
+            "apiVersion: astera/v3", "kind: Skill", "id: yaw-probe", "item: couture-rapier",
+            "machine:", "  start: s", "  states:", "    s:", "      for: 10", "      do:",
+            "        - {id: d, op: display, kind: block, block: stone, anchor: caster, yaw: 90, for: 10}",
+        ).joinToString("\n") + "\n"
+        val r = loadInline(yaml)
+        assertThat(r).isInstanceOf(Result.Failure::class.java)
+        val msg = (r as Result.Failure).error.message
+        assertThat(msg).contains("unknown key 'yaw'").contains("rotate").doesNotContain("clockwise")
+    }
 }

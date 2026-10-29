@@ -1114,7 +1114,7 @@
                                                         "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                                     }
                                                 ],
-                                                "description": "degrees, plain right-handed about the axis tip (counter-clockwise looking from the tip toward the origin); a swing direction is not written with this, see RigSwings"
+                                                "description": "degrees about the axis; +deg carries the basis axes forward -> left -> up -> forward (+deg about up carries forward toward left); a swing direction is not written with this, see RigSwings"
                                             }
                                         }
                                     }
@@ -1330,7 +1330,7 @@
                                                                 "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                                             }
                                                         ],
-                                                        "description": "degrees per tick about axis (right-handed)"
+                                                        "description": "degrees per tick about axis; +deg carries forward -> left -> up -> forward (spin up, +12: the tip travels forward toward left)"
                                                     },
                                                     "start": {
                                                         "oneOf": [
@@ -1359,7 +1359,7 @@
                                                                                     "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                                                                 }
                                                                             ],
-                                                                            "description": "degrees, plain right-handed about the axis tip (counter-clockwise looking from the tip toward the origin); a swing direction is not written with this, see RigSwings"
+                                                                            "description": "degrees about the axis; +deg carries the basis axes forward -> left -> up -> forward (+deg about up carries forward toward left); a swing direction is not written with this, see RigSwings"
                                                                         }
                                                                     }
                                                                 }
@@ -1900,7 +1900,7 @@
                                                                 "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                                             }
                                                         ],
-                                                        "description": "degrees per tick about axis (right-handed)"
+                                                        "description": "degrees per tick about axis; +deg carries forward -> left -> up -> forward (spin up, +12: the tip travels forward toward left)"
                                                     },
                                                     "phase_deg": {
                                                         "oneOf": [
@@ -3342,7 +3342,7 @@
                                                                                                         "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                                                                                     }
                                                                                                 ],
-                                                                                                "description": "degrees, plain right-handed about the axis tip (counter-clockwise looking from the tip toward the origin); a swing direction is not written with this, see RigSwings"
+                                                                                                "description": "degrees about the axis; +deg carries the basis axes forward -> left -> up -> forward (+deg about up carries forward toward left); a swing direction is not written with this, see RigSwings"
                                                                                             }
                                                                                         }
                                                                                     }
@@ -4112,7 +4112,7 @@
                                                         "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                                     }
                                                 ],
-                                                "description": "degrees, plain right-handed about the axis tip (counter-clockwise looking from the tip toward the origin); a swing direction is not written with this, see RigSwings"
+                                                "description": "degrees about the axis; +deg carries the basis axes forward -> left -> up -> forward (+deg about up carries forward toward left); a swing direction is not written with this, see RigSwings"
                                             }
                                         }
                                     }
@@ -4182,7 +4182,7 @@
                                                         "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                                     }
                                                 ],
-                                                "description": "degrees, plain right-handed about the axis tip (counter-clockwise looking from the tip toward the origin); a swing direction is not written with this, see RigSwings"
+                                                "description": "degrees about the axis; +deg carries the basis axes forward -> left -> up -> forward (+deg about up carries forward toward left); a swing direction is not written with this, see RigSwings"
                                             }
                                         }
                                     }
@@ -4202,19 +4202,6 @@
                             ],
                             "description": "right_rotation, quaternion [x, y, z, w]; absent = identity",
                             "default": []
-                        },
-                        "yaw": {
-                            "oneOf": [
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "string",
-                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
-                                }
-                            ],
-                            "description": "entity yaw, pinned at spawn",
-                            "default": 0.0
                         },
                         "pitch": {
                             "oneOf": [
@@ -4517,7 +4504,7 @@
                                                                 "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                                             }
                                                         ],
-                                                        "description": "degrees per tick about axis (right-handed)"
+                                                        "description": "degrees per tick about axis; +deg carries forward -> left -> up -> forward (spin up, +12: the tip travels forward toward left)"
                                                     },
                                                     "start": {
                                                         "oneOf": [
@@ -4546,7 +4533,7 @@
                                                                                     "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                                                                 }
                                                                             ],
-                                                                            "description": "degrees, plain right-handed about the axis tip (counter-clockwise looking from the tip toward the origin); a swing direction is not written with this, see RigSwings"
+                                                                            "description": "degrees about the axis; +deg carries the basis axes forward -> left -> up -> forward (+deg about up carries forward toward left); a swing direction is not written with this, see RigSwings"
                                                                         }
                                                                     }
                                                                 }
@@ -5087,7 +5074,7 @@
                                                                 "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                                             }
                                                         ],
-                                                        "description": "degrees per tick about axis (right-handed)"
+                                                        "description": "degrees per tick about axis; +deg carries forward -> left -> up -> forward (spin up, +12: the tip travels forward toward left)"
                                                     },
                                                     "phase_deg": {
                                                         "oneOf": [
@@ -6529,7 +6516,7 @@
                                                                                                         "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                                                                                     }
                                                                                                 ],
-                                                                                                "description": "degrees, plain right-handed about the axis tip (counter-clockwise looking from the tip toward the origin); a swing direction is not written with this, see RigSwings"
+                                                                                                "description": "degrees about the axis; +deg carries the basis axes forward -> left -> up -> forward (+deg about up carries forward toward left); a swing direction is not written with this, see RigSwings"
                                                                                             }
                                                                                         }
                                                                                     }
@@ -12437,7 +12424,7 @@
                                                         "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                                     }
                                                 ],
-                                                "description": "degrees, plain right-handed about the axis tip (counter-clockwise looking from the tip toward the origin); a swing direction is not written with this, see RigSwings"
+                                                "description": "degrees about the axis; +deg carries the basis axes forward -> left -> up -> forward (+deg about up carries forward toward left); a swing direction is not written with this, see RigSwings"
                                             }
                                         }
                                     }
@@ -12485,7 +12472,7 @@
                                                         "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                                     }
                                                 ],
-                                                "description": "degrees, plain right-handed about the axis tip (counter-clockwise looking from the tip toward the origin); a swing direction is not written with this, see RigSwings"
+                                                "description": "degrees about the axis; +deg carries the basis axes forward -> left -> up -> forward (+deg about up carries forward toward left); a swing direction is not written with this, see RigSwings"
                                             }
                                         }
                                     }
@@ -12801,7 +12788,7 @@
                                                 "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                             }
                                         ],
-                                        "description": "extra degrees of roll about the driven part's long axis reached at the end (right-handed)",
+                                        "description": "extra degrees of roll about the driven part's long axis reached at the end (+deg carries forward -> left -> up -> forward)",
                                         "default": 0.0
                                     },
                                     "reset": {
@@ -18239,7 +18226,7 @@
                                         "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                     }
                                 ],
-                                "description": "degrees per tick about axis (right-handed)"
+                                "description": "degrees per tick about axis; +deg carries forward -> left -> up -> forward (spin up, +12: the tip travels forward toward left)"
                             },
                             "start": {
                                 "oneOf": [
@@ -18268,7 +18255,7 @@
                                                             "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                                         }
                                                     ],
-                                                    "description": "degrees, plain right-handed about the axis tip (counter-clockwise looking from the tip toward the origin); a swing direction is not written with this, see RigSwings"
+                                                    "description": "degrees about the axis; +deg carries the basis axes forward -> left -> up -> forward (+deg about up carries forward toward left); a swing direction is not written with this, see RigSwings"
                                                 }
                                             }
                                         }
@@ -18809,7 +18796,7 @@
                                         "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                     }
                                 ],
-                                "description": "degrees per tick about axis (right-handed)"
+                                "description": "degrees per tick about axis; +deg carries forward -> left -> up -> forward (spin up, +12: the tip travels forward toward left)"
                             },
                             "phase_deg": {
                                 "oneOf": [
@@ -20251,7 +20238,7 @@
                                                                                 "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                                                             }
                                                                         ],
-                                                                        "description": "degrees, plain right-handed about the axis tip (counter-clockwise looking from the tip toward the origin); a swing direction is not written with this, see RigSwings"
+                                                                        "description": "degrees about the axis; +deg carries the basis axes forward -> left -> up -> forward (+deg about up carries forward toward left); a swing direction is not written with this, see RigSwings"
                                                                     }
                                                                 }
                                                             }

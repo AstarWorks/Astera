@@ -59,6 +59,8 @@ Founder questions Q2, Q3, Q5, Q6 are OPEN (Q1 = B and Q4 = A resolved 10/29, Q7 
 
 **rev4.9 (2026-10-29, foundation audit section 4, label and wording only)**: the v2 conversion residue is removed. The converter rules (section 6) and every converter reference are gone; section 6 now only says that content is hand-written. The v1 presentation parity additions section and the Skin rig `tools/skill-convert` sentences are deleted. The fade default note (2.0b) no longer mentions a converter, and the 0301 short easing names are removed from the text. `ItemFrames` documents are `apiVersion: astera/v3`; the decoder accepts that value only. No field is added or removed.
 
+**rev4.10 / H2 (2026-10-29, gap batch 2, founder 10/29: "AIが困惑しないほうが良い")**: the rotation sign keeps the right-hand rule and changes only its wording. The clock-direction words (a rotation described by a viewing side) are removed from this ADR, the field docs, the load errors and the author docs, because they need a viewpoint ("looking from where?"). The convention is one cyclic sentence (section 0, "Rotation sign"): positive `deg` carries the basis axes **forward -> left -> up -> forward**. Vanilla `yaw` is never written in a skill file: a display `yaw:` is an UnknownKey load error naming `rotate` (`yaw = -deg about up` is applied by the engine only). Three worked examples and the reverse check are in section 0.
+
 
 **rev4.7 (2026-10-29, founder Q7 = A)**: `screen_flash` and `screen_veil` are presentation ops again (10.1b rows; strict decode: overlay enum, `#RRGGBB`, veil distance 0.3..1.0 and `max_screen_fraction` up to 0.18 refused instead of coerced). `screen_flash` is a point effect through `ISkillGameplayGateway.screenFlash`; `screen_veil` is instance-lived (`spawnScreenVeil` / `updateScreenVeil` per tick, `End` at `ticks`). Sources: v1 `MechanicYaml.kt:1065-1098,1131-1163`, `PaperPlayerFeedbackGateway.kt:53-71`, `ScreenVeilHandler`. Q7 is closed; `bastion-greatsword-s2` and `-ego` carry their v2 cues again.
 state-qualified spelling `/<state>/<id>` (`/throw/volley`, `/throw/fly_a.root`; 10.1 `/x` is absolute from the machine root, ids are state-qualified,
@@ -130,10 +132,24 @@ Cancelling therefore never produces a tick that is not in a table.
 
 - World is Minecraft's: +X east, +Y up, +Z south. Right-handed.
 - Every anchor basis is the named triple **(forward, left, up)** with forward x left = up (right-handed; at yaw 0 forward = +Z, left = +X).
-- A rotation is "`deg` about a named axis", positive = **right-hand rule** (counter-clockwise looking from the axis tip toward the origin).
-  Consequences worth memorizing: +deg about `left` tips `up` toward `forward` (overhand chop: tip goes up, forward, down);
-  +deg about `up` turns `forward` toward `left` (left turn; the vanilla entity `yaw` field is the opposite sign, `yaw = -deg about up`, and is
-  only ever written by the engine); +deg about `forward` takes `left` toward `up` (leans to the right).
+- **Rotation sign.** A rotation is `deg` about a named axis of its basis `(forward, left, up)`. Positive `deg` moves the basis axes
+  cyclically **forward -> left -> up -> forward**: `+deg about up` carries `forward` toward `left`, `+deg about left` carries `up`
+  toward `forward`, `+deg about forward` carries `left` toward `up`. Negative `deg` moves them the other way. This is the right-hand rule
+  of JOML, Blender and glTF; clock-direction words are not used anywhere in this schema or its error messages
+  because they need a viewpoint. Vanilla `yaw` is never written in a skill file (a display `yaw:` is a load error); the host converts
+  (`yaw = -deg about up`).
+- **Blade travel.** A swing is written by the direction the edge travels: name the axis, and the sign is the cyclic rule above
+  (`spin axis: up, deg_per_tick: +12` = the tip travels forward -> left, a right-to-left horizontal slash for a right-handed caster).
+- **Three worked examples** (a `spin` law each):
+
+  | wanted | law | why |
+  |---|---|---|
+  | horizontal slash, tip sweeps from the caster's right across to the left (120 deg in 10 ticks) | `{law: spin, axis: up, deg_per_tick: 12, for: 10, start: [{axis: up, deg: -60}]}` | +deg about `up` carries forward -> left; start at -60 (tip right), end at +60 (tip left) |
+  | overhead chop, tip from straight up down to straight forward (90 deg in 6 ticks) | `{law: spin, axis: left, deg_per_tick: 15, for: 6}` on a blade whose rest pose points `up` | +deg about `left` carries up -> forward |
+  | drill thrust, blade rolls about its own length so its edge goes from left to up (one full turn in 8 ticks) | `{law: spin, axis: forward, deg_per_tick: 45, for: 8}` | +deg about `forward` carries left -> up |
+
+- **Reverse check** (authors and reviewers; the skill workflow's reverse check): read the cyclic rule backwards. If the written sign moves
+  the tip the wrong way, negate `deg`; never swap the axis.
 - Offsets and vectors are written as **name-keyed maps** `{forward: 1.2, up: -0.2}` (missing = 0), never positional triples, so the order
   can never be confused. Where a raw vector is a vanilla argument (particle `offset`, display `translation`) it is `[x, y, z]` in WORLD axes
   (particle) or entity-local axes (translation), and CEL values such as `= anchor.forward` produce world vectors.
@@ -290,7 +306,7 @@ written in the field table. A value that differed in v1 is written EXPLICITLY in
 | `fade.exponent` / ribbon `fade` (v1 `fade_power`) | identity default **1.0** (linear); a v1 look that used 1.5 writes `exponent: 1.5` on that element (v1 defaulted to 1.5, v2 silently changed it to 1.0, unapproved) | the schema default is the neutral value, and the v1 look is visible in the content instead of in the engine |
 | `count`, `offset`, `extra` (particle) | identity 1, [0,0,0], 0 | vanilla overload arguments, written down |
 | `scale`, `size` growth, `volume`, `pitch` | identity 1 (volume/pitch: vanilla sound defaults) | |
-| `billboard`, `context`, `view_range`, `yaw`, `pitch` | vanilla `fixed`, `fixed` (decision), 1.0, 0, 0 | |
+| `billboard`, `context`, `view_range`, `pitch` | vanilla `fixed`, `fixed` (decision), 1.0, 0 | |
 | `ribbon.style` (`soft | crisp | both`), one of `ribbon.width_frac` (with `root`) / `ribbon.width` (without `root`), `projectile.block.mode` | **required** (v2 hid `soft`) | no neutral value exists |
 | display `line_width`, `text_opacity` (kind text) | **listed defaults** 200, 255 | the vanilla text_display values (line width 200, opacity 255 = opaque); not identities, so the schema prints them as `x-listed-default` |
 | sound `category` | **listed default** `master` | vanilla `SoundCategory.MASTER` |
@@ -321,7 +337,6 @@ Every field is a vanilla field. Defaults are vanilla defaults.
   rotate: [{axis: long, deg: 20}]  # = left_rotation, named-axis list or quaternion
   scale: [1, 1, 1]                 # vanilla scale (item/block/text); sprites use `size`, below
   right: [0, 0, 0, 1]              # right_rotation, quaternion; default identity
-  yaw: 0                           # entity yaw/pitch, pinned at spawn, never re-sent; default 0 (all orientation lives in left_rotation)
   pitch: 0
   billboard: fixed                 # fixed | vertical | horizontal | center
   brightness: {block: 15, sky: 15} # absent = world light
@@ -1302,9 +1317,8 @@ Resolved (not founder decisions; engine facts, rev3/rev4):
 1. **Held-item context, RC3.** `fixed` (recommended) vs `thirdperson_righthand`. `content/frames/couture-rapier.yaml` points are measured in the
    `fixed` basis and the three pieces of coin 2 share it; `thirdperson_righthand` (`held_hand` part in the frames file) matches how the real held
    weapon looks and avoids a pop when the real item is hidden. Needs a capture of both before the first skill ships.
-2. **Axis sign convention.** Right-hand rule with `left` as the +axis (recommended; matches JOML, MC world, and the `fly`/`spin` code today) vs a
-   `right` axis (offsets to the right positive) and clockwise-positive rotation. Name-keyed offsets make the offset side a non-issue; the open point
-   is rotation sign only.
+2. **Axis sign convention.** RESOLVED (rev4.10 / H2): the right-hand rule, worded as the cyclic sentence forward -> left -> up -> forward (section 0);
+   a convention with the opposite sign is not used. Name-keyed offsets make the offset side a non-issue.
 3. **Sprite authoring unit**: blocks (`size`, taken here) vs vanilla scale.
 4. `ribbon`/`trail` internals (segment count, the history sampler) are deliberately thin here and need a follow-up.
 

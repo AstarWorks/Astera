@@ -80,14 +80,21 @@ public class FieldValues internal constructor(
  * A map schema: a fixed set of [Field]s. An unknown key or a missing required key is a load error naming file, path and field.
  * [jsonSchema] emits the fragment for the same fields (input for the generated skill schema, E10).
  */
-public class Fields private constructor(public val name: String, public val fields: List<Field<*>>) {
+public class Fields private constructor(
+    public val name: String,
+    public val fields: List<Field<*>>,
+    private val rejected: Map<String, String> = emptyMap(),
+) {
     init {
         val dup = fields.groupBy { it.name }.filterValues { it.size > 1 }.keys
         require(dup.isEmpty()) { "spec '$name' declares duplicate field(s) $dup" }
     }
 
     /** Merges specs (an op's own fields plus the shared timing block). */
-    public operator fun plus(other: Fields): Fields = Fields(name, fields + other.fields)
+    public operator fun plus(other: Fields): Fields = Fields(name, fields + other.fields, rejected + other.rejected)
+
+    /** Names a key that is deliberately not a field: writing it is an UnknownKey load error carrying [reason] (what to write instead). */
+    public fun rejecting(key: String, reason: String): Fields = Fields(name, fields, rejected + (key to reason))
 
     /** Reads [raw] (must be a map) at [path]. Call under [Grammar.guard], or use [decode]. */
     public fun read(raw: Any?, ctx: GrammarContext, path: String): FieldValues {
@@ -95,7 +102,7 @@ public class Fields private constructor(public val name: String, public val fiel
         val known = fields.associateBy { it.name }
         for (key in map.keys) {
             if (key !is String || key !in known) {
-                ctx.abort(SkillDecodeError.UnknownKey(ctx.file, path, key.toString()))
+                ctx.abort(SkillDecodeError.UnknownKey(ctx.file, path, key.toString(), rejected[key.toString()]))
             }
         }
         val out = LinkedHashMap<String, Any?>()

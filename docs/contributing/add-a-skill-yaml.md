@@ -42,6 +42,20 @@ machine:
 - 点表 (武器の point / axis): `content/frames/<item>.yaml` (`apiVersion: astera/v3`)。
 - 体のクリップと手の点: `content/animations/<anim>.yaml` の `points:`。
 
+## 回転の符号 (ADR-0303 section 0)
+
+`deg` は名前付き軸まわりの回転で、正の `deg` は基底軸を **forward -> left -> up -> forward** の順に送る
+(`+deg about up` は forward を left へ、`+deg about left` は up を forward へ、`+deg about forward` は left を up へ)。
+時計回り / 反時計回りという語は使わない (視点が要るため)。vanilla の `yaw` は skill に書けない (`yaw = -deg about up` はエンジンが適用する)。
+
+| 欲しい動き | 書き方 |
+|---|---|
+| 水平斬り: 先端が右から左へ (10 tick で 120 度) | `{law: spin, axis: up, deg_per_tick: 12, for: 10, start: [{axis: up, deg: -60}]}` |
+| 振り下ろし: 先端が真上から正面へ (6 tick で 90 度、刃の初期姿勢は up) | `{law: spin, axis: left, deg_per_tick: 15, for: 6}` |
+| ドリル突き: 刃が自分の長さ軸まわりに回り、刃先が left から up へ (8 tick で 1 回転) | `{law: spin, axis: forward, deg_per_tick: 45, for: 8}` |
+
+逆チェック: 書いた符号で先端が逆へ動くなら `deg` の符号を反転する。軸は入れ替えない。
+
 ## Item からの利用
 
 ```yaml

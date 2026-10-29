@@ -11,8 +11,8 @@ import kotlin.math.sqrt
  * Unit-quaternion orientation, double precision. Identity is `(0, 0, 0, 1)`
  * — Mojang's wire convention `(x, y, z, w)`.
  *
- * Right-handed rotation: a positive angle about an axis rotates
- * counter-clockwise when looking down the axis toward the origin.
+ * Right-handed rotation: a positive angle about an axis carries the basis axes
+ * forward -> left -> up -> forward (+angle about up carries forward toward left).
  * `a * b` applies `b` first, then `a` (Hamilton product).
  */
 public data class Quaternion(
