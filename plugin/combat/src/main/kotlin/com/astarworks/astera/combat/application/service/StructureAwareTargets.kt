@@ -63,6 +63,8 @@ public class StructureAwareEntityDamageGateway(
     override fun isEntityTarget(target: PlayerId): Boolean =
         structure(target) != null || base?.isEntityTarget(target) == true
 
+    override fun isTrainingTarget(target: PlayerId): Boolean = base?.isTrainingTarget(target) == true
+
     override fun apply(
         target: PlayerId,
         resolved: ResolvedDamage,
