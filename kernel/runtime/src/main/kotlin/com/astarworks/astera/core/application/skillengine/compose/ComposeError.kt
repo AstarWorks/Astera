@@ -18,6 +18,9 @@ sealed interface ComposeError {
     /** Two `kind: Skill` documents with the same id live in different files / directories. */
     data class DuplicateSkill(override val file: String, override val path: String, override val reason: String) : ComposeError
 
+    /** A tier document (`extends:` + `with:`, ADR-0303 9.3) breaks a derivation rule; [reason] is the exact load-error text. */
+    data class Extends(override val file: String, override val path: String, override val reason: String) : ComposeError
+
     /** Failures raised while applying a `kind: Patch` document. */
     sealed interface PatchError : ComposeError {
         /** An op of a `kind: Patch` changes something its `patchKind` does not allow (check 13). [path] is the first offending path as written. */

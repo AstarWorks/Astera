@@ -34,11 +34,11 @@ class ToolSkillCustomBlockScenarioTest {
 
     private val contentDir: Path = Paths.get(System.getProperty("astera.sim.contentDir")).toAbsolutePath()
 
-    /** `block_damage` of the skill's break_area op, read from the shipped skill file. */
+    /** `block_damage` of the skill's break_area op, read from the shipped skill file (a tier reads its `extends:` base). */
     private fun blockDamageOf(skill: String): Int {
         val skillText = Files.readString(contentDir.resolve("skills/$skill/skill.yaml"))
-        val part = checkNotNull(Regex("""use: ([\w-]+)""").find(skillText)) { "$skill uses no skill part" }.groupValues[1]
-        val text = Files.readString(contentDir.resolve("skill-parts/$part.yaml"))
+        val base = Regex("""(?m)^extends: ([\w-]+)""").find(skillText)?.groupValues?.get(1) ?: skill
+        val text = Files.readString(contentDir.resolve("skills/$base/skill.yaml"))
         val match = checkNotNull(Regex("""op: break_area[^\n]*?block_damage: (\d+)""").find(text)) { "$skill has no break_area block_damage" }
         return match.groupValues[1].toInt()
     }

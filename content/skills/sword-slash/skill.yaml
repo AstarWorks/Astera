@@ -1,3 +1,4 @@
+# sword-slash: base of the knight-sword tiers. sword-slash-t2..t4 extend it (ADR-0303 9.3): another id, item, meta and dmg.
 apiVersion: astera/v3
 kind: Skill
 id: sword-slash
@@ -7,6 +8,8 @@ meta:
   description: {ja: "前方を薙ぎ払う基本の斬撃。", en: "A basic sweeping slash."}
   cooldown_ticks: 10
   tags: [melee, physical]
+params:
+  dmg: {type: number, default: 40.0}
 anchors:
   - {id: sweep_pt, anchor: caster, offset: {up: -0.3, forward: 1.6}, mode: follow}
   - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}   # was pt_enemy_0_1p2_0 (victim feet, yaw-only)
@@ -25,7 +28,7 @@ machine:
           shape: {sector: {deg: 100, range: 3.5, height: 2.0, forward: look}}
           targets: enemies
           ignore_invulnerability: false
-          damage: {physical: 40.0}
+          damage: {physical: "${dmg}"}
           window: once
           on:
             hit:
