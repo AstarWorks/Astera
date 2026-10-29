@@ -49,6 +49,18 @@ public object AnchorNames {
     /** The name without its state qualifier (`/throw/volley[1].tip` -> `volley[1].tip`): the spelling an expression uses. */
     public fun bare(name: String): String = split(name)?.takeIf { it.state != null }?.let { name.trim().substringAfterLast('/') } ?: name
 
+    /**
+     * The name the table player resolves for [name] in this scope: a frame a part call bound (`frames: {origin: caster}`) is spelled by the
+     * caller's frame (`caster`, `blade`) with the same point suffix, because the part's own name does not exist outside the part.
+     */
+    public fun host(scope: AnchorScope, name: String): String {
+        val parts = split(name) ?: return name
+        if (parts.state != null || parts.index != null) return name
+        val inst = scope.resolve(name)?.instance?.text ?: return name
+        if (inst == parts.base || inst.contains('[') || inst.contains('/')) return name
+        return inst + (parts.point?.let { ".$it" } ?: "")
+    }
+
     /** True when the name addresses a family member (`blade[i]`); builtin anchors never have an index. */
     public fun isIndexed(name: String): Boolean = split(name)?.index != null
 }

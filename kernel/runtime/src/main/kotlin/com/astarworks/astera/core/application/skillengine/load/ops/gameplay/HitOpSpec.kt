@@ -199,7 +199,7 @@ public object HitOpSpec : OpSpec<HitOp> {
 
         val ref = PointRef.parse(op.anchor)
         val anchorInstance = lc.anchors.resolve(ref.frame)?.instance
-        fun point(name: String?): Vec = Val.Live(GameplayOps.point(ref.frame, name), null)
+        fun point(name: String?): Vec = Val.Live(GameplayOps.point(anchorInstance?.text ?: ref.frame, name), null)
         val origin: Vec = point(ref.point)
         val shape: HitShape = when (val s = op.shape) {
             is HitShapeDecl.Sphere -> HitShape.Sphere(origin, GameplayOps.live(s.radius))

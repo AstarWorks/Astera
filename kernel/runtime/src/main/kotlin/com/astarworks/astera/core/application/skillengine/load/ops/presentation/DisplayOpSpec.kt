@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.load.ops.presentation
 
+import com.astarworks.astera.core.application.skillengine.compose.AnchorNames
 import com.astarworks.astera.core.application.skillengine.compose.LawSegmenter
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.DecodeAbort
@@ -333,7 +334,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 rotation = quatCell(left),
                 scale = sprite?.scale ?: vecCell(op.scale),
             )
-            val spawn = Row(0, instance, Action.Spawn(spawnKind(op.kind), anchorInstance(op, lc), op.anchor, pose, look(op, right, sprite)), src)
+            val spawn = Row(0, instance, Action.Spawn(spawnKind(op.kind), anchorInstance(op, lc), AnchorNames.host(lc.anchors, op.anchor), pose, look(op, right, sprite)), src)
 
             val rows = ArrayList<Row>()
             rows += spawn

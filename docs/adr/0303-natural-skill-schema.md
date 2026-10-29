@@ -1002,7 +1002,7 @@ nearest to the eye (`fbeb1efdd`). `break_area` cover cells strike in six staged 
 
 Within one server tick a cast's rows play in this phase order, and the dump sorts rows by it inside a tick:
 
-1. state rows at this tick, table order: `enter`/`exit` bookkeeping, `spawn`, `key`/`teleport`, `particle`/`sound`, gameplay (`hit`, `damage`, ...), `lock`, `call`, `emit`, `end`;
+1. state rows at this tick, table order: `enter`/`exit` bookkeeping, `spawn` (frames and projectile bodies first, so a rider listed before its body still finds it), `key`/`teleport`, `particle`/`sound`, gameplay (`hit`, `damage`, ...), `lock`, `call`, `emit`, `end`;
 2. projectile bodies: motion, swept collision (3.6);
 3. events produced this tick, delivered in 10.2 order; each event's sub-table `@0` rows play now, in the order of 1;
 4. events produced by those `@0` rows (an `emit` in a handler, a `cancel`) are delivered in the same tick, at most `max_same_tick_depth` levels deep

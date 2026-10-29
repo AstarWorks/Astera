@@ -3,6 +3,7 @@ package com.astarworks.astera.core.application.skillengine.load.ops.gameplay
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
+import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ParticlePlacement
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
@@ -175,10 +176,19 @@ internal object GameplayOps {
         is TargetRef.Allies -> area(lc, path, "allies", t.around, t.radius, t.maxCount, t.includeSelf)
     }
 
-    private fun area(lc: LowerContext, path: String, kind: String, around: PointRef, radius: Value<Double>, maxCount: Int?, includeSelf: Boolean): Result<TargetRule, SkillDecodeError> =
-        num(radius, lc, "$path.radius").map { r ->
-            TargetRule.Area(kind, lc.anchors.resolve(around.frame)?.instance, point(around.frame, around.point), r, maxCount, includeSelf)
+    private fun area(lc: LowerContext, path: String, kind: String, around: PointRef, radius: Value<Double>, maxCount: Int?, includeSelf: Boolean): Result<TargetRule, SkillDecodeError> {
+        // an undeclared name would only fail when the area is first evaluated (on Paper); the load refuses it instead
+        val name = point(around.frame, around.point)
+        when (val b = ParticlePlacement.base(lc, name, "target")) {
+            is Result.Failure -> return b
+            is Result.Success -> if (b.value == null) {
+                return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "$path.around: '$name' is not declared in this scope (a frame id, an `anchors:` entry, `caster`, `contact` or `target`)"))
+            }
         }
+        return num(radius, lc, "$path.radius").map { r ->
+            TargetRule.Area(kind, lc.anchors.resolve(around.frame)?.instance, name, r, maxCount, includeSelf)
+        }
+    }
 
     fun row(lc: LowerContext, instance: InstanceId, action: Action): Row = Row(0, instance, action, lc.src)
 

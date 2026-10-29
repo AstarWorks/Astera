@@ -19,7 +19,7 @@ class RibbonOpacityScenarioTest : SkillEngineScenario() {
         val src = listOf(
             "apiVersion: astera/v3", "kind: Skill", "id: ribbon-probe", "item: couture-rapier",
             "machine:", "  start: s", "  states:", "    s:", "      for: 20", "      do:",
-            "        - {id: tip, op: projectile, origin: muzzle, velocity: \"= look(caster) * 1.0\", speed: 0.5, for: 10, radius: 0.4, hit: {targets: enemies, once: true}, block: {mode: despawn}}",
+            "        - {id: tip, op: projectile, origin: caster, velocity: \"= look(caster) * 1.0\", speed: 0.5, for: 10, radius: 0.4, hit: {targets: enemies, once: true}, block: {mode: despawn}}",
             "        - {id: r, op: ribbon, of: tip, history: 6, style: crisp, width: 0.3, fade: 2.0, color: \"#59ff5fa2\", for: 10}",
         ).joinToString("\n") + "\n"
         val loaded = loadInline(src)

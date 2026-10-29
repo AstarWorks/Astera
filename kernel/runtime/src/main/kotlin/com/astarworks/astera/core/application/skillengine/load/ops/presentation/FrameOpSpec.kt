@@ -45,7 +45,9 @@ import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.Look
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
+import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.SubTable
+import com.astarworks.astera.core.domain.skillengine.table.TickRange
 import com.astarworks.astera.core.domain.skillengine.table.Pose
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
@@ -180,7 +182,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
             modelPart?.points?.forEach { (name, p) -> look["point.$name"] = Val.Known(Vector3d(p.x, p.y, p.z)) }
             rows += Row(
                 0, instance,
-                Action.Spawn(SpawnKind.FRAME, parent, op.anchor, Pose(position, rotation, Val.Known(Vector3d(1.0, 1.0, 1.0))), Look(look)),
+                Action.Spawn(SpawnKind.FRAME, parent, AnchorNames.host(lc.anchors, op.anchor), Pose(position, rotation, Val.Known(Vector3d(1.0, 1.0, 1.0))), Look(look)),
                 lc.src,
             )
 
@@ -199,6 +201,14 @@ public object FrameOpSpec : OpSpec<FrameOp> {
                 segments = inLife.count { it.action is Action.Key }
             }
             if (life != null) rows += Row(life, instance, Action.End(instance), lc.src)
+            op.timing?.until?.let { ev ->
+                // `until` is a mask: the event's sub-table ends this frame the first time it fires (same law as displays and held models).
+                val hi = lc.clockOffset + (life ?: lc.config.maxLifeTicks)
+                subTables += SubTable(
+                    EventPath(ev), lc.state, TickRange(lc.clockOffset, maxOf(lc.clockOffset, hi)), 1,
+                    listOf(Row(0, instance, Action.End(instance), lc.src)), emptyList(),
+                )
+            }
             writes[instance] = WriteStats(segments, if (segments > 0) 1 else 0)
         }
 

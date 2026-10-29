@@ -100,6 +100,9 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     private fun name(h: VisualHandle): String = "#" + (ordinals[h.id] ?: -1)
 
     /** The lock sink the platform's `PaperPlayerHooks` is: pitch / yaw go through `lockLook`, so a played lock shows as a `lock` call. */
+    /** (display, field, value) of every `set` the player handed to the display sink. */
+    val displaySets = ArrayList<Triple<String, String, String>>()
+
     val hooks: com.astarworks.astera.core.application.skillengine.runtime.player.PlayerHooks =
         object : com.astarworks.astera.core.application.skillengine.runtime.player.PlayerHooks {
             private val compiler = com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler()
@@ -139,6 +142,17 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                 }
                 // like PaperPlayerHooks: a guard that cannot evaluate here (it needs a cast host, e.g. nearest_enemy_dist) answers null = a fault, false
                 return try { (expr.eval(com.astarworks.astera.core.domain.skillengine.expr.ExprEnv(vars, frames, seed = seed, host = host)) as? com.astarworks.astera.core.domain.skillengine.expr.ExprValue.Bool)?.value } catch (e: RuntimeException) { null }
+            }
+
+            /** The display sink `PaperPlayerHooks` is: a `set` of text_opacity / color / text lands on the display, kept here instead of becoming a call. */
+            override fun setDisplayField(handle: VisualHandle, field: String, value: Double): Boolean {
+                displaySets += Triple(name(handle), field, RecordedCall.num(value))
+                return true
+            }
+
+            override fun setDisplayText(handle: VisualHandle, field: String, value: String): Boolean {
+                displaySets += Triple(name(handle), field, value)
+                return true
             }
 
             override fun lock(caster: UUID, move: com.astarworks.astera.core.domain.skillengine.table.LockMove, pitch: Boolean, yaw: Boolean, untilTick: Int): Boolean {
@@ -258,6 +272,9 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             seen("gameplay.stopSound", cast)
             add("effect", viewer.toString(), "stop_sound=$sound")
         }
+
+        /** The shipped `content/animations` clips, like the Paper registry (a `rig` op needs the clip's timeline). */
+        override fun bodyClip(anim: String) = com.astarworks.astera.gamesim.SimClips.clip(anim)
 
         override fun playBodyClip(cast: CastRef, caster: UUID, anim: String, speed: Double) {
             seen("gameplay.playBodyClip", cast)
@@ -386,13 +403,68 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     val world = FakeSkillWorldGateway()
 
     val live: LiveValueSource = object : LiveValueSource {
-        override fun vec(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Vector3d = Vector3d(casterPosition)
+        /**
+         * What the Paper host resolves (`PaperLiveValueSource`): the caster / contact / target fields and the CEL forms `= ...` / `expr:...`.
+         * Anything else (an instance anchor, a state-qualified id, a param cell) is the table player's own state; reaching the host with
+         * it is the fault Paper raises, so the sim raises it too instead of answering a stand-in.
+         */
+        private fun paperResolvable(name: String): Boolean {
+            if (name.startsWith("= ") || name.startsWith("expr:")) return true
+            val bare = name.removePrefix("anchor:")
+            val root = bare.substringBefore('.')
+            if (root == "caster") return bare == "caster" || bare.removePrefix("caster.") in PAPER_CASTER_FIELDS
+            if (bare == "event.victim" || bare == "event.attacker") return true
+            return bare.contains('.') && (root == "contact" || root == "target")
+        }
 
-        override fun rot(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Quaterniond = Quaterniond()
+        /** The `caster.<field>` names `PaperLiveValueSource` answers (feet, pos, position, look, eye, body, forward and the hand points). */
+        private val PAPER_CASTER_FIELDS = setOf("feet", "pos", "position", "look", "eye", "body", "forward", "hand_r", "hand_l", "palm")
+
+        /** `PaperLiveValueSource.rot`: any `caster` / `caster.*` basis (yaw, plus pitch for look / eye / hands), or a CEL cell; no contact / target rotation. */
+        private fun paperRotatable(name: String): Boolean {
+            if (name.startsWith("= ") || name.startsWith("expr:")) return true
+            val bare = name.removePrefix("anchor:")
+            return bare == "caster" || bare.startsWith("caster.")
+        }
+
+        private fun requireResolvable(name: String, wanted: String) {
+            if (if (wanted == "a rotation") !paperRotatable(name) else !paperResolvable(name)) {
+                throw IllegalArgumentException("live cell '$name' is not resolvable as $wanted on Paper (instance anchors, param cells need the table player's own state)")
+            }
+        }
+
+        override fun vec(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Vector3d {
+            requireResolvable(name, "a vector")
+            // a direction cell (`caster.forward`) answers the caster's facing like Paper; every other cell answers the caster position
+            if (name.removePrefix("anchor:") == "caster.forward") {
+                val yaw = Math.toRadians(casterYawDeg)
+                return Vector3d(-Math.sin(yaw), 0.0, Math.cos(yaw))
+            }
+            return Vector3d(casterPosition)
+        }
+
+        override fun rot(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Quaterniond {
+            requireResolvable(name, "a rotation")
+            return Quaterniond()
+        }
 
         override fun num(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Double {
             reads += name
-            return liveNums[name] ?: 0.0
+            liveNums[name]?.let { return it }
+            // a constant `= 3 / 4` cell evaluates like Paper's CEL (a cell that needs the cast's variables keeps the stand-in 0)
+            val source = when {
+                name.startsWith("= ") -> name.removePrefix("= ")
+                name.startsWith("expr:") -> name.removePrefix("expr:")
+                else -> return 0.0
+            }
+            val compiled = (com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler().compile(source, com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec(), null) as? com.astarworks.astera.core.domain.Result.Success)?.value ?: return 0.0
+            val none = object : com.astarworks.astera.core.domain.skillengine.expr.FrameLookup {
+                override fun worldPose(frame: String, point: String?): com.astarworks.astera.core.domain.geometry.math.Frame? = null
+                override fun velocity(frame: String, point: String?) = com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 0.0)
+            }
+            return try {
+                (compiled.eval(com.astarworks.astera.core.domain.skillengine.expr.ExprEnv(emptyMap(), none)) as? com.astarworks.astera.core.domain.skillengine.expr.ExprValue.Num)?.value ?: 0.0
+            } catch (e: RuntimeException) { 0.0 }
         }
 
         override fun targets(cast: CastHandle, rule: TargetRule, binding: EventBinding?): TargetSet =

@@ -35,6 +35,6 @@ machine:
         - {id: dust_c, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#8cff78", size: 1.2, at: 6}
       enter:
         - {id: buff, op: status, target: caster, status: regen, stacks: 1, for: "${regen_ticks}"}   # stacks: 1 assumed
-        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: self, radius: "${radius}", include_self: true}}
-        - {id: st_regen, op: status, target: {kind: allies, around: self, radius: "${radius}", include_self: false}, status: regen, stacks: 1, for: "${regen_ticks}"}
+        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: caster, radius: "${radius}", include_self: true}}
+        - {id: st_regen, op: status, target: {kind: allies, around: caster, radius: "${radius}", include_self: false}, status: regen, stacks: 1, for: "${regen_ticks}"}
     end: {final: true}

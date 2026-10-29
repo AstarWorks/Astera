@@ -57,13 +57,7 @@ public object ImpulseOpSpec : OpSpec<ImpulseOp> {
     }
 
     private fun vector(v: OffsetVec, lc: LowerContext, path: String): Result<Val<Any>, SkillDecodeError> = when (v) {
-        is OffsetVec.World -> Result.Success(
-            when (val w = v.value) {
-                is Value.Literal -> Val.Known(w.value)
-                is Value.ParamRef -> Val.Live("\${${w.name}}", null)
-                is Value.Expr -> Val.Live("= ${w.source}", null)
-            },
-        )
+        is OffsetVec.World -> Result.Success(GameplayOps.liveVec(v.value))
         is OffsetVec.InAnchor -> {
             val name = v.of.of
             if (name !in V3Bindings.BUILTIN_FRAMES && lc.anchors.resolve(name) == null && lc.anchors.document(name) == null) {

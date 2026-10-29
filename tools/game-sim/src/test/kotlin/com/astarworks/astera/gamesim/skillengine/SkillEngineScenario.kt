@@ -187,6 +187,8 @@ abstract class SkillEngineScenario {
             events.filter { it.tick == now }.forEach { player.deliver(cast, it) }
             player.tick(now)
         }
+        // a row the player could not play is a Paper `[skill-error]` too: the recorded calls alone would only show a smaller trace
+        check(player.faults().isEmpty()) { "${skill.def.id} faulted while playing: " + player.faults().joinToString("; ") { "tick ${it.tick} ${it.src}: ${it.message}" } }
         return rec.calls
     }
 
@@ -217,6 +219,13 @@ abstract class SkillEngineScenario {
                 is Action.Effect -> if (a.op.value == "screen_veil") {
                     ordinals[id] = ordinals.size
                     out += tick to RecordedCall(tick, "spawn", "#${ordinals.getValue(id)}", "kind=veil")
+                } else if (a.payload["kind"]?.let { known(it) } == "rig" && a.payload["of"] == null) {
+                    // a rig that is its own frame carries the caster's held item as one mesh, written on every driver step of its span
+                    ordinals[id] = ordinals.size
+                    val n = ordinals.getValue(id)
+                    out += tick to RecordedCall(tick, "spawn", "#$n", "kind=item")
+                    val span = (known(a.payload.getValue("duration")) as Number).toInt()
+                    for (t in tick..tick + span) out += t to RecordedCall(t, "write", "#$n", "dur=0")
                 }
                 is Action.Key -> ordinals[a.display.text]?.let { out += tick to RecordedCall(tick, "write", "#$it", "dur=${a.durationTicks}") }
                 is Action.Teleport -> ordinals[a.display.text]?.let { out += tick to RecordedCall(tick, "write", "#$it", "") }
