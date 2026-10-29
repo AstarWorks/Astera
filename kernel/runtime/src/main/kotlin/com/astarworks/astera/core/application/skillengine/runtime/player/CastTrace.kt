@@ -36,6 +36,12 @@ public interface CastTrace {
     /** A `status` op did not apply to [victim] because this cast's damage already killed it. */
     public fun statusSkippedDead(cast: CastHandle, op: InstanceId, tick: Int, victim: java.util.UUID?) {}
 
+    /** The cast ended at [tick] but its handlers still hold [rows] gameplay rows (rule D, rev4.14); the last plays at [until]. The tail starts after it. */
+    public fun drain(cast: CastHandle, tick: Int, rows: Int, until: Int) {}
+
+    /** A non-detached presentation row [row] (its YAML path) of a handler was dropped because its owner [state] exited ([reason]) before the row's tick. */
+    public fun cut(cast: CastHandle, row: String, tick: Int, state: StatePath, reason: ExitReason) {}
+
     public companion object {
         public val NONE: CastTrace = object : CastTrace {
             override fun enter(cast: CastHandle, state: StatePath, tick: Int) {}
