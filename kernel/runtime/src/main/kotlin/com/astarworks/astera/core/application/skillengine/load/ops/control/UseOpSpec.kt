@@ -27,7 +27,7 @@ import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 
-/** Decoded `use` op. [target] is a part id, or `skill:<id>` (W1-15) with [gateCooldown] / [gateCost] from `gate:`. */
+/** Decoded `use` op. [target] is a part id, `fragment:<name>` (a skill-local fragment, resolved by [PartInliner.withFragments]), or `skill:<id>` (W1-15) with [gateCooldown] / [gateCost] from `gate:`. */
 public class UseOp(
     override val id: OpId,
     override val src: SrcPath,
@@ -57,7 +57,8 @@ public object UseOpSpec : OpSpec<UseOp> {
             if (target.length == SkillCallInliner.PREFIX.length) ctx.fail("use", "'skill:' names no skill")
             return Result.success(UseOp(id, src, whenExpr, timing, target, values[withField], values[framesField], gate?.cooldown ?: false, gate?.cost ?: false))
         }
-        if (gate != null) ctx.fail("gate", "gate: applies to a skill call (use: skill:<id>); a part call has no cooldown or cost")
+        if (target.startsWith(PartInliner.FRAGMENT_PREFIX) && target.length == PartInliner.FRAGMENT_PREFIX.length) ctx.fail("use", "'fragment:' names no fragment")
+        if (gate != null) ctx.fail("gate", "gate: applies to a skill call (use: skill:<id>); a part or fragment call has no cooldown or cost")
         return Result.success(UseOp(id, src, whenExpr, timing, target, values[withField], values[framesField]))
     }
 

@@ -27,6 +27,17 @@ import com.astarworks.astera.core.domain.skillengine.part.PartError
  * `use: skill:<id>` calls are not touched here ([SkillCallInliner] renames them to synthetic parts first).
  */
 public object PartInliner {
+    public const val FRAGMENT_PREFIX: String = "fragment:"
+
+    /** [shared] plus the skill-local fragments of [def]: `fragment:<name>` resolves to the fragment as a part with the id `<skill>#<name>`. */
+    public fun withFragments(def: SkillDef, shared: PartCatalog): PartCatalog {
+        if (def.fragments.isEmpty()) return shared
+        return object : PartCatalog {
+            override fun part(id: String): Part? =
+                if (id.startsWith(FRAGMENT_PREFIX)) def.fragments[id.removePrefix(FRAGMENT_PREFIX)] else shared.part(id)
+        }
+    }
+
     private val BUILTIN_FRAMES = setOf("caster", "world", "contact", "target", "victim", "attacker", "aim", "cast")
 
     /** The inlined skill plus the deepest nesting of state-level part calls it contains (feeds `Bounds.partDepth`). */

@@ -72,6 +72,7 @@ public object SkillCallInliner {
 
     private fun calleeProblem(skillId: String, at: String, callee: SkillDef): SkillDecodeError? = when {
         callee.anchors.isNotEmpty() -> SkillDecodeError.Invalid(skillId, at, "called skill '${callee.id}' declares anchors; a called skill sees only its frames_in")
+        callee.fragments.isNotEmpty() -> SkillDecodeError.Invalid(skillId, at, "called skill '${callee.id}' declares fragments; fragments are local to the skill that declares them")
         callee.conditions.isNotEmpty() -> SkillDecodeError.Invalid(skillId, at, "called skill '${callee.id}' declares conditions; conditions are not carried into a caller")
         else -> null
     }
