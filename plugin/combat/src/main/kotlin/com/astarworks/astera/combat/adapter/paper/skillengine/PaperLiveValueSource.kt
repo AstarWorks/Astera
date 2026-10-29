@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompil
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
 import com.astarworks.astera.core.application.skillengine.runtime.player.CastHandle
+import com.astarworks.astera.core.application.skillengine.runtime.player.CellExprs
 import com.astarworks.astera.core.application.skillengine.runtime.player.EventBinding
 import com.astarworks.astera.core.application.skillengine.runtime.player.RowScope
 import com.astarworks.astera.core.application.skillengine.runtime.player.LiveValueSource
@@ -48,8 +49,7 @@ public class PaperLiveValueSource(
     private val query: ISkillEntityQuery,
 ) : LiveValueSource {
     private val requests = ConcurrentHashMap<CastHandle, CastRequest>()
-    private val compiler = CelExprCompiler()
-    private val compiled = ConcurrentHashMap<String, CompiledExpr>()
+    private val cells = CellExprs()
     private val spec: ExprEnvSpec = V3Bindings.spec(null, ExprEnvSpec(frames = setOf(CASTER)))
 
     public fun register(cast: CastHandle, request: CastRequest) {
@@ -67,7 +67,7 @@ public class PaperLiveValueSource(
     public fun envSpec(): ExprEnvSpec = spec
 
     /** The CEL host of [cast] at the event [binding]: `stacks`, `nearest_enemy_dist`, `enemy_in_cone` (guards and live cells share it). */
-    public fun exprHost(cast: CastHandle, binding: EventBinding?): ExprHost = StackHost(request(cast), cast, binding)
+    public fun exprHost(cast: CastHandle, binding: EventBinding?): ExprHost = CellExprs.served(StackHost(request(cast), cast, binding))
 
     /** The CEL variables of [cast] at the event [binding] (`contact.*`, `target.*`, `cast.t`, `state.t`). */
     public fun variables(cast: CastHandle, binding: EventBinding?, castTick: Int, stateTick: Int): Map<String, ExprValue> =
@@ -290,32 +290,9 @@ public class PaperLiveValueSource(
     // ------------------------------------------------------------------ CEL cells
 
     private fun evalExpr(cast: CastHandle, request: CastRequest, name: String, binding: EventBinding?, scope: RowScope): ExprValue {
-        val source = when {
-            name.startsWith("= ") -> name.removePrefix("= ")
-            name.startsWith("expr:") -> name.removePrefix("expr:")
-            else -> unsupported(name, "a resolvable cell")
-        }
-        val expr = compiled.getOrPut(source) {
-            when (val r = compiler.compile(source, spec, null)) {
-                is Result.Success -> r.value
-                is Result.Failure -> throw IllegalArgumentException("'$source' does not compile: ${r.error.message}")
-            }
-        }
-        // the row's own seed and copy indices (R10), as the compiler folds with: so `rand()` and `i` read what game-sim reads
-        val vars = LinkedHashMap(variables(cast, binding, castTick = scheduler.currentTick().toInt() - request.startTick, stateTick = 0))
-        var prefix = ""
-        for (idx in scope.indices.take(V3Bindings.MAX_PARENT_DEPTH + 1)) {
-            vars[prefix + "i"] = ExprValue.Num(idx.toDouble())
-            prefix += "parent."
-        }
-        val env = ExprEnv(
-            variables = vars,
-            frames = withInstances(frames(cast), scope.frames),
-            seed = scope.seed,
-            castSeed = scope.castSeed,
-            host = StackHost(request, cast, binding),
-        )
-        return expr.eval(env)
+        if (CellExprs.sourceOf(name) == null) unsupported(name, "a resolvable cell")
+        val vars = variables(cast, binding, castTick = scheduler.currentTick().toInt() - request.startTick, stateTick = 0)
+        return cells.eval(name, scope, vars, withInstances(frames(cast), scope.frames), StackHost(request, cast, binding))
     }
 
     /** The caster / contact frames first, then the cast's own frame / projectile instances ([inst], from the row's scope). */
