@@ -41,6 +41,7 @@ public class OpListDecoder(private val specs: OpSpecRegistry) {
         for ((i, el) in items.withIndex()) {
             val p = "$path[$i]"
             val node = element(el, i, section, ctx, p)
+            com.astarworks.astera.core.application.skillengine.compose.AnchorNames.reservedError("op id", node.id.value)?.let { ctx.fail("$p.id", it) }
             if (!seen.add(node.id.value)) ctx.abortWith(SkillDecodeError.DuplicateId(ctx.file, p, node.id.value))
             out += node
         }
@@ -77,7 +78,7 @@ public class OpListDecoder(private val specs: OpSpecRegistry) {
         val whenRef = body.remove("when")?.let { whenRef(it, ctx, "$p.when") }
 
         val fields = if (spec.timing != null) spec.fields + TimingSpec.fields else spec.fields
-        expandIndexed(body, fields, ctx, p)
+        expandIndexed(body, fields, ctx, p, "$name '$id'")
         val values = fields.read(body, ctx, p)
         val timing = spec.timing?.let { kind ->
             val every = values[TimingSpec.every]
@@ -103,19 +104,49 @@ public class OpListDecoder(private val specs: OpSpecRegistry) {
      * entry k read when `i` = k (numbers, `= CEL`, `[x, y, z]` triples and strings such as a display `block:`; a string entry is quoted). Rewritten here, before field decoding, into `= [e0, e1, ...][int(i)]`; a wrong length is a load error.
      * A list the field's type does decode on its own (a positional `[x, y, z]` offset) stays as written.
      */
-    private fun expandIndexed(body: MutableMap<String, Any?>, fields: Fields, ctx: GrammarContext, p: String) {
-        val n = (body["times"] as? Number)?.toDouble()?.takeIf { it % 1.0 == 0.0 && it >= 1.0 }?.toInt() ?: return
-        if ("every" in body) return
+    private fun expandIndexed(body: MutableMap<String, Any?>, fields: Fields, ctx: GrammarContext, p: String, what: String) {
+        // `per_index: {scale: [1, 2, 3]}` forces the per-copy reading for a field whose own type also takes that list (B1)
+        val forced = body.remove("per_index")?.let { pi ->
+            val map = pi as? Map<*, *> ?: ctx.mismatch("$p.per_index", "map of field -> one value per copy", pi)
+            map.entries.associate { (k, v) -> (k as? String ?: ctx.mismatch("$p.per_index", "field name", k)) to v }
+        }.orEmpty()
+        val n = (body["times"] as? Number)?.toDouble()?.takeIf { it % 1.0 == 0.0 && it >= 1.0 }?.toInt()
+        if (n == null || "every" in body) {
+            if (forced.isNotEmpty()) ctx.fail("$p.per_index", "$what: per_index needs a literal times: N without every (one value per copy)")
+            return
+        }
+        for (name in forced.keys) {
+            if (fields.fields.none { it.name == name } || name in NOT_PER_INDEX) ctx.fail("$p.per_index.$name", "$what: '$name' is not a field that can take one value per copy")
+            body[name] = forced[name] as? List<*> ?: ctx.mismatch("$p.per_index.$name", "list with one entry per copy", forced[name])
+        }
         for (f in fields.fields) {
             if (f.name in NOT_PER_INDEX) continue
             val raw = body[f.name] as? List<*> ?: continue
-            val own = try {
+            val own = f.name !in forced && try {
                 f.type.decode(raw, ctx, "$p.${f.name}")
                 true
             } catch (_: DecodeAbort) {
                 false
             }
-            if (own) continue
+            if (own) {
+                // ambiguous only when each entry is also a whole value of the field (a scalar is a valid uniform `scale`; a lone number is not a `size` pair)
+                val perEntryReadable = raw.all { e ->
+                    try {
+                        f.type.decode(e, ctx, "$p.${f.name}")
+                        true
+                    } catch (_: DecodeAbort) {
+                        false
+                    }
+                }
+                if (n >= 2 && raw.size == n && perEntryReadable) {
+                    ctx.fail(
+                        "$p.${f.name}",
+                        "$what (times: $n): '${f.name}: [${raw.joinToString(", ")}]' is ambiguous: one value of the field or $n per-copy values; " +
+                            "write the field in its own form (for example a map {left: , up: , forward: }) for one value, or per_index: {${f.name}: [${raw.joinToString(", ")}]} for one value per copy",
+                    )
+                }
+                continue
+            }
             if (raw.size != n) ctx.abortWith(SkillDecodeError.Invalid(ctx.file, "$p.${f.name}", "per-index list has ${raw.size} entries but times is $n (one entry per copy)"))
             if (raw.isNotEmpty() && raw.all { it is Map<*, *> }) {
                 body[f.name] = indexedFrameVec(raw.map { it as Map<*, *> }, ctx, "$p.${f.name}")

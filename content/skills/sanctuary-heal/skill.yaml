@@ -7,7 +7,6 @@ params:
   radius: {type: blocks, default: 6.0}
   heal:   {type: number, default: 30.0}
 anchors:
-  - {id: self,  anchor: caster}
   - {id: feet,  anchor: caster, offset: {up: 0.15}}                   # was pt_caster_0_0p15_0
   - {id: chest, anchor: caster, offset: {up: 1.0}}                    # was pt_caster_0_1_0
 machine:

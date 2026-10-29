@@ -3,6 +3,7 @@ package com.astarworks.astera.core.application.skillengine.load.ops.presentation
 import com.astarworks.astera.core.application.skillengine.compose.AnchorNames
 import com.astarworks.astera.core.application.skillengine.compose.LawSegmenter
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
+import com.astarworks.astera.core.application.skillengine.compose.PoseCompose
 import com.astarworks.astera.core.application.skillengine.load.DecodeAbort
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.AxisResolver
@@ -183,10 +184,28 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     private val flipbookFields = Fields.of("flipbook", flipFrames, flipEvery, flipLoop)
     private val flipbookF = Field.optional("flipbook", Types.nullable(Types.nested(flipbookFields)), null, "kind sprite: steps the glyph frame, one text write per step (lowered at compile)")
 
+    /** `[x, y, z]` / `${param}` / `= expr` (vanilla scale), or the map `{left, up, forward}` (x, y, z), the one spelling of a triple that `times: 3` does not read as three per-copy scales (B1). */
+    private val scaleType: FieldType<Value<Vec3>> = object : FieldType<Value<Vec3>> {
+        override val label = "[x, y, z], {left, up, forward}, \${param} or '= expr'"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): Value<Vec3> {
+            if (raw !is Map<*, *>) return Types.worldVec3.decode(raw, ctx, path)
+            val keys = listOf("left", "up", "forward")
+            raw.keys.firstOrNull { it !in keys }?.let { ctx.fail("$path.$it", "unknown scale axis '$it' (expected left, up, forward; all three are written)") }
+            val axes = keys.map { k ->
+                if (k !in raw) ctx.fail("$path.$k", "a scale written per axis needs all of left, up, forward (missing '$k')")
+                Types.number.decode(raw[k], ctx, "$path.$k")
+            }
+            val lits = axes.filterIsInstance<Value.Literal<Double>>()
+            if (lits.size == 3) return Value.Literal(Vec3(lits[0].value, lits[1].value, lits[2].value))
+            return Value.Expr("vec(${axes.joinToString(", ") { sourceOf(it) }})")
+        }
+        override fun schema(): Map<String, Any?> = Types.worldVec3.schema()
+    }
+
     // Transformation(translation, left_rotation, scale, right_rotation)
     private val translationF = Field.optional("translation", Types.worldVec3, Value.Literal(Vec3(0.0, 0.0, 0.0)), "vanilla translation, entity-local axes (never rotated by left_rotation, 2.3)")
     private val rotateF = Field.optional("rotate", Rotations.type, Rotation.Turns(emptyList()), "left_rotation: named-axis list or quaternion; absent = identity")
-    private val scaleF = Field.optional("scale", Types.worldVec3, Value.Literal(Vec3(1.0, 1.0, 1.0)), "vanilla scale; sprites use size")
+    private val scaleF = Field.optional("scale", scaleType, Value.Literal(Vec3(1.0, 1.0, 1.0)), "vanilla scale; sprites use size")
     private val rightF = Field.optional("right", Rotations.type, Rotation.Whole(Value.Literal(Quaternion.IDENTITY)), "right_rotation, quaternion [x, y, z, w]; absent = identity")
     private val pitchF = Field.optional("pitch", Types.number, Value.Literal(0.0), "entity pitch, pinned at spawn")
     private val billboardF = Field.optional("billboard", Types.enumOf("fixed", "vertical", "horizontal", "center"), "fixed", "vanilla Billboard; fixed is the decision default")
@@ -326,6 +345,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         val src = lc.src
         return Grammar.guard {
             val gc = GrammarContext(lc.skillId)
+            AnchorNames.bareFamilyError(lc.anchors, op.anchor, "display '${op.id.value.substringAfterLast('/')}'")?.let { gc.fail("${src.value}.anchor", it) }
             val itemAxes = if (op.kind != DisplayKind.ITEM) null else if (op.part != null) {
                 val skillItem = lc.skills.skill(lc.skillId)?.item
                     ?: gc.fail("${src.value}.part", "part '${op.part}' needs the skill's item to find content/frames/<item>.yaml, but this skill has no item")
@@ -338,17 +358,35 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                     if (turn.frame != null) gc.fail("${src.value}.$f[$i].axis", "a frame-qualified axis ('${turn.frame}.${turn.axis}') is not supported on a display rotation; use a plain or item axis")
                 }
             }
-            val left = op.rotate.toValue(gc, "${src.value}.rotate", axes)
+            // an angle that is a `= CEL` of constants and this copy's i folds here, so the base rotation is a literal a motion composes onto
+            val foldedRotate = (op.rotate as? Rotation.Turns)?.let { r ->
+                Rotation.Turns(
+                    r.turns.map { turn ->
+                        val deg = turn.deg
+                        val num = (deg as? Value.Expr)?.let { OccurrenceBake.fold(lc, it.source, ExprType.NUM) as? ExprValue.Num }
+                        if (num != null) turn.copy(deg = Value.Literal(num.value)) else turn
+                    },
+                )
+            } ?: op.rotate
+            fun foldAxis(v: Value<Double>): Value<Double> =
+                (v as? Value.Expr)?.let { (OccurrenceBake.fold(lc, it.source, ExprType.NUM) as? ExprValue.Num)?.let { n -> Value.Literal(n.value) } } ?: v
+            val foldedOffset = (op.offset as? FrameVec.Parts)?.let { FrameVec.Parts(foldAxis(it.forward), foldAxis(it.up), foldAxis(it.left)) } ?: op.offset
+            val left = foldedRotate.toValue(gc, "${src.value}.rotate", axes)
             val right = op.right.toValue(gc, "${src.value}.right", axes)
 
             val end = endTick(op, t, lc)
             val sprite = if (op.kind == DisplayKind.SPRITE) spriteScale(op, lc, end) else null
             val pose = Pose(
-                position = op.offset?.toLocal()?.let { vecCell(it) } ?: Val.Known(Vector3d(0.0, 0.0, 0.0)),
-                rotation = quatCell(left),
-                scale = sprite?.scale ?: vecCell(op.scale),
+                position = foldedOffset?.toLocal()?.let { vecCell(it, lc) } ?: Val.Known(Vector3d(0.0, 0.0, 0.0)),
+                rotation = quatCell(left, lc),
+                scale = sprite?.scale ?: vecCell(op.scale, lc),
             )
-            val spawn = Row(0, instance, Action.Spawn(spawnKind(op.kind), anchorInstance(op, lc), AnchorNames.host(lc.anchors, op.anchor), pose, look(op, right, sprite, lc)), src)
+            // a rider of a MOVING frame skips it (its keys are absolute, so riding the frame's rec would count the frame's laws twice): it spawns on the chain's parent with the chain's base folded in
+            val inChain = lc.anchors.chain(op.anchor)
+            val spawnPose = if (inChain != null) PoseCompose.combine(inChain.base, pose) { gc.fail("${src.value}.offset", it) } else pose
+            val spawnParent = if (inChain != null) inChain.parent else anchorInstance(op, lc)
+            val spawnHost = inChain?.parentName ?: AnchorNames.host(lc.anchors, op.anchor)
+            val spawn = Row(0, instance, Action.Spawn(spawnKind(op.kind), spawnParent, spawnHost, spawnPose, look(op, right, sprite, lc)), src)
 
             val rows = ArrayList<Row>()
             rows += spawn
@@ -368,17 +406,20 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             val flipRows = op.flipbook?.let { flipbookRows(op, it, instance, end, lc) }.orEmpty()
             rows += flipRows
             // The anchor's own laws ride first: left_rotation = anchor.rot(t) * rider (item 16).
-            val laws = lc.anchors.laws(op.anchor) + op.motion?.laws(lc.occurrence).orEmpty() + (sprite?.sizeLaws ?: emptyList())
+            val laws = (inChain?.laws ?: lc.anchors.laws(op.anchor)) + op.motion?.laws(lc.occurrence).orEmpty() + (sprite?.sizeLaws ?: emptyList())
             if (laws.isNotEmpty()) {
                 val moved = LawSegmenter.segments(instance, laws, lc, FADE_FIELD)
                 when (moved) {
                     is Result.Failure -> throw DecodeAbort(moved.error)
                     is Result.Success -> {
                         // a law (or the anchor's law) outlasting this display's `for:` writes nothing once the display has ended
-                        val inLife = if (end != null) moved.value.rows.filter { it.tick < end } else moved.value.rows
+                        val alive = if (end != null) moved.value.rows.filter { it.tick < end } else moved.value.rows
+                        // every Key is a whole pose: carry the op's own offset / rotate / scale or the first key overwrites them
+                        val own = PoseCompose.composeBase(alive, pose.position, pose.rotation, pose.scale) { gc.fail("${src.value}.motion", it) }
+                        val inLife = if (inChain != null) PoseCompose.composeBase(own, inChain.base.position, inChain.base.rotation, inChain.base.scale) { gc.fail("${src.value}.motion", it) } else own
                         rows += inLife
                         subTables += moved.value.subTables
-                        writes = if (inLife.size == moved.value.rows.size) moved.value.writes else {
+                        writes = if (alive.size == moved.value.rows.size) moved.value.writes else {
                             val perTick = inLife.groupingBy { it.tick }.eachCount()
                             mapOf(instance to com.astarworks.astera.core.domain.skillengine.table.WriteStats(inLife.size, perTick.values.maxOrNull() ?: 0))
                         }
@@ -593,8 +634,8 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 op.color?.let { f["color"] = cell(it) }
             }
         }
-        f["translation"] = vecCell(op.translation)
-        f["right_rotation"] = quatCell(right)
+        f["translation"] = vecCell(op.translation, lc)
+        f["right_rotation"] = quatCell(right, lc)
         f["pitch"] = cell(op.pitch)
         f["billboard"] = Val.Known(op.billboard)
         op.brightness?.let { (b, s) -> f["brightness_block"] = cell(b); f["brightness_sky"] = cell(s) }
@@ -627,8 +668,11 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         is Value.Expr -> Val.Live("= ${v.source}", null)
     }
 
-    private fun vecCell(v: Value<Vec3>): Val<Vector3d> = when (v) {
+    /** A `= CEL` of constants and this copy's i folds to a literal here, so a motion can compose onto it; a live one stays a cell. */
+    private fun vecCell(v: Value<Vec3>, lc: LowerContext): Val<Vector3d> = when (v) {
         is Value.Literal -> Val.Known(Vector3d(v.value.x, v.value.y, v.value.z))
+        is Value.Expr -> (OccurrenceBake.fold(lc, v.source, ExprType.VEC3) as? ExprValue.Vec3)?.let { Val.Known(Vector3d(it.value.x, it.value.y, it.value.z)) }
+            ?: cell(v).let { c -> c as Val<Vector3d> }
         else -> cell(v).let { c -> c as Val<Vector3d> }
     }
 
@@ -640,8 +684,10 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             Val.Live("vec(${sourceOf(w)}, ${sourceOf(h)}, 1.0)", null)
         }
 
-    private fun quatCell(q: Value<Quaternion>): Val<Quaterniond> = when (q) {
+    private fun quatCell(q: Value<Quaternion>, lc: LowerContext): Val<Quaterniond> = when (q) {
         is Value.Literal -> Val.Known(Quaterniond(q.value.x, q.value.y, q.value.z, q.value.w))
+        is Value.Expr -> (OccurrenceBake.fold(lc, q.source, ExprType.QUAT) as? ExprValue.Quat)?.let { Val.Known(Quaterniond(it.value.x, it.value.y, it.value.z, it.value.w)) }
+            ?: cell(q).let { c -> c as Val<Quaterniond> }
         else -> cell(q).let { c -> c as Val<Quaterniond> }
     }
 

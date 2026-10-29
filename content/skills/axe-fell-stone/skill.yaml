@@ -9,7 +9,7 @@ meta:
   resource_cost: 0
   tags: [tool, cover]
 anchors:
-  - {id: aim, anchor: caster, offset: {forward: 2.0}}
+  - {id: aim_pt, anchor: caster, offset: {forward: 2.0}}
 machine:
   start: cast
   states:
@@ -18,7 +18,7 @@ machine:
       do:
         - {id: snd, op: sound, sound: item.axe.strip, anchor: caster, volume: 1.0, pitch: 0.8}
         - {id: snd_2, op: sound, sound: block.wood.break, anchor: caster, volume: 0.8, pitch: 0.9}
-        - {id: spark, op: particle_def, def: tool-axe-stone, anchor: aim}
+        - {id: spark, op: particle_def, def: tool-axe-stone, anchor: aim_pt}
       on:
         - {event: end, to: done}
       states:

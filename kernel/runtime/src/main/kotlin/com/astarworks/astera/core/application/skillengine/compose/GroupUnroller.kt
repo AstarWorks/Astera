@@ -69,11 +69,14 @@ public object GroupUnroller {
         val writes = LinkedHashMap<InstanceId, WriteStats>()
         for ((k, s) in sched.ticks.withIndex()) {
             val index = if (sched.indexed) k else null
+            val occurrence = if (sched.indexed) Occurrence(k, sched.ticks.size, base.occurrence) else base.occurrence
+            // `anchor: "blade[i]"` names this copy's frame: the scope reads `i` / `parent.i` of THIS occurrence, not the enclosing one
+            val anchors = (base.anchors as? AnchorRegistry)?.at(occurrence, if (sched.indexed) sched.ticks.size else null) ?: base.anchors
             val occ = LowerContext(
                 base.skillId, base.state,
                 InstanceId(base.self.path + InstanceId.Segment(node.id, index)),
-                if (sched.indexed) Occurrence(k, sched.ticks.size, base.occurrence) else base.occurrence,
-                base.clockOffset + s, base.anchors, base.frames, base.parts, base.skills, base.item, base.sprites, base.conditions, base.exprs, base.config, base.seed,
+                occurrence,
+                base.clockOffset + s, anchors, base.frames, base.parts, base.skills, base.item, base.sprites, base.conditions, base.exprs, base.config, base.seed,
                 base.src, s - sched.ticks.first(), base.hitScope,
             )
             val gate = when (val r = whenGate(node, occ)) {
@@ -310,7 +313,7 @@ public object GroupUnroller {
                 if (p < 1) return fail(SkillDecodeError.Invalid(lc.skillId, "$path.every", "every must be at least 1 tick"))
                 val byWindow = windowLen?.let { ceilDiv(it, p) }
                 if (t.span is Span.Ticks && timesN != null) {
-                    return fail(SkillDecodeError.Invalid(lc.skillId, path, "every: write for or times, not both; the smaller one would be dead text"))
+                    return fail(SkillDecodeError.Invalid(lc.skillId, path, "every: write for or times, not both (for = the repeat window, times = the count). The life of each occurrence is `lasts`: every: 4, times: 3, lasts: 10"))
                 }
                 val n = when {
                     byWindow != null -> byWindow
@@ -334,7 +337,7 @@ public object GroupUnroller {
     private fun easedTicks(lc: LowerContext, path: String, every: Every.Eased, span: Span?, start: Int, windowLen: Int?, times: Int?): Result<List<Int>, SkillDecodeError> {
         if (!Spacing.isKnownEase(every.ease)) return fail(SkillDecodeError.Invalid(lc.skillId, "$path.every.ease", "unknown ease '${every.ease}'"))
         if (span is Span.Ticks && times != null) {
-            return fail(SkillDecodeError.Invalid(lc.skillId, path, "every: write for or times, not both; the smaller one would be dead text"))
+            return fail(SkillDecodeError.Invalid(lc.skillId, path, "every: write for or times, not both (for = the repeat window, times = the count). The life of each occurrence is `lasts`: every: 4, times: 3, lasts: 10"))
         }
         val window = windowLen ?: return fail(SkillDecodeError.UnboundedRepeat(path, lc.skillId))
         val from = when (val r = lc.requireStaticTiming(path, "every.from", every.from)) {

@@ -87,7 +87,7 @@ public object MotionLaws {
     // grow
     private val growStartF = Field.optional("start", ScaleType(strict = true), ScaleVal.Uniform(Value.Literal(1.0)), "scale the growth begins from (number or all of forward, up, left)")
     private val perTickF = Field.optional("per_tick", Types.nullable(ScaleType(strict = false)), null, "scale change per tick (number = uniform); exactly one of per_tick, to, by")
-    private val toF = Field.optional("to", Types.nullable(ScaleType(strict = true)), null, "scale reached at the end of the window; exactly one of per_tick, to, by")
+    private val toF = Field.optional("to", Types.nullable(ScaleType(strict = false, deferMissing = true)), null, "scale reached at the end of the window; exactly one of per_tick, to, by")
     private val byF = Field.optional("by", Types.nullable(ScaleType(strict = true)), null, "factor on the held scale: the law ends at start * by (scales compose by multiplication, so the composite ends at its held value * by); exactly one of per_tick, to, by; scale / size only")
     private val growPropF = Field.optional("prop", Types.enumOf("scale", "offset"), "scale", "scale (default) or offset: with offset, start / per_tick / accel / to are positions {forward, up, left} or [left, up, forward], and the law moves the object (a decaying move)")
     private val growAccelF = Field.optional("accel", ScaleType(strict = false), ScaleVal.Uniform(Value.Literal(0.0)), "scale change per tick^2; excludes ease")
@@ -328,8 +328,7 @@ public object MotionLaws {
         val accel = n.num(v[spinAccelF], "$path.accel")
         if (accel != 0.0 && ease != null) ctx.fail("$path.ease", "ease and accel are mutually exclusive on one law (accel already defines the time profile)")
         val drag = dragOf(v, ease, accel != 0.0, ctx, n, path)
-        val startQ = (v[spinStartF].toValue(ctx, "$path.start") as? Value.Literal)?.value
-            ?: ctx.fail("$path.start", "a rate law is lowered at load, so start angles must be literal")
+        val startQ = n.rotation(v[spinStartF], "$path.start")
         val start = n.rotationVector(startQ)
         return { s -> SpinRate(s, forTicks, axis, rate, start, accel, ease, drag) }
     }
@@ -361,9 +360,14 @@ public object MotionLaws {
         val startRaw = v[growStartF]
         if (offsetProp) {
             if (v.isPresent(byF)) ctx.fail("$path.by", "by is a factor on a scale; grow prop: offset moves the object, use per_tick or to")
-            for ((f, key) in listOf(growStartF to "start", perTickF to "per_tick", toF to "to", growAccelF to "accel")) {
+            for ((f, key) in listOf(growStartF to "start", perTickF to "per_tick", growAccelF to "accel")) {
                 if (v.isPresent(f) && v[f] is ScaleVal.Uniform) ctx.fail("$path.$key", "grow prop: offset takes a position per axis, {forward, up, left} or [left, up, forward], not a single number")
             }
+            val rawTo = v[toF]
+            if (rawTo is ScaleVal.Uniform) ctx.fail("$path.to", "grow '${path.substringAfterLast('.')}' (prop: offset): 'to' has no axis; write to: {up: <n>} (axes not written stay 0)")
+        } else {
+            val rawTo = v[toF]
+            if (rawTo is ScaleVal.PerAxis && rawTo.missing != null) ctx.fail("$path.to", "an absolute scale written per axis needs all of forward, up, left (missing '${rawTo.missing}')")
         }
         val start = if (offsetProp && !v.isPresent(growStartF)) Vec3.ZERO else n.scale(startRaw, "$path.start")
         val perTick = v[perTickF]
@@ -443,9 +447,7 @@ public object MotionLaws {
             last = tick
             val offset = k[keyOffsetF]?.toLocal()
             val turn = k[keyPoseF]?.let { pose ->
-                val q = (pose.toValue(ctx, "$p.pose", ctx.axes) as? Value.Literal)?.value
-                    ?: ctx.fail("$p.pose", "a key pose is lowered at load, so its angles must be literal")
-                Value.Literal(n.rotationVector(q))
+                Value.Literal(n.rotationVector(n.rotation(pose, "$p.pose")))
             }
             val scale = k[keyScaleF]?.toValue()
             val alpha = k[keyAlphaF]

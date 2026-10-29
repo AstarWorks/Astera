@@ -9,7 +9,7 @@ meta:
   resource_cost: 0
   tags: [tool, cover]
 anchors:
-  - {id: aim, anchor: caster, offset: {forward: 2.0}}   # was pt_caster_0_0_2 (caster feet, yaw-only)
+  - {id: aim_pt, anchor: caster, offset: {forward: 2.0}}   # was pt_caster_0_0_2 (caster feet, yaw-only)
 machine:
   start: place
   states:
@@ -21,5 +21,5 @@ machine:
         - {id: snd, op: sound, at: 0, sound: item.axe.strip, anchor: caster, volume: 1.0, pitch: 0.7}
         - {id: snd_2, op: sound, at: 0, sound: block.wood.break, anchor: caster, volume: 0.9, pitch: 0.8}
         - {id: snd_3, op: sound, at: 0, sound: entity.player.attack.strong, anchor: caster, volume: 0.6, pitch: 0.9}
-        - {id: spark, op: particle_def, at: 0, def: tool-axe-iron, anchor: aim}
+        - {id: spark, op: particle_def, at: 0, def: tool-axe-iron, anchor: aim_pt}
     end: {final: true}

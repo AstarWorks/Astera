@@ -38,7 +38,6 @@ public object PartInliner {
         }
     }
 
-    private val BUILTIN_FRAMES = setOf("caster", "world", "contact", "target", "victim", "attacker", "aim", "cast")
 
     /** The inlined skill plus the deepest nesting of state-level part calls it contains (feeds `Bounds.partDepth`). */
     public class Inlined(public val def: SkillDef, public val depth: Int)
@@ -56,7 +55,7 @@ public object PartInliner {
         val rootMachine = ParamSubst(rootEnv, strict = false).machine(def.machine)
         if (rootMachine.states.isEmpty()) return Result.success(Inlined(def.copy(machine = rootMachine), 0))
         val resolved = LinkedHashMap<String, Part>()
-        val scope = HashSet(BUILTIN_FRAMES).apply {
+        val scope = HashSet(AnchorNames.BUILTIN_FRAMES).apply {
             def.anchors.forEach { add(it.id) }
             addAll(def.framesIn.keys)
             // a frame or projectile body of the machine-level `world:` list lives for the whole cast, so every state may hand it to a part
@@ -119,7 +118,7 @@ public object PartInliner {
                 is Result.Success -> r.value
                 is Result.Failure -> return r
             }
-            val inner = when (val r = walk(w, bound.machine, "part:${part.id}", part.framesIn.keys + BUILTIN_FRAMES, stack + part.id)) {
+            val inner = when (val r = walk(w, bound.machine, "part:${part.id}", part.framesIn.keys + AnchorNames.BUILTIN_FRAMES, stack + part.id)) {
                 is Result.Success -> r.value
                 is Result.Failure -> return r
             }

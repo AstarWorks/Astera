@@ -26,7 +26,6 @@ internal object ParticlePlacement {
      */
     class Base(val frame: String, val terms: List<String>, val live: String)
 
-    private val BUILTIN = setOf("caster", "world", "contact", "target", "victim", "attacker", "aim", "cast")
     private val OFFSET_AXES = setOf("forward", "up", "left")
 
     /**
@@ -55,7 +54,7 @@ internal object ParticlePlacement {
             }
         }
         lc.anchors.resolve(name)?.let { return Result.Success(Base(parts.point?.let { "point(${parts.base}, '$it')" } ?: parts.base, emptyList(), it.instance.text)) }
-        if (parts.index == null && parts.base in BUILTIN) {
+        if (parts.index == null && parts.base in AnchorNames.BUILTIN_FRAMES) {
             val frame = parts.point?.let { "point(${parts.base}, '$it')" } ?: parts.base
             return Result.Success(Base(frame, emptyList(), parts.base))
         }

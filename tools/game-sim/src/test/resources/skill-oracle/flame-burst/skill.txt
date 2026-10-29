@@ -1,7 +1,7 @@
 ## pose yaw=0 pitch=0
 @0 spawn #0 op=fly/shell kind=item item=minecraft:fire_charge part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.900000,0.900000,0.900000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.1 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/fx type=fire-cast at=0.000000,-0.200000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5614017364443781349
+@0 particle - op=fly/fx type=fire-cast at=0.000000,-0.200000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7518232194696550723
 @0 particle - op=fly/trail_flame[0] type=flame count=3 at=0.000000,1.620000,0.500000 off=0.120000,0.120000,0.120000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3037190291160865973
 @0 particle - op=fly/trail_dust[0] type=dust count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ff7814 size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8638849936105321641
 @0 particle - op=fly/trail_lava[0] type=lava count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1708441551056336371
@@ -15,7 +15,7 @@
 ## pose yaw=37 pitch=-20
 @0 spawn #0 op=fly/shell kind=item item=minecraft:fire_charge part=- pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.900000,0.900000,0.900000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.1 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/fx type=fire-cast at=-0.601815,-0.200000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5614017364443781349
+@0 particle - op=fly/fx type=fire-cast at=-0.601815,-0.200000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7518232194696550723
 @0 particle - op=fly/trail_flame[0] type=flame count=3 at=-0.282761,1.791010,0.375236 off=0.120000,0.120000,0.120000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3037190291160865973
 @0 particle - op=fly/trail_dust[0] type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ff7814 size=1.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8638849936105321641
 @0 particle - op=fly/trail_lava[0] type=lava count=1 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1708441551056336371

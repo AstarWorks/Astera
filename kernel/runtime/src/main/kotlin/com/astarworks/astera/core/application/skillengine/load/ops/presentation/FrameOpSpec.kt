@@ -6,6 +6,8 @@ import com.astarworks.astera.core.application.skillengine.compose.ExprClass
 import com.astarworks.astera.core.application.skillengine.compose.LawSegmenter
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.compose.Occurrence
+import com.astarworks.astera.core.application.skillengine.compose.AnchorChain
+import com.astarworks.astera.core.application.skillengine.compose.PoseCompose
 import com.astarworks.astera.core.application.skillengine.load.DecodeAbort
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
@@ -162,6 +164,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
         val writes = LinkedHashMap<InstanceId, WriteStats>()
         val subTables = ArrayList<SubTable>()
         var basis = if (op.motion != null) ExprClass.T else ExprClass.S
+        var chainOut: AnchorChain? = null
 
         // The unroller owns every repetition and id (item 5): this call lowers exactly one instance, `lc.self`.
         val instance = lc.self
@@ -169,9 +172,9 @@ public object FrameOpSpec : OpSpec<FrameOp> {
         val occ = lc.occurrence
         run {
             val ev = Evaluator(lc, ctx, occ)
-            val scope = (lc.anchors as? AnchorRegistry)?.at(occ) ?: lc.anchors
+            val scope = lc.anchors
 
-            val parent = resolveParent(op.anchor, scope, src, ctx)
+            val parent = resolveParent(op.anchor, scope, src, ctx, op.id)
             val position = ev.vec(op.offset.toLocal(), "$src.offset")
             val axes = AxisResolver(modelPart?.axes ?: emptyMap())
             val rotation = ev.quat(op.turn.toValue(ctx, "$src.turn", axes), "$src.turn")
@@ -185,16 +188,19 @@ public object FrameOpSpec : OpSpec<FrameOp> {
             if (op.part != null) look["part"] = Val.Known(op.part)
             // the part's model points ride in the table, so an expression `<id>.tip` reads a number the dump shows (3.5), not a lookup at play time
             modelPart?.points?.forEach { (name, p) -> look["point.$name"] = Val.Known(Vector3d(p.x, p.y, p.z)) }
-            rows += Row(
-                0, instance,
-                Action.Spawn(SpawnKind.FRAME, parent, AnchorNames.host(lc.anchors, op.anchor), Pose(position, rotation, Val.Known(Vector3d(1.0, 1.0, 1.0))), Look(look)),
-                lc.src,
-            )
+            // A frame riding a MOVING frame skips it (a rider's keys are absolute, so riding the rec would count the frame's laws twice): it
+            // spawns on the chain's parent with the chain's base folded in and composes the chain's laws into its own keys.
+            val inChain = lc.anchors.chain(op.anchor)
+            val ownPose = Pose(position, rotation, Val.Known(Vector3d(1.0, 1.0, 1.0)))
+            val spawnPose = if (inChain != null) PoseCompose.combine(inChain.base, ownPose) { ctx.fail("$src.offset", it) } else ownPose
+            val spawnParent = if (inChain != null) inChain.parent else parent
+            val spawnHost = inChain?.parentName ?: AnchorNames.host(lc.anchors, op.anchor)
+            rows += Row(0, instance, Action.Spawn(SpawnKind.FRAME, spawnParent, spawnHost, spawnPose, Look(look)), lc.src)
 
             var segments = 0
             // The anchor's own laws ride first (left_rotation = anchor.rot(t) * rider), then this frame's own.
             val own = op.motion?.laws(occ).orEmpty()
-            val laws = lc.anchors.laws(op.anchor) + own
+            val laws = (inChain?.laws ?: lc.anchors.laws(op.anchor)) + own
             if (laws.isNotEmpty()) {
                 val moved = when (val r = LawSegmenter.segments(instance, laws, lc)) {
                     is Result.Failure -> throw DecodeAbort(r.error)
@@ -202,9 +208,13 @@ public object FrameOpSpec : OpSpec<FrameOp> {
                 }
                 // a law outlasting the frame's `for:` writes nothing once the frame has ended: rows at or after the End tick are dead
                 val inLife = if (life != null) moved.rows.filter { it.tick < life } else moved.rows
-                rows += composeBase(inLife, position, rotation, ctx, src)
+                val withOwn = PoseCompose.composeBase(inLife, position, rotation, Val.Known(Vector3d(1.0, 1.0, 1.0))) { ctx.fail("$src.motion", it) }
+                rows += if (inChain != null) PoseCompose.composeBase(withOwn, inChain.base.position, inChain.base.rotation, inChain.base.scale) { ctx.fail("$src.motion", it) } else withOwn
                 subTables += moved.subTables
                 segments = inLife.count { it.action is Action.Key }
+                if (own.isNotEmpty() || inChain != null) {
+                    chainOut = AnchorChain(spawnPose, spawnParent, spawnHost, laws)
+                }
             }
             if (life != null) rows += Row(life, instance, Action.End(instance), lc.src)
             op.timing?.until?.let { ev ->
@@ -218,7 +228,9 @@ public object FrameOpSpec : OpSpec<FrameOp> {
             writes[instance] = WriteStats(segments, if (segments > 0) 1 else 0)
         }
 
-        (lc.anchors as? AnchorRegistry)?.declare(declared, family, basis, op.motion?.laws(occ).orEmpty(), if (family != null) occ.i else null)
+        // a frame with laws declares its pose chain: a rider skips the frame's rec and composes the chain into its own absolute keys, so the laws count once
+        // (a projectile body has no rows and exports its `laws` instead)
+        (lc.anchors as? AnchorRegistry)?.declare(declared, family, basis, emptyList(), if (family != null) occ.i else null, chainOut)
         return Lowered(rows = rows, subTables = subTables, instances = listOf(instance), writes = writes)
     }
 
@@ -238,21 +250,17 @@ public object FrameOpSpec : OpSpec<FrameOp> {
             is Result.Failure -> ctx.abort(r.error)
         }
 
-    private val BUILTIN_ROOTS = setOf("world", "caster", "victim", "target", "contact")
-
     /**
      * An indexed name (`blade[i]`) must resolve to a spawned frame; a plain name is a builtin or an anchor declared in `anchors:` and stays
      * a name (the compiler checks declared anchors). A bare family name is ambiguous and is a load error.
      */
-    private fun resolveParent(name: String, scope: com.astarworks.astera.core.application.skillengine.compose.AnchorScope, src: String, ctx: GrammarContext): InstanceId? {
+    private fun resolveParent(name: String, scope: com.astarworks.astera.core.application.skillengine.compose.AnchorScope, src: String, ctx: GrammarContext, id: OpId): InstanceId? {
         scope.resolve(name)?.let { return it.instance }
         val parts = AnchorNames.split(name) ?: ctx.fail("$src.anchor", "'$name' is not an anchor name")
         if (parts.index != null) {
             ctx.abort(SkillDecodeError.UndefinedReference(ctx.file, "$src.anchor", name))
         }
-        if (parts.base !in BUILTIN_ROOTS && scope.resolve("${parts.base}[0]") != null) {
-            ctx.fail("$src.anchor", "'${parts.base}' is a frame family; write ${parts.base}[i] (or an index) to pick the member")
-        }
+        AnchorNames.bareFamilyError(scope, name, "frame '${id.value.substringAfterLast('/')}'")?.let { ctx.fail("$src.anchor", it) }
         return null
     }
 
@@ -266,29 +274,6 @@ public object FrameOpSpec : OpSpec<FrameOp> {
                 if (l != null && e != null) l.cross(e).normalize() else null
             }
             else -> LocalAxes.axis(name)
-        }
-    }
-
-    /**
-     * The law state is relative to the frame's own base pose: a Known `Key` is moved by the base offset and turned by the base rotation
-     * (`offset = base + law`, `rot = base * law`). A live law cell (follow / align / stretch) cannot be re-based, and a live base cannot
-     * carry laws: both fail the load instead of being flattened.
-     */
-    private fun composeBase(rows: List<Row>, basePosition: Val<Vector3d>, baseRotation: Val<Quaterniond>, ctx: GrammarContext, src: String): List<Row> {
-        val bp = (basePosition as? Val.Known)?.value
-        val br = (baseRotation as? Val.Known)?.value
-        val identity = bp != null && br != null && bp.lengthSquared() == 0.0 && br.x == 0.0 && br.y == 0.0 && br.z == 0.0
-        return rows.map { row ->
-            val k = row.action as? Action.Key ?: return@map row
-            val t = k.translation
-            val r = k.leftRotation
-            if (t is Val.Known && r is Val.Known) {
-                if (bp == null || br == null) ctx.fail("$src.motion", "motion on a live offset or turn cannot be re-based onto the frame")
-                row.copy(action = k.copy(translation = Val.Known(Vector3d(bp).add(t.value)), leftRotation = Val.Known(Quaterniond(br).mul(r.value))))
-            } else {
-                if (!identity) ctx.fail("$src.motion", "a reactive law (follow / align / stretch) needs a frame with no offset and no turn")
-                row
-            }
         }
     }
 

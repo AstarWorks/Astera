@@ -6,6 +6,7 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVec
 import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVecs
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarSource
+import com.astarworks.astera.core.application.skillengine.load.grammar.Rotation
 import com.astarworks.astera.core.application.skillengine.load.grammar.Types
 import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -20,11 +21,13 @@ import kotlin.math.sqrt
  * [strict] (an absolute scale) demands all three axes in the map form, because a silently missing axis would be scale 0; a rate
  * (`per_tick`, `accel`) may omit an axis, meaning "does not change along it".
  */
-internal class ScaleType(private val strict: Boolean) : FieldType<ScaleVal> {
+internal class ScaleType(private val strict: Boolean, private val deferMissing: Boolean = false) : FieldType<ScaleVal> {
     override val label = "number, [left, up, forward] or {forward, up, left}"
 
     override fun decode(raw: Any?, ctx: GrammarContext, path: String): ScaleVal {
         if (raw is Map<*, *>) {
+            val missing = listOf("forward", "up", "left").firstOrNull { it !in raw }
+            if (deferMissing) return ScaleVal.PerAxis(FrameVecs.type.decode(raw, ctx, path), missing)
             if (strict) {
                 for (axis in listOf("forward", "up", "left")) {
                     if (axis !in raw) ctx.fail(path, "an absolute scale written per axis needs all of forward, up, left (missing '$axis')")
@@ -51,7 +54,8 @@ internal class ScaleType(private val strict: Boolean) : FieldType<ScaleVal> {
 
 internal sealed interface ScaleVal {
     data class Uniform(val value: Value<Double>) : ScaleVal
-    data class PerAxis(val vec: FrameVec) : ScaleVal
+    /** [missing] = the first axis a map form left out; only the `to` field reads it (zero for an offset, an error for a scale). */
+    data class PerAxis(val vec: FrameVec, val missing: String? = null) : ScaleVal
 
     /** As a track-key scale value; a non-literal uniform number becomes the CEL `vec(s, s, s)`. */
     fun toValue(): Value<Vec3> = when (this) {
@@ -68,6 +72,12 @@ internal class LawNumbers(private val ctx: GrammarContext) {
     fun num(v: Value<Double>, path: String): Double =
         if (v is Value.Expr) ctx.lawNumber(v.source, path)
         else ctx.resolveNumber(v) ?: ctx.fail(path, "a rate law is lowered at load, so this must be a literal, a numeric \${param} with a default, or a '= <CEL>' of constants, params and the copy index i")
+
+    /** A rotation lowered at load: every angle folds to a number (literal, param, `= CEL` of constants and i), so the result is a literal quaternion. */
+    fun rotation(r: Rotation, path: String): Quaternion = when (r) {
+        is Rotation.Whole -> (r.value as? Value.Literal)?.value ?: ctx.fail(path, "a rate law is lowered at load, so a whole rotation must be a literal [x, y, z, w]")
+        is Rotation.Turns -> (Rotation.Turns(r.turns.mapIndexed { k, t -> t.copy(deg = Value.Literal(num(t.deg, "$path[$k].deg"))) }).toValue(ctx, path, ctx.axes) as Value.Literal).value
+    }
 
     fun ticks(v: Value<Double>, path: String): Int {
         val d = num(v, path)

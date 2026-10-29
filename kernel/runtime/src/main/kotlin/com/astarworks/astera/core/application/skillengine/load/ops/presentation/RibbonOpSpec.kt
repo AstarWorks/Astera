@@ -172,7 +172,7 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
         val to = num("to")
         val perTick = num("per_tick")
         if ((to == null) == (perTick == null)) ctx.fail(path, "exactly one of to, per_tick")
-        val forTicks = num("for") ?: ctx.fail("$path.for", "a width law needs a window: for (ticks)")
+        val forTicks = num("for") ?: ctx.fail("$path.for", "ribbon width law: a width law needs a window: write for: <ticks> on the law (the ribbon itself needs for: <ticks> too; until: <event> alone is for a line, which has no width law)")
         if (forTicks < 1.0 || forTicks != Math.floor(forTicks)) ctx.fail("$path.for", "for must be a positive whole number of ticks")
         val at = num("at") ?: 0.0
         if (at < 0.0 || at != Math.floor(at)) ctx.fail("$path.at", "at must be a non-negative whole number of ticks")
@@ -265,7 +265,7 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
             rows += Row(0, self, Action.Spawn(SpawnKind.RIBBON, tipAnchor, tipName, pose, Look(look)), lc.src)
             // ADR-0303 3.4 / 3.7: a width law is one `set` of the width per tick where it changes (as fade is), which the player hands to the trail
             op.motion?.let { laws ->
-                if (life == null) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, "$p.motion", "a width law needs a static for: (the ribbon ends at an event, so its length is not known)"))
+                if (life == null) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, "$p.motion", "ribbon: a width law needs a window: write for: <ticks> on the ribbon"))
                 val field = if (look.containsKey("width_frac")) "width_frac" else "width"
                 val base = ((look[field] as Val.Known<*>).value as Number).toDouble()
                 var prev = base

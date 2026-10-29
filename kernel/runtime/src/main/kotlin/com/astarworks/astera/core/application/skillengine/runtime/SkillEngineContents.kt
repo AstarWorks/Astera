@@ -11,9 +11,6 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
 import java.nio.file.Files
 import java.nio.file.Path
-import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.LoaderOptions
-import org.yaml.snakeyaml.constructor.SafeConstructor
 
 /**
  * Hot reload of skill-engine v3 content (ADR-0301, ADR-0303). `make dev-content` sends `astera admin reload all`;
@@ -55,7 +52,7 @@ public class SkillEngineContents(
         val effects = dir.parent.resolve("shader-patches/effects")
         if (!Files.isDirectory(effects)) return emptySet()
         return Files.list(effects).use { paths -> paths.sorted().toList() }.mapNotNull { effect ->
-            val raw = Yaml(SafeConstructor(LoaderOptions().apply { isAllowDuplicateKeys = false })).load<Map<String, Any>>(Files.readString(effect.resolve("effect.yaml")))
+            val raw = com.astarworks.astera.core.application.skillengine.load.StrictYaml.newYaml().load<Map<String, Any>>(Files.readString(effect.resolve("effect.yaml")))
             val id = raw["id"] as? String ?: error("$effect: missing effect id")
             require(id == effect.fileName.toString()) { "$effect: effect id differs from directory" }
             val markers = raw["markers"] as? List<*> ?: error("$effect: missing markers")

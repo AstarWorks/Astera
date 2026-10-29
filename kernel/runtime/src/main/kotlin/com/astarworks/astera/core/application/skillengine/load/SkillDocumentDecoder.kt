@@ -264,6 +264,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
             m as Map<String, Any?>
             checkKeys(ctx, m, p, setOf("id", "anchor", "offset", "mount", "mode"))
             val id = m["id"] as? String ?: ctx.abortWith(SkillDecodeError.MissingField(ctx.file, p, "id"))
+            com.astarworks.astera.core.application.skillengine.compose.AnchorNames.reservedError(p, id)?.let { ctx.abortWith(SkillDecodeError.Invalid(ctx.file, "$p.id", it)) }
             if (!seen.add(id)) ctx.abortWith(SkillDecodeError.DuplicateId(ctx.file, p, id))
             val anchor = m["anchor"] as? String ?: ctx.abortWith(SkillDecodeError.MissingField(ctx.file, p, "anchor"))
             if (anchor.isBlank() || anchor.startsWith('.') || anchor.endsWith('.')) ctx.mismatch("$p.anchor", "point reference (frame.point)", anchor)

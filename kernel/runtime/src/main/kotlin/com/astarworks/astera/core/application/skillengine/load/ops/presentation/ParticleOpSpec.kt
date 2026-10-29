@@ -40,7 +40,7 @@ import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 /** The single data slot of the vanilla overload (2.2): Dust(color + size), Block or Item, or none. */
 public sealed interface ParticleStyle {
     public data object Plain : ParticleStyle
-    public data class Dust(public val color: ParticleColor, public val size: Double) : ParticleStyle
+    public data class Dust(public val color: ParticleColor, public val size: Value<Double>) : ParticleStyle
     public data class Block(public val key: Value<String>) : ParticleStyle
     public data class Item(public val key: Value<String>) : ParticleStyle
 }
@@ -142,7 +142,7 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
 
         val data = when (val s = op.style) {
             ParticleStyle.Plain -> null
-            is ParticleStyle.Dust -> ParticleData.Dust(s.color, s.size.toFloat())
+            is ParticleStyle.Dust -> ParticleData.Dust(s.color, (dustSize(s.size, lc) ?: return dustSizeError(lc)).toFloat())
             is ParticleStyle.Block -> ParticleData.Block(dataKey(s.key, lc) ?: return dataKeyError("block", lc))
             is ParticleStyle.Item -> ParticleData.Item(dataKey(s.key, lc) ?: return dataKeyError("item", lc))
         }
@@ -175,14 +175,27 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
             dust -> {
                 if (color == null) ctx.fail("color", "size needs color (Particle.DustOptions takes both)")
                 if (size == null) ctx.fail("size", "color needs size (Particle.DustOptions takes both)")
-                if (size !is Value.Literal || size.value <= 0.0) ctx.fail("size", "size must be a literal number > 0")
-                ParticleStyle.Dust(parseColor(color, ctx), size.value)
+                if (size is Value.Literal && size.value <= 0.0) ctx.fail("size", "size must be > 0")
+                ParticleStyle.Dust(parseColor(color, ctx), foldNum(size, ctx))
             }
             block != null -> ParticleStyle.Block(foldText(block, ctx))
             item != null -> ParticleStyle.Item(foldText(item, ctx))
             else -> ParticleStyle.Plain
         }
     }
+
+    private fun foldNum(v: Value<Double>, ctx: GrammarContext): Value<Double> =
+        if (v is Value.ParamRef) (ctx.params?.get(v.name) as? ParamValue.Num)?.let { Value.Literal(it.value) } ?: v else v
+
+    /** The dust size of this copy: a literal, or a `= CEL` over params / `i` / `n` folded here (the client reads `Particle.DustOptions` once at spawn); null = it cannot be known at load. */
+    private fun dustSize(v: Value<Double>, lc: LowerContext): Double? = when (v) {
+        is Value.Literal -> v.value
+        is Value.Expr -> (OccurrenceBake.fold(lc, v.source, ExprType.NUM) as? ExprValue.Num)?.value
+        is Value.ParamRef -> null
+    }?.takeIf { it > 0.0 }
+
+    private fun dustSizeError(lc: LowerContext): Result<Lowered, SkillDecodeError> =
+        Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".size", "size is sent inside Particle.DustOptions, which the client reads once: write a value that folds at load (literal, \${param}, or = CEL of params and i) and is > 0"))
 
     private fun foldText(v: Value<String>, ctx: GrammarContext): Value<String> =
         if (v is Value.ParamRef) (ctx.params?.get(v.name) as? ParamValue.Text)?.let { Value.Literal(it.value) } ?: v else v

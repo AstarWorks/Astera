@@ -1,6 +1,6 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=bloom/snd sound=astera:skills/heal-chime cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=bloom/fx type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=422808234737539249
+@0 particle - op=bloom/fx type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8309024391654983124
 @0 particle - op=bloom/leaf_a type=happy_villager count=0 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6524795273568179428
 @0 particle - op=bloom/dust_a type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5ae65a size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2090229397474415681
 @0 particle - op=bloom/leaf_b type=happy_villager count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4428284988552562355
@@ -14,7 +14,7 @@
 @6 particle - op=bloom/dust_c type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#8cff78 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1102138341692021807
 ## pose yaw=37 pitch=-20
 @0 sound - op=bloom/snd sound=astera:skills/heal-chime cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=bloom/fx type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=422808234737539249
+@0 particle - op=bloom/fx type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8309024391654983124
 @0 particle - op=bloom/leaf_a type=happy_villager count=0 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6524795273568179428
 @0 particle - op=bloom/dust_a type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5ae65a size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2090229397474415681
 @0 particle - op=bloom/leaf_b type=happy_villager count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4428284988552562355

@@ -207,18 +207,18 @@ machine:
                 - {law: grow, to: 0, at: 12, for: 3}
 
             # --- tick 7..16: the cut lands. A white cross, four dark shards, a bloom, eight petals and a flash at the attacker
-            - {id: contact, op: frame, anchor: victim, axes: caster, mode: snapshot, at: 7, for: 9}
+            - {id: hit_pt, op: frame, anchor: victim, axes: caster, mode: snapshot, at: 7, for: 9}
             - id: cross
               op: display
               kind: block
               block: white_concrete
-              anchor: contact
+              anchor: hit_pt
               at: 7
               for: 9
               times: 3
               offset: {up: 1.05}
               rotate: [[{axis: left, deg: -45}], [{axis: left, deg: 45}], [{axis: left, deg: 0}]]
-              scale: [0.05, 3.3, 0.06]
+              scale: {left: 0.05, up: 3.3, forward: 0.06}
               brightness: {block: 15, sky: 15}
               motion:
                 - {law: grow, per_tick: {left: -0.005, forward: -0.006667}, at: 0, for: 3}
@@ -229,7 +229,7 @@ machine:
               kind: text
               text: " "
               background: "#28201C"
-              anchor: contact
+              anchor: hit_pt
               at: 7
               for: 7
               times: 4
@@ -247,7 +247,7 @@ machine:
               kind: text
               text: " "
               background: "#EAD9B0"
-              anchor: contact
+              anchor: hit_pt
               at: 7
               for: 6
               offset: {up: 1.1}
@@ -262,7 +262,7 @@ machine:
               kind: text
               text: " "
               background: "#FFF5E9"
-              anchor: contact
+              anchor: hit_pt
               at: 7
               for: 8
               times: 8
@@ -285,7 +285,7 @@ machine:
               text: "✦"
               color: "#FFF8ED"
               see_through: true
-              anchor: contact
+              anchor: hit_pt
               at: 7
               for: 7
               offset: {up: 1.1}
@@ -297,7 +297,7 @@ machine:
                 - {law: grow, per_tick: {left: -0.5, up: -0.5}, at: 1, for: 2}
                 - {law: grow, per_tick: {left: -2.333333, up: -2.333333}, at: 3, for: 3, ease: in_quad}
                 - {law: fade, at: 0, for: 6, ease: in_quad}
-            - {id: sparks_at, op: frame, anchor: contact, mode: follow, offset: {up: 1.1}, at: 7, for: 1}
+            - {id: sparks_at, op: frame, anchor: hit_pt, mode: follow, offset: {up: 1.1}, at: 7, for: 1}
             - {id: sparks, op: particle_def, def: stab-spark, anchor: sparks_at, at: 7, every: 3, times: 2}
             - {id: snd, op: sound, sound: entity.player.attack.strong, anchor: victim, volume: 0.7, pitch: 1.1, at: 7}
         done: {final: true}
