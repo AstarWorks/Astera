@@ -32,8 +32,7 @@ import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Val
 
 /**
- * Decoded `body` op (R39 / R41): plays the body animation clip [anim] on [target] (the caster, or the `event.victim` / `event.attacker` of the event
- * the op runs in) at [speed] for the span. The clip ends
+ * Decoded `body` op (R39 / R41): plays the body animation clip [anim] on [target] (the caster) at [speed] for the span. The clip ends
  * with the op's instance, so `for: N` lowers to an `End` row at tick N; `for: cast` ends with the cast. `until: <event>`
  * ends it at the event (the player ends the instance, not this lowering).
  */
@@ -49,7 +48,7 @@ public class BodyOp(
 
 public object BodyOpSpec : OpSpec<BodyOp> {
     private val animField = Field.required("anim", Types.id, "body animation clip id")
-    private val targetField = Field.required("target", GameplayOps.target, "whose body plays the clip: caster | event.victim | event.attacker (one entity, never an area)")
+    private val targetField = Field.required("target", GameplayOps.target, "whose body plays the clip: caster (a victim reaction is op: react)")
     private val speedField = Field.optional("speed", Types.number, Value.Literal(1.0), "playback speed, 1.0 = authored")
 
     override val name: String = "body"
@@ -60,8 +59,8 @@ public object BodyOpSpec : OpSpec<BodyOp> {
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<BodyOp, SkillDecodeError> =
         if (timing?.span == null && timing?.until == null) {
             Result.Failure(SkillDecodeError.MissingField(ctx.file, "body(${id.value})", "for"))
-        } else if (values[targetField] !is TargetRef.Caster && values[targetField] !is TargetRef.Victim && values[targetField] !is TargetRef.Attacker) {
-            Result.Failure(SkillDecodeError.Invalid(ctx.file, "body(${id.value}).target", "a body clip plays on one entity: caster, event.victim or event.attacker, not an area"))
+        } else if (values[targetField] !is TargetRef.Caster) {
+            Result.Failure(SkillDecodeError.Invalid(ctx.file, "body(${id.value}).target", "a body clip is caster-only; a victim reaction is op: react (player: {anim} carries the clip for player victims)"))
         } else {
             Result.Success(BodyOp(id, src, whenExpr, timing, values[animField], values[speedField], values[targetField]))
         }

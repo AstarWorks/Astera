@@ -43,12 +43,12 @@ machine:
         - {id: dash, op: dash, at: 4, speed: "= dash_distance / 3", for: 3, until: dash_hit.hit, direction: {forward: 1.0}, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
         # v2 sel (damage 35, ignore_invulnerability) + sel_2 (freeze 2, scope enemy+caster) are the same sphere at the same tick: one hit with the damage.
         # The hit-stop of sel_2 is the freeze row in `on: hit1` below (R25); rig.freezes holds the weapon rig only.
-        - {id: hit1, op: hit, at: 7, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "${dmg_physical}"}, window: once, ignore_invulnerability: true, on: {hit: [{id: stop, op: freeze, at: 0, ticks: 2, scope: [caster, event.victim]}]}}
+        - {id: hit1, op: hit, at: 7, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "${dmg_physical}"}, window: once, ignore_invulnerability: true, on: {hit: [{id: react, op: react, target: event.victim, flinch: true, for: 6}, {id: stop, op: freeze, at: 0, ticks: 2, scope: [caster, event.victim]}]}}
         - {id: st_charge, op: status, at: 7, target: caster, status: charge, stacks: "${charge_stacks}", for: "${charge_ticks}", when: "= nearest_enemy_dist(caster) < 3.6"}
         - {id: dash_hit_2, op: hit, at: 28, for: 3, every: 1, anchor: caster.body, shape: {sphere: 1.7}, targets: enemies, window: once, ignore_invulnerability: false}
         - {id: dash_2, op: dash, at: 28, speed: "= dash_distance_2 / 3", for: 3, until: dash_hit_2.hit, direction: {forward: 1.0}, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
         # v2 sel_3 (damage 45, ignore_invulnerability) + sel_4 (freeze 2 + knockback) merged the same way.
-        - {id: hit2, op: hit, at: 31, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "${dmg_physical_2}"}, window: once, ignore_invulnerability: true, on: {hit: [{id: stop_2, op: freeze, at: 0, ticks: 2, scope: [caster, event.victim]}, {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback}"}]}}
+        - {id: hit2, op: hit, at: 31, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "${dmg_physical_2}"}, window: once, ignore_invulnerability: true, on: {hit: [{id: react_2, op: react, target: event.victim, flinch: true, for: 6}, {id: stop_2, op: freeze, at: 0, ticks: 2, scope: [caster, event.victim]}, {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback}"}]}}
         # --- weapon rig (v2 look.yaml group fx0, rig duration 58) ---
         - id: rig
           op: rig

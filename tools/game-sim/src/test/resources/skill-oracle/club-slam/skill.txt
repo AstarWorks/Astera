@@ -24,6 +24,8 @@
 @5 hit - op=strike/blast at=0.000000,0.000000,0.000000 r=3.000000 shape=sphere rad=3.000000
 @5 damage 00000000-0000-0000-0000-00000000000a op=- physical=9.3333 skill=club-slam at=0.000000,0.000000,2.200000 ignoreinv=false ignorearmor=false
 @5 sound - op=strike/blast.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=0.000000,0.000000,2.200000
+@5 effect 00000000-0000-0000-0000-00000000000a op=- hurt
+@5 effect 00000000-0000-0000-0000-00000000000b op=- hurt
 @5 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0.33 z=1.1
 @5 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0.33 z=1.1
 @5 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.045881,0.996479,-0.066285,0.023032
@@ -115,6 +117,8 @@ r @16 run-end tail=10 | pose
 @5 hit - op=strike/blast at=0.000000,0.000000,0.000000 r=3.000000 shape=sphere rad=3.000000
 @5 damage 00000000-0000-0000-0000-00000000000a op=- physical=9.3333 skill=club-slam at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
 @5 sound - op=strike/blast.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589
+@5 effect 00000000-0000-0000-0000-00000000000a op=- hurt
+@5 effect 00000000-0000-0000-0000-00000000000b op=- hurt
 @5 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.662 y=0.33 z=0.8785
 @5 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=-0.662 y=0.33 z=0.8785
 @5 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=0.064542,0.937676,-0.048302,0.338030

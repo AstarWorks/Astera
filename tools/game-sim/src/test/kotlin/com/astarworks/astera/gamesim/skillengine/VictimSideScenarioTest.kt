@@ -97,16 +97,10 @@ class VictimSideScenarioTest : SkillEngineScenario() {
     }
 
     @Test
-    fun bodyTargetEventVictimPlaysTheClipOnTheVictim() {
-        val s = load(
-            "{targets: enemies, once: true, attach: false}",
-            "{hit: [{id: victim_pose, op: body, at: 0, target: event.victim, anim: bastion-s1-body, speed: 1.0, for: 6}]}",
-        )
-        val rec = run(s)
-        val plays = rec.calls.filter { it.verb == "effect" && it.payload.startsWith("body=bastion-s1-body") }
-        assertThat(plays).hasSize(1)
-        assertThat(plays.single().instance).isEqualTo(foe.toString())
-        assertThat(rec.calls.filter { it.verb == "effect" && it.payload == "body_stop=bastion-s1-body" }.map { it.instance }).containsExactly(foe.toString())
+    fun bodyOnTheVictimIsRefusedAndPointsToReact() {
+        val r = loadInline(skill("{targets: enemies, once: true, attach: false}", "{hit: [{id: victim_pose, op: body, at: 0, target: event.victim, anim: bastion-s1-body, speed: 1.0, for: 6}]}"))
+        assertThat(r).isInstanceOf(Result.Failure::class.java)
+        assertThat((r as Result.Failure).error.toString()).contains("react")
     }
 
     @Test

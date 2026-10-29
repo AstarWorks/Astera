@@ -113,6 +113,13 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     private var pendingVolume: Pair<String, ResolvedVolume>? = null
 
     override fun row(cast: CastHandle, op: InstanceId, tick: Int) { rowOp = op.text }
+
+    /** Entities that are mobs (everything else is a player): `react player:` clips are recorded as played for a player and as `react_skip` for these. */
+    val mobs: MutableSet<UUID> = HashSet()
+
+    override fun reactClipSkipped(cast: CastHandle, op: InstanceId, tick: Int, victim: UUID?) {
+        add("react_skip", victim.toString(), "only=player target=mob")
+    }
     override fun hitVolume(cast: CastHandle, op: InstanceId, volume: ResolvedVolume, tick: Int) { pendingVolume = op.text to volume }
 
     private fun seen(port: String, cast: CastRef) {
@@ -380,6 +387,8 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun bodyClip(anim: String) = com.astarworks.astera.gamesim.SimClips.clip(anim)
 
         override fun bodySkeleton() = com.astarworks.astera.gamesim.SimClips.bodySkeleton()
+
+        override fun isPlayer(entity: UUID): Boolean = entity !in mobs
 
         override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double) {
             seen("gameplay.playBodyClip", cast)

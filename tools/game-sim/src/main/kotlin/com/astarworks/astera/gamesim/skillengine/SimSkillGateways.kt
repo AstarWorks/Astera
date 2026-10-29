@@ -230,6 +230,8 @@ internal class SimSkillGameplayGateway(
 
     override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double) {}
 
+    override fun isPlayer(entity: UUID): Boolean = world.find(PlayerId(entity))?.kind != com.astarworks.astera.gamesim.SimEntityKind.MOB
+
     override fun stopBodyClip(cast: CastRef, target: UUID, anim: String) {}
 
     override fun setHeldModel(cast: CastRef, caster: UUID, model: String) {}

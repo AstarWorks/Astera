@@ -218,10 +218,12 @@ anchors:
   (`{left: .., up: .., forward: ..}` の map と同値)。要素数が 3 以外は load error。
 - `motion` の値に CEL 文字列を書いても、family の per-index list とは見なされない (`"= ..."` は一つの数値式)。
 
-### 被弾側 (victim side): `body target:` と `hit.attach`
+### 被弾側 (victim side): `react` と `hit.attach`
 
 ```yaml
-- {id: pose, op: body, target: caster, anim: bastion-s1-body, speed: 1.0, for: 12}   # target 必須: caster / event.victim / attacker
+- {id: pose, op: body, target: caster, anim: bastion-s1-body, speed: 1.0, for: 12}   # body は caster 専用 (被弾者は react)
+- {id: r, op: react, target: event.victim, flinch: true, push: {back: 0.4, up: 0.1}, hold: 3, player: {anim: bastion-s1-body}, for: 6}
+  # on.hit 内。flinch=バニラ被弾モーション / push=術者から離れる向き / hold=移動拘束 tick (ゲームプレイ効果、整数、<= for) / player.anim は player 被弾者のみ (mob はスキップ)。for 必須
 - id: harpoon
   op: projectile
   hit: {targets: enemies, once: true, attach: true, attach_to: victim.feet}   # attach 必須 (既定なし)

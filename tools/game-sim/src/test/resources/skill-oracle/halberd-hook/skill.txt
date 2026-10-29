@@ -24,6 +24,8 @@
 @5 damage 00000000-0000-0000-0000-00000000000a op=- physical=22 skill=halberd-hook at=0.000000,0.900000,2.500000 ignoreinv=false ignorearmor=false
 @5 sound - op=strike/swing.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1.2 at=0.000000,0.900000,2.500000
 @5 particle - op=strike/swing.hit/fx_hit type=hit-spark at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7749879269564815284
+@5 effect 00000000-0000-0000-0000-00000000000a op=- hurt
+@5 effect 00000000-0000-0000-0000-00000000000b op=- hurt
 @5 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0 z=0.2
 @5 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0 z=0.2
 @5 status 00000000-0000-0000-0000-00000000000a op=- status=tremor stacks=1 for=40

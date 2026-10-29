@@ -24,6 +24,10 @@
 @5 hit - op=strike/burst at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
 @5 damage 00000000-0000-0000-0000-00000000000a op=- physical=22.5 skill=war-axe-whirl at=0.000000,0.000000,2.200000 ignoreinv=false ignorearmor=false
 @5 sound - op=strike/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=0.000000,0.000000,2.200000
+@5 effect 00000000-0000-0000-0000-00000000000a op=- hurt
+@5 effect 00000000-0000-0000-0000-00000000000b op=- hurt
+@5 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0 z=0.4
+@5 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0 z=0.4
 @5 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.408874,-0.798733,0.441278,0.011015
 @6 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=-0.595400,0.795407,-0.100056,0.053067 scale=0.937500,0.937500,0.937500 bb=FIXED
 @6 particle - op=strike/trail[1] type=crit count=1 at=-0.399736,0.783530,0.324543 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4543108460020411445
@@ -113,6 +117,10 @@ r @16 run-end tail=10 | pose
 @5 hit - op=strike/burst at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
 @5 damage 00000000-0000-0000-0000-00000000000a op=- physical=22.5 skill=war-axe-whirl at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
 @5 sound - op=strike/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589
+@5 effect 00000000-0000-0000-0000-00000000000a op=- hurt
+@5 effect 00000000-0000-0000-0000-00000000000b op=- hurt
+@5 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.2407 y=0 z=0.3195
+@5 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=-0.2407 y=0 z=0.3195
 @5 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.247725,0.760953,-0.548212,0.242996
 @6 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.532884,0.737465,-0.283808,0.302711 scale=0.937500,0.937500,0.937500 bb=FIXED
 @6 particle - op=strike/trail[1] type=crit count=1 at=-0.514558,0.783530,0.018624 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4543108460020411445
@@ -183,3 +191,4 @@ g @1 state-end then=end final=false | state=strike
 g @0 damage physical=live(%3D%2035.0%20*%20(1.0%20-%200.5%20*%20dist(event.victim,%20caster)%20/%203.5)) | state=strike
 g @0 state-end then=- final=true | state=end
 g.hit @0..0 handler max=2147483647 | sub=strike/burst.hit
+g.hit @0 impulse target=live(victim) vector=live(%3D%20normalize(flat(pos(event.victim)%20-%20pos(caster)))%20*%200.4) | sub=strike/burst.hit

@@ -55,6 +55,7 @@ machine:
           window: once
           on:
             hit:
+              - {id: react, op: react, target: event.victim, flinch: true, push: {back: 0.4}, for: 6}
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0, detach: true}
         - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 1.2, detach: true}
         - {id: fx_crit, op: particle, particle: crit, anchor: ring_pt, count: 0, extra: 0.03, detach: true}

@@ -50,6 +50,7 @@ machine:
           ignore_invulnerability: false
           on:
             hit:
+              - {id: react, op: react, target: event.victim, flinch: true, for: 6}
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(caster) - pos(event.victim)) + vec(0.0, 0.2, 0.0)", strength: "${pull}"}
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
         - {id: snd, op: sound, sound: entity.player.attack.sweep, anchor: caster, volume: 1.0, pitch: 0.6, detach: true}

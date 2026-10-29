@@ -26,6 +26,8 @@
 @6 damage 00000000-0000-0000-0000-00000000000a op=- physical=62 skill=cleaver-chop at=0.000000,0.900000,2.500000 ignoreinv=false ignorearmor=false
 @6 sound - op=strike/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1.2 at=0.000000,0.900000,2.500000
 @6 particle - op=strike/strike.hit/spark type=hit-spark at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5699905757348736161
+@6 effect 00000000-0000-0000-0000-00000000000a op=- hurt
+@6 effect 00000000-0000-0000-0000-00000000000b op=- hurt
 @6 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0 z=0.5
 @6 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0 z=0.5
 @6 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.045881,0.996479,-0.066285,0.023032
