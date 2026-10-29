@@ -26,8 +26,7 @@ fragments:
       power: {type: number, default: 1}
     frames_in: {origin: anchor}
     do:
-      # GAP: `around: origin` (a frames_in name) is not resolvable as an area-target centre on Paper; `contact` is, inside the on.hit handler
-      - {id: dmg, op: damage, target: {kind: enemies, around: contact, radius: 2.5, max_count: 8, include_self: false}, damage: {fire: "= 6 * ${power}"}}
+      - {id: dmg, op: damage, target: {kind: enemies, around: origin, radius: 2.5, max_count: 8, include_self: false}, damage: {fire: "= 6 * ${power}"}}
       - {id: crack, op: sound, sound: entity.generic.explode, anchor: origin, volume: 0.6, pitch: 1.3}
       - id: embers
         op: particle
