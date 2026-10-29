@@ -1,4 +1,4 @@
-# shield-bash: wind-up 4 ticks (rule round(5 / attack_speed)), hit at tick 4. No rig: the shield has no item model or frame table (vanilla SHIELD), so the wind-up is a sound and a spark charge at the shield.
+# shield-bash: wind-up 4 ticks (rule round(5 / attack_speed)), hit at tick 4. Rig: the shield model astera:shield-bulwark (content/models/items/shield-bulwark.model.json, frame table content/frames/shield-bulwark.yaml; the held item stays the vanilla SHIELD so blocking keeps working). The shield is drawn back over 3 ticks (top toward the caster), shoved forward so it reaches the target zone at the hit (tick 4), then eased back; long = up, edge = -X, outer face forward.
 apiVersion: astera/v3
 kind: Skill
 id: shield-bash
@@ -29,6 +29,17 @@ machine:
       do:
         - {id: snd_windup, op: sound, sound: item.armor.equip_iron, anchor: caster, volume: 0.6, pitch: 0.7}
         - {id: charge, op: particle, particle: crit, anchor: front, count: 2, extra: 0.1, every: 2, for: 4}
+        - id: rig
+          op: rig
+          parent: caster
+          mount: caster.hand_r
+          part: held_hand
+          detach: true
+          for: 10
+          swing:
+            - {at: 0, for: 3, from: {left: 0.000, up: 0.960, forward: 0.280}, to: {left: 0.000, up: 0.930, forward: -0.370}, edge: leading, roll: 0, ease: out_quad}
+            - {at: 3, for: 2, to: {left: 0.000, up: 0.900, forward: 0.440}, edge: trailing, roll: 0, ease: out_cubic}
+            - {at: 5, for: 5, to: {left: 0.000, up: 0.970, forward: 0.220}, edge: leading, roll: 0, ease: out_cubic}
     strike:
       for: 1
       then: end

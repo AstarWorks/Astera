@@ -1,8 +1,8 @@
-# Point table for the greatsword: a flat handheld sprite (content/textures/generated/items/greatsword.png, vanilla item/handheld parent), no 3D model.
-# Chain as content/frames/couture-rapier.yaml: q = RotY(180) * ( T + Rxyz * ( S * (p/16 - 0.5) ) ) on the sprite plane (z = 8), 16 px = 1 block.
-# Display transforms are vanilla item/handheld: fixed = rot [0,180,0] tr [0,0,0] scale 0.5; thirdperson_righthand = rot [0,-90,55] tr [0,4,0.5] scale 0.85.
-# Points are sprite centroids along the handle-to-tip diagonal: grip = the lowest 18% (pivot = grip), root = the 30-36% band (blade / head base), tip = the farthest opaque pixel.
-# long = the sprite diagonal (1,1,0) grip -> tip; edge = (1,-1,0) in the sprite plane (the lower-right side), perpendicular to long. The sprite has no visible cutting-edge side, so edge: leading|trailing in a swing is only a convention.
+# Point table for the greatsword: measured from the real 3D model content/models/items/greatsword.model.json [tools/model-forge/batches/heavy-models], not from a sprite.
+# Chain as content/frames/couture-rapier.yaml: q = RotY[180] * [ T + Rxyz * [ S * [p/16 - 0.5] ] ], p = model point in pixels [16 px = 1 block], T/R/S = the model display block of the part display.
+# Model space: item upright along model +Y, grip at the bottom, plates thin in Z [centre z = 8], cutting edge toward +X.
+# Model points [px]: grip=[8, 2.2, 8] [hand centre, = pivot], root=[8, 7.8, 8], tip=[8, 28.2, 8], edge dir=[1, 0, 0]; root/tip sit on the striking edge/axis so the trail particles run on the steel.
+# length = model extent along model +Y [whole item, grip end to far end] * display scale / 16. hand_anchor = q[[8,8,8]] under the third-person display [the point the hand frame sits on].
 apiVersion: astera/v3
 kind: ItemFrames
 item: greatsword
@@ -10,12 +10,12 @@ parts:
   held:
     model: astera:greatsword
     display: fixed
-    length: 0.6299
-    points: { grip: [-0.1825, -0.1825, 0.0], pivot: [-0.1825, -0.1825, 0.0], root: [-0.0677, -0.0729, 0.0], tip: [0.2109, 0.2422, 0.0] }
-    axes: { long: [0.7071, 0.7071, 0.0], edge: [0.7071, -0.7071, 0.0] }
+    length: 1.4039
+    points: { grip: [-0.2881, -0.4087, 0.0924], pivot: [-0.2881, -0.4087, 0.0924], root: [-0.1386, -0.1951, 0.0924], tip: [0.4062, 0.583, 0.0924] }
+    axes: { long: [0.5736, 0.8192, 0.0], edge: [0.8192, -0.5736, 0.0] }
   held_hand:
     model: astera:greatsword
     display: thirdperson_righthand
-    length: 1.0708
-    points: { grip: [0.0, -0.1822, -0.1075], pivot: [0.0, -0.1822, -0.1075], root: [0.0, 0.0846, -0.0668], tip: [0.0, 0.7799, 0.1003], hand_anchor: [0.0, 0.2500, -0.0312] }
-    axes: { long: [0.0, 0.9848, 0.1736], edge: [0.0, 0.1736, -0.9848] }
+    length: 1.4133
+    points: { grip: [0.0, -0.0307, 0.0215], pivot: [0.0, -0.0307, 0.0215], root: [0.0, 0.1843, -0.1291], tip: [0.0, 0.9676, -0.6775], hand_anchor: [0.0, 0.192, -0.1344] }
+    axes: { long: [0.0, 0.8192, -0.5736], edge: [0.0, -0.5736, -0.8192] }

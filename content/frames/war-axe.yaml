@@ -1,8 +1,8 @@
-# Point table for the war-axe: a flat handheld sprite (content/textures/generated/items/war-axe.png, vanilla item/handheld parent), no 3D model.
-# Chain as content/frames/couture-rapier.yaml: q = RotY(180) * ( T + Rxyz * ( S * (p/16 - 0.5) ) ) on the sprite plane (z = 8), 16 px = 1 block.
-# Display transforms are vanilla item/handheld: fixed = rot [0,180,0] tr [0,0,0] scale 0.5; thirdperson_righthand = rot [0,-90,55] tr [0,4,0.5] scale 0.85.
-# Points are sprite centroids along the handle-to-tip diagonal: grip = the lowest 18% (pivot = grip), root = the 30-36% band (blade / head base), tip = the farthest opaque pixel.
-# long = the sprite diagonal (1,1,0) grip -> tip; edge = (1,-1,0) in the sprite plane (the lower-right side), perpendicular to long. The sprite has no visible cutting-edge side, so edge: leading|trailing in a swing is only a convention.
+# Point table for the war-axe: measured from the real 3D model content/models/items/war-axe.model.json [tools/model-forge/batches/heavy-models], not from a sprite.
+# Chain as content/frames/couture-rapier.yaml: q = RotY[180] * [ T + Rxyz * [ S * [p/16 - 0.5] ] ], p = model point in pixels [16 px = 1 block], T/R/S = the model display block of the part display.
+# Model space: item upright along model +Y, grip at the bottom, plates thin in Z [centre z = 8], cutting edge toward +X.
+# Model points [px]: grip=[8, 2.4, 8] [hand centre, = pivot], root=[14.2, 18.8, 8], tip=[15.0, 29.2, 8], edge dir=[1, 0, 0]; root/tip sit on the striking edge/axis so the trail particles run on the steel.
+# length = model extent along model +Y [whole item, grip end to far end] * display scale / 16. hand_anchor = q[[8,8,8]] under the third-person display [the point the hand frame sits on].
 apiVersion: astera/v3
 kind: ItemFrames
 item: war-axe
@@ -10,12 +10,12 @@ parts:
   held:
     model: astera:war-axe
     display: fixed
-    length: 0.5762
-    points: { grip: [-0.1843, -0.1814, 0.0], pivot: [-0.1843, -0.1814, 0.0], root: [-0.0964, -0.0755, 0.0], tip: [0.2109, 0.1641, 0.0] }
-    axes: { long: [0.7071, 0.7071, 0.0], edge: [0.7071, -0.7071, 0.0] }
+    length: 1.3
+    points: { grip: [-0.1907, -0.2787, 0.0], pivot: [-0.1907, -0.2787, 0.0], root: [0.3353, 0.08, 0.0], tip: [0.5757, 0.3727, 0.0], head: [0.3442, 0.2954, 0.0] }
+    axes: { long: [0.6347, 0.7727, 0.0], edge: [0.8192, -0.5736, 0.0] }
   held_hand:
     model: astera:war-axe
     display: thirdperson_righthand
-    length: 0.9796
-    points: { grip: [0.0, -0.1836, -0.1041], pivot: [0.0, -0.1836, -0.1041], root: [0.0, 0.0422, -0.0425], tip: [0.0, 0.7037, -0.0085], hand_anchor: [0.0, 0.2500, -0.0312] }
-    axes: { long: [0.0, 0.9848, 0.1736], edge: [0.0, 0.1736, -0.9848] }
+    length: 1.3
+    points: { grip: [0.0, 0.0, 0.0], pivot: [0.0, 0.0, 0.0], root: [0.0, 0.3587, -0.526], tip: [0.0, 0.6514, -0.7664], head: [0.0, 0.5741, -0.535], hand_anchor: [0.0, 0.1666, -0.1166] }
+    axes: { long: [0.0, 0.7727, -0.6347], edge: [0.0, -0.5736, -0.8192] }
