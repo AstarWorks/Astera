@@ -44,7 +44,7 @@ and `#aarrggbb` colour (2.1), world op defaults (10.1c), dash `direction` requir
 counted over `[spawn, end)`, a `lock` row owning its instance, param defaults and item-part axes for frame motion, state-qualified
 instance ids, ribbon opacity as the colour alpha. Each sentence names the commit that implemented it. No field is added or removed.
 **rev4.5 (2026-10-29, SKL-22 gaps, wording only)**: the `seq:` desugar applies to part and machine op lists alike (11.1); a display `size` may be a T-class expression, fitted to `Key` segments (2.1, 3.5); a ribbon takes `{law: grow, prop: width}` and lowers it per tick because a trail has no client interpolation (3.4, 3.7). No field is added or removed.
-Founder questions Q2, Q3, Q5, Q6 are OPEN (Q1 = B and Q4 = A resolved 10/29, Q7 = A resolved 10/29; rev4.7): every spot that depends on one carries a "pending founder Qn" note with both options and chooses neither (list under
+Founder questions Q6 is OPEN (Q2, Q3, Q5 resolved 10/29 too) (Q1 = B and Q4 = A resolved 10/29, Q7 = A resolved 10/29; rev4.7): every spot that depends on one carries a "pending founder Qn" note with both options and chooses neither (list under
 "Open decisions"). Examples c, e, g updated; `rejected/r12`-`r14` added. Status stays Proposed (edited in place by the manager's authorisation).
 - **rev4.5 (2026-10-29, SKL-22, founder 10/28 asks)**: the look lock is confirmed as the `pitch` / `yaw` fields of `lock` (10.6, no new field; the player already
 - **rev4.7 (2026-10-29, founder answers Q1 = B and Q4 = A)**: `max_count` is optional on a `hit` and on an area `damage`/`status`/`heal`/`cleanse` target; omitted or `all` = unlimited, an integer >= 1 keeps the nearest N (10.1b). `damage` is optional on a `hit`: a trigger-only hit loads and its handler `damage` deals it (v2 order). The engine already decoded both spellings; the open-question switch is removed. No field is added or removed.
@@ -56,6 +56,8 @@ Founder questions Q2, Q3, Q5, Q6 are OPEN (Q1 = B and Q4 = A resolved 10/29, Q7 
 **rev4.9 / G2 (2026-10-29, foundation audit P10, founder #32)**: the victim side is first class. `body` takes a required `target:` (`caster`, `event.victim`, or an attacker ref; area targets refused) and plays the clip on that player; every shipped body row now says `target: caster`. A projectile `hit` takes a required `attach: true|false`; `attach: true` + `attach_to: victim.<point>` sticks the body to the hit victim (shared `TablePlayer.stick`, same path in sim and Paper). `stick` / `unstick` are now actually fired at runtime, and `block: {mode: stick}` really stops the flight for `block.for` ticks (before, only the body state was marked and the flight kept moving). No built-in victim body point is invented (founder Q2 pending): the author names the anchor.
 
 **rev4.9 / G6 (2026-10-29, foundation audit P17)**: the named body points of rev4.8 move out of the clips. `points:` is deleted from `content/animations/*.yaml` (a clip with `points:` is an unknown-key load error); ONE shared skeleton `content/frames/body.yaml` (`apiVersion: astera/v3`, `kind: BodyFrames`, `points: {hand_r: {bone, offset}, hand_l: ...}`, offset in pixels from the bone joint, rest axes) serves every `body` op through the port `ISkillGameplayGateway.bodySkeleton()`; the spelling `<body op id>.hand_r` is unchanged. The slim (Alex) arm stays applied by `SkinRigTransforms.point`, so there is no second table. A missing or malformed `body.yaml` is a named load error (`BodyFramesDecoder`, content-lint runtimeDecode) and `ItemFramesDecoder` skips that file.
+
+**rev4.9 / founder decisions (2026-10-29)**: (1) `victim.center`, `caster.center` and `target.center` = (feet + eye height) / 2, read live every tick (same point on the sim and Paper gateways; `HitCandidate.eyeHeight` carries the eye height, no default); usable wherever a `victim.<point>` / `caster.<point>` anchor is accepted. (2) `gameplay.expose` removed, founder 2026-10-29 (Q3 = A; the engine never implemented it). (3) `absorb: true` on a transition = cancels the hit event (founder confirmed 2026-10-29, Q5 = A); documentation only, no behaviour change.
 
 **rev4.9 (2026-10-29, foundation audit section 4, label and wording only)**: the v2 conversion residue is removed. The converter rules (section 6) and every converter reference are gone; section 6 now only says that content is hand-written. The v1 presentation parity additions section and the Skin rig `tools/skill-convert` sentences are deleted. The fade default note (2.0b) no longer mentions a converter, and the 0301 short easing names are removed from the text. `ItemFrames` documents are `apiVersion: astera/v3`; the decoder accepts that value only. No field is added or removed.
 
@@ -156,7 +158,7 @@ anchors:
 
 | field | meaning |
 |---|---|
-| `anchor` | parent anchor: `world`, `caster` (feet, yaw-only basis), `caster.eye` (full look basis, no roll), `<body op id>.<point>` (a named point of the shared body skeleton, `points:` in `content/frames/body.yaml`, read through the `body` op's clip; rev4.8, rev4.9 G6), `<rig op id>.<point>` (a point of the rig's `part`, 10.5; rev4.8), `<item-frame>.<part>` (axes from `content/frames/<item>.yaml`), `contact`, `victim.<root/body/head>`, or any declared anchor. A gameplay frame is a valid parent (read-only). |
+| `anchor` | parent anchor: `world`, `caster` (feet, yaw-only basis), `caster.eye` (full look basis, no roll), `<body op id>.<point>` (a named point of the shared body skeleton, `points:` in `content/frames/body.yaml`, read through the `body` op's clip; rev4.8, rev4.9 G6), `<rig op id>.<point>` (a point of the rig's `part`, 10.5; rev4.8), `<item-frame>.<part>` (axes from `content/frames/<item>.yaml`), `contact`, `victim.<root/center/head>`, or any declared anchor. A gameplay frame is a valid parent (read-only). |
 | `offset` | name-keyed map in the PARENT's axes. |
 | `turn` | list of `{axis, deg}` relative to the parent basis, applied in list order. |
 | `mode` | `follow` (default): origin and axes re-read from the parent at every send. `snapshot`: pose copied once at activation, parent becomes `world`. |
@@ -164,7 +166,7 @@ anchors:
 | `caster.look` | feet origin, axes = yaw (left, forward) and PITCH (forward tilts, up follows). `caster` keeps the yaw-only basis; `caster.eye` is the eye origin. |
 | `contact` frame | origin = `contact.point`; up = `contact.normal` (an entity hit: world up); forward = the caster's yaw forward made orthogonal to up. Created when the event fires. |
 | `axes` | on a frame: `caster | victim | world`, which parent's axes the frame's offset map reads (R23). |
-| `victim.*` | `victim.root` (feet), `victim.head`, and the body anchor. **Pending founder Q2** (`victim.body` height): (A) `victim.body` = the live hitbox centre (0.9 for a standing player); (B) a fixed `victim.chest` at feet + 0.8. Not chosen. |
+| `victim.*` | `victim.root` (feet), `victim.center` ((feet + eye height) / 2, read live each tick; `caster.center` and `target.center` likewise; 0.81 for a standing player), `victim.head`. **Q2 RESOLVED (founder 2026-10-29)**: no fixed `victim.chest`. |
 | document anchors | declared in `anchors:` they exist from tick 0; a later pose is a `frame` row with `mode: snapshot` (R29). |
 | `mount` | `caster`: only on `follow` anchors whose chain is rooted at the caster (RC2). Objects on it become real passengers of the caster entity; their pose is `translation + left_rotation` relative to the caster, the client moves them with the player. Without `mount` a rooted object is world-teleported with `teleport_duration` = segment length. The engine re-sends a mounted object only on a segment boundary or when the caster heading drifts more than 3 degrees from the last send (never per tick). The passenger attachment height is ONE calibrated engine constant, printed by `expand`; v1 `VfxPlayer` (d41b82f1e, ADR-0276) is the reference behaviour. |
 
@@ -1224,8 +1226,7 @@ ops:
 
 `$patch` is `delete`, `replace` or `merge`. A path addresses rows by id (`do[<id>]`), not by list position, so inserting a row elsewhere does not break the patch.
 A `path` that does not resolve to exactly one node is a load error (`PatchPathUnresolved`, 10.4 check 8). The patched document is then compiled like any other,
-so every check of 10.4 and 11.4 applies to the variant. **Pending founder Q3** (`gameplay.expose`): (A) drop the `expose` concept entirely; (B) keep a `kind: Patch`
-form for later exposure to players/config. Not chosen: the Patch grammar above is the form either option would use.
+so every check of 10.4 and 11.4 applies to the variant. **Q3 RESOLVED A (founder 2026-10-29)**: there is no `gameplay.expose`; a Patch document is the only way to vary a skill.
 
 ### 14. Input events and ports (rev4.3, R39, R40)
 
@@ -1313,10 +1314,10 @@ Resolved (not founder decisions; engine facts, rev3/rev4):
 | Q | topic | option A | option B | where |
 |---|---|---|---|---|
 | Q1 | `max_count` on `hit` / area `damage` | required, an integer or `all` | optional, omitted = unlimited | 10.1b. **RESOLVED B (founder 10/29)** |
-| Q2 | `victim.body` height | live hitbox centre (0.9 for a standing player) | fixed `victim.chest` at feet + 0.8 | 1 |
-| Q3 | `gameplay.expose` | drop it | keep a `kind: Patch` form for later exposure | 13 |
+| Q2 | `victim.body` height | live hitbox centre (0.9 for a standing player) | fixed `victim.chest` at feet + 0.8 | 1. **RESOLVED (founder 10/29):** neither; the point is `victim.center` = (feet + eye) / 2, live |
+| Q3 | `gameplay.expose` | drop it | keep a `kind: Patch` form for later exposure | 13. **RESOLVED A (founder 10/29)** |
 | Q4 | hit `damage` optional | omit on the hit; a handler `damage` deals it (v2 order) | always required on the hit; accept the order difference | 10.1b. **RESOLVED A (founder 10/29)** |
-| Q5 | couture `absorb` (example e) | transition `absorb: true` | `modify_attribute resist.physical` | example e (also option C: a `parry {for, scale: 0}` op) |
+| Q5 | couture `absorb` (example e) | **RESOLVED A (founder 10/29):** transition `absorb: true` | `modify_attribute resist.physical` | example e (also option C: a `parry {for, scale: 0}` op) |
 | Q6 | coin1 delay | handler `at: 1` | `hit` gets `damage_delay: 1` | example a / g |
 | Q7 | screen ops | **RESOLVED 2026-10-29: A.** `screen_flash` / `screen_veil` revived as presentation ops (10.1b, rev4.7) | (was: drop them) | 10.1b |
 

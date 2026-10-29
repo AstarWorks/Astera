@@ -73,12 +73,13 @@ public data class HitBox(val min: Vec3, val max: Vec3) {
     public val center: Vec3 get() = (min + max) * 0.5
 }
 
-/** A candidate victim: id, feet position, body yaw, hitbox (from the `nearby` port). */
+/** A candidate victim: id, feet position, body yaw, hitbox and eye height above the feet (from the `nearby` port; `victim.center` = feet + eyeHeight / 2). */
 public data class HitCandidate(
     val entityId: UUID,
     val feet: Vec3,
     val yawDeg: Double,
     val box: HitBox,
+    val eyeHeight: Double,
     val velocity: Vec3 = Vec3(0.0, 0.0, 0.0),
 )
 

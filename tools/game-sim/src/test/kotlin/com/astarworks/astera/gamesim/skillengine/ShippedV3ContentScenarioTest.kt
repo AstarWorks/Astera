@@ -140,7 +140,7 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
             // two dummies ahead of the caster along its heading, so hit volumes that reach forward end in damage rows
             rec.victims = listOf(2.5, 5.0).mapIndexed { i, d ->
                 val feet = Vec3(fwd.x * d, 0.0, fwd.z * d)
-                HitCandidate(UUID(0L, 10L + i), feet, yaw, HitBox(Vec3(feet.x - 0.3, 0.0, feet.z - 0.3), Vec3(feet.x + 0.3, 1.8, feet.z + 0.3)))
+                HitCandidate(UUID(0L, 10L + i), feet, yaw, HitBox(Vec3(feet.x - 0.3, 0.0, feet.z - 0.3), Vec3(feet.x + 0.3, 1.8, feet.z + 0.3)), 1.62)
             }
             val contact = ContactInfo(Vector3d(fwd.x * 4.0, 0.0, fwd.z * 4.0), Vector3d(0.0, 1.0, 0.0))
             val events = scriptedEvents(skill).map { RuntimeEvent(it.path, it.tick, it.index, contact, it.victim) }
