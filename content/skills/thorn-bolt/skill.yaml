@@ -1,52 +1,70 @@
+# thorn-bolt: an earth thorn that poisons its target. Rewritten from zero on the rev4.10 grammar (ADR-0303):
+# a thorn item display on the body, the impact as one fragment with strength params, the trail as one rider group.
+# The body lives 50 ticks; the cast ends one tick after the body ends (manager ruling 10/29). Straight flight on purpose.
+# Visuals need a founder look on skill-compare.
 apiVersion: astera/v3
 kind: Skill
 id: thorn-bolt
 item: verdant-staff
-meta:
-  name: {ja: "茨の矢", en: "Thorn Bolt"}
-  description: {ja: "土属性の茨を放ち、対象を毒状態にする。", en: "Looses a thorn of earth that poisons its target."}
-  cooldown_ticks: 24
-  resource_cost: 6
-  tags: [ranged, earth-family, poison]
+meta: {name: {ja: "茨の矢", en: "Thorn Bolt"}, description: {ja: "土属性の茨を放ち、対象を毒状態にする。", en: "Looses a thorn of earth that poisons its target."}, cooldown_ticks: 24, resource_cost: 6, tags: [ranged, earth-family, poison]}
+params:
+  launch_speed:       {type: number, default: 2.4}
+  max_lifetime_ticks: {type: ticks, default: 50}
+  dmg_earth:          {type: number, default: 23.5}
+  poison_ticks:       {type: ticks, default: 80}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: flash,  anchor: caster, offset: {up: -0.2, forward: 1.0}, mode: follow}   # v2 pt_caster_0_m0p2_1: caster frame (feet, yaw-only)
+  - {id: flash,  anchor: caster, offset: {up: -0.2, forward: 1.0}, mode: follow}
   - {id: chest,  anchor: victim.root, offset: {up: 1.0}, mode: follow}
+fragments:
+  impact:
+    params:
+      volume: {type: number, default: 1.0}
+      pitch:  {type: number, default: 0.7}
+    frames_in: {spot: anchor}
+    do:
+      - {id: snd, op: sound, at: 0, sound: "astera:skills/nature-impact", anchor: spot, volume: "${volume}", pitch: "${pitch}"}
+      - {id: burst, op: particle_def, at: 0, def: verdant-impact, anchor: spot}
+      - {id: sparkle, op: particle_def, at: 0, def: verdant-impact-sparkle, anchor: spot}
 machine:
   start: fly
   states:
     fly:
-      for: 51      # body for 50; the cast ends when the body ends (manager ruling 10/29)
+      for: 51      # = max_lifetime_ticks + 1 (a state `for` cannot read a param yet)
       then: end
       on:
         - {event: bolt.end, to: end}
       do:
-        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.9, pitch: 1.4}
-        - {id: puff, op: particle_def, def: verdant-cast, anchor: flash}
+        - {id: snd, op: sound, at: 0, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.9, pitch: 1.4}
+        - {id: puff, op: particle_def, at: 0, def: verdant-cast, anchor: flash}
         - id: bolt
           op: projectile
+          at: 0
           origin: muzzle
-          velocity: "= look(caster) * 2.4"
-          for: 50
+          velocity: "= look(caster) * ${launch_speed}"
+          for: "${max_lifetime_ticks}"
           radius: 0.5
           hit: {targets: enemies, once: true, attach: false}
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, damage: {earth: 23.5}}
-              - {id: st_poison, op: status, target: event.victim, status: poison, stacks: 1, for: 80}
-              - {id: snd_hit, op: sound, sound: "astera:skills/nature-impact", anchor: contact, volume: 1.0, pitch: 0.7}
-              - {id: fx_hit, op: particle_def, def: verdant-impact, anchor: chest}
-              - {id: fx_hit_2, op: particle_def, def: verdant-impact-sparkle, anchor: chest}
-              - {id: fx_hit_dust, op: particle, particle: dust, anchor: chest, count: 1, color: "#3c9632", size: 1.2}
-              - {id: fx_hit_spray, op: particle, particle: composter, anchor: chest, count: 0, extra: 0.04}
+              - {id: dmg, op: damage, target: event.victim, damage: {earth: "${dmg_earth}"}}
+              - {id: st_poison, op: status, target: event.victim, status: poison, stacks: 1, for: "${poison_ticks}"}
+              - {id: hit_fx, use: "fragment:impact", frames: {spot: chest}}
+              - {id: hit_dust, op: particle, at: 0, particle: dust, anchor: chest, count: 1, color: "#3c9632", size: 1.2}
             block:
-              - {id: snd_blk, op: sound, sound: "astera:skills/nature-impact", anchor: contact, volume: 0.8, pitch: 0.8}
-              - {id: fx_blk, op: particle_def, def: verdant-impact, anchor: contact}
+              - {id: block_fx, use: "fragment:impact", with: {volume: 0.8, pitch: 0.8}, frames: {spot: contact}}
             expire:
-              - {id: fx_exp, op: particle_def, def: verdant-impact-sparkle, anchor: contact}
-        - {id: trail,   op: particle, particle: happy_villager, anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.08, 0.08, 0.08], at: 0, every: 1, until: bolt.end}
-        - {id: trail_2, op: particle, particle: composter,      anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.1, 0.1, 0.1], at: 0, every: 1, until: bolt.end}
-        - {id: trail_3, op: particle, particle: dust,           anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], color: "#46aa3c", size: 1.2, at: 0, every: 1, until: bolt.end}
-        - {id: trail_4, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.3}, count: 1, color: "#287828", size: 0.9, at: 0, every: 1, until: bolt.end}
+              - {id: expire_fx, op: particle_def, at: 0, def: verdant-impact-sparkle, anchor: contact.point}
+        - {id: thorn, op: display, kind: item, item: sweet_berries, context: fixed, anchor: bolt, scale: [0.8, 0.8, 0.8], at: 0, until: bolt.end}
+        - id: trail
+          op: group
+          at: 0
+          every: 1
+          until: bolt.end
+          do:
+            - {id: leaf, op: particle, particle: happy_villager, anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.08, 0.08, 0.08], at: 0}
+            - {id: spore, op: particle, particle: composter, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.1, 0.1, 0.1], at: 0}
+            - {id: green, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], color: "#46aa3c", size: 1.2, at: 0}
+            - {id: dark, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.3}, count: 1, color: "#287828", size: 0.9, at: 0}
     end: {final: true}

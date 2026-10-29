@@ -1,17 +1,26 @@
+# throwing-knife: a fast, flat knife; the cast ends when the knife body ends. Rewritten from zero on the rev4.10 grammar (ADR-0303):
+# a visible item display riding the projectile body, the impact as one skill-local fragment, the trail as one rider group.
+# Straight flight on purpose (no gravity): the hit tick is balance. Randomness: none. Visuals need a founder look on skill-compare.
 apiVersion: astera/v3
 kind: Skill
 id: throwing-knife
 item: throwing-knives
-meta:
-  name: {ja: "投げナイフ", en: "Throwing Knife"}
-  description: {ja: "素早く真っすぐ飛ぶナイフを投げる。", en: "Throws a fast, flat knife."}
-  cooldown_ticks: 10
-  resource_cost: 5
-  tags: [ranged, physical]
+meta: {name: {ja: "投げナイフ", en: "Throwing Knife"}, description: {ja: "素早く真っすぐ飛ぶナイフを投げる。", en: "Throws a fast, flat knife."}, cooldown_ticks: 10, resource_cost: 5, tags: [ranged, physical]}
+params:
+  launch_speed: {type: number, default: 2.8}
+  dmg_physical: {type: number, default: 14}
+  max_lifetime_ticks: {type: ticks, default: 30}
 anchors:
-  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: flash,  anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: follow}
-  - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
+  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: follow}
+  - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
+fragments:
+  impact:
+    frames_in: {spot: anchor}
+    do:
+      - {id: snd, op: sound, at: 0, sound: "astera:weapons/gun-impact", anchor: spot, volume: 0.7, pitch: 1.2}
+      - {id: spark, op: particle_def, at: 0, def: hit-spark, anchor: spot}
+      - {id: fleck, op: particle, at: 0, particle: dust, anchor: spot, count: 4, offset: [0.15, 0.15, 0.15], color: "#e6e6e6", size: 1.0}
 machine:
   start: fly
   states:
@@ -19,24 +28,31 @@ machine:
       on:
         - {event: bolt.end, to: end}
       do:
-        - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 0.8, pitch: 1.8}
-        - {id: puff, op: particle_def, def: stab-spark, anchor: flash}
+        - {id: snd, op: sound, at: 0, sound: "astera:weapons/sword-swing", anchor: caster, volume: 0.8, pitch: 1.8}
+        - {id: fx, op: particle_def, at: 0, def: stab-spark, anchor: cast_fx}
         - id: bolt
           op: projectile
+          at: 0
           origin: muzzle
-          velocity: "= look(caster) * 2.8"
-          for: 30
+          velocity: "= look(caster) * ${launch_speed}"
+          for: "${max_lifetime_ticks}"
           radius: 0.5
-          hit: {targets: enemies, once: true, attach: false}     # v2 projectile ended on its first victim
+          hit: {targets: enemies, once: true, attach: false}
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, damage: {physical: 14.0}}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact, volume: 0.7, pitch: 1.2}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
+              - {id: hit_fx, use: "fragment:impact", frames: {spot: heart}}
             block:
-              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
-              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact}
-        - {id: trail,   op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], at: 0, every: 1, until: bolt.end}
-        - {id: trail_2, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, color: "#e6e6e6", size: 1.0, at: 0, every: 1, until: bolt.end}
+              - {id: block_snd, op: sound, at: 0, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
+              - {id: block_fx, op: particle_def, at: 0, def: hit-spark, anchor: contact.point}
+        - {id: shaft, op: display, kind: item, item: iron_sword, context: fixed, anchor: bolt, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
+        - id: trail
+          op: group
+          at: 0
+          every: 1
+          until: bolt.end
+          do:
+            - {id: wake, op: particle, particle: crit, count: 1, offset: [0.04, 0.04, 0.04], anchor: {of: bolt, sweep: 0.4}, at: 0}
+            - {id: dust, op: particle, particle: dust, count: 1, color: "#e6e6e6", size: 1.0, anchor: {of: bolt, sweep: 0.4}, at: 0}
     end: {final: true}

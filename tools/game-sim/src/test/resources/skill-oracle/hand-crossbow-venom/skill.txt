@@ -1,16 +1,20 @@
 ## pose yaw=0 pitch=0
-@0 sound - op=fly/snd_cast sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=1.3 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/fx_cast type=gun-muzzle-flash at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8826256256458837278
-@0 particle - op=fly/tr0[0] type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5627270761810065685
-@0 particle - op=fly/tr1[0] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7836981488148271270
-@1 particle - op=fly/tr0[1] type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5684576145392259514
-@1 particle - op=fly/tr1[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3997312233728545174
+@0 spawn #0 op=fly/shaft kind=item item=tipped_arrow part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.800000,0.800000,0.800000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=fly/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=1.3 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/fx type=gun-muzzle-flash at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8826256256458837278
+@0 particle - op=fly/trail[0]/wake type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5142766221226338270
+@0 particle - op=fly/trail[0]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1398592531130586912
+@1 particle - op=fly/trail[1]/wake type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-646795127645399157
+@1 particle - op=fly/trail[1]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6084686044549529716
 @1 hit - op=fly/bolt at=0.000000,1.620000,3.300000 r=0.500000 shape=capsule a=0.000000,1.620000,3.300000 b=0.000000,1.620000,3.300000 rad=0.500000
+@1 remove #0 op=fly/shaft
 ## pose yaw=37 pitch=-20
-@0 sound - op=fly/snd_cast sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=1.3 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/fx_cast type=gun-muzzle-flash at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8826256256458837278
-@0 particle - op=fly/tr0[0] type=happy_villager count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5627270761810065685
-@0 particle - op=fly/tr1[0] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7836981488148271270
-@1 particle - op=fly/tr0[1] type=happy_villager count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5684576145392259514
-@1 particle - op=fly/tr1[1] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3997312233728545174
+@0 spawn #0 op=fly/shaft kind=item item=tipped_arrow part=- pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.800000,0.800000,0.800000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=fly/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=1.3 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/fx type=gun-muzzle-flash at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8826256256458837278
+@0 particle - op=fly/trail[0]/wake type=happy_villager count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5142766221226338270
+@0 particle - op=fly/trail[0]/dust type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1398592531130586912
+@1 particle - op=fly/trail[1]/wake type=happy_villager count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-646795127645399157
+@1 particle - op=fly/trail[1]/dust type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6084686044549529716
 @1 hit - op=fly/bolt at=-1.866220,2.748666,2.476557 r=0.500000 shape=capsule a=-1.866220,2.748666,2.476557 b=-1.866220,2.748666,2.476557 rad=0.500000
+@1 remove #0 op=fly/shaft
