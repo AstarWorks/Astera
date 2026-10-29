@@ -64,7 +64,7 @@ abstract class SkillEngineScenario {
     private val exprs = CelExprCompiler()
     protected val decoder = SkillDocumentDecoder(specs, exprs)
 
-    private val frameTables: FrameTables by lazy {
+    protected open val frameTables: FrameTables by lazy {
         val tables = ItemFramesDecoder.loadDirectory(contentDir.resolve("frames")).first
         object : FrameTables {
             override fun item(item: String): ItemFrames? = tables[item]

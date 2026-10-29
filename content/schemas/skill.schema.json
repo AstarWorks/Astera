@@ -13343,7 +13343,7 @@
                                     "type": "null"
                                 }
                             ],
-                            "description": "part of the skill item's content/frames/<item>.yaml; absent = held",
+                            "description": "axes source of the driven frame (needs of:); a held rig (no of) takes the item's thirdperson_righthand part, chosen by the engine, never written",
                             "default": null
                         },
                         "respect_hit_stop": {

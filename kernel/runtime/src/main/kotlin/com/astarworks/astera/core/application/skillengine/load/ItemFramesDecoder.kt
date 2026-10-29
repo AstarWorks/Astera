@@ -25,8 +25,14 @@ public data class ItemFrames(val item: String, val parts: Map<String, ModelPart>
     /** The part a frame uses: its `part:` name, or `held` for the whole item. */
     public fun partFor(part: String?): ModelPart? = parts[part ?: HELD]
 
+    /** The parts drawn with the held-item display ([HELD_HAND_DISPLAY]): the part a held-item rig mesh takes (the engine picks it, the author never names it). */
+    public fun handParts(): List<ModelPart> = parts.values.filter { it.display == HELD_HAND_DISPLAY }
+
     public companion object {
         public const val HELD: String = "held"
+
+        /** The display transform the client draws a held item with in third person; a held rig mesh is drawn as the client draws a held item. */
+        public const val HELD_HAND_DISPLAY: String = "thirdperson_righthand"
     }
 }
 

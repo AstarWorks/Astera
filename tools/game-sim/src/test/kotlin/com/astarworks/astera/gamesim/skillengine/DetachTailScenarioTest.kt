@@ -113,7 +113,7 @@ class DetachTailScenarioTest : SkillEngineScenario() {
 
     @Test
     fun aRigPointThatThePartDoesNotDeclareIsALoadError() {
-        val rig = "{id: rig, op: rig, parent: caster, part: held_hand, for: 6}"
+        val rig = "{id: rig, op: rig, parent: caster, for: 6}"
         val msg = failure(skill(8, null, rig, "{id: p, op: particle, particle: flame, anchor: rig.root, at: 0, count: 1}"))
         assertThat(msg).contains("no point 'root'").contains("grip").contains("tip")
         ok(skill(8, null, rig, "{id: p, op: particle, particle: flame, anchor: rig.tip, at: 0, count: 1}"))
