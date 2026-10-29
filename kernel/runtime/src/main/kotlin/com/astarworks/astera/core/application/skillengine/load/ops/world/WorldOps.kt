@@ -2,6 +2,8 @@ package com.astarworks.astera.core.application.skillengine.load.ops.world
 
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
+import com.astarworks.astera.core.application.skillengine.load.ValueDecoding
+import com.astarworks.astera.core.application.skillengine.load.grammar.ValueForms
 import com.astarworks.astera.core.application.skillengine.load.grammar.AnchorRef
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
@@ -10,6 +12,8 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarCo
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ParticlePlacement
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.skillengine.expr.ExprType
+import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.Row
@@ -20,38 +24,51 @@ import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 
 /**
  * Shared field types and lowering for the world ops (`break_area`, `place_shape`, `explode`, `lightning`; ADR-0303 10.1c).
- * Every number is a literal: the table row is static, the gateway decides what happens in the world.
+ * Every number folds at load (a literal, a numeric `${param}`, or a class-S `= CEL` of constants / params): the table row is static, the
+ * gateway decides what happens in the world.
  */
 internal object WorldOps {
+    /** [raw] as a number known at load: literal, `${param}` with a numeric value, or `= CEL` of constants and params (the same fold a rate law uses). */
+    fun folded(raw: Any?, outer: GrammarContext, path: String, label: String): Double {
+        val ctx = outer.forLaws(outer.axes)
+        val v = ctx.checked(ValueDecoding.number(raw, ctx.file, path), ExprType.NUM, path)
+        val d = if (v is Value.Expr) ctx.lawNumber(v.source, path)
+        else ctx.resolveNumber(v) ?: ctx.fail(path, "this must be known at load: a literal, a numeric \${param} with a value, or a '= <CEL>' of constants and params (expected $label)")
+        if (d.isNaN() || d.isInfinite()) ctx.fail(path, "must be a finite number, found $d")
+        return d
+    }
+
+    private val numberOrExprSchema: Map<String, Any?> get() = linkedMapOf("oneOf" to listOf(linkedMapOf("type" to "number"), ValueForms.specialSchema()))
+
     fun intIn(min: Int, max: Int): FieldType<Int> = object : FieldType<Int> {
         override val label = "integer $min..$max"
         override fun decode(raw: Any?, ctx: GrammarContext, path: String): Int {
-            val n = raw as? Number ?: ctx.mismatch(path, label, raw)
-            if (n.toDouble() % 1.0 != 0.0) ctx.fail(path, "expected an integer, found $n")
-            if (n.toInt() !in min..max) ctx.fail(path, "must be $min..$max, found $n")
+            val n = folded(raw, ctx, path, label)
+            if (n % 1.0 != 0.0) ctx.fail(path, "expected an integer, found $n")
+            if (n.toInt() !in min..max) ctx.fail(path, "must be $min..$max, found ${n.toInt()}")
             return n.toInt()
         }
-        override fun schema(): Map<String, Any?> = linkedMapOf("type" to "integer", "minimum" to min, "maximum" to max)
+        override fun schema(): Map<String, Any?> = numberOrExprSchema
     }
 
     fun positive(label: String): FieldType<Double> = object : FieldType<Double> {
         override val label = label
         override fun decode(raw: Any?, ctx: GrammarContext, path: String): Double {
-            val n = (raw as? Number ?: ctx.mismatch(path, this.label, raw)).toDouble()
+            val n = folded(raw, ctx, path, this.label)
             if (n <= 0.0) ctx.fail(path, "must be > 0, found $n")
             return n
         }
-        override fun schema(): Map<String, Any?> = linkedMapOf("type" to "number", "exclusiveMinimum" to 0)
+        override fun schema(): Map<String, Any?> = numberOrExprSchema
     }
 
     fun nonNegative(label: String): FieldType<Double> = object : FieldType<Double> {
         override val label = label
         override fun decode(raw: Any?, ctx: GrammarContext, path: String): Double {
-            val n = (raw as? Number ?: ctx.mismatch(path, this.label, raw)).toDouble()
+            val n = folded(raw, ctx, path, this.label)
             if (n < 0.0) ctx.fail(path, "must be >= 0, found $n")
             return n
         }
-        override fun schema(): Map<String, Any?> = linkedMapOf("type" to "number", "minimum" to 0)
+        override fun schema(): Map<String, Any?> = numberOrExprSchema
     }
 
     val ripple: FieldType<Int> = intIn(0, 6000)

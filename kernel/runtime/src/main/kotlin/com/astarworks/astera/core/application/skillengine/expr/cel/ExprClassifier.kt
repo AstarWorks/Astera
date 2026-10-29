@@ -29,7 +29,7 @@ public object ExprClassifier {
     private val LIVE_FRAME_FUNCTIONS = setOf(
         "pos", "velocity", "speed", "axis", "forward", "up", "left", "right", "dist", "dist_xz", "in_cone", "behind", "enemy_in_cone", "stacks",
     )
-    private val LIVE_WORLD_FUNCTIONS = setOf("aim_point", "look_dir", "nearest_enemy_dist", "enemy_in_cone")
+    private val LIVE_WORLD_FUNCTIONS = setOf("aim_point", "look_dir", "nearest_enemy_dist", "enemy_in_cone", "has_item")
     private val LIVE_ENTITIES = setOf("caster", "target", "victim", "enemy", "event")
 
     /** What the source reads, for the class and for check-9 messages. */
