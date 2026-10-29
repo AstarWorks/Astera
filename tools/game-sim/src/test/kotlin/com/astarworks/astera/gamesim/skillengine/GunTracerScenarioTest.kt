@@ -38,11 +38,11 @@ class GunTracerScenarioTest : SkillEngineScenario() {
 
     private fun vec(s: String): Vec3 = s.split(",").let { Vec3(it[0].toDouble(), it[1].toDouble(), it[2].toDouble()) }
 
-    private fun tracers(victims: List<HitCandidate>): List<String> {
+    private fun tracers(victims: List<HitCandidate>, skill: String = "rifle-shot"): List<String> {
         val rec = GatewayRecorder()
         rec.faithfulPose = true
         rec.victims = victims
-        val calls = play(shipped("rifle-shot"), seed = 1L, events = emptyList(), ticks = 60, rec = rec)
+        val calls = play(shipped(skill), seed = 1L, events = emptyList(), ticks = 60, rec = rec)
         return calls.filter { it.verb == "spawn" && it.payload == "kind=ribbon" && it.detail.contains("quads=") }.map { it.detail }
     }
 
@@ -73,5 +73,43 @@ class GunTracerScenarioTest : SkillEngineScenario() {
         assertThat(lines).hasSize(1)
         assertVolumetric(lines.single())
         assertThat(vec(Regex("""to=(-?[0-9.]+,-?[0-9.]+,-?[0-9.]+)""").find(lines.single())!!.groupValues[1]).z).describedAs(lines.single()).isGreaterThan(30.0)
+    }
+
+    /**
+     * The muzzle is the gun's position (right of the eye and below it), not a point on the look axis: from the shooter's own first
+     * person the line then runs from the lower right to the crosshair and subtends a real angle instead of a vertical sliver.
+     * The faithful caster stands at the origin looking along +z with the eye 1.62 above the feet; the camera's left is +x.
+     */
+    private fun assertOffTheLookAxis(skill: String, victims: List<HitCandidate>) {
+        val lines = tracers(victims, skill)
+        assertThat(lines).describedAs(skill).isNotEmpty()
+        val eye = Vec3(0.0, 1.62, 0.0)
+        val look = Vec3(0.0, 0.0, 1.0)
+        val left = Vec3(1.0, 0.0, 0.0)
+        for (detail in lines) {
+            val from = vec(Regex("""from=(-?[0-9.]+,-?[0-9.]+,-?[0-9.]+)""").find(detail)!!.groupValues[1])
+            val to = vec(Regex("""to=(-?[0-9.]+,-?[0-9.]+,-?[0-9.]+)""").find(detail)!!.groupValues[1])
+            val start = from - eye
+            assertThat(angleDeg(start, look)).describedAs("$skill start off the look axis: $detail").isGreaterThanOrEqualTo(20.0)
+            assertThat(start.dot(left)).describedAs("$skill start on the hand side: $detail").isLessThanOrEqualTo(-0.3)
+            assertThat(angleDeg(start, to - eye)).describedAs("$skill line subtends an angle for the shooter: $detail").isGreaterThanOrEqualTo(20.0)
+            assertThat((to - from).length()).describedAs("$skill line length: $detail").isGreaterThanOrEqualTo(2.0)
+            assertVolumetric(detail)
+        }
+    }
+
+    private fun angleDeg(a: Vec3, b: Vec3): Double =
+        Math.toDegrees(Math.acos((a.dot(b) / (a.length() * b.length())).coerceIn(-1.0, 1.0)))
+
+    @Test
+    fun casterSeesTheLineOffTheLookAxis() {
+        for (skill in listOf("rifle-shot", "pistol-shot", "revolver-shot", "sniper-shot", "smg-burst")) {
+            assertOffTheLookAxis(skill, listOf(victim(12.0)))
+        }
+    }
+
+    @Test
+    fun shotgunLineStartsOffTheLookAxis() {
+        assertOffTheLookAxis("shotgun-blast", emptyList())
     }
 }

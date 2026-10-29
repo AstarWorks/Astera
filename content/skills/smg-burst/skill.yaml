@@ -15,7 +15,7 @@ params:
   life:  {type: ticks, default: 30}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: flash,  anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: follow}
+  - {id: flash,  anchor: caster.eye, offset: {forward: 0.45, left: -0.35, up: -0.65}, mode: follow}  # gun position: right of the eye, below it, so the FP tracer runs from the held item to the crosshair
   - {id: heart,  anchor: victim.center, mode: follow}
 machine:
   tail: 4
