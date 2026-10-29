@@ -64,7 +64,7 @@ public sealed interface SpeedSpec {
 }
 
 /** `hit:` (3.6). `times` is required exactly when `once` is false. */
-public data class ProjectileHit(val targets: String, val once: Value<Boolean>, val times: Value<Double>?, val shape: ProjectileHitShape? = null, val attach: Boolean = false, val attachTo: String? = null)
+public data class ProjectileHit(val targets: String, val once: Value<Boolean>, val times: Value<Double>?, val shape: ProjectileHitShape? = null, val attach: Boolean = false, val attachTo: String? = null, val reflect: Boolean = false)
 
 /**
  * R43 `hit.shape`: swept capsules `from -> to` (points of each frame, e.g. `root` / `tip`) of radius [radius] on the rider [frames] and/or, when the body has a
@@ -73,7 +73,16 @@ public data class ProjectileHit(val targets: String, val once: Value<Boolean>, v
 public data class ProjectileHitShape(val radius: Value<Double>, val from: String, val to: String, val frames: List<String>)
 
 /** `block:` (3.6). Which of [forTicks] / [restitution] / [times] are present is fixed by [mode] at decode. */
-public data class ProjectileBlock(val mode: String, val forTicks: Value<Double>?, val restitution: Value<Double>?, val times: Value<Double>?)
+public data class ProjectileBlock(
+    val mode: String,
+    val forTicks: Value<Double>?,
+    val restitution: Value<Double>?,
+    val times: Value<Double>?,
+    /** bounce: fraction of the tangential speed lost at every contact (1 = dead stop along the surface). */
+    val friction: Value<Double>? = null,
+    /** stick: the body stays stuck until the flight's own end (`for` / `range`), so the end tick is fixed; excludes [forTicks]. */
+    val fused: Boolean = false,
+)
 
 /**
  * Decoded `projectile` op (ADR-0303 3.6). The flight length is the timing block's `for` and/or `range`; `times` makes a family (the unroller supplies `i`), while `every`, `until`
@@ -161,13 +170,16 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
     private val hitShape = Field.optional("shape", Types.nullable(Types.nested(shapeFields)), null, "R43: capsules on rider frames instead of `radius`; exactly one of the two")
     private val hitAttach = Field.required("attach", Types.bool, "true: the first victim stops the body and it rides `attach_to` on that victim for `block.for` ticks (events stick / unstick); false: it flies on or ends")
     private val hitAttachTo = Field.optional("attach_to", Types.nullable(Types.id), null, "the victim point the body mounts on (`victim` = body centre, `victim.feet`, ...); required with attach: true, rejected otherwise")
-    private val hitFields = Fields.of("projectile-hit", hitTargets, hitOnce, hitTimes, hitShape, hitAttach, hitAttachTo)
+    private val hitReflect = Field.optional("reflect", Types.nullable(Types.bool), null, "true: a victim does not end the flight, the body bounces off it like off a block (block.mode bounce, once: true, attach: false); absent = false")
+    private val hitFields = Fields.of("projectile-hit", hitTargets, hitOnce, hitTimes, hitShape, hitAttach, hitAttachTo, hitReflect)
 
     private val blockMode = Field.required("mode", Types.enumOf(*MODES), "despawn / stick / bounce / pass")
     private val blockFor = Field.optional("for", Types.nullable(Types.number), null, "ticks stuck; required for stick, rejected otherwise")
-    private val blockRestitution = Field.optional("restitution", Types.nullable(Types.number), null, "speed kept after a bounce; required for bounce, rejected otherwise")
-    private val blockTimes = Field.optional("times", Types.nullable(Types.number), null, "maximum bounces; required for bounce, rejected otherwise")
-    private val blockFields = Fields.of("projectile-block", blockMode, blockFor, blockRestitution, blockTimes)
+    private val blockRestitution = Field.optional("restitution", Types.nullable(Types.number), null, "normal speed kept after a bounce, 0..1; required for bounce, rejected otherwise")
+    private val blockTimes = Field.optional("times", Types.nullable(Types.number), null, "maximum counted bounces (each fires block + bounce); further contacts roll (the normal speed is dropped, friction applies, no event); required for bounce, rejected otherwise")
+    private val blockFriction = Field.optional("friction", Types.nullable(Types.number), null, "fraction of the tangential speed lost at each contact, 0..1 (1 = dead stop along the surface); required for bounce, rejected otherwise")
+    private val blockFused = Field.optional("fused", Types.nullable(Types.bool), null, "stick only: true = stay stuck until the flight's own end (`for` / `range`); excludes block.for, the end tick stays fixed")
+    private val blockFields = Fields.of("projectile-block", blockMode, blockFor, blockRestitution, blockTimes, blockFriction, blockFused)
 
     private val onEventFields: Map<ProjectileEvent, Field<List<Any?>?>> =
         ProjectileEvent.entries.associateWith { Field.optional(it.key, rawHandlers, null, "ops run at the ${it.key} event tick (at: 0), event-relative") }
@@ -214,20 +226,41 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             if (!attach && attachTo != null) ctx.fail("$path.hit.attach_to", "hit.attach_to only with attach: true")
             if (attachTo != null && attachTo.substringBefore('.') != "victim") ctx.fail("$path.hit.attach_to", "must name a point of the victim ('victim' or 'victim.<point>'), got '$attachTo'")
             if (attach && once is Value.Literal && !once.value) ctx.fail("$path.hit", "hit.attach needs once: true (the body sticks to the first victim)")
-            val hitSpec = ProjectileHit(h[hitTargets], once, times, shape, attach, attachTo)
+            val reflectV = h[hitReflect]
+            if (reflectV != null && reflectV !is Value.Literal) ctx.fail("$path.hit.reflect", "reflect must be a literal true / false")
+            val reflect = (reflectV as? Value.Literal)?.value == true
+            val hitSpec = ProjectileHit(h[hitTargets], once, times, shape, attach, attachTo, reflect)
 
             val b = values[block]
             val mode = b[blockMode]
             val needStick = mode == "stick"
             val needBounce = mode == "bounce"
             if (attach && !needStick) ctx.fail("$path.block", "hit.attach needs block.mode stick: block.for is how long the body stays on the victim")
-            if (needStick && b[blockFor] == null) ctx.fail("$path.block", "block.mode stick: block.for (ticks stuck) is required")
+            val fusedV = b[blockFused]
+            if (fusedV != null && fusedV !is Value.Literal) ctx.fail("$path.block.fused", "fused must be a literal true")
+            val fused = (fusedV as? Value.Literal)?.value == true
+            if (fusedV != null && !fused) ctx.fail("$path.block.fused", "fused: false is the default; leave it out")
+            if (fused && !needStick) ctx.fail("$path.block.fused", "block.fused only with mode stick")
+            if (fused && b[blockFor] != null) ctx.fail("$path.block.for", "block.fused and block.for are exclusive: fused stays stuck until the flight's own end")
+            if (needStick && !fused && b[blockFor] == null) ctx.fail("$path.block", "block.mode stick: block.for (ticks stuck) or block.fused: true is required")
             if (!needStick && b[blockFor] != null) ctx.fail("$path.block.for", "block.for only with mode stick")
+            for ((name, v) in listOf("restitution" to b[blockRestitution], "friction" to b[blockFriction])) {
+                val lit = (v as? Value.Literal)?.value
+                if (lit != null && (lit < 0.0 || lit > 1.0)) ctx.fail("$path.block.$name", "$name must be between 0 and 1, got $lit")
+            }
+            if (reflect) {
+                if (!needBounce) ctx.fail("$path.hit.reflect", "hit.reflect needs block.mode bounce (the body bounces off a victim with the block's restitution and friction)")
+                if (once !is Value.Literal || !once.value) ctx.fail("$path.hit.reflect", "hit.reflect needs once: true (every victim is bounced off once; the flight is never ended by a victim)")
+                if (attach) ctx.fail("$path.hit.reflect", "hit.reflect and hit.attach exclude each other")
+                if (hitSpec.targets == "blocks_only") ctx.fail("$path.hit.reflect", "hit.targets blocks_only has no victim to bounce off")
+            }
             if (needBounce && b[blockRestitution] == null) ctx.fail("$path.block", "block.mode bounce: block.restitution is required")
             if (needBounce && b[blockTimes] == null) ctx.fail("$path.block", "block.mode bounce: block.times (maximum bounces) is required")
             if (!needBounce && b[blockRestitution] != null) ctx.fail("$path.block.restitution", "block.restitution only with mode bounce")
+            if (needBounce && b[blockFriction] == null) ctx.fail("$path.block", "block.mode bounce: block.friction is required")
+            if (!needBounce && b[blockFriction] != null) ctx.fail("$path.block.friction", "block.friction only with mode bounce")
             if (!needBounce && b[blockTimes] != null) ctx.fail("$path.block.times", "block.times only with mode bounce")
-            val blockSpec = ProjectileBlock(mode, b[blockFor], b[blockRestitution], b[blockTimes])
+            val blockSpec = ProjectileBlock(mode, b[blockFor], b[blockRestitution], b[blockTimes], b[blockFriction], fused)
 
             if (timing?.span == null && values[range] == null) ctx.fail(path, "either range (blocks) or for (ticks) is required; there is no default flight length")
             if (values[range] != null && values[speed] == null) ctx.fail("$path.range", "range needs speed: the end tick is computed at compile time, not from the launch vector")
@@ -238,6 +271,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                 for (e in ProjectileEvent.entries) {
                     val list = onValues[onEventFields.getValue(e)] ?: continue
                     if (!produces(mode, hitSpec.targets, e)) ctx.fail("$path.on.${e.key}", "block.mode $mode (hit.targets ${hitSpec.targets}) never produces the ${e.key} event")
+                    if (e == ProjectileEvent.UNSTICK && fused) ctx.fail("$path.on.unstick", "a fused stick never unsticks (it ends at the flight end); use on.end")
                     raw[e] = list
                 }
             }
@@ -289,7 +323,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             if (flight > cap) return bad("flight lasts $flight ticks, more than max_life_ticks $cap")
 
             val stickTicks = op.block.forTicks?.let { ticks("block.for", it).getOr { return Result.Failure(it) } } ?: 0
-            if (op.block.mode == "stick" && stickTicks < 1) return bad("block.for must be at least 1 tick")
+            if (op.block.mode == "stick" && !op.block.fused && stickTicks < 1) return bad("block.for must be at least 1 tick")
             val bounces = op.block.times?.let { ticks("block.times", it).getOr { return Result.Failure(it) } } ?: 0
             if (op.block.mode == "bounce" && bounces < 1) return bad("block.times must be at least 1")
             val pierce = op.hit.times?.let { ticks("hit.times", it).getOr { return Result.Failure(it) } } ?: 1
@@ -297,6 +331,10 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             val once = (op.hit.once as? Value.Literal)?.value ?: return bad("hit.once must be a literal true / false")
 
             val window = ProjectileKinematics.endWindow(flight, stickTicks)
+            // a bounce or fused-stick body that no victim can end ends only at its flight end: one fixed tick, not a window (grenade fuse)
+            val victimEnds = op.hit.targets != "blocks_only" && !op.hit.attach && !op.hit.reflect
+            val fixedEnd = (op.block.mode == "bounce" || op.block.fused) && !victimEnds
+            val endTicks = if (fixedEnd) TickRange(window.max, window.max) else window
             if (window.max > cap) return bad("flight plus stick lasts ${window.max} ticks, more than max_life_ticks $cap")
 
             // ---- the spawn row: the body's whole contract with the TablePlayer rides in `look` (key list in the W1-09 report) ----
@@ -362,7 +400,10 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             if (op.block.mode == "stick") look["block.for"] = Val.Known(stickTicks.toDouble())
             op.gravity?.let { look["gravity"] = num(it) }
             op.drag?.let { look["drag"] = num(it) }
-            look["end.min"] = Val.Known(window.min.toDouble())
+            op.block.friction?.let { look["block.friction"] = num(it) }
+            if (op.block.fused) look["block.fused"] = Val.Known(true)
+            if (op.hit.reflect) look["hit.reflect"] = Val.Known(true)
+            look["end.min"] = Val.Known(endTicks.min.toDouble())
             look["end.max"] = Val.Known(window.max.toDouble())
 
             val anchor = lc.anchors.resolve(op.origin)?.instance
@@ -425,16 +466,18 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             val endPath = eventPath(ProjectileEvent.END)
             val now = lc.clockOffset
             val absolute = TickRange(now + window.min, now + window.max)
+            val endAt = TickRange(now + endTicks.min, now + endTicks.max)
             val firstStick = TickRange(now + window.min, now + window.max - stickTicks)
             val flightEnd = TickRange(now + flight, now + flight)
             val afterStick = TickRange(now + window.min + stickTicks, now + window.max)
 
             for (e in ProjectileEvent.entries) {
                 if (!produces(op.block.mode, op.hit.targets, e)) continue
+                if (e == ProjectileEvent.UNSTICK && op.block.fused) continue
                 val path = eventPath(e)
                 events += path
                 val follows: Branch? = when {
-                    (e == ProjectileEvent.HIT || e == ProjectileEvent.ABSORBED) && once && !op.hit.attach -> Branch(endPath, TickRange(0, 0), null, null, endPath)
+                    (e == ProjectileEvent.HIT || e == ProjectileEvent.ABSORBED) && once && !op.hit.attach && !op.hit.reflect -> Branch(endPath, TickRange(0, 0), null, null, endPath)
                     e == ProjectileEvent.BLOCK && op.block.mode == "despawn" -> Branch(endPath, TickRange(0, 0), null, null, endPath)
                     e == ProjectileEvent.UNSTICK -> Branch(endPath, TickRange(0, 0), null, null, endPath)
                     else -> null
@@ -467,7 +510,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                     ProjectileEvent.STICK -> firstStick to 1
                     ProjectileEvent.UNSTICK -> afterStick to 1
                     ProjectileEvent.EXPIRE -> flightEnd to 1
-                    ProjectileEvent.END -> absolute to 1
+                    ProjectileEvent.END -> endAt to 1
                 }
                 subTables += SubTable(path, lc.state, win, firings, handlerRows, listOfNotNull(follows))
             }

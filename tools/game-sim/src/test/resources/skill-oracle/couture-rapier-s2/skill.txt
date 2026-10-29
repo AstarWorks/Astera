@@ -1678,6 +1678,7 @@
 @98 frame throw/palm_f op=throw/palm_f pos=-0.351563,0.768018,3.292518 rot=0.000000,0.000000,0.000000,1.000000
 @98 frame coin3/dash_f op=coin3/dash_f pos=0.000000,0.000000,3.000000 rot=0.000000,0.000000,0.000000,1.000000
 @98 frame coin3/c3_hit.hit/h3_frame op=coin3/c3_hit.hit/h3_frame pos=0.000000,0.900000,4.300000 rot=0.000000,0.000000,0.000000,1.000000
+g @34 state-exit reason=TIMER | state=windup
 g @36 state-exit reason=EVENT | state=throw
 g @64 state-exit reason=TIMER | state=stuck
 g @76 state-exit reason=EVENT | state=reel
@@ -3231,6 +3232,7 @@ r @78 run-end tail=2 | pose
 @94 remove #57 op=throw/flight_fan
 @94 remove #56 op=throw/thread_body
 @94 remove #55 op=throw/thread_b
+g @34 state-exit reason=TIMER | state=windup
 g @41 state-exit reason=TIMER | state=throw
 g @57 state-exit reason=TIMER | state=reel
 g @94 state-exit reason=TIMER | state=coin3

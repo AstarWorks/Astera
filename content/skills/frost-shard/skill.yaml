@@ -43,7 +43,7 @@ machine:
           for: 50
           radius: 0.5
           hit: {targets: enemies, once: true, attach: false}
-          block: {mode: bounce, restitution: 0.4, times: 2}
+          block: {mode: bounce, restitution: 0.4, friction: 0.2, times: 2}
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {water: "${dmg_water}"}}

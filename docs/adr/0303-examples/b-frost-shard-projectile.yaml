@@ -1,5 +1,5 @@
 # ADR-0303 example (b): frost-shard (simple-shoot projectile). Gameplay is unchanged from content/skills/frost-shard/skill.yaml; the presentation is ordinary ops of the same state.
-# Projectile block mode is a field of the gameplay body: `block: {mode: bounce, restitution, times}` (ADR-0303 3.6). The gameplay body `bolt` moves the hit volume; the display is anchored on it.
+# Projectile block mode is a field of the gameplay body: `block: {mode: bounce, restitution, friction, times}` (ADR-0303 3.6). The gameplay body `bolt` moves the hit volume; the display is anchored on it.
 apiVersion: astera/v3
 kind: Skill
 id: frost-shard
@@ -47,7 +47,7 @@ machine:
           for: 40
           radius: 0.5
           hit: {targets: enemies, once: true, attach: false}
-          block: {mode: bounce, restitution: 0.6, times: 2}      # was block_mode/restitution/max_bounces/max_ticks
+          block: {mode: bounce, restitution: 0.6, friction: 0.2, times: 2}      # was block_mode/restitution/max_bounces/max_ticks
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {water: 25.0}}

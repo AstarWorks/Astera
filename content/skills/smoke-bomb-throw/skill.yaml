@@ -1,4 +1,5 @@
-# Smoke bomb: a thrown body fills the landing spot with smoke (victim or block); allies near it turn evasive.
+# Smoke bomb: a lobbed body bounces and rolls, then fills its spot with smoke at a fixed fuse tick after the throw
+# (fuse_ticks = the projectile `for`, fixed at load); allies near it turn evasive.
 apiVersion: astera/v3
 kind: Skill
 id: smoke-bomb-throw
@@ -11,14 +12,12 @@ meta:
   tags: [ranged, utility, support]
 params:
   launch_speed:  {type: number, default: 1.2}
-  flight_ticks:  {type: ticks, default: 50}
+  fuse_ticks:    {type: ticks, default: 50}
   radius:        {type: blocks, default: 4.0}
   evasive_ticks: {type: ticks, default: 80}
 anchors:
   - {id: muzzle,    anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: foe,       anchor: victim.root, mode: follow}
   - {id: flash,     anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: follow}
-  - {id: smoke_hit, anchor: victim.root, offset: {up: 0.5}, mode: follow}
 fragments:
   cloud:
     params:
@@ -27,15 +26,15 @@ fragments:
     frames_in: {spot: anchor, puff: anchor}
     do:
       - {id: evasive, op: status, target: {kind: allies, around: spot, radius: "${radius}", include_self: true}, status: evasive, stacks: 1, for: "${evasive}"}
-      - {id: snd, op: sound, sound: entity.generic.extinguish_fire, anchor: contact, volume: 0.8, pitch: 0.7}
+      - {id: snd, op: sound, sound: entity.generic.extinguish_fire, anchor: spot, volume: 0.8, pitch: 0.7}
       - {id: big, op: particle, particle: large_smoke, anchor: puff, count: 0, extra: 0.01}
       - {id: small, op: particle, particle: smoke, anchor: puff, count: 0, extra: 0.01}
 machine:
   start: fly
   states:
     fly:
-      on:
-        - {event: bolt.end, to: end}
+      for: "= fuse_ticks"
+      then: end
       do:
         - {id: snd, op: sound, sound: entity.generic.extinguish_fire, anchor: caster, volume: 0.9, pitch: 1.0, at: 0}
         - {id: puff, op: particle_def, def: gun-muzzle-smoke, anchor: flash, at: 0}
@@ -43,13 +42,13 @@ machine:
           op: projectile
           origin: muzzle
           velocity: "= look(caster) * ${launch_speed}"
-          for: "${flight_ticks}"
+          for: "${fuse_ticks}"
+          gravity: 0.04
           radius: 0.5
-          hit: {targets: enemies, once: true, attach: false}
-          block: {mode: despawn}
+          hit: {targets: enemies, once: true, attach: false, reflect: true}
+          block: {mode: bounce, restitution: 0.4, friction: 0.2, times: 3}
           on:
-            hit:   [{op: use, use: "fragment:cloud", with: {radius: "${radius}", evasive: "${evasive_ticks}"}, frames: {spot: foe, puff: smoke_hit}}]
-            block: [{op: use, use: "fragment:cloud", with: {radius: "${radius}", evasive: "${evasive_ticks}"}, frames: {spot: contact, puff: contact}}]
+            end: [{op: use, use: "fragment:cloud", with: {radius: "${radius}", evasive: "${evasive_ticks}"}, frames: {spot: bolt, puff: bolt}}]
         - {id: shell, op: display, kind: item, item: "minecraft:gunpowder", context: fixed, anchor: bolt, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
         - {id: trail, op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], at: 0, every: 1, until: bolt.end}
     end: {final: true}

@@ -9091,6 +9091,26 @@
                                     ],
                                     "description": "the victim point the body mounts on (`victim` = body centre, `victim.feet`, ...); required with attach: true, rejected otherwise",
                                     "default": null
+                                },
+                                "reflect": {
+                                    "anyOf": [
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "boolean"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ],
+                                    "description": "true: a victim does not end the flight, the body bounces off it like off a block (block.mode bounce, once: true, attach: false); absent = false",
+                                    "default": null
                                 }
                             }
                         },
@@ -9160,7 +9180,7 @@
                                             "type": "null"
                                         }
                                     ],
-                                    "description": "speed kept after a bounce; required for bounce, rejected otherwise",
+                                    "description": "normal speed kept after a bounce, 0..1; required for bounce, rejected otherwise",
                                     "default": null
                                 },
                                 "times": {
@@ -9180,7 +9200,47 @@
                                             "type": "null"
                                         }
                                     ],
-                                    "description": "maximum bounces; required for bounce, rejected otherwise",
+                                    "description": "maximum counted bounces (each fires block + bounce); further contacts roll (the normal speed is dropped, friction applies, no event); required for bounce, rejected otherwise",
+                                    "default": null
+                                },
+                                "friction": {
+                                    "anyOf": [
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ],
+                                    "description": "fraction of the tangential speed lost at each contact, 0..1 (1 = dead stop along the surface); required for bounce, rejected otherwise",
+                                    "default": null
+                                },
+                                "fused": {
+                                    "anyOf": [
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "type": "boolean"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ],
+                                    "description": "stick only: true = stay stuck until the flight's own end (`for` / `range`); excludes block.for, the end tick stays fixed",
                                     "default": null
                                 }
                             }
