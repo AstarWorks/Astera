@@ -3,6 +3,12 @@ package com.astarworks.astera.e2e.live
 import com.astarworks.astera.e2e.E2eReport
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assumptions.assumeTrue
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
+import java.time.Duration
 
 /** `scripts/live-bots.sh chat`: real lobby/game chat relay without changing either backend. */
 class ChatLiveTest : LiveBase() {
@@ -28,6 +34,12 @@ class ChatLiveTest : LiveBase() {
         }
         if (!ready || !a.joined) return
 
+        // This scenario asserts the original body; translation has its own locale-specific probe below.
+        listOf(a, b).forEach { player ->
+            val before = player.chat.size
+            player.command("astera chat translate off")
+            assertThat(player.waitUntil(5_000) { player.chat.drop(before).any { "翻訳" in it.text || "translation disabled" in it.text } }).isTrue()
+        }
         val fromA = a.chat.size
         val fromB = b.chat.size
         val prefix = "[lobby] [Member] ${a.name} » "
@@ -82,6 +94,45 @@ class ChatLiveTest : LiveBase() {
             assertThat(lines.single().text).contains(a.name)
             assertThat(b.titles.drop(titleFrom)).isNotEmpty()
             "RCON lobby: $reply; game: ${lines.single().text}"
+        }
+    }
+
+    @Test
+    fun `Japanese sender reaches English viewer as English with translation marker`() {
+        val baseUrl = System.getenv("ASTERA_TRANSLATE_URL")?.takeIf { it.isNotBlank() } ?: "http://translator:8080"
+        val reachable = runCatching {
+            HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build().use { http ->
+                http.send(HttpRequest.newBuilder(URI.create(baseUrl.trimEnd('/') + "/health"))
+                    .timeout(Duration.ofSeconds(2)).GET().build(), HttpResponse.BodyHandlers.discarding()).statusCode() == 200
+            }
+        }.getOrDefault(false)
+        if (!reachable) E2eReport.notes += "SKIP chat translation: translator not ready/reachable at $baseUrl/health"
+        assumeTrue(reachable, "Translator not ready/reachable at $baseUrl/health (set ASTERA_TRANSLATE_URL for a remote server)")
+        val sender = bot("trja")
+        val viewer = bot("tren", servers = mapOf("game" to LiveEnv.game))
+        viewer.forceHop("game")
+        assertThat(viewer.waitUntil(30_000) { viewer.joined && viewer.endpoint == LiveEnv.game && viewer.commandTree != null }).isTrue()
+        for ((player, command) in listOf(sender to "astera lang ja", viewer to "astera lang en", viewer to "astera chat translate on")) {
+            val before = player.chat.size
+            player.command(command)
+            val expected = when {
+                command.endsWith(" ja") -> "言語を ja に設定しました。"
+                command.endsWith(" en") -> "Language set to en."
+                else -> "Chat translation enabled."
+            }
+            assertThat(player.waitUntil(5_000) { player.chat.drop(before).any { expected in it.text } })
+                .describedAs("$command -> $expected").isTrue()
+        }
+        val start = viewer.chat.size
+        sender.say("こんにちは、助けてください")
+        viewer.waitUntil(10_000) { viewer.chat.drop(start).any { it.text.startsWith("[lobby] [Member] ${sender.name} » ") } }
+        E2eReport.check(suite, "English viewer sees Japanese line translated with marker", "cross-backend SystemChat") {
+            val line = viewer.chat.drop(start).single { it.text.startsWith("[lobby] [Member] ${sender.name} » ") }.text
+            val body = line.substringAfter(" » ")
+            assertThat(body).contains("[訳]")
+            assertThat(body.lowercase()).contains("help")
+            assertThat(body).doesNotContain("こんにちは", "助けてください")
+            "viewer locale=en: $line; model quality and 1500ms budget are exercised together"
         }
     }
 }

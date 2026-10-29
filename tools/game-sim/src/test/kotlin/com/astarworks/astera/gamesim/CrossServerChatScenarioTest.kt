@@ -95,7 +95,7 @@ class CrossServerChatScenarioTest {
             assertThat(gameLines.last().second.discord).isTrue()
             assertThat(gameLines.last().second.message).isEqualTo("hello <click:run_command:/op>")
             assertThat(discord).hasSize(beforeDiscord)
-            assertThat(chatCommands(game).literals.map { it.name }).containsExactly("japanize")
+            assertThat(chatCommands(game).literals.map { it.name }).containsExactly("japanize", "translate")
             lobby.close()
             game.send(player, "Alice", "bye", admin).toCompletableFuture().join()
             val count = lobbyLines.size

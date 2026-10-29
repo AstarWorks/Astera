@@ -1,10 +1,10 @@
 package com.astarworks.astera.chat.application.config
 
 import com.charleskorn.kaml.Yaml
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import java.nio.file.Path
 import kotlin.io.path.readText
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 public data class ChatConfig(
@@ -12,6 +12,7 @@ public data class ChatConfig(
     public val japanize: JapanizeConfig,
     public val ranks: List<ChatRank>,
     public val discord: DiscordConfig,
+    public val translation: TranslationConfig,
 ) {
     init {
         require(format.contains("{message}") && format.contains("{name}") && format.contains("{server}"))
@@ -20,6 +21,23 @@ public data class ChatConfig(
     }
     public companion object {
         public fun load(path: Path): ChatConfig = Yaml.default.decodeFromString(serializer(), path.readText())
+    }
+}
+
+@Serializable
+public data class TranslationConfig(
+    public val enabled: Boolean,
+    public val languages: List<String>,
+    @SerialName("timeout_ms") public val timeoutMs: Long,
+    public val marker: String,
+    @SerialName("model_profile") public val modelProfile: String,
+) {
+    init {
+        require(languages.isNotEmpty() && languages.distinct().size == languages.size)
+        require(languages.all { it in setOf("en", "ja", "ko", "es") })
+        require(timeoutMs in 1..30_000)
+        require(modelProfile in setOf("translategemma", "hy-mt", "lfm2"))
+        require(modelProfile != "lfm2" || languages.all { it in setOf("en", "ja") })
     }
 }
 
@@ -54,4 +72,6 @@ public data class ChatFrame(
     public val discord: Boolean = false,
     public val playerId: String = "",
     public val nameColor: String? = null,
+    public val sourceLanguage: String = "",
+    public val translations: Map<String, String> = emptyMap(),
 )
