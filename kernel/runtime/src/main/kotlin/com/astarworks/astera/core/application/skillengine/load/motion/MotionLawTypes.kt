@@ -21,7 +21,7 @@ import kotlin.math.sqrt
  * (`per_tick`, `accel`) may omit an axis, meaning "does not change along it".
  */
 internal class ScaleType(private val strict: Boolean) : FieldType<ScaleVal> {
-    override val label = "number or {forward, up, left}"
+    override val label = "number, [left, up, forward] or {forward, up, left}"
 
     override fun decode(raw: Any?, ctx: GrammarContext, path: String): ScaleVal {
         if (raw is Map<*, *>) {
@@ -32,12 +32,20 @@ internal class ScaleType(private val strict: Boolean) : FieldType<ScaleVal> {
             }
             return ScaleVal.PerAxis(FrameVecs.type.decode(raw, ctx, path))
         }
-        if (raw is List<*>) ctx.fail(path, "positional vectors are not allowed; write a number or {forward: .., up: .., left: ..}")
+        if (raw is List<*>) {
+            if (raw.size != 3) ctx.fail(path, "a scale triple is [left, up, forward] (3 numbers, was ${raw.size})")
+            val e = raw.mapIndexed { k, x -> Types.number.decode(x, ctx, "$path[$k]") }
+            return ScaleVal.PerAxis(FrameVec.Parts(forward = e[2], up = e[1], left = e[0]))
+        }
         return ScaleVal.Uniform(Types.number.decode(raw, ctx, path))
     }
 
     override fun schema(): Map<String, Any?> = linkedMapOf(
-        "oneOf" to listOf(Types.number.schema(), FrameVecs.axes.jsonSchema()),
+        "oneOf" to listOf(
+            Types.number.schema(),
+            linkedMapOf("type" to "array", "items" to Types.number.schema(), "minItems" to 3, "maxItems" to 3),
+            FrameVecs.axes.jsonSchema(),
+        ),
     )
 }
 
@@ -58,7 +66,8 @@ internal sealed interface ScaleVal {
 /** Load-time numeric helpers: a rate law is lowered while the file loads, so its numbers must be known then. */
 internal class LawNumbers(private val ctx: GrammarContext) {
     fun num(v: Value<Double>, path: String): Double =
-        ctx.resolveNumber(v) ?: ctx.fail(path, "a rate law is lowered at load, so this must be a literal or a numeric \${param} (not a CEL expression)")
+        if (v is Value.Expr) ctx.lawNumber(v.source, path)
+        else ctx.resolveNumber(v) ?: ctx.fail(path, "a rate law is lowered at load, so this must be a literal, a numeric \${param} with a default, or a '= <CEL>' of constants, params and the copy index i")
 
     fun ticks(v: Value<Double>, path: String): Int {
         val d = num(v, path)

@@ -28,6 +28,7 @@ import com.astarworks.astera.core.application.skillengine.expr.cel.ExprClassifie
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.load.motion.KeysMotion
 import com.astarworks.astera.core.application.skillengine.load.motion.LawKey
+import com.astarworks.astera.core.application.skillengine.load.motion.LawSource
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaws
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
@@ -105,8 +106,8 @@ public class DisplayOp(
     public val interpolationDelay: Value<Double>,
     public val interpolationDuration: Value<Double>,
     public val teleportDuration: Value<Double>,
-    /** Laws decoded by [MotionLaws]; segmented into `Key` rows (and `Set` rows for a fade) by [LawSegmenter] at compile. */
-    public val motion: List<MotionLaw>,
+    /** The `motion:` list; read per copy by [LawSource.laws] (so a law number may read `i`) and segmented into `Key` rows (and `Set` rows for a fade) by [LawSegmenter] at compile. */
+    public val motion: LawSource?,
     public val shaderEffect: String?,
 ) : OpNode
 
@@ -143,9 +144,9 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             linkedMapOf("type" to "array", "items" to Types.number.schema(), "minItems" to 2, "maxItems" to 2)
     }
 
-    private val MOTION = object : FieldType<List<MotionLaw>> {
+    private val MOTION = object : FieldType<LawSource> {
         override val label = "list of motion laws"
-        override fun decode(raw: Any?, ctx: GrammarContext, path: String): List<MotionLaw> = MotionLaws.readLaws(raw, ctx, path)
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): LawSource = LawSource(raw, ctx, path).also { it.probe() }
         override fun schema(): Map<String, Any?> = MotionLaws.jsonSchema()
     }
 
@@ -310,7 +311,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 wholeNum(values[interpDelayF], "$p.interpolation_delay", ctx, 0.0, null),
                 wholeNum(values[interpDurationF], "$p.interpolation_duration", ctx, 0.0, null),
                 wholeNum(values[teleportDurationF], "$p.teleport_duration", ctx, 0.0, null),
-                values[motionF] ?: emptyList(), shaderEffect,
+                values[motionF], shaderEffect,
             )
         }
 
@@ -364,7 +365,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             val flipRows = op.flipbook?.let { flipbookRows(op, it, instance, end, lc) }.orEmpty()
             rows += flipRows
             // The anchor's own laws ride first: left_rotation = anchor.rot(t) * rider (item 16).
-            val laws = lc.anchors.laws(op.anchor) + op.motion + (sprite?.sizeLaws ?: emptyList())
+            val laws = lc.anchors.laws(op.anchor) + op.motion?.laws(lc.occurrence).orEmpty() + (sprite?.sizeLaws ?: emptyList())
             if (laws.isNotEmpty()) {
                 val moved = LawSegmenter.segments(instance, laws, lc, FADE_FIELD)
                 when (moved) {
