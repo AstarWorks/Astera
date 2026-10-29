@@ -84,6 +84,9 @@ internal object CelFunctions {
     private fun worldPose(r: ExprValue.Ref): Frame = env().frames.worldPose(r.name, r.point)
         ?: throw ExprEvalException("unknown frame or point '${r.name}${r.point?.let { ".$it" } ?: ""}'")
 
+    private fun unexpanded(fn: String, anchor: Any?): Nothing =
+        throw ExprEvalException("$fn(${(anchor as? ExprValue.Ref)?.name}) was not resolved at expansion: it is read from content/frames when the skill is expanded, only inside the skill's machine and conditions")
+
     private fun axisOf(f: Frame, which: String): Vec3 = Basis.axis(f, which)
         ?: throw ExprEvalException("axis name must be forward|back|up|down|left|right, got '$which'")
 
@@ -286,6 +289,12 @@ internal object CelFunctions {
             def(name, "${name}_ref", VEC3, listOf(REF), listOf(R)) { axisOf(worldPose(it[0] as ExprValue.Ref), name) }
         }
 
+        // Part dimensions (G7, class S): `compose.PartFunctionExpander` replaces every call with its number / vec(...) at expansion, from
+        // content/frames/<item>.yaml, before any op is decoded. The declaration lets the load-time type check accept the call; reaching
+        // the evaluator means the call sat in a place the expander does not read, which is a loud error, never a guessed value.
+        def("part_length", "part_length_ref", D, listOf(REF), listOf(R)) { unexpanded("part_length", it[0]) }
+        def("part_point", "part_point_ref_str", VEC3, listOf(REF, SimpleType.STRING), listOf(R, STR)) { unexpanded("part_point", it[0]) }
+
         // cast-level queries, served by the cast through ExprEnv.host
         def("aim_point", "aim_point_ref_num", VEC3, listOf(REF, NUM), listOf(R, OBJ)) {
             host().aimPoint(it[0] as ExprValue.Ref, n(it[1]))
@@ -334,6 +343,12 @@ internal object CelFunctions {
                         ?.constant()?.stringValue()
                         ?: return "ease(name, t): the name must be a string literal"
                     if (EaseCurves.parse(name) == null) return "ease: unknown easing '$name' (ADR-0303 3.7)"
+                }
+                if (call.function() == "part_point") {
+                    val point = call.args().getOrNull(1)
+                    if (point == null || point.getKind() != CelExpr.ExprKind.Kind.CONSTANT || point.constant().getKind() != CelConstant.Kind.STRING_VALUE) {
+                        return "part_point(anchor, point): the point must be a string literal (it is read from content/frames at expansion)"
+                    }
                 }
                 call.target().orElse(null)?.let { t -> checkStatic(t)?.let { return it } }
                 for (a in call.args()) checkStatic(a)?.let { return it }
