@@ -1,5 +1,6 @@
 package com.astarworks.astera.contentlint
 
+import com.astarworks.astera.core.application.skillengine.load.BodyFramesDecoder
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.networknt.schema.JsonSchema
@@ -90,7 +91,7 @@ internal class SkillV3Lint(private val contentDir: Path, private val schemasDir:
         }
         val frames = contentDir.resolve("frames")
         if (frames.isDirectory()) {
-            out += frames.listDirectoryEntries().filter { it.isRegularFile() && it.extension in YAML_EXT }.sortedBy { it.name }
+            out += frames.listDirectoryEntries().filter { it.isRegularFile() && it.extension in YAML_EXT && it.name != BodyFramesDecoder.FILE }.sortedBy { it.name }
         }
         return out
     }

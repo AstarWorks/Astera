@@ -21,7 +21,7 @@ machine:
         - id: swing
           at: 0
           do:
-            - {id: canim, op: body, at: 0, anim: bastion-s1-body, speed: 1.0, for: 58}   # R41: `body` replaces `caster_anim`
+            - {id: canim, op: body, target: caster, at: 0, anim: bastion-s1-body, speed: 1.0, for: 58}   # R41: `body` replaces `caster_anim`
             - id: sword                       # a frame carries the item's points: sword.tip / sword.grip / sword.root come from content/frames/bastion-greatsword.yaml (part held)
               op: frame
               anchor: hand

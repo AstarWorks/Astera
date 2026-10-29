@@ -354,14 +354,16 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         /** The shipped `content/animations` clips, like the Paper registry (a `rig` op needs the clip's timeline). */
         override fun bodyClip(anim: String) = com.astarworks.astera.gamesim.SimClips.clip(anim)
 
-        override fun playBodyClip(cast: CastRef, caster: UUID, anim: String, speed: Double) {
+        override fun bodySkeleton() = com.astarworks.astera.gamesim.SimClips.bodySkeleton()
+
+        override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double) {
             seen("gameplay.playBodyClip", cast)
-            add("effect", caster.toString(), "body=$anim speed=${RecordedCall.num(speed)}")
+            add("effect", target.toString(), "body=$anim speed=${RecordedCall.num(speed)}")
         }
 
-        override fun stopBodyClip(cast: CastRef, caster: UUID, anim: String) {
+        override fun stopBodyClip(cast: CastRef, target: UUID, anim: String) {
             seen("gameplay.stopBodyClip", cast)
-            add("effect", caster.toString(), "body_stop=$anim")
+            add("effect", target.toString(), "body_stop=$anim")
         }
 
         override fun setHeldModel(cast: CastRef, caster: UUID, model: String) {

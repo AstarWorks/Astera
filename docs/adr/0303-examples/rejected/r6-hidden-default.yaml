@@ -14,5 +14,5 @@ machine:
       then: end
       do:
         - {id: ball, op: projectile, origin: muzzle, velocity: "= look(caster) * 1.0", range: 12, radius: 0.4,
-           hit: {targets: enemies, once: true}, block: {mode: bounce}}
+           hit: {targets: enemies, once: true, attach: false}, block: {mode: bounce}}
     end: {final: true}

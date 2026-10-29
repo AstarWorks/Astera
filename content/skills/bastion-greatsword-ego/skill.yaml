@@ -72,7 +72,7 @@ machine:
           at: 20
           do:
             # v2 caster_anim hide-main-hand 24 ticks (R41).
-            - {id: hide_hand, op: body, anim: hide-main-hand, speed: 1.0, for: 24}
+            - {id: hide_hand, op: body, target: caster, anim: hide-main-hand, speed: 1.0, for: 24}
             - {id: fx3_trail, op: frame, at: 0, anchor: caster, mode: snapshot, for: 14}
             # v2 telegraph cone: 26 plain coloured planes (#ff3b2f; rim alpha 0.85, fill alpha 0.35) on the world frame placed at tick 20, removed at tick 32 (R33 quad sprite).
             # Offsets [left, up, forward]; turn [pitch, yaw, roll] -> rotate [up -yaw, left pitch, forward roll]; plane size = v2 track scale x [1, 1].

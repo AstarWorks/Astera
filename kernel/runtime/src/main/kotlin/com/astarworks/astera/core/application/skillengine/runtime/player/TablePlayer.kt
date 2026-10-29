@@ -51,6 +51,7 @@ import com.astarworks.astera.core.domain.skillengine.table.LockMove
 import com.astarworks.astera.core.domain.skillengine.table.HitShape
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.animation.skinrig.BodySkeleton
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigPlayback
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigTransforms
@@ -563,7 +564,7 @@ public class TablePlayer(
             run.recs.remove(k)
             run.lines.remove(k)
             run.cursor.instances.remove(k)
-            run.bodyClips.remove(k)?.let { gameplay.stopBodyClip(castRef(run), run.request.caster, it) }
+            run.bodyClips.remove(k)?.let { (who, clip) -> gameplay.stopBodyClip(castRef(run), who, clip) }
             if (run.heldModels.remove(k)) gameplay.clearHeldModel(castRef(run), run.request.caster)
             run.veils.remove(k)?.handles?.forEach { visual.remove(it) }
             rec.real?.let { visual.remove(it) }
@@ -716,6 +717,8 @@ public class TablePlayer(
                 ShapeFrame(strOf(run, lf.getValue("hit.shape.frame.$i"), ctx), strOf(run, lf.getValue("hit.shape.frame.$i.from"), ctx), strOf(run, lf.getValue("hit.shape.frame.$i.to"), ctx))
             }.toList()
             rec.blockDespawn = mode == "despawn"
+            rec.stickTicks = stuck
+            rec.attachTo = lf["hit.attach_to"]?.let { strOf(run, it, ctx) }
             val once = lf["hit.once"]?.let { any(run, it, ctx) } == true
             rec.hitTimes = if (once) 1 else lf["hit.times"]?.let { dbl(run, it, ctx).toInt() } ?: 1
             rec.endsOn = buildSet {
@@ -1042,6 +1045,14 @@ public class TablePlayer(
                 val cur = rec.localAt(now)
                 rec.moveTo(PoseV(fl.at(now - rec.spawnTick - rec.frozenTicks), cur.rot, cur.scale), now, 0)
             }
+            if (rec.stuckUntil >= 0) {
+                // stuck (a block in stick mode, or `hit.attach` on a victim): the body holds its place / rides its anchor until `unstick`, then the flight ends
+                if (rec.stuckUntil == now) {
+                    run.pending += RuntimeEvent(EventPath(id.text + ".unstick"), now, id.path.lastOrNull()?.index, null, null)
+                    endByContact(run, id, rec, now)
+                }
+                continue
+            }
             val blocked = blockContact(run, id, rec, now)
             if (!blocked) entityContact(run, id, rec, now)
             // R16: `expire` is the end by range / `for`, just before `end`; a hit / block end (rec.ended) never expires (checked at delivery)
@@ -1073,7 +1084,30 @@ public class TablePlayer(
             path, now, id.path.lastOrNull()?.index, ContactInfo(Vector3d(b.point.x, b.point.y, b.point.z), Vector3d(b.normal.x, b.normal.y, b.normal.z)), null,
         )
         if (rec.blockDespawn) endByContact(run, id, rec, now)
+        if (rec.stickTicks > 0) stick(run, id, rec, now, null)
         return "block" in rec.endsOn
+    }
+
+    /**
+     * `block: {mode: stick}` and `hit: {attach: true}` share one state: the flight stops, `<body>.stick` fires, [Rec.stickTicks] later `<body>.unstick`
+     * fires and the flight ends. With a [victim] the body is mounted on the author-named `hit.attach_to` anchor of that entity (the offset it had at the
+     * hit is kept), so it rides the victim; with none it holds its place.
+     */
+    private fun stick(run: Run, id: InstanceId, rec: Rec, now: Int, victim: EventBinding?) {
+        val at = worldOf(run, rec, rec.localAt(now), null, now)
+        rec.flight = null
+        rec.stuckUntil = now + rec.stickTicks
+        val anchor = rec.attachTo
+        if (victim != null && anchor != null) {
+            rec.binding = victim
+            rec.anchorName = anchor
+            val scope = RowScope.cast(run.request.seed)
+            val pp = namedVec(run, anchor, victim, scope)
+            val pr = namedRot(run, anchor, victim, scope)
+            val local = PoseV(Vector3d(at.pos).sub(pp).rotate(Quaterniond(pr).invert()), Quaterniond(pr).invert().mul(at.rot), Vector3d(at.scale))
+            rec.moveTo(local, now, 0)
+        } else rec.moveTo(PoseV(at.pos, at.rot, at.scale), now, 0)
+        run.pending += RuntimeEvent(EventPath(id.text + ".stick"), now, id.path.lastOrNull()?.index, victim?.contact, victim?.victim)
     }
 
     /** The flight ends at a contact (last victim, or a despawn block): `end` right after the contact event, the body goes at cleanup. */
@@ -1142,7 +1176,11 @@ public class TablePlayer(
             )
         }
         if (rec.hitTimes <= 0 && found.isNotEmpty()) {
-            endByContact(run, id, rec, now)
+            val first = found.first()
+            if (rec.attachTo != null) {
+                val contact = ContactInfo(Vector3d(first.pointWorld.x, first.pointWorld.y, first.pointWorld.z), Vector3d(first.normalWorld.x, first.normalWorld.y, first.normalWorld.z))
+                stick(run, id, rec, now, EventBinding(path, id.path.lastOrNull()?.index, contact, EntityRef(first.victim)))
+            } else endByContact(run, id, rec, now)
         }
     }
 
@@ -1240,17 +1278,21 @@ public class TablePlayer(
                 run.recs[id]?.let { endInstance(run, id) }
                 // the clip lives as long as its instance: End / state exit / cast end all go through endInstance
                 // the body instance rides the caster (feet, body yaw): the clip's named points are its model points, read through `<id>.<point>`
-                val bodyRec = Rec(SpawnKind.FRAME, null, "caster", now, ctx.owner, PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0)))
+                // `target:` picks whose body plays it (the caster, or the victim / attacker of the event this op runs in); the instance rides that entity
+                val who = victims.firstOrNull() ?: throw IllegalArgumentException("body: target resolved to no entity")
+                val targetName = (p["target"] as? Val.Live)?.name ?: "caster"
+                val bodyRec = Rec(SpawnKind.FRAME, null, if (targetName.startsWith("caster")) "caster" else if (targetName == "victim") "victim" else "world", now, ctx.owner, PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0)))
+                bodyRec.binding = ctx.binding
                 run.recs[id] = bodyRec
                 run.cursor.instances[id] = GatewayHandle(nextSynthetic--)
                 val anim = s("anim")
                 val speed = d("speed")
-                run.bodyClips[id] = anim
-                gameplay.bodyClip(anim)?.takeIf { it.points.isNotEmpty() }?.let { clip ->
-                    bodyRec.body = BodyPoints(clip, gameplay.isSlimSkin(caster), speed)
+                run.bodyClips[id] = who to anim
+                gameplay.bodyClip(anim)?.let { clip ->
+                    bodyRec.body = BodyPoints(clip, gameplay.bodySkeleton(), gameplay.isSlimSkin(who), speed)
                     freshBody(bodyRec)
                 }
-                gameplay.playBodyClip(castRef(run), caster, anim, speed)
+                gameplay.playBodyClip(castRef(run), who, anim, speed)
             }
             "held_model" -> {
                 val id = row.instance
@@ -1900,7 +1942,7 @@ public class TablePlayer(
     private class Rec(
         val kind: SpawnKind,
         val anchor: InstanceId?,
-        val anchorName: String,
+        var anchorName: String,
         val spawnTick: Int,
         val owner: StatePath?,
         var to: PoseV,
@@ -1924,6 +1966,11 @@ public class TablePlayer(
         var shapeRadius: Double = 0.0
         var shapeFrames: List<ShapeFrame> = emptyList()
         var blockDespawn: Boolean = false
+
+        /** `hit.attach_to`: the victim anchor a hit mounts the body on (null = `attach: false`); `block.for` ticks stuck; [stuckUntil] the tick it comes off (-1 flying). */
+        var attachTo: String? = null
+        var stickTicks: Int = 0
+        var stuckUntil: Int = -1
         var billboard: DisplayBillboard = DisplayBillboard.FIXED
         /** `frame axes`: which rotation a root frame takes (null = its anchor's own). */
         var axes: String? = null
@@ -1961,8 +2008,8 @@ public class TablePlayer(
         }
     }
 
-    /** The clip of a `body` op with named points, how it plays on this caster ([slim] arm, clip [speed]). */
-    private class BodyPoints(val clip: SkinRigAnimation, val slim: Boolean, val speed: Double)
+    /** The clip of a `body` op, the shared skeleton its named points come from, how it plays on this caster ([slim] arm, clip [speed]). */
+    private class BodyPoints(val clip: SkinRigAnimation, val skeleton: BodySkeleton, val slim: Boolean, val speed: Double)
 
     /**
      * Re-samples the named points of a `body` instance at the current tick: the clip's pose at `(tick - spawn) * speed`, each point carried through
@@ -1971,7 +2018,7 @@ public class TablePlayer(
     private fun freshBody(rec: Rec) {
         val b = rec.body ?: return
         val frame = SkinRigPlayback(b.clip, b.speed).frameAt(lastTick - rec.spawnTick)
-        for ((name, point) in b.clip.points) {
+        for ((name, point) in b.skeleton.points) {
             val v = SkinRigTransforms.point(frame, b.slim, point)
             rec.points[name] = Vector3d(v.x, v.y, v.z)
         }
@@ -2022,7 +2069,7 @@ public class TablePlayer(
 
         /** R45: how many machine-root `world` rows have been played; and the body clip each live `body` instance plays. */
         var nextWorld = 0
-        val bodyClips = HashMap<InstanceId, String>()
+        val bodyClips = HashMap<InstanceId, Pair<UUID, String>>()
 
         /** Live `held_model` instances (each holds one swap of the caster's weapon model). */
         val heldModels = HashSet<InstanceId>()

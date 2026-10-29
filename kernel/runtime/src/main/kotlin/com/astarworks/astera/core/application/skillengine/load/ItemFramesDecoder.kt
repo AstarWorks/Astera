@@ -56,12 +56,12 @@ public object ItemFramesDecoder {
             Result.failure(e.error)
         }
 
-    /** Loads every `*.yaml` under [dir] (item -> table). A bad file yields an error entry; others still load. */
+    /** Loads every `*.yaml` under [dir] except the body skeleton (item -> table). A bad file yields an error entry; others still load. */
     public fun loadDirectory(dir: Path): Pair<Map<String, ItemFrames>, List<SkillDecodeError>> {
         if (!Files.isDirectory(dir)) return emptyMap<String, ItemFrames>() to emptyList()
         val tables = LinkedHashMap<String, ItemFrames>()
         val errors = ArrayList<SkillDecodeError>()
-        val files = Files.list(dir).use { s -> s.filter { it.toString().endsWith(".yaml") }.sorted().toList() }
+        val files = Files.list(dir).use { s -> s.filter { it.toString().endsWith(".yaml") && it.fileName.toString() != BodyFramesDecoder.FILE }.sorted().toList() }
         for (file in files) {
             val name = file.fileName.toString()
             when (val r = parse(Files.readString(file), name)) {

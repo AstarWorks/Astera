@@ -20,7 +20,7 @@ machine:
       for: 10
       then: end
       enter:
-        - {id: bolt, op: projectile, origin: caster, velocity: "= look(caster) * 1", for: 10, radius: 0.5, hit: {targets: enemies, once: true}, block: {mode: despawn}}
+        - {id: bolt, op: projectile, origin: caster, velocity: "= look(caster) * 1", for: 10, radius: 0.5, hit: {targets: enemies, once: true, attach: false}, block: {mode: despawn}}
     end: {final: true}
 ---
 apiVersion: astera/v3

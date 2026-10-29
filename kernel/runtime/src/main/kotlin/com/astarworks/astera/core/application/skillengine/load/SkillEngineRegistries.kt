@@ -22,6 +22,10 @@ public object SkillEngineRegistries {
     public fun frameTables(framesDir: Path): Pair<Map<String, ItemFrames>, List<SkillDecodeError>> =
         ItemFramesDecoder.loadDirectory(framesDir)
 
+    /** The shared body skeleton (`content/frames/body.yaml`): the named points every `body` clip is read through. */
+    public fun bodySkeleton(framesDir: Path): com.astarworks.astera.core.domain.Result<com.astarworks.astera.core.domain.animation.skinrig.BodySkeleton, SkillDecodeError> =
+        BodyFramesDecoder.load(framesDir)
+
     public fun compiler(tables: Map<String, ItemFrames>, sprites: SpriteCatalog, config: EngineConfig = EngineConfig()): SkillCompiler {
         val frames = object : FrameTables {
             override fun item(item: String): ItemFrames? = tables[item]

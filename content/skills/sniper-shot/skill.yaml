@@ -31,7 +31,7 @@ machine:
           velocity: "= look(caster) * ${launch_speed}"
           for: "${max_lifetime_ticks}"
           radius: 0.5
-          hit: {targets: enemies, once: true}     # v2 projectile ended on its first victim
+          hit: {targets: enemies, once: true, attach: false}     # v2 projectile ended on its first victim
           block: {mode: despawn}
           on:
             hit:
