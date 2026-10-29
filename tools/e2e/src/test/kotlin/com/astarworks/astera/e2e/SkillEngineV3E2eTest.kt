@@ -110,8 +110,10 @@ class SkillEngineV3E2eTest : E2eBase() {
     }
 
     private fun weaponDisplaysNear(player: String): Int =
-        Regex("count: (\\d+)").find(clean(rcon("execute at $player if entity @e[type=minecraft:item_display,distance=..8,nbt={item:{id:\"minecraft:golden_sword\"}}]")))
-            ?.groupValues?.get(1)?.toInt() ?: 0
+        clean(rcon("execute at $player if entity @e[type=minecraft:item_display,distance=..8,nbt={item:{id:\"minecraft:golden_sword\"}}]")).let { reply ->
+            // exactly one match replies "Test passed" with no count; two or more reply "Test passed, count: N"
+            Regex("count: (\\d+)").find(reply)?.groupValues?.get(1)?.toInt() ?: if (reply.startsWith("Test passed")) 1 else 0
+        }
 
     /**
      * Founder #27 (one weapon): during a bastion cast the rig shows the held weapon as one ItemDisplay (the real held item is swapped out for the
