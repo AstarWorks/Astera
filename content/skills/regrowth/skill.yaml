@@ -1,4 +1,5 @@
-# v3 hand port of the v2 skill (ADR-0303 rev4.2). v2 params regen_ticks 160, radius 3.0. Presentation is the dev single burst (fx0 at 0, fx6 at 6).
+# Verdant staff regrowth: on tick 0 the caster and nearby allies are cleansed and gain regen; a leaf burst plays on ticks 0 and 6; the cast ends on tick 7.
+# Re-authored from zero on ADR-0303 rev4.10.
 apiVersion: astera/v3
 kind: Skill
 id: regrowth
@@ -13,15 +14,34 @@ params:
   regen_ticks: {type: ticks, default: 160}
   radius:      {type: blocks, default: 3.0}
 anchors:
-  - {id: feet,  anchor: caster, offset: {up: 0.1}, mode: follow}                    # was pt_caster_0_0p1_0
-  - {id: chest, anchor: caster, offset: {up: 1.0}, mode: follow}                    # was pt_caster_0_1_0
+  - {id: feet,  anchor: caster, offset: {up: 0.1}, mode: follow}
+  - {id: chest, anchor: caster, offset: {up: 1.0}, mode: follow}
 machine:
   start: bloom
   states:
     bloom:
       for: 7
       then: end
+      enter:
+        - {id: buff, op: status, target: caster, status: regen, stacks: 1, for: "${regen_ticks}"}
+        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: caster, radius: "${radius}", include_self: true}}
+        - {id: st_regen, op: status, target: {kind: allies, around: caster, radius: "${radius}", include_self: false}, status: regen, stacks: 1, for: "${regen_ticks}"}
       do:
+        - id: ring
+          op: display
+          kind: sprite
+          sprite: ring
+          anchor: feet
+          size: [1.0, 1.0]
+          color: "#8cff78"
+          billboard: fixed
+          brightness: {block: 15, sky: 15}
+          at: 0
+          for: 7
+          motion:
+            - {law: align, axis: forward, to: world.up, at: 0, for: 7}
+            - {law: grow, by: 3.0, at: 0, for: 7, ease: out_cubic}
+            - {law: fade, start: 1.0, to: 0.0, at: 0, for: 7}
         - {id: snd, op: sound, sound: "astera:skills/heal-chime", anchor: caster, volume: 0.5, at: 0}
         - {id: fx, op: particle_def, def: verdant-heal, anchor: chest, at: 0}
         - {id: leaf_a, op: particle, particle: happy_villager, anchor: feet, count: 0, extra: 0.02, at: 0}
@@ -32,8 +52,4 @@ machine:
         - {id: leaves, op: particle, particle: happy_villager, anchor: feet, count: 22, offset: [0.7, 1.0, 0.7], extra: 0, at: 0}
         - {id: leaf_c, op: particle, particle: happy_villager, anchor: feet, count: 1, extra: 0, at: 6}
         - {id: dust_c, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#8cff78", size: 1.2, at: 6}
-      enter:
-        - {id: buff, op: status, target: caster, status: regen, stacks: 1, for: "${regen_ticks}"}   # stacks: 1 assumed
-        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: caster, radius: "${radius}", include_self: true}}
-        - {id: st_regen, op: status, target: {kind: allies, around: caster, radius: "${radius}", include_self: false}, status: regen, stacks: 1, for: "${regen_ticks}"}
     end: {final: true}
