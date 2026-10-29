@@ -32,7 +32,6 @@ public sealed interface BuildShape {
 
 /**
  * `break_area` as the gateway receives it: [tool] is `axe|pickaxe|shovel|none`, [rippleTicks] 0 = every cell the same tick.
- * [power] is the v2 terrain hardness gate (v1 `Mechanic.BreakArea.power`: 1 common, 2 hard, 3 hardest); v2's decoder defaulted it to 3 and no shipped skill sets it.
  */
 public data class BreakAreaSpec(
     val shape: AreaShape,
@@ -41,7 +40,6 @@ public data class BreakAreaSpec(
     val rippleTicks: Int,
     val revertTicks: Int,
     val outsideArena: Boolean,
-    val power: Double = 3.0,
 )
 
 /** `place_shape` as the gateway receives it: [consume] is an item id taken per placed cell, null = free. */

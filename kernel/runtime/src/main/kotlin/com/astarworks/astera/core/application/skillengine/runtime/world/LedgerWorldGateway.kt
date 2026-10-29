@@ -29,8 +29,6 @@ public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess
             if (!blocks.canEdit(cast, cell, spec.outsideArena)) continue
             val type = blocks.blockAt(cast, cell)
             if (blocks.isCover(cast, cell)) {
-                // v1 WorldMechanics.kt:259-260: cover is struck only when its base material is within the skill's power
-                if (type != null && !WorldBlockRules.breakable(type, spec.power, null)) continue
                 scheduleCoverStrikes(cast, spec, toolClass, cell, index, ordered.size)
                 continue
             }
@@ -39,8 +37,6 @@ public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess
             // A structure cell (Annihilation pillar) always reaches damage(): the access scales it by tier and tool class.
             if (!blocks.isStructure(cast, cell)) {
                 if (WorldBlockRules.isAir(type) || WorldBlockRules.isProtected(type!!)) continue
-                // The power gate keeps the hardness tiers; the tool CLASS is not a gate: a wrong class digs at x0.1 in damage().
-                if (!WorldBlockRules.breakable(type, spec.power, null)) continue
             }
             schedule(cast, index, ordered.size, spec.rippleTicks) { strikeTerrain(cast, spec, toolClass, cell) }
         }
