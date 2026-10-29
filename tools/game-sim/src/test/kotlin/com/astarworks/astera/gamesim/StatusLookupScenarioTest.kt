@@ -50,7 +50,8 @@ class StatusLookupScenarioTest {
             assertThat(sim.command("reader", "status burn").succeeded).isTrue()
             assertThat(chat.single()).contains(burnDesc)
             assertThat(sim.command("reader", "status nonsense").succeeded).isFalse()
-            assertThat(sim.command("reader", "status codex").succeeded).isTrue()
+            val codexRun = sim.command("reader", "status codex")
+            assertThat(codexRun.succeeded).`as`(codexRun.replies.toString()).isTrue()
             val view = checkNotNull(sim.server.view(p.id))
             assertThat(sim.services.getOrThrow<IGuiAdapter>().currentSpec(view)?.id?.value).isEqualTo("status-codex")
         }

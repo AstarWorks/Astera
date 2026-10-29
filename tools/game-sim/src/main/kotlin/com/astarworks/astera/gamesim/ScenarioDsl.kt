@@ -126,12 +126,14 @@ public class ScenarioScope(public val sim: GameSim) {
     /**
      * Forms a match for the queue lane / game mode [mode] on [stage] through the real
      * lifecycle facade: players take the given teams (and the stage's team spawns), the
-     * countdown is skipped and the match is ACTIVE on return.
+     * countdown is skipped and the match is ACTIVE on return. With [skipCountdown] false the match is left in
+     * its real COUNTDOWN phase, so a scenario can observe the 5-4-3-2-1 and the go.
      */
     public fun startMatch(
         mode: String,
         teams: Map<SimEntity, String>,
         stage: String = laneStageOf(mode),
+        skipCountdown: Boolean = true,
     ): com.astarworks.astera.core.domain.match.MatchId {
         val lifecycle = sim.services.getOrThrow<com.astarworks.astera.match.application.port.inbound.IMatchLifecycle>()
         val matchId = when (val started = lifecycle.start(com.astarworks.astera.core.domain.stage.StageId(stage), mode)) {
@@ -139,7 +141,9 @@ public class ScenarioScope(public val sim: GameSim) {
             is com.astarworks.astera.core.domain.Result.Failure -> error("start failed: ${started.error}")
         }
         teams.forEach { (entity, team) -> lifecycle.entry(matchId, entity.id, TeamId(team)) }
-        lifecycle.switchPhase(matchId, com.astarworks.astera.match.domain.match.MatchStateMachine.TransitionTrigger.CountdownComplete)
+        if (skipCountdown) {
+            lifecycle.switchPhase(matchId, com.astarworks.astera.match.domain.match.MatchStateMachine.TransitionTrigger.CountdownComplete)
+        }
         sim.step(2)
         return matchId
     }

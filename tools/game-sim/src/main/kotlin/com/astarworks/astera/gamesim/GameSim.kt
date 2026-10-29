@@ -473,6 +473,9 @@ public class GameSim private constructor(
     }
 
     public companion object {
+        /** Where the sim parks the lobby training island: far from any stage (production: arenas live on SlotAllocator slots). */
+        private const val SIM_RANGE_OFFSET: Int = 6000
+
         private const val DEFAULT_HP: Double = com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP
 
         /** Per-tick HUD / regen chatter kept out of the trace's catch-all `events` list (still in [events]). */
@@ -688,6 +691,20 @@ public class GameSim private constructor(
             sim.match = MatchWiring.install(context(), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }, starDropWorld = { sim.starDrops }, oreNodeWorld = { sim.oreNodes }, generatorItemDrop = { sim.generatorDrops }, objectiveStage = { sim.objectiveStage }, worldLabels = { sim.worldLabels }, matchCompass = { reg -> sim.matchCompass.also { it.attach(reg.getOrThrow<com.astarworks.astera.core.application.port.outbound.IDomainEventBus>()) } }, playerPositions = { reg -> SimMatchPlayerPositions({ reg.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>() }, sim.spectator) }, normaPresentation = { sim.normaPresentation }))
             sim.stats = StatsWiring.install(context(), StatsPlatformPorts())
             sim.economy = EconomyWiring.install(context(), EconomyPlatformPorts())
+
+            // The sim has one world and no arena slots (production pastes arenas on a far grid, SlotAllocator), so an
+            // arena at origin 0 would sit on the lobby training island and its players would count as "in the range"
+            // (immune to players). Move the range out of every stage's way; its dummies, rack and region follow the plan.
+            services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>()?.let { range ->
+                val surfaceY = range.plan.dummies.first().y.toInt() - 1
+                services.register<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>(
+                    com.astarworks.astera.core.application.port.outbound.lobby.LobbyTrainingRange(
+                        range.world,
+                        com.astarworks.astera.core.domain.lobby.LobbyTrainingLayout.plan(SIM_RANGE_OFFSET, SIM_RANGE_OFFSET, surfaceY),
+                    ),
+                    priority = 100,
+                )
+            }
 
             // ---- Trace taps ----------------------------------------------
             sim.attachTaps()
