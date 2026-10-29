@@ -3,10 +3,12 @@
 @0 particle - op=bless/emit type=happy_villager count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4545306158885407372
 @0 particle - op=bless/emit_2 type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5ae65a size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3600821082056032797
 @0 particle - op=bless/emit_3 type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8309024391654983124
+@0 particle - op=bless/disc type=dust count=24 at=0.000000,0.150000,0.000000 off=3.000000,0.100000,3.000000 speed=0.000000 color=#5ae65a size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5316677669112580208
 @0 hit - op=bless/heal at=0.000000,0.000000,0.000000 r=6.000000 shape=area
 ## pose yaw=37 pitch=-20
 @0 sound - op=bless/snd sound=astera:skills/heal-chime cat=master vol=0.7 pitch=1 at=0.000000,0.000000,0.000000
 @0 particle - op=bless/emit type=happy_villager count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4545306158885407372
 @0 particle - op=bless/emit_2 type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5ae65a size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3600821082056032797
 @0 particle - op=bless/emit_3 type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8309024391654983124
+@0 particle - op=bless/disc type=dust count=24 at=0.000000,0.150000,0.000000 off=3.000000,0.100000,3.000000 speed=0.000000 color=#5ae65a size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5316677669112580208
 @0 hit - op=bless/heal at=0.000000,0.000000,0.000000 r=6.000000 shape=area

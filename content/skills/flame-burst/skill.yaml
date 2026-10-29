@@ -1,3 +1,5 @@
+# Fire staff bolt: one flying fire charge; on a victim it deals fire damage and may ignite, on a block it bursts, on expiry it fizzles.
+# Re-authored from zero on ADR-0303 rev4.10. The cast ends with the body (fly + 1 ticks). The two impact bursts share one fragment.
 apiVersion: astera/v3
 kind: Skill
 id: flame-burst
@@ -8,22 +10,41 @@ meta:
   cooldown_ticks: 80
   resource_cost: 25
   tags: [ranged, fire-family, aoe]
+params:
+  dmg_fire:     {type: number, default: 40.0}
+  burn_ticks:   {type: ticks, default: 20}
+  burn_chance:  {type: number, default: 0.85}
+  speed:        {type: number, default: 1.4}
+  fly:          {type: ticks, default: 50}
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: cast_fx, anchor: caster, offset: {up: -0.2, forward: 1.0}, mode: snapshot}   # v2 pt_caster_0_m0p2_1: caster frame (feet, yaw-only)
-  - {id: heart,   anchor: victim.root, offset: {up: 1.0}, mode: follow}   # v2 pt_enemy_0_1_0
+  - {id: cast_fx, anchor: caster, offset: {up: -0.2, forward: 1.0}, mode: snapshot}
+  - {id: heart,   anchor: victim.root, offset: {up: 1.0}, mode: follow}
+fragments:
+  burst:
+    frames_in: {spot: anchor}
+    params:
+      flame: {type: number, required: true}
+      pitch: {type: number, required: true}
+    do:
+      - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: spot, volume: 0.45, pitch: "${pitch}"}
+      - {id: boom, op: particle, particle: explosion, anchor: spot, count: 1}
+      - {id: flame, op: particle, particle: flame, anchor: spot, count: "${flame}", extra: 0.24}
+      - {id: smoke, op: particle, particle: large_smoke, anchor: spot, count: 5, extra: 0.04}
+      - {id: ring_flame, op: particle, particle: flame, anchor: spot, count: 0, extra: 0.08}
+      - {id: ring_dust, op: particle, particle: dust, anchor: spot, count: 1, color: "#ff6e14", size: 2.0}
 machine:
   start: fly
   states:
     fly:
-      for: 51      # body for 50; the cast ends when the body ends (manager ruling 10/29)
+      for: 51      # fly + 1; a state `for` must be a literal (C5)
       then: end
       on:
         - {event: bolt.end, to: end}
       do:
-        - {id: shell, op: display, kind: item, item: "minecraft:fire_charge", context: fixed, anchor: bolt, scale: [0.9, 0.9, 0.9], at: 0, until: bolt.end}
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.8, pitch: 1.1}
         - {id: fx, op: particle_def, def: fire-cast, anchor: cast_fx}
+        - {id: shell, op: display, kind: item, item: "minecraft:fire_charge", context: fixed, anchor: bolt, scale: [0.9, 0.9, 0.9], at: 0, until: bolt.end}
         - {id: trail_flame, op: particle, particle: flame, anchor: {of: bolt, sweep: 0.3}, count: 3, offset: [0.12, 0.12, 0.12], extra: 0.02, at: 0, every: 1, until: bolt.end}
         - {id: trail_dust, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.1, 0.1, 0.1], color: "#ff7814", size: 1.6, at: 0, every: 1, until: bolt.end}
         - {id: trail_lava, op: particle, particle: lava, anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.08, 0.08, 0.08], at: 0, every: 1, until: bolt.end}
@@ -31,31 +52,21 @@ machine:
         - id: bolt
           op: projectile
           origin: muzzle
-          velocity: "= look(caster) * 1.4"
-          for: 50
+          velocity: "= look(caster) * speed"
+          for: "${fly}"
           radius: 0.5
           hit: {targets: enemies, once: true, attach: false}
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, damage: {fire: 40}}
-              - {id: st_burn, op: status, target: event.victim, status: burn, stacks: 1, for: 20, when: "= rand() < 0.85"}
+              - {id: dmg, op: damage, target: event.victim, damage: {fire: "${dmg_fire}"}}
+              - {id: st_burn, op: status, target: event.victim, status: burn, stacks: 1, for: "${burn_ticks}", when: "= rand() < burn_chance"}
               - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.5, ahead: 4.0}}, tool: none, block_damage: 35, ripple: 29, revert: 200, outside_arena: false}
-              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact, volume: 0.5, pitch: 1.3}
-              - {id: fx_boom, op: particle, particle: explosion, anchor: heart, count: 1}
-              - {id: fx_flame, op: particle, particle: flame, anchor: heart, count: 60, extra: 0.25}
-              - {id: fx_lava, op: particle, particle: lava, anchor: heart, count: 12, extra: 0.1}
-              - {id: fx_smoke, op: particle, particle: large_smoke, anchor: heart, count: 6, extra: 0.04}
-              - {id: fx_ring_hit_flame, op: particle, particle: flame, anchor: heart, count: 0, extra: 0.08}
-              - {id: fx_ring_hit_dust, op: particle, particle: dust, anchor: heart, count: 1, color: "#ff6e14", size: 2.0}
+              - {id: lava, op: particle, particle: lava, anchor: heart, count: 12, extra: 0.1}
+              - {id: fx, op: use, use: "fragment:burst", with: {flame: 60, pitch: 1.3}, frames: {spot: heart}}
             block:
-              - {id: chip_2, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.5, ahead: 4.0}}, tool: none, block_damage: 35, ripple: 29, revert: 200, outside_arena: false}
-              - {id: snd_blk, op: sound, sound: "astera:skills/fire-impact", anchor: contact.point, volume: 0.4, pitch: 1.4}
-              - {id: fx_boom, op: particle, particle: explosion, anchor: contact.point, count: 1}
-              - {id: fx_flame, op: particle, particle: flame, anchor: contact.point, count: 50, extra: 0.22}
-              - {id: fx_smoke, op: particle, particle: large_smoke, anchor: contact.point, count: 4, extra: 0.04}
-              - {id: fx_ring_blk_flame, op: particle, particle: flame, anchor: contact.point, count: 0, extra: 0.08}
-              - {id: fx_ring_blk_dust, op: particle, particle: dust, anchor: contact.point, count: 1, color: "#ff6e14", size: 2.0}
+              - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.5, ahead: 4.0}}, tool: none, block_damage: 35, ripple: 29, revert: 200, outside_arena: false}
+              - {id: fx, op: use, use: "fragment:burst", with: {flame: 50, pitch: 1.4}, frames: {spot: contact.point}}
             expire:
               - {id: snd_end, op: sound, sound: "astera:skills/fire-impact", anchor: contact.point, volume: 0.4, pitch: 1.2}
               - {id: fx_end, op: particle_def, def: fire-impact-smoke, anchor: contact.point}

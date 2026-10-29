@@ -1,11 +1,13 @@
-# v3 hand port of the v2 skill (ADR-0303 rev4.2). Look = dev single burst at tick 0 (end_rod count 0 speed 0.02 + one dust); no ring waves (dev look.yaml had none).
+# Sanctuary staff purify: on tick 0 the caster and allies within `radius` lose their harmful effects; the cast ends on tick 1. Re-authored from zero on ADR-0303 rev4.10.
 apiVersion: astera/v3
 kind: Skill
 id: sanctuary-purify
 item: sanctuary-staff
 meta: {name: {ja: "浄化", en: Purify}, description: {ja: "自分と周囲の味方の状態異常を取り除く。", en: "Clears harmful effects from you and nearby allies."}, cooldown_ticks: 200, resource_cost: 20, tags: [magic, support]}
+params:
+  radius: {type: blocks, default: 6.0}
 anchors:
-  - {id: feet,  anchor: caster, offset: {up: 0.15}, mode: follow}                   # was pt_caster_0_0p15_0
+  - {id: feet, anchor: caster, offset: {up: 0.15}, mode: follow}
 machine:
   start: bless
   states:
@@ -14,7 +16,10 @@ machine:
       then: end
       enter:
         - {id: snd, op: sound, sound: "block.amethyst_block.chime", anchor: caster, volume: 0.8, pitch: 1.2}
-        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: caster, radius: 6.0, include_self: true}}
+        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: caster, radius: "${radius}", include_self: true}}
         - {id: pts,  op: particle, particle: end_rod, anchor: feet, count: 0, extra: 0.02}
         - {id: dust, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#f0f0aa", size: 1.4}
+      do:
+        # state is 1 tick, so no display fits (StateOverrun): a flat particle disc across the radius stands in for the ring
+        - {id: disc, op: particle, particle: dust, anchor: feet, count: 20, offset: [3.0, 0.1, 3.0], extra: 0, color: "#f0f0aa", size: 1.2, at: 0}
     end: {final: true}

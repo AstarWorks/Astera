@@ -1,3 +1,6 @@
+# Frost staff nova: a ring blast around the caster, damage fades with distance, every victim is frozen. Re-authored from zero on ADR-0303 rev4.10.
+# GAP: hit sphere radius and break_area take no ${param} on this branch (literals kept; se-world-ops).
+# Ticks: the blast hits on tick 0; the cast ends on tick 3 (after the last presentation row at tick 2).
 apiVersion: astera/v3
 kind: Skill
 id: frost-nova
@@ -8,15 +11,35 @@ meta:
   cooldown_ticks: 160
   resource_cost: 25
   tags: [magic, ice-family, aoe]
+params:
+  dmg_water:    {type: number, default: 25.0}
+  falloff:      {type: number, default: 0.5}
+  freeze_ticks: {type: ticks, default: 60}
 anchors:
   - {id: cast_body, anchor: caster, offset: {up: 0.15}, mode: snapshot}
-  - {id: foe_pt, anchor: victim.root, offset: {up: 0.9}, mode: follow}   # v2 pt_enemy_0_0p9_0 (victim feet, yaw-only)
+  - {id: foe_pt, anchor: victim.root, offset: {up: 0.9}, mode: follow}
 machine:
   start: cast
   states:
     cast:
       start: burst
       do:
+        # frost ring races out to the blast radius (visual only)
+        - id: ring
+          op: display
+          kind: sprite
+          sprite: ring
+          anchor: cast_body
+          size: [1.0, 1.0]
+          color: "#aae1ff"
+          billboard: fixed
+          brightness: {block: 15, sky: 15}
+          at: 0
+          for: 3
+          motion:
+            - {law: align, axis: forward, to: world.up, at: 0, for: 3}
+            - {law: grow, by: 10.0, at: 0, for: 3, ease: out_cubic}
+            - {law: fade, start: 1.0, to: 0.0, at: 0, for: 3}
         - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 1.0, pitch: 0.9, at: 0}
         - {id: snd_2, op: sound, sound: "astera:skills/frost-impact", anchor: caster, volume: 0.7, pitch: 1.0, at: 0}
         - {id: fx_burst, op: particle, particle: snowflake, anchor: cast_body, count: 40, extra: 0.12, at: 0}
@@ -28,7 +51,7 @@ machine:
         - {event: end, to: done}
       states:
         burst:
-          for: 3      # v2 cast ends after its last presentation row (tick 2) -> 3 ticks
+          for: 3
           then: recover
           enter:
             - id: burst
@@ -36,13 +59,13 @@ machine:
               at: 0
               anchor: caster
               targets: enemies
-              shape: {sphere: 5.0}
+              shape: {sphere: 5.0}   # GAP: hit sphere radius takes no ${param}
               window: once
               ignore_invulnerability: false
-              damage: {water: "= 25.0 * (1.0 - 0.5 * dist(pos(caster), pos(event.victim)) / 5.0)"}
+              damage: {water: "= dmg_water * (1.0 - falloff * dist(pos(caster), pos(event.victim)) / 5.0)"}
               on:
                 hit:
-                  - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: 60}
+                  - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: "${freeze_ticks}"}
                   - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: contact, volume: 1.0, pitch: 1.0}
                   - {id: fx_snow, op: particle, particle: snowflake, anchor: foe_pt, count: 30, offset: [0.4, 0.8, 0.4], extra: 0.02}
                   - {id: fx_dust, op: particle, particle: dust, anchor: foe_pt, count: 20, offset: [0.4, 0.8, 0.4], color: "#aae1ff", size: 1.4}

@@ -1,13 +1,14 @@
+# Gale fan updraft: the caster is launched forward and up on tick 0. Re-authored from zero on ADR-0303 rev4.10.
 apiVersion: astera/v3
 kind: Skill
 id: gale-lift
 item: gale-fan
 meta: {name: {ja: "追い風", en: Updraft}, description: {ja: "自分を前上方へ吹き飛ばす。", en: "Launches you up and forward."}, cooldown_ticks: 160, resource_cost: 10, tags: [magic, wind, movement]}
 params:
-  propel:   {type: number, default: 1.0}
-  propel_2: {type: number, default: 0.6}
+  forward: {type: number, default: 1.0}
+  up:      {type: number, default: 0.6}
 anchors:
-  - {id: feet_fx, anchor: caster, offset: {up: 0.2}, mode: follow}   # was pt_caster_0_0p2_0
+  - {id: feet_fx, anchor: caster, offset: {up: 0.2}, mode: follow}
 machine:
   start: lift
   states:
@@ -15,8 +16,8 @@ machine:
       for: 1
       then: end
       do:
-        - {id: propel, op: impulse, at: 0, target: caster, vector: {of: caster, forward: "${propel}"}}
-        - {id: propel_2, op: impulse, at: 0, target: caster, vector: {x: 0, y: "${propel_2}", z: 0}}
+        - {id: propel, op: impulse, at: 0, target: caster, vector: {of: caster, forward: "${forward}"}}
+        - {id: propel_up, op: impulse, at: 0, target: caster, vector: {x: 0, y: "${up}", z: 0}}
         - {id: snd, op: sound, at: 0, sound: entity.breeze.jump, anchor: caster, volume: 0.9, pitch: 1.1}
         - {id: fx, op: particle_def, at: 0, def: dash-cloud, anchor: feet_fx}
     end: {final: true}

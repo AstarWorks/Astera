@@ -1,21 +1,36 @@
-# v3 hand port of the v2 skill (ADR-0303 rev4.2). v2 params launch_speed 1.3, max_lifetime_ticks 50, radius 3.5, poison_ticks 80.
-# Look = dev single burst (happy_villager count 0 speed 0.02 + one dust) at the victim / contact point; no ring waves (dev look.yaml had none).
+# Venom flask: a thrown flask; on a victim or a block it bursts into a poison cloud (enemies within `radius` are poisoned). Re-authored from zero on ADR-0303 rev4.10.
+# The cast ends when the projectile body ends. The two bursts share one fragment.
 apiVersion: astera/v3
 kind: Skill
 id: poison-cloud
 item: venom-flask
 meta: {name: {ja: "毒霧の瓶", en: "Poison Cloud"}, description: {ja: "着弾点に毒の霧を広げる。", en: "Bursts into a lingering poison cloud."}, cooldown_ticks: 160, resource_cost: 16, tags: [ranged, poison, magic, zone]}
+params:
+  speed:        {type: number, default: 1.3}
+  fly:          {type: ticks, default: 50}
+  radius:       {type: blocks, default: 3.5}
+  poison_ticks: {type: ticks, default: 80}
 anchors:
-  - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}            # was pt_aim_0_0_0p5
-  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot} # was pt_caster_0_m0p25_0p9
+  - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
   - {id: foe,    anchor: victim.root, mode: follow}
-  - {id: foe_low, anchor: victim.root, offset: {up: 0.15}, mode: follow}   # v2 pt_enemy_0_0p15_0
+fragments:
+  cloud:
+    frames_in: {spot: anchor}
+    params:
+      radius:       {type: blocks, default: 3.5}
+      poison_ticks: {type: ticks, default: 80}
+    do:
+      - {id: st_poison, op: status, target: {kind: enemies, around: spot, radius: "${radius}"}, status: poison, stacks: 1, for: "${poison_ticks}"}
+      - {id: pts, op: particle, particle: happy_villager, anchor: spot, offset: [0.0, 0.15, 0.0], count: 0, extra: 0.02}
+      - {id: dust, op: particle, particle: dust, anchor: spot, offset: [0.0, 0.15, 0.0], count: 1, extra: 0, color: "#5aaa3c", size: 1.4}
+      - {id: snd_hit, op: sound, sound: entity.splash_potion.break, anchor: spot, volume: 0.8, pitch: 0.8}
 machine:
   start: throw
   states:
     throw:
       on:
-        - {event: bolt.end, to: end}    # manager ruling 2026-10-29: the cast ends when the projectile body ends (v2)
+        - {event: bolt.end, to: end}
       enter:
         - {id: snd, op: sound, sound: entity.splash_potion.throw, anchor: caster, volume: 0.9, pitch: 0.9}
         - {id: fx, op: particle_def, def: verdant-cast, anchor: muzzle}
@@ -23,22 +38,16 @@ machine:
         - id: bolt
           op: projectile
           origin: start
-          velocity: "= look(caster) * 1.3"
-          for: 50
+          velocity: "= look(caster) * speed"
+          for: "${fly}"
           radius: 0.5
           hit: {targets: enemies, once: true, attach: false}
           block: {mode: despawn}
           on:
             hit:
-              - {id: st_poison, op: status, target: {kind: enemies, around: foe, radius: 3.5}, status: poison, stacks: 1, for: 80}
-              - {id: pts,  op: particle, particle: happy_villager, anchor: foe_low, count: 0, extra: 0.02}
-              - {id: dust, op: particle, particle: dust, anchor: foe_low, count: 1, extra: 0, color: "#5aaa3c", size: 1.4}
-              - {id: snd_hit, op: sound, sound: entity.splash_potion.break, anchor: foe, volume: 0.8, pitch: 0.8}
+              - {id: fx, op: use, use: "fragment:cloud", with: {radius: "${radius}", poison_ticks: "${poison_ticks}"}, frames: {spot: foe}}
             block:
-              - {id: st_poison_b, op: status, target: {kind: enemies, around: contact, radius: 3.5}, status: poison, stacks: 1, for: 80}
-              - {id: pts_b,  op: particle, particle: happy_villager, anchor: contact, count: 0, extra: 0.02}
-              - {id: dust_b, op: particle, particle: dust, anchor: contact, count: 1, extra: 0, color: "#5aaa3c", size: 1.4}
-              - {id: snd_blk, op: sound, sound: entity.splash_potion.break, anchor: contact, volume: 0.8, pitch: 0.8}
+              - {id: fx, op: use, use: "fragment:cloud", with: {radius: "${radius}", poison_ticks: "${poison_ticks}"}, frames: {spot: contact}}
         - {id: trail0, op: particle, particle: happy_villager, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], extra: 0, at: 0, every: 1, until: bolt.end}
         - {id: trail1, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, extra: 0, color: "#5aaa3c", size: 1.0, at: 0, every: 1, until: bolt.end}
     end: {final: true}
