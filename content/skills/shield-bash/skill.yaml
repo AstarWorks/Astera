@@ -17,7 +17,7 @@ params:
 anchors:
   - {id: eye,   anchor: caster.eye, mode: follow}
   - {id: front, anchor: caster, offset: {forward: 1.3}, mode: follow}
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}
+  - {id: heart, anchor: victim.center, mode: follow}
 machine:
   start: cast
   states:

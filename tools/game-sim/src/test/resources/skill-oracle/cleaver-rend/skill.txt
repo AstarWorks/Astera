@@ -4,7 +4,7 @@
 @0 sound - op=cast/snd sound=entity.player.attack.sweep cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx1 type=stab-spark at=0.000000,-0.100000,1.300000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8042029169273223268
 @0 sound - op=cast/strike/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1.2 at=0.000000,0.900000,2.500000
-@0 particle - op=cast/strike/strike.hit/spark type=hit-spark at=0.000000,1.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2870465751899303418
+@0 particle - op=cast/strike/strike.hit/spark type=hit-spark at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1762531437354658233
 @0 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0 z=0.1
 @0 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0 z=0.1
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=bleed stacks=1 for=100

@@ -16,7 +16,7 @@ params:
 anchors:
   - {id: eye, anchor: caster.eye, mode: follow}
   - {id: sweep, anchor: caster, offset: {up: -0.2, forward: 1.4}, mode: snapshot}
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}
+  - {id: heart, anchor: victim.center, mode: follow}
 machine:
   start: swing
   states:
