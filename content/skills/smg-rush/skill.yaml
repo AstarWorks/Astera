@@ -1,3 +1,4 @@
+# smg-rush: a short swift buff with a dash cloud.
 apiVersion: astera/v3
 kind: Skill
 id: smg-rush
@@ -8,6 +9,8 @@ meta:
   cooldown_ticks: 200
   resource_cost: 0
   tags: [gun, movement]
+params:
+  swift_ticks: {type: ticks, default: 50}
 anchors:
   - {id: puff_pt, anchor: caster, offset: {up: 0.2}, mode: follow}
 machine:
@@ -17,7 +20,7 @@ machine:
       for: 1
       then: end
       do:
-        - {id: buff, op: status, target: caster, status: swift, stacks: 1, for: 50}
+        - {id: buff, op: status, target: caster, status: swift, stacks: 1, for: "${swift_ticks}"}
         - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 0.7, pitch: 1.2}
         - {id: puff, op: particle_def, def: dash-cloud, anchor: puff_pt}
     end: {final: true}

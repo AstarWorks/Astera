@@ -1,3 +1,4 @@
+# simple-shoot: a flame-and-ember beam that bursts into a ring where it lands (hit, block or expiry share one fragment).
 apiVersion: astera/v3
 kind: Skill
 id: simple-shoot
@@ -6,15 +7,27 @@ meta:
   name: {ja: "シンプルシュート", en: "Simple Shoot"}
   description: {ja: "炎と橙色の粉塵の光線を撃ち、着弾点で輪状に弾ける。", en: "Fires a dense flame-and-ember beam that bursts into a ring where it lands."}
   cooldown_ticks: 4
-  resource_cost: 0   # v2 had no resource_cost (identity 0)
+  resource_cost: 0
   tags: [ranged, fire-family]
 params:
-  launch_speed:       {type: number, default: 2.0}
-  max_lifetime_ticks: {type: ticks, default: 40}
-  dmg_fire:           {type: number, default: 25.0}
+  speed: {type: number, default: 2.0}
+  life:  {type: ticks, default: 40}
+  dmg:   {type: number, default: 25.0}
+  ember: {type: string, default: "#ff6414"}
 anchors:
-  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}   # projectile origin
-  - {id: front,  anchor: caster, offset: {forward: 1.2}, mode: follow}                    # cast burst, was pt_caster_0_0_1p2 (feet frame)
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: front,  anchor: caster, offset: {forward: 1.2}, mode: follow}
+fragments:
+  burst:
+    params:
+      ember: {type: string, default: "#ff6414"}
+    frames_in: {spot: anchor}
+    do:
+      - {id: flame, op: particle, particle: flame, count: 60, extra: 0.2, anchor: spot}
+      - {id: lava, op: particle, particle: lava, count: 8, extra: 0.1, anchor: spot}
+      - {id: ring, op: particle, particle: flame, count: 0, extra: 0.06, anchor: spot}
+      - {id: dust_big, op: particle, particle: dust, count: 1, color: "${ember}", size: 2.5, anchor: spot}
+      - {id: dust_mid, op: particle, particle: dust, count: 1, color: "${ember}", size: 2.0, anchor: spot}
 machine:
   start: fly
   states:
@@ -24,38 +37,26 @@ machine:
       enter:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster}
         - {id: cast_flame, op: particle, particle: flame, count: 50, extra: 0.2, anchor: front}
-        - {id: cast_dust, op: particle, particle: dust, count: 20, offset: [0.2, 0.2, 0.2], extra: 0, color: "#ff6414", size: 1.6, anchor: front}
+        - {id: cast_dust, op: particle, particle: dust, count: 20, offset: [0.2, 0.2, 0.2], extra: 0, color: "${ember}", size: 1.6, anchor: front}
       do:
         - id: beam
           op: projectile
           origin: muzzle
-          velocity: "= look(caster) * ${launch_speed}"
-          speed: "${launch_speed}"
-          for: "${max_lifetime_ticks}"
+          velocity: "= look(caster) * ${speed}"
+          speed: "${speed}"
+          for: "${life}"
           radius: 0.5
           hit: {targets: enemies, once: true, attach: false}
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, damage: {fire: "${dmg_fire}"}}
+              - {id: dmg, op: damage, target: event.victim, damage: {fire: "${dmg}"}}
               - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact}
-              - {id: emit_3, op: particle, particle: flame, count: 60, extra: 0.2, anchor: contact}
-              - {id: emit_4, op: particle, particle: lava, count: 8, extra: 0.1, anchor: contact}
-              - {id: emit_5, op: particle, particle: flame, count: 0, extra: 0.06, anchor: contact}
-              - {id: emit_6, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.5, anchor: contact}
-              - {id: emit_7, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.0, anchor: contact}
+              - {id: fx_hit, op: use, use: "fragment:burst", with: {ember: "${ember}"}, frames: {spot: contact}}
             block:
-              - {id: emit_8, op: particle, particle: flame, count: 60, extra: 0.2, anchor: contact}
-              - {id: emit_9, op: particle, particle: lava, count: 8, extra: 0.1, anchor: contact}
-              - {id: emit_10, op: particle, particle: flame, count: 0, extra: 0.06, anchor: contact}
-              - {id: emit_11, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.5, anchor: contact}
-              - {id: emit_12, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.0, anchor: contact}
+              - {id: fx_blk, op: use, use: "fragment:burst", with: {ember: "${ember}"}, frames: {spot: contact}}
             expire:
-              - {id: emit_13, op: particle, particle: flame, count: 60, extra: 0.2, anchor: contact}
-              - {id: emit_14, op: particle, particle: lava, count: 8, extra: 0.1, anchor: contact}
-              - {id: emit_15, op: particle, particle: flame, count: 0, extra: 0.06, anchor: contact}
-              - {id: emit_16, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.5, anchor: contact}
-              - {id: emit_17, op: particle, particle: dust, count: 1, color: "#ff6414", size: 2.0, anchor: contact}
+              - {id: fx_end, op: use, use: "fragment:burst", with: {ember: "${ember}"}, frames: {spot: contact}}
         - {id: trail_flame, op: particle, particle: flame, count: 1, anchor: {of: beam, sweep: 0.25}, at: 0, every: 1, until: beam.end}
-        - {id: trail_dust, op: particle, particle: dust, count: 1, color: "#ff6414", size: 1.5, anchor: {of: beam, sweep: 0.25}, at: 0, every: 1, until: beam.end}
+        - {id: trail_dust, op: particle, particle: dust, count: 1, color: "${ember}", size: 1.5, anchor: {of: beam, sweep: 0.25}, at: 0, every: 1, until: beam.end}
     end: {final: true}

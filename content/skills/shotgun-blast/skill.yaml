@@ -1,4 +1,4 @@
-# astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
+# shotgun-blast: one close-range cone hit with a push on the cast tick, plus a block chip ahead.
 apiVersion: astera/v3
 kind: Skill
 id: shotgun-blast
@@ -9,11 +9,16 @@ meta:
   cooldown_ticks: 20
   resource_cost: 1
   tags: [ranged, gun, burst]
+params:
+  dmg:       {type: number, default: 25.0}
+  arc_deg:   {type: number, default: 50.0}
+  range:     {type: blocks, default: 6.0}
+  knockback: {type: number, default: 0.9}
 anchors:
   - {id: eye,    anchor: caster.eye, mode: follow}
-  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 1.2}, mode: follow}   # v2 pt_caster_0_m0p25_1p2: caster frame (feet, yaw-only)
-  - {id: cone,   anchor: caster, offset: {up: -0.2, forward: 2.4}, mode: follow}   # v2 pt_caster_0_m0p2_2p4: caster frame (feet, yaw-only)
-  - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}   # v2 pt_enemy_0_1p2_0
+  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 1.2}, mode: follow}
+  - {id: cone,   anchor: caster, offset: {up: -0.2, forward: 2.4}, mode: follow}
+  - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
 machine:
   start: cast
   states:
@@ -28,14 +33,14 @@ machine:
           op: hit
           at: 0
           anchor: eye
-          shape: {sector: {deg: 50.0, range: 6.0, height: 2.0, forward: look}}
+          shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
           targets: enemies
           window: once
           ignore_invulnerability: false
-          damage: {physical: 25.0}
+          damage: {physical: "${dmg}"}
           on:
             hit:
-              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 0.9}
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: "${knockback}"}
               - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact}
               - {id: fx_hit, op: particle_def, def: gun-impact, anchor: heart}
         - {id: chip, op: break_area, at: 0, anchor: {of: caster.eye, offset: {forward: 4}}, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 30, ripple: 29, revert: 200, outside_arena: false}
