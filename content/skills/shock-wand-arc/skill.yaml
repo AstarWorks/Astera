@@ -1,16 +1,27 @@
-# astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
+# shock-wand-arc: an electric nova around the caster, damage falling off with distance. Written from zero on the rev4.10 grammar.
 apiVersion: astera/v3
 kind: Skill
 id: shock-wand-arc
 item: shock-wand
-meta: {name: {ja: "放電", en: "Arc Burst"}, description: {ja: "周囲へ放電し、敵を痺れさせる。", en: "Releases a ring of lightning around you."}, cooldown_ticks: 140, resource_cost: 16, tags: [aoe, electric]}
+meta:
+  name: {ja: "放電", en: "Arc Burst"}
+  description: {ja: "周囲へ放電し、敵を痺れさせる。", en: "Releases a ring of lightning around you."}
+  cooldown_ticks: 140
+  resource_cost: 16
+  tags: [aoe, electric]
+params:
+  radius:       {type: blocks, default: 3.5}
+  dmg_electric: {type: number, default: 15.0}
+  falloff:      {type: number, default: 0.5}
+  shock_ticks:  {type: ticks,  default: 30}
+  shock_chance: {type: number, default: 0.5}
 anchors:
-  - {id: ring,  anchor: caster, offset: {up: 0.15}, mode: follow}   # ring origin (caster + 0.15 up)
+  - {id: ring, anchor: caster, offset: {up: 0.15}, mode: follow}
 machine:
   start: burst
   states:
     burst:
-      for: 1   # v2 timeline is one row at tick 0; the 6-tick span was the invented ring wave (see report)
+      for: 1
       then: end
       do:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 1.0, pitch: 1.1}
@@ -18,15 +29,19 @@ machine:
           op: hit
           at: 0
           anchor: caster
-          shape: {sphere: 3.5}
+          shape: {sphere: "${radius}"}
           targets: enemies
           window: once
           ignore_invulnerability: false
-          damage: {electric: "= 15.0 * (1.0 - 0.5 * dist(event.victim, caster) / 3.5)"}
+          damage: {electric: "= ${dmg_electric} * (1.0 - ${falloff} * dist(event.victim, caster) / ${radius})"}
           on:
             hit:
-              - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: 30, when: "= rand() < 0.5"}
+              - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}", when: "= rand() < ${shock_chance}"}
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
         - {id: fx_spark, op: particle, particle: electric_spark, anchor: ring, at: 0, count: 0, extra: 0.03}
         - {id: fx_dust, op: particle, particle: dust, anchor: ring, at: 0, count: 1, color: "#fff078", size: 1.4}
+        # the discharge ring: 24 sparks flung outward on the ground plane, a lifted ring behind it (instant rows: the state lasts one tick)
+        - {id: arc, op: particle, particle: electric_spark, anchor: ring, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 0.5}
+        - {id: arc_hi, op: particle, particle: end_rod, anchor: ring, times: 12, at: 0, count: 0, offset: "= vec(0.6 * cos(i * 2 * pi / 12), 0.8, 0.6 * sin(i * 2 * pi / 12))", extra: 0.3}
+        - {id: glow, op: particle, particle: dust, anchor: ring, count: 16, offset: "= vec(1.2, 0.3, 1.2)", color: "#fff6a0", size: 1.2, at: 0}
     end: {final: true}

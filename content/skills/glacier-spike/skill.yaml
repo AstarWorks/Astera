@@ -1,17 +1,35 @@
+# glacier-spike: an ice shard that leaves the target sinking. Written from zero on the rev4.10 grammar.
 apiVersion: astera/v3
 kind: Skill
 id: glacier-spike
 item: glacier-wand
-meta: {name: {ja: "氷柱", en: "Ice Spike"}, description: {ja: "氷の礫を飛ばし、相手の足を鈍らせる。", en: "Flings a shard of ice that slows the target."}, cooldown_ticks: 50, resource_cost: 10, tags: [ranged, water, magic]}
+meta:
+  name: {ja: "氷柱", en: "Ice Spike"}
+  description: {ja: "氷の礫を飛ばし、相手の足を鈍らせる。", en: "Flings a shard of ice that slows the target."}
+  cooldown_ticks: 50
+  resource_cost: 10
+  tags: [ranged, water, magic]
+params:
+  speed:         {type: number, default: 2.2}
+  flight_ticks:  {type: ticks,  default: 40}
+  dmg_water:     {type: number, default: 15}
+  sinking_ticks: {type: ticks,  default: 60}
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
-  - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}   # was pt_enemy_0_1p2_0 (victim feet, yaw-only)
+  - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
+fragments:
+  impact:
+    frames_in: {spot: anchor}
+    do:
+      - {id: ring, op: particle, particle: snowflake, anchor: spot, times: 16, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.25}
+      - {id: ring_up, op: particle, particle: snowflake, anchor: spot, times: 8, at: 0, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.2}
+      - {id: pop, op: particle, particle: end_rod, anchor: spot, count: 8, offset: [0.15, 0.15, 0.15], extra: 0.12, at: 0}
 machine:
   start: fly
   states:
     fly:
-      for: 40                       # = v2 max_lifetime_ticks; covers the whole flight
+      for: 40                       # literal: state `for` does not take ${param} yet (= flight_ticks)
       then: end
       on:
         - {event: bolt.end, to: end}
@@ -22,20 +40,41 @@ machine:
         - id: bolt
           op: projectile
           origin: muzzle
-          velocity: "= look(caster) * 2.2"
-          for: 40
+          velocity: "= look(caster) * ${speed}"
+          for: "${flight_ticks}"
           radius: 0.5
           hit: {targets: enemies, once: true, attach: false}
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, damage: {water: 15}}
-              - {id: st_sinking, op: status, target: event.victim, status: sinking, stacks: 1, for: 60}
+              - {id: dmg, op: damage, target: event.victim, damage: {water: "${dmg_water}"}}
+              - {id: st_sinking, op: status, target: event.victim, status: sinking, stacks: 1, for: "${sinking_ticks}"}
               - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: heart, volume: 0.7, pitch: 1.1}
               - {id: fx_hit, op: particle_def, def: frost-impact, anchor: heart}
+              - {op: use, use: "fragment:impact", frames: {spot: heart}}
             block:
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
               - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point}
-        - {id: trail_snow, op: particle, particle: snowflake, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], every: 1, until: bolt.end}
-        - {id: trail_dust, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.0, 0.0, 0.0], color: "#bee6ff", size: 1.0, every: 1, until: bolt.end}
+              - {op: use, use: "fragment:impact", frames: {spot: contact}}
+        - id: core
+          op: display
+          kind: sprite
+          sprite: frost-shatter
+          anchor: bolt
+          size: [0.7, 0.7]
+          color: "#d8f0ff"
+          billboard: center
+          brightness: {block: 15, sky: 15}
+          flipbook: {frames: 6, every: 1, loop: true}
+          at: 0
+          for: 40
+          motion:
+            - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 40}
+        - id: trail
+          at: 0
+          every: 1
+          until: bolt.end
+          do:
+            - {id: snow, op: particle, particle: snowflake, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04]}
+            - {id: dust, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, color: "#bee6ff", size: 1.0}
     end: {final: true}

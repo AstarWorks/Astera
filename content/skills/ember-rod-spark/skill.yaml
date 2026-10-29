@@ -1,3 +1,4 @@
+# ember-rod-spark: a small fast fire bolt that sometimes ignites. Written from zero on the rev4.10 grammar.
 apiVersion: astera/v3
 kind: Skill
 id: ember-rod-spark
@@ -10,22 +11,32 @@ meta:
   tags: [ranged, fire]
 params:
   launch_speed:       {type: number, default: 2.2}
-  max_lifetime_ticks: {type: ticks, default: 45}
+  max_lifetime_ticks: {type: ticks,  default: 45}
   dmg_fire:           {type: number, default: 20}
-  burn_ticks:         {type: ticks, default: 20}
+  burn_ticks:         {type: ticks,  default: 20}
+  burn_chance:        {type: number, default: 0.5}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: fx, anchor: caster, offset: {forward: 0.9, up: -0.25}, mode: follow}   # was pt_caster_0_m0p25_0p9 (caster feet, yaw-only)
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}   # was pt_enemy_0_1p2_0 (v2 enemy frame = victim feet)
+  - {id: fx,     anchor: caster, offset: {forward: 0.9, up: -0.25}, mode: follow}
+  - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
+fragments:
+  impact:
+    frames_in: {spot: anchor}
+    do:
+      - {id: ring, op: particle, particle: flame, anchor: spot, times: 16, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.25}
+      - {id: ring_up, op: particle, particle: flame, anchor: spot, times: 8, at: 0, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.2}
+      - {id: pop, op: particle, particle: lava, anchor: spot, count: 5, offset: [0.15, 0.15, 0.15], extra: 0.12, at: 0}
 machine:
   start: cast
   states:
     cast:
-      for: "= max_lifetime_ticks"
+      for: 45                       # literal: state `for` does not take ${param} yet (= max_lifetime_ticks)
       then: end
       on:
         - {event: bolt.end, to: end}
       do:
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.8, pitch: 1.2, at: 0}
+        - {id: fx1, op: particle_def, def: fire-cast, anchor: fx, at: 0}
         - id: bolt
           op: projectile
           at: 0
@@ -38,14 +49,33 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {fire: "${dmg_fire}"}}
-              - {id: burn, op: status, target: event.victim, status: burn, stacks: 1, for: "${burn_ticks}", when: "= rand() < 0.5"}
+              - {id: burn, op: status, target: event.victim, status: burn, stacks: 1, for: "${burn_ticks}", when: "= rand() < ${burn_chance}"}
               - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact.point, volume: 0.7, pitch: 1.2}
               - {id: spark, op: particle_def, def: hit-spark, anchor: heart}
+              - {op: use, use: "fragment:impact", frames: {spot: heart}}
             block:
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
               - {id: spark_b, op: particle_def, def: hit-spark, anchor: contact.point}
-        - {id: snd, op: sound, at: 0, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.8, pitch: 1.2}
-        - {id: fx1, op: particle_def, at: 0, def: fire-cast, anchor: fx}
-        - {id: t1, op: particle, particle: flame, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], extra: 0, at: 0, every: 1, until: bolt.end}
-        - {id: t2, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0, 0, 0], extra: 0, color: "#ff7814", size: 1.0, at: 0, every: 1, until: bolt.end}
+              - {op: use, use: "fragment:impact", frames: {spot: contact}}
+        - id: core
+          op: display
+          kind: sprite
+          sprite: flame
+          anchor: bolt
+          size: [0.55, 0.55]
+          color: "#ff9030"
+          billboard: center
+          brightness: {block: 15, sky: 15}
+          flipbook: {frames: 6, every: 1, loop: true}
+          at: 0
+          for: 45
+          motion:
+            - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 45}
+        - id: trail
+          at: 0
+          every: 1
+          until: bolt.end
+          do:
+            - {id: t1, op: particle, particle: flame, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04]}
+            - {id: t2, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, color: "#ff7814", size: 1.0}
     end: {final: true}

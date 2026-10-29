@@ -1,41 +1,79 @@
-# astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
+# shock-wand-zap: a quick electric bolt that sometimes stuns. Written from zero on the rev4.10 grammar.
 apiVersion: astera/v3
 kind: Skill
 id: shock-wand-zap
 item: shock-wand
-meta: {name: {ja: "電撃", en: Zap}, description: {ja: "素早い電撃。麻痺させることがある。", en: "A quick bolt of electricity that can stun."}, cooldown_ticks: 18, resource_cost: 6, tags: [ranged, electric]}
+meta:
+  name: {ja: "電撃", en: Zap}
+  description: {ja: "素早い電撃。麻痺させることがある。", en: "A quick bolt of electricity that can stun."}
+  cooldown_ticks: 18
+  resource_cost: 6
+  tags: [ranged, electric]
+params:
+  speed:        {type: number, default: 3.2}
+  flight_ticks: {type: ticks,  default: 40}
+  dmg_electric: {type: number, default: 16.0}
+  shock_ticks:  {type: ticks,  default: 30}
+  shock_chance: {type: number, default: 0.3}
 anchors:
-  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}   # projectile origin
-  - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: follow}        # was pt_caster_0_m0p25_0p9
-  - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}   # v2 pt_enemy_0_1p2_0
+  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: follow}
+  - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
+fragments:
+  impact:
+    frames_in: {spot: anchor}
+    do:
+      - {id: ring, op: particle, particle: electric_spark, anchor: spot, times: 16, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.25}
+      - {id: ring_up, op: particle, particle: electric_spark, anchor: spot, times: 8, at: 0, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.2}
+      - {id: pop, op: particle, particle: end_rod, anchor: spot, count: 4, offset: [0.15, 0.15, 0.15], extra: 0.12, at: 0}
 machine:
   start: fly
   states:
     fly:
-      for: 40
+      for: 40                       # literal: state `for` does not take ${param} yet (= flight_ticks)
       then: end
       on:
-        - {event: bolt.end, to: end}      # v2: the cast ends when the projectile body ends
+        - {event: bolt.end, to: end}
       do:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.8, pitch: 1.4}
         - {id: fx, op: particle_def, def: thunder-cast, anchor: cast_fx}
         - id: bolt
           op: projectile
           origin: muzzle
-          velocity: "= look(caster) * 3.2"
-          for: 40
+          velocity: "= look(caster) * ${speed}"
+          for: "${flight_ticks}"
           radius: 0.5
           hit: {targets: enemies, once: true, attach: false}
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, damage: {electric: 16.0}}
-              - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: 30, when: "= rand() < 0.3"}
+              - {id: dmg, op: damage, target: event.victim, damage: {electric: "${dmg_electric}"}}
+              - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}", when: "= rand() < ${shock_chance}"}
               - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+              - {op: use, use: "fragment:impact", frames: {spot: heart}}
             block:
               - {id: snd_block, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
               - {id: fx_block, op: particle_def, def: hit-spark, anchor: contact.point}
-        - {id: trail_spark, op: particle, particle: electric_spark, count: 1, offset: [0.04, 0.04, 0.04], anchor: {of: bolt, sweep: 0.4}, every: 1, until: bolt.end}
-        - {id: trail_dust, op: particle, particle: dust, count: 1, color: "#fff078", size: 1.0, anchor: {of: bolt, sweep: 0.4}, every: 1, until: bolt.end}
+              - {op: use, use: "fragment:impact", frames: {spot: contact}}
+        - id: core
+          op: display
+          kind: sprite
+          sprite: thunder-spark
+          anchor: bolt
+          size: [0.5, 0.5]
+          color: "#fff6a0"
+          billboard: center
+          brightness: {block: 15, sky: 15}
+          flipbook: {frames: 6, every: 1, loop: true}
+          at: 0
+          for: 40
+          motion:
+            - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 40}
+        - id: trail
+          every: 1
+          until: bolt.end
+          do:
+            - {id: trail_spark, op: particle, particle: electric_spark, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04]}
+            - {id: trail_dust, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, color: "#fff078", size: 1.0}
     end: {final: true}
