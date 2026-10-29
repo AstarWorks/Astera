@@ -1,7 +1,10 @@
 package com.astarworks.astera.e2e
 
 import org.junit.platform.launcher.LauncherSession
+import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.launcher.LauncherSessionListener
+import org.junit.platform.launcher.TestExecutionListener
+import org.junit.platform.launcher.TestIdentifier
 import java.io.File
 import java.time.Instant
 import java.util.concurrent.CopyOnWriteArrayList
@@ -39,6 +42,29 @@ object SuiteOwners {
     fun of(suite: String): String = owners[suite] ?: "unmapped"
 }
 
+/** Thrown by [E2eReport.failIfAny]: the failing checks already have their own FAIL rows in the report. */
+class ChecksFailed(message: String) : AssertionError(message)
+
+/**
+ * A test that fails or errors without a failed check row (a hard assertion, an RCON/bot exception, a setup error) would
+ * leave the report claiming "N / N checks passed". This listener turns every such test into a FAIL row.
+ */
+class TestFailureRecorder : TestExecutionListener {
+    override fun executionFinished(id: TestIdentifier, result: TestExecutionResult) {
+        if (result.status != TestExecutionResult.Status.FAILED) return
+        val t = result.throwable.orElse(null)
+        if (t is ChecksFailed) return
+        val suite = id.uniqueId.substringAfter("[class:", "").substringBefore("]").substringAfterLast('.')
+            .ifEmpty { id.displayName }
+        val evidence = buildString {
+            append(t?.let { "${it.javaClass.name}: ${it.message}" } ?: "failed without a throwable")
+            t?.stackTrace?.take(6)?.forEach { append("\n  at ").append(it) }
+        }.take(2_500)
+        E2eReport.results += CheckResult(suite, "TEST FAILED: ${id.displayName}", "test", false, evidence)
+        println("[e2e] FAIL $suite / TEST FAILED: ${id.displayName} :: ${evidence.lineSequence().first().take(200)}")
+    }
+}
+
 object E2eReport {
     val results = CopyOnWriteArrayList<CheckResult>()
     val notes = CopyOnWriteArrayList<String>()
@@ -65,12 +91,16 @@ object E2eReport {
     fun failIfAny() {
         val failed = failuresThisTest.get().toList()
         failuresThisTest.get().clear()
-        if (failed.isNotEmpty()) throw AssertionError("${failed.size} e2e check(s) failed: ${failed.joinToString("; ")}")
+        if (failed.isNotEmpty()) throw ChecksFailed("${failed.size} e2e check(s) failed: ${failed.joinToString("; ")}")
     }
 }
 
 /** Writes build/e2e-report.md when the Gradle test run ends (registered through ServiceLoader). */
 class ReportWriter : LauncherSessionListener {
+    override fun launcherSessionOpened(session: LauncherSession) {
+        session.launcher.registerTestExecutionListeners(TestFailureRecorder())
+    }
+
     override fun launcherSessionClosed(session: LauncherSession) {
         val path = System.getProperty("astera.e2e.report") ?: return
         val results = E2eReport.results.toList()
@@ -79,7 +109,10 @@ class ReportWriter : LauncherSessionListener {
         sb.append("# ${System.getProperty("astera.e2e.reportTitle", "Astera E2E report")}\n\n")
         sb.append("- generated: ${Instant.now()}\n")
         sb.append("- backend: ${System.getProperty("astera.e2e.backendDesc") ?: "${E2eEnv.host}:${E2eEnv.port} (docker compose profile `e2e`, ASTERA_SERVER_ROLE=all, offline mode)"}\n")
-        sb.append("- result: **$passed / ${results.size} checks passed**, ${results.size - passed} failed\n\n")
+        val brokenTests = results.count { !it.passed && it.channel == "test" }
+        sb.append("- result: **$passed / ${results.size} checks passed**, ${results.size - passed} failed\n")
+        if (results.size > passed) sb.append("- **NOT ALL PASSED**: ${results.size - passed} failed row(s)" + (if (brokenTests > 0) ", $brokenTests of them tests that failed without a failed check (rows named `TEST FAILED: ...`)" else "") + "\n")
+        sb.append("\n")
         val failedByTrack = results.filterNot { it.passed }.groupBy { SuiteOwners.of(it.suite) }.toSortedMap()
         if (failedByTrack.isNotEmpty()) {
             sb.append("Failures by owning track (drop the track from the batch, do not revert):\n\n")
