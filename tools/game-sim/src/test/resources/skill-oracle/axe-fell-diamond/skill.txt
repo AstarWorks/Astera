@@ -8,3 +8,8 @@
 @0 sound - op=cast/fell/snd_2 sound=block.wood.break cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
 @0 sound - op=cast/fell/snd_4 sound=entity.player.attack.crit cat=master vol=0.8 pitch=0.9 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fell/spark_3 type=tool-axe-diamond at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2362825409576412777
+## gameplay-static
+g @0..1 cast-length | cast
+g @1 state-end then=end final=false | state=cast
+g @0 world break_area spec=BreakAreaSpec(shape%3DLine(length%3D9.0,%20width%3D1.0,%20height%3D3),%20tool%3Daxe,%20blockDamage%3D100,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | state=cast
+g @0 state-end then=- final=true | state=end

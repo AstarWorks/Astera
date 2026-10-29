@@ -3,7 +3,7 @@
 @0 damage 00000000-0000-0000-0000-00000000000a op=- water=18.75 skill=frost-nova at=0.000000,0.000000,2.200000 ignoreinv=false ignorearmor=false
 @0 damage 00000000-0000-0000-0000-00000000000b op=- water=12.5 skill=frost-nova at=0.000000,0.000000,4.700000 ignoreinv=false ignorearmor=false
 @0 spawn #0 op=cast/ring kind=sprite sprite=ring alpha=1.000000 tint=#aae1ff seethrough=false pos=0.000000,0.150000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.250000,1.250000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@0 write #0 op=cast/ring dur=2 pos=0.000000,0.150000,0.000000 rot=-0.500000,-0.500000,-0.500000,0.500000 scale=9.666667,9.666667,9.666667 bb=FIXED
+@0 write #0 op=cast/ring dur=2 pos=0.000000,0.150000,0.000000 rot=-0.707107,0.000000,0.000000,0.707107 scale=9.666667,9.666667,9.666667 bb=FIXED
 @0 sound - op=cast/snd sound=astera:skills/frost-cast cat=master vol=1 pitch=0.9 at=0.000000,0.000000,0.000000
 @0 sound - op=cast/snd_2 sound=astera:skills/frost-impact cat=master vol=0.7 pitch=1 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx_burst type=snowflake count=40 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2148490432387180694
@@ -24,19 +24,16 @@
 @0 particle - op=cast/burst/burst.hit/fx_rod2 type=end_rod count=0 at=0.000000,0.900000,5.000000 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5127851450193254961
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=60
 @0 status 00000000-0000-0000-0000-00000000000b op=- status=freeze stacks=1 for=60
-<<<<<<< HEAD
+@1 remove #0 op=cast/ring
 g @1 state-exit reason=PREEMPT | state=cast/burst
 g @1 state-exit reason=EVENT | state=cast
 g @1 cast-end | pose
-=======
-@1 remove #0 op=cast/ring
->>>>>>> se-re-magic-area
 ## pose yaw=37 pitch=-20
 @0 hit - op=cast/burst/burst at=0.000000,0.000000,0.000000 r=5.000000 shape=sphere rad=5.000000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- water=18.75 skill=frost-nova at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
 @0 damage 00000000-0000-0000-0000-00000000000b op=- water=12.5 skill=frost-nova at=-2.709075,0.000000,3.693178 ignoreinv=false ignorearmor=false
 @0 spawn #0 op=cast/ring kind=sprite sprite=ring alpha=1.000000 tint=#aae1ff seethrough=false pos=0.000000,0.150000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.250000,1.250000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@0 write #0 op=cast/ring dur=2 pos=0.000000,0.150000,0.000000 rot=-0.500000,-0.500000,-0.500000,0.500000 scale=9.666667,9.666667,9.666667 bb=FIXED
+@0 write #0 op=cast/ring dur=2 pos=0.000000,0.150000,0.000000 rot=-0.670566,-0.224368,-0.224368,0.670566 scale=9.666667,9.666667,9.666667 bb=FIXED
 @0 sound - op=cast/snd sound=astera:skills/frost-cast cat=master vol=1 pitch=0.9 at=0.000000,0.000000,0.000000
 @0 sound - op=cast/snd_2 sound=astera:skills/frost-impact cat=master vol=0.7 pitch=1 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx_burst type=snowflake count=40 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2148490432387180694
@@ -57,7 +54,7 @@ g @1 cast-end | pose
 @0 particle - op=cast/burst/burst.hit/fx_rod2 type=end_rod count=0 at=-3.009075,0.900000,3.993178 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5127851450193254961
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=60
 @0 status 00000000-0000-0000-0000-00000000000b op=- status=freeze stacks=1 for=60
-<<<<<<< HEAD
+@1 remove #0 op=cast/ring
 g @1 state-exit reason=PREEMPT | state=cast/burst
 g @1 state-exit reason=EVENT | state=cast
 g @1 cast-end | pose
@@ -66,11 +63,8 @@ g @0..1200 cast-length | cast
 g @0..1200 state-end then=- final=false | state=cast
 g @3 state-end then=cast/recover final=false | state=cast/burst
 g @0 damage water=live(%3D%2025.0%20*%20(1.0%20-%200.5%20*%20dist(pos(caster),%20pos(event.victim))%20/%205.0)) | state=cast/burst
-g @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D2.5,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D20,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse,%20power%3D3.0) | state=cast/burst
+g @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D2.5,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D20,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | state=cast/burst
 g @0 state-end then=- final=true | state=cast/recover
 g @0 state-end then=- final=true | state=done
 g.hit @0..0 handler max=2147483647 | sub=cast/burst/burst.hit
 g.hit @0 status freeze stacks=1.000000 for=60 | sub=cast/burst/burst.hit
-=======
-@1 remove #0 op=cast/ring
->>>>>>> se-re-magic-area

@@ -42,11 +42,11 @@ g @40 state-end then=end final=false | state=fly
 g @0 state-end then=- final=true | state=end
 g.absorbed @1..40 handler max=1 | sub=fly/bolt.absorbed
 g.block @1..40 handler max=1 | sub=fly/bolt.block
-g.block @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D1.0,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D25,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse,%20power%3D3.0) | sub=fly/bolt.block
+g.block @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D1.0,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D25,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=fly/bolt.block
 g.end @0..40 handler max=1 | sub=fly/bolt.end
 g.expire @40..40 handler max=1 | sub=fly/bolt.expire
 g.hit @1..40 handler max=1 | sub=fly/bolt.hit
 g.hit @0 damage electric=25.000000 | sub=fly/bolt.hit
 g.hit @0 status shock stacks=1.000000 for=30 when | sub=fly/bolt.hit
 g.hit @0 world lightning visual_only=true | sub=fly/bolt.hit
-g.hit @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D1.0,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D25,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse,%20power%3D3.0) | sub=fly/bolt.hit
+g.hit @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D1.0,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D25,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=fly/bolt.hit

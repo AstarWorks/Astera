@@ -10,7 +10,7 @@
 @0 status 00000000-0000-0000-0000-000000000001 op=- status=swift stacks=1 for=160
 ## gameplay-static
 g @0..1 cast-length | cast
-g @1 state-end then=end final=false | state=main
-g @0 consume_item count=1.000000 item=swift-powder target=live(caster) | state=main
-g @0 status swift stacks=1.000000 for=160 to=caster | state=main
+g @1 state-end then=end final=false | state=use
+g @0 consume_item count=1.000000 item=swift-powder target=live(caster) | state=use
+g @0 status swift stacks=1.000000 for=160 to=caster | state=use
 g @0 state-end then=- final=true | state=end
