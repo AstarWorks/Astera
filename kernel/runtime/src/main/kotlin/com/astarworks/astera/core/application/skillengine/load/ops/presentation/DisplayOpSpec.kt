@@ -98,7 +98,6 @@ public class DisplayOp(
     public val rotate: Rotation,
     public val scale: Value<Vec3>,
     public val right: Rotation,
-    public val yaw: Value<Double>,
     public val pitch: Value<Double>,
     public val billboard: String,
     public val brightness: Pair<Value<Double>, Value<Double>>?,
@@ -189,7 +188,6 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     private val rotateF = Field.optional("rotate", Rotations.type, Rotation.Turns(emptyList()), "left_rotation: named-axis list or quaternion; absent = identity")
     private val scaleF = Field.optional("scale", Types.worldVec3, Value.Literal(Vec3(1.0, 1.0, 1.0)), "vanilla scale; sprites use size")
     private val rightF = Field.optional("right", Rotations.type, Rotation.Whole(Value.Literal(Quaternion.IDENTITY)), "right_rotation, quaternion [x, y, z, w]; absent = identity")
-    private val yawF = Field.optional("yaw", Types.number, Value.Literal(0.0), "entity yaw, pinned at spawn")
     private val pitchF = Field.optional("pitch", Types.number, Value.Literal(0.0), "entity pitch, pinned at spawn")
     private val billboardF = Field.optional("billboard", Types.enumOf("fixed", "vertical", "horizontal", "center"), "fixed", "vanilla Billboard; fixed is the decision default")
     private val brightnessBlock = Field.required("block", Types.number, "block light 0..15")
@@ -216,8 +214,12 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         itemF, partF, contextF, shaderEffectF, blockF,
         textF, backgroundF, alignmentF, lineWidthF, textOpacityF, seeThroughF, shadowF,
         spriteF, sizeF, pivotF, flipbookF, colorF,
-        translationF, rotateF, scaleF, rightF, yawF, pitchF, billboardF, brightnessF, viewRangeF, glowColorF,
+        translationF, rotateF, scaleF, rightF, pitchF, billboardF, brightnessF, viewRangeF, glowColorF,
         interpDelayF, interpDurationF, teleportDurationF, motionF,
+    ).rejecting(
+        "yaw",
+        "entity yaw is never written in a skill file (the display is spawned at yaw 0 and all orientation lives in 'rotate'); " +
+            "write a turn as {axis: up, deg: N} (vanilla yaw = -deg about up)",
     )
 
     // ------------------------------------------------------------------------------------------------ decode
@@ -308,7 +310,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 id, src, whenExpr, foldTiming(t, ctx), kind, values[anchorF], values[offsetF],
                 subject, values[contextF], values[partF], style, size, if (kind == DisplayKind.SPRITE) values[pivotF] else null, color, seeThrough, flipbook,
                 values[translationF], values[rotateF], values[scaleF], values[rightF],
-                foldNum(values[yawF], ctx), foldNum(values[pitchF], ctx), billboard, brightness, viewRange, glow,
+                foldNum(values[pitchF], ctx), billboard, brightness, viewRange, glow,
                 wholeNum(values[interpDelayF], "$p.interpolation_delay", ctx, 0.0, null),
                 wholeNum(values[interpDurationF], "$p.interpolation_duration", ctx, 0.0, null),
                 wholeNum(values[teleportDurationF], "$p.teleport_duration", ctx, 0.0, null),
@@ -593,7 +595,6 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         }
         f["translation"] = vecCell(op.translation)
         f["right_rotation"] = quatCell(right)
-        f["yaw"] = cell(op.yaw)
         f["pitch"] = cell(op.pitch)
         f["billboard"] = Val.Known(op.billboard)
         op.brightness?.let { (b, s) -> f["brightness_block"] = cell(b); f["brightness_sky"] = cell(s) }

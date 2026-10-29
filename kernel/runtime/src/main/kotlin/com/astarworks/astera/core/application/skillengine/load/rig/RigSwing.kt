@@ -30,7 +30,7 @@ public enum class SwingEdge { LEADING, TRAILING }
  * One v3 swing segment (ADR-0303 rig section): the TIP travels from [from] to [to] (unit directions in the rig's parent frame),
  * optionally through [via], with [turns] extra full revolutions of the same great circle, over [ticks] ticks eased by [easeName].
  * [from] null = continue from the previous step's [to]. [at] null = start when the previous step ends (0 for the first).
- * [roll] is extra degrees of roll about the driven part's long axis reached at the end (right-handed, eased like the swing).
+ * [roll] is extra degrees of roll about the driven part's long axis reached at the end (+deg carries the basis axes forward -> left -> up -> forward, eased like the swing).
  */
 public data class SwingStep(
     val at: Int?,
@@ -67,7 +67,7 @@ public data class FrameAxes(val long: Vec3, val edge: Vec3)
  * Fields: `from` (first step only, else the previous `to`), `via` (optional waypoint), `to`, `edge: leading|trailing`, `turns`
  * (extra revolutions, default 0; with `via` they are added to the via-to-`to` arc), `for` (ticks), `at` (default: previous end),
  * `ease` (default linear), `roll` (default 0). Orientation: Q(t) = R(axis, angle(t)) * Q0 * R(long, roll(t)), `axis` = from x to
- * (so the tip turns right-handed about it: the short way from `from` to `to`; more than 180 degrees needs `via` or `turns`), and
+ * (so the tip turns about it the short way from `from` to `to`; more than 180 degrees needs `via` or `turns`), and
  * Q0 puts the driven part's long axis on `from` and its edge on `axis x from` (leading) or the opposite (trailing).
  */
 public object RigSwings {
@@ -84,7 +84,7 @@ public object RigSwings {
     private val reset: Field<Value<Boolean>> = Field.optional("reset", Types.bool, Value.Literal(false), "true = a duration-0 write of the rest pose at 'at'; takes no other swing field")
     private val turns: Field<Value<Double>> = Field.optional("turns", Types.number, Value.Literal(0.0), "extra full revolutions of the swing circle (integer >= 0)")
     private val ease: Field<String> = Field.optional("ease", Types.id, "linear", "easing of the whole segment (any v1 easing name except step)")
-    private val roll: Field<Value<Double>> = Field.optional("roll", Types.number, Value.Literal(0.0), "extra degrees of roll about the driven part's long axis reached at the end (right-handed)")
+    private val roll: Field<Value<Double>> = Field.optional("roll", Types.number, Value.Literal(0.0), "extra degrees of roll about the driven part's long axis reached at the end (+deg carries forward -> left -> up -> forward)")
 
     public val step: Fields = Fields.of("rig-swing-step", from, via, to, edge, turns, TimingSpec.at, TimingSpec.forSpan, ease, roll, reset)
 

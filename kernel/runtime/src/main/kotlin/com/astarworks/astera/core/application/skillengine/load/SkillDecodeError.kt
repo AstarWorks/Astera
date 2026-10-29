@@ -11,8 +11,8 @@ public sealed interface SkillDecodeError {
         override val message: String get() = "missing '$name'"
     }
 
-    public data class UnknownKey(override val skillId: String, override val path: String, val key: String) : SkillDecodeError {
-        override val message: String get() = "unknown key '$key'"
+    public data class UnknownKey(override val skillId: String, override val path: String, val key: String, val hint: String? = null) : SkillDecodeError {
+        override val message: String get() = "unknown key '$key'" + (hint?.let { ": $it" } ?: "")
     }
 
     public data class TypeMismatch(override val skillId: String, override val path: String, val expected: String, val actual: String) : SkillDecodeError {
