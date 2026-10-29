@@ -903,6 +903,79 @@
                             },
                             "default": null
                         },
+                        "chain": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                                "hops",
+                                "every",
+                                "pick"
+                            ],
+                            "properties": {
+                                "hops": {
+                                    "oneOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string",
+                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                        }
+                                    ]
+                                },
+                                "every": {
+                                    "oneOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string",
+                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                        }
+                                    ]
+                                },
+                                "pick": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "required": [
+                                        "kind",
+                                        "around",
+                                        "radius",
+                                        "nearest",
+                                        "exclude"
+                                    ],
+                                    "properties": {
+                                        "kind": {
+                                            "enum": [
+                                                "enemies",
+                                                "allies"
+                                            ]
+                                        },
+                                        "around": {
+                                            "const": "from"
+                                        },
+                                        "radius": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                }
+                                            ]
+                                        },
+                                        "nearest": {
+                                            "const": 1
+                                        },
+                                        "exclude": {
+                                            "const": "chain"
+                                        }
+                                    }
+                                }
+                            },
+                            "default": null
+                        },
                         "at": {
                             "anyOf": [
                                 {

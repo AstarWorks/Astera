@@ -21,6 +21,9 @@ public interface CastTrace {
     /** A row of op instance [op] starts playing (the particles, sounds and visual writes it issues belong to that op). */
     public fun row(cast: CastHandle, op: InstanceId, tick: Int) {}
 
+    /** A chain hop's pick row ran (ADR-0303 9.4): [victim] is the entity it chose, or null when nobody qualified (that hop and every later hop of the chain are skipped). */
+    public fun pick(cast: CastHandle, op: InstanceId, tick: Int, victim: java.util.UUID?) {}
+
     /** The resolved volume [op] is about to run its broad phase with (a hit op, or a projectile body sweeping). */
     public fun hitVolume(cast: CastHandle, op: InstanceId, volume: ResolvedVolume, tick: Int) {}
 

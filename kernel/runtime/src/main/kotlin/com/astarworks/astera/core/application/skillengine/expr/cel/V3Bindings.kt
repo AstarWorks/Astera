@@ -17,7 +17,7 @@ public object V3Bindings {
     public const val MAX_PARENT_DEPTH: Int = 16
 
     /** Frames every expression may name (ADR-0303 3.5): the cast's own entities and the event's contact; declared anchors are added per document. */
-    public val BUILTIN_FRAMES: Set<String> = setOf("caster", "target", "victim", "contact", "world", "enemy")
+    public val BUILTIN_FRAMES: Set<String> = setOf("caster", "target", "victim", "contact", "world", "enemy", "from")
 
     private val BINDING_VEC3 = listOf("pos", "forward", "eye")
     private val CONTACT_ONLY_VEC3 = listOf("normal", "point")

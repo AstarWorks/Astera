@@ -49,6 +49,12 @@ public sealed interface Action {
      * happens, [forward] the look direction shapes face; [payload] holds the op's flat fields.
      */
     public data class World(val op: OpId, val origin: Vec, val forward: Vec, val payload: Map<String, Val<Any>>) : Action
+    /**
+     * Chain targeting (ADR-0303 9.4): at its tick, picks the nearest enemy within [area] of the previous victim (`from`) that the chain
+     * [chain] has not hit yet, and binds it as `victim` for every row tagged with the same [Row.chain] hop. [area]'s `around` name is `from`.
+     * Nobody found = this hop and every later hop of the chain are skipped.
+     */
+    public data class Pick(val chain: String, val hop: Int, val area: TargetRule.Area) : Action
     public data class Lock(val move: LockMove, val pitch: Boolean, val yaw: Boolean, val until: LockEnd) : Action
 
     // structure
@@ -65,11 +71,12 @@ public sealed interface Action {
 public enum class ExitReason { TIMER, EVENT, PREEMPT, CANCEL }
 
 /** Same-tick sort order (ADR-0303 10.2a): rows sort by (tick, phase, declaration order, occurrence). */
-public enum class Phase { BOOKKEEPING, SPAWN, WRITE, PRESENTATION, GAMEPLAY, LOCK, CALL, EMIT, END }
+public enum class Phase { BOOKKEEPING, PICK, SPAWN, WRITE, PRESENTATION, GAMEPLAY, LOCK, CALL, EMIT, END }
 
 public val Action.phase: Phase
     get() = when (this) {
         is Action.Enter, is Action.Exit -> Phase.BOOKKEEPING
+        is Action.Pick -> Phase.PICK
         is Action.Spawn -> Phase.SPAWN
         is Action.Key, is Action.Teleport, is Action.TrailPoint -> Phase.WRITE
         is Action.Particle, is Action.ParticleDef, is Action.Sound, is Action.Set -> Phase.PRESENTATION

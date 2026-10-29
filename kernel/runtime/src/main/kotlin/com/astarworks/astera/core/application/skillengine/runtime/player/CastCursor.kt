@@ -37,4 +37,13 @@ public data class LevelCursor(val state: StatePath, val enteredAt: Int, var next
 public data class SubCursor(val sub: SubTable, val firedAt: Int, var nextRow: Int, val binding: EventBinding) {
     /** State that owns instances this cursor spawns; null = the cast (exit sub-tables must not be reaped by the state they run for). */
     public var owner: StatePath? = null
+
+    /** Per-chain picks made so far by this firing's chain rows (ADR-0303 9.4). */
+    internal val chain: ChainState = ChainState()
+}
+
+/** The picks of the chains of one sub-table firing: chain id -> victims chosen by hops 1..k, and the chains that ran out of candidates. */
+internal class ChainState {
+    val picks = HashMap<String, MutableList<com.astarworks.astera.core.domain.skillengine.table.EntityRef>>()
+    val dead = HashSet<String>()
 }

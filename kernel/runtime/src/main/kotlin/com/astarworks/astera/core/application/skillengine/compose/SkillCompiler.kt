@@ -327,10 +327,20 @@ public class SkillCompiler(
         // ---- decoding -------------------------------------------------------------------------------------------------
 
         /** Decodes [raw] op maps and attaches the nested lists the decoder leaves raw (group `do`, projectile `on`), recursively. */
-        private fun decodeList(raw: List<Any?>, path: String): Result<List<OpNode>, SkillDecodeError> {
+        private fun decodeList(raw: List<Any?>, path: String, owner: String? = null): Result<List<OpNode>, SkillDecodeError> {
             val maps = ArrayList<OpMap>(raw.size)
             for ((i, el) in raw.withIndex()) {
                 val m = el as? Map<*, *> ?: return Result.Failure(SkillDecodeError.Invalid(original.id, "$path[$i]", "an op must be a map"))
+                // `chain:` (ADR-0303 9.4) belongs to a `use: fragment:` call written directly in an `on.hit` list
+                if (m.containsKey("chain") && !(m["op"] == "use" && (m["use"] as? String)?.startsWith(PartInliner.FRAGMENT_PREFIX) == true && path.endsWith(".on.hit"))) {
+                    val state = Regex("""states\.([^.\[]+)""").find(path)?.groupValues?.get(1) ?: "world"
+                    return Result.Failure(
+                        SkillDecodeError.Invalid(
+                            original.id, "$path[$i]",
+                            "chain: only a use: fragment: call inside an on.hit list takes chain: (found on '$state${if (owner != null) "/$owner" else ""}', op ${m["id"]})",
+                        ),
+                    )
+                }
                 val out = LinkedHashMap<String, Any?>()
                 for ((k, v) in m) out[k as? String ?: return Result.Failure(SkillDecodeError.UnknownKey(original.id, "$path[$i]", k.toString()))] = v
                 maps += out
@@ -348,12 +358,12 @@ public class SkillCompiler(
             }
             is HitOp -> if (node.rawOn.isEmpty()) Result.Success(node) else {
                 val handlers = LinkedHashMap<HitEvent, List<OpNode>>()
-                for ((e, list) in node.rawOn) handlers[e] = decodeList(list, node.src.value + ".on." + e.key).getOr { return Result.Failure(it) }
+                for ((e, list) in node.rawOn) handlers[e] = decodeList(list, node.src.value + ".on." + e.key, node.id.value).getOr { return Result.Failure(it) }
                 Result.Success(node.withHandlers(handlers, handlerLowering))
             }
             is ProjectileOp -> if (node.rawOn.isEmpty()) Result.Success(node) else {
                 val handlers = LinkedHashMap<ProjectileEvent, List<OpNode>>()
-                for ((e, list) in node.rawOn) handlers[e] = decodeList(list, node.src.value + ".on." + e.key).getOr { return Result.Failure(it) }
+                for ((e, list) in node.rawOn) handlers[e] = decodeList(list, node.src.value + ".on." + e.key, node.id.value).getOr { return Result.Failure(it) }
                 Result.Success(node.withHandlers(handlers, handlerLowering))
             }
             else -> Result.Success(node)
@@ -394,7 +404,18 @@ public class SkillCompiler(
 
             val args = LinkedHashMap<String, Any?>()
             for ((k, v) in op.args) args[k] = foldArg(op, lc, "$at.with.$k", k, v).getOr { return Result.Failure(it) }
-            val bound = PartInliner.bind(original.id, at, part, args).getOr { return Result.Failure(it) }
+            val chainBindings: Map<String, Any?> = if (op.chain == null) emptyMap() else {
+                part.params.keys.firstOrNull { it in ChainUnroller.BINDING_NAMES }?.let {
+                    return Result.Failure(
+                        SkillDecodeError.Invalid(
+                            original.id, "$at.chain",
+                            "chain '${op.id.value}': fragment '${op.target.removePrefix(PartInliner.FRAGMENT_PREFIX)}' takes chain binding names ${ChainUnroller.BINDING_NAMES.joinToString(", ")}; it declares a param '$it' (rename it)",
+                        ),
+                    )
+                }
+                mapOf("hop" to (lc.occurrence.i + 1).toDouble(), "hops" to lc.occurrence.n.toDouble())
+            }
+            val bound = PartInliner.bind(original.id, at, part, args, chainBindings).getOr { return Result.Failure(it) }
 
             val m = bound.machine
             if (m.states.isEmpty()) return Result.Failure(SkillDecodeError.Invalid(original.id, "$at.use", "'${op.target}' has no states"))

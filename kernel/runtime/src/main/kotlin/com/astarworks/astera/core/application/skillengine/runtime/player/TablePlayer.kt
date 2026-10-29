@@ -369,7 +369,7 @@ public class TablePlayer(
     private fun advanceSub(run: Run, sc: SubCursor, now: Int) {
         while (sc.nextRow < sc.sub.rows.size && sc.sub.rows[sc.nextRow].tick + sc.firedAt <= now) {
             val row = sc.sub.rows[sc.nextRow++]
-            playRow(run, row, RowCtx(sc.firedAt, sc.binding, sc.owner, null), now)
+            playRow(run, row, RowCtx(sc.firedAt, sc.binding, sc.owner, null, chain = sc.chain), now)
         }
     }
 
@@ -654,11 +654,50 @@ public class TablePlayer(
     // ------------------------------------------------------------------ rows
 
     /** [scope] is set by [playRow] before the row's cells are read (the row's seed and copy index); the bare default is the cast's. */
-    private class RowCtx(val base: Int, val binding: EventBinding?, val owner: StatePath?, val level: LevelCursor?, var scope: RowScope = RowScope.cast(0L))
+    private class RowCtx(val base: Int, val binding: EventBinding?, val owner: StatePath?, val level: LevelCursor?, var scope: RowScope = RowScope.cast(0L), val chain: ChainState? = null)
 
-    private fun playRow(run: Run, row: Row, ctx: RowCtx, now: Int) {
+    /**
+     * Chain targeting (ADR-0303 9.4): a row of hop k runs with the hop's pick bound as `victim` and the previous pick as `from`; once a hop
+     * found nobody, its rows and every later hop's are skipped. Null = the row does not play.
+     */
+    private fun chainCtx(row: Row, ctx: RowCtx): RowCtx? {
+        val rc = row.chain ?: return ctx
+        val st = ctx.chain ?: return null
+        if (rc.chain in st.dead) return null
+        val picks = st.picks[rc.chain].orEmpty()
+        val prev = ctx.binding?.victim
+        val base = ctx.binding ?: EventBinding(EventPath(rc.chain), null, null, null)
+        val from = if (rc.hop >= 2) picks.getOrNull(rc.hop - 2) else prev
+        val victim = if (row.action is Action.Pick) prev else picks.getOrNull(rc.hop - 1) ?: return null
+        return RowCtx(ctx.base, base.copy(victim = victim, from = from), ctx.owner, ctx.level, ctx.scope, st)
+    }
+
+    /** The pick row of hop k: the nearest enemy to `from` that the chain has not picked yet (and that is not the event's own victim). */
+    private fun pickRow(run: Run, row: Row, a: Action.Pick, ctx: RowCtx, now: Int, src: String) {
+        val st = ctx.chain
+        val b = ctx.binding
+        if (st == null || b?.from == null) {
+            fault(run, now, src, "chain pick has no 'from' binding")
+            return
+        }
+        val picks = st.picks.getOrPut(a.chain) { ArrayList() }
+        // the row's victim is the event's own (chainCtx keeps it for the pick row); `from` is the previous hop's pick
+        val excluded = HashSet<UUID>()
+        picks.forEach { excluded += it.id }
+        b.victim?.let { excluded += it.id }
+        val chosen = areaTargets(run, a.area, ctx).firstOrNull { it !in excluded }
+        trace.pick(run.cursor.handle, row.instance, now, chosen)
+        if (chosen == null) st.dead += a.chain else picks += EntityRef(chosen)
+    }
+
+    private fun playRow(run: Run, row: Row, ctx0: RowCtx, now: Int) {
         // ADR-0303 2.0a: `until` is a mask over candidate rows; the named event cuts every remaining candidate
         if (row.maskUntil.isNotEmpty() && row.maskUntil.any { it in run.seen }) return
+        val ctx = chainCtx(row, ctx0)
+        if (ctx == null) {
+            if (row.action is Action.Pick) trace.pick(run.cursor.handle, row.instance, now, null)
+            return
+        }
         val src = row.src.value.ifEmpty { row.instance.text }
         val g = row.guard
         if (g != null) {
@@ -680,6 +719,7 @@ public class TablePlayer(
                     }
                 }
                 is Action.Exit -> trace.exit(run.cursor.handle, a.state, a.reason, now)
+                is Action.Pick -> pickRow(run, row, a, ctx, now, src)
                 is Action.Spawn -> spawn(run, row, a, ctx, now)
                 is Action.Key -> key(run, a, ctx, now)
                 is Action.Teleport -> teleport(run, a, ctx, now)
@@ -1812,6 +1852,10 @@ public class TablePlayer(
      * parent point and offset, so every host serves the same set; anything else is the host's own name ([live]).
      */
     private fun namedVec(run: Run, name: String, binding: EventBinding?, scope: RowScope): Vector3d {
+        // chain targeting (ADR-0303 9.4): the `from` frame is the previous victim, answered by the host as `victim` of a binding that carries it
+        if (name == "from" || name.startsWith("from.")) {
+            return namedVec(run, "victim" + name.removePrefix("from"), binding?.copy(victim = binding.from), scope)
+        }
         val doc = documentOf(run, name) ?: return live.vec(run.cursor.handle, name, binding, scope)
         if (doc.second == "rotation") throw IllegalArgumentException("'$name' is a rotation, not a vector")
         val pose = documentPose(run, doc.first, binding, scope)
@@ -1824,6 +1868,9 @@ public class TablePlayer(
     }
 
     private fun namedRot(run: Run, name: String, binding: EventBinding?, scope: RowScope): Quaterniond {
+        if (name == "from" || name.startsWith("from.")) {
+            return namedRot(run, "victim" + name.removePrefix("from"), binding?.copy(victim = binding.from), scope)
+        }
         val doc = documentOf(run, name) ?: return live.rot(run.cursor.handle, name, binding, scope)
         if (doc.second != "" && doc.second != "rotation") throw IllegalArgumentException("'$name' is a ${doc.second}, not a rotation")
         return Quaterniond(documentPose(run, doc.first, binding, scope).rot)

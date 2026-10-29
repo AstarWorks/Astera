@@ -81,12 +81,13 @@ public object PartInliner {
      * never sees a [com.astarworks.astera.core.domain.skillengine.model.Value.ParamRef]. A CEL argument (`= e`) is pasted as `(e)`
      * inside another CEL string and stays itself when it is the whole value; an unknown `${x}` is an [SkillDecodeError.UndefinedReference].
      */
-    public fun bind(skillId: String, at: String, part: Part, args: Map<String, Any?>): Result<Part, SkillDecodeError> {
+    public fun bind(skillId: String, at: String, part: Part, args: Map<String, Any?>, extra: Map<String, Any?> = emptyMap()): Result<Part, SkillDecodeError> {
         val env = LinkedHashMap<String, Any?>()
         for ((name, spec) in part.params) {
             val v = if (name in args) args[name] else spec.default
             if (v != null) env[name] = v
         }
+        env.putAll(extra)
         val subst = ParamSubst(env, strict = true)
         val machine = subst.machine(part.machine)
         subst.missing?.let {

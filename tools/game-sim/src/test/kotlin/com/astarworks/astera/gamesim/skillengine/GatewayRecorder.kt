@@ -749,8 +749,11 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             }
         }
 
-        override fun targets(cast: CastHandle, rule: TargetRule, binding: EventBinding?): TargetSet =
-            TargetSet(victims.map { EntityRef(it.entityId) })
+        override fun targets(cast: CastHandle, rule: TargetRule, binding: EventBinding?): TargetSet {
+            // inside a chain hop (`from` bound) `event.victim` is that hop's own victim; everywhere else every scripted victim answers (the oracle goldens rely on it)
+            val bound = (rule as? TargetRule.Entity)?.takeIf { it.ref == "event.victim" && binding?.from != null }?.let { binding?.victim }
+            return if (bound != null) TargetSet(listOf(bound)) else TargetSet(victims.map { EntityRef(it.entityId) })
+        }
     }
 }
 

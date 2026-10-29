@@ -59,7 +59,7 @@ public object AnchorNames {
     private val NAME = Regex("""^(?:/([A-Za-z_][A-Za-z0-9_-]*(?:/[A-Za-z_][A-Za-z0-9_-]*)*)/)?([A-Za-z_][A-Za-z0-9_-]*)(?:\[([A-Za-z0-9_.]+)])?(?:\.([A-Za-z_][A-Za-z0-9_]*))?$""")
 
     /** The frames every op and expression may name without declaring them: the cast's own entities and the handler's contact (ADR-0303 anchors table). */
-    public val BUILTIN_FRAMES: Set<String> = setOf("caster", "target", "victim", "enemy", "contact", "world", "attacker", "aim", "cast")
+    public val BUILTIN_FRAMES: Set<String> = setOf("caster", "target", "victim", "enemy", "contact", "world", "attacker", "aim", "cast", "from")
 
     /** Names no declaration may take: the builtin frames plus the expression variables and `event` / `self` / `parent`. */
     public val RESERVED: Set<String> = BUILTIN_FRAMES + setOf("event", "self", "i", "n", "t", "lt", "parent")
@@ -69,7 +69,7 @@ public object AnchorNames {
         if (name !in RESERVED) return null
         val meaning = when (name) {
             "contact" -> "the hit point of the current handler"
-            "caster", "target", "victim", "enemy", "attacker", "aim", "cast", "world" -> "a frame every op may name"
+            "caster", "target", "victim", "enemy", "attacker", "aim", "cast", "world", "from" -> "a frame every op may name"
             else -> "a name the engine reads in expressions and paths"
         }
         return "$what: '$name' is a builtin name ($meaning) and cannot be declared"
