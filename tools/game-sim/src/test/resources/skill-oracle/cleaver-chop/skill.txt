@@ -7,7 +7,23 @@
 @0 particle - op=cast/strike/strike.hit/spark type=hit-spark at=0.000000,1.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2870465751899303418
 @0 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0 z=0.5
 @0 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0 z=0.5
+g @1 state-exit reason=PREEMPT | state=cast/strike
+g @1 state-exit reason=EVENT | state=cast
+g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 hit - op=cast/strike/strike at=0.000000,1.620000,0.000000 r=4.800000 shape=sector fwd=-0.565521,0.342020,0.750472 left=0.798636,0.000000,0.601815 deg=90.000000 range=2.800000 height=2.000000
 @0 sound - op=cast/snd sound=astera:weapons/blade-heavy-swing cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx1 type=slash-sweep at=-0.782360,-0.100000,1.038226 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3184597402829372307
+g @1 state-exit reason=PREEMPT | state=cast/strike
+g @1 state-exit reason=EVENT | state=cast
+g @1 cast-end | pose
+## gameplay-static
+g @0..1200 cast-length | cast
+g @0..1200 state-end then=- final=false | state=cast
+g @1 state-end then=cast/recover final=false | state=cast/strike
+g @0 damage physical=62.000000 | state=cast/strike
+g @0 state-end then=- final=true | state=cast/recover
+g @0 state-end then=- final=true | state=done
+g.hit @0..0 handler max=2147483647 | sub=cast/strike/strike.hit
+g.hit @0 knockback direction=live(%3D%20normalize(pos(event.victim)%20-%20pos(caster))) strength=0.500000 target=live(victim) | sub=cast/strike/strike.hit
+g.hit @0 status bleed stacks=1.000000 for=60 when | sub=cast/strike/strike.hit

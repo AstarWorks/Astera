@@ -16,3 +16,10 @@
 @0 particle - op=strike/swing.hit/fx_hit type=hit-spark at=-1.504538,1.200000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2870465751899303418
 @0 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.3009 y=0 z=0.3993
 @0 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=-0.3009 y=0 z=0.3993
+## gameplay-static
+g @0..1 cast-length | cast
+g @1 state-end then=end final=false | state=strike
+g @0 damage physical=21.000000 | state=strike
+g @0 state-end then=- final=true | state=end
+g.hit @0..0 handler max=2147483647 | sub=strike/swing.hit
+g.hit @0 knockback direction=live(%3D%20normalize(pos(event.victim)%20-%20pos(caster))) strength=0.500000 target=live(victim) | sub=strike/swing.hit

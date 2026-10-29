@@ -10,3 +10,8 @@
 @0 particle - op=bless/emit_2 type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5ae65a size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3600821082056032797
 @0 particle - op=bless/emit_3 type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8309024391654983124
 @0 hit - op=bless/heal at=0.000000,0.000000,0.000000 r=6.000000 shape=area
+## gameplay-static
+g @0..1 cast-length | cast
+g @1 state-end then=end final=false | state=bless
+g @0 heal amount=30.000000 target=allies@6.000000+self | state=bless
+g @0 state-end then=- final=true | state=end

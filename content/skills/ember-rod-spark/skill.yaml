@@ -15,8 +15,8 @@ params:
   burn_ticks:         {type: ticks, default: 20}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: fx, anchor: caster, offset: {forward: 0.9, up: -0.25}}   # was pt_caster_0_m0p25_0p9 (caster feet, yaw-only)
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}}   # was pt_enemy_0_1p2_0 (v2 enemy frame = victim feet)
+  - {id: fx, anchor: caster, offset: {forward: 0.9, up: -0.25}, mode: follow}   # was pt_caster_0_m0p25_0p9 (caster feet, yaw-only)
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}   # was pt_enemy_0_1p2_0 (v2 enemy frame = victim feet)
 machine:
   start: cast
   states:

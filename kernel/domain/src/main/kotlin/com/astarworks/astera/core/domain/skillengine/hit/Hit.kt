@@ -73,14 +73,21 @@ public data class HitBox(val min: Vec3, val max: Vec3) {
     public val center: Vec3 get() = (min + max) * 0.5
 }
 
-/** A candidate victim: id, feet position, body yaw, hitbox (from the `nearby` port). */
+/**
+ * A candidate victim: id, feet position, body yaw, hitbox and eye height above the feet (from the `nearby` port). [eyeHeight] is null for
+ * an entity without eyes (a block / structure, an armor stand): its `victim.center` is the hitbox centre, never a made-up eye height.
+ */
 public data class HitCandidate(
     val entityId: UUID,
     val feet: Vec3,
     val yawDeg: Double,
     val box: HitBox,
+    val eyeHeight: Double?,
     val velocity: Vec3 = Vec3(0.0, 0.0, 0.0),
-)
+) {
+    /** `victim.center` (founder 2026-10-29): halfway between the feet and the eye; the hitbox centre when the entity has no eye height. */
+    public val center: Vec3 get() = eyeHeight?.let { Vec3(feet.x, feet.y + it / 2.0, feet.z) } ?: box.center
+}
 
 /**
  * One contact (design 3.7 + F-4). point/normal are given in world space and in the victim frame

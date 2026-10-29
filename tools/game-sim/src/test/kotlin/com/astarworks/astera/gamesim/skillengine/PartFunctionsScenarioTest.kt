@@ -19,7 +19,7 @@ class PartFunctionsScenarioTest : SkillEngineScenario() {
     private fun skill(vararg ops: String, item: String = "couture-rapier"): String = (
         listOf(
             "apiVersion: astera/v3", "kind: Skill", "id: part-fn-probe", "item: $item",
-            "anchors:", "  - {id: shears, anchor: caster.eye}",
+            "anchors:", "  - {id: shears, anchor: caster.eye, mode: follow}",
             "machine:", "  start: throw", "  states:", "    throw:", "      for: 10", "      enter:",
         ) + ops.map { "        - $it" }
         ).joinToString("\n") + "\n"

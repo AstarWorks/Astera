@@ -13,7 +13,7 @@ params:
   dmg_physical: {type: number, default: 16}
   knockback:    {type: number, default: 1.1}
 anchors:
-  - {id: ground, anchor: caster, offset: {up: 0.15}}
+  - {id: ground, anchor: caster, offset: {up: 0.15}, mode: follow}
 machine:
   start: cast
   states:

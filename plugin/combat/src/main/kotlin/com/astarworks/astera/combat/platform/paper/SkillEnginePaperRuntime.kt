@@ -176,8 +176,11 @@ internal class SkillEnginePaperRuntime(
 
         // A hit on a caster is an input event for the casts it is running (`hurt`); the amount is never changed here.
         applyDamage.incomingInterceptor = IIncomingDamageInterceptor { target, attacker, _ ->
-            cast.raiseAllOf(target.uuid, "hurt", scheduler.currentTick().toInt(), attacker.uuid)
-            1.0
+            val now = scheduler.currentTick().toInt()
+            // F2 `absorb: true`: asked before the event is queued, because the queued `hurt` is consumed a tick later, after the damage landed
+            val absorbed = cast.absorbsAnyOf(target.uuid, "hurt", now, attacker.uuid)
+            cast.raiseAllOf(target.uuid, "hurt", now, attacker.uuid)
+            if (absorbed) 0.0 else 1.0
         }
 
         tickHandle = scheduler.runRepeatingTicks(ExecutionScope.Global, 1L, 1L) {

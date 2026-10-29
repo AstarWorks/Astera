@@ -3350,3 +3350,32 @@
 @80 write #0 op=rush/rig dur=0 pos=-2.543103,0.768016,2.790642 rot=0.557411,-0.256705,0.186507,0.767210 scale=0.937500,0.937500,0.937500 bb=FIXED
 @80 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=bastion-s2-body
 @80 remove #0 op=rush/rig
+## gameplay-static
+g @0..80 cast-length | cast
+g @80 state-end then=end final=false | state=rush
+g @10 dash direction=0.000000,0.000000,1.000000 ease=linear face_movement=false follow_pitch=false invulnerable=true speed=live(%3D%202.4%20/%203) stop_on_block=true ticks=3.000000 | state=rush
+g @13 dash.end | state=rush
+g @13 damage physical=live(%3D%2035.0%20+%200.5%20*%20stacks(caster,%20'charge')) | state=rush
+g @29 dash direction=0.000000,0.000000,1.000000 ease=linear face_movement=false follow_pitch=false invulnerable=true speed=live(%3D%201.6%20/%203) stop_on_block=true ticks=3.000000 | state=rush
+g @32 dash.end | state=rush
+g @32 damage physical=live(%3D%2040.0%20+%200.5%20*%20stacks(caster,%20'charge')) | state=rush
+g @53 damage physical=live(%3D%2060.0%20+%200.5%20*%20stacks(caster,%20'charge')) | state=rush
+g @53 consume_status status=charge target=live(caster) | state=rush
+g @54 dash direction=0.000000,0.000000,1.000000 ease=linear face_movement=false follow_pitch=false invulnerable=true speed=live(%3D%204.0%20/%203) stop_on_block=true ticks=3.000000 | state=rush
+g @57 dash.end | state=rush
+g @0 state-end then=- final=true | state=end
+g.hit @10..13 handler max=1 | sub=rush/dash_hit.hit
+g.hit @0 dash.end | sub=rush/dash_hit.hit
+g.hit @29..32 handler max=1 | sub=rush/dash_hit_2.hit
+g.hit @0 dash.end | sub=rush/dash_hit_2.hit
+g.hit @54..57 handler max=1 | sub=rush/dash_hit_3.hit
+g.hit @0 dash.end | sub=rush/dash_hit_3.hit
+g.hit @13..13 handler max=2147483647 | sub=rush/hit1.hit
+g.hit @0 freeze scope=caster;event.victim ticks=2.000000 | sub=rush/hit1.hit
+g.hit @0 knockback direction=live(%3D%20normalize(flat(pos(event.victim)%20-%20pos(caster)))%20+%20vec(0.0,%200.2,%200.0)) strength=0.400000 target=live(victim) | sub=rush/hit1.hit
+g.hit @32..32 handler max=2147483647 | sub=rush/hit2.hit
+g.hit @0 freeze scope=caster;event.victim ticks=2.000000 | sub=rush/hit2.hit
+g.hit @0 knockback direction=live(%3D%20normalize(flat(pos(event.victim)%20-%20pos(caster)))%20+%20vec(0.0,%200.2,%200.0)) strength=0.500000 target=live(victim) | sub=rush/hit2.hit
+g.hit @53..53 handler max=2147483647 | sub=rush/hit3.hit
+g.hit @0 freeze scope=caster;event.victim ticks=3.000000 | sub=rush/hit3.hit
+g.hit @0 knockback direction=live(%3D%20normalize(flat(pos(event.victim)%20-%20pos(caster)))%20+%20vec(0.0,%200.2,%200.0)) strength=0.900000 target=live(victim) | sub=rush/hit3.hit

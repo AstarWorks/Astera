@@ -48,6 +48,12 @@ public interface ISkillTablePlayer {
     /** Queues; consumed at the next tick in the 10.2 order (input, gameplay, timers, guards). */
     public fun deliver(cast: CastHandle, event: RuntimeEvent)
 
+    /**
+     * F2: would delivering [event] now fire an `absorb: true` branch (first matching branch of the innermost level, guard true)? Pure
+     * query, nothing is consumed: the platform asks it inside the damage pipeline, where the queued `hurt` event comes too late to cancel.
+     */
+    public fun absorbs(cast: CastHandle, event: RuntimeEvent, now: Int): Boolean
+
     public fun cancel(cast: CastHandle, scope: CancelScope)
 
     public fun live(): List<CastHandle>

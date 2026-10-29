@@ -65,7 +65,7 @@ class PartMachineWiredScenarioTest : SkillEngineScenario() {
     private fun particleCounts(yaml: String, withVictim: Boolean): List<String> {
         val skill = when (val r = loadInline(yaml)) { is Result.Success -> r.value; is Result.Failure -> throw AssertionError("did not load: ${r.error}") }
         val rec = GatewayRecorder()
-        if (withVictim) rec.victims = listOf(com.astarworks.astera.core.domain.skillengine.hit.HitCandidate(java.util.UUID(0L, 11L), com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 2.0), 0.0, com.astarworks.astera.core.domain.skillengine.hit.HitBox(com.astarworks.astera.core.domain.geometry.Vec3(-0.3, 0.0, 1.7), com.astarworks.astera.core.domain.geometry.Vec3(0.3, 1.8, 2.3))))
+        if (withVictim) rec.victims = listOf(com.astarworks.astera.core.domain.skillengine.hit.HitCandidate(java.util.UUID(0L, 11L), com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 2.0), 0.0, com.astarworks.astera.core.domain.skillengine.hit.HitBox(com.astarworks.astera.core.domain.geometry.Vec3(-0.3, 0.0, 1.7), com.astarworks.astera.core.domain.geometry.Vec3(0.3, 1.8, 2.3)), 1.62))
         return play(skill, seed = 1L, events = emptyList(), ticks = 4, rec = rec).filter { it.verb == "particle" }.map { it.payload }
     }
 

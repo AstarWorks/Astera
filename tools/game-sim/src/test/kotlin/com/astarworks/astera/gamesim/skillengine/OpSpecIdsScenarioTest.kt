@@ -10,7 +10,7 @@ class OpSpecIdsScenarioTest : SkillEngineScenario() {
     private fun skill(item: String, vararg ops: String): String = (
         listOf(
             "apiVersion: astera/v3", "kind: Skill", "id: ids-probe", "item: $item",
-            "anchors:", "  - {id: shears, anchor: caster.eye}",
+            "anchors:", "  - {id: shears, anchor: caster.eye, mode: follow}",
             "machine:", "  start: s", "  states:", "    s:", "      for: 40", "      enter:",
         ) + ops.map { "        - $it" }
         ).joinToString("\n") + "\n"

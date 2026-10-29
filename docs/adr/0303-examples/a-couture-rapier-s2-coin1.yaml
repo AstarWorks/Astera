@@ -6,7 +6,7 @@ apiVersion: astera/v3
 kind: Skill
 id: couture-rapier-s2
 anchors:
-  - {id: body,  anchor: caster, mount: caster}          # follows; the anchor carries the mount (a rider on it is a real passenger); a display never has `mount`
+  - {id: body,  anchor: caster, mode: follow}          # follows; the anchor carries the mount (a rider on it is a real passenger); a display never has `mount`
   - {id: slash, anchor: caster, mode: snapshot}         # coin-1 frame at t7: copied once, world-fixed after the swing starts
 machine:
   start: cast

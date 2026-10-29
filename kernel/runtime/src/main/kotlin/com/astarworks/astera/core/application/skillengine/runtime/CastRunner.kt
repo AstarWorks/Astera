@@ -42,6 +42,9 @@ public interface CastRunner {
      */
     public fun raiseAllOf(caster: UUID, name: String, tick: Int, attacker: UUID? = null): Int
 
+    /** F2: true when a running cast of [caster] would absorb the `hurt` event of [attacker] now (see [ISkillTablePlayer.absorbs]); delivers nothing. */
+    public fun absorbsAnyOf(caster: UUID, name: String, tick: Int, attacker: UUID?): Boolean
+
     public fun cancel(cast: CastHandle, scope: CancelScope = CancelScope.Cast)
 
     public fun isRunning(cast: CastHandle): Boolean
@@ -72,6 +75,9 @@ public class DefaultCastRunner(private val player: ISkillTablePlayer) : CastRunn
         mine.forEach { player.deliver(it, RuntimeEvent(EventPath(name), tick, null, null, null, attacker)) }
         return mine.size
     }
+
+    override fun absorbsAnyOf(caster: UUID, name: String, tick: Int, attacker: UUID?): Boolean =
+        ownedLive(caster).any { player.absorbs(it, RuntimeEvent(EventPath(name), tick, null, null, null, attacker), tick) }
 
     override fun cancel(cast: CastHandle, scope: CancelScope) {
         player.cancel(cast, scope)

@@ -7,7 +7,7 @@ params:
   evasive_ticks: {type: ticks, default: 20}
   propel:        {type: number, default: -0.9}
 anchors:
-  - {id: feet, anchor: caster, offset: {up: 0.2}}
+  - {id: feet, anchor: caster, offset: {up: 0.2}, mode: follow}
 machine:
   start: step
   states:

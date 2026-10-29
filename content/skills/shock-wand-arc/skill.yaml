@@ -5,7 +5,7 @@ id: shock-wand-arc
 item: shock-wand
 meta: {name: {ja: "放電", en: "Arc Burst"}, description: {ja: "周囲へ放電し、敵を痺れさせる。", en: "Releases a ring of lightning around you."}, cooldown_ticks: 140, resource_cost: 16, tags: [aoe, electric]}
 anchors:
-  - {id: ring,  anchor: caster, offset: {up: 0.15}}   # ring origin (caster + 0.15 up)
+  - {id: ring,  anchor: caster, offset: {up: 0.15}, mode: follow}   # ring origin (caster + 0.15 up)
 machine:
   start: burst
   states:

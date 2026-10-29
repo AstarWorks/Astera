@@ -36,6 +36,7 @@ import com.astarworks.astera.core.domain.skillengine.hit.ContactEvent
 import com.astarworks.astera.core.domain.skillengine.hit.DefaultContactResolver
 import com.astarworks.astera.core.domain.skillengine.hit.ResolvedVolume
 import com.astarworks.astera.core.domain.skillengine.model.AnchorDecl
+import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.model.AnchorMode
 import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
 import com.astarworks.astera.core.domain.skillengine.table.Action
@@ -147,6 +148,10 @@ public class TablePlayer(
     // ------------------------------------------------------------------ API
 
     override fun start(request: CastRequest, skill: CompiledSkill): Result<CastHandle, CastError> {
+        // a `frames_in` name is bound by a caller's `use:`; a skill cast directly has nobody to bind it, so the refusal names the frame
+        if (skill.def.framesIn.isNotEmpty()) {
+            return Result.Failure(CastError.FrameSetup("skill '${skill.def.id}' declares frames_in ${skill.def.framesIn.keys.joinToString(", ") { "'$it'" }} and can only be called with `use: skill:${skill.def.id}`, not cast directly"))
+        }
         // the table's first state is the entry (MachineTables puts it there): a part call as `machine.start` is expanded to its child path
         val states = skill.table.states.associateBy { it.state }
         val rootPath = skill.table.states.firstOrNull()?.state ?: StatePath(skill.def.machine.start)
@@ -187,6 +192,37 @@ public class TablePlayer(
 
     override fun deliver(cast: CastHandle, event: RuntimeEvent) {
         runs[cast.value]?.external?.add(event)
+    }
+
+    override fun absorbs(cast: CastHandle, event: RuntimeEvent, now: Int): Boolean {
+        val run = runs[cast.value]?.takeIf { !it.finalized } ?: return false
+        return absorbsRun(run, event, now)
+    }
+
+    private fun absorbsRun(run: Run, event: RuntimeEvent, now: Int): Boolean {
+        val binding = EventBinding(event.path, event.index, event.contact, event.victim, event.attacker)
+        for (lvl in run.cursor.levels.sortedByDescending { it.depth }) {
+            if (lvl.done) continue
+            val st = run.states[lvl.state] ?: continue
+            val lt = now - lvl.enteredAt
+            val br = st.branches.firstOrNull { b -> b.event == event.path && lt in b.window.min..b.window.max && guardOk(run, b, binding, lt, now) } ?: continue
+            return br.absorb
+        }
+        return false
+    }
+
+    /**
+     * A hit of [run]'s caster on [victim] that the victim's own casts absorb (`absorb: true` on their `hurt` transition): the hit is
+     * cancelled for the attacker (no damage, no `hit`, nothing counted) and the victim's casts receive the `hurt` event, so the absorbing
+     * transition fires. The platform's damage-pipeline interceptor never sees such a hit (it never reaches the pipeline). Called once per
+     * victim and contact. Founder 2026-10-29: absorbed = miss for the attacker, who gets `<op>.absorbed` instead.
+     */
+    private fun absorbedBy(run: Run, victim: UUID, now: Int): Boolean {
+        val theirs = runs.values.filter { it !== run && !it.finalized && it.request.caster == victim }
+        val hurt = RuntimeEvent(EventPath("hurt"), now, null, null, null, run.request.caster)
+        if (theirs.none { absorbsRun(it, hurt, now) }) return false
+        theirs.forEach { it.external.add(hurt) }
+        return true
     }
 
     override fun cancel(cast: CastHandle, scope: CancelScope) {
@@ -464,6 +500,7 @@ public class TablePlayer(
             consumed += lvl
             generateSequence(lvl.parent) { it.parent }.forEach { consumed += it }
             br.subTable?.let { pasted += it }
+            if (br.absorb) gameplay.cancelIncomingHit(castRef(run), ev.attacker)
             transition(run, lvl, br.target, br.subTable, if (ev.path.value == "cancel") ExitReason.CANCEL else ExitReason.EVENT, now, binding)
         }
         return Offered(any, pasted)
@@ -728,6 +765,7 @@ public class TablePlayer(
             rec.shapeFrames = generateSequence(0) { it + 1 }.takeWhile { lf.containsKey("hit.shape.frame.$it") }.map { i ->
                 ShapeFrame(strOf(run, lf.getValue("hit.shape.frame.$i"), ctx), strOf(run, lf.getValue("hit.shape.frame.$i.from"), ctx), strOf(run, lf.getValue("hit.shape.frame.$i.to"), ctx))
             }.toList()
+            rec.shapeSelf = lf["hit.shape.self.from"]?.let { f -> ShapeSelf(strOf(run, f, ctx), strOf(run, lf.getValue("hit.shape.self.to"), ctx)) }
             rec.blockDespawn = mode == "despawn"
             rec.stickTicks = stuck
             rec.attachTo = lf["hit.attach_to"]?.let { strOf(run, it, ctx) }
@@ -800,13 +838,20 @@ public class TablePlayer(
 
     private fun key(run: Run, a: Action.Key, ctx: RowCtx, now: Int) {
         val rec = run.recs[a.display] ?: return
-        val translation = (a.translation as? Val.Live)?.takeIf { it.name.startsWith("follow:") }?.let { followOffset(run, rec, it.name, ctx, now) } ?: vec(run, a.translation, ctx)
+        fun stretchCell(v: Val<*>): String? = (v as? Val.Live)?.name?.takeIf { it.startsWith("stretch:") }
+        val stretch = (stretchCell(a.translation) ?: stretchCell(a.leftRotation) ?: stretchCell(a.scale))?.let { stretchOf(run, it, ctx) }
+        val translation = if (stretch != null && stretchCell(a.translation) != null) localPoint(run, rec, stretch.base, ctx, now)
+        else (a.translation as? Val.Live)?.takeIf { it.name.startsWith("follow:") }?.let { followOffset(run, rec, it.name, ctx, now) } ?: vec(run, a.translation, ctx)
         val rotCell = (a.leftRotation as? Val.Live)?.name
-        val rotation = if (rotCell != null && rotCell.startsWith("align:") && '@' in rotCell) blendedAlign(run, rec, rotCell, ctx, now) else {
+        val rotation = if (stretch != null && stretchCell(a.leftRotation) != null) {
+            rec.alignFrom = null
+            stretchRot(run, rec, stretch, ctx, now)
+        } else if (rotCell != null && rotCell.startsWith("align:") && '@' in rotCell) blendedAlign(run, rec, rotCell, ctx, now) else {
             rec.alignFrom = null
             quat(run, a.leftRotation, ctx, rec.anchor, rec.anchorName)
         }
-        val target = PoseV(translation, rotation, vec(run, a.scale, ctx))
+        val scale = if (stretch != null && stretchCell(a.scale) != null) stretch.scale() else vec(run, a.scale, ctx)
+        val target = PoseV(translation, rotation, scale)
         rec.moveTo(target, now, a.durationTicks)
         rec.real?.let { visual.write(it, visualPose(rec, worldOf(run, rec, target, ctx.binding, now)), a.durationTicks) }
     }
@@ -823,11 +868,51 @@ public class TablePlayer(
     }
 
     /** `follow:<anchor>` (law `follow`): the local translation, in the rider's parent space, that puts the rider on the followed anchor's world position. */
-    private fun followOffset(run: Run, rec: Rec, cell: String, ctx: RowCtx, now: Int): Vector3d {
-        val world = liveVec(run, cell.removePrefix("follow:"), ctx)
-        val parent = rec.anchor?.let { run.recs[it] ?: run.finished[it] }?.let { worldOf(run, it, it.localAt(now), ctx.binding, now) }
+    private fun followOffset(run: Run, rec: Rec, cell: String, ctx: RowCtx, now: Int): Vector3d =
+        localPoint(run, rec, liveVec(run, cell.removePrefix("follow:"), ctx), ctx, now)
+
+    /** The rider's parent pose: its anchor instance, else the named / document anchor, else the world. */
+    private fun parentPose(run: Run, rec: Rec, ctx: RowCtx, now: Int): PoseV =
+        rec.anchor?.let { run.recs[it] ?: run.finished[it] }?.let { worldOf(run, it, it.localAt(now), ctx.binding, now) }
             ?: if (rec.anchorName.isNotEmpty() && rec.anchorName != "world") PoseV(namedVec(run, rec.anchorName, ctx.binding, ctx.scope), namedRot(run, rec.anchorName, ctx.binding, ctx.scope), Vector3d(1.0, 1.0, 1.0)) else PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0))
+
+    /** The local translation, in the rider's parent space, of the world point [world]. */
+    private fun localPoint(run: Run, rec: Rec, world: Vector3d, ctx: RowCtx, now: Int): Vector3d {
+        val parent = parentPose(run, rec, ctx, now)
         return Vector3d(world).sub(parent.pos).rotate(Quaterniond(parent.rot).conjugate())
+    }
+
+    /** `stretch:<base>><tip>^<ax>,<ay>,<az>` (law `stretch`) read at one tick: both ends in world space and the object axis that spans them. */
+    private class Stretch(val base: Vector3d, val tip: Vector3d, val axis: Vec3) {
+        val length: Double get() = Vector3d(tip).sub(base).length()
+
+        /** [length] along [axis], 1 on the other axes (a display's unit length is one block). */
+        fun scale(): Vector3d = Vector3d(
+            1.0 + (length - 1.0) * Math.abs(axis.x), 1.0 + (length - 1.0) * Math.abs(axis.y), 1.0 + (length - 1.0) * Math.abs(axis.z),
+        )
+    }
+
+    /** Resolves both ends through [liveVec], so builtin anchors, skill-declared anchors and instance anchors answer the same on every host. */
+    private fun stretchOf(run: Run, cell: String, ctx: RowCtx): Stretch {
+        val body = cell.removePrefix("stretch:")
+        val ends = body.substringBeforeLast('^')
+        val a = body.substringAfterLast('^').split(',').map { it.toDouble() }
+        return Stretch(liveVec(run, ends.substringBefore('>'), ctx), liveVec(run, ends.substringAfter('>'), ctx), Vec3(a[0], a[1], a[2]))
+    }
+
+    /** The local rotation that points the object's axis from the base to the tip (up kept toward world up); a zero-length stretch keeps the held rotation. */
+    private fun stretchRot(run: Run, rec: Rec, st: Stretch, ctx: RowCtx, now: Int): Quaterniond {
+        val d = Vector3d(st.tip).sub(st.base)
+        if (d.length() < 1e-9) return Quaterniond(rec.localAt(now).rot)
+        val z = Vec3(0.0, 0.0, 1.0)
+        val a = st.axis.normalize()
+        val toZ = when {
+            a.dot(z) > 1.0 - 1e-12 -> Quaternion.IDENTITY
+            a.dot(z) < -1.0 + 1e-12 -> Quaternion.axisAngle(Vec3(0.0, 1.0, 0.0), Math.PI)
+            else -> Quaternion.axisAngle(a.cross(z), Math.acos(a.dot(z).coerceIn(-1.0, 1.0)))
+        }
+        val w = Basis.facing(Vec3(d.x, d.y, d.z), Vec3(0.0, 1.0, 0.0)) * toZ
+        return Quaterniond(parentPose(run, rec, ctx, now).rot).conjugate().mul(Quaterniond(w.x, w.y, w.z, w.w)).normalize()
     }
 
     private fun teleport(run: Run, a: Action.Teleport, ctx: RowCtx, now: Int) {
@@ -1018,10 +1103,17 @@ public class TablePlayer(
             .sortedWith(compareBy({ feetOf.getValue(it.key).distance(originVec) }, { it.key }))
             .let { all -> a.targets.maxCount?.let { all.take(it) } ?: all }
         val hitPath = EventPath(opKey.text + ".hit")
-        val bindings = nearest.mapIndexed { idx, e ->
+        // a victim whose `absorb: true` transition takes the hit is not hit: no damage, no `hit` (an `absorbed` event instead), nothing counted
+        val absorbedPath = EventPath(opKey.text + ".absorbed")
+        val absorbed = HashSet<UUID>()
+        val all = nearest.mapIndexed { idx, e ->
             val contact = ContactInfo(Vector3d(e.value.first.x, e.value.first.y, e.value.first.z), Vector3d(e.value.second.x, e.value.second.y, e.value.second.z))
-            e.key to EventBinding(hitPath, idx, contact, EntityRef(e.key))
+            if (absorbedBy(run, e.key, now)) {
+                absorbed += e.key
+                e.key to EventBinding(absorbedPath, idx, contact, EntityRef(e.key))
+            } else e.key to EventBinding(hitPath, idx, contact, EntityRef(e.key))
         }
+        val bindings = all.filter { it.first !in absorbed }
         // every amount is read first (so a `stacks(...)` read sees the stacks as they were before any damage or consume), then the damage lands
         val amounts = bindings.map { (_, b) ->
             val vctx = RowCtx(ctx.base, b, ctx.owner, ctx.level, ctx.scope)
@@ -1034,7 +1126,13 @@ public class TablePlayer(
             val comps = amounts[n]
             if (comps.isNotEmpty()) gameplay.damage(run.cursor.skill.def.id, caster, victim, comps, seen.getValue(victim).first, a.ignoreInvulnerability, false)
         }
-        for ((_, b) in bindings) run.pending += RuntimeEvent(hitPath, now, b.index, b.contact, b.victim)
+        for ((v, b) in all) {
+            if (v in absorbed) {
+                once += v
+                last[v] = now
+            }
+            run.pending += RuntimeEvent(b.event, now, b.index, b.contact, b.victim)
+        }
         if (bindings.isNotEmpty()) run.hitEver += opKey
         else if (a.finalDetection && opKey !in run.hitEver && run.missFired.add(opKey)) {
             run.pending += RuntimeEvent(EventPath(opKey.text + ".miss"), now, null, null, null)
@@ -1154,7 +1252,9 @@ public class TablePlayer(
     private fun entityContact(run: Run, id: InstanceId, rec: Rec, now: Int) {
         if (rec.hitTimes <= 0 || now == rec.spawnTick) return
         val path = EventPath(id.text + ".hit")
-        if (path !in run.listened && path !in run.cursor.skill.table.subTables) return
+        val absorbedPath = EventPath(id.text + ".absorbed")
+        val tables = run.cursor.skill.table.subTables
+        if (path !in run.listened && path !in tables && absorbedPath !in run.listened && absorbedPath !in tables) return
         if (rec.hitTargets == "blocks_only") return
         val cur = worldOf(run, rec, rec.localAt(now), null, now).pos
         val prev = worldOf(run, rec, rec.poseAtEndOf(now - 1), null, now - 1).pos
@@ -1167,20 +1267,8 @@ public class TablePlayer(
                 .filter { it.entityId !in rec.hitVictims && targetKindOk(run, rec.hitTargets, it.entityId) }
             raw += resolver.narrow(id.text, now, id.text, vol, velocity, cands)
         }
-        if (rec.shapeFrames.isEmpty()) test(ResolvedVolume.Capsule(start, Vec3(cur.x, cur.y, cur.z), rec.hitRadius), delta)
-        else for (sf in rec.shapeFrames) {
-            // R43: one swept capsule per rider frame, swept back along the frame's own last-tick displacement (the same poses rule as the `hit` op, item 14.7)
-            val fr = run.recs.entries.firstOrNull { (k, r) ->
-                r.kind == SpawnKind.FRAME && k.path.size == id.path.size && k.path.dropLast(1) == id.path.dropLast(1) && k.path.last().op.value == sf.frame &&
-                    k.path.last().index == id.path.last().index
-            }?.value
-            if (fr == null) {
-                fault(run, now, id.text, "hit.shape frame '${sf.frame}' is not a live frame of this projectile")
-                continue
-            }
-            val d = Vector3d(worldOf(run, fr, fr.localAt(now), null, now).pos).sub(worldOf(run, fr, fr.poseAtEndOf(now - 1), null, now - 1).pos)
-            val f = live.vec(run.cursor.handle, sf.from, null, RowScope.cast(run.request.seed))
-            val t = live.vec(run.cursor.handle, sf.to, null, RowScope.cast(run.request.seed))
+        /** One capsule swept back along the last-tick displacement [d] of whatever carries it (the same poses rule as the `hit` op, item 14.7). */
+        fun sweep(f: Vector3d, t: Vector3d, d: Vector3d) {
             val travel = d.length()
             val poses = if (travel < 1e-9) 1 else min(config.maxSweepSteps.toDouble(), ceil(travel / max(rec.shapeRadius, 1e-6)) + 1.0).toInt().coerceAtLeast(1)
             for (i in 0 until poses) {
@@ -1193,19 +1281,48 @@ public class TablePlayer(
                 )
             }
         }
+        val self = rec.shapeSelf
+        if (rec.shapeFrames.isEmpty() && self == null) test(ResolvedVolume.Capsule(start, Vec3(cur.x, cur.y, cur.z), rec.hitRadius), delta)
+        if (self != null) {
+            // E1: the body's own axis. Its points ride its live rotation; the displacement is the body's own, so the capsule is swept along the flight.
+            val w = worldOf(run, rec, rec.localAt(now), null, now)
+            val d = Vector3d(w.pos).sub(prev.x, prev.y, prev.z)
+            fun at(name: String): Vector3d = Vector3d(rec.points.getValue(name)).rotate(w.rot).add(w.pos)
+            sweep(at(self.from), at(self.to), d)
+        }
+        for (sf in rec.shapeFrames) {
+            // R43: one swept capsule per rider frame, swept back along the frame's own last-tick displacement
+            val fr = run.recs.entries.firstOrNull { (k, r) ->
+                r.kind == SpawnKind.FRAME && k.path.size == id.path.size && k.path.dropLast(1) == id.path.dropLast(1) && k.path.last().op.value == sf.frame &&
+                    k.path.last().index == id.path.last().index
+            }?.value
+            if (fr == null) {
+                fault(run, now, id.text, "hit.shape frame '${sf.frame}' is not a live frame of this projectile")
+                continue
+            }
+            val d = Vector3d(worldOf(run, fr, fr.localAt(now), null, now).pos).sub(worldOf(run, fr, fr.poseAtEndOf(now - 1), null, now - 1).pos)
+            val f = live.vec(run.cursor.handle, sf.from, null, RowScope.cast(run.request.seed))
+            val t = live.vec(run.cursor.handle, sf.to, null, RowScope.cast(run.request.seed))
+            sweep(Vector3d(f.x, f.y, f.z), Vector3d(t.x, t.y, t.z), d)
+        }
         val found = raw.distinctBy { it.victim }.sortedBy { it.pointWorld.distance(start) }
+        // an absorbed contact (the victim's `absorb: true` transition) uses up a hit and ends the flight like any other, but raises `absorbed`, not `hit`
+        val absorbedVictims = HashSet<UUID>()
         for (ce in found) {
             if (rec.hitTimes <= 0) break
             rec.hitVictims += ce.victim
             rec.hitTimes--
+            val wasAbsorbed = absorbedBy(run, ce.victim, now)
+            if (wasAbsorbed) absorbedVictims += ce.victim
             run.pending += RuntimeEvent(
-                path, now, id.path.lastOrNull()?.index,
+                if (wasAbsorbed) absorbedPath else path, now, id.path.lastOrNull()?.index,
                 ContactInfo(Vector3d(ce.pointWorld.x, ce.pointWorld.y, ce.pointWorld.z), Vector3d(ce.normalWorld.x, ce.normalWorld.y, ce.normalWorld.z)), EntityRef(ce.victim),
             )
         }
         if (rec.hitTimes <= 0 && found.isNotEmpty()) {
             val first = found.first()
-            if (rec.attachTo != null) {
+            if (first.victim in absorbedVictims) endByContact(run, id, rec, now)
+            else if (rec.attachTo != null) {
                 val contact = ContactInfo(Vector3d(first.pointWorld.x, first.pointWorld.y, first.pointWorld.z), Vector3d(first.normalWorld.x, first.normalWorld.y, first.normalWorld.z))
                 stick(run, id, rec, now, EventBinding(path, id.path.lastOrNull()?.index, contact, EntityRef(first.victim)))
             } else endByContact(run, id, rec, now)
@@ -1453,6 +1570,8 @@ public class TablePlayer(
         val parentRec = if (of == null) run.recs[parent] else null
         val carrierRec = Rec(SpawnKind.FRAME, parentRec?.let { parent }, if (of != null || parentRec != null) "" else parent.text, now, ctx.owner, identity)
         run.recs[carrier] = carrierRec
+        // points first: the carrier is already addressable, so a refused visual spawn below must not leave point(rig, ..) unresolvable for every later row
+        for ((key, v) in p) if (key.startsWith("point.")) carrierRec.points[key.removePrefix("point.")] = any(run, v, ctx) as Vector3d
         var held: Rec? = null
         if (of == null) {
             // no `of`: the rig frame is carried by the arm: its origin is the grip and its rotation arm * tilt * pose * rest, and the held mesh
@@ -1469,7 +1588,6 @@ public class TablePlayer(
             run.cursor.instances[heldId] = GatewayHandle(h.id)
             held = rec
         }
-        for ((key, v) in p) if (key.startsWith("point.")) carrierRec.points[key.removePrefix("point.")] = any(run, v, ctx) as Vector3d
         val rig = RigRec(of ?: carrier, now, pose, bodyClock, anim, caster, held)
         carrierRec.rig = rig
         rigPose(run, rig, now)
@@ -1742,7 +1860,12 @@ public class TablePlayer(
                 "forward" -> Vector3d(0.0, 0.0, 1.0)
                 else -> throw IllegalArgumentException("document anchor '${decl.id}' offset key '$axis' is not forward / up / left")
             }
-            pos.add(local.mul(v).rotate(rot))
+            val amount = when (v) {
+                is Value.Literal -> v.value
+                is Value.ParamRef -> (paramOf(run, "param:${v.name}") as? Number)?.toDouble() ?: throw IllegalArgumentException("document anchor '${decl.id}' offset '$axis': param '${v.name}' is not a number")
+                is Value.Expr -> live.num(run.cursor.handle, "= ${v.source}", binding, scope)
+            }
+            pos.add(local.mul(amount).rotate(rot))
         }
         val pose = PoseV(pos, rot, Vector3d(1.0, 1.0, 1.0))
         if (decl.mode == AnchorMode.SNAPSHOT) run.snapshots[decl.id] = PoseV(Vector3d(pos), Quaterniond(rot), Vector3d(1.0, 1.0, 1.0))
@@ -1964,6 +2087,9 @@ public class TablePlayer(
 
     private class ShapeFrame(val frame: String, val from: String, val to: String)
 
+    /** E1 `hit.shape` on a body with a `part:`: the capsule runs between two of the body's own points. */
+    private class ShapeSelf(val from: String, val to: String)
+
     private class LockRec(val owner: StatePath?, val move: LockMove, val pitch: Boolean, val yaw: Boolean, val untilAbs: Int)
 
     /** A live thing: its local pose moves along one interpolation segment (closed form, same as the client's). */
@@ -1993,6 +2119,7 @@ public class TablePlayer(
         /** R43 `hit.shape`: capsule radius and the rider frames (op id, `from` / `to` point names); empty = the body sphere [hitRadius]. */
         var shapeRadius: Double = 0.0
         var shapeFrames: List<ShapeFrame> = emptyList()
+        var shapeSelf: ShapeSelf? = null
         var blockDespawn: Boolean = false
 
         /** `hit.attach_to`: the victim anchor a hit mounts the body on (null = `attach: false`); `block.for` ticks stuck; [stuckUntil] the tick it comes off (-1 flying). */

@@ -10,9 +10,9 @@ params:
   dmg_physical: {type: number, default: 21.0}
   knockback:    {type: number, default: 0.5}
 anchors:
-  - {id: eye,    anchor: caster.eye}
+  - {id: eye,    anchor: caster.eye, mode: follow}
   - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 1.1}, mode: snapshot}   # was pt_caster_0_m0p25_1p1 (caster feet, yaw-only)
-  - {id: heart,  anchor: victim.root, offset: {up: 1.2}}
+  - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
 machine:
   start: strike
   states:

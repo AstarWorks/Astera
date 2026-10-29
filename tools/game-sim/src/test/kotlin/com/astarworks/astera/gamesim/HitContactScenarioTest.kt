@@ -25,6 +25,7 @@ class HitContactScenarioTest {
         feet = feet,
         yawDeg = yaw,
         box = HitBox(Vec3(feet.x - 0.3, feet.y, feet.z - 0.3), Vec3(feet.x + 0.3, feet.y + 1.8, feet.z + 0.3)),
+        eyeHeight = 1.62,
         velocity = velocity,
     )
 

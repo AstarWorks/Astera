@@ -11,3 +11,10 @@
 @0 sound - op=cast/snd sound=astera:weapons/blade-heavy-swing cat=master vol=0.9 pitch=1.1 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx1 type=hit-spark at=-0.791730,2.098828,1.050661 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6655068949517800100
 @0 hit - op=cast/strike at=0.000000,1.620000,0.000000 r=4.800000 shape=sector fwd=-0.565521,0.342020,0.750472 left=0.798636,0.000000,0.601815 deg=80.000000 range=2.800000 height=2.000000
+## gameplay-static
+g @0..1 cast-length | cast
+g @1 state-end then=done final=false | state=cast
+g @0 damage physical=24.000000 | state=cast
+g @0 state-end then=- final=true | state=done
+g.hit @0..0 handler max=2147483647 | sub=cast/strike.hit
+g.hit @0 knockback direction=live(%3D%20normalize(event.victim%20-%20pos(caster))) strength=1.600000 target=live(victim) | sub=cast/strike.hit

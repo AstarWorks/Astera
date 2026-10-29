@@ -1,0 +1,102 @@
+# Showcase S8 (foundation audit 5): the area / zone template. Written from zero on ADR-0303 rev4.10.
+# Beat sheet (ticks since cast): 0 ground ring opens (grow by 9 over 8, fades out over the last 20), spine beam stretches ground -> sky,
+# four motes orbit the caster, a halo follows the caster's eye; 10 the ward strikes: lightning (visual only), enemies in `radius` take
+# damage (nearest 3), allies heal and are cleansed; 36 the hum is stopped; 40 end.
+# Only the visuals use rand; every tick above is fixed.
+apiVersion: astera/v3
+kind: Skill
+id: sanctuary-ward
+meta: {name: {ja: "聖域の結界", en: "Sanctuary Ward"}, description: {ja: "足元に結界を張り、範囲内の敵を打ち、味方を癒して浄化する。", en: "Raises a ward at your feet: it strikes enemies inside, heals and cleanses allies."}, cooldown_ticks: 300, resource_cost: 40, tags: [magic, support, zone]}
+params:
+  radius:      {type: blocks, default: 5.0}
+  heal:        {type: number, default: 20.0}
+  damage:      {type: number, default: 12.0}
+  cap:         {type: number, default: 3}
+anchors:
+  - {id: ground, anchor: caster, offset: {up: 0.05}, mode: snapshot}   # the ward stays where it was raised
+  - {id: sky,    anchor: caster, offset: {up: 2.4}, mode: snapshot}
+  - {id: chest,  anchor: caster, offset: {up: 1.0}, mode: follow}
+machine:
+  start: ward
+  states:
+    ward:
+      for: 40
+      then: end
+      enter:
+        - {id: snd_open, op: sound, sound: "astera:skills/heal-chime", anchor: ground, volume: 0.8, pitch: 0.8}
+        - {id: hum, op: sound, sound: block.amethyst_block.resonate, anchor: ground, volume: 0.9, pitch: 0.7, every: 6, times: 6}
+      do:
+        # --- the strike, tick 10 ---
+        - {id: bolt, op: lightning, anchor: ground, visual_only: true, at: 10}
+        - {id: smite, op: damage, target: {kind: enemies, around: ground, radius: "${radius}", max_count: "${cap}"}, damage: {electric: "${damage}"}, ignore_invulnerability: false, at: 10}
+        - {id: mend, op: heal, target: {kind: allies, around: ground, radius: "${radius}", include_self: true}, amount: "${heal}", at: 10}
+        - {id: purge, op: cleanse, negative_only: true, target: {kind: allies, around: ground, radius: "${radius}", include_self: true}, at: 10}
+        - {id: snd_strike, op: sound, sound: "astera:skills/lightning-impact", anchor: ground, volume: 0.8, pitch: 1.1, at: 10}
+        - {id: stop_hum, op: stop_sound, target: caster, sound: block.amethyst_block.resonate, at: 36}
+        # --- ground ring: grows to 9x over 8 ticks, holds, fades over the last 20 ---
+        - id: ring
+          op: display
+          kind: sprite
+          sprite: ring
+          anchor: ground
+          size: [1.0, 1.0]
+          billboard: fixed
+          brightness: {block: 15, sky: 15}
+          flipbook: {frames: 6, every: 2, loop: true}
+          at: 0
+          for: 40
+          motion:
+            - {law: align, axis: forward, to: world.up, at: 0, for: 40}   # lies flat: the sprite normal points up
+            - {law: grow, by: 9.0, at: 0, for: 8, ease: out_cubic}
+            - {law: fade, start: 1.0, to: 0.0, at: 20, for: 20}
+        # --- spine: a beam from the ground anchor to the sky anchor; its length is the anchor distance (stretch along the sprite's up axis) ---
+        - id: spine
+          op: display
+          kind: sprite
+          sprite: line-thin
+          anchor: ground
+          size: [0.6, 1.0]
+          color: "#fff3c8"
+          billboard: vertical
+          brightness: {block: 15, sky: 15}
+          at: 0
+          for: 40
+          motion:
+            - {law: stretch, axis: up, base: ground, tip: sky, for: 40, step: 4}
+            - {law: fade, start: 1.0, to: 0.0, at: 24, for: 16}
+        # --- four motes circle the caster; phase from the copy index, spread from rand (visual only) ---
+        - id: mote
+          op: display
+          kind: sprite
+          sprite: holy-glint
+          anchor: chest
+          times: 4
+          size: [0.5, 0.5]
+          offset: {forward: 2.2, up: "= 0.25 * i + rand('mote') * 0.2"}
+          billboard: center
+          brightness: {block: 15, sky: 15}
+          at: 2
+          for: 34
+          motion:
+            - {law: orbit, center: {forward: 0}, axis: up, deg_per_tick: 14, phase_deg: "= 90 * i", face: keep, at: 0, for: 34}
+            - {law: fade, start: 1.0, to: 0.0, at: 24, for: 10}
+        # --- halo follows the caster's eye ---
+        - id: halo
+          op: display
+          kind: sprite
+          sprite: sparkle-cross
+          anchor: ground
+          offset: {up: 0.7}
+          size: [1.4, 1.4]
+          billboard: center
+          brightness: {block: 15, sky: 15}
+          at: 10
+          for: 26
+          motion:
+            - {law: follow, anchor: caster.eye, at: 0, for: 26, step: 2}
+            - {law: grow, by: 0.4, at: 12, for: 14}
+            - {law: fade, start: 1.0, to: 0.0, at: 12, for: 14}
+        # --- burst on the strike ---
+        - {id: fx_heal, op: particle_def, def: verdant-heal, anchor: chest, at: 10}
+        - {id: fx_dust, op: particle, particle: dust, anchor: ground, count: 24, offset: [3.0, 0.2, 3.0], extra: 0, color: "#fff3c8", size: 1.2, at: 10}
+    end: {final: true}

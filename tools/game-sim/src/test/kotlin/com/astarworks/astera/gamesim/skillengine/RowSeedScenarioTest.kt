@@ -19,7 +19,7 @@ class RowSeedScenarioTest : SkillEngineScenario() {
         kind: Skill
         id: row-seed-probe
         anchors:
-          - {id: body, anchor: caster}
+          - {id: body, anchor: caster, mode: follow}
         machine:
           start: s
           states:
@@ -101,7 +101,7 @@ class RowSeedScenarioTest : SkillEngineScenario() {
             kind: Skill
             id: row-seed-timer
             anchors:
-              - {id: body, anchor: caster}
+              - {id: body, anchor: caster, mode: follow}
             machine:
               start: s
               states:

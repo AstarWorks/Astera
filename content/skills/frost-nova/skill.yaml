@@ -10,7 +10,7 @@ meta:
   tags: [magic, ice-family, aoe]
 anchors:
   - {id: cast_body, anchor: caster, offset: {up: 0.15}, mode: snapshot}
-  - {id: foe_pt, anchor: victim.root, offset: {up: 0.9}}   # v2 pt_enemy_0_0p9_0 (victim feet, yaw-only)
+  - {id: foe_pt, anchor: victim.root, offset: {up: 0.9}, mode: follow}   # v2 pt_enemy_0_0p9_0 (victim feet, yaw-only)
 machine:
   start: cast
   states:

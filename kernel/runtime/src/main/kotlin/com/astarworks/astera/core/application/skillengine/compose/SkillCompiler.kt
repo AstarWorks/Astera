@@ -46,6 +46,7 @@ import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
 import com.astarworks.astera.core.domain.skillengine.table.Duration
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
+import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.StatePath
@@ -253,6 +254,9 @@ public class SkillCompiler(
                 ) { name ->
                     registries.values.firstNotNullOfOrNull { (it as? DefaultAnchorScope)?.publishedEntry(name) }
                         ?: if (name in worldBodies) (registries[flat.machine.start] as? DefaultAnchorScope)?.entryOf(name) else null
+                }.also { r ->
+                    // a skill's `frames_in` names are frames of its static scope (a caller binds them; ADR-0303 9): usable wherever a point is named
+                    for (f in flat.framesIn.keys) r.declare(InstanceId(listOf(InstanceId.Segment(OpId(f), null))), null, ExprClass.L)
                 }
             }
             // A list is declarative: a rider may name a body or frame written further down. Bodies and frames declare their anchors

@@ -228,6 +228,12 @@ public interface ISkillGameplayGateway {
     /** Release the look hold of [caster] now (cast end, cancel, state exit, death, quit). Missing hold is a no-op. */
     public fun unlockLook(caster: UUID) {}
 
+    /**
+     * F2 `absorb: true`: cancel the incoming hit that raised the `hurt` event the cast is handling, before it is applied (no HP change,
+     * no knockback, no hurt sound or animation). [attacker] is the hit's attacker. No default: a gateway that cannot cancel must say so.
+     */
+    public fun cancelIncomingHit(cast: CastRef, attacker: UUID?)
+
     /** `consume_status` (R24): removes every stack of [status] from [entity] (the stacks a `per_stack` read just counted). */
     public fun consumeStatus(cast: CastRef, entity: UUID, status: String)
 

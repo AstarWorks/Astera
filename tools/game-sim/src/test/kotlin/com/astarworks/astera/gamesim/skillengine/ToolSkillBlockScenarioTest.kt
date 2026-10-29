@@ -39,7 +39,7 @@ class ToolSkillBlockScenarioTest : SkillEngineScenario() {
             kind: Skill
             id: tool-probe
             anchors:
-              - {id: body, anchor: caster}
+              - {id: body, anchor: caster, mode: follow}
             machine:
               start: s
               states:

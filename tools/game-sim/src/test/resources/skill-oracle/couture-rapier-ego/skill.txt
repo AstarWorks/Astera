@@ -1630,3 +1630,14 @@
 @73 remove #110 op=-
 @73 remove #111 op=-
 @73 remove #112 op=-
+## gameplay-static
+g @0..73 cast-length | cast
+g @73 state-end then=end final=false | state=cast
+g @29 damage physical=75.000000 | state=cast
+g @59 damage physical=100.000000 | state=cast
+g @0 state-end then=- final=true | state=end
+g.hit @48..48 handler max=2147483647 | sub=cast/fall2_pick.hit
+g.hit @62..62 handler max=2147483647 | sub=cast/rosette_pick.hit
+g.hit @18..18 handler max=2147483647 | sub=cast/sel.hit
+g.hit @29..29 handler max=2147483647 | sub=cast/sel_2.hit
+g.hit @59..59 handler max=2147483647 | sub=cast/sel_4.hit

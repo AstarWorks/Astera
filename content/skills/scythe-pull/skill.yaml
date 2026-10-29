@@ -4,7 +4,7 @@ id: scythe-pull
 item: scythe
 meta: {name: {ja: "引き寄せ", en: Pull}, description: {ja: "前方の相手を手前へ引き寄せる。", en: "Drags the targets in front of you toward you."}, cooldown_ticks: 130, resource_cost: 12, tags: [melee, control]}
 anchors:
-  - {id: sweep, anchor: caster, offset: {up: -0.1, forward: 2.0}}
+  - {id: sweep, anchor: caster, offset: {up: -0.1, forward: 2.0}, mode: follow}
 machine:
   start: cast
   states:

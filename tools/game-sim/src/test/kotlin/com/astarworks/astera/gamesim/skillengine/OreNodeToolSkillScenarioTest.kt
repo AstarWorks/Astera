@@ -41,7 +41,7 @@ class OreNodeToolSkillScenarioTest : SkillEngineScenario() {
             kind: Skill
             id: ore-probe
             anchors:
-              - {id: body, anchor: caster}
+              - {id: body, anchor: caster, mode: follow}
             machine:
               start: s
               states:

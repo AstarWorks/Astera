@@ -20,7 +20,7 @@ class MaxCountOptionalScenarioTest : SkillEngineScenario() {
     }
 
     private fun foe(i: Long, z: Double) =
-        HitCandidate(UUID(0L, 10L + i), Vec3(0.0, 0.0, z), 0.0, HitBox(Vec3(-0.3, 0.0, z - 0.3), Vec3(0.3, 1.8, z + 0.3)))
+        HitCandidate(UUID(0L, 10L + i), Vec3(0.0, 0.0, z), 0.0, HitBox(Vec3(-0.3, 0.0, z - 0.3), Vec3(0.3, 1.8, z + 0.3)), 1.62)
 
     private val foes = listOf(foe(1, 1.0), foe(2, 2.0), foe(3, 3.0), foe(4, 4.0))
 
@@ -58,6 +58,38 @@ class MaxCountOptionalScenarioTest : SkillEngineScenario() {
     private fun events(maxCount: String): Int {
         val handler = "{id: mark, op: status, target: caster, status: charge, stacks: 1, for: 20}"
         return played(hitSkill(maxCount, "", handler), "status").size
+    }
+
+    private fun paramSkill(paramDecl: String, maxCount: String) = loadInline(
+        """
+        apiVersion: astera/v3
+        kind: Skill
+        id: param-max-count
+        params: {$paramDecl}
+        machine:
+          start: s
+          states:
+            s:
+              for: 4
+              do:
+                - {id: st, op: status, target: {kind: enemies, around: caster, radius: 8.0, max_count: $maxCount}, status: shock, stacks: 1, for: 30}
+        """.trimIndent(),
+    )
+
+    @Test
+    fun maxCountTakesAParamFoldedAtLoad() {
+        val viaParam = (paramSkill("cap: {type: number, default: 2}", "\"\${cap}\"") as Result.Success).value
+        val literal = (paramSkill("cap: {type: number, default: 2}", "2") as Result.Success).value
+        assertThat(played(viaParam, "status").size).isEqualTo(2)
+        assertThat(played(viaParam, "status").size).isEqualTo(played(literal, "status").size)
+        val all = (paramSkill("cap: {type: string, default: all}", "\"\${cap}\"") as Result.Success).value
+        assertThat(played(all, "status").size).isEqualTo(4)
+    }
+
+    @Test
+    fun maxCountParamUndeclaredOrBelowOneIsALoadError() {
+        assertThat(paramSkill("other: {type: number, default: 2}", "\"\${cap}\"")).isInstanceOf(Result.Failure::class.java)
+        assertThat(paramSkill("cap: {type: number, default: 0}", "\"\${cap}\"")).isInstanceOf(Result.Failure::class.java)
     }
 
     @Test

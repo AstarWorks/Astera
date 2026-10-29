@@ -4,3 +4,8 @@
 ## pose yaw=37 pitch=-20
 @0 sound - op=smash/snd sound=block.stone.break cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
 @0 particle - op=smash/fx type=tool-pick-stone at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8734613411147617979
+## gameplay-static
+g @0..1 cast-length | cast
+g @1 state-end then=end final=false | state=smash
+g @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D2.0,%20ahead%3D4.0),%20tool%3Dpickaxe,%20blockDamage%3D100,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse,%20power%3D3.0) | state=smash
+g @0 state-end then=- final=true | state=end

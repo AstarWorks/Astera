@@ -29,9 +29,9 @@ params:
   spark_particle: {type: string, default: crit}
 # Four hits: coin1 30 (sector 30 deg, 9 blocks, height 2.0), throw 18 + bleed 2x60, reel 6, coin3 50 (dash 9 blocks, 3 ticks).
 anchors:
-  - {id: shears, anchor: body_anim.hand_r, mount: caster}
-  - {id: palm, anchor: body_anim.hand_r, mount: caster}
-  - {id: body_c, anchor: caster, offset: {up: 0.9}, mount: caster}
+  - {id: shears, anchor: body_anim.hand_r, mode: follow}
+  - {id: palm, anchor: body_anim.hand_r, mode: follow}
+  - {id: body_c, anchor: caster, offset: {up: 0.9}, mode: follow}
 machine:
   start: windup
   # v1 couture-s2-rig.yaml (0c9e986ef~1) spans windup+throw+..: body anim lastTick 63 (v1 rig t 0..62) is longer than windup (34), so it lives in the machine-wide world list.
@@ -132,7 +132,6 @@ machine:
               - {id: h1_orange, op: particle_def, def: couture-s2-p-orange, anchor: h1_frame, every: 1, times: 3}
               - {id: h1_spark, op: particle_def, def: couture-s2-p-spark, anchor: h1_frame, every: 3, times: 2}
               - {id: h1_crit, op: particle_def, def: couture-s2-p-crit, anchor: h1_frame}
-        # GAP(Q6): v2 delay 1 between hit and damage is the handler row `at: 1` (option A); option B would be `damage_delay: 1` on the hit.
         # max_count: 1 = the nearest 1 target (v2 hit cap; founder 10/28 ruling, TablePlayer.kt:933-935 sorts nearest-first then takes N).
         - {id: snd_5, op: sound, sound: entity.player.attack.sweep, anchor: caster, at: 0, volume: 0.5, pitch: 0.6}
         - {id: snd_6, op: sound, sound: item.armor.equip_chain, anchor: caster, at: 0, volume: 0.6, pitch: 1.4}

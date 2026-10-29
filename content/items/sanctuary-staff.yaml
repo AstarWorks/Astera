@@ -28,6 +28,8 @@ skills:
     skill_id: sanctuary-heal
   - trigger: sneak_right
     skill_id: sanctuary-purify
+  - trigger: sneak_left
+    skill_id: sanctuary-ward
 
 pdc_tags:
   astera:rarity: uncommon

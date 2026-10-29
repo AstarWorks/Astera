@@ -7,6 +7,8 @@
 @1 particle - op=fire/trail0[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4422400065892599329
 @1 particle - op=fire/trail1[1] type=white_smoke count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3735225102261560443
 @1 hit - op=fire/bolt at=0.000000,1.620000,3.700000 r=0.500000 shape=capsule a=0.000000,1.620000,3.700000 b=0.000000,1.620000,3.700000 rad=0.500000
+g @1 state-exit reason=EVENT | state=fire
+g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 sound - op=fire/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=1.2 at=0.000000,0.000000,0.000000
 @0 particle - op=fire/fl0 type=gun-muzzle-flash at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8826256256458837278
@@ -16,3 +18,16 @@
 @1 particle - op=fire/trail0[1] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4422400065892599329
 @1 particle - op=fire/trail1[1] type=white_smoke count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3735225102261560443
 @1 hit - op=fire/bolt at=-2.092428,2.885475,2.776746 r=0.500000 shape=capsule a=-2.092428,2.885475,2.776746 b=-2.092428,2.885475,2.776746 rad=0.500000
+g @1 state-exit reason=EVENT | state=fire
+g @1 cast-end | pose
+## gameplay-static
+g @0..1200 cast-length | cast
+g @0..1200 state-end then=- final=false | state=fire
+g @0 state-end then=- final=true | state=end
+g.absorbed @1..30 handler max=1 | sub=fire/bolt.absorbed
+g.block @1..30 handler max=1 | sub=fire/bolt.block
+g.block @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D0.5,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D12,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse,%20power%3D3.0) | sub=fire/bolt.block
+g.end @1..30 handler max=1 | sub=fire/bolt.end
+g.hit @1..30 handler max=1 | sub=fire/bolt.hit
+g.hit @0 damage physical=25.000000 | sub=fire/bolt.hit
+g.hit @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D0.5,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D12,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse,%20power%3D3.0) | sub=fire/bolt.hit

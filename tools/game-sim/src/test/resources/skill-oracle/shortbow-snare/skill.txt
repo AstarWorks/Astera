@@ -6,6 +6,8 @@
 @1 particle - op=fly/trail_crit[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3460586680967950008
 @1 particle - op=fly/trail_dust[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#787878 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3312279092665511120
 @1 hit - op=fly/arrow at=0.000000,1.620000,3.100000 r=0.500000 shape=capsule a=0.000000,1.620000,3.100000 b=0.000000,1.620000,3.100000 rad=0.500000
+g @1 state-exit reason=EVENT | state=fly
+g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 sound - op=fly/snd sound=astera:weapons/sword-swing cat=master vol=0.7 pitch=0.9 at=0.000000,0.000000,0.000000
 @0 particle - op=fly/fx type=gun-muzzle-smoke at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4243670878610807533
@@ -14,3 +16,15 @@
 @1 particle - op=fly/trail_crit[1] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3460586680967950008
 @1 particle - op=fly/trail_dust[1] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#787878 size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3312279092665511120
 @1 hit - op=fly/arrow at=-1.753116,2.680262,2.326463 r=0.500000 shape=capsule a=-1.753116,2.680262,2.326463 b=-1.753116,2.680262,2.326463 rad=0.500000
+g @1 state-exit reason=EVENT | state=fly
+g @1 cast-end | pose
+## gameplay-static
+g @0..40 cast-length | cast
+g @40 state-end then=end final=false | state=fly
+g @0 state-end then=- final=true | state=end
+g.absorbed @1..40 handler max=1 | sub=fly/arrow.absorbed
+g.block @1..40 handler max=1 | sub=fly/arrow.block
+g.end @1..40 handler max=1 | sub=fly/arrow.end
+g.hit @1..40 handler max=1 | sub=fly/arrow.hit
+g.hit @0 damage physical=7.000000 | sub=fly/arrow.hit
+g.hit @0 status sinking stacks=1.000000 for=80 | sub=fly/arrow.hit

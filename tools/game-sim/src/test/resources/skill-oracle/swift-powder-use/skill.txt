@@ -8,3 +8,9 @@
 @0 particle - op=main/puff type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1133636082597559419
 @0 item swift-powder op=- consume=1
 @0 status 00000000-0000-0000-0000-000000000001 op=- status=swift stacks=1 for=160
+## gameplay-static
+g @0..1 cast-length | cast
+g @1 state-end then=end final=false | state=main
+g @0 consume_item count=1.000000 item=swift-powder target=live(caster) | state=main
+g @0 status swift stacks=1.000000 for=160 to=caster | state=main
+g @0 state-end then=- final=true | state=end

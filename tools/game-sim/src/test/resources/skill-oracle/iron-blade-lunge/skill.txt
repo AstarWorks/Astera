@@ -26,3 +26,14 @@
 @3 move - op=- to=-1.8054,0,2.3959 yaw=- pitch=-
 @3 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @3 hit - op=dash/strike[3] at=-1.805445,0.900000,2.395907 r=1.000000 shape=sphere rad=1.000000
+## gameplay-static
+g @0..4 cast-length | cast
+g @4 state-end then=end final=false | state=dash
+g @0 dash direction=0.000000,0.000000,1.000000 ease=linear face_movement=false follow_pitch=false invulnerable=false speed=live(%3D%203.0%20/%204.0) stop_on_block=true ticks=4.000000 | state=dash
+g @0 damage physical=30.000000 | state=dash
+g @1 damage physical=30.000000 | state=dash
+g @2 damage physical=30.000000 | state=dash
+g @3 damage physical=30.000000 | state=dash
+g @4 dash.end | state=dash
+g @0 state-end then=- final=true | state=end
+g.hit @0..3 handler max=2147483647 | sub=dash/strike.hit

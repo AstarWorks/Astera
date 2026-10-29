@@ -7,8 +7,8 @@
 @0 spawn #5 op=brace/fill kind=text text=● bg=#00000000 shadow=false seethrough=false pos=0.200000,1.300000,1.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- aud=ALL lane=CORE target=-
 @0 write #5 op=brace/fill dur=0 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=1.500000,3.000000,1.000000 bb=FIXED
 @0 sound - op=brace/snd sound=item.shield.block cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
-@0 effect 00000000-0000-0000-0000-000000000001 op=- attribute=resist.physical
-@0 effect 00000000-0000-0000-0000-000000000001 op=- attribute=resist.knockback
+@0 effect 00000000-0000-0000-0000-000000000001 op=- attribute=resist.physical op=add amount=0.7 for=162
+@0 effect 00000000-0000-0000-0000-000000000001 op=- attribute=resist.knockback op=add amount=1 for=162
 @0 status 00000000-0000-0000-0000-000000000001 op=- status=charge stacks=1 for=400
 @1 write #5 op=brace/fill dur=1 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=5.722222,12.500000,1.000000 bb=FIXED
 @2 write #5 op=brace/fill dur=1 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=6.750000,14.812500,1.000000 bb=FIXED
@@ -36,8 +36,8 @@
 @0 spawn #5 op=brace/fill kind=text text=● bg=#00000000 shadow=false seethrough=false pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- aud=ALL lane=CORE target=-
 @0 write #5 op=brace/fill dur=0 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=1.500000,3.000000,1.000000 bb=FIXED
 @0 sound - op=brace/snd sound=item.shield.block cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
-@0 effect 00000000-0000-0000-0000-000000000001 op=- attribute=resist.physical
-@0 effect 00000000-0000-0000-0000-000000000001 op=- attribute=resist.knockback
+@0 effect 00000000-0000-0000-0000-000000000001 op=- attribute=resist.physical op=add amount=0.7 for=162
+@0 effect 00000000-0000-0000-0000-000000000001 op=- attribute=resist.knockback op=add amount=1 for=162
 @0 status 00000000-0000-0000-0000-000000000001 op=- status=charge stacks=1 for=400
 @1 write #5 op=brace/fill dur=1 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=5.722222,12.500000,1.000000 bb=FIXED
 @2 write #5 op=brace/fill dur=1 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=6.750000,14.812500,1.000000 bb=FIXED
@@ -56,3 +56,12 @@
 @162 remove #3 op=brace/rim1[1]
 @162 remove #4 op=brace/crest
 @162 remove #5 op=brace/fill
+## gameplay-static
+g @0..162 cast-length | cast
+g @162 state-end then=end final=false | state=brace
+g @0 modify_attribute amount=0.700000 attribute=resist.physical for=162 operation=add target=live(caster) | state=brace
+g @0 modify_attribute amount=1.000000 attribute=resist.knockback for=162 operation=add target=live(caster) | state=brace
+g @0 status charge stacks=1.000000 for=400 to=caster | state=brace
+g @20 status charge stacks=1.000000 for=400 to=caster | state=brace
+g @40 status charge stacks=1.000000 for=400 to=caster | state=brace
+g @0 state-end then=- final=true | state=end

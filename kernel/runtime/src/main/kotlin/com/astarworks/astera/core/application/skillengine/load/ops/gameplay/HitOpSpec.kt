@@ -37,9 +37,12 @@ import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.domain.skillengine.table.Vec
 import com.astarworks.astera.core.domain.skillengine.table.WriteStats
 
-/** The two events a `hit` raises (R7): one `hit` per victim, one `miss` when the whole op found nobody. */
+/**
+ * The events a `hit` raises (R7): one `hit` per victim, one `miss` when the whole op landed on nobody, and one `absorbed` per victim whose
+ * `absorb: true` transition cancelled the hit (founder 2026-10-29: for the attacker an absorbed hit is a miss; `hit` does not run for it).
+ */
 public enum class HitEvent(public val key: String) {
-    HIT("hit"), MISS("miss");
+    HIT("hit"), MISS("miss"), ABSORBED("absorbed");
 
     public companion object {
         public fun ofKey(key: String): HitEvent? = entries.firstOrNull { it.key == key }
@@ -135,7 +138,7 @@ public object HitOpSpec : OpSpec<HitOp> {
     private val damageSpec: Fields = Fields.of("hit.damage", *damageFields.map { it.second }.toTypedArray())
 
     private val onEventFields: Map<HitEvent, Field<List<Any?>?>> =
-        HitEvent.entries.associateWith { Field.optional(it.key, rawHandlers, null, "ops run per victim (hit) / once when nobody was found (miss); event-relative") }
+        HitEvent.entries.associateWith { Field.optional(it.key, rawHandlers, null, "ops run per victim (hit) / once when nobody was hit (miss) / per victim that absorbed the hit (absorbed); event-relative") }
     private val onFields: Fields = Fields.of("hit-on", *onEventFields.values.toTypedArray())
 
     private val anchorField = Field.required("anchor", Types.id, "frame / point the shape is measured from (caster.body, a frame id, an instance)")
@@ -145,7 +148,7 @@ public object HitOpSpec : OpSpec<HitOp> {
     private val windowField = Field.optional("window", Types.nullable(windowType), null, "re-hit rule; required with `every`: once = a victim at most once, {every: N} = again after N ticks")
     private val ignoreInvulnerabilityField = Field.required("ignore_invulnerability", GameplayOps.flag, "true: the damage also lands on victims inside their invulnerability frames")
     private val damageField = Field.optional("damage", Types.nullable(Types.nested(damageSpec)), null, "damage kinds per victim; absent = detection only (handlers apply the damage)")
-    private val onField = Field.optional("on", Types.nullable(Types.nested(onFields)), null, "handlers by event: hit (one per victim), miss (once)")
+    private val onField = Field.optional("on", Types.nullable(Types.nested(onFields)), null, "handlers by event: hit (one per victim), miss (once), absorbed (one per victim that absorbed the hit)")
 
     override val fields: Fields = Fields.of(
         "hit", anchorField, shapeField, targetsField, maxCountField, windowField, ignoreInvulnerabilityField, damageField, onField,
@@ -241,7 +244,7 @@ public object HitOpSpec : OpSpec<HitOp> {
             val prefix = InstanceId(scope + InstanceId.Segment(OpId(op.id.value + "." + e.key), null))
             val hc = LowerContext(
                 lc.skillId, lc.state, prefix, lc.occurrence, 0, lc.anchors, lc.frames, lc.parts, lc.skills, lc.item, lc.sprites, lc.conditions, lc.exprs,
-                lc.config, lc.seed, SrcPath(src.value + ".on." + e.key), hitScope = e == HitEvent.HIT,
+                lc.config, lc.seed, SrcPath(src.value + ".on." + e.key), hitScope = e == HitEvent.HIT || e == HitEvent.ABSORBED,
             )
             val lo = when (val r = lowering.lower(nodes, hc)) {
                 is Result.Success -> r.value

@@ -26,3 +26,17 @@
 @3 hit - op=charge/strike[3] at=-1.203630,0.900000,1.597271 r=1.000000 shape=sphere rad=1.000000
 @4 hit - op=charge/strike[4] at=-1.203630,0.900000,1.597271 r=1.000000 shape=sphere rad=1.000000
 @5 hit - op=charge/strike[5] at=-1.203630,0.900000,1.597271 r=1.000000 shape=sphere rad=1.000000
+## gameplay-static
+g @0..6 cast-length | cast
+g @6 state-end then=end final=false | state=charge
+g @0 dash direction=0.000000,0.000000,1.000000 ease=linear face_movement=false follow_pitch=false invulnerable=false speed=1.000000 stop_on_block=true ticks=6.000000 | state=charge
+g @0 damage physical=40.000000 | state=charge
+g @1 damage physical=40.000000 | state=charge
+g @2 damage physical=40.000000 | state=charge
+g @3 damage physical=40.000000 | state=charge
+g @4 damage physical=40.000000 | state=charge
+g @5 damage physical=40.000000 | state=charge
+g @6 dash.end | state=charge
+g @0 state-end then=- final=true | state=end
+g.hit @0..6 handler max=2147483647 | sub=charge/strike.hit
+g.hit @0 dash.end | sub=charge/strike.hit

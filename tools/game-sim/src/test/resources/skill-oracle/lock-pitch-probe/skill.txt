@@ -4,3 +4,8 @@
 ## pose yaw=37 pitch=-20
 @0 lock - op=- pitch=true yaw=false until=40
 @40 unlock - op=-
+## gameplay-static
+g @0..40 cast-length | cast
+g @40 state-end then=done final=false | state=hold
+g @0 lock move=NONE pitch=true yaw=false until=40 | state=hold
+g @0 state-end then=- final=true | state=done

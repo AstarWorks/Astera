@@ -58,7 +58,14 @@ import java.util.UUID
  */
 class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = WorldId("world")) : CastTrace {
     var tick: Int = 0
+        set(value) {
+            field = value
+            victimMotion?.let { victims = it(value) }
+        }
     var victims: List<HitCandidate> = emptyList()
+
+    /** When set, [victims] is re-read from it at the start of every tick: the scripted motion of a victim that walks. */
+    var victimMotion: ((Int) -> List<HitCandidate>)? = null
     var casterPosition: Vector3d = Vector3d(0.0, 1.0, 0.0)
     var casterYawDeg: Double = 0.0
     var casterPitchDeg: Double = 0.0
@@ -72,6 +79,12 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
     /** The item id of the skill being played (`play` sets it), as the player puts it in every [CastRef]. */
     var castItem: String? = null
+
+    /** Off: the caster is not an online player, so a main-hand mesh or a skin bone is refused exactly as Paper refuses it (no owner to draw). */
+    var casterOnline: Boolean = true
+
+    /** Off: the caster's main hand is empty, so a main-hand mesh is refused as on Paper. */
+    var mainHandHeld: Boolean = true
 
     /** Values the cast reads through `Val.Live` numbers, by live name. A name not set here reads 0.0; every read is in [liveReads]. */
     val liveNums: MutableMap<String, Double> = HashMap()
@@ -218,6 +231,10 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
     val visual: ISkillVisualGateway = object : ISkillVisualGateway {
         override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView, glow: String?): VisualHandle {
+            // Paper: the main-hand kind draws the caster's real stack, so an offline caster or an empty hand refuses the spawn (PaperSkillVisualGateway.dead)
+            if (com.astarworks.astera.core.application.skillengine.load.MeshModels.resolve(item, part, emptyMap()) is com.astarworks.astera.core.application.skillengine.load.MeshModel.HeldItem && (!casterOnline || !mainHandHeld)) {
+                error("skill visual 'mesh $item${if (casterOnline) " (empty main hand)" else ""}' could not be spawned: owner offline or display refused")
+            }
             // the Paper gateway refuses a model id NamespacedKey.fromString rejects (e.g. a doubled `astera:astera:`)
             (com.astarworks.astera.core.application.skillengine.load.MeshModels.resolve(item, part, emptyMap()) as? com.astarworks.astera.core.application.skillengine.load.MeshModel.Pack)?.let {
                 check(PACK_KEY.matches(it.key)) { "invalid item model '${it.key}' (mesh item '$item' part '$part')" }
@@ -225,8 +242,10 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             return spawned(cast, "item", "item=${OracleFmt.s(item)} part=${OracleFmt.s(part)} ${OracleFmt.pose(pose)} bright=${brightness ?: "-"} model=${OracleFmt.s(look.itemModel)} mode=${look.mode} rigshade=${look.rigShading} shader=${OracleFmt.s(look.shaderEffect)} glow=${OracleFmt.s(glow)} ${OracleFmt.view(view)}")
         }
 
-        override fun spawnSkinBone(cast: CastRef, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) =
-            spawned(cast, "skin_bone", "bone=${bone.yamlName} slim=$slim ghost=$ghost ${OracleFmt.pose(pose)}")
+        override fun spawnSkinBone(cast: CastRef, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose): VisualHandle {
+            if (!casterOnline) error("skill visual 'skin bone ${bone.yamlName}' could not be spawned: owner offline or display refused")
+            return spawned(cast, "skin_bone", "bone=${bone.yamlName} slim=$slim ghost=$ghost ${OracleFmt.pose(pose)}")
+        }
 
         override fun spawnPlate(cast: CastRef, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView, glow: String?) =
             spawned(cast, "sprite", "sprite=${OracleFmt.s(sprite)} alpha=${OracleFmt.f(alpha)} tint=${OracleFmt.s(tintHex)} seethrough=$seeThrough ${OracleFmt.pose(pose)} bright=${brightness ?: "-"} glow=${OracleFmt.s(glow)} ${OracleFmt.view(view)}")
@@ -307,6 +326,8 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                 "skill=${OracleFmt.s(skillId)} at=${OracleFmt.v(hitPoint)} ignoreinv=$ignoreInvulnerability ignorearmor=$ignoreArmor",
             )
 
+        override fun cancelIncomingHit(cast: CastRef, attacker: UUID?) = add("cancelIncomingHit", "-", "attacker=${attacker ?: "-"}")
+
         override fun statusStacks(entity: UUID, statusId: String): Int = 0
 
         override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) =
@@ -323,9 +344,9 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun silence(caster: UUID, victim: UUID, durationTicks: Int) = add("effect", victim.toString(), "silence=$durationTicks")
 
         override fun modifyAttribute(caster: UUID, victim: UUID, attribute: String, operation: String, amount: Double, durationTicks: Int?) =
-            add("effect", victim.toString(), "attribute=$attribute")
+            add("effect", victim.toString(), "attribute=$attribute op=$operation amount=${RecordedCall.num(amount)} for=${durationTicks ?: "-"}")
 
-        override fun restoreResource(victim: UUID, resource: String, amount: Double) = add("effect", victim.toString(), "resource=$resource")
+        override fun restoreResource(victim: UUID, resource: String, amount: Double) = add("effect", victim.toString(), "resource=$resource amount=${RecordedCall.num(amount)}")
 
         override fun impulse(victim: UUID, vector: Vec3) = add("effect", victim.toString(), "impulse x=${RecordedCall.num(vector.x)} y=${RecordedCall.num(vector.y)} z=${RecordedCall.num(vector.z)}")
 
@@ -407,7 +428,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun rootOf(cast: CastRef, entity: UUID): EntityRoot? {
             seen("query.rootOf", cast)
-            victims.firstOrNull { it.entityId == entity }?.let { return EntityRoot(it.feet, it.yawDeg, 0.0, 1.62, 1.8) }
+            victims.firstOrNull { it.entityId == entity }?.let { return EntityRoot(it.feet, it.yawDeg, 0.0, it.eyeHeight ?: 0.0, 1.8) }
             return if (entity == caster) EntityRoot(Vec3(casterPosition.x, casterPosition.y - 1.0, casterPosition.z), casterYawDeg, casterPitchDeg, 1.62, 1.8) else null
         }
 
@@ -530,6 +551,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                 null, "body" -> c.box.center
                 "feet", "root" -> c.feet
                 "eye" -> Vec3(c.feet.x, c.box.max.y - 0.1, c.feet.z)
+                "center" -> c.center
                 else -> return null
             }
             return SimFrame.fromYawPitch(o, c.yawDeg, 0.0)
@@ -553,6 +575,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                             null, "body" -> Vec3(v.feet.x, v.feet.y + 0.9, v.feet.z)
                             "feet", "root" -> v.feet
                             "eye" -> Vec3(v.feet.x, v.feet.y + 1.62, v.feet.z)
+                            "center" -> v.center
                             else -> null
                         }
                         origin?.let { SimFrame.fromYawPitch(it, v.yawDeg, 0.0) }
@@ -561,11 +584,12 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                         null, "feet" -> casterFrame
                         "eye" -> SimFrame.fromYawPitch(eye, yaw, casterPitchDeg)
                         "look" -> SimFrame.fromYawPitch(feet, yaw, casterPitchDeg)
+                        "center" -> SimFrame.fromYawPitch(Vec3(feet.x, feet.y + (eye.y - feet.y) / 2.0, feet.z), yaw, 0.0)
                         else -> casterFrame
                     }
                     // as PaperLiveValueSource.victimFrame: exists only when the event binds a victim, with the same point names (no world: caster stand-in pose)
                     frame == "victim" || frame == "target" ->
-                        if (binding?.victim == null || point !in setOf(null, "body", "feet", "root", "eye")) null else casterFrame
+                        if (binding?.victim == null || point !in setOf(null, "body", "feet", "root", "eye", "center")) null else casterFrame
                     frame == "caster" -> casterFrame
                     frame == "victim" || frame == "target" -> victimFrame(binding, point)
                     else -> inst?.worldPose(frame, point)
@@ -602,6 +626,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             val v = when (val field = bare.removePrefix("caster").removePrefix(".")) {
                 "", "feet", "pos", "position", "look" -> feet
                 "eye" -> eye
+                "center" -> Vec3(feet.x, feet.y + (eye.y - feet.y) / 2.0, feet.z)
                 "body" -> Vec3(feet.x, feet.y + 0.9, feet.z)
                 "forward" -> SimFrame.fromYawPitch(feet, casterYawDeg, casterPitchDeg).forward()
                 in hands -> {
@@ -611,7 +636,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                     val fwd = yawFrame.forward()
                     Vec3(feet.x + left.x * side * 0.35 + fwd.x * 0.45, feet.y + (eye.y - feet.y) - 0.55, feet.z + left.z * side * 0.35 + fwd.z * 0.45)
                 }
-                else -> throw IllegalArgumentException("caster field '$bare' is not one of feet, eye, body, look, forward, hand_r, hand_l, palm")
+                else -> throw IllegalArgumentException("caster field '$bare' is not one of feet, eye, center, body, look, forward, hand_r, hand_l, palm")
             }
             return Vector3d(v.x, v.y, v.z)
         }

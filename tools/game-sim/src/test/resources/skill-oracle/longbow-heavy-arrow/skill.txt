@@ -6,6 +6,8 @@
 @1 particle - op=fly/trail[1]/tr0 type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8217551437484640204
 @1 particle - op=fly/trail[1]/tr1 type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#a07846 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8651911396543676553
 @1 hit - op=fly/bolt at=0.000000,1.620000,4.500000 r=0.500000 shape=capsule a=0.000000,1.620000,4.500000 b=0.000000,1.620000,4.500000 rad=0.500000
+g @1 state-exit reason=EVENT | state=fly
+g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 sound - op=fly/snd_cast sound=astera:weapons/sword-swing cat=master vol=0.8 pitch=0.7 at=0.000000,0.000000,0.000000
 @0 particle - op=fly/fx_cast type=gun-muzzle-smoke at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4243670878610807533
@@ -14,3 +16,14 @@
 @1 particle - op=fly/trail[1]/tr0 type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8217551437484640204
 @1 particle - op=fly/trail[1]/tr1 type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#a07846 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8651911396543676553
 @1 hit - op=fly/bolt at=-2.544845,3.159091,3.377124 r=0.500000 shape=capsule a=-2.544845,3.159091,3.377124 b=-2.544845,3.159091,3.377124 rad=0.500000
+g @1 state-exit reason=EVENT | state=fly
+g @1 cast-end | pose
+## gameplay-static
+g @0..1200 cast-length | cast
+g @0..1200 state-end then=- final=false | state=fly
+g @0 state-end then=- final=true | state=end
+g.absorbed @1..60 handler max=1 | sub=fly/bolt.absorbed
+g.block @1..60 handler max=1 | sub=fly/bolt.block
+g.end @1..60 handler max=1 | sub=fly/bolt.end
+g.hit @1..60 handler max=1 | sub=fly/bolt.hit
+g.hit @0 damage physical=40.000000 | sub=fly/bolt.hit

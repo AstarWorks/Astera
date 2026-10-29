@@ -2838,3 +2838,23 @@
 @58 write #0 op=sweep/rig dur=0 pos=-1.941288,0.768016,1.992006 rot=-0.205873,0.738589,0.582893,0.268955 scale=0.937500,0.937500,0.937500 bb=FIXED
 @58 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=bastion-s1-body
 @58 remove #0 op=sweep/rig
+## gameplay-static
+g @0..58 cast-length | cast
+g @58 state-end then=end final=false | state=sweep
+g @4 dash direction=0.000000,0.000000,1.000000 ease=linear face_movement=false follow_pitch=false invulnerable=true speed=live(%3D%202.4%20/%203) stop_on_block=true ticks=3.000000 | state=sweep
+g @7 dash.end | state=sweep
+g @7 damage physical=35.000000 | state=sweep
+g @7 status charge stacks=1.000000 for=400 to=caster when | state=sweep
+g @28 dash direction=0.000000,0.000000,1.000000 ease=linear face_movement=false follow_pitch=false invulnerable=true speed=live(%3D%202.6%20/%203) stop_on_block=true ticks=3.000000 | state=sweep
+g @31 dash.end | state=sweep
+g @31 damage physical=45.000000 | state=sweep
+g @0 state-end then=- final=true | state=end
+g.hit @4..7 handler max=1 | sub=sweep/dash_hit.hit
+g.hit @0 dash.end | sub=sweep/dash_hit.hit
+g.hit @28..31 handler max=1 | sub=sweep/dash_hit_2.hit
+g.hit @0 dash.end | sub=sweep/dash_hit_2.hit
+g.hit @7..7 handler max=2147483647 | sub=sweep/hit1.hit
+g.hit @0 freeze scope=caster;event.victim ticks=2.000000 | sub=sweep/hit1.hit
+g.hit @31..31 handler max=2147483647 | sub=sweep/hit2.hit
+g.hit @0 freeze scope=caster;event.victim ticks=2.000000 | sub=sweep/hit2.hit
+g.hit @0 knockback direction=live(%3D%20normalize(flat(pos(event.victim)%20-%20pos(caster)))%20+%20vec(0.0,%200.2,%200.0)) strength=0.500000 target=live(victim) | sub=sweep/hit2.hit

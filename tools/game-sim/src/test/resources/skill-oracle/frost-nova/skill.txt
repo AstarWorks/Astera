@@ -22,6 +22,9 @@
 @0 particle - op=cast/burst/burst.hit/fx_rod2 type=end_rod count=0 at=0.000000,0.900000,5.000000 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5127851450193254961
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=60
 @0 status 00000000-0000-0000-0000-00000000000b op=- status=freeze stacks=1 for=60
+g @1 state-exit reason=PREEMPT | state=cast/burst
+g @1 state-exit reason=EVENT | state=cast
+g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 hit - op=cast/burst/burst at=0.000000,0.000000,0.000000 r=5.000000 shape=sphere rad=5.000000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- water=18.75 skill=frost-nova at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
@@ -46,3 +49,16 @@
 @0 particle - op=cast/burst/burst.hit/fx_rod2 type=end_rod count=0 at=-3.009075,0.900000,3.993178 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5127851450193254961
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=60
 @0 status 00000000-0000-0000-0000-00000000000b op=- status=freeze stacks=1 for=60
+g @1 state-exit reason=PREEMPT | state=cast/burst
+g @1 state-exit reason=EVENT | state=cast
+g @1 cast-end | pose
+## gameplay-static
+g @0..1200 cast-length | cast
+g @0..1200 state-end then=- final=false | state=cast
+g @3 state-end then=cast/recover final=false | state=cast/burst
+g @0 damage water=live(%3D%2025.0%20*%20(1.0%20-%200.5%20*%20dist(pos(caster),%20pos(event.victim))%20/%205.0)) | state=cast/burst
+g @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D2.5,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D20,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse,%20power%3D3.0) | state=cast/burst
+g @0 state-end then=- final=true | state=cast/recover
+g @0 state-end then=- final=true | state=done
+g.hit @0..0 handler max=2147483647 | sub=cast/burst/burst.hit
+g.hit @0 status freeze stacks=1.000000 for=60 | sub=cast/burst/burst.hit

@@ -9,7 +9,7 @@ meta:
   resource_cost: 14
   tags: [melee, movement, physical]
 anchors:
-  - {id: puff_pt, anchor: caster, offset: {up: 0.2}}
+  - {id: puff_pt, anchor: caster, offset: {up: 0.2}, mode: follow}
 machine:
   start: charge
   states:

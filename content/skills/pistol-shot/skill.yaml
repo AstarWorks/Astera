@@ -7,7 +7,7 @@ meta: {name: {ja: "ピストル射撃", en: "Pistol Shot"}, description: {ja: "�
 anchors:
   - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}            # was pt_aim_0_0_0p5
   - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot} # was pt_caster_0_m0p25_0p9 (caster feet yaw-only frame)
-  - {id: heart,  anchor: victim.root, offset: {up: 1.2}}
+  - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
 machine:
   start: fire
   states:

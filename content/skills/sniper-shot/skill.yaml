@@ -14,8 +14,8 @@ params:
   dmg_physical: {type: number, default: 47.5}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: flash,  anchor: caster, offset: {up: -0.25, forward: 1.0}}
-  - {id: heart,  anchor: victim.root, offset: {up: 1.2}}
+  - {id: flash,  anchor: caster, offset: {up: -0.25, forward: 1.0}, mode: follow}
+  - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
 machine:
   start: fly
   states:

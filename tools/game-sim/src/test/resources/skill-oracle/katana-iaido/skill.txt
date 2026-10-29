@@ -26,3 +26,13 @@
 @2 hit - op=dash/strike[2] at=-2.407260,0.900000,3.194542 r=1.000000 shape=sphere rad=1.000000
 @2 damage 00000000-0000-0000-0000-00000000000b op=- physical=40 skill=katana-iaido at=-2.709075,0.900000,3.693178 ignoreinv=false ignorearmor=false
 @2 sound - op=dash/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=-2.709075,0.900000,3.693178
+## gameplay-static
+g @0..3 cast-length | cast
+g @3 state-end then=end final=false | state=dash
+g @0 dash direction=0.000000,0.000000,1.000000 ease=linear face_movement=false follow_pitch=false invulnerable=false speed=live(%3D%204.0%20/%203.0) stop_on_block=true ticks=3.000000 | state=dash
+g @0 damage physical=40.000000 | state=dash
+g @1 damage physical=40.000000 | state=dash
+g @2 damage physical=40.000000 | state=dash
+g @3 dash.end | state=dash
+g @0 state-end then=- final=true | state=end
+g.hit @0..2 handler max=2147483647 | sub=dash/strike.hit

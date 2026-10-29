@@ -18,8 +18,8 @@ class BodySkeletonScenarioTest : SkillEngineScenario() {
             kind: Skill
             id: body-skeleton-probe
             anchors:
-              - {id: right_hand, anchor: body_anim.hand_r, mount: caster}
-              - {id: left_hand, anchor: body_anim.hand_l, mount: caster}
+              - {id: right_hand, anchor: body_anim.hand_r, mode: follow}
+              - {id: left_hand, anchor: body_anim.hand_l, mode: follow}
             machine:
               start: s
               world:

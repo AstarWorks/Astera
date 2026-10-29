@@ -12,3 +12,11 @@
 @0 particle - op=swing/fx type=slash-sweep at=-0.962904,-0.300000,1.277817 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6519149963583001782
 @0 hit - op=swing/swing at=0.000000,1.620000,0.000000 r=5.500000 shape=sector fwd=-0.565521,0.342020,0.750472 left=0.798636,0.000000,0.601815 deg=100.000000 range=3.500000 height=2.000000
 @2 sound - op=swing/swing.miss/snd_miss sound=astera:weapons/blade-miss cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
+## gameplay-static
+g @0..2 cast-length | cast
+g @2 state-end then=end final=false | state=swing
+g @0 damage physical=52.000000 | state=swing
+g @0 state-end then=- final=true | state=end
+g.hit @0..0 handler max=2147483647 | sub=swing/swing.hit
+g.hit @0 knockback direction=live(%3D%20normalize(pos(event.victim)%20-%20pos(caster))) strength=0.400000 target=live(victim) | sub=swing/swing.hit
+g.miss @0..0 handler max=2147483647 | sub=swing/swing.miss

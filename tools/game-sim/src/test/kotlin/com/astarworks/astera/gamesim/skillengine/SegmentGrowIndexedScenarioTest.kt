@@ -27,7 +27,7 @@ class SegmentGrowIndexedScenarioTest : SkillEngineScenario() {
     private fun skill(vararg ops: String): String = (
         listOf(
             "apiVersion: astera/v3", "kind: Skill", "id: seg-grow", "item: couture-rapier",
-            "anchors:", "  - {id: body, anchor: caster}", "  - {id: tip, anchor: caster, offset: {forward: 4}}",
+            "anchors:", "  - {id: body, anchor: caster, mode: follow}", "  - {id: tip, anchor: caster, offset: {forward: 4}, mode: follow}",
             "machine:", "  start: s", "  states:", "    s:", "      for: 100", "      enter:",
         ) + ops.map { "        - $it" }
         ).joinToString("\n") + "\n"

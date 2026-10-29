@@ -16,6 +16,7 @@ import com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.model.AnchorDecl
 import com.astarworks.astera.core.domain.skillengine.model.AnchorMode
+import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.SkillDef
 import com.astarworks.astera.core.domain.skillengine.model.SkillMeta
@@ -259,27 +260,25 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
         val seen = HashSet<String>()
         return list.mapIndexed { i, e ->
             val p = "anchors[$i]"
-            val m = e as? Map<*, *> ?: ctx.mismatch(p, "map {id, anchor, offset, mount, mode}", e)
+            val m = e as? Map<*, *> ?: ctx.mismatch(p, "map {id, anchor, offset, mode}", e)
             @Suppress("UNCHECKED_CAST")
             m as Map<String, Any?>
-            checkKeys(ctx, m, p, setOf("id", "anchor", "offset", "mount", "mode"))
+            checkKeys(ctx, m, p, setOf("id", "anchor", "offset", "mode"))
             val id = m["id"] as? String ?: ctx.abortWith(SkillDecodeError.MissingField(ctx.file, p, "id"))
             com.astarworks.astera.core.application.skillengine.compose.AnchorNames.reservedError(p, id)?.let { ctx.abortWith(SkillDecodeError.Invalid(ctx.file, "$p.id", it)) }
             if (!seen.add(id)) ctx.abortWith(SkillDecodeError.DuplicateId(ctx.file, p, id))
             val anchor = m["anchor"] as? String ?: ctx.abortWith(SkillDecodeError.MissingField(ctx.file, p, "anchor"))
             if (anchor.isBlank() || anchor.startsWith('.') || anchor.endsWith('.')) ctx.mismatch("$p.anchor", "point reference (frame.point)", anchor)
             com.astarworks.astera.core.application.skillengine.compose.AnchorNames.removedCasterPoint(anchor)?.let { ctx.mismatch("$p.anchor", "a live point", it) }
-            val mount = m["mount"]?.let { it as? String ?: ctx.mismatch("$p.mount", "'caster' or an anchor id", it) }
             val mode = when (val raw = m["mode"]) {
-                null, "follow" -> AnchorMode.FOLLOW
+                null -> ctx.fail(p, "anchors[$i] '$id': mode is required: follow (re-read every tick) or snapshot (sampled once when the cast starts)")
+                "follow" -> AnchorMode.FOLLOW
                 "snapshot" -> AnchorMode.SNAPSHOT
                 else -> ctx.mismatch("$p.mode", "'follow' or 'snapshot'", raw)
             }
-            val offset = LinkedHashMap<String, Double>()
-            for ((axis, v) in mapAt(ctx, m["offset"], "$p.offset")) {
-                offset[axis] = (v as? Number)?.toDouble() ?: ctx.mismatch("$p.offset.$axis", "number", v)
-            }
-            AnchorDecl(id, PointRef.parse(anchor), offset, mount, mode)
+            val offset = LinkedHashMap<String, Value<Double>>()
+            for ((axis, v) in mapAt(ctx, m["offset"], "$p.offset")) offset[axis] = ValueDecoding.number(v, ctx.file, "$p.offset.$axis")
+            AnchorDecl(id, PointRef.parse(anchor), offset, mode)
         }
     }
 
@@ -316,6 +315,6 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
         )
         val META_KEYS = setOf("name", "description", "cooldown_ticks", "resource_type", "resource_cost", "ego_cost", "reload_ticks", "ready_cue", "tags")
         val STATE_KEYS = setOf("for", "then", "final", "enter", "do", "exit", "on", "use", "with", "frames", "start", "states", "parallel")
-        val TRANSITION_KEYS = setOf("event", "after", "when", "to", "do")
+        val TRANSITION_KEYS = setOf("event", "after", "when", "to", "do", "absorb")
     }
 }

@@ -2,7 +2,20 @@
 @0 sound - op=cast/snd sound=item.axe.strip cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
 @0 sound - op=cast/snd_2 sound=block.wood.break cat=master vol=0.8 pitch=0.9 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/spark type=tool-axe-stone at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7307702357906625125
+g @1 state-exit reason=PREEMPT | state=cast/strike
+g @1 state-exit reason=EVENT | state=cast
+g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 sound - op=cast/snd sound=item.axe.strip cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
 @0 sound - op=cast/snd_2 sound=block.wood.break cat=master vol=0.8 pitch=0.9 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/spark type=tool-axe-stone at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7307702357906625125
+g @1 state-exit reason=PREEMPT | state=cast/strike
+g @1 state-exit reason=EVENT | state=cast
+g @1 cast-end | pose
+## gameplay-static
+g @0..1200 cast-length | cast
+g @0..1200 state-end then=- final=false | state=cast
+g @1 state-end then=cast/recover final=false | state=cast/strike
+g @0 world break_area spec=BreakAreaSpec(shape%3DLine(length%3D5.0,%20width%3D1.0,%20height%3D3),%20tool%3Daxe,%20blockDamage%3D100,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse,%20power%3D3.0) | state=cast/strike
+g @0 state-end then=- final=true | state=cast/recover
+g @0 state-end then=- final=true | state=done

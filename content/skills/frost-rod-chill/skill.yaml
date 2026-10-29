@@ -8,7 +8,7 @@ params:
   dmg_water:    {type: number, default: 12.5}
   freeze_ticks: {type: ticks, default: 40}
 anchors:
-  - {id: cast_pt, anchor: caster, offset: {up: 0.15}}
+  - {id: cast_pt, anchor: caster, offset: {up: 0.15}, mode: follow}
 machine:
   start: cast
   states:

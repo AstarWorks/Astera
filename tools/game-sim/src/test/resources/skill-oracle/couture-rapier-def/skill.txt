@@ -18,6 +18,9 @@
 @1 remove #2 op=cast/thread[2]
 @1 remove #1 op=cast/thread[1]
 @1 remove #0 op=cast/thread[0]
+g @1 state-exit reason=PREEMPT | state=cast/guard
+g @1 state-exit reason=EVENT | state=cast
+g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 spawn #0 op=cast/thread[0] kind=block block=black_concrete pos=0.644018,0.100000,-1.768542 rot=0.000000,-0.216440,0.000000,0.976296 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
 @0 spawn #1 op=cast/thread[1] kind=block block=black_concrete pos=0.819717,0.100000,-1.636143 rot=0.000000,-0.258819,0.000000,0.965926 scale=0.040000,0.025000,3.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
@@ -38,3 +41,15 @@
 @1 remove #2 op=cast/thread[2]
 @1 remove #1 op=cast/thread[1]
 @1 remove #0 op=cast/thread[0]
+g @1 state-exit reason=PREEMPT | state=cast/guard
+g @1 state-exit reason=EVENT | state=cast
+g @1 cast-end | pose
+## gameplay-static
+g @0..46 cast-length | cast
+g @46 state-end then=end final=false | state=cast
+g @30 state-end then=cast/done final=false | state=cast/guard
+g @16 state-end then=cast/done final=false | state=cast/riposte
+g @0 state-end then=- final=true | state=cast/done
+g @0 state-end then=- final=true | state=end
+g.on @0..0 handler max=1 | sub=cast/guard.on[0]
+g.on @7 damage physical=30.000000 to=event.attacker when | sub=cast/guard.on[0]

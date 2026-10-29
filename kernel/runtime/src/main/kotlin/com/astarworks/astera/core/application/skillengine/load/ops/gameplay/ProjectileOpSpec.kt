@@ -13,6 +13,7 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValu
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
 import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
+import com.astarworks.astera.core.application.skillengine.load.grammar.ItemPart
 import com.astarworks.astera.core.application.skillengine.load.grammar.Span
 import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
 import com.astarworks.astera.core.application.skillengine.load.grammar.TimingKind
@@ -49,7 +50,7 @@ import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 
 /** The events a projectile body produces (ADR-0303 3.6). [key] is the yaml key of `on:` and the suffix of the event path (`ball.hit`). */
 public enum class ProjectileEvent(public val key: String) {
-    HIT("hit"), BOUNCE("bounce"), STICK("stick"), UNSTICK("unstick"), BLOCK("block"), EXPIRE("expire"), END("end");
+    HIT("hit"), ABSORBED("absorbed"), BOUNCE("bounce"), STICK("stick"), UNSTICK("unstick"), BLOCK("block"), EXPIRE("expire"), END("end");
 
     public companion object {
         public fun ofKey(key: String): ProjectileEvent? = entries.firstOrNull { it.key == key }
@@ -65,7 +66,10 @@ public sealed interface SpeedSpec {
 /** `hit:` (3.6). `times` is required exactly when `once` is false. */
 public data class ProjectileHit(val targets: String, val once: Value<Boolean>, val times: Value<Double>?, val shape: ProjectileHitShape? = null, val attach: Boolean = false, val attachTo: String? = null)
 
-/** R43 `hit.shape`: swept capsules `from -> to` (points of each frame, e.g. `root` / `tip`) of radius [radius] on the rider [frames], instead of the body point's `radius` sphere. */
+/**
+ * R43 `hit.shape`: swept capsules `from -> to` (points of each frame, e.g. `root` / `tip`) of radius [radius] on the rider [frames] and/or, when the body has a
+ * `part:`, on the body itself (E1), instead of the body point's `radius` sphere. [frames] may be empty only with a `part:`.
+ */
 public data class ProjectileHitShape(val radius: Value<Double>, val from: String, val to: String, val frames: List<String>)
 
 /** `block:` (3.6). Which of [forTicks] / [restitution] / [times] are present is fixed by [mode] at decode. */
@@ -83,6 +87,8 @@ public class ProjectileOp(
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val origin: String,
+    /** E1: `parts.<name>` of `content/frames/<item>.yaml`; the body takes its points and axes (`volley.tip`), oriented by the body's live rotation. */
+    public val part: String?,
     public val velocity: Value<Vec3>,
     public val speed: SpeedSpec?,
     public val range: Value<Double>?,
@@ -97,7 +103,7 @@ public class ProjectileOp(
     public val lowerHandlers: HandlerLowering? = null,
 ) : OpNode {
     public fun withHandlers(decoded: Map<ProjectileEvent, List<OpNode>>, lowering: HandlerLowering): ProjectileOp =
-        ProjectileOp(id, src, whenExpr, timing, origin, velocity, speed, range, radius, hit, motion, block, gravity, drag, rawOn, decoded, lowering)
+        ProjectileOp(id, src, whenExpr, timing, origin, part, velocity, speed, range, radius, hit, motion, block, gravity, drag, rawOn, decoded, lowering)
 }
 
 public object ProjectileOpSpec : OpSpec<ProjectileOp> {
@@ -150,7 +156,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
     private val shapeRadius = Field.required("capsule", Types.number, "capsule radius in blocks")
     private val shapeFrom = Field.required("from", Types.id, "capsule start point of each frame (root / tip / a part point)")
     private val shapeTo = Field.required("to", Types.id, "capsule end point of each frame")
-    private val shapeFrames = Field.required("frames", Types.list(Types.id), "rider `frame` ops anchored on this projectile; one swept capsule each")
+    private val shapeFrames = Field.optional("frames", Types.list(Types.id), emptyList(), "rider `frame` ops anchored on this projectile; one swept capsule each; absent = the body's own `part` points")
     private val shapeFields = Fields.of("projectile-hit-shape", shapeRadius, shapeFrom, shapeTo, shapeFrames)
     private val hitShape = Field.optional("shape", Types.nullable(Types.nested(shapeFields)), null, "R43: capsules on rider frames instead of `radius`; exactly one of the two")
     private val hitAttach = Field.required("attach", Types.bool, "true: the first victim stops the body and it rides `attach_to` on that victim for `block.for` ticks (events stick / unstick); false: it flies on or ends")
@@ -170,6 +176,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
 
     private val origin = Field.required("origin", Types.id, "anchor the body is spawned at (muzzle, caster.eye, contact, a frame id)")
     private val velocity = Field.required("velocity", Types.worldVec3, "launch direction (blocks per tick when `speed` is absent)")
+    private val partF = ItemPart.field
     private val speed = Field.optional("speed", Types.nullable(speedType), null, "blocks per tick or a ramp; required with `range` (the end tick must be static); absent = |velocity|")
     private val range = Field.optional("range", Types.nullable(Types.number), null, "blocks of travel after which `end` fires; `range` and/or the timing `for` is required")
     private val radius = Field.optional("radius", Types.nullable(Types.number), null, "hit sphere radius of the body point in blocks; exactly one of `radius` / `hit.shape`")
@@ -180,7 +187,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
     private val drag = Field.optional("drag", Types.nullable(Types.number), null, "speed fraction lost per tick")
     private val on = Field.optional("on", Types.nullable(Types.nested(onFields)), null, "handlers by event: hit, bounce, stick, unstick, block, expire, end")
 
-    override val fields: Fields = Fields.of("projectile", origin, velocity, speed, range, radius, hit, motion, block, gravity, drag, on)
+    override val fields: Fields = Fields.of("projectile", origin, partF, velocity, speed, range, radius, hit, motion, block, gravity, drag, on)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ProjectileOp, SkillDecodeError> =
         Grammar.guard {
@@ -196,7 +203,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             if (once is Value.Literal && !once.value && times == null) ctx.fail("$path.hit", "hit.once is false: hit.times (the pierce count) is required")
             if (once is Value.Literal && once.value && times != null) ctx.fail("$path.hit.times", "hit.times only with once: false")
             val shape = h[hitShape]?.let { ProjectileHitShape(it[shapeRadius], it[shapeFrom], it[shapeTo], it[shapeFrames]) }
-            if (shape != null && shape.frames.isEmpty()) ctx.fail("$path.hit.shape.frames", "needs at least one frame")
+            if (shape != null && shape.frames.isEmpty() && values[partF] == null) ctx.fail("$path.hit.shape.frames", "needs at least one rider frame, or a `part:` on the projectile (the capsule then follows the body's own axis)")
             if (shape != null && values[radius] != null) ctx.fail("$path.radius", "radius and hit.shape are exclusive: the shape replaces the body sphere")
             if (shape == null && values[radius] == null) ctx.fail("$path.radius", "radius (body sphere) or hit.shape (capsules on rider frames) is required")
             val attachV = h[hitAttach]
@@ -236,12 +243,12 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             }
 
             val keys = values[motion]?.let { m -> LawSource(m, ctx.forLaws(com.astarworks.astera.core.application.skillengine.load.grammar.LocalAxes), "$path.motion").also { it.probe(timing?.times?.let { t -> ctx.resolveNumber(t) }?.toInt()?.coerceAtLeast(1) ?: 1) } }
-            ProjectileOp(id, src, whenExpr, timing, values[origin], values[velocity], values[speed], values[range], values[radius], hitSpec, keys, blockSpec, values[gravity], values[drag], raw)
+            ProjectileOp(id, src, whenExpr, timing, values[origin], values[partF], values[velocity], values[speed], values[range], values[radius], hitSpec, keys, blockSpec, values[gravity], values[drag], raw)
         }
 
     /** The events a body of this mode can fire (3.6): `pass` has no block events; `blocks_only` has no victim hit. */
     internal fun produces(mode: String, targets: String, event: ProjectileEvent): Boolean = when (event) {
-        ProjectileEvent.HIT -> targets != "blocks_only"
+        ProjectileEvent.HIT, ProjectileEvent.ABSORBED -> targets != "blocks_only"
         ProjectileEvent.BLOCK -> mode != "pass"
         ProjectileEvent.BOUNCE -> mode == "bounce"
         ProjectileEvent.STICK, ProjectileEvent.UNSTICK -> mode == "stick"
@@ -294,6 +301,30 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
 
             // ---- the spawn row: the body's whole contract with the TablePlayer rides in `look` (key list in the W1-09 report) ----
             val look = LinkedHashMap<String, Val<Any>>()
+            val resolved = op.part?.let { part ->
+                when (val r = ItemPart.resolve(lc, part)) {
+                    is Result.Success -> r.value
+                    is Result.Failure -> return bad("part: ${r.error}")
+                }
+            }
+            if (resolved != null) {
+                look["item"] = Val.Known(resolved.item)
+                look["part"] = Val.Known(op.part!!)
+                // the part's model points ride in the table like a `frame` op's, so `volley.tip` is a number the dump shows and the body can sweep its own axis
+                resolved.part.points.forEach { (name, p) -> look["point.$name"] = Val.Known(Vector3d(p.x, p.y, p.z)) }
+                op.hit.shape?.let { sh ->
+                    for ((field, name) in listOf("from" to sh.from, "to" to sh.to)) {
+                        if (name !in resolved.part.points) {
+                            return Result.Failure(
+                                SkillDecodeError.Invalid(
+                                    lc.skillId, src.value,
+                                    "projectile '${op.id.value}' hit.shape.$field '$name': part '${op.part}' has no point '$name' (points: ${resolved.part.points.keys.joinToString()})",
+                                ),
+                            )
+                        }
+                    }
+                }
+            }
             look["velocity"] = vec(op.velocity)
             if (speed != null) {
                 val ramp = op.speed as? SpeedSpec.Ramp
@@ -311,6 +342,10 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             op.hit.shape?.let { sh ->
                 // frames are named, not resolved: a rider frame may be declared after the projectile; the player finds the sibling instance by op id
                 look["hit.shape.radius"] = num(sh.radius)
+                if (resolved != null) {
+                    look["hit.shape.self.from"] = Val.Known(sh.from)
+                    look["hit.shape.self.to"] = Val.Known(sh.to)
+                }
                 sh.frames.forEachIndexed { i, f ->
                     look["hit.shape.frame.$i"] = Val.Known(f)
                     look["hit.shape.frame.$i.from"] = Val.Known(GameplayOps.point(f, sh.from))
@@ -399,7 +434,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                 val path = eventPath(e)
                 events += path
                 val follows: Branch? = when {
-                    e == ProjectileEvent.HIT && once && !op.hit.attach -> Branch(endPath, TickRange(0, 0), null, null, endPath)
+                    (e == ProjectileEvent.HIT || e == ProjectileEvent.ABSORBED) && once && !op.hit.attach -> Branch(endPath, TickRange(0, 0), null, null, endPath)
                     e == ProjectileEvent.BLOCK && op.block.mode == "despawn" -> Branch(endPath, TickRange(0, 0), null, null, endPath)
                     e == ProjectileEvent.UNSTICK -> Branch(endPath, TickRange(0, 0), null, null, endPath)
                     else -> null
@@ -413,7 +448,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                     val prefix = InstanceId(body.path.dropLast(1) + InstanceId.Segment(OpId(op.id.value + "." + e.key), body.path.last().index))
                     val hc = LowerContext(
                         lc.skillId, lc.state, prefix, lc.occurrence, 0, lc.anchors, lc.frames, lc.parts, lc.skills, lc.item, lc.sprites, lc.conditions, lc.exprs,
-                        lc.config, lc.seed, com.astarworks.astera.core.domain.skillengine.table.SrcPath(src.value + ".on." + e.key), hitScope = e == ProjectileEvent.HIT,
+                        lc.config, lc.seed, com.astarworks.astera.core.domain.skillengine.table.SrcPath(src.value + ".on." + e.key), hitScope = e == ProjectileEvent.HIT || e == ProjectileEvent.ABSORBED,
                     )
                     val lo = when (val r = lowering.lower(handlerNodes, hc)) {
                         is Result.Success -> r.value
@@ -426,7 +461,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                     writes.putAll(lo.writes)
                 }
                 val (win, firings) = when (e) {
-                    ProjectileEvent.HIT -> absolute to (if (once) 1 else pierce)
+                    ProjectileEvent.HIT, ProjectileEvent.ABSORBED -> absolute to (if (once) 1 else pierce)
                     ProjectileEvent.BLOCK -> absolute to (if (op.block.mode == "bounce") bounces + 1 else 1)
                     ProjectileEvent.BOUNCE -> absolute to bounces
                     ProjectileEvent.STICK -> firstStick to 1

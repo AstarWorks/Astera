@@ -4,3 +4,7 @@
 ## pose yaw=37 pitch=-20
 @0 spawn #0 op=show/surface kind=item item=sample-heat-haze part=- pos=-1.805445,2.400000,2.395907 rot=0.000000,0.446198,0.000000,0.894934 scale=4.000000,4.000000,4.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=uv-flow glow=- aud=ALL lane=CORE target=-
 @40 remove #0 op=show/surface
+## gameplay-static
+g @0..40 cast-length | cast
+g @40 state-end then=end final=false | state=show
+g @0 state-end then=- final=true | state=end

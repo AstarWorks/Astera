@@ -2806,3 +2806,17 @@
 @138 remove #187 op=-
 @138 remove #188 op=-
 @138 remove #189 op=-
+## gameplay-static
+g @0..138 cast-length | cast
+g @138 state-end then=end final=false | state=cast
+g @30 damage physical=35.000000 | state=cast
+g @46 damage physical=35.000000 | state=cast
+g @113 damage physical=70.000000 | state=cast
+g @0 state-end then=- final=true | state=end
+g.hit @24..24 handler max=2147483647 | sub=cast/sel.hit
+g.hit @127..127 handler max=2147483647 | sub=cast/sel_10.hit
+g.hit @30..30 handler max=2147483647 | sub=cast/sel_3.hit
+g.hit @40..40 handler max=2147483647 | sub=cast/sel_4.hit
+g.hit @46..46 handler max=2147483647 | sub=cast/sel_6.hit
+g.hit @107..107 handler max=2147483647 | sub=cast/sel_7.hit
+g.hit @113..113 handler max=2147483647 | sub=cast/sel_9.hit

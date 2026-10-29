@@ -13,6 +13,7 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
 import com.astarworks.astera.core.application.skillengine.load.grammar.Types
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.model.ParamValue
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.TargetRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
@@ -43,17 +44,35 @@ internal object GameplayOps {
         override fun schema(): Map<String, Any?> = linkedMapOf("type" to "boolean")
     }
 
-    /** `max_count`: an integer >= 1, or `all` (= unlimited, null). No `${param}` / `= CEL`. */
+    /** `max_count`: an integer >= 1, `all` (= unlimited, null), or `${param}` of a param with a default (folded at load, like `loadText`). No `= CEL`. */
     val maxCountType: FieldType<Int?> = object : FieldType<Int?> {
-        override val label = "integer >= 1 or 'all'"
+        private val paramRef = Regex("""^\$\{([A-Za-z_][A-Za-z0-9_]*)}$""")
+        override val label = "integer >= 1, 'all' or '\${param}'"
         override fun decode(raw: Any?, ctx: GrammarContext, path: String): Int? {
             if (raw == "all") return null
+            val name = (raw as? String)?.let { paramRef.matchEntire(it)?.groupValues?.get(1) }
+            if (name != null) {
+                val known = ctx.paramDefaults ?: ctx.fail(path, "'$raw' reads param '$name', but this context has no param defaults")
+                return when (val v = known[name] ?: ctx.fail(path, "'$raw' reads param '$name', which is not a declared param with a default")) {
+                    is ParamValue.Num -> count(v.value, ctx, path)
+                    is ParamValue.Text -> if (v.value == "all") null else ctx.fail(path, "param '$name' is the text '${v.value}': max_count takes a whole number >= 1 or 'all'")
+                    else -> ctx.fail(path, "param '$name' is not a number: max_count takes a whole number >= 1 or 'all'")
+                }
+            }
             val n = raw as? Number ?: ctx.mismatch(path, label, raw)
-            if (n.toDouble() % 1.0 != 0.0) ctx.fail(path, "expected an integer or 'all', found $n")
+            return count(n.toDouble(), ctx, path)
+        }
+        private fun count(n: Double, ctx: GrammarContext, path: String): Int {
+            if (n % 1.0 != 0.0) ctx.fail(path, "expected an integer or 'all', found $n")
             if (n.toInt() < 1) ctx.fail(path, "max_count must be at least 1 (use 'all' for no limit)")
             return n.toInt()
         }
-        override fun schema(): Map<String, Any?> = linkedMapOf("oneOf" to listOf(linkedMapOf("type" to "integer", "minimum" to 1), linkedMapOf("const" to "all")))
+        override fun schema(): Map<String, Any?> = linkedMapOf(
+            "oneOf" to listOf(
+                linkedMapOf("type" to "integer", "minimum" to 1), linkedMapOf("const" to "all"),
+                linkedMapOf("type" to "string", "pattern" to "^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$"),
+            ),
+        )
     }
 
     /** Declares `max_count` on a gameplay op (founder Q1 = B, 10/29): optional; null = unlimited, whether written `all` or omitted. */
@@ -192,7 +211,7 @@ internal object GameplayOps {
             }
         }
         return num(radius, lc, "$path.radius").map { r ->
-            TargetRule.Area(kind, lc.anchors.resolve(around.frame)?.instance, name, r, maxCount, includeSelf)
+            TargetRule.Area(kind, lc.anchors.resolve(around.frame)?.instance, AnchorNames.host(lc.anchors, name), r, maxCount, includeSelf)
         }
     }
 

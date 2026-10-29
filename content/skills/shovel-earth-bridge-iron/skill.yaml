@@ -5,7 +5,7 @@ id: shovel-earth-bridge-iron
 item: iron-shovel
 meta: {name: {ja: "鉄の土橋", en: "Iron Earth Bridge"}, description: {ja: "目の前に固めた粘土の橋を架ける。", en: "Lays a packed-clay bridge ahead of you."}, cooldown_ticks: 220, resource_cost: 0, tags: [tool, cover]}
 anchors:
-  - {id: spark,  anchor: caster, offset: {forward: 2.0}}      # was pt_caster_0_0_2 (feet, yaw-only)
+  - {id: spark,  anchor: caster, offset: {forward: 2.0}, mode: follow}      # was pt_caster_0_0_2 (feet, yaw-only)
 machine:
   start: cast
   states:
