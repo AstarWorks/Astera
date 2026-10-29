@@ -22,6 +22,6 @@ machine:
           anchor: center
           times: 12
           shift:
-            forward: "= radius * cos(2.0 * PI * i / n + draw('ring_ph') * 2.0 * PI)"
-            left: "= radius * sin(2.0 * PI * i / n + draw('ring_ph') * 2.0 * PI)"
+            forward: "= radius * cos(2.0 * pi * i / n + draw('ring_ph') * 2.0 * pi)"
+            left: "= radius * sin(2.0 * pi * i / n + draw('ring_ph') * 2.0 * pi)"
     end: {final: true}

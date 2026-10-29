@@ -40,7 +40,7 @@ machine:
 - ゲームプレイ op (`hit`, `dash`, `projectile`, `body`, `lock`, `held_model`, ...): 10.1b 節。
 - ロード時の静的検査: 10.4 / 11.4 節。違反は名前付きの load error になり、黙って捨てられることはない。
 - 点表 (武器の point / axis): `content/frames/<item>.yaml` (`apiVersion: astera/v3`)。
-- 体のクリップと手の点: `content/animations/<anim>.yaml` の `points:`。
+- 体の手などの点: 共通骨格 `content/frames/body.yaml` (`points:`)。クリップ (`content/animations/<anim>.yaml`) には点を書かない (rev4.9 G6)。
 
 ## 回転の符号 (ADR-0303 section 0)
 
@@ -66,6 +66,137 @@ skills:
 ```
 
 同じ Skill を別 Item に異なる trigger で bind できます。
+
+## rev4.10 の文法 (ADR-0303 rev4.10)
+
+手本は `content/skills/frost-shard` (projectile / bounce / callee)、`volley-demo` (groups / every / frames / fragments / let)、
+`sanctuary-ward` (area / heal / laws)。新しい skill はこの型から書く。下の各項は ADR-0303 rev4.10 の要点と最小の例。
+
+### CEL の数学関数
+
+`pi` (定数。大文字 `PI` も残る)、度単位の `sind` `cosd` `tand` `asind` `acosd` `atan2d`、`mod(a, b)` (= `a - b * floor(a / b)`、符号は `b` に従う。`mod(-1, 3) = 2`)、`fract(x)`。すべて pure。
+`%` は整数専用なので、実数の剰余は `mod(a, b)` を書く。
+
+```yaml
+offset: "= vec(cos(i * 2 * pi / n), sind(i * 30), 0.0)"
+```
+
+### `let:` (局所の束縛)
+
+skill / part / state / op の map に `let:` を置ける。値は数・bool・`${param}`・`"= 式"`。
+束縛名は `= ` 文字列の中でだけ使われ、ロード時に `(値)` として置換される (実行時には存在しない)。
+名前は素の識別子で、param・組み込み (`i` など)・関数名・op / anchor / frame の id・外側の let と同じにはできない。
+タイミング欄で使うと、置換後の式でクラス判定される (C5 の load error は let 名を挙げる)。
+
+```yaml
+let:
+  petals: 6
+  petal_step: "= 360 / petals"
+# ...
+offset: "= vec(cos(i * 2 * pi / petals), sind(i * petal_step), 0.0)"
+```
+
+### `drag` (spin / move)
+
+`drag: f` (`0 < f < 1`) は速さを 1 tick ごとに `1 - f` 倍する減衰。`for` が必須。`ease` と `accel` とは同時に書けない。
+
+```yaml
+- {law: move, velocity: {up: 0.4}, drag: 0.3, at: 0, for: 6}
+- {law: spin, axis: up, deg_per_tick: "= 8 * (i + 1)", drag: 0.15, at: 0, for: 16}
+```
+
+### `align` の blend
+
+`align` の向き先を `to: world.up` などにしたうえで `ease` を付けると、窓の始めの向きから目標へ slerp で寄る。
+`for` が必須で、`step` とは併用できない。`ease` が無ければ従来どおり即座に向く。
+
+```yaml
+- {law: align, axis: forward, to: world.up, up: caster.forward, at: 4, for: 6, ease: out_quad}
+```
+
+### skill-local `fragments:` と `use: fragment:`
+
+skill 文書の top-level `fragments:` に、一つの op 列 (`do:`、`machine:` は書けない) を名前付きで置く。
+state の `do:`、group の `do:`、`on.hit` / `on.miss`、transition の `do:` のどこからでも `use: fragment:<name>` で呼べる。
+fragment は `frames_in` と `params` を持てる。循環呼び出し、存在しない名前は load error。
+
+```yaml
+fragments:
+  burst:
+    params: {power: {type: number, default: 1}}
+    frames_in: {origin: anchor}
+    do:
+      - {id: dmg, op: damage, target: {kind: enemies, around: origin, radius: 2.5, max_count: 8, include_self: false}, damage: {fire: "= 6 * ${power}"}}
+# 呼び出し側 (ball の on.hit の中)
+- {op: use, use: "fragment:burst", with: {power: "= 2 + parent.i"}, frames: {origin: contact}}
+```
+
+### `frames_in` (呼ばれる側の frame)
+
+`frames_in: {<name>: <anchor>}` を callee (skill / fragment) に書くと、`<name>` は anchor・`to`・`shift` の軸・
+`damage` / `status` の `around`・`use` の `frames:` で使える点になる。呼ぶ側は `frames: {<name>: <caller の frame>}` で束縛する。
+束縛されていない `frames_in` は load error で名前を挙げる。
+
+```yaml
+# callee: content/skills/frost-shard/skill.yaml の 2 つ目の文書 (id: frost-shard-burst)
+frames_in: {spot: anchor}
+# ... particle の anchor: spot
+# caller
+- {id: burst, use: skill:frost-shard-burst, with: {snow: 30, rod: 10, dust: 20}, frames: {spot: heart}}
+```
+
+### `stretch` law (2 点間の伸び)
+
+`{law: stretch, axis: <軸>, base: <点>, tip: <点>, for: N, step: k}` は display を base から tip へ伸ばす。
+位置 = base、回転 = 軸が base から tip を向く向き (ゼロ長なら直前の回転を保つ)、スケール = その軸方向の距離。
+`base` / `tip` は組み込み (`caster`, `caster.eye`) か skill 宣言の anchor。
+
+```yaml
+- {id: spine, op: display, kind: sprite, sprite: line-thin, anchor: ground, size: [0.6, 1.0], billboard: vertical, at: 0, for: 40,
+   motion: [{law: stretch, axis: up, base: ground, tip: sky, for: 40, step: 4}]}
+```
+
+### `max_count` に param
+
+`target` と `hit` の `max_count` は `"${cap}"` を受ける。ロード時に param の default で畳む。
+値は 1 以上の整数か `all` (省略と同じ、無制限)。default が 1 未満、または未宣言の param は load error。
+
+```yaml
+params:
+  cap: {type: number, default: 3}
+# ...
+- {id: smite, op: damage, target: {kind: enemies, around: ground, radius: "${radius}", max_count: "${cap}"}, damage: {electric: "${damage}"}, at: 10}
+```
+
+### `absorb` (hurt transition と `on.absorbed`)
+
+`absorb: true` は `hurt` / `hurt.<kind>` の transition にだけ書ける (他の event や `absorb: false` は load error)。
+受けた hit は取り消され (HP・ノックバック・被弾音なし)、そのあと transition が走る。
+
+```yaml
+states:
+  guard:
+    for: 30
+    then: done
+    on:
+      - {event: hurt, when: "= dist(caster, event.attacker) <= 3.5", absorb: true, to: riposte,
+         do: [{id: riposte_hit, op: damage, target: event.attacker, damage: {physical: "= dmg_physical"}, at: 7}]}
+```
+
+攻撃側から見ると、absorb された hit は外れ扱い。ダメージも `on.hit` も無く、hit 数にも数えない (`max_count` の枠は消費する)。
+代わりに攻撃側 op の `on.absorbed` が走る (`event.victim` が読める。hit と同じ hit-scope 規則。`hit` と `projectile` で有効)。
+何も当たらなかった場合の `miss` は従来どおり op の終わりに出る。
+
+### `victim.center` と anchor の `mode`
+
+`victim.center` / `caster.center` / `target.center` は (足 + 目の高さ) / 2 を毎 tick 読む点。目の高さを持たない対象 (ブロック、アーマースタンド) では hitbox の中心。
+anchor の `mode: follow | snapshot` は必須 (隠れた既定値は無い)。`offset` は数・`${param}`・`= CEL` を受ける。`mount` は無い。
+
+```yaml
+anchors:
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: heart,  anchor: victim.center, mode: follow}
+```
 
 ## 参考
 
