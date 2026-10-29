@@ -1036,7 +1036,7 @@ watcher_camera_mode() {
   rcon "team modify cmp collisionRule never" >/dev/null
   rcon "team modify cmp nametagVisibility never" >/dev/null
   rcon "team join cmp Watcher" >/dev/null
-  rcon "gamemode creative Watcher" >/dev/null
+  rcon "gamemode spectator Watcher"  # out of reach: a spectator is no skill target and takes no knockback (creative was hit and flung by the sweep) >/dev/null
   rcon "attribute Watcher minecraft:gravity base set 0" >/dev/null
   rcon 'item replace entity Watcher weapon.mainhand with minecraft:stick[item_model="astera:shot_empty"]' >/dev/null
   rcon "item replace entity Watcher weapon.offhand with minecraft:air" >/dev/null
