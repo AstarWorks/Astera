@@ -431,6 +431,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             val root = bare.substringBefore('.')
             if (root == "caster") return bare == "caster" || bare.removePrefix("caster.") in PAPER_CASTER_FIELDS
             if (bare == "event.victim" || bare == "event.attacker") return true
+            if (bare == "victim" || bare == "target" || bare.startsWith("victim.")) return true
             return bare == "contact" || (bare.contains('.') && (root == "contact" || root == "target"))
         }
 
@@ -441,7 +442,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         private fun paperRotatable(name: String): Boolean {
             if (name.startsWith("= ") || name.startsWith("expr:")) return true
             val bare = name.removePrefix("anchor:")
-            return bare == "caster" || bare.startsWith("caster.") || bare == "contact"
+            return bare == "caster" || bare.startsWith("caster.") || bare == "contact" || bare == "victim" || bare == "target" || bare.startsWith("victim.")
         }
 
         private fun requireResolvable(name: String, wanted: String) {
@@ -451,6 +452,19 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         }
 
         /** The Paper CEL environment with the sim's caster standing at [casterPosition]: the same [CellExprs] (compile env + served host functions) Paper uses. */
+        /** As `PaperLiveValueSource.victimFrame`: the bound victim's body centre (feet / root / eye / body points), yaw only; null without a bound victim. */
+        private fun victimFrame(binding: EventBinding?, point: String?): SimFrame? {
+            val id = binding?.victim?.id ?: return null
+            val c = victims.firstOrNull { it.entityId == id } ?: return null
+            val o = when (point) {
+                null, "body" -> c.box.center
+                "feet", "root" -> c.feet
+                "eye" -> Vec3(c.feet.x, c.box.max.y - 0.1, c.feet.z)
+                else -> return null
+            }
+            return SimFrame.fromYawPitch(o, c.yawDeg, 0.0)
+        }
+
         private fun cell(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): ExprValue {
             val yaw = casterYawDeg
             val pos = Vec3(casterPosition.x, casterPosition.y, casterPosition.z)
@@ -465,6 +479,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                         )
                     }
                     frame == "caster" -> casterFrame
+                    frame == "victim" || frame == "target" -> victimFrame(binding, point)
                     else -> inst?.worldPose(frame, point)
                 }
                 override fun velocity(frame: String, point: String?) = if (frame == "caster") Vec3(0.0, 0.0, 0.0) else inst?.velocity(frame, point) ?: Vec3(0.0, 0.0, 0.0)
@@ -493,6 +508,12 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                     else -> throw IllegalArgumentException("live cell '$name' is not a vector")
                 }
             }
+            val victimName = name.removePrefix("anchor:")
+            if (victimName == "victim" || victimName == "target" || victimName.startsWith("victim.")) {
+                val point = if (victimName.contains('.')) victimName.substringAfter('.') else null
+                val o = (victimFrame(binding, point) ?: throw IllegalArgumentException("'$name' needs a hit event binding with a loaded victim")).origin
+                return Vector3d(o.x, o.y, o.z)
+            }
             // a direction cell (`caster.forward`) answers the caster's facing like Paper; every other field answers the caster position
             if (name.removePrefix("anchor:") == "caster.forward") {
                 val yaw = Math.toRadians(casterYawDeg)
@@ -506,6 +527,12 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             if (CellExprs.sourceOf(name) != null) {
                 val v = cell(cast, name, binding, scope) as? ExprValue.Quat ?: throw IllegalArgumentException("live cell '$name' is not a rotation")
                 return Quaterniond(v.value.x, v.value.y, v.value.z, v.value.w)
+            }
+            val victimName = name.removePrefix("anchor:")
+            if (victimName == "victim" || victimName == "target" || victimName.startsWith("victim.")) {
+                val point = if (victimName.contains('.')) victimName.substringAfter('.') else null
+                val r = (victimFrame(binding, point) ?: throw IllegalArgumentException("'$name' needs a bound victim")).rotation
+                return Quaterniond(r.x, r.y, r.z, r.w)
             }
             return Quaterniond()
         }

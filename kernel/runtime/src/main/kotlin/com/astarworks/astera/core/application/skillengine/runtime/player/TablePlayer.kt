@@ -164,7 +164,20 @@ public class TablePlayer(
         world.tick()
         for (run in runs.values.toList()) {
             if (run.finalized || now < run.request.startTick) continue
-            tickRun(run, now)
+            // Rows fault inside playRow; anything else thrown here (drivers, sweeps, transitions) must end THIS cast only. An uncaught throw
+            // would abort the whole tick loop on every later tick, so a single poisoned cast silently froze every cast behind it.
+            try {
+                tickRun(run, now)
+            } catch (e: RuntimeException) {
+                fault(run, now, "tick", "cast aborted, ${e.javaClass.simpleName}: ${e.message}")
+                try {
+                    finalize(run, now)
+                } catch (cleanup: RuntimeException) {
+                    fault(run, now, "tick", "cleanup of the aborted cast threw ${cleanup.javaClass.simpleName}: ${cleanup.message}")
+                } finally {
+                    run.finalized = true
+                }
+            }
         }
         runs.values.removeAll { it.finalized }
     }
@@ -1204,7 +1217,8 @@ public class TablePlayer(
             "camera_shake" -> {
                 val ticks = d("ticks").toInt()
                 val dir = s("direction")
-                val from = if (dir == "from_hit") liveVec(run, "event.victim", ctx).let { Vec3(it.x, it.y, it.z) } else null
+                // a shake outside an `on.hit` row has no hit to lean away from: it shakes without a direction instead of faulting
+                val from = if (dir == "from_hit" && ctx.binding?.victim != null) liveVec(run, "event.victim", ctx).let { Vec3(it.x, it.y, it.z) } else null
                 victims.forEach { gameplay.cameraShake(castRef(run), it, d("intensity"), ticks, from) }
             }
             "stop_sound" -> victims.forEach { gameplay.stopSound(castRef(run), it, s("sound")) }
