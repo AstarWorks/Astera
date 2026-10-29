@@ -65,45 +65,46 @@ machine:
           op: rig
           parent: caster
           anim: bastion-s2-body
+          part: held_hand
           rest: [{axis: left, deg: 72}]
           sample_ticks: 1
           respect_hit_stop: true
           freezes: [{at: 13, ticks: 2}, {at: 32, ticks: 2}, {at: 53, ticks: 3}]
-          tip: {left: 0.0, up: 1.3789, forward: 1.0769}
-          root: {left: 0.0, up: 0.2367, forward: 0.0}
-          edge: {left: 0.0, up: -0.6155, forward: 0.7881}
+          tip: {left: 0.0, up: 1.4503, forward: -0.9786}
+          root: {left: 0.0, up: 0.0731, forward: -0.2251}
+          edge: {left: 0.0, up: 0.5593, forward: 0.8289}
           for: 80
           swing:
-            - {at: 7, for: 1, from: {left: -0.72818, up: 0.68082, forward: 0.07897}, via: {left: -0.72275, up: 0.68693, forward: 0.07594}, to: {left: 0.74758, up: -0.61814, forward: 0.24296}, edge: leading, roll: 20.408}
-            - {for: 1, from: {left: 0.74758, up: -0.61814, forward: 0.24296}, to: {left: 0.74471, up: -0.64598, forward: 0.16768}, edge: leading, roll: 31.605}
-            - {for: 1, from: {left: 0.74471, up: -0.64598, forward: 0.16768}, to: {left: 0.73385, up: -0.6726, forward: 0.09523}, edge: leading, roll: 42.083}
-            - {for: 1, from: {left: 0.73385, up: -0.6726, forward: 0.09523}, to: {left: 0.68702, up: -0.63531, forward: -0.35268}, edge: leading, roll: 58.588}
-            - {for: 1, from: {left: 0.68702, up: -0.63531, forward: -0.35268}, to: {left: 0.69916, up: -0.71205, forward: -0.06458}, edge: trailing, roll: 43.755}
-            - {for: 1, from: {left: 0.69916, up: -0.71205, forward: -0.06458}, to: {left: 0.71111, up: -0.70096, forward: -0.05447}, edge: leading, roll: -68.542}
-            - {for: 1, from: {left: 0.71111, up: -0.70096, forward: -0.05447}, to: {left: 0.72279, up: -0.68959, forward: -0.04524}, edge: leading, roll: -65.379}
-            - {for: 1, from: {left: 0.72279, up: -0.68959, forward: -0.04524}, to: {left: 0.71999, up: -0.69215, forward: -0.05033}, edge: trailing, roll: -89.49}
-            - {for: 1, from: {left: 0.71999, up: -0.69215, forward: -0.05033}, to: {left: -0.91921, up: -0.37026, forward: 0.13398}, edge: leading, roll: 27.272}
-            - {for: 1, from: {left: -0.91921, up: -0.37026, forward: 0.13398}, to: {left: -0.91881, up: -0.375, forward: 0.12312}, edge: leading, roll: -84.501}
-            - {for: 1, from: {left: -0.91881, up: -0.375, forward: 0.12312}, to: {left: -0.0125, up: 0.27255, forward: -0.96206}, edge: trailing, roll: 81.479}
-            - {for: 1, from: {left: -0.0125, up: 0.27255, forward: -0.96206}, to: {left: 0.57384, up: 0.42642, forward: -0.69919}, edge: trailing, roll: 62.585}
-            - {for: 1, from: {left: 0.57384, up: 0.42642, forward: -0.69919}, to: {left: 0.84063, up: 0.17195, forward: -0.51358}, edge: trailing, roll: 6.298}
-            - {at: 24, for: 1, from: {left: 0.84063, up: 0.17195, forward: -0.51358}, via: {left: 0.83665, up: 0.17842, forward: -0.51787}, to: {left: 0.74758, up: -0.61814, forward: 0.24296}, edge: leading, roll: 141.368}
-            - {for: 1, from: {left: 0.74758, up: -0.61814, forward: 0.24296}, to: {left: 0.74471, up: -0.64598, forward: 0.16768}, edge: leading, roll: 31.605}
-            - {for: 1, from: {left: 0.74471, up: -0.64598, forward: 0.16768}, to: {left: 0.73385, up: -0.6726, forward: 0.09523}, edge: leading, roll: 42.083}
-            - {for: 1, from: {left: 0.73385, up: -0.6726, forward: 0.09523}, to: {left: 0.68702, up: -0.63531, forward: -0.35268}, edge: leading, roll: 58.588}
-            - {for: 1, from: {left: 0.68702, up: -0.63531, forward: -0.35268}, to: {left: 0.69916, up: -0.71205, forward: -0.06458}, edge: trailing, roll: 43.755}
-            - {for: 1, from: {left: 0.69916, up: -0.71205, forward: -0.06458}, to: {left: 0.71111, up: -0.70096, forward: -0.05447}, edge: leading, roll: -68.542}
-            - {for: 1, from: {left: 0.71111, up: -0.70096, forward: -0.05447}, to: {left: 0.72279, up: -0.68959, forward: -0.04524}, edge: leading, roll: -65.379}
-            - {for: 1, from: {left: 0.72279, up: -0.68959, forward: -0.04524}, to: {left: 0.71999, up: -0.69215, forward: -0.05033}, edge: trailing, roll: -89.49}
-            - {for: 1, from: {left: 0.71999, up: -0.69215, forward: -0.05033}, to: {left: -0.91921, up: -0.37026, forward: 0.13398}, edge: leading, roll: 27.272}
-            - {for: 1, from: {left: -0.91921, up: -0.37026, forward: 0.13398}, to: {left: -0.91881, up: -0.375, forward: 0.12312}, edge: leading, roll: -84.501}
-            - {for: 1, from: {left: -0.91881, up: -0.375, forward: 0.12312}, to: {left: -0.0125, up: 0.27255, forward: -0.96206}, edge: trailing, roll: 81.479}
-            - {for: 1, from: {left: -0.0125, up: 0.27255, forward: -0.96206}, to: {left: 0.78625, up: 0.59062, forward: -0.1816}, edge: leading, roll: -56.944}
-            - {for: 1, from: {left: 0.78625, up: 0.59062, forward: -0.1816}, to: {left: 0.73126, up: -0.39934, forward: 0.55298}, edge: leading, roll: 16.093}
-            - {at: 45, for: 1, from: {left: 0.73126, up: -0.39934, forward: 0.55298}, via: {left: 0.72658, up: -0.40666, forward: 0.55381}, to: {left: -0.88709, up: -0.40352, forward: -0.22416}, edge: leading, roll: 146.848}
-            - {for: 1, from: {left: -0.88709, up: -0.40352, forward: -0.22416}, to: {left: -0.99558, up: 0.08163, forward: -0.04641}, edge: trailing, roll: -57.451}
-            - {for: 1, from: {left: -0.99558, up: 0.08163, forward: -0.04641}, to: {left: -0.70215, up: -0.41193, forward: -0.58078}, edge: leading, roll: -59.573}
-            - {for: 1, from: {left: -0.70215, up: -0.41193, forward: -0.58078}, to: {left: -0.71524, up: -0.45802, forward: -0.52787}, edge: trailing, roll: -6.831}
+            - {at: 7, for: 1, from: {left: -0.95553, up: -0.0235, forward: -0.29395}, via: {left: -0.95298, up: -0.025991, forward: -0.301916}, to: {left: 0.68894, up: 0.05507, forward: 0.72272}, edge: leading, roll: 71.503}
+            - {for: 1, from: {left: 0.68894, up: 0.05507, forward: 0.72272}, to: {left: 0.67594, up: -0.04625, forward: 0.7355}, edge: trailing, roll: -5.413}
+            - {for: 1, from: {left: 0.67594, up: -0.04625, forward: 0.7355}, to: {left: 0.65704, up: -0.15487, forward: 0.73778}, edge: trailing, roll: -2.678}
+            - {for: 1, from: {left: 0.65704, up: -0.15487, forward: 0.73778}, to: {left: 0.55215, up: -0.6934, forward: 0.46295}, edge: trailing, roll: 5.633}
+            - {for: 1, from: {left: 0.55215, up: -0.6934, forward: 0.46295}, to: {left: 0.44818, up: -0.54623, forward: 0.70765}, edge: leading, roll: -41.587}
+            - {for: 1, from: {left: 0.44818, up: -0.54623, forward: 0.70765}, to: {left: 0.4445, up: -0.54123, forward: 0.71379}, edge: leading, roll: -40.689}
+            - {for: 1, from: {left: 0.4445, up: -0.54123, forward: 0.71379}, to: {left: 0.44078, up: -0.53733, forward: 0.71902}, edge: leading, roll: -44.634}
+            - {for: 1, from: {left: 0.44078, up: -0.53733, forward: 0.71902}, to: {left: 0.44383, up: -0.539, forward: 0.71589}, edge: trailing, roll: -58.037}
+            - {for: 1, from: {left: 0.44383, up: -0.539, forward: 0.71589}, to: {left: -0.37137, up: -0.91282, forward: -0.16986}, edge: trailing, roll: -121.239}
+            - {for: 1, from: {left: -0.37137, up: -0.91282, forward: -0.16986}, to: {left: -0.36418, up: -0.91523, forward: -0.17242}, edge: leading, roll: -50.465}
+            - {for: 1, from: {left: -0.36418, up: -0.91523, forward: -0.17242}, to: {left: 0.72305, up: 0.00384, forward: -0.69079}, edge: leading, roll: 37.791}
+            - {for: 1, from: {left: 0.72305, up: 0.00384, forward: -0.69079}, to: {left: 0.98384, up: 0.17755, forward: -0.02334}, edge: leading, roll: -15.437}
+            - {for: 1, from: {left: 0.98384, up: 0.17755, forward: -0.02334}, to: {left: 0.94723, up: 0.09866, forward: 0.305}, edge: leading, roll: -57.329}
+            - {at: 24, for: 1, from: {left: 0.94723, up: 0.09866, forward: 0.305}, via: {left: 0.949715, up: 0.092776, forward: 0.299054}, to: {left: 0.68894, up: 0.05507, forward: 0.72272}, edge: trailing, roll: 63.552}
+            - {for: 1, from: {left: 0.68894, up: 0.05507, forward: 0.72272}, to: {left: 0.67594, up: -0.04625, forward: 0.7355}, edge: trailing, roll: -5.413}
+            - {for: 1, from: {left: 0.67594, up: -0.04625, forward: 0.7355}, to: {left: 0.65704, up: -0.15487, forward: 0.73778}, edge: trailing, roll: -2.678}
+            - {for: 1, from: {left: 0.65704, up: -0.15487, forward: 0.73778}, to: {left: 0.55215, up: -0.6934, forward: 0.46295}, edge: trailing, roll: 5.633}
+            - {for: 1, from: {left: 0.55215, up: -0.6934, forward: 0.46295}, to: {left: 0.44818, up: -0.54623, forward: 0.70765}, edge: leading, roll: -41.587}
+            - {for: 1, from: {left: 0.44818, up: -0.54623, forward: 0.70765}, to: {left: 0.4445, up: -0.54123, forward: 0.71379}, edge: leading, roll: -40.689}
+            - {for: 1, from: {left: 0.4445, up: -0.54123, forward: 0.71379}, to: {left: 0.44078, up: -0.53733, forward: 0.71902}, edge: leading, roll: -44.634}
+            - {for: 1, from: {left: 0.44078, up: -0.53733, forward: 0.71902}, to: {left: 0.44383, up: -0.539, forward: 0.71589}, edge: trailing, roll: -58.037}
+            - {for: 1, from: {left: 0.44383, up: -0.539, forward: 0.71589}, to: {left: -0.37137, up: -0.91282, forward: -0.16986}, edge: trailing, roll: -121.239}
+            - {for: 1, from: {left: -0.37137, up: -0.91282, forward: -0.16986}, to: {left: -0.36418, up: -0.91523, forward: -0.17242}, edge: leading, roll: -50.465}
+            - {for: 1, from: {left: -0.36418, up: -0.91523, forward: -0.17242}, to: {left: 0.72305, up: 0.00384, forward: -0.69079}, edge: leading, roll: 37.791}
+            - {for: 1, from: {left: 0.72305, up: 0.00384, forward: -0.69079}, to: {left: 0.97093, up: -0.21388, forward: -0.10743}, edge: leading, roll: 16.043}
+            - {for: 1, from: {left: 0.97093, up: -0.21388, forward: -0.10743}, to: {left: 0.98812, up: -0.04022, forward: -0.14836}, edge: trailing, roll: 81.097}
+            - {at: 45, for: 1, from: {left: 0.98812, up: -0.04022, forward: -0.14836}, via: {left: 0.989411, up: -0.03707, forward: -0.140325}, to: {left: -0.90509, up: 0.13941, forward: 0.40172}, edge: trailing, roll: -28.92}
+            - {for: 1, from: {left: -0.90509, up: 0.13941, forward: 0.40172}, to: {left: -0.71837, up: -0.39065, forward: 0.57562}, edge: leading, roll: -16.653}
+            - {for: 1, from: {left: -0.71837, up: -0.39065, forward: 0.57562}, to: {left: -0.36874, up: -0.92918, forward: -0.02571}, edge: leading, roll: 46.067}
+            - {for: 1, from: {left: -0.36874, up: -0.92918, forward: -0.02571}, to: {left: -0.12017, up: -0.96162, forward: -0.24666}, edge: leading, roll: 19.672}
             # v2 holds the t66 pose through t66 and is at rest at t67 (a 174 deg jump): R30 reset step.
             - {at: 67, reset: true}
         # --- presentation (v2 look.yaml timeline groups, folded from the former top-level `presentation:`) ---

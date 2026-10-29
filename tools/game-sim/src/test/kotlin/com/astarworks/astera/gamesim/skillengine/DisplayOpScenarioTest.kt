@@ -97,7 +97,7 @@ class DisplayOpScenarioTest : SkillEngineScenario() {
     @Test
     fun rigResetIsZeroDurationWrite() {
         val s = compiled(
-            "{id: r, op: rig, parent: caster, for: 80, swing: [" +
+            "{id: r, op: rig, parent: caster, part: held_hand, for: 80, swing: [" +
                 "{at: 4, for: 6, from: {left: -1, up: 1, forward: 1}, to: {left: 1, up: -1, forward: 1}, edge: leading}, {at: 67, reset: true}]}",
         )
         assertThat(rows(s).any { it.action is Action.Effect }).isTrue()
@@ -107,7 +107,7 @@ class DisplayOpScenarioTest : SkillEngineScenario() {
     fun rigWithoutOfPlaysTheHeldItemThroughTheRealPlayer() {
         // v2 RigPerformer: no `of` = the rig is its own frame and the main-hand item rides it; it is posed every tick and removed with the rig
         val s = compiled(
-            "{id: r, op: rig, parent: caster, pivot: {left: 0.0, up: 1.4, forward: 0.3}, for: 12, " +
+            "{id: r, op: rig, parent: caster, part: held_hand, pivot: {left: 0.0, up: 1.4, forward: 0.3}, for: 12, " +
                 "swing: [{at: 2, for: 3, from: {left: -1, up: 1, forward: 1}, to: {left: 1, up: -1, forward: 1}, edge: leading}]}",
         )
         val rec = GatewayRecorder()
@@ -122,7 +122,7 @@ class DisplayOpScenarioTest : SkillEngineScenario() {
     fun rigCarriesPivotTiltFreezesAndSampleTicks() {
         // the player plays these 1:1 as v2 RigMotion (chunked slerp, hit-stop clock); the lowering must hand every field over
         val s = compiled(
-            "{id: r, op: rig, parent: caster, pivot: {left: 0.0, up: 1.4, forward: 0.3}, sample_ticks: 1, respect_hit_stop: true, freezes: [{at: 7, ticks: 2}], for: 20, " +
+            "{id: r, op: rig, parent: caster, part: held_hand, pivot: {left: 0.0, up: 1.4, forward: 0.3}, sample_ticks: 1, respect_hit_stop: true, freezes: [{at: 7, ticks: 2}], for: 20, " +
                 "swing: [{at: 2, for: 3, from: {left: -1, up: 1, forward: 1}, to: {left: 1, up: -1, forward: 1}, edge: leading}]}",
         )
         val payload = (rows(s).first { it.action is Action.Effect }.action as Action.Effect).payload
