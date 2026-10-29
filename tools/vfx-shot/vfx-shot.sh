@@ -1039,8 +1039,17 @@ watcher_camera_mode() {
 }
 
 place_scene() { # view target_z
-  local view="$1" tz="$2"
+  local view="$1" tz="$2" who
   rcon "kill @e[type=minecraft:husk]" >/dev/null
+  # A client left parked by an earlier view (Target after `opponent`, Watcher after an orbit view) still stands where that
+  # view put it: in survival it is a second victim of the skill (a lethal hit sends it to the lobby, it replaces the dummy
+  # on screen and it hides / is hit instead of the target). Park every player this view does not use as an invisible
+  # spectator far from the arena; an offline name is a harmless rcon error.
+  for who in Watcher Caster Target; do
+    case " $(players_of "$view") " in *" $who "*) continue ;; esac
+    rcon "gamemode spectator $who" >/dev/null 2>&1
+    tp "$who" "$CX" "$((Y + 60))" "$((${CZ%.*} - 150))" 0 0 2>/dev/null
+  done
   rcon "gamemode survival Caster" >/dev/null
   [ "$view" = compare ] || tp Caster "$CX" "$Y" "$CZ" 0 0
   case "$view" in
