@@ -1,0 +1,21 @@
+# Point table for the shield-bulwark: measured from the real 3D model content/models/items/shield-bulwark.model.json [tools/model-forge/batches/heavy-models], not from a sprite.
+# Chain as content/frames/couture-rapier.yaml: q = RotY[180] * [ T + Rxyz * [ S * [p/16 - 0.5] ] ], p = model point in pixels [16 px = 1 block], T/R/S = the model display block of the part display.
+# Model space: plate in the XY plane, up = +Y, outer face +Z, hand-grip bar at z 5.6..7.4 on the back.
+# Model points [px]: grip=[8, 10.0, 6.5] [hand centre, = pivot], root=[8, -4.8, 8.5], tip=[8, 22.2, 8.5], edge dir=[-1, 0, 0]; root/tip sit on the striking edge/axis so the trail particles run on the steel.
+# length = model extent along model +Y [whole item, grip end to far end] * display scale / 16. hand_anchor = q[[8,8,8]] under the third-person display [the point the hand frame sits on].
+apiVersion: astera/v3
+kind: ItemFrames
+item: shield-bulwark
+parts:
+  held:
+    model: astera:shield-bulwark
+    display: fixed
+    length: 1.0007
+    points: { grip: [0.0276, 0.0395, -0.0963], pivot: [0.0276, 0.0395, -0.0963], root: [-0.287, -0.4098, -0.0222], tip: [0.287, 0.4099, -0.0222], center: [0.0064, 0.0091, 0.0704] }
+    axes: { long: [0.5736, 0.8192, 0.0], edge: [-0.8192, 0.5736, 0.0] }
+  held_hand:
+    model: astera:shield-bulwark
+    display: thirdperson_righthand
+    length: 1.0007
+    points: { grip: [0.0, 0.0, 0.0], pivot: [0.0, 0.0, 0.0], root: [0.0, -0.5485, -0.0741], tip: [0.0, 0.4522, -0.0741], center: [0.0, -0.037, -0.1667], hand_anchor: [0.0, -0.0741, -0.0556] }
+    axes: { long: [0.0, 1.0, 0.0], edge: [1.0, 0.0, 0.0] }

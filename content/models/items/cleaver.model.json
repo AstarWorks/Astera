@@ -1,0 +1,4219 @@
+{
+  "textures": {
+    "particle": "minecraft:block/iron_block",
+    "material_copper_block": "minecraft:block/copper_block",
+    "material_stripped_oak_log": "minecraft:block/stripped_oak_log",
+    "material_stripped_oak_log_top": "minecraft:block/stripped_oak_log_top",
+    "material_stripped_dark_oak_log": "minecraft:block/stripped_dark_oak_log",
+    "material_stripped_dark_oak_log_top": "minecraft:block/stripped_dark_oak_log_top",
+    "material_gold_block": "minecraft:block/gold_block"
+  },
+  "elements": [
+    {
+      "name": "copper pommel cap",
+      "from": [
+        6.5,
+        -1.3,
+        6.5
+      ],
+      "to": [
+        9.5,
+        -0.19999999999999996,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_copper_block",
+          "uv": [
+            1,
+            6,
+            4.0,
+            7.1
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_copper_block",
+          "uv": [
+            6,
+            11,
+            9.0,
+            12.1
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_copper_block",
+          "uv": [
+            8,
+            2,
+            11.0,
+            3.1
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_copper_block",
+          "uv": [
+            6,
+            2,
+            9.0,
+            3.1
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_copper_block",
+          "uv": [
+            2,
+            2,
+            5.0,
+            5.0
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "copper pommel bead",
+      "from": [
+        7.1,
+        -1.7,
+        7.1
+      ],
+      "to": [
+        8.9,
+        -1.3,
+        8.9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_copper_block",
+          "uv": [
+            8,
+            9,
+            9.8,
+            9.4
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_copper_block",
+          "uv": [
+            10,
+            4,
+            11.8,
+            4.4
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_copper_block",
+          "uv": [
+            0,
+            13,
+            1.8000000000000007,
+            13.4
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_copper_block",
+          "uv": [
+            8,
+            11,
+            9.8,
+            11.4
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_copper_block",
+          "uv": [
+            2,
+            4,
+            3.8000000000000007,
+            5.800000000000001
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_copper_block",
+          "uv": [
+            10,
+            8,
+            11.8,
+            9.8
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "handle flare",
+      "from": [
+        6.7,
+        -0.2,
+        6.7
+      ],
+      "to": [
+        9.3,
+        1.8,
+        9.3
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_stripped_oak_log",
+          "uv": [
+            2,
+            12,
+            4.0,
+            14.600000000000001
+          ],
+          "rotation": 90
+        },
+        "south": {
+          "texture": "#material_stripped_oak_log",
+          "uv": [
+            2,
+            3,
+            4.0,
+            5.6000000000000005
+          ],
+          "rotation": 90
+        },
+        "east": {
+          "texture": "#material_stripped_oak_log_top",
+          "uv": [
+            5,
+            10,
+            7.6000000000000005,
+            12.0
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_stripped_oak_log_top",
+          "uv": [
+            9,
+            5,
+            11.600000000000001,
+            7.0
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_stripped_oak_log",
+          "uv": [
+            6,
+            10,
+            8.600000000000001,
+            12.600000000000001
+          ],
+          "rotation": 90
+        },
+        "down": {
+          "texture": "#material_stripped_oak_log",
+          "uv": [
+            2,
+            6,
+            4.6000000000000005,
+            8.600000000000001
+          ],
+          "rotation": 90
+        }
+      }
+    },
+    {
+      "name": "handle lower",
+      "from": [
+        6.85,
+        1.8,
+        6.85
+      ],
+      "to": [
+        9.15,
+        5.4,
+        9.15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_stripped_oak_log",
+          "uv": [
+            12,
+            2,
+            14.3,
+            5.6000000000000005
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_stripped_oak_log",
+          "uv": [
+            5,
+            7,
+            7.300000000000001,
+            10.600000000000001
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_stripped_oak_log",
+          "uv": [
+            9,
+            12,
+            11.3,
+            15.600000000000001
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_stripped_oak_log",
+          "uv": [
+            2,
+            0,
+            4.300000000000001,
+            3.6000000000000005
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_stripped_oak_log_top",
+          "uv": [
+            0,
+            2,
+            2.3000000000000007,
+            4.300000000000001
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_stripped_oak_log_top",
+          "uv": [
+            10,
+            6,
+            12.3,
+            8.3
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "handle upper",
+      "from": [
+        6.9,
+        5.4,
+        6.9
+      ],
+      "to": [
+        9.1,
+        9.0,
+        9.1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_stripped_oak_log",
+          "uv": [
+            4,
+            11,
+            6.199999999999999,
+            14.6
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_stripped_oak_log",
+          "uv": [
+            0,
+            11,
+            2.1999999999999993,
+            14.6
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_stripped_oak_log",
+          "uv": [
+            11,
+            1,
+            13.2,
+            4.6
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_stripped_oak_log",
+          "uv": [
+            11,
+            9,
+            13.2,
+            12.6
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_stripped_oak_log_top",
+          "uv": [
+            9,
+            9,
+            11.2,
+            11.2
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_stripped_oak_log_top",
+          "uv": [
+            4,
+            6,
+            6.199999999999999,
+            8.2
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "handle groove 0",
+      "from": [
+        6.78,
+        2.4,
+        6.78
+      ],
+      "to": [
+        9.22,
+        2.75,
+        9.22
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_stripped_dark_oak_log",
+          "uv": [
+            9,
+            8,
+            9.35,
+            10.440000000000001
+          ],
+          "rotation": 90
+        },
+        "south": {
+          "texture": "#material_stripped_dark_oak_log",
+          "uv": [
+            9,
+            7,
+            9.35,
+            9.440000000000001
+          ],
+          "rotation": 90
+        },
+        "east": {
+          "texture": "#material_stripped_dark_oak_log_top",
+          "uv": [
+            1,
+            8,
+            3.4400000000000004,
+            8.35
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_stripped_dark_oak_log_top",
+          "uv": [
+            2,
+            3,
+            4.44,
+            3.35
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_stripped_dark_oak_log",
+          "uv": [
+            11,
+            5,
+            13.440000000000001,
+            7.44
+          ],
+          "rotation": 90
+        },
+        "down": {
+          "texture": "#material_stripped_dark_oak_log",
+          "uv": [
+            5,
+            4,
+            7.44,
+            6.44
+          ],
+          "rotation": 90
+        }
+      }
+    },
+    {
+      "name": "handle groove 1",
+      "from": [
+        6.78,
+        4.0,
+        6.78
+      ],
+      "to": [
+        9.22,
+        4.35,
+        9.22
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_stripped_dark_oak_log",
+          "uv": [
+            15,
+            3,
+            15.35,
+            5.44
+          ],
+          "rotation": 90
+        },
+        "south": {
+          "texture": "#material_stripped_dark_oak_log",
+          "uv": [
+            12,
+            8,
+            12.35,
+            10.440000000000001
+          ],
+          "rotation": 90
+        },
+        "east": {
+          "texture": "#material_stripped_dark_oak_log_top",
+          "uv": [
+            13,
+            15,
+            15.440000000000001,
+            15.35
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_stripped_dark_oak_log_top",
+          "uv": [
+            8,
+            3,
+            10.440000000000001,
+            3.3499999999999996
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_stripped_dark_oak_log",
+          "uv": [
+            11,
+            12,
+            13.440000000000001,
+            14.440000000000001
+          ],
+          "rotation": 90
+        },
+        "down": {
+          "texture": "#material_stripped_dark_oak_log",
+          "uv": [
+            2,
+            5,
+            4.44,
+            7.44
+          ],
+          "rotation": 90
+        }
+      }
+    },
+    {
+      "name": "handle groove 2",
+      "from": [
+        6.78,
+        5.6,
+        6.78
+      ],
+      "to": [
+        9.22,
+        5.949999999999999,
+        9.22
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_stripped_dark_oak_log",
+          "uv": [
+            11,
+            11,
+            11.35,
+            13.440000000000001
+          ],
+          "rotation": 90
+        },
+        "south": {
+          "texture": "#material_stripped_dark_oak_log",
+          "uv": [
+            3,
+            9,
+            3.3499999999999996,
+            11.440000000000001
+          ],
+          "rotation": 90
+        },
+        "east": {
+          "texture": "#material_stripped_dark_oak_log_top",
+          "uv": [
+            2,
+            9,
+            4.44,
+            9.35
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_stripped_dark_oak_log_top",
+          "uv": [
+            4,
+            7,
+            6.44,
+            7.35
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_stripped_dark_oak_log",
+          "uv": [
+            0,
+            1,
+            2.4400000000000004,
+            3.4400000000000004
+          ],
+          "rotation": 90
+        },
+        "down": {
+          "texture": "#material_stripped_dark_oak_log",
+          "uv": [
+            10,
+            10,
+            12.440000000000001,
+            12.440000000000001
+          ],
+          "rotation": 90
+        }
+      }
+    },
+    {
+      "name": "handle groove 3",
+      "from": [
+        6.78,
+        7.2,
+        6.78
+      ],
+      "to": [
+        9.22,
+        7.55,
+        9.22
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_stripped_dark_oak_log",
+          "uv": [
+            6,
+            13,
+            6.35,
+            15.440000000000001
+          ],
+          "rotation": 90
+        },
+        "south": {
+          "texture": "#material_stripped_dark_oak_log",
+          "uv": [
+            1,
+            0,
+            1.3499999999999996,
+            2.4400000000000004
+          ],
+          "rotation": 90
+        },
+        "east": {
+          "texture": "#material_stripped_dark_oak_log_top",
+          "uv": [
+            1,
+            7,
+            3.4400000000000004,
+            7.35
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_stripped_dark_oak_log_top",
+          "uv": [
+            6,
+            6,
+            8.440000000000001,
+            6.35
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_stripped_dark_oak_log",
+          "uv": [
+            10,
+            10,
+            12.440000000000001,
+            12.440000000000001
+          ],
+          "rotation": 90
+        },
+        "down": {
+          "texture": "#material_stripped_dark_oak_log",
+          "uv": [
+            8,
+            11,
+            10.440000000000001,
+            13.440000000000001
+          ],
+          "rotation": 90
+        }
+      }
+    },
+    {
+      "name": "handle rivet 0n",
+      "from": [
+        7.6,
+        2.8000000000000003,
+        6.71
+      ],
+      "to": [
+        8.4,
+        3.6,
+        6.85
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            0,
+            14,
+            0.8000000000000007,
+            14.8
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            6,
+            5,
+            6.800000000000001,
+            5.8
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            12,
+            8,
+            12.14,
+            8.8
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            5,
+            11,
+            5.14,
+            11.8
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            1,
+            1,
+            1.8000000000000007,
+            1.1399999999999997
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            3,
+            9,
+            3.8000000000000007,
+            9.14
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "handle rivet 0f",
+      "from": [
+        7.6,
+        2.8000000000000003,
+        9.15
+      ],
+      "to": [
+        8.4,
+        3.6,
+        9.290000000000001
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            0,
+            1,
+            0.8000000000000007,
+            1.7999999999999998
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            11,
+            5,
+            11.8,
+            5.8
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            8,
+            0,
+            8.14,
+            0.7999999999999998
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            14,
+            8,
+            14.14,
+            8.8
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            13,
+            0,
+            13.8,
+            0.14000000000000057
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            10,
+            6,
+            10.8,
+            6.140000000000001
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "handle rivet 1n",
+      "from": [
+        7.6,
+        6.0,
+        6.71
+      ],
+      "to": [
+        8.4,
+        6.800000000000001,
+        6.85
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            3,
+            12,
+            3.8000000000000007,
+            12.8
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            4,
+            3,
+            4.800000000000001,
+            3.8000000000000007
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            9,
+            3,
+            9.14,
+            3.8000000000000007
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            13,
+            11,
+            13.14,
+            11.8
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            15,
+            15,
+            15.8,
+            15.14
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            9,
+            11,
+            9.8,
+            11.14
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "handle rivet 1f",
+      "from": [
+        7.6,
+        6.0,
+        9.15
+      ],
+      "to": [
+        8.4,
+        6.800000000000001,
+        9.290000000000001
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            7,
+            11,
+            7.800000000000001,
+            11.8
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            3,
+            5,
+            3.8000000000000007,
+            5.800000000000001
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            0,
+            15,
+            0.14000000000000057,
+            15.8
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            1,
+            15,
+            1.1400000000000006,
+            15.8
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            5,
+            3,
+            5.800000000000001,
+            3.1400000000000006
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            1,
+            0,
+            1.8000000000000007,
+            0.14000000000000057
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "handle rivet 2n",
+      "from": [
+        7.6,
+        7.6,
+        6.71
+      ],
+      "to": [
+        8.4,
+        8.4,
+        6.85
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            7,
+            2,
+            7.800000000000001,
+            2.8000000000000007
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            6,
+            10,
+            6.800000000000001,
+            10.8
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            1,
+            0,
+            1.1399999999999997,
+            0.8000000000000007
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            2,
+            4,
+            2.1399999999999997,
+            4.800000000000001
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            5,
+            10,
+            5.800000000000001,
+            10.14
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            3,
+            3,
+            3.8000000000000007,
+            3.1399999999999997
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "handle rivet 2f",
+      "from": [
+        7.6,
+        7.6,
+        9.15
+      ],
+      "to": [
+        8.4,
+        8.4,
+        9.290000000000001
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            10,
+            8,
+            10.8,
+            8.8
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            4,
+            0,
+            4.800000000000001,
+            0.8000000000000007
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            6,
+            1,
+            6.140000000000001,
+            1.8000000000000007
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            15,
+            3,
+            15.14,
+            3.8000000000000007
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            7,
+            11,
+            7.800000000000001,
+            11.14
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            11,
+            0,
+            11.8,
+            0.14000000000000057
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "ferrule lower",
+      "from": [
+        6.55,
+        9.0,
+        6.55
+      ],
+      "to": [
+        9.45,
+        9.7,
+        9.45
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            10,
+            3.8999999999999995,
+            10.7
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            2,
+            11.899999999999999,
+            2.6999999999999993
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            15,
+            8.899999999999999,
+            15.7
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            1,
+            5.8999999999999995,
+            1.6999999999999993
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            12,
+            15.899999999999999,
+            14.899999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            8,
+            13.899999999999999,
+            10.899999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "ferrule upper",
+      "from": [
+        6.45,
+        9.7,
+        6.7
+      ],
+      "to": [
+        9.55,
+        10.4,
+        9.3
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            12,
+            10.100000000000001,
+            12.700000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            2,
+            14.100000000000001,
+            2.700000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            3,
+            7.6000000000000005,
+            3.700000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            14,
+            10.600000000000001,
+            14.700000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            7,
+            5.1000000000000005,
+            9.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            13,
+            5.1000000000000005,
+            15.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "bolster core",
+      "from": [
+        6.9,
+        10.4,
+        6.9
+      ],
+      "to": [
+        14.6,
+        11.4,
+        9.1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            0,
+            13.7,
+            1.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            8,
+            14.7,
+            9.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            14,
+            13.2,
+            15.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            14,
+            11.2,
+            15.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            4,
+            11.7,
+            6.199999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            6,
+            15.7,
+            8.2
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "bolster step",
+      "from": [
+        7.1,
+        11.4,
+        7.05
+      ],
+      "to": [
+        14.0,
+        11.8,
+        8.95
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            6,
+            7.9,
+            6.4
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            0,
+            9.9,
+            0.40000000000000036
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            4,
+            1.8999999999999995,
+            4.4
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            7,
+            13.899999999999999,
+            7.4
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            5,
+            12.9,
+            6.8999999999999995
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            6,
+            13.9,
+            7.8999999999999995
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "spine cap",
+      "from": [
+        6.9,
+        27.6,
+        6.85
+      ],
+      "to": [
+        8.5,
+        28.200000000000003,
+        9.15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            12,
+            6.6,
+            12.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            13,
+            9.6,
+            13.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            0,
+            2.3000000000000007,
+            0.6000000000000014
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            3,
+            6.300000000000001,
+            3.6000000000000014
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            2,
+            14.6,
+            4.300000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            10,
+            6.6,
+            12.3
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      }
+    },
+    {
+      "name": "spine strip",
+      "from": [
+        6.9,
+        11.8,
+        6.85
+      ],
+      "to": [
+        8.5,
+        27.6,
+        9.15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            0,
+            5.6,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            0,
+            6.6,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            0,
+            15.3,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            0,
+            13.3,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            10,
+            13.6,
+            12.3
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            5,
+            14.6,
+            7.300000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      }
+    },
+    {
+      "name": "spine ridge",
+      "from": [
+        7.1,
+        11.8,
+        6.7
+      ],
+      "to": [
+        7.9,
+        27.6,
+        6.85
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            0,
+            13.8,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            0,
+            10.8,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            0,
+            14.149999999999999,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            0,
+            0.14999999999999947,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            1,
+            3.8000000000000007,
+            1.1499999999999995
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            8,
+            8.8,
+            8.149999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "spine ridge back",
+      "from": [
+        7.1,
+        11.8,
+        9.15
+      ],
+      "to": [
+        7.9,
+        27.6,
+        9.3
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            0,
+            1.8000000000000007,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            0,
+            10.8,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            0,
+            10.15,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            0,
+            7.15,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            8,
+            3.8000000000000007,
+            8.15
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            0,
+            14.8,
+            0.15000000000000036
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "plate left",
+      "from": [
+        8.5,
+        11.8,
+        7.25
+      ],
+      "to": [
+        9.7,
+        27.6,
+        8.75
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            0,
+            15.2,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            0,
+            7.199999999999999,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            0,
+            15.5,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            0,
+            14.5,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            13,
+            6.199999999999999,
+            14.5
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            12,
+            9.2,
+            13.5
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "plate right",
+      "from": [
+        11.4,
+        11.8,
+        7.25
+      ],
+      "to": [
+        12.6,
+        27.6,
+        8.75
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            0,
+            7.199999999999999,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            0,
+            12.2,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            0,
+            1.5,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            0,
+            8.5,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            14,
+            12.2,
+            15.5
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            10,
+            9.2,
+            11.5
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "plate mid foot",
+      "from": [
+        9.7,
+        11.8,
+        7.25
+      ],
+      "to": [
+        11.4,
+        22.6,
+        8.75
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            2,
+            1.700000000000001,
+            12.8
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            3,
+            15.700000000000001,
+            13.8
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            3,
+            3.5,
+            13.8
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            3,
+            10.5,
+            13.8
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            9,
+            11.700000000000001,
+            10.5
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            1,
+            14.700000000000001,
+            2.5
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "plate mid head",
+      "from": [
+        9.7,
+        25.2,
+        7.25
+      ],
+      "to": [
+        11.4,
+        27.6,
+        8.75
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            6,
+            5.700000000000001,
+            8.400000000000002
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            11,
+            2.700000000000001,
+            13.400000000000002
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            9,
+            8.5,
+            11.400000000000002
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            11,
+            9.5,
+            13.400000000000002
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            8,
+            14.700000000000001,
+            9.5
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            3,
+            15.700000000000001,
+            4.5
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "hang hole rim lo",
+      "from": [
+        9.7,
+        22.6,
+        7.45
+      ],
+      "to": [
+        11.4,
+        22.9,
+        8.55
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            10,
+            15.700000000000001,
+            10.299999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            12,
+            7.700000000000001,
+            12.299999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            12,
+            8.100000000000001,
+            12.299999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            2,
+            9.100000000000001,
+            2.299999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            13,
+            6.700000000000001,
+            14.100000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            11,
+            1.700000000000001,
+            12.100000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      }
+    },
+    {
+      "name": "hang hole rim hi",
+      "from": [
+        9.7,
+        24.9,
+        7.45
+      ],
+      "to": [
+        11.4,
+        25.2,
+        8.55
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            11,
+            4.700000000000001,
+            11.3
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            4,
+            14.700000000000001,
+            4.300000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            7,
+            13.100000000000001,
+            7.300000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            12,
+            7.1000000000000005,
+            12.3
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            1,
+            3.700000000000001,
+            2.1000000000000005
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            5,
+            13.700000000000001,
+            6.1000000000000005
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      }
+    },
+    {
+      "name": "bevel 1 low",
+      "from": [
+        12.6,
+        11.8,
+        7.5
+      ],
+      "to": [
+        13.8,
+        20.0,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            7,
+            11.200000000000001,
+            15.2
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            5,
+            6.200000000000001,
+            13.2
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            5,
+            15.0,
+            13.2
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            3,
+            12.0,
+            11.2
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            5,
+            8.200000000000001,
+            6.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            5,
+            4.200000000000001,
+            6.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      }
+    },
+    {
+      "name": "bevel 1 high",
+      "from": [
+        12.6,
+        20.0,
+        7.5
+      ],
+      "to": [
+        13.8,
+        27.0,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            6,
+            4.200000000000001,
+            13.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            1,
+            10.200000000000001,
+            8.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            3,
+            9.0,
+            10.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            3,
+            5.0,
+            10.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            14,
+            11.200000000000001,
+            15.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            12,
+            7.200000000000001,
+            13.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      }
+    },
+    {
+      "name": "bevel 2",
+      "from": [
+        13.8,
+        12.100000000000001,
+        7.72
+      ],
+      "to": [
+        14.6,
+        26.2,
+        8.28
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            0,
+            13.799999999999999,
+            14.099999999999998
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            0,
+            11.799999999999999,
+            14.099999999999998
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            0,
+            2.5599999999999996,
+            14.099999999999998
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            1,
+            2.5599999999999996,
+            15.099999999999998
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            5,
+            5.799999999999999,
+            5.56
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            6,
+            4.799999999999999,
+            6.56
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      }
+    },
+    {
+      "name": "cutting edge",
+      "from": [
+        14.6,
+        12.4,
+        7.88
+      ],
+      "to": [
+        15.0,
+        25.4,
+        8.12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            1,
+            10.4,
+            13.999999999999998
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            1,
+            3.4000000000000004,
+            13.999999999999998
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            2,
+            0.23999999999999932,
+            14.999999999999998
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            1,
+            2.2399999999999993,
+            13.999999999999998
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            3,
+            11.4,
+            3.2399999999999993
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            11,
+            8.4,
+            11.239999999999998
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      }
+    },
+    {
+      "name": "edge heel cap",
+      "from": [
+        14.6,
+        11.8,
+        7.88
+      ],
+      "to": [
+        15.0,
+        12.4,
+        8.12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            8,
+            3.4000000000000004,
+            8.6
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            3,
+            14.4,
+            3.5999999999999996
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            15,
+            4,
+            15.239999999999998,
+            4.6
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            0,
+            3.2399999999999993,
+            0.5999999999999996
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            12,
+            9.4,
+            12.239999999999998
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            3,
+            1.4000000000000004,
+            3.2399999999999993
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "corner chamfer 1",
+      "from": [
+        12.6,
+        27.0,
+        7.6
+      ],
+      "to": [
+        13.4,
+        27.6,
+        8.4
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            13,
+            7.800000000000001,
+            13.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            0,
+            0.8000000000000007,
+            0.6000000000000014
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            9,
+            10.8,
+            9.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            10,
+            8.8,
+            10.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            6,
+            7.800000000000001,
+            6.800000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            10,
+            11.8,
+            10.8
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      }
+    },
+    {
+      "name": "corner chamfer 2",
+      "from": [
+        13.4,
+        26.2,
+        7.8
+      ],
+      "to": [
+        14.0,
+        26.8,
+        8.2
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            13,
+            12.6,
+            13.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            6,
+            0.5999999999999996,
+            6.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            3,
+            4.3999999999999995,
+            3.6000000000000014
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            15,
+            14.399999999999999,
+            15.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            9,
+            3.5999999999999996,
+            9.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            15,
+            0.5999999999999996,
+            15.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      }
+    },
+    {
+      "name": "forge scale 0",
+      "from": [
+        8.9,
+        13.4,
+        7.15
+      ],
+      "to": [
+        10.1,
+        13.9,
+        7.25
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            7,
+            13.2,
+            7.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            2,
+            2.1999999999999993,
+            2.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            15,
+            10,
+            15.1,
+            10.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            7,
+            2.0999999999999996,
+            7.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            12,
+            12.2,
+            12.1
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            7,
+            2.1999999999999993,
+            7.1
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "forge scale back 0",
+      "from": [
+        8.9,
+        13.4,
+        8.75
+      ],
+      "to": [
+        10.1,
+        13.9,
+        8.85
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            6,
+            6.199999999999999,
+            6.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            11,
+            5.199999999999999,
+            11.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            7,
+            9.1,
+            7.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            14,
+            5.1,
+            14.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            4,
+            5.199999999999999,
+            4.1
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            6,
+            11.2,
+            6.1
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "forge scale 1",
+      "from": [
+        9.8,
+        16.0,
+        7.15
+      ],
+      "to": [
+        11.0,
+        16.5,
+        7.25
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            15,
+            13.2,
+            15.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            14,
+            7.199999999999999,
+            14.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            8,
+            11.1,
+            8.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            7,
+            9.1,
+            7.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            3,
+            5.199999999999999,
+            3.0999999999999996
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            5,
+            14.2,
+            5.1
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "forge scale back 1",
+      "from": [
+        9.8,
+        16.0,
+        8.75
+      ],
+      "to": [
+        11.0,
+        16.5,
+        8.85
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            2,
+            15.2,
+            2.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            9,
+            6.199999999999999,
+            9.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            10,
+            6.1,
+            10.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            11,
+            8.1,
+            11.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            3,
+            11.2,
+            3.0999999999999996
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            4,
+            10.2,
+            4.1
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "forge scale 2",
+      "from": [
+        8.9,
+        18.6,
+        7.15
+      ],
+      "to": [
+        10.1,
+        19.1,
+        7.25
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            8,
+            7.199999999999999,
+            8.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            8,
+            6.199999999999999,
+            8.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            3,
+            4.1,
+            3.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            14,
+            9.1,
+            14.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            6,
+            10.2,
+            6.1
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            9,
+            12.2,
+            9.1
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "forge scale back 2",
+      "from": [
+        8.9,
+        18.6,
+        8.75
+      ],
+      "to": [
+        10.1,
+        19.1,
+        8.85
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            14,
+            4.199999999999999,
+            14.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            6,
+            1.1999999999999993,
+            6.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            7,
+            12.1,
+            7.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            3,
+            9.1,
+            3.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            7,
+            12.2,
+            7.1
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            8,
+            1.1999999999999993,
+            8.1
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "forge scale 3",
+      "from": [
+        9.8,
+        21.0,
+        7.15
+      ],
+      "to": [
+        11.0,
+        21.5,
+        7.25
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            2,
+            11.2,
+            2.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            9,
+            15.2,
+            9.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            15,
+            7,
+            15.1,
+            7.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            2,
+            8.1,
+            2.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            14,
+            7.199999999999999,
+            14.1
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            15,
+            1.1999999999999993,
+            15.1
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "forge scale back 3",
+      "from": [
+        9.8,
+        21.0,
+        8.75
+      ],
+      "to": [
+        11.0,
+        21.5,
+        8.85
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            9,
+            4.199999999999999,
+            9.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            11,
+            2.1999999999999993,
+            11.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            9,
+            1.0999999999999996,
+            9.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            11,
+            4.1,
+            11.5
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            15,
+            1.1999999999999993,
+            15.1
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            8,
+            15.2,
+            8.1
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "blade rivet 0n",
+      "from": [
+        7.325,
+        14.225,
+        6.5600000000000005
+      ],
+      "to": [
+        8.075,
+        14.975,
+        6.7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            15,
+            2,
+            15.75,
+            2.75
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            15,
+            7,
+            15.75,
+            7.75
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            12,
+            14,
+            12.14,
+            14.75
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            0,
+            4,
+            0.13999999999999968,
+            4.75
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            8,
+            15,
+            8.75,
+            15.14
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            2,
+            15,
+            2.749999999999999,
+            15.14
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "blade rivet 0f",
+      "from": [
+        7.325,
+        14.225,
+        9.3
+      ],
+      "to": [
+        8.075,
+        14.975,
+        9.440000000000001
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            0,
+            6,
+            0.7499999999999991,
+            6.75
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            12,
+            3,
+            12.75,
+            3.75
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            1,
+            14,
+            1.1400000000000006,
+            14.75
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            10,
+            6,
+            10.14,
+            6.75
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            9,
+            7,
+            9.75,
+            7.140000000000001
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            5,
+            1,
+            5.749999999999999,
+            1.1400000000000006
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "blade rivet 1n",
+      "from": [
+        7.325,
+        18.025,
+        6.5600000000000005
+      ],
+      "to": [
+        8.075,
+        18.775,
+        6.7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            4,
+            8,
+            4.749999999999999,
+            8.75
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            5,
+            13,
+            5.749999999999999,
+            13.75
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            14,
+            14,
+            14.14,
+            14.75
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            10,
+            12,
+            10.14,
+            12.75
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            12,
+            8,
+            12.75,
+            8.14
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            15,
+            7,
+            15.75,
+            7.14
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "blade rivet 1f",
+      "from": [
+        7.325,
+        18.025,
+        9.3
+      ],
+      "to": [
+        8.075,
+        18.775,
+        9.440000000000001
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            8,
+            11,
+            8.75,
+            11.75
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            1,
+            5,
+            1.7499999999999991,
+            5.75
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            11,
+            8,
+            11.14,
+            8.75
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            15,
+            3,
+            15.14,
+            3.75
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            14,
+            11,
+            14.75,
+            11.14
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            12,
+            5,
+            12.75,
+            5.140000000000001
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "blade rivet 2n",
+      "from": [
+        7.325,
+        23.825,
+        6.5600000000000005
+      ],
+      "to": [
+        8.075,
+        24.575,
+        6.7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            1,
+            8,
+            1.7499999999999991,
+            8.75
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            10,
+            2,
+            10.75,
+            2.75
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            3,
+            13,
+            3.1399999999999997,
+            13.75
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            11,
+            6,
+            11.14,
+            6.75
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            5,
+            7,
+            5.749999999999999,
+            7.14
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            12,
+            2,
+            12.75,
+            2.1399999999999997
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "blade rivet 2f",
+      "from": [
+        7.325,
+        23.825,
+        9.3
+      ],
+      "to": [
+        8.075,
+        24.575,
+        9.440000000000001
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            11,
+            9,
+            11.75,
+            9.75
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            9,
+            1,
+            9.75,
+            1.75
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            7,
+            15,
+            7.140000000000001,
+            15.75
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            0,
+            7,
+            0.14000000000000057,
+            7.75
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            4,
+            10,
+            4.749999999999999,
+            10.14
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            7,
+            3,
+            7.749999999999999,
+            3.1400000000000006
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "edge nick 1",
+      "from": [
+        14.2,
+        17.2,
+        7.7
+      ],
+      "to": [
+        15.0,
+        17.9,
+        8.3
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            7,
+            6.800000000000001,
+            7.699999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            11,
+            7.800000000000001,
+            11.7
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            11,
+            7.6000000000000005,
+            11.7
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            9,
+            14.600000000000001,
+            9.7
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            1,
+            6.800000000000001,
+            1.6000000000000005
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            8,
+            10.8,
+            8.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      }
+    },
+    {
+      "name": "edge nick 2",
+      "from": [
+        14.2,
+        22.0,
+        7.7
+      ],
+      "to": [
+        15.0,
+        22.5,
+        8.3
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            8,
+            4.800000000000001,
+            8.5
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            11,
+            12.8,
+            11.5
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            6,
+            4.6000000000000005,
+            6.5
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            4,
+            3.6000000000000005,
+            4.5
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            15,
+            10.8,
+            15.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            6,
+            6.800000000000001,
+            6.6000000000000005
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        10,
+        -15,
+        -35
+      ],
+      "translation": [
+        -2.964,
+        -1.44,
+        -1.06
+      ],
+      "scale": [
+        0.585,
+        0.585,
+        0.585
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -35,
+        12
+      ],
+      "translation": [
+        -0.2327,
+        0.3286,
+        -3.163
+      ],
+      "scale": [
+        0.36,
+        0.36,
+        0.36
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        -35,
+        12
+      ],
+      "translation": [
+        -0.2327,
+        0.3286,
+        -3.163
+      ],
+      "scale": [
+        0.36,
+        0.36,
+        0.36
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        35,
+        -90,
+        0
+      ],
+      "translation": [
+        0.0,
+        1.4991,
+        1.0497
+      ],
+      "scale": [
+        0.482,
+        0.482,
+        0.482
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        35,
+        -90,
+        0
+      ],
+      "translation": [
+        0.0,
+        1.4991,
+        1.0497
+      ],
+      "scale": [
+        0.482,
+        0.482,
+        0.482
+      ]
+    },
+    "ground": {
+      "rotation": [
+        75,
+        0,
+        -90
+      ],
+      "translation": [
+        -1.9752,
+        1.2653,
+        0.9903
+      ],
+      "scale": [
+        0.376,
+        0.376,
+        0.376
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        -35
+      ],
+      "translation": [
+        2.5253,
+        -1.3184,
+        0.0
+      ],
+      "scale": [
+        0.482,
+        0.482,
+        0.482
+      ]
+    }
+  },
+  "gui_light": "front",
+  "ambientocclusion": false,
+  "astera_tints": [
+    8358294,
+    11845580,
+    5989230,
+    15002611
+  ],
+  "credit": "Astera / heavy-models (model-forge, vanilla patterns + tints)"
+}

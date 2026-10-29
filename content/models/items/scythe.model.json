@@ -1,0 +1,4788 @@
+{
+  "textures": {
+    "particle": "minecraft:block/iron_block",
+    "material_stripped_spruce_log": "minecraft:block/stripped_spruce_log",
+    "material_stripped_spruce_log_top": "minecraft:block/stripped_spruce_log_top",
+    "material_brown_wool": "minecraft:block/brown_wool",
+    "material_gold_block": "minecraft:block/gold_block"
+  },
+  "elements": [
+    {
+      "name": "steel butt cap",
+      "from": [
+        7.0,
+        -11.4,
+        7.0
+      ],
+      "to": [
+        9.0,
+        -10.6,
+        9.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            10,
+            10.0,
+            10.8
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            2,
+            7.0,
+            2.8000000000000007
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            8,
+            5.0,
+            8.8
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            14,
+            6.0,
+            14.8
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            5,
+            10.0,
+            7.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            13,
+            4.0,
+            15.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "butt knob",
+      "from": [
+        7.3,
+        -10.6,
+        7.3
+      ],
+      "to": [
+        8.7,
+        -10.0,
+        8.7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            9,
+            9.399999999999999,
+            9.6
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            4,
+            11.399999999999999,
+            4.6
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            13,
+            1.3999999999999995,
+            13.6
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            11,
+            9.399999999999999,
+            11.6
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            4,
+            3.3999999999999995,
+            5.3999999999999995
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            8,
+            11.399999999999999,
+            9.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "snath lower",
+      "from": [
+        7.1,
+        -10.0,
+        7.1
+      ],
+      "to": [
+        8.9,
+        4.0,
+        8.9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_stripped_spruce_log",
+          "uv": [
+            2,
+            0,
+            3.8000000000000007,
+            14.0
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_stripped_spruce_log",
+          "uv": [
+            2,
+            1,
+            3.8000000000000007,
+            15.0
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_stripped_spruce_log",
+          "uv": [
+            14,
+            1,
+            15.8,
+            15.0
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_stripped_spruce_log",
+          "uv": [
+            2,
+            2,
+            3.8000000000000007,
+            16.0
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_stripped_spruce_log_top",
+          "uv": [
+            4,
+            14,
+            5.800000000000001,
+            15.8
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_stripped_spruce_log_top",
+          "uv": [
+            5,
+            13,
+            6.800000000000001,
+            14.8
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "grip wrap 0",
+      "from": [
+        6.92,
+        -8.6,
+        6.92
+      ],
+      "to": [
+        9.08,
+        -7.9799999999999995,
+        9.08
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            12,
+            4,
+            14.16,
+            4.62
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            5,
+            15,
+            7.16,
+            15.620000000000001
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            9,
+            7,
+            11.16,
+            7.62
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            2,
+            4,
+            4.16,
+            4.62
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            0,
+            2,
+            2.16,
+            4.16
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            10,
+            6,
+            12.16,
+            8.16
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "grip wrap 1",
+      "from": [
+        6.92,
+        -7.6,
+        6.92
+      ],
+      "to": [
+        9.08,
+        -6.9799999999999995,
+        9.08
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            4,
+            6,
+            6.16,
+            6.62
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            0,
+            4,
+            2.16,
+            4.62
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            11,
+            14,
+            13.16,
+            14.620000000000001
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            11,
+            11,
+            13.16,
+            11.620000000000001
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            9,
+            9,
+            11.16,
+            11.16
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            4,
+            6,
+            6.16,
+            8.16
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "grip wrap 2",
+      "from": [
+        6.92,
+        -6.6,
+        6.92
+      ],
+      "to": [
+        9.08,
+        -5.9799999999999995,
+        9.08
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            13,
+            2,
+            15.16,
+            2.62
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            3,
+            13,
+            5.16,
+            13.620000000000001
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            1,
+            8,
+            3.16,
+            8.620000000000001
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            2,
+            3,
+            4.16,
+            3.62
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            11,
+            5,
+            13.16,
+            7.16
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            5,
+            4,
+            7.16,
+            6.16
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "grip wrap 3",
+      "from": [
+        6.92,
+        -5.6,
+        6.92
+      ],
+      "to": [
+        9.08,
+        -4.9799999999999995,
+        9.08
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            7,
+            15,
+            9.16,
+            15.620000000000001
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            0,
+            10,
+            2.16,
+            10.620000000000001
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            13,
+            15,
+            15.16,
+            15.620000000000001
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            8,
+            3,
+            10.16,
+            3.62
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            11,
+            12,
+            13.16,
+            14.16
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            2,
+            5,
+            4.16,
+            7.16
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "grip wrap 4",
+      "from": [
+        6.92,
+        -4.6,
+        6.92
+      ],
+      "to": [
+        9.08,
+        -3.9799999999999995,
+        9.08
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            13,
+            5,
+            15.16,
+            5.62
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            5,
+            3,
+            7.16,
+            3.62
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            2,
+            9,
+            4.16,
+            9.620000000000001
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            4,
+            7,
+            6.16,
+            7.62
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            0,
+            1,
+            2.16,
+            3.16
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            10,
+            10,
+            12.16,
+            12.16
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "grip wrap 5",
+      "from": [
+        6.92,
+        -3.5999999999999996,
+        6.92
+      ],
+      "to": [
+        9.08,
+        -2.9799999999999995,
+        9.08
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            8,
+            1,
+            10.16,
+            1.62
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            3,
+            6,
+            5.16,
+            6.62
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            1,
+            7,
+            3.16,
+            7.62
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            6,
+            6,
+            8.16,
+            6.62
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            10,
+            10,
+            12.16,
+            12.16
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            8,
+            11,
+            10.16,
+            13.16
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "grip wrap 6",
+      "from": [
+        6.92,
+        -2.5999999999999996,
+        6.92
+      ],
+      "to": [
+        9.08,
+        -1.9799999999999995,
+        9.08
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            8,
+            14,
+            10.16,
+            14.620000000000001
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            12,
+            5,
+            14.16,
+            5.62
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            12,
+            8,
+            14.16,
+            8.620000000000001
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            7,
+            11,
+            9.16,
+            11.620000000000001
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            11,
+            1,
+            13.16,
+            3.16
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            1,
+            11,
+            3.16,
+            13.16
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "grip wrap 7",
+      "from": [
+        6.92,
+        -1.5999999999999996,
+        6.92
+      ],
+      "to": [
+        9.08,
+        -0.9799999999999995,
+        9.08
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            6,
+            1,
+            8.16,
+            1.62
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            3,
+            5,
+            5.16,
+            5.62
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            10,
+            0,
+            12.16,
+            0.6200000000000001
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            4,
+            8,
+            6.16,
+            8.620000000000001
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            13,
+            0,
+            15.16,
+            2.16
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            10,
+            10,
+            12.16,
+            12.16
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "grip wrap 8",
+      "from": [
+        6.92,
+        -0.5999999999999996,
+        6.92
+      ],
+      "to": [
+        9.08,
+        0.020000000000000462,
+        9.08
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            13,
+            12,
+            15.16,
+            12.620000000000001
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            10,
+            3,
+            12.16,
+            3.62
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            9,
+            3,
+            11.16,
+            3.62
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            3,
+            11,
+            5.16,
+            11.620000000000001
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            1,
+            13,
+            3.16,
+            15.16
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            11,
+            13,
+            13.16,
+            15.16
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "grip wrap 9",
+      "from": [
+        6.92,
+        0.40000000000000036,
+        6.92
+      ],
+      "to": [
+        9.08,
+        1.0200000000000005,
+        9.08
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            7,
+            11,
+            9.16,
+            11.620000000000001
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            9,
+            5,
+            11.16,
+            5.62
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            6,
+            15,
+            8.16,
+            15.620000000000001
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            13,
+            15,
+            15.16,
+            15.620000000000001
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            13,
+            7,
+            15.16,
+            9.16
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            9,
+            2,
+            11.16,
+            4.16
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "grip wrap 10",
+      "from": [
+        6.92,
+        1.4000000000000004,
+        6.92
+      ],
+      "to": [
+        9.08,
+        2.0200000000000005,
+        9.08
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            1,
+            2,
+            3.16,
+            2.62
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            0,
+            10,
+            2.16,
+            10.620000000000001
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            3,
+            0,
+            5.16,
+            0.6200000000000001
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            0,
+            4,
+            2.16,
+            4.62
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            9,
+            10,
+            11.16,
+            12.16
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_brown_wool",
+          "uv": [
+            3,
+            5,
+            5.16,
+            7.16
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "grip collar low",
+      "from": [
+        6.9,
+        -9.1,
+        6.9
+      ],
+      "to": [
+        9.1,
+        -8.7,
+        9.1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            8,
+            6.199999999999999,
+            8.4
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            0,
+            4.199999999999999,
+            0.40000000000000036
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            1,
+            8.2,
+            1.4000000000000004
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            3,
+            11.2,
+            3.4000000000000004
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            9,
+            11.2,
+            11.2
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            2,
+            15.2,
+            4.199999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "grip collar high",
+      "from": [
+        6.9,
+        2.5999999999999996,
+        6.9
+      ],
+      "to": [
+        9.1,
+        3.0,
+        9.1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            10,
+            3.1999999999999993,
+            10.4
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            2,
+            11.2,
+            2.4000000000000004
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            15,
+            8.2,
+            15.4
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            1,
+            5.199999999999999,
+            1.4000000000000004
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            12,
+            15.2,
+            14.2
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            8,
+            13.2,
+            10.2
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "snath mid",
+      "from": [
+        7.2,
+        4.0,
+        7.2
+      ],
+      "to": [
+        8.8,
+        16.0,
+        8.8
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_stripped_spruce_log",
+          "uv": [
+            7,
+            1,
+            8.600000000000001,
+            13.0
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_stripped_spruce_log",
+          "uv": [
+            2,
+            1,
+            3.6000000000000005,
+            13.0
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_stripped_spruce_log",
+          "uv": [
+            11,
+            2,
+            12.600000000000001,
+            14.0
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_stripped_spruce_log",
+          "uv": [
+            7,
+            4,
+            8.600000000000001,
+            16.0
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_stripped_spruce_log_top",
+          "uv": [
+            11,
+            5,
+            12.600000000000001,
+            6.6000000000000005
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_stripped_spruce_log_top",
+          "uv": [
+            5,
+            11,
+            6.6000000000000005,
+            12.600000000000001
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "snath upper",
+      "from": [
+        7.25,
+        16.0,
+        7.25
+      ],
+      "to": [
+        8.75,
+        25.2,
+        8.75
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_stripped_spruce_log",
+          "uv": [
+            0,
+            0,
+            1.5,
+            9.2
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_stripped_spruce_log",
+          "uv": [
+            10,
+            6,
+            11.5,
+            15.2
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_stripped_spruce_log",
+          "uv": [
+            14,
+            2,
+            15.5,
+            11.2
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_stripped_spruce_log",
+          "uv": [
+            1,
+            4,
+            2.5,
+            13.2
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_stripped_spruce_log_top",
+          "uv": [
+            1,
+            12,
+            2.5,
+            13.5
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_stripped_spruce_log_top",
+          "uv": [
+            8,
+            2,
+            9.5,
+            3.5
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "snath ring 0",
+      "from": [
+        7.0,
+        7.0,
+        7.0
+      ],
+      "to": [
+        9.0,
+        7.449999999999999,
+        9.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            6,
+            8.0,
+            6.449999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            0,
+            10.0,
+            0.4499999999999993
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            4,
+            2.0,
+            4.449999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            7,
+            14.0,
+            7.449999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            5,
+            3.0,
+            7.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            6,
+            4.0,
+            8.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "snath ring 1",
+      "from": [
+        7.0,
+        13.5,
+        7.0
+      ],
+      "to": [
+        9.0,
+        13.95,
+        9.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            12,
+            7.0,
+            12.45
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            13,
+            10.0,
+            13.45
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            0,
+            3.0,
+            0.4499999999999993
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            3,
+            4.0,
+            3.4499999999999993
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            14,
+            15.0,
+            16.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            10,
+            7.0,
+            12.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "snath ring 2",
+      "from": [
+        7.0,
+        20.0,
+        7.0
+      ],
+      "to": [
+        9.0,
+        20.45,
+        9.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            15,
+            6.0,
+            15.45
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            0,
+            7.0,
+            0.4499999999999993
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            4,
+            3.0,
+            4.449999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            1,
+            16.0,
+            1.4499999999999993
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            2,
+            14.0,
+            4.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            5,
+            15.0,
+            7.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "peg arm",
+      "from": [
+        4.3,
+        9.6,
+        7.35
+      ],
+      "to": [
+        7.2,
+        10.9,
+        8.65
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_stripped_spruce_log",
+          "uv": [
+            7,
+            11,
+            8.3,
+            13.9
+          ],
+          "rotation": 90
+        },
+        "south": {
+          "texture": "#material_stripped_spruce_log",
+          "uv": [
+            6,
+            9,
+            7.300000000000001,
+            11.9
+          ],
+          "rotation": 90
+        },
+        "east": {
+          "texture": "#material_stripped_spruce_log_top",
+          "uv": [
+            10,
+            0,
+            11.3,
+            1.3000000000000007
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_stripped_spruce_log_top",
+          "uv": [
+            0,
+            9,
+            1.3000000000000007,
+            10.3
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_stripped_spruce_log",
+          "uv": [
+            4,
+            11,
+            5.300000000000001,
+            13.9
+          ],
+          "rotation": 90
+        },
+        "down": {
+          "texture": "#material_stripped_spruce_log",
+          "uv": [
+            2,
+            4,
+            3.3000000000000007,
+            6.9
+          ],
+          "rotation": 90
+        }
+      }
+    },
+    {
+      "name": "peg arm cap",
+      "from": [
+        3.7,
+        9.45,
+        7.15
+      ],
+      "to": [
+        4.3,
+        11.05,
+        8.85
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            11,
+            1.5999999999999996,
+            12.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            2,
+            10.6,
+            3.6000000000000014
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            10,
+            1.6999999999999993,
+            11.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            14,
+            5.699999999999999,
+            15.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            3,
+            3.5999999999999996,
+            4.699999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            14,
+            14.6,
+            15.7
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "peg block",
+      "from": [
+        7.0,
+        9.2,
+        6.95
+      ],
+      "to": [
+        9.0,
+        11.3,
+        9.05
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            7,
+            16.0,
+            9.100000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            9,
+            8.0,
+            11.100000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            2,
+            9.100000000000001,
+            4.100000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            13,
+            5.1000000000000005,
+            15.100000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            10,
+            7.0,
+            12.100000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            13,
+            10.0,
+            15.100000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "socket lower",
+      "from": [
+        6.85,
+        24.6,
+        6.85
+      ],
+      "to": [
+        9.15,
+        25.4,
+        9.15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            0,
+            9.3,
+            0.7999999999999972
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            2,
+            15.3,
+            2.799999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            4,
+            9.3,
+            4.799999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            6,
+            5.300000000000001,
+            6.799999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            10,
+            15.3,
+            12.3
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            10,
+            13.3,
+            12.3
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "socket ring",
+      "from": [
+        6.7,
+        25.4,
+        6.7
+      ],
+      "to": [
+        9.3,
+        26.1,
+        9.3
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            8,
+            7.6000000000000005,
+            8.700000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            1,
+            15.600000000000001,
+            1.7000000000000028
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            13,
+            8.600000000000001,
+            13.700000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            1,
+            6.6000000000000005,
+            1.7000000000000028
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            0,
+            5.6000000000000005,
+            2.6000000000000005
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            11,
+            10.600000000000001,
+            13.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "tang back",
+      "from": [
+        5.5,
+        25.5,
+        7.45
+      ],
+      "to": [
+        7.0,
+        26.9,
+        8.55
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            10,
+            5.5,
+            11.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            2,
+            2.5,
+            3.3999999999999986
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            10,
+            8.100000000000001,
+            11.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            13,
+            9.100000000000001,
+            14.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            8,
+            14.5,
+            9.100000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            3,
+            15.5,
+            4.1000000000000005
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "tang back tip",
+      "from": [
+        4.4,
+        25.9,
+        7.65
+      ],
+      "to": [
+        5.5,
+        26.6,
+        8.35
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            10,
+            15.1,
+            10.700000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            12,
+            7.1,
+            12.700000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            12,
+            4.699999999999999,
+            12.700000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            2,
+            11.7,
+            2.700000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            13,
+            6.1,
+            13.7
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            0,
+            1.0999999999999996,
+            0.6999999999999993
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "socket rivet 0n",
+      "from": [
+        7.050000000000001,
+        25.4,
+        6.58
+      ],
+      "to": [
+        7.75,
+        26.1,
+        6.7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            15,
+            11,
+            15.7,
+            11.700000000000003
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            13,
+            4,
+            13.7,
+            4.700000000000003
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            12,
+            7,
+            12.120000000000001,
+            7.700000000000003
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            4,
+            12,
+            4.12,
+            12.700000000000003
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            3,
+            3,
+            3.6999999999999993,
+            3.12
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            4,
+            6,
+            4.699999999999999,
+            6.12
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "socket rivet 0f",
+      "from": [
+        7.050000000000001,
+        25.4,
+        9.3
+      ],
+      "to": [
+        7.75,
+        26.1,
+        9.42
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            9,
+            7,
+            9.7,
+            7.700000000000003
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            10,
+            5,
+            10.7,
+            5.700000000000003
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            14,
+            13,
+            14.12,
+            13.700000000000003
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            11,
+            11,
+            11.12,
+            11.700000000000003
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            3,
+            5,
+            3.6999999999999993,
+            5.119999999999999
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            3,
+            5,
+            3.6999999999999993,
+            5.119999999999999
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "socket rivet 1n",
+      "from": [
+        8.55,
+        25.4,
+        6.58
+      ],
+      "to": [
+        9.25,
+        26.1,
+        6.7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            8,
+            14,
+            8.7,
+            14.700000000000003
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            9,
+            1,
+            9.7,
+            1.7000000000000028
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            8,
+            13,
+            8.120000000000001,
+            13.700000000000003
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            4,
+            13,
+            4.12,
+            13.700000000000003
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            13,
+            14,
+            13.7,
+            14.120000000000001
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            0,
+            12,
+            0.6999999999999993,
+            12.120000000000001
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "socket rivet 1f",
+      "from": [
+        8.55,
+        25.4,
+        9.3
+      ],
+      "to": [
+        9.25,
+        26.1,
+        9.42
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            13,
+            12,
+            13.7,
+            12.700000000000003
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            11,
+            12,
+            11.7,
+            12.700000000000003
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            2,
+            2,
+            2.119999999999999,
+            2.700000000000003
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            2,
+            7,
+            2.119999999999999,
+            7.700000000000003
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            5,
+            5,
+            5.699999999999999,
+            5.119999999999999
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            4,
+            6,
+            4.699999999999999,
+            6.119999999999999
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "blade body 0",
+      "from": [
+        9.0,
+        24.049999999999997,
+        7.5
+      ],
+      "to": [
+        12.399999999999999,
+        27.75,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            10,
+            9.399999999999999,
+            13.700000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            9,
+            3.3999999999999986,
+            12.700000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            1,
+            1.0,
+            4.700000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            0,
+            3.0,
+            3.700000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            3,
+            8.399999999999999,
+            4.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            11,
+            11.399999999999999,
+            12.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "blade spine 0",
+      "from": [
+        9.0,
+        27.25,
+        7.15
+      ],
+      "to": [
+        12.399999999999999,
+        28.049999999999997,
+        8.85
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            8,
+            8.399999999999999,
+            8.799999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            3,
+            6.399999999999999,
+            3.799999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            4,
+            3.6999999999999993,
+            4.799999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            0,
+            6.699999999999999,
+            0.7999999999999972
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            4,
+            5.399999999999999,
+            5.699999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            2,
+            10.399999999999999,
+            3.6999999999999993
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      }
+    },
+    {
+      "name": "blade fuller 0",
+      "from": [
+        9.0,
+        25.825999999999997,
+        7.375
+      ],
+      "to": [
+        12.399999999999999,
+        26.862,
+        8.625
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            9,
+            11.399999999999999,
+            10.036000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            12,
+            6.399999999999999,
+            13.036000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            0,
+            4.25,
+            1.0360000000000014
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            8,
+            11.25,
+            9.036000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            5,
+            13.399999999999999,
+            6.25
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            9,
+            13.399999999999999,
+            10.25
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "blade edge 0",
+      "from": [
+        9.0,
+        24.0,
+        7.79
+      ],
+      "to": [
+        12.399999999999999,
+        24.5,
+        8.21
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            13,
+            8.399999999999999,
+            13.5
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            6,
+            11.399999999999999,
+            6.5
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            3,
+            4.420000000000001,
+            3.5
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            15,
+            14.420000000000002,
+            15.5
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            9,
+            3.3999999999999986,
+            9.420000000000002
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            15,
+            3.3999999999999986,
+            15.420000000000002
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      }
+    },
+    {
+      "name": "blade body 1",
+      "from": [
+        12.240147018273701,
+        23.29636479203331,
+        7.49
+      ],
+      "to": [
+        16.4401470182737,
+        26.89636479203331,
+        8.51
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            1,
+            7.1999999999999975,
+            4.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            2,
+            14.199999999999998,
+            5.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            6,
+            15.02,
+            9.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            5,
+            13.02,
+            8.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            14,
+            15.199999999999998,
+            15.02
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            9,
+            5.1999999999999975,
+            10.02
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      },
+      "rotation": {
+        "axis": "z",
+        "angle": -22.5,
+        "origin": [
+          14.3401470182737,
+          25.09636479203331,
+          8.0
+        ]
+      }
+    },
+    {
+      "name": "blade spine 1",
+      "from": [
+        12.890708853294354,
+        26.266959997302497,
+        7.16
+      ],
+      "to": [
+        17.090708853294352,
+        27.066959997302494,
+        8.84
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            6,
+            6.1999999999999975,
+            6.799999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            11,
+            5.1999999999999975,
+            11.799999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            7,
+            9.68,
+            7.799999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            14,
+            9.68,
+            14.799999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            12,
+            8.199999999999998,
+            13.68
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            12,
+            8.199999999999998,
+            13.68
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      },
+      "rotation": {
+        "axis": "z",
+        "angle": -22.5,
+        "origin": [
+          14.990708853294354,
+          26.666959997302495,
+          8.0
+        ]
+      }
+    },
+    {
+      "name": "blade fuller 1",
+      "from": [
+        12.40546626105542,
+        24.991480750078185,
+        7.365
+      ],
+      "to": [
+        16.60546626105542,
+        25.999480750078188,
+        8.635
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            6,
+            7.199999999999999,
+            7.008000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            0,
+            7.199999999999999,
+            1.0080000000000027
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            8,
+            4.27,
+            9.008000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            10,
+            3.2699999999999996,
+            11.008000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            2,
+            11.2,
+            3.2699999999999996
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            7,
+            8.2,
+            8.27
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      },
+      "rotation": {
+        "axis": "z",
+        "angle": -22.5,
+        "origin": [
+          14.50546626105542,
+          25.495480750078187,
+          8.0
+        ]
+      }
+    },
+    {
+      "name": "blade edge 1",
+      "from": [
+        11.627853526489558,
+        23.36815754001525,
+        7.79
+      ],
+      "to": [
+        15.827853526489557,
+        23.86815754001525,
+        8.21
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            2,
+            15.2,
+            2.5
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            9,
+            6.199999999999999,
+            9.5
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            10,
+            6.420000000000001,
+            10.5
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            11,
+            8.420000000000002,
+            11.5
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            3,
+            14.2,
+            3.420000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            4,
+            13.2,
+            4.420000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      },
+      "rotation": {
+        "axis": "z",
+        "angle": -22.5,
+        "origin": [
+          13.727853526489557,
+          23.61815754001525,
+          8.0
+        ]
+      }
+    },
+    {
+      "name": "blade body 2",
+      "from": [
+        15.635928955157807,
+        21.137094665456214,
+        7.48
+      ],
+      "to": [
+        20.035928955157807,
+        24.337094665456217,
+        8.52
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            0,
+            7.4,
+            3.200000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            9,
+            6.4,
+            12.200000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            1,
+            12.04,
+            4.200000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            11,
+            7.039999999999999,
+            14.200000000000003
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            0,
+            13.4,
+            1.0399999999999991
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            13,
+            6.4,
+            14.04
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      },
+      "rotation": {
+        "axis": "z",
+        "angle": -45.0,
+        "origin": [
+          17.835928955157808,
+          22.737094665456215,
+          8.0
+        ]
+      }
+    },
+    {
+      "name": "blade spine 2",
+      "from": [
+        16.69658912693763,
+        23.39775483723604,
+        7.17
+      ],
+      "to": [
+        21.09658912693763,
+        24.197754837236037,
+        8.83
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            14,
+            7.399999999999999,
+            14.799999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            6,
+            7.399999999999999,
+            6.799999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            7,
+            13.66,
+            7.799999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            3,
+            4.66,
+            3.799999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            3,
+            6.399999999999999,
+            4.66
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            13,
+            13.399999999999999,
+            14.66
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      },
+      "rotation": {
+        "axis": "z",
+        "angle": -45.0,
+        "origin": [
+          18.89658912693763,
+          23.797754837236038,
+          8.0
+        ]
+      }
+    },
+    {
+      "name": "blade fuller 2",
+      "from": [
+        15.90745795913344,
+        22.56062366943185,
+        7.355
+      ],
+      "to": [
+        20.30745795913344,
+        23.45662366943185,
+        8.645
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            2,
+            14.4,
+            2.896000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            9,
+            6.4,
+            9.896
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            7,
+            14.29,
+            7.896000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            2,
+            10.29,
+            2.896000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            5,
+            7.4,
+            6.289999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            3,
+            7.4,
+            4.289999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      },
+      "rotation": {
+        "axis": "z",
+        "angle": -45.0,
+        "origin": [
+          18.10745795913344,
+          23.00862366943185,
+          8.0
+        ]
+      }
+    },
+    {
+      "name": "blade edge 2",
+      "from": [
+        14.645979461496639,
+        21.497145171795047,
+        7.79
+      ],
+      "to": [
+        19.04597946149664,
+        21.997145171795047,
+        8.21
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            9,
+            13.4,
+            9.5
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            11,
+            5.4,
+            11.5
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            9,
+            1.4200000000000008,
+            9.5
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            11,
+            4.420000000000001,
+            11.5
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            15,
+            10.4,
+            15.420000000000002
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            8,
+            6.4,
+            8.420000000000002
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      },
+      "rotation": {
+        "axis": "z",
+        "angle": -45.0,
+        "origin": [
+          16.84597946149664,
+          21.747145171795047,
+          8.0
+        ]
+      }
+    },
+    {
+      "name": "blade body 3",
+      "from": [
+        18.933467424971408,
+        16.94892477532098,
+        7.5
+      ],
+      "to": [
+        21.53346742497141,
+        21.348924775320977,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            6,
+            9.600000000000001,
+            10.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            3,
+            9.600000000000001,
+            7.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            10,
+            13.0,
+            14.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            4,
+            1.0,
+            8.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            15,
+            10.600000000000001,
+            16.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            15,
+            6.600000000000001,
+            16.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      },
+      "rotation": {
+        "axis": "z",
+        "angle": 22.5,
+        "origin": [
+          20.23346742497141,
+          19.148924775320978,
+          8.0
+        ]
+      }
+    },
+    {
+      "name": "blade spine 3",
+      "from": [
+        20.942122863984952,
+        17.408144894159086,
+        7.15
+      ],
+      "to": [
+        21.74212286398495,
+        21.808144894159085,
+        8.85
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            6,
+            0.7999999999999972,
+            10.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            7,
+            12.799999999999997,
+            11.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            10,
+            1.6999999999999993,
+            14.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            6,
+            9.7,
+            10.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            1,
+            9.799999999999997,
+            2.6999999999999993
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            11,
+            5.799999999999997,
+            12.7
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      },
+      "rotation": {
+        "axis": "z",
+        "angle": 22.5,
+        "origin": [
+          21.34212286398495,
+          19.608144894159086,
+          8.0
+        ]
+      }
+    },
+    {
+      "name": "blade fuller 3",
+      "from": [
+        20.15771783911493,
+        17.068322006218885,
+        7.375
+      ],
+      "to": [
+        20.885717839114932,
+        21.468322006218884,
+        8.625
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            8,
+            4.7280000000000015,
+            12.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            5,
+            5.7280000000000015,
+            9.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            6,
+            10.25,
+            10.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            0,
+            14.25,
+            4.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            2,
+            12.728000000000002,
+            3.25
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            15,
+            0,
+            15.728000000000002,
+            1.25
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      },
+      "rotation": {
+        "axis": "z",
+        "angle": 22.5,
+        "origin": [
+          20.52171783911493,
+          19.268322006218884,
+          8.0
+        ]
+      }
+    },
+    {
+      "name": "blade edge 3",
+      "from": [
+        18.967199939208992,
+        16.52797299971938,
+        7.79
+      ],
+      "to": [
+        19.467199939208992,
+        20.92797299971938,
+        8.21
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            7,
+            8.5,
+            11.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            5,
+            1.5,
+            9.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            8,
+            11.420000000000002,
+            12.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            15,
+            11,
+            15.420000000000002,
+            15.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            11,
+            14.5,
+            11.420000000000002
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            5,
+            12.5,
+            5.420000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      },
+      "rotation": {
+        "axis": "z",
+        "angle": 22.5,
+        "origin": [
+          19.217199939208992,
+          18.72797299971938,
+          8.0
+        ]
+      }
+    },
+    {
+      "name": "blade body 4",
+      "from": [
+        20.825932811195262,
+        13.845794598526961,
+        7.49
+      ],
+      "to": [
+        22.62593281119526,
+        17.24579459852696,
+        8.51
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            11,
+            11.799999999999997,
+            14.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            10,
+            11.799999999999997,
+            13.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            0,
+            12.02,
+            3.3999999999999986
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            4,
+            8.02,
+            7.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            10,
+            4.799999999999997,
+            11.02
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            8,
+            3.799999999999997,
+            9.02
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      },
+      "rotation": {
+        "axis": "z",
+        "angle": 22.5,
+        "origin": [
+          21.72593281119526,
+          15.54579459852696,
+          8.0
+        ]
+      }
+    },
+    {
+      "name": "blade spine 4",
+      "from": [
+        22.06503643720429,
+        14.151941344419033,
+        7.16
+      ],
+      "to": [
+        22.86503643720429,
+        17.55194134441903,
+        8.84
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            12,
+            11.799999999999997,
+            15.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            7,
+            9.799999999999997,
+            10.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            12,
+            6.68,
+            15.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            0,
+            5.68,
+            3.3999999999999986
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            1,
+            4.799999999999997,
+            2.6799999999999997
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            14,
+            7.799999999999997,
+            15.68
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      },
+      "rotation": {
+        "axis": "z",
+        "angle": 22.5,
+        "origin": [
+          22.46503643720429,
+          15.851941344419032,
+          8.0
+        ]
+      }
+    },
+    {
+      "name": "blade fuller 4",
+      "from": [
+        21.6734907902177,
+        13.928454219917821,
+        7.365
+      ],
+      "to": [
+        22.177490790217696,
+        17.32845421991782,
+        8.635
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            8,
+            6.503999999999998,
+            11.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            7,
+            7.503999999999998,
+            10.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            11,
+            2.2699999999999996,
+            14.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            9,
+            12.27,
+            12.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            12,
+            6.503999999999998,
+            13.27
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            11,
+            10.503999999999998,
+            12.27
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      },
+      "rotation": {
+        "axis": "z",
+        "angle": 22.5,
+        "origin": [
+          21.925490790217697,
+          15.62845421991782,
+          8.0
+        ]
+      }
+    },
+    {
+      "name": "blade edge 4",
+      "from": [
+        20.82921713843736,
+        13.5779161958714,
+        7.79
+      ],
+      "to": [
+        21.32921713843736,
+        16.977916195871398,
+        8.21
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            1,
+            4.5,
+            4.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            12,
+            4,
+            12.5,
+            7.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            9,
+            4.420000000000001,
+            12.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            5,
+            3.420000000000001,
+            8.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            15,
+            10.5,
+            15.420000000000002
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            6,
+            6,
+            6.5,
+            6.420000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      },
+      "rotation": {
+        "axis": "z",
+        "angle": 22.5,
+        "origin": [
+          21.07921713843736,
+          15.277916195871398,
+          8.0
+        ]
+      }
+    },
+    {
+      "name": "blade body 5",
+      "from": [
+        21.876494646215914,
+        12.375199393257773,
+        7.48
+      ],
+      "to": [
+        22.876494646215914,
+        13.975199393257775,
+        8.52
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            4,
+            12.0,
+            5.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            5,
+            1.0,
+            6.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            12,
+            8.04,
+            13.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            3,
+            4.039999999999999,
+            4.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            11,
+            9.0,
+            12.04
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            3,
+            6.0,
+            4.039999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      }
+    },
+    {
+      "name": "blade spine 5",
+      "from": [
+        22.376494646215914,
+        12.375199393257773,
+        7.17
+      ],
+      "to": [
+        23.17649464621591,
+        13.975199393257775,
+        8.83
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            10,
+            14.799999999999997,
+            11.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            10,
+            13.799999999999997,
+            11.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            12,
+            9.66,
+            13.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            4,
+            2,
+            5.66,
+            3.6000000000000014
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            6,
+            8.799999999999997,
+            7.66
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            1,
+            3.799999999999997,
+            2.66
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      }
+    },
+    {
+      "name": "blade fuller 5",
+      "from": [
+        22.246494646215915,
+        12.375199393257773,
+        7.355
+      ],
+      "to": [
+        22.746494646215915,
+        13.975199393257775,
+        8.645
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            14,
+            7,
+            14.5,
+            8.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            0,
+            8,
+            0.5,
+            9.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            8,
+            5,
+            9.29,
+            6.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            13,
+            10,
+            14.29,
+            11.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            5,
+            7.5,
+            6.289999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            15,
+            7,
+            15.5,
+            8.29
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "blade edge 5",
+      "from": [
+        21.826494646215913,
+        12.375199393257773,
+        7.79
+      ],
+      "to": [
+        22.326494646215913,
+        13.975199393257775,
+        8.21
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            1,
+            1.5,
+            2.6000000000000014
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            7,
+            4,
+            7.5,
+            5.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            9,
+            5.420000000000001,
+            10.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            15,
+            14,
+            15.420000000000002,
+            15.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            5,
+            2,
+            5.5,
+            2.420000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            1,
+            14,
+            1.5,
+            14.420000000000002
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      }
+    },
+    {
+      "name": "blade point",
+      "from": [
+        21.976494646215915,
+        11.075199393257773,
+        7.8
+      ],
+      "to": [
+        22.776494646215912,
+        12.475199393257775,
+        8.2
+      ],
+      "faces": {
+        "north": {
+          "texture": "#particle",
+          "uv": [
+            11,
+            1,
+            11.799999999999997,
+            2.400000000000002
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            7,
+            9.799999999999997,
+            8.400000000000002
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#particle",
+          "uv": [
+            10,
+            10,
+            10.399999999999999,
+            11.400000000000002
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#particle",
+          "uv": [
+            9,
+            8,
+            9.399999999999999,
+            9.400000000000002
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "up": {
+          "texture": "#particle",
+          "uv": [
+            3,
+            11,
+            3.799999999999997,
+            11.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#particle",
+          "uv": [
+            2,
+            9,
+            2.799999999999997,
+            9.399999999999999
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        10,
+        -15,
+        -35
+      ],
+      "translation": [
+        -1.899,
+        1.283,
+        -0.29
+      ],
+      "scale": [
+        0.412,
+        0.412,
+        0.412
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -35,
+        12
+      ],
+      "translation": [
+        -0.9748,
+        4.5904,
+        -3.6825
+      ],
+      "scale": [
+        0.53,
+        0.53,
+        0.53
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        -35,
+        12
+      ],
+      "translation": [
+        -0.9748,
+        4.5904,
+        -3.6825
+      ],
+      "scale": [
+        0.53,
+        0.53,
+        0.53
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        35,
+        -90,
+        0
+      ],
+      "translation": [
+        0.0,
+        6.2791,
+        4.3967
+      ],
+      "scale": [
+        0.71,
+        0.71,
+        0.71
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        35,
+        -90,
+        0
+      ],
+      "translation": [
+        0.0,
+        6.2791,
+        4.3967
+      ],
+      "scale": [
+        0.71,
+        0.71,
+        0.71
+      ]
+    },
+    "ground": {
+      "rotation": [
+        75,
+        0,
+        -90
+      ],
+      "translation": [
+        -0.0862,
+        1.3837,
+        1.4321
+      ],
+      "scale": [
+        0.265,
+        0.265,
+        0.265
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        -35
+      ],
+      "translation": [
+        3.3838,
+        2.0878,
+        0.0
+      ],
+      "scale": [
+        0.71,
+        0.71,
+        0.71
+      ]
+    }
+  },
+  "gui_light": "front",
+  "ambientocclusion": false,
+  "astera_tints": [
+    8358294,
+    11845580,
+    5989230,
+    15002611
+  ],
+  "credit": "Astera / heavy-models (model-forge, vanilla patterns + tints)"
+}
