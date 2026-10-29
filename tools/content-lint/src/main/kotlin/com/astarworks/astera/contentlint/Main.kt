@@ -211,6 +211,7 @@ internal class LintRunner(private val cli: CliArgs) {
         // Skill engine (ADR-0303): content/skills/ and content/frames/, dispatched by `kind`.
         val skills = SkillV3Lint(cli.contentDir, cli.schemasDir).run()
         results += skills.results
+        results += itemBoundCalleeResults(skills.framesIn)
         missingSchemas += skills.missingSchemas
 
         return LintReport(results, missingSchemas, skinNotices() + skills.notices + itemSkillNotices(skills.skillIds))
@@ -251,6 +252,20 @@ internal class LintRunner(private val cli: CliArgs) {
             }
             val errors = SemanticChecks.checkItemText(node)
             if (errors.isNotEmpty()) out += FileResult(file = yaml, errors = errors)
+        }
+        return out
+    }
+
+    /** A skill that declares `frames_in` is callee-only (a caller binds the frames); an item binding it would cast it directly. */
+    private fun itemBoundCalleeResults(framesIn: Map<String, Set<String>>): List<FileResult> {
+        if (framesIn.isEmpty()) return emptyList()
+        val out = mutableListOf<FileResult>()
+        for (yaml in yamlFilesIn("items")) {
+            val node = runCatching { yaml.reader().use { YamlToJson.parse(it) } }.getOrNull() ?: continue
+            val errors = SemanticChecks.itemSkillIds(node).mapNotNull { id ->
+                framesIn[id.substringBefore('@')]?.let { "item-skill: '$id' declares frames_in ${it.joinToString(", ") { f -> "'$f'" }} and can only be called with `use: skill:$id`, not bound to an item" }
+            }
+            if (errors.isNotEmpty()) out += FileResult(yaml, errors)
         }
         return out
     }

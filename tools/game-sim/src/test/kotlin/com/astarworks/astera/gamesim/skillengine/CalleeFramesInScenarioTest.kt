@@ -79,6 +79,12 @@ class CalleeFramesInScenarioTest : SkillEngineScenario() {
         assertThat(e.message).contains("spot")
     }
 
+    @Test
+    fun castingACalleeDirectlyIsRefusedNamingTheFrame() {
+        val skill = ok(loadInline(spotCallee))
+        assertThatThrownBy { play(skill, seed = 1L, ticks = 4) }.hasMessageContaining("'spot'").hasMessageContaining("cast directly")
+    }
+
     private fun fragmentSkill() = """
         apiVersion: astera/v3
         kind: Skill

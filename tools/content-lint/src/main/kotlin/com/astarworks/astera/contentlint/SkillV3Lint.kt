@@ -43,10 +43,14 @@ internal class SkillV3Lint(private val contentDir: Path, private val schemasDir:
         val notices: List<String>,
         /** Ids of every `kind: Skill` document found (variants not included). */
         val skillIds: Set<String>,
+        /** `frames_in` names of each `kind: Skill` document that declares any (callee-only skills). */
+        val framesIn: Map<String, Set<String>> = emptyMap(),
     )
 
     private val factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
     private val mapper = ObjectMapper()
+
+    private val framesIn = linkedMapOf<String, Set<String>>()
 
     fun run(): Outcome {
         val results = mutableListOf<FileResult>()
@@ -65,6 +69,7 @@ internal class SkillV3Lint(private val contentDir: Path, private val schemasDir:
         }
 
         val skillIds = linkedSetOf<String>()
+        framesIn.clear()
         var v1Skipped = 0
         for (file in candidateFiles()) {
             val text = file.readText()
@@ -79,7 +84,7 @@ internal class SkillV3Lint(private val contentDir: Path, private val schemasDir:
         } else {
             emptyList()
         }
-        return Outcome(results, missing, notices, skillIds)
+        return Outcome(results, missing, notices, skillIds, framesIn.toMap())
     }
 
     @OptIn(kotlin.io.path.ExperimentalPathApi::class)
@@ -114,7 +119,11 @@ internal class SkillV3Lint(private val contentDir: Path, private val schemasDir:
             val kind = node.get("kind")?.asText()
             if (kind == "Skill" || kind == PATCH_KIND) {
                 if (node.get("apiVersion")?.asText() != SKILL_API) errors += "$where: apiVersion of a $kind must be $SKILL_API"
-                if (kind == "Skill") node.get("id")?.takeIf { it.isTextual }?.asText()?.let { skillIds += it }
+                if (kind == "Skill") node.get("id")?.takeIf { it.isTextual }?.asText()?.let { id ->
+                    skillIds += id
+                    val declared = node.get("frames_in")
+                    if (declared != null && declared.isObject && declared.size() > 0) framesIn[id] = declared.fieldNames().asSequence().toSet()
+                }
                 errors += fxReferenceErrors(node, where)
                 return@forEachIndexed
             }
