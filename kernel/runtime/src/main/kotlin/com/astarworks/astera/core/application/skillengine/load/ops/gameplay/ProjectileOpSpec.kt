@@ -235,7 +235,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                 }
             }
 
-            val keys = values[motion]?.let { m -> LawSource(m, ctx.forLaws(com.astarworks.astera.core.application.skillengine.load.grammar.LocalAxes), "$path.motion").also { it.probe() } }
+            val keys = values[motion]?.let { m -> LawSource(m, ctx.forLaws(com.astarworks.astera.core.application.skillengine.load.grammar.LocalAxes), "$path.motion").also { it.probe(timing?.times?.let { t -> ctx.resolveNumber(t) }?.toInt()?.coerceAtLeast(1) ?: 1) } }
             ProjectileOp(id, src, whenExpr, timing, values[origin], values[velocity], values[speed], values[range], values[radius], hitSpec, keys, blockSpec, values[gravity], values[drag], raw)
         }
 

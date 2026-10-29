@@ -119,9 +119,13 @@ public object FrameOpSpec : OpSpec<FrameOp> {
                 id, src, whenExpr, timing,
                 values[anchorF], values[partF], values[offsetF], values[turnF],
                 if (values[modeF] == "snapshot") FrameMode.SNAPSHOT else FrameMode.FOLLOW,
-                values[axesF], values[motionF]?.let { m -> LawSource(m.raw, ctx.forLaws(AxisResolver(lawAxes(values[partF], ctx))), m.path).also { it.probe() } },
+                values[axesF], values[motionF]?.let { m -> LawSource(m.raw, ctx.forLaws(AxisResolver(lawAxes(values[partF], ctx))), m.path).also { it.probe(probeCopies(times, ctx)) } },
             )
         }
+
+    /** The `n` a first-copy probe binds: the family size when `times` folds at load, else 1 (a `times:` of CEL is checked at lowering). */
+    private fun probeCopies(times: Value<Double>?, ctx: GrammarContext): Int =
+        times?.let { ctx.resolveNumber(it) }?.toInt()?.coerceAtLeast(1) ?: 1
 
     /**
      * `long` / `edge` of the frame's `part`. The compiler's decode has the item frame table and gets the part's real axes (absent part = no axes);
