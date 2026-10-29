@@ -26,11 +26,12 @@ fragments:
     frames_in: {spot: anchor, puff: anchor}
     do:
       - {id: evasive, op: status, target: {kind: allies, around: spot, radius: "${radius}", include_self: true}, status: evasive, stacks: 1, for: "${evasive}"}
-      - {id: snd, op: sound, sound: entity.generic.extinguish_fire, anchor: spot, volume: 0.8, pitch: 0.7}
-      - {id: big, op: particle, particle: large_smoke, anchor: puff, count: 0, extra: 0.01}
-      - {id: small, op: particle, particle: smoke, anchor: puff, count: 0, extra: 0.01}
+      - {id: snd, op: sound, sound: entity.generic.extinguish_fire, anchor: spot, volume: 0.8, pitch: 0.7, detach: true}
+      - {id: big, op: particle, particle: large_smoke, anchor: puff, count: 0, extra: 0.01, detach: true}
+      - {id: small, op: particle, particle: smoke, anchor: puff, count: 0, extra: 0.01, detach: true}
 machine:
   start: fly
+  tail: 2
   states:
     fly:
       for: "= fuse_ticks"

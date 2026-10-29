@@ -34,9 +34,10 @@ fragments:
       - {id: dmg, op: damage, target: {kind: enemies, around: spot, radius: "${radius}"}, damage: {physical: "${damage}"}}
       - {id: bleed, op: status, target: {kind: enemies, around: spot, radius: "${radius}"}, status: bleed, stacks: 1, for: "${bleed}"}
       - {id: chip, op: break_area, at: 0, anchor: spot, shape: {sphere: {radius: 1.5}}, tool: none, block_damage: 35, ripple: 29, revert: 200, outside_arena: false}
-      - {id: snd, op: sound, sound: "entity.generic.explode", anchor: spot, volume: 0.7, pitch: 1.2}
+      - {id: snd, op: sound, sound: "entity.generic.explode", anchor: spot, volume: 0.7, pitch: 1.2, detach: true}
 machine:
   start: throw
+  tail: 2
   states:
     throw:
       for: "= fuse_ticks"
@@ -55,9 +56,9 @@ machine:
           block: {mode: bounce, restitution: 0.45, friction: 0.15, times: 3}
           on:
             hit:
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
             bounce:
-              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point}
+              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point, detach: true}
             end:
               - {op: use, use: "fragment:blast", with: {radius: "${blast_radius}", damage: "${blast_damage}", bleed: "${bleed_ticks}"}, frames: {spot: bolt}}
         - {id: shell, op: display, kind: item, item: "minecraft:firework_star", context: fixed, anchor: bolt, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
