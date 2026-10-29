@@ -1,4 +1,6 @@
-# Mid ore node (content/ore-nodes/ names this block). Drops and regrowth come from the node file.
+# Mid ore node (content/ore-nodes/ names this block). Drops, regrowth and the Norma level gate come from the node file.
+# Pickaxe-affinity ore. Sizing (one hand hit every 6 ticks = ~3.3 hits/s; level 1, no boost):
+#   800 HP -> stone pickaxe 8 hits (~2.4 s), iron 6, diamond 4. An axe or shovel only scratches it (15 -> ~53 hits, ~16 s).
 
 id: "astera:ore_iron_node"
 display_name:
@@ -6,9 +8,11 @@ display_name:
   ja: "鉄鉱石ノード"
 base_bukkit_material: "IRON_ORE"
 material: "STONE"
-base_durability: 200
+base_durability: 800
 
 tool_effectiveness:
   "PICKAXE/STONE": 100
   "PICKAXE/IRON": 150
   "PICKAXE/DIAMOND": 250
+  "AXE/STONE": 15
+  "SHOVEL/STONE": 15

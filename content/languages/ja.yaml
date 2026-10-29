@@ -2709,7 +2709,9 @@ astera:
   armor.diamond-champion-chestplate.name: "ダイヤチャンピオン チェストプレート"
   armor.diamond-champion-leggings.name: "ダイヤチャンピオン レギンス"
   armor.diamond-champion-boots.name: "ダイヤチャンピオン ブーツ"
-  ore.needs-tier: "<gray>この鉱石を掘るには <white>{tier}</white> 以上のツルハシが必要。</gray>"
+  ore.needs-tier: "<gray>この鉱石を掘るには <white>{tier}</white> 以上の道具が必要。</gray>"
+  ore.needs-level: "<red>この鉱石を掘るにはノルマレベル <white>{level}</white> 以上が必要。</red>"
+  ore.wrong-tool: "<gray>この道具ではほとんど削れない。合う道具(ツルハシ/斧/シャベル)を使おう。</gray>"
   # match-ux: 試合開始の段階表示(アクションバー1行ヒント)・結果タイトルの理由・結果の再表示リンク
   match.hint.sidebar: "<gray>右のサイドバーに目的とスコアが出ています</gray>"
   match.hint.stars: "<gold>★</gold> <gray>スターを拾い、敵を倒してレベルを上げよう</gray>"
