@@ -1,0 +1,2 @@
+## pose yaw=0 pitch=0
+## pose yaw=37 pitch=-20

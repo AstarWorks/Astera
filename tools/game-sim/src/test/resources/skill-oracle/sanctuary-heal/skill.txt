@@ -1,0 +1,12 @@
+## pose yaw=0 pitch=0
+@0 sound - op=- sound=astera:skills/heal-chime cat=master vol=0.7 pitch=1 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=happy_villager count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3176992687644404981
+@0 particle - op=- type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5ae65a size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5542295511316537075
+@0 particle - op=- type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1843595107466945387
+@0 hit - op=- at=0.000000,0.000000,0.000000 r=6.000000
+## pose yaw=37 pitch=-20
+@0 sound - op=- sound=astera:skills/heal-chime cat=master vol=0.7 pitch=1 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=happy_villager count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3176992687644404981
+@0 particle - op=- type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5ae65a size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5542295511316537075
+@0 particle - op=- type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1843595107466945387
+@0 hit - op=- at=0.000000,0.000000,0.000000 r=6.000000

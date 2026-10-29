@@ -1,0 +1,6 @@
+## pose yaw=0 pitch=0
+@0 sound - op=- sound=block.stone_pressure_plate.click_on cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=gun-smoke at=0.000000,0.100000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-839167911776048558
+## pose yaw=37 pitch=-20
+@0 sound - op=- sound=block.stone_pressure_plate.click_on cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=gun-smoke at=-1.504538,0.100000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-839167911776048558
