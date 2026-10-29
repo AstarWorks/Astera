@@ -1381,8 +1381,9 @@ public class TablePlayer(
         if (of != null) {
             driven = of
         } else {
-            // no `of`: the rig is its own frame (v2 `RigPerformer.start`, 93cd534e4~1) and the caster's held item rides it as the part (R27).
-            // The frame is carried by the arm; the part takes only the fixed pivot and the wrist orientation (`withPartFrame`).
+            // no `of`: the rig is its own frame and the caster's held item rides it (R27). The frame is carried by the arm: its origin is the
+            // grip and its rotation arm * tilt * wrist * rest, and the held mesh sits on it unrotated, so the drawn blade (the part's `long`
+            // axis, display thirdperson_righthand) and the frame points (tip / root / edge) turn together, as the v1 weapon did.
             driven = row.instance
             if (run.recs[driven] != null) endInstance(run, driven)
             val parentRec = run.recs[parent]
@@ -1390,9 +1391,8 @@ public class TablePlayer(
             run.recs[driven] = Rec(SpawnKind.FRAME, parentRec?.let { parent }, if (parentRec == null) parent.text else "", now, ctx.owner, identity)
             run.cursor.instances[driven] = GatewayHandle(nextSynthetic--)
             val heldId = InstanceId(driven.path + InstanceId.Segment(OpId("held"), null))
-            val pivot = v3("pivot")
-            val local = PoseV(Vector3d(pivot.x, pivot.y, pivot.z), rotOf(wrist.rotationAt(wrist.clock(0))), Vector3d(SkinRigTransforms.PLAYER_SCALE))
-            val rec = Rec(SpawnKind.ITEM, parentRec?.let { parent }, if (parentRec == null) parent.text else "", now, ctx.owner, local)
+            val local = PoseV(Vector3d(), Quaterniond(), Vector3d(SkinRigTransforms.PLAYER_SCALE))
+            val rec = Rec(SpawnKind.ITEM, driven, "", now, ctx.owner, local)
             val h = visual.spawnMesh(
                 castRef(run), MeshModels.MAIN_HAND, null, visualPose(rec, worldOf(run, rec, local, ctx.binding, now)), null, MeshLook(rigShading = true),
             )
@@ -1403,13 +1403,10 @@ public class TablePlayer(
         }
         val frameRec = run.recs.getValue(driven)
         for (k in listOf("tip", "root", "edge")) p[k]?.let { frameRec.points[k] = any(run, it, ctx) as Vector3d }
-        val pivot = v3("pivot")
-        val rig = RigRec(driven, now, wrist, bodyClock, anim, caster, held, Vector3d(pivot.x, pivot.y, pivot.z))
+        val rig = RigRec(driven, now, wrist, bodyClock, anim, caster, held)
         run.rigs[row.instance] = rig
         rigPose(run, rig, now)
     }
-
-    private fun rotOf(q: Quaternion): Quaterniond = Quaterniond(q.x, q.y, q.z, q.w)
 
     private fun rigPose(run: Run, rig: RigRec, now: Int) {
         val rec = run.recs[rig.driven] ?: return
@@ -1422,11 +1419,7 @@ public class TablePlayer(
         val target = PoseV(Vector3d(origin.x, origin.y, origin.z), Quaterniond(q.x, q.y, q.z, q.w), Vector3d(cur.scale))
         rec.moveTo(target, now, 0)
         rec.real?.let { visual.write(it, visualPose(rec, worldOf(run, rec, target, null, now)), 0) }
-        rig.held?.let { h ->
-            val pose = PoseV(Vector3d(rig.pivot), rotOf(rig.wrist.rotationAt(s)), Vector3d(h.localAt(now).scale))
-            h.moveTo(pose, now, 0)
-            h.real?.let { visual.write(it, visualPose(h, worldOf(run, h, pose, null, now)), 0) }
-        }
+        rig.held?.let { h -> h.real?.let { visual.write(it, visualPose(h, worldOf(run, h, h.localAt(now), null, now)), 0) } }
     }
 
     private fun driversStep(run: Run, now: Int) {
@@ -1902,7 +1895,7 @@ public class TablePlayer(
 
     private class ReelRec(val frame: InstanceId, val to: InstanceId)
 
-    private class RigRec(val driven: InstanceId, val start: Int, val wrist: RigMotion, val bodyClock: RigMotion, val anim: String?, val caster: UUID, val held: Rec?, val pivot: Vector3d)
+    private class RigRec(val driven: InstanceId, val start: Int, val wrist: RigMotion, val bodyClock: RigMotion, val anim: String?, val caster: UUID, val held: Rec?)
 
     private class ShapeFrame(val frame: String, val from: String, val to: String)
 

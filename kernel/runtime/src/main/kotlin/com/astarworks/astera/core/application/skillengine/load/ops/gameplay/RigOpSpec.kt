@@ -140,6 +140,9 @@ public object RigOpSpec : OpSpec<RigOp> {
             )
         }
 
+    /** The display transform the player draws the main-hand mesh with (`AnchorMainHand`); a rig carrying the held item takes its blade axes from a part with this display. */
+    private const val HELD_DISPLAY = "thirdperson_righthand"
+
     private val BUILTIN_PARENTS = setOf("caster", "caster.body", "caster.eye", "caster.look", "world")
 
     override fun lower(op: RigOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
@@ -166,6 +169,15 @@ public object RigOpSpec : OpSpec<RigOp> {
         } else {
             val part = lc.frames.item(item)?.partFor(op.bladePart)
                 ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, op.bladePart?.let { "$item.$it" } ?: item))
+            if (op.of == null && part.display != HELD_DISPLAY) {
+                return Result.Failure(
+                    SkillDecodeError.Invalid(
+                        lc.skillId, path,
+                        "a rig without 'of' draws the caster's main-hand item with display $HELD_DISPLAY, but part '${part.name}' of '$item' has display '${part.display}': " +
+                            "its long / edge axes would not match the drawn blade. Use a part declared with display: $HELD_DISPLAY (content/frames/$item.yaml)",
+                    ),
+                )
+            }
             val long = part.axes["long"] ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "frames of '$item' part '${part.name}' declare no 'long' axis"))
             val edge = part.axes["edge"] ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "frames of '$item' part '${part.name}' declare no 'edge' axis"))
             when (val r = Grammar.guard { RigSwings.lower(op.swing, RigBlade(long, edge), tilt, rest, GrammarContext(lc.skillId), path) }) {

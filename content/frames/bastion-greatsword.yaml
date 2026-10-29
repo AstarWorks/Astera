@@ -18,6 +18,15 @@ parts:
     length: 1.1059
     points: { grip: [-0.2501, -0.3447, 0.0774], pivot: [-0.2501, -0.3447, 0.0774], root: [-0.1629, -0.2201, 0.0774], tip: [0.3198, 0.4692, 0.0774] }
     axes: { long: [0.5736, 0.8192, 0], edge: [0.8192, -0.5736, 0] }
+  # Same elements as held, under the thirdperson_righthand display transform (AnchorMainHand: rot [-16.89,-87.14,-50.9], tr [0.743,15.911,10.722],
+  # scale 1.0667): the transform the rig's main-hand mesh really draws with, so a rig that carries the held item (no `of`) must use this part.
+  # Its long axis is 49 degrees away from `held`'s. Same chain, grip/root/tip as `held`; hand_anchor = model centre (8,8,8).
+  held_hand:
+    model: astera:bastion-greatsword
+    display: thirdperson_righthand
+    length: 2.027
+    points: { grip: [-0.0016, 0.0343, -0.0231], pivot: [-0.0016, 0.0343, -0.0231], root: [-0.0124, 0.2653, -0.1788], tip: [-0.0721, 1.5432, -1.04], hand_anchor: [-0.0464, 0.9944, -0.6701] }
+    axes: { long: [-0.0387, 0.8287, -0.5584], edge: [-0.0315, -0.5596, -0.8282] }
   # The ego slam sword is built from block displays (bastion-ego-slam v1 `parts`), not from the item model: its frame is the plain
   # block frame, long = up (the 1.9 high face), edge = forward (the thin 0.07 axis, so the broad face leads the pitch swing), as v1
   # rig `sword` (rest [0,90,0], pure pitch). It reuses the item's model name only because a part needs one; it has no points.

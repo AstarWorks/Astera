@@ -136,6 +136,9 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     /** (display, field, value) of every `set` the player handed to the display sink. */
     val displaySets = ArrayList<Triple<String, String, String>>()
 
+    /** Every display `write` as (tick, handle name, pose): kept out of [calls] so the oracle diff still compares verbs and payloads only. */
+    val writtenPoses = ArrayList<Triple<Int, String, VisualPose>>()
+
     val hooks: com.astarworks.astera.core.application.skillengine.runtime.player.PlayerHooks =
         object : com.astarworks.astera.core.application.skillengine.runtime.player.PlayerHooks {
             private val compiler = com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler()
@@ -231,8 +234,10 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun updateScreenVeil(handle: VisualHandle, age: Int) = add("veil", name(handle), "age=$age")
 
-        override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) =
+        override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {
+            writtenPoses += Triple(tick, name(handle), pose)
             add("write", name(handle), "dur=$interpolationTicks", OracleFmt.pose(pose))
+        }
 
         override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) = add("trail", name(handle), "", "root=${OracleFmt.v(root)} tip=${OracleFmt.v(tip)}")
 
@@ -253,9 +258,13 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun setTrailWidth(handle: VisualHandle, widthFrac: Double) = add("trail_width", name(handle), "w=%.3f".format(widthFrac), "width=${OracleFmt.f(widthFrac)}")
     }
 
+    /** Every particle burst as (tick, particle, world position). */
+    val emittedAt = ArrayList<Triple<Int, String, Vec3>>()
+
     val particles: ISkillParticleGateway = object : ISkillParticleGateway {
         override fun emit(cast: CastRef, burst: ParticleBurst) {
             seen("particles.emit", cast)
+            emittedAt += Triple(tick, burst.particle, burst.at)
             add(
                 "particle", "-", "type=${burst.particle}" + (burst.count?.let { " count=$it" } ?: ""),
                 "at=${OracleFmt.v(burst.at)} off=${OracleFmt.v(burst.offset)} speed=${OracleFmt.f(burst.speed)} color=${OracleFmt.s(burst.colorHex)} size=${burst.dataSize?.let { OracleFmt.f(it) } ?: "-"} " +
