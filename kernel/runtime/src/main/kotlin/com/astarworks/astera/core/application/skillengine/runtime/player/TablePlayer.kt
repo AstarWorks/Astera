@@ -1426,6 +1426,8 @@ public class TablePlayer(
         val parentRec = if (of == null) run.recs[parent] else null
         val carrierRec = Rec(SpawnKind.FRAME, parentRec?.let { parent }, if (of != null || parentRec != null) "" else parent.text, now, ctx.owner, identity)
         run.recs[carrier] = carrierRec
+        // points first: the carrier is already addressable, so a refused visual spawn below must not leave point(rig, ..) unresolvable for every later row
+        for ((key, v) in p) if (key.startsWith("point.")) carrierRec.points[key.removePrefix("point.")] = any(run, v, ctx) as Vector3d
         var held: Rec? = null
         if (of == null) {
             // no `of`: the rig frame is carried by the arm: its origin is the grip and its rotation arm * tilt * pose * rest, and the held mesh
@@ -1442,7 +1444,6 @@ public class TablePlayer(
             run.cursor.instances[heldId] = GatewayHandle(h.id)
             held = rec
         }
-        for ((key, v) in p) if (key.startsWith("point.")) carrierRec.points[key.removePrefix("point.")] = any(run, v, ctx) as Vector3d
         val rig = RigRec(of ?: carrier, now, pose, bodyClock, anim, caster, held)
         carrierRec.rig = rig
         rigPose(run, rig, now)

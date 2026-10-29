@@ -31,7 +31,7 @@ class StateEntryContactScenarioTest : SkillEngineScenario() {
                 throw:
                   for: 30
                   do:
-                    - {id: volley, op: projectile, origin: caster, velocity: "= vec(0, 0, 1)", speed: 1.0, range: 20.0, radius: 0.2, hit: {targets: enemies, once: true}, block: {mode: stick, for: 10}}
+                    - {id: volley, op: projectile, origin: caster, velocity: "= vec(0, 0, 1)", speed: 1.0, range: 20.0, radius: 0.2, hit: {targets: enemies, once: true, attach: false}, block: {mode: stick, for: 10}}
                   on:
                     - {event: volley.hit, to: stuck}
                 stuck:
