@@ -11,7 +11,6 @@ import com.astarworks.astera.core.domain.skillengine.expr.ExprEvalException
 import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
 import com.astarworks.astera.core.domain.skillengine.expr.FrameLookup
 import com.astarworks.astera.core.domain.skillengine.model.Value
-import com.astarworks.astera.core.domain.skillengine.table.OpId
 
 /**
  * S / T / L classification of an expression (ADR-0303 3.5), derived from the source text (a [com.astarworks.astera.core.domain.skillengine.expr.CompiledExpr]
@@ -116,7 +115,7 @@ public object ExprClassifier {
             else -> null
         }
         if (why != null) return Result.Failure(SkillDecodeError.RuntimeTiming(path, field, why, lc.skillId))
-        val env = ExprEnv(V3Bindings.values(lc.occurrence), NoFrames, seed = V3Bindings.seed(0L, OpId(field), lc.occurrence.i))
+        val env = ExprEnv(V3Bindings.values(lc.occurrence), NoFrames)
         val r = try {
             compiled.eval(env)
         } catch (e: ExprEvalException) {

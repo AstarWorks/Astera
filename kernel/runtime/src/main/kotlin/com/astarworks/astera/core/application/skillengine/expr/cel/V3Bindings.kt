@@ -126,14 +126,28 @@ public object V3Bindings {
     )
 
     /**
-     * `ExprEnv.seed` for one occurrence of one op: `rand()` is seeded by (cast, op, i, call site). The call site is the
-     * order of the `rand()` inside the source (the compiler turns the k-th `rand()` into the stream `@k`), so two
+     * `ExprEnv.seed` of one row at play time: `rand()` is seeded by (cast, the row's content seed, call site). [rowSeed] is `Row.seed`, a hash of
+     * the row's own content (kind, tick, copy indices, resolved cells; see `RowSeeds`), never of an op id, so renaming or reordering ops keeps every
+     * spread. The call site is the order of the `rand()` inside the source (the compiler turns the k-th `rand()` into the stream `@k`), so two
      * `rand()` in one field draw independently and a replay draws the same values.
      */
-    public fun seed(castSeed: Long, op: OpId, i: Int): Long {
-        var h = castSeed xor (op.value.hashCode().toLong() * -0x61c8864680b583ebL)
-        h = (h xor (h ushr 30)) * -0x40a7b892e31b1a47L
-        h = h xor (i.toLong() * 0x2545F4914F6CDD1DL)
+    public fun rowSeed(castSeed: Long, rowSeed: Long): Long = mix(castSeed xor (rowSeed * -0x61c8864680b583ebL))
+
+    /**
+     * Seed of a compile-time fold that has no row yet (a `use` argument): (cast, the text of the cell, copy index). Content only, like [rowSeed].
+     */
+    public fun contentSeed(castSeed: Long, text: String, i: Int): Long = mix(castSeed xor (fnv1a(text) * -0x61c8864680b583ebL) xor (i.toLong() * 0x2545F4914F6CDD1DL))
+
+    /** FNV-1a over the UTF-16 units: stable across JVMs (unlike `hashCode` of a non-String). */
+    public fun fnv1a(text: String, basis: Long = -0x340d631b7bdddcdbL): Long {
+        var h = basis
+        for (c in text) h = (h xor c.code.toLong()) * 0x100000001b3L
+        return h
+    }
+
+    private fun mix(z0: Long): Long {
+        var h = (z0 xor (z0 ushr 30)) * -0x40a7b892e31b1a47L
+        h = (h xor (h ushr 27)) * -0x6b2fb644ecceee15L
         return h xor (h ushr 31)
     }
 }

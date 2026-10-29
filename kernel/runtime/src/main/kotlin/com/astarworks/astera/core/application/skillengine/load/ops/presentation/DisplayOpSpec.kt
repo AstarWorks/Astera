@@ -467,7 +467,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                     throw DecodeAbort(SkillDecodeError.Invalid(lc.skillId, "$path.$axis", "a size that follows t cannot also be live or random: it is fitted at compile time"))
                 }
                 val sampleAt: (Int) -> Double = { k ->
-                    val env = ExprEnv(V3Bindings.values(lc.occurrence, instanceTick = k, lawTick = k), NoFrames, seed = V3Bindings.seed(0L, op.id, lc.occurrence.i))
+                    val env = ExprEnv(V3Bindings.values(lc.occurrence, instanceTick = k, lawTick = k), NoFrames)
                     val r = try {
                         compiled.eval(env)
                     } catch (e: ExprEvalException) {

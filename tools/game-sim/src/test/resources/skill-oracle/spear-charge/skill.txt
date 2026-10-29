@@ -1,6 +1,6 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=- sound=astera:weapons/dash-whoosh cat=master vol=1 pitch=1.1 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=761137255663054198
+@0 particle - op=- type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3987735401986297215
 @0 move - op=- to=0,0,1 yaw=- pitch=-
 @0 hit - op=- at=0.000000,0.900000,1.000000 r=1.000000
 @1 move - op=- to=0,0,2 yaw=- pitch=-
@@ -14,7 +14,7 @@
 @5 hit - op=- at=0.000000,0.900000,2.000000 r=1.000000
 ## pose yaw=37 pitch=-20
 @0 sound - op=- sound=astera:weapons/dash-whoosh cat=master vol=1 pitch=1.1 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=761137255663054198
+@0 particle - op=- type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3987735401986297215
 @0 move - op=- to=-0.6018,0,0.7986 yaw=- pitch=-
 @0 hit - op=- at=-0.601815,0.900000,0.798636 r=1.000000
 @1 move - op=- to=-1.2036,0,1.5973 yaw=- pitch=-

@@ -141,7 +141,7 @@ public class CelExprCompiler : ExprCompiler {
 
         /**
          * `rand()` (ADR-0303 3.5) becomes `rand("@k")` for the k-th call site of the source, so each site is its own
-         * stream and the draws depend only on (cast, op, i, call site) through [ExprEnv.seed].
+         * stream and the draws depend only on (cast, row content seed, call site) through [ExprEnv.seed].
          */
         fun numberCallSites(source: String): String {
             var k = 0

@@ -1771,13 +1771,12 @@ public class TablePlayer(
             else live.targets(run.cursor.handle, TargetRule.Entity("event.victim"), ctx.binding).entities.map { it.id }
     }
 
-    /** The seed `V3Bindings.seed(castSeed, op, i)` the compiler folds with, and the copy indices of the instance path (innermost first). */
     /**
-     * The seed a row guard draws with: (cast seed, row instance + source, firing tick, event index, victim). Each firing of a row draws
+     * The seed a row guard draws with: (cast seed, row content seed, firing tick, event index, victim). Each firing of a row draws
      * independently (v2 `rollChance` was one fresh draw per application), and a replay of the cast draws the same values.
      */
     private fun guardSeed(run: Run, row: Row, ctx: RowCtx, now: Int): Long {
-        var h = rowScope(run, row).seed xor (row.src.value.hashCode().toLong() * -0x61c8864680b583ebL)
+        var h = rowScope(run, row).seed
         h = (h xor (h ushr 30)) * -0x40a7b892e31b1a47L
         h = h xor (now.toLong() * 0x2545F4914F6CDD1DL)
         h = (h xor (h ushr 27)) * -0x6b2fb644ecceee15L
@@ -1841,13 +1840,13 @@ public class TablePlayer(
     }
 
     private fun rowScope(run: Run, row: Row, binding: EventBinding? = null): RowScope {
-        val last = row.instance.path.lastOrNull() ?: return RowScope(run.request.seed, run.request.seed, emptyList(), framesOf(run, row, binding), run.frameNames)
+        // the seed is the row's content seed (RowSeeds), never an op id: renaming or reordering ops keeps every spread
         val indices = row.instance.path.mapNotNull { it.index }.asReversed()
-        return RowScope(V3Bindings.seed(run.request.seed, last.op, last.index ?: 0), run.request.seed, indices, framesOf(run, row, binding), run.frameNames)
+        return RowScope(V3Bindings.rowSeed(run.request.seed, row.seed), run.request.seed, indices, framesOf(run, row, binding), run.frameNames)
     }
 
     private fun rowStream(run: Run, row: Row, ctx: RowCtx): SeededStream =
-        run.cursor.seed.fork("${row.instance.text}|${row.src.value}|${ctx.base}|${row.tick}")
+        run.cursor.seed.fork("${row.seed}|${ctx.base}|${row.tick}")
 
     private fun castRef(run: Run): CastRef = CastRef(run.cursor.handle.value, run.request.caster, run.request.world, run.request.skill.def.item)
 

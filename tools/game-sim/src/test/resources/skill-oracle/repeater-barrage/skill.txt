@@ -1,16 +1,16 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=- sound=item.crossbow.shoot cat=master vol=0.9 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=gun-muzzle-flash at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7026404406233930879
-@0 particle - op=- type=crit count=1 at=0.000000,1.620000,0.500000 off=0.050000,0.050000,0.050000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3740801515171757124
-@0 particle - op=- type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2410208898875182041
-@1 particle - op=- type=crit count=1 at=0.000000,1.620000,0.500000 off=0.050000,0.050000,0.050000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4973623900090019611
-@1 particle - op=- type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8327850991914629986
+@0 particle - op=- type=gun-muzzle-flash at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-658858965400005701
+@0 particle - op=- type=crit count=1 at=0.000000,1.620000,0.500000 off=0.050000,0.050000,0.050000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4763603939630606750
+@0 particle - op=- type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1827128130887833283
+@1 particle - op=- type=crit count=1 at=0.000000,1.620000,0.500000 off=0.050000,0.050000,0.050000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8086518349768650893
+@1 particle - op=- type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9008375664999577519
 @1 hit - op=- at=0.000000,1.620000,3.900000 r=0.500000
 ## pose yaw=37 pitch=-20
 @0 sound - op=- sound=item.crossbow.shoot cat=master vol=0.9 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=gun-muzzle-flash at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7026404406233930879
-@0 particle - op=- type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.050000,0.050000,0.050000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3740801515171757124
-@0 particle - op=- type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2410208898875182041
-@1 particle - op=- type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.050000,0.050000,0.050000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4973623900090019611
-@1 particle - op=- type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8327850991914629986
+@0 particle - op=- type=gun-muzzle-flash at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-658858965400005701
+@0 particle - op=- type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.050000,0.050000,0.050000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4763603939630606750
+@0 particle - op=- type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1827128130887833283
+@1 particle - op=- type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.050000,0.050000,0.050000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8086518349768650893
+@1 particle - op=- type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=9008375664999577519
 @1 hit - op=- at=-2.205532,2.953879,2.926840 r=0.500000

@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.load.grammar
 
+import com.astarworks.astera.core.application.skillengine.expr.cel.ExprClassifier
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.ValueDecoding
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
@@ -102,6 +103,21 @@ public object TimingSpec {
     /** Reads the timing block out of [v] (the op's fields merged with [fields]) and checks the rules of ADR-0303 2.0. */
     public fun from(v: FieldValues, ctx: GrammarContext, path: String, kind: TimingKind): Timing {
         val t = Timing(v[at], v[forSpan], v[every], v[times], v[until], v[lasts])
+        // founder 10/29: random never decides a schedule. Refused here for every timing cell, whether or not the op's kind goes on to read it.
+        fun noRand(field: String, value: Value<Double>?) {
+            if (value is Value.Expr && ExprClassifier.analyse(value.source).usesRand) {
+                ctx.abort(SkillDecodeError.RuntimeTiming(path, field, "rand / roll / draw are random per cast; a random delay is a value in a non-timing field, never a time (C5, R11)", ctx.file))
+            }
+        }
+        noRand("at", (t.at as? TimeAt.Tick)?.ticks)
+        noRand("for", (t.span as? Span.Ticks)?.ticks)
+        when (val e = t.every) {
+            is Every.Fixed -> noRand("every", e.ticks)
+            is Every.Eased -> { noRand("every.from", e.from); noRand("every.to", e.to) }
+            null -> Unit
+        }
+        noRand("times", t.times)
+        noRand("lasts", t.lasts)
         if (t.every != null && t.span == null && t.times == null && t.until == null) {
             ctx.abort(SkillDecodeError.UnboundedRepeat("$path.every", ctx.file))
         }
