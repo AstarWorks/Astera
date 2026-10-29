@@ -1,3 +1,4 @@
+# mace-smash: wind-up 6 ticks (rule round(5 / attack_speed)), hit at tick 6. Overhead smash: raised behind the head, smashed down in front.
 apiVersion: astera/v3
 kind: Skill
 id: mace-smash
@@ -18,14 +19,32 @@ anchors:
   - {id: sweep, anchor: caster, offset: {up: -0.2, forward: 1.4}, mode: snapshot}
   - {id: heart, anchor: victim.center, mode: follow}
 machine:
-  start: swing
+  start: windup
+  tail: 10
   states:
-    swing:
+    windup:
+      for: 6
+      then: strike
+      do:
+        - {id: snd_windup, op: sound, sound: item.armor.equip_iron, anchor: caster, volume: 0.5, pitch: 0.5}
+        # weapon rig: overhead smash. One performance in the windup state, detached so it plays on through the strike and the tail:
+        # drawn back over 5 ticks, the cut starts at tick 5 so the blade crosses the target zone at the hit (tick 6), then 6 ticks of follow-through.
+        - id: rig
+          op: rig
+          parent: caster
+          mount: caster.hand_r
+          part: held_hand
+          rest: [{axis: left, deg: 72}]
+          detach: true
+          for: 14
+          swing:
+            - {at: 0, for: 5, from: {left: 0.000, up: 0.507, forward: 0.862}, to: {left: 0.100, up: 0.949, forward: -0.300}, edge: trailing, roll: 0, ease: out_quad}
+            - {at: 5, for: 3, to: {left: 0.000, up: -0.447, forward: 0.894}, edge: leading, roll: 0, ease: out_cubic}
+            - {at: 8, for: 6, to: {left: 0.000, up: -0.786, forward: 0.618}, edge: leading, roll: 0, ease: out_cubic}
+    strike:
       for: 1
       then: end
-      enter:
-        - {id: snd_swing, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 0.7}
-        - {id: fx_swing, op: particle_def, def: slash-sweep, anchor: sweep}
+      do:
         - id: swing
           op: hit
           anchor: eye
@@ -39,6 +58,9 @@ machine:
           on:
             hit:
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster))", strength: "${knockback}"}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-crit", anchor: contact, volume: 0.7, pitch: 1.2}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-crit", anchor: contact, volume: 0.7, pitch: 1.2, detach: true}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
+        - {id: snd_swing, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 0.7, detach: true}
+        - {id: fx_swing, op: particle_def, def: slash-sweep, anchor: sweep, detach: true}
+        - {id: trail, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 6}, count: 1, extra: 0.04, at: 0, every: 1, for: 8, detach: true}
     end: {final: true}
