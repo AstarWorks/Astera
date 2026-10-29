@@ -132,32 +132,36 @@ def spear():
     s.box('head gem', [7.7, 24.8, 8.6], [8.3, 25.4, 8.7], 'gem.redstone_block')
     return s, dict(grip=[8, 8, 8], centre=[8, 15, 8], root=[8, 24.0, 8], tip=[8, 31.9, 8], bottom=[8, -1.4, 8])
 
-def twin():
-    s = Spec('twin-daggers')
-    for k, z in (('a', 6.3), ('b', 9.7)):
-        s.box(f'{k} pommel ring', [7.1, -0.2, z - .9], [8.9, 0.7, z + .9], GOLD)
-        s.box(f'{k} grip core', [7.3, 0.7, z - .7], [8.7, 6.2, z + .7], WOOL, '#8c1d26')
-        for i in range(4):
-            y = 1.1 + i * 1.2
-            s.box(f'{k} grip band {i}', [7.2, y, z - .8], [8.8, y + 0.4, z + .8], WOOL, '#1c1c24')
-        s.box(f'{k} guard', [5.2, 6.2, z - .6], [10.8, 6.9, z + .6], IRON, '#5d6470')
-        s.box(f'{k} guard hook L', [4.7, 5.7, z - .45], [5.3, 6.85, z + .45], IRON, '#5d6470')
-        s.box(f'{k} guard hook R', [10.7, 6.3, z - .45], [11.3, 7.6, z + .45], IRON, '#5d6470')
-        s.box(f'{k} ricasso', [7.3, 6.9, z - .4], [8.7, 7.8, z + .4], GOLD)
-        cuts = [(7.8, 10.5, 0.85, 0.95), (10.5, 13.0, 0.9, 1.15), (13.0, 15.2, 0.75, 1.0), (15.2, 16.6, 0.45, 0.6), (16.6, 17.6, 0.15, 0.2)]
-        for i, (y0, y1, l, r) in enumerate(cuts):
-            s.box(f'{k} blade body {i}', [8 - l, y0, z - .35], [8 + r, y1, z + .35], IRON, '#c7cfda')
-            s.box(f'{k} blade edge {i}', [8 + r, y0, z - .15], [8 + r + 0.2, y1, z + .15], IRON, '#ffffff')
-        s.box(f'{k} blade fuller', [7.9, 8.2, z + .35], [8.1, 13.8, z + .45], IRON, '#8a93a0')
-    return s, dict(grip=[8, 3.5, 8], centre=[8, 9, 8], root=[8, 7.8, 8], tip=[8.1, 17.6, 8], bottom=[8, -0.2, 8])
+def twin(off=False):
+    """One dagger (z=8) per hand: 'twin-daggers' is the main-hand blade (red grip), 'twin-daggers-offhand' the off-hand blade (blue grip)."""
+    s = Spec('twin-daggers-offhand' if off else 'twin-daggers')
+    k, z = 'off' if off else 'main', 8.0
+    wrap = '#1f3f9c' if off else '#8c1d26'
+    s.box(f'{k} pommel ring', [7.1, -0.2, z - .9], [8.9, 0.7, z + .9], GOLD)
+    s.box(f'{k} grip core', [7.3, 0.7, z - .7], [8.7, 6.2, z + .7], WOOL, wrap)
+    for i in range(4):
+        y = 1.1 + i * 1.2
+        s.box(f'{k} grip band {i}', [7.2, y, z - .8], [8.8, y + 0.4, z + .8], WOOL, '#1c1c24')
+    s.box(f'{k} guard', [5.2, 6.2, z - .6], [10.8, 6.9, z + .6], IRON, '#5d6470')
+    s.box(f'{k} guard hook L', [4.7, 5.7, z - .45], [5.3, 6.85, z + .45], IRON, '#5d6470')
+    s.box(f'{k} guard hook R', [10.7, 6.3, z - .45], [11.3, 7.6, z + .45], IRON, '#5d6470')
+    s.box(f'{k} ricasso', [7.3, 6.9, z - .4], [8.7, 7.8, z + .4], GOLD)
+    cuts = [(7.8, 10.5, 0.85, 0.95), (10.5, 13.0, 0.9, 1.15), (13.0, 15.2, 0.75, 1.0), (15.2, 16.6, 0.45, 0.6), (16.6, 17.6, 0.15, 0.2)]
+    for i, (y0, y1, l, r) in enumerate(cuts):
+        s.box(f'{k} blade body {i}', [8 - l, y0, z - .35], [8 + r, y1, z + .35], IRON, '#c7cfda')
+        s.box(f'{k} blade edge {i}', [8 + r, y0, z - .15], [8 + r + 0.2, y1, z + .15], IRON, '#ffffff')
+    s.box(f'{k} blade fuller', [7.9, 8.2, z + .35], [8.1, 13.8, z + .45], IRON, '#8a93a0')
+    s.box(f'{k}_tip', [7.9, 17.4, z - .15], [8.1, 17.6, z + .15], IRON, '#ffffff')
+    return s, dict(grip=[8, 3.5, 8], centre=[8, 9, 8], root=[8, 7.8, 8], tip=[8, 17.6, 8], bottom=[8, -0.2, 8])
 
-BUILDERS = {'katana': katana, 'rapier': rapier, 'iron-blade': ironblade, 'spear': spear, 'twin-daggers': twin}
+BUILDERS = {'katana': katana, 'rapier': rapier, 'iron-blade': ironblade, 'spear': spear, 'twin-daggers': twin, 'twin-daggers-offhand': lambda: twin(True)}
 HEADS = {
  'katana': 'Single-edged tachi blade with sori; model +X = cutting edge (hamon side), -X = spine. Grip wrapped navy ito.',
  'rapier': 'Slender thrusting blade with swept cup/knuckle-bow hilt (bow on -Z so it never crosses the edge side); +X = blade edge.',
  'iron-blade': 'Plain iron broadsword: wide straight blade, fuller, bar guard, wooden grip.',
  'spear': 'Leaf-headed spear on a long shaft; root = head base (socket top), tip = point; +X = leaf edge.',
- 'twin-daggers': 'Pair of parallel curved-tip daggers modelled as one held item (blades at z=6.3 and z=9.7, same Y span); no off-hand model.',
+ 'twin-daggers': 'Main-hand dagger of the pair (one blade, red grip); the off-hand dagger is its own model twin-daggers-offhand drawn under thirdperson_lefthand.',
+ 'twin-daggers-offhand': 'Off-hand dagger of the pair (one blade, blue grip), same shape as the main-hand one; display.thirdperson_lefthand is authored mirrored (the client mirrors left-hand displays).',
 }
 
 def main():
@@ -179,6 +183,11 @@ def main():
            f'# content/models/items/{a.item}.model.json ({len(m["elements"])} elements, model +Y = blade direction, +X = blade edge side): {HEADS[a.item]}',
            f'# grip = hold point {k["grip"]} = pivot; root = blade base {[round(v, 3) for v in k["root"]]}; tip = blade tip {[round(v, 3) for v in k["tip"]]}; long = root->tip; edge = model +X; length = {k["bottom"][1]} (lowest point) to tip.',
            '# held_hand = the same elements under the model\'s thirdperson_righthand display, the transform the rig\'s main-hand mesh draws with; hand_anchor = model centre (8,8,8).']
+    if a.item == 'twin-daggers-offhand': print(a.item, len(m['elements']), 'elements (model only; its frames part lives in content/frames/twin-daggers.yaml)'); return
+    if a.item == 'twin-daggers':
+        off = dict(parts['held_hand']); off['display'] = 'thirdperson_lefthand'; off['model'] = 'twin-daggers-offhand'
+        parts['off_hand'] = off
+        hdr.append('# off_hand = the off-hand dagger: its own model astera:twin-daggers-offhand (same shape), display thirdperson_lefthand authored mirrored (rotation y/z and translation x negated; the client mirrors left-hand displays back), so its points equal held_hand; a rig with hand: off takes this part.')
     (ROOT / 'content/frames' / f'{a.item}.yaml').write_text(frame_yaml(a.item, parts, hdr))
     print(a.item, len(m['elements']), 'elements', 'L', L, json.dumps(parts['held_hand']['points']))
 

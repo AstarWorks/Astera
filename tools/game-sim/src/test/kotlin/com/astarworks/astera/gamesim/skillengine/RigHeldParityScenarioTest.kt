@@ -26,7 +26,7 @@ import kotlin.math.sqrt
 /**
  * ADR-0303 open decisions 1 / 3 / 4 and the "too small or offset" rule (design-gaps-v1 section 5).
  *
- * Parity is decided by numbers: for every `content/frames/<item>.yaml` part drawn with `thirdperson_righthand` (the held mesh), the tip and the
+ * Parity is decided by numbers: for every `content/frames/<item>.yaml` part drawn with `thirdperson_righthand` (the held mesh) or `thirdperson_lefthand` (the off-hand mesh of a dual-wield weapon, its own model), the tip and the
  * `long` axis the frames file publishes must equal what the client draws for the model JSON, computed here from the JSON alone
  * (`display.thirdperson_righthand` chain: q = RotY(180) * (T + Rxyz * (S * (p/16 - 0.5))), the chain of content/frames/couture-rapier.yaml).
  * The tip is the top of the model's tip element(s) (name `tip`, `*_tip`, `tip_point`), centred on the other axes. A mismatch is the model JSON's or
@@ -53,9 +53,10 @@ class RigHeldParityScenarioTest : SkillEngineScenario() {
         (o[key] as? JsonArray)?.map { it.jsonPrimitive.doubleOrNull ?: 0.0 }?.toDoubleArray()?.takeIf { it.size == 3 } ?: DoubleArray(3) { default }
 
     /** (tip, long) in the display-local frame, from the model JSON's display block [display]. */
-    private fun chain(display: JsonObject, p: DoubleArray): Pair<DoubleArray, DoubleArray> {
-        val r = nums(display, "rotation", 0.0)
-        val t = nums(display, "translation", 0.0).map { it / 16.0 }.toDoubleArray()
+    private fun chain(display: JsonObject, p: DoubleArray, left: Boolean = false): Pair<DoubleArray, DoubleArray> {
+        // the client mirrors a left-hand display (ItemTransform.apply: rotation y/z and translation x negated), so the pose it draws is the mirror of the authored block
+        val r = nums(display, "rotation", 0.0).also { if (left) { it[1] = -it[1]; it[2] = -it[2] } }
+        val t = nums(display, "translation", 0.0).map { it / 16.0 }.toDoubleArray().also { if (left) it[0] = -it[0] }
         val s = nums(display, "scale", 1.0)
         val m = mul(mul(rot('x', r[0]), rot('y', r[1])), rot('z', r[2]))
         val local = DoubleArray(3) { s[it] * (p[it] / 16.0 - 0.5) }
@@ -79,7 +80,7 @@ class RigHeldParityScenarioTest : SkillEngineScenario() {
         val centres = tips.map { e -> DoubleArray(3) { (v(e, "from")[it] + v(e, "to")[it]) / 2.0 } }
         val top = tips.maxOf { e -> max(v(e, "from")[1], v(e, "to")[1]) }
         val p = doubleArrayOf(centres.map { it[0] }.average(), top, centres.map { it[2] }.average())
-        val (tip, long) = chain(display, p)
+        val (tip, long) = chain(display, p, left = part.display == ItemFrames.OFF_HAND_DISPLAY)
         val fileTip = part.points["tip"] ?: return Row(item, part.name, Double.NaN, Double.NaN, "frames part declares no tip point")
         val fileLong = part.axes["long"] ?: return Row(item, part.name, Double.NaN, Double.NaN, "frames part declares no long axis")
         val tipErr = sqrt((tip[0] - fileTip.x).let { it * it } + (tip[1] - fileTip.y).let { it * it } + (tip[2] - fileTip.z).let { it * it })
@@ -89,9 +90,9 @@ class RigHeldParityScenarioTest : SkillEngineScenario() {
     }
 
     @Test
-    fun everyShippedHeldMeshMatchesTheModelJson() {
+    fun everyShippedHeldAndOffHandMeshMatchesTheModelJson() {
         val tables = ItemFramesDecoder.loadDirectory(contentDir.resolve("frames")).first
-        val rows = tables.values.flatMap { f -> f.handParts().map { measure(f.item, it) } }
+        val rows = tables.values.flatMap { f -> (f.handParts() + f.offHandParts()).map { measure(f.item, it) } }
         assertThat(rows).describedAs("shipped frames files with a thirdperson_righthand part").isNotEmpty
         println("HELD-PARITY item part tip_error_blocks angle_error_deg note")
         rows.forEach { println("HELD-PARITY ${it.item} ${it.part} %.4f %.3f ${it.note}".format(it.tipErr, it.angleErr)) }
@@ -141,6 +142,35 @@ class RigHeldParityScenarioTest : SkillEngineScenario() {
         val text = com.astarworks.astera.core.application.skillengine.compose.ExpansionDump.render(rig.table)
         println(text)
         assertThat(text).contains("held_part").contains("held_hand (thirdperson_righthand)").contains("held_length").contains("hand_anchor")
+    }
+
+    // ---- the off hand: a dual-wield weapon's second blade is its own model, pivoting from the left hand ----------------------------
+
+    @Test
+    fun anOffHandRigTakesTheLeftHandPartAndItsOwnModel() {
+        val sk = when (val r = loadInline(skill("twin-daggers", "{id: arm, op: rig, parent: caster, for: 6}", "{id: left, op: rig, parent: caster, hand: off, mount: caster.hand_l, for: 6}"))) {
+            is Result.Success -> r.value
+            is Result.Failure -> throw AssertionError("did not load: ${r.error}")
+        }
+        val text = com.astarworks.astera.core.application.skillengine.compose.ExpansionDump.render(sk.table)
+        println(text)
+        assertThat(text).contains("held_hand (thirdperson_righthand)").contains("off_hand (thirdperson_lefthand)").contains("astera:twin-daggers-offhand")
+        val rec = GatewayRecorder()
+        play(sk, 7L, emptyList(), 6, rec)
+        val spawns = rec.calls.filter { it.verb == "spawn" && it.detail.startsWith("item=") }
+        println(spawns.joinToString("\n") { it.detail })
+        assertThat(spawns.filter { it.detail.contains("mode=THIRDPERSON_LEFTHAND") }).describedAs("one off-hand blade, drawn with the left-hand display").hasSize(1)
+        assertThat(spawns.single { it.detail.contains("mode=THIRDPERSON_LEFTHAND") }.detail).contains("twin-daggers-offhand")
+        assertThat(spawns).describedAs("one blade per hand").hasSize(2)
+        assertThat(spawns.count { !it.detail.contains("mode=THIRDPERSON_LEFTHAND") }).describedAs("the other blade is the main-hand mesh").isEqualTo(1)
+    }
+
+    @Test
+    fun anOffHandRigNeedsAnOffHandPartAndTheLeftArm() {
+        assertThat(failure(skill("couture-rapier", "{id: arm, op: rig, parent: caster, hand: off, for: 6}"))).contains("has no part with display: thirdperson_lefthand")
+        assertThat(failure(skill("twin-daggers", "{id: arm, op: rig, parent: caster, hand: off, mount: caster.hand_r, for: 6}"))).contains("rides caster.hand_l")
+        assertThat(failure(skill("twin-daggers", "{id: arm, op: rig, parent: caster, hand: main, mount: caster.hand_l, for: 6}"))).contains("rides caster.hand_r")
+        assertThat(failure(skill("twin-daggers", "{id: f, op: rig, parent: caster, for: 6}", "{id: arm, op: rig, parent: caster, of: f, hand: off, for: 6}"))).contains("hand: off is for a held rig")
     }
 
     @Test

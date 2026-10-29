@@ -352,8 +352,10 @@ abstract class SkillEngineScenario {
     fun diff(expected: List<RecordedCall>, actual: List<RecordedCall>): List<String> {
         val compared = setOf("spawn", "write", "trail", "remove", "particle", "sound")
         val expectedRemoves = expected.filter { it.verb == "remove" }.map { it.instance }.toSet()
-        val a = actual.filter { it.verb in compared && (it.verb != "remove" || it.instance in expectedRemoves) }.sortedBy { it.tick }
-        val e = expected.filter { it.verb in compared }.sortedBy { it.tick }
+        // several visuals that end on one tick (two detached rigs of a dual-wield skill) have no semantic order: the removes of a tick compare by instance
+        val order = compareBy<RecordedCall>({ it.tick }, { if (it.verb == "remove") 1 else 0 }, { if (it.verb == "remove") it.instance else "" })
+        val a = actual.filter { it.verb in compared && (it.verb != "remove" || it.instance in expectedRemoves) }.sortedWith(order)
+        val e = expected.filter { it.verb in compared }.sortedWith(order)
         val problems = ArrayList<String>()
         for (i in 0 until maxOf(a.size, e.size)) {
             val x = e.getOrNull(i)

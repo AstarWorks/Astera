@@ -13346,6 +13346,15 @@
                             "description": "axes source of the driven frame (needs of:); a held rig (no of) takes the item's thirdperson_righthand part, chosen by the engine, never written",
                             "default": null
                         },
+                        "hand": {
+                            "enum": [
+                                "main",
+                                "off"
+                            ],
+                            "description": "held rig only: main = the held item (thirdperson_righthand part, right arm); off = the off-hand blade of a dual-wield weapon (thirdperson_lefthand part of content/frames/<item>.yaml, its own model, left arm)",
+                            "x-identity": true,
+                            "x-listed-default": "main"
+                        },
                         "respect_hit_stop": {
                             "oneOf": [
                                 {
