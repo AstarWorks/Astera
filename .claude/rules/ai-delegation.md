@@ -1,4 +1,4 @@
-# AI delegation policy (Phase 1)
+# AI delegation and content authoring
 
 ## Code, tests, docs
 
@@ -6,15 +6,6 @@
   merge. No auto-merge.
 - **Tests and docs** — Claude may write autonomously; human review optional
   for trivial changes.
-
-## Generative AI for assets
-
-- **Default: deferred to Phase 6** per [ADR-0010](../../docs/adr/0010-postpone-generative-ai-to-phase-6.md).
-  Do not introduce new image / audio generation pipelines into the runtime
-  or build graph.
-- **No `:plugin:*` runtime module** imports the Anthropic SDK, OpenAI SDK,
-  or any ML library. No path under `:plugin:*` calls out to AI services
-  at request-handling time.
 
 ## Content authoring tools moved to AsteraStudio
 
@@ -36,15 +27,4 @@ What's in AsteraStudio:
 - `tools/model-gen/` + build-model skill
 - `tools/studio/web/` → now the AsteraStudio repo root
 
-Astera plugin's invariants are unchanged: no AI/ML SDK in `:plugin:*`,
-no AI tool called from Gradle build, no runtime dependency on Studio.
-
-## What "Phase 1" means here
-
-- We're building the multi-plugin skeleton + first content waves
-  (ADR-0022; current scope in `docs/vision/VISION.md`).
-- Texture pipelines stay intentionally minimal — enough to demo, not enough
-  to ship — until ADR-0010 is revisited.
-
-When Phase 6 lands and ADR-0010 is superseded, the texture-side policy
-will be rewritten.
+Astera plugins have no runtime dependency on Studio.

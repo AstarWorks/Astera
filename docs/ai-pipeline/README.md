@@ -2,9 +2,9 @@
 
 AI 委託パイプラインのドキュメント。
 
-**Phase 1〜5 では生成 AI は使わない** ([[adr/0010]])。Phase 6 で本格解禁する。
+**生成 AI は解禁済み** ([[adr/0307]] が [[adr/0010]] を supersede)。
 
-## ファイル (Phase 6 以降で内容拡充)
+## ファイル (内容拡充中)
 
 - `overview.md` — 各 agent / skill の責務
 - `delegation-policy.md` — 人間レビュー必須ラインの定義

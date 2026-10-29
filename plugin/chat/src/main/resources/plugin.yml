@@ -11,3 +11,5 @@ permissions:
     default: op
   astera.chat.japanize:
     default: true
+  astera.chat.translate:
+    default: true
