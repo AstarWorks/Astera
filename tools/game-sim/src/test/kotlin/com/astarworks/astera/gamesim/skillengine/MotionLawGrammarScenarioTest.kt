@@ -97,4 +97,31 @@ class MotionLawGrammarScenarioTest : SkillEngineScenario() {
         assertThat(loadInline(skill("{id: d, op: display, kind: item, item: couture-rapier, anchor: caster, motion: [{law: grow, start: [1, 1, 1], to: [3, 5], for: 4}], for: 20}")))
             .isInstanceOf(Result.Failure::class.java)
     }
+
+    @Test
+    fun frameLawReadsCopyIndexAndRiderComposesItsCopy() {
+        // a frame family: copy k spins (10 + k*2) deg/tick for 5 ticks; a rider on blade[1] carries copy 1's 60 degrees, not the last copy's 70
+        val s = compiled(
+            "{id: blade, op: frame, anchor: caster, times: 3, motion: [{law: spin, axis: up, deg_per_tick: \"= 10 + i * 2\", for: 5}], for: 40}",
+            "{id: rider, op: frame, anchor: \"blade[1]\", for: 40}",
+        )
+        val byInstance = keyRows(s).groupBy { it.instance }
+        fun end(prefix: String): Double =
+            rotDegrees(byInstance.filterKeys { it.toString().contains(prefix) }.values.single().let { rows -> rows.maxBy { it.tick + key(it).durationTicks } })
+        val blades = byInstance.filterKeys { it.toString().contains("blade") }.values.map { rows -> rotDegrees(rows.maxBy { it.tick + key(it).durationTicks }) }.sorted()
+        listOf(50.0, 60.0, 70.0).forEachIndexed { k, want -> assertThat(blades[k]).isCloseTo(want, within(1e-3)) }
+        assertThat(end("rider")).isCloseTo(60.0, within(1e-3))
+    }
+
+    @Test
+    fun projectileLawReadsCopyIndexAndRiderComposesItsCopy() {
+        // body copy k spins (5 + k) deg/tick for 4 ticks; a rider on bolt[1] carries copy 1's 24 degrees, not the last copy's
+        val s = compiled(
+            "{id: bolt, op: projectile, times: 3, origin: caster, velocity: \"= look(caster) * 1\", for: 10, radius: 0.5, hit: {targets: enemies, once: true}, " +
+                "block: {mode: despawn}, motion: [{law: spin, axis: up, deg_per_tick: \"= 5 + i\", for: 4}]}",
+            "{id: rider, op: frame, anchor: \"bolt[1]\", for: 10}",
+        )
+        val rider = keyRows(s).filter { it.instance.toString().contains("rider") }
+        assertThat(rotDegrees(rider.maxBy { it.tick + key(it).durationTicks })).isCloseTo(24.0, within(1e-3))
+    }
 }
