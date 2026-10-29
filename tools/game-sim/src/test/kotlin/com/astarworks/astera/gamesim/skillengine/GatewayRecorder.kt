@@ -60,6 +60,14 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     var victims: List<HitCandidate> = emptyList()
     var casterPosition: Vector3d = Vector3d(0.0, 1.0, 0.0)
     var casterYawDeg: Double = 0.0
+    var casterPitchDeg: Double = 0.0
+
+    /**
+     * Off (default): live caster cells answer the old stand-ins (position [casterPosition], identity rotation, yaw only). On (the parity
+     * oracle): they answer what `PaperLiveValueSource` answers for a caster standing with feet at `casterPosition - (0,1,0)` looking
+     * along ([casterYawDeg], [casterPitchDeg]) - feet / eye / body / forward / hands and the yaw- or pitch-carrying rotations.
+     */
+    var faithfulPose: Boolean = false
 
     /** The item id of the skill being played (`play` sets it), as the player puts it in every [CastRef]. */
     var castItem: String? = null
@@ -92,19 +100,33 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
     val calls: List<RecordedCall> get() = log
 
-    private fun add(verb: String, instance: String, payload: String) {
-        log += RecordedCall(tick, verb, instance, payload)
+    /** Everything the oracle golden records: [calls] plus rows that exist only for the oracle (hit volumes, trail shape), each with its [RecordedCall.detail]. */
+    private val oracleLog = ArrayList<RecordedCall>()
+    val oracleRows: List<RecordedCall> get() = oracleLog
+
+    private fun add(verb: String, instance: String, payload: String, detail: String = "") {
+        val c = RecordedCall(tick, verb, instance, payload)
+        c.detail = detail
+        log += c
+        oracleLog += c
+    }
+
+    /** A row only the oracle golden sees; [calls] (and so every other scenario) is untouched. */
+    private fun oracleOnly(verb: String, instance: String, detail: String) {
+        val c = RecordedCall(tick, verb, instance, "")
+        c.detail = detail
+        oracleLog += c
     }
 
     private val cells = CellExprs()
 
     private val PACK_KEY = Regex("[a-z0-9_.-]+:[a-z0-9_./-]+")
 
-    private fun spawned(cast: CastRef, kind: String): VisualHandle {
+    private fun spawned(cast: CastRef, kind: String, detail: String = ""): VisualHandle {
         seen("visual.spawn.$kind", cast)
         val h = VisualHandle(nextHandle++)
         ordinals[h.id] = ordinals.size
-        add("spawn", name(h), "kind=$kind")
+        add("spawn", name(h), "kind=$kind", detail)
         return h
     }
 
@@ -182,48 +204,64 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             (com.astarworks.astera.core.application.skillengine.load.MeshModels.resolve(item, part, emptyMap()) as? com.astarworks.astera.core.application.skillengine.load.MeshModel.Pack)?.let {
                 check(PACK_KEY.matches(it.key)) { "invalid item model '${it.key}' (mesh item '$item' part '$part')" }
             }
-            return spawned(cast, "item")
+            return spawned(cast, "item", "item=${OracleFmt.s(item)} part=${OracleFmt.s(part)} ${OracleFmt.pose(pose)} bright=${brightness ?: "-"} model=${OracleFmt.s(look.itemModel)} mode=${look.mode} rigshade=${look.rigShading} shader=${OracleFmt.s(look.shaderEffect)} glow=${OracleFmt.s(glow)} ${OracleFmt.view(view)}")
         }
 
-        override fun spawnSkinBone(cast: CastRef, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) = spawned(cast, "skin_bone")
+        override fun spawnSkinBone(cast: CastRef, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) =
+            spawned(cast, "skin_bone", "bone=${bone.yamlName} slim=$slim ghost=$ghost ${OracleFmt.pose(pose)}")
 
-        override fun spawnPlate(cast: CastRef, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView, glow: String?) = spawned(cast, "sprite")
+        override fun spawnPlate(cast: CastRef, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView, glow: String?) =
+            spawned(cast, "sprite", "sprite=${OracleFmt.s(sprite)} alpha=${OracleFmt.f(alpha)} tint=${OracleFmt.s(tintHex)} seethrough=$seeThrough ${OracleFmt.pose(pose)} bright=${brightness ?: "-"} glow=${OracleFmt.s(glow)} ${OracleFmt.view(view)}")
 
-        override fun spawnBlock(cast: CastRef, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView, glow: String?) = spawned(cast, "block")
+        override fun spawnBlock(cast: CastRef, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView, glow: String?) =
+            spawned(cast, "block", "block=${OracleFmt.s(block)} ${OracleFmt.pose(pose)} bright=${brightness ?: "-"} rigshade=$rigShading glow=${OracleFmt.s(glow)} ${OracleFmt.view(view)}")
 
-        override fun spawnText(cast: CastRef, text: String, backgroundArgbHex: String, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) = spawned(cast, "text")
+        override fun spawnText(cast: CastRef, text: String, backgroundArgbHex: String, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) =
+            spawned(cast, "text", "text=${OracleFmt.s(text)} bg=${OracleFmt.s(backgroundArgbHex)} shadow=$shadow seethrough=$seeThrough ${OracleFmt.pose(pose)} bright=${brightness ?: "-"} ${OracleFmt.view(view)}")
 
-        override fun spawnTrail(cast: CastRef, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = spawned(cast, "ribbon")
+        override fun spawnTrail(cast: CastRef, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) =
+            spawned(cast, "ribbon", "ticks=$ticks width=${OracleFmt.f(widthFrac)} color=${OracleFmt.s(colorHex)} alpha=${OracleFmt.f(alpha)}")
 
-        override fun spawnLine(cast: CastRef, from: Vec3, to: Vec3, thickness: Double, colorHex: String, alpha: Double) = spawned(cast, "ribbon")
+        override fun spawnLine(cast: CastRef, from: Vec3, to: Vec3, thickness: Double, colorHex: String, alpha: Double) =
+            spawned(cast, "ribbon", "from=${OracleFmt.v(from)} to=${OracleFmt.v(to)} thick=${OracleFmt.f(thickness)} color=${OracleFmt.s(colorHex)} alpha=${OracleFmt.f(alpha)}")
 
-        override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) = add("line", name(handle), "")
+        override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) = add("line", name(handle), "", "from=${OracleFmt.v(from)} to=${OracleFmt.v(to)}")
 
         override fun spawnScreenVeil(cast: CastRef, viewer: UUID, sprite: String, distance: Double, scale: Double, colorHex: String?, maxScreenFraction: Double, ticks: Int) =
-            spawned(cast, "veil")
+            spawned(cast, "veil", "viewer=$viewer sprite=${OracleFmt.s(sprite)} dist=${OracleFmt.f(distance)} scale=${OracleFmt.f(scale)} color=${OracleFmt.s(colorHex)} maxfrac=${OracleFmt.f(maxScreenFraction)} ticks=$ticks")
 
         override fun updateScreenVeil(handle: VisualHandle, age: Int) = add("veil", name(handle), "age=$age")
 
         override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) =
-            add("write", name(handle), "dur=$interpolationTicks")
+            add("write", name(handle), "dur=$interpolationTicks", OracleFmt.pose(pose))
 
-        override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) = add("trail", name(handle), "")
+        override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) = add("trail", name(handle), "", "root=${OracleFmt.v(root)} tip=${OracleFmt.v(tip)}")
 
         override fun remove(handle: VisualHandle) = add("remove", name(handle), "")
 
         override fun sprite(sprite: String): SpriteInfo = SpriteInfo(1, 32)
 
-        override fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) = Unit
+        override fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) =
+            oracleOnly("trail_look", name(handle), "fade=${OracleFmt.f(fadePower)} style=${OracleFmt.s(style)}")
 
-        override fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean) = Unit
+        override fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean) =
+            oracleOnly(
+                "trail_shape", name(handle),
+                "bands=" + bands.joinToString(";") { "${OracleFmt.f(it.from)}~${OracleFmt.f(it.to)}~${OracleFmt.s(it.color)}~${OracleFmt.f(it.alpha)}~${OracleFmt.s(it.colorTo)}~${OracleFmt.s(it.block)}" }.ifEmpty { "-" } +
+                    " edge=${edge?.let { "${OracleFmt.s(it.block)}~${OracleFmt.f(it.width)}" } ?: "-"} rim=${rim?.let { "${OracleFmt.s(it.color)}~${OracleFmt.f(it.alpha)}~${OracleFmt.f(it.width)}" } ?: "-"} step=${OracleFmt.f(stepDeg)} double=$doubleSided",
+            )
 
-        override fun setTrailWidth(handle: VisualHandle, widthFrac: Double) = add("trail_width", name(handle), "w=%.3f".format(widthFrac))
+        override fun setTrailWidth(handle: VisualHandle, widthFrac: Double) = add("trail_width", name(handle), "w=%.3f".format(widthFrac), "width=${OracleFmt.f(widthFrac)}")
     }
 
     val particles: ISkillParticleGateway = object : ISkillParticleGateway {
         override fun emit(cast: CastRef, burst: ParticleBurst) {
             seen("particles.emit", cast)
-            add("particle", "-", "type=${burst.particle}" + (burst.count?.let { " count=$it" } ?: ""))
+            add(
+                "particle", "-", "type=${burst.particle}" + (burst.count?.let { " count=$it" } ?: ""),
+                "at=${OracleFmt.v(burst.at)} off=${OracleFmt.v(burst.offset)} speed=${OracleFmt.f(burst.speed)} color=${OracleFmt.s(burst.colorHex)} size=${burst.dataSize?.let { OracleFmt.f(it) } ?: "-"} " +
+                    "dir=${burst.dir?.let { OracleFmt.v(it) } ?: "-"} spread=${OracleFmt.f(burst.spreadDeg)} vel=${burst.inheritVelocity?.let { OracleFmt.v(it) } ?: "-"} look=${OracleFmt.v(burst.look)} seed=${burst.seed}",
+            )
         }
     }
 
@@ -234,13 +272,16 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun play(cast: CastRef, sound: String, at: Vec3, category: String, volume: Double, pitch: Double) {
             seen("sounds.play", cast)
             soundPositions += tick to at
-            add("sound", "-", "sound=$sound cat=$category vol=${RecordedCall.num(volume)} pitch=${RecordedCall.num(pitch)}")
+            add("sound", "-", "sound=$sound cat=$category vol=${RecordedCall.num(volume)} pitch=${RecordedCall.num(pitch)}", "at=${OracleFmt.v(at)}")
         }
     }
 
     val gameplay: ISkillGameplayGateway = object : ISkillGameplayGateway {
         override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean, ignoreArmor: Boolean) =
-            add("damage", victim.toString(), components.joinToString(" ") { "${it.kind}=${RecordedCall.num(it.amount)}" })
+            add(
+                "damage", victim.toString(), components.joinToString(" ") { "${it.kind}=${RecordedCall.num(it.amount)}" },
+                "skill=${OracleFmt.s(skillId)} at=${OracleFmt.v(hitPoint)} ignoreinv=$ignoreInvulnerability ignorearmor=$ignoreArmor",
+            )
 
         override fun statusStacks(entity: UUID, statusId: String): Int = 0
 
@@ -331,12 +372,14 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun nearby(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> {
             seen("query.nearby", cast)
+            oracleOnly("hit", "-", "at=${OracleFmt.v(point)} r=${OracleFmt.f(radius)}")
             return victims.filter { it.entityId != excluding }
         }
 
         override fun rootOf(cast: CastRef, entity: UUID): EntityRoot? {
             seen("query.rootOf", cast)
-            return if (entity == caster) EntityRoot(Vec3(casterPosition.x, casterPosition.y - 1.0, casterPosition.z), casterYawDeg, 0.0, 1.62, 1.8) else null
+            victims.firstOrNull { it.entityId == entity }?.let { return EntityRoot(it.feet, it.yawDeg, 0.0, 1.62, 1.8) }
+            return if (entity == caster) EntityRoot(Vec3(casterPosition.x, casterPosition.y - 1.0, casterPosition.z), casterYawDeg, casterPitchDeg, 1.62, 1.8) else null
         }
 
         override fun raycastBlock(cast: CastRef, from: Vec3, to: Vec3): BlockHit? {
@@ -358,7 +401,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun teleport(cast: CastRef, entity: UUID, pos: Vec3, yaw: Double?, pitch: Double?) {
             seen("movement.teleport", cast)
             if (entity == this@GatewayRecorder.caster) casterPosition = Vector3d(pos.x, pos.y + 1.0, pos.z)
-            add("move", "-", "to=${RecordedCall.num(pos.x)},${RecordedCall.num(pos.y)},${RecordedCall.num(pos.z)}")
+            add("move", "-", "to=${RecordedCall.num(pos.x)},${RecordedCall.num(pos.y)},${RecordedCall.num(pos.z)}", "yaw=${yaw?.let { OracleFmt.f(it) } ?: "-"} pitch=${pitch?.let { OracleFmt.f(it) } ?: "-"}")
         }
 
         override fun velocity(cast: CastRef, entity: UUID): Vec3 {
@@ -369,7 +412,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun addVelocity(cast: CastRef, entity: UUID, v: Vec3) {
             seen("movement.addVelocity", cast)
             velocity = velocity + v
-            add("move", "-", "add_velocity")
+            add("move", "-", "add_velocity", "v=${OracleFmt.v(v)}")
         }
 
         override fun probeBlock(cast: CastRef, from: Vec3, to: Vec3): BlockHit? {
@@ -384,7 +427,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun faceMovement(cast: CastRef, entity: UUID, dir: Vec3) {
             seen("movement.faceMovement", cast)
-            add("move", "-", "face")
+            add("move", "-", "face", "dir=${OracleFmt.v(dir)}")
         }
     }
 
@@ -454,7 +497,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         private fun cell(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): ExprValue {
             val yaw = casterYawDeg
             val pos = Vec3(casterPosition.x, casterPosition.y, casterPosition.z)
-            val casterFrame = SimFrame.fromYawPitch(pos, yaw, 0.0)
+            val casterFrame = if (faithfulPose) SimFrame.fromYawPitch(feet, yaw, 0.0) else SimFrame.fromYawPitch(pos, yaw, 0.0)
             val inst = scope.frames
             val frames = object : FrameLookup {
                 override fun worldPose(frame: String, point: String?): SimFrame? = when {
@@ -464,6 +507,21 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                             Vec3(c.point.x, c.point.y, c.point.z), Vec3(c.normal.x, c.normal.y, c.normal.z), casterFrame.forward(),
                         )
                     }
+                    (frame == "victim" || frame == "target") && faithfulPose -> victimOf(binding)?.let { v ->
+                        val origin = when (point) {
+                            null, "body" -> Vec3(v.feet.x, v.feet.y + 0.9, v.feet.z)
+                            "feet", "root" -> v.feet
+                            "eye" -> Vec3(v.feet.x, v.feet.y + 1.62, v.feet.z)
+                            else -> null
+                        }
+                        origin?.let { SimFrame.fromYawPitch(it, v.yawDeg, 0.0) }
+                    }
+                    frame == "caster" && faithfulPose -> when (point) {
+                        null, "feet" -> casterFrame
+                        "eye" -> SimFrame.fromYawPitch(eye, yaw, casterPitchDeg)
+                        "look" -> SimFrame.fromYawPitch(feet, yaw, casterPitchDeg)
+                        else -> casterFrame
+                    }
                     frame == "caster" -> casterFrame
                     else -> inst?.worldPose(frame, point)
                 }
@@ -472,20 +530,90 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             val world = EntityQueryExprHost(query, CastRef(cast.value, this@GatewayRecorder.caster, castWorld, castItem))
             val host = object : ExprHost {
                 override fun aimPoint(caster: ExprValue.Ref, range: Double): Vec3 {
-                    val d = SimFrame.fromYawPitch(pos, yaw, 0.0).forward()
-                    return Vec3(pos.x + d.x * range, pos.y + d.y * range, pos.z + d.z * range)
+                    val from = if (faithfulPose) eye else pos
+                    val d = SimFrame.fromYawPitch(from, yaw, if (faithfulPose) casterPitchDeg else 0.0).forward()
+                    return Vec3(from.x + d.x * range, from.y + d.y * range, from.z + d.z * range)
                 }
-                override fun lookDirection(caster: ExprValue.Ref): Vec3 = SimFrame.fromYawPitch(pos, yaw, 0.0).forward()
+                override fun lookDirection(caster: ExprValue.Ref): Vec3 = SimFrame.fromYawPitch(pos, yaw, if (faithfulPose) casterPitchDeg else 0.0).forward()
                 override fun bladeLen(frame: ExprValue.Ref): Double = error("blade_len is not served")
+                override fun stacks(entity: ExprValue.Ref, status: String): Double =
+                    if (faithfulPose) gameplay.statusStacks(this@GatewayRecorder.caster, status).toDouble() else super.stacks(entity, status)
                 override fun nearestEnemyDist(from: Vec3): Double = world.nearestEnemyDist(from)
                 override fun enemyInCone(from: Vec3, dir: Vec3, range: Double, halfAngleDeg: Double): Boolean = world.enemyInCone(from, dir, range, halfAngleDeg)
             }
-            val vars = V3Bindings.values(null, castTick = tick, eventI = binding?.index ?: 0)
+            val vars = if (faithfulPose) V3Bindings.values(null, castTick = tick, eventI = binding?.index ?: 0, contact = contactBinding(binding), target = victimBinding(binding))
+            else V3Bindings.values(null, castTick = tick, eventI = binding?.index ?: 0)
             return cells.eval(name, scope, vars, frames, host)
+        }
+
+        private val feet: Vec3 get() = Vec3(casterPosition.x, casterPosition.y - 1.0, casterPosition.z)
+        private val eye: Vec3 get() = Vec3(feet.x, feet.y + 1.62, feet.z)
+
+        /** `PaperLiveValueSource.casterVec` for a caster at [feet] looking along the recorder's yaw / pitch. */
+        private fun faithfulVec(bare: String): Vector3d? {
+            if (bare != "caster" && !bare.startsWith("caster.")) return null
+            val hands = setOf("hand_r", "hand_l", "palm")
+            val v = when (val field = bare.removePrefix("caster").removePrefix(".")) {
+                "", "feet", "pos", "position", "look" -> feet
+                "eye" -> eye
+                "body" -> Vec3(feet.x, feet.y + 0.9, feet.z)
+                "forward" -> SimFrame.fromYawPitch(feet, casterYawDeg, casterPitchDeg).forward()
+                in hands -> {
+                    val yawFrame = SimFrame.fromYawPitch(feet, casterYawDeg, 0.0)
+                    val side = if (field == "hand_l") 1.0 else -1.0
+                    val left = yawFrame.left()
+                    val fwd = yawFrame.forward()
+                    Vec3(feet.x + left.x * side * 0.35 + fwd.x * 0.45, feet.y + (eye.y - feet.y) - 0.55, feet.z + left.z * side * 0.35 + fwd.z * 0.45)
+                }
+                else -> throw IllegalArgumentException("caster field '$bare' is not one of feet, eye, body, look, forward, hand_r, hand_l, palm")
+            }
+            return Vector3d(v.x, v.y, v.z)
+        }
+
+        /** The hit victim of [binding] among the recorder's [victims] (the player binds the candidates `nearby` returned). */
+        private fun victimOf(binding: EventBinding?): HitCandidate? = binding?.victim?.id?.let { id -> victims.firstOrNull { it.entityId == id } }
+
+        private fun victimBinding(binding: EventBinding?): V3Bindings.Binding {
+            val v = victimOf(binding) ?: return V3Bindings.Binding()
+            val dir = SimFrame.fromYawPitch(v.feet, v.yawDeg, 0.0).forward()
+            return V3Bindings.Binding(pos = v.feet, forward = dir, eye = Vec3(v.feet.x, v.feet.y + 1.62, v.feet.z))
+        }
+
+        private fun contactBinding(binding: EventBinding?): V3Bindings.Binding {
+            val c = binding?.contact ?: return V3Bindings.Binding()
+            val point = Vec3(c.point.x, c.point.y, c.point.z)
+            return V3Bindings.Binding(pos = point, normal = Vec3(c.normal.x, c.normal.y, c.normal.z), point = point)
+        }
+
+        /** `PaperLiveValueSource.bindingVec`: `contact`, `event.victim` / `event.attacker`, `contact.*` and `target.*`. */
+        private fun bindingVec(name: String, binding: EventBinding?): Vector3d? {
+            if (name == "contact") return contactBinding(binding).point.let { Vector3d(it.x, it.y, it.z) }
+            if (name == "event.victim" || name == "event.attacker") {
+                val at = if (name == "event.victim") victimOf(binding)?.feet else if (binding?.attacker == caster) feet else null
+                at ?: throw IllegalArgumentException("'$name' needs a hit event binding")
+                return Vector3d(at.x, at.y, at.z)
+            }
+            val root = name.substringBefore('.', "")
+            if (root != "contact" && root != "target") return null
+            val b = if (root == "contact") contactBinding(binding) else victimBinding(binding)
+            val v = when (val field = name.substringAfter('.')) {
+                "pos" -> b.pos
+                "forward" -> b.forward
+                "eye" -> b.eye
+                "normal" -> if (root == "contact") b.normal else throw IllegalArgumentException("'$name': only contact has a normal")
+                "point" -> if (root == "contact") b.point else throw IllegalArgumentException("'$name': only contact has a point")
+                else -> throw IllegalArgumentException("binding field '$field' of '$name' is not one of pos, forward, eye, normal, point")
+            }
+            return Vector3d(v.x, v.y, v.z)
         }
 
         override fun vec(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Vector3d {
             requireResolvable(name, "a vector")
+            if (faithfulPose) {
+                val bare = name.removePrefix("anchor:")
+                faithfulVec(bare)?.let { return it }
+                bindingVec(bare, binding)?.let { return it }
+            }
             if (CellExprs.sourceOf(name) != null) {
                 return when (val v = cell(cast, name, binding, scope)) {
                     is ExprValue.Vec3 -> Vector3d(v.value.x, v.value.y, v.value.z)
@@ -503,6 +631,14 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun rot(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Quaterniond {
             requireResolvable(name, "a rotation")
+            if (faithfulPose) {
+                val bare = name.removePrefix("anchor:")
+                if (bare == "caster" || bare.startsWith("caster.")) {
+                    val pitched = bare == "caster.look" || bare == "caster.eye" || bare.removePrefix("caster.") in setOf("hand_r", "hand_l", "palm")
+                    val q = SimFrame.fromYawPitch(feet, casterYawDeg, if (pitched) casterPitchDeg else 0.0).rotation
+                    return Quaterniond(q.x, q.y, q.z, q.w)
+                }
+            }
             if (CellExprs.sourceOf(name) != null) {
                 val v = cell(cast, name, binding, scope) as? ExprValue.Quat ?: throw IllegalArgumentException("live cell '$name' is not a rotation")
                 return Quaterniond(v.value.x, v.value.y, v.value.z, v.value.w)
@@ -524,4 +660,30 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun targets(cast: CastHandle, rule: TargetRule, binding: EventBinding?): TargetSet =
             TargetSet(victims.map { EntityRef(it.entityId) })
     }
+}
+
+/** Number / vector / pose / string formatting of the oracle rows: fixed 6 decimals, no negative zero, no whitespace inside a value. */
+internal object OracleFmt {
+    fun f(d: Double): String {
+        val r = if (kotlin.math.abs(d) < 5e-7) 0.0 else d
+        return "%.6f".format(java.util.Locale.ROOT, r)
+    }
+
+    fun v(v: Vec3): String = "${f(v.x)},${f(v.y)},${f(v.z)}"
+
+    /** Rotation with a canonical sign (q and -q are one rotation). */
+    fun q(q: com.astarworks.astera.core.domain.geometry.math.Quaternion): String {
+        val flip = q.w < -1e-9 || (kotlin.math.abs(q.w) <= 1e-9 && (q.x < -1e-9 || (kotlin.math.abs(q.x) <= 1e-9 && (q.y < -1e-9 || (kotlin.math.abs(q.y) <= 1e-9 && q.z < 0)))))
+        val k = if (flip) -1.0 else 1.0
+        return "${f(q.x * k)},${f(q.y * k)},${f(q.z * k)},${f(q.w * k)}"
+    }
+
+    fun pose(p: VisualPose): String =
+        "pos=${v(p.frame.origin)} rot=${q(p.frame.rotation)} scale=${v(p.size)} bb=${p.billboard}" +
+            (p.anchorFeet?.let { " feet=${v(it)}" } ?: "") + (p.teleportTicks?.let { " tp=$it" } ?: "")
+
+    fun view(v: DisplayView): String = "aud=${v.audience} lane=${v.lane} target=${v.target ?: "-"}"
+
+    /** A string value on one token: whitespace and `=` escaped, null = `-`. */
+    fun s(x: String?): String = x?.replace("%", "%25")?.replace(" ", "%20")?.replace("\n", "%0A")?.replace("=", "%3D")?.ifEmpty { "%00" } ?: "-"
 }

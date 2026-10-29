@@ -1,0 +1,16 @@
+## pose yaw=0 pitch=0
+@0 sound - op=- sound=astera:weapons/sword-swing cat=master vol=0.7 pitch=0.9 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=gun-muzzle-smoke at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4618200618935009736
+@0 particle - op=- type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1968435974610561578
+@0 particle - op=- type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#787878 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4596309375087270104
+@1 particle - op=- type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7988255858305279566
+@1 particle - op=- type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#787878 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2968951240194496986
+@1 hit - op=- at=0.000000,1.620000,3.100000 r=0.500000
+## pose yaw=37 pitch=-20
+@0 sound - op=- sound=astera:weapons/sword-swing cat=master vol=0.7 pitch=0.9 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=gun-muzzle-smoke at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4618200618935009736
+@0 particle - op=- type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1968435974610561578
+@0 particle - op=- type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#787878 size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4596309375087270104
+@1 particle - op=- type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7988255858305279566
+@1 particle - op=- type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#787878 size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2968951240194496986
+@1 hit - op=- at=-1.753116,2.680262,2.326463 r=0.500000

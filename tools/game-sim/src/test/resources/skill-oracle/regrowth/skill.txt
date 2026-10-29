@@ -1,0 +1,28 @@
+## pose yaw=0 pitch=0
+@0 sound - op=- sound=astera:skills/heal-chime cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5743286591400913428
+@0 particle - op=- type=happy_villager count=0 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3563043406481788873
+@0 particle - op=- type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5ae65a size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1267049227615478561
+@0 particle - op=- type=happy_villager count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2520738509938187303
+@0 particle - op=- type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#8cff78 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6706018609674441239
+@0 particle - op=- type=heart count=8 at=0.000000,0.100000,0.000000 off=0.800000,0.800000,0.800000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6915803017250091525
+@0 particle - op=- type=happy_villager count=22 at=0.000000,0.100000,0.000000 off=0.700000,1.000000,0.700000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=52197466326173054
+@0 status 00000000-0000-0000-0000-000000000001 op=- status=regen stacks=1 for=160
+@0 hit - op=- at=0.000000,0.000000,0.000000 r=3.000000
+@0 hit - op=- at=0.000000,0.000000,0.000000 r=3.000000
+@6 particle - op=- type=happy_villager count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3118635247570731209
+@6 particle - op=- type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#8cff78 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3433415098098288584
+## pose yaw=37 pitch=-20
+@0 sound - op=- sound=astera:skills/heal-chime cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5743286591400913428
+@0 particle - op=- type=happy_villager count=0 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3563043406481788873
+@0 particle - op=- type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5ae65a size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1267049227615478561
+@0 particle - op=- type=happy_villager count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2520738509938187303
+@0 particle - op=- type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#8cff78 size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6706018609674441239
+@0 particle - op=- type=heart count=8 at=0.000000,0.100000,0.000000 off=0.800000,0.800000,0.800000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6915803017250091525
+@0 particle - op=- type=happy_villager count=22 at=0.000000,0.100000,0.000000 off=0.700000,1.000000,0.700000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=52197466326173054
+@0 status 00000000-0000-0000-0000-000000000001 op=- status=regen stacks=1 for=160
+@0 hit - op=- at=0.000000,0.000000,0.000000 r=3.000000
+@0 hit - op=- at=0.000000,0.000000,0.000000 r=3.000000
+@6 particle - op=- type=happy_villager count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3118635247570731209
+@6 particle - op=- type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#8cff78 size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3433415098098288584

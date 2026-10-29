@@ -12,6 +12,12 @@ import java.util.Locale
  * lists everything the gateway received, so a match is "expected tokens are a subset of recorded tokens".
  */
 data class RecordedCall(val tick: Int, val verb: String, val instance: String, val payload: String) {
+    /**
+     * Extra `key=value` tokens only the parity oracle reads (poses, colours, positions). Outside the constructor on purpose: it is
+     * part of neither equality nor [toString], so every other scenario sees the same call it always saw.
+     */
+    var detail: String = ""
+
     val tokens: Set<String> get() = payload.split(' ').filter { it.isNotEmpty() }.toSet()
 
     override fun toString(): String = "@$tick $verb $instance $payload".trimEnd()

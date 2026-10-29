@@ -1,0 +1,134 @@
+## pose yaw=0 pitch=0
+!! play-ended-early msg=live_cell_'victim'_is_not_resolvable_as_a_vector_on_Paper_(instance_anchors,_param_cells_need_the_table_player's_own_state)
+@24 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@28 spawn #0 op=cast/p28/fx1_couture_shear_crescent_arc_0_s0 kind=block block=white_concrete pos=-2.363540,0.754320,1.143720 rot=0.172987,-0.085832,-0.015134,0.981060 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #1 op=cast/p28/fx1_couture_shear_crescent_arc_1_s0 kind=block block=white_concrete pos=-2.133210,0.520720,1.785520 rot=0.168753,-0.232177,-0.040939,0.957048 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #2 op=cast/p28/fx1_couture_shear_crescent_arc_2_s0 kind=block block=white_concrete pos=-1.710470,0.321050,2.334110 rot=0.160692,-0.373258,-0.065815,0.911331 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #3 op=cast/p28/fx1_couture_shear_crescent_arc_3_s0 kind=block block=white_concrete pos=-1.133450,0.173310,2.740010 rot=0.148987,-0.505874,-0.089199,0.844949 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #4 op=cast/p28/fx1_couture_shear_crescent_arc_4_s0 kind=block block=white_concrete pos=-0.454200,0.090840,2.966610 rot=0.133904,-0.627017,-0.110560,0.759405 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #5 op=cast/p28/fx1_couture_shear_crescent_arc_5_s0 kind=block block=white_concrete pos=0.266010,0.081060,2.993470 rot=0.115783,-0.733942,-0.129414,0.656639 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #6 op=cast/p28/fx1_couture_shear_crescent_arc_6_s0 kind=block block=white_concrete pos=0.962230,0.144870,2.818160 rot=0.095037,-0.824223,-0.145333,0.538983 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #7 op=cast/p28/fx1_couture_shear_crescent_arc_7_s0 kind=block block=white_concrete pos=1.571670,0.276500,2.456510 rot=0.072136,-0.895813,-0.157956,0.409104 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #8 op=cast/p28/fx1_couture_shear_crescent_arc_8_s0 kind=block block=white_concrete pos=2.039340,0.464080,1.941130 rot=0.047599,-0.947087,-0.166997,0.269947 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #9 op=cast/p28/fx1_couture_shear_crescent_arc_9_s0 kind=block block=white_concrete pos=2.323080,0.690700,1.318500 rot=0.021982,-0.976885,-0.172252,0.124669 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #10 op=cast/p28/fx1_couture_shear_crescent_arc_10_s0 kind=block block=white_concrete pos=2.397280,0.935910,0.644790 rot=0.004133,0.984529,0.173599,0.023436 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #11 op=cast/p28/fx1_couture_shear_crescent_arc_11_s0 kind=block block=white_concrete pos=2.255260,1.177600,-0.019250 rot=0.030153,0.969846,0.171010,0.171010 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 write #0 op=cast/p28/fx1_couture_shear_crescent_arc_0_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.053720,1.012500,1.465950 bb=FIXED
+@28 write #1 op=cast/p28/fx1_couture_shear_crescent_arc_1_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.080770,1.012500,1.465950 bb=FIXED
+@28 write #2 op=cast/p28/fx1_couture_shear_crescent_arc_2_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.104570,1.012500,1.465950 bb=FIXED
+@28 write #3 op=cast/p28/fx1_couture_shear_crescent_arc_3_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.123760,1.012500,1.465950 bb=FIXED
+@28 write #4 op=cast/p28/fx1_couture_shear_crescent_arc_4_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.137200,1.012500,1.465950 bb=FIXED
+@28 write #5 op=cast/p28/fx1_couture_shear_crescent_arc_5_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.144130,1.012500,1.465950 bb=FIXED
+@28 write #6 op=cast/p28/fx1_couture_shear_crescent_arc_6_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.144130,1.012500,1.465950 bb=FIXED
+@28 write #7 op=cast/p28/fx1_couture_shear_crescent_arc_7_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.137200,1.012500,1.465950 bb=FIXED
+@28 write #8 op=cast/p28/fx1_couture_shear_crescent_arc_8_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.123760,1.012500,1.465950 bb=FIXED
+@28 write #9 op=cast/p28/fx1_couture_shear_crescent_arc_9_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.104570,1.012500,1.465950 bb=FIXED
+@28 write #10 op=cast/p28/fx1_couture_shear_crescent_arc_10_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.080770,1.012500,1.465950 bb=FIXED
+@28 write #11 op=cast/p28/fx1_couture_shear_crescent_arc_11_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.053720,1.012500,1.465950 bb=FIXED
+@29 write #0 op=cast/p28/fx1_couture_shear_crescent_arc_0_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.110326,1.025156,2.148995 bb=FIXED
+@29 write #1 op=cast/p28/fx1_couture_shear_crescent_arc_1_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.168053,1.025156,2.148995 bb=FIXED
+@29 write #2 op=cast/p28/fx1_couture_shear_crescent_arc_2_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.220086,1.025156,2.148995 bb=FIXED
+@29 write #3 op=cast/p28/fx1_couture_shear_crescent_arc_3_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.262837,1.025156,2.148995 bb=FIXED
+@29 write #4 op=cast/p28/fx1_couture_shear_crescent_arc_4_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.293224,1.025156,2.148995 bb=FIXED
+@29 write #5 op=cast/p28/fx1_couture_shear_crescent_arc_5_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.309022,1.025156,2.148995 bb=FIXED
+@29 write #6 op=cast/p28/fx1_couture_shear_crescent_arc_6_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.309022,1.025156,2.148995 bb=FIXED
+@29 write #7 op=cast/p28/fx1_couture_shear_crescent_arc_7_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.293224,1.025156,2.148995 bb=FIXED
+@29 write #8 op=cast/p28/fx1_couture_shear_crescent_arc_8_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.262837,1.025156,2.148995 bb=FIXED
+@29 write #9 op=cast/p28/fx1_couture_shear_crescent_arc_9_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.220086,1.025156,2.148995 bb=FIXED
+@29 write #10 op=cast/p28/fx1_couture_shear_crescent_arc_10_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.168053,1.025156,2.148995 bb=FIXED
+@29 write #11 op=cast/p28/fx1_couture_shear_crescent_arc_11_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.110326,1.025156,2.148995 bb=FIXED
+@30 write #0 op=cast/p28/fx1_couture_shear_crescent_arc_0_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.098390,1.022593,2.056029 bb=FIXED
+@30 write #1 op=cast/p28/fx1_couture_shear_crescent_arc_1_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.149189,1.022593,2.056029 bb=FIXED
+@30 write #2 op=cast/p28/fx1_couture_shear_crescent_arc_2_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.194562,1.022593,2.056029 bb=FIXED
+@30 write #3 op=cast/p28/fx1_couture_shear_crescent_arc_3_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.231569,1.022593,2.056029 bb=FIXED
+@30 write #4 op=cast/p28/fx1_couture_shear_crescent_arc_4_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.257738,1.022593,2.056029 bb=FIXED
+@30 write #5 op=cast/p28/fx1_couture_shear_crescent_arc_5_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.271296,1.022593,2.056029 bb=FIXED
+@30 write #6 op=cast/p28/fx1_couture_shear_crescent_arc_6_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.271296,1.022593,2.056029 bb=FIXED
+@30 write #7 op=cast/p28/fx1_couture_shear_crescent_arc_7_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.257738,1.022593,2.056029 bb=FIXED
+@30 write #8 op=cast/p28/fx1_couture_shear_crescent_arc_8_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.231569,1.022593,2.056029 bb=FIXED
+@30 write #9 op=cast/p28/fx1_couture_shear_crescent_arc_9_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.194562,1.022593,2.056029 bb=FIXED
+@30 write #10 op=cast/p28/fx1_couture_shear_crescent_arc_10_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.149189,1.022593,2.056029 bb=FIXED
+@30 write #11 op=cast/p28/fx1_couture_shear_crescent_arc_11_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.098390,1.022593,2.056029 bb=FIXED
+@30 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@30 damage 00000000-0000-0000-0000-00000000000a op=- physical=35 skill=couture-rapier-s3 at=0.000000,0.900000,2.500000 ignoreinv=true ignorearmor=false
+@30 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@30 sound - op=- sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=0.000000,0.900000,2.500000
+@31 write #0 op=cast/p28/fx1_couture_shear_crescent_arc_0_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.086593,1.020037,1.967065 bb=FIXED
+@31 write #1 op=cast/p28/fx1_couture_shear_crescent_arc_1_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.130630,1.020037,1.967065 bb=FIXED
+@31 write #2 op=cast/p28/fx1_couture_shear_crescent_arc_2_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.169583,1.020037,1.967065 bb=FIXED
+@31 write #3 op=cast/p28/fx1_couture_shear_crescent_arc_3_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.201087,1.020037,1.967065 bb=FIXED
+@31 write #4 op=cast/p28/fx1_couture_shear_crescent_arc_4_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.223225,1.020037,1.967065 bb=FIXED
+@31 write #5 op=cast/p28/fx1_couture_shear_crescent_arc_5_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.234645,1.020037,1.967065 bb=FIXED
+@31 write #6 op=cast/p28/fx1_couture_shear_crescent_arc_6_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.234645,1.020037,1.967065 bb=FIXED
+@31 write #7 op=cast/p28/fx1_couture_shear_crescent_arc_7_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.223225,1.020037,1.967065 bb=FIXED
+@31 write #8 op=cast/p28/fx1_couture_shear_crescent_arc_8_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.201087,1.020037,1.967065 bb=FIXED
+@31 write #9 op=cast/p28/fx1_couture_shear_crescent_arc_9_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.169583,1.020037,1.967065 bb=FIXED
+@31 write #10 op=cast/p28/fx1_couture_shear_crescent_arc_10_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.130630,1.020037,1.967065 bb=FIXED
+@31 write #11 op=cast/p28/fx1_couture_shear_crescent_arc_11_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.086593,1.020037,1.967065 bb=FIXED
+## pose yaw=37 pitch=-20
+!! play-ended-early msg=live_cell_'victim'_is_not_resolvable_as_a_vector_on_Paper_(instance_anchors,_param_cells_need_the_table_player's_own_state)
+@24 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@28 spawn #0 op=cast/p28/fx1_couture_shear_crescent_arc_0_s0 kind=block block=white_concrete pos=-2.575915,0.754320,-0.508998 rot=0.168850,-0.392691,0.040537,0.903128 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #1 op=cast/p28/fx1_couture_shear_crescent_arc_1_s0 kind=block block=white_concrete pos=-2.778210,0.520720,0.142182 rot=0.173023,-0.523855,0.014723,0.833920 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #2 op=cast/p28/fx1_couture_shear_crescent_arc_2_s0 kind=block block=white_concrete pos=-2.770745,0.321050,0.834717 rot=0.173272,-0.643139,-0.011426,0.745801 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #3 op=cast/p28/fx1_couture_shear_crescent_arc_3_s0 kind=block block=white_concrete pos=-2.554193,0.173310,1.506142 rot=0.169591,-0.747838,-0.037315,0.640769 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #4 op=cast/p28/fx1_couture_shear_crescent_arc_4_s0 kind=block block=white_concrete pos=-2.148091,0.090840,2.095896 rot=0.162065,-0.835578,-0.062359,0.521206 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #5 op=cast/p28/fx1_couture_shear_crescent_arc_5_s0 kind=block block=white_concrete pos=-1.589070,0.081060,2.550780 rot=0.150864,-0.904369,-0.085988,0.389823 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #6 op=cast/p28/fx1_couture_shear_crescent_arc_6_s0 kind=block block=white_concrete pos=-0.927540,0.144870,2.829767 rot=0.136240,-0.952652,-0.107667,0.249601 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #7 op=cast/p28/fx1_couture_shear_crescent_arc_7_s0 kind=block block=white_concrete pos=-0.223173,0.276500,2.907711 rot=0.118528,-0.979331,-0.126905,0.103717 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #8 op=cast/p28/fx1_couture_shear_crescent_arc_8_s0 kind=block block=white_concrete pos=0.460488,0.464080,2.777561 rot=-0.098128,0.983801,0.143264,0.044518 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #9 op=cast/p28/fx1_couture_shear_crescent_arc_9_s0 kind=block block=white_concrete pos=1.061801,0.690700,2.451065 rot=-0.075502,0.965961,0.156375,0.191743 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #10 op=cast/p28/fx1_couture_shear_crescent_arc_10_s0 kind=block block=white_concrete pos=1.526509,0.935910,1.957671 rot=-0.051165,0.926216,0.165940,0.334621 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 spawn #11 op=cast/p28/fx1_couture_shear_crescent_arc_11_s0 kind=block block=white_concrete pos=1.812716,1.177600,1.341876 rot=-0.025667,0.865466,0.171741,0.469910 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@28 write #0 op=cast/p28/fx1_couture_shear_crescent_arc_0_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.053720,1.012500,1.465950 bb=FIXED
+@28 write #1 op=cast/p28/fx1_couture_shear_crescent_arc_1_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.080770,1.012500,1.465950 bb=FIXED
+@28 write #2 op=cast/p28/fx1_couture_shear_crescent_arc_2_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.104570,1.012500,1.465950 bb=FIXED
+@28 write #3 op=cast/p28/fx1_couture_shear_crescent_arc_3_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.123760,1.012500,1.465950 bb=FIXED
+@28 write #4 op=cast/p28/fx1_couture_shear_crescent_arc_4_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.137200,1.012500,1.465950 bb=FIXED
+@28 write #5 op=cast/p28/fx1_couture_shear_crescent_arc_5_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.144130,1.012500,1.465950 bb=FIXED
+@28 write #6 op=cast/p28/fx1_couture_shear_crescent_arc_6_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.144130,1.012500,1.465950 bb=FIXED
+@28 write #7 op=cast/p28/fx1_couture_shear_crescent_arc_7_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.137200,1.012500,1.465950 bb=FIXED
+@28 write #8 op=cast/p28/fx1_couture_shear_crescent_arc_8_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.123760,1.012500,1.465950 bb=FIXED
+@28 write #9 op=cast/p28/fx1_couture_shear_crescent_arc_9_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.104570,1.012500,1.465950 bb=FIXED
+@28 write #10 op=cast/p28/fx1_couture_shear_crescent_arc_10_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.080770,1.012500,1.465950 bb=FIXED
+@28 write #11 op=cast/p28/fx1_couture_shear_crescent_arc_11_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.053720,1.012500,1.465950 bb=FIXED
+@29 write #0 op=cast/p28/fx1_couture_shear_crescent_arc_0_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.110326,1.025156,2.148995 bb=FIXED
+@29 write #1 op=cast/p28/fx1_couture_shear_crescent_arc_1_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.168053,1.025156,2.148995 bb=FIXED
+@29 write #2 op=cast/p28/fx1_couture_shear_crescent_arc_2_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.220086,1.025156,2.148995 bb=FIXED
+@29 write #3 op=cast/p28/fx1_couture_shear_crescent_arc_3_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.262837,1.025156,2.148995 bb=FIXED
+@29 write #4 op=cast/p28/fx1_couture_shear_crescent_arc_4_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.293224,1.025156,2.148995 bb=FIXED
+@29 write #5 op=cast/p28/fx1_couture_shear_crescent_arc_5_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.309022,1.025156,2.148995 bb=FIXED
+@29 write #6 op=cast/p28/fx1_couture_shear_crescent_arc_6_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.309022,1.025156,2.148995 bb=FIXED
+@29 write #7 op=cast/p28/fx1_couture_shear_crescent_arc_7_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.293224,1.025156,2.148995 bb=FIXED
+@29 write #8 op=cast/p28/fx1_couture_shear_crescent_arc_8_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.262837,1.025156,2.148995 bb=FIXED
+@29 write #9 op=cast/p28/fx1_couture_shear_crescent_arc_9_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.220086,1.025156,2.148995 bb=FIXED
+@29 write #10 op=cast/p28/fx1_couture_shear_crescent_arc_10_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.168053,1.025156,2.148995 bb=FIXED
+@29 write #11 op=cast/p28/fx1_couture_shear_crescent_arc_11_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.110326,1.025156,2.148995 bb=FIXED
+@30 write #0 op=cast/p28/fx1_couture_shear_crescent_arc_0_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.098390,1.022593,2.056029 bb=FIXED
+@30 write #1 op=cast/p28/fx1_couture_shear_crescent_arc_1_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.149189,1.022593,2.056029 bb=FIXED
+@30 write #2 op=cast/p28/fx1_couture_shear_crescent_arc_2_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.194562,1.022593,2.056029 bb=FIXED
+@30 write #3 op=cast/p28/fx1_couture_shear_crescent_arc_3_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.231569,1.022593,2.056029 bb=FIXED
+@30 write #4 op=cast/p28/fx1_couture_shear_crescent_arc_4_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.257738,1.022593,2.056029 bb=FIXED
+@30 write #5 op=cast/p28/fx1_couture_shear_crescent_arc_5_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.271296,1.022593,2.056029 bb=FIXED
+@30 write #6 op=cast/p28/fx1_couture_shear_crescent_arc_6_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.271296,1.022593,2.056029 bb=FIXED
+@30 write #7 op=cast/p28/fx1_couture_shear_crescent_arc_7_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.257738,1.022593,2.056029 bb=FIXED
+@30 write #8 op=cast/p28/fx1_couture_shear_crescent_arc_8_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.231569,1.022593,2.056029 bb=FIXED
+@30 write #9 op=cast/p28/fx1_couture_shear_crescent_arc_9_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.194562,1.022593,2.056029 bb=FIXED
+@30 write #10 op=cast/p28/fx1_couture_shear_crescent_arc_10_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.149189,1.022593,2.056029 bb=FIXED
+@30 write #11 op=cast/p28/fx1_couture_shear_crescent_arc_11_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.098390,1.022593,2.056029 bb=FIXED
+@30 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@30 damage 00000000-0000-0000-0000-00000000000a op=- physical=35 skill=couture-rapier-s3 at=-1.504538,0.900000,1.996589 ignoreinv=true ignorearmor=false
+@30 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@30 sound - op=- sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=-1.504538,0.900000,1.996589
+@31 write #0 op=cast/p28/fx1_couture_shear_crescent_arc_0_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.086593,1.020037,1.967065 bb=FIXED
+@31 write #1 op=cast/p28/fx1_couture_shear_crescent_arc_1_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.130630,1.020037,1.967065 bb=FIXED
+@31 write #2 op=cast/p28/fx1_couture_shear_crescent_arc_2_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.169583,1.020037,1.967065 bb=FIXED
+@31 write #3 op=cast/p28/fx1_couture_shear_crescent_arc_3_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.201087,1.020037,1.967065 bb=FIXED
+@31 write #4 op=cast/p28/fx1_couture_shear_crescent_arc_4_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.223225,1.020037,1.967065 bb=FIXED
+@31 write #5 op=cast/p28/fx1_couture_shear_crescent_arc_5_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.234645,1.020037,1.967065 bb=FIXED
+@31 write #6 op=cast/p28/fx1_couture_shear_crescent_arc_6_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.234645,1.020037,1.967065 bb=FIXED
+@31 write #7 op=cast/p28/fx1_couture_shear_crescent_arc_7_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.223225,1.020037,1.967065 bb=FIXED
+@31 write #8 op=cast/p28/fx1_couture_shear_crescent_arc_8_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.201087,1.020037,1.967065 bb=FIXED
+@31 write #9 op=cast/p28/fx1_couture_shear_crescent_arc_9_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.169583,1.020037,1.967065 bb=FIXED
+@31 write #10 op=cast/p28/fx1_couture_shear_crescent_arc_10_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.130630,1.020037,1.967065 bb=FIXED
+@31 write #11 op=cast/p28/fx1_couture_shear_crescent_arc_11_s0 dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.086593,1.020037,1.967065 bb=FIXED
