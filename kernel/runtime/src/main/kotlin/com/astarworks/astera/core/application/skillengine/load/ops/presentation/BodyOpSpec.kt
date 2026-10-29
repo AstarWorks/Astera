@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.skillengine.load.ops.presentation
 
+import com.astarworks.astera.core.application.skillengine.compose.AnchorRegistry
+import com.astarworks.astera.core.application.skillengine.compose.ExprClass
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
@@ -80,6 +82,8 @@ public object BodyOpSpec : OpSpec<BodyOp> {
             val hi = lc.clockOffset + (end ?: lc.config.maxLifeTicks)
             listOf(SubTable(EventPath(ev), lc.state, TickRange(lc.clockOffset, maxOf(lc.clockOffset, hi)), 1, listOf(Row(0, lc.self, Action.End(lc.self), lc.src)), emptyList()))
         }.orEmpty()
+        // the body is an instance of the caster's own rig: `<id>.<point>` names a point of its clip (`points:` in the animation file)
+        (lc.anchors as? AnchorRegistry)?.declare(lc.self, null, ExprClass.L)
         return Result.Success(Lowered(rows = rows, subTables = subTables, instances = listOf(lc.self)))
     }
 }

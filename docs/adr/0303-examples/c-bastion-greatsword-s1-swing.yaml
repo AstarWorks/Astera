@@ -10,7 +10,7 @@ kind: Skill
 id: bastion-greatsword-s1
 item: bastion-greatsword
 anchors:
-  - {id: hand, anchor: caster.hand_r, mount: caster}      # the sword is a passenger: it cannot lag the hand while the caster moves (RC2)
+  - {id: hand, anchor: caster.eye, mount: caster}      # the sword is a passenger: it cannot lag the hand while the caster moves (RC2)
 machine:
   start: swing
   states:

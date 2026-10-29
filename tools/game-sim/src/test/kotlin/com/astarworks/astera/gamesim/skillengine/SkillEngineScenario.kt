@@ -163,7 +163,9 @@ abstract class SkillEngineScenario {
     fun play(skill: CompiledSkill, seed: Long, events: List<RuntimeEvent> = emptyList(), ticks: Int? = null): List<RecordedCall> =
         play(skill, seed, events, ticks, GatewayRecorder())
 
-    fun play(skill: CompiledSkill, seed: Long, events: List<RuntimeEvent>, ticks: Int?, rec: GatewayRecorder): List<RecordedCall> {
+    fun play(skill: CompiledSkill, seed: Long, events: List<RuntimeEvent>, ticks: Int?, rec: GatewayRecorder, yawDeg: Double = 0.0, pitchDeg: Double = 0.0): List<RecordedCall> {
+        rec.casterYawDeg = yawDeg
+        rec.casterPitchDeg = pitchDeg
         val player = TablePlayer(rec.visual, rec.particles, rec.sounds, rec.gameplay, rec.query, rec.live, rec, rec.movement, rec.items, rec.world)
         player.hooks = rec.hooks
         rec.castItem = skill.def.item
@@ -172,8 +174,8 @@ abstract class SkillEngineScenario {
             caster = rec.caster,
             world = WorldId("world"),
             casterFeet = Vec3(0.0, 0.0, 0.0),
-            casterYawDeg = 0.0,
-            casterPitchDeg = 0.0,
+            casterYawDeg = yawDeg,
+            casterPitchDeg = pitchDeg,
             seed = seed,
             startTick = 0,
         )
@@ -193,6 +195,9 @@ abstract class SkillEngineScenario {
     }
 
     // ---- oracle ----------------------------------------------------------------------------------------------------
+
+    /** Table instance id of each spawn ordinal (`#3` -> `blade`), as the last [expectedCalls] assigned them; the oracle names its rows with it. */
+    protected var instanceNames: Map<String, String> = emptyMap()
 
     /** What the table promises at the gateways, for [events] delivered while their owner state is live. */
     fun expectedCalls(skill: CompiledSkill, events: List<RuntimeEvent>): List<RecordedCall> {
@@ -283,6 +288,7 @@ abstract class SkillEngineScenario {
             }
         }
         pending.sortedBy { it.first }.forEach { (t, r) -> render(t, r) }
+        instanceNames = ordinals.entries.associate { "#${it.value}" to it.key }
         return out.sortedBy { it.first }.map { it.second }
     }
 

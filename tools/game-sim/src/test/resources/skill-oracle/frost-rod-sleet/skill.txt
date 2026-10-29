@@ -1,0 +1,16 @@
+## pose yaw=0 pitch=0
+@0 sound - op=- sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=frost-cast at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4618200618935009736
+@0 particle - op=- type=snowflake count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4445218462200685955
+@0 particle - op=- type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8ebff size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2717856498924882321
+@1 particle - op=- type=snowflake count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4562386229330082686
+@1 particle - op=- type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8ebff size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6120588960779688023
+@1 hit - op=- at=0.000000,1.620000,2.900000 r=0.500000
+## pose yaw=37 pitch=-20
+@0 sound - op=- sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
+@0 particle - op=- type=frost-cast at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4618200618935009736
+@0 particle - op=- type=snowflake count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4445218462200685955
+@0 particle - op=- type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8ebff size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2717856498924882321
+@1 particle - op=- type=snowflake count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4562386229330082686
+@1 particle - op=- type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8ebff size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6120588960779688023
+@1 hit - op=- at=-1.640011,2.611858,2.176368 r=0.500000

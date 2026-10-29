@@ -279,9 +279,6 @@ public interface ISkillEntityQuery {
     /** Where blocks stop a moving body: first solid hit on segment [from]->[to], or null. */
     public fun raycastBlock(cast: CastRef, from: Vec3, to: Vec3): BlockHit?
 
-    /** Health fraction 0..1 of a living entity (expression `hp_ratio`); an entity that is unknown or not living is an error. */
-    public fun healthRatio(cast: CastRef, entity: UUID): Double
-
     /** [a] and [b] are on the same team of the match (v2 `PaperProjectileProbe`: both on one non-null team); false outside a match. */
     public fun isAlly(cast: CastRef, a: UUID, b: UUID): Boolean
 }

@@ -53,20 +53,16 @@ public class CellExprs {
         override fun nearestEnemyDist(from: Vec3): Double = inner.nearestEnemyDist(from)
 
         override fun enemyInCone(from: Vec3, dir: Vec3, range: Double, halfAngleDeg: Double): Boolean = inner.enemyInCone(from, dir, range, halfAngleDeg)
-
-        override fun bladeLen(frame: ExprValue.Ref): Double = throw ExprEvalException("blade_len is not served by the live-value host")
-
-        override fun hpRatio(who: ExprValue.Ref): Double = throw ExprEvalException("hp_ratio is not served by the live-value host")
     }
 
     public companion object {
         public const val CASTER: String = "caster"
 
-        /** [inner] restricted to [SERVED_FUNCTIONS]: `blade_len` / `hp_ratio` fail loudly instead of answering a default. */
+        /** [inner] behind the one wrapper both Paper and the sim evaluate through. */
         public fun served(inner: ExprHost): ExprHost = Served(inner)
 
         /** The host functions a live cell may call; every other [ExprHost] member is rejected. */
-        public val SERVED_FUNCTIONS: Set<String> = setOf("aim_point", "look_dir", "stacks", "nearest_enemy_dist", "enemy_in_cone")
+        public val SERVED_FUNCTIONS: Set<String> = setOf("aim_point", "look", "stacks", "nearest_enemy_dist", "enemy_in_cone")
 
         /** The expression text of a live cell, or null when [name] is not an expression cell. */
         public fun sourceOf(name: String): String? = when {

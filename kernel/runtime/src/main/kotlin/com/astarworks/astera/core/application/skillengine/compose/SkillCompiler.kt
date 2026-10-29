@@ -12,6 +12,7 @@ import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.HitE
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.HitOp
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ProjectileEvent
 import com.astarworks.astera.core.application.skillengine.load.grammar.Span
+import com.astarworks.astera.core.application.skillengine.load.ops.presentation.BodyOp
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.FrameOp
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ProjectileOp
 import com.astarworks.astera.core.domain.skillengine.model.Value
@@ -186,6 +187,9 @@ public class SkillCompiler(
         private val documents: Map<String, AnchorDecl> = flat.anchors.associateBy { it.id }
         private val registries = HashMap<String, AnchorRegistry>()
 
+        /** Ids of the `body` ops of the machine-level `world:` list: their points are readable by bare name from every state (the body outlives its start state). */
+        private val worldBodies = HashSet<String>()
+
         /** Per state: the earliest tick of a static `End` row of each instance it spawned (state-qualified reference check). */
         private val staticEnds = HashMap<String, MutableMap<String, Int>>()
 
@@ -241,11 +245,15 @@ public class SkillCompiler(
             val registry = registries.getOrPut(state.value) {
                 DefaultAnchorScope(
                     Occurrence(0, 1, null), documents, { registries[it] },
-                ) { name -> registries.values.firstNotNullOfOrNull { (it as? DefaultAnchorScope)?.publishedEntry(name) } }
+                ) { name ->
+                    registries.values.firstNotNullOfOrNull { (it as? DefaultAnchorScope)?.publishedEntry(name) }
+                        ?: if (name in worldBodies) (registries[flat.machine.start] as? DefaultAnchorScope)?.entryOf(name) else null
+                }
             }
             // A list is declarative: a rider may name a body or frame written further down. Bodies and frames declare their anchors
             // first (in written order), everything else follows; rows are merged back in written order.
-            val declaring = nodes.indices.filter { nodes[it] is ProjectileOp || nodes[it] is FrameOp }
+            if (section == "world") nodes.filterIsInstance<BodyOp>().forEach { worldBodies += it.id.value }
+            val declaring = nodes.indices.filter { nodes[it] is ProjectileOp || nodes[it] is FrameOp || nodes[it] is BodyOp }
             val lowered = arrayOfNulls<Lowered>(nodes.size)
             for (k in declaring + nodes.indices.filter { it !in declaring }) {
                 val n = nodes[k]

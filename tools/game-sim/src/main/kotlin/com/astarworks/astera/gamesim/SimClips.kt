@@ -12,5 +12,6 @@ object SimClips {
         SkinRigContents().also { it.bootstrap(dir.toPath()) }
     }
 
-    fun clip(anim: String): SkinRigAnimation? = registry.find(CustomAnimationId(anim))
+    /** Null for an unknown clip or an id that is not a valid animation id, exactly as the Paper gateway's lookup answers. */
+    fun clip(anim: String): SkinRigAnimation? = runCatching { registry.find(CustomAnimationId(anim)) }.getOrNull()
 }

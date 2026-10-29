@@ -40,7 +40,12 @@ public class SkinRigPlayback(public val animation: SkinRigAnimation, speed: Doub
     }
 
     /** The pose to show at the current tick. */
-    public fun frame(): RigFrame {
+    public fun frame(): RigFrame = frameAtClock(clock)
+
+    /** The pose [ticks] server ticks after the start (no stop requested): the same curve [frame] walks, sampled at an arbitrary tick. */
+    public fun frameAt(ticks: Int): RigFrame = frameAtClock(ticks * this.speed)
+
+    private fun frameAtClock(clock: Double): RigFrame {
         val weight = inWeight(clock) * outWeight(clock)
         val sampleAt = if (animation.loop) clock % animation.lengthTicks else minOf(clock, animation.lengthTicks.toDouble())
         val root = blend(animation.root, sampleAt, weight)
