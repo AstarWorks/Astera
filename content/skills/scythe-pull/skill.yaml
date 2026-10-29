@@ -20,10 +20,9 @@ machine:
           anchor: caster.eye
           shape: {sector: {deg: 50, range: 5.0, height: 2.0, forward: look}}
           targets: enemies
-          max_count: 3   # GAP(Q1): v2 cap 3; spelling of max_count (A required int|all, B optional) is open
+          max_count: 3
           window: once
           ignore_invulnerability: false
-          # GAP(Q4): v2 on_hit order knockback -> damage; R7 form = no `damage` on the hit, handler [knockback, damage].
           on:
             hit:
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(caster) - pos(event.victim)) + vec(0.0, 0.2, 0.0)", strength: 1.3}

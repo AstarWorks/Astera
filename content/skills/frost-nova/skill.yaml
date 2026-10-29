@@ -37,7 +37,6 @@ machine:
               anchor: caster
               targets: enemies
               shape: {sphere: 5.0}
-              max_count: all       # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
               window: once
               ignore_invulnerability: false
               damage: {water: "= 25.0 * (1.0 - 0.5 * dist(pos(caster), pos(event.victim)) / 5.0)"}

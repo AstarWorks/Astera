@@ -42,12 +42,6 @@ internal object GameplayOps {
         override fun schema(): Map<String, Any?> = linkedMapOf("type" to "boolean")
     }
 
-    /**
-     * Q1 (founder question open): what an OMITTED `max_count` means. `false` = spelling B, omitted = unlimited (the same as `all`);
-     * `true` = spelling A, omitted is a load error and the author writes an integer or `all`. Flip this one constant when the founder answers.
-     */
-    const val MAX_COUNT_OMITTED_IS_LOAD_ERROR: Boolean = false
-
     /** `max_count`: an integer >= 1, or `all` (= unlimited, null). No `${param}` / `= CEL`. */
     val maxCountType: FieldType<Int?> = object : FieldType<Int?> {
         override val label = "integer >= 1 or 'all'"
@@ -61,14 +55,8 @@ internal object GameplayOps {
         override fun schema(): Map<String, Any?> = linkedMapOf("oneOf" to listOf(linkedMapOf("type" to "integer", "minimum" to 1), linkedMapOf("const" to "all")))
     }
 
-    /** Declares `max_count` on a gameplay op; read it with [maxCount]. */
+    /** Declares `max_count` on a gameplay op (founder Q1 = B, 10/29): optional; null = unlimited, whether written `all` or omitted. */
     fun maxCountField(doc: String): Field<Int?> = Field.optional("max_count", maxCountType, null, doc)
-
-    /** Reads [field]: null = unlimited (`all`, or omitted under spelling B); an omitted field under spelling A fails the load. */
-    fun maxCount(v: FieldValues, field: Field<Int?>, ctx: GrammarContext, path: String): Int? {
-        if (!v.isPresent(field) && MAX_COUNT_OMITTED_IS_LOAD_ERROR) ctx.fail("$path.max_count", "max_count is required: an integer or 'all'")
-        return v[field]
-    }
 
     /** `{kind: enemies|allies, around, radius, max_count?, include_self?}` (ADR-0303 3 target grammar). */
     private val areaKind = Field.required("kind", Types.enumOf("enemies", "allies"), "enemies or allies")
@@ -102,9 +90,9 @@ internal object GameplayOps {
             "enemies" -> {
                 // ADR-0303 3: an area target writes include_self on both kinds; the caster is never an enemy, so only false is meaningful there
                 if (v[areaSelf]) ctx.fail(path, "include_self: true is only valid for allies (the caster is never an enemy)")
-                TargetRef.Enemies(PointRef.parse(v[areaAround]), v[areaRadius], maxCount(v, areaMax, ctx, path))
+                TargetRef.Enemies(PointRef.parse(v[areaAround]), v[areaRadius], v[areaMax])
             }
-            else -> TargetRef.Allies(PointRef.parse(v[areaAround]), v[areaRadius], maxCount(v, areaMax, ctx, path), v[areaSelf])
+            else -> TargetRef.Allies(PointRef.parse(v[areaAround]), v[areaRadius], v[areaMax], v[areaSelf])
         }
     }
 

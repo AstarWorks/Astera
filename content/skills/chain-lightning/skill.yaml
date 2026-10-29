@@ -39,7 +39,7 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: {kind: enemies, around: heart, radius: "${radius}", max_count: all}, damage: {electric: "${dmg_electric}"}}  # GAP(Q1): max_count spelling; v2 had no cap
+              - {id: dmg, op: damage, target: {kind: enemies, around: heart, radius: "${radius}"}, damage: {electric: "${dmg_electric}"}}
               - {id: shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}", when: "= rand() < 0.4"}
               - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: imp, op: particle_def, def: thunder-impact, anchor: heart}

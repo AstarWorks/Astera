@@ -23,7 +23,6 @@ machine:
           anchor: caster
           shape: {sphere: 3.5}
           targets: enemies
-          max_count: all  # GAP(Q1): spelling A (required, `all` = v2 unlimited); under B delete this line
           ignore_invulnerability: false
           # linear falloff from 35 at the centre to 17.5 at the edge (v2 expression kept)
           damage: {physical: "= 35.0 * (1.0 - 0.5 * dist(event.victim, caster) / 3.5)"}

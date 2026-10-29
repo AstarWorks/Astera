@@ -33,7 +33,6 @@ machine:
           for: "${dash_ticks}"
           shape: {sphere: 1.0}
           targets: enemies
-          max_count: all    # GAP(Q1): v2 had no cap
           window: once
           ignore_invulnerability: false
           damage: {physical: "${dmg_physical}"}

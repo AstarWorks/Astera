@@ -20,7 +20,6 @@ machine:
           anchor: caster
           shape: {sphere: 3.5}
           targets: enemies
-          # GAP(Q1): v2 has no cap (unlimited, nearest-first); spelling A `max_count: all`, B omitted
           window: once
           ignore_invulnerability: false
           damage: {electric: "= 15.0 * (1.0 - 0.5 * dist(event.victim, caster) / 3.5)"}

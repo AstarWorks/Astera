@@ -29,7 +29,6 @@ machine:
           anchor: caster.body
           shape: {sphere: 1.0}
           targets: enemies
-          max_count: all  # GAP(Q1): spelling A (required, `all` = v2 unlimited); under B delete this line
           ignore_invulnerability: false
           damage: {physical: 40.0}
           window: once
