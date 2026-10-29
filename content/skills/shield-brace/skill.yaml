@@ -1,11 +1,12 @@
-# astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
 apiVersion: astera/v3
 kind: Skill
 id: shield-brace
 item: shield-bulwark
 meta: {name: {ja: "防御姿勢", en: Brace}, description: {ja: "構えを固め、しばらく踏ん張る。", en: "Plants your feet and braces for a while."}, cooldown_ticks: 180, resource_cost: 0, tags: [support, defense]}
+params:
+  poise_ticks: {type: ticks, default: 160}
 anchors:
-  - {id: chest, anchor: caster, offset: {up: 1.0}, mode: follow}   # was pt_caster_0_1_0
+  - {id: chest, anchor: caster, offset: {up: 1.0}, mode: follow}
 machine:
   start: cast
   states:
@@ -13,7 +14,7 @@ machine:
       for: 1
       then: end
       do:
-        - {id: buff, op: status, target: caster, status: poise, stacks: 1, for: 160}
+        - {id: buff, op: status, target: caster, status: poise, stacks: 1, for: "${poise_ticks}"}
         - {id: snd, op: sound, sound: item.shield.block, anchor: caster, volume: 1.0, pitch: 1.2}
         - {id: fx, op: particle_def, def: hit-spark, anchor: chest}
     end: {final: true}

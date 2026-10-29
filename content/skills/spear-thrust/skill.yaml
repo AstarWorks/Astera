@@ -8,9 +8,14 @@ meta:
   cooldown_ticks: 12
   resource_cost: 6
   tags: [melee, physical]
+params:
+  arc_deg:      {type: number, default: 30}
+  range:        {type: blocks, default: 4.2}
+  dmg_physical: {type: number, default: 34}
+  knockback:    {type: number, default: 0.2}
 anchors:
   - {id: stab_pt, anchor: caster, offset: {up: -0.2, forward: 1.4}, mode: follow}
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}  # was pt_enemy_0_1p2_0 (v2 enemy frame = victim feet)
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}
 machine:
   start: swing
   states:
@@ -22,14 +27,14 @@ machine:
           op: hit
           at: 0
           anchor: caster.eye
-          shape: {sector: {deg: 30, range: 4.2, height: 2.0, forward: look}}
+          shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
           targets: enemies
           ignore_invulnerability: false
-          damage: {physical: 34.0}
+          damage: {physical: "${dmg_physical}"}
           window: once
           on:
             hit:
-              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster))", strength: 0.2}
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster))", strength: "${knockback}"}
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
         - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 1.0, pitch: 1.5}

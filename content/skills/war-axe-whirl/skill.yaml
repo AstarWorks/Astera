@@ -8,24 +8,27 @@ meta:
   cooldown_ticks: 120
   resource_cost: 15
   tags: [aoe, physical]
+params:
+  radius:       {type: blocks, default: 3.5}
+  dmg_physical: {type: number, default: 35}
 anchors:
   - {id: ring_pt, anchor: caster, offset: {up: 0.15}, mode: follow}
 machine:
   start: whirl
   states:
     whirl:
-      for: 1   # v2 timeline is one row at tick 0; 6 ticks was the invented ring wave (see report)
+      for: 1
       then: end
       do:
         - id: burst
           op: hit
           at: 0
           anchor: caster
-          shape: {sphere: 3.5}
+          shape: {sphere: "${radius}"}
           targets: enemies
           ignore_invulnerability: false
-          # linear falloff from 35 at the centre to 17.5 at the edge (v2 expression kept)
-          damage: {physical: "= 35.0 * (1.0 - 0.5 * dist(event.victim, caster) / 3.5)"}
+          # linear falloff: full damage at the centre, half at the edge
+          damage: {physical: "= ${dmg_physical} * (1.0 - 0.5 * dist(event.victim, caster) / ${radius})"}
           window: once
           on:
             hit:
