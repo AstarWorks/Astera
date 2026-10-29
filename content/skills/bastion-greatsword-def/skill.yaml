@@ -1,6 +1,4 @@
-# Wave 2 v3 hand port of bastion-greatsword-def (v2: skill.yaml + look.yaml). Offsets [left, up, forward] -> name-keyed maps.
-# Euler turn [pitch, yaw, roll] (v1 convention Ry(-yaw) Rx(pitch) Rz(roll)) -> pose list [up -yaw, left pitch, forward roll] (R = R_A * R_B * R_C).
-# Rotations here are static (one key), so sum+hold has nothing to carry.
+# Tower Shield: a translucent barrier in front of the caster. One visual object = one op; the shared pose lives on the anchor.
 apiVersion: astera/v3
 kind: Skill
 id: bastion-greatsword-def
@@ -15,108 +13,40 @@ params:
   charge_ticks: {type: ticks, default: 400}
   charge_stacks: {type: number, default: 1}
 anchors:
-  # v2: frame fx1_bastion_shield, body, at caster, orient yaw, follow, teleport_ticks 2.
-  - {id: shield, anchor: caster, mode: follow}
+  - {id: shield, anchor: caster, mode: follow, offset: {left: 0.2, up: 1.3, forward: 1.15}}
 machine:
   start: brace
   states:
     brace:
-      for: 162          # v2: remove of all six plates at tick 162; the resist modifiers also last 162
+      for: 162
       then: end
       do:
-        # --- gameplay (v2 timeline t0 / t20 / t40) ---
         - {id: attr, op: modify_attribute, target: caster, attribute: resist.physical, operation: add, amount: 0.7, at: 0, for: 162}
         - {id: attr_2, op: modify_attribute, target: caster, attribute: resist.knockback, operation: add, amount: 1.0, at: 0, for: 162}
-        - {id: st_charge, op: status, target: caster, status: charge, stacks: "${charge_stacks}", at: 0, for: "${charge_ticks}"}
-        - {id: st_charge_2, op: status, target: caster, status: charge, stacks: "${charge_stacks}", at: 20, for: "${charge_ticks}"}
-        - {id: st_charge_3, op: status, target: caster, status: charge, stacks: "${charge_stacks}", at: 40, for: "${charge_ticks}"}
-        # --- presentation (v2 look.yaml group fx0, tick 0) ---
+        - id: charge
+          op: group
+          every: 20
+          times: 3
+          do:
+            - {id: st, op: status, target: caster, status: charge, stacks: "${charge_stacks}", for: "${charge_ticks}"}
         - {id: snd, op: sound, sound: item.shield.block, anchor: caster, at: 0}
-        # plates: v2 plate size 6.4 x track scale -> sprite size in blocks; brightness 15 -> {block: 15, sky: 15}.
-        - id: rim0r
-          op: display
-          kind: sprite
-          sprite: bastion-rim
-          anchor: shield
-          offset: {left: 0.2, up: 1.3, forward: 1.15}
-          size: [3.712, 1.92]
-          rotate: [{axis: up, deg: -50}, {axis: forward, deg: 90}]
-          billboard: fixed
-          see_through: true
-          brightness: {block: 15, sky: 15}
-          at: 0
-          for: 162
-        - id: rim0l
-          op: display
-          kind: sprite
-          sprite: bastion-rim
-          anchor: shield
-          offset: {left: 0.2, up: 1.3, forward: 1.15}
-          size: [3.712, 1.92]
-          rotate: [{axis: up, deg: -50}, {axis: forward, deg: -90}]
-          billboard: fixed
-          see_through: true
-          brightness: {block: 15, sky: 15}
-          at: 0
-          for: 162
-        - id: rim1r
-          op: display
-          kind: sprite
-          sprite: bastion-rim
-          anchor: shield
-          offset: {left: 0.2, up: 1.3, forward: 1.15}
-          size: [3.072, 1.408]
-          rotate: [{axis: up, deg: -50}, {axis: forward, deg: 90}]
-          color: "#FFF3C8"
-          billboard: fixed
-          see_through: true
-          brightness: {block: 15, sky: 15}
-          at: 0
-          for: 162
-        - id: rim1l
-          op: display
-          kind: sprite
-          sprite: bastion-rim
-          anchor: shield
-          offset: {left: 0.2, up: 1.3, forward: 1.15}
-          size: [3.072, 1.408]
-          rotate: [{axis: up, deg: -50}, {axis: forward, deg: -90}]
-          color: "#FFF3C8"
-          billboard: fixed
-          see_through: true
-          brightness: {block: 15, sky: 15}
-          at: 0
-          for: 162
-        - id: crest
-          op: display
-          kind: sprite
-          sprite: bastion-crest
-          anchor: shield
-          offset: {left: 0.2, up: 1.35, forward: 1.15}
-          size: [1.664, 1.664]
-          rotate: [{axis: up, deg: -50}]
-          billboard: fixed
-          see_through: true
-          brightness: {block: 15, sky: 15}
-          at: 0
-          for: 162
-        # v2 quad "fill": text glyph "●", colour #FFD66E, keys on scale + alpha (out_cubic into t6, in_quad into t162).
+        # Two plate pairs (outer, tinted inner); the pair is the two faces: forward +90 / -90.
+        - {id: rim0, op: display, kind: sprite, sprite: bastion-rim, anchor: shield, times: 2, size: [3.712, 1.92], rotate: [{axis: up, deg: -50}, {axis: forward, deg: "= 90 - 180 * i"}], billboard: fixed, see_through: true, brightness: {block: 15, sky: 15}, for: 162}
+        - {id: rim1, op: display, kind: sprite, sprite: bastion-rim, anchor: shield, times: 2, size: [3.072, 1.408], color: "#FFF3C8", rotate: [{axis: up, deg: -50}, {axis: forward, deg: "= 90 - 180 * i"}], billboard: fixed, see_through: true, brightness: {block: 15, sky: 15}, for: 162}
+        - {id: crest, op: display, kind: sprite, sprite: bastion-crest, anchor: shield, offset: {up: 0.05}, rotate: [{axis: up, deg: -50}], size: [1.664, 1.664], billboard: fixed, see_through: true, brightness: {block: 15, sky: 15}, for: 162}
         - id: fill
           op: display
           kind: text
           text: "●"
           color: "#FFD66E"
           anchor: shield
-          offset: {left: 0.2, up: 1.3, forward: 1.15}
-          rotate: [{axis: up, deg: -50}]
           billboard: fixed
           brightness: {block: 15, sky: 15}
-          at: 0
           for: 162
           motion:
             - law: keys
               keys:
-                - {t: 0, scale: {left: 1.5, up: 3, forward: 1.0}, alpha: 0.0}
+                - {t: 0, pose: [{axis: up, deg: -50}], scale: {left: 1.5, up: 3, forward: 1.0}, alpha: 0.0}
                 - {t: 6, scale: {left: 7.5, up: 16.5, forward: 1.0}, alpha: 0.14, ease: out_cubic}
                 - {t: 152, alpha: 0.14}
                 - {t: 162, scale: {left: 7, up: 15.5, forward: 1.0}, alpha: 0, ease: in_quad}
