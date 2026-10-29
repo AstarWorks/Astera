@@ -18,8 +18,8 @@ import java.util.UUID
  * world-space poses; no frame or expression types cross the boundary. Paper implementations live in
  * `plugin/combat/.../adapter/paper/skillengine/`.
  */
-/** The cast a port call belongs to (R40): the cast's id (for ledgers such as world reverts), its caster, the world it runs in and the item id its skill is bound to (the tool tier), if any. */
-public data class CastRef(val castId: Long, val caster: UUID, val world: WorldId, val item: String?)
+/** The cast a port call belongs to (R40): the cast's id (for ledgers such as world reverts), its caster, the world it runs in and the item id its skill is bound to (the tool tier), if any, and the [heldItem] the cast was started with (the model a main-hand mesh draws, see CastRequest.heldItem). */
+public data class CastRef(val castId: Long, val caster: UUID, val world: WorldId, val item: String?, val heldItem: String? = null)
 
 @JvmInline
 public value class VisualHandle(public val id: Long)

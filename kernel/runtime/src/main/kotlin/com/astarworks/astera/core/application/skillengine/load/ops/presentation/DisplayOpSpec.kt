@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.skillengine.compose.AnchorNames
 import com.astarworks.astera.core.application.skillengine.compose.LawSegmenter
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.compose.PoseCompose
+import com.astarworks.astera.core.application.skillengine.load.MeshModels
 import com.astarworks.astera.core.application.skillengine.load.DecodeAbort
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.AxisResolver
@@ -607,7 +608,12 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         val f = LinkedHashMap<String, Val<Any>>()
         when (op.kind) {
             DisplayKind.ITEM -> {
-                f["item"] = Val.Known(literalSubject(op, lc, "item"))
+                val shown = literalSubject(op, lc, "item")
+                // a main-hand mesh draws the model of the item the cast is bound to (CastRequest.heldItem falls back to it): without one an admin / bot cast has nothing to draw
+                if (shown == MeshModels.MAIN_HAND && lc.item?.takeIf { it != "any" } == null) {
+                    throw DecodeAbort(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "display item main_hand needs a concrete skill item: (not any) so a cast without a triggering item still knows which model to draw"))
+                }
+                f["item"] = Val.Known(shown)
                 op.part?.let { f["part"] = Val.Known(it) }
                 f["context"] = Val.Known(op.context)
                 op.shaderEffect?.let { f["shader_effect"] = Val.Known(it) }

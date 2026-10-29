@@ -186,6 +186,7 @@ abstract class SkillEngineScenario {
             casterPitchDeg = pitchDeg,
             seed = seed,
             startTick = 0,
+            heldItem = skill.def.item?.takeIf { it != "any" },
         )
         val cast = when (val s = player.start(request, skill)) {
             is Result.Success -> s.value

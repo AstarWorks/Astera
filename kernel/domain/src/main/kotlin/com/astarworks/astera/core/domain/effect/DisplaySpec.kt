@@ -72,8 +72,11 @@ public sealed class DisplayKind {
      */
     public data class SkinBone(public val bone: SkinRigBone, public val slim: Boolean = false, public val ghost: Boolean = false) : DisplayKind()
 
-    /** The anchor's real main-hand stack in the `THIRDPERSON_RIGHTHAND` context (ADR-0276): the one weapon of a performance. */
-    public data object AnchorMainHand : DisplayKind()
+    /**
+     * The model of Astera item [itemId] in the `THIRDPERSON_RIGHTHAND` context (ADR-0276): the one weapon of a performance. [itemId] is the
+     * item that triggered the cast, fixed at cast start; the display never reads the owner's live main hand.
+     */
+    public data class AnchorHeldItem(public val itemId: ItemId) : DisplayKind()
 
     /**
      * Renders floating text. `lines` is i18n-aware: the adapter picks the

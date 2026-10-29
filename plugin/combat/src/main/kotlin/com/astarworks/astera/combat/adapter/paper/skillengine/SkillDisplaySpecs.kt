@@ -41,11 +41,11 @@ public object SkillDisplaySpecs {
         return if (h.length == 6) (0xFF000000L or v).toInt() else v.toInt()
     }
 
-    /** The item a pack or vanilla mesh model draws; null for the caster's held item (needs the caster). */
-    public fun meshKind(model: MeshModel, look: MeshLook = MeshLook()): DisplayKind = when (model) {
+    /** The item a pack or vanilla mesh model draws; [heldItem] is the item a main-hand mesh draws (the cast's triggering item, null = none known). */
+    public fun meshKind(model: MeshModel, look: MeshLook = MeshLook(), heldItem: String? = null): DisplayKind = when (model) {
         is MeshModel.Pack -> DisplayKind.Item(ItemId("paper"), look.mode, look.itemModel ?: model.key)
         is MeshModel.Vanilla -> DisplayKind.Item(ItemId(model.material.replace('_', '-')), look.mode, look.itemModel ?: model.itemModel)
-        MeshModel.HeldItem -> DisplayKind.AnchorMainHand // AnchorMainHand: the caster's real stack in THIRDPERSON_RIGHTHAND
+        MeshModel.HeldItem -> DisplayKind.AnchorHeldItem(ItemId(requireNotNull(heldItem) { "a main-hand mesh needs the item the cast was started with" }))
     }
 
     public fun mesh(kind: DisplayKind, first: DisplayTransform, brightness: Int? = null, rigShading: Boolean = true, shaderEffect: String? = null): DisplaySpec =

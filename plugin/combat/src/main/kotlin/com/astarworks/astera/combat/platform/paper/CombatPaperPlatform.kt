@@ -88,12 +88,21 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         },
         entityEffectsGateway = { PaperEntityEffectsGateway(plugin.server, plugin) },
         displayEntityGateway = { services ->
+            val heldMaterializer = com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer(
+                plugin, services.getOrThrow<com.astarworks.astera.core.application.service.item.ItemBlueprintFactory>(),
+            )
             val hud = services.get<com.astarworks.astera.core.application.service.hud.HudPreferences>()
             PaperDisplayEntityGateway(
                 server = plugin.server,
                 plugin = plugin,
                 scheduler = services.getOrThrow<IScheduler>(),
                 intensityOf = { hud?.vfxIntensity(it) ?: com.astarworks.astera.core.domain.effect.VfxIntensity.FULL },
+                heldStack = { viewer, item ->
+                    // the held rig's weapon: the registered spec of the item that fired the cast, rendered like a given item (ADR-0276), never the live main hand
+                    services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>()?.find(item)?.let { spec ->
+                        heldMaterializer.buildFor(spec, viewer, 1)
+                    }
+                },
             )
         },
         summonGateway = { PaperSummonGateway(plugin.server) },

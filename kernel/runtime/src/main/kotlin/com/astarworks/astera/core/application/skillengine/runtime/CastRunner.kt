@@ -24,6 +24,12 @@ public data class CastRequest(
     val seed: Long,
     val modifiers: ModifierStack = ModifierStack.EMPTY,
     val startTick: Int,
+    /**
+     * The Astera item id whose model the held rig draws: the item that triggered the cast (captured at cast start), or the skill's own
+     * bound item when the cast has no triggering item (admin / bot command). The rig never reads the live main hand, so an empty or
+     * swapped hand after the cast started changes nothing. Null only for a skill that draws no main-hand mesh.
+     */
+    val heldItem: String? = null,
 )
 
 public sealed interface CastError {

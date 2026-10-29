@@ -151,7 +151,7 @@ public object RigOpSpec : OpSpec<RigOp> {
     /** The body point an off-hand rig rides: the caster's left arm. */
     public const val OFF_ARM_MOUNT: String = "caster.hand_l"
 
-    /** The display transform the player draws the main-hand mesh with (`AnchorMainHand`); a rig carrying the held item takes its long/edge axes from a part with this display. */
+    /** The display transform the player draws the main-hand mesh with (`AnchorHeldItem`); a rig carrying the held item takes its long/edge axes from a part with this display. */
     private const val HELD_DISPLAY = ItemFrames.HELD_HAND_DISPLAY
     private const val OFF_DISPLAY = ItemFrames.OFF_HAND_DISPLAY
 

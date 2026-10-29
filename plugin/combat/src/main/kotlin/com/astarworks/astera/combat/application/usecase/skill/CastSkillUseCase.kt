@@ -216,7 +216,7 @@ public class CastSkillUseCase(
         // Callers without a position (charged casts) pass Vec3.ZERO — use the live feet position.
         val origin = if (at == Vec3.ZERO && pose != null) pose.position else at
         eventBus.publish(
-            SkillCast(caster = casterId, skillId = skillId, at = origin, atTick = atTick, pose = pose),
+            SkillCast(caster = casterId, skillId = skillId, at = origin, atTick = atTick, pose = pose, sourceItemId = sourceItemId),
         )
 
         return Result.success(spec)

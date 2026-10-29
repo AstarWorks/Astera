@@ -20,7 +20,7 @@ public class PerformanceProbe(
         val view = sim.presentation.view(viewer.id, owner.id)
         val hand = if (view.handHidden) 0 else 1
         val displays = sim.displays.spawned.count {
-            it.spec.kind == DisplayKind.AnchorMainHand && it.handle in sim.displays.active && it.handle.id in view.revealed
+            it.spec.kind is DisplayKind.AnchorHeldItem && it.handle in sim.displays.active && it.handle.id in view.revealed
         }
         return hand + displays
     }

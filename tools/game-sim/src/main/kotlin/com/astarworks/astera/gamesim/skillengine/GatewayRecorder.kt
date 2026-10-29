@@ -83,8 +83,8 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     /** Off: the caster is not an online player, so a main-hand mesh or a skin bone is refused exactly as Paper refuses it (no owner to draw). */
     var casterOnline: Boolean = true
 
-    /** Off: the caster's main hand is empty, so a main-hand mesh is refused as on Paper. */
-    var mainHandHeld: Boolean = true
+    /** The item each main-hand mesh was drawn with (CastRef.heldItem, fixed at cast start); a rig never reads the caster's live hand. */
+    val heldMeshItems: MutableList<String> = ArrayList()
 
     /** Values the cast reads through `Val.Live` numbers, by live name. A name not set here reads 0.0; every read is in [liveReads]. */
     val liveNums: MutableMap<String, Double> = HashMap()
@@ -244,9 +244,10 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
     val visual: ISkillVisualGateway = object : ISkillVisualGateway {
         override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView, glow: String?): VisualHandle {
-            // Paper: the main-hand kind draws the caster's real stack, so an offline caster or an empty hand refuses the spawn (PaperSkillVisualGateway.dead)
-            if (com.astarworks.astera.core.application.skillengine.load.MeshModels.resolve(item, part, emptyMap()) is com.astarworks.astera.core.application.skillengine.load.MeshModel.HeldItem && (!casterOnline || !mainHandHeld)) {
-                error("skill visual 'mesh $item${if (casterOnline) " (empty main hand)" else ""}' could not be spawned: owner offline or display refused")
+            // Paper: the main-hand kind draws the model of the cast's item (CastRef.heldItem), so an offline caster or a cast without an item refuses the spawn (PaperSkillVisualGateway.dead); the live hand is never consulted
+            if (com.astarworks.astera.core.application.skillengine.load.MeshModels.resolve(item, part, emptyMap()) is com.astarworks.astera.core.application.skillengine.load.MeshModel.HeldItem) {
+                if (!casterOnline || cast.heldItem == null) error("skill visual 'mesh $item${if (casterOnline) " (the cast carries no item)" else ""}' could not be spawned: owner offline or display refused")
+                heldMeshItems += cast.heldItem!!
             }
             // the Paper gateway refuses a model id NamespacedKey.fromString rejects (e.g. a doubled `astera:astera:`)
             (com.astarworks.astera.core.application.skillengine.load.MeshModels.resolve(item, part, emptyMap()) as? com.astarworks.astera.core.application.skillengine.load.MeshModel.Pack)?.let {
