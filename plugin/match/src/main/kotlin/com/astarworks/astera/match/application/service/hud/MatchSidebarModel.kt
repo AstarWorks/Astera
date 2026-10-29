@@ -37,20 +37,21 @@ public object MatchSidebarModel {
 
     /**
      * Rows kept on the sidebar (the client allows 15, but a player mid-fight reads about seven): header 1, one-line
-     * mode objective 1, mode body 2, viewer footer 3 (team, level, goal).
+     * mode objective 1, mode body 2, viewer footer 3 (team, level, goal),
+     * server address 1.
      */
-    public const val MAX_LINES: Int = 7
+    public const val MAX_LINES: Int = 8
 
-    /** Lines left for the mode after header (1), objective (1) and the viewer footer (3). */
-    public const val MAX_MODE_LINES: Int = MAX_LINES - 1 - 1 - 3
+    /** Lines left for the mode after header (1), objective (1), the viewer footer (3) and the server address (1). */
+    public const val MAX_MODE_LINES: Int = MAX_LINES - 1 - 1 - 3 - 1
 
     /** Modes that have an `astera.match.objective.<id>.subtitle` one-liner to pin under the phase line. */
     private val OBJECTIVE_MODES: Set<String> = setOf(
         "annihilation", "carry-tnt", "carry-mini-tnt", "capture-wool", "steal-jewelry", "pve-waves",
     )
 
-    /** Footer rows in the worst case: team, level, goal, next unlock. */
-    private const val MAX_FOOTER_LINES: Int = 4
+    /** Footer rows in the worst case: team, level, goal, next unlock, server address. */
+    private const val MAX_FOOTER_LINES: Int = 5
 
     /**
      * Modes whose body must stay whole: Annihilation is played on the enemy pillars' HP, so every team's line (one per
@@ -130,8 +131,9 @@ public object MatchSidebarModel {
             }
         }
         // The footer carries the viewer's Norma goal, so it is never the part that gets cut: the mode body shrinks instead.
-        val body = model.lines.take(model.maxLines - footer.size).map { line -> toText(line, teams[line.team], viewer, messages) }
-        return HudLayout.Sidebar(titleKey = model.titleKey, lines = body + footer)
+        val address = SidebarBars.footer(viewer, messages)
+        val body = model.lines.take(model.maxLines - footer.size - 1).map { line -> toText(line, teams[line.team], viewer, messages) }
+        return HudLayout.Sidebar(titleKey = model.titleKey, lines = body + footer + address)
     }
 
     private fun toText(line: HudLine, team: Team?, viewer: PlayerId, messages: IMessageRenderer): HudComponent.Text {

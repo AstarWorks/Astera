@@ -101,6 +101,7 @@ internal object MatchHudWiring {
             messages = env.msgRenderer,
             scheduler = env.scheduler,
             gold = { player -> services.get<ICurrencyLedger>()?.balance(player, Currency.GOLD) },
+            account = { player -> services.get<com.astarworks.astera.core.application.port.outbound.IPlayerProgressView>()?.progressOf(player) },
             settings = { env.queueSettings.current() },
             progress = { env.queueProgress },
             nextStep = { player ->
