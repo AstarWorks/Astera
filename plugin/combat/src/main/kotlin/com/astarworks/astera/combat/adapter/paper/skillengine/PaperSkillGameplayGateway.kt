@@ -269,6 +269,14 @@ public class PaperSkillGameplayGateway(
     }
 
     override fun restoreResource(victim: UUID, resource: String, amount: Double) {
+        if (resource.equals("health", ignoreCase = true)) {
+            // the `heal` op: hit points, not a pooled resource
+            val entity = server.getEntity(victim) as? org.bukkit.entity.LivingEntity ?: return
+            if (!entity.isValid || entity.isDead) return
+            val max = entity.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value ?: entity.health
+            entity.health = (entity.health + amount).coerceIn(0.0, max)
+            return
+        }
         val type = when (resource.lowercase()) {
             "ammo" -> ResourceType.Ammo
             "energy", "mana", "stamina" -> ResourceType.Energy

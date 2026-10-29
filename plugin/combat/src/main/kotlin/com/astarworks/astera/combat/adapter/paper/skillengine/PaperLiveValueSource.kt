@@ -102,6 +102,7 @@ public class PaperLiveValueSource(
                     val fwd = Frame.fromYawPitch(p.feet, p.yaw, p.pitch).forward()
                     return ContactBasis.frame(Vec3(c.point.x, c.point.y, c.point.z), Vec3(c.normal.x, c.normal.y, c.normal.z), fwd)
                 }
+                if (frame == "victim" || frame == "target") return victimFrame(binding, point)
                 if (frame != CASTER) return null
                 val p = casterPose(request)
                 return when (point) {
@@ -181,6 +182,7 @@ public class PaperLiveValueSource(
             val pitched = bare == "$CASTER.look" || bare == "$CASTER.eye" || bare.removePrefix("$CASTER.") in HANDS
             return quat(Frame.fromYawPitch(p.feet, p.yaw, if (pitched) p.pitch else 0.0).rotation)
         }
+        if (bare == "contact") return quat(frames(cast, binding).worldPose("contact", null)?.rotation ?: unsupported(name, "a rotation (no contact bound)"))
         return when (val v = evalExpr(cast, request, name, binding, scope)) {
             is ExprValue.Quat -> quat(v.value)
             else -> unsupported(name, "a rotation")
@@ -245,7 +247,25 @@ public class PaperLiveValueSource(
         return Vector3d(v.x, v.y, v.z)
     }
 
+    /**
+     * The hit victim as a frame (`victim`, `victim.root`, `target`): yaw-only like the v2 `pt_enemy_*` anchors. A bare frame is the body centre,
+     * `feet` / `root` the feet, `eye` the eye; null when no victim is bound.
+     */
+    private fun victimFrame(binding: EventBinding?, point: String?): Frame? {
+        val id = binding?.victim?.id ?: return null
+        val e = server.getEntity(id) as? LivingEntity ?: return null
+        val loc = e.location
+        val origin = when (point) {
+            null, "body" -> Vec3(loc.x, loc.y + e.height / 2.0, loc.z)
+            "feet", "root" -> Vec3(loc.x, loc.y, loc.z)
+            "eye" -> Vec3(loc.x, loc.y + e.eyeHeight, loc.z)
+            else -> return null
+        }
+        return Frame.fromYawPitch(origin, loc.yaw.toDouble(), 0.0)
+    }
+
     private fun bindingVec(name: String, binding: EventBinding?): Vector3d? {
+        if (name == "contact") return contactOf(binding).point.let { Vector3d(it.x, it.y, it.z) }
         if (name == "event.victim" || name == "event.attacker") return eventEntityVec(name, binding)
         val root = name.substringBefore('.', "")
         if (root != "contact" && root != "target") return null

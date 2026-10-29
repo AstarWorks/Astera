@@ -414,17 +414,17 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             val root = bare.substringBefore('.')
             if (root == "caster") return bare == "caster" || bare.removePrefix("caster.") in PAPER_CASTER_FIELDS
             if (bare == "event.victim" || bare == "event.attacker") return true
-            return bare.contains('.') && (root == "contact" || root == "target")
+            return bare == "contact" || (bare.contains('.') && (root == "contact" || root == "target"))
         }
 
         /** The `caster.<field>` names `PaperLiveValueSource` answers (feet, pos, position, look, eye, body, forward and the hand points). */
         private val PAPER_CASTER_FIELDS = setOf("feet", "pos", "position", "look", "eye", "body", "forward", "hand_r", "hand_l", "palm")
 
-        /** `PaperLiveValueSource.rot`: any `caster` / `caster.*` basis (yaw, plus pitch for look / eye / hands), or a CEL cell; no contact / target rotation. */
+        /** `PaperLiveValueSource.rot`: any `caster` / `caster.*` basis (yaw, plus pitch for look / eye / hands), or a CEL cell; the bare contact basis; no target rotation. */
         private fun paperRotatable(name: String): Boolean {
             if (name.startsWith("= ") || name.startsWith("expr:")) return true
             val bare = name.removePrefix("anchor:")
-            return bare == "caster" || bare.startsWith("caster.")
+            return bare == "caster" || bare.startsWith("caster.") || bare == "contact"
         }
 
         private fun requireResolvable(name: String, wanted: String) {
