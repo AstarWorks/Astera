@@ -1,0 +1,21 @@
+# Point table for the mace: a flat handheld sprite (content/textures/generated/items/mace.png, vanilla item/handheld parent), no 3D model.
+# Chain as content/frames/couture-rapier.yaml: q = RotY(180) * ( T + Rxyz * ( S * (p/16 - 0.5) ) ) on the sprite plane (z = 8), 16 px = 1 block.
+# Display transforms are vanilla item/handheld: fixed = rot [0,180,0] tr [0,0,0] scale 0.5; thirdperson_righthand = rot [0,-90,55] tr [0,4,0.5] scale 0.85.
+# Points are sprite centroids along the handle-to-tip diagonal: grip = the lowest 18% (pivot = grip), root = the 30-36% band (blade / head base), tip = the farthest opaque pixel.
+# long = the sprite diagonal (1,1,0) grip -> tip; edge = (1,-1,0) in the sprite plane (the lower-right side), perpendicular to long. The sprite has no visible cutting-edge side, so edge: leading|trailing in a swing is only a convention.
+apiVersion: astera/v3
+kind: ItemFrames
+item: mace
+parts:
+  held:
+    model: astera:mace
+    display: fixed
+    length: 0.5644
+    points: { grip: [-0.1743, -0.1756, 0.0], pivot: [-0.1743, -0.1756, 0.0], root: [-0.0781, -0.0781, 0.0], tip: [0.1484, 0.2266, 0.0] }
+    axes: { long: [0.7071, 0.7071, 0.0], edge: [0.7071, -0.7071, 0.0] }
+  held_hand:
+    model: astera:mace
+    display: thirdperson_righthand
+    length: 0.9596
+    points: { grip: [0.0, -0.1640, -0.1058], pivot: [0.0, -0.1640, -0.1058], root: [0.0, 0.0650, -0.0639], tip: [0.0, 0.6776, 0.1395], hand_anchor: [0.0, 0.2500, -0.0312] }
+    axes: { long: [0.0, 0.9848, 0.1736], edge: [0.0, 0.1736, -0.9848] }

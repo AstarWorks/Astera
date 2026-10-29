@@ -1,3 +1,4 @@
+# scythe-reap: wind-up 4 ticks (rule round(5 / attack_speed)), hit at tick 4. Right-to-left reap: blade drawn back to the right, cut across the front.
 apiVersion: astera/v3
 kind: Skill
 id: scythe-reap
@@ -12,14 +13,32 @@ anchors:
   - {id: sweep, anchor: caster, offset: {up: -0.2, forward: 1.5}, mode: snapshot}
   - {id: heart, anchor: victim.center, mode: follow}
 machine:
-  start: cast
+  start: windup
+  tail: 10
   states:
-    cast:
+    windup:
+      for: 4
+      then: strike
+      do:
+        - {id: snd_windup, op: sound, sound: item.armor.equip_chain, anchor: caster, volume: 0.5, pitch: 0.8}
+        # weapon rig: right-to-left reap. One performance in the windup state, detached so it plays on through the strike and the tail:
+        # drawn back over 3 ticks, the cut starts at tick 3 so the blade crosses the target zone at the hit (tick 4), then 6 ticks of follow-through.
+        - id: rig
+          op: rig
+          parent: caster
+          mount: caster.hand_r
+          part: held_hand
+          rest: [{axis: left, deg: 72}]
+          detach: true
+          for: 12
+          swing:
+            - {at: 0, for: 3, from: {left: 0.000, up: 0.507, forward: 0.862}, to: {left: -0.958, up: 0.202, forward: -0.202}, edge: trailing, roll: 0, ease: out_quad}
+            - {at: 3, for: 3, to: {left: 0.909, up: -0.101, forward: 0.404}, edge: leading, roll: 0, ease: out_cubic}
+            - {at: 6, for: 6, to: {left: 0.834, up: 0.152, forward: -0.531}, edge: leading, roll: 0, ease: out_cubic}
+    strike:
       for: 1
       then: end
       do:
-        - {id: snd, op: sound, sound: entity.player.attack.sweep, anchor: caster, volume: 1.0, pitch: 1.0, at: 0}
-        - {id: fx, op: particle_def, def: slash-sweep, anchor: sweep, at: 0}
         - id: swing
           op: hit
           at: 0
@@ -32,6 +51,9 @@ machine:
           on:
             hit:
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster))", strength: "${knockback}"}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2, detach: true}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
+        - {id: snd, op: sound, sound: entity.player.attack.sweep, anchor: caster, volume: 1.0, pitch: 1.0, detach: true}
+        - {id: fx, op: particle_def, def: slash-sweep, anchor: sweep, detach: true}
+        - {id: trail, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 6}, count: 1, extra: 0.04, at: 0, every: 1, for: 8, detach: true}
     end: {final: true}

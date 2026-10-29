@@ -1,3 +1,4 @@
+# shield-bash: wind-up 4 ticks (rule round(5 / attack_speed)), hit at tick 4. No rig: the shield has no item model or frame table (vanilla SHIELD), so the wind-up is a sound and a spark charge at the shield.
 apiVersion: astera/v3
 kind: Skill
 id: shield-bash
@@ -19,14 +20,19 @@ anchors:
   - {id: front, anchor: caster, offset: {forward: 1.3}, mode: follow}
   - {id: heart, anchor: victim.center, mode: follow}
 machine:
-  start: cast
+  start: windup
+  tail: 10
   states:
-    cast:
+    windup:
+      for: 4
+      then: strike
+      do:
+        - {id: snd_windup, op: sound, sound: item.armor.equip_iron, anchor: caster, volume: 0.6, pitch: 0.7}
+        - {id: charge, op: particle, particle: crit, anchor: front, count: 2, extra: 0.1, every: 2, for: 4}
+    strike:
       for: 1
       then: end
       do:
-        - {id: snd, op: sound, sound: item.shield.block, anchor: caster, volume: 1.0, pitch: 0.9}
-        - {id: fx, op: particle_def, def: hit-spark, anchor: front}
         - id: swing
           op: hit
           at: 0
@@ -40,6 +46,8 @@ machine:
             hit:
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: "${knockback}"}
               - {id: st_tremor, op: status, target: event.victim, status: tremor, stacks: 1, for: "${tremor_ticks}"}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2, detach: true}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
+        - {id: snd, op: sound, sound: item.shield.block, anchor: caster, volume: 1.0, pitch: 0.9, detach: true}
+        - {id: fx, op: particle_def, def: hit-spark, anchor: front, detach: true}
     end: {final: true}
