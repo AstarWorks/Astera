@@ -51,7 +51,8 @@ class WeaponUpgradeShopScenarioTest {
         scenario("weapon-upgrade-buy") {
             val red = player("red-buyer", team = "red")
             val blue = player("blue-victim", team = "blue")
-            startMatch("annihilation", mapOf(red to "red", blue to "blue"), stage = "annihilation-arena")
+            val yellow0 = player("yellow-0", team = "yellow") // the annihilation lane starts only with 3 teams
+            startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow0 to "yellow"), stage = "annihilation-arena")
             advance(5)
 
             // Refused without the base pistol (ore alone is not enough).

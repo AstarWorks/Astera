@@ -18,12 +18,13 @@ class StaleZeroHpNextMatchScenarioTest {
         scenario("stale-zero-hp-next-match") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            val first = startMatch("annihilation", mapOf(red to "red", blue to "blue"), stage = "annihilation-arena")
+            val yellow0 = player("yellow-0", team = "yellow") // the annihilation lane starts only with 3 teams
+            val first = startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow0 to "yellow"), stage = "annihilation-arena")
             sim.services.getOrThrow<IMatchLifecycle>().end(first, EndReason.AdminEnded)
             advance(5)
             sim.services.getOrThrow<IPlayerHealthGateway>().setHealth(blue.id, 0.0, HealthChangeSource.Other("test-stale"))
 
-            startMatch("annihilation", mapOf(red to "red", blue to "blue"), stage = "annihilation-arena")
+            startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow0 to "yellow"), stage = "annihilation-arena")
             assertThat(hp(blue)).`as`("HP reset at match start").isGreaterThan(0.0)
 
             red.moveTo(blue.position + Vec3(0.0, 0.0, 6.0))

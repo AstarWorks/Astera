@@ -16,6 +16,9 @@ import com.astarworks.astera.core.domain.status.StatusEffectId
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.data.Offset
 import org.junit.jupiter.api.Test
+import java.nio.file.Files
+import kotlin.math.cos
+import kotlin.math.sin
 
 /** WP-G: respawn clears statuses, DoT kill credit, annihilation YAML config, elimination, spawn facing. */
 class WpGScenarioTest {
@@ -57,7 +60,8 @@ class WpGScenarioTest {
         scenario("wpg-annihilation-yaml-config") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue"), stage = "annihilation-arena")
+            val yellow = player("yellow-1", team = "yellow") // the annihilation lane needs 3 teams to leave the countdown
+            val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow to "yellow"), stage = "annihilation-arena")
 
             advance(1000)
             assertThat(eventsOf<AnnihilationPhaseTransitioned>().filter { it.matchId == matchId }).isEmpty()
@@ -109,9 +113,20 @@ class WpGScenarioTest {
             val blue = player("blue-1", team = "blue")
             startMatch("annihilation", mapOf(red to "red", blue to "blue"), stage = "annihilation-arena")
 
-            // blue spawns face yaw 119.4: direction = (-sin(yaw), 0, cos(yaw))
-            assertThat(blue.direction.x).isEqualTo(-0.8712, Offset.offset(0.01))
-            assertThat(blue.direction.z).isEqualTo(-0.4909, Offset.offset(0.01))
+            // blue spawns face the yaw of the stage's blue spawn points: direction = (-sin(yaw), 0, cos(yaw))
+            val yaw = Math.toRadians(shippedBlueSpawnYaw())
+            assertThat(blue.direction.x).isEqualTo(-sin(yaw), Offset.offset(0.01))
+            assertThat(blue.direction.z).isEqualTo(cos(yaw), Offset.offset(0.01))
         }
+    }
+
+    /** Yaw (degrees) of the first blue `spawn_points` entry in the shipped annihilation-arena stage. */
+    private fun shippedBlueSpawnYaw(): Double {
+        val lines = Files.readAllLines(GameSim.defaultContentDir().resolve("stages/annihilation-arena.yaml"))
+        val section = lines.indexOfFirst { it.trim() == "spawn_points:" }
+        check(section >= 0) { "no spawn_points in annihilation-arena" }
+        val at = (section until lines.size).first { lines[it].trim() == "- team: blue" }
+        check(at >= 0) { "no blue spawn point in annihilation-arena" }
+        return lines.drop(at).first { it.trim().startsWith("yaw:") }.substringAfter("yaw:").trim().toDouble()
     }
 }

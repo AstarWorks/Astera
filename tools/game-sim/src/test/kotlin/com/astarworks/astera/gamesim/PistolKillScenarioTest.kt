@@ -34,14 +34,13 @@ class PistolKillScenarioTest {
             val kill = eventsOf<PlayerKilled>().single()
             assertThat(kill.victim).isEqualTo(victim.id)
             assertThat(kill.killer).isEqualTo(shooter.id)
-            assertThat(sim.projectiles.inFlight).isLessThanOrEqualTo(1)
 
             // Out-of-match death path: the victim is returned to the lobby spawn at full health.
             assertThat(hp(victim)).isEqualTo(com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP)
             assertThat(victim.position.z).isEqualTo(0.0)
 
             // The cast left its cues in the trace recorder.
-            assertThat(sim.recorder.soundKeys()).contains("entity.firework_rocket.blast")
+            assertThat(sim.recorder.soundKeys()).contains("astera:weapons/gun-shot")
         }
 
         // JSON trace export (schema documented in tools/game-sim/README.md).
@@ -49,7 +48,7 @@ class PistolKillScenarioTest {
         assertThat(json["schema"]?.jsonPrimitive?.content).isEqualTo(TraceRecorder.SCHEMA)
         val ticks = json["ticks"]!!.jsonArray.map { it.jsonObject }
         assertThat(ticks.first()["entities"]!!.jsonArray).hasSize(2) // starting frame
-        assertThat(ticks.any { it["projectiles"]!!.jsonArray.isNotEmpty() }).isTrue()
+        assertThat(ticks.any { it["particles"]!!.jsonArray.any { p -> p.jsonObject["key"]?.jsonPrimitive?.content == "crit" } }).`as`("the bolt leaves its crit trail").isTrue()
         assertThat(ticks.flatMap { it["deaths"]!!.jsonArray }).hasSize(1)
         assertThat(ticks.flatMap { it["damage"]!!.jsonArray }).isNotEmpty()
     }

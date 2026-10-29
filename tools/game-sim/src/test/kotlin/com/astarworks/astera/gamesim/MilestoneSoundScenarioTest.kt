@@ -56,12 +56,13 @@ class MilestoneSoundScenarioTest {
         scenario("milestone-sounds-match") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
+            val yellow0 = player("yellow-0", team = "yellow") // the annihilation lane starts only with 3 teams
             val bgm = sim.services.getOrThrow<IPlayerBgm>()
             assertThat(bgm.moodOf(red.id)).`as`("joining the server starts the lobby BGM").isEqualTo(MusicMood.LOBBY)
             assertThat(bgm.trackOf(red.id)).isEqualTo(MusicTrackId("lobby-loop"))
 
             sim.playerSounds.clear()
-            val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue"), stage = "annihilation-arena")
+            val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow0 to "yellow"), stage = "annihilation-arena")
             sim.eventBus.publish(PlayerEnteredMatch(matchId, red.id))
             assertThat(bgm.moodOf(red.id)).`as`("entering the match switches BGM").isEqualTo(MusicMood.MATCH)
             assertThat(bgm.trackOf(red.id)).isEqualTo(MusicTrackId("match-default"))
