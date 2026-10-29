@@ -1,41 +1,62 @@
-# astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
+# shortbow-snare: a straight arrow that slows (sinking) whoever it hits. Rewritten from zero on the rev4.10 grammar (ADR-0303):
+# a visible item display riding the projectile body, the impact as one skill-local fragment, the trail as one rider group.
+# Straight flight on purpose (no gravity): the hit tick is balance. Randomness: none. Visuals need a founder look on skill-compare.
 apiVersion: astera/v3
 kind: Skill
 id: shortbow-snare
 item: shortbow
 meta: {name: {ja: "足止めの矢", en: "Snare Arrow"}, description: {ja: "当たった相手の足を鈍らせる。", en: "Slows whoever it hits."}, cooldown_ticks: 120, resource_cost: 8, tags: [ranged, physical, control]}
+params:
+  launch_speed: {type: number, default: 2.6}
+  dmg_physical: {type: number, default: 7}
+  sink_ticks: {type: ticks, default: 80}
+  max_lifetime_ticks: {type: ticks, default: 40}
 anchors:
-  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}   # projectile origin
-  - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: follow}        # was pt_caster_0_m0p25_0p9 (feet, yaw-only)
-  - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}   # was pt_enemy_0_1p2_0 (victim feet, yaw-only)
+  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: follow}
+  - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
+fragments:
+  impact:
+    frames_in: {spot: anchor}
+    do:
+      - {id: snd, op: sound, at: 0, sound: "astera:weapons/blade-hit", anchor: spot, volume: 0.7, pitch: 1.0}
+      - {id: spark, op: particle_def, at: 0, def: hit-spark, anchor: spot}
+      - {id: fleck, op: particle, at: 0, particle: dust, anchor: spot, count: 4, offset: [0.15, 0.15, 0.15], color: "#787878", size: 0.9}
 machine:
   start: fly
   states:
     fly:
-      for: 40
+      for: 40      # = max_lifetime_ticks (a state `for` cannot read a param yet)
       then: end
       on:
         - {event: arrow.end, to: end}
       do:
-        - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 0.7, pitch: 0.9}
-        - {id: fx, op: particle_def, def: gun-muzzle-smoke, anchor: cast_fx}
+        - {id: snd, op: sound, at: 0, sound: "astera:weapons/sword-swing", anchor: caster, volume: 0.7, pitch: 0.9}
+        - {id: fx, op: particle_def, at: 0, def: gun-muzzle-smoke, anchor: cast_fx}
         - id: arrow
           op: projectile
+          at: 0
           origin: muzzle
-          velocity: "= look(caster) * 2.6"
-          for: 40
+          velocity: "= look(caster) * ${launch_speed}"
+          for: "${max_lifetime_ticks}"
           radius: 0.5
           hit: {targets: enemies, once: true, attach: false}
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, damage: {physical: 7.0}}
-              - {id: st_sink, op: status, target: event.victim, status: sinking, stacks: 1, for: 80}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: victim, volume: 0.7, pitch: 1.0}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
+              - {id: st_sink, op: status, target: event.victim, status: sinking, stacks: 1, for: "${sink_ticks}"}
+              - {id: hit_fx, use: "fragment:impact", frames: {spot: heart}}
             block:
-              - {id: snd_block, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
-              - {id: fx_block, op: particle_def, def: hit-spark, anchor: contact.point}
-        - {id: trail_crit, op: particle, particle: crit, count: 1, offset: [0.04, 0.04, 0.04], anchor: {of: arrow, sweep: 0.4}, every: 1, until: arrow.end}
-        - {id: trail_dust, op: particle, particle: dust, count: 1, color: "#787878", size: 0.9, anchor: {of: arrow, sweep: 0.4}, every: 1, until: arrow.end}
+              - {id: block_snd, op: sound, at: 0, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
+              - {id: block_fx, op: particle_def, at: 0, def: hit-spark, anchor: contact.point}
+        - {id: shaft, op: display, kind: item, item: spectral_arrow, context: fixed, anchor: arrow, scale: [0.9, 0.9, 0.9], at: 0, until: arrow.end}
+        - id: trail
+          op: group
+          at: 0
+          every: 1
+          until: arrow.end
+          do:
+            - {id: wake, op: particle, particle: crit, count: 1, offset: [0.04, 0.04, 0.04], anchor: {of: arrow, sweep: 0.4}, at: 0}
+            - {id: dust, op: particle, particle: dust, count: 1, color: "#787878", size: 0.9, anchor: {of: arrow, sweep: 0.4}, at: 0}
     end: {final: true}

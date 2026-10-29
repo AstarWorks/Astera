@@ -1,54 +1,58 @@
-# Wave 2 v3 draft (basic-ac): ported 1:1 from the v2 skill.yaml + look.yaml. GAP comments mark what v3 cannot spell yet.
+# longbow-heavy-arrow: the slow-recovery, hard-hitting arrow; the cast ends when the arrow body ends. Rewritten from zero on the rev4.10 grammar (ADR-0303):
+# a visible item display riding the projectile body, the impact as one skill-local fragment, the trail as one rider group.
+# Straight flight on purpose (no gravity): the hit tick is balance. Randomness: none. Visuals need a founder look on skill-compare.
 apiVersion: astera/v3
 kind: Skill
 id: longbow-heavy-arrow
 item: longbow
-meta:
-  name: {ja: "重矢", en: "Heavy Arrow"}
-  description: {ja: "次の矢まで時間がかかるが、強烈な一射。", en: "Slow to recover, but hits hard."}
-  cooldown_ticks: 100
-  resource_cost: 16
-  tags: [ranged, physical]
+meta: {name: {ja: "重矢", en: "Heavy Arrow"}, description: {ja: "次の矢まで時間がかかるが、強烈な一射。", en: "Slow to recover, but hits hard."}, cooldown_ticks: 100, resource_cost: 16, tags: [ranged, physical]}
 params:
   launch_speed: {type: number, default: 4.0}
+  dmg_physical: {type: number, default: 40}
   max_lifetime_ticks: {type: ticks, default: 60}
-  dmg_physical: {type: number, default: 40.0}
 anchors:
-  - {id: origin, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}       # was pt_aim_0_0_0p5
-  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}   # was pt_aim_0_m0p25_0p9
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}   # was pt_enemy_0_1p2_0 (v2 enemy frame = victim feet)
+  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
+  - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
+fragments:
+  impact:
+    frames_in: {spot: anchor}
+    do:
+      - {id: snd, op: sound, at: 0, sound: "astera:weapons/blade-crit", anchor: spot, volume: 0.7, pitch: 1.2}
+      - {id: spark, op: particle_def, at: 0, def: hit-spark, anchor: spot}
+      - {id: fleck, op: particle, at: 0, particle: dust, anchor: spot, count: 4, offset: [0.15, 0.15, 0.15], color: "#a07846", size: 1.0}
 machine:
   start: fly
   states:
     fly:
       on:
-        - {event: bolt.end, to: end}      # v2 1:1: the cast ends when the projectile body ends
-      enter:
+        - {event: bolt.end, to: end}
+      do:
+        - {id: snd, op: sound, at: 0, sound: "astera:weapons/sword-swing", anchor: caster, volume: 0.8, pitch: 0.7}
+        - {id: fx, op: particle_def, at: 0, def: gun-muzzle-smoke, anchor: cast_fx}
         - id: bolt
           op: projectile
-          origin: origin
-          velocity: "= look(caster) * launch_speed"
-          for: "= max_lifetime_ticks"
+          at: 0
+          origin: muzzle
+          velocity: "= look(caster) * ${launch_speed}"
+          for: "${max_lifetime_ticks}"
           radius: 0.5
           hit: {targets: enemies, once: true, attach: false}
           block: {mode: despawn}
           on:
             hit:
-              - {id: dmg, op: damage, target: event.victim, damage: {physical: "= dmg_physical"}}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-crit", anchor: contact, volume: 0.7, pitch: 1.2}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
+              - {id: hit_fx, use: "fragment:impact", frames: {spot: heart}}
             block:
-              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
-              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact}
-      do:
-        - {id: snd_cast, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, at: 0, volume: 0.8, pitch: 0.7}
-        - {id: fx_cast, op: particle_def, def: gun-muzzle-smoke, anchor: muzzle, at: 0}
+              - {id: block_snd, op: sound, at: 0, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
+              - {id: block_fx, op: particle_def, at: 0, def: hit-spark, anchor: contact.point}
+        - {id: shaft, op: display, kind: item, item: arrow, context: fixed, anchor: bolt, scale: [1.4, 1.4, 1.4], at: 0, until: bolt.end}
         - id: trail
           op: group
           at: 0
           every: 1
           until: bolt.end
           do:
-            - {id: tr0, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: crit, count: 1, offset: [0.04, 0.04, 0.04], extra: 0, at: 0}
-            - {id: tr1, op: particle, anchor: {of: bolt, sweep: 0.4}, particle: dust, count: 1, offset: [0, 0, 0], extra: 0, color: "#a07846", size: 1.0, at: 0}
+            - {id: wake, op: particle, particle: crit, count: 1, offset: [0.04, 0.04, 0.04], anchor: {of: bolt, sweep: 0.4}, at: 0}
+            - {id: dust, op: particle, particle: dust, count: 1, color: "#a07846", size: 1.0, anchor: {of: bolt, sweep: 0.4}, at: 0}
     end: {final: true}

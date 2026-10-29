@@ -1,22 +1,31 @@
-# astera/v3 hand port of the v2 skill.yaml + look.yaml (tick for tick).
+# shortbow-arrow: a light, fast, straight arrow. Rewritten from zero on the rev4.10 grammar (ADR-0303):
+# a visible item display riding the projectile body, the impact as one skill-local fragment, the trail as one rider group.
+# Straight flight on purpose (no gravity): the hit tick is balance. Randomness: none. Visuals need a founder look on skill-compare.
 apiVersion: astera/v3
 kind: Skill
 id: shortbow-arrow
 item: shortbow
 meta: {name: {ja: "短弓の矢", en: "Shortbow Shot"}, description: {ja: "素早く放てる軽い矢。", en: "A light, quick arrow."}, cooldown_ticks: 12, resource_cost: 4, tags: [ranged, physical]}
 params:
-  launch_speed:       {type: number, default: 2.6}
+  launch_speed: {type: number, default: 2.6}
+  dmg_physical: {type: number, default: 14}
   max_lifetime_ticks: {type: ticks, default: 40}
-  dmg_physical:       {type: number, default: 14}
 anchors:
-  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}   # projectile origin
-  - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: follow}   # was pt_caster_0_m0p25_0p9 (caster feet, yaw-only)
-  - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}   # was pt_enemy_0_1p2_0 (v2 enemy frame = victim feet)
+  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: follow}
+  - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
+fragments:
+  impact:
+    frames_in: {spot: anchor}
+    do:
+      - {id: snd, op: sound, at: 0, sound: "astera:weapons/blade-hit", anchor: spot, volume: 0.7, pitch: 1.2}
+      - {id: spark, op: particle_def, at: 0, def: hit-spark, anchor: spot}
+      - {id: fleck, op: particle, at: 0, particle: dust, anchor: spot, count: 4, offset: [0.15, 0.15, 0.15], color: "#bea064", size: 0.9}
 machine:
   start: fly
   states:
     fly:
-      for: 40
+      for: 40      # = max_lifetime_ticks (a state `for` cannot read a param yet)
       then: end
       on:
         - {event: arrow.end, to: end}
@@ -35,11 +44,17 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact.point, volume: 0.7, pitch: 1.2}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+              - {id: hit_fx, use: "fragment:impact", frames: {spot: heart}}
             block:
-              - {id: snd_block, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
-              - {id: fx_block, op: particle_def, def: hit-spark, anchor: contact.point}
-        - {id: trail_crit, op: particle, particle: crit, count: 1, offset: [0.04, 0.04, 0.04], anchor: {of: arrow, sweep: 0.4}, at: 0, every: 1, until: arrow.end}
-        - {id: trail_dust, op: particle, particle: dust, count: 1, color: "#bea064", size: 0.9, anchor: {of: arrow, sweep: 0.4}, at: 0, every: 1, until: arrow.end}
+              - {id: block_snd, op: sound, at: 0, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
+              - {id: block_fx, op: particle_def, at: 0, def: hit-spark, anchor: contact.point}
+        - {id: shaft, op: display, kind: item, item: arrow, context: fixed, anchor: arrow, scale: [0.9, 0.9, 0.9], at: 0, until: arrow.end}
+        - id: trail
+          op: group
+          at: 0
+          every: 1
+          until: arrow.end
+          do:
+            - {id: wake, op: particle, particle: crit, count: 1, offset: [0.04, 0.04, 0.04], anchor: {of: arrow, sweep: 0.4}, at: 0}
+            - {id: dust, op: particle, particle: dust, count: 1, color: "#bea064", size: 0.9, anchor: {of: arrow, sweep: 0.4}, at: 0}
     end: {final: true}
