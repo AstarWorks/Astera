@@ -20,9 +20,9 @@ sealed interface ComposeError {
 
     /** Failures raised while applying a `kind: Patch` document. */
     sealed interface PatchError : ComposeError {
-        /** A skin patch touched something other than the fields of a presentation op. [path] is the first offending leaf path. */
-        data class ForbiddenPath(override val file: String, override val path: String) : PatchError {
-            override val reason: String get() = "skin patches may only touch presentation ops (machine.states.*.{enter,do,exit}[<id>], presentation.timeline[<id>], op on.<event>[<id>]), but touch '$path'"
+        /** An op of a `kind: Patch` changes something its `patchKind` does not allow (check 13). [path] is the first offending path as written. */
+        data class PatchKindViolation(override val file: String, override val path: String, val patchKind: String, val why: String) : PatchError {
+            override val reason: String get() = "PatchKindViolation: a $patchKind patch cannot change '$path': $why"
         }
 
         /** The patch `target` has no `kind: Skill` (or, for `part:<id>`, `kind: Part`) document. */

@@ -5,6 +5,19 @@ import com.astarworks.astera.core.domain.skillengine.part.PartError
 
 public enum class PatchVerb(public val key: String) { DELETE("delete"), REPLACE("replace"), MERGE("merge") }
 
+/**
+ * What a patch may change (ADR-0303 R35; enforced by check 13, `PatchKindCheck`). Written on every `kind: Patch`, never defaulted.
+ * [SKIN] = presentation rows, plus string params only presentation rows read; [BALANCE] = `params.<p>.default` and numeric fields of
+ * gameplay rows; [MECHANIC] = anything under params / meta / anchors / conditions / machine.
+ */
+public enum class PatchKind(public val key: String) {
+    SKIN("skin"), BALANCE("balance"), MECHANIC("mechanic");
+
+    public companion object {
+        public fun of(key: Any?): PatchKind? = entries.firstOrNull { it.key == key }
+    }
+}
+
 /** One path segment: a field [name], optionally followed by a row selector `[<id>]` (the `event` name for an `on:` transition) into the list that field holds. */
 public data class PatchSeg(val name: String, val id: String?)
 
@@ -12,7 +25,7 @@ public data class PatchSeg(val name: String, val id: String?)
 public data class PatchOp(val path: String, val segs: List<PatchSeg>, val verb: PatchVerb, val value: Any?)
 
 /** A decoded `kind: Patch` document. [variant] derives `<target>@<variant>`; no variant patches the target in place. */
-public data class PatchDoc(val id: String, val target: String, val variant: String?, val patchKind: String, val ops: List<PatchOp>)
+public data class PatchDoc(val id: String, val target: String, val variant: String?, val patchKind: PatchKind, val ops: List<PatchOp>)
 
 /** The first op that did not resolve; [path] is that op's path as written. */
 public data class PatchFailure(val path: String, val message: String)
@@ -29,6 +42,9 @@ public object PatchApplier {
     private val DOC_KEYS = setOf("apiVersion", "kind", "id", "target", "variant", "patchKind", "ops")
     private val OP_KEYS = setOf("path", DIRECTIVE, "value")
 
+    /** The document roots a patch path may start at. */
+    public val ROOTS: List<String> = listOf("params", "meta", "anchors", "conditions", "machine")
+
     /** Decodes one `kind: Patch` tree (strict keys). [where] prefixes error paths. */
     public fun decode(doc: Map<String, Any?>, where: String): Result<PatchDoc, PartError> {
         fun bad(path: String, msg: String) = Result.failure(PartError.Invalid(path, msg))
@@ -40,8 +56,8 @@ public object PatchApplier {
         if (target.isNullOrBlank()) return bad("$where.target", "a Patch needs a string 'target'")
         val variant = doc["variant"]?.let { it as? String ?: return bad("$where.variant", "variant must be a string") }
         if (variant != null && (variant.isBlank() || '@' in variant)) return bad("$where.variant", "variant '$variant' must be non-blank and contain no '@'")
-        val patchKind = doc["patchKind"] as? String
-        if (patchKind != "skin" && patchKind != "balance") return bad("$where.patchKind", "patchKind must be skin or balance, was '$patchKind'")
+        val patchKind = PatchKind.of(doc["patchKind"])
+            ?: return bad("$where.patchKind", "patchKind must be written, one of ${PatchKind.entries.joinToString { it.key }}; was '${doc["patchKind"]}'")
         val rawOps = doc["ops"] as? List<*> ?: return bad("$where.ops", "a Patch needs 'ops': a list of {path, \$patch, value}")
         if (rawOps.isEmpty()) return bad("$where.ops", "ops must not be empty")
         val ops = ArrayList<PatchOp>()
@@ -54,6 +70,7 @@ public object PatchApplier {
                 is Result.Success -> r.value
                 is Result.Failure -> return bad("$p.path", r.error)
             }
+            if (segs[0].name !in ROOTS) return bad("$p.path", "path root '${segs[0].name}' is not patchable (allowed: ${ROOTS.joinToString()})")
             val verb = PatchVerb.entries.firstOrNull { it.key == m[DIRECTIVE] }
                 ?: return bad("$p.$DIRECTIVE", "\$patch must be delete, replace or merge, was '${m[DIRECTIVE]}'")
             when (verb) {

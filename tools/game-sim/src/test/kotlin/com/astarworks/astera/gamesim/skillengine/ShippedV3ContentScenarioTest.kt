@@ -68,6 +68,7 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
                     is Result.Success -> {
                         checked++
                         oracle["$id (patched)"] = r.value
+                        writeEvidence(id, r.value.table, "patched composition of $id")
                         try {
                             assertPlays(r.value)
                         } catch (e: AssertionError) {

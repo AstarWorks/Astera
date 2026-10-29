@@ -2,21 +2,21 @@ package com.astarworks.astera.core.application.skillengine.compose
 
 import com.astarworks.astera.core.application.skillengine.load.SkillEngineSpecs
 import com.astarworks.astera.core.application.skillengine.part.PatchApplier
-import com.astarworks.astera.core.application.skillengine.part.PatchOp
-import com.astarworks.astera.core.application.skillengine.part.PatchSeg
-import com.astarworks.astera.core.application.skillengine.part.PatchVerb
+import com.astarworks.astera.core.application.skillengine.part.PatchKind
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import java.nio.file.Files
 import java.nio.file.Path
 
 /**
- * [allowBalancePatches]: `patchKind: balance` documents are applied only when true (dev flag); otherwise skipped.
+ * [allowGameplayPatches]: `patchKind: balance` and `mechanic` documents are applied only when true (dev flag); otherwise skipped.
  * [presentationOps]: the op names a `skin` patch may touch; default = every registered op spec whose section is PRESENTATION.
+ * [gameplayOps]: the op names whose numeric fields a `balance` patch may tune; default = every registered op spec whose section is GAMEPLAY.
  */
 data class ComposeOptions(
-    val allowBalancePatches: Boolean = false,
+    val allowGameplayPatches: Boolean = false,
     val presentationOps: Set<String> = SkillEngineSpecs.all().filter { it.section == OpSection.PRESENTATION }.mapTo(LinkedHashSet()) { it.name },
+    val gameplayOps: Set<String> = SkillEngineSpecs.all().filter { it.section == OpSection.GAMEPLAY }.mapTo(LinkedHashSet()) { it.name },
 )
 
 /**
@@ -29,8 +29,8 @@ data class ComposeOptions(
  * `kind: Patch` documents (R35: `ops: [{path, $patch: delete|replace|merge, value}]`, applied by [PatchApplier], the only patch
  * path) may live anywhere under [root] and are applied in (file, document) order: no `variant` modifies the base in place
  * (overlay); a `variant` derives `<target>@<variant>` from the overlaid base. A path that does not resolve is
- * [ComposeError.PatchError.UnresolvedPath]. A `skin` patch may touch only presentation ops inside `enter` / `do` / `exit` rows
- * (and add / delete such ops); anything else is [ComposeError.PatchError.ForbiddenPath].
+ * [ComposeError.PatchError.UnresolvedPath]. What a patch may change depends on its `patchKind` (check 13, [PatchKindCheck]);
+ * anything else is [ComposeError.PatchError.PatchKindViolation].
  *
  * The composer is stateful (it caches parsed documents) so [recompose] only redoes the skills a changed file feeds.
  * All methods are synchronized.
@@ -128,7 +128,7 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
 
     private fun composeBase(id: String, docs: List<Doc>, errors: MutableList<ComposeError>): List<ComposedSkill>? {
         val skillDocs = docs.filter { it.kind != Doc.Kind.Patch }
-        val patches = docs.filter { it.kind == Doc.Kind.Patch && (options.allowBalancePatches || it.patchKind != "balance") }
+        val patches = docs.filter { it.kind == Doc.Kind.Patch && (options.allowGameplayPatches || it.patchKind == PatchKind.SKIN) }
         val errorsBefore = errors.size
         if (skillDocs.isEmpty()) {
             docs.filter { it.kind == Doc.Kind.Patch }.forEach {
@@ -215,13 +215,14 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
     }
 
     /**
-     * Patch metadata kept beside the tree: `kind` is the strongest patch kind applied (`balance` > `skin` > `base`
+     * Patch metadata kept beside the tree: `kind` is the strongest patch kind applied (`mechanic` > `balance` > `skin` > `base`
      * for no patch); `touched` is the sorted set of op paths the applied patches name.
      */
     private fun metaOf(applied: List<Doc>): PatchMeta {
         val kind = when {
-            applied.any { it.patchKind == "balance" } -> "balance"
-            applied.any { it.patchKind == "skin" } -> "skin"
+            applied.any { it.patchKind == PatchKind.MECHANIC } -> "mechanic"
+            applied.any { it.patchKind == PatchKind.BALANCE } -> "balance"
+            applied.any { it.patchKind == PatchKind.SKIN } -> "skin"
             else -> "base"
         }
         return PatchMeta(kind, applied.flatMap { d -> d.ops.map { it.path } }.distinct().sorted())
@@ -233,80 +234,19 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
         return merged
     }
 
-    /** Applies the ops of patch [p] to [base]: the skin gate on the paths first, then [PatchApplier], then the gate on the result; null (and an error) on failure. */
+    /** Applies the ops of patch [p] to [base]: check 13 on each op first, then [PatchApplier], then check 13 on the result; null (and an error) on failure. */
     private fun applyPatch(base: Map<String, Any?>, p: Doc, errors: MutableList<ComposeError>): Map<String, Any?>? {
-        val skin = p.patchKind == "skin"
-        if (skin) {
-            val bad = p.ops.firstNotNullOfOrNull { skinViolationBefore(it, base) }
-            if (bad != null) { errors += ComposeError.PatchError.ForbiddenPath(p.file, bad); return null }
-        }
+        val kind = p.patchKind ?: error("a Patch document always carries its patchKind")
+        fun violation(v: PatchKindCheck.Violation) = ComposeError.PatchError.PatchKindViolation(p.file, v.path, kind.key, v.why)
+        p.ops.firstNotNullOfOrNull { PatchKindCheck.before(kind, it, base, options.presentationOps, options.gameplayOps) }
+            ?.let { errors += violation(it); return null }
         val merged = when (val r = PatchApplier.apply(base, p.ops)) {
             is Result.Success -> r.value
             is Result.Failure -> { errors += ComposeError.PatchError.UnresolvedPath(p.file, r.error.path, r.error.message); return null }
         }
-        if (skin) {
-            val bad = p.ops.firstNotNullOfOrNull { skinViolationAfter(it, merged) }
-            if (bad != null) { errors += ComposeError.PatchError.ForbiddenPath(p.file, bad); return null }
-        }
+        p.ops.firstNotNullOfOrNull { PatchKindCheck.after(kind, it, merged, options.presentationOps) }
+            ?.let { errors += violation(it); return null }
         return merged
-    }
-
-    private val opLists = setOf("enter", "do", "exit")
-
-    /**
-     * Skin patches may touch only presentation ops inside states: a path `machine.states.<s>.{enter,do,exit}[<id>]...` or `machine.states.<s>.on[<event>].do[<id>]...` (a transition's effects) whose deepest
-     * `[id]` row is a presentation op (or, for a whole-row add / replace / delete, a group of them). Inside such a row only the row's own
-     * fields change: a group takes whole-child operations only (`do[g].do[c]`), and an op's `on.<event>` lists are reached through their
-     * rows (`do[shot].on.hit[boom]`), never as a whole. Anything else (gameplay or control rows, `for`, `then`, `on`, `final`, `use`, new
-     * states, params, anchors) returns its path as the violation. Checked before applying (path shape and the row as it is in [base]) and
-     * after (the row as it became), so a path that does not resolve is still reported as the unresolved path it is.
-     */
-    private fun skinViolationBefore(op: PatchOp, base: Map<String, Any?>): String? {
-        val segs = op.segs
-        val head = segs.getOrNull(0)
-        val states = segs.getOrNull(1)
-        val state = segs.getOrNull(2)
-        val section = segs.getOrNull(3)
-        // `machine.world[<id>]...` is the machine-level op list (ADR-0303 10.1): the same rule as a state's `enter` / `do` / `exit`
-        val inWorld = head?.name == "machine" && head.id == null && states?.name == "world" && states.id != null
-        val ok = inWorld || (head?.name == "machine" && head.id == null && states?.name == "states" && states.id == null &&
-            state != null && state.id == null && section != null && section.id != null &&
-            (section.name in opLists || (section.name == "on" && segs.getOrNull(4).let { it?.name == "do" && it.id != null })))
-        if (!ok) return op.path
-        val deepest = segs.indices.last { segs[it].id != null }
-        val row = rowAt(base, segs, deepest)
-        if (deepest == segs.lastIndex) return if (row == null || isPresentation(row)) null else op.path
-        if (row == null) return null // unresolved: the applier reports it
-        if (isGroup(row) || !isPresentation(row) || segs[deepest + 1].name == "on") return op.path
-        return null
-    }
-
-    private fun skinViolationAfter(op: PatchOp, merged: Map<String, Any?>): String? {
-        val deepest = op.segs.indices.last { op.segs[it].id != null }
-        if (op.verb == PatchVerb.DELETE && deepest == op.segs.lastIndex) return null
-        val row = rowAt(merged, op.segs, deepest) ?: return null
-        return if (isPresentation(row)) null else op.path
-    }
-
-    /** The row selected by `segs[0..upTo]` in [tree], or null when any step is missing. */
-    private fun rowAt(tree: Map<String, Any?>, segs: List<PatchSeg>, upTo: Int): Map<*, *>? {
-        var node: Any? = tree
-        for (i in 0..upTo) {
-            val m = node as? Map<*, *> ?: return null
-            val child = m[segs[i].name]
-            node = if (segs[i].id == null) child else (child as? List<*>)?.singleOrNull { PatchApplier.matches(it, segs[i].id!!) }
-        }
-        return node as? Map<*, *>
-    }
-
-    private fun isGroup(node: Map<*, *>): Boolean = node["op"] == null && node["do"] is List<*>
-
-    /** A presentation op, or a group whose children are all presentation. `use` calls are never presentation. */
-    private fun isPresentation(node: Map<*, *>): Boolean {
-        val op = node["op"] as? String
-        if (op != null) return op in options.presentationOps
-        val children = node["do"] as? List<*> ?: return false
-        return children.all { it is Map<*, *> && isPresentation(it) }
     }
 
     private fun scanFiles(): List<String> {

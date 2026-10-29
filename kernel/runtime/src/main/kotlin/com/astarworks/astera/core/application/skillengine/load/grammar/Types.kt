@@ -3,6 +3,7 @@ package com.astarworks.astera.core.application.skillengine.load.grammar
 import com.astarworks.astera.core.application.skillengine.load.ValueDecoding
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
+import com.astarworks.astera.core.domain.skillengine.model.ParamValue
 import com.astarworks.astera.core.domain.skillengine.model.Value
 
 /** Value-form recognition shared by every type (the regexes mirror [ValueDecoding], F-7). */
@@ -90,6 +91,31 @@ public object Types {
             return s
         }
         override fun schema(): Map<String, Any?> = linkedMapOf("type" to "string", "pattern" to "^\\S+$")
+    }
+
+    /**
+     * A string fixed when the file loads: a literal as [id], or `"= name"` / `"${name}"` naming a `string` param, read from that param's
+     * declared default. Presentation cells that several rows share (a colour, a particle id) read one param this way, so a `skin`
+     * patch changes the value once (`params.<name>.default`). Anything else after `= ` is a named load error.
+     */
+    public val loadText: FieldType<String> = object : FieldType<String> {
+        private val paramRef = Regex("""^\$\{([A-Za-z_][A-Za-z0-9_]*)}$""")
+        private val ident = Regex("[A-Za-z_][A-Za-z0-9_]*")
+        override val label = "identifier, '= param' or '\${param}' of a string param"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): String {
+            val s = raw as? String ?: ctx.mismatch(path, label, raw)
+            // `= "text"` is a param already inlined as a string literal by the param-substitution pass
+            if (s.length > 4 && s.startsWith("= \"") && s.endsWith("\"")) return id.decode(s.substring(3, s.length - 1), ctx, path)
+            val name = paramRef.matchEntire(s)?.groupValues?.get(1)
+                ?: if (s.startsWith("= ")) s.substring(2).trim().also {
+                    if (!ident.matches(it)) ctx.fail(path, "'$s' must name one string param ('= name'); a string fixed at load is not an expression")
+                } else null
+            if (name == null) return id.decode(s, ctx, path)
+            val known = ctx.paramDefaults ?: ctx.fail(path, "'$s' reads param '$name', but this context has no param defaults")
+            val value = known[name] ?: ctx.fail(path, "'$s' reads param '$name', which is not a declared param with a default")
+            return (value as? ParamValue.Text)?.value ?: ctx.fail(path, "param '$name' is not a string param")
+        }
+        override fun schema(): Map<String, Any?> = linkedMapOf("type" to "string", "pattern" to "^\\S+$|^= [A-Za-z_][A-Za-z0-9_]*$")
     }
 
     public fun enumOf(vararg values: String): FieldType<String> = object : FieldType<String> {
