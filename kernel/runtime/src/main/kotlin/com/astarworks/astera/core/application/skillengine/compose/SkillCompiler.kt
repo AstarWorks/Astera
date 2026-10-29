@@ -56,7 +56,7 @@ import com.astarworks.astera.core.domain.skillengine.table.WriteStats
 import java.lang.reflect.ParameterizedType
 
 /**
- * SkillDef -> ExpansionTable (ADR-0303 C1). Replaces the v2 `load.DefaultSkillCompiler`. Pipeline, in the ADR order:
+ * SkillDef -> ExpansionTable (ADR-0303 C1). Pipeline, in the ADR order:
  *   1. [SkillCallInliner.inline] -> [PartInliner]: `use: skill:` renamed, every state-level `use:` bound (`${p}` substituted in the
  *      raw op maps) and replaced by the callee's states.
  *   2. [MachineTables.lower] over a [SectionLowerer] that decodes each section's raw op maps ([OpListDecoder]), attaches group bodies and

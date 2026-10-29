@@ -19,7 +19,7 @@ import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Val
 
-/** Decoded `cleanse` op (R25): removes statuses from the target; `negative_only` is required (the v2 default made explicit). */
+/** Decoded `cleanse` op (R25): removes statuses from the target; `negative_only` is required. */
 public class CleanseOp(
     override val id: OpId,
     override val src: SrcPath,

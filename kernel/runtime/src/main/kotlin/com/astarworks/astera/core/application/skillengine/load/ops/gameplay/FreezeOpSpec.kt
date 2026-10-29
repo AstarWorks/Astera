@@ -23,7 +23,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Val
 
 /**
  * Decoded `freeze` op (R32): holds the listed entities in place for [ticks] ticks. It freezes entities, never the skill
- * clock (the lock GAP in the v2 couture-rapier-s2 draft did the wrong thing). Scope entries: `caster`, `event.victim`,
+ * clock. Scope entries: `caster`, `event.victim`,
  * or an anchor name whose instance is held.
  */
 public class FreezeOp(

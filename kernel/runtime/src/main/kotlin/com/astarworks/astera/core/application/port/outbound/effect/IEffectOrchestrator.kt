@@ -25,8 +25,7 @@ import com.astarworks.astera.core.domain.effect.chain.EffectChain
  * `DamageProfile`) but the actual application happens in `:plugin:combat`.
  * The orchestrator looks up [IStatusEffectApplier] / [IDamageApplier] on
  * the registered side; combat registers concrete impls at `onEnable`.
- * Without combat the steps warn-log and continue (matching the
- * MechanicDispatcher graceful-degradation posture).
+ * Without combat the steps warn-log and continue.
  */
 public interface IEffectOrchestrator {
 

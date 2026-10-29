@@ -1,4 +1,3 @@
-# Wave 2 v3 draft of bastion-greatsword-s2 (v2: skill.yaml + look.yaml), generated from the v2 files by a scratch script, gameplay hand-authored.
 # Offsets [left, up, forward] -> name-keyed maps. Euler turn [pitch, yaw, roll] -> pose list [up -yaw, left pitch, forward roll].
 # Weapon rig: three swings of three keys (see bastion-greatsword-s1 header); blade particles are segments between rig.root and rig.tip.
 apiVersion: astera/v3
@@ -25,14 +24,8 @@ params:
   knockback_2: {type: number, default: 0.5}
   knockback_3: {type: number, default: 0.9}
 anchors:
-  # v2: frame fx2_bastion_s2_fx_ring at caster orient yaw follow pitch, group tick 9
-  # NOTE: v2 created this frame at tick 9; a doc-level anchor exists from tick 0 and follows the caster the same way
   - {id: fx2_fx_ring, anchor: caster.look, mode: follow}
-  # v2: frame fx3_bastion_s2_fx_ring at caster orient yaw follow pitch, group tick 28
-  # NOTE: v2 created this frame at tick 28; a doc-level anchor exists from tick 0 and follows the caster the same way
   - {id: fx3_fx_ring, anchor: caster.look, mode: follow}
-  # v2: frame fx4_bastion_s2_fx_chop at caster orient yaw follow pitch, group tick 49
-  # NOTE: v2 created this frame at tick 49; a doc-level anchor exists from tick 0 and follows the caster the same way
   - {id: fx4_fx_chop, anchor: caster.look, mode: follow}
 machine:
   start: rush
@@ -41,26 +34,26 @@ machine:
       for: 80
       then: end
       do:
-        # --- gameplay (v2 gameplay.timeline t10 / t13 / t29 / t32 / t53 / t54) ---
-        # v2 dash_strike D over 3 ticks -> dash speed D/3 blocks/tick.
-        # v2 hit_once + stop_before_target 0.9 (R9): sibling trigger-only corridor hit, window once; the dash ends at its first victim (sphere 0.9 = the stop distance).
+        # --- gameplay (t10 / t13 / t29 / t32 / t53 / t54) ---
+        # dash_strike D over 3 ticks -> dash speed D/3 blocks/tick.
+        # hit_once + stop_before_target 0.9 (R9): sibling trigger-only corridor hit, window once; the dash ends at its first victim (sphere 0.9 = the stop distance).
         - {id: dash_hit, op: hit, at: 10, for: 3, every: 1, anchor: caster.body, shape: {sphere: 0.9}, targets: enemies, window: once, ignore_invulnerability: false}
         - {id: dash, op: dash, at: 10, speed: "= dash_distance / 3", for: 3, until: dash_hit.hit, direction: {forward: 1.0}, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
-        # v2 sel (damage 35 + per_stack charge 0.5, consume false, ignore_invulnerability) + sel_2 (freeze 2 enemy+caster, knockback) are the same sphere at the same tick: merged.
+        # sel (damage 35 + per_stack charge 0.5, consume false, ignore_invulnerability) + sel_2 (freeze 2 enemy+caster, knockback) are the same sphere at the same tick: merged.
         # per_stack charge 0.5 (consume false) -> stacks(); hit-stop is the freeze row in `on: hit1` (R25).
         - {id: hit1, op: hit, at: 13, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "= dmg_physical + 0.5 * stacks(caster, 'charge')"}, window: once, ignore_invulnerability: true, on: {hit: [{id: stop, op: freeze, at: 0, ticks: 2, scope: [caster, event.victim]}, {id: kb_1, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback}"}]}}
         - {id: dash_hit_2, op: hit, at: 29, for: 3, every: 1, anchor: caster.body, shape: {sphere: 0.9}, targets: enemies, window: once, ignore_invulnerability: false}
         - {id: dash_2, op: dash, at: 29, speed: "= dash_distance_2 / 3", for: 3, until: dash_hit_2.hit, direction: {forward: 1.0}, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
         # per_stack charge 0.5 (consume false) -> stacks(); freeze 2 in `on: hit2`.
         - {id: hit2, op: hit, at: 32, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "= dmg_physical_2 + 0.5 * stacks(caster, 'charge')"}, window: once, ignore_invulnerability: true, on: {hit: [{id: stop_2, op: freeze, at: 0, ticks: 2, scope: [caster, event.victim]}, {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback_2}"}]}}
-        # v2 sel_5/sel_6: sector {angle 80, range 3.4, height 2.0}, origin `at: eye`, forward caster.forward (yaw only) -> anchor caster.eye + `forward: yaw` (R31).
+        # sel_5/sel_6: sector {angle 80, range 3.4, height 2.0}, origin `at: eye`, forward caster.forward (yaw only) -> anchor caster.eye + `forward: yaw` (R31).
         # per_stack charge 0.5 consume TRUE: stacks() read once before the first victim, consume_status below lands after all victims (R24); freeze 3 in `on: hit3`.
         - {id: hit3, op: hit, at: 53, anchor: caster.eye, shape: {sector: {deg: "${arc_deg}", range: "${reach}", height: 2.0, forward: yaw}}, targets: enemies, damage: {physical: "= dmg_physical_3 + 0.5 * stacks(caster, 'charge')"}, window: once, ignore_invulnerability: true, on: {hit: [{id: stop_3, op: freeze, at: 0, ticks: 3, scope: [caster, event.victim]}, {id: kb_3, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback_3}"}]}}
         - {id: spend, op: consume_status, at: 53, target: caster, status: charge}
-        # v2 hit_once + stop_before_target 0.6 (R9), as above.
+        # hit_once + stop_before_target 0.6 (R9), as above.
         - {id: dash_hit_3, op: hit, at: 54, for: 3, every: 1, anchor: caster.body, shape: {sphere: 0.6}, targets: enemies, window: once, ignore_invulnerability: false}
         - {id: dash_3, op: dash, at: 54, speed: "= dash_distance_3 / 3", for: 3, until: dash_hit_3.hit, direction: {forward: 1.0}, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
-        # --- weapon rig (v2 look.yaml group fx0, rig duration 80) ---
+        # --- weapon rig (group fx0, rig duration 80) ---
         - id: rig
           op: rig
           parent: caster
@@ -83,7 +76,7 @@ machine:
             - {at: 50, for: 3, to: {left: -0.36874, up: -0.92918, forward: -0.02571}, edge: trailing, roll: 6.0, ease: out_cubic}
             - {at: 53, for: 5, to: {left: -0.12017, up: -0.96162, forward: -0.24666}, edge: trailing, roll: 0.0, ease: in_out_sine}
             - {at: 67, reset: true}
-        # --- presentation (v2 look.yaml timeline groups, folded from the former top-level `presentation:`) ---
+        # --- presentation (timeline groups, folded from the former top-level `presentation:`) ---
         - id: fx0
           op: group
           at: 0
@@ -551,7 +544,7 @@ machine:
             - {id: snd_37, op: sound, sound: entity.generic.explode, anchor: caster, volume: 0.6, pitch: 0.45}
             - {id: snd_38, op: sound, sound: item.mace.smash_ground, anchor: caster, volume: 0.9, pitch: 0.5}
             - {id: snd_39, op: sound, sound: block.bell.use, anchor: caster, volume: 0.5, pitch: 0.5}
-            # max_count: all (v2 had no cap; founder 10/28 ruling: max_count = nearest N, all = unlimited).
+            # max_count: all (had no cap; founder 10/28 ruling: max_count = nearest N, all = unlimited).
             - {id: shake, op: camera_shake, target: {kind: enemies, around: caster, radius: 9.0, max_count: all}, intensity: 0.6, for: 6, direction: none}
             - {id: flash, op: screen_flash, target: caster, overlay: gold_burst, color: "#FFC84A", fade_in: 0, stay: 1, fade_out: 2}
             - {id: flash_2, op: screen_flash, target: {kind: enemies, around: caster, radius: 5.0, max_count: all}, overlay: gold_burst, color: "#FFC84A", fade_in: 0, stay: 1, fade_out: 2}

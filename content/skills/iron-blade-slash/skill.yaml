@@ -18,7 +18,7 @@ params:
 anchors:
   - {id: eye, anchor: caster.eye, mode: follow}
   - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}
-  - {id: sweep, anchor: caster, offset: {up: -0.2, forward: 1.4}, mode: snapshot}   # v2 pt_caster_0_m0p2_1p4: caster frame (feet, yaw-only)
+  - {id: sweep, anchor: caster, offset: {up: -0.2, forward: 1.4}, mode: snapshot}   # pt_caster_0_m0p2_1p4: caster frame (feet, yaw-only)
 machine:
   start: windup
   tail: 9

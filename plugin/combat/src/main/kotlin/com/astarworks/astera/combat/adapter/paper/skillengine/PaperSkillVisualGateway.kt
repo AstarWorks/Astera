@@ -56,7 +56,7 @@ import kotlin.math.roundToInt
  * Paper [ISkillVisualGateway] (ADR-0301). Meshes, plates and lines are Display entities from the shared
  * [IDisplayEntityGateway]. Each tick a display gets ONE [IDisplayEntityGateway.place] write (location, full transformation,
  * one interpolation length, see [SkillDisplayWrites]); a display anchored to the caster rides the caster as a native passenger
- * (v1 ADR-0276 semantics) so it stays glued to the hand when the caster is moved, every other display is teleported. Trails are one fixed text-quad
+ * (ADR-0276 semantics) so it stays glued to the hand when the caster is moved, every other display is teleported. Trails are one fixed text-quad
  * Display per ribbon segment (a sheared parallelogram needs a transformation matrix, which the shared gateway does not
  * carry). Main thread only.
  *
@@ -99,9 +99,9 @@ public class PaperSkillVisualGateway(
     /** A block slab of a ribbon: its [axes], whether it is the [edge] (thins out) and its [thickness]. */
     private class Slab(val axes: RibbonMesh.SlabAxes, val edge: Boolean, val thickness: Double)
     private class Seg(val display: UUID, var age: Int, val style: PieceStyle?, val slab: Slab?)
-    /** A thread between two points: one text-display strip (v1 `line`, `PaperSkillVisualGateway.spawnLine` before 0c9e986ef) that the runtime re-ends every tick. */
+    /** A thread between two points: one text-display strip that the runtime re-ends every tick. */
     private class LineEntry(val world: World, val owner: UUID, val display: TextDisplay, val thickness: Double) : Entry
-    /** A camera-anchored quad on one viewer's screen (v1 `ScreenVeilHandler`, `0c9e986ef~1`); re-placed in front of the eye every tick. */
+    /** A camera-anchored quad on one viewer's screen; re-placed in front of the eye every tick. */
     private class VeilEntry(val handle: DisplayHandle, val viewer: UUID, val distance: Double, val side: Double, val ticks: Int) : Entry
 
     private class TrailEntry(
@@ -123,7 +123,7 @@ public class PaperSkillVisualGateway(
         val world = worldOf(cast) ?: return dead("mesh $item")
         val kind = SkillDisplaySpecs.meshKind(MeshModels.resolve(item, part, frameTables), look)
         val heldItem = kind == DisplayKind.AnchorMainHand
-        // v1 cloned the real stack (custom model, components) and drew it in THIRDPERSON_RIGHTHAND (PaperDisplayEntityGateway.kt:192-199).
+        // The real stack is cloned (custom model, components) and drawn in THIRDPERSON_RIGHTHAND.
         if (heldItem && server.getPlayer(castOwner)?.inventory?.itemInMainHand?.type?.isAir != false) return dead("mesh $item (empty main hand)")
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, 0)
         val spec = SkillDisplaySpecs.mesh(kind, first.transform, brightness, look.rigShading, look.shaderEffect).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
@@ -253,7 +253,7 @@ public class PaperSkillVisualGateway(
         val player = server.getPlayer(viewer) ?: return dead("screen_veil $sprite (viewer offline)")
         val world = worldOf(cast) ?: return dead("screen_veil $sprite")
         val glyph = SpriteGlyphs.text(SpriteId(sprite), 0, colorHex?.let { argb(it) and 0xFFFFFF })
-        // v1 ScreenVeilHandler: side = SPRITE_BASE_SIDE * scale, never more than the screen share the content allows at this distance
+        // Screen veil: side = SPRITE_BASE_SIDE * scale, never more than the screen share the content allows at this distance
         val side = ScreenVeilMath.clampSide(ScreenVeilMath.SPRITE_BASE_SIDE * scale, distance, maxScreenFraction)
         val eye = player.eyeLocation
         val at = Vec3(eye.x, eye.y, eye.z) + eyeDirection(player) * distance
@@ -280,7 +280,7 @@ public class PaperSkillVisualGateway(
     private fun eyeOf(owner: UUID, near: Vec3): Vec3 =
         server.getPlayer(owner)?.eyeLocation?.let { Vec3(it.x, it.y, it.z) } ?: (near + Vec3(0.0, 1.0, 0.0))
 
-    /** v1 `lineTransform`: length along the line, [thickness] across, the face turned about the line's own axis toward [eye] (`face: {viewer: axis, axis: line.along}`). */
+    /** Line transform: length along the line, [thickness] across, the face turned about the line's own axis toward [eye] (`face: {viewer: axis, axis: line.along}`). */
     private fun lineMatrix(from: Vec3, to: Vec3, thickness: Double, eye: Vec3): Matrix4f {
         val along = to - from
         val length = along.length()
@@ -488,7 +488,7 @@ public class PaperSkillVisualGateway(
         return display.uniqueId
     }
 
-    /** One block slab: its box sits on [s] (v1 VfxRigPlanner.slab) and thins out with the fade factor. */
+    /** One block slab: its box sits on [s] and thins out with the fade factor. */
     private fun spawnSlab(t: TrailEntry, s: RibbonMesh.Segment, block: String, slab: Slab): UUID? {
         val display = t.world.spawn(Location(t.world, s.centre.x, s.centre.y, s.centre.z), BlockDisplay::class.java) {
             PaperManagedEntities.mark(it, "skill-ribbon")
@@ -515,7 +515,7 @@ public class PaperSkillVisualGateway(
         )
     }
 
-    /** Soft quad colour at [age]: alpha `style.alpha * (1 - age/ticks) ^ fadePower`, the rgb blended toward `rgbTo` over the life (v1 VfxRigPlanner.softQuad). */
+    /** Soft quad colour at [age]: alpha `style.alpha * (1 - age/ticks) ^ fadePower`, the rgb blended toward `rgbTo` over the life. */
     private fun colour(t: TrailEntry, style: PieceStyle, age: Int): Color {
         val life = (1.0 - age.toDouble() / t.ticks).coerceIn(0.0, 1.0)
         val k = Math.pow(life, t.fadePower)

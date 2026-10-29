@@ -34,7 +34,7 @@ public object SkillDisplaySpecs {
     /** The alpha (0..1) a colour string carries: `#aarrggbb` its first byte, `#rrggbb` 1. */
     public fun alphaOf(hex: String): Double = ((argb(hex) ushr 24) and 0xFF) / 255.0
 
-    /** v1 glow_color: `#rrggbb` or `#aarrggbb` (alpha first), VfxYamlConfig.parseArgb; null stays unglowing. */
+    /** glow_color: `#rrggbb` or `#aarrggbb` (alpha first); null stays unglowing. */
     public fun glowArgb(hex: String?): Int? {
         val h = hex?.removePrefix("#") ?: return null
         val v = h.toLongOrNull(16) ?: return null
@@ -45,7 +45,7 @@ public object SkillDisplaySpecs {
     public fun meshKind(model: MeshModel, look: MeshLook = MeshLook()): DisplayKind = when (model) {
         is MeshModel.Pack -> DisplayKind.Item(ItemId("paper"), look.mode, look.itemModel ?: model.key)
         is MeshModel.Vanilla -> DisplayKind.Item(ItemId(model.material.replace('_', '-')), look.mode, look.itemModel ?: model.itemModel)
-        MeshModel.HeldItem -> DisplayKind.AnchorMainHand // v1 AnchorMainHand: the caster's real stack in THIRDPERSON_RIGHTHAND (PaperDisplayEntityGateway.kt:192-199)
+        MeshModel.HeldItem -> DisplayKind.AnchorMainHand // AnchorMainHand: the caster's real stack in THIRDPERSON_RIGHTHAND
     }
 
     public fun mesh(kind: DisplayKind, first: DisplayTransform, brightness: Int? = null, rigShading: Boolean = true, shaderEffect: String? = null): DisplaySpec =
@@ -59,7 +59,7 @@ public object SkillDisplaySpecs {
         val a = (alpha.coerceIn(0.0, 1.0) * 255.0).roundToInt()
         val rgb = argb(colorHex) and 0xFFFFFF
         val shown = text ?: " "
-        // v1 split (VfxQuad.style): a solid quad paints its background, a glyph quad keeps no box and tints / fades the glyph itself.
+        // Solid vs glyph split: a solid quad paints its background, a glyph quad keeps no box and tints / fades the glyph itself.
         val kind = if (text == null) {
             DisplayKind.Text(
                 lines = listOf(LocalizedText(mapOf(LocaleCode.EN to shown, LocaleCode.JA to shown))),

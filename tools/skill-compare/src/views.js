@@ -65,7 +65,7 @@ export function createViews(ctx) {
       head.append(el("span", "lc " + (s.fail ? "bad" : "ok"), s.fail ? `${s.fail} FAIL` : "ALL PASS"), el("span", "lc", `${s.checks} checks / ${s.pass} pass / ${s.skip} skip`));
       const prov = el("span", "prov inline"); head.append(prov);
       renderProv(prov, lint.prov);
-    } else head.append(el("span", "lc warn", "report.json なし（make skill-lint）"));
+    } else head.append(el("span", "lc warn", "lint 未配信（producer 削除済み）"));
     const body = $("lintbody"); body.textContent = ""; state.lintRows = [];
     for (const c of report?.checks || []) {
       const tr = el("tr", c.status === "FAIL" ? "fail" : "");

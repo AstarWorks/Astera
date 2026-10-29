@@ -14,7 +14,7 @@ import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 
 /**
- * A decoded v3 op. The v2 `SkillOp` is sealed inside the domain module and carries a plain-string id, so v3 ops (one per
+ * A decoded v3 op. The domain op is not sealed here (it carries a plain-string id), so ops (one per
  * `<Name>OpSpec.kt`, owned by its wave-1 package) extend this open interface instead.
  */
 public interface OpNode {

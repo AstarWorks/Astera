@@ -25,7 +25,7 @@ import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Val
 
 /**
- * Decoded `screen_flash` op (ADR-0303 10.1b, founder Q7 = A 2026-10-29; fields of v1 `screen_flash`,
+ * Decoded `screen_flash` op (ADR-0303 10.1b, founder Q7 = A 2026-10-29; fields of `screen_flash`,
  * `0c9e986ef~1:core/feature-gameplay/.../config/skill/MechanicYaml.kt:1065-1098`): a full-screen cut-in [overlay] on the target's screen,
  * tinted [color], faded in / held / out for the given ticks (the client times it, so it needs no span).
  */
@@ -42,7 +42,7 @@ public class ScreenFlashOp(
     val fadeOut: Value<Double>,
 ) : OpNode
 
-/** `#rrggbb` check shared by the screen ops (v1 `HEX_COLOR`). */
+/** `#rrggbb` check shared by the screen ops. */
 internal fun screenHexRgb(raw: String, op: String, path: String, ctx: GrammarContext): Int {
     val ok = raw.length == 7 && raw.startsWith("#") && raw.substring(1).all { it.isDigit() || it.lowercaseChar() in 'a'..'f' }
     if (!ok) ctx.fail(path, "$op: color '$raw' is not #RRGGBB")

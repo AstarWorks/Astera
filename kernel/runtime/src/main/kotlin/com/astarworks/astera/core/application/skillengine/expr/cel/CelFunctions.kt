@@ -115,7 +115,7 @@ internal object CelFunctions {
     /** Stateless value keyed by the cast seed and [name] only: the same on every call, tick and sample of one cast. */
     private fun drawn(name: String): SeededRandom = SeededRandom(env().castSeed xor (name.hashCode().toLong() * GOLDEN) xor 0x5DEECE66DL)
 
-    /** v1 `PlaneBasis`: the two unit vectors perpendicular to [axis] and each other. */
+    /** Plane basis: the two unit vectors perpendicular to [axis] and each other. */
     private fun planeA(axis: Vec3): Vec3 {
         val u = axis.normalize()
         val p = if (abs(u.x) > abs(u.y)) Vec3(-u.y, u.x, 0.0) else Vec3(0.0, -u.z, u.y)
@@ -268,13 +268,13 @@ internal object CelFunctions {
 
         // seeded randomness: uniform [0,1), deterministic per cast seed + stream name
         def("rand", "rand_stream", D, listOf(SimpleType.STRING), listOf(STR)) { stream(it[0] as String).nextDouble() }
-        // `roll*`: stateless, keyed by cast seed + tick + replay sample + name (a v1 draw made per play / per trail sample)
+        // `roll*`: stateless, keyed by cast seed + tick + replay sample + name
         def("roll", "roll_stream", D, listOf(SimpleType.STRING), listOf(STR)) { rolled(it[0] as String).nextDouble() }
         def("roll", "roll_stream_range", D, listOf(SimpleType.STRING, NUM, NUM), listOf(STR, OBJ, OBJ)) {
             rolled(it[0] as String).nextDouble(n(it[1]), n(it[2]))
         }
         def("roll_unit", "roll_unit_stream", VEC3, listOf(SimpleType.STRING), listOf(STR)) { rolled(it[0] as String).nextUnitVector() }
-        // `draw*`: stateless, keyed by cast seed + name only: the same on every call, tick and sample of one cast (a v1 draw made once per cast)
+        // `draw*`: stateless, keyed by cast seed + name only: the same on every call, tick and sample of one cast
         def("draw", "draw_stream", D, listOf(SimpleType.STRING), listOf(STR)) { drawn(it[0] as String).nextDouble() }
         def("draw", "draw_stream_range", D, listOf(SimpleType.STRING, NUM, NUM), listOf(STR, OBJ, OBJ)) {
             drawn(it[0] as String).nextDouble(n(it[1]), n(it[2]))
@@ -282,7 +282,7 @@ internal object CelFunctions {
         def("draw_unit", "draw_unit_stream", VEC3, listOf(SimpleType.STRING), listOf(STR)) { drawn(it[0] as String).nextUnitVector() }
         def("plane_a", "plane_a_vec3", VEC3, listOf(VEC3), listOf(V)) { planeA(it[0] as Vec3) }
         def("plane_b", "plane_b_vec3", VEC3, listOf(VEC3), listOf(V)) { (it[0] as Vec3).normalize().cross(planeA(it[0] as Vec3)).normalize() }
-        // rand(stream, k): the k-th draw of a stream, constant over the cast (not per tick) - a per-slot jitter like v1 slotRandom
+        // rand(stream, k): the k-th draw of a stream, constant over the cast (not per tick) - a per-slot jitter
         def("rand", "rand_stream_idx", D, listOf(SimpleType.STRING, NUM), listOf(STR, OBJ)) {
             SeededRandom(env().castSeed xor ((it[0] as String).hashCode().toLong() * -0x61c8864680b583ebL) xor (n(it[1]).toLong() * 0x2545F4914F6CDD1DL)).nextDouble()
         }

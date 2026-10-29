@@ -938,7 +938,7 @@ public class TablePlayer(
                     "#%06x".format(argb and 0xFFFFFF), ((argb ushr 24) and 0xFF) / 255.0,
                 ).also { run.lines[id] = rec }
             } else {
-                // the lowered ribbon look (RibbonOpSpec): `argb` is #aarrggbb and its alpha is the trail opacity (ADR-0303 rev4.4; v1 `alpha`)
+                // the lowered ribbon look (RibbonOpSpec): `argb` is #aarrggbb and its alpha is the trail opacity (ADR-0303 rev4.4)
                 val argb = look.fields["argb"]?.let { dbl(run, it, ctx).toLong().toInt() } ?: -1
                 val width = look.fields["width_frac"] ?: look.fields["width"]
                 visual.spawnTrail(
@@ -951,7 +951,7 @@ public class TablePlayer(
         }
         val gh = if (h != null) GatewayHandle(h.id) else GatewayHandle(nextSynthetic--)
         rec.real = h
-        // a glyph quad (v1 VfxQuad.style): the text colour and opacity of the spawn row are written like a first `set` (spawnText has no slot for them)
+        // a glyph quad: the text colour and opacity of the spawn row are written like a first `set` (spawnText has no slot for them)
         if (h != null && a.kind == SpawnKind.TEXT) {
             look.fields["color"]?.let { hooks.setDisplayText(h, "color", strOf(run, it, ctx)) }
             look.fields["text_opacity"]?.let { op -> dbl(run, op, ctx).takeIf { it < 255.0 }?.let { hooks.setDisplayField(h, "text_opacity", it / 255.0) } }
@@ -1159,7 +1159,7 @@ public class TablePlayer(
     // `<op>.hit` handlers start (one event per victim, index = victim ordinal). `<op>.miss` fires once, on the op's final detection, if nothing was ever hit.
     private fun hit(run: Run, row: Row, a: Action.Hit, ctx: RowCtx, now: Int) {
         val caster = run.request.caster
-        // v2 `resolveHits`: `if (isFrozen(...)) continue` (CastInstance.kt:757)
+        // frozen targets are skipped: `if (isFrozen(...)) continue`
         a.anchor?.let { if (isFrozen(run, it, now)) return }
         val delta = a.anchor?.let { run.recs[it] }?.let { r ->
             val cur = worldOf(run, r, r.localAt(now), ctx.binding, now).pos
@@ -1300,7 +1300,7 @@ public class TablePlayer(
     private fun projectileStep(run: Run, now: Int) {
         for ((id, rec) in run.recs.entries.toList()) {
             if (rec.kind != SpawnKind.PROJECTILE_BODY) continue
-            // a frozen body (v2 `isFrozen`, CastInstance.kt:726-734) holds its place: its flight clock and range timer stand still, no contact is tested
+            // a frozen body holds its place: its flight clock and range timer stand still, no contact is tested
             if (isFrozen(run, id, now)) {
                 rec.frozenTicks++
                 if (rec.expireTick >= 0) rec.expireTick++
@@ -1325,7 +1325,7 @@ public class TablePlayer(
         }
     }
 
-    /** v2 `CastInstance.isFrozen` (:726-734): the instance or any frame it rides is inside its `freeze` window. */
+    /** `isFrozen`: the instance or any frame it rides is inside its `freeze` window. */
     private fun isFrozen(run: Run, id: InstanceId, now: Int): Boolean {
         if (run.frozenUntil.isEmpty()) return false
         var cur: InstanceId? = id
@@ -1432,7 +1432,7 @@ public class TablePlayer(
 
     /**
      * Fires `<body>.hit` (with `event.victim` and `contact`) for every victim the body's swept sphere reaches this tick, nearest the segment start first.
-     * 1:1 with the v2 projectile contact (`9d4c4a3db:plugin/combat/.../ProjectileStepper.kt:117-124`, `stepFlight`): the segment `from -> to` of one tick,
+     * Projectile contact: the segment `from -> to` of one tick,
      * inflated by the hit radius (`radiusOf`), the owner never a victim (`ProjectileWorldProbe` contract, :52), each victim hit once.
      * `hit.once` ends the flight at the first victim (`.end` follows at once); otherwise it ends after `hit.times` victims.
      */
@@ -1575,7 +1575,7 @@ public class TablePlayer(
                 victims.forEach { gameplay.impulse(it, Vec3(vv.x, vv.y, vv.z)) }
             }
             "knockback" -> {
-                // v2 MovementOpExecutors Knockback: impulse(direction * strength), the direction is not normalised
+                // Knockback: impulse(direction * strength), the direction is not normalised
                 val vv = v("direction")
                 val k = d("strength")
                 victims.forEach { gameplay.impulse(it, Vec3(vv.x * k, vv.y * k, vv.z * k)) }
@@ -1591,7 +1591,7 @@ public class TablePlayer(
             "consume_item" -> {
                 val item = s("item")
                 val count = d("count").toInt()
-                // v2 ConsumeItemOpExecutor (9d4c4a3db:kernel/runtime/.../runtime/ops/ControlOpExecutors.kt:171): a zero count is a no-op
+                // consume_item: a zero count is a no-op
                 if (count > 0) victims.forEach { items.consume(castRef(run), it, item, count) }
             }
             "consume_status" -> victims.forEach { gameplay.consumeStatus(castRef(run), it, s("status")) }
@@ -1602,7 +1602,7 @@ public class TablePlayer(
                     "caster" -> entities += caster
                     "event.victim" -> entities += targets(run, Val.Live("event.victim", null), ctx)
                     else -> {
-                        // v2 `FreezeOpExecutor` split the scope into entities and frames (ControlOpExecutors.kt:14-33, `host.freezeFrames`);
+                        // freeze splits the scope into entities and frames (`host.freezeFrames`);
                         // the frame half was cast-internal state (CastInstance.kt:539-541), so it stays the player's, not a gateway call
                         val target = run.recs.keys.firstOrNull { "instance:" + it.text == n || it.text == n }
                         if (target == null) fault(run, now, src, "freeze scope '$n': not a live instance")
@@ -1718,7 +1718,7 @@ public class TablePlayer(
     }
 
     /**
-     * `rig` (v2 `RigExecutor` / `RigPerformer` at 93cd534e4~1): the swing drives the frame `of` (absent = `parent`), whose local pose in
+     * `rig`: the swing drives the frame `of` (absent = `parent`), whose local pose in
      * the parent's axes is the grip origin and the arm-carried mount orientation each tick. A clip (`anim`) plays on the caster's own body
      * for the same span and carries the arm; `freezes` stop the rig clock when `respect_hit_stop` (the body's when `body_respect_hit_stop`).
      */
@@ -1889,10 +1889,10 @@ public class TablePlayer(
     }
 
     /**
-     * `align:<axis>><to>^<up>` (R42, v2 `MotionComposer.alignedRotation`): the LOCAL rotation that points the object's [axis] along the
+     * `align:<axis>><to>^<up>` (R42): the LOCAL rotation that points the object's [axis] along the
      * named direction `to` with its up toward `up`, i.e. `Basis.facing(dir, up)` in world, expressed in the parent's space
-     * (`parentWorld.conjugate * world`). Directions are `world.up`, `world.down` and `<instance|caster>.<axis>` (v2 `Axes.resolve`);
-     * a bare anchor id is rejected at load (v2 produced no rotation for it), so every `to` here carries a dot.
+     * (`parentWorld.conjugate * world`). Directions are `world.up`, `world.down` and `<instance|caster>.<axis>` ;
+     * a bare anchor id is rejected at load , so every `to` here carries a dot.
      */
     private fun alignRot(run: Run, cell: String, ctx: RowCtx, anchor: InstanceId?, anchorName: String): Quaterniond {
         val body = cell.removePrefix("align:")
@@ -1995,7 +1995,7 @@ public class TablePlayer(
             if (part == "rotation") throw IllegalArgumentException("'$name' is a rotation, not a vector")
             val w = worldOf(run, rec, rec.localAt(lastTick), ctx.binding, lastTick)
             if (part !in PLAIN_PARTS && part != "edge") return Vector3d(rec.points.getValue(part)).rotate(w.rot).add(w.pos)
-            // `edge` is a direction with a zero local origin (v2 `FramePoint(frame, "edge", Vec3.ZERO, dir)`): as a point it is the frame origin
+            // `edge` is a direction with a zero local origin : as a point it is the frame origin
             return if (part == "forward") Vector3d(0.0, 0.0, 1.0).rotate(w.rot) else w.pos
         }
         return namedVec(run, name, ctx.binding, ctx.scope)
@@ -2163,7 +2163,7 @@ public class TablePlayer(
 
     /**
      * The seed a row guard draws with: (cast seed, row content seed, firing tick, event index, victim). Each firing of a row draws
-     * independently (v2 `rollChance` was one fresh draw per application), and a replay of the cast draws the same values.
+     * independently (one fresh draw per application), and a replay of the cast draws the same values.
      */
     private fun guardSeed(run: Run, row: Row, ctx: RowCtx, now: Int): Long {
         var h = rowScope(run, row).seed
@@ -2248,7 +2248,7 @@ public class TablePlayer(
 
     /**
      * A projectile body's flight: [start] + [dir] * the integral of [speed] over the ticks since spawn (closed form). With [gravity] / [drag]
-     * (v2 FlyLaw 1:1, `9d4c4a3db:.../motion/FlyLaw.kt`: each tick `v = (v - (0, gravity, 0)) * (1 - drag)`, then the body moves by `v`) the launch
+     * (each tick `v = (v - (0, gravity, 0)) * (1 - drag)`, then the body moves by `v`) the launch
      * part is damped by `(1 - drag)^k` and the gravity part is stepped tick by tick; both zero keeps the exact closed form.
      */
     private class Flight(
@@ -2348,7 +2348,7 @@ public class TablePlayer(
         /** Ticks this body spent frozen: its flight clock runs `frozenTicks` behind the wall clock. */
         var frozenTicks: Int = 0
 
-        /** Rig frame points (v2 `FramePoint`): `tip` / `root` local offsets, `edge` a direction at the frame origin. */
+        /** Rig frame points: `tip` / `root` local offsets, `edge` a direction at the frame origin. */
         val points: MutableMap<String, Vector3d> = HashMap()
 
         /** A `body` instance whose clip declares named points: [points] are re-sampled from the clip each tick ([freshBody]). */

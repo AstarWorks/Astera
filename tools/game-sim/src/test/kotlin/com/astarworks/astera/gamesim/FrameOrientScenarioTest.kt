@@ -14,8 +14,8 @@ import org.assertj.core.data.Offset
 import org.junit.jupiter.api.Test
 
 /**
- * v1 vfx `orient` on the real frame tree: a frame under a caster keeps its own axes (world / yaw / look / to_target)
- * whatever the caster's rotation is, which is how v1 builds the anchor frame (VfxOrient.frame).
+ * the vfx `orient` on the real frame tree: a frame under a caster keeps its own axes (world / yaw / look / to_target)
+ * whatever the caster's rotation is, which is how the anchor frame is built.
  */
 class FrameOrientScenarioTest {
 
@@ -73,7 +73,7 @@ class FrameOrientScenarioTest {
     @Test
     fun `frame scale multiplies descendants translation inside the rotation and compounds down the chain`() {
         val t = tree(90.0, 0.0)
-        // v1 VfxTimeline slotGeometry :213 / SlotContext :360-369: position = rotation.rotate(local * scale)
+        // position = rotation.rotate(local * scale)
         t.add(FrameNode(FrameId("big"), FrameKind.PART, FrameId("caster"), Frame(Vec3(0.0, 0.0, 0.0)), null, 2.5))
         t.add(FrameNode(FrameId("child"), FrameKind.PART, FrameId("big"), Frame(Vec3(0.0, 0.0, 2.0))))
         t.add(FrameNode(FrameId("grand"), FrameKind.PART, FrameId("child"), Frame(Vec3(0.0, 0.0, 1.0)), null, 2.0))

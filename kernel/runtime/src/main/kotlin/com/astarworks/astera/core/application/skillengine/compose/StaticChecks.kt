@@ -725,7 +725,7 @@ public object StaticChecks {
         /**
          * Peak of simultaneously alive displays inside one state, and its first tick. A span is `[spawn, end)`: TablePlayer queues an End row
          * (a `for: N` display ends at base+N) and removes the instance in the same tick's cleanup, so it is gone when the tick completes and
-         * a display spawned on that tick never coexists with it (v1/v2 peaked the same way, remove-then-spawn).
+         * a display spawned on that tick never coexists with it.
          */
         fun displayPeak(s: StateTable): Pair<Int, Int> {
             val exit = s.duration.max

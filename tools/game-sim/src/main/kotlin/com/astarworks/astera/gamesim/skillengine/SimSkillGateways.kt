@@ -12,7 +12,6 @@ import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCas
 import com.astarworks.astera.combat.domain.damage.DamageAttempt
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.event.SkillCast
-import com.astarworks.astera.combat.domain.event.SkillChargeStarted
 import com.astarworks.astera.combat.domain.event.SkillReleased
 import com.astarworks.astera.combat.platform.wiring.CombatWiringResult
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope

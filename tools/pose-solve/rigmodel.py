@@ -282,7 +282,7 @@ def stops_from_freezes(freezes: list[tuple[int, int]], base: int = 1) -> list[tu
 
 
 def simulate_plan(body_doc: dict, rig_doc: dict, freezes: list[tuple[int, int]], duration: int, base: int = 1) -> dict:
-    """What `make skill-lint-plan` would write for these two documents, without a JVM (Python port of VfxPerformanceSampler)."""
+    """What the removed `make skill-lint-plan` would have written for these two documents, without a JVM (Python port of VfxPerformanceSampler)."""
     stops = stops_from_freezes(freezes, base)
     last = duration - base
     ticks = []

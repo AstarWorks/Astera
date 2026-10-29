@@ -40,15 +40,15 @@ public data class Intrinsic(val unit: Vec3, val centre: Vec3 = Vec3.ZERO) {
         /**
          * `kind: text` (ADR-0303 2.1: the author writes the plain vanilla `scale`, so [unit] is 1): a one-line text box whose middle is
          * off the entity origin by (+.0125, +.125) blocks per scale unit (MC 26.3 TextDisplayRenderer, calibrated against a client capture).
-         * [toDisplayWrite] puts `translation = rotation * (-centre * scale)` before the rotation and scale, which is v1 `VfxQuad.transform`
-         * (`VfxQuad.kt:49-53`) for solid quads and glyph quads alike, so the quad's middle lands on the entity position.
+         * [toDisplayWrite] puts `translation = rotation * (-centre * scale)` before the rotation and scale, which is the quad transform
+         * for solid quads and glyph quads alike, so the quad's middle lands on the entity position.
          */
         public val TEXT_QUAD: Intrinsic = Intrinsic(Vec3(1.0, 1.0, 1.0), Vec3(-CENTER_X_PER_SCALE, -CENTER_Y_PER_SCALE, 0.0))
 
         /**
          * `kind: sprite` (ADR-0303 2.1): the loader already turned the authored `size` in blocks into the vanilla `scale` (1 = the natural
          * quad, font height px x 0.025 blocks), so [unit] is 1, and there is no centre: the sprite font's ascent (size/2 - 2, ADR-0239)
-         * puts the glyph's middle on the entity origin, which is v1's zero translation for a sprite and what `pivot: center` means.
+         * puts the glyph's middle on the entity origin, which is the zero translation for a sprite and what `pivot: center` means.
          */
         public val SPRITE: Intrinsic = Intrinsic(Vec3(1.0, 1.0, 1.0))
     }
@@ -79,13 +79,13 @@ public fun toDisplayWrite(
         transform = DisplayTransform(world.rotation.rotate(centre), world.rotation, scale),
         billboard = billboard,
         interpolationDelay = 0, interpolationDuration = ticks,
-        teleportDuration = if (anchor != null && billboard == DisplayBillboard.FIXED) 0 else teleportTicks ?: ticks, // a rider never teleports (v1)
+        teleportDuration = if (anchor != null && billboard == DisplayBillboard.FIXED) 0 else teleportTicks ?: ticks, // a rider never teleports
         anchor = anchor.takeIf { billboard == DisplayBillboard.FIXED },
     )
 }
 
 /**
- * Transformation of a display that rides its caster as a native passenger (v1 ADR-0276): the riding origin is the caster's
+ * Transformation of a display that rides its caster as a native passenger (ADR-0276): the riding origin is the caster's
  * position, so the translation carries the offset of the pose from the feet it was computed against, minus the passenger
  * seat height.
  */

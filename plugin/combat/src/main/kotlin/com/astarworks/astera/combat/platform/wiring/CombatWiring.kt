@@ -27,7 +27,6 @@ import com.astarworks.astera.combat.application.port.outbound.aoe.IAreaEffectGat
 import com.astarworks.astera.combat.application.port.outbound.aoe.IExplosionGateway
 import com.astarworks.astera.combat.application.port.outbound.aoe.IFireSpreadController
 import com.astarworks.astera.combat.application.port.outbound.aoe.ILightningGateway
-import com.astarworks.astera.combat.application.service.ChargeTracker
 import com.astarworks.astera.combat.application.service.EmptyNearbyTargetQuery
 import com.astarworks.astera.combat.application.service.InMemoryDamageHistoryService
 import com.astarworks.astera.combat.application.service.JumpCountTracker
@@ -49,7 +48,6 @@ import com.astarworks.astera.combat.application.service.damagebonus.FocusFireBon
 import com.astarworks.astera.combat.application.service.damagebonus.TargetLockBonusSource
 import com.astarworks.astera.combat.application.service.focus.InMemoryFocusFireTracker
 import com.astarworks.astera.combat.application.service.targetlock.InMemoryTargetLockController
-import com.astarworks.astera.combat.application.usecase.charge.ChargedSkillCastUseCase
 import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
 import com.astarworks.astera.combat.application.usecase.damage.AssistAttributionUseCase
 import com.astarworks.astera.combat.application.usecase.damage.RecordDamageHistoryOnDamageDealtListener
@@ -564,9 +562,6 @@ public object CombatWiring {
                 )
             }
 
-            // Wave _skills-2 (ADR-0077): MechanicDispatcher is the central
-            // runtime for the Mechanic-Targeter-Phase architecture. Each
-            // archetype handler routes per-phase mechanic lists through it.
             val celEvaluator = services.getOrThrow<ICelEvaluator>()
             val broadcaster = services.get<IBroadcaster>()
             // Wave 5effects (ADR-0109): optional pull-through of Core's
@@ -613,16 +608,6 @@ public object CombatWiring {
                 items = services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>(),
                 poseLookup = casterPoses,
                 egoGauge = services.get<com.astarworks.astera.core.application.port.outbound.IEgoGauge>(),
-                // which needs the projectile service which we resolve next).
-            )
-            val chargeTracker = ChargeTracker(scheduler)
-            @Suppress("UNUSED_VARIABLE")
-            val chargedSkill = ChargedSkillCastUseCase(
-                castSkill = castSkill,
-                chargeTracker = chargeTracker,
-                eventBus = eventBus,
-                skillRegistry = skillGate,
-                scheduler = scheduler,
             )
 
             // Wave 6a-N2 (ADR-0155) — TickCooldownUseCase now publishes

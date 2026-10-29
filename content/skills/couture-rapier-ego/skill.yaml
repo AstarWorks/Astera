@@ -35,7 +35,7 @@ machine:
           motion:
             - {law: grow, per_tick: {left: 0.025, up: "= 0.02686 + 0.0452 * sin(3.14159265 * i / 11)", forward: 0.294685}, at: 0, for: 2}
             - {law: grow, per_tick: {left: -0.002941, up: "= -0.11765 * (0.02686 + 0.0452 * sin(3.14159265 * i / 11))", forward: -0.013868}, at: 2, for: 17}
-        # v2: origin eye, yaw-only forward, sector 45 deg full opening, ignore_invulnerability; trigger-only hits omit damage; max_count 1 = nearest target.
+        # origin eye, yaw-only forward, sector 45 deg full opening, ignore_invulnerability; trigger-only hits omit damage; max_count 1 = nearest target.
         - id: sel
           op: hit
           at: 18

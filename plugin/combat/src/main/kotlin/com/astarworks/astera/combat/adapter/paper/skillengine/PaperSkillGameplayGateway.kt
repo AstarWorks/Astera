@@ -198,7 +198,7 @@ public class PaperSkillGameplayGateway(
     override fun isSlimSkin(caster: UUID): Boolean =
         server.getPlayer(caster)?.playerProfile?.textures?.skinModel == org.bukkit.profile.PlayerTextures.SkinModel.SLIM
 
-    /** v2 `victim_anim` 1:1: only the hurt animation, tilted by the bearing of [from] relative to where [target] faces. */
+    /** `victim_anim`: only the hurt animation, tilted by the bearing of [from] relative to where [target] faces. */
     override fun hurt(cast: CastRef, target: UUID, from: Vec3) {
         val entity = server.getEntity(target) as? org.bukkit.entity.LivingEntity ?: return EntityGone.skipped("gameplay.hurt", target)
         val loc = entity.location

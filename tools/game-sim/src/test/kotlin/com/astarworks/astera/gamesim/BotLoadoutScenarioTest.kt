@@ -109,6 +109,8 @@ class BotLoadoutScenarioTest {
                 assertThat(weapons.map { categoryOf(sim, it) }.toSet()).`as`("fits the weapon limit: $weapons").hasSize(2)
             }
             assertThat(loadouts.map { it.toSet() }.toSet()).`as`("four bots, four different pairs: $loadouts").hasSize(4)
+            // Pieces deliberately kept out of the bot pool (content/bot-loadouts/loadouts.yaml): the Limbus
+            // families whose skills were removed, plus the two kept Limbus families (bastion, couture).
             val excluded = listOf(
                 "crimson-chain-axe", "edict-blade", "ember-gauntlet", "gossamer-katana", "orrery-staff", "sigil-rifle",
                 "verdict-hammer", "vendetta-rifle", "bastion-greatsword", "couture-rapier",

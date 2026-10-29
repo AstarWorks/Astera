@@ -5,7 +5,7 @@ import com.astarworks.astera.core.domain.geometry.math.Basis
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 
-/** How a frame's axes are chosen, whatever its parent's rotation is (the v1 vfx `orient`). */
+/** How a frame's axes are chosen, whatever its parent's rotation is. */
 public enum class OrientMode {
     /** Local axes are the world axes. */
     WORLD,

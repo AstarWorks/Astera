@@ -35,7 +35,7 @@ public data class VisualPose(
     val size: Vec3,
     val billboard: DisplayBillboard = DisplayBillboard.FIXED,
     val anchorFeet: Vec3? = null,
-    /** `teleport_duration` of the write when it differs from the interpolation length (a followed effect, v1 VfxPlayer.kt:416); null = same. */
+    /** `teleport_duration` of the write when it differs from the interpolation length (a followed effect); null = same. */
     val teleportTicks: Int? = null,
 )
 
@@ -48,7 +48,7 @@ public data class MeshLook(
 )
 
 /**
- * Who sees a display (v1 `Audience` / `VfxLane`): [audience] relative to the caster and the [target] (the victim in scope, or null),
+ * Who sees a display: [audience] relative to the caster and the [target] (the victim in scope, or null),
  * [lane] dropped for viewers whose `vfx_intensity` does not admit it. Resolved by the adapter when the display is created.
  */
 public data class DisplayView(
@@ -96,7 +96,7 @@ public interface ISkillVisualGateway {
 
     /**
      * A thread (ADR-0303 section 5 ribbon `shape: line`): a flat strip of [thickness] blocks from [from] to [to] that faces the viewer around its own
-     * axis (v1 `line` op, `face: {viewer: axis, axis: line.along}`). [colorHex] is `#rrggbb`, [alpha] its opacity. The runtime moves the ends
+     * axis (`line` op, `face: {viewer: axis, axis: line.along}`). [colorHex] is `#rrggbb`, [alpha] its opacity. The runtime moves the ends
      * with [updateLine] every tick; [remove] ends it.
      */
     public fun spawnLine(cast: CastRef, from: Vec3, to: Vec3, thickness: Double, colorHex: String, alpha: Double): VisualHandle
@@ -105,7 +105,7 @@ public interface ISkillVisualGateway {
     public fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3)
 
     /**
-     * `screen_veil` (ADR-0303 10.1b, v1 ADR-0291): a sprite quad [distance] blocks in front of [viewer]'s eye along the look direction, seen by
+     * `screen_veil` (ADR-0303 10.1b, ADR-0291): a sprite quad [distance] blocks in front of [viewer]'s eye along the look direction, seen by
      * [viewer] only, its side clamped so it covers at most [maxScreenFraction] of the screen. [colorHex] is `#rrggbb` or null (the sprite's own
      * colours). The runtime calls [updateScreenVeil] every tick (re-anchor and fade over [ticks]); [remove] ends it.
      */
@@ -188,7 +188,7 @@ public interface ISkillGameplayGateway {
 
     /**
      * One status `chance:` roll: true when the status lands. Drawn from the same random source as crits, one draw per
-     * target and only for a chance below 1 (v1 `MechanicDispatcher.kt:627`: `if (chance < 1.0 && randomizer.nextDouble() > chance) continue`).
+     * target and only for a chance below 1 (`if (chance < 1.0 && randomizer.nextDouble() > chance) continue`).
      */
     public fun rollChance(chance: Double): Boolean
 
@@ -244,7 +244,7 @@ public interface ISkillGameplayGateway {
     public fun cameraShake(cast: CastRef, viewer: UUID, intensity: Double, ticks: Int, from: Vec3?)
 
     /**
-     * `screen_flash` (ADR-0303 10.1b, v1 `Mechanic.ScreenFlash`): the full-screen cut-in [overlay] (a `ScreenOverlay.yamlName`) on [viewer]'s screen,
+     * `screen_flash` (ADR-0303 10.1b): the full-screen cut-in [overlay] (a `ScreenOverlay.yamlName`) on [viewer]'s screen,
      * tinted [colorRgb] (null = the overlay's default), faded in / held / out for the given ticks.
      */
     public fun screenFlash(cast: CastRef, viewer: UUID, overlay: String, colorRgb: Int?, fadeInTicks: Int, stayTicks: Int, fadeOutTicks: Int)
@@ -288,7 +288,7 @@ public interface ISkillEntityQuery {
     /** Where blocks stop a moving body: first solid hit on segment [from]->[to], or null. */
     public fun raycastBlock(cast: CastRef, from: Vec3, to: Vec3): BlockHit?
 
-    /** [a] and [b] are on the same team of the match (v2 `PaperProjectileProbe`: both on one non-null team); false outside a match. */
+    /** [a] and [b] are on the same team of the match (both on one non-null team); false outside a match. */
     public fun isAlly(cast: CastRef, a: UUID, b: UUID): Boolean
 }
 
@@ -298,7 +298,7 @@ public data class BlockHit(val point: Vec3, val normal: Vec3, val blockKey: Stri
 
 /** Caster / entity motion driven per tick by the kernel (R40, R9): the dash and reel drivers call these. */
 public interface ISkillMovementGateway {
-    /** Move [entity] to [pos] (and [yaw] / [pitch] when given) now. Dash and reel call this once per tick (v2 `DashStrikeDriver`). */
+    /** Move [entity] to [pos] (and [yaw] / [pitch] when given) now. Dash and reel call this once per tick. */
     public fun teleport(cast: CastRef, entity: UUID, pos: Vec3, yaw: Double?, pitch: Double?)
 
     /** Current velocity of [entity] in blocks per tick. */

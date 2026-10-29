@@ -104,8 +104,7 @@ one() { # one <skill>
   rm -f "$lg.a" "$lg.b"
   if [ "$ok" = 1 ] \
      && node tools/skill-compare/scripts/publish-preview.mjs "$s" >> "$lg" 2>&1 \
-     && node tools/skill-compare/scripts/publish-preview.mjs "$s" --src "$out/side" --kind preview-side >> "$lg" 2>&1 \
-     && node tools/skill-compare/scripts/publish-lint.mjs "$s" --overlay "$out/overlay" >> "$lg" 2>&1; then
+     && node tools/skill-compare/scripts/publish-preview.mjs "$s" --src "$out/side" --kind preview-side >> "$lg" 2>&1; then
     log "preview-published $sha $s ($((SECONDS - t0))s) $(tail -n1 "$lg")"
   else
     log "preview-FAILED $sha $s render/publish: $(reason "$lg") (see $lg)"

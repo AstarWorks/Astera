@@ -304,11 +304,11 @@ skill-trace: ## Cast a v2 skill once in game-sim (real cast runner, dummy 6 bloc
 	@for s in $$(echo "$(SKILL)" | tr ',' ' '); do python3 -I tools/vfx-shot/trace_v2.py "tools/game-sim/build/sim-traces/v2/$$s.json" && echo "trace ok: tools/game-sim/build/sim-traces/v2/$$s.json"; done
 
 .PHONY: skill-preview
-skill-preview: ## Cast a v2 skill in game-sim (skill-trace), render it from the skill-compare camera without the client and publish PREVIEW + PREVIEW-SIDE (+ the hit-volume OVERLAY as the lint view with OVERLAY=1) to skill-compare (PUBLISH=0 skips): make skill-preview SKILL=<skill-id> [TRACE=<astera-sim-trace/2 file>] [CASE=<case id>] [TICKS=0-53] [EVERY=4] [FOV=<deg>] [OVERLAY=1] [NOREF=1]
+skill-preview: ## Cast a v2 skill in game-sim (skill-trace), render it from the skill-compare camera without the client and publish PREVIEW + PREVIEW-SIDE (+ the hit-volume OVERLAY render with OVERLAY=1) to skill-compare (PUBLISH=0 skips): make skill-preview SKILL=<skill-id> [TRACE=<astera-sim-trace/2 file>] [CASE=<case id>] [TICKS=0-53] [EVERY=4] [FOV=<deg>] [OVERLAY=1] [NOREF=1]
 	@test -n "$(SKILL)" || { echo "usage: make skill-preview SKILL=<skill-id> [TRACE=f] [CASE=..] [TICKS=a-b] [EVERY=n] [FOV=deg] [OVERLAY=1] [NOREF=1]"; exit 2; }
 	$(if $(TRACE),,$(MAKE) skill-trace SKILL="$(SKILL)")
 	cd tools/skill-viewer && bun install --frozen-lockfile >/dev/null && bun run build >/dev/null && bun scripts/trace-preview.mjs --skill "$(SKILL)" $(if $(TRACE),--trace "$(abspath $(TRACE))") $(if $(CASE),--case "$(CASE)") $(if $(TICKS),--ticks "$(TICKS)") $(if $(EVERY),--every "$(EVERY)") $(if $(FOV),--fov "$(FOV)") $(if $(NOREF),--no-ref) $(if $(OVERLAY),--overlay) && bun scripts/trace-preview.mjs --skill "$(SKILL)" $(if $(TRACE),--trace "$(abspath $(TRACE))") --no-ref --camera side --out "$(CURDIR)/build/skill-preview/$(SKILL)/side"
-	$(if $(filter 0,$(PUBLISH)),,node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" && node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" --src "build/skill-preview/$(SKILL)/side" --kind preview-side$(if $(OVERLAY), && node tools/skill-compare/scripts/publish-lint.mjs "$(SKILL)" --overlay "build/skill-preview/$(SKILL)/overlay"))
+	$(if $(filter 0,$(PUBLISH)),,node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" && node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" --src "build/skill-preview/$(SKILL)/side" --kind preview-side)
 
 .PHONY: pose-solve
 pose-solve: ## Reference keypoints -> skin-rig body keys + wrist keys in content/skill-lint/solved/ (never overwrites shipped keys): make pose-solve SKILL=<skill-id>

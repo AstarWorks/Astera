@@ -60,7 +60,7 @@ public class PaperSkillEntityQuery(
             )
         }
         // WP10: standing, damageable structures are hit targets too; they travel under their synthetic combat id and
-        // take damage through the entity damage gateway (the v1 projectile resolver did the same).
+        // take damage through the entity damage gateway.
         structures()?.findInRadius(point, radius + STRUCTURE_REACH, cast.world)?.forEach { s ->
             val c = s.position
             out += HitCandidate(

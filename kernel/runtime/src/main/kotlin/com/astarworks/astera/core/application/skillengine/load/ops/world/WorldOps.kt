@@ -168,7 +168,7 @@ internal object WorldOps {
         }
     }
 
-    /** One `Action.World` row at this occurrence's own tick; shapes face the caster's horizontal heading (v2: the yaw-only caster frame). */
+    /** One `Action.World` row at this occurrence's own tick; shapes face the caster's horizontal heading (the yaw-only caster frame). */
     fun lower(op: OpId, anchor: AnchorRef, payload: Map<String, Val<Any>>, lc: LowerContext): Result<Lowered, SkillDecodeError> =
         position(anchor, lc).map { origin ->
             val action = Action.World(op, origin, Val.Live<Vector3d>("= forward(caster)", null), payload)

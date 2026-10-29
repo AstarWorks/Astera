@@ -24,7 +24,7 @@ import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.skillengine.table.SrcPath
 import com.astarworks.astera.core.domain.skillengine.table.Val
 
-/** Decoded `impulse` op: a velocity added to the target, along an anchor's axes or in world axes (R5; subsumes v2 `propel`). */
+/** Decoded `impulse` op: a velocity added to the target, along an anchor's axes or in world axes (R5). */
 public class ImpulseOp(
     override val id: OpId,
     override val src: SrcPath,

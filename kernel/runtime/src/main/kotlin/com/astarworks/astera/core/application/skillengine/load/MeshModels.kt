@@ -2,7 +2,7 @@ package com.astarworks.astera.core.application.skillengine.load
 
 /** What a `mesh` op draws (SKL-12). */
 public sealed interface MeshModel {
-    /** A vanilla material (`item: minecraft:end_rod`); [itemModel] is the item_model component stacked on it (`part: astera:<id>`, v1 item element), null for none. */
+    /** A vanilla material (`item: minecraft:end_rod`); [itemModel] is the item_model component stacked on it (`part: astera:<id>`), null for none. */
     public data class Vanilla(val material: String, val itemModel: String? = null) : MeshModel
 
     /** A pack item definition (`astera:<id>`), which must exist in the resource pack. */
