@@ -136,11 +136,11 @@ Things RTM didn't have that Astera needs because of its OSS + GitOps + AI-delega
 | KEDA-driven dynamic Game Pod | Match queue → spawn → idle → scale to 0 (Hypixel-style) | Phase 1.5 | ❌ static 1 Pod for now |
 | Web admin UI (Nuxt 4, AstarSite/Fax pattern) | Phase 4 UGC marketplace + ops dashboard for non-Minecraft access | Phase 4 | ❌ |
 | Discord bot intake for content (non-IT contributors) | Lower friction than git PRs for community weapon submission | Phase 4 | ❌ |
-| Generative AI for textures / sounds / 3D / stages | "100% AI-developed" mission, ADR-0010 defers to Phase 6 | Phase 6 | ❌ deliberately deferred |
+| Generative AI for textures / sounds / 3D / stages | "100% AI-developed" mission, ADR-0010 deferral superseded | no longer deferred ([[adr/0307]]) | ❌ not deferred anymore |
 | AI PR review bot | Catch architectural drift before merge | Phase 4 | ❌ |
 | `release-noter` agent (commits → release notes) | Faster cadence than manual notes | Phase 7 | ❌ |
 | `incident-responder` agent (Grafana alert → hypothesis + runbook) | Reduce on-call cognitive load | Phase 7 | ❌ |
-| Real-time LLM chat translation | RTM mentioned `GPT4o-mini` translation; Astera realizes it | Phase 6 | ❌ |
+| Real-time LLM chat translation | RTM mentioned `GPT4o-mini` translation; Astera realizes it as a separate translation server | [[adr/0308]] | in progress |
 | Vector-search subscription product (RTM concept) | Phase 4+ monetisation | Phase 4+ | ❌ |
 | Battle Pass + seasonal event automation | RTM listed; Astera automates rather than hand-runs | Phase 7 | ❌ |
 | **`Paper-as-edge` re-affirmation** (Phase 3 domain ordering) | Wave 5 framing误り (Wave 5 = Paper) was caught at audit; correct order is domain/application/port first, Bukkit last | Wave 5a-5f sequencing | [[adr/0028-roadmap-realignment-paper-as-edge]] |

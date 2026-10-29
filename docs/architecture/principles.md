@@ -60,7 +60,7 @@ Astera の設計を支配する原則。これらに反するコード/設計提
 ## 8. AI-Ready Workflow
 
 - `.claude/` を最初から確立
-- 生成 AI は Phase 6 で本格解禁 ([[adr/0010]])
+- 生成 AI は解禁済み ([[adr/0307]]、[[adr/0010]] を supersede)
 
 ## 9. Contributor Friendliness (Non-IT)
 

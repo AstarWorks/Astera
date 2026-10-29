@@ -1,6 +1,6 @@
 # Agents
 
-個別 AI agent の仕様。Phase 6 で内容拡充。
+個別 AI agent の仕様。内容拡充中。
 
 予定:
 - `weapon-designer.md`
