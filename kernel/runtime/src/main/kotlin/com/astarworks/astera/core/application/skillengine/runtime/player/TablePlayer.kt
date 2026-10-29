@@ -900,19 +900,35 @@ public class TablePlayer(
         return Stretch(liveVec(run, ends.substringBefore('>'), ctx), liveVec(run, ends.substringAfter('>'), ctx), Vec3(a[0], a[1], a[2]))
     }
 
-    /** The local rotation that points the object's axis from the base to the tip (up kept toward world up); a zero-length stretch keeps the held rotation. */
-    private fun stretchRot(run: Run, rec: Rec, st: Stretch, ctx: RowCtx, now: Int): Quaterniond {
-        val d = Vector3d(st.tip).sub(st.base)
-        if (d.length() < 1e-9) return Quaterniond(rec.localAt(now).rot)
+    /** The rotation that carries the object's [axis] onto +Z (the forward that [Basis.facing] aims). */
+    private fun axisToZ(axis: Vec3): Quaternion {
         val z = Vec3(0.0, 0.0, 1.0)
-        val a = st.axis.normalize()
-        val toZ = when {
+        val a = axis.normalize()
+        return when {
             a.dot(z) > 1.0 - 1e-12 -> Quaternion.IDENTITY
             a.dot(z) < -1.0 + 1e-12 -> Quaternion.axisAngle(Vec3(0.0, 1.0, 0.0), Math.PI)
             else -> Quaternion.axisAngle(a.cross(z), Math.acos(a.dot(z).coerceIn(-1.0, 1.0)))
         }
-        val w = Basis.facing(Vec3(d.x, d.y, d.z), Vec3(0.0, 1.0, 0.0)) * toZ
-        return Quaterniond(parentPose(run, rec, ctx, now).rot).conjugate().mul(Quaterniond(w.x, w.y, w.z, w.w)).normalize()
+    }
+
+    /** The parent frame's forward in world; a facing along its up rolls toward it (+Z when there is no frame). */
+    private fun parentForward(parentRot: Quaterniond): Vec3 {
+        val f = Vector3d(0.0, 0.0, 1.0).rotate(parentRot)
+        return Vec3(f.x, f.y, f.z)
+    }
+
+    /**
+     * The local rotation that points the object's axis from the base to the tip, rolled with its up toward the parent frame's up (world up
+     * when there is no frame); a span along that up rolls toward the parent frame's forward instead, so a vertical stretch is the identity
+     * in its frame. A zero-length stretch keeps the held rotation.
+     */
+    private fun stretchRot(run: Run, rec: Rec, st: Stretch, ctx: RowCtx, now: Int): Quaterniond {
+        val d = Vector3d(st.tip).sub(st.base)
+        if (d.length() < 1e-9) return Quaterniond(rec.localAt(now).rot)
+        val parentRot = parentPose(run, rec, ctx, now).rot
+        val up = Vector3d(0.0, 1.0, 0.0).rotate(parentRot)
+        val w = Basis.facing(Vec3(d.x, d.y, d.z), Vec3(up.x, up.y, up.z), parentForward(parentRot)) * axisToZ(st.axis)
+        return Quaterniond(parentRot).conjugate().mul(Quaterniond(w.x, w.y, w.z, w.w)).normalize()
     }
 
     private fun teleport(run: Run, a: Action.Teleport, ctx: RowCtx, now: Int) {
@@ -1704,14 +1720,7 @@ public class TablePlayer(
         val upDir = namedDirection(run, up, ctx)
         val objAxis = LocalAxes.axis(axisName.removePrefix("-"))?.let { if (axisName.startsWith("-")) it * -1.0 else it }
             ?: throw IllegalArgumentException("align axis '$axisName' cannot be resolved")
-        val z = Vec3(0.0, 0.0, 1.0)
-        val a = objAxis.normalize()
-        val toZ = when {
-            a.dot(z) > 1.0 - 1e-12 -> Quaternion.IDENTITY
-            a.dot(z) < -1.0 + 1e-12 -> Quaternion.axisAngle(Vec3(0.0, 1.0, 0.0), Math.PI)
-            else -> Quaternion.axisAngle(a.cross(z), Math.acos(a.dot(z).coerceIn(-1.0, 1.0)))
-        }
-        val w = Basis.facing(dir, upDir) * toZ
+        val w = Basis.facing(dir, upDir, parentForward(parent.rot)) * axisToZ(objAxis)
         return Quaterniond(parent.rot).conjugate().mul(Quaterniond(w.x, w.y, w.z, w.w)).normalize()
     }
 

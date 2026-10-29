@@ -29,14 +29,19 @@ public object Basis {
     }
 
     /**
-     * Orientation whose forward (+Z) is [forward] with up as close to [up] as possible; a forward parallel to [up] picks a
-     * stable alternate. Zero forward gives identity. Built on [basis] with left = up x forward.
+     * Orientation whose forward (+Z) is [forward] with up as close to [up] as possible. Zero forward gives identity. When [forward] is
+     * (anti)parallel to [up] there is no roll reference, so the roll follows [alternateForward] (the parent frame's forward; +Z when
+     * there is no frame): pointing along [up] the object's up becomes `-alternateForward` (a pitch of +90 degrees from facing it), pointing
+     * against [up] it becomes `+alternateForward`. Built on [basis] with left = up x forward.
      */
-    public fun facing(forward: Vec3, up: Vec3 = Y): Quaternion {
+    public fun facing(forward: Vec3, up: Vec3 = Y, alternateForward: Vec3 = Z): Quaternion {
         val f = forward.normalize()
         if (f.lengthSquared() == 0.0) return Quaternion.IDENTITY
         var left = up.cross(f)
-        if (left.lengthSquared() < 1e-12) left = (if (abs(f.x) < 0.9) X else Z).cross(f)
+        if (left.lengthSquared() < 1e-12) {
+            val rollUp = if (up.dot(f) > 0.0) alternateForward * -1.0 else alternateForward
+            left = rollUp.cross(f)
+        }
         return basis(left, f.cross(left)) ?: Quaternion.IDENTITY
     }
 
