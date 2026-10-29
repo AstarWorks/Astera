@@ -509,9 +509,17 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                 }
             }
             val victimName = name.removePrefix("anchor:")
+            if (victimName == "event.victim" || victimName == "event.attacker") {
+                // as PaperLiveValueSource.eventEntityVec: the bound entity's feet, and a named error without a hit binding
+                val id = (if (victimName == "event.victim") binding?.victim?.id else binding?.attacker)
+                    ?: throw IllegalArgumentException("'$victimName' needs a hit event binding")
+                if (id == this@GatewayRecorder.caster) return Vector3d(casterPosition)
+                val feet = victims.firstOrNull { it.entityId == id }?.feet ?: throw IllegalArgumentException("'$victimName': entity $id is not loaded")
+                return Vector3d(feet.x, feet.y, feet.z)
+            }
             if (victimName == "victim" || victimName == "target" || victimName.startsWith("victim.")) {
                 val point = if (victimName.contains('.')) victimName.substringAfter('.') else null
-                val o = (victimFrame(binding, point) ?: throw IllegalArgumentException("'$name' needs a hit event binding with a loaded victim")).origin
+                val o =(victimFrame(binding, point) ?: throw IllegalArgumentException("'$name' needs a hit event binding with a loaded victim")).origin
                 return Vector3d(o.x, o.y, o.z)
             }
             // a direction cell (`caster.forward`) answers the caster's facing like Paper; every other field answers the caster position

@@ -1217,8 +1217,11 @@ public class TablePlayer(
             "camera_shake" -> {
                 val ticks = d("ticks").toInt()
                 val dir = s("direction")
-                // a shake outside an `on.hit` row has no hit to lean away from: it shakes without a direction instead of faulting
-                val from = if (dir == "from_hit" && ctx.binding?.victim != null) liveVec(run, "event.victim", ctx).let { Vec3(it.x, it.y, it.z) } else null
+                // `from_hit` leans the shake away from the hit that raised the event: outside an `on.hit` row there is none, which is a content error (no silent fallback)
+                if (dir == "from_hit" && ctx.binding?.victim == null) {
+                    throw IllegalStateException("camera_shake direction: from_hit is only valid inside an on.hit row (no hit victim is bound here); use direction: none")
+                }
+                val from = if (dir == "from_hit") liveVec(run, "event.victim", ctx).let { Vec3(it.x, it.y, it.z) } else null
                 victims.forEach { gameplay.cameraShake(castRef(run), it, d("intensity"), ticks, from) }
             }
             "stop_sound" -> victims.forEach { gameplay.stopSound(castRef(run), it, s("sound")) }
