@@ -126,8 +126,9 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
         }
         E2eReport.check(suite, "buying a leather helmet in the armor tab removes 4 iron and equips it", "RCON clear + armor.head") {
             Thread.sleep(700)
-            // tabs in GUI order: weapons, tools, blocks, armor, upgrades (MatchShopTab); armor is the 4th button
-            val tabSlot = a.contents[s.containerId].orEmpty().withIndex().filter { it.value.amount > 0 && it.value.lore.contains("open this tab") }.map { it.index }.sorted().getOrNull(3)
+            // tabs in GUI order: weapons, tools, blocks, armor, upgrades. The shop opens on weapons, whose button reads "Showing this tab"
+            // (not "open this tab"), so the clickable ones are tools, blocks, armor, upgrades: armor is the 3rd.
+            val tabSlot = a.contents[s.containerId].orEmpty().withIndex().filter { it.value.amount > 0 && it.value.lore.contains("open this tab") }.map { it.index }.sorted().getOrNull(2)
             assertThat(tabSlot).describedAs("no tab buttons in the shop").isNotNull()
             click(a, s, tabSlot!!)
             a.waitUntil(4_000) { a.contents[s.containerId].orEmpty().any { it.amount > 0 && it.lore.contains("Iron x4") } }

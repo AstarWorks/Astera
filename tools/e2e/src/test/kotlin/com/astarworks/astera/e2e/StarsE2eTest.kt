@@ -106,15 +106,25 @@ class StarsE2eTest : PlaythroughBase() {
         tpArena(a.name, 12.5, 65.0, 0.5, 0f, 0f)
         // Meeting the goal only makes A ready ("Norma goal met" action bar, no level yet); the level rises at the Norma check in A's own base.
         val ready = a.waitUntil(40_000) { a.nudge(); c.nudge(); a.actionBars.any { "Norma goal met" in it.text } }
-        // Leave the pedestal at once: the next pop (3 s later) would otherwise be level 2's third star (the top level ends the match).
-        tpArena(a.name, spawnA?.first ?: -30.0, spawnA?.second ?: 65.0, spawnA?.third ?: 0.0, 0f, 0f)
-        Thread.sleep(1_000)
+        // Leave the pedestal at once (the next pop, 3 s later, would be level 2's third star; the top level ends the match) for the
+        // centre island, clear of every pedestal and provably outside the own base zone (norma_check_radius 16 around the team spawn):
+        // inside the zone the Norma check fires on its own, so "ready, still Lv 1" can only be observed outside it.
+        val awayX = 0.5
+        val awayZ = 4.0
+        val homeDist = spawnA?.let { Math.hypot(it.first - awayX, it.third - awayZ) } ?: 0.0
+        tpArena(a.name, awayX, 65.0, awayZ, 0f, 0f)
+        Thread.sleep(1_500)
         val stillLv1 = levelOf(a)?.first == 1
+        val lv1Sidebar = sidebar(a)
+        // Back at the own base the check fires by itself; the explicit command is the same check, so the outcome does not depend on timing.
+        tpArena(a.name, spawnA?.first ?: -30.0, spawnA?.second ?: 65.0, spawnA?.third ?: 0.0, 0f, 0f)
+        Thread.sleep(500)
         a.command("astera norma check")
         val leveled = a.waitUntil(10_000) { a.nudge(); c.nudge(); levelOf(a)?.first == 2 }
         E2eReport.check(suite, "meeting the STAR goal only readies the player; the level stays 1 until the check at the own base", "SetScore") {
             assertThat(ready).describedAs("no 'Norma goal met' action bar: ${a.actionBars.map { it.text }}").isTrue()
-            assertThat(stillLv1).describedAs("level rose before the check: ${sidebar(a)}").isTrue()
+            assertThat(homeDist).describedAs("the away spot must be outside the 16-block base zone").isGreaterThan(16.0)
+            assertThat(stillLv1).describedAs("level rose outside the own base: $lv1Sidebar").isTrue()
             "ok"
         }
         E2eReport.check(suite, "a bot standing on a generator picks up the popped stars and the STAR goal levels it up (Lv 1 -> 2)", "SetScore") {
