@@ -50,6 +50,8 @@ public class CellExprs {
 
         override fun stacks(entity: ExprValue.Ref, status: String): Double = inner.stacks(entity, status)
 
+        override fun hasItem(entity: ExprValue.Ref, item: String): Boolean = inner.hasItem(entity, item)
+
         override fun nearestEnemyDist(from: Vec3): Double = inner.nearestEnemyDist(from)
 
         override fun enemyInCone(from: Vec3, dir: Vec3, range: Double, halfAngleDeg: Double): Boolean = inner.enemyInCone(from, dir, range, halfAngleDeg)
@@ -62,7 +64,7 @@ public class CellExprs {
         public fun served(inner: ExprHost): ExprHost = Served(inner)
 
         /** The host functions a live cell may call; every other [ExprHost] member is rejected. */
-        public val SERVED_FUNCTIONS: Set<String> = setOf("aim_point", "look", "stacks", "nearest_enemy_dist", "enemy_in_cone")
+        public val SERVED_FUNCTIONS: Set<String> = setOf("aim_point", "look", "stacks", "has_item", "nearest_enemy_dist", "enemy_in_cone")
 
         /** The expression text of a live cell, or null when [name] is not an expression cell. */
         public fun sourceOf(name: String): String? = when {

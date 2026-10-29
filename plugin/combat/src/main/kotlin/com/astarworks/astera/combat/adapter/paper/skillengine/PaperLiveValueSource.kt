@@ -34,6 +34,7 @@ import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 import com.astarworks.astera.core.application.skillengine.runtime.player.EntityQueryExprHost
 import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillEntityQuery
+import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillItemGateway
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -49,6 +50,7 @@ public class PaperLiveValueSource(
     private val scheduler: IScheduler,
     private val gameplay: ISkillGameplayGateway,
     private val query: ISkillEntityQuery,
+    private val items: ISkillItemGateway,
 ) : LiveValueSource {
     private val requests = ConcurrentHashMap<CastHandle, CastRequest>()
     private val cells = CellExprs()
@@ -346,8 +348,8 @@ public class PaperLiveValueSource(
     }
 
     /** `stacks(entity, status)` reads the gateway; the other host reads are not served on Paper yet and fail loudly. */
-    private inner class StackHost(private val request: CastRequest, cast: CastHandle, private val binding: EventBinding?) : ExprHost {
-        private val world = EntityQueryExprHost(query, CastRef(cast.value, request.caster, request.world, request.skill.def.item))
+    private inner class StackHost(private val request: CastRequest, private val castHandle: CastHandle, private val binding: EventBinding?) : ExprHost {
+        private val world = EntityQueryExprHost(query, CastRef(castHandle.value, request.caster, request.world, request.skill.def.item))
 
         override fun nearestEnemyDist(from: Vec3): Double = world.nearestEnemyDist(from)
 
@@ -360,6 +362,15 @@ public class PaperLiveValueSource(
                 else -> throw ExprEvalException("stacks('$status'): entity '${entity.name}' is not caster, victim or target")
             }
             return gameplay.statusStacks(id, status).toDouble()
+        }
+
+        override fun hasItem(entity: ExprValue.Ref, item: String): Boolean {
+            val id = when (entity.name) {
+                CASTER -> request.caster
+                "victim", "target" -> binding?.victim?.id ?: throw ExprEvalException("has_item('$item'): '${entity.name}' needs a hit event binding")
+                else -> throw ExprEvalException("has_item('$item'): entity '${entity.name}' is not caster, victim or target")
+            }
+            return items.hasItem(CastRef(castHandle.value, request.caster, request.world, request.skill.def.item), id, item)
         }
 
         override fun aimPoint(caster: ExprValue.Ref, range: Double): Vec3 {

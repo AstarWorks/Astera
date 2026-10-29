@@ -193,6 +193,8 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                 val host = object : com.astarworks.astera.core.domain.skillengine.expr.ExprHost {
                     override fun aimPoint(caster: com.astarworks.astera.core.domain.skillengine.expr.ExprValue.Ref, range: Double): Vec3 = error("aim_point is not served by the sim guard host")
                     override fun lookDirection(caster: com.astarworks.astera.core.domain.skillengine.expr.ExprValue.Ref): Vec3 = error("look_dir is not served by the sim guard host")
+                    override fun hasItem(entity: com.astarworks.astera.core.domain.skillengine.expr.ExprValue.Ref, item: String): Boolean =
+                        items.hasItem(CastRef(cast.value, this@GatewayRecorder.caster, castWorld, castItem), this@GatewayRecorder.caster, item)
                     override fun nearestEnemyDist(from: Vec3): Double = world.nearestEnemyDist(from)
                     override fun enemyInCone(from: Vec3, dir: Vec3, range: Double, halfAngleDeg: Double): Boolean = world.enemyInCone(from, dir, range, halfAngleDeg)
                 }
@@ -601,6 +603,8 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                 override fun lookDirection(caster: ExprValue.Ref): Vec3 = SimFrame.fromYawPitch(pos, yaw, if (faithfulPose) casterPitchDeg else 0.0).forward()
                 override fun stacks(entity: ExprValue.Ref, status: String): Double =
                     if (faithfulPose) gameplay.statusStacks(this@GatewayRecorder.caster, status).toDouble() else super.stacks(entity, status)
+                override fun hasItem(entity: ExprValue.Ref, item: String): Boolean =
+                    items.hasItem(CastRef(cast.value, this@GatewayRecorder.caster, castWorld, castItem), this@GatewayRecorder.caster, item)
                 override fun nearestEnemyDist(from: Vec3): Double = world.nearestEnemyDist(from)
                 override fun enemyInCone(from: Vec3, dir: Vec3, range: Double, halfAngleDeg: Double): Boolean = world.enemyInCone(from, dir, range, halfAngleDeg)
             }
