@@ -398,7 +398,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 val hi = lc.clockOffset + (end ?: lc.config.maxLifeTicks)
                 subTables += SubTable(
                     EventPath(ev), lc.state, TickRange(lc.clockOffset, maxOf(lc.clockOffset, hi)), 1,
-                    listOf(Row(0, instance, Action.End(instance), src)), emptyList(),
+                    listOf(Row(0, instance, Action.End(instance), src)), emptyList(), mask = true,
                 )
             }
 

@@ -28,6 +28,6 @@ g @0..1200 state-end then=- final=false | state=fly
 g @0 state-end then=- final=true | state=end
 g.absorbed @1..60 handler max=1 | sub=fly/bolt.absorbed
 g.block @1..60 handler max=1 | sub=fly/bolt.block
-g.end @0..1200 handler max=1 | sub=fly/bolt.end
+g.end @1..60 handler max=1 | sub=fly/bolt.end
 g.hit @1..60 handler max=1 | sub=fly/bolt.hit
 g.hit @0 damage physical=40.000000 | sub=fly/bolt.hit

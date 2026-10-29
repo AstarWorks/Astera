@@ -223,7 +223,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
                 val hi = lc.clockOffset + (life ?: lc.config.maxLifeTicks)
                 subTables += SubTable(
                     EventPath(ev), lc.state, TickRange(lc.clockOffset, maxOf(lc.clockOffset, hi)), 1,
-                    listOf(Row(0, instance, Action.End(instance), lc.src)), emptyList(),
+                    listOf(Row(0, instance, Action.End(instance), lc.src)), emptyList(), mask = true,
                 )
             }
             writes[instance] = WriteStats(segments, if (segments > 0) 1 else 0)

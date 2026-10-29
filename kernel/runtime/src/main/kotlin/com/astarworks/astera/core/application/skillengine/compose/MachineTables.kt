@@ -119,7 +119,13 @@ public object MachineTables {
             l.subTables.forEach { t ->
                 val prev = subs[t.event]
                 subs[t.event] = if (prev == null) t else t.copy(
-                    window = TickRange(minOf(prev.window.min, t.window.min), maxOf(prev.window.max, t.window.max)),
+                    // an `until` mask never widens the producer's window (SubTable.mask)
+                    window = when {
+                        t.mask && !prev.mask -> prev.window
+                        prev.mask && !t.mask -> t.window
+                        else -> TickRange(minOf(prev.window.min, t.window.min), maxOf(prev.window.max, t.window.max))
+                    },
+                    mask = prev.mask && t.mask,
                     maxFirings = maxOf(prev.maxFirings, t.maxFirings),
                     rows = prev.rows + t.rows.filter { it !in prev.rows },
                 )

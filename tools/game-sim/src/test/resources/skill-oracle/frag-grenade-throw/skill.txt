@@ -32,7 +32,7 @@ g.block @0 world explode break_blocks=false fire=false power=1.300000 | sub=thro
 g.block @0 damage physical=35.000000 to=enemies@3.500000 | sub=throw/bolt.block
 g.block @0 status bleed stacks=1.000000 for=20 to=enemies@3.500000 | sub=throw/bolt.block
 g.block @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D1.5,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D35,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=throw/bolt.block
-g.end @0..1200 handler max=1 | sub=throw/bolt.end
+g.end @1..60 handler max=1 | sub=throw/bolt.end
 g.hit @1..60 handler max=1 | sub=throw/bolt.hit
 g.hit @0 world explode break_blocks=false fire=false power=1.300000 | sub=throw/bolt.hit
 g.hit @0 damage physical=35.000000 to=enemies@3.500000 | sub=throw/bolt.hit

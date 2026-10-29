@@ -28,6 +28,6 @@ g @40 state-end then=end final=false | state=fly
 g @0 state-end then=- final=true | state=end
 g.absorbed @1..40 handler max=1 | sub=fly/arrow.absorbed
 g.block @1..40 handler max=1 | sub=fly/arrow.block
-g.end @0..40 handler max=1 | sub=fly/arrow.end
+g.end @1..40 handler max=1 | sub=fly/arrow.end
 g.hit @1..40 handler max=1 | sub=fly/arrow.hit
 g.hit @0 damage physical=14.000000 | sub=fly/arrow.hit

@@ -285,7 +285,7 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
         // `until` is a mask (2.0), like a display's: the event's sub-table ends the ribbon the first time it fires.
         val subTables = timing.until?.let { ev ->
             val hi = lc.clockOffset + (life ?: lc.config.maxLifeTicks)
-            listOf(SubTable(EventPath(ev), lc.state, TickRange(lc.clockOffset, maxOf(lc.clockOffset, hi)), 1, listOf(Row(0, self, Action.End(self), lc.src)), emptyList()))
+            listOf(SubTable(EventPath(ev), lc.state, TickRange(lc.clockOffset, maxOf(lc.clockOffset, hi)), 1, listOf(Row(0, self, Action.End(self), lc.src)), emptyList(), mask = true))
         }.orEmpty()
         return Result.Success(Lowered(rows, subTables, instances = listOf(self)))
     }

@@ -28,6 +28,6 @@ g @40 state-end then=end final=false | state=fire
 g @0 state-end then=- final=true | state=end
 g.absorbed @1..40 handler max=1 | sub=fire/bolt.absorbed
 g.block @1..40 handler max=1 | sub=fire/bolt.block
-g.end @0..40 handler max=1 | sub=fire/bolt.end
+g.end @1..40 handler max=1 | sub=fire/bolt.end
 g.hit @1..40 handler max=1 | sub=fire/bolt.hit
 g.hit @0 damage physical=30.000000 | sub=fire/bolt.hit

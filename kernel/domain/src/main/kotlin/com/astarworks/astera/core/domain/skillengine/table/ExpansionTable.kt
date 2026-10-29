@@ -56,6 +56,12 @@ public data class SubTable(
     val maxFirings: Int,
     val rows: List<Row>,
     val branches: List<Branch>,
+    /**
+     * True for an `until:` end row an op contributes to an event somebody else produces (a display, frame, body, held model or ribbon
+     * that ends with `bolt.end`). Its [window] is only the contributor's own life; it never widens the event's firing window, which belongs
+     * to the producer (a projectile ends at 1..flight, nothing else decides it).
+     */
+    val mask: Boolean = false,
 )
 
 public data class Bounds(
