@@ -8,10 +8,8 @@
 @0 sound - op=cast/swing.hit/snd_hit sound=astera:weapons/gun-impact cat=master vol=1 pitch=1 at=0.000000,0.900000,2.500000
 @0 particle - op=cast/swing.hit/fx_hit type=gun-impact at=0.000000,1.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5117151482825228156
 @0 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0 z=0.9
-@0 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0 z=0.9
 @0 sound - op=cast/swing.hit/snd_hit sound=astera:weapons/gun-impact cat=master vol=1 pitch=1 at=0.000000,0.900000,5.000000
 @0 particle - op=cast/swing.hit/fx_hit type=gun-impact at=0.000000,1.200000,5.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5117151482825228156
-@0 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0 z=0.9
 @0 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0 z=0.9
 ## pose yaw=37 pitch=-20
 @0 sound - op=cast/snd sound=astera:weapons/shotgun-blast cat=master vol=0.6 pitch=1.4 at=0.000000,0.000000,0.000000

@@ -168,7 +168,6 @@
 @9 write #23 op=windup/petal[9] dur=1 pos=0.000000,2.100000,2.500000 rot=0.000000,0.000000,0.923880,0.382683 scale=0.894400,0.200000,1.000000 bb=CENTER
 @9 particle - op=windup/c1_hit.hit/h1_orange[1] type=couture-s2-p-orange at=0.000000,0.900000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1924742530727512146
 @9 damage 00000000-0000-0000-0000-00000000000a op=- physical=30 skill=couture-rapier-s2 at=0.000000,0.900000,2.500000 ignoreinv=false ignorearmor=false
-@9 damage 00000000-0000-0000-0000-00000000000b op=- physical=30 skill=couture-rapier-s2 at=0.000000,0.900000,2.500000 ignoreinv=false ignorearmor=false
 @9 frame windup/pre_f op=windup/pre_f pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @9 frame windup/spin_frame op=windup/spin_frame pos=-0.129624,0.976271,-0.487818 rot=-0.707107,0.000000,0.000000,0.707107
 @9 frame windup/piece_body op=windup/piece_body pos=-0.129624,0.976271,-0.487818 rot=-0.707107,0.000000,0.000000,0.707107
@@ -1231,7 +1230,6 @@
 @64 particle - op=reel/reel_hit.hit/reel_sparks type=crit count=6 at=-0.157357,1.786717,2.716726 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9095014197319408457
 @64 sound - op=reel/reel_hit.hit/slash_snd sound=couture.slash_light cat=master vol=1 pitch=1 at=-0.157357,1.786717,2.716726
 @64 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.0372 y=0.0812 z=-0.2335
-@64 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=-0.0372 y=0.0812 z=-0.2335
 @64 frame throw/fly_body op=throw/fly_body pos=-0.038342,1.624107,2.742390 rot=0.987688,0.000000,0.000000,0.156434
 @64 frame throw/fly_a op=throw/fly_a pos=-0.038342,1.624107,2.742390 rot=-0.980017,0.027670,0.174700,0.090996
 @64 frame throw/fly_b op=throw/fly_b pos=-0.038342,1.624107,2.742390 rot=-0.980990,0.026281,0.165932,0.097134
@@ -1854,7 +1852,6 @@ r @78 run-end tail=2 | pose
 @9 write #23 op=windup/petal[9] dur=1 pos=-1.504538,2.100000,1.996589 rot=-0.293151,-0.121427,0.876137,0.362908 scale=0.894400,0.200000,1.000000 bb=CENTER
 @9 particle - op=windup/c1_hit.hit/h1_orange[1] type=couture-s2-p-orange at=-1.504538,0.900000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1924742530727512146
 @9 damage 00000000-0000-0000-0000-00000000000a op=- physical=30 skill=couture-rapier-s2 at=-1.504538,0.900000,1.996589 ignoreinv=false ignorearmor=false
-@9 damage 00000000-0000-0000-0000-00000000000b op=- physical=30 skill=couture-rapier-s2 at=-1.504538,0.900000,1.996589 ignoreinv=false ignorearmor=false
 @9 frame windup/pre_f op=windup/pre_f pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
 @9 frame windup/spin_frame op=windup/spin_frame pos=0.190054,0.976271,-0.467598 rot=-0.670566,-0.224368,-0.224368,0.670566
 @9 frame windup/piece_body op=windup/piece_body pos=0.190054,0.976271,-0.467598 rot=-0.670566,-0.224368,-0.224368,0.670566
