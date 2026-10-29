@@ -33,7 +33,6 @@ machine:
               at: 0
               targets: enemies
               shape: {sector: {deg: 150.0, range: 4.2, height: 2.0, forward: look}}
-              max_count: all       # GAP(Q1): v2 had no cap
               window: once
               ignore_invulnerability: false
               damage: {physical: 65.0}

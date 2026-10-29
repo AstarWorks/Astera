@@ -48,6 +48,8 @@ public object PartInliner {
         val scope = HashSet(BUILTIN_FRAMES).apply {
             def.anchors.forEach { add(it.id) }
             addAll(def.framesIn.keys)
+            // a frame or projectile body of the machine-level `world:` list lives for the whole cast, so every state may hand it to a part
+            for (op in def.machine.world) if (op["op"] == "frame" || op["op"] == "projectile") (op["id"] as? String)?.let { add(it) }
         }
         val w = Walk(def.id, parts, config, resolved)
         val bound = when (val r = walk(w, rootMachine, "machine", scope, emptyList())) {
@@ -246,7 +248,8 @@ internal class ParamSubst(private val env: Map<String, Any?>, private val strict
         v is String -> if (cel) "\"" + v.replace("\\", "\\\\").replace("\"", "\\\"") + "\"" else v
         v is Number -> {
             val d = v.toDouble()
-            if (d == Math.floor(d) && Math.abs(d) < 1e15) d.toLong().toString() else d.toString()
+            // inside CEL a whole number stays a double literal (`3.0`): `3 / 4` would be integer division and give 0 (iron-blade-lunge dash speed)
+            if (d == Math.floor(d) && Math.abs(d) < 1e15) (if (cel) d.toString() else d.toLong().toString()) else d.toString()
         }
         else -> v?.toString()
     }

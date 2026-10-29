@@ -27,7 +27,6 @@ machine:
       enter:
         - {id: snd_swing, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 1.0, pitch: 1.5}
         - {id: fx_swing, op: particle_def, def: slash-sweep, anchor: sweep}
-        # GAP(Q1): max_count spelling (A: required int|all, B: optional); v2 had no cap, so `all` = unlimited.
         - id: swing
           op: hit
           anchor: eye

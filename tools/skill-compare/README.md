@@ -196,7 +196,7 @@ and a regression slipped through unnoticed. Everyone asks the server, so everyon
   `[vfx-trace] play|pos|spawn` lines of `ASTERA_VFX_TRACE`), `sources[].trace` carries `fxSpawnTicks`, `casterTravelBlocks` (first to last caster
   position), `casterMaxFromStartBlocks` and `finalGapBlocks` (caster to target at the last sample). Absent file = no `trace` key.
 - The case page has a collapsible **比較** panel (the same sheet, regression list, links to the JSON / PNG).
-- **Framing parity** (`framing[]` per source; the round_gate rule is `ratioToRef` within 0.5x-2x): the caster's on-screen height (1.8 blocks, feet to head) as % of the
+- **Framing parity** (`framing[]` per source; the framing rule is `ratioToRef` within 0.5x-2x): the caster's on-screen height (1.8 blocks, feet to head) as % of the
   frame height. MC rows are **analytic**: the capture camera (`compare` = `intent.json` camera keys exactly as `tools/vfx-shot/compare_plan.py` plays them; `side`/`right`/`front`/
   `back`/`high`/`near` = vfx-shot `orbit_cam` with the case intent distance; fov from the capture meta) projected onto the caster position of the capture's `trace.log`
   (`[vfx-trace] pos` lines). Other views (`top`, `preview-*`) report an `error`. The ref row is **annotated**: `case.json` `ref_caster_height_pct: {"<tick>": pct}` (hair top to feet

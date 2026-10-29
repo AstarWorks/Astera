@@ -25,7 +25,6 @@ machine:
           at: 0
           shape: {sphere: "${radius}"}
           targets: enemies
-          max_count: all       # GAP(Q1): v2 had no cap
           window: once
           ignore_invulnerability: false
           damage: {water: "= ${dmg_water} * (1.0 - 0.5 * dist(event.victim, caster) / ${radius})"}

@@ -3,8 +3,8 @@ package com.astarworks.astera.contentlint
 import com.fasterxml.jackson.databind.JsonNode
 
 /**
- * Checks the JSON Schema cannot express, for content that is not a skill. Skill documents (astera/v2) are
- * validated by [SkillV2Lint]; their composition / decode / reference checks live in skill-lint.
+ * Checks the JSON Schema cannot express, for content that is not a skill. Skill documents are
+ * validated by [SkillV3Lint]; their decode / compose / replay checks live in the game-sim ShippedV3ContentScenarioTest.
  */
 internal object SemanticChecks {
 

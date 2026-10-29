@@ -208,12 +208,12 @@ internal class LintRunner(private val cli: CliArgs) {
 
         results += semanticResults()
 
-        // Skill engine v2 (ADR-0301): content/skills/ and content/frames/, dispatched by `kind`.
-        val v2 = SkillV2Lint(cli.contentDir, cli.schemasDir).run()
-        results += v2.results
-        missingSchemas += v2.missingSchemas
+        // Skill engine (ADR-0303): content/skills/ and content/frames/, dispatched by `kind`.
+        val skills = SkillV3Lint(cli.contentDir, cli.schemasDir).run()
+        results += skills.results
+        missingSchemas += skills.missingSchemas
 
-        return LintReport(results, missingSchemas, skinNotices() + v2.notices + itemSkillNotices(v2.skillIds))
+        return LintReport(results, missingSchemas, skinNotices() + skills.notices + itemSkillNotices(skills.skillIds))
     }
 
     /**
@@ -255,9 +255,9 @@ internal class LintRunner(private val cli: CliArgs) {
         return out
     }
 
-    /** Items still bind skill ids that have no v2 `kind: Skill` document yet (SKL-09 ports them); advisory only. */
-    private fun itemSkillNotices(v2SkillIds: Set<String>): List<String> {
-        val baseIds = v2SkillIds.map { it.substringBefore('@') }.toSet()
+    /** Items that bind skill ids with no `kind: Skill` document; advisory only. */
+    private fun itemSkillNotices(skillDocIds: Set<String>): List<String> {
+        val baseIds = skillDocIds.map { it.substringBefore('@') }.toSet()
         val missing = linkedMapOf<String, Set<String>>()
         for (yaml in yamlFilesIn("items")) {
             val node = runCatching { yaml.reader().use { YamlToJson.parse(it) } }.getOrNull() ?: continue
@@ -265,7 +265,7 @@ internal class LintRunner(private val cli: CliArgs) {
             if (unresolved.isNotEmpty()) missing[yaml.name] = unresolved
         }
         if (missing.isEmpty()) return emptyList()
-        return listOf("item-skill: ${missing.size} item file(s) bind ${missing.values.flatten().toSet().size} skill id(s) without a v2 skill document (advisory until SKL-09 ports them)")
+        return listOf("item-skill: ${missing.size} item file(s) bind ${missing.values.flatten().toSet().size} skill id(s) without a skill document")
     }
 
     private fun yamlFilesIn(dir: String): List<Path> {

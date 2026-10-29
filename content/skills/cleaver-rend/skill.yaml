@@ -37,7 +37,6 @@ machine:
               at: 0
               shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
               targets: enemies
-              max_count: all       # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
               window: once
               ignore_invulnerability: false
               damage: {physical: "${dmg_physical}"}

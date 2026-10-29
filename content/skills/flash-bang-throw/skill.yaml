@@ -38,12 +38,12 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: st_shock, op: status, target: {kind: enemies, around: heart, radius: "${radius}", max_count: all}, status: shock, stacks: 1, for: "${shock_ticks}"}   # GAP(Q1): max_count spelling; v2 had no cap
+              - {id: st_shock, op: status, target: {kind: enemies, around: heart, radius: "${radius}"}, status: shock, stacks: 1, for: "${shock_ticks}"}
               - {id: emit_2, op: particle, particle: end_rod, anchor: heart, count: 0, extra: 0.08}
               - {id: emit_3, op: particle, particle: dust, anchor: heart, count: 1, color: "#ffffe6", size: 1.4}
               - {id: snd_hit, op: sound, sound: "entity.firework_rocket.blast", anchor: contact, volume: 0.9, pitch: 1.3}
             block:
-              - {id: st_shock_2, op: status, target: {kind: enemies, around: contact, radius: "${radius}", max_count: all}, status: shock, stacks: 1, for: "${shock_ticks}"}   # GAP(Q1): max_count spelling; v2 had no cap
+              - {id: st_shock_2, op: status, target: {kind: enemies, around: contact, radius: "${radius}"}, status: shock, stacks: 1, for: "${shock_ticks}"}
               - {id: emit_4, op: particle, particle: end_rod, anchor: contact, count: 0, extra: 0.08}
               - {id: emit_5, op: particle, particle: dust, anchor: contact, count: 1, color: "#ffffe6", size: 1.4}
               - {id: snd_blk, op: sound, sound: "entity.firework_rocket.blast", anchor: contact, volume: 0.9, pitch: 1.3}

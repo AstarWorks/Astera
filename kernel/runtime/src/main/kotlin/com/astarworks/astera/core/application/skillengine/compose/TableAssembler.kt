@@ -5,8 +5,10 @@ import com.astarworks.astera.core.domain.skillengine.table.Bounds
 import com.astarworks.astera.core.domain.skillengine.table.EventPath
 import com.astarworks.astera.core.domain.skillengine.table.ExpansionTable
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
+import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.StateTable
+import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
 import com.astarworks.astera.core.domain.skillengine.table.SubTable
 import com.astarworks.astera.core.domain.skillengine.table.WriteStats
 import com.astarworks.astera.core.domain.skillengine.table.phase
@@ -16,7 +18,14 @@ import com.astarworks.astera.core.domain.skillengine.table.phase
  * Callers pass rows in declaration/occurrence order; the sort is stable, so that order breaks every remaining tie.
  */
 public object TableAssembler {
-    public fun sortRows(rows: List<Row>): List<Row> = rows.sortedWith(compareBy<Row>({ it.tick }, { it.action.phase.ordinal }))
+    public fun sortRows(rows: List<Row>): List<Row> = rows.sortedWith(compareBy<Row>({ it.tick }, { it.action.phase.ordinal }, { spawnRank(it.action) }))
+
+    /**
+     * Inside the spawn phase the things a display can be anchored on (a frame, a projectile body) spawn first, so a rider listed before its
+     * body in the document (example b: `shard` before `bolt`) still finds its parent when it spawns; declaration order breaks every other tie.
+     */
+    private fun spawnRank(a: Action): Int =
+        if (a is Action.Spawn && (a.kind == SpawnKind.FRAME || a.kind == SpawnKind.PROJECTILE_BODY)) 0 else 1
 
     public fun assemble(
         skillId: String,

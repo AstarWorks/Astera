@@ -113,12 +113,14 @@ public object MachineTables {
             instances += l.instances
             writes += l.writes
             emitted += l.events
-            // occurrences of one repeating op share an event path and identical rows; their firing windows union
+            // occurrences of one repeating op share an event path and identical rows; their firing windows union.
+            // Several ops that end on the same instance (`until: reel.end` on every piece) each add their own End row to that one event.
             l.subTables.forEach { t ->
                 val prev = subs[t.event]
                 subs[t.event] = if (prev == null) t else t.copy(
                     window = TickRange(minOf(prev.window.min, t.window.min), maxOf(prev.window.max, t.window.max)),
                     maxFirings = maxOf(prev.maxFirings, t.maxFirings),
+                    rows = prev.rows + t.rows.filter { it !in prev.rows },
                 )
             }
         }

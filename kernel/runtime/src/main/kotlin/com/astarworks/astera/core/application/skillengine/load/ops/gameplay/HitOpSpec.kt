@@ -67,7 +67,7 @@ public class HitOp(
     public val anchor: String,
     public val shape: HitShapeDecl,
     public val targets: String,
-    /** null = every victim the shape found (`all`, or omitted: see [GameplayOps.MAX_COUNT_OMITTED_IS_LOAD_ERROR]). */
+    /** null = every victim the shape found (`all`, or `max_count` omitted). */
     public val maxCount: Int?,
     public val window: HitWindow?,
     public val ignoreInvulnerability: Boolean,
@@ -187,7 +187,7 @@ public object HitOpSpec : OpSpec<HitOp> {
             values[onField]?.let { on -> for (e in HitEvent.entries) on[onEventFields.getValue(e)]?.let { raw[e] = it } }
 
             HitOp(
-                id, src, whenExpr, timing, values[anchorField], decoded, values[targetsField], GameplayOps.maxCount(values, maxCountField, ctx, path),
+                id, src, whenExpr, timing, values[anchorField], decoded, values[targetsField], values[maxCountField],
                 window, values[ignoreInvulnerabilityField], damage, raw,
             )
         }
@@ -199,7 +199,7 @@ public object HitOpSpec : OpSpec<HitOp> {
 
         val ref = PointRef.parse(op.anchor)
         val anchorInstance = lc.anchors.resolve(ref.frame)?.instance
-        fun point(name: String?): Vec = Val.Live(GameplayOps.point(ref.frame, name), null)
+        fun point(name: String?): Vec = Val.Live(GameplayOps.point(anchorInstance?.text ?: ref.frame, name), null)
         val origin: Vec = point(ref.point)
         val shape: HitShape = when (val s = op.shape) {
             is HitShapeDecl.Sphere -> HitShape.Sphere(origin, GameplayOps.live(s.radius))

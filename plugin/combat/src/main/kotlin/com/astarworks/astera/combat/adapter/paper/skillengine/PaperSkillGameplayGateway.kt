@@ -20,6 +20,7 @@ import com.astarworks.astera.core.application.port.outbound.runLaterTicks
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.domain.animation.player.CustomAnimationId
+import com.astarworks.astera.core.domain.effect.ScreenOverlay
 import com.astarworks.astera.core.domain.effect.camera.ShakeDirection
 import com.astarworks.astera.core.domain.effect.camera.ShakeProfile
 import com.astarworks.astera.core.domain.effect.camera.ShakeShape
@@ -174,6 +175,15 @@ public class PaperSkillGameplayGateway(
             if (p.tick <= 0) out.cameraKick(target, p.dx, p.dy)
             else scheduler.runLaterTicks(ExecutionScope.Entity(viewer), p.tick.toLong()) { out.cameraKick(target, p.dx, p.dy) }
         }
+    }
+
+    override fun screenFlash(cast: CastRef, viewer: UUID, overlay: String, colorRgb: Int?, fadeInTicks: Int, stayTicks: Int, fadeOutTicks: Int) {
+        val out = feedback() ?: run {
+            log.warn("skill engine: screen_flash dropped, no player feedback gateway")
+            return
+        }
+        val glyph = ScreenOverlay.fromYaml(overlay) ?: error("screen_flash: unknown overlay '$overlay'")
+        out.sendScreenFlash(PlayerId(viewer), glyph, colorRgb ?: glyph.defaultColor, fadeInTicks, stayTicks, fadeOutTicks)
     }
 
     override fun stopSound(cast: CastRef, viewer: UUID, sound: String) {

@@ -22,19 +22,19 @@ Then couture-rapier S2 matched the sheet's frames at ticks 9 / 41 / 72 and was s
 3.  Founder gate 1 inventory + inventory diff + beat sheet + stick figures on the skill-compare page; approval FREEZES
                    both files.
 4a. Structure      first build commit: one object per inventory row in its native construction (model / projectile /
-                   anchored line), zero sprites, zero particles, checked in `make skill-3d` (orbit + top stills).
+                   anchored line), zero sprites, zero particles, checked in the in-game structure captures (`make vfx-shot`) (orbit + top stills).
 4b. Visuals        motion, then colour and shape, then detail; every commit live on dev with the reload verified.
 5.  Capture        side, front, back, TOP-DOWN (mandatory), 45 deg high, eye height; skippedTicks = 0; enemy at the
                    intent distance, caster framing within 0.8x-1.25x of the reference.
-5b. Round gate     round note (round-template.md): `## Inventory` diff first (every row ok, structure sha, skill-3d
+5b. Round gate     round note (round-template.md): `## Inventory` diff first (every row ok, structure sha, structure stills
                    stills), then compare sheet ref | this | previous, trace cast+N, framing, fidelity, "weaker than
-                   previous: none"; `make round-gate` must PASS before any reviewer.
+                   previous: none"; the round note must be complete before any reviewer.
 6.  Review         a fresh reviewer (new every round): inventory diff first ("row N: ref 2, build 0"), whole impression,
                    regression vs previous, then every sheet row ○ / × with evidence.
 7.  Founder gate 2 in game, on dev. Final.
 ```
 
-Do not start step 4 until the inventory diff is clean and gate 1 is approved. Lint (`make skill-lint`) is a preflight of invariants (held-weapon count from the inventory, grip from the item data, feet on the floor, display budget, event-bound hits, inventory models exist and are shown, no capture-distance bake); it says nothing about whether the skill matches the reference. **Priority: inventory (count, anchor) > motion > colour and shape > detail. A detail round before the inventory passes is wasted.** The pose library (keypoints, `tools/pose-solve/`) is a tool the author composes from; it is no longer a founder gate.
+Do not start step 4 until the inventory diff is clean and gate 1 is approved. Lint (`./gradlew -q :tools:content-lint:run`) is a preflight of invariants (held-weapon count from the inventory, grip from the item data, feet on the floor, display budget, event-bound hits, inventory models exist and are shown, no capture-distance bake); it says nothing about whether the skill matches the reference. **Priority: inventory (count, anchor) > motion > colour and shape > detail. A detail round before the inventory passes is wasted.** The pose library (keypoints, `tools/pose-solve/`) is a tool the author composes from; it is no longer a founder gate.
 
 ## Inventory (step 0.5): `tools/skill-compare/data/<case>/inventory.md`
 
@@ -84,10 +84,10 @@ Follow verbatim, in this order; each line names the file or command that proves 
 3. Start a fresh agent (`limbus-reviewer`, mode "inventory") with the reference only; save its inventory and your diff as `inventory-check.md`. Fix count / colour / anchor disagreements from the reference; unresolved ones go to the founder in 「数えきれなかったもの」.
 4. Write `beat-sheet.md` (8 columns, below) with every beat pointing at the inventory rows it moves; mirror tick ranges into `case.json` `beats`.
 5. **Gate 1**: `make skill-round SKILL=<s> FILE=<inventory.md>` (attach the beat sheet and stick figures as further files / images), report to the manager, wait. Approval freezes `inventory.md` and `beat-sheet.md`.
-6. **Structure commit**: one object per inventory row in its native construction (held item, `projectile` sub-skill with its model, anchored line, enemy-attached `on_hit:` element), zero sprites, zero particles. Check it with `make skill-3d SKILL=<skill> CASE=<case> SHOTS=<dir> VIEWS=orbit,top TICKS=<key ticks>`; the orbit and top stills go beside the round note. `make skill-lint SKILL=<skill> CASE=<case>` checks 1 (held weapons = inventory), 6 (inventory models exist and are shown) and 7 (no capture-distance bake) must PASS. Commit with `structure:` in the subject.
-7. **Visuals**: motion, then colour and shape, then detail; every commit `make skill-lint` then `make dev-content` (or dev-pack / dev-plugins) with the reload verified.
+6. **Structure commit**: one object per inventory row in its native construction (held item, `projectile` sub-skill with its model, anchored line, enemy-attached `on_hit:` element), zero sprites, zero particles. Check it with the in-game structure captures (`make vfx-shot`); the orbit and top stills go beside the round note. `./gradlew -q :tools:content-lint:run` checks 1 (held weapons = inventory), 6 (inventory models exist and are shown) and 7 (no capture-distance bake) must PASS. Commit with `structure:` in the subject.
+7. **Visuals**: motion, then colour and shape, then detail; every commit `./gradlew -q :tools:content-lint:run` then `make dev-content` (or dev-pack / dev-plugins) with the reload verified.
 8. **Capture** (side, front, back, top, high, caster; `DISTANCE=<intent enemy x>`; `skippedTicks = 0`), publish.
-9. **Round note** (`round.md`): `## Inventory` first (one line per inventory row, ok / ng, `structure: <sha>`, `skill-3d: <orbit.png> <top.png>`), then the v3 sections; `make round-gate SKILL=<skill>` PASS.
+9. **Round note** (`round.md`): `## Inventory` first (one line per inventory row, ok / ng, `structure: <sha>`, `structure stills: <orbit.png> <top.png>`), then the v3 sections; round note complete.
 10. **Fresh reviewer**, inventory first: its report's first line is `Inventory diff: ok | ng - row N: ref X, build Y`; a ng there returns to step 6 before any detail is discussed. Then gate 2 in game.
 
 **Limit: at most 2 rounds per gate.** If a gate is not passed after 2 rounds, stop and escalate to the founder with ONE question (what must be decided, the evidence for each candidate, the recommendation). Never invent a new answer and start round 3.

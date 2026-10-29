@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.load.ops.gameplay
 
+import com.astarworks.astera.core.application.skillengine.compose.AnchorNames
 import com.astarworks.astera.core.application.skillengine.compose.AnchorRegistry
 import com.astarworks.astera.core.application.skillengine.compose.ExprClass
 import com.astarworks.astera.core.application.skillengine.compose.HandlerLowering
@@ -17,13 +18,13 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
 import com.astarworks.astera.core.application.skillengine.load.grammar.TimingKind
 import com.astarworks.astera.core.application.skillengine.load.grammar.Types
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
+import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ParticlePlacement
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaws
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
 import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
 import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
 import com.astarworks.astera.core.domain.Result
-import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ParticlePlacement
 import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.model.Value
@@ -318,23 +319,39 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
 
             val anchor = lc.anchors.resolve(op.origin)?.instance
             val one = Val.Known(Vector3d(1.0, 1.0, 1.0))
-            // a document anchor (`anchors:` entry, e.g. `muzzle`) is not an instance: no live cell `anchor:muzzle.*` exists on Paper, so the spawn pose is
-            // lowered like a particle's (CEL position from its frame + declared offsets; rotation = that frame's rotation, the shot's aim)
-            var spawnPosition: Val<Vector3d> = Val.Live("anchor:${op.origin}.position", null)
-            var spawnRotation: Val<Quaterniond> = Val.Live("anchor:${op.origin}.rotation", null)
-            if (anchor == null && lc.anchors.document(op.origin) != null) {
-                val base = ParticlePlacement.base(lc, op.origin, "projectile").getOr { return Result.Failure(it) }
-                    ?: return bad("origin '${op.origin}' is a document anchor whose parent is not declared in this scope")
-                spawnPosition = ParticlePlacement.position(lc, op.origin, "projectile").getOr { return Result.Failure(it) }
+            // a document `anchors:` entry (ADR-0303 1) is no frame instance and no live name: it lowers to its parent frame plus its offset as one
+            // `= expr` cell, exactly as a sound / particle placement does; only a builtin or an instance is a bare live anchor cell
+            val originPosition: Val<Vector3d>
+            val originRotation: Val<Quaterniond>
+            if (anchor == null && lc.anchors.document(AnchorNames.split(op.origin)?.base ?: op.origin) != null) {
+                originPosition = when (val r = ParticlePlacement.position(lc, op.origin, "projectile")) {
+                    is Result.Failure -> return r
+                    is Result.Success -> r.value
+                }
+                val base = when (val r = ParticlePlacement.base(lc, op.origin, "projectile")) {
+                    is Result.Failure -> return r
+                    is Result.Success -> r.value ?: return bad("origin '${op.origin}' is not declared in this scope")
+                }
+                // the shot's aim is the rotation of the anchor's parent frame; a `point(frame, 'name')` parent reads as the cell `frame.name`
                 val frameName = Regex("^point\\((.+), '(.+)'\\)$").matchEntire(base.frame)?.let { "${it.groupValues[1]}.${it.groupValues[2]}" } ?: base.frame
-                spawnRotation = Val.Live("anchor:$frameName", null)
+                originRotation = Val.Live("anchor:$frameName", null)
+            } else {
+                if (anchor == null) {
+                    // not an instance and not a document anchor: it must be a builtin (`caster`, `contact`, ...); an undeclared name would only fail at the first cast
+                    when (val r = ParticlePlacement.base(lc, op.origin, "projectile")) {
+                        is Result.Failure -> return r
+                        is Result.Success -> if (r.value == null) return bad("origin '${op.origin}' is not declared in this scope (a builtin, a frame or body id, or an 'anchors:' entry)")
+                    }
+                }
+                originPosition = Val.Live("anchor:${op.origin}.position", null)
+                originRotation = Val.Live("anchor:${op.origin}.rotation", null)
             }
             val rows = ArrayList<Row>()
             rows += Row(
                 0, body,
                 Action.Spawn(
                     SpawnKind.PROJECTILE_BODY, anchor, op.origin,
-                    Pose(spawnPosition, spawnRotation, one),
+                    Pose(originPosition, originRotation, one),
                     Look(look),
                 ),
                 src,

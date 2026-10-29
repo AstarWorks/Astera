@@ -109,6 +109,7 @@ public class PaperLiveValueSource(
                     null, "feet" -> Frame.fromYawPitch(p.feet, p.yaw, 0.0)
                     "eye" -> Frame.fromYawPitch(p.eye, p.yaw, p.pitch)
                     "look" -> Frame.fromYawPitch(p.feet, p.yaw, p.pitch)
+                    in HANDS -> Frame.fromYawPitch(handOrigin(p, point.orEmpty()), p.yaw, p.pitch)
                     else -> null
                 }
             }
@@ -119,6 +120,7 @@ public class PaperLiveValueSource(
                 val now = when (point) {
                     null, "feet", "look" -> p.feet
                     "eye" -> p.eye
+                    in HANDS -> handOrigin(p, point.orEmpty())
                     else -> return Vec3.ZERO
                 }
                 return casterVelocity(cast, point ?: "", now)
@@ -176,7 +178,7 @@ public class PaperLiveValueSource(
         val bare = name.removePrefix("anchor:")
         if (bare == CASTER || bare.startsWith("$CASTER.")) {
             val p = casterPose(request)
-            val pitched = bare == "$CASTER.look" || bare == "$CASTER.eye"
+            val pitched = bare == "$CASTER.look" || bare == "$CASTER.eye" || bare.removePrefix("$CASTER.") in HANDS
             return quat(Frame.fromYawPitch(p.feet, p.yaw, if (pitched) p.pitch else 0.0).rotation)
         }
         return when (val v = evalExpr(cast, request, name, binding, scope)) {
@@ -216,6 +218,19 @@ public class PaperLiveValueSource(
         )
     }
 
+    /**
+     * The caster's hand point (`hand_r`, `hand_l`, `palm` = the right palm): below the eye, to the side and in front of the body along the
+     * yaw heading, so objects glued to it ride the arm the item is held in. One calibrated rest-pose offset, not the animated arm.
+     */
+    private fun handOrigin(p: CasterPose, point: String): Vec3 {
+        val yawFrame = Frame.fromYawPitch(p.feet, p.yaw, 0.0)
+        val side = if (point == "hand_l") 1.0 else -1.0
+        val drop = (p.eye.y - p.feet.y) - HAND_BELOW_EYE
+        val left = yawFrame.left()
+        val fwd = yawFrame.forward()
+        return Vec3(p.feet.x + left.x * side * HAND_SIDE + fwd.x * HAND_FORWARD, p.feet.y + drop, p.feet.z + left.z * side * HAND_SIDE + fwd.z * HAND_FORWARD)
+    }
+
     private fun casterVec(request: CastRequest, name: String): Vector3d? {
         if (name != CASTER && !name.startsWith("$CASTER.")) return null
         val p = casterPose(request)
@@ -224,12 +239,14 @@ public class PaperLiveValueSource(
             "eye" -> p.eye
             "body" -> p.body
             "forward" -> Frame.fromYawPitch(p.feet, p.yaw, p.pitch).forward()
-            else -> throw IllegalArgumentException("caster field '$name' is not one of feet, eye, body, look, forward")
+            in HANDS -> handOrigin(p, name.removePrefix("$CASTER."))
+            else -> throw IllegalArgumentException("caster field '$name' is not one of feet, eye, body, look, forward, hand_r, hand_l, palm")
         }
         return Vector3d(v.x, v.y, v.z)
     }
 
     private fun bindingVec(name: String, binding: EventBinding?): Vector3d? {
+        if (name == "event.victim" || name == "event.attacker") return eventEntityVec(name, binding)
         val root = name.substringBefore('.', "")
         if (root != "contact" && root != "target") return null
         val b = if (root == "contact") contactOf(binding) else victimOf(binding)
@@ -242,6 +259,14 @@ public class PaperLiveValueSource(
             else -> throw IllegalArgumentException("binding field '$field' of '$name' is not one of pos, forward, eye, normal, point")
         }
         return Vector3d(v.x, v.y, v.z)
+    }
+
+    /** `event.victim` / `event.attacker` as a point: the bound entity's feet. */
+    private fun eventEntityVec(name: String, binding: EventBinding?): Vector3d {
+        val id = (if (name == "event.victim") binding?.victim?.id else binding?.attacker)
+            ?: throw IllegalArgumentException("'$name' needs a hit event binding")
+        val loc = (server.getEntity(id) ?: throw IllegalArgumentException("'$name': entity $id is not loaded")).location
+        return Vector3d(loc.x, loc.y, loc.z)
     }
 
     private fun contactOf(binding: EventBinding?): V3Bindings.Binding {
@@ -353,5 +378,9 @@ public class PaperLiveValueSource(
 
     private companion object {
         const val CASTER = "caster"
+        val HANDS = setOf("hand_r", "hand_l", "palm")
+        const val HAND_BELOW_EYE = 0.55
+        const val HAND_SIDE = 0.35
+        const val HAND_FORWARD = 0.45
     }
 }

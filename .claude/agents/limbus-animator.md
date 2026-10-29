@@ -32,7 +32,7 @@ Read `docs/contributing/vfx-team/beat-sheet.md` and follow workflow v4 (inventor
 ## Self-check before handing back
 
 - Keyframe table (tick, rotation, ease) written beside the brief's reference frames; main motion inside the first 1/4; overshoot and settle present; apex hold present.
-- No chunk over 60 deg per tick; the planner accepts the rig (`make skill-lint-plan` raises no exception).
+- No chunk over 60 deg per tick; the planner accepts the rig (`./gradlew -q :tools:content-lint:run` passes).
 - `make skill-preview SKILL=<id>` strip opened (docs/contributing/vfx-team/skill-preview.md).
 - Caster movement: distance, ticks and direction match the reference (blocks per tick); contact overlaps the capsule with a target at two distances.
 - Weapon orientation at rest and at contact matches the model's grip (ask the modeler through the author if not).

@@ -230,7 +230,6 @@ machine:
                     op: particle_def
                     def: couture-s2-p-crit
                     anchor: fx4_couture_s2_hit1
-        # GAP(Q4): trigger-only hit (damage omitted, R24); the 30 lands in the c1_hit.hit handler.
         # GAP(Q6): v2 delay 1 between hit and damage is the handler row `at: 1` (option A); option B would be `damage_delay: 1` on the hit.
         # max_count: 1 = the nearest 1 target (v2 hit cap; founder 10/28 ruling, TablePlayer.kt:933-935 sorts nearest-first then takes N).
         - id: w0
@@ -1357,7 +1356,7 @@ machine:
       do:
         - {id: reel, op: reel, anchor: /windup/volley, to: /throw/palm_f, speed: "= reel_speed", ease: in}
         # ignore_invulnerability: false is the vanilla default (v2 reel_hit had no flag).
-        - {id: reel_hit, op: hit, anchor: /windup/volley, targets: enemies, shape: {capsule: 0.2, from: root, to: tip}, window: once, ignore_invulnerability: false, damage: {physical: "= dmg_reel"}, on: {hit: [{id: pull, op: impulse, target: event.victim, vector: "= normalize(pos(palm) - pos(event.victim)) * 0.25"}, {id: reel_sparks, op: particle, particle: crit, anchor: contact, count: 6}, {id: slash_snd, op: sound, sound: couture.slash_light, anchor: contact}]}}
+        - {id: reel_hit, op: hit, anchor: /throw/fly_a, targets: enemies, shape: {capsule: 0.2, from: root, to: tip}, window: once, ignore_invulnerability: false, damage: {physical: "= dmg_reel"}, on: {hit: [{id: pull, op: impulse, target: event.victim, vector: "= normalize(pos(palm) - pos(event.victim)) * 0.25"}, {id: reel_sparks, op: particle, particle: crit, anchor: contact, count: 6}, {id: slash_snd, op: sound, sound: couture.slash_light, anchor: contact}]}}
         - {id: reel_snd, op: sound, sound: couture.reel, anchor: /windup/volley, every: 3, for: 16, volume: 1.0, pitch: "= 1.0 + 0.4 * (1 - dist(volley, palm) / throw_range)"}
         - {id: catch_snd, op: sound, sound: couture.catch, anchor: shears, at: 15}
       on:

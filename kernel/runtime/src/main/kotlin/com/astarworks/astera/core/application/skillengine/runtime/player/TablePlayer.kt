@@ -35,6 +35,8 @@ import com.astarworks.astera.core.domain.skill.value.NumericValue
 import com.astarworks.astera.core.domain.skillengine.hit.ContactEvent
 import com.astarworks.astera.core.domain.skillengine.hit.DefaultContactResolver
 import com.astarworks.astera.core.domain.skillengine.hit.ResolvedVolume
+import com.astarworks.astera.core.domain.skillengine.model.AnchorDecl
+import com.astarworks.astera.core.domain.skillengine.model.AnchorMode
 import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.Branch
@@ -335,13 +337,27 @@ public class TablePlayer(
         run.pending += RuntimeEvent(EventPath("end"), now, null, null, null)
     }
 
+    /**
+     * `until: <instance>.end` naming an instance of another state (or of the cast's world) keeps the row alive past its own state's exit:
+     * the table already holds its End row in that instance's `.end` sub-table, which closes it when that instance ends.
+     */
+    private fun endsInOtherState(run: Run, id: InstanceId, state: StatePath): Boolean =
+        run.cursor.skill.table.subTables.any { (path, sub) ->
+            if (!path.value.endsWith(".end")) return@any false
+            val owner = path.value.removeSuffix(".end").substringBeforeLast('/', "")
+            owner != state.value && !owner.startsWith(state.value + "/") &&
+                sub.rows.any { (it.action as? Action.End)?.instance == id }
+        }
+
     private fun exitLevel(run: Run, lvl: LevelCursor, reason: ExitReason, now: Int, binding: EventBinding?) {
         for (child in run.cursor.levels.filter { it.parent === lvl }.asReversed()) exitLevel(run, child, ExitReason.PREEMPT, now, binding)
         pasteSub(run, EventPath("${lvl.state.value}.exit[${reason.name.lowercase()}]"), now, binding, owner = null, direct = true)
         // End rows the table already played this tick are the contract and run in row order; the sweep below only closes what is still alive
         for (id in run.pendingEnds.toList()) endInstance(run, id)
         run.pendingEnds.clear()
-        for ((id, rec) in run.recs.entries.toList().asReversed()) if (rec.owner == lvl.state) endInstance(run, id)
+        for ((id, rec) in run.recs.entries.toList().asReversed()) if (rec.owner == lvl.state && !endsInOtherState(run, id, lvl.state)) endInstance(run, id)
+        // a reel is a driver, not an instance: it belongs to the state that started it and stops when that state leaves (timer before arrival)
+        for (id in run.reels.keys.toList()) if (id.text.startsWith(lvl.state.value + "/")) endDrivers(run, id)
         run.regionEnds.remove(lvl.state)
         for (l in run.locks.filter { it.owner == lvl.state }) {
             run.locks.remove(l)
@@ -530,6 +546,7 @@ public class TablePlayer(
             run.cursor.instances.remove(k)
             run.bodyClips.remove(k)?.let { gameplay.stopBodyClip(castRef(run), run.request.caster, it) }
             if (run.heldModels.remove(k)) gameplay.clearHeldModel(castRef(run), run.request.caster)
+            run.veils.remove(k)?.handles?.forEach { visual.remove(it) }
             rec.real?.let { visual.remove(it) }
         }
     }
@@ -543,8 +560,9 @@ public class TablePlayer(
             pp = pw.pos
             pr = pw.rot
         } else if (rec.anchorName.isNotEmpty() && rec.anchorName != "world") {
-            pp = live.vec(run.cursor.handle, rec.anchorName, binding, RowScope.cast(run.request.seed))
-            pr = live.rot(run.cursor.handle, rec.anchorName, binding, RowScope.cast(run.request.seed))
+            val scope = RowScope.cast(run.request.seed)
+            pp = namedVec(run, rec.anchorName, binding, scope)
+            pr = namedRot(run, rec.anchorName, binding, scope)
         }
         if (parent == null) {
             when (rec.axes) {
@@ -743,9 +761,18 @@ public class TablePlayer(
 
     private fun key(run: Run, a: Action.Key, ctx: RowCtx, now: Int) {
         val rec = run.recs[a.display] ?: return
-        val target = PoseV(vec(run, a.translation, ctx), quat(run, a.leftRotation, ctx, rec.anchor, rec.anchorName), vec(run, a.scale, ctx))
+        val translation = (a.translation as? Val.Live)?.takeIf { it.name.startsWith("follow:") }?.let { followOffset(run, rec, it.name, ctx, now) } ?: vec(run, a.translation, ctx)
+        val target = PoseV(translation, quat(run, a.leftRotation, ctx, rec.anchor, rec.anchorName), vec(run, a.scale, ctx))
         rec.moveTo(target, now, a.durationTicks)
         rec.real?.let { visual.write(it, visualPose(rec, worldOf(run, rec, target, ctx.binding, now)), a.durationTicks) }
+    }
+
+    /** `follow:<anchor>` (law `follow`): the local translation, in the rider's parent space, that puts the rider on the followed anchor's world position. */
+    private fun followOffset(run: Run, rec: Rec, cell: String, ctx: RowCtx, now: Int): Vector3d {
+        val world = liveVec(run, cell.removePrefix("follow:"), ctx)
+        val parent = rec.anchor?.let { run.recs[it] ?: run.finished[it] }?.let { worldOf(run, it, it.localAt(now), ctx.binding, now) }
+            ?: if (rec.anchorName.isNotEmpty() && rec.anchorName != "world") PoseV(namedVec(run, rec.anchorName, ctx.binding, ctx.scope), namedRot(run, rec.anchorName, ctx.binding, ctx.scope), Vector3d(1.0, 1.0, 1.0)) else PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0))
+        return Vector3d(world).sub(parent.pos).rotate(Quaterniond(parent.rot).conjugate())
     }
 
     private fun teleport(run: Run, a: Action.Teleport, ctx: RowCtx, now: Int) {
@@ -1200,6 +1227,23 @@ public class TablePlayer(
                 run.heldModels += id
                 gameplay.setHeldModel(castRef(run), caster, s("model"))
             }
+            "screen_flash" -> {
+                val color = p["color"]?.let { d("color").toInt() }
+                victims.forEach { gameplay.screenFlash(castRef(run), it, s("overlay"), color, d("fade_in").toInt(), d("stay").toInt(), d("fade_out").toInt()) }
+            }
+            "screen_veil" -> {
+                val id = row.instance
+                run.recs[id]?.let { endInstance(run, id) }
+                // like `held_model`: the quads live as long as their instance (End at `ticks` / state exit / cast end go through endInstance)
+                run.recs[id] = Rec(SpawnKind.FRAME, null, "", now, ctx.owner, PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0)))
+                run.cursor.instances[id] = GatewayHandle(nextSynthetic--)
+                val ticks = d("ticks").toInt()
+                val color = p["color"]?.let { s("color") }
+                val handles = victims.map {
+                    visual.spawnScreenVeil(castRef(run), it, s("sprite"), d("distance"), d("scale"), color, d("max_screen_fraction"), ticks)
+                }
+                run.veils[id] = VeilRec(now, ticks, handles)
+            }
             "hurt" -> {
                 val at = liveVec(run, s("from").removePrefix("instance:"), ctx)
                 victims.forEach { gameplay.hurt(castRef(run), it, Vec3(at.x, at.y, at.z)) }
@@ -1357,6 +1401,10 @@ public class TablePlayer(
             val (f, t) = lineEnds(run, line, RowCtx(line.base, line.binding, line.owner, line.level, line.scope))
             visual.updateLine(h, f, t)
         }
+        for (veil in run.veils.values) {
+            val age = (now - veil.start).coerceAtMost(veil.ticks)
+            veil.handles.forEach { visual.updateScreenVeil(it, age) }
+        }
         for ((id, reel) in run.reels.entries.toList()) reelStep(run, id, reel, now)
         for (rig in run.rigs.values.toList()) rigPose(run, rig, now)
     }
@@ -1439,7 +1487,7 @@ public class TablePlayer(
         val to = body.substringAfter('>').substringBefore('^')
         val up = body.substringAfter('^')
         val parent = anchor?.let { run.recs[it] ?: run.finished[it] }?.let { worldOf(run, it, it.localAt(lastTick), ctx.binding, lastTick) }
-            ?: if (anchorName.isNotEmpty() && anchorName != "world") PoseV(live.vec(run.cursor.handle, anchorName, ctx.binding, ctx.scope), live.rot(run.cursor.handle, anchorName, ctx.binding, ctx.scope), Vector3d(1.0, 1.0, 1.0)) else PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0))
+            ?: if (anchorName.isNotEmpty() && anchorName != "world") PoseV(namedVec(run, anchorName, ctx.binding, ctx.scope), namedRot(run, anchorName, ctx.binding, ctx.scope), Vector3d(1.0, 1.0, 1.0)) else PoseV(Vector3d(), Quaterniond(), Vector3d(1.0, 1.0, 1.0))
         val dir = namedDirection(run, to, ctx)
         val upDir = namedDirection(run, up, ctx)
         val objAxis = LocalAxes.axis(axisName.removePrefix("-"))?.let { if (axisName.startsWith("-")) it * -1.0 else it }
@@ -1463,13 +1511,13 @@ public class TablePlayer(
         val inst = name.substring(0, dot)
         val axis = name.substring(dot + 1)
         if (axis == "edge") {
-            val (rec, _) = anchorOf(run, name) ?: throw IllegalArgumentException("align target '$name': frame '$inst' has no edge point")
+            val (rec, _) = anchorOf(run, name, ctx.owner) ?: throw IllegalArgumentException("align target '$name': frame '$inst' has no edge point")
             val d = rec.points.getValue("edge")
             val r = worldOf(run, rec, rec.localAt(lastTick), ctx.binding, lastTick).rot
             return Vector3d(d).rotate(r).let { Vec3(it.x, it.y, it.z) }
         }
         val rot = if (inst == "caster") live.rot(run.cursor.handle, "caster", ctx.binding, ctx.scope)
-        else anchorOf(run, inst)?.let { (rec, _) -> worldOf(run, rec, rec.localAt(lastTick), ctx.binding, lastTick).rot }
+        else anchorOf(run, inst, ctx.owner)?.let { (rec, _) -> worldOf(run, rec, rec.localAt(lastTick), ctx.binding, lastTick).rot }
             ?: throw IllegalArgumentException("align target '$name': no frame '$inst'")
         return Basis.axis(Frame(Vec3(0.0, 0.0, 0.0), Quaternion(rot.x, rot.y, rot.z, rot.w)), axis)
             ?: throw IllegalArgumentException("align target '$name': '$axis' is not a basis axis")
@@ -1503,39 +1551,107 @@ public class TablePlayer(
     }
 
     /** `anchor:<instance>[.position|.rotation]` (or the bare instance text): the live instance and the requested part. */
-    private fun anchorOf(run: Run, name: String): Pair<Rec, String>? {
-        val bare = name.removePrefix("anchor:")
-        for (part in listOf("position", "rotation", "forward", "tip", "root", "edge", "")) {
+    private val FRAME_PARTS = listOf("position", "rotation", "forward", "tip", "root", "edge")
+    private val PLAIN_PARTS = setOf("position", "rotation", "forward", "")
+
+    private fun anchorOf(run: Run, name: String, owner: StatePath? = null): Pair<Rec, String>? {
+        // `/windup/volley` is the author's absolute spelling of the state-qualified instance `windup/volley`
+        val bare = name.removePrefix("anchor:").removePrefix("/")
+        // any model point of the frame's item part (`blade.tip`, `fly_body.pivot`, `weapon.grip`) is a part name as well
+        val named = bare.substringAfterLast('.', "").takeIf { it.isNotEmpty() && it !in FRAME_PARTS }
+        for (part in FRAME_PARTS + listOfNotNull(named) + "") {
             val base = if (part.isEmpty()) bare else if (bare.endsWith(".$part")) bare.removeSuffix(".$part") else continue
-            val id = run.recs.keys.firstOrNull { it.text == base } ?: continue
-            val rec = run.recs.getValue(id)
-            if ((part == "tip" || part == "root" || part == "edge") && part !in rec.points) continue
+            // a finished body / frame stays readable at its last pose (frames_out, ADR-0303 9): live recs first, then the frozen ones
+            val id = instanceNamed(run.recs.keys, base, owner) ?: instanceNamed(run.finished.keys, base, owner) ?: continue
+            val rec = run.recs[id] ?: run.finished.getValue(id)
+            if (part !in PLAIN_PARTS && part !in rec.points) continue
             return rec to part
         }
         return null
     }
 
+    /**
+     * The instance a cell names: the full text (`fire/bolt`), or the author's local spelling (`bolt`, `blade[0]`) when exactly one live
+     * instance ends that way; several are told apart by the row's own state [owner], else the cell is ambiguous and fails loudly.
+     */
+    private fun instanceNamed(pool: Collection<InstanceId>, base: String, owner: StatePath?): InstanceId? {
+        pool.firstOrNull { it.text == base }?.let { return it }
+        val local = pool.filter { it.text.substringAfterLast('/') == base }
+        if (local.size <= 1) return local.firstOrNull()
+        val mine = owner?.let { o -> local.filter { it.text.startsWith(o.value + "/") } }.orEmpty()
+        return mine.singleOrNull() ?: throw IllegalArgumentException("'$base' names ${local.size} live instances (${local.joinToString { it.text }}); write the state-qualified id")
+    }
+
     private fun liveVec(run: Run, name: String, ctx: RowCtx): Vector3d {
         paramOf(run, name)?.let { return toVector(it, name) }
-        anchorOf(run, name)?.let { (rec, part) ->
+        anchorOf(run, name, ctx.owner)?.let { (rec, part) ->
             if (part == "rotation") throw IllegalArgumentException("'$name' is a rotation, not a vector")
             val w = worldOf(run, rec, rec.localAt(lastTick), ctx.binding, lastTick)
-            if (part == "tip" || part == "root") return Vector3d(rec.points.getValue(part)).rotate(w.rot).add(w.pos)
+            if (part !in PLAIN_PARTS && part != "edge") return Vector3d(rec.points.getValue(part)).rotate(w.rot).add(w.pos)
             // `edge` is a direction with a zero local origin (v2 `FramePoint(frame, "edge", Vec3.ZERO, dir)`): as a point it is the frame origin
             return if (part == "forward") Vector3d(0.0, 0.0, 1.0).rotate(w.rot) else w.pos
         }
-        return live.vec(run.cursor.handle, name, ctx.binding, ctx.scope)
+        return namedVec(run, name, ctx.binding, ctx.scope)
+    }
+
+    /**
+     * A live name the table player cannot answer from its own recs: a document `anchors:` entry (ADR-0303 1) is answered here from its
+     * parent point and offset, so every host serves the same set; anything else is the host's own name ([live]).
+     */
+    private fun namedVec(run: Run, name: String, binding: EventBinding?, scope: RowScope): Vector3d {
+        val doc = documentOf(run, name) ?: return live.vec(run.cursor.handle, name, binding, scope)
+        if (doc.second == "rotation") throw IllegalArgumentException("'$name' is a rotation, not a vector")
+        val pose = documentPose(run, doc.first, binding, scope)
+        return when (doc.second) {
+            "left" -> Vector3d(1.0, 0.0, 0.0).rotate(pose.rot)
+            "up" -> Vector3d(0.0, 1.0, 0.0).rotate(pose.rot)
+            "forward" -> Vector3d(0.0, 0.0, 1.0).rotate(pose.rot)
+            else -> Vector3d(pose.pos)
+        }
+    }
+
+    private fun namedRot(run: Run, name: String, binding: EventBinding?, scope: RowScope): Quaterniond {
+        val doc = documentOf(run, name) ?: return live.rot(run.cursor.handle, name, binding, scope)
+        if (doc.second != "" && doc.second != "rotation") throw IllegalArgumentException("'$name' is a ${doc.second}, not a rotation")
+        return Quaterniond(documentPose(run, doc.first, binding, scope).rot)
+    }
+
+    private fun documentOf(run: Run, name: String): Pair<AnchorDecl, String>? {
+        val bare = name.removePrefix("anchor:")
+        val part = listOf("position", "rotation", "left", "up", "forward").firstOrNull { bare.endsWith(".$it") } ?: ""
+        val id = if (part.isEmpty()) bare else bare.removeSuffix(".$part")
+        return run.cursor.skill.def.anchors.firstOrNull { it.id == id }?.let { it to part }
+    }
+
+    /** The parent point's pose displaced by the declared `offset` along the parent's axes (left +X, up +Y, forward +Z); `snapshot` is sampled once, `follow` on every read. */
+    private fun documentPose(run: Run, decl: AnchorDecl, binding: EventBinding?, scope: RowScope): PoseV {
+        run.snapshots[decl.id]?.let { return it }
+        val parent = decl.anchor.toString()
+        val pos = Vector3d(namedVec(run, parent, binding, scope))
+        val rot = Quaterniond(namedRot(run, parent, binding, scope))
+        for ((axis, v) in decl.offset) {
+            val local = when (axis) {
+                "left" -> Vector3d(1.0, 0.0, 0.0)
+                "up" -> Vector3d(0.0, 1.0, 0.0)
+                "forward" -> Vector3d(0.0, 0.0, 1.0)
+                else -> throw IllegalArgumentException("document anchor '${decl.id}' offset key '$axis' is not forward / up / left")
+            }
+            pos.add(local.mul(v).rotate(rot))
+        }
+        val pose = PoseV(pos, rot, Vector3d(1.0, 1.0, 1.0))
+        if (decl.mode == AnchorMode.SNAPSHOT) run.snapshots[decl.id] = PoseV(Vector3d(pos), Quaterniond(rot), Vector3d(1.0, 1.0, 1.0))
+        return pose
     }
 
     private fun liveRot(run: Run, name: String, ctx: RowCtx): Quaterniond {
         // the turn source of a projectile body is not carried by the cell: no extra turn
         if (name == "motion.turn") return Quaterniond()
         paramOf(run, name)?.let { v -> return (v as? Quaterniond)?.let { Quaterniond(it) } ?: throw IllegalArgumentException("param '$name' is not a rotation") }
-        anchorOf(run, name)?.let { (rec, part) ->
+        anchorOf(run, name, ctx.owner)?.let { (rec, part) ->
             if (part != "rotation" && part.isNotEmpty()) throw IllegalArgumentException("'$name' is a ${part}, not a rotation")
             return worldOf(run, rec, rec.localAt(lastTick), ctx.binding, lastTick).rot
         }
-        return live.rot(run.cursor.handle, name, ctx.binding, ctx.scope)
+        return namedRot(run, name, ctx.binding, ctx.scope)
     }
 
     private fun liveNum(run: Run, name: String, ctx: RowCtx): Double {
@@ -1585,7 +1701,11 @@ public class TablePlayer(
         return limited.map { it.entityId }
     }
 
-    private fun dbl(run: Run, v: Val<Any>, ctx: RowCtx): Double = (any(run, v, ctx) as Number).toDouble()
+    /** A numeric cell: a known number, or a live `${p}` / `= expr` read as a NUMBER (never through the vector path, which answers a CEL number as a vector). */
+    private fun dbl(run: Run, v: Val<Any>, ctx: RowCtx): Double = when (v) {
+        is Val.Known -> (v.value as Number).toDouble()
+        is Val.Live -> liveNum(run, v.name, ctx)
+    }
 
     private fun strOf(run: Run, v: Val<Any>, ctx: RowCtx): String = any(run, v, ctx).toString()
 
@@ -1793,6 +1913,8 @@ public class TablePlayer(
         val fromCell: String, val toCell: String, val scope: RowScope, val binding: EventBinding?, val owner: StatePath?, val level: LevelCursor?, val base: Int,
     )
 
+    private class VeilRec(val start: Int, val ticks: Int, val handles: List<VisualHandle>)
+
     private class Run(
         val cursor: CastCursor, val request: CastRequest, val states: Map<StatePath, StateTable>, val listened: Set<EventPath>,
         val dash: DashDriver,
@@ -1801,6 +1923,9 @@ public class TablePlayer(
         val reels = LinkedHashMap<InstanceId, ReelRec>()
         val rigs = LinkedHashMap<InstanceId, RigRec>()
         val recs = LinkedHashMap<InstanceId, Rec>()
+
+        /** Document anchors with `mode: snapshot`, sampled at their first read. */
+        val snapshots = HashMap<String, PoseV>()
 
         /** Frames and bodies that ended, frozen at their last pose: what a caller reads through a part's `frames_out` after the child is gone. */
         val finished = HashMap<InstanceId, Rec>()
@@ -1827,6 +1952,9 @@ public class TablePlayer(
 
         /** Live `held_model` instances (each holds one swap of the caster's weapon model). */
         val heldModels = HashSet<InstanceId>()
+
+        /** Live `screen_veil` instances (their quads are re-placed every tick). */
+        val veils = LinkedHashMap<InstanceId, VeilRec>()
 
         /** Live line ribbons (their ends are re-read every tick). */
         val lines = LinkedHashMap<InstanceId, LineRec>()

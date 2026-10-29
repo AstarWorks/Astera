@@ -31,7 +31,6 @@ machine:
           anchor: caster
           shape: {sphere: "${radius}"}
           targets: enemies
-          max_count: all       # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
           window: once
           ignore_invulnerability: false
           damage: {physical: "= ${dmg_physical} * (1.0 - 0.5 * dist(event.victim, caster) / ${radius})"}
