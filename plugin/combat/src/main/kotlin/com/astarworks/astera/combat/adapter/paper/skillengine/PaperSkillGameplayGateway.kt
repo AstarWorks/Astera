@@ -192,9 +192,14 @@ public class PaperSkillGameplayGateway(
         (feedback() ?: return).stopSound(PlayerId(viewer), sound)
     }
 
-    override fun playBodyClip(cast: CastRef, caster: UUID, anim: String, speed: Double) {
+    override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double) {
         val id = CustomAnimationId(anim)
-        val player = PlayerId(caster)
+        // the skin rig and the pose clips animate players only: a `body target:` that is not an online player is reported, never dropped silently
+        if (server.getPlayer(target) == null) {
+            log.warn("skill engine: body clip '{}' dropped, target {} is not an online player", anim, target)
+            return
+        }
+        val player = PlayerId(target)
         if (bodyRegistry()?.find(id) != null) {
             bodyRigs()?.play(player, id) ?: log.warn("skill engine: body clip '{}' dropped, no rig animator", anim)
         } else {
@@ -218,9 +223,9 @@ public class PaperSkillGameplayGateway(
         entity.playHurtAnimation(bearing - loc.yaw)
     }
 
-    override fun stopBodyClip(cast: CastRef, caster: UUID, anim: String) {
+    override fun stopBodyClip(cast: CastRef, target: UUID, anim: String) {
         val rig = bodyRigs() ?: return
-        if (rig.active(PlayerId(caster)) == CustomAnimationId(anim)) rig.stop(PlayerId(caster))
+        if (rig.active(PlayerId(target)) == CustomAnimationId(anim)) rig.stop(PlayerId(target))
     }
 
     /** The item model each caster's weapon had before a `held_model` swap (empty = no `item_model` component). */

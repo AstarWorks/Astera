@@ -33,7 +33,7 @@ machine:
   start: windup
   # v1 couture-s2-rig.yaml (0c9e986ef~1) spans windup+throw+..: body anim lastTick 63 (v1 rig t 0..62) is longer than windup (34), so it lives in the machine-wide world list.
   world:
-    - {id: body_anim, op: body, anim: couture-s2-body, speed: 1.0, for: 63}
+    - {id: body_anim, op: body, target: caster, anim: couture-s2-body, speed: 1.0, for: 63}
     # v1 couture-s2-rig.yaml:45-50 weapon_model: couture-rapier-hidden from t20 to t57 (then couture-rapier again).
     - {id: hide_held, op: held_model, at: 20, model: "astera:couture-rapier-hidden", for: 37}
     # The volley outlives its spawning state (flies for 7, sticks for stick_ticks): ADR-0303 10.1 "owner": a machine-level world: list owns things for the whole machine. It is released at tick 34 (= windup length).
@@ -45,7 +45,7 @@ machine:
       speed: "= throw_speed"
       range: "= throw_range"
       radius: 0.22
-      hit: {targets: enemies, once: true}
+      hit: {targets: enemies, once: true, attach: false}
       block: {mode: stick, for: "= stick_ticks"}
       # GAP: v2 hit shape is a capsule root->tip of both blades (radius 0.22), window once -> projectile capsule radius 0.22 (axis follows velocity)
       # GAP: v2 lane_a/lane_b blade offsets +-left * blade length * lane -> none (no blade length in the engine)
@@ -1666,6 +1666,7 @@ machine:
           do:
             - id: canim_2
               op: body
+              target: caster
               anim: couture-s2-body-b
               speed: 1.0
               for: 35

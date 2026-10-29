@@ -23,7 +23,7 @@ class BodySkeletonScenarioTest : SkillEngineScenario() {
             machine:
               start: s
               world:
-                - {id: body_anim, op: body, anim: $anim, speed: 1.0, for: 12}
+                - {id: body_anim, op: body, target: caster, anim: $anim, speed: 1.0, for: 12}
               states:
                 s:
                   for: 12

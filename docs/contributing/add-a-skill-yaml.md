@@ -372,3 +372,16 @@ bastion-greatsword-ego の windup がこれ。
 - **三つ組**: `keys.scale` と `grow.to` / `grow.start` は `[left, up, forward]` の 3 要素 list でも書ける
   (`{left: .., up: .., forward: ..}` の map と同値)。要素数が 3 以外は load error。
 - `motion` の値に CEL 文字列を書いても、family の per-index list とは見なされない (`"= ..."` は一つの数値式)。
+
+### 被弾側 (victim side): `body target:` と `hit.attach`
+
+```yaml
+- {id: pose, op: body, target: caster, anim: bastion-s1-body, speed: 1.0, for: 12}   # target 必須: caster / event.victim / attacker
+- id: harpoon
+  op: projectile
+  hit: {targets: enemies, once: true, attach: true, attach_to: victim.feet}   # attach 必須 (既定なし)
+  block: {mode: stick, for: 20}   # attach: true は once: true と block.mode: stick が必要
+  on: {stick: [...], unstick: [...]}   # 命中で stick、block.for tick 後に unstick して end
+```
+
+`attach_to` は作者が名前を付ける (`victim` か `victim.<point>`)。組み込みの被弾者 body 点はない。

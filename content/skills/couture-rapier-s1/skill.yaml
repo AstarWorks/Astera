@@ -20,7 +20,7 @@ machine:
       on:
         - {event: cast.end, to: end}
       do:
-        - {id: anim, op: body, anim: crouch, speed: 1.0, at: 2, for: 35}
+        - {id: anim, op: body, target: caster, anim: crouch, speed: 1.0, at: 2, for: 35}
 
         # --- tick 0..14: five lavender folds and a spindle pinch together in front of the caster
         - {id: windup, op: frame, anchor: caster, mode: snapshot, at: 0, for: 14}

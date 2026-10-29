@@ -30,7 +30,7 @@ machine:
               speed: 1.0
               range: 12                                # `end` at 12 blocks = tick 12 of the flight unless hit/block earlier
               radius: 0.4
-              hit: {targets: enemies, once: true}      # first victim ends the flight: `hit` then `end` on the same tick
+              hit: {targets: enemies, once: true, attach: false}      # first victim ends the flight: `hit` then `end` on the same tick
               motion:
                 - {law: spin, axis: forward, deg_per_tick: 30, for: 12}   # 360 degrees over the flight, frozen forward axis
               block: {mode: despawn}                   # a block ends it: `end`

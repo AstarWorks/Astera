@@ -43,7 +43,7 @@ $body
 
     private fun rows(s: CompiledSkill): List<Row> = s.table.states.first { it.state.value == "cast" }.rows
 
-    private val bolt = "id: bolt, op: projectile, origin: muzzle, velocity: \"= look(caster) * 1.0\", radius: 0.4, hit: {targets: enemies, once: true}, block: {mode: despawn}"
+    private val bolt = "id: bolt, op: projectile, origin: muzzle, velocity: \"= look(caster) * 1.0\", radius: 0.4, hit: {targets: enemies, once: true, attach: false}, block: {mode: despawn}"
 
     // item 10: `mount` is not a display key (it lives on the anchor declaration only)
     @Test

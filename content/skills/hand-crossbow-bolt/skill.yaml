@@ -30,7 +30,7 @@ machine:
           velocity: "= look(caster) * launch_speed"
           for: "= max_lifetime_ticks"
           radius: 0.5
-          hit: {targets: enemies, once: true}
+          hit: {targets: enemies, once: true, attach: false}
           block: {mode: despawn}
           on:
             hit:

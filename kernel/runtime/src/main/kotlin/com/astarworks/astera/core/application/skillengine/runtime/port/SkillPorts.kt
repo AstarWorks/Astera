@@ -246,8 +246,8 @@ public interface ISkillGameplayGateway {
     /** `stop_sound` (R26): stops the named sound for [viewer]. */
     public fun stopSound(cast: CastRef, viewer: UUID, sound: String)
 
-    /** `body` (R41): plays the clip [anim] on the caster's own body (skin rig, else a pose clip) at [speed]. */
-    public fun playBodyClip(cast: CastRef, caster: UUID, anim: String, speed: Double)
+    /** `body` (R41): plays the clip [anim] on [target]'s body (skin rig, else a pose clip) at [speed]; [target] is the caster, or the victim / attacker of the event (`body target:`). */
+    public fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double)
 
     /** The skin-rig clip [anim] (`rig anim:`): its length and arm track drive the rig's hand origin; null = no such skin-rig clip. */
     public fun bodyClip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation? = null
@@ -258,8 +258,8 @@ public interface ISkillGameplayGateway {
     /** Whether [caster] wears a slim (Alex) skin: selects the arm of the skin rig. */
     public fun isSlimSkin(caster: UUID): Boolean = false
 
-    /** Ends the [anim] clip on [caster] (the `body` window closed). A clip that is not playing is a no-op. */
-    public fun stopBodyClip(cast: CastRef, caster: UUID, anim: String)
+    /** Ends the [anim] clip on [target] (the `body` window closed). A clip that is not playing is a no-op. */
+    public fun stopBodyClip(cast: CastRef, target: UUID, anim: String)
 
     /** `held_model` (ADR-0303 rev4.6): shows the item model [model] on the weapon [caster] holds. The item's own model is remembered on the first call. */
     public fun setHeldModel(cast: CastRef, caster: UUID, model: String)

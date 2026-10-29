@@ -32,7 +32,7 @@ machine:
           velocity: "= look(caster) * 4.5"
           for: 40
           radius: 0.5
-          hit: {targets: enemies, once: true}
+          hit: {targets: enemies, once: true, attach: false}
           block: {mode: despawn}
           on:
             hit:

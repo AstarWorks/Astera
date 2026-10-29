@@ -19,7 +19,7 @@ machine:
       for: "= max_ticks"
       then: end
       enter:
-        - {id: bolt, op: projectile, origin: muzzle, velocity: "= look(caster) * speed", for: "= max_ticks", radius: "= radius", hit: {targets: enemies, once: true}, block: {mode: bounce, restitution: "= restitution", times: "= bounces"}}
+        - {id: bolt, op: projectile, origin: muzzle, velocity: "= look(caster) * speed", for: "= max_ticks", radius: "= radius", hit: {targets: enemies, once: true, attach: false}, block: {mode: bounce, restitution: "= restitution", times: "= bounces"}}
       on:
         - {event: hit,    to: end, do: [{emit: hit}, {emit: contact}]}
         - {event: bounce, to: flying, when: "= event.i < bounces", do: [{emit: bounce}]}   # re-enter keeps the body; guard bounds the loop (10.4 check 3)

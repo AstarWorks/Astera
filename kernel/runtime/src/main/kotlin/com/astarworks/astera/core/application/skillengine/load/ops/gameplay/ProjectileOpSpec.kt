@@ -63,7 +63,7 @@ public sealed interface SpeedSpec {
 }
 
 /** `hit:` (3.6). `times` is required exactly when `once` is false. */
-public data class ProjectileHit(val targets: String, val once: Value<Boolean>, val times: Value<Double>?, val shape: ProjectileHitShape? = null)
+public data class ProjectileHit(val targets: String, val once: Value<Boolean>, val times: Value<Double>?, val shape: ProjectileHitShape? = null, val attach: Boolean = false, val attachTo: String? = null)
 
 /** R43 `hit.shape`: swept capsules `from -> to` (points of each frame, e.g. `root` / `tip`) of radius [radius] on the rider [frames], instead of the body point's `radius` sphere. */
 public data class ProjectileHitShape(val radius: Value<Double>, val from: String, val to: String, val frames: List<String>)
@@ -153,7 +153,9 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
     private val shapeFrames = Field.required("frames", Types.list(Types.id), "rider `frame` ops anchored on this projectile; one swept capsule each")
     private val shapeFields = Fields.of("projectile-hit-shape", shapeRadius, shapeFrom, shapeTo, shapeFrames)
     private val hitShape = Field.optional("shape", Types.nullable(Types.nested(shapeFields)), null, "R43: capsules on rider frames instead of `radius`; exactly one of the two")
-    private val hitFields = Fields.of("projectile-hit", hitTargets, hitOnce, hitTimes, hitShape)
+    private val hitAttach = Field.required("attach", Types.bool, "true: the first victim stops the body and it rides `attach_to` on that victim for `block.for` ticks (events stick / unstick); false: it flies on or ends")
+    private val hitAttachTo = Field.optional("attach_to", Types.nullable(Types.id), null, "the victim point the body mounts on (`victim` = body centre, `victim.feet`, ...); required with attach: true, rejected otherwise")
+    private val hitFields = Fields.of("projectile-hit", hitTargets, hitOnce, hitTimes, hitShape, hitAttach, hitAttachTo)
 
     private val blockMode = Field.required("mode", Types.enumOf(*MODES), "despawn / stick / bounce / pass")
     private val blockFor = Field.optional("for", Types.nullable(Types.number), null, "ticks stuck; required for stick, rejected otherwise")
@@ -197,12 +199,21 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             if (shape != null && shape.frames.isEmpty()) ctx.fail("$path.hit.shape.frames", "needs at least one frame")
             if (shape != null && values[radius] != null) ctx.fail("$path.radius", "radius and hit.shape are exclusive: the shape replaces the body sphere")
             if (shape == null && values[radius] == null) ctx.fail("$path.radius", "radius (body sphere) or hit.shape (capsules on rider frames) is required")
-            val hitSpec = ProjectileHit(h[hitTargets], once, times, shape)
+            val attachV = h[hitAttach]
+            if (attachV !is Value.Literal) ctx.fail("$path.hit.attach", "attach must be a literal true / false")
+            val attach = (attachV as? Value.Literal)?.value == true
+            val attachTo = h[hitAttachTo]
+            if (attach && attachTo == null) ctx.fail("$path.hit", "hit.attach is true: hit.attach_to (the victim point to ride, e.g. victim.feet) is required")
+            if (!attach && attachTo != null) ctx.fail("$path.hit.attach_to", "hit.attach_to only with attach: true")
+            if (attachTo != null && attachTo.substringBefore('.') != "victim") ctx.fail("$path.hit.attach_to", "must name a point of the victim ('victim' or 'victim.<point>'), got '$attachTo'")
+            if (attach && once is Value.Literal && !once.value) ctx.fail("$path.hit", "hit.attach needs once: true (the body sticks to the first victim)")
+            val hitSpec = ProjectileHit(h[hitTargets], once, times, shape, attach, attachTo)
 
             val b = values[block]
             val mode = b[blockMode]
             val needStick = mode == "stick"
             val needBounce = mode == "bounce"
+            if (attach && !needStick) ctx.fail("$path.block", "hit.attach needs block.mode stick: block.for is how long the body stays on the victim")
             if (needStick && b[blockFor] == null) ctx.fail("$path.block", "block.mode stick: block.for (ticks stuck) is required")
             if (!needStick && b[blockFor] != null) ctx.fail("$path.block.for", "block.for only with mode stick")
             if (needBounce && b[blockRestitution] == null) ctx.fail("$path.block", "block.mode bounce: block.restitution is required")
@@ -308,6 +319,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             }
             look["hit.targets"] = Val.Known(op.hit.targets)
             look["hit.once"] = Val.Known(once)
+            op.hit.attachTo?.let { look["hit.attach_to"] = Val.Known(it) }
             look["hit.times"] = Val.Known(pierce.toDouble())
             look["block.mode"] = Val.Known(op.block.mode)
             op.block.restitution?.let { look["block.restitution"] = num(it) }
@@ -387,7 +399,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                 val path = eventPath(e)
                 events += path
                 val follows: Branch? = when {
-                    e == ProjectileEvent.HIT && once -> Branch(endPath, TickRange(0, 0), null, null, endPath)
+                    e == ProjectileEvent.HIT && once && !op.hit.attach -> Branch(endPath, TickRange(0, 0), null, null, endPath)
                     e == ProjectileEvent.BLOCK && op.block.mode == "despawn" -> Branch(endPath, TickRange(0, 0), null, null, endPath)
                     e == ProjectileEvent.UNSTICK -> Branch(endPath, TickRange(0, 0), null, null, endPath)
                     else -> null

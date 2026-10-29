@@ -45,7 +45,7 @@ machine:
           velocity: "= look(caster) * 1.6"
           for: 40
           radius: 0.5
-          hit: {targets: enemies, once: true}
+          hit: {targets: enemies, once: true, attach: false}
           block: {mode: bounce, restitution: 0.6, times: 2}      # was block_mode/restitution/max_bounces/max_ticks
           on:
             hit:

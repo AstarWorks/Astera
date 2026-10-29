@@ -117,7 +117,7 @@ class MotionLawGrammarScenarioTest : SkillEngineScenario() {
     fun projectileLawReadsCopyIndexAndRiderComposesItsCopy() {
         // body copy k spins (5 + k) deg/tick for 4 ticks; a rider on bolt[1] carries copy 1's 24 degrees, not the last copy's
         val s = compiled(
-            "{id: bolt, op: projectile, times: 3, origin: caster, velocity: \"= look(caster) * 1\", for: 10, radius: 0.5, hit: {targets: enemies, once: true}, " +
+            "{id: bolt, op: projectile, times: 3, origin: caster, velocity: \"= look(caster) * 1\", for: 10, radius: 0.5, hit: {targets: enemies, once: true, attach: false}, " +
                 "block: {mode: despawn}, motion: [{law: spin, axis: up, deg_per_tick: \"= 5 + i\", for: 4}]}",
             "{id: rider, op: frame, anchor: \"bolt[1]\", for: 10}",
         )

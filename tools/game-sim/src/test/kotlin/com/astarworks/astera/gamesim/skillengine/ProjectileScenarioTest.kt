@@ -61,7 +61,7 @@ class ProjectileScenarioTest : SkillEngineScenario() {
     @Test
     fun stickUnstickEvents() {
         val s = compile(
-            "{$base, for: 30, hit: {targets: enemies, once: true}, block: {mode: stick, for: 20}, " +
+            "{$base, for: 30, hit: {targets: enemies, once: true, attach: false}, block: {mode: stick, for: 20}, " +
                 "on: {stick: [{id: a, op: sound, sound: \"astera:x\", anchor: caster}], unstick: [{id: b, op: sound, sound: \"astera:y\", anchor: caster}]}}",
         )
         assertTrue(s.hasSub("stick"))
@@ -73,19 +73,19 @@ class ProjectileScenarioTest : SkillEngineScenario() {
 
     @Test
     fun hitPierceTimes() {
-        val s = compile("{$base, for: 40, hit: {targets: enemies, once: false, times: 3}, block: {mode: despawn}, on: {hit: [{id: h, op: sound, sound: \"astera:x\", anchor: caster}]}}")
+        val s = compile("{$base, for: 40, hit: {targets: enemies, once: false, attach: false, times: 3}, block: {mode: despawn}, on: {hit: [{id: h, op: sound, sound: \"astera:x\", anchor: caster}]}}")
         assertEquals(3, s.sub("hit").maxFirings)
         assertTrue(s.sub("hit").branches.none { it.event.value.endsWith(".end") })
-        val e = failure("{$base, for: 40, hit: {targets: enemies, once: false}, block: {mode: despawn}}")
+        val e = failure("{$base, for: 40, hit: {targets: enemies, once: false, attach: false}, block: {mode: despawn}}")
         assertTrue(e.toString().contains("times"))
     }
 
     @Test
     fun blockModeFieldsRequired() {
-        assertTrue(failure("{$base, for: 40, hit: {targets: enemies, once: true}, block: {mode: bounce}}").toString().contains("restitution"))
-        assertTrue(failure("{$base, for: 40, hit: {targets: enemies, once: true}, block: {mode: stick}}").toString().contains("for"))
-        assertTrue(failure("{$base, for: 40, hit: {targets: enemies, once: true}, block: {mode: despawn, restitution: 0.6}}").toString().contains("restitution"))
-        assertTrue(failure("{$base, for: 40, hit: {targets: enemies, once: true}}").toString().contains("block"))
+        assertTrue(failure("{$base, for: 40, hit: {targets: enemies, once: true, attach: false}, block: {mode: bounce}}").toString().contains("restitution"))
+        assertTrue(failure("{$base, for: 40, hit: {targets: enemies, once: true, attach: false}, block: {mode: stick}}").toString().contains("for"))
+        assertTrue(failure("{$base, for: 40, hit: {targets: enemies, once: true, attach: false}, block: {mode: despawn, restitution: 0.6}}").toString().contains("restitution"))
+        assertTrue(failure("{$base, for: 40, hit: {targets: enemies, once: true, attach: false}}").toString().contains("block"))
     }
 
 }
