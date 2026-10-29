@@ -15,7 +15,7 @@ params:
   life:  {type: ticks, default: 30}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: flash,  anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: follow}
+  - {id: flash,  anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: follow}
   - {id: heart,  anchor: victim.center, mode: follow}
 machine:
   start: fly

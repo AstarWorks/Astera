@@ -251,6 +251,8 @@ public class TablePlayer(
 
     override fun live(): List<CastHandle> = runs.values.filter { !it.finalized && !it.finishing }.map { it.cursor.handle }
 
+    override fun running(): List<CastHandle> = runs.values.filter { !it.finalized }.map { it.cursor.handle }
+
     // ------------------------------------------------------------------ one tick (10.2a)
 
     private fun tickRun(run: Run, now: Int) {

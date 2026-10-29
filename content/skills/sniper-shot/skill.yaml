@@ -15,7 +15,7 @@ params:
   dmg:   {type: number, default: 47.5}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: flash,  anchor: caster, offset: {up: -0.25, forward: 1.0}, mode: follow}
+  - {id: flash,  anchor: caster.eye, offset: {up: -0.25, forward: 1.0}, mode: follow}
   - {id: heart,  anchor: victim.center, mode: follow}
 machine:
   start: fly

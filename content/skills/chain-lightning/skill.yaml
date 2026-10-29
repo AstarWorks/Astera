@@ -20,7 +20,7 @@ params:
   shock_chance:       {type: number, default: 0.4}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: fx,     anchor: caster, offset: {forward: 1.0, up: -0.2}, mode: follow}
+  - {id: fx,     anchor: caster.eye, offset: {forward: 1.0, up: -0.2}, mode: follow}
   - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
 fragments:
   arc:

@@ -1,17 +1,17 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=reloading/snd sound=astera:weapons/gun-reload-start cat=master vol=0.7 pitch=1.3 at=0.000000,0.000000,0.000000
-@0 particle - op=reloading/click0 type=reload-click at=0.000000,-0.300000,0.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7515782331806192752
+@0 particle - op=reloading/click0 type=reload-click at=0.000000,1.320000,0.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9024003100022198528
 @0 status 00000000-0000-0000-0000-000000000001 op=- status=reloading stacks=1 for=30
 @30 sound - op=ready/snd_end sound=astera:weapons/gun-reload-end cat=master vol=0.5 pitch=1.7 at=0.000000,0.000000,0.000000
-@30 particle - op=ready/click1 type=reload-click at=0.000000,-0.300000,0.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6449791335997707339
+@30 particle - op=ready/click1 type=reload-click at=0.000000,1.320000,0.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4156737974724153913
 g @31 state-exit reason=TIMER | state=ready
 g @31 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 sound - op=reloading/snd sound=astera:weapons/gun-reload-start cat=master vol=0.7 pitch=1.3 at=0.000000,0.000000,0.000000
-@0 particle - op=reloading/click0 type=reload-click at=-0.421271,-0.300000,0.559045 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7515782331806192752
+@0 particle - op=reloading/click0 type=reload-click at=-0.457615,1.577506,0.607275 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=9024003100022198528
 @0 status 00000000-0000-0000-0000-000000000001 op=- status=reloading stacks=1 for=30
 @30 sound - op=ready/snd_end sound=astera:weapons/gun-reload-end cat=master vol=0.5 pitch=1.7 at=0.000000,0.000000,0.000000
-@30 particle - op=ready/click1 type=reload-click at=-0.421271,-0.300000,0.559045 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6449791335997707339
+@30 particle - op=ready/click1 type=reload-click at=-0.457615,1.577506,0.607275 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4156737974724153913
 g @31 state-exit reason=TIMER | state=ready
 g @31 cast-end | pose
 ## gameplay-static

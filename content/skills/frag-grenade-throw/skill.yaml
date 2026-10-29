@@ -19,7 +19,7 @@ params:
   bleed_ticks:  {type: ticks, default: 20}
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
+  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
   - {id: foe,     anchor: victim.root, mode: follow}
   - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
 fragments:
