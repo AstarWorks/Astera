@@ -678,6 +678,14 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                 return Quaterniond(v.value.x, v.value.y, v.value.z, v.value.w)
             }
             val victimName = name.removePrefix("anchor:")
+            // as PaperLiveValueSource.rot: the contact basis exists only under a contact-carrying event; no silent identity
+            if (victimName == "contact") {
+                val c = binding?.contact ?: throw IllegalArgumentException("live cell '$name' is not resolvable as a rotation (no contact bound)")
+                val q = com.astarworks.astera.core.domain.skillengine.frame.ContactBasis.frame(
+                    Vec3(c.point.x, c.point.y, c.point.z), Vec3(c.normal.x, c.normal.y, c.normal.z), SimFrame.fromYawPitch(feet, casterYawDeg, 0.0).forward(),
+                ).rotation
+                return Quaterniond(q.x, q.y, q.z, q.w)
+            }
             if (victimName == "victim" || victimName == "target" || victimName.startsWith("victim.")) {
                 val point = if (victimName.contains('.')) victimName.substringAfter('.') else null
                 val r = (victimFrame(binding, point) ?: throw IllegalArgumentException("'$name' needs a bound victim")).rotation

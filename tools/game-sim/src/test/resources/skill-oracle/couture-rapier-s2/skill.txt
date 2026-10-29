@@ -579,162 +579,162 @@
 @38 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.250226,1.399399,0.842593 to=-0.157357,1.786717,2.716726
 @38 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.250226,1.399399,0.842593 to=-0.020317,1.861958,2.727301
 @38 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.250226,1.399399,0.842593 to=-0.045042,1.728848,2.629498
-@38 spawn #64 op=coin3/k10/fx8_couture_s2_dash_streak_4 kind=sprite sprite=couture-s2-burst-soft alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.100000,1.300000,0.000000 rot=0.000000,0.000000,0.996195,0.087156 scale=0.071200,0.085500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #65 op=coin3/k10/fx8_couture_s2_dash_streak_7 kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.994522,0.104528 scale=0.193000,0.158000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #66 op=coin3/k11/fx8_couture_s2_dash_streak_2 kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.970296,0.241922 scale=0.203800,0.166700,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #67 op=coin3/k11/fx8_couture_s2_dash_streak_5 kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.927184,0.374607 scale=0.182300,0.149200,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #68 op=coin3/k11/fx8_couture_s2_dash_streak_8 kind=sprite sprite=couture-s2-burst-star alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.027000,0.027000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #69 op=coin3/k15/fx8_couture_s2_dash_pink_crescent kind=sprite sprite=couture-s2-burst-star alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.078459,0.996917 scale=0.018000,0.018000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #70 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.000000,1.387000,-0.295000 rot=0.000000,0.000000,0.996195,0.087156 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #71 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.000000,1.621000,-0.230000 rot=0.000000,0.000000,0.939693,0.342020 scale=0.022500,0.031500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #72 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.000000,1.738000,-0.539000 rot=0.000000,0.000000,0.974370,0.224951 scale=0.021000,0.029400,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 spawn #73 op=- kind=sprite sprite=couture-s2-haze-soft alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.100000,1.300000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.036000,0.036000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@38 write #64 op=coin3/k10/fx8_couture_s2_dash_streak_4 dur=0 pos=0.100000,1.300000,0.000000 rot=0.000000,0.000000,0.996195,0.087156 scale=1.000000,1.000000,1.000000 bb=CENTER
-@38 write #65 op=coin3/k10/fx8_couture_s2_dash_streak_7 dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.994522,0.104528 scale=1.000000,1.000000,1.000000 bb=CENTER
-@38 write #66 op=coin3/k11/fx8_couture_s2_dash_streak_2 dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.970296,0.241922 scale=1.000000,1.000000,1.000000 bb=CENTER
-@38 write #67 op=coin3/k11/fx8_couture_s2_dash_streak_5 dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.927184,0.374607 scale=1.000000,1.000000,1.000000 bb=CENTER
-@38 write #68 op=coin3/k11/fx8_couture_s2_dash_streak_8 dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
-@38 write #69 op=coin3/k15/fx8_couture_s2_dash_pink_crescent dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.076800,1.076800,1.000000 bb=CENTER
-@38 write #70 op=- dur=0 pos=0.000000,1.387000,-0.295000 rot=0.000000,0.000000,0.996195,0.087156 scale=1.000000,1.000000,1.000000 bb=CENTER
-@38 write #71 op=- dur=0 pos=0.000000,1.621000,-0.230000 rot=0.000000,0.000000,0.939693,0.342020 scale=1.000000,1.000000,1.000000 bb=CENTER
-@38 write #72 op=- dur=0 pos=0.000000,1.738000,-0.539000 rot=0.000000,0.000000,0.974370,0.224951 scale=1.000000,1.000000,1.000000 bb=CENTER
-@38 write #73 op=- dur=0 pos=-0.100000,1.300000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
+@38 spawn #64 op=coin3/k10/fx8_couture_s2_dash_streak_4 kind=sprite sprite=couture-s2-burst-soft alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.241455,1.724107,4.026425 rot=-0.497563,0.417505,-0.582456,0.488739 scale=0.071200,0.085500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #65 op=coin3/k10/fx8_couture_s2_dash_streak_7 kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.241455,1.624107,4.026425 rot=-0.504774,0.408758,-0.590897,0.478499 scale=0.193000,0.158000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #66 op=coin3/k11/fx8_couture_s2_dash_streak_2 kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.241455,1.624107,4.026425 rot=-0.556750,0.334529,-0.651741,0.391605 scale=0.203800,0.166700,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #67 op=coin3/k11/fx8_couture_s2_dash_streak_5 kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.241455,1.624107,4.026425 rot=-0.597889,0.253789,-0.699899,0.297089 scale=0.182300,0.149200,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #68 op=coin3/k11/fx8_couture_s2_dash_streak_8 kind=sprite sprite=couture-s2-burst-star alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.241455,1.624107,4.026425 rot=0.459282,0.459282,0.537643,0.537643 scale=0.027000,0.027000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #69 op=coin3/k15/fx8_couture_s2_dash_pink_crescent kind=sprite sprite=couture-s2-burst-star alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.241455,1.624107,4.026425 rot=0.493901,0.421831,0.578169,0.493803 scale=0.018000,0.018000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #70 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.546425,1.624107,4.066266 rot=-0.497563,0.417505,-0.582456,0.488739 scale=0.031500,0.044100,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #71 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.518784,1.624107,4.307547 rot=-0.588667,0.274500,-0.689104,0.321335 scale=0.022500,0.031500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #72 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.842269,1.624107,4.374832 rot=-0.550826,0.344195,-0.644807,0.402920 scale=0.021000,0.029400,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 spawn #73 op=- kind=sprite sprite=couture-s2-haze-soft alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.241455,1.524107,4.026425 rot=0.459282,0.459282,0.537643,0.537643 scale=0.036000,0.036000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@38 write #64 op=coin3/k10/fx8_couture_s2_dash_streak_4 dur=0 pos=-0.241455,1.724107,4.026425 rot=-0.497563,0.417505,-0.582456,0.488739 scale=1.000000,1.000000,1.000000 bb=CENTER
+@38 write #65 op=coin3/k10/fx8_couture_s2_dash_streak_7 dur=0 pos=-0.241455,1.624107,4.026425 rot=-0.504774,0.408758,-0.590897,0.478499 scale=1.000000,1.000000,1.000000 bb=CENTER
+@38 write #66 op=coin3/k11/fx8_couture_s2_dash_streak_2 dur=0 pos=-0.241455,1.624107,4.026425 rot=-0.556750,0.334529,-0.651741,0.391605 scale=1.000000,1.000000,1.000000 bb=CENTER
+@38 write #67 op=coin3/k11/fx8_couture_s2_dash_streak_5 dur=0 pos=-0.241455,1.624107,4.026425 rot=-0.597889,0.253789,-0.699899,0.297089 scale=1.000000,1.000000,1.000000 bb=CENTER
+@38 write #68 op=coin3/k11/fx8_couture_s2_dash_streak_8 dur=0 pos=-0.241455,1.624107,4.026425 rot=0.459282,0.459282,0.537643,0.537643 scale=1.000000,1.000000,1.000000 bb=CENTER
+@38 write #69 op=coin3/k15/fx8_couture_s2_dash_pink_crescent dur=1 pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643 scale=1.076800,1.076800,1.000000 bb=CENTER
+@38 write #70 op=- dur=0 pos=-0.546425,1.624107,4.066266 rot=-0.497563,0.417505,-0.582456,0.488739 scale=1.000000,1.000000,1.000000 bb=CENTER
+@38 write #71 op=- dur=0 pos=-0.518784,1.624107,4.307547 rot=-0.588667,0.274500,-0.689104,0.321335 scale=1.000000,1.000000,1.000000 bb=CENTER
+@38 write #72 op=- dur=0 pos=-0.842269,1.624107,4.374832 rot=-0.550826,0.344195,-0.644807,0.402920 scale=1.000000,1.000000,1.000000 bb=CENTER
+@38 write #73 op=- dur=0 pos=-0.241455,1.524107,4.026425 rot=0.459282,0.459282,0.537643,0.537643 scale=1.000000,1.000000,1.000000 bb=CENTER
 @38 particle - op=- type=couture-s2-p-stick at=-0.638342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8676496642750650464
 @38 particle - op=- type=couture-s2-p-stick-pink at=-0.638342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4048471390072862288
 @38 particle - op=- type=couture-s2-p-stick at=0.561658,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5768859295231269288
 @38 particle - op=- type=couture-s2-p-stick-pink at=0.561658,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1501846891343737804
 @38 particle - op=- type=couture-s2-p-stick at=-0.038342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6901664994456015286
 @38 particle - op=- type=couture-s2-p-stick-pink at=-0.038342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8437924110457417739
-@38 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5379986154638759952
-@38 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1359447229373619898
-@38 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4809906427518032420
-@38 particle - op=- type=couture-s2-p-orange at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2549680952144117520
-@38 particle - op=- type=couture-s2-p-spark at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4459906614942722210
+@38 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5379986154638759952
+@38 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1359447229373619898
+@38 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4809906427518032420
+@38 particle - op=- type=couture-s2-p-orange at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2549680952144117520
+@38 particle - op=- type=couture-s2-p-spark at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4459906614942722210
 @39 particle - op=- type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3884115126507561370
 @39 particle - op=- type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2975934142369655882
 @39 particle - op=- type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2004455044296063525
 @39 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.268657,1.387867,0.835520 to=-0.157357,1.786717,2.716726
 @39 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.268657,1.387867,0.835520 to=-0.020317,1.861958,2.727301
 @39 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.268657,1.387867,0.835520 to=-0.045042,1.728848,2.629498
-@39 spawn #74 op=- kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.984808,0.173648 scale=0.160900,0.131600,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@39 spawn #75 op=- kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.951057,0.309017 scale=0.150200,0.122900,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@39 spawn #76 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.000000,1.450000,-0.223000 rot=0.000000,0.000000,0.981627,0.190809 scale=0.025500,0.035700,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@39 spawn #77 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.000000,1.548000,-0.519000 rot=0.000000,0.000000,0.990268,0.139173 scale=0.027000,0.037800,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@39 spawn #78 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.000000,1.476000,-0.146000 rot=0.000000,0.000000,0.951057,0.309017 scale=0.028500,0.039900,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@39 spawn #79 op=- kind=sprite sprite=couture-s2-burst-flare alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.049800,0.049800,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@39 spawn #80 op=- kind=sprite sprite=couture-s2-burst-flare alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.241922,0.970296 scale=0.031500,0.031500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@39 write #64 op=coin3/k10/fx8_couture_s2_dash_streak_4 dur=0 pos=0.100000,1.300000,0.000000 rot=0.000000,0.000000,0.996195,0.087156 scale=2.001400,1.666670,1.000000 bb=CENTER
-@39 write #65 op=coin3/k10/fx8_couture_s2_dash_streak_7 dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.994522,0.104528 scale=1.818650,1.777220,1.000000 bb=CENTER
-@39 write #66 op=coin3/k11/fx8_couture_s2_dash_streak_2 dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.970296,0.241922 scale=1.817960,1.778040,1.000000 bb=CENTER
-@39 write #67 op=coin3/k11/fx8_couture_s2_dash_streak_5 dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.927184,0.374607 scale=1.818430,1.777480,1.000000 bb=CENTER
-@39 write #68 op=coin3/k11/fx8_couture_s2_dash_streak_8 dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.666670,1.666670,1.000000 bb=CENTER
-@39 write #69 op=coin3/k15/fx8_couture_s2_dash_pink_crescent dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.026177,0.999657 scale=1.081969,1.081969,1.000000 bb=CENTER
-@39 write #70 op=- dur=0 pos=0.000000,1.844000,-1.852000 rot=0.000000,0.000000,0.996195,0.087156 scale=2.000000,1.285710,1.000000 bb=CENTER
-@39 write #71 op=- dur=0 pos=0.000000,2.891000,-1.138000 rot=0.000000,0.000000,0.939693,0.342020 scale=2.000000,1.285710,1.000000 bb=CENTER
-@39 write #72 op=- dur=0 pos=0.000000,2.698000,-1.720000 rot=0.000000,0.000000,0.974370,0.224951 scale=2.000000,1.285710,1.000000 bb=CENTER
-@39 write #73 op=- dur=0 pos=-0.100000,1.300000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.833330,1.833330,1.000000 bb=CENTER
-@39 write #74 op=- dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.984808,0.173648 scale=1.000000,1.000000,1.000000 bb=CENTER
-@39 write #75 op=- dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.951057,0.309017 scale=1.000000,1.000000,1.000000 bb=CENTER
-@39 write #76 op=- dur=0 pos=0.000000,1.450000,-0.223000 rot=0.000000,0.000000,0.981627,0.190809 scale=1.000000,1.000000,1.000000 bb=CENTER
-@39 write #77 op=- dur=0 pos=0.000000,1.548000,-0.519000 rot=0.000000,0.000000,0.990268,0.139173 scale=1.000000,1.000000,1.000000 bb=CENTER
-@39 write #78 op=- dur=0 pos=0.000000,1.476000,-0.146000 rot=0.000000,0.000000,0.951057,0.309017 scale=1.000000,1.000000,1.000000 bb=CENTER
-@39 write #79 op=- dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
-@39 write #80 op=- dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.259200,1.259200,1.000000 bb=CENTER
-@39 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2473188620716609927
-@39 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6072510980147878704
-@39 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7169900446531761193
-@39 particle - op=- type=couture-s2-p-orange at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4239286471551519613
+@39 spawn #74 op=- kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.241455,1.624107,4.026425 rot=-0.532058,0.372551,-0.622836,0.436114 scale=0.160900,0.131600,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@39 spawn #75 op=- kind=sprite sprite=couture-s2-burst-plume alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.241455,1.624107,4.026425 rot=-0.578729,0.294877,-0.677470,0.345188 scale=0.150200,0.122900,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@39 spawn #76 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.485152,1.624107,4.139741 rot=-0.538479,0.363208,-0.630352,0.425178 scale=0.025500,0.035700,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@39 spawn #77 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.792829,1.624107,4.190290 rot=-0.518732,0.390892,-0.607236,0.457585 scale=0.027000,0.037800,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@39 spawn #78 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.413160,1.624107,4.177452 rot=-0.578729,0.294877,-0.677470,0.345188 scale=0.028500,0.039900,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@39 spawn #79 op=- kind=sprite sprite=couture-s2-burst-flare alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.241455,1.624107,4.026425 rot=0.459282,0.459282,0.537643,0.537643 scale=0.049800,0.049800,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@39 spawn #80 op=- kind=sprite sprite=couture-s2-burst-flare alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.241455,1.624107,4.026425 rot=0.556750,0.334529,0.651741,0.391605 scale=0.031500,0.031500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@39 write #64 op=coin3/k10/fx8_couture_s2_dash_streak_4 dur=0 pos=-0.241455,1.724107,4.026425 rot=-0.497563,0.417505,-0.582456,0.488739 scale=2.001400,1.666670,1.000000 bb=CENTER
+@39 write #65 op=coin3/k10/fx8_couture_s2_dash_streak_7 dur=0 pos=-0.241455,1.624107,4.026425 rot=-0.504774,0.408758,-0.590897,0.478499 scale=1.818650,1.777220,1.000000 bb=CENTER
+@39 write #66 op=coin3/k11/fx8_couture_s2_dash_streak_2 dur=0 pos=-0.241455,1.624107,4.026425 rot=-0.556750,0.334529,-0.651741,0.391605 scale=1.817960,1.778040,1.000000 bb=CENTER
+@39 write #67 op=coin3/k11/fx8_couture_s2_dash_streak_5 dur=0 pos=-0.241455,1.624107,4.026425 rot=-0.597889,0.253789,-0.699899,0.297089 scale=1.818430,1.777480,1.000000 bb=CENTER
+@39 write #68 op=coin3/k11/fx8_couture_s2_dash_streak_8 dur=0 pos=-0.241455,1.624107,4.026425 rot=0.459282,0.459282,0.537643,0.537643 scale=1.666670,1.666670,1.000000 bb=CENTER
+@39 write #69 op=coin3/k15/fx8_couture_s2_dash_pink_crescent dur=1 pos=-0.038342,1.624107,2.742390 rot=0.471147,0.447102,0.551533,0.523385 scale=1.081969,1.081969,1.000000 bb=CENTER
+@39 write #70 op=- dur=0 pos=-2.155706,1.624107,4.274386 rot=-0.497563,0.417505,-0.582456,0.488739 scale=2.000000,1.285710,1.000000 bb=CENTER
+@39 write #71 op=- dur=0 pos=-1.614058,1.624107,5.420084 rot=-0.588667,0.274500,-0.689104,0.321335 scale=2.000000,1.285710,1.000000 bb=CENTER
+@39 write #72 op=- dur=0 pos=-2.158756,1.624107,5.138522 rot=-0.550826,0.344195,-0.644807,0.402920 scale=2.000000,1.285710,1.000000 bb=CENTER
+@39 write #73 op=- dur=0 pos=-0.241455,1.524107,4.026425 rot=0.459282,0.459282,0.537643,0.537643 scale=1.833330,1.833330,1.000000 bb=CENTER
+@39 write #74 op=- dur=0 pos=-0.241455,1.624107,4.026425 rot=-0.532058,0.372551,-0.622836,0.436114 scale=1.000000,1.000000,1.000000 bb=CENTER
+@39 write #75 op=- dur=0 pos=-0.241455,1.624107,4.026425 rot=-0.578729,0.294877,-0.677470,0.345188 scale=1.000000,1.000000,1.000000 bb=CENTER
+@39 write #76 op=- dur=0 pos=-0.485152,1.624107,4.139741 rot=-0.538479,0.363208,-0.630352,0.425178 scale=1.000000,1.000000,1.000000 bb=CENTER
+@39 write #77 op=- dur=0 pos=-0.792829,1.624107,4.190290 rot=-0.518732,0.390892,-0.607236,0.457585 scale=1.000000,1.000000,1.000000 bb=CENTER
+@39 write #78 op=- dur=0 pos=-0.413160,1.624107,4.177452 rot=-0.578729,0.294877,-0.677470,0.345188 scale=1.000000,1.000000,1.000000 bb=CENTER
+@39 write #79 op=- dur=0 pos=-0.241455,1.624107,4.026425 rot=0.459282,0.459282,0.537643,0.537643 scale=1.000000,1.000000,1.000000 bb=CENTER
+@39 write #80 op=- dur=1 pos=-0.038342,1.624107,2.742390 rot=0.459282,0.459282,0.537643,0.537643 scale=1.259200,1.259200,1.000000 bb=CENTER
+@39 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2473188620716609927
+@39 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6072510980147878704
+@39 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7169900446531761193
+@39 particle - op=- type=couture-s2-p-orange at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4239286471551519613
 @40 particle - op=- type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5717034864764444273
 @40 particle - op=- type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4407016239351433715
 @40 particle - op=- type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2697207123683847758
 @40 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @40 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @40 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
-@40 spawn #81 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.000000,1.650000,-0.364000 rot=0.000000,0.000000,0.965926,0.258819 scale=0.034500,0.048300,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@40 spawn #82 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=0.000000,1.760000,-0.232000 rot=0.000000,0.000000,0.906308,0.422618 scale=0.022500,0.031500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@40 write #64 op=coin3/k10/fx8_couture_s2_dash_streak_4 dur=1 pos=0.100000,1.300000,0.000000 rot=0.000000,0.000000,0.996195,0.087156 scale=2.202250,1.500580,1.000000 bb=CENTER
-@40 write #65 op=coin3/k10/fx8_couture_s2_dash_streak_7 dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.994522,0.104528 scale=2.000520,1.555060,1.000000 bb=CENTER
-@40 write #66 op=coin3/k11/fx8_couture_s2_dash_streak_2 dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.970296,0.241922 scale=2.000000,1.556090,1.000000 bb=CENTER
-@40 write #67 op=coin3/k11/fx8_couture_s2_dash_streak_5 dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.927184,0.374607 scale=2.000000,1.555630,1.000000 bb=CENTER
-@40 write #68 op=coin3/k11/fx8_couture_s2_dash_streak_8 dur=1 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.052336,0.998630 scale=1.751850,1.751850,1.000000 bb=CENTER
-@40 write #69 op=coin3/k15/fx8_couture_s2_dash_pink_crescent dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.052336,0.998630 scale=1.087137,1.087137,1.000000 bb=CENTER
-@40 write #70 op=- dur=1 pos=0.000000,2.003556,-2.394667 rot=0.000000,0.000000,0.996195,0.087156 scale=1.288889,0.777777,1.000000 bb=CENTER
-@40 write #71 op=- dur=1 pos=0.000000,3.326556,-1.449111 rot=0.000000,0.000000,0.939693,0.342020 scale=1.288889,0.777777,1.000000 bb=CENTER
-@40 write #72 op=- dur=1 pos=0.000000,3.011778,-2.105778 rot=0.000000,0.000000,0.974370,0.224951 scale=1.288889,0.777777,1.000000 bb=CENTER
-@40 write #73 op=- dur=1 pos=-0.100000,1.300000,0.000000 rot=0.000000,0.000000,0.087156,0.996195 scale=2.000000,2.000000,1.000000 bb=CENTER
-@40 write #74 op=- dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.984808,0.173648 scale=1.817900,1.778120,1.000000 bb=CENTER
-@40 write #75 op=- dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.951057,0.309017 scale=1.817580,1.777050,1.000000 bb=CENTER
-@40 write #76 op=- dur=0 pos=0.000000,2.289000,-1.469000 rot=0.000000,0.000000,0.981627,0.190809 scale=2.000000,1.285710,1.000000 bb=CENTER
-@40 write #77 op=- dur=0 pos=0.000000,2.346000,-2.189000 rot=0.000000,0.000000,0.990268,0.139173 scale=2.000000,1.285710,1.000000 bb=CENTER
-@40 write #78 op=- dur=0 pos=0.000000,3.143000,-1.522000 rot=0.000000,0.000000,0.951057,0.309017 scale=2.000000,1.285710,1.000000 bb=CENTER
-@40 write #79 op=- dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=2.289160,2.289160,1.000000 bb=CENTER
-@40 write #80 op=- dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.069756,0.997564 scale=1.230188,1.230188,1.000000 bb=CENTER
-@40 write #81 op=- dur=0 pos=0.000000,1.650000,-0.364000 rot=0.000000,0.000000,0.965926,0.258819 scale=1.000000,1.000000,1.000000 bb=CENTER
-@40 write #82 op=- dur=0 pos=0.000000,1.760000,-0.232000 rot=0.000000,0.000000,0.906308,0.422618 scale=1.000000,1.000000,1.000000 bb=CENTER
-@40 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3475369261083812849
-@40 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1092526304522260253
-@40 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4499011642347690021
+@40 spawn #81 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.655669,1.624107,4.315255 rot=-0.562503,0.324761,-0.658476,0.380171 scale=0.034500,0.048300,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@40 spawn #82 op=- kind=sprite sprite=couture-s2-burst-shard alpha=1.000000 tint=#FFB8D8 seethrough=false pos=-0.542477,1.624107,4.444528 rot=-0.610352,0.222150,-0.714488,0.260052 scale=0.022500,0.031500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@40 write #64 op=coin3/k10/fx8_couture_s2_dash_streak_4 dur=1 pos=-0.241455,1.724107,4.026425 rot=-0.497563,0.417505,-0.582456,0.488739 scale=2.202250,1.500580,1.000000 bb=CENTER
+@40 write #65 op=coin3/k10/fx8_couture_s2_dash_streak_7 dur=0 pos=-0.241455,1.624107,4.026425 rot=-0.504774,0.408758,-0.590897,0.478499 scale=2.000520,1.555060,1.000000 bb=CENTER
+@40 write #66 op=coin3/k11/fx8_couture_s2_dash_streak_2 dur=0 pos=-0.241455,1.624107,4.026425 rot=-0.556750,0.334529,-0.651741,0.391605 scale=2.000000,1.556090,1.000000 bb=CENTER
+@40 write #67 op=coin3/k11/fx8_couture_s2_dash_streak_5 dur=0 pos=-0.241455,1.624107,4.026425 rot=-0.597889,0.253789,-0.699899,0.297089 scale=2.000000,1.555630,1.000000 bb=CENTER
+@40 write #68 op=coin3/k11/fx8_couture_s2_dash_streak_8 dur=1 pos=-0.241455,1.624107,4.026425 rot=0.482689,0.434615,0.565044,0.508768 scale=1.751850,1.751850,1.000000 bb=CENTER
+@40 write #69 op=coin3/k15/fx8_couture_s2_dash_pink_crescent dur=1 pos=-0.038342,1.624107,2.742390 rot=0.482689,0.434615,0.565044,0.508768 scale=1.087137,1.087137,1.000000 bb=CENTER
+@40 write #70 op=- dur=1 pos=-2.716637,1.624107,4.347196 rot=-0.497563,0.417505,-0.582456,0.488739 scale=1.288889,0.777777,1.000000 bb=CENTER
+@40 write #71 op=- dur=1 pos=-1.989400,1.624107,5.801682 rot=-0.588667,0.274500,-0.689104,0.321335 scale=1.288889,0.777777,1.000000 bb=CENTER
+@40 write #72 op=- dur=1 pos=-2.588821,1.624107,5.388172 rot=-0.550826,0.344195,-0.644807,0.402920 scale=1.288889,0.777777,1.000000 bb=CENTER
+@40 write #73 op=- dur=1 pos=-0.241455,1.524107,4.026425 rot=0.497563,0.417505,0.582456,0.488739 scale=2.000000,2.000000,1.000000 bb=CENTER
+@40 write #74 op=- dur=0 pos=-0.241455,1.624107,4.026425 rot=-0.532058,0.372551,-0.622836,0.436114 scale=1.817900,1.778120,1.000000 bb=CENTER
+@40 write #75 op=- dur=0 pos=-0.241455,1.624107,4.026425 rot=-0.578729,0.294877,-0.677470,0.345188 scale=1.817580,1.777050,1.000000 bb=CENTER
+@40 write #76 op=- dur=0 pos=-1.846936,1.624107,4.773761 rot=-0.538479,0.363208,-0.630352,0.425178 scale=2.000000,1.285710,1.000000 bb=CENTER
+@40 write #77 op=- dur=0 pos=-2.567000,1.624107,4.717568 rot=-0.518732,0.390892,-0.607236,0.457585 scale=2.000000,1.285710,1.000000 bb=CENTER
+@40 write #78 op=- dur=0 pos=-2.032715,1.624107,5.608993 rot=-0.578729,0.294877,-0.677470,0.345188 scale=2.000000,1.285710,1.000000 bb=CENTER
+@40 write #79 op=- dur=0 pos=-0.241455,1.624107,4.026425 rot=0.459282,0.459282,0.537643,0.537643 scale=2.289160,2.289160,1.000000 bb=CENTER
+@40 write #80 op=- dur=1 pos=-0.038342,1.624107,2.742390 rot=0.490201,0.426125,0.573838,0.498829 scale=1.230188,1.230188,1.000000 bb=CENTER
+@40 write #81 op=- dur=0 pos=-0.655669,1.624107,4.315255 rot=-0.562503,0.324761,-0.658476,0.380171 scale=1.000000,1.000000,1.000000 bb=CENTER
+@40 write #82 op=- dur=0 pos=-0.542477,1.624107,4.444528 rot=-0.610352,0.222150,-0.714488,0.260052 scale=1.000000,1.000000,1.000000 bb=CENTER
+@40 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3475369261083812849
+@40 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1092526304522260253
+@40 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4499011642347690021
 @41 particle - op=- type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7525022389267704508
 @41 particle - op=- type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5439126424530227648
 @41 particle - op=- type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=800553364532472243
 @41 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @41 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @41 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
-@41 write #64 op=coin3/k10/fx8_couture_s2_dash_streak_4 dur=1 pos=0.100000,1.300000,0.000000 rot=0.000000,0.000000,0.996195,0.087156 scale=1.851827,1.167248,1.000000 bb=CENTER
-@41 write #65 op=coin3/k10/fx8_couture_s2_dash_streak_7 dur=1 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.994522,0.104528 scale=0.545600,0.067090,1.000000 bb=CENTER
-@41 write #66 op=coin3/k11/fx8_couture_s2_dash_streak_2 dur=1 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.970296,0.241922 scale=1.353396,0.894090,1.000000 bb=CENTER
-@41 write #67 op=coin3/k11/fx8_couture_s2_dash_streak_5 dur=1 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.927184,0.374607 scale=0.545260,0.067020,1.000000 bb=CENTER
-@41 write #68 op=coin3/k11/fx8_couture_s2_dash_streak_8 dur=1 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.061049,0.998135 scale=1.375925,1.375925,1.000000 bb=CENTER
-@41 write #69 op=coin3/k15/fx8_couture_s2_dash_pink_crescent dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.087156,0.996195 scale=0.899280,0.899280,1.000000 bb=CENTER
-@41 write #70 op=- dur=1 pos=0.000000,2.203000,-3.073000 rot=0.000000,0.000000,0.996195,0.087156 scale=0.400000,0.142860,1.000000 bb=CENTER
-@41 write #71 op=- dur=1 pos=0.000000,3.871000,-1.838000 rot=0.000000,0.000000,0.939693,0.342020 scale=0.400000,0.142860,1.000000 bb=CENTER
-@41 write #72 op=- dur=1 pos=0.000000,3.404000,-2.588000 rot=0.000000,0.000000,0.974370,0.224951 scale=0.400000,0.142860,1.000000 bb=CENTER
-@41 write #73 op=- dur=1 pos=-0.100000,1.300000,0.000000 rot=0.000000,0.000000,0.108867,0.994056 scale=1.600000,1.600000,1.000000 bb=CENTER
-@41 write #74 op=- dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.984808,0.173648 scale=1.999380,1.555470,1.000000 bb=CENTER
-@41 write #75 op=- dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.951057,0.309017 scale=1.999330,1.554920,1.000000 bb=CENTER
-@41 write #76 op=- dur=1 pos=0.000000,2.581889,-1.904111 rot=0.000000,0.000000,0.981627,0.190809 scale=1.288889,0.777777,1.000000 bb=CENTER
-@41 write #77 op=- dur=1 pos=0.000000,2.616222,-2.754333 rot=0.000000,0.000000,0.990268,0.139173 scale=1.288889,0.777777,1.000000 bb=CENTER
-@41 write #78 op=- dur=1 pos=0.000000,3.734556,-2.010444 rot=0.000000,0.000000,0.951057,0.309017 scale=1.288889,0.777777,1.000000 bb=CENTER
-@41 write #79 op=- dur=0 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.069756,0.997564 scale=2.174700,2.174700,1.000000 bb=CENTER
-@41 write #80 op=- dur=1 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.121869,0.992546 scale=0.840464,0.840464,1.000000 bb=CENTER
-@41 write #81 op=- dur=0 pos=0.000000,3.032000,-1.801000 rot=0.000000,0.000000,0.965926,0.258819 scale=2.000000,1.285710,1.000000 bb=CENTER
-@41 write #82 op=- dur=0 pos=0.000000,3.070000,-0.891000 rot=0.000000,0.000000,0.906308,0.422618 scale=2.000000,1.285710,1.000000 bb=CENTER
-@41 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7095794933478534711
-@41 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5244778669731903842
-@41 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6496084508372067431
-@41 particle - op=- type=couture-s2-p-spark at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8296402300836009785
+@41 write #64 op=coin3/k10/fx8_couture_s2_dash_streak_4 dur=1 pos=-0.241455,1.724107,4.026425 rot=-0.497563,0.417505,-0.582456,0.488739 scale=1.851827,1.167248,1.000000 bb=CENTER
+@41 write #65 op=coin3/k10/fx8_couture_s2_dash_streak_7 dur=1 pos=-0.241455,1.624107,4.026425 rot=-0.504774,0.408758,-0.590897,0.478499 scale=0.545600,0.067090,1.000000 bb=CENTER
+@41 write #66 op=coin3/k11/fx8_couture_s2_dash_streak_2 dur=1 pos=-0.241455,1.624107,4.026425 rot=-0.556750,0.334529,-0.651741,0.391605 scale=1.353396,0.894090,1.000000 bb=CENTER
+@41 write #67 op=coin3/k11/fx8_couture_s2_dash_streak_5 dur=1 pos=-0.241455,1.624107,4.026425 rot=-0.597889,0.253789,-0.699899,0.297089 scale=0.545260,0.067020,1.000000 bb=CENTER
+@41 write #68 op=coin3/k11/fx8_couture_s2_dash_streak_8 dur=1 pos=-0.241455,1.624107,4.026425 rot=0.486464,0.430387,0.569463,0.503818 scale=1.375925,1.375925,1.000000 bb=CENTER
+@41 write #69 op=coin3/k15/fx8_couture_s2_dash_pink_crescent dur=1 pos=-0.038342,1.624107,2.742390 rot=0.497563,0.417505,0.582456,0.488739 scale=0.899280,0.899280,1.000000 bb=CENTER
+@41 write #70 op=- dur=1 pos=-3.417801,1.624107,4.438208 rot=-0.497563,0.417505,-0.582456,0.488739 scale=0.400000,0.142860,1.000000 bb=CENTER
+@41 write #71 op=- dur=1 pos=-2.458577,1.624107,6.278680 rot=-0.588667,0.274500,-0.689104,0.321335 scale=0.400000,0.142860,1.000000 bb=CENTER
+@41 write #72 op=- dur=1 pos=-3.126402,1.624107,5.700235 rot=-0.550826,0.344195,-0.644807,0.402920 scale=0.400000,0.142860,1.000000 bb=CENTER
+@41 write #73 op=- dur=1 pos=-0.241455,1.524107,4.026425 rot=0.506553,0.406551,0.592979,0.475916 scale=1.600000,1.600000,1.000000 bb=CENTER
+@41 write #74 op=- dur=0 pos=-0.241455,1.624107,4.026425 rot=-0.532058,0.372551,-0.622836,0.436114 scale=1.999380,1.555470,1.000000 bb=CENTER
+@41 write #75 op=- dur=0 pos=-0.241455,1.624107,4.026425 rot=-0.578729,0.294877,-0.677470,0.345188 scale=1.999330,1.554920,1.000000 bb=CENTER
+@41 write #76 op=- dur=1 pos=-2.322465,1.624107,4.995071 rot=-0.538479,0.363208,-0.630352,0.425178 scale=1.288889,0.777777,1.000000 bb=CENTER
+@41 write #77 op=- dur=1 pos=-3.167610,1.624107,4.896144 rot=-0.518732,0.390892,-0.607236,0.457585 scale=1.288889,0.777777,1.000000 bb=CENTER
+@41 write #78 op=- dur=1 pos=-2.607586,1.624107,6.116969 rot=-0.578729,0.294877,-0.677470,0.345188 scale=1.288889,0.777777,1.000000 bb=CENTER
+@41 write #79 op=- dur=0 pos=-0.241455,1.624107,4.026425 rot=0.490201,0.426125,0.573838,0.498829 scale=2.174700,2.174700,1.000000 bb=CENTER
+@41 write #80 op=- dur=1 pos=-0.038342,1.624107,2.742390 rot=0.511831,0.399886,0.599158,0.468113 scale=0.840464,0.840464,1.000000 bb=CENTER
+@41 write #81 op=- dur=0 pos=-2.290946,1.624107,5.455765 rot=-0.562503,0.324761,-0.658476,0.380171 scale=2.000000,1.285710,1.000000 bb=CENTER
+@41 write #82 op=- dur=0 pos=-1.398059,1.624107,5.635477 rot=-0.610352,0.222150,-0.714488,0.260052 scale=2.000000,1.285710,1.000000 bb=CENTER
+@41 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7095794933478534711
+@41 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5244778669731903842
+@41 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6496084508372067431
+@41 particle - op=- type=couture-s2-p-spark at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8296402300836009785
 @42 particle - op=- type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4186215870224673516
 @42 particle - op=- type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2004185525560653910
 @42 particle - op=- type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6637642790484898662
 @42 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @42 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @42 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
-@42 write #64 op=coin3/k10/fx8_couture_s2_dash_streak_4 dur=1 pos=0.100000,1.300000,0.000000 rot=0.000000,0.000000,0.996195,0.087156 scale=0.800560,0.167250,1.000000 bb=CENTER
-@42 write #66 op=coin3/k11/fx8_couture_s2_dash_streak_2 dur=1 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.970296,0.241922 scale=0.545140,0.066590,1.000000 bb=CENTER
-@42 write #68 op=coin3/k11/fx8_couture_s2_dash_streak_8 dur=1 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.087156,0.996195 scale=0.248150,0.248150,1.000000 bb=CENTER
-@42 write #73 op=- dur=1 pos=-0.100000,1.300000,0.000000 rot=0.000000,0.000000,0.173648,0.984808 scale=0.400000,0.400000,1.000000 bb=CENTER
-@42 write #74 op=- dur=1 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.984808,0.173648 scale=0.545060,0.066870,1.000000 bb=CENTER
-@42 write #75 op=- dur=1 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.951057,0.309017 scale=0.545270,0.066720,1.000000 bb=CENTER
-@42 write #76 op=- dur=1 pos=0.000000,2.948000,-2.448000 rot=0.000000,0.000000,0.981627,0.190809 scale=0.400000,0.142860,1.000000 bb=CENTER
-@42 write #77 op=- dur=1 pos=0.000000,2.954000,-3.461000 rot=0.000000,0.000000,0.990268,0.139173 scale=0.400000,0.142860,1.000000 bb=CENTER
-@42 write #78 op=- dur=1 pos=0.000000,4.474000,-2.621000 rot=0.000000,0.000000,0.951057,0.309017 scale=0.400000,0.142860,1.000000 bb=CENTER
-@42 write #79 op=- dur=1 pos=0.000000,1.300000,0.000000 rot=0.000000,0.000000,0.121869,0.992546 scale=0.600400,0.600400,1.000000 bb=CENTER
-@42 write #81 op=- dur=1 pos=0.000000,3.506667,-2.293889 rot=0.000000,0.000000,0.965926,0.258819 scale=1.288889,0.777777,1.000000 bb=CENTER
-@42 write #82 op=- dur=1 pos=0.000000,3.509111,-1.111889 rot=0.000000,0.000000,0.906308,0.422618 scale=1.288889,0.777777,1.000000 bb=CENTER
-@42 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4139793636404448862
-@42 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5312418589596672833
-@42 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3824624535984029423
+@42 write #64 op=coin3/k10/fx8_couture_s2_dash_streak_4 dur=1 pos=-0.241455,1.724107,4.026425 rot=-0.497563,0.417505,-0.582456,0.488739 scale=0.800560,0.167250,1.000000 bb=CENTER
+@42 write #66 op=coin3/k11/fx8_couture_s2_dash_streak_2 dur=1 pos=-0.241455,1.624107,4.026425 rot=-0.556750,0.334529,-0.651741,0.391605 scale=0.545140,0.066590,1.000000 bb=CENTER
+@42 write #68 op=coin3/k11/fx8_couture_s2_dash_streak_8 dur=1 pos=-0.241455,1.624107,4.026425 rot=0.497563,0.417505,0.582456,0.488739 scale=0.248150,0.248150,1.000000 bb=CENTER
+@42 write #73 op=- dur=1 pos=-0.241455,1.524107,4.026425 rot=0.532058,0.372551,0.622836,0.436114 scale=0.400000,0.400000,1.000000 bb=CENTER
+@42 write #74 op=- dur=1 pos=-0.241455,1.624107,4.026425 rot=-0.532058,0.372551,-0.622836,0.436114 scale=0.545060,0.066870,1.000000 bb=CENTER
+@42 write #75 op=- dur=1 pos=-0.241455,1.624107,4.026425 rot=-0.578729,0.294877,-0.677470,0.345188 scale=0.545270,0.066720,1.000000 bb=CENTER
+@42 write #76 op=- dur=1 pos=-2.916876,1.624107,5.271709 rot=-0.538479,0.363208,-0.630352,0.425178 scale=0.400000,0.142860,1.000000 bb=CENTER
+@42 write #77 op=- dur=1 pos=-3.918373,1.624107,5.119363 rot=-0.518732,0.390892,-0.607236,0.457585 scale=0.400000,0.142860,1.000000 bb=CENTER
+@42 write #78 op=- dur=1 pos=-3.326175,1.624107,6.751938 rot=-0.578729,0.294877,-0.677470,0.345188 scale=0.400000,0.142860,1.000000 bb=CENTER
+@42 write #79 op=- dur=1 pos=-0.241455,1.624107,4.026425 rot=0.511831,0.399886,0.599158,0.468113 scale=0.600400,0.600400,1.000000 bb=CENTER
+@42 write #81 op=- dur=1 pos=-2.851944,1.624107,5.847593 rot=-0.562503,0.324761,-0.658476,0.380171 scale=1.288889,0.777777,1.000000 bb=CENTER
+@42 write #82 op=- dur=1 pos=-1.684842,1.624107,6.034684 rot=-0.610352,0.222150,-0.714488,0.260052 scale=1.288889,0.777777,1.000000 bb=CENTER
+@42 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4139793636404448862
+@42 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5312418589596672833
+@42 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3824624535984029423
 @43 particle - op=- type=couture-s2-p-tip at=-0.638342,1.744107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5437047511709809062
 @43 particle - op=- type=couture-s2-p-tip at=0.561658,1.524107,3.692390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1562651890384743945
 @43 particle - op=- type=couture-s2-p-tip at=-0.038342,1.624107,3.192390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9208064320603914042
 @43 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @43 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @43 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
-@43 write #81 op=- dur=1 pos=0.000000,4.100000,-2.910000 rot=0.000000,0.000000,0.965926,0.258819 scale=0.400000,0.142860,1.000000 bb=CENTER
-@43 write #82 op=- dur=1 pos=0.000000,4.058000,-1.388000 rot=0.000000,0.000000,0.906308,0.422618 scale=0.400000,0.142860,1.000000 bb=CENTER
-@43 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1894017716071930497
-@43 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6915789170659934682
-@43 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6748348811733132518
+@43 write #81 op=- dur=1 pos=-3.553191,1.624107,6.337378 rot=-0.562503,0.324761,-0.658476,0.380171 scale=0.400000,0.142860,1.000000 bb=CENTER
+@43 write #82 op=- dur=1 pos=-2.043321,1.624107,6.533692 rot=-0.610352,0.222150,-0.714488,0.260052 scale=0.400000,0.142860,1.000000 bb=CENTER
+@43 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1894017716071930497
+@43 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6915789170659934682
+@43 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6748348811733132518
 @43 remove #65 op=coin3/k10/fx8_couture_s2_dash_streak_7
 @43 remove #67 op=coin3/k11/fx8_couture_s2_dash_streak_5
 @43 remove #69 op=coin3/k15/fx8_couture_s2_dash_pink_crescent
@@ -747,11 +747,11 @@
 @44 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @44 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @44 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
-@44 spawn #83 op=- kind=sprite sprite=couture-s2-shadow-spikes alpha=1.000000 tint=- seethrough=false pos=0.000000,0.020000,0.000000 rot=0.000000,-0.707107,0.000000,0.707107 scale=0.015000,0.015000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@44 write #83 op=- dur=0 pos=0.000000,0.020000,0.000000 rot=0.000000,-0.707107,0.000000,0.707107 scale=1.000000,1.000000,1.000000 bb=FIXED
-@44 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8109955621730582747
-@44 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1017360861243707742
-@44 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8497858230908641239
+@44 spawn #83 op=- kind=sprite sprite=couture-s2-shadow-spikes alpha=1.000000 tint=- seethrough=false pos=-0.041467,1.624107,2.762145 rot=0.704932,-0.055410,0.055410,0.704932 scale=0.015000,0.015000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@44 write #83 op=- dur=0 pos=-0.041467,1.624107,2.762145 rot=0.704932,-0.055410,0.055410,0.704932 scale=1.000000,1.000000,1.000000 bb=FIXED
+@44 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8109955621730582747
+@44 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1017360861243707742
+@44 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8497858230908641239
 @44 remove #64 op=coin3/k10/fx8_couture_s2_dash_streak_4
 @44 remove #66 op=coin3/k11/fx8_couture_s2_dash_streak_2
 @44 remove #68 op=coin3/k11/fx8_couture_s2_dash_streak_8
@@ -766,19 +766,19 @@
 @45 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @45 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @45 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
-@45 write #83 op=- dur=1 pos=0.000000,0.020000,0.000000 rot=0.000000,-0.707107,0.000000,0.707107 scale=32.000000,11.000000,1.000000 bb=FIXED
-@45 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1600079740155442862
-@45 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5077368232094446611
-@45 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1706820018748397072
+@45 write #83 op=- dur=1 pos=-0.041467,1.624107,2.762145 rot=0.704932,-0.055410,0.055410,0.704932 scale=32.000000,11.000000,1.000000 bb=FIXED
+@45 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1600079740155442862
+@45 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5077368232094446611
+@45 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1706820018748397072
 @45 remove #81 op=-
 @45 remove #82 op=-
 @46 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @46 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @46 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
-@46 write #83 op=- dur=15 pos=0.000000,0.020000,0.000000 rot=0.000000,-0.707107,0.000000,0.707107 scale=32.933330,11.333330,1.000000 bb=FIXED
-@46 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1890852676539230011
-@46 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3815750031747832164
-@46 particle - op=- type=couture-s2-burst-ember at=0.000000,0.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7090624664414302789
+@46 write #83 op=- dur=15 pos=-0.041467,1.624107,2.762145 rot=0.704932,-0.055410,0.055410,0.704932 scale=32.933330,11.333330,1.000000 bb=FIXED
+@46 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1890852676539230011
+@46 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3815750031747832164
+@46 particle - op=- type=couture-s2-burst-ember at=-0.038342,1.624107,2.742390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7090624664414302789
 @47 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.274751,1.383808,0.832832 to=-0.157357,1.786717,2.716726
 @47 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.274751,1.383808,0.832832 to=-0.020317,1.861958,2.727301
 @47 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.274751,1.383808,0.832832 to=-0.045042,1.728848,2.629498
@@ -825,11 +825,11 @@
 @61 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.389101,1.790998,-0.371206 to=-0.157357,1.786717,2.716726
 @61 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.389101,1.790998,-0.371206 to=-0.020317,1.861958,2.727301
 @61 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.389101,1.790998,-0.371206 to=-0.045042,1.728848,2.629498
-@61 write #83 op=- dur=1 pos=0.000000,0.020000,0.000000 rot=0.000000,-0.707107,0.000000,0.707107 scale=32.066665,8.783330,1.000000 bb=FIXED
+@61 write #83 op=- dur=1 pos=-0.041467,1.624107,2.762145 rot=0.704932,-0.055410,0.055410,0.704932 scale=32.066665,8.783330,1.000000 bb=FIXED
 @62 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.389101,1.790998,-0.371206 to=-0.157357,1.786717,2.716726
 @62 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.389101,1.790998,-0.371206 to=-0.020317,1.861958,2.727301
 @62 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.389101,1.790998,-0.371206 to=-0.045042,1.728848,2.629498
-@62 write #83 op=- dur=1 pos=0.000000,0.020000,0.000000 rot=0.000000,-0.707107,0.000000,0.707107 scale=29.466670,1.133330,1.000000 bb=FIXED
+@62 write #83 op=- dur=1 pos=-0.041467,1.624107,2.762145 rot=0.704932,-0.055410,0.055410,0.704932 scale=29.466670,1.133330,1.000000 bb=FIXED
 @63 line #60 op=coin3/k9/fx8_couture_s2_dash_streak_0 from=-0.351563,0.768018,0.292518 to=-0.157357,1.786717,2.716726
 @63 line #61 op=coin3/k9/fx8_couture_s2_dash_streak_3 from=-0.351563,0.768018,0.292518 to=-0.020317,1.861958,2.727301
 @63 line #62 op=coin3/k9/fx8_couture_s2_dash_streak_6 from=-0.351563,0.768018,0.292518 to=-0.045042,1.728848,2.629498

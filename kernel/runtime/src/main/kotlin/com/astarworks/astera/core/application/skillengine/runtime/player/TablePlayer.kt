@@ -314,7 +314,7 @@ public class TablePlayer(
         val lt = now - lvl.enteredAt
         while (lvl.nextRow < st.rows.size && st.rows[lvl.nextRow].tick <= lt) {
             val row = st.rows[lvl.nextRow++]
-            playRow(run, row, RowCtx(lvl.enteredAt, null, lvl.state, lvl), now)
+            playRow(run, row, RowCtx(lvl.enteredAt, lvl.entryBinding, lvl.state, lvl), now)
         }
     }
 
@@ -325,7 +325,7 @@ public class TablePlayer(
         }
     }
 
-    private fun enterLevel(run: Run, state: StatePath, parent: LevelCursor?, now: Int, at: Int? = null): LevelCursor? {
+    private fun enterLevel(run: Run, state: StatePath, parent: LevelCursor?, now: Int, at: Int? = null, binding: EventBinding? = null): LevelCursor? {
         val st = run.states[state]
         if (st == null) {
             fault(run, now, state.value, "state has no table")
@@ -333,6 +333,7 @@ public class TablePlayer(
         }
         val lvl = LevelCursor(state, now, 0)
         lvl.parent = parent
+        lvl.entryBinding = binding
         lvl.firedTick = now
         val levels = run.cursor.levels.toMutableList()
         levels.add(min(at ?: levels.size, levels.size), lvl)
@@ -392,7 +393,7 @@ public class TablePlayer(
         val parent = lvl.parent
         exitLevel(run, lvl, reason, now, binding)
         if (doSub != null) pasteSub(run, doSub, now, binding, owner = null, direct = true)
-        enterLevel(run, target, parent, now, at)
+        enterLevel(run, target, parent, now, at, binding)
     }
 
     // ------------------------------------------------------------------ events
@@ -624,7 +625,7 @@ public class TablePlayer(
                     trace.enter(run.cursor.handle, a.state, now)
                     val lvl = ctx.level
                     if (lvl != null && a.state != lvl.state) {
-                        if (a.state.value.startsWith(lvl.state.value + "/")) enterLevel(run, a.state, lvl, now)
+                        if (a.state.value.startsWith(lvl.state.value + "/")) enterLevel(run, a.state, lvl, now, binding = ctx.binding ?: lvl.entryBinding)
                         else fault(run, now, src, "Enter(${a.state.value}) is not a child of ${lvl.state.value}")
                     }
                 }

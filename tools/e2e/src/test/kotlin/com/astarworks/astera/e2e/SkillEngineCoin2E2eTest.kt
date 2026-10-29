@@ -54,8 +54,15 @@ class SkillEngineCoin2E2eTest : E2eBase() {
         val logMark = ServerLog.lineCount()
         val castReply = clean(rcon("astera skill cast $skillId ${a.name} --force"))
         // spin-up + release + flight + stick: the whole sequence is well under 4 seconds.
-        Thread.sleep(4_000)
-        val after = healthOf("@e[type=minecraft:zombie,tag=coin2_dummy,limit=1]")
+        // Health is sampled through the whole sequence plus the bleed tail (60 ticks of bleed, ticked on a global 20-tick phase), so the
+        // bleed check below sees the ticks themselves instead of guessing where they fall relative to one fixed read.
+        val samples = ArrayList<Double>()
+        val sampleEnd = System.currentTimeMillis() + 8_000
+        while (System.currentTimeMillis() < sampleEnd) {
+            healthOf("@e[type=minecraft:zombie,tag=coin2_dummy,limit=1]")?.let { samples += it }
+            Thread.sleep(250)
+        }
+        val after = samples.lastOrNull()
 
         E2eReport.check(suite, "a thrown piece damages the dummy", "dummy Health before/after") {
             assertThat(before).isNotNull()
@@ -65,12 +72,15 @@ class SkillEngineCoin2E2eTest : E2eBase() {
             "health $before -> $after (lost $lost)"
         }
 
-        E2eReport.check(suite, "bleed keeps ticking on the dummy after the hit", "dummy Health, 3 s later") {
-            Thread.sleep(3_000)
-            val later = healthOf("@e[type=minecraft:zombie,tag=coin2_dummy,limit=1]")
-            assertThat(later).isNotNull()
-            assertThat(later!!).describedAs("health after the hit vs 3 s later (bleed damage over time)").isLessThan(after!!)
-            "health $after -> $later"
+        E2eReport.check(suite, "bleed keeps ticking on the dummy after the hit", "dummy Health samples every 250 ms") {
+            assertThat(before).isNotNull()
+            // the hit is the first drop of at least 17 (one ~18 hit); bleed is every drop after it
+            val hitAt = samples.indexOfFirst { before!! - it >= 17.0 }
+            assertThat(hitAt).describedAs("a hit sample; samples=$samples").isGreaterThanOrEqualTo(0)
+            val tail = samples.drop(hitAt)
+            val bleedDrops = tail.zipWithNext().count { (a, b) -> b < a }
+            assertThat(bleedDrops).describedAs("health drops after the hit (bleed damage over time); samples after hit=$tail").isGreaterThanOrEqualTo(1)
+            "$bleedDrops bleed drops after the hit, health ${tail.first()} -> ${tail.last()}"
         }
 
         E2eReport.check(suite, "no skill-engine error in the server log", "server log") {

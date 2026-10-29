@@ -31,8 +31,16 @@ class SkillEngineLimbusE2eTest : E2eBase() {
 
     private val displayTypes = listOf("minecraft:item_display", "minecraft:text_display", "minecraft:block_display")
 
+    private var lastDisplayReply = ""
+
+    /** `execute if entity` answers "Test passed" for exactly one match, "Test passed, count: N" for N >= 2 and an error line for none. */
+    private fun countOf(reply: String): Int =
+        Regex("count: (\\d+)").find(reply)?.groupValues?.get(1)?.toInt() ?: if (reply.startsWith("Test passed")) 1 else 0
+
     private fun displaysNear(player: String): Int = displayTypes.sumOf { type ->
-        Regex("count: (\\d+)").find(clean(rcon("execute at $player if entity @e[type=$type,distance=..64]")))?.groupValues?.get(1)?.toInt() ?: 0
+        val reply = clean(rcon("execute at $player if entity @e[type=$type,distance=..64]"))
+        if (reply.isNotEmpty()) lastDisplayReply = "$type -> $reply"
+        countOf(reply)
     }
 
     private fun runCase(o: Oracle) {
@@ -75,7 +83,7 @@ class SkillEngineLimbusE2eTest : E2eBase() {
         }
 
         E2eReport.check(suite, "${o.id}: live displays peak inside the oracle range", "RCON execute if entity (displays), sampled every 100 ms") {
-            assertThat(peak).describedAs("peak displays during the cast (oracle: 1..${o.spawns}); cast reply='$reply'").isBetween(1, o.spawns)
+            assertThat(peak).describedAs("peak displays during the cast (oracle: 1..${o.spawns}); cast reply='$reply'; last display reply='$lastDisplayReply'").isBetween(1, o.spawns)
             "peak $peak of at most ${o.spawns}"
         }
 
