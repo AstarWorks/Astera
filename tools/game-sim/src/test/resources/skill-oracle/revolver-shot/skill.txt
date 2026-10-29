@@ -1,35 +1,25 @@
 ## pose yaw=0 pitch=0
 @0 spawn #0 op=fire/slug kind=item item=minecraft:gold_nugget part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@0 spawn #1 op=fire/tracer kind=ribbon ticks=3 width=0.060000 color=#fff0b0 alpha=0.933333
-@0 trail_look #1 op=fire/tracer fade=1.000000 style=crisp
-@0 trail #1 op=fire/tracer root=0.000000,1.620000,0.500000 tip=0.000000,1.620000,0.500000
 @0 sound - op=fire/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=0.8 at=0.000000,0.000000,0.000000
 @0 particle - op=fire/fl0 type=gun-muzzle-flash at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7447391058946744920
 @0 particle - op=fire/trail0[0] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4095612517534019299
 @0 particle - op=fire/trail1[0] type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3813382198018039899
-@1 trail #1 op=fire/tracer root=0.000000,1.620000,0.500000 tip=0.000000,1.620000,0.500000
 @1 particle - op=fire/trail0[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7485954417098508404
 @1 particle - op=fire/trail1[1] type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8852078153865921306
 @1 hit - op=fire/bolt at=0.000000,1.620000,2.300000 r=2.300000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,4.100000 rad=0.500000
-@1 remove #1 op=fire/tracer
 @1 remove #0 op=fire/slug
 g @1 state-exit reason=EVENT | state=fire
 g @1 cast-end | pose
 r @5 run-end tail=4 | pose
 ## pose yaw=37 pitch=-20
 @0 spawn #0 op=fire/slug kind=item item=minecraft:gold_nugget part=- pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@0 spawn #1 op=fire/tracer kind=ribbon ticks=3 width=0.060000 color=#fff0b0 alpha=0.933333
-@0 trail_look #1 op=fire/tracer fade=1.000000 style=crisp
-@0 trail #1 op=fire/tracer root=-0.282761,1.791010,0.375236 tip=-0.282761,1.791010,0.375236
 @0 sound - op=fire/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=0.8 at=0.000000,0.000000,0.000000
 @0 particle - op=fire/fl0 type=gun-muzzle-flash at=-0.560427,1.692895,0.743712 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7447391058946744920
 @0 particle - op=fire/trail0[0] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4095612517534019299
 @0 particle - op=fire/trail1[0] type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3813382198018039899
-@1 trail #1 op=fire/tracer root=-0.282761,1.791010,0.375236 tip=-0.282761,1.791010,0.375236
 @1 particle - op=fire/trail0[1] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7485954417098508404
 @1 particle - op=fire/trail1[1] type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8852078153865921306
 @1 hit - op=fire/bolt at=-1.300699,2.406646,1.726085 r=2.300000 shape=capsule a=-0.282761,1.791010,0.375236 b=-2.318637,3.022283,3.076935 rad=0.500000
-@1 remove #1 op=fire/tracer
 @1 remove #0 op=fire/slug
 g @1 state-exit reason=EVENT | state=fire
 g @1 cast-end | pose
@@ -41,5 +31,6 @@ g @0 state-end then=- final=true | state=end
 g.absorbed @1..40 handler max=1 | sub=fire/bolt.absorbed
 g.block @1..40 handler max=1 | sub=fire/bolt.block
 g.end @1..40 handler max=1 | sub=fire/bolt.end
+g.expire @40..40 handler max=1 | sub=fire/bolt.expire
 g.hit @1..40 handler max=1 | sub=fire/bolt.hit
 g.hit @0 damage physical=30.000000 | sub=fire/bolt.hit

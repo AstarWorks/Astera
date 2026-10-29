@@ -45,9 +45,10 @@ machine:
               - {id: tracer_b, op: ribbon, from: flash, to: contact, thickness: 0.16, color: "#FFFFE070", for: 4, detach: true}
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
               - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact}
+            expire:
+              - {id: tracer_e, op: ribbon, from: flash, to: contact, thickness: 0.16, color: "#FFFFE070", for: 4, detach: true}
         # the visible round, riding the body
         - {id: slug, op: display, kind: item, item: "minecraft:iron_nugget", context: fixed, anchor: bolt, scale: [0.7, 0.7, 0.7], at: 0, until: bolt.end}
-        - {id: tracer, op: ribbon, of: bolt, history: 4, style: crisp, width: 0.08, color: "#EEFFF0B0", double_sided: true, for: "${life}"}
         - {id: trail,   op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.01, 0.01, 0.01], at: 0, every: 1, until: bolt.end}
         - {id: trail_2, op: particle, particle: crit,    anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.02, 0.02, 0.02], at: 0, every: 1, until: bolt.end}
     end: {final: true}

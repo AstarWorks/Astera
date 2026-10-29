@@ -95,8 +95,8 @@ public interface ISkillVisualGateway {
     public fun spawnTrail(cast: CastRef, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle
 
     /**
-     * A thread (ADR-0303 section 5 ribbon `shape: line`): a flat strip of [thickness] blocks from [from] to [to] that faces the viewer around its own
-     * axis (`line` op, `face: {viewer: axis, axis: line.along}`). [colorHex] is `#rrggbb`, [alpha] its opacity. The runtime moves the ends
+     * A thread (ADR-0303 section 5 ribbon `shape: line`): a thread of [thickness] blocks from [from] to [to], two quads crossed about its own axis ([LineGeometry]) so it reads
+     * from every camera angle. [colorHex] is `#rrggbb`, [alpha] its opacity. The runtime moves the ends
      * with [updateLine] every tick; [remove] ends it.
      */
     public fun spawnLine(cast: CastRef, from: Vec3, to: Vec3, thickness: Double, colorHex: String, alpha: Double): VisualHandle

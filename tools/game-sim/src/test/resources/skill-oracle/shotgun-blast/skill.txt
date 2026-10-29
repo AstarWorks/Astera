@@ -1,5 +1,5 @@
 ## pose yaw=0 pitch=0
-@0 spawn #0 op=cast/tracer kind=ribbon from=0.000000,1.370000,1.200000 to=0.000000,1.420000,6.000000 thick=0.140000 color=#ffe070 alpha=1.000000
+@0 spawn #0 op=cast/tracer kind=ribbon from=0.000000,1.370000,1.200000 to=0.000000,1.420000,6.000000 thick=0.140000 color=#ffe070 alpha=1.000000 quads=[0.000000,0.050000,4.800000|0.140000,0.000000,0.000000],[0.000000,0.050000,4.800000|0.000000,0.139992,-0.001458]
 @0 sound - op=cast/snd sound=astera:weapons/shotgun-blast cat=master vol=0.6 pitch=1.4 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=shotgun-muzzle at=0.000000,1.370000,1.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6887204834791625822
 @0 particle - op=cast/fx_2 type=shotgun-cone-smoke at=0.000000,1.420000,2.400000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5546567132215837783
@@ -18,7 +18,7 @@
 @4 line #0 op=cast/tracer from=0.000000,1.370000,1.200000 to=0.000000,1.420000,6.000000
 @4 remove #0 op=cast/tracer
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=cast/tracer kind=ribbon from=-0.730084,1.795501,0.968854 to=-3.434293,3.484182,4.557461 thick=0.140000 color=#ffe070 alpha=1.000000
+@0 spawn #0 op=cast/tracer kind=ribbon from=-0.730084,1.795501,0.968854 to=-3.434293,3.484182,4.557461 thick=0.140000 color=#ffe070 alpha=1.000000 quads=[-2.704210,1.688681,3.588608|0.111809,0.000000,0.084254],[-2.704210,1.688681,3.588608|0.029640,0.131051,-0.039333]
 @0 sound - op=cast/snd sound=astera:weapons/shotgun-blast cat=master vol=0.6 pitch=1.4 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=shotgun-muzzle at=-0.730084,1.795501,0.968854 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6887204834791625822
 @0 particle - op=cast/fx_2 type=shotgun-cone-smoke at=-1.398417,2.252910,1.855762 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5546567132215837783
