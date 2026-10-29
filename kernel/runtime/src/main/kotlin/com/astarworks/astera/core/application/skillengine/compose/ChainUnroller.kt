@@ -63,6 +63,10 @@ internal object ChainUnroller {
         val chainId = InstanceId(base.self.path + InstanceId.Segment(node.id, null)).text
         val area = TargetRule.Area(chain.kind, null, "from", radius, null, false)
 
+        // `with: {p: [a, b, c]}`: a list of exactly `hops` entries is read per copy (entry hop - 1); any other value goes to every copy unchanged
+        for ((name, v) in node.args) {
+            if (v is List<*> && v.size != hops) return bad("with.$name has ${v.size} entries but hops is $hops (one entry per hop)")
+        }
         val rows = ArrayList<Row>()
         val subs = ArrayList<SubTable>()
         val inst = ArrayList<InstanceId>()
@@ -77,7 +81,11 @@ internal object ChainUnroller {
                 base.skillId, base.state, self, occurrence, base.clockOffset + tick, anchors, base.frames, base.parts, base.skills, base.item,
                 base.sprites, base.conditions, base.exprs, base.config, base.seed, base.src, tick, base.hitScope,
             )
-            val lo = when (val r = lowerOnce.lower(node, occ)) {
+            val copyNode = if (node.args.values.none { it is List<*> }) node else UseOp(
+                node.id, node.src, node.whenExpr, node.timing, node.target,
+                node.args.mapValues { (_, v) -> if (v is List<*>) v[k - 1] else v }, node.frames, node.gateCooldown, node.gateCost, node.chain,
+            )
+            val lo = when (val r = lowerOnce.lower(copyNode, occ)) {
                 is Result.Success -> r.value
                 is Result.Failure -> return r
             }

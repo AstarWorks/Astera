@@ -1,5 +1,4 @@
 # Frost staff nova: a ring blast around the caster, damage fades with distance, every victim is frozen. Re-authored from zero on ADR-0303 rev4.10.
-# GAP: hit sphere radius and break_area take no ${param} on this branch (literals kept; se-world-ops).
 # Ticks: the blast hits on tick 0; the cast ends on tick 3 (after the last presentation row at tick 2).
 apiVersion: astera/v3
 kind: Skill
@@ -12,6 +11,7 @@ meta:
   resource_cost: 25
   tags: [magic, ice-family, aoe]
 params:
+  radius:       {type: blocks, default: 5.0}
   dmg_water:    {type: number, default: 25.0}
   falloff:      {type: number, default: 0.5}
   freeze_ticks: {type: ticks, default: 60}
@@ -59,10 +59,10 @@ machine:
               at: 0
               anchor: caster
               targets: enemies
-              shape: {sphere: 5.0}   # GAP: hit sphere radius takes no ${param}
+              shape: {sphere: "${radius}"}
               window: once
               ignore_invulnerability: false
-              damage: {water: "= dmg_water * (1.0 - falloff * dist(pos(caster), pos(event.victim)) / 5.0)"}
+              damage: {water: "= dmg_water * (1.0 - falloff * dist(pos(caster), pos(event.victim)) / ${radius})"}
               on:
                 hit:
                   - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: "${freeze_ticks}"}

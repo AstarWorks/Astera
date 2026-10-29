@@ -1,5 +1,4 @@
 # Glacier wand: raises a 3x3 tempered-glass wall ahead of the caster; it melts back after `melt` ticks. Re-authored from zero on ADR-0303 rev4.10.
-# The wall shape (width / height) stays literal: place_shape does not take ${param} on this branch (GAP, reported).
 apiVersion: astera/v3
 kind: Skill
 id: glacier-wall
@@ -10,6 +9,9 @@ meta:
   cooldown_ticks: 200
   resource_cost: 20
   tags: [magic, water, cover]
+params:
+  width:  {type: number, default: 3}
+  height: {type: number, default: 3}
 anchors:
   - {id: cast_fx, anchor: caster, offset: {up: 0.2, forward: 2.0}, mode: snapshot}
 machine:
@@ -21,5 +23,5 @@ machine:
       do:
         - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 1.0, pitch: 1.0}
         - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx}
-        - {id: place, op: place_shape, at: 0, anchor: caster, shape: {wall: {width: 3, height: 3}}, block: "astera:tempered_glass", consume: none, ripple: 29, revert: 160, outside_arena: false}
+        - {id: place, op: place_shape, at: 0, anchor: caster, shape: {wall: {width: "${width}", height: "${height}"}}, block: "astera:tempered_glass", consume: none, ripple: 29, revert: 160, outside_arena: false}
     end: {final: true}
