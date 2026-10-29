@@ -15,7 +15,7 @@ import kotlinx.serialization.Serializable
  *   - { item_id: dagger, price: { ore-iron: 8 }, tab: weapons, stack: 1 }
  * ```
  *
- * `tab` is `weapons | tools | blocks | armor`; `price` maps ore item ids to counts (all must be paid); `stack` defaults to 1.
+ * `tab` is `weapons | tools | blocks | armor`; `price` maps ore item ids to counts (all must be paid); `stack` defaults to 1; `upgrade_from` (upgrades tab only) is the item the buyer hands in.
  */
 @Serializable
 public data class MatchShopYamlConfig(
@@ -31,11 +31,13 @@ public data class MatchShopOfferYamlConfig(
     val price: Map<String, Int>,
     val tab: String,
     val stack: Int = 1,
+    @SerialName("upgrade_from") val upgradeFrom: String? = null,
 ) {
     public fun toDomain(): MatchShopOffer = MatchShopOffer(
         itemId = ItemId(itemId),
         price = price.mapKeys { ItemId(it.key) },
         tab = requireNotNull(MatchShopTab.fromKey(tab)) { "match-shop offer '$itemId': unknown tab '$tab'" },
         stack = stack,
+        upgradeFrom = upgradeFrom?.let(::ItemId),
     )
 }

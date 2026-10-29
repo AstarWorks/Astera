@@ -1,0 +1,45 @@
+# Weapon upgrade tier 4 of pistol (bought at the match base shop, content/shops/match-shop.yaml); hit damage x2.04.
+# v3 hand port of the v2 skill (ADR-0303 rev4.2). v2 params launch_speed 3.2, max_lifetime_ticks 30, dmg_physical 25.0.
+apiVersion: astera/v3
+kind: Skill
+id: pistol-shot-t4
+item: pistol-t4
+meta: {name: {ja: "ピストル射撃", en: "Pistol Shot"}, description: {ja: "高速で直進する弾を撃つ。", en: "Fires a fast, flat-flying bullet."}, cooldown_ticks: 8, resource_cost: 1, tags: [ranged, gun]}
+anchors:
+  - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}            # was pt_aim_0_0_0p5
+  - {id: muzzle, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot} # was pt_caster_0_m0p25_0p9 (caster feet yaw-only frame)
+  - {id: heart,  anchor: victim.root, offset: {up: 1.2}}
+machine:
+  start: fire
+  states:
+    fire:
+      on:
+        - {event: bolt.end, to: end}
+      enter:
+        - {id: snd, op: sound, sound: "astera:weapons/gun-shot", anchor: caster, volume: 0.8, pitch: 1.2}
+        - {id: fl0, op: particle_def, def: gun-muzzle-flash, anchor: muzzle}
+        - {id: fl1, op: particle_def, def: gun-muzzle-smoke, anchor: muzzle}
+      do:
+        - id: bolt
+          op: projectile
+          origin: start
+          velocity: "= look(caster) * 3.2"
+          for: 30
+          radius: 0.5
+          hit: {targets: enemies, once: true}
+          block: {mode: despawn}
+          on:
+            hit:
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: 51.0}}
+              - {id: chip, op: break_area, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 12, ripple: 29, revert: 200, outside_arena: false}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact}
+              - {id: fx_hit, op: particle_def, def: gun-impact, anchor: heart}
+            block:
+              - {id: chip_b, op: break_area, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 12, ripple: 29, revert: 200, outside_arena: false}
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.6, pitch: 1.6}
+              - {id: fx_blk0, op: particle_def, def: gun-impact, anchor: contact}
+              - {id: fx_blk1, op: particle_def, def: gun-impact-smoke, anchor: contact}
+        # trail: one call per `spacing` blocks of bolt travel
+        - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.5}, count: 1, offset: [0, 0, 0], extra: 0, every: 1, until: bolt.end}
+        - {id: trail1, op: particle, particle: white_smoke, anchor: {of: bolt, sweep: 0.5}, count: 1, offset: [0.02, 0.02, 0.02], extra: 0, every: 1, until: bolt.end}
+    end: {final: true}

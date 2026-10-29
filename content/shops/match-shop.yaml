@@ -1,6 +1,10 @@
 # In-match ore shop (wp/match-arsenal). Opened from the shop NPC in each team's base; priced in ore items
 # (ore-iron / ore-gold / ore-diamond / ore-emerald), never GOLD. The lobby GOLD shops are the other files in this folder.
-# Offer shape: {item_id, price: {<ore item>: n}, tab: weapons|tools|blocks|armor, stack}. One offer per block.
+# Offer shape: {item_id, price: {<ore item>: n}, tab: weapons|tools|blocks|armor|upgrades, stack, upgrade_from?}. One offer per block.
+# Weapon upgrades (tab: upgrades, BedWars / Annihilation style): `upgrade_from` names the item the buyer must carry; the purchase
+# takes it and hands over `item_id` (a stronger tier of the same weapon, id `<weapon>-tN`). Open to everyone (no Norma gate).
+# The ladder climbs the ore ladder: tier 2 gold, tier 3 diamond, tier 4 emerald (Mid ore). Match-scoped like every other
+# thing bought here: the match-end inventory restore removes the tier item.
 id: match-shop
 
 offers:
@@ -276,3 +280,33 @@ offers:
     price: { ore-diamond: 2 }
     tab: armor
     stack: 1
+  - item_id: knight-sword-t2
+    price: { ore-gold: 6 }
+    tab: upgrades
+    stack: 1
+    upgrade_from: knight-sword
+  - item_id: knight-sword-t3
+    price: { ore-diamond: 4 }
+    tab: upgrades
+    stack: 1
+    upgrade_from: knight-sword-t2
+  - item_id: knight-sword-t4
+    price: { ore-emerald: 3 }
+    tab: upgrades
+    stack: 1
+    upgrade_from: knight-sword-t3
+  - item_id: pistol-t2
+    price: { ore-gold: 6 }
+    tab: upgrades
+    stack: 1
+    upgrade_from: pistol
+  - item_id: pistol-t3
+    price: { ore-diamond: 4 }
+    tab: upgrades
+    stack: 1
+    upgrade_from: pistol-t2
+  - item_id: pistol-t4
+    price: { ore-emerald: 3 }
+    tab: upgrades
+    stack: 1
+    upgrade_from: pistol-t3

@@ -27,7 +27,8 @@ import java.util.concurrent.ConcurrentHashMap
  * Per-match lifecycle of the in-match ore shop: at [MatchStarted] one shop NPC per `shop_npcs` entry of the match's stage
  * is spawned in the match world (stage-local coordinates plus the stage origin), its right click bound to
  * `matchshop.open` for its team; at [MatchEnded] the NPCs are despawned and every participant's leftover ore is taken
- * away (ore is match-scoped).
+ * away (ore is match-scoped); the bought weapon upgrade tiers go the same way, so a player never carries a tier item out of
+ * the match (the entry-snapshot restore hands back the weapon they came in with).
  */
 public class MatchShopNpcService(
     private val stages: IStageRegistry,
@@ -84,12 +85,12 @@ public class MatchShopNpcService(
         }
         remember(event.matchId) // players who joined after the start event
         val owned = stock()
-        val ores = catalog().offers.flatMap { it.price.keys }.toSet()
+        val matchScoped = catalog().offers.let { offers -> offers.flatMap { it.price.keys } + offers.filter { it.upgradeFrom != null }.map { it.itemId } }.toSet()
         if (owned != null) {
             for (player in participants.remove(event.matchId).orEmpty()) {
-                for (ore in ores) {
-                    val left = owned.count(player, ore)
-                    if (left > 0) owned.remove(player, ore, left)
+                for (item in matchScoped) {
+                    val left = owned.count(player, item)
+                    if (left > 0) owned.remove(player, item, left)
                 }
             }
         }

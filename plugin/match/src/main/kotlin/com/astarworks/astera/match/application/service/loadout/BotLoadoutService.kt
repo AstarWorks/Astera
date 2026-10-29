@@ -1,6 +1,7 @@
 package com.astarworks.astera.match.application.service.loadout
 
 import com.astarworks.astera.core.adapter.api.server.IMcServer
+import com.astarworks.astera.core.application.port.outbound.IBotPlayers
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
 import com.astarworks.astera.core.application.port.outbound.item.IMatchEntryLoadout
@@ -43,7 +44,7 @@ public class BotLoadoutService(
     private val server: IMcServer,
     private val matchOf: (PlayerId) -> MatchId?,
     private val normaOf: (MatchId) -> NormaConfig,
-) : IMatchEntryLoadout {
+) : IMatchEntryLoadout, IBotPlayers {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -75,6 +76,11 @@ public class BotLoadoutService(
                 if (spec.skillBindings.isEmpty() || norma.levelFor(spec.rarity) > START_LEVEL) null else BotWeapon(id, family, category)
             }
         }
+
+    override fun isBot(playerId: PlayerId): Boolean {
+        val prefix = pool()?.botNamePrefix ?: return false
+        return server.findPlayer(playerId)?.name?.startsWith(prefix) == true
+    }
 
     @Synchronized
     override fun grantOnEntry(playerId: PlayerId) {
