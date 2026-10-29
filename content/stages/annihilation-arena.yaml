@@ -49,8 +49,6 @@ layout:
   - {from: yellow, to: flank-yellow-red, width: 7}
   - {from: flank-yellow-red, to: red, width: 7}
   landmarks:
-  - {kind: generator, x: 9, z: 0}
-  - {kind: generator, x: -9, z: 0}
   - {kind: generator, x: 62, z: -36}
   - {kind: generator, x: -62, z: -36}
   - {kind: generator, x: 0, z: 72}

@@ -20,6 +20,9 @@ import com.astarworks.astera.match.application.port.outbound.IStarDropWorld
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.match.domain.event.ResourceSpawned
 import com.astarworks.astera.match.domain.event.StarsCollected
+import com.astarworks.astera.match.domain.event.StarSupplied
+import com.astarworks.astera.match.domain.generator.Affiliation
+import com.astarworks.astera.match.domain.generator.StarGenerator
 import com.astarworks.astera.match.domain.star.StarDrop
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
@@ -46,6 +49,7 @@ public class StarDropService(
     private val world: IStarDropWorld?,
     private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
     private val presentation: IPresentation,
+    private val clock: StarSupplyClock,
     private val deathDropRatio: (MatchId) -> Double,
     private val random: Random = Random.Default,
     private val log: (String) -> Unit = {},
@@ -58,18 +62,39 @@ public class StarDropService(
         val generator = generators.listForMatch(event.matchId).firstOrNull { it.id == event.generatorId } ?: return
         val world = matchWorlds.findByMatch(event.matchId)?.worldId ?: return
         val late = matches.findById(event.matchId)?.phase == MatchPhase.SUDDEN_DEATH
-        val amount = if (late) (event.amount * generator.lateGameMultiplier).toInt().coerceAtLeast(event.amount) else event.amount
+        // Supply formula first (StarSupply: the pop grows with match progress), then the sudden-death factor on top.
+        val scaled = clock.amount(event.matchId, event.amount)
+        val amount = if (late) (scaled * generator.lateGameMultiplier).toInt().coerceAtLeast(scaled) else scaled
+        val team = (generator.affiliation as? Affiliation.Team)?.teamId
         val own = drops.values.filter { it.matchId == event.matchId && it.generatorId == generator.id }
         val drop = if (own.size >= generator.stockpileCap) {
             val newest = own.maxBy { it.id }
             newest.copy(amount = newest.amount + amount).also { drops[it.id] = it; it.entity?.let { h -> this.world?.relabel(h, it.amount) } }
         } else {
-            StarDrop(nextId.getAndIncrement(), event.matchId, world, generator.position, amount, generator.pickupRadius, generator.id)
+            StarDrop(nextId.getAndIncrement(), event.matchId, world, generator.position, amount, generator.pickupRadius, generator.id, team = team)
                 .let { withEntity(it, null) }.also { drops[it.id] = it }
         }
+        eventBus.publish(StarSupplied(event.matchId, generator.id, amount, team, scheduler.currentTick()))
         // FX-04: a new star lights up at the generator for everyone close enough to see it.
         for (near in nearby(event.matchId, world, generator.position, POP_RADIUS)) {
             presentation.play(PresentationMoments.STAR_POP, near, mapOf("amount" to amount.toString()), generator.position, world)
+        }
+    }
+
+    /**
+     * One star item of a Mid wave lands at [at] (anyone can take it; [generator] only names the source). A short pickup
+     * delay lets the fall be seen. The wave's total is announced by the caller as one [StarSupplied].
+     */
+    public fun dropWaveStar(matchId: MatchId, generator: StarGenerator, at: Vec3, amount: Int, sparkle: Boolean) {
+        val world = matchWorlds.findByMatch(matchId)?.worldId ?: return
+        if (matches.findById(matchId)?.let { it.phase != MatchPhase.ENDED } != true) return
+        val drop = StarDrop(nextId.getAndIncrement(), matchId, world, at, amount, generator.pickupRadius, generator.id, readyAtTick = scheduler.currentTick() + WAVE_READY_TICKS)
+            .let { withEntity(it, null) }
+        drops[drop.id] = drop
+        if (sparkle) {
+            for (near in nearby(matchId, world, at, POP_RADIUS)) {
+                presentation.play(PresentationMoments.STAR_POP, near, mapOf("amount" to amount.toString()), at, world)
+            }
         }
     }
 
@@ -177,6 +202,7 @@ public class StarDropService(
         if (match.teams.none { player in it.members }) return
         val loc = positions.positionOf(player) ?: return // dead / spectating
         if (loc.world != drop.world) return
+        if (drop.team != null && match.teams.none { it.id == drop.team && player in it.members }) return // a team base generator's stars
         if (isDenied(drop, player) || scheduler.currentTick() < drop.readyAtTick) return
         // The pickup event arrives on the player's thread; the star ledger is owned by Global.
         scheduler.run(ExecutionScope.Global, kotlin.time.Duration.ZERO) { take(drop, player) }
@@ -246,5 +272,7 @@ public class StarDropService(
         const val BURST_SPAWN_LIFT = 0.8
         /** A burst drop cannot be taken for this long, so the fountain is seen. */
         const val BURST_READY_TICKS = 18L
+        /** A wave star cannot be taken for this long after it appears, so it is seen falling in. */
+        const val WAVE_READY_TICKS = 10L
     }
 }

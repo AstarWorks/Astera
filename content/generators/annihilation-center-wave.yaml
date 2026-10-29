@@ -1,0 +1,16 @@
+# Mid star wave of the annihilation-arena (founder 2026-10-29, anti-snowball supply). Instead of an always-on pop, a wave
+# lands every wave_period_seconds, announced wave_warn_seconds ahead (title, sound, action bar). Its stars are thrown one
+# by one over a disc of scatter_radius around this point. Wave size = amount x the star supply multiplier at landing time
+# (content/norma-layer/layer.yaml star_supply_*). The disc stays inside the Mid island (radius 18).
+id: annihilation-center-wave
+match_stage_id: annihilation-arena
+position: { x: 0.5, y: 65.0, z: 0.5 }
+amount: 30
+tier: iron
+affiliation:
+  kind: neutral
+wave:
+  wave_period_seconds: 100.0
+  wave_warn_seconds: 10.0
+  scatter_radius: 16.0
+  scatter_seconds: 8.0

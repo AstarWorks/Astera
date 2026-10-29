@@ -275,6 +275,21 @@ public object StatsWiring {
                 ?: InMemoryAchievementRepository().also {
                     registrations += services.register<IAchievementRepository>(it, priority = 0)
                 }
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerProgressView>(
+            object : com.astarworks.astera.core.application.port.outbound.IPlayerProgressView {
+                override fun progressOf(playerId: com.astarworks.astera.core.domain.player.PlayerId) =
+                    levelService.currentLevel(playerId).value.let { level ->
+                        val start = com.astarworks.astera.stats.domain.level.XpCurve.thresholdToReach(level)
+                        com.astarworks.astera.core.application.port.outbound.IPlayerProgressView.AccountProgress(
+                            level = level,
+                            xpIntoLevel = levelService.totalXp(playerId).value - start,
+                            xpForLevel = com.astarworks.astera.stats.domain.level.XpCurve.thresholdToReach(level + 1) - start,
+                            achievementsUnlocked = achievementRepo.unlocked(playerId).size,
+                            achievementsTotal = achievementRepo.list().size,
+                        )
+                    }
+            },
+        )
         val achievementContentDir = ctx.contentDir.resolve("achievements")
         val achievementContents = com.astarworks.astera.stats.application.contents.AchievementContents()
         val achievementReport = achievementContents.bootstrap(achievementContentDir)

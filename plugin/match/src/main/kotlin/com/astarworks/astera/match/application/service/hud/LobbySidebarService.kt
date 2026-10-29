@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.IPlayerProgressView
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.domain.Result
@@ -57,6 +58,8 @@ public class LobbySidebarService(
     private val clock: () -> Instant = { Instant.now() },
     /** UI-11: the i18n key of the player's current tutorial step as a one-line "next step", or null when there is none. */
     private val nextStep: (PlayerId) -> String? = { null },
+    /** Level / XP / achievement progress for the account block; null while the stats plugin is absent. */
+    private val account: (PlayerId) -> IPlayerProgressView.AccountProgress? = { null },
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -126,7 +129,22 @@ public class LobbySidebarService(
         val entry = matchmaker.queueStatus(playerId)
         val lines = buildList {
             add(text("astera.hud.lobby.online", "count" to onlineCount.toString()))
-            add(text("astera.hud.sidebar.spacer"))
+            add(text("astera.hud.sidebar.separator"))
+            // Account block: level + XP bar, achievements, GOLD (labels muted, values coloured).
+            account(playerId)?.let { a ->
+                add(text("astera.hud.sidebar.account.level", "level" to a.level.toString(), "xp" to group(a.xpIntoLevel), "need" to group(a.xpForLevel)))
+                add(text("astera.hud.sidebar.account.bar", "bar" to SidebarBars.bar(a.xpIntoLevel, a.xpForLevel, "aqua"), "percent" to SidebarBars.percent(a.xpIntoLevel, a.xpForLevel).toString()))
+                if (a.achievementsTotal > 0) {
+                    add(text(
+                        "astera.hud.sidebar.account.achievements",
+                        "done" to a.achievementsUnlocked.toString(),
+                        "total" to a.achievementsTotal.toString(),
+                        "bar" to SidebarBars.bar(a.achievementsUnlocked.toLong(), a.achievementsTotal.toLong(), "green", cells = 6),
+                    ))
+                }
+            }
+            add(text("astera.hud.sidebar.gold", "gold" to group(gold(playerId) ?: 0L)))
+            add(text("astera.hud.sidebar.separator"))
             if (entry == null) {
                 add(text("astera.hud.lobby.queue.idle"))
             } else {
@@ -138,18 +156,10 @@ public class LobbySidebarService(
                 add(text(wait.statusKey, "seconds" to (wait.seconds ?: 0).toString()))
             }
             // UI-11: the persistent "next step" line of the how-to-progress tutorial.
-            nextStep(playerId)?.let { key ->
-                add(text("astera.hud.sidebar.spacer"))
-                add(text(key))
-            }
-            // GOLD (quests / top-tier shop items); hidden while the player has none. Stars are an in-match item only.
-            gold(playerId)?.takeIf { g -> g > 0L }?.let { g ->
-                add(text("astera.hud.sidebar.spacer"))
-                add(text("astera.hud.sidebar.gold", "gold" to g.toString()))
-            }
+            nextStep(playerId)?.let { key -> add(text(key)) }
             // Always-visible control hint: the lobby keys are otherwise only discoverable from item lore.
-            add(text("astera.hud.sidebar.spacer"))
             add(text("astera.hud.lobby.controls"))
+            add(SidebarBars.footer(playerId, messages))
         }
         return HudLayout.Sidebar(titleKey = TITLE_KEY, lines = lines)
     }
@@ -212,6 +222,8 @@ public class LobbySidebarService(
         val rendered = messages.render(viewer, key)
         return if (rendered == key.value) id else rendered
     }
+
+    private fun group(n: Long): String = "%,d".format(java.util.Locale.ROOT, n)
 
     private fun text(key: String, vararg placeholders: Pair<String, String>): HudComponent.Text =
         HudComponent.Text(MessageKey(key), placeholders = placeholders.toMap())

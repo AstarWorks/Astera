@@ -65,8 +65,8 @@ class NormaLayerScenarioTest {
             val yellow = player("yellow-1", team = "yellow")
             val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow to "yellow"), stage = "annihilation-arena")
 
-            // annihilation-center-east stands at 9.5, 65, 0.5 (stage-local) on the centre island.
-            red.moveTo(Vec3(9.5, 65.0, 0.5))
+            // annihilation-base-red (5.5, 65, -58.5) feeds the red team only; Mid has waves, not periodic pops.
+            red.moveTo(Vec3(5.5, 65.0, -58.5))
             blue.moveTo(Vec3(52.0, 65.0, 30.0))
             yellow.moveTo(Vec3(-52.0, 65.0, 30.0))
             advance(650)

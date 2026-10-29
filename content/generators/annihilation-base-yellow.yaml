@@ -1,0 +1,12 @@
+# Small star generator on the yellow team's base island (founder 2026-10-29, anti-snowball supply): only members of the
+# yellow team can pick up its stars. Grows with the star supply multiplier like every generator (norma-layer/layer.yaml).
+id: annihilation-base-yellow
+match_stage_id: annihilation-arena
+position: { x: -58.5, y: 65.0, z: 27.5 }
+period_seconds: 20.0
+amount: 2
+tier: iron
+affiliation:
+  kind: team
+  team_id: yellow
+late_game_multiplier: 2.0

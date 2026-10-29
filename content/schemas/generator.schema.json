@@ -35,18 +35,43 @@
         },
         "drop_item": {
             "type": "string"
+        },
+        "wave": {
+            "$ref": "#/definitions/com.astarworks.astera.match.application.config.WaveYamlConfig"
         }
     },
     "required": [
         "id",
         "match_stage_id",
         "position",
-        "period_seconds",
         "amount",
         "tier",
         "affiliation"
     ],
     "definitions": {
+        "com.astarworks.astera.match.application.config.WaveYamlConfig": {
+            "type": "object",
+            "properties": {
+                "wave_period_seconds": {
+                    "type": "number"
+                },
+                "wave_warn_seconds": {
+                    "type": "number"
+                },
+                "scatter_radius": {
+                    "type": "number"
+                },
+                "scatter_seconds": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "wave_period_seconds",
+                "wave_warn_seconds",
+                "scatter_radius",
+                "scatter_seconds"
+            ]
+        },
         "com.astarworks.astera.match.application.config.AffiliationYamlConfig": {
             "type": "object",
             "properties": {

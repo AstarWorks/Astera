@@ -83,6 +83,12 @@ astera:
   announce.knockout-lose.subtitle: "<gray>The enemy took their count to 0</gray>"
   hud.count.bar: "<{ours}><bold>You</bold> {ours_count} left</{ours}> <gray>vs</gray> <{theirs}><bold>Them</bold> {theirs_count} left</{theirs}>"
   hud.count.bar-overtime: "<red><bold>OVERTIME</bold></red> <{ours}>You {ours_count}</{ours}> <gray>vs</gray> <{theirs}>Them {theirs_count}</{theirs}>"
+  hud.server-address: "play.astera.example"
+  hud.sidebar.separator: "<dark_gray>━━━━━━━━━━━━━━━━</dark_gray>"
+  hud.sidebar.footer: "<gradient:#ffb347:#ffe27a>{address}</gradient>"
+  hud.sidebar.account.level: "<gray>Lv</gray> <aqua><bold>{level}</bold></aqua>  <white>{xp}</white><dark_gray>/</dark_gray><gray>{need} XP</gray>"
+  hud.sidebar.account.bar: "{bar} <aqua>{percent}%</aqua>"
+  hud.sidebar.account.achievements: "<gray>Achievements</gray> <green><bold>{done}</bold></green><dark_gray>/</dark_gray><white>{total}</white> {bar}"
   hud.sidebar.count: "<{color}>{team}</{color}><gray>:</gray> <white>{count}</white>"
   hud.sidebar.phase.count-active: "<green>Left</green> <white>{time}</white>"
   hud.sidebar.phase.count-overtime: "<red><bold>OVERTIME</bold></red> <white>{time}</white>"
@@ -1005,6 +1011,12 @@ astera:
       not-ready-kill: "<yellow>Not ready yet: {missing} more kills needed.</yellow>"
     star:
       collected: "<gold><bold>+{amount} ★</bold></gold> <gray>(carrying {total})</gray>"
+      wave-warn:
+        title: "<gold><bold>★ Star wave incoming</bold></gold>"
+        subtitle: "<yellow>Mid, in {seconds}s</yellow>"
+        bar: "<gold>★ Star wave at Mid in {seconds}s (about {stars} stars)</gold>"
+      wave:
+        bar: "<gold><bold>★ The star wave has landed at Mid!</bold></gold>"
     # Wave 5lobby-content (ADR-0119) — lobby `lobby.queue.*` GuiIntent surface.
     queue:
       unknown-mode: "<red>Unknown queue mode.</red>"
@@ -1366,15 +1378,15 @@ astera:
         open: "<gray>Open zones:</gray> <white>{open}/{total}</white>"
         penalty: "<{color}>{team}</{color}> <red>+{seconds}s penalty</red>"
       you: "<gray>You:</gray> <{color}>{team}</{color}>"
-      level: "<gray>Norma</gray> <white>Lv {level}/{max}</white> <gray>|</gray> <yellow>*</yellow> <white>{stars}</white>"
+      level: "<gray>Norma</gray> <aqua>Lv {level}</aqua><dark_gray>/{max}</dark_gray> <dark_gray>|</dark_gray> <yellow>*</yellow> <white>{stars}</white>"
       next-unlock: "<gray>Next:</gray> <white>Lv {level}</white> <white>{rarity}</white>"
       objective-star: "<gray>Goal:</gray> <yellow>Stars</yellow> <white>{progress}/{target}</white>"
       objective-kill: "<gray>Goal:</gray> <red>Kills</red> <white>{progress}/{target}</white>"
       objective-ready: "<green>Norma ready</green> <gray>- check at base</gray>"
       objective-max: "<gold>Top Norma level</gold>"
-      gold: "<gold>*</gold> <white>{gold}</white> <gray>Gold</gray>"
+      gold: "<gray>Gold</gray> <gold><bold>{gold}</bold></gold>"
     lobby:
-      title: "<gold><bold>Astera</bold></gold>"
+      title: "<gradient:#ffb347:#ffe27a><bold>ASTERA</bold></gradient>"
       online: "<gray>Online:</gray> <white>{count}</white>"
       queue:
         idle: "<gray>Not in queue</gray>"
