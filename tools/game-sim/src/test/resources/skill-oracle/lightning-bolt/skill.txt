@@ -1,28 +1,28 @@
 ## pose yaw=0 pitch=0
 @0 spawn #0 op=fly/mesh kind=item item=minecraft:end_rod part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.800000,0.800000,0.800000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=- sound=astera:skill/wand/cast cat=master vol=0.45 pitch=1.8 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=thunder-cast at=0.000000,-0.200000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3577928468335349982
-@0 particle - op=- type=electric_spark count=4 at=0.000000,1.620000,0.500000 off=0.150000,0.150000,0.150000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5388447442936255341
-@0 particle - op=- type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4074669142311619481
-@0 particle - op=- type=electric_spark count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6964116689826354726
-@0 particle - op=- type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5756620587494429091
-@1 particle - op=- type=electric_spark count=4 at=0.000000,1.620000,0.500000 off=0.150000,0.150000,0.150000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7059455047795161646
-@1 particle - op=- type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6577996726392171089
-@1 particle - op=- type=electric_spark count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-827687162342805268
-@1 particle - op=- type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7940524368738307047
+@0 particle - op=- type=thunder-cast at=0.000000,-0.200000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6332850183322563023
+@0 particle - op=- type=electric_spark count=4 at=0.000000,1.620000,0.500000 off=0.150000,0.150000,0.150000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6626202455083713728
+@0 particle - op=- type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6204847672597983406
+@0 particle - op=- type=electric_spark count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3033898553094677709
+@0 particle - op=- type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7281203437224118247
+@1 particle - op=- type=electric_spark count=4 at=0.000000,1.620000,0.500000 off=0.150000,0.150000,0.150000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7313557567251530270
+@1 particle - op=- type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5159480202502471308
+@1 particle - op=- type=electric_spark count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4309278712062444045
+@1 particle - op=- type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4877495816720073090
 @1 hit - op=- at=0.000000,1.620000,3.500000 r=0.500000
 @1 remove #0 op=fly/mesh
 ## pose yaw=37 pitch=-20
 @0 spawn #0 op=fly/mesh kind=item item=minecraft:end_rod part=- pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.800000,0.800000,0.800000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=- sound=astera:skill/wand/cast cat=master vol=0.45 pitch=1.8 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=thunder-cast at=-0.601815,-0.200000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3577928468335349982
-@0 particle - op=- type=electric_spark count=4 at=-0.282761,1.791010,0.375236 off=0.150000,0.150000,0.150000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5388447442936255341
-@0 particle - op=- type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4074669142311619481
-@0 particle - op=- type=electric_spark count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6964116689826354726
-@0 particle - op=- type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5756620587494429091
-@1 particle - op=- type=electric_spark count=4 at=-0.282761,1.791010,0.375236 off=0.150000,0.150000,0.150000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7059455047795161646
-@1 particle - op=- type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6577996726392171089
-@1 particle - op=- type=electric_spark count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-827687162342805268
-@1 particle - op=- type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7940524368738307047
+@0 particle - op=- type=thunder-cast at=-0.601815,-0.200000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6332850183322563023
+@0 particle - op=- type=electric_spark count=4 at=-0.282761,1.791010,0.375236 off=0.150000,0.150000,0.150000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6626202455083713728
+@0 particle - op=- type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6204847672597983406
+@0 particle - op=- type=electric_spark count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3033898553094677709
+@0 particle - op=- type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7281203437224118247
+@1 particle - op=- type=electric_spark count=4 at=-0.282761,1.791010,0.375236 off=0.150000,0.150000,0.150000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7313557567251530270
+@1 particle - op=- type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5159480202502471308
+@1 particle - op=- type=electric_spark count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4309278712062444045
+@1 particle - op=- type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4877495816720073090
 @1 hit - op=- at=-1.979324,2.817071,2.626652 r=0.500000
 @1 remove #0 op=fly/mesh

@@ -383,7 +383,7 @@ public class SkillCompiler(
             maxCallDepth = maxOf(maxCallDepth, callStack.size)
 
             val args = LinkedHashMap<String, Any?>()
-            for ((k, v) in op.args) args[k] = foldArg(op, lc, "$at.with.$k", v).getOr { return Result.Failure(it) }
+            for ((k, v) in op.args) args[k] = foldArg(op, lc, "$at.with.$k", k, v).getOr { return Result.Failure(it) }
             val bound = PartInliner.bind(original.id, at, part, args).getOr { return Result.Failure(it) }
 
             val m = bound.machine
@@ -459,7 +459,7 @@ public class SkillCompiler(
         }
 
         /** A class S CEL argument becomes a literal in the caller's occurrence; L / T stay `= expr` (pasted as `(expr)`). */
-        private fun foldArg(op: UseOp, lc: LowerContext, path: String, v: Any?): Result<Any?, SkillDecodeError> {
+        private fun foldArg(op: UseOp, lc: LowerContext, path: String, key: String, v: Any?): Result<Any?, SkillDecodeError> {
             if (v !is String || !v.startsWith("= ")) return Result.Success(v)
             val compiled = exprs.compile(v.substring(2).trim(), V3Bindings.spec(lc.occurrence), null).let {
                 when (it) {
@@ -468,7 +468,7 @@ public class SkillCompiler(
                 }
             }
             if (lc.classify(compiled) != ExprClass.S) return Result.Success(v)
-            val env = ExprEnv(V3Bindings.values(lc.occurrence), NoFrames, seed = V3Bindings.seed(sampleSeed, op.id, lc.occurrence.i))
+            val env = ExprEnv(V3Bindings.values(lc.occurrence), NoFrames, seed = V3Bindings.contentSeed(sampleSeed, "${op.target}.$key=$v", lc.occurrence.i))
             val value = try {
                 compiled.eval(env)
             } catch (e: ExprEvalException) {

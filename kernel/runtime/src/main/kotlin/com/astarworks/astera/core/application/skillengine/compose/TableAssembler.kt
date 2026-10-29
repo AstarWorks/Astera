@@ -16,6 +16,7 @@ import com.astarworks.astera.core.domain.skillengine.table.phase
 /**
  * Final step of the compiler: sorts rows by (tick, phase, declaration order, occurrence) (ADR-0303 11.3, skeleton delta 3).
  * Callers pass rows in declaration/occurrence order; the sort is stable, so that order breaks every remaining tie.
+ * Each row list is stamped with its content seed ([RowSeeds]) before the sort, so the counter of byte-identical rows follows document order.
  */
 public object TableAssembler {
     public fun sortRows(rows: List<Row>): List<Row> = rows.sortedWith(compareBy<Row>({ it.tick }, { it.action.phase.ordinal }, { spawnRank(it.action) }))
@@ -43,11 +44,11 @@ public object TableAssembler {
         sampleSeed = sampleSeed,
         params = params,
         bounds = bounds,
-        states = states.map { it.copy(rows = sortRows(it.rows)) },
-        subTables = subTables.mapValues { (_, s) -> s.copy(rows = sortRows(s.rows)) },
+        states = states.map { it.copy(rows = sortRows(RowSeeds.assign(it.rows))) },
+        subTables = subTables.mapValues { (_, s) -> s.copy(rows = sortRows(RowSeeds.assign(s.rows))) },
         writes = writes,
         conditions = conditions,
         config = config,
-        worldRows = sortRows(worldRows),
+        worldRows = sortRows(RowSeeds.assign(worldRows)),
     )
 }

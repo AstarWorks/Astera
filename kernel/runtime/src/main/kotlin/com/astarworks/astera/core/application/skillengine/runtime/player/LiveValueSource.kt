@@ -7,7 +7,7 @@ import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 
 /**
  * What a row hands the live source so a CEL cell evaluates as the compiler's folds do (R10): [seed] is the per-occurrence
- * `V3Bindings.seed(castSeed, op, i)`, [castSeed] the cast seed, [indices] the copy indices innermost first (`i`, `parent.i`, ...).
+ * `V3Bindings.rowSeed(castSeed, Row.seed)` (the row's content seed), [castSeed] the cast seed, [indices] the copy indices innermost first (`i`, `parent.i`, ...).
  * A read that belongs to no row (a pose lookup) uses [cast].
  */
 public class RowScope(

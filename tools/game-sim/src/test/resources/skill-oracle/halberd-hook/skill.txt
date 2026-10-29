@@ -1,15 +1,15 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=- sound=entity.player.attack.sweep cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=stab-spark at=0.000000,-0.100000,1.600000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5608444423262553637
+@0 particle - op=- type=stab-spark at=0.000000,-0.100000,1.600000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1364520333288616617
 @0 hit - op=- at=0.000000,1.620000,0.000000 r=5.600000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- physical=22 skill=halberd-hook at=0.000000,0.900000,2.500000 ignoreinv=false ignorearmor=false
 @0 sound - op=- sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1.2 at=0.000000,0.900000,2.500000
-@0 particle - op=- type=hit-spark at=0.000000,1.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1068315114169606593
+@0 particle - op=- type=hit-spark at=0.000000,1.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4247163152880179848
 @0 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0 z=0.2
 @0 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0 z=0.2
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=tremor stacks=1 for=40
 @0 status 00000000-0000-0000-0000-00000000000b op=- status=tremor stacks=1 for=40
 ## pose yaw=37 pitch=-20
 @0 sound - op=- sound=entity.player.attack.sweep cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=stab-spark at=-0.962904,-0.100000,1.277817 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5608444423262553637
+@0 particle - op=- type=stab-spark at=-0.962904,-0.100000,1.277817 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1364520333288616617
 @0 hit - op=- at=0.000000,1.620000,0.000000 r=5.600000

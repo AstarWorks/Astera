@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
+import com.astarworks.astera.core.application.skillengine.expr.cel.ExprClassifier
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
 import com.astarworks.astera.core.domain.Result
@@ -149,6 +150,11 @@ public object MachineTables {
             if (w.startsWith("=")) Guard.Expr(w.removePrefix("=").trim()) else Guard.Named(w)
         }
 
+        /** Why a state timer is refused: a random one is named as such (founder 10/29: random never decides a schedule), any other non-number is a run-time value. */
+        fun timerWhy(field: String, v: Any?, fix: String): String =
+            if (v is String && ExprClassifier.analyse(v).usesRand) "$field cannot use rand / roll / draw: random never decides a schedule, so when something ends stays predictable (C5, R11); $fix"
+            else "$field must be a number of ticks known at compile time (C5), got '$v'; $fix"
+
         fun timerTicks(v: Any?): Int? = when (v) {
             null -> null
             is Number -> v.toInt()
@@ -184,7 +190,7 @@ public object MachineTables {
             val where = "machine.states.$id"
 
             if (st.forTicks != null && timerTicks(st.forTicks) == null) {
-                return Result.Failure(SkillDecodeError.RuntimeTiming("$where.for", "for", "'for' must be a number of ticks known at compile time (C5), got '${st.forTicks}'; write until: / range: instead", skillId))
+                return Result.Failure(SkillDecodeError.RuntimeTiming("$where.for", "for", timerWhy("'for'", st.forTicks, "write until: / range: instead"), skillId))
             }
             val forTicks = timerTicks(st.forTicks)
             if (forTicks != null && forTicks < 0) return bad("$where.for", "'for' must be >= 0")
@@ -211,7 +217,7 @@ public object MachineTables {
             st.on.forEachIndexed { k, t ->
                 if (t.to !in all) return bad("$where.on[$k].to", "unknown state '${t.to}'")
                 val timer = t.event == null
-                val after = if (timer) timerTicks(t.afterTicks) ?: return bad("$where.on[$k].after", "'after' must be a compile-time tick count (C5)") else 0
+                val after = if (timer) timerTicks(t.afterTicks) ?: return Result.Failure(SkillDecodeError.RuntimeTiming("$where.on[$k].after", "after", timerWhy("'after'", t.afterTicks, "write a number of ticks"), skillId)) else 0
                 if (timer) hasTimer = true else hasEvent = true
                 var sub: EventPath? = null
                 if (t.effects.isNotEmpty()) {

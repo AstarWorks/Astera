@@ -1,12 +1,12 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=- sound=entity.snowball.throw cat=master vol=0.9 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=gun-muzzle-flash at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7465357916411471575
-@0 particle - op=- type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1535134645826460851
-@1 particle - op=- type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8407167866155950269
+@0 particle - op=- type=gun-muzzle-flash at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-658858965400005701
+@0 particle - op=- type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5151581352766710531
+@1 particle - op=- type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1039173364501474310
 @1 hit - op=- at=0.000000,1.620000,1.900000 r=0.500000
 ## pose yaw=37 pitch=-20
 @0 sound - op=- sound=entity.snowball.throw cat=master vol=0.9 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=gun-muzzle-flash at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7465357916411471575
-@0 particle - op=- type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1535134645826460851
-@1 particle - op=- type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8407167866155950269
+@0 particle - op=- type=gun-muzzle-flash at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-658858965400005701
+@0 particle - op=- type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5151581352766710531
+@1 particle - op=- type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1039173364501474310
 @1 hit - op=- at=-1.074490,2.269838,1.425897 r=0.500000

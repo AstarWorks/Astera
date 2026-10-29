@@ -132,7 +132,7 @@ public object GroupUnroller {
         }
         // rand() is outcome randomness (C4d): the row exists, the draw happens at its tick from the cast seed, never baked at expand time
         if (occ.classify(compiled) != ExprClass.S || ExprClassifier.analyse(compiled.source).usesRand) return Result.Success(WhenGate.Guarded(guard))
-        val env = ExprEnv(V3Bindings.values(occ.occurrence), NoFrames, seed = V3Bindings.seed(0L, node.id, occ.occurrence.i))
+        val env = ExprEnv(V3Bindings.values(occ.occurrence), NoFrames)
         val v = try {
             compiled.eval(env)
         } catch (e: ExprEvalException) {
