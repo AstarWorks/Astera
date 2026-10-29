@@ -10,4 +10,6 @@ public data class NormaHud(
     val target: Int,
     /** The nearest item action still locked above [level] (the sidebar's "next unlock"); `null` when nothing is left. */
     val nextUnlock: NormaUnlock? = null,
+    /** The goal is met: the level only rises at the own base's Norma check. */
+    val ready: Boolean = false,
 )

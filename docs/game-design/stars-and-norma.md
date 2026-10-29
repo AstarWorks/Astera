@@ -52,7 +52,12 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
   STAR. Choose in the picker GUI that opens at match start and at each level-up (closes after 10 s; no pick = STAR) or with
   `/astera norma choose star|kill`. The choice is allowed any time before
   the goal is reached.
-- Reaching the goal raises the Norma level at once (no home check in v1), resets the kill progress, re-opens the choice.
+- Reaching the goal only marks the player READY (action bar + sidebar tell them to go home). The level rises when the player runs the
+  Norma check (`/astera norma check`) inside their OWN team's base zone while still meeting the goal (a player who died and lost
+  stars is no longer ready). The zone is a disc of `norma_check_radius` (default 16, `content/norma-layer/layer.yaml`) around the
+  centroid of the team's TEAM spawn points. Enemy base, outside any base, or an unmet goal: refused with a message (shortfall shown).
+  A successful check resets the kill progress and re-opens the choice. Stars are still NOT consumed by the check (founder to decide).
+  Proven by game-sim `NormaCheckScenarioTest`; bots walk home and check (`BotBrain.normaHomeDest`). A right-click/hotbar trigger is not built yet.
   Stars are kept.
 - **Presentation:** a level-up shows a title ("Norma cleared!" + Lv N/max), plays a level-up sound, bursts particles and
   a firework at the player and tells the whole match in chat; the top level gets a bigger version. When the picker

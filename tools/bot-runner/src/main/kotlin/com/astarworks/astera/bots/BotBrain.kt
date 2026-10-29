@@ -419,6 +419,7 @@ class BotBrain(
      */
     private fun chooseDest(now: Long, starDest: Dest?): Dest? {
         if (starDest != null) return starDest
+        normaHomeDest()?.let { return it }
         planner?.let { pl ->
             val markers = bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z }
             observed?.update(markers, sightings())
@@ -458,6 +459,29 @@ class BotBrain(
         }
         return Dest(bot.x + cos(wanderHeading) * 20, bot.z + sin(wanderHeading) * 20, null, 1.0, "roam")
     }
+
+    /**
+     * The Norma check (the level only rises at the own base): once the server's "Norma goal met" action bar shows up,
+     * walk back to the spawn (inside the base zone) and send the check command. A refused check (stars lost on the
+     * way) re-arms through the next notice.
+     */
+    private fun normaHomeDest(): Dest? {
+        val bars = bot.actionBars
+        while (normaBarsSeen < bars.size) {
+            if (NORMA_READY.containsMatchIn(bars[normaBarsSeen].text)) normaCheckPending = true
+            normaBarsSeen++
+        }
+        if (!normaCheckPending) return null
+        if (hypot(spawnX - bot.x, spawnZ - bot.z) <= NORMA_HOME_ARRIVE) {
+            bot.command("astera norma check")
+            normaCheckPending = false
+            return null
+        }
+        return Dest(spawnX, spawnZ, null, NORMA_HOME_ARRIVE - 1.0, "norma-home")
+    }
+
+    private var normaBarsSeen = 0
+    private var normaCheckPending = false
 
     /** Enemy objective first, then the generator pedestals, then home: a loop that crosses the whole stage. */
     private fun patrolPoints(): List<Pair<Double, Double>> {
@@ -934,6 +958,8 @@ class BotBrain(
         const val STAR_YIELD_RANGE = 12.0
         const val KILL_DETOUR_RANGE = 4.0
         const val STAR_SIGHT_RANGE = 90.0
+        const val NORMA_HOME_ARRIVE = 6.0
+        val NORMA_READY = Regex("Norma goal met|ノルマ達成")
         const val STAR_CHASE_MS = 20_000L
         const val LOCAL_STEER_RANGE = 12.0
         const val GEN_COOLDOWN_MS = 12_000L

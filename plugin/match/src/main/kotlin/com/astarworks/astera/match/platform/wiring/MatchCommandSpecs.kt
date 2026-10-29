@@ -27,6 +27,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.match.application.service.NormaLevelService
 import com.astarworks.astera.match.application.usecase.match.EndMatchError
 import com.astarworks.astera.match.application.service.NormaChoicePrompter
+import com.astarworks.astera.match.domain.norma.NormaCheckError
 import com.astarworks.astera.match.domain.norma.NormaGoal
 import com.astarworks.astera.match.application.usecase.match.EntryGameError
 import com.astarworks.astera.match.application.usecase.match.StartMatchError
@@ -50,7 +51,7 @@ import java.util.logging.Logger
 internal object MatchCommandSpecs {
 
     /**
-     * `/astera norma choose star|kill`: picks which goal clears the player's current Norma level (stars carried or
+     * `/astera norma check` runs the Norma check (own base only); `/astera norma choose star|kill`: picks which goal clears the player's current Norma level (stars carried or
      * kills made). Allowed any time before the goal is reached; refused outside a live Norma match.
      */
     fun buildNormaCommandSpec(norma: NormaLevelService): CommandSpec.Literal = CommandSpec.Literal(
@@ -74,6 +75,22 @@ internal object MatchCommandSpecs {
                     }
                 },
             ).forEveryone(Permission("astera.norma.choose")),
+            CommandSpec.Literal(
+                name = "check",
+                executor = { ctx ->
+                    val senderId = ctx.sender
+                        ?: return@Literal CommandResult.Failure(MessageKey("astera.command.player-only"))
+                    when (val res = norma.check(senderId)) {
+                        // The level-up itself is announced by the NormaLevelUp presentation.
+                        is Result.Success -> CommandResult.Success
+                        is Result.Failure -> {
+                            val err = res.error
+                            val missing = (err as? NormaCheckError.NotReady)?.missing?.toString()
+                            CommandResult.Failure(NormaChoicePrompter.checkErrorKey(err), if (missing != null) mapOf("missing" to missing) else emptyMap())
+                        }
+                    }
+                },
+            ).forEveryone(Permission("astera.norma.check")),
         ),
     )
 

@@ -11,9 +11,11 @@ import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.match.application.port.outbound.IMatchNormaStore
 import com.astarworks.astera.match.application.port.outbound.IMatchStarStore
+import com.astarworks.astera.match.domain.event.NormaCheckReady
 import com.astarworks.astera.match.domain.event.NormaLevelUp
 import com.astarworks.astera.match.domain.event.StarsCollected
 import com.astarworks.astera.match.domain.norma.NormaConfig
+import com.astarworks.astera.match.domain.norma.NormaCheckError
 import com.astarworks.astera.match.domain.norma.NormaError
 import com.astarworks.astera.match.domain.norma.NormaGoal
 import com.astarworks.astera.match.domain.norma.NormaHud
@@ -23,7 +25,9 @@ import com.astarworks.astera.match.domain.norma.NormaStanding
 /**
  * Orange-Juice-style Norma levels, per (match, player). Everyone starts at level 1 with the STAR goal. At each level
  * the player holds one goal: carry `norma_stars_goal` stars (not consumed) or make `norma_kills_goal` kills at this
- * level. Reaching it levels the player up at once (kills reset, stars kept, the choice re-opens at STAR). Levels
+ * level. Reaching it only makes the player READY (a notice, [NormaCheckReady]); the level rises when the player runs
+ * the Norma check ([check], `/astera norma check`) at their OWN team's base zone while the goal still holds (stars lost
+ * on a death un-ready them). A check keeps the stars, resets kills and re-opens the choice at STAR. Levels
  * are an in-match power layer: reaching `norma_max_level` only stops further levelling and never ends the match (the
  * mode's own objective decides it). Everything is dropped at match end.
  */
@@ -34,6 +38,7 @@ public class NormaLevelService(
     private val configOf: (MatchId) -> NormaConfig,
     private val isNorma: (MatchId) -> Boolean,
     private val eventBus: IDomainEventBus,
+    private val baseZone: NormaBaseZone,
 ) {
     public fun onKilled(event: PlayerKilled) {
         val killer = event.killer ?: return
@@ -69,6 +74,31 @@ public class NormaLevelService(
         return Result.success(norma.get(match.id, playerId))
     }
 
+    /** `/astera norma check`: at the own base with the goal met, the level rises by one. */
+    public fun check(playerId: PlayerId): Result<NormaProgress, NormaCheckError> {
+        val match = matches.findMatchOf(playerId) ?: return Result.failure(NormaCheckError.NotInMatch)
+        if (!isNorma(match.id)) return Result.failure(NormaCheckError.ModeHasNoNorma)
+        if (!live(match)) return Result.failure(NormaCheckError.MatchNotRunning)
+        val cfg = configOf(match.id)
+        val p = norma.get(match.id, playerId)
+        if (p.level >= cfg.maxLevel) return Result.failure(NormaCheckError.AtMaxLevel)
+        when (baseZone.siteOf(match, playerId, cfg.checkRadius)) {
+            BaseSite.OWN -> Unit
+            BaseSite.ENEMY -> return Result.failure(NormaCheckError.EnemyBase)
+            BaseSite.NONE -> return Result.failure(NormaCheckError.NotAtBase)
+        }
+        val missing = shortfall(match, p, playerId, cfg)
+        if (missing > 0) {
+            // Goal lost since the ready notice (died, spent): the notice fires again once it is met again.
+            if (p.readyNotified) norma.put(match.id, playerId, p.copy(readyNotified = false))
+            return Result.failure(NormaCheckError.NotReady(p.goal, missing))
+        }
+        val up = NormaProgress(level = p.level + 1, goal = NormaGoal.STAR, killsAtLevel = 0, totalKills = p.totalKills)
+        norma.put(match.id, playerId, up)
+        eventBus.publish(NormaLevelUp(match.id, playerId, up.level))
+        return Result.success(up)
+    }
+
     /** The sidebar block of [playerId], or `null` outside a live Norma match. */
     public fun hudOf(playerId: PlayerId): NormaHud? {
         val match = matches.findMatchOf(playerId)?.takeIf { isNorma(it.id) } ?: return null
@@ -77,7 +107,8 @@ public class NormaLevelService(
         val carried = stars.get(match.id, playerId)
         val target = cfg.targetFor(p.level, p.goal)
         val progress = if (p.goal == NormaGoal.STAR) carried else p.killsAtLevel
-        return NormaHud(carried, p.level, cfg.maxLevel, p.goal, progress.coerceAtMost(target), target)
+        val ready = p.level < cfg.maxLevel && shortfall(match, p, playerId, cfg) == 0
+        return NormaHud(carried, p.level, cfg.maxLevel, p.goal, progress.coerceAtMost(target), target, ready = ready)
     }
 
     /** [playerId]'s Norma level in their current match, or `null` outside a Norma match (no gate applies there). */
@@ -130,18 +161,20 @@ public class NormaLevelService(
 
     private val finalStandings: MutableMap<MatchId, List<NormaStanding>> = java.util.concurrent.ConcurrentHashMap()
 
+    /** Marks [playerId] READY (once per level) when the goal is met; the level itself only rises in [check]. */
     private fun evaluate(match: Match, playerId: PlayerId) {
         val cfg = configOf(match.id)
         val p = norma.get(match.id, playerId)
-        if (p.level >= cfg.maxLevel) return
-        val reached = when (p.goal) {
-            NormaGoal.STAR -> stars.get(match.id, playerId) >= cfg.starsGoalAt(p.level)
-            NormaGoal.KILL -> p.killsAtLevel >= cfg.killsGoalAt(p.level)
-        }
-        if (!reached) return
-        val up = NormaProgress(level = p.level + 1, goal = NormaGoal.STAR, killsAtLevel = 0, totalKills = p.totalKills)
-        norma.put(match.id, playerId, up)
-        eventBus.publish(NormaLevelUp(match.id, playerId, up.level))
+        if (p.level >= cfg.maxLevel || p.readyNotified) return
+        if (shortfall(match, p, playerId, cfg) > 0) return
+        norma.put(match.id, playerId, p.copy(readyNotified = true))
+        eventBus.publish(NormaCheckReady(match.id, playerId, p.level))
+    }
+
+    /** How many stars / kills are still missing to clear the current level (0 = goal met). */
+    private fun shortfall(match: Match, p: NormaProgress, playerId: PlayerId, cfg: NormaConfig): Int = when (p.goal) {
+        NormaGoal.STAR -> (cfg.starsGoalAt(p.level) - stars.get(match.id, playerId)).coerceAtLeast(0)
+        NormaGoal.KILL -> (cfg.killsGoalAt(p.level) - p.killsAtLevel).coerceAtLeast(0)
     }
 
     private fun live(match: Match): Boolean = match.phase == MatchPhase.ACTIVE || match.phase == MatchPhase.SUDDEN_DEATH

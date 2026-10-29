@@ -2,6 +2,7 @@ package com.astarworks.astera.match.application.service
 
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.match.domain.norma.NormaCheckError
 import com.astarworks.astera.match.domain.norma.NormaError
 import com.astarworks.astera.match.domain.norma.NormaGoal
 
@@ -24,6 +25,19 @@ public class NormaChoicePrompter(
     }
 
     public companion object {
+        /** The message that explains the refused Norma check [error]; [NormaCheckError.NotReady] also needs `{missing}` / `{goal}`. */
+        public fun checkErrorKey(error: NormaCheckError): MessageKey = MessageKey(
+            when (error) {
+                NormaCheckError.NotInMatch -> "astera.match.norma-choice.not-in-match"
+                NormaCheckError.ModeHasNoNorma -> "astera.match.norma-choice.no-norma-mode"
+                NormaCheckError.MatchNotRunning -> "astera.match.norma-choice.match-not-running"
+                NormaCheckError.AtMaxLevel -> "astera.match.norma-choice.max-level"
+                NormaCheckError.NotAtBase -> "astera.match.norma-check.not-at-base"
+                NormaCheckError.EnemyBase -> "astera.match.norma-check.enemy-base"
+                is NormaCheckError.NotReady -> "astera.match.norma-check.not-ready-${error.goal.name.lowercase()}"
+            },
+        )
+
         /** The message that explains [error] accurately. */
         public fun errorKey(error: NormaError): MessageKey = MessageKey(
             when (error) {

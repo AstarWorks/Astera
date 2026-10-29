@@ -102,11 +102,21 @@ class StarsE2eTest : PlaythroughBase() {
 
         // (a) + STAR-goal level-up: A stands on the east generator (12.5, 65, 0.5) and takes what pops; 2 stars clear level 1.
         val spawnA = localPosOf(a)
+        val spawnC = localPosOf(c)
         tpArena(a.name, 12.5, 65.0, 0.5, 0f, 0f)
-        val leveled = a.waitUntil(40_000) { a.nudge(); c.nudge(); levelOf(a)?.first == 2 }
+        // Meeting the goal only makes A ready ("Norma goal met" action bar, no level yet); the level rises at the Norma check in A's own base.
+        val ready = a.waitUntil(40_000) { a.nudge(); c.nudge(); a.actionBars.any { "Norma goal met" in it.text } }
         // Leave the pedestal at once: the next pop (3 s later) would otherwise be level 2's third star (the top level ends the match).
         tpArena(a.name, spawnA?.first ?: -30.0, spawnA?.second ?: 65.0, spawnA?.third ?: 0.0, 0f, 0f)
         Thread.sleep(1_000)
+        val stillLv1 = levelOf(a)?.first == 1
+        a.command("astera norma check")
+        val leveled = a.waitUntil(10_000) { a.nudge(); c.nudge(); levelOf(a)?.first == 2 }
+        E2eReport.check(suite, "meeting the STAR goal only readies the player; the level stays 1 until the check at the own base", "SetScore") {
+            assertThat(ready).describedAs("no 'Norma goal met' action bar: ${a.actionBars.map { it.text }}").isTrue()
+            assertThat(stillLv1).describedAs("level rose before the check: ${sidebar(a)}").isTrue()
+            "ok"
+        }
         E2eReport.check(suite, "a bot standing on a generator picks up the popped stars and the STAR goal levels it up (Lv 1 -> 2)", "SetScore") {
             assertThat(leveled).describedAs("level stayed ${levelOf(a)}; stars=${starCount(a)}; sidebar=${sidebar(a)}").isTrue()
             assertThat(starCount(a)).describedAs("stars are kept by a level-up: ${sidebar(a)}").isGreaterThanOrEqualTo(2)
@@ -165,7 +175,11 @@ class StarsE2eTest : PlaythroughBase() {
             assertThat(spawned).describedAs("ITEM entities that appeared after the kill").isGreaterThanOrEqualTo(expectedBurst)
             "carried=$carried expected>=$expectedBurst spawned=$spawned"
         }
-        E2eReport.check(suite, "the KILL goal levels the killer up (Lv 1 -> 2 after one kill)", "SetScore") {
+        // The kill only readies the killer; the level rises at the Norma check in the killer's own base.
+        tpArena(c.name, spawnC?.first ?: 30.0, spawnC?.second ?: 65.0, spawnC?.third ?: 0.0, 0f, 0f)
+        Thread.sleep(500)
+        c.command("astera norma check")
+        E2eReport.check(suite, "the KILL goal levels the killer up (Lv 1 -> 2 after one kill and the check at base)", "SetScore") {
             assertThat(c.waitUntil(6_000) { levelOf(c)?.first == 2 }).describedAs("killer sidebar ${sidebar(c)}").isTrue()
             "C sidebar: ${sidebar(c)}"
         }

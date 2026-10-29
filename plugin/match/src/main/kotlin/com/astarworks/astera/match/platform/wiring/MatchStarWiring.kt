@@ -98,6 +98,7 @@ internal object MatchStarWiring {
             configOf = configOf,
             isNorma = env.normaLayerOf,
             eventBus = eventBus,
+            baseZone = com.astarworks.astera.match.application.service.NormaBaseZone(env.stages, positions),
         )
         val lifecycle = MatchStarLifecycle(
             registry = registry,
@@ -173,6 +174,13 @@ internal object MatchStarWiring {
             },
         )
         subs += eventBus.subscribe(NormaLevelUp::class) { e -> env.scheduler.runLaterTicks(ExecutionScope.Entity(e.playerId.uuid), LEVEL_UP_PROMPT_DELAY_TICKS) { prompter.hint(e.playerId) } }
+        // Goal met: the level does not rise yet. The player is told to go back to their own base for the Norma check.
+        subs += eventBus.subscribe(com.astarworks.astera.match.domain.event.NormaCheckReady::class) { e ->
+            services.get<IHudGateway>()?.showFor(
+                e.playerId,
+                HudLayout.ActionBar(HudComponent.Text(messageKey = MessageKey("astera.match.hint.norma-check-ready")), ttlTicks = HINT_TTL_TICKS, priority = 2),
+            )
+        }
         // Command teleports raise no move event: a short poll covers them and redraws the drop markers.
         env.scheduledTasks += env.scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 10L, periodTicks = 10L) { drops.poll() }
         return Wired(store, registry, env.stages, norma, drops, configOf)

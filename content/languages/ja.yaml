@@ -1005,6 +1005,11 @@ astera:
       no-norma-mode: "<red>このモードにはノルマレベルがありません。</red>"
       match-not-running: "<yellow>試合が始まっていないか、すでに終了しています。</yellow>"
       max-level: "<yellow>最高ノルマレベルです。</yellow>"
+    norma-check:
+      not-at-base: "<red>ノルマチェックは自チームの拠点で行ってください。</red>"
+      enemy-base: "<red>ここは敵の拠点です。自拠点でノルマチェックを行ってください。</red>"
+      not-ready-star: "<yellow>まだ条件未達: あと★{missing}個必要です。</yellow>"
+      not-ready-kill: "<yellow>まだ条件未達: あと{missing}キル必要です。</yellow>"
     star:
       collected: "<gold><bold>+{amount} ★</bold></gold> <gray>(所持 {total})</gray>"
     # Wave 5lobby-content (ADR-0119) — ロビー `lobby.queue.*` GuiIntent 出力.
@@ -1371,6 +1376,7 @@ astera:
       next-unlock: "<gray>次:</gray> <white>Lv {level}</white> <white>{rarity}</white> <gray>解放</gray>"
       objective-star: "<gray>目標：</gray> <yellow>スター</yellow> <white>{progress}/{target}</white>"
       objective-kill: "<gray>目標：</gray> <red>キル</red> <white>{progress}/{target}</white>"
+      objective-ready: "<green>ノルマ達成</green> <gray>- 拠点でチェック</gray>"
       objective-max: "<gold>最高ノルマレベル</gold>"
       gold: "<gold>*</gold> <white>{gold}</white> <gray>ゴールド</gray>"
     lobby:
@@ -2710,6 +2716,7 @@ astera:
   match.hint.respawn: "<gray>倒されても数秒で復活。<white>F</white> キーでメニューを開けます</gray>"
   match.hint.norma-rank: "<gray>レベルを上げると新しいスキルやアルティメットが解放される (最高 Lv {max})。レベルで勝敗は決まらない</gray>"
   match.hint.time: "<gray>制限時間は {minutes} 分です</gray>"
+  match.hint.norma-check-ready: "<green><bold>ノルマ達成！</bold></green> <gray>自拠点に戻ってチェックを: <white>/astera norma check</white></gray>"
   match.hint.norma-choice-star: "<gray>次の目標: <gold>★ {target}個</gold> を持つ。変更: <white>/astera norma choose kill</white></gray>"
   match.hint.norma-choice-kill: "<gray>次の目標: <red>⚔ {target}キル</red>。変更: <white>/astera norma choose star</white></gray>"
   match.summary.subtitle.time-draw: "<gray>時間切れ - 同点</gray>"

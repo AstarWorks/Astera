@@ -998,6 +998,11 @@ astera:
       no-norma-mode: "<red>This mode has no Norma levels.</red>"
       match-not-running: "<yellow>The match is not running yet or is already over.</yellow>"
       max-level: "<yellow>You are at the top Norma level.</yellow>"
+    norma-check:
+      not-at-base: "<red>Go back to your own base to run the Norma check.</red>"
+      enemy-base: "<red>This is an enemy base. Run the Norma check at your own base.</red>"
+      not-ready-star: "<yellow>Not ready yet: {missing} more stars needed.</yellow>"
+      not-ready-kill: "<yellow>Not ready yet: {missing} more kills needed.</yellow>"
     star:
       collected: "<gold><bold>+{amount} ★</bold></gold> <gray>(carrying {total})</gray>"
     # Wave 5lobby-content (ADR-0119) — lobby `lobby.queue.*` GuiIntent surface.
@@ -1365,6 +1370,7 @@ astera:
       next-unlock: "<gray>Next:</gray> <white>Lv {level}</white> <white>{rarity}</white>"
       objective-star: "<gray>Goal:</gray> <yellow>Stars</yellow> <white>{progress}/{target}</white>"
       objective-kill: "<gray>Goal:</gray> <red>Kills</red> <white>{progress}/{target}</white>"
+      objective-ready: "<green>Norma ready</green> <gray>- check at base</gray>"
       objective-max: "<gold>Top Norma level</gold>"
       gold: "<gold>*</gold> <white>{gold}</white> <gray>Gold</gray>"
     lobby:
@@ -2722,6 +2728,7 @@ astera:
   match.hint.respawn: "<gray>You respawn in seconds. Press <white>F</white> for the menu</gray>"
   match.hint.norma-rank: "<gray>Higher levels unlock new skills and ultimates (max Lv {max}). Levels never decide the match</gray>"
   match.hint.time: "<gray>Time limit: {minutes} min</gray>"
+  match.hint.norma-check-ready: "<green><bold>Norma goal met!</bold></green> <gray>Return to your base and run the check: <white>/astera norma check</white></gray>"
   match.hint.norma-choice-star: "<gray>Next goal: hold <gold>★ {target}</gold>. Change: <white>/astera norma choose kill</white></gray>"
   match.hint.norma-choice-kill: "<gray>Next goal: <red>⚔ {target} kills</red>. Change: <white>/astera norma choose star</white></gray>"
   match.summary.subtitle.time-draw: "<gray>Time up - tied</gray>"

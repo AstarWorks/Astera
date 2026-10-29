@@ -89,12 +89,14 @@ class StarsNormaScenarioTest {
             assertThat(stars.get(matchId, red.id)).`as`("red picked up burst stars").isGreaterThan(before)
             assertThat(sim.starDrops.lying().size).`as`("the picked-up items are gone from the map").isLessThan(lyingBefore)
 
-            // (c) Red carries enough stars for its next star goal: the level goes up by one, stars are kept.
+            // (c) Red carries enough stars for its next star goal, then runs the Norma check at its base: the level goes up by one, stars are kept.
             val levelBefore = norma.get(matchId, red.id).level
             val target = levelBefore + 1
             stars.add(matchId, red.id, 100)
             sim.eventBus.publish(StarsCollected(matchId, red.id, 100, stars.get(matchId, red.id)))
             advance(2)
+            assertThat(norma.get(matchId, red.id).level).`as`("goal met but no check yet: no level-up").isEqualTo(levelBefore)
+            normaCheckAtHome(matchId, red)
             assertThat(eventsOf<NormaLevelUp>().any { it.playerId == red.id && it.level == target }).isTrue()
             assertThat(norma.get(matchId, red.id).level).isEqualTo(target)
             val shown = sim.normaPresentation.levelUps.filter { it.player == red.id && it.level == target }
@@ -115,6 +117,7 @@ class StarsNormaScenarioTest {
             // Red clears level 1 (10 stars); blue carries 9 stars at level 1. Level beats stars.
             stars.add(matchId, red.id, 10)
             sim.eventBus.publish(StarsCollected(matchId, red.id, 10, 10))
+            normaCheckAtHome(matchId, red)
             stars.add(matchId, blue.id, 9)
             advance(12_100)
             val ended = eventsOf<MatchEnded>().single { it.matchId == matchId }
