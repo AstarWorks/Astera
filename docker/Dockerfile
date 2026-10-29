@@ -71,7 +71,7 @@ ENV EULA=FALSE \
 
 # Docker copies this directory (including ownership) into a fresh named volume.
 RUN mkdir -p /data/plugins/Astera-Chat/preferences \
- && chown 1000:1000 /data/plugins/Astera-Chat/preferences
+ && chown -R 1000:1000 /data/plugins
 
 # Plugin jars: itzg copies /plugins -> /data/plugins on every start.
 COPY --from=builder /out/ /plugins/
