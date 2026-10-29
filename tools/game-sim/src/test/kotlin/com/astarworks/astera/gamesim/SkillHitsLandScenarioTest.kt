@@ -48,7 +48,7 @@ class SkillHitsLandScenarioTest {
             red.holds("knight-sword")
             red.faces(blue)
             red.leftClick()
-            advance(1)
+            advance(4) // sword-slash winds up 3 ticks before the sector hit
             val afterFirst = hp(blue)
             assertThat(afterFirst).`as`("first sword-slash lands").isLessThan(100.0)
             fun hitsOnBlue() = eventsOf<DamageDealt>().count { it.target == blue.id }
@@ -58,7 +58,7 @@ class SkillHitsLandScenarioTest {
             advance(10)
             red.faces(blue)
             red.leftClick()
-            advance(1)
+            advance(4)
             assertThat(hp(blue)).`as`("second hit inside the i-frame is refused").isEqualTo(afterFirst)
             assertThat(hitsOnBlue()).isEqualTo(1)
 
@@ -82,7 +82,7 @@ class SkillHitsLandScenarioTest {
             red.lookAt(pillar.centre)
             advance(40)
             red.leftClick()
-            advance(2)
+            advance(4)
             assertThat(checkNotNull(targets.hitPoints(id))).`as`("a weapon skill hit takes pillar HP").isLessThan(before)
         }
     }
