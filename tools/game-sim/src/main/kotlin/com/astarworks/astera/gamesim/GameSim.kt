@@ -695,15 +695,18 @@ public class GameSim private constructor(
             // The sim has one world and no arena slots (production pastes arenas on a far grid, SlotAllocator), so an
             // arena at origin 0 would sit on the lobby training island and its players would count as "in the range"
             // (immune to players). Move the range out of every stage's way; its dummies, rack and region follow the plan.
-            services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>()?.let { range ->
-                val surfaceY = range.plan.dummies.first().y.toInt() - 1
-                services.register<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>(
-                    com.astarworks.astera.core.application.port.outbound.lobby.LobbyTrainingRange(
-                        range.world,
-                        com.astarworks.astera.core.domain.lobby.LobbyTrainingLayout.plan(SIM_RANGE_OFFSET, SIM_RANGE_OFFSET, surfaceY),
-                    ),
-                    priority = 100,
-                )
+            // Built from the same content the Core wiring used, without resolving the registered range first: a get() here
+            // would mark the type resolved and make this priority-100 override a late override (ADR-0195).
+            if (role.hostsLobby) {
+                (com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.load(contentDir) as? com.astarworks.astera.core.domain.Result.Success)?.value?.let { lobby ->
+                    services.register<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>(
+                        com.astarworks.astera.core.application.port.outbound.lobby.LobbyTrainingRange(
+                            com.astarworks.astera.core.domain.world.WorldId(lobby.id),
+                            com.astarworks.astera.core.domain.lobby.LobbyTrainingLayout.plan(SIM_RANGE_OFFSET, SIM_RANGE_OFFSET, lobby.surfaceY),
+                        ),
+                        priority = 100,
+                    )
+                }
             }
 
             // ---- Trace taps ----------------------------------------------
