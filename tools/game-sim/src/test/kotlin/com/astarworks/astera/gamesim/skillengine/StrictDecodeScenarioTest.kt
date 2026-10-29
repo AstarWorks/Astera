@@ -64,7 +64,7 @@ class StrictDecodeScenarioTest : SkillEngineScenario() {
         names.forEach { expectError(it.substringBefore('-')) }
     }
 
-    /** ADR 2.0b: a schema default is only ever an identity (0, 1, empty, false, null, [0,0,0], [1,1,1], a vanilla-value word). */
+    /** ADR 2.0b: a schema default is only ever an identity (0, 1, empty, false (never true), null, [0,0,0], [1,1,1], a vanilla-value word). */
     @Test
     fun noHiddenDefaultsInSchema() {
         val schema = OpSpecRegistry(SkillEngineSpecs.all()).jsonSchema()
@@ -89,6 +89,6 @@ class StrictDecodeScenarioTest : SkillEngineScenario() {
         is JsonNull -> true
         is JsonArray -> v.isEmpty() || v.map { (it as? JsonPrimitive)?.doubleOrNull }.let { n -> n.all { it == 0.0 } || n.all { it == 1.0 } }
         is JsonObject -> v.isEmpty()
-        is JsonPrimitive -> v.booleanOrNull != null || v.doubleOrNull?.let { it == 0.0 || it == 1.0 } == true || (v.isString && (v.content.isEmpty() || v.content in vanillaWords))
+        is JsonPrimitive -> v.booleanOrNull == false || v.doubleOrNull?.let { it == 0.0 || it == 1.0 } == true || (v.isString && (v.content.isEmpty() || v.content in vanillaWords))
     }
 }

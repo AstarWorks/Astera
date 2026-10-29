@@ -150,7 +150,7 @@ anchors:
 
 | field | meaning |
 |---|---|
-| `anchor` | parent anchor: `world`, `caster` (feet, yaw-only basis), `caster.eye` (full look basis, no roll), `<body op id>.<point>` (a named point of the `body` op's rig animation, `points:` in `content/animations/<anim>.yaml`; rev4.8), `<item-frame>.<part>` (axes from `content/frames/<item>.yaml`), `contact`, `victim.<root/body/head>`, or any declared anchor. A gameplay frame is a valid parent (read-only). |
+| `anchor` | parent anchor: `world`, `caster` (feet, yaw-only basis), `caster.eye` (full look basis, no roll), `<body op id>.<point>` (a named point of the `body` op's rig animation, `points:` in `content/animations/<anim>.yaml`; rev4.8), `<rig op id>.<point>` (a point of the rig's `part`, 10.5; rev4.8), `<item-frame>.<part>` (axes from `content/frames/<item>.yaml`), `contact`, `victim.<root/body/head>`, or any declared anchor. A gameplay frame is a valid parent (read-only). |
 | `offset` | name-keyed map in the PARENT's axes. |
 | `turn` | list of `{axis, deg}` relative to the parent basis, applied in list order. |
 | `mode` | `follow` (default): origin and axes re-read from the parent at every send. `snapshot`: pose copied once at activation, parent becomes `world`. |
@@ -293,7 +293,6 @@ written in the field table. A value that differed in v1 is written EXPLICITLY by
 | `orbit.face` | **listed default** `keep` | the engine value: the object does not turn with the orbit |
 | reactive law `step` | **listed default** 2 (ticks between re-sends, minimum 1) | the engine value; a live law is re-sent every 2 ticks |
 | ribbon `step_deg` | **listed default** 30 (degrees between samples, 5..90) | the engine value |
-| rig `sample_ticks` | **listed default** 2 (ticks between key samples, minimum 1) | the engine value |
 | `lasts`, `for`/`until`/`times` bounds, `block.restitution`, `block.times`, `block.for` | **required** where they apply | no neutral value exists |
 
 These listed defaults are the only non-identity defaults in the schema. Each is printed as `x-listed-default`, never as `default`, so a
@@ -1053,6 +1052,14 @@ States do not change the visual grammar: displays use frames + laws + CEL (secti
 Rig additions (rev4.3): a rig takes `of: <frame id>` (the frame the rig drives; identity: the held item, and block displays follow it) and a `reset: true`
 step, a duration-0 write of the rest pose (R30; `MAX_STEP_DEG` is unchanged). `part` and `edge` are rig-step FIELDS, not events.
 
+**The rig is an anchor instance (rev4.8).** The rig fields are `part, mount, anim, rest, tilt, freezes, respect_hit_stop, body_respect_hit_stop, swing, for`
+(plus `of`). `swing` is the rig's only law: the engine lowers its few keys (`{at, for, from, via, to, edge, roll, ease, reset, turns}`) to one pose per tick, always,
+so there is no sampling field and no baked blade/tip/root/edge/hand field. `part` names a part of `content/frames/<item>.yaml` for the driven frame: the part's
+model points (`tip`, `root`, `grip`, ...) and its `long` / `edge` axes become the rig instance's anchor points, read per tick as `<rig id>.<point>` in
+anchors (`anchor: {of: rig.root, to: rig.tip, samples: 8}`) and in CEL. `mount: caster.hand_r` (the only value) rides the driven frame on the caster's arm
+(origin = grip, rotation = arm * tilt * pose * rest); an absent `mount` leaves the frame at the parent's origin (the old implicit hand is gone). The rig
+declares its instance with `AnchorRegistry.declare` and is registered in the run's `recs` like any other instance, so there is no separate rig table.
+
 #### 10.6 `lock` and `cancel` (L2, L4)
 
 **`lock`** freezes a caster input for a window. It replaces v2's paired `lock` / `unlock` movement ops (an unlock that is forgotten is a leak; here the
@@ -1357,21 +1364,20 @@ Added so the converter can express v1 presentation without dropping it (each map
 
 ## Skin rig (SKL-17)
 
-A weapon performance is one `rig` op, not a `body` clip (formerly `caster_anim`) plus a static hand point. `rig` plays a skin-rig clip (`anim`) as a tree of frames: the
-body, arm and hand bones are frames carrying v1's per-tick motion; the skin displays (`spawnSkinBone`) ride them through `toDisplayWrite`; the
-weapon `mesh` is a child of the animated hand frame (hand origin = arm position + arm rotation * (grip offset + pivot), rotation = arm * tilt *
-wrist * rest, scale 0.9375). The real body is hidden under a `BODY` lease for the duration. The wrist `swing` keys are rotation vectors; the
-runtime holds no angles in degrees or Euler triples. `tools/skill-convert` bakes v1's component-wise eased wrist keys into one rotation-vector
-key per tick (`sample: true` marks the in-between ticks, which are not chunk boundaries of the rig clock). Anything the rig op cannot say (a
-swapped `weapon_model`, `ghost_bodies`, block parts without the block op) is a converter error, never dropped.
+A held-object performance is one `rig` op, not a `body` clip (formerly `caster_anim`) plus a static hand point. `rig` plays a skin-rig clip (`anim`) as a tree of frames: the
+body, arm and hand bones are frames carrying the clip's per-tick motion; the skin displays (`spawnSkinBone`) ride them through `toDisplayWrite`; the
+held `mesh` is a child of the driven frame (origin = arm position + arm rotation * (grip offset + pivot), rotation = arm * tilt *
+pose * rest, scale 0.9375). The real body is hidden under a `BODY` lease for the duration. The pose is a rotation vector computed per tick from the
+`swing` steps; the runtime holds no angles in degrees or Euler triples. Anything the rig op cannot say (a
+swapped model, `ghost_bodies`, block parts without the block op) is a load error, never dropped.
 
-The v2 tilt seen on dev (2026-10-28) came from `main_hand` hanging off the static `caster.right_hand` point at scale 1.0 while `caster_anim`
-animated the arm outside the engine; v1 hung the weapon from the animated hand. Rider displays never teleport (teleport 0, interpolation N), as in v1.
+The v2 tilt seen on dev (2026-10-28) came from `main_hand` hanging off a static hand point at scale 1.0 while `caster_anim`
+animated the arm outside the engine; the held mesh hangs from the animated mount. Rider displays never teleport (teleport 0, interpolation N), as in v1.
 
 The rig has no `item` field: it is the skill's `item:`, and `part?` names a part of `content/frames/<item>.yaml`. A `rig` op under `item: any`, or in a skill
 with no item, is a load error (`rig needs a concrete item`).
 
-Rig `parts` are `block` ops. v1 hangs them from the anchor pivot and turns them by the wrist swing alone (`VfxRigPlanner.partPlan`: `pivotWorld + anchorRot * R(t) * offset`, no arm), so a hand-parented rig gets a second, anchor-parented `rig` frame (`<rig>_parts`, no skin bones) that carries the parts; the weapon mesh stays on the hand frame.
+Rig `parts` are `block` ops. v1 hangs them from the anchor pivot and turns them by the swing pose alone (`VfxRigPlanner.partPlan`: `pivotWorld + anchorRot * R(t) * offset`, no arm), so a mounted rig gets a second, anchor-parented `rig` frame (`<rig>_parts`, no skin bones, no `mount`) that carries the parts; the held mesh stays on the driven frame.
 
 ## References
 

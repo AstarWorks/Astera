@@ -35,9 +35,9 @@ public object ExprFrames {
             is Map<*, *> -> {
                 val id = (node["id"] as? String)?.substringAfterLast('/')
                 val op = node["op"] as? String
-                if (id != null && (op == "frame" || op == "projectile" || op == "body") && id.all { it.isLetterOrDigit() || it == '_' }) {
+                if (id != null && (op == "frame" || op == "projectile" || op == "body" || op == "rig") && id.all { it.isLetterOrDigit() || it == '_' }) {
                     out += id
-                    if (op == "frame" && node["part"] != null) for (p in POINTS) out += "$id.$p"
+                    if ((op == "frame" && node["part"] != null) || op == "rig") for (p in POINTS) out += "$id.$p"
                 }
                 for (v in node.values) walk(v, out)
             }

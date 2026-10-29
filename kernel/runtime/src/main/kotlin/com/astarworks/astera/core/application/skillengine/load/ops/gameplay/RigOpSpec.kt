@@ -16,7 +16,7 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.Rotations
 import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
 import com.astarworks.astera.core.application.skillengine.load.grammar.TimingKind
 import com.astarworks.astera.core.application.skillengine.load.grammar.Types
-import com.astarworks.astera.core.application.skillengine.load.rig.PartAxes
+import com.astarworks.astera.core.application.skillengine.load.rig.FrameAxes
 import com.astarworks.astera.core.application.skillengine.load.rig.RigSwings
 import com.astarworks.astera.core.application.skillengine.load.rig.SwingStep
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
@@ -139,7 +139,7 @@ public object RigOpSpec : OpSpec<RigOp> {
     /** The body point a rig can ride: the caster's right arm, carried by the rig's `anim` clip (the rig resolves it itself; it is not an anchor name). */
     public const val ARM_MOUNT: String = "caster.hand_r"
 
-    /** The display transform the player draws the main-hand mesh with (`AnchorMainHand`); a rig carrying the held item takes its blade axes from a part with this display. */
+    /** The display transform the player draws the main-hand mesh with (`AnchorMainHand`); a rig carrying the held item takes its long/edge axes from a part with this display. */
     private const val HELD_DISPLAY = "thirdperson_righthand"
 
     private val BUILTIN_PARENTS = setOf("caster", "caster.body", "caster.eye", "caster.look", "world")
@@ -179,7 +179,7 @@ public object RigOpSpec : OpSpec<RigOp> {
             }
             val long = part.axes["long"] ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "frames of '$item' part '${part.name}' declare no 'long' axis"))
             val edge = part.axes["edge"] ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "frames of '$item' part '${part.name}' declare no 'edge' axis"))
-            when (val r = Grammar.guard { RigSwings.lower(op.swing, PartAxes(long, edge), tilt, rest, GrammarContext(lc.skillId), path) }) {
+            when (val r = Grammar.guard { RigSwings.lower(op.swing, FrameAxes(long, edge), tilt, rest, GrammarContext(lc.skillId), path) }) {
                 is Result.Success -> r.value
                 is Result.Failure -> return r
             }

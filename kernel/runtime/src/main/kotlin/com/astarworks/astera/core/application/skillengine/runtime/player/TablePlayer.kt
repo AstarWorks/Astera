@@ -1331,7 +1331,7 @@ public class TablePlayer(
 
     /**
      * `rig` (v2 `RigExecutor` / `RigPerformer` at 93cd534e4~1): the swing drives the frame `of` (absent = `parent`), whose local pose in
-     * the parent's axes is the grip origin and the arm-carried wrist orientation each tick. A clip (`anim`) plays on the caster's own body
+     * the parent's axes is the grip origin and the arm-carried mount orientation each tick. A clip (`anim`) plays on the caster's own body
      * for the same span and carries the arm; `freezes` stop the rig clock when `respect_hit_stop` (the body's when `body_respect_hit_stop`).
      */
     private fun rigStart(run: Run, row: Row, p: Map<String, Val<Any>>, ctx: RowCtx, now: Int, src: String) {
@@ -1408,10 +1408,10 @@ public class TablePlayer(
     private fun rigPose(run: Run, rig: RigRec, now: Int) {
         val rec = run.recs[rig.driven] ?: return
         val elapsed = now - rig.start
-        val s = rig.pose.clock(elapsed)
+        val s = rig.motion.clock(elapsed)
         val bodyS = rig.bodyClock.clock(elapsed)
-        val origin = rig.pose.originAt(bodyS)
-        val q = rig.pose.frameRotationAt(s, bodyS)
+        val origin = rig.motion.originAt(bodyS)
+        val q = rig.motion.frameRotationAt(s, bodyS)
         val cur = rec.localAt(now)
         val target = PoseV(Vector3d(origin.x, origin.y, origin.z), Quaterniond(q.x, q.y, q.z, q.w), Vector3d(cur.scale))
         rec.moveTo(target, now, 0)
@@ -1891,7 +1891,7 @@ public class TablePlayer(
 
     private class ReelRec(val frame: InstanceId, val to: InstanceId)
 
-    private class RigRec(val driven: InstanceId, val start: Int, val pose: RigMotion, val bodyClock: RigMotion, val anim: String?, val caster: UUID, val held: Rec?)
+    private class RigRec(val driven: InstanceId, val start: Int, val motion: RigMotion, val bodyClock: RigMotion, val anim: String?, val caster: UUID, val held: Rec?)
 
     private class ShapeFrame(val frame: String, val from: String, val to: String)
 
