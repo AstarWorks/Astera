@@ -179,13 +179,14 @@ internal class SkillEnginePaperRuntime(
 
         tickHandle = scheduler.runRepeatingTicks(ExecutionScope.Global, 1L, 1L) {
             val now = scheduler.currentTick()
-            cast.tick(now.toInt())
-            playerHooks.tick(now.toInt())
-            movementGateway.tick(now.toInt())
-            live.retain(player.live().toSet())
+            // A throw here would kill the repeating task and silently freeze every cast: each stage logs by name and the loop goes on.
+            guardStage("cast") { cast.tick(now.toInt()) }
+            guardStage("hooks") { playerHooks.tick(now.toInt()) }
+            guardStage("movement") { movementGateway.tick(now.toInt()) }
+            guardStage("live-retain") { live.retain(player.live().toSet()) }
             player.faults().forEach { log.error("[skill-error] cast {} at tick {} ({}): {}", it.cast.value, it.tick, it.src, it.message) }
             player.clearFaults()
-            releaseLetGoHolds(eventBus, now)
+            guardStage("let-go") { releaseLetGoHolds(eventBus, now) }
         }
 
         // A cast ends its displays itself; these paths end the cast (and so its displays) when its caster goes away.
@@ -237,6 +238,14 @@ internal class SkillEnginePaperRuntime(
         throw IllegalStateException("skill engine not started: $reason")
     }
 
+    private inline fun guardStage(stage: String, block: () -> Unit) {
+        try {
+            block()
+        } catch (e: Exception) {
+            log.error("[skill-error] skill engine tick stage '{}' threw {}: {}", stage, e.javaClass.name, e.message, e)
+        }
+    }
+
     private fun onSkillCast(
         cast: CastRunner,
         live: PaperLiveValueSource,
@@ -252,7 +261,7 @@ internal class SkillEnginePaperRuntime(
         }
         val player = plugin.server.getPlayer(event.caster.uuid)
         if (player == null) {
-            log.warn("skill engine did not cast {}: caster {} is not online", id, event.caster.uuid)
+            log.error("[skill-error] skill engine did not cast {}: caster {} is not online", id, event.caster.uuid)
             return
         }
         val loc = player.location
@@ -268,8 +277,14 @@ internal class SkillEnginePaperRuntime(
             seed = (event.atTick xor event.caster.uuid.leastSignificantBits) xor (castSequence++ * -0x61c8864680b583ebL),
             startTick = scheduler.currentTick().toInt(),
         )
-        when (val result = cast.start(request)) {
-            is Result.Failure -> log.warn("skill engine could not start {}: {}", id, result.error)
+        val started = try {
+            cast.start(request)
+        } catch (e: Exception) {
+            log.error("[skill-error] skill engine start of {} threw {}: {}", id, e.javaClass.name, e.message, e)
+            return
+        }
+        when (val result = started) {
+            is Result.Failure -> log.error("[skill-error] skill engine could not start {}: {}", id, result.error)
             is Result.Success -> {
                 live.register(result.value, request)
                 if (SkillEngineTrace.enabled) {

@@ -244,6 +244,7 @@ public object LawSegmenter {
 
         private fun moveAt(l: MoveRate, t: Double): Vec3 {
             val tau = tau(t, l.from, l.forTicks)
+            if (l.accel.lengthSquared() != 0.0) return l.start + l.velocity * tau + l.accel * (tau * tau / 2.0)
             return l.start + l.velocity * (l.forTicks * ease(l.ease, tau / l.forTicks))
         }
 

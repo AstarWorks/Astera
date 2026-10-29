@@ -17,6 +17,7 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.Span
 import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
 import com.astarworks.astera.core.application.skillengine.load.grammar.TimingKind
 import com.astarworks.astera.core.application.skillengine.load.grammar.Types
+import com.astarworks.astera.core.application.skillengine.load.motion.LawSource
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ParticlePlacement
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaws
@@ -87,7 +88,7 @@ public class ProjectileOp(
     public val range: Value<Double>?,
     public val radius: Value<Double>?,
     public val hit: ProjectileHit,
-    public val motion: List<MotionLaw>?,
+    public val motion: LawSource?,
     public val block: ProjectileBlock,
     public val gravity: Value<Double>?,
     public val drag: Value<Double>?,
@@ -223,7 +224,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                 }
             }
 
-            val keys = values[motion]?.let { m -> MotionLaws.readLaws(m, ctx.forLaws(com.astarworks.astera.core.application.skillengine.load.grammar.LocalAxes), "$path.motion") }
+            val keys = values[motion]?.let { m -> LawSource(m, ctx.forLaws(com.astarworks.astera.core.application.skillengine.load.grammar.LocalAxes), "$path.motion").also { it.probe() } }
             ProjectileOp(id, src, whenExpr, timing, values[origin], values[velocity], values[speed], values[range], values[radius], hitSpec, keys, blockSpec, values[gravity], values[drag], raw)
         }
 
@@ -361,7 +362,8 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             run {
                 val declared = InstanceId(body.path.dropLast(1) + InstanceId.Segment(op.id, null))
                 val family = (op.timing?.times as? Value.Literal)?.value?.toInt()
-                (lc.anchors as? AnchorRegistry)?.declare(declared, family, if (op.motion.isNullOrEmpty()) ExprClass.L else ExprClass.T, op.motion ?: emptyList())
+                val bodyLaws = op.motion?.laws(lc.occurrence).orEmpty()
+                (lc.anchors as? AnchorRegistry)?.declare(declared, family, if (bodyLaws.isEmpty()) ExprClass.L else ExprClass.T, bodyLaws, if (family != null) lc.occurrence.i else null)
             }
             rows += Row(window.max, body, Action.End(body), src)
 

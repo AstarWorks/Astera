@@ -1,0 +1,19 @@
+apiVersion: astera/v3
+kind: Skill
+id: lock-pitch-probe
+item: diamond-axe
+meta:
+  name: {ja: 視点固定プローブ, en: Pitch Lock Probe}
+  description: {ja: "e2e 用。40 tick の間だけ視点の縦角を固定する。", en: "e2e probe. Holds the look pitch for 40 ticks."}
+  cooldown_ticks: 0
+  resource_cost: 0
+  tags: [probe]
+machine:
+  start: hold
+  states:
+    hold:
+      for: 40
+      then: done
+      do:
+        - {id: pin, op: lock, at: 0, for: 40, pitch: true}
+    done: {final: true}

@@ -494,7 +494,7 @@ public class SkillCompiler(
 
         override fun laws(anchor: String) = own.laws(anchor)
         override fun document(id: String) = own.document(id)
-        override fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw>) = own.declare(instance, family, basis, laws)
+        override fun declare(instance: InstanceId, family: Int?, basis: ExprClass, laws: List<MotionLaw>, copy: Int?) = own.declare(instance, family, basis, laws, copy)
         override fun at(occurrence: Occurrence): AnchorScope = BoundAnchors(own, bound).let { BoundView(own.at(occurrence), bound) }
     }
 

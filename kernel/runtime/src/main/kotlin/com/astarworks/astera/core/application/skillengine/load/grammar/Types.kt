@@ -20,10 +20,12 @@ internal object ValueForms {
 }
 
 /**
- * An `anchor:` value (ADR-0303 1, R14): a declared anchor id, or `{of, offset: {forward, up, left}, sweep?}` = a point displaced in that
+ * An `anchor:` value (ADR-0303 1, R14): a declared anchor id, or `{of, offset: {forward, up, left}, to?, samples?, sweep?}` = a point displaced in that
  * anchor's basis. [sweep] (blocks of anchor travel per call) is meaningful for particles only; other ops reject it.
+ * [to] + [samples] (rev4.8) name a segment `of -> to`: the lowering emits [samples] rows per tick at `of + (to - of) * k / (samples - 1)`;
+ * particle / particle_def only. Both or neither.
  */
-public data class AnchorRef(val of: String, val offset: FrameVec?, val sweep: Double?)
+public data class AnchorRef(val of: String, val offset: FrameVec?, val sweep: Double?, val to: String? = null, val samples: Int? = null)
 
 /** The field types of the shared grammar. Every numeric/vector/bool/text type also accepts `${param}` and `= CEL` (ADR-0303 section 0, 11). */
 public object Types {
@@ -62,6 +64,21 @@ public object Types {
                 ValueForms.specialSchema(),
             ),
         )
+    }
+
+    /**
+     * An identifier that may also be `${param}` or `= CEL` (a per-index `block: [a, b, c]` under `times` is rewritten to the latter, R28).
+     * A literal still has to be a bare identifier; the CEL form is folded at lowering, once `i` is known per copy.
+     */
+    public val idValue: FieldType<Value<String>> = object : FieldType<Value<String>> {
+        override val label = "identifier, \${param} or '= expr'"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): Value<String> {
+            val v = ctx.checked(ValueDecoding.text(raw, ctx.file, path), ExprType.STR, path)
+            if (v is Value.Literal) id.decode(v.value, ctx, path)
+            return v
+        }
+        override fun schema(): Map<String, Any?> =
+            linkedMapOf("oneOf" to listOf(linkedMapOf("type" to "string", "pattern" to "^\\S+$"), ValueForms.specialSchema()))
     }
 
     /** A bare identifier: event name, id, ease name. */
@@ -142,11 +159,13 @@ public object Types {
 
     private val anchorOffset by lazy { Field.optional("offset", Types.nullable(FrameVecs.type), null, "displacement in the anchor's basis") }
     private val anchorSweep = Field.optional("sweep", Types.nullable(number), null, "blocks of anchor travel per call (particles only)")
-    private val anchorFields by lazy { Fields.of("anchor", anchorOf, anchorOffset, anchorSweep) }
+    private val anchorTo = Field.optional("to", Types.nullable(id), null, "second end of a segment; the lowering emits `samples` rows along of -> to (particle / particle_def)")
+    private val anchorSamples = Field.optional("samples", Types.nullable(number), null, "rows per tick along of -> to, a whole number >= 2 (compile-time constant; with `to`)")
+    private val anchorFields by lazy { Fields.of("anchor", anchorOf, anchorOffset, anchorTo, anchorSamples, anchorSweep) }
 
-    /** `anchor: <id>` or `anchor: {of, offset?, sweep?}`. */
+    /** `anchor: <id>` or `anchor: {of, offset?, to?, samples?, sweep?}`. */
     public val anchorRef: FieldType<AnchorRef> = object : FieldType<AnchorRef> {
-        override val label = "anchor id or {of, offset, sweep}"
+        override val label = "anchor id or {of, offset, to, samples, sweep}"
         override fun decode(raw: Any?, ctx: GrammarContext, path: String): AnchorRef = when (raw) {
             is String -> AnchorRef(id.decode(raw, ctx, path), null, null)
             is Map<*, *> -> {
@@ -156,7 +175,17 @@ public object Types {
                     if (sweep !is Value.Literal) ctx.fail("$path.sweep", "sweep must be a literal number of blocks")
                     if (sweep.value <= 0.0) ctx.fail("$path.sweep", "sweep must be > 0")
                 }
-                AnchorRef(v[anchorOf], v[anchorOffset], (sweep as? Value.Literal)?.value)
+                val to = v[anchorTo]
+                val samplesRaw = v[anchorSamples]
+                if (to == null && samplesRaw != null) ctx.fail("$path.samples", "samples needs 'to' (the other end of the segment)")
+                if (to != null && samplesRaw == null) ctx.fail("$path.to", "'to' needs samples (rows per tick along of -> to)")
+                var samples: Int? = null
+                if (samplesRaw != null) {
+                    val n = (samplesRaw as? Value.Literal)?.value ?: ctx.fail("$path.samples", "samples must be a literal whole number (compile-time constant)")
+                    if (n % 1.0 != 0.0 || n < 2.0) ctx.fail("$path.samples", "samples must be a whole number >= 2 (was $n)")
+                    samples = n.toInt()
+                }
+                AnchorRef(v[anchorOf], v[anchorOffset], (sweep as? Value.Literal)?.value, to, samples)
             }
             else -> ctx.mismatch(path, label, raw)
         }

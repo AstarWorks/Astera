@@ -28,6 +28,7 @@ import com.astarworks.astera.core.application.skillengine.expr.cel.ExprClassifie
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.load.motion.KeysMotion
 import com.astarworks.astera.core.application.skillengine.load.motion.LawKey
+import com.astarworks.astera.core.application.skillengine.load.motion.LawSource
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaws
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
@@ -39,6 +40,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEnv
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEvalException
+import com.astarworks.astera.core.application.skillengine.load.ops.OccurrenceBake
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
 import com.astarworks.astera.core.domain.skillengine.expr.FrameLookup
@@ -105,8 +107,8 @@ public class DisplayOp(
     public val interpolationDelay: Value<Double>,
     public val interpolationDuration: Value<Double>,
     public val teleportDuration: Value<Double>,
-    /** Laws decoded by [MotionLaws]; segmented into `Key` rows (and `Set` rows for a fade) by [LawSegmenter] at compile. */
-    public val motion: List<MotionLaw>,
+    /** The `motion:` list; read per copy by [LawSource.laws] (so a law number may read `i`) and segmented into `Key` rows (and `Set` rows for a fade) by [LawSegmenter] at compile. */
+    public val motion: LawSource?,
     public val shaderEffect: String?,
 ) : OpNode
 
@@ -143,9 +145,9 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             linkedMapOf("type" to "array", "items" to Types.number.schema(), "minItems" to 2, "maxItems" to 2)
     }
 
-    private val MOTION = object : FieldType<List<MotionLaw>> {
+    private val MOTION = object : FieldType<LawSource> {
         override val label = "list of motion laws"
-        override fun decode(raw: Any?, ctx: GrammarContext, path: String): List<MotionLaw> = MotionLaws.readLaws(raw, ctx, path)
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): LawSource = LawSource(raw, ctx, path).also { it.probe() }
         override fun schema(): Map<String, Any?> = MotionLaws.jsonSchema()
     }
 
@@ -160,7 +162,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     private val contextF = Field.optional("context", Types.enumOf(*CONTEXTS), "fixed", "kind item: ItemDisplayContext, decision default fixed")
 
     // block
-    private val blockF = Field.optional("block", Types.nullable(Types.id), null, "kind block: block id, e.g. minecraft:white_concrete")
+    private val blockF = Field.optional("block", Types.nullable(Types.idValue), null, "kind block: block id, e.g. minecraft:white_concrete; under times a per-index list or '= CEL' over i")
 
     // text
     private val textF = Field.optional("text", Types.nullable(Types.text), null, "kind text: the text")
@@ -251,7 +253,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             }
             val subject: Value<String> = when (kind) {
                 DisplayKind.ITEM -> values[itemF]?.let { Value.Literal(it) } ?: ctx.abortMissing(p, "item")
-                DisplayKind.BLOCK -> values[blockF]?.let { Value.Literal(it) } ?: ctx.abortMissing(p, "block")
+                DisplayKind.BLOCK -> values[blockF]?.let { foldText(it, ctx) } ?: ctx.abortMissing(p, "block")
                 DisplayKind.TEXT -> values[textF]?.let { foldText(it, ctx) } ?: ctx.abortMissing(p, "text")
                 DisplayKind.SPRITE -> values[spriteF]?.let { Value.Literal(it) } ?: ctx.abortMissing(p, "sprite")
             }
@@ -310,7 +312,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 wholeNum(values[interpDelayF], "$p.interpolation_delay", ctx, 0.0, null),
                 wholeNum(values[interpDurationF], "$p.interpolation_duration", ctx, 0.0, null),
                 wholeNum(values[teleportDurationF], "$p.teleport_duration", ctx, 0.0, null),
-                values[motionF] ?: emptyList(), shaderEffect,
+                values[motionF], shaderEffect,
             )
         }
 
@@ -344,7 +346,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 rotation = quatCell(left),
                 scale = sprite?.scale ?: vecCell(op.scale),
             )
-            val spawn = Row(0, instance, Action.Spawn(spawnKind(op.kind), anchorInstance(op, lc), AnchorNames.host(lc.anchors, op.anchor), pose, look(op, right, sprite)), src)
+            val spawn = Row(0, instance, Action.Spawn(spawnKind(op.kind), anchorInstance(op, lc), AnchorNames.host(lc.anchors, op.anchor), pose, look(op, right, sprite, lc)), src)
 
             val rows = ArrayList<Row>()
             rows += spawn
@@ -364,7 +366,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             val flipRows = op.flipbook?.let { flipbookRows(op, it, instance, end, lc) }.orEmpty()
             rows += flipRows
             // The anchor's own laws ride first: left_rotation = anchor.rot(t) * rider (item 16).
-            val laws = lc.anchors.laws(op.anchor) + op.motion + (sprite?.sizeLaws ?: emptyList())
+            val laws = lc.anchors.laws(op.anchor) + op.motion?.laws(lc.occurrence).orEmpty() + (sprite?.sizeLaws ?: emptyList())
             if (laws.isNotEmpty()) {
                 val moved = LawSegmenter.segments(instance, laws, lc, FADE_FIELD)
                 when (moved) {
@@ -560,7 +562,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     }
 
     /** The vanilla fields of the spawn payload, one key per vanilla field (printed by the dump; a missing optional key = vanilla default). */
-    private fun look(op: DisplayOp, right: Value<Quaternion>, sprite: SpriteScale?): Look {
+    private fun look(op: DisplayOp, right: Value<Quaternion>, sprite: SpriteScale?, lc: LowerContext): Look {
         val f = LinkedHashMap<String, Val<Any>>()
         when (op.kind) {
             DisplayKind.ITEM -> {
@@ -569,7 +571,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 f["context"] = Val.Known(op.context)
                 op.shaderEffect?.let { f["shader_effect"] = Val.Known(it) }
             }
-            DisplayKind.BLOCK -> f["block"] = cell(op.subject)
+            DisplayKind.BLOCK -> f["block"] = idCell(op.subject, lc)
             DisplayKind.TEXT -> {
                 val s = op.textStyle!!
                 f["text"] = cell(op.subject)
@@ -603,6 +605,13 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         f["interpolation_duration"] = cell(op.interpolationDuration)
         f["teleport_duration"] = cell(op.teleportDuration)
         return Look(f)
+    }
+
+    /** A string id cell: a `= CEL` over `i` / `n` is folded for this copy (class S) so the table holds the constant; anything live stays baked. */
+    private fun idCell(v: Value<String>, lc: LowerContext): Val<String> {
+        if (v !is Value.Expr) return cell(v)
+        (OccurrenceBake.fold(lc, v.source, ExprType.STR) as? ExprValue.Str)?.let { return Val.Known(it.value) }
+        return Val.Live("= ${OccurrenceBake.bake(v.source, lc.occurrence)}", null)
     }
 
     private fun <T> cell(v: Value<T>): Val<T> = when (v) {

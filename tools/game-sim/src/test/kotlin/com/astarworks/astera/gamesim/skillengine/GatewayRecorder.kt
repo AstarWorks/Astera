@@ -136,6 +136,9 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     /** (display, field, value) of every `set` the player handed to the display sink. */
     val displaySets = ArrayList<Triple<String, String, String>>()
 
+    /** Every display `write` as (tick, handle name, pose): kept out of [calls] so the oracle diff still compares verbs and payloads only. */
+    val writtenPoses = ArrayList<Triple<Int, String, VisualPose>>()
+
     val hooks: com.astarworks.astera.core.application.skillengine.runtime.player.PlayerHooks =
         object : com.astarworks.astera.core.application.skillengine.runtime.player.PlayerHooks {
             private val compiler = com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler()
@@ -231,8 +234,10 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun updateScreenVeil(handle: VisualHandle, age: Int) = add("veil", name(handle), "age=$age")
 
-        override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) =
+        override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {
+            writtenPoses += Triple(tick, name(handle), pose)
             add("write", name(handle), "dur=$interpolationTicks", OracleFmt.pose(pose))
+        }
 
         override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) = add("trail", name(handle), "", "root=${OracleFmt.v(root)} tip=${OracleFmt.v(tip)}")
 
@@ -253,9 +258,13 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun setTrailWidth(handle: VisualHandle, widthFrac: Double) = add("trail_width", name(handle), "w=%.3f".format(widthFrac), "width=${OracleFmt.f(widthFrac)}")
     }
 
+    /** Every particle burst as (tick, particle, world position). */
+    val emittedAt = ArrayList<Triple<Int, String, Vec3>>()
+
     val particles: ISkillParticleGateway = object : ISkillParticleGateway {
         override fun emit(cast: CastRef, burst: ParticleBurst) {
             seen("particles.emit", cast)
+            emittedAt += Triple(tick, burst.particle, burst.at)
             add(
                 "particle", "-", "type=${burst.particle}" + (burst.count?.let { " count=$it" } ?: ""),
                 "at=${OracleFmt.v(burst.at)} off=${OracleFmt.v(burst.offset)} speed=${OracleFmt.f(burst.speed)} color=${OracleFmt.s(burst.colorHex)} size=${burst.dataSize?.let { OracleFmt.f(it) } ?: "-"} " +
@@ -468,7 +477,8 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             val root = bare.substringBefore('.')
             if (root == "caster") return bare == "caster" || bare.removePrefix("caster.") in PAPER_CASTER_FIELDS
             if (bare == "event.victim" || bare == "event.attacker") return true
-            return bare == "contact" || bare == "victim" || bare == "target" || (bare.contains('.') && (root == "contact" || root == "target"))
+            if (bare == "victim" || bare == "target" || bare.startsWith("victim.")) return true
+            return bare == "contact" || (bare.contains('.') && (root == "contact" || root == "target"))
         }
 
         /** The `caster.<field>` names `PaperLiveValueSource` answers (feet, pos, position, look, eye, body, forward). */
@@ -478,7 +488,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         private fun paperRotatable(name: String): Boolean {
             if (name.startsWith("= ") || name.startsWith("expr:")) return true
             val bare = name.removePrefix("anchor:")
-            return bare == "caster" || bare.startsWith("caster.") || bare == "contact" || bare == "victim" || bare == "target"
+            return bare == "caster" || bare.startsWith("caster.") || bare == "contact" || bare == "victim" || bare == "target" || bare.startsWith("victim.")
         }
 
         private fun requireResolvable(name: String, wanted: String) {
@@ -488,6 +498,19 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         }
 
         /** The Paper CEL environment with the sim's caster standing at [casterPosition]: the same [CellExprs] (compile env + served host functions) Paper uses. */
+        /** As `PaperLiveValueSource.victimFrame`: the bound victim's body centre (feet / root / eye / body points), yaw only; null without a bound victim. */
+        private fun victimFrame(binding: EventBinding?, point: String?): SimFrame? {
+            val id = binding?.victim?.id ?: return null
+            val c = victims.firstOrNull { it.entityId == id } ?: return null
+            val o = when (point) {
+                null, "body" -> c.box.center
+                "feet", "root" -> c.feet
+                "eye" -> Vec3(c.feet.x, c.box.max.y - 0.1, c.feet.z)
+                else -> return null
+            }
+            return SimFrame.fromYawPitch(o, c.yawDeg, 0.0)
+        }
+
         private fun cell(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): ExprValue {
             val yaw = casterYawDeg
             val pos = Vec3(casterPosition.x, casterPosition.y, casterPosition.z)
@@ -520,6 +543,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                     frame == "victim" || frame == "target" ->
                         if (binding?.victim == null || point !in setOf(null, "body", "feet", "root", "eye")) null else casterFrame
                     frame == "caster" -> casterFrame
+                    frame == "victim" || frame == "target" -> victimFrame(binding, point)
                     else -> inst?.worldPose(frame, point)
                 }
                 override fun velocity(frame: String, point: String?) = if (frame == "caster") Vec3(0.0, 0.0, 0.0) else inst?.velocity(frame, point) ?: Vec3(0.0, 0.0, 0.0)
@@ -584,10 +608,6 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         /** `PaperLiveValueSource.bindingVec`: `contact`, `event.victim` / `event.attacker`, `contact.*` and `target.*`. */
         private fun bindingVec(name: String, binding: EventBinding?): Vector3d? {
             if (name == "contact") return contactBinding(binding).point.let { Vector3d(it.x, it.y, it.z) }
-            if (name == "victim" || name == "target") {
-                val at = victimOf(binding)?.feet ?: throw IllegalArgumentException("'$name' needs a hit event binding")
-                return Vector3d(at.x, at.y, at.z)
-            }
             if (name == "event.victim" || name == "event.attacker") {
                 val at = if (name == "event.victim") victimOf(binding)?.feet else if (binding?.attacker == caster) feet else null
                 at ?: throw IllegalArgumentException("'$name' needs a hit event binding")
@@ -621,6 +641,20 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                     else -> throw IllegalArgumentException("live cell '$name' is not a vector")
                 }
             }
+            val victimName = name.removePrefix("anchor:")
+            if (victimName == "event.victim" || victimName == "event.attacker") {
+                // as PaperLiveValueSource.eventEntityVec: the bound entity's feet, and a named error without a hit binding
+                val id = (if (victimName == "event.victim") binding?.victim?.id else binding?.attacker)
+                    ?: throw IllegalArgumentException("'$victimName' needs a hit event binding")
+                if (id == this@GatewayRecorder.caster) return Vector3d(casterPosition)
+                val feet = victims.firstOrNull { it.entityId == id }?.feet ?: throw IllegalArgumentException("'$victimName': entity $id is not loaded")
+                return Vector3d(feet.x, feet.y, feet.z)
+            }
+            if (victimName == "victim" || victimName == "target" || victimName.startsWith("victim.")) {
+                val point = if (victimName.contains('.')) victimName.substringAfter('.') else null
+                val o =(victimFrame(binding, point) ?: throw IllegalArgumentException("'$name' needs a hit event binding with a loaded victim")).origin
+                return Vector3d(o.x, o.y, o.z)
+            }
             // a direction cell (`caster.forward`) answers the caster's facing like Paper; every other field answers the caster position
             if (name.removePrefix("anchor:") == "caster.forward") {
                 val yaw = Math.toRadians(casterYawDeg)
@@ -633,11 +667,6 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             requireResolvable(name, "a rotation")
             if (faithfulPose) {
                 val bare = name.removePrefix("anchor:")
-                if (bare == "victim" || bare == "target") {
-                    val v = victimOf(binding) ?: throw IllegalArgumentException("'$name' needs a hit event binding")
-                    val q = SimFrame.fromYawPitch(v.feet, v.yawDeg, 0.0).rotation
-                    return Quaterniond(q.x, q.y, q.z, q.w)
-                }
                 if (bare == "caster" || bare.startsWith("caster.")) {
                     val pitched = bare == "caster.look" || bare == "caster.eye" || bare.removePrefix("caster.") in setOf("hand_r", "hand_l", "palm")
                     val q = SimFrame.fromYawPitch(feet, casterYawDeg, if (pitched) casterPitchDeg else 0.0).rotation
@@ -647,6 +676,12 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             if (CellExprs.sourceOf(name) != null) {
                 val v = cell(cast, name, binding, scope) as? ExprValue.Quat ?: throw IllegalArgumentException("live cell '$name' is not a rotation")
                 return Quaterniond(v.value.x, v.value.y, v.value.z, v.value.w)
+            }
+            val victimName = name.removePrefix("anchor:")
+            if (victimName == "victim" || victimName == "target" || victimName.startsWith("victim.")) {
+                val point = if (victimName.contains('.')) victimName.substringAfter('.') else null
+                val r = (victimFrame(binding, point) ?: throw IllegalArgumentException("'$name' needs a bound victim")).rotation
+                return Quaterniond(r.x, r.y, r.z, r.w)
             }
             return Quaterniond()
         }

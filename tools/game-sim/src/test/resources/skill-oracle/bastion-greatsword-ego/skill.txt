@@ -1,5 +1,4 @@
 ## pose yaw=0 pitch=0
-!! play-ended-early msg=bastion-greatsword-ego_faulted_while_playing:_tick_31_machine.states.slam.do[11].do[6]:_IllegalArgumentException:_'event.victim'_needs_a_hit_event_binding
 @0 spawn #0 op=slam/fx0/fx1_guard_rim0r kind=sprite sprite=bastion-rim alpha=1.000000 tint=- seethrough=true pos=0.200000,1.300000,1.150000 rot=-0.298836,-0.298836,0.640856,0.640856 scale=0.580000,0.300000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @0 spawn #1 op=slam/fx0/fx1_guard_rim0l kind=sprite sprite=bastion-rim alpha=1.000000 tint=- seethrough=true pos=0.200000,1.300000,1.150000 rot=0.298836,-0.298836,-0.640856,0.640856 scale=0.580000,0.300000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @0 spawn #2 op=slam/fx0/fx1_guard_rim1r kind=sprite sprite=bastion-rim alpha=1.000000 tint=#FFF3C8 seethrough=true pos=0.200000,1.300000,1.150000 rot=-0.298836,-0.298836,0.640856,0.640856 scale=0.480000,0.220000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
@@ -234,7 +233,6 @@
 @31 hit - op=- at=0.000000,1.620000,0.933333 r=5.800000
 @31 damage 00000000-0000-0000-0000-00000000000a op=- physical=140 skill=bastion-greatsword-ego at=0.000000,0.900000,2.500000 ignoreinv=true ignorearmor=false
 @31 effect 00000000-0000-0000-0000-000000000001 op=- consume_status=charge
-@31 hit - op=- at=0.000000,0.000000,0.933333 r=9.000000
 @31 effect 00000000-0000-0000-0000-000000000001 op=- camera_shake=0.5 ticks=8 from=none
 @31 spawn #61 op=slam/fx31/veil kind=veil viewer=00000000-0000-0000-0000-000000000001 sprite=burst dist=0.400000 scale=1.400000 color=#FFC84A maxfrac=0.150000 ticks=5
 @31 hit - op=- at=0.000000,0.000000,0.933333 r=5.000000
@@ -243,6 +241,8 @@
 @31 effect 00000000-0000-0000-0000-000000000001 op=- freeze=4
 @31 effect 00000000-0000-0000-0000-00000000000a op=- freeze=4
 @31 effect 00000000-0000-0000-0000-00000000000b op=- freeze=4
+@31 effect 00000000-0000-0000-0000-00000000000a op=- camera_shake=1 ticks=10 from=hit
+@31 effect 00000000-0000-0000-0000-00000000000b op=- camera_shake=1 ticks=10 from=hit
 @31 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0.48 z=1.6
 @31 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0.48 z=1.6
 @32 veil #61 op=slam/fx31/veil age=1
@@ -696,7 +696,6 @@
 @70 remove #49 op=slam/fx27/fx4_slam_sword_guard
 @70 remove #50 op=slam/fx27/fx4_slam_sword_grip
 ## pose yaw=37 pitch=-20
-!! play-ended-early msg=bastion-greatsword-ego_faulted_while_playing:_tick_31_machine.states.slam.do[11].do[6]:_IllegalArgumentException:_'event.victim'_needs_a_hit_event_binding
 @0 spawn #0 op=slam/fx0/fx1_guard_rim0r kind=sprite sprite=bastion-rim alpha=1.000000 tint=- seethrough=true pos=-0.532360,1.300000,1.038794 rot=-0.486740,-0.486740,0.512917,0.512917 scale=0.580000,0.300000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @0 spawn #1 op=slam/fx0/fx1_guard_rim0l kind=sprite sprite=bastion-rim alpha=1.000000 tint=- seethrough=true pos=-0.532360,1.300000,1.038794 rot=0.486740,-0.486740,-0.512917,0.512917 scale=0.580000,0.300000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @0 spawn #2 op=slam/fx0/fx1_guard_rim1r kind=sprite sprite=bastion-rim alpha=1.000000 tint=#FFF3C8 seethrough=true pos=-0.532360,1.300000,1.038794 rot=-0.486740,-0.486740,0.512917,0.512917 scale=0.480000,0.220000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
@@ -931,7 +930,6 @@
 @31 hit - op=- at=-0.561694,1.620000,0.745393 r=5.800000
 @31 damage 00000000-0000-0000-0000-00000000000a op=- physical=140 skill=bastion-greatsword-ego at=-1.504538,0.900000,1.996589 ignoreinv=true ignorearmor=false
 @31 effect 00000000-0000-0000-0000-000000000001 op=- consume_status=charge
-@31 hit - op=- at=-0.561694,0.000000,0.745393 r=9.000000
 @31 effect 00000000-0000-0000-0000-000000000001 op=- camera_shake=0.5 ticks=8 from=none
 @31 spawn #61 op=slam/fx31/veil kind=veil viewer=00000000-0000-0000-0000-000000000001 sprite=burst dist=0.400000 scale=1.400000 color=#FFC84A maxfrac=0.150000 ticks=5
 @31 hit - op=- at=-0.561694,0.000000,0.745393 r=5.000000
@@ -940,6 +938,8 @@
 @31 effect 00000000-0000-0000-0000-000000000001 op=- freeze=4
 @31 effect 00000000-0000-0000-0000-00000000000a op=- freeze=4
 @31 effect 00000000-0000-0000-0000-00000000000b op=- freeze=4
+@31 effect 00000000-0000-0000-0000-00000000000a op=- camera_shake=1 ticks=10 from=hit
+@31 effect 00000000-0000-0000-0000-00000000000b op=- camera_shake=1 ticks=10 from=hit
 @31 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.9629 y=0.48 z=1.2778
 @31 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=-0.9629 y=0.48 z=1.2778
 @32 veil #61 op=slam/fx31/veil age=1

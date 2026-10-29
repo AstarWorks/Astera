@@ -2,22 +2,22 @@
 @0 sound - op=- sound=block.gravel.step cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
 @0 sound - op=- sound=entity.ravager.step cat=master vol=0.6 pitch=0.8 at=0.000000,0.000000,0.000000
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=bastion-s2-body speed=1
-@0 spawn #0 op=rush/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.020312,0.179917,0.649992,0.738057 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@0 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=0.020312,0.179917,0.649992,0.738057 scale=0.937500,0.937500,0.937500 bb=FIXED
-@1 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=0.020312,0.179917,0.649992,0.738057 scale=0.937500,0.937500,0.937500 bb=FIXED
-@2 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=0.020312,0.179917,0.649992,0.738057 scale=0.937500,0.937500,0.937500 bb=FIXED
+@0 spawn #0 op=rush/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=rush/rig dur=0 pos=-0.370145,0.503255,-0.290948 rot=-0.069186,-0.201420,0.869214,0.446218 scale=0.937500,0.937500,0.937500 bb=FIXED
+@1 write #0 op=rush/rig dur=0 pos=-0.370145,0.503255,-0.290948 rot=-0.069186,-0.201420,0.869214,0.446218 scale=0.937500,0.937500,0.937500 bb=FIXED
+@2 write #0 op=rush/rig dur=0 pos=-0.370145,0.503255,-0.290948 rot=-0.069186,-0.201420,0.869214,0.446218 scale=0.937500,0.937500,0.937500 bb=FIXED
 @2 sound - op=- sound=item.armor.equip_chain cat=master vol=0.9 pitch=0.7 at=0.000000,0.000000,0.000000
 @2 sound - op=- sound=item.armor.equip_iron cat=master vol=0.6 pitch=0.6 at=0.000000,0.000000,0.000000
-@3 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=0.020312,0.179917,0.649992,0.738057 scale=0.937500,0.937500,0.937500 bb=FIXED
-@4 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=0.020312,0.179917,0.649992,0.738057 scale=0.937500,0.937500,0.937500 bb=FIXED
-@5 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=0.020312,0.179917,0.649992,0.738057 scale=0.937500,0.937500,0.937500 bb=FIXED
-@6 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=0.020312,0.179917,0.649992,0.738057 scale=0.937500,0.937500,0.937500 bb=FIXED
-@7 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=0.020312,0.179917,0.649992,0.738057 scale=0.937500,0.937500,0.937500 bb=FIXED
-@8 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=0.020312,0.179917,0.649992,0.738057 scale=0.937500,0.937500,0.937500 bb=FIXED
-@9 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=0.753557,0.021026,-0.415318,0.509137 scale=0.937500,0.937500,0.937500 bb=FIXED
+@3 write #0 op=rush/rig dur=0 pos=-0.370145,0.503255,-0.290948 rot=-0.069186,-0.201420,0.869214,0.446218 scale=0.937500,0.937500,0.937500 bb=FIXED
+@4 write #0 op=rush/rig dur=0 pos=-0.370145,0.503255,-0.290948 rot=-0.069186,-0.201420,0.869214,0.446218 scale=0.937500,0.937500,0.937500 bb=FIXED
+@5 write #0 op=rush/rig dur=0 pos=-0.370145,0.503255,-0.290948 rot=-0.069186,-0.201420,0.869214,0.446218 scale=0.937500,0.937500,0.937500 bb=FIXED
+@6 write #0 op=rush/rig dur=0 pos=-0.370145,0.503255,-0.290948 rot=-0.069186,-0.201420,0.869214,0.446218 scale=0.937500,0.937500,0.937500 bb=FIXED
+@7 write #0 op=rush/rig dur=0 pos=-0.370145,0.503255,-0.290948 rot=-0.069186,-0.201420,0.869214,0.446218 scale=0.937500,0.937500,0.937500 bb=FIXED
+@8 write #0 op=rush/rig dur=0 pos=-0.370145,0.503255,-0.290948 rot=-0.069186,-0.201420,0.869214,0.446218 scale=0.937500,0.937500,0.937500 bb=FIXED
+@9 write #0 op=rush/rig dur=0 pos=-0.001704,0.694513,-0.386182 rot=-0.324326,-0.370906,0.701117,0.515438 scale=0.937500,0.937500,0.937500 bb=FIXED
 @9 sound - op=- sound=entity.player.attack.sweep cat=master vol=1 pitch=0.5 at=0.000000,0.000000,0.000000
 @9 sound - op=- sound=item.trident.throw cat=master vol=0.7 pitch=0.6 at=0.000000,0.000000,0.000000
-@10 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=0.790950,0.045947,-0.405800,0.455646 scale=0.937500,0.937500,0.937500 bb=FIXED
+@10 write #0 op=rush/rig dur=0 pos=0.036399,0.698316,-0.359398 rot=-0.340732,-0.353842,0.660625,0.567690 scale=0.937500,0.937500,0.937500 bb=FIXED
 @10 spawn #1 op=rush/fx10/fx2_fx_ring_s2r_ring_q0 kind=sprite sprite=bastion-s1-ring-q0 alpha=1.000000 tint=- seethrough=true pos=0.980000,0.770000,-1.029000 rot=-0.499411,-0.533912,-0.466069,0.498304 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @10 particle - op=- type=bastion-s1-p-sheath at=0.013000,0.683000,-0.595000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-770208463006044576
 @10 particle - op=- type=bastion-s1-p-sheath at=0.039000,0.661000,-0.979000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3119863510304598663
@@ -48,12 +48,12 @@
 @10 move - op=- invulnerable=5
 @10 move - op=- to=0,0,0.8 yaw=- pitch=-
 @11 move - op=- to=0,0,1.6 yaw=- pitch=-
-@11 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=0.825259,0.063463,-0.394863,0.398752 scale=0.937500,0.937500,0.937500 bb=FIXED
+@11 write #0 op=rush/rig dur=0 pos=0.078148,0.702095,1.268959 rot=-0.347664,-0.337540,0.621510,0.615567 scale=0.937500,0.937500,0.937500 bb=FIXED
 @11 spawn #2 op=rush/fx11/fx2_fx_ring_s2r_ring_q1 kind=sprite sprite=bastion-s1-ring-q1 alpha=1.000000 tint=- seethrough=true pos=0.968000,0.953000,3.215000 rot=-0.499411,-0.533912,-0.466069,0.498304 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @11 hit - op=- at=0.000000,0.900000,1.600000 r=0.900000
 @11 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @11 move - op=- invulnerable=0
-@12 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=0.935070,0.149929,-0.317517,0.048456 scale=0.937500,0.937500,0.937500 bb=FIXED
+@12 write #0 op=rush/rig dur=0 pos=0.627177,0.605514,1.566812 rot=-0.622369,-0.719177,0.232329,0.203629 scale=0.937500,0.937500,0.937500 bb=FIXED
 @12 spawn #3 op=rush/fx12/fx2_fx_ring_s2r_floor_fill kind=sprite sprite=bastion-s1-ink alpha=1.000000 tint=- seethrough=false pos=0.250000,0.030000,2.100000 rot=-0.500000,0.500000,0.500000,0.500000 scale=0.687500,0.687500,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @12 spawn #4 op=rush/fx12/fx2_fx_ring_s2r_line_1 kind=sprite sprite=bastion-s1-streak alpha=1.000000 tint=- seethrough=true pos=0.500000,0.600000,2.800000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.078125,0.100000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @12 write #4 op=rush/fx12/fx2_fx_ring_s2r_line_1 dur=0 pos=0.500000,0.600000,2.800000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
@@ -91,7 +91,7 @@
 @12 particle - op=- type=bastion-s1-p-steel at=4.024000,1.610000,1.436000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7485156599050876839
 @12 particle - op=- type=bastion-s1-p-fleck at=3.332000,1.510000,1.462000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7004209425329068008
 @12 hit - op=- at=0.000000,0.900000,1.600000 r=0.900000
-@13 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=0.942478,0.088532,-0.266305,0.181601 scale=0.937500,0.937500,0.937500 bb=FIXED
+@13 write #0 op=rush/rig dur=0 pos=0.030329,0.806781,2.306657 rot=0.610625,0.647927,0.286891,0.353585 scale=0.937500,0.937500,0.937500 bb=FIXED
 @13 spawn #5 op=rush/fx13/fx2_fx_ring_s2r_ink kind=sprite sprite=bastion-s1-ink alpha=1.000000 tint=- seethrough=false pos=0.212000,1.223000,3.154000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.531203,0.531203,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @13 spawn #6 op=rush/fx13/fx2_fx_ring_s2r_streak_main kind=sprite sprite=bastion-s1-streak alpha=1.000000 tint=- seethrough=true pos=0.062000,1.773000,3.204000 rot=0.000000,0.000000,-0.034899,0.999391 scale=0.093750,0.320000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @13 spawn #7 op=rush/fx13/fx2_fx_ring_s2r_line_2 kind=sprite sprite=bastion-s1-streak alpha=1.000000 tint=#FFE070 seethrough=true pos=-0.500000,1.050000,3.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.078125,0.100000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
@@ -166,7 +166,7 @@
 @13 effect 00000000-0000-0000-0000-00000000000b op=- freeze=2
 @13 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0.08 z=0.4
 @13 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0.08 z=0.4
-@14 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=0.942478,0.088532,-0.266305,0.181601 scale=0.937500,0.937500,0.937500 bb=FIXED
+@14 write #0 op=rush/rig dur=0 pos=0.030329,0.806781,2.306657 rot=0.610625,0.647927,0.286891,0.353585 scale=0.937500,0.937500,0.937500 bb=FIXED
 @14 spawn #12 op=rush/fx14/fx2_fx_ring_s2r_ring_q2 kind=sprite sprite=bastion-s1-ring-q2 alpha=1.000000 tint=- seethrough=true pos=-1.664000,0.593000,0.571000 rot=-0.499411,-0.533912,-0.466069,0.498304 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @14 write #4 op=rush/fx12/fx2_fx_ring_s2r_line_1 dur=0 pos=0.500000,0.600000,2.800000 rot=0.000000,0.000000,0.000000,1.000000 scale=3.360200,0.200000,1.000000 bb=CENTER
 @14 write #6 op=rush/fx13/fx2_fx_ring_s2r_streak_main dur=0 pos=0.062000,1.773000,3.204000 rot=0.000000,0.000000,-0.034899,0.999391 scale=7.666100,1.000000,1.000000 bb=CENTER
@@ -198,7 +198,7 @@
 @14 particle - op=- type=bastion-s1-p-steel at=2.092000,1.763000,3.615000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3581817279826917757
 @14 particle - op=- type=bastion-s1-p-fleck at=1.734000,1.675000,3.281000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1949815579998907918
 @14 remove #3 op=rush/fx12/fx2_fx_ring_s2r_floor_fill
-@15 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=0.942478,0.088532,-0.266305,0.181601 scale=0.937500,0.937500,0.937500 bb=FIXED
+@15 write #0 op=rush/rig dur=0 pos=0.030329,0.806781,2.306657 rot=0.610625,0.647927,0.286891,0.353585 scale=0.937500,0.937500,0.937500 bb=FIXED
 @15 spawn #13 op=rush/fx15/fx2_fx_ring_s2r_ring_q3 kind=sprite sprite=bastion-s1-ring-q3 alpha=1.000000 tint=- seethrough=true pos=-1.676000,0.776000,3.215000 rot=-0.499411,-0.533912,-0.466069,0.498304 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @15 write #6 op=rush/fx13/fx2_fx_ring_s2r_streak_main dur=1 pos=0.062000,1.773000,3.204000 rot=0.000000,0.000000,-0.034899,0.999391 scale=7.399524,0.860000,1.000000 bb=CENTER
 @15 write #7 op=rush/fx13/fx2_fx_ring_s2r_line_2 dur=0 pos=-0.500000,1.050000,3.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=2.799500,0.200000,1.000000 bb=CENTER
@@ -228,7 +228,7 @@
 @15 particle - op=- type=bastion-s1-p-fleck at=1.734000,1.675000,3.281000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4728432319813653238
 @15 remove #4 op=rush/fx12/fx2_fx_ring_s2r_line_1
 @15 remove #5 op=rush/fx13/fx2_fx_ring_s2r_ink
-@16 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=0.944243,0.094637,-0.256730,0.183133 scale=0.937500,0.937500,0.937500 bb=FIXED
+@16 write #0 op=rush/rig dur=0 pos=-0.001145,0.807764,2.311840 rot=0.603995,0.637195,0.305059,0.368933 scale=0.937500,0.937500,0.937500 bb=FIXED
 @16 write #6 op=rush/fx13/fx2_fx_ring_s2r_streak_main dur=1 pos=0.062000,1.773000,3.204000 rot=0.000000,0.000000,-0.034899,0.999391 scale=7.066304,0.685000,1.000000 bb=CENTER
 @16 write #11 op=rush/fx13/fx2_fx_ring_s2r_streak_x dur=1 pos=0.062000,1.773000,3.204000 rot=0.706861,-0.000013,-0.000013,0.707352 scale=8.133312,0.685000,1.000000 bb=FIXED
 @16 particle - op=- type=bastion-s1-p-sheath at=0.830000,1.464000,2.481000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1925581791728425578
@@ -242,7 +242,7 @@
 @16 particle - op=- type=bastion-s1-p-steel at=1.986000,1.755000,3.622000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1800186243192211499
 @16 particle - op=- type=bastion-s1-p-fleck at=1.646000,1.670000,3.287000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5267092110434481873
 @16 remove #7 op=rush/fx13/fx2_fx_ring_s2r_line_2
-@17 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=0.946018,0.100971,-0.247049,0.183905 scale=0.937500,0.937500,0.937500 bb=FIXED
+@17 write #0 op=rush/rig dur=0 pos=-0.033283,0.809352,2.315638 rot=0.596448,0.626741,0.322430,0.384037 scale=0.937500,0.937500,0.937500 bb=FIXED
 @17 write #6 op=rush/fx13/fx2_fx_ring_s2r_streak_main dur=1 pos=0.062000,1.773000,3.204000 rot=0.000000,0.000000,-0.034899,0.999391 scale=6.599796,0.440000,1.000000 bb=CENTER
 @17 write #11 op=rush/fx13/fx2_fx_ring_s2r_streak_x dur=1 pos=0.062000,1.773000,3.204000 rot=0.706861,-0.000013,-0.000013,0.707352 scale=7.199988,0.440000,1.000000 bb=FIXED
 @17 particle - op=- type=bastion-s1-p-sheath at=0.787000,1.465000,2.484000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7122727259578849936
@@ -258,7 +258,7 @@
 @17 remove #8 op=rush/fx13/fx2_fx_ring_s2r_flash
 @17 remove #9 op=rush/fx13/fx2_fx_ring_s2r_flash_x
 @17 remove #10 op=rush/fx13/fx2_fx_ring_s2r_flash_f
-@18 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=0.945247,0.099935,-0.250878,0.183253 scale=0.937500,0.937500,0.937500 bb=FIXED
+@18 write #0 op=rush/rig dur=0 pos=-0.055423,0.809142,2.319013 rot=0.590883,0.619372,0.332811,0.395566 scale=0.937500,0.937500,0.937500 bb=FIXED
 @18 write #6 op=rush/fx13/fx2_fx_ring_s2r_streak_main dur=1 pos=0.062000,1.773000,3.204000 rot=0.000000,0.000000,-0.034899,0.999391 scale=6.000000,0.125000,1.000000 bb=CENTER
 @18 write #11 op=rush/fx13/fx2_fx_ring_s2r_streak_x dur=1 pos=0.062000,1.773000,3.204000 rot=0.706861,-0.000013,-0.000013,0.707352 scale=6.000000,0.125000,1.000000 bb=FIXED
 @18 particle - op=- type=bastion-s1-p-gather-3 at=-0.240000,0.980000,4.050000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4965550429286482241
@@ -273,7 +273,7 @@
 @18 particle - op=- type=bastion-s1-p-steel at=1.190000,1.582000,2.955000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7373088675206667187
 @18 particle - op=- type=bastion-s1-p-steel at=1.809000,1.750000,3.622000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-455657953214783780
 @18 particle - op=- type=bastion-s1-p-fleck at=1.500000,1.666000,3.289000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3305352900545671363
-@19 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=-0.096920,0.226790,0.933482,0.260352 scale=0.937500,0.937500,0.937500 bb=FIXED
+@19 write #0 op=rush/rig dur=0 pos=-0.063405,0.793458,2.349099 rot=0.587148,0.610880,0.346673,0.402370 scale=0.937500,0.937500,0.937500 bb=FIXED
 @19 particle - op=- type=bastion-s1-p-gather-2 at=-0.307000,0.943000,4.075000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7210087135558800935
 @19 particle - op=- type=bastion-s1-p-gather-2 at=-0.234000,0.898000,3.557000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7337095610728839431
 @19 particle - op=- type=bastion-s1-p-gather-3 at=-0.307000,0.943000,4.075000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7277023391561090828
@@ -290,7 +290,7 @@
 @19 particle - op=- type=bastion-s1-p-fleck at=1.456000,1.638000,3.316000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6645855957010363620
 @19 remove #6 op=rush/fx13/fx2_fx_ring_s2r_streak_main
 @19 remove #11 op=rush/fx13/fx2_fx_ring_s2r_streak_x
-@20 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=-0.103947,0.226125,0.933239,0.259091 scale=0.937500,0.937500,0.937500 bb=FIXED
+@20 write #0 op=rush/rig dur=0 pos=-0.084955,0.792762,2.351874 rot=0.581157,0.603792,0.356557,0.412989 scale=0.937500,0.937500,0.937500 bb=FIXED
 @20 particle - op=- type=bastion-s1-p-gather-1 at=-0.388000,0.943000,4.068000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-645393348921711117
 @20 particle - op=- type=bastion-s1-p-gather-1 at=-0.297000,0.898000,3.553000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3073480686608612656
 @20 particle - op=- type=bastion-s1-p-gather-2 at=-0.388000,0.943000,4.068000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4216790915009048795
@@ -307,7 +307,7 @@
 @20 particle - op=- type=bastion-s1-p-steel at=1.113000,1.558000,2.982000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3676795096729468345
 @20 particle - op=- type=bastion-s1-p-steel at=1.685000,1.718000,3.643000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9187645684969102767
 @20 particle - op=- type=bastion-s1-p-fleck at=1.399000,1.638000,3.313000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2181208947680591870
-@21 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=-0.496937,-0.558463,0.620023,0.238211 scale=0.937500,0.937500,0.937500 bb=FIXED
+@21 write #0 op=rush/rig dur=0 pos=-0.487763,0.512866,1.636501 rot=0.268413,0.261115,0.639702,0.671234 scale=0.937500,0.937500,0.937500 bb=FIXED
 @21 particle - op=- type=bastion-s1-p-trail at=-0.358000,0.928000,3.897000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3245940621450492536
 @21 particle - op=- type=bastion-s1-p-steel at=-0.297000,0.898000,3.553000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2810125098384541996
 @21 particle - op=- type=bastion-s1-p-trail-crit at=-0.388000,0.943000,4.068000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=195686426788392473
@@ -339,7 +339,7 @@
 @21 particle - op=- type=bastion-s1-p-steel at=0.143000,1.250000,1.701000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7203871890188254616
 @21 particle - op=- type=bastion-s1-p-steel at=0.147000,1.382000,1.797000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1966586610350132549
 @21 particle - op=- type=bastion-s1-p-fleck at=0.145000,1.316000,1.749000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1345404988529308743
-@22 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=-0.630035,-0.677102,0.380082,0.011217 scale=0.937500,0.937500,0.937500 bb=FIXED
+@22 write #0 op=rush/rig dur=0 pos=-0.410901,0.529940,1.340191 rot=0.010083,-0.069529,0.796878,0.600041 scale=0.937500,0.937500,0.937500 bb=FIXED
 @22 particle - op=- type=bastion-s1-p-trail at=-2.037000,0.585000,1.909000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4414338866615958241
 @22 particle - op=- type=bastion-s1-p-steel at=-1.693000,0.569000,1.849000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7986366466908232782
 @22 particle - op=- type=bastion-s1-p-trail-crit at=-2.209000,0.593000,1.939000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1493364787558906966
@@ -367,7 +367,7 @@
 @22 particle - op=- type=bastion-s1-p-steel at=0.379000,1.126000,0.838000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-915459323605501591
 @22 particle - op=- type=bastion-s1-p-steel at=0.543000,1.118000,0.369000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3979066296218258870
 @22 particle - op=- type=bastion-s1-p-fleck at=0.461000,1.122000,0.604000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9034465549249807919
-@23 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=0.724049,0.571465,-0.343641,0.176326 scale=0.937500,0.937500,0.937500 bb=FIXED
+@23 write #0 op=rush/rig dur=0 pos=-0.369809,0.503427,1.309112 rot=-0.069498,-0.201589,0.869290,0.445945 scale=0.937500,0.937500,0.937500 bb=FIXED
 @23 particle - op=- type=bastion-s1-p-trail at=-1.602000,0.285000,0.339000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8866059545579565481
 @23 particle - op=- type=bastion-s1-p-steel at=-1.337000,0.340000,0.562000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4276788367592780697
 @23 particle - op=- type=bastion-s1-p-trail-crit at=-1.734000,0.258000,0.228000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8688858401135333869
@@ -389,21 +389,21 @@
 @23 particle - op=- type=bastion-s1-p-steel at=0.633000,1.019000,0.657000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6743649253470225005
 @23 particle - op=- type=bastion-s1-p-steel at=1.010000,0.930000,0.037000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4395948928510194946
 @23 particle - op=- type=bastion-s1-p-fleck at=0.822000,0.974000,0.347000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5052547678297939343
-@24 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=0.724049,0.571465,-0.343641,0.176326 scale=0.937500,0.937500,0.937500 bb=FIXED
+@24 write #0 op=rush/rig dur=0 pos=-0.369809,0.503427,1.309112 rot=-0.069498,-0.201589,0.869290,0.445945 scale=0.937500,0.937500,0.937500 bb=FIXED
 @24 remove #1 op=rush/fx10/fx2_fx_ring_s2r_ring_q0
 @24 remove #2 op=rush/fx11/fx2_fx_ring_s2r_ring_q1
 @24 remove #12 op=rush/fx14/fx2_fx_ring_s2r_ring_q2
 @24 remove #13 op=rush/fx15/fx2_fx_ring_s2r_ring_q3
-@25 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=0.724049,0.571465,-0.343641,0.176326 scale=0.937500,0.937500,0.937500 bb=FIXED
-@26 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=0.724049,0.571465,-0.343641,0.176326 scale=0.937500,0.937500,0.937500 bb=FIXED
-@27 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=0.724152,0.571451,-0.343570,0.176089 scale=0.937500,0.937500,0.937500 bb=FIXED
+@25 write #0 op=rush/rig dur=0 pos=-0.369809,0.503427,1.309112 rot=-0.069498,-0.201589,0.869290,0.445945 scale=0.937500,0.937500,0.937500 bb=FIXED
+@26 write #0 op=rush/rig dur=0 pos=-0.369809,0.503427,1.309112 rot=-0.069498,-0.201589,0.869290,0.445945 scale=0.937500,0.937500,0.937500 bb=FIXED
+@27 write #0 op=rush/rig dur=0 pos=-0.369809,0.503427,1.309112 rot=-0.069497,-0.201590,0.869291,0.445943 scale=0.937500,0.937500,0.937500 bb=FIXED
 @27 sound - op=- sound=item.armor.equip_chain cat=master vol=0.9 pitch=0.7 at=0.000000,0.000000,1.600000
 @27 sound - op=- sound=item.armor.equip_iron cat=master vol=0.6 pitch=0.6 at=0.000000,0.000000,1.600000
-@28 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=0.753562,0.021027,-0.415313,0.509133 scale=0.937500,0.937500,0.937500 bb=FIXED
+@28 write #0 op=rush/rig dur=0 pos=-0.001704,0.694513,1.213818 rot=-0.324326,-0.370906,0.701117,0.515438 scale=0.937500,0.937500,0.937500 bb=FIXED
 @28 sound - op=- sound=entity.player.attack.sweep cat=master vol=1 pitch=0.45 at=0.000000,0.000000,1.600000
 @28 sound - op=- sound=entity.breeze.wind_burst cat=master vol=0.6 pitch=0.5 at=0.000000,0.000000,1.600000
 @28 sound - op=- sound=item.trident.throw cat=master vol=0.8 pitch=0.5 at=0.000000,0.000000,1.600000
-@29 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,1.600000 rot=0.790950,0.045947,-0.405800,0.455646 scale=0.937500,0.937500,0.937500 bb=FIXED
+@29 write #0 op=rush/rig dur=0 pos=0.036399,0.698316,1.240602 rot=-0.340732,-0.353842,0.660625,0.567690 scale=0.937500,0.937500,0.937500 bb=FIXED
 @29 spawn #14 op=rush/fx29/fx3_fx_ring_s2r_ring_q0 kind=sprite sprite=bastion-s1-ring-q0 alpha=1.000000 tint=- seethrough=true pos=0.980000,0.770000,0.571000 rot=-0.648262,0.176175,-0.062101,0.738147 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @29 particle - op=- type=bastion-s1-p-sheath at=0.013000,0.683000,1.005000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6501342797633494621
 @29 particle - op=- type=bastion-s1-p-sheath at=0.039000,0.661000,0.621000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5876822364532202280
@@ -435,10 +435,10 @@
 @29 move - op=- to=0,0,2.1333 yaw=- pitch=-
 @29 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @29 move - op=- invulnerable=0
-@30 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=0.825259,0.063463,-0.394863,0.398752 scale=0.937500,0.937500,0.937500 bb=FIXED
+@30 write #0 op=rush/rig dur=0 pos=0.078148,0.702095,1.802293 rot=-0.347664,-0.337540,0.621510,0.615567 scale=0.937500,0.937500,0.937500 bb=FIXED
 @30 spawn #15 op=rush/fx30/fx3_fx_ring_s2r_ring_q1 kind=sprite sprite=bastion-s1-ring-q1 alpha=1.000000 tint=- seethrough=true pos=0.968000,0.953000,3.748333 rot=-0.648262,0.176175,-0.062101,0.738147 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @30 hit - op=- at=0.000000,0.900000,2.133333 r=0.900000
-@31 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=0.935070,0.149929,-0.317517,0.048456 scale=0.937500,0.937500,0.937500 bb=FIXED
+@31 write #0 op=rush/rig dur=0 pos=0.627177,0.605514,2.100145 rot=-0.622369,-0.719177,0.232329,0.203629 scale=0.937500,0.937500,0.937500 bb=FIXED
 @31 spawn #16 op=rush/fx31/fx3_fx_ring_s2r_floor_fill kind=sprite sprite=bastion-s1-ink alpha=1.000000 tint=- seethrough=false pos=0.250000,0.030000,2.633333 rot=-0.650600,-0.118926,0.118926,0.740562 scale=0.687500,0.687500,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @31 spawn #17 op=rush/fx31/fx3_fx_ring_s2r_line_1 kind=sprite sprite=bastion-s1-streak alpha=1.000000 tint=- seethrough=true pos=0.500000,0.600000,3.333333 rot=0.000000,0.000000,0.000000,1.000000 scale=0.078125,0.100000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @31 write #17 op=rush/fx31/fx3_fx_ring_s2r_line_1 dur=0 pos=0.500000,0.600000,3.333333 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
@@ -476,7 +476,7 @@
 @31 particle - op=- type=bastion-s1-p-steel at=4.024000,1.610000,1.969333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3101581721921883144
 @31 particle - op=- type=bastion-s1-p-fleck at=3.332000,1.510000,1.995333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5299405085332444868
 @31 hit - op=- at=0.000000,0.900000,2.133333 r=0.900000
-@32 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=0.942478,0.088532,-0.266305,0.181601 scale=0.937500,0.937500,0.937500 bb=FIXED
+@32 write #0 op=rush/rig dur=0 pos=0.030329,0.806781,2.839990 rot=0.610625,0.647927,0.286891,0.353585 scale=0.937500,0.937500,0.937500 bb=FIXED
 @32 spawn #18 op=rush/fx32/fx3_fx_ring_s2r_ink kind=sprite sprite=bastion-s1-ink alpha=1.000000 tint=- seethrough=false pos=0.212000,1.223000,3.687333 rot=0.000000,0.000000,0.000000,1.000000 scale=0.531203,0.531203,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @32 spawn #19 op=rush/fx32/fx3_fx_ring_s2r_streak_main kind=sprite sprite=bastion-s1-streak alpha=1.000000 tint=- seethrough=true pos=0.062000,1.773000,3.737333 rot=0.000000,0.000000,-0.034899,0.999391 scale=0.093750,0.320000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @32 spawn #20 op=rush/fx32/fx3_fx_ring_s2r_line_2 kind=sprite sprite=bastion-s1-streak alpha=1.000000 tint=#FFE070 seethrough=true pos=-0.500000,1.050000,3.533333 rot=0.000000,0.000000,0.000000,1.000000 scale=0.078125,0.100000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
@@ -559,7 +559,7 @@
 @32 effect 00000000-0000-0000-0000-00000000000b op=- freeze=2
 @32 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0.1 z=0.5
 @32 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0.1 z=0.5
-@33 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=0.942478,0.088532,-0.266305,0.181601 scale=0.937500,0.937500,0.937500 bb=FIXED
+@33 write #0 op=rush/rig dur=0 pos=0.030329,0.806781,2.839990 rot=0.610625,0.647927,0.286891,0.353585 scale=0.937500,0.937500,0.937500 bb=FIXED
 @33 spawn #25 op=rush/fx33/fx3_fx_ring_s2r_ring_q2 kind=sprite sprite=bastion-s1-ring-q2 alpha=1.000000 tint=- seethrough=true pos=-1.664000,0.593000,1.104333 rot=-0.648262,0.176175,-0.062101,0.738147 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @33 write #17 op=rush/fx31/fx3_fx_ring_s2r_line_1 dur=0 pos=0.500000,0.600000,3.333333 rot=0.000000,0.000000,0.000000,1.000000 scale=3.360200,0.200000,1.000000 bb=CENTER
 @33 write #19 op=rush/fx32/fx3_fx_ring_s2r_streak_main dur=0 pos=0.062000,1.773000,3.737333 rot=0.000000,0.000000,-0.034899,0.999391 scale=7.666100,1.000000,1.000000 bb=CENTER
@@ -591,7 +591,7 @@
 @33 particle - op=- type=bastion-s1-p-steel at=2.092000,1.763000,4.148333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1963004181021515019
 @33 particle - op=- type=bastion-s1-p-fleck at=1.734000,1.675000,3.814333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3016087651283221347
 @33 remove #16 op=rush/fx31/fx3_fx_ring_s2r_floor_fill
-@34 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=0.942478,0.088532,-0.266305,0.181601 scale=0.937500,0.937500,0.937500 bb=FIXED
+@34 write #0 op=rush/rig dur=0 pos=0.030329,0.806781,2.839990 rot=0.610625,0.647927,0.286891,0.353585 scale=0.937500,0.937500,0.937500 bb=FIXED
 @34 spawn #26 op=rush/fx34/fx3_fx_ring_s2r_ring_q3 kind=sprite sprite=bastion-s1-ring-q3 alpha=1.000000 tint=- seethrough=true pos=-1.676000,0.776000,3.748333 rot=-0.648262,0.176175,-0.062101,0.738147 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @34 write #19 op=rush/fx32/fx3_fx_ring_s2r_streak_main dur=1 pos=0.062000,1.773000,3.737333 rot=0.000000,0.000000,-0.034899,0.999391 scale=7.399524,0.860000,1.000000 bb=CENTER
 @34 write #20 op=rush/fx32/fx3_fx_ring_s2r_line_2 dur=0 pos=-0.500000,1.050000,3.533333 rot=0.000000,0.000000,0.000000,1.000000 scale=2.799500,0.200000,1.000000 bb=CENTER
@@ -621,7 +621,7 @@
 @34 particle - op=- type=bastion-s1-p-fleck at=1.734000,1.675000,3.814333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2580251123922450915
 @34 remove #17 op=rush/fx31/fx3_fx_ring_s2r_line_1
 @34 remove #18 op=rush/fx32/fx3_fx_ring_s2r_ink
-@35 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=0.944243,0.094637,-0.256730,0.183133 scale=0.937500,0.937500,0.937500 bb=FIXED
+@35 write #0 op=rush/rig dur=0 pos=-0.001145,0.807764,2.845174 rot=0.603995,0.637195,0.305059,0.368933 scale=0.937500,0.937500,0.937500 bb=FIXED
 @35 write #19 op=rush/fx32/fx3_fx_ring_s2r_streak_main dur=1 pos=0.062000,1.773000,3.737333 rot=0.000000,0.000000,-0.034899,0.999391 scale=7.066304,0.685000,1.000000 bb=CENTER
 @35 write #24 op=rush/fx32/fx3_fx_ring_s2r_streak_x dur=1 pos=0.062000,1.773000,3.737333 rot=0.706861,-0.000013,-0.000013,0.707352 scale=8.133312,0.685000,1.000000 bb=FIXED
 @35 particle - op=- type=bastion-s1-p-sheath at=0.830000,1.464000,3.014333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8797276265184444500
@@ -635,7 +635,7 @@
 @35 particle - op=- type=bastion-s1-p-steel at=1.986000,1.755000,4.155333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7333300020703430745
 @35 particle - op=- type=bastion-s1-p-fleck at=1.646000,1.670000,3.820333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8669372952251770565
 @35 remove #20 op=rush/fx32/fx3_fx_ring_s2r_line_2
-@36 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=0.946018,0.100971,-0.247049,0.183905 scale=0.937500,0.937500,0.937500 bb=FIXED
+@36 write #0 op=rush/rig dur=0 pos=-0.033283,0.809352,2.848971 rot=0.596448,0.626741,0.322430,0.384037 scale=0.937500,0.937500,0.937500 bb=FIXED
 @36 write #19 op=rush/fx32/fx3_fx_ring_s2r_streak_main dur=1 pos=0.062000,1.773000,3.737333 rot=0.000000,0.000000,-0.034899,0.999391 scale=6.599796,0.440000,1.000000 bb=CENTER
 @36 write #24 op=rush/fx32/fx3_fx_ring_s2r_streak_x dur=1 pos=0.062000,1.773000,3.737333 rot=0.706861,-0.000013,-0.000013,0.707352 scale=7.199988,0.440000,1.000000 bb=FIXED
 @36 particle - op=- type=bastion-s1-p-sheath at=0.787000,1.465000,3.017333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8988471419134589728
@@ -651,7 +651,7 @@
 @36 remove #21 op=rush/fx32/fx3_fx_ring_s2r_flash
 @36 remove #22 op=rush/fx32/fx3_fx_ring_s2r_flash_x
 @36 remove #23 op=rush/fx32/fx3_fx_ring_s2r_flash_f
-@37 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=0.945247,0.099935,-0.250878,0.183253 scale=0.937500,0.937500,0.937500 bb=FIXED
+@37 write #0 op=rush/rig dur=0 pos=-0.055423,0.809142,2.852346 rot=0.590883,0.619372,0.332811,0.395566 scale=0.937500,0.937500,0.937500 bb=FIXED
 @37 write #19 op=rush/fx32/fx3_fx_ring_s2r_streak_main dur=1 pos=0.062000,1.773000,3.737333 rot=0.000000,0.000000,-0.034899,0.999391 scale=6.000000,0.125000,1.000000 bb=CENTER
 @37 write #24 op=rush/fx32/fx3_fx_ring_s2r_streak_x dur=1 pos=0.062000,1.773000,3.737333 rot=0.706861,-0.000013,-0.000013,0.707352 scale=6.000000,0.125000,1.000000 bb=FIXED
 @37 particle - op=- type=bastion-s1-p-gather-3 at=-0.240000,0.980000,4.583333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7793328371844955960
@@ -666,7 +666,7 @@
 @37 particle - op=- type=bastion-s1-p-steel at=1.190000,1.582000,3.488333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8251734819197305839
 @37 particle - op=- type=bastion-s1-p-steel at=1.809000,1.750000,4.155333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1822479245454426613
 @37 particle - op=- type=bastion-s1-p-fleck at=1.500000,1.666000,3.822333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1936420800129443913
-@38 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=-0.096920,0.226790,0.933482,0.260352 scale=0.937500,0.937500,0.937500 bb=FIXED
+@38 write #0 op=rush/rig dur=0 pos=-0.063405,0.793458,2.882432 rot=0.587148,0.610880,0.346673,0.402370 scale=0.937500,0.937500,0.937500 bb=FIXED
 @38 particle - op=- type=bastion-s1-p-gather-2 at=-0.307000,0.943000,4.608333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2394885622283972014
 @38 particle - op=- type=bastion-s1-p-gather-2 at=-0.234000,0.898000,4.090333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1685347650248171254
 @38 particle - op=- type=bastion-s1-p-gather-3 at=-0.307000,0.943000,4.608333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1234210097757059842
@@ -683,7 +683,7 @@
 @38 particle - op=- type=bastion-s1-p-fleck at=1.456000,1.638000,3.849333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3610329443970322093
 @38 remove #19 op=rush/fx32/fx3_fx_ring_s2r_streak_main
 @38 remove #24 op=rush/fx32/fx3_fx_ring_s2r_streak_x
-@39 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=-0.103947,0.226125,0.933239,0.259091 scale=0.937500,0.937500,0.937500 bb=FIXED
+@39 write #0 op=rush/rig dur=0 pos=-0.084955,0.792762,2.885207 rot=0.581157,0.603792,0.356557,0.412989 scale=0.937500,0.937500,0.937500 bb=FIXED
 @39 particle - op=- type=bastion-s1-p-gather-1 at=-0.388000,0.943000,4.601333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8061156282014968530
 @39 particle - op=- type=bastion-s1-p-gather-1 at=-0.297000,0.898000,4.086333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1889645078667172627
 @39 particle - op=- type=bastion-s1-p-gather-2 at=-0.388000,0.943000,4.601333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3435588611121221893
@@ -700,7 +700,7 @@
 @39 particle - op=- type=bastion-s1-p-steel at=1.113000,1.558000,3.515333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4588283614299295065
 @39 particle - op=- type=bastion-s1-p-steel at=1.685000,1.718000,4.176333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6995686362640916380
 @39 particle - op=- type=bastion-s1-p-fleck at=1.399000,1.638000,3.846333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1743015144417131527
-@40 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=-0.496937,-0.558463,0.620023,0.238211 scale=0.937500,0.937500,0.937500 bb=FIXED
+@40 write #0 op=rush/rig dur=0 pos=-0.487763,0.512866,2.169834 rot=0.268413,0.261115,0.639702,0.671234 scale=0.937500,0.937500,0.937500 bb=FIXED
 @40 particle - op=- type=bastion-s1-p-trail at=-0.358000,0.928000,4.430333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7785610717155299857
 @40 particle - op=- type=bastion-s1-p-steel at=-0.297000,0.898000,4.086333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3116488123776860709
 @40 particle - op=- type=bastion-s1-p-trail-crit at=-0.388000,0.943000,4.601333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9019949101325192462
@@ -732,7 +732,7 @@
 @40 particle - op=- type=bastion-s1-p-steel at=0.143000,1.250000,2.234333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=523712410917922363
 @40 particle - op=- type=bastion-s1-p-steel at=0.147000,1.382000,2.330333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6792641387752952437
 @40 particle - op=- type=bastion-s1-p-fleck at=0.145000,1.316000,2.282333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7055708953332412787
-@41 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=-0.661300,-0.631625,0.020396,0.404125 scale=0.937500,0.937500,0.937500 bb=FIXED
+@41 write #0 op=rush/rig dur=0 pos=0.062752,1.320175,1.788290 rot=-0.020659,-0.746084,0.573522,0.337644 scale=0.937500,0.937500,0.937500 bb=FIXED
 @41 particle - op=- type=bastion-s1-p-trail at=-2.037000,0.585000,2.442333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8914292878794460274
 @41 particle - op=- type=bastion-s1-p-steel at=-1.693000,0.569000,2.382333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8761237705465051697
 @41 particle - op=- type=bastion-s1-p-trail-crit at=-2.209000,0.593000,2.472333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4711840529066999233
@@ -761,7 +761,7 @@
 @41 particle - op=- type=bastion-s1-p-steel at=0.379000,1.126000,1.371333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3649199316451057044
 @41 particle - op=- type=bastion-s1-p-steel at=0.543000,1.118000,0.902333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7533730126011030996
 @41 particle - op=- type=bastion-s1-p-fleck at=0.461000,1.122000,1.137333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7997236635877974427
-@42 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=0.011188,-0.293481,-0.649878,0.701001 scale=0.937500,0.937500,0.937500 bb=FIXED
+@42 write #0 op=rush/rig dur=0 pos=-0.221384,1.320543,1.825466 rot=-0.005118,-0.779581,0.543569,0.311061 scale=0.937500,0.937500,0.937500 bb=FIXED
 @42 particle - op=- type=bastion-s1-p-trail at=-1.602000,0.285000,0.872333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4871491950386210936
 @42 particle - op=- type=bastion-s1-p-steel at=-1.337000,0.340000,1.095333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5315680236656084211
 @42 particle - op=- type=bastion-s1-p-trail-crit at=-1.734000,0.258000,0.761333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7286026110732947186
@@ -783,28 +783,28 @@
 @42 particle - op=- type=bastion-s1-p-steel at=0.633000,1.019000,1.190333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8232800779156520552
 @42 particle - op=- type=bastion-s1-p-steel at=1.010000,0.930000,0.570333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-293619684146093390
 @42 particle - op=- type=bastion-s1-p-fleck at=0.822000,0.974000,0.880333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3256560351042960106
-@43 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=0.011188,-0.293481,-0.649878,0.701001 scale=0.937500,0.937500,0.937500 bb=FIXED
+@43 write #0 op=rush/rig dur=0 pos=-0.221384,1.320543,1.825466 rot=-0.005118,-0.779581,0.543569,0.311061 scale=0.937500,0.937500,0.937500 bb=FIXED
 @43 sound - op=- sound=item.armor.equip_chain cat=master vol=0.9 pitch=0.5 at=0.000000,0.000000,2.133333
 @43 remove #14 op=rush/fx29/fx3_fx_ring_s2r_ring_q0
 @43 remove #15 op=rush/fx30/fx3_fx_ring_s2r_ring_q1
 @43 remove #25 op=rush/fx33/fx3_fx_ring_s2r_ring_q2
 @43 remove #26 op=rush/fx34/fx3_fx_ring_s2r_ring_q3
-@44 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=0.011188,-0.293481,-0.649878,0.701001 scale=0.937500,0.937500,0.937500 bb=FIXED
-@45 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=0.011188,-0.293481,-0.649878,0.701001 scale=0.937500,0.937500,0.937500 bb=FIXED
-@46 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=0.011188,-0.293481,-0.649878,0.701001 scale=0.937500,0.937500,0.937500 bb=FIXED
-@47 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=0.011188,-0.293481,-0.649878,0.701001 scale=0.937500,0.937500,0.937500 bb=FIXED
-@48 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=0.011188,-0.293481,-0.649878,0.701001 scale=0.937500,0.937500,0.937500 bb=FIXED
+@44 write #0 op=rush/rig dur=0 pos=-0.221384,1.320543,1.825466 rot=-0.005118,-0.779581,0.543569,0.311061 scale=0.937500,0.937500,0.937500 bb=FIXED
+@45 write #0 op=rush/rig dur=0 pos=-0.221384,1.320543,1.825466 rot=-0.005118,-0.779581,0.543569,0.311061 scale=0.937500,0.937500,0.937500 bb=FIXED
+@46 write #0 op=rush/rig dur=0 pos=-0.221384,1.320543,1.825466 rot=-0.005118,-0.779581,0.543569,0.311061 scale=0.937500,0.937500,0.937500 bb=FIXED
+@47 write #0 op=rush/rig dur=0 pos=-0.221384,1.320543,1.825466 rot=-0.005118,-0.779581,0.543569,0.311061 scale=0.937500,0.937500,0.937500 bb=FIXED
+@48 write #0 op=rush/rig dur=0 pos=-0.221384,1.320543,1.825466 rot=-0.005118,-0.779581,0.543569,0.311061 scale=0.937500,0.937500,0.937500 bb=FIXED
 @48 sound - op=- sound=entity.breeze.wind_burst cat=master vol=0.8 pitch=0.4 at=0.000000,0.000000,2.133333
 @48 sound - op=- sound=block.beacon.deactivate cat=master vol=0.5 pitch=0.5 at=0.000000,0.000000,2.133333
-@49 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=0.011188,-0.293481,-0.649878,0.701001 scale=0.937500,0.937500,0.937500 bb=FIXED
+@49 write #0 op=rush/rig dur=0 pos=-0.221384,1.320543,1.825466 rot=-0.005118,-0.779581,0.543569,0.311061 scale=0.937500,0.937500,0.937500 bb=FIXED
 @49 particle - op=- type=bastion-s1-p-gather-1 at=0.000000,2.500000,2.333333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2556293829560310468
-@50 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=0.011023,-0.293516,-0.649910,0.700959 scale=0.937500,0.937500,0.937500 bb=FIXED
+@50 write #0 op=rush/rig dur=0 pos=-0.221384,1.320543,1.825466 rot=-0.005118,-0.779577,0.543566,0.311078 scale=0.937500,0.937500,0.937500 bb=FIXED
 @50 particle - op=- type=bastion-s1-p-steel at=0.000000,2.900000,2.633333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5419925634309204539
 @50 sound - op=- sound=entity.player.attack.sweep cat=master vol=1 pitch=0.4 at=0.000000,0.000000,2.133333
 @50 sound - op=- sound=item.trident.throw cat=master vol=0.9 pitch=0.4 at=0.000000,0.000000,2.133333
 @50 sound - op=- sound=entity.ravager.roar cat=master vol=0.5 pitch=0.5 at=0.000000,0.000000,2.133333
 @50 particle - op=- type=bastion-s1-p-gather-1 at=0.000000,2.500000,2.333333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8774913842025863649
-@51 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=-0.635500,0.763802,-0.025132,0.110065 scale=0.937500,0.937500,0.937500 bb=FIXED
+@51 write #0 op=rush/rig dur=0 pos=-0.270970,1.412404,1.837718 rot=-0.000072,-0.893146,0.449767,0.000040 scale=0.937500,0.937500,0.937500 bb=FIXED
 @51 spawn #27 op=rush/fx51/fx4_fx_chop_s2c_streak_a kind=sprite sprite=bastion-s1-streak alpha=1.000000 tint=- seethrough=true pos=0.000000,2.600000,2.433333 rot=0.500000,-0.500000,0.500000,0.500000 scale=0.050000,0.200000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @51 spawn #28 op=rush/fx51/fx4_fx_chop_s2c_streak_b kind=sprite sprite=bastion-s1-streak alpha=1.000000 tint=- seethrough=true pos=0.000000,2.600000,2.433333 rot=-0.500000,0.500000,0.500000,0.500000 scale=0.050000,0.200000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @51 write #27 op=rush/fx51/fx4_fx_chop_s2c_streak_a dur=0 pos=0.000000,2.600000,2.433333 rot=0.650600,0.118926,0.118926,0.740562 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -812,7 +812,7 @@
 @51 particle - op=- type=bastion-s1-p-steel at=0.000000,2.100000,3.233333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6692314216065640972
 @51 particle - op=- type=bastion-s1-p-gather-1 at=0.000000,2.500000,2.333333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4956248341088897670
 @51 particle - op=- type=bastion-s1-p-trail-crit at=0.000000,1.600000,3.533333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8895328348016121982
-@52 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=-0.341989,0.693581,0.540791,0.330960 scale=0.937500,0.937500,0.937500 bb=FIXED
+@52 write #0 op=rush/rig dur=0 pos=-0.000472,1.494716,2.577742 rot=-0.000082,-0.980780,0.195117,0.000104 scale=0.937500,0.937500,0.937500 bb=FIXED
 @52 spawn #29 op=rush/fx52/fx4_fx_chop_s2c_cres_a kind=sprite sprite=bastion-s1-crescent alpha=1.000000 tint=- seethrough=true pos=0.000000,1.500000,3.683333 rot=0.500000,0.500000,-0.500000,0.500000 scale=0.300000,0.300000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @52 spawn #30 op=rush/fx52/fx4_fx_chop_s2c_cres_b kind=sprite sprite=bastion-s1-crescent alpha=1.000000 tint=- seethrough=true pos=0.000000,1.500000,3.683333 rot=-0.500000,-0.500000,-0.500000,0.500000 scale=0.300000,0.300000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @52 write #27 op=rush/fx51/fx4_fx_chop_s2c_streak_a dur=1 pos=0.000000,1.600000,3.433333 rot=0.650600,0.118926,0.118926,0.740562 scale=16.000000,1.500000,1.000000 bb=FIXED
@@ -821,7 +821,7 @@
 @52 write #30 op=rush/fx52/fx4_fx_chop_s2c_cres_b dur=0 pos=0.000000,1.500000,3.683333 rot=-0.650600,0.118926,-0.118926,0.740562 scale=1.000000,1.000000,1.000000 bb=FIXED
 @52 particle - op=- type=bastion-s1-p-steel at=0.000000,1.100000,4.033333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5326549573931333894
 @52 particle - op=- type=bastion-s1-p-trail-crit at=0.000000,1.600000,3.533333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5474837537013889901
-@53 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=-0.596246,0.309819,0.652966,0.349483 scale=0.937500,0.937500,0.937500 bb=FIXED
+@53 write #0 op=rush/rig dur=0 pos=0.040971,0.728368,2.890361 rot=-0.000561,-0.846928,-0.531708,0.000044 scale=0.937500,0.937500,0.937500 bb=FIXED
 @53 spawn #31 op=rush/fx53/fx4_fx_chop_s2c_ink_a kind=sprite sprite=bastion-s1-ink alpha=1.000000 tint=- seethrough=true pos=0.000000,1.100000,3.833333 rot=0.707107,0.000000,0.000000,0.707107 scale=0.450000,0.450000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @53 spawn #32 op=rush/fx53/fx4_fx_chop_s2c_ink_b kind=sprite sprite=bastion-s1-ink alpha=1.000000 tint=- seethrough=true pos=0.000000,1.100000,3.833333 rot=-0.707107,0.000000,0.000000,0.707107 scale=0.450000,0.450000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @53 spawn #33 op=rush/fx53/fx4_fx_chop_s2c_flash kind=sprite sprite=bastion-s1-flare alpha=1.000000 tint=- seethrough=true pos=0.000000,0.500000,4.433333 rot=0.000000,0.000000,0.000000,1.000000 scale=0.200000,0.200000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
@@ -864,7 +864,7 @@
 @53 effect 00000000-0000-0000-0000-00000000000b op=- freeze=3
 @53 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0.18 z=0.9
 @53 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0.18 z=0.9
-@54 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,2.133333 rot=-0.596246,0.309819,0.652966,0.349483 scale=0.937500,0.937500,0.937500 bb=FIXED
+@54 write #0 op=rush/rig dur=0 pos=0.040971,0.728368,2.890361 rot=-0.000561,-0.846928,-0.531708,0.000044 scale=0.937500,0.937500,0.937500 bb=FIXED
 @54 write #27 op=rush/fx51/fx4_fx_chop_s2c_streak_a dur=1 pos=0.000000,1.536000,3.481333 rot=0.650600,0.118926,0.118926,0.740562 scale=15.360000,1.284000,1.000000 bb=FIXED
 @54 write #28 op=rush/fx51/fx4_fx_chop_s2c_streak_b dur=1 pos=0.000000,1.536000,3.481333 rot=-0.650600,-0.118926,0.118926,0.740562 scale=15.360000,1.284000,1.000000 bb=FIXED
 @54 write #29 op=rush/fx52/fx4_fx_chop_s2c_cres_a dur=1 pos=0.000000,1.466667,3.744444 rot=0.650600,-0.118926,-0.118926,0.740562 scale=1.651878,1.555589,1.000000 bb=FIXED
@@ -881,7 +881,7 @@
 @54 move - op=- to=0,0,3.4667 yaw=- pitch=-
 @54 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @54 move - op=- invulnerable=0
-@55 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.596246,0.309819,0.652966,0.349483 scale=0.937500,0.937500,0.937500 bb=FIXED
+@55 write #0 op=rush/rig dur=0 pos=0.040971,0.728368,4.223694 rot=-0.000561,-0.846928,-0.531708,0.000044 scale=0.937500,0.937500,0.937500 bb=FIXED
 @55 write #27 op=rush/fx51/fx4_fx_chop_s2c_streak_a dur=1 pos=0.000000,1.456000,4.874667 rot=0.650600,0.118926,0.118926,0.740562 scale=14.560000,1.014000,1.000000 bb=FIXED
 @55 write #28 op=rush/fx51/fx4_fx_chop_s2c_streak_b dur=1 pos=0.000000,1.456000,4.874667 rot=-0.650600,-0.118926,0.118926,0.740562 scale=14.560000,1.014000,1.000000 bb=FIXED
 @55 write #29 op=rush/fx52/fx4_fx_chop_s2c_cres_a dur=1 pos=0.000000,1.425000,5.091667 rot=0.650600,-0.118926,-0.118926,0.740562 scale=1.633350,1.416700,1.000000 bb=FIXED
@@ -891,7 +891,7 @@
 @55 hit - op=- at=0.000000,0.900000,3.466667 r=0.600000
 @55 remove #31 op=rush/fx53/fx4_fx_chop_s2c_ink_a
 @55 remove #32 op=rush/fx53/fx4_fx_chop_s2c_ink_b
-@56 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.596246,0.309819,0.652966,0.349483 scale=0.937500,0.937500,0.937500 bb=FIXED
+@56 write #0 op=rush/rig dur=0 pos=0.040971,0.728368,4.223694 rot=-0.000561,-0.846928,-0.531708,0.000044 scale=0.937500,0.937500,0.937500 bb=FIXED
 @56 write #27 op=rush/fx51/fx4_fx_chop_s2c_streak_a dur=1 pos=0.000000,1.344000,4.958667 rot=0.650600,0.118926,0.118926,0.740562 scale=13.440000,0.636000,1.000000 bb=FIXED
 @56 write #28 op=rush/fx51/fx4_fx_chop_s2c_streak_b dur=1 pos=0.000000,1.344000,4.958667 rot=-0.650600,-0.118926,0.118926,0.740562 scale=13.440000,0.636000,1.000000 bb=FIXED
 @56 write #29 op=rush/fx52/fx4_fx_chop_s2c_cres_a dur=1 pos=0.000000,1.366667,5.111111 rot=0.650600,-0.118926,-0.118926,0.740562 scale=1.607411,1.222256,1.000000 bb=FIXED
@@ -903,67 +903,67 @@
 @56 particle - op=- type=bastion-s1-p-afterglow at=0.000000,0.300000,5.866667 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7618750307279896989
 @56 hit - op=- at=0.000000,0.900000,3.466667 r=0.600000
 @56 remove #34 op=rush/fx53/fx4_fx_chop_s2c_floor
-@57 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
+@57 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
 @57 write #27 op=rush/fx51/fx4_fx_chop_s2c_streak_a dur=1 pos=0.000000,1.200000,5.066667 rot=0.650600,0.118926,0.118926,0.740562 scale=12.000000,0.150000,1.000000 bb=FIXED
 @57 write #28 op=rush/fx51/fx4_fx_chop_s2c_streak_b dur=1 pos=0.000000,1.200000,5.066667 rot=-0.650600,-0.118926,0.118926,0.740562 scale=12.000000,0.150000,1.000000 bb=FIXED
 @57 write #29 op=rush/fx52/fx4_fx_chop_s2c_cres_a dur=1 pos=0.000000,1.291667,5.136111 rot=0.650600,-0.118926,-0.118926,0.740562 scale=1.574061,0.972256,1.000000 bb=FIXED
 @57 write #30 op=rush/fx52/fx4_fx_chop_s2c_cres_b dur=1 pos=0.000000,1.291667,5.136111 rot=-0.650600,0.118926,-0.118926,0.740562 scale=1.574061,0.972256,1.000000 bb=FIXED
 @57 remove #33 op=rush/fx53/fx4_fx_chop_s2c_flash
-@58 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
+@58 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
 @58 write #29 op=rush/fx52/fx4_fx_chop_s2c_cres_a dur=1 pos=0.000000,1.200000,5.166667 rot=0.650600,-0.118926,-0.118926,0.740562 scale=1.533300,0.666700,1.000000 bb=FIXED
 @58 write #30 op=rush/fx52/fx4_fx_chop_s2c_cres_b dur=1 pos=0.000000,1.200000,5.166667 rot=-0.650600,0.118926,-0.118926,0.740562 scale=1.533300,0.666700,1.000000 bb=FIXED
 @58 particle - op=- type=bastion-s1-p-ash at=0.000000,0.400000,5.766667 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5886499901254068506
 @58 particle - op=- type=bastion-s1-p-afterglow at=0.000000,0.300000,5.866667 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7332365315416855871
 @58 remove #27 op=rush/fx51/fx4_fx_chop_s2c_streak_a
 @58 remove #28 op=rush/fx51/fx4_fx_chop_s2c_streak_b
-@59 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
+@59 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
 @59 remove #29 op=rush/fx52/fx4_fx_chop_s2c_cres_a
 @59 remove #30 op=rush/fx52/fx4_fx_chop_s2c_cres_b
-@60 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
+@60 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
 @60 particle - op=- type=bastion-s1-p-ash at=0.000000,0.400000,5.766667 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3326374294437291327
-@61 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
-@62 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
-@63 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
-@64 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
+@61 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
+@62 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
+@63 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
+@64 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
 @64 sound - op=- sound=item.armor.equip_iron cat=master vol=0.9 pitch=0.6 at=0.000000,0.000000,3.466667
-@65 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
-@66 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
-@67 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
-@68 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
-@69 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
-@70 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
-@71 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
-@72 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
-@73 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
-@74 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=-0.490596,0.162449,0.804761,0.292037 scale=0.937500,0.937500,0.937500 bb=FIXED
-@75 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=0.587785,0.000000,0.000000,0.809017 scale=0.937500,0.937500,0.937500 bb=FIXED
-@76 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=0.587785,0.000000,0.000000,0.809017 scale=0.937500,0.937500,0.937500 bb=FIXED
-@77 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=0.587785,0.000000,0.000000,0.809017 scale=0.937500,0.937500,0.937500 bb=FIXED
-@78 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=0.587785,0.000000,0.000000,0.809017 scale=0.937500,0.937500,0.937500 bb=FIXED
-@79 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=0.587785,0.000000,0.000000,0.809017 scale=0.937500,0.937500,0.937500 bb=FIXED
-@80 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,3.466667 rot=0.587785,0.000000,0.000000,0.809017 scale=0.937500,0.937500,0.937500 bb=FIXED
+@65 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
+@66 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
+@67 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
+@68 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
+@69 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
+@70 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
+@71 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
+@72 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
+@73 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
+@74 write #0 op=rush/rig dur=0 pos=0.107796,0.744730,4.206470 rot=-0.000662,-0.778201,-0.628015,0.000309 scale=0.937500,0.937500,0.937500 bb=FIXED
+@75 write #0 op=rush/rig dur=0 pos=-0.351563,0.768016,3.759183 rot=0.587785,0.000000,0.000000,0.809017 scale=0.937500,0.937500,0.937500 bb=FIXED
+@76 write #0 op=rush/rig dur=0 pos=-0.351563,0.768016,3.759183 rot=0.587785,0.000000,0.000000,0.809017 scale=0.937500,0.937500,0.937500 bb=FIXED
+@77 write #0 op=rush/rig dur=0 pos=-0.351563,0.768016,3.759183 rot=0.587785,0.000000,0.000000,0.809017 scale=0.937500,0.937500,0.937500 bb=FIXED
+@78 write #0 op=rush/rig dur=0 pos=-0.351563,0.768016,3.759183 rot=0.587785,0.000000,0.000000,0.809017 scale=0.937500,0.937500,0.937500 bb=FIXED
+@79 write #0 op=rush/rig dur=0 pos=-0.351563,0.768016,3.759183 rot=0.587785,0.000000,0.000000,0.809017 scale=0.937500,0.937500,0.937500 bb=FIXED
+@80 write #0 op=rush/rig dur=0 pos=-0.351563,0.768016,3.759183 rot=0.587785,0.000000,0.000000,0.809017 scale=0.937500,0.937500,0.937500 bb=FIXED
 @80 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=bastion-s2-body
 @80 remove #0 op=rush/rig
 ## pose yaw=37 pitch=-20
 @0 sound - op=- sound=block.gravel.step cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
 @0 sound - op=- sound=entity.ravager.step cat=master vol=0.6 pitch=0.8 at=0.000000,0.000000,0.000000
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=bastion-s2-body speed=1
-@0 spawn #0 op=rush/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=-0.186983,-0.063569,0.622848,0.757005 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@0 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=-0.186983,-0.063569,0.622848,0.757005 scale=0.937500,0.937500,0.937500 bb=FIXED
-@1 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=-0.186983,-0.063569,0.622848,0.757005 scale=0.937500,0.937500,0.937500 bb=FIXED
-@2 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=-0.186983,-0.063569,0.622848,0.757005 scale=0.937500,0.937500,0.937500 bb=FIXED
+@0 spawn #0 op=rush/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=rush/rig dur=0 pos=-0.120514,0.503255,-0.455120 rot=-0.341416,-0.332598,0.802343,0.359247 scale=0.937500,0.937500,0.937500 bb=FIXED
+@1 write #0 op=rush/rig dur=0 pos=-0.120514,0.503255,-0.455120 rot=-0.341416,-0.332598,0.802343,0.359247 scale=0.937500,0.937500,0.937500 bb=FIXED
+@2 write #0 op=rush/rig dur=0 pos=-0.120514,0.503255,-0.455120 rot=-0.341416,-0.332598,0.802343,0.359247 scale=0.937500,0.937500,0.937500 bb=FIXED
 @2 sound - op=- sound=item.armor.equip_chain cat=master vol=0.9 pitch=0.7 at=0.000000,0.000000,0.000000
 @2 sound - op=- sound=item.armor.equip_iron cat=master vol=0.6 pitch=0.6 at=0.000000,0.000000,0.000000
-@3 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=-0.186983,-0.063569,0.622848,0.757005 scale=0.937500,0.937500,0.937500 bb=FIXED
-@4 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=-0.186983,-0.063569,0.622848,0.757005 scale=0.937500,0.937500,0.937500 bb=FIXED
-@5 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=-0.186983,-0.063569,0.622848,0.757005 scale=0.937500,0.937500,0.937500 bb=FIXED
-@6 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=-0.186983,-0.063569,0.622848,0.757005 scale=0.937500,0.937500,0.937500 bb=FIXED
-@7 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=-0.186983,-0.063569,0.622848,0.757005 scale=0.937500,0.937500,0.937500 bb=FIXED
-@8 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=-0.186983,-0.063569,0.622848,0.757005 scale=0.937500,0.937500,0.937500 bb=FIXED
-@9 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=0.846398,-0.141612,-0.154749,0.489499 scale=0.937500,0.937500,0.937500 bb=FIXED
+@3 write #0 op=rush/rig dur=0 pos=-0.120514,0.503255,-0.455120 rot=-0.341416,-0.332598,0.802343,0.359247 scale=0.937500,0.937500,0.937500 bb=FIXED
+@4 write #0 op=rush/rig dur=0 pos=-0.120514,0.503255,-0.455120 rot=-0.341416,-0.332598,0.802343,0.359247 scale=0.937500,0.937500,0.937500 bb=FIXED
+@5 write #0 op=rush/rig dur=0 pos=-0.120514,0.503255,-0.455120 rot=-0.341416,-0.332598,0.802343,0.359247 scale=0.937500,0.937500,0.937500 bb=FIXED
+@6 write #0 op=rush/rig dur=0 pos=-0.120514,0.503255,-0.455120 rot=-0.341416,-0.332598,0.802343,0.359247 scale=0.937500,0.937500,0.937500 bb=FIXED
+@7 write #0 op=rush/rig dur=0 pos=-0.120514,0.503255,-0.455120 rot=-0.341416,-0.332598,0.802343,0.359247 scale=0.937500,0.937500,0.937500 bb=FIXED
+@8 write #0 op=rush/rig dur=0 pos=-0.120514,0.503255,-0.455120 rot=-0.341416,-0.332598,0.802343,0.359247 scale=0.937500,0.937500,0.937500 bb=FIXED
+@9 write #0 op=rush/rig dur=0 pos=0.231049,0.694513,-0.309444 rot=-0.530034,-0.515290,0.561976,0.371111 scale=0.937500,0.937500,0.937500 bb=FIXED
 @9 sound - op=- sound=entity.player.attack.sweep cat=master vol=1 pitch=0.5 at=0.000000,0.000000,0.000000
 @9 sound - op=- sound=item.trident.throw cat=master vol=0.7 pitch=0.6 at=0.000000,0.000000,0.000000
-@10 write #0 op=rush/rig dur=0 pos=0.000000,0.000000,0.000000 rot=0.878839,-0.101006,-0.133857,0.446679 scale=0.937500,0.937500,0.937500 bb=FIXED
+@10 write #0 op=rush/rig dur=0 pos=0.245361,0.698316,-0.265123 rot=-0.532744,-0.515687,0.518370,0.426079 scale=0.937500,0.937500,0.937500 bb=FIXED
 @10 spawn #1 op=rush/fx10/fx2_fx_ring_s2r_ring_q0 kind=sprite sprite=bastion-s1-ring-q0 alpha=1.000000 tint=- seethrough=true pos=1.523075,0.371625,-0.392782 rot=-0.432245,-0.703573,-0.530862,0.190615 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @10 particle - op=- type=bastion-s1-p-sheath at=0.487451,0.438308,-0.625268 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-770208463006044576
 @10 particle - op=- type=bastion-s1-p-sheath at=0.720847,0.286299,-0.891793 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3119863510304598663
@@ -994,12 +994,12 @@
 @10 move - op=- invulnerable=5
 @10 move - op=- to=-0.4815,0,0.6389 yaw=- pitch=-
 @11 move - op=- to=-0.9629,0,1.2778 yaw=- pitch=-
-@11 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=0.907904,-0.066343,-0.112600,0.398283 scale=0.937500,0.937500,0.937500 bb=FIXED
+@11 write #0 op=rush/rig dur=0 pos=-0.701267,0.702095,1.060467 rot=-0.526906,-0.515419,0.479077,0.476653 scale=0.937500,0.937500,0.937500 bb=FIXED
 @11 spawn #2 op=rush/fx11/fx2_fx_ring_s2r_ring_q1 kind=sprite sprite=bastion-s1-ring-q1 alpha=1.000000 tint=- seethrough=true pos=-0.906983,1.447890,2.812074 rot=-0.432245,-0.703573,-0.530862,0.190615 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @11 hit - op=- at=-0.962904,0.900000,1.277817 r=0.900000
 @11 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @11 move - op=- invulnerable=0
-@12 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=0.987499,0.126806,-0.004407,0.093525 scale=0.937500,0.937500,0.937500 bb=FIXED
+@12 write #0 op=rush/rig dur=0 pos=-0.442045,0.605514,1.628756 rot=0.663926,0.746625,-0.022843,0.035092 scale=0.937500,0.937500,0.937500 bb=FIXED
 @12 spawn #3 op=rush/fx12/fx2_fx_ring_s2r_floor_fill kind=sprite sprite=bastion-s1-ink alpha=1.000000 tint=- seethrough=false pos=-1.039831,0.199201,1.795312 rot=-0.677988,0.420603,0.200829,0.568413 scale=0.687500,0.687500,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @12 spawn #4 op=rush/fx12/fx2_fx_ring_s2r_line_1 kind=sprite sprite=bastion-s1-streak alpha=1.000000 tint=- seethrough=true pos=-1.118712,0.974240,2.315401 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.078125,0.100000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @12 write #4 op=rush/fx12/fx2_fx_ring_s2r_line_1 dur=0 pos=-1.118712,0.974240,2.315401 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=1.000000,1.000000,1.000000 bb=CENTER
@@ -1037,7 +1037,7 @@
 @12 particle - op=- type=bastion-s1-p-steel at=2.674942,1.456814,3.136672 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7485156599050876839
 @12 particle - op=- type=bastion-s1-p-fleck at=2.086999,1.371737,2.767044 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7004209425329068008
 @12 hit - op=- at=-0.962904,0.900000,1.277817 r=0.900000
-@13 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=0.978274,0.026334,0.046510,0.200308 scale=0.937500,0.937500,0.937500 bb=FIXED
+@13 write #0 op=rush/rig dur=0 pos=-1.363959,0.806781,1.860430 rot=0.488039,0.502250,0.465819,0.540903 scale=0.937500,0.937500,0.937500 bb=FIXED
 @13 spawn #5 op=rush/fx13/fx2_fx_ring_s2r_ink kind=sprite sprite=bastion-s1-ink alpha=1.000000 tint=- seethrough=false pos=-1.420680,1.680743,2.237573 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.531203,0.531203,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @13 spawn #6 op=rush/fx13/fx2_fx_ring_s2r_streak_main kind=sprite sprite=bastion-s1-streak alpha=1.000000 tint=- seethrough=true pos=-1.455543,2.214675,2.034592 rot=-0.153669,-0.318041,-0.087659,0.931425 scale=0.093750,0.320000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @13 spawn #7 op=rush/fx13/fx2_fx_ring_s2r_line_2 kind=sprite sprite=bastion-s1-streak alpha=1.000000 tint=#FFE070 seethrough=true pos=-1.937827,1.465505,1.740763 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.078125,0.100000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
@@ -1118,7 +1118,7 @@
 @13 effect 00000000-0000-0000-0000-00000000000b op=- freeze=2
 @13 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.2407 y=0.08 z=0.3195
 @13 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=-0.2407 y=0.08 z=0.3195
-@14 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=0.978274,0.026334,0.046510,0.200308 scale=0.937500,0.937500,0.937500 bb=FIXED
+@14 write #0 op=rush/rig dur=0 pos=-1.363959,0.806781,1.860430 rot=0.488039,0.502250,0.465819,0.540903 scale=0.937500,0.937500,0.937500 bb=FIXED
 @14 spawn #12 op=rush/fx14/fx2_fx_ring_s2r_ring_q2 kind=sprite sprite=bastion-s1-ring-q2 alpha=1.000000 tint=- seethrough=true pos=-1.587853,0.205299,-0.657817 rot=-0.432245,-0.703573,-0.530862,0.190615 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @14 write #4 op=rush/fx12/fx2_fx_ring_s2r_line_1 dur=0 pos=-1.118712,0.974240,2.315401 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=3.360200,0.200000,1.000000 bb=CENTER
 @14 write #6 op=rush/fx13/fx2_fx_ring_s2r_streak_main dur=0 pos=-1.455543,2.214675,2.034592 rot=-0.153669,-0.318041,-0.087659,0.931425 scale=7.666100,1.000000,1.000000 bb=CENTER
@@ -1150,7 +1150,7 @@
 @14 particle - op=- type=bastion-s1-p-steel at=-0.068800,2.345849,3.567452 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3581817279826917757
 @14 particle - op=- type=bastion-s1-p-fleck at=-0.183941,2.148921,3.125382 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1949815579998907918
 @14 remove #3 op=rush/fx12/fx2_fx_ring_s2r_floor_fill
-@15 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=0.978274,0.026334,0.046510,0.200308 scale=0.937500,0.937500,0.937500 bb=FIXED
+@15 write #0 op=rush/rig dur=0 pos=-1.363959,0.806781,1.860430 rot=0.488039,0.502250,0.465819,0.540903 scale=0.937500,0.937500,0.937500 bb=FIXED
 @15 spawn #13 op=rush/fx15/fx2_fx_ring_s2r_ring_q3 kind=sprite sprite=bastion-s1-ring-q3 alpha=1.000000 tint=- seethrough=true pos=-3.055007,1.281564,1.269223 rot=-0.432245,-0.703573,-0.530862,0.190615 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @15 write #6 op=rush/fx13/fx2_fx_ring_s2r_streak_main dur=1 pos=-1.455543,2.214675,2.034592 rot=-0.153669,-0.318041,-0.087659,0.931425 scale=7.399524,0.860000,1.000000 bb=CENTER
 @15 write #7 op=rush/fx13/fx2_fx_ring_s2r_line_2 dur=0 pos=-1.937827,1.465505,1.740763 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=2.799500,0.200000,1.000000 bb=CENTER
@@ -1180,7 +1180,7 @@
 @15 particle - op=- type=bastion-s1-p-fleck at=-0.183941,2.148921,3.125382 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4728432319813653238
 @15 remove #4 op=rush/fx12/fx2_fx_ring_s2r_line_1
 @15 remove #5 op=rush/fx13/fx2_fx_ring_s2r_ink
-@16 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=0.976910,0.031637,0.056149,0.203698 scale=0.937500,0.937500,0.937500 bb=FIXED
+@16 write #0 op=rush/rig dur=0 pos=-1.392214,0.807764,1.845629 rot=0.475986,0.487203,0.480945,0.552053 scale=0.937500,0.937500,0.937500 bb=FIXED
 @16 write #6 op=rush/fx13/fx2_fx_ring_s2r_streak_main dur=1 pos=-1.455543,2.214675,2.034592 rot=-0.153669,-0.318041,-0.087659,0.931425 scale=7.066304,0.685000,1.000000 bb=CENTER
 @16 write #11 op=rush/fx13/fx2_fx_ring_s2r_streak_x dur=1 pos=-1.455543,2.214675,2.034592 rot=0.543670,-0.259999,0.181898,0.777005 scale=8.133312,0.685000,1.000000 bb=FIXED
 @16 particle - op=- type=bastion-s1-p-sheath at=-0.496921,1.677030,2.038598 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1925581791728425578
@@ -1194,7 +1194,7 @@
 @16 particle - op=- type=bastion-s1-p-steel at=-0.159061,2.340725,3.511098 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1800186243192211499
 @16 particle - op=- type=bastion-s1-p-fleck at=-0.258643,2.146275,3.078291 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5267092110434481873
 @16 remove #7 op=rush/fx13/fx2_fx_ring_s2r_line_2
-@17 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=0.975521,0.037399,0.065894,0.206440 scale=0.937500,0.937500,0.937500 bb=FIXED
+@17 write #0 op=rush/rig dur=0 pos=-1.420167,0.809352,1.829320 rot=0.463317,0.472497,0.495024,0.563059 scale=0.937500,0.937500,0.937500 bb=FIXED
 @17 write #6 op=rush/fx13/fx2_fx_ring_s2r_streak_main dur=1 pos=-1.455543,2.214675,2.034592 rot=-0.153669,-0.318041,-0.087659,0.931425 scale=6.599796,0.440000,1.000000 bb=CENTER
 @17 write #11 op=rush/fx13/fx2_fx_ring_s2r_streak_x dur=1 pos=-1.455543,2.214675,2.034592 rot=0.543670,-0.259999,0.181898,0.777005 scale=7.199988,0.440000,1.000000 bb=FIXED
 @17 particle - op=- type=bastion-s1-p-sheath at=-0.532753,1.678995,2.014698 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7122727259578849936
@@ -1210,7 +1210,7 @@
 @17 remove #8 op=rush/fx13/fx2_fx_ring_s2r_flash
 @17 remove #9 op=rush/fx13/fx2_fx_ring_s2r_flash_x
 @17 remove #10 op=rush/fx13/fx2_fx_ring_s2r_flash_f
-@18 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=0.976005,0.036624,0.062018,0.205493 scale=0.937500,0.937500,0.937500 bb=FIXED
+@18 write #0 op=rush/rig dur=0 pos=-1.439880,0.809142,1.818692 rot=0.454746,0.461850,0.503102,0.571654 scale=0.937500,0.937500,0.937500 bb=FIXED
 @18 write #6 op=rush/fx13/fx2_fx_ring_s2r_streak_main dur=1 pos=-1.455543,2.214675,2.034592 rot=-0.153669,-0.318041,-0.087659,0.931425 scale=6.000000,0.125000,1.000000 bb=CENTER
 @18 write #11 op=rush/fx13/fx2_fx_ring_s2r_streak_x dur=1 pos=-1.455543,2.214675,2.034592 rot=0.543670,-0.259999,0.181898,0.777005 scale=6.000000,0.125000,1.000000 bb=FIXED
 @18 particle - op=- type=bastion-s1-p-gather-3 at=-2.338387,1.758848,2.704351 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4965550429286482241
@@ -1225,7 +1225,7 @@
 @18 particle - op=- type=bastion-s1-p-steel at=-0.453181,1.950031,2.578744 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7373088675206667187
 @18 particle - op=- type=bastion-s1-p-steel at=-0.301449,2.336027,3.405943 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-455657953214783780
 @18 particle - op=- type=bastion-s1-p-fleck at=-0.377198,2.143200,2.993019 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3305352900545671363
-@19 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=-0.388110,0.132460,0.854490,0.318860 scale=0.937500,0.937500,0.937500 bb=FIXED
+@19 write #0 op=rush/rig dur=0 pos=-1.464361,0.793458,1.837916 rot=0.446806,0.451638,0.515063,0.575412 scale=0.937500,0.937500,0.937500 bb=FIXED
 @19 particle - op=- type=bastion-s1-p-gather-2 at=-2.413650,1.732630,2.692898 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7210087135558800935
 @19 particle - op=- type=bastion-s1-p-gather-2 at=-2.071672,1.513177,2.360377 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7337095610728839431
 @19 particle - op=- type=bastion-s1-p-gather-3 at=-2.413650,1.732630,2.692898 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7277023391561090828
@@ -1242,7 +1242,7 @@
 @19 particle - op=- type=bastion-s1-p-fleck at=-0.433371,2.126123,2.994450 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6645855957010363620
 @19 remove #6 op=rush/fx13/fx2_fx_ring_s2r_streak_main
 @19 remove #11 op=rush/fx13/fx2_fx_ring_s2r_streak_x
-@20 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=-0.394696,0.132229,0.852029,0.317453 scale=0.937500,0.937500,0.937500 bb=FIXED
+@20 write #0 op=rush/rig dur=0 pos=-1.483241,0.792762,1.827163 rot=0.437987,0.441547,0.522535,0.583233 scale=0.937500,0.937500,0.937500 bb=FIXED
 @20 particle - op=- type=bastion-s1-p-gather-1 at=-2.474380,1.730236,2.638897 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-645393348921711117
 @20 particle - op=- type=bastion-s1-p-gather-1 at=-2.119724,1.511809,2.319461 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3073480686608612656
 @20 particle - op=- type=bastion-s1-p-gather-2 at=-2.474380,1.730236,2.638897 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4216790915009048795
@@ -1259,7 +1259,7 @@
 @20 particle - op=- type=bastion-s1-p-steel at=-0.534885,1.936713,2.559222 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3676795096729468345
 @20 particle - op=- type=bastion-s1-p-steel at=-0.418942,2.313139,3.355818 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-9187645684969102767
 @20 particle - op=- type=bastion-s1-p-fleck at=-0.477196,2.125097,2.957896 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2181208947680591870
-@21 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=-0.667993,-0.605189,0.430302,0.048698 scale=0.937500,0.937500,0.937500 bb=FIXED
+@21 write #0 op=rush/rig dur=0 pos=-1.374416,0.512866,1.013424 rot=0.051562,0.034636,0.691813,0.719400 scale=0.937500,0.937500,0.937500 bb=FIXED
 @21 particle - op=- type=bastion-s1-p-trail at=-2.356805,1.657655,2.532718 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3245940621450492536
 @21 particle - op=- type=bastion-s1-p-steel at=-2.119724,1.511809,2.319461 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2810125098384541996
 @21 particle - op=- type=bastion-s1-p-trail-crit at=-2.474380,1.730236,2.638897 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=195686426788392473
@@ -1291,7 +1291,7 @@
 @21 particle - op=- type=bastion-s1-p-steel at=-0.648526,1.209160,1.098237 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7203871890188254616
 @21 particle - op=- type=bastion-s1-p-steel at=-0.672451,1.366033,1.136634 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1966586610350132549
 @21 particle - op=- type=bastion-s1-p-fleck at=-0.660488,1.287596,1.117436 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1345404988529308743
-@22 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=0.718079,0.645671,-0.160528,0.204211 scale=0.937500,0.937500,0.937500 bb=FIXED
+@22 write #0 op=rush/rig dur=0 pos=-1.134707,0.529940,0.823037 rot=-0.243291,-0.256332,0.758898,0.546971 scale=0.937500,0.937500,0.937500 bb=FIXED
 @22 particle - op=- type=bastion-s1-p-trail at=-2.644058,0.655404,0.124023 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4414338866615958241
 @22 particle - op=- type=bastion-s1-p-steel at=-2.338690,0.619848,0.290389 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7986366466908232782
 @22 particle - op=- type=bastion-s1-p-trail-crit at=-2.796743,0.673183,0.040840 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1493364787558906966
@@ -1319,7 +1319,7 @@
 @22 particle - op=- type=bastion-s1-p-steel at=0.002474,0.797475,0.626479 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-915459323605501591
 @22 particle - op=- type=bastion-s1-p-steel at=0.397033,0.629550,0.375390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3979066296218258870
 @22 particle - op=- type=bastion-s1-p-fleck at=0.199470,0.713683,0.501310 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=9034465549249807919
-@23 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=0.795672,0.485985,-0.096139,0.348543 scale=0.937500,0.937500,0.937500 bb=FIXED
+@23 write #0 op=rush/rig dur=0 pos=-1.083186,0.503427,0.822947 rot=-0.341737,-0.332672,0.802316,0.358935 scale=0.937500,0.937500,0.937500 bb=FIXED
 @23 particle - op=- type=bastion-s1-p-trail at=-1.470534,-0.163475,-0.710483 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8866059545579565481
 @23 particle - op=- type=bastion-s1-p-steel at=-1.373686,-0.035521,-0.398671 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4276788367592780697
 @23 particle - op=- type=bastion-s1-p-trail-crit at=-1.518738,-0.226811,-0.865850 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8688858401135333869
@@ -1341,21 +1341,21 @@
 @23 particle - op=- type=bastion-s1-p-steel at=0.285662,0.635022,0.672731 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6743649253470225005
 @23 particle - op=- type=bastion-s1-p-steel at=0.919052,0.339337,0.458633 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4395948928510194946
 @23 particle - op=- type=bastion-s1-p-fleck at=0.602654,0.486709,0.566120 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5052547678297939343
-@24 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=0.795672,0.485985,-0.096139,0.348543 scale=0.937500,0.937500,0.937500 bb=FIXED
+@24 write #0 op=rush/rig dur=0 pos=-1.083186,0.503427,0.822947 rot=-0.341737,-0.332672,0.802316,0.358935 scale=0.937500,0.937500,0.937500 bb=FIXED
 @24 remove #1 op=rush/fx10/fx2_fx_ring_s2r_ring_q0
 @24 remove #2 op=rush/fx11/fx2_fx_ring_s2r_ring_q1
 @24 remove #12 op=rush/fx14/fx2_fx_ring_s2r_ring_q2
 @24 remove #13 op=rush/fx15/fx2_fx_ring_s2r_ring_q3
-@25 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=0.795672,0.485985,-0.096139,0.348543 scale=0.937500,0.937500,0.937500 bb=FIXED
-@26 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=0.795672,0.485985,-0.096139,0.348543 scale=0.937500,0.937500,0.937500 bb=FIXED
-@27 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=0.795746,0.486047,-0.096039,0.348314 scale=0.937500,0.937500,0.937500 bb=FIXED
+@25 write #0 op=rush/rig dur=0 pos=-1.083186,0.503427,0.822947 rot=-0.341737,-0.332672,0.802316,0.358935 scale=0.937500,0.937500,0.937500 bb=FIXED
+@26 write #0 op=rush/rig dur=0 pos=-1.083186,0.503427,0.822947 rot=-0.341737,-0.332672,0.802316,0.358935 scale=0.937500,0.937500,0.937500 bb=FIXED
+@27 write #0 op=rush/rig dur=0 pos=-1.083186,0.503427,0.822947 rot=-0.341736,-0.332672,0.802317,0.358933 scale=0.937500,0.937500,0.937500 bb=FIXED
 @27 sound - op=- sound=item.armor.equip_chain cat=master vol=0.9 pitch=0.7 at=-0.962904,0.000000,1.277817
 @27 sound - op=- sound=item.armor.equip_iron cat=master vol=0.6 pitch=0.6 at=-0.962904,0.000000,1.277817
-@28 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=0.846402,-0.141610,-0.154742,0.489495 scale=0.937500,0.937500,0.937500 bb=FIXED
+@28 write #0 op=rush/rig dur=0 pos=-0.731855,0.694513,0.968373 rot=-0.530034,-0.515290,0.561975,0.371112 scale=0.937500,0.937500,0.937500 bb=FIXED
 @28 sound - op=- sound=entity.player.attack.sweep cat=master vol=1 pitch=0.45 at=-0.962904,0.000000,1.277817
 @28 sound - op=- sound=entity.breeze.wind_burst cat=master vol=0.6 pitch=0.5 at=-0.962904,0.000000,1.277817
 @28 sound - op=- sound=item.trident.throw cat=master vol=0.8 pitch=0.5 at=-0.962904,0.000000,1.277817
-@29 write #0 op=rush/rig dur=0 pos=-0.962904,0.000000,1.277817 rot=0.878839,-0.101006,-0.133857,0.446679 scale=0.937500,0.937500,0.937500 bb=FIXED
+@29 write #0 op=rush/rig dur=0 pos=-0.717543,0.698316,1.012694 rot=-0.532744,-0.515687,0.518370,0.426079 scale=0.937500,0.937500,0.937500 bb=FIXED
 @29 spawn #14 op=rush/fx29/fx3_fx_ring_s2r_ring_q0 kind=sprite sprite=bastion-s1-ring-q0 alpha=1.000000 tint=- seethrough=true pos=0.560171,0.371625,0.885035 rot=-0.697865,-0.040634,-0.330252,0.634246 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @29 particle - op=- type=bastion-s1-p-sheath at=-0.475453,0.438308,0.652549 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6501342797633494621
 @29 particle - op=- type=bastion-s1-p-sheath at=-0.242057,0.286299,0.386024 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5876822364532202280
@@ -1387,10 +1387,10 @@
 @29 move - op=- to=-1.2839,0,1.7038 yaw=- pitch=-
 @29 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @29 move - op=- invulnerable=0
-@30 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=0.907904,-0.066343,-0.112600,0.398283 scale=0.937500,0.937500,0.937500 bb=FIXED
+@30 write #0 op=rush/rig dur=0 pos=-1.022235,0.702095,1.486406 rot=-0.526906,-0.515419,0.479077,0.476653 scale=0.937500,0.937500,0.937500 bb=FIXED
 @30 spawn #15 op=rush/fx30/fx3_fx_ring_s2r_ring_q1 kind=sprite sprite=bastion-s1-ring-q1 alpha=1.000000 tint=- seethrough=true pos=-1.227951,1.447890,3.238013 rot=-0.697865,-0.040634,-0.330252,0.634246 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @30 hit - op=- at=-1.283872,0.900000,1.703756 r=0.900000
-@31 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=0.987499,0.126806,-0.004407,0.093525 scale=0.937500,0.937500,0.937500 bb=FIXED
+@31 write #0 op=rush/rig dur=0 pos=-0.763013,0.605514,2.054695 rot=0.663926,0.746625,-0.022843,0.035092 scale=0.937500,0.937500,0.937500 bb=FIXED
 @31 spawn #16 op=rush/fx31/fx3_fx_ring_s2r_floor_fill kind=sprite sprite=bastion-s1-ink alpha=1.000000 tint=- seethrough=false pos=-1.360799,0.199201,2.221251 rot=-0.773273,-0.287049,-0.113456,0.553876 scale=0.687500,0.687500,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @31 spawn #17 op=rush/fx31/fx3_fx_ring_s2r_line_1 kind=sprite sprite=bastion-s1-streak alpha=1.000000 tint=- seethrough=true pos=-1.439680,0.974240,2.741340 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.078125,0.100000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @31 write #17 op=rush/fx31/fx3_fx_ring_s2r_line_1 dur=0 pos=-1.439680,0.974240,2.741340 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=1.000000,1.000000,1.000000 bb=CENTER
@@ -1428,7 +1428,7 @@
 @31 particle - op=- type=bastion-s1-p-steel at=2.353974,1.456814,3.562611 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3101581721921883144
 @31 particle - op=- type=bastion-s1-p-fleck at=1.766031,1.371737,3.192983 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5299405085332444868
 @31 hit - op=- at=-1.283872,0.900000,1.703756 r=0.900000
-@32 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=0.978274,0.026334,0.046510,0.200308 scale=0.937500,0.937500,0.937500 bb=FIXED
+@32 write #0 op=rush/rig dur=0 pos=-1.684927,0.806781,2.286369 rot=0.488039,0.502250,0.465819,0.540903 scale=0.937500,0.937500,0.937500 bb=FIXED
 @32 spawn #18 op=rush/fx32/fx3_fx_ring_s2r_ink kind=sprite sprite=bastion-s1-ink alpha=1.000000 tint=- seethrough=false pos=-1.741648,1.680743,2.663512 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.531203,0.531203,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @32 spawn #19 op=rush/fx32/fx3_fx_ring_s2r_streak_main kind=sprite sprite=bastion-s1-streak alpha=1.000000 tint=- seethrough=true pos=-1.776511,2.214675,2.460531 rot=-0.153669,-0.318041,-0.087659,0.931425 scale=0.093750,0.320000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @32 spawn #20 op=rush/fx32/fx3_fx_ring_s2r_line_2 kind=sprite sprite=bastion-s1-streak alpha=1.000000 tint=#FFE070 seethrough=true pos=-2.258795,1.465505,2.166702 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.078125,0.100000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
@@ -1511,7 +1511,7 @@
 @32 effect 00000000-0000-0000-0000-00000000000b op=- freeze=2
 @32 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.3009 y=0.1 z=0.3993
 @32 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=-0.3009 y=0.1 z=0.3993
-@33 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=0.978274,0.026334,0.046510,0.200308 scale=0.937500,0.937500,0.937500 bb=FIXED
+@33 write #0 op=rush/rig dur=0 pos=-1.684927,0.806781,2.286369 rot=0.488039,0.502250,0.465819,0.540903 scale=0.937500,0.937500,0.937500 bb=FIXED
 @33 spawn #25 op=rush/fx33/fx3_fx_ring_s2r_ring_q2 kind=sprite sprite=bastion-s1-ring-q2 alpha=1.000000 tint=- seethrough=true pos=-1.908821,0.205299,-0.231878 rot=-0.697865,-0.040634,-0.330252,0.634246 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @33 write #17 op=rush/fx31/fx3_fx_ring_s2r_line_1 dur=0 pos=-1.439680,0.974240,2.741340 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=3.360200,0.200000,1.000000 bb=CENTER
 @33 write #19 op=rush/fx32/fx3_fx_ring_s2r_streak_main dur=0 pos=-1.776511,2.214675,2.460531 rot=-0.153669,-0.318041,-0.087659,0.931425 scale=7.666100,1.000000,1.000000 bb=CENTER
@@ -1543,7 +1543,7 @@
 @33 particle - op=- type=bastion-s1-p-steel at=-0.389768,2.345849,3.993391 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1963004181021515019
 @33 particle - op=- type=bastion-s1-p-fleck at=-0.504909,2.148921,3.551321 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3016087651283221347
 @33 remove #16 op=rush/fx31/fx3_fx_ring_s2r_floor_fill
-@34 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=0.978274,0.026334,0.046510,0.200308 scale=0.937500,0.937500,0.937500 bb=FIXED
+@34 write #0 op=rush/rig dur=0 pos=-1.684927,0.806781,2.286369 rot=0.488039,0.502250,0.465819,0.540903 scale=0.937500,0.937500,0.937500 bb=FIXED
 @34 spawn #26 op=rush/fx34/fx3_fx_ring_s2r_ring_q3 kind=sprite sprite=bastion-s1-ring-q3 alpha=1.000000 tint=- seethrough=true pos=-3.375975,1.281564,1.695162 rot=-0.697865,-0.040634,-0.330252,0.634246 scale=0.414094,0.414094,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @34 write #19 op=rush/fx32/fx3_fx_ring_s2r_streak_main dur=1 pos=-1.776511,2.214675,2.460531 rot=-0.153669,-0.318041,-0.087659,0.931425 scale=7.399524,0.860000,1.000000 bb=CENTER
 @34 write #20 op=rush/fx32/fx3_fx_ring_s2r_line_2 dur=0 pos=-2.258795,1.465505,2.166702 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=2.799500,0.200000,1.000000 bb=CENTER
@@ -1573,7 +1573,7 @@
 @34 particle - op=- type=bastion-s1-p-fleck at=-0.504909,2.148921,3.551321 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2580251123922450915
 @34 remove #17 op=rush/fx31/fx3_fx_ring_s2r_line_1
 @34 remove #18 op=rush/fx32/fx3_fx_ring_s2r_ink
-@35 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=0.976910,0.031637,0.056149,0.203698 scale=0.937500,0.937500,0.937500 bb=FIXED
+@35 write #0 op=rush/rig dur=0 pos=-1.713182,0.807764,2.271568 rot=0.475986,0.487203,0.480945,0.552053 scale=0.937500,0.937500,0.937500 bb=FIXED
 @35 write #19 op=rush/fx32/fx3_fx_ring_s2r_streak_main dur=1 pos=-1.776511,2.214675,2.460531 rot=-0.153669,-0.318041,-0.087659,0.931425 scale=7.066304,0.685000,1.000000 bb=CENTER
 @35 write #24 op=rush/fx32/fx3_fx_ring_s2r_streak_x dur=1 pos=-1.776511,2.214675,2.460531 rot=0.543670,-0.259999,0.181898,0.777005 scale=8.133312,0.685000,1.000000 bb=FIXED
 @35 particle - op=- type=bastion-s1-p-sheath at=-0.817889,1.677030,2.464537 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8797276265184444500
@@ -1587,7 +1587,7 @@
 @35 particle - op=- type=bastion-s1-p-steel at=-0.480029,2.340725,3.937037 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7333300020703430745
 @35 particle - op=- type=bastion-s1-p-fleck at=-0.579611,2.146275,3.504230 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8669372952251770565
 @35 remove #20 op=rush/fx32/fx3_fx_ring_s2r_line_2
-@36 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=0.975521,0.037399,0.065894,0.206440 scale=0.937500,0.937500,0.937500 bb=FIXED
+@36 write #0 op=rush/rig dur=0 pos=-1.741135,0.809352,2.255259 rot=0.463317,0.472497,0.495024,0.563059 scale=0.937500,0.937500,0.937500 bb=FIXED
 @36 write #19 op=rush/fx32/fx3_fx_ring_s2r_streak_main dur=1 pos=-1.776511,2.214675,2.460531 rot=-0.153669,-0.318041,-0.087659,0.931425 scale=6.599796,0.440000,1.000000 bb=CENTER
 @36 write #24 op=rush/fx32/fx3_fx_ring_s2r_streak_x dur=1 pos=-1.776511,2.214675,2.460531 rot=0.543670,-0.259999,0.181898,0.777005 scale=7.199988,0.440000,1.000000 bb=FIXED
 @36 particle - op=- type=bastion-s1-p-sheath at=-0.853721,1.678995,2.440637 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8988471419134589728
@@ -1603,7 +1603,7 @@
 @36 remove #21 op=rush/fx32/fx3_fx_ring_s2r_flash
 @36 remove #22 op=rush/fx32/fx3_fx_ring_s2r_flash_x
 @36 remove #23 op=rush/fx32/fx3_fx_ring_s2r_flash_f
-@37 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=0.976005,0.036624,0.062018,0.205493 scale=0.937500,0.937500,0.937500 bb=FIXED
+@37 write #0 op=rush/rig dur=0 pos=-1.760848,0.809142,2.244630 rot=0.454746,0.461850,0.503102,0.571654 scale=0.937500,0.937500,0.937500 bb=FIXED
 @37 write #19 op=rush/fx32/fx3_fx_ring_s2r_streak_main dur=1 pos=-1.776511,2.214675,2.460531 rot=-0.153669,-0.318041,-0.087659,0.931425 scale=6.000000,0.125000,1.000000 bb=CENTER
 @37 write #24 op=rush/fx32/fx3_fx_ring_s2r_streak_x dur=1 pos=-1.776511,2.214675,2.460531 rot=0.543670,-0.259999,0.181898,0.777005 scale=6.000000,0.125000,1.000000 bb=FIXED
 @37 particle - op=- type=bastion-s1-p-gather-3 at=-2.659355,1.758848,3.130290 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7793328371844955960
@@ -1618,7 +1618,7 @@
 @37 particle - op=- type=bastion-s1-p-steel at=-0.774149,1.950031,3.004683 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8251734819197305839
 @37 particle - op=- type=bastion-s1-p-steel at=-0.622417,2.336027,3.831882 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1822479245454426613
 @37 particle - op=- type=bastion-s1-p-fleck at=-0.698166,2.143200,3.418958 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1936420800129443913
-@38 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=-0.388110,0.132460,0.854490,0.318860 scale=0.937500,0.937500,0.937500 bb=FIXED
+@38 write #0 op=rush/rig dur=0 pos=-1.785329,0.793458,2.263855 rot=0.446806,0.451638,0.515063,0.575412 scale=0.937500,0.937500,0.937500 bb=FIXED
 @38 particle - op=- type=bastion-s1-p-gather-2 at=-2.734618,1.732630,3.118837 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2394885622283972014
 @38 particle - op=- type=bastion-s1-p-gather-2 at=-2.392640,1.513177,2.786316 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1685347650248171254
 @38 particle - op=- type=bastion-s1-p-gather-3 at=-2.734618,1.732630,3.118837 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1234210097757059842
@@ -1635,7 +1635,7 @@
 @38 particle - op=- type=bastion-s1-p-fleck at=-0.754339,2.126123,3.420389 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3610329443970322093
 @38 remove #19 op=rush/fx32/fx3_fx_ring_s2r_streak_main
 @38 remove #24 op=rush/fx32/fx3_fx_ring_s2r_streak_x
-@39 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=-0.394696,0.132229,0.852029,0.317453 scale=0.937500,0.937500,0.937500 bb=FIXED
+@39 write #0 op=rush/rig dur=0 pos=-1.804209,0.792762,2.253102 rot=0.437987,0.441547,0.522535,0.583233 scale=0.937500,0.937500,0.937500 bb=FIXED
 @39 particle - op=- type=bastion-s1-p-gather-1 at=-2.795348,1.730236,3.064836 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8061156282014968530
 @39 particle - op=- type=bastion-s1-p-gather-1 at=-2.440692,1.511809,2.745400 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1889645078667172627
 @39 particle - op=- type=bastion-s1-p-gather-2 at=-2.795348,1.730236,3.064836 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3435588611121221893
@@ -1652,7 +1652,7 @@
 @39 particle - op=- type=bastion-s1-p-steel at=-0.855853,1.936713,2.985161 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4588283614299295065
 @39 particle - op=- type=bastion-s1-p-steel at=-0.739910,2.313139,3.781757 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6995686362640916380
 @39 particle - op=- type=bastion-s1-p-fleck at=-0.798164,2.125097,3.383835 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1743015144417131527
-@40 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=-0.667993,-0.605189,0.430302,0.048698 scale=0.937500,0.937500,0.937500 bb=FIXED
+@40 write #0 op=rush/rig dur=0 pos=-1.695384,0.512866,1.439363 rot=0.051562,0.034636,0.691813,0.719400 scale=0.937500,0.937500,0.937500 bb=FIXED
 @40 particle - op=- type=bastion-s1-p-trail at=-2.677773,1.657655,2.958657 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7785610717155299857
 @40 particle - op=- type=bastion-s1-p-steel at=-2.440692,1.511809,2.745400 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3116488123776860709
 @40 particle - op=- type=bastion-s1-p-trail-crit at=-2.795348,1.730236,3.064836 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=9019949101325192462
@@ -1684,7 +1684,7 @@
 @40 particle - op=- type=bastion-s1-p-steel at=-0.969494,1.209160,1.524176 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=523712410917922363
 @40 particle - op=- type=bastion-s1-p-steel at=-0.993419,1.366033,1.562573 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6792641387752952437
 @40 particle - op=- type=bastion-s1-p-fleck at=-0.981457,1.287596,1.543375 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7055708953332412787
-@41 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=-0.633598,-0.727215,-0.190492,0.182823 scale=0.937500,0.937500,0.937500 bb=FIXED
+@41 write #0 op=rush/rig dur=0 pos=-1.026104,1.320175,1.465957 rot=-0.201573,-0.814666,0.537329,0.083460 scale=0.937500,0.937500,0.937500 bb=FIXED
 @41 particle - op=- type=bastion-s1-p-trail at=-2.965026,0.655404,0.549962 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8914292878794460274
 @41 particle - op=- type=bastion-s1-p-steel at=-2.659658,0.619848,0.716328 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8761237705465051697
 @41 particle - op=- type=bastion-s1-p-trail-crit at=-3.117711,0.673183,0.466779 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4711840529066999233
@@ -1713,7 +1713,7 @@
 @41 particle - op=- type=bastion-s1-p-steel at=-0.318494,0.797475,1.052418 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3649199316451057044
 @41 particle - op=- type=bastion-s1-p-steel at=0.076065,0.629550,0.801329 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7533730126011030996
 @41 particle - op=- type=bastion-s1-p-fleck at=-0.121498,0.713683,0.927249 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7997236635877974427
-@42 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=0.216819,-0.500746,-0.612745,0.571653 scale=0.937500,0.937500,0.937500 bb=FIXED
+@42 write #0 op=rush/rig dur=0 pos=-1.275398,1.320543,1.324650 rot=-0.177330,-0.837997,0.513856,0.047622 scale=0.937500,0.937500,0.937500 bb=FIXED
 @42 particle - op=- type=bastion-s1-p-trail at=-1.791502,-0.163475,-0.284545 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4871491950386210936
 @42 particle - op=- type=bastion-s1-p-steel at=-1.694654,-0.035521,0.027268 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5315680236656084211
 @42 particle - op=- type=bastion-s1-p-trail-crit at=-1.839706,-0.226811,-0.439911 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7286026110732947186
@@ -1735,28 +1735,28 @@
 @42 particle - op=- type=bastion-s1-p-steel at=-0.035306,0.635022,1.098670 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8232800779156520552
 @42 particle - op=- type=bastion-s1-p-steel at=0.598084,0.339337,0.884572 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-293619684146093390
 @42 particle - op=- type=bastion-s1-p-fleck at=0.281686,0.486709,0.992059 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3256560351042960106
-@43 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=0.216819,-0.500746,-0.612745,0.571653 scale=0.937500,0.937500,0.937500 bb=FIXED
+@43 write #0 op=rush/rig dur=0 pos=-1.275398,1.320543,1.324650 rot=-0.177330,-0.837997,0.513856,0.047622 scale=0.937500,0.937500,0.937500 bb=FIXED
 @43 sound - op=- sound=item.armor.equip_chain cat=master vol=0.9 pitch=0.5 at=-1.283872,0.000000,1.703756
 @43 remove #14 op=rush/fx29/fx3_fx_ring_s2r_ring_q0
 @43 remove #15 op=rush/fx30/fx3_fx_ring_s2r_ring_q1
 @43 remove #25 op=rush/fx33/fx3_fx_ring_s2r_ring_q2
 @43 remove #26 op=rush/fx34/fx3_fx_ring_s2r_ring_q3
-@44 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=0.216819,-0.500746,-0.612745,0.571653 scale=0.937500,0.937500,0.937500 bb=FIXED
-@45 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=0.216819,-0.500746,-0.612745,0.571653 scale=0.937500,0.937500,0.937500 bb=FIXED
-@46 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=0.216819,-0.500746,-0.612745,0.571653 scale=0.937500,0.937500,0.937500 bb=FIXED
-@47 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=0.216819,-0.500746,-0.612745,0.571653 scale=0.937500,0.937500,0.937500 bb=FIXED
-@48 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=0.216819,-0.500746,-0.612745,0.571653 scale=0.937500,0.937500,0.937500 bb=FIXED
+@44 write #0 op=rush/rig dur=0 pos=-1.275398,1.320543,1.324650 rot=-0.177330,-0.837997,0.513856,0.047622 scale=0.937500,0.937500,0.937500 bb=FIXED
+@45 write #0 op=rush/rig dur=0 pos=-1.275398,1.320543,1.324650 rot=-0.177330,-0.837997,0.513856,0.047622 scale=0.937500,0.937500,0.937500 bb=FIXED
+@46 write #0 op=rush/rig dur=0 pos=-1.275398,1.320543,1.324650 rot=-0.177330,-0.837997,0.513856,0.047622 scale=0.937500,0.937500,0.937500 bb=FIXED
+@47 write #0 op=rush/rig dur=0 pos=-1.275398,1.320543,1.324650 rot=-0.177330,-0.837997,0.513856,0.047622 scale=0.937500,0.937500,0.937500 bb=FIXED
+@48 write #0 op=rush/rig dur=0 pos=-1.275398,1.320543,1.324650 rot=-0.177330,-0.837997,0.513856,0.047622 scale=0.937500,0.937500,0.937500 bb=FIXED
 @48 sound - op=- sound=entity.breeze.wind_burst cat=master vol=0.8 pitch=0.4 at=-1.283872,0.000000,1.703756
 @48 sound - op=- sound=block.beacon.deactivate cat=master vol=0.5 pitch=0.5 at=-1.283872,0.000000,1.703756
-@49 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=0.216819,-0.500746,-0.612745,0.571653 scale=0.937500,0.937500,0.937500 bb=FIXED
+@49 write #0 op=rush/rig dur=0 pos=-1.275398,1.320543,1.324650 rot=-0.177330,-0.837997,0.513856,0.047622 scale=0.937500,0.937500,0.937500 bb=FIXED
 @49 particle - op=- type=bastion-s1-p-gather-1 at=-0.882394,2.417636,1.170977 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2556293829560310468
-@50 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=0.216673,-0.500766,-0.612827,0.571602 scale=0.937500,0.937500,0.937500 bb=FIXED
+@50 write #0 op=rush/rig dur=0 pos=-1.275398,1.320543,1.324650 rot=-0.177330,-0.837998,0.513852,0.047639 scale=0.937500,0.937500,0.937500 bb=FIXED
 @50 particle - op=- type=bastion-s1-p-steel at=-0.969717,2.896119,1.286858 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5419925634309204539
 @50 sound - op=- sound=entity.player.attack.sweep cat=master vol=1 pitch=0.4 at=-1.283872,0.000000,1.703756
 @50 sound - op=- sound=item.trident.throw cat=master vol=0.9 pitch=0.4 at=-1.283872,0.000000,1.703756
 @50 sound - op=- sound=entity.ravager.roar cat=master vol=0.5 pitch=0.5 at=-1.283872,0.000000,1.703756
 @50 particle - op=- type=bastion-s1-p-gather-1 at=-0.882394,2.417636,1.170977 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8774913842025863649
-@51 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=-0.594686,0.689407,-0.225480,0.346735 scale=0.937500,0.937500,0.937500 bb=FIXED
+@51 write #0 op=rush/rig dur=0 pos=-1.322372,1.412404,1.304593 rot=0.142782,0.847004,-0.426502,0.283361 scale=0.937500,0.937500,0.937500 bb=FIXED
 @51 spawn #27 op=rush/fx51/fx4_fx_chop_s2c_streak_a kind=sprite sprite=bastion-s1-streak alpha=1.000000 tint=- seethrough=true pos=-0.918363,2.545807,1.218709 rot=0.200829,-0.568413,0.677988,0.420603 scale=0.050000,0.200000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @51 spawn #28 op=rush/fx51/fx4_fx_chop_s2c_streak_b kind=sprite sprite=bastion-s1-streak alpha=1.000000 tint=- seethrough=true pos=-0.918363,2.545807,1.218709 rot=-0.677988,0.420603,0.200829,0.568413 scale=0.050000,0.200000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @51 write #27 op=rush/fx51/fx4_fx_chop_s2c_streak_a dur=0 pos=-0.918363,2.545807,1.218709 rot=0.455045,-0.136610,0.253981,0.842476 scale=1.000000,1.000000,1.000000 bb=FIXED
@@ -1764,7 +1764,7 @@
 @51 particle - op=- type=bastion-s1-p-steel at=-1.473696,2.349577,1.955661 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6692314216065640972
 @51 particle - op=- type=bastion-s1-p-gather-1 at=-0.882394,2.417636,1.170977 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4956248341088897670
 @51 particle - op=- type=bastion-s1-p-trail-crit at=-1.746269,1.982336,2.317377 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8895328348016121982
-@52 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=-0.495912,0.552724,0.404330,0.533934 scale=0.937500,0.937500,0.937500 bb=FIXED
+@52 write #0 op=rush/rig dur=0 pos=-1.551701,1.494716,2.058392 rot=0.061989,0.930130,-0.185008,0.311107 scale=0.937500,0.937500,0.937500 bb=FIXED
 @52 spawn #29 op=rush/fx52/fx4_fx_chop_s2c_cres_a kind=sprite sprite=bastion-s1-crescent alpha=1.000000 tint=- seethrough=true pos=-1.851681,1.939670,2.457263 rot=0.568413,0.200829,-0.420603,0.677988 scale=0.300000,0.300000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @52 spawn #30 op=rush/fx52/fx4_fx_chop_s2c_cres_b kind=sprite sprite=bastion-s1-crescent alpha=1.000000 tint=- seethrough=true pos=-1.851681,1.939670,2.457263 rot=-0.420603,-0.677988,-0.568413,0.200829 scale=0.300000,0.300000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @52 write #27 op=rush/fx51/fx4_fx_chop_s2c_streak_a dur=1 pos=-1.689717,1.948134,2.242330 rot=0.455045,-0.136610,0.253981,0.842476 scale=16.000000,1.500000,1.000000 bb=FIXED
@@ -1773,7 +1773,7 @@
 @52 write #30 op=rush/fx52/fx4_fx_chop_s2c_cres_b dur=0 pos=-1.851681,1.939670,2.457263 rot=-0.685843,-0.104083,-0.374758,0.615096 scale=1.000000,1.000000,1.000000 bb=FIXED
 @52 particle - op=- type=bastion-s1-p-steel at=-2.131946,1.683500,2.829188 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5326549573931333894
 @52 particle - op=- type=bastion-s1-p-trail-crit at=-1.746269,1.982336,2.317377 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5474837537013889901
-@53 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=-0.772623,0.182916,0.430031,0.429730 scale=0.937500,0.937500,0.937500 bb=FIXED
+@53 write #0 op=rush/rig dur=0 pos=-1.706742,0.728368,2.333001 rot=-0.168182,0.803176,0.504409,0.268692 scale=0.937500,0.937500,0.937500 bb=FIXED
 @53 spawn #31 op=rush/fx53/fx4_fx_chop_s2c_ink_a kind=sprite sprite=bastion-s1-ink alpha=1.000000 tint=- seethrough=true pos=-2.018842,1.615096,2.679094 rot=0.543936,-0.259921,0.181998,0.776821 scale=0.450000,0.450000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @53 spawn #32 op=rush/fx53/fx4_fx_chop_s2c_ink_b kind=sprite sprite=bastion-s1-ink alpha=1.000000 tint=- seethrough=true pos=-2.018842,1.615096,2.679094 rot=-0.776821,-0.181998,-0.259921,0.543936 scale=0.450000,0.450000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @53 spawn #33 op=rush/fx53/fx4_fx_chop_s2c_flash kind=sprite sprite=bastion-s1-flare alpha=1.000000 tint=- seethrough=true pos=-2.481654,1.256493,3.293266 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.200000,0.200000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
@@ -1816,7 +1816,7 @@
 @53 effect 00000000-0000-0000-0000-00000000000b op=- freeze=3
 @53 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.5416 y=0.18 z=0.7188
 @53 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=-0.5416 y=0.18 z=0.7188
-@54 write #0 op=rush/rig dur=0 pos=-1.283872,0.000000,1.703756 rot=-0.772623,0.182916,0.430031,0.429730 scale=0.937500,0.937500,0.937500 bb=FIXED
+@54 write #0 op=rush/rig dur=0 pos=-1.706742,0.728368,2.333001 rot=-0.168182,0.803176,0.504409,0.268692 scale=0.937500,0.937500,0.937500 bb=FIXED
 @54 write #27 op=rush/fx51/fx4_fx_chop_s2c_streak_a dur=1 pos=-1.730035,1.904411,2.295834 rot=0.455045,-0.136610,0.253981,0.842476 scale=15.360000,1.284000,1.000000 bb=FIXED
 @54 write #28 op=rush/fx51/fx4_fx_chop_s2c_streak_b dur=1 pos=-1.730035,1.904411,2.295834 rot=-0.773273,-0.287049,-0.113456,0.553876 scale=15.360000,1.284000,1.000000 bb=FIXED
 @54 write #29 op=rush/fx52/fx4_fx_chop_s2c_cres_a dur=1 pos=-1.893101,1.929248,2.512230 rot=0.516264,-0.397913,0.071015,0.755045 scale=1.651878,1.555589,1.000000 bb=FIXED
@@ -1833,7 +1833,7 @@
 @54 move - op=- to=-2.0863,0,2.7686 yaw=- pitch=-
 @54 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @54 move - op=- invulnerable=0
-@55 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.772623,0.182916,0.430031,0.429730 scale=0.937500,0.937500,0.937500 bb=FIXED
+@55 write #0 op=rush/rig dur=0 pos=-2.509162,0.728368,3.397849 rot=-0.168182,0.803176,0.504409,0.268692 scale=0.937500,0.937500,0.937500 bb=FIXED
 @55 write #27 op=rush/fx51/fx4_fx_chop_s2c_streak_a dur=1 pos=-2.582853,1.849757,3.427562 rot=0.455045,-0.136610,0.253981,0.842476 scale=14.560000,1.014000,1.000000 bb=FIXED
 @55 write #28 op=rush/fx51/fx4_fx_chop_s2c_streak_b dur=1 pos=-2.582853,1.849757,3.427562 rot=-0.773273,-0.287049,-0.113456,0.553876 scale=14.560000,1.014000,1.000000 bb=FIXED
 @55 write #29 op=rush/fx52/fx4_fx_chop_s2c_cres_a dur=1 pos=-2.711952,1.894845,3.598882 rot=0.516264,-0.397913,0.071015,0.755045 scale=1.633350,1.416700,1.000000 bb=FIXED
@@ -1843,7 +1843,7 @@
 @55 hit - op=- at=-2.086292,0.900000,2.768603 r=0.600000
 @55 remove #31 op=rush/fx53/fx4_fx_chop_s2c_ink_a
 @55 remove #32 op=rush/fx53/fx4_fx_chop_s2c_ink_b
-@56 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.772623,0.182916,0.430031,0.429730 scale=0.937500,0.937500,0.937500 bb=FIXED
+@56 write #0 op=rush/rig dur=0 pos=-2.509162,0.728368,3.397849 rot=-0.168182,0.803176,0.504409,0.268692 scale=0.937500,0.937500,0.937500 bb=FIXED
 @56 write #27 op=rush/fx51/fx4_fx_chop_s2c_streak_a dur=1 pos=-2.653410,1.773241,3.521194 rot=0.455045,-0.136610,0.253981,0.842476 scale=13.440000,0.636000,1.000000 bb=FIXED
 @56 write #28 op=rush/fx51/fx4_fx_chop_s2c_streak_b dur=1 pos=-2.653410,1.773241,3.521194 rot=-0.773273,-0.287049,-0.113456,0.553876 scale=13.440000,0.636000,1.000000 bb=FIXED
 @56 write #29 op=rush/fx52/fx4_fx_chop_s2c_cres_a dur=1 pos=-2.734955,1.846680,3.629408 rot=0.516264,-0.397913,0.071015,0.755045 scale=1.607411,1.222256,1.000000 bb=FIXED
@@ -1855,44 +1855,44 @@
 @56 particle - op=- type=bastion-s1-p-afterglow at=-3.381793,1.102756,4.487791 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7618750307279896989
 @56 hit - op=- at=-2.086292,0.900000,2.768603 r=0.600000
 @56 remove #34 op=rush/fx53/fx4_fx_chop_s2c_floor
-@57 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
+@57 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
 @57 write #27 op=rush/fx51/fx4_fx_chop_s2c_streak_a dur=1 pos=-2.744126,1.674863,3.641579 rot=0.455045,-0.136610,0.253981,0.842476 scale=12.000000,0.150000,1.000000 bb=FIXED
 @57 write #28 op=rush/fx51/fx4_fx_chop_s2c_streak_b dur=1 pos=-2.744126,1.674863,3.641579 rot=-0.773273,-0.287049,-0.113456,0.553876 scale=12.000000,0.150000,1.000000 bb=FIXED
 @57 write #29 op=rush/fx52/fx4_fx_chop_s2c_cres_a dur=1 pos=-2.764531,1.784753,3.668656 rot=0.516264,-0.397913,0.071015,0.755045 scale=1.574061,0.972256,1.000000 bb=FIXED
 @57 write #30 op=rush/fx52/fx4_fx_chop_s2c_cres_b dur=1 pos=-2.764531,1.784753,3.668656 rot=-0.685843,-0.104083,-0.374758,0.615096 scale=1.574061,0.972256,1.000000 bb=FIXED
 @57 remove #33 op=rush/fx53/fx4_fx_chop_s2c_flash
-@58 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
+@58 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
 @58 write #29 op=rush/fx52/fx4_fx_chop_s2c_cres_a dur=1 pos=-2.800679,1.709065,3.716626 rot=0.516264,-0.397913,0.071015,0.755045 scale=1.533300,0.666700,1.000000 bb=FIXED
 @58 write #30 op=rush/fx52/fx4_fx_chop_s2c_cres_b dur=1 pos=-2.800679,1.709065,3.716626 rot=-0.685843,-0.104083,-0.374758,0.615096 scale=1.533300,0.666700,1.000000 bb=FIXED
 @58 particle - op=- type=bastion-s1-p-ash at=-3.304658,1.162523,4.385429 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5886499901254068506
 @58 particle - op=- type=bastion-s1-p-afterglow at=-3.381793,1.102756,4.487791 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7332365315416855871
 @58 remove #27 op=rush/fx51/fx4_fx_chop_s2c_streak_a
 @58 remove #28 op=rush/fx51/fx4_fx_chop_s2c_streak_b
-@59 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
+@59 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
 @59 remove #29 op=rush/fx52/fx4_fx_chop_s2c_cres_a
 @59 remove #30 op=rush/fx52/fx4_fx_chop_s2c_cres_b
-@60 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
+@60 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
 @60 particle - op=- type=bastion-s1-p-ash at=-3.304658,1.162523,4.385429 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3326374294437291327
-@61 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
-@62 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
-@63 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
-@64 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
+@61 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
+@62 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
+@63 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
+@64 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
 @64 sound - op=- sound=item.armor.equip_iron cat=master vol=0.9 pitch=0.6 at=-2.086292,0.000000,2.768603
-@65 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
-@66 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
-@67 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
-@68 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
-@69 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
-@70 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
-@71 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
-@72 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
-@73 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
-@74 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=-0.720598,0.061389,0.607505,0.328491 scale=0.937500,0.937500,0.937500 bb=FIXED
-@75 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=0.557411,-0.256705,0.186507,0.767210 scale=0.937500,0.937500,0.937500 bb=FIXED
-@76 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=0.557411,-0.256705,0.186507,0.767210 scale=0.937500,0.937500,0.937500 bb=FIXED
-@77 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=0.557411,-0.256705,0.186507,0.767210 scale=0.937500,0.937500,0.937500 bb=FIXED
-@78 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=0.557411,-0.256705,0.186507,0.767210 scale=0.937500,0.937500,0.937500 bb=FIXED
-@79 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=0.557411,-0.256705,0.186507,0.767210 scale=0.937500,0.937500,0.937500 bb=FIXED
-@80 write #0 op=rush/rig dur=0 pos=-2.086292,0.000000,2.768603 rot=0.557411,-0.256705,0.186507,0.767210 scale=0.937500,0.937500,0.937500 bb=FIXED
+@65 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
+@66 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
+@67 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
+@68 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
+@69 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
+@70 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
+@71 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
+@72 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
+@73 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
+@74 write #0 op=rush/rig dur=0 pos=-2.445427,0.744730,3.424310 rot=-0.198644,0.738084,0.595772,0.246634 scale=0.937500,0.937500,0.937500 bb=FIXED
+@75 write #0 op=rush/rig dur=0 pos=-2.543103,0.768016,2.790642 rot=0.557411,-0.256705,0.186507,0.767210 scale=0.937500,0.937500,0.937500 bb=FIXED
+@76 write #0 op=rush/rig dur=0 pos=-2.543103,0.768016,2.790642 rot=0.557411,-0.256705,0.186507,0.767210 scale=0.937500,0.937500,0.937500 bb=FIXED
+@77 write #0 op=rush/rig dur=0 pos=-2.543103,0.768016,2.790642 rot=0.557411,-0.256705,0.186507,0.767210 scale=0.937500,0.937500,0.937500 bb=FIXED
+@78 write #0 op=rush/rig dur=0 pos=-2.543103,0.768016,2.790642 rot=0.557411,-0.256705,0.186507,0.767210 scale=0.937500,0.937500,0.937500 bb=FIXED
+@79 write #0 op=rush/rig dur=0 pos=-2.543103,0.768016,2.790642 rot=0.557411,-0.256705,0.186507,0.767210 scale=0.937500,0.937500,0.937500 bb=FIXED
+@80 write #0 op=rush/rig dur=0 pos=-2.543103,0.768016,2.790642 rot=0.557411,-0.256705,0.186507,0.767210 scale=0.937500,0.937500,0.937500 bb=FIXED
 @80 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=bastion-s2-body
 @80 remove #0 op=rush/rig

@@ -181,8 +181,9 @@ public class PaperLiveValueSource(
             val pitched = bare == "$CASTER.look" || bare == "$CASTER.eye"
             return quat(Frame.fromYawPitch(p.feet, p.yaw, if (pitched) p.pitch else 0.0).rotation)
         }
-        if (bare == "victim" || bare == "target") {
-            return quat(victimFrame(binding, null)?.rotation ?: throw IllegalArgumentException("'$name' needs a hit event binding"))
+        if (bare == "victim" || bare == "target" || bare.startsWith("victim.")) {
+            val point = if (bare.contains('.')) bare.substringAfter('.') else null
+            return quat((victimFrame(binding, point) ?: unsupported(name, "a rotation (no victim bound)")).rotation)
         }
         if (bare == "contact") return quat(frames(cast, binding).worldPose("contact", null)?.rotation ?: unsupported(name, "a rotation (no contact bound)"))
         return when (val v = evalExpr(cast, request, name, binding, scope)) {
@@ -261,12 +262,13 @@ public class PaperLiveValueSource(
 
     private fun bindingVec(name: String, binding: EventBinding?): Vector3d? {
         if (name == "contact") return contactOf(binding).point.let { Vector3d(it.x, it.y, it.z) }
-        // bare `victim` / `target` anchor: the hit victim's feet (where it stood when it was gone)
-        if (name == "victim" || name == "target") {
-            val o = victimFrame(binding, "feet")?.origin ?: throw IllegalArgumentException("'$name' needs a hit event binding")
+        if (name == "event.victim" || name == "event.attacker") return eventEntityVec(name, binding)
+        // the bare victim frame (`victim`, `target`, `victim.feet` ...) as a point: the origin `frames()` serves, so an `on.hit` row reads it as game-sim does
+        if (name == "victim" || name == "target" || name.startsWith("victim.")) {
+            val point = if (name.contains('.')) name.substringAfter('.') else null
+            val o = (victimFrame(binding, point) ?: throw IllegalArgumentException("'$name' needs a hit event binding with a loaded victim")).origin
             return Vector3d(o.x, o.y, o.z)
         }
-        if (name == "event.victim" || name == "event.attacker") return eventEntityVec(name, binding)
         val root = name.substringBefore('.', "")
         if (root != "contact" && root != "target") return null
         val b = if (root == "contact") contactOf(binding) else victimOf(binding)
