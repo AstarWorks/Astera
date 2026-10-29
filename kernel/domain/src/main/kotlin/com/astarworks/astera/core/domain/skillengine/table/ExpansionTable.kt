@@ -5,7 +5,8 @@ import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
 /**
  * [tick] is relative to the state entry (static) or to the event (sub-table). [src] is the YAML path the row came from.
  * [maskUntil] lists the events that suppress this candidate row (printed `mask until a, b`); [guard] is a class-L `when` on a point
- * gameplay op, judged at play time (printed `when <expr>`).
+ * gameplay op, judged at play time (printed `when <expr>`). [sample] marks one of the n rows a segment-sampled particle
+ * (`anchor: {of, to, samples}`) lowers to (printed `sample k/n`, k from 0).
  */
 public data class Row(
     val tick: Int,
@@ -14,7 +15,11 @@ public data class Row(
     val src: SrcPath,
     val maskUntil: List<EventPath> = emptyList(),
     val guard: Guard? = null,
+    val sample: SegmentSample? = null,
 )
+
+/** Row [k] of [n] along a sampled segment (ADR-0303 1, rev4.8). */
+public data class SegmentSample(val k: Int, val n: Int)
 
 /** "machine.states.cast.do[0].do[1]"; set by the op's lower() from LowerContext.src. */
 @JvmInline

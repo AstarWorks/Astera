@@ -37,7 +37,7 @@ public class ParticleDefOp(
 
 public object ParticleDefOpSpec : OpSpec<ParticleDefOp> {
     private val DEF = Field.required("def", Types.id, "id of a custom particle definition (content/particles)")
-    private val ANCHOR = Field.required("anchor", Types.anchorRef, "emission point: anchor name or {of, offset, sweep}")
+    private val ANCHOR = Field.required("anchor", Types.anchorRef, "emission point: anchor name or {of, offset, to, samples}; to + samples = n rows along the segment of -> to")
     private val SHIFT = Field.optional("shift", Types.nullable(FrameVecs.type), null, "per-copy displacement of the emission point: {forward, up, left} in the anchor's axes, or a whole world vec; reads i, n, draw, roll")
 
     override val name: String = "particle_def"
@@ -55,10 +55,10 @@ public object ParticleDefOpSpec : OpSpec<ParticleDefOp> {
         if (op.anchor.sweep != null) {
             return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "particle_def '${op.def}': sweep is a vanilla particle rider (R14); a definition is emitted once per call"))
         }
-        val placed = when (val r = ParticlePlacement.place("particle_def '${op.def}'", lc, op.anchor, op.shift)) {
+        val placed = when (val r = ParticlePlacement.placeAll("particle_def '${op.def}'", lc, op.anchor, op.shift)) {
             is Result.Success -> r.value
             is Result.Failure -> return r
         }
-        return Result.Success(Lowered(rows = listOf(Row(tick = 0, instance = lc.self, action = Action.ParticleDef(op.def, placed.position), src = lc.src))))
+        return Result.Success(Lowered(rows = placed.map { Row(tick = 0, instance = lc.self, action = Action.ParticleDef(op.def, it.position), src = lc.src, sample = it.sample) }))
     }
 }

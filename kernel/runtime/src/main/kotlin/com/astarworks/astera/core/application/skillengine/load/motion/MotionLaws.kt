@@ -85,8 +85,9 @@ public object MotionLaws {
 
     // grow
     private val growStartF = Field.optional("start", ScaleType(strict = true), ScaleVal.Uniform(Value.Literal(1.0)), "scale the growth begins from (number or all of forward, up, left)")
-    private val perTickF = Field.optional("per_tick", Types.nullable(ScaleType(strict = false)), null, "scale change per tick (number = uniform); exactly one of per_tick, to")
-    private val toF = Field.optional("to", Types.nullable(ScaleType(strict = true)), null, "scale reached at the end of the window; exactly one of per_tick, to")
+    private val perTickF = Field.optional("per_tick", Types.nullable(ScaleType(strict = false)), null, "scale change per tick (number = uniform); exactly one of per_tick, to, by")
+    private val toF = Field.optional("to", Types.nullable(ScaleType(strict = true)), null, "scale reached at the end of the window; exactly one of per_tick, to, by")
+    private val byF = Field.optional("by", Types.nullable(ScaleType(strict = true)), null, "factor on the held scale: the law ends at start * by (scales compose by multiplication, so the composite ends at its held value * by); exactly one of per_tick, to, by; scale / size only")
     private val growPropF = Field.optional("prop", Types.enumOf("scale", "offset"), "scale", "scale (default) or offset: with offset, start / per_tick / accel / to are positions {forward, up, left} or [left, up, forward], and the law moves the object (a decaying move)")
     private val growAccelF = Field.optional("accel", ScaleType(strict = false), ScaleVal.Uniform(Value.Literal(0.0)), "scale change per tick^2; excludes ease")
 
@@ -127,7 +128,7 @@ public object MotionLaws {
         "spin" to (Fields.of("spin-law", lawField("spin")) + window + Fields.of("spin", axisF, degPerTickF, spinStartF, spinAccelF)),
         "move" to (Fields.of("move-law", lawField("move")) + window + Fields.of("move", velocityF, speedF, moveStartF)),
         "orbit" to (Fields.of("orbit-law", lawField("orbit")) + window + Fields.of("orbit", centerF, axisF, degPerTickF, phaseF, faceF)),
-        "grow" to (Fields.of("grow-law", lawField("grow")) + window + Fields.of("grow", growPropF, growStartF, perTickF, toF, growAccelF)),
+        "grow" to (Fields.of("grow-law", lawField("grow")) + window + Fields.of("grow", growPropF, growStartF, perTickF, toF, byF, growAccelF)),
         "align" to (Fields.of("align-law", lawField("align")) + window + Fields.of("align", alignToF, alignAxisF, alignUpF, stepF)),
         "follow" to (Fields.of("follow-law", lawField("follow")) + window + Fields.of("follow", targetF, stepF)),
         "stretch" to (Fields.of("stretch-law", lawField("stretch")) + window + Fields.of("stretch", baseF, tipF, stretchAxisF, stepF)),
@@ -341,6 +342,7 @@ public object MotionLaws {
         val offsetProp = v[growPropF] == "offset"
         val startRaw = v[growStartF]
         if (offsetProp) {
+            if (v.isPresent(byF)) ctx.fail("$path.by", "by is a factor on a scale; grow prop: offset moves the object, use per_tick or to")
             for ((f, key) in listOf(growStartF to "start", perTickF to "per_tick", toF to "to", growAccelF to "accel")) {
                 if (v.isPresent(f) && v[f] is ScaleVal.Uniform) ctx.fail("$path.$key", "grow prop: offset takes a position per axis, {forward, up, left} or [left, up, forward], not a single number")
             }
@@ -348,11 +350,20 @@ public object MotionLaws {
         val start = if (offsetProp && !v.isPresent(growStartF)) Vec3.ZERO else n.scale(startRaw, "$path.start")
         val perTick = v[perTickF]
         val to = v[toF]
-        if ((perTick == null) == (to == null)) ctx.fail(path, "grow needs exactly one of per_tick, to")
+        val by = v[byF]
+        if (listOf(perTick, to, by).count { it != null } != 1) ctx.fail(path, "grow needs exactly one of per_tick, to, by")
         val accel = n.scale(v[growAccelF], "$path.accel")
-        val rate: Vec3 = if (perTick != null) n.scale(perTick, "$path.per_tick") else (n.scale(to!!, "$path.to") - start) * (1.0 / forTicks)
+        val rate: Vec3 = when {
+            perTick != null -> n.scale(perTick, "$path.per_tick")
+            by != null -> {
+                // the law's held value is its `start` (default 1); the other grow laws multiply on top, so the composite ends at held * by
+                val f = n.scale(by, "$path.by")
+                Vec3(start.x * (f.x - 1.0), start.y * (f.y - 1.0), start.z * (f.z - 1.0)) * (1.0 / forTicks)
+            }
+            else -> (n.scale(to!!, "$path.to") - start) * (1.0 / forTicks)
+        }
         if (accel.lengthSquared() != 0.0 && ease != null) ctx.fail("$path.ease", "ease and accel are mutually exclusive on one law (accel already defines the time profile)")
-        if (to != null && accel.lengthSquared() != 0.0) ctx.fail("$path.accel", "accel and a 'to' target both define the end value; use per_tick with accel")
+        if ((to != null || by != null) && accel.lengthSquared() != 0.0) ctx.fail("$path.accel", "accel and a 'to' / 'by' target both define the end value; use per_tick with accel")
         if (offsetProp) return { s -> MoveRate(s, forTicks, start, rate, ease, accel) }
         return { s -> GrowRate(s, forTicks, start, rate, accel, ease) }
     }

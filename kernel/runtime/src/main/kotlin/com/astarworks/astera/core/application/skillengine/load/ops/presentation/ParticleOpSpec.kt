@@ -71,7 +71,7 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
     private val SIZE = Field.optional("size", Types.nullable(Types.number), null, "dust scale, with color")
     private val BLOCK = Field.optional("block", Types.nullable(Types.id), null, "block key for BlockData")
     private val ITEM = Field.optional("item", Types.nullable(Types.id), null, "material key for ItemStack data")
-    private val ANCHOR = Field.required("anchor", Types.anchorRef, "emission point: anchor name or {of, offset, sweep}")
+    private val ANCHOR = Field.required("anchor", Types.anchorRef, "emission point: anchor name or {of, offset, to, samples, sweep}; to + samples = n rows along the segment of -> to")
     private val SHIFT = Field.optional("shift", Types.nullable(FrameVecs.type), null, "per-copy displacement of the emission point: {forward, up, left} in the anchor's axes, or a whole world vec; reads i, n, draw, roll")
 
     private val MOTION = Field.optional("motion", Types.nullable(PointLawsType(setOf("count", "offset", "extra"), "count")), null, "property laws grow / fade, sampled per occurrence (section 3.4)")
@@ -134,7 +134,7 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
         }
         val offset = PointTau.vector(baseOffset, op.motion, "offset", tau) ?: return unknown("offset")
         val extra = PointTau.scalar(baseExtra, op.motion, "extra", tau) ?: return unknown("extra")
-        val placed = when (val r = ParticlePlacement.place("particle", lc, op.anchor, op.shift)) {
+        val placedAll = when (val r = ParticlePlacement.placeAll("particle", lc, op.anchor, op.shift)) {
             is Result.Success -> r.value
             is Result.Failure -> return r
         }
@@ -146,16 +146,19 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
             is ParticleStyle.Item -> ParticleData.Item(s.key)
         }
 
-        val action = Action.Particle(
-            type = op.particle,
-            count = count,
-            offset = offset,
-            extra = extra,
-            data = data,
-            position = placed.position,
-            sweep = placed.sweep,
-        )
-        return Result.Success(Lowered(rows = listOf(Row(tick = 0, instance = lc.self, action = action, src = lc.src))))
+        val rows = placedAll.map { placed ->
+            val action = Action.Particle(
+                type = op.particle,
+                count = count,
+                offset = offset,
+                extra = extra,
+                data = data,
+                position = placed.position,
+                sweep = placed.sweep,
+            )
+            Row(tick = 0, instance = lc.self, action = action, src = lc.src, sample = placed.sample)
+        }
+        return Result.Success(Lowered(rows = rows))
     }
 
     private fun styleOf(values: FieldValues, ctx: GrammarContext): ParticleStyle {
