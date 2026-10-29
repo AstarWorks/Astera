@@ -33,7 +33,7 @@ class DisplayOpScenarioTest : SkillEngineScenario() {
     @Test
     fun rigResetIsZeroDurationWrite() {
         val s = compiled(
-            "{id: r, op: rig, parent: caster, part: held_hand, for: 80, swing: [" +
+            "{id: r, op: rig, parent: caster, for: 80, swing: [" +
                 "{at: 4, for: 6, from: {left: -1, up: 1, forward: 1}, to: {left: 1, up: -1, forward: 1}, edge: leading}, {at: 67, reset: true}]}",
         )
         assertThat(rows(s).any { it.action is Action.Effect }).isTrue()
