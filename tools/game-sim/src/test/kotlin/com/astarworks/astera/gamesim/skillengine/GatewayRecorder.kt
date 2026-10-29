@@ -58,7 +58,14 @@ import java.util.UUID
  */
 class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = WorldId("world")) : CastTrace {
     var tick: Int = 0
+        set(value) {
+            field = value
+            victimMotion?.let { victims = it(value) }
+        }
     var victims: List<HitCandidate> = emptyList()
+
+    /** When set, [victims] is re-read from it at the start of every tick: the scripted motion of a victim that walks. */
+    var victimMotion: ((Int) -> List<HitCandidate>)? = null
     var casterPosition: Vector3d = Vector3d(0.0, 1.0, 0.0)
     var casterYawDeg: Double = 0.0
     var casterPitchDeg: Double = 0.0
@@ -405,7 +412,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun rootOf(cast: CastRef, entity: UUID): EntityRoot? {
             seen("query.rootOf", cast)
-            victims.firstOrNull { it.entityId == entity }?.let { return EntityRoot(it.feet, it.yawDeg, 0.0, 1.62, 1.8) }
+            victims.firstOrNull { it.entityId == entity }?.let { return EntityRoot(it.feet, it.yawDeg, 0.0, it.eyeHeight, 1.8) }
             return if (entity == caster) EntityRoot(Vec3(casterPosition.x, casterPosition.y - 1.0, casterPosition.z), casterYawDeg, casterPitchDeg, 1.62, 1.8) else null
         }
 
@@ -525,6 +532,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                 null, "body" -> c.box.center
                 "feet", "root" -> c.feet
                 "eye" -> Vec3(c.feet.x, c.box.max.y - 0.1, c.feet.z)
+                "center" -> Vec3(c.feet.x, c.feet.y + c.eyeHeight / 2.0, c.feet.z)
                 else -> return null
             }
             return SimFrame.fromYawPitch(o, c.yawDeg, 0.0)
@@ -548,6 +556,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                             null, "body" -> Vec3(v.feet.x, v.feet.y + 0.9, v.feet.z)
                             "feet", "root" -> v.feet
                             "eye" -> Vec3(v.feet.x, v.feet.y + 1.62, v.feet.z)
+                            "center" -> Vec3(v.feet.x, v.feet.y + v.eyeHeight / 2.0, v.feet.z)
                             else -> null
                         }
                         origin?.let { SimFrame.fromYawPitch(it, v.yawDeg, 0.0) }
@@ -556,11 +565,12 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                         null, "feet" -> casterFrame
                         "eye" -> SimFrame.fromYawPitch(eye, yaw, casterPitchDeg)
                         "look" -> SimFrame.fromYawPitch(feet, yaw, casterPitchDeg)
+                        "center" -> SimFrame.fromYawPitch(Vec3(feet.x, feet.y + (eye.y - feet.y) / 2.0, feet.z), yaw, 0.0)
                         else -> casterFrame
                     }
                     // as PaperLiveValueSource.victimFrame: exists only when the event binds a victim, with the same point names (no world: caster stand-in pose)
                     frame == "victim" || frame == "target" ->
-                        if (binding?.victim == null || point !in setOf(null, "body", "feet", "root", "eye")) null else casterFrame
+                        if (binding?.victim == null || point !in setOf(null, "body", "feet", "root", "eye", "center")) null else casterFrame
                     frame == "caster" -> casterFrame
                     frame == "victim" || frame == "target" -> victimFrame(binding, point)
                     else -> inst?.worldPose(frame, point)
@@ -595,6 +605,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             val v = when (val field = bare.removePrefix("caster").removePrefix(".")) {
                 "", "feet", "pos", "position", "look" -> feet
                 "eye" -> eye
+                "center" -> Vec3(feet.x, feet.y + (eye.y - feet.y) / 2.0, feet.z)
                 "body" -> Vec3(feet.x, feet.y + 0.9, feet.z)
                 "forward" -> SimFrame.fromYawPitch(feet, casterYawDeg, casterPitchDeg).forward()
                 in hands -> {
@@ -604,7 +615,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                     val fwd = yawFrame.forward()
                     Vec3(feet.x + left.x * side * 0.35 + fwd.x * 0.45, feet.y + (eye.y - feet.y) - 0.55, feet.z + left.z * side * 0.35 + fwd.z * 0.45)
                 }
-                else -> throw IllegalArgumentException("caster field '$bare' is not one of feet, eye, body, look, forward, hand_r, hand_l, palm")
+                else -> throw IllegalArgumentException("caster field '$bare' is not one of feet, eye, center, body, look, forward, hand_r, hand_l, palm")
             }
             return Vector3d(v.x, v.y, v.z)
         }

@@ -48,7 +48,7 @@ class VictimAnchoredInstanceScenarioTest : SkillEngineScenario() {
     private fun run(skill: CompiledSkill, cancelAtEnd: Boolean = false): List<RecordedCall> {
         val rec = GatewayRecorder()
         rec.faithfulPose = true
-        rec.victims = listOf(HitCandidate(UUID(0L, 11L), Vec3(0.0, 0.0, 2.0), 0.0, HitBox(Vec3(-0.3, 0.0, 1.7), Vec3(0.3, 1.8, 2.3))))
+        rec.victims = listOf(HitCandidate(UUID(0L, 11L), Vec3(0.0, 0.0, 2.0), 0.0, HitBox(Vec3(-0.3, 0.0, 1.7), Vec3(0.3, 1.8, 2.3)), 1.62))
         return play(skill, seed = 1L, events = emptyList(), ticks = 12, rec = rec, cancelAtEnd = cancelAtEnd)
     }
 
