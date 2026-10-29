@@ -1,12 +1,20 @@
-# Point table for the knight-sword-t3 (flat 16x16 handheld sprite generated/items/knight-sword, thirdperson_righthand = rotation [0,-90,55] translation [0,4,0.5] scale 0.85; frame and chain as content/frames/knight-sword.yaml).
-# Sprite centreline u axis = bottom-left to top-right: root = widest cross-section (guard) at model (5.25,5.00); tip = tip pixel centreline (15.25,15.25); long = sprite diagonal; edge = the upper-left (cutting) side, perpendicular to long in the sprite plane; grip/pivot = the hand origin.
+# Point table for the knight-sword-t3 (same geometry, display and points as knight-sword; only the steel tint differs) (frame and chain as content/frames/couture-rapier.yaml).
+# content/models/items/knight-sword.model.json (117 elements, model +Y = blade direction, +X = broad-face side):
+#   grip = centre of the leather grip (8,4.5,8) = pivot; root = blade base at y=9; tip = blade tip at y=26.52; long = model +Y; edge = model +X; length = pommel bottom y=0.05 to tip.
+# held_hand = the same elements under the model's thirdperson_righthand display, the transform the rig's main-hand mesh draws with; hand_anchor = model centre (8,8,8).
 apiVersion: astera/v3
 kind: ItemFrames
 item: knight-sword-t3
 parts:
+  held:
+    model: astera:knight-sword-t3
+    display: fixed
+    length: 1.2325
+    points: { grip: [-0.246, -0.361, 0.0726], pivot: [-0.246, -0.361, 0.0726], root: [-0.1258, -0.1893, 0.0726], tip: [0.3421, 0.4789, 0.0726] }
+    axes: { long: [0.5736, 0.8192, 0.0], edge: [0.8192, -0.5736, 0.0] }
   held_hand:
-    model: minecraft:item/handheld
+    model: astera:knight-sword-t3
     display: thirdperson_righthand
-    length: 1.0708
-    points: { grip: [0.0, 0.0, 0.0], pivot: [0.0, 0.0, 0.0], root: [-0.0, 0.0389, -0.078], tip: [0.0, 0.7864, 0.0633], hand_anchor: [0.0, 0.25, -0.0312] }
-    axes: { long: [0.0, 0.9848, 0.1736], edge: [0.0, -0.1736, 0.9848] }
+    length: 1.2407
+    points: { grip: [-0.0, 0.0, 0.0], pivot: [-0.0, 0.0, 0.0], root: [0.0, 0.1728, -0.121], tip: [0.0, 0.8455, -0.592], hand_anchor: [0.0, 0.1344, -0.0941] }
+    axes: { long: [0.0, 0.8192, -0.5736], edge: [0.0, -0.5736, -0.8192] }

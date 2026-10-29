@@ -1,12 +1,20 @@
-# Point table for the iron-blade (flat 16x16 handheld sprite generated/items/iron-blade, thirdperson_righthand = rotation [0,-90,55] translation [0,4,0.5] scale 0.85; frame and chain as content/frames/knight-sword.yaml).
-# Sprite centreline u axis = bottom-left to top-right: root = widest cross-section (guard) at model (6.25,6.25); tip = tip pixel centreline (15.25,15.25); long = sprite diagonal; edge = the upper-left (cutting) side, perpendicular to long in the sprite plane; grip/pivot = the hand origin.
+# Point table for the iron-blade (frame and chain as content/frames/dagger.yaml).
+# content/models/items/iron-blade.model.json (32 elements, model +Y = blade direction, +X = blade edge side): Plain iron broadsword: wide straight blade, fuller, bar guard, wooden grip.
+# grip = hold point [8, 4.5, 8] = pivot; root = blade base [8, 9.0, 8]; tip = blade tip [8, 25.5, 8]; long = root->tip; edge = model +X; length = 0.0 (lowest point) to tip.
+# held_hand = the same elements under the model's thirdperson_righthand display, the transform the rig's main-hand mesh draws with; hand_anchor = model centre (8,8,8).
 apiVersion: astera/v3
 kind: ItemFrames
 item: iron-blade
 parts:
+  held:
+    model: astera:iron-blade
+    display: fixed
+    length: 1.3999
+    points: { grip: [-0.2362, -0.3373, -0.0], pivot: [-0.2362, -0.3373, -0.0], root: [-0.0945, -0.1349, 0.0], tip: [0.4251, 0.6071, 0.0] }
+    axes: { long: [0.5736, 0.8192, 0.0], edge: [0.8192, -0.5736, 0.0] }
   held_hand:
-    model: minecraft:item/handheld
+    model: astera:iron-blade
     display: thirdperson_righthand
-    length: 1.0708
-    points: { grip: [0.0, 0.0, 0.0], pivot: [0.0, 0.0, 0.0], root: [-0.0, 0.1205, -0.0541], tip: [0.0, 0.7864, 0.0633], hand_anchor: [0.0, 0.25, -0.0312] }
-    axes: { long: [0.0, 0.9848, 0.1736], edge: [0.0, -0.1736, 0.9848] }
+    length: 1.1953
+    points: { grip: [0.0, 0.0, 0.0], pivot: [0.0, 0.0, 0.0], root: [0.0, 0.1728, -0.121], tip: [0.0, 0.8064, -0.5646], hand_anchor: [0.0, 0.1344, -0.0941] }
+    axes: { long: [0.0, 0.8192, -0.5736], edge: [-0.0, -0.5736, -0.8192] }

@@ -1,12 +1,20 @@
-# Point table for the spear (flat 16x16 handheld sprite generated/items/spear, thirdperson_righthand = rotation [0,-90,55] translation [0,4,0.5] scale 0.85; frame and chain as content/frames/knight-sword.yaml).
-# Sprite centreline u axis = bottom-left to top-right: root = widest cross-section (guard) at model (9.35,9.35); tip = tip pixel centreline (15.25,15.25); long = sprite diagonal; edge = the upper-left (cutting) side, perpendicular to long in the sprite plane; grip/pivot = the hand origin.
+# Point table for the spear (frame and chain as content/frames/dagger.yaml).
+# content/models/items/spear.model.json (37 elements, model +Y = blade direction, +X = blade edge side): Leaf-headed spear on a long shaft; root = head base (socket top), tip = point; +X = leaf edge.
+# grip = hold point [8, 8, 8] = pivot; root = blade base [8, 24.0, 8]; tip = blade tip [8, 31.9, 8]; long = root->tip; edge = model +X; length = -1.4 (lowest point) to tip.
+# held_hand = the same elements under the model's thirdperson_righthand display, the transform the rig's main-hand mesh draws with; hand_anchor = model centre (8,8,8).
 apiVersion: astera/v3
 kind: ItemFrames
 item: spear
 parts:
+  held:
+    model: astera:spear
+    display: fixed
+    length: 1.4001
+    points: { grip: [-0.1688, -0.2411, 0.0], pivot: [-0.1688, -0.2411, 0.0], root: [0.217, 0.31, 0.0], tip: [0.4075, 0.582, 0.0] }
+    axes: { long: [0.5736, 0.8192, 0.0], edge: [0.8192, -0.5736, 0.0] }
   held_hand:
-    model: minecraft:item/handheld
+    model: astera:spear
     display: thirdperson_righthand
-    length: 1.0894
-    points: { grip: [0.0, 0.0, 0.0], pivot: [0.0, 0.0, 0.0], root: [0.0, 0.3499, -0.0136], tip: [0.0, 0.7864, 0.0633], hand_anchor: [0.0, 0.25, -0.0312] }
-    axes: { long: [0.0, 0.9848, 0.1736], edge: [0.0, -0.1736, 0.9848] }
+    length: 1.5609
+    points: { grip: [0.0, 0.0, 0.0], pivot: [0.0, 0.0, 0.0], root: [0.0, 0.6144, -0.4302], tip: [0.0, 0.9177, -0.6426], hand_anchor: [0.0, 0.0, 0.0] }
+    axes: { long: [0.0, 0.8192, -0.5736], edge: [-0.0, -0.5736, -0.8192] }
