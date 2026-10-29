@@ -199,7 +199,7 @@ internal class SkillEnginePaperRuntime(
             guardStage("cast") { cast.tick(now.toInt()) }
             guardStage("hooks") { playerHooks.tick(now.toInt()) }
             guardStage("movement") { movementGateway.tick(now.toInt()) }
-            guardStage("live-retain") { live.retain(player.live().toSet()) }
+            guardStage("live-retain") { live.retain(player.running().toSet()) }
             player.faults().forEach { log.error("[skill-error] cast {} at tick {} ({}): {}", it.cast.value, it.tick, it.src, it.message) }
             player.clearFaults()
             guardStage("let-go") { releaseLetGoHolds(eventBus, now) }

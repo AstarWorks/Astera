@@ -95,7 +95,7 @@ internal class SimSkillEngine private constructor(
             runner.tick(now.toInt())
             hooks.tick(now.toInt())
             movement.tick(now.toInt())
-            live.retain(player.live().toSet())
+            live.retain(player.running().toSet())
             player.faults().forEach { problems += "cast ${it.cast.value} at tick ${it.tick}: ${it.message}" }
             player.clearFaults()
             releaseLetGoHolds(now)

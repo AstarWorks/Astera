@@ -59,4 +59,10 @@ public interface ISkillTablePlayer {
     public fun cancel(cast: CastHandle, scope: CancelScope)
 
     public fun live(): List<CastHandle>
+
+    /**
+     * Every run that still evaluates rows: the live casts plus the runs in their detach tail (rev4.12). A platform keeps per-cast
+     * state (the live-value request) for exactly these; [live] alone would drop it under a tail that still resolves anchors.
+     */
+    public fun running(): List<CastHandle>
 }
