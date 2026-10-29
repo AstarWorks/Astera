@@ -1,6 +1,15 @@
 package com.astarworks.astera.core.application.skillengine.part
 
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
+import com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler
+import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.expr.ExprEnv
+import com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec
+import com.astarworks.astera.core.domain.skillengine.expr.ExprEvalException
+import com.astarworks.astera.core.domain.skillengine.expr.ExprType
+import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
+import com.astarworks.astera.core.domain.skillengine.expr.FrameLookup
 import com.astarworks.astera.core.domain.skillengine.part.Machine
 
 /**
@@ -18,6 +27,29 @@ internal object TickFields {
 
     fun isWholeTicks(raw: Any?): Boolean =
         raw is Number && raw.toDouble() >= 0 && raw.toDouble() == Math.floor(raw.toDouble()) && !raw.toDouble().isInfinite()
+
+    private val cel: CelExprCompiler by lazy { CelExprCompiler() }
+
+    private val noFrames = object : FrameLookup {
+        override fun worldPose(frame: String, point: String?) = null
+        override fun velocity(frame: String, point: String?) = Vec3.ZERO
+    }
+
+    /**
+     * A timer written as CEL over params (`"= fly + 1"`) is constant once ParamSubst has put the param values in: it folds here to its number, so the
+     * table only sees an integer ([checkFolded] then judges it). A CEL string that needs a runtime value (a variable, frame or random draw) is left as is.
+     */
+    fun fold(v: Any?): Any? {
+        if (!isCel(v)) return v
+        val src = v as String
+        if (src.contains("\${") || Regex("""\b(rand|draw)\s*\(""").containsMatchIn(src)) return v
+        val compiled = (cel.compile(src, ExprEnvSpec(), ExprType.NUM) as? Result.Success)?.value ?: return v
+        return try {
+            (compiled.eval(ExprEnv(emptyMap(), noFrames)) as? ExprValue.Num)?.value ?: v
+        } catch (e: ExprEvalException) {
+            v
+        }
+    }
 
     /** Parse time: what a document may write; the value is checked again by [checkFolded] after the params are substituted. */
     fun parseable(raw: Any?): Boolean = isWholeTicks(raw) || isCel(raw) || isParamRef(raw)

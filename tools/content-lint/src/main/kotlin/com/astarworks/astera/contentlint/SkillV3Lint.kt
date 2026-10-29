@@ -158,10 +158,16 @@ internal class SkillV3Lint(private val contentDir: Path, private val schemasDir:
      * Presentation references that fail silently at runtime: an `op: particle_def` must name a `content/particles`
      * id, an `op: particle` a vanilla particle, an `op: body` anim a `content/animations` clip (or a pose-only
      * clip), and an `astera:` sound of an `op: sound` a `content/sounds` cue (the server only logs
-     * `[cue-dropped]`, the player sees and hears nothing). Expressions (`=`, `${`) are not checked.
+     * `[cue-dropped]`, the player sees and hears nothing). A `"${param}"` id is checked as the document's own string param default
+     * (what the loader folds it to); other expressions (`=`, a param without a default) are not checked.
      */
     private fun fxReferenceErrors(root: JsonNode, where: String): List<String> {
         val out = mutableListOf<String>()
+        val params = root.get("params")
+        fun folded(id: String): String {
+            val name = PARAM_REF.matchEntire(id)?.groupValues?.get(1) ?: return id
+            return params?.get(name)?.get("default")?.takeIf { it.isTextual }?.asText() ?: id
+        }
         fun walk(n: JsonNode) {
             if (n.isObject) {
                 when (n.get("op")?.asText()) {
@@ -170,7 +176,7 @@ internal class SkillV3Lint(private val contentDir: Path, private val schemasDir:
                             out += "$where: op particle '${n.get("id")?.asText()}': '$id' is not a vanilla particle"
                         }
                     }
-                    "particle_def" -> n.get("def")?.takeIf { it.isTextual }?.asText()?.let { id ->
+                    "particle_def" -> n.get("def")?.takeIf { it.isTextual }?.asText()?.let(::folded)?.let { id ->
                         if (!id.startsWith("=") && !id.contains("\${") && id !in customParticles) {
                             out += "$where: op particle_def '${n.get("id")?.asText()}': '$id' is not a content/particles id"
                         }
@@ -180,7 +186,7 @@ internal class SkillV3Lint(private val contentDir: Path, private val schemasDir:
                             out += "$where: op body '${n.get("id")?.asText()}': '$id' is neither a content/animations clip nor a pose-only clip ($POSE_ONLY_ANIMATIONS)"
                         }
                     }
-                    "sound" -> n.get("sound")?.takeIf { it.isTextual }?.asText()?.let { id ->
+                    "sound" -> n.get("sound")?.takeIf { it.isTextual }?.asText()?.let(::folded)?.let { id ->
                         if (id.startsWith("astera:") && id !in soundCues) {
                             out += "$where: op sound '${n.get("id")?.asText()}': '$id' is not a content/sounds cue"
                         }
@@ -219,6 +225,7 @@ internal class SkillV3Lint(private val contentDir: Path, private val schemasDir:
     companion object {
         /** Clips the player animation gateway plays without a content/animations file. */
         private val POSE_ONLY_ANIMATIONS = setOf("crouch", "hide-main-hand", "swing-main-hand")
+        private val PARAM_REF = Regex("""^\$\{([A-Za-z_][A-Za-z0-9_]*)}$""")
         private val ID_LINE = Regex("(?m)^id:\\s*[\"']?([^\"'\\s#]+)")
         private val RESOURCE_KEY_LINE = Regex("(?m)^resource_key:\\s*[\"']?([^\"'\\s#]+)")
         /** `org.bukkit.Particle` constants (Paper 26.3) in the lower-case form content uses. */

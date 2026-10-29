@@ -190,11 +190,11 @@ internal class ParamSubst(private val env: Map<String, Any?>, private val strict
     fun machine(m: Machine): Machine = m.copy(states = m.states.mapValues { (_, s) -> state(s) }, world = ops(m.world))
 
     private fun state(s: MachineState): MachineState = s.copy(
-        forTicks = any(s.forTicks),
+        forTicks = TickFields.fold(any(s.forTicks)),
         enter = ops(s.enter),
         doOps = ops(s.doOps),
         exit = ops(s.exit),
-        on = s.on.map { t -> t.copy(afterTicks = any(t.afterTicks), whenExpr = any(t.whenExpr) as String?, effects = ops(t.effects)) },
+        on = s.on.map { t -> t.copy(afterTicks = TickFields.fold(any(t.afterTicks)), whenExpr = any(t.whenExpr) as String?, effects = ops(t.effects)) },
         use = s.use?.let { c -> c.copy(args = c.args.mapValues { (_, v) -> any(v) }) },
         parallel = s.parallel.map { machine(it) },
     )

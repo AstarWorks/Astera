@@ -44,7 +44,7 @@ class WorldOpsAndHasItemScenarioTest : SkillEngineScenario() {
               len: {type: number, default: 4}
               dmg: {type: number, default: 70}
             anchors:
-              - {id: body, anchor: caster}
+              - {id: body, anchor: caster, mode: follow}
             machine:
               start: s
               states:
@@ -67,7 +67,7 @@ class WorldOpsAndHasItemScenarioTest : SkillEngineScenario() {
             params:
               h: {type: number, default: 3}
             anchors:
-              - {id: body, anchor: caster}
+              - {id: body, anchor: caster, mode: follow}
             machine:
               start: s
               states:
@@ -84,7 +84,7 @@ class WorldOpsAndHasItemScenarioTest : SkillEngineScenario() {
             kind: Skill
             id: build-bad
             anchors:
-              - {id: body, anchor: caster}
+              - {id: body, anchor: caster, mode: follow}
             machine:
               start: s
               states:
@@ -107,7 +107,7 @@ class WorldOpsAndHasItemScenarioTest : SkillEngineScenario() {
             params:
               r: {type: number, default: 0.5}
             anchors:
-              - {id: body, anchor: caster}
+              - {id: body, anchor: caster, mode: follow}
             machine:
               start: s
               states:
