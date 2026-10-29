@@ -1,5 +1,5 @@
 # Showcase S8 (foundation audit 5): the area / zone template. Written from zero on ADR-0303 rev4.10.
-# Beat sheet (ticks since cast): 0 ground ring opens (grow by 9 over 8, fades out over the last 20), spine beam stretches feet -> eye,
+# Beat sheet (ticks since cast): 0 ground ring opens (grow by 9 over 8, fades out over the last 20), spine beam stretches ground -> sky,
 # four motes orbit the caster, a halo follows the caster's eye; 10 the ward strikes: lightning (visual only), enemies in `radius` take
 # damage (nearest 3), allies heal and are cleansed; 36 the hum is stopped; 40 end.
 # Only the visuals use rand; every tick above is fixed.
@@ -11,8 +11,10 @@ params:
   radius:      {type: blocks, default: 5.0}
   heal:        {type: number, default: 20.0}
   damage:      {type: number, default: 12.0}
+  cap:         {type: number, default: 3}
 anchors:
   - {id: ground, anchor: caster, offset: {up: 0.05}, mode: snapshot}   # the ward stays where it was raised
+  - {id: sky,    anchor: caster, offset: {up: 2.4}, mode: snapshot}
   - {id: chest,  anchor: caster, offset: {up: 1.0}}
 machine:
   start: ward
@@ -26,7 +28,7 @@ machine:
       do:
         # --- the strike, tick 10 ---
         - {id: bolt, op: lightning, anchor: ground, visual_only: true, at: 10}
-        - {id: smite, op: damage, target: {kind: enemies, around: ground, radius: "${radius}", max_count: 3}, damage: {electric: "${damage}"}, ignore_invulnerability: false, at: 10}
+        - {id: smite, op: damage, target: {kind: enemies, around: ground, radius: "${radius}", max_count: "${cap}"}, damage: {electric: "${damage}"}, ignore_invulnerability: false, at: 10}
         - {id: mend, op: heal, target: {kind: allies, around: ground, radius: "${radius}", include_self: true}, amount: "${heal}", at: 10}
         - {id: purge, op: cleanse, negative_only: true, target: {kind: allies, around: ground, radius: "${radius}", include_self: true}, at: 10}
         - {id: snd_strike, op: sound, sound: "astera:skills/lightning-impact", anchor: ground, volume: 0.8, pitch: 1.1, at: 10}
@@ -47,20 +49,20 @@ machine:
             - {law: align, axis: forward, to: world.up, at: 0, for: 40}   # lies flat: the sprite normal points up
             - {law: grow, by: 9.0, at: 0, for: 8, ease: out_cubic}
             - {law: fade, start: 1.0, to: 0.0, at: 20, for: 20}
-        # --- spine: a fixed-length beam through the caster. GAP: wanted `{law: stretch, axis: forward, base: ground, tip: sky, for: 40, step: 4}` so the length is the ground -> sky distance;
-        # the host answers no `stretch:` live cell (sim and Paper), so a stretch law faults at replay. ---
+        # --- spine: a beam from the ground anchor to the sky anchor; its length is the anchor distance (stretch along the sprite's up axis) ---
         - id: spine
           op: display
           kind: sprite
           sprite: line-thin
-          anchor: caster
-          size: [0.6, 2.4]
+          anchor: ground
+          size: [0.6, 1.0]
           color: "#fff3c8"
           billboard: vertical
           brightness: {block: 15, sky: 15}
           at: 0
           for: 40
           motion:
+            - {law: stretch, axis: up, base: ground, tip: sky, for: 40, step: 4}
             - {law: fade, start: 1.0, to: 0.0, at: 24, for: 16}
         # --- four motes circle the caster; phase from the copy index, spread from rand (visual only) ---
         - id: mote
