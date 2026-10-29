@@ -40,6 +40,7 @@ import com.astarworks.astera.core.domain.skillengine.part.Machine
 import com.astarworks.astera.core.domain.skillengine.part.MachineState
 import com.astarworks.astera.core.domain.skillengine.part.OpMap
 import com.astarworks.astera.core.domain.skillengine.part.Part
+import com.astarworks.astera.core.domain.skillengine.table.drainsAfterExit
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.Bounds
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
@@ -116,6 +117,12 @@ public class SkillCompiler(
                 pathMax += maxOf(when (val d = cur.duration) { is Duration.Fixed -> d.ticks; is Duration.Bounded -> d.range.max }, cur.rows.filter { !it.detached }.maxOfOrNull { it.tick } ?: 0)
                 cur = cur.then?.let { stateByPath[it.value] }
             }
+        }
+        // rev4.14 rule D (D4): a handler's gameplay rows after its event tick are cast-owned, so the cast lasts until the latest of them
+        // (the event window's last tick + the row's tick); a handler whose rows are all at its event tick adds nothing
+        for (sub in subs.values) {
+            val last = sub.rows.filter { it.drainsAfterExit }.maxOfOrNull { it.tick } ?: 0
+            if (last > 0) pathMax = maxOf(pathMax, sub.window.max + last)
         }
         val sameTick = SameTickDepth.of(m.states, subs)
         sameTick.cycle?.let {

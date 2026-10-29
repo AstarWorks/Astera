@@ -68,6 +68,14 @@ public sealed interface SkillDecodeError {
         override val message: String get() = "op '$op' reaches tick $lastTick but state '$state' lasts $forTicks"
     }
 
+    /** Check 8b (rev4.14): a non-detached presentation row of a handler plays after the tick the same body makes the owner's exit certain. */
+    public data class HandlerCertainExit(val row: String, val tick: Int, val handler: String, val state: String, val exitEvent: String, override val skillId: String = "") : SkillDecodeError {
+        override val path: String get() = row
+        override val message: String
+            get() = "'$row' plays $tick ticks after $handler, but state '$state' leaves on $exitEvent, which the body fires on that same tick: " +
+                "mark it detach: true (and give machine.tail the ticks it needs) or move the transition"
+    }
+
     /** Check 8 (rev4.12): a `detach: true` row ends after `<machine>.end + machine.tail`. */
     public data class TailOverrun(val op: String, val lastTick: Int, val run: Int, val tail: Int, val needs: Int, override val skillId: String = "") : SkillDecodeError {
         override val path: String get() = op

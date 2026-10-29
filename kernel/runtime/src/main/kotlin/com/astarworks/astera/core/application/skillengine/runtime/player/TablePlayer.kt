@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.runtime.player
 
+import com.astarworks.astera.core.domain.skillengine.table.drainsAfterExit
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.runtime.CastError
 import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
@@ -362,6 +363,19 @@ public class TablePlayer(
             }
         }
         if (run.finishing) {
+            // rev4.14 rule D: the cast has ended (locks, drivers and state-owned instances go now), but the gameplay rows its handlers still hold are the cast's
+            // and play at their load ticks; the tail (or the end of the run) starts when the last of them has played. A cancel drops them with everything else.
+            if (!run.released) {
+                run.released = true
+                releaseCast(run)
+                if (!run.cutting) {
+                    val pending = run.cursor.subCursors.map { sc -> sc to sc.sub.rows.drop(sc.nextRow).filter { it.drainsAfterExit } }.filter { it.second.isNotEmpty() }
+                    if (pending.isNotEmpty()) {
+                        trace.drain(run.cursor.handle, now, pending.sumOf { it.second.size }, pending.maxOf { (sc, rows) -> sc.firedAt + rows.maxOf { it.tick } })
+                    }
+                }
+            }
+            if (!run.cutting && run.cursor.subCursors.any { sc -> sc.sub.rows.drop(sc.nextRow).any { it.drainsAfterExit } }) return
             val tail = run.cursor.skill.table.bounds.tail
             if (tail <= 0 || run.cutting) {
                 finalize(run, now)
@@ -380,16 +394,21 @@ public class TablePlayer(
      * `detach: true` visuals, which play on until [Run.tailEnd] (rev4.12). The run is no longer a live cast.
      */
     private fun beginTail(run: Run) {
-        for (id in run.recs.keys.toList().asReversed()) if (run.recs[id]?.detached == false) endInstance(run, id)
-        stopDrivers(run, keepDetached = true)
-        for (l in run.locks.toList()) hooks.unlock(run.request.caster, l.move, l.pitch, l.yaw)
-        run.locks.clear()
+        releaseCast(run)
         val keep = run.cursor.subCursors.mapNotNull { sc ->
             val rest = sc.sub.rows.drop(sc.nextRow).filter { it.detached }
             if (rest.isEmpty()) null else SubCursor(sc.sub.copy(rows = rest), sc.firedAt, 0, sc.binding).also { it.owner = sc.owner }
         }
         run.cursor.subCursors.clear()
         run.cursor.subCursors += keep
+    }
+
+    /** The cast's own things end with the cast: the instances of its states, the drivers of non-detached rows, the locks; nothing more is accepted from outside. */
+    private fun releaseCast(run: Run) {
+        for (id in run.recs.keys.toList().asReversed()) if (run.recs[id]?.detached == false) endInstance(run, id)
+        stopDrivers(run, keepDetached = true)
+        for (l in run.locks.toList()) hooks.unlock(run.request.caster, l.move, l.pitch, l.yaw)
+        run.locks.clear()
         run.external.clear()
     }
 
@@ -463,6 +482,7 @@ public class TablePlayer(
 
     private fun exitLevel(run: Run, lvl: LevelCursor, reason: ExitReason, now: Int, binding: EventBinding?) {
         for (child in run.cursor.levels.filter { it.parent === lvl }.asReversed()) exitLevel(run, child, ExitReason.PREEMPT, now, binding)
+        cutOwnedVisuals(run, lvl, reason, now)
         pasteSub(run, EventPath("${lvl.state.value}.exit[${reason.name.lowercase()}]"), now, binding, owner = null, direct = true)
         handOffDetached(run, lvl, now)
         // End rows the table already played this tick are the contract and run in row order; the sweep below only closes what is still alive
@@ -477,6 +497,25 @@ public class TablePlayer(
             hooks.unlock(run.request.caster, l.move, l.pitch, l.yaw)
         }
         run.cursor.levels = run.cursor.levels.filter { it !== lvl }
+    }
+
+    /**
+     * rev4.14 rule D3: the presentation rows a handler of [lvl] still holds die with the state, and never silently: each is removed from its cursor
+     * (so it cannot spawn into a dead state) and traced as `cut`. Gameplay rows ([drainsAfterExit]) and `detach: true` rows stay.
+     */
+    private fun cutOwnedVisuals(run: Run, lvl: LevelCursor, reason: ExitReason, now: Int) {
+        for (sc in run.cursor.subCursors.toList()) {
+            if (sc.owner != lvl.state) continue
+            val rest = sc.sub.rows.drop(sc.nextRow)
+            val cut = rest.filter { !it.detached && !it.drainsAfterExit && it.action !is Action.End }
+            if (cut.isEmpty()) continue
+            for (row in cut) trace.cut(run.cursor.handle, row.src.value, now, lvl.state, reason)
+            val kept = SubCursor(sc.sub.copy(rows = rest.filter { it !in cut }), sc.firedAt, 0, sc.binding).also { it.owner = sc.owner }
+            // the new cursor replaces the old in place, keeping the rows' ticks relative to the firing
+            val at = run.cursor.subCursors.indexOf(sc)
+            run.cursor.subCursors.removeAt(at)
+            if (kept.sub.rows.isNotEmpty()) run.cursor.subCursors.add(at, kept)
+        }
     }
 
     /**
@@ -2523,6 +2562,9 @@ public class TablePlayer(
         val hitLast = HashMap<InstanceId, HashMap<UUID, Int>>()
         var inTick = false
         var finishing = false
+
+        /** [releaseCast] ran for this finishing run (so the drain of handler rows starts from a cast that has ended). */
+        var released = false
 
         /** A cancel cut the run: no tail (detached visuals end with it). */
         var cutting = false

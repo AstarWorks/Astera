@@ -16,6 +16,8 @@ import com.astarworks.astera.core.domain.skillengine.table.LockEnd
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.Phase
 import com.astarworks.astera.core.domain.skillengine.table.Row
+import com.astarworks.astera.core.domain.skillengine.table.drainsAfterExit
+import com.astarworks.astera.core.domain.skillengine.table.gameplayName
 import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
 import com.astarworks.astera.core.domain.skillengine.table.StatePath
 import com.astarworks.astera.core.domain.skillengine.table.StateTable
@@ -304,6 +306,7 @@ public object StaticChecks {
 
     private fun check8(g: TableGraph): SkillDecodeError? {
         detachRules(g)?.let { return it }
+        certainExit(g)?.let { return it }
         for (s in g.table.states) {
             val max = s.duration.max
             for (row in s.rows) overrun(g, s.state.value, row, 0, max)?.let { return it }
@@ -323,7 +326,49 @@ public object StaticChecks {
             if (sub.window.max > max) {
                 return SkillDecodeError.StateOverrun(owner.state.value, sub.event.value, sub.window.max, max, g.skillId)
             }
-            for (row in sub.rows) overrun(g, owner.state.value, row, sub.window.max, max)?.let { return it }
+            for (row in sub.rows) {
+                // rev4.14 rule D: a gameplay row of a handler is cast-owned and plays at its load tick whatever the owner did; the cast-length bound (check 2) covers it
+                if (row.drainsAfterExit && row.tick >= 0) continue
+                overrun(g, owner.state.value, row, sub.window.max, max)?.let { return it }
+            }
+        }
+        return null
+    }
+
+    /**
+     * Check 8b (rev4.14): a non-detached presentation row of a body's handler that plays after the tick the handler fires on, while the same
+     * body makes the owner's exit certain on that tick (`hit` with `once`, `block` in despawn / stick / bounce mode, `expire`), would be cut by
+     * the exit every time. That is a load error, never a silent drop; the author marks it `detach: true` or moves the transition.
+     */
+    private fun certainExit(g: TableGraph): SkillDecodeError? {
+        for (s in g.table.states) for (spawn in s.rows) {
+            val a = spawn.action as? Action.Spawn ?: continue
+            if (a.kind != SpawnKind.PROJECTILE_BODY) continue
+            val body = spawn.instance.text
+            fun known(key: String): Any? = (a.look.fields[key] as? Val.Known<*>)?.value
+            for (event in listOf("hit", "block", "expire")) {
+                val sub = g.table.subTables[EventPath("$body.$event")] ?: continue
+                val certain: Set<String> = when (event) {
+                    "hit" -> if (known("hit.once") == true && known("hit.reflect") != true && known("hit.attach_to") == null) setOf("end") else emptySet()
+                    "block" -> when (known("block.mode")) {
+                        "despawn" -> setOf("end")
+                        "stick" -> setOf("stick")
+                        "bounce" -> setOf("bounce")
+                        else -> emptySet()
+                    }
+                    else -> setOf("end")
+                }
+                if (certain.isEmpty()) continue
+                // the owner leaves on one of these events: its own branches or an ancestor's
+                val leaving = g.stateByPath.values.filter { st -> s.state.value == st.state.value || s.state.value.startsWith(st.state.value + "/") }
+                    .flatMap { it.branches }.firstOrNull { b -> b.target != null && certain.any { c -> b.event.value == "$body.$c" } } ?: continue
+                for (row in sub.rows) {
+                    if (row.detached || row.tick <= 0 || row.drainsAfterExit || row.action is Action.End) continue
+                    return SkillDecodeError.HandlerCertainExit(
+                        row.src.value, row.tick, "$body.$event", s.state.value, leaving.event.value, g.skillId,
+                    )
+                }
+            }
         }
         return null
     }
@@ -341,7 +386,7 @@ public object StaticChecks {
         }
         // ADR 10.1: a state owns the ticks [0, max); its exit is the first thing at lt == max, so a row there is never played.
         // Exceptions: an instance's own end row (the exit would issue it anyway; a dash's driver stop is one), an `emit` (a call's `<id>.end` rides the callee's last tick; it is a signal, not a visual), and a zero-length (final / instant) state, whose rows play on entry, and a gameplay row of an event handler (damage / call / status at the hit tick is delivered with the event, which may fire on the state's last tick; only visuals are owned by the state and must be `detach: true`).
-        val atExit = if (isEndRow(row) || row.action is Action.Emit || max == 0 || (base > 0 && gameplayName(row) != null)) last > max else last >= max
+        val atExit = if (isEndRow(row) || row.action is Action.Emit || max == 0 || (base > 0 && row.gameplayName() != null)) last > max else last >= max
         if (atExit) return SkillDecodeError.StateOverrun(state, row.instance.text, last, max, g.skillId)
         val a = row.action
         val end = (a as? Action.Lock)?.until as? LockEnd.AtTick
@@ -349,32 +394,6 @@ public object StaticChecks {
             return SkillDecodeError.StateOverrun(state, row.instance.text.ifEmpty { "lock" }, base + end.tick, max, g.skillId)
         }
         return null
-    }
-
-    /** The names of the effects that are presentation (they may be detached); everything else an [Action.Effect] carries is gameplay. */
-    private val PRESENTATION_EFFECTS = setOf("held_model", "body", "screen_flash", "screen_veil", "camera_shake", "stop_sound")
-
-    /** What a gameplay row is called in the `detach:` error, or null for a presentation row. */
-    private fun gameplayName(row: Row): String? = when (val a = row.action) {
-        is Action.Hit -> "hit"
-        is Action.Damage -> "damage"
-        is Action.Status -> "status"
-        is Action.World -> a.op.value
-        is Action.Lock -> "lock"
-        is Action.Emit -> "emit"
-        is Action.Cancel -> "cancel"
-        is Action.Call -> "call"
-        is Action.Spawn -> if (a.kind == SpawnKind.PROJECTILE_BODY) "projectile" else null
-        is Action.Effect -> {
-            val kind = (a.payload["kind"] as? Val.Known<*>)?.value as? String
-            when {
-                kind == "rig" -> null
-                kind != null -> kind
-                a.op.value in PRESENTATION_EFFECTS -> null
-                else -> a.op.value
-            }
-        }
-        else -> null
     }
 
     /** rev4.12: where `detach: true` and `machine.tail` must agree, and what may be detached. */
@@ -386,7 +405,7 @@ public object StaticChecks {
         val detached = g.units.filter { it.name != WORLD_UNIT }.flatMap { u -> u.rows.filter { it.detached } }
         for (row in detached) {
             if (row.action is Action.Call || row.action is Action.Emit) continue // a `use: fragment:` call row and its `<call>.end` signal carry no instance; the fragment's own rows are checked one by one
-            val name = gameplayName(row) ?: continue
+            val name = row.gameplayName() ?: continue
             return SkillDecodeError.MachineCheck(8, "detach: '${row.src.value}' is gameplay ($name); only presentation rows may outlive their state (the schedule of effects is the state's)", g.skillId)
         }
         if (detached.isEmpty() && tail > 0) {
@@ -421,7 +440,7 @@ public object StaticChecks {
         var peak = g.table.bounds.liveDisplaysPeak
         var peakTick = g.table.bounds.liveDisplaysPeakTick
         // rev4.12: detached displays outlive their state into the tail, so a state's peak also counts every detached display of the other units (worst case: all alive together)
-        fun detachedDisplays(rows: List<Row>) = rows.count { it.detached && (it.action as? Action.Spawn)?.kind in DISPLAY_KINDS }
+        fun detachedDisplays(rows: List<Row>) = rows.filter { it.detached && (it.action as? Action.Spawn)?.kind in DISPLAY_KINDS }.sumOf { displayWeight(it) }
         val detachedAll = g.units.sumOf { detachedDisplays(it.rows) }
         for (s in g.table.states) {
             val (p, t) = g.displayPeak(s)
@@ -770,25 +789,37 @@ public object StaticChecks {
                     sub.rows.filter { it.action is Action.End && covers(((it.action as Action.End).instance), r.instance) }
                         .minOfOrNull { sub.window.max + it.tick }
                 }.maxOrNull()
-                spans += intArrayOf(r.tick, own ?: viaSub ?: exit)
+                spans += intArrayOf(r.tick, own ?: viaSub ?: exit, displayWeight(r))
             }
             // R45: a world display is alive for the whole machine, so it is counted alive across every state
-            for (r in table.worldRows) if (isDisplay(r)) spans += intArrayOf(0, exit)
+            for (r in table.worldRows) if (isDisplay(r)) spans += intArrayOf(0, exit, displayWeight(r))
             for (sub in subs) for (r in sub.rows) {
                 if (!isDisplay(r)) continue
                 val end = sub.rows.filter { it.action is Action.End && covers(((it.action as Action.End).instance), r.instance) && it.tick >= r.tick }
                     .minOfOrNull { sub.window.max + it.tick }
-                spans += intArrayOf(sub.window.min + r.tick, end ?: exit)
+                spans += intArrayOf(sub.window.min + r.tick, end ?: exit, displayWeight(r))
             }
             var best = 0
             var bestTick = 0
             val ticks = spans.map { it[0] }.distinct().sorted()
             for (t in ticks) {
-                val n = spans.count { it[0] <= t && t < it[1] }
+                val n = spans.filter { it[0] <= t && t < it[1] }.sumOf { it[2] }
                 if (n > best) { best = n; bestTick = t }
             }
             return best to bestTick
         }
+    }
+
+    /**
+     * How many live displays a spawn row costs: a `shape: line` ribbon is `segments` crossed-quad pairs, two text displays each (look key
+     * `segments`, absent = 1); everything else, a trail included, is one.
+     */
+    private fun displayWeight(row: Row): Int {
+        val spawn = row.action as? Action.Spawn ?: return 1
+        val look = spawn.look
+        if (spawn.kind != SpawnKind.RIBBON || (look.fields["shape"] as? Val.Known<*>)?.value != "line") return 1
+        val segments = ((look.fields["segments"] as? Val.Known<*>)?.value as? Number)?.toInt() ?: 1
+        return 2 * segments
     }
 
     private const val WORLD_UNIT = "machine.world"

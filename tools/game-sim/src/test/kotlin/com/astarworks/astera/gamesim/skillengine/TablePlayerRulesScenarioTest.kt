@@ -88,6 +88,8 @@ class TablePlayerRulesScenarioTest {
         override fun exit(cast: CastHandle, state: StatePath, reason: ExitReason, tick: Int) { log += "exit:${state.value}:${reason.name}@$tick" }
         override fun event(cast: CastHandle, path: EventPath, tick: Int, index: Int?) { log += "event:${path.value}@$tick" }
         override fun call(cast: CastHandle, callId: InstanceId, tick: Int) { log += "call:${callId.text}@$tick" }
+        override fun drain(cast: CastHandle, tick: Int, rows: Int, until: Int) { log += "drain:$rows:$until@$tick" }
+        override fun cut(cast: CastHandle, row: String, tick: Int, state: StatePath, reason: ExitReason) { log += "cut:$row:${state.value}:${reason.name}@$tick" }
     }
 
     private class Fx(
@@ -181,4 +183,48 @@ class TablePlayerRulesScenarioTest {
         assertThat(play(SpawnKind.BLOCK, mapOf<String, Val<Any>>("block" to Val.Known("stone"))).player.faults()).isNotEmpty()
     }
 
+
+    // ---- rev4.14 rule D: a handler's gameplay rows are the cast's ------------------------------------------------------
+
+    /** State `a` leaves on `stop` (like a bolt's `end` on its hit tick); its handler `go` holds a gameplay row (`emit`) at +3 and a presentation row (`sound`) at +3. */
+    private fun drainSkill(exit: String = "stop"): CompiledSkill = skill(
+        "a",
+        listOf(st("a", branches = listOf(br(exit, "done"))), st("done", final = true)),
+        listOf(sub("go", "a", row(3, Action.Emit(ev("probe"))), row(3, sound("x")))),
+    )
+
+    @Test
+    fun handlerGameplayRowsDrainAfterFinal() {
+        val fx = Fx(drainSkill())
+        fx.run(8, mapOf(2 to listOf("go", "stop")))
+        assertThat(fx.trace.log).contains("enter:done@2", "cut:t:a:EVENT@2", "drain:1:5@2", "event:probe@5")
+        assertThat(fx.trace.log.indexOf("enter:done@2")).isLessThan(fx.trace.log.indexOf("event:probe@5"))
+        assertThat(fx.player.faults()).isEmpty()
+        // the run lives exactly until the last gameplay row (load tick 2 + 3) and ends there, not at the exit tick
+        val live = Fx(drainSkill())
+        live.run(4, mapOf(2 to listOf("go", "stop")))
+        assertThat(live.player.running()).describedAs("still draining at tick 4").hasSize(1)
+        live.run(5)
+        assertThat(live.player.running()).describedAs("done after the last gameplay row at tick 5").isEmpty()
+    }
+
+    @Test
+    fun cancelDuringDrainStopsEverything() {
+        val fx = Fx(drainSkill())
+        fx.run(3, mapOf(2 to listOf("go", "stop")))
+        assertThat(fx.player.running()).hasSize(1)
+        fx.player.cancel(fx.cast, com.astarworks.astera.core.domain.skillengine.table.CancelScope.Cast)
+        fx.run(8)
+        assertThat(fx.trace.log.filter { it.startsWith("event:probe") }).isEmpty()
+        assertThat(fx.player.running()).isEmpty()
+    }
+
+    @Test
+    fun chosenExitCutsHandlerVisualWithTrace() {
+        val fx = Fx(drainSkill(exit = "input.sneak"))
+        fx.run(8, mapOf(1 to listOf("go"), 2 to listOf("input.sneak")))
+        // the presentation row is cut at the exit, loudly; the gameplay row still plays at its load tick (1 + 3)
+        assertThat(fx.trace.log).contains("cut:t:a:EVENT@2", "event:probe@4")
+        assertThat(fx.sounds()).describedAs("the cut sound never plays").isEmpty()
+    }
 }

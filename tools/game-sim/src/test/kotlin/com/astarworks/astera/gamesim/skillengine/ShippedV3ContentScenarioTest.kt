@@ -183,9 +183,11 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
                 out += "g @$tick state-exit reason=$reason | state=$state"
                 castEnd = maxOf(castEnd, tick)
             }
-            if (castEnd >= 0) out += "g @$castEnd cast-end | pose"
-            // the run outlives the cast by machine.tail ticks (detach: true visuals); not a gameplay line: the cast end above does not move
-            if (castEnd >= 0 && skill.table.bounds.tail > 0) out += "r @${castEnd + skill.table.bounds.tail} run-end tail=${skill.table.bounds.tail} | pose"
+            // rev4.14 rule D: gameplay rows the handlers still hold at the cast end play on; the line says how many and until when
+            val drain = rec.trace.firstOrNull { it.startsWith("drain:") }?.let { t -> t.removePrefix("drain:").substringBeforeLast('@').split(':').let { it[0] to it[1].toInt() } }
+            if (castEnd >= 0) out += "g @$castEnd cast-end" + (drain?.let { " drain=${it.first} until=${it.second}" } ?: "") + " | pose"
+            // the run outlives the cast by machine.tail ticks (detach: true visuals), counted from the last drained row; not a gameplay line: the cast end above does not move
+            if (castEnd >= 0 && skill.table.bounds.tail > 0) out += "r @${maxOf(castEnd, drain?.second ?: 0) + skill.table.bounds.tail} run-end tail=${skill.table.bounds.tail} | pose"
         }
         out += "## gameplay-static"
         out += OracleGameplay.lines(skill)
