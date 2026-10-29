@@ -80,7 +80,8 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
                 on = s.on.mapIndexed { i, t -> remap(t, entry, path, i, evPrefix, localIds) },
                 use = null,
                 parallel = s.parallel.map { region(it, evPrefix, depth, stack, out) },
-                start = s.start,
+                // a nested start may name a child that is a part call: its entry is the call's entry state (`guard` -> `guard/guard`)
+                start = s.start?.let { st -> entry["${s.id}/$st"]?.removePrefix("$path/") ?: st },
             )
         }
 

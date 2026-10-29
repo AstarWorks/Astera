@@ -20,6 +20,16 @@ machine:
     brace:
       for: 162
       then: end
+      start: guard
+      states:
+        # the shared parry part: the first 16 ticks of the brace catch a hit from the front 110 degrees outright; the resist rows below cover the rest
+        guard:
+          use: parry
+          with: {window: 16, arc: 110, range: 64, recover: 4, whiff_lag: 1}
+          frames: {weapon: shield}
+          on:
+            - {event: brace/guard.end, to: held}
+        held: {final: true}
       do:
         - {id: attr, op: modify_attribute, target: caster, attribute: resist.physical, operation: add, amount: 0.7, at: 0, for: 162}
         - {id: attr_2, op: modify_attribute, target: caster, attribute: resist.knockback, operation: add, amount: 1.0, at: 0, for: 162}

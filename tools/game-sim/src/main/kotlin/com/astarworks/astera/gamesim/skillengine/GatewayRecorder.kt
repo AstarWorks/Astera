@@ -166,6 +166,12 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     /** Every display `write` as (tick, handle name, pose): kept out of [calls] so the oracle diff still compares verbs and payloads only. */
     val writtenPoses = ArrayList<Triple<Int, String, VisualPose>>()
 
+    /** Where a guard sees the guarded caster (feet, yaw): null = the origin facing +z. A duel sets it to the victim's pose. */
+    var guardCaster: com.astarworks.astera.core.domain.geometry.math.Frame? = null
+
+    /** Where a guard sees `event.attacker` / `target`: null = 2 blocks ahead of the origin. */
+    var guardOther: com.astarworks.astera.core.domain.geometry.Vec3? = null
+
     val hooks: com.astarworks.astera.core.application.skillengine.runtime.player.PlayerHooks =
         object : com.astarworks.astera.core.application.skillengine.runtime.player.PlayerHooks {
             private val compiler = com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler()
@@ -183,7 +189,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                     as? com.astarworks.astera.core.domain.Result.Success)?.value ?: return null
                 val expr = (compiler.compile(expanded, com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings.spec(null), com.astarworks.astera.core.domain.skillengine.expr.ExprType.BOOL)
                     as? com.astarworks.astera.core.domain.Result.Success)?.value ?: return null
-                val ahead = com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 2.0)
+                val ahead = guardOther ?: com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 2.0)
                 val vars = com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings.values(
                     null, stateTick = localTick, eventI = binding?.index ?: 0,
                     target = com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings.Binding(pos = ahead),
@@ -199,9 +205,9 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                     override fun enemyInCone(from: Vec3, dir: Vec3, range: Double, halfAngleDeg: Double): Boolean = world.enemyInCone(from, dir, range, halfAngleDeg)
                 }
                 val frames = object : com.astarworks.astera.core.domain.skillengine.expr.FrameLookup {
-                    override fun worldPose(frame: String, point: String?) = com.astarworks.astera.core.domain.geometry.math.Frame(
-                        if (frame == "caster") com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 0.0) else ahead,
-                    )
+                    override fun worldPose(frame: String, point: String?) =
+                        if (frame == "caster") guardCaster ?: com.astarworks.astera.core.domain.geometry.math.Frame(com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 0.0))
+                        else com.astarworks.astera.core.domain.geometry.math.Frame(ahead)
                     override fun velocity(frame: String, point: String?) = com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 0.0)
                 }
                 // like PaperPlayerHooks: a guard that cannot evaluate here (it needs a cast host, e.g. nearest_enemy_dist) answers null = a fault, false
