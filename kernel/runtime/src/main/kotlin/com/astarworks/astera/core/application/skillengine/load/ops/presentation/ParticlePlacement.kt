@@ -53,7 +53,11 @@ internal object ParticlePlacement {
                 return Result.Success(Base(parent.frame, terms, parent.live))
             }
         }
-        lc.anchors.resolve(name)?.let { return Result.Success(Base(parts.point?.let { "point(${parts.base}, '$it')" } ?: parts.base, emptyList(), it.instance.text)) }
+        // a frame a call bound (`frames_in`) is spelled by the caller's frame: the part's own name does not exist outside the part
+        lc.anchors.resolve(name)?.let {
+            val host = AnchorNames.host(lc.anchors, parts.base)
+            return Result.Success(Base(parts.point?.let { p -> "point($host, '$p')" } ?: host, emptyList(), it.instance.text))
+        }
         if (parts.index == null && parts.base in AnchorNames.BUILTIN_FRAMES) {
             val frame = parts.point?.let { "point(${parts.base}, '$it')" } ?: parts.base
             return Result.Success(Base(frame, emptyList(), parts.base))

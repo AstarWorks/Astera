@@ -73,6 +73,12 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     /** The item id of the skill being played (`play` sets it), as the player puts it in every [CastRef]. */
     var castItem: String? = null
 
+    /** Off: the caster is not an online player, so a main-hand mesh or a skin bone is refused exactly as Paper refuses it (no owner to draw). */
+    var casterOnline: Boolean = true
+
+    /** Off: the caster's main hand is empty, so a main-hand mesh is refused as on Paper. */
+    var mainHandHeld: Boolean = true
+
     /** Values the cast reads through `Val.Live` numbers, by live name. A name not set here reads 0.0; every read is in [liveReads]. */
     val liveNums: MutableMap<String, Double> = HashMap()
     private val reads = ArrayList<String>()
@@ -216,6 +222,10 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
     val visual: ISkillVisualGateway = object : ISkillVisualGateway {
         override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView, glow: String?): VisualHandle {
+            // Paper: the main-hand kind draws the caster's real stack, so an offline caster or an empty hand refuses the spawn (PaperSkillVisualGateway.dead)
+            if (com.astarworks.astera.core.application.skillengine.load.MeshModels.resolve(item, part, emptyMap()) is com.astarworks.astera.core.application.skillengine.load.MeshModel.HeldItem && (!casterOnline || !mainHandHeld)) {
+                error("skill visual 'mesh $item${if (casterOnline) " (empty main hand)" else ""}' could not be spawned: owner offline or display refused")
+            }
             // the Paper gateway refuses a model id NamespacedKey.fromString rejects (e.g. a doubled `astera:astera:`)
             (com.astarworks.astera.core.application.skillengine.load.MeshModels.resolve(item, part, emptyMap()) as? com.astarworks.astera.core.application.skillengine.load.MeshModel.Pack)?.let {
                 check(PACK_KEY.matches(it.key)) { "invalid item model '${it.key}' (mesh item '$item' part '$part')" }
@@ -223,8 +233,10 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             return spawned(cast, "item", "item=${OracleFmt.s(item)} part=${OracleFmt.s(part)} ${OracleFmt.pose(pose)} bright=${brightness ?: "-"} model=${OracleFmt.s(look.itemModel)} mode=${look.mode} rigshade=${look.rigShading} shader=${OracleFmt.s(look.shaderEffect)} glow=${OracleFmt.s(glow)} ${OracleFmt.view(view)}")
         }
 
-        override fun spawnSkinBone(cast: CastRef, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose) =
-            spawned(cast, "skin_bone", "bone=${bone.yamlName} slim=$slim ghost=$ghost ${OracleFmt.pose(pose)}")
+        override fun spawnSkinBone(cast: CastRef, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose): VisualHandle {
+            if (!casterOnline) error("skill visual 'skin bone ${bone.yamlName}' could not be spawned: owner offline or display refused")
+            return spawned(cast, "skin_bone", "bone=${bone.yamlName} slim=$slim ghost=$ghost ${OracleFmt.pose(pose)}")
+        }
 
         override fun spawnPlate(cast: CastRef, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView, glow: String?) =
             spawned(cast, "sprite", "sprite=${OracleFmt.s(sprite)} alpha=${OracleFmt.f(alpha)} tint=${OracleFmt.s(tintHex)} seethrough=$seeThrough ${OracleFmt.pose(pose)} bright=${brightness ?: "-"} glow=${OracleFmt.s(glow)} ${OracleFmt.view(view)}")
