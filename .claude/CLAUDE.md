@@ -105,10 +105,6 @@ SSOT.
   per-plugin internal package structure, "when you touch X" guide.
 - `.claude/rules/coding-posture.md` — Kotlin/JDK versions, DI choice, test
   policy (integration tests only; unit tests forbidden), ADR discipline.
-- `.claude/rules/ai-delegation.md` — Phase 1 AI usage policy. Studio +
-  content authoring tools moved to a separate repo
-  ([[adr/0079-extract-studio-to-own-repo]]); plugin-side invariants
-  (no AI/ML SDK in `:plugin:*`) are unchanged.
 
 ## Harness helpers
 

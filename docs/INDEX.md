@@ -22,7 +22,7 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 
 | ディレクトリ | 内容 |
 |---|---|
-| [`adr/`](adr/) | Architecture Decision Records (なぜそう決めたか) — 0001〜0278 (欠番あり) |
+| [`adr/`](adr/) | Architecture Decision Records (なぜそう決めたか) — 0001〜0307 (欠番あり) |
 | [`vision/`](vision/) | 構想 (VISION.md) と領域別仕様 (areas/): 現状・理想形・未決 |
 | [`plans/`](plans/) | 作業計画 / バックログ (現行: core vision backlog) |
 | [`architecture/`](architecture/) | 設計の現在地。コードと同期して育てる生きた仕様 |
@@ -31,7 +31,7 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 | [`incidents/`](incidents/) | インシデント事後分析 |
 | [`contributing/`](contributing/) | コントリビュータ参加導線 (YAML / Kotlin / Web / Discord) |
 | [`game-design/`](game-design/) | ゲーム企画。Siege / UGC / Place / 武器 / 経済など。UX: [`bad-ux-checklist.md`](game-design/bad-ux-checklist.md) (BX/SP チェックリスト)・[`ux-clarity-audit-2026-10-27.md`](game-design/ux-clarity-audit-2026-10-27.md) (分かりにくさ監査) |
-| [`ai-pipeline/`](ai-pipeline/) | AI 委託パイプライン (Phase 6 で本格化) |
+| [`ai-pipeline/`](ai-pipeline/) | AI 委託パイプライン。実行時 AI/ML 利用・生成アセットの方針は [ADR-0307](adr/0307-drop-ai-runtime-ban.md) |
 | [`research/`](research/) | 業界調査 / サーベイ (CAD × LLM, モデル生成手法 等) |
 | [`security/`](security/) | 公開可能な範囲のセキュリティ方針 |
 | [`reference/`](reference/) | 自動生成リファレンス (YAML / port / event) |

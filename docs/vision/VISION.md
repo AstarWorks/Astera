@@ -34,11 +34,14 @@ Every item is judged against this. "Boot is green" is never done; a bot or the f
 - **The starter kit includes a gun; the 2-weapon cap is kept** (`weapon_limits`).
 - Inventory: loadout (pre-match kit) / snapshot (per-match save) / personal vault (ender chest). Nothing else.
 - Skill damage reaches mobs as well as players. CEL stays unimplemented; use literals.
+- **Plugins may call local or remote AI/ML services at runtime and depend on their clients** (ADR-0307).
+  Generative asset pipelines are no longer deferred. First consumer: chat translation via a separate local
+  translation server (ADR-0308, in progress).
 
 ## Out of scope (do not extend that code)
 
 Phase 4+: UGC marketplace and submission, web admin, gacha, cosmetics shop, guild/trade, Place/Plots
-(Phase 5), generative AI for assets (Phase 6, ADR-0010), ops automation and battle pass (Phase 7), CI-based
+(Phase 5), ops automation and battle pass (Phase 7), CI-based
 verification (founder: no CI), GitHub Issues/Projects. Retired docs live in git history (see ADR-0266).
 
 ## How we work
