@@ -1,8 +1,7 @@
-# Wave 2 v3 draft of bastion-greatsword-s1 (v2: skill.yaml + look.yaml), generated from the v2 files by a scratch script, gameplay hand-authored.
-# Offsets [left, up, forward] -> name-keyed maps. Euler turn [pitch, yaw, roll] (v1: Ry(-yaw) Rx(pitch) Rz(roll)) -> pose list [up -yaw, left pitch, forward roll].
-# Weapon rig: three swings of three keys each (founder 2026-10-29: few keys + ease, no per-tick replica of v2). Each step is one great-circle arc of the tip (from/to),
-# the edge side (leading|trailing) and a roll; hit ticks (7, 31), freezes, damage and the end tick are the v2 values. Blade particles are segments between the rig anchor's
-# root and tip points (anchor: {of: rig.root, to: rig.tip, samples: N}), not baked positions.
+# Bastion greatsword S1 (Moon Sweep), natural v3 grammar: three states (sweep1 / sweep2 / slam) = the three weapon swings; the rig is declared once
+# in sweep1 and detached so it runs through the whole cast (machine.tail), later states read /sweep1/rig.root and /sweep1/rig.tip. Blade fx are segments
+# between the rig points, dust/impact/ring bursts are small families (times / shift CEL) at one centre point instead of baked frame+particle pairs.
+# Gameplay (hit ticks 7 / 31, damage, status, knockback, dashes, freezes) and the cast length 58 are the v2 values unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: bastion-greatsword-s1
@@ -30,26 +29,18 @@ anchors:
   # NOTE: v2 created this frame at tick 27; a doc-level anchor exists from tick 0 and follows the caster the same way
   - {id: fx3_fx_low, anchor: caster, mode: follow}
 machine:
-  start: sweep
+  start: sweep1
+  tail: 30
   states:
-    sweep:
-      for: 58
-      then: end
+    sweep1:
+      for: 28
+      then: sweep2
       do:
-        # --- gameplay (v2 gameplay.timeline t4 / t7 / t28 / t31) ---
-        # v2 dash_strike D over 3 ticks -> dash speed D/3 blocks/tick.
-        # v2 hit_once + stop_before_target 1.7 (R9): sibling trigger-only corridor hit, window once; the dash ends at its first victim (sphere 1.7 = the stop distance).
+        # --- gameplay swing 1 (v2 t4 dash / t7 hit): the dash ends at its first victim, the hit freezes caster and victim 2 ticks ---
         - {id: dash_hit, op: hit, at: 4, for: 3, every: 1, anchor: caster.body, shape: {sphere: 1.7}, targets: enemies, window: once, ignore_invulnerability: false}
         - {id: dash, op: dash, at: 4, speed: "= dash_distance / 3", for: 3, until: dash_hit.hit, direction: {forward: 1.0}, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
-        # v2 sel (damage 35, ignore_invulnerability) + sel_2 (freeze 2, scope enemy+caster) are the same sphere at the same tick: one hit with the damage.
-        # The hit-stop of sel_2 is the freeze row in `on: hit1` below (R25); rig.freezes holds the weapon rig only.
         - {id: hit1, op: hit, at: 7, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "${dmg_physical}"}, window: once, ignore_invulnerability: true, on: {hit: [{id: stop, op: freeze, at: 0, ticks: 2, scope: [caster, event.victim]}]}}
         - {id: st_charge, op: status, at: 7, target: caster, status: charge, stacks: "${charge_stacks}", for: "${charge_ticks}", when: "= nearest_enemy_dist(caster) < 3.6"}
-        - {id: dash_hit_2, op: hit, at: 28, for: 3, every: 1, anchor: caster.body, shape: {sphere: 1.7}, targets: enemies, window: once, ignore_invulnerability: false}
-        - {id: dash_2, op: dash, at: 28, speed: "= dash_distance_2 / 3", for: 3, until: dash_hit_2.hit, direction: {forward: 1.0}, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
-        # v2 sel_3 (damage 45, ignore_invulnerability) + sel_4 (freeze 2 + knockback) merged the same way.
-        - {id: hit2, op: hit, at: 31, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "${dmg_physical_2}"}, window: once, ignore_invulnerability: true, on: {hit: [{id: stop_2, op: freeze, at: 0, ticks: 2, scope: [caster, event.victim]}, {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback}"}]}}
-        # --- weapon rig (v2 look.yaml group fx0, rig duration 58) ---
         - id: rig
           op: rig
           parent: caster
@@ -60,6 +51,7 @@ machine:
           respect_hit_stop: true
           freezes: [{at: 7, ticks: 2}, {at: 31, ticks: 2}]
           for: 58
+          detach: true
           swing:
             # swing 1 (ticks 2-22): wind-up behind, cut down at the hit (tick 7), sweep up and over to the front
             - {at: 2, for: 5, from: {left: -0.95553, up: -0.0235, forward: -0.29395}, to: {left: -0.24629, up: -0.96705, forward: -0.06444}, edge: trailing, roll: 39.9, ease: in_quad}
@@ -73,466 +65,145 @@ machine:
             - {at: 46, for: 4, from: {left: 0.94723, up: 0.09866, forward: 0.305}, to: {left: -0.03872, up: 0.78715, forward: 0.61554}, edge: trailing, roll: -79.1, ease: in_quad}
             - {at: 50, for: 6, to: {left: 0.0, up: -0.51, forward: 0.86}, edge: leading, roll: 0.0, ease: out_cubic}
             - {at: 56, reset: true}
-        # --- presentation (v2 look.yaml timeline groups, folded from the former top-level `presentation:`) ---
-        - id: fx0
-          op: group
-          at: 0
-          do:
-            - {id: snd, op: sound, sound: block.gravel.step, anchor: caster, volume: 1.0, pitch: 0.6}
-            - {id: snd_2, op: sound, sound: entity.ravager.step, anchor: caster, volume: 0.6, pitch: 0.8}
-        - id: fx2
-          op: group
-          at: 2
-          do:
-            - {id: snd_3, op: sound, sound: item.armor.equip_chain, anchor: caster, volume: 0.9, pitch: 0.7}
-            - {id: snd_4, op: sound, sound: item.armor.equip_iron, anchor: caster, volume: 0.6, pitch: 0.6}
-        - id: fx3
-          op: group
-          at: 3
-          do:
-            - {id: fx2_fx_high_s1h1_ring_q0, op: display, kind: sprite, see_through: true, sprite: bastion-s1-hring-q0, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: -1.862, up: 1.543, forward: 1.485}, rotate: [{axis: up, deg: 0.35418}, {axis: left, deg: 85.96954}, {axis: forward, deg: 0.3301}], for: 13}
-            - {id: fx2_fx_high_s1h1_ring_q2, op: display, kind: sprite, see_through: true, sprite: bastion-s1-hring-q2, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: -1.838, up: 1.332, forward: -1.508}, rotate: [{axis: up, deg: 0.35418}, {axis: left, deg: 85.96954}, {axis: forward, deg: 0.3301}], for: 13}
-            - {id: fx2_fx_high_s1h1_ring_bq0, op: display, kind: sprite, see_through: true, sprite: bastion-s1-hring-bq0, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: -1.862, up: 1.543, forward: 1.485}, rotate: [{axis: up, deg: 179.6}, {axis: left, deg: -85.97}], for: 13}
-            - {id: fx2_fx_high_s1h1_ring_bq2, op: display, kind: sprite, see_through: true, sprite: bastion-s1-hring-bq2, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: -1.838, up: 1.332, forward: -1.508}, rotate: [{axis: up, deg: 179.6}, {axis: left, deg: -85.97}], for: 13}
-        - id: fx4
-          op: group
-          at: 4
-          do:
-            - {id: fx2_fx_high_s1h1_ring_q1, op: display, kind: sprite, see_through: true, sprite: bastion-s1-hring-q1, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: 1.138, up: 1.543, forward: 1.508}, rotate: [{axis: up, deg: 0.35418}, {axis: left, deg: 85.96954}, {axis: forward, deg: 0.3301}], for: 12}
-            - {id: fx2_fx_high_s1h1_ring_bq1, op: display, kind: sprite, see_through: true, sprite: bastion-s1-hring-bq1, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: 1.138, up: 1.543, forward: 1.508}, rotate: [{axis: up, deg: 179.6}, {axis: left, deg: -85.97}], for: 12}
-            - {id: fx2_fx_high_s1h1_p_gather_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.586, up: 0.993, forward: -2.293}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_at}
-            - {id: fx2_fx_high_s1h1_p_gather_2_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.452, up: 0.921, forward: -1.791}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_2, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_2_at}
-            - {id: fx2_fx_high_s1h1_p_gather_3_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.586, up: 0.993, forward: -2.293}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_3, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx2_fx_high_s1h1_p_gather_3_at}
-            - {id: fx2_fx_high_s1h1_p_gather_4_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.452, up: 0.921, forward: -1.791}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_4, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx2_fx_high_s1h1_p_gather_4_at}
-            - {id: fx2_fx_high_s1h1_p_gather_7_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.586, up: 0.993, forward: -2.293}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_7, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx2_fx_high_s1h1_p_gather_7_at}
-            - {id: fx2_fx_high_s1h1_p_gather_8_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.452, up: 0.921, forward: -1.791}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_8, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx2_fx_high_s1h1_p_gather_8_at}
-            - {id: snd_5, op: sound, sound: entity.player.attack.sweep, anchor: caster, volume: 1.0, pitch: 0.5}
-            - {id: snd_6, op: sound, sound: item.trident.throw, anchor: caster, volume: 0.7, pitch: 0.6}
-        - id: fx5
-          op: group
-          at: 5
-          do:
-            - {id: fx2_fx_high_s1h1_p_gather_5_at, op: frame, anchor: fx2_fx_high, offset: {left: -2.44, up: 1.558, forward: -0.15}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_5, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_5_at}
-            - {id: fx2_fx_high_s1h1_p_gather_6_at, op: frame, anchor: fx2_fx_high, offset: {left: -1.918, up: 1.527, forward: -0.195}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_6, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_6_at}
-            - {id: fx2_fx_high_s1h1_p_gather_9_at, op: frame, anchor: fx2_fx_high, offset: {left: -2.44, up: 1.558, forward: -0.15}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_9, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx2_fx_high_s1h1_p_gather_9_at}
-            - {id: fx2_fx_high_s1h1_p_gather_10_at, op: frame, anchor: fx2_fx_high, offset: {left: -1.918, up: 1.527, forward: -0.195}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_10, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx2_fx_high_s1h1_p_gather_10_at}
-        - id: fx6
-          op: group
-          at: 6
-          do:
-            - {id: fx2_fx_high_s1h1_streak_main, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [2.4998, 1.92], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: -0.439, up: 1.58, forward: 1.5}, rotate: [{axis: forward, deg: 6.0}], for: 7, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.439, up: 1.58, forward: 1.5}, pose: [{axis: forward, deg: 6.0}], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: -0.439, up: 1.58, forward: 1.5}, pose: [{axis: forward, deg: 6.0}], scale: {left: 1.2002, up: 1.0, forward: 1.0}, ease: out_quad}, {t: 6, offset: {left: -0.439, up: 1.58, forward: 1.5}, pose: [{axis: forward, deg: 6.0}], scale: {left: 0.9201, up: 0.1, forward: 1.0}, ease: in_quad}]}]}
-            - {id: fx2_fx_high_s1h1_flash, op: display, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.1002, 1.1002], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: -0.439, up: 1.54, forward: 1.59}, for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.439, up: 1.54, forward: 1.59}, pose: [], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: -0.439, up: 1.54, forward: 1.59}, pose: [], scale: {left: 0.8633, up: 0.8633, forward: 1.0}, ease: out_quad}, {t: 3, offset: {left: -0.439, up: 1.54, forward: 1.59}, pose: [], scale: {left: 0.409, up: 0.409, forward: 1.0}, ease: in_quad}]}]}
-            - {id: fx2_fx_high_s1h1_p_gather_11_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.028, up: 1.521, forward: 2.695}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_11, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_11_at}
-            - {id: fx2_fx_high_s1h1_p_gather_12_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.017, up: 1.473, forward: 2.175}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_12, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_12_at}
-        - id: fx7
-          op: group
+        # --- sound ---
+        - {id: snd, op: sound, at: 0, sound: block.gravel.step, anchor: caster, volume: 1.0, pitch: 0.6}
+        - {id: snd_2, op: sound, at: 0, sound: entity.ravager.step, anchor: caster, volume: 0.6, pitch: 0.8}
+        - {id: snd_3, op: sound, at: 2, sound: item.armor.equip_chain, anchor: caster, volume: 0.9, pitch: 0.7}
+        - {id: snd_4, op: sound, at: 2, sound: item.armor.equip_iron, anchor: caster, volume: 0.6, pitch: 0.6}
+        - {id: snd_5, op: sound, at: 4, sound: entity.player.attack.sweep, anchor: caster, volume: 1.0, pitch: 0.5}
+        - {id: snd_6, op: sound, at: 4, sound: item.trident.throw, anchor: caster, volume: 0.7, pitch: 0.6}
+        - {id: snd_7, op: sound, at: 7, sound: item.mace.smash_ground_heavy, anchor: caster, volume: 1.0, pitch: 0.9}
+        - {id: snd_8, op: sound, at: 7, sound: block.anvil.land, anchor: caster, volume: 0.8, pitch: 0.6}
+        - {id: snd_9, op: sound, at: 7, sound: entity.player.attack.crit, anchor: caster, volume: 1.0, pitch: 0.8}
+        - {id: snd_10, op: sound, at: 8, sound: item.armor.equip_netherite, anchor: caster, volume: 0.9, pitch: 0.6}
+        - {id: snd_11, op: sound, at: 8, sound: block.chain.place, anchor: caster, volume: 0.8, pitch: 0.6}
+        - {id: snd_12, op: sound, at: 18, sound: item.armor.equip_iron, anchor: caster, volume: 1.0, pitch: 0.8}
+        - {id: snd_13, op: sound, at: 22, sound: item.armor.equip_chain, anchor: caster, volume: 0.9, pitch: 0.7}
+        - {id: snd_14, op: sound, at: 22, sound: item.armor.equip_iron, anchor: caster, volume: 0.6, pitch: 0.6}
+        - {id: snd_15, op: sound, at: 26, sound: entity.player.attack.sweep, anchor: caster, volume: 1.0, pitch: 0.45}
+        - {id: snd_16, op: sound, at: 26, sound: entity.breeze.wind_burst, anchor: caster, volume: 0.6, pitch: 0.5}
+        - {id: snd_17, op: sound, at: 26, sound: item.trident.throw, anchor: caster, volume: 0.8, pitch: 0.5}
+        # --- hit ring (front and back quarters) and the first streak / flash ---
+        - {id: fx2_fx_high_s1h1_ring_q0, op: display, at: 3, kind: sprite, see_through: true, sprite: bastion-s1-hring-q0, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: -1.862, up: 1.543, forward: 1.485}, rotate: [{axis: up, deg: 0.35418}, {axis: left, deg: 85.96954}, {axis: forward, deg: 0.3301}], for: 13}
+        - {id: fx2_fx_high_s1h1_ring_q2, op: display, at: 3, kind: sprite, see_through: true, sprite: bastion-s1-hring-q2, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: -1.838, up: 1.332, forward: -1.508}, rotate: [{axis: up, deg: 0.35418}, {axis: left, deg: 85.96954}, {axis: forward, deg: 0.3301}], for: 13}
+        - {id: fx2_fx_high_s1h1_ring_bq0, op: display, at: 3, kind: sprite, see_through: true, sprite: bastion-s1-hring-bq0, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: -1.862, up: 1.543, forward: 1.485}, rotate: [{axis: up, deg: 179.6}, {axis: left, deg: -85.97}], for: 13}
+        - {id: fx2_fx_high_s1h1_ring_bq2, op: display, at: 3, kind: sprite, see_through: true, sprite: bastion-s1-hring-bq2, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: -1.838, up: 1.332, forward: -1.508}, rotate: [{axis: up, deg: 179.6}, {axis: left, deg: -85.97}], for: 13}
+        - {id: fx2_fx_high_s1h1_ring_q1, op: display, at: 4, kind: sprite, see_through: true, sprite: bastion-s1-hring-q1, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: 1.138, up: 1.543, forward: 1.508}, rotate: [{axis: up, deg: 0.35418}, {axis: left, deg: 85.96954}, {axis: forward, deg: 0.3301}], for: 12}
+        - {id: fx2_fx_high_s1h1_ring_bq1, op: display, at: 4, kind: sprite, see_through: true, sprite: bastion-s1-hring-bq1, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: 1.138, up: 1.543, forward: 1.508}, rotate: [{axis: up, deg: 179.6}, {axis: left, deg: -85.97}], for: 12}
+        - {id: fx2_fx_high_s1h1_streak_main, op: display, at: 6, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [2.4998, 1.92], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: -0.439, up: 1.58, forward: 1.5}, rotate: [{axis: forward, deg: 6.0}], for: 7, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.439, up: 1.58, forward: 1.5}, pose: [{axis: forward, deg: 6.0}], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: -0.439, up: 1.58, forward: 1.5}, pose: [{axis: forward, deg: 6.0}], scale: {left: 1.2002, up: 1.0, forward: 1.0}, ease: out_quad}, {t: 6, offset: {left: -0.439, up: 1.58, forward: 1.5}, pose: [{axis: forward, deg: 6.0}], scale: {left: 0.9201, up: 0.1, forward: 1.0}, ease: in_quad}]}]}
+        - {id: fx2_fx_high_s1h1_flash, op: display, at: 6, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.1002, 1.1002], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: -0.439, up: 1.54, forward: 1.59}, for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.439, up: 1.54, forward: 1.59}, pose: [], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: -0.439, up: 1.54, forward: 1.59}, pose: [], scale: {left: 0.8633, up: 0.8633, forward: 1.0}, ease: out_quad}, {t: 3, offset: {left: -0.439, up: 1.54, forward: 1.59}, pose: [], scale: {left: 0.409, up: 0.409, forward: 1.0}, ease: in_quad}]}]}
+        - {id: fx2_fx_high_s1h1_ring_q3, op: display, at: 7, kind: sprite, see_through: true, sprite: bastion-s1-hring-q3, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: 1.162, up: 1.332, forward: -1.485}, rotate: [{axis: up, deg: 0.35418}, {axis: left, deg: 85.96954}, {axis: forward, deg: 0.3301}], for: 9}
+        - {id: fx2_fx_high_s1h1_ring_bq3, op: display, at: 7, kind: sprite, see_through: true, sprite: bastion-s1-hring-bq3, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: 1.162, up: 1.332, forward: -1.485}, rotate: [{axis: up, deg: 179.6}, {axis: left, deg: -85.97}], for: 9}
+        # --- dust gathering at the blade tip: two points of the root-tip segment, three overlapping defs ---
+        - {id: gather_a, op: particle_def, def: bastion-s1-p-gather-1, at: 4, every: 1, for: 3, anchor: {of: rig.root, to: rig.tip, samples: 2}}
+        - {id: gather_b, op: particle_def, def: bastion-s1-p-gather-2, at: 4, every: 1, for: 2, anchor: {of: rig.root, to: rig.tip, samples: 2}}
+        - {id: gather_c, op: particle_def, def: bastion-s1-p-gather-3, at: 4, anchor: {of: rig.root, to: rig.tip, samples: 2}}
+        # the swing-1 follow-up waves (v2 ticks 7 and 14): def 3 first, 2 a tick later, 1 two ticks later, three ticks each
+        - id: wave
           at: 7
+          every: 7
+          times: 2
           do:
-            - {id: fx2_fx_high_s1h1_ring_q3, op: display, kind: sprite, see_through: true, sprite: bastion-s1-hring-q3, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: 1.162, up: 1.332, forward: -1.485}, rotate: [{axis: up, deg: 0.35418}, {axis: left, deg: 85.96954}, {axis: forward, deg: 0.3301}], for: 9}
-            - {id: fx2_fx_high_s1h1_ring_bq3, op: display, kind: sprite, see_through: true, sprite: bastion-s1-hring-bq3, size: [3.047, 3.047], anchor: fx2_fx_high, brightness: {block: 15, sky: 15}, offset: {left: 1.162, up: 1.332, forward: -1.485}, rotate: [{axis: up, deg: 179.6}, {axis: left, deg: -85.97}], for: 9}
-            - {id: fx2_fx_high_s1h1_p_impact_dust_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.036, up: 1.529, forward: 2.782}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_impact_dust, op: particle_def, def: bastion-s1-p-impact-dust, anchor: fx2_fx_high_s1h1_p_impact_dust_at}
-            - {id: fx2_fx_high_s1h1_p_impact_crit_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.036, up: 1.529, forward: 2.782}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_impact_crit, op: particle_def, def: bastion-s1-p-impact-crit, anchor: fx2_fx_high_s1h1_p_impact_crit_at}
-            - {id: fx2_fx_high_s1h1_p_impact_ench_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.036, up: 1.529, forward: 2.782}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_impact_ench, op: particle_def, def: bastion-s1-p-impact-enchant, anchor: fx2_fx_high_s1h1_p_impact_ench_at}
-            - {id: fx2_fx_high_s1h1_p_ring_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.028, up: 1.529, forward: 2.541}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_at}
-            - {id: fx2_fx_high_s1h1_p_ring_2_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.023, up: 1.745, forward: 2.656}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring_2, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_2_at}
-            - {id: fx2_fx_high_s1h1_p_ring_3_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.087, up: 1.745, forward: 2.898}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring_3, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_3_at}
-            - {id: fx2_fx_high_s1h1_p_ring_4_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.1, up: 1.529, forward: 3.024}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring_4, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_4_at}
-            - {id: fx2_fx_high_s1h1_p_ring_5_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.049, up: 1.314, forward: 2.908}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring_5, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_5_at}
-            - {id: fx2_fx_high_s1h1_p_ring_6_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.015, up: 1.314, forward: 2.667}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring_6, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_6_at}
-            - {id: fx2_fx_high_s1h1_p_gather_13_at, op: frame, anchor: fx2_fx_high, offset: {left: 2.326, up: 1.472, forward: 0.338}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_13, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx2_fx_high_s1h1_p_gather_13_at}
-            - {id: fx2_fx_high_s1h1_p_gather_14_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.821, up: 1.424, forward: 0.204}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_14, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx2_fx_high_s1h1_p_gather_14_at}
-            - {id: snd_7, op: sound, sound: item.mace.smash_ground_heavy, anchor: caster, volume: 1.0, pitch: 0.9}
-            - {id: snd_8, op: sound, sound: block.anvil.land, anchor: caster, volume: 0.8, pitch: 0.6}
-            - {id: snd_9, op: sound, sound: entity.player.attack.crit, anchor: caster, volume: 1.0, pitch: 0.8}
-        - id: fx8
-          op: group
+            - {id: w3, op: particle_def, def: bastion-s1-p-gather-3, every: 1, for: 3, anchor: {of: rig.root, to: rig.tip, samples: 2}}
+            - {id: w2, op: particle_def, def: bastion-s1-p-gather-2, at: 1, every: 1, for: 3, anchor: {of: rig.root, to: rig.tip, samples: 2}}
+            - {id: w1, op: particle_def, def: bastion-s1-p-gather-1, at: 2, every: 1, for: 3, anchor: {of: rig.root, to: rig.tip, samples: 2}}
+        # --- hit 1 impact (tick 7): dust / crit / enchant at the impact point, then a 6-point crit ring that opens over 3 ticks (radius 0.25 -> 0.8, 20 deg/tick twist) ---
+        - {id: imp_dust, op: particle_def, def: bastion-s1-p-impact-dust, at: 7, anchor: {of: fx2_fx_high, offset: {left: -0.036, up: 1.529, forward: 2.782}}}
+        - {id: imp_crit, op: particle_def, def: bastion-s1-p-impact-crit, at: 7, anchor: {of: fx2_fx_high, offset: {left: -0.036, up: 1.529, forward: 2.782}}}
+        - {id: imp_ench, op: particle_def, def: bastion-s1-p-impact-enchant, at: 7, anchor: {of: fx2_fx_high, offset: {left: -0.036, up: 1.529, forward: 2.782}}}
+        - id: ring1
+          at: 7
+          every: 1
+          times: 3
+          do:
+            # plane = up/forward, tilted 15 degrees about up (left = -0.232 * forward); angle = 60 i - 20 parent.i degrees
+            - id: pt
+              op: particle_def
+              def: bastion-s1-p-ring-crit
+              anchor: {of: fx2_fx_high, offset: {left: -0.036, up: 1.529, forward: 2.782}}
+              times: 6
+              shift:
+                forward: "= (0.25 + 0.275 * parent.i) * cos((60 * i - 20 * parent.i) * 0.0174533)"
+                up: "= (0.25 + 0.275 * parent.i) * sin((60 * i - 20 * parent.i) * 0.0174533)"
+                left: "= -0.232 * (0.25 + 0.275 * parent.i) * cos((60 * i - 20 * parent.i) * 0.0174533)"
+        # --- blade fx: segments between the rig points (ADR-0303 10.5), no baked positions ---
+        - {id: b1_trail, op: particle_def, def: bastion-s1-p-trail, at: 4, every: 1, for: 16, anchor: {of: rig.root, to: rig.tip, samples: 11}}
+        - {id: b1_sheath, op: particle_def, def: bastion-s1-p-sheath, at: 4, every: 1, for: 16, anchor: {of: rig.root, to: rig.tip, samples: 5}}
+        - {id: b1_steel, op: particle_def, def: bastion-s1-p-steel, at: 4, every: 1, for: 16, anchor: rig.tip}
+        - {id: b1_fleck, op: particle_def, def: bastion-s1-p-fleck, at: 4, every: 1, for: 16, anchor: {of: rig.root, to: rig.tip, samples: 3}}
+        - {id: b1_crit, op: particle_def, def: bastion-s1-p-trail-crit, at: 7, every: 1, for: 3, anchor: {of: rig.root, to: rig.tip, samples: 11}}
+    sweep2:
+      for: 18
+      then: slam
+      do:
+        # --- gameplay swing 2 (v2 t28 dash / t31 hit): hit 2 freezes 2 ticks and knocks the victim back ---
+        - {id: dash_hit_2, op: hit, at: 0, for: 3, every: 1, anchor: caster.body, shape: {sphere: 1.7}, targets: enemies, window: once, ignore_invulnerability: false}
+        - {id: dash_2, op: dash, at: 0, speed: "= dash_distance_2 / 3", for: 3, until: dash_hit_2.hit, direction: {forward: 1.0}, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
+        - {id: hit2, op: hit, at: 3, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "${dmg_physical_2}"}, window: once, ignore_invulnerability: true, on: {hit: [{id: stop_2, op: freeze, at: 0, ticks: 2, scope: [caster, event.victim]}, {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback}"}]}}
+        # --- sound ---
+        - {id: snd_18, op: sound, at: 3, sound: item.mace.smash_ground_heavy, anchor: caster, volume: 1.0, pitch: 0.7}
+        - {id: snd_19, op: sound, at: 3, sound: block.anvil.land, anchor: caster, volume: 1.0, pitch: 0.5}
+        - {id: snd_20, op: sound, at: 3, sound: entity.player.attack.crit, anchor: caster, volume: 1.0, pitch: 0.65}
+        - {id: snd_21, op: sound, at: 3, sound: entity.iron_golem.attack, anchor: caster, volume: 1.0, pitch: 0.6}
+        - {id: snd_22, op: sound, at: 3, sound: entity.generic.explode, anchor: caster, volume: 0.45, pitch: 0.5}
+        - {id: snd_23, op: sound, at: 4, sound: item.armor.equip_netherite, anchor: caster, volume: 0.9, pitch: 0.6}
+        - {id: snd_24, op: sound, at: 4, sound: block.chain.place, anchor: caster, volume: 0.8, pitch: 0.6}
+        - {id: snd_25, op: sound, at: 12, sound: item.armor.equip_iron, anchor: caster, volume: 1.0, pitch: 0.8}
+        # --- ring quarters, floor fill, ink, streaks, flashes, lines ---
+        - {id: fx3_fx_low_s1h2_ring_q0, op: display, at: 0, kind: sprite, see_through: true, sprite: bastion-s1-ring-q0, size: [2.6502, 2.6502], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: 0.98, up: 0.77, forward: -1.029}, rotate: [{axis: up, deg: -136}, {axis: left, deg: -84.5}, {axis: forward, deg: 45.87}], for: 14}
+        - {id: fx3_fx_low_s1h2_ring_q1, op: display, at: 1, kind: sprite, see_through: true, sprite: bastion-s1-ring-q1, size: [2.6502, 2.6502], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: 0.968, up: 0.953, forward: 1.615}, rotate: [{axis: up, deg: -136}, {axis: left, deg: -84.5}, {axis: forward, deg: 45.87}], for: 13}
+        - {id: fx3_fx_low_s1h2_floor_fill, op: display, at: 2, kind: sprite, sprite: bastion-s1-ink, size: [4.4, 4.4], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: 0.25, up: 0.03, forward: 0.5}, rotate: [{axis: left, deg: -90}, {axis: forward, deg: 90}], for: 2}
+        - {id: fx3_fx_low_s1h2_line_1, op: display, at: 2, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.5, 0.64], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.5, up: 0.6, forward: 1.2}, for: 3, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: {left: 4.8003, up: 1.0, forward: 1.0}, ease: out_expo}, {t: 2, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: {left: 3.3602, up: 0.2, forward: 1.0}, ease: in_quad}]}]}
+        - {id: fx3_fx_low_s1h2_ink, op: display, at: 3, kind: sprite, sprite: bastion-s1-ink, size: [3.3997, 3.3997], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.212, up: 1.223, forward: 1.554}, for: 2}
+        - {id: fx3_fx_low_s1h2_streak_main, op: display, at: 3, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.6, 2.048], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.062, up: 1.773, forward: 1.604}, rotate: [{axis: forward, deg: -4.0}], for: 6, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: {left: 7.6661, up: 1.0, forward: 1.0}, ease: out_expo}, {t: 6, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: {left: 6.0, up: 0.125, forward: 1.0}, ease: in_quad}]}]}
+        - {id: fx3_fx_low_s1h2_line_2, op: display, at: 3, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.5, 0.64], color: "#FFE070", anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: -0.5, up: 1.05, forward: 1.4}, for: 3, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: {left: 4.0003, up: 1.0, forward: 1.0}, ease: out_expo}, {t: 2, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: {left: 2.7995, up: 0.2, forward: 1.0}, ease: in_quad}]}]}
+        - {id: fx3_fx_low_s1h2_flash, op: display, at: 3, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.112, up: 1.273, forward: 1.504}, for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: {left: 1.9168, up: 1.9168, forward: 1.0}, ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: {left: 0.7499, up: 0.7499, forward: 1.0}, ease: out_quad}]}]}
+        - {id: fx3_fx_low_s1h2_flash_x, op: display, at: 3, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: left, deg: 90.0}], for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: {left: 1.9168, up: 1.9168, forward: 1.0}, ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: {left: 0.7499, up: 0.7499, forward: 1.0}, ease: out_quad}]}]}
+        - {id: fx3_fx_low_s1h2_flash_f, op: display, at: 3, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: up, deg: -90}], for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: {left: 1.9168, up: 1.9168, forward: 1.0}, ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: {left: 0.7499, up: 0.7499, forward: 1.0}, ease: out_quad}]}]}
+        - {id: fx3_fx_low_s1h2_streak_x, op: display, at: 3, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.6, 2.048], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: 0.062, up: 1.773, forward: 1.604}, rotate: [{axis: left, deg: 90}, {axis: forward, deg: -4}], for: 6, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: {left: 9.3333, up: 1.0, forward: 1.0}, ease: out_expo}, {t: 6, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: {left: 6.0, up: 0.125, forward: 1.0}, ease: in_quad}]}]}
+        - {id: fx3_fx_low_s1h2_ring_q2, op: display, at: 4, kind: sprite, see_through: true, sprite: bastion-s1-ring-q2, size: [2.6502, 2.6502], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: -1.664, up: 0.593, forward: -1.029}, rotate: [{axis: up, deg: -136}, {axis: left, deg: -84.5}, {axis: forward, deg: 45.87}], for: 10}
+        - {id: fx3_fx_low_s1h2_ring_q3, op: display, at: 5, kind: sprite, see_through: true, sprite: bastion-s1-ring-q3, size: [2.6502, 2.6502], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: -1.676, up: 0.776, forward: 1.615}, rotate: [{axis: up, deg: -136}, {axis: left, deg: -84.5}, {axis: forward, deg: 45.87}], for: 9}
+        # --- dust at the blade tip: the swing-2 start and the follow-up wave (v2 ticks 28 / 30 / 36) ---
+        - {id: gather2_c, op: particle_def, def: bastion-s1-p-gather-3, at: 0, anchor: {of: /sweep1/rig.root, to: /sweep1/rig.tip, samples: 2}}
+        - {id: gather2_b, op: particle_def, def: bastion-s1-p-gather-2, at: 0, anchor: {of: /sweep1/rig.root, to: /sweep1/rig.tip, samples: 2}}
+        - {id: gather2_a, op: particle_def, def: bastion-s1-p-gather-1, at: 2, anchor: {of: /sweep1/rig.root, to: /sweep1/rig.tip, samples: 2}}
+        - id: wave2
           at: 8
           do:
-            - {id: fx2_fx_high_s1h1_p_ring_7_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.07, up: 1.699, forward: 2.324}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring_7, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_7_at}
-            - {id: fx2_fx_high_s1h1_p_ring_8_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.057, up: 2.019, forward: 2.687}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring_8, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_8_at}
-            - {id: fx2_fx_high_s1h1_p_ring_9_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.163, up: 1.849, forward: 3.145}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring_9, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_9_at}
-            - {id: fx2_fx_high_s1h1_p_ring_10_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.142, up: 1.359, forward: 3.24}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring_10, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_10_at}
-            - {id: fx2_fx_high_s1h1_p_ring_11_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.015, up: 1.039, forward: 2.878}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring_11, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_11_at}
-            - {id: fx2_fx_high_s1h1_p_ring_12_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.091, up: 1.209, forward: 2.42}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring_12, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_12_at}
-            - {id: fx2_fx_high_s1h1_p_gather_15_at, op: frame, anchor: fx2_fx_high, offset: {left: 2.326, up: 1.472, forward: 0.338}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_15, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx2_fx_high_s1h1_p_gather_15_at}
-            - {id: fx2_fx_high_s1h1_p_gather_16_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.821, up: 1.424, forward: 0.204}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_16, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx2_fx_high_s1h1_p_gather_16_at}
-            - {id: fx2_fx_high_s1h1_p_gather_19_at, op: frame, anchor: fx2_fx_high, offset: {left: 2.326, up: 1.472, forward: 0.338}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_19, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx2_fx_high_s1h1_p_gather_19_at}
-            - {id: fx2_fx_high_s1h1_p_gather_20_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.821, up: 1.424, forward: 0.204}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_20, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx2_fx_high_s1h1_p_gather_20_at}
-            - {id: snd_10, op: sound, sound: item.armor.equip_netherite, anchor: caster, volume: 0.9, pitch: 0.6}
-            - {id: snd_11, op: sound, sound: block.chain.place, anchor: caster, volume: 0.8, pitch: 0.6}
-        - id: fx9
-          op: group
-          at: 9
+            - {id: v3, op: particle_def, def: bastion-s1-p-gather-3, every: 1, for: 3, anchor: {of: /sweep1/rig.root, to: /sweep1/rig.tip, samples: 2}}
+            - {id: v2, op: particle_def, def: bastion-s1-p-gather-2, at: 1, every: 1, for: 3, anchor: {of: /sweep1/rig.root, to: /sweep1/rig.tip, samples: 2}}
+            - {id: v1, op: particle_def, def: bastion-s1-p-gather-1, at: 2, every: 1, for: 3, anchor: {of: /sweep1/rig.root, to: /sweep1/rig.tip, samples: 2}}
+        # --- hit 2 impact (tick 31): three dust / crit puffs spread along the cut, one enchant, a floor puff + poof, then a 10-point ring (20 deg/tick twist) ---
+        - {id: imp_dust, op: particle_def, def: bastion-s1-p-impact-dust, at: 3, times: 3, anchor: {of: fx3_fx_low, offset: {left: 0.096, up: 1.005, forward: 2.532}}, shift: {left: "= 0.25 * i", forward: "= -0.15 * i"}}
+        - {id: imp_crit, op: particle_def, def: bastion-s1-p-impact-crit, at: 3, times: 3, anchor: {of: fx3_fx_low, offset: {left: 0.096, up: 1.005, forward: 2.532}}, shift: {left: "= 0.25 * i", forward: "= -0.15 * i"}}
+        - {id: imp_ench, op: particle_def, def: bastion-s1-p-impact-enchant, at: 3, anchor: {of: fx3_fx_low, offset: {left: 0.096, up: 1.005, forward: 2.532}}}
+        - {id: imp_puff, op: particle_def, def: bastion-s1-p-puff, at: 3, anchor: {of: fx3_fx_low, offset: {left: 0.096, up: 1.005, forward: 2.532}}, shift: {up: -0.605}}
+        - {id: imp_poof, op: particle_def, def: bastion-s1-p-poof, at: 3, anchor: {of: fx3_fx_low, offset: {left: 0.096, up: 1.005, forward: 2.532}}, shift: {up: -0.605}}
+        - id: ring2
+          at: 3
+          every: 1
+          times: 3
           do:
-            - {id: fx2_fx_high_s1h1_p_ring_13_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.076, up: 2.041, forward: 2.178}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring_13, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_13_at}
-            - {id: fx2_fx_high_s1h1_p_ring_14_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.141, up: 2.314, forward: 2.898}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring_14, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_14_at}
-            - {id: fx2_fx_high_s1h1_p_ring_15_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.253, up: 1.802, forward: 3.502}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring_15, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_15_at}
-            - {id: fx2_fx_high_s1h1_p_ring_16_at, op: frame, anchor: fx2_fx_high, offset: {left: -0.148, up: 1.017, forward: 3.387}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring_16, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_16_at}
-            - {id: fx2_fx_high_s1h1_p_ring_17_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.069, up: 0.745, forward: 2.666}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring_17, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_17_at}
-            - {id: fx2_fx_high_s1h1_p_ring_18_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.181, up: 1.257, forward: 2.062}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_ring_18, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx2_fx_high_s1h1_p_ring_18_at}
-            - {id: fx2_fx_high_s1h1_p_gather_17_at, op: frame, anchor: fx2_fx_high, offset: {left: 2.326, up: 1.472, forward: 0.338}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_17, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_17_at}
-            - {id: fx2_fx_high_s1h1_p_gather_18_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.821, up: 1.424, forward: 0.204}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_18, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_18_at}
-            - {id: fx2_fx_high_s1h1_p_gather_21_at, op: frame, anchor: fx2_fx_high, offset: {left: 2.326, up: 1.472, forward: 0.338}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_21, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx2_fx_high_s1h1_p_gather_21_at}
-            - {id: fx2_fx_high_s1h1_p_gather_22_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.821, up: 1.424, forward: 0.204}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_22, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx2_fx_high_s1h1_p_gather_22_at}
-            - {id: fx2_fx_high_s1h1_p_gather_25_at, op: frame, anchor: fx2_fx_high, offset: {left: 2.326, up: 1.472, forward: 0.338}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_25, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx2_fx_high_s1h1_p_gather_25_at}
-            - {id: fx2_fx_high_s1h1_p_gather_26_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.821, up: 1.424, forward: 0.204}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_26, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx2_fx_high_s1h1_p_gather_26_at}
-        - id: fx10
-          op: group
-          at: 10
-          do:
-            - {id: fx2_fx_high_s1h1_p_gather_23_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.857, up: 1.367, forward: -1.295}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_23, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_23_at}
-            - {id: fx2_fx_high_s1h1_p_gather_24_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.414, up: 1.325, forward: -1.017}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_24, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_24_at}
-            - {id: fx2_fx_high_s1h1_p_gather_27_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.857, up: 1.367, forward: -1.295}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_27, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx2_fx_high_s1h1_p_gather_27_at}
-            - {id: fx2_fx_high_s1h1_p_gather_28_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.414, up: 1.325, forward: -1.017}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_28, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx2_fx_high_s1h1_p_gather_28_at}
-        - id: fx11
-          op: group
-          at: 11
-          do:
-            - {id: fx2_fx_high_s1h1_p_gather_29_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.328, up: 1.331, forward: -1.787}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_29, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_29_at}
-            - {id: fx2_fx_high_s1h1_p_gather_30_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.006, up: 1.295, forward: -1.374}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_30, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_30_at}
-        - id: fx14
-          op: group
-          at: 14
-          do:
-            - {id: fx2_fx_high_s1h1_p_gather_31_at, op: frame, anchor: fx2_fx_high, offset: {left: 1.017, up: 1.307, forward: -1.938}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_31, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx2_fx_high_s1h1_p_gather_31_at}
-            - {id: fx2_fx_high_s1h1_p_gather_32_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.769, up: 1.276, forward: -1.477}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_32, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx2_fx_high_s1h1_p_gather_32_at}
-        - id: fx15
-          op: group
-          at: 15
-          do:
-            - {id: fx2_fx_high_s1h1_p_gather_33_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.993, up: 1.308, forward: -1.956}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_33, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx2_fx_high_s1h1_p_gather_33_at}
-            - {id: fx2_fx_high_s1h1_p_gather_34_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.75, up: 1.277, forward: -1.492}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_34, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx2_fx_high_s1h1_p_gather_34_at}
-            - {id: fx2_fx_high_s1h1_p_gather_37_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.993, up: 1.308, forward: -1.956}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_37, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx2_fx_high_s1h1_p_gather_37_at}
-            - {id: fx2_fx_high_s1h1_p_gather_38_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.75, up: 1.277, forward: -1.492}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_38, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx2_fx_high_s1h1_p_gather_38_at}
-        - id: fx16
-          op: group
-          at: 16
-          do:
-            - {id: fx2_fx_high_s1h1_p_gather_35_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.97, up: 1.308, forward: -1.974}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_35, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_35_at}
-            - {id: fx2_fx_high_s1h1_p_gather_36_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.733, up: 1.277, forward: -1.507}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_36, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_36_at}
-            - {id: fx2_fx_high_s1h1_p_gather_39_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.97, up: 1.308, forward: -1.974}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_39, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx2_fx_high_s1h1_p_gather_39_at}
-            - {id: fx2_fx_high_s1h1_p_gather_40_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.733, up: 1.277, forward: -1.507}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_40, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx2_fx_high_s1h1_p_gather_40_at}
-            - {id: fx2_fx_high_s1h1_p_gather_43_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.97, up: 1.308, forward: -1.974}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_43, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx2_fx_high_s1h1_p_gather_43_at}
-            - {id: fx2_fx_high_s1h1_p_gather_44_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.733, up: 1.277, forward: -1.507}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_44, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx2_fx_high_s1h1_p_gather_44_at}
-        - id: fx17
-          op: group
-          at: 17
-          do:
-            - {id: fx2_fx_high_s1h1_p_gather_41_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.726, up: 0.991, forward: -2.031}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_41, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_41_at}
-            - {id: fx2_fx_high_s1h1_p_gather_42_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.549, up: 0.907, forward: -1.544}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_42, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_42_at}
-            - {id: fx2_fx_high_s1h1_p_gather_45_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.726, up: 0.991, forward: -2.031}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_45, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx2_fx_high_s1h1_p_gather_45_at}
-            - {id: fx2_fx_high_s1h1_p_gather_46_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.549, up: 0.907, forward: -1.544}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_46, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx2_fx_high_s1h1_p_gather_46_at}
-        - id: fx18
-          op: group
-          at: 18
-          do:
-            - {id: fx2_fx_high_s1h1_p_gather_47_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.483, up: 0.309, forward: -2.109}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_47, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_47_at}
-            - {id: fx2_fx_high_s1h1_p_gather_48_at, op: frame, anchor: fx2_fx_high, offset: {left: 0.359, up: 0.42, forward: -1.611}, for: 1}
-            - {id: fx2_fx_high_s1h1_p_gather_48, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx2_fx_high_s1h1_p_gather_48_at}
-            - {id: snd_12, op: sound, sound: item.armor.equip_iron, anchor: caster, volume: 1.0, pitch: 0.8}
-        - id: fx22
-          op: group
-          at: 22
-          do:
-            - {id: snd_13, op: sound, sound: item.armor.equip_chain, anchor: caster, volume: 0.9, pitch: 0.7}
-            - {id: snd_14, op: sound, sound: item.armor.equip_iron, anchor: caster, volume: 0.6, pitch: 0.6}
-        - id: fx26
-          op: group
-          at: 26
-          do:
-            - {id: snd_15, op: sound, sound: entity.player.attack.sweep, anchor: caster, volume: 1.0, pitch: 0.45}
-            - {id: snd_16, op: sound, sound: entity.breeze.wind_burst, anchor: caster, volume: 0.6, pitch: 0.5}
-            - {id: snd_17, op: sound, sound: item.trident.throw, anchor: caster, volume: 0.8, pitch: 0.5}
-        - id: fx28
-          op: group
-          at: 28
-          do:
-            - {id: fx3_fx_low_s1h2_ring_q0, op: display, kind: sprite, see_through: true, sprite: bastion-s1-ring-q0, size: [2.6502, 2.6502], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: 0.98, up: 0.77, forward: -1.029}, rotate: [{axis: up, deg: -136}, {axis: left, deg: -84.5}, {axis: forward, deg: 45.87}], for: 14}
-            - {id: fx3_fx_low_s1h2_p_gather_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.118, up: 0.596, forward: -2.129}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx3_fx_low_s1h2_p_gather_at}
-            - {id: fx3_fx_low_s1h2_p_gather_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.082, up: 0.625, forward: -1.606}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_2, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx3_fx_low_s1h2_p_gather_2_at}
-            - {id: fx3_fx_low_s1h2_p_gather_3_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.118, up: 0.596, forward: -2.129}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_3, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx3_fx_low_s1h2_p_gather_3_at}
-            - {id: fx3_fx_low_s1h2_p_gather_4_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.082, up: 0.625, forward: -1.606}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_4, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx3_fx_low_s1h2_p_gather_4_at}
-        - id: fx29
-          op: group
-          at: 29
-          do:
-            - {id: fx3_fx_low_s1h2_ring_q1, op: display, kind: sprite, see_through: true, sprite: bastion-s1-ring-q1, size: [2.6502, 2.6502], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: 0.968, up: 0.953, forward: 1.615}, rotate: [{axis: up, deg: -136}, {axis: left, deg: -84.5}, {axis: forward, deg: 45.87}], for: 13}
-        - id: fx30
-          op: group
-          at: 30
-          do:
-            - {id: fx3_fx_low_s1h2_floor_fill, op: display, kind: sprite, sprite: bastion-s1-ink, size: [4.4, 4.4], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: 0.25, up: 0.03, forward: 0.5}, rotate: [{axis: left, deg: -90}, {axis: forward, deg: 90}], for: 2}
-            - {id: fx3_fx_low_s1h2_line_1, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.5, 0.64], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.5, up: 0.6, forward: 1.2}, for: 3, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: {left: 4.8003, up: 1.0, forward: 1.0}, ease: out_expo}, {t: 2, offset: {left: 0.5, up: 0.6, forward: 1.2}, pose: [], scale: {left: 3.3602, up: 0.2, forward: 1.0}, ease: in_quad}]}]}
-            - {id: fx3_fx_low_s1h2_p_gather_5_at, op: frame, anchor: fx3_fx_low, offset: {left: 2.358, up: 0.855, forward: -0.094}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_5, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx3_fx_low_s1h2_p_gather_5_at}
-            - {id: fx3_fx_low_s1h2_p_gather_6_at, op: frame, anchor: fx3_fx_low, offset: {left: 1.839, up: 0.78, forward: -0.076}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_6, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx3_fx_low_s1h2_p_gather_6_at}
-        - id: fx31
-          op: group
-          at: 31
-          do:
-            - {id: snd_18, op: sound, sound: item.mace.smash_ground_heavy, anchor: caster, volume: 1.0, pitch: 0.7}
-            - {id: snd_19, op: sound, sound: block.anvil.land, anchor: caster, volume: 1.0, pitch: 0.5}
-            - {id: snd_20, op: sound, sound: entity.player.attack.crit, anchor: caster, volume: 1.0, pitch: 0.65}
-            - {id: snd_21, op: sound, sound: entity.iron_golem.attack, anchor: caster, volume: 1.0, pitch: 0.6}
-            - {id: snd_22, op: sound, sound: entity.generic.explode, anchor: caster, volume: 0.45, pitch: 0.5}
-            - {id: fx3_fx_low_s1h2_ink, op: display, kind: sprite, sprite: bastion-s1-ink, size: [3.3997, 3.3997], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.212, up: 1.223, forward: 1.554}, for: 2}
-            - {id: fx3_fx_low_s1h2_streak_main, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.6, 2.048], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.062, up: 1.773, forward: 1.604}, rotate: [{axis: forward, deg: -4.0}], for: 6, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: {left: 7.6661, up: 1.0, forward: 1.0}, ease: out_expo}, {t: 6, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: forward, deg: -4.0}], scale: {left: 6.0, up: 0.125, forward: 1.0}, ease: in_quad}]}]}
-            - {id: fx3_fx_low_s1h2_line_2, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.5, 0.64], color: "#FFE070", anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: -0.5, up: 1.05, forward: 1.4}, for: 3, motion: [{law: keys, keys: [{t: 0, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: {left: 4.0003, up: 1.0, forward: 1.0}, ease: out_expo}, {t: 2, offset: {left: -0.5, up: 1.05, forward: 1.4}, pose: [], scale: {left: 2.7995, up: 0.2, forward: 1.0}, ease: in_quad}]}]}
-            - {id: fx3_fx_low_s1h2_flash, op: display, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, billboard: center, offset: {left: 0.112, up: 1.273, forward: 1.504}, for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: {left: 1.9168, up: 1.9168, forward: 1.0}, ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [], scale: {left: 0.7499, up: 0.7499, forward: 1.0}, ease: out_quad}]}]}
-            - {id: fx3_fx_low_s1h2_flash_x, op: display, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: left, deg: 90.0}], for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: {left: 1.9168, up: 1.9168, forward: 1.0}, ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: left, deg: 90.0}], scale: {left: 0.7499, up: 0.7499, forward: 1.0}, ease: out_quad}]}]}
-            - {id: fx3_fx_low_s1h2_flash_f, op: display, kind: sprite, see_through: true, sprite: bastion-s1-flare, size: [1.2, 1.2], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: 0.112, up: 1.273, forward: 1.504}, rotate: [{axis: up, deg: -90}], for: 4, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: {left: 1.9168, up: 1.9168, forward: 1.0}, ease: out_back}, {t: 3, offset: {left: 0.112, up: 1.273, forward: 1.504}, pose: [{axis: up, deg: 90.0}], scale: {left: 0.7499, up: 0.7499, forward: 1.0}, ease: out_quad}]}]}
-            - {id: fx3_fx_low_s1h2_streak_x, op: display, kind: sprite, see_through: true, sprite: bastion-s1-streak, size: [0.6, 2.048], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: 0.062, up: 1.773, forward: 1.604}, rotate: [{axis: left, deg: 90}, {axis: forward, deg: -4}], for: 6, motion: [{law: keys, keys: [{t: 0, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: {left: 1.0, up: 1.0, forward: 1.0}}, {t: 1, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: {left: 9.3333, up: 1.0, forward: 1.0}, ease: out_expo}, {t: 6, offset: {left: 0.062, up: 1.773, forward: 1.604}, pose: [{axis: up, deg: -3.14148}, {axis: left, deg: 89.96015}, {axis: forward, deg: -3.14148}], scale: {left: 6.0, up: 0.125, forward: 1.0}, ease: in_quad}]}]}
-            - {id: fx3_fx_low_s1h2_p_impact_dust_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.096, up: 1.005, forward: 2.532}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_impact_dust, op: particle_def, def: bastion-s1-p-impact-dust, anchor: fx3_fx_low_s1h2_p_impact_dust_at}
-            - {id: fx3_fx_low_s1h2_p_impact_crit_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.096, up: 1.005, forward: 2.532}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_impact_crit, op: particle_def, def: bastion-s1-p-impact-crit, anchor: fx3_fx_low_s1h2_p_impact_crit_at}
-            - {id: fx3_fx_low_s1h2_p_impact_ench_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.096, up: 1.005, forward: 2.532}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_impact_ench, op: particle_def, def: bastion-s1-p-impact-enchant, anchor: fx3_fx_low_s1h2_p_impact_ench_at}
-            - {id: fx3_fx_low_s1h2_p_impact_dust_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.346, up: 1.005, forward: 2.382}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_impact_dust_2, op: particle_def, def: bastion-s1-p-impact-dust, anchor: fx3_fx_low_s1h2_p_impact_dust_2_at}
-            - {id: fx3_fx_low_s1h2_p_impact_crit_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.346, up: 1.005, forward: 2.382}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_impact_crit_2, op: particle_def, def: bastion-s1-p-impact-crit, anchor: fx3_fx_low_s1h2_p_impact_crit_2_at}
-            - {id: fx3_fx_low_s1h2_p_impact_dust_3_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.596, up: 1.005, forward: 2.232}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_impact_dust_3, op: particle_def, def: bastion-s1-p-impact-dust, anchor: fx3_fx_low_s1h2_p_impact_dust_3_at}
-            - {id: fx3_fx_low_s1h2_p_impact_crit_3_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.596, up: 1.005, forward: 2.232}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_impact_crit_3, op: particle_def, def: bastion-s1-p-impact-crit, anchor: fx3_fx_low_s1h2_p_impact_crit_3_at}
-            - {id: fx3_fx_low_s1h2_p_puff_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.096, up: 0.4, forward: 2.532}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_puff, op: particle_def, def: bastion-s1-p-puff, anchor: fx3_fx_low_s1h2_p_puff_at}
-            - {id: fx3_fx_low_s1h2_p_poof_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.096, up: 0.4, forward: 2.532}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_poof, op: particle_def, def: bastion-s1-p-poof, anchor: fx3_fx_low_s1h2_p_poof_at}
-            - {id: fx3_fx_low_s1h2_p_ring_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.345, up: 1.005, forward: 2.523}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_at}
-            - {id: fx3_fx_low_s1h2_p_ring_2_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.297, up: 1.151, forward: 2.509}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_2, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_2_at}
-            - {id: fx3_fx_low_s1h2_p_ring_3_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.172, up: 1.241, forward: 2.503}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_3, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_3_at}
-            - {id: fx3_fx_low_s1h2_p_ring_4_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.017, up: 1.241, forward: 2.509}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_4, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_4_at}
-            - {id: fx3_fx_low_s1h2_p_ring_5_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.107, up: 1.151, forward: 2.523}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_5, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_5_at}
-            - {id: fx3_fx_low_s1h2_p_ring_6_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.154, up: 1.005, forward: 2.541}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_6, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_6_at}
-            - {id: fx3_fx_low_s1h2_p_ring_7_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.106, up: 0.859, forward: 2.555}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_7, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_7_at}
-            - {id: fx3_fx_low_s1h2_p_ring_8_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.019, up: 0.769, forward: 2.56}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_8, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_8_at}
-            - {id: fx3_fx_low_s1h2_p_ring_9_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.174, up: 0.769, forward: 2.555}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_9, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_9_at}
-            - {id: fx3_fx_low_s1h2_p_ring_10_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.298, up: 0.859, forward: 2.54}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_10, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_10_at}
-        - id: fx32
-          op: group
-          at: 32
-          do:
-            - {id: snd_23, op: sound, sound: item.armor.equip_netherite, anchor: caster, volume: 0.9, pitch: 0.6}
-            - {id: snd_24, op: sound, sound: block.chain.place, anchor: caster, volume: 0.8, pitch: 0.6}
-            - {id: fx3_fx_low_s1h2_ring_q2, op: display, kind: sprite, see_through: true, sprite: bastion-s1-ring-q2, size: [2.6502, 2.6502], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: -1.664, up: 0.593, forward: -1.029}, rotate: [{axis: up, deg: -136}, {axis: left, deg: -84.5}, {axis: forward, deg: 45.87}], for: 10}
-            - {id: fx3_fx_low_s1h2_p_ring_11_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.566, up: 0.835, forward: 2.533}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_11, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_11_at}
-            - {id: fx3_fx_low_s1h2_p_ring_12_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.575, up: 1.142, forward: 2.5}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_12, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_12_at}
-            - {id: fx3_fx_low_s1h2_p_ring_13_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.402, up: 1.397, forward: 2.478}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_13, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_13_at}
-            - {id: fx3_fx_low_s1h2_p_ring_14_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.111, up: 1.502, forward: 2.477}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_14, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_14_at}
-            - {id: fx3_fx_low_s1h2_p_ring_15_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.185, up: 1.417, forward: 2.497}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_15, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_15_at}
-            - {id: fx3_fx_low_s1h2_p_ring_16_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.375, up: 1.175, forward: 2.53}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_16, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_16_at}
-            - {id: fx3_fx_low_s1h2_p_ring_17_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.384, up: 0.868, forward: 2.564}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_17, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_17_at}
-            - {id: fx3_fx_low_s1h2_p_ring_18_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.211, up: 0.613, forward: 2.585}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_18, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_18_at}
-            - {id: fx3_fx_low_s1h2_p_ring_19_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.08, up: 0.508, forward: 2.586}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_19, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_19_at}
-            - {id: fx3_fx_low_s1h2_p_ring_20_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.377, up: 0.593, forward: 2.567}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_20, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_20_at}
-        - id: fx33
-          op: group
-          at: 33
-          do:
-            - {id: fx3_fx_low_s1h2_ring_q3, op: display, kind: sprite, see_through: true, sprite: bastion-s1-ring-q3, size: [2.6502, 2.6502], anchor: fx3_fx_low, brightness: {block: 15, sky: 15}, offset: {left: -1.676, up: 0.776, forward: 1.615}, rotate: [{axis: up, deg: -136}, {axis: left, deg: -84.5}, {axis: forward, deg: 45.87}], for: 9}
-            - {id: fx3_fx_low_s1h2_p_ring_21_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.71, up: 0.494, forward: 2.565}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_21, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_21_at}
-            - {id: fx3_fx_low_s1h2_p_ring_22_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.893, up: 0.95, forward: 2.509}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_22, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_22_at}
-            - {id: fx3_fx_low_s1h2_p_ring_23_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.772, up: 1.427, forward: 2.462}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_23, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_23_at}
-            - {id: fx3_fx_low_s1h2_p_ring_24_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.392, up: 1.742, forward: 2.441}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_24, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_24_at}
-            - {id: fx3_fx_low_s1h2_p_ring_25_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.101, up: 1.777, forward: 2.455}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_25, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_25_at}
-            - {id: fx3_fx_low_s1h2_p_ring_26_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.519, up: 1.516, forward: 2.498}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_26, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_26_at}
-            - {id: fx3_fx_low_s1h2_p_ring_27_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.702, up: 1.061, forward: 2.554}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_27, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_27_at}
-            - {id: fx3_fx_low_s1h2_p_ring_28_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.581, up: 0.584, forward: 2.602}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_28, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_28_at}
-            - {id: fx3_fx_low_s1h2_p_ring_29_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.201, up: 0.268, forward: 2.623}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_29, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_29_at}
-            - {id: fx3_fx_low_s1h2_p_ring_30_at, op: frame, anchor: fx3_fx_low, offset: {left: 0.292, up: 0.233, forward: 2.609}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_ring_30, op: particle_def, def: bastion-s1-p-ring-crit, anchor: fx3_fx_low_s1h2_p_ring_30_at}
-        - id: fx36
-          op: group
-          at: 36
-          do:
-            - {id: fx3_fx_low_s1h2_p_gather_7_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.24, up: 0.98, forward: 2.45}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_7, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx3_fx_low_s1h2_p_gather_7_at}
-            - {id: fx3_fx_low_s1h2_p_gather_8_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.185, up: 0.928, forward: 1.931}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_8, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx3_fx_low_s1h2_p_gather_8_at}
-        - id: fx37
-          op: group
-          at: 37
-          do:
-            - {id: fx3_fx_low_s1h2_p_gather_9_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.307, up: 0.943, forward: 2.475}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_9, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx3_fx_low_s1h2_p_gather_9_at}
-            - {id: fx3_fx_low_s1h2_p_gather_10_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.234, up: 0.898, forward: 1.957}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_10, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx3_fx_low_s1h2_p_gather_10_at}
-            - {id: fx3_fx_low_s1h2_p_gather_13_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.307, up: 0.943, forward: 2.475}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_13, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx3_fx_low_s1h2_p_gather_13_at}
-            - {id: fx3_fx_low_s1h2_p_gather_14_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.234, up: 0.898, forward: 1.957}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_14, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx3_fx_low_s1h2_p_gather_14_at}
-        - id: fx38
-          op: group
-          at: 38
-          do:
-            - {id: fx3_fx_low_s1h2_p_gather_11_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.388, up: 0.943, forward: 2.468}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_11, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx3_fx_low_s1h2_p_gather_11_at}
-            - {id: fx3_fx_low_s1h2_p_gather_12_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.297, up: 0.898, forward: 1.953}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_12, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx3_fx_low_s1h2_p_gather_12_at}
-            - {id: fx3_fx_low_s1h2_p_gather_15_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.388, up: 0.943, forward: 2.468}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_15, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx3_fx_low_s1h2_p_gather_15_at}
-            - {id: fx3_fx_low_s1h2_p_gather_16_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.297, up: 0.898, forward: 1.953}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_16, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx3_fx_low_s1h2_p_gather_16_at}
-            - {id: fx3_fx_low_s1h2_p_gather_19_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.388, up: 0.943, forward: 2.468}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_19, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx3_fx_low_s1h2_p_gather_19_at}
-            - {id: fx3_fx_low_s1h2_p_gather_20_at, op: frame, anchor: fx3_fx_low, offset: {left: -0.297, up: 0.898, forward: 1.953}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_20, op: particle_def, def: bastion-s1-p-gather-3, anchor: fx3_fx_low_s1h2_p_gather_20_at}
-        - id: fx39
-          op: group
-          at: 39
-          do:
-            - {id: fx3_fx_low_s1h2_p_gather_17_at, op: frame, anchor: fx3_fx_low, offset: {left: -2.209, up: 0.593, forward: 0.339}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_17, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx3_fx_low_s1h2_p_gather_17_at}
-            - {id: fx3_fx_low_s1h2_p_gather_18_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.693, up: 0.569, forward: 0.249}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_18, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx3_fx_low_s1h2_p_gather_18_at}
-            - {id: fx3_fx_low_s1h2_p_gather_21_at, op: frame, anchor: fx3_fx_low, offset: {left: -2.209, up: 0.593, forward: 0.339}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_21, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx3_fx_low_s1h2_p_gather_21_at}
-            - {id: fx3_fx_low_s1h2_p_gather_22_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.693, up: 0.569, forward: 0.249}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_22, op: particle_def, def: bastion-s1-p-gather-2, anchor: fx3_fx_low_s1h2_p_gather_22_at}
-        - id: fx40
-          op: group
-          at: 40
-          do:
-            - {id: snd_25, op: sound, sound: item.armor.equip_iron, anchor: caster, volume: 1.0, pitch: 0.8}
-            - {id: fx3_fx_low_s1h2_p_gather_23_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.734, up: 0.258, forward: -1.372}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_23, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx3_fx_low_s1h2_p_gather_23_at}
-            - {id: fx3_fx_low_s1h2_p_gather_24_at, op: frame, anchor: fx3_fx_low, offset: {left: -1.337, up: 0.34, forward: -1.038}, for: 1}
-            - {id: fx3_fx_low_s1h2_p_gather_24, op: particle_def, def: bastion-s1-p-gather-1, anchor: fx3_fx_low_s1h2_p_gather_24_at}
-        # --- blade fx: segments between the rig anchor's points (ADR-0303 10.5), no baked positions ---
-        - id: blade1
-          op: group
-          at: 4
-          do:
-            - {id: b1_trail, op: particle_def, def: bastion-s1-p-trail, anchor: {of: rig.root, to: rig.tip, samples: 11}, every: 1, for: 16}
-            - {id: b1_sheath, op: particle_def, def: bastion-s1-p-sheath, anchor: {of: rig.root, to: rig.tip, samples: 5}, every: 1, for: 16}
-            - {id: b1_steel, op: particle_def, def: bastion-s1-p-steel, anchor: rig.tip, every: 1, for: 16}
-            - {id: b1_fleck, op: particle_def, def: bastion-s1-p-fleck, anchor: {of: rig.root, to: rig.tip, samples: 3}, every: 1, for: 16}
-        - id: blade1_hit
-          op: group
-          at: 7
-          do:
-            - {id: b1_crit, op: particle_def, def: bastion-s1-p-trail-crit, anchor: {of: rig.root, to: rig.tip, samples: 11}, every: 1, for: 3}
-        - id: blade2
-          op: group
-          at: 29
-          do:
-            - {id: b2_trail, op: particle_def, def: bastion-s1-p-trail, anchor: {of: rig.root, to: rig.tip, samples: 11}, every: 1, for: 15}
-            - {id: b2_sheath, op: particle_def, def: bastion-s1-p-sheath-hot, anchor: {of: rig.root, to: rig.tip, samples: 5}, every: 1, for: 15}
-            - {id: b2_steel, op: particle_def, def: bastion-s1-p-steel, anchor: rig.tip, every: 1, for: 15}
-            - {id: b2_fleck, op: particle_def, def: bastion-s1-p-fleck, anchor: {of: rig.root, to: rig.tip, samples: 3}, every: 1, for: 15}
-        - id: blade2_hit
-          op: group
-          at: 31
-          do:
-            - {id: b2_crit, op: particle_def, def: bastion-s1-p-trail-crit, anchor: {of: rig.root, to: rig.tip, samples: 11}, every: 1, for: 3}
-        - id: blade3
-          op: group
-          at: 50
-          do:
-            - {id: b3_slash, op: particle_def, def: bastion-s1-p-slash, anchor: {of: rig.root, to: rig.tip, samples: 11}, every: 1, for: 6}
-            - {id: b3_steel, op: particle_def, def: bastion-s1-p-steel, anchor: rig.tip, every: 1, for: 6}
+            # plane = left/up (normal forward); angle = 36 i - 20 parent.i degrees
+            - id: pt2
+              op: particle_def
+              def: bastion-s1-p-ring-crit
+              anchor: {of: fx3_fx_low, offset: {left: 0.096, up: 1.005, forward: 2.532}}
+              times: 10
+              shift:
+                left: "= (0.25 + 0.275 * parent.i) * cos((36 * i - 20 * parent.i) * 0.0174533)"
+                up: "= (0.25 + 0.275 * parent.i) * sin((36 * i - 20 * parent.i) * 0.0174533)"
+        # --- blade fx ---
+        - {id: b2_trail, op: particle_def, def: bastion-s1-p-trail, at: 1, every: 1, for: 15, anchor: {of: /sweep1/rig.root, to: /sweep1/rig.tip, samples: 11}}
+        - {id: b2_sheath, op: particle_def, def: bastion-s1-p-sheath-hot, at: 1, every: 1, for: 15, anchor: {of: /sweep1/rig.root, to: /sweep1/rig.tip, samples: 5}}
+        - {id: b2_steel, op: particle_def, def: bastion-s1-p-steel, at: 1, every: 1, for: 15, anchor: /sweep1/rig.tip}
+        - {id: b2_fleck, op: particle_def, def: bastion-s1-p-fleck, at: 1, every: 1, for: 15, anchor: {of: /sweep1/rig.root, to: /sweep1/rig.tip, samples: 3}}
+        - {id: b2_crit, op: particle_def, def: bastion-s1-p-trail-crit, at: 3, every: 1, for: 3, anchor: {of: /sweep1/rig.root, to: /sweep1/rig.tip, samples: 11}}
+    slam:
+      for: 12
+      then: end
+      do:
+        # swing 3 (v2 t46-56): raise and slam down, the rest pose returns at 56
+        - {id: b3_slash, op: particle_def, def: bastion-s1-p-slash, at: 4, every: 1, for: 6, anchor: {of: /sweep1/rig.root, to: /sweep1/rig.tip, samples: 11}}
+        - {id: b3_steel, op: particle_def, def: bastion-s1-p-steel, at: 4, every: 1, for: 6, anchor: /sweep1/rig.tip}
     end: {final: true}
