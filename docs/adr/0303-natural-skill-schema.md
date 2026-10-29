@@ -895,6 +895,22 @@ machine: { ... }                                 # a part IS an automaton (secti
 Cost: load-time only for structure (linear in part size per call); runtime cost is the same as writing the ops inline, which the lint prints
 per call (`expand` shows the flattened machine and the writes per tick).
 
+#### 9.3 Derived documents (`extends:` + `with:`, rev4.12)
+
+A tier of a weapon or tool (`pistol-shot-t2`, `axe-fell-iron`) differs from its base in a few numbers, a different item and its own meta. It is written as a derived document instead of a full copy:
+
+```yaml
+apiVersion: astera/v3
+kind: Skill
+id: pistol-shot-t2
+extends: pistol-shot
+item: pistol-t2
+meta: {name: {...}, description: {...}, cooldown_ticks: 24, resource_cost: 0, tags: [...]}   # written in full, never inherited
+with: {dmg: 32.0}
+```
+
+Rules: a tier document has exactly `apiVersion, kind, id, extends, item, meta, with` (any other key is a load error naming the key and the base). The base is a composed skill id (a document of `content/skills`, never a Part, a Patch variant or a tier); one level only. `meta` is required and is the tier's whole meta (a missing `meta`, or `item` when the base has one, is a load error: nothing is inherited, founder 10/29 "全部書かせる"). `with:` maps base params to literals (no `= `, no `${}`); each name must be a param of the base, its type must match (`number`/`ticks`/`blocks`: number, `bool`: bool, `string`: string), and every `required` base param must be given. The derived tree is a copy of the base's same-id merged tree (the base's Patches are not applied to it) with the tier's `id`, `item`, `meta`, and `params.<p>.default` replaced by the `with` value; from there it composes, decodes, compiles and replays like any skill, so its oracle golden is `skill-oracle/<tier-id>/skill.txt` and equals the base with the values substituted. Patches may target the tier id (`target: pistol-shot-t2`, variant `pistol-shot-t2@x`): they apply to the derived tree after derivation. Editing the base file recomposes its tiers on incremental reload. Load errors surface as `ComposeError.Extends(file, path, reason)`; the texts are fixed in the design (`extends 'X': no skill document 'X' in content/skills (...)`, `... a base must not itself extend (...)`, `with 'p': base 'B' declares no param 'p' (params: ...)`, `with 'p': expected number, got string "32"`, `extends 'B': 'meta' is required in a tier (it is not inherited)`). Cases: `ExtendsTierScenarioTest`.
+
 ### 10. State machine: every skill and part is an explicit automaton
 
 A skill or part body is a **hierarchical finite automaton** (Harel statechart). `timeline`, `window`, `when`/`if`/`choose`, `until: <event>` and

@@ -1,6 +1,7 @@
 apiVersion: astera/v3
 kind: Skill
 id: axe-fell-iron
+extends: axe-fell-stone
 item: iron-axe
 meta:
   name: {ja: "鉄の木断ち", en: "Iron Fell"}
@@ -8,14 +9,10 @@ meta:
   cooldown_ticks: 110
   resource_cost: 0
   tags: [tool, cover]
-anchors:
-  - {id: aim_pt, anchor: caster, offset: {forward: 2.0}, mode: follow}
-machine:
-  start: cast
-  states:
-    cast:
-      for: 1
-      then: end
-      do:
-        - {id: fell, use: axe-fell, with: {length: 7, tier: 2, strip_pitch: 0.7, break_vol: 0.9, break_pitch: 0.8}, frames: {spot: aim_pt}}
-    end: {final: true}
+with:
+  length: 7
+  strip_pitch: 0.7
+  break_vol: 0.9
+  break_pitch: 0.8
+  strong: true
+  spark: tool-axe-iron

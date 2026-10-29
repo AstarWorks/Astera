@@ -1,3 +1,5 @@
+# Cuts a line of wooden blocks ahead; the tiers differ in reach. Base of the axe-fell tiers (this is the stone tier);
+# axe-fell-iron / -diamond extend it (ADR-0303 9.3): same document, other id / item / meta and the `with:` values below.
 apiVersion: astera/v3
 kind: Skill
 id: axe-fell-stone
@@ -8,6 +10,14 @@ meta:
   cooldown_ticks: 140
   resource_cost: 0
   tags: [tool, cover]
+params:
+  length: {type: number, default: 5}
+  strip_pitch: {type: number, default: 0.8}
+  break_vol: {type: number, default: 0.8}
+  break_pitch: {type: number, default: 0.9}
+  strong: {type: bool, default: false}
+  crit: {type: bool, default: false}
+  spark: {type: string, default: tool-axe-stone}
 anchors:
   - {id: aim_pt, anchor: caster, offset: {forward: 2.0}, mode: follow}
 machine:
@@ -17,5 +27,10 @@ machine:
       for: 1
       then: end
       do:
-        - {id: fell, use: axe-fell, with: {length: 5, tier: 1, strip_pitch: 0.8, break_vol: 0.8, break_pitch: 0.9}, frames: {spot: aim_pt}}
+        - {id: fell, op: break_area, anchor: caster, shape: {line: {length: "${length}", width: 1, height: 3}}, tool: axe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
+        - {id: snd, op: sound, sound: item.axe.strip, anchor: caster, volume: 1.0, pitch: "${strip_pitch}"}
+        - {id: snd_2, op: sound, sound: block.wood.break, anchor: caster, volume: "${break_vol}", pitch: "${break_pitch}"}
+        - {id: snd_3, op: sound, sound: entity.player.attack.strong, anchor: caster, volume: 0.6, pitch: 0.9, when: "= ${strong}"}
+        - {id: snd_4, op: sound, sound: entity.player.attack.crit, anchor: caster, volume: 0.8, pitch: 0.9, when: "= ${crit}"}
+        - {id: spark, op: particle_def, def: "${spark}", anchor: aim_pt}
     end: {final: true}

@@ -6,12 +6,17 @@
     "required": [
         "apiVersion",
         "kind",
-        "id",
-        "machine"
+        "id"
     ],
     "properties": {
         "apiVersion": {
             "const": "astera/v3"
+        },
+        "extends": {
+            "type": "string"
+        },
+        "with": {
+            "type": "object"
         },
         "kind": {
             "const": "Skill"
@@ -444,6 +449,74 @@
         }
     },
     "additionalProperties": false,
+    "if": {
+        "required": [
+            "extends"
+        ]
+    },
+    "then": {
+        "required": [
+            "meta"
+        ],
+        "not": {
+            "anyOf": [
+                {
+                    "required": [
+                        "machine"
+                    ]
+                },
+                {
+                    "required": [
+                        "params"
+                    ]
+                },
+                {
+                    "required": [
+                        "anchors"
+                    ]
+                },
+                {
+                    "required": [
+                        "fragments"
+                    ]
+                },
+                {
+                    "required": [
+                        "conditions"
+                    ]
+                },
+                {
+                    "required": [
+                        "frames_in"
+                    ]
+                },
+                {
+                    "required": [
+                        "emits"
+                    ]
+                },
+                {
+                    "required": [
+                        "importance"
+                    ]
+                }
+            ]
+        }
+    },
+    "else": {
+        "required": [
+            "machine"
+        ],
+        "not": {
+            "anyOf": [
+                {
+                    "required": [
+                        "with"
+                    ]
+                }
+            ]
+        }
+    },
     "definitions": {
         "op": {
             "oneOf": [
