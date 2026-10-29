@@ -31,7 +31,7 @@ machine:
         - {id: snd, op: sound, sound: "astera:weapons/shotgun-blast", anchor: caster, volume: 0.6, pitch: 1.4}
         - {id: fx, op: particle_def, def: shotgun-muzzle, anchor: muzzle}
         - {id: fx_2, op: particle_def, def: shotgun-cone-smoke, anchor: cone}
-        - {id: tracer, op: ribbon, from: muzzle, to: reach, thickness: 0.14, color: "#FFFFE070", at: 0, for: 4, detach: true}
+        - {id: tracer, use: skill:gun-tracer, with: {thickness: 0.14}, frames: {muzzle: muzzle, tip: reach}}
         - id: swing
           op: hit
           at: 0

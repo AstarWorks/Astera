@@ -33,8 +33,11 @@ g @0 state-end then=- final=true | state=end
 g.absorbed @1..30 handler max=1 | sub=fire/bolt.absorbed
 g.block @1..30 handler max=1 | sub=fire/bolt.block
 g.block @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D0.5),%20tool%3Dnone,%20blockDamage%3D12,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=fire/bolt.block
+g.block @0 call skill:gun-tracer | sub=fire/bolt.block
 g.end @1..30 handler max=1 | sub=fire/bolt.end
 g.expire @30..30 handler max=1 | sub=fire/bolt.expire
+g.expire @0 call skill:gun-tracer | sub=fire/bolt.expire
 g.hit @1..30 handler max=1 | sub=fire/bolt.hit
 g.hit @0 damage physical=32.000000 | sub=fire/bolt.hit
 g.hit @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D0.5),%20tool%3Dnone,%20blockDamage%3D12,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=fire/bolt.hit
+g.hit @0 call skill:gun-tracer | sub=fire/bolt.hit

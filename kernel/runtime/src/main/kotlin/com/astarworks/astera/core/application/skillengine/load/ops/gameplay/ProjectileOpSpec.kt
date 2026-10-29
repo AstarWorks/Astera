@@ -423,6 +423,8 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             look["end.max"] = Val.Known(window.max.toDouble())
 
             val anchor = lc.anchors.resolve(op.origin)?.instance
+            // a `frames_in` name is spelled by the caller's frame (AnchorNames.host) in every cell the player reads
+            val originHost = AnchorNames.host(lc.anchors, op.origin)
             val one = Val.Known(Vector3d(1.0, 1.0, 1.0))
             // a document `anchors:` entry (ADR-0303 1) is no frame instance and no live name: it lowers to its parent frame plus its offset as one
             // `= expr` cell, exactly as a sound / particle placement does; only a builtin or an instance is a bare live anchor cell
@@ -448,14 +450,14 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                         is Result.Success -> if (r.value == null) return bad("origin '${op.origin}' is not declared in this scope (a builtin, a frame or body id, or an 'anchors:' entry)")
                     }
                 }
-                originPosition = Val.Live("anchor:${op.origin}.position", null)
-                originRotation = Val.Live("anchor:${op.origin}.rotation", null)
+                originPosition = Val.Live("anchor:$originHost.position", null)
+                originRotation = Val.Live("anchor:$originHost.rotation", null)
             }
             val rows = ArrayList<Row>()
             rows += Row(
                 0, body,
                 Action.Spawn(
-                    SpawnKind.PROJECTILE_BODY, anchor, op.origin,
+                    SpawnKind.PROJECTILE_BODY, anchor, originHost,
                     Pose(originPosition, originRotation, one),
                     Look(look),
                 ),

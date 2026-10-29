@@ -155,4 +155,93 @@ class CalleeFramesInScenarioTest : SkillEngineScenario() {
         val bareHand = GatewayRecorder().also { it.mainHandHeld = false }
         assertThatThrownBy { play(skill, seed = 1L, events = emptyList(), ticks = 6, rec = bareHand) }.hasMessageContaining("empty main hand")
     }
+
+    private val lineCallee = """
+        ---
+        apiVersion: astera/v3
+        kind: Skill
+        id: thread
+        meta: {cooldown_ticks: 0, resource_cost: 0}
+        frames_in: {a: anchor, b: anchor}
+        machine:
+          start: s
+          states:
+            s:
+              for: 1
+              then: e
+              enter:
+                - {id: ln, op: ribbon, from: a, to: b, thickness: 0.1, color: "#FFFFE070", for: 4, detach: true}
+            e: {final: true}
+    """.trimIndent()
+
+    private fun lineCaller(body: String) = """
+        ---
+        apiVersion: astera/v3
+        kind: Skill
+        id: liner
+        meta: {cooldown_ticks: 0, resource_cost: 0}
+        anchors:
+          - {id: muzzle, anchor: caster, offset: {up: 1.0, forward: 0.5}, mode: snapshot}
+        machine:
+          tail: 4
+          start: s
+          states:
+            s:
+              for: 6
+              then: e
+              ${body.lines().joinToString("\n              ")}
+            e: {final: true}
+    """.trimIndent()
+
+    private fun lines(calls: List<RecordedCall>) =
+        calls.filter { it.verb == "spawn" && it.payload == "kind=ribbon" && it.detail.contains("from=") }.map { it.detail }
+
+    private fun end(detail: String, key: String): Vec3 =
+        Regex(key + """=(-?[0-9.]+),(-?[0-9.]+),(-?[0-9.]+)""").find(detail)!!.groupValues.let { Vec3(it[1].toDouble(), it[2].toDouble(), it[3].toDouble()) }
+
+    private fun hitLine(handlerRow: String, extra: String): String {
+        val caller = lineCaller(
+            """
+              do:
+                - id: sel
+                  op: hit
+                  at: 0
+                  anchor: caster
+                  shape: {sphere: 8.0}
+                  targets: enemies
+                  ignore_invulnerability: false
+                  damage: {physical: 1.0}
+                  on:
+                    hit:
+                      - $handlerRow
+            """.trimIndent(),
+        )
+        val skill = ok(loadInline(caller + extra))
+        val rec = GatewayRecorder()
+        rec.victims = listOf(HitCandidate(UUID(0L, 11L), Vec3(0.0, 0.0, 2.0), 0.0, HitBox(Vec3(-0.3, 0.0, 1.7), Vec3(0.3, 1.8, 2.3)), 1.62))
+        return lines(play(skill, seed = 1L, events = emptyList(), ticks = 8, rec = rec)).single()
+    }
+
+    @Test
+    fun calleeLineRibbonDrawsBetweenTheCallersAnchorsOnHit() {
+        val viaCallee = hitLine("{id: th, use: skill:thread, frames: {a: muzzle, b: contact}}", "\n" + lineCallee)
+        val direct = hitLine("{id: th, op: ribbon, from: muzzle, to: contact, thickness: 0.1, color: \"#FFFFE070\", for: 4, detach: true}", "")
+        assertThat(end(viaCallee, "from").y).describedAs(viaCallee).isEqualTo(2.0, org.assertj.core.data.Offset.offset(0.01))
+        // the callee's `frames_in` ends are the caller's anchors: the very line the same ribbon draws when written in the caller
+        assertThat(viaCallee).isEqualTo(direct)
+    }
+
+    @Test
+    fun calleeLineRibbonDrawsBetweenTheCallersAnchorOnAMissToo() {
+        val caller = lineCaller(
+            """
+              enter:
+                - {id: th, use: skill:thread, frames: {a: muzzle, b: caster}}
+            """.trimIndent(),
+        )
+        val skill = ok(loadInline(caller + "\n" + lineCallee))
+        val found = lines(play(skill, seed = 1L, ticks = 8))
+        assertThat(found).hasSize(1)
+        assertThat(end(found.single(), "from").y).describedAs(found.single()).isEqualTo(2.0, org.assertj.core.data.Offset.offset(0.01))
+    }
 }

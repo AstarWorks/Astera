@@ -41,19 +41,19 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: tracer_h, op: ribbon, from: muzzle, to: contact, thickness: 0.14, color: "#FFFFE070", for: 4, detach: true}
+              - {id: tracer_h, use: skill:gun-tracer, with: {thickness: 0.14}, frames: {muzzle: muzzle, tip: contact}}
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg}"}}
               - {id: chip, op: break_area, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact}
               - {id: fx_hit, op: particle_def, def: gun-impact, anchor: heart}
             block:
-              - {id: tracer_b, op: ribbon, from: muzzle, to: contact, thickness: 0.14, color: "#FFFFE070", for: 4, detach: true}
+              - {id: tracer_b, use: skill:gun-tracer, with: {thickness: 0.14}, frames: {muzzle: muzzle, tip: contact}}
               - {id: chip_b, op: break_area, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.6, pitch: 1.6}
               - {id: fx_blk0, op: particle_def, def: gun-impact, anchor: contact}
               - {id: fx_blk1, op: particle_def, def: gun-impact-smoke, anchor: contact}
             expire:
-              - {id: tracer_e, op: ribbon, from: muzzle, to: contact, thickness: 0.14, color: "#FFFFE070", for: 4, detach: true}
+              - {id: tracer_e, use: skill:gun-tracer, with: {thickness: 0.14}, frames: {muzzle: muzzle, tip: contact}}
         # the visible round, riding the body
         - {id: slug, op: display, kind: item, item: "minecraft:iron_nugget", context: fixed, anchor: bolt, scale: [0.6, 0.6, 0.6], at: 0, until: bolt.end}
         - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.5}, count: 1, at: 0, every: 1, until: bolt.end}
