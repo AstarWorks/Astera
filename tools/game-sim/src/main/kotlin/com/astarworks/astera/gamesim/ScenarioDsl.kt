@@ -131,7 +131,7 @@ public class ScenarioScope(public val sim: GameSim) {
     public fun startMatch(
         mode: String,
         teams: Map<SimEntity, String>,
-        stage: String = "siege-isles",
+        stage: String = laneStageOf(mode),
     ): com.astarworks.astera.core.domain.match.MatchId {
         val lifecycle = sim.services.getOrThrow<com.astarworks.astera.match.application.port.inbound.IMatchLifecycle>()
         val matchId = when (val started = lifecycle.start(com.astarworks.astera.core.domain.stage.StageId(stage), mode)) {
@@ -142,5 +142,14 @@ public class ScenarioScope(public val sim: GameSim) {
         lifecycle.switchPhase(matchId, com.astarworks.astera.match.domain.match.MatchStateMachine.TransitionTrigger.CountdownComplete)
         sim.step(2)
         return matchId
+    }
+
+    private companion object {
+        /** The stage the shipped `matchmaking/queue.yaml` routes [mode] to; modes without a lane play on `siege-isles`. */
+        fun laneStageOf(mode: String): String {
+            val queue = com.astarworks.astera.match.application.contents.QueueSettingsContents()
+            queue.bootstrap(GameSim.defaultContentDir().resolve("matchmaking"))
+            return queue.current().lanes[mode]?.stage?.value ?: "siege-isles"
+        }
     }
 }

@@ -6,6 +6,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.domain.event.PlayerRespawned
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
+import com.astarworks.astera.core.domain.hud.HudRegion
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -18,6 +19,12 @@ import org.junit.jupiter.params.provider.ValueSource
  */
 class MatchClarityScenarioTest {
 
+    /** A player in a match is reported to the objective modes by their moves (`PlayerMoved`), as on Paper: report where they stand. */
+    private fun ScenarioScope.onTheMove(vararg who: SimEntity) {
+        for (e in who) e.moveTo(e.position)
+        advance(1)
+    }
+
     private val nowhere = Vec3(0.0, 65.0, -50.0)
 
     private fun ScenarioScope.chat(who: SimEntity): String = checkNotNull(sim.server.view(who.id)).messages.joinToString("\n")
@@ -27,6 +34,7 @@ class MatchClarityScenarioTest {
         val blue = player("blue-1", at = nowhere)
         val matchId = startMatch(mode, mapOf(red to "red", blue to "blue"), stage = stage)
         advance(45)
+        onTheMove(red, blue)
 
         val labels = sim.worldLabels.labels(matchId)
         for (key in labelKeys) assertThat(labels.keys).`as`("$mode: label $key").contains(key)
@@ -36,6 +44,9 @@ class MatchClarityScenarioTest {
         assertThat(blueReads).`as`("$mode: $ownerSpecific read by blue").isNotBlank()
         assertThat(redReads).`as`("$mode: the owner and the rival read different text").isNotEqualTo(blueReads)
 
+        // The guide follows the locked navigation compass: it points only while the compass is the held item.
+        for (who in listOf(red, blue)) sim.matchCompass.select(who.id, true)
+        advance(25)
         for (who in listOf(red, blue)) {
             val guide = sim.hologramGuide.guideOf(who.id)
             assertThat(guide).`as`("$mode: ${who.id} has a navigation target").isNotNull()
@@ -76,12 +87,15 @@ class MatchClarityScenarioTest {
         scenario("clarity-annihilation") {
             val red = player("red-1", at = nowhere)
             val blue = player("blue-1", at = nowhere)
-            val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue"), stage = "annihilation-arena")
+            val yellow = player("yellow-1", at = nowhere)
+            val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow to "yellow"), stage = "annihilation-arena")
             advance(45)
+            onTheMove(red, blue, yellow)
 
             val pillars = sim.worldLabels.labels(matchId).keys.filter { it.startsWith("pillar-") }
             assertThat(pillars).`as`("pillar labels").isNotEmpty()
-            val key = pillars.first()
+            // A red pillar: red reads "ours", blue reads "enemy" (a yellow pillar would read the same to both rivals).
+            val key = pillars.first { it.contains("-red-") }
             assertThat(sim.worldLabels.textFor(matchId, key, red.id)).isNotEqualTo(sim.worldLabels.textFor(matchId, key, blue.id))
             assertThat(sim.hologramGuide.guideOf(red.id)).`as`("no compass in hand: no hologram guide").isNull()
             sim.matchCompass.select(red.id, true)
@@ -90,7 +104,7 @@ class MatchClarityScenarioTest {
             assertThat(sim.hologramGuide.guideOf(red.id)).`as`("red holds the compass and is pointed at an enemy pillar").isNotNull()
             assertThat(sim.hologramGuide.guideOf(blue.id)).isNotNull()
             val card = chat(red)
-            assertThat(card).contains("pillars").contains("Tier").contains("last team")
+            assertThat(card).contains("pillars").contains("tier").contains("last team")
 
             sim.services.getOrThrow<IMatchLifecycle>().end(matchId, EndReason.Cancelled("clarity-test"))
             advance(40)
@@ -103,24 +117,27 @@ class MatchClarityScenarioTest {
         scenario("clarity-annihilation-compass") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            startMatch("annihilation", mapOf(red to "red", blue to "blue"), stage = "annihilation-arena")
+            val yellow = player("yellow-1", team = "yellow")
+            startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow to "yellow"), stage = "annihilation-arena")
             advance(45)
+            onTheMove(red, blue, yellow)
 
             for (who in listOf(red, blue)) {
                 assertThat(sim.matchCompass.slotOf(who.id)).`as`("${who.name}: compass at index 8 after start").isEqualTo(8)
             }
 
             // Not held: neither the hologram guide nor the action-bar arrow.
-            val arrowsBefore = checkNotNull(sim.server.view(red.id)).actionBars.size
+            val arrowsBefore = sim.hud.changes(red.id, HudRegion.ACTION_BAR).size
             advance(45)
+            onTheMove(red, blue, yellow)
             assertThat(sim.hologramGuide.guideOf(red.id)).`as`("compass not held: no guide").isNull()
-            assertThat(checkNotNull(sim.server.view(red.id)).actionBars.size).`as`("compass not held: no arrow").isEqualTo(arrowsBefore)
+            assertThat(sim.hud.changes(red.id, HudRegion.ACTION_BAR).size).`as`("compass not held: no arrow").isEqualTo(arrowsBefore)
 
             // Held: both appear.
             sim.matchCompass.select(red.id, true)
             advance(25)
             assertThat(sim.hologramGuide.guideOf(red.id)).`as`("compass held: guide shown").isNotNull()
-            assertThat(checkNotNull(sim.server.view(red.id)).actionBars.size).`as`("compass held: arrow shown").isGreaterThan(arrowsBefore)
+            assertThat(sim.hud.changes(red.id, HudRegion.ACTION_BAR).size).`as`("compass held: arrow shown").isGreaterThan(arrowsBefore)
 
             // Switch to another slot: the guide goes away again.
             sim.matchCompass.select(red.id, false)
@@ -129,12 +146,12 @@ class MatchClarityScenarioTest {
 
             // Death takes the item, the respawn hands it back at index 8.
             sim.setMaxHealth(blue, 1.0)
-            red.moveTo(blue.position + Vec3(0.0, 0.0, 6.0))
-            red.holds("pistol")
+            red.moveTo(blue.position + Vec3(0.0, 0.0, 1.5))
+            red.holds("knight-sword")
             red.faces(blue)
             repeat(20) {
                 if (eventsOf<PlayerKilled>().none { it.victim == blue.id }) {
-                    red.rightClick()
+                    red.leftClick()
                     advance(10)
                 }
             }
@@ -154,6 +171,7 @@ class MatchClarityScenarioTest {
             val blue = player("blue-1", team = "blue")
             startMatch(mode, mapOf(red to "red", blue to "blue"))
             advance(45)
+            onTheMove(red, blue)
 
             for (who in listOf(red, blue)) {
                 assertThat(sim.matchCompass.slotOf(who.id)).`as`("$mode ${who.name}: compass at index 8").isEqualTo(8)
