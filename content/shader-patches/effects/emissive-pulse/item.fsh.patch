@@ -1,0 +1,7 @@
+@@ hook: declarations
+layout(location = 14) flat in int asteraEmissive;
+@@ hook: surface
+    if (asteraEmissive == 1) {
+        float pulse = 0.65 + 0.35 * sin(GameTime * 1200.0 * 6.2831853 / ${PERIOD_SECONDS});
+        color.rgb = min(vec3(1.0), color.rgb * ${BOOST} * pulse + vec3(0.12) * pulse);
+    }

@@ -711,6 +711,7 @@ public class TablePlayer(
                 cast, req(run, look, "item", ctx), look.fields["part"]?.let { strOf(run, it, ctx) }, pose, brightness,
                 MeshLook(
                     itemModel = look.fields["model"]?.let { strOf(run, it, ctx) },
+                    shaderEffect = look.fields["shader_effect"]?.let { strOf(run, it, ctx) },
                     mode = look.fields["mode"]?.let { DisplayItemMode.valueOf(strOf(run, it, ctx).uppercase()) } ?: DisplayItemMode.FIXED,
                     rigShading = look.fields["rig_shading"]?.let { any(run, it, ctx) as? Boolean } ?: true,
                 ),

@@ -1,5 +1,7 @@
 # Model Forge: local 3D agent tool
 
+生成したレビュー HTML は `tools/model-forge/work/` に置き、`make skill-compare-up` → http://192.168.11.5:8097/models から選択する。
+
 One persistent project library (`core.Project.call`) drives CLI, loopback REST and MCP stdio.
 Python 3.10+, numpy and Pillow; no Blender, Gradle, Docker, network services or API keys.
 The old staged content recipes remain in [RECIPES.md](RECIPES.md), invoked through `recipe.py`.
@@ -276,7 +278,7 @@ Build a portable HTML snapshot from the **actual authored JSON and PNG atlases**
 ```sh
 (cd tools/skill-viewer && bun install --frozen-lockfile)
 python3 tools/model-forge/context_preview.py --viewer --out tools/model-forge/work/reviewer
-# Open tools/model-forge/work/reviewer/viewer.html directly in a browser.
+# Open http://192.168.11.5:8097/models and select work/reviewer/viewer.html.
 ```
 
 The HTML embeds geometry, textures and JavaScript. No server, CDN, credentials,

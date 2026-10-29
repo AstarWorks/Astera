@@ -54,9 +54,10 @@ public object MatchSidebarModel {
 
     /**
      * Modes whose body must stay whole: Annihilation is played on the enemy pillars' HP, so every team's line (one per
-     * team, three in all) has to stay readable instead of being cut to fit [MAX_LINES].
+     * team, three in all) has to stay readable instead of being cut to fit [MAX_LINES]. Steal Jewelry shows each team's count line
+     * plus its pedestal jewel line (4 rows), which the 2-row mode budget would cut to the counts alone.
      */
-    private val WHOLE_BODY_MODES: Set<String> = setOf("annihilation")
+    private val WHOLE_BODY_MODES: Set<String> = setOf("annihilation", "steal-jewelry")
 
     /** The viewer-independent part, built from the mode's own [IGameMode.hudStatus]. */
     public fun build(mode: IGameMode, match: Match, nowTick: Long, timeLimitTicks: Long = 0L, objectiveParams: Map<String, String> = emptyMap()): SidebarModel {

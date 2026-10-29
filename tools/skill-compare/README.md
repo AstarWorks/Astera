@@ -1,4 +1,4 @@
-# skill-compare
+# skill-compare — Astera レビューハブ
 
 制作・修正の統一手順と合格条件: [Limbus参照武器スキルの制作・修正手順](../../docs/contributing/limbus-skill-reproduction.md)。撮影済み・反復回数到達は再現合格を意味しない。
 
@@ -59,8 +59,10 @@ Frames before the cast / after the last frame are shown dimmed. Align with the "
 
 ## Security
 
-Only `public/`, `src/` (bundled on the fly), `data/`, `cache/` and the three build dirs above are reachable, by fixed
-URL patterns with strict file-name regexes. Binding `0.0.0.0` is intended for the LAN; there is no auth, do not expose it.
+Trusted LAN only; there is no authentication. The hub reads the explicitly listed output directories below.
+`/hub-file/` resolves real paths inside the selected root, refuses symlink escapes, and only serves viewable assets;
+HTTP never launches a generator. Generated HTML runs in a sandboxed iframe. Keep generated review files trusted.
+The live tab embeds the capture server on its own origin, preserving its JSON/Origin and WebSocket checks.
 
 ## Agent PDCA loop
 
@@ -206,3 +208,86 @@ and a regression slipped through unnoticed. Everyone asks the server, so everyon
 - **Source quality** (audited 2026-10-27, all 10 reference videos): YouTube offers 1080p at most (no 1440p/4K, no 60 fps); the cache holds the best stream (VP9 "premium"
   ~3.3-4.0 Mbps for 8 videos; Svaaq9F7Ty8 only offers H.264 2.2 Mbps). Reference frames are lossless PNG at native size/fps. MC captures are far smaller:
   `side`/`top` 640x360, `input` 854x480, `compare`/`preview` 1280x720 (`RES=` in vfx-shot raises it), so judge MC detail with `zoom=native`.
+
+## 統合タブ（founder の入口は http://192.168.11.5:8097）
+
+全画面（case 詳細・アニメーション詳細も含む）に同じ日本語ナビゲーションを表示する。
+`make skill-compare-up` が dev の detached worktree に追従する。旧ギャラリーの別サービス・Make target は削除済み。
+
+### スキル比較 — `/`
+
+武器一覧から `/case.html?id=<case>` へ。参照動画・Minecraft 撮影・beat sheet・レビューは既存の比較 API を共有する。
+
+### アニメーション — `/anim`
+
+モーション一覧・詳細・tick 付きレビュー。撮影は `make anim-shot ANIM=<id>`。上記 Animation review 節参照。
+
+### スプライト — `/sprites`
+
+全スプライトの animated card、ID/tag 検索、タグフィルタ、4×/8×、1–60 fps、背景・加算合成・一時停止。
+Minecraft 表示は距離 3/5/10 blocks と縦 FOV 70°、alpha cutoff 0.1 の寸法近似（shader の実機評価は撮影で行う）。
+詳細には全フレーム、スクラバー、原文 YAML、ノード中間 PNG。`content/textures/sources/sprites.yaml`、
+`content/sprites/`、`content/textures/generated/sprites/` は**配信 checkout** から読む。
+中間 PNG は checkout と primary の `build/`、実機シートは capture の検索先から読む。2 秒ごとに自動更新、変更画像は別 URL。
+`GET /api/sprites/catalog` が共通データ。タブ間の検索・表示設定はブラウザ session 内で保持する。
+
+### VFX サンプル — `/samples`
+
+各 skill の演出 YAML、shader_effect ID、実クライアント side コンタクトシート、未撮影の明示。
+`sample-*` で実機シートがない場合は「寸法近似」と明記した sprite sheet を表示する。
+実機: `build/vfx-shot/<id>/side/sheet.png`、近似: `build/skill-preview/<id>/side/strip.png`。
+14 sample の生成・shader の撮影コマンドは [sprite-graph](../../docs/contributing/vfx-team/sprite-graph.md) と
+[shader-effects](../../docs/contributing/vfx-team/shader-effects.md)。
+
+### 3D プレビュー — `/viewer`
+
+`make skill-preview SKILL=<id>` / `tools/skill-viewer` の生成済み strip HTML・画像・metadata を閲覧する。
+対象: `build/skill-preview/` と `tools/skill-viewer/build/`。HTML は同じタブ内に埋め込み、隣接画像も同じ配信元から取得する。headless 用の `file://` 参照は固定出力先に含まれるものだけ hub URL に変換する。
+現行 skill-viewer は trace v2 の headless renderer。空の `src/preview2.html` は trace/config 注入が必要なので直接の閲覧対象にしない。
+
+### HUD — `/hud`
+
+`tools/hud-preview/build/hud-frames/<trace>/` の生成画像を選択して表示する。生成手順は
+[HUD preview](../hud-preview/README.md)。HTTP から Gradle やシナリオは実行しない。
+
+### アリーナ — `/arena`
+
+`make arena-preview` の `build/arena-previews/`。top / iso / section / height PNG と report.md を閲覧する。
+
+### モデル — `/models`
+
+`tools/model-forge/{work,batches}/` と `build/model-forge/` のレビュー HTML・画像・JSON・文書。
+`build-reviewer.mjs <data.json> <tools/model-forge/work/.../viewer.html>` の出力は HTML 選択で埋め込む。
+生成コマンドやモデル制作手順は [model-forge](../model-forge/README.md) のまま。
+
+### 撮影結果 — `/captures`
+
+`build/vfx-shot/`、`build/skill-compare-published/`、`build/live-view/` の生成画像・動画・metadata を閲覧する。
+`SKILL_COMPARE_VFX_SHOT` / `SKILL_COMPARE_PUBLISHED` の設定先も対象。`make vfx-shot` と publish は従来どおり。
+
+### ライブ — `/live`
+
+`make live-view SKILL=<id>` を起動すると実クライアント配信を埋め込む。音声・cast/recast・HUD・snapshot・clip をそのまま操作できる。
+既定 backend は閲覧ホストの `:8098`（ブラウザで別 URL を開く必要はない）。異なるポート/ホストは hub サーバー環境変数
+`SKILL_COMPARE_LIVE_URL=http://capture-host:port`。停止中や別アプリが動いている場合は停止表示と起動コマンドを示す。
+配信は別プロセス・撮影 slot を使う。hub はプロセスの起動/停止を行わない。`make live-view` の直接配信も維持。
+
+### 生成物の検索と検証
+
+生成物タブは配信 checkout と primary checkout、および capture/preview 出力を持つ primary の worktree の上記固定ディレクトリを出力元として列挙する。`SKILL_COMPARE_WORKTREE_ROOT` で worktree 検索先を変更できる。
+detached follow checkout に build がなくても primary の生成物を閲覧できる。出力元・ディレクトリを選択し、画像/動画/HTML/テキストを表示。
+「再読み込み」で新しい生成物を再列挙する。未生成は出力先・生成コマンドを表示。スプライト/VFX は自動更新。追加 worktree 自体の検出はサーバー起動時なので、新規撮影 worktree を作った場合は hub を再起動する。
+
+独立した空きポートで起動し、Chromium browser integration を実行する（共有 8097/8098 を停止しない）。
+
+```sh
+PORT=18197 HOST=127.0.0.1 bun tools/skill-compare/server.mjs
+HUB_URL=http://127.0.0.1:18197 bun tools/skill-compare/scripts/gallery-browser.e2e.mjs
+HUB_URL=http://127.0.0.1:18197 bun tools/skill-compare/scripts/samples-browser.e2e.mjs
+HUB_URL=http://127.0.0.1:18197 bun tools/skill-compare/scripts/hub-browser.e2e.mjs
+```
+
+`PLAYWRIGHT_PACKAGE_ROOT` は既存 playwright-core の package root、`CHROMIUM_PATH` は Chromium の指定。
+`REQUIRE_SAMPLE_CAPTURES=1` は全 sample の実機シート必須。hub-browser は生成物 fixture・HTML 隣接 asset・
+パス境界・ライブ埋め込み/停止表示を検証し、全 10 タブを `/tmp/claude-1000/vfx-nodegraph/hub-<tab>.png` に撮影する。
+Minecraft の live stack を起動する検証は manager の統合 window で行う。

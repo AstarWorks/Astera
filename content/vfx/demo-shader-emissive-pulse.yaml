@@ -1,0 +1,41 @@
+apiVersion: astera/v3
+kind: Skill
+id: demo-shader-emissive-pulse
+meta:
+  name:
+    ja: シェーダーデモ・emissive-pulse
+    en: 'Shader demo: emissive-pulse'
+  cooldown_ticks: 100
+  resource_cost: 0
+  tags:
+  - demo
+  - shader
+anchors:
+- id: surface
+  anchor: caster
+  offset:
+    up: 1.5
+    forward: 2
+machine:
+  start: show
+  states:
+    show:
+      for: 100
+      do:
+      - id: surface
+        op: display
+        kind: item
+        anchor: surface
+        for: 100
+        item: iron-warden-chestplate
+        scale:
+        - 2
+        - 2
+        - 2
+        rotate:
+        - axis: up
+          deg: 90
+        shader_effect: emissive-pulse
+      then: end
+    end:
+      final: true

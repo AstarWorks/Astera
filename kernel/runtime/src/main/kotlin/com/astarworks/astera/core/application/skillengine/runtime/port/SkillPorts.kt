@@ -44,6 +44,7 @@ public data class MeshLook(
     val itemModel: String? = null,
     val mode: DisplayItemMode = DisplayItemMode.FIXED,
     val rigShading: Boolean = true,
+    val shaderEffect: String? = null,
 )
 
 /**

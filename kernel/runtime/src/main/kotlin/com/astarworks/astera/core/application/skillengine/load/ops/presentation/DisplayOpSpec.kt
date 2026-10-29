@@ -107,6 +107,7 @@ public class DisplayOp(
     public val teleportDuration: Value<Double>,
     /** Laws decoded by [MotionLaws]; segmented into `Key` rows (and `Set` rows for a fade) by [LawSegmenter] at compile. */
     public val motion: List<MotionLaw>,
+    public val shaderEffect: String?,
 ) : OpNode
 
 /** Sprite `flipbook`: [frames] glyphs, one step every [every] ticks; [loop] wraps to frame 0, otherwise the last frame holds. */
@@ -154,6 +155,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
 
     // item
     private val itemF = Field.optional("item", Types.nullable(Types.id), null, "kind item: item_model id (main_hand = the held item's model, resolved at cast start)")
+    private val shaderEffectF = Field.optional("shader_effect", Types.nullable(Types.id), null, "kind item: isolated effect id from content/shader-patches/effects; excludes brightness")
     private val partF = Field.optional("part", Types.nullable(Types.id), null, "kind item: weapon part of content/frames/<item>.yaml whose axes (long, edge, face) the rotations read")
     private val contextF = Field.optional("context", Types.enumOf(*CONTEXTS), "fixed", "kind item: ItemDisplayContext, decision default fixed")
 
@@ -201,7 +203,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
 
     /** Fields that belong to exactly one kind; written on another kind they are a load error (nothing is silently dropped). */
     private val kindOnly: Map<String, List<Field<*>>> = mapOf(
-        "item" to listOf(itemF, partF, contextF),
+        "item" to listOf(itemF, partF, contextF, shaderEffectF),
         "block" to listOf(blockF),
         "text" to listOf(textF, backgroundF, alignmentF, lineWidthF, textOpacityF, shadowF),
         "sprite" to listOf(spriteF, sizeF, pivotF, flipbookF),
@@ -209,7 +211,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
 
     override val fields: Fields = Fields.of(
         "display", kindF, anchorF, offsetF,
-        itemF, partF, contextF, blockF,
+        itemF, partF, contextF, shaderEffectF, blockF,
         textF, backgroundF, alignmentF, lineWidthF, textOpacityF, seeThroughF, shadowF,
         spriteF, sizeF, pivotF, flipbookF, colorF,
         translationF, rotateF, scaleF, rightF, yawF, pitchF, billboardF, brightnessF, viewRangeF, glowColorF,
@@ -252,6 +254,14 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 DisplayKind.BLOCK -> values[blockF]?.let { Value.Literal(it) } ?: ctx.abortMissing(p, "block")
                 DisplayKind.TEXT -> values[textF]?.let { foldText(it, ctx) } ?: ctx.abortMissing(p, "text")
                 DisplayKind.SPRITE -> values[spriteF]?.let { Value.Literal(it) } ?: ctx.abortMissing(p, "sprite")
+            }
+            val shaderEffect = values[shaderEffectF]
+            if (shaderEffect != null) {
+                val item = (subject as? Value.Literal)?.value.orEmpty()
+                if (!Regex("[a-z][a-z0-9-]*").matches(shaderEffect)) ctx.fail("$p.shader_effect", "invalid shader effect id")
+                if (item == "main_hand" || item.startsWith("minecraft:") || values.isPresent(brightnessF)) {
+                    ctx.fail("$p.shader_effect", "shader_effect requires an Astera pack item and excludes brightness")
+                }
             }
             val size = if (kind == DisplayKind.SPRITE) {
                 val s = values[sizeF] ?: ctx.abortMissing(p, "size")
@@ -300,7 +310,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 wholeNum(values[interpDelayF], "$p.interpolation_delay", ctx, 0.0, null),
                 wholeNum(values[interpDurationF], "$p.interpolation_duration", ctx, 0.0, null),
                 wholeNum(values[teleportDurationF], "$p.teleport_duration", ctx, 0.0, null),
-                values[motionF] ?: emptyList(),
+                values[motionF] ?: emptyList(), shaderEffect,
             )
         }
 
@@ -557,6 +567,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 f["item"] = cell(op.subject)
                 op.part?.let { f["part"] = Val.Known(it) }
                 f["context"] = Val.Known(op.context)
+                op.shaderEffect?.let { f["shader_effect"] = Val.Known(it) }
             }
             DisplayKind.BLOCK -> f["block"] = cell(op.subject)
             DisplayKind.TEXT -> {

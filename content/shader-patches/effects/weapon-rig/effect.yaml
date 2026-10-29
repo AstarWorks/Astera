@@ -1,0 +1,6 @@
+id: weapon-rig
+programs: [item]
+markers:
+  - {channel: light-uv, value: "240:224"}
+  - {channel: tint-rgb, value: "16711422"}
+constants: {}

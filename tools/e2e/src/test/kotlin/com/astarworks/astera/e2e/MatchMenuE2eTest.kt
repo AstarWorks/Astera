@@ -41,6 +41,8 @@ class MatchMenuE2eTest : PlaythroughBase() {
         }
         if (active == null) return
         Thread.sleep(2_000)
+        // the match hotbar carries the locked navigation compass at index 8 (PaperMatchCompass), so slot 8 no longer tells match from lobby: remember it
+        val matchSlot8 = a.hotbar()[8]
 
         E2eReport.check(suite, "the match start tells the player about the F menu", "ClientboundSystemChat") {
             val chat = a.chat.drop(chatFrom).map { clean(it.text) }
@@ -80,7 +82,7 @@ class MatchMenuE2eTest : PlaythroughBase() {
             val cs = a.screens.last()
             confirm = cs
             a.waitUntil(3_000) { a.contents[cs.containerId]?.any { it.amount > 0 } == true }
-            assertThat(a.hotbar()[8]).describedAs("left the match before confirming: ${a.hotbar()}").isEqualTo(-1)
+            assertThat(a.hotbar()[8]).describedAs("the match hotbar changed before confirming: ${a.hotbar()}").isEqualTo(matchSlot8)
             "confirm title='${cs.title}'"
         }
         val c = confirm ?: return
@@ -88,7 +90,7 @@ class MatchMenuE2eTest : PlaythroughBase() {
         E2eReport.check(suite, "confirming Leave puts the player back in the lobby with the kit", "inventory + RCON") {
             click(a, c.containerId, 2)
             // A deliberate leave forfeits at once (MODE-14): seat released, match inventory swapped for the lobby kit.
-            assertThat(a.waitUntil(30_000) { a.hotbar()[8] != -1 })
+            assertThat(a.waitUntil(30_000) { a.hotbar()[8] != matchSlot8 })
                 .describedAs("no lobby kit after Leave; hotbar=${a.hotbar()} chat=${a.chatTexts().takeLast(4)}").isTrue()
             // Every slot (lobby included) lives in the one overworld; "back in the lobby" = left the match slot.
             val local = localPosOf(a)

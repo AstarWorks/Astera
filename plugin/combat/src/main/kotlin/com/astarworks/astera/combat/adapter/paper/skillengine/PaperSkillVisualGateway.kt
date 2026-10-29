@@ -126,7 +126,7 @@ public class PaperSkillVisualGateway(
         // v1 cloned the real stack (custom model, components) and drew it in THIRDPERSON_RIGHTHAND (PaperDisplayEntityGateway.kt:192-199).
         if (heldItem && server.getPlayer(castOwner)?.inventory?.itemInMainHand?.type?.isAir != false) return dead("mesh $item (empty main hand)")
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, 0)
-        val spec = SkillDisplaySpecs.mesh(kind, first.transform, brightness, look.rigShading).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
+        val spec = SkillDisplaySpecs.mesh(kind, first.transform, brightness, look.rigShading, look.shaderEffect).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null, view) ?: return dead("mesh $item")
         if (heldItem) hideHand(castOwner)
         return register(castOwner, MeshEntry(handle, castOwner, heldItem))

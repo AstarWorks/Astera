@@ -48,8 +48,8 @@ public object SkillDisplaySpecs {
         MeshModel.HeldItem -> DisplayKind.AnchorMainHand // v1 AnchorMainHand: the caster's real stack in THIRDPERSON_RIGHTHAND (PaperDisplayEntityGateway.kt:192-199)
     }
 
-    public fun mesh(kind: DisplayKind, first: DisplayTransform, brightness: Int? = null, rigShading: Boolean = true): DisplaySpec =
-        DisplaySpec(kind = kind, transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED, brightness = brightness, weaponRigShading = rigShading && brightness == null)
+    public fun mesh(kind: DisplayKind, first: DisplayTransform, brightness: Int? = null, rigShading: Boolean = true, shaderEffect: String? = null): DisplaySpec =
+        DisplaySpec(kind = kind, transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED, brightness = brightness, weaponRigShading = rigShading && brightness == null && shaderEffect == null, shaderEffect = shaderEffect)
 
     public fun block(blockKey: String, first: DisplayTransform, brightness: Int?, rigShading: Boolean = false): DisplaySpec =
         DisplaySpec(kind = DisplayKind.Block(blockKey), transform = first, lifetimeTicks = LIFETIME, billboard = DisplayBillboard.FIXED, brightness = brightness, weaponRigShading = rigShading && brightness == null)

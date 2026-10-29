@@ -51,7 +51,7 @@ public class MatchShopNpcService(
         }
         remember(event.matchId)
         if (stage.shopNpcs.isEmpty()) {
-            log.error("match shop NPCs not spawned: stage {} declares no shop_npcs (match {}); players cannot buy tools here", stage.id.value, event.matchId.value)
+            log.info("no match shop NPCs: stage {} declares no shop_npcs (match {})", stage.id.value, event.matchId.value)
             return
         }
         val world = worldOf(event.matchId) ?: stage.world
