@@ -63,11 +63,11 @@ public class ParticleOp(
 
 public object ParticleOpSpec : OpSpec<ParticleOp> {
     private val HEX = Regex("^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$")
-    private val PARTICLE = Field.required("particle", Types.id, "vanilla Particle id (dust, crit, end_rod, flame, ...)")
+    private val PARTICLE = Field.required("particle", Types.loadText, "vanilla Particle id (dust, crit, end_rod, flame, ...)")
     private val COUNT = Field.optional("count", Types.number, Value.Literal(1.0), "vanilla count; 0 = one particle, offset is the direction")
     private val OFFSET = Field.optional("offset", Types.worldVec3, Value.Literal(Vec3(0.0, 0.0, 0.0)), "world-axis spread box, or direction when count is 0")
     private val EXTRA = Field.optional("extra", Types.number, Value.Literal(0.0), "vanilla extra (speed for most particles)")
-    private val COLOR = Field.optional("color", Types.nullable(Types.id), null, "#rrggbb, with size: Particle.DustOptions")
+    private val COLOR = Field.optional("color", Types.nullable(Types.loadText), null, "#rrggbb, with size: Particle.DustOptions")
     private val SIZE = Field.optional("size", Types.nullable(Types.number), null, "dust scale, with color")
     private val BLOCK = Field.optional("block", Types.nullable(Types.id), null, "block key for BlockData")
     private val ITEM = Field.optional("item", Types.nullable(Types.id), null, "material key for ItemStack data")

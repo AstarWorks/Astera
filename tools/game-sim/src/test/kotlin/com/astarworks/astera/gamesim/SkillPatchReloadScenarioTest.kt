@@ -21,15 +21,15 @@ import java.nio.file.Path
 class SkillPatchReloadScenarioTest {
 
     // The default presentation op set comes from the registered specs (SkillEngineSpecs); an empty registry makes these cases fail.
-    private val skinOnly = ComposeOptions(allowBalancePatches = false)
-    private val balanceOn = ComposeOptions(allowBalancePatches = true)
+    private val skinOnly = ComposeOptions(allowGameplayPatches = false)
+    private val balanceOn = ComposeOptions(allowGameplayPatches = true)
 
     private val rapier = """
         apiVersion: astera/v3
         kind: Skill
         id: rapier
         params:
-          range: 3.0
+          range: {type: number, default: 3.0}
         machine:
           states:
             cast:
@@ -112,7 +112,10 @@ class SkillPatchReloadScenarioTest {
               enter:
                 - id: glow
                   op: particle
+                  particle: crit
+                  anchor: feet
                   color: "#ffffff"
+                  size: 1.0
             end:
               final: true
     """.trimIndent()
@@ -121,6 +124,8 @@ class SkillPatchReloadScenarioTest {
         apiVersion: astera/v3
         kind: Skill
         id: caller
+        anchors:
+          - {id: feet, anchor: caster.feet}
         machine:
           start: step
           states:
@@ -212,14 +217,14 @@ class SkillPatchReloadScenarioTest {
     fun `balance patch changes gameplay ops and loads only with the dev flag`(@TempDir tmp: Path) {
         write(tmp, "rapier.yaml", rapier)
         write(tmp, "tune.yaml", patch("balance", null,
-            op("params.range", "replace", "4.5") + "\n" + op("machine.states.cast.do[hit].range", "replace", "4.5") + "\n" +
+            op("params.range.default", "replace", "4.5") + "\n" + op("machine.states.cast.do[hit].range", "replace", "4.5") + "\n" +
                 op("machine.states.cast.do[hit].amount", "replace", "8")))
         assertThat(compose(SkillComposer(tmp, skinOnly)).getValue("rapier").patch.kind).isEqualTo("base")
 
         val tuned = compose(SkillComposer(tmp, balanceOn)).getValue("rapier")
         assertThat(tuned.patch.kind).isEqualTo("balance")
-        assertThat(tuned.patch.touched).contains("params.range", "machine.states.cast.do[hit].amount")
-        assertThat((tuned.tree["params"] as Map<*, *>)["range"]).isEqualTo(4.5)
+        assertThat(tuned.patch.touched).contains("params.range.default", "machine.states.cast.do[hit].amount")
+        assertThat(((tuned.tree["params"] as Map<*, *>)["range"] as Map<*, *>)["default"]).isEqualTo(4.5)
     }
 
     @Test
@@ -229,12 +234,12 @@ class SkillPatchReloadScenarioTest {
         // skin touching a gameplay op
         write(tmp, "bad.yaml", patch("skin", "x", op("machine.states.cast.do[hit].amount", "replace", "99")))
         val forbidden = errorsOf(SkillComposer(tmp, skinOnly))
-        assertThat(forbidden.single()).isInstanceOf(ComposeError.PatchError.ForbiddenPath::class.java)
-        assertThat((forbidden.single() as ComposeError.PatchError.ForbiddenPath).path).startsWith("machine.states.cast.do[hit]")
+        assertThat(forbidden.single()).isInstanceOf(ComposeError.PatchError.PatchKindViolation::class.java)
+        assertThat((forbidden.single() as ComposeError.PatchError.PatchKindViolation).path).startsWith("machine.states.cast.do[hit]")
 
         // skin touching state wiring
         write(tmp, "bad.yaml", patch("skin", "x", op("machine.states.cast.then", "replace", "done")))
-        assertThat(errorsOf(SkillComposer(tmp, skinOnly)).single()).isInstanceOf(ComposeError.PatchError.ForbiddenPath::class.java)
+        assertThat(errorsOf(SkillComposer(tmp, skinOnly)).single()).isInstanceOf(ComposeError.PatchError.PatchKindViolation::class.java)
 
         // delete of a missing entry
         write(tmp, "bad.yaml", patch("balance", null, op("machine.states.cast.do[nope]", "delete")))
@@ -257,7 +262,7 @@ class SkillPatchReloadScenarioTest {
                 run:
                   final: true
         """.trimIndent())
-        write(tmp, "rewire.yaml", patch("balance", null, op("machine.states.cast.on", "replace", "[{when: \"false\", goto: cast}]")))
+        write(tmp, "rewire.yaml", patch("mechanic", null, op("machine.states.cast.on", "replace", "[{when: \"false\", goto: cast}]")))
         val c = SkillComposer(tmp, balanceOn)
         val skills = compose(c)
         assertThat(c.composedParts().keys).containsExactly("flash")
@@ -272,7 +277,7 @@ class SkillPatchReloadScenarioTest {
         write(tmp, "a.yaml", rapier.replace("color: \"#ffffff\"", "color: &c \"#ffffff\"").replace("model: rapier_swing", "model: rapier_swing\n      tint: *c"))
         assertThat(compose(SkillComposer(tmp, skinOnly))).containsKey("rapier")
 
-        write(tmp, "b.yaml", other.replaceFirst("  range: 3.0\nmachine:", "  range: *c\nmachine:"))
+        write(tmp, "b.yaml", other.replaceFirst("  range: {type: number, default: 3.0}\nmachine:", "  range: *c\nmachine:"))
         val errs = errorsOf(SkillComposer(tmp, skinOnly))
         assertThat(errs.joinToString { it.reason }).contains("undefined alias")
     }
@@ -284,7 +289,7 @@ class SkillPatchReloadScenarioTest {
         write(tmp, "recolour.yaml", patch("skin", "blue", op("machine.states.cast.enter[glow].color", "replace", "\"#3a7bff\"")))
         val c = SkillComposer(tmp, skinOnly)
         compose(c)
-        assertThat(c.dependents("recolour.yaml")).containsExactlyInAnyOrder("rapier", "rapier@blue")
+        assertThat(c.dependents("recolour.yaml")).containsExactly("rapier@blue")
         assertThat(c.filesOf("rapier")).contains("rapier.yaml", "recolour.yaml")
 
         // edit the patch: only the variant changes
@@ -334,17 +339,17 @@ class SkillPatchReloadScenarioTest {
 
         // the gameplay row of the same transition and the transition itself stay forbidden
         write(tmp, "skin.yaml", patch("skin", "flame", op("machine.states.cast.on[shot.hit].do[pain2].amount", "replace", "50"), target = "bolt"))
-        assertThat((errorsOf(SkillComposer(tmp, skinOnly)).single() as ComposeError.PatchError.ForbiddenPath).path).startsWith("machine.states.cast.on[shot.hit].do[pain2]")
+        assertThat((errorsOf(SkillComposer(tmp, skinOnly)).single() as ComposeError.PatchError.PatchKindViolation).path).startsWith("machine.states.cast.on[shot.hit].do[pain2]")
         write(tmp, "skin.yaml", patch("skin", "flame", op("machine.states.cast.on[shot.hit]", "delete"), target = "bolt"))
-        assertThat(errorsOf(SkillComposer(tmp, skinOnly)).single()).isInstanceOf(ComposeError.PatchError.ForbiddenPath::class.java)
+        assertThat(errorsOf(SkillComposer(tmp, skinOnly)).single()).isInstanceOf(ComposeError.PatchError.PatchKindViolation::class.java)
     }
 
     @Test
-    fun `skin patch outside the presentation scope is a ForbiddenPath`(@TempDir tmp: Path) {
+    fun `skin patch outside the presentation scope is a PatchKindViolation`(@TempDir tmp: Path) {
         write(tmp, "bolt.yaml", bolt)
         fun forbidden(ops: String): String {
             write(tmp, "skin.yaml", patch("skin", "x", ops, target = "bolt"))
-            return (errorsOf(SkillComposer(tmp, skinOnly)).single() as ComposeError.PatchError.ForbiddenPath).path
+            return (errorsOf(SkillComposer(tmp, skinOnly)).single() as ComposeError.PatchError.PatchKindViolation).path
         }
         val cast = "machine.states.cast"
         // a gameplay op inside an on.<event> list
@@ -379,7 +384,7 @@ class SkillPatchReloadScenarioTest {
 
         // state wiring of a part is forbidden, and a part patch takes no variant
         write(tmp, "recolour.yaml", patch("skin", null, op("machine.states.run.then", "replace", "run"), target = "part:flash"))
-        assertThat(errorsOf(SkillComposer(tmp, skinOnly)).single()).isInstanceOf(ComposeError.PatchError.ForbiddenPath::class.java)
+        assertThat(errorsOf(SkillComposer(tmp, skinOnly)).single()).isInstanceOf(ComposeError.PatchError.PatchKindViolation::class.java)
         write(tmp, "recolour.yaml", patch("skin", "blue", op("machine.states.run.enter[glow].color", "replace", "\"#fff\""), target = "part:flash"))
         assertThat(errorsOf(SkillComposer(tmp, skinOnly)).single()).isInstanceOf(ComposeError.InvalidDocument::class.java)
     }
@@ -388,7 +393,7 @@ class SkillPatchReloadScenarioTest {
     fun `a part change recompiles the skills that inline it and leaves the others`(@TempDir tmp: Path) {
         write(tmp, "flash.yaml", flashPart)
         write(tmp, "caller.yaml", caller)
-        val c = SkillComposer(tmp, ComposeOptions(allowBalancePatches = false))
+        val c = SkillComposer(tmp, ComposeOptions(allowGameplayPatches = false))
         assertThat(c.composeAll()).isInstanceOf(Result.Success::class.java)
         val catalog = SkillEngineRegistries.catalog(emptyMap(), emptyMap(), com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(tmp.resolve("sprites")))
         fun load(keys: Collection<String>): SkillLoadReport {
@@ -411,5 +416,98 @@ class SkillPatchReloadScenarioTest {
         assertThat(second.loaded).containsExactly("caller")
         assertThat(catalog.get("caller")).isNotSameAs(before)
         assertThat(catalog.get("caller")!!.table).isNotEqualTo(before.table)
+    }
+
+    /** A skill whose colour and sound id live in string params, read by presentation rows; `reach` is a number the damage row reads. */
+    private val tinted = """
+        apiVersion: astera/v3
+        kind: Skill
+        id: tinted
+        params:
+          tint: {type: string, default: "#ffffff"}
+          shared: {type: string, default: crit}
+          reach: {type: number, default: 3.0}
+        anchors:
+          - {id: hand, anchor: caster.eye}
+        machine:
+          start: cast
+          states:
+            cast:
+              do:
+                - {id: glow, op: particle, particle: "= shared", color: "= tint", count: 3}
+                - {id: hit, op: damage, amount: "= reach"}
+              on:
+                - when: "true"
+                  goto: done
+            done:
+              final: true
+    """.trimIndent()
+
+    private fun violationOf(tmp: Path, kind: String, ops: String, options: ComposeOptions = balanceOn): ComposeError.PatchError.PatchKindViolation {
+        write(tmp, "kinded.yaml", patch(kind, "x", ops, target = "tinted"))
+        return errorsOf(SkillComposer(tmp, options)).single() as ComposeError.PatchError.PatchKindViolation
+    }
+
+    @Test
+    fun `patchKind must be written and be one of skin balance mechanic`(@TempDir tmp: Path) {
+        write(tmp, "tinted.yaml", tinted)
+        val o = op("params.tint.default", "replace", "\"#3a7bff\"")
+        write(tmp, "kinded.yaml", patch("skin", "x", o, target = "tinted").replace("patchKind: skin\n", ""))
+        assertThat(errorsOf(SkillComposer(tmp, skinOnly)).joinToString { it.reason }).contains("patchKind must be written")
+        write(tmp, "kinded.yaml", patch("cosmetic", "x", o, target = "tinted"))
+        assertThat(errorsOf(SkillComposer(tmp, skinOnly)).joinToString { it.reason }).contains("one of skin, balance, mechanic")
+    }
+
+    @Test
+    fun `patch paths start at params meta anchors conditions or machine only`(@TempDir tmp: Path) {
+        write(tmp, "tinted.yaml", tinted)
+        for (root in listOf("item", "emits", "id")) {
+            write(tmp, "kinded.yaml", patch("mechanic", "x", op("$root.name", "replace", "z"), target = "tinted"))
+            assertThat(errorsOf(SkillComposer(tmp, balanceOn)).joinToString { it.reason }).contains("path root '$root' is not patchable")
+        }
+        // the five roots decode: params / meta / anchors under a mechanic patch
+        write(tmp, "kinded.yaml", patch("mechanic", "x",
+            op("params.reach.default", "replace", "5.0") + "\n" + op("anchors[hand].anchor", "replace", "caster.feet") + "\n" +
+                op("meta", "merge", "{cooldown_ticks: 40}"), target = "tinted"))
+        val v = compose(SkillComposer(tmp, balanceOn)).getValue("tinted@x")
+        assertThat(v.patch.kind).isEqualTo("mechanic")
+        assertThat(v.patch.touched).contains("params.reach.default", "anchors[hand].anchor", "meta")
+    }
+
+    @Test
+    fun `skin patches a string param only when presentation rows alone read it`(@TempDir tmp: Path) {
+        write(tmp, "tinted.yaml", tinted)
+        write(tmp, "kinded.yaml", patch("skin", "x", op("params.tint.default", "replace", "\"#3a7bff\"") + "\n" + op("params.shared.default", "replace", "flame"), target = "tinted"))
+        val all = compose(SkillComposer(tmp, skinOnly))
+        assertThat(diff(all.getValue("tinted"), all.getValue("tinted@x"))).containsExactlyInAnyOrder("params.tint.default", "params.shared.default")
+
+        // a number param is balance, not skin
+        assertThat(violationOf(tmp, "skin", op("params.reach.default", "replace", "9.0"), skinOnly).why).contains("number param")
+        // a string param a gameplay row also reads is refused
+        write(tmp, "tinted.yaml", tinted.replace("amount: \"= reach\"", "amount: \"= reach\", note: \"= tint\""))
+        assertThat(violationOf(tmp, "skin", op("params.tint.default", "replace", "\"#000000\""), skinOnly).why).contains("not a presentation row")
+        // anchors / conditions / meta are never skin
+        assertThat(violationOf(tmp, "skin", op("meta", "merge", "{cooldown_ticks: 1}"), skinOnly).path).isEqualTo("meta")
+    }
+
+    @Test
+    fun `balance patches tune numbers and refuse presentation strings and structure`(@TempDir tmp: Path) {
+        write(tmp, "tinted.yaml", tinted)
+        write(tmp, "kinded.yaml", patch("balance", "x", op("params.reach.default", "replace", "4.5") + "\n" + op("machine.states.cast.do[hit].amount", "replace", "12"), target = "tinted"))
+        assertThat(compose(SkillComposer(tmp, balanceOn)).getValue("tinted@x").patch.kind).isEqualTo("balance")
+
+        assertThat(violationOf(tmp, "balance", op("params.tint.default", "replace", "\"#000000\"")).why).contains("string param")
+        assertThat(violationOf(tmp, "balance", op("machine.states.cast.do[glow].count", "replace", "9")).why).contains("not a gameplay op row")
+        assertThat(violationOf(tmp, "balance", op("machine.states.cast.do[hit].amount", "replace", "\"= 3\"")).why).contains("with a number")
+        assertThat(violationOf(tmp, "balance", op("machine.states.cast.do[hit]", "delete")).why).contains("not the whole row")
+        assertThat(violationOf(tmp, "balance", op("anchors[hand].anchor", "replace", "caster.feet")).path).startsWith("anchors")
+    }
+
+    @Test
+    fun `mechanic patches rewire the machine and are skipped unless gameplay patches are on`(@TempDir tmp: Path) {
+        write(tmp, "tinted.yaml", tinted)
+        write(tmp, "kinded.yaml", patch("mechanic", "x", op("machine.states.cast.on", "replace", "[{when: \"false\", goto: cast}]") + "\n" + op("machine.states.cast.do[hit]", "delete"), target = "tinted"))
+        assertThat(compose(SkillComposer(tmp, skinOnly)).keys).containsExactly("tinted")
+        assertThat(compose(SkillComposer(tmp, balanceOn)).getValue("tinted@x").patch.kind).isEqualTo("mechanic")
     }
 }

@@ -97,7 +97,7 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
     private val from = Field.optional("from", Types.nullable(Types.id), null, "line: start anchor")
     private val to = Field.optional("to", Types.nullable(Types.id), null, "line: end anchor")
     private val thickness = Field.optional("thickness", Types.nullable(Types.number), null, "line: bar thickness in blocks")
-    private val color = Field.required("color", Types.id, "#RRGGBB or #AARRGGBB")
+    private val color = Field.required("color", Types.loadText, "#RRGGBB or #AARRGGBB")
     private val style = Field.optional("style", Types.nullable(Types.enumOf("soft", "crisp", "both")), null, "trail: edge style (required for a trail)")
     private val history = Field.optional("history", Types.nullable(Types.number), null, "trail: ticks of tip history drawn (required for a trail)")
     private val widthFrac = Field.optional("width_frac", Types.nullable(Types.number), null, "trail: width as a fraction of the root-to-tip length (width_frac or width)")

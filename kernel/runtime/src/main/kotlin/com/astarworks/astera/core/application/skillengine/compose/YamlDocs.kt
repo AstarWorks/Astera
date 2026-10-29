@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
 import com.astarworks.astera.core.application.skillengine.part.PatchApplier
+import com.astarworks.astera.core.application.skillengine.part.PatchKind
 import com.astarworks.astera.core.application.skillengine.part.PatchOp
 import com.astarworks.astera.core.domain.Result
 import org.yaml.snakeyaml.DumperOptions
@@ -23,7 +24,7 @@ internal data class Doc(
     /** Skill / part id (kind Skill / Part) or patch target (kind Patch). */
     val baseId: String,
     val variant: String?,
-    val patchKind: String?,
+    val patchKind: PatchKind?,
     /** The document minus apiVersion / kind (Skill / Part); empty for a Patch. */
     val body: Map<String, Any?>,
     /** The ops of a Patch document (R35), decoded by `PatchApplier.decode`; empty for Skill / Part. */
