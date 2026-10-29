@@ -790,9 +790,25 @@ public class TablePlayer(
     private fun key(run: Run, a: Action.Key, ctx: RowCtx, now: Int) {
         val rec = run.recs[a.display] ?: return
         val translation = (a.translation as? Val.Live)?.takeIf { it.name.startsWith("follow:") }?.let { followOffset(run, rec, it.name, ctx, now) } ?: vec(run, a.translation, ctx)
-        val target = PoseV(translation, quat(run, a.leftRotation, ctx, rec.anchor, rec.anchorName), vec(run, a.scale, ctx))
+        val rotCell = (a.leftRotation as? Val.Live)?.name
+        val rotation = if (rotCell != null && rotCell.startsWith("align:") && '@' in rotCell) blendedAlign(run, rec, rotCell, ctx, now) else {
+            rec.alignFrom = null
+            quat(run, a.leftRotation, ctx, rec.anchor, rec.anchorName)
+        }
+        val target = PoseV(translation, rotation, vec(run, a.scale, ctx))
         rec.moveTo(target, now, a.durationTicks)
         rec.real?.let { visual.write(it, visualPose(rec, worldOf(run, rec, target, ctx.binding, now)), a.durationTicks) }
+    }
+
+    /**
+     * `align:<axis>><to>^<up>@<w>` (law `align` with `ease`): slerp from the rotation the instance held when its blend window began to the
+     * aligned one, by the weight [w]. The first `@` row of a window captures that start (the plain cell that ends the window clears it).
+     */
+    private fun blendedAlign(run: Run, rec: Rec, cell: String, ctx: RowCtx, now: Int): Quaterniond {
+        val w = cell.substringAfterLast('@').toDouble()
+        val from = rec.alignFrom ?: Quaterniond(rec.localAt(now).rot).also { rec.alignFrom = it }
+        val aligned = alignRot(run, cell.substringBeforeLast('@'), ctx, rec.anchor, rec.anchorName)
+        return Quaterniond(from).slerp(aligned, w)
     }
 
     /** `follow:<anchor>` (law `follow`): the local translation, in the rider's parent space, that puts the rider on the followed anchor's world position. */
@@ -1984,6 +2000,9 @@ public class TablePlayer(
 
         /** A `body` instance whose clip declares named points: [points] are re-sampled from the clip each tick ([freshBody]). */
         var body: BodyPoints? = null
+
+        /** The local rotation an `align` blend window started from (null outside a window). */
+        var alignFrom: Quaterniond? = null
         private var from: PoseV = to
         private var segStart: Int = spawnTick
         private var segDur: Int = 0

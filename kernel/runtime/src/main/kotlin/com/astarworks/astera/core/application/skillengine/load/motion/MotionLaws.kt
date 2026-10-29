@@ -76,7 +76,8 @@ public object MotionLaws {
     private val axisF = Field.required("axis", Types.id, "forward|back|up|down|left|right, '-' negated; frozen in the parent basis")
     private val degPerTickF = Field.required("deg_per_tick", Types.number, "degrees per tick about axis; +deg carries forward -> left -> up -> forward (spin up, +12: the tip travels forward toward left)")
     private val spinStartF = Field.optional("start", Rotations.type, Rotation.Turns(emptyList()), "orientation the spin begins from, [{axis, deg}, ...]; absent = none")
-    private val spinAccelF = Field.optional("accel", Types.number, Value.Literal(0.0), "deg/tick^2; excludes ease")
+    private val spinAccelF = Field.optional("accel", Types.number, Value.Literal(0.0), "deg/tick^2; excludes ease and drag")
+    private val dragF = Field.optional("drag", Types.number, Value.Literal(0.0), "0 < f < 1: the rate is multiplied by (1 - f) each tick (geometric decay, closed form); excludes accel and ease; spin and move only; absent = none")
 
     // move
     private val velocityF = Field.required("velocity", FrameVecs.type, "blocks per tick, {forward, up, left}")
@@ -125,8 +126,8 @@ public object MotionLaws {
     private val stepF = Field.optional("step", Types.number, Value.Literal(2.0), "ticks between re-sends of a reactive law (minimum 1)")
 
     private val specs: Map<String, Fields> = mapOf(
-        "spin" to (Fields.of("spin-law", lawField("spin")) + window + Fields.of("spin", axisF, degPerTickF, spinStartF, spinAccelF)),
-        "move" to (Fields.of("move-law", lawField("move")) + window + Fields.of("move", velocityF, speedF, moveStartF)),
+        "spin" to (Fields.of("spin-law", lawField("spin")) + window + Fields.of("spin", axisF, degPerTickF, spinStartF, spinAccelF, dragF)),
+        "move" to (Fields.of("move-law", lawField("move")) + window + Fields.of("move", velocityF, speedF, moveStartF, dragF)),
         "orbit" to (Fields.of("orbit-law", lawField("orbit")) + window + Fields.of("orbit", centerF, axisF, degPerTickF, phaseF, faceF)),
         "grow" to (Fields.of("grow-law", lawField("grow")) + window + Fields.of("grow", growPropF, growStartF, perTickF, toF, byF, growAccelF)),
         "align" to (Fields.of("align-law", lawField("align")) + window + Fields.of("align", alignToF, alignAxisF, alignUpF, stepF)),
@@ -288,7 +289,12 @@ public object MotionLaws {
                 if (to == "velocity" && v[alignUpF] != "world.up") {
                     ctx.fail("$path.up", "align to velocity keeps the heading's up at world.up (the velocity is a literal direction); '${v[alignUpF]}' is only valid with an anchor or a named direction")
                 }
-                val step = stepOf()
+                val blend = ease != null && to != "velocity"
+                if (blend) {
+                    if (v[TimingSpec.forSpan] == null) ctx.fail("$path.for", "align with ease blends from the current rotation to the aligned one over its window: write for: <ticks>")
+                    if (v.isPresent(stepF)) ctx.fail("$path.step", "an align with ease writes every tick of its blend window; step does not apply")
+                }
+                val step = if (blend) 1 else stepOf()
                 for (s in starts) {
                     laws += AlignMotion(s, forTicks, axis, v[alignAxisF], to == "velocity", to, v[alignUpF], step, ease, order, path)
                     pieces += Piece(path, "turn", s, s + forTicks, order, emptyList(), reactive = to != "velocity")
@@ -321,10 +327,11 @@ public object MotionLaws {
         val rate = n.num(v[degPerTickF], "$path.deg_per_tick")
         val accel = n.num(v[spinAccelF], "$path.accel")
         if (accel != 0.0 && ease != null) ctx.fail("$path.ease", "ease and accel are mutually exclusive on one law (accel already defines the time profile)")
+        val drag = dragOf(v, ease, accel != 0.0, ctx, n, path)
         val startQ = (v[spinStartF].toValue(ctx, "$path.start") as? Value.Literal)?.value
             ?: ctx.fail("$path.start", "a rate law is lowered at load, so start angles must be literal")
         val start = n.rotationVector(startQ)
-        return { s -> SpinRate(s, forTicks, axis, rate, start, accel, ease) }
+        return { s -> SpinRate(s, forTicks, axis, rate, start, accel, ease, drag) }
     }
 
     private fun move(v: FieldValues, ease: String?, forTicks: Int, ctx: GrammarContext, n: LawNumbers, path: String): (Int) -> RateLaw {
@@ -335,7 +342,18 @@ public object MotionLaws {
             velocity = velocity.normalize() * speed
         }
         val start = n.frameVec(v[moveStartF], "$path.start")
-        return { s -> MoveRate(s, forTicks, start, velocity, ease) }
+        val drag = dragOf(v, ease, false, ctx, n, path)
+        return { s -> MoveRate(s, forTicks, start, velocity, ease, drag = drag) }
+    }
+
+    /** `drag: f` of a spin / move: 0 < f < 1, and the only shape on the law (drag already defines the time profile). 0.0 = absent. */
+    private fun dragOf(v: FieldValues, ease: String?, hasAccel: Boolean, ctx: GrammarContext, n: LawNumbers, path: String): Double {
+        if (!v.isPresent(dragF)) return 0.0
+        val f = n.num(v[dragF], "$path.drag")
+        if (!(f > 0.0 && f < 1.0)) ctx.fail("$path.drag", "drag must be between 0 and 1 exclusive (was $f): it is the share of the rate lost each tick")
+        if (ease != null) ctx.fail("$path.ease", "ease and drag are mutually exclusive on one law (drag already defines the time profile)")
+        if (hasAccel) ctx.fail("$path.accel", "accel and drag are mutually exclusive on one law (both define the time profile)")
+        return f
     }
 
     private fun grow(v: FieldValues, ease: String?, forTicks: Int, ctx: GrammarContext, n: LawNumbers, path: String): (Int) -> RateLaw {
@@ -581,13 +599,13 @@ public object MotionLaws {
 /**
  * A display's `motion:` list kept as written, with the context it was decoded in. A law number may read the copy index (`i`, `n`,
  * `parent.i`, ADR-0303 3.5), which only exists once the family is unrolled, so the list is read again per copy by [laws] and every
- * expression is baked into a constant for that copy. [probe] reads it once for a first copy at decode, so a bad law is a load error at the
+ * expression is baked into a constant for that copy. [probe] reads it once for a first copy (`i = 0` of [probe]'s `copies`, the op's `times`) at decode, so a bad law is a load error at the
  * display and not only at its first lowering.
  */
 public class LawSource(private val raw: Any?, private val ctx: GrammarContext, private val path: String) {
-    internal fun probe() {
-        var occ = Occurrence(0, 1, null)
-        repeat(PROBE_DEPTH) { occ = Occurrence(0, 1, occ) }
+    internal fun probe(copies: Int = 1) {
+        var occ = Occurrence(0, copies, null)
+        repeat(PROBE_DEPTH) { occ = Occurrence(0, copies, occ) }
         laws(occ)
     }
 

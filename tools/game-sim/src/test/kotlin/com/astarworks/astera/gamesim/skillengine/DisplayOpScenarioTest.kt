@@ -43,7 +43,7 @@ class DisplayOpScenarioTest : SkillEngineScenario() {
     fun alignAcceptsNamedDirectionAndUp() {
         // `out` (0301 short name) is `out_quad` outside a keys segment (ADR-0303 3.7). R42: `to` may be a named direction and `up` a named direction; the lowering writes the live rotation with both
         val s = compiled(
-            "{id: pose, op: frame, anchor: caster, for: 34, motion: [{law: align, axis: forward, to: world.up, up: caster.forward, step: 1, at: 0, for: 6, ease: out_quad}]}",
+            "{id: pose, op: frame, anchor: caster, for: 34, motion: [{law: align, axis: forward, to: world.up, up: caster.forward, at: 0, for: 6, ease: out_quad}]}",
         )
         val live = rows(s).mapNotNull { (it.action as? Action.Key)?.leftRotation as? Val.Live }
         assertThat(live).isNotEmpty()

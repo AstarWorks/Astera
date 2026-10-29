@@ -19,6 +19,7 @@ import com.astarworks.astera.core.domain.skillengine.motion.FadeRate
 import com.astarworks.astera.core.domain.skillengine.motion.GrowRate
 import com.astarworks.astera.core.domain.skillengine.motion.MoveRate
 import com.astarworks.astera.core.domain.skillengine.motion.SpinRate
+import com.astarworks.astera.core.domain.skillengine.motion.dragFactor
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.Row
@@ -218,7 +219,10 @@ public object LawSegmenter {
                             val target = fromTo(law.axis, v)
                             rot *= if (law.ease == null) target else Quaternion.slerp(Quaternion.IDENTITY, target, ease(law.ease, unit(t, law.at, law.forTicks)))
                         } else {
-                            liveRot = "align:${law.axisName}>${law.target}^${law.up}"
+                            val cell = "align:${law.axisName}>${law.target}^${law.up}"
+                            // ease on an anchor align = a blend weight w = ease(tau / for) from the rotation held at the window start to the aligned one; 1 (and after the window) = the plain cell
+                            val w = if (law.ease == null) 1.0 else ease(law.ease, unit(t, law.at, law.forTicks))
+                            liveRot = if (law.ease != null && t < law.at + law.forTicks) "$cell@$w" else cell
                             liveOpen = liveOpen || t < law.at + law.forTicks
                         }
                     }
@@ -244,6 +248,7 @@ public object LawSegmenter {
 
         private fun moveAt(l: MoveRate, t: Double): Vec3 {
             val tau = tau(t, l.from, l.forTicks)
+            if (l.drag != 0.0) return l.start + l.velocity * dragFactor(l.drag, tau)
             if (l.accel.lengthSquared() != 0.0) return l.start + l.velocity * tau + l.accel * (tau * tau / 2.0)
             return l.start + l.velocity * (l.forTicks * ease(l.ease, tau / l.forTicks))
         }
@@ -251,7 +256,7 @@ public object LawSegmenter {
         private fun spinAt(l: SpinRate, t: Double): Quaternion {
             val tau = tau(t, l.from, l.forTicks)
             val total = l.degPerTick * l.forTicks
-            val deg = if (l.ease != null) total * ease(l.ease, tau / l.forTicks) else l.degPerTick * tau + l.accel * tau * tau / 2.0
+            val deg = if (l.drag != 0.0) l.degPerTick * dragFactor(l.drag, tau) else if (l.ease != null) total * ease(l.ease, tau / l.forTicks) else l.degPerTick * tau + l.accel * tau * tau / 2.0
             return Quaternion.axisAngle(l.axis, Math.toRadians(deg)) * Quaternion.fromRotationVector(l.start)
         }
 
@@ -336,7 +341,7 @@ public object LawSegmenter {
                     if (r !is FadeRate) {
                         cuts += r.from
                         cuts += r.from + r.forTicks
-                        if (r is SpinRate && r.accel == 0.0 && r.ease == null && abs(r.degPerTick * r.forTicks) > 170.0) {
+                        if (r is SpinRate && r.accel == 0.0 && r.ease == null && r.drag == 0.0 && abs(r.degPerTick * r.forTicks) > 170.0) {
                             val chunk = max(1, floor(170.0 / abs(r.degPerTick)).toInt())
                             var k = chunk
                             while (k < r.forTicks) { cuts += r.from + k; k += chunk }

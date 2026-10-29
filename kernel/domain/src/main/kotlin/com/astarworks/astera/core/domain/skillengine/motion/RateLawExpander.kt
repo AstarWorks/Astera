@@ -43,6 +43,9 @@ public object RateLawExpander {
     private fun e(name: String?, u: Double): Double = name?.let { Easing.fromKey(it) }?.apply(u) ?: u
 
     private fun move(l: MoveRate): List<TrackKey> {
+        if (l.drag != 0.0) {
+            return (0..l.forTicks).map { tau -> key(l.from + tau, offset = l.start + l.velocity * dragFactor(l.drag, tau.toDouble())) }
+        }
         if (l.accel.lengthSquared() != 0.0) {
             return (0..l.forTicks).map { tau ->
                 val t = tau.toDouble()
@@ -82,6 +85,13 @@ public object RateLawExpander {
             if (zeroStart) axis * deg else toRotationVector(Quaternion.axisAngle(axis, Math.toRadians(deg)) * q0)
 
         val total = l.degPerTick * l.forTicks
+        if (l.drag != 0.0) {
+            val angles = (0..l.forTicks).map { tau -> l.degPerTick * dragFactor(l.drag, tau.toDouble()) }
+            angles.zipWithNext().forEach { (a, b) ->
+                require(abs(b - a) < 180.0) { "rate law: spin turns ${abs(b - a)} degrees in one tick; slerp cannot carry that, split the law" }
+            }
+            return angles.mapIndexed { tau, deg -> key(l.from + tau, turn = vec(deg)) }
+        }
         if (l.accel == 0.0 && l.ease == null) {
             if (abs(total) <= MAX_SPIN_CHUNK_DEG) return listOf(key(l.from, turn = vec(0.0)), key(l.from + l.forTicks, turn = vec(total)))
             val chunk = max(1, floor(MAX_SPIN_CHUNK_DEG / abs(l.degPerTick)).toInt())

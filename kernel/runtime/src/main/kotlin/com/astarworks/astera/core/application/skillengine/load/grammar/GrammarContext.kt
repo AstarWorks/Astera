@@ -129,7 +129,7 @@ public class GrammarContext(
             is Result.Success -> c.value
             is Result.Failure -> {
                 if (occ == null && COPY_INDEX.containsMatchIn(body)) {
-                    fail(path, "'$source' reads the copy index (i / n), which this law context does not have: i in a law number is supported on a display's own motion (a `times:` family of displays), not on a frame or projectile body")
+                    fail(path, "'$source' reads the copy index (i / n), which this law context does not have: a law number folds at load: a literal, a numeric \${param} with a default, or a '= CEL' of constants, params and the copy index (i, n, parent.i)")
                 }
                 abort(SkillDecodeError.BadExpr(file, path, c.error))
             }

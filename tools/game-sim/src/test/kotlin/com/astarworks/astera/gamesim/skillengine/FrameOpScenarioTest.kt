@@ -4,7 +4,12 @@ import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
 import com.astarworks.astera.core.domain.skillengine.table.Row
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.geometry.math.Quaternion
+import com.astarworks.astera.core.domain.skillengine.table.Action
+import com.astarworks.astera.core.domain.skillengine.table.Val
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.Test
 
 /** ADR-0303 1.1 `frame` op (W1-07). Runs at the wave 1b gate (needs the document decoder, unroller and compiler). */
@@ -67,5 +72,24 @@ class FrameOpScenarioTest : SkillEngineScenario() {
     fun unknownFrameIdInExpressionIsLoadError() {
         val r = loadInline(skill("{id: f, op: frame, anchor: shears, for: 40}", sound("snd", 0, "= speed(nosuch)")))
         assertThat(r).isInstanceOf(Result.Failure::class.java)
+    }
+
+    @Test
+    fun frameFamilySpinRatePerIndex() {
+        // D1: a law number reads the copy index; each blade turns 10 * (i + 1) degrees per tick
+        val s = when (val r = loadInline(skill("{id: blade, op: frame, times: 3, anchor: shears, for: 40, motion: [{law: spin, axis: up, deg_per_tick: \"= 10 * (i + 1)\", for: 10}]}"))) {
+            is Result.Success -> r.value
+            is Result.Failure -> throw AssertionError("did not load: ${r.error}")
+        }
+        val keyRows = rows(s).filter { it.action is Action.Key && (it.action as Action.Key).leftRotation is Val.Known }
+        val byInstance = keyRows.groupBy { it.instance }
+        assertThat(byInstance).hasSize(3)
+        val finals = byInstance.toSortedMap(compareBy { it.toString() }).values
+            .map { rs -> rs.maxBy { it.tick + (it.action as Action.Key).durationTicks } }
+        listOf(100.0, 200.0, 300.0).forEachIndexed { k, deg ->
+            val q = ((finals[k].action as Action.Key).leftRotation as Val.Known).value
+            val want = Quaternion.axisAngle(Vec3(0.0, 1.0, 0.0), Math.toRadians(deg))
+            assertThat(Quaternion(q.x, q.y, q.z, q.w).angleTo(want)).isCloseTo(0.0, within(1e-5))
+        }
     }
 }

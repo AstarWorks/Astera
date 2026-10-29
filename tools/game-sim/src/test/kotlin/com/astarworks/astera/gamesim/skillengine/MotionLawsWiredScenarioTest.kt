@@ -150,4 +150,62 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
         assertThat((e as SkillDecodeError.UnknownKey).key).isEqualTo("accel")
     }
 
+
+    // ---- batch D: drag (D2), align blend (D5), copy index (D1) ----
+
+    @Test
+    fun moveWithDragIsGeometric() {
+        val f = 0.07
+        val ks = keysOf("- {law: move, velocity: {forward: 0.6}, drag: $f, for: 24}")
+        for (k in ks) {
+            val e = (k.tick + k.dur).toDouble()
+            assertThat(k.pos.z).isCloseTo(0.6 * (1.0 - Math.pow(1.0 - f, e)) / f, within(1e-9))
+        }
+        assertThat(ks.last().pos.z).isLessThan(0.6 / f)
+    }
+
+    @Test
+    fun spinWithDragIsGeometric() {
+        val f = 0.1
+        val ks = keysOf("- {law: spin, axis: up, deg_per_tick: 12, drag: $f, for: 10}")
+        val last = ks.last()
+        val e = (last.tick + last.dur).toDouble()
+        val deg = 12.0 * (1.0 - Math.pow(1.0 - f, e)) / f
+        assertThat(last.rot.angleTo(turn(up, deg))).isCloseTo(0.0, within(1e-6))
+    }
+
+    @Test
+    fun dragWithEaseOrAccelOrOutOfRangeIsLoadError() {
+        fun msg(law: String): String {
+            val r = MotionLaws.decodeLaws(Yaml().load<Any?>("- $law"), gctx, "motion")
+            return ((r as? Result.Failure)?.error as? SkillDecodeError.Invalid)?.message ?: error("must not load: $law")
+        }
+        assertThat(msg("{law: move, velocity: {forward: 0.1}, drag: 0.1, ease: linear, for: 5}")).contains("mutually exclusive")
+        assertThat(msg("{law: spin, axis: up, deg_per_tick: 5, drag: 0.1, accel: 1, for: 5}")).contains("mutually exclusive")
+        assertThat(msg("{law: move, velocity: {forward: 0.1}, drag: 1.0, for: 5}")).contains("between 0 and 1")
+    }
+
+    @Test
+    fun alignBlendsOverWindow() {
+        val rows = lowerRows("- {law: align, to: muzzle.forward, for: 6, ease: linear}")
+        val names = rows.sortedBy { it.tick }.map { ((it.action as Action.Key).leftRotation as Val.Live).name }
+        assertThat(rows.map { it.tick }.sorted()).containsExactly(0, 1, 2, 3, 4, 5)
+        assertThat(names.take(5)).containsExactly(
+            "align:forward>muzzle.forward^world.up@0.16666666666666666",
+            "align:forward>muzzle.forward^world.up@0.3333333333333333",
+            "align:forward>muzzle.forward^world.up@0.5",
+            "align:forward>muzzle.forward^world.up@0.6666666666666666",
+            "align:forward>muzzle.forward^world.up@0.8333333333333334",
+        )
+        assertThat(names.last()).isEqualTo("align:forward>muzzle.forward^world.up")
+    }
+
+    @Test
+    fun alignBlendNeedsForAndRefusesStep() {
+        for (law in listOf("{law: align, to: muzzle.forward, ease: linear}", "{law: align, to: muzzle.forward, for: 6, ease: linear, step: 2}")) {
+            val r = MotionLaws.decodeLaws(Yaml().load<Any?>("- $law"), gctx, "motion")
+            assertThat(r).isInstanceOf(Result.Failure::class.java)
+        }
+    }
+
 }
