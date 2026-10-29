@@ -109,6 +109,12 @@ public interface PlayerHooks {
 
 private object NoHooks : PlayerHooks
 
+/** A bounce whose rebound is slower than this (blocks per tick) rolls instead of counting. */
+private const val REST_SPEED = 0.05
+
+/** A bounced body restarts this far off the surface along its normal, so the next tick's ray does not begin inside the block. */
+private const val CONTACT_SKIN = 0.02
+
 /**
  * Plays the expansion table (ADR-0303 C7). It chooses no schedule: it looks up rows, pastes sub-tables at event ticks and
  * hands gateways the payloads, with `Val.Live` cells filled from [LiveValueSource]. Tick order is 10.2a:
@@ -767,13 +773,23 @@ public class TablePlayer(
             }.toList()
             rec.shapeSelf = lf["hit.shape.self.from"]?.let { f -> ShapeSelf(strOf(run, f, ctx), strOf(run, lf.getValue("hit.shape.self.to"), ctx)) }
             rec.blockDespawn = mode == "despawn"
+            if (mode == "bounce") {
+                rec.bounceMode = true
+                rec.restitution = lf["block.restitution"]?.let { dbl(run, it, ctx) } ?: 0.0
+                rec.friction = lf["block.friction"]?.let { dbl(run, it, ctx) } ?: 0.0
+                rec.bounceTimes = lf["block.times"]?.let { dbl(run, it, ctx).toInt() } ?: 0
+            }
+            rec.fused = lf["block.fused"]?.let { any(run, it, ctx) } == true
+            rec.reflect = lf["hit.reflect"]?.let { any(run, it, ctx) } == true
             rec.stickTicks = stuck
             rec.attachTo = lf["hit.attach_to"]?.let { strOf(run, it, ctx) }
             val once = lf["hit.once"]?.let { any(run, it, ctx) } == true
             rec.hitTimes = if (once) 1 else lf["hit.times"]?.let { dbl(run, it, ctx).toInt() } ?: 1
             rec.endsOn = buildSet {
-                if (lf["hit.once"]?.let { any(run, it, ctx) } == true) add("hit")
-                if (mode == "despawn" || mode == "stick") add("block")
+                // a reflecting body bounces off its victim: the hit does not end the flight
+                if (!rec.reflect && lf["hit.once"]?.let { any(run, it, ctx) } == true) add("hit")
+                // a fused stick holds to the flight end: its block does not end the body, the End row at the fuse tick does
+                if (mode == "despawn" || (mode == "stick" && !rec.fused)) add("block")
             }
         }
         val world = worldOf(run, rec, local, ctx.binding, now)
@@ -1185,7 +1201,7 @@ public class TablePlayer(
             }
             rec.flight?.let { fl ->
                 val cur = rec.localAt(now)
-                rec.moveTo(PoseV(fl.at(now - rec.spawnTick - rec.frozenTicks), cur.rot, cur.scale), now, 0)
+                rec.moveTo(PoseV(fl.at(now - rec.spawnTick - rec.frozenTicks - rec.clockBase), cur.rot, cur.scale), now, 0)
             }
             if (rec.stuckUntil >= 0) {
                 // stuck (a block in stick mode, or `hit.attach` on a victim): the body holds its place / rides its anchor until `unstick`, then the flight ends
@@ -1214,20 +1230,64 @@ public class TablePlayer(
         return false
     }
 
-    /** Fires `<body>.block` for a block on this tick's segment; true when that block ends the flight (despawn / stick), so no entity is tested behind it. */
+    /**
+     * A block on this tick's segment. despawn / stick fire `<body>.block` (when listened) and end / stop the flight; true when that block ends the flight, so no
+     * entity is tested behind it. bounce never ends the flight: [bounceOff] reflects the velocity (the same path in the sim and on Paper).
+     */
     private fun blockContact(run: Run, id: InstanceId, rec: Rec, now: Int): Boolean {
         val path = EventPath(id.text + ".block")
-        if (path !in run.listened) return false
+        if (!rec.bounceMode && path !in run.listened) return false
         val cur = worldOf(run, rec, rec.localAt(now), null, now).pos
-        val prev = worldOf(run, rec, rec.localAt(now - 1), null, now - 1).pos
+        val prev = worldOf(run, rec, rec.prevLocal(now), null, now - 1).pos
         if (cur.distanceSquared(prev) < 1e-12) return false
         val b = query.raycastBlock(castRef(run), Vec3(prev.x, prev.y, prev.z), Vec3(cur.x, cur.y, cur.z)) ?: return false
-        run.pending += RuntimeEvent(
-            path, now, id.path.lastOrNull()?.index, ContactInfo(Vector3d(b.point.x, b.point.y, b.point.z), Vector3d(b.normal.x, b.normal.y, b.normal.z)), null,
-        )
+        val contact = ContactInfo(Vector3d(b.point.x, b.point.y, b.point.z), Vector3d(b.normal.x, b.normal.y, b.normal.z))
+        if (rec.bounceMode) {
+            bounceOff(run, id, rec, now, Vector3d(cur).sub(prev), contact, path)
+            return false
+        }
+        run.pending += RuntimeEvent(path, now, id.path.lastOrNull()?.index, contact, null)
         if (rec.blockDespawn) endByContact(run, id, rec, now)
-        if (rec.stickTicks > 0) stick(run, id, rec, now, null)
+        if (rec.stickTicks > 0 || rec.fused) stick(run, id, rec, now, null)
         return "block" in rec.endsOn
+    }
+
+    /**
+     * `block.mode bounce`: the velocity [v] (the last tick's displacement) is reflected at [contact]: the normal part comes back scaled by `restitution`, the
+     * tangent part keeps `1 - friction`. The first `times` such contacts are counted bounces (`<body>.block` then `<body>.bounce`); a later contact, or one whose
+     * rebound would be below [REST_SPEED], only rolls: the normal part is dropped, friction applies, no event. The body never ends here, only at its `for`.
+     */
+    private fun bounceOff(run: Run, id: InstanceId, rec: Rec, now: Int, v: Vector3d, contact: ContactInfo, blockPath: EventPath) {
+        val n = Vector3d(contact.normal)
+        if (n.lengthSquared() < 1e-12) return
+        n.normalize()
+        val vn = v.x * n.x + v.y * n.y + v.z * n.z
+        if (vn >= 0.0) return
+        val keep = 1.0 - rec.friction
+        val rebound = -vn * rec.restitution
+        val counted = rec.bounces < rec.bounceTimes && rebound >= REST_SPEED
+        val along = if (counted) rebound else 0.0
+        val out = Vector3d(v.x - vn * n.x, v.y - vn * n.y, v.z - vn * n.z).mul(keep).add(n.x * along, n.y * along, n.z * along)
+        rebase(rec, now, Vector3d(contact.point).add(n.x * CONTACT_SKIN, n.y * CONTACT_SKIN, n.z * CONTACT_SKIN), out)
+        if (!counted) return
+        rec.bounces++
+        // `event.i` of a bounce is its ordinal (0-based) on a single body; a family member keeps its family index
+        val index = id.path.lastOrNull()?.index ?: (rec.bounces - 1)
+        val bouncePath = EventPath(id.text + ".bounce")
+        val tables = run.cursor.skill.table.subTables
+        if (blockPath in run.listened || blockPath in tables) run.pending += RuntimeEvent(blockPath, now, index, contact, null)
+        if (bouncePath in run.listened || bouncePath in tables) run.pending += RuntimeEvent(bouncePath, now, index, contact, null)
+    }
+
+    /** The body continues from [pos] with the per-tick velocity [vel]: a fresh flight (same gravity / drag) whose clock starts at this tick. */
+    private fun rebase(rec: Rec, now: Int, pos: Vector3d, vel: Vector3d) {
+        val old = rec.flight ?: return
+        val speed = vel.length()
+        val dir = if (speed < 1e-9) Vector3d(0.0, -1.0, 0.0) else Vector3d(vel).mul(1.0 / speed)
+        rec.flight = Flight(dir, ProjectileKinematics.constant(speed), Vector3d(pos), old.gravity, old.drag)
+        val cur = rec.localAt(now)
+        rec.moveTo(PoseV(Vector3d(pos), cur.rot, cur.scale), now, 0)
+        rec.clockBase = now - rec.spawnTick - rec.frozenTicks
     }
 
     /**
@@ -1238,7 +1298,11 @@ public class TablePlayer(
     private fun stick(run: Run, id: InstanceId, rec: Rec, now: Int, victim: EventBinding?) {
         val at = worldOf(run, rec, rec.localAt(now), null, now)
         rec.flight = null
-        rec.stuckUntil = now + rec.stickTicks
+        // fused: the body stays until its flight end (the End row at the fixed fuse tick), which is neither an unstick nor an expire
+        if (rec.fused) {
+            rec.stuckUntil = Int.MAX_VALUE
+            rec.expireTick = -1
+        } else rec.stuckUntil = now + rec.stickTicks
         val anchor = rec.attachTo
         if (victim != null && anchor != null) {
             rec.binding = victim
@@ -1270,7 +1334,7 @@ public class TablePlayer(
         val path = EventPath(id.text + ".hit")
         val absorbedPath = EventPath(id.text + ".absorbed")
         val tables = run.cursor.skill.table.subTables
-        if (path !in run.listened && path !in tables && absorbedPath !in run.listened && absorbedPath !in tables) return
+        if (!rec.reflect && path !in run.listened && path !in tables && absorbedPath !in run.listened && absorbedPath !in tables) return
         if (rec.hitTargets == "blocks_only") return
         val cur = worldOf(run, rec, rec.localAt(now), null, now).pos
         val prev = worldOf(run, rec, rec.localAt(now - 1), null, now - 1).pos
@@ -1324,10 +1388,24 @@ public class TablePlayer(
         val found = raw.distinctBy { it.victim }.sortedBy { it.pointWorld.distance(start) }
         // an absorbed contact (the victim's `absorb: true` transition) uses up a hit and ends the flight like any other, but raises `absorbed`, not `hit`
         val absorbedVictims = HashSet<UUID>()
+        var reflected = false
         for (ce in found) {
             if (rec.hitTimes <= 0) break
             rec.hitVictims += ce.victim
-            rec.hitTimes--
+            // hit.reflect: a victim never uses up the hit, the body bounces off it (once per victim, one rebound per tick)
+            if (!rec.reflect) rec.hitTimes--
+            if (rec.reflect && !reflected) {
+                reflected = true
+                val body = worldOf(run, rec, rec.localAt(now), null, now).pos
+                val v = Vector3d(body).sub(prev.x, prev.y, prev.z)
+                val n = Vector3d(ce.normalWorld.x, ce.normalWorld.y, ce.normalWorld.z)
+                if (n.lengthSquared() < 1e-12) { n.x = -v.x; n.y = -v.y; n.z = -v.z }
+                if (n.lengthSquared() > 1e-12) {
+                    n.normalize()
+                    if (n.x * v.x + n.y * v.y + n.z * v.z > 0.0) n.mul(-1.0)
+                    bounceOff(run, id, rec, now, v, ContactInfo(Vector3d(body), n), EventPath(id.text + ".block"))
+                }
+            }
             val wasAbsorbed = absorbedBy(run, ce.victim, now)
             if (wasAbsorbed) absorbedVictims += ce.victim
             run.pending += RuntimeEvent(
@@ -2130,6 +2208,18 @@ public class TablePlayer(
         var shapeFrames: List<ShapeFrame> = emptyList()
         var shapeSelf: ShapeSelf? = null
         var blockDespawn: Boolean = false
+
+        /** `block.mode bounce`: restitution / friction / counted-bounce budget and how many were used; [reflect] (`hit.reflect`) bounces off victims too; [fused] (`block.fused`) a stick that holds to the flight end. */
+        var bounceMode: Boolean = false
+        var restitution: Double = 0.0
+        var friction: Double = 0.0
+        var bounceTimes: Int = 0
+        var bounces: Int = 0
+        var reflect: Boolean = false
+        var fused: Boolean = false
+
+        /** Ticks of the current [flight]'s clock origin: a bounce rebases the flight, so its clock restarts at that tick. */
+        var clockBase: Int = 0
 
         /** `hit.attach_to`: the victim anchor a hit mounts the body on (null = `attach: false`); `block.for` ticks stuck; [stuckUntil] the tick it comes off (-1 flying). */
         var attachTo: String? = null

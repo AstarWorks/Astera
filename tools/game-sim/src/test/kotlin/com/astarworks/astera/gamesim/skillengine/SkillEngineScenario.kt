@@ -321,7 +321,9 @@ abstract class SkillEngineScenario {
                 if (b.target == null && b.subTable != null) out += event(b.event, entry + rel)
             }
             if (first) {
-                st.branches.firstOrNull { it.target != null }?.let { out += event(it.event, entry + maxOf(it.window.min, 1)) }
+                // a timer that ties with a body `<op>.end` is not injected: in play the End row of that tick runs before the state leaves (a fused grenade)
+                val endTicks = skill.table.subTables.filter { it.key.value.endsWith(".end") }.map { it.value.window.max }.toSet()
+                st.branches.firstOrNull { it.target != null && !(it.event.value.startsWith("timer(") && maxOf(it.window.min, 1) in endTicks) }?.let { out += event(it.event, entry + maxOf(it.window.min, 1)) }
                 first = false
             }
             entry += length

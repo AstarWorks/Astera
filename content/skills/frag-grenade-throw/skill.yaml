@@ -1,5 +1,6 @@
-# Frag grenade: a thrown body that bursts where it lands (victim or block). One skill-local fragment is the blast; both
-# handlers call it with the burst centre bound as `spot`. Schedule: the cast ends when the projectile body ends.
+# Frag grenade: a lobbed body that bounces and rolls off blocks and enemies and bursts at a fixed fuse tick after the throw
+# (fuse_ticks = the projectile `for`, fixed at load). One skill-local fragment is the blast, called on the body end with the
+# burst centre bound as `spot`. Schedule: the cast ends at the fuse tick.
 apiVersion: astera/v3
 kind: Skill
 id: frag-grenade-throw
@@ -12,7 +13,7 @@ meta:
   tags: [ranged, explosive, physical]
 params:
   launch_speed: {type: number, default: 1.4}
-  flight_ticks: {type: ticks, default: 60}
+  fuse_ticks:   {type: ticks, default: 60}
   blast_radius: {type: blocks, default: 3.5}
   blast_damage: {type: number, default: 35.0}
   bleed_ticks:  {type: ticks, default: 20}
@@ -32,14 +33,14 @@ fragments:
       - {id: boom, op: explode, at: 0, anchor: spot, power: 1.3, break_blocks: false, fire: false}
       - {id: dmg, op: damage, target: {kind: enemies, around: spot, radius: "${radius}"}, damage: {physical: "${damage}"}}
       - {id: bleed, op: status, target: {kind: enemies, around: spot, radius: "${radius}"}, status: bleed, stacks: 1, for: "${bleed}"}
-      - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 1.5, ahead: 4.0}}, tool: none, block_damage: 35, ripple: 29, revert: 200, outside_arena: false}
-      - {id: snd, op: sound, sound: "entity.generic.explode", anchor: contact, volume: 0.7, pitch: 1.2}
+      - {id: chip, op: break_area, at: 0, anchor: spot, shape: {sphere: {radius: 1.5, ahead: 0.0}}, tool: none, block_damage: 35, ripple: 29, revert: 200, outside_arena: false}
+      - {id: snd, op: sound, sound: "entity.generic.explode", anchor: spot, volume: 0.7, pitch: 1.2}
 machine:
   start: throw
   states:
     throw:
-      on:
-        - {event: bolt.end, to: end}
+      for: "= fuse_ticks"
+      then: end
       do:
         - {id: snd, op: sound, sound: "entity.snowball.throw", anchor: caster, volume: 0.9, pitch: 0.7, at: 0}
         - {id: fx, op: particle_def, def: gun-muzzle-smoke, anchor: cast_fx, at: 0}
@@ -47,17 +48,18 @@ machine:
           op: projectile
           origin: muzzle
           velocity: "= look(caster) * ${launch_speed}"
-          for: "${flight_ticks}"
+          for: "${fuse_ticks}"
+          gravity: 0.04
           radius: 0.5
-          hit: {targets: enemies, once: true, attach: false}
-          block: {mode: despawn}
+          hit: {targets: enemies, once: true, attach: false, reflect: true}
+          block: {mode: bounce, restitution: 0.45, friction: 0.15, times: 3}
           on:
             hit:
-              - {op: use, use: "fragment:blast", with: {radius: "${blast_radius}", damage: "${blast_damage}", bleed: "${bleed_ticks}"}, frames: {spot: foe}}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
-            block:
-              - {op: use, use: "fragment:blast", with: {radius: "${blast_radius}", damage: "${blast_damage}", bleed: "${bleed_ticks}"}, frames: {spot: contact}}
-              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact}
+            bounce:
+              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point}
+            end:
+              - {op: use, use: "fragment:blast", with: {radius: "${blast_radius}", damage: "${blast_damage}", bleed: "${bleed_ticks}"}, frames: {spot: bolt}}
         - {id: shell, op: display, kind: item, item: "minecraft:firework_star", context: fixed, anchor: bolt, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
         - {id: smoke, op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], at: 0, every: 1, until: bolt.end}
         - {id: spark, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], at: 0, every: 1, until: bolt.end}
