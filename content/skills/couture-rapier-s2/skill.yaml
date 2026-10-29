@@ -24,6 +24,9 @@ params:
   c3_dash_distance: {type: blocks, default: 9}
   thread_thick: {type: number, default: 0.06}
   spark_count: {type: number, default: 14}
+  thread_color: {type: string, default: "#ff5fa2"}
+  trail_color: {type: string, default: "#59ff5fa2"}
+  spark_particle: {type: string, default: crit}
 # Four hits: coin1 30 (sector 30 deg, 9 blocks, height 2.0), throw 18 + bleed 2x60, reel 6, coin3 50 (dash 9 blocks, 3 ticks).
 anchors:
   - {id: shears, anchor: body_anim.hand_r, mount: caster}
@@ -33,7 +36,7 @@ machine:
   start: windup
   # v1 couture-s2-rig.yaml (0c9e986ef~1) spans windup+throw+..: body anim lastTick 63 (v1 rig t 0..62) is longer than windup (34), so it lives in the machine-wide world list.
   world:
-    - {id: body_anim, op: body, anim: couture-s2-body, speed: 1.0, for: 63}
+    - {id: body_anim, op: body, target: caster, anim: couture-s2-body, speed: 1.0, for: 63}
     # v1 couture-s2-rig.yaml:45-50 weapon_model: couture-rapier-hidden from t20 to t57 (then couture-rapier again).
     - {id: hide_held, op: held_model, at: 20, model: "astera:couture-rapier-hidden", for: 37}
     # The volley outlives its spawning state (flies for 7, sticks for stick_ticks): ADR-0303 10.1 "owner": a machine-level world: list owns things for the whole machine. It is released at tick 34 (= windup length).
@@ -45,7 +48,7 @@ machine:
       speed: "= throw_speed"
       range: "= throw_range"
       radius: 0.22
-      hit: {targets: enemies, once: true}
+      hit: {targets: enemies, once: true, attach: false}
       block: {mode: stick, for: "= stick_ticks"}
       # GAP: v2 hit shape is a capsule root->tip of both blades (radius 0.22), window once -> projectile capsule radius 0.22 (axis follows velocity)
       # GAP: v2 lane_a/lane_b blade offsets +-left * blade length * lane -> none (no blade length in the engine)
@@ -60,7 +63,7 @@ machine:
           - {id: hitstop, op: freeze, at: 0, ticks: 2, scope: [caster, volley]}
           - {id: stab_snd, op: sound, sound: couture.stab, anchor: contact, pitch: "= 1.2 - 0.2 * clamp(length(velocity(volley) - velocity(victim)) / 2.0, 0.0, 1.0)"}
           # GAP: v2 victim_anim stagger_back (strength = clamp(|rel_velocity| / 2, 0.3, 1.0)) has no victim body op (R41 covers the caster only)
-          - {id: sparks, op: particle, particle: crit, anchor: contact, count: "= spark_count", offset: [0.4, 0.4, 0.4], extra: 0.4}
+          - {id: sparks, op: particle, particle: "= spark_particle", anchor: contact, count: "= spark_count", offset: [0.4, 0.4, 0.4], extra: 0.4}
         block:
           - {id: crumb, op: particle_def, def: couture-s2-p-crumb, anchor: contact}
           - {id: wall_snd, op: sound, sound: couture.stab_wall, anchor: contact}
@@ -105,8 +108,8 @@ machine:
         - {id: piece_b_m, op: display, kind: item, item: "astera:couture-rapier-blade-b", anchor: piece_b, at: 4, for: 30}
         # v2 spin op on the shears frame (54 deg/tick about caster.left, ticks 4-34): carried by the spin law on each piece above (R34: laws live on displays / the projectile body, never on an anchor).
         # v1 trail: ticks 6, width_frac 0.6, alpha 0.35 = byte 0x59 of the colour (ribbon opacity is the colour alpha byte), fade_power default 1.5 (ADR-0303 s.260); the colour is a literal (ribbon colour takes no param), crimson patches it.
-        - {id: trail_a, op: ribbon, of: piece_a.tip, root: piece_a.root, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "#59ff5fa2", at: 4, for: 30}
-        - {id: trail_b, op: ribbon, of: piece_b.tip, root: piece_b.root, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "#59ff5fa2", at: 4, for: 30}
+        - {id: trail_a, op: ribbon, of: piece_a.tip, root: piece_a.root, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "= trail_color", at: 4, for: 30}
+        - {id: trail_b, op: ribbon, of: piece_b.tip, root: piece_b.root, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "= trail_color", at: 4, for: 30}
         # v1 volume / pitch read the tip speed: piece_a.tip (frame-op point, ADR-0303 3.5).
         - {id: whoosh,op: sound, sound: couture.whoosh, anchor: shears, at: 4, every: 4, for: 30, volume: "= clamp(speed(piece_a.tip) / 1.5, 0.2, 1.0)", pitch: "= 0.9 + 0.3 * clamp(speed(piece_a.tip) / 2.0, 0.0, 1.0)"}
         # coin1: 30 degree / 9 block cone around the caster pose of tick 8; damage lands one tick after the selector (v2 delay op)
@@ -228,13 +231,13 @@ machine:
         - {id: fly_b_m, op: display, kind: item, item: "astera:couture-rapier-blade-b", anchor: fly_b, until: reel.end}
         - {id: throw_snd, op: sound, sound: couture.throw, anchor: shears, pitch: 1.1}
         # v2 dust: vanilla directed form (R34); v2 speed 0 so the velocity is only inherit_velocity 0.5 x the volley velocity.
-        - {id: puff, op: particle, particle: dust, anchor: palm, times: 6, count: 0, offset: "= velocity(volley) * 0.5", extra: 1.0, color: "#ff5fa2", size: 1.0}
+        - {id: puff, op: particle, particle: dust, anchor: palm, times: 6, count: 0, offset: "= velocity(volley) * 0.5", extra: 1.0, color: "= thread_color", size: 1.0}
         # v2 thread lines palm -> blade_a.root / blade_b.root / body.pivot (R34: live ribbons).
         - {id: palm_f, op: frame, anchor: palm, until: reel.end}   # ribbon ends resolve frame-op ids only (RibbonOpSpec.anchorOf), not document anchors
         # ENGINE GAP: RibbonOpSpec.kt:179 demands a static `for`, but the reel ends on arrival (runtime distance, v2), so its length is not fixed; kept until: reel.end (not a literal 51) until the engine accepts it.
-        - {id: thread_a, op: ribbon, from: palm_f, to: fly_a.root, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
-        - {id: thread_b, op: ribbon, from: palm_f, to: fly_b.root, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
-        - {id: thread_body, op: ribbon, from: palm_f, to: fly_body.pivot, thickness: "= thread_thick", color: "#ff5fa2", until: reel.end}
+        - {id: thread_a, op: ribbon, from: palm_f, to: fly_a.root, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
+        - {id: thread_b, op: ribbon, from: palm_f, to: fly_b.root, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
+        - {id: thread_body, op: ribbon, from: palm_f, to: fly_body.pivot, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
         # v1 plate flight_fan: slash_fan (= couture-s2-crescent) in the plane [axis, up] of the volley, alpha 0.5, removed on hit/block (the throw state ends then). Size 1.9 is the v2 value. ASSUMPTION: a fixed sprite faces +forward, so up 90 lays its x axis along the flight axis.
         - {id: flight_fan, op: display, kind: sprite, sprite: couture-s2-crescent, size: [1.9, 1.9], color: "#80ffffff", anchor: /windup/volley, billboard: fixed, rotate: [{axis: up, deg: 90}], for: 7}
         # v1 tip-glint (couture-s2-*-flight): couture-s2-p-tip every tick, ticks 3..10, per piece, at the v1 vfx-local lane point. v1 VfxDefinition.kt:372 documents x = left, y = up, z = forward, so offsets are copied unchanged.
@@ -394,7 +397,7 @@ machine:
               - {id: c3_snd_3, op: sound, sound: entity.player.attack.crit, anchor: victim, volume: 1, pitch: 0.6}
               - {id: c3_snd_4, op: sound, sound: block.anvil.land, anchor: victim, volume: 0.5, pitch: 1.4}
       do:
-        - {id: canim_2, op: body, anim: couture-s2-body-b, speed: 1.0, at: 0, for: 35}
+        - {id: canim_2, op: body, target: caster, anim: couture-s2-body-b, speed: 1.0, at: 0, for: 35}
         - {id: snd_15, op: sound, sound: block.amethyst_block.resonate, anchor: caster, at: 3, volume: 0.6, pitch: 0.6}
         - {id: snd_16, op: sound, sound: item.armor.equip_iron, anchor: caster, at: 7, volume: 0.5, pitch: 0.8}
         - {id: snd_17, op: sound, sound: entity.player.attack.sweep, anchor: caster, at: 10, volume: 0.7, pitch: 0.5}

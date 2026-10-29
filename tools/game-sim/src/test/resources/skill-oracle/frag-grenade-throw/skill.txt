@@ -1,16 +1,16 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=throw/snd sound=entity.snowball.throw cat=master vol=0.9 pitch=0.7 at=0.000000,0.000000,0.000000
-@0 particle - op=throw/fx type=gun-muzzle-smoke at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2082051925288891640
-@0 particle - op=throw/trail0[0] type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6448921816448930706
-@0 particle - op=throw/trail1[0] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2238170249784874094
-@1 particle - op=throw/trail0[1] type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3950150315889462291
-@1 particle - op=throw/trail1[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-164090742208689442
+@0 particle - op=throw/fx type=gun-muzzle-smoke at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-644459710114803206
+@0 particle - op=throw/trail0[0] type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5605161189511995142
+@0 particle - op=throw/trail1[0] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8713018117716985833
+@1 particle - op=throw/trail0[1] type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8326041921287778536
+@1 particle - op=throw/trail1[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5431180113488938716
 @1 hit - op=throw/bolt at=0.000000,1.620000,1.900000 r=0.500000 shape=capsule a=0.000000,1.620000,1.900000 b=0.000000,1.620000,1.900000 rad=0.500000
 ## pose yaw=37 pitch=-20
 @0 sound - op=throw/snd sound=entity.snowball.throw cat=master vol=0.9 pitch=0.7 at=0.000000,0.000000,0.000000
-@0 particle - op=throw/fx type=gun-muzzle-smoke at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2082051925288891640
-@0 particle - op=throw/trail0[0] type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6448921816448930706
-@0 particle - op=throw/trail1[0] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2238170249784874094
-@1 particle - op=throw/trail0[1] type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3950150315889462291
-@1 particle - op=throw/trail1[1] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-164090742208689442
+@0 particle - op=throw/fx type=gun-muzzle-smoke at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-644459710114803206
+@0 particle - op=throw/trail0[0] type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5605161189511995142
+@0 particle - op=throw/trail1[0] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8713018117716985833
+@1 particle - op=throw/trail0[1] type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8326041921287778536
+@1 particle - op=throw/trail1[1] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5431180113488938716
 @1 hit - op=throw/bolt at=-1.074490,2.269838,1.425897 r=0.500000 shape=capsule a=-1.074490,2.269838,1.425897 b=-1.074490,2.269838,1.425897 rad=0.500000

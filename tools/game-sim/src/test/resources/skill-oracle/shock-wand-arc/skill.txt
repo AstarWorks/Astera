@@ -1,7 +1,7 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=burst/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1.1 at=0.000000,0.000000,0.000000
-@0 particle - op=burst/fx_spark type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3783703625825292805
-@0 particle - op=burst/fx_dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3786547730167960738
+@0 particle - op=burst/fx_spark type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2588716033807108782
+@0 particle - op=burst/fx_dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4989165672555977430
 @0 hit - op=burst/area at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- electric=9.6429 skill=shock-wand-arc at=0.000000,0.000000,2.200000 ignoreinv=false ignorearmor=false
 @0 sound - op=burst/area.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=0.000000,0.000000,2.200000
@@ -9,8 +9,8 @@
 @0 status 00000000-0000-0000-0000-00000000000b op=- status=shock stacks=1 for=30
 ## pose yaw=37 pitch=-20
 @0 sound - op=burst/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1.1 at=0.000000,0.000000,0.000000
-@0 particle - op=burst/fx_spark type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3783703625825292805
-@0 particle - op=burst/fx_dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3786547730167960738
+@0 particle - op=burst/fx_spark type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2588716033807108782
+@0 particle - op=burst/fx_dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4989165672555977430
 @0 hit - op=burst/area at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- electric=9.6429 skill=shock-wand-arc at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
 @0 sound - op=burst/area.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589

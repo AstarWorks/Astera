@@ -1,10 +1,10 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=bless/snd sound=block.amethyst_block.chime cat=master vol=0.8 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=bless/pts type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4301609029287256270
-@0 particle - op=bless/dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#f0f0aa size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8747170696497806728
+@0 particle - op=bless/pts type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3908550969281822914
+@0 particle - op=bless/dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#f0f0aa size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-796176313248982766
 @0 hit - op=bless/cleanse at=0.000000,0.000000,0.000000 r=6.000000 shape=area
 ## pose yaw=37 pitch=-20
 @0 sound - op=bless/snd sound=block.amethyst_block.chime cat=master vol=0.8 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=bless/pts type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4301609029287256270
-@0 particle - op=bless/dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#f0f0aa size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8747170696497806728
+@0 particle - op=bless/pts type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3908550969281822914
+@0 particle - op=bless/dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#f0f0aa size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-796176313248982766
 @0 hit - op=bless/cleanse at=0.000000,0.000000,0.000000 r=6.000000 shape=area

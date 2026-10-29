@@ -6,17 +6,17 @@
 @0 spawn #4 op=slam/guard_crest kind=sprite sprite=bastion-crest alpha=1.000000 tint=- seethrough=true pos=0.200000,1.350000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=0.260000,0.260000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @0 spawn #5 op=slam/guard_fill kind=text text=● bg=#00000000 shadow=false seethrough=false pos=0.200000,1.300000,1.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- aud=ALL lane=CORE target=-
 @0 write #5 op=slam/guard_fill dur=0 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=1.500000,3.000000,1.000000 bb=FIXED
-@0 sound - op=- sound=block.amethyst_block.resonate cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
+@0 sound - op=slam/hum[0] sound=block.amethyst_block.resonate cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
 @1 write #5 op=slam/guard_fill dur=1 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=5.722222,12.500000,1.000000 bb=FIXED
 @2 write #5 op=slam/guard_fill dur=1 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=6.750000,14.812500,1.000000 bb=FIXED
 @3 write #5 op=slam/guard_fill dur=1 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=7.277778,16.000000,1.000000 bb=FIXED
 @4 write #5 op=slam/guard_fill dur=1 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=7.472222,16.437500,1.000000 bb=FIXED
 @5 write #5 op=slam/guard_fill dur=1 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=7.500000,16.500000,1.000000 bb=FIXED
-@5 sound - op=- sound=block.amethyst_block.resonate cat=master vol=1 pitch=0.648 at=0.000000,0.000000,0.000000
+@5 sound - op=slam/hum[1] sound=block.amethyst_block.resonate cat=master vol=1 pitch=0.648 at=0.000000,0.000000,0.000000
 @6 write #5 op=slam/guard_fill dur=6 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=7.468750,16.437500,1.000000 bb=FIXED
-@10 sound - op=- sound=block.amethyst_block.resonate cat=master vol=1 pitch=0.792 at=0.000000,0.000000,0.000000
+@10 sound - op=slam/hum[2] sound=block.amethyst_block.resonate cat=master vol=1 pitch=0.792 at=0.000000,0.000000,0.000000
 @12 write #5 op=slam/guard_fill dur=6 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=7.375000,16.250000,1.000000 bb=FIXED
-@15 sound - op=- sound=block.amethyst_block.resonate cat=master vol=1 pitch=1.032 at=0.000000,0.000000,0.000000
+@15 sound - op=slam/hum[3] sound=block.amethyst_block.resonate cat=master vol=1 pitch=1.032 at=0.000000,0.000000,0.000000
 @18 write #5 op=slam/guard_fill dur=6 pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=7.218750,15.937500,1.000000 bb=FIXED
 @20 spawn #6 op=slam/tele_arc[0] kind=sprite sprite=quad alpha=1.000000 tint=#d9ff3b2f seethrough=false pos=-3.293143,0.050000,5.253114 rot=-0.679573,-0.195399,-0.195399,0.679573 scale=1.704325,0.300000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @20 spawn #7 op=slam/tele_arc[1] kind=sprite sprite=quad alpha=1.000000 tint=#d9ff3b2f seethrough=false pos=-2.742190,0.050000,5.560611 rot=-0.688635,-0.160567,-0.160567,0.688635 scale=1.704325,0.300000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
@@ -67,10 +67,10 @@
 @20 write #29 op=slam/tele_fill[9] dur=0 pos=-0.016466,0.000600,0.026266 rot=-0.618699,0.342362,0.342362,0.618699 scale=0.062000,0.006000,1.000000 bb=FIXED
 @20 write #30 op=slam/tele_fill[10] dur=0 pos=-0.016466,0.000600,0.026266 rot=-0.618699,0.342362,0.342362,0.618699 scale=0.062000,0.006000,1.000000 bb=FIXED
 @20 write #31 op=slam/tele_fill[11] dur=0 pos=-0.016466,0.000600,0.026266 rot=-0.618699,0.342362,0.342362,0.618699 scale=0.062000,0.006000,1.000000 bb=FIXED
-@20 sound - op=- sound=block.amethyst_block.resonate cat=master vol=1 pitch=1.368 at=0.000000,0.000000,0.000000
-@20 sound - op=- sound=item.shield.block cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
+@20 sound - op=slam/hum[4] sound=block.amethyst_block.resonate cat=master vol=1 pitch=1.368 at=0.000000,0.000000,0.000000
+@20 sound - op=slam/snd_shield sound=item.shield.block cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
 @20 effect 00000000-0000-0000-0000-000000000001 op=- impulse x=0 y=0.3 z=0
-@20 hit - op=- at=0.000000,0.900000,0.000000 r=1.600000
+@20 hit - op=slam/dash_hit[0] at=0.000000,0.900000,0.000000 r=1.600000 shape=sphere rad=1.600000
 @20 move - op=- invulnerable=8
 @20 move - op=- to=0,0,0.4667 yaw=- pitch=-
 @20 effect 00000000-0000-0000-0000-000000000001 op=- body=hide-main-hand speed=1
@@ -87,7 +87,7 @@
 @21 write #29 op=slam/tele_fill[9] dur=1 pos=-0.342487,0.012480,1.479657 rot=-0.618699,0.342362,0.342362,0.618699 scale=1.289600,0.124800,1.000000 bb=FIXED
 @21 write #30 op=slam/tele_fill[10] dur=1 pos=-0.342487,0.012480,1.479657 rot=-0.618699,0.342362,0.342362,0.618699 scale=1.289600,0.124800,1.000000 bb=FIXED
 @21 write #31 op=slam/tele_fill[11] dur=1 pos=-0.342487,0.012480,1.479657 rot=-0.618699,0.342362,0.342362,0.618699 scale=1.289600,0.124800,1.000000 bb=FIXED
-@21 hit - op=- at=0.000000,0.900000,0.933333 r=1.600000
+@21 hit - op=slam/dash_hit[1] at=0.000000,0.900000,0.933333 r=1.600000 shape=sphere rad=1.600000
 @21 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @21 move - op=- invulnerable=0
 @22 write #20 op=slam/tele_fill[0] dur=1 pos=-0.505497,0.018420,1.739686 rot=-0.618699,0.342362,0.342362,0.618699 scale=1.903400,0.184200,1.000000 bb=FIXED
@@ -102,7 +102,7 @@
 @22 write #29 op=slam/tele_fill[9] dur=1 pos=-0.505497,0.018420,1.739686 rot=-0.618699,0.342362,0.342362,0.618699 scale=1.903400,0.184200,1.000000 bb=FIXED
 @22 write #30 op=slam/tele_fill[10] dur=1 pos=-0.505497,0.018420,1.739686 rot=-0.618699,0.342362,0.342362,0.618699 scale=1.903400,0.184200,1.000000 bb=FIXED
 @22 write #31 op=slam/tele_fill[11] dur=1 pos=-0.505497,0.018420,1.739686 rot=-0.618699,0.342362,0.342362,0.618699 scale=1.903400,0.184200,1.000000 bb=FIXED
-@22 hit - op=- at=0.000000,0.900000,0.933333 r=1.600000
+@22 hit - op=slam/dash_hit[2] at=0.000000,0.900000,0.933333 r=1.600000 shape=sphere rad=1.600000
 @23 write #20 op=slam/tele_fill[0] dur=1 pos=-0.668508,0.024360,1.999715 rot=-0.618699,0.342362,0.342362,0.618699 scale=2.517200,0.243600,1.000000 bb=FIXED
 @23 write #21 op=slam/tele_fill[1] dur=1 pos=-0.668508,0.024360,1.999715 rot=-0.618699,0.342362,0.342362,0.618699 scale=2.517200,0.243600,1.000000 bb=FIXED
 @23 write #22 op=slam/tele_fill[2] dur=1 pos=-0.668508,0.024360,1.999715 rot=-0.618699,0.342362,0.342362,0.618699 scale=2.517200,0.243600,1.000000 bb=FIXED
@@ -115,7 +115,7 @@
 @23 write #29 op=slam/tele_fill[9] dur=1 pos=-0.668508,0.024360,1.999715 rot=-0.618699,0.342362,0.342362,0.618699 scale=2.517200,0.243600,1.000000 bb=FIXED
 @23 write #30 op=slam/tele_fill[10] dur=1 pos=-0.668508,0.024360,1.999715 rot=-0.618699,0.342362,0.342362,0.618699 scale=2.517200,0.243600,1.000000 bb=FIXED
 @23 write #31 op=slam/tele_fill[11] dur=1 pos=-0.668508,0.024360,1.999715 rot=-0.618699,0.342362,0.342362,0.618699 scale=2.517200,0.243600,1.000000 bb=FIXED
-@23 hit - op=- at=0.000000,0.900000,0.933333 r=1.600000
+@23 hit - op=slam/dash_hit[3] at=0.000000,0.900000,0.933333 r=1.600000 shape=sphere rad=1.600000
 @24 write #5 op=slam/guard_fill dur=6 pos=0.200000,1.300000,2.083333 rot=0.000000,-0.422618,0.000000,0.906308 scale=7.000000,15.500000,1.000000 bb=FIXED
 @24 write #20 op=slam/tele_fill[0] dur=1 pos=-0.831519,0.030300,2.259745 rot=-0.618699,0.342362,0.342362,0.618699 scale=3.131000,0.303000,1.000000 bb=FIXED
 @24 write #21 op=slam/tele_fill[1] dur=1 pos=-0.831519,0.030300,2.259745 rot=-0.618699,0.342362,0.342362,0.618699 scale=3.131000,0.303000,1.000000 bb=FIXED
@@ -129,7 +129,7 @@
 @24 write #29 op=slam/tele_fill[9] dur=1 pos=-0.831519,0.030300,2.259745 rot=-0.618699,0.342362,0.342362,0.618699 scale=3.131000,0.303000,1.000000 bb=FIXED
 @24 write #30 op=slam/tele_fill[10] dur=1 pos=-0.831519,0.030300,2.259745 rot=-0.618699,0.342362,0.342362,0.618699 scale=3.131000,0.303000,1.000000 bb=FIXED
 @24 write #31 op=slam/tele_fill[11] dur=1 pos=-0.831519,0.030300,2.259745 rot=-0.618699,0.342362,0.342362,0.618699 scale=3.131000,0.303000,1.000000 bb=FIXED
-@24 hit - op=- at=0.000000,0.900000,0.933333 r=1.600000
+@24 hit - op=slam/dash_hit[4] at=0.000000,0.900000,0.933333 r=1.600000 shape=sphere rad=1.600000
 @25 write #20 op=slam/tele_fill[0] dur=1 pos=-0.994529,0.036240,2.519774 rot=-0.618699,0.342362,0.342362,0.618699 scale=3.744800,0.362400,1.000000 bb=FIXED
 @25 write #21 op=slam/tele_fill[1] dur=1 pos=-0.994529,0.036240,2.519774 rot=-0.618699,0.342362,0.342362,0.618699 scale=3.744800,0.362400,1.000000 bb=FIXED
 @25 write #22 op=slam/tele_fill[2] dur=1 pos=-0.994529,0.036240,2.519774 rot=-0.618699,0.342362,0.342362,0.618699 scale=3.744800,0.362400,1.000000 bb=FIXED
@@ -142,8 +142,8 @@
 @25 write #29 op=slam/tele_fill[9] dur=1 pos=-0.994529,0.036240,2.519774 rot=-0.618699,0.342362,0.342362,0.618699 scale=3.744800,0.362400,1.000000 bb=FIXED
 @25 write #30 op=slam/tele_fill[10] dur=1 pos=-0.994529,0.036240,2.519774 rot=-0.618699,0.342362,0.342362,0.618699 scale=3.744800,0.362400,1.000000 bb=FIXED
 @25 write #31 op=slam/tele_fill[11] dur=1 pos=-0.994529,0.036240,2.519774 rot=-0.618699,0.342362,0.342362,0.618699 scale=3.744800,0.362400,1.000000 bb=FIXED
-@25 sound - op=- sound=block.amethyst_block.resonate cat=master vol=1 pitch=1.8 at=0.000000,0.000000,0.933333
-@25 hit - op=- at=0.000000,0.900000,0.933333 r=1.600000
+@25 sound - op=slam/hum[5] sound=block.amethyst_block.resonate cat=master vol=1 pitch=1.8 at=0.000000,0.000000,0.933333
+@25 hit - op=slam/dash_hit[5] at=0.000000,0.900000,0.933333 r=1.600000 shape=sphere rad=1.600000
 @26 write #20 op=slam/tele_fill[0] dur=1 pos=-1.157540,0.042180,2.779803 rot=-0.618699,0.342362,0.342362,0.618699 scale=4.358600,0.421800,1.000000 bb=FIXED
 @26 write #21 op=slam/tele_fill[1] dur=1 pos=-1.157540,0.042180,2.779803 rot=-0.618699,0.342362,0.342362,0.618699 scale=4.358600,0.421800,1.000000 bb=FIXED
 @26 write #22 op=slam/tele_fill[2] dur=1 pos=-1.157540,0.042180,2.779803 rot=-0.618699,0.342362,0.342362,0.618699 scale=4.358600,0.421800,1.000000 bb=FIXED
@@ -176,7 +176,7 @@
 @27 write #29 op=slam/tele_fill[9] dur=1 pos=-1.320550,0.048120,3.039832 rot=-0.618699,0.342362,0.342362,0.618699 scale=4.972400,0.481200,1.000000 bb=FIXED
 @27 write #30 op=slam/tele_fill[10] dur=1 pos=-1.320550,0.048120,3.039832 rot=-0.618699,0.342362,0.342362,0.618699 scale=4.972400,0.481200,1.000000 bb=FIXED
 @27 write #31 op=slam/tele_fill[11] dur=1 pos=-1.320550,0.048120,3.039832 rot=-0.618699,0.342362,0.342362,0.618699 scale=4.972400,0.481200,1.000000 bb=FIXED
-@27 sound - op=- sound=item.trident.return cat=master vol=0.8 pitch=0.6 at=0.000000,0.000000,0.933333
+@27 sound - op=slam/snd_trident sound=item.trident.return cat=master vol=0.8 pitch=0.6 at=0.000000,0.000000,0.933333
 @28 write #20 op=slam/tele_fill[0] dur=1 pos=-1.483561,0.054060,3.299861 rot=-0.618699,0.342362,0.342362,0.618699 scale=5.586200,0.540600,1.000000 bb=FIXED
 @28 write #21 op=slam/tele_fill[1] dur=1 pos=-1.483561,0.054060,3.299861 rot=-0.618699,0.342362,0.342362,0.618699 scale=5.586200,0.540600,1.000000 bb=FIXED
 @28 write #22 op=slam/tele_fill[2] dur=1 pos=-1.483561,0.054060,3.299861 rot=-0.618699,0.342362,0.342362,0.618699 scale=5.586200,0.540600,1.000000 bb=FIXED
@@ -228,14 +228,14 @@
 @31 write #58 op=slam/dust[3] dur=0 pos=0.000000,0.250000,1.133333 rot=0.000000,0.000000,0.000000,1.000000 scale=1.200000,1.200000,1.000000 bb=CENTER
 @31 write #59 op=slam/dust[4] dur=0 pos=-1.299038,0.250000,1.883333 rot=0.000000,0.000000,0.000000,1.000000 scale=1.200000,1.200000,1.000000 bb=CENTER
 @31 write #60 op=slam/dust[5] dur=0 pos=-1.299038,0.250000,3.383333 rot=0.000000,0.000000,0.000000,1.000000 scale=1.200000,1.200000,1.000000 bb=CENTER
-@31 sound - op=- sound=block.anvil.land cat=master vol=1 pitch=0.5 at=0.000000,0.000000,0.933333
-@31 sound - op=- sound=entity.generic.explode cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.933333
-@31 hit - op=- at=0.000000,1.620000,0.933333 r=5.800000
+@31 sound - op=slam/snd_anvil sound=block.anvil.land cat=master vol=1 pitch=0.5 at=0.000000,0.000000,0.933333
+@31 sound - op=slam/snd_explode sound=entity.generic.explode cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.933333
+@31 hit - op=slam/hit1 at=0.000000,1.620000,0.933333 r=5.800000 shape=sector fwd=0.000000,0.000000,1.000000 left=1.000000,0.000000,0.000000 deg=110.000000 range=3.800000 height=2.000000
 @31 damage 00000000-0000-0000-0000-00000000000a op=- physical=140 skill=bastion-greatsword-ego at=0.000000,0.900000,2.500000 ignoreinv=true ignorearmor=false
 @31 effect 00000000-0000-0000-0000-000000000001 op=- consume_status=charge
 @31 effect 00000000-0000-0000-0000-000000000001 op=- camera_shake=0.5 ticks=8 from=none
 @31 spawn #61 op=slam/veil kind=veil viewer=00000000-0000-0000-0000-000000000001 sprite=burst dist=0.400000 scale=1.400000 color=#FFC84A maxfrac=0.150000 ticks=5
-@31 hit - op=- at=0.000000,0.000000,0.933333 r=5.000000
+@31 hit - op=slam/flash at=0.000000,0.000000,0.933333 r=5.000000 shape=area
 @31 effect 00000000-0000-0000-0000-00000000000a op=- screen_flash=gold_burst color=#ffc84a in=0 stay=2 out=2
 @31 effect 00000000-0000-0000-0000-00000000000b op=- screen_flash=gold_burst color=#ffc84a in=0 stay=2 out=2
 @31 effect 00000000-0000-0000-0000-000000000001 op=- freeze=4
@@ -703,17 +703,17 @@
 @0 spawn #4 op=slam/guard_crest kind=sprite sprite=bastion-crest alpha=1.000000 tint=- seethrough=true pos=-0.532360,1.350000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=0.260000,0.260000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @0 spawn #5 op=slam/guard_fill kind=text text=● bg=#00000000 shadow=false seethrough=false pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- aud=ALL lane=CORE target=-
 @0 write #5 op=slam/guard_fill dur=0 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=1.500000,3.000000,1.000000 bb=FIXED
-@0 sound - op=- sound=block.amethyst_block.resonate cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
+@0 sound - op=slam/hum[0] sound=block.amethyst_block.resonate cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
 @1 write #5 op=slam/guard_fill dur=1 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=5.722222,12.500000,1.000000 bb=FIXED
 @2 write #5 op=slam/guard_fill dur=1 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=6.750000,14.812500,1.000000 bb=FIXED
 @3 write #5 op=slam/guard_fill dur=1 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=7.277778,16.000000,1.000000 bb=FIXED
 @4 write #5 op=slam/guard_fill dur=1 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=7.472222,16.437500,1.000000 bb=FIXED
 @5 write #5 op=slam/guard_fill dur=1 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=7.500000,16.500000,1.000000 bb=FIXED
-@5 sound - op=- sound=block.amethyst_block.resonate cat=master vol=1 pitch=0.648 at=0.000000,0.000000,0.000000
+@5 sound - op=slam/hum[1] sound=block.amethyst_block.resonate cat=master vol=1 pitch=0.648 at=0.000000,0.000000,0.000000
 @6 write #5 op=slam/guard_fill dur=6 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=7.468750,16.437500,1.000000 bb=FIXED
-@10 sound - op=- sound=block.amethyst_block.resonate cat=master vol=1 pitch=0.792 at=0.000000,0.000000,0.000000
+@10 sound - op=slam/hum[2] sound=block.amethyst_block.resonate cat=master vol=1 pitch=0.792 at=0.000000,0.000000,0.000000
 @12 write #5 op=slam/guard_fill dur=6 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=7.375000,16.250000,1.000000 bb=FIXED
-@15 sound - op=- sound=block.amethyst_block.resonate cat=master vol=1 pitch=1.032 at=0.000000,0.000000,0.000000
+@15 sound - op=slam/hum[3] sound=block.amethyst_block.resonate cat=master vol=1 pitch=1.032 at=0.000000,0.000000,0.000000
 @18 write #5 op=slam/guard_fill dur=6 pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=7.218750,15.937500,1.000000 bb=FIXED
 @20 spawn #6 op=slam/tele_arc[0] kind=sprite sprite=quad alpha=1.000000 tint=#d9ff3b2f seethrough=false pos=-5.791424,0.050000,2.213460 rot=-0.582454,-0.400933,-0.400933,0.582454 scale=1.704325,0.300000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @20 spawn #7 op=slam/tele_arc[1] kind=sprite sprite=quad alpha=1.000000 tint=#d9ff3b2f seethrough=false pos=-5.536469,0.050000,2.790610 rot=-0.602100,-0.370777,-0.370777,0.602100 scale=1.704325,0.300000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
@@ -764,10 +764,10 @@
 @20 write #29 op=slam/tele_fill[9] dur=0 pos=-0.028957,0.000600,0.011067 rot=-0.695360,0.128354,0.128354,0.695360 scale=0.062000,0.006000,1.000000 bb=FIXED
 @20 write #30 op=slam/tele_fill[10] dur=0 pos=-0.028957,0.000600,0.011067 rot=-0.695360,0.128354,0.128354,0.695360 scale=0.062000,0.006000,1.000000 bb=FIXED
 @20 write #31 op=slam/tele_fill[11] dur=0 pos=-0.028957,0.000600,0.011067 rot=-0.695360,0.128354,0.128354,0.695360 scale=0.062000,0.006000,1.000000 bb=FIXED
-@20 sound - op=- sound=block.amethyst_block.resonate cat=master vol=1 pitch=1.368 at=0.000000,0.000000,0.000000
-@20 sound - op=- sound=item.shield.block cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
+@20 sound - op=slam/hum[4] sound=block.amethyst_block.resonate cat=master vol=1 pitch=1.368 at=0.000000,0.000000,0.000000
+@20 sound - op=slam/snd_shield sound=item.shield.block cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
 @20 effect 00000000-0000-0000-0000-000000000001 op=- impulse x=0 y=0.3 z=0
-@20 hit - op=- at=0.000000,0.900000,0.000000 r=1.600000
+@20 hit - op=slam/dash_hit[0] at=0.000000,0.900000,0.000000 r=1.600000 shape=sphere rad=1.600000
 @20 move - op=- invulnerable=8
 @20 move - op=- to=-0.2808,0,0.3727 yaw=- pitch=-
 @20 effect 00000000-0000-0000-0000-000000000001 op=- body=hide-main-hand speed=1
@@ -784,7 +784,7 @@
 @21 write #29 op=slam/tele_fill[9] dur=1 pos=-1.164002,0.012480,0.975593 rot=-0.695360,0.128354,0.128354,0.695360 scale=1.289600,0.124800,1.000000 bb=FIXED
 @21 write #30 op=slam/tele_fill[10] dur=1 pos=-1.164002,0.012480,0.975593 rot=-0.695360,0.128354,0.128354,0.695360 scale=1.289600,0.124800,1.000000 bb=FIXED
 @21 write #31 op=slam/tele_fill[11] dur=1 pos=-1.164002,0.012480,0.975593 rot=-0.695360,0.128354,0.128354,0.695360 scale=1.289600,0.124800,1.000000 bb=FIXED
-@21 hit - op=- at=-0.561694,0.900000,0.745393 r=1.600000
+@21 hit - op=slam/dash_hit[1] at=-0.561694,0.900000,0.745393 r=1.600000 shape=sphere rad=1.600000
 @21 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @21 move - op=- invulnerable=0
 @22 write #20 op=slam/tele_fill[0] dur=1 pos=-1.450678,0.018420,1.085159 rot=-0.695360,0.128354,0.128354,0.695360 scale=1.903400,0.184200,1.000000 bb=FIXED
@@ -799,7 +799,7 @@
 @22 write #29 op=slam/tele_fill[9] dur=1 pos=-1.450678,0.018420,1.085159 rot=-0.695360,0.128354,0.128354,0.695360 scale=1.903400,0.184200,1.000000 bb=FIXED
 @22 write #30 op=slam/tele_fill[10] dur=1 pos=-1.450678,0.018420,1.085159 rot=-0.695360,0.128354,0.128354,0.695360 scale=1.903400,0.184200,1.000000 bb=FIXED
 @22 write #31 op=slam/tele_fill[11] dur=1 pos=-1.450678,0.018420,1.085159 rot=-0.695360,0.128354,0.128354,0.695360 scale=1.903400,0.184200,1.000000 bb=FIXED
-@22 hit - op=- at=-0.561694,0.900000,0.745393 r=1.600000
+@22 hit - op=slam/dash_hit[2] at=-0.561694,0.900000,0.745393 r=1.600000 shape=sphere rad=1.600000
 @23 write #20 op=slam/tele_fill[0] dur=1 pos=-1.737353,0.024360,1.194726 rot=-0.695360,0.128354,0.128354,0.695360 scale=2.517200,0.243600,1.000000 bb=FIXED
 @23 write #21 op=slam/tele_fill[1] dur=1 pos=-1.737353,0.024360,1.194726 rot=-0.695360,0.128354,0.128354,0.695360 scale=2.517200,0.243600,1.000000 bb=FIXED
 @23 write #22 op=slam/tele_fill[2] dur=1 pos=-1.737353,0.024360,1.194726 rot=-0.695360,0.128354,0.128354,0.695360 scale=2.517200,0.243600,1.000000 bb=FIXED
@@ -812,7 +812,7 @@
 @23 write #29 op=slam/tele_fill[9] dur=1 pos=-1.737353,0.024360,1.194726 rot=-0.695360,0.128354,0.128354,0.695360 scale=2.517200,0.243600,1.000000 bb=FIXED
 @23 write #30 op=slam/tele_fill[10] dur=1 pos=-1.737353,0.024360,1.194726 rot=-0.695360,0.128354,0.128354,0.695360 scale=2.517200,0.243600,1.000000 bb=FIXED
 @23 write #31 op=slam/tele_fill[11] dur=1 pos=-1.737353,0.024360,1.194726 rot=-0.695360,0.128354,0.128354,0.695360 scale=2.517200,0.243600,1.000000 bb=FIXED
-@23 hit - op=- at=-0.561694,0.900000,0.745393 r=1.600000
+@23 hit - op=slam/dash_hit[3] at=-0.561694,0.900000,0.745393 r=1.600000 shape=sphere rad=1.600000
 @24 write #5 op=slam/guard_fill dur=6 pos=-1.094054,1.300000,1.784187 rot=0.000000,-0.688355,0.000000,0.725374 scale=7.000000,15.500000,1.000000 bb=FIXED
 @24 write #20 op=slam/tele_fill[0] dur=1 pos=-2.024029,0.030300,1.304292 rot=-0.695360,0.128354,0.128354,0.695360 scale=3.131000,0.303000,1.000000 bb=FIXED
 @24 write #21 op=slam/tele_fill[1] dur=1 pos=-2.024029,0.030300,1.304292 rot=-0.695360,0.128354,0.128354,0.695360 scale=3.131000,0.303000,1.000000 bb=FIXED
@@ -826,7 +826,7 @@
 @24 write #29 op=slam/tele_fill[9] dur=1 pos=-2.024029,0.030300,1.304292 rot=-0.695360,0.128354,0.128354,0.695360 scale=3.131000,0.303000,1.000000 bb=FIXED
 @24 write #30 op=slam/tele_fill[10] dur=1 pos=-2.024029,0.030300,1.304292 rot=-0.695360,0.128354,0.128354,0.695360 scale=3.131000,0.303000,1.000000 bb=FIXED
 @24 write #31 op=slam/tele_fill[11] dur=1 pos=-2.024029,0.030300,1.304292 rot=-0.695360,0.128354,0.128354,0.695360 scale=3.131000,0.303000,1.000000 bb=FIXED
-@24 hit - op=- at=-0.561694,0.900000,0.745393 r=1.600000
+@24 hit - op=slam/dash_hit[4] at=-0.561694,0.900000,0.745393 r=1.600000 shape=sphere rad=1.600000
 @25 write #20 op=slam/tele_fill[0] dur=1 pos=-2.310704,0.036240,1.413858 rot=-0.695360,0.128354,0.128354,0.695360 scale=3.744800,0.362400,1.000000 bb=FIXED
 @25 write #21 op=slam/tele_fill[1] dur=1 pos=-2.310704,0.036240,1.413858 rot=-0.695360,0.128354,0.128354,0.695360 scale=3.744800,0.362400,1.000000 bb=FIXED
 @25 write #22 op=slam/tele_fill[2] dur=1 pos=-2.310704,0.036240,1.413858 rot=-0.695360,0.128354,0.128354,0.695360 scale=3.744800,0.362400,1.000000 bb=FIXED
@@ -839,8 +839,8 @@
 @25 write #29 op=slam/tele_fill[9] dur=1 pos=-2.310704,0.036240,1.413858 rot=-0.695360,0.128354,0.128354,0.695360 scale=3.744800,0.362400,1.000000 bb=FIXED
 @25 write #30 op=slam/tele_fill[10] dur=1 pos=-2.310704,0.036240,1.413858 rot=-0.695360,0.128354,0.128354,0.695360 scale=3.744800,0.362400,1.000000 bb=FIXED
 @25 write #31 op=slam/tele_fill[11] dur=1 pos=-2.310704,0.036240,1.413858 rot=-0.695360,0.128354,0.128354,0.695360 scale=3.744800,0.362400,1.000000 bb=FIXED
-@25 sound - op=- sound=block.amethyst_block.resonate cat=master vol=1 pitch=1.8 at=-0.561694,0.000000,0.745393
-@25 hit - op=- at=-0.561694,0.900000,0.745393 r=1.600000
+@25 sound - op=slam/hum[5] sound=block.amethyst_block.resonate cat=master vol=1 pitch=1.8 at=-0.561694,0.000000,0.745393
+@25 hit - op=slam/dash_hit[5] at=-0.561694,0.900000,0.745393 r=1.600000 shape=sphere rad=1.600000
 @26 write #20 op=slam/tele_fill[0] dur=1 pos=-2.597380,0.042180,1.523424 rot=-0.695360,0.128354,0.128354,0.695360 scale=4.358600,0.421800,1.000000 bb=FIXED
 @26 write #21 op=slam/tele_fill[1] dur=1 pos=-2.597380,0.042180,1.523424 rot=-0.695360,0.128354,0.128354,0.695360 scale=4.358600,0.421800,1.000000 bb=FIXED
 @26 write #22 op=slam/tele_fill[2] dur=1 pos=-2.597380,0.042180,1.523424 rot=-0.695360,0.128354,0.128354,0.695360 scale=4.358600,0.421800,1.000000 bb=FIXED
@@ -873,7 +873,7 @@
 @27 write #29 op=slam/tele_fill[9] dur=1 pos=-2.884055,0.048120,1.632991 rot=-0.695360,0.128354,0.128354,0.695360 scale=4.972400,0.481200,1.000000 bb=FIXED
 @27 write #30 op=slam/tele_fill[10] dur=1 pos=-2.884055,0.048120,1.632991 rot=-0.695360,0.128354,0.128354,0.695360 scale=4.972400,0.481200,1.000000 bb=FIXED
 @27 write #31 op=slam/tele_fill[11] dur=1 pos=-2.884055,0.048120,1.632991 rot=-0.695360,0.128354,0.128354,0.695360 scale=4.972400,0.481200,1.000000 bb=FIXED
-@27 sound - op=- sound=item.trident.return cat=master vol=0.8 pitch=0.6 at=-0.561694,0.000000,0.745393
+@27 sound - op=slam/snd_trident sound=item.trident.return cat=master vol=0.8 pitch=0.6 at=-0.561694,0.000000,0.745393
 @28 write #20 op=slam/tele_fill[0] dur=1 pos=-3.170731,0.054060,1.742557 rot=-0.695360,0.128354,0.128354,0.695360 scale=5.586200,0.540600,1.000000 bb=FIXED
 @28 write #21 op=slam/tele_fill[1] dur=1 pos=-3.170731,0.054060,1.742557 rot=-0.695360,0.128354,0.128354,0.695360 scale=5.586200,0.540600,1.000000 bb=FIXED
 @28 write #22 op=slam/tele_fill[2] dur=1 pos=-3.170731,0.054060,1.742557 rot=-0.695360,0.128354,0.128354,0.695360 scale=5.586200,0.540600,1.000000 bb=FIXED
@@ -925,14 +925,14 @@
 @31 write #58 op=slam/dust[3] dur=0 pos=-0.682057,0.250000,0.905120 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.200000,1.200000,1.000000 bb=CENTER
 @31 write #59 op=slam/dust[4] dur=0 pos=-2.170876,0.250000,0.722316 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.200000,1.200000,1.000000 bb=CENTER
 @31 write #60 op=slam/dust[5] dur=0 pos=-3.073599,0.250000,1.920269 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.200000,1.200000,1.000000 bb=CENTER
-@31 sound - op=- sound=block.anvil.land cat=master vol=1 pitch=0.5 at=-0.561694,0.000000,0.745393
-@31 sound - op=- sound=entity.generic.explode cat=master vol=1 pitch=0.6 at=-0.561694,0.000000,0.745393
-@31 hit - op=- at=-0.561694,1.620000,0.745393 r=5.800000
+@31 sound - op=slam/snd_anvil sound=block.anvil.land cat=master vol=1 pitch=0.5 at=-0.561694,0.000000,0.745393
+@31 sound - op=slam/snd_explode sound=entity.generic.explode cat=master vol=1 pitch=0.6 at=-0.561694,0.000000,0.745393
+@31 hit - op=slam/hit1 at=-0.561694,1.620000,0.745393 r=5.800000 shape=sector fwd=-0.601815,0.000000,0.798636 left=0.798636,0.000000,0.601815 deg=110.000000 range=3.800000 height=2.000000
 @31 damage 00000000-0000-0000-0000-00000000000a op=- physical=140 skill=bastion-greatsword-ego at=-1.504538,0.900000,1.996589 ignoreinv=true ignorearmor=false
 @31 effect 00000000-0000-0000-0000-000000000001 op=- consume_status=charge
 @31 effect 00000000-0000-0000-0000-000000000001 op=- camera_shake=0.5 ticks=8 from=none
 @31 spawn #61 op=slam/veil kind=veil viewer=00000000-0000-0000-0000-000000000001 sprite=burst dist=0.400000 scale=1.400000 color=#FFC84A maxfrac=0.150000 ticks=5
-@31 hit - op=- at=-0.561694,0.000000,0.745393 r=5.000000
+@31 hit - op=slam/flash at=-0.561694,0.000000,0.745393 r=5.000000 shape=area
 @31 effect 00000000-0000-0000-0000-00000000000a op=- screen_flash=gold_burst color=#ffc84a in=0 stay=2 out=2
 @31 effect 00000000-0000-0000-0000-00000000000b op=- screen_flash=gold_burst color=#ffc84a in=0 stay=2 out=2
 @31 effect 00000000-0000-0000-0000-000000000001 op=- freeze=4

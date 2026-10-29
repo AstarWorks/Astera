@@ -1,12 +1,12 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=cast/snd sound=astera:weapons/dash-whoosh cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/cloud type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6796994981697760994
+@0 particle - op=cast/cloud type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3987735401986297215
 @0 status 00000000-0000-0000-0000-000000000001 op=- status=evasive stacks=1 for=25
 @0 effect 00000000-0000-0000-0000-000000000001 op=- impulse x=0 y=0 z=-1.1
 @0 effect 00000000-0000-0000-0000-000000000001 op=- impulse x=0 y=0.35 z=0
 ## pose yaw=37 pitch=-20
 @0 sound - op=cast/snd sound=astera:weapons/dash-whoosh cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/cloud type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6796994981697760994
+@0 particle - op=cast/cloud type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3987735401986297215
 @0 status 00000000-0000-0000-0000-000000000001 op=- status=evasive stacks=1 for=25
 @0 effect 00000000-0000-0000-0000-000000000001 op=- impulse x=0.662 y=0 z=-0.8785
 @0 effect 00000000-0000-0000-0000-000000000001 op=- impulse x=0 y=0.35 z=0

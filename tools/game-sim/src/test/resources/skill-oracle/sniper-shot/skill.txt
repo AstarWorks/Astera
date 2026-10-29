@@ -1,16 +1,16 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=fly/snd sound=astera:weapons/rifle-crack cat=master vol=0.9 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/puff type=gun-muzzle-flash at=0.000000,-0.250000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1900449417020266915
-@0 particle - op=fly/trail[0] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7171421513913714903
-@0 particle - op=fly/trail_2[0] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4836357870880187903
-@1 particle - op=fly/trail[1] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2883748878883015660
-@1 particle - op=fly/trail_2[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6783056108332558253
+@0 particle - op=fly/puff type=gun-muzzle-flash at=0.000000,-0.250000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=254536806958327555
+@0 particle - op=fly/trail[0] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8918132665359641944
+@0 particle - op=fly/trail_2[0] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8773436987146381010
+@1 particle - op=fly/trail[1] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4765216629532801463
+@1 particle - op=fly/trail_2[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4852566514223921507
 @1 hit - op=fly/bolt at=0.000000,1.620000,6.500000 r=0.500000 shape=capsule a=0.000000,1.620000,6.500000 b=0.000000,1.620000,6.500000 rad=0.500000
 ## pose yaw=37 pitch=-20
 @0 sound - op=fly/snd sound=astera:weapons/rifle-crack cat=master vol=0.9 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/puff type=gun-muzzle-flash at=-0.601815,-0.250000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1900449417020266915
-@0 particle - op=fly/trail[0] type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7171421513913714903
-@0 particle - op=fly/trail_2[0] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4836357870880187903
-@1 particle - op=fly/trail[1] type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2883748878883015660
-@1 particle - op=fly/trail_2[1] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6783056108332558253
+@0 particle - op=fly/puff type=gun-muzzle-flash at=-0.601815,-0.250000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=254536806958327555
+@0 particle - op=fly/trail[0] type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8918132665359641944
+@0 particle - op=fly/trail_2[0] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8773436987146381010
+@1 particle - op=fly/trail[1] type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.010000,0.010000,0.010000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4765216629532801463
+@1 particle - op=fly/trail_2[1] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4852566514223921507
 @1 hit - op=fly/bolt at=-3.675887,3.843131,4.878067 r=0.500000 shape=capsule a=-3.675887,3.843131,4.878067 b=-3.675887,3.843131,4.878067 rad=0.500000

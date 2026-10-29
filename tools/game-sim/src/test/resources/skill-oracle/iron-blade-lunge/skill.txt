@@ -1,6 +1,6 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=dash/snd_dash sound=astera:weapons/dash-whoosh cat=master vol=1 pitch=1.1 at=0.000000,0.000000,0.000000
-@0 particle - op=dash/fx_dash type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1159241364499534727
+@0 particle - op=dash/fx_dash type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3987735401986297215
 @0 move - op=- to=0,0,0.75 yaw=- pitch=-
 @0 hit - op=dash/strike[0] at=0.000000,0.900000,0.750000 r=1.000000 shape=sphere rad=1.000000
 @1 move - op=- to=0,0,1.5 yaw=- pitch=-
@@ -14,7 +14,7 @@
 @3 hit - op=dash/strike[3] at=0.000000,0.900000,3.000000 r=1.000000 shape=sphere rad=1.000000
 ## pose yaw=37 pitch=-20
 @0 sound - op=dash/snd_dash sound=astera:weapons/dash-whoosh cat=master vol=1 pitch=1.1 at=0.000000,0.000000,0.000000
-@0 particle - op=dash/fx_dash type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1159241364499534727
+@0 particle - op=dash/fx_dash type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3987735401986297215
 @0 move - op=- to=-0.4514,0,0.599 yaw=- pitch=-
 @0 hit - op=dash/strike[0] at=-0.451361,0.900000,0.598977 r=1.000000 shape=sphere rad=1.000000
 @1 move - op=- to=-0.9027,0,1.198 yaw=- pitch=-

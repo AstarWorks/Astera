@@ -57,7 +57,7 @@ machine:
         # Resonance rising 0.6 -> 1.8 (in_quad) every 5 ticks until stopsnd at 30.
         - {id: hum, op: sound, sound: block.amethyst_block.resonate, anchor: caster, volume: 1.0, pitch: "= 0.6 + 1.2 * pow(i / 5.0, 2.0)", every: 5, times: 6, at: 0}
         - {id: stopsnd, op: stop_sound, target: caster, sound: block.amethyst_block.resonate, at: 30}
-        - {id: hide_hand, op: body, anim: hide-main-hand, speed: 1.0, at: 20, for: 24}
+        - {id: hide_hand, op: body, target: caster, anim: hide-main-hand, speed: 1.0, at: 20, for: 24}
         # --- telegraph cone on the snapshot frame: arc rim, two edges, fan of fill slivers (flat planes on the ground; i walks the arc, +35 .. -35 degrees) ---
         - {id: tele_arc, op: display, kind: sprite, sprite: quad, size: [0.68173, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, times: 12, offset: {left: "= -6.2 * sin(rad(35 - 70 * (i + 0.5) / 12))", up: 0.05, forward: "= 6.2 * cos(rad(35 - 70 * (i + 0.5) / 12))"}, rotate: [{axis: up, deg: "= -(35 - 70 * (i + 0.5) / 12)"}, {axis: left, deg: -90}], at: 20, for: 12}
         - {id: tele_edge, op: display, kind: sprite, sprite: quad, size: [6.2, 0.12], color: "#d9ff3b2f", anchor: tele, brightness: {block: 15, sky: 15}, times: 2, offset: {left: "= -3.1 * sin(rad(70 * i - 35))", up: 0.05, forward: "= 3.1 * cos(rad(70 * i - 35))"}, rotate: [{axis: up, deg: "= -55 - 70 * i"}, {axis: left, deg: -90}], at: 20, for: 12}
@@ -76,10 +76,8 @@ machine:
           of: blade
           part: slam_blocks
           parent: caster.body
-          hand: false
           pivot: {up: 1.4, forward: 0.3}
           rest: [{axis: left, deg: 90.0}]
-          sample_ticks: 1
           at: 27
           for: 43
           swing:

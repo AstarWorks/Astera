@@ -1,8 +1,8 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=cast/snd sound=item.shield.block cat=master vol=1 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx type=hit-spark at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3608621315306519654
+@0 particle - op=cast/fx type=hit-spark at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2082597642359292743
 @0 status 00000000-0000-0000-0000-000000000001 op=- status=poise stacks=1 for=160
 ## pose yaw=37 pitch=-20
 @0 sound - op=cast/snd sound=item.shield.block cat=master vol=1 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx type=hit-spark at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3608621315306519654
+@0 particle - op=cast/fx type=hit-spark at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2082597642359292743
 @0 status 00000000-0000-0000-0000-000000000001 op=- status=poise stacks=1 for=160

@@ -47,7 +47,7 @@
 @2 write #9 op=cast/overhead[9] dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.997503,0.989472,1.214666 bb=FIXED
 @2 write #10 op=cast/overhead[10] dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.997503,0.993727,1.214666 bb=FIXED
 @2 write #11 op=cast/overhead[11] dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.997503,0.997113,1.214666 bb=FIXED
-@18 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@18 hit - op=cast/sel at=0.000000,1.620000,0.000000 r=14.000000 shape=sector fwd=0.000000,0.000000,1.000000 left=1.000000,0.000000,0.000000 deg=45.000000 range=12.000000 height=2.000000
 @18 spawn #12 op=- kind=block block=gray_concrete pos=-0.090000,6.707179,2.099995 rot=0.866025,0.000000,0.000000,0.500000 scale=0.120000,0.380000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
 @18 spawn #13 op=- kind=block block=gray_concrete pos=-0.090000,5.494748,1.399994 rot=0.866025,0.000000,0.000000,0.500000 scale=0.120000,0.240000,1.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
 @18 spawn #14 op=- kind=block block=gray_concrete pos=-0.090000,4.628725,0.900005 rot=0.866025,0.000000,0.000000,0.500000 scale=0.120000,0.090000,0.800000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
@@ -116,7 +116,7 @@
 @26 write #35 op=- dur=3 pos=0.000000,-0.106689,2.872081 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @26 write #36 op=- dur=3 pos=0.000000,-0.106689,2.872081 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @26 write #37 op=- dur=3 pos=0.000000,-0.106689,2.872081 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
-@29 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@29 hit - op=cast/sel_2 at=0.000000,1.620000,0.000000 r=14.000000 shape=sector fwd=0.000000,0.000000,1.000000 left=1.000000,0.000000,0.000000 deg=45.000000 range=12.000000 height=2.000000
 @29 damage 00000000-0000-0000-0000-00000000000a op=- physical=75 skill=couture-rapier-ego at=0.000000,0.900000,2.500000 ignoreinv=true ignorearmor=false
 @29 spawn #38 op=- kind=block block=white_concrete pos=0.000000,1.950000,2.500000 rot=-0.382683,0.000000,0.000000,0.923880 scale=0.050000,3.300000,0.060000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
 @29 spawn #39 op=- kind=block block=white_concrete pos=0.000000,1.950000,2.500000 rot=0.382683,0.000000,0.000000,0.923880 scale=0.050000,3.300000,0.060000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
@@ -152,8 +152,8 @@
 @29 write #52 op=- dur=4 pos=-0.090114,0.629015,2.836309 rot=0.000000,0.000000,0.000000,1.000000 scale=0.461714,0.445143,1.000000 bb=CENTER
 @29 write #53 op=- dur=4 pos=-0.103993,0.520612,2.300231 rot=0.000000,0.000000,0.000000,1.000000 scale=0.461714,0.445143,1.000000 bb=CENTER
 @29 write #54 op=- dur=1 pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=9.500000,9.500000,1.000000 bb=CENTER
-@29 particle - op=- type=stab-spark at=0.000000,2.000000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-287738721541045280
-@29 sound - op=- sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=0.000000,0.900000,2.500000
+@29 particle - op=cast/sel_2.hit/hit1_sparks[0] type=stab-spark at=0.000000,2.000000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=918216472495118087
+@29 sound - op=cast/sel_2.hit/snd sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=0.000000,0.900000,2.500000
 @30 write #41 op=- dur=1 pos=0.000000,0.337051,1.866667 rot=0.000000,0.000000,0.000000,1.000000 scale=0.605927,0.774816,1.000000 bb=CENTER
 @30 write #42 op=- dur=1 pos=0.000000,0.548162,2.288889 rot=0.000000,0.000000,0.360178,0.932884 scale=0.605927,0.774816,1.000000 bb=CENTER
 @30 write #43 op=- dur=1 pos=0.000000,0.759273,2.711111 rot=0.000000,0.000000,0.672008,0.740544 scale=0.605927,0.774816,1.000000 bb=CENTER
@@ -174,7 +174,7 @@
 @32 write #43 op=- dur=1 pos=0.000000,0.707427,2.788889 rot=0.000000,0.000000,0.845986,0.533204 scale=0.460743,0.691854,1.000000 bb=CENTER
 @32 write #44 op=- dur=1 pos=0.000000,0.996316,3.366667 rot=0.000000,0.000000,0.998308,0.058145 scale=0.460743,0.691854,1.000000 bb=CENTER
 @32 write #45 op=- dur=1 pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=15.000000,7.500000,1.000000 bb=CENTER
-@32 particle - op=- type=stab-spark at=0.000000,2.000000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2105833916668906814
+@32 particle - op=cast/sel_2.hit/hit1_sparks[1] type=stab-spark at=0.000000,2.000000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5365172538964163460
 @33 write #41 op=- dur=1 pos=0.000000,0.103724,1.604167 rot=0.000000,0.000000,0.000000,1.000000 scale=0.442595,0.681483,1.000000 bb=CENTER
 @33 write #42 op=- dur=1 pos=0.000000,0.402335,2.201389 rot=0.000000,0.000000,0.497899,0.867235 scale=0.442595,0.681483,1.000000 bb=CENTER
 @33 write #43 op=- dur=1 pos=0.000000,0.700946,2.798611 rot=0.000000,0.000000,0.863591,0.504193 scale=0.442595,0.681483,1.000000 bb=CENTER
@@ -261,7 +261,7 @@
 @39 remove #35 op=-
 @39 remove #36 op=-
 @39 remove #37 op=-
-@48 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@48 hit - op=cast/fall2_pick at=0.000000,1.620000,0.000000 r=14.000000 shape=sector fwd=0.000000,0.000000,1.000000 left=1.000000,0.000000,0.000000 deg=45.000000 range=12.000000 height=2.000000
 @48 spawn #55 op=- kind=block block=gray_concrete pos=-0.090000,6.707179,2.099995 rot=0.866025,0.000000,0.000000,0.500000 scale=0.120000,0.380000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
 @48 spawn #56 op=- kind=block block=gray_concrete pos=-0.090000,5.494748,1.399994 rot=0.866025,0.000000,0.000000,0.500000 scale=0.120000,0.240000,1.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
 @48 spawn #57 op=- kind=block block=gray_concrete pos=-0.090000,4.628725,0.900005 rot=0.866025,0.000000,0.000000,0.500000 scale=0.120000,0.090000,0.800000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
@@ -318,7 +318,7 @@
 @56 write #78 op=- dur=3 pos=0.000000,-0.106689,2.872081 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @56 write #79 op=- dur=3 pos=0.000000,-0.106689,2.872081 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
 @56 write #80 op=- dur=3 pos=0.000000,-0.106689,2.872081 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=FIXED
-@59 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@59 hit - op=cast/sel_4 at=0.000000,1.620000,0.000000 r=14.000000 shape=sector fwd=0.000000,0.000000,1.000000 left=1.000000,0.000000,0.000000 deg=45.000000 range=12.000000 height=2.000000
 @59 damage 00000000-0000-0000-0000-00000000000a op=- physical=100 skill=couture-rapier-ego at=0.000000,0.900000,2.500000 ignoreinv=true ignorearmor=false
 @59 spawn #81 op=- kind=block block=white_concrete pos=0.000000,1.950000,2.500000 rot=-0.382683,0.000000,0.000000,0.923880 scale=0.050000,3.300000,0.060000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
 @59 spawn #82 op=- kind=block block=white_concrete pos=0.000000,1.950000,2.500000 rot=0.382683,0.000000,0.000000,0.923880 scale=0.050000,3.300000,0.060000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
@@ -354,8 +354,8 @@
 @59 write #95 op=- dur=4 pos=-0.090114,0.629015,2.836309 rot=0.000000,0.000000,0.000000,1.000000 scale=0.461714,0.445143,1.000000 bb=CENTER
 @59 write #96 op=- dur=4 pos=-0.103993,0.520612,2.300231 rot=0.000000,0.000000,0.000000,1.000000 scale=0.461714,0.445143,1.000000 bb=CENTER
 @59 write #97 op=- dur=1 pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=9.500000,9.500000,1.000000 bb=CENTER
-@59 particle - op=- type=stab-spark at=0.000000,2.000000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1220881449440703808
-@59 sound - op=- sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=0.000000,0.900000,2.500000
+@59 particle - op=cast/sel_4.hit/hit2_sparks[0] type=stab-spark at=0.000000,2.000000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3522157239710161634
+@59 sound - op=cast/sel_4.hit/snd_2 sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=0.000000,0.900000,2.500000
 @60 write #84 op=- dur=1 pos=0.000000,0.337051,1.866667 rot=0.000000,0.000000,0.000000,1.000000 scale=0.605927,0.774816,1.000000 bb=CENTER
 @60 write #85 op=- dur=1 pos=0.000000,0.548162,2.288889 rot=0.000000,0.000000,0.360178,0.932884 scale=0.605927,0.774816,1.000000 bb=CENTER
 @60 write #86 op=- dur=1 pos=0.000000,0.759273,2.711111 rot=0.000000,0.000000,0.672008,0.740544 scale=0.605927,0.774816,1.000000 bb=CENTER
@@ -368,7 +368,7 @@
 @61 write #87 op=- dur=1 pos=0.000000,0.987518,3.287500 rot=0.000000,0.000000,0.980785,0.195090 scale=0.510002,0.720002,1.000000 bb=CENTER
 @61 write #88 op=- dur=1 pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=14.000000,7.000000,1.000000 bb=CENTER
 @61 write #97 op=- dur=1 pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,1.000000 bb=CENTER
-@62 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@62 hit - op=cast/rosette_pick at=0.000000,1.620000,0.000000 r=14.000000 shape=sector fwd=0.000000,0.000000,1.000000 left=1.000000,0.000000,0.000000 deg=45.000000 range=12.000000 height=2.000000
 @62 write #81 op=- dur=5 pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.950525,1.000000,0.940799 bb=FIXED
 @62 write #82 op=- dur=5 pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.950525,1.000000,0.940799 bb=FIXED
 @62 write #83 op=- dur=5 pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.950525,1.000000,0.940799 bb=FIXED
@@ -377,7 +377,7 @@
 @62 write #86 op=- dur=1 pos=0.000000,0.707427,2.788889 rot=0.000000,0.000000,0.845986,0.533204 scale=0.460743,0.691854,1.000000 bb=CENTER
 @62 write #87 op=- dur=1 pos=0.000000,0.996316,3.366667 rot=0.000000,0.000000,0.998308,0.058145 scale=0.460743,0.691854,1.000000 bb=CENTER
 @62 write #88 op=- dur=1 pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=15.000000,7.500000,1.000000 bb=CENTER
-@62 particle - op=- type=stab-spark at=0.000000,2.000000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2000981980131266982
+@62 particle - op=cast/sel_4.hit/hit2_sparks[1] type=stab-spark at=0.000000,2.000000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8236425866438123567
 @62 spawn #98 op=- kind=block block=pink_concrete pos=0.000000,2.000000,5.500000 rot=-0.707107,0.000000,0.000000,0.707107 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
 @62 spawn #99 op=- kind=block block=pink_concrete pos=0.000000,3.057515,5.275218 rot=-0.838671,0.000000,0.000000,0.544639 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
 @62 spawn #100 op=- kind=block block=pink_concrete pos=0.000000,3.932177,4.639740 rot=-0.933580,0.000000,0.000000,0.358368 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
@@ -588,7 +588,7 @@
 @2 write #9 op=cast/overhead[9] dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.997503,0.989472,1.214666 bb=FIXED
 @2 write #10 op=cast/overhead[10] dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.997503,0.993727,1.214666 bb=FIXED
 @2 write #11 op=cast/overhead[11] dur=17 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.997503,0.997113,1.214666 bb=FIXED
-@18 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@18 hit - op=cast/sel at=0.000000,1.620000,0.000000 r=14.000000 shape=sector fwd=-0.601815,0.000000,0.798636 left=0.798636,0.000000,0.601815 deg=45.000000 range=12.000000 height=2.000000
 @18 spawn #12 op=- kind=block block=gray_concrete pos=-1.335686,6.707179,1.622967 rot=0.821272,-0.158652,0.274794,0.474162 scale=0.120000,0.380000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
 @18 spawn #13 op=- kind=block block=gray_concrete pos=-0.914414,5.494748,1.063921 rot=0.821272,-0.158652,0.274794,0.474162 scale=0.120000,0.240000,1.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
 @18 spawn #14 op=- kind=block block=gray_concrete pos=-0.613514,4.628725,0.664612 rot=0.821272,-0.158652,0.274794,0.474162 scale=0.120000,0.090000,0.800000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
@@ -657,7 +657,7 @@
 @26 write #35 op=- dur=3 pos=-1.728461,-0.106689,2.293746 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED
 @26 write #36 op=- dur=3 pos=-1.728461,-0.106689,2.293746 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED
 @26 write #37 op=- dur=3 pos=-1.728461,-0.106689,2.293746 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED
-@29 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@29 hit - op=cast/sel_2 at=0.000000,1.620000,0.000000 r=14.000000 shape=sector fwd=-0.601815,0.000000,0.798636 left=0.798636,0.000000,0.601815 deg=45.000000 range=12.000000 height=2.000000
 @29 damage 00000000-0000-0000-0000-00000000000a op=- physical=75 skill=couture-rapier-ego at=-1.504538,0.900000,1.996589 ignoreinv=true ignorearmor=false
 @29 spawn #38 op=- kind=block block=white_concrete pos=-1.504538,1.950000,1.996589 rot=-0.362908,-0.293151,-0.121427,0.876137 scale=0.050000,3.300000,0.060000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
 @29 spawn #39 op=- kind=block block=white_concrete pos=-1.504538,1.950000,1.996589 rot=0.362908,-0.293151,0.121427,0.876137 scale=0.050000,3.300000,0.060000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
@@ -693,8 +693,8 @@
 @29 write #52 op=- dur=4 pos=-1.778902,0.629015,2.210946 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.461714,0.445143,1.000000 bb=CENTER
 @29 write #53 op=- dur=4 pos=-1.467366,0.520612,1.774461 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.461714,0.445143,1.000000 bb=CENTER
 @29 write #54 op=- dur=1 pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=9.500000,9.500000,1.000000 bb=CENTER
-@29 particle - op=- type=stab-spark at=-1.504538,2.000000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-287738721541045280
-@29 sound - op=- sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=-1.504538,0.900000,1.996589
+@29 particle - op=cast/sel_2.hit/hit1_sparks[0] type=stab-spark at=-1.504538,2.000000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=918216472495118087
+@29 sound - op=cast/sel_2.hit/snd sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=-1.504538,0.900000,1.996589
 @30 write #41 op=- dur=1 pos=-1.123388,0.337051,1.490786 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.605927,0.774816,1.000000 bb=CENTER
 @30 write #42 op=- dur=1 pos=-1.377488,0.548162,1.827988 rot=-0.114286,-0.296008,0.341565,0.884676 scale=0.605927,0.774816,1.000000 bb=CENTER
 @30 write #43 op=- dur=1 pos=-1.631587,0.759273,2.165190 rot=-0.213231,-0.234978,0.637281,0.702275 scale=0.605927,0.774816,1.000000 bb=CENTER
@@ -715,7 +715,7 @@
 @32 write #43 op=- dur=1 pos=-1.678395,0.707427,2.227306 rot=-0.268435,-0.169188,0.802269,0.505650 scale=0.460743,0.691854,1.000000 bb=CENTER
 @32 write #44 op=- dur=1 pos=-2.026111,0.996316,2.688740 rot=-0.316768,-0.018450,0.946719,0.055140 scale=0.460743,0.691854,1.000000 bb=CENTER
 @32 write #45 op=- dur=1 pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=15.000000,7.500000,1.000000 bb=CENTER
-@32 particle - op=- type=stab-spark at=-1.504538,2.000000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2105833916668906814
+@32 particle - op=cast/sel_2.hit/hit1_sparks[1] type=stab-spark at=-1.504538,2.000000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5365172538964163460
 @33 write #41 op=- dur=1 pos=-0.965412,0.103724,1.281144 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.442595,0.681483,1.000000 bb=CENTER
 @33 write #42 op=- dur=1 pos=-1.324829,0.402335,1.758107 rot=-0.157986,-0.275178,0.472170,0.822419 scale=0.442595,0.681483,1.000000 bb=CENTER
 @33 write #43 op=- dur=1 pos=-1.684246,0.700946,2.235070 rot=-0.274021,-0.159983,0.818964,0.478138 scale=0.442595,0.681483,1.000000 bb=CENTER
@@ -802,7 +802,7 @@
 @39 remove #35 op=-
 @39 remove #36 op=-
 @39 remove #37 op=-
-@48 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@48 hit - op=cast/fall2_pick at=0.000000,1.620000,0.000000 r=14.000000 shape=sector fwd=-0.601815,0.000000,0.798636 left=0.798636,0.000000,0.601815 deg=45.000000 range=12.000000 height=2.000000
 @48 spawn #55 op=- kind=block block=gray_concrete pos=-1.335686,6.707179,1.622967 rot=0.821272,-0.158652,0.274794,0.474162 scale=0.120000,0.380000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
 @48 spawn #56 op=- kind=block block=gray_concrete pos=-0.914414,5.494748,1.063921 rot=0.821272,-0.158652,0.274794,0.474162 scale=0.120000,0.240000,1.200000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
 @48 spawn #57 op=- kind=block block=gray_concrete pos=-0.613514,4.628725,0.664612 rot=0.821272,-0.158652,0.274794,0.474162 scale=0.120000,0.090000,0.800000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
@@ -859,7 +859,7 @@
 @56 write #78 op=- dur=3 pos=-1.728461,-0.106689,2.293746 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED
 @56 write #79 op=- dur=3 pos=-1.728461,-0.106689,2.293746 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED
 @56 write #80 op=- dur=3 pos=-1.728461,-0.106689,2.293746 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED
-@59 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@59 hit - op=cast/sel_4 at=0.000000,1.620000,0.000000 r=14.000000 shape=sector fwd=-0.601815,0.000000,0.798636 left=0.798636,0.000000,0.601815 deg=45.000000 range=12.000000 height=2.000000
 @59 damage 00000000-0000-0000-0000-00000000000a op=- physical=100 skill=couture-rapier-ego at=-1.504538,0.900000,1.996589 ignoreinv=true ignorearmor=false
 @59 spawn #81 op=- kind=block block=white_concrete pos=-1.504538,1.950000,1.996589 rot=-0.362908,-0.293151,-0.121427,0.876137 scale=0.050000,3.300000,0.060000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
 @59 spawn #82 op=- kind=block block=white_concrete pos=-1.504538,1.950000,1.996589 rot=0.362908,-0.293151,0.121427,0.876137 scale=0.050000,3.300000,0.060000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
@@ -895,8 +895,8 @@
 @59 write #95 op=- dur=4 pos=-1.778902,0.629015,2.210946 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.461714,0.445143,1.000000 bb=CENTER
 @59 write #96 op=- dur=4 pos=-1.467366,0.520612,1.774461 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.461714,0.445143,1.000000 bb=CENTER
 @59 write #97 op=- dur=1 pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=9.500000,9.500000,1.000000 bb=CENTER
-@59 particle - op=- type=stab-spark at=-1.504538,2.000000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1220881449440703808
-@59 sound - op=- sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=-1.504538,0.900000,1.996589
+@59 particle - op=cast/sel_4.hit/hit2_sparks[0] type=stab-spark at=-1.504538,2.000000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3522157239710161634
+@59 sound - op=cast/sel_4.hit/snd_2 sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=-1.504538,0.900000,1.996589
 @60 write #84 op=- dur=1 pos=-1.123388,0.337051,1.490786 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.605927,0.774816,1.000000 bb=CENTER
 @60 write #85 op=- dur=1 pos=-1.377488,0.548162,1.827988 rot=-0.114286,-0.296008,0.341565,0.884676 scale=0.605927,0.774816,1.000000 bb=CENTER
 @60 write #86 op=- dur=1 pos=-1.631587,0.759273,2.165190 rot=-0.213231,-0.234978,0.637281,0.702275 scale=0.605927,0.774816,1.000000 bb=CENTER
@@ -909,7 +909,7 @@
 @61 write #87 op=- dur=1 pos=-1.978467,0.987518,2.625514 rot=-0.311208,-0.061903,0.930102,0.185009 scale=0.510002,0.720002,1.000000 bb=CENTER
 @61 write #88 op=- dur=1 pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=14.000000,7.000000,1.000000 bb=CENTER
 @61 write #97 op=- dur=1 pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,1.000000 bb=CENTER
-@62 hit - op=- at=0.000000,1.620000,0.000000 r=14.000000
+@62 hit - op=cast/rosette_pick at=0.000000,1.620000,0.000000 r=14.000000 shape=sector fwd=-0.601815,0.000000,0.798636 left=0.798636,0.000000,0.601815 deg=45.000000 range=12.000000 height=2.000000
 @62 write #81 op=- dur=5 pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.950525,1.000000,0.940799 bb=FIXED
 @62 write #82 op=- dur=5 pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.950525,1.000000,0.940799 bb=FIXED
 @62 write #83 op=- dur=5 pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.950525,1.000000,0.940799 bb=FIXED
@@ -918,7 +918,7 @@
 @62 write #86 op=- dur=1 pos=-1.678395,0.707427,2.227306 rot=-0.268435,-0.169188,0.802269,0.505650 scale=0.460743,0.691854,1.000000 bb=CENTER
 @62 write #87 op=- dur=1 pos=-2.026111,0.996316,2.688740 rot=-0.316768,-0.018450,0.946719,0.055140 scale=0.460743,0.691854,1.000000 bb=CENTER
 @62 write #88 op=- dur=1 pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=15.000000,7.500000,1.000000 bb=CENTER
-@62 particle - op=- type=stab-spark at=-1.504538,2.000000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2000981980131266982
+@62 particle - op=cast/sel_4.hit/hit2_sparks[1] type=stab-spark at=-1.504538,2.000000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8236425866438123567
 @62 spawn #98 op=- kind=block block=pink_concrete pos=-3.309983,2.000000,4.392495 rot=-0.670566,-0.224368,-0.224368,0.670566 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
 @62 spawn #99 op=- kind=block block=pink_concrete pos=-3.174706,3.057515,4.212977 rot=-0.795331,-0.172817,-0.266114,0.516494 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
 @62 spawn #100 op=- kind=block block=pink_concrete pos=-2.792265,3.932177,3.705461 rot=-0.885336,-0.113712,-0.296229,0.339849 scale=0.000000,0.000000,0.000000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
