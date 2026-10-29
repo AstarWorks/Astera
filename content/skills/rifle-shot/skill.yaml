@@ -51,6 +51,7 @@ machine:
               - {id: fx_blk1, op: particle_def, def: gun-impact-smoke, anchor: contact}
         # the visible round, riding the body
         - {id: slug, op: display, kind: item, item: "minecraft:iron_nugget", context: fixed, anchor: bolt, scale: [0.6, 0.6, 0.6], at: 0, until: bolt.end}
+        - {id: tracer, op: ribbon, of: bolt, history: 4, style: crisp, width: 0.07, color: "#EEFFF0B0", double_sided: true, for: "${life}"}
         - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.5}, count: 1, at: 0, every: 1, until: bolt.end}
         - {id: trail1, op: particle, particle: white_smoke, anchor: {of: bolt, sweep: 0.5}, count: 1, offset: [0.02, 0.02, 0.02], at: 0, every: 1, until: bolt.end}
     end: {final: true}

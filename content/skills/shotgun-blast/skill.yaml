@@ -18,9 +18,11 @@ anchors:
   - {id: eye,    anchor: caster.eye, mode: follow}
   - {id: muzzle, anchor: caster.eye, offset: {up: -0.25, forward: 1.2}, mode: follow}
   - {id: cone,   anchor: caster.eye, offset: {up: -0.2, forward: 2.4}, mode: follow}
+  - {id: reach,  anchor: caster.eye, offset: {up: -0.2, forward: 6.0}, mode: snapshot}
   - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
 machine:
   start: cast
+  tail: 3
   states:
     cast:
       for: 1
@@ -29,6 +31,7 @@ machine:
         - {id: snd, op: sound, sound: "astera:weapons/shotgun-blast", anchor: caster, volume: 0.6, pitch: 1.4}
         - {id: fx, op: particle_def, def: shotgun-muzzle, anchor: muzzle}
         - {id: fx_2, op: particle_def, def: shotgun-cone-smoke, anchor: cone}
+        - {id: tracer, op: ribbon, from: muzzle, to: reach, thickness: 0.12, color: "#CCFFF0B0", at: 0, for: 3, detach: true}
         - id: swing
           op: hit
           at: 0

@@ -59,6 +59,7 @@ machine:
               - {id: fx_blk, op: use, use: "fragment:impact", with: {snd: "astera:weapons/gun-impact-block", vol: 0.6, pitch: 1.6, smoke: true}, frames: {spot: contact}}
         # the visible round and its trail, both riding the body
         - {id: slug, op: display, kind: item, item: "minecraft:iron_nugget", context: fixed, anchor: bolt, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
+        - {id: tracer, op: ribbon, of: bolt, history: 3, style: crisp, width: 0.05, color: "#EEFFF0B0", double_sided: true, for: "${life}"}
         - {id: trail_crit, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.5}, count: 1, at: 0, every: 1, until: bolt.end}
         - {id: trail_smoke, op: particle, particle: white_smoke, anchor: {of: bolt, sweep: 0.5}, count: 1, offset: [0.02, 0.02, 0.02], at: 0, every: 1, until: bolt.end}
     end: {final: true}

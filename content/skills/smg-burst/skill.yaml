@@ -44,5 +44,6 @@ machine:
               - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact}
         # the visible round, riding the body
         - {id: slug, op: display, kind: item, item: "minecraft:iron_nugget", context: fixed, anchor: bolt, scale: [0.4, 0.4, 0.4], at: 0, until: bolt.end}
+        - {id: tracer, op: ribbon, of: bolt, history: 3, style: crisp, width: 0.035, color: "#EEFFF0B0", double_sided: true, for: "${life}"}
         - {id: trail, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], at: 0, every: 1, until: bolt.end}
     end: {final: true}
