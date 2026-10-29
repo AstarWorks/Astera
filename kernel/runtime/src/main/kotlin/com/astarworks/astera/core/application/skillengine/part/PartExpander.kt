@@ -52,7 +52,7 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
             val part = parts[call.part] ?: throw PartAbort(PartError.UnknownPart(where, call.part))
             if (part.id in stack) throw PartAbort(PartError.Cycle(where, stack.dropWhile { it != part.id } + part.id))
             if (depth + 1 > maxDepth) throw PartAbort(PartError.TooDeep(where, maxDepth))
-            val bound = Binding.bind(part, call, where)
+            val bound = Binding.bind(part, readSiblingOut(call, m), where)
             val callEv = join(evPrefix, s.id)
             val (childEntry, finals) = level(bound, "$where/", callEv, depth + 1, stack + part.id, out)
             entry[s.id] = childEntry
@@ -79,6 +79,7 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
                 exit = qualify(s.exit, path, "exit", evPrefix, localIds),
                 on = s.on.mapIndexed { i, t -> remap(t, entry, path, i, evPrefix, localIds) },
                 use = null,
+                parallel = s.parallel.map { region(it, evPrefix, depth, stack, out) },
                 start = s.start,
             )
         }
@@ -107,6 +108,28 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
             }
         }
         return entry.getValue(m.start) to myFinals
+    }
+
+    /** A `parallel` region is a machine of its own: expanded with local ids (MachineTables prefixes them with the parent path); its links join the call's. */
+    private fun region(r: Machine, evPrefix: String, depth: Int, stack: List<String>, out: Out): Machine {
+        val sub = Out()
+        val entry = level(r, "", evPrefix, depth, stack, sub).first
+        out.links += sub.links
+        return Machine(entry, sub.states, emptyList(), r.world)
+    }
+
+    /**
+     * ADR-0303 section 9 (`frames_out`): a call's frame binding `<sibling call>.<out name>` reads a frame the sibling part publishes. It names the inner
+     * frame the sibling declared under `frames_out` (the anchor registry resolves it by its op id, as it does for any frame of the same skill).
+     */
+    private fun readSiblingOut(call: com.astarworks.astera.core.domain.skillengine.part.PartCall, level: Machine): com.astarworks.astera.core.domain.skillengine.part.PartCall {
+        if (call.frames.isEmpty()) return call
+        return call.copy(frames = call.frames.mapValues { (_, v) ->
+            val sibling = level.states[v.substringBefore('.')]?.use?.let { parts[it.part] }
+            val out = v.substringAfter('.', "").substringBefore('.')
+            val inner = sibling?.framesOut?.get(out)
+            if (inner == null) v else inner + v.substring(v.substringBefore('.').length + 1 + out.length)
+        })
     }
 
     private fun join(prefix: String, name: String): String = if (prefix.isEmpty()) name else "$prefix.$name"
@@ -173,6 +196,11 @@ internal object Binding {
     )
 
     class Env(private val params: Map<String, Any?>, private val frames: Map<String, String>) {
+        private companion object {
+            /** Op fields typed as a closed keyword set whose words can equal a frame name (`center`, `fixed`...). */
+            val ENUM_KEYS = setOf("billboard", "alignment", "pivot", "face", "mode", "kind", "direction", "forward", "targets", "category", "context", "operation", "tool", "law")
+        }
+
         @Suppress("UNCHECKED_CAST")
         fun op(op: OpMap): OpMap = value(op) as OpMap
 
@@ -185,7 +213,10 @@ internal object Binding {
         }
 
         fun value(v: Any?): Any? = when (v) {
-            is Map<*, *> -> LinkedHashMap<String, Any?>().also { out -> v.forEach { (k, x) -> out[k as String] = value(x) } }
+            is Map<*, *> -> LinkedHashMap<String, Any?>().also { out ->
+                // an enum-typed field (`billboard: center`) names a keyword, never a frame, even when the part binds a frame of that name
+                v.forEach { (k, x) -> out[k as String] = if (k in ENUM_KEYS && x is String && !x.startsWith("= ")) x else value(x) }
+            }
             is List<*> -> v.map { value(it) }
             is String -> string(v)
             else -> v

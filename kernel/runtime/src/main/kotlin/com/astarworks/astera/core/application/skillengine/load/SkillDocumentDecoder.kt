@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.skillengine.load
 
 import com.astarworks.astera.core.application.skillengine.compose.ComposedSkill
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
+import com.astarworks.astera.core.application.skillengine.load.grammar.ExprFrames
 import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
 import com.astarworks.astera.core.application.skillengine.load.grammar.loadTimeDefaults
@@ -122,7 +123,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
                     else -> ExprType.NUM
                 }
             },
-            env.exprEnv.frames + anchors.map { it.id } + framesIn.keys,
+            (env.exprEnv.frames + anchors.map { it.id } + framesIn.keys + ExprFrames.ofRaw(tree["machine"])),
         )
         val ctx = GrammarContext(file, null, exprs, docEnv, paramDefaults = loadTimeDefaults(params))
         val conditions = LinkedHashMap<String, String>()
@@ -306,7 +307,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
             "apiVersion", "kind", "id", "item", "importance", "meta", "params", "frames_in", "emits", "anchors", "conditions", "machine",
         )
         val META_KEYS = setOf("name", "description", "cooldown_ticks", "resource_type", "resource_cost", "ego_cost", "reload_ticks", "ready_cue", "tags")
-        val STATE_KEYS = setOf("for", "then", "final", "enter", "do", "exit", "on", "use", "with", "frames", "start", "states")
+        val STATE_KEYS = setOf("for", "then", "final", "enter", "do", "exit", "on", "use", "with", "frames", "start", "states", "parallel")
         val TRANSITION_KEYS = setOf("event", "after", "when", "to", "do")
     }
 }

@@ -1,0 +1,43 @@
+apiVersion: astera/v3
+kind: Skill
+id: sample-heat-haze
+meta:
+  name:
+    en: sample-heat-haze
+    ja: sample-heat-haze
+  description:
+    en: 'Sprite gallery demo: 4 block animated mesh; shader effect uv-flow.'
+    ja: ギャラリー用。4ブロック四方、1 tick/フレーム。
+  cooldown_ticks: 0
+  resource_cost: 0
+  tags:
+  - sample
+anchors:
+- id: surface
+  anchor: caster
+  offset:
+    up: 2.4
+    forward: 3
+machine:
+  start: show
+  states:
+    show:
+      for: 40
+      do:
+      - id: surface
+        op: display
+        kind: item
+        anchor: surface
+        for: 40
+        item: sample-heat-haze
+        scale:
+        - 4
+        - 4
+        - 4
+        rotate:
+        - axis: up
+          deg: 90
+        shader_effect: uv-flow
+      then: end
+    end:
+      final: true

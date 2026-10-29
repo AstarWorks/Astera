@@ -176,6 +176,8 @@ public object FrameOpSpec : OpSpec<FrameOp> {
             op.axes?.let { look["axes"] = Val.Known(it) }
             if (item != null) look["item"] = Val.Known(item)
             if (op.part != null) look["part"] = Val.Known(op.part)
+            // the part's model points ride in the table, so an expression `<id>.tip` reads a number the dump shows (3.5), not a lookup at play time
+            modelPart?.points?.forEach { (name, p) -> look["point.$name"] = Val.Known(Vector3d(p.x, p.y, p.z)) }
             rows += Row(
                 0, instance,
                 Action.Spawn(SpawnKind.FRAME, parent, op.anchor, Pose(position, rotation, Val.Known(Vector3d(1.0, 1.0, 1.0))), Look(look)),
@@ -190,9 +192,11 @@ public object FrameOpSpec : OpSpec<FrameOp> {
                     is Result.Failure -> throw DecodeAbort(r.error)
                     is Result.Success -> r.value
                 }
-                rows += composeBase(moved.rows, position, rotation, ctx, src)
+                // a law outlasting the frame's `for:` writes nothing once the frame has ended: rows at or after the End tick are dead
+                val inLife = if (life != null) moved.rows.filter { it.tick < life } else moved.rows
+                rows += composeBase(inLife, position, rotation, ctx, src)
                 subTables += moved.subTables
-                segments = moved.rows.count { it.action is Action.Key }
+                segments = inLife.count { it.action is Action.Key }
             }
             if (life != null) rows += Row(life, instance, Action.End(instance), lc.src)
             writes[instance] = WriteStats(segments, if (segments > 0) 1 else 0)

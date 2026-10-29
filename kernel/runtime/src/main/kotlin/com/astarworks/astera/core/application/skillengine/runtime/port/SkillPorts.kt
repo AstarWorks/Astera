@@ -44,6 +44,7 @@ public data class MeshLook(
     val itemModel: String? = null,
     val mode: DisplayItemMode = DisplayItemMode.FIXED,
     val rigShading: Boolean = true,
+    val shaderEffect: String? = null,
 )
 
 /**
@@ -93,6 +94,16 @@ public interface ISkillVisualGateway {
 
     public fun spawnTrail(cast: CastRef, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle
 
+    /**
+     * A thread (ADR-0303 section 5 ribbon `shape: line`): a flat strip of [thickness] blocks from [from] to [to] that faces the viewer around its own
+     * axis (v1 `line` op, `face: {viewer: axis, axis: line.along}`). [colorHex] is `#rrggbb`, [alpha] its opacity. The runtime moves the ends
+     * with [updateLine] every tick; [remove] ends it.
+     */
+    public fun spawnLine(cast: CastRef, from: Vec3, to: Vec3, thickness: Double, colorHex: String, alpha: Double): VisualHandle
+
+    /** Move both ends of a line from [spawnLine] (the strip is rebuilt between them). */
+    public fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3)
+
     /** The ONE per-tick write of a mesh, plate, block or text: the whole [pose] reaches the client together and arrives after [interpolationTicks]. */
     public fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int)
 
@@ -112,6 +123,9 @@ public interface ISkillVisualGateway {
      * turn limit per quad and a reversed face when [doubleSided]. Called once after [spawnTrail], only for a trail that sets any of them.
      */
     public fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean)
+
+    /** The width (same unit as [spawnTrail]'s `widthFrac`) of the points pushed from now on: a ribbon `grow prop: width` law (ADR-0303 3.4). */
+    public fun setTrailWidth(handle: VisualHandle, widthFrac: Double)
 }
 
 /** One emit op as vanilla `spawnParticle` arguments plus the optional `dir` sugar (see [com.astarworks.astera.core.domain.skillengine.op.FxOp.Emit]). */
@@ -227,6 +241,12 @@ public interface ISkillGameplayGateway {
 
     /** Ends the [anim] clip on [caster] (the `body` window closed). A clip that is not playing is a no-op. */
     public fun stopBodyClip(cast: CastRef, caster: UUID, anim: String)
+
+    /** `held_model` (ADR-0303 rev4.6): shows the item model [model] on the weapon [caster] holds. The item's own model is remembered on the first call. */
+    public fun setHeldModel(cast: CastRef, caster: UUID, model: String)
+
+    /** Ends a `held_model` window: the weapon [caster] holds shows its own model again. No swap active is a no-op. */
+    public fun clearHeldModel(cast: CastRef, caster: UUID)
 
     /** Plays [target]'s hurt animation as if struck from [from] (R44): no damage, no push, no strength. */
     public fun hurt(cast: CastRef, target: UUID, from: Vec3)

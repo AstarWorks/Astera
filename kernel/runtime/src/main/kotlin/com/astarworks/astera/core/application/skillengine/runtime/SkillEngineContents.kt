@@ -11,6 +11,9 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
 import java.nio.file.Files
 import java.nio.file.Path
+import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.LoaderOptions
+import org.yaml.snakeyaml.constructor.SafeConstructor
 
 /**
  * Hot reload of skill-engine v3 content (ADR-0301, ADR-0303). `make dev-content` sends `astera admin reload all`;
@@ -39,15 +42,65 @@ public class SkillEngineContents(
     private var snapshot: Map<String, FileStamp> = emptyMap()
     private var retry: Set<String> = emptySet()
 
+    private var auxiliarySnapshot: Map<String, FileStamp> = emptyMap()
+    private var effectIds: Set<String> = emptySet()
+    private var demos: Map<String, ComposedSkill> = emptyMap()
+
+    /** Registry + playable VFX examples share the same content root as skills. */
+    private fun auxiliary(dir: Path): Map<String, FileStamp> =
+        scan(dir.parent.resolve("shader-patches/effects")).mapKeys { "effects/${it.key}" } +
+            scan(dir.parent.resolve("vfx")).mapKeys { "vfx/${it.key}" }
+
+    private fun loadEffectIds(dir: Path): Set<String> {
+        val effects = dir.parent.resolve("shader-patches/effects")
+        if (!Files.isDirectory(effects)) return emptySet()
+        return Files.list(effects).use { paths -> paths.sorted().toList() }.mapNotNull { effect ->
+            val raw = Yaml(SafeConstructor(LoaderOptions().apply { isAllowDuplicateKeys = false })).load<Map<String, Any>>(Files.readString(effect.resolve("effect.yaml")))
+            val id = raw["id"] as? String ?: error("$effect: missing effect id")
+            require(id == effect.fileName.toString()) { "$effect: effect id differs from directory" }
+            val markers = raw["markers"] as? List<*> ?: error("$effect: missing markers")
+            if (markers.any { (it as? Map<*, *>)?.get("channel") == "vfx-tint" }) id else null
+        }.toSet()
+    }
+
+    private fun effectErrors(composed: Collection<ComposedSkill>): List<Pair<String, String>> {
+        val errors = mutableListOf<Pair<String, String>>()
+        fun visit(id: String, value: Any?) {
+            when (value) {
+                is Map<*, *> -> {
+                    if ("shader_effect" in value) {
+                        val effect = value["shader_effect"]
+                        if (effect !is String || effect !in effectIds) errors += id to "unknown shader_effect '$effect'"
+                        if ((value["op"] != "display" || value["kind"] != "item") || value["item"] == "main_hand" ||
+                            (value["item"] as? String)?.startsWith("minecraft:") == true) {
+                            errors += id to "shader_effect requires an Astera pack item display (not main_hand/vanilla)"
+                        }
+                    }
+                    value.values.forEach { visit(id, it) }
+                }
+                is List<*> -> value.forEach { visit(id, it) }
+            }
+        }
+        composed.forEach { visit(it.id, it.tree) }
+        return errors
+    }
+
     private data class FileStamp(val mtime: Long, val size: Long)
 
     @Synchronized
     override fun reload(dir: Path): ContentLoader.LoadReport {
         val abs = dir.toAbsolutePath().normalize()
         (engineConfig as? Result.Failure)?.let { return composeFailure(abs, listOf(it.error.origin to it.error.message)) }
+        val aux = auxiliary(abs)
+        val loadedEffects = runCatching { loadEffectIds(abs) }
+        if (loadedEffects.isFailure) return composeFailure(abs, listOf("shader-effects" to (loadedEffects.exceptionOrNull()?.message ?: "invalid registry")))
+        effectIds = loadedEffects.getOrThrow()
+        if (aux != auxiliarySnapshot) composer = null
         val current = scan(abs)
         val existing = composer
-        return if (existing == null || root != abs) fullReload(abs, current) else incremental(existing, abs, current)
+        return (if (existing == null || root != abs) fullReload(abs, current) else incremental(existing, abs, current)).also {
+            if (it.failed == 0) auxiliarySnapshot = aux
+        }
     }
 
     /** What a successful single-skill reload changed. */
@@ -81,6 +134,9 @@ public class SkillEngineContents(
         (engineConfig as? Result.Failure)?.let { return Result.failure(SkillReloadError.Rejected(listOf(it.error.message))) }
         val c = composer
         if (c == null || root != abs) return Result.failure(SkillReloadError.NotLoaded)
+        val loadedEffects = runCatching { loadEffectIds(abs) }
+        if (loadedEffects.isFailure) return Result.failure(SkillReloadError.Rejected(listOf(loadedEffects.exceptionOrNull()?.message ?: "invalid shader registry")))
+        effectIds = loadedEffects.getOrThrow()
         val base = skillId.substringBefore('@')
         val current = scan(abs)
         val files = LinkedHashSet<String>(c.filesOf(base))
@@ -96,8 +152,14 @@ public class SkillEngineContents(
         val composed = c.composed()
         val affected = LinkedHashSet<String>(recomposed)
         retry.filterTo(affected) { it.substringBefore('@') == base }
-        val report = catalog.reload(affected.mapNotNull { resolve(c, composed, it) })
-        for (id in affected) if (id !in composed) catalog.remove(id)
+        val toLoad = affected.mapNotNull { resolve(c, composed, it) }
+        val invalidEffects = effectErrors(toLoad)
+        if (invalidEffects.isNotEmpty()) {
+            retry = retry + affected
+            return Result.failure(SkillReloadError.Rejected(invalidEffects.map { "${it.first}: ${it.second}" }))
+        }
+        val report = catalog.reload(toLoad)
+        for (id in affected) if (id !in composed && id !in demos) catalog.remove(id)
         retry = (retry - affected) + report.failed.keys
         if (report.failed.isNotEmpty()) {
             return Result.failure(SkillReloadError.Rejected(report.failed.map { (id, e) -> "$id: ${e.path}: ${e.message}" }))
@@ -111,12 +173,22 @@ public class SkillEngineContents(
             is Result.Success -> r.value
             is Result.Failure -> return composeFailure(dir, r.error.map { it.file to "${it.path}: ${it.reason}" })
         }
+        val examples = when (val r = SkillComposer(dir.parent.resolve("vfx"), options).composeAll()) {
+            is Result.Success -> r.value
+            is Result.Failure -> return composeFailure(dir, r.error.map { it.file to "${it.path}: ${it.reason}" })
+        }
+        val duplicates = composed.keys.intersect(examples.keys)
+        if (duplicates.isNotEmpty()) return composeFailure(dir, duplicates.map { it to "duplicate skill/VFX demo id" })
+        val all = composed + examples
+        val invalidEffects = effectErrors(all.values + fresh.composedParts().values)
+        if (invalidEffects.isNotEmpty()) return composeFailure(dir, invalidEffects)
+        demos = examples
         composer = fresh
         root = dir
         snapshot = current
         val parts = fresh.composedParts()
-        val report = catalog.reload(composed.values + parts.values)
-        for (gone in catalog.ids() - composed.keys - parts.keys.map { "part:$it" }.toSet()) catalog.remove(gone)
+        val report = catalog.reload(all.values + parts.values)
+        for (gone in catalog.ids() - all.keys - parts.keys.map { "part:$it" }.toSet()) catalog.remove(gone)
         retry = report.failed.keys
         return finish(dir, report.loaded.size, report.failed.map { (id, e) -> id to "${e.path}: ${e.message}" })
     }
@@ -134,15 +206,21 @@ public class SkillEngineContents(
         }
         val composed = c.composed()
         val toLoad = affected.mapNotNull { resolve(c, composed, it) }
+        val invalidEffects = effectErrors(toLoad)
+        val duplicates = composed.keys.intersect(demos.keys)
+        if (invalidEffects.isNotEmpty() || duplicates.isNotEmpty()) {
+            retry = affected
+            return composeFailure(dir, invalidEffects + duplicates.map { it to "duplicate skill/VFX demo id" })
+        }
         val report = catalog.reload(toLoad)
-        for (id in affected) if (id !in composed) catalog.remove(id)
+        for (id in affected) if (id !in composed && id !in demos) catalog.remove(id)
         retry = report.failed.keys
         return finish(dir, report.loaded.size, report.failed.map { (id, e) -> id to "${e.path}: ${e.message}" })
     }
 
     /** A `part:<id>` key resolves to the composed part (the catalog recompiles skills by `usedParts`), anything else to a composed skill. */
     private fun resolve(c: SkillComposer, composed: Map<String, ComposedSkill>, key: String): ComposedSkill? =
-        composed[key] ?: if (key.startsWith("part:")) c.composedParts()[key.removePrefix("part:")] else null
+        composed[key] ?: demos[key] ?: if (key.startsWith("part:")) c.composedParts()[key.removePrefix("part:")] else null
 
     private fun composeFailure(dir: Path, errors: List<Pair<String, String>>): ContentLoader.LoadReport =
         ContentLoader.LoadReport(

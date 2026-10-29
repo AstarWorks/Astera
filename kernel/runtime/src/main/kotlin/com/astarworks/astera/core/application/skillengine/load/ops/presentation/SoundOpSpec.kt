@@ -10,6 +10,9 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarCo
 import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
 import com.astarworks.astera.core.application.skillengine.load.grammar.TimingKind
 import com.astarworks.astera.core.application.skillengine.load.grammar.Types
+import com.astarworks.astera.core.application.skillengine.load.motion.PointLaw
+import com.astarworks.astera.core.application.skillengine.load.motion.PointLawsType
+import com.astarworks.astera.core.application.skillengine.load.motion.PointTau
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
 import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
@@ -40,6 +43,8 @@ public class SoundOp(
     public val volume: Value<Double>,
     public val pitch: Value<Double>,
     public val category: String,
+    /** Property laws (ADR-0303 3.4), sampled once per occurrence. */
+    public val motion: List<PointLaw>,
 ) : OpNode
 
 public object SoundOpSpec : OpSpec<SoundOp> {
@@ -52,10 +57,12 @@ public object SoundOpSpec : OpSpec<SoundOp> {
     private val PITCH: Field<Value<Double>> = Field.optional("pitch", Types.number, Value.Literal(1.0), "vanilla pitch, 1.0 by default")
     private val CATEGORY: Field<String> = Field.optional("category", Types.enumOf(*CATEGORIES.toTypedArray()), "master", "vanilla SoundCategory")
 
+    private val MOTION = Field.optional("motion", Types.nullable(PointLawsType(setOf("volume", "pitch"), "volume")), null, "property laws grow / fade, sampled per occurrence (section 3.4)")
+
     override val name: String = "sound"
     override val section: OpSection = OpSection.PRESENTATION
     override val timing: TimingKind? = TimingKind.POINT
-    override val fields: Fields = Fields.of("sound", SOUND, ANCHOR, VOLUME, PITCH, CATEGORY)
+    override val fields: Fields = Fields.of("sound", SOUND, ANCHOR, VOLUME, PITCH, CATEGORY, MOTION)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<SoundOp, SkillDecodeError> =
         Grammar.guard {
@@ -70,6 +77,7 @@ public object SoundOpSpec : OpSpec<SoundOp> {
                 volume = ctx.checked(values[VOLUME], ExprType.NUM, "$path.volume"),
                 pitch = ctx.checked(values[PITCH], ExprType.NUM, "$path.pitch"),
                 category = values[CATEGORY],
+                motion = values[MOTION] ?: emptyList(),
             )
         }
 
@@ -82,10 +90,14 @@ public object SoundOpSpec : OpSpec<SoundOp> {
             is Result.Failure -> return r
             is Result.Success -> r.value
         }
+        val tau = lc.tau
+        fun unknown(prop: String) = Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".motion", "a law on '$prop' needs a base value known at compile time"))
+        val volume = PointTau.scalar(number(op.volume), op.motion, "volume", tau) ?: return unknown("volume")
+        val pitch = PointTau.scalar(number(op.pitch), op.motion, "pitch", tau) ?: return unknown("pitch")
         val action = Action.Sound(
             sound = op.sound,
-            volume = number(op.volume),
-            pitch = number(op.pitch),
+            volume = volume,
+            pitch = pitch,
             position = position,
             category = op.category,
         )

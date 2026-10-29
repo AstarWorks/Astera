@@ -468,7 +468,8 @@ public object LawSegmenter {
             // 3.7: h = sqrt(8 * budget / max|f''|), m = ceil(for / h); budget is 1.0 in the normalised units
             val guess = if (fpp < 1e-12) 1 else ceil(len / sqrt(8.0 / fpp)).toInt()
             var m = max(minM, guess)
-            if (m * 2 >= len) m = len
+            // a live cell is re-sent on its own step cuts, so the piece count is not collapsed to one per tick
+            if (!live && m * 2 >= len) m = len
             while (m < len) {
                 val ps = pieces(m)
                 val ok = ps.all { (s, e) ->
@@ -477,7 +478,7 @@ public object LawSegmenter {
                 }
                 if (ok) return ps
                 m++
-                if (m * 2 >= len) m = len
+                if (!live && m * 2 >= len) m = len
             }
             return pieces(len)
         }

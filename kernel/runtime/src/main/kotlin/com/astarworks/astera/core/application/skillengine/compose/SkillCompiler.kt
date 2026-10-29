@@ -179,15 +179,21 @@ public class SkillCompiler(
         val usedSkills = LinkedHashSet<String>()
 
         private val decoder = OpListDecoder(specs)
-        private val grammar = GrammarContext(original.id, null, exprs, V3Bindings.spec(DEEP, ExprEnvSpec(variables = ANCHOR_AXES.associate { "anchor.$it" to ExprType.VEC3 }, frames = flat.anchors.map { it.id }.toSet() + flat.framesIn.keys)),
+        private val grammar = GrammarContext(original.id, null, exprs, V3Bindings.spec(DEEP, ExprEnvSpec(variables = ANCHOR_AXES.associate { "anchor.$it" to ExprType.VEC3 }, frames = flat.anchors.map { it.id }.toSet() + flat.framesIn.keys + com.astarworks.astera.core.application.skillengine.load.grammar.ExprFrames.ofMachine(flat.machine))),
             paramDefaults = loadTimeDefaults(original.params),
             partAxes = flat.item?.takeIf { it != "any" }?.let { item -> { part -> frames.item(item)?.partFor(part)?.axes } },
         )
         private val documents: Map<String, AnchorDecl> = flat.anchors.associateBy { it.id }
         private val registries = HashMap<String, AnchorRegistry>()
 
+        /** Per state: the earliest tick of a static `End` row of each instance it spawned (state-qualified reference check). */
+        private val staticEnds = HashMap<String, MutableMap<String, Int>>()
+
         /** Latest `<op>.end` tick of the bodies a state without `for:` has spawned so far (its natural length). */
         private val bodyHorizon = HashMap<String, Int>()
+
+        /** Instances the sections of a state lowered so far spawned (the lexical lookup of a relative `cancel: <id>`). */
+        private val stateSpawned = HashMap<String, MutableList<InstanceId>>()
         private val callStack = ArrayList<String>().apply { add(SkillCallInliner.PREFIX + original.id) }
         private val statesById: Map<String, MachineState> = flat.machine.states.values.associateBy { it.id }
         private val specByNode: Map<Class<*>, OpSpec<*>> = buildMap {
@@ -231,7 +237,12 @@ public class SkillCompiler(
                     bodyHorizon[state.value],
                     nodes.filterIsInstance<ProjectileOp>().mapNotNull { ((it.timing?.span as? Span.Ticks)?.ticks as? Value.Literal)?.value?.toInt() }.maxOrNull(),
                 ).maxOrNull()
-            val registry = registries.getOrPut(state.value) { DefaultAnchorScope(Occurrence(0, 1, null), documents) }
+            checkQualifiedRefs(state, ops, section).let { if (it != null) return@SectionLowerer Result.Failure(it) }
+            val registry = registries.getOrPut(state.value) {
+                DefaultAnchorScope(
+                    Occurrence(0, 1, null), documents, { registries[it] },
+                ) { name -> registries.values.firstNotNullOfOrNull { (it as? DefaultAnchorScope)?.publishedEntry(name) } }
+            }
             // A list is declarative: a rider may name a body or frame written further down. Bodies and frames declare their anchors
             // first (in written order), everything else follows; rows are merged back in written order.
             val declaring = nodes.indices.filter { nodes[it] is ProjectileOp || nodes[it] is FrameOp }
@@ -243,11 +254,51 @@ public class SkillCompiler(
             }
             var acc = Lowered(emptyList())
             for (lo in lowered) acc = merge(acc, lo!!)
+            val ends = staticEnds.getOrPut(state.value) { HashMap() }
+            for (r in acc.rows) if (r.action is Action.End) ends.merge(r.instance.text, r.tick, ::minOf)
+            // `cancel: <id>` looks outward from its group (10.6): settle it against everything this state has spawned so far
+            val spawned = stateSpawned.getOrPut(state.value) { ArrayList() }
+            spawned += acc.instances
+            for (r in acc.rows) if (r.action is Action.Spawn || r.action is Action.Effect || r.action is Action.Lock) spawned += r.instance else (r.action as? Action.Call)?.let { spawned += it.callId }
+            acc = CancelLowering.retarget(acc, spawned)
             if (st?.forTicks == null) {
                 acc.subTables.filter { it.event.value.endsWith(".end") }.maxOfOrNull { it.window.max }
                     ?.let { bodyHorizon[state.value] = maxOf(it, bodyHorizon[state.value] ?: 0) }
             }
             Result.Success(acc)
+        }
+
+        /**
+         * A state-qualified name (`/throw/volley`, ADR-0303 10.1: `/x` is absolute from the state root, ids are state-qualified) names an instance
+         * another state spawned. It must name a state lowered earlier (or this one), an instance that state declared, and an instance that is
+         * not already gone when this state starts. There is no fallback lookup for a bare name.
+         */
+        private fun checkQualifiedRefs(state: StatePath, ops: List<Any?>, section: String): SkillDecodeError? {
+            val where = "machine.states.${state.value}.$section"
+            fun bad(msg: String) = SkillDecodeError.Invalid(original.id, where, msg)
+            fun check(text: String): SkillDecodeError? {
+                val parts = AnchorNames.split(text)?.takeIf { it.state != null } ?: return null
+                val target = parts.state!!
+                val reg = registries[target] ?: return bad("'$text': state '$target' is not declared before '${state.value}' (a qualified name refers to a state written earlier)")
+                val r = reg.at(Occurrence(0, 1, null)).resolve(AnchorNames.bare(text).substringBefore('.'))
+                    ?: return bad("'$text': state '$target' declares no instance '${parts.base}'")
+                if (target != state.value) {
+                    val st = statesById[target]
+                    val guaranteed = if (st != null && st.on.isEmpty()) (st.forTicks as? Number)?.toInt() else null
+                    val end = staticEnds[target]?.get(r.instance.text)
+                    if (guaranteed != null && end != null && end <= guaranteed) {
+                        return bad("'$text': '${r.instance.text}' ends at tick $end of state '$target', which lasts $guaranteed ticks, so it is gone when '${state.value}' starts")
+                    }
+                }
+                return null
+            }
+            fun walk(n: Any?): SkillDecodeError? = when (n) {
+                is String -> if (n.startsWith("/")) check(n) else null
+                is Map<*, *> -> n.values.firstNotNullOfOrNull { walk(it) }
+                is Iterable<*> -> n.firstNotNullOfOrNull { walk(it) }
+                else -> null
+            }
+            return walk(ops)
         }
 
         private fun rootContext(state: StatePath, anchors: AnchorScope): LowerContext = LowerContext(

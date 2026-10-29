@@ -1,0 +1,10 @@
+# Astera weapon-rig: named hooks from content/shader-patches/hooks.yaml (ADR-0305).
+# Shader bodies and marker semantics are preserved from ADR-0275 / ADR-0298.
+@@ hook: weapon_rig_0
+layout(location = 7) in float asteraWeaponTone;
+
+@@ hook: weapon_rig_1
+    if (asteraWeaponTone > 0.5) {
+        float asteraY = max(dot(color.rgb, vec3(0.2126, 0.7152, 0.0722)), 1.0 / 255.0);
+        color.rgb = min(color.rgb * ((asteraY + 0.3 * (1.0 - asteraY) * (1.0 - asteraY)) / asteraY), vec3(1.0));
+    }

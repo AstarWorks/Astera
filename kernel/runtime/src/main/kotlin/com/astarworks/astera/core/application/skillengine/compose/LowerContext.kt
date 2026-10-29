@@ -44,6 +44,8 @@ public class LowerContext(
     public val seed: SeededStream,
     /** YAML path of the op being lowered; [child] appends `.do[<doIndex>]`. */
     public val src: SrcPath,
+    /** Ticks since the owning op's first occurrence (`i * every` for a fixed every, the eased spacing otherwise): where a point op's property laws are sampled (ADR-0303 3.4). */
+    public val tau: Int = 0,
 ) {
     public fun child(op: OpId, i: Int?, n: Int, tick: Int, doIndex: Int = 0): LowerContext = LowerContext(
         skillId, state,

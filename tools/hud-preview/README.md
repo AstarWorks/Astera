@@ -1,5 +1,7 @@
 # HUD preview
 
+生成済み HUD フレームの閲覧: `make skill-compare-up` → http://192.168.11.5:8097/hud。
+
 Headless Kotlin/Java2D renderer for game-sim HUD traces. Outputs 1920×1080 PNGs,
 with logical GUI pixels scaled by nearest neighbour at GUI scale 2 or 3.
 This tool and its vanilla assets are never shipped in the server plugins.

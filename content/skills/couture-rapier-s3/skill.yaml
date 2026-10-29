@@ -18,7 +18,7 @@ machine:
       then: end
       do:
         # v2: origin eye, yaw-only forward (R31), sector angle_deg 45 = full opening (R24), ignore_invulnerability true; trigger-only hits omit damage (R24).
-        # GAP(Q1): max_count spelling (required int/`all` vs optional); best-effort `max_count: 1` kept as v2 caps each selector at 1 victim.
+        # max_count: 1 = the nearest 1 target (founder 10/28 ruling, ADR-0303 3.8; TablePlayer hit sorts nearest-first then takes N); v2 caps each selector at 1 victim.
         - id: sel
           op: hit
           at: 24

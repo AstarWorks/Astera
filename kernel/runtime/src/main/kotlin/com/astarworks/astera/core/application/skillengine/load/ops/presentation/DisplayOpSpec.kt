@@ -22,6 +22,11 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.TimeAt
 import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
 import com.astarworks.astera.core.application.skillengine.load.grammar.TimingKind
 import com.astarworks.astera.core.application.skillengine.load.grammar.Types
+import com.astarworks.astera.core.application.skillengine.compose.ExprClass
+import com.astarworks.astera.core.application.skillengine.expr.cel.ExprClassifier
+import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
+import com.astarworks.astera.core.application.skillengine.load.motion.KeysMotion
+import com.astarworks.astera.core.application.skillengine.load.motion.LawKey
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaws
 import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
@@ -30,6 +35,12 @@ import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
 import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.geometry.math.Frame
+import com.astarworks.astera.core.domain.skillengine.expr.ExprEnv
+import com.astarworks.astera.core.domain.skillengine.expr.ExprEvalException
+import com.astarworks.astera.core.domain.skillengine.expr.ExprType
+import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
+import com.astarworks.astera.core.domain.skillengine.expr.FrameLookup
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.model.ParamValue
 import com.astarworks.astera.core.domain.skillengine.model.Value
@@ -50,6 +61,7 @@ import com.astarworks.astera.core.domain.sprite.SpriteGlyphs
 import com.astarworks.astera.core.domain.sprite.SpriteId
 import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
 import com.astarworks.astera.core.domain.skillengine.math.Vector3d
+import kotlin.math.abs
 
 public enum class DisplayKind { ITEM, BLOCK, TEXT, SPRITE }
 
@@ -69,6 +81,8 @@ public class DisplayOp(
     /** Item model id, block id, sprite id, or text (by [kind]). */
     public val subject: Value<String>,
     public val context: String,
+    /** `part` of an item display: a part of `content/frames/<skill item>.yaml` whose axes (`long`, `edge`, `face`) the display's rotations read; null = the item's held part. */
+    public val part: String?,
     public val textStyle: TextStyle?,
     public val spriteSize: Pair<Value<Double>, Value<Double>>?,
     public val spritePivot: String?,
@@ -92,6 +106,7 @@ public class DisplayOp(
     public val teleportDuration: Value<Double>,
     /** Laws decoded by [MotionLaws]; segmented into `Key` rows (and `Set` rows for a fade) by [LawSegmenter] at compile. */
     public val motion: List<MotionLaw>,
+    public val shaderEffect: String?,
 ) : OpNode
 
 /** Sprite `flipbook`: [frames] glyphs, one step every [every] ticks; [loop] wraps to frame 0, otherwise the last frame holds. */
@@ -139,6 +154,8 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
 
     // item
     private val itemF = Field.optional("item", Types.nullable(Types.id), null, "kind item: item_model id (main_hand = the held item's model, resolved at cast start)")
+    private val shaderEffectF = Field.optional("shader_effect", Types.nullable(Types.id), null, "kind item: isolated effect id from content/shader-patches/effects; excludes brightness")
+    private val partF = Field.optional("part", Types.nullable(Types.id), null, "kind item: weapon part of content/frames/<item>.yaml whose axes (long, edge, face) the rotations read")
     private val contextF = Field.optional("context", Types.enumOf(*CONTEXTS), "fixed", "kind item: ItemDisplayContext, decision default fixed")
 
     // block
@@ -185,7 +202,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
 
     /** Fields that belong to exactly one kind; written on another kind they are a load error (nothing is silently dropped). */
     private val kindOnly: Map<String, List<Field<*>>> = mapOf(
-        "item" to listOf(itemF, contextF),
+        "item" to listOf(itemF, partF, contextF, shaderEffectF),
         "block" to listOf(blockF),
         "text" to listOf(textF, backgroundF, alignmentF, lineWidthF, textOpacityF, shadowF),
         "sprite" to listOf(spriteF, sizeF, pivotF, flipbookF),
@@ -193,7 +210,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
 
     override val fields: Fields = Fields.of(
         "display", kindF, anchorF, offsetF,
-        itemF, contextF, blockF,
+        itemF, partF, contextF, shaderEffectF, blockF,
         textF, backgroundF, alignmentF, lineWidthF, textOpacityF, seeThroughF, shadowF,
         spriteF, sizeF, pivotF, flipbookF, colorF,
         translationF, rotateF, scaleF, rightF, yawF, pitchF, billboardF, brightnessF, viewRangeF, glowColorF,
@@ -237,6 +254,14 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 DisplayKind.TEXT -> values[textF]?.let { foldText(it, ctx) } ?: ctx.abortMissing(p, "text")
                 DisplayKind.SPRITE -> values[spriteF]?.let { Value.Literal(it) } ?: ctx.abortMissing(p, "sprite")
             }
+            val shaderEffect = values[shaderEffectF]
+            if (shaderEffect != null) {
+                val item = (subject as? Value.Literal)?.value.orEmpty()
+                if (!Regex("[a-z][a-z0-9-]*").matches(shaderEffect)) ctx.fail("$p.shader_effect", "invalid shader effect id")
+                if (item == "main_hand" || item.startsWith("minecraft:") || values.isPresent(brightnessF)) {
+                    ctx.fail("$p.shader_effect", "shader_effect requires an Astera pack item and excludes brightness")
+                }
+            }
             val size = if (kind == DisplayKind.SPRITE) {
                 val s = values[sizeF] ?: ctx.abortMissing(p, "size")
                 val w = foldNum(s.first, ctx)
@@ -278,13 +303,13 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
 
             DisplayOp(
                 id, src, whenExpr, foldTiming(t, ctx), kind, values[anchorF], values[offsetF],
-                subject, values[contextF], style, size, if (kind == DisplayKind.SPRITE) values[pivotF] else null, color, seeThrough, flipbook,
+                subject, values[contextF], values[partF], style, size, if (kind == DisplayKind.SPRITE) values[pivotF] else null, color, seeThrough, flipbook,
                 values[translationF], values[rotateF], values[scaleF], values[rightF],
                 foldNum(values[yawF], ctx), foldNum(values[pitchF], ctx), billboard, brightness, viewRange, glow,
                 wholeNum(values[interpDelayF], "$p.interpolation_delay", ctx, 0.0, null),
                 wholeNum(values[interpDurationF], "$p.interpolation_duration", ctx, 0.0, null),
                 wholeNum(values[teleportDurationF], "$p.teleport_duration", ctx, 0.0, null),
-                values[motionF] ?: emptyList(),
+                values[motionF] ?: emptyList(), shaderEffect,
             )
         }
 
@@ -296,7 +321,12 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         val src = lc.src
         return Grammar.guard {
             val gc = GrammarContext(lc.skillId)
-            val itemAxes = if (op.kind == DisplayKind.ITEM) lc.frames.item((op.subject as? Value.Literal<String>)?.value ?: "")?.partFor(null)?.axes else null
+            val itemAxes = if (op.kind != DisplayKind.ITEM) null else if (op.part != null) {
+                val skillItem = lc.skills.skill(lc.skillId)?.item
+                    ?: gc.fail("${src.value}.part", "part '${op.part}' needs the skill's item to find content/frames/<item>.yaml, but this skill has no item")
+                (lc.frames.item(skillItem)?.partFor(op.part)
+                    ?: gc.fail("${src.value}.part", "content/frames/$skillItem.yaml has no part '${op.part}'")).axes
+            } else lc.frames.item((op.subject as? Value.Literal<String>)?.value ?: "")?.partFor(null)?.axes
             val axes = AxisResolver { n -> LocalAxes.axis(n) ?: if (n == "face") FACE else itemAxes?.get(n) }
             for ((r, f) in listOf(op.rotate to "rotate", op.right to "right")) {
                 if (r is Rotation.Turns) r.turns.forEachIndexed { i, turn ->
@@ -306,7 +336,8 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             val left = op.rotate.toValue(gc, "${src.value}.rotate", axes)
             val right = op.right.toValue(gc, "${src.value}.right", axes)
 
-            val sprite = if (op.kind == DisplayKind.SPRITE) spriteScale(op, lc) else null
+            val end = endTick(op, t, lc)
+            val sprite = if (op.kind == DisplayKind.SPRITE) spriteScale(op, lc, end) else null
             val pose = Pose(
                 position = op.offset?.toLocal()?.let { vecCell(it) } ?: Val.Known(Vector3d(0.0, 0.0, 0.0)),
                 rotation = quatCell(left),
@@ -318,7 +349,6 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             rows += spawn
             val subTables = ArrayList<SubTable>()
 
-            val end = endTick(op, t, lc)
             if (end != null) rows += Row(end, instance, Action.End(instance), src)
             t.until?.let { ev ->
                 // `until` is a mask (2.0): the event's sub-table ends this instance the first time it fires.
@@ -333,15 +363,20 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             val flipRows = op.flipbook?.let { flipbookRows(op, it, instance, end, lc) }.orEmpty()
             rows += flipRows
             // The anchor's own laws ride first: left_rotation = anchor.rot(t) * rider (item 16).
-            val laws = lc.anchors.laws(op.anchor) + op.motion
+            val laws = lc.anchors.laws(op.anchor) + op.motion + (sprite?.sizeLaws ?: emptyList())
             if (laws.isNotEmpty()) {
                 val moved = LawSegmenter.segments(instance, laws, lc, FADE_FIELD)
                 when (moved) {
                     is Result.Failure -> throw DecodeAbort(moved.error)
                     is Result.Success -> {
-                        rows += moved.value.rows
+                        // a law (or the anchor's law) outlasting this display's `for:` writes nothing once the display has ended
+                        val inLife = if (end != null) moved.value.rows.filter { it.tick < end } else moved.value.rows
+                        rows += inLife
                         subTables += moved.value.subTables
-                        writes = moved.value.writes
+                        writes = if (inLife.size == moved.value.rows.size) moved.value.writes else {
+                            val perTick = inLife.groupingBy { it.tick }.eachCount()
+                            mapOf(instance to com.astarworks.astera.core.domain.skillengine.table.WriteStats(inLife.size, perTick.values.maxOrNull() ?: 0))
+                        }
                     }
                 }
             }
@@ -383,9 +418,9 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     }
 
     /** Sprite sizing (item 10): natural quad = px * 0.025 blocks; `scale` = size / natural, so the gateway computes nothing. */
-    private class SpriteScale(val scale: Val<Vector3d>)
+    private class SpriteScale(val scale: Val<Vector3d>, val sizeLaws: List<MotionLaw> = emptyList(), val spawnSize: Val<Vector3d>? = null)
 
-    private fun spriteScale(op: DisplayOp, lc: LowerContext): SpriteScale {
+    private fun spriteScale(op: DisplayOp, lc: LowerContext, end: Int?): SpriteScale {
         val id = (op.subject as? Value.Literal<String>)?.value
             ?: throw DecodeAbort(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "a sprite id is a literal"))
         val natural = lc.sprites.natural(id)
@@ -393,6 +428,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         val nw = natural.w * SPRITE_BLOCKS_PER_PX
         val nh = natural.h * SPRITE_BLOCKS_PER_PX
         val (w, h) = op.spriteSize!!
+        if (isTimeClass(w) || isTimeClass(h)) return timeSizedScale(op, lc, end, w, h, nw, nh)
         val scale: Val<Vector3d> =
             if (w is Value.Literal && h is Value.Literal) {
                 Val.Known(Vector3d(w.value / nw, h.value / nh, 1.0))
@@ -400,6 +436,80 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 Val.Live("vec(${sourceOf(w)} / $nw, ${sourceOf(h)} / $nh, 1.0)", null)
             }
         return SpriteScale(scale)
+    }
+
+    /** `size` component that reads `t` / `lt` (class T, ADR-0303 3.5) and nothing live. */
+    private fun isTimeClass(v: Value<Double>): Boolean =
+        v is Value.Expr && ExprClassifier.analyse(v.source).let { it.cls == ExprClass.T }
+
+    /**
+     * Class T `size` (ADR-0303 3.5, 3.4): the expression is sampled on the tick grid over the display's life, fitted to the fewest linear
+     * segments whose chord error stays under `segmentErrorBlocks` (in blocks of width / height), and written as a `keys` scale law that the
+     * [LawSegmenter] turns into `Key` rows (one write per fitted segment). The spawn scale is the size at tick 0; the keys are multipliers of it.
+     */
+    private fun timeSizedScale(op: DisplayOp, lc: LowerContext, end: Int?, w: Value<Double>, h: Value<Double>, nw: Double, nh: Double): SpriteScale {
+        val path = "${lc.src.value}.size"
+        val last = end ?: throw DecodeAbort(SkillDecodeError.Invalid(lc.skillId, path, "a size that follows t needs a finite lifetime: give the display a 'for' (ADR-0303 3.5)"))
+        val spec = V3Bindings.spec(lc.occurrence)
+        fun sampler(v: Value<Double>, axis: String): (Int) -> Double = when (v) {
+            is Value.Literal -> { _ -> v.value }
+            is Value.ParamRef -> throw DecodeAbort(SkillDecodeError.Invalid(lc.skillId, "$path.$axis", "\${${v.name}} was not substituted before lowering"))
+            is Value.Expr -> {
+                val compiled = when (val c = lc.exprs.compile(v.source, spec, ExprType.NUM)) {
+                    is Result.Success -> c.value
+                    is Result.Failure -> throw DecodeAbort(SkillDecodeError.BadExpr(lc.skillId, "$path.$axis", c.error))
+                }
+                val a = ExprClassifier.analyse(v.source) { n -> lc.anchors.resolve(n)?.basis }
+                if (a.usesLive || a.usesRand) {
+                    throw DecodeAbort(SkillDecodeError.Invalid(lc.skillId, "$path.$axis", "a size that follows t cannot also be live or random: it is fitted at compile time"))
+                }
+                val sampleAt: (Int) -> Double = { k ->
+                    val env = ExprEnv(V3Bindings.values(lc.occurrence, instanceTick = k, lawTick = k), NoFrames, seed = V3Bindings.seed(0L, op.id, lc.occurrence.i))
+                    val r = try {
+                        compiled.eval(env)
+                    } catch (e: ExprEvalException) {
+                        throw DecodeAbort(SkillDecodeError.Invalid(lc.skillId, "$path.$axis", "${e.message} (at t=$k)"))
+                    }
+                    (r as? ExprValue.Num)?.value ?: throw DecodeAbort(SkillDecodeError.Invalid(lc.skillId, "$path.$axis", "is not a number"))
+                }
+                sampleAt
+            }
+        }
+        val sw = sampler(w, "[0]")
+        val sh = sampler(h, "[1]")
+        val ws = DoubleArray(last + 1) { sw(it) }
+        val hs = DoubleArray(last + 1) { sh(it) }
+        for (k in 0..last) {
+            if (!(ws[k] > 0.0) || !(hs[k] > 0.0) || ws[k].isInfinite() || hs[k].isInfinite()) {
+                throw DecodeAbort(SkillDecodeError.Invalid(lc.skillId, path, "size must stay finite and > 0 on every tick (t=$k gave ${ws[k]} x ${hs[k]})"))
+            }
+        }
+        val budget = lc.config.segmentErrorBlocks
+        val cuts = arrayListOf(0)
+        while (cuts.last() < last) {
+            val s = cuts.last()
+            var e = s + 1
+            while (e + 1 <= last && chordFits(ws, hs, s, e + 1, budget)) e++
+            cuts += e
+        }
+        val keys = cuts.map { k -> LawKey(k, null, null, Vec3(ws[k] / ws[0], hs[k] / hs[0], 1.0), null, null) }
+        val law = KeysMotion(keys, 0, "${lc.src.value}.size")
+        return SpriteScale(Val.Known(Vector3d(ws[0] / nw, hs[0] / nh, 1.0)), listOf(law), Val.Known(Vector3d(ws[0], hs[0], 1.0)))
+    }
+
+    /** The straight line from sample [s] to sample [e] stays within [budget] blocks of both the width and the height samples between them. */
+    private fun chordFits(ws: DoubleArray, hs: DoubleArray, s: Int, e: Int, budget: Double): Boolean {
+        for (k in s + 1 until e) {
+            val f = (k - s).toDouble() / (e - s)
+            if (abs(ws[s] + (ws[e] - ws[s]) * f - ws[k]) > budget) return false
+            if (abs(hs[s] + (hs[e] - hs[s]) * f - hs[k]) > budget) return false
+        }
+        return true
+    }
+
+    private object NoFrames : FrameLookup {
+        override fun worldPose(frame: String, point: String?): Frame? = null
+        override fun velocity(frame: String, point: String?): Vec3 = Vec3.ZERO
     }
 
     private const val SPRITE_BLOCKS_PER_PX = 0.025
@@ -454,7 +564,9 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         when (op.kind) {
             DisplayKind.ITEM -> {
                 f["item"] = cell(op.subject)
+                op.part?.let { f["part"] = Val.Known(it) }
                 f["context"] = Val.Known(op.context)
+                op.shaderEffect?.let { f["shader_effect"] = Val.Known(it) }
             }
             DisplayKind.BLOCK -> f["block"] = cell(op.subject)
             DisplayKind.TEXT -> {
@@ -471,7 +583,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             DisplayKind.SPRITE -> {
                 val (w, h) = op.spriteSize!!
                 f["sprite"] = cell(op.subject)
-                f["size"] = vecCell(w, h)
+                f["size"] = sprite?.spawnSize ?: vecCell(w, h)
                 f["pivot"] = Val.Known(op.spritePivot!!)
                 f["scale"] = sprite!!.scale
                 f["see_through"] = cell(op.seeThrough!!)

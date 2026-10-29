@@ -20,6 +20,23 @@ import kotlin.system.exitProcess
  */
 public fun main(args: Array<String>) {
     when (args.firstOrNull()) {
+        "sprite-graph-reference" -> {
+            require(args.size == 2) { "usage: sprite-graph-reference <outputDir>" }
+            GraphReference.write(Path(args[1]))
+        }
+        "sprite-preview" -> SpritePreview.run(args.drop(1))
+        "write-sprites" -> {
+            require(args.size == 2) { "usage: write-sprites <contentDir>" }
+            val content = Path(args[1])
+            val files = SpriteSources.renderAll(content)
+            for ((rel, bytes) in files) {
+                val file = content.resolve(rel)
+                Files.createDirectories(file.parent)
+                if (!Files.exists(file) || !Files.readAllBytes(file).contentEquals(bytes)) Files.write(file, bytes)
+            }
+            SpriteSources.orphans(content, files.keys).forEach(Files::delete)
+            println("sprite art: ${files.size} files under $content")
+        }
         "blocks" -> {
             require(args.size == 2) { "usage: blocks <contentDir>" }
             val content = Path(args[1])

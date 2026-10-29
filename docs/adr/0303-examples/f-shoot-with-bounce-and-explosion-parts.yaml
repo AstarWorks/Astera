@@ -47,12 +47,12 @@ machine:
         - id: ring
           op: display
           kind: sprite
-          sprite: ring-flash
+          sprite: couture-s2-ring-thin
           anchor: spot
           billboard: center
           size: [0.3, 0.3]
           for: "= ring_for"
-          motion: [{law: grow, per_tick: 1.25, at: 0, for: 8}, {law: fade, exponent: 1.0, at: 0, for: 8}]   # laws take literals only: radius 3 / ring_for 8 / base 0.3 = 1.25 scale per tick
+          motion: [{law: grow, per_tick: "= radius / ring_for / 0.3", at: 0, for: 8}, {law: fade, exponent: 1.0, at: 0, for: 8}]   # class S: folds at load once the call binds radius / ring_for (3 / 8 / base 0.3 = 1.25 per tick)
         - {id: sparks, op: particle, particle: flame, anchor: spot, count: 6, offset: [0.2, 0.2, 0.2], extra: 0.15, every: 1, for: 4}
     end: {final: true}
 ---
@@ -62,7 +62,7 @@ id: example-fire-bolt
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
 machine:
-  start: fly                                 # ENGINE GAP: PartExpander rewrites this start to the child path (StartNamesChild) / StaticChecks takes table.states.first(); see report
+  start: fly
   states:
     fly:
       use: projectile
@@ -74,7 +74,7 @@ machine:
     boom:
       use: explosion
       with: {radius: 3, damage: 24, ring_for: 8}
-      frames: {spot: muzzle}                            # ENGINE GAP: a sibling call's frames_out (`fly.bolt`, snapshot of the finished child's last pose) is not an anchor in the caller's scope (UndefinedReference / 'not declared in this scope')
+      frames: {spot: fly.bolt}
       on: [{event: boom.end, to: done}]
     done: {final: true}
 # Expanded table:

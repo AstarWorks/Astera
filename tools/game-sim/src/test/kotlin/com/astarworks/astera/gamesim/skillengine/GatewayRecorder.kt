@@ -54,6 +54,9 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     var casterPosition: Vector3d = Vector3d(0.0, 1.0, 0.0)
     var casterYawDeg: Double = 0.0
 
+    /** The item id of the skill being played (`play` sets it), as the player puts it in every [CastRef]. */
+    var castItem: String? = null
+
     /** Values the cast reads through `Val.Live` numbers, by live name. A name not set here reads 0.0; every read is in [liveReads]. */
     val liveNums: MutableMap<String, Double> = HashMap()
     private val reads = ArrayList<String>()
@@ -96,6 +99,58 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
     private fun name(h: VisualHandle): String = "#" + (ordinals[h.id] ?: -1)
 
+    /** The lock sink the platform's `PaperPlayerHooks` is: pitch / yaw go through `lockLook`, so a played lock shows as a `lock` call. */
+    val hooks: com.astarworks.astera.core.application.skillengine.runtime.player.PlayerHooks =
+        object : com.astarworks.astera.core.application.skillengine.runtime.player.PlayerHooks {
+            private val compiler = com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler()
+
+            /**
+             * PaperPlayerHooks.guard without Paper: expands `cond.<name>`, compiles the CEL against the v3 variable spec and evaluates it.
+             * The sim has no entities, so the caster stands at the origin and the `event.attacker` / `target` of every event stands 2 blocks ahead.
+             */
+            override fun guard(cast: CastHandle, guard: com.astarworks.astera.core.domain.skillengine.table.Guard, conditions: Map<String, String>, binding: EventBinding?, localTick: Int, seed: Long): Boolean? {
+                val source = when (guard) {
+                    is com.astarworks.astera.core.domain.skillengine.table.Guard.Expr -> guard.source
+                    is com.astarworks.astera.core.domain.skillengine.table.Guard.Named -> "cond.${guard.cond}"
+                }
+                val expanded = (com.astarworks.astera.core.application.skillengine.expr.cel.CondBindings.expand("sim", "guard", source, conditions)
+                    as? com.astarworks.astera.core.domain.Result.Success)?.value ?: return null
+                val expr = (compiler.compile(expanded, com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings.spec(null), com.astarworks.astera.core.domain.skillengine.expr.ExprType.BOOL)
+                    as? com.astarworks.astera.core.domain.Result.Success)?.value ?: return null
+                val ahead = com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 2.0)
+                val vars = com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings.values(
+                    null, stateTick = localTick, eventI = binding?.index ?: 0,
+                    target = com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings.Binding(pos = ahead),
+                )
+                val world = com.astarworks.astera.core.application.skillengine.runtime.player.EntityQueryExprHost(query, CastRef(cast.value, this@GatewayRecorder.caster, castWorld, castItem))
+                // world functions read the recorder's entity query (victims / allies); the frame functions are not served by this host
+                val host = object : com.astarworks.astera.core.domain.skillengine.expr.ExprHost {
+                    override fun aimPoint(caster: com.astarworks.astera.core.domain.skillengine.expr.ExprValue.Ref, range: Double): Vec3 = error("aim_point is not served by the sim guard host")
+                    override fun lookDirection(caster: com.astarworks.astera.core.domain.skillengine.expr.ExprValue.Ref): Vec3 = error("look_dir is not served by the sim guard host")
+                    override fun bladeLen(frame: com.astarworks.astera.core.domain.skillengine.expr.ExprValue.Ref): Double = error("blade_len is not served by the sim guard host")
+                    override fun nearestEnemyDist(from: Vec3): Double = world.nearestEnemyDist(from)
+                    override fun enemyInCone(from: Vec3, dir: Vec3, range: Double, halfAngleDeg: Double): Boolean = world.enemyInCone(from, dir, range, halfAngleDeg)
+                }
+                val frames = object : com.astarworks.astera.core.domain.skillengine.expr.FrameLookup {
+                    override fun worldPose(frame: String, point: String?) = com.astarworks.astera.core.domain.geometry.math.Frame(
+                        if (frame == "caster") com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 0.0) else ahead,
+                    )
+                    override fun velocity(frame: String, point: String?) = com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 0.0)
+                }
+                // like PaperPlayerHooks: a guard that cannot evaluate here (it needs a cast host, e.g. nearest_enemy_dist) answers null = a fault, false
+                return try { (expr.eval(com.astarworks.astera.core.domain.skillengine.expr.ExprEnv(vars, frames, seed = seed, host = host)) as? com.astarworks.astera.core.domain.skillengine.expr.ExprValue.Bool)?.value } catch (e: RuntimeException) { null }
+            }
+
+            override fun lock(caster: UUID, move: com.astarworks.astera.core.domain.skillengine.table.LockMove, pitch: Boolean, yaw: Boolean, untilTick: Int): Boolean {
+                if (pitch || yaw) gameplay.lockLook(caster, pitch, yaw, untilTick)
+                return true
+            }
+
+            override fun unlock(caster: UUID, move: com.astarworks.astera.core.domain.skillengine.table.LockMove, pitch: Boolean, yaw: Boolean) {
+                if (pitch || yaw) gameplay.unlockLook(caster)
+            }
+        }
+
     val visual: ISkillVisualGateway = object : ISkillVisualGateway {
         override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView, glow: String?) = spawned(cast, "item")
 
@@ -109,6 +164,10 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun spawnTrail(cast: CastRef, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = spawned(cast, "ribbon")
 
+        override fun spawnLine(cast: CastRef, from: Vec3, to: Vec3, thickness: Double, colorHex: String, alpha: Double) = spawned(cast, "ribbon")
+
+        override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) = add("line", name(handle), "")
+
         override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) =
             add("write", name(handle), "dur=$interpolationTicks")
 
@@ -121,6 +180,8 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun setTrailLook(handle: VisualHandle, fadePower: Double, style: String) = Unit
 
         override fun setTrailShape(handle: VisualHandle, bands: List<TrailBand>, edge: TrailEdge?, rim: TrailRim?, stepDeg: Double, doubleSided: Boolean) = Unit
+
+        override fun setTrailWidth(handle: VisualHandle, widthFrac: Double) = add("trail_width", name(handle), "w=%.3f".format(widthFrac))
     }
 
     val particles: ISkillParticleGateway = object : ISkillParticleGateway {
@@ -130,9 +191,13 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         }
     }
 
+    /** Where each sound played, in call order (kept out of [calls]: the oracle diff compares verbs and payloads only). */
+    val soundPositions = ArrayList<Pair<Int, Vec3>>()
+
     val sounds: ISkillSoundGateway = object : ISkillSoundGateway {
         override fun play(cast: CastRef, sound: String, at: Vec3, category: String, volume: Double, pitch: Double) {
             seen("sounds.play", cast)
+            soundPositions += tick to at
             add("sound", "-", "sound=$sound cat=$category vol=${RecordedCall.num(volume)} pitch=${RecordedCall.num(pitch)}")
         }
     }
@@ -192,6 +257,16 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun stopBodyClip(cast: CastRef, caster: UUID, anim: String) {
             seen("gameplay.stopBodyClip", cast)
             add("effect", caster.toString(), "body_stop=$anim")
+        }
+
+        override fun setHeldModel(cast: CastRef, caster: UUID, model: String) {
+            seen("gameplay.setHeldModel", cast)
+            add("effect", caster.toString(), "held_model=$model")
+        }
+
+        override fun clearHeldModel(cast: CastRef, caster: UUID) {
+            seen("gameplay.clearHeldModel", cast)
+            add("effect", caster.toString(), "held_model_clear")
         }
 
         override fun hurt(cast: CastRef, target: UUID, from: Vec3) {

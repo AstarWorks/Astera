@@ -6391,6 +6391,19 @@
                         },
                         "op": {
                             "const": "display"
+                        },
+                        "shader_effect": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^\\S+$"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "kind item: isolated effect id from content/shader-patches/effects; excludes brightness",
+                            "default": null
                         }
                     }
                 },

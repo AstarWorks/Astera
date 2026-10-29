@@ -74,7 +74,7 @@ public object GroupUnroller {
                 InstanceId(base.self.path + InstanceId.Segment(node.id, index)),
                 if (sched.indexed) Occurrence(k, sched.ticks.size, base.occurrence) else base.occurrence,
                 base.clockOffset + s, base.anchors, base.frames, base.parts, base.skills, base.item, base.sprites, base.conditions, base.exprs, base.config, base.seed,
-                base.src,
+                base.src, s - sched.ticks.first(),
             )
             val gate = when (val r = whenGate(node, occ)) {
                 is Result.Success -> r.value
@@ -124,7 +124,7 @@ public object GroupUnroller {
         val compiled = when (ref) {
             is WhenRef.Expr -> ref.compiled
             is WhenRef.Named -> occ.conditions[ref.cond]
-                ?: return fail(SkillDecodeError.UndefinedReference(occ.skillId, occ.src.value + ".when", ref.cond))
+                ?: return fail(SkillDecodeError.UnknownCondition(occ.src.value + ".when", ref.cond, occ.skillId))
         }
         val guard: Guard = when (ref) {
             is WhenRef.Expr -> Guard.Expr(ref.compiled.source)

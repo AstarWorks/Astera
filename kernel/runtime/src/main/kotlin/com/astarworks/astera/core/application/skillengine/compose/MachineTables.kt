@@ -92,6 +92,14 @@ public object MachineTables {
 
         val flat = Flat(LinkedHashMap(), LinkedHashMap())
         flatten(machine, "", flat)?.let { return bad("machine.states", it) }
+        // ADR-0303 10.2: a caller transition on a call is handled by the call's descendants
+        machine.links.forEach { link ->
+            val prefix = link.callPath.replace('.', '/') + "/"
+            // the call's exit states (folded continuation: an immediate transition) have left the call; only running states react
+            val hit = flat.states.filter { (id, st) -> id.startsWith(prefix) && st.on.none { it.event == null && it.afterTicks == 0 } }.keys.toList()
+            if (hit.isEmpty()) return bad("machine.links", "caller transition on '${link.event}' names call '${link.callPath}' which has no running states")
+            hit.forEach { id -> flat.states[id] = flat.states.getValue(id).let { it.copy(on = it.on + link.transition) } }
+        }
         val all = flat.states
 
         val states = ArrayList<StateTable>()
@@ -174,7 +182,7 @@ public object MachineTables {
             val where = "machine.states.$id"
 
             if (st.forTicks != null && timerTicks(st.forTicks) == null) {
-                return bad("$where.for", "'for' must be a number of ticks known at compile time (C5), got '${st.forTicks}'")
+                return Result.Failure(SkillDecodeError.RuntimeTiming("$where.for", "for", "'for' must be a number of ticks known at compile time (C5), got '${st.forTicks}'; write until: / range: instead", skillId))
             }
             val forTicks = timerTicks(st.forTicks)
             if (forTicks != null && forTicks < 0) return bad("$where.for", "'for' must be >= 0")
@@ -257,21 +265,35 @@ public object MachineTables {
             }
             states += StateTable(path, duration, st.then?.let(::StatePath), st.final, rows, branches)
         }
-        return Result.Success(MachineLowering(states, subs, instances, writes, emitted, worldRows))
+        // the table has no start field: the first state is the entry (StaticChecks reachability, the player). A part call as `machine.start` is
+        // expanded to its child entry path (`guard/parry_window`), which may be declared after other states, so the entry is put first (stable).
+        val entryFirst = states.sortedBy { it.state.value != machine.start }
+        return Result.Success(MachineLowering(entryFirst, subs, instances, writes, emitted, worldRows))
     }
 
-    /** Resolves an `exit.reason` guard on [op] for [reason]: null = drop the op, else the op with the guard removed. */
+    /**
+     * Resolves `exit.reason` guards on [op] for [reason]: null = drop the op, else the op with those guards removed. A guard may be one conjunct
+     * of a top-level `&&` chain (example e: `exit.reason != 'cancel' && dist(...) < range`); the other conjuncts stay as the runtime `when` (10.2).
+     */
     internal fun resolveReason(op: OpMap, reason: ExitReason): OpMap? {
         val w = op["when"] as? String ?: return op
         val name = reason.name.lowercase()
-        reasonTest.matchEntire(w.trim())?.let { m ->
-            val eq = m.groupValues[1] == "=="
-            return if ((m.groupValues[2] == name) == eq) op - "when" else null
+        val parts = w.trim().removePrefix("=").trim().split("&&").map { it.trim() }
+        val kept = ArrayList<String>()
+        for (part in parts) {
+            val c = "= $part"
+            val test = reasonTest.matchEntire(c)
+            val inn = reasonIn.matchEntire(c)
+            when {
+                test != null -> if ((test.groupValues[2] == name) != (test.groupValues[1] == "==")) return null
+                inn != null -> if (name !in inn.groupValues[1].split(',').map { it.trim().trim('\'') }) return null
+                else -> kept += part
+            }
         }
-        reasonIn.matchEntire(w.trim())?.let { m ->
-            val set = m.groupValues[1].split(',').map { it.trim().trim('\'') }
-            return if (name in set) op - "when" else null
+        return when {
+            kept.size == parts.size -> op
+            kept.isEmpty() -> op - "when"
+            else -> op + ("when" to ("= " + kept.joinToString(" && ")))
         }
-        return op
     }
 }

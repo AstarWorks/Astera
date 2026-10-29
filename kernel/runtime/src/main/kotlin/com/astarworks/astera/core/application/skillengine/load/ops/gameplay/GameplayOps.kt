@@ -16,6 +16,7 @@ import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.TargetRef
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.table.Action
+import com.astarworks.astera.core.application.skillengine.compose.AnchorNames
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.Num
 import com.astarworks.astera.core.domain.skillengine.table.OpId
@@ -128,10 +129,11 @@ internal object GameplayOps {
     }
 
     /** Any vector value as a table cell: a literal is known, `${p}` / `= expr` are read live at play time. */
-    fun liveVec(v: Value<Vec3>): Val<Vec3> = when (v) {
-        is Value.Literal -> Val.Known(v.value)
-        is Value.ParamRef -> Val.Live<Vec3>("\${${v.name}}", null)
-        is Value.Expr -> Val.Live<Vec3>("= ${v.source}", null)
+    fun liveVec(v: Value<Vec3>): Val<Any> = when (v) {
+        // the player reads vector cells as the skillengine math Vector3d (CasterMotion.vec3 does the same), never the domain Vec3
+        is Value.Literal -> Val.Known(com.astarworks.astera.core.domain.skillengine.math.Vector3d(v.value.x, v.value.y, v.value.z))
+        is Value.ParamRef -> Val.Live<Any>("\${${v.name}}", null)
+        is Value.Expr -> Val.Live<Any>("= ${v.source}", null)
     }
 
     /** Whole-number value from a literal (stacks). */
@@ -146,8 +148,12 @@ internal object GameplayOps {
 
     /** Resolves a frame / anchor name to the instance it stands for in this occurrence. */
     fun anchor(name: String, lc: LowerContext, path: String): Result<InstanceId, SkillDecodeError> {
-        val r = lc.anchors.resolve(name) ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, name))
-        return Result.Success(r.instance)
+        val r = lc.anchors.resolve(name)
+        if (r != null) return Result.Success(r.instance)
+        // ADR-0303 1: a document `anchors:` entry is not a frame instance, but it is a valid anchor name; it stands for itself by id
+        val doc = AnchorNames.split(name)?.base?.takeIf { lc.anchors.document(it) != null }
+            ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, name))
+        return Result.Success(InstanceId(listOf(InstanceId.Segment(OpId(doc), null))))
     }
 
     fun anchors(names: List<String>, lc: LowerContext, path: String): Result<List<InstanceId>, SkillDecodeError> {

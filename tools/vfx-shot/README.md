@@ -1,12 +1,14 @@
 # vfx-shot
 
+撮影結果の閲覧は `make skill-compare-up` → http://192.168.11.5:8097/captures。スキル比較・VFX サンプル・ライブも同じナビゲーションから開く。
+
 Film one skill cast with a **real Minecraft client** (headless: Xvfb + llvmpipe software GL) against an
 Astera server, so VFX can be judged as a player sees them. Scripts only; compile-only Gradle tasks run on the host.
 
 ```
-make vfx-shot SKILL=couture-rapier-s2                     # all three views, 60 ticks (640x360)
+make vfx-shot SKILL=couture-rapier-s2                     # all three views, 60 ticks (1920x1080 by default)
 make vfx-shot SKILL=bastion-greatsword-s3 VIEW=caster TICKS=100
-SKILL=bastion-greatsword-s1 ITEM=bastion-greatsword VIEW=compare CASE=bastion-greatsword-s1 make vfx-shot   # 1280x720, case camera
+SKILL=bastion-greatsword-s1 ITEM=bastion-greatsword VIEW=compare CASE=bastion-greatsword-s1 make vfx-shot   # 1920x1080, case camera
 make vfx-shot SKILL=... BEAT_TICKS=case                   # only the PNGs of the case's beat ticks
 SHOT_KEEP=1 make vfx-shot SKILL=...                       # keep the stack + parked clients warm for the next capture (SHOT_KEEP_TTL)
 make vfx-shot-up [VIEW=compare CASE=<case>]               # create/refresh a kept stack and park the clients, no capture
@@ -93,7 +95,7 @@ Output: `build/vfx-shot/<skill>/<view>/`
 
 | file | what |
 |---|---|
-| `frame_NNN.png` | NNN = ticks after the cast (20 fps, so 1 frame = 1 tick); 640x360 for caster/opponent/side, 1280x720 for compare (`RES=` overrides). With `BEAT_TICKS` only the beat frames exist (frame_NNN keeps its number) |
+| `frame_NNN.png` | NNN = ticks after the cast (20 fps, so 1 frame = 1 tick); 1920x1080 for all skill views (`RES=` overrides). With `BEAT_TICKS` only the beat frames exist (frame_NNN keeps its number) |
 | `frame_NNN.webp` | 転送用の軽量プレビュー。原寸PNGは比較・計測用に保持する |
 | `sheet.png` | contact sheet, 6 columns, every `SHEET_STEP`-th tick labelled `t+N` |
 | `<skill>-<view>.gif` / `.mp4` | the same frames as a loop (gif 640 px wide); not written with `BEAT_TICKS` |
@@ -242,7 +244,7 @@ from the side on the caster's own skin, use the demo skill that plays it:
 make vfx-shot SKILL=anim-demo-sword-swing VIEW=side TICKS=40        # 12 ticks of motion + 3 blend-out, 40 leaves a tail
 ```
 
-`VIEW=side` puts a spectator `Watcher` 6 blocks away looking at the caster (a second real client), which is the
+`VIEW=side` puts a spectator `Watcher` at a distance derived from FOV and `DISTANCE`, looking at the caster/target midpoint (a second real client), which is the
 third-person footage needed to judge the rig. Check, frame by frame: the rig appears with no pop at `t+0` (rest pose
 equals the vanilla body), the head / torso / both arms / both legs show the right parts of the skin (not the head
 texture stretched over every bone), the held item sits in the right hand, and the real body is back after ~15 ticks.
@@ -279,7 +281,7 @@ Read the result in the browser: `make skill-compare` -> `/anim` (see `tools/skil
 ## Knobs (env)
 
 `VIEW`, `TICKS`, `ITEM` (default: skill id minus `-sN`/`-def`), `TIME_OF_DAY` (6000), `DISTANCE` (4),
-`RES` (default 1280x720 for compare, 640x360 for the other views), `GUI_SCALE` (1), `BEAT_TICKS`,
+`RES` (default 1920x1080 for skill views; anim-shot defaults to 1280x720), `GUI_SCALE` (1), `BEAT_TICKS`,
 `SETTLE_WARM` (2 s, scene settle when both clients were already parked), `SHOT_KEEP` (0), `SHOT_KEEP_TTL` (= `SHOT_TIMEOUT`), `SHOT_TIMEOUT` (2700 s),
 `SHOT_SLOTS` (1), `SHOT_LOCK` (`/tmp/claude-1000/astera-vfx-shot.lock`), `SHOT_REAP_SCOPE` (host | self | off), `SHOT_REAP_DRY`, `SHOT_DETACHED`,
 `SHOT_CLIENT_XMX` (client heap, 1536m), `SHOT_MIN_FREE_GB` (8), `SHOT_MEM_WAIT` (900 s),

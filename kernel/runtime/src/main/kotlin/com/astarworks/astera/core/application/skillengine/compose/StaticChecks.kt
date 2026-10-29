@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
 import com.astarworks.astera.core.domain.skillengine.table.Action
+import com.astarworks.astera.core.domain.skillengine.table.CancelScope
 import com.astarworks.astera.core.domain.skillengine.table.Branch
 import com.astarworks.astera.core.domain.skillengine.table.Callee
 import com.astarworks.astera.core.domain.skillengine.table.Duration
@@ -185,6 +186,11 @@ public object StaticChecks {
         for (u in g.units) {
             val scope = g.spawnScope(u.owner)
             for (row in u.rows) {
+                // ADR-0303 line 817: a cancel name that resolves to nothing (siblings, then outward) is a load error
+                val cancelled = ((row.action as? Action.Cancel)?.scope as? CancelScope.Instance)?.id
+                if (cancelled != null && cancelled.path.isNotEmpty() && scope.none { covers(cancelled, it) }) {
+                    return SkillDecodeError.UndefinedReference(g.skillId, "${row.src.value}.cancel", cancelled.text)
+                }
                 val target: InstanceId = when (val a = row.action) {
                     is Action.Key -> a.display
                     is Action.Teleport -> a.display
@@ -206,7 +212,7 @@ public object StaticChecks {
 
     // ---- check 5: events have producers ----
 
-    private val GLOBAL_EVENTS = setOf("cancel", "end", "hurt", "hit", "block", "timer", "input", "contact", "expire")
+    private val GLOBAL_EVENTS = setOf("cancel", "end", "hurt", "hit", "block", "timer", "input", "contact", "expire", "bounce", "stick", "unstick")
     private val INSTANCE_EVENTS = setOf("hit", "block", "end", "bounce", "stick", "unstick", "expire", "arrive", "pass", "despawn")
 
     private fun check5(g: TableGraph): SkillDecodeError? {
@@ -217,6 +223,8 @@ public object StaticChecks {
             is Action.Emit -> emitted += a.event.value
             is Action.Spawn -> instances += row.instance.text
             is Action.Call -> { instances += a.callId.text; calls += a.callId.text }
+            // reel / dash / rig / body start as an Effect on their own instance and produce `<id>.end` (ADR-0303 10.1, R14)
+            is Action.Effect -> instances += row.instance.text
             else -> {}
         }
         for (b in g.allBranches()) {
@@ -228,6 +236,8 @@ public object StaticChecks {
                 val suffix = e.substring(dot + 1)
                 val known = instances.any { it == base || it.startsWith("$base/") }
                 if (known && (suffix in INSTANCE_EVENTS || base in calls)) continue
+                // ADR-0303 10.2: the player publishes `<parent>.end` once every `parallel` region of a state with children is final
+                if (suffix == "end" && g.stateByPath[base]?.let { g.children(it).isNotEmpty() } == true) continue
             }
             return SkillDecodeError.TableClosure(e, "no producer in scope (built-in of a spawned op, a part's emits, or an emit:)", g.skillId)
         }
@@ -502,6 +512,8 @@ public object StaticChecks {
                 is Action.Spawn -> out += r.instance
                 is Action.Call -> out += a.callId
                 is Action.Lock -> out += r.instance
+                // `body` / `rig` in `world:` start with an Effect on their own instance (R45), like the state-level rows below
+                is Action.Effect -> out += r.instance
                 else -> {}
             }
             var path: String? = owner.value

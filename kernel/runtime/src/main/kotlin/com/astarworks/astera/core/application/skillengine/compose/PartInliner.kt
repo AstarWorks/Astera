@@ -172,7 +172,7 @@ public object PartInliner {
 internal class ParamSubst(private val env: Map<String, Any?>, private val strict: Boolean) {
     var missing: String? = null
 
-    fun machine(m: Machine): Machine = m.copy(states = m.states.mapValues { (_, s) -> state(s) })
+    fun machine(m: Machine): Machine = m.copy(states = m.states.mapValues { (_, s) -> state(s) }, world = ops(m.world))
 
     private fun state(s: MachineState): MachineState = s.copy(
         forTicks = any(s.forTicks),

@@ -28,6 +28,9 @@ import org.bukkit.Server
 import org.bukkit.entity.LivingEntity
 import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
 import com.astarworks.astera.core.domain.skillengine.math.Vector3d
+import com.astarworks.astera.core.application.skillengine.runtime.player.EntityQueryExprHost
+import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
+import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillEntityQuery
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -42,6 +45,7 @@ public class PaperLiveValueSource(
     private val server: Server,
     private val scheduler: IScheduler,
     private val gameplay: ISkillGameplayGateway,
+    private val query: ISkillEntityQuery,
 ) : LiveValueSource {
     private val requests = ConcurrentHashMap<CastHandle, CastRequest>()
     private val compiler = CelExprCompiler()
@@ -57,9 +61,13 @@ public class PaperLiveValueSource(
     /** Drops the casts that ended; [live] is the player's running set. */
     public fun retain(live: Set<CastHandle>) {
         requests.keys.retainAll(live)
+        casterSamples.keys.removeIf { it.first !in live }
     }
 
     public fun envSpec(): ExprEnvSpec = spec
+
+    /** The CEL host of [cast] at the event [binding]: `stacks`, `nearest_enemy_dist`, `enemy_in_cone` (guards and live cells share it). */
+    public fun exprHost(cast: CastHandle, binding: EventBinding?): ExprHost = StackHost(request(cast), cast, binding)
 
     /** The CEL variables of [cast] at the event [binding] (`contact.*`, `target.*`, `cast.t`, `state.t`). */
     public fun variables(cast: CastHandle, binding: EventBinding?, castTick: Int, stateTick: Int): Map<String, ExprValue> =
@@ -70,7 +78,19 @@ public class PaperLiveValueSource(
             eventI = binding?.index ?: 0,
             contact = contactOf(binding),
             target = victimOf(binding),
+            extra = entityState("caster", server.getEntity(request(cast).caster) as? LivingEntity) +
+                entityState("target", binding?.victim?.id?.let { server.getEntity(it) as? LivingEntity }),
         )
+
+    /** `<root>.on_ground` / `<root>.health_ratio` (3.8 conditions); absent entity = the neutral values of [V3Bindings.values]. */
+    private fun entityState(root: String, e: LivingEntity?): Map<String, ExprValue> {
+        if (e == null || !e.isValid) return emptyMap()
+        val max = e.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value ?: 20.0
+        return mapOf(
+            "$root.on_ground" to ExprValue.Bool(e.isOnGround),
+            "$root.health_ratio" to ExprValue.Num(if (max > 0.0) (e.health / max).coerceIn(0.0, 1.0) else 0.0),
+        )
+    }
 
     public fun frames(cast: CastHandle, binding: EventBinding? = null): FrameLookup {
         val request = request(cast)
@@ -93,8 +113,41 @@ public class PaperLiveValueSource(
                 }
             }
 
-            override fun velocity(frame: String, point: String?): Vec3 = Vec3.ZERO
+            override fun velocity(frame: String, point: String?): Vec3 {
+                if (frame != CASTER) return Vec3.ZERO
+                val p = casterPose(request)
+                val now = when (point) {
+                    null, "feet", "look" -> p.feet
+                    "eye" -> p.eye
+                    else -> return Vec3.ZERO
+                }
+                return casterVelocity(cast, point ?: "", now)
+            }
         }
+    }
+
+    private class Sample(var tick: Long, var pos: Vec3, var velocity: Vec3)
+
+    private val casterSamples = ConcurrentHashMap<Pair<CastHandle, String>, Sample>()
+
+    /**
+     * Velocity (blocks per tick) of a caster-anchored point from the pose of the previous sampled tick: `(pos(now) - pos(last)) / ticks between`.
+     * The first sample of a cast answers ZERO; asking again within the same tick repeats the answer.
+     */
+    private fun casterVelocity(cast: CastHandle, point: String, now: Vec3): Vec3 {
+        val tick = scheduler.currentTick()
+        val key = cast to point
+        val s = casterSamples[key]
+        if (s == null) {
+            casterSamples[key] = Sample(tick, now, Vec3.ZERO)
+            return Vec3.ZERO
+        }
+        if (tick == s.tick) return s.velocity
+        val dt = (tick - s.tick).coerceAtLeast(1L).toDouble()
+        s.velocity = Vec3((now.x - s.pos.x) / dt, (now.y - s.pos.y) / dt, (now.z - s.pos.z) / dt)
+        s.pos = now
+        s.tick = tick
+        return s.velocity
     }
 
     override fun vec(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Vector3d {
@@ -232,16 +285,33 @@ public class PaperLiveValueSource(
         }
         val env = ExprEnv(
             variables = vars,
-            frames = frames(cast),
+            frames = withInstances(frames(cast), scope.frames),
             seed = scope.seed,
             castSeed = scope.castSeed,
-            host = StackHost(request, binding),
+            host = StackHost(request, cast, binding),
         )
         return expr.eval(env)
     }
 
+    /** The caster / contact frames first, then the cast's own frame / projectile instances ([inst], from the row's scope). */
+    private fun withInstances(base: FrameLookup, inst: FrameLookup?): FrameLookup {
+        if (inst == null) return base
+        return object : FrameLookup {
+            override fun worldPose(frame: String, point: String?): Frame? = base.worldPose(frame, point) ?: inst.worldPose(frame, point)
+
+            override fun velocity(frame: String, point: String?): Vec3 =
+                if (base.worldPose(frame, point) != null) base.velocity(frame, point) else inst.velocity(frame, point)
+        }
+    }
+
     /** `stacks(entity, status)` reads the gateway; the other host reads are not served on Paper yet and fail loudly. */
-    private inner class StackHost(private val request: CastRequest, private val binding: EventBinding?) : ExprHost {
+    private inner class StackHost(private val request: CastRequest, cast: CastHandle, private val binding: EventBinding?) : ExprHost {
+        private val world = EntityQueryExprHost(query, CastRef(cast.value, request.caster, request.world, request.skill.def.item))
+
+        override fun nearestEnemyDist(from: Vec3): Double = world.nearestEnemyDist(from)
+
+        override fun enemyInCone(from: Vec3, dir: Vec3, range: Double, halfAngleDeg: Double): Boolean = world.enemyInCone(from, dir, range, halfAngleDeg)
+
         override fun stacks(entity: ExprValue.Ref, status: String): Double {
             val id = when (entity.name) {
                 CASTER -> request.caster
