@@ -20,6 +20,13 @@ public object V3Bindings {
     public val BUILTIN_FRAMES: Set<String> = setOf("caster", "target", "victim", "contact", "world", "enemy", "from")
 
     private val BINDING_VEC3 = listOf("pos", "forward", "eye")
+
+    /** Named points of a built-in entity frame, served live by the host's FrameLookup: `pos(caster.eye)` is the caster's live eye position. */
+    public val CASTER_POINTS: Set<String> = setOf("feet", "eye", "center", "look")
+    public val VICTIM_POINTS: Set<String> = setOf("feet", "root", "body", "eye", "center")
+
+    /** The dotted frames [spec] adds (`caster.eye`, `victim.center`, ...): each is a Ref carrying the point. */
+    private val POINT_FRAMES: Set<String> = CASTER_POINTS.map { "caster.$it" }.toSet() + VICTIM_POINTS.map { "victim.$it" }.toSet()
     private val CONTACT_ONLY_VEC3 = listOf("normal", "point")
 
     /** Entity state read live from the cast's caster / the event's target (3.8: `caster.on_ground`, `caster.health_ratio`); a neutral value until the host supplies it through `extra`. */
@@ -63,7 +70,7 @@ public object V3Bindings {
         }
         v["event.victim"] = ExprType.VEC3
         v["event.attacker"] = ExprType.VEC3
-        return ExprEnvSpec(v, base.frames + BUILTIN_FRAMES)
+        return ExprEnvSpec(v, base.frames + BUILTIN_FRAMES + POINT_FRAMES)
     }
 
     /** Values for [spec]; any argument left null is bound to a neutral value (0, "", ZERO), which only the classifier-checked S paths read. */

@@ -358,6 +358,20 @@ internal object CelFunctions {
                         ?: return "ease(name, t): the name must be a string literal"
                     if (EaseCurves.parse(name) == null) return "ease: unknown easing '$name' (ADR-0303 3.7)"
                 }
+                if (call.function() == "point") {
+                    val ref = call.args().getOrNull(0)
+                    val point = call.args().getOrNull(1)
+                    val root = ref?.takeIf { it.getKind() == CelExpr.ExprKind.Kind.IDENT }?.ident()?.name()
+                    val known = when (root) {
+                        "caster" -> V3Bindings.CASTER_POINTS
+                        "victim", "target" -> V3Bindings.VICTIM_POINTS
+                        else -> null
+                    }
+                    val lit = point?.takeIf { it.getKind() == CelExpr.ExprKind.Kind.CONSTANT && it.constant().getKind() == CelConstant.Kind.STRING_VALUE }?.constant()?.stringValue()
+                    if (known != null && lit != null && lit !in known) {
+                        return "point($root, \"$lit\"): '$lit' is not a point of $root (one of ${known.joinToString(", ")})"
+                    }
+                }
                 if (call.function() == "part_point") {
                     val point = call.args().getOrNull(1)
                     if (point == null || point.getKind() != CelExpr.ExprKind.Kind.CONSTANT || point.constant().getKind() != CelConstant.Kind.STRING_VALUE) {

@@ -87,6 +87,8 @@ public class CelExprCompiler : ExprCompiler {
             "'_%_'" in issue.message -> ": '%' is integer-only in CEL; write mod(a, b) (or int(a) % int(b))"
             "undeclared reference to 'victim'" in issue.message ->
                 ": 'victim' is only bound inside a hit handler (on: {hit: [...]}) or a transition on a hurt event"
+            "type 'ref' does not support field selection" in issue.message ->
+                ": a frame has only the points caster.{${V3Bindings.CASTER_POINTS.joinToString(", ")}} and victim.{${V3Bindings.VICTIM_POINTS.joinToString(", ")}}; the point named after the dot is not one of them"
             else -> ""
         }
         return ExprError.Type(issue.message + hint, col)
