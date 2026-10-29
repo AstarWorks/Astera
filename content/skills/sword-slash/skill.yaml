@@ -18,13 +18,12 @@ anchors:
   - {id: sweep_pt, anchor: caster, offset: {up: -0.3, forward: 1.6}, mode: follow}
   - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}   # was pt_enemy_0_1p2_0 (victim feet, yaw-only)
 machine:
-  start: cast
+  start: windup
   tail: 9
   states:
-    cast:
-      start: windup
-      on:
-        - {event: end, to: done}
+    windup:
+      for: 3
+      then: strike
       do:
         - id: rig
           op: rig
@@ -38,35 +37,27 @@ machine:
             - {at: 0, for: 2, from: {left: -0.1, up: 0.8, forward: 0.6}, to: {left: -0.9, up: 0.4, forward: 0.1}, edge: trailing, ease: in_out_sine}
             - {at: 2, for: 4, to: {left: 0.9, up: -0.15, forward: 0.5}, edge: leading, roll: 20, ease: out_cubic}
             - {at: 6, for: 6, to: {left: 0.0, up: 0.6, forward: 0.7}, edge: trailing, ease: in_out_sine}
-        - {id: snd, op: sound, at: 3, sound: "astera:weapons/sword-swing", anchor: caster, detach: true}
-        - {id: fx, op: particle_def, at: 3, def: slash-sweep, anchor: sweep_pt, detach: true}
-        - id: trail
-          op: group
-          at: 2
-          detach: true
-          do:
-            - {id: trail_fx, op: particle, particle: crit, anchor: {of: rig.root, to: rig.tip, samples: 6}, count: 1, extra: 0.05, every: 1, for: 7}
-      states:
-        windup: {for: 3, then: strike}
-        strike:
-          for: 2   # v2 cast length; the miss cue lands at hit + 2
-          then: recover
-          do:
-            - id: swing
-              op: hit
-              at: 0
-              anchor: caster.eye
-              shape: {sector: {deg: 100, range: 3.5, height: 2.0, forward: look}}
-              targets: enemies
-              ignore_invulnerability: false
-              damage: {physical: "${dmg}"}
-              window: once
-              on:
-                hit:
-                  - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 0.4}
-                  - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, detach: true}
-                  - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
-                miss:
-                  - {id: snd_miss, op: sound, at: 2, sound: "astera:weapons/blade-miss", anchor: caster, detach: true}
-        recover: {final: true}
-    done: {final: true}
+    strike:
+      for: 2
+      then: end
+      enter:
+        - id: swing
+          op: hit
+          at: 0
+          anchor: caster.eye
+          shape: {sector: {deg: 100, range: 3.5, height: 2.0, forward: look}}
+          targets: enemies
+          ignore_invulnerability: false
+          damage: {physical: "${dmg}"}
+          window: once
+          on:
+            hit:
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 0.4}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, detach: true}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
+            miss:
+              - {id: snd_miss, op: sound, at: 2, sound: "astera:weapons/blade-miss", anchor: caster, detach: true}
+        - {id: snd, op: sound, at: 0, sound: "astera:weapons/sword-swing", anchor: caster, detach: true}
+        - {id: fx, op: particle_def, at: 0, def: slash-sweep, anchor: sweep_pt, detach: true}
+        - {id: trail_fx, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 6}, count: 1, extra: 0.05, at: 0, every: 1, for: 7, detach: true}
+    end: {final: true}

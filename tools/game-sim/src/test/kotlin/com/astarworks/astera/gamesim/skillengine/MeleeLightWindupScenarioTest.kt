@@ -56,9 +56,7 @@ class MeleeLightWindupScenarioTest : SkillEngineScenario() {
             rec.victims = listOf(HitCandidate(UUID(0L, 11L), Vec3(0.0, 0.0, 0.5), 0.0, HitBox(Vec3(-0.3, 0.0, 0.2), Vec3(0.3, 1.8, 0.8)), 1.62))
             val calls = play(compiled, seed = 3L, events = emptyList(), ticks = 30, rec = rec)
             val damage = calls.filter { it.verb == "damage" }.map { it.tick }
-            val castEnd = tickOf(rec.trace, "enter:cast/recover@")
-            val castExit = tickOf(rec.trace, "exit:cast:")
-            if (castExit != castEnd) failures += "$id: the cast machine exits at $castExit, not with its last state ($castEnd)"
+            val castEnd = tickOf(rec.trace, "enter:end@")
             val trailAfter = calls.count { it.verb == "particle" && "type=crit" in it.payload && it.tick > castEnd }
             val rigAfter = calls.count { it.verb == "write" && it.tick > castEnd }
             if (damage.firstOrNull() != w) failures += "$id: first damage at ${damage.firstOrNull()} (want W=$w), all=$damage"

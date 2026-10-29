@@ -14,13 +14,12 @@ anchors:
   - {id: stab_pt, anchor: caster, offset: {up: -0.2, forward: 1.4}, mode: follow}  # v2 pt_caster (feet, yaw-only)
   - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}
 machine:
-  start: cast
+  start: windup
   tail: 9
   states:
-    cast:
-      start: windup
-      on:
-        - {event: end, to: done}
+    windup:
+      for: 2
+      then: strike
       do:
         - id: rig
           op: rig
@@ -35,34 +34,26 @@ machine:
             - {at: 2, for: 3, to: {left: 0.85, up: -0.1, forward: 0.5}, edge: leading, roll: 15, ease: out_cubic}
             - {at: 5, for: 3, to: {left: -0.7, up: 0.2, forward: 0.65}, edge: trailing, ease: out_cubic}
             - {at: 8, for: 3, to: {left: 0.0, up: 0.5, forward: 0.8}, edge: trailing, ease: in_out_sine}
-        - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 1.0, pitch: 1.7, at: 2, detach: true}
-        - {id: fx, op: particle_def, def: stab-spark, anchor: stab_pt, at: 2, detach: true}
-        - id: trail
-          op: group
-          at: 2
-          detach: true
-          do:
-            - {id: trail_fx, op: particle, particle: crit, anchor: {of: rig.root, to: rig.tip, samples: 5}, count: 1, extra: 0.04, every: 1, for: 6}
-      states:
-        windup: {for: 2, then: strike}
-        strike:
-          for: 1
-          then: recover
-          enter:
-            - id: swing
-              op: hit
-              at: 0
-              anchor: caster.eye
-              shape: {sector: {deg: 70, range: 2.5, height: 2.0, forward: look}}
-              targets: enemies
-              ignore_invulnerability: false
-              damage: {physical: 18.0}
-              window: once
-              on:
-                hit:
-                  - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 0.1}
-                  - {id: bleed, op: status, target: event.victim, status: bleed, stacks: 1, for: 80, when: "= rand() < 0.4"}
-                  - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2, detach: true}
-                  - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
-        recover: {final: true}
-    done: {final: true}
+    strike:
+      for: 1
+      then: end
+      enter:
+        - id: swing
+          op: hit
+          at: 0
+          anchor: caster.eye
+          shape: {sector: {deg: 70, range: 2.5, height: 2.0, forward: look}}
+          targets: enemies
+          ignore_invulnerability: false
+          damage: {physical: 18.0}
+          window: once
+          on:
+            hit:
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 0.1}
+              - {id: bleed, op: status, target: event.victim, status: bleed, stacks: 1, for: 80, when: "= rand() < 0.4"}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2, detach: true}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
+        - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 1.0, pitch: 1.7, at: 0, detach: true}
+        - {id: fx, op: particle_def, def: stab-spark, anchor: stab_pt, at: 0, detach: true}
+        - {id: trail_fx, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 5}, count: 1, extra: 0.04, at: 0, every: 1, for: 6, detach: true}
+    end: {final: true}

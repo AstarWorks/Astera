@@ -17,13 +17,12 @@ params:
 anchors:
   - {id: feet, anchor: caster, offset: {up: 0.2}, mode: snapshot}                  # was pt_caster_0_0p2_0
 machine:
-  start: cast
-  tail: 9
+  start: windup
+  tail: 11
   states:
-    cast:
-      start: windup
-      on:
-        - {event: end, to: done}
+    windup:
+      for: 3
+      then: dash
       do:
         - id: rig
           op: rig
@@ -37,36 +36,28 @@ machine:
             - {at: 0, for: 3, from: {left: 0.1, up: 0.2, forward: 0.9}, to: {left: -0.3, up: -0.4, forward: 0.4}, edge: trailing, ease: in_out_sine}
             - {at: 3, for: 4, to: {left: 0.5, up: -0.1, forward: 0.85}, edge: leading, ease: out_cubic}
             - {at: 7, for: 7, to: {left: 0.0, up: 0.5, forward: 0.85}, edge: trailing, ease: in_out_sine}
-        - id: trail
-          op: group
-          at: 3
-          detach: true
-          do:
-            - {id: trail_fx, op: particle, particle: crit, anchor: {of: rig.root, to: rig.tip, samples: 6}, count: 1, extra: 0.04, every: 1, for: 8}
-      states:
-        windup: {for: 3, then: dash}
-        dash:
+    dash:
+      for: "= ${dash_ticks}"
+      then: end
+      enter:
+        - {id: snd_dash, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.1, detach: true}
+        - {id: fx_dash, op: particle_def, def: dash-cloud, anchor: feet, detach: true}
+        - {id: lunge, op: dash, speed: "= ${dash_distance} / ${dash_ticks}", for: "= ${dash_ticks}", direction: {forward: 1}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
+        # v2 dash_strike corridor: capsule radius 1.0, hit_once, no early end (the dash runs through everyone).
+        - id: strike
+          op: hit
+          anchor: caster.body
+          at: 0
+          every: 1
           for: "= ${dash_ticks}"
-          then: recover
-          enter:
-            - {id: snd_dash, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.1, detach: true}
-            - {id: fx_dash, op: particle_def, def: dash-cloud, anchor: feet, detach: true}
-            - {id: lunge, op: dash, speed: "= ${dash_distance} / ${dash_ticks}", for: "= ${dash_ticks}", direction: {forward: 1}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
-            # v2 dash_strike corridor: capsule radius 1.0, hit_once, no early end (the dash runs through everyone).
-            - id: strike
-              op: hit
-              anchor: caster.body
-              at: 0
-              every: 1
-              for: "= ${dash_ticks}"
-              shape: {sphere: 1.0}
-              targets: enemies
-              max_count: all
-              window: once
-              ignore_invulnerability: false
-              damage: {physical: "= ${dmg_physical}"}
-              on:
-                hit:
-                  - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 1.0, pitch: 1.0, detach: true}
-        recover: {final: true}
-    done: {final: true}
+          shape: {sphere: 1.0}
+          targets: enemies
+          max_count: all
+          window: once
+          ignore_invulnerability: false
+          damage: {physical: "= ${dmg_physical}"}
+          on:
+            hit:
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 1.0, pitch: 1.0, detach: true}
+        - {id: trail_fx, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 6}, count: 1, extra: 0.04, at: 0, every: 1, for: 8, detach: true}
+    end: {final: true}
