@@ -31,8 +31,15 @@ public data class Intrinsic(val unit: Vec3, val centre: Vec3 = Vec3.ZERO) {
         /** `block_display`: one block per scale unit; its origin is a corner, so the middle of what is drawn is half a unit toward +x +y +z. */
         public val BLOCK: Intrinsic = Intrinsic(Vec3(1.0, 1.0, 1.0), Vec3(-0.5, -0.5, -0.5))
 
-        /** Ribbon scale units per block of length and thickness; the one-line text quad of MC 26.3, calibrated against a client capture. */
-        public const val SOLID_SCALE_X: Double = 8.0
+        /**
+         * Ribbon scale units per block of length and thickness (the one-line text quad of MC 26.3).
+         * Width: the background of `Component.text(" ")` is not the 5 px a space advances (the v1 derivation of ADR-0220): a real client
+         * (vfx-shot, 1080p side view, `rifle-shot` and a 4.0 block / 2.0 block probe line) drew 0.42-0.45 of the asked length at 8 units
+         * per block, i.e. the box is [SOLID_BOX_PX_X] = 2.34 px wide (fitted over two probe lines), so one block of length is `1 / (2.34 * 0.025)` scale units.
+         * Re-measured after the change: see /tmp/claude-1000/skill-engine/shots-i12/line-length. Height: 10 px = 0.25 block, 4 per block.
+         */
+        public const val SOLID_BOX_PX_X: Double = 2.34
+        public const val SOLID_SCALE_X: Double = 1.0 / (SOLID_BOX_PX_X * 0.025)
         public const val SOLID_SCALE_Y: Double = 4.0
         public const val CENTER_X_PER_SCALE: Double = 0.0125
         public const val CENTER_Y_PER_SCALE: Double = 0.125
