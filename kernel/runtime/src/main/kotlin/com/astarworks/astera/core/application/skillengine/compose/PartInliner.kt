@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.skillengine.compose
 
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.part.PartExpander
+import com.astarworks.astera.core.application.skillengine.part.TickFields
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
 import com.astarworks.astera.core.domain.skillengine.model.SkillDef
@@ -53,6 +54,7 @@ public object PartInliner {
         val rootEnv = LinkedHashMap<String, Any?>()
         for ((name, spec) in def.params) if (spec.default != null) rootEnv[name] = spec.default
         val rootMachine = ParamSubst(rootEnv, strict = false).machine(def.machine)
+        TickFields.checkFolded(def.id, rootMachine, "machine")?.let { return Result.failure(it) }
         if (rootMachine.states.isEmpty()) return Result.success(Inlined(def.copy(machine = rootMachine), 0))
         val resolved = LinkedHashMap<String, Part>()
         val scope = HashSet(AnchorNames.BUILTIN_FRAMES).apply {
@@ -92,6 +94,7 @@ public object PartInliner {
         subst.missing?.let {
             return Result.failure(SkillDecodeError.UndefinedReference(skillId, "$at.with", "\${$it} (part '${part.id}' has no such param)"))
         }
+        TickFields.checkFolded(skillId, machine, "$at.part:${part.id}")?.let { return Result.failure(it) }
         return Result.success(part.copy(params = emptyMap(), machine = machine))
     }
 
