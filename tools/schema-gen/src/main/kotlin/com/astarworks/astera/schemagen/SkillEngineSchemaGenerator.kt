@@ -134,9 +134,11 @@ object SkillEngineSchemaGenerator {
             ),
         )
         val envelope = obj(
-            listOf("apiVersion", "kind", "id", "machine"),
+            listOf("apiVersion", "kind", "id"),
             linkedMapOf(
                 "apiVersion" to linkedMapOf("const" to "astera/v3"),
+                "extends" to string,
+                "with" to linkedMapOf("type" to "object"),
                 "kind" to linkedMapOf("const" to "Skill"),
                 "id" to linkedMapOf("type" to "string", "minLength" to 1),
                 "item" to string,
@@ -151,7 +153,12 @@ object SkillEngineSchemaGenerator {
                 "machine" to machine,
             ),
         )
-        return envelope
+        // a tier (extends:) carries item, meta and with only (ADR-0303 9.3); any other skill carries a machine
+        return envelope + linkedMapOf<String, Any?>(
+            "if" to linkedMapOf("required" to listOf("extends")),
+            "then" to linkedMapOf("required" to listOf("meta"), "not" to linkedMapOf("anyOf" to listOf("machine", "params", "anchors", "fragments", "conditions", "frames_in", "emits", "importance").map { linkedMapOf("required" to listOf(it)) })),
+            "else" to linkedMapOf("required" to listOf("machine"), "not" to linkedMapOf("anyOf" to listOf("with").map { linkedMapOf("required" to listOf(it)) })),
+        )
     }
 
     /** Writes `<outputDir>/skill.schema.json` and returns its path. */

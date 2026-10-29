@@ -1,6 +1,7 @@
 apiVersion: astera/v3
 kind: Skill
 id: shovel-excavate-iron
+extends: shovel-excavate-stone
 item: iron-shovel
 meta:
   name: {ja: "鉄の掘削", en: "Iron Excavate"}
@@ -8,14 +9,12 @@ meta:
   cooldown_ticks: 110
   resource_cost: 0
   tags: [tool, cover]
-anchors:
-  - {id: spark, anchor: caster, offset: {forward: 2.0}, mode: follow}
-machine:
-  start: cast
-  states:
-    cast:
-      for: 1
-      then: end
-      do:
-        - {id: excavate, use: shovel-excavate, with: {width: 5, height: 3, length: 4, tier: 2, gravel_pitch: 0.7, dirt_vol: 0.8, dirt_pitch: 0.9}, frames: {spot: spark}}
-    end: {final: true}
+with:
+  width: 5
+  height: 3
+  length: 4
+  gravel_pitch: 0.7
+  dirt_vol: 0.8
+  dirt_pitch: 0.9
+  dirt: true
+  spark: tool-shovel-iron

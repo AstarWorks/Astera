@@ -1,6 +1,7 @@
 apiVersion: astera/v3
 kind: Skill
 id: shovel-excavate-diamond
+extends: shovel-excavate-stone
 item: diamond-shovel
 meta:
   name: {ja: "ダイヤの掘削", en: "Diamond Excavate"}
@@ -8,14 +9,13 @@ meta:
   cooldown_ticks: 80
   resource_cost: 0
   tags: [tool, cover]
-anchors:
-  - {id: spark, anchor: caster, offset: {forward: 2.0}, mode: follow}
-machine:
-  start: cast
-  states:
-    cast:
-      for: 1
-      then: end
-      do:
-        - {id: excavate, use: shovel-excavate, with: {width: 5, height: 4, length: 5, tier: 3, gravel_pitch: 0.6, dirt_vol: 0.9, dirt_pitch: 0.8}, frames: {spot: spark}}
-    end: {final: true}
+with:
+  width: 5
+  height: 4
+  length: 5
+  gravel_pitch: 0.6
+  dirt_vol: 0.9
+  dirt_pitch: 0.8
+  dirt: true
+  flatten: true
+  spark: tool-shovel-diamond

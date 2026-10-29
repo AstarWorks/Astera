@@ -89,6 +89,7 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
             val rel = relativize(path.toString()) ?: continue
             if (!rel.endsWith(".yaml") && !rel.endsWith(".yml")) continue
             docs[rel]?.forEach { affected += it.key }
+            dependencyIndex[rel]?.filterTo(affected) { '@' !in it }
             val fresh = if (Files.isRegularFile(root.resolve(rel))) loadFile(rel, errors) else null
             if (fresh == null) docs.remove(rel) else docs[rel] = fresh
             fresh?.forEach { affected += it.key }
@@ -121,12 +122,12 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
         val out = LinkedHashMap<String, List<ComposedSkill>>()
         for (id in ids) {
             val mine = ordered.filter { it.key == id }
-            composeBase(id, mine, errors)?.let { out[id] = it }
+            composeBase(id, mine, ordered, errors)?.let { out[id] = it }
         }
         return out
     }
 
-    private fun composeBase(id: String, docs: List<Doc>, errors: MutableList<ComposeError>): List<ComposedSkill>? {
+    private fun composeBase(id: String, docs: List<Doc>, all: List<Doc>, errors: MutableList<ComposeError>): List<ComposedSkill>? {
         val skillDocs = docs.filter { it.kind != Doc.Kind.Patch }
         val patches = docs.filter { it.kind == Doc.Kind.Patch && (options.allowGameplayPatches || it.patchKind == PatchKind.SKIN) }
         val errorsBefore = errors.size
@@ -146,6 +147,11 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
         var base: Map<String, Any?> = emptyMap()
         for (d in skillDocs) base = mergeOrFail(base, d, errors) ?: return null
         val sources = skillDocs.map { it.file }.toMutableList()
+        if (base.containsKey("extends") && skillDocs.first().kind == Doc.Kind.Skill) {
+            val derived = Extends.derive(id, base, skillDocs.first().file, all, errors) ?: return null
+            base = derived.tree
+            sources += derived.baseFiles
+        }
         if (skillDocs.first().kind == Doc.Kind.Part) return composePart(id.removePrefix("part:"), base, sources, patches, errors, errorsBefore)
 
         val baseApplied = ArrayList<Doc>()
