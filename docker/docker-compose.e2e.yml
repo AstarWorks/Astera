@@ -81,6 +81,8 @@ services:
       ASTERA_RESOURCE_PACK_SHA1_URL: "http://e2e-resource-pack/astera.zip.sha1"
     volumes:
       - e2e-data:/data
+      # SkillEngineV3E2eTest reload case: the probe skill's directory (baked by docker/e2e-tune-content.sh) is shared with the runner.
+      - e2e-skill-probe:/content/skills/reload-probe
     depends_on:
       e2e-resource-pack:
         condition: service_started
@@ -187,10 +189,13 @@ services:
       - e2e-data:/e2e-server:ro
       # Velocity's latest.log (QA-7): the "no decode errors through the proxy" check reads it.
       - e2e-velocity-data:/e2e-velocity:ro
+      # The reload probe skill's directory, read-write: the reload case rewrites skill.yaml here (the server sees it at /content/skills/reload-probe).
+      - e2e-skill-probe:/e2e-skill-probe
     depends_on:
       e2e:
         condition: service_healthy
 
 volumes:
   e2e-data:
+  e2e-skill-probe:
   e2e-velocity-data:
