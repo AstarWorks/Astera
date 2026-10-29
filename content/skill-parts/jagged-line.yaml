@@ -1,0 +1,29 @@
+# R10 (ADR-0303 wave2): a jagged line of n points along the anchor's forward axis, each point jittered by its own roll.
+# roll_unit is keyed per copy index i, so every point differs while the cast stays deterministic.
+---
+apiVersion: astera/v3
+kind: Part
+id: jagged-line
+params:
+  length:   {type: blocks, required: true}
+  jitter:   {type: blocks, required: true}
+  hold:     {type: ticks,  required: true}
+frames_in: {start: anchor}
+emits: [end]
+machine:
+  start: strike
+  states:
+    strike:
+      for: "= hold"
+      then: end
+      enter:
+        - id: line
+          op: particle
+          particle: electric_spark
+          anchor: start
+          times: 10
+          shift:
+            forward: "= length * i / (n - 1.0)"
+            up: "= roll_unit('jit_u') * jitter"
+            left: "= roll_unit('jit_l') * jitter"
+    end: {final: true}

@@ -1,17 +1,18 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
 /**
- * Kubernetes-style strategic merge on generic YAML trees (maps `Map<String, Any?>`, lists, scalars).
+ * Merge of the split documents of ONE skill (several `kind: Skill` documents with the same id in one file / directory) on generic
+ * YAML trees (maps `Map<String, Any?>`, lists, scalars). It is not a patch mechanism: `kind: Patch` documents go through
+ * `PatchApplier` only, and this merge knows no `$patch` directive.
  *
- *  - maps merge deep; scalars replace; a `null` patch value replaces with null;
+ *  - maps merge deep; scalars replace; a `null` value replaces with null;
  *  - lists containing maps merge by their `id` key (base order kept, new ids appended); lists of scalars replace;
- *  - `$patch: delete` inside a map removes that entry (list item by id, or map value by key);
- *  - `$patch: replace` inside a map replaces the base value with the rest of the patch map.
+ *    a list of maps where NO entry (base or later document) has an `id` (transitions `on:`, `motion:` laws) is replaced whole;
+ *    a list mixing entries with and without `id` is a [ComposeError.PatchError.MissingId].
  *
  * Inputs are never mutated; the result shares no mutable state with them.
  */
 internal object StrategicMerge {
-    const val DIRECTIVE = "\$patch"
     private const val ID = "id"
 
     class MergeFailure(val toError: (file: String) -> ComposeError)
@@ -28,16 +29,13 @@ internal object StrategicMerge {
         val out = LinkedHashMap<String, Any?>()
         base.forEach { (k, v) -> out[k] = copy(v) }
         for ((k, pv) in patch) {
-            if (k == DIRECTIVE) continue
             val childPath = if (path.isEmpty()) k else "$path.$k"
-            if (pv is Map<*, *> && pv[DIRECTIVE] == "delete") { out.remove(k); continue }
-            if (pv is Map<*, *> && pv[DIRECTIVE] == "replace") { out[k] = copy(pv.filterKeys { it != DIRECTIVE }); continue }
             val bv = out[k]
             out[k] = when {
-                !out.containsKey(k) -> stripDirectives(pv)
+                !out.containsKey(k) -> copy(pv)
                 bv is Map<*, *> && pv is Map<*, *> -> mergeMaps(bv as Map<String, Any?>, pv as Map<String, Any?>, childPath, fail)
                 bv is List<*> && pv is List<*> -> mergeLists(bv, pv, childPath, fail)
-                else -> stripDirectives(pv)
+                else -> copy(pv)
             }
         }
         return out
@@ -45,8 +43,8 @@ internal object StrategicMerge {
 
     @Suppress("UNCHECKED_CAST")
     private fun mergeLists(base: List<*>, patch: List<*>, path: String, fail: Array<MergeFailure?>): List<Any?> {
-        val keyed = patch.any { it is Map<*, *> } || base.any { it is Map<*, *> }
-        if (!keyed) return patch.map { stripDirectives(it) }
+        val maps = (base + patch).filterIsInstance<Map<*, *>>()
+        if (maps.none { it[ID] is String }) return patch.map { copy(it) }
         val out = ArrayList<Any?>()
         base.forEachIndexed { i, e ->
             if (e !is Map<*, *> || e[ID] !is String) {
@@ -62,12 +60,7 @@ internal object StrategicMerge {
             }
             val id = e[ID] as String
             val at = out.indexOfFirst { (it as Map<*, *>)[ID] == id }
-            when {
-                e[DIRECTIVE] == "delete" -> if (at >= 0) out.removeAt(at)
-                at < 0 -> out += stripDirectives(e)
-                e[DIRECTIVE] == "replace" -> out[at] = copy(e.filterKeys { it != DIRECTIVE })
-                else -> out[at] = mergeMaps(out[at] as Map<String, Any?>, e as Map<String, Any?>, "$path[$id]", fail)
-            }
+            if (at < 0) out += copy(e) else out[at] = mergeMaps(out[at] as Map<String, Any?>, e as Map<String, Any?>, "$path[$id]", fail)
         }
         return out
     }
@@ -79,12 +72,6 @@ internal object StrategicMerge {
     fun copy(v: Any?): Any? = when (v) {
         is Map<*, *> -> LinkedHashMap<String, Any?>().also { m -> v.forEach { (k, x) -> m[k as String] = copy(x) } }
         is List<*> -> v.map { copy(it) }
-        else -> v
-    }
-
-    private fun stripDirectives(v: Any?): Any? = when (v) {
-        is Map<*, *> -> LinkedHashMap<String, Any?>().also { m -> v.forEach { (k, x) -> if (k != DIRECTIVE) m[k as String] = stripDirectives(x) } }
-        is List<*> -> v.map { stripDirectives(it) }
         else -> v
     }
 }

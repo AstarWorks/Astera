@@ -27,8 +27,8 @@ import kotlin.math.abs
 
 /**
  * Carry TNT (Rainmaker / ガチホコ): one TNT sits in the `tnt-spawn` zone behind a shield of `shield_hp`; players
- * standing there (and damage dealt within `shield_damage_radius`) wear it down, and once it is broken, standing in the
- * zone for `channel_ticks` picks the TNT up. The carrier is slow, glowing, cannot cast skills (silence) and wears the TNT.
+ * standing there (and damage dealt within `shield_damage_radius`) wear it down, and once it is broken,
+ * a right-click on the TNT (its interaction hitbox, within reach) picks it up. The carrier is slow, glowing, cannot cast skills (silence) and wears the TNT.
  *
  * The carrier's team count is `count_start` minus the furthest share of the route (spawn, `checkpoint-<enemy>-<n>`,
  * `deliver-<enemy>`, measured along the polyline) any of its carriers covered; the next unheld checkpoint caps the
@@ -202,19 +202,23 @@ public class CarryTntGameMode @JvmOverloads constructor(
             val hit = run.delivers.entries.firstOrNull { (owner, region) -> owner != team && region.contains(pos) } ?: return null
             return if (routeDone(run, hit.key)) "$DELIVER_PREFIX${hit.key.value}" else null
         }
-        if (tnt.carrier != null) return null
-        val dropped = tnt.droppedAt
-        if (dropped == null && run.shield > 0.0) return null
-        val inReach = if (dropped != null) {
-            ObjectiveKit.flatDistance(pos, dropped) <= kit.pickupRadius && abs(pos.y - dropped.y) <= REACH_HEIGHT
-        } else {
-            run.spawn.contains(pos)
+        return null
+    }
+
+    /** Right-click on the loose TNT: shield down and nobody carrying it, within reach, picks it up; with the shield up it says to break it. */
+    override fun interacted(run: Run, match: Match, player: PlayerId, team: TeamId, key: String) {
+        if (key != MARKER_KEY || run.tnt.carrier != null) return
+        val loose = loosePos(run) ?: return
+        val pos = kit.positionOf(player) ?: return
+        if (ObjectiveKit.flatDistance(pos, loose) > CLICK_REACH || abs(pos.y - loose.y) > CLICK_REACH_HEIGHT) return
+        if (atHome(run) && run.shield > 0.0) {
+            kit.toast(player, TOAST_SHIELD_UP, mapOf("hp" to run.shield.toInt().toString()), ttlTicks = 40)
+            return
         }
-        return if (inReach) PICKUP else null
+        pickedUp(run, match, player, team)
     }
 
     private fun labelOf(target: String?): MessageKey = when {
-        target == PICKUP -> LABEL_PICKUP
         target?.startsWith(CHECKPOINT_TARGET) == true -> LABEL_CHECKPOINT
         else -> LABEL_DELIVER
     }
@@ -223,14 +227,12 @@ public class CarryTntGameMode @JvmOverloads constructor(
         if (target?.startsWith(CHECKPOINT_TARGET) == true) ObjectiveBarColor.YELLOW else ObjectiveBarColor.GREEN
 
     private fun needOf(target: String?): Long = when {
-        target == PICKUP -> kit.channelTicks
         target?.startsWith(CHECKPOINT_TARGET) == true -> checkpointHoldTicks()
         else -> deliverChannelTicks()
     }
 
     private fun complete(run: Run, match: Match, player: PlayerId, team: TeamId, target: String) {
         when {
-            target == PICKUP -> pickedUp(run, match, player, team)
             target.startsWith(CHECKPOINT_TARGET) -> {
                 val (owner, name) = target.removePrefix(CHECKPOINT_TARGET).split(':', limit = 2)
                 reachedCheckpoint(run, match, player, owner, name)
@@ -443,7 +445,7 @@ public class CarryTntGameMode @JvmOverloads constructor(
                 val pos = kit.positionOf(carrier) ?: return
                 kit.compass(viewer, pos, if (carrierTeam == team) HINT_ESCORT else HINT_STOP)
             }
-            loose != null -> kit.compass(viewer, loose, HINT_GRAB)
+            loose != null -> kit.compass(viewer, loose, if (run.shield > 0.0 && atHome(run)) HINT_SHIELD else HINT_GRAB)
         }
     }
 
@@ -504,7 +506,7 @@ public class CarryTntGameMode @JvmOverloads constructor(
         private val TOAST_CHECKPOINT: MessageKey = MessageKey("astera.objective.toast.carry-tnt.checkpoint")
         private val LABEL_CHECKPOINT: MessageKey = MessageKey("astera.objective.channel.carry-tnt.checkpoint")
         private val BAR_SHIELD: MessageKey = MessageKey("astera.objective.bar.carry-tnt.shield")
-        private val LABEL_PICKUP: MessageKey = MessageKey("astera.objective.channel.carry-tnt.pickup")
+        private val TOAST_SHIELD_UP: MessageKey = MessageKey("astera.objective.toast.carry-tnt.shield-up")
         private val LABEL_DELIVER: MessageKey = MessageKey("astera.objective.channel.carry-tnt.deliver")
         private val BAR_LOOSE: MessageKey = MessageKey("astera.objective.bar.carry-tnt.loose")
         private val BAR_CARRIED: MessageKey = MessageKey("astera.objective.bar.carry-tnt.carried")
@@ -514,6 +516,7 @@ public class CarryTntGameMode @JvmOverloads constructor(
         private val HINT_ESCORT: MessageKey = MessageKey("astera.objective.hint.carry-tnt.escort")
         private val HINT_STOP: MessageKey = MessageKey("astera.objective.hint.carry-tnt.stop")
         private val HINT_GRAB: MessageKey = MessageKey("astera.objective.hint.carry-tnt.grab")
+        private val HINT_SHIELD: MessageKey = MessageKey("astera.objective.hint.carry-tnt.shield")
         private val LOOK: ObjectiveLook = ObjectiveLook("minecraft:tnt", "white", 0.8)
         private const val SPAWN_REGION: String = "tnt-spawn"
         private const val BASE_PREFIX: String = "base-"
@@ -523,7 +526,6 @@ public class CarryTntGameMode @JvmOverloads constructor(
         private const val SHIELD_BAR: String = "shield"
         private const val MARKER_BLOCK: String = "minecraft:tnt"
         private const val MARKER_KEY: String = "tnt"
-        private const val PICKUP: String = "pickup"
         private const val DELIVER_PREFIX: String = "deliver:"
         private const val ROUTE_CORRIDOR: Double = 14.0
         private const val GOAL_CAP: Double = 0.99
@@ -534,7 +536,8 @@ public class CarryTntGameMode @JvmOverloads constructor(
         private const val FAST_TICKS: Long = 5L
         private const val TRAIL_TICKS: Long = 5L
         private const val WARN_INTERVAL_TICKS: Long = 40L
-        private const val REACH_HEIGHT: Double = 3.0
+        private const val CLICK_REACH: Double = 6.0
+        private const val CLICK_REACH_HEIGHT: Double = 4.0
         private const val VOID_MARGIN: Double = 8.0
     }
 }

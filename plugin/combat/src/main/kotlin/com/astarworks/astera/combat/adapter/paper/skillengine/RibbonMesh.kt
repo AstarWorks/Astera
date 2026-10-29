@@ -1,6 +1,8 @@
 package com.astarworks.astera.combat.adapter.paper.skillengine
 
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.op.TrailBand
+import com.astarworks.astera.core.domain.skillengine.op.TrailEdge
 
 /**
  * A trail ribbon built from the history of one point and a root point (ADR-0301). Each tick contributes a cross-section
@@ -87,7 +89,70 @@ public class RibbonMesh {
         return Segment(centre, u, v, n.normalize())
     }
 
-    private companion object {
-        const val MAX_SPLITS: Int = 12
+    /** How a [Piece] is drawn: a translucent text quad ([SOFT]) or an opaque block slab ([SLAB], fades by shrinking). */
+    public enum class Draw { SOFT, SLAB }
+
+    /** One display the gateway spawns for a [Piece]; [band] is the band of a SOFT / SLAB band piece, [back] the reversed face of a double-sided soft quad. */
+    public class Drawn(public val draw: Draw, public val piece: Piece, public val block: String?, public val back: Boolean)
+
+    /** Local axes of a block slab on a segment: x = [ux] (root to tip), y = [cy] (travel across the blade), z = [n]. */
+    public class SlabAxes(public val ux: Vec3, public val cy: Vec3, public val n: Vec3, public val radial: Double, public val chord: Double)
+
+    public companion object {
+        private const val MAX_SPLITS: Int = 12
+
+        /** Slabs / quads are this much longer than the interval they cover so neighbours overlap (v1 VfxRigPlanner.kt OVERLAP). */
+        public const val OVERLAP: Double = 1.06
+
+        /** Thickness of a crisp band slab (v1 VfxRigPlanner.kt SLAB_THICKNESS). */
+        public const val SLAB_THICKNESS: Double = 0.02
+
+        /**
+         * The displays v1 spawns for [pieces] of one sample (VfxRigPlanner.trailPlans, VfxRigPlanner.kt:328-360): per band a soft quad when
+         * the style is not `crisp` and a slab when the style is not `soft` and the band names a block; the edge always a slab; the rim a soft
+         * quad unless `crisp`; a double-sided trail repeats every soft quad reversed.
+         */
+        public fun drawn(pieces: List<Piece>, style: String, bands: List<TrailBand>, edge: TrailEdge?, doubleSided: Boolean): List<Drawn> {
+            val soft = style != "crisp"
+            val crisp = style != "soft"
+            val out = ArrayList<Drawn>()
+            fun softQuad(p: Piece) {
+                out += Drawn(Draw.SOFT, p, null, false)
+                if (doubleSided) out += Drawn(Draw.SOFT, p, null, true)
+            }
+            for (p in pieces) {
+                when (p.kind) {
+                    PieceKind.BAND -> {
+                        if (soft) softQuad(p)
+                        val block = bands.getOrNull(p.index)?.block
+                        if (crisp && block != null) out += Drawn(Draw.SLAB, p, block, false)
+                    }
+                    PieceKind.EDGE -> out += Drawn(Draw.SLAB, p, edge!!.block, false)
+                    PieceKind.RIM -> if (soft) softQuad(p)
+                }
+            }
+            return out
+        }
+
+        /** The slab axes of [s] (v1 VfxRigPlanner.surface: radial = blade direction, chord = travel across it); null when the segment is degenerate. */
+        public fun slabAxes(s: Segment): SlabAxes? {
+            val radial = s.v.length()
+            if (radial < 1e-6) return null
+            val ux = s.v * (1.0 / radial)
+            val perp = s.u - ux * s.u.dot(ux)
+            val chord = perp.length()
+            if (chord < 1e-4) return null
+            val cy = perp * (1.0 / chord)
+            return SlabAxes(ux, cy, ux.cross(cy), radial, chord)
+        }
+
+        /**
+         * Size of a slab at fade factor [k] (v1 VfxRigPlanner.slab, VfxRigPlanner.kt:510-545): an edge ([thickness] = its width) thins radially and in
+         * depth, a band slab shortens along the chord. [k] is clamped at 0.02 like v1.
+         */
+        public fun slabSize(a: SlabAxes, edge: Boolean, thickness: Double, k: Double): Vec3 {
+            val kk = k.coerceAtLeast(0.02)
+            return if (edge) Vec3(a.radial * kk, a.chord * OVERLAP, thickness * kk) else Vec3(a.radial, a.chord * OVERLAP * kk, thickness)
+        }
     }
 }

@@ -1,21 +1,38 @@
-# Converted from content/skills/rapier-thrust.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: rapier-thrust
 item: rapier
 meta: {name: {ja: "レイピアの突き", en: "Rapier Thrust"}, description: {ja: "細い突きを素早く繰り出す。", en: "A fast, precise thrust."}, cooldown_ticks: 9, resource_cost: 5, tags: [melee, physical]}
-gameplay:
-  params: {arc_deg: 20.0, range: 3.6, dmg_physical: 24.0, knockback: 0.1}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: range, param: range}
-  timeline:
-    - id: t0
-      at: 0
+params:
+  arc_deg:      {type: number, default: 20}
+  range:        {type: blocks, default: 3.6}
+  dmg_physical: {type: number, default: 24}
+  knockback:    {type: number, default: 0.1}
+anchors:
+  - {id: muzzle, anchor: caster, offset: {up: -0.1, forward: 1.5}, mode: snapshot}
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}
+machine:
+  start: strike
+  states:
+    strike:
+      for: 1
+      then: end
       do:
-        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
-  "on":
-    hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster))", strength: "${knockback}", when: "= event.source == 'swing'"}
+        - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 0.9, pitch: 1.7, at: 0}
+        - {id: fx, op: particle_def, def: stab-spark, anchor: muzzle, at: 0}
+        - id: swing
+          op: hit
+          at: 0
+          anchor: caster.eye
+          shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
+          targets: enemies
+          max_count: all                   # GAP(Q1): v2 had no cap
+          window: once
+          ignore_invulnerability: false
+          damage: {physical: "${dmg_physical}"}
+          on:
+            hit:
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster))", strength: "${knockback}"}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+    end: {final: true}

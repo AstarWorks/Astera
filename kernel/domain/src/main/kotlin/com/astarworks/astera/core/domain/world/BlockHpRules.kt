@@ -28,6 +28,20 @@ public object BlockHpRules {
         "dirt", "sand" -> 0.5
         "white_wool" -> 0.8
         "cobblestone" -> 2.0
-        else -> 1.5
+        else -> if (WOOD_WORDS.any { it in type.identifier }) 2.0 else 1.5
     }
+
+    /** The tool class that digs [type] at full strength; soft surfaces (dirt, sand) need no bonus, so SHOVEL/AXE only matter on hard variants. */
+    public fun preferredKind(type: BlockType): ToolKind {
+        val id = type.identifier
+        return when {
+            id.contains("sandstone") || id.contains("mud_brick") -> ToolKind.PICKAXE
+            SOIL_WORDS.any { it in id } -> ToolKind.SHOVEL
+            WOOD_WORDS.any { it in id } -> ToolKind.AXE
+            else -> ToolKind.PICKAXE
+        }
+    }
+
+    private val SOIL_WORDS: List<String> = listOf("dirt", "grass_block", "sand", "gravel", "clay", "mud", "snow", "podzol", "mycelium", "soul_soil", "farmland")
+    private val WOOD_WORDS: List<String> = listOf("plank", "log", "wood", "stem", "hyphae", "leaves", "fence", "door", "bookshelf", "scaffolding", "bamboo", "wool", "hay_block", "carpet")
 }

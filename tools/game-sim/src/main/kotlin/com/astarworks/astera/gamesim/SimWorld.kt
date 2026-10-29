@@ -78,6 +78,9 @@ public class SimWorld(
 
     public fun find(id: PlayerId): SimEntity? = byId[id]
 
+    /** Every player entity (the sim has no view range: all of them are "near" a display). */
+    public fun players(): List<PlayerId> = byId.values.filter { it.kind == SimEntityKind.PLAYER }.map { it.id }
+
     /** Removes an entity (expired summon, ...); `true` when it existed. */
     public fun remove(id: PlayerId): Boolean = byId.remove(id) != null
 

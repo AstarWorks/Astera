@@ -26,6 +26,9 @@ public interface IEgoGauge {
     /** Subtract [cost]; fails with [EgoError.Insufficient] (gauge unchanged) when the player holds less. */
     public fun spend(playerId: PlayerId, cost: Int): Result<Int, EgoError>
 
+    /** Tick of the player's last hit dealt or taken (the combat clock), or `null` if none since the last reset. */
+    public fun lastCombatTick(playerId: PlayerId): Long?
+
     /** Back to 0 (death, match start). */
     public fun reset(playerId: PlayerId)
 

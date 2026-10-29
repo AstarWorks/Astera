@@ -36,8 +36,17 @@ class MidOreNodeScenarioTest {
             assertThat(nodes.mine(red.id, worldId, ironCell, null)).isEqualTo(OreNodeService.Outcome.TooWeak)
             assertThat(material(ironCell)).isEqualTo(ironOre)
 
-            // The loaned stone pickaxe mines the iron node: ore arrives, the block becomes the placeholder.
+            // The node has HP (200): a stone pickaxe (100 a hit) only cracks it on the first swing and a swing inside the hit cooldown is ignored.
+            assertThat(nodes.mine(red.id, worldId, ironCell, ItemId("stone-pickaxe"))).isEqualTo(OreNodeService.Outcome.Hit(100, 200))
+            assertThat(sim.oreNodes.crackAt(ironCell.x.toInt(), 65, ironCell.z.toInt())).isEqualTo(100 to 200)
+            assertThat(nodes.mine(red.id, worldId, ironCell, ItemId("stone-pickaxe"))).isEqualTo(OreNodeService.Outcome.Cooldown)
+            assertThat(inventory).doesNotContain("ore-iron")
+            assertThat(material(ironCell)).isEqualTo(ironOre)
+
+            // The second swing finishes it: ore arrives, the block becomes the placeholder, the crack is gone.
+            advance(6)
             val mined = nodes.mine(red.id, worldId, ironCell, ItemId("stone-pickaxe"))
+            assertThat(sim.oreNodes.crackAt(ironCell.x.toInt(), 65, ironCell.z.toInt())).isNull()
             assertThat(mined).isInstanceOf(OreNodeService.Outcome.Mined::class.java)
             assertThat(inventory).contains("ore-iron")
             assertThat(material(ironCell)).isNotEqualTo(ironOre)
@@ -54,8 +63,20 @@ class MidOreNodeScenarioTest {
             assertThat(nodes.mine(red.id, worldId, goldCell, ItemId("stone-pickaxe"))).isEqualTo(OreNodeService.Outcome.TooWeak)
             assertThat(inventory).doesNotContain("ore-gold")
             assertThat(material(goldCell)).isEqualTo(goldOre)
+            // Gold has 300 HP; an iron pickaxe deals 100 a hit (3 swings), a diamond one 200 (2 swings).
+            advance(6)
+            assertThat(nodes.mine(red.id, worldId, goldCell, ItemId("iron-pickaxe"))).isEqualTo(OreNodeService.Outcome.Hit(200, 300))
+            advance(6)
+            assertThat(nodes.mine(red.id, worldId, goldCell, ItemId("iron-pickaxe"))).isEqualTo(OreNodeService.Outcome.Hit(100, 300))
+            assertThat(inventory).doesNotContain("ore-gold")
+            advance(6)
             assertThat(nodes.mine(red.id, worldId, goldCell, ItemId("iron-pickaxe"))).isInstanceOf(OreNodeService.Outcome.Mined::class.java)
             assertThat(inventory).contains("ore-gold")
+
+            // Diamond pickaxe on the regrown iron node: 250 a hit, one swing.
+            advance(60 * 20)
+            advance(6)
+            assertThat(nodes.mine(red.id, worldId, ironCell, ItemId("diamond-pickaxe"))).isInstanceOf(OreNodeService.Outcome.Mined::class.java)
 
             // Not a node: an ordinary cell is left to the caller.
             assertThat(nodes.mine(red.id, worldId, Vec3(origin.x + 1, 65.0, origin.z + 1), ItemId("iron-pickaxe"))).isEqualTo(OreNodeService.Outcome.NotANode)

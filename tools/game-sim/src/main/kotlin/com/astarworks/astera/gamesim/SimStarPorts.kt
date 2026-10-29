@@ -118,6 +118,19 @@ public class SimOreNodeWorld : com.astarworks.astera.match.application.port.outb
         blocks[Triple(kotlin.math.floor(pos.x).toInt(), kotlin.math.floor(pos.y).toInt(), kotlin.math.floor(pos.z).toInt())] = material
     }
 
+    private val cracks = ConcurrentHashMap<Triple<Int, Int, Int>, Pair<Int, Int>>()
+
+    override fun hit(world: WorldId, pos: Vec3, hp: Int, maxHp: Int) {
+        cracks[Triple(kotlin.math.floor(pos.x).toInt(), kotlin.math.floor(pos.y).toInt(), kotlin.math.floor(pos.z).toInt())] = hp to maxHp
+    }
+
+    override fun clearCrack(world: WorldId, pos: Vec3) {
+        cracks.remove(Triple(kotlin.math.floor(pos.x).toInt(), kotlin.math.floor(pos.y).toInt(), kotlin.math.floor(pos.z).toInt()))
+    }
+
+    /** The (hp, maxHp) crack now shown at [x],[y],[z], or null when none. */
+    public fun crackAt(x: Int, y: Int, z: Int): Pair<Int, Int>? = cracks[Triple(x, y, z)]
+
     /** The material now at [x],[y],[z], or null when nothing was ever set there. */
     public fun materialAt(x: Int, y: Int, z: Int): String? = blocks[Triple(x, y, z)]
 }

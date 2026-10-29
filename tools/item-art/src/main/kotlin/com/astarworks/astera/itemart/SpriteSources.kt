@@ -6,21 +6,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import javax.imageio.ImageIO
 
-/**
- * Custom particle sprites (ADR-0239): `content/textures/sources/sprites.yaml` lists, per sprite id, either a
- * code painter ([ParticlePainters]), a row of cells of a sheet, or one image split horizontally into frames.
- * The tool writes a strip PNG, a bitmap font (frame i = U+E000 + i) and runtime metadata per sprite.
- *
- * ```yaml
- * sources:
- *   vfx-v1: { file: sheets/vfx-v1.png, grid: [6, 6] }
- *   slash-strip: { file: images/slash-strip.png }
- * sprites:
- *   spark: { draw: spark, frames: 6, color: "#ffe9a8" }
- *   ember: { from: vfx-v1, row: 0, frames: 6 }
- *   slash: { from: slash-strip, frames: 5 }     # optional: size (32), colors (12), outline (false)
- * ```
- */
+/** YAML graphs or committed sheet/strip sources; emits the ADR-0239 resource-pack format. */
 internal object SpriteSources {
     const val MANIFEST: String = "${Sources.DIR}/sprites.yaml"
     const val TEXTURE_DIR: String = "textures/generated/sprites"
@@ -33,7 +19,7 @@ internal object SpriteSources {
     private val KEBAB = Regex("^[a-z][a-z0-9-]*$")
 
     sealed interface Origin {
-        data class Draw(val painter: String, val color: Int) : Origin
+        data class Graph(val graph: SpriteGraph) : Origin
         data class Cells(val source: Sources.Source, val row: Int) : Origin
         data class Strip(val source: Sources.Source) : Origin
         /** A finished RGBA strip (frames * size wide, size tall) used as is: soft alpha, no palette, no keying. */
@@ -45,24 +31,39 @@ internal object SpriteSources {
     fun load(contentDir: Path): List<Def> {
         val manifest = contentDir.resolve(MANIFEST)
         if (!Files.isRegularFile(manifest)) return emptyList()
-        val doc = Yaml().load<Map<String, Any?>>(Files.readString(manifest)).orEmpty()
-        val sources = Sources.parseSources(contentDir, MANIFEST, (doc["sources"] as? Map<*, *>).orEmpty())
-        val sprites = (doc["sprites"] as? Map<*, *>).orEmpty()
+        val yaml = Yaml(org.yaml.snakeyaml.constructor.SafeConstructor(org.yaml.snakeyaml.LoaderOptions().apply { isAllowDuplicateKeys = false }))
+        val doc = SpriteGraph.map(yaml.load<Any?>(Files.readString(manifest)), MANIFEST)
+        require(doc.keys.all { it in setOf("sources", "sprites") }) { "$MANIFEST: unknown root key" }
+        val sourceMap = if (doc.containsKey("sources")) SpriteGraph.map(doc["sources"], "$MANIFEST.sources") else emptyMap()
+        val sources = Sources.parseSources(contentDir, MANIFEST, sourceMap)
+        val sprites = SpriteGraph.map(doc["sprites"], "$MANIFEST.sprites")
         return sprites.entries.map { (k, v) ->
             val id = k.toString()
             require(id.matches(KEBAB)) { "$MANIFEST: sprite id must be lower-kebab: $id" }
             val o = requireNotNull(v as? Map<*, *>) { "$MANIFEST: sprite $id is not a map" }
-            fun int(key: String): Int? = (o[key] as? Number)?.toInt()
+            val allowed = setOf("graph", "from", "frames", "size", "colors", "outline", "quad_font", "row", "raw", "tags")
+            require(o.keys.all { it in allowed }) { "$MANIFEST: sprite $id: unknown keys ${o.keys - allowed}" }
+            require(listOf("graph", "from").count { o.containsKey(it) } == 1) { "$id needs exactly one of graph/from" }
+            fun int(key: String): Int? {
+                val v = o[key] ?: return null
+                require(v is Number && v.toDouble().isFinite() && v.toDouble() % 1 == 0.0) { "$id.$key must be integer" }
+                return v.toInt()
+            }
+            for (key in listOf("outline", "raw", "quad_font")) require(!o.containsKey(key) || o[key] is Boolean) { "$id.$key must be boolean" }
+            if (o.containsKey("tags")) {
+                val tags = o["tags"]
+                require(tags is List<*> && tags.all { it is String && it.matches(Regex("^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")) }) {
+                    "$MANIFEST: sprite $id.tags must be a list of kebab-case strings"
+                }
+            }
             val size = int("size") ?: 32
             val colors = int("colors") ?: 12
             val outline = o["outline"] as? Boolean ?: false
             val origin: Origin
             val frames: Int
             when {
-                o["draw"] != null -> {
-                    val painter = o["draw"].toString()
-                    require(painter in ParticlePainters.NAMES) { "$MANIFEST: sprite $id: unknown painter '$painter' (${ParticlePainters.NAMES})" }
-                    origin = Origin.Draw(painter, parseColor(id, o["color"]?.toString() ?: "#ffffff"))
+                o["graph"] != null -> {
+                    origin = Origin.Graph(SpriteGraph.parse(o["graph"], contentDir.resolve(Sources.DIR)))
                     frames = int("frames") ?: 6
                 }
                 o["from"] != null -> {
@@ -80,7 +81,7 @@ internal object SpriteSources {
                         origin = if (o["raw"] == true) Origin.Raw(src) else Origin.Strip(src)
                     }
                 }
-                else -> error("$MANIFEST: sprite $id needs `draw` or `from`")
+                else -> error("$MANIFEST: sprite $id needs `graph` or `from`")
             }
             require(frames in 1..MAX_FRAMES) { "$MANIFEST: sprite $id: frames must be 1..$MAX_FRAMES" }
             require(size in 8..512) { "$MANIFEST: sprite $id: size must be 8..512" }
@@ -88,15 +89,9 @@ internal object SpriteSources {
         }
     }
 
-    private fun parseColor(id: String, text: String): Int {
-        val hex = text.removePrefix("#")
-        require(hex.length == 6 && hex.all { it in "0123456789abcdefABCDEF" }) { "$MANIFEST: sprite $id: color must be #rrggbb, got '$text'" }
-        return 0xFF000000.toInt() or hex.toInt(16)
-    }
-
-    /** The converted / drawn frames of [def], all [Def.size] square with binary alpha. */
+    /** Rendered frames of [def], all [Def.size] square; graph and raw sources retain soft alpha. */
     fun render(def: Def): List<BufferedImage> = when (val o = def.origin) {
-        is Origin.Draw -> ParticlePainters.frames(o.painter, def.frames, def.size, o.color)
+        is Origin.Graph -> o.graph.renderer(def.size, def.frames).let { renderer -> (0 until def.frames).map { renderer.image(it).buffered() } }
         is Origin.Cells -> convert(def, sheetFrames(o.source.file, o.row, def.frames, o.source.grid!!.first, o.source.grid.second))
         is Origin.Raw -> rawFrames(o.source.file, def)
         is Origin.Strip -> convert(def, sheetFrames(o.source.file, 0, def.frames, def.frames, 1))
@@ -215,7 +210,7 @@ internal object SpriteSources {
             return Files.list(d).use { s -> s.filter { Files.isRegularFile(it) && generated(it) }.toList() }
         }
         return (
-            list(TEXTURE_DIR) { true } +
+            list(TEXTURE_DIR) { it.toString().endsWith(".png") } +
                 list(FONT_DIR) { it.toString().endsWith(".json") && Files.readString(it).contains("\"${ItemArt.NAMESPACE}:generated/sprites/") } +
                 list(META_DIR) { it.toString().endsWith(".yaml") && Files.readString(it).startsWith("# generated by :tools:item-art") }
             ).filter { contentDir.relativize(it).toString().replace('\\', '/') !in keep }

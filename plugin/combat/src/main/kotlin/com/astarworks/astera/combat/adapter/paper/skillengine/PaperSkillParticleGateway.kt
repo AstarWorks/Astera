@@ -1,10 +1,10 @@
 package com.astarworks.astera.combat.adapter.paper.skillengine
 
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
+import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillParticleGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.ParticleBurst
 import com.astarworks.astera.core.domain.effect.ParticleDefinition
-import com.astarworks.astera.core.domain.world.WorldId
 
 /**
  * Paper [ISkillParticleGateway] (ADR-0301). Every call comes from the pure [toParticleCalls] (shared with the game-sim);
@@ -18,17 +18,15 @@ import com.astarworks.astera.core.domain.world.WorldId
  * ([ParticleEmitter.plan]) owns shape, velocity and vanilla type; the burst's `count`, when set, is the number of
  * particles (replaces the definition's count) and its shape faces `dir`, else the caster look.
  *
- * The port carries no world; [worldId] supplies the world of the cast being ticked.
+ * The world is [CastRef.world] of each call.
  */
 public class PaperSkillParticleGateway(
-    private val world: IWorldGateway,
-    private val worldId: () -> WorldId?,
+    private val gateway: IWorldGateway,
     /** Custom particle lookup (`content/particles/<id>.yaml`); `null` = the id is a vanilla particle key. */
     private val definitions: (String) -> ParticleDefinition? = { null },
 ) : ISkillParticleGateway {
 
-    override fun emit(burst: ParticleBurst) {
-        val w = worldId() ?: return
-        for (call in toParticleCalls(burst, definitions)) world.spawnParticle(w, call.at, call.spec)
+    override fun emit(cast: CastRef, burst: ParticleBurst) {
+        for (call in toParticleCalls(burst, definitions)) gateway.spawnParticle(cast.world, call.at, call.spec)
     }
 }

@@ -1,0 +1,9 @@
+@@ hook: declarations
+layout(location = 13) flat in int asteraFlow;
+@@ hook: surface
+    if (asteraFlow == 1) {
+        // Flow a procedural band over UVs; never sample outside an atlas sprite.
+        float phase = texCoord0.y * float(textureSize(Sampler0, 0).y) / ${BAND_PIXELS} - GameTime * 1200.0 * ${SPEED};
+        float band = pow(0.5 + 0.5 * sin(phase * 6.2831853), 4.0);
+        color.rgb = mix(color.rgb * 0.45, vec3(0.2, 0.85, 1.0), band);
+    }

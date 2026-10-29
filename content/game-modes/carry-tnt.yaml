@@ -1,6 +1,6 @@
 # Carry TNT (WP11, siege mode).
 #
-# One TNT sits in the stage's `tnt-spawn` zone. Walk into the zone to pick it
+# One TNT sits in the stage's `tnt-spawn` zone. Right-click the TNT in the zone to pick it
 # up once its shield is broken (only while nobody carries it) and carry it along the route to the enemy
 # `deliver-<team>` pedestal (Rainmaker / ガチホコ). Count = 100 minus the furthest share of that route the team's
 # carrier has covered; reaching the goal is a knockout. Every `checkpoint-<team>-<n>` pauses the carrier and

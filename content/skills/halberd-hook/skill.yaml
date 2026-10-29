@@ -1,22 +1,39 @@
-# Converted from content/skills/halberd-hook.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: halberd-hook
 item: halberd
 meta: {name: {ja: "引っ掛け", en: "Halberd Hook"}, description: {ja: "穂先で足を払い、相手の体勢を崩す。", en: "Hooks the legs and shakes the target."}, cooldown_ticks: 110, resource_cost: 12, tags: [melee, physical, control]}
-gameplay:
-  params: {arc_deg: 50.0, range: 3.6, dmg_physical: 22.0, knockback: 0.2, tremor_ticks: 40}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: range, param: range}
-  timeline:
-    - id: t0
-      at: 0
+params:
+  arc_deg:      {type: number, default: 50}
+  range:        {type: blocks, default: 3.6}
+  dmg_physical: {type: number, default: 22}
+  tremor_ticks: {type: ticks, default: 40}
+anchors:
+  - {id: cast_fx, anchor: caster, offset: {up: -0.1, forward: 1.6}}  # v2 pt_caster (feet, yaw-only)
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}
+machine:
+  start: swing
+  states:
+    swing:
+      for: 1
+      then: end
       do:
-        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
-  "on":
-    hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster))", strength: "${knockback}", when: "= event.source == 'swing'"}
-      - {id: st_tremor, op: status, status: tremor, duration_ticks: "${tremor_ticks}", target: victim, when: "= event.source == 'swing'"}
+        - {id: snd, op: sound, sound: "entity.player.attack.sweep", anchor: caster, volume: 1.0, pitch: 0.8, at: 0}
+        - {id: fx, op: particle_def, def: stab-spark, anchor: cast_fx, at: 0}
+        - id: swing
+          op: hit
+          at: 0
+          anchor: caster.eye
+          shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
+          targets: enemies
+          max_count: all       # GAP(Q1): max_count spelling (A required int|all / B omit) is a founder question; v2 had no cap
+          window: once
+          ignore_invulnerability: false
+          damage: {physical: "${dmg_physical}"}
+          on:
+            hit:
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: 0.2}
+              - {id: st_tremor, op: status, target: event.victim, status: tremor, stacks: 1, for: "${tremor_ticks}"}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+    end: {final: true}

@@ -16,18 +16,5 @@ resource_type: ammo
 resource_cost_per_use: 1
 resource_max_pool: 12
 resource_reloadable: true
-skills:
-- trigger: left_click
-  skill_id: vendetta-rifle-s1
-- trigger: right_click
-  skill_id: vendetta-rifle-s2
-- trigger: sneak_right
-  skill_id: vendetta-rifle-s3
-- trigger: sneak_left
-  skill_id: vendetta-rifle-def
-- trigger: drop
-  skill_id: vendetta-rifle-ego
-- trigger: sneak_drop
-  skill_id: pistol-reload
 pdc_tags:
   astera:rarity: epic

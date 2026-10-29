@@ -1,6 +1,5 @@
-# Converted from content/skills/regrowth.yaml by tools/skill-convert/convert.py (v1 archetype: buff). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# v3 hand port of the v2 skill (ADR-0303 rev4.2). v2 params regen_ticks 160, radius 3.0. Presentation is the dev single burst (fx0 at 0, fx6 at 6).
+apiVersion: astera/v3
 kind: Skill
 id: regrowth
 item: verdant-staff
@@ -10,15 +9,32 @@ meta:
   cooldown_ticks: 240
   resource_cost: 35
   tags: [magic, earth-family, support, heal]
-gameplay:
-  params: {regen_ticks: 160, radius: 3.0}
-  expose:
-    - {id: duration, param: regen_ticks}
-    - {id: radius, param: radius}
-  timeline:
-    - id: t0
-      at: 0
+params:
+  regen_ticks: {type: ticks, default: 160}
+  radius:      {type: blocks, default: 3.0}
+anchors:
+  - {id: self,  anchor: caster}
+  - {id: feet,  anchor: caster, offset: {up: 0.1}}                    # was pt_caster_0_0p1_0
+  - {id: chest, anchor: caster, offset: {up: 1.0}}                    # was pt_caster_0_1_0
+machine:
+  start: bloom
+  states:
+    bloom:
+      for: 7
+      then: end
       do:
-        - {id: buff, op: status, target: caster, status: regen, duration_ticks: "${regen_ticks}"}
-        - {id: cleanse, op: cleanse, negative_only: true, target: {allies: {around: caster, radius: "${radius}"}}}
-        - {id: st_regen, op: status, status: regen, duration_ticks: "${regen_ticks}", target: {allies: {around: caster, radius: "${radius}"}}}
+        - {id: snd, op: sound, sound: "astera:skills/heal-chime", anchor: caster, volume: 0.5, at: 0}
+        - {id: fx, op: particle_def, def: verdant-heal, anchor: chest, at: 0}
+        - {id: leaf_a, op: particle, particle: happy_villager, anchor: feet, count: 0, extra: 0.02, at: 0}
+        - {id: dust_a, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#5ae65a", size: 1.4, at: 0}
+        - {id: leaf_b, op: particle, particle: happy_villager, anchor: feet, count: 1, extra: 0, at: 0}
+        - {id: dust_b, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#8cff78", size: 1.2, at: 0}
+        - {id: hearts, op: particle, particle: heart, anchor: feet, count: 8, offset: [0.8, 0.8, 0.8], extra: 0, at: 0}
+        - {id: leaves, op: particle, particle: happy_villager, anchor: feet, count: 22, offset: [0.7, 1.0, 0.7], extra: 0, at: 0}
+        - {id: leaf_c, op: particle, particle: happy_villager, anchor: feet, count: 1, extra: 0, at: 6}
+        - {id: dust_c, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#8cff78", size: 1.2, at: 6}
+      enter:
+        - {id: buff, op: status, target: caster, status: regen, stacks: 1, for: "${regen_ticks}"}   # stacks: 1 assumed
+        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: self, radius: "${radius}", max_count: all, include_self: true}}   # GAP(Q1): v2 had no cap; A=`all`, B=omit
+        - {id: st_regen, op: status, target: {kind: allies, around: self, radius: "${radius}", max_count: all, include_self: false}, status: regen, stacks: 1, for: "${regen_ticks}"}   # GAP(Q1): v2 had no cap; A=`all`, B=omit
+    end: {final: true}

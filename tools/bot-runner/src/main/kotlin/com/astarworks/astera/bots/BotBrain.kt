@@ -422,9 +422,14 @@ class BotBrain(
         planner?.let { pl ->
             val markers = bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z }
             observed?.update(markers, sightings())
+            observed?.updateRainmaker(bot.bossBars.values.map { it.title }, glowingPlayers())
             pl.noteRoster(roster())
             pl.noteMarkers(bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z })
             pl.noteConfirmed(bot.sounds.count { it.contains("objective/pickup") })
+            if (pl.clickWanted && now - lastClickAt >= CLICK_INTERVAL_MS) {
+                bot.entities.values.filter { it.type.contains("INTERACTION", ignoreCase = true) && hypot(it.x - bot.x, it.z - bot.z) <= CLICK_REACH }
+                    .minByOrNull { hypot(it.x - bot.x, it.z - bot.z) }?.let { bot.interact(it.id); lastClickAt = now }
+            }
         }
         if (now >= modePausedUntil) planner?.step(now, bot.x, bot.z)?.let { st ->
             return Dest(st.x, st.z, st.y, st.arrive, "mode", zone = st.zone, strike = st.strike, affinity = st.affinity)
@@ -484,6 +489,7 @@ class BotBrain(
 
     private var starArrivedSince = 0L
     private var modePausedUntil = 0L
+    private var lastClickAt = 0L
 
     /** Digs [block] (an Annihilation pillar): the server turns every break attempt on a pillar block into damage to it. */
     private fun strikeBlock(block: Triple<Int, Int, Int>, affinity: LoadoutClassifier.Affinity?, now: Long) {
@@ -522,6 +528,13 @@ class BotBrain(
         }
     }
 
+    /** Every player entity with the glowing flag (0x40): the carry-tnt carrier glows. Self counts, at its own position. */
+    private fun glowingPlayers(): List<GlowingPlayer> =
+        bot.entities.values.filter { it.type == "PLAYER" && ((bot.entityFlags[it.id] ?: 0) and 0x40) != 0 }.map { e ->
+            val self = e.id == bot.selfEntityId
+            GlowingPlayer(if (self) bot.name else bot.playerNames[e.uuid], if (self) bot.x else e.x, if (self) bot.z else e.z)
+        }
+
     private fun sightings(): List<Sighting> {
         val myTeam = bot.teamOf(bot.name)?.first
         return bot.entities.values.filter { it.type == "PLAYER" && it.id != bot.selfEntityId }.mapNotNull { e ->
@@ -546,6 +559,7 @@ class BotBrain(
             id,
             solidAt = { x, y, z -> bot.terrain.isSolid(x, y, z) },
             pillarBlock = { team, tier -> world.pillars().firstOrNull { it.team == team && it.tier == tier }?.let { Triple(it.x, it.y, it.z) } },
+            tntSpawn = world.point(ModePlanner.TNT_SPAWN)?.let { it.first to it.third },
         ).also { observed = it }
         val modeFacts = src.modeFacts(facts, originX, originZ) ?: facts
         return ModePlanner(id, bot.name, own, src.teams().filter { it != own }, world, facts = modeFacts).takeIf { it.handles() }
@@ -905,6 +919,8 @@ class BotBrain(
         const val SLOT_PITCH = 2048.0
         val AMMO_WORD = Regex("reload|リロード")
         const val SIGHT_RANGE = 70.0
+        const val CLICK_INTERVAL_MS = 500L
+        const val CLICK_REACH = 5.0
         const val STRIKE_INTERVAL_MS = 450L
         const val TOOL_CAST_INTERVAL_MS = 2_000L
         const val STRIKE_REACH = 4.5

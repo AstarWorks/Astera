@@ -6,102 +6,103 @@ apiVersion: astera/v3
 kind: Skill
 id: couture-rapier-s2
 anchors:
-  - {id: body,  anchor: caster}                         # follows; a display on it with mount: caster is a real passenger
+  - {id: body,  anchor: caster, mount: caster}          # follows; the anchor carries the mount (a rider on it is a real passenger); a display never has `mount`
   - {id: slash, anchor: caster, mode: snapshot}         # coin-1 frame at t7: copied once, world-fixed after the swing starts
-presentation:
-  timeline:
-    - id: fx0
-      at: 0
+machine:
+  start: cast
+  states:
+    cast:
+      for: 15
+      then: done
       do:
-        - {id: snd_a, op: sound, sound: entity.player.attack.sweep, anchor: caster, volume: 0.5, pitch: 0.6}
-        - {id: snd_b, op: sound, sound: item.armor.equip_chain,     anchor: caster, volume: 0.6, pitch: 1.4}
-        # [REPEAT] a repeating sound is the same timing block as a display: three ticks of rustle, pitch climbing by CEL on the repeat index
-        - {id: snd_rustle, op: sound, sound: item.armor.equip_leather, anchor: caster, volume: 0.4, every: 2, times: 3, pitch: "= 0.9 + 0.08 * i"}
-    - id: fx3
-      at: 3
-      do:
-        - id: haze
-          op: display
-          kind: sprite
-          sprite: couture-s2-haze-soft
-          anchor: body
-          offset: {up: 0.9, forward: -0.1}
-          billboard: center
-          color: "#8A5CFF"
-          size: [0.8, 0.8]
-          for: 8
-          motion:
-            - {law: grow, from: 0, for: 3, per_tick: [0.133, 0.133]}      # 0.4 -> 0.8 (size starts [0.4, 0.4]), then holds
-          mount: caster
-    - id: fx7
-      at: 7
-      do:
-        # six streaks, same law, different start (offset / roll are data rows, not keys)
-        - each:
-            - {n: 0, up: 0.9, forward: 0.8, roll: 6}
-            - {n: 3, up: 2.1, forward: 1.2, roll: -8}
-            # (streaks 1 and 4 start one tick later, at t8; streak 2 at t9: separate `at:` blocks in the file)
-          id: "streak_${n}"
-          op: display
-          kind: sprite
-          sprite: couture-s2-streak
-          anchor: slash
-          offset: {up: "${up}", forward: "${forward}"}
-          billboard: center
-          rotate: [{axis: face, deg: "${roll}"}]       # constant roll is a static rotation, not a law
-          size: [0.2, 0.2]
-          for: 5
-          motion:
-            - {law: move, velocity: {forward: 1.2}, from: 0, for: 1}            # fast out
-            - {law: move, velocity: {forward: 0.35}, from: 1, for: 4}           # then slows
-            - {law: grow, per_tick: [0.3, 0], from: 0, for: 1}                  # 0.2 -> 0.5 wide
-            - {law: grow, per_tick: [-0.05, -0.02], from: 1, for: 4}            # -> 0.3 x 0.12
-        # crescent core: the irregular one, so keys (named axis `face`)
-        - id: core
-          op: display
-          kind: sprite
-          sprite: couture-s2-crescent-core
-          anchor: slash
-          offset: {up: 1.0, forward: -0.2}
-          billboard: center
-          size: [0.5, 0.4]
-          for: 7
-          motion:
-            - law: keys
-              keys:
-                - {t: 0, pose: [{axis: face, deg: 196}], offset: {forward: -0.2}, size: [0.5, 0.4]}
-                - {t: 1, pose: [{axis: face, deg: 190}], offset: {forward: 0.5},  size: [0.8, 0.62]}
-                - {t: 4, pose: [{axis: face, deg: 186}], offset: {forward: 0.3},  size: [0.74, 0.62]}
-                - {t: 6, pose: [{axis: face, deg: 176}], offset: {forward: -1.1}, size: [0.16, 0.5]}
-                - {t: 7, pose: [{axis: face, deg: 174}], offset: {forward: -1.5}, size: [0.06, 0.4]}
-    - id: fx8
-      at: 8
-      do:
-        # petals: 31 rows from the v1 plan, one law set. Petal 0 (verified against coin1.yaml):
-        #   offset  fwd 1.68 -> 1.88 (1 tick) -> 3.52 (4 ticks);  roll 309 -> 349 -> 509 = spin 40 deg/tick;  size 0.026 -> 0.064 -> 0.045 (x natural)
-        - each:
-            - {n: 0, left: -0.65, up: 0.65, forward: 1.68, roll: 309}
-            - {n: 5, left: 0.43,  up: 0.47, forward: 0.15, roll: 296}
-            - {n: 10, left: 0.34, up: 0.91, forward: 1.95, roll: 187}
-            # ... 28 more rows
-          id: "petal_${n}"
-          op: display
-          kind: sprite
-          sprite: couture-s2-petal-spark
-          anchor: slash
-          # [CEL] spawn-time (class S): each petal gets a seeded jitter on top of its data row, deterministic per cast
-          offset: {left: "= ${left} + (rand() - 0.5) * 0.05", up: "${up}", forward: "${forward}"}
-          rotate: [{axis: face, deg: "${roll}"}]
-          billboard: center
-          size: [0.3, 0.3]
-          for: 5
-          motion:
-            - {law: spin, axis: face, deg_per_tick: 40}                          # v1 data: 309 -> 349 -> 509 is 40 deg/tick
-            # [CEL] the same spin if it should ramp: {law: spin, axis: face, deg_per_tick: "= 40 + t * 3"}  (class T, one fitted segment per ~2 deg of error, 3.5)
-            - {law: move, velocity: {forward: 0.2},  from: 0, for: 1}
-            - {law: move, velocity: {forward: 0.41, up: 0.0275}, from: 1, for: 4}
-            - {law: grow, per_tick: [0.44, 0.29], from: 0, for: 1}
-            - {law: grow, per_tick: [-0.055, -0.06], from: 1, for: 4}
-        # [REPEAT] the particle emit loop is NOT a separate timeline entry any more: it is the same timing block on the op (was sp_loop: at 7, every 1, 7 ticks).
-        # `count` is a [CEL] on the repeat index: it thickens, then thins (class S, no per-tick writes; particles are fire-and-forget).
-        - {id: sp, op: particle, particle: end_rod, anchor: slash, offset: {forward: "= 0.4 * i"}, count: "= 3 + i", extra: 0.02, at: 7, every: 1, for: 7}
+        - id: fx0
+          at: 0
+          do:
+            - {id: snd_a, op: sound, sound: entity.player.attack.sweep, anchor: caster, volume: 0.5, pitch: 0.6}
+            - {id: snd_b, op: sound, sound: item.armor.equip_chain,     anchor: caster, volume: 0.6, pitch: 1.4}
+            # [REPEAT] a repeating sound is the same timing block as a display: three ticks of rustle, pitch climbing by CEL on the repeat index
+            - {id: snd_rustle, op: sound, sound: item.armor.equip_leather, anchor: caster, volume: 0.4, every: 2, times: 3, pitch: "= 0.9 + 0.08 * i"}
+        - id: fx3
+          at: 3
+          do:
+            - id: haze
+              op: display
+              kind: sprite
+              sprite: couture-s2-haze-soft
+              anchor: body
+              offset: {up: 0.9, forward: -0.1}
+              billboard: center
+              color: "#8A5CFF"
+              size: [0.4, 0.4]                   # base size; grow scales it (1 -> 2 = 0.4 -> 0.8 blocks)
+              for: 8
+              motion:
+                - {law: grow, at: 0, for: 3, per_tick: 0.3333}      # scale 1 -> 2: 0.4 -> 0.8 blocks (+0.133/tick), then holds
+        - id: fx7
+          at: 7
+          do:
+            # six streaks, same law, different start (offset / roll are data rows, not keys)
+            # data rows are CEL list lookups on the repeat index `i` (rows shown: 0 and 3 of six; streaks 1 and 4 start one tick later, at t8; streak 2 at t9: separate `at:` blocks in the file)
+            - id: streak
+              times: 2
+              op: display
+              kind: sprite
+              sprite: couture-s2-streak
+              anchor: slash
+              offset: {up: "= [0.9, 2.1][int(i)]", forward: "= [0.8, 1.2][int(i)]"}
+              billboard: center
+              rotate: [[{axis: forward, deg: 6}], [{axis: forward, deg: -8}]]       # constant roll is a static rotation, not a law
+              size: [0.2, 0.2]
+              for: 5
+              motion:
+                - {law: move, velocity: {forward: 1.2}, at: 0, for: 1}            # fast out
+                - {law: move, velocity: {forward: 0.35}, at: 1, for: 4}           # then slows
+                - {law: grow, per_tick: {left: 1.5, up: 0, forward: 0}, at: 0, for: 1}                  # 0.2 -> 0.5 wide (scale on the 0.2 base)
+                - {law: grow, per_tick: {left: -0.25, up: -0.1, forward: 0}, at: 1, for: 4}            # -> 0.3 x 0.12 (-0.05 / -0.02 blocks per tick)
+            # crescent core: the irregular one, so keys (named axis `face`)
+            - id: core
+              op: display
+              kind: sprite
+              sprite: couture-s2-crescent-core
+              anchor: slash
+              offset: {up: 1.0, forward: -0.2}
+              billboard: center
+              size: [0.5, 0.4]
+              for: 7
+              motion:
+                - law: keys
+                  keys:
+                    - {t: 0, pose: [{axis: forward, deg: 196}], offset: {forward: -0.2}, scale: {left: 1.0, up: 1.0, forward: 1}}
+                    - {t: 1, pose: [{axis: forward, deg: 190}], offset: {forward: 0.5},  scale: {left: 1.6, up: 1.55, forward: 1}}
+                    - {t: 4, pose: [{axis: forward, deg: 186}], offset: {forward: 0.3},  scale: {left: 1.48, up: 1.55, forward: 1}}
+                    - {t: 6, pose: [{axis: forward, deg: 176}], offset: {forward: -1.1}, scale: {left: 0.32, up: 1.25, forward: 1}}
+                    - {t: 7, pose: [{axis: forward, deg: 174}], offset: {forward: -1.5}, scale: {left: 0.12, up: 1.0, forward: 1}}
+        - {id: fx7_sp, op: particle, particle: end_rod, anchor: slash, offset: [0.1, 0.1, 0.1], count: "= 3 + i", extra: 0.02, at: 7, every: 1, for: 7}
+        - id: fx8
+          at: 8
+          do:
+            # petals: 31 rows from the v1 plan, one law set. Petal 0 (verified against coin1.yaml):
+            #   offset  fwd 1.68 -> 1.88 (1 tick) -> 3.52 (4 ticks);  roll 309 -> 349 -> 509 = spin 40 deg/tick;  size 0.026 -> 0.064 -> 0.045 (x natural)
+            # data rows are CEL list lookups on the repeat index `i` (rows shown: petals 0, 5, 10 of 31; the other 28 are more list entries)
+            - id: petal
+              times: 3
+              op: display
+              kind: sprite
+              sprite: couture-s2-petal-spark
+              anchor: slash
+              # [CEL] spawn-time (class S): each petal gets a seeded jitter on top of its data row, deterministic per cast
+              offset: {left: "= [-0.65, 0.43, 0.34][int(i)] + (rand() - 0.5) * 0.05", up: "= [0.65, 0.47, 0.91][int(i)]", forward: "= [1.68, 0.15, 1.95][int(i)]"}
+              rotate: [[{axis: forward, deg: 309}], [{axis: forward, deg: 296}], [{axis: forward, deg: 187}]]
+              billboard: center
+              size: [0.3, 0.3]
+              for: 5
+              motion:
+                - {law: spin, axis: forward, deg_per_tick: 40, at: 0, for: 5}                          # v1 data: 309 -> 349 -> 509 is 40 deg/tick
+                # [CEL] the same spin if it should ramp: {law: spin, axis: forward, deg_per_tick: "= 40 + t * 3"}  (class T, one fitted segment per ~2 deg of error, 3.5)
+                - {law: move, velocity: {forward: 0.2},  at: 0, for: 1}
+                - {law: move, velocity: {forward: 0.41, up: 0.0275}, at: 1, for: 4}
+                - {law: grow, per_tick: {left: 1.4667, up: 0.9667, forward: 0}, at: 0, for: 1}      # +0.44 / +0.29 blocks on the 0.3 base
+                - {law: grow, per_tick: {left: -0.1833, up: -0.2, forward: 0}, at: 1, for: 4}      # -0.055 / -0.06 blocks per tick
+            # [REPEAT] the particle emit loop is NOT a separate timeline entry any more: it is the same timing block on the op (was sp_loop: at 7, every 1, 7 ticks).
+            # `count` is a [CEL] on the repeat index: it thickens, then thins (class S, no per-tick writes; particles are fire-and-forget).
+
+    done: {final: true}

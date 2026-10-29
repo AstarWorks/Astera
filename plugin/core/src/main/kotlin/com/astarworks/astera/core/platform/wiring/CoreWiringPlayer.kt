@@ -139,6 +139,21 @@ internal fun CoreWiringState.wirePlayerSystems() {
     wave5completeSubs += eventBus.subscribe(PlayerEnteredMatch::class) { egoGauge.reset(it.playerId) }
     wave5completeSubs += eventBus.subscribe(PlayerQuitServer::class) { egoGauge.reset(it.playerId) }
 
+    // Slow natural HP regen (content/balance/health-regen.yaml): +regen_per_second once
+    // out_of_combat_delay_ticks have passed since the last hit dealt or taken (combat clock = ego gauge).
+    val healthRegen = com.astarworks.astera.core.application.service.HealthRegenService(
+        services.getOrThrow(IPlayerHealthGateway::class),
+        egoGauge,
+        com.astarworks.astera.core.application.service.HealthRegenConfigLoader()
+            .load(contentDir.resolve("balance/health-regen.yaml")),
+    )
+    wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { healthRegen.track(it.playerId) }
+    wave5completeSubs += eventBus.subscribe(PlayerQuitServer::class) { healthRegen.untrack(it.playerId) }
+    val healthRegenTask = scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 20L, periodTicks = 20L) {
+        healthRegen.tick(scheduler.currentTick())
+    }
+    shutdownHooks += { healthRegenTask.cancel() }
+
     // ---- Wave 5o (ADR-0081) Respawn / Spawn protection / PvP toggle -----
     // ISpawnProtectionGateway: per-player invulnerability window with TTL
     // and PlayerProtectionGranted / PlayerProtectionExpired events.

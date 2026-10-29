@@ -27,8 +27,15 @@ class HologramGuideScenarioTest {
             val matchId = startMatch("carry-tnt", mapOf(runner to "red", guard to "blue"), stage = "siege-isles-tnt")
             val guides = sim.hologramGuide
 
-            // Loose TNT: both teams are pointed at the pedestal.
+            // The guide shows only while the navigation compass is held (every mode gets one, not only Annihilation).
             advance(45)
+            assertThat(sim.matchCompass.slotOf(runner.id)).`as`("carry-tnt hands out the compass too").isEqualTo(8)
+            assertThat(guides.guideOf(runner.id)).`as`("compass not held: no guide").isNull()
+            sim.matchCompass.select(runner.id, true)
+            sim.matchCompass.select(guard.id, true)
+            advance(25)
+
+            // Loose TNT: both teams are pointed at the pedestal.
             val toTnt = guides.guideOf(runner.id)
             assertThat(toTnt).`as`("runner has a guide while the TNT lies loose").isNotNull()
             assertThat(toTnt!!.target.x).`as`("pointed at the pedestal, not a base").isBetween(-15.0, 15.0)
@@ -37,6 +44,9 @@ class HologramGuideScenarioTest {
 
             // Runner picks the TNT up: the guide now points at the blue base, the guard's at the carrier.
             runner.moveTo(tntSpawn)
+            // The shield wears down with the runner standing there; once it is gone a right-click takes the TNT.
+            advance(20 * 30)
+            clickNearestMarker(runner, matchId)
             advance(60)
             assertThat(sim.objectiveStage.carrying(runner.id)).`as`("runner carries the TNT").isNotNull()
             val toBase = guides.guideOf(runner.id)

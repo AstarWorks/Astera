@@ -1,6 +1,4 @@
-# Converted from content/skills/thorn-bolt.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: thorn-bolt
 item: verdant-staff
@@ -10,14 +8,45 @@ meta:
   cooldown_ticks: 24
   resource_cost: 6
   tags: [ranged, earth-family, poison]
-frames:
-  - {id: bolt, kind: body, parent: world, inactive: true}
-  - {id: pt_aim_0_0_0p5, kind: point, parent: aim, offset: [0.0, 0.0, 0.5]}
-gameplay:
-  params: {launch_speed: 2.4, max_lifetime_ticks: 50, dmg_earth: 23.5, poison_ticks: 80}
-  expose:
-    - {id: damage, param: dmg_earth}
-    - {id: flight_speed, param: launch_speed}
-  timeline:
-    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
-  "on": {hit: [{id: dmg, op: damage, components: [{kind: earth, amount: "${dmg_earth}"}], target: victim}, {id: st_poison, op: status, status: poison, duration_ticks: "${poison_ticks}", target: victim}]}
+anchors:
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: flash,  anchor: caster, offset: {up: -0.2, forward: 1.0}}   # v2 pt_caster_0_m0p2_1: caster frame (feet, yaw-only)
+  - {id: chest,  anchor: victim.root, offset: {up: 1.0}}
+machine:
+  start: fly
+  states:
+    fly:
+      for: 51      # body for 50; the cast ends when the body ends (manager ruling 10/29)
+      then: end
+      on:
+        - {event: bolt.end, to: end}
+      do:
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.9, pitch: 1.4}
+        - {id: puff, op: particle_def, def: verdant-cast, anchor: flash}
+        - id: bolt
+          op: projectile
+          origin: muzzle
+          velocity: "= look(caster) * 2.4"
+          for: 50
+          radius: 0.5
+          hit: {targets: enemies, once: true}
+          block: {mode: despawn}
+          on:
+            hit:
+              - {id: dmg, op: damage, target: event.victim, damage: {earth: 23.5}}
+              - {id: st_poison, op: status, target: event.victim, status: poison, stacks: 1, for: 80}
+              - {id: snd_hit, op: sound, sound: "astera:skills/nature-impact", anchor: contact, volume: 1.0, pitch: 0.7}
+              - {id: fx_hit, op: particle_def, def: verdant-impact, anchor: chest}
+              - {id: fx_hit_2, op: particle_def, def: verdant-impact-sparkle, anchor: chest}
+              - {id: fx_hit_dust, op: particle, particle: dust, anchor: chest, count: 1, color: "#3c9632", size: 1.2}
+              - {id: fx_hit_spray, op: particle, particle: composter, anchor: chest, count: 0, extra: 0.04}
+            block:
+              - {id: snd_blk, op: sound, sound: "astera:skills/nature-impact", anchor: contact, volume: 0.8, pitch: 0.8}
+              - {id: fx_blk, op: particle_def, def: verdant-impact, anchor: contact}
+            expire:
+              - {id: fx_exp, op: particle_def, def: verdant-impact-sparkle, anchor: contact}
+        - {id: trail,   op: particle, particle: happy_villager, anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.08, 0.08, 0.08], at: 0, every: 1, until: bolt.end}
+        - {id: trail_2, op: particle, particle: composter,      anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.1, 0.1, 0.1], at: 0, every: 1, until: bolt.end}
+        - {id: trail_3, op: particle, particle: dust,           anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], color: "#46aa3c", size: 1.2, at: 0, every: 1, until: bolt.end}
+        - {id: trail_4, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.3}, count: 1, color: "#287828", size: 0.9, at: 0, every: 1, until: bolt.end}
+    end: {final: true}

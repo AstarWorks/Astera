@@ -36,10 +36,14 @@ public data class DisplaySpec(
      * Excludes [brightness].
      */
     public val weaponRigShading: Boolean = false,
+    public val shaderEffect: String? = null,
 ) {
     init {
         require(brightness == null || brightness in 0..15) { "DisplaySpec.brightness must be 0..15: $brightness" }
         require(!(weaponRigShading && brightness != null)) { "DisplaySpec.weaponRigShading excludes brightness ($brightness)" }
+        require(shaderEffect == null || (!weaponRigShading && brightness == null && kind is DisplayKind.Item)) {
+            "shaderEffect requires an item display and excludes brightness/weapon shading"
+        }
         require(lifetimeTicks > 0L) { "DisplaySpec.lifetimeTicks must be > 0: $lifetimeTicks" }
     }
 }

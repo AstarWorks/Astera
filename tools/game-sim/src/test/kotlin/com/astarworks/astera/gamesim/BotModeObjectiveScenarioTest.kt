@@ -28,7 +28,7 @@ class BotModeObjectiveScenarioTest {
     }
 
     /** Teleports the sim player to each destination the planner names; the planner holds there (pickups and deliveries are short holds). */
-    private fun ScenarioScope.drive(runner: SimEntity, planner: ModePlanner, maxRounds: Int, done: () -> Boolean): List<String> {
+    private fun ScenarioScope.drive(runner: SimEntity, planner: ModePlanner, maxRounds: Int, matchId: com.astarworks.astera.core.domain.match.MatchId, done: () -> Boolean): List<String> {
         val kinds = ArrayList<String>()
         var now = 0L
         var held = 0
@@ -43,6 +43,7 @@ class BotModeObjectiveScenarioTest {
             val step = checkNotNull(planner.step(now, runner.position.x, runner.position.z)) { "mode has a plan" }
             if (kinds.lastOrNull() != step.kind) kinds += step.kind
             runner.moveTo(Vec3(step.x, 65.0, step.z))
+            if (planner.clickWanted) clickNearestMarker(runner, matchId)
             advance(10)
             now += 500
         }
@@ -54,8 +55,8 @@ class BotModeObjectiveScenarioTest {
         scenario("bot-tnt-objective") {
             val runner = player("runner", at = Vec3(0.0, 65.0, -50.0))
             val guard = player("guard", at = Vec3(0.0, 65.0, -50.0))
-            startMatch("carry-tnt", mapOf(runner to "red", guard to "blue"), stage = "siege-isles-tnt")
-            val kinds = drive(runner, planner("carry-tnt", "runner", "red", "blue"), 900) { eventsOf<MatchEnded>().isNotEmpty() }
+            val matchId = startMatch("carry-tnt", mapOf(runner to "red", guard to "blue"), stage = "siege-isles-tnt")
+            val kinds = drive(runner, planner("carry-tnt", "runner", "red", "blue"), 900, matchId) { eventsOf<MatchEnded>().isNotEmpty() }
             assertThat(kinds.filter { it != "checkpoint" }.take(2)).containsExactly("tnt", "deliver")
             assertThat(eventsOf<MatchEnded>().singleOrNull()?.winningTeam).isEqualTo(TeamId("red"))
         }

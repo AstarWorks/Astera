@@ -1,0 +1,146 @@
+# ADR-0303 example (j): the MythicMobs composition the founder asked for (2026-10-29, requirement 4), in one YAML:
+#   "at tick 1, every 5 ticks for 20 ticks: fire a ball 12 blocks that spins about its forward axis, with a particle trail;
+#    on hit call a sub-skill with params; on end call a sub-skill."
+# Grammar: nested timing group (2.0a), projectile with inline handlers (3.6), `use: skill:` with typed `with:` (9), contract C1-C9.
+# Three documents: the skill and the two sub-skills it calls. The `# expand:` block at the end is the dump of 11.3 and is what A1 / A2 assert.
+apiVersion: astera/v3
+kind: Skill
+id: mythic-volley
+item: couture-rapier
+meta: {cooldown_ticks: 60, resource_cost: 10}
+anchors:
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.6}}        # follow: each occurrence reads the caster's look at ITS tick (class S per occurrence)
+machine:
+  start: cast
+  states:
+    cast:
+      for: 36                        # last occurrence 16 + max flight 12 + longest end/hit sub-skill 8 = 36; nothing may outlive the state (5)
+      then: done
+      do:
+        - id: volley                 # the group: occurrences at 1, 6, 11, 16  (at + k*every, k*every < for)   n = 4
+          at: 1
+          every: 5
+          for: 20
+          lasts: 20                  # occurrence end: any child without its own end is gone 20 ticks after the occurrence (2.0a)
+          do:
+            - id: ball               # this occurrence's ball; `i` = 0..3 inside this list
+              op: projectile
+              origin: muzzle
+              velocity: "= look(caster) * 1.0"        # the caster look at the occurrence tick (muzzle forward), 1 block/tick
+              speed: 1.0
+              range: 12                                # `end` at 12 blocks = tick 12 of the flight unless hit/block earlier
+              radius: 0.4
+              hit: {targets: enemies, once: true}      # first victim ends the flight: `hit` then `end` on the same tick
+              motion:
+                - {law: spin, axis: forward, deg_per_tick: 30, for: 12}   # 360 degrees over the flight, frozen forward axis
+              block: {mode: despawn}                   # a block ends it: `end`
+              on:                                      # event-relative sub-tables (C3), each `at: 0` = the event tick
+                hit:
+                  - {use: skill:ember-splash, with: {power: "= 2 + i", radius: 2.5}, frames: {origin: contact}}
+                end:
+                  - {use: skill:ember-puff, with: {count: 6}, frames: {origin: ball}}
+            - id: core               # the visible ball: rides the body frame, spin exported from the gameplay frame (1.1)
+              op: display
+              kind: item
+              item: fire_charge
+              context: fixed
+              anchor: ball
+              scale: [0.6, 0.6, 0.6]
+              at: 0
+              until: ball.end
+            - id: trail              # the "onTick" of MythicMobs is a rider train, not an op (3.6)
+              op: particle
+              particle: flame
+              anchor: ball
+              count: 3
+              offset: [0.1, 0.1, 0.1]
+              extra: 0.0
+              at: 0
+              every: 1
+              until: ball.end
+            - id: whoosh
+              op: sound
+              sound: entity.blaze.shoot
+              anchor: muzzle
+              volume: 0.8
+              pitch: "= 1.0 + 0.1 * i"                 # rises per occurrence: 1.0, 1.1, 1.2, 1.3
+              at: 0
+    done: {final: true}
+---
+apiVersion: astera/v3
+kind: Skill
+id: ember-splash                     # called on hit; a whole skill (its own machine), ungated by default (no cooldown/cost, 9)
+item: any
+meta: {cooldown_ticks: 0, resource_cost: 0}
+params:
+  power:  {type: number, required: true}
+  radius: {type: blocks, required: true}
+frames_in: {origin: anchor}
+machine:
+  start: burst
+  states:
+    burst:
+      for: 8
+      then: end
+      enter:
+        - {id: dmg, op: damage, target: {kind: enemies, around: origin, radius: "${radius}", max_count: 8, include_self: false},
+           damage: {fire: "= 6 * ${power}"}}
+        - {id: crack, op: sound, sound: entity.generic.explode, anchor: origin, volume: 0.6, pitch: 1.3}
+      do:
+        - {id: lava, op: particle, particle: lava, anchor: origin, count: "= 4 * ${power}", offset: [0.3, 0.3, 0.3], extra: 0.0,
+           at: 0, every: 2, times: 4}
+    end: {final: true}
+---
+apiVersion: astera/v3
+kind: Skill
+id: ember-puff                       # called on end (also after a hit, and on cancel)
+item: any
+meta: {cooldown_ticks: 0, resource_cost: 0}
+params:
+  count: {type: number, required: true}
+frames_in: {origin: anchor}
+machine:
+  start: puff
+  states:
+    puff:
+      for: 4
+      then: end
+      enter:
+        - {id: smoke, op: particle, particle: smoke, anchor: origin, count: "${count}", offset: [0.2, 0.2, 0.2], extra: 0.01, at: 0}
+    end: {final: true}
+# expansion regenerated from the real dump after W1b-02
+# expand: (astera skill expand mythic-volley, 11.3; T = 1 + 5k is the occurrence tick of volley[k], k = 0..3)
+# skill mythic-volley  seed=sample  params={}  bounds: instances=ball 4, core 4, trail 48 (4 x [1,12]), whoosh 4, splash <=4, puff 4
+#                      live_displays<=3 (ticks 11-13, 16-18: three cores alive)  path=[36,36]
+# state cast  for=36  then=done  enter-from: start
+#   @1   volley[0]  occurrence  i=0 n=4          (rows below repeat for volley[1] @6, volley[2] @11, volley[3] @16 with i = 1, 2, 3)
+#   @T   volley[k]/whoosh  sound entity.blaze.shoot vol=0.8 pitch=1.0+0.1k pos=<L:muzzle>
+#   @T   volley[k]/ball  spawn frame origin=<L:muzzle@T> vel=<L:muzzle.forward@T>*1.0 range=12 radius=0.4 hit=enemies,once  end=[T+1,T+12]
+#   @T   volley[k]/core  spawn item fire_charge anchor=ball scale=0.6 pose(0)=rot(forward,0) dur=0
+#   @T+1 volley[k]/core  key dur=3 pos=<L:ball>+3fwd left=rot(forward,120)      # 30 deg/tick, segments split under 170 deg (0): 1-4, 4-8, 8-12
+#   @T+4 volley[k]/core  key dur=4 pos=<L:ball>+4fwd left=rot(forward,240)
+#   @T+8 volley[k]/core  key dur=4 pos=<L:ball>+4fwd left=rot(forward,360)
+#   @T+j volley[k]/trail[j]  particle flame count=3 offset=[0.1,0.1,0.1] extra=0 pos=<L:ball>  mask until ball.end   for j = 0..11 (horizon = ball max end 12, 2.0)
+#   @T+12 volley[k]/ball  end (range)                                             # unless hit/block earlier (sub-table below is pasted at the real tick)
+#   branches: volley[k]/ball.hit[window T+1..T+12] -> sub volley[k]/ball.hit (then ball.end same tick)
+#             volley[k]/ball.block[window T+1..T+12] -> ball.end
+#             timer(36) -> done
+# sub volley[k]/ball.hit  (relative to the hit tick; window [T+1,T+12] in cast; at most once per k; contact, target bound)
+#   @0   volley[k]/ball.hit/splash  call skill:ember-splash as splash with={power: 2+k, radius: 2.5} frames={origin: contact}
+#   @0   splash/dmg    damage targets=<L:enemies around contact r=2.5 max 8> fire amount=12+6k
+#   @0   splash/crack  sound entity.generic.explode vol=0.6 pitch=1.3 pos=contact
+#   @0   splash/lava[0]  particle lava count=8+4k offset=[0.3,0.3,0.3] extra=0 pos=contact
+#   @2   splash/lava[1]  particle lava count=8+4k ...
+#   @4   splash/lava[2]  particle lava count=8+4k ...
+#   @6   splash/lava[3]  particle lava count=8+4k ...
+#   @8   splash  end                                                             # ember-splash.burst for=8 -> end (final)
+# sub volley[k]/ball.end  (relative to the end tick; window [T+1,T+12] in cast; exactly once per k, after hit if any, also on cancel)
+#   @0   volley[k]/core   end                                                    # until: ball.end
+#   @0   volley[k]/trail  end                                                    # until: ball.end (no further occurrences)
+#   @0   volley[k]/ball.end/puff  call skill:ember-puff as puff with={count: 6} frames={origin: ball (last pose, snapshot)}
+#   @0   puff/smoke  particle smoke count=6 offset=[0.2,0.2,0.2] extra=0.01 pos=ball
+#   @4   puff  end
+# state done  final
+# writes: volley[k]/core: 3 seg + spawn, max 1/tick (constant spin + constant velocity share boundaries)
+# runtime-dependent (C4): WHO (splash/dmg targets), WHICH/WHEN inside [T+1,T+12] (hit / block / range end), POSITIONS (muzzle@T, ball, contact),
+#   nothing else. No row's existence or tick is decided at runtime.

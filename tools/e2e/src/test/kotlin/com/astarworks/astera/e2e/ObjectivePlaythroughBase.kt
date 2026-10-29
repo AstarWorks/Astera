@@ -143,6 +143,23 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
         }
     }
 
+    /**
+     * Right-clicks the loose objective's hitbox (the nearest Interaction entity within 5 blocks) about every 500 ms until
+     * [until] holds or [timeoutMs] pass; true when [until] held. A pickup is a click, not a dwell (carry-tnt, carry-mini-tnt).
+     */
+    protected fun clickObjective(bot: Bot, timeoutMs: Long = 15_000, until: () -> Boolean): Boolean {
+        val deadline = System.currentTimeMillis() + timeoutMs
+        while (System.currentTimeMillis() < deadline) {
+            if (until()) return true
+            bot.entities.values
+                .filter { it.type.contains("INTERACTION", ignoreCase = true) && Math.hypot(it.x - bot.x, it.z - bot.z) <= 5.0 }
+                .minByOrNull { Math.hypot(it.x - bot.x, it.z - bot.z) }
+                ?.let { bot.interact(it.id) }
+            Thread.sleep(500)
+        }
+        return until()
+    }
+
     protected fun walkCheck(ctx: Ctx, what: String, result: ObjectiveWalker.Result, x: Double, z: Double) {
         E2eReport.check(ctx.suite, "the bot walked to $what (A* navigation)", "RCON data get Pos") {
             assertThat(result).describedAs("walk to $what ($x, $z) ended $result; pos=${posOf(ctx.actor)}; chat=${ctx.chat().takeLast(4)}").isNotEqualTo(ObjectiveWalker.Result.TIMEOUT)

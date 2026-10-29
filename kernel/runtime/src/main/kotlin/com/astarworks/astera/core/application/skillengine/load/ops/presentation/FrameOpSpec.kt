@@ -1,0 +1,331 @@
+package com.astarworks.astera.core.application.skillengine.load.ops.presentation
+
+import com.astarworks.astera.core.application.skillengine.compose.AnchorNames
+import com.astarworks.astera.core.application.skillengine.compose.AnchorRegistry
+import com.astarworks.astera.core.application.skillengine.compose.ExprClass
+import com.astarworks.astera.core.application.skillengine.compose.LawSegmenter
+import com.astarworks.astera.core.application.skillengine.compose.LowerContext
+import com.astarworks.astera.core.application.skillengine.compose.Occurrence
+import com.astarworks.astera.core.application.skillengine.load.DecodeAbort
+import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
+import com.astarworks.astera.core.application.skillengine.load.grammar.Field
+import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
+import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
+import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVec
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVecs
+import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
+import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
+import com.astarworks.astera.core.application.skillengine.load.grammar.LocalAxes
+import com.astarworks.astera.core.application.skillengine.load.grammar.Rotation
+import com.astarworks.astera.core.application.skillengine.load.grammar.Rotations
+import com.astarworks.astera.core.application.skillengine.load.grammar.Span
+import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
+import com.astarworks.astera.core.application.skillengine.load.grammar.TimingKind
+import com.astarworks.astera.core.application.skillengine.load.grammar.Types
+import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaws
+import com.astarworks.astera.core.application.skillengine.load.spec.Lowered
+import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
+import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
+import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
+import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.geometry.math.Quaternion
+import com.astarworks.astera.core.domain.skillengine.expr.ExprEnv
+import com.astarworks.astera.core.domain.skillengine.expr.ExprEvalException
+import com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec
+import com.astarworks.astera.core.domain.skillengine.expr.ExprType
+import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
+import com.astarworks.astera.core.domain.skillengine.expr.FrameLookup
+import com.astarworks.astera.core.domain.skillengine.model.Value
+import com.astarworks.astera.core.domain.skillengine.op.OpSection
+import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
+import com.astarworks.astera.core.domain.skillengine.table.Action
+import com.astarworks.astera.core.domain.skillengine.table.InstanceId
+import com.astarworks.astera.core.domain.skillengine.table.Look
+import com.astarworks.astera.core.domain.skillengine.table.OpId
+import com.astarworks.astera.core.domain.skillengine.table.SrcPath
+import com.astarworks.astera.core.domain.skillengine.table.SubTable
+import com.astarworks.astera.core.domain.skillengine.table.Pose
+import com.astarworks.astera.core.domain.skillengine.table.Row
+import com.astarworks.astera.core.domain.skillengine.table.SpawnKind
+import com.astarworks.astera.core.domain.skillengine.table.Val
+import com.astarworks.astera.core.domain.skillengine.table.WriteStats
+import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
+import com.astarworks.astera.core.domain.skillengine.math.Vector3d
+
+public enum class FrameMode { FOLLOW, SNAPSHOT }
+
+/**
+ * Decoded `frame` op (ADR-0303 1.1): an origin + a quaternion that things ride on; no appearance.
+ *
+ * ```yaml
+ * - {id: blade, op: frame, times: 3, anchor: shears, part: blade_a, turn: [{axis: long, deg: "= i * 120"}], for: 40, motion: [...]}
+ * ```
+ */
+public class FrameOp(
+    override val id: OpId,
+    override val src: SrcPath,
+    override val whenExpr: WhenRef?,
+    override val timing: Timing?,
+    /** Parent: a builtin (`caster`, `world`, `contact`, ...), a declared anchor, or a frame / family member (`blade[i]`). */
+    public val anchor: String,
+    /** `parts.<name>` of `content/frames/<item>.yaml`; its points and axes become this frame's. */
+    public val part: String?,
+    public val offset: FrameVec,
+    public val turn: Rotation,
+    public val mode: FrameMode,
+    /** R23: whose axes the frame takes (`caster` / `victim` / `world`); null = the anchor's own axes. Re-read per send (follow) or once (snapshot). */
+    public val axes: String?,
+    /** Motion laws decoded by [MotionLaws]; segmented into `Key` rows by [LawSegmenter] at compile; null = a still frame. */
+    public val motion: List<MotionLaw>?,
+) : OpNode
+
+public object FrameOpSpec : OpSpec<FrameOp> {
+    override val name: String = "frame"
+    override val section: OpSection = OpSection.PRESENTATION
+    override val timing: TimingKind? = TimingKind.EXTENDED
+
+    private val anchorF = Field.required("anchor", Types.id, "parent: caster, victim/target, world, contact, a declared anchor, or another frame (blade[i])")
+    private val partF = Field.optional("part", Types.nullable(Types.id), null, "weapon part of content/frames/<item>.yaml whose points and axes this frame takes")
+    private val offsetF = Field.optional("offset", FrameVecs.type, FrameVec.Parts(Value.Literal(0.0), Value.Literal(0.0), Value.Literal(0.0)), "initial position in the parent's axes {forward, up, left}")
+    private val turnF = Field.optional("turn", Rotations.type, Rotation.Turns(emptyList()), "initial orientation relative to the parent basis, [{axis, deg}, ...] (axes long/edge/face need part)")
+    private val modeF = Field.optional("mode", Types.enumOf("follow", "snapshot"), "follow", "follow: re-read the parent at every send; snapshot: copy the pose once")
+    private val axesF = Field.optional("axes", Types.nullable(Types.enumOf("caster", "victim", "world")), null, "whose axes the frame takes: caster | victim | world; absent = the anchor's own axes")
+    private val motionF = Field.optional<RawMotion?>("motion", Types.nullable(MotionType), null, "laws on the origin and the axes (ADR-0303 3)")
+
+    override val fields: Fields = Fields.of("frame", anchorF, partF, offsetF, turnF, modeF, axesF, motionF)
+
+    /** The raw `motion:` list: the laws are read in [decode], once the sibling `part:` (so `long` / `edge` / `face`) and the param defaults are known. */
+    private class RawMotion(val raw: Any?, val path: String)
+
+    private object MotionType : FieldType<RawMotion> {
+        override val label = "list of laws"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): RawMotion = RawMotion(raw, path)
+        override fun schema(): Map<String, Any?> = MotionLaws.jsonSchema()
+    }
+
+    override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<FrameOp, SkillDecodeError> =
+        Grammar.guard {
+            val times = timing?.times
+            if (times != null && timing.every == null) {
+                val n = ctx.resolveNumber(times)
+                if (n != null && (n != Math.floor(n) || n < 1.0)) ctx.fail("${id.value}.times", "a frame family needs a whole times >= 1 (was $n)")
+            }
+            FrameOp(
+                id, src, whenExpr, timing,
+                values[anchorF], values[partF], values[offsetF], values[turnF],
+                if (values[modeF] == "snapshot") FrameMode.SNAPSHOT else FrameMode.FOLLOW,
+                values[axesF], values[motionF]?.let { m -> MotionLaws.readLaws(m.raw, ctx.forLaws(AxisResolver(lawAxes(values[partF], ctx))), m.path) },
+            )
+        }
+
+    /**
+     * `long` / `edge` of the frame's `part`. The compiler's decode has the item frame table and gets the part's real axes (absent part = no axes);
+     * the document decoder has no table, so it only validates the law grammar against stand-in axes (the compile-time decode re-reads the laws).
+     */
+    private fun lawAxes(part: String?, ctx: GrammarContext): Map<String, Vec3> {
+        if (part == null) return emptyMap()
+        val table = ctx.partAxes ?: return mapOf("long" to Vec3(0.0, 1.0, 0.0), "edge" to Vec3(1.0, 0.0, 0.0))
+        return table(part) ?: emptyMap()
+    }
+
+    override fun lower(op: FrameOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
+        val ctx = GrammarContext(lc.skillId)
+        return Grammar.guard { lowerOrAbort(op, lc, ctx) }
+    }
+
+    private fun lowerOrAbort(op: FrameOp, lc: LowerContext, ctx: GrammarContext): Lowered {
+        val src = lc.src.value
+        val t = op.timing
+        // A family is `times` WITHOUT `every`; with `every` the unroller owns the repeat and each occurrence is one frame (2.0, rev4.1).
+        val family: Int? = if (t?.times != null && t.every == null) staticTicks(lc, ctx, "$src.times", "times", t.times) else null
+
+        val item = if (op.part != null) {
+            lc.skills.skill(lc.skillId)?.item
+                ?: ctx.fail("$src.part", "part '${op.part}' needs the skill's item to find content/frames/<item>.yaml, but this skill has no item")
+        } else null
+        val modelPart = if (op.part != null) {
+            lc.frames.item(item!!)?.partFor(op.part)
+                ?: ctx.fail("$src.part", "content/frames/$item.yaml has no part '${op.part}'")
+        } else null
+
+        val life: Int? = lifeTicks(op, lc, ctx, src)
+        val rows = ArrayList<Row>()
+        val writes = LinkedHashMap<InstanceId, WriteStats>()
+        val subTables = ArrayList<SubTable>()
+        var basis = if (op.motion != null) ExprClass.T else ExprClass.S
+
+        // The unroller owns every repetition and id (item 5): this call lowers exactly one instance, `lc.self`.
+        val instance = lc.self
+        val declared = InstanceId(instance.path.dropLast(1) + InstanceId.Segment(op.id, null))
+        val occ = lc.occurrence
+        run {
+            val ev = Evaluator(lc, ctx, occ)
+            val scope = (lc.anchors as? AnchorRegistry)?.at(occ) ?: lc.anchors
+
+            val parent = resolveParent(op.anchor, scope, src, ctx)
+            val position = ev.vec(op.offset.toLocal(), "$src.offset")
+            val axes = AxisResolver(modelPart?.axes ?: emptyMap())
+            val rotation = ev.quat(op.turn.toValue(ctx, "$src.turn", axes), "$src.turn")
+            val live = position is Val.Live || rotation is Val.Live
+            if (live) basis = ExprClass.L
+
+            val look = LinkedHashMap<String, Val<Any>>()
+            look["mode"] = Val.Known(if (op.mode == FrameMode.SNAPSHOT) "snapshot" else "follow")
+            op.axes?.let { look["axes"] = Val.Known(it) }
+            if (item != null) look["item"] = Val.Known(item)
+            if (op.part != null) look["part"] = Val.Known(op.part)
+            // the part's model points ride in the table, so an expression `<id>.tip` reads a number the dump shows (3.5), not a lookup at play time
+            modelPart?.points?.forEach { (name, p) -> look["point.$name"] = Val.Known(Vector3d(p.x, p.y, p.z)) }
+            rows += Row(
+                0, instance,
+                Action.Spawn(SpawnKind.FRAME, parent, op.anchor, Pose(position, rotation, Val.Known(Vector3d(1.0, 1.0, 1.0))), Look(look)),
+                lc.src,
+            )
+
+            var segments = 0
+            // The anchor's own laws ride first (left_rotation = anchor.rot(t) * rider), then this frame's own.
+            val laws = lc.anchors.laws(op.anchor) + op.motion.orEmpty()
+            if (laws.isNotEmpty()) {
+                val moved = when (val r = LawSegmenter.segments(instance, laws, lc)) {
+                    is Result.Failure -> throw DecodeAbort(r.error)
+                    is Result.Success -> r.value
+                }
+                // a law outlasting the frame's `for:` writes nothing once the frame has ended: rows at or after the End tick are dead
+                val inLife = if (life != null) moved.rows.filter { it.tick < life } else moved.rows
+                rows += composeBase(inLife, position, rotation, ctx, src)
+                subTables += moved.subTables
+                segments = inLife.count { it.action is Action.Key }
+            }
+            if (life != null) rows += Row(life, instance, Action.End(instance), lc.src)
+            writes[instance] = WriteStats(segments, if (segments > 0) 1 else 0)
+        }
+
+        (lc.anchors as? AnchorRegistry)?.declare(declared, family, basis, op.motion.orEmpty())
+        return Lowered(rows = rows, subTables = subTables, instances = listOf(instance), writes = writes)
+    }
+
+    /** End tick of one frame: `lasts` when it repeats, else `for`; `for: cast` / `until` / no `for` leave the end to the owner and the unroller. */
+    private fun lifeTicks(op: FrameOp, lc: LowerContext, ctx: GrammarContext, src: String): Int? {
+        val t = op.timing ?: return null
+        if (t.every != null) return t.lasts?.let { staticTicks(lc, ctx, "$src.lasts", "lasts", it) }
+        return when (val span = t.span) {
+            is Span.Ticks -> staticTicks(lc, ctx, "$src.for", "for", span.ticks)
+            Span.UntilCastEnds, null -> null
+        }
+    }
+
+    private fun staticTicks(lc: LowerContext, ctx: GrammarContext, path: String, field: String, v: Value<Double>): Int =
+        when (val r = lc.requireStaticTiming(path, field, v)) {
+            is Result.Success -> r.value
+            is Result.Failure -> ctx.abort(r.error)
+        }
+
+    private val BUILTIN_ROOTS = setOf("world", "caster", "victim", "target", "contact")
+
+    /**
+     * An indexed name (`blade[i]`) must resolve to a spawned frame; a plain name is a builtin or an anchor declared in `anchors:` and stays
+     * a name (the compiler checks declared anchors). A bare family name is ambiguous and is a load error.
+     */
+    private fun resolveParent(name: String, scope: com.astarworks.astera.core.application.skillengine.compose.AnchorScope, src: String, ctx: GrammarContext): InstanceId? {
+        scope.resolve(name)?.let { return it.instance }
+        val parts = AnchorNames.split(name) ?: ctx.fail("$src.anchor", "'$name' is not an anchor name")
+        if (parts.index != null) {
+            ctx.abort(SkillDecodeError.UndefinedReference(ctx.file, "$src.anchor", name))
+        }
+        if (parts.base !in BUILTIN_ROOTS && scope.resolve("${parts.base}[0]") != null) {
+            ctx.fail("$src.anchor", "'${parts.base}' is a frame family; write ${parts.base}[i] (or an index) to pick the member")
+        }
+        return null
+    }
+
+    /** `long`, `edge`, `face = long x edge` from the part table, else the local frame axes. */
+    private class AxisResolver(private val axes: Map<String, Vec3>) : com.astarworks.astera.core.application.skillengine.load.grammar.AxisResolver {
+        override fun axis(name: String): Vec3? = when (name) {
+            "long", "edge" -> axes[name]?.normalize()
+            "face" -> {
+                val l = axes["long"]
+                val e = axes["edge"]
+                if (l != null && e != null) l.cross(e).normalize() else null
+            }
+            else -> LocalAxes.axis(name)
+        }
+    }
+
+    /**
+     * The law state is relative to the frame's own base pose: a Known `Key` is moved by the base offset and turned by the base rotation
+     * (`offset = base + law`, `rot = base * law`). A live law cell (follow / align / stretch) cannot be re-based, and a live base cannot
+     * carry laws: both fail the load instead of being flattened.
+     */
+    private fun composeBase(rows: List<Row>, basePosition: Val<Vector3d>, baseRotation: Val<Quaterniond>, ctx: GrammarContext, src: String): List<Row> {
+        val bp = (basePosition as? Val.Known)?.value
+        val br = (baseRotation as? Val.Known)?.value
+        val identity = bp != null && br != null && bp.lengthSquared() == 0.0 && br.x == 0.0 && br.y == 0.0 && br.z == 0.0
+        return rows.map { row ->
+            val k = row.action as? Action.Key ?: return@map row
+            val t = k.translation
+            val r = k.leftRotation
+            if (t is Val.Known && r is Val.Known) {
+                if (bp == null || br == null) ctx.fail("$src.motion", "motion on a live offset or turn cannot be re-based onto the frame")
+                row.copy(action = k.copy(translation = Val.Known(Vector3d(bp).add(t.value)), leftRotation = Val.Known(Quaterniond(br).mul(r.value))))
+            } else {
+                if (!identity) ctx.fail("$src.motion", "a reactive law (follow / align / stretch) needs a frame with no offset and no turn")
+                row
+            }
+        }
+    }
+
+    /** Static evaluation of the pose values of ONE instance: literals and expressions of `i`, `n`, `parent.i` fold to Known; the rest stays Live. */
+    private class Evaluator(private val lc: LowerContext, private val ctx: GrammarContext, private val occ: Occurrence) {
+        private val variables: Map<String, ExprValue>
+        private val spec: ExprEnvSpec
+
+        init {
+            val vars = LinkedHashMap<String, ExprValue>()
+            var o: Occurrence? = occ
+            var p = ""
+            while (o != null) {
+                vars[p + "i"] = ExprValue.Num(o.i.toDouble())
+                vars[p + "n"] = ExprValue.Num(o.n.toDouble())
+                o = o.parent
+                p += "parent."
+            }
+            variables = vars
+            spec = ExprEnvSpec(variables = vars.mapValues { ExprType.NUM })
+        }
+
+        private val noFrames = object : FrameLookup {
+            override fun worldPose(frame: String, point: String?) = null
+            override fun velocity(frame: String, point: String?) = Vec3.ZERO
+        }
+
+        private fun fold(source: String, expected: ExprType, path: String): ExprValue? {
+            val compiled = when (val r = lc.exprs.compile(source, spec, expected)) {
+                is Result.Success -> r.value
+                is Result.Failure -> ctx.abort(SkillDecodeError.BadExpr(ctx.file, path, r.error))
+            }
+            return try {
+                compiled.eval(ExprEnv(variables, noFrames))
+            } catch (_: ExprEvalException) {
+                null // depends on a run-time value: stays Live
+            }
+        }
+
+        fun vec(v: Value<Vec3>, path: String): Val<Vector3d> = when (v) {
+            is Value.Literal -> Val.Known(Vector3d(v.value.x, v.value.y, v.value.z))
+            is Value.ParamRef -> Val.Live(v.name, null)
+            is Value.Expr -> (fold(v.source, ExprType.VEC3, path) as? ExprValue.Vec3)
+                ?.let { Val.Known(Vector3d(it.value.x, it.value.y, it.value.z)) } ?: Val.Live(v.source, null)
+        }
+
+        fun quat(v: Value<Quaternion>, path: String): Val<Quaterniond> = when (v) {
+            is Value.Literal -> Val.Known(v.value.toJoml())
+            is Value.ParamRef -> Val.Live(v.name, null)
+            is Value.Expr -> (fold(v.source, ExprType.QUAT, path) as? ExprValue.Quat)
+                ?.let { Val.Known(it.value.toJoml()) } ?: Val.Live(v.source, null)
+        }
+
+        private fun Quaternion.toJoml(): Quaterniond = Quaterniond(x, y, z, w)
+    }
+}

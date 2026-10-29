@@ -70,7 +70,7 @@ class BotModeRolesScenarioTest {
         scenario("bot-roles-carry-tnt") {
             val runner = player("r1", at = Vec3(0.0, 65.0, -50.0))
             val enemy = player("b1", at = Vec3(0.0, 65.0, -50.0))
-            startMatch("carry-tnt", mapOf(runner to "red", enemy to "blue"), stage = "siege-isles-tnt")
+            val matchId = startMatch("carry-tnt", mapOf(runner to "red", enemy to "blue"), stage = "siege-isles-tnt")
             val src = objectives("carry-tnt")
             val zones = checkNotNull(src.zones())
             val redBase = checkNotNull(zones.point("base-red"))
@@ -111,6 +111,7 @@ class BotModeRolesScenarioTest {
                 val step = checkNotNull(carrier.step(now, runner.position.x, runner.position.z))
                 if (kinds.lastOrNull() != step.kind) kinds += step.kind
                 runner.moveTo(Vec3(step.x, 65.0, step.z))
+                if (carrier.clickWanted) clickNearestMarker(runner, matchId)
                 if (carrier.holdingTnt) {
                     // The facts now say red carries; the mates see r1 where it stands.
                     facts.tnt = TntFact(runner.position.x, runner.position.z, "red", "r1")
@@ -129,6 +130,43 @@ class BotModeRolesScenarioTest {
             assertThat(interceptStep?.role).`as`("the enemy squad goes for the carrier").isEqualTo(Role.INTERCEPTOR)
             assertThat(interceptStep?.kind).isEqualTo("intercept")
             assertThat(eventsOf<MatchEnded>().singleOrNull()?.winningTeam).isEqualTo(TeamId("red"))
+        }
+    }
+
+    /** The live bot sees only boss bars and a glowing player: the same roles must come out of what the client observes. */
+    @Test
+    fun `carry-tnt observed from the boss bars - the shield breaks first, then the enemy intercepts and the own team escorts with no second carrier`() {
+        val src = objectives("carry-tnt")
+        val zones = checkNotNull(src.zones())
+        val redBase = checkNotNull(zones.point("base-red"))
+        val blueBase = checkNotNull(zones.point("base-blue"))
+        val spawn = checkNotNull(zones.point("tnt-spawn"))
+        val red = squad("r", redBase)
+        val blue = squad("b", blueBase)
+        fun facts() = com.astarworks.astera.bots.ObservedModeFacts("carry-tnt", { _, _, _ -> null }, { _, _ -> null }, spawn.first to spawn.third)
+
+        for ((shieldBar, carriedBar) in listOf(
+            "TNT shield 120 HP - break it to grab the TNT" to "red is carrying the TNT",
+            "TNT シールド 120 HP - 壊すと TNT を掴める" to "red がTNTを運搬中",
+        )) {
+            val shielded = facts().also { it.updateRainmaker(listOf(shieldBar), emptyList()) }
+            assertThat(shielded.shieldHp()).isEqualTo(120.0)
+            assertThat(shielded.tnt()).isNull()
+            val breakers = rolesOf(red.map { it.name }, { planner("carry-tnt", src, it, "red", listOf("blue"), shielded, red) }) { redBase }
+            assertThat(breakers.values.count { it == Role.SHIELD_BREAKER }).isGreaterThan(0)
+
+            // Red carries; the carrier glows 30 blocks from its spawn. Its name is not on the Tab list for the observers.
+            val carrying = facts().also { it.updateRainmaker(listOf(carriedBar), listOf(com.astarworks.astera.bots.GlowingPlayer(null, spawn.first + 30.0, spawn.third))) }
+            assertThat(carrying.shieldHp()).isNull()
+            assertThat(carrying.tnt()?.carrierTeam).isEqualTo("red")
+            assertThat(carrying.tnt()?.x).isEqualTo(spawn.first + 30.0)
+            val onTheWay = listOf(Mate("r1", spawn.first + 30.0, spawn.third)) + red.drop(1)
+            val redRoles = rolesOf(red.map { it.name }, { planner("carry-tnt", src, it, "red", listOf("blue"), carrying, onTheWay) }) { redBase }
+            assertThat(redRoles.values.count { it == Role.CARRIER }).`as`("the unnamed carrier is the mate standing at the glow; nobody else walks to the empty spawn").isEqualTo(1)
+            assertThat(redRoles).containsEntry("r1", Role.CARRIER)
+            assertThat(redRoles.values).contains(Role.ESCORT)
+            val blueRoles = rolesOf(blue.map { it.name }, { planner("carry-tnt", src, it, "blue", listOf("red"), carrying, blue) }) { blueBase }
+            assertThat(blueRoles.values).`as`("the enemy squad hunts the carrier").contains(Role.INTERCEPTOR)
         }
     }
 
@@ -178,7 +216,7 @@ class BotModeRolesScenarioTest {
         scenario("bot-roles-mini-tnt") {
             val runner = player("r1", at = Vec3(0.0, 65.0, -50.0))
             val guard = player("b1", at = Vec3(0.0, 65.0, -50.0))
-            startMatch("carry-mini-tnt", mapOf(runner to "red", guard to "blue"))
+            val matchId = startMatch("carry-mini-tnt", mapOf(runner to "red", guard to "blue"))
             val src = objectives("carry-mini-tnt")
             val zones = checkNotNull(src.zones())
             val redBase = checkNotNull(zones.point("base-red"))
@@ -225,6 +263,7 @@ class BotModeRolesScenarioTest {
                 val step = checkNotNull(rush.step(now, runner.position.x, runner.position.z))
                 if (seen.lastOrNull() != step.role to step.kind) seen += step.role to step.kind
                 runner.moveTo(Vec3(step.x, 65.0, step.z))
+                if (rush.clickWanted) clickNearestMarker(runner, matchId)
                 advance(10)
                 now += 500
             }
@@ -357,6 +396,7 @@ class BotModeRolesScenarioTest {
             val step = checkNotNull(bot.step(now, runner.position.x, runner.position.z)) { "mode has a plan" }
             if (kinds.lastOrNull() != step.kind) kinds += step.kind
             runner.moveTo(Vec3(step.x, 65.0, step.z))
+            if (bot.clickWanted) clickNearestMarker(runner, match)
             advance(10)
             now += 500
         }

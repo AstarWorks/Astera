@@ -1,18 +1,41 @@
-# Converted from content/skills/glacier-spike.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: glacier-spike
 item: glacier-wand
 meta: {name: {ja: "氷柱", en: "Ice Spike"}, description: {ja: "氷の礫を飛ばし、相手の足を鈍らせる。", en: "Flings a shard of ice that slows the target."}, cooldown_ticks: 50, resource_cost: 10, tags: [ranged, water, magic]}
-frames:
-  - {id: bolt, kind: body, parent: world, inactive: true}
-  - {id: pt_aim_0_0_0p5, kind: point, parent: aim, offset: [0.0, 0.0, 0.5]}
-gameplay:
-  params: {launch_speed: 2.2, max_lifetime_ticks: 40, dmg_water: 15, sinking_ticks: 60}
-  expose:
-    - {id: damage, param: dmg_water}
-    - {id: flight_speed, param: launch_speed}
-  timeline:
-    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
-  "on": {hit: [{id: dmg, op: damage, components: [{kind: water, amount: "${dmg_water}"}], target: victim}, {id: st_sinking, op: status, status: sinking, duration_ticks: "${sinking_ticks}", target: victim}]}
+anchors:
+  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: cast_fx, anchor: caster, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
+  - {id: heart,   anchor: victim.root, offset: {up: 1.2}}   # was pt_enemy_0_1p2_0 (victim feet, yaw-only)
+machine:
+  start: fly
+  states:
+    fly:
+      for: 40                       # = v2 max_lifetime_ticks; covers the whole flight
+      then: end
+      on:
+        - {event: bolt.end, to: end}
+      enter:
+        - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 0.7, pitch: 1.3}
+        - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx}
+      do:
+        - id: bolt
+          op: projectile
+          origin: muzzle
+          velocity: "= look(caster) * 2.2"
+          for: 40
+          radius: 0.5
+          hit: {targets: enemies, once: true}
+          block: {mode: despawn}
+          on:
+            hit:
+              - {id: dmg, op: damage, target: event.victim, damage: {water: 15}}
+              - {id: st_sinking, op: status, target: event.victim, status: sinking, stacks: 1, for: 60}
+              - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: heart, volume: 0.7, pitch: 1.1}
+              - {id: fx_hit, op: particle_def, def: frost-impact, anchor: heart}
+            block:
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
+              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point}
+        - {id: trail_snow, op: particle, particle: snowflake, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], every: 1, until: bolt.end}
+        - {id: trail_dust, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.0, 0.0, 0.0], color: "#bee6ff", size: 1.0, every: 1, until: bolt.end}
+    end: {final: true}

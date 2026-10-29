@@ -143,6 +143,14 @@ class SkillExprScenarioTest {
     }
 
     @Test
+    fun `event victim is a runtime position and event i is not`() {
+        val victim = com.astarworks.astera.core.application.skillengine.expr.cel.ExprClassifier.analyse("= event.victim.y + 1")
+        assertThat(victim.usesRuntimePosition).isTrue()
+        val index = com.astarworks.astera.core.application.skillengine.expr.cel.ExprClassifier.analyse("= event.i * 2")
+        assertThat(index.usesRuntimePosition).isFalse()
+    }
+
+    @Test
     fun `timings`() {
         val sources = listOf(
             """rotate(quat_axis_angle(axis(volley,"left"), t*54.0), axis(volley,"up"))""",

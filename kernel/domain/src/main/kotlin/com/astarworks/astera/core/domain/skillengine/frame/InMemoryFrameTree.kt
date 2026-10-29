@@ -48,13 +48,18 @@ public class InMemoryFrameTree : FrameTree {
     }
 
     override fun worldOf(id: FrameId): Result<Frame, FrameError> {
-        var node = nodes[id] ?: return Result.failure(FrameError.Unknown(id.value))
-        var world = node.local
-        while (true) {
-            val parentId = node.parent ?: return Result.success(world)
-            node = nodes[parentId] ?: return Result.failure(FrameError.Unknown(parentId.value))
-            world = node.local.compose(world)
-        }
+        val node = nodes[id] ?: return Result.failure(FrameError.Unknown(id.value))
+        val parentId = node.parent ?: return Result.success(node.local)
+        val parentWorld = worldOf(parentId).let { r -> r.getOrNull() ?: return Result.failure(r.errorOrNull()!!) }
+        val k = scaleOf(parentId)
+        val composed = if (k == 1.0) parentWorld.compose(node.local)
+        else Frame(parentWorld.toWorld(node.local.origin * k), (parentWorld.rotation * node.local.rotation).normalized())
+        val orient = node.orient ?: return Result.success(composed)
+        // an unresolvable look frame leaves the inherited rotation (the declaration is validated when the frame is added)
+        val look = worldOf(FrameId(orient.look)).getOrNull() ?: return Result.success(composed)
+        val reference = worldOf(FrameId(orient.reference)).getOrNull()
+        val rotation = orient.rotation(composed.origin, look, reference)
+        return Result.success(Frame(composed.origin, (rotation * node.local.rotation).normalized()))
     }
 
     override fun reparent(id: FrameId, newParent: FrameId, keepWorld: Boolean, snap: Frame?): Result<Unit, FrameError> {

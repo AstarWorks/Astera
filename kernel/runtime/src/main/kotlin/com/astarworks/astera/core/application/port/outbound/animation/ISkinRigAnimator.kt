@@ -14,8 +14,8 @@ import com.astarworks.astera.core.domain.player.PlayerId
  */
 public interface ISkinRigAnimator {
 
-    /** Starts [animation] on [playerId], replacing a rig animation already running. */
-    public fun play(playerId: PlayerId, animation: CustomAnimationId): Result<Unit, SkinRigError>
+    /** Starts [animation] on [playerId], replacing a rig animation already running. [speed] scales the clip clock (1 = authored). */
+    public fun play(playerId: PlayerId, animation: CustomAnimationId, speed: Double = 1.0): Result<Unit, SkinRigError>
 
     /** Blends the running animation out (the only way to end a looping one). */
     public fun stop(playerId: PlayerId): Result<Unit, SkinRigError>

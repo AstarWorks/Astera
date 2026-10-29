@@ -1,21 +1,43 @@
-# Converted from content/skills/club-bash.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: club-bash
 item: club
-meta: {name: {ja: "棍棒の殴打", en: "Club Bash"}, description: {ja: "大きく吹き飛ばす一撃。", en: "A blow that knocks the target far back."}, cooldown_ticks: 18, resource_cost: 8, tags: [melee, physical, control]}
-gameplay:
-  params: {arc_deg: 80.0, range: 2.8, dmg_physical: 24.0, knockback: 1.6}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: range, param: range}
-  timeline:
-    - id: t0
-      at: 0
+meta:
+  name: {ja: 棍棒の殴打, en: Club Bash}
+  description: {ja: "大きく吹き飛ばす一撃。", en: "A blow that knocks the target far back."}
+  cooldown_ticks: 18
+  resource_cost: 8
+  tags: [melee, physical, control]
+params:
+  arc_deg:      {type: number, default: 80}
+  range:        {type: blocks, default: 2.8}
+  dmg_physical: {type: number, default: 24}
+  knockback:    {type: number, default: 1.6}
+anchors:
+  - {id: fx, anchor: caster.eye, offset: {forward: 1.4}}
+  - {id: heart, anchor: victim.root, offset: {up: 1.2}}
+machine:
+  start: cast
+  states:
+    cast:
+      for: 1
+      then: done
       do:
-        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, at: eye, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
-  "on":
-    hit:
-      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
-      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster))", strength: "${knockback}", when: "= event.source == 'swing'"}
+        - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 0.9, pitch: 1.1, at: 0}
+        - {id: fx1, op: particle_def, def: hit-spark, anchor: fx, at: 0}
+        - id: strike
+          op: hit
+          anchor: caster.eye
+          at: 0
+          shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
+          targets: enemies
+          max_count: all       # GAP(Q1): v2 had no cap
+          window: once
+          ignore_invulnerability: false
+          damage: {physical: "${dmg_physical}"}
+          on:
+            hit:
+              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster))", strength: "${knockback}"}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
+              - {id: spark, op: particle_def, def: hit-spark, anchor: heart}
+    done: {final: true}

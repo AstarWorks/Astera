@@ -1,18 +1,41 @@
-# Converted from content/skills/smg-burst.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+apiVersion: astera/v3
 kind: Skill
 id: smg-burst
 item: smg
-meta: {name: {ja: "短機関銃", en: "SMG Burst"}, description: {ja: "軽い弾をばら撒く。", en: "Sprays light rounds."}, cooldown_ticks: 4, resource_cost: 2, tags: [ranged, gun, physical]}
-frames:
-  - {id: bolt, kind: body, parent: world, inactive: true}
-  - {id: pt_aim_0_0_0p5, kind: point, parent: aim, offset: [0.0, 0.0, 0.5]}
-gameplay:
-  params: {launch_speed: 3.2, max_lifetime_ticks: 30, dmg_physical: 5.5}
-  expose:
-    - {id: damage, param: dmg_physical}
-    - {id: flight_speed, param: launch_speed}
-  timeline:
-    - {id: t0, at: 0, do: [{id: bolt, op: projectile, body: bolt, from: pt_aim_0_0_0p5, velocity: "= look(caster) * launch_speed", max_ticks: "${max_lifetime_ticks}", radius: 0.5}]}
-  "on": {hit: [{id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}]}
+meta:
+  name: {ja: "短機関銃", en: "SMG Burst"}
+  description: {ja: "軽い弾をばら撒く。", en: "Sprays light rounds."}
+  cooldown_ticks: 4
+  resource_cost: 2
+  tags: [ranged, gun, physical]
+anchors:
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: flash,  anchor: caster, offset: {up: -0.25, forward: 0.9}}
+  - {id: heart,  anchor: victim.root, offset: {up: 1.2}}
+machine:
+  start: fly
+  states:
+    fly:
+      on:
+        - {event: bolt.end, to: end}    # manager ruling 2026-10-29: the cast ends when the projectile body ends (v2)
+      do:
+        - {id: snd, op: sound, sound: "astera:weapons/gun-shot", anchor: caster, volume: 0.5, pitch: 1.6}
+        - {id: puff, op: particle_def, def: gun-muzzle-flash, anchor: flash}
+        - id: bolt
+          op: projectile
+          origin: muzzle
+          velocity: "= look(caster) * 3.2"
+          for: 30
+          radius: 0.5
+          hit: {targets: enemies, once: true}     # v2 projectile ended on its first victim
+          block: {mode: despawn}
+          on:
+            hit:
+              - {id: dmg, op: damage, target: event.victim, damage: {physical: 5.5}}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact, volume: 0.5, pitch: 1.3}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+            block:
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
+              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact}
+        - {id: trail, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], at: 0, every: 1, until: bolt.end}
+    end: {final: true}

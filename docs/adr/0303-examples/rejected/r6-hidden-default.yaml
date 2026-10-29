@@ -1,0 +1,18 @@
+# error: SkillDecodeError.Invalid   (the loader reports "block.restitution is required"; 2.0b / 3.6: block mode `bounce` requires `restitution` and `times`; nothing is defaulted)
+apiVersion: astera/v3
+kind: Skill
+id: rejected-r6
+item: couture-rapier
+meta: {cooldown_ticks: 10, resource_cost: 0}
+anchors:
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+machine:
+  start: s
+  states:
+    s:
+      for: 40
+      then: end
+      do:
+        - {id: ball, op: projectile, origin: muzzle, velocity: "= look(caster) * 1.0", range: 12, radius: 0.4,
+           hit: {targets: enemies, once: true}, block: {mode: bounce}}
+    end: {final: true}

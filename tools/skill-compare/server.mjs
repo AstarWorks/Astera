@@ -1,12 +1,14 @@
 // skill-compare server: static app + case data + cached media. Bun only (Bun.serve / Bun.build).
 //   bun server.mjs                 -> http://0.0.0.0:8097
 //   PORT=9000 HOST=127.0.0.1 bun server.mjs
-// It only ever reads from: public/, src/ (bundled), data/, cache/, and the three Astera build dirs below.
+// Static app, reference data and explicitly scoped generator outputs (lib/hub.mjs).
 import { existsSync, readdirSync, readFileSync, renameSync, statSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, resolve, sep, dirname } from "node:path";
 import { networkInterfaces } from "node:os";
 import { fileURLToPath } from "node:url";
 import { CASE_ID_RE, validateCase, diffSummary } from "./src/timeline.js";
+import { makeSprites } from "./lib/sprites.mjs";
+import { makeHub } from "./lib/hub.mjs";
 import { makeSources } from "./lib/sources.mjs";
 import { buildIndex } from "./lib/weapons.mjs";
 import { makeAnim, ANIM_ID_RE } from "./lib/anim.mjs";
@@ -35,6 +37,14 @@ export function makeHandler(opts = {}) {
   const tracesDir = opts.tracesDir ?? join(repo, "tools", "game-sim", "build", "sim-traces");
 
   const primary = primaryRepo(repo);
+  // The detached follower has no build outputs. Capture workers keep theirs in their own worktrees.
+  const wtRoot = process.env.SKILL_COMPARE_WORKTREE_ROOT || join(primary, '.claude/worktrees');
+  const generatedRepos = opts.worktrees === false || !existsSync(wtRoot) ? [] : readdirSync(wtRoot, { withFileTypes: true })
+    .filter(d => d.isDirectory()).map(d => join(wtRoot, d.name))
+    .filter(r => ['build/vfx-shot', 'build/skill-preview', 'build/arena-previews', 'tools/hud-preview/build/hud-frames', 'tools/model-forge/work/reviewer'].some(d => existsSync(join(r, d))));
+  const repos = [...new Set([repo, primary, ...S.sources().map(s => resolve(s.root, '../..')), ...generatedRepos])];
+  const sprites = makeSprites({ repo, builds: repos.map(r => join(r, 'build')), vfxDirs: () => [...new Set([...S.vfxDirs(), ...repos.map(r => join(r, 'build/vfx-shot'))])] });
+  const hub = makeHub({ repos, publishedDir, vfxShotDir });
   const devDir = opts.devDir ?? process.env.SKILL_COMPARE_STATE_DIR ?? join(primary, ".claude", "state", "dev-deploy");
   const farmDir = opts.farmDir ?? process.env.SKILL_COMPARE_FARM_STATE ?? join(primary, ".claude", "state", "capture-farm");
   const F = makeFreshness({ repo, devDir, farmDir });
@@ -315,6 +325,10 @@ export function makeHandler(opts = {}) {
 
   function file(path, type) {
     if (!existsSync(path) || !statSync(path).isFile()) return new Response("not found", { status: 404 });
+    if (type?.startsWith('text/html')) {
+      const html = readFileSync(path, 'utf8');
+      return new Response(html + '<script src="/nav.js"></script>', { headers: { 'content-type': type, 'cache-control': 'no-cache' } });
+    }
     return new Response(Bun.file(path), { headers: { ...(type ? { "content-type": type } : {}), "cache-control": /\.(png|jpg|webp)$/.test(path) ? "private, max-age=300" : "no-cache" } });
   }
 
@@ -396,6 +410,11 @@ export function makeHandler(opts = {}) {
     const url = new URL(req.url);
     const p = url.pathname;
     let m;
+    if (p === '/api/sprites/catalog' || p.startsWith('/sprites/asset/')) return sprites(req);
+    if (p.startsWith('/api/hub/') || p.startsWith('/hub-file/')) return (await hub(req)) || err(404, 'not found');
+    if (p === '/sprites' || p === '/samples') return file(join(publicDir, 'sprites.html'), 'text/html; charset=utf-8');
+    if (/^\/(viewer|hud|arena|models|captures|live)$/.test(p)) return file(join(publicDir, 'hub.html'), 'text/html; charset=utf-8');
+    if (['/nav.js', '/hub.js', '/sprites.js', '/sprites.css'].includes(p)) return file(join(publicDir, p.slice(1)), p.endsWith('.js') ? 'text/javascript' : 'text/css');
     if (p === "/api/events" && req.method === "GET") return events.response();
     if (p === "/annotate.html") return file(join(publicDir, "annotate.html"), "text/html; charset=utf-8");
     if (p === "/annotate.js") return appJs("annotate");
@@ -442,6 +461,11 @@ export function makeHandler(opts = {}) {
     if (p === "/case.css") return file(join(publicDir, "case.css"), "text/css");
     if (p === "/api/cases" && req.method === "GET") return json(listCases());
     if (p === "/api/index" && req.method === "GET") return json(buildIndex({ repo, S, mcInfo }));
+    // `astera skill expand all` writes build/skill-expand/<id>.json (ExpansionDump.json): the table panel of the case page.
+    if ((m = /^\/api\/expand\/([a-z0-9-]+)$/.exec(p)) && req.method === "GET") {
+      const f = join(repo, "build", "skill-expand", m[1] + ".json");
+      return existsSync(f) ? file(f, "application/json; charset=utf-8") : err(404, "no expansion dump: run `astera skill expand " + m[1] + "`");
+    }
     if ((m = /^\/icon\/([a-z0-9-]+)\.png$/.exec(p))) return file(join(repo, "content", "textures", "generated", "items", m[1] + ".png"), "image/png");
     if ((m = /^\/api\/cases\/([a-z0-9-]+)\/founder$/.exec(p))) {
       if (!CASE_ID_RE.test(m[1])) return err(400, "bad id");
@@ -517,7 +541,8 @@ if (import.meta.main) {
   const port = Number(process.env.PORT || 8097);
   const hostname = process.env.HOST || "0.0.0.0";
   const handle = makeHandler({ repo: process.env.SKILL_COMPARE_REPO || undefined });
-  Bun.serve({ port, hostname, fetch: handle, idleTimeout: 0 }); // idleTimeout 0: /api/events streams stay open
+  const server = Bun.serve({ port, hostname, fetch: handle, idleTimeout: 0 }); // idleTimeout 0: /api/events streams stay open
   const lan = Object.values(networkInterfaces()).flat().filter((i) => i && i.family === "IPv4" && !i.internal).map((i) => i.address);
-  console.log(`skill-compare on http://${hostname}:${port}  (LAN: ${lan.map((a) => `http://${a}:${port}`).join(" ") || "-"})`);
+  const actualPort = server.port;
+  console.log(`skill-compare on http://${hostname}:${actualPort}  (LAN: ${lan.map((a) => `http://${a}:${port}`).join(" ") || "-"})`);
 }

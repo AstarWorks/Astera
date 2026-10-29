@@ -1,0 +1,13 @@
+# tool skill hit area (pickaxe: sparks off the rock); heavier at diamond tier
+id: tool-pick-diamond
+shape:
+  kind: burst
+  spread_blocks: 0.5
+color:
+  r: 255
+  g: 255
+  b: 255
+count: 32
+lifetime_ticks: 12
+vanilla_particle: electric_spark
+speed: 0.35

@@ -1,13 +1,21 @@
-# Converted from content/skills/sanctuary-purify.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
-# Generated point-frame offsets are [left, up, forward] in the parent frame.
-apiVersion: "astera/v2"
+# v3 hand port of the v2 skill (ADR-0303 rev4.2). Look = dev single burst at tick 0 (end_rod count 0 speed 0.02 + one dust); no ring waves (dev look.yaml had none).
+apiVersion: astera/v3
 kind: Skill
 id: sanctuary-purify
 item: sanctuary-staff
 meta: {name: {ja: "浄化", en: Purify}, description: {ja: "自分と周囲の味方の状態異常を取り除く。", en: "Clears harmful effects from you and nearby allies."}, cooldown_ticks: 200, resource_cost: 20, tags: [magic, support]}
-gameplay:
-  params: {radius: 6.0}
-  expose:
-    - {id: radius, param: radius}
-  timeline:
-    - {id: t0, at: 0, do: [{id: cleanse, op: cleanse, negative_only: true, target: {allies: {around: caster, radius: "${radius}"}}}]}
+anchors:
+  - {id: self,  anchor: caster}
+  - {id: feet,  anchor: caster, offset: {up: 0.15}}                   # was pt_caster_0_0p15_0
+machine:
+  start: bless
+  states:
+    bless:
+      for: 1
+      then: end
+      enter:
+        - {id: snd, op: sound, sound: "block.amethyst_block.chime", anchor: caster, volume: 0.8, pitch: 1.2}
+        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: self, radius: 6.0, max_count: all, include_self: true}}   # GAP(Q1): v2 had no cap; A=`all`, B=omit
+        - {id: pts,  op: particle, particle: end_rod, anchor: feet, count: 0, extra: 0.02}
+        - {id: dust, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#f0f0aa", size: 1.4}
+    end: {final: true}

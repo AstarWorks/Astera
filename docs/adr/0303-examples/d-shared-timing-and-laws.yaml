@@ -5,73 +5,79 @@ kind: Skill
 id: example-charge-orb
 anchors:
   - {id: palm, anchor: caster.hand_r, mount: caster}
-presentation:
-  timeline:
-    - id: charge
-      at: 4                    # default `at` of every op below
-      for: 30                  # the group's window; ops inherit it unless they override
+machine:
+  start: charge
+  states:
+    charge:
+      for: 40
+      then: done
       do:
-        # DISPLAY (extended kind): one instance, lives for the group's window (for: 30); laws have their own from/for windows.
-        - id: orb
-          op: display
-          kind: sprite
-          sprite: couture-s2-haze-soft
-          anchor: palm
-          offset: {forward: 0.4}
-          billboard: center
-          size: [0.2, 0.2]                                       # blocks
-          motion:
-            - {law: grow, prop: size, per_tick: [0.01, 0.01], accel: 0.0004, from: 0, for: 30}  # swells, faster and faster
-            - {law: spin, axis: face, deg_per_tick: 6, accel: 0.4}
+        - id: charge
+          at: 4                    # default `at` of every op below
+          for: 30                  # the group's window; ops inherit it unless they override
+          do:
+            # DISPLAY (extended kind): one instance, lives for the group's window (for: 30); laws have their own from/for windows.
+            - id: orb
+              op: display
+              kind: sprite
+              sprite: couture-s2-haze-soft
+              anchor: palm
+              offset: {forward: 0.4}
+              billboard: center
+              size: [0.2, 0.2]                                       # blocks
+              for: 30
+              motion:
+                - {law: grow, per_tick: 0.05, accel: 0.002, at: 0, for: 30}  # swells, faster and faster (scale on the 0.2 base: +0.01 blocks/tick, accel 0.0004)
+                - {law: spin, axis: forward, deg_per_tick: 6, accel: 0.4, at: 0, for: 30}
 
-        # PARTICLE (point kind): repeats every 2 ticks inside the same window. SAME grow / accel words, acting on its own properties.
-        - id: sparks
-          op: particle
-          particle: end_rod
-          anchor: palm
-          every: 2                                               # occurrences at 4, 6, 8, ... (exact multiples of 2)
-          count: 2
-          offset: [0.3, 0.3, 0.3]
-          extra: 0.02
-          motion:
-            - {law: grow, prop: count, per_tick: 0.25}                        # thicker each tick (rounded per occurrence)
-            - {law: grow, prop: offset, per_tick: [-0.008, -0.008, -0.008], from: 0, for: 30}   # the spread box tightens: sparks are drawn in
-            - {law: grow, prop: extra, per_tick: 0.002, accel: 0.0001}                        # and faster
+            # PARTICLE (point kind): repeats every 2 ticks inside the same window. Point ops carry no `motion:` (engine: ParticleOpSpec/SoundOpSpec have none),
+            # so what the ADR 3.4 `prop` laws said is written as spawn-time CEL on the repeat index i (class S), tau = 2 * i ticks since the group start.
+            - id: sparks
+              op: particle
+              particle: end_rod
+              anchor: palm
+              every: 2                                               # occurrences at 4, 6, 8, ... (exact multiples of 2)
+              for: 30
+              count: "= 2 + 0.5 * i"                                 # grow count 0.25/tick: thicker each occurrence
+              offset: "= vec(1.0, 1.0, 1.0) * (0.3 - 0.016 * i)"      # grow offset -0.008/tick (tau = 2 i): the box tightens each occurrence
+              extra: "= 0.02 + 0.004 * i + 0.0002 * i * i"           # grow extra 0.002/tick, accel 0.0001: and faster (0.02 + v*tau + a*tau^2/2)
 
-        # SOUND (point kind): the same every/for; a rising hum. `accel` on pitch is the same law field as `accel` on spin.
-        - id: hum
-          op: sound
-          sound: block.beacon.ambient
-          anchor: palm
-          every: 2
-          volume: 0.4
-          pitch: 0.6
-          motion:
-            - {law: grow, prop: pitch, per_tick: 0.01, accel: 0.0005}        # per occurrence: pitch = 0.6 + 0.01*tau + ...
-            - {law: fade,  prop: volume, exponent: 1.0, from: 24, for: 6}      # fades out over the last 6 ticks (1.0 stated, not hidden: 2.0b)
+            # SOUND (point kind): the same every/for; a rising hum, as CEL on i.
+            - id: hum
+              op: sound
+              sound: block.beacon.ambient
+              anchor: palm
+              every: 2
+              for: 30
+              volume: "= 0.4 * clamp(1.0 - (2 * i - 24) / 6.0, 0.0, 1.0)"   # fade over the last 6 ticks (tau 24..30), exponent 1.0 = linear
+              pitch: "= 0.6 + 0.02 * i + 0.001 * i * i"                     # grow pitch 0.01/tick, accel 0.0005
 
-        # CEL on the SAME fields: spawn-time expressions on the repeat index, no extra writes (class S). `rand()` is seeded per (cast, op, i).
-        - id: ring
-          op: particle
-          particle: electric_spark
-          anchor: palm
-          every: 2
-          offset: {left: "= sin(i * 0.5) * 0.3", up: "= cos(i * 0.5) * 0.3"}     # an emit point circling the palm
-          count: 0                                                              # vanilla count 0: offset is the DIRECTION, extra the speed
-          extra: "= 0.05 + 0.01 * rand()"
+            # CEL on the SAME fields: spawn-time expressions on the repeat index, no extra writes (class S). `rand()` is seeded per (cast, op, i).
+            - id: ring
+              op: particle
+              particle: electric_spark
+              anchor: palm
+              every: 2
+              for: 30
+              offset: "= vec(0.0, cos(i * 0.5) * 0.3, sin(i * 0.5) * 0.3)"     # an emit point circling the palm
+              count: 0                                                              # vanilla count 0: offset is the DIRECTION, extra the speed
+              extra: "= 0.05 + 0.01 * rand()"
 
-    - id: release
-      at: 34
-      do:
-        # damage / hit ticks use the same block: three hits, 2 ticks apart (each occurrence sees i)
-        - {id: pulse, op: hit, at: 34, every: 2, times: 3, shape: {sector: {deg: 360, range: 3}}, damage: "= 10 + 2 * i"}
-        - {id: boom, op: sound, sound: entity.generic.explode, anchor: palm, volume: 0.8, pitch: 1.2}
-        # CEL class T on a display: a flash whose size follows a curve of t. The curve is fitted to segments; the budget is 0.03 blocks.
-        - id: flash
-          op: display
-          kind: sprite
-          sprite: couture-s2-haze-soft
-          anchor: palm
-          billboard: center
-          size: "= [0.2 + 0.1 * t, 0.2 + 0.1 * t]"
-          for: 4
+        - id: release
+          at: 34
+          do:
+            # damage / hit ticks use the same block: three hits, 2 ticks apart (each occurrence sees i). `at: 0` = the group occurrence tick (34);
+            # the group block is not inherited and child timing is relative to it (2.0a, rev4.1 corrected `at: 34` here, which meant 68)
+            - {id: pulse, op: hit, at: 0, every: 2, for: 6, anchor: caster, targets: enemies, shape: {sector: {deg: 360, range: 3, height: 2.0, forward: look}}, ignore_invulnerability: false, window: once, damage: {physical: "= 10 + 2 * i"}}
+            - {id: boom, op: sound, sound: entity.generic.explode, anchor: palm, volume: 0.8, pitch: 1.2}
+            # CEL class T on a display: a flash whose size follows a curve of t. The curve is fitted to segments; the budget is 0.03 blocks.
+            - id: flash
+              op: display
+              kind: sprite
+              sprite: couture-s2-haze-soft
+              anchor: palm
+              billboard: center
+              size: ["= 0.2 + 0.4 * ease('out_quad', t / 4)", "= 0.2 + 0.4 * ease('out_quad', t / 4)"]   # class T: sampled per tick, fitted to linear segments (budget 0.03 blocks)
+              for: 4
+
+    done: {final: true}
