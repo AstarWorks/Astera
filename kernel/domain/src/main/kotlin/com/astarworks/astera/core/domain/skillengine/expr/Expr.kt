@@ -76,6 +76,10 @@ public interface ExprHost {
     public fun stacks(entity: ExprValue.Ref, status: String): Double =
         throw ExprEvalException("stacks('$status') needs a cast host that reads status stacks")
 
+    /** True when the entity behind [entity] (`caster`, `victim`, `target`) holds the item [item] (`has_item`, ADR-0303 10.1b); read at the evaluation tick. A host that cannot answer fails loudly. */
+    public fun hasItem(entity: ExprValue.Ref, item: String): Boolean =
+        throw ExprEvalException("has_item('$item') needs a cast host that reads inventories")
+
     /** Distance from [from] to the feet position of the nearest enemy of the caster, or [Double.MAX_VALUE] when none within 64 blocks. */
     public fun nearestEnemyDist(from: GeoVec3): Double = Double.MAX_VALUE
 
