@@ -974,7 +974,7 @@ Cancel runs `revertAll` for the cast's `Action.World` rows.
 
 | op | fields |
 |---|---|
-| `break_area` | `shape` one of `sphere: {radius, ahead}`, `line: {length, width}`, `box: {width, height, length}`; `tool` (`axe` \| `pickaxe` \| `shovel` \| `none`: which blocks break and which drops apply); `block_damage` (0..2000); `ripple` (ticks to spread the cells over); `revert` (1..6000 ticks until the blocks are restored); `outside_arena` (true allows breaking beyond the arena bound) |
+| `break_area` | `shape` one of `sphere: {radius}` (centred on the anchor; an offset is written on the anchor), `line: {length, width}`, `box: {width, height, length}`; `tool` (`axe` \| `pickaxe` \| `shovel` \| `none`: which blocks break and which drops apply); `block_damage` (0..2000); `ripple` (ticks to spread the cells over); `revert` (1..6000 ticks until the blocks are restored); `outside_arena` (true allows breaking beyond the arena bound) |
 | `place_shape` | `shape` one of `wall: {width, height}`, `bridge: {length, width}`, `pillar: {height}`, `platform: {width, length}`; `block` (the block id placed); `consume` (an item id, or `none`); `ripple`; `revert` (1..6000); `outside_arena` |
 | `explode` | `power`, `break_blocks`, `fire`: a vanilla `createExplosion` only. A damaging area is a SEPARATE `damage` op (keeps damage in the damage grammar) |
 | `lightning` | `visual_only` true (effect, no damage, no fire) or false (a real strike) |

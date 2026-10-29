@@ -41,11 +41,11 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg}"}}
-              - {id: chip, op: break_area, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
+              - {id: chip, op: break_area, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact}
               - {id: fx_hit, op: particle_def, def: gun-impact, anchor: heart}
             block:
-              - {id: chip_b, op: break_area, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
+              - {id: chip_b, op: break_area, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.6, pitch: 1.6}
               - {id: fx_blk0, op: particle_def, def: gun-impact, anchor: contact}
               - {id: fx_blk1, op: particle_def, def: gun-impact-smoke, anchor: contact}

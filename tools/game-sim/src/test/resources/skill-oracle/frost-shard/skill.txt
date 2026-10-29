@@ -48,11 +48,11 @@ g @0 state-end then=- final=true | state=cast/recover
 g @0 state-end then=- final=true | state=done
 g.absorbed @1..43 handler max=1 | sub=cast/ball.absorbed
 g.bounce @1..43 handler max=2 | sub=cast/ball.bounce
-g.bounce @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D0.5,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D10,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=cast/ball.bounce
+g.bounce @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D0.5),%20tool%3Dnone,%20blockDamage%3D10,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=cast/ball.bounce
 g.end @0..1200 handler max=1 | sub=cast/ball.end
 g.hit @1..43 handler max=1 | sub=cast/ball.hit
 g.hit @0 damage water=25.000000 | sub=cast/ball.hit
 g.hit @0 status freeze stacks=1.000000 for=60 when | sub=cast/ball.hit
 g.hit @0 status wet stacks=1.000000 for=100 | sub=cast/ball.hit
-g.hit @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D0.5,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D10,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=cast/ball.hit
+g.hit @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D0.5),%20tool%3Dnone,%20blockDamage%3D10,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=cast/ball.hit
 g.hit @0 call skill:frost-shard-burst | sub=cast/ball.hit

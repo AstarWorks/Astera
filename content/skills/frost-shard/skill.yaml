@@ -48,12 +48,12 @@ machine:
               - {id: dmg, op: damage, target: event.victim, damage: {water: "${dmg_water}"}}
               - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: "${freeze_ticks}", when: "= rand() < 0.7"}
               - {id: st_wet, op: status, target: event.victim, status: wet, stacks: 1, for: "${wet_ticks}"}
-              - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
+              - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: heart, volume: 0.7, pitch: 1.5}
               - {id: line, op: particle, particle: end_rod, anchor: {of: contact, to: heart, samples: 5}, count: 1, extra: 0.05}
               - {id: burst, use: skill:frost-shard-burst, with: {snow: 30, rod: 10, dust: 20}, frames: {spot: heart}}
             bounce:
-              - {id: chip_b, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5, ahead: 4.0}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
+              - {id: chip_b, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_blk, op: sound, sound: "astera:skills/frost-impact", anchor: contact.point, volume: "= 0.5 - 0.1 * event.i", pitch: "= 1.6 + 0.1 * event.i"}
               - {id: fx_blk, op: particle_def, def: frost-impact, anchor: contact.point}
               - {id: fx_blk_dust, op: particle_def, def: frost-impact-dust, anchor: contact.point}

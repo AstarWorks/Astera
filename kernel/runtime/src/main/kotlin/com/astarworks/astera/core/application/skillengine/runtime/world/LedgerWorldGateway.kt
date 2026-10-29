@@ -22,7 +22,7 @@ public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess
     protected val editor: SkillWorldEditor = SkillWorldEditor(blocks)
 
     override fun breakArea(cast: CastRef, spec: BreakAreaSpec, aim: WorldAim) {
-        val centre = WorldShapes.breakCentre(spec.shape, aim)
+        val centre = WorldShapes.breakCentre(aim)
         val ordered = WorldShapes.breakCells(spec.shape, aim).sortedBy { it.distanceSquaredTo(centre) }
         val toolClass = spec.tool.takeIf { it != "none" }
         for ((index, cell) in ordered.withIndex()) {

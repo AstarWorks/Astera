@@ -6,7 +6,7 @@
 @0 particle - op=fly/trail[0]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#bea064 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2862907801785208463
 @1 particle - op=fly/trail[1]/wake type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4064924585375109741
 @1 particle - op=fly/trail[1]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#bea064 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-32496506395722141
-@1 hit - op=fly/arrow at=0.000000,1.620000,3.100000 r=0.500000 shape=capsule a=0.000000,1.620000,3.100000 b=0.000000,1.620000,3.100000 rad=0.500000
+@1 hit - op=fly/arrow at=0.000000,1.620000,1.800000 r=1.800000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.100000 rad=0.500000
 @1 remove #0 op=fly/shaft
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
@@ -18,7 +18,7 @@ g @1 cast-end | pose
 @0 particle - op=fly/trail[0]/dust type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#bea064 size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2862907801785208463
 @1 particle - op=fly/trail[1]/wake type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4064924585375109741
 @1 particle - op=fly/trail[1]/dust type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#bea064 size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-32496506395722141
-@1 hit - op=fly/arrow at=-1.753116,2.680262,2.326463 r=0.500000 shape=capsule a=-1.753116,2.680262,2.326463 b=-1.753116,2.680262,2.326463 rad=0.500000
+@1 hit - op=fly/arrow at=-1.017938,2.235636,1.350849 r=1.800000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.753116,2.680262,2.326463 rad=0.500000
 @1 remove #0 op=fly/shaft
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose

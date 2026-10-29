@@ -1040,7 +1040,7 @@ public class TablePlayer(
         a.anchor?.let { if (isFrozen(run, it, now)) return }
         val delta = a.anchor?.let { run.recs[it] }?.let { r ->
             val cur = worldOf(run, r, r.localAt(now), ctx.binding, now).pos
-            val prev = worldOf(run, r, r.localAt(now - 1), ctx.binding, now - 1).pos
+            val prev = worldOf(run, r, r.prevLocal(now), ctx.binding, now - 1).pos
             Vector3d(cur).sub(prev)
         } ?: Vector3d()
         fun back(p: Vector3d, k: Double) = Vec3(p.x - delta.x * k, p.y - delta.y * k, p.z - delta.z * k)
@@ -2161,7 +2161,11 @@ public class TablePlayer(
             segDur = duration
         }
 
-        /** The local pose one tick before [t] (what the instance was at the end of the previous tick). */
+        /**
+         * The local pose the rows of tick [t] - 1 saw: rows run before a tick's motion, so a duration-0 move made during tick [t] - 1 is
+         * not visible to them yet. `localAt(t) - prevLocal(t)` is the true one-tick displacement a row of tick [t] sweeps (`localAt(t - 1)`
+         * would return the post-move pose for a per-tick `moveTo` and collapse the segment to a point).
+         */
         fun prevLocal(t: Int): PoseV =
             if (segDur <= 0) (if (segStart >= t - 1) from else to) else if (t - 1 < segStart) from else localAt(t - 1)
 

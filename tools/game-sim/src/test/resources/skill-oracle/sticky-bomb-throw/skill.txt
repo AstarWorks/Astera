@@ -6,7 +6,7 @@
 @0 particle - op=fly/ember[0] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#78c850 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2018281000721661001
 @1 particle - op=fly/smoke[1] type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2403224595754814996
 @1 particle - op=fly/ember[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#78c850 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4311280139792544234
-@1 hit - op=fly/bolt at=0.000000,1.620000,1.700000 r=0.500000 shape=capsule a=0.000000,1.620000,1.700000 b=0.000000,1.620000,1.700000 rad=0.500000
+@1 hit - op=fly/bolt at=0.000000,1.620000,1.100000 r=1.100000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,1.700000 rad=0.500000
 @1 remove #0 op=fly/shell
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
@@ -18,7 +18,7 @@ g @1 cast-end | pose
 @0 particle - op=fly/ember[0] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#78c850 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2018281000721661001
 @1 particle - op=fly/smoke[1] type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2403224595754814996
 @1 particle - op=fly/ember[1] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#78c850 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4311280139792544234
-@1 hit - op=fly/bolt at=-0.961386,2.201434,1.275802 r=0.500000 shape=capsule a=-0.961386,2.201434,1.275802 b=-0.961386,2.201434,1.275802 rad=0.500000
+@1 hit - op=fly/bolt at=-0.622073,1.996222,0.825519 r=1.100000 shape=capsule a=-0.282761,1.791010,0.375236 b=-0.961386,2.201434,1.275802 rad=0.500000
 @1 remove #0 op=fly/shell
 g @1 state-exit reason=EVENT | state=fly
 g @1 cast-end | pose
@@ -30,9 +30,9 @@ g.absorbed @1..60 handler max=1 | sub=fly/bolt.absorbed
 g.block @1..60 handler max=1 | sub=fly/bolt.block
 g.block @0 world explode break_blocks=false fire=false power=1.500000 | sub=fly/bolt.block
 g.block @0 damage fire=30.000000 to=enemies@3.000000 | sub=fly/bolt.block
-g.block @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D1.0,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D25,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=fly/bolt.block
+g.block @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D1.0),%20tool%3Dnone,%20blockDamage%3D25,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=fly/bolt.block
 g.end @0..1200 handler max=1 | sub=fly/bolt.end
 g.hit @1..60 handler max=1 | sub=fly/bolt.hit
 g.hit @0 world explode break_blocks=false fire=false power=1.500000 | sub=fly/bolt.hit
 g.hit @0 damage fire=30.000000 to=enemies@3.000000 | sub=fly/bolt.hit
-g.hit @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D1.0,%20ahead%3D4.0),%20tool%3Dnone,%20blockDamage%3D25,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=fly/bolt.hit
+g.hit @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D1.0),%20tool%3Dnone,%20blockDamage%3D25,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=fly/bolt.hit

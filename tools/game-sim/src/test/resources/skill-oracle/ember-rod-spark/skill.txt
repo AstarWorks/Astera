@@ -7,7 +7,7 @@
 @0 particle - op=cast/trail[0]/t2 type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5257178822861720458
 @1 particle - op=cast/trail[1]/t1 type=flame count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7113630354027015377
 @1 particle - op=cast/trail[1]/t2 type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-180357378418760300
-@1 hit - op=cast/bolt at=0.000000,1.620000,2.700000 r=0.500000 shape=capsule a=0.000000,1.620000,2.700000 b=0.000000,1.620000,2.700000 rad=0.500000
+@1 hit - op=cast/bolt at=0.000000,1.620000,1.600000 r=1.600000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,2.700000 rad=0.500000
 @1 remove #0 op=cast/core
 g @1 state-exit reason=EVENT | state=cast
 g @1 cast-end | pose
@@ -20,7 +20,7 @@ g @1 cast-end | pose
 @0 particle - op=cast/trail[0]/t2 type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5257178822861720458
 @1 particle - op=cast/trail[1]/t1 type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7113630354027015377
 @1 particle - op=cast/trail[1]/t2 type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-180357378418760300
-@1 hit - op=cast/bolt at=-1.526907,2.543454,2.026274 r=0.500000 shape=capsule a=-1.526907,2.543454,2.026274 b=-1.526907,2.543454,2.026274 rad=0.500000
+@1 hit - op=cast/bolt at=-0.904834,2.167232,1.200755 r=1.600000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.526907,2.543454,2.026274 rad=0.500000
 @1 remove #0 op=cast/core
 g @1 state-exit reason=EVENT | state=cast
 g @1 cast-end | pose
