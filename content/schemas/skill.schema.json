@@ -13299,7 +13299,7 @@
                                     "ease": {
                                         "type": "string",
                                         "pattern": "^\\S+$",
-                                        "description": "easing of the whole segment (any v1 easing name except step)",
+                                        "description": "easing of the whole segment (any easing name except step)",
                                         "default": "linear"
                                     },
                                     "roll": {

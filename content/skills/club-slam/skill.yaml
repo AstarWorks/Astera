@@ -30,7 +30,6 @@ machine:
           op: rig
           parent: caster
           mount: caster.hand_r
-          part: held_hand
           rest: [{axis: left, deg: 72}]
           detach: true
           for: 13
