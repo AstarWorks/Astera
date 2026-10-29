@@ -63,6 +63,8 @@ public class RigOp(
     public val rest: Vector3d,
     public val swing: List<SwingStep>,
     public val part: String?,
+    /** `main` = the held item (its thirdperson_righthand part); `off` = the off-hand blade of a dual-wield weapon (its thirdperson_lefthand part, riding the left arm). */
+    public val hand: String,
     public val duration: Value<Double>,
     public val respectHitStop: Boolean,
     public val bodyRespectHitStop: Boolean,
@@ -80,6 +82,7 @@ public object RigOpSpec : OpSpec<RigOp> {
     private val swing = Field.optional("swing", RigSwings.type, emptyList(), "edge-travel steps: from / via / to, edge leading|trailing")
 
     private val part = Field.optional("part", Types.nullable(Types.id), null, "axes source of the driven frame (needs of:); a held rig (no of) takes the item's thirdperson_righthand part, chosen by the engine, never written")
+    private val hand = Field.identity("hand", Types.enumOf("main", "off"), "main", "held rig only: main = the held item (thirdperson_righthand part, right arm); off = the off-hand blade of a dual-wield weapon (thirdperson_lefthand part of content/frames/<item>.yaml, its own model, left arm)")
     private val respectHitStop = Field.optional("respect_hit_stop", Types.bool, Value.Literal(false), "the rig freezes during hit-stop")
     private val bodyRespectHitStop = Field.optional("body_respect_hit_stop", Types.bool, Value.Literal(false), "the body freezes during hit-stop")
     private val freezeAt = Field.required("at", Types.number, "rig-relative tick")
@@ -92,7 +95,7 @@ public object RigOpSpec : OpSpec<RigOp> {
     override val section: OpSection = OpSection.GAMEPLAY
     override val timing: TimingKind? = TimingKind.EXTENDED
     override val fields: Fields = Fields.of(
-        "rig", parent, of, anim, mount, pivot, tilt, rest, swing, part,
+        "rig", parent, of, anim, mount, pivot, tilt, rest, swing, part, hand,
         respectHitStop, bodyRespectHitStop, freezes,
     )
 
@@ -121,7 +124,12 @@ public object RigOpSpec : OpSpec<RigOp> {
             val duration = CasterMotion.ticksOf(probe, ctx, path)
             fun flag(f: Field<Value<Boolean>>): Boolean = (values[f] as? Value.Literal)?.value ?: ctx.fail("$path.${f.name}", "must be a literal true/false")
             val mountPoint = values[mount]
-            if (mountPoint != null && mountPoint != ARM_MOUNT) ctx.fail("$path.mount", "'$mountPoint' is not a body point a rig can ride; only $ARM_MOUNT is served")
+            val handName = values[hand]
+            if (mountPoint != null && mountPoint != ARM_MOUNT && mountPoint != OFF_ARM_MOUNT) ctx.fail("$path.mount", "'$mountPoint' is not a body point a rig can ride; only $ARM_MOUNT and $OFF_ARM_MOUNT are served")
+            if (mountPoint != null && (mountPoint == OFF_ARM_MOUNT) != (handName == "off")) {
+                ctx.fail("$path.mount", "hand: $handName rides ${if (handName == "off") OFF_ARM_MOUNT else ARM_MOUNT}, not '$mountPoint' (the off-hand blade is carried by the left arm)")
+            }
+            if (handName == "off" && values[of] != null) ctx.fail("$path.hand", "hand: off is for a held rig; a rig driving a frame (of:) has no hand")
             val steps = values[swing]
             val frz = values[freezes].mapIndexed { i, f ->
                 val a = ctx.resolveNumber(f[freezeAt])?.toInt() ?: ctx.fail("$path.freezes[$i].at", "must be a number known at load")
@@ -132,7 +140,7 @@ public object RigOpSpec : OpSpec<RigOp> {
             RigOp(
                 id, src, whenExpr, timing, values[parent], values[of], values[anim], mountPoint, values[pivot],
                 rotationVector(values[tilt], ctx, "$path.tilt"), rotationVector(values[rest], ctx, "$path.rest"),
-                steps, values[part], duration,
+                steps, values[part], handName, duration,
                 flag(respectHitStop), flag(bodyRespectHitStop), frz,
             )
         }
@@ -140,8 +148,12 @@ public object RigOpSpec : OpSpec<RigOp> {
     /** The body point a rig can ride: the caster's right arm, carried by the rig's `anim` clip (the rig resolves it itself; it is not an anchor name). */
     public const val ARM_MOUNT: String = "caster.hand_r"
 
+    /** The body point an off-hand rig rides: the caster's left arm. */
+    public const val OFF_ARM_MOUNT: String = "caster.hand_l"
+
     /** The display transform the player draws the main-hand mesh with (`AnchorMainHand`); a rig carrying the held item takes its long/edge axes from a part with this display. */
     private const val HELD_DISPLAY = ItemFrames.HELD_HAND_DISPLAY
+    private const val OFF_DISPLAY = ItemFrames.OFF_HAND_DISPLAY
 
     private val BUILTIN_PARENTS = setOf("caster", "caster.body", "caster.eye", "caster.look", "world")
 
@@ -184,17 +196,19 @@ public object RigOpSpec : OpSpec<RigOp> {
                     SkillDecodeError.Invalid(lc.skillId, path, "rig '${op.id.value}': part: is for a rig driving a frame (of:); a held rig takes the part of content/frames/$item.yaml whose display is $HELD_DISPLAY, chosen by the engine"),
                 )
             }
-            val hands = frames.handParts()
+            val off = op.hand == "off"
+            val wanted = if (off) OFF_DISPLAY else HELD_DISPLAY
+            val hands = if (off) frames.offHandParts() else frames.handParts()
             when (hands.size) {
                 0 -> return Result.Failure(
                     SkillDecodeError.Invalid(
                         lc.skillId, path,
-                        "rig '${op.id.value}': content/frames/$item.yaml has no part with display: $HELD_DISPLAY (a held mesh is drawn as the client draws a held item)",
+                        "rig '${op.id.value}': content/frames/$item.yaml has no part with display: $wanted (a ${if (off) "hand: off rig draws the off-hand blade's own model" else "held mesh is drawn as the client draws a held item"})",
                     ),
                 )
                 1 -> hands.single()
                 else -> return Result.Failure(
-                    SkillDecodeError.Invalid(lc.skillId, path, "rig '${op.id.value}': content/frames/$item.yaml has ${hands.size} parts with display: $HELD_DISPLAY (${hands.joinToString { it.name }}); exactly one is the held mesh"),
+                    SkillDecodeError.Invalid(lc.skillId, path, "rig '${op.id.value}': content/frames/$item.yaml has ${hands.size} parts with display: $wanted (${hands.joinToString { it.name }}); exactly one is the ${if (off) "off-hand" else "held"} mesh"),
                 )
             }
         } else {
@@ -237,6 +251,8 @@ public object RigOpSpec : OpSpec<RigOp> {
             // with `of` the driven frame already is the anchor and keeps its own points
             payload["held_part"] = CasterMotion.known("${part.name} (${part.display})")
             payload["held_length"] = CasterMotion.known(part.length)
+            payload["hand"] = CasterMotion.known(op.hand)
+            if (op.hand == "off") payload["mesh_model"] = CasterMotion.known(part.model)
             part.points.forEach { (name, p) -> payload["point.$name"] = CasterMotion.known(Vector3d(p.x, p.y, p.z)) }
             (lc.anchors as? AnchorRegistry)?.declare(InstanceId(inst.path.dropLast(1) + InstanceId.Segment(op.id, null)), null, ExprClass.L, points = part.points.keys)
         }

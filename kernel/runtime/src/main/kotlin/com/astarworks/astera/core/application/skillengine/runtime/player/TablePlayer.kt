@@ -1746,7 +1746,8 @@ public class TablePlayer(
         }
         val caster = run.request.caster
         val slim = clip != null && gameplay.isSlimSkin(caster)
-        val track = clip?.let { RigBodyTrack(it, slim) }
+        val off = p["hand"]?.let { any(run, it, ctx) as String } == "off"
+        val track = clip?.let { RigBodyTrack(it, slim, off) }
         @Suppress("UNCHECKED_CAST")
         val swing = (any(run, cell("swing"), ctx) as List<Map<String, Any>>).map { m ->
             RigPoseKey((m["t"] as Number).toInt(), (m["rotate"] as? Vector3d)?.let { Vec3(it.x, it.y, it.z) }, m["ease"]?.toString() ?: "linear")
@@ -1759,7 +1760,7 @@ public class TablePlayer(
         val mounted = p["mount"] != null
         val respect = bool(run, cell("respect_hit_stop"), ctx)
         val bodyRespect = bool(run, cell("body_respect_hit_stop"), ctx)
-        fun motion(hitStop: Boolean) = RigMotion(swing, v3("tilt"), v3("rest"), v3("pivot"), mounted, freezes, hitStop, track, slim)
+        fun motion(hitStop: Boolean) = RigMotion(swing, v3("tilt"), v3("rest"), v3("pivot"), mounted, freezes, hitStop, track, slim, off)
         val pose = motion(respect)
         val bodyClock = if (bodyRespect && !respect) motion(true) else pose
         if (anim != null) gameplay.playBodyClip(castRef(run), caster, anim, 1.0)
@@ -1781,9 +1782,17 @@ public class TablePlayer(
             val heldId = InstanceId(carrier.path + InstanceId.Segment(OpId("held"), null))
             val local = PoseV(Vector3d(), Quaterniond(), Vector3d(SkinRigTransforms.PLAYER_SCALE))
             val rec = Rec(SpawnKind.ITEM, carrier, "", now, ctx.owner, ctx.detached, local)
-            val h = visual.spawnMesh(
-                castRef(run), MeshModels.MAIN_HAND, null, visualPose(rec, worldOf(run, rec, local, ctx.binding, now)), null, MeshLook(rigShading = true),
-            )
+            // main hand: the caster's real stack (THIRDPERSON_RIGHTHAND); off hand: the off-hand part's own pack model (THIRDPERSON_LEFTHAND), the real off-hand slot is empty
+            val h = if (off) {
+                visual.spawnMesh(
+                    castRef(run), any(run, cell("mesh_model"), ctx) as String, null, visualPose(rec, worldOf(run, rec, local, ctx.binding, now)), null,
+                    MeshLook(mode = DisplayItemMode.THIRDPERSON_LEFTHAND, rigShading = true),
+                )
+            } else {
+                visual.spawnMesh(
+                    castRef(run), MeshModels.MAIN_HAND, null, visualPose(rec, worldOf(run, rec, local, ctx.binding, now)), null, MeshLook(rigShading = true),
+                )
+            }
             rec.real = h
             run.recs[heldId] = rec
             run.cursor.instances[heldId] = GatewayHandle(h.id)

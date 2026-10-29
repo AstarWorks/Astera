@@ -1,7 +1,8 @@
 # Point table for the twin-daggers (frame and chain as content/frames/dagger.yaml).
-# content/models/items/twin-daggers.model.json (42 elements, model +Y = blade direction, +X = blade edge side): Pair of parallel curved-tip daggers modelled as one held item (blades at z=6.3 and z=9.7, same Y span); no off-hand model.
-# grip = hold point [8, 3.5, 8] = pivot; root = blade base [8, 7.8, 8]; tip = blade tip [8.1, 17.6, 8]; long = root->tip; edge = model +X; length = -0.2 (lowest point) to tip.
+# content/models/items/twin-daggers.model.json (22 elements, model +Y = blade direction, +X = blade edge side): Main-hand dagger of the pair (one blade, red grip); the off-hand dagger is its own model twin-daggers-offhand drawn under thirdperson_lefthand.
+# grip = hold point [8, 3.5, 8] = pivot; root = blade base [8, 7.8, 8]; tip = blade tip [8, 17.6, 8]; long = root->tip; edge = model +X; length = -0.2 (lowest point) to tip.
 # held_hand = the same elements under the model's thirdperson_righthand display, the transform the rig's main-hand mesh draws with; hand_anchor = model centre (8,8,8).
+# off_hand = the off-hand dagger: its own model astera:twin-daggers-offhand (same shape), display thirdperson_lefthand authored mirrored (rotation y/z and translation x negated; the client mirrors left-hand displays back), so its points equal held_hand; a rig with hand: off takes this part.
 apiVersion: astera/v3
 kind: ItemFrames
 item: twin-daggers
@@ -10,11 +11,17 @@ parts:
     model: astera:twin-daggers
     display: fixed
     length: 1.4
-    points: { grip: [-0.2481, -0.3543, -0.0], pivot: [-0.2481, -0.3543, -0.0], root: [-0.0541, -0.0773, -0.0], tip: [0.3944, 0.5496, 0.0] }
-    axes: { long: [0.5819, 0.8133, 0.0], edge: [0.8192, -0.5736, 0.0] }
+    points: { grip: [-0.2481, -0.3543, -0.0], pivot: [-0.2481, -0.3543, -0.0], root: [-0.0541, -0.0773, -0.0], tip: [0.388, 0.5541, 0.0] }
+    axes: { long: [0.5736, 0.8192, 0.0], edge: [0.8192, -0.5736, 0.0] }
   held_hand:
     model: astera:twin-daggers
     display: thirdperson_righthand
     length: 0.8344
-    points: { grip: [0.0, 0.0, 0.0], pivot: [0.0, 0.0, 0.0], root: [0.0, 0.1651, -0.1156], tip: [-0.0, 0.5387, -0.3829], hand_anchor: [0.0, 0.1728, -0.121] }
-    axes: { long: [-0.0, 0.8133, -0.5819], edge: [-0.0, -0.5736, -0.8192] }
+    points: { grip: [0.0, 0.0, 0.0], pivot: [0.0, 0.0, 0.0], root: [0.0, 0.1651, -0.1156], tip: [0.0, 0.5414, -0.3791], hand_anchor: [0.0, 0.1728, -0.121] }
+    axes: { long: [0.0, 0.8192, -0.5736], edge: [-0.0, -0.5736, -0.8192] }
+  off_hand:
+    model: astera:twin-daggers-offhand
+    display: thirdperson_lefthand
+    length: 0.8344
+    points: { grip: [0.0, 0.0, 0.0], pivot: [0.0, 0.0, 0.0], root: [0.0, 0.1651, -0.1156], tip: [0.0, 0.5414, -0.3791], hand_anchor: [0.0, 0.1728, -0.121] }
+    axes: { long: [0.0, 0.8192, -0.5736], edge: [-0.0, -0.5736, -0.8192] }

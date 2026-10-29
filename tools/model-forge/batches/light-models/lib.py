@@ -84,7 +84,8 @@ def make_display(L, grip, centre, ref=None):
     tp = {'rotation': [35, -90, 0], 'scale': [0.75] * 3}
     tp['translation'] = center_t(tp, grip)
     d['thirdperson_righthand'] = tp
-    tl = json.loads(json.dumps(tp)); tl['translation'][0] = -tl['translation'][0] or 0.0
+    # the client mirrors a left-hand display (rotation y/z and translation x negated, ItemTransform.apply); author the mirror so the blade sits in the left hand exactly as in the right
+    tl = {'rotation': [tp['rotation'][0], -tp['rotation'][1] + 0.0, -tp['rotation'][2] + 0.0], 'scale': list(tp['scale']), 'translation': [-tp['translation'][0] + 0.0, tp['translation'][1], tp['translation'][2]]}
     d['thirdperson_lefthand'] = tl
     d['ground'] = mk([75, 0, -90], 11.0 / L, centre)
     d['fixed'] = mk([0, 180, -35], 22.4 / L, centre)
@@ -113,6 +114,6 @@ def frame_yaml(item, parts, header):
     lines = header + ['apiVersion: astera/v3', 'kind: ItemFrames', f'item: {item}', 'parts:']
     for name, v in parts.items():
         pts = ', '.join(f'{k}: {v["points"][k]}' for k in v['points'])
-        lines += [f'  {name}:', f'    model: astera:{item}', f'    display: {v["display"]}', f'    length: {v["length"]}',
+        lines += [f'  {name}:', f'    model: astera:{v.get("model", item)}', f'    display: {v["display"]}', f'    length: {v["length"]}',
                   f'    points: {{ {pts} }}', f'    axes: {{ long: {v["axes"]["long"]}, edge: {v["axes"]["edge"]} }}']
     return '\n'.join(lines) + '\n'

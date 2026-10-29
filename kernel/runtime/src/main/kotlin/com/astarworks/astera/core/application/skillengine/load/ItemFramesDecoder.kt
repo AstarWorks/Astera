@@ -28,11 +28,17 @@ public data class ItemFrames(val item: String, val parts: Map<String, ModelPart>
     /** The parts drawn with the held-item display ([HELD_HAND_DISPLAY]): the part a held-item rig mesh takes (the engine picks it, the author never names it). */
     public fun handParts(): List<ModelPart> = parts.values.filter { it.display == HELD_HAND_DISPLAY }
 
+    /** The parts drawn with the off-hand display ([OFF_HAND_DISPLAY]): the part an off-hand rig mesh takes (`rig hand: off`; the engine picks it, the author never names it). */
+    public fun offHandParts(): List<ModelPart> = parts.values.filter { it.display == OFF_HAND_DISPLAY }
+
     public companion object {
         public const val HELD: String = "held"
 
         /** The display transform the client draws a held item with in third person; a held rig mesh is drawn as the client draws a held item. */
         public const val HELD_HAND_DISPLAY: String = "thirdperson_righthand"
+
+        /** The display transform the client draws an off-hand item with in third person; the off-hand rig mesh of a dual-wield weapon (its own model) is drawn with it. */
+        public const val OFF_HAND_DISPLAY: String = "thirdperson_lefthand"
     }
 }
 

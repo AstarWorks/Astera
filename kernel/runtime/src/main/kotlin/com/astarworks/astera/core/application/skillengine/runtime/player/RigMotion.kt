@@ -18,7 +18,7 @@ internal class RigFreezeWindow(val at: Int, val ticks: Int)
 internal class RigPoseKey(val tick: Int, val rotate: Vec3?, val ease: String)
 
 /** The performance body sampled once per rig tick (v2 `RigBodyTrack` at 93cd534e4~1): no blend, a `step` key is a cut. */
-internal class RigBodyTrack(private val animation: SkinRigAnimation, private val slim: Boolean) {
+internal class RigBodyTrack(private val animation: SkinRigAnimation, private val slim: Boolean, private val off: Boolean = false) {
     class Landmark(val position: Vec3, val rotation: Quaternion)
 
     private val cache = HashMap<Int, Landmark>()
@@ -33,7 +33,7 @@ internal class RigBodyTrack(private val animation: SkinRigAnimation, private val
     }
     val lengthTicks: Int get() = animation.lengthTicks
 
-    /** Right-arm frame at fractional rig tick [s]: lerp / slerp between ticks, held across a cut. */
+    /** Carrying-arm frame (right arm; the left arm for an off-hand rig) at fractional rig tick [s]: lerp / slerp between ticks, held across a cut. */
     fun armAt(s: Double): Landmark {
         val l = Math.floor(s).toInt()
         val u = s - l
@@ -54,7 +54,7 @@ internal class RigBodyTrack(private val animation: SkinRigAnimation, private val
             bones = SkinRigBone.entries.associateWith { pose(animation.bones[it], tick.toDouble()) },
             leftHandGrip = if (animation.twoHandGrip) 1.0 else 0.0,
         )
-        val arm = SkinRigTransforms.rightArm(frame, slim)
+        val arm = if (off) SkinRigTransforms.leftArm(frame, slim) else SkinRigTransforms.rightArm(frame, slim)
         return Landmark(arm.joint, Quaternion(arm.rotation.x, arm.rotation.y, arm.rotation.z, arm.rotation.w))
     }
 
@@ -66,7 +66,7 @@ internal class RigBodyTrack(private val animation: SkinRigAnimation, private val
         )
 
     companion object {
-        fun restArm(slim: Boolean): Landmark = SkinRigTransforms.rightArm(RigFrame.REST, slim).let {
+        fun restArm(slim: Boolean, off: Boolean = false): Landmark = (if (off) SkinRigTransforms.leftArm(RigFrame.REST, slim) else SkinRigTransforms.rightArm(RigFrame.REST, slim)).let {
             Landmark(it.joint, Quaternion(it.rotation.x, it.rotation.y, it.rotation.z, it.rotation.w))
         }
     }
@@ -86,6 +86,8 @@ internal class RigMotion(
     respectHitStop: Boolean,
     private val body: RigBodyTrack?,
     slim: Boolean,
+    /** The off-hand blade: rides the left arm, and the grip sits mirrored (x) across the arm. */
+    private val off: Boolean = false,
 ) {
     private class Key(val t: Int, val rot: Quaternion, val ease: Easing)
 
@@ -95,7 +97,7 @@ internal class RigMotion(
     private val tilt = Quaternion.fromRotationVector(tilt)
     private val rest = Quaternion.fromRotationVector(rest)
     private val stops: List<Pair<Int, Int>>
-    private val restArm = RigBodyTrack.restArm(slim)
+    private val restArm = RigBodyTrack.restArm(slim, off)
 
     init {
         var cur = Quaternion.IDENTITY
@@ -169,7 +171,8 @@ internal class RigMotion(
         if (!mounted) return pivot
         val arm = armAt(bodyS)
         val off = SkinRigTransforms.HELD_GRIP_OFFSET
-        val o = arm.rotation.rotate(Vec3(off.x + pivot.x, off.y + pivot.y, off.z + pivot.z))
+        val gx = if (this.off) -off.x else off.x
+        val o = arm.rotation.rotate(Vec3(gx + pivot.x, off.y + pivot.y, off.z + pivot.z))
         return Vec3(arm.position.x + o.x, arm.position.y + o.y, arm.position.z + o.z)
     }
 }
