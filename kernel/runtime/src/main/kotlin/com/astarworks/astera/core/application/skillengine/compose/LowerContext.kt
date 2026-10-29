@@ -46,13 +46,15 @@ public class LowerContext(
     public val src: SrcPath,
     /** Ticks since the owning op's first occurrence (`i * every` for a fixed every, the eased spacing otherwise): where a point op's property laws are sampled (ADR-0303 3.4). */
     public val tau: Int = 0,
+    /** True inside an `on.hit` handler (hit op / projectile): the one scope where the event carries a hit victim (`victim` targets, `direction: from_hit`). */
+    public val hitScope: Boolean = false,
 ) {
     public fun child(op: OpId, i: Int?, n: Int, tick: Int, doIndex: Int = 0): LowerContext = LowerContext(
         skillId, state,
         InstanceId(self.path + InstanceId.Segment(op, i)),
         Occurrence(i ?: 0, n, occurrence),
         tick, anchors, frames, parts, skills, item, sprites, conditions, exprs, config, seed,
-        SrcPath(src.value + ".do[" + doIndex + "]"),
+        SrcPath(src.value + ".do[" + doIndex + "]"), hitScope = hitScope,
     )
 
     /** S / T / L (3.5), from the expression source and this scope's anchor bases. */

@@ -74,7 +74,7 @@ public object GroupUnroller {
                 InstanceId(base.self.path + InstanceId.Segment(node.id, index)),
                 if (sched.indexed) Occurrence(k, sched.ticks.size, base.occurrence) else base.occurrence,
                 base.clockOffset + s, base.anchors, base.frames, base.parts, base.skills, base.item, base.sprites, base.conditions, base.exprs, base.config, base.seed,
-                base.src, s - sched.ticks.first(),
+                base.src, s - sched.ticks.first(), base.hitScope,
             )
             val gate = when (val r = whenGate(node, occ)) {
                 is Result.Success -> r.value
@@ -172,7 +172,7 @@ public object GroupUnroller {
             val h = listOfNotNull(childHorizon, producerEnd).minOrNull()
             val childBase = LowerContext(
                 lc.skillId, lc.state, lc.self, lc.occurrence, lc.clockOffset, lc.anchors, lc.frames, lc.parts, lc.skills,
-                lc.item, lc.sprites, lc.conditions, lc.exprs, lc.config, lc.seed, SrcPath(lc.src.value + ".do[" + j + "]"),
+                lc.item, lc.sprites, lc.conditions, lc.exprs, lc.config, lc.seed, SrcPath(lc.src.value + ".do[" + j + "]"), hitScope = lc.hitScope,
             )
             val lo = when (val r = unroll(child, childBase, h, lowering)) {
                 is Result.Success -> r.value

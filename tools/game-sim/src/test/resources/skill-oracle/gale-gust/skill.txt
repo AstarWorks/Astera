@@ -1,7 +1,7 @@
 ## pose yaw=0 pitch=0
-@0 sound - op=- sound=entity.breeze.wind_burst cat=master vol=0.9 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=dash-cloud at=0.000000,0.000000,1.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8360384488223756286
-@0 hit - op=- at=0.000000,1.620000,0.000000 r=8.000000
+@0 sound - op=cast/snd sound=entity.breeze.wind_burst cat=master vol=0.9 pitch=1.2 at=0.000000,0.000000,0.000000
+@0 particle - op=cast/fx type=dash-cloud at=0.000000,0.000000,1.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4315779073362241390
+@0 hit - op=cast/sel at=0.000000,1.620000,0.000000 r=8.000000 shape=sector fwd=0.000000,0.000000,1.000000 left=1.000000,0.000000,0.000000 deg=80.000000 range=6.000000 height=2.000000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- physical=10 skill=gale-gust at=0.000000,0.900000,2.500000 ignoreinv=false ignorearmor=false
 @0 damage 00000000-0000-0000-0000-00000000000b op=- physical=10 skill=gale-gust at=0.000000,0.900000,5.000000 ignoreinv=false ignorearmor=false
 @0 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0.32 z=1.6
@@ -9,6 +9,6 @@
 @0 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0.32 z=1.6
 @0 effect 00000000-0000-0000-0000-00000000000b op=- impulse x=0 y=0.32 z=1.6
 ## pose yaw=37 pitch=-20
-@0 sound - op=- sound=entity.breeze.wind_burst cat=master vol=0.9 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=dash-cloud at=-0.902723,0.000000,1.197953 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8360384488223756286
-@0 hit - op=- at=0.000000,1.620000,0.000000 r=8.000000
+@0 sound - op=cast/snd sound=entity.breeze.wind_burst cat=master vol=0.9 pitch=1.2 at=0.000000,0.000000,0.000000
+@0 particle - op=cast/fx type=dash-cloud at=-0.902723,0.000000,1.197953 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4315779073362241390
+@0 hit - op=cast/sel at=0.000000,1.620000,0.000000 r=8.000000 shape=sector fwd=-0.565521,0.342020,0.750472 left=0.798636,0.000000,0.601815 deg=80.000000 range=6.000000 height=2.000000

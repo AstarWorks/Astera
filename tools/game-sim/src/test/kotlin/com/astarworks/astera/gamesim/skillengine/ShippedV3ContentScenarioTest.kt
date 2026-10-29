@@ -155,7 +155,7 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
             out += "## pose yaw=${yaw.toInt()} pitch=${pitch.toInt()}"
             if (ended != null) out += "!! play-ended-early msg=${ended.take(400)}"
             for (c in rec.oracleRows) {
-                val op = names[c.instance] ?: "-"
+                val op = c.op ?: names[c.instance] ?: "-"
                 out += listOf("@${c.tick}", c.verb, c.instance, "op=$op", c.payload, c.detail).filter { it.isNotEmpty() }.joinToString(" ")
             }
         }

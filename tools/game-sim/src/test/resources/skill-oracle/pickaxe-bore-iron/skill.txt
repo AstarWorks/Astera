@@ -1,8 +1,8 @@
 ## pose yaw=0 pitch=0
-@0 sound - op=- sound=block.stone.break cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
-@0 sound - op=- sound=item.trident.hit_ground cat=master vol=0.7 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=tool-pick-iron at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5158223851590665224
+@0 sound - op=bore/snd_bore sound=block.stone.break cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
+@0 sound - op=bore/snd_bore_2 sound=item.trident.hit_ground cat=master vol=0.7 pitch=1.2 at=0.000000,0.000000,0.000000
+@0 particle - op=bore/fx_bore type=tool-pick-iron at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7757771664413638120
 ## pose yaw=37 pitch=-20
-@0 sound - op=- sound=block.stone.break cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
-@0 sound - op=- sound=item.trident.hit_ground cat=master vol=0.7 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=tool-pick-iron at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5158223851590665224
+@0 sound - op=bore/snd_bore sound=block.stone.break cat=master vol=1 pitch=0.7 at=0.000000,0.000000,0.000000
+@0 sound - op=bore/snd_bore_2 sound=item.trident.hit_ground cat=master vol=0.7 pitch=1.2 at=0.000000,0.000000,0.000000
+@0 particle - op=bore/fx_bore type=tool-pick-iron at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7757771664413638120

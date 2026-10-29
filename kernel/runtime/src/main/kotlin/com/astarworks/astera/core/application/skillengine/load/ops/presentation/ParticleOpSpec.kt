@@ -27,6 +27,7 @@ import com.astarworks.astera.core.domain.effect.ParticleData
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
+import com.astarworks.astera.core.domain.skillengine.model.ParamValue
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.Action
@@ -40,8 +41,8 @@ import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 public sealed interface ParticleStyle {
     public data object Plain : ParticleStyle
     public data class Dust(public val color: ParticleColor, public val size: Double) : ParticleStyle
-    public data class Block(public val key: String) : ParticleStyle
-    public data class Item(public val key: String) : ParticleStyle
+    public data class Block(public val key: Value<String>) : ParticleStyle
+    public data class Item(public val key: Value<String>) : ParticleStyle
 }
 
 /** Decoded `particle` op: one `spawnParticle` call per occurrence (ADR-0303 2.2). */
@@ -69,8 +70,8 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
     private val EXTRA = Field.optional("extra", Types.number, Value.Literal(0.0), "vanilla extra (speed for most particles)")
     private val COLOR = Field.optional("color", Types.nullable(Types.id), null, "#rrggbb, with size: Particle.DustOptions")
     private val SIZE = Field.optional("size", Types.nullable(Types.number), null, "dust scale, with color")
-    private val BLOCK = Field.optional("block", Types.nullable(Types.id), null, "block key for BlockData")
-    private val ITEM = Field.optional("item", Types.nullable(Types.id), null, "material key for ItemStack data")
+    private val BLOCK = Field.optional("block", Types.nullable(Types.idValue), null, "block key for BlockData; under times a per-index list or '= CEL' over i")
+    private val ITEM = Field.optional("item", Types.nullable(Types.idValue), null, "material key for ItemStack data; under times a per-index list or '= CEL' over i")
     private val ANCHOR = Field.required("anchor", Types.anchorRef, "emission point: anchor name or {of, offset, to, samples, sweep}; to + samples = n rows along the segment of -> to")
     private val SHIFT = Field.optional("shift", Types.nullable(FrameVecs.type), null, "per-copy displacement of the emission point: {forward, up, left} in the anchor's axes, or a whole world vec; reads i, n, draw, roll")
 
@@ -142,8 +143,8 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
         val data = when (val s = op.style) {
             ParticleStyle.Plain -> null
             is ParticleStyle.Dust -> ParticleData.Dust(s.color, s.size.toFloat())
-            is ParticleStyle.Block -> ParticleData.Block(s.key)
-            is ParticleStyle.Item -> ParticleData.Item(s.key)
+            is ParticleStyle.Block -> ParticleData.Block(dataKey(s.key, lc) ?: return dataKeyError("block", lc))
+            is ParticleStyle.Item -> ParticleData.Item(dataKey(s.key, lc) ?: return dataKeyError("item", lc))
         }
 
         val rows = placedAll.map { placed ->
@@ -177,11 +178,24 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
                 if (size !is Value.Literal || size.value <= 0.0) ctx.fail("size", "size must be a literal number > 0")
                 ParticleStyle.Dust(parseColor(color, ctx), size.value)
             }
-            block != null -> ParticleStyle.Block(block)
-            item != null -> ParticleStyle.Item(item)
+            block != null -> ParticleStyle.Block(foldText(block, ctx))
+            item != null -> ParticleStyle.Item(foldText(item, ctx))
             else -> ParticleStyle.Plain
         }
     }
+
+    private fun foldText(v: Value<String>, ctx: GrammarContext): Value<String> =
+        if (v is Value.ParamRef) (ctx.params?.get(v.name) as? ParamValue.Text)?.let { Value.Literal(it.value) } ?: v else v
+
+    /** The block / item key of this copy: a literal, or a `= CEL` over `i` / `n` folded here (the particle data is baked into the row); null = it cannot be known at load. */
+    private fun dataKey(v: Value<String>, lc: LowerContext): String? = when (v) {
+        is Value.Literal -> v.value
+        is Value.Expr -> (OccurrenceBake.fold(lc, v.source, ExprType.STR) as? ExprValue.Str)?.value
+        is Value.ParamRef -> null
+    }
+
+    private fun dataKeyError(what: String, lc: LowerContext): Result<Lowered, SkillDecodeError> =
+        Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "particle $what must be a literal, a known param or an '= expr' over i / n that folds at compile time (the particle data is fixed per row)"))
 
     private fun parseColor(hex: String, ctx: GrammarContext): ParticleColor {
         val m = HEX.matchEntire(hex) ?: ctx.fail("color", "expected #rrggbb, got '$hex'")

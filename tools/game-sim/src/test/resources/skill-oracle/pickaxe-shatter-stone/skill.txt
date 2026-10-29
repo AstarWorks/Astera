@@ -1,6 +1,6 @@
 ## pose yaw=0 pitch=0
-@0 sound - op=- sound=block.stone.break cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=tool-pick-stone at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-893533601035913922
+@0 sound - op=smash/snd sound=block.stone.break cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
+@0 particle - op=smash/fx type=tool-pick-stone at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5600544437817082962
 ## pose yaw=37 pitch=-20
-@0 sound - op=- sound=block.stone.break cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=tool-pick-stone at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-893533601035913922
+@0 sound - op=smash/snd sound=block.stone.break cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
+@0 particle - op=smash/fx type=tool-pick-stone at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5600544437817082962

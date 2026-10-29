@@ -159,9 +159,14 @@ internal object GameplayOps {
     /** A frame point, or a bare frame name (its origin), as a named live position (C4c). */
     fun point(frame: String, point: String?): String = PointRef(frame, point).toString()
 
+    /** The hit victim only exists inside `on.hit`; anywhere else the table would resolve it to nobody, so the load refuses it by name. */
+    fun requireHitScope(lc: LowerContext, path: String, what: String): Result<Unit, SkillDecodeError> =
+        if (lc.hitScope) Result.Success(Unit)
+        else Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "'$what' is the hit victim and is only bound inside an on.hit handler (hit or projectile); use caster or an area target here"))
+
     /** Target as an effect-payload cell: `victim` / `caster` live by name, an area as its [TargetRule]. */
     fun targetCell(t: TargetRef, lc: LowerContext, path: String): Result<Val<Any>, SkillDecodeError> = when (t) {
-        TargetRef.Victim -> Result.Success(Val.Live<Any>("victim", null))
+        TargetRef.Victim -> requireHitScope(lc, path, "victim").map { Val.Live<Any>("victim", null) }
         TargetRef.Caster -> Result.Success(Val.Live<Any>("caster", null))
         TargetRef.Attacker -> Result.Success(Val.Live<Any>("event.attacker", null))
         is TargetRef.Enemies, is TargetRef.Allies -> targetRule(t, lc, path).map { Val.Known<Any>(it) }
@@ -169,7 +174,7 @@ internal object GameplayOps {
 
     /** Target as a [TargetRule] (damage / status / cleanse). An area keeps its anchor instance when `around` names one, else the live name (`caster`, `contact`). */
     fun targetRule(t: TargetRef, lc: LowerContext, path: String): Result<TargetRule, SkillDecodeError> = when (t) {
-        TargetRef.Victim -> Result.Success(TargetRule.Entity("event.victim"))
+        TargetRef.Victim -> requireHitScope(lc, path, "victim").map { TargetRule.Entity("event.victim") }
         TargetRef.Caster -> Result.Success(TargetRule.Entity("caster"))
         TargetRef.Attacker -> Result.Success(TargetRule.Entity("event.attacker"))
         is TargetRef.Enemies -> area(lc, path, "enemies", t.around, t.radius, t.maxCount, false)

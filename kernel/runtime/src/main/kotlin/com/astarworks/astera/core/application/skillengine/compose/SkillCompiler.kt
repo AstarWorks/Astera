@@ -257,7 +257,8 @@ public class SkillCompiler(
             val lowered = arrayOfNulls<Lowered>(nodes.size)
             for (k in declaring + nodes.indices.filter { it !in declaring }) {
                 val n = nodes[k]
-                val base = rootContext(state, registry).with(src = n.src)
+                // transition effects and exit tables are pasted with the raising event's binding (which may be a hit), so event.victim is allowed there
+                val base = rootContext(state, registry).with(src = n.src, hitScope = section.startsWith("on[") || section == "exit")
                 lowered[k] = GroupUnroller.unroll(n, base, horizon, childLowering).getOr { return@SectionLowerer Result.Failure(it) }
             }
             var acc = Lowered(emptyList())
@@ -419,7 +420,7 @@ public class SkillCompiler(
                         for (n in nodes) {
                             val base = LowerContext(
                                 original.id, lc.state, call.callId, Occurrence(0, 1, null), lc.clockOffset + acc, calleeAnchors, frames, parts, skills,
-                                lc.item, sprites, lc.conditions, exprs, config, lc.seed, n.src,
+                                lc.item, sprites, lc.conditions, exprs, config, lc.seed, n.src, hitScope = lc.hitScope,
                             )
                             val lo = GroupUnroller.unroll(n, base, forTicks, childLowering).getOr { return Result.Failure(it) }
                             for (r in lo.rows) {
@@ -516,6 +517,7 @@ private fun LowerContext.with(
     clockOffset: Int = this.clockOffset,
     anchors: AnchorScope = this.anchors,
     src: SrcPath = this.src,
+    hitScope: Boolean = this.hitScope,
 ): LowerContext = LowerContext(
-    skillId, state, self, occurrence, clockOffset, anchors, frames, parts, skills, item, sprites, conditions, exprs, config, seed, src,
+    skillId, state, self, occurrence, clockOffset, anchors, frames, parts, skills, item, sprites, conditions, exprs, config, seed, src, tau, hitScope,
 )

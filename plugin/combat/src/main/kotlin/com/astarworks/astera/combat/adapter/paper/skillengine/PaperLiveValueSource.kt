@@ -116,6 +116,13 @@ public class PaperLiveValueSource(
             }
 
             override fun velocity(frame: String, point: String?): Vec3 {
+                if (frame == "victim" || frame == "target") {
+                    // the hit entity's real velocity (blocks per tick); an unbound or unloaded victim has none to read, which is loud
+                    val id = binding?.victim?.id ?: throw ExprEvalException("velocity($frame): needs a hit event binding with a victim")
+                    val e = server.getEntity(id) ?: throw ExprEvalException("velocity($frame): entity $id is not loaded")
+                    val v = e.velocity
+                    return Vec3(v.x, v.y, v.z)
+                }
                 if (frame != CASTER) return Vec3.ZERO
                 val p = casterPose(request)
                 val now = when (point) {

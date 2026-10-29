@@ -1,16 +1,16 @@
 ## pose yaw=0 pitch=0
-@0 sound - op=- sound=astera:weapons/sword-swing cat=master vol=0.8 pitch=1.8 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=stab-spark at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1272131744350961936
-@0 particle - op=- type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5247210756062860664
-@0 particle - op=- type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#e6e6e6 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4137069386028649866
-@1 particle - op=- type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1763068148248730243
-@1 particle - op=- type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#e6e6e6 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2176930272796753915
-@1 hit - op=- at=0.000000,1.620000,3.300000 r=0.500000
+@0 sound - op=fly/snd sound=astera:weapons/sword-swing cat=master vol=0.8 pitch=1.8 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/puff type=stab-spark at=0.000000,-0.250000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1900449417020266915
+@0 particle - op=fly/trail[0] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7171421513913714903
+@0 particle - op=fly/trail_2[0] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#e6e6e6 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4836357870880187903
+@1 particle - op=fly/trail[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2883748878883015660
+@1 particle - op=fly/trail_2[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#e6e6e6 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6783056108332558253
+@1 hit - op=fly/bolt at=0.000000,1.620000,3.300000 r=0.500000 shape=capsule a=0.000000,1.620000,3.300000 b=0.000000,1.620000,3.300000 rad=0.500000
 ## pose yaw=37 pitch=-20
-@0 sound - op=- sound=astera:weapons/sword-swing cat=master vol=0.8 pitch=1.8 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=stab-spark at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1272131744350961936
-@0 particle - op=- type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5247210756062860664
-@0 particle - op=- type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#e6e6e6 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4137069386028649866
-@1 particle - op=- type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1763068148248730243
-@1 particle - op=- type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#e6e6e6 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2176930272796753915
-@1 hit - op=- at=-1.866220,2.748666,2.476557 r=0.500000
+@0 sound - op=fly/snd sound=astera:weapons/sword-swing cat=master vol=0.8 pitch=1.8 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/puff type=stab-spark at=-0.541634,-0.250000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1900449417020266915
+@0 particle - op=fly/trail[0] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7171421513913714903
+@0 particle - op=fly/trail_2[0] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#e6e6e6 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4836357870880187903
+@1 particle - op=fly/trail[1] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2883748878883015660
+@1 particle - op=fly/trail_2[1] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#e6e6e6 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6783056108332558253
+@1 hit - op=fly/bolt at=-1.866220,2.748666,2.476557 r=0.500000 shape=capsule a=-1.866220,2.748666,2.476557 b=-1.866220,2.748666,2.476557 rad=0.500000

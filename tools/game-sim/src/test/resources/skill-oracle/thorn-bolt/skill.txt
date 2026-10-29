@@ -1,24 +1,24 @@
 ## pose yaw=0 pitch=0
-@0 sound - op=- sound=astera:skill/wand/cast cat=master vol=0.9 pitch=1.4 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=verdant-cast at=0.000000,-0.200000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-887453582306294037
-@0 particle - op=- type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6823945568864734391
-@0 particle - op=- type=composter count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7718038791179150864
-@0 particle - op=- type=dust count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1589769329064082501
-@0 particle - op=- type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8415052947133894383
-@1 particle - op=- type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7301937801189640313
-@1 particle - op=- type=composter count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6240122321936282658
-@1 particle - op=- type=dust count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2525357197382796781
-@1 particle - op=- type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6217682316043031471
-@1 hit - op=- at=0.000000,1.620000,2.900000 r=0.500000
+@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.9 pitch=1.4 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/puff type=verdant-cast at=0.000000,-0.200000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1900449417020266915
+@0 particle - op=fly/trail[0] type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7171421513913714903
+@0 particle - op=fly/trail_2[0] type=composter count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4836357870880187903
+@0 particle - op=fly/trail_3[0] type=dust count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1268776304219587475
+@0 particle - op=fly/trail_4[0] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8770898655679924965
+@1 particle - op=fly/trail[1] type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2883748878883015660
+@1 particle - op=fly/trail_2[1] type=composter count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6783056108332558253
+@1 particle - op=fly/trail_3[1] type=dust count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4722431526634936354
+@1 particle - op=fly/trail_4[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6583012741202720276
+@1 hit - op=fly/bolt at=0.000000,1.620000,2.900000 r=0.500000 shape=capsule a=0.000000,1.620000,2.900000 b=0.000000,1.620000,2.900000 rad=0.500000
 ## pose yaw=37 pitch=-20
-@0 sound - op=- sound=astera:skill/wand/cast cat=master vol=0.9 pitch=1.4 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=verdant-cast at=-0.601815,-0.200000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-887453582306294037
-@0 particle - op=- type=happy_villager count=1 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6823945568864734391
-@0 particle - op=- type=composter count=2 at=-0.282761,1.791010,0.375236 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7718038791179150864
-@0 particle - op=- type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1589769329064082501
-@0 particle - op=- type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8415052947133894383
-@1 particle - op=- type=happy_villager count=1 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7301937801189640313
-@1 particle - op=- type=composter count=2 at=-0.282761,1.791010,0.375236 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6240122321936282658
-@1 particle - op=- type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2525357197382796781
-@1 particle - op=- type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6217682316043031471
-@1 hit - op=- at=-1.640011,2.611858,2.176368 r=0.500000
+@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.9 pitch=1.4 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/puff type=verdant-cast at=-0.601815,-0.200000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1900449417020266915
+@0 particle - op=fly/trail[0] type=happy_villager count=1 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7171421513913714903
+@0 particle - op=fly/trail_2[0] type=composter count=2 at=-0.282761,1.791010,0.375236 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4836357870880187903
+@0 particle - op=fly/trail_3[0] type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1268776304219587475
+@0 particle - op=fly/trail_4[0] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8770898655679924965
+@1 particle - op=fly/trail[1] type=happy_villager count=1 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2883748878883015660
+@1 particle - op=fly/trail_2[1] type=composter count=2 at=-0.282761,1.791010,0.375236 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6783056108332558253
+@1 particle - op=fly/trail_3[1] type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4722431526634936354
+@1 particle - op=fly/trail_4[1] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6583012741202720276
+@1 hit - op=fly/bolt at=-1.640011,2.611858,2.176368 r=0.500000 shape=capsule a=-1.640011,2.611858,2.176368 b=-1.640011,2.611858,2.176368 rad=0.500000

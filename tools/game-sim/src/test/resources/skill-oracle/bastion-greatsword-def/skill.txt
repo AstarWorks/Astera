@@ -6,7 +6,7 @@
 @0 spawn #4 op=brace/crest kind=sprite sprite=bastion-crest alpha=1.000000 tint=- seethrough=true pos=0.200000,1.350000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=0.260000,0.260000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @0 spawn #5 op=brace/fill kind=text text=● bg=#00000000 shadow=false seethrough=false pos=0.200000,1.300000,1.150000 rot=0.000000,-0.422618,0.000000,0.906308 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- aud=ALL lane=CORE target=-
 @0 write #5 op=brace/fill dur=0 pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.500000,3.000000,1.000000 bb=FIXED
-@0 sound - op=- sound=item.shield.block cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
+@0 sound - op=brace/snd sound=item.shield.block cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
 @0 effect 00000000-0000-0000-0000-000000000001 op=- attribute=resist.physical
 @0 effect 00000000-0000-0000-0000-000000000001 op=- attribute=resist.knockback
 @0 status 00000000-0000-0000-0000-000000000001 op=- status=charge stacks=1 for=400
@@ -35,7 +35,7 @@
 @0 spawn #4 op=brace/crest kind=sprite sprite=bastion-crest alpha=1.000000 tint=- seethrough=true pos=-0.532360,1.350000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=0.260000,0.260000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @0 spawn #5 op=brace/fill kind=text text=● bg=#00000000 shadow=false seethrough=false pos=-0.532360,1.300000,1.038794 rot=0.000000,-0.688355,0.000000,0.725374 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- aud=ALL lane=CORE target=-
 @0 write #5 op=brace/fill dur=0 pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.500000,3.000000,1.000000 bb=FIXED
-@0 sound - op=- sound=item.shield.block cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
+@0 sound - op=brace/snd sound=item.shield.block cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
 @0 effect 00000000-0000-0000-0000-000000000001 op=- attribute=resist.physical
 @0 effect 00000000-0000-0000-0000-000000000001 op=- attribute=resist.knockback
 @0 status 00000000-0000-0000-0000-000000000001 op=- status=charge stacks=1 for=400

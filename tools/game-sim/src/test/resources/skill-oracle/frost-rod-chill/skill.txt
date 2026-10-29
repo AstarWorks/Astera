@@ -1,18 +1,18 @@
 ## pose yaw=0 pitch=0
-@0 sound - op=- sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=snowflake count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7436155443605885080
-@0 particle - op=- type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8ebff size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4227627229897187415
-@0 hit - op=- at=0.000000,0.000000,0.000000 r=4.000000
+@0 sound - op=cast/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
+@0 particle - op=cast/snow type=snowflake count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5263615198227538019
+@0 particle - op=cast/mist type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8ebff size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7812379453353599558
+@0 hit - op=cast/burst at=0.000000,0.000000,0.000000 r=4.000000 shape=sphere rad=4.000000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- water=8.5938 skill=frost-rod-chill at=0.000000,0.000000,2.200000 ignoreinv=false ignorearmor=false
-@0 sound - op=- sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=0.000000,0.000000,2.200000
+@0 sound - op=cast/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=0.000000,0.000000,2.200000
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=40
 @0 status 00000000-0000-0000-0000-00000000000b op=- status=freeze stacks=1 for=40
 ## pose yaw=37 pitch=-20
-@0 sound - op=- sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=- type=snowflake count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7436155443605885080
-@0 particle - op=- type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8ebff size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4227627229897187415
-@0 hit - op=- at=0.000000,0.000000,0.000000 r=4.000000
+@0 sound - op=cast/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
+@0 particle - op=cast/snow type=snowflake count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5263615198227538019
+@0 particle - op=cast/mist type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8ebff size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7812379453353599558
+@0 hit - op=cast/burst at=0.000000,0.000000,0.000000 r=4.000000 shape=sphere rad=4.000000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- water=8.5938 skill=frost-rod-chill at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
-@0 sound - op=- sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589
+@0 sound - op=cast/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=40
 @0 status 00000000-0000-0000-0000-00000000000b op=- status=freeze stacks=1 for=40
