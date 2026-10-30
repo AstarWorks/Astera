@@ -63,7 +63,7 @@ class EngineConfigScenarioTest : SkillEngineScenario() {
         assertThat(registered).containsAll(
             listOf(
                 "group", "lock", "cancel", "use", "frame", "display", "particle", "particle_def", "sound", "ribbon", "projectile", "hit",
-                "damage", "status", "modify_attribute", "impulse", "knockback", "heal", "resource", "dash", "reel", "rig", "emit", "remove",
+                "damage", "status", "modify_attribute", "impulse", "knockback", "pull", "heal", "resource", "dash", "reel", "rig", "emit", "remove",
             ),
         )
         assertThat(registered).`as`("one spec per op name").doesNotHaveDuplicates()
