@@ -6,6 +6,7 @@ import com.astarworks.astera.combat.domain.event.StatusApplied
 import com.astarworks.astera.combat.domain.event.StatusExpired
 import com.astarworks.astera.combat.domain.event.StatusRemoved
 import com.astarworks.astera.combat.platform.wiring.CombatPlatformPorts
+import com.astarworks.astera.combat.platform.wiring.CombatLifecycle
 import com.astarworks.astera.combat.platform.wiring.CombatWiring
 import com.astarworks.astera.combat.platform.wiring.CombatWiringResult
 import com.astarworks.astera.combat.application.service.VanillaKillResolver
@@ -44,9 +45,11 @@ import com.astarworks.astera.economy.platform.wiring.EconomyPlatformPorts
 import com.astarworks.astera.economy.platform.wiring.EconomyLifecycle
 import com.astarworks.astera.economy.platform.wiring.EconomyWiringResult
 import com.astarworks.astera.items.platform.wiring.ItemsPlatformPorts
+import com.astarworks.astera.items.platform.wiring.ItemsLifecycle
 import com.astarworks.astera.items.platform.wiring.ItemsWiring
 import com.astarworks.astera.items.platform.wiring.ItemsWiringResult
 import com.astarworks.astera.match.platform.wiring.MatchPlatformPorts
+import com.astarworks.astera.match.platform.wiring.MatchLifecycle
 import com.astarworks.astera.match.platform.wiring.MatchWiring
 import com.astarworks.astera.match.platform.wiring.MatchWiringResult
 import com.astarworks.astera.stats.platform.wiring.StatsPlatformPorts
@@ -124,15 +127,17 @@ public class GameSim private constructor(
 
     public lateinit var core: CoreWiringResult
         private set
-    public lateinit var items: ItemsWiringResult
-        private set
-    public lateinit var combat: CombatWiringResult
+    /** Items / Combat / Match as the running generation (change after `rewire.rewire(...)`). */
+    public val items: ItemsWiringResult
+        get() = core.rewire.wired(ItemsLifecycle.OWNER) as ItemsWiringResult
+    public val combat: CombatWiringResult
+        get() = core.rewire.wired(CombatLifecycle.OWNER) as CombatWiringResult
 
     /** Skill engine v3 host: runs every `SkillCast` on the table player (world ops over the sim's block map). */
     internal lateinit var skillEngine: SimSkillEngine
 
-    public lateinit var match: MatchWiringResult
-        private set
+    public val match: MatchWiringResult
+        get() = core.rewire.wired(MatchLifecycle.OWNER) as MatchWiringResult
     /** Spectator-mode recorder behind the `ISpectator` port (death cam / eliminated teams). */
     public val spectator: SimSpectator = SimSpectator()
 
@@ -467,9 +472,9 @@ public class GameSim private constructor(
     public fun shutdown() {
         runCatching { core.rewire.down(EconomyLifecycle.OWNER) }
         runCatching { core.rewire.down(StatsLifecycle.OWNER) }
-        runCatching { match.shutdown() }
-        runCatching { skillEngine.shutdown() }
-        runCatching { combat.shutdown() }
+        runCatching { core.rewire.down(MatchLifecycle.OWNER) }
+        runCatching { core.rewire.down(CombatLifecycle.OWNER) }
+        runCatching { core.rewire.down(ItemsLifecycle.OWNER) }
         contexts.asReversed().forEach { runCatching { it.close() } }
         runCatching { core.shutdown() }
     }
@@ -611,8 +616,8 @@ public class GameSim private constructor(
             }
 
             // ---- Items ----------------------------------------------------
-            sim.items = ItemsWiring.install(
-                context("Astera-Items"),
+            sim.core.rewire.register(ItemsLifecycle { ctx -> ItemsWiring.install(
+                ctx,
                 ItemsPlatformPorts(
                     itemDelivery = { sim.itemDelivery },
                     itemIdResolver = SimItemIdResolver(
@@ -624,7 +629,8 @@ public class GameSim private constructor(
                     trainingInventory = { SimTrainingInventory(sim.itemDelivery) },
                     itemCooldownSweep = sim.sweeps,
                 ),
-            )
+            ) })
+            sim.core.rewire.up(ItemsLifecycle.OWNER).let { r -> check(r is com.astarworks.astera.core.domain.Result.Success) { "items up failed: ${(r as com.astarworks.astera.core.domain.Result.Failure).error}" } }
 
             // ---- Combat ---------------------------------------------------
             val statusContainer = lazy {
@@ -635,8 +641,19 @@ public class GameSim private constructor(
                 )
             }
             services.register<com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway>(SimKnockbackGateway(world), priority = 100)
-            sim.combat = CombatWiring.install(
-                context("Astera-Combat"),
+            val killResolver = VanillaKillResolver(
+                com.astarworks.astera.core.application.service.combat.CombatContextResolver { services.get<IMatchTeamLookup>() },
+                recentAttacker = { victim, atTick ->
+                    services.get<com.astarworks.astera.combat.application.port.outbound.IDamageHistoryService>()
+                        ?.entries(victim)
+                        ?.lastOrNull { it.at >= atTick - VanillaKillResolver.VOID_ATTRIBUTION_TICKS }
+                        ?.attackerId
+                },
+            )
+            var statusContainerStarted = false
+            sim.core.rewire.register(CombatLifecycle(
+                install = { ctx -> CombatWiring.install(
+                ctx,
                 CombatPlatformPorts(
                     wornItems = { sim.wornItems },
                     damageGateway = { svc ->
@@ -659,32 +676,32 @@ public class GameSim private constructor(
                         )
                     },
                 ),
-            )
-            // Post-wiring host step (CombatPaperPlatform.bind): tick loops and the
-            // rerouted-damage kill publisher.
-            sim.skillEngine = SimSkillEngine.create(world, scheduler, services, sim.combat, mcServer, recorder, statusContainer.value, feedback, alive, seed).also { it.start() }
-            if (statusContainer.isInitialized()) statusContainer.value.start()
-            val killResolver = VanillaKillResolver(
-                com.astarworks.astera.core.application.service.combat.CombatContextResolver { services.get<IMatchTeamLookup>() },
-                recentAttacker = { victim, atTick ->
-                    services.get<com.astarworks.astera.combat.application.port.outbound.IDamageHistoryService>()
-                        ?.entries(victim)
-                        ?.lastOrNull { it.at >= atTick - VanillaKillResolver.VOID_ATTRIBUTION_TICKS }
-                        ?.attackerId
+            ) },
+                // Post-wiring host step (CombatPaperPlatform.bind): tick loops and the
+                // rerouted-damage kill publisher.
+                bindHost = { ctx, wired ->
+                    sim.skillEngine = SimSkillEngine.create(world, scheduler, services, wired, mcServer, recorder, statusContainer.value, feedback, alive, seed).also { it.start() }
+                    if (!statusContainerStarted && statusContainer.isInitialized()) {
+                        statusContainer.value.start()
+                        statusContainerStarted = true
+                    }
+                    val bus = ctx.eventBus
+                    ctx.subscriptions += bus.subscribe(PlayerHealthChanged::class) { change ->
+                        killResolver.resolve(change, null)?.let { bus.publish(it) }
+                    }
                 },
-            )
-            val bus = services.getOrThrow<IDomainEventBus>()
-            contexts.last().subscriptions += bus.subscribe(PlayerHealthChanged::class) { change ->
-                killResolver.resolve(change, null)?.let { bus.publish(it) }
-            }
+                unbindHost = { sim.skillEngine.shutdown() },
+            ))
+            sim.core.rewire.up(CombatLifecycle.OWNER).let { r -> check(r is com.astarworks.astera.core.domain.Result.Success) { "combat up failed: ${(r as com.astarworks.astera.core.domain.Result.Failure).error}" } }
 
             // ---- Match / Stats / Economy ---------------------------------
             val replayRoot = Files.createTempDirectory("astera-sim-replays")
-            sim.match = MatchWiring.install(context("Astera-Match"), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }, starDropWorld = { sim.starDrops }, oreNodeWorld = { sim.oreNodes }, generatorItemDrop = { sim.generatorDrops }, objectiveStage = { sim.objectiveStage }, worldLabels = { sim.worldLabels }, matchCompass = { reg -> sim.matchCompass.also { it.attach(reg.getOrThrow<com.astarworks.astera.core.application.port.outbound.IDomainEventBus>()) } }, playerPositions = { reg -> SimMatchPlayerPositions({ reg.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>() }, sim.spectator) }, normaPresentation = { sim.normaPresentation }))
+            sim.core.rewire.register(MatchLifecycle(install = { ctx -> MatchWiring.install(ctx, MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }, starDropWorld = { sim.starDrops }, oreNodeWorld = { sim.oreNodes }, generatorItemDrop = { sim.generatorDrops }, objectiveStage = { sim.objectiveStage }, worldLabels = { sim.worldLabels }, matchCompass = { reg -> sim.matchCompass.also { it.attach(reg.getOrThrow<com.astarworks.astera.core.application.port.outbound.IDomainEventBus>()) } }, playerPositions = { reg -> SimMatchPlayerPositions({ reg.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>() }, sim.spectator) }, normaPresentation = { sim.normaPresentation })) }))
+            sim.core.rewire.up(MatchLifecycle.OWNER).let { r -> check(r is com.astarworks.astera.core.domain.Result.Success) { "match up failed: ${(r as com.astarworks.astera.core.domain.Result.Failure).error}" } }
             sim.core.rewire.register(StatsLifecycle { StatsPlatformPorts() })
             sim.core.rewire.register(EconomyLifecycle { EconomyPlatformPorts() })
-            check(sim.core.rewire.up(StatsLifecycle.OWNER) is com.astarworks.astera.core.domain.Result.Success) { "stats up failed" }
-            check(sim.core.rewire.up(EconomyLifecycle.OWNER) is com.astarworks.astera.core.domain.Result.Success) { "economy up failed" }
+            sim.core.rewire.up(StatsLifecycle.OWNER).let { r -> check(r is com.astarworks.astera.core.domain.Result.Success) { "stats up failed: ${(r as com.astarworks.astera.core.domain.Result.Failure).error}" } }
+            sim.core.rewire.up(EconomyLifecycle.OWNER).let { r -> check(r is com.astarworks.astera.core.domain.Result.Success) { "economy up failed: ${(r as com.astarworks.astera.core.domain.Result.Failure).error}" } }
 
             // The sim has one world and no arena slots (production pastes arenas on a far grid, SlotAllocator), so an
             // arena at origin 0 would sit on the lobby training island and its players would count as "in the range"
