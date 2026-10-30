@@ -43,5 +43,5 @@ machine:
         # the discharge ring: 24 sparks flung outward on the ground plane, a lifted ring behind it (instant rows: the state lasts one tick)
         - {id: arc, op: particle, particle: electric_spark, anchor: ring, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 0.5}
         - {id: arc_hi, op: particle, particle: electric_spark, anchor: ring, times: 12, at: 0, count: 0, offset: "= vec(0.6 * cos(i * 2 * pi / 12), 0.8, 0.6 * sin(i * 2 * pi / 12))", extra: 0.3}
-        - {id: glow, op: particle, particle: dust, anchor: ring, count: 16, offset: "= vec(1.2, 0.3, 1.2)", color: "#fff6a0", size: 0.3, at: 0}
+        - {id: glow, op: particle, particle: dust, anchor: ring, count: 16, offset: "= vec(1.2, 0.3, 1.2)", color: "#fff6a0", size: 1.2, at: 0}
     end: {final: true}

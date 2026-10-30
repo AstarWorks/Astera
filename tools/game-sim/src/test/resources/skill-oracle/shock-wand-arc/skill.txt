@@ -38,7 +38,7 @@
 @0 particle - op=burst/arc_hi[9] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.800000,-0.600000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=341978608045656745
 @0 particle - op=burst/arc_hi[10] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.300000,0.800000,-0.519615 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6867059575704920604
 @0 particle - op=burst/arc_hi[11] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.519615,0.800000,-0.300000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8680689963596984232
-@0 particle - op=burst/glow type=dust count=16 at=0.000000,0.150000,0.000000 off=1.200000,0.300000,1.200000 speed=0.000000 color=#fff6a0 size=0.300000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=398481140139077584
+@0 particle - op=burst/glow type=dust count=16 at=0.000000,0.150000,0.000000 off=1.200000,0.300000,1.200000 speed=0.000000 color=#fff6a0 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8723830341599031877
 @0 hit - op=burst/area at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- electric=9.6429 skill=shock-wand-arc at=0.000000,0.000000,2.200000 ignoreinv=false ignorearmor=false
 @0 sound - op=burst/area.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=0.000000,0.000000,2.200000
@@ -83,7 +83,7 @@
 @0 particle - op=burst/arc_hi[9] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.800000,-0.600000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=341978608045656745
 @0 particle - op=burst/arc_hi[10] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.300000,0.800000,-0.519615 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6867059575704920604
 @0 particle - op=burst/arc_hi[11] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.519615,0.800000,-0.300000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8680689963596984232
-@0 particle - op=burst/glow type=dust count=16 at=0.000000,0.150000,0.000000 off=1.200000,0.300000,1.200000 speed=0.000000 color=#fff6a0 size=0.300000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=398481140139077584
+@0 particle - op=burst/glow type=dust count=16 at=0.000000,0.150000,0.000000 off=1.200000,0.300000,1.200000 speed=0.000000 color=#fff6a0 size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8723830341599031877
 @0 hit - op=burst/area at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- electric=9.6429 skill=shock-wand-arc at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
 @0 sound - op=burst/area.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589
@@ -128,7 +128,7 @@
 @0 particle - op=burst/arc_hi[9] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.800000,-0.600000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=341978608045656745
 @0 particle - op=burst/arc_hi[10] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.300000,0.800000,-0.519615 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6867059575704920604
 @0 particle - op=burst/arc_hi[11] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.519615,0.800000,-0.300000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8680689963596984232
-@0 particle - op=burst/glow type=dust count=16 at=0.000000,0.150000,0.000000 off=1.200000,0.300000,1.200000 speed=0.000000 color=#fff6a0 size=0.300000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=398481140139077584
+@0 particle - op=burst/glow type=dust count=16 at=0.000000,0.150000,0.000000 off=1.200000,0.300000,1.200000 speed=0.000000 color=#fff6a0 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8723830341599031877
 @0 hit - op=burst/area at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- electric=9.6429 skill=shock-wand-arc at=0.000000,0.000000,2.200000 ignoreinv=false ignorearmor=false
 @0 damage 00000000-0000-0000-0000-00000000000b op=- electric=7.2738 skill=shock-wand-arc at=-1.700000,0.000000,2.700000 ignoreinv=false ignorearmor=false
@@ -177,7 +177,7 @@ g @1 cast-end | pose
 @0 particle - op=burst/arc_hi[9] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.800000,-0.600000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=341978608045656745
 @0 particle - op=burst/arc_hi[10] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.300000,0.800000,-0.519615 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6867059575704920604
 @0 particle - op=burst/arc_hi[11] type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.519615,0.800000,-0.300000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8680689963596984232
-@0 particle - op=burst/glow type=dust count=16 at=0.000000,0.150000,0.000000 off=1.200000,0.300000,1.200000 speed=0.000000 color=#fff6a0 size=0.300000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=398481140139077584
+@0 particle - op=burst/glow type=dust count=16 at=0.000000,0.150000,0.000000 off=1.200000,0.300000,1.200000 speed=0.000000 color=#fff6a0 size=1.200000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8723830341599031877
 @0 hit - op=burst/area at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- electric=9.6429 skill=shock-wand-arc at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
 @0 damage 00000000-0000-0000-0000-00000000000b op=- electric=7.2738 skill=shock-wand-arc at=-3.102716,0.000000,0.892276 ignoreinv=false ignorearmor=false

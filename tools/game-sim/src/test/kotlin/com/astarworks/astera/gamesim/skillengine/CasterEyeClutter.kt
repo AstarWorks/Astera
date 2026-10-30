@@ -7,7 +7,7 @@ import kotlin.math.sqrt
 
 /**
  * Caster-view clutter rule (se-nearcam). A skill must not fill the caster's own first-person screen: at no tick of any recorded pose may more than
- * [LIMIT] lingering vanilla particles spawn within [RADIUS] blocks of the caster eye. Rows come from the expanded golden recording
+ * [LIMIT] lingering vanilla particles spawn in the first-person view volume: a forward cone ([HALF_ANGLE_DEG] deg half-angle along the row's look) out to [RADIUS] blocks from the eye, excluding anything below eye - [FLOOR_BELOW_EYE] (ground rings/AoE discs at the feet). Rows come from the expanded golden recording
  * (`@tick particle - op=.. type=.. count=N at=x,y,z .. size=..`; the caster stands at the origin, eye at y = [EYE_Y]); a content particle id resolves to its
  * `vanilla_particle` in content/particles.
  *
@@ -19,7 +19,9 @@ import kotlin.math.sqrt
  * The mean of `k / (0.8U + 0.2)` is `k / 0.8 * ln 5`.
  */
 internal object CasterEyeClutter {
-    const val RADIUS = 2.0
+    const val RADIUS = 1.5
+    const val HALF_ANGLE_DEG = 70.0
+    const val FLOOR_BELOW_EYE = 0.9
     const val EYE_Y = 1.62
     const val LIMIT = 10
     const val LINGER_TICKS = 6.0
@@ -44,7 +46,8 @@ internal object CasterEyeClutter {
         else -> 16.0
     }
 
-    private val ROW = Regex("^@(\\d+) particle \\S+ op=(\\S+) type=(\\S+)(?: count=(\\d+))? at=(\\S+),(\\S+),(\\S+) .* size=(\\S+) ")
+    private val ROW = Regex("^@(\\d+) particle \\S+ op=(\\S+) type=(\\S+)(?: count=(\\d+))? at=(\\S+),(\\S+),(\\S+) .* size=(\\S+) .*look=(\\S+),(\\S+),(\\S+)")
+    private val COS_HALF = kotlin.math.cos(Math.toRadians(HALF_ANGLE_DEG))
 
     private fun defs(particlesDir: Path): Map<String, Pair<String, Double?>> {
         val out = HashMap<String, Pair<String, Double?>>()
@@ -69,7 +72,7 @@ internal object CasterEyeClutter {
         fun flush() {
             for ((tick, n) in perTick) if (n > LIMIT) {
                 val top = ops.getValue(tick).entries.sortedByDescending { it.value }.take(4).joinToString(", ") { "${it.key} x${it.value}" }
-                problems += "$key [$pose] @$tick: $n lingering particles within $RADIUS blocks of the caster eye (limit $LIMIT): $top"
+                problems += "$key [$pose] @$tick: $n lingering particles in the first-person view volume (cone ${HALF_ANGLE_DEG.toInt()} deg, $RADIUS blocks, above eye-$FLOOR_BELOW_EYE) (limit $LIMIT): $top"
             }
             perTick.clear(); ops.clear()
         }
@@ -78,7 +81,11 @@ internal object CasterEyeClutter {
             val m = ROW.find(l) ?: continue
             val tick = m.groupValues[1].toInt()
             val x = m.groupValues[5].toDouble(); val y = m.groupValues[6].toDouble() - EYE_Y; val z = m.groupValues[7].toDouble()
-            if (sqrt(x * x + y * y + z * z) > RADIUS) continue
+            val d = sqrt(x * x + y * y + z * z)
+            if (d > RADIUS || y < -FLOOR_BELOW_EYE) continue
+            val lx = m.groupValues[9].toDouble(); val ly = m.groupValues[10].toDouble(); val lz = m.groupValues[11].toDouble()
+            val ll = sqrt(lx * lx + ly * ly + lz * lz)
+            if (d > 1e-6 && ll > 1e-6 && (x * lx + y * ly + z * lz) / (d * ll) < COS_HALF) continue
             val id = m.groupValues[3]
             val (vanilla, defScale) = defs[id] ?: (id to null)
             val scale = m.groupValues[8].toDoubleOrNull() ?: defScale

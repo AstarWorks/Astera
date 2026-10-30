@@ -44,12 +44,12 @@ machine:
             - {law: fade, start: 1.0, to: 0.0, at: 0, for: 7}
         - {id: snd, op: sound, sound: "astera:skills/heal-chime", anchor: caster, volume: 0.5, at: 0}
         - {id: fx, op: particle_def, def: verdant-heal, anchor: chest, at: 0}
-        - {id: leaf_a, op: particle, particle: electric_spark, anchor: feet, count: 0, extra: 0.02, at: 0}
-        - {id: dust_a, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#5ae65a", size: 0.3, at: 0}
-        - {id: leaf_b, op: particle, particle: electric_spark, anchor: feet, count: 1, extra: 0, at: 0}
-        - {id: dust_b, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#8cff78", size: 0.3, at: 0}
+        - {id: leaf_a, op: particle, particle: happy_villager, anchor: feet, count: 0, extra: 0.02, at: 0}
+        - {id: dust_a, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#5ae65a", size: 1.4, at: 0}
+        - {id: leaf_b, op: particle, particle: happy_villager, anchor: feet, count: 1, extra: 0, at: 0}
+        - {id: dust_b, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#8cff78", size: 1.2, at: 0}
         - {id: hearts, op: particle, particle: heart, anchor: feet, count: 8, offset: [0.8, 0.8, 0.8], extra: 0, at: 0}
-        - {id: leaves, op: particle, particle: dust, color: "#5ae65a", size: 0.3, anchor: feet, count: 22, offset: [0.7, 1.0, 0.7], extra: 0, at: 0}
+        - {id: leaves, op: particle, particle: happy_villager, anchor: feet, count: 22, offset: [0.7, 1.0, 0.7], extra: 0, at: 0}
         - {id: leaf_c, op: particle, particle: happy_villager, anchor: feet, count: 1, extra: 0, at: 6}
         - {id: dust_c, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#8cff78", size: 1.2, at: 6}
     end: {final: true}

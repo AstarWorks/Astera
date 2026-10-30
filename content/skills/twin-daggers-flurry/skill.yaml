@@ -11,7 +11,7 @@ meta:
   resource_cost: 4
   tags: [melee, physical]
 anchors:
-  - {id: stab_pt, anchor: caster.eye, offset: {up: -0.2, forward: 1.4}, mode: follow}
+  - {id: stab_pt, anchor: caster.eye, offset: {up: -0.2, forward: 1.6}, mode: follow}
   - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}
 machine:
   start: windup
@@ -68,5 +68,5 @@ machine:
         - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 1.0, pitch: 1.7, at: 0, detach: true}
         - {id: fx, op: particle_def, def: stab-spark, anchor: stab_pt, at: 0, detach: true}
         - {id: trail_fx, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 5}, count: 1, extra: 0.04, at: 0, every: 1, for: 6, detach: true}
-        - {id: trail_off_fx, op: particle, particle: electric_spark, anchor: {of: /windup/rig_off.root, to: /windup/rig_off.tip, samples: 5}, count: 1, extra: 0.04, at: 0, every: 1, for: 6, detach: true}
+        - {id: trail_off_fx, op: particle, particle: crit, anchor: {of: /windup/rig_off.root, to: /windup/rig_off.tip, samples: 5}, count: 1, extra: 0.04, at: 0, every: 1, for: 6, detach: true}
     end: {final: true}
