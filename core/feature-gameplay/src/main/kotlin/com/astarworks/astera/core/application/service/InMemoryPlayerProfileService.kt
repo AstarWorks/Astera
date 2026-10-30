@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service
 
+import com.astarworks.astera.core.application.contents.BalanceRef
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository
@@ -60,7 +61,7 @@ import java.util.concurrent.atomic.AtomicLong
  * Wave-5e inventory restore path".
  */
 public class InMemoryPlayerProfileService(
-    private val starterGrant: StarterGrant,
+    private val starterGrantRef: BalanceRef<StarterGrant>,
     private val itemRegistry: IItemRegistry,
     private val ledgerProvider: () -> ICurrencyLedger?,
     private val tutorialRegistry: ITutorialRegistry,
@@ -70,6 +71,8 @@ public class InMemoryPlayerProfileService(
 ) : IPlayerProfileService {
 
     private val log = LoggerFactory.getLogger(javaClass)
+
+    private val starterGrant: StarterGrant get() = starterGrantRef.current
 
 
     /**
@@ -229,5 +232,22 @@ public class InMemoryPlayerProfileService(
     private fun defaultDisplayName(playerId: PlayerId): String {
         val short = playerId.uuid.toString().take(8)
         return "Player-$short"
+    }
+
+    /**
+     * Starter-grant reload: credits every existing profile the positive per-currency difference
+     * `new - old` (a raised grant). A lowered or removed grant never claws back. Returns the number
+     * of profiles credited, or 0 when nothing was raised or no ledger is registered.
+     */
+    public fun topUpWallets(old: StarterGrant, new: StarterGrant): Int {
+        val raised = new.walletGrants.mapNotNull { (currency, amount) ->
+            val diff = amount - (old.walletGrants[currency] ?: 0L)
+            if (diff > 0) currency to diff else null
+        }
+        if (raised.isEmpty()) return 0
+        val ledger = ledgerProvider() ?: return 0
+        val ids = repository.allIds()
+        for (id in ids) for ((currency, diff) in raised) ledger.credit(id, currency, diff)
+        return ids.size
     }
 }

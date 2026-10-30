@@ -184,6 +184,7 @@ public class AdminOpsCommands(
         log.info("Reloaded all categories: ok={} failed={}", summary.reloaded, summary.failed)
         if (summary.failed.isEmpty()) {
             ctx.reply(MessageKey("astera.command.reply.admin-reload"), mapOf("category" to RELOAD_ALL))
+            summary.notes.forEach { ctx.reply(MessageKey("astera.command.reply.admin-reload-note"), mapOf("note" to it)) }
             return CommandResult.Success
         }
         return CommandResult.Failure(
@@ -207,6 +208,7 @@ public class AdminOpsCommands(
                 is Result.Success -> {
                     log.info("Reloaded category {}: {}", category, outcome.value)
                     ctx.reply(MessageKey("astera.command.reply.admin-reload"), mapOf("category" to category))
+                    outcome.value.notes.forEach { ctx.reply(MessageKey("astera.command.reply.admin-reload-note"), mapOf("note" to it)) }
                     CommandResult.Success
                 }
                 is Result.Failure -> when (val err = outcome.error) {

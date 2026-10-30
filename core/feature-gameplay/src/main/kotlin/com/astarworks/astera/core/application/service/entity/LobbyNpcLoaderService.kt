@@ -1,6 +1,8 @@
 package com.astarworks.astera.core.application.service.entity
 
 import com.astarworks.astera.core.application.config.LobbyNpcYamlConfig
+import com.astarworks.astera.core.application.contents.EmptyReloadGuard
+import com.astarworks.astera.core.application.contents.ReloadableContents
 import com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner
 import com.astarworks.astera.core.application.port.outbound.entity.INpcBodyMaterializer
 import com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter
@@ -26,12 +28,18 @@ import java.nio.file.Path
  * [GuiIntent], e.g. `lobby.shop.open` opens the shop.
  *
  * One bad file is reported in [LoadReport.failures] and skipped; the rest still load.
+ *
+ * As a reload category (`lobby-npcs`) it diffs by NPC id: removed and changed NPCs are despawned,
+ * new and changed ones spawned, unchanged ones keep their handle. A reload with any bad file changes
+ * nothing.
  */
 public class LobbyNpcLoaderService(
     private val spawner: IEntitySpawner,
     private val interactions: INpcInteractionRouter,
     private val bodies: INpcBodyMaterializer? = null,
-) {
+) : ReloadableContents {
+    override val categoryName: String = "lobby-npcs"
+
     private val loader = ContentLoader(
         parsers = ContentLoader.DEFAULT_PARSERS,
         deserializer = LobbyNpcYamlConfig.serializer(),
@@ -40,15 +48,61 @@ public class LobbyNpcLoaderService(
     /** Handles of every NPC spawned by [loadFrom], keyed by the YAML `id`. */
     public val spawned: MutableMap<String, EntityHandle> = linkedMapOf()
 
+    /** The config each live NPC was spawned from, for the reload diff. */
+    private val specs: MutableMap<String, LobbyNpcYamlConfig> = linkedMapOf()
+
     public fun loadFrom(dir: Path): ContentLoader.LoadReport = loader.loadFrom(dir) { cfg -> spawn(cfg) }
 
-    private fun spawn(cfg: LobbyNpcYamlConfig) {
+    override fun reload(dir: Path): ContentLoader.LoadReport {
+        val next = linkedMapOf<String, LobbyNpcYamlConfig>()
+        val report = loader.loadFrom(dir) { cfg ->
+            spawnSpecOf(cfg)
+            check(next.put(cfg.id, cfg) == null) { "duplicate lobby NPC id '${cfg.id}'" }
+        }
+        if (report.failed > 0) return report
+        EmptyReloadGuard.check(categoryName, dir, next.size, specs.size)?.let { return it }
+
+        val removed = specs.keys - next.keys
+        val changed = next.filter { (id, cfg) -> specs[id]?.let { it != cfg } == true }.keys
+        val added = next.keys - specs.keys
+        val failures = mutableListOf<ContentLoader.LoadFailure>()
+        (removed + changed).forEach { despawn(it) }
+        (changed + added).forEach { id ->
+            try {
+                spawn(next.getValue(id))
+            } catch (e: IllegalStateException) {
+                failures += ContentLoader.LoadFailure(dir, e.message ?: "spawn failed for '$id'")
+            }
+        }
+        if (failures.isNotEmpty()) return ContentLoader.LoadReport(loaded = 0, failed = failures.size, failures = failures)
+        val kept = next.size - changed.size - added.size
+        return ContentLoader.LoadReport(
+            loaded = next.size,
+            failed = 0,
+            notes = listOf("lobby NPCs: +${added.size} spawned, -${removed.size} despawned, ~${changed.size} respawned, $kept kept"),
+        )
+    }
+
+    private fun despawn(id: String) {
+        specs.remove(id)
+        val handle = spawned.remove(id) ?: return
+        interactions.unbind(handle)
+        bodies?.remove(handle)
+        spawner.despawn(handle)
+    }
+
+    private fun spawnSpecOf(cfg: LobbyNpcYamlConfig): SpawnSpec {
         val nameKey = MessageKey(cfg.displayName)
-        val spec = when (cfg.type) {
+        return when (cfg.type) {
             LobbyNpcYamlConfig.TYPE_DISPLAY_ENTITY -> SpawnSpec.DisplayNpc(HologramKind.Text(nameKey))
             LobbyNpcYamlConfig.TYPE_ARMOR_STAND -> SpawnSpec.ArmorStandNpc(displayName = nameKey, visible = true)
             else -> error("lobby NPC '${cfg.id}': unsupported type '${cfg.type}' (display_entity | armor_stand)")
         }
+    }
+
+    private fun spawn(cfg: LobbyNpcYamlConfig) {
+        val nameKey = MessageKey(cfg.displayName)
+        val spec = spawnSpecOf(cfg)
         val world = WorldId(cfg.spawn.world)
         val position = Vec3(cfg.spawn.x, cfg.spawn.y, cfg.spawn.z)
         val handle = when (val r = spawner.spawn(world, position, spec)) {
@@ -59,5 +113,6 @@ public class LobbyNpcLoaderService(
         cfg.interaction.leftClickIntent?.let { interactions.bindLeftClick(handle, GuiIntent(it, cfg.interaction.leftClickPayload)) }
         bodies?.materialize(handle, world, position, cfg.spawn.yaw, cfg.spawn.pitch, nameKey)
         spawned[cfg.id] = handle
+        specs[cfg.id] = cfg
     }
 }

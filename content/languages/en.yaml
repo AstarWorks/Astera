@@ -392,6 +392,7 @@ astera:
       admin-maintenance-status-on: "<yellow>Maintenance mode is ON. Reason: {reason}</yellow>"
       admin-maintenance-status-off: "<green>Maintenance mode is OFF.</green>"
       admin-reload: "<green>Reloaded <gold>{category}</gold>.</green>"
+      admin-reload-note: "<gray>  {note}</gray>"
       admin-restart: "<yellow>Restart scheduled in {minutes} minutes.</yellow>"
       admin-drain: "<yellow>Moving {count} player(s) to <gold>{target}</gold>.</yellow>"
       admin-drain-unavailable: "<red>Cross-server transfer is not available on this server.</red>"

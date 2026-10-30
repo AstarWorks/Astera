@@ -17,4 +17,7 @@ public interface IPlayerProfileRepository {
 
     /** Overwrites the last-known display name of an existing profile. `false` = no such profile. */
     public fun updateDisplayName(playerId: PlayerId, displayName: String): Boolean
+
+    /** Every onboarded player (starter-grant reload tops all of them up). */
+    public fun allIds(): List<PlayerId>
 }

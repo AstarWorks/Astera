@@ -16,6 +16,32 @@ public class MatchShopLoaderService {
         deserializer = MatchShopYamlConfig.serializer(),
     )
 
+    @Volatile
+    private var pending: MatchShopCatalog? = null
+
+    /** Parses `match-shop.yaml` without touching [catalog]; the catalog is null when the file is absent or invalid. */
+    public fun parse(shopsDir: Path): Pair<ContentLoader.LoadReport, MatchShopCatalog?> {
+        var parsed: MatchShopCatalog? = null
+        val report = loader.loadFrom(shopsDir, accept = { it.fileName.toString() == FILE_NAME }) { cfg -> parsed = cfg.toCatalog() }
+        return report to parsed
+    }
+
+    /** Makes [next] the live catalog now. */
+    public fun apply(next: MatchShopCatalog) {
+        catalog = next
+        pending = null
+    }
+
+    /** Holds [next] until [promotePending] (the next match start). */
+    public fun stage(next: MatchShopCatalog) {
+        pending = next
+    }
+
+    /** Called at match start: a staged catalog becomes live. */
+    public fun promotePending() {
+        pending?.let { apply(it) }
+    }
+
     public fun loadFrom(shopsDir: Path): ContentLoader.LoadReport =
         loader.loadFrom(shopsDir, accept = { it.fileName.toString() == FILE_NAME }) { cfg -> catalog = cfg.toCatalog() }
 
