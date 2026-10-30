@@ -2075,6 +2075,7 @@ astera:
       "skills.err.unknown": "<red>Unknown skill <gold>{skill}</gold>.</red>"
       "skills.err.cooldown": "<red><gold>{skill}</gold> is on cooldown for {seconds}s (use --force).</red>"
       "skills.err.silenced": "<red>You are silenced.</red>"
+      "skills.err.callee-only": "<red>callee-only: cast the caller <gold>{callers}</gold> ({skill} cannot be cast on its own).</red>"
       "skills.err.cast": "<red>Could not cast <gold>{skill}</gold>.</red>"
       "skills.err.no-items": "<red>The items plugin is not available.</red>"
       "skills.err.no-template": "<red>content/items/skill-tester.yaml is missing.</red>"

@@ -34,6 +34,16 @@ public data class CastRequest(
 
 public sealed interface CastError {
     public data class FrameSetup(val reason: String) : CastError
+
+    /**
+     * A callee-only skill was cast on its own: nobody binds its `frames_in` frames or gives its `required` params a value, so no row could
+     * run. Raised by the table player before the cast exists; the platform logs it as `[skill-error]`.
+     */
+    public data class CalleeOnly(val skillId: String, val missingFrames: List<String>, val missingParams: List<String>) : CastError {
+        val reason: String
+            get() = "skill '$skillId' is callee-only (unbound frames_in: ${missingFrames.joinToString(", ").ifEmpty { "-" }}; " +
+                "required params without a value: ${missingParams.joinToString(", ").ifEmpty { "-" }}) and can only be called with `use: skill:$skillId`, not cast directly"
+    }
     public data class ExprFailed(val path: String, val reason: String) : CastError
 }
 

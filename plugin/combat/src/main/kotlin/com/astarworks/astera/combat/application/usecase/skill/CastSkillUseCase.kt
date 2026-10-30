@@ -254,6 +254,9 @@ public sealed class CastSkillError {
     public data class OnCooldown(val skillId: SkillId, val remainingMs: Long) : CastSkillError()
     public data class Silenced(val casterId: PlayerId) : CastSkillError()
 
+    /** [skillId] is callee-only (`frames_in` / unvalued `required` params): only its [callers] can cast it. */
+    public data class CalleeOnly(val skillId: SkillId, val callers: List<String>) : CastSkillError()
+
     /** The caster's pool of [type] held [have] but the cast costs [tried]. */
     public data class InsufficientResource(val type: ResourceType, val have: Int, val tried: Int) : CastSkillError()
 

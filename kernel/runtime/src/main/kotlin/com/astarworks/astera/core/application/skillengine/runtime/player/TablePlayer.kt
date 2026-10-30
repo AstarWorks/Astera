@@ -166,9 +166,9 @@ public class TablePlayer(
     // ------------------------------------------------------------------ API
 
     override fun start(request: CastRequest, skill: CompiledSkill): Result<CastHandle, CastError> {
-        // a `frames_in` name is bound by a caller's `use:`; a skill cast directly has nobody to bind it, so the refusal names the frame
-        if (skill.def.framesIn.isNotEmpty()) {
-            return Result.Failure(CastError.FrameSetup("skill '${skill.def.id}' declares frames_in ${skill.def.framesIn.keys.joinToString(", ") { "'$it'" }} and can only be called with `use: skill:${skill.def.id}`, not cast directly"))
+        // a `frames_in` name is bound and a `required` param is valued by a caller's `use:`; a skill cast directly has nobody to do it
+        if (skill.def.isCalleeOnly) {
+            return Result.Failure(CastError.CalleeOnly(skill.def.id, skill.def.framesIn.keys.toList(), skill.def.unvaluedRequiredParams))
         }
         // the table's first state is the entry (MachineTables puts it there): a part call as `machine.start` is expanded to its child path
         val states = skill.table.states.associateBy { it.state }
