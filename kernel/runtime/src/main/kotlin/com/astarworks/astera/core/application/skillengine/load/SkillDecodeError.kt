@@ -121,4 +121,10 @@ public sealed interface SkillDecodeError {
         override val path: String get() = "check $check"
         override val message: String get() = detail
     }
+
+    /** Check 14 (engine-gaps-v2 2.5): a `patchKind: skin` variant whose gameplay differs from its base ([where] names the first difference). */
+    public data class SkinChangesGameplay(override val skillId: String, val where: String, val baseRow: String, val variantRow: String) : SkillDecodeError {
+        override val path: String get() = where
+        override val message: String get() = "a skin must not change gameplay; at $where the base has [$baseRow] and the skin has [$variantRow]"
+    }
 }

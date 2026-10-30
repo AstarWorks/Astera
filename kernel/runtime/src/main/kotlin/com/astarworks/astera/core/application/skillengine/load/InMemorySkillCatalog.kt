@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.skillengine.compose.ComposedSkill
 import com.astarworks.astera.core.application.skillengine.compose.OverlayPartCatalog
 import com.astarworks.astera.core.application.skillengine.compose.PartCatalog
 import com.astarworks.astera.core.application.skillengine.compose.SkillCompiler
+import com.astarworks.astera.core.application.skillengine.compose.SkinGameplayParityCheck
 import com.astarworks.astera.core.application.skillengine.compose.UseCollector
 import com.astarworks.astera.core.application.skillengine.part.PartAbort
 import com.astarworks.astera.core.application.skillengine.part.PartParser
@@ -59,12 +60,22 @@ public class InMemorySkillCatalog(
         val view = object : SkillCatalogView {
             override fun skill(id: String): SkillDef? = batch.skill(id) ?: skills[id]?.def
         }
+        val kinds = composed.filterNot { it.isPart }.associate { it.id to it.patch.kind }
         val ok = LinkedHashMap<String, CompiledSkill>()
         for ((id, def) in defs) {
             when (val r = compiler.compile(def, partOverlay, view)) {
-                is Result.Success -> ok[id] = withUses(r.value, view)
+                is Result.Success -> ok[id] = withUses(r.value, view).copy(patchKind = kinds[id] ?: "base")
                 is Result.Failure -> failed[id] = r.error
             }
+        }
+        // check 14: a skin variant plays its base's gameplay; one that does not never enters the catalog (the previous version, if any, stays)
+        for (c in composed) {
+            if (c.isPart || '@' !in c.id || c.patch.kind != "skin") continue
+            val variant = ok[c.id] ?: continue
+            val baseId = c.id.substringBefore('@')
+            if (baseId in failed) continue
+            val base = ok[baseId] ?: skills[baseId] ?: continue
+            SkinGameplayParityCheck.run(base, variant, c.id)?.let { failed[c.id] = it; ok.remove(c.id) }
         }
         skills.putAll(ok)
         val loaded = ArrayList(ok.keys)
@@ -108,7 +119,7 @@ public class InMemorySkillCatalog(
                 done += id
                 when (val r = compiler.compile(def, partOverlay, view)) {
                     is Result.Success -> {
-                        skills[id] = withUses(r.value, view)
+                        skills[id] = withUses(r.value, view).copy(patchKind = skills[id]?.patchKind ?: "base")
                         next += id
                     }
                     is Result.Failure -> failed[id] = r.error

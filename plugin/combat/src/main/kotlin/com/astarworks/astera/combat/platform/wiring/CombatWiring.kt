@@ -87,6 +87,10 @@ public class CombatWiringResult(
     public val skillGate: SkillMetaRegistry,
     /** The v2 skill catalog (ADR-0301), loaded from `content/skills` at install; the Paper runtime casts from it. */
     public val skillCatalog: com.astarworks.astera.core.application.skillengine.load.SkillCatalog,
+    /** Which catalog id a cast plays for its caster: the selected owned skin, else the base. */
+    public val skillVariantResolver: com.astarworks.astera.combat.application.service.skin.SkillVariantResolver,
+    /** Grants, revokes and selects skills' skins (admin command; shop and picker call it too). */
+    public val skillSkins: com.astarworks.astera.combat.application.usecase.skin.SkillSkinUseCase,
     /** Reloads `content/skills`; the Paper runtime calls it once the block registries exist so skills that named a custom block retry. */
     public val reloadSkills: () -> com.astarworks.astera.core.application.service.ContentLoader.LoadReport,
     /** Decoded `content/frames` point tables for the v2 compiler and point source. */
@@ -737,6 +741,15 @@ public object CombatWiring {
         } else {
             null
         }
+        // Skill skins (engine-gaps-v2 2.3): Persistence's Postgres repository (priority 100) wins over this in-memory default.
+        val skinRepository: () -> com.astarworks.astera.combat.application.port.outbound.skin.ISkillSkinRepository = {
+            services.get<com.astarworks.astera.combat.application.port.outbound.skin.ISkillSkinRepository>()
+                ?: com.astarworks.astera.combat.application.service.skin.InMemorySkillSkinRepository().also {
+                    services.register<com.astarworks.astera.combat.application.port.outbound.skin.ISkillSkinRepository>(it, priority = 0)
+                }
+        }
+        val skillVariantResolver = com.astarworks.astera.combat.application.service.skin.SkillVariantResolver(skinRepository, skillCatalog::get)
+        val skillSkins = com.astarworks.astera.combat.application.usecase.skin.SkillSkinUseCase(skinRepository, skillCatalog::get)
         ctx.commandMount().register(
             com.astarworks.astera.combat.command.skillCommandSpec(
                 adminSkillCaster,
@@ -744,6 +757,7 @@ public object CombatWiring {
                 previewService,
                 reload = { id -> skillEngineContents.reloadSkill(skillsContentDir, id) },
                 knownSkillIds = { skillCatalog.ids() },
+                skins = skillSkins,
                 expand = com.astarworks.astera.combat.adapter.paper.command.skillExpandSubcommand(
                     ids = { skillCatalog.ids() },
                     tableOf = { id -> skillCatalog.get(id)?.table },
@@ -770,6 +784,8 @@ public object CombatWiring {
         return CombatWiringResult(
             skillGate = skillGate,
             skillCatalog = skillCatalog,
+            skillVariantResolver = skillVariantResolver,
+            skillSkins = skillSkins,
             engineConfig = engineConfig,
             reloadSkills = { skillEngineContents.reload(skillsContentDir) },
             frameTables = frameTables,

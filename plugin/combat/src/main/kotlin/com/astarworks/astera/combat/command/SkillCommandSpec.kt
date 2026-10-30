@@ -7,6 +7,8 @@ import com.astarworks.astera.combat.application.preview.PreviewOptions
 import com.astarworks.astera.combat.application.preview.PreviewOptionsError
 import com.astarworks.astera.combat.application.preview.PreviewView
 import com.astarworks.astera.combat.application.preview.SkillPreviewService
+import com.astarworks.astera.combat.application.usecase.skin.SkillSkinUseCase
+import com.astarworks.astera.combat.application.usecase.skin.SkinError
 import com.astarworks.astera.combat.application.trace.SkillEngineTrace
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.command.ArgumentType
@@ -39,6 +41,7 @@ internal fun skillCommandSpec(
     reload: ((String) -> Result<SkillEngineContents.SkillReload, SkillEngineContents.SkillReloadError>)? = null,
     knownSkillIds: () -> Collection<String> = { emptyList() },
     expand: CommandSpec.Literal? = null,
+    skins: SkillSkinUseCase? = null,
 ): CommandSpec.Literal =
     CommandSpec.Literal(
         name = "skill",
@@ -47,6 +50,7 @@ internal fun skillCommandSpec(
             castSubcommand(caster, server),
             traceSubcommand(),
             reload?.let { reloadSubcommand(it, knownSkillIds) },
+            skins?.let { skinSubcommand(it, server, knownSkillIds) },
             preview?.let { previewSubcommand(caster, it) },
             expand,
         ),
@@ -264,6 +268,66 @@ private fun reloadSubcommand(
                 is SkillEngineContents.SkillReloadError.UnknownSkill -> CommandResult.Failure(K_UNKNOWN, mapOf("skill" to e.skillId))
                 is SkillEngineContents.SkillReloadError.Rejected ->
                     CommandResult.Failure(K_RELOAD_REJECTED, mapOf("skill" to raw, "error" to e.messages.joinToString("; ")))
+            }
+        }
+    },
+).requirePermission(Permission("astera.skill.cast"))
+
+private val K_SKIN_OK = MessageKey("astera.skill.skin.ok")
+private val K_SKIN_UNKNOWN_VARIANT = MessageKey("astera.skill.skin.unknown-variant")
+private val K_SKIN_NOT_A_SKIN = MessageKey("astera.skill.skin.not-a-skin")
+private val K_SKIN_NOT_OWNED = MessageKey("astera.skill.skin.not-owned")
+private val K_SKIN_NEED_SKIN = MessageKey("astera.skill.skin.need-skin")
+private val K_SKIN_NO_PLAYER = MessageKey("astera.skill.skin.no-player")
+
+/**
+ * `/astera skill skin <grant|revoke|equip|clear> <player> <skill-id> [skin]`: the admin path to own and select a skill skin
+ * (engine-gaps-v2 2.3) until a shop or picker grants them. `equip` needs the skin granted first; `clear` plays the base again.
+ */
+private fun skinSubcommand(
+    skins: SkillSkinUseCase,
+    server: IMcServer,
+    knownSkillIds: () -> Collection<String>,
+): CommandSpec.Literal = CommandSpec.Literal(
+    name = "skin",
+    subcommands = listOf(
+        CommandSpec.Argument(name = "action", type = ArgumentType.Choice(listOf("grant", "revoke", "equip", "clear"))),
+        CommandSpec.Argument(name = "player", type = ArgumentType.PlayerName),
+        CommandSpec.Argument(
+            name = "skill-id",
+            type = ArgumentType.ItemIdArg,
+            completer = { _ -> knownSkillIds().filter { '@' !in it } },
+        ),
+        CommandSpec.Argument(
+            name = "skin",
+            type = ArgumentType.StringArg(),
+            completer = { _ -> knownSkillIds().filter { '@' in it }.map { it.substringAfter('@') }.distinct() },
+            optional = true,
+        ),
+    ),
+    executor = { ctx ->
+        val action = ctx.required<String>("action")
+        val playerName = ctx.required<String>("player")
+        val base = ctx.required<String>("skill-id")
+        val skin = ctx.optional<String>("skin")
+        val player = server.findPlayerByName(playerName)?.id
+            ?: return@Literal CommandResult.Failure(K_SKIN_NO_PLAYER, mapOf("player" to playerName))
+        if (skin == null && action != "clear") return@Literal CommandResult.Failure(K_SKIN_NEED_SKIN)
+        val result = when (action) {
+            "grant" -> skins.grant(player, base, skin!!)
+            "revoke" -> skins.revoke(player, base, skin!!)
+            "equip" -> skins.select(player, base, skin!!)
+            else -> skins.select(player, base, null)
+        }
+        when (result) {
+            is Result.Success -> {
+                ctx.reply(K_SKIN_OK, mapOf("action" to action, "player" to playerName, "skill" to base, "skin" to (skin ?: "-")))
+                CommandResult.Success
+            }
+            is Result.Failure -> when (val e = result.error) {
+                is SkinError.UnknownVariant -> CommandResult.Failure(K_SKIN_UNKNOWN_VARIANT, mapOf("skill" to e.baseSkillId, "skin" to e.skin))
+                is SkinError.NotASkin -> CommandResult.Failure(K_SKIN_NOT_A_SKIN, mapOf("skill" to e.baseSkillId, "skin" to e.skin, "kind" to e.kind))
+                is SkinError.NotOwned -> CommandResult.Failure(K_SKIN_NOT_OWNED, mapOf("skill" to e.baseSkillId, "skin" to e.skin))
             }
         }
     },
