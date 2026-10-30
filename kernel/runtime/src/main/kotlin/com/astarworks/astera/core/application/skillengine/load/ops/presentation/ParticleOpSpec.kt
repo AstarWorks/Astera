@@ -2,7 +2,6 @@ package com.astarworks.astera.core.application.skillengine.load.ops.presentation
 
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
-import com.astarworks.astera.core.application.skillengine.load.VanillaKeys
 import com.astarworks.astera.core.application.skillengine.load.grammar.AnchorRef
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
@@ -78,6 +77,11 @@ public class ParticleOp(
 ) : OpNode
 
 public object ParticleOpSpec : OpSpec<ParticleOp> {
+    /** Particles whose Bukkit `dataType` is `BlockData`: they need a block state and no other particle takes one. */
+    private val BLOCK_PARTICLES = setOf("block", "block_crumble", "block_marker", "falling_dust", "dust_pillar")
+
+    /** Vanilla block-state syntax: `[namespace:]path` with optional `[prop=value,...]`. Whether the block exists is the Paper gateway's `createBlockData` (no host block catalog is wired into the decoder). */
+    private val BLOCK_STATE = Regex("^([a-z0-9_.-]+:)?[a-z0-9_/.-]+(\\[[a-z0-9_]+=[a-z0-9_]+(,[a-z0-9_]+=[a-z0-9_]+)*])?$")
     private val HEX = Regex("^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$")
     private val PARTICLE = Field.required("particle", Types.loadText, "vanilla Particle id (dust, crit, end_rod, flame, ...)")
     private val COUNT = Field.optional("count", Types.number, Value.Literal(1.0), "vanilla count; 0 = one particle, offset is the direction")
@@ -86,7 +90,7 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
     private val COLOR = Field.optional("color", Types.nullable(Types.loadText), null, "#rrggbb: with size Particle.DustOptions; alone the tint of entity_effect / flash / tinted_leaves; with power Particle.Spell; with target + duration Particle.Trail")
     private val TO_COLOR = Field.optional("to_color", Types.nullable(Types.loadText), null, "#rrggbb end colour, with color + size: Particle.DustTransition (dust_color_transition)")
     private val SIZE = Field.optional("size", Types.nullable(Types.number), null, "dust scale, with color (and to_color)")
-    private val BLOCK = Field.optional("block", Types.nullable(Types.idValue), null, "block key for BlockData; under times a per-index list or '= CEL' over i")
+    private val BLOCK = Field.optional("block", Types.nullable(Types.idValue), null, "vanilla block state (minecraft:stone, minecraft:oak_log[axis=y]); required by block, block_crumble, block_marker, falling_dust and dust_pillar, under times a per-index list or '= CEL' over i")
     private val ITEM = Field.optional("item", Types.nullable(Types.idValue), null, "material key for ItemStack data; under times a per-index list or '= CEL' over i")
     private val ROLL = Field.optional("roll", Types.nullable(Types.number), null, "radians, for particle sculk_charge (its Float data)")
     private val DELAY = Field.optional("delay", Types.nullable(Types.number), null, "ticks before the pulse, for particle shriek (its Integer data)")
@@ -113,13 +117,18 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
             if (count is Value.Literal && (count.value < 0.0 || count.value % 1.0 != 0.0)) {
                 ctx.fail("count", "count must be a whole number >= 0 (0 = one particle, direction mode)")
             }
+            val particle = values[PARTICLE]
+            val style = styleOf(values, ctx)
+            val wantsBlock = particle.removePrefix("minecraft:") in BLOCK_PARTICLES
+            if (wantsBlock && style !is ParticleStyle.Block) ctx.fail("block", "particle '$particle' needs a block state: give block: minecraft:<block>")
+            if (!wantsBlock && style is ParticleStyle.Block) ctx.fail("block", "particle '$particle' takes no block state (only ${BLOCK_PARTICLES.joinToString()} do)")
             ParticleOp(
                 id, src, whenExpr, timing,
-                particle = values[PARTICLE],
+                particle = particle,
                 count = count,
                 offset = values[OFFSET],
                 extra = values[EXTRA],
-                style = styleOf(values, ctx),
+                style = style,
                 anchor = values[ANCHOR],
                 shift = values[SHIFT],
                 motion = values[MOTION] ?: emptyList(),
@@ -192,12 +201,13 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
             }
             is ParticleStyle.Block -> {
                 val key = dataKey(s.key, lc) ?: return dataKeyError("block", lc)
-                if (!VanillaKeys.isBlock(key)) return unknownKey("block", key, lc)
+                if (!BLOCK_STATE.matches(key)) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".block", "'$key' is not a block state: expected [minecraft:]name or name[prop=value,...]"))
+                lc.keys.blockProblem(key)?.let { return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".block", "'$key': $it")) }
                 ParticleData.Block(key)
             }
             is ParticleStyle.Item -> {
                 val key = dataKey(s.key, lc) ?: return dataKeyError("item", lc)
-                if (!VanillaKeys.isItem(key)) return unknownKey("item", key, lc)
+                lc.keys.itemProblem(key)?.let { return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".item", "'$key': $it")) }
                 ParticleData.Item(key)
             }
             is ParticleStyle.SculkCharge -> ParticleData.SculkCharge((foldedNum(s.roll, lc) ?: return dataNumError("roll", lc)).toFloat())
@@ -317,9 +327,6 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
         is Value.Expr -> (OccurrenceBake.fold(lc, v.source, ExprType.STR) as? ExprValue.Str)?.value
         is Value.ParamRef -> null
     }
-
-    private fun unknownKey(what: String, key: String, lc: LowerContext): Result<Lowered, SkillDecodeError> =
-        Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".$what", "'$key' is not a vanilla $what key (minecraft:<name>, or the bare name)"))
 
     private fun dataKeyError(what: String, lc: LowerContext): Result<Lowered, SkillDecodeError> =
         Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "particle $what must be a literal, a known param or an '= expr' over i / n that folds at compile time (the particle data is fixed per row)"))

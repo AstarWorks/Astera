@@ -2,7 +2,9 @@ package com.astarworks.astera.core.application.skillengine.compose
 
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
+import com.astarworks.astera.core.application.skillengine.load.IVanillaKeyCatalog
 import com.astarworks.astera.core.application.skillengine.load.OpListDecoder
+import com.astarworks.astera.core.application.skillengine.load.VanillaRegistryKeys
 import com.astarworks.astera.core.application.skillengine.load.SkillCatalogView
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
@@ -75,6 +77,7 @@ public class SkillCompiler(
     private val config: EngineConfig,
     private val clutter: com.astarworks.astera.core.application.skillengine.compose.drycast.ClutterContext,
     private val sprites: SpriteCatalog = NoSprites,
+    private val keys: IVanillaKeyCatalog = VanillaRegistryKeys,
 ) {
     public fun compile(def: SkillDef, shared: PartCatalog, skills: SkillCatalogView, sampleSeed: Long = 0L): Result<CompiledSkill, SkillDecodeError> {
         val parts = PartInliner.withFragments(def, shared)
@@ -367,7 +370,7 @@ public class SkillCompiler(
 
         private fun rootContext(state: StatePath, anchors: AnchorScope): LowerContext = LowerContext(
             original.id, state, InstanceId(emptyList()), Occurrence(0, 1, null), 0, anchors, frames, parts, skills,
-            flat.item?.takeIf { it != "any" }, sprites, conditions, exprs, config, SeededStream(sampleSeed), SrcPath("machine.states.${state.value}"),
+            flat.item?.takeIf { it != "any" }, sprites, conditions, exprs, config, SeededStream(sampleSeed), SrcPath("machine.states.${state.value}"), keys = keys,
         )
 
         // ---- decoding -------------------------------------------------------------------------------------------------
@@ -496,7 +499,7 @@ public class SkillCompiler(
                         for (n in nodes) {
                             val base = LowerContext(
                                 original.id, lc.state, call.callId, Occurrence(0, 1, null), lc.clockOffset + acc, calleeAnchors, frames, parts, skills,
-                                lc.item, sprites, lc.conditions, exprs, config, lc.seed, n.src, hitScope = lc.hitScope,
+                                lc.item, sprites, lc.conditions, exprs, config, lc.seed, n.src, hitScope = lc.hitScope, keys = keys,
                             )
                             val lo = GroupUnroller.unroll(n, base, forTicks, childLowering).getOr { return Result.Failure(it) }
                             for (r in lo.rows) {
@@ -588,5 +591,5 @@ private fun LowerContext.with(
     src: SrcPath = this.src,
     hitScope: Boolean = this.hitScope,
 ): LowerContext = LowerContext(
-    skillId, state, self, occurrence, clockOffset, anchors, frames, parts, skills, item, sprites, conditions, exprs, config, seed, src, tau, hitScope,
+    skillId, state, self, occurrence, clockOffset, anchors, frames, parts, skills, item, sprites, conditions, exprs, config, seed, src, tau, hitScope, keys,
 )

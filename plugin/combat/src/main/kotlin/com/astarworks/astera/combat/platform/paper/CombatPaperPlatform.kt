@@ -68,6 +68,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin, private val l
     private var skillEngine: SkillEnginePaperRuntime? = null
 
     val ports: CombatPlatformPorts = CombatPlatformPorts(
+        vanillaKeys = com.astarworks.astera.combat.adapter.paper.skillengine.PaperVanillaKeyCatalog(plugin.server),
         toolBlocks = { services ->
             com.astarworks.astera.combat.adapter.paper.PaperToolBlockGateway(
                 plugin.server,

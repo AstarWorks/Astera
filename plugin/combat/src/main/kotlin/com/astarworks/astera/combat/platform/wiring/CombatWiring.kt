@@ -181,7 +181,7 @@ public object CombatWiring {
                 )
             }
         }
-        val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries.catalog(frameTables, skillParts, com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(ctx.contentDir.resolve("sprites")), clutter, engineConfig)
+        val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries.catalog(frameTables, skillParts, com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(ctx.contentDir.resolve("sprites")), clutter, engineConfig, ports.vanillaKeys ?: com.astarworks.astera.core.application.skillengine.load.VanillaRegistryKeys)
         val skillEngineContents = com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents(skillCatalog, engineConfig = engine)
         val skillGate = SkillMetaRegistry(skillCatalog)
         // runtime fault counters of the table player (read by `/astera skill faults`)

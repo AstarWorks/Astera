@@ -509,7 +509,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                     val prefix = InstanceId(body.path.dropLast(1) + InstanceId.Segment(OpId(op.id.value + "." + e.key), body.path.last().index))
                     val hc = LowerContext(
                         lc.skillId, lc.state, prefix, lc.occurrence, 0, lc.anchors, lc.frames, lc.parts, lc.skills, lc.item, lc.sprites, lc.conditions, lc.exprs,
-                        lc.config, lc.seed, com.astarworks.astera.core.domain.skillengine.table.SrcPath(src.value + ".on." + e.key), hitScope = e == ProjectileEvent.HIT || e == ProjectileEvent.ABSORBED,
+                        lc.config, lc.seed, com.astarworks.astera.core.domain.skillengine.table.SrcPath(src.value + ".on." + e.key), hitScope = e == ProjectileEvent.HIT || e == ProjectileEvent.ABSORBED, keys = lc.keys,
                     )
                     val lo = when (val r = lowering.lower(handlerNodes, hc)) {
                         is Result.Success -> r.value

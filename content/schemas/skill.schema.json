@@ -7305,7 +7305,7 @@
                                     "type": "null"
                                 }
                             ],
-                            "description": "block key for BlockData; under times a per-index list or '= CEL' over i",
+                            "description": "vanilla block state (minecraft:stone, minecraft:oak_log[axis=y]); required by block, block_crumble, block_marker, falling_dust and dust_pillar, under times a per-index list or '= CEL' over i",
                             "default": null
                         },
                         "item": {

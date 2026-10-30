@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
 import com.astarworks.astera.core.application.skillengine.expr.cel.ExprClassifier
+import com.astarworks.astera.core.application.skillengine.load.IVanillaKeyCatalog
 import com.astarworks.astera.core.application.skillengine.load.SkillCatalogView
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.runtime.player.SeededStream
@@ -48,13 +49,15 @@ public class LowerContext(
     public val tau: Int = 0,
     /** True inside an `on.hit` handler (hit op / projectile): the one scope where the event carries a hit victim (`victim` targets, `direction: from_hit`). */
     public val hitScope: Boolean = false,
+    /** Which vanilla block states / item keys exist on this host (a `particle` op's `block:` / `item:` data is checked against it). */
+    public val keys: IVanillaKeyCatalog,
 ) {
     public fun child(op: OpId, i: Int?, n: Int, tick: Int, doIndex: Int = 0): LowerContext = LowerContext(
         skillId, state,
         InstanceId(self.path + InstanceId.Segment(op, i)),
         Occurrence(i ?: 0, n, occurrence),
         tick, anchors, frames, parts, skills, item, sprites, conditions, exprs, config, seed,
-        SrcPath(src.value + ".do[" + doIndex + "]"), hitScope = hitScope,
+        SrcPath(src.value + ".do[" + doIndex + "]"), hitScope = hitScope, keys = keys,
     )
 
     /** S / T / L (3.5), from the expression source and this scope's anchor bases. */
