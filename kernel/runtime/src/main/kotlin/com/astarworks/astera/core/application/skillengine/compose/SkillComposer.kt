@@ -9,12 +9,11 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 /**
- * [allowGameplayPatches]: `patchKind: balance` and `mechanic` documents are applied only when true (dev flag); otherwise skipped.
+ * Every `kind: Patch` document is applied whatever its `patchKind` (content patches are server-authored; nothing is skipped silently).
  * [presentationOps]: the op names a `skin` patch may touch; default = every registered op spec whose section is PRESENTATION.
  * [gameplayOps]: the op names whose numeric fields a `balance` patch may tune; default = every registered op spec whose section is GAMEPLAY.
  */
 data class ComposeOptions(
-    val allowGameplayPatches: Boolean = false,
     val presentationOps: Set<String> = SkillEngineSpecs.all().filter { it.section == OpSection.PRESENTATION }.mapTo(LinkedHashSet()) { it.name },
     val gameplayOps: Set<String> = SkillEngineSpecs.all().filter { it.section == OpSection.GAMEPLAY }.mapTo(LinkedHashSet()) { it.name },
 )
@@ -129,7 +128,7 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
 
     private fun composeBase(id: String, docs: List<Doc>, all: List<Doc>, errors: MutableList<ComposeError>): List<ComposedSkill>? {
         val skillDocs = docs.filter { it.kind != Doc.Kind.Patch }
-        val patches = docs.filter { it.kind == Doc.Kind.Patch && (options.allowGameplayPatches || it.patchKind == PatchKind.SKIN) }
+        val patches = docs.filter { it.kind == Doc.Kind.Patch }
         val errorsBefore = errors.size
         if (skillDocs.isEmpty()) {
             docs.filter { it.kind == Doc.Kind.Patch }.forEach {

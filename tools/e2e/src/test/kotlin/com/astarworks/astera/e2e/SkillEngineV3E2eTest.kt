@@ -113,8 +113,7 @@ class SkillEngineV3E2eTest : E2eBase() {
      * Founder #13/#14 (patch separate from the skill, reload one skill): a `kind: Patch` file next to the probe skill (skin patch: recolours the
      * `glow` particle) is picked up by `astera skill reload reload-probe`; the probe's dump changes and another skill's stays byte-identical.
      * A malformed patch (a skin patch touching a gameplay op) is rejected loudly and the probe keeps the patched version (no half state); removing
-     * the patch and reloading restores the base dump. A `balance` patch is NOT covered here: production wiring builds `ComposeOptions()` with
-     * `allowGameplayPatches = false`, so balance patches are skipped on Paper (see the report).
+     * the patch and reloading restores the base dump. The balance patch (damage x2) is covered by [reloadAppliesBalancePatchOnNextCast].
      */
     @Test
     fun reloadAppliesSeparatePatchAndKeepsOldVersionOnBadPatch() {
@@ -164,6 +163,70 @@ class SkillEngineV3E2eTest : E2eBase() {
         E2eReport.check(suite, "no unexpected skill-engine error besides the rejected patch", "server log") {
             val unexpected = skillErrorsSince(logMark).filterNot { it.contains("reload-probe") }
             assertThat(unexpected).describedAs("skill-engine log problems").isEmpty()
+            "clean"
+        }
+    }
+
+    private fun healthOf(selector: String): Double? =
+        Regex("(-?\\d+(\\.\\d+)?)").find(clean(rcon("data get entity $selector Health")).substringAfter("has the following entity data:"))
+            ?.groupValues?.get(1)?.toDoubleOrNull()
+
+    /**
+     * Founder #13/#14, balance: a test-only `patchKind: balance` file next to the probe skill doubles the `dmg` param (10 -> 20). After
+     * `astera skill reload reload-probe` the NEXT cast hurts a dummy twice as much (ratio 1.8..2.2: the damage matrix may scale the number);
+     * removing the patch and reloading brings it back to the base damage. The probe row is `{op: damage, damage: {physical: "${'$'}{dmg}"}}`
+     * around the caster (docker/e2e-tune-content.sh).
+     */
+    @Test
+    fun reloadAppliesBalancePatchOnNextCast() {
+        val skill = File(probeDir, "skill.yaml")
+        check(skill.isFile && skill.readText().contains("id: hit")) { "reload probe has no 'hit' damage row (docker/e2e-tune-content.sh not rebuilt): ${skill.absolutePath}" }
+        val patchFile = File(probeDir, "balance.yaml")
+        val a = bot("Balance")
+        op(a)
+        Thread.sleep(500)
+        val tag = "reload_dummy"
+        val dummy = "@e[type=minecraft:zombie,tag=$tag,limit=1]"
+        rcon("kill @e[type=minecraft:zombie,tag=$tag]")
+        rcon("execute in minecraft:overworld run tp ${a.name} 0.5 -60 0.5 0 0")
+        Thread.sleep(800)
+        rcon("execute in minecraft:overworld run summon minecraft:zombie 0.5 -60 3.5 {NoAI:1b,Silent:1b,PersistenceRequired:1b,Tags:[\"$tag\"],attributes:[{id:\"minecraft:max_health\",base:500}],Health:500f,active_effects:[{id:\"minecraft:fire_resistance\",duration:100000,show_particles:0b}]}")
+        Thread.sleep(1_000)
+
+        fun castAndMeasure(): Double {
+            rcon("data merge entity $dummy {Health:500f}")
+            Thread.sleep(300)
+            val before = healthOf(dummy) ?: error("dummy health unreadable")
+            rcon("astera skill cast reload-probe ${a.name} --force")
+            Thread.sleep(1_500)
+            val after = healthOf(dummy) ?: error("dummy health unreadable after the cast")
+            Thread.sleep(2_500) // the 40-tick hold ends and the invulnerability window closes
+            return before - after
+        }
+
+        val logMark = ServerLog.lineCount()
+        try {
+            val base = castAndMeasure()
+            patchFile.writeText("apiVersion: astera/v3\nkind: Patch\nid: reload-probe-overlay-balance\ntarget: reload-probe\npatchKind: balance\nops:\n  - {path: \"params.dmg.default\", ${'$'}patch: replace, value: 20}\n")
+            val reply = clean(rcon("astera skill reload reload-probe"))
+            val tuned = castAndMeasure()
+            patchFile.delete()
+            val reply2 = clean(rcon("astera skill reload reload-probe"))
+            val restored = castAndMeasure()
+
+            E2eReport.check(suite, "balance patch doubles the next cast's damage after reload, removing it restores the base", "dummy Health before/after each cast around astera skill reload") {
+                assertThat(base).describedAs("base damage").isGreaterThan(0.0)
+                assertThat(tuned / base).describedAs("tuned/base damage ratio (base=$base tuned=$tuned); reload reply='$reply'").isBetween(1.8, 2.2)
+                assertThat(restored).describedAs("damage after removing the patch; reload reply='$reply2'").isCloseTo(base, org.assertj.core.data.Offset.offset(0.5))
+                "base=$base tuned=$tuned restored=$restored"
+            }
+        } finally {
+            patchFile.delete()
+            runCatching { rcon("astera skill reload reload-probe") }
+            rcon("kill @e[type=minecraft:zombie,tag=$tag]")
+        }
+        E2eReport.check(suite, "no skill-engine error in the server log for the balance reload", "server log") {
+            assertThat(skillErrorsSince(logMark)).describedAs("skill-engine log problems").isEmpty()
             "clean"
         }
     }
