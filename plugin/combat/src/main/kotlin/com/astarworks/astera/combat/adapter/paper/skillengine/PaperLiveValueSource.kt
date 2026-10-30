@@ -29,6 +29,8 @@ import com.astarworks.astera.core.domain.skillengine.table.TargetSet
 import org.bukkit.Server
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.LivingEntity
+import org.bukkit.entity.Player
+import java.util.UUID
 import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
 import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 import com.astarworks.astera.core.application.skillengine.runtime.player.EntityQueryExprHost
@@ -124,16 +126,18 @@ public class PaperLiveValueSource(
                     // the hit entity's real velocity (blocks per tick); an unbound or unloaded victim has none to read, which is loud
                     val id = binding?.victim?.id ?: throw ExprEvalException("velocity($frame): needs a hit event binding with a victim")
                     val e = server.getEntity(id) ?: throw ExprEvalException("velocity($frame): entity $id is not loaded")
+                    // Server-side Player#getVelocity stays zero while the client walks, so a player is read as its position delta per tick.
+                    if (e is Player) return playerVelocity(id, Vec3(e.location.x, e.location.y, e.location.z))
                     val v = e.velocity
                     return Vec3(v.x, v.y, v.z)
                 }
-                if (frame != CASTER) return Vec3.ZERO
+                if (frame != CASTER) throw ExprEvalException("velocity($frame): only caster, victim and target have a live velocity on Paper")
                 val p = casterPose(request)
                 val now = when (point) {
                     null, "feet", "look" -> p.feet
                     "eye" -> p.eye
                     "center" -> centerOf(p.feet, p.eye)
-                    else -> return Vec3.ZERO
+                    else -> throw ExprEvalException("velocity($frame.$point): unknown caster point")
                 }
                 return casterVelocity(cast, point ?: "", now)
             }
@@ -141,6 +145,29 @@ public class PaperLiveValueSource(
     }
 
     private class Sample(var tick: Long, var pos: Vec3, var velocity: Vec3)
+
+    private val playerSamples = ConcurrentHashMap<UUID, Sample>()
+
+    /**
+     * Velocity (blocks per tick) of a player from its position at the previous sampled tick. Server-side `getVelocity` is zero for players,
+     * so the first sample (or one more than [PLAYER_SAMPLE_MAX_AGE] ticks after the last) has no history and answers ZERO: one tick of lag.
+     * Asking again within the same tick repeats the answer.
+     */
+    private fun playerVelocity(id: UUID, now: Vec3): Vec3 {
+        val tick = scheduler.currentTick()
+        if (playerSamples.size > 256) playerSamples.entries.removeIf { tick - it.value.tick > PLAYER_SAMPLE_MAX_AGE }
+        val s = playerSamples[id]
+        if (s == null || tick - s.tick > PLAYER_SAMPLE_MAX_AGE) {
+            playerSamples[id] = Sample(tick, now, Vec3.ZERO)
+            return Vec3.ZERO
+        }
+        if (tick == s.tick) return s.velocity
+        val dt = (tick - s.tick).toDouble()
+        s.velocity = Vec3((now.x - s.pos.x) / dt, (now.y - s.pos.y) / dt, (now.z - s.pos.z) / dt)
+        s.pos = now
+        s.tick = tick
+        return s.velocity
+    }
 
     private val casterSamples = ConcurrentHashMap<Pair<CastHandle, String>, Sample>()
 
@@ -404,5 +431,6 @@ public class PaperLiveValueSource(
 
     private companion object {
         const val CASTER = "caster"
+        const val PLAYER_SAMPLE_MAX_AGE = 20L
     }
 }
