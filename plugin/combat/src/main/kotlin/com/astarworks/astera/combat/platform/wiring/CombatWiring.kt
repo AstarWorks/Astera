@@ -696,6 +696,18 @@ public object CombatWiring {
             skills = skillGate,
             castSkill = castSkillOut,
             cooldowns = cooldownTracker,
+            // a callee-only skill (frames_in / unvalued required params) is refused up front, naming the skills whose `use: skill:<id>` call it
+            calleeOnlyCallers = { id ->
+                if (skillCatalog.get(id.value)?.def?.isCalleeOnly != true) {
+                    null
+                } else {
+                    val call = Regex("use:\\s*skill:" + Regex.escape(id.value.substringBefore('@')) + "(?![A-Za-z0-9_-])")
+                    java.nio.file.Files.walk(skillsContentDir).use { paths ->
+                        paths.filter { it.toString().endsWith(".yaml") && call.containsMatchIn(java.nio.file.Files.readString(it)) }
+                            .map { it.parent.fileName.toString() }.filter { it != id.value }.distinct().sorted().toList()
+                    }
+                }
+            },
         )
         registrations += services.register(adminSkillCaster)
         registrations += com.astarworks.astera.combat.application.admin.AdminSkillsPanel(

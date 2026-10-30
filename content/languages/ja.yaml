@@ -2067,6 +2067,7 @@ astera:
       "skills.err.unknown": "<red>不明なスキル <gold>{skill}</gold></red>"
       "skills.err.cooldown": "<red><gold>{skill}</gold> はクールダウン中です（あと {seconds} 秒、--force で無視）。</red>"
       "skills.err.silenced": "<red>沈黙状態です。</red>"
+      "skills.err.callee-only": "<red>callee-only: 呼び出し元 <gold>{callers}</gold> をキャストしてください({skill} は単独でキャストできません)。</red>"
       "skills.err.cast": "<red><gold>{skill}</gold> を発動できませんでした。</red>"
       "skills.err.no-items": "<red>items プラグインが利用できません。</red>"
       "skills.err.no-template": "<red>content/items/skill-tester.yaml がありません。</red>"
