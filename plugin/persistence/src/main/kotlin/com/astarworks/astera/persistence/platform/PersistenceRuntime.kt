@@ -11,6 +11,10 @@ import com.astarworks.astera.persistence.openPool
 import com.astarworks.astera.persistence.runMigrations
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.slf4j.Logger
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
 
 /**
  * Persistence's long-lived half (ADR-0311 P3): the Postgres connection. It outlives every wiring generation, which
@@ -19,7 +23,8 @@ import org.slf4j.Logger
  * - [connect] opens the pool, migrates, binds Exposed to a [SwappableDataSource] and builds the carried
  *   repositories. Idempotent: a live connection is kept.
  * - [reconnect] opens and migrates a NEW pool first (a failure leaves the old one serving), swaps it in, then
- *   drains the old pool (waits for checked-out connections, bounded by [drainTimeoutMs]) and closes it.
+ *   hands the old pool to a daemon thread that waits for checked-out connections (bounded by [drainTimeoutMs]) and
+ *   closes it, so the caller (the server main thread) never blocks on the drain.
  * - [overlay] builds this generation's repositories and registers them on a tagged registry view.
  */
 internal class PersistenceRuntime(
@@ -30,6 +35,10 @@ internal class PersistenceRuntime(
     private var swappable: SwappableDataSource? = null
     private var context: PersistenceContext? = null
     private var carried: CarriedRepositories? = null
+    private val drainExecutor: ExecutorService = Executors.newSingleThreadExecutor { r ->
+        Thread(r, "astera-persistence-drain").apply { isDaemon = true }
+    }
+    private var pendingDrain: Future<*>? = null
 
     /** The cause of the last failed [connect] / [reconnect], for the operator error report. */
     var lastFailure: Throwable? = null
@@ -48,7 +57,12 @@ internal class PersistenceRuntime(
         if (context != null) return Result.Success(true)
         val config = configSource() ?: return Result.Success(false)
         logger.info("Astera-Persistence: connecting to ${config.url}")
-        val pool = openPool(config)
+        val pool = try {
+            openPool(config)
+        } catch (t: Throwable) {
+            lastFailure = t
+            return Result.Failure(LifecycleFailure("${t::class.simpleName}: ${t.message}"))
+        }
         return try {
             runMigrations(pool, logger)
             val shared = SwappableDataSource(pool)
@@ -77,7 +91,12 @@ internal class PersistenceRuntime(
             }
         }
         val config = configSource() ?: return Result.Failure(LifecycleFailure("ASTERA_PG_URL / _USER / _PASSWORD are not set"))
-        val fresh = openPool(config)
+        val fresh = try {
+            openPool(config)
+        } catch (t: Throwable) {
+            lastFailure = t
+            return Result.Failure(LifecycleFailure("${t::class.simpleName}: ${t.message}"))
+        }
         try {
             runMigrations(fresh, logger)
         } catch (t: Throwable) {
@@ -88,7 +107,7 @@ internal class PersistenceRuntime(
         val old = shared.swap(fresh)
         context = current.copy(dataSource = fresh)
         lastFailure = null
-        drainAndClose(old)
+        pendingDrain = drainExecutor.submit { drainAndClose(old) }
         logger.info("Astera-Persistence: reconnected to ${config.url}")
         return Result.Success(Unit)
     }
@@ -118,8 +137,20 @@ internal class PersistenceRuntime(
         return registrations
     }
 
-    /** Process shutdown: close the live pool. */
+    /** The live pool (null until connected). Tests use it to observe a swap. */
+    internal fun currentPool(): com.zaxxer.hikari.HikariDataSource? = context?.dataSource
+
+    /** Blocks until the last handed-off old pool is closed; returns false on timeout. For tests and shutdown. */
+    internal fun awaitDrained(timeoutMs: Long): Boolean = try {
+        pendingDrain?.get(timeoutMs, TimeUnit.MILLISECONDS)
+        true
+    } catch (_: java.util.concurrent.TimeoutException) {
+        false
+    }
+
+    /** Process shutdown: close the live pool and let a pending drain finish on its own thread. */
     fun close() {
+        drainExecutor.shutdown()
         context?.dataSource?.close()
         context = null
         swappable = null
