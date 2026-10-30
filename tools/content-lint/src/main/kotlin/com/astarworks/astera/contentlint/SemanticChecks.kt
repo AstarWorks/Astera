@@ -39,6 +39,7 @@ internal object SemanticChecks {
             }
         }
         root.get("hold")?.let { errors += checkHold(it) }
+        if (root.has("skills") && !root.has("hold")) errors += "item-lore: an item that binds skills must declare `hold:` (the weapon hold table; `kind: none` when its skills hold nothing)"
         return errors
     }
 

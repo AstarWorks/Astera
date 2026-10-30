@@ -31,4 +31,4 @@ skills:
 
 pdc_tags:
   astera:rarity: uncommon
-hold: {kind: slow, level: medium}
+hold: {kind: freeze}
