@@ -216,7 +216,7 @@ internal class CorePaperBindings(
                         if (spec != null && materializer != null && block.world.getGameRuleValue(org.bukkit.GameRules.BLOCK_DROPS) != false)
                             block.world.dropItem(block.location.add(0.5, 0.5, 0.5), materializer.buildFor(spec, player, 1))
                     },
-                    durabilityRule = deps.durabilityRule,
+                    durabilityRef = deps.durabilityRule,
                     // Cover blocks a stage placed must come back at the next match in the slot.
                     beforeWorldEdit = { block -> arenaWorld?.remember(block); toolBayRemember?.invoke(block) },
                 )
@@ -742,6 +742,8 @@ internal class CorePaperBindings(
         // register here; the world is created from ServerLoadEvent / the first tick. Until it exists
         // the spawn supplier is null: joins stay on the main world, lobbySpawn falls back to it.
         npcBodyService?.awaitedWorlds = setOf(config.id)
+        // `astera admin reload worlds` swaps the live config (spawn, rules, marker_version); id/seed/layout stay as booted.
+        fun liveConfig() = ctx.services.get<com.astarworks.astera.core.application.contents.LobbyWorldContents>()?.current() ?: config
         // MAP-A6: the tool test bay is the one editable corner of the lobby; journal + idle restore + reset button.
         val toolBay = com.astarworks.astera.core.application.service.lobby.LobbyToolBayService(
             world = com.astarworks.astera.core.domain.world.WorldId(config.id),
@@ -755,7 +757,7 @@ internal class CorePaperBindings(
         val toolBayMessages = ctx.services.getOrThrow<IMessageRenderer>()
         server.pluginManager.registerEvents(
             com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyRulesListener(
-                config.id, config.rules, plugin,
+                config.id, { liveConfig().rules }, plugin,
                 toolBay = { toolBay },
                 onToolBayReset = { player, count ->
                     player.sendMessage(
@@ -766,7 +768,8 @@ internal class CorePaperBindings(
                 },
             ) {
                 server.getWorld(config.id)?.takeIf { lobby.ready }?.let {
-                    org.bukkit.Location(it, config.spawn.x, config.spawn.y, config.spawn.z, config.spawn.yaw, config.spawn.pitch)
+                    val spawn = liveConfig().spawn
+                    org.bukkit.Location(it, spawn.x, spawn.y, spawn.z, spawn.yaw, spawn.pitch)
                 }
             },
             plugin,
@@ -777,8 +780,9 @@ internal class CorePaperBindings(
                 override fun repaste(): Boolean = try {
                     val lanes = ctx.services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyLaneCatalog>()
                         ?.laneIds().orEmpty()
-                    val plan = com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.plan(config, lanes)
-                    lobby.install(config, plan, force = true) != null
+                    val live = liveConfig()
+                    val plan = com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.plan(live, lanes)
+                    lobby.install(live, plan, force = true) != null
                 } catch (t: Throwable) {
                     logger.log(java.util.logging.Level.WARNING, "Lobby repaste failed", t)
                     false

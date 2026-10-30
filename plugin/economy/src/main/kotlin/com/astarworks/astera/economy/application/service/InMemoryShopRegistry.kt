@@ -38,6 +38,13 @@ public class InMemoryShopRegistry : IShopRegistry {
 
     override fun all(): Collection<ShopSpec> = specs.values.toList()
 
+    /** Reload: make the registry hold exactly [replacement] (stale ids are dropped). */
+    public fun replaceAll(replacement: Collection<ShopSpec>) {
+        val keep = replacement.map { it.id }.toSet()
+        replacement.forEach { specs[it.id] = it }
+        specs.keys.retainAll(keep)
+    }
+
     /** Drop every registered entry. Reserved for Phase 4 hot-reload. */
     public fun clear() {
         specs.clear()

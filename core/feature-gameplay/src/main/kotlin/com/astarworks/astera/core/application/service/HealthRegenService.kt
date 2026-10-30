@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service
 
+import com.astarworks.astera.core.application.contents.BalanceRef
 import com.astarworks.astera.core.application.port.outbound.IEgoGauge
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -15,8 +16,10 @@ import com.astarworks.astera.core.domain.player.physiology.HealthRegenConfig
 public class HealthRegenService(
     private val health: IPlayerHealthGateway,
     private val ego: IEgoGauge,
-    public val config: HealthRegenConfig,
+    private val configRef: BalanceRef<HealthRegenConfig>,
 ) {
+    public val config: HealthRegenConfig get() = configRef.current
+
     private val tracked: MutableSet<PlayerId> = LinkedHashSet()
 
     public fun track(playerId: PlayerId) {

@@ -247,6 +247,11 @@ public object ItemsWiring {
 
         // F3-11 (ADR-0200): lobby training weapon rack, claimed by right-clicking its frames.
         val shutdownHooks = mutableListOf<() -> Unit>()
+        shutdownHooks += services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry>()
+            .register(
+                com.astarworks.astera.items.application.service.glow.GlowContents(glowProfiles),
+                ctx.contentDir.resolve("flex"),
+            )::unregister
         var trainingRack: TrainingRackService? = null
         val rackGateway = ports.trainingRack?.invoke(services)
         val trainingInventory = ports.trainingInventory?.invoke(services)

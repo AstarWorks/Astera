@@ -34,7 +34,7 @@ import org.bukkit.event.player.PlayerMoveEvent
  */
 internal class PaperLobbyRulesListener(
     private val worldName: String,
-    private val rules: LobbyRulesYaml,
+    private val rulesOf: () -> LobbyRulesYaml,
     private val plugin: org.bukkit.plugin.Plugin,
     private val toolBay: () -> ILobbyToolBay? = { null },
     private val onToolBayReset: (Player, Int) -> Unit = { _, _ -> },
@@ -45,7 +45,7 @@ internal class PaperLobbyRulesListener(
         kotlin.math.abs(at.x) < 768 && kotlin.math.abs(at.z) < 768
 
     private fun canBuild(player: Player): Boolean =
-        rules.buildEnabled || player.isOp || player.hasPermission(BUILD_PERMISSION)
+        rulesOf().buildEnabled || player.isOp || player.hasPermission(BUILD_PERMISSION)
 
     private fun deny(event: Cancellable, player: Player) {
         if (!canBuild(player)) event.isCancelled = true
@@ -126,20 +126,20 @@ internal class PaperLobbyRulesListener(
         // The lobby is a no-damage zone (pvp, mobs, fire, void...); admin /kill still works.
         val cause = event.cause
         if (cause == EntityDamageEvent.DamageCause.KILL || cause == EntityDamageEvent.DamageCause.SUICIDE) return
-        if (cause == EntityDamageEvent.DamageCause.FALL && rules.fallDamage) return
+        if (cause == EntityDamageEvent.DamageCause.FALL && rulesOf().fallDamage) return
         event.isCancelled = true
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     fun onHunger(event: FoodLevelChangeEvent) {
         val player = event.entity as? Player ?: return
-        if (inLobby(player.location) && !rules.hunger) event.isCancelled = true
+        if (inLobby(player.location) && !rulesOf().hunger) event.isCancelled = true
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onMove(event: PlayerMoveEvent) {
         val to = event.to
-        if (to.blockY >= rules.voidRescueY || !inLobby(to)) return
+        if (to.blockY >= rulesOf().voidRescueY || !inLobby(to)) return
         val target = spawn() ?: return
         val player = event.player
         player.fallDistance = 0f
