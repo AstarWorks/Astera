@@ -31,3 +31,12 @@ particles:
   cherry_leaves: { mean: 16.0, source: carried-default-16 }
   damage_indicator: { mean: 16.0, source: carried-default-16 }
   trail: { mean: 16.0, source: measured-in-client }
+  item: { mean: 9.76, source: jar-26.3 }
+  flash: { mean: 4.0, source: jar-26.3 }
+  vibration: { mean: 16.0, source: carried-default-16 }
+  effect: { mean: 15.6, source: jar-26.3 }
+  instant_effect: { mean: 15.6, source: jar-26.3 }
+  sculk_charge: { mean: 13.5, source: jar-26.3 }
+  shriek: { mean: 30.0, source: jar-26.3 }
+  dragon_breath: { mean: 39.7, source: jar-26.3 }
+  tinted_leaves: { mean: 300.0, source: jar-26.3 }

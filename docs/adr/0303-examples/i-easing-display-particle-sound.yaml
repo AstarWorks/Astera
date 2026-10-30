@@ -29,7 +29,9 @@ machine:
         # PARTICLE: the emit count climbs in_out_sine across the window (sampled at each occurrence; no segments needed)
         - id: motes
           op: particle
-          particle: end_rod
+          particle: dust
+          color: "#ffffff"
+          size: 0.3                                                       # short-life dust: check 16 (caster-eye clutter) counts only particles that live 6+ ticks
           anchor: palm
           every: 2
           for: 20
