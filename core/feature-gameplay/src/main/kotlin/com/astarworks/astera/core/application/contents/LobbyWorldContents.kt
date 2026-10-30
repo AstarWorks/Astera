@@ -29,6 +29,10 @@ public class LobbyWorldContents(
 
     public fun current(): LobbyWorldYamlConfig = config
 
+    /** Called after a reload changed `rules`, for the adapter to re-settle state it applied once (weather). */
+    @Volatile
+    public var onRulesApplied: () -> Unit = {}
+
     override fun reload(dir: Path): ContentLoader.LoadReport {
         val next = when (val loaded = LobbyWorldContent.load(dir)) {
             is Result.Success -> loaded.value
@@ -55,7 +59,10 @@ public class LobbyWorldContents(
         config = next
         val notes = mutableListOf<String>()
         if (next.spawn != prev.spawn) notes += "lobby world: spawn applied"
-        if (next.rules != prev.rules) notes += "lobby world: rules applied"
+        if (next.rules != prev.rules) {
+            notes += "lobby world: rules applied"
+            onRulesApplied()
+        }
         if (next.markerVersion != prev.markerVersion) {
             val target = repaster()
             when {

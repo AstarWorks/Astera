@@ -755,8 +755,7 @@ internal class CorePaperBindings(
         toolBayTask = toolBay.start()
         toolBayRemember = { block -> toolBay.remember(com.astarworks.astera.core.domain.world.WorldId(block.world.name), block.x, block.y, block.z) }
         val toolBayMessages = ctx.services.getOrThrow<IMessageRenderer>()
-        server.pluginManager.registerEvents(
-            com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyRulesListener(
+        val lobbyRules = com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyRulesListener(
                 config.id, { liveConfig().rules }, plugin,
                 toolBay = { toolBay },
                 onToolBayReset = { player, count ->
@@ -771,9 +770,10 @@ internal class CorePaperBindings(
                     val spawn = liveConfig().spawn
                     org.bukkit.Location(it, spawn.x, spawn.y, spawn.z, spawn.yaw, spawn.pitch)
                 }
-            },
-            plugin,
-        )
+            }
+        server.pluginManager.registerEvents(lobbyRules, plugin)
+        lobbyRules.settleWeather()
+        ctx.services.get<com.astarworks.astera.core.application.contents.LobbyWorldContents>()?.onRulesApplied = lobbyRules::settleWeather
         // ADR-0233: the admin panel can rebuild the lobby in place (clear + paste the plan again).
         ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.admin.ILobbyRepaster>(
             object : com.astarworks.astera.core.application.port.outbound.admin.ILobbyRepaster {

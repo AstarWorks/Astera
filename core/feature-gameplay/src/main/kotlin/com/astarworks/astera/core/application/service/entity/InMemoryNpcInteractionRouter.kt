@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.port.outbound.entity.INpcInteracti
 import com.astarworks.astera.core.domain.entity.EntityHandle
 import com.astarworks.astera.core.domain.entity.NpcInteractionClick
 import com.astarworks.astera.core.domain.gui.GuiIntent
+import com.astarworks.astera.core.domain.player.PlayerId
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -31,8 +32,17 @@ public class InMemoryNpcInteractionRouter : INpcInteractionRouter {
     override fun resolve(handle: EntityHandle, click: NpcInteractionClick): GuiIntent? =
         bindings[handle to click]
 
+    private val users: ConcurrentHashMap<EntityHandle, MutableSet<PlayerId>> = ConcurrentHashMap()
+
+    override fun recordUse(player: PlayerId, handle: EntityHandle) {
+        users.computeIfAbsent(handle) { ConcurrentHashMap.newKeySet() }.add(player)
+    }
+
+    override fun usersOf(handle: EntityHandle): Set<PlayerId> = users[handle]?.toSet().orEmpty()
+
     override fun unbind(handle: EntityHandle) {
         bindings.keys.removeIf { it.first == handle }
+        users.remove(handle)
     }
 
     override fun all(): Map<Pair<EntityHandle, NpcInteractionClick>, GuiIntent> =
@@ -41,5 +51,6 @@ public class InMemoryNpcInteractionRouter : INpcInteractionRouter {
     /** Test-only: clear all bindings. */
     public fun clear() {
         bindings.clear()
+        users.clear()
     }
 }

@@ -1,6 +1,8 @@
 package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner
+import com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.Result
 import org.assertj.core.api.Assertions.assertThat
@@ -18,6 +20,11 @@ class LobbyNpcReloadScenarioTest {
             val spawner = sim.services.getOrThrow<IEntitySpawner>()
             val before = spawner.all().map { it.id }.toSet()
             assertThat(before).`as`("lobby NPCs spawned at boot").isNotEmpty()
+            // A player has clicked every bound NPC; a despawn must forget (and close the GUI of) the removed ones.
+            val router = sim.services.getOrThrow<INpcInteractionRouter>()
+            val clicker = PlayerId(java.util.UUID.randomUUID())
+            val bound = router.all().keys.map { it.first }.toSet()
+            bound.forEach { router.recordUse(clicker, it) }
 
             // Move play-npc (respawn), delete travel-npc (despawn), add extra-npc (spawn); market/social untouched.
             val play = Files.readString(dir.resolve("play-npc.yaml"))
@@ -36,6 +43,8 @@ class LobbyNpcReloadScenarioTest {
             val after = spawner.all().map { it.id }.toSet()
             assertThat(after.size).isEqualTo(before.size) // +1 new, -1 removed, respawn is 1:1
             assertThat(after.intersect(before)).`as`("the two untouched NPCs keep their handle").hasSize(before.size - 2)
+            val stillRemembered = bound.filter { router.usersOf(it).isNotEmpty() }
+            assertThat(stillRemembered).`as`("only NPCs that were not despawned keep their recorded users").hasSize(before.size - 2)
         }
     }
 

@@ -187,10 +187,13 @@ their registries when used, so the next cast / hit / click uses the new values. 
 inventory keep the name, lore and model they were given with until `/astera items refresh` (which
 `make dev-content` runs for you); their attributes and skill bindings are live already.
 
-**Not reloadable (loaded at boot)**, push with `FORCE=1 make dev-deploy` (stages jars and content, restarts each backend once):
-`shops/` (a reload would re-seed limited stock), `lobby-npcs/`, `worlds/`, `flex/glow-profile.yaml`,
-and the rest of `balance/` (`starter-grant`, `block-durability`, `resource-defaults`,
-`backup-policy`). `hud/` is resource-pack art, not server content: rebuild and push the pack.
+**Also reloadable** (same all-or-nothing rule): `shops` (a limit change clamps stock; match-scoped shops apply
+from the next match), `lobby-npcs` (diffed by id: spawn / despawn / respawn), `worlds` (spawn, rules,
+`marker_version`; a changed world id, seed, `surface_y` or center is refused as RESTART_REQUIRED),
+`balance-core` (`starter-grant` raises top wallets up and never claw back; `block-durability`, ego, health regen)
+and `glow`. The reload output prints what applied and what waits for the next match.
+
+**Not reloadable**: `hud/` is resource-pack art, not server content: rebuild and push the pack.
 
 Why not `/reload` or PlugMan-style unload/load: see ADR-0186. Why the agent instead of a JDWP
 debugger push: see ADR-0224.

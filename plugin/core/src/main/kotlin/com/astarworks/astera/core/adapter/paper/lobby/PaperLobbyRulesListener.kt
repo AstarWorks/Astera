@@ -14,6 +14,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
@@ -23,10 +24,13 @@ import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerMoveEvent
+import org.bukkit.event.weather.WeatherChangeEvent
+import org.bukkit.event.world.WorldLoadEvent
 
 /**
  * Lobby world rules that vanilla gamerules cannot express (ADR-0180):
- * no build / no break for non-ops, no damage, no hunger, void rescue, and
+ * no build / no break for non-ops, no damage (unless `pvp_enabled`), no hunger, fixed clear weather
+ * (`weather_clear_fixed`), void rescue, and
  * "everyone who joins this server starts at the lobby spawn".
  *
  * Runs at LOWEST so it cancels before the BukkitEventAdapter re-routes
@@ -127,7 +131,31 @@ internal class PaperLobbyRulesListener(
         val cause = event.cause
         if (cause == EntityDamageEvent.DamageCause.KILL || cause == EntityDamageEvent.DamageCause.SUICIDE) return
         if (cause == EntityDamageEvent.DamageCause.FALL && rulesOf().fallDamage) return
+        if (rulesOf().pvpEnabled && event is EntityDamageByEntityEvent && attackingPlayer(event.damager) != null) return
         event.isCancelled = true
+    }
+
+    private fun attackingPlayer(damager: org.bukkit.entity.Entity): Player? =
+        damager as? Player ?: (damager as? org.bukkit.entity.Projectile)?.shooter as? Player
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    fun onWeather(event: WeatherChangeEvent) {
+        if (event.world.name == worldName && event.toWeatherState() && rulesOf().weatherClearFixed) event.isCancelled = true
+    }
+
+    @EventHandler
+    fun onWorldLoad(event: WorldLoadEvent) {
+        if (event.world.name == worldName) settleWeather()
+    }
+
+    /** `weather_clear_fixed`: clears rain / thunder now (boot, world load, and after a worlds reload). */
+    fun settleWeather() {
+        if (!rulesOf().weatherClearFixed) return
+        plugin.server.globalRegionScheduler.execute(plugin, Runnable {
+            val world = plugin.server.getWorld(worldName) ?: return@Runnable
+            world.setStorm(false)
+            world.isThundering = false
+        })
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
