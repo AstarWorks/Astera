@@ -1,17 +1,25 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=cast/snd sound=astera:skills/frost-cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=frost-cast at=0.000000,0.200000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-259008262026026705
+@0 particle - op=cast/wall_snow type=snowflake count=24 at=0.000000,1.500000,2.000000 off=1.500000,1.500000,0.150000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5224439820395386283
+@0 particle - op=cast/wall_dust type=dust count=60 at=0.000000,1.500000,2.000000 off=1.500000,1.500000,0.150000 speed=0.000000 color=#d2ebff size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4769615255964611541
 ## pose yaw=37 pitch=-20
 @0 sound - op=cast/snd sound=astera:skills/frost-cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=frost-cast at=-1.203630,0.200000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-259008262026026705
+@0 particle - op=cast/wall_snow type=snowflake count=24 at=-1.203630,1.500000,1.597271 off=1.500000,1.500000,0.150000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5224439820395386283
+@0 particle - op=cast/wall_dust type=dust count=60 at=-1.203630,1.500000,1.597271 off=1.500000,1.500000,0.150000 speed=0.000000 color=#d2ebff size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4769615255964611541
 ## pose-hit yaw=0 pitch=0
 @0 sound - op=cast/snd sound=astera:skills/frost-cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=frost-cast at=0.000000,0.200000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-259008262026026705
+@0 particle - op=cast/wall_snow type=snowflake count=24 at=0.000000,1.500000,2.000000 off=1.500000,1.500000,0.150000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5224439820395386283
+@0 particle - op=cast/wall_dust type=dust count=60 at=0.000000,1.500000,2.000000 off=1.500000,1.500000,0.150000 speed=0.000000 color=#d2ebff size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4769615255964611541
 g @1 state-exit reason=TIMER | state=cast
 g @1 cast-end | pose
 ## pose-hit yaw=37 pitch=0
 @0 sound - op=cast/snd sound=astera:skills/frost-cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=frost-cast at=-1.203630,0.200000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-259008262026026705
+@0 particle - op=cast/wall_snow type=snowflake count=24 at=-1.203630,1.500000,1.597271 off=1.500000,1.500000,0.150000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5224439820395386283
+@0 particle - op=cast/wall_dust type=dust count=60 at=-1.203630,1.500000,1.597271 off=1.500000,1.500000,0.150000 speed=0.000000 color=#d2ebff size=1.200000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4769615255964611541
 g @1 state-exit reason=TIMER | state=cast
 g @1 cast-end | pose
 ## gameplay-static
