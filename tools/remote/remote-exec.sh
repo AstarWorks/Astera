@@ -109,7 +109,7 @@ base_args() {
 
 cleanup() {
   trap '' INT TERM HUP
-  [ -n "$TIMER" ] && kill "$TIMER" 2>/dev/null
+  [ -n "$TIMER" ] && { pkill -P "$TIMER" 2>/dev/null; kill "$TIMER" 2>/dev/null; }
   [ -n "$WATCH" ] && kill "$WATCH" 2>/dev/null
   if [ -n "$NAME" ]; then
     docker rm -f "$NAME" >/dev/null 2>&1
@@ -171,12 +171,13 @@ cmd_run() {
   local tty=(); [ -t 0 ] && tty=(-t)
   log "run: kind=$KIND mem=$mem_cap cpus=$cpus gradle-xmx=$xmx: $*"
   # Remote end of a dead ssh: with a pty the HUP arrives by itself; without one, stdin EOF means the client is gone.
+  # The helpers below must not hold the slot lock: a leftover timer child would keep the slot taken after the run ends.
   if [ ! -t 0 ] && [ "${HEAVY_NO_STDIN_WATCH:-0}" != 1 ]; then
-    ( while IFS= read -r _; do :; done; kill -HUP "$main" 2>/dev/null ) &
+    ( while IFS= read -r _; do :; done; kill -HUP "$main" 2>/dev/null ) {SLOT_FD}>&- &
     WATCH=$!
   fi
   if [ -n "${HEAVY_RUN_TIMEOUT:-7200}" ]; then
-    ( sleep "${HEAVY_RUN_TIMEOUT:-7200}"; log "run timeout (HEAVY_RUN_TIMEOUT), stopping the runner"; docker rm -f "$NAME" >/dev/null 2>&1 ) &
+    ( sleep "${HEAVY_RUN_TIMEOUT:-7200}"; log "run timeout (HEAVY_RUN_TIMEOUT), stopping the runner"; docker rm -f "$NAME" >/dev/null 2>&1 ) {SLOT_FD}>&- </dev/null &
     TIMER=$!
   fi
   # Kotlin compiles inside the Gradle JVM: a separate Kotlin daemon inherits -Xmx and two such JVMs overrun the 4g cap.
