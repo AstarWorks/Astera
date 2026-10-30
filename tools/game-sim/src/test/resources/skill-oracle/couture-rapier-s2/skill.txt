@@ -800,6 +800,13 @@
 @36 particle - op=stuck/stick_b_stick_pink[0] type=couture-s2-p-stick-pink at=0.561658,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7048729239396232338
 @36 particle - op=stuck/stick_body_stick[0] type=couture-s2-p-stick at=-0.038342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7540825713245645563
 @36 particle - op=stuck/stick_body_stick_pink[0] type=couture-s2-p-stick-pink at=-0.038342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7425669690378319400
+@36 sound - op=volley.hit/stab_snd sound=couture.stab cat=master vol=1 pitch=1 at=-0.043227,1.624631,2.200000
+@36 particle - op=volley.hit/sparks type=crit count=14 at=-0.043227,1.624631,2.200000 off=0.400000,0.400000,0.400000 speed=0.400000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6570915370946078786
+@36 effect 00000000-0000-0000-0000-00000000000a op=- hurt
+@36 damage 00000000-0000-0000-0000-00000000000a op=- physical=18 skill=couture-rapier-s2 at=-0.043227,1.624631,2.200000 ignoreinv=false ignorearmor=false
+@36 status 00000000-0000-0000-0000-00000000000a op=- status=bleed stacks=2 for=60
+@36 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0.0499 y=0.12 z=0.3464
+@36 effect 00000000-0000-0000-0000-000000000001 op=- freeze=2
 @36 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @36 frame throw/fly_body op=throw/fly_body pos=-0.038342,1.624107,2.742390 rot=0.282394,0.895654,0.089037,0.331859
 @36 frame throw/fly_a op=throw/fly_a pos=0.314353,1.624107,2.742390 rot=0.379581,0.812022,-0.183670,0.403490
@@ -1826,7 +1833,6 @@
 @113 remove #57 op=throw/flight_fan
 @113 remove #56 op=throw/thread_body
 @113 remove #55 op=throw/thread_b
-g @34 state-exit reason=TIMER | state=windup
 g @36 state-exit reason=EVENT | state=throw
 g @64 state-exit reason=TIMER | state=stuck
 g @76 state-exit reason=EVENT | state=reel
@@ -3373,7 +3379,6 @@ r @117 run-end tail=4 | pose
 @94 remove #57 op=throw/flight_fan
 @94 remove #56 op=throw/thread_body
 @94 remove #55 op=throw/thread_b
-g @34 state-exit reason=TIMER | state=windup
 g @41 state-exit reason=TIMER | state=throw
 g @57 state-exit reason=TIMER | state=reel
 g @94 state-exit reason=TIMER | state=coin3
@@ -4181,6 +4186,13 @@ r @98 run-end tail=4 | pose
 @36 particle - op=stuck/stick_b_stick_pink[0] type=couture-s2-p-stick-pink at=0.561658,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7048729239396232338
 @36 particle - op=stuck/stick_body_stick[0] type=couture-s2-p-stick at=-0.038342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7540825713245645563
 @36 particle - op=stuck/stick_body_stick_pink[0] type=couture-s2-p-stick-pink at=-0.038342,3.104107,2.792390 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7425669690378319400
+@36 sound - op=volley.hit/stab_snd sound=couture.stab cat=master vol=1 pitch=1 at=-0.043227,1.624631,2.200000
+@36 particle - op=volley.hit/sparks type=crit count=14 at=-0.043227,1.624631,2.200000 off=0.400000,0.400000,0.400000 speed=0.400000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6570915370946078786
+@36 effect 00000000-0000-0000-0000-00000000000a op=- hurt
+@36 damage 00000000-0000-0000-0000-00000000000a op=- physical=18 skill=couture-rapier-s2 at=-0.043227,1.624631,2.200000 ignoreinv=false ignorearmor=false
+@36 status 00000000-0000-0000-0000-00000000000a op=- status=bleed stacks=2 for=60
+@36 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0.0499 y=0.12 z=0.3464
+@36 effect 00000000-0000-0000-0000-000000000001 op=- freeze=2
 @36 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @36 frame throw/fly_body op=throw/fly_body pos=-0.038342,1.624107,2.742390 rot=0.282394,0.895654,0.089037,0.331859
 @36 frame throw/fly_a op=throw/fly_a pos=0.314353,1.624107,2.742390 rot=0.379581,0.812022,-0.183670,0.403490
@@ -6016,6 +6028,13 @@ r @117 run-end tail=4 | pose
 @36 particle - op=stuck/stick_b_stick_pink[0] type=couture-s2-p-stick-pink at=-1.231942,3.104107,2.568116 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7048729239396232338
 @36 particle - op=stuck/stick_body_stick[0] type=couture-s2-p-stick at=-1.711124,3.104107,2.207027 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7540825713245645563
 @36 particle - op=stuck/stick_body_stick_pink[0] type=couture-s2-p-stick-pink at=-1.711124,3.104107,2.207027 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7425669690378319400
+@36 sound - op=volley.hit/stab_snd sound=couture.stab cat=master vol=1 pitch=1 at=-1.333079,1.624672,1.696589
+@36 particle - op=volley.hit/sparks type=crit count=14 at=-1.333079,1.624672,1.696589 off=0.400000,0.400000,0.400000 speed=0.400000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6570915370946078786
+@36 effect 00000000-0000-0000-0000-00000000000a op=- hurt
+@36 damage 00000000-0000-0000-0000-00000000000a op=- physical=18 skill=couture-rapier-s2 at=-1.333079,1.624672,1.696589 ignoreinv=false ignorearmor=false
+@36 status 00000000-0000-0000-0000-00000000000a op=- status=bleed stacks=2 for=60
+@36 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.1737 y=0.12 z=0.3039
+@36 effect 00000000-0000-0000-0000-000000000001 op=- freeze=2
 @36 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @36 frame throw/fly_body op=throw/fly_body pos=-1.681033,1.624107,2.167095 rot=0.239549,0.744069,0.174041,0.598905
 @36 frame throw/fly_a op=throw/fly_a pos=-1.399358,1.624107,2.379353 rot=0.418245,0.642030,-0.053736,0.640297
@@ -7069,13 +7088,13 @@ g.hit @0 dash.end | sub=coin3/c3_hit.hit
 g.end @0..7 handler max=1 | sub=reel.end
 g.hit @0..0 handler max=2147483647 | sub=reel/reel_hit.hit
 g.hit @0 impulse target=live(victim) vector=live(%3D%20normalize(pos(palm)%20-%20pos(event.victim))%20*%200.25) | sub=reel/reel_hit.hit
-g.block @34..34 handler max=1 | sub=volley.block
-g.end @34..34 handler max=1 | sub=volley.end
-g.hit @34..34 handler max=1 | sub=volley.hit
+g.block @35..67 handler max=1 | sub=volley.block
+g.end @35..67 handler max=1 | sub=volley.end
+g.hit @35..67 handler max=1 | sub=volley.hit
 g.hit @0 damage physical=18.000000 | sub=volley.hit
 g.hit @0 status bleed stacks=2.000000 for=60 | sub=volley.hit
 g.hit @0 impulse target=live(victim) vector=live(%3D%20-contact.normal%20*%200.35%20+%20vec(0,%200.12,%200)) | sub=volley.hit
 g.hit @0 freeze scope=caster;instance:volley ticks=2.000000 | sub=volley.hit
-g.unstick @34..34 handler max=1 | sub=volley.unstick
+g.unstick @63..67 handler max=1 | sub=volley.unstick
 g.hit @8..8 handler max=2147483647 | sub=windup/c1_hit.hit
 g.hit @1 damage physical=30.000000 | sub=windup/c1_hit.hit

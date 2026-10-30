@@ -565,12 +565,14 @@ public class TablePlayer(
         val offered = offer(run, ev, binding, now, only = null)
         val sub = run.cursor.skill.table.subTables[ev.path] ?: return
         if (ev.path in offered.pasted) return
-        val owner = run.cursor.levels.firstOrNull { it.state == sub.owner } ?: return
-        val lt = now - owner.enteredAt
+        // a machine-root handler (world op) is cast-relative and survives every state exit; any other is bounded by its owner state's life
+        val root = sub.owner == SubTable.MACHINE_ROOT
+        val ownerLevel = if (root) null else run.cursor.levels.firstOrNull { it.state == sub.owner } ?: return
+        val lt = now - (ownerLevel?.enteredAt ?: run.request.startTick)
         if (lt < sub.window.min || lt > sub.window.max) return
         if ((run.firings[ev.path] ?: 0) >= sub.maxFirings) return
         run.firings[ev.path] = (run.firings[ev.path] ?: 0) + 1
-        pasteSub(run, ev.path, now, binding, owner = sub.owner, direct = false)
+        pasteSub(run, ev.path, now, binding, owner = if (root) null else sub.owner, direct = false)
     }
 
     /**

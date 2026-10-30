@@ -30,6 +30,10 @@ public object EventScoper {
             out[s.event] = s
         }
         for ((k, s) in out.toMap()) {
+            if (s.owner == SubTable.MACHINE_ROOT) {
+                out[k] = s.copy(window = TickRange(minOf(s.window.min, config.maxCastTicks), minOf(s.window.max, config.maxCastTicks)), maxFirings = maxOf(1, s.maxFirings))
+                continue
+            }
             val st = byState[s.owner]
                 ?: return Result.Failure(SkillDecodeError.TableClosure(k.value, "owner '${s.owner.value}' is not a state", skillId))
             out[k] = s.copy(window = clamp(s.window, st, config), maxFirings = maxOf(1, s.maxFirings))

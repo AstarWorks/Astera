@@ -320,6 +320,15 @@ public object StaticChecks {
         val machineMax = g.table.bounds.path.max
         for (row in g.table.worldRows) overrun(g, WORLD_UNIT, row, 0, machineMax)?.let { return it }
         for (sub in g.table.subTables.values) {
+            if (sub.owner == SubTable.MACHINE_ROOT) {
+                // a machine-root handler rides the cast clock: the machine's worst-case path bounds it, like the world rows it answers
+                if (sub.window.max > machineMax) return SkillDecodeError.StateOverrun(WORLD_UNIT, sub.event.value, sub.window.max, machineMax, g.skillId)
+                for (row in sub.rows) {
+                    if (row.drainsAfterExit && row.tick >= 0) continue
+                    overrun(g, WORLD_UNIT, row, sub.window.max, machineMax)?.let { return it }
+                }
+                continue
+            }
             val owner = g.stateByPath[sub.owner.value]
                 ?: return SkillDecodeError.TableClosure(sub.event.value, "owner state '${sub.owner.value}' does not exist", g.skillId)
             val max = owner.duration.max
@@ -721,6 +730,11 @@ public object StaticChecks {
                 }
             }
             table.states.firstOrNull()?.let { enter(it.state.value) }
+            // a machine-root op's event tables (`volley.hit`, ...) are delivered from the cast's first tick, whichever state it is in
+            for (sub in table.subTables.values) {
+                if (sub.owner != SubTable.MACHINE_ROOT || ".on[" in sub.event.value) continue
+                if (subs.add(sub.event.value)) scan(sub.rows, sub.branches)
+            }
             while (queue.isNotEmpty()) {
                 val s = stateByPath.getValue(queue.removeFirst())
                 s.then?.let { enter(it.value) }
