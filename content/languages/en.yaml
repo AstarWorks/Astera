@@ -357,7 +357,7 @@ astera:
       admin-maintenance: "Toggle maintenance mode"
       admin-teleport: "Teleport a player"
       admin-reload: "Reload a content category from disk"
-      admin-rewire: "Rebuild a plugin generation in place without a restart"
+      admin-rewire: "Rebuild a plugin generation in place without a restart (--reconnect also reopens its connection, persistence)"
       admin-audit: "Show recent audit events of a player"
       admin-promote: "Assign a role to a player"
       admin-demote: "Revoke a role from a player"

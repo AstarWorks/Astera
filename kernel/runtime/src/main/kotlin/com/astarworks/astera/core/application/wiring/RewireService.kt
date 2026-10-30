@@ -14,8 +14,12 @@ public interface IRewireService {
     /**
      * Rewire [plugin] (`economy`, `Astera-Economy`, ...) and every rewirable plugin that depends on it.
      * A failed rewire leaves the running generation untouched.
+     *
+     * With [reconnect] the plugin first re-establishes its external connection (Persistence: a new Postgres pool is
+     * built and swapped in, the old one drained and closed) before the new generation is wired. Only plugins that
+     * own a connection accept it.
      */
-    public fun rewire(plugin: String): Result<RewireReport, RewireError>
+    public fun rewire(plugin: String, reconnect: Boolean = false): Result<RewireReport, RewireError>
 
     /** One line per rewirable plugin: id, generation, registration counts. */
     public fun status(): List<String>
@@ -72,6 +76,12 @@ public sealed interface RewireError {
     public data class RestartRequired(val plugin: String, val reason: String) : RewireError {
         override val code: String get() = "RESTART_REQUIRED"
         override val message: String get() = "$plugin cannot be rewired: $reason"
+    }
+
+    /** `--reconnect` was refused or failed; nothing was rewired and the old connection keeps serving. */
+    public data class ReconnectFailed(val plugin: String, val cause: String) : RewireError {
+        override val code: String get() = "RECONNECT_FAILED"
+        override val message: String get() = "$plugin did not reconnect, old connection kept: $cause"
     }
 
     /** Generation N+1 failed to wire; generation N is untouched. */

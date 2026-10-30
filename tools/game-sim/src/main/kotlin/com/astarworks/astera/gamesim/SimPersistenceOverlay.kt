@@ -44,6 +44,8 @@ public class SimPersistenceOverlay private constructor(
     public val ledger: OverlayLedger,
     public val profiles: OverlayProfiles,
     public val xp: OverlayXp,
+    /** The shared stores this generation was built over; register a further generation with [SimPersistenceBacking.register]. */
+    public val backing: SimPersistenceBacking,
 ) {
     public class OverlaySessions(delegate: IPlayerSessionRepository = InMemoryPlayerSessionRepository()) :
         IPlayerSessionRepository by delegate
@@ -82,13 +84,37 @@ public class SimPersistenceOverlay private constructor(
     public companion object {
         private const val PRIORITY: Int = 100
 
-        /** Registers the overlay the way `AsteraPersistencePlugin.onLoad` does. */
-        public fun install(services: ServiceRegistry): SimPersistenceOverlay {
-            val store = OverlayAttributeStore()
+        /**
+         * Registers the overlay the way `AsteraPersistencePlugin.onLoad` does: generation 0 of the Persistence
+         * lifecycle, on a registry view stamped with that generation's tag.
+         */
+        public fun install(services: ServiceRegistry): SimPersistenceOverlay = SimPersistenceBacking().register(services)
+    }
+
+    /**
+     * The "database" behind the stand-in: the stores that hold the data. Every generation registers NEW wrapper
+     * objects over these same stores (what a rewired Persistence does with fresh Postgres repository instances over
+     * the same database), so state survives a generation swap while the registered instances change.
+     */
+    public class SimPersistenceBacking {
+        private val store: IPlayerAttributeContainerStore = InMemoryPlayerAttributeContainer()
+        private val sessions: IPlayerSessionRepository = InMemoryPlayerSessionRepository()
+        private val vaults: IPersonalVaultRepository = InMemoryPersonalVaultRepository()
+        private val snapshots: IPlayerInventorySnapshotRepository = InMemoryPlayerInventorySnapshotRepository()
+        private val settings: IPlayerSettingsRepository = InMemoryPlayerSettingsRepository()
+        private val profileCards: IProfileCardService = InMemoryProfileCardService()
+        private val friendships: IFriendshipRepository = InMemoryFriendshipRepository()
+        private val parties: IPartyRepository = InMemoryPartyRepository()
+        private val profiles: IPlayerProfileRepository = InMemoryPlayerProfileRepository()
+        private val xp: IPlayerXpRepository = InMemoryPlayerXpRepository()
+
+        /** Builds one generation of wrappers over the shared stores and registers them at priority 100. */
+        public fun register(services: ServiceRegistry): SimPersistenceOverlay {
             val overlay = SimPersistenceOverlay(
-                OverlaySessions(), OverlayVaults(), OverlaySnapshots(), OverlaySettings(),
-                OverlayProfileCards(), OverlayFriendships(), OverlayParties(), store, OverlayLedger(store),
-                OverlayProfiles(), OverlayXp(),
+                OverlaySessions(sessions), OverlayVaults(vaults), OverlaySnapshots(snapshots), OverlaySettings(settings),
+                OverlayProfileCards(profileCards), OverlayFriendships(friendships), OverlayParties(parties),
+                OverlayAttributeStore(store), OverlayLedger(store), OverlayProfiles(profiles), OverlayXp(xp),
+                this,
             )
             services.register<IPlayerSessionRepository>(overlay.sessions, PRIORITY)
             services.register<IPersonalVaultRepository>(overlay.vaults, PRIORITY)

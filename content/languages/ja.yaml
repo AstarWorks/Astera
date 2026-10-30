@@ -365,7 +365,7 @@ astera:
       admin-maintenance: "メンテナンスモードの切替"
       admin-teleport: "プレイヤーをテレポート"
       admin-reload: "コンテンツカテゴリを再読み込み"
-      admin-rewire: "サーバーを止めずにプラグインの世代を作り直す"
+      admin-rewire: "サーバーを止めずにプラグインの世代を作り直す (--reconnect で persistence の接続も張り直す)"
       admin-audit: "プレイヤーの監査ログを表示"
       admin-promote: "プレイヤーにロールを付与"
       admin-demote: "プレイヤーからロールを剥奪"

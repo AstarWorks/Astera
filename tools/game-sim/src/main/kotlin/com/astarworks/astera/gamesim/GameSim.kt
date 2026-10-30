@@ -123,6 +123,9 @@ public class GameSim private constructor(
 
     /** The stand-in Persistence overlay when booted with `persistenceOverlay = true`. */
     public var persistenceOverlay: SimPersistenceOverlay? = null
+
+    /** The Persistence lifecycle stand-in (only with `persistenceOverlay = true`); drives the generation swap and `--reconnect`. */
+    public var persistenceLifecycle: SimPersistenceLifecycle? = null
         internal set
 
     public lateinit var core: CoreWiringResult
@@ -475,6 +478,7 @@ public class GameSim private constructor(
         runCatching { core.rewire.down(MatchLifecycle.OWNER) }
         runCatching { core.rewire.down(CombatLifecycle.OWNER) }
         runCatching { core.rewire.down(ItemsLifecycle.OWNER) }
+        runCatching { core.rewire.down(SimPersistenceLifecycle.OWNER) }
         contexts.asReversed().forEach { runCatching { it.close() } }
         runCatching { core.shutdown() }
     }
@@ -536,7 +540,9 @@ public class GameSim private constructor(
             val scheduler = FakeScheduler()
             val rootServices = ServiceRegistry()
             val services = rootServices.scoped(com.astarworks.astera.core.application.wiring.WiringTag.SUBSTRATE)
-            val overlay = if (persistenceOverlay) SimPersistenceOverlay.install(services) else null
+            val overlay = if (persistenceOverlay) {
+                SimPersistenceOverlay.install(rootServices.scoped(com.astarworks.astera.core.application.wiring.WiringTag(SimPersistenceLifecycle.OWNER, 0)))
+            } else null
             arenas?.let { services.register<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>(it, priority = 1000) }
             // One seeded source for every random roll; CombatWiring picks it up instead of its own.
             services.register<com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer>(
@@ -591,6 +597,11 @@ public class GameSim private constructor(
                 coreCtx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository>(snapshots, priority = 100)
             }
             sim.core = CoreWiring.install(coreCtx, corePorts)
+            if (overlay != null) {
+                val persistence = SimPersistenceLifecycle(overlay.backing) { sim.persistenceOverlay = it }
+                sim.persistenceLifecycle = persistence
+                sim.core.rewire.adopt(persistence, Unit).let { r -> check(r is com.astarworks.astera.core.domain.Result.Success) { "persistence adopt failed" } }
+            }
             if (snapshots != null) {
                 val inventory = SimInventoryGateway()
                 sim.inventory = inventory

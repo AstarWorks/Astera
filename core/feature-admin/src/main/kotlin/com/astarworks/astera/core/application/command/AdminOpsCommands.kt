@@ -37,7 +37,7 @@ import java.time.Clock
  *  - `/astera admin maintenance <on|off|status> [reason...]`  astera.admin.maintenance
  *  - `/astera admin teleport <player> <world> [x y z]`        astera.admin.teleport
  *  - `/astera admin reload <category|all>`                    astera.admin.reload
- *  - `/astera admin rewire <plugin|status>`                   astera.admin.rewire
+ *  - `/astera admin rewire <plugin|status> [--reconnect]`      astera.admin.rewire
  *  - `/astera admin audit <player> [limit]`                   astera.admin.audit
  *  - `/astera admin promote <player> <role-id>`               astera.admin.role.grant
  *  - `/astera admin demote <player> <role-id>`                astera.admin.role.revoke
@@ -240,6 +240,11 @@ public class AdminOpsCommands(
                 type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
                 completer = { _ -> listOf(REWIRE_STATUS) + rewireService()?.rewirable().orEmpty() },
             ),
+            CommandSpec.Argument(
+                name = REWIRE_RECONNECT_ARG,
+                type = ArgumentType.Choice(REWIRE_RECONNECT_FLAG),
+                optional = true,
+            ),
         ),
         executor = { ctx ->
             val service = rewireService()
@@ -253,7 +258,7 @@ public class AdminOpsCommands(
                     service.status().forEach { ctx.reply(MessageKey("astera.command.reply.admin-rewire-status"), mapOf("line" to it)) }
                     CommandResult.Success
                 }
-                else -> when (val outcome = service.rewire(plugin)) {
+                else -> when (val outcome = service.rewire(plugin, reconnect = ctx.optional<String>(REWIRE_RECONNECT_ARG) != null)) {
                     is Result.Success -> {
                         log.info("Rewired {}: {}", plugin, outcome.value.summary())
                         ctx.reply(
@@ -660,6 +665,8 @@ public class AdminOpsCommands(
         private const val MAX_SPAWN_COUNT = 64
         private const val RELOAD_ALL = "all"
         private const val REWIRE_STATUS = "status"
+        private const val REWIRE_RECONNECT_ARG = "reconnect"
+        private const val REWIRE_RECONNECT_FLAG = "--reconnect"
 
         /** Mount every Core admin command under `/astera admin`; returns how many were mounted. */
         public fun registerAll(commands: CommandMount, admin: AdminOpsCommands): Int {
