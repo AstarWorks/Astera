@@ -33,7 +33,6 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
     private class Bucket {
         val particles = mutableListOf<JsonElement>()
         val sounds = mutableListOf<JsonElement>()
-        val projectileEvents = mutableListOf<JsonElement>()
         val damage = mutableListOf<JsonElement>()
         val status = mutableListOf<JsonElement>()
         val deaths = mutableListOf<JsonElement>()
@@ -44,7 +43,6 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
         val displays = mutableListOf<JsonElement>()
         var hasSnapshot = false
         var entities: JsonElement = JsonArray(emptyList())
-        var projectiles: JsonElement = JsonArray(emptyList())
     }
 
     /** One world effect (see [recordEffect]). */
@@ -106,24 +104,6 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
             put("volume", volume)
             put("pitch", pitch)
             put("world", world)
-            vec(at)
-        }
-    }
-
-    /** [kind]: `spawn`, `hit_entity`, `hit_block`, `expire`, `cancel`. */
-    public fun recordProjectileEvent(
-        tick: Long,
-        id: String,
-        kind: String,
-        at: Vec3,
-        owner: PlayerId,
-        target: PlayerId? = null,
-    ) {
-        bucket(tick).projectileEvents += buildJsonObject {
-            put("id", id)
-            put("kind", kind)
-            put("owner", owner.uuid.toString())
-            put("target", target?.uuid?.toString())
             vec(at)
         }
     }
@@ -215,12 +195,11 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
         }
     }
 
-    /** Captures entity + in-flight projectile positions at the end of [tick]. */
+    /** Captures entity positions at the end of [tick]. */
     public fun snapshot(
         tick: Long,
         entities: Collection<SimEntity>,
         hpOf: (PlayerId) -> Double?,
-        projectiles: List<ProjectileSnapshot>,
     ) {
         val b = bucket(tick)
         b.hasSnapshot = true
@@ -234,17 +213,6 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
                         put("dy", e.direction.y)
                         put("dz", e.direction.z)
                         put("hp", hpOf(e.id))
-                    },
-                )
-            }
-        }
-        b.projectiles = buildJsonArray {
-            projectiles.forEach { p ->
-                add(
-                    buildJsonObject {
-                        put("id", p.id)
-                        put("owner", p.owner.uuid.toString())
-                        vec(p.position)
                     },
                 )
             }
@@ -276,8 +244,6 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
                         buildJsonObject {
                             put("tick", tick)
                             put("entities", b.entities)
-                            put("projectiles", b.projectiles)
-                            put("projectileEvents", JsonArray(b.projectileEvents))
                             put("particles", JsonArray(b.particles))
                             put("sounds", JsonArray(b.sounds))
                             put("damage", JsonArray(b.damage))
@@ -342,9 +308,6 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
         put("y", v.y)
         put("z", v.z)
     }
-
-    /** In-flight projectile position, as seen by [snapshot]. */
-    public class ProjectileSnapshot(public val id: String, public val owner: PlayerId, public val position: Vec3)
 
     public companion object {
         public const val SCHEMA: String = "astera-sim-trace/1"

@@ -1,6 +1,5 @@
 package com.astarworks.astera.gamesim
 
-import com.astarworks.astera.combat.application.service.ProjectileImpactResolver
 import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.combat.domain.event.StatusApplied
@@ -80,7 +79,6 @@ public class GameSim private constructor(
     public val services: ServiceRegistry,
     public val recorder: TraceRecorder,
     public val server: SimMcServer,
-    public val projectiles: SimProjectileService,
     public val broadcaster: FakeBroadcaster,
     private val contexts: List<WiringContext>,
 ) {
@@ -431,12 +429,12 @@ public class GameSim private constructor(
         require(ticks >= 0) { "ticks must be >= 0" }
         // The state the scenario set up before the first step is the trace's starting frame.
         if (ticks > 0 && !recorder.hasSnapshot(scheduler.currentTick())) {
-            recorder.snapshot(scheduler.currentTick(), world.entities, ::hpOf, projectiles.snapshots())
+            recorder.snapshot(scheduler.currentTick(), world.entities, ::hpOf)
         }
         repeat(ticks) {
             scheduler.advanceTicks(1)
             starDrops.pickupSweep(scheduler.currentTick(), world.entities)
-            recorder.snapshot(scheduler.currentTick(), world.entities, ::hpOf, projectiles.snapshots())
+            recorder.snapshot(scheduler.currentTick(), world.entities, ::hpOf)
         }
     }
 
@@ -457,12 +455,11 @@ public class GameSim private constructor(
     /** Writes the JSON trace to `<traceDir>/<scenario>.json`. */
     public fun writeTrace(dir: Path = defaultTraceDir()): Path {
         // Make sure the last state is captured even if no tick was stepped.
-        recorder.snapshot(scheduler.currentTick(), world.entities, ::hpOf, projectiles.snapshots())
+        recorder.snapshot(scheduler.currentTick(), world.entities, ::hpOf)
         return recorder.write(dir)
     }
 
     public fun shutdown() {
-        projectiles.stop()
         runCatching { economy.shutdown() }
         runCatching { stats.shutdown() }
         runCatching { match.shutdown() }
@@ -555,16 +552,7 @@ public class GameSim private constructor(
                 spectatorSpawn = Vec3(0.0, groundY + 10.0, 0.0),
             )
 
-            val projectiles = SimProjectileService(
-                world = world,
-                scheduler = scheduler,
-                recorder = recorder,
-                isAlive = alive,
-                resolver = { services.get<ProjectileImpactResolver>() },
-                worldGateway = { worldGateway },
-            )
-
-            sim = GameSim(scenarioName, world, scheduler, services, recorder, mcServer, projectiles, broadcaster, contexts)
+            sim = GameSim(scenarioName, world, scheduler, services, recorder, mcServer, broadcaster, contexts)
             sim.persistenceOverlay = overlay
             val feedback = sim.feedback
 
@@ -644,7 +632,6 @@ public class GameSim private constructor(
             sim.combat = CombatWiring.install(
                 context(),
                 CombatPlatformPorts(
-                    projectileService = { projectiles },
                     wornItems = { sim.wornItems },
                     damageGateway = { svc ->
                         SimDamageGateway(world, svc.getOrThrow<IPlayerAttributeContainerStore>(), scheduler, svc.getOrThrow<IDomainEventBus>())
@@ -669,7 +656,6 @@ public class GameSim private constructor(
             )
             // Post-wiring host step (CombatPaperPlatform.bind): tick loops and the
             // rerouted-damage kill publisher.
-            projectiles.start()
             sim.skillEngine = SimSkillEngine.create(world, scheduler, services, sim.combat, mcServer, recorder, statusContainer.value, feedback, alive, seed).also { it.start() }
             if (statusContainer.isInitialized()) statusContainer.value.start()
             val killResolver = VanillaKillResolver(

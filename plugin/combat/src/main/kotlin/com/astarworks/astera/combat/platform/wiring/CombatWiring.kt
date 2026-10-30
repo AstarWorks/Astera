@@ -16,7 +16,6 @@ import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGatew
 import com.astarworks.astera.combat.application.port.outbound.IFocusFireTracker
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
 import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
-import com.astarworks.astera.combat.application.port.outbound.IProjectileService
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectInteractionRule
@@ -470,14 +469,6 @@ public object CombatWiring {
             services.get<INearbyTargetQuery>() ?: EmptyNearbyTargetQuery(),
         )
 
-        // Wave 6a-N2 (ADR-0155) — projectile service. Paper spawns vanilla
-        // Bukkit projectile entities as visual carriers; damage resolution
-        // is routed through ApplyDamageUseCase by ProjectileHitListener
-        // (Paper step) per ADR-0149 §C. No InMemory equivalent exists for
-        // this port — registered at priority 100 for consistency with the
-        // Wave 6a Paper sweep pattern.
-        val projectileService: IProjectileService = ports.projectileService(services)
-        registrations += services.register<IProjectileService>(projectileService, priority = 100)
         // Match enables after Combat; resolve its team service when damage is applied.
         val teamLookup = IMatchTeamLookup { playerId -> services.get<IMatchTeamLookup>()?.teamOf(playerId) }
         val combatContexts = com.astarworks.astera.core.application.service.combat.CombatContextResolver { services.get<IMatchTeamLookup>() }
@@ -567,24 +558,6 @@ public object CombatWiring {
                 services.get<com.astarworks.astera.core.application.port.outbound.effect.ISoundRegistry>()
             val summonRegistry = SummonRegistry { services.get<IMatchTeamLookup>() }
             registrations += services.register<SummonRegistry>(summonRegistry)
-            // Shared by every host: Paper's ProjectileHitListener and the
-            // headless simulator's projectile stepper both resolve impacts here.
-            val particleSchedulerForImpacts = particleScheduler
-            val soundSchedulerForImpacts =
-                services.get<com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler>()
-            if (particleSchedulerForImpacts != null && soundSchedulerForImpacts != null) {
-                registrations += services.register<com.astarworks.astera.combat.application.service.ProjectileImpactResolver>(
-                    com.astarworks.astera.combat.application.service.ProjectileImpactResolver(
-                        applyDamage = applyDamage,
-                        applyStatus = applyStatus,
-                        scheduler = scheduler,
-                        particleScheduler = particleSchedulerForImpacts,
-                        soundScheduler = soundSchedulerForImpacts,
-                        structures = { services.get<com.astarworks.astera.core.application.port.outbound.IStructureTargets>() },
-                    ),
-                )
-            }
-
             val castSkill = CastSkillUseCase(
                 skillRegistry = skillGate,
                 statusContainer = statusContainer,

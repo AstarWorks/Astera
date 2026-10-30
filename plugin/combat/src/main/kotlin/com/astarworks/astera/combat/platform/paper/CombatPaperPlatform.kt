@@ -17,7 +17,6 @@ import com.astarworks.astera.combat.adapter.paper.PaperEntityEffectsGateway
 import com.astarworks.astera.combat.adapter.paper.PaperPlayerFeedbackGateway
 import com.astarworks.astera.combat.adapter.paper.PaperKnockbackGateway
 import com.astarworks.astera.combat.adapter.paper.PaperNearbyTargetQuery
-import com.astarworks.astera.combat.adapter.paper.PaperProjectileService
 import com.astarworks.astera.combat.adapter.paper.PaperStatusEffectContainer
 import com.astarworks.astera.combat.adapter.paper.PaperVanillaKillPublisher
 import com.astarworks.astera.combat.adapter.paper.StatusEffectTickListener
@@ -55,15 +54,13 @@ import org.bukkit.plugin.java.JavaPlugin
  * Bukkit-bound listeners that need objects the wiring built
  * (`ApplyDamageUseCase` / `ApplyStatusUseCase`).
  *
- * The headless simulator replaces this class: its own ports, plus a hit
- * stepper (`SimProjectileService`) in place of `PaperProjectileService`.
+ * The headless simulator replaces this class with its own ports.
  */
 internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
 
     // Concrete Paper instances the factories create; the post-wiring step
     // needs them (not just their port interface).
     private var statusContainer: PaperStatusEffectContainer? = null
-    private var projectileService: PaperProjectileService? = null
     private var explosionGateway: PaperExplosionGateway? = null
     private var entityDamageGateway: PaperEntityDamageGateway? = null
 
@@ -111,18 +108,6 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         skillPreviewStage = { PaperSkillPreviewStage(plugin) },
         tickRateControl = { PaperTickRateControl(plugin.server) },
         playerFeedbackGateway = { services -> PaperPlayerFeedbackGateway(plugin.server, services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IActionBarChannel>()) },
-        projectileService = { services ->
-            // F2-4 — server-simulated projectiles (no vanilla projectile entity).
-            val paperProjectile = PaperProjectileService(
-                server = plugin.server,
-                scheduler = services.getOrThrow<IScheduler>(),
-                worldGateway = services.getOrThrow<IWorldGateway>(),
-                teamLookup = { services.get<IMatchTeamLookup>() },
-            )
-            paperProjectile.start()
-            projectileService = paperProjectile
-            paperProjectile
-        },
         lightningGateway = { services ->
             PaperLightningGateway(
                 server = plugin.server,
@@ -206,18 +191,10 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
 
         val applyDamage = wired.applyDamage
         val applyStatus = wired.applyStatus
-        val paperProjectile = projectileService
-        if (applyDamage != null && applyStatus != null && paperProjectile != null) {
+        if (applyDamage != null && applyStatus != null) {
             // Cancels the vanilla BLOCK/ENTITY_EXPLOSION damage raised by its own
             // createExplosion call so explosion damage lands once (Astera path only).
             explosionGateway?.let { plugin.server.pluginManager.registerEvents(it, plugin) }
-
-            // The simulated projectiles resolve their impacts through the shared
-            // ProjectileImpactResolver (damage / status / phases) — no Bukkit
-            // projectile events involved.
-            val impactResolver = services.get<com.astarworks.astera.combat.application.service.ProjectileImpactResolver>()
-                ?: error("ProjectileImpactResolver not registered — IParticleScheduler / ISoundScheduler missing (ADR-0109)")
-            paperProjectile.bindImpactResolver(impactResolver)
         }
 
         // WP5: summons never target or hurt their owner's side.
@@ -274,8 +251,6 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         skillEngine = null
         statusTickHandle?.cancel()
         statusTickHandle = null
-        projectileService?.stop()
-        projectileService = null
         statusContainer = null
         explosionGateway = null
         entityDamageGateway = null

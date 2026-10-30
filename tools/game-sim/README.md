@@ -44,7 +44,6 @@ else is reachable through `sim` (`GameSim`): `sim.services`, `sim.match`, ...
 |---|---|---|
 | `IScheduler` | `FakeScheduler` (test-fixtures) | virtual time; `GameSim.step` advances one tick at a time |
 | `IWorldGateway` | `RecordingWorldGateway` | tick-stamps particles, sounds, teleports; Core's in-memory particle / sound *schedulers* run on top of it, so scheduled effects are recorded at emission tick |
-| `IProjectileService` | `SimProjectileService` | per-tick `ProjectileStepper` (the same stepping Paper runs) with a flat-world `ProjectileWorldProbe`; calls `ProjectileImpactResolver` once per projectile (`onHitEntity` / `onHitBlock` / `onExpire`) |
 | `INearbyTargetQuery`, `IPlayerPoseLookup` | `SimNearbyTargetQuery`, `SimPoseLookup` | over `SimEntity` positions. NB: no Paper impl of `INearbyTargetQuery` is registered in production yet |
 | `IDamageGateway` | `SimDamageGateway` | ADR-0149/0151: reads/writes `CURRENT_HP` in the attribute container, `Killed` at 0, Bukkit-style 20-tick invulnerability frames |
 | `IStatusEffectContainer` | `SimStatusEffectContainer` | + the 20-tick DoT / expiry loop of Paper's `StatusEffectTickListener` |
@@ -52,19 +51,12 @@ else is reachable through `sim` (`GameSim`): `sim.services`, `sim.match`, ...
 | `IExplosionGateway`, `ISummonGateway`, `IDisplayEntityGateway` (WP5) | `SimExplosionGateway`, `SimSummonGateway`, `SimDisplayGateway` | explosion: linear falloff damage through the production `ApplyDamageUseCase` (armor / friendly fire apply), radial velocity, terrain *not* simulated (policy is recorded); summon: an inert `SimEntity` mob carrying the owner's team; display: record only. All write `effects` into the trace. Temporary blocks go through `RecordingWorldGateway` (`block_place` / `block_remove`), lightning is taken from the `LightningStrike` event |
 | `IItemDelivery`, `IPaperItemIdResolver` | `SimItemDelivery`, `SimItemIdResolver` | first item given is the held (main-hand) item |
 
-The post-wiring "Paper step" is replicated for Combat only (projectile stepper,
-status tick, and the `PlayerHealthChanged -> PlayerKilled` publisher for DoT
+The post-wiring "Paper step" is replicated for Combat only (status tick, and the `PlayerHealthChanged -> PlayerKilled` publisher for DoT
 kills). Simulated players / mobs are plain data (`SimEntity`: id, position, look
 direction, team); mobs are addressed by id like players and have a 0.6 x 1.8 hitbox.
 
 ### Approximations (vs. real Paper)
 
-- Hit test: segment vs entity box inflated by the projectile's hit radius; the
-  world is a flat ground plane at `groundY` (default -60.0, the playtest superflat)
-  plus blocks placed through the world gateway.
-- `MotionProfile.initialSpeed` is blocks/second; the sim (like Paper) moves
-  `initialSpeed / 20` blocks per tick. `Curved` flies like `Linear`; `Beam` is an
-  instant ray resolved on the next stepped tick; ballistic `gravity` is blocks/tick^2.
 - Randomness in the dispatcher (status `chance`, crits) is not seedable;
   scenarios retry or assert on invariants, never on a single roll.
 - Rendering is out of scope: particle keys are content ids, not client particles.
@@ -88,10 +80,6 @@ scenario end). Positions are world coordinates in blocks; ids are UUID strings.
       "tick": 41,
       "entities":   [ { "id": "…", "x": 0, "y": -60, "z": 10, "dx": 0, "dy": 0, "dz": 1, "hp": 20.0 } ],
                                     // end-of-tick snapshot of every entity (hp = Astera CURRENT_HP, may be null)
-      "projectiles":[ { "id": "…", "owner": "…", "x": 0, "y": -58.4, "z": 4.1 } ],
-                                    // projectiles still in flight at end of tick
-      "projectileEvents": [ { "id": "…", "kind": "spawn|hit_entity|hit_block|expire|cancel",
-                              "owner": "…", "target": "…" /* hit_entity only, else null */, "x": 0, "y": 0, "z": 0 } ],
       "particles":  [ { "key": "example-burst", "count": 1, "world": "world", "x": 0, "y": 0, "z": 0 } ],
                                     // optional per particle: color{r,g,b}, scale, extra (speed);
                                     // count 0 = directed: "velocity":{x,y,z} unit direction + "speed";

@@ -21,7 +21,7 @@ const q = (qq) => [qq.x, qq.y, qq.z, qq.w];
 const spawn = (o) => ({ op: 'spawn', id: 'd' + Math.random(), x: 0, y: 60, z: 0, translation: [0, 0, 0], rotation: [0, 0, 0, 1], scale: [1, 1, 1], billboard: 'fixed', brightness: 15, glow: null, viewRange: null, lifetime: 100, ...o });
 const trace = (displays) => ({
   schema: 'astera-sim-trace/1', scenario: 'calibration', tickRate: 20, groundY: 0, entities: [],
-  ticks: [0, 1, 2].map((i) => ({ tick: i, entities: [], projectiles: [], projectileEvents: [], particles: [], sounds: [], damage: [], status: [], deaths: [], teleports: [], effects: [], events: [], hud: [], displays: i === 0 ? displays : [] })),
+  ticks: [0, 1, 2].map((i) => ({ tick: i, entities: [], particles: [], sounds: [], damage: [], status: [], deaths: [], teleports: [], effects: [], events: [], hud: [], displays: i === 0 ? displays : [] })),
 });
 
 const browser = await chromium.launch({
