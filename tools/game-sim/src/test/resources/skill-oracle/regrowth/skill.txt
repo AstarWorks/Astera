@@ -1,5 +1,5 @@
 ## pose yaw=0 pitch=0
-@0 spawn #0 op=bloom/ring kind=sprite sprite=ring alpha=1.000000 tint=#8cff78 seethrough=false pos=0.000000,0.100000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.250000,1.250000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=bloom/ring kind=sprite sprite=ring alpha=1.000000 tint=#8cff78 seethrough=false pos=0.000000,0.100000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=bloom/ring dur=2 pos=0.000000,0.100000,0.000000 rot=-0.707107,0.000000,0.000000,0.707107 scale=2.271137,2.271137,2.271137 bb=FIXED
 @0 sound - op=bloom/snd sound=astera:skills/heal-chime cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
 @0 particle - op=bloom/fx type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8309024391654983124
@@ -19,7 +19,7 @@
 @6 particle - op=bloom/dust_c type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#8cff78 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1102138341692021807
 @7 remove #0 op=bloom/ring
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=bloom/ring kind=sprite sprite=ring alpha=1.000000 tint=#8cff78 seethrough=false pos=0.000000,0.100000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.250000,1.250000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=bloom/ring kind=sprite sprite=ring alpha=1.000000 tint=#8cff78 seethrough=false pos=0.000000,0.100000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=bloom/ring dur=2 pos=0.000000,0.100000,0.000000 rot=-0.670566,-0.224368,-0.224368,0.670566 scale=2.271137,2.271137,2.271137 bb=FIXED
 @0 sound - op=bloom/snd sound=astera:skills/heal-chime cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
 @0 particle - op=bloom/fx type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8309024391654983124
@@ -39,7 +39,7 @@
 @6 particle - op=bloom/dust_c type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#8cff78 size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1102138341692021807
 @7 remove #0 op=bloom/ring
 ## pose-hit yaw=0 pitch=0
-@0 spawn #0 op=bloom/ring kind=sprite sprite=ring alpha=1.000000 tint=#8cff78 seethrough=false pos=0.000000,0.100000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.250000,1.250000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=bloom/ring kind=sprite sprite=ring alpha=1.000000 tint=#8cff78 seethrough=false pos=0.000000,0.100000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=bloom/ring dur=2 pos=0.000000,0.100000,0.000000 rot=-0.707107,0.000000,0.000000,0.707107 scale=2.271137,2.271137,2.271137 bb=FIXED
 @0 sound - op=bloom/snd sound=astera:skills/heal-chime cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
 @0 particle - op=bloom/fx type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8309024391654983124
@@ -61,7 +61,7 @@
 g @7 state-exit reason=TIMER | state=bloom
 g @7 cast-end | pose
 ## pose-hit yaw=37 pitch=0
-@0 spawn #0 op=bloom/ring kind=sprite sprite=ring alpha=1.000000 tint=#8cff78 seethrough=false pos=0.000000,0.100000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.250000,1.250000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=bloom/ring kind=sprite sprite=ring alpha=1.000000 tint=#8cff78 seethrough=false pos=0.000000,0.100000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=bloom/ring dur=2 pos=0.000000,0.100000,0.000000 rot=-0.670566,-0.224368,-0.224368,0.670566 scale=2.271137,2.271137,2.271137 bb=FIXED
 @0 sound - op=bloom/snd sound=astera:skills/heal-chime cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
 @0 particle - op=bloom/fx type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8309024391654983124

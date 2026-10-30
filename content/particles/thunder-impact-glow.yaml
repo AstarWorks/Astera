@@ -9,5 +9,5 @@ color:
   b: 255
 count: 14
 lifetime_ticks: 20
-vanilla_particle: end_rod
+vanilla_particle: electric_spark
 speed: 0.15

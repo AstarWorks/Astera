@@ -28,7 +28,7 @@ machine:
         - {id: mist, op: particle, particle: dust, anchor: cast_pt, count: 1, color: "#c8ebff", size: 1.4, at: 0}
         # the cold wave: 24 flakes flung outward on the ground plane, a lifted ring of frost behind it (instant rows: the state lasts one tick)
         - {id: ring, op: particle, particle: snowflake, anchor: cast_pt, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 0.5}
-        - {id: ring_hi, op: particle, particle: end_rod, anchor: cast_pt, times: 12, at: 0, count: 0, offset: "= vec(0.6 * cos(i * 2 * pi / 12), 0.8, 0.6 * sin(i * 2 * pi / 12))", extra: 0.3}
+        - {id: ring_hi, op: particle, particle: snowflake, anchor: cast_pt, times: 12, at: 0, count: 0, offset: "= vec(0.6 * cos(i * 2 * pi / 12), 0.8, 0.6 * sin(i * 2 * pi / 12))", extra: 0.3}
         - {id: haze, op: particle, particle: dust, anchor: cast_pt, count: 20, offset: "= vec(1.4, 0.3, 1.4)", color: "#dff3ff", size: 1.2, at: 0}
         - id: burst
           op: hit

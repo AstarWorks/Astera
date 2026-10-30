@@ -62,7 +62,7 @@ r @3 run-end tail=2 | pose
 @1 particle - op=fly/bolt.hit/use_4/ring_up[5] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=-0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3743461523316662328
 @1 particle - op=fly/bolt.hit/use_4/ring_up[6] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=0.000000,0.700000,-0.700000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1913048188561466102
 @1 particle - op=fly/bolt.hit/use_4/ring_up[7] type=electric_spark count=0 at=0.000000,1.200000,2.500000 off=0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5429309301718090398
-@1 particle - op=fly/bolt.hit/use_4/pop type=end_rod count=4 at=0.000000,1.200000,2.500000 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2458245937563359245
+@1 particle - op=fly/bolt.hit/use_4/pop type=electric_spark count=4 at=0.000000,1.200000,2.500000 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6491734385104312877
 @1 damage 00000000-0000-0000-0000-00000000000a op=- electric=16 skill=shock-wand-zap at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
 @1 status 00000000-0000-0000-0000-00000000000a op=- status=shock stacks=1 for=30
 @1 remove #0 op=fly/core
@@ -105,7 +105,7 @@ r @3 run-end tail=2 | pose
 @1 particle - op=fly/bolt.hit/use_4/ring_up[5] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=-0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3743461523316662328
 @1 particle - op=fly/bolt.hit/use_4/ring_up[6] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=0.000000,0.700000,-0.700000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1913048188561466102
 @1 particle - op=fly/bolt.hit/use_4/ring_up[7] type=electric_spark count=0 at=-1.504538,1.200000,1.996589 off=0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5429309301718090398
-@1 particle - op=fly/bolt.hit/use_4/pop type=end_rod count=4 at=-1.504538,1.200000,1.996589 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2458245937563359245
+@1 particle - op=fly/bolt.hit/use_4/pop type=electric_spark count=4 at=-1.504538,1.200000,1.996589 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6491734385104312877
 @1 damage 00000000-0000-0000-0000-00000000000a op=- electric=16 skill=shock-wand-zap at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
 @1 status 00000000-0000-0000-0000-00000000000a op=- status=shock stacks=1 for=30
 @1 remove #0 op=fly/core

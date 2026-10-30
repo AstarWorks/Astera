@@ -9,7 +9,7 @@ meta: {name: {ja: "銛", en: "Harpoon"}, description: {ja: "銛を投げ、当�
 params:
   launch_speed: {type: number, default: 2.2}
   dmg_physical: {type: number, default: 18}
-  reel_strength: {type: number, default: 1.4}
+  reel_stop: {type: number, default: 1.5}
   max_lifetime_ticks: {type: ticks, default: 40}
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
@@ -46,12 +46,12 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
-              - {id: reel, op: knockback, target: event.victim, direction: "= normalize(pos(caster) - pos(event.victim)) + vec(0.0, 0.2, 0.0)", strength: "${reel_strength}"}
+              - {id: reel, op: pull, target: event.victim, direction: "= flat(pos(caster) - pos(event.victim))", distance: "= length(flat(pos(caster) - pos(event.victim))) - ${reel_stop}"}
               - {id: hit_fx, use: "fragment:impact", frames: {spot: heart}, detach: true}
             block:
               - {id: block_snd, op: sound, at: 0, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5, detach: true}
               - {id: block_fx, op: particle_def, at: 0, def: hit-spark, anchor: contact.point, detach: true}
-        - {id: shaft, op: display, kind: item, item: trident, context: fixed, anchor: bolt, scale: [1.2, 1.2, 1.2], at: 0, until: bolt.end}
+        - {id: shaft, op: display, kind: item, item: "minecraft:trident", context: fixed, anchor: bolt, scale: [1.2, 1.2, 1.2], at: 0, until: bolt.end}
         - id: trail
           op: group
           at: 0

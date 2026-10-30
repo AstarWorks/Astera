@@ -227,4 +227,31 @@ class TablePlayerRulesScenarioTest {
         assertThat(fx.trace.log).contains("cut:t:a:EVENT@2", "event:probe@4")
         assertThat(fx.sounds()).describedAs("the cut sound never plays").isEmpty()
     }
+
+    @Test
+    fun casterDeathCutsDrainingCastThroughRunner() {
+        // the platform's death / quit / world-change path is CastRunner.cancelAllOf(caster); match end is cancelAll()
+        for (viaAll in listOf(false, true)) {
+            val skill = drainSkill()
+            val fx = Fx(skill)
+            val runner = com.astarworks.astera.core.application.skillengine.runtime.DefaultCastRunner(fx.player)
+            val owner = fx.rec.caster
+            val request = CastRequest(skill, owner, WorldId("world"), Vec3(0.0, 0.0, 0.0), 0.0, 0.0, 1L, startTick = 0)
+            val cast = (runner.start(request) as Result.Success).value
+            for (t in 0..4) {
+                fx.rec.tick = t
+                if (t == 2) for (e in listOf("go", "stop")) fx.player.deliver(cast, RuntimeEvent(EventPath(e), t, null, null, null))
+                runner.tick(t)
+            }
+            assertThat(fx.player.live()).describedAs("viaAll=$viaAll: the cast is draining, not live").doesNotContain(cast)
+            assertThat(fx.player.running()).describedAs("viaAll=$viaAll: still draining at tick 4").contains(cast)
+            // the owner of a finishing run is kept, so the caster's death reaches it
+            val n = if (viaAll) runner.cancelAll() else runner.cancelAllOf(owner)
+            assertThat(n).isGreaterThanOrEqualTo(1)
+            assertThat(fx.player.running()).doesNotContain(cast)
+            for (t in 5..10) { fx.rec.tick = t; runner.tick(t) }
+            assertThat(fx.trace.log.filter { it.startsWith("event:probe") }).describedAs("viaAll=$viaAll: no later gameplay row plays").isEmpty()
+            assertThat(fx.trace.log.filter { it.startsWith("cut:") && it.endsWith("CANCEL@4") }).describedAs("viaAll=$viaAll: trace has a cut line").isNotEmpty()
+        }
+    }
 }

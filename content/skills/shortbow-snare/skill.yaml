@@ -52,7 +52,7 @@ machine:
             block:
               - {id: block_snd, op: sound, at: 0, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5, detach: true}
               - {id: block_fx, op: particle_def, at: 0, def: hit-spark, anchor: contact.point, detach: true}
-        - {id: shaft, op: display, kind: item, item: spectral_arrow, context: fixed, anchor: arrow, scale: [0.9, 0.9, 0.9], at: 0, until: arrow.end}
+        - {id: shaft, op: display, kind: item, item: "minecraft:spectral_arrow", context: fixed, anchor: arrow, scale: [0.9, 0.9, 0.9], at: 0, until: arrow.end}
         - id: trail
           op: group
           at: 0

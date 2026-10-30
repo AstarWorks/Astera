@@ -35,6 +35,8 @@ internal object PoseCompose {
                 var out = k
                 if (t is Val.Known && bp != null) out = out.copy(translation = Val.Known(Vector3d(bp).add(t.value)))
                 if (r is Val.Live && AlignCell.isAlign(r.name) && br != null) out = out.copy(leftRotation = Val.Live(AlignCell.withPost(r.name, br), null))
+                // the instance's own literal scale survives a live turn too: without this an `align` key resets a 0.06 x 0.06 x 0.9 fin to a 1-block cube
+                if (s is Val.Known && bs != null) out = out.copy(scale = Val.Known(Vector3d(bs.x * s.value.x, bs.y * s.value.y, bs.z * s.value.z)))
                 return@map if (out === k) row else row.copy(action = out)
             }
             if (br == null) fail("a motion on a live rotation cannot be re-based onto the instance's own rotate/turn")

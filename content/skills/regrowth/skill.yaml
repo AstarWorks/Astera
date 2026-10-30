@@ -32,7 +32,7 @@ machine:
           kind: sprite
           sprite: ring
           anchor: feet
-          size: [1.0, 1.0]
+          size: [0.8, 0.8]
           color: "#8cff78"
           billboard: fixed
           brightness: {block: 15, sky: 15}

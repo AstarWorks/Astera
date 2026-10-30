@@ -39,7 +39,7 @@ machine:
           kind: sprite
           sprite: ring
           anchor: ground
-          size: [1.0, 1.0]
+          size: [0.8, 0.8]
           billboard: fixed
           brightness: {block: 15, sky: 15}
           flipbook: {frames: 6, every: 2, loop: true}
@@ -87,7 +87,7 @@ machine:
           sprite: sparkle-cross
           anchor: ground
           offset: {up: 0.7}
-          size: [1.4, 1.4]
+          size: [0.8, 0.8]
           billboard: center
           brightness: {block: 15, sky: 15}
           at: 10

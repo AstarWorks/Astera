@@ -15,6 +15,8 @@ params:
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: cast_fx, anchor: caster.eye, offset: {up: -0.2, forward: 1.0}, mode: snapshot}
+  - {id: spray_a, anchor: caster.eye, offset: {up: -0.2, forward: 1.6}, mode: snapshot}
+  - {id: spray_b, anchor: caster.eye, offset: {up: -0.2, forward: 2.6}, mode: snapshot}
   - {id: heart,   anchor: victim.center, mode: follow}
 machine:
   start: cast
@@ -28,7 +30,7 @@ machine:
       do:
         - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 0.8, pitch: 1.4, at: 0}
         - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx, at: 0}
-        - {id: spray, op: particle, particle: snowflake, anchor: {of: muzzle, to: cast_fx, samples: 6}, count: 2, offset: [0.1, 0.1, 0.1], extra: 0.03, at: 0}
+        - {id: spray, op: particle, particle: snowflake, anchor: {of: spray_a, to: spray_b, samples: 6}, count: 2, offset: [0.1, 0.1, 0.1], extra: 0.03, at: 0}
         - {id: shell, op: display, kind: item, item: "minecraft:prismarine_shard", context: fixed, anchor: ball, scale: [0.9, 0.9, 0.9], at: 0, until: ball.end}
         - {id: tr0, op: particle, particle: snowflake, anchor: {of: ball, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], extra: 0.01, at: 0, every: 1, until: ball.end}
         - {id: tr1, op: particle, particle: dust, anchor: {of: ball, sweep: 0.3}, count: 2, offset: [0.06, 0.06, 0.06], color: "#ebf5ff", size: 0.9, at: 0, every: 1, until: ball.end}
@@ -51,7 +53,7 @@ machine:
               - {id: st_wet, op: status, target: event.victim, status: wet, stacks: 1, for: "${wet_ticks}"}
               - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: heart, volume: 0.7, pitch: 1.5, detach: true}
-              - {id: line, op: particle, particle: end_rod, anchor: {of: contact, to: heart, samples: 5}, count: 1, extra: 0.05, detach: true}
+              - {id: line, op: particle, particle: snowflake, anchor: {of: contact, to: heart, samples: 5}, count: 1, extra: 0.05, detach: true}
               - {id: burst, use: skill:frost-shard-burst, with: {snow: 30, rod: 10, dust: 20}, frames: {spot: heart}}
             bounce:
               - {id: chip_b, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
