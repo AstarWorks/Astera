@@ -2,6 +2,10 @@
 # Host-local origin/main watcher. Runtime copy lives outside the detached checkout.
 #
 # Hotswap is the default for jar-only pushes (ADR-0310): deploy.log says `hotswapped <sha>` or `restart <sha> reason=...`.
+# A change to a rewirable plugin's wiring / constructors / fields (ADR-0311 P5) is hot swapped and then re-wired in place
+# over RCON (`astera admin rewire <plugin>`): `hotswapped <sha> [rewire <plugins>]`. Only what rewire cannot take restarts.
+# classify-dry [N | --paths <file>...] prints the plan (hotswap | rewire <plugins> | restart reason=...) for the last N
+# commits of origin/main or for a hand-written list of changed files.
 # Commands: up | down | status | run | once | clean-restart | classify-dry | compose-dry <from> <to> | mark-deployed <sha>
 #   mark-deployed <sha>  Record a MANUAL deploy. Docker/compose changes are deployed automatically (stack step:
 #                        recreate with the remote overlay, then FORCE deploy); only postgres/redis/volume changes log
@@ -91,7 +95,7 @@ if [ "${1:-}" = compose-dry ]; then
 fi
 
 ROOT=/IdeaProjects/Astera
-DEPLOY=$ROOT/.claude/worktrees/dev-deploy
+DEPLOY=${ASTERA_DEPLOY_DIR:-$ROOT/.claude/worktrees/dev-deploy}  # override only for dry runs (classify-dry in another checkout)
 STATE=$ROOT/.claude/state/dev-deploy
 LOCK=/tmp/claude-1000/astera-dev-deploy.lock
 SUPERVISOR=astera-dev-autodeploy
@@ -219,7 +223,9 @@ rollback() {
     compose start "$svc" || return
     docker exec -u root "astera-dev-$svc-1" rm -rf /content || return
     docker cp "$STATE/rollback/$svc/content" "astera-dev-$svc-1:/content" || return
-    if [ "$plugins" = 1 ]; then
+    # jars_live_reverted: a failed rewire already put the previous jars (and generation) back in the running JVM, so no
+    # stop/copy/start is needed (set by deploy() only when that is true for every backend that was touched).
+    if [ "$plugins" = 1 ] && [ "${jars_live_reverted:-0}" != 1 ]; then
       docker exec -u root "astera-dev-$svc-1" sh -c 'rm -f /plugins/astera-*.jar /data/plugins/astera-*.jar' || return
       compose stop -t 60 "$svc" || return
       docker cp "$STATE/rollback/$svc/plugins/." "astera-dev-$svc-1:/plugins" || return
@@ -227,7 +233,7 @@ rollback() {
         docker cp "$jar" "astera-dev-$svc-1:/data/plugins/$(basename "$jar")" || return
       done
     fi
-    if [ "$plugins" = 1 ]; then compose start "$svc" || return; fi
+    if [ "$plugins" = 1 ] && [ "${jars_live_reverted:-0}" != 1 ]; then compose start "$svc" || return; fi
   done
   if [ "$pack" = 1 ]; then
     docker tag "$old_pack" astera/resource-pack:dev || return
@@ -243,6 +249,15 @@ rollback() {
     confirm "$svc" "astera admin reload all" "Reloaded all.|再読み込みしました" || return
   done
   make dev-pack || return
+}
+
+# True when the only backends touched so far were hot swapped, failed to rewire and had their previous jars restored in
+# place (dev-deploy.sh outcome: `rewire-reverted <svc>`), so the jar part of the rollback can be skipped.
+rewire_reverted_cleanly() {
+  local f=${outcome_file:-$STATE/outcome}
+  [ -s "$f" ] && grep -q '^rewire-reverted ' "$f" || return 1
+  ! grep -Eq '^(rewired|restart) ' "$f" || return 1
+  [ -z "$(comm -23 <(awk '$1 == "hotswapped" {print $2}' "$f" | sort -u) <(awk '$1 == "rewire-reverted" {print $2}' "$f" | sort -u))" ]
 }
 
 # RCON can return success even for rejected commands. Confirm the actual server reply.
@@ -267,7 +282,7 @@ deploy() (
   use_remote_stack
   export COMPOSE_PROJECT_NAME=astera-dev COMPOSE_FILES="docker/docker-compose.yml docker/docker-compose.hotswap.yml" BACKENDS="lobby game"
   export ASTERA_PREBUILT_IMAGES=1  # dev-deploy.sh must not `--build` the pack image on the VM
-  local sha last path step=fetch plugins=0 content=0 pack=0 stack=0 manual=0 old_pack running_before
+  local sha last path step=fetch plugins=0 content=0 pack=0 stack=0 manual=0 old_pack running_before jars_live_reverted=0
   git fetch origin main >> "$STATE/build.log" 2>&1 || { log "FAILED - fetch"; return; }
   sha=$(git rev-parse origin/main)
   [ "$sha" != "$(cat "$STATE/attempted-sha" 2>/dev/null || true)" ] || return 0
@@ -335,6 +350,8 @@ deploy() (
     if [ -z "$last" ]; then hs=0; hs_reason="first deploy (no previous sha)"
     elif ! verdict=$(scripts/hotswap-classify.sh paths "$last" "$sha" 2>> "$STATE/build.log"); then hs=0; hs_reason=${verdict#restart reason=}
     fi
+    # "rewire <plugins>": wiring of rewirable plugins changed; scripts/dev-deploy.sh hot swaps then rewires (jar check is authoritative).
+    [ "$hs" = 0 ] || [[ "${verdict:-}" != rewire* ]] || log "rewire $sha plan=${verdict#rewire }"
     [ "$hs" = 1 ] || log "restart $sha reason=$hs_reason"
   fi
   : > "$outcome_file"
@@ -393,6 +410,7 @@ deploy() (
       done
     ) >> "$STATE/build.log" 2>&1; then :; else
       fail "$sha $step"
+      rewire_reverted_cleanly && jars_live_reverted=1
       { restore_running; rollback; } >> "$STATE/build.log" 2>&1 || log "FAILED $sha rollback (manual recovery needed)"
       restore_running >> "$STATE/build.log" 2>&1 || true
       return 0
@@ -405,7 +423,8 @@ deploy() (
     if [ "$hs" = 1 ] && grep -q '^restart ' "$outcome_file"; then
       log "restart $sha reason=$(sed -n 's/^restart //p' "$outcome_file" | paste -sd';' - | cut -c1-400)"
     elif grep -q '^hotswapped ' "$outcome_file"; then
-      log "hotswapped $sha"
+      rewired=$(awk '$1 == "rewired" {n = split($3, a, ","); for (i = 1; i <= n; i++) print a[i]}' "$outcome_file" | sort -u | paste -sd, -)
+      log "hotswapped $sha${rewired:+ [rewire $rewired]}"
     fi
   fi
   log "deployed $sha [${steps[*]:-none}]"

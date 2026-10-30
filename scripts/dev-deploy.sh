@@ -28,8 +28,11 @@
 # jars are still built here, `docker compose cp` / `docker exec` go over ssh. Unset = the local daemon.
 #
 # ASTERA_HOTSWAP=0 / ASTERA_RESTART_REASON=<text> (autodeploy): force the restart path for `deploy` and name why.
-# ASTERA_DEPLOY_OUTCOME=<file> (autodeploy): one line per backend is appended, `hotswapped <svc>` or
-# `restart <svc> reason=...`, so the caller can log what really happened.
+# ASTERA_REWIRE=0 (no rewire, every wiring/constructor change restarts as in ADR-0310) / ASTERA_REWIRE_ALL=1 (rewire
+# every changed rewirable plugin even for body-only changes): see scripts/hotswap-classify.sh.
+# ASTERA_DEPLOY_OUTCOME=<file> (autodeploy): lines are appended per backend, `hotswapped <svc>`,
+# `rewired <svc> <plugin>[,<plugin>]` (after the hot swap, ADR-0311 P5), `rewire-reverted <svc> ...` (a rewire failed and the
+# previous jars were put back in the running JVM) or `restart <svc> reason=...`, so the caller can log what really happened.
 #
 # Velocity, Postgres and Redis are never touched. The Docker daemon is shared with the host, so bind
 # mounts of the repo would be empty: everything goes in with `docker compose cp`.
@@ -162,6 +165,17 @@ selftest() {
   t "$RELOAD_OK" "Unknown command" fail
   t "Resource pack 1a2b3c4d" "Resource pack 1a2b3c4d re-pushed to 2 players" ok
   t "Resource pack 1a2b3c4d" "Resource pack hash unchanged" fail
+  rc() { local want=$1 got=0; shift; rewire_classify "$1" || got=$?; n=$((n+1)); [ "$got" = "$want" ] || { echo "selftest #$n FAILED: rewire expected $want got $got for: $1" >&2; bad=$((bad+1)); }; }
+  rc 0 "Rewired economy: Astera-Economy gen 0 -> 1 (services=12 subscriptions=3)"
+  rc 0 "economy を再配線しました: Astera-Economy gen 1 -> 2"
+  rc 1 "Rewire refused (RESTART_REQUIRED): Astera-Core cannot be rewired: no rewire lifecycle yet (restart the server)"
+  rc 1 "再配線できません (RESTART_REQUIRED): Astera-Persistence cannot be rewired"
+  rc 1 "Rewire refused (BIND_FAILED): Astera-Match failed to bind (x); ROLLBACK FAILED, restart the server"
+  rc 1 "Rewire refused (UNAVAILABLE): rewire service is not registered"
+  rc 1 ""
+  rc 2 "Rewire refused (WIRE_FAILED): Astera-Economy failed to wire, old generation kept: NPE"
+  rc 2 "Rewire refused (BIND_FAILED): Astera-Match failed to bind (x); rolled back to the old generation"
+  rc 2 "Rewire refused (IN_PROGRESS): another rewire is running"
   t "リソースパック 1a2b3c4d" "リソースパック 1a2b3c4d（変更: 2）を 2 人へ再送信しました。" ok
   t "リソースパック 1a2b3c4d" "リソースパックを読み込めません（ASTERA_RESOURCE_PACK_URL 未設定）。" fail
   echo "selftest: $n cases, $bad failed"
@@ -318,12 +332,59 @@ hotswap_request() {
 # True when the backend runs the JBR + agent image (docker/docker-compose.hotswap.yml).
 is_hotswap_backend() { [ "$(dexec "$1" printenv ASTERA_DEV_HOTSWAP 2>/dev/null | tr -d '\r')" = 1 ]; }
 
+# Rewire plan helpers (ADR-0311 P5). Dependents are rewired by the coordinator together with their dependency
+# (combat <- items, match <- combat, economy <- stats), so a plugin whose ancestor is also a target is not sent twice.
+REWIRE_ORDER=(items combat match stats economy chat)
+declare -A REWIRE_PARENT=([combat]=items [match]=combat [economy]=stats)
+rewire_roots() { # rewire_roots <plugin>... -> the plugins to send, in load order
+  local want=" $* " p q covered
+  for p in "${REWIRE_ORDER[@]}"; do
+    [[ "$want" == *" $p "* ]] || continue
+    covered=0; q=${REWIRE_PARENT[$p]:-}
+    while [ -n "$q" ]; do [[ "$want" == *" $q "* ]] && covered=1; q=${REWIRE_PARENT[$q]:-}; done
+    [ "$covered" = 1 ] || echo "$p"
+  done
+}
+
+# Send `astera admin rewire <plugin>` and classify the reply: 0 = rewired, 1 = needs a restart, 2 = failed (old generation kept).
+REWIRE_OK='Rewired|再配線しました'
+rewire_classify() { # rewire_classify <reply> -> 0 rewired, 1 restart, 2 failed (old generation kept)
+  local reply=$1 code
+  if grep -Eq "$REWIRE_OK" <<<"$reply" && ! grep -Eq 'Rewire refused|再配線できません' <<<"$reply"; then return 0; fi
+  code=$(sed -n 's/.*(\([A-Z_]*\)).*/\1/p' <<<"$reply" | head -n1)
+  # No answer / command missing / a rollback that failed leave the JVM in an unknown state: restart.
+  case "${code:-NONE}" in
+    RESTART_REQUIRED|UNAVAILABLE|UNKNOWN_PLUGIN|NONE) return 1 ;;
+  esac
+  if grep -q 'ROLLBACK FAILED' <<<"$reply"; then return 1; fi
+  return 2
+}
+rewire_one() { # rewire_one <svc> <plugin>  (the reply is left in REWIRE_REPLY)
+  REWIRE_REPLY=$(rcon "$1" "astera admin rewire $2")
+  log "$1: rewire $2: ${REWIRE_REPLY:-<no output>}"
+  rewire_classify "$REWIRE_REPLY"
+}
+
+# Put the previous jars back into the running JVM (hot swap in the other direction). $1 svc, $2 dir with the old jars.
+revert_jars() { # revert_jars <svc> <old_dir> <jar>...
+  local svc=$1 old_dir=$2 jar name out; shift 2
+  quiet dexec_root "$svc" sh -c "rm -rf $HOTSWAP_DIR.rev && mkdir -p $HOTSWAP_DIR.rev"
+  for jar in "$@"; do
+    name=$(basename "$jar")
+    quiet "${COMPOSE[@]}" cp "$old_dir/$name" "$svc:$HOTSWAP_DIR.rev/$name"
+  done
+  out=$(HOTSWAP_DIR=$HOTSWAP_DIR.rev hotswap_request "$svc" "$@" || true)
+  tail -n1 <<<"$out" | grep -q '^OK'
+}
+
 # Apply the changed jars to a RUNNING hotswap backend, or restart it (loudly, with the reason) when the change needs
-# boot code: scripts/hotswap-classify.sh diffs the running jars against the new ones (plugin.yml/resources, wiring
-# classes, constructors, initialisers, field sets), and the agent itself refuses what the JVM cannot redefine.
+# boot code that cannot be re-run in place. scripts/hotswap-classify.sh diffs the running jars against the new ones and
+# says per jar: hotswap (class bodies), rewire <plugin> (wiring / constructor / field change in a plugin with a rewire
+# lifecycle: hot swap, then `astera admin rewire`), or restart (plugin.yml/resources, Astera*Plugin, core/persistence
+# wiring, carried state or Kotlin object shape). The agent itself still refuses what the JVM cannot redefine.
 apply_jars() { # apply_jars <svc> <jar>...
   local svc=$1; shift
-  local changed=("$@") t out last jar verdict name old_dir reasons=()
+  local changed=("$@") t out last jar verdict name old_dir reasons=() rewires=() rc root done_root done_roots=() rr
   if ! is_hotswap_backend "$svc"; then
     RESTART_REASON="not the hotswap image (ASTERA_DEV_HOTSWAP unset)" restart_backend "$svc" "${changed[@]}"
     return 0
@@ -332,14 +393,17 @@ apply_jars() { # apply_jars <svc> <jar>...
   for jar in "${changed[@]}"; do
     name=$(basename "$jar")
     if "${COMPOSE[@]}" cp "$svc:/plugins/$name" "$old_dir/$name" >/dev/null 2>&1; then
-      verdict=$(scripts/hotswap-classify.sh jars "$old_dir/$name" "$jar" 2>&1) || reasons+=("$name ${verdict#restart }")
+      rc=0; verdict=$(scripts/hotswap-classify.sh jars "$old_dir/$name" "$jar" 2>&1) || rc=$?
+      if [ "$rc" != 0 ]; then reasons+=("$name ${verdict#restart }")
+      elif [[ "$verdict" == "rewire "* ]]; then verdict=${verdict#rewire }; rewires+=("${verdict%% *}")
+      fi
     else
       reasons+=("$name reason=no baseline jar in the container")
     fi
   done
-  rm -rf "$old_dir"
   if [ "${#reasons[@]}" -gt 0 ]; then
-    log "$svc: RESTART needed, wiring/resource/constructor change: ${reasons[*]}"
+    rm -rf "$old_dir"
+    log "$svc: RESTART needed, resource/plugin/shape change that cannot be rewired: ${reasons[*]}"
     RESTART_REASON="${reasons[*]}" restart_backend "$svc" "${changed[@]}"
     return 0
   fi
@@ -359,10 +423,41 @@ apply_jars() { # apply_jars <svc> <jar>...
       log "$svc: hot swapped, no restart (${last#OK }; $(elapsed "$t"))"
       ;;
     *)
+      rm -rf "$old_dir"
       log "$svc: hotswap refused (${last:-no answer from the agent}); restarting instead"
       RESTART_REASON="agent refused: ${last:-no answer from the agent}" restart_backend "$svc" "${changed[@]}"
+      return 0
       ;;
   esac
+  if [ "${#rewires[@]}" -gt 0 ]; then
+    t=$(now)
+    rr=$(rewire_roots "${rewires[@]}")
+    for root in $rr; do
+      rc=0; rewire_one "$svc" "$root" || rc=$?
+      if [ "$rc" = 0 ]; then done_roots+=("$root"); continue; fi
+      if [ "$rc" = 1 ]; then
+        rm -rf "$old_dir"
+        log "$svc: rewire $root needs a restart: ${REWIRE_REPLY:-no answer}"
+        RESTART_REASON="rewire $root: ${REWIRE_REPLY:-no answer}" restart_backend "$svc" "${changed[@]}"
+        return 0
+      fi
+      # The rewire failed and kept (or rolled back to) the old generation: put the old classes back, then re-run the
+      # roots that already rewired so every generation sits on matching code again.
+      if revert_jars "$svc" "$old_dir" "${changed[@]}"; then
+        for jar in "${changed[@]}"; do quiet dexec_root "$svc" cp -f "$HOTSWAP_DIR.rev/$(basename "$jar")" "/plugins/$(basename "$jar")"; done
+        for done_root in "${done_roots[@]}"; do rewire_one "$svc" "$done_root" || true; done
+        outcome "rewire-reverted $svc $root"
+        rm -rf "$old_dir"
+        die_loud "$svc" "rewire of $root failed; previous jars restored in the running JVM" "$REWIRE_REPLY" "$(log_excerpt "$svc")"
+      fi
+      rm -rf "$old_dir"
+      log "$svc: rewire $root failed and the old jars could not be put back; restarting from the previous state is manual"
+      die_loud "$svc" "rewire of $root failed and the revert was refused" "$REWIRE_REPLY" "$(log_excerpt "$svc")"
+    done
+    outcome "rewired $svc $(IFS=,; echo "${done_roots[*]}")"
+    log "$svc: rewired ${done_roots[*]} ($(elapsed "$t"))"
+  fi
+  rm -rf "$old_dir"
 }
 
 hotswap() {
