@@ -31,8 +31,6 @@ import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayWrite
 import com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation
 import com.astarworks.astera.core.domain.Result
-import com.astarworks.astera.core.domain.effect.RowViewers
-import com.astarworks.astera.core.domain.presentation.PresentationAudience
 import com.astarworks.astera.core.domain.presentation.PresentationKind
 import com.astarworks.astera.core.domain.presentation.PresentationLease
 import com.astarworks.astera.core.domain.presentation.PresentationMask
@@ -140,9 +138,7 @@ public class PaperSkillVisualGateway(
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, 0)
         val spec = SkillDisplaySpecs.mesh(kind, first.transform, brightness, look.rigShading, look.shaderEffect).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null, view) ?: return dead("mesh $item")
-        // A rig the caster cannot see (owner-hidden) leaves the caster's own hand alone: they keep the vanilla held item and its
-        // first-person swing, and only the other players have the vanilla stack swapped for the rig mesh.
-        if (heldItem) hideHand(castOwner, ownerSeesRig = view.viewers != RowViewers.OWNER_HIDDEN)
+        if (heldItem) hideHand(castOwner)
         return register(castOwner, MeshEntry(handle, castOwner, heldItem))
     }
 
@@ -174,7 +170,7 @@ public class PaperSkillVisualGateway(
         presentation()?.release(hide.lease)
     }
 
-    private fun hideHand(owner: UUID, ownerSeesRig: Boolean) {
+    private fun hideHand(owner: UUID) {
         handHides[owner]?.let { it.users++; return }
         val port = presentation() ?: return
         val lease = when (val claimed = port.claim(PlayerId(owner), HAND, PresentationKind.TIMED, onRevoked = { handHides.remove(owner) })) {
@@ -182,7 +178,6 @@ public class PaperSkillVisualGateway(
             is Result.Failure -> return
         }
         port.reveal(lease)
-        if (!ownerSeesRig) port.release(lease, audience = PresentationAudience.OWNER)
         handHides[owner] = HandHide(lease).also { it.users = 1 }
     }
 

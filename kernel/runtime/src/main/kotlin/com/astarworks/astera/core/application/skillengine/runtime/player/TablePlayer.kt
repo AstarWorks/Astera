@@ -28,8 +28,6 @@ import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.effect.ParticleData
 import com.astarworks.astera.core.application.skillengine.runtime.port.DisplayView
-import com.astarworks.astera.core.domain.effect.RowViewers
-import com.astarworks.astera.core.domain.effect.VfxLane
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.application.skillengine.load.grammar.LocalAxes
 import com.astarworks.astera.core.domain.geometry.math.Basis
@@ -995,10 +993,7 @@ public class TablePlayer(
         val look = a.look
         val brightness = look.fields["brightness"]?.let { int(run, it as Val<Int>, ctx) }
         val glow = look.fields["glow"]?.let { strOf(run, it, ctx) }
-        // `viewers:` of the row; a row that writes none (all) takes its anchor's (a hidden frame hides everything riding it)
-        rec.viewers = look.fields["viewers"]?.let { RowViewers.fromYaml(strOf(run, it, ctx)) }?.takeIf { it != RowViewers.ALL }
-            ?: a.anchor?.let { run.recs[it]?.viewers } ?: RowViewers.ALL
-        val view = DisplayView(rec.viewers.audience, VfxLane.CORE, null, rec.viewers)
+        val view = DisplayView()
         val h: VisualHandle? = when (a.kind) {
             SpawnKind.FRAME, SpawnKind.PROJECTILE_BODY -> null
             SpawnKind.ITEM -> visual.spawnMesh(
@@ -1916,9 +1911,7 @@ public class TablePlayer(
             val heldId = InstanceId(carrier.path + InstanceId.Segment(OpId("held"), null))
             val local = PoseV(Vector3d(), Quaterniond(), Vector3d(SkinRigTransforms.PLAYER_SCALE))
             val rec = Rec(SpawnKind.ITEM, carrier, "", now, ctx.owner, ctx.detached, local)
-            // `viewers:` of the rig (the caster's own camera is a block from the held mesh): the mesh and every row anchored on it take it
-            rec.viewers = p["viewers"]?.let { RowViewers.fromYaml(any(run, it, ctx) as String) } ?: RowViewers.ALL
-            val view = DisplayView(rec.viewers.audience, VfxLane.CORE, null, rec.viewers)
+            val view = DisplayView()
             // main hand: the caster's real stack (THIRDPERSON_RIGHTHAND); off hand: the off-hand part's own pack model (THIRDPERSON_LEFTHAND), the real off-hand slot is empty
             val h = if (off) {
                 visual.spawnMesh(
@@ -2481,8 +2474,6 @@ public class TablePlayer(
         var real: VisualHandle? = null
         /** The world pose of the parent instance this rider was last placed against (null before the first look): [followRiders] writes the rider when it changes. */
         var parentSeen: PoseV? = null
-        /** The `viewers:` filter this instance resolved to at spawn (its own, else its anchor's); displays riding a frame inherit it. */
-        var viewers: RowViewers = RowViewers.ALL
         /** A `rig` anchor instance: the driver that poses [RigRec.driven] each tick (this rec itself when the rig has no `of`). */
         var rig: RigRec? = null
         /** The hit that spawned this instance (null outside `on.hit`): a `victim` anchor/axes keeps resolving to that victim after the row is gone (end-of-cast freeze, later ticks). */

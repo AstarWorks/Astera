@@ -44,7 +44,6 @@ machine:
           text: " "
           background: "#FFF4EE"
           anchor: guard_at
-          viewers: owner-hidden
           at: 16
           for: 8
           times: 10
@@ -66,7 +65,6 @@ machine:
           text: "◯"
           color: "#E5B9BE"
           anchor: guard_at
-          viewers: owner-hidden
           at: 16
           for: 14
           offset: {up: 1}
