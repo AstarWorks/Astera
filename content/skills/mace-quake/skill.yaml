@@ -24,6 +24,8 @@ machine:
       then: end
       enter:
         - {id: snd_quake, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 0.6}
+        - {id: snd_thud, op: sound, sound: "astera:weapons/gun-impact-block", anchor: slam, volume: 1.0, pitch: 0.5}
+        - {id: snd_crack, op: sound, sound: "astera:weapons/blade-crit", anchor: slam, volume: 0.8, pitch: 0.55}
         - id: burst
           op: hit
           anchor: caster
@@ -50,4 +52,11 @@ machine:
         - {id: wave_slow, op: particle, particle: block, block: "minecraft:dirt", anchor: ground, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 0.35}
         - {id: wave_dust, op: particle, particle: poof, anchor: ground, times: 16, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.05, sin(i * 2 * pi / 16))", extra: 0.45}
         - {id: wave_debris, op: particle, particle: block, block: "minecraft:stone", anchor: ground, times: 12, at: 0, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 12), 0.8, 0.7 * sin(i * 2 * pi / 12))", extra: 0.3}
+        # impact weight: a crater flash, a big debris fountain and a wider, faster outer ring flung out beyond the first
+        - {id: fx_boom, op: particle, particle: explosion, anchor: slam, at: 0, count: 1}
+        - {id: fx_plume, op: particle, particle: large_smoke, anchor: slam, at: 0, count: 14, offset: [0.5, 0.2, 0.5], extra: 0.06}
+        - {id: fx_fountain, op: particle, particle: block, block: "minecraft:stone", anchor: slam, at: 0, count: 36, offset: [0.35, 0.7, 0.35], extra: 0.45}
+        - {id: fx_clods, op: particle, particle: block, block: "minecraft:coarse_dirt", anchor: slam, at: 0, count: 24, offset: [0.5, 0.5, 0.5], extra: 0.3}
+        - {id: wave_outer, op: particle, particle: block, block: "minecraft:coarse_dirt", anchor: ground, times: 40, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 40), 0.0, sin(i * 2 * pi / 40))", extra: 0.8}
+        - {id: wave_outer_dust, op: particle, particle: poof, anchor: ground, times: 20, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 20), 0.05, sin(i * 2 * pi / 20))", extra: 0.65}
     end: {final: true}
