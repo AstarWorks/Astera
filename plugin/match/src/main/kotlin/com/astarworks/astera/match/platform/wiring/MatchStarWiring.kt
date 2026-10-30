@@ -70,10 +70,9 @@ internal object MatchStarWiring {
         val services = env.ctx.services
         val eventBus = env.eventBus
 
-        val store: IMatchStarStore = InMemoryMatchStarStore()
-        env.ctx.registrations += services.register<IMatchStarStore>(store, priority = 0)
-        val normaStore: IMatchNormaStore = InMemoryMatchNormaStore()
-        env.ctx.registrations += services.register<IMatchNormaStore>(normaStore, priority = 0)
+        // Carried across a rewire: stars and Norma progress of running matches.
+        val store: IMatchStarStore = env.ctx.stateful<IMatchStarStore> { InMemoryMatchStarStore() }
+        val normaStore: IMatchNormaStore = env.ctx.stateful<IMatchNormaStore> { InMemoryMatchNormaStore() }
         val registry = services.getOrThrow<IGeneratorRegistry>()
         val generators = services.getOrThrow<IGeneratorRepository>()
         val positions: IMatchPlayerPositions = env.ports.playerPositions?.invoke(services)

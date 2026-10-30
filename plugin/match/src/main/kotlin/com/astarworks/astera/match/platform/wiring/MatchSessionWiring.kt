@@ -152,8 +152,7 @@ internal object MatchSessionWiring {
             }
         }
 
-        val pinService = InMemoryPlayerPinService(eventBus)
-        registrations += services.register<IPlayerPinService>(pinService, priority = 0)
+        val pinService = env.ctx.stateful<IPlayerPinService> { InMemoryPlayerPinService(env.ctx.carriedEventBus) }
         @Suppress("UNUSED_VARIABLE") val placePin = PlacePinUseCase(pinService)
         @Suppress("UNUSED_VARIABLE") val removePin = RemovePinUseCase(pinService)
 
@@ -172,19 +171,13 @@ internal object MatchSessionWiring {
         // objects (just lost on shutdown). Postgres impl overlays at
         // priority 100 from AsteraPersistencePlugin.
         val replayRepo: IMatchReplayRepository =
-            services.get<IMatchReplayRepository>()
-                ?: InMemoryMatchReplayRepository().also {
-                    registrations += services.register<IMatchReplayRepository>(it, priority = 0)
-                }
+            env.ctx.stateful<IMatchReplayRepository> { InMemoryMatchReplayRepository() }
 
         // State provider: registered at priority 0 (Noop). Wave 6a's
         // PaperRecorderStateProvider overlays at priority 100; in absence,
         // key frames carry empty per-player maps (still well-formed).
         val recorderStateProvider: IRecorderStateProvider =
-            services.get<IRecorderStateProvider>()
-                ?: NoopRecorderStateProvider().also {
-                    registrations += services.register<IRecorderStateProvider>(it, priority = 0)
-                }
+            env.ctx.stateful<IRecorderStateProvider> { NoopRecorderStateProvider() }
 
         val recorder = ReplayCaptureEngine(
             bus = eventBus,

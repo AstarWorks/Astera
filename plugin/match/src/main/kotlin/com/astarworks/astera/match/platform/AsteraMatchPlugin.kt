@@ -2,11 +2,11 @@ package com.astarworks.astera.match.platform
 
 import com.astarworks.astera.core.platform.paper.listeners
 import com.astarworks.astera.core.platform.AsteraCorePlugin
-import com.astarworks.astera.core.application.wiring.WiringOwner
-import com.astarworks.astera.core.platform.wiring.WiringContext
+import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.platform.wiring.RewireCoordinator
 import com.astarworks.astera.match.platform.paper.MatchPaperBindings
 import com.astarworks.astera.match.platform.wiring.MatchWiring
-import com.astarworks.astera.match.platform.wiring.MatchWiringResult
+import com.astarworks.astera.match.platform.wiring.MatchLifecycle
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
@@ -22,8 +22,7 @@ import org.bukkit.plugin.java.JavaPlugin
  */
 public class AsteraMatchPlugin : JavaPlugin() {
 
-    private var wiringContext: WiringContext? = null
-    private var wiringResult: MatchWiringResult? = null
+    private var coordinator: RewireCoordinator? = null
 
     override fun onEnable() {
         logger.info("Astera-Match enabling…")
@@ -34,15 +33,24 @@ public class AsteraMatchPlugin : JavaPlugin() {
                 server.pluginManager.disablePlugin(this); return
             }
 
-        // Host-neutral wiring (ADR-0174), then the Paper-only listener step.
-        val ctx = WiringContext(WiringOwner("Astera-Match"), 0, core.services, core.contentDir, logger, core.serverEnvironment.role, core.serverEnvironment.name)
-        wiringContext = ctx
-        val wired = MatchWiring.install(
-            ctx,
-            MatchPaperBindings.ports(this, ctx.listeners(this), core.dataFolder.toPath().resolve("replays")),
+        // Rewirable generation (ADR-0311): host-neutral wiring (ADR-0174), then the Paper-only listener step.
+        coordinator = core.rewire
+        core.rewire.register(
+            MatchLifecycle(
+                install = { ctx ->
+                    MatchWiring.install(
+                        ctx,
+                        MatchPaperBindings.ports(this, ctx.listeners(this), core.dataFolder.toPath().resolve("replays")),
+                    )
+                },
+                bindHost = { ctx, wired -> MatchPaperBindings.bind(this, ctx, wired) },
+            ),
         )
-        wiringResult = wired
-        MatchPaperBindings.bind(this, ctx, wired)
+        val up = core.rewire.up(MatchLifecycle.OWNER)
+        if (up is Result.Failure) {
+            logger.severe("Astera-Match failed to wire: ${up.error}")
+            server.pluginManager.disablePlugin(this); return
+        }
 
         logger.info(
             "Astera-Match enabled. Services: IMatchRepository, IStageRegistry, " +
@@ -53,12 +61,8 @@ public class AsteraMatchPlugin : JavaPlugin() {
     }
 
     override fun onDisable() {
-        // Replay engine shutdown + scheduler tasks first, then subscriptions /
-        // registrations (same order as before ADR-0174).
-        wiringResult?.shutdown()
-        wiringResult = null
-        wiringContext?.close()
-        wiringContext = null
+        coordinator?.down(MatchLifecycle.OWNER)
+        coordinator = null
         logger.info("Astera-Match disabled.")
     }
 }

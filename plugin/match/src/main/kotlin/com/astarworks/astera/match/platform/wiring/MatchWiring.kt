@@ -86,7 +86,13 @@ public class MatchWiringResult(
     public val spectatorCycler: com.astarworks.astera.match.application.service.death.SpectatorTargetCycler?,
     private val shutdownHooks: List<() -> Unit>,
     private val scheduledTasks: List<IScheduler.TaskHandle>,
+    private val bindActions: List<() -> Unit> = emptyList(),
 ) {
+    /** Runs once the generation is active (rewire: adopts the matches that were already running). */
+    public fun bind() {
+        bindActions.forEach { it() }
+    }
+
     /**
      * Stops the replay engine and cancels scheduler tasks wiring started.
      * Subscriptions / registrations are closed by `WiringContext.close()`.
@@ -162,6 +168,7 @@ public object MatchWiring {
         val subscriptions = ctx.subscriptions
         val scheduledTasks = mutableListOf<IScheduler.TaskHandle>()
         val shutdownHooks = mutableListOf<() -> Unit>()
+        val bindActions = mutableListOf<() -> Unit>()
 
         // Wave L 5hardening-complete (ADR-0129): structured fan-out for
         // plugin onEnable failure. We do not wrap the whole onEnable in a
@@ -189,11 +196,8 @@ public object MatchWiring {
         // 1. Build match-owned repositories -------------------------------------
         // Wave 3 (R2): pick up Postgres impls (priority=100) if Astera-Persistence
         // registered them via loadbefore; otherwise create in-memory at priority=0.
-        val matches: IMatchRepository =
-            services.get<IMatchRepository>()
-                ?: InMemoryMatchRepository().also {
-                    registrations += services.register<IMatchRepository>(it, priority = 0)
-                }
+        // ctx.stateful: running matches (teams, phase, scores) outlive a rewire (ADR-0311).
+        val matches: IMatchRepository = ctx.stateful<IMatchRepository> { InMemoryMatchRepository() }
 
         // Wave _infra-2b (ADR-0065): StageContents replaces the legacy
         // InMemoryStageRepository + StageLoaderService pair. Always create the
@@ -240,7 +244,7 @@ public object MatchWiring {
 
         // WP8: queue lanes (stage / team sizes / min players / countdowns).
         val queueContentDir = ctx.contentDir.resolve("matchmaking")
-        val queueSettings = QueueSettingsContents()
+        val queueSettings = ctx.stateful { QueueSettingsContents() }
         val queueReport = queueSettings.bootstrap(queueContentDir)
         logger.info("Loaded ${queueReport.loaded} queue config(s) from $queueContentDir (failed: ${queueReport.failed})")
         reloadRegistry.register(queueSettings, queueContentDir)
@@ -257,12 +261,9 @@ public object MatchWiring {
         // (min-player guard) and DefaultPvpDeathPolicyResolver consume.
         // Registered at priority 0; an overlay impl may replace it later.
         val matchModeRegistry: com.astarworks.astera.match.application.port.outbound.IMatchModeRegistry =
-            services.get<com.astarworks.astera.match.application.port.outbound.IMatchModeRegistry>()
-                ?: com.astarworks.astera.match.application.service.InMemoryMatchModeRegistry().also {
-                    registrations += services.register<com.astarworks.astera.match.application.port.outbound.IMatchModeRegistry>(
-                        it, priority = 0,
-                    )
-                }
+            ctx.stateful<com.astarworks.astera.match.application.port.outbound.IMatchModeRegistry> {
+                com.astarworks.astera.match.application.service.InMemoryMatchModeRegistry()
+            }
 
         // 3. Construct use cases -----------------------------------------------
         val victoryEvaluator = VictoryConditionEvaluator()
@@ -271,12 +272,11 @@ public object MatchWiring {
         // IWorldGateway is registered by Astera-Core (gate on null for hosts without one).
         val worldGateway = services.get<IWorldGateway>()
         // WP9: one per-team spawn selector shared by entry teleports and respawns.
-        val spawnSelector = com.astarworks.astera.match.application.service.DefaultSpawnSelector(matches)
-        registrations += services.register<com.astarworks.astera.match.application.service.ISpawnSelector>(
-            spawnSelector, priority = 0,
-        )
+        val spawnSelector = ctx.stateful<com.astarworks.astera.match.application.service.ISpawnSelector> {
+            com.astarworks.astera.match.application.service.DefaultSpawnSelector(matches)
+        }
         subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) {
-            spawnSelector.forget(it.matchId)
+            (spawnSelector as? com.astarworks.astera.match.application.service.DefaultSpawnSelector)?.forget(it.matchId)
         }
         // WP8: entry teleports the player to a stage spawn of their team, so a
         // queue-formed (or admin `entry`) player lands in the arena immediately.
@@ -292,8 +292,7 @@ public object MatchWiring {
         }
         val entryGame = EntryGameUseCase(matches, eventBus, matchSpawn)
         // F1-D (ADR-0183): matches an admin forced past the roster floor.
-        val minPlayerWaivers = com.astarworks.astera.match.application.admin.MatchMinPlayerWaivers()
-        registrations += services.register(minPlayerWaivers)
+        val minPlayerWaivers = ctx.stateful { com.astarworks.astera.match.application.admin.MatchMinPlayerWaivers() }
         val switchPhase = SwitchPhaseUseCase(
             matches, eventBus, scheduler, matchModeRegistry,
             minPlayersFor = { modeKey ->
@@ -309,13 +308,11 @@ public object MatchWiring {
         // exists). PhaseTimerUseCase consults its per-match shift
         // accumulator when computing transition thresholds; ResolveAnomalyEffect
         // calls shiftPhaseTimer to extend / shorten the in-flight phase.
-        val matchTimer = com.astarworks.astera.match.application.service.MatchTimerService(matches)
-        registrations += services.register<com.astarworks.astera.match.application.port.outbound.IMatchTimerService>(
-            matchTimer,
-            priority = 0,
-        )
+        val matchTimer = ctx.stateful<com.astarworks.astera.match.application.port.outbound.IMatchTimerService> {
+            com.astarworks.astera.match.application.service.MatchTimerService(matches)
+        }
         val phaseTimer = PhaseTimerUseCase(
-            matches, scheduler, switchPhase, matchTimer,
+            matches, scheduler, switchPhase, matchTimer as com.astarworks.astera.match.application.service.MatchTimerService,
             countdownTicks = { queueSettings.current().matchCountdownSeconds * 20L },
             // G1: the sudden-death timer must end the match for real (result screen, rewards, return to lobby).
             onSuddenDeathExpired = { id ->
@@ -361,16 +358,10 @@ public object MatchWiring {
         // tick continuously and visit only the currently active matches.
 
         val generators: IGeneratorRepository =
-            services.get<IGeneratorRepository>()
-                ?: InMemoryGeneratorRepository().also {
-                    registrations += services.register<IGeneratorRepository>(it, priority = 0)
-                }
+            ctx.stateful<IGeneratorRepository> { InMemoryGeneratorRepository() }
 
         val anomalySchedules: IAnomalyScheduleRepository =
-            services.get<IAnomalyScheduleRepository>()
-                ?: InMemoryAnomalyScheduleRepository().also {
-                    registrations += services.register<IAnomalyScheduleRepository>(it, priority = 0)
-                }
+            ctx.stateful<IAnomalyScheduleRepository> { InMemoryAnomalyScheduleRepository() }
 
         // Star Generator pipeline (ADR-0032 + ADR-0058 §5 — per-instance modifier-aware)
         val spawnResource = SpawnResourceUseCase(eventBus, scheduler)
@@ -425,16 +416,15 @@ public object MatchWiring {
         // TDM, CTF) can be added as a YAML drop + new IGameMode impl with
         // zero changes here.
         val gameModeFrameworkRegistry: IGameModeFrameworkRegistry =
-            services.get<IGameModeFrameworkRegistry>()
-                ?: InMemoryGameModeFrameworkRegistry().also {
-                    registrations += services.register<IGameModeFrameworkRegistry>(it, priority = 0)
-                }
+            // Per generation (modes capture this generation's views): a rewire rebuilds it and adopts running matches below.
+            InMemoryGameModeFrameworkRegistry().also {
+                registrations += services.register<IGameModeFrameworkRegistry>(it, priority = 0)
+            }
 
         val gameModeScheduler: IGameModeScheduler =
-            services.get<IGameModeScheduler>()
-                ?: DefaultGameModeScheduler(scheduler).also {
-                    registrations += services.register<IGameModeScheduler>(it, priority = 0)
-                }
+            DefaultGameModeScheduler(scheduler).also {
+                registrations += services.register<IGameModeScheduler>(it, priority = 0)
+            }
 
         shutdownHooks += { gameModeScheduler.activeMatches().toList().forEach(gameModeScheduler::unregister) }
         val gameModeContentDir = ctx.contentDir.resolve("game-modes")
@@ -526,7 +516,7 @@ public object MatchWiring {
         // a fully-wired one so framework events and tracker mutations actually
         // happen in production. Mirrors the Norma "replace YAML-resolved with
         // bus-wired" pattern above.
-        val annihilationTracker = AnnihilationMatchTracker(eventBus)
+        val annihilationTracker = ctx.stateful { AnnihilationMatchTracker(ctx.carriedEventBus) }
         // WP10: pillars as combat / world targets. Combat resolves IStructureTargets
         // lazily (it wires before Match), so skills, projectiles and enemy block
         // breaks all reach the tracker through it.
@@ -637,6 +627,39 @@ public object MatchWiring {
         // reads exactly that key) seeds the tracker with non-empty pillar
         // teams. Without this seed, AnnihilationMatchTracker.register()
         // creates an empty pillar set and the match cannot win-condition.
+        // Annihilation reads team ids from this key — seeded before onMatchStarted fires so the tracker pillars are
+        // non-empty; the stage (WP10) tells the tracker where the pillars stand.
+        fun frameworkContext(
+            matchId: MatchId,
+            modeId: com.astarworks.astera.match.domain.mode.GameModeId,
+            modeIdOfMode: com.astarworks.astera.match.domain.mode.GameModeId,
+        ): FrameworkGameModeContext {
+            val match = matches.findById(matchId)
+            val teamIds = match?.teams?.map { it.id }?.toSet() ?: emptySet()
+            var gmCtx = FrameworkGameModeContext(
+                matchId = matchId,
+                modeId = modeIdOfMode,
+                participants = match?.teams?.flatMap { it.members } ?: emptyList(),
+            )
+            if (modeId == AnnihilationGameMode.ID && teamIds.isNotEmpty()) {
+                gmCtx = gmCtx.withState(AnnihilationGameMode.TEAMS_STATE_KEY, teamIds)
+                match?.let { stages.find(it.stageId) }?.let {
+                    gmCtx = gmCtx.withState(AnnihilationGameMode.STAGE_STATE_KEY, it)
+                }
+            }
+            return gmCtx
+        }
+        // Rewire (ADR-0311): matches already running when this generation binds keep ticking under this generation's
+        // mode instances. Their per-match records (repository, mode keys, annihilation pillars) are carried; a mode's
+        // own in-instance counters restart (onMatchStarted is not replayed).
+        bindActions += {
+            for (running in matches.findActiveMatches()) {
+                if (running.id in gameModeScheduler.activeMatches()) continue
+                val modeId = resolveModeId(matchModeRegistry.modeKeyOf(running.id), gameModeFrameworkRegistry)
+                val mode = gameModeFrameworkRegistry.get(modeId) ?: continue
+                gameModeScheduler.register(running.id, mode, frameworkContext(running.id, modeId, mode.id()))
+            }
+        }
         subscriptions += eventBus.subscribe(MatchStarted::class) { event ->
             // Wave 5game-complete (ADR-0121 §F+§E): mirror modeKey for
             // SwitchPhase's min-player guard + PvP death-policy resolver.
@@ -644,24 +667,7 @@ public object MatchWiring {
 
             val modeId = resolveModeId(event.modeKey, gameModeFrameworkRegistry)
             val mode = gameModeFrameworkRegistry.get(modeId) ?: return@subscribe
-            val match = matches.findById(event.matchId)
-            val participants = match?.teams?.flatMap { it.members } ?: emptyList()
-            val teamIds = match?.teams?.map { it.id }?.toSet() ?: emptySet()
-
-            var gmCtx = FrameworkGameModeContext(
-                matchId = event.matchId,
-                modeId = mode.id(),
-                participants = participants,
-            )
-            // Annihilation reads team ids from this key — seed it before
-            // onMatchStarted fires so the tracker pillars are non-empty.
-            if (modeId == AnnihilationGameMode.ID && teamIds.isNotEmpty()) {
-                gmCtx = gmCtx.withState(AnnihilationGameMode.TEAMS_STATE_KEY, teamIds)
-                // WP10: the stage tells the tracker where the pillars stand.
-                match?.let { stages.find(it.stageId) }?.let {
-                    gmCtx = gmCtx.withState(AnnihilationGameMode.STAGE_STATE_KEY, it)
-                }
-            }
+            val gmCtx = frameworkContext(event.matchId, modeId, mode.id())
 
             mode.onMatchStarted(gmCtx)
             if (modeId == AnnihilationGameMode.ID) pillarWorld?.placeAll(event.matchId)
@@ -722,6 +728,7 @@ public object MatchWiring {
             spectatorCycler = env.spectatorCycler,
             shutdownHooks = shutdownHooks.toList(),
             scheduledTasks = scheduledTasks.toList(),
+            bindActions = bindActions.toList(),
         )
     }
 

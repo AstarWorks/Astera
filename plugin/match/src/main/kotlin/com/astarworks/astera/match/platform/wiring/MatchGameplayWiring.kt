@@ -76,25 +76,22 @@ internal object MatchGameplayWiring {
         // and is updated on MatchEnded. Postgres overlays both repos at
         // priority 100 (V47 player_ratings / V46 tournaments).
         val ratingRepository: com.astarworks.astera.match.application.port.outbound.rating.IPlayerRatingRepository =
-            services.get<com.astarworks.astera.match.application.port.outbound.rating.IPlayerRatingRepository>()
-                ?: com.astarworks.astera.match.application.service.rating.InMemoryPlayerRatingRepository().also {
-                    registrations += services.register<com.astarworks.astera.match.application.port.outbound.rating.IPlayerRatingRepository>(it, priority = 0)
-                }
+            env.ctx.stateful<com.astarworks.astera.match.application.port.outbound.rating.IPlayerRatingRepository> {
+                com.astarworks.astera.match.application.service.rating.InMemoryPlayerRatingRepository()
+            }
         val tournamentRepository: com.astarworks.astera.match.application.port.outbound.tournament.ITournamentRepository =
-            services.get<com.astarworks.astera.match.application.port.outbound.tournament.ITournamentRepository>()
-                ?: com.astarworks.astera.match.application.service.tournament.InMemoryTournamentRepository().also {
-                    registrations += services.register<com.astarworks.astera.match.application.port.outbound.tournament.ITournamentRepository>(it, priority = 0)
-                }
+            env.ctx.stateful<com.astarworks.astera.match.application.port.outbound.tournament.ITournamentRepository> {
+                com.astarworks.astera.match.application.service.tournament.InMemoryTournamentRepository()
+            }
 
         val matchmaker: IMatchmaker =
-            services.get<IMatchmaker>()
-                ?: InMemoryMatchmaker(
-                    eventBus = eventBus,
+            env.ctx.stateful<IMatchmaker> {
+                InMemoryMatchmaker(
+                    eventBus = env.ctx.carriedEventBus,
                     ratingLookup = { ratingRepository.ratingOf(it) },
                     sizeByMode = { env.queueSettings.current().sizeFor(it) },
-                ).also {
-                    registrations += services.register<IMatchmaker>(it, priority = 0)
-                }
+                )
+            }
         // Role gating (ADR-0179): the queue lives on the lobby; a game-only
         // backend has no queue command, scheduler or lobby intents.
         val role = env.ctx.serverRole
@@ -478,15 +475,12 @@ internal object MatchGameplayWiring {
         // (Wave 5persist will populate via the stage loader).
 
         val pvpDeathResolver: com.astarworks.astera.match.application.port.outbound.IPvpDeathPolicyResolver =
-            services.get<com.astarworks.astera.match.application.port.outbound.IPvpDeathPolicyResolver>()
-                ?: com.astarworks.astera.match.application.service.death.DefaultPvpDeathPolicyResolver(
+            env.ctx.stateful<com.astarworks.astera.match.application.port.outbound.IPvpDeathPolicyResolver> {
+                com.astarworks.astera.match.application.service.death.DefaultPvpDeathPolicyResolver(
                     matchRepo = matches,
                     modeRegistry = matchModeRegistry,
-                ).also {
-                    registrations += services.register<
-                        com.astarworks.astera.match.application.port.outbound.IPvpDeathPolicyResolver,
-                    >(it, priority = 0)
-                }
+                )
+            }
 
         val inventoryMutator =
             services.getOrThrow<com.astarworks.astera.core.application.port.outbound.inventory.IInventoryMutator>()

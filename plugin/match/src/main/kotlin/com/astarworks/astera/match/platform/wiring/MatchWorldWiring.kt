@@ -49,10 +49,7 @@ internal object MatchWorldWiring {
         // documented in ADR-0156 §C (visual-only — no server-side collision
         // until Wave 6b-2 WorldGuard region adapter; single-world picks
         // server.worlds.first() until Barrier.worldId field added).
-        services.get<IBarrierGateway>()
-            ?: InMemoryBarrierGateway().also {
-                registrations += services.register<IBarrierGateway>(it, priority = 0)
-            }
+        env.ctx.stateful<IBarrierGateway> { InMemoryBarrierGateway() }
         ports.barrierGateway?.let {
             registrations += services.register<IBarrierGateway>(it(services), priority = 100)
         }
@@ -64,10 +61,7 @@ internal object MatchWorldWiring {
             .MatchRegionTransitionListener(eventBus = eventBus, matches = matches, stages = env.stages)
             .subscribe()
         val matchWorlds: IMatchWorldRepository =
-            services.get<IMatchWorldRepository>()
-                ?: InMemoryMatchWorldRepository().also {
-                    registrations += services.register<IMatchWorldRepository>(it, priority = 0)
-                }
+            env.ctx.stateful<IMatchWorldRepository> { InMemoryMatchWorldRepository() }
 
         // ADR-0297: bounded, periodic GC of idle terrain and cover damage.
         val blockRecovery = BlockDamageGcUseCase(blockStateGateway, scheduler,
