@@ -7,6 +7,7 @@ import com.astarworks.astera.core.application.wiring.WiringOwner
 import com.astarworks.astera.core.platform.paper.CorePaperBindings
 import com.astarworks.astera.core.platform.wiring.CoreWiring
 import com.astarworks.astera.core.platform.wiring.CoreWiringResult
+import com.astarworks.astera.core.platform.wiring.RewireCoordinator
 import com.astarworks.astera.core.platform.wiring.ServerEnvironment
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import org.bukkit.plugin.java.JavaPlugin
@@ -86,6 +87,10 @@ public class AsteraCorePlugin : JavaPlugin() {
     // wiring-owned tasks, and the Paper-side teardown.
     private var wiringContext: WiringContext? = null
     private var wiringResult: CoreWiringResult? = null
+
+    /** Lifecycle host the leaf plugins (Chat, Economy, Stats) boot and rewire through (ADR-0311). */
+    public val rewire: RewireCoordinator
+        get() = (wiringResult ?: error("Astera-Core is not enabled yet")).rewire
     private var paperBindings: CorePaperBindings? = null
 
     override fun onLoad() {

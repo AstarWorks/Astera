@@ -48,6 +48,7 @@ import com.astarworks.astera.core.application.service.DefaultGuiIntentRouter
 import com.astarworks.astera.core.application.service.anticheat.AnticheatOrchestrator
 import com.astarworks.astera.core.application.service.anticheat.MovementValidatorPacketBridge
 import com.astarworks.astera.core.application.services.ServiceRegistry
+import com.astarworks.astera.core.application.wiring.IRewireService
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
@@ -70,6 +71,8 @@ public object CoreWiring {
     /** Runs every wiring stage in order and returns what the host needs afterwards. */
     public fun install(ctx: WiringContext, ports: CorePlatformPorts): CoreWiringResult {
         val state = CoreWiringState(ctx, ports)
+        // ADR-0311: lifecycle host for the rewirable plugins; `astera admin rewire` resolves it as IRewireService.
+        ctx.registrations += ctx.services.register<IRewireService>(state.rewire)
         state.wireBase()
         state.wireGui()
         state.wireHudAndWorld()
@@ -93,6 +96,7 @@ public object CoreWiring {
             commandRegistry = state.commandRegistry,
             commandAuthorizer = state.commandAuthorizer,
             commandInvoker = state.commandInvoker,
+            rewire = state.rewire,
             teardown = state::shutdown,
         )
     }
@@ -111,6 +115,8 @@ public class CoreWiringResult internal constructor(
     public val commandRegistry: AsteraCommandRegistry,
     public val commandAuthorizer: CommandAuthorizer,
     public val commandInvoker: CommandInvoker,
+    /** Boots, rewires and stops the plugins that have a [PluginLifecycle] (ADR-0311). */
+    public val rewire: RewireCoordinator,
     private val teardown: () -> Unit,
 ) {
     /**
@@ -140,7 +146,8 @@ internal class CoreWiringState(
     val broadcaster: IBroadcaster get() = ports.broadcaster
     /** The single `/astera` command tree (ADR-0184); every wiring stage mounts its subtrees here. */
     val commandRegistry: AsteraCommandRegistry = AsteraCommandRegistry()
-    val commands: CommandMount = CommandMount(commandRegistry, "Astera-Core", ctx.registrations)
+    val rewire: RewireCoordinator = RewireCoordinator(ctx)
+    val commands: CommandMount = CommandMount(commandRegistry, "Astera-Core", ctx.gen, ctx.registrations)
     lateinit var commandAuthorizer: CommandAuthorizer
     lateinit var commandInvoker: CommandInvoker
 
