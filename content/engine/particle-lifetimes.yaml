@@ -1,0 +1,33 @@
+# Mean client lifetime (ticks) of every vanilla particle a skill may emit (load-time check 16, caster-eye clutter).
+# An emitted particle absent from this file is a load error (UnknownParticleLifetime): add it here, with its source, first.
+# mean: expected life in ticks. scale_with_size: true multiplies it by the emitted particle's size (dust-like particles).
+# source: jar-26.3 = derived from the vanilla 26.3 particle class; measured-in-client = observed in a real client;
+#         carried-default-16 = NOT sourced yet, the 16-tick default of the retired game-sim table (re-source from the jar, then change this tag).
+particles:
+  crit: { mean: 6.9, source: jar-26.3 }
+  enchanted_hit: { mean: 6.9, source: jar-26.3 }
+  electric_spark: { mean: 3.0, source: jar-26.3 }
+  sweep_attack: { mean: 4.0, source: jar-26.3 }
+  snowflake: { mean: 34.0, source: jar-26.3 }
+  poof: { mean: 34.0, source: jar-26.3 }
+  explosion: { mean: 34.0, source: jar-26.3 }
+  flame: { mean: 20.0, source: jar-26.3 }
+  small_flame: { mean: 20.0, source: jar-26.3 }
+  lava: { mean: 32.0, source: jar-26.3 }
+  happy_villager: { mean: 40.0, source: jar-26.3 }
+  heart: { mean: 16.0, source: jar-26.3 }
+  end_rod: { mean: 65.0, source: jar-26.3 }
+  firework: { mean: 54.0, source: jar-26.3 }
+  cloud: { mean: 14.0, source: jar-26.3 }
+  smoke: { mean: 16.0, source: jar-26.3 }
+  large_smoke: { mean: 16.0, source: jar-26.3 }
+  white_smoke: { mean: 16.0, source: jar-26.3 }
+  composter: { mean: 16.0, source: jar-26.3 }
+  entity_effect: { mean: 16.0, source: jar-26.3 }
+  dust: { mean: 16.09, scale_with_size: true, source: jar-26.3 }
+  dust_color_transition: { mean: 16.09, scale_with_size: true, source: jar-26.3 }
+  block: { mean: 16.0, source: carried-default-16 }
+  block_crumble: { mean: 16.0, source: carried-default-16 }
+  cherry_leaves: { mean: 16.0, source: carried-default-16 }
+  damage_indicator: { mean: 16.0, source: carried-default-16 }
+  trail: { mean: 16.0, source: measured-in-client }

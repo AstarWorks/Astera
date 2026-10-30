@@ -23,3 +23,22 @@ max_sweep_steps: 32          # hit sweep samples per tick: min(this, ceil(travel
 
 # Where `astera skill expand` writes <skill-id>.txt / .json (relative to the server directory; skill-compare mounts this path).
 expand_dir: build/skill-expand
+
+# Caster-view clutter (load-time check 16, engine-gaps-v2 section 1): a skill must not fill the caster's own first-person screen.
+# The skill is dry-cast at each pose; lingering particles (mean client life >= linger_ticks, see particle-lifetimes.yaml) inside the
+# view cone (half_angle_deg about the look, radius blocks from the eye, above eye - floor_below_eye) may not exceed limit, neither
+# spawned in one tick nor alive at once. Block / item displays within display_range fail when their screen coverage stays above
+# display_coverage_limit for display_sustain_ticks consecutive ticks. Poses are the dry-cast looks (degrees).
+caster_eye:
+  radius: 1.5
+  half_angle_deg: 70.0
+  floor_below_eye: 0.9
+  eye_height: 1.62
+  limit: 10
+  linger_ticks: 6.0
+  display_range: 3.0
+  display_coverage_limit: 1.5
+  display_sustain_ticks: 4
+  poses:
+    - { yaw: 0.0, pitch: 0.0 }
+    - { yaw: 37.0, pitch: -20.0 }

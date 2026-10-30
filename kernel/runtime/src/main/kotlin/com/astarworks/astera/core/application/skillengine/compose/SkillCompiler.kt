@@ -65,13 +65,15 @@ import java.lang.reflect.ParameterizedType
  *      projectile handlers, and hands every op to [GroupUnroller.unroll] (which owns every repetition, instance id and `when`), which
  *      calls the op's own [OpSpec.lower]. An op-level `use:` is expanded in place: the callee body is lowered under the call id and its
  *      rows are pasted behind the marker `Call` row (example j: `splash/dmg`, `splash/lava[k]` inside `volley[k]/ball.hit`).
- *   3. [EventScoper.scope], [TableAssembler.assemble], [StaticChecks.run] (checks 1-12, check 5 against the skill's `emits`).
+ *   3. [EventScoper.scope], [TableAssembler.assemble], [StaticChecks.run] (checks 1-12, check 5 against the skill's `emits`), then check 16
+ *      ([CasterEyeClutterCheck]): a dry cast in each configured caster pose must not fill the caster's own screen.
  */
 public class SkillCompiler(
     private val specs: OpSpecRegistry,
     private val exprs: ExprCompiler,
     private val frames: FrameTables,
     private val config: EngineConfig,
+    private val clutter: com.astarworks.astera.core.application.skillengine.compose.drycast.ClutterContext,
     private val sprites: SpriteCatalog = NoSprites,
 ) {
     public fun compile(def: SkillDef, shared: PartCatalog, skills: SkillCatalogView, sampleSeed: Long = 0L): Result<CompiledSkill, SkillDecodeError> {
@@ -155,12 +157,22 @@ public class SkillCompiler(
             is Result.Failure -> return r
             is Result.Success -> Unit
         }
+        val skill = CompiledSkill(def, table, emptySet(), emptySet())
+        val traces = config.casterEye.poses.map { it to com.astarworks.astera.core.application.skillengine.compose.drycast.DryCast.run(skill, it, config, clutter) }
+        CasterEyeClutterCheck.run(traces, config.casterEye, clutter)?.let { return Result.Failure(withSkill(it, def.id)) }
         val usedParts = LinkedHashSet<String>()
         val usedSkills = LinkedHashSet<String>()
         collectUses(def.machine, parts, skills, usedParts, usedSkills, HashSet())
         usedParts += session.usedParts
         usedSkills += session.usedSkills
         return Result.Success(CompiledSkill(def, table, usedParts, usedSkills))
+    }
+
+    private fun withSkill(e: SkillDecodeError, id: String): SkillDecodeError = when (e) {
+        is SkillDecodeError.CasterEyeClutter -> e.copy(skillId = id)
+        is SkillDecodeError.DisplayCoverage -> e.copy(skillId = id)
+        is SkillDecodeError.UnknownParticleLifetime -> e.copy(skillId = id)
+        else -> e
     }
 
     private fun collectUses(m: Machine, parts: PartCatalog, skills: SkillCatalogView, outParts: MutableSet<String>, outSkills: MutableSet<String>, seen: MutableSet<String>) {

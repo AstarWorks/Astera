@@ -27,7 +27,16 @@ class EngineConfigScenarioTest : SkillEngineScenario() {
     fun missingKeyIsMissing() {
         val text = Files.readAllLines(shipped)
         for (key in EngineConfigLoader.KEYS) {
-            val without = text.filterNot { it.startsWith("$key:") }.joinToString("\n")
+            // a key's own line plus the indented block under it (caster_eye)
+            val without = mutableListOf<String>().also { out ->
+                var skipping = false
+                for (l in text) {
+                    if (l.startsWith("$key:")) { skipping = true; continue }
+                    if (skipping && (l.startsWith(" ") || l.isBlank())) continue
+                    skipping = false
+                    out += l
+                }
+            }.joinToString("\n")
             val r = EngineConfigLoader().parse(without, "<test>")
             assertThat(r).`as`("config without $key").isInstanceOf(Result.Failure::class.java)
             assertThat((r as Result.Failure).error).isEqualTo(EngineConfigError.Missing("<test>", key))
