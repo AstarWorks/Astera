@@ -1,4 +1,4 @@
-# shotgun-blast: one close-range cone hit with a push on the cast tick, plus a block chip ahead.
+# shotgun-blast: one close-range cone hit with a push on the cast tick, plus a block chip where the look ray ends (first block within `chip_ahead`, else that far ahead).
 apiVersion: astera/v3
 kind: Skill
 id: shotgun-blast
@@ -14,6 +14,7 @@ params:
   arc_deg:   {type: number, default: 50.0}
   range:     {type: blocks, default: 6.0}
   knockback: {type: number, default: 0.9}
+  chip_ahead: {type: number, default: 4.0}
 anchors:
   - {id: eye,    anchor: caster.eye, mode: follow}
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.75, left: -0.35, up: -0.65}, mode: follow}  # gun position: right of the eye, below it, so the FP tracer runs from the held item to the crosshair
@@ -46,5 +47,5 @@ machine:
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: "${knockback}"}
               - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact}
               - {id: fx_hit, op: particle_def, def: gun-impact, anchor: heart}
-        - {id: chip, op: break_area, at: 0, anchor: {of: caster.eye, offset: {forward: 4}}, shape: {sphere: {radius: 1.0}}, tool: none, block_damage: 30, ripple: 29, revert: 200, outside_arena: false}
+        - {id: chip, op: break_area, at: 0, anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster.eye), aim_point(caster, ${chip_ahead}))"}}, shape: {sphere: {radius: 1.0}}, tool: none, block_damage: 30, ripple: 29, revert: 200, outside_arena: false}
     end: {final: true}

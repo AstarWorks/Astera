@@ -71,6 +71,9 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     var casterYawDeg: Double = 0.0
     var casterPitchDeg: Double = 0.0
 
+    /** Eye height above the feet of the scripted caster (standing 1.62; a sneaking or swimming caster is lower). */
+    var casterEyeHeight: Double = 1.62
+
     /**
      * Off (default): live caster cells answer the old stand-ins (position [casterPosition], identity rotation, yaw only). On (the parity
      * oracle): they answer what `PaperLiveValueSource` answers for a caster standing with feet at `casterPosition - (0,1,0)` looking
@@ -471,7 +474,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun rootOf(cast: CastRef, entity: UUID): EntityRoot? {
             seen("query.rootOf", cast)
             victims.firstOrNull { it.entityId == entity }?.let { return EntityRoot(it.feet, it.yawDeg, 0.0, it.eyeHeight ?: 0.0, 1.8) }
-            return if (entity == caster) EntityRoot(Vec3(casterPosition.x, casterPosition.y - 1.0, casterPosition.z), casterYawDeg, casterPitchDeg, 1.62, 1.8) else null
+            return if (entity == caster) EntityRoot(Vec3(casterPosition.x, casterPosition.y - 1.0, casterPosition.z), casterYawDeg, casterPitchDeg, casterEyeHeight, 1.8) else null
         }
 
         override fun raycastBlock(cast: CastRef, from: Vec3, to: Vec3): BlockHit? {
@@ -643,7 +646,9 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
                 override fun aimPoint(caster: ExprValue.Ref, range: Double): Vec3 {
                     val from = if (faithfulPose) eye else pos
                     val d = SimFrame.fromYawPitch(from, yaw, if (faithfulPose) casterPitchDeg else 0.0).forward()
-                    return Vec3(from.x + d.x * range, from.y + d.y * range, from.z + d.z * range)
+                    val end = Vec3(from.x + d.x * range, from.y + d.y * range, from.z + d.z * range)
+                    // as PaperLiveValueSource.aimPoint: the first block on the ray within range, else the far end
+                    return blockRaycast(CastRef(cast.value, this@GatewayRecorder.caster, castWorld, castItem), from, end)?.point ?: end
                 }
                 override fun lookDirection(caster: ExprValue.Ref): Vec3 = SimFrame.fromYawPitch(pos, yaw, if (faithfulPose) casterPitchDeg else 0.0).forward()
                 override fun stacks(entity: ExprValue.Ref, status: String): Double =
@@ -659,7 +664,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         }
 
         private val feet: Vec3 get() = Vec3(casterPosition.x, casterPosition.y - 1.0, casterPosition.z)
-        private val eye: Vec3 get() = Vec3(feet.x, feet.y + 1.62, feet.z)
+        private val eye: Vec3 get() = Vec3(feet.x, feet.y + casterEyeHeight, feet.z)
 
         /** `PaperLiveValueSource.casterVec` for a caster at [feet] looking along the recorder's yaw / pitch. */
         private fun faithfulVec(bare: String): Vector3d? {
