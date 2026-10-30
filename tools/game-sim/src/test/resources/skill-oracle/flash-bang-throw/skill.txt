@@ -1,7 +1,7 @@
 ## pose yaw=0 pitch=0
 @0 spawn #0 op=cast/shell kind=item item=minecraft:glowstone_dust part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.500000,0.500000,0.500000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=cast/snd sound=entity.snowball.throw cat=master vol=0.9 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx type=gun-muzzle-flash at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7447391058946744920
+@0 particle - op=cast/fx type=gun-muzzle-flash at=-0.350000,1.120000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5081900795781550819
 @0 particle - op=cast/trail[0] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5151581352766710531
 @1 particle - op=cast/trail[1] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1039173364501474310
 @1 hit - op=cast/bolt at=0.000000,1.600000,1.200000 r=1.200286 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.580000,1.900000 rad=0.500000
@@ -115,7 +115,7 @@ r @52 run-end tail=2 | pose
 ## pose yaw=37 pitch=-20
 @0 spawn #0 op=cast/shell kind=item item=minecraft:glowstone_dust part=- pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.500000,0.500000,0.500000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=cast/snd sound=entity.snowball.throw cat=master vol=0.9 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx type=gun-muzzle-flash at=-0.560427,1.692895,0.743712 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7447391058946744920
+@0 particle - op=cast/fx type=gun-muzzle-flash at=-0.891408,1.457972,0.601364 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5081900795781550819
 @0 particle - op=cast/trail[0] type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5151581352766710531
 @1 particle - op=cast/trail[1] type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1039173364501474310
 @1 hit - op=cast/bolt at=-0.678625,2.010424,0.900566 r=1.193414 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.074490,2.229838,1.425897 rad=0.500000
@@ -229,7 +229,7 @@ r @52 run-end tail=2 | pose
 ## pose-hit yaw=0 pitch=0
 @0 spawn #0 op=cast/shell kind=item item=minecraft:glowstone_dust part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.500000,0.500000,0.500000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=cast/snd sound=entity.snowball.throw cat=master vol=0.9 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx type=gun-muzzle-flash at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7447391058946744920
+@0 particle - op=cast/fx type=gun-muzzle-flash at=-0.350000,1.120000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5081900795781550819
 @0 particle - op=cast/trail[0] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5151581352766710531
 @1 particle - op=cast/trail[1] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1039173364501474310
 @1 hit - op=cast/bolt at=0.000000,1.600000,1.200000 r=1.200286 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.580000,1.900000 rad=0.500000
@@ -345,7 +345,7 @@ r @52 run-end tail=2 | pose
 ## pose-hit yaw=37 pitch=0
 @0 spawn #0 op=cast/shell kind=item item=minecraft:glowstone_dust part=- pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.500000,0.500000,0.500000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=cast/snd sound=entity.snowball.throw cat=master vol=0.9 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx type=gun-muzzle-flash at=-0.541634,1.370000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7447391058946744920
+@0 particle - op=cast/fx type=gun-muzzle-flash at=-0.821156,1.120000,0.508137 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5081900795781550819
 @0 particle - op=cast/trail[0] type=end_rod count=1 at=-0.300908,1.620000,0.399318 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5151581352766710531
 @1 particle - op=cast/trail[1] type=end_rod count=1 at=-0.300908,1.620000,0.399318 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1039173364501474310
 @1 hit - op=cast/bolt at=-0.722178,1.600000,0.958363 r=1.200286 shape=capsule a=-0.300908,1.620000,0.399318 b=-1.143449,1.580000,1.517407 rad=0.500000
