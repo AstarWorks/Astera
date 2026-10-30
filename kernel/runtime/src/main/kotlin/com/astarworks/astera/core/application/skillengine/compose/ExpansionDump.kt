@@ -278,7 +278,7 @@ public object ExpansionDump {
         is Action.Key -> listOf("display" to a.display, "dur" to a.durationTicks, "t" to a.translation, "r" to a.leftRotation, "s" to a.scale)
         is Action.Teleport -> listOf("display" to a.display, "dur" to a.durationTicks, "pos" to a.position, "yaw" to a.yaw, "pitch" to a.pitch)
         is Action.TrailPoint -> listOf("ribbon" to a.ribbon, "pos" to a.position)
-        is Action.Particle -> listOf("type" to a.type, "count" to a.count, "offset" to a.offset, "extra" to a.extra, "data" to a.data, "pos" to a.position, "sweep" to a.sweep)
+        is Action.Particle -> listOf("type" to a.type, "count" to a.count, "offset" to a.offset, "extra" to a.extra, "data" to a.data, "target" to a.target, "pos" to a.position, "sweep" to a.sweep)
         is Action.ParticleDef -> listOf("def" to a.def, "pos" to a.position) + (a.count?.let { listOf("count" to it) } ?: emptyList())
         is Action.Set -> listOf("field" to a.field, "value" to a.value)
         is Action.Sound -> listOf("sound" to a.sound, "volume" to a.volume, "pitch" to a.pitch, "pos" to a.position, "category" to a.category)

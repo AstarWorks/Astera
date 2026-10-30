@@ -7245,7 +7245,20 @@
                                     "type": "null"
                                 }
                             ],
-                            "description": "#rrggbb, with size: Particle.DustOptions",
+                            "description": "#rrggbb: with size Particle.DustOptions; alone the tint of entity_effect / flash / tinted_leaves; with power Particle.Spell; with target + duration Particle.Trail",
+                            "default": null
+                        },
+                        "to_color": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^\\S+$|^= [A-Za-z_][A-Za-z0-9_]*$"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "#rrggbb end colour, with color + size: Particle.DustTransition (dust_color_transition)",
                             "default": null
                         },
                         "size": {
@@ -7265,7 +7278,7 @@
                                     "type": "null"
                                 }
                             ],
-                            "description": "dust scale, with color",
+                            "description": "dust scale, with color (and to_color)",
                             "default": null
                         },
                         "block": {
@@ -7367,7 +7380,193 @@
                                     "type": "null"
                                 }
                             ],
-                            "description": "for particle dragon_breath (its Float data)",
+                            "description": "for dragon_breath (its Float data); with color, Particle.Spell (effect / instant_effect)",
+                            "default": null
+                        },
+                        "target": {
+                            "anyOf": [
+                                {
+                                    "oneOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "required": [
+                                                "of"
+                                            ],
+                                            "properties": {
+                                                "of": {
+                                                    "type": "string",
+                                                    "pattern": "^\\S+$",
+                                                    "description": "the anchor whose axes the numbers are along, read at the row's tick"
+                                                },
+                                                "offset": {
+                                                    "anyOf": [
+                                                        {
+                                                            "oneOf": [
+                                                                {
+                                                                    "type": "object",
+                                                                    "additionalProperties": false,
+                                                                    "required": [],
+                                                                    "properties": {
+                                                                        "forward": {
+                                                                            "oneOf": [
+                                                                                {
+                                                                                    "type": "number"
+                                                                                },
+                                                                                {
+                                                                                    "type": "string",
+                                                                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                                                }
+                                                                            ],
+                                                                            "description": "blocks along the frame's forward axis",
+                                                                            "default": 0.0
+                                                                        },
+                                                                        "up": {
+                                                                            "oneOf": [
+                                                                                {
+                                                                                    "type": "number"
+                                                                                },
+                                                                                {
+                                                                                    "type": "string",
+                                                                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                                                }
+                                                                            ],
+                                                                            "description": "blocks along the frame's up axis",
+                                                                            "default": 0.0
+                                                                        },
+                                                                        "left": {
+                                                                            "oneOf": [
+                                                                                {
+                                                                                    "type": "number"
+                                                                                },
+                                                                                {
+                                                                                    "type": "string",
+                                                                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                                                }
+                                                                            ],
+                                                                            "description": "blocks along the frame's left axis",
+                                                                            "default": 0.0
+                                                                        }
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "type": "string",
+                                                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "null"
+                                                        }
+                                                    ],
+                                                    "description": "displacement in the anchor's basis",
+                                                    "default": null
+                                                },
+                                                "to": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "^\\S+$"
+                                                        },
+                                                        {
+                                                            "type": "null"
+                                                        }
+                                                    ],
+                                                    "description": "second end of a segment; the lowering emits `samples` rows along of -> to (particle / particle_def)",
+                                                    "default": null
+                                                },
+                                                "samples": {
+                                                    "anyOf": [
+                                                        {
+                                                            "oneOf": [
+                                                                {
+                                                                    "type": "number"
+                                                                },
+                                                                {
+                                                                    "type": "string",
+                                                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "null"
+                                                        }
+                                                    ],
+                                                    "description": "rows per tick along of -> to, a whole number >= 2 (compile-time constant; with `to`)",
+                                                    "default": null
+                                                },
+                                                "sweep": {
+                                                    "anyOf": [
+                                                        {
+                                                            "oneOf": [
+                                                                {
+                                                                    "type": "number"
+                                                                },
+                                                                {
+                                                                    "type": "string",
+                                                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "null"
+                                                        }
+                                                    ],
+                                                    "description": "blocks of anchor travel per call (particles only)",
+                                                    "default": null
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "where a trail / vibration travels to: an anchor, resolved per row like anchor; with duration (trail) or arrival_ticks (vibration)",
+                            "default": null
+                        },
+                        "duration": {
+                            "anyOf": [
+                                {
+                                    "oneOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string",
+                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "ticks a trail takes to reach target (whole number >= 1), with color + target",
+                            "default": null
+                        },
+                        "arrival_ticks": {
+                            "anyOf": [
+                                {
+                                    "oneOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string",
+                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "ticks a vibration takes to reach target (whole number >= 1), with target",
                             "default": null
                         },
                         "anchor": {

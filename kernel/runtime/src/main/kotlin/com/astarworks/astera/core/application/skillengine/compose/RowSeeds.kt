@@ -68,7 +68,10 @@ public object RowSeeds {
             is Action.Emit, is Action.End, is Action.Enter -> ""
             is Action.Exit -> a.reason.name
             else -> a
-        }.toString()
+        }.toString().let { t ->
+            // a particle without a travel target prints as it did before the field existed, so its seed (what the row IS) is unchanged
+            if (a is Action.Particle && a.target == null) t.removeSuffix(", target=null)") + ")" else t
+        }
         return LIVE.replace(text) { m ->
             val name = m.groupValues[1]
             "Live(name=" + (if (RAND.containsMatchIn(name)) "<rand>" else normalize(name)) + ", bound="

@@ -28,6 +28,8 @@ import com.astarworks.astera.core.domain.damage.DamageComponent
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.application.skillengine.runtime.port.DisplayView
+import com.astarworks.astera.core.domain.effect.ParticleData
+import com.astarworks.astera.core.domain.effect.ParticleTarget
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.application.skillengine.load.grammar.LocalAxes
 import com.astarworks.astera.core.domain.geometry.math.Basis
@@ -1182,11 +1184,23 @@ public class TablePlayer(
             castRef(run),
             ParticleBurst(
                 particle = a.type, at = Vec3(pos.x, pos.y, pos.z), count = run.fields[row.instance]?.get("count")?.toInt() ?: int(run, a.count, ctx), offset = Vec3(off.x, off.y, off.z),
-                speed = num(run, a.extra, ctx), data = a.data, dir = null, spreadDeg = 0.0, inheritVelocity = null,
+                speed = num(run, a.extra, ctx), data = resolvedData(run, a, ctx), dir = null, spreadDeg = 0.0, inheritVelocity = null,
                 look = Frame.fromYawPitch(Vec3.ZERO, req.casterYawDeg, req.casterPitchDeg).forward(),
                 seed = rowStream(run, row, ctx).nextLong(),
             ),
         )
+    }
+
+    /** A trail / vibration carries a placeholder destination; the row's `target` is evaluated here (anchors move) and swapped in as the absolute point. */
+    private fun resolvedData(run: Run, a: Action.Particle, ctx: RowCtx): ParticleData? {
+        val t = a.target ?: return a.data
+        val p = vec(run, t, ctx)
+        val dest = ParticleTarget.Absolute(Vec3(p.x, p.y, p.z))
+        return when (val d = a.data) {
+            is ParticleData.Trail -> d.copy(target = dest)
+            is ParticleData.Vibration -> d.copy(destination = dest)
+            else -> d
+        }
     }
 
     private fun sound(run: Run, row: Row, a: Action.Sound, ctx: RowCtx) {

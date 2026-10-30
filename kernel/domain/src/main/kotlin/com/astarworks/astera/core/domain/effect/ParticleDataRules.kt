@@ -21,6 +21,9 @@ public object ParticleDataRules {
         put("dragon_breath", ParticleData.Power::class)
     }
 
+    /** Paper 26.3 particles whose `dataType` (`Particle.Geyser` / `GeyserBase`) the Paper mapping has no variant for: they would be dropped at cast time. */
+    private val UNSUPPORTED: Set<String> = setOf("geyser", "geyser_plume", "geyser_base", "geyser_poof")
+
     /** Families whose Paper mapping has a vanilla default (white dust / tint) when no data is given. */
     private val DEFAULTED: Set<KClass<out ParticleData>> = setOf(
         ParticleData.Dust::class, ParticleData.DustTransition::class, ParticleData.Tint::class, ParticleData.Spell::class,
@@ -31,18 +34,12 @@ public object ParticleDataRules {
     /** null = [data] fits [particle]; otherwise the reason it does not. */
     public fun check(particle: String, data: ParticleData?): String? {
         val key = particle.removePrefix("minecraft:")
+        if (key in UNSUPPORTED) return "particle '$key' takes Particle.Geyser data, which Astera has no ParticleData variant for"
         val expected = FAMILIES[key]
         if (data == null) {
             return if (expected == null || expected in DEFAULTED) null
             else "particle '$key' needs ${name(expected)} data (give the matching field), none given"
         }
-        if (expected != data::class) return "particle '$key' takes ${name(expected)}, but ${name(data::class)} was given"
-        val target = when (data) {
-            is ParticleData.Trail -> data.target
-            is ParticleData.Vibration -> data.destination
-            else -> null
-        }
-        if (target != null && target !is ParticleTarget.Absolute) return "particle '$key' needs an absolute target; a skill particle row has no toward / offset resolution"
-        return null
+        return if (expected != data::class) "particle '$key' takes ${name(expected)}, but ${name(data::class)} was given" else null
     }
 }

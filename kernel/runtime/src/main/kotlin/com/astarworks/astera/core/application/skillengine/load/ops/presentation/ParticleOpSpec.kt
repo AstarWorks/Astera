@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.skillengine.load.ops.presentation
 
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
+import com.astarworks.astera.core.application.skillengine.load.VanillaKeys
 import com.astarworks.astera.core.application.skillengine.load.grammar.AnchorRef
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
@@ -25,6 +26,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.effect.ParticleColor
 import com.astarworks.astera.core.domain.effect.ParticleData
 import com.astarworks.astera.core.domain.effect.ParticleDataRules
+import com.astarworks.astera.core.domain.effect.ParticleTarget
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
@@ -38,10 +40,19 @@ import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 
-/** The single data slot of the vanilla overload (2.2): Dust(color + size), Block, Item, a sculk roll, a shriek delay, a dragon-breath power, or none. */
+/**
+ * The single data slot of the vanilla overload (2.2), picked by which fields are written: Dust (color + size), DustTransition (color + to_color + size),
+ * Tint (color alone), Spell (color + power), Block, Item, a sculk roll, a shriek delay, a dragon-breath power (power alone),
+ * Trail (color + target + duration), Vibration (target + arrival_ticks), or none. [ParticleDataRules] then checks the slot fits the particle.
+ */
 public sealed interface ParticleStyle {
     public data object Plain : ParticleStyle
     public data class Dust(public val color: ParticleColor, public val size: Value<Double>) : ParticleStyle
+    public data class DustTransition(public val from: ParticleColor, public val to: ParticleColor, public val size: Value<Double>) : ParticleStyle
+    public data class Tint(public val color: ParticleColor) : ParticleStyle
+    public data class Spell(public val color: ParticleColor, public val power: Value<Double>) : ParticleStyle
+    public data class Trail(public val color: ParticleColor, public val target: AnchorRef, public val duration: Value<Double>) : ParticleStyle
+    public data class Vibration(public val target: AnchorRef, public val arrival: Value<Double>) : ParticleStyle
     public data class Block(public val key: Value<String>) : ParticleStyle
     public data class Item(public val key: Value<String>) : ParticleStyle
     public data class SculkCharge(public val roll: Value<Double>) : ParticleStyle
@@ -72,13 +83,17 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
     private val COUNT = Field.optional("count", Types.number, Value.Literal(1.0), "vanilla count; 0 = one particle, offset is the direction")
     private val OFFSET = Field.optional("offset", Types.worldVec3, Value.Literal(Vec3(0.0, 0.0, 0.0)), "world-axis spread box, or direction when count is 0")
     private val EXTRA = Field.optional("extra", Types.number, Value.Literal(0.0), "vanilla extra (speed for most particles)")
-    private val COLOR = Field.optional("color", Types.nullable(Types.loadText), null, "#rrggbb, with size: Particle.DustOptions")
-    private val SIZE = Field.optional("size", Types.nullable(Types.number), null, "dust scale, with color")
+    private val COLOR = Field.optional("color", Types.nullable(Types.loadText), null, "#rrggbb: with size Particle.DustOptions; alone the tint of entity_effect / flash / tinted_leaves; with power Particle.Spell; with target + duration Particle.Trail")
+    private val TO_COLOR = Field.optional("to_color", Types.nullable(Types.loadText), null, "#rrggbb end colour, with color + size: Particle.DustTransition (dust_color_transition)")
+    private val SIZE = Field.optional("size", Types.nullable(Types.number), null, "dust scale, with color (and to_color)")
     private val BLOCK = Field.optional("block", Types.nullable(Types.idValue), null, "block key for BlockData; under times a per-index list or '= CEL' over i")
     private val ITEM = Field.optional("item", Types.nullable(Types.idValue), null, "material key for ItemStack data; under times a per-index list or '= CEL' over i")
     private val ROLL = Field.optional("roll", Types.nullable(Types.number), null, "radians, for particle sculk_charge (its Float data)")
     private val DELAY = Field.optional("delay", Types.nullable(Types.number), null, "ticks before the pulse, for particle shriek (its Integer data)")
-    private val POWER = Field.optional("power", Types.nullable(Types.number), null, "for particle dragon_breath (its Float data)")
+    private val POWER = Field.optional("power", Types.nullable(Types.number), null, "for dragon_breath (its Float data); with color, Particle.Spell (effect / instant_effect)")
+    private val TARGET = Field.optional("target", Types.nullable(Types.anchorRef), null, "where a trail / vibration travels to: an anchor, resolved per row like anchor; with duration (trail) or arrival_ticks (vibration)")
+    private val DURATION = Field.optional("duration", Types.nullable(Types.number), null, "ticks a trail takes to reach target (whole number >= 1), with color + target")
+    private val ARRIVAL = Field.optional("arrival_ticks", Types.nullable(Types.number), null, "ticks a vibration takes to reach target (whole number >= 1), with target")
     private val ANCHOR = Field.required("anchor", Types.anchorRef, "emission point: anchor name or {of, offset, to, samples, sweep}; to + samples = n rows along the segment of -> to")
     private val SHIFT = Field.optional("shift", Types.nullable(FrameVecs.type), null, "per-copy displacement of the emission point: {forward, up, left} in the anchor's axes, or a whole world vec; reads i, n, draw, roll")
 
@@ -89,7 +104,7 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
     override val timing: TimingKind? = TimingKind.POINT
     override val fields: Fields = Fields.of(
         "particle",
-        PARTICLE, COUNT, OFFSET, EXTRA, COLOR, SIZE, BLOCK, ITEM, ROLL, DELAY, POWER, ANCHOR, SHIFT, MOTION,
+        PARTICLE, COUNT, OFFSET, EXTRA, COLOR, TO_COLOR, SIZE, BLOCK, ITEM, ROLL, DELAY, POWER, TARGET, DURATION, ARRIVAL, ANCHOR, SHIFT, MOTION,
     )
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ParticleOp, SkillDecodeError> =
@@ -147,11 +162,44 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
             is Result.Failure -> return r
         }
 
+        var target: Val<Vector3d>? = null
+        fun placeTarget(t: AnchorRef): Result<Lowered, SkillDecodeError>? =
+            when (val r = ParticlePlacement.place("particle target", lc, t, null)) {
+                is Result.Failure -> r
+                is Result.Success -> { target = r.value.position; null }
+            }
+        fun ticks(what: String, v: Value<Double>): Result<Int, SkillDecodeError> {
+            val n = foldedNum(v, lc) ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".$what", "$what is baked into the particle data: write a value that folds at load (literal, \${param}, or = CEL of params and i)"))
+            if (n < 1.0 || n % 1.0 != 0.0) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".$what", "$what must be a whole number of ticks >= 1, got $n"))
+            return Result.Success(n.toInt())
+        }
         val data = when (val s = op.style) {
             ParticleStyle.Plain -> null
             is ParticleStyle.Dust -> ParticleData.Dust(s.color, (dustSize(s.size, lc) ?: return dustSizeError(lc)).toFloat())
-            is ParticleStyle.Block -> ParticleData.Block(dataKey(s.key, lc) ?: return dataKeyError("block", lc))
-            is ParticleStyle.Item -> ParticleData.Item(dataKey(s.key, lc) ?: return dataKeyError("item", lc))
+            is ParticleStyle.DustTransition -> ParticleData.DustTransition(s.from, s.to, (dustSize(s.size, lc) ?: return dustSizeError(lc)).toFloat())
+            is ParticleStyle.Tint -> ParticleData.Tint(s.color)
+            is ParticleStyle.Spell -> ParticleData.Spell(s.color, (foldedNum(s.power, lc) ?: return dataNumError("power", lc)).toFloat())
+            // the destination is a per-row point (the row's `target`); the player swaps it into the data as ParticleTarget.Absolute
+            is ParticleStyle.Trail -> {
+                placeTarget(s.target)?.let { return it }
+                val d = when (val r = ticks("duration", s.duration)) { is Result.Failure -> return r; is Result.Success -> r.value }
+                ParticleData.Trail(ParticleTarget.Toward, s.color, d)
+            }
+            is ParticleStyle.Vibration -> {
+                placeTarget(s.target)?.let { return it }
+                val d = when (val r = ticks("arrival_ticks", s.arrival)) { is Result.Failure -> return r; is Result.Success -> r.value }
+                ParticleData.Vibration(ParticleTarget.Toward, d)
+            }
+            is ParticleStyle.Block -> {
+                val key = dataKey(s.key, lc) ?: return dataKeyError("block", lc)
+                if (!VanillaKeys.isBlock(key)) return unknownKey("block", key, lc)
+                ParticleData.Block(key)
+            }
+            is ParticleStyle.Item -> {
+                val key = dataKey(s.key, lc) ?: return dataKeyError("item", lc)
+                if (!VanillaKeys.isItem(key)) return unknownKey("item", key, lc)
+                ParticleData.Item(key)
+            }
             is ParticleStyle.SculkCharge -> ParticleData.SculkCharge((foldedNum(s.roll, lc) ?: return dataNumError("roll", lc)).toFloat())
             is ParticleStyle.Shriek -> {
                 val delay = foldedNum(s.delay, lc) ?: return dataNumError("delay", lc)
@@ -169,6 +217,7 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
                 offset = offset,
                 extra = extra,
                 data = data,
+                target = target,
                 position = placed.position,
                 sweep = placed.sweep,
             )
@@ -179,22 +228,55 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
 
     private fun styleOf(values: FieldValues, ctx: GrammarContext): ParticleStyle {
         val color = values[COLOR]
+        val toColor = values[TO_COLOR]
         val size = values[SIZE]
         val block = values[BLOCK]
         val item = values[ITEM]
         val roll = values[ROLL]
         val delay = values[DELAY]
         val power = values[POWER]
-        val dust = color != null || size != null
-        if (listOf(dust, block != null, item != null, roll != null, delay != null, power != null).count { it } > 1) {
-            ctx.fail("particle", "color/size, block, item, roll, delay and power are alternative data slots: give one")
+        val target = values[TARGET]
+        val duration = values[DURATION]
+        val arrival = values[ARRIVAL]
+        val travel = target != null || duration != null || arrival != null
+        val tint = color != null || toColor != null || size != null || power != null
+        // Trail takes color on top of its travel fields, so a colour alone does not make the colour family a second slot there
+        val colourSlot = tint && !(travel && toColor == null && size == null && power == null)
+        if (listOf(colourSlot, travel, block != null, item != null, roll != null, delay != null).count { it } > 1) {
+            ctx.fail("particle", "the colour fields (color, to_color, size, power), target + duration / arrival_ticks, block, item, roll and delay are alternative data slots: give one")
         }
         return when {
-            dust -> {
-                if (color == null) ctx.fail("color", "size needs color (Particle.DustOptions takes both)")
-                if (size == null) ctx.fail("size", "color needs size (Particle.DustOptions takes both)")
+            travel -> {
+                if (target == null) ctx.fail("target", "duration / arrival_ticks need target (where the particle travels to)")
+                if (duration != null && arrival != null) ctx.fail("arrival_ticks", "duration (trail) and arrival_ticks (vibration) are alternatives")
+                if (duration != null) {
+                    if (color == null) ctx.fail("color", "a trail needs color (Particle.Trail takes target, color and duration)")
+                    if (duration is Value.Literal && (duration.value < 1.0 || duration.value % 1.0 != 0.0)) ctx.fail("duration", "duration must be a whole number of ticks >= 1")
+                    ParticleStyle.Trail(parseColor(color, ctx), target, foldNum(duration, ctx))
+                } else {
+                    if (arrival == null) ctx.fail("arrival_ticks", "target needs duration (trail, with color) or arrival_ticks (vibration)")
+                    if (color != null) ctx.fail("color", "a vibration takes no color; a trail takes duration instead of arrival_ticks")
+                    if (arrival is Value.Literal && (arrival.value < 1.0 || arrival.value % 1.0 != 0.0)) ctx.fail("arrival_ticks", "arrival_ticks must be a whole number of ticks >= 1")
+                    ParticleStyle.Vibration(target, foldNum(arrival, ctx))
+                }
+            }
+            tint -> {
                 if (size is Value.Literal && size.value <= 0.0) ctx.fail("size", "size must be > 0")
-                ParticleStyle.Dust(parseColor(color, ctx), foldNum(size, ctx))
+                when {
+                    toColor != null -> {
+                        if (color == null) ctx.fail("color", "to_color needs color (Particle.DustTransition takes from, to and size)")
+                        if (size == null) ctx.fail("size", "to_color needs size (Particle.DustTransition takes from, to and size)")
+                        if (power != null) ctx.fail("power", "power belongs to Particle.Spell (color + power), not to a dust transition")
+                        ParticleStyle.DustTransition(parseColor(color, ctx), parseColor(toColor, ctx), foldNum(size, ctx))
+                    }
+                    size != null -> {
+                        if (color == null) ctx.fail("color", "size needs color (Particle.DustOptions takes both)")
+                        if (power != null) ctx.fail("power", "power belongs to Particle.Spell (color + power), not to dust")
+                        ParticleStyle.Dust(parseColor(color, ctx), foldNum(size, ctx))
+                    }
+                    color != null -> if (power != null) ParticleStyle.Spell(parseColor(color, ctx), foldNum(power, ctx)) else ParticleStyle.Tint(parseColor(color, ctx))
+                    else -> ParticleStyle.Power(foldNum(power!!, ctx))
+                }
             }
             block != null -> ParticleStyle.Block(foldText(block, ctx))
             item != null -> ParticleStyle.Item(foldText(item, ctx))
@@ -203,7 +285,6 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
                 if (delay is Value.Literal && (delay.value < 0.0 || delay.value % 1.0 != 0.0)) ctx.fail("delay", "delay must be a whole number of ticks >= 0")
                 ParticleStyle.Shriek(foldNum(delay, ctx))
             }
-            power != null -> ParticleStyle.Power(foldNum(power, ctx))
             else -> ParticleStyle.Plain
         }
     }
@@ -236,6 +317,9 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
         is Value.Expr -> (OccurrenceBake.fold(lc, v.source, ExprType.STR) as? ExprValue.Str)?.value
         is Value.ParamRef -> null
     }
+
+    private fun unknownKey(what: String, key: String, lc: LowerContext): Result<Lowered, SkillDecodeError> =
+        Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".$what", "'$key' is not a vanilla $what key (minecraft:<name>, or the bare name)"))
 
     private fun dataKeyError(what: String, lc: LowerContext): Result<Lowered, SkillDecodeError> =
         Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "particle $what must be a literal, a known param or an '= expr' over i / n that folds at compile time (the particle data is fixed per row)"))
