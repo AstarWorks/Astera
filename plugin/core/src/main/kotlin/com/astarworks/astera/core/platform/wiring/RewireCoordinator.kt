@@ -19,6 +19,9 @@ import com.astarworks.astera.core.domain.Result
  *    bound, drops the new generation and re-binds the old one (`BindFailed(rolledBack)`);
  * 4. retire: close generation N's contexts, which unregisters everything stamped with its tags;
  * 5. report before/after counts per plugin; a count that fell to 0 is a warning.
+ *
+ * Steps 2-4 run inside the registry's rewire window (ADR-0311 P3), so a plugin that overlays services at a higher
+ * priority (Persistence) is not reported as a late override: its consumers are in the same plan and are rebuilt.
  */
 public class RewireCoordinator(private val base: WiringContext) : IRewireService {
 
@@ -71,6 +74,33 @@ public class RewireCoordinator(private val base: WiringContext) : IRewireService
         return Result.Success(Unit)
     }
 
+    /**
+     * Registers [lifecycle] and takes over generation 0 that was already wired by the plugin itself before Core's
+     * wiring existed (Persistence registers its overlays in `onLoad`, ADR-0195, so no consumer can capture a
+     * default). The registrations stamped `(owner, 0)` are adopted as they are; this only binds.
+     */
+    public fun <W : Any> adopt(lifecycle: PluginLifecycle<W>, wired: W): Result<Unit, RewireError> {
+        register(lifecycle)
+        val owner = lifecycle.owner
+        val slot = slots.getValue(owner)
+        check(!slot.up) { "$owner is already up" }
+        val ctx = base.forOwner(owner, 0)
+        ctx.hold()
+        ctx.activate()
+        when (val r = lifecycle.bind(ctx, wired)) {
+            is Result.Success -> Unit
+            is Result.Failure -> {
+                runCatching { lifecycle.unbind(ctx, wired) }
+                ctx.close()
+                return Result.Failure(RewireError.BindFailed(owner.id, r.error.message, rolledBack = true))
+            }
+        }
+        slot.ctx = ctx
+        slot.wired = wired
+        slot.gen = 0
+        return Result.Success(Unit)
+    }
+
     /** Stops [owner]: unbind, then close its context. No-op when it is not up. */
     public fun down(owner: WiringOwner) {
         val slot = slots[owner] ?: return
@@ -95,11 +125,11 @@ public class RewireCoordinator(private val base: WiringContext) : IRewireService
         if (ctx == null) "${slot.lifecycle.owner} down" else "${slot.lifecycle.owner} gen ${slot.gen} ${ctx.counts()}"
     }
 
-    override fun rewire(plugin: String): Result<RewireReport, RewireError> {
+    override fun rewire(plugin: String, reconnect: Boolean): Result<RewireReport, RewireError> {
         if (busy) return Result.Failure(RewireError.InProgress)
         busy = true
         try {
-            return doRewire(plugin)
+            return base.services.rewireWindow { doRewire(plugin, reconnect) }
         } finally {
             busy = false
         }
@@ -112,11 +142,16 @@ public class RewireCoordinator(private val base: WiringContext) : IRewireService
 
     private fun unknown(name: String) = RewireError.UnknownPlugin(name, knownPlugins)
 
-    private fun doRewire(name: String): Result<RewireReport, RewireError> {
+    private fun doRewire(name: String, reconnect: Boolean): Result<RewireReport, RewireError> {
         val id = resolve(name) ?: return Result.Failure(unknown(name))
         val target = slots[WiringOwner(id)]
             ?: return Result.Failure(RewireError.RestartRequired(id, "no rewire lifecycle yet (restart the server)"))
         if (!target.up) return Result.Failure(RewireError.RestartRequired(id, "plugin is not running"))
+        if (reconnect) {
+            val r = runCatching { target.lifecycle.reconnect() }
+                .getOrElse { Result.Failure(LifecycleFailure("${it::class.simpleName}: ${it.message}")) }
+            if (r is Result.Failure) return Result.Failure(RewireError.ReconnectFailed(id, r.error.message))
+        }
 
         val plan = plan(target.lifecycle.owner)
         val oldCtx = plan.associateWith { slots.getValue(it).ctx!! }

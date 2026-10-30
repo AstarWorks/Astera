@@ -34,4 +34,12 @@ public interface PluginLifecycle<W : Any> {
     public fun bind(ctx: WiringContext, wired: W): Result<Unit, LifecycleFailure>
 
     public fun unbind(ctx: WiringContext, wired: W)
+
+    /**
+     * Re-establishes the external connection this plugin owns (`astera admin rewire <plugin> --reconnect`), run
+     * before the new generation is staged. Must leave the old connection serving on failure. Plugins without a
+     * connection keep the default refusal.
+     */
+    public fun reconnect(): Result<Unit, LifecycleFailure> =
+        Result.Failure(LifecycleFailure("$owner owns no connection to re-establish"))
 }

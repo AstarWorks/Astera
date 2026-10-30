@@ -17,7 +17,7 @@ public class ItemsLifecycle(
 ) : PluginLifecycle<ItemsWiringResult> {
 
     override val owner: WiringOwner = OWNER
-    override val dependsOn: List<WiringOwner> = emptyList()
+    override val dependsOn: List<WiringOwner> = listOf(WiringOwner("Astera-Persistence"))
 
     override fun wire(ctx: WiringContext): Result<ItemsWiringResult, LifecycleFailure> =
         try {

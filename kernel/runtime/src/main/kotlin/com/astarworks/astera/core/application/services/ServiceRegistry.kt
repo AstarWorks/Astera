@@ -22,6 +22,11 @@ import kotlin.reflect.KClass
  *   registration that would outrank the resolved implementation means some
  *   consumer already captured the wrong one (overlay split brain). It is
  *   recorded in [lateOverrides] and reported to [lateOverrideListener].
+ * - Generation-aware (ADR-0311 P3): inside [rewireWindow] a registration that outranks what consumers resolved is
+ *   not a split brain, because the consumers are rebuilt in the same rewire; the resolved mark of that type is
+ *   forgotten so only resolutions made afterwards count. A registration by an OLDER generation of an owner whose
+ *   newer generation is already registered is rejected ([staleRejections]): its tag is retired, so it must not
+ *   outlive the teardown that already ran.
  */
 public class ServiceRegistry private constructor(
     private val store: Store,
@@ -50,6 +55,30 @@ public class ServiceRegistry private constructor(
         val resolvedPriority: MutableMap<KClass<*>, Int> = mutableMapOf()
         val lateOverrides: MutableList<LateOverride> = mutableListOf()
         var lateOverrideListener: ((LateOverride) -> Unit)? = null
+        val staleRejections: MutableList<StaleRegistration> = mutableListOf()
+        var windowDepth: Int = 0
+    }
+
+    /** A registration refused because a newer generation of the same owner already holds that type. */
+    public data class StaleRegistration(val type: KClass<*>, val tag: WiringTag, val newerGen: Int) {
+        val message: String
+            get() = "ServiceRegistry: ${type.qualifiedName} registration by retired $tag refused (generation $newerGen is registered)"
+    }
+
+    /** Every refused stale-generation registration so far; tests assert this is empty. */
+    public val staleRejections: List<StaleRegistration> get() = store.staleRejections.toList()
+
+    /**
+     * Runs [block] (a rewire's stage / commit / retire) as one window: late overrides inside it are verdict-free
+     * because every consumer that could hold the old implementation is rebuilt before the window closes.
+     */
+    public fun <R> rewireWindow(block: () -> R): R {
+        store.windowDepth++
+        try {
+            return block()
+        } finally {
+            store.windowDepth--
+        }
     }
 
     /**
@@ -101,11 +130,23 @@ public class ServiceRegistry private constructor(
         impl: T,
         priority: Int = 0,
     ): Registration {
+        val newer = store.entries.firstOrNull { it.active && it.type == type && it.tag.owner == tag.owner && it.tag.gen > tag.gen }
+        if (newer != null && tag != WiringTag.UNTAGGED) {
+            store.staleRejections += StaleRegistration(type, tag, newer.tag.gen)
+            return object : Registration {
+                override fun unregister() = Unit
+                override val isActive: Boolean get() = false
+            }
+        }
         store.resolvedPriority[type]?.let { seen ->
             if (priority > seen) {
-                val late = LateOverride(type, priority, seen)
-                store.lateOverrides += late
-                store.lateOverrideListener?.invoke(late)
+                if (store.windowDepth > 0) {
+                    store.resolvedPriority.remove(type)
+                } else {
+                    val late = LateOverride(type, priority, seen)
+                    store.lateOverrides += late
+                    store.lateOverrideListener?.invoke(late)
+                }
             }
         }
         val entry = Entry(type, impl, priority, tag)

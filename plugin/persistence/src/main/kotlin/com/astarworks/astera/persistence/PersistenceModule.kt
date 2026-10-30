@@ -59,7 +59,11 @@ internal const val MIGRATION_LOCATION: String = "classpath:db/migration"
  */
 public fun connectAndMigrate(config: PostgresConfig, logger: Logger): PersistenceContext {
     logger.info("Astera-Persistence: connecting to ${config.url}")
+    return migrateAndConnect(openPool(config), logger)
+}
 
+/** Opens a Hikari pool; the connection is established lazily by the first migration. */
+internal fun openPool(config: PostgresConfig): HikariDataSource {
     val hikari = HikariConfig().apply {
         jdbcUrl = config.url
         username = config.user
@@ -71,13 +75,22 @@ public fun connectAndMigrate(config: PostgresConfig, logger: Logger): Persistenc
         idleTimeout = 600_000L
         poolName = "astera-persistence"
     }
-    val ds = HikariDataSource(hikari)
-
-    return migrateAndConnect(ds, logger)
+    return HikariDataSource(hikari)
 }
 
 /** Owns the pool until a complete context can be handed to the plugin. */
 internal fun migrateAndConnect(ds: HikariDataSource, logger: Logger): PersistenceContext = try {
+    runMigrations(ds, logger)
+    val db = Database.connect(ds)
+    logger.info("Astera-Persistence: Flyway migrations applied, Exposed connected")
+    PersistenceContext(ds, db)
+} catch (failure: Throwable) {
+    ds.close()
+    throw failure
+}
+
+/** Applies every pending Flyway migration through [ds]; also proves the pool can reach the database. */
+internal fun runMigrations(ds: HikariDataSource, logger: Logger) {
     // Flyway scans via the classloader it is given; the default is the thread context
     // loader, which on Paper is the server loader and cannot see this plugin's jar
     // ("No migrations found"). Pin it to the loader that loaded this plugin's classes.
@@ -92,11 +105,4 @@ internal fun migrateAndConnect(ds: HikariDataSource, logger: Logger): Persistenc
     }
     logger.info("Astera-Persistence: Flyway resolved $discovered migrations")
     flyway.migrate()
-
-    val db = Database.connect(ds)
-    logger.info("Astera-Persistence: Flyway migrations applied, Exposed connected")
-    PersistenceContext(ds, db)
-} catch (failure: Throwable) {
-    ds.close()
-    throw failure
 }

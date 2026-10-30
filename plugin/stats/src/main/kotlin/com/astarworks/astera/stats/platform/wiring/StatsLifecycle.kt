@@ -13,7 +13,7 @@ import com.astarworks.astera.core.platform.wiring.WiringContext
 public class StatsLifecycle(private val ports: () -> StatsPlatformPorts) : PluginLifecycle<StatsWiringResult> {
 
     override val owner: WiringOwner = OWNER
-    override val dependsOn: List<WiringOwner> = emptyList()
+    override val dependsOn: List<WiringOwner> = listOf(WiringOwner("Astera-Persistence"))
 
     override fun wire(ctx: WiringContext): Result<StatsWiringResult, LifecycleFailure> =
         try {
