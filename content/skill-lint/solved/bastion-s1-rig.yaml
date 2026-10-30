@@ -12,7 +12,6 @@ duration_ticks: 58
 orient: yaw
 follow: true
 attach_to_anchor: true
-sample_ticks: 1
 body: bastion-s1-body
 rigs:
 - id: sword

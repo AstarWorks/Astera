@@ -35,7 +35,7 @@ During e2..e7 the cutting edge normal (the rig-local +-X edge on the travel side
 
 ### Speed and timing
 - Main motion (e1 -> e4, anticipation to contact) takes <= 3 ticks = inside the first quarter of the effect's visible life. No linear easing on the main motion (`in_quad`/`in_cubic` into the contact, `out_cubic` out of it).
-- Every rotation chunk <= 100 degrees/tick and never a 1-tick ease > 170 degrees (planner rejects it; art-direction §7). Use `sample_ticks: 1`.
+- Every rotation chunk <= 100 degrees/tick and never a 1-tick ease > 170 degrees (planner rejects it; art-direction §7).
 - `respect_hit_stop: true` on the swing rigs.
 - Display budget: swing rig parts (from `deliver/rig-parts.yaml`, <= 20) + trail displays: **rig parts + trail <= 44 displays alive at any tick** (cast-wide limit 60: sword 20 + trail 24 + the fx file 16 from vfx-artist). Trail: <= 24 alive (raise `step_deg` or drop `dark_rim` if over), `step_deg <= 30`, `life_ticks` 8-10, bands 2-3 + edge + dark_rim; geometry from the blade root (local y 0.7) to tip (local y 2.55); the colours/bands come from vfx-artist's `deliver/trail-bands.yaml` (until it exists, use neutral gold bands; the director pastes the final ones).
 - Tip emitters: in each swing rig add `emitters:` entries `{id: tip_ember, particle_id: bastion-s1-tip-ember, point: [0, 2.55, 0], start_t: 2, end_t: 8}` and `{id: tip_glint, particle_id: bastion-s1-tip-glint, point: [0, 2.55, 0], start_t: 2, end_t: 7}` (particle files come from vfx-artist; if they do not exist yet the preview skips them).
@@ -50,7 +50,7 @@ Parts come from `tools/skill-compare/data/bastion-greatsword-s1/deliver/rig-part
 
 ## File territory
 Create/edit only:
-- `content/vfx/bastion-s1-rig-high.yaml` (id `bastion-s1-rig-high`, `duration_ticks: 20`, `orient: yaw`, `follow: false`, `sample_ticks: 1`, `rigs:` only)
+- `content/vfx/bastion-s1-rig-high.yaml` (id `bastion-s1-rig-high`, `duration_ticks: 20`, `orient: yaw`, `follow: false`, `rigs:` only)
 - `content/vfx/bastion-s1-rig-low.yaml` (id `bastion-s1-rig-low`, `duration_ticks: 18`)
 - `content/vfx/bastion-s1-rig-hold.yaml` (id `bastion-s1-rig-hold`, `duration_ticks: 48`, `follow: true`, three static rigs `hold_a` end_tick 3, `hold_b` start_tick 21 end_tick 27, `hold_c` start_tick 42 end_tick 47)
 - `tools/skill-compare/data/bastion-greatsword-s1/deliver/animation-notes.md` (the per-tick tables, the pivot/tilt/rest numbers, any request to change skill timing)

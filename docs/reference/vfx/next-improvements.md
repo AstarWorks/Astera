@@ -81,7 +81,7 @@ Limbus 参照武器は [統一手順書](../../contributing/limbus-skill-reprodu
 ## 10. TextDisplay の背景 alpha 補間を実機で検証する (T-3)
 
 - 根拠: Minecraft Wiki は `background` / `text_opacity` を "Interpolated" と記載。正本 §5 は「クライアントは色を補間しない」。**食い違い**。
-- 変更: `demo-quad-sparks` か専用の 1 枚で、`interpolation_duration` を 10t にして背景色 alpha を 255→0 に 1 回だけ送り、vfx-shot で毎 tick のフレームを見る。滑らかに落ちれば `sample_ticks` ごとの更新パケットを減らせる (quad 粒子・風切りのフェード)。段階的なら現行のまま。結果を正本 §5 に反映。
+- 変更: `demo-quad-sparks` か専用の 1 枚で、`interpolation_duration` を 10t にして背景色 alpha を 255→0 に 1 回だけ送り、vfx-shot で毎 tick のフレームを見る。滑らかに落ちれば tick ごとの更新パケットを減らせる (quad 粒子・風切りのフェード)。段階的なら現行のまま。結果を正本 §5 に反映。
 - コスト: 小 (検証のみ)。 影響: 中 (全 quad 粒子の負荷)。 検証: 上記の frame 列。
 
 ---

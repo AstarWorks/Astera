@@ -171,8 +171,8 @@ glyph 版は `scale = size*5` (1 セル = 8 px = 0.2 block)、色は text colour
 例: `size_over_life: [{ t: 0, v: 0.2 }, { t: 0.15, v: 1, ease: out_quad }, { t: 1, v: 0 }]`。キーが何個でも落ちない
 (以前の「2 値まで」制限は廃止、decode できない VFX は `ShippedContentDecodesTest` で build が落ちる)。
 色 / alpha はキーごとに 1 パケット (補間窓 = キー間の長さ) で送り、transform と同じ窓でクライアントが補間する前提
-(`VfxEmitterPlanner.STYLE_PER_KEY`、実機で共有しないと分かったら `false` で従来の `sample_ticks` ごと送信に戻る)。
-ease のかかった区間だけ `sample_ticks` ごとに細分する。
+(`VfxEmitterPlanner.STYLE_PER_KEY`)。
+ease のかかった区間だけ線形の小区間に細分する (ADR-0303 3.3)。
 **sprite 粒子**: `kind: sprite` の要素にも `emit` を付けられる (`start_frame: random | <int>`、`frame_ticks: [min, max]` = 粒ごとの
 flipbook 開始フレームと速度、フレーム切替はサーバが text swap で送る)。`size` は表示 scale 倍率、`billboard` 既定は center。
 `color_over_life` は quad 専用 (sprite は alpha のみ)。
@@ -223,7 +223,7 @@ rigs:
 仕組み (全部 `VfxRigPlanner` が通常の slot に展開する。色・アルファの更新は quad と共通の `setTextStyle` (VfxUpdate.style)):
 
 - **剛体**: 各 part の display = `pivot frame ∘ tilt ∘ swing ∘ rest ∘ part offset`。箱の角ではなく中心 `offset` で書く (角基準への補正はプランナーがやる)。
-- **クライアント補間は tick ごとに線形 (平行移動) + slerp (回転)**。したがって swing は keyframe 区間を `sample_ticks` 以下に刻み、さらに 1 chunk の回転が **60° を超えないよう細分化**する。最小 chunk は 1 tick なので、**速い振りは 1 tick に 1 update が必須** (300° / 3 tick ≈ 3 chunk × 100°)。1 tick で 170° を超える ease (`out_expo` で 3 tick の 300° など) は slerp が逆回りするので**プランナーが例外で拒否**する → `out_quad` / `out_cubic` か tick を足す。
+- **クライアント補間は tick ごとに線形 (平行移動) + slerp (回転)**。したがって swing は keyframe 区間を chunk に刻み、さらに 1 chunk の回転が **60° を超えないよう細分化**する。最小 chunk は 1 tick なので、**速い振りは 1 tick に 1 update が必須** (300° / 3 tick ≈ 3 chunk × 100°)。1 tick で 170° を超える ease (`out_expo` で 3 tick の 300° など) は slerp が逆回りするので**プランナーが例外で拒否**する → `out_quad` / `out_cubic` か tick を足す。
 - **風切り**: `[start_t, end_t]` を毎 tick、回転が `step_deg` を超える tick は細分化してサンプルし、隣り合う 2 サンプルごとに `bands` 1 本につき 1 枚の面 (台形を長方形で近似、7% 重ね) を作る。面は刃が通った後の tick に出現し (`lag_ticks` で更に遅延)、`life_ticks` かけて `(1 - age/life)^fade_power` で透明になり、`color_to` へ色が移る。長方形近似の隙間を減らすため、幅は外側寄りで取る (`BAND_OUTER_WEIGHT`)。
 - **soft** の面は`kind: quad` (§5 の較正 `VfxQuad`) と同じ。ブロックと違い**アルファが使える**が、背景色の更新は補間されない (毎 tick 段階的に変わる)。**crisp** は block 板で、フェードは縮小 (edge は細くなって消える)。
 - **予算**: 面の数 = サンプル数 × (bands + edge + rim)。デモで約 50 display (step_deg 36)。`MAX_SLOTS` 256 を超えるとプランナーが拒否。減らすときは `step_deg` を上げる / `bands` を 2 に / `dark_rim` を外す。

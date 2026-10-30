@@ -60,7 +60,7 @@ Write `deliver/trail-bands.yaml`: for `high` and `low`, a `bands:` list (2-3 ent
 `deliver/particle-cues.yaml`: one row per vanilla particle: id, skill tick for hit 1 and hit 2, target (`caster` / cone target), notes, and the exact display-particle counts you used. The director wires the `spawn_particle` steps; you do not edit the skill.
 
 ## File territory
-`content/vfx/bastion-s1-fx-high.yaml`, `content/vfx/bastion-s1-fx-low.yaml` (`elements:` only, ids exactly these, `orient: yaw`, `follow: false`, `sample_ticks: 1`), `content/particles/bastion-s1-*.yaml`, the sprite files of `texture.md`, `deliver/trail-bands.yaml`, `deliver/particle-cues.yaml`, evidence/vfx. No edits to the old `bastion-*` files, rigs, skills.
+`content/vfx/bastion-s1-fx-high.yaml`, `content/vfx/bastion-s1-fx-low.yaml` (`elements:` only, ids exactly these, `orient: yaw`, `follow: false`), `content/particles/bastion-s1-*.yaml`, the sprite files of `texture.md`, `deliver/trail-bands.yaml`, `deliver/particle-cues.yaml`, evidence/vfx. No edits to the old `bastion-*` files, rigs, skills.
 
 ## Self-check
 1. `vfx-preview` of `bastion-s1-fx-high` / `-low` (side, top, eye, `--freeze 4:2`), contact sheets opened; also layered with the animator's rig if it exists (copy both into a scratchpad combo file, do not commit it).
