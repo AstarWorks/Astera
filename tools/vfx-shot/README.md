@@ -355,5 +355,6 @@ When reusing one client for several comparison cases, pass its actual FOV in deg
 weather held fixed. `SHOT_WALL=1` places a stone wall at x=299, y=100..104,
 z=300..309, between the ordinary side camera and the caster-forward demo rows.
 It is cleared on the next take by arena rebuilding. Use `DISTANCE=8` to frame
-`demo-glow-comparison` (A/B/C/D at forward 1/3/5/7). The option is restricted to
+`demo-glow-comparison` (A/B/C/D at forward 1/3/5/7), with `ITEM=none` because
+this standalone demo has no item binding. The option is restricted to
 0 or 1 and automatically travels through the remote runner as `SHOT_*`.

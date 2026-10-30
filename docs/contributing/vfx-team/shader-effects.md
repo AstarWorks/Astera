@@ -13,7 +13,7 @@ Item effects are local to an authored pack mesh display; the particle prototype 
 
    ```sh
    ./gradlew :tools:resource-pack:buildResourcePack
-   make vfx-shot SKILL=demo-shader-emissive-pulse VIEW=side TICKS=100
+   make vfx-shot SKILL=demo-shader-emissive-pulse ITEM=none VIEW=side TICKS=100
    ```
 
 Playable VFX demos in `content/vfx/` use the same Skill YAML schema as `content/skills/`. They are loaded by the same runtime and can be cast/filmed by id. Duplicate skill/demo ids and unknown shader ids fail content loading. Reloading the registry changes id validation; changing markers/constants/snippets also requires rebuilding and reloading the pack.
@@ -91,7 +91,7 @@ independently, for every display kind. B's visible palette is pack-wide; A's
 outline and ordinary dust RGB are authorable. Emission is fullbright shading,
 not world light or bloom. Only A's outline is intended to survive occlusion.
 
-Capture with `make vfx-shot SKILL=demo-glow-comparison VIEW=side TICKS=40
+Capture with `make vfx-shot SKILL=demo-glow-comparison ITEM=none VIEW=side TICKS=40
 DISTANCE=8 TIME_OF_DAY=6000` (then 18000; then `SHOT_WALL=1`). Run
 `make vfx-shot-down` before a changed pack. Display rows use CORE (kept even at
 minimal `vfx_intensity`) and the existing audience filter. Direct particle
