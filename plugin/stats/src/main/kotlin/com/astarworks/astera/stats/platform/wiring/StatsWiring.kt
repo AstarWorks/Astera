@@ -98,11 +98,19 @@ import com.astarworks.astera.core.platform.wiring.WiringContext
 /** What the host needs after [StatsWiring.install]. */
 public class StatsWiringResult(
     public val grantXp: GrantXpUseCase,
-    private val shutdownHooks: List<() -> Unit>,
+    private val binders: List<() -> () -> Unit>,
 ) {
-    /** Runs the stop hooks wiring registered; subscriptions / registrations are closed by `WiringContext.close()`. */
-    public fun shutdown() {
-        shutdownHooks.forEach { runCatching(it) }
+    private var stops: List<() -> Unit> = emptyList()
+
+    /** Starts the side effects (repeating tasks, lobby board) that [StatsWiring.install] deliberately did not start. */
+    public fun bind() {
+        stops = binders.map { it() }
+    }
+
+    /** Stops what [bind] started; registrations / subscriptions are closed by `WiringContext.close()`. */
+    public fun unbind() {
+        stops.asReversed().forEach { runCatching(it) }
+        stops = emptyList()
     }
 }
 
@@ -114,7 +122,7 @@ public object StatsWiring {
 
     @Suppress("UNCHECKED_CAST")
     public fun install(ctx: WiringContext, ports: StatsPlatformPorts): StatsWiringResult {
-        val shutdownHooks = mutableListOf<() -> Unit>()
+        val binders = mutableListOf<() -> () -> Unit>()
         val services = ctx.services
         val logger = ctx.logger
         val registrations = ctx.registrations
@@ -136,24 +144,15 @@ public object StatsWiring {
         // priority=100 (via loadbefore), we pick it up here. Otherwise fall back
         // to in-memory and register at priority=0 for cross-plugin readers.
         val statsRepository: IPlayerStatsRepository =
-            services.get<IPlayerStatsRepository>()
-                ?: InMemoryPlayerStatsRepository().also {
-                    registrations += services.register<IPlayerStatsRepository>(it, priority = 0)
-                }
+            ctx.stateful<IPlayerStatsRepository> { InMemoryPlayerStatsRepository() }
         val xpRepository: IPlayerXpRepository =
-            services.get<IPlayerXpRepository>()
-                ?: InMemoryPlayerXpRepository().also {
-                    registrations += services.register<IPlayerXpRepository>(it, priority = 0)
-                }
+            ctx.stateful<IPlayerXpRepository> { InMemoryPlayerXpRepository() }
         val levelService = InMemoryLevelService(xpRepository)
 
         // Wave 4.5 (ADR-0027): Norma progress is now persisted via repository.
         // Postgres impl overlays at priority 100 when Astera-Persistence is loaded.
         val normaProgressRepository: INormaProgressRepository =
-            services.get<INormaProgressRepository>()
-                ?: InMemoryNormaProgressRepository().also {
-                    registrations += services.register<INormaProgressRepository>(it, priority = 0)
-                }
+            ctx.stateful<INormaProgressRepository> { InMemoryNormaProgressRepository() }
 
         // Wave _infra-2b (ADR-0065): NormaContents replaces the legacy
         // NormaLoaderService callback pattern. Definitions live in the
@@ -182,8 +181,7 @@ public object StatsWiring {
 
         // Wave _infra-2b: register norma contents on the /astera reload dispatcher.
         val reloadRegistry = services.getOrThrow<IReloadableContentsRegistry>()
-        val normaReload = reloadRegistry.register(normaContents, normaContentDir)
-        shutdownHooks += normaReload::unregister
+        reloadRegistry.register(normaContents, normaContentDir)
 
         // 5. Use cases ------------------------------------------------------
         val recordKill = RecordKillUseCase(statsRepository, eventBus)
@@ -237,10 +235,11 @@ public object StatsWiring {
             java.nio.file.Files.readString(progressionDir.resolve("level-rewards.yaml")),
             LevelRewardsYamlConfig.serializer(),
         )
-        val levelRewards = services.get<ILevelRewardRepository>()
-            ?: InMemoryLevelRewardRepository {
+        val levelRewards = ctx.stateful<ILevelRewardRepository> {
+            InMemoryLevelRewardRepository {
                 services.get<com.astarworks.astera.core.application.port.outbound.ICurrencyLedger>()
-            }.also { registrations += services.register<ILevelRewardRepository>(it) }
+            }
+        }
         registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerUnlockView>(levelRewards)
         registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerUnlockStore>(levelRewards)
         val grantLevelRewards = GrantLevelRewardsUseCase(
@@ -271,10 +270,7 @@ public object StatsWiring {
         // ADR-0210: unlocks persist (V60 Postgres overlay wins when present); the catalog is
         // content/achievements/ and was never populated before, so no achievement could unlock.
         val achievementRepo: IAchievementRepository =
-            services.get<IAchievementRepository>()
-                ?: InMemoryAchievementRepository().also {
-                    registrations += services.register<IAchievementRepository>(it, priority = 0)
-                }
+            ctx.stateful<IAchievementRepository> { InMemoryAchievementRepository() }
         registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerProgressView>(
             object : com.astarworks.astera.core.application.port.outbound.IPlayerProgressView {
                 override fun progressOf(playerId: com.astarworks.astera.core.domain.player.PlayerId) =
@@ -295,13 +291,12 @@ public object StatsWiring {
         val achievementReport = achievementContents.bootstrap(achievementContentDir)
         logger.info("Loaded ${achievementReport.loaded} achievement(s) from $achievementContentDir (failed: ${achievementReport.failed})")
         achievementRepo.registerAll(achievementContents.all().toList())
-        val achievementReload = reloadRegistry.register(
+        reloadRegistry.register(
             com.astarworks.astera.stats.application.contents.ReloadSyncedContents(achievementContents) {
                 achievementRepo.registerAll(achievementContents.all().toList())
             },
             achievementContentDir,
         )
-        shutdownHooks += achievementReload::unregister
 
         // ── Wave M 5polish-quickwin (ADR-0130 §B) ────────────────────────
         // PlayerAchievementListGuiBindingResolver projects the achievement
@@ -315,7 +310,7 @@ public object StatsWiring {
             val achievementListResolver = com.astarworks.astera.stats.application.service.gui
                 .PlayerAchievementListGuiBindingResolver({ achievementRepo })
             compositeBindingResolverForStats.addDelegate(achievementListResolver)
-            shutdownHooks += { compositeBindingResolverForStats.removeDelegate(achievementListResolver) }
+            ctx.onClose { compositeBindingResolverForStats.removeDelegate(achievementListResolver) }
             logger.info(
                 "Wave M 5polish-quickwin (ADR-0130 §B) wired: " +
                     "PlayerAchievementListGuiBindingResolver appended to composite resolver.",
@@ -387,10 +382,7 @@ public object StatsWiring {
         // ---- Wave 5multi-skill (ADR-0101): multi-axis skill progression -----
         // Repository: Postgres overlay at priority=100 wins when persistence is loaded.
         val skillProgressionRepo: ISkillProgressionRepository =
-            services.get<ISkillProgressionRepository>()
-                ?: InMemorySkillProgressionRepository().also {
-                    registrations += services.register<ISkillProgressionRepository>(it, priority = 0)
-                }
+            ctx.stateful<ISkillProgressionRepository> { InMemorySkillProgressionRepository() }
         // Content registry doubles as ISkillXpCurveRegistry + ISkillPerkRegistry.
         val skillProgressionContentDir = ctx.contentDir.resolve("skills-progression")
         val skillProgressionContents = SkillProgressionContents()
@@ -401,8 +393,7 @@ public object StatsWiring {
         )
         registrations += services.register<ISkillXpCurveRegistry>(skillProgressionContents, priority = 0)
         registrations += services.register<ISkillPerkRegistry>(skillProgressionContents, priority = 0)
-        val skillProgressionReload = reloadRegistry.register(skillProgressionContents, skillProgressionContentDir)
-        shutdownHooks += skillProgressionReload::unregister
+        reloadRegistry.register(skillProgressionContents, skillProgressionContentDir)
 
         val awardSkillXp = AwardSkillXpUseCase(skillProgressionRepo, skillProgressionContents, eventBus)
         val combatXpOnDamage = AwardCombatXpOnDamageDealtListener(awardSkillXp)
@@ -428,16 +419,12 @@ public object StatsWiring {
         // AsteraPersistencePlugin; the cache stays in-memory because it
         // is a rebuilt projection on every PowerIndexComputed /
         // AchievementUnlocked event.
-        val nameplateCache = NameplateBadgeRegistry()
-        registrations += services.register(nameplateCache, priority = 0)
+        val nameplateCache = ctx.stateful { NameplateBadgeRegistry() }
         // Resolve the milestone repo (in-memory fallback if Postgres overlay
         // is absent). Phase 1: registered but not yet consumed inline — the
         // join-listener that re-injects the persisted milestone into the
         // cache lands as part of the Paper-side wiring in a follow-up.
-        services.get<INameplateMilestoneRepository>()
-            ?: InMemoryNameplateMilestoneRepository().also {
-                registrations += services.register<INameplateMilestoneRepository>(it, priority = 0)
-            }
+        ctx.stateful<INameplateMilestoneRepository> { InMemoryNameplateMilestoneRepository() }
         // Phase 1: Stats-only providers are wired. Title equip + PowerIndex
         // hooks land in later flex follow-up waves (Wave 11d for cert tier,
         // post-Wave 6 for title equip command). PowerIndex bridge uses the
@@ -513,15 +500,9 @@ public object StatsWiring {
         // priority 100 (V48 seasons / leaderboard_rankings). The listener
         // materialises rankings from Match's PlayerRatingUpdated events.
         val seasonRepository: com.astarworks.astera.stats.application.port.outbound.ISeasonRepository =
-            services.get<com.astarworks.astera.stats.application.port.outbound.ISeasonRepository>()
-                ?: com.astarworks.astera.stats.application.service.season.InMemorySeasonRepository().also {
-                    registrations += services.register<com.astarworks.astera.stats.application.port.outbound.ISeasonRepository>(it, priority = 0)
-                }
+            ctx.stateful<com.astarworks.astera.stats.application.port.outbound.ISeasonRepository> { com.astarworks.astera.stats.application.service.season.InMemorySeasonRepository() }
         val leaderboardRepository: com.astarworks.astera.stats.application.port.outbound.ILeaderboardRepository =
-            services.get<com.astarworks.astera.stats.application.port.outbound.ILeaderboardRepository>()
-                ?: com.astarworks.astera.stats.application.service.leaderboard.InMemoryLeaderboardRepository().also {
-                    registrations += services.register<com.astarworks.astera.stats.application.port.outbound.ILeaderboardRepository>(it, priority = 0)
-                }
+            ctx.stateful<com.astarworks.astera.stats.application.port.outbound.ILeaderboardRepository> { com.astarworks.astera.stats.application.service.leaderboard.InMemoryLeaderboardRepository() }
         val recordRatingListener = com.astarworks.astera.stats.application.eventbus.listeners
             .RecordRatingOnPlayerRatingUpdatedListener(seasonRepository, leaderboardRepository)
         subscriptions += eventBus.subscribe(
@@ -548,10 +529,12 @@ public object StatsWiring {
                 }
             }
             registrations += services.register(checkSeason)
-            val seasonTask = scheduler.runRepeatingTicks(ExecutionScope.Io, 1L, 1200L) {
-                checkSeason.execute(java.time.Instant.now()).onFailure { logger.warning("Season check failed: $it") }
+            binders += {
+                val seasonTask = scheduler.runRepeatingTicks(ExecutionScope.Io, 1L, 1200L) {
+                    checkSeason.execute(java.time.Instant.now()).onFailure { logger.warning("Season check failed: $it") }
+                }
+                seasonTask::cancel
             }
-            shutdownHooks += { seasonTask.cancel() }
         }
 
         // ADR-0210: the season ranking floats in the lobby as a text board.
@@ -577,7 +560,10 @@ public object StatsWiring {
                         rows = cfg.rows,
                         refreshTicks = cfg.refreshSeconds * 20L,
                     )
-                    shutdownHooks += board::stop
+                    binders += {
+                        board.start()
+                        board::stop
+                    }
                 }
             }
         }
@@ -673,6 +659,6 @@ public object StatsWiring {
             names = { id -> services.get<com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository>()?.find(id)?.displayName },
         ).build().forEach { commands.register("stats", it) }
 
-        return StatsWiringResult(grantXp = grantXp, shutdownHooks = shutdownHooks.toList())
+        return StatsWiringResult(grantXp = grantXp, binders = binders.toList())
     }
 }
