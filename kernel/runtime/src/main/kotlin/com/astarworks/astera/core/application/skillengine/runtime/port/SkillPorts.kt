@@ -4,6 +4,7 @@ import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
+import com.astarworks.astera.core.domain.skillengine.hit.HitBox
 import com.astarworks.astera.core.domain.skillengine.hit.HitCandidate
 import com.astarworks.astera.core.domain.skillengine.op.TrailBand
 import com.astarworks.astera.core.domain.skillengine.op.TrailEdge
@@ -288,6 +289,12 @@ public interface ISkillGameplayGateway {
 public interface ISkillEntityQuery {
     /** Living, hittable entities within [radius] of [point], excluding [excluding]. */
     public fun nearby(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate>
+
+    /**
+     * Hitboxes of the living bodies (and standing structures) within [radius] of [point], excluding [excluding]: what a travelling caster must
+     * not end inside (`dash`). Same set as [nearby], but a pure geometry read that is not a hit query (the oracle does not record it).
+     */
+    public fun bodiesNear(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitBox>
 
     /** Current feet position and body yaw of an entity (the victim / caster root frame). */
     public fun rootOf(cast: CastRef, entity: UUID): EntityRoot?

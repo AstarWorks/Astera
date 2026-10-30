@@ -38,6 +38,7 @@ import com.astarworks.astera.core.domain.geometry.math.Frame as SimFrame
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.hit.HitBox
 import com.astarworks.astera.core.domain.skillengine.hit.HitCandidate
 import com.astarworks.astera.core.domain.skillengine.op.TrailBand
 import com.astarworks.astera.core.domain.skillengine.op.TrailEdge
@@ -470,6 +471,11 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             val shape = announced?.second?.let { OracleFmt.volume(it) } ?: "shape=area"
             oracleOnly("hit", "-", "at=${OracleFmt.v(point)} r=${OracleFmt.f(radius)} $shape", announced?.first ?: if (faithfulPose) rowOp ?: error("hit query outside any row: no op to attribute it to") else rowOp)
             return victims.filter { it.entityId != excluding }
+        }
+
+        override fun bodiesNear(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitBox> {
+            seen("query.bodiesNear", cast)
+            return victims.filter { it.entityId != excluding }.map { it.box }
         }
 
         override fun rootOf(cast: CastRef, entity: UUID): EntityRoot? {

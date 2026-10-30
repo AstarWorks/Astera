@@ -1822,8 +1822,10 @@ public class TablePlayer(
             stopOnBlock = bool(run, cell("stop_on_block"), ctx),
             invulnerable = bool(run, cell("invulnerable"), ctx),
             faceMovement = bool(run, cell("face_movement"), ctx),
+            passThrough = p["pass_through"]?.let { bool(run, it, ctx) } ?: false,
         )
         run.dash.start(row.instance.text, params)?.let { fault(run, now, src, it) }
+        run.dash.drainFaults().forEach { fault(run, now, src, it) }
     }
 
     private fun reelStart(run: Run, row: Row, p: Map<String, Val<Any>>, ctx: RowCtx, now: Int, src: String) {
@@ -1951,6 +1953,7 @@ public class TablePlayer(
 
     private fun driversStep(run: Run, now: Int) {
         run.dash.tick()
+        run.dash.drainFaults().forEach { fault(run, now, "dash", it) }
         for ((id, line) in run.lines.entries.toList()) lineStep(run, id, line, now)
         for (veil in run.veils.values) {
             val age = (now - veil.start).coerceAtMost(veil.ticks)

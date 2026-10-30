@@ -120,7 +120,7 @@ public object RigOpSpec : OpSpec<RigOp> {
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<RigOp, SkillDecodeError> =
         Grammar.guard {
             val path = "rig(${id.value})"
-            val probe = DashOp(id, src, whenExpr, timing, Value.Literal(0.0), Value.Literal(0.0), values[pivot], null, false, true, true, false)
+            val probe = DashOp(id, src, whenExpr, timing, Value.Literal(0.0), Value.Literal(0.0), values[pivot], null, false, true, true, false, false)
             val duration = CasterMotion.ticksOf(probe, ctx, path)
             fun flag(f: Field<Value<Boolean>>): Boolean = (values[f] as? Value.Literal)?.value ?: ctx.fail("$path.${f.name}", "must be a literal true/false")
             val mountPoint = values[mount]

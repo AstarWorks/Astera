@@ -257,6 +257,9 @@ internal class SimSkillEntityQuery(
     /** Lazy: Match registers the structure targets (Annihilation pillars) after Combat wires; same as the Paper query. */
     private val structures: () -> com.astarworks.astera.core.application.port.outbound.IStructureTargets? = { null },
 ) : ISkillEntityQuery {
+    override fun bodiesNear(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitBox> =
+        nearby(cast, point, radius, excluding).map { it.box }
+
     override fun nearby(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> {
         if (radius <= 0.0) return emptyList()
         val out = ArrayList<HitCandidate>()
