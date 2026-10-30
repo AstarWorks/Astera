@@ -109,6 +109,65 @@ class SkillEngineV3E2eTest : E2eBase() {
         }
     }
 
+    /**
+     * Founder #13/#14 (patch separate from the skill, reload one skill): a `kind: Patch` file next to the probe skill (skin patch: recolours the
+     * `glow` particle) is picked up by `astera skill reload reload-probe`; the probe's dump changes and another skill's stays byte-identical.
+     * A malformed patch (a skin patch touching a gameplay op) is rejected loudly and the probe keeps the patched version (no half state); removing
+     * the patch and reloading restores the base dump. A `balance` patch is NOT covered here: production wiring builds `ComposeOptions()` with
+     * `allowGameplayPatches = false`, so balance patches are skipped on Paper (see the report).
+     */
+    @Test
+    fun reloadAppliesSeparatePatchAndKeepsOldVersionOnBadPatch() {
+        val skill = File(probeDir, "skill.yaml")
+        check(skill.isFile) { "reload probe not mounted: ${skill.absolutePath}" }
+        check(skill.readText().contains("id: glow")) { "probe skill.yaml has no 'glow' particle row (docker/e2e-tune-content.sh not rebuilt)" }
+        val patchFile = File(probeDir, "skin.yaml")
+        fun patchDoc(ops: String) = "apiVersion: astera/v3\nkind: Patch\nid: reload-probe-overlay-skin\ntarget: reload-probe\npatchKind: skin\nops:\n$ops\n"
+        val logMark = ServerLog.lineCount()
+        try {
+            val base = expandDump("reload-probe")
+            val otherBefore = expandDump("lock-pitch-probe")
+
+            patchFile.writeText(patchDoc("""  - {path: "machine.states.hold.do[glow].color", ${'$'}patch: replace, value: "#3a7bff"}"""))
+            val okReply = clean(rcon("astera skill reload reload-probe"))
+            val patched = expandDump("reload-probe")
+            val otherAfter = expandDump("lock-pitch-probe")
+
+            E2eReport.check(suite, "a separate patch file changes the skill's dump on reload; another skill is untouched", "RCON astera skill expand reload-probe / lock-pitch-probe, before/after reload") {
+                assertThat(base).isNotBlank()
+                assertThat(patched).describedAs("dump after adding the patch; reload reply='$okReply'").isNotEqualTo(base)
+                assertThat(otherAfter).describedAs("lock-pitch-probe dump").isEqualTo(otherBefore)
+                "dump changed (${base.length} -> ${patched.length} chars); other skill identical"
+            }
+
+            patchFile.writeText(patchDoc("""  - {path: "machine.states.hold.do[pin].for", ${'$'}patch: replace, value: 1}"""))
+            val badReply = clean(rcon("astera skill reload reload-probe"))
+            val afterBad = expandDump("reload-probe")
+
+            E2eReport.check(suite, "a malformed patch is rejected loudly and the skill keeps its old version", "RCON astera skill reload reload-probe with a skin patch on a gameplay op") {
+                assertThat(badReply).describedAs("reload reply for the bad patch").containsIgnoringCase("rejected")
+                assertThat(afterBad).describedAs("dump after the rejected reload").isEqualTo(patched)
+                "reply='${badReply.take(160)}'; dump unchanged"
+            }
+
+            patchFile.delete()
+            val restoreReply = clean(rcon("astera skill reload reload-probe"))
+            val restored = expandDump("reload-probe")
+            E2eReport.check(suite, "removing the patch and reloading restores the base dump", "RCON astera skill expand reload-probe") {
+                assertThat(restored).describedAs("dump after removing the patch; reload reply='$restoreReply'").isEqualTo(base)
+                "base dump restored"
+            }
+        } finally {
+            patchFile.delete()
+            runCatching { rcon("astera skill reload reload-probe") }
+        }
+        E2eReport.check(suite, "no unexpected skill-engine error besides the rejected patch", "server log") {
+            val unexpected = skillErrorsSince(logMark).filterNot { it.contains("reload-probe") }
+            assertThat(unexpected).describedAs("skill-engine log problems").isEmpty()
+            "clean"
+        }
+    }
+
     private fun weaponDisplaysNear(player: String): Int =
         clean(rcon("execute at $player if entity @e[type=minecraft:item_display,distance=..8,nbt={item:{id:\"minecraft:golden_sword\"}}]")).let { reply ->
             // exactly one match replies "Test passed" with no count; two or more reply "Test passed, count: N"

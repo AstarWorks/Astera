@@ -139,6 +139,8 @@ meta:
   cooldown_ticks: 0
   resource_cost: 0
   tags: [probe]
+anchors:
+  - {id: feet, anchor: caster.feet, mode: follow}
 machine:
   start: hold
   states:
@@ -147,5 +149,6 @@ machine:
       then: done
       do:
         - {id: pin, op: lock, at: 0, for: 40, pitch: true}
+        - {id: glow, op: particle, particle: dust, anchor: feet, count: 1, color: "#ffffff", size: 1.0, at: 0}
     done: {final: true}
 YAML
