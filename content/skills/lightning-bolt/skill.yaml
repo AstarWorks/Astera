@@ -98,7 +98,7 @@ machine:
           until: bolt.end
           do:
             - {id: tr_spark, op: particle, particle: electric_spark, anchor: {of: bolt, sweep: 0.5}, count: 4, offset: [0.15, 0.15, 0.15], extra: 0.05}
-            - {id: tr_rod, op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.5}, count: 1, offset: [0.02, 0.02, 0.02]}
+            - {id: tr_rod, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.5}, count: 1, offset: [0.02, 0.02, 0.02], color: "#fffbd0", size: 0.35}
             - {id: tr_spark2, op: particle, particle: electric_spark, anchor: {of: bolt, sweep: 0.5}, count: 1}
-            - {id: tr_rod2, op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.5}, count: 1}
+            - {id: tr_rod2, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.5}, count: 1, color: "#fffbd0", size: 0.35}
     end: {final: true}
