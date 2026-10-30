@@ -2,12 +2,8 @@
 @0 spawn #0 op=fly/core kind=sprite sprite=thunder-spark alpha=1.000000 tint=#fff6a0 seethrough=false pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=fly/core dur=7 pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.994522,0.104528 scale=0.625000,0.625000,1.000000 bb=CENTER
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/fx type=thunder-cast at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4491508605533134465
-@0 particle - op=fly/trail[0]/trail_spark type=electric_spark count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=708294296797537319
-@0 particle - op=fly/trail[0]/trail_dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5563331071791171437
+@0 particle - op=fly/fx type=thunder-cast at=0.000000,1.370000,1.800000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7735692150973672423
 @0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
-@1 particle - op=fly/trail[1]/trail_spark type=electric_spark count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4565869327389702944
-@1 particle - op=fly/trail[1]/trail_dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-118987352647596964
 @1 hit - op=fly/bolt at=0.000000,1.620000,2.100000 r=2.100000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.700000 rad=0.500000
 @1 remove #0 op=fly/core
 g @1 state-exit reason=EVENT | state=fly
@@ -20,12 +16,8 @@ r @3 run-end tail=2 | pose
 @0 spawn #0 op=fly/core kind=sprite sprite=thunder-spark alpha=1.000000 tint=#fff6a0 seethrough=false pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=fly/core dur=7 pos=-0.282761,1.791010,0.375236 rot=-0.327985,0.131109,0.923041,0.152418 scale=0.625000,0.625000,1.000000 bb=CENTER
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/fx type=thunder-cast at=-0.560427,1.692895,0.743712 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4491508605533134465
-@0 particle - op=fly/trail[0]/trail_spark type=electric_spark count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=708294296797537319
-@0 particle - op=fly/trail[0]/trail_dust type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5563331071791171437
+@0 particle - op=fly/fx type=thunder-cast at=-1.069396,2.000713,1.419137 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7735692150973672423
 @0 frame fly/bolt op=fly/bolt pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916
-@1 particle - op=fly/trail[1]/trail_spark type=electric_spark count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4565869327389702944
-@1 particle - op=fly/trail[1]/trail_dust type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-118987352647596964
 @1 hit - op=fly/bolt at=-1.187594,2.338242,1.575991 r=2.100000 shape=capsule a=-0.282761,1.791010,0.375236 b=-2.092428,2.885475,2.776746 rad=0.500000
 @1 remove #0 op=fly/core
 g @1 state-exit reason=EVENT | state=fly
@@ -36,12 +28,8 @@ r @3 run-end tail=2 | pose
 @0 spawn #0 op=fly/core kind=sprite sprite=thunder-spark alpha=1.000000 tint=#fff6a0 seethrough=false pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=fly/core dur=7 pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.994522,0.104528 scale=0.625000,0.625000,1.000000 bb=CENTER
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/fx type=thunder-cast at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4491508605533134465
-@0 particle - op=fly/trail[0]/trail_spark type=electric_spark count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=708294296797537319
-@0 particle - op=fly/trail[0]/trail_dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5563331071791171437
+@0 particle - op=fly/fx type=thunder-cast at=0.000000,1.370000,1.800000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7735692150973672423
 @0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
-@1 particle - op=fly/trail[1]/trail_spark type=electric_spark count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4565869327389702944
-@1 particle - op=fly/trail[1]/trail_dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-118987352647596964
 @1 hit - op=fly/bolt at=0.000000,1.620000,2.100000 r=2.100000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.700000 rad=0.500000
 @1 sound - op=fly/bolt.hit/snd_hit sound=astera:skills/lightning-impact cat=master vol=0.7 pitch=1.2 at=0.000000,1.620000,2.200000
 @1 particle - op=fly/bolt.hit/fx_hit type=hit-spark at=0.000000,1.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2399310534705720609
@@ -81,12 +69,8 @@ r @3 run-end tail=2 | pose
 @0 spawn #0 op=fly/core kind=sprite sprite=thunder-spark alpha=1.000000 tint=#fff6a0 seethrough=false pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=fly/core dur=7 pos=-0.300908,1.620000,0.399318 rot=-0.315566,-0.033167,0.943129,0.099127 scale=0.625000,0.625000,1.000000 bb=CENTER
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/fx type=thunder-cast at=-0.541634,1.370000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4491508605533134465
-@0 particle - op=fly/trail[0]/trail_spark type=electric_spark count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=708294296797537319
-@0 particle - op=fly/trail[0]/trail_dust type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5563331071791171437
+@0 particle - op=fly/fx type=thunder-cast at=-1.083267,1.370000,1.437544 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7735692150973672423
 @0 frame fly/bolt op=fly/bolt pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324
-@1 particle - op=fly/trail[1]/trail_spark type=electric_spark count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4565869327389702944
-@1 particle - op=fly/trail[1]/trail_dust type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#fff078 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-118987352647596964
 @1 hit - op=fly/bolt at=-1.263812,1.620000,1.677135 r=2.100000 shape=capsule a=-0.300908,1.620000,0.399318 b=-2.226716,1.620000,2.954951 rad=0.500000
 @1 sound - op=fly/bolt.hit/snd_hit sound=astera:skills/lightning-impact cat=master vol=0.7 pitch=1.2 at=-1.278471,1.620000,1.696589
 @1 particle - op=fly/bolt.hit/fx_hit type=hit-spark at=-1.504538,1.200000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2399310534705720609
