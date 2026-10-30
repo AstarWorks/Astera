@@ -15,6 +15,7 @@ import com.astarworks.astera.core.domain.event.MatchQueueJoined
 import com.astarworks.astera.core.domain.event.MatchQueueLeft
 import com.astarworks.astera.core.domain.event.MatchStarted
 import com.astarworks.astera.core.domain.event.PlayerHealthChanged
+import com.astarworks.astera.core.domain.event.PlayerEnteredMatch
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.domain.event.PlayerQuitServer
 import com.astarworks.astera.core.domain.event.PlayerReturnedToLobby
@@ -82,6 +83,8 @@ internal object MatchHudWiring {
             env.matches.findMatchOf(event.victim)?.let { matchSidebar.refresh(it.id) }
         }
         subscriptions += eventBus.subscribe(MatchEnded::class) { matchSidebar.release(it.matchId) }
+        // Entering a match swaps the lobby sidebar for the match one at once, not on the next poll.
+        subscriptions += eventBus.subscribe(PlayerEnteredMatch::class) { matchSidebar.refreshPlayer(it.playerId) }
         // A rejoining participant has a blank client: drop the dedupe entry and redraw the match sidebar at once.
         subscriptions += eventBus.subscribe(PlayerQuitServer::class) { matchSidebar.forget(it.playerId) }
         subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PlayerReconnectedToMatch::class) {

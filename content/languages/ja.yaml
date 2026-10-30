@@ -97,7 +97,8 @@ astera:
   hud.sidebar.account.level: "<gray>Lv</gray> <aqua><bold>{level}</bold></aqua>  <white>{xp}</white><dark_gray>/</dark_gray><gray>{need} XP</gray>"
   hud.sidebar.account.bar: "{bar} <aqua>{percent}%</aqua>"
   hud.sidebar.account.achievements: "<gray>実績</gray> <green><bold>{done}</bold></green><dark_gray>/</dark_gray><white>{total}</white> {bar}"
-  hud.sidebar.count: "<{color}>{team}</{color}><gray>:</gray> <white>{count}</white>"
+  hud.sidebar.bar: "{bar} <{color}>{percent}%</{color}>"
+  hud.sidebar.count: "{you}<{color}>{team}</{color}><gray>:</gray> <white>{count}</white>"
   hud.sidebar.phase.count-active: "<green>残り</green> <white>{time}</white>"
   hud.sidebar.phase.count-overtime: "<red><bold>延長戦</bold></red> <white>{time}</white>"
   system:
@@ -1371,28 +1372,28 @@ astera:
         engage: "<yellow>交戦</yellow> <white>{time}</white>"
         tier3: "<gold>第3層</gold> <white>{time}</white>"
         sudden-death: "<red>サドンデス</red>"
-      score: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white>"
+      score: "{you}<{color}>{team}</{color}><gray>:</gray> <white>{score}</white>"
       annihilation:
-        team: "<{color}>{team}</{color}> <white>{tiers}</white> <gray>{hp} HP</gray>"
-        eliminated: "<dark_gray><st>{team}</st> 全滅</dark_gray>"
+        team: "{you}<{color}>{team}</{color}> <white>{tiers}</white> <gray>{hp} HP</gray>"
+        eliminated: "{you}<dark_gray><st>{team}</st> 全滅</dark_gray>"
       carry-tnt:
         carried: "<gray>TNT 所持:</gray> <{color}>{team}</{color}>"
         loose: "<gray>TNT は誰でも取れる</gray>"
       carry-mini-tnt:
         loose: "<gray>マップ上のアサリ:</gray> <white>{count}</white>"
-        bank: "<{color}>{team}</{color}> <gray>アサリ</gray> <white>{have}/{need}</white>"
+        bank: "{you}<{color}>{team}</{color}> <gray>アサリ</gray> <white>{have}/{need}</white> {bar}"
       steal-jewelry:
-        pedestal: "<{color}>{team}</{color}> <gray>宝石</gray> <white>{left}</white>"
+        pedestal: "{you}<{color}>{team}</{color}> <gray>宝石</gray> <white>{left}</white>"
       pve-waves:
         ready: "<gray>準備しよう: <white>{waves}</white> ウェーブが来る</gray>"
-        wave: "<gold>ウェーブ {wave}/{waves}</gold> <gray>-</gray> <white>{left}</white> <gray>体残り</gray>"
+        wave: "<gold>ウェーブ {wave}/{waves}</gold> <gray>-</gray> <white>{left}</white> <gray>体残り</gray> {bar}"
         next: "<gold>ウェーブ {wave}/{waves}</gold> <gray>まで</gray> <white>{seconds}秒</white>"
-        lives: "<gray>残機:</gray> <red>{lives}</red><gray>/{max}</gray>"
+        lives: "<gray>残機:</gray> <red>{lives}</red><gray>/{max}</gray> {bar}"
         kills: "<gray>撃破:</gray> <white>{kills}</white>"
       capture-wool:
         open: "<gray>未占領ゾーン:</gray> <white>{open}/{total}</white>"
-        penalty: "<{color}>{team}</{color}> <red>+{seconds}秒 ペナルティ</red>"
-      you: "<gray>あなた:</gray> <{color}>{team}</{color}>"
+        penalty: "{you}<{color}>{team}</{color}> <red>+{seconds}秒 ペナルティ</red>"
+      you: "<gray>あなた</gray> <{color}><bold>{team}</bold></{color}>"
       level: "<gray>ノルマ</gray> <aqua>Lv {level}</aqua><dark_gray>/{max}</dark_gray> <dark_gray>|</dark_gray> <yellow>*</yellow> <white>{stars}</white>"
       next-unlock: "<gray>次:</gray> <white>Lv {level}</white> <white>{rarity}</white> <gray>解放</gray>"
       objective-star: "<gray>目標：</gray> <yellow>スター</yellow> <white>{progress}/{target}</white>"

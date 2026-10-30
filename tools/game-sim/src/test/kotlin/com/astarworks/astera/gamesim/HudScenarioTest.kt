@@ -138,6 +138,37 @@ class HudScenarioTest {
     }
 
     @Test
+    fun `match sidebar is its own decorated layout with no lobby account lines`() {
+        scenario("hud-sidebar-match-layout") {
+            val red = player("red", team = "red")
+            val blue = player("blue", team = "blue")
+            startMatch("steal-jewelry", mapOf(red to "red", blue to "blue"))
+            advance(40)
+
+            val sidebar = checkNotNull(sim.hud.sidebar(red.id)) { "no match sidebar" }
+            val keys = sidebar.keys()
+            assertThat(sidebar.titleKey.value).isEqualTo("astera.gamemode.steal-jewelry.title")
+            // Phase on top, separators around the team block, viewer block, server address last.
+            assertThat(keys.first()).startsWith("astera.hud.sidebar.phase.")
+            assertThat(keys).contains("astera.hud.sidebar.separator", "astera.hud.sidebar.you")
+            assertThat(keys.last()).isEqualTo("astera.hud.sidebar.footer")
+            // Own team is marked, the other is not.
+            val teamRows = sidebar.texts().filter { it.messageKey.value == "astera.hud.sidebar.steal-jewelry.pedestal" }
+            assertThat(teamRows).hasSize(2)
+            assertThat(teamRows.map { it.placeholders["you"] }.toSet()).`as`("own team marker differs from the other team's").hasSize(2)
+            // Lobby-only account lines never leak into a match.
+            assertThat(keys).doesNotContain(
+                "astera.hud.sidebar.account.level",
+                "astera.hud.sidebar.account.bar",
+                "astera.hud.sidebar.account.achievements",
+                "astera.hud.sidebar.gold",
+                "astera.hud.lobby.online",
+            )
+            assertThat(sidebar.lines.size).isLessThanOrEqualTo(15)
+        }
+    }
+
+    @Test
     fun `annihilation sidebar shows the nexus clock and pillars standing per team`() {
         val config = AnnihilationConfig(pillarHp = 40, buildPhaseTicks = 200, engagePhaseTicks = 100_000, tier3PhaseTicks = 100_000)
         scenario("hud-sidebar-annihilation", config) {
