@@ -111,4 +111,112 @@ class StaticChecksScenarioTest : SkillEngineScenario() {
         assertThat(StaticChecks.run(table((1..32).map { line(it, null) }), cfg)).isInstanceOf(Result.Success::class.java)
         assertThat(StaticChecks.run(table((1..33).map { line(it, null) }), cfg)).isInstanceOf(Result.Failure::class.java)
     }
+
+    private fun detachedLine(name: String, at: Int, segments: Int, endAt: Int?): List<Row> {
+        val id = InstanceId(listOf(InstanceId.Segment(OpId(name), null)))
+        val look = linkedMapOf<String, Val<Any>>("shape" to Val.Known("line"), "segments" to Val.Known(segments))
+        val pose = Pose(Val.Known(Vector3d()), Val.Known(Quaterniond()), Val.Known(Vector3d(1.0, 1.0, 1.0)))
+        val spawn = Row(at, id, Action.Spawn(SpawnKind.RIBBON, null, "", pose, Look(look)), SrcPath("t"), detached = true)
+        return listOfNotNull(spawn, endAt?.let { Row(it, id, Action.End(id), SrcPath("t"), detached = true) })
+    }
+
+    private fun detachedTable(rows: List<Row>) = ExpansionTable(
+        skillId = "t", sampleSeed = 1L, params = emptyMap(),
+        bounds = Bounds(emptyMap(), 0, 0, 0, 0, TickRange(0, 10), 4, tail = 6),
+        states = listOf(StateTable(StatePath("a"), Duration.Fixed(10), null, true, rows.sortedBy { it.tick }, emptyList())),
+        subTables = emptyMap(), writes = emptyMap(), conditions = emptyMap(), config = EngineConfig(),
+    )
+
+    @Test
+    fun detachedLinesThatDoNotOverlapAreCountedByTick() {
+        val cfg = EngineConfig()
+        // two 20-segment lines = 40 displays each; alive [0,5) and [5,10): the plain sum (80) would refuse, the peak (40) fits
+        val apart = detachedLine("a", 0, 20, 5) + detachedLine("b", 5, 20, 10)
+        assertThat(StaticChecks.run(detachedTable(apart), cfg)).isInstanceOf(Result.Success::class.java)
+        // moved one tick earlier they coexist for a tick: 80 > 64
+        val overlapping = detachedLine("a", 0, 20, 5) + detachedLine("b", 4, 20, 9)
+        val err = (StaticChecks.run(detachedTable(overlapping), cfg) as Result.Failure).error
+        assertThat(err).isInstanceOf(SkillDecodeError.LiveDisplayCap::class.java)
+        assertThat(err.message).contains("80 displays")
+    }
+
+    @Test
+    fun detachedLineWithoutFixedEndCountsToCastEndPlusTail() {
+        val cfg = EngineConfig()
+        // "a" has no End row: its interval is not fixed, so it lives to cast end + tail and meets "b" even though b starts long after a would have ended
+        val open = detachedLine("a", 0, 20, null) + detachedLine("b", 6, 20, 9)
+        val err = (StaticChecks.run(detachedTable(open), cfg) as Result.Failure).error
+        assertThat(err).isInstanceOf(SkillDecodeError.LiveDisplayCap::class.java)
+        assertThat(err.message).contains("80 displays")
+        // the open line alone, or followed by nothing alive with it, is 40
+        assertThat(StaticChecks.run(detachedTable(detachedLine("a", 0, 20, null) + detachedLine("b", 0, 2, 3)), cfg)).isInstanceOf(Result.Success::class.java)
+    }
+
+    /** chain-lightning's shape (first link + 3 hops every 3 ticks, each a core + glow line alive 5 ticks) at 8 segments per line. */
+    private fun chainProbe(linkSegments: Int, arcSegments: Int, withCore: Boolean): String {
+        val core = if (!withCore) "" else """
+                    - id: core
+                      op: display
+                      kind: sprite
+                      sprite: thunder-spark
+                      anchor: bolt
+                      size: [0.7, 0.7]
+                      color: "#b8e0ff"
+                      billboard: center
+                      at: 0
+                      until: bolt.end"""
+        return """
+            apiVersion: astera/v3
+            kind: Skill
+            id: chain-probe
+            item: chain-rod
+            meta: {cooldown_ticks: 90, resource_cost: 0}
+            anchors:
+              - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+              - {id: fx,     anchor: caster.eye, offset: {forward: 1.0, up: -0.2}, mode: follow}
+              - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
+            fragments:
+              arc:
+                frames_in: {spot: anchor}
+                do:
+                  - {id: arc_glow, op: ribbon, from: from.center, to: victim.center, thickness: 0.22, color: "#6690d0ff", segments: $arcSegments, jitter: {spread: 0.3, along: 0.2, every: 2}, at: 0, for: 5, detach: true}
+                  - {id: arc,      op: ribbon, from: from.center, to: victim.center, thickness: 0.07, color: "#ffeaf6ff", segments: $arcSegments, jitter: {spread: 0.3, along: 0.2, every: 2}, at: 0, for: 5, detach: true}
+            machine:
+              start: cast
+              tail: 14
+              states:
+                cast:
+                  on:
+                    - {event: bolt.end, to: done}
+                  do:
+                    - id: bolt
+                      op: projectile
+                      origin: muzzle
+                      velocity: "= look(caster) * 2.6"
+                      speed: 2.6
+                      for: 40
+                      radius: 0.5
+                      hit: {targets: enemies, once: true, attach: false}
+                      block: {mode: despawn}
+                      on:
+                        hit:
+                          - {id: link_glow, op: ribbon, from: fx, to: heart, thickness: 0.22, color: "#6690d0ff", segments: $linkSegments, jitter: {spread: 0.3, along: 0.2, every: 2}, at: 0, for: 5, detach: true}
+                          - {id: link, op: ribbon, from: fx, to: heart, thickness: 0.07, color: "#ffeaf6ff", segments: $linkSegments, jitter: {spread: 0.3, along: 0.2, every: 2}, at: 0, for: 5, detach: true}
+                          - {id: jump, op: use, use: "fragment:arc", chain: {hops: 3, every: 3, pick: {kind: enemies, around: from, radius: 4.5, nearest: 1, exclude: chain}}, frames: {spot: heart}}
+$core
+                done: {final: true}
+        """.trimIndent()
+    }
+
+    @Test
+    fun chainLightningLinksAtEightSegmentsFit() {
+        // first link + 3 hops every 3 ticks, each a core + glow line of 8 segments alive 5 ticks: at most two links coexist = 2 x 2 x 16 = 64
+        val r = loadInline(chainProbe(8, 8, withCore = false))
+        assertThat(r).describedAs((r as? Result.Failure)?.error?.message ?: "").isInstanceOf(Result.Success::class.java)
+        // the bolt's own sprite is one more display alive while the links are: 65 > 64, so the real skill needs one fewer segment somewhere
+        val err = failure(chainProbe(8, 8, withCore = true))
+        assertThat(err).isInstanceOf(SkillDecodeError.LiveDisplayCap::class.java)
+        assertThat(err.message).contains("65 displays")
+        assertThat(loadInline(chainProbe(8, 7, withCore = true))).isInstanceOf(Result.Success::class.java)
+    }
 }

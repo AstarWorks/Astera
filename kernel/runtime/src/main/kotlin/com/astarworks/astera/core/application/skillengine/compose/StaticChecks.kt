@@ -439,12 +439,23 @@ public object StaticChecks {
     private fun check10(g: TableGraph): SkillDecodeError? {
         var peak = g.table.bounds.liveDisplaysPeak
         var peakTick = g.table.bounds.liveDisplaysPeakTick
-        // rev4.12: detached displays outlive their state into the tail, so a state's peak also counts every detached display of the other units (worst case: all alive together)
-        fun detachedDisplays(rows: List<Row>) = rows.filter { it.detached && (it.action as? Action.Spawn)?.kind in DISPLAY_KINDS }.sumOf { displayWeight(it) }
-        val detachedAll = g.units.sumOf { detachedDisplays(it.rows) }
+        // rev4.12: detached displays outlive their state into the tail, so a state's peak also counts the detached displays of the other units.
+        // A unit's detached displays are counted by tick, not summed: every row of one unit is placed relative to the same firing, so its alive
+        // intervals [spawn, End) are load-fixed and the unit's contribution is the max over ticks of the rows alive at that tick. A row with no End
+        // row in its own unit has no fixed interval: it counts as alive from its spawn to cast end + tail. Units are still added to each other
+        // (a handler's start inside its owner, or an owner's entry tick, is not fixed at load, so two units are assumed to peak together).
+        fun isDetachedDisplay(r: Row) = r.detached && (r.action as? Action.Spawn)?.kind in DISPLAY_KINDS
+        fun detachedPeak(rows: List<Row>): Int {
+            val spans = rows.filter(::isDetachedDisplay).map { r ->
+                intArrayOf(r.tick, endTickOf(rows, r) ?: Int.MAX_VALUE, displayWeight(r))
+            }
+            return spans.map { it[0] }.distinct().maxOfOrNull { t -> spans.filter { it[0] <= t && t < it[1] }.sumOf { it[2] } } ?: 0
+        }
+        val unitPeak = g.units.associateWith { detachedPeak(it.rows) }
+        val detachedAll = unitPeak.values.sum()
         for (s in g.table.states) {
             val (p, t) = g.displayPeak(s)
-            val own = detachedDisplays(s.rows) + g.table.subTables.values.filter { it.owner == s.state }.sumOf { detachedDisplays(it.rows) }
+            val own = unitPeak.filter { (u, _) -> u.name != WORLD_UNIT && u.owner == s.state }.values.sum()
             val total = p + (detachedAll - own)
             if (total > peak) { peak = total; peakTick = t }
         }
@@ -784,7 +795,7 @@ public object StaticChecks {
             }
             for (r in s.rows) {
                 if (!isDisplay(r)) continue
-                val own = s.rows.filter { it.action is Action.End && covers(((it.action as Action.End).instance), r.instance) && it.tick >= r.tick }.minOfOrNull { it.tick }
+                val own = endTickOf(s.rows, r)
                 val viaSub = subs.mapNotNull { sub ->
                     sub.rows.filter { it.action is Action.End && covers(((it.action as Action.End).instance), r.instance) }
                         .minOfOrNull { sub.window.max + it.tick }
@@ -793,11 +804,20 @@ public object StaticChecks {
             }
             // R45: a world display is alive for the whole machine, so it is counted alive across every state
             for (r in table.worldRows) if (isDisplay(r)) spans += intArrayOf(0, exit, displayWeight(r))
-            for (sub in subs) for (r in sub.rows) {
-                if (!isDisplay(r)) continue
-                val end = sub.rows.filter { it.action is Action.End && covers(((it.action as Action.End).instance), r.instance) && it.tick >= r.tick }
-                    .minOfOrNull { sub.window.max + it.tick }
-                spans += intArrayOf(sub.window.min + r.tick, end ?: exit, displayWeight(r))
+            for (sub in subs) {
+                // One firing places every row of the handler relative to the same event tick, so the rows that end inside the handler are
+                // alive together only per their own offsets: they count as ONE span of the handler's relative peak, spread over the event window
+                // (first spawn at window.min .. last End at window.max). A row with no End row in the handler is alive to the state's exit.
+                val fixed = ArrayList<Row>()
+                for (r in sub.rows) {
+                    if (!isDisplay(r)) continue
+                    val end = endTickOf(sub.rows, r)
+                    if (end == null) spans += intArrayOf(sub.window.min + r.tick, exit, displayWeight(r)) else fixed += r
+                }
+                if (fixed.isNotEmpty()) {
+                    val rel = relativeDisplayPeak(sub.rows)
+                    spans += intArrayOf(sub.window.min + fixed.minOf { it.tick }, sub.window.max + rel.second, rel.first)
+                }
             }
             var best = 0
             var bestTick = 0
@@ -820,6 +840,25 @@ public object StaticChecks {
         if (spawn.kind != SpawnKind.RIBBON || (look.fields["shape"] as? Val.Known<*>)?.value != "line") return 1
         val segments = ((look.fields["segments"] as? Val.Known<*>)?.value as? Number)?.toInt() ?: 1
         return 2 * segments
+    }
+
+    /**
+     * The tick at which the End row that closes [r] fires in [rows], or null when no row of [rows] fixes it. A detached display is closed
+     * only by a detached End (its own `for:`): the End of the call or state that spawned it does not reach it (rev4.12).
+     */
+    private fun endTickOf(rows: List<Row>, r: Row): Int? =
+        rows.filter { it.action is Action.End && covers((it.action as Action.End).instance, r.instance) && it.tick >= r.tick && (!r.detached || it.detached) }.minOfOrNull { it.tick }
+
+    /**
+     * Peak of the displays of [rows] that end inside [rows] (an End row covers them), counted per tick relative to the firing, and the tick
+     * after which none of them is alive. A row without such an End row is not part of it (its interval is not fixed at load).
+     */
+    private fun relativeDisplayPeak(rows: List<Row>): Pair<Int, Int> {
+        val spans = rows.filter { (it.action as? Action.Spawn)?.kind in DISPLAY_KINDS }.mapNotNull { r ->
+            endTickOf(rows, r)?.let { intArrayOf(r.tick, it, displayWeight(r)) }
+        }
+        val peak = spans.map { it[0] }.distinct().maxOfOrNull { t -> spans.filter { it[0] <= t && t < it[1] }.sumOf { it[2] } } ?: 0
+        return peak to (spans.maxOfOrNull { it[1] } ?: 0)
     }
 
     private const val WORLD_UNIT = "machine.world"

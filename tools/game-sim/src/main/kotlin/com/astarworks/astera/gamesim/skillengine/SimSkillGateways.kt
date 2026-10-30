@@ -430,8 +430,8 @@ internal class SimSkillVisuals : ISkillVisualGateway {
     override fun spawnBlock(cast: CastRef, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView, glow: String?) = spawn()
     override fun spawnText(cast: CastRef, text: String, backgroundArgbHex: String, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) = spawn()
     override fun spawnTrail(cast: CastRef, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double) = spawn()
-    override fun spawnLine(cast: CastRef, from: Vec3, to: Vec3, thickness: Double, colorHex: String, alpha: Double) = spawn()
-    override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) {}
+    override fun spawnLine(cast: CastRef, vertices: List<Vec3>, thickness: Double, colorHex: String, alpha: Double) = spawn()
+    override fun updateLine(handle: VisualHandle, vertices: List<Vec3>) {}
     override fun spawnScreenVeil(cast: CastRef, viewer: UUID, sprite: String, distance: Double, scale: Double, colorHex: String?, maxScreenFraction: Double, ticks: Int) = spawn()
     override fun updateScreenVeil(handle: VisualHandle, age: Int) {}
     override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {}

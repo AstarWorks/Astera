@@ -95,14 +95,14 @@ public interface ISkillVisualGateway {
     public fun spawnTrail(cast: CastRef, ticks: Int, widthFrac: Double, colorHex: String, alpha: Double): VisualHandle
 
     /**
-     * A thread (ADR-0303 section 5 ribbon `shape: line`): a thread of [thickness] blocks from [from] to [to], two quads crossed about its own axis ([LineGeometry]) so it reads
-     * from every camera angle. [colorHex] is `#rrggbb`, [alpha] its opacity. The runtime moves the ends
-     * with [updateLine] every tick; [remove] ends it.
+     * A thread (ADR-0303 section 5 ribbon `shape: line`): a polyline of [thickness] blocks through [vertices] (at least 2; a straight thread passes exactly 2), every
+     * segment two quads crossed about its own axis ([LineGeometry]) so it reads from every camera angle. [colorHex] is `#rrggbb`, [alpha] its opacity. The runtime
+     * re-poses it with [updateLine] every tick (same vertex count); [remove] ends it. More than 2 vertices = a jagged bolt: a re-jag is a cut, not a slide.
      */
-    public fun spawnLine(cast: CastRef, from: Vec3, to: Vec3, thickness: Double, colorHex: String, alpha: Double): VisualHandle
+    public fun spawnLine(cast: CastRef, vertices: List<Vec3>, thickness: Double, colorHex: String, alpha: Double): VisualHandle
 
-    /** Move both ends of a line from [spawnLine] (the strip is rebuilt between them). */
-    public fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3)
+    /** Move the vertices of a line from [spawnLine] (same count as at spawn; the segments are rebuilt between them). */
+    public fun updateLine(handle: VisualHandle, vertices: List<Vec3>)
 
     /**
      * `screen_veil` (ADR-0303 10.1b, ADR-0291): a sprite quad [distance] blocks in front of [viewer]'s eye along the look direction, seen by
