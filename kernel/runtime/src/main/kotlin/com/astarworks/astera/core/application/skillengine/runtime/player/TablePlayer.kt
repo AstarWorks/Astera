@@ -1194,7 +1194,7 @@ public class TablePlayer(
             castRef(run),
             ParticleBurst(
                 particle = a.type, at = Vec3(pos.x, pos.y, pos.z), count = run.fields[row.instance]?.get("count")?.toInt() ?: int(run, a.count, ctx), offset = Vec3(off.x, off.y, off.z),
-                speed = num(run, a.extra, ctx), colorHex = data.hex, dataSize = data.size, blockKey = data.blockKey, dir = null, spreadDeg = 0.0, inheritVelocity = null,
+                speed = num(run, a.extra, ctx), colorHex = data.hex, dataSize = data.size, blockKey = data.blockKey, itemKey = data.itemKey, dir = null, spreadDeg = 0.0, inheritVelocity = null,
                 look = Frame.fromYawPitch(Vec3.ZERO, req.casterYawDeg, req.casterPitchDeg).forward(),
                 seed = rowStream(run, row, ctx).nextLong(),
             ),
@@ -1202,7 +1202,7 @@ public class TablePlayer(
     }
 
     /** The `ParticleBurst` data fields one [ParticleData] fills. */
-    private class BurstData(val hex: String? = null, val size: Double? = null, val blockKey: String? = null)
+    private class BurstData(val hex: String? = null, val size: Double? = null, val blockKey: String? = null, val itemKey: String? = null)
 
     private fun particleData(run: Run, row: Row, d: ParticleData?, now: Int): BurstData {
         fun hex(c: com.astarworks.astera.core.domain.effect.ParticleColor) = "#%02x%02x%02x".format(c.r, c.g, c.b)
@@ -1213,6 +1213,7 @@ public class TablePlayer(
             is ParticleData.Tint -> BurstData(hex = hex(d.color))
             is ParticleData.Spell -> BurstData(hex = hex(d.color), size = d.power.toDouble())
             is ParticleData.Block -> BurstData(blockKey = d.blockKey)
+            is ParticleData.Item -> BurstData(itemKey = d.materialKey)
             else -> {
                 fault(run, now, row.src.value, "particle data ${d::class.simpleName} has no ParticleBurst field")
                 BurstData()

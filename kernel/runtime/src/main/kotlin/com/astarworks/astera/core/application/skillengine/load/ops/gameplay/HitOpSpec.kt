@@ -245,7 +245,7 @@ public object HitOpSpec : OpSpec<HitOp> {
             val prefix = InstanceId(scope + InstanceId.Segment(OpId(op.id.value + "." + e.key), null))
             val hc = LowerContext(
                 lc.skillId, lc.state, prefix, lc.occurrence, 0, lc.anchors, lc.frames, lc.parts, lc.skills, lc.item, lc.sprites, lc.conditions, lc.exprs,
-                lc.config, lc.seed, SrcPath(src.value + ".on." + e.key), hitScope = e == HitEvent.HIT || e == HitEvent.ABSORBED,
+                lc.config, lc.seed, SrcPath(src.value + ".on." + e.key), hitScope = e == HitEvent.HIT || e == HitEvent.ABSORBED, keys = lc.keys,
             )
             val lo = when (val r = lowering.lower(nodes, hc)) {
                 is Result.Success -> r.value

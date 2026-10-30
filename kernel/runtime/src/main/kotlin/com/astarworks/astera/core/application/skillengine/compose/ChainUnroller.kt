@@ -79,7 +79,7 @@ internal object ChainUnroller {
             val self = InstanceId(base.self.path + InstanceId.Segment(node.id, k))
             val occ = LowerContext(
                 base.skillId, base.state, self, occurrence, base.clockOffset + tick, anchors, base.frames, base.parts, base.skills, base.item,
-                base.sprites, base.conditions, base.exprs, base.config, base.seed, base.src, tick, base.hitScope,
+                base.sprites, base.conditions, base.exprs, base.config, base.seed, base.src, tick, base.hitScope, base.keys,
             )
             val copyNode = if (node.args.values.none { it is List<*> }) node else UseOp(
                 node.id, node.src, node.whenExpr, node.timing, node.target,

@@ -156,9 +156,14 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
             is ParticleStyle.Block -> {
                 val key = dataKey(s.key, lc) ?: return dataKeyError("block", lc)
                 if (!BLOCK_STATE.matches(key)) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".block", "'$key' is not a block state: expected [minecraft:]name or name[prop=value,...]"))
+                lc.keys.blockProblem(key)?.let { return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".block", "'$key': $it")) }
                 ParticleData.Block(key)
             }
-            is ParticleStyle.Item -> ParticleData.Item(dataKey(s.key, lc) ?: return dataKeyError("item", lc))
+            is ParticleStyle.Item -> {
+                val key = dataKey(s.key, lc) ?: return dataKeyError("item", lc)
+                lc.keys.itemProblem(key)?.let { return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".item", "'$key': $it")) }
+                ParticleData.Item(key)
+            }
         }
 
         val rows = placedAll.map { placed ->

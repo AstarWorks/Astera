@@ -136,7 +136,7 @@ public fun toParticleCalls(burst: ParticleBurst, definitions: (String) -> Partic
             .map { ParticleCall(it.at, if (color != null) it.spec.copy(color = color) else it.spec) }
     }
     val scale = burst.dataSize?.toFloat() ?: 1.0f
-    val data = burst.blockKey?.let { ParticleData.Block(it) }
+    val data = burst.blockKey?.let { ParticleData.Block(it) } ?: burst.itemKey?.let { ParticleData.Item(it) }
     val dir = burst.dir
         ?: return listOf(
             ParticleCall(burst.at, ParticleSpec(burst.particle, count = burst.count ?: 1, offset = burst.offset, extra = burst.speed, color = color, scale = scale, data = data)),
