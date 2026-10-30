@@ -61,7 +61,6 @@ duration_ticks: {n}
 orient: yaw
 follow: true
 attach_to_anchor: true
-sample_ticks: 1
 replace_group: {sid}
 body: {sid}
 rigs:

@@ -3,14 +3,13 @@
 generator that wants to attach to a swinging weapon.
 
 What it reads
-  * the rig file  content/vfx/<rig_vfx>.yaml   (rigs[]: pivot, rest, tilt, start_tick, swing keys, parts, respect_hit_stop,
-    sample_ticks)
+  * the rig file  content/vfx/<rig_vfx>.yaml   (rigs[]: pivot, rest, tilt, start_tick, swing keys, parts, respect_hit_stop)
   * the skill file content/skills/<skill>.yaml (the cast steps: the play_vfx that plays the rig, its `freeze` windows and
     delay, the play_vfx that plays the fx file you are writing particles into, and every dash_strike that moves the caster)
 
 What it reproduces (same maths as the runtime, plugin/core/.../vfx/VfxRigPlanner.kt `VfxRigMotion`)
   * R(t) = tilt * euler(swing(t)) * rest, euler = Minecraft yaw * pitch * roll (Quaternion.fromEulerDegrees);
-  * swing keys interpolated component-wise with the key's ease, cut into chunks of <= sample_ticks ticks, halved while a
+  * swing keys interpolated component-wise with the key's ease, cut into one chunk per tick, halved while a
     chunk turns > 60 deg, each chunk slerped (= what the client shows between updates);
   * rig tick l is reached at effect tick start_tick + 1 + l + frozen ticks before it (hit-stop freezes stop the clock);
   * the caster's dash_strike displacement (one teleport per tick, the first in the cast tick: DashStrikeRunner; capped by
@@ -133,7 +132,6 @@ class RigPath:
         rdef = yaml.safe_load((ROOT / "content/vfx" / (rig_vfx + ".yaml")).read_text())
         rigs = rdef["rigs"]
         self.rig = next(r for r in rigs if rig_id is None or r["id"] == rig_id)
-        self.sample_ticks = int(rdef.get("sample_ticks", 2))
         steps = self.skill["phases"]["cast"]
         play = [s for s in steps if s.get("type") == "play_vfx"]
         rstep = next(s for s in play if s["vfx_id"] == rig_vfx)
@@ -223,7 +221,7 @@ class RigPath:
         out = []
         for a, b in zip(pts, pts[1:]):
             d = b - a
-            n = (d + self.sample_ticks - 1) // self.sample_ticks
+            n = d  # one chunk per tick (the engine interpolates per tick)
             prev = a
             for j in range(1, n + 1):
                 cut = a + int(math.floor(j * d / n + 0.5))

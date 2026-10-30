@@ -218,7 +218,7 @@ def high():
     # r16 (director r12: the grey spiral puffs read as hard "C" crescents behind the target, t14-16 compare + caster FP): the
     # smoke sprites are dropped from both hits. The 0.1-0.5 alpha spiral is cut at alpha 0.1 by the client's text shader, so
     # its outline is a hard-edged crescent at every size; the grain after the flash is carried by the particle layer.
-    return {"id": "bastion-s1-fx-high", "duration_ticks": 20, "orient": "yaw", "follow": True, "sample_ticks": 1,
+    return {"id": "bastion-s1-fx-high", "duration_ticks": 20, "orient": "yaw", "follow": True,
             "elements": [e for e, _ in els]}, [m for _, m in els]
 
 
@@ -328,7 +328,7 @@ def low():
         kf(6, scale=[s256(3.6), 0.04, 1.0], ease="in_quad")])
     cs["billboard"] = "fixed"
     els.append((cs, m))
-    return {"id": "bastion-s1-fx-low", "duration_ticks": 18, "orient": "yaw", "follow": True, "sample_ticks": 1,
+    return {"id": "bastion-s1-fx-low", "duration_ticks": 18, "orient": "yaw", "follow": True,
             "elements": [e for e, _ in els]}, [m for _, m in els]
 
 
