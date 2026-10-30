@@ -172,10 +172,6 @@ internal fun CoreWiringState.wireGameplayLoop() {
     //    `content/balance/starter-grant.yaml` if present; otherwise the
     //    listener still works with an empty grant (no loadout / wallet
     //    credit / tutorial / dialog) and the join completes silently.
-    val starterGrantPath = contentDir.resolve("balance").resolve("starter-grant.yaml")
-    val starterGrant = com.astarworks.astera.core.application.service
-        .StarterGrantLoader()
-        .load(starterGrantPath)
     // ADR-0197: the "already onboarded" fact is durable (Persistence overlay, V49) so a
     // restart does not re-run the first-time starter grant.
     val profileRepository = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository>()
@@ -184,7 +180,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
         }
     profileService =
         com.astarworks.astera.core.application.service.InMemoryPlayerProfileService(
-            starterGrant = starterGrant,
+            starterGrantRef = balanceCore.starterGrant,
             itemRegistry = itemContents,
             ledgerProvider = ledgerProvider,
             tutorialRegistry = tutorialContents,
@@ -194,6 +190,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
         profileService,
         priority = 0,
     )
+    balanceCore.onStarterGrantChanged = { old, new -> profileService.topUpWallets(old, new) }
 
     // 3. Onboarding listeners (G1 subscribe + G2 + G3).
     val createFirstTimeListener = com.astarworks.astera.core.application.eventbus.listeners

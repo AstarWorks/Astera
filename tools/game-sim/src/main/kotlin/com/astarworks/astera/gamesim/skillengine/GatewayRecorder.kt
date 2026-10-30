@@ -341,7 +341,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             emittedAt += Triple(tick, burst.particle, burst.at)
             add(
                 "particle", "-", "type=${burst.particle}" + (burst.count?.let { " count=$it" } ?: ""),
-                "at=${OracleFmt.v(burst.at)} off=${OracleFmt.v(burst.offset)} speed=${OracleFmt.f(burst.speed)} color=${OracleFmt.s(burst.colorHex)} size=${burst.dataSize?.let { OracleFmt.f(it) } ?: "-"} " +
+                "at=${OracleFmt.v(burst.at)} off=${OracleFmt.v(burst.offset)} speed=${OracleFmt.f(burst.speed)} color=${OracleFmt.s(OracleFmt.dataColor(burst.data))} size=${OracleFmt.dataSize(burst.data)?.let { OracleFmt.f(it) } ?: "-"}${OracleFmt.dataExtra(burst.data)} " +
                     "dir=${burst.dir?.let { OracleFmt.v(it) } ?: "-"} spread=${OracleFmt.f(burst.spreadDeg)} vel=${burst.inheritVelocity?.let { OracleFmt.v(it) } ?: "-"} look=${OracleFmt.v(burst.look)} seed=${burst.seed}",
             )
         }
@@ -822,6 +822,42 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
 /** Number / vector / pose / string formatting of the oracle rows: fixed 6 decimals, no negative zero, no whitespace inside a value. */
 internal object OracleFmt {
+    private fun hex(c: com.astarworks.astera.core.domain.effect.ParticleColor) = "#%02x%02x%02x".format(c.r, c.g, c.b)
+
+    /** The colour a particle's data carries (dust, transition start, tint, spell); null = none. */
+    fun dataColor(d: com.astarworks.astera.core.domain.effect.ParticleData?): String? = when (d) {
+        is com.astarworks.astera.core.domain.effect.ParticleData.Dust -> hex(d.color)
+        is com.astarworks.astera.core.domain.effect.ParticleData.DustTransition -> hex(d.from)
+        is com.astarworks.astera.core.domain.effect.ParticleData.Tint -> hex(d.color)
+        is com.astarworks.astera.core.domain.effect.ParticleData.Spell -> hex(d.color)
+        else -> null
+    }
+
+    /** The size / power a particle's data carries; null = none. */
+    fun dataSize(d: com.astarworks.astera.core.domain.effect.ParticleData?): Double? = when (d) {
+        is com.astarworks.astera.core.domain.effect.ParticleData.Dust -> d.scale.toDouble()
+        is com.astarworks.astera.core.domain.effect.ParticleData.DustTransition -> d.scale.toDouble()
+        is com.astarworks.astera.core.domain.effect.ParticleData.Spell -> d.power.toDouble()
+        else -> null
+    }
+
+    /** ` data=...` for everything colour / size above does not already say (empty for none, dust, tint, spell). */
+    fun dataExtra(d: com.astarworks.astera.core.domain.effect.ParticleData?): String {
+        val text = when (d) {
+            null, is com.astarworks.astera.core.domain.effect.ParticleData.Dust, is com.astarworks.astera.core.domain.effect.ParticleData.Tint,
+            is com.astarworks.astera.core.domain.effect.ParticleData.Spell -> return ""
+            is com.astarworks.astera.core.domain.effect.ParticleData.DustTransition -> "transition:${hex(d.from)}>${hex(d.to)}"
+            is com.astarworks.astera.core.domain.effect.ParticleData.Block -> "block:${d.blockKey}"
+            is com.astarworks.astera.core.domain.effect.ParticleData.Item -> "item:${d.materialKey}"
+            is com.astarworks.astera.core.domain.effect.ParticleData.SculkCharge -> "sculk_charge:${f(d.roll.toDouble())}"
+            is com.astarworks.astera.core.domain.effect.ParticleData.Shriek -> "shriek:${d.delayTicks}"
+            is com.astarworks.astera.core.domain.effect.ParticleData.Power -> "power:${f(d.value.toDouble())}"
+            is com.astarworks.astera.core.domain.effect.ParticleData.Trail -> "trail:${hex(d.color)}:${d.durationTicks}"
+            is com.astarworks.astera.core.domain.effect.ParticleData.Vibration -> "vibration:${d.arrivalTicks}"
+        }
+        return " data=$text"
+    }
+
     fun f(d: Double): String {
         val r = if (kotlin.math.abs(d) < 5e-7) 0.0 else d
         return "%.6f".format(java.util.Locale.ROOT, r)
@@ -851,7 +887,7 @@ internal object OracleFmt {
     }
 
     fun view(v: DisplayView): String =
-        "aud=${v.audience} lane=${v.lane} target=${v.target ?: "-"}" + if (v.viewers != com.astarworks.astera.core.domain.effect.RowViewers.ALL) " viewers=${v.viewers.yamlName}" else ""
+        "aud=${v.audience} lane=${v.lane} target=${v.target ?: "-"}"
 
     /** A string value on one token: whitespace and `=` escaped, null = `-`. */
     fun s(x: String?): String = x?.replace("%", "%25")?.replace(" ", "%20")?.replace("\n", "%0A")?.replace("=", "%3D")?.ifEmpty { "%00" } ?: "-"

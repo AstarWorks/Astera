@@ -93,6 +93,8 @@ public data class ItemSpec(
     val role: LocalizedText = LocalizedText.EMPTY,
     /** Optional one-line flavour text at the bottom of the card. Plain text. */
     val flavor: LocalizedText = LocalizedText.EMPTY,
+    /** Weapon hold-table entry shown as one generated tooltip row; `null` = no row (not a weapon). */
+    val hold: ItemHold? = null,
 ) {
     init {
         require(equipmentAsset == null || equipmentAsset.matches(Regex("[a-z0-9._-]+"))) {

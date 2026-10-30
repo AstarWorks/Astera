@@ -46,7 +46,6 @@ machine:
           parent: caster
           mount: caster.hand_r
           anim: bastion-s2-body
-          viewers: all
           rest: [{axis: left, deg: 72}]
           respect_hit_stop: true
           freezes: [{at: 13, ticks: 2}, {at: 32, ticks: 2}, {at: 53, ticks: 8}]
@@ -189,8 +188,8 @@ machine:
                 left: "= (0.25 + 0.275 * parent.i) * cos((36 * i - 20 * parent.i) * 0.0174533)"
                 up: "= (0.25 + 0.275 * parent.i) * sin((36 * i - 20 * parent.i) * 0.0174533)"
         # --- blade fx ---
-        - {id: b2_trail, op: particle_def, def: bastion-s1-p-trail, at: 0, every: 1, for: 18, anchor: {of: /rush1/rig.root, to: /rush1/rig.tip, samples: 11}}
-        - {id: b2_sheath, op: particle_def, def: bastion-s1-p-sheath-hot, at: 0, every: 1, for: 18, anchor: {of: /rush1/rig.root, to: /rush1/rig.tip, samples: 5}}
+        - {id: b2_trail, op: particle_def, def: bastion-s1-p-trail, at: 0, every: 1, for: 18, anchor: {of: /rush1/rig.root, to: /rush1/rig.tip, samples: 5}}
+        - {id: b2_sheath, op: particle_def, def: bastion-s1-p-sheath-hot, at: 0, every: 1, for: 18, anchor: {of: /rush1/rig.root, to: /rush1/rig.tip, samples: 2}}
         - {id: b2_steel, op: particle_def, def: bastion-s1-p-steel, at: 0, every: 1, for: 18, anchor: /rush1/rig.tip}
         - {id: b2_crit, op: particle_def, def: bastion-s1-p-trail-crit, at: 8, every: 1, for: 3, anchor: {of: /rush1/rig.root, to: /rush1/rig.tip, samples: 11}}
     chop:
@@ -239,7 +238,7 @@ machine:
         - {id: slam_ash, op: particle_def, def: bastion-s1-p-ash, at: 9, every: 2, for: 7, anchor: {of: fx4_fx_chop, offset: {left: 0.0, up: 0.4, forward: 2.3}}}
         - {id: slam_after, op: particle_def, def: bastion-s1-p-afterglow, at: 9, every: 2, for: 5, anchor: {of: fx4_fx_chop, offset: {left: 0.0, up: 0.3, forward: 2.4}}}
         # --- blade fx: the overhead slash ---
-        - {id: b3_slash, op: particle_def, def: bastion-s1-p-slash, at: 0, every: 1, for: 13, anchor: {of: /rush1/rig.root, to: /rush1/rig.tip, samples: 11}}
+        - {id: b3_slash, op: particle_def, def: bastion-s1-p-slash, at: 0, every: 2, for: 13, anchor: /rush1/rig.tip}
         - {id: b3_steel, op: particle_def, def: bastion-s1-p-steel, at: 0, every: 1, for: 13, anchor: /rush1/rig.tip}
         - {id: b3_crit, op: particle_def, def: bastion-s1-p-trail-crit, at: 8, every: 1, for: 3, anchor: {of: /rush1/rig.root, to: /rush1/rig.tip, samples: 11}}
     end: {final: true}

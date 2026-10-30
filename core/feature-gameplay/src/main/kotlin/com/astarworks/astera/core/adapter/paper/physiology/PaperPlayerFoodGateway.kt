@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.physiology
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.application.port.outbound.FoodMutationError
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerFoodGateway
@@ -50,8 +51,8 @@ public class PaperPlayerFoodGateway(
     /** Last level Astera wrote per player, re-asserted if anything else touched the bar. */
     private val mirrored: MutableMap<PlayerId, Int> = mutableMapOf()
 
-    public fun start(plugin: JavaPlugin) {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners) {
+        listeners.register(this)
     }
 
     /** Vanilla hunger has no say: the event is cancelled and the mirror re-asserted. */

@@ -110,7 +110,7 @@ content-validate: ## Decode every content/ file through the server's own loaders
 	./gradlew -q :tools:content-lint:run
 
 .PHONY: dev-deploy
-dev-deploy: content-validate ## Fast loop: rebuild+push the resource pack, build jars + push content/ into the running backends, restart each ONCE (matching jar+content, arenas built in that boot; players are moved, not kicked)
+dev-deploy: content-validate ## Fast loop (hotswap by default on the JBR image, ADR-0310): rebuild+push the resource pack, build jars + push content/ into the running backends, restart each ONCE (matching jar+content, arenas built in that boot; players are moved, not kicked)
 	./scripts/dev-deploy.sh deploy
 
 .PHONY: dev-content

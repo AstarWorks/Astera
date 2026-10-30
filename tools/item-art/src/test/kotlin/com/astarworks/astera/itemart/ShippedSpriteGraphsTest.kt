@@ -38,7 +38,7 @@ class ShippedSpriteGraphsTest {
         val raw = Files.readString(content.resolve(SpriteSources.MANIFEST))
         val doc = Yaml().load<Map<String, Any>>(raw)
         @Suppress("UNCHECKED_CAST")
-        val sample = (doc.getValue("sprites") as Map<String, Map<String, Any>>).getValue("sample-dissolve-sigil")
+        val sample = (doc.getValue("sprites") as Map<String, Map<String, Any>>).getValue("spark")
         val manifest = dir.resolve(SpriteSources.MANIFEST)
         Files.createDirectories(manifest.parent)
         for (tags in listOf(listOf("sample", "shader-combo"), emptyList<String>())) {

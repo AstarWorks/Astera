@@ -52,6 +52,6 @@ machine:
               - {id: tracer_e, use: skill:gun-tracer, with: {thickness: 0.12}, frames: {muzzle: muzzle, tip: contact}}
         # the visible round, riding the body
         - {id: slug, op: display, kind: item, item: "minecraft:gold_nugget", context: fixed, anchor: bolt, scale: [0.6, 0.6, 0.6], at: 0, until: bolt.end}
-        - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], at: 0, every: 1, until: bolt.end}
-        - {id: trail1, op: particle_def, def: smoke-dark, anchor: bolt, at: 0, every: 1, until: bolt.end}
+        - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], at: 2, every: 1, until: bolt.end}
+        - {id: trail1, op: particle_def, def: smoke-dark, anchor: bolt, at: 2, every: 1, until: bolt.end}
     end: {final: true}

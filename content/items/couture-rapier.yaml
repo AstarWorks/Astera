@@ -28,3 +28,4 @@ skills:
   skill_id: couture-rapier-ego
 pdc_tags:
   astera:rarity: epic
+hold: {kind: root}

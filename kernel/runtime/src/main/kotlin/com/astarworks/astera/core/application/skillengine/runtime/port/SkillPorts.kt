@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.skillengine.runtime.port
 
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
+import com.astarworks.astera.core.domain.effect.ParticleData
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.skillengine.hit.HitBox
@@ -56,8 +57,6 @@ public data class DisplayView(
     val audience: com.astarworks.astera.core.domain.effect.Audience = com.astarworks.astera.core.domain.effect.Audience.ALL,
     val lane: com.astarworks.astera.core.domain.effect.VfxLane = com.astarworks.astera.core.domain.effect.VfxLane.CORE,
     val target: UUID? = null,
-    /** The row's `viewers:` filter; [audience] is already derived from it (kept so the recorders can print the spelling). */
-    val viewers: com.astarworks.astera.core.domain.effect.RowViewers = com.astarworks.astera.core.domain.effect.RowViewers.ALL,
 )
 
 /** A sprite's flipbook length and texture edge in pixels (its natural size is `px * 0.025` blocks). */
@@ -150,8 +149,8 @@ public data class ParticleBurst(
     val offset: Vec3,
     /** Vanilla `extra`. */
     val speed: Double,
-    val colorHex: String?,
-    val dataSize: Double?,
+    /** The typed vanilla particle data (dust colour / block / item / sculk roll / ...); null = the particle takes none or its default. */
+    val data: ParticleData?,
     /** `dir` sugar; null = plain vanilla spawn. */
     val dir: Vec3?,
     val spreadDeg: Double,

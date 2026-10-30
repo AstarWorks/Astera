@@ -126,7 +126,7 @@ public object StatsWiring {
         val messages = services.getOrThrow<IMessageRenderer>()
         val broadcaster = services.getOrThrow<IBroadcaster>()
         val playerGateway = services.getOrThrow<IPlayerGateway>()
-        val commands = ctx.commandMount("Astera-Stats")
+        val commands = ctx.commandMount()
         val eventBus = services.getOrThrow<IDomainEventBus>()
         val permService = services.getOrThrow<IPermissionService>()
         val matchRepository = services.getOrThrow<IMatchRepository>()

@@ -1,5 +1,8 @@
 package com.astarworks.astera.chat.platform
 
+import com.astarworks.astera.core.application.wiring.WiringTag
+import com.astarworks.astera.core.application.wiring.WiringOwner
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.chat.adapter.paper.DiscordBridge
 import com.astarworks.astera.chat.adapter.paper.FileChatPreferences
 import com.astarworks.astera.chat.adapter.paper.GoogleKanjiConverter
@@ -56,8 +59,8 @@ public class AsteraChatPlugin : JavaPlugin() {
         commands = core.services.getOrThrow<IAsteraCommandRegistry>().register(name, chatCommands(chat))
         val matches = core.services.get<com.astarworks.astera.core.application.port.outbound.IMatchRepository>()
         val cosmetics = core.services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>()
-        server.pluginManager.registerEvents(PaperChatListener(this, chat, core.services.getOrThrow<IPermissionService>(),
-            appearance = { id -> display.appearance(id, matches, cosmetics) }), this)
+        OwnedListeners(this, WiringTag(WiringOwner("Astera-Chat"), 0)).register(PaperChatListener(this, chat, core.services.getOrThrow<IPermissionService>(),
+            appearance = { id -> display.appearance(id, matches, cosmetics) }))
         val token = System.getenv("ASTERA_DISCORD_BOT_TOKEN")?.takeIf { it.isNotBlank() }
         val channel = System.getenv("ASTERA_DISCORD_CHANNEL_ID")?.takeIf { it.matches(Regex("[0-9]+")) }
         if (config.discord.enabled && config.discord.bridgeServer == core.serverEnvironment.name.value && token != null && channel != null) {

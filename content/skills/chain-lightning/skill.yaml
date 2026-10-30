@@ -22,7 +22,7 @@ params:
   shock_ticks:        {type: ticks,  default: 8}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: fx,     anchor: caster.eye, offset: {forward: 1.0, up: -0.2}, mode: follow}
+  - {id: fx,     anchor: caster.eye, offset: {forward: 1.8, up: -0.2}, mode: follow}
   - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
 fragments:
   arc:
@@ -93,7 +93,7 @@ machine:
           motion:
             - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 39}
         - id: trail
-          at: 0
+          at: 2
           every: 1
           until: bolt.end
           do:

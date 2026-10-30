@@ -109,7 +109,7 @@ public object EconomyWiring {
 
         // ── Shared services ────────────────────────────────────────────────────
         val eventBus = services.getOrThrow<IDomainEventBus>()
-        val commands = ctx.commandMount("Astera-Economy")
+        val commands = ctx.commandMount()
         val playerGateway = services.getOrThrow<IPlayerGateway>()
         val msgRenderer = services.getOrThrow<IMessageRenderer>()
         val matchRepository = services.getOrThrow<IMatchRepository>()
@@ -349,6 +349,16 @@ public object EconomyWiring {
         val matchShopLoader = com.astarworks.astera.economy.application.service.MatchShopLoaderService()
         val matchShopReport = matchShopLoader.loadFrom(shopsContentDir)
         logger.info("Loaded match shop from $shopsContentDir (loaded: ${matchShopReport.loaded}, failed: ${matchShopReport.failed})")
+        // Reload (`astera admin reload shops`): diff-apply the lobby shops and stage the match catalog for the next match.
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchStarted::class) { matchShopLoader.promotePending() }
+        val shopContents = com.astarworks.astera.economy.application.contents.shop.ShopContents(
+            registry = shopRegistry,
+            stock = shopStockRepository,
+            matchShop = matchShopLoader,
+            matchRunning = { matchRepository.findActiveMatches().isNotEmpty() },
+        )
+        shutdownHooks += services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry>()
+            .register(shopContents, shopsContentDir)::unregister
         val matchTeams = com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup { id ->
             services.get<com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup>()?.teamOf(id)
         }

@@ -10,7 +10,6 @@ import com.astarworks.astera.core.application.port.outbound.IMatchConfigService
 import com.astarworks.astera.core.application.port.outbound.IWorldRulesGateway
 import com.astarworks.astera.core.application.port.outbound.IWorldTimeGateway
 import com.astarworks.astera.core.application.port.outbound.IWorldWeatherGateway
-import com.astarworks.astera.core.application.service.BlockDurabilityLoader
 import com.astarworks.astera.core.application.service.InMemoryBlockDurabilityRepository
 import com.astarworks.astera.core.application.service.InMemoryBlockStateGateway
 import com.astarworks.astera.core.application.service.InMemoryScoreboardManager
@@ -73,9 +72,7 @@ internal fun CoreWiringState.wireHudAndWorld() {
     // InMemoryBlockStateGateway + InMemorySchematicLoader registered at
     // priority 0; Wave 6 Paper impls land at priority 100
     // (BlockData + NBT durability / FAWE adapter).
-    val durabilityRule = BlockDurabilityLoader().load(
-        contentDir.resolve("balance/block-durability.yaml"),
-    )
+    val durabilityRule = balanceCore.durability
     // Wave 5x (ADR-0090): Custom-block registry, loaded from
     // content/blocks/<id>.yaml. The InMemoryBlockStateGateway holds a
     // reference so applyDamageFromSkill can resolve per-block tool
@@ -124,7 +121,7 @@ internal fun CoreWiringState.wireHudAndWorld() {
     val blockStateGateway: IBlockStateGateway = InMemoryBlockStateGateway(
         eventBus = eventBus,
         customBlockRegistry = customBlockContents,
-        durabilityRule = durabilityRule,
+        durabilityRef = durabilityRule,
         initialTick = scheduler::currentTick,
         worldGateway = { services.get<com.astarworks.astera.core.application.port.outbound.IWorldGateway>() },
     )
@@ -161,7 +158,7 @@ internal fun CoreWiringState.wireHudAndWorld() {
     // BlockDurabilityRule is consumed by use cases (e.g. Wave 6 BlockHitListener
     // computing damageFor(tool, blockType) before calling applyDamage). Published
     // here so future plugins resolve through the registry rather than re-loading.
-    services.register<BlockDurabilityRule>(durabilityRule, priority = 0)
+    services.register<BlockDurabilityRule>(durabilityRule.current, priority = 0)
 
     // ---- World environment + Per-match config + Spatial index (Wave 5n, ADR-0080) ----
     // In-memory defaults at priority 0. Wave 6b Paper adapter overlays at

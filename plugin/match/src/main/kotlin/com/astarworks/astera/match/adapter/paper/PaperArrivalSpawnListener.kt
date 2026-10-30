@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.adapter.paper
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.match.application.service.matchmaking.IArrivalSpawns
 import io.papermc.paper.event.player.AsyncPlayerSpawnLocationEvent
@@ -25,8 +26,8 @@ public class PaperArrivalSpawnListener(
     private val arrivals: IArrivalSpawns,
 ) : Listener {
 
-    public fun start(plugin: JavaPlugin): PaperArrivalSpawnListener {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners): PaperArrivalSpawnListener {
+        listeners.register(this)
         return this
     }
 

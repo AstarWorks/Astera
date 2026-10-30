@@ -99,6 +99,9 @@ import org.slf4j.LoggerFactory
  */
 public class AsteraPersistencePlugin : JavaPlugin() {
 
+    private val wiringTag = com.astarworks.astera.core.application.wiring.WiringTag(
+        com.astarworks.astera.core.application.wiring.WiringOwner("Astera-Persistence"), 0,
+    )
     private val registrations = mutableListOf<ServiceRegistry.Registration>()
     private val staged = mutableListOf<Pair<String, (ServiceRegistry) -> ServiceRegistry.Registration>>()
     private val subscriptions = mutableListOf<com.astarworks.astera.core.application.port.outbound.IDomainEventBus.Subscription>()
@@ -121,7 +124,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             return
         }
 
-        val services = getPlugin(AsteraCorePlugin::class.java).services
+        val services = getPlugin(AsteraCorePlugin::class.java).services.scoped(wiringTag)
 
         val ctx = try {
             connectAndMigrate(config, LoggerFactory.getLogger(javaClass))
@@ -164,8 +167,8 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         // join listener (loadbefore). Needs Core's bus, so it cannot run in onLoad.
         attributeStore?.let { store ->
             getPlugin(AsteraCorePlugin::class.java).services
-                .get<com.astarworks.astera.core.application.port.outbound.IDomainEventBus>()?.let { bus ->
-                    subscriptions += bus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) {
+                .get<com.astarworks.astera.core.application.port.outbound.IDomainEventBus>()?.let { rawBus ->
+                    subscriptions += com.astarworks.astera.core.application.wiring.OwnedEventBus(rawBus, wiringTag).subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) {
                         store.reload(it.playerId)
                     }
                 }

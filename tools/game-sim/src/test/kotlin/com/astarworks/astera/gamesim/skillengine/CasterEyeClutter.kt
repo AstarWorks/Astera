@@ -2,21 +2,20 @@ package com.astarworks.astera.gamesim.skillengine
 
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.math.ln
 import kotlin.math.sqrt
 
 /**
- * Caster-view clutter rule (se-nearcam). A skill must not fill the caster's own first-person screen: at no tick of any recorded pose may more than
- * [LIMIT] lingering vanilla particles spawn in the first-person view volume: a forward cone ([HALF_ANGLE_DEG] deg half-angle along the row's look) out to [RADIUS] blocks from the eye, excluding anything below eye - [FLOOR_BELOW_EYE] (ground rings/AoE discs at the feet). Rows come from the expanded golden recording
- * (`@tick particle - op=.. type=.. count=N at=x,y,z .. size=..`; the caster stands at the origin, eye at y = [EYE_Y]); a content particle id resolves to its
- * `vanilla_particle` in content/particles.
+ * Caster-view clutter rule (se-nearcam). A skill must not fill the caster's own first-person screen: at no tick of any recorded pose may the EXPECTED number
+ * of vanilla particles alive in the first-person view volume exceed [LIMIT]: a forward cone ([HALF_ANGLE_DEG] deg half-angle along the row's look) out to
+ * [RADIUS] blocks from the eye, excluding anything below eye - [FLOOR_BELOW_EYE] (ground rings/AoE discs at the feet). Rows come from the expanded golden
+ * recording (`@tick particle - op=.. type=.. count=N at=x,y,z .. size=..`; the caster stands at the origin, eye at y = [EYE_Y]); a content particle id
+ * resolves to its `vanilla_particle` in content/particles.
  *
- * Lingering = mean client lifetime >= [LINGER_TICKS] ticks. Lifetimes are read from the 26.3 client jar (`javap -c` on the particle classes), not guessed:
- * `Particle.lifetime` is set in each constructor from `random.nextFloat()` U:
- * crit / enchanted_hit `6 / (0.8U + 0.6)` (4-10), snowflake `16 / (0.8U + 0.2) + 2` (18-82), flame (RisingParticle) `8 / (0.8U + 0.2) + 4` (12-44),
- * lava `16 / (0.8U + 0.2)` (16-80), happy_villager `20 / (0.8U + 0.2)`, heart 16, end_rod 60-71, firework 48-60, sweep_attack 4,
- * electric_spark (GlowParticle) 2-4, dust / dust_color_transition `8 / (0.8U + 0.2) * scale`; smoke / poof / explosion / cloud families below.
- * The mean of `k / (0.8U + 0.2)` is `k / 0.8 * ln 5`.
+ * Expected alive at tick t = sum over spawn rows at s <= t of `count * P(life > t - s)` (a particle spawned at s is drawn on ticks s .. s+life-1), counting
+ * only the ticks at which it is inside the volume. There is no lingering/short cut: a short-lived particle weighs 1 on its first ticks and its survival
+ * falls to 0 at its vanilla maximum, a crit burst of any size is counted. [survival] holds each type's lifetime distribution, read from the 26.3 client jar
+ * (`javap -c -p -constants` on the particle classes; `Particle.lifetime` is set in each constructor / provider, U = `random.nextFloat()` uniform [0,1)).
+ * Types the jar does not give a lifetime for are listed at [survival].
  */
 internal object CasterEyeClutter {
     const val RADIUS = 1.5
@@ -24,7 +23,6 @@ internal object CasterEyeClutter {
     const val FLOOR_BELOW_EYE = 0.9
     const val EYE_Y = 1.62
     const val LIMIT = 10
-    const val LINGER_TICKS = 6.0
 
     /** Display coverage: block / item displays only (sprite, text, ribbon and veil scales are not world sizes). Cone as above, out to [DISPLAY_RANGE]. */
     const val DISPLAY_RANGE = 3.0
@@ -60,8 +58,6 @@ internal object CasterEyeClutter {
                         if (d.groupValues[2] == "spawn") {
                             val kind = Regex(" kind=(\\S+)").find(l)?.groupValues?.get(1)
                             if (kind != "block" && kind != "item") continue
-                            // the caster never sees an owner-hidden row (viewers filter), so it cannot fill the caster's screen
-                            if (" viewers=owner-hidden" in l) continue
                             alive[id] = Triple(Regex("op=(\\S+)").find(l)!!.groupValues[1], null, null)
                         }
                         val cur = alive[id] ?: continue
@@ -100,24 +96,72 @@ internal object CasterEyeClutter {
         return problems
     }
 
-    private fun riseMean(k: Double) = k / 0.8 * ln(5.0)
+    /** P(floor(a / (slope*U + c)) + off > k): the `(int)(a / (slope * U + c)) + off` lifetime family (U uniform [0,1)). */
+    private fun invLife(a: Double, slope: Double, c: Double, off: Int, k: Int): Double {
+        val need = k - off + 1                       // floor(v) >= need  <=>  v >= need
+        if (need <= 0) return 1.0
+        return ((a / need - c) / slope).coerceIn(0.0, 1.0)  // a / (slope*U + c) >= need  <=>  U <= (a/need - c)/slope
+    }
 
-    /** Mean client lifetime in ticks of [vanilla]; [scale] is the dust size. Unknown types count as lingering (a long-ish 16). */
-    fun meanLife(vanilla: String, scale: Double?): Double = when (vanilla) {
-        "crit", "enchanted_hit" -> 6.9
-        "electric_spark" -> 3.0
-        "sweep_attack" -> 4.0
-        "snowflake", "poof", "explosion" -> 34.0
-        "flame" -> 20.0
-        "lava" -> 32.0
-        "happy_villager" -> 40.0
-        "heart" -> 16.0
-        "end_rod" -> 65.0
-        "firework" -> 54.0
-        "cloud" -> 14.0
-        "smoke", "large_smoke", "white_smoke", "composter", "entity_effect" -> 16.0
-        "dust", "dust_color_transition" -> riseMean(8.0) * (scale ?: 1.0)
-        else -> 16.0
+    /** P(L > k) for L uniform on the integers lo..hi (`lo + random.nextInt(hi - lo + 1)`). */
+    private fun uniformLife(lo: Int, hi: Int, k: Int): Double = when {
+        k < lo -> 1.0
+        k >= hi -> 0.0
+        else -> (hi - k).toDouble() / (hi - lo + 1)
+    }
+
+    /**
+     * Survival function P(client lifetime > k) of [vanilla] (k = ticks since spawn; [scale] = the dust `size`). Every line cites the 26.3 client class.
+     *  - crit / enchanted_hit: CritParticle `<init>` `max((int)(6.0 / (U*0.8 + 0.6)), 1)` (4..10, mean 5.84). enchanted_hit = CritParticle$MagicProvider.
+     *  - damage_indicator: CritParticle$DamageIndicatorProvider `setLifetime(20)`.
+     *  - dust / dust_color_transition: DustParticleBase `lifetime = (int) max((float)(int)(8.0 / (nextDouble*0.8 + 0.2)) * scale, 1.0f)`.
+     *  - smoke / white_smoke: BaseAshSmokeParticle `max((int)(8 / (U*0.8 + 0.2) * scale), 1)`, scale 1 (SmokeParticle$Provider / WhiteSmokeParticle$Provider `fconst_1`);
+     *    large_smoke: LargeSmokeParticle passes scale 2.5 to SmokeParticle.
+     *  - snowflake: SnowflakeParticle `(int)(16.0 / (U*0.8 + 0.2)) + 2`. flame / small_flame: RisingParticle `(int)(8.0 / (U*0.8 + 0.2)) + 4` (FlameParticle).
+     *  - lava: LavaParticle `(int)(16.0 / (U*0.8 + 0.2))`; its `tick()` also removes it early at random, so this is an upper bound (never a lower count).
+     *  - happy_villager: SuspendedTownParticle `(int)(20.0 / (U*0.8 + 0.2))`. composter: SuspendedTownParticle$ComposterFillProvider `setLifetime(3 + nextInt(5))`.
+     *  - poof: ExplodeParticle `(int)(16.0 / (U*0.8 + 0.2)) + 2`. explosion: HugeExplosionParticle `6 + nextInt(4)`.
+     *  - cloud: PlayerCloudParticle `max((float)(int)(8.0 / (U*0.8 + 0.3)) * 2.5, 1)`.
+     *  - sweep_attack: AttackSweepParticle `lifetime = 4`. heart: HeartParticle `16`. end_rod: EndRodParticle `60 + nextInt(12)`.
+     *  - firework: FireworkParticles$SparkParticle `48 + nextInt(12)`. electric_spark: GlowParticle$ElectricSparkProvider `setLifetime(nextInt(2) + 2)` (2..3).
+     *  - entity_effect: SpellParticle `(int)(8.0 / (U*0.8 + 0.2))`.
+     *  - block_crumble: TerrainParticle sets none, so the Particle base `(int)(4.0 / (U*0.9 + 0.1))`. cherry_leaves: FallingParticle `lifetime = 300`.
+     * NOT in the jar as a constant: `trail` (TrailParticleOption.duration() comes from the command / row, not the class) and any id no particle def resolves to;
+     * both are counted at a flat 16 ticks (the old table value) until the row carries the duration.
+     */
+    fun survival(vanilla: String, scale: Double?, k: Int): Double = when (vanilla) {
+        "crit", "enchanted_hit" -> if (k < 1) 1.0 else invLife(6.0, 0.8, 0.6, 0, k)
+        "damage_indicator" -> if (k < 20) 1.0 else 0.0
+        "dust", "dust_color_transition" -> {
+            // floor(8/x) * scale >= k + 1  <=>  floor(8/x) >= ceil((k + 1) / scale)
+            val sc = (scale ?: 1.0).coerceAtLeast(1e-6)
+            if (k < 1) 1.0 else invLife(8.0, 0.8, 0.2, 0, kotlin.math.ceil((k + 1) / sc).toInt() - 1)
+        }
+        "smoke", "white_smoke" -> if (k < 1) 1.0 else invLife(8.0, 0.8, 0.2, 0, k)
+        "large_smoke" -> if (k < 1) 1.0 else invLife(8.0 * 2.5, 0.8, 0.2, 0, k)
+        "snowflake", "poof" -> invLife(16.0, 0.8, 0.2, 2, k)
+        "flame", "small_flame" -> invLife(8.0, 0.8, 0.2, 4, k)
+        "lava" -> invLife(16.0, 0.8, 0.2, 0, k)
+        "happy_villager" -> invLife(20.0, 0.8, 0.2, 0, k)
+        "entity_effect" -> invLife(8.0, 0.8, 0.2, 0, k)
+        "composter" -> uniformLife(3, 7, k)
+        "explosion" -> uniformLife(6, 9, k)
+        "cloud" -> if (k < 1) 1.0 else invLife(8.0, 0.8, 0.3, 0, kotlin.math.ceil((k + 1) / 2.5).toInt() - 1)
+        "sweep_attack" -> if (k < 4) 1.0 else 0.0
+        "heart" -> if (k < 16) 1.0 else 0.0
+        "end_rod" -> uniformLife(60, 71, k)
+        "firework" -> uniformLife(48, 59, k)
+        "electric_spark" -> uniformLife(2, 3, k)
+        "block_crumble" -> invLife(4.0, 0.9, 0.1, 0, k)
+        "cherry_leaves" -> if (k < 300) 1.0 else 0.0
+        else -> if (k < 16) 1.0 else 0.0
+    }
+
+    /** First k at which [survival] is 0 (the particle is gone); capped so a bad row cannot loop. */
+    private fun maxLife(vanilla: String, scale: Double?): Int {
+        var k = 1
+        while (k < 400 && survival(vanilla, scale, k) > 0.0) k++
+        return k
     }
 
     private val ROW = Regex("^@(\\d+) particle \\S+ op=(\\S+) type=(\\S+)(?: count=(\\d+))? at=(\\S+),(\\S+),(\\S+) .* size=(\\S+) .*look=(\\S+),(\\S+),(\\S+)")
@@ -140,37 +184,26 @@ internal object CasterEyeClutter {
     }
 
     /**
-     * Two problem kinds per pose. (1) [LIMIT] per spawn tick (a burst at one tick). (2) [LIMIT] ALIVE at once: every lingering particle spawned in the
-     * view volume stays on screen for its mean life, so rows of several ticks add up (glacier-spike: 8 cast dust + trail snow/dust at tick 0 and 1 = 12 on screen
-     * at tick 1, each tick alone <= 10). A particle is counted alive for `round(meanLife)` ticks from its spawn tick (its spawn position decides the volume test; the
-     * drift afterwards is ignored).
+     * One problem kind per pose: the largest expected alive count (see the class doc) over all ticks, flagged when above [LIMIT]. A particle's drift after
+     * spawn is ignored except for directed rows (`count=0`: the offset is the velocity direction and `speed` its length per tick; vanilla count 0 sets
+     * velocity = offset * speed, friction ignored = an upper bound on the path), so a ring spawned at the target that travels back at the caster is seen.
      */
     fun check(key: String, lines: List<String>, particlesDir: Path): List<String> {
         val defs = defs(particlesDir)
         val problems = ArrayList<String>()
         var pose = ""
-        // ticks: every tick the particle is alive AND inside the view volume; spawnInside: it spawned inside (counts for the per-tick burst rule)
-        class Spawn(val tick: Int, val count: Int, val ticks: IntRange, val inside: List<Int>, val spawnInside: Boolean, val name: String)
-        val spawns = ArrayList<Spawn>()
+        // alive[t] = expected count alive at tick t inside the volume; byName[t] = the same split by row name
+        val alive = java.util.TreeMap<Int, Double>()
+        val byName = HashMap<Int, HashMap<String, Double>>()
         fun flush() {
-            val perTick = java.util.TreeMap<Int, Int>()
-            for (sp in spawns) if (sp.spawnInside) perTick.merge(sp.tick, sp.count, Int::plus)
-            for ((tick, n) in perTick) if (n > LIMIT) {
-                val top = spawns.filter { it.tick == tick && it.spawnInside }.groupBy { it.name }.mapValues { e -> e.value.sumOf { it.count } }.entries.sortedByDescending { it.value }.take(4).joinToString(", ") { "${it.key} x${it.value}" }
-                problems += "$key [$pose] @$tick: $n lingering particles in the first-person view volume (cone ${HALF_ANGLE_DEG.toInt()} deg, $RADIUS blocks, above eye-$FLOOR_BELOW_EYE) (limit $LIMIT): $top"
-            }
-            if (spawns.isNotEmpty()) {
-                var worst = -1; var worstN = 0
-                for (t in 0..spawns.maxOf { it.ticks.last }) {
-                    val n = spawns.filter { t in it.inside }.sumOf { it.count }
-                    if (n > worstN) { worstN = n; worst = t }
-                }
-                if (worstN > LIMIT) {
-                    val top = spawns.filter { worst in it.inside }.groupBy { it.name }.mapValues { e -> e.value.sumOf { it.count } }.entries.sortedByDescending { it.value }.take(4).joinToString(", ") { "${it.key} x${it.value}" }
-                    problems += "$key [$pose] @$worst: $worstN lingering particles ALIVE at once in the first-person view volume (spawned over several ticks, each alive its mean life, directed ones flown along their velocity) (limit $LIMIT): $top"
+            if (alive.isNotEmpty()) {
+                val worst = alive.entries.maxByOrNull { it.value }!!
+                if (worst.value > LIMIT) {
+                    val top = byName[worst.key]!!.entries.sortedByDescending { it.value }.take(4).joinToString(", ") { "${it.key} x${"%.1f".format(it.value)}" }
+                    problems += "$key [$pose] @${worst.key}: ${"%.1f".format(worst.value)} particles EXPECTED ALIVE in the first-person view volume (cone ${HALF_ANGLE_DEG.toInt()} deg, $RADIUS blocks, above eye-$FLOOR_BELOW_EYE; each spawn weighed by its vanilla lifetime survival) (limit $LIMIT): $top"
                 }
             }
-            spawns.clear()
+            alive.clear(); byName.clear()
         }
         for (l in lines) {
             if (l.startsWith("## ")) { flush(); pose = l.removePrefix("## "); continue }
@@ -182,8 +215,6 @@ internal object CasterEyeClutter {
             val def = defs[id]
             val vanilla = def?.vanilla ?: id
             val scale = m.groupValues[8].toDoubleOrNull() ?: def?.scale
-            val life = meanLife(vanilla, scale)
-            if (life < LINGER_TICKS) continue
             fun inView(px: Double, py: Double, pz: Double): Boolean {
                 val ey = py - EYE_Y
                 val d = sqrt(px * px + ey * ey + pz * pz)
@@ -191,25 +222,22 @@ internal object CasterEyeClutter {
                 val ll = sqrt(lx * lx + ly * ly + lz * lz)
                 return !(d > 1e-6 && ll > 1e-6 && (px * lx + ey * ly + pz * lz) / (d * ll) < COS_HALF)
             }
-            val n = Math.round(life).toInt()
-            // A directed row (`count=0`: the offset is the velocity direction, `speed` its length per tick) flies on: vanilla count 0 sets velocity = offset * speed.
-            // Friction is ignored (an upper bound on the path), so a ring spawned at the target that travels back at the caster is seen (glacier-spike impact ring).
             val directed = m.groupValues[4] == "0"
             val offM = Regex(" off=(\\S+),(\\S+),(\\S+)").find(l); val spM = Regex(" speed=(\\S+)").find(l)
-            val inside = ArrayList<Int>()
-            for (k in 0 until n) {
+            // A content-particle row carries no count: the def's own count is what spawns (a 5-flame burst used to be counted as 1).
+            val count = maxOf(1, m.groupValues[4].toIntOrNull() ?: def?.count ?: 1)
+            val name = "${m.groupValues[2].replace(Regex("\\[\\d+]"), "[]")}($vanilla)"
+            for (k in 0 until maxLife(vanilla, scale)) {
                 var px = x; var py = y; var pz = z
                 if (directed && offM != null && spM != null) {
                     val sp = spM.groupValues[1].toDoubleOrNull() ?: 0.0
                     px += offM.groupValues[1].toDouble() * sp * k; py += offM.groupValues[2].toDouble() * sp * k; pz += offM.groupValues[3].toDouble() * sp * k
                 }
-                if (inView(px, py, pz)) inside += tick + k
+                if (!inView(px, py, pz)) continue
+                val w = count * survival(vanilla, scale, k)
+                alive.merge(tick + k, w, Double::plus)
+                byName.getOrPut(tick + k) { HashMap() }.merge(name, w, Double::plus)
             }
-            val spawnInside = inView(x, y, z)
-            if (inside.isEmpty() && !spawnInside) continue
-            // A content-particle row carries no count: the def's own count is what spawns (a 5-flame burst used to be counted as 1).
-            val count = maxOf(1, m.groupValues[4].toIntOrNull() ?: def?.count ?: 1)
-            spawns += Spawn(tick, count, tick until tick + n, inside, spawnInside, "${m.groupValues[2].replace(Regex("\\[\\d+]"), "[]")}($vanilla)")
         }
         flush()
         return problems

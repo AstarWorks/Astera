@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.item
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -20,8 +21,8 @@ public class PaperItemTooltipGuard(
     private val materializer: () -> PaperItemMaterializer?,
 ) : Listener {
 
-    public fun start(plugin: JavaPlugin) {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners) {
+        listeners.register(this)
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

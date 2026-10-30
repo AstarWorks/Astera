@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.platform.paper
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
+import com.astarworks.astera.core.platform.paper.listeners
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.services.get
@@ -29,7 +31,7 @@ import org.bukkit.plugin.java.JavaPlugin
 internal object MatchPaperBindings {
 
     /** [replayExportRoot] is Astera-Core's data folder + `replays` (unchanged from the pre-ADR-0174 path). */
-    fun ports(plugin: JavaPlugin, replayExportRoot: java.nio.file.Path): MatchPlatformPorts = MatchPlatformPorts(
+    fun ports(plugin: JavaPlugin, listeners: OwnedListeners, replayExportRoot: java.nio.file.Path): MatchPlatformPorts = MatchPlatformPorts(
         replayExportRoot = replayExportRoot,
         // Wave 6b-1 (ADR-0156): PaperBarrierGateway overlays InMemory at
         // priority 100. Bukkit BlockDisplay-backed visual; Phase 1 limits
@@ -46,7 +48,7 @@ internal object MatchPaperBindings {
         // F3-5: death cam + eliminated-team spectating use Bukkit spectator mode.
         spectator = { services -> PaperSpectator(plugin.server, services.getOrThrow<IScheduler>()) },
         playerPositions = { PaperMatchPlayerPositions(plugin.server) },
-        starDropWorld = { PaperStarDropWorld(plugin) },
+        starDropWorld = { PaperStarDropWorld(plugin, listeners) },
         oreNodeWorld = { com.astarworks.astera.match.adapter.paper.PaperOreNodeWorld(plugin) },
         generatorItemDrop = { services ->
             com.astarworks.astera.match.adapter.paper.PaperGeneratorItemDrop(
@@ -55,19 +57,21 @@ internal object MatchPaperBindings {
                 materializer = { services.get<com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer>() },
             )
         },
-        objectiveStage = { services -> PaperObjectiveStage(plugin, services.getOrThrow<IDomainEventBus>()) },
+        objectiveStage = { services -> PaperObjectiveStage(plugin, listeners, services.getOrThrow<IDomainEventBus>()) },
         matchCompass = { services ->
-            com.astarworks.astera.match.adapter.paper.PaperMatchCompass(plugin, services.getOrThrow<IMessageRenderer>()).also { it.start() }
+            com.astarworks.astera.match.adapter.paper.PaperMatchCompass(plugin, listeners, services.getOrThrow<IMessageRenderer>()).also { it.start() }
         },
         worldLabels = { com.astarworks.astera.match.adapter.paper.PaperWorldLabels(plugin) },
         normaPresentation = { services -> PaperNormaPresentation(
                 plugin,
+                listeners,
                 services.getOrThrow<IMessageRenderer>(),
                 services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>(),
             ) },
     )
 
     fun bind(plugin: JavaPlugin, ctx: WiringContext, wired: MatchWiringResult) {
+        val listeners = ctx.listeners(plugin)
         // Wave 6a-N3 (ADR-0159): Bukkit EntityPickupItemEvent →
         // match.EntityPickedUpItem (PDC astera:item_id read with
         // bukkit:<material> fallback). Paired with the vendor-neutral
@@ -76,7 +80,7 @@ internal object MatchPaperBindings {
             matchRepository = wired.matches,
             eventBus = ctx.services.getOrThrow<IDomainEventBus>(),
             scheduler = ctx.services.getOrThrow<IScheduler>(),
-        ).start(plugin)
+        ).start(plugin, listeners)
 
         // WP11: BlockBreakEvent -> BlockBroken and PlayerMoveEvent -> PlayerMoved for
         // players in a match (objective modes + the region transition listener).
@@ -84,15 +88,15 @@ internal object MatchPaperBindings {
             matches = wired.matches,
             eventBus = ctx.services.getOrThrow<IDomainEventBus>(),
             scheduler = ctx.services.getOrThrow<IScheduler>(),
-        ).start(plugin)
+        ).start(plugin, listeners)
         // WP10: enemy block breaks on Annihilation pillar blocks damage the pillar.
-        PaperPillarBlockListener(wired.pillarTargets).start(plugin)
+        PaperPillarBlockListener(wired.pillarTargets).start(plugin, listeners)
         // Mid ore nodes: tier-gated mining with regrow.
-        com.astarworks.astera.match.adapter.paper.PaperOreNodeListener { ctx.services.get<com.astarworks.astera.match.application.service.OreNodeService>() }.start(plugin)
+        com.astarworks.astera.match.adapter.paper.PaperOreNodeListener { ctx.services.get<com.astarworks.astera.match.application.service.OreNodeService>() }.start(plugin, listeners)
         // Game servers: lobby hand-off arrivals appear on their team's arena spawn and are shielded until start.
         ctx.services.get(com.astarworks.astera.match.application.service.matchmaking.IArrivalSpawns::class)
-            ?.let { com.astarworks.astera.match.adapter.paper.PaperArrivalSpawnListener(it).start(plugin) }
+            ?.let { com.astarworks.astera.match.adapter.paper.PaperArrivalSpawnListener(it).start(plugin, listeners) }
         // F3-5: spectators cannot interact / damage / pick up; clicks cycle the camera.
-        PaperSpectatorInputListener(wired.spectatorCycler).start(plugin)
+        PaperSpectatorInputListener(wired.spectatorCycler).start(plugin, listeners)
     }
 }

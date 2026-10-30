@@ -144,5 +144,5 @@ public fun interface GuiAdapterFactory {
 public class BlockStateGatewayDeps(
     public val services: ServiceRegistry,
     public val customBlocks: ICustomBlockRegistry,
-    public val durabilityRule: BlockDurabilityRule,
+    public val durabilityRule: com.astarworks.astera.core.application.contents.BalanceRef<BlockDurabilityRule>,
 )

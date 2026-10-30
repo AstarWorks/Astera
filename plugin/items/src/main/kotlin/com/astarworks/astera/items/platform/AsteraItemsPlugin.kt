@@ -1,7 +1,9 @@
 package com.astarworks.astera.items.platform
 
+import com.astarworks.astera.core.platform.paper.listeners
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.platform.AsteraCorePlugin
+import com.astarworks.astera.core.application.wiring.WiringOwner
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import com.astarworks.astera.items.adapter.paper.PaperItemDelivery
 import com.astarworks.astera.items.adapter.paper.PaperItemCooldownSweepGateway
@@ -50,7 +52,7 @@ public class AsteraItemsPlugin : JavaPlugin() {
                 server.pluginManager.disablePlugin(this); return
             }
 
-        val ctx = WiringContext(core.services, core.contentDir, logger, core.serverEnvironment.role, core.serverEnvironment.name)
+        val ctx = WiringContext(WiringOwner("Astera-Items"), 0, core.services, core.contentDir, logger, core.serverEnvironment.role, core.serverEnvironment.name)
         wiringContext = ctx
 
         // Paper-side item adapters (ADR-0174: injected into the host-neutral wiring).
@@ -79,8 +81,9 @@ public class AsteraItemsPlugin : JavaPlugin() {
 
         val wired = ItemsWiring.install(ctx, ports)
         itemsResult = wired
-        PaperItemTooltipGuard { materializer }.start(this)
-        ItemsPaperBindings.register(this, wired, checkNotNull(rackFrames), { core.services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>()?.world?.value })
+        val listeners = ctx.listeners(this)
+        PaperItemTooltipGuard { materializer }.start(this, listeners)
+        ItemsPaperBindings.register(this, listeners, wired, checkNotNull(rackFrames), { core.services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>()?.world?.value })
 
         logger.info("Astera-Items enabled.")
     }

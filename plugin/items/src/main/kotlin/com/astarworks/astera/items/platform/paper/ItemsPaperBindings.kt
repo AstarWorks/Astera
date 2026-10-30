@@ -1,5 +1,6 @@
 package com.astarworks.astera.items.platform.paper
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.items.adapter.paper.EnchantmentGateListener
 import com.astarworks.astera.items.adapter.paper.PaperItemIdResolver
 import com.astarworks.astera.items.adapter.paper.PaperHeldItemListener
@@ -16,26 +17,24 @@ import org.bukkit.plugin.java.JavaPlugin
  */
 internal object ItemsPaperBindings {
 
-    fun register(plugin: JavaPlugin, wired: ItemsWiringResult, rackFrames: PaperTrainingRackGateway, rangeWorld: () -> String?) {
+    fun register(plugin: JavaPlugin, listeners: OwnedListeners, wired: ItemsWiringResult, rackFrames: PaperTrainingRackGateway, rangeWorld: () -> String?) {
         // Input → trigger sink (vendor-neutral listener behind a Paper bridge).
         val inputListener = PaperItemInputListener(
             itemIdResolver = PaperItemIdResolver(plugin, plugin.server),
             sink = wired.triggerListener::handle,
         )
-        plugin.server.pluginManager.registerEvents(inputListener, plugin)
+        listeners.register(inputListener)
 
         // Hotbar selection -> active weapon (resource HUD / per-weapon capacity).
-        plugin.server.pluginManager.registerEvents(
-            PaperHeldItemListener(PaperItemIdResolver(plugin, plugin.server), wired.handleTrigger),
-            plugin,
-        )
+        listeners.register(
+            PaperHeldItemListener(PaperItemIdResolver(plugin, plugin.server), wired.handleTrigger))
 
         // Enchant-gate + keep-on-death listener (Bukkit-native).
-        plugin.server.pluginManager.registerEvents(EnchantmentGateListener(plugin), plugin)
+        listeners.register(EnchantmentGateListener(plugin))
 
         // F3-11: weapon rack interaction + lobby-only guarantees for its stacks.
         wired.trainingRack?.let { rack ->
-            plugin.server.pluginManager.registerEvents(PaperTrainingRackListener(rack, rackFrames, rangeWorld), plugin)
+            listeners.register(PaperTrainingRackListener(rack, rackFrames, rangeWorld))
         }
     }
 }

@@ -43,7 +43,6 @@ machine:
           parent: caster
           mount: caster.hand_r
           anim: bastion-s1-body
-          viewers: all
           rest: [{axis: left, deg: 72}]
           for: 58
           detach: true
@@ -116,11 +115,8 @@ machine:
                 up: "= (0.25 + 0.275 * parent.i) * sin((60 * i - 20 * parent.i) * 0.0174533)"
                 left: "= -0.232 * (0.25 + 0.275 * parent.i) * cos((60 * i - 20 * parent.i) * 0.0174533)"
         # --- blade fx: segments between the rig points (ADR-0303 10.5), no baked positions ---
-        - {id: b1_trail, op: particle_def, def: bastion-s1-p-trail, at: 4, every: 1, for: 16, anchor: {of: rig.root, to: rig.tip, samples: 11}}
-        - {id: b1_sheath, op: particle_def, def: bastion-s1-p-sheath, at: 4, every: 1, for: 16, anchor: {of: rig.root, to: rig.tip, samples: 5}}
+        - {id: b1_trail, op: particle_def, def: bastion-s1-p-trail, at: 4, every: 1, for: 16, anchor: {of: rig.root, to: rig.tip, samples: 4}}
         - {id: b1_steel, op: particle_def, def: bastion-s1-p-steel, at: 4, every: 1, for: 16, anchor: rig.tip}
-        - {id: b1_fleck, op: particle_def, def: bastion-s1-p-fleck, at: 4, every: 1, for: 16, anchor: {of: rig.root, to: rig.tip, samples: 3}}
-        - {id: b1_crit, op: particle_def, def: bastion-s1-p-trail-crit, at: 7, every: 1, for: 3, anchor: {of: rig.root, to: rig.tip, samples: 11}}
     sweep2:
       for: 18
       then: slam

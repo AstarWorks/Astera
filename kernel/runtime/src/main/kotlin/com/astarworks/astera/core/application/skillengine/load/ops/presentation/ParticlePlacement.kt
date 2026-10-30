@@ -40,6 +40,8 @@ internal object ParticlePlacement {
         if (parts.index == null && parts.point == null) {
             val doc = lc.anchors.document(parts.base)
             if (doc != null) {
+                // a ray anchor is re-evaluated by the player (look ray + block stop): it cannot be folded into frame terms, so it is read live by name
+                if (doc.ray != null) return Result.Success(Base(parts.base, emptyList(), parts.base))
                 // a sound / particle is a one-shot at its own tick: sampling the anchor then is exactly what `snapshot` means, so both modes place it alike
                 val parent = when (val p = base(lc, doc.anchor.toString(), op)) {
                     is Result.Failure -> return p

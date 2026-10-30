@@ -16,7 +16,7 @@ params:
   freeze_ticks:       {type: ticks,  default: 16}
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
+  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 1.8}, mode: snapshot}
   - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
 fragments:
   impact:
@@ -68,7 +68,7 @@ machine:
           motion:
             - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 45}
         - id: trail
-          at: 0
+          at: 2
           every: 1
           until: bolt.end
           do:

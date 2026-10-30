@@ -64,5 +64,5 @@ machine:
               - {id: whiff, op: sound, at: 2, sound: "astera:weapons/blade-miss", anchor: caster, detach: true}
         - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 0.6, detach: true}
         - {id: fx, op: particle_def, def: cleave-sweep, anchor: cast_fx, detach: true}
-        - {id: trail, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 6}, count: 1, extra: 0.04, at: 0, every: 1, for: 8, detach: true}
+        - {id: trail, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 3}, count: 1, extra: 0.04, at: 0, every: 1, for: 8, detach: true}
     end: {final: true}

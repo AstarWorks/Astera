@@ -165,6 +165,7 @@ internal class CoreWiringState(
     lateinit var stageRegionIndex: IStageRegionIndex
     lateinit var permissionService: IPermissionService
     lateinit var reloadRegistry: IReloadableContentsRegistry
+    lateinit var balanceCore: com.astarworks.astera.core.application.contents.BalanceCoreContents
     lateinit var particlesContentDir: Path
     lateinit var attributeContainerStore: IPlayerAttributeContainerStore
     lateinit var sessionRepo: IPlayerSessionRepository
@@ -241,6 +242,8 @@ internal class CoreWiringState(
 
 /** Base ports, i18n, item contents and the published core ports. */
 internal fun CoreWiringState.wireBase() {
+    // Core balance refs exist before any consumer is wired; registered for reload in wireContentAndRepositories.
+    balanceCore = com.astarworks.astera.core.application.contents.BalanceCoreContents(contentDir.resolve("balance"))
     // ---- i18n --------------------------------------------------------
     val languages = LanguageLoader.loadFrom(contentDir.resolve("languages"))
     // ADR-0283: explicit player choice > server default. The client's Minecraft language is not consulted.

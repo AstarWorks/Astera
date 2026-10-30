@@ -28,7 +28,11 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.Types
 import com.astarworks.astera.core.application.skillengine.compose.ExprClass
 import com.astarworks.astera.core.application.skillengine.expr.cel.ExprClassifier
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
+import com.astarworks.astera.core.application.skillengine.load.motion.AlignMotion
 import com.astarworks.astera.core.application.skillengine.load.motion.KeysMotion
+import com.astarworks.astera.core.application.skillengine.load.motion.OrbitMotion
+import com.astarworks.astera.core.application.skillengine.load.motion.RateMotion
+import com.astarworks.astera.core.domain.skillengine.motion.SpinRate
 import com.astarworks.astera.core.application.skillengine.load.motion.LawKey
 import com.astarworks.astera.core.application.skillengine.load.motion.LawSource
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
@@ -38,7 +42,6 @@ import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
 import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
 import com.astarworks.astera.core.domain.Result
-import com.astarworks.astera.core.domain.effect.RowViewers
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEnv
@@ -106,8 +109,6 @@ public class DisplayOp(
     public val brightness: Pair<Value<Double>, Value<Double>>?,
     public val viewRange: Value<Double>,
     public val glowColor: Value<String>?,
-    /** `viewers` (`all` | `owner-hidden`): who sees this display; a frame's filter is inherited by its children. */
-    public val viewers: String,
     public val interpolationDelay: Value<Double>,
     public val interpolationDuration: Value<Double>,
     public val teleportDuration: Value<Double>,
@@ -219,7 +220,6 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     private val brightnessF = Field.optional("brightness", Types.nullable(Types.nested(brightnessFields)), null, "{block, sky}; absent = world light")
     private val viewRangeF = Field.optional("view_range", Types.number, Value.Literal(1.0), "vanilla view range multiplier")
     private val glowColorF = Field.optional("glow_color", Types.nullable(Types.text), null, "#rrggbb glow override; absent = none")
-    private val viewersF = Field.optional("viewers", Types.enumOf(*RowViewers.YAML_NAMES), "all", "who sees this display: all | owner-hidden (not the caster); a hidden frame's children inherit it")
     private val interpDelayF = Field.optional("interpolation_delay", Types.number, Value.Literal(0.0), "engine-owned after spawn (section 4); written only for hand-tuned loops")
     private val interpDurationF = Field.optional("interpolation_duration", Types.number, Value.Literal(0.0), "engine-owned after spawn (section 4)")
     private val teleportDurationF = Field.optional("teleport_duration", Types.number, Value.Literal(0.0), "engine-owned after spawn (section 4)")
@@ -238,7 +238,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         itemF, partF, contextF, shaderEffectF, blockF,
         textF, backgroundF, alignmentF, lineWidthF, textOpacityF, seeThroughF, shadowF,
         spriteF, sizeF, pivotF, flipbookF, colorF,
-        translationF, rotateF, scaleF, rightF, pitchF, billboardF, brightnessF, viewRangeF, glowColorF, viewersF,
+        translationF, rotateF, scaleF, rightF, pitchF, billboardF, brightnessF, viewRangeF, glowColorF,
         interpDelayF, interpDurationF, teleportDurationF, motionF,
     ).rejecting(
         "yaw",
@@ -247,6 +247,28 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     )
 
     // ------------------------------------------------------------------------------------------------ decode
+
+    /**
+     * Why a law may not run on a billboarded display, or null. The client faces the display toward the camera and the transformation applies
+     * after that, so only a roll about the local Z (forward, view) axis survives as a stable screen-plane turn; any other turn fights the facing.
+     */
+    private fun billboardLawError(law: MotionLaw): String? {
+        fun rollOnly(v: Vec3) = kotlin.math.abs(v.x) < 1e-9 && kotlin.math.abs(v.y) < 1e-9
+        fun axisText(v: Vec3) = "(${v.x}, ${v.y}, ${v.z})"
+        return when (law) {
+            is RateMotion -> (law.rate as? SpinRate)?.let { r ->
+                when {
+                    !rollOnly(r.axis) -> "spin about axis ${axisText(r.axis)}"
+                    !rollOnly(r.start) -> "spin starting from rotation ${axisText(r.start)}"
+                    else -> null
+                }
+            }
+            is AlignMotion -> "align (axis '${law.axisName}')"
+            is OrbitMotion -> if (law.face != "keep") "orbit with face '${law.face}'" else null
+            is KeysMotion -> law.keys.firstNotNullOfOrNull { k -> k.pose?.takeIf { !rollOnly(it) }?.let { "keys pose about ${axisText(it)} at t=${k.tick}" } }
+            else -> null
+        }
+    }
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<DisplayOp, SkillDecodeError> =
         Grammar.guard {
@@ -275,6 +297,12 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 val tr = values[translationF]
                 if (!(tr is Value.Literal && tr.value == Vec3(0.0, 0.0, 0.0))) {
                     ctx.fail("$p.translation", "a billboarded display carries its offset in the entity location ('offset'), never in translation (2.3)")
+                }
+            }
+            if (billboard != "fixed") {
+                // ADR-0303 15.7: the client's billboard is a sprite / text facing, never a third pose mode
+                if (kind != DisplayKind.SPRITE && kind != DisplayKind.TEXT) {
+                    ctx.fail("$p.billboard", "billboard '$billboard' needs kind sprite or text: a billboarded ${values[kindF]} display is a facing 3D object, which is a third pose mode")
                 }
             }
             val subject: Value<String> = when (kind) {
@@ -334,7 +362,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 id, src, whenExpr, foldTiming(t, ctx), kind, values[anchorF], values[offsetF],
                 subject, values[contextF], values[partF], style, size, if (kind == DisplayKind.SPRITE) values[pivotF] else null, color, seeThrough, flipbook,
                 values[translationF], values[rotateF], values[scaleF], values[rightF],
-                foldNum(values[pitchF], ctx), billboard, brightness, viewRange, glow, values[viewersF],
+                foldNum(values[pitchF], ctx), billboard, brightness, viewRange, glow,
                 wholeNum(values[interpDelayF], "$p.interpolation_delay", ctx, 0.0, null),
                 wholeNum(values[interpDurationF], "$p.interpolation_duration", ctx, 0.0, null),
                 wholeNum(values[teleportDurationF], "$p.teleport_duration", ctx, 0.0, null),
@@ -350,6 +378,12 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         val src = lc.src
         return Grammar.guard {
             val gc = GrammarContext(lc.skillId)
+            if (op.billboard != "fixed") {
+                // every copy of a family is lowered with its own occurrence, so the laws are checked per copy index
+                op.motion?.laws(lc.occurrence)?.firstNotNullOfOrNull { l -> billboardLawError(l)?.let { l to it } }?.let { (l, why) ->
+                    gc.fail("${l.path}", "billboard '${op.billboard}' allows only a roll about the local Z axis (axis forward / back): $why")
+                }
+            }
             AnchorNames.bareFamilyError(lc.anchors, op.anchor, "display '${op.id.value.substringAfterLast('/')}'")?.let { gc.fail("${src.value}.anchor", it) }
             val itemAxes = if (op.kind != DisplayKind.ITEM) null else if (op.part != null) {
                 val skillItem = lc.skills.skill(lc.skillId)?.item
@@ -651,7 +685,6 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         op.brightness?.let { (b, s) -> f["brightness_block"] = cell(b); f["brightness_sky"] = cell(s) }
         f["view_range"] = cell(op.viewRange)
         op.glowColor?.let { f["glow_color"] = cell(it) }
-        if (op.viewers != RowViewers.ALL.yamlName) f["viewers"] = Val.Known(op.viewers)
         f["interpolation_delay"] = cell(op.interpolationDelay)
         f["interpolation_duration"] = cell(op.interpolationDuration)
         f["teleport_duration"] = cell(op.teleportDuration)

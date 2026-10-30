@@ -264,7 +264,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
             val m = e as? Map<*, *> ?: ctx.mismatch(p, "map {id, anchor, offset, mode}", e)
             @Suppress("UNCHECKED_CAST")
             m as Map<String, Any?>
-            checkKeys(ctx, m, p, setOf("id", "anchor", "offset", "mode"))
+            checkKeys(ctx, m, p, setOf("id", "anchor", "offset", "mode", "ray"))
             val id = m["id"] as? String ?: ctx.abortWith(SkillDecodeError.MissingField(ctx.file, p, "id"))
             com.astarworks.astera.core.application.skillengine.compose.AnchorNames.reservedError(p, id)?.let { ctx.abortWith(SkillDecodeError.Invalid(ctx.file, "$p.id", it)) }
             if (!seen.add(id)) ctx.abortWith(SkillDecodeError.DuplicateId(ctx.file, p, id))
@@ -279,7 +279,12 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
             }
             val offset = LinkedHashMap<String, Value<Double>>()
             for ((axis, v) in mapAt(ctx, m["offset"], "$p.offset")) offset[axis] = ValueDecoding.number(v, ctx.file, "$p.offset.$axis")
-            AnchorDecl(id, PointRef.parse(anchor), offset, mode)
+            val ray = m["ray"]?.let {
+                val n = (it as? Number)?.toDouble() ?: ctx.mismatch("$p.ray", "a number of blocks", it)
+                if (n <= 0.0 || n > MAX_RAY_BLOCKS) ctx.fail("$p.ray", "anchors[$i] '$id': ray must be in (0, $MAX_RAY_BLOCKS] blocks, found $n")
+                n
+            }
+            AnchorDecl(id, PointRef.parse(anchor), offset, mode, ray)
         }
     }
 
@@ -311,6 +316,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
     private fun GrammarContext.abortWith(error: SkillDecodeError): Nothing = throw DecodeAbort(error)
 
     private companion object {
+        const val MAX_RAY_BLOCKS: Double = 32.0
         val TOP_KEYS = setOf(
             "apiVersion", "kind", "id", "item", "importance", "meta", "params", "frames_in", "emits", "anchors", "conditions", "fragments", "machine",
         )

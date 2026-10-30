@@ -4,6 +4,7 @@ import com.astarworks.astera.core.domain.skillengine.table.drainsAfterExit
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.runtime.CastError
 import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
+import com.astarworks.astera.core.application.skillengine.runtime.ops.BlinkResolver
 import com.astarworks.astera.core.application.skillengine.runtime.ops.DashDriver
 import com.astarworks.astera.core.application.skillengine.runtime.ops.ReelDriver
 import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
@@ -26,10 +27,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.damage.DamageComponent
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
-import com.astarworks.astera.core.domain.effect.ParticleData
 import com.astarworks.astera.core.application.skillengine.runtime.port.DisplayView
-import com.astarworks.astera.core.domain.effect.RowViewers
-import com.astarworks.astera.core.domain.effect.VfxLane
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.application.skillengine.load.grammar.LocalAxes
 import com.astarworks.astera.core.domain.geometry.math.Basis
@@ -881,7 +879,7 @@ public class TablePlayer(
                 is Action.Key -> key(run, a, ctx, now)
                 is Action.Teleport -> teleport(run, a, ctx, now)
                 is Action.TrailPoint -> trailPoint(run, a, ctx, now)
-                is Action.Particle -> particle(run, row, a, ctx, now)
+                is Action.Particle -> particle(run, row, a, ctx)
                 is Action.Sound -> sound(run, row, a, ctx)
                 is Action.Hit -> hit(run, row, a, ctx, now)
                 is Action.Damage -> damage(run, row, a, ctx, now)
@@ -995,10 +993,7 @@ public class TablePlayer(
         val look = a.look
         val brightness = look.fields["brightness"]?.let { int(run, it as Val<Int>, ctx) }
         val glow = look.fields["glow"]?.let { strOf(run, it, ctx) }
-        // `viewers:` of the row; a row that writes none (all) takes its anchor's (a hidden frame hides everything riding it)
-        rec.viewers = look.fields["viewers"]?.let { RowViewers.fromYaml(strOf(run, it, ctx)) }?.takeIf { it != RowViewers.ALL }
-            ?: a.anchor?.let { run.recs[it]?.viewers } ?: RowViewers.ALL
-        val view = DisplayView(rec.viewers.audience, VfxLane.CORE, null, rec.viewers)
+        val view = DisplayView()
         val h: VisualHandle? = when (a.kind) {
             SpawnKind.FRAME, SpawnKind.PROJECTILE_BODY -> null
             SpawnKind.ITEM -> visual.spawnMesh(
@@ -1179,35 +1174,19 @@ public class TablePlayer(
         visual.pushTrailPoint(h, Vec3(root.x, root.y, root.z), Vec3(tip.x, tip.y, tip.z))
     }
 
-    private fun particle(run: Run, row: Row, a: Action.Particle, ctx: RowCtx, now: Int) {
+    private fun particle(run: Run, row: Row, a: Action.Particle, ctx: RowCtx) {
         val pos = vec(run, a.position, ctx)
         val off = vec(run, a.offset, ctx)
-        val (hex, size) = particleData(run, row, a.data, now)
         val req = run.request
         particles.emit(
             castRef(run),
             ParticleBurst(
                 particle = a.type, at = Vec3(pos.x, pos.y, pos.z), count = run.fields[row.instance]?.get("count")?.toInt() ?: int(run, a.count, ctx), offset = Vec3(off.x, off.y, off.z),
-                speed = num(run, a.extra, ctx), colorHex = hex, dataSize = size, dir = null, spreadDeg = 0.0, inheritVelocity = null,
+                speed = num(run, a.extra, ctx), data = a.data, dir = null, spreadDeg = 0.0, inheritVelocity = null,
                 look = Frame.fromYawPitch(Vec3.ZERO, req.casterYawDeg, req.casterPitchDeg).forward(),
                 seed = rowStream(run, row, ctx).nextLong(),
             ),
         )
-    }
-
-    private fun particleData(run: Run, row: Row, d: ParticleData?, now: Int): Pair<String?, Double?> {
-        fun hex(c: com.astarworks.astera.core.domain.effect.ParticleColor) = "#%02x%02x%02x".format(c.r, c.g, c.b)
-        return when (d) {
-            null -> null to null
-            is ParticleData.Dust -> hex(d.color) to d.scale.toDouble()
-            is ParticleData.DustTransition -> hex(d.from) to d.scale.toDouble()
-            is ParticleData.Tint -> hex(d.color) to null
-            is ParticleData.Spell -> hex(d.color) to d.power.toDouble()
-            else -> {
-                fault(run, now, row.src.value, "particle data ${d::class.simpleName} has no ParticleBurst field")
-                null to null
-            }
-        }
     }
 
     private fun sound(run: Run, row: Row, a: Action.Sound, ctx: RowCtx) {
@@ -1224,7 +1203,7 @@ public class TablePlayer(
             castRef(run),
             ParticleBurst(
                 particle = a.def, at = Vec3(pos.x, pos.y, pos.z), count = run.fields[row.instance]?.get("count")?.toInt() ?: a.count?.let { int(run, it, ctx) }, offset = Vec3.ZERO,
-                speed = 0.0, colorHex = null, dataSize = null, dir = null, spreadDeg = 0.0, inheritVelocity = null,
+                speed = 0.0, data = null, dir = null, spreadDeg = 0.0, inheritVelocity = null,
                 look = Frame.fromYawPitch(Vec3.ZERO, req.casterYawDeg, req.casterPitchDeg).forward(),
                 seed = rowStream(run, row, ctx).nextLong(),
             ),
@@ -1683,6 +1662,11 @@ public class TablePlayer(
         when (kind) {
             "dash" -> dashStart(run, row, p, ctx, now, src)
             "dash.end" -> run.dash.end(row.instance.text)
+            "blink" -> {
+                val to = v("to")
+                BlinkResolver.blink(castRef(run), query, movement, Vec3(to.x, to.y, to.z), d("max"), bool(run, cell("keep_look"), ctx), d("invulnerable").toInt())
+                    ?.let { fault(run, now, src, it) }
+            }
             "reel" -> reelStart(run, row, p, ctx, now, src)
             "reel.stop" -> {
                 run.reel.stop(row.instance.text)
@@ -1916,9 +1900,7 @@ public class TablePlayer(
             val heldId = InstanceId(carrier.path + InstanceId.Segment(OpId("held"), null))
             val local = PoseV(Vector3d(), Quaterniond(), Vector3d(SkinRigTransforms.PLAYER_SCALE))
             val rec = Rec(SpawnKind.ITEM, carrier, "", now, ctx.owner, ctx.detached, local)
-            // `viewers:` of the rig (the caster's own camera is a block from the held mesh): the mesh and every row anchored on it take it
-            rec.viewers = p["viewers"]?.let { RowViewers.fromYaml(any(run, it, ctx) as String) } ?: RowViewers.ALL
-            val view = DisplayView(rec.viewers.audience, VfxLane.CORE, null, rec.viewers)
+            val view = DisplayView()
             // main hand: the caster's real stack (THIRDPERSON_RIGHTHAND); off hand: the off-hand part's own pack model (THIRDPERSON_LEFTHAND), the real off-hand slot is empty
             val h = if (off) {
                 visual.spawnMesh(
@@ -2242,8 +2224,14 @@ public class TablePlayer(
             }
             pos.add(local.mul(amount).rotate(rot))
         }
-        val pose = PoseV(pos, rot, Vector3d(1.0, 1.0, 1.0))
-        if (decl.mode == AnchorMode.SNAPSHOT) run.snapshots[decl.id] = PoseV(Vector3d(pos), Quaterniond(rot), Vector3d(1.0, 1.0, 1.0))
+        // ray anchor: the parent's forward ray, stopped by the first block (the anchor is the hit point), else the full reach
+        val at = decl.ray?.let { reach ->
+            val end = Vector3d(pos).add(Vector3d(0.0, 0.0, 1.0).rotate(rot).mul(reach))
+            query.raycastBlock(castRef(run), Vec3(pos.x, pos.y, pos.z), Vec3(end.x, end.y, end.z))
+                ?.let { Vector3d(it.point.x, it.point.y, it.point.z) } ?: end
+        } ?: pos
+        val pose = PoseV(at, rot, Vector3d(1.0, 1.0, 1.0))
+        if (decl.mode == AnchorMode.SNAPSHOT) run.snapshots[decl.id] = PoseV(Vector3d(at), Quaterniond(rot), Vector3d(1.0, 1.0, 1.0))
         return pose
     }
 
@@ -2481,8 +2469,6 @@ public class TablePlayer(
         var real: VisualHandle? = null
         /** The world pose of the parent instance this rider was last placed against (null before the first look): [followRiders] writes the rider when it changes. */
         var parentSeen: PoseV? = null
-        /** The `viewers:` filter this instance resolved to at spawn (its own, else its anchor's); displays riding a frame inherit it. */
-        var viewers: RowViewers = RowViewers.ALL
         /** A `rig` anchor instance: the driver that poses [RigRec.driven] each tick (this rec itself when the rig has no `of`). */
         var rig: RigRec? = null
         /** The hit that spawned this instance (null outside `on.hit`): a `victim` anchor/axes keeps resolving to that victim after the row is gone (end-of-cast freeze, later ticks). */

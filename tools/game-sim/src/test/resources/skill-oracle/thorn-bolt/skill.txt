@@ -1,16 +1,8 @@
 ## pose yaw=0 pitch=0
 @0 spawn #0 op=fly/thorn kind=item item=minecraft:sweet_berries part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.800000,0.800000,0.800000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.9 pitch=1.4 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/puff type=verdant-cast at=0.000000,1.420000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4867232409355876621
-@0 particle - op=fly/trail[0]/leaf type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1978130710162834690
-@0 particle - op=fly/trail[0]/spore type=composter count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=442651047875469504
-@0 particle - op=fly/trail[0]/green type=dust count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-388119542998669301
-@0 particle - op=fly/trail[0]/dark type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6453114070104586013
+@0 particle - op=fly/puff type=verdant-cast at=0.000000,1.420000,1.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8079619342226534901
 @0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
-@1 particle - op=fly/trail[1]/leaf type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3919914899905982749
-@1 particle - op=fly/trail[1]/spore type=composter count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8311772919423436946
-@1 particle - op=fly/trail[1]/green type=dust count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2050136544335172419
-@1 particle - op=fly/trail[1]/dark type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1294668849303772580
 @1 hit - op=fly/bolt at=0.000000,1.620000,1.700000 r=1.700000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,2.900000 rad=0.500000
 @1 remove #0 op=fly/thorn
 g @1 state-exit reason=EVENT | state=fly
@@ -21,16 +13,8 @@ g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 spawn #0 op=fly/thorn kind=item item=minecraft:sweet_berries part=- pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.800000,0.800000,0.800000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.9 pitch=1.4 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/puff type=verdant-cast at=-0.606688,1.774082,0.805102 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4867232409355876621
-@0 particle - op=fly/trail[0]/leaf type=happy_villager count=1 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1978130710162834690
-@0 particle - op=fly/trail[0]/spore type=composter count=2 at=-0.282761,1.791010,0.375236 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=442651047875469504
-@0 particle - op=fly/trail[0]/green type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-388119542998669301
-@0 particle - op=fly/trail[0]/dark type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6453114070104586013
+@0 particle - op=fly/puff type=verdant-cast at=-1.002553,2.013496,1.330432 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8079619342226534901
 @0 frame fly/bolt op=fly/bolt pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916
-@1 particle - op=fly/trail[1]/leaf type=happy_villager count=1 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3919914899905982749
-@1 particle - op=fly/trail[1]/spore type=composter count=2 at=-0.282761,1.791010,0.375236 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8311772919423436946
-@1 particle - op=fly/trail[1]/green type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2050136544335172419
-@1 particle - op=fly/trail[1]/dark type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1294668849303772580
 @1 hit - op=fly/bolt at=-0.961386,2.201434,1.275802 r=1.700000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.640011,2.611858,2.176368 rad=0.500000
 @1 remove #0 op=fly/thorn
 g @1 state-exit reason=EVENT | state=fly
@@ -39,16 +23,8 @@ g @1 cast-end | pose
 ## pose-hit yaw=0 pitch=0
 @0 spawn #0 op=fly/thorn kind=item item=minecraft:sweet_berries part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.800000,0.800000,0.800000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.9 pitch=1.4 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/puff type=verdant-cast at=0.000000,1.420000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4867232409355876621
-@0 particle - op=fly/trail[0]/leaf type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1978130710162834690
-@0 particle - op=fly/trail[0]/spore type=composter count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=442651047875469504
-@0 particle - op=fly/trail[0]/green type=dust count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-388119542998669301
-@0 particle - op=fly/trail[0]/dark type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6453114070104586013
+@0 particle - op=fly/puff type=verdant-cast at=0.000000,1.420000,1.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8079619342226534901
 @0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
-@1 particle - op=fly/trail[1]/leaf type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3919914899905982749
-@1 particle - op=fly/trail[1]/spore type=composter count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8311772919423436946
-@1 particle - op=fly/trail[1]/green type=dust count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2050136544335172419
-@1 particle - op=fly/trail[1]/dark type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1294668849303772580
 @1 hit - op=fly/bolt at=0.000000,1.620000,1.700000 r=1.700000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,2.900000 rad=0.500000
 @1 sound - op=fly/bolt.hit/hit_fx/snd sound=astera:skills/nature-impact cat=master vol=1 pitch=0.7 at=0.000000,1.000000,2.500000
 @1 particle - op=fly/bolt.hit/hit_fx/burst type=verdant-impact at=0.000000,1.000000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=40472041102686656
@@ -63,16 +39,8 @@ g @1 cast-end | pose
 ## pose-hit yaw=37 pitch=0
 @0 spawn #0 op=fly/thorn kind=item item=minecraft:sweet_berries part=- pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.800000,0.800000,0.800000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.9 pitch=1.4 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/puff type=verdant-cast at=-0.601815,1.420000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4867232409355876621
-@0 particle - op=fly/trail[0]/leaf type=happy_villager count=1 at=-0.300908,1.620000,0.399318 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1978130710162834690
-@0 particle - op=fly/trail[0]/spore type=composter count=2 at=-0.300908,1.620000,0.399318 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=442651047875469504
-@0 particle - op=fly/trail[0]/green type=dust count=2 at=-0.300908,1.620000,0.399318 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-388119542998669301
-@0 particle - op=fly/trail[0]/dark type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6453114070104586013
+@0 particle - op=fly/puff type=verdant-cast at=-1.023086,1.420000,1.357680 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8079619342226534901
 @0 frame fly/bolt op=fly/bolt pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324
-@1 particle - op=fly/trail[1]/leaf type=happy_villager count=1 at=-0.300908,1.620000,0.399318 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3919914899905982749
-@1 particle - op=fly/trail[1]/spore type=composter count=2 at=-0.300908,1.620000,0.399318 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8311772919423436946
-@1 particle - op=fly/trail[1]/green type=dust count=2 at=-0.300908,1.620000,0.399318 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2050136544335172419
-@1 particle - op=fly/trail[1]/dark type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1294668849303772580
 @1 hit - op=fly/bolt at=-1.023086,1.620000,1.357680 r=1.700000 shape=capsule a=-0.300908,1.620000,0.399318 b=-1.745264,1.620000,2.316043 rad=0.500000
 @1 sound - op=fly/bolt.hit/hit_fx/snd sound=astera:skills/nature-impact cat=master vol=1 pitch=0.7 at=-1.504538,1.000000,1.996589
 @1 particle - op=fly/bolt.hit/hit_fx/burst type=verdant-impact at=-1.504538,1.000000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=40472041102686656

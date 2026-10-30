@@ -69,6 +69,8 @@ public data class AnchorDecl(
     val anchor: PointRef,
     val offset: Map<String, Value<Double>>,
     val mode: AnchorMode,
+    /** Ray anchor (ADR-0303 3.3): when set, the anchor sits where the parent's forward ray meets a block within this many blocks, else at the ray's end. */
+    val ray: Double? = null,
 )
 
 /** `follow` re-reads the parent at every send (the identity); `snapshot` copies the pose once at activation. */

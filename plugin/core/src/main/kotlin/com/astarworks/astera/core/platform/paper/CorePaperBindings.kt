@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.platform.paper
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.adapter.paper.event.BukkitEventAdapter
@@ -51,6 +52,7 @@ import org.bukkit.plugin.java.JavaPlugin
  */
 internal class CorePaperBindings(
     private val plugin: JavaPlugin,
+    private val listeners: OwnedListeners,
     /**
      * Wave 6c-stub-packetevents (ADR-0170): whether `onLoad` confirmed the
      * PacketEvents plugin. PE symbols are only resolved strictly behind this
@@ -216,15 +218,13 @@ internal class CorePaperBindings(
                         if (spec != null && materializer != null && block.world.getGameRuleValue(org.bukkit.GameRules.BLOCK_DROPS) != false)
                             block.world.dropItem(block.location.add(0.5, 0.5, 0.5), materializer.buildFor(spec, player, 1))
                     },
-                    durabilityRule = deps.durabilityRule,
+                    durabilityRef = deps.durabilityRule,
                     // Cover blocks a stage placed must come back at the next match in the slot.
                     beforeWorldEdit = { block -> arenaWorld?.remember(block); toolBayRemember?.invoke(block) },
                 )
-                server.pluginManager.registerEvents(
+                listeners.register(
                     com.astarworks.astera.core.adapter.paper.world.PaperBlockHpListener(paperBlockStateGateway,
-                        { deps.services.get<com.astarworks.astera.core.application.port.outbound.block.IBlockBreakAnimationGateway>() }),
-                    plugin,
-                )
+                        { deps.services.get<com.astarworks.astera.core.application.port.outbound.block.IBlockBreakAnimationGateway>() }))
                 paperBlockStateGateway
             },
             // Wave 6d (ADR-0161): live `World.setTime` / `setStorm` / `setGameRule` /
@@ -237,7 +237,7 @@ internal class CorePaperBindings(
                 // Wave 6f (ADR-0163): Paper overlay routes through Bukkit Display
                 // Entity API (TextDisplay / ItemDisplay / BlockDisplay).
                 val managedRegistry = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.IManagedEntityRegistry>()
-                val janitor = com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntityJanitor(plugin, managedRegistry)
+                val janitor = com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntityJanitor(plugin, listeners, managedRegistry)
                 janitor.start()
                 managedJanitor = janitor
                 val paperHologramGateway = com.astarworks.astera.core.adapter.paper.hologram.PaperHologramGateway(
@@ -260,12 +260,13 @@ internal class CorePaperBindings(
                 // Player.showEntity / Player.hideEntity calls and register the
                 // JoinReapplyListener that re-applies PerPlayer visibility on
                 // reconnect (Bukkit's per-viewer visibility state is per-session).
-                paperHologramGateway.start(plugin)
+                paperHologramGateway.start(plugin, listeners)
                 paperHologramGateway
             },
             npcBodies = { services ->
                 val bodies = com.astarworks.astera.core.adapter.paper.entity.PaperNpcBodyService(
                     plugin = plugin,
+                    listeners = listeners,
                     mcServer = mcServer,
                     messages = services.getOrThrow<IMessageRenderer>(),
                     interactions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter>(),
@@ -278,7 +279,7 @@ internal class CorePaperBindings(
             },
             mobBodies = { _ ->
                 // ADR-0249: PvE mobs are real vanilla-based entities carrying Astera's numbers.
-                val gateway = com.astarworks.astera.core.adapter.paper.mob.PaperMobBodyGateway(plugin, serverEnvironment.defaultLocale)
+                val gateway = com.astarworks.astera.core.adapter.paper.mob.PaperMobBodyGateway(plugin, listeners, serverEnvironment.defaultLocale)
                 gateway.start()
                 mobBodyGateway = gateway
                 gateway
@@ -319,7 +320,7 @@ internal class CorePaperBindings(
                 // so suppressHungerHud(true) cancels vanilla hunger drain.
                 val paperPlayerFoodGateway = com.astarworks.astera.core.adapter.paper.physiology
                     .PaperPlayerFoodGateway(server, scheduler, services.getOrThrow<IDomainEventBus>())
-                paperPlayerFoodGateway.start(plugin)
+                paperPlayerFoodGateway.start(plugin, listeners)
                 paperPlayerFoodGateway
             },
             playerMovementGateway = com.astarworks.astera.core.adapter.paper.physiology
@@ -382,24 +383,24 @@ internal class CorePaperBindings(
                 com.astarworks.astera.core.adapter.paper.inventory
                     .PlayerInventoryLifecycleListener(
                         handoff = { services.get<com.astarworks.astera.core.application.service.handoff.PlayerHandoffService>() },
-                    ).start(plugin)
+                    ).start(plugin, listeners)
                 com.astarworks.astera.core.adapter.paper.inventory
                     .InventoryActionLockEnforcer(
                         sessions = sessions,
                         scheduler = scheduler,
-                    ).start(plugin)
+                    ).start(plugin, listeners)
                 com.astarworks.astera.core.adapter.paper.inventory
                     .MatchItemSandboxListener(
                         isHeld = { playerId ->
                             services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()
                                 ?.isHeld(playerId) ?: false
                         },
-                    ).start(plugin)
+                    ).start(plugin, listeners)
                 com.astarworks.astera.core.adapter.paper.inventory
                     .MatchWeaponLimitListener(
                         plugin = plugin,
                         service = { services.get<com.astarworks.astera.core.application.service.inventory.WeaponLimitService>() },
-                    ).start(plugin)
+                    ).start(plugin, listeners)
                 logger.info("Wave 6b-3: Paper inventory lifecycle + action-lock listeners wired.")
             },
             packetInterceptor = if (packetEventsInstalled) {
@@ -531,11 +532,11 @@ internal class CorePaperBindings(
             vaultWindow,
             priority = 100,
         )
-        server.pluginManager.registerEvents(vaultWindow, plugin)
+        listeners.register(vaultWindow)
         paperVaultWindow = vaultWindow
         val guiAdapter = checkNotNull(paperGuiAdapter) { "GuiAdapterFactory was not invoked by CoreWiring.install" }
         val guiListener = PaperGuiListener(adapter = guiAdapter, router = result.guiIntentRouter, server = mcServer)
-        server.pluginManager.registerEvents(guiListener, plugin)
+        listeners.register(guiListener)
 
         installLobbyMenuKit(ctx, result)
         installMatchMenu(ctx, result)
@@ -553,7 +554,7 @@ internal class CorePaperBindings(
             matches = { ctx.services.get<IMatchRepository>() },
             useCase = { ctx.services.get<com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase>() },
             exclusion = { ctx.services.get<com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion>() },
-        ).start(plugin)
+        ).start(plugin, listeners)
 
         // ── Wave 6a-6 (ADR-0153) — Bukkit → DomainEvent adapter ────────────
         // Single Bukkit Listener that:
@@ -585,6 +586,7 @@ internal class CorePaperBindings(
         runCatching {
             com.astarworks.astera.core.adapter.paper.world.PaperWorldBaseline(
                 plugin = plugin,
+                listeners = listeners,
                 config = com.astarworks.astera.core.application.service.world.WorldBaselineContent.load(ctx.contentDir),
                 rules = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldRulesGateway>(),
                 scheduler = ctx.services.getOrThrow<IScheduler>(),
@@ -609,7 +611,7 @@ internal class CorePaperBindings(
             cosmetics = { ctx.services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>() },
             messages = { ctx.services.get<IMessageRenderer>() },
         )
-        server.pluginManager.registerEvents(cosmeticDisplay, plugin)
+        listeners.register(cosmeticDisplay)
         ctx.services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>()
             ?.addChangeListener { cosmeticDisplay.refresh(it) }
         ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.cosmetic.ICosmeticEffectPlayer>(
@@ -622,14 +624,12 @@ internal class CorePaperBindings(
             adminPrompt,
             priority = 100,
         )
-        server.pluginManager.registerEvents(adminPrompt, plugin)
-        server.pluginManager.registerEvents(
+        listeners.register(adminPrompt)
+        listeners.register(
             com.astarworks.astera.core.adapter.paper.admin.PaperAdminQuickAccessListener(
                 guard = { ctx.services.get<com.astarworks.astera.core.application.admin.panel.AdminPanelGuard>() },
                 open = { ctx.services.get<com.astarworks.astera.core.application.admin.panel.OpenAdminPanelUseCase>() },
-            ),
-            plugin,
-        )
+            ))
         logger.info(
             "Wave 6a-6 BukkitEventAdapter wired (Role 1: 9 event translations; " +
                 "Role 2: EntityDamageEvent + PlayerDeathEvent defensive cancellation " +
@@ -657,7 +657,7 @@ internal class CorePaperBindings(
             guiAdapter = result.guiAdapter,
             mcServer = mcServer,
         )
-        server.pluginManager.registerEvents(listener, plugin)
+        listeners.register(listener)
     }
 
     /**
@@ -698,7 +698,7 @@ internal class CorePaperBindings(
                 )
             },
         )
-        server.pluginManager.registerEvents(menuKit, plugin)
+        listeners.register(menuKit)
         lobbyMenuKit = menuKit
         ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyKitRefresher>(
             com.astarworks.astera.core.application.port.outbound.lobby.ILobbyKitRefresher { id -> menuKit.refreshLater(id) },
@@ -742,6 +742,8 @@ internal class CorePaperBindings(
         // register here; the world is created from ServerLoadEvent / the first tick. Until it exists
         // the spawn supplier is null: joins stay on the main world, lobbySpawn falls back to it.
         npcBodyService?.awaitedWorlds = setOf(config.id)
+        // `astera admin reload worlds` swaps the live config (spawn, rules, marker_version); id/seed/layout stay as booted.
+        fun liveConfig() = ctx.services.get<com.astarworks.astera.core.application.contents.LobbyWorldContents>()?.current() ?: config
         // MAP-A6: the tool test bay is the one editable corner of the lobby; journal + idle restore + reset button.
         val toolBay = com.astarworks.astera.core.application.service.lobby.LobbyToolBayService(
             world = com.astarworks.astera.core.domain.world.WorldId(config.id),
@@ -753,9 +755,9 @@ internal class CorePaperBindings(
         toolBayTask = toolBay.start()
         toolBayRemember = { block -> toolBay.remember(com.astarworks.astera.core.domain.world.WorldId(block.world.name), block.x, block.y, block.z) }
         val toolBayMessages = ctx.services.getOrThrow<IMessageRenderer>()
-        server.pluginManager.registerEvents(
+        listeners.register(
             com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyRulesListener(
-                config.id, config.rules, plugin,
+                config.id, { liveConfig().rules }, plugin,
                 toolBay = { toolBay },
                 onToolBayReset = { player, count ->
                     player.sendMessage(
@@ -766,19 +768,19 @@ internal class CorePaperBindings(
                 },
             ) {
                 server.getWorld(config.id)?.takeIf { lobby.ready }?.let {
-                    org.bukkit.Location(it, config.spawn.x, config.spawn.y, config.spawn.z, config.spawn.yaw, config.spawn.pitch)
+                    val spawn = liveConfig().spawn
+                    org.bukkit.Location(it, spawn.x, spawn.y, spawn.z, spawn.yaw, spawn.pitch)
                 }
-            },
-            plugin,
-        )
+            })
         // ADR-0233: the admin panel can rebuild the lobby in place (clear + paste the plan again).
         ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.admin.ILobbyRepaster>(
             object : com.astarworks.astera.core.application.port.outbound.admin.ILobbyRepaster {
                 override fun repaste(): Boolean = try {
                     val lanes = ctx.services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyLaneCatalog>()
                         ?.laneIds().orEmpty()
-                    val plan = com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.plan(config, lanes)
-                    lobby.install(config, plan, force = true) != null
+                    val live = liveConfig()
+                    val plan = com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.plan(live, lanes)
+                    lobby.install(live, plan, force = true) != null
                 } catch (t: Throwable) {
                     logger.log(java.util.logging.Level.WARNING, "Lobby repaste failed", t)
                     false
@@ -821,18 +823,14 @@ internal class CorePaperBindings(
             }
         }
         ctx.services.get<com.astarworks.astera.core.application.service.lobby.LobbyLanePadService>()?.let {
-            server.pluginManager.registerEvents(
-                com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyLanePadListener(it),
-                plugin,
-            )
+            listeners.register(
+                com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyLanePadListener(it))
         }
-        server.pluginManager.registerEvents(
+        listeners.register(
             object : org.bukkit.event.Listener {
                 @org.bukkit.event.EventHandler
                 fun onServerLoad(event: org.bukkit.event.server.ServerLoadEvent) = create.run()
-            },
-            plugin,
-        )
+            })
         // /reload: ServerLoadEvent never fires again, so also try on the next tick.
         server.globalRegionScheduler.execute(plugin, create)
     }
@@ -865,17 +863,15 @@ internal class CorePaperBindings(
             arena,
             priority = 100,
         )
-        server.pluginManager.registerEvents(
+        listeners.register(
             com.astarworks.astera.core.adapter.paper.arena.PaperArenaVoidListener(
                 killY = arena::killY,
                 killer = com.astarworks.astera.core.application.service.arena.VoidFallKiller(
                     health = { ctx.services.get<IPlayerHealthGateway>() },
                     currentTick = { scheduler.currentTick() },
                 ),
-            ),
-            plugin,
-        )
-        server.pluginManager.registerEvents(com.astarworks.astera.core.adapter.paper.arena.PaperSlotJournalListener(arena), plugin)
+            ))
+        listeners.register(com.astarworks.astera.core.adapter.paper.arena.PaperSlotJournalListener(arena))
         val built = java.util.concurrent.atomic.AtomicBoolean(false)
         val attempts = java.util.concurrent.atomic.AtomicInteger(0)
         lateinit var create: Runnable
@@ -895,13 +891,11 @@ internal class CorePaperBindings(
                 }
             }
         }
-        server.pluginManager.registerEvents(
+        listeners.register(
             object : org.bukkit.event.Listener {
                 @org.bukkit.event.EventHandler
                 fun onServerLoad(event: org.bukkit.event.server.ServerLoadEvent) = create.run()
-            },
-            plugin,
-        )
+            })
         // /reload: ServerLoadEvent never fires again, so also try on the next tick.
         server.globalRegionScheduler.execute(plugin, create)
     }
