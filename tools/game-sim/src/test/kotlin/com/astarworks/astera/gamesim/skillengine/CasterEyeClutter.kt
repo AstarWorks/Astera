@@ -26,6 +26,78 @@ internal object CasterEyeClutter {
     const val LIMIT = 10
     const val LINGER_TICKS = 6.0
 
+    /** Display coverage: block / item displays only (sprite, text, ribbon and veil scales are not world sizes). Cone as above, out to [DISPLAY_RANGE]. */
+    const val DISPLAY_RANGE = 3.0
+    const val DISPLAY_COVERAGE_LIMIT = 1.5
+    const val DISPLAY_SUSTAIN_TICKS = 4
+    private val DISP = Regex("^@(\\d+) (spawn|write|remove) #(\\d+)")
+    private val POS = Regex(" pos=(\\S+),(\\S+),(\\S+)")
+    private val SCL = Regex(" scale=(\\S+),(\\S+),(\\S+)")
+    private val POSE = Regex("yaw=(\\S+) pitch=(\\S+)")
+
+    /**
+     * Sum over live block / item displays inside the view volume of (two largest scale components) / max(distance, 0.5)^2 per tick (a rough share of the
+     * screen). A skill fails when that sum stays above [DISPLAY_COVERAGE_LIMIT] for [DISPLAY_SUSTAIN_TICKS] consecutive ticks (a one-tick spawn at the
+     * muzzle is not a screen fill). The cut sits in the audit gap between 1.34 (the greatsword blade in front of the caster) and 1.73 (the volley fins).
+     */
+    fun checkDisplays(key: String, lines: List<String>): List<String> {
+        val problems = ArrayList<String>()
+        var pose = ""
+        var ev = ArrayList<String>()
+        fun flush() {
+            val m = POSE.find(pose)
+            if (m != null && ev.isNotEmpty()) {
+                val yr = Math.toRadians(m.groupValues[1].toDouble()); val pr = Math.toRadians(m.groupValues[2].toDouble())
+                val lx = -kotlin.math.sin(yr) * kotlin.math.cos(pr); val ly = -kotlin.math.sin(pr); val lz = kotlin.math.cos(yr) * kotlin.math.cos(pr)
+                val byTick = ev.groupBy { DISP.find(it)!!.groupValues[1].toInt() }
+                val alive = HashMap<String, Triple<String, DoubleArray?, DoubleArray?>>()
+                val cov = DoubleArray((byTick.keys.max()) + DISPLAY_SUSTAIN_TICKS + 1)
+                val who = arrayOfNulls<String>(cov.size)
+                for (t in 0..byTick.keys.max()) {
+                    for (l in byTick[t].orEmpty()) {
+                        val d = DISP.find(l)!!; val id = d.groupValues[3]
+                        if (d.groupValues[2] == "remove") { alive.remove(id); continue }
+                        if (d.groupValues[2] == "spawn") {
+                            val kind = Regex(" kind=(\\S+)").find(l)?.groupValues?.get(1)
+                            if (kind != "block" && kind != "item") continue
+                            alive[id] = Triple(Regex("op=(\\S+)").find(l)!!.groupValues[1], null, null)
+                        }
+                        val cur = alive[id] ?: continue
+                        val pm = POS.find(l); val sm = SCL.find(l)
+                        if (pm != null && sm != null) alive[id] = Triple(cur.first, doubleArrayOf(pm.groupValues[1].toDouble(), pm.groupValues[2].toDouble(), pm.groupValues[3].toDouble()),
+                            doubleArrayOf(sm.groupValues[1].toDouble(), sm.groupValues[2].toDouble(), sm.groupValues[3].toDouble()))
+                    }
+                    var tot = 0.0; var top = 0.0; var topOp = ""
+                    for ((_, v) in alive) {
+                        val pos = v.second ?: continue; val sc = v.third ?: continue
+                        val x = pos[0]; val y = pos[1] - EYE_Y; val z = pos[2]; val dist = sqrt(x * x + y * y + z * z)
+                        if (dist > DISPLAY_RANGE || y < -FLOOR_BELOW_EYE) continue
+                        if (dist > 1e-6 && (x * lx + y * ly + z * lz) / dist < COS_HALF) continue
+                        val s = sc.sortedDescending(); val c = s[0] * s[1] / maxOf(dist, 0.5).let { it * it }
+                        tot += c; if (c > top) { top = c; topOp = v.first }
+                    }
+                    cov[t] = tot; who[t] = topOp
+                }
+                var t = 0
+                while (t < byTick.keys.max() + 1) {
+                    val window = (0 until DISPLAY_SUSTAIN_TICKS).minOf { cov[t + it] }
+                    if (window > DISPLAY_COVERAGE_LIMIT) {
+                        problems += "$key [$pose] @$t: block/item displays cover ~${"%.2f".format(window)} (limit $DISPLAY_COVERAGE_LIMIT, scale^2/distance^2 summed) for $DISPLAY_SUSTAIN_TICKS+ ticks near the caster eye, largest ${who[t]}"
+                        break
+                    }
+                    t++
+                }
+            }
+            ev = ArrayList()
+        }
+        for (l in lines) {
+            if (l.startsWith("## ")) { flush(); pose = l.removePrefix("## "); continue }
+            if (DISP.containsMatchIn(l)) ev.add(l)
+        }
+        flush()
+        return problems
+    }
+
     private fun riseMean(k: Double) = k / 0.8 * ln(5.0)
 
     /** Mean client lifetime in ticks of [vanilla]; [scale] is the dust size. Unknown types count as lingering (a long-ish 16). */
