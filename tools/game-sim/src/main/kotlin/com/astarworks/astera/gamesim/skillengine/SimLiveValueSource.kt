@@ -126,13 +126,13 @@ public class SimLiveValueSource(
                     val v = e.velocity
                     return Vec3(v.x, v.y, v.z)
                 }
-                if (frame != CASTER) return Vec3.ZERO
+                if (frame != CASTER) throw ExprEvalException("velocity($frame): only caster, victim and target have a live velocity")
                 val p = casterPose(request)
                 val now = when (point) {
                     null, "feet", "look" -> p.feet
                     "eye" -> p.eye
                     "center" -> centerOf(p.feet, p.eye)
-                    else -> return Vec3.ZERO
+                    else -> throw ExprEvalException("velocity($frame.$point): unknown caster point")
                 }
                 return casterVelocity(cast, point ?: "", now)
             }

@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.platform.paper
 
+import com.astarworks.astera.combat.adapter.paper.skillengine.PaperEntityVelocity
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperLiveValueSource
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperPlayerHooks
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillEntityQuery
@@ -147,8 +148,9 @@ internal class SkillEnginePaperRuntime(
         )
         val entityQuery = PaperSkillEntityQuery(server, teams = { services.get<IMatchTeamLookup>() }, structures = { services.get<IStructureTargets>() })
         val itemGateway = PaperSkillItemGateway(server, { wired.skillGate }, { services.get<ICooldownTracker>() }, { services.get<IResourcePoolService>() })
-        val live = PaperLiveValueSource(server, scheduler, gameplay, entityQuery, itemGateway)
-        val movementGateway = PaperSkillMovementGateway(server)
+        val entityVelocity = PaperEntityVelocity(scheduler)
+        val live = PaperLiveValueSource(server, scheduler, gameplay, entityQuery, itemGateway, entityVelocity)
+        val movementGateway = PaperSkillMovementGateway(server, entityVelocity)
         movement = movementGateway
         val toolBlocks by lazy { ports.toolBlocks?.invoke(services) }
         val worldGateway3 = PaperSkillWorldGateway(
