@@ -59,6 +59,7 @@ machine:
         - {law: spin, axis: long, deg_per_tick: "${spin_dpt}", at: 4, for: 7}
       on:
         hit:
+          - {id: throw_react, op: react, target: event.victim, flinch: true, for: 6}
           - {id: throw_dmg, op: damage, at: 0, target: event.victim, damage: {physical: "= dmg_throw"}}
           - {id: bleed, op: status, at: 0, target: event.victim, status: bleed, stacks: "= bleed_stacks", for: "= bleed_ticks"}
           - {id: push, op: impulse, at: 0, target: event.victim, vector: "= -contact.normal * 0.35 + vec(0, 0.12, 0)"}
@@ -125,6 +126,7 @@ machine:
           ignore_invulnerability: false
           on:
             hit:
+              - {id: c1_react, op: react, target: event.victim, flinch: true, for: 6}
               - {id: c1_damage, op: damage, at: 1, target: event.victim, damage: {physical: "= dmg_coin1"}, ignore_invulnerability: true}
               # hit1 flash: four feather bars (0/45/90/135 deg) swell and fade over the victim, orange/crit sparks
               - {id: h1_frame, op: frame, anchor: victim, axes: caster, mode: snapshot, at: 0, for: 6}
@@ -329,7 +331,7 @@ machine:
       do:
         - {id: reel, op: reel, anchor: /windup/volley, to: /throw/palm_f, speed: "= reel_speed", ease: in}
         # ignore_invulnerability: false is the vanilla default (reel_hit had no flag).
-        - {id: reel_hit, op: hit, anchor: /throw/fly_a, targets: enemies, shape: {capsule: 0.2, from: root, to: tip}, window: once, ignore_invulnerability: false, damage: {physical: "= dmg_reel"}, on: {hit: [{id: pull, op: impulse, target: event.victim, vector: "= normalize(pos(palm) - pos(event.victim)) * 0.25"}, {id: reel_sparks, op: particle, particle: crit, anchor: contact, count: 6}, {id: slash_snd, op: sound, sound: couture.slash_light, anchor: contact}]}}
+        - {id: reel_hit, op: hit, anchor: /throw/fly_a, targets: enemies, shape: {capsule: 0.2, from: root, to: tip}, window: once, ignore_invulnerability: false, damage: {physical: "= dmg_reel"}, on: {hit: [{id: reel_react, op: react, target: event.victim, flinch: true, for: 6}, {id: pull, op: impulse, target: event.victim, vector: "= normalize(pos(palm) - pos(event.victim)) * 0.25"}, {id: reel_sparks, op: particle, particle: crit, anchor: contact, count: 6}, {id: slash_snd, op: sound, sound: couture.slash_light, anchor: contact}]}}
         - {id: reel_snd, op: sound, sound: couture.reel, anchor: /windup/volley, every: 3, for: 16, volume: 1.0, pitch: "= 1.0 + 0.4 * (1 - dist(volley, palm) / throw_range)"}
         - {id: catch_snd, op: sound, sound: couture.catch, anchor: shears, at: 15}
       on:
@@ -354,6 +356,7 @@ machine:
           ignore_invulnerability: true
           on:
             hit:
+              - {id: c3_react, op: react, target: event.victim, flinch: true, for: 6}
               # hit3: pink sparks, three feather flashes (0/60/120 deg), an X cut, falling petals and shard debris around the dash end point
               - {id: h3_frame, op: frame, anchor: caster, offset: {up: 0.9, forward: 1.3}, mode: snapshot, at: 0, for: 25}
               - {id: h3_pink, op: particle_def, def: couture-s2-p-pink, anchor: h3_frame, every: 1, times: 4, detach: true}

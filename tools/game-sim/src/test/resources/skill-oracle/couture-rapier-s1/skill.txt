@@ -162,6 +162,7 @@ g @1 cast-end | pose
 @11 particle - op=cast/dash/dash_hit.hit/sparks[0] type=stab-spark at=0.000000,2.000000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1074479212119996635
 @11 sound - op=cast/dash/dash_hit.hit/snd sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=0.000000,0.900000,2.500000
 @11 move - op=- add_velocity v=0.000000,0.000000,0.000000
+@11 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @11 frame cast/windup op=cast/windup pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
 @11 frame cast/anim op=cast/anim pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
 @11 frame cast/shears op=cast/shears pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
@@ -548,6 +549,7 @@ g @37 cast-end | pose
 @11 particle - op=cast/dash/dash_hit.hit/sparks[0] type=stab-spark at=-1.504538,2.000000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1074479212119996635
 @11 sound - op=cast/dash/dash_hit.hit/snd sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=-1.504538,0.900000,1.996589
 @11 move - op=- add_velocity v=0.000000,0.000000,0.000000
+@11 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @11 frame cast/windup op=cast/windup pos=-1.083267,0.000000,1.437544 rot=0.000000,-0.317305,0.000000,0.948324
 @11 frame cast/anim op=cast/anim pos=-1.083267,0.000000,1.437544 rot=0.000000,-0.317305,0.000000,0.948324
 @11 frame cast/shears op=cast/shears pos=-1.083267,0.000000,1.437544 rot=0.000000,-0.317305,0.000000,0.948324

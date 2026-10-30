@@ -115,6 +115,7 @@
 @8 particle - op=windup/c1_hit.hit/h1_orange[0] type=couture-s2-p-orange at=0.000000,0.900000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6152098280623297704
 @8 particle - op=windup/c1_hit.hit/h1_spark[0] type=couture-s2-p-spark at=0.000000,0.900000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2266813452599139922
 @8 particle - op=windup/c1_hit.hit/h1_crit type=couture-s2-p-crit at=0.000000,0.900000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4924346634232612256
+@8 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @8 frame windup/pre_f op=windup/pre_f pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @8 frame windup/spin_frame op=windup/spin_frame pos=-0.296095,0.918866,-0.379864 rot=-0.951057,0.000000,0.000000,0.309017
 @8 frame windup/piece_body op=windup/piece_body pos=-0.296095,0.918866,-0.379864 rot=-0.951057,0.000000,0.000000,0.309017
@@ -1192,6 +1193,7 @@
 @64 damage 00000000-0000-0000-0000-00000000000a op=- physical=6 skill=couture-rapier-s2@crimson at=0.300000,1.422664,2.768342 ignoreinv=false ignorearmor=false
 @64 particle - op=reel/reel_hit.hit/reel_sparks type=crit count=6 at=0.300000,1.422664,2.768342 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9095014197319408457
 @64 sound - op=reel/reel_hit.hit/slash_snd sound=couture.slash_light cat=master vol=1 pitch=1 at=0.300000,1.422664,2.768342
+@64 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @64 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.0372 y=0.0812 z=-0.2335
 @64 frame throw/fly_body op=throw/fly_body pos=-0.038342,1.624107,2.742390 rot=0.297399,0.943243,0.044445,0.140965
 @64 frame throw/fly_a op=throw/fly_a pos=0.314353,1.624107,2.742390 rot=0.325776,0.885462,-0.239596,0.228956
@@ -1370,6 +1372,7 @@
 @85 sound - op=coin3/c3_hit.hit/c3_snd_3 sound=entity.player.attack.crit cat=master vol=1 pitch=0.6 at=0.000000,0.900000,2.500000
 @85 sound - op=coin3/c3_hit.hit/c3_snd_4 sound=block.anvil.land cat=master vol=0.5 pitch=1.4 at=0.000000,0.900000,2.500000
 @85 move - op=- add_velocity v=0.000000,0.000000,0.000000
+@85 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @85 frame throw/fly_body op=throw/fly_body pos=-0.351563,0.768018,0.292518 rot=0.297399,0.943243,0.044445,0.140965
 @85 frame throw/fly_a op=throw/fly_a pos=0.001132,0.768018,0.292518 rot=0.325776,0.885462,-0.239596,0.228956
 @85 frame throw/fly_b op=throw/fly_b pos=-0.704258,0.768018,0.292518 rot=0.326258,0.886989,-0.242819,0.218734
@@ -1914,6 +1917,7 @@ r @117 run-end tail=4 | pose
 @8 particle - op=windup/c1_hit.hit/h1_orange[0] type=couture-s2-p-orange at=-1.504538,0.900000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6152098280623297704
 @8 particle - op=windup/c1_hit.hit/h1_spark[0] type=couture-s2-p-spark at=-1.504538,0.900000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2266813452599139922
 @8 particle - op=windup/c1_hit.hit/h1_crit type=couture-s2-p-crit at=-1.504538,0.900000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4924346634232612256
+@8 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @8 frame windup/pre_f op=windup/pre_f pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
 @8 frame windup/spin_frame op=windup/spin_frame pos=-0.007864,0.918866,-0.481567 rot=-0.901909,-0.098053,-0.301775,0.293048
 @8 frame windup/piece_body op=windup/piece_body pos=-0.007864,0.918866,-0.481567 rot=-0.901909,-0.098053,-0.301775,0.293048
@@ -2881,6 +2885,7 @@ r @117 run-end tail=4 | pose
 @66 sound - op=coin3/c3_hit.hit/c3_snd_3 sound=entity.player.attack.crit cat=master vol=1 pitch=0.6 at=-1.504538,0.900000,1.996589
 @66 sound - op=coin3/c3_hit.hit/c3_snd_4 sound=block.anvil.land cat=master vol=0.5 pitch=1.4 at=-1.504538,0.900000,1.996589
 @66 move - op=- add_velocity v=0.000000,0.000000,0.000000
+@66 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @66 frame throw/fly_body op=throw/fly_body pos=-5.139277,4.487890,6.775262 rot=0.267928,0.849771,0.136515,0.432976
 @66 frame throw/fly_a op=throw/fly_a pos=-4.857602,4.487890,6.987519 rot=0.384966,0.767056,-0.123845,0.498086
 @66 frame throw/fly_b op=throw/fly_b pos=-5.420951,4.487890,6.563005 rot=0.386446,0.771748,-0.126748,0.488877
@@ -3425,6 +3430,7 @@ r @98 run-end tail=4 | pose
 @8 particle - op=windup/c1_hit.hit/h1_orange[0] type=couture-s2-p-orange at=0.000000,0.900000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6152098280623297704
 @8 particle - op=windup/c1_hit.hit/h1_spark[0] type=couture-s2-p-spark at=0.000000,0.900000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2266813452599139922
 @8 particle - op=windup/c1_hit.hit/h1_crit type=couture-s2-p-crit at=0.000000,0.900000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4924346634232612256
+@8 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @8 frame windup/pre_f op=windup/pre_f pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @8 frame windup/spin_frame op=windup/spin_frame pos=-0.296095,0.918866,-0.379864 rot=-0.951057,0.000000,0.000000,0.309017
 @8 frame windup/piece_body op=windup/piece_body pos=-0.296095,0.918866,-0.379864 rot=-0.951057,0.000000,0.000000,0.309017
@@ -4502,6 +4508,7 @@ r @98 run-end tail=4 | pose
 @64 damage 00000000-0000-0000-0000-00000000000a op=- physical=6 skill=couture-rapier-s2@crimson at=0.300000,1.422664,2.768342 ignoreinv=false ignorearmor=false
 @64 particle - op=reel/reel_hit.hit/reel_sparks type=crit count=6 at=0.300000,1.422664,2.768342 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9095014197319408457
 @64 sound - op=reel/reel_hit.hit/slash_snd sound=couture.slash_light cat=master vol=1 pitch=1 at=0.300000,1.422664,2.768342
+@64 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @64 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.0372 y=0.0812 z=-0.2335
 @64 frame throw/fly_body op=throw/fly_body pos=-0.038342,1.624107,2.742390 rot=0.297399,0.943243,0.044445,0.140965
 @64 frame throw/fly_a op=throw/fly_a pos=0.314353,1.624107,2.742390 rot=0.325776,0.885462,-0.239596,0.228956
@@ -4680,6 +4687,7 @@ r @98 run-end tail=4 | pose
 @85 sound - op=coin3/c3_hit.hit/c3_snd_3 sound=entity.player.attack.crit cat=master vol=1 pitch=0.6 at=0.000000,0.900000,2.500000
 @85 sound - op=coin3/c3_hit.hit/c3_snd_4 sound=block.anvil.land cat=master vol=0.5 pitch=1.4 at=0.000000,0.900000,2.500000
 @85 move - op=- add_velocity v=0.000000,0.000000,0.000000
+@85 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @85 frame throw/fly_body op=throw/fly_body pos=-0.351563,0.768018,0.292518 rot=0.297399,0.943243,0.044445,0.140965
 @85 frame throw/fly_a op=throw/fly_a pos=0.001132,0.768018,0.292518 rot=0.325776,0.885462,-0.239596,0.228956
 @85 frame throw/fly_b op=throw/fly_b pos=-0.704258,0.768018,0.292518 rot=0.326258,0.886989,-0.242819,0.218734
@@ -5224,6 +5232,7 @@ r @117 run-end tail=4 | pose
 @8 particle - op=windup/c1_hit.hit/h1_orange[0] type=couture-s2-p-orange at=-1.504538,0.900000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6152098280623297704
 @8 particle - op=windup/c1_hit.hit/h1_spark[0] type=couture-s2-p-spark at=-1.504538,0.900000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2266813452599139922
 @8 particle - op=windup/c1_hit.hit/h1_crit type=couture-s2-p-crit at=-1.504538,0.900000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4924346634232612256
+@8 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @8 frame windup/pre_f op=windup/pre_f pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
 @8 frame windup/spin_frame op=windup/spin_frame pos=-0.007864,0.918866,-0.481567 rot=-0.901909,-0.098053,-0.301775,0.293048
 @8 frame windup/piece_body op=windup/piece_body pos=-0.007864,0.918866,-0.481567 rot=-0.901909,-0.098053,-0.301775,0.293048
@@ -6301,6 +6310,7 @@ r @117 run-end tail=4 | pose
 @64 damage 00000000-0000-0000-0000-00000000000a op=- physical=6 skill=couture-rapier-s2@crimson at=-1.285535,1.660517,2.296589 ignoreinv=false ignorearmor=false
 @64 particle - op=reel/reel_hit.hit/reel_sparks type=crit count=6 at=-1.285535,1.660517,2.296589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=9095014197319408457
 @64 sound - op=reel/reel_hit.hit/slash_snd sound=couture.slash_light cat=master vol=1 pitch=1 at=-1.285535,1.660517,2.296589
+@64 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @64 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0.1108 y=0.0812 z=-0.2089
 @64 frame throw/fly_body op=throw/fly_body pos=-1.681033,1.624107,2.167095 rot=0.267928,0.849771,0.136515,0.432976
 @64 frame throw/fly_a op=throw/fly_a pos=-1.399358,1.624107,2.379353 rot=0.384966,0.767056,-0.123845,0.498086
@@ -6479,6 +6489,7 @@ r @117 run-end tail=4 | pose
 @85 sound - op=coin3/c3_hit.hit/c3_snd_3 sound=entity.player.attack.crit cat=master vol=1 pitch=0.6 at=-1.504538,0.900000,1.996589
 @85 sound - op=coin3/c3_hit.hit/c3_snd_4 sound=block.anvil.land cat=master vol=0.5 pitch=1.4 at=-1.504538,0.900000,1.996589
 @85 move - op=- add_velocity v=0.000000,0.000000,0.000000
+@85 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @85 frame throw/fly_body op=throw/fly_body pos=-0.456812,0.768018,0.022039 rot=0.267928,0.849771,0.136515,0.432976
 @85 frame throw/fly_a op=throw/fly_a pos=-0.175137,0.768018,0.234296 rot=0.384966,0.767056,-0.123845,0.498086
 @85 frame throw/fly_b op=throw/fly_b pos=-0.738487,0.768018,-0.190218 rot=0.386446,0.771748,-0.126748,0.488877
