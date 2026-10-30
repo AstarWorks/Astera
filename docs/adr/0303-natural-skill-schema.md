@@ -1,5 +1,5 @@
 ---
-status: Proposed
+status: Accepted
 date: 2026-10-28
 deciders: founder, Claude
 supersedes: null
@@ -11,7 +11,7 @@ superseded_by: null
 
 ## Status
 
-Proposed. Board SKL-16 (rev1-3), SKL-20 (rev4). Design only; no engine code changes in this task.
+Accepted (manager decision 2026-10-30; was Proposed through rev4.20). Board SKL-16 (rev1-3), SKL-20 (rev4). The engine on `wp/se-adr0303` implements this document; where the two disagree the code wins and the ADR is edited to match (rev4.21).
 
 **rev4 (2026-10-29, Fable, SKL-20)**: adds the **precompute contract** (section C, the centre of this ADR), generic nesting of timing groups
 (2.0), the rewritten projectile op (3.6), named conditions (3.8), `lock` and `cancel` (10.6), the expansion dump format and static checks
@@ -31,7 +31,7 @@ S / T / L classification written as a definition (3.5); motion laws hold after t
 duration-0 write, `steps(n)` removed (3.2, 3.4, 3.7, 4); stick window (3.6); the hit, dash and rig fields (10.1b, SKL-17); sub-table keys
 `<state>.exit[<reason>]` / `<state>.on[<k>]` with no bubbling, cancel scopes (10.2, 10.6); call depth wording and recompile of callers (9, 10.4);
 dump grammar additions (11.3). 2026-10-29 founder decision (F8, option B): the hit `sector` gets a required `height` (10.1b), so a sector hits only within
-±height/2 of the origin's vertical position; an absent `height` is a load error (rejected `r11-sector-without-height.yaml`). Status stays Proposed.
+±height/2 of the origin's vertical position; an absent `height` is a load error (rejected `r11-sector-without-height.yaml`). The ADR is Accepted since rev4.21.
 
 **rev4.3 (2026-10-29, wave 2 resolutions `design/wave2-resolutions.md` R1-R41, List D)**: world ops `break_area` / `place_shape` / `explode` / `lightning`
 (10.1c); hit / damage / impulse / dash rewritten, new `cleanse`, `consume_item`, `consume_status`, `freeze`, `camera_shake`, `stop_sound`, `body`; `counter`,
@@ -44,13 +44,14 @@ and `#aarrggbb` colour (2.1), world op defaults (10.1c), dash `direction` requir
 counted over `[spawn, end)`, a `lock` row owning its instance, param defaults and item-part axes for frame motion, state-qualified
 instance ids, ribbon opacity as the colour alpha. Each sentence names the commit that implemented it. No field is added or removed.
 **rev4.5 (2026-10-29, SKL-22 gaps, wording only)**: the `seq:` desugar applies to part and machine op lists alike (11.1); a display `size` may be a T-class expression, fitted to `Key` segments (2.1, 3.5); a ribbon takes `{law: grow, prop: width}` and lowers it per tick because a trail has no client interpolation (3.4, 3.7). No field is added or removed.
-Founder questions Q6 is OPEN (Q2, Q3, Q5 resolved 10/29 too) (Q1 = B and Q4 = A resolved 10/29, Q7 = A resolved 10/29; rev4.7): every spot that depends on one carries a "pending founder Qn" note with both options and chooses neither (list under
-"Open decisions"). Examples c, e, g updated; `rejected/r12`-`r14` added. Status stays Proposed (edited in place by the manager's authorisation).
+**Founder questions Q1-Q7 (rev4.3, closed in rev4.21).** All seven are resolved (Q2, Q3, Q5 on 10/29; Q1 = B, Q4 = A, Q7 = A on 10/29; Q6 = A as an engine fact, see "Open decisions"). The "pending founder Qn" notes are gone from the body; the list under "Open decisions" keeps the decisions.
 - **rev4.5 (2026-10-29, SKL-22, founder 10/28 asks)**: the look lock is confirmed as the `pitch` / `yaw` fields of `lock` (10.6, no new field; the player already
-- **rev4.7 (2026-10-29, founder answers Q1 = B and Q4 = A)**: `max_count` is optional on a `hit` and on an area `damage`/`status`/`heal`/`cleanse` target; omitted or `all` = unlimited, an integer >= 1 keeps the nearest N (10.1b). `damage` is optional on a `hit`: a trigger-only hit loads and its handler `damage` deals it (v2 order). The engine already decoded both spellings; the open-question switch is removed. No field is added or removed.
   reaches `lockLook` / `unlockLook`); 3.8 names the "any enemy within r" condition (`nearest_enemy_dist(caster) < r`, no new primitive) and the Paper host now serves
   `nearest_enemy_dist` / `enemy_in_cone` in guards and live cells; 3.5.1 records the CEL library policy.
-**rev4.6 (2026-10-29, SKL-22 couture-rapier-s2 load; NEW OP for the founder)**: (1) a state may name an instance an EARLIER state spawned with the (5) Line ribbon player semantics: a `ribbon from:/to:` (look `shape: line`) is spawned through `ISkillVisualGateway.spawnLine(cast, from, to, thickness, colorHex, alpha)` (colour alpha is the opacity) and both endpoints are re-read from their live frames every tick through `updateLine`; it ends with `until:`/`for`. Paper draws each segment as one `item_display` of the pack model `astera:skill_line` (two crossed double-faced planes, rev4.15; rev4.6 first drew one FIXED strip facing the caster's eye, as v1's `line` op did), and since rev4.14 as a polyline of such segments when `segments` > 1 (`spawnLine` / `updateLine` take the vertex list; section 5).
+- **rev4.7 (2026-10-29, founder answers Q1 = B and Q4 = A)**: `max_count` is optional on a `hit` and on an area `damage`/`status`/`heal`/`cleanse` target; omitted or `all` = unlimited, an integer >= 1 keeps the nearest N (10.1b). `damage` is optional on a `hit`: a trigger-only hit loads and its handler `damage` deals it (v2 order). The engine already decoded both spellings; the open-question switch is removed. No field is added or removed.
+
+**rev4.6 (2026-10-29, SKL-22 couture-rapier-s2 load; NEW OP for the founder)**: (1) a state may name an instance an EARLIER state spawned with the state-qualified spelling `/<state>/<id>` (`/throw/volley`, `/throw/fly_a.root`; 10.1 `/x` is absolute from the machine root, ids are state-qualified, 11.3). The state must be written before the referencing one, must declare the instance, and the instance must not have ended by then (a static `End` before the spawning state's guaranteed length is a load error). A bare name never looks into another state. (2) `ribbon` takes `until:` as well as `for:` like every extended op (5): a line ribbon ends at the event's sub-table; a trail ribbon still needs `for:`. (3) new op `held_model` (10.1b): v1 `weapon_model` keys (`couture-s2-rig.yaml`, hidden at t20, back at t57) could not be said by `rig` (section "Skin rig"). (4) No new escape for a body that outlives its spawning state: that is the machine-level `world:` list (owner row, line 917; check 4, line 1028; check 8 bounds it by the machine path, not a state). It is written there with `at:` for the spawn tick and named `/<start state>/<id>` from the states. This rev makes the list complete: params are substituted in `world:` ops, skin patches may address `machine.world[<id>]` like a state's op list, and a frame / display whose law outlasts its own `for:` writes nothing after its End (no dead Key rows). (5) Line ribbon player semantics: a `ribbon from:/to:` (look `shape: line`) is spawned through `ISkillVisualGateway.spawnLine(cast, from, to, thickness, colorHex, alpha)` (colour alpha is the opacity) and both endpoints are re-read from their live frames every tick through `updateLine`; it ends with `until:`/`for`. Paper draws each segment as one `item_display` of the pack model `astera:skill_line` (two crossed double-faced planes, rev4.15; rev4.6 first drew one FIXED strip facing the caster's eye, as v1's `line` op did), and since rev4.14 as a polyline of such segments when `segments` > 1 (`spawnLine` / `updateLine` take the vertex list; section 5).
+
 
 **rev4.8 (2026-10-29, founder: why does a generic engine know `blade_len`, why are hands guessed)**: (1) the CEL functions `blade_len` and `hp_ratio` are deleted from the host, the classifier, the compiler and the shared cell evaluator; a skill that calls one is a named load error (unknown function), no alias. (2) the builtin `caster.hand_r` / `caster.hand_l` / `caster.palm` (a rest-pose guess in the Paper host) are deleted; naming one is a load error. A hand is a NAMED POINT of the skill's own rig body animation: `points: {name: {bone, offset}}` in `content/animations/<anim>.yaml` (offset in pixels from the bone joint, rest axes), read per tick as `<body op id>.<point>` (a `body` op id is a frame name in CEL and an anchor parent), resolved by the one shared `CellExprs`/TablePlayer path in sim and Paper. A finished `body` keeps riding the caster at its last pose. The shipped bastion and couture body animations carry `hand_r` / `hand_l`; `couture-rapier-s2` reads `body_anim.hand_r`. (3) `anchor: {of, to, samples}` on `particle` / `particle_def` is a SEGMENT: it lowers at compile time to `samples` rows in the same tick at `lerp(of, to, k / (samples - 1))` (inclusive ends, `samples >= 2` a literal whole number, `to` and `samples` required together); `offset` and `shift` displace the whole segment; the dump prints `sample k/n` on each row. `sweep` stays the temporal spacing (particle only; still refused on `particle_def`), replacing the old `emit spacing`. (4) `grow` takes `by: f`, a factor on the held scale (ends at `start * f`), exclusive with `to` and `per_tick`; scale/size only, not with `prop: offset` or `accel`. (5) R28 per-index lists accept string entries (e.g. display `block: [gray_concrete, iron_block, black_concrete]`; the `block` field also takes `= CEL` / `${param}`); `motion` and other self-decoding lists stay outside R28 (use `= [..][int(i)]` inside a law number). (6) the per-row random seed is content-addressed: `Row.seed` (stamped by `RowSeeds.assign`, read by the one TablePlayer in sim and Paper) hashes the row's own content (kind, resolved geometry/ids, tick, copy indices), plus a document-order counter that only separates byte-identical rows; op ids and op order are not part of it, so renaming or reordering ops keeps every spread. `rand()`/`roll()`/`draw()` in ANY timing cell (`at`, `for`, `every`, `times`, `lasts`, state `for`, transition `after`) is a named `RuntimeTiming` load error.
 **rev4.10 / E1 (2026-10-29, batch2 gap E)**: a `projectile` takes an optional `part:` (a part of `content/frames/<item>.yaml`, as on a `frame` op). The body takes the part's points, and `hit.shape.frames` may then be empty: the capsule `from -> to` is swept along the body's own axis, rotated by the body's live rotation, every tick. A `shape.from` / `shape.to` the part does not declare is a load error naming the part's points; a `hit.shape` with neither rider `frames` nor a `part:` is a load error.
@@ -103,15 +104,14 @@ Founder questions Q6 is OPEN (Q2, Q3, Q5 resolved 10/29 too) (Q1 = B and Q4 = A 
 
 
 **rev4.7 (2026-10-29, founder Q7 = A)**: `screen_flash` and `screen_veil` are presentation ops again (10.1b rows; strict decode: overlay enum, `#RRGGBB`, veil distance 0.3..1.0 and `max_screen_fraction` up to 0.18 refused instead of coerced). `screen_flash` is a point effect through `ISkillGameplayGateway.screenFlash`; `screen_veil` is instance-lived (`spawnScreenVeil` / `updateScreenVeil` per tick, `End` at `ticks`). Sources: v1 `MechanicYaml.kt:1065-1098,1131-1163`, `PaperPlayerFeedbackGateway.kt:53-71`, `ScreenVeilHandler`. Q7 is closed; `bastion-greatsword-s2` and `-ego` carry their v2 cues again.
-state-qualified spelling `/<state>/<id>` (`/throw/volley`, `/throw/fly_a.root`; 10.1 `/x` is absolute from the machine root, ids are state-qualified,
-11.3). The state must be written before the referencing one, must declare the instance, and the instance must not have ended by then (a static
-`End` before the spawning state's guaranteed length is a load error). A bare name never looks into another state. (2) `ribbon` takes `until:` as
-well as `for:` like every extended op (5): a line ribbon ends at the event's sub-table; a trail ribbon still needs `for:`. (3) new op `held_model`
-(10.1b): v1 `weapon_model` keys (`couture-s2-rig.yaml`, hidden at t20, back at t57) could not be said by `rig` (section "Skin rig").
-(4) No new escape for a body that outlives its spawning state: that is the machine-level `world:` list (owner row, line 917; check 4, line 1028; check 8 bounds
-it by the machine path, not a state). It is written there with `at:` for the spawn tick and named `/<start state>/<id>` from the states. This rev makes the
-list complete: params are substituted in `world:` ops, skin patches may address `machine.world[<id>]` like a state's op list, and a frame / display whose
-law outlasts its own `for:` writes nothing after its End (no dead Key rows).
+
+**rev4.18 (2026-10-30, eye-ray chip)**: a shotgun block chip follows the live eye and look ray through the CEL function `aim_point(caster, N)` (`CelFunctions.kt:312`, live-world set `ExprClassifier.kt:32`); no new `break_area` shape (10.1c stays sphere / line / box). Shipped use: `content/skills/shotgun-blast/skill.yaml:50`. Sha 9afad8299, scenario `EyeRayChipScenarioTest`.
+
+**rev4.19 (2026-10-30, reload and patchKind)**: every `patchKind` (`skin` / `balance` / `mechanic`) always applies; `allowGameplayPatches` is removed. A malformed patch fails loudly (`SkillReloadError.Rejected`) and the skill keeps its old version. Section 13; shas d24119229, d284e6b68; e2e `SkillEngineV3E2eTest#reloadAppliesSeparatePatchAndKeepsOldVersionOnBadPatch` and `#reloadAppliesBalancePatchOnNextCast`.
+
+**rev4.20 (2026-10-30, dead v2 deleted)**: the v2 skill types, the `_skills-2` types, `SkillArchetype` and the old projectile line are deleted from the code. Shas 9b90f3dd0, 1f480512d, c005d49bc.
+
+**rev4.21 (2026-10-30, tidy to the code, doc only)**: Status is Accepted (manager decision 2026-10-30). Q6 is closed as option A (the engine has no `damage_delay`). Rewritten to the code: the garbled rev4.5 / rev4.6 / rev4.7 text; section 6 (migration is done); 10.1 / 10.2 (nested machine is `start:` + `states:`, `parallel:` regions, `machine.tail` / `world`); section 12 (real test classes); section 13 (envelope has `fragments`, Patch example has `id` / `patchKind`, patchKind semantics, reload); Open decisions 1, 3, 4. No field is added or removed.
 
 **Partially supersedes [[adr/0301-skill-engine-v2-frame-tree]]** (0301's body is not edited). Map:
 
@@ -805,8 +805,9 @@ Ribbon fields (no hidden default, 2.0b):
 ### 6. Migration (no converter)
 
 Founder 2026-10-29 (memory `project_skill_engine_v3_decisions`): no converter. The kept Limbus skills (`bastion-greatsword-*` x4,
-`couture-rapier-*` x5) and every basic skill are **hand-written in v3** from their beat sheet, one migration package each (work-breakdown
-wave 2). A v1 or v2 file is not an input: it is re-authored, and a file on another `apiVersion` fails to load.
+`couture-rapier-*` x5) and every basic skill are **hand-written in v3** from their beat sheet. This is done: every file under `content/skills/` is a
+v3 document and `ShippedV3ContentScenarioTest` (A9) loads, expands and replays all of them. A v1 or v2 file is not an input: it is re-authored, and a
+file on another `apiVersion` fails to load. The v2 skill types, the `_skills-2` types, `SkillArchetype` and the old projectile line no longer exist (rev4.20).
 
 ### 7. Examples
 
@@ -969,7 +970,7 @@ machine:
 
 | element | meaning |
 |---|---|
-| state | named; has `enter`, `do`, `exit`, `on`, `for`, `then`, optional `final: true`, optional nested `machine:` (sub-automaton) |
+| state | named; has `enter`, `do`, `exit`, `on`, `for`, `then`, optional `final: true`, optional nested sub-automaton spelled `start:` + `states:` inside the state (no `machine:` key; `start` absent = `NestedStartMissing`, `SkillDocumentDecoder.kt:182-185`), optional `parallel: [ {start, states}, ... ]` regions (`PartParser.kt:188-215`) |
 | transition | `{event or timer, when?, to, do?}`; `when` is a pure CEL guard; `do` are the effects run between exit and entry (in order: exit of source, transition `do`, entry of target) |
 | timer | `for: N` + `then:` on a state, or `{after: N, to: ...}` as a transition; `N` may be CEL (class S at state entry) |
 | event | `input.<key>` (`use`, `attack`, `sneak`, `swap`, `release`; see 14.1), `hit` (the caster dealt damage), `hurt` (the caster is struck; was `incoming_hit`), `contact`, `block`, `bounce`, `stick`, `unstick`, `cancel`, `end`, plus any `emits` of a bound part (`<call>.<event>`), a projectile's events (`<id>.hit`, `<id>.bounce`, `<id>.end`, 3.6), a group's scoped events (`<group>.<event>` with `event.i`, 2.0a) and `emit: <name>` ops. Every event handler body is a compiled sub-table (C3). |
@@ -1031,7 +1032,7 @@ nearest to the eye (`fbeb1efdd`). `break_area` cover cells strike in six staged 
 
 #### 10.2 Hierarchy and event flow (Harel)
 
-- A state may contain a nested `machine:` (or a `use:` call, which is a nested machine). Entering the state enters the child's `start`.
+- A state may contain a nested machine, spelled `start:` + `states:` inside the state (or a `use:` call, which is a nested machine). Entering the state enters the child's `start`. A state with `parallel: [ {start, states}, ... ]` runs every region and ends when all of them are final (`PartParser.kt:188-215`, `PartModel.kt:52`, `PartMachineWiredScenarioTest#parallelRegionsEndWhenAllFinal`). The top-level `machine:` keys are `start, states, world, tail` (`SkillDocumentDecoder.kt:163`).
 - **Event propagation, child -> parent**: an event is offered to the innermost active state first; if no transition there matches, it bubbles to the
   parent state, and so on to the root. A child's `final` state emits `<id>.end` to the parent. A part's declared `emits` are the events that cross the boundary.
 - **Preemption, parent -> child**: a parent transition that leaves the state exits the nested machine first (children's exit actions run, innermost
@@ -1267,36 +1268,38 @@ the skill-compare page.
 ### 12. Acceptance suite A1-A9 (the definition of "the engine implements this ADR")
 
 All tests are game-sim scenarios (`tools/game-sim`, real loaders, real `SkillComposer`, in-memory gateways from `plugin:test-fixtures`) or real-content
-loaders; no unit tests (coding posture). The fixtures are the ADR examples themselves, so the ADR cannot drift from the engine. Each group names
-its class, what it asserts per tick, and the fixture. Migration (wave 2) starts only when A1-A9 are green.
+loaders; no unit tests (coding posture). The fixtures are the ADR examples themselves, so the ADR cannot drift from the engine. The suite is in place and
+is the standing regression gate (rev4.21: the table below lists the classes and cases that exist, not the planned names of rev1-4).
 
 | id | class (`tools/game-sim/src/test/kotlin/.../skillengine/`) | asserts | fixture |
 |---|---|---|---|
-| A1 | `AdrExamplesLoadScenarioTest#everyExampleLoadsAndExpands` | each `docs/adr/0303-examples/*.yaml` decodes with zero errors, lowers to an `ExpansionTable`, the dump is byte-equal to the `# expand:` block in the file's comments, and the dump is stable across two loads | examples a-j |
-| A2 | `AdrExampleBehaviourScenarioTest#<example>PlaysItsTable` (one case per example) | playing the cast in the sim for its max path length produces exactly the gateway call sequence the table lists, tick for tick (spawn, keys, particles, sounds, hits, calls, ends); with a scripted event sequence (hit at tick k, bounce at tick m) the event sub-tables are pasted at those ticks and nowhere else (C3, C8) | examples a-j; scripted events for b, f, g, j |
-| A3 | `TimingBlockScenarioTest` cases: `atForEvery`, `timesCapsOccurrences`, `untilEventEndsWindowAndInstances`, `lastsEndsEachOccurrence`, `nestedGroupsIndexAndParentIndex`, `occurrenceClockIsLocal`, `easedEveryFireTicks`, `familyTimesCreatesIndexedInstances`, `ceilCountOnNondivisibleWindow`, `untilMasksCandidatesThroughHorizon`, `everyWithoutHorizonIsLoadError`, `repeatingFamilyIsGroupPlusFamily` | per tick: the set of firing op ids and their `i`, `n`, `parent.i` values; instance start/end ticks; the eased `every` fire ticks equal the 3.7.1 formula | example d, j; inline YAML strings in the test for each case |
-| A4 | `CompositionScenarioTest` cases: `partInlinedWithPrefixedIds`, `partSeesOnlyBoundFrames`, `partEmitsCrossBoundary`, `skillCallUngatedByDefault`, `skillCallGateCooldownAndCost`, `withArgsAreTypedAndRequired`, `recursionIsLoadError`, `cancelDepthFirstRunsExits` | the expanded table of the caller contains the part's rows under `<call id>/`; a part referencing a caller frame fails to load; `g.parried` reaches the caller's transition at the event tick; cost/cooldown gateway calls appear only with `gate:`; cancel order of exit actions | examples e, f, j |
-| A5 | `MotionLawsWiredScenarioTest` cases: one per law (`spin`, `move`, `orbit`, `grow`, `fade`, `align`, `follow`, `stretch`, `keys`) plus `lawWindowAtNotFrom`, `overlappingLawsCompose`, `easeShapesTotal`, `segmentBudgetSplits`, `lawOnParticleAndSound` | per segment write: `(tick, duration, translation, left_rotation, scale)` equals the closed form at the segment end; rotation composed outer-to-inner; eased spin total `deg_per_tick * for`; `from` on a law = `SkillDecodeError.UnknownKey`; a particle occurrence train samples the law per occurrence | examples a, d, i; inline YAML |
-| A6 | `ProjectileScenarioTest` cases: `rangeEnds`, `forEnds`, `speedRampPathIsExactIntegral`, `spinAboutForwardOneWrite`, `trailRidesBody`, `bounceHandlerCarriesIndex`, `stickUnstickEvents`, `despawnEnd`, `passNoBlockEvents`, `hitOnceEndsFlight`, `hitPierceTimes`, `onEndSubSkillWithParams`, `onHitSubSkillWithParams`, `endFiresOnCancel`, `blockModeFieldsRequired`, `sweptCollisionNoTunnel`, `hitBlockModeEventOrderOneTick`, `handlerOutlivesBodyWithSnapshotFrame` | per tick body position (world) against the integrated speed ramp within 0.001; the `end` tick inside the printed `[min, max]`; the `on:` sub-tables pasted at the event tick with `event.i`, `contact`, `target` bound; the called skill receives the `with:` values; a missing `times` on bounce = `MissingField` | examples b, f, j |
-| A7 | `PartMachineWiredScenarioTest` cases: `statesForThenTimer`, `transitionOrderFirstMatch`, `eventBubblesChildToParent`, `preemptionExitsChildrenInnermostFirst`, `parallelRegionsEndWhenAllFinal`, `ownedInstancesEndOnExit`, `lockMovePitchWindow`, `cancelCastEmitsCancelThenEnd`, `cancelStateTakesThen`, `cancelInstanceFiresEnd`, `namedConditionGuard`, `machineLintChecks1to8`, `exitReasonGuardOmitsRowFromCancelSubTable`, `sameTickCascadeDepthCapIsLoadError`, `tickPhaseOrder` | the active state per tick; exit/transition/enter order of actions; display handles removed on exit; the caster pitch gateway holds the value across the lock window; event order cancel -> end; `cond:` guard values at the event tick; each of 10.4 checks 1-8 has a rejected inline YAML | examples e, g; inline YAML |
-| A8 | `StrictDecodeScenarioTest#rejectedExamplesFailWithNamedError` (one case per file) + `noHiddenDefaultsInSchema` | every `0303-examples/rejected/*.yaml` fails with the `SkillDecodeError` subtype named in its first comment line; the generated JSON schema (`Fields.jsonSchema()`) contains no `default` other than identity values listed in 2.0b; unknown keys at any depth are errors | `rejected/r1..r14` |
-| A9 | `ShippedV3ContentScenarioTest#everyShippedSkillLoadsExpandsAndReplays` | every `content/skills/*.yaml` and `content/skill-parts/*.yaml` loads, passes checks 1-12, dumps, and replays byte-equal to its own dump in the sim for the sample seed; the per-skill `expand` dump is stored under `build/skill-expand/` as evidence | real content |
+| A1 | `AdrExamplesLoadScenarioTest#everyExampleLoadsAndExpands` | each `docs/adr/0303-examples/*.yaml` decodes with zero errors, lowers to an `ExpansionTable`, and the dump equals the `# expand:` block in the file's comments where that block is in the dump grammar | examples a-j |
+| A2 | `AdrExampleBehaviourScenarioTest#<letter>...PlaysItsTable` (one case per example a-j) and `#displayYawIsAnUnknownKeyNamingRotate` | playing the cast in the sim produces the gateway call sequence the table lists, tick for tick; scripted events paste the event sub-tables at those ticks only | examples a-j |
+| A3 | `TimesAtScenarioTest` (`listAtGivesEachCopyItsOwnTick`, `celAtReadsTheCopyIndexAndForCanEndAllCopiesTogether`, `badPerCopyAtIsANamedLoadError`), `TimerParamScenarioTest`, `StaticChecksScenarioTest` | timing blocks (`at`/`every`/`times`/`until`/`lasts`) fire at the printed ticks; bad timing is a named load error. There is no `TimingBlockScenarioTest`; timing is asserted inside the per-op and example scenarios | inline YAML, examples d, j |
+| A4 | `CompositionScenarioTest` (`withArgsAreTypedAndRequired`, `recursionIsLoadError`, `skillCallUngatedByDefault`, `skillCallGateCooldownAndCost`), `ComposeRulesScenarioTest`, `CalleeFramesInScenarioTest`, `PartFramesOutScenarioTest` | part rows are inlined under `<call id>/`; typed `with:` args; recursion is a load error; cost/cooldown gateway calls appear only with `gate:` | examples e, f, j |
+| A5 | `MotionLawsWiredScenarioTest` (`orbit`, `align`, `follow`, `stretch`, `twoWritesOnOneTickIsMachineCheck12`, `keysTurningOver170DegreesIsALoadError`, `moveHasNoAccel`, `moveWithDragIsGeometric`, `spinWithDragIsGeometric`, `dragWithEaseOrAccelOrOutOfRangeIsLoadError`, `alignBlendsOverWindow`, `alignBlendNeedsForAndRefusesStep`, `stretchReplaysBetweenBuiltinAnchors`, `stretchReplaysBetweenSkillDeclaredAnchors`, `stretchRollFollowsTheParentFrame`, `alignToWorldUpRollsTowardTheParentForward`, `followReplaysOnASkillDeclaredAnchor`), `MotionLawGrammarScenarioTest`, `PointLawsScenarioTest` | per segment write: translation / rotation / scale equal the closed form at the segment end | examples a, d, i; inline YAML |
+| A6 | `ProjectileScenarioTest` (`stickUnstickEvents`, `hitPierceTimes`, `blockModeFieldsRequired`, `unboundedLifeIsALoadError`, `untilMaskNeverWidensTheEndWindow`, `bodyCapsuleHitsAlongOwnAxis`, `partNeedsItsPointAndAShape`), `ProjectileDisplayScenarioTest` | body position against the integrated speed ramp; the `on:` sub-tables pasted at the event tick; missing required block-mode fields are load errors | examples b, f, j |
+| A7 | `PartMachineWiredScenarioTest` (`parallelRegionsEndWhenAllFinal`, `fragmentFromHitAndMissHandlers`, `fragmentRecursionIsLoadError`, `undeclaredFragmentIsLoadError`), `MachineTablesScenarioTest`, `LockCancelScenarioTest`, `TablePlayerRulesScenarioTest`, `StaticChecksScenarioTest`, `GuardCompileScenarioTest` | the active state per tick; exit/transition/enter order; the lock window; cancel order; each 10.4 check has a rejected inline YAML | examples e, g; inline YAML |
+| A8 | `StrictDecodeScenarioTest` (`r1`..`r14`, `rejectedExamplesFailWithNamedError`, `noHiddenDefaultsInSchema`, `documentAnchorMountIsUnknownKey`, `documentAnchorModeRequired`, `documentAnchorOffsetAcceptsCel`) | every `0303-examples/rejected/*.yaml` fails with the `SkillDecodeError` subtype named in its first comment line; the generated JSON schema has no `default` other than identity values (2.0b); unknown keys at any depth are errors | `rejected/r1..r14` |
+| A9 | `ShippedV3ContentScenarioTest#everyShippedSkillLoadsExpandsAndReplays` and `#everyComposedIdHasAGolden` | every shipped skill and part under `content/` loads, passes checks 1-12, expands and replays in the sim | real content |
 
-Owner of the suite harness: package W1-20 (work-breakdown); each engine package adds its cases to the named class. A9 is the gate that wave 2
-(hand-written migration) runs under: a migrated skill is "done" when it is in A9 and the founder has judged it on skill-compare.
+Each engine change adds its cases to the matching class (no work-breakdown packages any more). A9 is the gate for shipped content: a skill is "done" when it
+is in A9 and the founder has judged it on skill-compare.
 
 ### 13. Document envelope and Patch documents (rev4.3, R35, R38)
 
-**Envelope keys (R38).** A skill document's top-level keys are exactly `apiVersion, kind, id, item, importance, meta, params, frames_in, emits, anchors, conditions, machine`;
-any other key is `SkillDecodeError.UnknownKey`. `frames_out` is a Part-document key only. There is no `presentation` key (presentation is ordinary ops in the machine, 10.5).
+**Envelope keys (R38).** A skill document's top-level keys are exactly `apiVersion, kind, id, item, importance, meta, params, frames_in, emits, anchors, conditions, fragments, machine` (`SkillDocumentDecoder.kt:314-316`);
+any other key is `SkillDecodeError.UnknownKey`. `frames_out` is a Part-document key only. There is no `presentation` key (presentation is ordinary ops in the machine, 10.5). A tier document (`extends`) has exactly the keys `id, extends, item, meta, with` (`Extends.kt:14`).
 
 **Patch documents (R35).** A variant of a skill is a document of `kind: Patch`, applied BEFORE compile to the target's decoded document:
 
 ```yaml
 apiVersion: astera/v3
 kind: Patch
-target: couture-rapier-s2          # the skill id being patched
-variant: s2-hard                   # id of the resulting variant
+id: couture-rapier-s2-hard         # the patch document's own id
+target: couture-rapier-s2          # the skill id being patched (a part is `part:<id>`, overlay patches only, no variant)
+variant: s2-hard                   # id of the resulting variant; non-blank, no '@'
+patchKind: balance                 # required: skin | balance | mechanic
 ops:
   - {path: "machine.states.coin1.do[hit1]", $patch: merge, value: {damage: {physical: 40}}}
   - {path: "machine.states.coin1.do[snd]",  $patch: delete}
@@ -1305,7 +1308,11 @@ ops:
 
 `$patch` is `delete`, `replace` or `merge`. A path addresses rows by id (`do[<id>]`), not by list position, so inserting a row elsewhere does not break the patch.
 A `path` that does not resolve to exactly one node is a load error (`PatchPathUnresolved`, 10.4 check 8). The patched document is then compiled like any other,
-so every check of 10.4 and 11.4 applies to the variant. **Q3 RESOLVED A (founder 2026-10-29)**: there is no `gameplay.expose`; a Patch document is the only way to vary a skill.
+so every check of 10.4 and 11.4 applies to the variant. The document keys are `apiVersion, kind, id, target, variant, patchKind, ops` (`PatchApplier.kt:42`); `ops` is non-empty, each op has `path`, `$patch` and `value`, and the addressable roots are `params, meta, anchors, conditions, machine`.
+
+**`patchKind` (rev4.19).** `patchKind` is required and is one of `skin`, `balance`, `mechanic` (`PatchApplier.kt:59-60`). It limits what the patch may touch, checked by `PatchKindCheck` (check 13, `PatchKindCheck.kt:28,34`): `skin` edits presentation rows and the string params only presentation rows read; `balance` replaces a non-string `params.<p>.default` or a numeric field of a gameplay-op row with a number; `mechanic` is unrestricted within the roots. A breach is `ComposeError.PatchError.PatchKindViolation`; an unresolved path is `UnresolvedPath`. Every `kind: Patch` document is applied whatever its `patchKind` (`SkillComposer.kt:12`); there is no `allowGameplayPatches` switch any more.
+
+**Reload.** `SkillComposer.recompose` is atomic: on any failure nothing changes (`SkillComposer.kt:75-84`). `reloadSkill` (`SkillEngineContents.kt:129`) turns a compose failure into `SkillReloadError.Rejected` (`:144`, `:164-167`) and keeps the old compiled definition of that id (a decode or compile failure is retried at the next reload, `:125-127`); a cast in progress finishes on its old definition and the new version affects the next cast. Proven by e2e `SkillEngineV3E2eTest#reloadAppliesSeparatePatchAndKeepsOldVersionOnBadPatch` and `#reloadAppliesBalancePatchOnNextCast`. **Q3 RESOLVED A (founder 2026-10-29)**: there is no `gameplay.expose`; a Patch document is the only way to vary a skill.
 
 ### 14. Input events and ports (rev4.3, R39, R40)
 
@@ -1379,15 +1386,15 @@ Resolved (not founder decisions; engine facts, rev3/rev4):
   parameter-specialised precompiled timing variants (timing takes no parameter that is not class S at the call site; `with:` args are S or the call
   fails to load).
 
-1. **Held-item context, RC3.** `fixed` (recommended) vs `thirdperson_righthand`. `content/frames/couture-rapier.yaml` points are measured in the
+1. **Held-item context, RC3.** DECIDED (rev4.21): an authored item display defaults to `fixed` (`DisplayOpSpec.kt:163`); the rig mesh of the held main-hand / off-hand item is drawn `THIRDPERSON_RIGHTHAND` / `THIRDPERSON_LEFTHAND` from the cast-start item (`TablePlayer.kt` rig spawn, `PaperSkillVisualGateway.kt`). Original options, kept for the record: `fixed` vs `thirdperson_righthand`. `content/frames/couture-rapier.yaml` points are measured in the
    `fixed` basis and the three pieces of coin 2 share it; `thirdperson_righthand` (`held_hand` part in the frames file) matches how the real held
    weapon looks and avoids a pop when the real item is hidden. Needs a capture of both before the first skill ships.
 2. **Axis sign convention.** RESOLVED (rev4.10 / H2): the right-hand rule, worded as the cyclic sentence forward -> left -> up -> forward (section 0);
    a convention with the opposite sign is not used. Name-keyed offsets make the offset side a non-issue.
-3. **Sprite authoring unit**: blocks (`size`, taken here) vs vanilla scale.
-4. `ribbon`/`trail` internals (segment count, the history sampler) are deliberately thin here and need a follow-up.
+3. **Sprite authoring unit**: DECIDED, blocks (`size` is "[w, h] in BLOCKS", `DisplayOpSpec.kt:179`).
+4. `ribbon`/`trail` internals: DECIDED and specified (trail `of/root/history/width|width_frac/fade/style`, line `from/to/segments (1..24)/jitter`, `RibbonOpSpec.kt:111-123`; rev4.14 / rev4.15, section 5).
 
-**Founder questions Q1-Q7 (rev4.3).** Q1, Q4 and Q7 are RESOLVED (10/29); the rest are pending, both options written, none chosen.
+**Founder questions Q1-Q7 (rev4.3).** All seven are RESOLVED (Q6 in rev4.21).
 
 | Q | topic | option A | option B | where |
 |---|---|---|---|---|
@@ -1396,7 +1403,7 @@ Resolved (not founder decisions; engine facts, rev3/rev4):
 | Q3 | `gameplay.expose` | drop it | keep a `kind: Patch` form for later exposure | 13. **RESOLVED A (founder 10/29)** |
 | Q4 | hit `damage` optional | omit on the hit; a handler `damage` deals it (v2 order) | always required on the hit; accept the order difference | 10.1b. **RESOLVED A (founder 10/29)** |
 | Q5 | couture `absorb` (example e) | **RESOLVED A (founder 10/29):** transition `absorb: true` | `modify_attribute resist.physical` | example e (also option C: a `parry {for, scale: 0}` op) |
-| Q6 | coin1 delay | handler `at: 1` | `hit` gets `damage_delay: 1` | example a / g |
+| Q6 | coin1 delay | **RESOLVED A (engine fact, 2026-10-30):** handler `at: 1`; shipped as `{id: c1_damage, op: damage, at: 1, ...}` in `on.hit` (`content/skills/couture-rapier-s2/skill.yaml:129`) | (was: `hit` gets `damage_delay: 1`; no such field exists, `HitOpSpec.kt` has none) | example a / g |
 | Q7 | screen ops | **RESOLVED 2026-10-29: A.** `screen_flash` / `screen_veil` revived as presentation ops (10.1b, rev4.7) | (was: drop them) | 10.1b |
 
 ## Skin rig (SKL-17)
