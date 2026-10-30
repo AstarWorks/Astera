@@ -149,26 +149,25 @@ internal object CasterEyeClutter {
         val defs = defs(particlesDir)
         val problems = ArrayList<String>()
         var pose = ""
-        class Spawn(val tick: Int, val count: Int, val life: Int, val name: String)
+        // ticks: every tick the particle is alive AND inside the view volume; spawnInside: it spawned inside (counts for the per-tick burst rule)
+        class Spawn(val tick: Int, val count: Int, val ticks: IntRange, val inside: List<Int>, val spawnInside: Boolean, val name: String)
         val spawns = ArrayList<Spawn>()
         fun flush() {
             val perTick = java.util.TreeMap<Int, Int>()
-            for (sp in spawns) perTick.merge(sp.tick, sp.count, Int::plus)
+            for (sp in spawns) if (sp.spawnInside) perTick.merge(sp.tick, sp.count, Int::plus)
             for ((tick, n) in perTick) if (n > LIMIT) {
-                val top = spawns.filter { it.tick == tick }.groupBy { it.name }.mapValues { e -> e.value.sumOf { it.count } }.entries.sortedByDescending { it.value }.take(4).joinToString(", ") { "${it.key} x${it.value}" }
+                val top = spawns.filter { it.tick == tick && it.spawnInside }.groupBy { it.name }.mapValues { e -> e.value.sumOf { it.count } }.entries.sortedByDescending { it.value }.take(4).joinToString(", ") { "${it.key} x${it.value}" }
                 problems += "$key [$pose] @$tick: $n lingering particles in the first-person view volume (cone ${HALF_ANGLE_DEG.toInt()} deg, $RADIUS blocks, above eye-$FLOOR_BELOW_EYE) (limit $LIMIT): $top"
             }
             if (spawns.isNotEmpty()) {
-                val last = spawns.maxOf { it.tick + it.life }
                 var worst = -1; var worstN = 0
-                for (t in 0..last) {
-                    val alive = spawns.filter { t >= it.tick && t < it.tick + it.life }
-                    val n = alive.sumOf { it.count }
+                for (t in 0..spawns.maxOf { it.ticks.last }) {
+                    val n = spawns.filter { t in it.inside }.sumOf { it.count }
                     if (n > worstN) { worstN = n; worst = t }
                 }
                 if (worstN > LIMIT) {
-                    val top = spawns.filter { worst >= it.tick && worst < it.tick + it.life }.groupBy { it.name }.mapValues { e -> e.value.sumOf { it.count } }.entries.sortedByDescending { it.value }.take(4).joinToString(", ") { "${it.key} x${it.value}" }
-                    problems += "$key [$pose] @$worst: $worstN lingering particles ALIVE at once in the first-person view volume (spawned over several ticks, each alive its mean life) (limit $LIMIT): $top"
+                    val top = spawns.filter { worst in it.inside }.groupBy { it.name }.mapValues { e -> e.value.sumOf { it.count } }.entries.sortedByDescending { it.value }.take(4).joinToString(", ") { "${it.key} x${it.value}" }
+                    problems += "$key [$pose] @$worst: $worstN lingering particles ALIVE at once in the first-person view volume (spawned over several ticks, each alive its mean life, directed ones flown along their velocity) (limit $LIMIT): $top"
                 }
             }
             spawns.clear()
@@ -177,21 +176,40 @@ internal object CasterEyeClutter {
             if (l.startsWith("## ")) { flush(); pose = l.removePrefix("## "); continue }
             val m = ROW.find(l) ?: continue
             val tick = m.groupValues[1].toInt()
-            val x = m.groupValues[5].toDouble(); val y = m.groupValues[6].toDouble() - EYE_Y; val z = m.groupValues[7].toDouble()
-            val d = sqrt(x * x + y * y + z * z)
-            if (d > RADIUS || y < -FLOOR_BELOW_EYE) continue
+            val x = m.groupValues[5].toDouble(); val y = m.groupValues[6].toDouble(); val z = m.groupValues[7].toDouble()
             val lx = m.groupValues[9].toDouble(); val ly = m.groupValues[10].toDouble(); val lz = m.groupValues[11].toDouble()
-            val ll = sqrt(lx * lx + ly * ly + lz * lz)
-            if (d > 1e-6 && ll > 1e-6 && (x * lx + y * ly + z * lz) / (d * ll) < COS_HALF) continue
             val id = m.groupValues[3]
             val def = defs[id]
             val vanilla = def?.vanilla ?: id
             val scale = m.groupValues[8].toDoubleOrNull() ?: def?.scale
             val life = meanLife(vanilla, scale)
             if (life < LINGER_TICKS) continue
+            fun inView(px: Double, py: Double, pz: Double): Boolean {
+                val ey = py - EYE_Y
+                val d = sqrt(px * px + ey * ey + pz * pz)
+                if (d > RADIUS || ey < -FLOOR_BELOW_EYE) return false
+                val ll = sqrt(lx * lx + ly * ly + lz * lz)
+                return !(d > 1e-6 && ll > 1e-6 && (px * lx + ey * ly + pz * lz) / (d * ll) < COS_HALF)
+            }
+            val n = Math.round(life).toInt()
+            // A directed row (`count=0`: the offset is the velocity direction, `speed` its length per tick) flies on: vanilla count 0 sets velocity = offset * speed.
+            // Friction is ignored (an upper bound on the path), so a ring spawned at the target that travels back at the caster is seen (glacier-spike impact ring).
+            val directed = m.groupValues[4] == "0"
+            val offM = Regex(" off=(\\S+),(\\S+),(\\S+)").find(l); val spM = Regex(" speed=(\\S+)").find(l)
+            val inside = ArrayList<Int>()
+            for (k in 0 until n) {
+                var px = x; var py = y; var pz = z
+                if (directed && offM != null && spM != null) {
+                    val sp = spM.groupValues[1].toDoubleOrNull() ?: 0.0
+                    px += offM.groupValues[1].toDouble() * sp * k; py += offM.groupValues[2].toDouble() * sp * k; pz += offM.groupValues[3].toDouble() * sp * k
+                }
+                if (inView(px, py, pz)) inside += tick + k
+            }
+            val spawnInside = inView(x, y, z)
+            if (inside.isEmpty() && !spawnInside) continue
             // A content-particle row carries no count: the def's own count is what spawns (a 5-flame burst used to be counted as 1).
             val count = maxOf(1, m.groupValues[4].toIntOrNull() ?: def?.count ?: 1)
-            spawns += Spawn(tick, count, Math.round(life).toInt(), "${m.groupValues[2].replace(Regex("\\[\\d+]"), "[]")}($vanilla)")
+            spawns += Spawn(tick, count, tick until tick + n, inside, spawnInside, "${m.groupValues[2].replace(Regex("\\[\\d+]"), "[]")}($vanilla)")
         }
         flush()
         return problems
