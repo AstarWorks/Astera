@@ -109,7 +109,7 @@ class SkillPatchReloadScenarioTest {
               enter:
                 - id: glow
                   op: particle
-                  particle: crit
+                  particle: dust
                   anchor: feet
                   color: "#ffffff"
                   size: 1.0
