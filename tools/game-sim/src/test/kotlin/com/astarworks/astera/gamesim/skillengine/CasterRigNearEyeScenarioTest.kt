@@ -7,12 +7,12 @@ import java.nio.file.Path
 import kotlin.math.sqrt
 
 /**
- * Caster-view rule for held rig meshes (se-near-eye-rig), the sibling of [CasterEyeClutter]. A `rig` op without `of:` draws the caster's weapon as an item
+ * Caster-view rule for held rig meshes (se-near-eye-rig), the sibling of load-time check 16 (caster-eye clutter). A `rig` op without `of:` draws the caster's weapon as an item
  * display on the caster's own arm, which is about a block from the caster's eye: shown to the caster it swings its head across the first-person screen
  * (club-slam / mace-smash covered a quarter of the frame). So at no tick of any recorded pose may such a mesh that is visible to the caster (no
  * `viewers=owner-hidden` on its spawn row, and no explicit `viewers: all` on a rig row of the skill yaml) stand within [NEAR_EYE_RADIUS] blocks of the eye. Read from the committed goldens (`skill-oracle/<skill>/skill.txt`), which
  * [ShippedV3ContentScenarioTest] keeps equal to the engine's output: `@t spawn #id op=<rig> kind=item item=main_hand ...` and `@t frame <rig> ... pos=x,y,z`
- * (feet at the origin, eye at y = [CasterEyeClutter.EYE_Y]).
+ * (feet at the origin, eye at y = 1.62 (`caster_eye.eye_height`)).
  */
 class CasterRigNearEyeScenarioTest : SkillEngineScenario() {
 
@@ -44,7 +44,7 @@ class CasterRigNearEyeScenarioTest : SkillEngineScenario() {
             val f = FRAME.find(l) ?: continue
             val op = f.groupValues[2]
             if (op !in visible) continue
-            val d = sqrt(sq(f.groupValues[3].toDouble()) + sq(f.groupValues[4].toDouble() - CasterEyeClutter.EYE_Y) + sq(f.groupValues[5].toDouble()))
+            val d = sqrt(sq(f.groupValues[3].toDouble()) + sq(f.groupValues[4].toDouble() - 1.62) + sq(f.groupValues[5].toDouble()))
             val cur = nearest[op]
             if (cur == null || d < cur.second) nearest[op] = f.groupValues[1].toInt() to d
         }

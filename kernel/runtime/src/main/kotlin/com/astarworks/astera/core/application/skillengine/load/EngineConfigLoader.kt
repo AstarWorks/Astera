@@ -1,6 +1,8 @@
 package com.astarworks.astera.core.application.skillengine.load
 
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.skillengine.model.CasterEyeCaps
+import com.astarworks.astera.core.domain.skillengine.model.CasterPose
 import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlMap
@@ -64,6 +66,10 @@ public class EngineConfigLoader {
         KEYS.firstOrNull { it !in values }?.let { return Result.Failure(EngineConfigError.Missing(origin, it)) }
 
         val d = EngineConfig()
+        val casterEye = when (val r = parseCasterEye(values.getValue("caster_eye"), origin)) {
+            is Result.Failure -> return r
+            is Result.Success -> r.value
+        }
         val reader = FieldReader(origin, values)
         val config = EngineConfig(
             maxLiveDisplays = reader.int("max_live_displays", d.maxLiveDisplays),
@@ -79,8 +85,45 @@ public class EngineConfigLoader {
             maxSameTickDepth = reader.int("max_same_tick_depth", d.maxSameTickDepth),
             maxSweepSteps = reader.int("max_sweep_steps", d.maxSweepSteps),
             expandDir = reader.string("expand_dir", d.expandDir),
+            casterEye = casterEye,
         )
         return reader.error?.let { Result.Failure(it) } ?: Result.Success(config)
+    }
+
+    private fun parseCasterEye(node: YamlNode, origin: String): Result<CasterEyeCaps, EngineConfigError> {
+        val map = node as? YamlMap ?: return Result.Failure(EngineConfigError.WrongType(origin, "caster_eye", "a mapping"))
+        val values: Map<String, YamlNode> = map.entries.mapKeys { it.key.content }
+        values.keys.firstOrNull { it !in CASTER_EYE_KEYS }?.let { return Result.Failure(EngineConfigError.UnknownKey(origin, "caster_eye.$it")) }
+        CASTER_EYE_KEYS.firstOrNull { it !in values }?.let { return Result.Failure(EngineConfigError.Missing(origin, "caster_eye.$it")) }
+        val d = CasterEyeCaps()
+        val reader = FieldReader(origin, values, "caster_eye.")
+        val poses = parsePoses(values.getValue("poses"), origin) ?: return Result.Failure(EngineConfigError.WrongType(origin, "caster_eye.poses", "a non-empty list of {yaw, pitch}"))
+        val caps = CasterEyeCaps(
+            radius = reader.double("radius", d.radius, "> 0") { it > 0.0 },
+            halfAngleDeg = reader.double("half_angle_deg", d.halfAngleDeg, "0 < x <= 180") { it > 0.0 && it <= 180.0 },
+            floorBelowEye = reader.double("floor_below_eye", d.floorBelowEye, ">= 0") { it >= 0.0 },
+            eyeHeight = reader.double("eye_height", d.eyeHeight, "> 0") { it > 0.0 },
+            limit = reader.int("limit", d.limit),
+            lingerTicks = reader.double("linger_ticks", d.lingerTicks, "> 0") { it > 0.0 },
+            displayRange = reader.double("display_range", d.displayRange, "> 0") { it > 0.0 },
+            displayCoverageLimit = reader.double("display_coverage_limit", d.displayCoverageLimit, "> 0") { it > 0.0 },
+            displaySustainTicks = reader.int("display_sustain_ticks", d.displaySustainTicks),
+            poses = poses,
+        )
+        return reader.error?.let { Result.Failure(it) } ?: Result.Success(caps)
+    }
+
+    private fun parsePoses(node: YamlNode, origin: String): List<CasterPose>? {
+        val list = node as? com.charleskorn.kaml.YamlList ?: return null
+        if (list.items.isEmpty()) return null
+        return list.items.map { item ->
+            val m = item as? YamlMap ?: return null
+            val keys = m.entries.mapKeys { it.key.content }
+            if (keys.keys != setOf("yaw", "pitch")) return null
+            val yaw = (keys.getValue("yaw") as? YamlScalar)?.content?.toDoubleOrNull() ?: return null
+            val pitch = (keys.getValue("pitch") as? YamlScalar)?.content?.toDoubleOrNull() ?: return null
+            CasterPose(yaw, pitch)
+        }
     }
 
     public companion object {
@@ -88,7 +131,13 @@ public class EngineConfigLoader {
         public val KEYS: List<String> = listOf(
             "max_live_displays", "max_instances_per_op", "max_group_depth", "max_part_depth", "max_life_ticks",
             "max_cast_ticks", "segment_error_blocks", "segment_error_deg", "max_segment_ticks", "split_turn_deg",
-            "max_same_tick_depth", "max_sweep_steps", "expand_dir",
+            "max_same_tick_depth", "max_sweep_steps", "expand_dir", "caster_eye",
+        )
+
+        /** Keys of the nested `caster_eye:` block (all required). */
+        public val CASTER_EYE_KEYS: List<String> = listOf(
+            "radius", "half_angle_deg", "floor_below_eye", "eye_height", "limit", "linger_ticks",
+            "display_range", "display_coverage_limit", "display_sustain_ticks", "poses",
         )
 
         private val YAML: Yaml = Yaml.default
@@ -96,30 +145,30 @@ public class EngineConfigLoader {
 }
 
 /** Reads typed scalars; records the first error and returns the default so the caller can finish assembling. */
-private class FieldReader(private val origin: String, private val values: Map<String, YamlNode>) {
+private class FieldReader(private val origin: String, private val values: Map<String, YamlNode>, private val prefix: String = "") {
     var error: EngineConfigError? = null
         private set
 
     fun int(key: String, default: Int): Int {
         val node = values[key] ?: return default
         val raw = (node as? YamlScalar)?.content.orEmpty()
-        val parsed = raw.toIntOrNull() ?: return fail(EngineConfigError.WrongType(origin, key, "an integer"), default)
-        if (parsed < 1) return fail(EngineConfigError.OutOfRange(origin, key, raw, "> 0"), default)
+        val parsed = raw.toIntOrNull() ?: return fail(EngineConfigError.WrongType(origin, prefix + key, "an integer"), default)
+        if (parsed < 1) return fail(EngineConfigError.OutOfRange(origin, prefix + key, raw, "> 0"), default)
         return parsed
     }
 
     fun string(key: String, default: String): String {
         val node = values[key] ?: return default
         val raw = (node as? YamlScalar)?.content.orEmpty()
-        if (raw.isBlank()) return fail(EngineConfigError.WrongType(origin, key, "a non-empty string"), default)
+        if (raw.isBlank()) return fail(EngineConfigError.WrongType(origin, prefix + key, "a non-empty string"), default)
         return raw
     }
 
     fun double(key: String, default: Double, constraint: String, ok: (Double) -> Boolean): Double {
         val node = values[key] ?: return default
         val raw = (node as? YamlScalar)?.content.orEmpty()
-        val parsed = raw.toDoubleOrNull() ?: return fail(EngineConfigError.WrongType(origin, key, "a number"), default)
-        if (!ok(parsed)) return fail(EngineConfigError.OutOfRange(origin, key, raw, constraint), default)
+        val parsed = raw.toDoubleOrNull() ?: return fail(EngineConfigError.WrongType(origin, prefix + key, "a number"), default)
+        if (!ok(parsed)) return fail(EngineConfigError.OutOfRange(origin, prefix + key, raw, constraint), default)
         return parsed
     }
 

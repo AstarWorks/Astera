@@ -11,7 +11,7 @@ import java.util.UUID
 /**
  * The per-row `viewers: all | owner-hidden` filter of display rows: the caster is not shown an owner-hidden row but another
  * player is, a frame's filter is inherited by the displays riding it, an unknown value is a strict decode error,
- * and the rows hidden from the caster are skipped by [CasterEyeClutter].
+ * (check 16 reads every row as visible to the caster).
  */
 class DisplayViewersScenarioTest : SkillEngineScenario() {
 
@@ -70,17 +70,5 @@ class DisplayViewersScenarioTest : SkillEngineScenario() {
         assertThat(retired).isInstanceOf(Result.Failure::class.java)
         val badFrame = loadInline(yaml("{id: x, op: frame, anchor: caster, viewers: Owner-Hidden, at: 0, for: 5}"))
         assertThat(badFrame).isInstanceOf(Result.Failure::class.java)
-    }
-
-    @Test
-    fun casterEyeClutterSkipsRowsTheCasterCannotSee() {
-        fun lines(viewers: String) = listOf("## yaw=0 pitch=0") + (0..6).flatMap { t ->
-            listOfNotNull(
-                if (t == 0) "@0 spawn #0 op=x kind=block pos=0.0,1.62,1.0 scale=1.5,1.5,0.1$viewers" else null,
-                "@$t write #0 pos=0.0,1.62,1.0 scale=1.5,1.5,0.1",
-            )
-        }
-        assertThat(CasterEyeClutter.checkDisplays("k", lines(""))).isNotEmpty()
-        assertThat(CasterEyeClutter.checkDisplays("k", lines(" viewers=owner-hidden"))).isEmpty()
     }
 }

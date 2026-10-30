@@ -26,6 +26,9 @@ class ShippedShaderEffectsPackTest {
             tables,
             (PartParser.loadDirectory(content.resolve("skill-parts")) as Result.Success).value,
             ContentSpriteCatalog.load(content.resolve("sprites")),
+            (com.astarworks.astera.core.application.skillengine.compose.drycast.ClutterContext.load(
+                content, (SkillEngineRegistries.bodySkeleton(content.resolve("frames")) as Result.Success).value,
+            ) { null } as Result.Success).value,
         )
 
     @TempDir

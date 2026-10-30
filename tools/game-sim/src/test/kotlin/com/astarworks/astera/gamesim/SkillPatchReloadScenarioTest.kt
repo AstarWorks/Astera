@@ -390,7 +390,7 @@ class SkillPatchReloadScenarioTest {
         write(tmp, "caller.yaml", caller)
         val c = SkillComposer(tmp)
         assertThat(c.composeAll()).isInstanceOf(Result.Success::class.java)
-        val catalog = SkillEngineRegistries.catalog(emptyMap(), emptyMap(), com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(tmp.resolve("sprites")))
+        val catalog = SkillEngineRegistries.catalog(emptyMap(), emptyMap(), com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(tmp.resolve("sprites")), com.astarworks.astera.gamesim.SimClutter.context())
         fun load(keys: Collection<String>): SkillLoadReport {
             val composed = c.composed()
             val parts = c.composedParts()
