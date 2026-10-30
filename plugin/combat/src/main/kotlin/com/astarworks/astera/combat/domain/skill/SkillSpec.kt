@@ -18,6 +18,8 @@ import com.astarworks.astera.core.domain.skill.SkillId
  *    holds less. `null` / `0` = free.
  *  - [reloadTicks] - non-null marks a reload skill: [reloadTicks] after the cast the source item's ammo is
  *    refilled, and ammo casts are rejected meanwhile.
+ *  - [calleeOnlyCallers] - marked at load: non-null means the skill is callee-only (`frames_in` / unvalued `required` params), so no cast gate
+ *    may start it on its own; the list names the skills whose `use: skill:` call it. `null` = castable.
  *  - [readyCue] - play the "ready again" cue when the cooldown ends (ADR-0197); `null` = automatic (cooldowns of
  *    3 s or more).
  */
@@ -32,6 +34,7 @@ public data class SkillSpec(
     val reloadTicks: Int? = null,
     val readyCue: Boolean? = null,
     val egoCost: Int? = null,
+    val calleeOnlyCallers: List<String>? = null,
 ) {
     init {
         require(cooldownTicks >= 0) { "cooldownTicks must be >= 0: $cooldownTicks" }

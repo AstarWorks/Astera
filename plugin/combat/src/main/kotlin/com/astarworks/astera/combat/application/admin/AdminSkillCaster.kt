@@ -20,14 +20,11 @@ public class AdminSkillCaster(
     private val skills: ISkillRegistry,
     private val castSkill: CastSkillUseCase?,
     private val cooldowns: ICooldownTracker?,
-    /** The callers of [SkillId] when it is callee-only (cannot be cast on its own), null when it is castable. */
-    private val calleeOnlyCallers: (SkillId) -> List<String>? = { null },
 ) {
 
     public fun cast(caster: PlayerId, skillId: SkillId, force: Boolean = false): Result<SkillSpec, CastSkillError> {
         val cast = castSkill ?: return Result.failure(CastSkillError.SkillNotFound(skillId))
         if (skills.find(skillId) == null) return Result.failure(CastSkillError.SkillNotFound(skillId))
-        calleeOnlyCallers(skillId)?.let { return Result.failure(CastSkillError.CalleeOnly(skillId, it)) }
         if (force) cooldowns?.reset(caster, CooldownKey.Skill(skillId.value))
         return cast.execute(casterId = caster, skillId = skillId, ignoreResource = true)
     }

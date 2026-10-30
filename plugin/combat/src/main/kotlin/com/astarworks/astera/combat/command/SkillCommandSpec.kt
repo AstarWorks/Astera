@@ -15,6 +15,7 @@ import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents
+import com.astarworks.astera.core.application.skillengine.runtime.player.SkillFaultLedger
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.permission.Permission
@@ -39,6 +40,7 @@ internal fun skillCommandSpec(
     reload: ((String) -> Result<SkillEngineContents.SkillReload, SkillEngineContents.SkillReloadError>)? = null,
     knownSkillIds: () -> Collection<String> = { emptyList() },
     expand: CommandSpec.Literal? = null,
+    faults: SkillFaultLedger? = null,
 ): CommandSpec.Literal =
     CommandSpec.Literal(
         name = "skill",
@@ -49,8 +51,28 @@ internal fun skillCommandSpec(
             reload?.let { reloadSubcommand(it, knownSkillIds) },
             preview?.let { previewSubcommand(caster, it) },
             expand,
+            faults?.let { faultsSubcommand(it) },
         ),
     )
+
+private val K_FAULT_LINE = MessageKey("astera.skill.expand.line")
+
+/**
+ * `/astera skill faults [reset]`: the runtime faults counted per skill id and kind since boot (`faults total=N`, then one
+ * `skill=<id> kind=<KIND> count=N` line each). e2e reads it to assert "0 faults after the run"; `reset` zeroes the counters.
+ */
+private fun faultsSubcommand(ledger: SkillFaultLedger): CommandSpec.Literal = CommandSpec.Literal(
+    name = "faults",
+    subcommands = listOf(CommandSpec.Argument(name = "mode", type = ArgumentType.Choice(listOf("reset")), optional = true)),
+    executor = { ctx ->
+        ctx.reply(K_FAULT_LINE, mapOf("line" to "faults total=${ledger.total()}"))
+        ledger.counts().entries.sortedBy { it.key.skill + it.key.kind.name }.forEach { (k, n) ->
+            ctx.reply(K_FAULT_LINE, mapOf("line" to "skill=${k.skill} kind=${k.kind} count=$n"))
+        }
+        if (ctx.optional<String>("mode") == "reset") ledger.reset()
+        CommandResult.Success
+    },
+).requirePermission(Permission("astera.skill.list"))
 
 private val K_PV_STARTED = MessageKey("astera.skill.preview.started")
 private val K_PV_SLOW = MessageKey("astera.skill.preview.slow-warning")
