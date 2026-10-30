@@ -233,7 +233,7 @@ class GrammarFieldsScenarioTest {
         assertThat(schema["required"]).isEqualTo(listOf("id"))
         @Suppress("UNCHECKED_CAST")
         val props = schema["properties"] as Map<String, Map<String, Any?>>
-        assertThat(props.keys).containsExactly("id", "volume", "at", "for", "every", "times", "until", "lasts")
+        assertThat(props.keys).containsExactly("id", "volume", "at", "for", "every", "times", "until", "lasts", "detach")
         assertThat(props["volume"]!!["default"]).isEqualTo(1.0)
         assertThat(props["until"]!!["default"]).isNull()
         assertThat(props["until"]!!.containsKey("default")).isTrue()

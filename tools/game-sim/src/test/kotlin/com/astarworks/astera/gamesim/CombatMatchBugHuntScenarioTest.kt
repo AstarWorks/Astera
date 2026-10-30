@@ -71,6 +71,7 @@ class CombatMatchBugHuntScenarioTest {
             val local = mob("local", caster.position)
             val remote = mob("remote", caster.position)
             remote.world = WorldId("other-world")
+            caster.holds("frost-staff")
             caster.cast("frost-nova")
             advance(1)
             assertThat(eventsOf<DamageDealt>().map { it.target })
