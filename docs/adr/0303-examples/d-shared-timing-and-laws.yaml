@@ -34,7 +34,9 @@ machine:
             # so what the ADR 3.4 `prop` laws said is written as spawn-time CEL on the repeat index i (class S), tau = 2 * i ticks since the group start.
             - id: sparks
               op: particle
-              particle: end_rod
+              particle: dust
+              color: "#ffffff"
+              size: 0.3                                              # short-life dust: check 16 (caster-eye clutter) counts only particles that live 6+ ticks
               anchor: palm
               every: 2                                               # occurrences at 4, 6, 8, ... (exact multiples of 2)
               for: 30

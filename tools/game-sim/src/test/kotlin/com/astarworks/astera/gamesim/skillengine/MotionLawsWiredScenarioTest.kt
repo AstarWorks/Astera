@@ -222,7 +222,7 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
                 s:
                   for: 8
                   enter:
-                    - {id: d, op: display, kind: block, block: stone, anchor: caster, for: 8, motion: [$motion]}
+                    - {id: d, op: display, kind: block, block: stone, anchor: caster, scale: [0.3, 0.3, 0.3], for: 8, motion: [$motion]}
             """.trimIndent(),
         )
     ) {

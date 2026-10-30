@@ -77,8 +77,8 @@ class ParamFoldScenarioTest : SkillEngineScenario() {
         assertThat(table(skill("snd: {type: string, default: block.note_block.hat}", "6", sound("\"\${snd}\""))))
             .isEqualTo(table(skill("other: {type: number, default: 1}", "6", sound("block.note_block.hat"))))
         fun def(id: String) = "{id: p, op: particle_def, def: $id, anchor: caster, at: 0}"
-        assertThat(table(skill("fx: {type: string, default: spark}", "6", def("\"\${fx}\""))))
-            .isEqualTo(table(skill("other: {type: number, default: 1}", "6", def("spark"))))
+        assertThat(table(skill("fx: {type: string, default: hit-spark}", "6", def("\"\${fx}\""))))
+            .isEqualTo(table(skill("other: {type: number, default: 1}", "6", def("hit-spark"))))
         // a numeric param where an id is expected, and an undeclared one, are load errors naming the field
         assertThat(failure(skill("fx: {type: number, default: 3}", "6", def("\"\${fx}\"")))).contains("def")
         assertThat(failure(skill("other: {type: number, default: 1}", "6", def("\"\${nope}\"")))).contains("nope")

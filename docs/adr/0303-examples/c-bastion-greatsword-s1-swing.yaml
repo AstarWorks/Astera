@@ -38,7 +38,7 @@ machine:
                     - {t: 27, pose: [{axis: left, deg: 300}, {axis: up, deg: 95}], ease: out_cubic}    # recover into the cross-cut
                     - {t: 36, pose: [{axis: left, deg: 240}, {axis: up, deg: 25}]}
                     - {t: 47, pose: []}                                                           # back to rest
-            - {id: blade, op: display, kind: item, item: bastion-greatsword, context: fixed, anchor: sword, for: 47}   # the item's own model rides the frame
+            - {id: blade, op: display, kind: item, item: bastion-greatsword, context: fixed, anchor: sword, scale: [0.5, 0.5, 0.5], for: 47}   # the item's own model rides the frame
             - {id: snd, op: sound, sound: block.gravel.step, anchor: caster, volume: 1.0, pitch: 0.6}
             - id: edge_trail
               op: ribbon

@@ -90,10 +90,10 @@ class SegmentGrowIndexedScenarioTest : SkillEngineScenario() {
 
     @Test
     fun particleDefSegmentLowersAndKeepsSweepRefused() {
-        val s = compiled("{id: line, op: particle_def, def: spark, anchor: {of: body, to: tip, samples: 3}}")
+        val s = compiled("{id: line, op: particle_def, def: hit-spark, anchor: {of: body, to: tip, samples: 3}}")
         val rs = rows(s).filter { it.action is Action.ParticleDef }
         assertThat(rs.map { it.sample }).containsExactly(SegmentSample(0, 3), SegmentSample(1, 3), SegmentSample(2, 3))
-        failure("{id: line, op: particle_def, def: spark, anchor: {of: body, sweep: true}}")
+        failure("{id: line, op: particle_def, def: hit-spark, anchor: {of: body, sweep: true}}")
     }
 
     @Test
