@@ -354,13 +354,16 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         }
     }
 
+    /** Victims whose death the next [ISkillGameplayGateway.damage] reports (it returns true for them): the sim stand-in for a hit that kills. */
+    val killOnDamage: MutableSet<UUID> = HashSet()
+
     val gameplay: ISkillGameplayGateway = object : ISkillGameplayGateway {
         override fun damage(skillId: String, caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean, ignoreArmor: Boolean): Boolean {
             add(
                 "damage", victim.toString(), components.joinToString(" ") { "${it.kind}=${RecordedCall.num(it.amount)}" },
                 "skill=${OracleFmt.s(skillId)} at=${OracleFmt.v(hitPoint)} ignoreinv=$ignoreInvulnerability ignorearmor=$ignoreArmor",
             )
-            return false
+            return victim in killOnDamage
         }
 
         override fun cancelIncomingHit(cast: CastRef, attacker: UUID?) = add("cancelIncomingHit", "-", "attacker=${attacker ?: "-"}")
