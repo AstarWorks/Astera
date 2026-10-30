@@ -77,6 +77,7 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
         problems += lateRows(oracle)
         problems += oracle.keys.flatMap { k -> recordings[k]?.let { CasterEyeClutter.check(k, it, contentDir.resolve("particles")) } ?: emptyList() }
         problems += oracle.keys.flatMap { k -> recordings[k]?.let { CasterEyeClutter.checkDisplays(k, it) } ?: emptyList() }
+        problems += oracle.entries.flatMap { (k, sk) -> recordings[k]?.let { RiderFollow.check(k, sk, it) } ?: emptyList() }
         // every status id a shipped row names must be a content/status file or a mechanic builtin (the server refuses to enable the engine otherwise)
         val statusFiles = Files.list(contentDir.resolve("status")).use { st -> st.map { it.fileName.toString().substringBeforeLast('.') }.toList().toSet() }
         val builtin = setOf("freeze", "silence", "immunity")

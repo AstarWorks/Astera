@@ -5,6 +5,7 @@
 @0 particle - op=fly/trail[0]/wake type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5142766221226338270
 @0 particle - op=fly/trail[0]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1398592531130586912
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=crossbow-aim speed=1
+@0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=fly/trail[1]/wake type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-646795127645399157
 @1 particle - op=fly/trail[1]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6084686044549529716
 @1 hit - op=fly/bolt at=0.000000,1.620000,1.900000 r=1.900000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.300000 rad=0.500000
@@ -23,6 +24,7 @@ r @15 run-end tail=14 | pose
 @0 particle - op=fly/trail[0]/wake type=happy_villager count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5142766221226338270
 @0 particle - op=fly/trail[0]/dust type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1398592531130586912
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=crossbow-aim speed=1
+@0 frame fly/bolt op=fly/bolt pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916
 @1 particle - op=fly/trail[1]/wake type=happy_villager count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-646795127645399157
 @1 particle - op=fly/trail[1]/dust type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6084686044549529716
 @1 hit - op=fly/bolt at=-1.074490,2.269838,1.425897 r=1.900000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.866220,2.748666,2.476557 rad=0.500000
@@ -39,6 +41,7 @@ r @15 run-end tail=14 | pose
 @0 particle - op=fly/trail[0]/wake type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5142766221226338270
 @0 particle - op=fly/trail[0]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1398592531130586912
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=crossbow-aim speed=1
+@0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=fly/trail[1]/wake type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-646795127645399157
 @1 particle - op=fly/trail[1]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6084686044549529716
 @1 hit - op=fly/bolt at=0.000000,1.620000,1.900000 r=1.900000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.300000 rad=0.500000
@@ -60,6 +63,7 @@ r @15 run-end tail=14 | pose
 @0 particle - op=fly/trail[0]/wake type=happy_villager count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5142766221226338270
 @0 particle - op=fly/trail[0]/dust type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1398592531130586912
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=crossbow-aim speed=1
+@0 frame fly/bolt op=fly/bolt pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324
 @1 particle - op=fly/trail[1]/wake type=happy_villager count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-646795127645399157
 @1 particle - op=fly/trail[1]/dust type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#46aa3c size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6084686044549529716
 @1 hit - op=fly/bolt at=-1.143449,1.620000,1.517407 r=1.900000 shape=capsule a=-0.300908,1.620000,0.399318 b=-1.985990,1.620000,2.635497 rad=0.500000

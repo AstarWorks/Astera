@@ -11,6 +11,7 @@
 @0 particle - op=cast/tr0[0] type=snowflake count=2 at=0.000000,1.620000,1.600000 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8416728629957998549
 @0 particle - op=cast/tr1[0] type=dust count=2 at=0.000000,1.620000,1.600000 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7264714530565300802
 @0 particle - op=cast/tr2[0] type=end_rod count=1 at=0.000000,1.620000,1.600000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8339028862856723795
+@0 frame cast/ball op=cast/ball pos=0.000000,1.620000,1.600000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=cast/tr0[1] type=snowflake count=2 at=0.000000,1.620000,1.600000 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7241553289022869480
 @1 particle - op=cast/tr1[1] type=dust count=2 at=0.000000,1.620000,1.600000 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5352901070593633540
 @1 particle - op=cast/tr2[1] type=end_rod count=1 at=0.000000,1.620000,1.600000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6205581245844235060
@@ -36,6 +37,7 @@ r @3 run-end tail=2 | pose
 @0 particle - op=cast/tr0[0] type=snowflake count=2 at=-0.904834,2.167232,1.200755 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8416728629957998549
 @0 particle - op=cast/tr1[0] type=dust count=2 at=-0.904834,2.167232,1.200755 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7264714530565300802
 @0 particle - op=cast/tr2[0] type=end_rod count=1 at=-0.904834,2.167232,1.200755 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8339028862856723795
+@0 frame cast/ball op=cast/ball pos=-0.904834,2.167232,1.200755 rot=-0.164675,-0.312484,-0.055099,0.933916
 @1 particle - op=cast/tr0[1] type=snowflake count=2 at=-0.904834,2.167232,1.200755 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7241553289022869480
 @1 particle - op=cast/tr1[1] type=dust count=2 at=-0.904834,2.167232,1.200755 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5352901070593633540
 @1 particle - op=cast/tr2[1] type=end_rod count=1 at=-0.904834,2.167232,1.200755 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6205581245844235060
@@ -59,6 +61,7 @@ r @3 run-end tail=2 | pose
 @0 particle - op=cast/tr0[0] type=snowflake count=2 at=0.000000,1.620000,1.600000 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8416728629957998549
 @0 particle - op=cast/tr1[0] type=dust count=2 at=0.000000,1.620000,1.600000 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7264714530565300802
 @0 particle - op=cast/tr2[0] type=end_rod count=1 at=0.000000,1.620000,1.600000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8339028862856723795
+@0 frame cast/ball op=cast/ball pos=0.000000,1.620000,1.600000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=cast/tr0[1] type=snowflake count=2 at=0.000000,1.620000,1.600000 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7241553289022869480
 @1 particle - op=cast/tr1[1] type=dust count=2 at=0.000000,1.620000,1.600000 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5352901070593633540
 @1 particle - op=cast/tr2[1] type=end_rod count=1 at=0.000000,1.620000,1.600000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6205581245844235060
@@ -93,6 +96,7 @@ r @4 run-end tail=2 | pose
 @0 particle - op=cast/tr0[0] type=snowflake count=2 at=-0.962904,1.620000,1.277817 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8416728629957998549
 @0 particle - op=cast/tr1[0] type=dust count=2 at=-0.962904,1.620000,1.277817 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7264714530565300802
 @0 particle - op=cast/tr2[0] type=end_rod count=1 at=-0.962904,1.620000,1.277817 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8339028862856723795
+@0 frame cast/ball op=cast/ball pos=-0.962904,1.620000,1.277817 rot=0.000000,-0.317305,0.000000,0.948324
 @1 particle - op=cast/tr0[1] type=snowflake count=2 at=-0.962904,1.620000,1.277817 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7241553289022869480
 @1 particle - op=cast/tr1[1] type=dust count=2 at=-0.962904,1.620000,1.277817 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5352901070593633540
 @1 particle - op=cast/tr2[1] type=end_rod count=1 at=-0.962904,1.620000,1.277817 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6205581245844235060
