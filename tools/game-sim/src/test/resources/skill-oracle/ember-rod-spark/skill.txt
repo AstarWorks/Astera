@@ -5,6 +5,7 @@
 @0 particle - op=cast/fx1 type=fire-cast at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6523341786660275367
 @0 particle - op=cast/trail[0]/t1 type=flame count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4337410884802707335
 @0 particle - op=cast/trail[0]/t2 type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5257178822861720458
+@0 frame cast/bolt op=cast/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=cast/trail[1]/t1 type=flame count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7113630354027015377
 @1 particle - op=cast/trail[1]/t2 type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-180357378418760300
 @1 hit - op=cast/bolt at=0.000000,1.620000,1.600000 r=1.600000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,2.700000 rad=0.500000
@@ -22,6 +23,7 @@ r @3 run-end tail=2 | pose
 @0 particle - op=cast/fx1 type=fire-cast at=-0.560427,1.692895,0.743712 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6523341786660275367
 @0 particle - op=cast/trail[0]/t1 type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4337410884802707335
 @0 particle - op=cast/trail[0]/t2 type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5257178822861720458
+@0 frame cast/bolt op=cast/bolt pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916
 @1 particle - op=cast/trail[1]/t1 type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7113630354027015377
 @1 particle - op=cast/trail[1]/t2 type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-180357378418760300
 @1 hit - op=cast/bolt at=-0.904834,2.167232,1.200755 r=1.600000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.526907,2.543454,2.026274 rad=0.500000
@@ -37,6 +39,7 @@ r @3 run-end tail=2 | pose
 @0 particle - op=cast/fx1 type=fire-cast at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6523341786660275367
 @0 particle - op=cast/trail[0]/t1 type=flame count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4337410884802707335
 @0 particle - op=cast/trail[0]/t2 type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5257178822861720458
+@0 frame cast/bolt op=cast/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=cast/trail[1]/t1 type=flame count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7113630354027015377
 @1 particle - op=cast/trail[1]/t2 type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-180357378418760300
 @1 hit - op=cast/bolt at=0.000000,1.620000,1.600000 r=1.600000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,2.700000 rad=0.500000
@@ -80,6 +83,7 @@ r @3 run-end tail=2 | pose
 @0 particle - op=cast/fx1 type=fire-cast at=-0.541634,1.370000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6523341786660275367
 @0 particle - op=cast/trail[0]/t1 type=flame count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4337410884802707335
 @0 particle - op=cast/trail[0]/t2 type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5257178822861720458
+@0 frame cast/bolt op=cast/bolt pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324
 @1 particle - op=cast/trail[1]/t1 type=flame count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7113630354027015377
 @1 particle - op=cast/trail[1]/t2 type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-180357378418760300
 @1 hit - op=cast/bolt at=-0.962904,1.620000,1.277817 r=1.600000 shape=capsule a=-0.300908,1.620000,0.399318 b=-1.624901,1.620000,2.156316 rad=0.500000

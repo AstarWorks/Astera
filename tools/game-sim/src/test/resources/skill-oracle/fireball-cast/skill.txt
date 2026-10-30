@@ -5,6 +5,7 @@
 @0 particle - op=fly/fx type=fire-cast at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8767413676625110256
 @0 particle - op=fly/trail[0]/flame type=flame count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1969173257528137369
 @0 particle - op=fly/trail[0]/smoke type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2828688969168149660
+@0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=fly/trail[1]/flame type=flame count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2718674414731052622
 @1 particle - op=fly/trail[1]/smoke type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6069210810847179412
 @1 hit - op=fly/bolt at=0.000000,1.620000,1.250000 r=1.250000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,2.000000 rad=0.500000
@@ -22,6 +23,7 @@ r @3 run-end tail=2 | pose
 @0 particle - op=fly/fx type=fire-cast at=-0.560427,1.692895,0.743712 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8767413676625110256
 @0 particle - op=fly/trail[0]/flame type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1969173257528137369
 @0 particle - op=fly/trail[0]/smoke type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2828688969168149660
+@0 frame fly/bolt op=fly/bolt pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916
 @1 particle - op=fly/trail[1]/flame type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2718674414731052622
 @1 particle - op=fly/trail[1]/smoke type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6069210810847179412
 @1 hit - op=fly/bolt at=-0.706901,2.047525,0.938090 r=1.250000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.131042,2.304040,1.500944 rad=0.500000
@@ -37,6 +39,7 @@ r @3 run-end tail=2 | pose
 @0 particle - op=fly/fx type=fire-cast at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8767413676625110256
 @0 particle - op=fly/trail[0]/flame type=flame count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1969173257528137369
 @0 particle - op=fly/trail[0]/smoke type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2828688969168149660
+@0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=fly/trail[1]/flame type=flame count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2718674414731052622
 @1 particle - op=fly/trail[1]/smoke type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6069210810847179412
 @1 hit - op=fly/bolt at=0.000000,1.620000,1.250000 r=1.250000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,2.000000 rad=0.500000
@@ -85,6 +88,7 @@ r @3 run-end tail=2 | pose
 @0 particle - op=fly/fx type=fire-cast at=-0.541634,1.370000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8767413676625110256
 @0 particle - op=fly/trail[0]/flame type=flame count=1 at=-0.300908,1.620000,0.399318 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1969173257528137369
 @0 particle - op=fly/trail[0]/smoke type=smoke count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2828688969168149660
+@0 frame fly/bolt op=fly/bolt pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324
 @1 particle - op=fly/trail[1]/flame type=flame count=1 at=-0.300908,1.620000,0.399318 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2718674414731052622
 @1 particle - op=fly/trail[1]/smoke type=smoke count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6069210810847179412
 @1 hit - op=fly/bolt at=-0.752269,1.620000,0.998294 r=1.250000 shape=capsule a=-0.300908,1.620000,0.399318 b=-1.203630,1.620000,1.597271 rad=0.500000

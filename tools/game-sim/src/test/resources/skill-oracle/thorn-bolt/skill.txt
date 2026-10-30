@@ -6,6 +6,7 @@
 @0 particle - op=fly/trail[0]/spore type=composter count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=442651047875469504
 @0 particle - op=fly/trail[0]/green type=dust count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-388119542998669301
 @0 particle - op=fly/trail[0]/dark type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6453114070104586013
+@0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=fly/trail[1]/leaf type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3919914899905982749
 @1 particle - op=fly/trail[1]/spore type=composter count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8311772919423436946
 @1 particle - op=fly/trail[1]/green type=dust count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2050136544335172419
@@ -25,6 +26,7 @@ g @1 cast-end | pose
 @0 particle - op=fly/trail[0]/spore type=composter count=2 at=-0.282761,1.791010,0.375236 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=442651047875469504
 @0 particle - op=fly/trail[0]/green type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-388119542998669301
 @0 particle - op=fly/trail[0]/dark type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6453114070104586013
+@0 frame fly/bolt op=fly/bolt pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916
 @1 particle - op=fly/trail[1]/leaf type=happy_villager count=1 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3919914899905982749
 @1 particle - op=fly/trail[1]/spore type=composter count=2 at=-0.282761,1.791010,0.375236 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8311772919423436946
 @1 particle - op=fly/trail[1]/green type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2050136544335172419
@@ -42,6 +44,7 @@ g @1 cast-end | pose
 @0 particle - op=fly/trail[0]/spore type=composter count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=442651047875469504
 @0 particle - op=fly/trail[0]/green type=dust count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-388119542998669301
 @0 particle - op=fly/trail[0]/dark type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6453114070104586013
+@0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=fly/trail[1]/leaf type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3919914899905982749
 @1 particle - op=fly/trail[1]/spore type=composter count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8311772919423436946
 @1 particle - op=fly/trail[1]/green type=dust count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2050136544335172419
@@ -65,6 +68,7 @@ g @1 cast-end | pose
 @0 particle - op=fly/trail[0]/spore type=composter count=2 at=-0.300908,1.620000,0.399318 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=442651047875469504
 @0 particle - op=fly/trail[0]/green type=dust count=2 at=-0.300908,1.620000,0.399318 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-388119542998669301
 @0 particle - op=fly/trail[0]/dark type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#287828 size=0.900000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6453114070104586013
+@0 frame fly/bolt op=fly/bolt pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324
 @1 particle - op=fly/trail[1]/leaf type=happy_villager count=1 at=-0.300908,1.620000,0.399318 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3919914899905982749
 @1 particle - op=fly/trail[1]/spore type=composter count=2 at=-0.300908,1.620000,0.399318 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8311772919423436946
 @1 particle - op=fly/trail[1]/green type=dust count=2 at=-0.300908,1.620000,0.399318 off=0.080000,0.080000,0.080000 speed=0.000000 color=#46aa3c size=1.200000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2050136544335172419

@@ -1,5 +1,5 @@
-# Frag grenade: a lobbed body that bounces and rolls off blocks and enemies and bursts at a fixed fuse tick after the throw
-# (fuse_ticks = the projectile `for`, fixed at load). One skill-local fragment is the blast, called on the body end with the
+# Frag grenade: a lobbed body (thrown up and forward, so it flies a parabola) that bounces off the floor and walls, passes enemies
+# without touching them, and bursts at a fixed fuse tick after the throw (fuse_ticks = the projectile `for`, fixed at load). One skill-local fragment is the blast, called on the body end with the
 # burst centre bound as `spot`. Schedule: the cast ends at the fuse tick.
 apiVersion: astera/v3
 kind: Skill
@@ -12,16 +12,15 @@ meta:
   resource_cost: 0
   tags: [ranged, explosive, physical]
 params:
-  launch_speed: {type: number, default: 1.4}
-  fuse_ticks:   {type: ticks, default: 60}
+  launch_speed: {type: number, default: 0.75}
+  lift:         {type: number, default: 0.3}
+  fuse_ticks:   {type: ticks, default: 36}
   blast_radius: {type: blocks, default: 3.5}
   blast_damage: {type: number, default: 35.0}
   bleed_ticks:  {type: ticks, default: 20}
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
-  - {id: foe,     anchor: victim.root, mode: follow}
-  - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
 fragments:
   blast:
     params:
@@ -48,15 +47,13 @@ machine:
         - id: bolt
           op: projectile
           origin: muzzle
-          velocity: "= look(caster) * ${launch_speed}"
+          velocity: "= look(caster) * ${launch_speed} + vec(0, ${lift}, 0)"
           for: "${fuse_ticks}"
           gravity: 0.04
           radius: 0.5
-          hit: {targets: enemies, once: true, attach: false, reflect: true}
+          hit: {targets: blocks_only, once: true, attach: false}
           block: {mode: bounce, restitution: 0.45, friction: 0.15, times: 3}
           on:
-            hit:
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
             bounce:
               - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point, detach: true}
             end:

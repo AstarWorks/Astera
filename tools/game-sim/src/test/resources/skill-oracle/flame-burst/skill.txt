@@ -6,6 +6,7 @@
 @0 particle - op=fly/trail_dust[0] type=dust count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ff7814 size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8638849936105321641
 @0 particle - op=fly/trail_lava[0] type=lava count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1708441551056336371
 @0 particle - op=fly/trail_smoke[0] type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.050000,0.050000,0.050000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3801036474299960301
+@0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=fly/trail_flame[1] type=flame count=3 at=0.000000,1.620000,0.500000 off=0.120000,0.120000,0.120000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7250380611567614384
 @1 particle - op=fly/trail_dust[1] type=dust count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ff7814 size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9009737220954565713
 @1 particle - op=fly/trail_lava[1] type=lava count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5639102722581938716
@@ -25,6 +26,7 @@ g @1 cast-end | pose
 @0 particle - op=fly/trail_dust[0] type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ff7814 size=1.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8638849936105321641
 @0 particle - op=fly/trail_lava[0] type=lava count=1 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1708441551056336371
 @0 particle - op=fly/trail_smoke[0] type=smoke count=1 at=-0.282761,1.791010,0.375236 off=0.050000,0.050000,0.050000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3801036474299960301
+@0 frame fly/bolt op=fly/bolt pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916
 @1 particle - op=fly/trail_flame[1] type=flame count=3 at=-0.282761,1.791010,0.375236 off=0.120000,0.120000,0.120000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7250380611567614384
 @1 particle - op=fly/trail_dust[1] type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ff7814 size=1.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=9009737220954565713
 @1 particle - op=fly/trail_lava[1] type=lava count=1 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5639102722581938716
@@ -42,6 +44,7 @@ g @1 cast-end | pose
 @0 particle - op=fly/trail_dust[0] type=dust count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ff7814 size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8638849936105321641
 @0 particle - op=fly/trail_lava[0] type=lava count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1708441551056336371
 @0 particle - op=fly/trail_smoke[0] type=smoke count=1 at=0.000000,1.620000,0.500000 off=0.050000,0.050000,0.050000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3801036474299960301
+@0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=fly/trail_flame[1] type=flame count=3 at=0.000000,1.620000,0.500000 off=0.120000,0.120000,0.120000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7250380611567614384
 @1 particle - op=fly/trail_dust[1] type=dust count=2 at=0.000000,1.620000,0.500000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ff7814 size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9009737220954565713
 @1 particle - op=fly/trail_lava[1] type=lava count=1 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5639102722581938716
@@ -68,6 +71,7 @@ g @1 cast-end | pose
 @0 particle - op=fly/trail_dust[0] type=dust count=2 at=-0.300908,1.620000,0.399318 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ff7814 size=1.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8638849936105321641
 @0 particle - op=fly/trail_lava[0] type=lava count=1 at=-0.300908,1.620000,0.399318 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1708441551056336371
 @0 particle - op=fly/trail_smoke[0] type=smoke count=1 at=-0.300908,1.620000,0.399318 off=0.050000,0.050000,0.050000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3801036474299960301
+@0 frame fly/bolt op=fly/bolt pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324
 @1 particle - op=fly/trail_flame[1] type=flame count=3 at=-0.300908,1.620000,0.399318 off=0.120000,0.120000,0.120000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7250380611567614384
 @1 particle - op=fly/trail_dust[1] type=dust count=2 at=-0.300908,1.620000,0.399318 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ff7814 size=1.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=9009737220954565713
 @1 particle - op=fly/trail_lava[1] type=lava count=1 at=-0.300908,1.620000,0.399318 off=0.080000,0.080000,0.080000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5639102722581938716

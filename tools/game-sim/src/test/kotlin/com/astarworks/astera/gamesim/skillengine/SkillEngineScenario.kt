@@ -210,11 +210,17 @@ abstract class SkillEngineScenario {
     /** Table instance id of each spawn ordinal (`#3` -> `blade`), as the last [expectedCalls] assigned them; the oracle names its rows with it. */
     protected var instanceNames: Map<String, String> = emptyMap()
 
+    /** Spawn ordinals (`#3`) of the displays that ride a projectile body, as the last [expectedCalls] assigned them. The engine writes them whenever the body moves; where and when depends on the flight, so the table cannot promise those writes ([diff] sets them aside, [RiderFollow] judges them). */
+    protected var bodyRiders: Set<String> = emptySet()
+
     /** What the table promises at the gateways, for [events] delivered while their owner state is live. */
     fun expectedCalls(skill: CompiledSkill, events: List<RuntimeEvent>): List<RecordedCall> {
         val table = skill.table
         val out = ArrayList<Pair<Int, RecordedCall>>()
         val ordinals = HashMap<String, Int>()
+        val bodyOps = (table.worldRows + table.states.flatMap { it.rows } + table.subTables.values.flatMap { it.rows })
+            .filter { (it.action as? Action.Spawn)?.kind == SpawnKind.PROJECTILE_BODY }.map { it.instance.text }.toSet()
+        val riderOps = HashSet<String>()
 
         // rows are collected first and played in tick order, so an instance's ordinal follows the tick it spawns at (as the player assigns it)
         val pending = ArrayList<Pair<Int, Row>>()
@@ -229,6 +235,7 @@ abstract class SkillEngineScenario {
             when (val a = row.action) {
                 is Action.Spawn -> if (a.kind != SpawnKind.FRAME && a.kind != SpawnKind.PROJECTILE_BODY) {
                     ordinals[id] = ordinals.size
+                    if (a.anchor?.text in bodyOps) riderOps += id
                     out += tick to RecordedCall(tick, "spawn", "#${ordinals.getValue(id)}", "kind=${a.kind.name.lowercase()}")
                 }
                 // a screen veil is an instance-lived quad per viewer; the sim's only viewer is the caster
@@ -302,6 +309,7 @@ abstract class SkillEngineScenario {
         }
         pending.sortedBy { it.first }.forEach { (t, r) -> render(t, r) }
         instanceNames = ordinals.entries.associate { "#${it.value}" to it.key }
+        bodyRiders = riderOps.mapNotNull { ordinals[it]?.let { n -> "#$n" } }.toSet()
         // an early cast end (a scripted event) moves the run end to cast end + tail: detached visuals stop there, a live instance is removed there
         val runEnd = if (anyCut) entry + table.bounds.tail else null
         return out.sortedBy { it.first }.map { it.second }
@@ -355,7 +363,14 @@ abstract class SkillEngineScenario {
         val expectedRemoves = expected.filter { it.verb == "remove" }.map { it.instance }.toSet()
         // several visuals that end on one tick (two detached rigs of a dual-wield skill) have no semantic order: the removes of a tick compare by instance
         val order = compareBy<RecordedCall>({ it.tick }, { if (it.verb == "remove") 1 else 0 }, { if (it.verb == "remove") it.instance else "" })
-        val a = actual.filter { it.verb in compared && (it.verb != "remove" || it.instance in expectedRemoves) }.sortedWith(order)
+        // a rider's writes beyond the ones the table promises for that tick are the engine's follow writes
+        val promised = expected.filter { it.verb == "write" }.groupingBy { it.tick to it.instance }.eachCount().toMutableMap()
+        val a = actual.filter {
+            if (it.verb == "write" && it.instance in bodyRiders) {
+                val left = promised[it.tick to it.instance] ?: 0
+                if (left > 0) { promised[it.tick to it.instance] = left - 1; true } else false
+            } else it.verb in compared && (it.verb != "remove" || it.instance in expectedRemoves)
+        }.sortedWith(order)
         val e = expected.filter { it.verb in compared }.sortedWith(order)
         val problems = ArrayList<String>()
         for (i in 0 until maxOf(a.size, e.size)) {

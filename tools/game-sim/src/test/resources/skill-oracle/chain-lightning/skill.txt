@@ -5,6 +5,7 @@
 @0 particle - op=cast/fx1 type=thunder-cast at=0.000000,1.420000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5150305657812538161
 @0 particle - op=cast/trail[0]/t1 type=electric_spark count=3 at=0.000000,1.620000,0.500000 off=0.120000,0.120000,0.120000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7949010145466625871
 @0 particle - op=cast/trail[0]/t2 type=crit count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=951035740424815854
+@0 frame cast/bolt op=cast/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=cast/trail[1]/t1 type=electric_spark count=3 at=0.000000,1.620000,0.500000 off=0.120000,0.120000,0.120000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5969186414988006318
 @1 particle - op=cast/trail[1]/t2 type=crit count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6679330095225978312
 @1 hit - op=cast/bolt at=0.000000,1.620000,1.800000 r=1.800000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.100000 rad=0.500000
@@ -22,6 +23,7 @@ r @15 run-end tail=14 | pose
 @0 particle - op=cast/fx1 type=thunder-cast at=-0.606688,1.774082,0.805102 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5150305657812538161
 @0 particle - op=cast/trail[0]/t1 type=electric_spark count=3 at=-0.282761,1.791010,0.375236 off=0.120000,0.120000,0.120000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7949010145466625871
 @0 particle - op=cast/trail[0]/t2 type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=951035740424815854
+@0 frame cast/bolt op=cast/bolt pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916
 @1 particle - op=cast/trail[1]/t1 type=electric_spark count=3 at=-0.282761,1.791010,0.375236 off=0.120000,0.120000,0.120000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5969186414988006318
 @1 particle - op=cast/trail[1]/t2 type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6679330095225978312
 @1 hit - op=cast/bolt at=-1.017938,2.235636,1.350849 r=1.800000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.753116,2.680262,2.326463 rad=0.500000
@@ -37,6 +39,7 @@ r @15 run-end tail=14 | pose
 @0 particle - op=cast/fx1 type=thunder-cast at=0.000000,1.420000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5150305657812538161
 @0 particle - op=cast/trail[0]/t1 type=electric_spark count=3 at=0.000000,1.620000,0.500000 off=0.120000,0.120000,0.120000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7949010145466625871
 @0 particle - op=cast/trail[0]/t2 type=crit count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=951035740424815854
+@0 frame cast/bolt op=cast/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=cast/trail[1]/t1 type=electric_spark count=3 at=0.000000,1.620000,0.500000 off=0.120000,0.120000,0.120000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5969186414988006318
 @1 particle - op=cast/trail[1]/t2 type=crit count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6679330095225978312
 @1 hit - op=cast/bolt at=0.000000,1.620000,1.800000 r=1.800000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.100000 rad=0.500000
@@ -151,6 +154,7 @@ r @24 run-end tail=14 | pose
 @0 particle - op=cast/fx1 type=thunder-cast at=-0.601815,1.420000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5150305657812538161
 @0 particle - op=cast/trail[0]/t1 type=electric_spark count=3 at=-0.300908,1.620000,0.399318 off=0.120000,0.120000,0.120000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7949010145466625871
 @0 particle - op=cast/trail[0]/t2 type=crit count=1 at=-0.300908,1.620000,0.399318 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=951035740424815854
+@0 frame cast/bolt op=cast/bolt pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324
 @1 particle - op=cast/trail[1]/t1 type=electric_spark count=3 at=-0.300908,1.620000,0.399318 off=0.120000,0.120000,0.120000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5969186414988006318
 @1 particle - op=cast/trail[1]/t2 type=crit count=1 at=-0.300908,1.620000,0.399318 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6679330095225978312
 @1 hit - op=cast/bolt at=-1.083267,1.620000,1.437544 r=1.800000 shape=capsule a=-0.300908,1.620000,0.399318 b=-1.865627,1.620000,2.475770 rad=0.500000

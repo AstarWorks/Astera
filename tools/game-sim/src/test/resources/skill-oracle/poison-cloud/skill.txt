@@ -3,6 +3,7 @@
 @0 particle - op=throw/fx type=verdant-cast at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4563194080112283737
 @0 particle - op=throw/trail0[0] type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5467980490318687687
 @0 particle - op=throw/trail1[0] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5aaa3c size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3984004797781062094
+@0 frame throw/bolt op=throw/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=throw/trail0[1] type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3931908337912086660
 @1 particle - op=throw/trail1[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5aaa3c size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7291813754082299789
 @1 hit - op=throw/bolt at=0.000000,1.620000,1.150000 r=1.150000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,1.800000 rad=0.500000
@@ -16,6 +17,7 @@ g @1 cast-end | pose
 @0 particle - op=throw/fx type=verdant-cast at=-0.560427,1.692895,0.743712 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4563194080112283737
 @0 particle - op=throw/trail0[0] type=happy_villager count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5467980490318687687
 @0 particle - op=throw/trail1[0] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5aaa3c size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3984004797781062094
+@0 frame throw/bolt op=throw/bolt pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916
 @1 particle - op=throw/trail0[1] type=happy_villager count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3931908337912086660
 @1 particle - op=throw/trail1[1] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5aaa3c size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7291813754082299789
 @1 hit - op=throw/bolt at=-0.650349,2.013323,0.863043 r=1.150000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.017938,2.235636,1.350849 rad=0.500000
@@ -27,6 +29,7 @@ g @1 cast-end | pose
 @0 particle - op=throw/fx type=verdant-cast at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4563194080112283737
 @0 particle - op=throw/trail0[0] type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5467980490318687687
 @0 particle - op=throw/trail1[0] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5aaa3c size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3984004797781062094
+@0 frame throw/bolt op=throw/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=throw/trail0[1] type=happy_villager count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3931908337912086660
 @1 particle - op=throw/trail1[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5aaa3c size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7291813754082299789
 @1 hit - op=throw/bolt at=0.000000,1.620000,1.150000 r=1.150000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,1.800000 rad=0.500000
@@ -46,6 +49,7 @@ g @1 cast-end | pose
 @0 particle - op=throw/fx type=verdant-cast at=-0.541634,1.370000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4563194080112283737
 @0 particle - op=throw/trail0[0] type=happy_villager count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5467980490318687687
 @0 particle - op=throw/trail1[0] type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5aaa3c size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3984004797781062094
+@0 frame throw/bolt op=throw/bolt pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324
 @1 particle - op=throw/trail0[1] type=happy_villager count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3931908337912086660
 @1 particle - op=throw/trail1[1] type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5aaa3c size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7291813754082299789
 @1 hit - op=throw/bolt at=-0.692087,1.620000,0.918431 r=1.150000 shape=capsule a=-0.300908,1.620000,0.399318 b=-1.083267,1.620000,1.437544 rad=0.500000

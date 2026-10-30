@@ -82,6 +82,7 @@ import com.astarworks.astera.core.domain.skillengine.math.PullMath
 import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 import java.util.UUID
 import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
@@ -116,6 +117,9 @@ private object NoHooks : PlayerHooks
 
 /** A bounce whose rebound is slower than this (blocks per tick) rolls instead of counting. */
 private const val REST_SPEED = 0.05
+
+/** The spawn kinds that are one visible display and follow a moving parent ([TablePlayer.followRiders]); ribbons and lines have their own drivers. */
+private val RIDER_KINDS = setOf(SpawnKind.ITEM, SpawnKind.BLOCK, SpawnKind.TEXT, SpawnKind.SPRITE)
 
 /** A bounced body restarts this far off the surface along its normal, so the next tick's ray does not begin inside the block. */
 private const val CONTACT_SKIN = 0.02
@@ -284,6 +288,8 @@ public class TablePlayer(
         projectileStep(run, now)
         // 3 + 4. events in 10.2 order, timers, same-tick cascade
         runWaves(run, now, withTimers = true)
+        // 4b. whatever rides a projectile body that moved this tick (flight, bounce / reflect rebase, a key, a rig) follows it
+        followRiders(run, now)
         // 5. observers see every live frame at its settled pose, then cleanup
         traceFrames(run, now)
         // cleanup
@@ -291,10 +297,32 @@ public class TablePlayer(
         cleanup(run, now)
     }
 
-    /** [CastTrace.frame] for every live authored `frame` (not a body clip or a projectile body) at its world pose this tick. */
+    /**
+     * A display that rides a projectile body (`anchor: <body>`) is written only by its own ops, so a body that moves by itself (its
+     * flight, a bounce / reflect rebase, a body mounted on its victim) left it behind at its spawn pose. Once per tick, after every move of the tick: when the
+     * parent's world pose is not the one this child last saw, the child is written at its own world pose (1 tick of interpolation, as the parent moves per tick). The
+     * parent's whole chain is read, so a grandchild follows too. Same path in the game-sim and on Paper.
+     */
+    private fun followRiders(run: Run, now: Int) {
+        for (rec in run.recs.values.toList()) {
+            val h = rec.real ?: continue
+            val parent = rec.anchor?.let { run.recs[it] } ?: continue
+            if (rec.kind !in RIDER_KINDS || rec.rig != null || parent.kind != SpawnKind.PROJECTILE_BODY) continue
+            val pw = worldOf(run, parent, parent.localAt(now), null, now)
+            val seen = rec.parentSeen
+            rec.parentSeen = pw
+            if (seen != null && samePose(seen, pw)) continue
+            visual.write(h, visualPose(rec, worldOf(run, rec, rec.localAt(now), null, now)), 1)
+        }
+    }
+
+    private fun samePose(a: PoseV, b: PoseV): Boolean =
+        a.pos.distanceSquared(b.pos) < 1e-12 && abs(a.rot.x - b.rot.x) + abs(a.rot.y - b.rot.y) + abs(a.rot.z - b.rot.z) + abs(a.rot.w - b.rot.w) < 1e-9
+
+    /** [CastTrace.frame] for every live authored `frame` and every projectile body (not a body clip) at its world pose this tick. */
     private fun traceFrames(run: Run, now: Int) {
         for ((id, rec) in run.recs) {
-            if (rec.kind != SpawnKind.FRAME || rec.body != null) continue
+            if ((rec.kind != SpawnKind.FRAME && rec.kind != SpawnKind.PROJECTILE_BODY) || rec.body != null) continue
             val w = worldOf(run, rec, rec.localAt(now), null, now)
             trace.frame(run.cursor.handle, id, now, Vec3(w.pos.x, w.pos.y, w.pos.z), Quaternion(w.rot.x, w.rot.y, w.rot.z, w.rot.w))
         }
@@ -1018,6 +1046,7 @@ public class TablePlayer(
         }
         val gh = if (h != null) GatewayHandle(h.id) else GatewayHandle(nextSynthetic--)
         rec.real = h
+        rec.anchor?.let { run.recs[it] }?.let { p -> rec.parentSeen = worldOf(run, p, p.localAt(now), null, now) }
         // a glyph quad: the text colour and opacity of the spawn row are written like a first `set` (spawnText has no slot for them)
         if (h != null && a.kind == SpawnKind.TEXT) {
             look.fields["color"]?.let { hooks.setDisplayText(h, "color", strOf(run, it, ctx)) }
@@ -2436,6 +2465,8 @@ public class TablePlayer(
         var to: PoseV,
     ) {
         var real: VisualHandle? = null
+        /** The world pose of the parent instance this rider was last placed against (null before the first look): [followRiders] writes the rider when it changes. */
+        var parentSeen: PoseV? = null
         /** A `rig` anchor instance: the driver that poses [RigRec.driven] each tick (this rec itself when the rig has no `of`). */
         var rig: RigRec? = null
         /** The hit that spawned this instance (null outside `on.hit`): a `victim` anchor/axes keeps resolving to that victim after the row is gone (end-of-cast freeze, later ticks). */
