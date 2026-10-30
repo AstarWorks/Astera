@@ -11,6 +11,9 @@
 @1 remove #0 op=fly/shaft
 @14 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=bow-draw
 g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/arrow.end
+g @1 dropped reason=owner-exited:fly | sub=fly/arrow.hit
+g @1 dropped reason=owner-exited:fly | sub=fly/arrow.end
 g @1 cast-end | pose
 r @15 run-end tail=14 | pose
 ## pose yaw=37 pitch=-20
@@ -26,6 +29,7 @@ r @15 run-end tail=14 | pose
 @1 remove #0 op=fly/shaft
 @14 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=bow-draw
 g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/arrow.end
 g @1 cast-end | pose
 r @15 run-end tail=14 | pose
 ## pose-hit yaw=0 pitch=0
@@ -45,6 +49,7 @@ r @15 run-end tail=14 | pose
 @1 remove #0 op=fly/shaft
 @14 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=bow-draw
 g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/arrow.end
 g @1 cast-end | pose
 r @15 run-end tail=14 | pose
 ## pose-hit yaw=37 pitch=0
@@ -64,6 +69,7 @@ r @15 run-end tail=14 | pose
 @1 remove #0 op=fly/shaft
 @14 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=bow-draw
 g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/arrow.end
 g @1 cast-end | pose
 r @15 run-end tail=14 | pose
 ## gameplay-static

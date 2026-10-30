@@ -755,7 +755,9 @@ public object StaticChecks {
         /** Instances spawned or called in [owner]'s rows and owned sub-tables, and in every enclosing state's, and in the machine-root `world` rows (R45). */
         fun spawnScope(owner: StatePath): List<InstanceId> {
             val out = ArrayList<InstanceId>()
-            for (r in table.worldRows) when (val a = r.action) {
+            // the machine-root handlers (`volley.hit`, ...) own what they spawn, like a state's owned sub-tables
+            val rootRows = table.worldRows + table.subTables.values.filter { it.owner == SubTable.MACHINE_ROOT }.flatMap { it.rows }
+            for (r in rootRows) when (val a = r.action) {
                 is Action.Spawn -> out += r.instance
                 is Action.Call -> out += a.callId
                 is Action.Lock -> out += r.instance

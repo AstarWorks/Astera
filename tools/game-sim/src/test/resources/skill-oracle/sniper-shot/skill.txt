@@ -9,6 +9,9 @@
 @1 hit - op=fly/bolt at=0.000000,1.620000,3.500000 r=3.500000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,6.500000 rad=0.500000
 @1 remove #0 op=fly/slug
 g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
+g @1 dropped reason=owner-exited:fly | sub=fly/bolt.hit
+g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
 g @1 cast-end | pose
 r @5 run-end tail=4 | pose
 ## pose yaw=37 pitch=-20
@@ -22,6 +25,7 @@ r @5 run-end tail=4 | pose
 @1 hit - op=fly/bolt at=-1.979324,2.817071,2.626652 r=3.500000 shape=capsule a=-0.282761,1.791010,0.375236 b=-3.675887,3.843131,4.878067 rad=0.500000
 @1 remove #0 op=fly/slug
 g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
 g @1 cast-end | pose
 r @5 run-end tail=4 | pose
 ## pose-hit yaw=0 pitch=0
@@ -44,6 +48,7 @@ r @5 run-end tail=4 | pose
 @5 line #1 op=- from=-0.350000,0.970000,0.550000 to=0.000000,1.620000,2.200000
 @5 remove #1 op=-
 g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
 g @1 cast-end | pose
 r @5 run-end tail=4 | pose
 ## pose-hit yaw=37 pitch=0
@@ -66,6 +71,7 @@ r @5 run-end tail=4 | pose
 @5 line #1 op=- from=-0.610521,0.970000,0.228614 to=-1.278471,1.620000,1.696589
 @5 remove #1 op=-
 g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
 g @1 cast-end | pose
 r @5 run-end tail=4 | pose
 ## gameplay-static

@@ -108,6 +108,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     override fun event(cast: CastHandle, path: EventPath, tick: Int, index: Int?) { traceLog += "event:${path.value}@$tick" }
     override fun call(cast: CastHandle, callId: InstanceId, tick: Int) { traceLog += "call:${callId.text}@$tick" }
     override fun drain(cast: CastHandle, tick: Int, rows: Int, until: Int) { traceLog += "drain:$rows:$until@$tick" }
+    override fun dropped(cast: CastHandle, sub: EventPath, tick: Int, reason: String) { traceLog += "dropped:${sub.value}:$reason@$tick" }
     override fun cut(cast: CastHandle, row: String, tick: Int, state: StatePath, reason: ExitReason) { traceLog += "cut:$row:${state.value}:${reason.name}@$tick" }
     override fun frame(cast: CastHandle, op: InstanceId, tick: Int, position: Vec3, rotation: com.astarworks.astera.core.domain.geometry.math.Quaternion) =
         oracleOnly("frame", op.text, "pos=${OracleFmt.v(position)} rot=${OracleFmt.q(rotation)}", op.text)

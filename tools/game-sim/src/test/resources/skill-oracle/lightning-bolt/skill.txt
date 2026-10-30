@@ -16,6 +16,9 @@
 @1 remove #1 op=fly/core
 @1 remove #0 op=fly/mesh
 g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
+g @1 dropped reason=owner-exited:fly | sub=fly/bolt.hit
+g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
 g @1 cast-end | pose
 r @3 run-end tail=2 | pose
 ## pose yaw=37 pitch=-20
@@ -36,6 +39,7 @@ r @3 run-end tail=2 | pose
 @1 remove #1 op=fly/core
 @1 remove #0 op=fly/mesh
 g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
 g @1 cast-end | pose
 r @3 run-end tail=2 | pose
 ## pose-hit yaw=0 pitch=0
@@ -89,6 +93,7 @@ r @3 run-end tail=2 | pose
 @1 remove #1 op=fly/core
 @1 remove #0 op=fly/mesh
 g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
 g @1 cast-end | pose
 r @3 run-end tail=2 | pose
 ## pose-hit yaw=37 pitch=0
@@ -142,6 +147,7 @@ r @3 run-end tail=2 | pose
 @1 remove #1 op=fly/core
 @1 remove #0 op=fly/mesh
 g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
 g @1 cast-end | pose
 r @3 run-end tail=2 | pose
 ## gameplay-static
