@@ -1,0 +1,28 @@
+# shadow-step: trial skill for the `blink` op (ADR-0303 3.1). The caster slips `distance` blocks forward in one tick (tick 2), never ending
+# inside a block or a body; a dust puff marks where they left and where they land. Bound to no item (dev trial).
+apiVersion: astera/v3
+kind: Skill
+id: shadow-step
+meta:
+  name: {ja: 影渡り, en: Shadow Step}
+  description: {ja: "前方へ瞬間移動する。壁や敵の手前で止まる。", en: "Blinks forward. Stops short of walls and bodies."}
+  cooldown_ticks: 60
+  resource_cost: 0
+  tags: [movement, mobility, trial]
+params:
+  distance: {type: blocks, default: 8.0}
+anchors:
+  - {id: feet, anchor: caster, offset: {up: 0.2}, mode: follow}
+machine:
+  start: cast
+  states:
+    cast:
+      for: 6
+      then: end
+      do:
+        - {id: snd_out, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 0.8, pitch: 1.4, at: 0}
+        - {id: puff_out, op: particle_def, def: dash-cloud, anchor: feet, at: 1}
+        - {id: step, op: blink, to: {of: caster, forward: "${distance}"}, max: 12, keep_look: true, invulnerable: 4, at: 2}
+        - {id: puff_in, op: particle_def, def: dash-cloud, anchor: feet, at: 3}
+        - {id: snd_in, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 0.8, pitch: 1.8, at: 3}
+    end: {final: true}

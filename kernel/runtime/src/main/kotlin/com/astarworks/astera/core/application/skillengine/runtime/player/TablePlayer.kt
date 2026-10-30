@@ -4,6 +4,7 @@ import com.astarworks.astera.core.domain.skillengine.table.drainsAfterExit
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.runtime.CastError
 import com.astarworks.astera.core.application.skillengine.runtime.CastRequest
+import com.astarworks.astera.core.application.skillengine.runtime.ops.BlinkResolver
 import com.astarworks.astera.core.application.skillengine.runtime.ops.DashDriver
 import com.astarworks.astera.core.application.skillengine.runtime.ops.ReelDriver
 import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
@@ -1683,6 +1684,11 @@ public class TablePlayer(
         when (kind) {
             "dash" -> dashStart(run, row, p, ctx, now, src)
             "dash.end" -> run.dash.end(row.instance.text)
+            "blink" -> {
+                val to = v("to")
+                BlinkResolver.blink(castRef(run), query, movement, Vec3(to.x, to.y, to.z), d("max"), bool(run, cell("keep_look"), ctx), d("invulnerable").toInt())
+                    ?.let { fault(run, now, src, it) }
+            }
             "reel" -> reelStart(run, row, p, ctx, now, src)
             "reel.stop" -> {
                 run.reel.stop(row.instance.text)
@@ -2242,8 +2248,14 @@ public class TablePlayer(
             }
             pos.add(local.mul(amount).rotate(rot))
         }
-        val pose = PoseV(pos, rot, Vector3d(1.0, 1.0, 1.0))
-        if (decl.mode == AnchorMode.SNAPSHOT) run.snapshots[decl.id] = PoseV(Vector3d(pos), Quaterniond(rot), Vector3d(1.0, 1.0, 1.0))
+        // ray anchor: the parent's forward ray, stopped by the first block (the anchor is the hit point), else the full reach
+        val at = decl.ray?.let { reach ->
+            val end = Vector3d(pos).add(Vector3d(0.0, 0.0, 1.0).rotate(rot).mul(reach))
+            query.raycastBlock(castRef(run), Vec3(pos.x, pos.y, pos.z), Vec3(end.x, end.y, end.z))
+                ?.let { Vector3d(it.point.x, it.point.y, it.point.z) } ?: end
+        } ?: pos
+        val pose = PoseV(at, rot, Vector3d(1.0, 1.0, 1.0))
+        if (decl.mode == AnchorMode.SNAPSHOT) run.snapshots[decl.id] = PoseV(Vector3d(at), Quaterniond(rot), Vector3d(1.0, 1.0, 1.0))
         return pose
     }
 
