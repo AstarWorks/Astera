@@ -60,11 +60,11 @@ class ContentReloadE2eTest : E2eBase() {
 
     /**
      * A real edit, not a no-op: a changed copy of one shop and one lobby NPC is written into the server's content
-     * dir, reloaded, asserted through the reload output, then the originals are restored and reloaded again.
+     * dir (the shops / lobby-npcs volumes shared with the server, docker-compose.e2e.yml; the runner's own checkout is NOT what the server reads), reloaded, asserted through the reload output, then the originals are restored and reloaded again.
      */
     @Test
     fun `a real edit of a shop and a lobby NPC is applied and then restored`() {
-        val dir = java.io.File(System.getProperty("astera.live.contentDir", "/workspace/content"))
+        val dir = java.io.File(System.getProperty("astera.e2e.serverContentDir", "/e2e-content"))
         val shop = dir.resolve("shops/example-shop.yaml")
         val npc = dir.resolve("lobby-npcs/market-npc.yaml")
         val shopOriginal = shop.readText()

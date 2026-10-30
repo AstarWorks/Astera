@@ -3,6 +3,7 @@ package com.astarworks.astera.gamesim
 import com.astarworks.astera.core.application.port.outbound.IShopRegistry
 import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
 import com.astarworks.astera.core.application.services.getOrThrow
+import com.astarworks.astera.core.application.wiring.IRewireService
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.shop.ShopId
 import com.astarworks.astera.core.domain.shop.ShopOfferId
@@ -75,6 +76,28 @@ class ShopReloadScenarioTest {
             assertThat(ReloadScenarioSupport.reload(sim, "shops")).isInstanceOf(Result.Failure::class.java)
             assertThat((stock.currentStock(shop, ShopOfferId("a")) as ShopStock.Limited).remaining).isEqualTo(7)
             assertThat(sim.services.getOrThrow<IShopRegistry>().resolve(shop)!!.offers).hasSize(1)
+        }
+    }
+
+    @Test
+    fun `an edited shop reports its diff counts before and after an economy rewire`() {
+        val content = ReloadScenarioSupport.scratchContent("shops")
+        val file = content.resolve("shops/reload-shop.yaml")
+        Files.writeString(file, shopYaml("a" to 10))
+        ReloadScenarioSupport.withSim("shop-reload-rewire", content) { sim ->
+            val shop = ShopId("reload-shop")
+            fun notes(): String = (ReloadScenarioSupport.reload(sim, "shops") as Result.Success).value.notes.joinToString("\n")
+
+            Files.writeString(file, shopYaml("a" to 10, "b" to 10))
+            assertThat(notes()).contains("shop reload-shop: +1 offers, -0 offers")
+
+            check(sim.services.getOrThrow<IRewireService>().rewire("economy") is Result.Success) { "economy rewire failed" }
+
+            Files.writeString(file, shopYaml("a" to 10))
+            assertThat(notes()).contains("shop reload-shop: +0 offers, -1 offers")
+            Files.writeString(file, shopYaml("a" to 10, "c" to 10))
+            assertThat(notes()).contains("shop reload-shop: +1 offers, -0 offers")
+            assertThat(sim.services.getOrThrow<IShopRegistry>().resolve(shop)!!.offers.map { it.id.value }).containsExactly("a", "c")
         }
     }
 }

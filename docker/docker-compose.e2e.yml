@@ -83,6 +83,9 @@ services:
       - e2e-data:/data
       # SkillEngineV3E2eTest reload case: the probe skill's directory (baked by docker/e2e-tune-content.sh) is shared with the runner.
       - e2e-skill-probe:/content/skills/reload-probe
+      # ContentReloadE2eTest real-edit case: the shops / lobby-npcs directories are shared with the runner (seeded from the image on first mount).
+      - e2e-shops:/content/shops
+      - e2e-lobby-npcs:/content/lobby-npcs
     depends_on:
       e2e-resource-pack:
         condition: service_started
@@ -191,6 +194,9 @@ services:
       - e2e-velocity-data:/e2e-velocity:ro
       # The reload probe skill's directory, read-write: the reload case rewrites skill.yaml here (the server sees it at /content/skills/reload-probe).
       - e2e-skill-probe:/e2e-skill-probe
+      # The server's shops / lobby-npcs content, read-write: ContentReloadE2eTest edits a shop and an NPC here, then reloads.
+      - e2e-shops:/e2e-content/shops
+      - e2e-lobby-npcs:/e2e-content/lobby-npcs
     depends_on:
       e2e:
         condition: service_healthy
@@ -198,4 +204,6 @@ services:
 volumes:
   e2e-data:
   e2e-skill-probe:
+  e2e-shops:
+  e2e-lobby-npcs:
   e2e-velocity-data:
