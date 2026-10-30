@@ -1885,15 +1885,18 @@ public class TablePlayer(
             val heldId = InstanceId(carrier.path + InstanceId.Segment(OpId("held"), null))
             val local = PoseV(Vector3d(), Quaterniond(), Vector3d(SkinRigTransforms.PLAYER_SCALE))
             val rec = Rec(SpawnKind.ITEM, carrier, "", now, ctx.owner, ctx.detached, local)
+            // `viewers:` of the rig (the caster's own camera is a block from the held mesh): the mesh and every row anchored on it take it
+            rec.viewers = p["viewers"]?.let { RowViewers.fromYaml(any(run, it, ctx) as String) } ?: RowViewers.ALL
+            val view = DisplayView(rec.viewers.audience, VfxLane.CORE, null, rec.viewers)
             // main hand: the caster's real stack (THIRDPERSON_RIGHTHAND); off hand: the off-hand part's own pack model (THIRDPERSON_LEFTHAND), the real off-hand slot is empty
             val h = if (off) {
                 visual.spawnMesh(
                     castRef(run), any(run, cell("mesh_model"), ctx) as String, null, visualPose(rec, worldOf(run, rec, local, ctx.binding, now)), null,
-                    MeshLook(mode = DisplayItemMode.THIRDPERSON_LEFTHAND, rigShading = true),
+                    MeshLook(mode = DisplayItemMode.THIRDPERSON_LEFTHAND, rigShading = true), view = view,
                 )
             } else {
                 visual.spawnMesh(
-                    castRef(run), MeshModels.MAIN_HAND, null, visualPose(rec, worldOf(run, rec, local, ctx.binding, now)), null, MeshLook(rigShading = true),
+                    castRef(run), MeshModels.MAIN_HAND, null, visualPose(rec, worldOf(run, rec, local, ctx.binding, now)), null, MeshLook(rigShading = true), view = view,
                 )
             }
             rec.real = h
