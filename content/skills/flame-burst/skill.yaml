@@ -30,7 +30,7 @@ fragments:
       - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: spot, volume: 0.45, pitch: "${pitch}"}
       - {id: boom, op: particle, particle: explosion, anchor: spot, count: 1}
       - {id: flame, op: particle, particle: flame, anchor: spot, count: "${flame}", extra: 0.24}
-      - {id: smoke, op: particle, particle: large_smoke, anchor: spot, count: 5, extra: 0.04}
+      - {id: smoke, op: particle_def, def: smoke-dark, anchor: spot}
       - {id: ring_flame, op: particle, particle: flame, anchor: spot, count: 0, extra: 0.08}
       - {id: ring_dust, op: particle, particle: dust, anchor: spot, count: 1, color: "#ff6e14", size: 2.0}
 machine:
@@ -48,7 +48,7 @@ machine:
         - {id: trail_flame, op: particle, particle: flame, anchor: {of: bolt, sweep: 0.3}, count: 3, offset: [0.12, 0.12, 0.12], extra: 0.02, at: 0, every: 1, until: bolt.end}
         - {id: trail_dust, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.1, 0.1, 0.1], color: "#ff7814", size: 1.6, at: 0, every: 1, until: bolt.end}
         - {id: trail_lava, op: particle, particle: lava, anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.08, 0.08, 0.08], at: 0, every: 1, until: bolt.end}
-        - {id: trail_smoke, op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.05, 0.05, 0.05], at: 0, every: 1, until: bolt.end}
+        - {id: trail_smoke, op: particle_def, def: smoke-dark, anchor: bolt, at: 0, every: 1, until: bolt.end}
         - id: bolt
           op: projectile
           origin: muzzle

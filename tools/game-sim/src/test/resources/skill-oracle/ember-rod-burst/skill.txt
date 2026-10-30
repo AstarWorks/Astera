@@ -38,7 +38,10 @@
 @0 particle - op=cast/ring_hi[9] type=lava count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.800000,-0.600000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2822095665051417449
 @0 particle - op=cast/ring_hi[10] type=lava count=0 at=0.000000,0.150000,0.000000 off=0.300000,0.800000,-0.519615 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4481974134509748035
 @0 particle - op=cast/ring_hi[11] type=lava count=0 at=0.000000,0.150000,0.000000 off=0.519615,0.800000,-0.300000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5728858037970811464
-@0 particle - op=cast/embers type=smoke count=20 at=0.000000,0.150000,0.000000 off=1.200000,0.300000,1.200000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4406798700542489886
+@0 particle - op=cast/embers_f type=smoke-dark at=0.000000,0.150000,1.800000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-730246175693259057
+@0 particle - op=cast/embers_b type=smoke-dark at=0.000000,0.150000,-1.800000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3552228082566516962
+@0 particle - op=cast/embers_l type=smoke-dark at=1.800000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2173471208612637130
+@0 particle - op=cast/embers_r type=smoke-dark at=-1.800000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5430541841813852789
 @0 hit - op=cast/blast at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- fire=14.4643 skill=ember-rod-burst at=0.000000,0.000000,2.200000 ignoreinv=false ignorearmor=false
 @0 sound - op=cast/blast.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=0.000000,0.000000,2.200000
@@ -83,7 +86,10 @@
 @0 particle - op=cast/ring_hi[9] type=lava count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.800000,-0.600000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2822095665051417449
 @0 particle - op=cast/ring_hi[10] type=lava count=0 at=0.000000,0.150000,0.000000 off=0.300000,0.800000,-0.519615 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4481974134509748035
 @0 particle - op=cast/ring_hi[11] type=lava count=0 at=0.000000,0.150000,0.000000 off=0.519615,0.800000,-0.300000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5728858037970811464
-@0 particle - op=cast/embers type=smoke count=20 at=0.000000,0.150000,0.000000 off=1.200000,0.300000,1.200000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4406798700542489886
+@0 particle - op=cast/embers_f type=smoke-dark at=-1.083267,0.150000,1.437544 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-730246175693259057
+@0 particle - op=cast/embers_b type=smoke-dark at=1.083267,0.150000,-1.437544 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3552228082566516962
+@0 particle - op=cast/embers_l type=smoke-dark at=1.437544,0.150000,1.083267 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2173471208612637130
+@0 particle - op=cast/embers_r type=smoke-dark at=-1.437544,0.150000,-1.083267 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5430541841813852789
 @0 hit - op=cast/blast at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- fire=14.4643 skill=ember-rod-burst at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
 @0 sound - op=cast/blast.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589
@@ -128,7 +134,10 @@
 @0 particle - op=cast/ring_hi[9] type=lava count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.800000,-0.600000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2822095665051417449
 @0 particle - op=cast/ring_hi[10] type=lava count=0 at=0.000000,0.150000,0.000000 off=0.300000,0.800000,-0.519615 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4481974134509748035
 @0 particle - op=cast/ring_hi[11] type=lava count=0 at=0.000000,0.150000,0.000000 off=0.519615,0.800000,-0.300000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5728858037970811464
-@0 particle - op=cast/embers type=smoke count=20 at=0.000000,0.150000,0.000000 off=1.200000,0.300000,1.200000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4406798700542489886
+@0 particle - op=cast/embers_f type=smoke-dark at=0.000000,0.150000,1.800000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-730246175693259057
+@0 particle - op=cast/embers_b type=smoke-dark at=0.000000,0.150000,-1.800000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3552228082566516962
+@0 particle - op=cast/embers_l type=smoke-dark at=1.800000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2173471208612637130
+@0 particle - op=cast/embers_r type=smoke-dark at=-1.800000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5430541841813852789
 @0 hit - op=cast/blast at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- fire=14.4643 skill=ember-rod-burst at=0.000000,0.000000,2.200000 ignoreinv=false ignorearmor=false
 @0 damage 00000000-0000-0000-0000-00000000000b op=- fire=10.9107 skill=ember-rod-burst at=-1.700000,0.000000,2.700000 ignoreinv=false ignorearmor=false
@@ -178,7 +187,10 @@ g @1 cast-end | pose
 @0 particle - op=cast/ring_hi[9] type=lava count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.800000,-0.600000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2822095665051417449
 @0 particle - op=cast/ring_hi[10] type=lava count=0 at=0.000000,0.150000,0.000000 off=0.300000,0.800000,-0.519615 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4481974134509748035
 @0 particle - op=cast/ring_hi[11] type=lava count=0 at=0.000000,0.150000,0.000000 off=0.519615,0.800000,-0.300000 speed=0.300000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5728858037970811464
-@0 particle - op=cast/embers type=smoke count=20 at=0.000000,0.150000,0.000000 off=1.200000,0.300000,1.200000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4406798700542489886
+@0 particle - op=cast/embers_f type=smoke-dark at=-1.083267,0.150000,1.437544 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-730246175693259057
+@0 particle - op=cast/embers_b type=smoke-dark at=1.083267,0.150000,-1.437544 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3552228082566516962
+@0 particle - op=cast/embers_l type=smoke-dark at=1.437544,0.150000,1.083267 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2173471208612637130
+@0 particle - op=cast/embers_r type=smoke-dark at=-1.437544,0.150000,-1.083267 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5430541841813852789
 @0 hit - op=cast/blast at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- fire=14.4643 skill=ember-rod-burst at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
 @0 damage 00000000-0000-0000-0000-00000000000b op=- fire=10.9107 skill=ember-rod-burst at=-3.102716,0.000000,0.892276 ignoreinv=false ignorearmor=false

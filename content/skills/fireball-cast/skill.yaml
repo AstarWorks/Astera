@@ -18,7 +18,7 @@ params:
   blast_power:  {type: number, default: 1.2}
   burn_ticks:   {type: ticks,  default: 20}
 anchors:
-  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: muzzle,  anchor: caster.eye, offset: {forward: 1.7}, mode: snapshot}
   - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
   - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
 fragments:
@@ -85,5 +85,5 @@ machine:
           until: bolt.end
           do:
             - {id: flame, op: particle, particle: flame, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.08, 0.08, 0.08]}
-            - {id: smoke, op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04]}
+            - {id: smoke, op: particle_def, def: smoke-dark, anchor: bolt}
     end: {final: true}
