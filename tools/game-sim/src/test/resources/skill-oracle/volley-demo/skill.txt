@@ -1,6 +1,6 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=cast/charge_chime sound=block.amethyst_block.chime cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
-@1 spawn #0 op=cast/volley[0]/core kind=item item=fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@1 spawn #0 op=cast/volley[0]/core kind=item item=minecraft:fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @1 write #0 op=cast/volley[0]/core dur=1 pos=0.000000,2.020000,0.600000 rot=0.000000,0.000000,0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
 @1 particle - op=cast/charge_spark type=hit-spark at=0.000000,1.620000,0.600000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1923973142911614861
 @1 particle - op=cast/volley[0]/trail[0] type=flame count=3 at=0.000000,1.620000,0.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8667216650699535687
@@ -23,7 +23,7 @@
 @5 particle - op=cast/volley[0]/trail[4] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8318142599431100352
 @5 particle - op=cast/volley[0]/sparkle[1]/wisp type=crit count=3 at=0.000000,1.620000,0.600000 off=0.150000,0.250000,0.150000 speed=0.037636 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3122952421199812382
 @5 particle - op=cast/volley[0]/ball.hit/use_0/embers[1] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.022680 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8642899042744109351
-@6 spawn #1 op=cast/volley[1]/core kind=item item=fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@6 spawn #1 op=cast/volley[1]/core kind=item item=minecraft:fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @6 write #0 op=cast/volley[0]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
 @6 write #1 op=cast/volley[1]/core dur=1 pos=0.000000,2.020000,0.600000 rot=0.000000,0.000000,0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
 @6 particle - op=cast/volley[0]/trail[5] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7878267149786681097
@@ -55,7 +55,7 @@
 @10 particle - op=cast/volley[1]/trail[4] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3708722050757303761
 @10 particle - op=cast/volley[1]/sparkle[1]/wisp type=crit count=4 at=0.000000,1.620000,0.600000 off=0.150000,0.250000,0.150000 speed=0.069466 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-629427362979256919
 @10 particle - op=cast/volley[1]/ball.hit/use_0/embers[1] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.032288 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4382037230619080182
-@11 spawn #2 op=cast/volley[2]/core kind=item item=fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@11 spawn #2 op=cast/volley[2]/core kind=item item=minecraft:fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @11 write #0 op=cast/volley[0]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,-0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
 @11 write #1 op=cast/volley[1]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
 @11 write #2 op=cast/volley[2]/core dur=1 pos=0.000000,2.020000,0.600000 rot=0.000000,0.000000,0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
@@ -91,7 +91,7 @@
 @15 particle - op=cast/volley[2]/trail[4] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3352554030345234104
 @15 particle - op=cast/volley[2]/sparkle[1]/wisp type=crit count=5 at=0.000000,1.620000,0.600000 off=0.150000,0.250000,0.150000 speed=0.066902 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3167322037352172636
 @15 particle - op=cast/volley[2]/ball.hit/use_0/embers[1] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.040530 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8229906039182244291
-@16 spawn #3 op=cast/volley[3]/core kind=item item=fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@16 spawn #3 op=cast/volley[3]/core kind=item item=minecraft:fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @16 write #1 op=cast/volley[1]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,-0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
 @16 write #2 op=cast/volley[2]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
 @16 write #3 op=cast/volley[3]/core dur=1 pos=0.000000,2.020000,0.600000 rot=0.000000,0.000000,0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
@@ -247,7 +247,7 @@ g @40 state-exit reason=TIMER | state=cast
 g @40 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 sound - op=cast/charge_chime sound=block.amethyst_block.chime cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
-@1 spawn #0 op=cast/volley[0]/core kind=item item=fire_charge part=- pos=-0.339313,1.825212,0.450283 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@1 spawn #0 op=cast/volley[0]/core kind=item item=minecraft:fire_charge part=- pos=-0.339313,1.825212,0.450283 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @1 write #0 op=cast/volley[0]/core dur=1 pos=-0.256980,2.201089,0.341023 rot=-0.239940,-0.259216,0.188493,0.916355 scale=0.600000,0.600000,0.600000 bb=FIXED
 @1 particle - op=cast/charge_spark type=hit-spark at=-0.339313,1.825212,0.450283 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1923973142911614861
 @1 particle - op=cast/volley[0]/trail[0] type=flame count=3 at=-0.339313,1.825212,0.450283 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8667216650699535687
@@ -266,7 +266,7 @@ g @40 cast-end | pose
 @5 particle - op=cast/volley[0]/trail[4] type=flame count=3 at=-2.035876,2.851273,2.701699 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8318142599431100352
 @5 particle - op=cast/volley[0]/sparkle[1]/wisp type=crit count=3 at=-0.339313,1.825212,0.450283 off=0.150000,0.250000,0.150000 speed=0.037636 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3122952421199812382
 @5 hit - op=cast/volley[0]/ball at=-2.318637,3.022283,3.076935 r=0.900000 shape=capsule a=-2.035876,2.851273,2.701699 b=-2.601397,3.193293,3.452171 rad=0.400000
-@6 spawn #1 op=cast/volley[1]/core kind=item item=fire_charge part=- pos=-0.339313,1.825212,0.450283 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@6 spawn #1 op=cast/volley[1]/core kind=item item=minecraft:fire_charge part=- pos=-0.339313,1.825212,0.450283 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @6 write #0 op=cast/volley[0]/core dur=1 pos=-2.359241,4.298811,3.130819 rot=-0.312484,0.164675,0.933916,0.055099 scale=0.600000,0.600000,0.600000 bb=FIXED
 @6 write #1 op=cast/volley[1]/core dur=1 pos=-0.256980,2.201089,0.341023 rot=-0.239940,-0.259216,0.188493,0.916355 scale=0.600000,0.600000,0.600000 bb=FIXED
 @6 particle - op=cast/volley[0]/trail[5] type=flame count=3 at=-2.601397,3.193293,3.452171 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7878267149786681097
@@ -297,7 +297,7 @@ g @40 cast-end | pose
 @10 particle - op=cast/volley[1]/sparkle[1]/wisp type=crit count=4 at=-0.339313,1.825212,0.450283 off=0.150000,0.250000,0.150000 speed=0.069466 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-629427362979256919
 @10 hit - op=cast/volley[0]/ball at=-5.146242,4.732383,6.829294 r=0.900000 shape=capsule a=-4.863482,4.561373,6.454058 b=-5.429003,4.903393,7.204530 rad=0.400000
 @10 hit - op=cast/volley[1]/ball at=-2.318637,3.022283,3.076935 r=0.900000 shape=capsule a=-2.035876,2.851273,2.701699 b=-2.601397,3.193293,3.452171 rad=0.400000
-@11 spawn #2 op=cast/volley[2]/core kind=item item=fire_charge part=- pos=-0.339313,1.825212,0.450283 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@11 spawn #2 op=cast/volley[2]/core kind=item item=minecraft:fire_charge part=- pos=-0.339313,1.825212,0.450283 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @11 write #0 op=cast/volley[0]/core dur=1 pos=-5.186847,6.008912,6.883179 rot=-0.078187,-0.344457,-0.294937,0.887833 scale=0.600000,0.600000,0.600000 bb=FIXED
 @11 write #1 op=cast/volley[1]/core dur=1 pos=-2.359241,4.298811,3.130819 rot=-0.312484,0.164675,0.933916,0.055099 scale=0.600000,0.600000,0.600000 bb=FIXED
 @11 write #2 op=cast/volley[2]/core dur=1 pos=-0.256980,2.201089,0.341023 rot=-0.239940,-0.259216,0.188493,0.916355 scale=0.600000,0.600000,0.600000 bb=FIXED
@@ -335,7 +335,7 @@ g @40 cast-end | pose
 @15 particle - op=cast/volley[2]/sparkle[1]/wisp type=crit count=5 at=-0.339313,1.825212,0.450283 off=0.150000,0.250000,0.150000 speed=0.066902 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3167322037352172636
 @15 hit - op=cast/volley[1]/ball at=-5.146242,4.732383,6.829294 r=0.900000 shape=capsule a=-4.863482,4.561373,6.454058 b=-5.429003,4.903393,7.204530 rad=0.400000
 @15 hit - op=cast/volley[2]/ball at=-2.318637,3.022283,3.076935 r=0.900000 shape=capsule a=-2.035876,2.851273,2.701699 b=-2.601397,3.193293,3.452171 rad=0.400000
-@16 spawn #3 op=cast/volley[3]/core kind=item item=fire_charge part=- pos=-0.339313,1.825212,0.450283 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@16 spawn #3 op=cast/volley[3]/core kind=item item=minecraft:fire_charge part=- pos=-0.339313,1.825212,0.450283 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @16 write #1 op=cast/volley[1]/core dur=1 pos=-5.186847,6.008912,6.883179 rot=-0.078187,-0.344457,-0.294937,0.887833 scale=0.600000,0.600000,0.600000 bb=FIXED
 @16 write #2 op=cast/volley[2]/core dur=1 pos=-2.359241,4.298811,3.130819 rot=-0.312484,0.164675,0.933916,0.055099 scale=0.600000,0.600000,0.600000 bb=FIXED
 @16 write #3 op=cast/volley[3]/core dur=1 pos=-0.256980,2.201089,0.341023 rot=-0.239940,-0.259216,0.188493,0.916355 scale=0.600000,0.600000,0.600000 bb=FIXED
@@ -502,7 +502,7 @@ g @40 state-exit reason=TIMER | state=cast
 g @40 cast-end | pose
 ## pose-hit yaw=0 pitch=0
 @0 sound - op=cast/charge_chime sound=block.amethyst_block.chime cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
-@1 spawn #0 op=cast/volley[0]/core kind=item item=fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@1 spawn #0 op=cast/volley[0]/core kind=item item=minecraft:fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @1 write #0 op=cast/volley[0]/core dur=1 pos=0.000000,2.020000,0.600000 rot=0.000000,0.000000,0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
 @1 particle - op=cast/charge_spark type=hit-spark at=0.000000,1.620000,0.600000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1923973142911614861
 @1 particle - op=cast/volley[0]/trail[0] type=flame count=3 at=0.000000,1.620000,0.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8667216650699535687
@@ -527,7 +527,7 @@ g @40 cast-end | pose
 @5 particle - op=cast/volley[0]/trail[4] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8318142599431100352
 @5 particle - op=cast/volley[0]/sparkle[1]/wisp type=crit count=3 at=0.000000,1.620000,0.600000 off=0.150000,0.250000,0.150000 speed=0.037636 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3122952421199812382
 @5 particle - op=cast/volley[0]/ball.hit/use_0/embers[1] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.022680 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8642899042744109351
-@6 spawn #1 op=cast/volley[1]/core kind=item item=fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@6 spawn #1 op=cast/volley[1]/core kind=item item=minecraft:fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @6 write #0 op=cast/volley[0]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
 @6 write #1 op=cast/volley[1]/core dur=1 pos=0.000000,2.020000,0.600000 rot=0.000000,0.000000,0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
 @6 particle - op=cast/volley[0]/trail[5] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7878267149786681097
@@ -561,7 +561,7 @@ g @40 cast-end | pose
 @10 particle - op=cast/volley[1]/trail[4] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3708722050757303761
 @10 particle - op=cast/volley[1]/sparkle[1]/wisp type=crit count=4 at=0.000000,1.620000,0.600000 off=0.150000,0.250000,0.150000 speed=0.069466 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-629427362979256919
 @10 particle - op=cast/volley[1]/ball.hit/use_0/embers[1] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.032288 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4382037230619080182
-@11 spawn #2 op=cast/volley[2]/core kind=item item=fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@11 spawn #2 op=cast/volley[2]/core kind=item item=minecraft:fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @11 write #0 op=cast/volley[0]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,-0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
 @11 write #1 op=cast/volley[1]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
 @11 write #2 op=cast/volley[2]/core dur=1 pos=0.000000,2.020000,0.600000 rot=0.000000,0.000000,0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
@@ -599,7 +599,7 @@ g @40 cast-end | pose
 @15 particle - op=cast/volley[2]/trail[4] type=flame count=3 at=0.000000,1.620000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3352554030345234104
 @15 particle - op=cast/volley[2]/sparkle[1]/wisp type=crit count=5 at=0.000000,1.620000,0.600000 off=0.150000,0.250000,0.150000 speed=0.066902 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3167322037352172636
 @15 particle - op=cast/volley[2]/ball.hit/use_0/embers[1] type=lava count=8 at=0.000000,1.620000,2.200000 off=0.300000,0.300000,0.300000 speed=0.040530 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8229906039182244291
-@16 spawn #3 op=cast/volley[3]/core kind=item item=fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@16 spawn #3 op=cast/volley[3]/core kind=item item=minecraft:fire_charge part=- pos=0.000000,1.620000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @16 write #1 op=cast/volley[1]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,-0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
 @16 write #2 op=cast/volley[2]/core dur=1 pos=0.000000,2.796468,2.600000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
 @16 write #3 op=cast/volley[3]/core dur=1 pos=0.000000,2.020000,0.600000 rot=0.000000,0.000000,0.258819,0.965926 scale=0.600000,0.600000,0.600000 bb=FIXED
@@ -757,7 +757,7 @@ g @40 state-exit reason=TIMER | state=cast
 g @40 cast-end | pose
 ## pose-hit yaw=37 pitch=0
 @0 sound - op=cast/charge_chime sound=block.amethyst_block.chime cat=master vol=0.5 pitch=1 at=0.000000,0.000000,0.000000
-@1 spawn #0 op=cast/volley[0]/core kind=item item=fire_charge part=- pos=-0.361089,1.620000,0.479181 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@1 spawn #0 op=cast/volley[0]/core kind=item item=minecraft:fire_charge part=- pos=-0.361089,1.620000,0.479181 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @1 write #0 op=cast/volley[0]/core dur=1 pos=-0.361089,2.020000,0.479181 rot=-0.082124,-0.306493,0.245444,0.916010 scale=0.600000,0.600000,0.600000 bb=FIXED
 @1 particle - op=cast/charge_spark type=hit-spark at=-0.361089,1.620000,0.479181 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1923973142911614861
 @1 particle - op=cast/volley[0]/trail[0] type=flame count=3 at=-0.361089,1.620000,0.479181 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8667216650699535687
@@ -782,7 +782,7 @@ g @40 cast-end | pose
 @5 particle - op=cast/volley[0]/trail[4] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8318142599431100352
 @5 particle - op=cast/volley[0]/sparkle[1]/wisp type=crit count=3 at=-0.361089,1.620000,0.479181 off=0.150000,0.250000,0.150000 speed=0.037636 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3122952421199812382
 @5 particle - op=cast/volley[0]/ball.hit/use_0/embers[1] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.022680 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8642899042744109351
-@6 spawn #1 op=cast/volley[1]/core kind=item item=fire_charge part=- pos=-0.361089,1.620000,0.479181 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@6 spawn #1 op=cast/volley[1]/core kind=item item=minecraft:fire_charge part=- pos=-0.361089,1.620000,0.479181 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @6 write #0 op=cast/volley[0]/core dur=1 pos=-1.564719,2.796468,2.076452 rot=0.317305,0.000000,-0.948324,0.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
 @6 write #1 op=cast/volley[1]/core dur=1 pos=-0.361089,2.020000,0.479181 rot=-0.082124,-0.306493,0.245444,0.916010 scale=0.600000,0.600000,0.600000 bb=FIXED
 @6 particle - op=cast/volley[0]/trail[5] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7878267149786681097
@@ -816,7 +816,7 @@ g @40 cast-end | pose
 @10 particle - op=cast/volley[1]/trail[4] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3708722050757303761
 @10 particle - op=cast/volley[1]/sparkle[1]/wisp type=crit count=4 at=-0.361089,1.620000,0.479181 off=0.150000,0.250000,0.150000 speed=0.069466 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-629427362979256919
 @10 particle - op=cast/volley[1]/ball.hit/use_0/embers[1] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.032288 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4382037230619080182
-@11 spawn #2 op=cast/volley[2]/core kind=item item=fire_charge part=- pos=-0.361089,1.620000,0.479181 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@11 spawn #2 op=cast/volley[2]/core kind=item item=minecraft:fire_charge part=- pos=-0.361089,1.620000,0.479181 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @11 write #0 op=cast/volley[0]/core dur=1 pos=-1.564719,2.796468,2.076452 rot=0.082124,-0.306493,-0.245444,0.916010 scale=0.600000,0.600000,0.600000 bb=FIXED
 @11 write #1 op=cast/volley[1]/core dur=1 pos=-1.564719,2.796468,2.076452 rot=0.317305,0.000000,-0.948324,0.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
 @11 write #2 op=cast/volley[2]/core dur=1 pos=-0.361089,2.020000,0.479181 rot=-0.082124,-0.306493,0.245444,0.916010 scale=0.600000,0.600000,0.600000 bb=FIXED
@@ -854,7 +854,7 @@ g @40 cast-end | pose
 @15 particle - op=cast/volley[2]/trail[4] type=flame count=3 at=-1.564719,1.620000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3352554030345234104
 @15 particle - op=cast/volley[2]/sparkle[1]/wisp type=crit count=5 at=-0.361089,1.620000,0.479181 off=0.150000,0.250000,0.150000 speed=0.066902 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3167322037352172636
 @15 particle - op=cast/volley[2]/ball.hit/use_0/embers[1] type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.300000,0.300000,0.300000 speed=0.040530 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8229906039182244291
-@16 spawn #3 op=cast/volley[3]/core kind=item item=fire_charge part=- pos=-0.361089,1.620000,0.479181 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@16 spawn #3 op=cast/volley[3]/core kind=item item=minecraft:fire_charge part=- pos=-0.361089,1.620000,0.479181 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @16 write #1 op=cast/volley[1]/core dur=1 pos=-1.564719,2.796468,2.076452 rot=0.082124,-0.306493,-0.245444,0.916010 scale=0.600000,0.600000,0.600000 bb=FIXED
 @16 write #2 op=cast/volley[2]/core dur=1 pos=-1.564719,2.796468,2.076452 rot=0.317305,0.000000,-0.948324,0.000000 scale=0.600000,0.600000,0.600000 bb=FIXED
 @16 write #3 op=cast/volley[3]/core dur=1 pos=-0.361089,2.020000,0.479181 rot=-0.082124,-0.306493,0.245444,0.916010 scale=0.600000,0.600000,0.600000 bb=FIXED

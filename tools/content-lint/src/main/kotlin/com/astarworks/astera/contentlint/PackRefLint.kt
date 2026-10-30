@@ -52,7 +52,7 @@ internal class PackRefLint(private val contentDir: Path) {
                 val docs = runCatching {
                     Yaml(SafeConstructor(LoaderOptions())).loadAll(file.readText()).toList()
                 }.getOrElse { continue } // parse errors are reported by the schema pass
-                docs.forEach { walkOps(it, rel, tables, pack, problems) }
+                docs.forEach { walkOps(it, rel, tables, pack, vanilla, problems) }
             }
         }
         return Outcome(problems.distinct(), internal.vanillaSkipped, pack.size)
@@ -60,32 +60,15 @@ internal class PackRefLint(private val contentDir: Path) {
 
     private fun walkOps(
         node: Any?, file: String, tables: Map<String, com.astarworks.astera.core.application.skillengine.load.ItemFrames>,
-        pack: Map<String, ByteArray>, problems: MutableList<String>,
+        pack: Map<String, ByteArray>, vanilla: Set<String>?, problems: MutableList<String>,
     ) {
         when (node) {
             is Map<*, *> -> {
                 when (node["op"]) {
-                    "mesh" -> {
-                        val item = node["item"]?.toString()
-                        if (item != null) {
-                            val part = node["part"]?.toString()
-                            val id = node["id"]
-                            when (val model = MeshModels.resolve(item, part, tables)) {
-                                is MeshModel.Pack -> {
-                                    val key = model.key
-                                    if (key.startsWith("astera:") && "assets/astera/items/${key.removePrefix("astera:")}.json" !in pack) {
-                                        problems += "$file: mesh '$id' (item $item${part?.let { ", part $it" } ?: ""}) draws '$key', which has no item definition in the pack"
-                                    }
-                                }
-                                is MeshModel.Vanilla -> {
-                                    val key = model.itemModel
-                                    if (key != null && key.startsWith("astera:") && "assets/astera/items/${key.removePrefix("astera:")}.json" !in pack) {
-                                        problems += "$file: mesh '$id' (item $item, item_model $key) has no item definition in the pack"
-                                    }
-                                }
-                                MeshModel.HeldItem -> Unit
-                            }
-                        }
+                    "mesh", "display" -> when {
+                        node["op"] == "mesh" -> checkItem(node["item"], node, file, tables, pack, problems)
+                        node["kind"] == "item" -> checkItem(node["item"], node, file, tables, pack, problems)
+                        node["kind"] == "block" -> checkBlock(node["block"], node, file, vanilla, pack, problems)
                     }
                     "plate" -> {
                         val sprite = node["sprite"]?.toString()
@@ -94,9 +77,59 @@ internal class PackRefLint(private val contentDir: Path) {
                         }
                     }
                 }
-                node.values.forEach { walkOps(it, file, tables, pack, problems) }
+                node.values.forEach { walkOps(it, file, tables, pack, vanilla, problems) }
             }
-            is Iterable<*> -> node.forEach { walkOps(it, file, tables, pack, problems) }
+            is Iterable<*> -> node.forEach { walkOps(it, file, tables, pack, vanilla, problems) }
+        }
+    }
+
+    /** A value the lint can name statically: a literal id or a per-index list of literal ids; a CEL ('= ...') or unresolved '${param}' cell is skipped. */
+    private fun literals(raw: Any?): List<String> {
+        val cells = if (raw is Iterable<*>) raw.toList() else listOf(raw)
+        return cells.mapNotNull { it?.toString()?.takeIf { s -> !s.startsWith("=") && "\${" !in s } }
+    }
+
+    /**
+     * A `mesh` op or a `kind: item` display draws an item model. A bare id is a pack item (`astera:<id>`, MeshModels), so it needs an
+     * item definition in the built pack; a vanilla material has to be spelled `minecraft:<id>` or the client draws the missing model.
+     */
+    private fun checkItem(
+        raw: Any?, node: Map<*, *>, file: String, tables: Map<String, com.astarworks.astera.core.application.skillengine.load.ItemFrames>,
+        pack: Map<String, ByteArray>, problems: MutableList<String>,
+    ) {
+        val part = node["part"]?.toString()
+        val id = node["id"]
+        for (item in literals(raw)) {
+            when (val model = MeshModels.resolve(item, part, tables)) {
+                is MeshModel.Pack -> {
+                    val key = model.key
+                    if (key.startsWith("astera:") && "assets/astera/items/${key.removePrefix("astera:")}.json" !in pack) {
+                        problems += "$file: ${node["op"]} '$id' (item $item${part?.let { ", part $it" } ?: ""}) draws '$key', which has no item definition in the pack (a vanilla item is spelled minecraft:<id>)"
+                    }
+                }
+                is MeshModel.Vanilla -> {
+                    val key = model.itemModel
+                    if (key != null && key.startsWith("astera:") && "assets/astera/items/${key.removePrefix("astera:")}.json" !in pack) {
+                        problems += "$file: ${node["op"]} '$id' (item $item, item_model $key) has no item definition in the pack"
+                    }
+                }
+                MeshModel.HeldItem -> Unit
+            }
+        }
+    }
+
+    /** A `kind: block` display draws a block state: `astera:<id>` needs a pack blockstate; a vanilla id needs one in the client jar when one is available. */
+    private fun checkBlock(
+        raw: Any?, node: Map<*, *>, file: String, vanilla: Set<String>?, pack: Map<String, ByteArray>, problems: MutableList<String>,
+    ) {
+        for (block in literals(raw)) {
+            val bare = block.substringBefore('[')
+            val ns = if (':' in bare) bare.substringBefore(':') else "minecraft"
+            val path = bare.substringAfter(':')
+            val key = "assets/$ns/blockstates/$path.json"
+            if (key in pack) continue
+            if (ns == "minecraft" && (vanilla == null || key in vanilla)) continue
+            problems += "$file: display '${node["id"]}' block '$block' has no blockstate $key"
         }
     }
 }

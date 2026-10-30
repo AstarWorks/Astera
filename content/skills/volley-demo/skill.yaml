@@ -76,7 +76,7 @@ machine:
             - id: core
               op: display
               kind: item
-              item: fire_charge
+              item: "minecraft:fire_charge"
               context: fixed
               anchor: ball
               scale: [0.6, 0.6, 0.6]
