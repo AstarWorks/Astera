@@ -1135,6 +1135,11 @@ prepare_view() {
   CLIENT_STARTED=0
   setup_world
   build_arena
+  case "${SHOT_WALL:-0}" in
+    0) ;;
+    1) rcon "execute in minecraft:overworld run fill 299 $Y 300 299 $((Y + 4)) 309 minecraft:stone" >/dev/null ;;
+    *) die "SHOT_WALL must be 0 or 1" ;;
+  esac
   if [ "$STACK_WAS_COLD" = 0 ] && [ "${PACK_PUSHED:-0}" = 1 ] && [ "$SERVER_RESTARTED" = 0 ]; then
     # parked clients re-download the pushed pack: wait for their resource reload before filming
     local n joined

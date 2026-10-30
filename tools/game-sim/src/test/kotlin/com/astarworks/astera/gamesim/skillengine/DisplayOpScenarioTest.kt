@@ -31,6 +31,39 @@ class DisplayOpScenarioTest : SkillEngineScenario() {
     private fun rows(s: CompiledSkill): List<Row> = s.table.states.flatMap { it.rows }
 
     @Test
+    fun shippedGlowComparisonPlaysAllFourRoutesAndRemovesDisplays() {
+        val loaded = loadInline(java.nio.file.Files.readString(contentDir.resolve("vfx/demo-glow-comparison.yaml")))
+        val skill = (loaded as? Result.Success)?.value ?: throw AssertionError("glow demo did not load: $loaded")
+        val calls = play(skill, 7L)
+        val spawns = calls.filter { it.verb == "spawn" }
+        assertThat(spawns).hasSize(18)
+        assertThat(spawns.count { "glowing=true" in it.tokens }).isEqualTo(12)
+        assertThat(spawns.count { "shader=emissive-pulse" in it.tokens }).isEqualTo(6)
+        val particles = calls.filter { it.verb == "particle" }
+        assertThat(particles).hasSize(2)
+        assertThat(particles.all { "type=dust" in it.tokens && "count=40" in it.tokens }).isTrue()
+        assertThat(calls.filter { it.verb == "remove" }).hasSize(18)
+    }
+
+    @Test
+    fun displayGlowingAndColourReachRuntimeIndependently() {
+        val s = compiled(
+            "{id: a, op: display, kind: block, anchor: caster, block: minecraft:white_concrete, for: 20, glowing: true, glow_color: '#00ffff'}",
+            "{id: b, op: display, kind: block, anchor: caster, block: minecraft:white_concrete, for: 20, glow_color: '#ff0000'}",
+            "{id: c, op: display, kind: block, anchor: caster, block: minecraft:white_concrete, for: 20, glowing: true}",
+        )
+        val spawn = play(s, 7L).filter { it.verb == "spawn" }
+        assertThat(spawn).hasSize(3)
+        assertThat(spawn[0].payload).contains("glowing=true", "glow=#00ffff")
+        assertThat(spawn[1].payload).contains("glow=#ff0000").doesNotContain("glowing=true")
+        assertThat(spawn[2].payload).contains("glowing=true", "glow=-")
+        for (bad in listOf("glowing: 1", "glowing: 'yes'", "glow_color: '#f00'", "glow_color: '#ff00ffff'")) {
+            assertThat(loadInline(skill("{id: bad, op: display, kind: block, anchor: caster, block: minecraft:stone, for: 10, $bad}")))
+                .describedAs(bad).isInstanceOf(Result.Failure::class.java)
+        }
+    }
+
+    @Test
     fun rigResetIsZeroDurationWrite() {
         val s = compiled(
             "{id: r, op: rig, parent: caster, for: 80, swing: [" +

@@ -57,6 +57,8 @@ public data class DisplayView(
     val target: UUID? = null,
     /** The row's `viewers:` filter; [audience] is already derived from it (kept so the recorders can print the spelling). */
     val viewers: com.astarworks.astera.core.domain.effect.RowViewers = com.astarworks.astera.core.domain.effect.RowViewers.ALL,
+    val glowing: Boolean = false,
+    val glowColor: String? = null,
 )
 
 /** A sprite's flipbook length and texture edge in pixels (its natural size is `px * 0.025` blocks). */
@@ -69,7 +71,7 @@ public data class SpriteInfo(val frames: Int, val px: Int)
  */
 public interface ISkillVisualGateway {
     /** An item model; [pose].size is the model scale in blocks per model unit. */
-    public fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int? = null, look: MeshLook = MeshLook(), view: DisplayView = DisplayView(), glow: String? = null): VisualHandle
+    public fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int? = null, look: MeshLook = MeshLook(), view: DisplayView = DisplayView()): VisualHandle
 
     /**
      * One bone of the caster's own skin rig (ADR-0303 skin-rig section): a skull display wearing the caster's skin, [ghost] = a
@@ -83,10 +85,10 @@ public interface ISkillVisualGateway {
      * sprite from the first tick (null = the sprite's own colours), [seeThrough] is the vanilla text-display flag.
      * [brightness] null = full bright (15).
      */
-    public fun spawnPlate(cast: CastRef, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int? = null, view: DisplayView = DisplayView(), glow: String? = null): VisualHandle
+    public fun spawnPlate(cast: CastRef, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int? = null, view: DisplayView = DisplayView()): VisualHandle
 
     /** A block display of vanilla block [block] (`gold_block`); [pose].size is its edge per axis in blocks, centred on the pose origin. */
-    public fun spawnBlock(cast: CastRef, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean = false, view: DisplayView = DisplayView(), glow: String? = null): VisualHandle
+    public fun spawnBlock(cast: CastRef, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean = false, view: DisplayView = DisplayView()): VisualHandle
 
     /**
      * A text display of the MiniMessage [text] ([pose].size = blocks per text unit) with a box of [backgroundArgbHex]

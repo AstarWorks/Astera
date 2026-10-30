@@ -256,7 +256,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         }
 
     val visual: ISkillVisualGateway = object : ISkillVisualGateway {
-        override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView, glow: String?): VisualHandle {
+        override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView): VisualHandle {
             // Paper: the main-hand kind draws the model of the cast's item (CastRef.heldItem), so an offline caster or a cast without an item refuses the spawn (PaperSkillVisualGateway.dead); the live hand is never consulted
             if (com.astarworks.astera.core.application.skillengine.load.MeshModels.resolve(item, part, emptyMap()) is com.astarworks.astera.core.application.skillengine.load.MeshModel.HeldItem) {
                 if (!casterOnline || cast.heldItem == null) error("skill visual 'mesh $item${if (casterOnline) " (the cast carries no item)" else ""}' could not be spawned: owner offline or display refused")
@@ -266,7 +266,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             (com.astarworks.astera.core.application.skillengine.load.MeshModels.resolve(item, part, emptyMap()) as? com.astarworks.astera.core.application.skillengine.load.MeshModel.Pack)?.let {
                 check(PACK_KEY.matches(it.key)) { "invalid item model '${it.key}' (mesh item '$item' part '$part')" }
             }
-            return spawned(cast, "item", "item=${OracleFmt.s(item)} part=${OracleFmt.s(part)} ${OracleFmt.pose(pose)} bright=${brightness ?: "-"} model=${OracleFmt.s(look.itemModel)} mode=${look.mode} rigshade=${look.rigShading} shader=${OracleFmt.s(look.shaderEffect)} glow=${OracleFmt.s(glow)} ${OracleFmt.view(view)}")
+            return spawned(cast, "item", "item=${OracleFmt.s(item)} part=${OracleFmt.s(part)} ${OracleFmt.pose(pose)} bright=${brightness ?: "-"} model=${OracleFmt.s(look.itemModel)} mode=${look.mode} rigshade=${look.rigShading} shader=${OracleFmt.s(look.shaderEffect)} glow=${OracleFmt.s(view.glowColor)} ${OracleFmt.view(view)}")
         }
 
         override fun spawnSkinBone(cast: CastRef, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose): VisualHandle {
@@ -274,11 +274,11 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             return spawned(cast, "skin_bone", "bone=${bone.yamlName} slim=$slim ghost=$ghost ${OracleFmt.pose(pose)}")
         }
 
-        override fun spawnPlate(cast: CastRef, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView, glow: String?) =
-            spawned(cast, "sprite", "sprite=${OracleFmt.s(sprite)} alpha=${OracleFmt.f(alpha)} tint=${OracleFmt.s(tintHex)} seethrough=$seeThrough ${OracleFmt.pose(pose)} bright=${brightness ?: "-"} glow=${OracleFmt.s(glow)} ${OracleFmt.view(view)}")
+        override fun spawnPlate(cast: CastRef, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) =
+            spawned(cast, "sprite", "sprite=${OracleFmt.s(sprite)} alpha=${OracleFmt.f(alpha)} tint=${OracleFmt.s(tintHex)} seethrough=$seeThrough ${OracleFmt.pose(pose)} bright=${brightness ?: "-"} glow=${OracleFmt.s(view.glowColor)} ${OracleFmt.view(view)}")
 
-        override fun spawnBlock(cast: CastRef, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView, glow: String?) =
-            spawned(cast, "block", "block=${OracleFmt.s(block)} ${OracleFmt.pose(pose)} bright=${brightness ?: "-"} rigshade=$rigShading glow=${OracleFmt.s(glow)} ${OracleFmt.view(view)}")
+        override fun spawnBlock(cast: CastRef, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView) =
+            spawned(cast, "block", "block=${OracleFmt.s(block)} ${OracleFmt.pose(pose)} bright=${brightness ?: "-"} rigshade=$rigShading glow=${OracleFmt.s(view.glowColor)} ${OracleFmt.view(view)}")
 
         override fun spawnText(cast: CastRef, text: String, backgroundArgbHex: String, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) =
             spawned(cast, "text", "text=${OracleFmt.s(text)} bg=${OracleFmt.s(backgroundArgbHex)} shadow=$shadow seethrough=$seeThrough ${OracleFmt.pose(pose)} bright=${brightness ?: "-"} ${OracleFmt.view(view)}")
@@ -845,7 +845,9 @@ internal object OracleFmt {
     }
 
     fun view(v: DisplayView): String =
-        "aud=${v.audience} lane=${v.lane} target=${v.target ?: "-"}" + if (v.viewers != com.astarworks.astera.core.domain.effect.RowViewers.ALL) " viewers=${v.viewers.yamlName}" else ""
+        "aud=${v.audience} lane=${v.lane} target=${v.target ?: "-"}" +
+            (if (v.viewers != com.astarworks.astera.core.domain.effect.RowViewers.ALL) " viewers=${v.viewers.yamlName}" else "") +
+            (if (v.glowing) " glowing=true" else "")
 
     /** A string value on one token: whitespace and `=` escaped, null = `-`. */
     fun s(x: String?): String = x?.replace("%", "%25")?.replace(" ", "%20")?.replace("\n", "%0A")?.replace("=", "%3D")?.ifEmpty { "%00" } ?: "-"

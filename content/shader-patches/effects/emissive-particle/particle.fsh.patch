@@ -1,0 +1,16 @@
+# Reserved pure-blue dust + sprite alpha 254. Neither tint nor alpha alone selects the effect.
+@@ hook: declarations
+layout(location = 4) in vec4 asteraParticleRaw;
+@@ hook: surface
+    vec4 asteraParticleTex = texture(Sampler0, texCoord0);
+    bool asteraParticleTint = asteraParticleRaw.r == 0.0 && asteraParticleRaw.g == 0.0 && asteraParticleRaw.b > 0.0;
+    bool asteraParticleSprite = abs(asteraParticleTex.a - ${SPRITE_ALPHA} / 255.0) < 0.001;
+    if (asteraParticleTint && asteraParticleSprite) {
+        vec2 asteraParticlePixel = mod(floor(texCoord0 * vec2(textureSize(Sampler0, 0))), 8.0) - 3.5;
+        float asteraParticleY = clamp(1.0 - length(asteraParticlePixel) / 5.0, 0.0, 1.0);
+        vec3 asteraParticleRamp = vec3(0.32, 0.06, 0.14);
+        if (asteraParticleY >= 0.75) asteraParticleRamp = vec3(1.0, 0.95, 0.73);
+        else if (asteraParticleY >= 0.5) asteraParticleRamp = vec3(1.0, 0.65, 0.15);
+        else if (asteraParticleY >= 0.25) asteraParticleRamp = vec3(0.95, 0.28, 0.04);
+        color = vec4(asteraParticleRamp * ColorModulator.rgb, asteraParticleTex.a * asteraParticleRaw.a * ColorModulator.a);
+    }

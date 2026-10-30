@@ -24,8 +24,8 @@ class ShippedShaderDisplayScenarioTest : SkillEngineScenario() {
             val rec = GatewayRecorder()
             val effects = mutableListOf<String?>()
             val visual = object : ISkillVisualGateway by rec.visual {
-                override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView, glow: String?) =
-                    rec.visual.spawnMesh(cast, item, part, pose, brightness, look, view, glow).also { effects += look.shaderEffect }
+                override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView) =
+                    rec.visual.spawnMesh(cast, item, part, pose, brightness, look, view).also { effects += look.shaderEffect }
             }
             val player = playProbe(skill, ticks = 102, rec = rec, visual = visual)
             assertThat(player.faults()).describedAs(id).isEmpty()
