@@ -19,8 +19,7 @@ params:
   max_lifetime_ticks: {type: ticks,  default: 40}
   decay:              {type: number, default: 0.7}
   dmg_electric:       {type: number, default: 18}
-  shock_ticks:        {type: ticks,  default: 20}
-  shock_chance:       {type: number, default: 0.4}
+  shock_ticks:        {type: ticks,  default: 8}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: fx,     anchor: caster.eye, offset: {forward: 1.0, up: -0.2}, mode: follow}
@@ -34,7 +33,7 @@ fragments:
       shock: {type: ticks,  required: true}
     do:
       - {id: dmg,   op: damage, target: victim, damage: {electric: "= dmg * pow(decay, hop)"}}
-      - {id: shock, op: status, target: victim, status: shock, stacks: 1, for: "= shock - 4 * hop"}
+      - {id: shock, op: status, target: victim, status: shock, stacks: 1, for: "= shock - 2 * hop"}
       - {id: arc_glow, op: ribbon, from: from.center, to: victim.center, thickness: 0.22, color: "#6690d0ff", segments: 7, jitter: {spread: 0.3, along: 0.2, every: 2, follow: arc}, at: 0, for: 5, detach: true}
       - {id: arc,      op: ribbon, from: from.center, to: victim.center, thickness: 0.07, color: "#ffeaf6ff", segments: 7, jitter: {spread: 0.3, along: 0.2, every: 2}, at: 0, for: 5, detach: true}
       - {id: spark, op: particle, particle: electric_spark, anchor: spot, count: 12, offset: [0.3, 0.6, 0.3], extra: 0.2, at: 0, detach: true}
@@ -68,7 +67,7 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {electric: "${dmg_electric}"}}
-              - {id: shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}", when: "= rand() < ${shock_chance}"}
+              - {id: shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}"}
               - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: link_glow, op: ribbon, from: fx, to: heart, thickness: 0.22, color: "#6690d0ff", segments: 8, jitter: {spread: 0.35, along: 0.2, every: 2, follow: link}, at: 0, for: 5, detach: true}
               - {id: link, op: ribbon, from: fx, to: heart, thickness: 0.07, color: "#ffeaf6ff", segments: 8, jitter: {spread: 0.35, along: 0.2, every: 2}, at: 0, for: 5, detach: true}

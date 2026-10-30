@@ -10,7 +10,7 @@ meta:
   tags: [ranged, ice-family, slow]
 params:
   dmg_water:    {type: number, default: 25.0}
-  freeze_ticks: {type: ticks, default: 60}
+  freeze_ticks: {type: ticks, default: 40}
   wet_ticks:    {type: ticks, default: 100}
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 1.6}, mode: snapshot}
@@ -49,7 +49,7 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {water: "${dmg_water}"}}
-              - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: "${freeze_ticks}", when: "= rand() < 0.7"}
+              - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: "${freeze_ticks}"}
               - {id: st_wet, op: status, target: event.victim, status: wet, stacks: 1, for: "${wet_ticks}"}
               - {id: chip, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: heart, volume: 0.7, pitch: 1.5, detach: true}

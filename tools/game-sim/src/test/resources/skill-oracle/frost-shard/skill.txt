@@ -73,6 +73,7 @@ r @3 run-end tail=2 | pose
 @1 particle - op=cast/ball.hit/burst/fx_rod type=snowflake count=10 at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4692051379139770651
 @1 particle - op=cast/ball.hit/burst/fx_dust type=dust count=20 at=0.000000,0.810000,2.500000 off=0.400000,0.400000,0.400000 speed=0.000000 color=#bee6ff size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1091755369847887609
 @1 damage 00000000-0000-0000-0000-00000000000a op=- water=25 skill=frost-shard at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@1 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=40
 @1 status 00000000-0000-0000-0000-00000000000a op=- status=wet stacks=1 for=100
 @1 remove #0 op=cast/shell
 g @1 state-exit reason=PREEMPT | state=cast/fly
@@ -107,6 +108,7 @@ r @4 run-end tail=2 | pose
 @1 particle - op=cast/ball.hit/burst/fx_rod type=snowflake count=10 at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4692051379139770651
 @1 particle - op=cast/ball.hit/burst/fx_dust type=dust count=20 at=-1.504538,0.810000,1.996589 off=0.400000,0.400000,0.400000 speed=0.000000 color=#bee6ff size=1.400000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1091755369847887609
 @1 damage 00000000-0000-0000-0000-00000000000a op=- water=25 skill=frost-shard at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@1 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=40
 @1 status 00000000-0000-0000-0000-00000000000a op=- status=wet stacks=1 for=100
 @1 remove #0 op=cast/shell
 g @1 state-exit reason=PREEMPT | state=cast/fly
@@ -126,7 +128,7 @@ g.bounce @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D0.5),%20
 g.end @1..43 handler max=1 | sub=cast/ball.end
 g.hit @1..43 handler max=1 | sub=cast/ball.hit
 g.hit @0 damage water=25.000000 | sub=cast/ball.hit
-g.hit @0 status freeze stacks=1.000000 for=60 when | sub=cast/ball.hit
+g.hit @0 status freeze stacks=1.000000 for=40 | sub=cast/ball.hit
 g.hit @0 status wet stacks=1.000000 for=100 | sub=cast/ball.hit
 g.hit @0 world break_area spec=BreakAreaSpec(shape%3DSphere(radius%3D0.5),%20tool%3Dnone,%20blockDamage%3D10,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | sub=cast/ball.hit
 g.hit @0 call skill:frost-shard-burst | sub=cast/ball.hit

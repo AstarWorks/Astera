@@ -2381,6 +2381,8 @@ astera:
       name: "Charge"
     immunity:
       name: "Immune"
+    root:
+      name: "Rooted"
 
   # F3-2: message keys referenced from Kotlin (MessageKey / labelKey / button / text literals).
   damage.target_offline: "<red>The target player is offline.</red>"
@@ -2807,6 +2809,7 @@ astera:
   statusdesc.charge: "Stacks on you; charge skills spend it for extra damage."
   statusdesc.immunity: "Takes no damage for a moment."
   statusdesc.silence: "Cannot cast skills for a moment."
+  statusdesc.root: "Rooted: cannot move for a moment, but can still attack and turn."
 
   # Cross-server chat (ADR-0289)
   chat.japanize.on: "Japanize enabled."

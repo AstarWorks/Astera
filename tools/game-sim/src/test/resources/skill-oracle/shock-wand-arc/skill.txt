@@ -42,7 +42,7 @@
 @0 hit - op=burst/area at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- electric=9.6429 skill=shock-wand-arc at=0.000000,0.000000,2.200000 ignoreinv=false ignorearmor=false
 @0 sound - op=burst/area.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=0.000000,0.000000,2.200000
-@0 status 00000000-0000-0000-0000-00000000000a op=- status=shock stacks=1 for=30
+@0 status 00000000-0000-0000-0000-00000000000a op=- status=shock stacks=1 for=15
 ## pose yaw=37 pitch=-20
 @0 sound - op=burst/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1.1 at=0.000000,0.000000,0.000000
 @0 particle - op=burst/fx_spark type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2588716033807108782
@@ -87,7 +87,7 @@
 @0 hit - op=burst/area at=0.000000,0.000000,0.000000 r=3.500000 shape=sphere rad=3.500000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- electric=9.6429 skill=shock-wand-arc at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
 @0 sound - op=burst/area.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589
-@0 status 00000000-0000-0000-0000-00000000000a op=- status=shock stacks=1 for=30
+@0 status 00000000-0000-0000-0000-00000000000a op=- status=shock stacks=1 for=15
 ## pose-hit yaw=0 pitch=0
 @0 sound - op=burst/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1.1 at=0.000000,0.000000,0.000000
 @0 particle - op=burst/fx_spark type=electric_spark count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2588716033807108782
@@ -133,8 +133,9 @@
 @0 damage 00000000-0000-0000-0000-00000000000a op=- electric=9.6429 skill=shock-wand-arc at=0.000000,0.000000,2.200000 ignoreinv=false ignorearmor=false
 @0 damage 00000000-0000-0000-0000-00000000000b op=- electric=7.2738 skill=shock-wand-arc at=-1.700000,0.000000,2.700000 ignoreinv=false ignorearmor=false
 @0 sound - op=burst/area.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=0.000000,0.000000,2.200000
-@0 status 00000000-0000-0000-0000-00000000000a op=- status=shock stacks=1 for=30
+@0 status 00000000-0000-0000-0000-00000000000a op=- status=shock stacks=1 for=15
 @0 sound - op=burst/area.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.700000,0.000000,2.700000
+@0 status 00000000-0000-0000-0000-00000000000b op=- status=shock stacks=1 for=15
 g @1 state-exit reason=TIMER | state=burst
 g @1 cast-end | pose
 ## pose-hit yaw=37 pitch=0
@@ -182,8 +183,9 @@ g @1 cast-end | pose
 @0 damage 00000000-0000-0000-0000-00000000000a op=- electric=9.6429 skill=shock-wand-arc at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
 @0 damage 00000000-0000-0000-0000-00000000000b op=- electric=7.2738 skill=shock-wand-arc at=-3.102716,0.000000,0.892276 ignoreinv=false ignorearmor=false
 @0 sound - op=burst/area.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589
-@0 status 00000000-0000-0000-0000-00000000000a op=- status=shock stacks=1 for=30
+@0 status 00000000-0000-0000-0000-00000000000a op=- status=shock stacks=1 for=15
 @0 sound - op=burst/area.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-3.102716,0.000000,0.892276
+@0 status 00000000-0000-0000-0000-00000000000b op=- status=shock stacks=1 for=15
 g @1 state-exit reason=TIMER | state=burst
 g @1 cast-end | pose
 ## gameplay-static
@@ -192,4 +194,4 @@ g @1 state-end then=end final=false | state=burst
 g @0 damage electric=live(%3D%2015.0%20*%20(1.0%20-%200.5%20*%20dist(event.victim,%20caster)%20/%203.5)) | state=burst
 g @0 state-end then=- final=true | state=end
 g.hit @0..0 handler max=2147483647 | sub=burst/area.hit
-g.hit @0 status shock stacks=1.000000 for=30 when | sub=burst/area.hit
+g.hit @0 status shock stacks=1.000000 for=15 | sub=burst/area.hit
