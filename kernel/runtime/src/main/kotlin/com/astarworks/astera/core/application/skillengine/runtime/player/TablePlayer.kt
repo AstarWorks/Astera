@@ -27,6 +27,9 @@ import com.astarworks.astera.core.domain.damage.DamageComponent
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.effect.ParticleData
+import com.astarworks.astera.core.application.skillengine.runtime.port.DisplayView
+import com.astarworks.astera.core.domain.effect.RowViewers
+import com.astarworks.astera.core.domain.effect.VfxLane
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.application.skillengine.load.grammar.LocalAxes
 import com.astarworks.astera.core.domain.geometry.math.Basis
@@ -964,6 +967,10 @@ public class TablePlayer(
         val look = a.look
         val brightness = look.fields["brightness"]?.let { int(run, it as Val<Int>, ctx) }
         val glow = look.fields["glow"]?.let { strOf(run, it, ctx) }
+        // `viewers:` of the row; a row that writes none (all) takes its anchor's (a hidden frame hides everything riding it)
+        rec.viewers = look.fields["viewers"]?.let { RowViewers.fromYaml(strOf(run, it, ctx)) }?.takeIf { it != RowViewers.ALL }
+            ?: a.anchor?.let { run.recs[it]?.viewers } ?: RowViewers.ALL
+        val view = DisplayView(rec.viewers.audience, VfxLane.CORE, null, rec.viewers)
         val h: VisualHandle? = when (a.kind) {
             SpawnKind.FRAME, SpawnKind.PROJECTILE_BODY -> null
             SpawnKind.ITEM -> visual.spawnMesh(
@@ -974,16 +981,17 @@ public class TablePlayer(
                     mode = look.fields["mode"]?.let { DisplayItemMode.valueOf(strOf(run, it, ctx).uppercase()) } ?: DisplayItemMode.FIXED,
                     rigShading = look.fields["rig_shading"]?.let { any(run, it, ctx) as? Boolean } ?: true,
                 ),
+                view = view,
                 glow = glow,
             )
-            SpawnKind.BLOCK -> visual.spawnBlock(cast, req(run, look, "block", ctx), pose, brightness, glow = glow)
+            SpawnKind.BLOCK -> visual.spawnBlock(cast, req(run, look, "block", ctx), pose, brightness, view = view, glow = glow)
             SpawnKind.TEXT -> visual.spawnText(
                 cast, req(run, look, "text", ctx), look.fields["background"]?.let { strOf(run, it, ctx) } ?: "#00000000",
-                flag(run, look, "shadow", ctx), flag(run, look, "see_through", ctx), pose, brightness,
+                flag(run, look, "shadow", ctx), flag(run, look, "see_through", ctx), pose, brightness, view,
             )
             SpawnKind.SPRITE -> visual.spawnPlate(
                 cast, req(run, look, "sprite", ctx), look.fields["alpha"]?.let { dbl(run, it, ctx) } ?: 1.0,
-                look.fields["color"]?.let { strOf(run, it, ctx) }, flag(run, look, "see_through", ctx), pose, brightness, glow = glow,
+                look.fields["color"]?.let { strOf(run, it, ctx) }, flag(run, look, "see_through", ctx), pose, brightness, view = view, glow = glow,
             )
             SpawnKind.RIBBON -> if (strOf(run, look.fields["shape"] ?: throw IllegalArgumentException("ribbon look needs 'shape'"), ctx) == "line") {
                 // ADR-0303 section 5 `shape: line`: both ends are live anchors read again every tick (lineStep), so the thread follows its frames
@@ -2436,6 +2444,8 @@ public class TablePlayer(
         var to: PoseV,
     ) {
         var real: VisualHandle? = null
+        /** The `viewers:` filter this instance resolved to at spawn (its own, else its anchor's); displays riding a frame inherit it. */
+        var viewers: RowViewers = RowViewers.ALL
         /** A `rig` anchor instance: the driver that poses [RigRec.driven] each tick (this rec itself when the rig has no `of`). */
         var rig: RigRec? = null
         /** The hit that spawned this instance (null outside `on.hit`): a `victim` anchor/axes keeps resolving to that victim after the row is gone (end-of-cast freeze, later ticks). */

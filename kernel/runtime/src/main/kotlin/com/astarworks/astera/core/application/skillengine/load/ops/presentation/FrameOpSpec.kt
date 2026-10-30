@@ -33,6 +33,7 @@ import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
 import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.effect.RowViewers
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEnv
@@ -84,6 +85,8 @@ public class FrameOp(
     public val mode: FrameMode,
     /** R23: whose axes the frame takes (`caster` / `victim` / `world`); null = the anchor's own axes. Re-read per send (follow) or once (snapshot). */
     public val axes: String?,
+    /** `viewers`: `all` | `owner-hidden` | `others-only`; every display riding this frame inherits it unless the display writes its own. */
+    public val viewers: String,
     /** Motion laws decoded by [MotionLaws]; segmented into `Key` rows by [LawSegmenter] at compile; null = a still frame. */
     public val motion: LawSource?,
 ) : OpNode
@@ -99,9 +102,10 @@ public object FrameOpSpec : OpSpec<FrameOp> {
     private val turnF = Field.optional("turn", Rotations.type, Rotation.Turns(emptyList()), "initial orientation relative to the parent basis, [{axis, deg}, ...] (axes long/edge/face need part)")
     private val modeF = Field.optional("mode", Types.enumOf("follow", "snapshot"), "follow", "follow: re-read the parent at every send; snapshot: copy the pose once")
     private val axesF = Field.optional("axes", Types.nullable(Types.enumOf("caster", "victim", "world")), null, "whose axes the frame takes: caster | victim | world; absent = the anchor's own axes")
+    private val viewersF = Field.optional("viewers", Types.enumOf(*RowViewers.YAML_NAMES), "all", "who sees the displays riding this frame: all | owner-hidden | others-only; a display with its own non-all viewers keeps its own")
     private val motionF = Field.optional<RawMotion?>("motion", Types.nullable(MotionType), null, "laws on the origin and the axes (ADR-0303 3)")
 
-    override val fields: Fields = Fields.of("frame", anchorF, partF, offsetF, turnF, modeF, axesF, motionF)
+    override val fields: Fields = Fields.of("frame", anchorF, partF, offsetF, turnF, modeF, axesF, viewersF, motionF)
 
     /** The raw `motion:` list: the laws are read in [decode], once the sibling `part:` (so `long` / `edge` / `face`) and the param defaults are known. */
     private class RawMotion(val raw: Any?, val path: String)
@@ -123,7 +127,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
                 id, src, whenExpr, timing,
                 values[anchorF], values[partF], values[offsetF], values[turnF],
                 if (values[modeF] == "snapshot") FrameMode.SNAPSHOT else FrameMode.FOLLOW,
-                values[axesF], values[motionF]?.let { m -> LawSource(m.raw, ctx.forLaws(PartAxes(ctx.lawAxes(values[partF]))), m.path).also { it.probe(probeCopies(times, ctx)) } },
+                values[axesF], values[viewersF], values[motionF]?.let { m -> LawSource(m.raw, ctx.forLaws(PartAxes(ctx.lawAxes(values[partF]))), m.path).also { it.probe(probeCopies(times, ctx)) } },
             )
         }
 
@@ -180,6 +184,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
             val look = LinkedHashMap<String, Val<Any>>()
             look["mode"] = Val.Known(if (op.mode == FrameMode.SNAPSHOT) "snapshot" else "follow")
             op.axes?.let { look["axes"] = Val.Known(it) }
+            if (op.viewers != RowViewers.ALL.yamlName) look["viewers"] = Val.Known(op.viewers)
             if (item != null) look["item"] = Val.Known(item)
             if (op.part != null) look["part"] = Val.Known(op.part)
             // the part's model points ride in the table, so an expression `<id>.tip` reads a number the dump shows (3.5), not a lookup at play time

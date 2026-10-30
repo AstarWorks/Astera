@@ -1403,6 +1403,15 @@
                             "description": "whose axes the frame takes: caster | victim | world; absent = the anchor's own axes",
                             "default": null
                         },
+                        "viewers": {
+                            "enum": [
+                                "all",
+                                "owner-hidden",
+                                "others-only"
+                            ],
+                            "description": "who sees the displays riding this frame: all | owner-hidden | others-only; a display with its own non-all viewers keeps its own",
+                            "default": "all"
+                        },
                         "motion": {
                             "anyOf": [
                                 {
@@ -4568,6 +4577,15 @@
                             ],
                             "description": "#rrggbb glow override; absent = none",
                             "default": null
+                        },
+                        "viewers": {
+                            "enum": [
+                                "all",
+                                "owner-hidden",
+                                "others-only"
+                            ],
+                            "description": "who sees this display: all | owner-hidden (not the caster) | others-only (players other than the caster); a hidden frame's children inherit it",
+                            "default": "all"
                         },
                         "interpolation_delay": {
                             "oneOf": [
