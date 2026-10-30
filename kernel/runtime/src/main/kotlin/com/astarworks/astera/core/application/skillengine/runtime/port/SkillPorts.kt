@@ -56,8 +56,6 @@ public data class DisplayView(
     val audience: com.astarworks.astera.core.domain.effect.Audience = com.astarworks.astera.core.domain.effect.Audience.ALL,
     val lane: com.astarworks.astera.core.domain.effect.VfxLane = com.astarworks.astera.core.domain.effect.VfxLane.CORE,
     val target: UUID? = null,
-    /** The row's `viewers:` filter; [audience] is already derived from it (kept so the recorders can print the spelling). */
-    val viewers: com.astarworks.astera.core.domain.effect.RowViewers = com.astarworks.astera.core.domain.effect.RowViewers.ALL,
 )
 
 /** A sprite's flipbook length and texture edge in pixels (its natural size is `px * 0.025` blocks). */

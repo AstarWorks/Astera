@@ -1,5 +1,5 @@
 ## pose yaw=0 pitch=0
-@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=OTHERS lane=CORE target=- viewers=owner-hidden
+@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.037709,0.975872,0.212220,0.034836 scale=0.937500,0.937500,0.937500 bb=FIXED
 @0 sound - op=windup/snd_windup sound=item.armor.equip_iron cat=master vol=0.5 pitch=0.5 at=0.000000,0.000000,0.000000
 @0 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.037709,0.975872,0.212220,0.034836
@@ -90,7 +90,7 @@ g @6 state-exit reason=TIMER | state=strike
 g @6 cast-end | pose
 r @16 run-end tail=10 | pose
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=OTHERS lane=CORE target=- viewers=owner-hidden
+@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.031578,0.914389,0.213219,0.342684 scale=0.937500,0.937500,0.937500 bb=FIXED
 @0 sound - op=windup/snd_windup sound=item.armor.equip_iron cat=master vol=0.5 pitch=0.5 at=0.000000,0.000000,0.000000
 @0 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.031578,0.914389,0.213219,0.342684
@@ -181,7 +181,7 @@ g @6 state-exit reason=TIMER | state=strike
 g @6 cast-end | pose
 r @16 run-end tail=10 | pose
 ## pose-hit yaw=0 pitch=0
-@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=OTHERS lane=CORE target=- viewers=owner-hidden
+@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.037709,0.975872,0.212220,0.034836 scale=0.937500,0.937500,0.937500 bb=FIXED
 @0 sound - op=windup/snd_windup sound=item.armor.equip_iron cat=master vol=0.5 pitch=0.5 at=0.000000,0.000000,0.000000
 @0 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.037709,0.975872,0.212220,0.034836
@@ -273,7 +273,7 @@ g @6 state-exit reason=TIMER | state=strike
 g @6 cast-end | pose
 r @16 run-end tail=10 | pose
 ## pose-hit yaw=37 pitch=0
-@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=OTHERS lane=CORE target=- viewers=owner-hidden
+@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.031578,0.914389,0.213219,0.342684 scale=0.937500,0.937500,0.937500 bb=FIXED
 @0 sound - op=windup/snd_windup sound=item.armor.equip_iron cat=master vol=0.5 pitch=0.5 at=0.000000,0.000000,0.000000
 @0 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.031578,0.914389,0.213219,0.342684

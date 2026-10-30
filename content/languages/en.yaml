@@ -512,6 +512,22 @@ astera:
         sneak_drop: "<yellow>[Shift+Q]</yellow> <white>{name}</white>"
         shoot: "<yellow>[Release]</yellow> <white>{name}</white>"
       locked: "<dark_gray>Locked until Norma Lv {level} in a match</dark_gray>"
+      hold: "<gray>Hold: <white>{kind}{detail}</white></gray>"
+      hold_ticks: "{ticks}t"
+      hold_kind:
+        none: "none"
+        knockback: "knockback"
+        pull: "pull"
+        knockback_pull: "knockback + pull"
+        knockback_stop: "knockback + stop"
+        slow: "slow"
+        root: "root"
+        freeze: "freeze"
+        shock: "shock"
+      hold_level:
+        light: "(light)"
+        medium: "(medium)"
+        heavy: "(heavy)"
       stat:
         attack_damage: "<gray>Damage: <white>{value}</white></gray>"
         attack_speed: "<gray>Attack speed: <white>{value}/s</white></gray>"

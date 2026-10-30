@@ -38,7 +38,6 @@ import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
 import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
 import com.astarworks.astera.core.domain.Result
-import com.astarworks.astera.core.domain.effect.RowViewers
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEnv
@@ -106,8 +105,6 @@ public class DisplayOp(
     public val brightness: Pair<Value<Double>, Value<Double>>?,
     public val viewRange: Value<Double>,
     public val glowColor: Value<String>?,
-    /** `viewers` (`all` | `owner-hidden`): who sees this display; a frame's filter is inherited by its children. */
-    public val viewers: String,
     public val interpolationDelay: Value<Double>,
     public val interpolationDuration: Value<Double>,
     public val teleportDuration: Value<Double>,
@@ -219,7 +216,6 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     private val brightnessF = Field.optional("brightness", Types.nullable(Types.nested(brightnessFields)), null, "{block, sky}; absent = world light")
     private val viewRangeF = Field.optional("view_range", Types.number, Value.Literal(1.0), "vanilla view range multiplier")
     private val glowColorF = Field.optional("glow_color", Types.nullable(Types.text), null, "#rrggbb glow override; absent = none")
-    private val viewersF = Field.optional("viewers", Types.enumOf(*RowViewers.YAML_NAMES), "all", "who sees this display: all | owner-hidden (not the caster); a hidden frame's children inherit it")
     private val interpDelayF = Field.optional("interpolation_delay", Types.number, Value.Literal(0.0), "engine-owned after spawn (section 4); written only for hand-tuned loops")
     private val interpDurationF = Field.optional("interpolation_duration", Types.number, Value.Literal(0.0), "engine-owned after spawn (section 4)")
     private val teleportDurationF = Field.optional("teleport_duration", Types.number, Value.Literal(0.0), "engine-owned after spawn (section 4)")
@@ -238,7 +234,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         itemF, partF, contextF, shaderEffectF, blockF,
         textF, backgroundF, alignmentF, lineWidthF, textOpacityF, seeThroughF, shadowF,
         spriteF, sizeF, pivotF, flipbookF, colorF,
-        translationF, rotateF, scaleF, rightF, pitchF, billboardF, brightnessF, viewRangeF, glowColorF, viewersF,
+        translationF, rotateF, scaleF, rightF, pitchF, billboardF, brightnessF, viewRangeF, glowColorF,
         interpDelayF, interpDurationF, teleportDurationF, motionF,
     ).rejecting(
         "yaw",
@@ -334,7 +330,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 id, src, whenExpr, foldTiming(t, ctx), kind, values[anchorF], values[offsetF],
                 subject, values[contextF], values[partF], style, size, if (kind == DisplayKind.SPRITE) values[pivotF] else null, color, seeThrough, flipbook,
                 values[translationF], values[rotateF], values[scaleF], values[rightF],
-                foldNum(values[pitchF], ctx), billboard, brightness, viewRange, glow, values[viewersF],
+                foldNum(values[pitchF], ctx), billboard, brightness, viewRange, glow,
                 wholeNum(values[interpDelayF], "$p.interpolation_delay", ctx, 0.0, null),
                 wholeNum(values[interpDurationF], "$p.interpolation_duration", ctx, 0.0, null),
                 wholeNum(values[teleportDurationF], "$p.teleport_duration", ctx, 0.0, null),
@@ -651,7 +647,6 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         op.brightness?.let { (b, s) -> f["brightness_block"] = cell(b); f["brightness_sky"] = cell(s) }
         f["view_range"] = cell(op.viewRange)
         op.glowColor?.let { f["glow_color"] = cell(it) }
-        if (op.viewers != RowViewers.ALL.yamlName) f["viewers"] = Val.Known(op.viewers)
         f["interpolation_delay"] = cell(op.interpolationDelay)
         f["interpolation_duration"] = cell(op.interpolationDuration)
         f["teleport_duration"] = cell(op.teleportDuration)

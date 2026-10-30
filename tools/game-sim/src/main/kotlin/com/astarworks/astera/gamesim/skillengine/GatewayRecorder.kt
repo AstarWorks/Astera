@@ -851,7 +851,7 @@ internal object OracleFmt {
     }
 
     fun view(v: DisplayView): String =
-        "aud=${v.audience} lane=${v.lane} target=${v.target ?: "-"}" + if (v.viewers != com.astarworks.astera.core.domain.effect.RowViewers.ALL) " viewers=${v.viewers.yamlName}" else ""
+        "aud=${v.audience} lane=${v.lane} target=${v.target ?: "-"}"
 
     /** A string value on one token: whitespace and `=` escaped, null = `-`. */
     fun s(x: String?): String = x?.replace("%", "%25")?.replace(" ", "%20")?.replace("\n", "%0A")?.replace("=", "%3D")?.ifEmpty { "%00" } ?: "-"

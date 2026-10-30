@@ -5,10 +5,12 @@
 #   scripts/dev-deploy.sh hotswap   build the 8 shadow jars and apply the changed classes to the RUNNING
 #                                   backends (JBR + agent image, `make dev-hotswap-up`); a backend restarts
 #                                   only when the JVM refuses the change
-#   scripts/dev-deploy.sh deploy    rebuild+restart the resource pack server (docker-cached), build jars AND push content/ into each backend while it still runs, then restart
-#                                   that backend ONCE (players moved, not kicked): it boots with matching jar+content
-#                                   and builds every arena in that single boot. Jars byte-identical and no FORCE:
-#                                   content-only, reloaded in place like `content`.
+#   scripts/dev-deploy.sh deploy    rebuild+restart the resource pack server (docker-cached), build jars AND push content/ into each backend while it still runs. On the hotswap
+#                                   image (ADR-0310, the dev default) changed jars are hot swapped and content reloaded in
+#                                   place; a backend restarts ONCE (players moved, not kicked) only when the change needs boot
+#                                   code (see scripts/hotswap-classify.sh), when FORCE=1 or ASTERA_HOTSWAP=0, or on a plain image;
+#                                   it then boots with matching jar+content and builds every arena in that boot.
+#                                   Jars byte-identical and no FORCE: content-only, reloaded in place like `content`.
 #   scripts/dev-deploy.sh content   push content/ into the backends and reload it in place (no restart)
 #   scripts/dev-deploy.sh pack      re-read the resource pack hash on the backends and re-push the pack
 #   scripts/dev-deploy.sh selftest  offline check of the reload-failure detection (no docker)
@@ -24,6 +26,10 @@
 #
 # ASTERA_DEV_HOST=user@host runs everything against the Docker daemon on that machine (DOCKER_HOST=ssh://...):
 # jars are still built here, `docker compose cp` / `docker exec` go over ssh. Unset = the local daemon.
+#
+# ASTERA_HOTSWAP=0 / ASTERA_RESTART_REASON=<text> (autodeploy): force the restart path for `deploy` and name why.
+# ASTERA_DEPLOY_OUTCOME=<file> (autodeploy): one line per backend is appended, `hotswapped <svc>` or
+# `restart <svc> reason=...`, so the caller can log what really happened.
 #
 # Velocity, Postgres and Redis are never touched. The Docker daemon is shared with the host, so bind
 # mounts of the repo would be empty: everything goes in with `docker compose cp`.
@@ -54,6 +60,7 @@ dexec() { local svc=$1; shift; docker exec "$(cid "$svc")" "$@"; }
 dexec_root() { local svc=$1; shift; docker exec -u root "$(cid "$svc")" "$@"; }
 
 log() { printf '[dev-deploy %s] %s\n' "$(date +%H:%M:%S)" "$*" >&2; }
+outcome() { [ -z "${ASTERA_DEPLOY_OUTCOME:-}" ] || printf '%s\n' "$*" >> "$ASTERA_DEPLOY_OUTCOME"; }
 now() { date +%s.%N; }
 elapsed() { awk -v a="$1" -v b="$(now)" 'BEGIN { printf "%.1fs", b - a }'; }
 
@@ -236,6 +243,7 @@ changed_jars() {
 # Drain, stop, copy the given jars, start, wait for RCON, bring the parked players back.
 restart_backend() {
   local svc=$1; shift
+  outcome "restart $svc reason=${RESTART_REASON:-${ASTERA_RESTART_REASON:-jar change (restart path)}}"
   local changed=("$@") t t_svc parked jar other boot_since
   t_svc=$(now)
   boot_since=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -307,8 +315,58 @@ hotswap_request() {
   dexec_root "$svc" cat "$reply" | tr -d '\r'
 }
 
+# True when the backend runs the JBR + agent image (docker/docker-compose.hotswap.yml).
+is_hotswap_backend() { [ "$(dexec "$1" printenv ASTERA_DEV_HOTSWAP 2>/dev/null | tr -d '\r')" = 1 ]; }
+
+# Apply the changed jars to a RUNNING hotswap backend, or restart it (loudly, with the reason) when the change needs
+# boot code: scripts/hotswap-classify.sh diffs the running jars against the new ones (plugin.yml/resources, wiring
+# classes, constructors, initialisers, field sets), and the agent itself refuses what the JVM cannot redefine.
+apply_jars() { # apply_jars <svc> <jar>...
+  local svc=$1; shift
+  local changed=("$@") t out last jar verdict name old_dir reasons=()
+  if ! is_hotswap_backend "$svc"; then
+    RESTART_REASON="not the hotswap image (ASTERA_DEV_HOTSWAP unset)" restart_backend "$svc" "${changed[@]}"
+    return 0
+  fi
+  old_dir=$(mktemp -d)
+  for jar in "${changed[@]}"; do
+    name=$(basename "$jar")
+    if "${COMPOSE[@]}" cp "$svc:/plugins/$name" "$old_dir/$name" >/dev/null 2>&1; then
+      verdict=$(scripts/hotswap-classify.sh jars "$old_dir/$name" "$jar" 2>&1) || reasons+=("$name ${verdict#restart }")
+    else
+      reasons+=("$name reason=no baseline jar in the container")
+    fi
+  done
+  rm -rf "$old_dir"
+  if [ "${#reasons[@]}" -gt 0 ]; then
+    log "$svc: RESTART needed, wiring/resource/constructor change: ${reasons[*]}"
+    RESTART_REASON="${reasons[*]}" restart_backend "$svc" "${changed[@]}"
+    return 0
+  fi
+  t=$(now)
+  quiet dexec_root "$svc" sh -c "rm -rf $HOTSWAP_DIR && mkdir -p $HOTSWAP_DIR"
+  for jar in "${changed[@]}"; do quiet "${COMPOSE[@]}" cp "$jar" "$svc:$HOTSWAP_DIR/$(basename "$jar")"; done
+  out=$(hotswap_request "$svc" "${changed[@]}" || true)
+  last=$(tail -n1 <<<"$out")
+  sed -n '/^INFO /s/^INFO /  /p' <<<"$out" >&2
+  case "$last" in
+    OK*)
+      # Keep the next-boot copy in step with the running code.
+      for jar in "${changed[@]}"; do
+        quiet dexec_root "$svc" cp -f "$HOTSWAP_DIR/$(basename "$jar")" "/plugins/$(basename "$jar")"
+      done
+      outcome "hotswapped $svc"
+      log "$svc: hot swapped, no restart (${last#OK }; $(elapsed "$t"))"
+      ;;
+    *)
+      log "$svc: hotswap refused (${last:-no answer from the agent}); restarting instead"
+      RESTART_REASON="agent refused: ${last:-no answer from the agent}" restart_backend "$svc" "${changed[@]}"
+      ;;
+  esac
+}
+
 hotswap() {
-  local t0 svc t out last jar
+  local t0 svc
   t0=$(now)
   build_jars
   for svc in $BACKENDS; do
@@ -317,30 +375,7 @@ hotswap() {
     mapfile -t changed < <(changed_jars "$svc")
     if [ "${#changed[@]}" = 0 ]; then log "$svc: jars unchanged, nothing to do"; continue; fi
     log "$svc: changed: $(printf '%s ' "${changed[@]##*/}")"
-    if [ "$(dexec "$svc" printenv ASTERA_DEV_HOTSWAP 2>/dev/null | tr -d '\r')" != 1 ]; then
-      log "$svc: not the hotswap image (ASTERA_DEV_HOTSWAP unset), restarting instead; 'make dev-hotswap-up' once enables hotswap"
-      restart_backend "$svc" "${changed[@]}"
-      continue
-    fi
-    t=$(now)
-    quiet dexec_root "$svc" sh -c "rm -rf $HOTSWAP_DIR && mkdir -p $HOTSWAP_DIR"
-    for jar in "${changed[@]}"; do quiet "${COMPOSE[@]}" cp "$jar" "$svc:$HOTSWAP_DIR/$(basename "$jar")"; done
-    out=$(hotswap_request "$svc" "${changed[@]}" || true)
-    last=$(tail -n1 <<<"$out")
-    sed -n '/^INFO /s/^INFO /  /p' <<<"$out" >&2
-    case "$last" in
-      OK*)
-        # Keep the next-boot copy in step with the running code.
-        for jar in "${changed[@]}"; do
-          quiet dexec_root "$svc" cp -f "$HOTSWAP_DIR/$(basename "$jar")" "/plugins/$(basename "$jar")"
-        done
-        log "$svc: hot swapped, no restart (${last#OK }; $(elapsed "$t"))"
-        ;;
-      *)
-        log "$svc: hotswap not possible (${last:-no answer from the agent}); restarting instead"
-        restart_backend "$svc" "${changed[@]}"
-        ;;
-    esac
+    apply_jars "$svc" "${changed[@]}"
   done
   deploy_summary
   log "total: $(elapsed "$t0")"
@@ -426,7 +461,14 @@ deploy() {
       continue
     fi
     log "$svc: changed: $(printf '%s ' "${changed[@]##*/}")"
-    restart_backend "$svc" "${changed[@]}"
+    if [ "${FORCE:-0}" != 1 ] && [ "${ASTERA_HOTSWAP:-1}" != 0 ] && is_hotswap_backend "$svc"; then
+      # Content is already staged; swap the code, then reload content in place (a restart inside apply_jars
+      # boots the staged content itself and the reload is then a no-op confirmation).
+      apply_jars "$svc" "${changed[@]}"
+      reload_checked "$svc"
+    else
+      RESTART_REASON="${ASTERA_RESTART_REASON:-FORCE=1, ASTERA_HOTSWAP=0 or plain image}" restart_backend "$svc" "${changed[@]}"
+    fi
     refresh_items "$svc"
   done
   pack

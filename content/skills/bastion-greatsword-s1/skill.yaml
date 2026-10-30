@@ -43,7 +43,6 @@ machine:
           parent: caster
           mount: caster.hand_r
           anim: bastion-s1-body
-          viewers: all
           rest: [{axis: left, deg: 72}]
           for: 58
           detach: true
