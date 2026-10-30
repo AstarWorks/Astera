@@ -34,7 +34,7 @@ fragments:
         op: particle
         particle: lava
         anchor: origin
-        count: "= 4 * ${power}"
+        count: "= 1 * ${power}"
         offset: [0.3, 0.3, 0.3]
         extra: "= 0.02 + 0.03 * rand('embers')"       # visual spread only
         at: 0
@@ -81,7 +81,7 @@ machine:
               item: "minecraft:fire_charge"
               context: fixed
               anchor: ball
-              scale: [0.6, 0.6, 0.6]
+              scale: [0.3, 0.3, 0.3]
               at: 0
               until: ball.end
               motion:
@@ -89,10 +89,10 @@ machine:
                 - {law: move, velocity: {up: 0.4}, drag: 0.3, at: 0, for: 6}
             - id: trail
               op: particle
-              particle: flame
+              particle: small_flame
               anchor: ball
-              count: 3
-              offset: [0.1, 0.1, 0.1]
+              count: 1
+              offset: [0.05, 0.05, 0.05]
               extra: 0.0
               at: 0
               every: 1
