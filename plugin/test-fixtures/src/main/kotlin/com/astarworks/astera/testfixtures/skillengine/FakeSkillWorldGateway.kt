@@ -59,6 +59,9 @@ public class FakeSkillWorldGateway(
 
     public fun block(cell: BlockCell): String? = fake.world[cell]
 
+    /** Marks [cell] as a cover block: a flat chip (`tool: none`) strikes only cover. */
+    public fun setCover(cell: BlockCell) { fake.covers += cell }
+
     /** Items the caster holds; `consumeItem` fails when the count reaches 0. */
     public fun giveItem(itemId: String, count: Int) { fake.stock[itemId] = count }
 
@@ -93,6 +96,7 @@ internal class FakeBlocks : ISkillBlockAccess {
     var oreWorld: WorldId = WorldId("sim")
     private val hp: MutableMap<BlockCell, Int> = HashMap()
     val world: MutableMap<BlockCell, String> = HashMap()
+    val covers: MutableSet<BlockCell> = HashSet()
     val stock: MutableMap<String, Int> = HashMap()
     val strikes: MutableList<Pair<Int, BlockCell>> = ArrayList()
     val placements: MutableList<Pair<Int, BlockCell>> = ArrayList()
@@ -107,7 +111,7 @@ internal class FakeBlocks : ISkillBlockAccess {
 
     override fun isStructure(cast: CastRef, cell: BlockCell): Boolean = isOreNode(cell)
 
-    override fun isCover(cast: CastRef, cell: BlockCell): Boolean = false
+    override fun isCover(cast: CastRef, cell: BlockCell): Boolean = cell in covers
 
     override fun isCoverBlock(blockKey: String): Boolean = false
 
