@@ -1,4 +1,5 @@
-# frost staff muzzle burst
+# frost staff muzzle burst: a short ice-white dust puff (client life 8/(0.8U+0.2) * scale = about 5 ticks at 0.4) instead of the vanilla snowflake
+# (client-fixed life 18-82 ticks, which hung as big flakes in the caster's view). Colour family unchanged (ice white).
 id: frost-cast
 shape:
   kind: burst
@@ -7,7 +8,9 @@ color:
   r: 235
   g: 245
   b: 255
-count: 14
-lifetime_ticks: 20
-vanilla_particle: snowflake
-speed: 0.04
+count: 8
+lifetime_ticks: 4
+vanilla_particle: dust
+speed: 0.0
+size: 0.4
+data: {kind: dust, color: {r: 235, g: 245, b: 255}, scale: 0.4}

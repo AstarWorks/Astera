@@ -61,6 +61,6 @@ machine:
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2, detach: true}
               - {id: spark, op: particle_def, def: hit-spark, anchor: heart, detach: true}
         - {id: snd, op: sound, sound: "entity.player.attack.sweep", anchor: caster, volume: 1.0, pitch: 0.7, detach: true}
-        - {id: fx1, op: particle_def, def: stab-spark, anchor: fx, detach: true}
+        - {id: fx1, op: particle, particle: crit, anchor: fx, count: 4, offset: [0.1, 0.1, 0.1], extra: 0.25, detach: true}
         - {id: trail, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 6}, count: 1, extra: 0.04, at: 0, every: 1, for: 8, detach: true}
     end: {final: true}

@@ -1,20 +1,20 @@
 ## pose yaw=0 pitch=0
-@0 spawn #0 op=cast/shell kind=item item=minecraft:prismarine_shard part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.900000,0.900000,0.900000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=cast/shell kind=item item=minecraft:prismarine_shard part=- pos=0.000000,1.620000,1.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.900000,0.900000,0.900000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=cast/snd sound=astera:skills/frost-cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=frost-cast at=0.000000,1.420000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1745966097336587384
-@0 particle - op=cast/spray type=snowflake count=2 at=0.000000,1.420000,1.600000 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1924419070077893186
-@0 particle - op=cast/spray type=snowflake count=2 at=0.000000,1.420000,1.800000 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6354650143387639325
-@0 particle - op=cast/spray type=snowflake count=2 at=0.000000,1.420000,2.000000 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2861512717881785427
-@0 particle - op=cast/spray type=snowflake count=2 at=0.000000,1.420000,2.200000 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4289141562803563187
-@0 particle - op=cast/spray type=snowflake count=2 at=0.000000,1.420000,2.400000 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6871646644390233649
-@0 particle - op=cast/spray type=snowflake count=2 at=0.000000,1.420000,2.600000 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7625247061620399909
-@0 particle - op=cast/tr0[0] type=snowflake count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8416728629957998549
-@0 particle - op=cast/tr1[0] type=dust count=2 at=0.000000,1.620000,0.500000 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7264714530565300802
-@0 particle - op=cast/tr2[0] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8339028862856723795
-@1 particle - op=cast/tr0[1] type=snowflake count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7241553289022869480
-@1 particle - op=cast/tr1[1] type=dust count=2 at=0.000000,1.620000,0.500000 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5352901070593633540
-@1 particle - op=cast/tr2[1] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6205581245844235060
-@1 hit - op=cast/ball at=0.000000,1.620000,1.792053 r=1.792053 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.084107 rad=0.500000
+@0 particle - op=cast/spray type=dust count=2 at=0.000000,1.420000,1.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6825363578361774114
+@0 particle - op=cast/spray type=dust count=2 at=0.000000,1.420000,1.800000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8577722191107081443
+@0 particle - op=cast/spray type=dust count=2 at=0.000000,1.420000,2.000000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3767986760886282536
+@0 particle - op=cast/spray type=dust count=2 at=0.000000,1.420000,2.200000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7985393292416892257
+@0 particle - op=cast/spray type=dust count=2 at=0.000000,1.420000,2.400000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1008894642931144115
+@0 particle - op=cast/spray type=dust count=2 at=0.000000,1.420000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5159695025776887717
+@0 particle - op=cast/tr0[0] type=snowflake count=2 at=0.000000,1.620000,1.600000 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8416728629957998549
+@0 particle - op=cast/tr1[0] type=dust count=2 at=0.000000,1.620000,1.600000 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7264714530565300802
+@0 particle - op=cast/tr2[0] type=end_rod count=1 at=0.000000,1.620000,1.600000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8339028862856723795
+@1 particle - op=cast/tr0[1] type=snowflake count=2 at=0.000000,1.620000,1.600000 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7241553289022869480
+@1 particle - op=cast/tr1[1] type=dust count=2 at=0.000000,1.620000,1.600000 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5352901070593633540
+@1 particle - op=cast/tr2[1] type=end_rod count=1 at=0.000000,1.620000,1.600000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6205581245844235060
+@1 hit - op=cast/ball at=0.000000,1.620000,2.892053 r=1.792053 shape=capsule a=0.000000,1.620000,1.600000 b=0.000000,1.620000,4.184107 rad=0.500000
 @1 remove #0 op=cast/shell
 g @1 state-exit reason=PREEMPT | state=cast/fly
 g @1 state-exit reason=EVENT | state=cast
@@ -24,22 +24,22 @@ g @1 dropped reason=owner-exited:cast | sub=cast/ball.end
 g @1 cast-end | pose
 r @3 run-end tail=2 | pose
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=cast/shell kind=item item=minecraft:prismarine_shard part=- pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.900000,0.900000,0.900000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=cast/shell kind=item item=minecraft:prismarine_shard part=- pos=-0.904834,2.167232,1.200755 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.900000,0.900000,0.900000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=cast/snd sound=astera:skills/frost-cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=frost-cast at=-0.606688,1.774082,0.805102 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1745966097336587384
-@0 particle - op=cast/spray type=snowflake count=2 at=-0.946000,1.979294,1.255385 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1924419070077893186
-@0 particle - op=cast/spray type=snowflake count=2 at=-1.059105,2.047698,1.405479 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6354650143387639325
-@0 particle - op=cast/spray type=snowflake count=2 at=-1.172209,2.116102,1.555574 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2861512717881785427
-@0 particle - op=cast/spray type=snowflake count=2 at=-1.285313,2.184506,1.705668 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4289141562803563187
-@0 particle - op=cast/spray type=snowflake count=2 at=-1.398417,2.252910,1.855762 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6871646644390233649
-@0 particle - op=cast/spray type=snowflake count=2 at=-1.511522,2.321314,2.005857 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7625247061620399909
-@0 particle - op=cast/tr0[0] type=snowflake count=2 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8416728629957998549
-@0 particle - op=cast/tr1[0] type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7264714530565300802
-@0 particle - op=cast/tr2[0] type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8339028862856723795
-@1 particle - op=cast/tr0[1] type=snowflake count=2 at=-0.282761,1.791010,0.375236 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7241553289022869480
-@1 particle - op=cast/tr1[1] type=dust count=2 at=-0.282761,1.791010,0.375236 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5352901070593633540
-@1 particle - op=cast/tr2[1] type=end_rod count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6205581245844235060
-@1 hit - op=cast/ball at=-1.013444,2.232918,1.344886 r=1.792053 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.744128,2.674827,2.314535 rad=0.500000
+@0 particle - op=cast/spray type=dust count=2 at=-0.946000,1.979294,1.255385 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6825363578361774114
+@0 particle - op=cast/spray type=dust count=2 at=-1.059105,2.047698,1.405479 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8577722191107081443
+@0 particle - op=cast/spray type=dust count=2 at=-1.172209,2.116102,1.555574 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3767986760886282536
+@0 particle - op=cast/spray type=dust count=2 at=-1.285313,2.184506,1.705668 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7985393292416892257
+@0 particle - op=cast/spray type=dust count=2 at=-1.398417,2.252910,1.855762 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1008894642931144115
+@0 particle - op=cast/spray type=dust count=2 at=-1.511522,2.321314,2.005857 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5159695025776887717
+@0 particle - op=cast/tr0[0] type=snowflake count=2 at=-0.904834,2.167232,1.200755 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8416728629957998549
+@0 particle - op=cast/tr1[0] type=dust count=2 at=-0.904834,2.167232,1.200755 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7264714530565300802
+@0 particle - op=cast/tr2[0] type=end_rod count=1 at=-0.904834,2.167232,1.200755 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8339028862856723795
+@1 particle - op=cast/tr0[1] type=snowflake count=2 at=-0.904834,2.167232,1.200755 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7241553289022869480
+@1 particle - op=cast/tr1[1] type=dust count=2 at=-0.904834,2.167232,1.200755 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5352901070593633540
+@1 particle - op=cast/tr2[1] type=end_rod count=1 at=-0.904834,2.167232,1.200755 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6205581245844235060
+@1 hit - op=cast/ball at=-1.635517,2.609140,2.170405 r=1.792053 shape=capsule a=-0.904834,2.167232,1.200755 b=-2.366201,3.051049,3.140054 rad=0.500000
 @1 remove #0 op=cast/shell
 g @1 state-exit reason=PREEMPT | state=cast/fly
 g @1 state-exit reason=EVENT | state=cast
@@ -47,22 +47,22 @@ g @1 dropped reason=owner-exited:cast | sub=cast/ball.end
 g @1 cast-end | pose
 r @3 run-end tail=2 | pose
 ## pose-hit yaw=0 pitch=0
-@0 spawn #0 op=cast/shell kind=item item=minecraft:prismarine_shard part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.900000,0.900000,0.900000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=cast/shell kind=item item=minecraft:prismarine_shard part=- pos=0.000000,1.620000,1.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.900000,0.900000,0.900000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=cast/snd sound=astera:skills/frost-cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=frost-cast at=0.000000,1.420000,1.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1745966097336587384
-@0 particle - op=cast/spray type=snowflake count=2 at=0.000000,1.420000,1.600000 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1924419070077893186
-@0 particle - op=cast/spray type=snowflake count=2 at=0.000000,1.420000,1.800000 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6354650143387639325
-@0 particle - op=cast/spray type=snowflake count=2 at=0.000000,1.420000,2.000000 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2861512717881785427
-@0 particle - op=cast/spray type=snowflake count=2 at=0.000000,1.420000,2.200000 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4289141562803563187
-@0 particle - op=cast/spray type=snowflake count=2 at=0.000000,1.420000,2.400000 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6871646644390233649
-@0 particle - op=cast/spray type=snowflake count=2 at=0.000000,1.420000,2.600000 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7625247061620399909
-@0 particle - op=cast/tr0[0] type=snowflake count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8416728629957998549
-@0 particle - op=cast/tr1[0] type=dust count=2 at=0.000000,1.620000,0.500000 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7264714530565300802
-@0 particle - op=cast/tr2[0] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8339028862856723795
-@1 particle - op=cast/tr0[1] type=snowflake count=2 at=0.000000,1.620000,0.500000 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7241553289022869480
-@1 particle - op=cast/tr1[1] type=dust count=2 at=0.000000,1.620000,0.500000 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5352901070593633540
-@1 particle - op=cast/tr2[1] type=end_rod count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6205581245844235060
-@1 hit - op=cast/ball at=0.000000,1.620000,1.792053 r=1.792053 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.084107 rad=0.500000
+@0 particle - op=cast/spray type=dust count=2 at=0.000000,1.420000,1.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6825363578361774114
+@0 particle - op=cast/spray type=dust count=2 at=0.000000,1.420000,1.800000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8577722191107081443
+@0 particle - op=cast/spray type=dust count=2 at=0.000000,1.420000,2.000000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3767986760886282536
+@0 particle - op=cast/spray type=dust count=2 at=0.000000,1.420000,2.200000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7985393292416892257
+@0 particle - op=cast/spray type=dust count=2 at=0.000000,1.420000,2.400000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1008894642931144115
+@0 particle - op=cast/spray type=dust count=2 at=0.000000,1.420000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5159695025776887717
+@0 particle - op=cast/tr0[0] type=snowflake count=2 at=0.000000,1.620000,1.600000 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8416728629957998549
+@0 particle - op=cast/tr1[0] type=dust count=2 at=0.000000,1.620000,1.600000 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7264714530565300802
+@0 particle - op=cast/tr2[0] type=end_rod count=1 at=0.000000,1.620000,1.600000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8339028862856723795
+@1 particle - op=cast/tr0[1] type=snowflake count=2 at=0.000000,1.620000,1.600000 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7241553289022869480
+@1 particle - op=cast/tr1[1] type=dust count=2 at=0.000000,1.620000,1.600000 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5352901070593633540
+@1 particle - op=cast/tr2[1] type=end_rod count=1 at=0.000000,1.620000,1.600000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6205581245844235060
+@1 hit - op=cast/ball at=0.000000,1.620000,2.892053 r=1.792053 shape=capsule a=0.000000,1.620000,1.600000 b=0.000000,1.620000,4.184107 rad=0.500000
 @1 sound - op=cast/ball.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=0.7 pitch=1.5 at=0.000000,0.810000,2.500000
 @1 particle - op=cast/ball.hit/line type=snowflake count=1 at=0.000000,1.620000,2.200000 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1573979262127587789
 @1 particle - op=cast/ball.hit/line type=snowflake count=1 at=0.000000,1.417500,2.275000 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2575600110887626300
@@ -81,22 +81,22 @@ g @1 dropped reason=owner-exited:cast | sub=cast/ball.end
 g @1 cast-end drain=1 until=2 | pose
 r @4 run-end tail=2 | pose
 ## pose-hit yaw=37 pitch=0
-@0 spawn #0 op=cast/shell kind=item item=minecraft:prismarine_shard part=- pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.900000,0.900000,0.900000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=cast/shell kind=item item=minecraft:prismarine_shard part=- pos=-0.962904,1.620000,1.277817 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.900000,0.900000,0.900000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=cast/snd sound=astera:skills/frost-cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=frost-cast at=-0.601815,1.420000,0.798636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1745966097336587384
-@0 particle - op=cast/spray type=snowflake count=2 at=-0.962904,1.420000,1.277817 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1924419070077893186
-@0 particle - op=cast/spray type=snowflake count=2 at=-1.083267,1.420000,1.437544 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6354650143387639325
-@0 particle - op=cast/spray type=snowflake count=2 at=-1.203630,1.420000,1.597271 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2861512717881785427
-@0 particle - op=cast/spray type=snowflake count=2 at=-1.323993,1.420000,1.756998 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4289141562803563187
-@0 particle - op=cast/spray type=snowflake count=2 at=-1.444356,1.420000,1.916725 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6871646644390233649
-@0 particle - op=cast/spray type=snowflake count=2 at=-1.564719,1.420000,2.076452 off=0.100000,0.100000,0.100000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7625247061620399909
-@0 particle - op=cast/tr0[0] type=snowflake count=2 at=-0.300908,1.620000,0.399318 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8416728629957998549
-@0 particle - op=cast/tr1[0] type=dust count=2 at=-0.300908,1.620000,0.399318 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7264714530565300802
-@0 particle - op=cast/tr2[0] type=end_rod count=1 at=-0.300908,1.620000,0.399318 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8339028862856723795
-@1 particle - op=cast/tr0[1] type=snowflake count=2 at=-0.300908,1.620000,0.399318 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7241553289022869480
-@1 particle - op=cast/tr1[1] type=dust count=2 at=-0.300908,1.620000,0.399318 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5352901070593633540
-@1 particle - op=cast/tr2[1] type=end_rod count=1 at=-0.300908,1.620000,0.399318 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6205581245844235060
-@1 hit - op=cast/ball at=-1.078485,1.620000,1.431197 r=1.792053 shape=capsule a=-0.300908,1.620000,0.399318 b=-1.856062,1.620000,2.463077 rad=0.500000
+@0 particle - op=cast/spray type=dust count=2 at=-0.962904,1.420000,1.277817 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6825363578361774114
+@0 particle - op=cast/spray type=dust count=2 at=-1.083267,1.420000,1.437544 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8577722191107081443
+@0 particle - op=cast/spray type=dust count=2 at=-1.203630,1.420000,1.597271 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3767986760886282536
+@0 particle - op=cast/spray type=dust count=2 at=-1.323993,1.420000,1.756998 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7985393292416892257
+@0 particle - op=cast/spray type=dust count=2 at=-1.444356,1.420000,1.916725 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1008894642931144115
+@0 particle - op=cast/spray type=dust count=2 at=-1.564719,1.420000,2.076452 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5159695025776887717
+@0 particle - op=cast/tr0[0] type=snowflake count=2 at=-0.962904,1.620000,1.277817 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8416728629957998549
+@0 particle - op=cast/tr1[0] type=dust count=2 at=-0.962904,1.620000,1.277817 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7264714530565300802
+@0 particle - op=cast/tr2[0] type=end_rod count=1 at=-0.962904,1.620000,1.277817 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8339028862856723795
+@1 particle - op=cast/tr0[1] type=snowflake count=2 at=-0.962904,1.620000,1.277817 off=0.080000,0.080000,0.080000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7241553289022869480
+@1 particle - op=cast/tr1[1] type=dust count=2 at=-0.962904,1.620000,1.277817 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ebf5ff size=0.900000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5352901070593633540
+@1 particle - op=cast/tr2[1] type=end_rod count=1 at=-0.962904,1.620000,1.277817 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6205581245844235060
+@1 hit - op=cast/ball at=-1.740481,1.620000,2.309696 r=1.792053 shape=capsule a=-0.962904,1.620000,1.277817 b=-2.518058,1.620000,3.341576 rad=0.500000
 @1 sound - op=cast/ball.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=0.7 pitch=1.5 at=-1.504538,0.810000,1.996589
 @1 particle - op=cast/ball.hit/line type=snowflake count=1 at=-1.278471,1.620000,1.696589 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1573979262127587789
 @1 particle - op=cast/ball.hit/line type=snowflake count=1 at=-1.334988,1.417500,1.771589 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2575600110887626300

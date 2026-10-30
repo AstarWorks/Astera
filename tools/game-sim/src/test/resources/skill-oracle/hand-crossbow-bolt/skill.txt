@@ -3,10 +3,10 @@
 @0 sound - op=fly/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=1.5 at=0.000000,0.000000,0.000000
 @0 particle - op=fly/fx type=gun-muzzle-flash at=-0.350000,1.120000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5081900795781550819
 @0 particle - op=fly/trail[0]/wake type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4798800060003474318
-@0 particle - op=fly/trail[0]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#d2d2d2 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-108710809556391947
+@0 particle - op=fly/trail[0]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#d2d2d2 size=0.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4207917297285416230
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=crossbow-aim speed=1
 @1 particle - op=fly/trail[1]/wake type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8217551437484640204
-@1 particle - op=fly/trail[1]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#d2d2d2 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-665904195071046180
+@1 particle - op=fly/trail[1]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#d2d2d2 size=0.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5371202319330965289
 @1 hit - op=fly/bolt at=0.000000,1.620000,2.000000 r=2.000000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.500000 rad=0.500000
 @1 remove #0 op=fly/shaft
 @14 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=crossbow-aim
@@ -21,10 +21,10 @@ r @15 run-end tail=14 | pose
 @0 sound - op=fly/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=1.5 at=0.000000,0.000000,0.000000
 @0 particle - op=fly/fx type=gun-muzzle-flash at=-0.891408,1.457972,0.601364 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5081900795781550819
 @0 particle - op=fly/trail[0]/wake type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4798800060003474318
-@0 particle - op=fly/trail[0]/dust type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#d2d2d2 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-108710809556391947
+@0 particle - op=fly/trail[0]/dust type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#d2d2d2 size=0.500000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4207917297285416230
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=crossbow-aim speed=1
 @1 particle - op=fly/trail[1]/wake type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8217551437484640204
-@1 particle - op=fly/trail[1]/dust type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#d2d2d2 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-665904195071046180
+@1 particle - op=fly/trail[1]/dust type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#d2d2d2 size=0.500000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5371202319330965289
 @1 hit - op=fly/bolt at=-1.131042,2.304040,1.500944 r=2.000000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.979324,2.817071,2.626652 rad=0.500000
 @1 remove #0 op=fly/shaft
 @14 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=crossbow-aim
@@ -37,10 +37,10 @@ r @15 run-end tail=14 | pose
 @0 sound - op=fly/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=1.5 at=0.000000,0.000000,0.000000
 @0 particle - op=fly/fx type=gun-muzzle-flash at=-0.350000,1.120000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5081900795781550819
 @0 particle - op=fly/trail[0]/wake type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4798800060003474318
-@0 particle - op=fly/trail[0]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#d2d2d2 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-108710809556391947
+@0 particle - op=fly/trail[0]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#d2d2d2 size=0.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4207917297285416230
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=crossbow-aim speed=1
 @1 particle - op=fly/trail[1]/wake type=crit count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8217551437484640204
-@1 particle - op=fly/trail[1]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#d2d2d2 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-665904195071046180
+@1 particle - op=fly/trail[1]/dust type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#d2d2d2 size=0.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5371202319330965289
 @1 hit - op=fly/bolt at=0.000000,1.620000,2.000000 r=2.000000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.500000 rad=0.500000
 @1 sound - op=fly/bolt.hit/hit_fx/snd sound=astera:weapons/gun-impact cat=master vol=0.7 pitch=1.2 at=0.000000,1.200000,2.500000
 @1 particle - op=fly/bolt.hit/hit_fx/spark type=hit-spark at=0.000000,1.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3486254098799717392
@@ -57,10 +57,10 @@ r @15 run-end tail=14 | pose
 @0 sound - op=fly/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=1.5 at=0.000000,0.000000,0.000000
 @0 particle - op=fly/fx type=gun-muzzle-flash at=-0.821156,1.120000,0.508137 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5081900795781550819
 @0 particle - op=fly/trail[0]/wake type=crit count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4798800060003474318
-@0 particle - op=fly/trail[0]/dust type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#d2d2d2 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-108710809556391947
+@0 particle - op=fly/trail[0]/dust type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#d2d2d2 size=0.500000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4207917297285416230
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=crossbow-aim speed=1
 @1 particle - op=fly/trail[1]/wake type=crit count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8217551437484640204
-@1 particle - op=fly/trail[1]/dust type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#d2d2d2 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-665904195071046180
+@1 particle - op=fly/trail[1]/dust type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#d2d2d2 size=0.500000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5371202319330965289
 @1 hit - op=fly/bolt at=-1.203630,1.620000,1.597271 r=2.000000 shape=capsule a=-0.300908,1.620000,0.399318 b=-2.106353,1.620000,2.795224 rad=0.500000
 @1 sound - op=fly/bolt.hit/hit_fx/snd sound=astera:weapons/gun-impact cat=master vol=0.7 pitch=1.2 at=-1.504538,1.200000,1.996589
 @1 particle - op=fly/bolt.hit/hit_fx/spark type=hit-spark at=-1.504538,1.200000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3486254098799717392

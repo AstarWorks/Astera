@@ -121,14 +121,17 @@ internal object CasterEyeClutter {
     private val ROW = Regex("^@(\\d+) particle \\S+ op=(\\S+) type=(\\S+)(?: count=(\\d+))? at=(\\S+),(\\S+),(\\S+) .* size=(\\S+) .*look=(\\S+),(\\S+),(\\S+)")
     private val COS_HALF = kotlin.math.cos(Math.toRadians(HALF_ANGLE_DEG))
 
-    private fun defs(particlesDir: Path): Map<String, Pair<String, Double?>> {
-        val out = HashMap<String, Pair<String, Double?>>()
+    private data class Def(val vanilla: String, val scale: Double?, val count: Int)
+
+    private fun defs(particlesDir: Path): Map<String, Def> {
+        val out = HashMap<String, Def>()
         Files.list(particlesDir).use { s ->
             s.filter { it.toString().endsWith(".yaml") }.forEach { f ->
                 val text = Files.readString(f)
                 val vp = Regex("(?m)^vanilla_particle:\\s*(\\S+)").find(text)?.groupValues?.get(1) ?: return@forEach
                 val scale = Regex("scale:\\s*([0-9.]+)").find(text)?.groupValues?.get(1)?.toDouble()
-                out[f.fileName.toString().removeSuffix(".yaml")] = vp to scale
+                val count = Regex("(?m)^count:\\s*(\\d+)").find(text)?.groupValues?.get(1)?.toInt() ?: 1
+                out[f.fileName.toString().removeSuffix(".yaml")] = Def(vp, scale, count)
             }
         }
         return out
@@ -159,10 +162,12 @@ internal object CasterEyeClutter {
             val ll = sqrt(lx * lx + ly * ly + lz * lz)
             if (d > 1e-6 && ll > 1e-6 && (x * lx + y * ly + z * lz) / (d * ll) < COS_HALF) continue
             val id = m.groupValues[3]
-            val (vanilla, defScale) = defs[id] ?: (id to null)
-            val scale = m.groupValues[8].toDoubleOrNull() ?: defScale
+            val def = defs[id]
+            val vanilla = def?.vanilla ?: id
+            val scale = m.groupValues[8].toDoubleOrNull() ?: def?.scale
             if (meanLife(vanilla, scale) < LINGER_TICKS) continue
-            val count = maxOf(1, m.groupValues[4].toIntOrNull() ?: 1)
+            // A content-particle row carries no count: the def's own count is what spawns (a 5-flame burst used to be counted as 1).
+            val count = maxOf(1, m.groupValues[4].toIntOrNull() ?: def?.count ?: 1)
             perTick.merge(tick, count, Int::plus)
             ops.getOrPut(tick) { HashMap() }.merge("${m.groupValues[2].replace(Regex("\\[\\d+]"), "[]")}($vanilla)", count, Int::plus)
         }

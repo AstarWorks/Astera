@@ -26,7 +26,8 @@ class ShippedMuzzleFlashScenarioTest : SkillEngineScenario() {
         val look = Vec3(0.0, 0.0, 1.0)
         for (id in listOf("gun-muzzle-flash", "shotgun-muzzle")) {
             val def = particles.find(ParticleId(id))!!
-            assertThat(def.vanillaParticle).isEqualTo("flame")
+            // gun-muzzle-flash is a short-life orange dust puff since the caster-linger fix; the flame friction bound below is still conservative for it.
+            assertThat(def.vanillaParticle).isIn("flame", "dust")
             for (seed in 0L until 20L) {
                 for (p in ParticleEmitter.plan(def, muzzle, ParticleEmitContext(look = look, random = Random(seed)))) {
                     // vanilla client: count 0 -> velocity = offset * extra; count > 0 -> gaussian * extra per axis (3 sigma bound)
