@@ -14,6 +14,8 @@ params:
   tremor_ticks: {type: ticks, default: 60}
 anchors:
   - {id: ground, anchor: caster, offset: {up: 0.15}, mode: snapshot}
+  - {id: slam,   anchor: caster, offset: {up: 0.15, forward: 1.6}, mode: snapshot}
+  - {id: heart,  anchor: victim.center, mode: follow}
 machine:
   start: quake
   states:
@@ -35,8 +37,17 @@ machine:
           on:
             hit:
               - {id: st_tremor, op: status, target: event.victim, status: tremor, stacks: 1, for: "${tremor_ticks}"}
+              - {id: fx_hit_crit, op: particle, particle: crit, anchor: heart, count: 10, offset: [0.3, 0.4, 0.3], extra: 0.25, at: 0}
+              - {id: fx_hit_dust, op: particle, particle: dust, anchor: heart, count: 6, offset: [0.3, 0.4, 0.3], color: "#96785a", size: 1.2, at: 0}
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
       do:
-        - {id: fx_crit, op: particle, particle: crit, anchor: ground, at: 0, count: 0, extra: 0.03}
-        - {id: fx_dust, op: particle, particle: dust, anchor: ground, at: 0, count: 1, color: "#96785a", size: 1.4}
+        # --- ground slam in front of the caster: cracked-earth burst, a dust puff, then the shockwave ring flung out over the ground plane (fast inner ring, slower outer ring, a lifted debris ring) ---
+        - {id: fx_crack, op: particle, particle: block, block: "minecraft:coarse_dirt", anchor: slam, at: 0, count: 40, offset: [0.5, 0.15, 0.5], extra: 0.12}
+        - {id: fx_stone, op: particle, particle: block, block: "minecraft:stone", anchor: slam, at: 0, count: 20, offset: [0.4, 0.3, 0.4], extra: 0.2}
+        - {id: fx_dust, op: particle, particle: dust, anchor: slam, at: 0, count: 8, offset: [0.5, 0.2, 0.5], color: "#96785a", size: 1.6}
+        - {id: fx_core, op: particle, particle: crit, anchor: slam, at: 0, count: 12, offset: [0.3, 0.1, 0.3], extra: 0.3}
+        - {id: wave_fast, op: particle, particle: block, block: "minecraft:coarse_dirt", anchor: ground, times: 32, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 32), 0.0, sin(i * 2 * pi / 32))", extra: 0.55}
+        - {id: wave_slow, op: particle, particle: block, block: "minecraft:dirt", anchor: ground, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 0.35}
+        - {id: wave_dust, op: particle, particle: poof, anchor: ground, times: 16, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.05, sin(i * 2 * pi / 16))", extra: 0.45}
+        - {id: wave_debris, op: particle, particle: block, block: "minecraft:stone", anchor: ground, times: 12, at: 0, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 12), 0.8, 0.7 * sin(i * 2 * pi / 12))", extra: 0.3}
     end: {final: true}
