@@ -186,6 +186,7 @@ internal class PaperNpcBodyService(
     private fun dispatch(bukkitPlayer: Player, handle: EntityHandle, click: NpcInteractionClick) {
         val intent = interactions.resolve(handle, click) ?: return
         val player = mcServer.findPlayer(PlayerId(bukkitPlayer.uniqueId)) ?: return
+        interactions.recordUse(PlayerId(bukkitPlayer.uniqueId), handle)
         intents.dispatch(player, intent)
     }
 

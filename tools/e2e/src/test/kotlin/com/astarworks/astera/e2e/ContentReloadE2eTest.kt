@@ -57,4 +57,44 @@ class ContentReloadE2eTest : E2eBase() {
             "GOLD before=$walletBefore after=${gold(player.name)}"
         }
     }
+
+    /**
+     * A real edit, not a no-op: a changed copy of one shop and one lobby NPC is written into the server's content
+     * dir, reloaded, asserted through the reload output, then the originals are restored and reloaded again.
+     */
+    @Test
+    fun `a real edit of a shop and a lobby NPC is applied and then restored`() {
+        val dir = java.io.File(System.getProperty("astera.live.contentDir", "/workspace/content"))
+        val shop = dir.resolve("shops/example-shop.yaml")
+        val npc = dir.resolve("lobby-npcs/market-npc.yaml")
+        val shopOriginal = shop.readText()
+        val npcOriginal = npc.readText()
+        try {
+            E2eReport.check(suite, "an edited shop gains the new offer", "write shops/example-shop.yaml + reload shops") {
+                val probe = "  - id: reload-probe\n    item: dagger\n    price:\n      currency: GOLD\n      amount: 151\n" +
+                    "    stock:\n      type: unlimited\n    display_key: astera.economy.shop.example-shop.offer.dagger\n"
+                shop.writeText(shopOriginal.trimEnd('\n') + "\n" + probe)
+                val out = reload("shops")
+                assertThat(out).contains("shop example-shop: +1 offers, -0 offers").doesNotContainIgnoringCase("failed")
+                out
+            }
+            E2eReport.check(suite, "an edited lobby NPC is respawned", "write lobby-npcs/market-npc.yaml + reload lobby-npcs") {
+                npc.writeText(npcOriginal.replace(Regex("(?m)^  x: 47\\.5$"), "  x: 48.5"))
+                check(npc.readText() != npcOriginal) { "market-npc.yaml spawn x changed upstream; update this test" }
+                val out = reload("lobby-npcs")
+                assertThat(out).contains("lobby NPCs: +0 spawned, -0 despawned, ~1 respawned")
+                out
+            }
+        } finally {
+            shop.writeText(shopOriginal)
+            npc.writeText(npcOriginal)
+        }
+        E2eReport.check(suite, "restoring the originals reverts both", "restore files + reload shops, lobby-npcs") {
+            val shops = reload("shops")
+            val npcs = reload("lobby-npcs")
+            assertThat(shops).contains("shop example-shop: +0 offers, -1 offers")
+            assertThat(npcs).contains("~1 respawned")
+            "$shops | $npcs"
+        }
+    }
 }

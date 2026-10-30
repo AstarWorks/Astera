@@ -470,6 +470,14 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
             spawner = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner>(),
             interactions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter>(),
             bodies = lobbyNpcBodies,
+            onDespawnedFor = { playerId ->
+                val mc = services.getOrThrow<com.astarworks.astera.core.adapter.api.server.IMcServer>().findPlayer(playerId)
+                val gui = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiAdapter>()
+                if (mc != null && gui.currentSpec(mc) != null) {
+                    gui.close(mc)
+                    mc.postActionBar(com.astarworks.astera.core.domain.i18n.MessageKey("astera.lobby.npc.removed-gui-closed"))
+                }
+            },
         )
         val lobbyNpcReport = lobbyNpcLoader.loadFrom(contentDir.resolve("lobby-npcs"))
         // `astera admin reload lobby-npcs`: diff by id (despawn removed/changed, spawn new/changed).

@@ -29,6 +29,8 @@ public class ShopContents(
     private val stock: IShopStockRepository,
     private val matchShop: MatchShopLoaderService,
     private val matchRunning: () -> Boolean,
+    /** Runs after the registry was swapped (refresh open shop GUIs); the host decides the thread. */
+    private val onApplied: () -> Unit = {},
 ) : ReloadableContents {
 
     override val categoryName: String = "shops"
@@ -91,6 +93,7 @@ public class ShopContents(
         if (errors.isNotEmpty()) return ContentLoader.LoadReport(loaded = 0, failed = errors.size, failures = errors)
 
         registry.replaceAll(specs)
+        onApplied()
         if (matchCatalog != null) {
             if (matchRunning()) {
                 matchShop.stage(matchCatalog)

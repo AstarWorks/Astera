@@ -14,6 +14,7 @@ import com.astarworks.astera.core.domain.entity.SpawnSpec
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.gui.GuiIntent
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
 import java.nio.file.Path
 
@@ -37,6 +38,8 @@ public class LobbyNpcLoaderService(
     private val spawner: IEntitySpawner,
     private val interactions: INpcInteractionRouter,
     private val bodies: INpcBodyMaterializer? = null,
+    /** Called once per player who had clicked an NPC that a reload just despawned (close what it opened). */
+    private val onDespawnedFor: (PlayerId) -> Unit = {},
 ) : ReloadableContents {
     override val categoryName: String = "lobby-npcs"
 
@@ -86,9 +89,11 @@ public class LobbyNpcLoaderService(
     private fun despawn(id: String) {
         specs.remove(id)
         val handle = spawned.remove(id) ?: return
+        val users = interactions.usersOf(handle)
         interactions.unbind(handle)
         bodies?.remove(handle)
         spawner.despawn(handle)
+        users.forEach(onDespawnedFor)
     }
 
     private fun spawnSpecOf(cfg: LobbyNpcYamlConfig): SpawnSpec {

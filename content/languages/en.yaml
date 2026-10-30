@@ -1884,6 +1884,7 @@ astera:
 
   lobby:
     npc:
+      removed-gui-closed: "<yellow>This NPC was removed; the menu was closed.</yellow>"
       travel:
         name: "Travel Guide"
       refinement:

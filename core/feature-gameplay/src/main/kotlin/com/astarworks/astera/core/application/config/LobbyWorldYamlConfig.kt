@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
  * center: { x: 0, z: 0 }                       # fountain / plaza centre
  * spawn: { x: 0.5, y: 65.0, z: 6.5, yaw: 180.0 }
  * marker_version: 1                            # bump to repaste the build
- * rules: { time_of_day: 6000, pvp_enabled: false, build_enabled: false }
+ * rules: { pvp_enabled: false, build_enabled: false }
  * ```
  */
 @Serializable
@@ -43,15 +43,15 @@ public data class LobbySpawnYaml(
     val pitch: Float = 0f,
 )
 
-/** World rules the lobby enforces; every flag defaults to the safe-lobby value. */
+/**
+ * World rules the lobby enforces; every flag defaults to the safe-lobby value. Time of day, the frozen clock and
+ * natural mob spawning are not here: `content/world-rules/baseline.yaml` owns them for every world.
+ */
 @Serializable
 public data class LobbyRulesYaml(
-    @SerialName("time_of_day") val timeOfDay: Long = 6000L,
-    @SerialName("time_frozen") val timeFrozen: Boolean = true,
     @SerialName("weather_clear_fixed") val weatherClearFixed: Boolean = true,
     @SerialName("pvp_enabled") val pvpEnabled: Boolean = false,
     @SerialName("build_enabled") val buildEnabled: Boolean = false,
-    @SerialName("mob_spawning") val mobSpawning: Boolean = false,
     val hunger: Boolean = false,
     @SerialName("fall_damage") val fallDamage: Boolean = false,
     /** Players below this Y are teleported back to the spawn. */

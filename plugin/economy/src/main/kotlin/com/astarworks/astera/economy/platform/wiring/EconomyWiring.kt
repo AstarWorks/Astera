@@ -356,6 +356,7 @@ public object EconomyWiring {
             stock = shopStockRepository,
             matchShop = matchShopLoader,
             matchRunning = { matchRepository.findActiveMatches().isNotEmpty() },
+            onApplied = { services.getOrThrow<IScheduler>().run(ExecutionScope.Global, kotlin.time.Duration.ZERO) { shopBrowse.refreshOpen() } },
         )
         shutdownHooks += services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry>()
             .register(shopContents, shopsContentDir)::unregister

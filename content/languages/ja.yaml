@@ -1879,6 +1879,7 @@ astera:
 
   lobby:
     npc:
+      removed-gui-closed: "<yellow>このNPCは撤去されたためメニューを閉じました。</yellow>"
       travel:
         name: "旅の案内人"
       refinement:
