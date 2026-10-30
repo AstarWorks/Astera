@@ -1,6 +1,6 @@
 // Keypoint annotation page (/annotate.html?skill=<skill id>): drag the proposed keypoints onto the reference frame of each held beat.
-// Data: GET/POST /api/keypoints/<skill> (content/skill-lint/<skill>.keypoints.yaml, validated by tools/pose-solve/kp.py);
-// frames: /api/keypoints/<skill>/frame/<tick>.png (ffmpeg from the cached reference video); (no overlay: the lint producer was removed).
+// Data: GET/POST /api/keypoints/<skill> (content/skill-lint/<skill>.keypoints.yaml: the data dir keeps its name, validated by tools/pose-solve/kp.py);
+// frames: /api/keypoints/<skill>/frame/<tick>.png (ffmpeg from the cached reference video); no overlay on this page.
 const $ = (id) => document.getElementById(id);
 const skill = new URLSearchParams(location.search).get("skill") || "";
 const POINTS = ["head_top", "neck", "r_shoulder", "l_shoulder", "r_elbow", "l_elbow", "r_wrist", "l_wrist", "pelvis", "r_knee", "l_knee",

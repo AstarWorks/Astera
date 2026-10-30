@@ -1,4 +1,4 @@
-// Author-only review views inside the collapsed 作者向け section: preview frame, annotation overlay, lint table, round notes.
+// Author-only review views inside the collapsed 作者向け section: preview frame, hit-volume overlay, round notes.
 // Data comes from /api/cases/<id> `views` (server.mjs reviewViews); everything is optional and the page works without it.
 import { renderProv, renderFresh } from "./prov.js";
 import { renderMarkdown } from "./markdown.js";
@@ -9,7 +9,7 @@ const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) 
 export function createViews(ctx) {
   const { S, $, clamp, msToTick, tickToMs, castOf, seek } = ctx;
   const V = () => S.data.views || {};
-  const state = { failOnly: false, lintRows: [], overlayAt: new Map() };
+  const state = { overlayAt: new Map() };
 
   function setupRound() {
     const r = V().round, box = $("aRound");
@@ -50,42 +50,17 @@ export function createViews(ctx) {
     img.src = entry.img.src; img.classList.toggle("dim", f.dim); img.style.visibility = "visible"; $("pph").classList.remove("on");
   }
 
-  // ---- lint + overlay ---------------------------------------------------------------------------------------------
-  const inBeat = (c, tick) => (c.ticks ? tick >= c.ticks[0] && tick <= c.ticks[1] : c.tick != null && tick === c.tick);
+  // ---- hit-volume overlay (published as kind lint; no checks table: the check producer is gone) -------------
   function setupLint() {
-    const lint = V().lint, panel = $("aLint");
+    const ov = V().overlay, panel = $("aLint");
     state.overlayAt.clear();
-    panel.hidden = !lint;
-    if (!lint) return;
-    const report = lint.report;
-    if (report) for (const c of report.checks) if (c.overlay && c.tick != null) state.overlayAt.set(c.tick, { beat: c.beat, url: `${lint.base}${c.overlay}?v=${lint.revision}` });
+    panel.hidden = !ov;
+    if (!ov) return;
+    for (const o of ov.overlays) state.overlayAt.set(o.tick, { beat: "hit volume", url: `${ov.base}${o.name}?v=${ov.revision}` });
     const head = $("lintsum"); head.textContent = "";
-    if (report) {
-      const s = report.summary;
-      head.append(el("span", "lc " + (s.fail ? "bad" : "ok"), s.fail ? `${s.fail} FAIL` : "ALL PASS"), el("span", "lc", `${s.checks} checks / ${s.pass} pass / ${s.skip} skip`));
-      const prov = el("span", "prov inline"); head.append(prov);
-      renderProv(prov, lint.prov);
-    } else head.append(el("span", "lc warn", "lint 未配信（producer 削除済み）"));
-    const body = $("lintbody"); body.textContent = ""; state.lintRows = [];
-    for (const c of report?.checks || []) {
-      const tr = el("tr", c.status === "FAIL" ? "fail" : "");
-      const when = c.ticks ? `t${c.ticks[0]}-${c.ticks[1]}` : c.tick != null ? `t${c.tick}` : "";
-      tr.append(el("td", "lst " + c.status.toLowerCase(), c.status), el("td", "", c.check), el("td", "bt", when), el("td", "", c.text));
-      const at = c.ticks ? c.ticks[0] : c.tick;
-      if (at != null) { tr.classList.add("seekable"); tr.onclick = () => seek(tickToMs(at, castOf())); }
-      body.append(tr); state.lintRows.push({ tr, c });
-    }
-    applyLintFilter();
-  }
-  function applyLintFilter() { for (const { tr, c } of state.lintRows) tr.hidden = state.failOnly && c.status !== "FAIL"; }
-  function updateLint(tick) {
-    for (const { tr, c } of state.lintRows) tr.classList.toggle("active", !!((c.ticks || c.tick != null) && inBeat(c, tick)));
-    const now = $("lintnow"); now.textContent = "";
-    const rep = V().lint?.report;
-    if (!rep) return;
-    const hits = rep.checks.filter((c) => (c.ticks || c.tick != null) && inBeat(c, tick));
-    now.append(el("span", "k", `t+${tick}`));
-    for (const c of hits) now.append(el("span", "lc " + (c.status === "FAIL" ? "bad" : c.status === "PASS" ? "ok" : ""), `${c.status} ${c.beat ? c.beat : c.check}`));
+    head.append(el("span", "lc", `${ov.overlays.length} ticks`));
+    const prov = el("span", "prov inline"); head.append(prov);
+    renderProv(prov, ov.prov);
   }
   const overlayAtTick = (tick) => state.overlayAt.get(tick) || null;
   function showOverlay(tick) {
@@ -97,12 +72,11 @@ export function createViews(ctx) {
     if (entry?.state === "ready") { $("vov").src = entry.img.src; $("vov").style.visibility = "visible"; }
   }
 
-  const hasAny = () => !!(V().preview || V().lint);
+  const hasAny = () => !!(V().preview || V().overlay);
   return {
     setup() {
       setupRound(); setupPreview(); setupLint();
       $("aPreview").hidden = !(V().preview || state.overlayAt.size);
-      $("failOnly").onchange = (e) => { state.failOnly = e.target.checked; applyLintFilter(); };
     },
     /** image URLs to prefetch for time `ms` (only while the author section is open) */
     urls: (ms) => (S.authorOpen ? [previewFrame(ms)?.url, overlayAtTick(msToTick(ms, castOf()))?.url] : []),
@@ -110,7 +84,7 @@ export function createViews(ctx) {
     show(ms) {
       if (!S.authorOpen || !hasAny()) return;
       const tick = msToTick(ms, castOf());
-      showPreview(ms); showOverlay(tick); updateLint(tick);
+      showPreview(ms); showOverlay(tick);
     },
   };
 }
