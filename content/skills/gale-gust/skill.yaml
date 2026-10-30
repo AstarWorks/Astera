@@ -1,5 +1,6 @@
 # Gale fan gust: a wide sector in front of the caster is damaged and shoved away (horizontal push plus a little lift). Re-authored from zero on ADR-0303 rev4.10.
-# One tick: hit, damage and knockback all on tick 0; the cast ends on tick 1.
+# One tick: hit, damage and knockback all on tick 0; the cast ends on tick 1. The wind (a fan of streaks sweeping out over 7 ticks
+# plus a cloud burst) is detached presentation so it outlives the one-tick cast; no gameplay row moves.
 apiVersion: astera/v3
 kind: Skill
 id: gale-gust
@@ -14,7 +15,9 @@ params:
   dmg_physical: {type: number, default: 10.0}
 anchors:
   - {id: cast_fx, anchor: caster, offset: {forward: 1.5}, mode: follow}
+  - {id: wind_at, anchor: caster, mode: snapshot}
 machine:
+  tail: 8
   start: cast
   states:
     cast:
@@ -36,4 +39,12 @@ machine:
       do:
         - {id: snd, op: sound, sound: entity.breeze.wind_burst, anchor: caster, volume: 0.9, pitch: 1.2, at: 0}
         - {id: fx, op: particle_def, def: dash-cloud, anchor: cast_fx, at: 0}
+        - {id: wind_0, op: display, kind: block, block: white_concrete, anchor: wind_at, detach: true, at: 0, for: 6, offset: {left: -1.5, up: 0.5, forward: 0.6}, scale: [0.06, 0.06, 1.4], brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {forward: 0.85, left: -0.36}, at: 0, for: 6}, {law: grow, to: 0, at: 3, for: 3}]}
+        - {id: wind_1, op: display, kind: block, block: white_concrete, anchor: wind_at, detach: true, at: 1, for: 6, offset: {left: -1.0, up: 1.4, forward: 0.6}, scale: [0.06, 0.06, 1.4], brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {forward: 0.85, left: -0.24}, at: 0, for: 6}, {law: grow, to: 0, at: 3, for: 3}]}
+        - {id: wind_2, op: display, kind: block, block: white_concrete, anchor: wind_at, detach: true, at: 0, for: 6, offset: {left: -0.5, up: 0.9, forward: 0.6}, scale: [0.06, 0.06, 1.4], brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {forward: 0.85, left: -0.12}, at: 0, for: 6}, {law: grow, to: 0, at: 3, for: 3}]}
+        - {id: wind_3, op: display, kind: block, block: white_concrete, anchor: wind_at, detach: true, at: 2, for: 6, offset: {left: 0.0, up: 1.6, forward: 0.6}, scale: [0.06, 0.06, 1.4], brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {forward: 0.85, left: 0.0}, at: 0, for: 6}, {law: grow, to: 0, at: 3, for: 3}]}
+        - {id: wind_4, op: display, kind: block, block: white_concrete, anchor: wind_at, detach: true, at: 1, for: 6, offset: {left: 0.5, up: 0.9, forward: 0.6}, scale: [0.06, 0.06, 1.4], brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {forward: 0.85, left: 0.12}, at: 0, for: 6}, {law: grow, to: 0, at: 3, for: 3}]}
+        - {id: wind_5, op: display, kind: block, block: white_concrete, anchor: wind_at, detach: true, at: 0, for: 6, offset: {left: 1.0, up: 1.4, forward: 0.6}, scale: [0.06, 0.06, 1.4], brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {forward: 0.85, left: 0.24}, at: 0, for: 6}, {law: grow, to: 0, at: 3, for: 3}]}
+        - {id: wind_6, op: display, kind: block, block: white_concrete, anchor: wind_at, detach: true, at: 2, for: 6, offset: {left: 1.5, up: 0.5, forward: 0.6}, scale: [0.06, 0.06, 1.4], brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {forward: 0.85, left: 0.36}, at: 0, for: 6}, {law: grow, to: 0, at: 3, for: 3}]}
+        - {id: gust, op: particle, particle: cloud, anchor: cast_fx, count: 45, offset: [1.8, 0.5, 0.8], extra: 0.12, at: 0, detach: true}
     end: {final: true}
