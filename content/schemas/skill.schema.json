@@ -151,6 +151,12 @@
                         "type": "number",
                         "exclusiveMinimum": 0,
                         "maximum": 32
+                    },
+                    "ray_stops": {
+                        "enum": [
+                            "blocks",
+                            "entities"
+                        ]
                     }
                 },
                 "additionalProperties": false

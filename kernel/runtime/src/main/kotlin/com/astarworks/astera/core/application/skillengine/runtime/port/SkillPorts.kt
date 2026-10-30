@@ -295,6 +295,12 @@ public interface ISkillEntityQuery {
      */
     public fun bodiesNear(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitBox>
 
+    /**
+     * Hitboxes of the living bodies within [radius] of [point] that are enemies of the caster of [cast]: neither the caster nor on its team.
+     * A pure geometry read, not a hit query (the oracle does not record it): what a `ray_stops: entities` ray anchor stops on.
+     */
+    public fun enemyBodiesNear(cast: CastRef, point: Vec3, radius: Double): List<HitBox>
+
     /** Current feet position and body yaw of an entity (the victim / caster root frame). */
     public fun rootOf(cast: CastRef, entity: UUID): EntityRoot?
 

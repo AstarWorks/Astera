@@ -71,7 +71,12 @@ public data class AnchorDecl(
     val mode: AnchorMode,
     /** Ray anchor (ADR-0303 3.3): when set, the anchor sits where the parent's forward ray meets a block within this many blocks, else at the ray's end. */
     val ray: Double? = null,
+    /** What stops a [ray] anchor (`ray_stops:`, required with `ray`, null without it). */
+    val rayStops: RayStops? = null,
 )
+
+/** `ray_stops` of a ray anchor: [BLOCKS] = only the first block ends the ray; [ENTITIES] = also the first enemy body of the caster (never the caster, never an ally), the anchor then sitting where the ray enters its hitbox. */
+public enum class RayStops { BLOCKS, ENTITIES }
 
 /** `follow` re-reads the parent at every send (the identity); `snapshot` copies the pose once at activation. */
 public enum class AnchorMode { FOLLOW, SNAPSHOT }

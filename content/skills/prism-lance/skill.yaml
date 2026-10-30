@@ -1,5 +1,5 @@
 # prism-lance: trial skill for the `ray` anchor and the `input.release` event (ADR-0303 3.3, 3.2). While the use input is held the lance
-# burns along the caster's look ray (`tip` is re-read every tick: it follows yaw and pitch, and sits on the first block it meets, 24 blocks
+# burns along the caster's look ray (`tip` is re-read every tick: it follows yaw and pitch, and sits on the first block or enemy body it meets, 24 blocks
 # at most). Letting go ends the channel at once; holding it ends the channel at tick 60 (the fixed maximum). Bound to no item (dev trial).
 apiVersion: astera/v3
 kind: Skill
@@ -15,7 +15,7 @@ params:
   dmg:           {type: number, default: 3}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.4, up: -0.25}, mode: follow}
-  - {id: tip,    anchor: caster.eye, ray: 24, mode: follow}
+  - {id: tip,    anchor: caster.eye, ray: 24, ray_stops: entities, mode: follow}
 machine:
   start: channel
   states:

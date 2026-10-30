@@ -43,6 +43,7 @@ import com.astarworks.astera.core.domain.skillengine.hit.ResolvedVolume
 import com.astarworks.astera.core.domain.skillengine.model.AnchorDecl
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.model.AnchorMode
+import com.astarworks.astera.core.domain.skillengine.model.RayStops
 import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.Branch
@@ -123,6 +124,9 @@ private const val REST_SPEED = 0.05
 
 /** The spawn kinds that are one visible display and follow a moving parent ([TablePlayer.followRiders]); ribbons and lines have their own drivers. */
 private val RIDER_KINDS = setOf(SpawnKind.ITEM, SpawnKind.BLOCK, SpawnKind.TEXT, SpawnKind.SPRITE)
+
+/** Margin added to a ray anchor's body query radius so a hitbox whose centre lies off the ray is still read. */
+private const val RAY_BODY_REACH: Double = 3.0
 
 /** A bounced body restarts this far off the surface along its normal, so the next tick's ray does not begin inside the block. */
 private const val CONTACT_SKIN = 0.02
@@ -2238,11 +2242,22 @@ public class TablePlayer(
             }
             pos.add(local.mul(amount).rotate(rot))
         }
-        // ray anchor: the parent's forward ray, stopped by the first block (the anchor is the hit point), else the full reach
+        // ray anchor: the parent's forward ray, stopped by the first block (the anchor is the hit point) and, for `ray_stops: entities`,
+        // by the first enemy hitbox it enters (the anchor is the entry point), else the full reach
         val at = decl.ray?.let { reach ->
-            val end = Vector3d(pos).add(Vector3d(0.0, 0.0, 1.0).rotate(rot).mul(reach))
-            query.raycastBlock(castRef(run), Vec3(pos.x, pos.y, pos.z), Vec3(end.x, end.y, end.z))
-                ?.let { Vector3d(it.point.x, it.point.y, it.point.z) } ?: end
+            val from = Vec3(pos.x, pos.y, pos.z)
+            val dir = Vector3d(0.0, 0.0, 1.0).rotate(rot)
+            val end = Vector3d(pos).add(Vector3d(dir).mul(reach))
+            val to = Vec3(end.x, end.y, end.z)
+            val cast = castRef(run)
+            var stop = query.raycastBlock(cast, from, to)?.point ?: to
+            if (decl.rayStops == RayStops.ENTITIES) {
+                val delta = stop - from
+                val bodies = query.enemyBodiesNear(cast, from + delta * 0.5, delta.length() / 2.0 + RAY_BODY_REACH)
+                val enter = bodies.mapNotNull { com.astarworks.astera.core.application.skillengine.runtime.ops.DashClearance.slab(it, from, delta)?.first }.minOrNull()
+                if (enter != null) stop = from + delta * enter
+            }
+            Vector3d(stop.x, stop.y, stop.z)
         } ?: pos
         val pose = PoseV(at, rot, Vector3d(1.0, 1.0, 1.0))
         if (decl.mode == AnchorMode.SNAPSHOT) run.snapshots[decl.id] = PoseV(Vector3d(at), Quaterniond(rot), Vector3d(1.0, 1.0, 1.0))

@@ -175,6 +175,8 @@ public object DryCast {
 
         val query: ISkillEntityQuery = object : ISkillEntityQuery {
             override fun nearby(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> = victims.filter { it.entityId != excluding }
+            override fun enemyBodiesNear(cast: CastRef, point: Vec3, radius: Double): List<HitBox> = victims.filter { it.entityId != cast.caster }.map { it.box }
+
             override fun bodiesNear(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitBox> = victims.filter { it.entityId != excluding }.map { it.box }
             override fun rootOf(cast: CastRef, entity: UUID): EntityRoot? {
                 victims.firstOrNull { it.entityId == entity }?.let { return EntityRoot(it.feet, it.yawDeg, 0.0, it.eyeHeight ?: 0.0, 1.8) }

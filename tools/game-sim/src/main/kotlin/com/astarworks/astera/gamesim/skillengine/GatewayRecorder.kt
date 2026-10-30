@@ -478,6 +478,11 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             return victims.filter { it.entityId != excluding }.map { it.box }
         }
 
+        override fun enemyBodiesNear(cast: CastRef, point: Vec3, radius: Double): List<HitBox> {
+            seen("query.enemyBodiesNear", cast)
+            return victims.filter { it.entityId != caster && it.entityId !in allies }.map { it.box }
+        }
+
         override fun rootOf(cast: CastRef, entity: UUID): EntityRoot? {
             seen("query.rootOf", cast)
             victims.firstOrNull { it.entityId == entity }?.let { return EntityRoot(it.feet, it.yawDeg, 0.0, it.eyeHeight ?: 0.0, 1.8) }

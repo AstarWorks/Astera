@@ -17,6 +17,7 @@ import com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.model.AnchorDecl
 import com.astarworks.astera.core.domain.skillengine.model.AnchorMode
+import com.astarworks.astera.core.domain.skillengine.model.RayStops
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.SkillDef
@@ -264,7 +265,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
             val m = e as? Map<*, *> ?: ctx.mismatch(p, "map {id, anchor, offset, mode}", e)
             @Suppress("UNCHECKED_CAST")
             m as Map<String, Any?>
-            checkKeys(ctx, m, p, setOf("id", "anchor", "offset", "mode", "ray"))
+            checkKeys(ctx, m, p, setOf("id", "anchor", "offset", "mode", "ray", "ray_stops"))
             val id = m["id"] as? String ?: ctx.abortWith(SkillDecodeError.MissingField(ctx.file, p, "id"))
             com.astarworks.astera.core.application.skillengine.compose.AnchorNames.reservedError(p, id)?.let { ctx.abortWith(SkillDecodeError.Invalid(ctx.file, "$p.id", it)) }
             if (!seen.add(id)) ctx.abortWith(SkillDecodeError.DuplicateId(ctx.file, p, id))
@@ -284,7 +285,14 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
                 if (n <= 0.0 || n > MAX_RAY_BLOCKS) ctx.fail("$p.ray", "anchors[$i] '$id': ray must be in (0, $MAX_RAY_BLOCKS] blocks, found $n")
                 n
             }
-            AnchorDecl(id, PointRef.parse(anchor), offset, mode, ray)
+            val rayStops = when (val raw = m["ray_stops"]) {
+                null -> if (ray != null) ctx.fail("$p.ray_stops", "anchors[$i] '$id': ray_stops is required with ray: blocks (only blocks stop the ray) or entities (also the first enemy body)") else null
+                "blocks" -> RayStops.BLOCKS
+                "entities" -> RayStops.ENTITIES
+                else -> ctx.mismatch("$p.ray_stops", "'blocks' or 'entities'", raw)
+            }
+            if (rayStops != null && ray == null) ctx.fail("$p.ray_stops", "anchors[$i] '$id': ray_stops needs a ray length")
+            AnchorDecl(id, PointRef.parse(anchor), offset, mode, ray, rayStops)
         }
     }
 
