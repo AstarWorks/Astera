@@ -11,6 +11,7 @@ import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.Heal
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.HitOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ImpulseOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.KnockbackOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.PullOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ModifyAttributeOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ProjectileOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ReelOpSpec
@@ -65,6 +66,7 @@ public object SkillEngineSpecs {
         ModifyAttributeOpSpec,
         ImpulseOpSpec,
         KnockbackOpSpec,
+        PullOpSpec,
         HealOpSpec,
         ResourceOpSpec,
         DashOpSpec,

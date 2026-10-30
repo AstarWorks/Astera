@@ -9,7 +9,7 @@ params:
   range:        {type: blocks, default: 5.0}
   max_targets:  {type: number, default: 3}
   dmg_physical: {type: number, default: 14}
-  pull:         {type: number, default: 1.3}
+  pull_stop:         {type: number, default: 1.5}
 anchors:
   - {id: sweep, anchor: caster.eye, offset: {up: -0.1, forward: 2.0}, mode: follow}
 machine:
@@ -50,7 +50,7 @@ machine:
           on:
             hit:
               - {id: react, op: react, target: event.victim, flinch: true, for: 6}
-              - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(caster) - pos(event.victim)) + vec(0.0, 0.2, 0.0)", strength: "${pull}"}
+              - {id: kb, op: pull, target: event.victim, direction: "= flat(pos(caster) - pos(event.victim))", distance: "= length(flat(pos(caster) - pos(event.victim))) - ${pull_stop}"}
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
         - {id: snd, op: sound, sound: entity.player.attack.sweep, anchor: caster, volume: 1.0, pitch: 0.6, detach: true}
         - {id: fx, op: particle_def, def: slash-sweep, anchor: sweep, detach: true}

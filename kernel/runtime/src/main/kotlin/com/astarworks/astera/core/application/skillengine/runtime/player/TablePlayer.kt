@@ -78,6 +78,7 @@ import com.astarworks.astera.core.domain.skillengine.table.TargetSet
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.domain.skillengine.table.Vec
 import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
+import com.astarworks.astera.core.domain.skillengine.math.PullMath
 import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 import java.util.UUID
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -1656,6 +1657,14 @@ public class TablePlayer(
                 val vv = v("direction")
                 val k = d("strength")
                 victims.forEach { gameplay.impulse(it, Vec3(vv.x * k, vv.y * k, vv.z * k)) }
+            }
+            "pull" -> {
+                // Pull: the horizontal speed that rests after `distance` blocks (vanilla drag + gravity solved), along the flat direction, with `lift` up
+                val vv = v("direction")
+                val flat = kotlin.math.sqrt(vv.x * vv.x + vv.z * vv.z)
+                val lift = d("lift")
+                val speed = PullMath.speedFor(d("distance"), lift)
+                if (speed > 0.0 && flat > 1.0e-9) victims.forEach { gameplay.impulse(it, Vec3(vv.x / flat * speed, lift, vv.z / flat * speed)) }
             }
             "resource" -> victims.forEach { gameplay.restoreResource(it, s("resource"), d("amount")) }
             "heal" -> victims.forEach { gameplay.restoreResource(it, "health", d("amount")) }
