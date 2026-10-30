@@ -106,8 +106,14 @@ public class CombatWiringResult(
     public val castSkill: CastSkillUseCase?,
     /** F3-11: keeps the lobby training dummies alive; `null` when the host supplied no dummy bodies. */
     public val trainingRange: com.astarworks.astera.combat.application.service.training.TrainingRangeService?,
+    private val bindActions: List<() -> Unit>,
     private val shutdownHooks: List<() -> Unit>,
 ) {
+    /** Runs the side effects install deferred (dummy spawns); paired with [shutdown]. */
+    public fun bind() {
+        bindActions.forEach { it() }
+    }
+
     /**
      * Stops the scheduler-driven pieces wiring started (cooldown HUD poll,
      * per-tick cooldown expiry). Subscriptions / registrations are closed by
@@ -132,6 +138,7 @@ public object CombatWiring {
         val registrations = ctx.registrations
         val subscriptions = ctx.subscriptions
         val shutdownHooks = mutableListOf<() -> Unit>()
+        val bindActions = mutableListOf<() -> Unit>()
 
         // 2. Build Combat-owned impls ------------------------------------------
         // Wave _infra-2b (ADR-0065): SkillContents / StatusContents / ArmorContents
@@ -202,7 +209,8 @@ public object CombatWiring {
         val damageRandomizer = services.get<IDamageRandomizer>() ?: KotlinRandomDamageRandomizer()
 
         // Wave 5a-fix2 — sliding-window damage history for assist attribution (ADR-0063)
-        val damageHistory = InMemoryDamageHistoryService()
+        // Carried across a rewire (ADR-0311): the assist window keeps its hits.
+        val damageHistory: IDamageHistoryService = ctx.stateful { InMemoryDamageHistoryService() }
 
         // Wave 5o (ADR-0081) — status-effect interaction matrix.
         // YAML at content/balance/status-effect-interactions.yaml is loaded
@@ -239,7 +247,6 @@ public object CombatWiring {
         if (services.get<IDamageRandomizer>() == null) {
             registrations += services.register<IDamageRandomizer>(damageRandomizer)
         }
-        registrations += services.register<IDamageHistoryService>(damageHistory)
         registrations += services.register<IStatusEffectInteractionRule>(statusInteractionRule)
 
 
@@ -340,22 +347,20 @@ public object CombatWiring {
         // / AllOf) live in :plugin:core and are decodable from YAML today;
         // the lifecycle service learns to evaluate them in Wave 6b via
         // BossPhaseTransitionEvaluator (already wired by AsteraCorePlugin).
-        val depthEventBus = services.getOrThrow<IDomainEventBus>()
+        // Carried trackers publish on the carried bus: a retiring generation must not cancel their subscriptions.
+        val depthEventBus = ctx.carriedEventBus
         val comboRouteContents = ComboRouteContents()
         val comboContentDir = ctx.contentDir.resolve("combat-depth/combos")
         val comboReport = comboRouteContents.bootstrap(comboContentDir)
         logger.info("Combo routes loaded: ${comboReport.loaded} ok, ${comboReport.failed} failed")
 
-        val comboTracker = InMemoryComboTracker(depthEventBus)
+        val comboTracker: IComboTracker = ctx.stateful { InMemoryComboTracker(depthEventBus) }
         comboRouteContents.all().forEach { comboTracker.registerRoute(it) }
-        registrations += services.register<IComboTracker>(comboTracker)
         reloadRegistry.register(comboRouteContents, comboContentDir)
 
-        val focusFireTracker = InMemoryFocusFireTracker(depthEventBus)
-        registrations += services.register<IFocusFireTracker>(focusFireTracker)
+        val focusFireTracker: IFocusFireTracker = ctx.stateful { InMemoryFocusFireTracker(depthEventBus) }
 
-        val targetLockController = InMemoryTargetLockController(depthEventBus)
-        registrations += services.register<ITargetLockController>(targetLockController)
+        val targetLockController: ITargetLockController = ctx.stateful { InMemoryTargetLockController(depthEventBus) }
 
         // 4. Wire use cases if runtime impls are present -----------------------
         val eventBus = services.getOrThrow<IDomainEventBus>()
@@ -404,8 +409,9 @@ public object CombatWiring {
         // at priority 100. Bukkit PotionEffect is UI mirror only per
         // ADR-0149 §C — Astera-internal map is source of truth. (Paper's
         // companion StatusEffectTickListener is started by the Paper step.)
+        // Carried across a rewire (ADR-0311): active statuses keep counting down on the new generation.
         ports.statusEffectContainer?.let {
-            registrations += services.register<IStatusEffectContainer>(it(services), priority = 100)
+            ctx.stateful<IStatusEffectContainer>(priority = 100) { it(services) }
         }
 
         // WP3: non-player (mob) damage. Optional: without a host impl mobs are
@@ -422,7 +428,8 @@ public object CombatWiring {
                 scheduler = services.getOrThrow<IScheduler>(),
                 messages = services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>(),
             ).also { service ->
-                service.start()
+                // Spawns the dummies: a side effect, so it waits for bind.
+                bindActions += { service.start() }
                 shutdownHooks += { service.stop() }
             }
         }
@@ -455,10 +462,7 @@ public object CombatWiring {
 
         // F1-D (ADR-0183): admin god mode, consulted by ApplyDamageUseCase.
         val godModeService: com.astarworks.astera.combat.application.port.outbound.IGodModeService =
-            services.get<com.astarworks.astera.combat.application.port.outbound.IGodModeService>()
-                ?: com.astarworks.astera.combat.application.service.InMemoryGodModeService().also {
-                    registrations += services.register<com.astarworks.astera.combat.application.port.outbound.IGodModeService>(it, priority = 0)
-                }
+            ctx.stateful { com.astarworks.astera.combat.application.service.InMemoryGodModeService() }
 
         // Wave 6a-1 5paper-sweep-knockback (ADR-0144): Paper knockback
         // adapter overlays NoOpKnockbackGateway at priority 100. Reads
@@ -572,8 +576,7 @@ public object CombatWiring {
                 services.get<com.astarworks.astera.core.application.port.outbound.IParticleRegistry>()
             val soundRegistry =
                 services.get<com.astarworks.astera.core.application.port.outbound.effect.ISoundRegistry>()
-            val summonRegistry = SummonRegistry { services.get<IMatchTeamLookup>() }
-            registrations += services.register<SummonRegistry>(summonRegistry)
+            val summonRegistry = ctx.stateful { SummonRegistry { services.get<IMatchTeamLookup>() } }
             val castSkill = CastSkillUseCase(
                 skillRegistry = skillGate,
                 statusContainer = statusContainer,
@@ -754,11 +757,11 @@ public object CombatWiring {
             null
         }
         // Skill skins (engine-gaps-v2 2.3): Persistence's Postgres repository (priority 100) wins over this in-memory default.
+        ctx.stateful<com.astarworks.astera.combat.application.port.outbound.skin.ISkillSkinRepository> {
+            com.astarworks.astera.combat.application.service.skin.InMemorySkillSkinRepository()
+        }
         val skinRepository: () -> com.astarworks.astera.combat.application.port.outbound.skin.ISkillSkinRepository = {
-            services.get<com.astarworks.astera.combat.application.port.outbound.skin.ISkillSkinRepository>()
-                ?: com.astarworks.astera.combat.application.service.skin.InMemorySkillSkinRepository().also {
-                    services.register<com.astarworks.astera.combat.application.port.outbound.skin.ISkillSkinRepository>(it, priority = 0)
-                }
+            services.getOrThrow<com.astarworks.astera.combat.application.port.outbound.skin.ISkillSkinRepository>()
         }
         val skillVariantResolver = com.astarworks.astera.combat.application.service.skin.SkillVariantResolver(skinRepository, skillCatalog::get)
         val skillSkins = com.astarworks.astera.combat.application.usecase.skin.SkillSkinUseCase(skinRepository, skillCatalog::get)
@@ -808,6 +811,7 @@ public object CombatWiring {
             applyStatus = applyStatusOut,
             castSkill = castSkillOut,
             trainingRange = trainingService,
+            bindActions = bindActions.toList(),
             shutdownHooks = shutdownHooks.toList(),
         )
     }

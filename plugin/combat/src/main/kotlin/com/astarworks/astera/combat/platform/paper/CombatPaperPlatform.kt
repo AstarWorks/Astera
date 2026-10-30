@@ -61,7 +61,6 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin, private val l
 
     // Concrete Paper instances the factories create; the post-wiring step
     // needs them (not just their port interface).
-    private var statusContainer: PaperStatusEffectContainer? = null
     private var explosionGateway: PaperExplosionGateway? = null
     private var entityDamageGateway: PaperEntityDamageGateway? = null
 
@@ -140,14 +139,13 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin, private val l
             paperDamageGateway
         },
         statusEffectContainer = { services ->
-            val container = PaperStatusEffectContainer(
+            // Carried across a rewire (ADR-0311): built once, by the first generation only.
+            PaperStatusEffectContainer(
                 server = plugin.server,
                 scheduler = services.getOrThrow<IScheduler>(),
                 eventBus = services.getOrThrow<IDomainEventBus>(),
                 statusEffectRegistry = services.getOrThrow<IStatusEffectRegistry>(),
             )
-            statusContainer = container
-            container
         },
         wornItems = { com.astarworks.astera.combat.adapter.paper.PaperWornItems(plugin.server) },
         knockbackGateway = { PaperKnockbackGateway(plugin.server) },
@@ -171,6 +169,8 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin, private val l
         val services = ctx.services
         val eventBus = services.getOrThrow<IDomainEventBus>()
         val scheduler = services.getOrThrow<IScheduler>()
+        // The container is carried across generations, so it comes from the registry, not from a factory call.
+        val statusContainer = services.get<com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer>() as? PaperStatusEffectContainer
 
         // Wave 6a-N2 (ADR-0155) — StatusEffectTickListener drives Astera-side
         // tick effects (DoT damage / regen) + translates vanilla potion
@@ -252,7 +252,6 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin, private val l
         skillEngine = null
         statusTickHandle?.cancel()
         statusTickHandle = null
-        statusContainer = null
         explosionGateway = null
         entityDamageGateway = null
     }

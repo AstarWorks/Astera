@@ -3,10 +3,10 @@ package com.astarworks.astera.combat.platform
 import com.astarworks.astera.core.platform.paper.listeners
 import com.astarworks.astera.combat.platform.paper.CombatPaperPlatform
 import com.astarworks.astera.combat.platform.wiring.CombatWiring
-import com.astarworks.astera.combat.platform.wiring.CombatWiringResult
+import com.astarworks.astera.combat.platform.wiring.CombatLifecycle
 import com.astarworks.astera.core.platform.AsteraCorePlugin
-import com.astarworks.astera.core.application.wiring.WiringOwner
-import com.astarworks.astera.core.platform.wiring.WiringContext
+import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.platform.wiring.RewireCoordinator
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
@@ -31,9 +31,7 @@ import org.bukkit.plugin.java.JavaPlugin
  */
 public class AsteraCombatPlugin : JavaPlugin() {
 
-    private var wiringContext: WiringContext? = null
-    private var wiringResult: CombatWiringResult? = null
-    private var paperPlatform: CombatPaperPlatform? = null
+    private var coordinator: RewireCoordinator? = null
 
     override fun onEnable() {
         logger.info("Astera-Combat enabling…")
@@ -45,14 +43,24 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 server.pluginManager.disablePlugin(this); return
             }
 
-        // 2. Host-neutral wiring (ADR-0174) + Paper-only binding ----------------
-        val ctx = WiringContext(WiringOwner("Astera-Combat"), 0, core.services, core.contentDir, logger, core.serverEnvironment.role, core.serverEnvironment.name)
-        wiringContext = ctx
-        val platform = CombatPaperPlatform(this, ctx.listeners(this))
-        paperPlatform = platform
-        val wired = CombatWiring.install(ctx, platform.ports)
-        wiringResult = wired
-        platform.bind(ctx, wired)
+        // 2. Rewirable generation (ADR-0311): host-neutral wiring + Paper-only binding, one platform per generation.
+        coordinator = core.rewire
+        core.rewire.register(
+            CombatLifecycle(
+                install = { ctx ->
+                    val platform = CombatPaperPlatform(this, ctx.listeners(this))
+                    ctx.attachments[PLATFORM_KEY] = platform
+                    CombatWiring.install(ctx, platform.ports)
+                },
+                bindHost = { ctx, wired -> (ctx.attachments[PLATFORM_KEY] as CombatPaperPlatform).bind(ctx, wired) },
+                unbindHost = { ctx -> (ctx.attachments.remove(PLATFORM_KEY) as? CombatPaperPlatform)?.teardown() },
+            ),
+        )
+        val up = core.rewire.up(CombatLifecycle.OWNER)
+        if (up is Result.Failure) {
+            logger.severe("Astera-Combat failed to wire: ${up.error}")
+            server.pluginManager.disablePlugin(this); return
+        }
 
         logger.info(
             "Astera-Combat enabled. Services published: " +
@@ -67,15 +75,12 @@ public class AsteraCombatPlugin : JavaPlugin() {
     }
 
     override fun onDisable() {
-        // Wave 5match-hud / 6a-N2: stop scheduler-driven pieces (cooldown HUD
-        // poll, per-tick cooldown expiry, status tick sweep, projectile
-        // watchdog) before the subscriptions / registrations are closed.
-        wiringResult?.shutdown()
-        wiringResult = null
-        paperPlatform?.teardown()
-        paperPlatform = null
-        wiringContext?.close()
-        wiringContext = null
+        coordinator?.down(CombatLifecycle.OWNER)
+        coordinator = null
         logger.info("Astera-Combat disabled.")
+    }
+
+    private companion object {
+        const val PLATFORM_KEY = "combat.platform"
     }
 }
