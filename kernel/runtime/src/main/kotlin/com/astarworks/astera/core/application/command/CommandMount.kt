@@ -12,12 +12,14 @@ import com.astarworks.astera.core.application.services.ServiceRegistry
 public class CommandMount(
     private val registry: IAsteraCommandRegistry,
     public val owner: String,
+    /** The owner's wiring generation (ADR-0311). */
+    public val gen: Int,
     private val sink: MutableList<ServiceRegistry.Registration>,
 ) {
 
     /** Mount [spec] at `/astera <parent...> <spec.name>`. */
     public fun register(parent: List<String>, spec: CommandSpec.Literal) {
-        sink += registry.register(owner, parent, spec)
+        sink += registry.register(owner, gen, parent, spec)
     }
 
     /** Mount [spec] at `/astera <area> <spec.name>`. */

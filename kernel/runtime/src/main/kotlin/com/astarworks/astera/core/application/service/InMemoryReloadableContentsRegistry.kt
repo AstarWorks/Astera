@@ -20,17 +20,24 @@ public class InMemoryReloadableContentsRegistry : IReloadableContentsRegistry {
 
     private data class Entry(val contents: ReloadableContents, val dir: Path)
 
-    private val entries = ConcurrentHashMap<String, Entry>()
+    /**
+     * Newest binding last. A rewire (ADR-0311) binds the new generation of a category before the old one is
+     * unbound, so a name can briefly hold two entries; the newest answers, and a rolled-back binding uncovers the old.
+     */
+    private val entries = ConcurrentHashMap<String, List<Entry>>()
 
     override fun register(
         contents: ReloadableContents,
         dir: Path,
     ): IReloadableContentsRegistry.Registration {
         val name = contents.categoryName
-        entries[name] = Entry(contents, dir)
+        val entry = Entry(contents, dir)
+        entries.merge(name, listOf(entry)) { old, added -> old + added }
         return object : IReloadableContentsRegistry.Registration {
             override fun unregister() {
-                entries.remove(name, Entry(contents, dir))
+                entries.computeIfPresent(name) { _, list ->
+                    list.filterNot { it === entry }.ifEmpty { null }
+                }
             }
         }
     }
@@ -38,7 +45,7 @@ public class InMemoryReloadableContentsRegistry : IReloadableContentsRegistry {
     override fun categories(): Set<String> = entries.keys.toSet()
 
     override fun reload(categoryName: String): Result<ContentLoader.LoadReport, ReloadError> {
-        val entry = entries[categoryName]
+        val entry = entries[categoryName]?.lastOrNull()
             ?: return Result.Failure(ReloadError.UnknownCategory(categoryName))
         val report = entry.contents.reload(entry.dir)
         return if (report.failed == 0) {
