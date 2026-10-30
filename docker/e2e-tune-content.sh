@@ -128,30 +128,4 @@ patch norma-layer/layer.yaml 's/^(  death_drop_ratio:).*/\1 "1.0"/' '^  death_dr
 # (docker-compose.e2e.yml `e2e-skill-probe`, mounted read-write into the runner) so the suite can rewrite its YAML and
 # run `astera skill reload reload-probe`. Not shipped: this script runs for the E2E_FAST image only.
 mkdir -p "$root/skills/reload-probe"
-cat > "$root/skills/reload-probe/skill.yaml" <<'YAML'
-apiVersion: astera/v3
-kind: Skill
-id: reload-probe
-item: diamond-axe
-meta:
-  name: {ja: 再読込プローブ, en: Reload Probe}
-  description: {ja: "e2e 用。skill reload が次の cast だけを変えることの確認。", en: "e2e probe. Proves skill reload changes only the next cast."}
-  cooldown_ticks: 0
-  resource_cost: 0
-  tags: [probe]
-params:
-  dmg: {type: number, default: 10}
-anchors:
-  - {id: feet, anchor: caster.feet, mode: follow}
-machine:
-  start: hold
-  states:
-    hold:
-      for: 40
-      then: done
-      do:
-        - {id: pin, op: lock, at: 0, for: 40, pitch: true}
-        - {id: glow, op: particle, particle: dust, anchor: feet, count: 1, color: "#ffffff", size: 1.0, at: 0}
-        - {id: hit, op: damage, at: 0, target: {kind: enemies, around: origin, radius: 8, max_count: 8, include_self: false}, damage: {physical: "${dmg}"}}
-    done: {final: true}
-YAML
+cp "$(dirname "$0")/e2e-fixtures/reload-probe.yaml" "$root/skills/reload-probe/skill.yaml"

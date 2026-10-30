@@ -844,7 +844,8 @@ internal object OracleFmt {
             "shape=box half=${v(vol.halfExtents)} rot=${q(com.astarworks.astera.core.domain.geometry.math.Quaternion(vol.rotation.x, vol.rotation.y, vol.rotation.z, vol.rotation.w))}"
     }
 
-    fun view(v: DisplayView): String = "aud=${v.audience} lane=${v.lane} target=${v.target ?: "-"}"
+    fun view(v: DisplayView): String =
+        "aud=${v.audience} lane=${v.lane} target=${v.target ?: "-"}" + if (v.viewers != com.astarworks.astera.core.domain.effect.RowViewers.ALL) " viewers=${v.viewers.yamlName}" else ""
 
     /** A string value on one token: whitespace and `=` escaped, null = `-`. */
     fun s(x: String?): String = x?.replace("%", "%25")?.replace(" ", "%20")?.replace("\n", "%0A")?.replace("=", "%3D")?.ifEmpty { "%00" } ?: "-"

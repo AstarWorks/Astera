@@ -1,0 +1,11 @@
+# Extra compose file for vfx-shot on astera-mc (SHOT_COMPOSE_EXTRA, set by remote-exec.sh for kind=vfx): memory caps so that
+# the kernel OOM killer prefers the shot stack over the astera-dev-* containers sharing the VM. No bind mounts here: the file
+# is only read by the docker CLI inside the runner.
+services:
+  e2e:
+    mem_limit: 3g
+    oom_score_adj: 500
+  e2e-resource-pack:
+    mem_limit: 128m
+  e2e-redis:
+    mem_limit: 128m
