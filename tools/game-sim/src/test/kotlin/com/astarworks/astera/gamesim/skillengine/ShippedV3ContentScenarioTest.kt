@@ -60,7 +60,7 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
                             oracle[key] = r.value
                             writeEvidence(if (patched) id else "shipped-" + id.replace('/', '_') + "_skill", r.value.table, if (patched) "patched composition of $id" else null)
                             // a callee-only skill (frames_in) cannot be cast directly; it is replayed inside its callers' goldens
-                            if (def.framesIn.isNotEmpty()) continue
+                            if (def.isCalleeOnly) continue
                             try {
                                 assertPlays(r.value)
                             } catch (e: AssertionError) {
@@ -221,7 +221,7 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
     private fun recordSkill(skill: CompiledSkill): List<String> {
         val out = ArrayList<String>()
         // a callee-only skill (frames_in) is not castable on its own: its golden is the static section; its rows play inside the callers' goldens
-        if (skill.def.framesIn.isEmpty()) {
+        if (!skill.def.isCalleeOnly) {
             for ((yaw, pitch) in poses) out += recordPose(skill, yaw, pitch, "pose", hit = false)
             for (yaw in hitPoses) out += recordPose(skill, yaw, 0.0, "pose-hit", hit = true)
         }

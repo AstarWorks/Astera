@@ -73,6 +73,6 @@ machine:
           every: 1
           until: bolt.end
           do:
-            - {id: tr0, op: particle, particle: snowflake, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04]}
-            - {id: tr1, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, color: "#c8ebff", size: 1.0}
+            - {id: tr0, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], color: "#e6f4ff", size: 0.4}
+            - {id: tr1, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, color: "#c8ebff", size: 0.45}
     end: {final: true}

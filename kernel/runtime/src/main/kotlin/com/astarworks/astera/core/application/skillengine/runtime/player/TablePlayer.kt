@@ -166,9 +166,9 @@ public class TablePlayer(
     // ------------------------------------------------------------------ API
 
     override fun start(request: CastRequest, skill: CompiledSkill): Result<CastHandle, CastError> {
-        // a `frames_in` name is bound by a caller's `use:`; a skill cast directly has nobody to bind it, so the refusal names the frame
-        if (skill.def.framesIn.isNotEmpty()) {
-            return Result.Failure(CastError.FrameSetup("skill '${skill.def.id}' declares frames_in ${skill.def.framesIn.keys.joinToString(", ") { "'$it'" }} and can only be called with `use: skill:${skill.def.id}`, not cast directly"))
+        // a `frames_in` name is bound and a `required` param is valued by a caller's `use:`; a skill cast directly has nobody to do it
+        if (skill.def.isCalleeOnly) {
+            return Result.Failure(CastError.CalleeOnly(skill.def.id, skill.def.framesIn.keys.toList(), skill.def.unvaluedRequiredParams))
         }
         // the table's first state is the entry (MachineTables puts it there): a part call as `machine.start` is expanded to its child path
         val states = skill.table.states.associateBy { it.state }
@@ -1822,8 +1822,10 @@ public class TablePlayer(
             stopOnBlock = bool(run, cell("stop_on_block"), ctx),
             invulnerable = bool(run, cell("invulnerable"), ctx),
             faceMovement = bool(run, cell("face_movement"), ctx),
+            passThrough = p["pass_through"]?.let { bool(run, it, ctx) } ?: false,
         )
         run.dash.start(row.instance.text, params)?.let { fault(run, now, src, it) }
+        run.dash.drainFaults().forEach { fault(run, now, src, it) }
     }
 
     private fun reelStart(run: Run, row: Row, p: Map<String, Val<Any>>, ctx: RowCtx, now: Int, src: String) {
@@ -1914,15 +1916,18 @@ public class TablePlayer(
             val heldId = InstanceId(carrier.path + InstanceId.Segment(OpId("held"), null))
             val local = PoseV(Vector3d(), Quaterniond(), Vector3d(SkinRigTransforms.PLAYER_SCALE))
             val rec = Rec(SpawnKind.ITEM, carrier, "", now, ctx.owner, ctx.detached, local)
+            // `viewers:` of the rig (the caster's own camera is a block from the held mesh): the mesh and every row anchored on it take it
+            rec.viewers = p["viewers"]?.let { RowViewers.fromYaml(any(run, it, ctx) as String) } ?: RowViewers.ALL
+            val view = DisplayView(rec.viewers.audience, VfxLane.CORE, null, rec.viewers)
             // main hand: the caster's real stack (THIRDPERSON_RIGHTHAND); off hand: the off-hand part's own pack model (THIRDPERSON_LEFTHAND), the real off-hand slot is empty
             val h = if (off) {
                 visual.spawnMesh(
                     castRef(run), any(run, cell("mesh_model"), ctx) as String, null, visualPose(rec, worldOf(run, rec, local, ctx.binding, now)), null,
-                    MeshLook(mode = DisplayItemMode.THIRDPERSON_LEFTHAND, rigShading = true),
+                    MeshLook(mode = DisplayItemMode.THIRDPERSON_LEFTHAND, rigShading = true), view = view,
                 )
             } else {
                 visual.spawnMesh(
-                    castRef(run), MeshModels.MAIN_HAND, null, visualPose(rec, worldOf(run, rec, local, ctx.binding, now)), null, MeshLook(rigShading = true),
+                    castRef(run), MeshModels.MAIN_HAND, null, visualPose(rec, worldOf(run, rec, local, ctx.binding, now)), null, MeshLook(rigShading = true), view = view,
                 )
             }
             rec.real = h
@@ -1951,6 +1956,7 @@ public class TablePlayer(
 
     private fun driversStep(run: Run, now: Int) {
         run.dash.tick()
+        run.dash.drainFaults().forEach { fault(run, now, "dash", it) }
         for ((id, line) in run.lines.entries.toList()) lineStep(run, id, line, now)
         for (veil in run.veils.values) {
             val age = (now - veil.start).coerceAtMost(veil.ticks)

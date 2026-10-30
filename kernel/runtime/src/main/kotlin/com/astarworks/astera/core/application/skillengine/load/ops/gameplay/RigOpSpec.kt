@@ -25,6 +25,7 @@ import com.astarworks.astera.core.application.skillengine.load.spec.OpNode
 import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
 import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.effect.RowViewers
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.model.Value
@@ -69,6 +70,8 @@ public class RigOp(
     public val respectHitStop: Boolean,
     public val bodyRespectHitStop: Boolean,
     public val freezes: List<RigFreezeSpec>,
+    /** `viewers` (`all` | `owner-hidden`) of the held mesh; null = the engine default (see [RigOpSpec.defaultViewers]). */
+    public val viewers: String?,
 ) : OpNode
 
 public object RigOpSpec : OpSpec<RigOp> {
@@ -85,6 +88,10 @@ public object RigOpSpec : OpSpec<RigOp> {
     private val hand = Field.identity("hand", Types.enumOf("main", "off"), "main", "held rig only: main = the held item (thirdperson_righthand part, right arm); off = the off-hand blade of a dual-wield weapon (thirdperson_lefthand part of content/frames/<item>.yaml, its own model, left arm)")
     private val respectHitStop = Field.optional("respect_hit_stop", Types.bool, Value.Literal(false), "the rig freezes during hit-stop")
     private val bodyRespectHitStop = Field.optional("body_respect_hit_stop", Types.bool, Value.Literal(false), "the body freezes during hit-stop")
+    private val viewers = Field.optional(
+        "viewers", Types.nullable(Types.enumOf(*RowViewers.YAML_NAMES)), null,
+        "who sees the held mesh: all | owner-hidden (not the caster); absent = owner-hidden (the caster keeps the vanilla held item)",
+    )
     private val freezeAt = Field.required("at", Types.number, "rig-relative tick")
     private val freezeTicks = Field.required("ticks", Types.number, "frozen ticks")
     private val freezes = Field.optional(
@@ -96,7 +103,7 @@ public object RigOpSpec : OpSpec<RigOp> {
     override val timing: TimingKind? = TimingKind.EXTENDED
     override val fields: Fields = Fields.of(
         "rig", parent, of, anim, mount, pivot, tilt, rest, swing, part, hand,
-        respectHitStop, bodyRespectHitStop, freezes,
+        respectHitStop, bodyRespectHitStop, freezes, viewers,
     )
 
     /** Rotation turns that are all literal, as a rotation vector (axis * degrees). */
@@ -120,7 +127,7 @@ public object RigOpSpec : OpSpec<RigOp> {
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<RigOp, SkillDecodeError> =
         Grammar.guard {
             val path = "rig(${id.value})"
-            val probe = DashOp(id, src, whenExpr, timing, Value.Literal(0.0), Value.Literal(0.0), values[pivot], null, false, true, true, false)
+            val probe = DashOp(id, src, whenExpr, timing, Value.Literal(0.0), Value.Literal(0.0), values[pivot], null, false, true, true, false, false)
             val duration = CasterMotion.ticksOf(probe, ctx, path)
             fun flag(f: Field<Value<Boolean>>): Boolean = (values[f] as? Value.Literal)?.value ?: ctx.fail("$path.${f.name}", "must be a literal true/false")
             val mountPoint = values[mount]
@@ -141,9 +148,16 @@ public object RigOpSpec : OpSpec<RigOp> {
                 id, src, whenExpr, timing, values[parent], values[of], values[anim], mountPoint, values[pivot],
                 rotationVector(values[tilt], ctx, "$path.tilt"), rotationVector(values[rest], ctx, "$path.rest"),
                 steps, values[part], handName, duration,
-                flag(respectHitStop), flag(bodyRespectHitStop), frz,
+                flag(respectHitStop), flag(bodyRespectHitStop), frz, values[viewers],
             )
         }
+
+    /**
+     * The audience of a held rig mesh when the rig writes no `viewers:`. The mesh rides the caster's own arm a block from the caster's eye, so
+     * the caster's first-person camera sees the weapon head swing across the screen; every other viewer is who the performance is for, so the
+     * default is `owner-hidden` (the vanilla first-person stack stays the caster's own view and is not emptied). `viewers: all` is the explicit opt-out.
+     */
+    public fun defaultViewers(): RowViewers = RowViewers.OWNER_HIDDEN
 
     /** The body point a rig can ride: the caster's right arm, carried by the rig's `anim` clip (the rig resolves it itself; it is not an anchor name). */
     public const val ARM_MOUNT: String = "caster.hand_r"
@@ -243,6 +257,7 @@ public object RigOpSpec : OpSpec<RigOp> {
             "body_respect_hit_stop" to CasterMotion.known(op.bodyRespectHitStop),
             "freezes" to CasterMotion.known(op.freezes.map { mapOf("at" to it.at.toDouble(), "ticks" to it.ticks.toDouble()) }),
         )
+        (op.viewers?.let { RowViewers.fromYaml(it) } ?: defaultViewers()).takeIf { it != RowViewers.ALL }?.let { payload["viewers"] = CasterMotion.known(it.yamlName) }
         driven?.let { payload["of"] = CasterMotion.known(it) }
         op.anim?.let { payload["anim"] = CasterMotion.known(it) }
         op.mount?.let { payload["mount"] = CasterMotion.known(it) }

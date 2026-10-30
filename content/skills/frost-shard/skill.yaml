@@ -32,9 +32,9 @@ machine:
         - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx, at: 0}
         - {id: spray, op: particle, particle: dust, anchor: {of: spray_a, to: spray_b, samples: 6}, count: 2, offset: [0.1, 0.1, 0.1], color: "#ebf5ff", size: 0.45, at: 0}
         - {id: shell, op: display, kind: item, item: "minecraft:prismarine_shard", context: fixed, anchor: ball, scale: [0.9, 0.9, 0.9], at: 0, until: ball.end}
-        - {id: tr0, op: particle, particle: snowflake, anchor: {of: ball, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], extra: 0.01, at: 0, every: 1, until: ball.end}
-        - {id: tr1, op: particle, particle: dust, anchor: {of: ball, sweep: 0.3}, count: 2, offset: [0.06, 0.06, 0.06], color: "#ebf5ff", size: 0.9, at: 0, every: 1, until: ball.end}
-        - {id: tr2, op: particle, particle: end_rod, anchor: {of: ball, sweep: 0.3}, count: 1, offset: [0.02, 0.02, 0.02], at: 0, every: 1, until: ball.end}
+        - {id: tr0, op: particle, particle: dust, anchor: {of: ball, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], color: "#e6f4ff", size: 0.4, at: 0, every: 1, until: ball.end}
+        - {id: tr1, op: particle, particle: dust, anchor: {of: ball, sweep: 0.3}, count: 2, offset: [0.06, 0.06, 0.06], color: "#ebf5ff", size: 0.45, at: 0, every: 1, until: ball.end}
+        - {id: tr2, op: particle, particle: dust, anchor: {of: ball, sweep: 0.3}, count: 1, offset: [0.02, 0.02, 0.02], color: "#f5fbff", size: 0.35, at: 0, every: 1, until: ball.end}
         - id: ball
           op: projectile
           at: 0

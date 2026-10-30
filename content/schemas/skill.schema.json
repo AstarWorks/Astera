@@ -12758,6 +12758,19 @@
                             ],
                             "description": "turn the caster to the travel direction"
                         },
+                        "pass_through": {
+                            "oneOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "string",
+                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                }
+                            ],
+                            "description": "true = the dash runs through bodies in its way and ends behind them; false = it stops at the front edge of the first body. The caster never ends inside a body either way",
+                            "default": false
+                        },
                         "at": {
                             "anyOf": [
                                 {
@@ -13771,6 +13784,21 @@
                             },
                             "description": "hit-stop windows",
                             "default": []
+                        },
+                        "viewers": {
+                            "anyOf": [
+                                {
+                                    "enum": [
+                                        "all",
+                                        "owner-hidden"
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "who sees the held mesh: all | owner-hidden (not the caster); absent = owner-hidden (the caster keeps the vanilla held item)",
+                            "default": null
                         },
                         "at": {
                             "anyOf": [

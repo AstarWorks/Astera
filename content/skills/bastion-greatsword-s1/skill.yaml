@@ -43,6 +43,7 @@ machine:
           parent: caster
           mount: caster.hand_r
           anim: bastion-s1-body
+          viewers: all
           rest: [{axis: left, deg: 72}]
           respect_hit_stop: true
           freezes: [{at: 7, ticks: 2}, {at: 31, ticks: 2}]

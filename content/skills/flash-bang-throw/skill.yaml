@@ -53,5 +53,5 @@ machine:
           on:
             end: [{op: use, use: "fragment:flash", with: {radius: "${radius}", shock: "${shock_ticks}"}, frames: {spot: bolt}}]
         - {id: shell, op: display, kind: item, item: "minecraft:glowstone_dust", context: fixed, anchor: bolt, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
-        - {id: trail, op: particle, particle: end_rod, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], at: 0, every: 1, until: bolt.end}
+        - {id: trail, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], color: "#fffff0", size: 0.35, at: 0, every: 1, until: bolt.end}
     done: {final: true}

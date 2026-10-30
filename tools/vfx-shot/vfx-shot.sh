@@ -312,6 +312,17 @@ if [ -z "$ITEM" ] && [ -n "$SKILL" ]; then
   ITEM="$(grep -lE "^[[:space:]]*-?[[:space:]]*skill_id:[[:space:]]*${SKILL%%@*}[[:space:]]*$" "$ROOT"/content/items/*.yaml 2>/dev/null | head -1 | xargs -r basename -s .yaml)"
   [ -n "$ITEM" ] || ITEM="$(sed -nE 's/^item:[[:space:]]*([A-Za-z0-9_.-]+).*/\1/p' "$ROOT/content/skills/${SKILL%%@*}/skill.yaml" 2>/dev/null | head -1)"
 fi
+# A callee-only skill (non-empty top-level `frames_in:` or a top-level param with `required: true`) cannot be cast alone: the engine rejects
+# the cast (CastError.CalleeOnly) and nothing is ever drawn. Refuse here and name the callers (`use: skill:<id>` in content/skills).
+if [ "$CMD" = capture ] && [ -n "$SKILL" ] && [ "$SOURCED" != 1 ]; then
+  _base="${SKILL%%@*}"; _yaml="$ROOT/content/skills/$_base/skill.yaml"
+  if [ -f "$_yaml" ] && { grep -qE '^frames_in:[[:space:]]*\{[[:space:]]*[^[:space:]}]' "$_yaml" \
+      || awk '/^params:/ {p=1; next} /^[^[:space:]#]/ {p=0} p && /required:[[:space:]]*true/ {f=1} END {exit !f}' "$_yaml"; }; then
+    _callers="$(grep -rlE "use:[[:space:]]*skill:${_base}([^A-Za-z0-9_-]|\$)" "$ROOT/content/skills" --include='*.yaml' 2>/dev/null \
+      | sed -E 's#.*/content/skills/([^/]+)/.*#\1#' | grep -vx -- "$_base" | sort -u | paste -sd, -)"
+    die "callee-only: capture the caller ${_callers:-<none found>} (skill '$_base' declares frames_in / required params and is only called with 'use: skill:$_base')"
+  fi
+fi
 [ "$CMD" != capture ] || [ -z "$SKILL" ] || [ -n "$ITEM" ] || die "no item binds skill '$SKILL' (content/items/*.yaml skill_id); set ITEM=<item-id> or ITEM=none"
 
 CACHE="${SHOT_CACHE:-$HOME/.cache/astera-vfx-shot}"
@@ -905,6 +916,9 @@ film() { # viewer view_dir
       | awk -v lo="$((ct - 1))" -v hi="$((ct + TICKS + PRE_TICKS + 10))" '{ if (match($0, /tick=[0-9]+/)) { t = substr($0, RSTART + 5, RLENGTH - 5) + 0; if (t >= lo && t <= hi) print } }' > "$dir/trace.log" || true
   fi
   log "tick stamp: $(cat "$STATE/framestamp.out")"
+  # nothing ever drawn after the cast = a silent no-op (rejected cast, wrong skill, dead fx): never a successful capture
+  [ "$(jq -r '.firstFxTickAfterCast // "none"' "$dir/framestamp.json" 2>/dev/null)" != none ] \
+    || die "no fx was ever drawn after the cast (first fx +None ticks): the cast did nothing; check the server log for [skill-error]"
   if [ "${SHOT_KEEP_REC:-0}" = 1 ]; then mv "$rec" "$dir/recording.mkv"; mv "$rec.log" "$dir/recording.showinfo.log"; else rm -f "$rec" "$rec.log"; fi
   if [ -n "$BEAT_TICKS" ]; then keep_beats "$all" "$dir"; fi
 }
