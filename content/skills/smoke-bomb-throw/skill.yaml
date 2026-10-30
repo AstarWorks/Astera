@@ -17,7 +17,7 @@ params:
   evasive_ticks: {type: ticks, default: 80}
 anchors:
   - {id: muzzle,    anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: flash,     anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: follow}
+  - {id: flash,     anchor: caster.eye, offset: {up: -0.25, forward: 1.7}, mode: follow}
 fragments:
   cloud:
     params:
@@ -51,5 +51,5 @@ machine:
           on:
             end: [{op: use, use: "fragment:cloud", with: {radius: "${radius}", evasive: "${evasive_ticks}"}, frames: {spot: bolt, puff: bolt}}]
         - {id: shell, op: display, kind: item, item: "minecraft:gunpowder", context: fixed, anchor: bolt, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
-        - {id: trail, op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], at: 0, every: 1, until: bolt.end}
+        - {id: trail, op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], at: 2, every: 1, until: bolt.end}
     end: {final: true}

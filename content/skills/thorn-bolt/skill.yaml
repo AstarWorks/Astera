@@ -14,7 +14,7 @@ params:
   poison_ticks:       {type: ticks, default: 80}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: flash,  anchor: caster.eye, offset: {up: -0.2, forward: 1.0}, mode: follow}
+  - {id: flash,  anchor: caster.eye, offset: {up: -0.2, forward: 1.7}, mode: follow}
   - {id: chest,  anchor: victim.root, offset: {up: 1.0}, mode: follow}
 fragments:
   impact:
@@ -59,7 +59,7 @@ machine:
         - {id: thorn, op: display, kind: item, item: "minecraft:sweet_berries", context: fixed, anchor: bolt, scale: [0.8, 0.8, 0.8], at: 0, until: bolt.end}
         - id: trail
           op: group
-          at: 0
+          at: 2   # past the caster eye view volume (CasterEyeClutter); the bolt is 2.9 blocks out by tick 1
           every: 1
           until: bolt.end
           do:
