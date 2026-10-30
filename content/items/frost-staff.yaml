@@ -34,3 +34,4 @@ skills:
 
 pdc_tags:
   astera:rarity: uncommon
+hold: {kind: slow, level: heavy}

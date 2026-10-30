@@ -31,3 +31,4 @@ skills:
 
 pdc_tags:
   astera:rarity: uncommon
+hold: {kind: knockback_pull, level: light}

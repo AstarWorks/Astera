@@ -17,3 +17,4 @@ resource_cost_per_use: 20
 glint: true
 pdc_tags:
   astera:rarity: epic
+hold: {kind: none}
