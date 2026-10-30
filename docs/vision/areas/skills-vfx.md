@@ -9,17 +9,24 @@ Owner track `wp/skills-vfx`. Items: Board prefix `SKL-`. Sources: handoff `limbu
 - **Done = reviewer PASS + founder approval.** The reviewer judges motion match per beat against the reference and the founder's words, never particle counts.
 
 ## 現状
-- Astera のブラウザ確認入口を `skill-compare` (http://192.168.11.5:8097, `make skill-compare-up` で dev 追従) に統合。日本語共通ナビ: スキル比較 / アニメーション / スプライト / VFX サンプル / 3D プレビュー / HUD / アリーナ / モデル / 撮影結果 / ライブ。旧ギャラリーサービス・Make targets を削除し、全機能と browser integration を移植。生成物は detached 配信 checkout と primary の固定出力先から閲覧、ライブは別 capture プロセスを埋め込む。
-- ADR-0304: `tools/item-art` は `sprites.yaml` の型付き YAML node graph を CPU float RGBA で描画する。旧 `draw:` 30 件は graph に移植済み（旧レンダラーの全フレームとピクセル差分 0）、sprite 固有 Kotlin painter / `draw:` decoder は削除。PNG 横連番・font・runtime metadata の形式は維持。`sprite-preview` は frames / contact sheet / GIF / ノード中間出力を `build/` に生成する。[制作手順・ノード一覧・3 レシピ](../../contributing/vfx-team/sprite-graph.md)。実クライアントの見た目はこのツール確認では未検証。
-- ADR-0305: `content/shader-patches/effects/<id>/` composes named shader hooks and validates marker allocation. v3 `display` ops with `kind: item` select `shader_effect`; three playable examples `content/vfx/demo-shader-{dissolve,uv-flow,emissive-pulse}.yaml` cover dissolve, procedural UV flow and emissive pulse. Markers combine isolated model tint with brightness (13,11); existing skin/weapon rig encodings are unchanged. Compile/pack and capture evidence are tracked in the implementation report; integration tests await the manager window.
-- 14 `sample-*` graph demos now have playable skills: 11 viewer-facing plates plus 3 animated mesh shader combinations (`sample-dissolve-sigil` → `dissolve`, `sample-energy-orb` → `emissive-pulse`, `sample-heat-haze` → `uv-flow`). Tags are strictly kebab-case string lists. All 14 samples were captured in a throwaway real-client stack (40 ticks, side, no skipped ticks); the gallery browser integration requires and fetches every real-client sheet. The skill-compare sprite/sample tabs serve the dev-follow checkout and exposes shader ids and real-client side sheets; atlas mesh animation uses client-global phase, with a fixed side-facing surface.
-- `9324fc5a7` の tree reset 後、node graph / shader effects / hub を現行 v3 engine に再統合。14 sample と3 shader demo は machine/display 形式。compile・content-lint・Konsist・browser 検証済み。現行 engine の実クライアント再撮影と game-sim 実行は manager の統合 window 待ち（[復元報告](../../contributing/vfx-team/nodegraph-reland-report.md)）。
-- `make live-view SKILL=<id>` provides a real Java-client browser stream with isolated game audio, Cast/Recast, content reload, caster/side/compare cameras, HUD, PNG snapshots and recent MP4 clips; see `tools/live-view/README.md`. Capture only, one vfx-shot slot for the session lifetime.
-- Skill definitions plus 3 playable shader demos; per-skill presentation is engine-v3 machine/display YAML (the former standalone VFX library is no longer shipped) (bastion, couture, crimson, edict, ember, gossamer, orrery, sigil, vendetta, verdict). Tools: `make vfx-shot`, `make anim-shot`, skill-compare page (skill-lint removed).
-- bastion S1 content r1-r26 rejected by the founder ("S1 got worse": near-zero particles, wrong swing/roll, 26 rounds of technical-only checks).
-- ADR-0276 one-sword performance runtime (IPlayerPresentation lease, body planner, weapon on main hand) and skill-lint (since removed) are merged on the Limbus branch but NOT verified in a real client; side effect: pose pinned STANDING during a skill.
-- The other 9 families have never been reviewed against this standard (推測). Sound quality for these skills remains unreviewed (batch captures are silent); live-view verifies audible real-client capture for bastion S1. 25 of 84 skills have no sound.
-- Pipeline speed-ups proposed (warm vfx-shot stack, keypoint annotation -> IK, skill-viewer preview, local client particle sim) wait for a founder go.
+- 基準点は 079262164 (integrate19, 2026-10-30)。スキル engine は v3 (ADR-0303, Status **Proposed**, rev4.14 `docs/adr/0303-natural-skill-schema.md`)。
+- スコープ: `content/skills/` に Limbus は bastion-greatsword (def/s1/s2/ego) と couture-rapier (def/s1/s2/s3/ego) の 9 文書のみ。他 8 family は founder 2026-10-29 の決定で削除 (`content/skills` に id なし)。基本スキルは残し v3 へ移行、sample-* 14 を含め計 131 文書 (ls)。
+- 時間: 事前 compile された tick 表 (TablePlayer) を進める。ランダムは visual のみ (founder 10/29, ADR-0303 rev4 precompute contract, `TablePlayerRulesScenarioTest.kt`)。
+- 継承: tier は `extends` で base skill から派生 (ADR-0303 l.921-933)。
+- detach / tail: 表示行は detach 可能 (rev4.12)。tail 中の run の live-value 欠落で cast が abort する不具合を修正 (`a8f6e0d71`, `RigAttachScenarioTest.kt`)。
+- ハンドラ drain: hit / block / expire の handler 行は final 後も drain (rev4.14, check 8b `HandlerCertainExit`, ADR-0303 l.1091)。死亡・退出・ワールド変更・試合終了は draining cast を切る (`9586cefb7`)。
+- 連鎖: `use: fragment` と `chain: {hops, every, pick}` (rev4.11)。chain-lightning は jagged polyline の core+glow (`f36064ddb`, `ChainLightningBeamScenarioTest.kt`)。
+- Line: `segments` / `jitter` の polyline (rev4.14, `9983db096`, `LinePolylineScenarioTest.kt`)。
+- Lint: check 10 = 全 tick の display peak を `max_live_displays` (default 64) と比較 (ADR-0303 l.1253, `82cc67df1`)。PackRefLint は display kind item/block も検査 (`d3a75999f`, `tools/content-lint/.../PackRefLint.kt`)。
+- 銃の tracer: 射線は交差 2 quad の line ribbon (`1288f286d`, `GunTracerScenarioTest.kt`)。1 人称の muzzle は hand 位置 (`0fa37220d`)。
+- end_rod: 撃ち込み・詠唱の burst 13 行を element 別の electric_spark / snowflake / crit に置換。count-1 の trail は end_rod のまま (`0428c51ab`)。content で end_rod を参照するファイルは 12 (grep)。
+- 既知ギャップ: 1 枚 quad は片面のため側面視で消える (se-quad-cull は commit なし)。line の一般解 (item_display 1 segment, crossed double-faced model) は設計 accepted (`/tmp/claude-1000/skill-engine/design/line-primitive.md`) だが未実装 (ADR-0303 は rev4.14 止まり、line-item の commit なし)。chain-lightning の first link は途切れた dash に見える (manager 目視, 推測: line primitive で解消見込み)。
+- 近カメラの crit / electric_spark の拡大は未確認 (shot 待ち、`/tmp/claude-1000/skill-engine/board-pending.md` l.411)。
+- 検証: 079262164 時点の game-sim は 724 件中 30 件 fail (`board-pending.md` l.421)。実クライアントの再撮影と e2e は manager の統合 window 待ち。
+- 14 `sample-*` (machine/display 形式) と shader demo 3 件 (ADR-0305, `content/vfx/demo-shader-{dissolve,uv-flow,emissive-pulse}.yaml`)。旧 capture は v2 世代の記録。v3 での再撮影は未。
+- ツール: skill-compare (`make skill-compare-up`, 192.168.11.5:8097) が閲覧入口。`make live-view SKILL=<id>` が実 Java クライアントの capture (`tools/live-view/README.md`)。sprite は `tools/item-art` の YAML node graph (ADR-0304)。
+- bastion S1 は v2 世代の r1-r26 が founder に却下 (「S1 got worse」)。v3 での founder 確認は未。couture-ego の look は v1 に戻した (`242c54b39`) が founder 確認待ち。
+- 高速化案 (warm vfx-shot stack, keypoint → IK, local client particle sim) は founder go 待ち。
 
 ## 理想形
 Each skill is a short performance: caster body motion, one real weapon, Display-core VFX, finishing particles and sound, all driven from the reference beats. Reviewer rows are tied to per-beat reference frames; captures are client-faithful (never an approximation).
