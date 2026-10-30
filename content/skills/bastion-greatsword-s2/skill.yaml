@@ -191,7 +191,7 @@ machine:
         - {id: b2_trail, op: particle_def, def: bastion-s1-p-trail, at: 0, every: 1, for: 18, anchor: {of: /rush1/rig.root, to: /rush1/rig.tip, samples: 5}}
         - {id: b2_sheath, op: particle_def, def: bastion-s1-p-sheath-hot, at: 0, every: 1, for: 18, anchor: {of: /rush1/rig.root, to: /rush1/rig.tip, samples: 2}}
         - {id: b2_steel, op: particle_def, def: bastion-s1-p-steel, at: 0, every: 1, for: 18, anchor: /rush1/rig.tip}
-        - {id: b2_crit, op: particle_def, def: bastion-s1-p-trail-crit, at: 8, every: 1, for: 3, anchor: {of: /rush1/rig.root, to: /rush1/rig.tip, samples: 11}}
+        - {id: b2_crit, op: particle_def, def: bastion-s1-p-trail-crit, at: 8, anchor: {of: /rush1/rig.root, to: /rush1/rig.tip, samples: 4}}
     chop:
       for: 35
       then: end
