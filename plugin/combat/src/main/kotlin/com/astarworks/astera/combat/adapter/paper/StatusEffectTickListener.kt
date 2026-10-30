@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.adapter.paper
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway
 import com.astarworks.astera.combat.domain.damage.DamageSource
@@ -107,8 +108,8 @@ public class StatusEffectTickListener(
      * can cancel — Bukkit listeners are unregistered automatically by
      * Paper's plugin manager teardown.
      */
-    public fun start(plugin: JavaPlugin): IScheduler.TaskHandle {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners): IScheduler.TaskHandle {
+        listeners.register(this)
         return scheduler.runRepeatingTicks(ExecutionScope.Global,
             initialDelayTicks = TICK_PERIOD_TICKS,
             periodTicks = TICK_PERIOD_TICKS,

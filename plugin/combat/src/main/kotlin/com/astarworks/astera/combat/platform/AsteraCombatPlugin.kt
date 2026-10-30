@@ -1,9 +1,11 @@
 package com.astarworks.astera.combat.platform
 
+import com.astarworks.astera.core.platform.paper.listeners
 import com.astarworks.astera.combat.platform.paper.CombatPaperPlatform
 import com.astarworks.astera.combat.platform.wiring.CombatWiring
 import com.astarworks.astera.combat.platform.wiring.CombatWiringResult
 import com.astarworks.astera.core.platform.AsteraCorePlugin
+import com.astarworks.astera.core.application.wiring.WiringOwner
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -44,9 +46,9 @@ public class AsteraCombatPlugin : JavaPlugin() {
             }
 
         // 2. Host-neutral wiring (ADR-0174) + Paper-only binding ----------------
-        val ctx = WiringContext(core.services, core.contentDir, logger, core.serverEnvironment.role, core.serverEnvironment.name)
+        val ctx = WiringContext(WiringOwner("Astera-Combat"), 0, core.services, core.contentDir, logger, core.serverEnvironment.role, core.serverEnvironment.name)
         wiringContext = ctx
-        val platform = CombatPaperPlatform(this)
+        val platform = CombatPaperPlatform(this, ctx.listeners(this))
         paperPlatform = platform
         val wired = CombatWiring.install(ctx, platform.ports)
         wiringResult = wired

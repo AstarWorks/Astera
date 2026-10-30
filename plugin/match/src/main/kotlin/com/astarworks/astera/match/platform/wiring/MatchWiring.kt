@@ -228,7 +228,7 @@ public object MatchWiring {
         val eventBus = services.getOrThrow<IDomainEventBus>()
         val scheduler = services.getOrThrow<IScheduler>()
         val playerGateway = services.getOrThrow<IPlayerGateway>()
-        val commands = ctx.commandMount("Astera-Match")
+        val commands = ctx.commandMount()
         val permService = services.getOrThrow<IPermissionService>()
         val reloadRegistry = services.getOrThrow<IReloadableContentsRegistry>()
 

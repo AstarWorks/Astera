@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.adapter.paper
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -30,8 +31,8 @@ public class VanillaMeleeSuppressor(
     private val entityDamageGateway: PaperEntityDamageGateway?,
 ) : Listener {
 
-    public fun start(plugin: JavaPlugin): VanillaMeleeSuppressor {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners): VanillaMeleeSuppressor {
+        listeners.register(this)
         return this
     }
 

@@ -1,6 +1,7 @@
 package com.astarworks.astera.economy.platform
 
 import com.astarworks.astera.core.platform.AsteraCorePlugin
+import com.astarworks.astera.core.application.wiring.WiringOwner
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import com.astarworks.astera.economy.platform.wiring.EconomyPlatformPorts
 import com.astarworks.astera.economy.platform.wiring.EconomyWiring
@@ -34,7 +35,7 @@ public class AsteraEconomyPlugin : JavaPlugin() {
             }
 
         // Host-neutral wiring (ADR-0174); Economy has no Paper-only step.
-        val ctx = WiringContext(core.services, core.contentDir, logger, core.serverEnvironment.role, core.serverEnvironment.name)
+        val ctx = WiringContext(WiringOwner("Astera-Economy"), 0, core.services, core.contentDir, logger, core.serverEnvironment.role, core.serverEnvironment.name)
         wiringContext = ctx
         wiringResult = EconomyWiring.install(ctx, EconomyPlatformPorts())
 

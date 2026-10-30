@@ -737,7 +737,7 @@ public object CombatWiring {
         } else {
             null
         }
-        ctx.commandMount("Astera-Combat").register(
+        ctx.commandMount().register(
             com.astarworks.astera.combat.command.skillCommandSpec(
                 adminSkillCaster,
                 services.getOrThrow<com.astarworks.astera.core.adapter.api.server.IMcServer>(),
@@ -756,7 +756,7 @@ public object CombatWiring {
         val statusPlayers = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerGateway>()
         if (statusMessages != null && statusPlayers != null) {
             val guiRegistry = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiRegistry>()
-            ctx.commandMount("Astera-Combat").register(
+            ctx.commandMount().register(
                 com.astarworks.astera.combat.command.statusCommandSpec(
                     codex = com.astarworks.astera.combat.application.service.StatusCodex(statusContents, statusMessages),
                     players = statusPlayers,

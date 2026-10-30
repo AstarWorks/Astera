@@ -109,7 +109,7 @@ public object EconomyWiring {
 
         // ── Shared services ────────────────────────────────────────────────────
         val eventBus = services.getOrThrow<IDomainEventBus>()
-        val commands = ctx.commandMount("Astera-Economy")
+        val commands = ctx.commandMount()
         val playerGateway = services.getOrThrow<IPlayerGateway>()
         val msgRenderer = services.getOrThrow<IMessageRenderer>()
         val matchRepository = services.getOrThrow<IMatchRepository>()

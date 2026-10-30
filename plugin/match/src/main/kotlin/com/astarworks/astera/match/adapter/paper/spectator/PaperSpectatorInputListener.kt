@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.adapter.paper.spectator
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.match.application.service.death.SpectatorTargetCycler
 import java.util.UUID
@@ -37,8 +38,8 @@ public class PaperSpectatorInputListener(
 
     private val lastCycleTick: MutableMap<UUID, Int> = ConcurrentHashMap()
 
-    public fun start(plugin: JavaPlugin): PaperSpectatorInputListener {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners): PaperSpectatorInputListener {
+        listeners.register(this)
         return this
     }
 
