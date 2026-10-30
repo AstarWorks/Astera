@@ -9,7 +9,6 @@ import com.astarworks.astera.combat.application.port.outbound.IPlayerFeedbackGat
 import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
 import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
-import com.astarworks.astera.combat.application.port.outbound.IProjectileService
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.port.outbound.aoe.IAreaEffectGateway
 import com.astarworks.astera.combat.application.port.outbound.aoe.IExplosionGateway
@@ -30,11 +29,9 @@ import com.astarworks.astera.core.application.services.ServiceRegistry
  * The wiring registers the overlays at priority 100 *in this order*, mirroring
  * the pre-ADR-0174 `onEnable` so mid-wiring `services.get<...>()` lookups see
  * the same impl: lightning, fire-spread, area-effect, damage gateway, status
- * container, knockback, projectile, then (once `ApplyDamageUseCase` exists)
+ * container, knockback, then (once `ApplyDamageUseCase` exists)
  * explosion.
  *
- * @property projectileService required: no InMemory default exists for this
- *   port (Paper `PaperProjectileService` / simulator tick-stepped service, both on `ProjectileStepper`).
  * @property nearbyTargetQuery host spatial query over players *and mobs*; registered
  *   first so every later `services.get<INearbyTargetQuery>()` sees it (WP3).
  * @property entityDamageGateway non-player (mob) damage; null = mobs are not damageable (WP3).
@@ -49,7 +46,6 @@ import com.astarworks.astera.core.application.services.ServiceRegistry
  */
 public class CombatPlatformPorts(
     public val toolBlocks: ((ServiceRegistry) -> com.astarworks.astera.combat.application.port.outbound.IToolBlockGateway)? = null,
-    public val projectileService: (ServiceRegistry) -> IProjectileService,
     public val lightningGateway: ((ServiceRegistry) -> ILightningGateway)? = null,
     public val fireSpreadController: ((ServiceRegistry) -> IFireSpreadController)? = null,
     public val areaEffectGateway: ((ServiceRegistry) -> IAreaEffectGateway)? = null,

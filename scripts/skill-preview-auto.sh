@@ -43,7 +43,7 @@ else
   for p in "${paths[@]}"; do
     case "$p" in
       kernel/*|plugin/*|tools/*) all=1 ;;                               # engine / sim / viewer code: every skill-compare skill
-      content/skills/*/*) rest=${p#content/skills/}; seen[${rest%%/*}]=1 ;;   # v2 skill dir
+      content/skills/*/*) rest=${p#content/skills/}; seen[${rest%%/*}]=1 ;;   # skill dir (content/skills/<id>/skill.yaml)
       content/skills/*.yaml) seen[$(basename "$p" .yaml)]=1 ;;
       *) # a shared asset (frame, vfx, model, ...): every skill (dir or file) naming its stem
         stem=$(basename "$p")

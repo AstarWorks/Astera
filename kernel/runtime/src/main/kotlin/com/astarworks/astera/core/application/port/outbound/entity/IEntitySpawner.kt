@@ -13,8 +13,8 @@ import com.astarworks.astera.core.domain.world.WorldId
  *
  * Per ADR-0082 (Entity spawning + NPC two-tier), the spawner is the **front
  * door** for all entity creation. Internally it routes a [SpawnSpec] to one
- * of the registered [INpcAdapter]s (for NPC variants) or to a mob/projectile
- * sub-router (Wave 6a `PaperProjectileService` etc.). Application code never
+ * of the registered [INpcAdapter]s (for NPC variants) or to a mob
+ * sub-router. Application code never
  * touches a Bukkit `World.spawn(...)` call directly — that lives only in
  * `core.adapter.paper.*`.
  *

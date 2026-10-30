@@ -22,11 +22,8 @@ params:
   dash_distance_2: {type: blocks, default: 2.6}
   knockback: {type: number, default: 0.5}
 anchors:
-  # v2: frame fx2_bastion_s1_fx_high at caster orient yaw follow, group tick 3
-  # NOTE: v2 created this frame at tick 3; a doc-level anchor exists from tick 0 and follows the caster the same way
+  # doc-level anchors exist from tick 0 and follow the caster
   - {id: fx2_fx_high, anchor: caster, mode: follow}
-  # v2: frame fx3_bastion_s1_fx_low at caster orient yaw follow, group tick 27
-  # NOTE: v2 created this frame at tick 27; a doc-level anchor exists from tick 0 and follows the caster the same way
   - {id: fx3_fx_low, anchor: caster, mode: follow}
 machine:
   start: sweep1

@@ -25,14 +25,9 @@ params:
   knockback_2: {type: number, default: 0.5}
   knockback_3: {type: number, default: 0.9}
 anchors:
-  # v2: frame fx2_bastion_s2_fx_ring at caster orient yaw follow pitch, group tick 9
-  # NOTE: v2 created this frame at tick 9; a doc-level anchor exists from tick 0 and follows the caster the same way
+  # doc-level anchors exist from tick 0 and follow the caster
   - {id: fx2_fx_ring, anchor: caster.look, mode: follow}
-  # v2: frame fx3_bastion_s2_fx_ring at caster orient yaw follow pitch, group tick 28
-  # NOTE: v2 created this frame at tick 28; a doc-level anchor exists from tick 0 and follows the caster the same way
   - {id: fx3_fx_ring, anchor: caster.look, mode: follow}
-  # v2: frame fx4_bastion_s2_fx_chop at caster orient yaw follow pitch, group tick 49
-  # NOTE: v2 created this frame at tick 49; a doc-level anchor exists from tick 0 and follows the caster the same way
   - {id: fx4_fx_chop, anchor: caster.look, mode: follow}
 machine:
   start: rush1

@@ -8,7 +8,6 @@ import com.astarworks.astera.combat.application.contents.ComboRouteContents
 import com.astarworks.astera.combat.application.contents.StatusContents
 import com.astarworks.astera.combat.application.port.outbound.IArmorEquipmentProvider
 import com.astarworks.astera.combat.application.port.outbound.IArmorRegistry
-import com.astarworks.astera.combat.application.port.outbound.ICelEvaluator
 import com.astarworks.astera.combat.application.port.outbound.IComboTracker
 import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
 import com.astarworks.astera.combat.application.port.outbound.IDamageHistoryService
@@ -17,7 +16,6 @@ import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGatew
 import com.astarworks.astera.combat.application.port.outbound.IFocusFireTracker
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
 import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
-import com.astarworks.astera.combat.application.port.outbound.IProjectileService
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectInteractionRule
@@ -35,7 +33,6 @@ import com.astarworks.astera.combat.application.service.ArenaBlockEditGuard
 import com.astarworks.astera.combat.application.service.SummonRegistry
 import com.astarworks.astera.combat.application.service.NoOpKnockbackGateway
 import com.astarworks.astera.combat.application.service.StubArmorEquipmentProvider
-import com.astarworks.astera.combat.application.service.StubCelEvaluator
 import com.astarworks.astera.combat.application.service.YamlElementMatrix
 import com.astarworks.astera.combat.application.service.YamlStatusEffectInteractionRule
 import com.astarworks.astera.combat.application.service.aoe.InMemoryAreaEffectGateway
@@ -137,7 +134,6 @@ public object CombatWiring {
         // replace the legacy Mutable*Registry + *LoaderService pairs and participate
         // in the unified /astera reload <category> dispatcher.
         val skillsContentDir = ctx.contentDir.resolve("skills")
-        val contentCelEvaluator = services.get<ICelEvaluator>() ?: StubCelEvaluator()
         // Skill engine v3 (ADR-0303): the catalog is the one skill store; the cast gate reads its `meta:` blocks.
         val (frameTables, frameErrors) = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries
             .frameTables(ctx.contentDir.resolve("frames"))
@@ -230,10 +226,6 @@ public object CombatWiring {
         registrations += services.register<IDamageHistoryService>(damageHistory)
         registrations += services.register<IStatusEffectInteractionRule>(statusInteractionRule)
 
-        // Wave 5f (ADR-0035, RTM #21): CEL evaluator port + Stub impl. Real
-        // evaluator (JCEL / proxima / DIY) lands in a Phase 6 wave; Phase 1
-        // ships the Stub so port consumers can wire against the surface.
-        registrations += services.register<ICelEvaluator>(contentCelEvaluator)
 
         // WP3: host spatial query (players + mobs) before anything captures it.
         // WP10: wrapped so world structures (Annihilation pillars, IStructureTargets,
@@ -477,14 +469,6 @@ public object CombatWiring {
             services.get<INearbyTargetQuery>() ?: EmptyNearbyTargetQuery(),
         )
 
-        // Wave 6a-N2 (ADR-0155) — projectile service. Paper spawns vanilla
-        // Bukkit projectile entities as visual carriers; damage resolution
-        // is routed through ApplyDamageUseCase by ProjectileHitListener
-        // (Paper step) per ADR-0149 §C. No InMemory equivalent exists for
-        // this port — registered at priority 100 for consistency with the
-        // Wave 6a Paper sweep pattern.
-        val projectileService: IProjectileService = ports.projectileService(services)
-        registrations += services.register<IProjectileService>(projectileService, priority = 100)
         // Match enables after Combat; resolve its team service when damage is applied.
         val teamLookup = IMatchTeamLookup { playerId -> services.get<IMatchTeamLookup>()?.teamOf(playerId) }
         val combatContexts = com.astarworks.astera.core.application.service.combat.CombatContextResolver { services.get<IMatchTeamLookup>() }
@@ -562,7 +546,6 @@ public object CombatWiring {
                 )
             }
 
-            val celEvaluator = services.getOrThrow<ICelEvaluator>()
             val broadcaster = services.get<IBroadcaster>()
             // Wave 5effects (ADR-0109): optional pull-through of Core's
             // particle/sound infra so Mechanic.SpawnParticle + PlaySound stop
@@ -575,29 +558,6 @@ public object CombatWiring {
                 services.get<com.astarworks.astera.core.application.port.outbound.effect.ISoundRegistry>()
             val summonRegistry = SummonRegistry { services.get<IMatchTeamLookup>() }
             registrations += services.register<SummonRegistry>(summonRegistry)
-            // Shared by every host: Paper's ProjectileHitListener and the
-            // headless simulator's projectile stepper both resolve impacts here.
-            // ADR-0280: opt-in cover damage / placement for skills (the CoverBlockService is Core's, resolved lazily).
-            val coverEffects = com.astarworks.astera.combat.application.service.SkillCoverEffects(
-                cover = { services.get<com.astarworks.astera.core.application.service.CoverBlockService>() },
-            )
-            val particleSchedulerForImpacts = particleScheduler
-            val soundSchedulerForImpacts =
-                services.get<com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler>()
-            if (particleSchedulerForImpacts != null && soundSchedulerForImpacts != null) {
-                registrations += services.register<com.astarworks.astera.combat.application.service.ProjectileImpactResolver>(
-                    com.astarworks.astera.combat.application.service.ProjectileImpactResolver(
-                        applyDamage = applyDamage,
-                        applyStatus = applyStatus,
-                        scheduler = scheduler,
-                        particleScheduler = particleSchedulerForImpacts,
-                        soundScheduler = soundSchedulerForImpacts,
-                        structures = { services.get<com.astarworks.astera.core.application.port.outbound.IStructureTargets>() },
-                        coverEffects = coverEffects,
-                    ),
-                )
-            }
-
             val castSkill = CastSkillUseCase(
                 skillRegistry = skillGate,
                 statusContainer = statusContainer,

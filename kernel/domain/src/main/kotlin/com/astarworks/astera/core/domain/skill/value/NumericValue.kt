@@ -2,11 +2,7 @@ package com.astarworks.astera.core.domain.skill.value
 
 /**
  * Numeric value that can be either a literal Double or a CEL expression
- * resolved at runtime. Phase 1 evaluator (StubCelEvaluator) returns Failure
- * for [Cel]; dispatcher catches + warn-skips. Phase 6 lands the real
- * evaluator and Cel values activate automatically.
- *
- * Wave _skills-2 / ADR-0077.
+ * evaluated by the skill engine at runtime.
  */
 public sealed class NumericValue {
     public data class Literal(public val value: Double) : NumericValue()

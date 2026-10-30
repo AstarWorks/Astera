@@ -651,8 +651,8 @@ class ArchitectureTest {
 
     /**
      * Combat domain MUST NOT import Bukkit's projectile API. Projectile physics
-     * is an edge concern; the domain models projectile as a value (e.g.
-     * ProjectileSpec) and delegates collision detection to the Paper adapter.
+     * is an edge concern; the domain models projectile as a value and
+     * delegates collision detection to the Paper adapter.
      */
     @Test
     fun `combat domain must not import bukkit projectile api`() {
