@@ -191,7 +191,7 @@ public class PaperSkillGameplayGateway(
             return
         }
         val player = PlayerId(target)
-        if (bodyRegistry.find(id) != null) bodyRigs.play(player, id, holds = holds) else bodyPoses.playCustomAnimation(player, id, POSE_CLIP_TICKS)
+        if (bodyRegistry.find(id) != null) bodyRigs.play(player, id, holds = holds, ownerVisible = false) else bodyPoses.playCustomAnimation(player, id, POSE_CLIP_TICKS)
     }
 
     override fun bodyClip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation? =
