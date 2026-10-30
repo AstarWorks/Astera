@@ -8483,6 +8483,38 @@
                             "description": "line: bar thickness in blocks",
                             "default": null
                         },
+                        "segments": {
+                            "anyOf": [
+                                {
+                                    "oneOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string",
+                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "line: pieces of the polyline, a literal whole number 1..24 (absent = 1, a straight thread)",
+                            "default": null
+                        },
+                        "jitter": {
+                            "anyOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "line: {spread, along?, every?, follow?} displacement of the inner vertices of a polyline (needs segments >= 2)",
+                            "default": null
+                        },
                         "color": {
                             "type": "string",
                             "pattern": "^\\S+$|^= [A-Za-z_][A-Za-z0-9_]*$",
