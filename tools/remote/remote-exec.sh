@@ -99,7 +99,9 @@ memory_guard() {
 base_args() {
   local name="$1" sockgid
   sockgid="$(stat -c %g /var/run/docker.sock)"
-  BASE_ARGS=(--rm --init --name "$name" --hostname "$name" --label astera.heavy=1
+  # --network host: vfx-shot clients join the server on its compose network, which a default-bridge container cannot reach
+  # (and docker refuses --hostname together with it).
+  BASE_ARGS=(--rm --init --name "$name" --label astera.heavy=1 --network host
     --user "$(id -u):$(id -g)" --group-add "$sockgid"
     -v /var/run/docker.sock:/var/run/docker.sock
     -v "$REPO:$REPO" -w "$REPO"
