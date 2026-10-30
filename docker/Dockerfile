@@ -86,8 +86,9 @@ COPY docker/void-world /opt/astera/void-world/
 
 # G1: the e2e image (docker-compose.e2e.yml, E2E_FAST=1) runs the playthrough suites with shortened timers.
 ARG E2E_FAST=0
-COPY docker/e2e-tune-content.sh /tmp/e2e-tune-content.sh
-RUN if [ "$E2E_FAST" = "1" ]; then sh /tmp/e2e-tune-content.sh /content; fi && rm /tmp/e2e-tune-content.sh
+COPY docker/e2e-tune-content.sh /tmp/e2e-tune/e2e-tune-content.sh
+COPY docker/e2e-fixtures /tmp/e2e-tune/e2e-fixtures
+RUN if [ "$E2E_FAST" = "1" ]; then sh /tmp/e2e-tune/e2e-tune-content.sh /content; fi && rm -rf /tmp/e2e-tune
 
 # Paper config patches (itzg PATCH_DEFINITIONS): the compose file points
 # PATCH_DEFINITIONS=/patches at this directory on the lobby / game backends so
