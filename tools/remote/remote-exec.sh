@@ -177,7 +177,7 @@ cmd_run() {
     WATCH=$!
   fi
   if [ -n "${HEAVY_RUN_TIMEOUT:-7200}" ]; then
-    ( sleep "${HEAVY_RUN_TIMEOUT:-7200}"; log "run timeout (HEAVY_RUN_TIMEOUT), stopping the runner"; docker rm -f "$NAME" >/dev/null 2>&1 ) {SLOT_FD}>&- </dev/null &
+    ( sleep "${HEAVY_RUN_TIMEOUT:-7200}" || exit 0; log "run timeout (HEAVY_RUN_TIMEOUT), stopping the runner"; docker rm -f "$NAME" >/dev/null 2>&1 ) {SLOT_FD}>&- </dev/null &
     TIMER=$!
   fi
   # Kotlin compiles inside the Gradle JVM: a separate Kotlin daemon inherits -Xmx and two such JVMs overrun the 4g cap.

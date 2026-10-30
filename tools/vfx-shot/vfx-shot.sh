@@ -595,9 +595,11 @@ boot_server() {
 
 # ---------------------------------------------------------------- client
 ensure_client_install() {
-  if [ ! -x "$VENV/bin/portablemc" ]; then
+  # a venv made by another python (e.g. the runner image changed) keeps bin/portablemc but cannot import it
+  if [ ! -x "$VENV/bin/portablemc" ] || ! "$VENV/bin/python" -c 'import portablemc' 2>/dev/null; then
     log "installing portablemc $PMC_VERSION into $VENV"
     mkdir -p "$CACHE"
+    rm -rf "$VENV"
     python3 -m venv "$VENV" && "$VENV/bin/pip" install -q "portablemc==$PMC_VERSION" \
       || die "could not install portablemc"
   fi
