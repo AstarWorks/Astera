@@ -37,8 +37,9 @@ ENV GRADLE_USER_HOME=/opt/gradle-home
 # classpath layer instead of recompiling the world. The bots read it at run time (StageObjectives).
 COPY content /workspace/content/
 # Bot StageObjectives must see the same compact stages/generators as the E2E_FAST backend.
-COPY docker/e2e-tune-content.sh /tmp/e2e-tune-content.sh
-RUN sh /tmp/e2e-tune-content.sh /workspace/content && rm /tmp/e2e-tune-content.sh
+COPY docker/e2e-tune-content.sh /tmp/e2e-tune/e2e-tune-content.sh
+COPY docker/e2e-fixtures /tmp/e2e-tune/e2e-fixtures
+RUN sh /tmp/e2e-tune/e2e-tune-content.sh /workspace/content && rm -rf /tmp/e2e-tune
 
 # Defaults match the compose service names; override with -Pe2e.* in the command.
 CMD ["gradle", "--no-daemon", "--offline", "--console=plain", ":tools:e2e:e2e", \

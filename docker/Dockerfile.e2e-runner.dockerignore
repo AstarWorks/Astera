@@ -25,6 +25,8 @@
 docker/*
 !docker/paper-patches
 !docker/e2e-tune-content.sh
+!docker/e2e-fixtures
+!docker/e2e-fixtures/**
 
 # Docs and deploy aren't needed for the jar build
 docs/
