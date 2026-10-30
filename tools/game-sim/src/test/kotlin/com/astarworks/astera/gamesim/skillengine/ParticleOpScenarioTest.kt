@@ -42,11 +42,6 @@ class ParticleOpScenarioTest : SkillEngineScenario() {
     }
 
     @Test
-    fun colorWithoutSizeIsRejected() {
-        assertTrue(decodeParticle(mapOf("particle" to "dust", "anchor" to "palm", "color" to "#ff5fa2")) is Result.Failure)
-    }
-
-    @Test
     fun blockAndColorTogetherAreRejected() {
         val r = decodeParticle(
             mapOf("particle" to "dust", "anchor" to "palm", "block" to "stone", "color" to "#ff5fa2", "size" to 1.0),

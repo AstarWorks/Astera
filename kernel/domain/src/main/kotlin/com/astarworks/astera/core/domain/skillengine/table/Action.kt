@@ -12,7 +12,15 @@ public sealed interface Action {
     public data class Key(val display: InstanceId, val durationTicks: Int, val translation: Vec, val leftRotation: Rot, val scale: Vec) : Action
     public data class Teleport(val display: InstanceId, val durationTicks: Int, val position: Vec, val yaw: Num, val pitch: Num) : Action
     public data class TrailPoint(val ribbon: InstanceId, val position: Vec) : Action
-    public data class Particle(val type: String, val count: Val<Int>, val offset: Vec, val extra: Num, val data: ParticleData?, val position: Vec, val sweep: Double?) : Action
+    /**
+     * [target] is the per-row destination of a trail / vibration [data] (whose own target is a placeholder); the player evaluates it and
+     * swaps it in as `ParticleTarget.Absolute`. Null for every other data.
+     */
+    public data class Particle(val type: String, val count: Val<Int>, val offset: Vec, val extra: Num, val data: ParticleData?, val position: Vec, val sweep: Double?, val target: Vec? = null) : Action {
+        init {
+            require((target != null) == (data is ParticleData.Trail || data is ParticleData.Vibration)) { "a particle row has a target exactly when its data is a trail or a vibration" }
+        }
+    }
 
     /** A custom particle definition (`op: particle_def, def: <id>`), played with the same timing block as a vanilla particle. */
     public data class ParticleDef(val def: String, val position: Vec, val count: Val<Int>? = null) : Action
