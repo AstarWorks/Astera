@@ -1,11 +1,10 @@
 package com.astarworks.astera.stats.platform
 
 import com.astarworks.astera.core.platform.AsteraCorePlugin
-import com.astarworks.astera.core.application.wiring.WiringOwner
-import com.astarworks.astera.core.platform.wiring.WiringContext
+import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.platform.wiring.RewireCoordinator
+import com.astarworks.astera.stats.platform.wiring.StatsLifecycle
 import com.astarworks.astera.stats.platform.wiring.StatsPlatformPorts
-import com.astarworks.astera.stats.platform.wiring.StatsWiring
-import com.astarworks.astera.stats.platform.wiring.StatsWiringResult
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
@@ -23,8 +22,7 @@ import org.bukkit.plugin.java.JavaPlugin
  */
 public class AsteraStatsPlugin : JavaPlugin() {
 
-    private var wiringContext: WiringContext? = null
-    private var wiringResult: StatsWiringResult? = null
+    private var coordinator: RewireCoordinator? = null
 
     override fun onEnable() {
         logger.info("Astera-Stats enabling…")
@@ -35,19 +33,23 @@ public class AsteraStatsPlugin : JavaPlugin() {
                 server.pluginManager.disablePlugin(this); return
             }
 
-        // Host-neutral wiring (ADR-0174); Stats has no Paper-only step.
-        val ctx = WiringContext(WiringOwner("Astera-Stats"), 0, core.services, core.contentDir, logger, core.serverEnvironment.role, core.serverEnvironment.name)
-        wiringContext = ctx
-        wiringResult = StatsWiring.install(ctx, StatsPlatformPorts())
+        // Host-neutral wiring (ADR-0174) driven through the rewire lifecycle (ADR-0311); Stats has no Paper-only step.
+        val rewire = core.rewire
+        rewire.register(StatsLifecycle { StatsPlatformPorts() })
+        when (val up = rewire.up(StatsLifecycle.OWNER)) {
+            is Result.Success -> coordinator = rewire
+            is Result.Failure -> {
+                logger.severe("Astera-Stats failed to start: ${up.error.message}")
+                server.pluginManager.disablePlugin(this); return
+            }
+        }
 
         logger.info("Astera-Stats enabled.")
     }
 
     override fun onDisable() {
-        wiringResult?.shutdown()
-        wiringResult = null
-        wiringContext?.close()
-        wiringContext = null
+        coordinator?.down(StatsLifecycle.OWNER)
+        coordinator = null
         logger.info("Astera-Stats disabled.")
     }
 }

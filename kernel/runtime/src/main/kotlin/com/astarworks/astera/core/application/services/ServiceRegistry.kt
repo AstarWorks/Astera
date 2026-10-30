@@ -121,10 +121,7 @@ public class ServiceRegistry private constructor(
 
     @Suppress("UNCHECKED_CAST")
     public fun <T : Any> get(type: KClass<T>): T? {
-        val winner = store.entries
-            .filter { it.active && it.type == type }
-            .maxByOrNull { it.priority }
-            ?: return null
+        val winner = winnerEntry(type) ?: return null
         store.resolvedPriority.merge(type, winner.priority, ::maxOf)
         val wrap = decorate ?: return winner.impl as T
         val cached = decorated[type]
@@ -133,6 +130,22 @@ public class ServiceRegistry private constructor(
         decorated[type] = winner.impl to made
         return made as T
     }
+
+    /**
+     * The highest priority wins. Among equal priorities the first registration wins, except that a newer generation
+     * of the same owner outranks its older one (ADR-0311): during a rewire the new generation resolves its own
+     * entries while the old generation is still registered.
+     */
+    private fun winnerEntry(type: KClass<*>): Entry<*>? {
+        val top = store.entries.filter { it.active && it.type == type }
+        val best = top.maxOfOrNull { it.priority } ?: return null
+        val tied = top.filter { it.priority == best }
+        val first = tied.first()
+        return tied.filter { it.tag.owner == first.tag.owner }.maxByOrNull { it.tag.gen } ?: first
+    }
+
+    /** Tag and priority of the registration [get] would hand out for [type], or null when none is registered. */
+    public fun winnerOf(type: KClass<*>): Pair<WiringTag, Int>? = winnerEntry(type)?.let { it.tag to it.priority }
 
     public fun <T : Any> getOrThrow(type: KClass<T>): T =
         get(type) ?: error("No service registered for ${type.qualifiedName}")

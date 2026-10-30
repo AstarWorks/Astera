@@ -37,10 +37,11 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.platform.wiring.CorePlatformPorts
 import com.astarworks.astera.core.platform.wiring.CoreWiring
 import com.astarworks.astera.core.platform.wiring.CoreWiringResult
+import com.astarworks.astera.core.platform.wiring.RewireCoordinator
 import com.astarworks.astera.core.platform.wiring.GuiAdapterFactory
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import com.astarworks.astera.economy.platform.wiring.EconomyPlatformPorts
-import com.astarworks.astera.economy.platform.wiring.EconomyWiring
+import com.astarworks.astera.economy.platform.wiring.EconomyLifecycle
 import com.astarworks.astera.economy.platform.wiring.EconomyWiringResult
 import com.astarworks.astera.items.platform.wiring.ItemsPlatformPorts
 import com.astarworks.astera.items.platform.wiring.ItemsWiring
@@ -49,7 +50,7 @@ import com.astarworks.astera.match.platform.wiring.MatchPlatformPorts
 import com.astarworks.astera.match.platform.wiring.MatchWiring
 import com.astarworks.astera.match.platform.wiring.MatchWiringResult
 import com.astarworks.astera.stats.platform.wiring.StatsPlatformPorts
-import com.astarworks.astera.stats.platform.wiring.StatsWiring
+import com.astarworks.astera.stats.platform.wiring.StatsLifecycle
 import com.astarworks.astera.stats.platform.wiring.StatsWiringResult
 import com.astarworks.astera.testfixtures.FakeBroadcaster
 import com.astarworks.astera.testfixtures.FakeGuiAdapter
@@ -161,10 +162,14 @@ public class GameSim private constructor(
 
     /** Everything the Norma level-up / goal-picker presentation would have shown. */
     public val normaPresentation: SimNormaPresentation = SimNormaPresentation()
-    public lateinit var stats: StatsWiringResult
-        private set
-    public lateinit var economy: EconomyWiringResult
-        private set
+    /** Stats / Economy as the running generation (changes after `rewire.rewire(...)`). */
+    public val stats: StatsWiringResult
+        get() = core.rewire.wired(StatsLifecycle.OWNER) as StatsWiringResult
+    public val economy: EconomyWiringResult
+        get() = core.rewire.wired(EconomyLifecycle.OWNER) as EconomyWiringResult
+
+    /** The rewire coordinator (ADR-0311), the same one `astera admin rewire` drives. */
+    public val rewire: RewireCoordinator get() = core.rewire
 
     /**
      * The merged `/astera` tree every wiring mounted into (ADR-0184), interpreted without a
@@ -460,8 +465,8 @@ public class GameSim private constructor(
     }
 
     public fun shutdown() {
-        runCatching { economy.shutdown() }
-        runCatching { stats.shutdown() }
+        runCatching { core.rewire.down(EconomyLifecycle.OWNER) }
+        runCatching { core.rewire.down(StatsLifecycle.OWNER) }
         runCatching { match.shutdown() }
         runCatching { skillEngine.shutdown() }
         runCatching { combat.shutdown() }
@@ -676,8 +681,10 @@ public class GameSim private constructor(
             // ---- Match / Stats / Economy ---------------------------------
             val replayRoot = Files.createTempDirectory("astera-sim-replays")
             sim.match = MatchWiring.install(context("Astera-Match"), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }, starDropWorld = { sim.starDrops }, oreNodeWorld = { sim.oreNodes }, generatorItemDrop = { sim.generatorDrops }, objectiveStage = { sim.objectiveStage }, worldLabels = { sim.worldLabels }, matchCompass = { reg -> sim.matchCompass.also { it.attach(reg.getOrThrow<com.astarworks.astera.core.application.port.outbound.IDomainEventBus>()) } }, playerPositions = { reg -> SimMatchPlayerPositions({ reg.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>() }, sim.spectator) }, normaPresentation = { sim.normaPresentation }))
-            sim.stats = StatsWiring.install(context("Astera-Stats"), StatsPlatformPorts())
-            sim.economy = EconomyWiring.install(context("Astera-Economy"), EconomyPlatformPorts())
+            sim.core.rewire.register(StatsLifecycle { StatsPlatformPorts() })
+            sim.core.rewire.register(EconomyLifecycle { EconomyPlatformPorts() })
+            check(sim.core.rewire.up(StatsLifecycle.OWNER) is com.astarworks.astera.core.domain.Result.Success) { "stats up failed" }
+            check(sim.core.rewire.up(EconomyLifecycle.OWNER) is com.astarworks.astera.core.domain.Result.Success) { "economy up failed" }
 
             // The sim has one world and no arena slots (production pastes arenas on a far grid, SlotAllocator), so an
             // arena at origin 0 would sit on the lobby training island and its players would count as "in the range"

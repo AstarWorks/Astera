@@ -9,4 +9,9 @@ import org.bukkit.plugin.Plugin
  * One instance per context (cached in [WiringContext.attachments]); every Bukkit listener goes through it.
  */
 public fun WiringContext.listeners(plugin: Plugin): OwnedListeners =
-    attachments.getOrPut("listeners") { OwnedListeners(plugin, tag) } as OwnedListeners
+    attachments.getOrPut("listeners") {
+        OwnedListeners(plugin, tag).also { owned ->
+            onClose { owned.unregisterAll() }
+            probe("listeners") { owned.activeCount }
+        }
+    } as OwnedListeners

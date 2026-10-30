@@ -1,11 +1,10 @@
 package com.astarworks.astera.economy.platform
 
 import com.astarworks.astera.core.platform.AsteraCorePlugin
-import com.astarworks.astera.core.application.wiring.WiringOwner
-import com.astarworks.astera.core.platform.wiring.WiringContext
+import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.platform.wiring.RewireCoordinator
+import com.astarworks.astera.economy.platform.wiring.EconomyLifecycle
 import com.astarworks.astera.economy.platform.wiring.EconomyPlatformPorts
-import com.astarworks.astera.economy.platform.wiring.EconomyWiring
-import com.astarworks.astera.economy.platform.wiring.EconomyWiringResult
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
@@ -22,8 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin
  */
 public class AsteraEconomyPlugin : JavaPlugin() {
 
-    private var wiringContext: WiringContext? = null
-    private var wiringResult: EconomyWiringResult? = null
+    private var coordinator: RewireCoordinator? = null
 
     override fun onEnable() {
         logger.info("Astera-Economy enabling…")
@@ -34,19 +32,23 @@ public class AsteraEconomyPlugin : JavaPlugin() {
                 server.pluginManager.disablePlugin(this); return
             }
 
-        // Host-neutral wiring (ADR-0174); Economy has no Paper-only step.
-        val ctx = WiringContext(WiringOwner("Astera-Economy"), 0, core.services, core.contentDir, logger, core.serverEnvironment.role, core.serverEnvironment.name)
-        wiringContext = ctx
-        wiringResult = EconomyWiring.install(ctx, EconomyPlatformPorts())
+        // Host-neutral wiring (ADR-0174) driven through the rewire lifecycle (ADR-0311); Economy has no Paper-only step.
+        val rewire = core.rewire
+        rewire.register(EconomyLifecycle { EconomyPlatformPorts() })
+        when (val up = rewire.up(EconomyLifecycle.OWNER)) {
+            is Result.Success -> coordinator = rewire
+            is Result.Failure -> {
+                logger.severe("Astera-Economy failed to start: ${up.error.message}")
+                server.pluginManager.disablePlugin(this); return
+            }
+        }
 
         logger.info("Astera-Economy enabled. Services published: ICurrencyLedger, IShopRegistry")
     }
 
     override fun onDisable() {
-        wiringResult?.shutdown()
-        wiringResult = null
-        wiringContext?.close()
-        wiringContext = null
+        coordinator?.down(EconomyLifecycle.OWNER)
+        coordinator = null
         logger.info("Astera-Economy disabled.")
     }
 }

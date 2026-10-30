@@ -24,13 +24,15 @@ public interface IAsteraCommandRegistry {
      * Mount [spec] under `/astera` + [parent] (empty = directly under the
      * root). [owner] is the contributing plugin; it is what [unregisterOwner]
      * removes on disable. Throws [IllegalArgumentException] if the mounted tree
-     * collides with an existing executor.
+     * collides with an existing executor. [gen] is the owner's wiring generation (ADR-0311): while several
+     * generations of one owner are registered only the newest is merged into the tree, so a rewire can mount the
+     * new generation before the old one is removed.
      */
-    public fun register(owner: String, parent: List<String>, spec: CommandSpec.Literal): ServiceRegistry.Registration
+    public fun register(owner: String, gen: Int, parent: List<String>, spec: CommandSpec.Literal): ServiceRegistry.Registration
 
     /** Mount [spec] directly below the root (`/astera <spec.name>`). */
-    public fun register(owner: String, spec: CommandSpec.Literal): ServiceRegistry.Registration =
-        register(owner, emptyList(), spec)
+    public fun register(owner: String, gen: Int, spec: CommandSpec.Literal): ServiceRegistry.Registration =
+        register(owner, gen, emptyList(), spec)
 
     /** Remove everything [owner] contributed. */
     public fun unregisterOwner(owner: String)
