@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.inventory
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.application.service.handoff.PlayerHandoffService
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.bukkit.event.EventHandler
@@ -22,8 +23,8 @@ public class PlayerInventoryLifecycleListener(
     private val handoff: () -> PlayerHandoffService?,
 ) : Listener {
 
-    public fun start(plugin: JavaPlugin) {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners) {
+        listeners.register(this)
     }
 
     @EventHandler(priority = EventPriority.NORMAL)

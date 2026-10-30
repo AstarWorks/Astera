@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.mob
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities
 import com.astarworks.astera.core.application.port.outbound.mob.IMobBodyGateway
 import com.astarworks.astera.core.domain.Result
@@ -53,6 +54,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 public class PaperMobBodyGateway(
     private val plugin: JavaPlugin,
+    private val listeners: OwnedListeners,
     /** Server default language (ADR-0283); a vanilla custom name is world-shared, so there is no per-viewer variant. */
     private val defaultLocale: LocaleCode,
 ) : IMobBodyGateway, Listener {
@@ -64,7 +66,7 @@ public class PaperMobBodyGateway(
 
     /** Registers the death listener and the targeting sweep. */
     public fun start() {
-        server.pluginManager.registerEvents(this, plugin)
+        listeners.register(this)
         server.globalRegionScheduler.runAtFixedRate(plugin, { sweep() }, SWEEP_TICKS, SWEEP_TICKS)
     }
 

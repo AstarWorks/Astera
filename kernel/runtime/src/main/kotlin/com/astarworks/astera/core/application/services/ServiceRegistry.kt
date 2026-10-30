@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.services
 
+import com.astarworks.astera.core.application.wiring.WiringTag
 import kotlin.reflect.KClass
 
 /**
@@ -13,24 +14,67 @@ import kotlin.reflect.KClass
  * - Cancellable via [Registration]; plugins call `unregister()` on
  *   `onDisable` to clean up when the server shuts a single plugin.
  * - NOT thread-safe; called only from the Paper main thread.
+ * - Every registration carries the [WiringTag] of the view that made it (ADR-0311). [scoped] returns a view over
+ *   the same store that stamps its tag; `WiringContext.services` is such a view, so wiring code needs no change.
+ *   A registration on the unscoped root is recorded as [WiringTag.UNTAGGED]; main code must not do that
+ *   (Konsist `RewireOwnershipTest`).
  * - Late-override guard (ADR-0195): once a type has been resolved, a later
  *   registration that would outrank the resolved implementation means some
  *   consumer already captured the wrong one (overlay split brain). It is
  *   recorded in [lateOverrides] and reported to [lateOverrideListener].
  */
-public class ServiceRegistry {
+public class ServiceRegistry private constructor(
+    private val store: Store,
+    private val tag: WiringTag,
+    private val decorate: ((KClass<*>, Any) -> Any)?,
+) {
+
+    public constructor() : this(Store(), WiringTag.UNTAGGED, null)
+
+    /** Per-view cache of decorated resolutions, keyed by type and checked against the winning implementation. */
+    private val decorated: MutableMap<KClass<*>, Pair<Any, Any>> = mutableMapOf()
 
     private data class Entry<T : Any>(
         val type: KClass<T>,
         val impl: T,
         val priority: Int,
+        val tag: WiringTag,
         var active: Boolean = true,
     )
 
-    private val entries: MutableList<Entry<*>> = mutableListOf()
+    /** State shared by the root and every [scoped] view. */
+    private class Store {
+        val entries: MutableList<Entry<*>> = mutableListOf()
 
-    /** Highest priority handed out so far per type (what consumers may have captured). */
-    private val resolvedPriority: MutableMap<KClass<*>, Int> = mutableMapOf()
+        /** Highest priority handed out so far per type (what consumers may have captured). */
+        val resolvedPriority: MutableMap<KClass<*>, Int> = mutableMapOf()
+        val lateOverrides: MutableList<LateOverride> = mutableListOf()
+        var lateOverrideListener: ((LateOverride) -> Unit)? = null
+    }
+
+    /**
+     * A view over the same registrations whose [register] calls are recorded under [tag] (ADR-0311). When [decorate]
+     * is given, [get] hands the view's consumers `decorate(type, impl)` instead of `impl` (used to give a wiring
+     * generation owner-tagged event bus / scheduler / intent router / reload registry); the result is cached per
+     * winning implementation.
+     */
+    public fun scoped(tag: WiringTag, decorate: ((KClass<*>, Any) -> Any)? = null): ServiceRegistry =
+        ServiceRegistry(store, tag, decorate)
+
+    /** What [tag] has registered and not yet unregistered, as `type -> priority`. */
+    public fun registeredBy(tag: WiringTag): List<Pair<KClass<*>, Int>> =
+        store.entries.filter { it.active && it.tag == tag }.map { it.type to it.priority }
+
+    /** Every tag that currently holds a registration. */
+    public fun tags(): Set<WiringTag> = store.entries.filter { it.active }.mapTo(linkedSetOf()) { it.tag }
+
+    /** Unregisters everything [tag] registered (one wiring generation). Returns how many entries went. */
+    public fun unregisterTag(tag: WiringTag): Int {
+        val mine = store.entries.filter { it.tag == tag }
+        mine.forEach { it.active = false }
+        store.entries.removeAll(mine.toSet())
+        return mine.size
+    }
 
     /** A registration that outranks an implementation consumers were already given. */
     public data class LateOverride(
@@ -44,32 +88,32 @@ public class ServiceRegistry {
                 "implementation (persistence overlay split brain, ADR-0195)."
     }
 
-    private val _lateOverrides: MutableList<LateOverride> = mutableListOf()
-
     /** Every late override seen so far; tests assert this is empty. */
-    public val lateOverrides: List<LateOverride> get() = _lateOverrides.toList()
+    public val lateOverrides: List<LateOverride> get() = store.lateOverrides.toList()
 
     /** Called on every late override (production logs SEVERE). */
-    public var lateOverrideListener: ((LateOverride) -> Unit)? = null
+    public var lateOverrideListener: ((LateOverride) -> Unit)?
+        get() = store.lateOverrideListener
+        set(value) { store.lateOverrideListener = value }
 
     public fun <T : Any> register(
         type: KClass<T>,
         impl: T,
         priority: Int = 0,
     ): Registration {
-        resolvedPriority[type]?.let { seen ->
+        store.resolvedPriority[type]?.let { seen ->
             if (priority > seen) {
                 val late = LateOverride(type, priority, seen)
-                _lateOverrides += late
-                lateOverrideListener?.invoke(late)
+                store.lateOverrides += late
+                store.lateOverrideListener?.invoke(late)
             }
         }
-        val entry = Entry(type, impl, priority)
-        entries += entry
+        val entry = Entry(type, impl, priority, tag)
+        store.entries += entry
         return object : Registration {
             override fun unregister() {
                 entry.active = false
-                entries.remove(entry)
+                store.entries.remove(entry)
             }
             override val isActive: Boolean get() = entry.active
         }
@@ -77,12 +121,17 @@ public class ServiceRegistry {
 
     @Suppress("UNCHECKED_CAST")
     public fun <T : Any> get(type: KClass<T>): T? {
-        val winner = entries
+        val winner = store.entries
             .filter { it.active && it.type == type }
             .maxByOrNull { it.priority }
             ?: return null
-        resolvedPriority.merge(type, winner.priority, ::maxOf)
-        return winner.impl as T
+        store.resolvedPriority.merge(type, winner.priority, ::maxOf)
+        val wrap = decorate ?: return winner.impl as T
+        val cached = decorated[type]
+        if (cached != null && cached.first === winner.impl) return cached.second as T
+        val made = wrap(type, winner.impl)
+        decorated[type] = winner.impl to made
+        return made as T
     }
 
     public fun <T : Any> getOrThrow(type: KClass<T>): T =

@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.platform.paper
 
+import com.astarworks.astera.core.platform.paper.listeners
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperEntityVelocity
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperLiveValueSource
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperPlayerHooks
@@ -94,6 +95,7 @@ internal class SkillEnginePaperRuntime(
         wired: CombatWiringResult,
     ) {
         val services = ctx.services
+        val listeners = ctx.listeners(plugin)
         val scheduler = services.getOrThrow<IScheduler>()
         val eventBus = services.getOrThrow<IDomainEventBus>()
         val worldGateway = services.get<IWorldGateway>() ?: startFailed("no IWorldGateway")
@@ -232,7 +234,7 @@ internal class SkillEnginePaperRuntime(
             }
         }
         interruptions = listener
-        plugin.server.pluginManager.registerEvents(listener, plugin)
+        listeners.register(listener)
 
         ctx.subscriptions += eventBus.subscribe(MatchEnded::class) {
             cast.cancelAll()

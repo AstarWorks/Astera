@@ -1,0 +1,15 @@
+# ADR-0311 RewireOwnershipTest allowlist: main-source files that may touch a registration surface directly.
+#
+# Format: one repo-relative path per line; blank lines and `#` lines are ignored. Keep it minimal: a file listed here
+# is a substrate (per-JVM, never rewired) or the funnel itself.
+
+# The funnel for Bukkit listeners.
+kernel/paper/src/main/kotlin/com/astarworks/astera/core/adapter/paper/wiring/OwnedListeners.kt
+
+# Substrate listeners: registered once by Core before any wiring generation exists, never torn down by a rewire.
+kernel/paper/src/main/kotlin/com/astarworks/astera/core/adapter/paper/scheduler/PaperScheduler.kt
+kernel/paper/src/main/kotlin/com/astarworks/astera/core/adapter/paper/presentation/PaperPlayerPresentation.kt
+kernel/paper/src/main/kotlin/com/astarworks/astera/core/adapter/paper/event/BukkitEventAdapter.kt
+
+# The root ServiceRegistry is created once, by Core's plugin class.
+plugin/core/src/main/kotlin/com/astarworks/astera/core/platform/AsteraCorePlugin.kt

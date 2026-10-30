@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.entity
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import java.util.concurrent.CopyOnWriteArrayList
 
 import com.astarworks.astera.core.adapter.api.server.IMcServer
@@ -45,6 +46,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 internal class PaperNpcBodyService(
     private val plugin: JavaPlugin,
+    private val listeners: OwnedListeners,
     private val mcServer: IMcServer,
     private val messages: IMessageRenderer,
     private val interactions: INpcInteractionRouter,
@@ -74,7 +76,7 @@ internal class PaperNpcBodyService(
     }
 
     fun start() {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+        listeners.register(this)
         plugin.server.globalRegionScheduler.execute(plugin, Runnable { flushPending() })
     }
 

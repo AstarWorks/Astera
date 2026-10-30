@@ -1,6 +1,8 @@
 package com.astarworks.astera.match.platform
 
+import com.astarworks.astera.core.platform.paper.listeners
 import com.astarworks.astera.core.platform.AsteraCorePlugin
+import com.astarworks.astera.core.application.wiring.WiringOwner
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import com.astarworks.astera.match.platform.paper.MatchPaperBindings
 import com.astarworks.astera.match.platform.wiring.MatchWiring
@@ -33,11 +35,11 @@ public class AsteraMatchPlugin : JavaPlugin() {
             }
 
         // Host-neutral wiring (ADR-0174), then the Paper-only listener step.
-        val ctx = WiringContext(core.services, core.contentDir, logger, core.serverEnvironment.role, core.serverEnvironment.name)
+        val ctx = WiringContext(WiringOwner("Astera-Match"), 0, core.services, core.contentDir, logger, core.serverEnvironment.role, core.serverEnvironment.name)
         wiringContext = ctx
         val wired = MatchWiring.install(
             ctx,
-            MatchPaperBindings.ports(this, core.dataFolder.toPath().resolve("replays")),
+            MatchPaperBindings.ports(this, ctx.listeners(this), core.dataFolder.toPath().resolve("replays")),
         )
         wiringResult = wired
         MatchPaperBindings.bind(this, ctx, wired)

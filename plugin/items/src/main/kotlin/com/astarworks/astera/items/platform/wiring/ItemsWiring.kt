@@ -83,7 +83,7 @@ public object ItemsWiring {
         val scheduler = services.getOrThrow<IScheduler>()
         val messages = services.getOrThrow<IMessageRenderer>()
         val playerGateway = services.getOrThrow<IPlayerGateway>()
-        val commands = ctx.commandMount("Astera-Items")
+        val commands = ctx.commandMount()
         val mcServer = services.getOrThrow<IMcServer>()
         val eventBus = services.getOrThrow<IDomainEventBus>()
 
