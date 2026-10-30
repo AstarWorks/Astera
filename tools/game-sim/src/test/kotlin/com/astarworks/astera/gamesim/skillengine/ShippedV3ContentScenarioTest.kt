@@ -42,8 +42,7 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
                 val defs = LinkedHashMap<String, SkillDef>()
                 val keys = LinkedHashMap<String, String>()
                 for ((id, composed) in c.value) {
-                    val patched = composed.patch != com.astarworks.astera.core.application.skillengine.compose.PatchMeta.BASE
-                    val key = oracleKey(id, patched)
+                    val key = oracleKey(id)
                     when (val d = decodeTree(key, composed.tree, ids)) {
                         is Result.Failure -> problems += "$key: ${d.error}"
                         is Result.Success -> { defs[id] = d.value; keys[id] = key }
@@ -52,13 +51,13 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
                 // pass 2: compile, replay, golden each id
                 for ((id, def) in defs) {
                     val key = keys.getValue(id)
-                    val patched = key.endsWith("(patched)")
+                    val variant = '@' in id
                     when (val r = compileAgainst(def, defs)) {
                         is Result.Failure -> problems += "$key: ${r.error}"
                         is Result.Success -> {
                             checked++
                             oracle[key] = r.value
-                            writeEvidence(if (patched) id else "shipped-" + id.replace('/', '_') + "_skill", r.value.table, if (patched) "patched composition of $id" else null)
+                            writeEvidence(if (variant) id else "shipped-" + id.replace('/', '_') + "_skill", r.value.table, if (variant) "variant composition of $id" else null)
                             // a callee-only skill (frames_in) cannot be cast directly; it is replayed inside its callers' goldens
                             if (def.isCalleeOnly) continue
                             try {
@@ -97,13 +96,13 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
             is Result.Success -> c.value
         }
         val missing = composed.filter { (id, v) ->
-            !Files.exists(goldenFile(oracleKey(id, v.patch != com.astarworks.astera.core.application.skillengine.compose.PatchMeta.BASE)))
+            !Files.exists(goldenFile(oracleKey(id)))
         }.keys
         assertThat(missing).`as`("composed skill ids without a golden under skill-oracle/ (run :tools:game-sim:regenSkillOracle)").isEmpty()
     }
 
-    /** Oracle key of a composed id: `<id>/skill` (golden `<id>/skill.txt`), or `<id> (patched)` for a patched variant (`<id>.patched.txt`). */
-    private fun oracleKey(id: String, patched: Boolean): String = if (patched) "$id (patched)" else "$id/skill"
+    /** Oracle key of a composed id: `<id>/skill` (golden `<id>/skill.txt`), or `<base>/skill@<variant>` for a variant `<base>@<variant>` (`<base>/skill@<variant>.txt`). */
+    private fun oracleKey(id: String): String = if ('@' in id) "${id.substringBefore('@')}/skill@${id.substringAfter('@')}" else "$id/skill"
 
     // ---- parity oracle ---------------------------------------------------------------------------------------------
 
@@ -121,8 +120,8 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
     private val hitPoses = listOf(0.0, 37.0)
     private val hitLayout = listOf(2.5 to 0.0, 3.0 to 2.0, 4.5 to 3.0, 5.5 to 4.5)
 
-    /** Golden file of a skill: its file path under content/skills (a patched variant: `<id>.patched` beside the files). */
-    private fun goldenFile(key: String): Path = goldenDir.resolve(key.replace(" (patched)", ".patched") + ".txt")
+    /** Golden file of a skill: its file path under content/skills; a variant's golden sits beside its base's (`skill@<variant>.txt`). */
+    private fun goldenFile(key: String): Path = goldenDir.resolve("$key.txt")
 
     /** The golden lines recorded for each skill this run, kept for [lateRows]. */
     private val recordings = LinkedHashMap<String, List<String>>()

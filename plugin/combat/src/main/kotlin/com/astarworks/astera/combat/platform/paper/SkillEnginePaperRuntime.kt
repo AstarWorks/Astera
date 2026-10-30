@@ -26,6 +26,7 @@ import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCas
 import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.domain.event.SkillReleased
 import com.astarworks.astera.combat.platform.wiring.CombatPlatformPorts
+import com.astarworks.astera.combat.application.service.skin.SkillVariantResolver
 import com.astarworks.astera.combat.platform.wiring.CombatWiringResult
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -80,6 +81,7 @@ internal class SkillEnginePaperRuntime(
     private var visuals: PaperSkillVisualGateway? = null
     private var hooks: PaperPlayerHooks? = null
     private val notInCatalog = ConcurrentHashMap.newKeySet<String>()
+    private val missingSkins = ConcurrentHashMap.newKeySet<String>()
     private var castSequence = 0L
 
     private var movement: PaperSkillMovementGateway? = null
@@ -244,7 +246,7 @@ internal class SkillEnginePaperRuntime(
         ctx.subscriptions += eventBus.subscribe(SkillReleased::class) { event ->
             cast.raiseAllOf(event.caster.uuid, "input.release", event.atTick.toInt())
         }
-        ctx.subscriptions += eventBus.subscribe(SkillCast::class) { event -> onSkillCast(cast, live, catalog::get, scheduler, event) }
+        ctx.subscriptions += eventBus.subscribe(SkillCast::class) { event -> onSkillCast(cast, live, catalog::get, wired.skillVariantResolver, scheduler, event) }
     }
 
     /** A missing prerequisite stops the engine from starting: every skill would otherwise silently do nothing. */
@@ -265,10 +267,15 @@ internal class SkillEnginePaperRuntime(
         cast: CastRunner,
         live: PaperLiveValueSource,
         find: (String) -> CompiledSkill?,
+        variants: SkillVariantResolver,
         scheduler: IScheduler,
         event: SkillCast,
     ) {
-        val id = event.skillId.value
+        val resolved = variants.resolve(event.caster, event.skillId.value)
+        resolved.missingSkin?.let {
+            if (missingSkins.add(it)) log.error("[skill-fault] {} selected skin {} is not in the catalog; casting the base (caster {})", event.skillId.value, it, event.caster.uuid)
+        }
+        val id = resolved.skillId
         val skill = find(id)
         if (skill == null) {
             if (notInCatalog.add(id)) log.error("[skill-error] skill {} is not in the catalog; the cast did nothing (caster {})", id, event.caster.uuid)

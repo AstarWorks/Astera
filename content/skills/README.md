@@ -56,3 +56,19 @@ e.g. for system-fired skills via `SkillCastRequested` published directly).
 - Timing (`at`, `for`, `every`, `until`), anchors and laws: ADR-0303 sections 0-3.
 - Gameplay ops (`hit`, `dash`, `projectile`, `body`, `lock`, `held_model`, ...): section 10.1b.
 - Static checks the loader runs: section 10.4 and 11.4. A file that fails them is a named load error, never a silent drop.
+
+## Skins and the global balance overlay
+
+Both are `kind: Patch` files in `<skill>/patches/` and both hot-reload with `/astera skill reload <skill-id>` (no server restart).
+
+- **Balance overlay** (`patchKind: balance`, **no `variant`**): changes the numbers of the base skill for everyone, and the skin variants
+  inherit it (they are composed from the overlaid base). Only non-string `params.<p>.default` values and numeric fields of gameplay rows.
+  Delete the file and reload to undo it.
+- **Skin** (`patchKind: skin`, `variant: <name>`): the catalog gets `<skill>@<name>`. A skin changes presentation only (colours, particle
+  ids, sprites, presentation rows); check 13 refuses a patch that touches anything else and **check 14** (`SkinGameplayParityCheck`)
+  refuses a compiled skin whose hits, damage, statuses, schedule end or movement differ from the base. A refused skin is not in the
+  catalog (the reload says why) and the base keeps working.
+- A player plays a skin when they own and selected it (`player_skill_skin`, V74). Until a shop or picker exists an operator uses
+  `/astera skill skin <grant|revoke|equip|clear> <player> <skill-id> [skin]`. If a selected skin is missing from the catalog at cast
+  time the base is cast and `[skill-fault]` is logged once.
+- Goldens: the base is `skill-oracle/<id>/skill.txt`, a skin `skill-oracle/<id>/skill@<name>.txt` (`:tools:game-sim:regenSkillOracle`).

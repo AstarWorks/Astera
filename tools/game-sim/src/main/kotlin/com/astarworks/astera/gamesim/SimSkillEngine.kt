@@ -88,6 +88,8 @@ internal class SimSkillEngine private constructor(
 
     /** Problems reported by the host or the player (a skill missing from the catalog, a failed start, a table fault). */
     val problems: MutableList<String> = mutableListOf()
+    /** The catalog id each cast actually played, in order (a selected skin shows as `base@skin`). */
+    val castLog: MutableList<String> = mutableListOf()
 
     fun noteRightClick(caster: UUID) {
         lastRightClick[caster] = scheduler.currentTick()
@@ -126,7 +128,10 @@ internal class SimSkillEngine private constructor(
     }
 
     private fun onSkillCast(event: SkillCast) {
-        val id = event.skillId.value
+        val resolved = combat.skillVariantResolver.resolve(event.caster, event.skillId.value)
+        resolved.missingSkin?.let { problems += "skin $it of ${event.skillId.value} is not in the catalog; cast the base" }
+        val id = resolved.skillId
+        castLog += id
         val skill = combat.skillCatalog.get(id)
         if (skill == null) {
             problems += "skill $id is not in the catalog"
