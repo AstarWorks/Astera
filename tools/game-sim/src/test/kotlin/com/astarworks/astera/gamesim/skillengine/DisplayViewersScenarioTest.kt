@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test
 import java.util.UUID
 
 /**
- * The per-row `viewers: all | owner-hidden | others-only` filter of display rows: the caster is not shown an owner-hidden row but another
- * player is (others-only likewise), a frame's filter is inherited by the displays riding it, an unknown value is a strict decode error,
+ * The per-row `viewers: all | owner-hidden` filter of display rows: the caster is not shown an owner-hidden row but another
+ * player is, a frame's filter is inherited by the displays riding it, an unknown value is a strict decode error,
  * and the rows hidden from the caster are skipped by [CasterEyeClutter].
  */
 class DisplayViewersScenarioTest : SkillEngineScenario() {
@@ -25,10 +25,8 @@ class DisplayViewersScenarioTest : SkillEngineScenario() {
     private val ops = arrayOf(
         "{id: everyone, op: display, kind: block, block: \"minecraft:white_concrete\", anchor: caster, at: 0, for: 5}",
         "{id: hidden, op: display, kind: block, block: \"minecraft:white_concrete\", anchor: caster, viewers: owner-hidden, at: 0, for: 5}",
-        "{id: others, op: display, kind: block, block: \"minecraft:white_concrete\", anchor: caster, viewers: others-only, at: 0, for: 5}",
         "{id: hf, op: frame, anchor: caster, viewers: owner-hidden, at: 0, for: 5}",
         "{id: child, op: display, kind: block, block: \"minecraft:white_concrete\", anchor: hf, at: 0, for: 5}",
-        "{id: own, op: display, kind: block, block: \"minecraft:white_concrete\", anchor: hf, viewers: others-only, at: 0, for: 5}",
     )
 
     private fun spawns(): Map<String, String> {
@@ -39,7 +37,7 @@ class DisplayViewersScenarioTest : SkillEngineScenario() {
         val rec = GatewayRecorder()
         val calls = play(skill, 1L, emptyList(), null, rec)
         // displays spawn in row order at tick 0 (the frame spawns no gateway display)
-        val names = listOf("everyone", "hidden", "others", "child", "own")
+        val names = listOf("everyone", "hidden", "child")
         val spawned = calls.filter { it.verb == "spawn" }
         assertThat(spawned).hasSize(names.size)
         return names.zip(spawned.map { it.detail }).toMap()
@@ -57,13 +55,10 @@ class DisplayViewersScenarioTest : SkillEngineScenario() {
 
         assertThat(shown("everyone")).containsExactlyInAnyOrder(caster, other)
         assertThat(shown("hidden")).containsExactly(other)
-        assertThat(shown("others")).containsExactly(other)
-        // the child of a hidden frame inherits the filter; a child with its own non-all value keeps its own
+        // the child of a hidden frame inherits the filter
         assertThat(shown("child")).containsExactly(other)
-        assertThat(shown("own")).containsExactly(other)
         val child = s.getValue("child")
         assertThat(child).contains("viewers=owner-hidden")
-        assertThat(s.getValue("own")).contains("viewers=others-only")
         assertThat(s.getValue("everyone")).doesNotContain("viewers=")
     }
 
@@ -71,6 +66,8 @@ class DisplayViewersScenarioTest : SkillEngineScenario() {
     fun unknownViewersValueIsAStrictDecodeError() {
         val bad = loadInline(yaml("{id: x, op: display, kind: block, block: \"minecraft:white_concrete\", anchor: caster, viewers: owner, at: 0, for: 5}"))
         assertThat(bad).isInstanceOf(Result.Failure::class.java)
+        val retired = loadInline(yaml("{id: x, op: display, kind: block, block: \"minecraft:white_concrete\", anchor: caster, viewers: others-only, at: 0, for: 5}"))
+        assertThat(retired).isInstanceOf(Result.Failure::class.java)
         val badFrame = loadInline(yaml("{id: x, op: frame, anchor: caster, viewers: Owner-Hidden, at: 0, for: 5}"))
         assertThat(badFrame).isInstanceOf(Result.Failure::class.java)
     }
@@ -85,6 +82,5 @@ class DisplayViewersScenarioTest : SkillEngineScenario() {
         }
         assertThat(CasterEyeClutter.checkDisplays("k", lines(""))).isNotEmpty()
         assertThat(CasterEyeClutter.checkDisplays("k", lines(" viewers=owner-hidden"))).isEmpty()
-        assertThat(CasterEyeClutter.checkDisplays("k", lines(" viewers=others-only"))).isEmpty()
     }
 }

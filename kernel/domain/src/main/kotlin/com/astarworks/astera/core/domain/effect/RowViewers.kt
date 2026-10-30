@@ -5,12 +5,10 @@ package com.astarworks.astera.core.domain.effect
  * path by the display gateway; `ALL` (the default) is no filtering.
  *
  * - `owner-hidden`: everyone except the caster (the caster's own first-person view never draws the row).
- * - `others-only`: only players other than the caster.
  */
 public enum class RowViewers(public val yamlName: String, public val audience: Audience) {
     ALL("all", Audience.ALL),
     OWNER_HIDDEN("owner-hidden", Audience.OTHERS),
-    OTHERS_ONLY("others-only", Audience.OTHERS),
     ;
 
     public companion object {

@@ -106,7 +106,7 @@ public class DisplayOp(
     public val brightness: Pair<Value<Double>, Value<Double>>?,
     public val viewRange: Value<Double>,
     public val glowColor: Value<String>?,
-    /** `viewers` (`all` | `owner-hidden` | `others-only`): who sees this display; a frame's filter is inherited by its children. */
+    /** `viewers` (`all` | `owner-hidden`): who sees this display; a frame's filter is inherited by its children. */
     public val viewers: String,
     public val interpolationDelay: Value<Double>,
     public val interpolationDuration: Value<Double>,
@@ -219,7 +219,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     private val brightnessF = Field.optional("brightness", Types.nullable(Types.nested(brightnessFields)), null, "{block, sky}; absent = world light")
     private val viewRangeF = Field.optional("view_range", Types.number, Value.Literal(1.0), "vanilla view range multiplier")
     private val glowColorF = Field.optional("glow_color", Types.nullable(Types.text), null, "#rrggbb glow override; absent = none")
-    private val viewersF = Field.optional("viewers", Types.enumOf(*RowViewers.YAML_NAMES), "all", "who sees this display: all | owner-hidden (not the caster) | others-only (players other than the caster); a hidden frame's children inherit it")
+    private val viewersF = Field.optional("viewers", Types.enumOf(*RowViewers.YAML_NAMES), "all", "who sees this display: all | owner-hidden (not the caster); a hidden frame's children inherit it")
     private val interpDelayF = Field.optional("interpolation_delay", Types.number, Value.Literal(0.0), "engine-owned after spawn (section 4); written only for hand-tuned loops")
     private val interpDurationF = Field.optional("interpolation_duration", Types.number, Value.Literal(0.0), "engine-owned after spawn (section 4)")
     private val teleportDurationF = Field.optional("teleport_duration", Types.number, Value.Literal(0.0), "engine-owned after spawn (section 4)")

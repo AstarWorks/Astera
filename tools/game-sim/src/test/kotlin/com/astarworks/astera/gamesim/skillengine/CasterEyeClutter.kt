@@ -60,8 +60,8 @@ internal object CasterEyeClutter {
                         if (d.groupValues[2] == "spawn") {
                             val kind = Regex(" kind=(\\S+)").find(l)?.groupValues?.get(1)
                             if (kind != "block" && kind != "item") continue
-                            // the caster never sees an owner-hidden / others-only row (viewers filter), so it cannot fill the caster's screen
-                            if (" viewers=owner-hidden" in l || " viewers=others-only" in l) continue
+                            // the caster never sees an owner-hidden row (viewers filter), so it cannot fill the caster's screen
+                            if (" viewers=owner-hidden" in l) continue
                             alive[id] = Triple(Regex("op=(\\S+)").find(l)!!.groupValues[1], null, null)
                         }
                         val cur = alive[id] ?: continue

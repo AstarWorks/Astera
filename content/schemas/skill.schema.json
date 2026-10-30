@@ -1406,10 +1406,9 @@
                         "viewers": {
                             "enum": [
                                 "all",
-                                "owner-hidden",
-                                "others-only"
+                                "owner-hidden"
                             ],
-                            "description": "who sees the displays riding this frame: all | owner-hidden | others-only; a display with its own non-all viewers keeps its own",
+                            "description": "who sees the displays riding this frame: all | owner-hidden; a display with its own non-all viewers keeps its own",
                             "default": "all"
                         },
                         "motion": {
@@ -4581,10 +4580,9 @@
                         "viewers": {
                             "enum": [
                                 "all",
-                                "owner-hidden",
-                                "others-only"
+                                "owner-hidden"
                             ],
-                            "description": "who sees this display: all | owner-hidden (not the caster) | others-only (players other than the caster); a hidden frame's children inherit it",
+                            "description": "who sees this display: all | owner-hidden (not the caster); a hidden frame's children inherit it",
                             "default": "all"
                         },
                         "interpolation_delay": {

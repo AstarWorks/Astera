@@ -85,7 +85,7 @@ public class FrameOp(
     public val mode: FrameMode,
     /** R23: whose axes the frame takes (`caster` / `victim` / `world`); null = the anchor's own axes. Re-read per send (follow) or once (snapshot). */
     public val axes: String?,
-    /** `viewers`: `all` | `owner-hidden` | `others-only`; every display riding this frame inherits it unless the display writes its own. */
+    /** `viewers`: `all` | `owner-hidden`; every display riding this frame inherits it unless the display writes its own. */
     public val viewers: String,
     /** Motion laws decoded by [MotionLaws]; segmented into `Key` rows by [LawSegmenter] at compile; null = a still frame. */
     public val motion: LawSource?,
@@ -102,7 +102,7 @@ public object FrameOpSpec : OpSpec<FrameOp> {
     private val turnF = Field.optional("turn", Rotations.type, Rotation.Turns(emptyList()), "initial orientation relative to the parent basis, [{axis, deg}, ...] (axes long/edge/face need part)")
     private val modeF = Field.optional("mode", Types.enumOf("follow", "snapshot"), "follow", "follow: re-read the parent at every send; snapshot: copy the pose once")
     private val axesF = Field.optional("axes", Types.nullable(Types.enumOf("caster", "victim", "world")), null, "whose axes the frame takes: caster | victim | world; absent = the anchor's own axes")
-    private val viewersF = Field.optional("viewers", Types.enumOf(*RowViewers.YAML_NAMES), "all", "who sees the displays riding this frame: all | owner-hidden | others-only; a display with its own non-all viewers keeps its own")
+    private val viewersF = Field.optional("viewers", Types.enumOf(*RowViewers.YAML_NAMES), "all", "who sees the displays riding this frame: all | owner-hidden; a display with its own non-all viewers keeps its own")
     private val motionF = Field.optional<RawMotion?>("motion", Types.nullable(MotionType), null, "laws on the origin and the axes (ADR-0303 3)")
 
     override val fields: Fields = Fields.of("frame", anchorF, partF, offsetF, turnF, modeF, axesF, viewersF, motionF)
