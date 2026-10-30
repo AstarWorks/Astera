@@ -42,7 +42,7 @@ public object BlinkOpSpec : OpSpec<BlinkOp> {
 
     private val to = Field.required("to", Types.offsetVec, "the destination point: {of: <anchor>, forward, up, left} from that anchor's position along its axes at the row tick (an `of: caster` blink is level), or a world CEL vec3")
     private val max = Field.required("max", Types.number, "longest travel in blocks (a literal, at most $MAX_BLINK_BLOCKS); a farther destination is cut short along the line")
-    private val keepLook = Field.optional("keep_look", Types.bool, Value.Literal(true), "true = the caster keeps yaw and pitch; false = turn to the travel direction")
+    private val keepLook = Field.required("keep_look", Types.bool, "true = the caster keeps yaw and pitch; false = turn to the travel direction")
     private val invulnerable = Field.optional("invulnerable", Types.number, Value.Literal(0.0), "ticks of damage immunity after arriving (0 = none)")
 
     override val name: String = "blink"

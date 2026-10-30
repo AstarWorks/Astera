@@ -12672,7 +12672,8 @@
                     "additionalProperties": false,
                     "required": [
                         "to",
-                        "max"
+                        "max",
+                        "keep_look"
                     ],
                     "properties": {
                         "to": {
@@ -12806,8 +12807,7 @@
                                     "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
                                 }
                             ],
-                            "description": "true = the caster keeps yaw and pitch; false = turn to the travel direction",
-                            "default": true
+                            "description": "true = the caster keeps yaw and pitch; false = turn to the travel direction"
                         },
                         "invulnerable": {
                             "oneOf": [
