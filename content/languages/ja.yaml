@@ -520,6 +520,22 @@ astera:
         sneak_drop: "<yellow>[Shift+Q]</yellow> <white>{name}</white>"
         shoot: "<yellow>[発射]</yellow> <white>{name}</white>"
       locked: "<dark_gray>試合中はノルマ Lv {level} まで使用不可</dark_gray>"
+      hold: "<gray>移動阻害: <white>{kind}{detail}</white></gray>"
+      hold_ticks: "{ticks}t"
+      hold_kind:
+        none: "なし"
+        knockback: "ノックバック"
+        pull: "引き寄せ"
+        knockback_pull: "ノックバック + 引き寄せ"
+        knockback_stop: "ノックバック + 停止"
+        slow: "鈍足"
+        root: "拘束"
+        freeze: "凍結"
+        shock: "感電"
+      hold_level:
+        light: "(軽)"
+        medium: "(中)"
+        heavy: "(重)"
       stat:
         attack_damage: "<gray>ダメージ: <white>{value}</white></gray>"
         attack_speed: "<gray>攻撃速度: <white>{value}/秒</white></gray>"

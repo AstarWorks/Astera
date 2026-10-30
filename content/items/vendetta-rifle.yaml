@@ -18,3 +18,4 @@ resource_max_pool: 12
 resource_reloadable: true
 pdc_tags:
   astera:rarity: epic
+hold: {kind: none}
