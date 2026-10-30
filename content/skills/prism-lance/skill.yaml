@@ -1,0 +1,34 @@
+# prism-lance: trial skill for the `ray` anchor and the `input.release` event (ADR-0303 3.3, 3.2). While the use input is held the lance
+# burns along the caster's look ray (`tip` is re-read every tick: it follows yaw and pitch, and sits on the first block it meets, 24 blocks
+# at most). Letting go ends the channel at once; holding it ends the channel at tick 60 (the fixed maximum). Bound to no item (dev trial).
+apiVersion: astera/v3
+kind: Skill
+id: prism-lance
+meta:
+  name: {ja: 虹晶の槍光, en: Prism Lance}
+  description: {ja: "使用を押し続ける間、視線の先へ光線を撃ち続ける。離すと止まる。", en: "Hold to burn a beam along your look ray. Release to stop."}
+  cooldown_ticks: 80
+  resource_cost: 0
+  tags: [ranged, magic, channel, trial]
+params:
+  channel_ticks: {type: ticks, default: 60}
+  dmg:           {type: number, default: 3}
+anchors:
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.4, up: -0.25}, mode: follow}
+  - {id: tip,    anchor: caster.eye, ray: 24, mode: follow}
+machine:
+  start: channel
+  states:
+    channel:
+      for: "${channel_ticks}"
+      then: end
+      on:
+        - {event: input.release, to: end}
+      enter:
+        - {id: snd_start, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.6, pitch: 1.5}
+      do:
+        - {id: beam_glow, op: ribbon, from: muzzle, to: tip, thickness: 0.18, color: "#554fd0ff", at: 0, for: "${channel_ticks}"}
+        - {id: beam, op: ribbon, from: muzzle, to: tip, thickness: 0.06, color: "#ffeaf6ff", at: 0, for: "${channel_ticks}"}
+        - {id: burn, op: damage, target: {kind: enemies, around: tip, radius: 1.5, max_count: 3}, damage: {electric: "${dmg}"}, every: 4, times: 15}
+        - {id: spark, op: particle, particle: electric_spark, anchor: tip, count: 3, offset: [0.2, 0.2, 0.2], extra: 0.1, every: 2, times: 30}
+    end: {final: true}

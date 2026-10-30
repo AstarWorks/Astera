@@ -1,0 +1,483 @@
+## pose yaw=0 pitch=0
+@0 spawn #0 op=channel/beam_glow kind=ribbon from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000 thick=0.180000 color=#4fd0ff alpha=0.333333 frames=[0.000000,0.250000,23.600000|-0.180000,0.000000,0.000000|0.000000,-0.179990,0.001907]
+@0 spawn #1 op=channel/beam kind=ribbon from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000 thick=0.060000 color=#eaf6ff alpha=1.000000 frames=[0.000000,0.250000,23.600000|-0.060000,0.000000,0.000000|0.000000,-0.059997,0.000636]
+@0 sound - op=channel/snd_start sound=astera:skill/wand/cast cat=master vol=0.6 pitch=1.5 at=0.000000,0.000000,0.000000
+@0 particle - op=channel/spark[0] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3252896235349904291
+@0 hit - op=channel/burn[0] at=0.000000,1.620000,24.000000 r=1.500000 shape=area
+@0 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=0.000000,0.000000,5.000000 ignoreinv=false ignorearmor=false
+@0 damage 00000000-0000-0000-0000-00000000000a op=- electric=3 skill=prism-lance at=0.000000,0.000000,2.500000 ignoreinv=false ignorearmor=false
+@1 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@1 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@1 remove #1 op=channel/beam
+@1 remove #0 op=channel/beam_glow
+g @1 state-exit reason=EVENT | state=channel
+g @1 cast-end | pose
+## pose yaw=37 pitch=-20
+@0 spawn #0 op=channel/beam_glow kind=ribbon from=-0.277667,1.521885,0.368476 to=-13.572507,9.828483,18.011325 thick=0.180000 color=#4fd0ff alpha=0.333333 frames=[-13.294841,8.306599,17.642849|-0.143754,0.000000,-0.108327|-0.038126,-0.168483,0.050595]
+@0 spawn #1 op=channel/beam kind=ribbon from=-0.277667,1.521885,0.368476 to=-13.572507,9.828483,18.011325 thick=0.060000 color=#eaf6ff alpha=1.000000 frames=[-13.294841,8.306599,17.642849|-0.047918,0.000000,-0.036109|-0.012709,-0.056161,0.016865]
+@0 sound - op=channel/snd_start sound=astera:skill/wand/cast cat=master vol=0.6 pitch=1.5 at=0.000000,0.000000,0.000000
+@0 particle - op=channel/spark[0] type=electric_spark count=3 at=-13.572507,9.828483,18.011325 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3252896235349904291
+@0 hit - op=channel/burn[0] at=-13.572507,9.828483,18.011325 r=1.500000 shape=area
+@0 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-3.009075,0.000000,3.993178 ignoreinv=false ignorearmor=false
+@0 damage 00000000-0000-0000-0000-00000000000a op=- electric=3 skill=prism-lance at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
+@1 line #0 op=channel/beam_glow from=-0.277667,1.521885,0.368476 to=-13.572507,9.828483,18.011325
+@1 line #1 op=channel/beam from=-0.277667,1.521885,0.368476 to=-13.572507,9.828483,18.011325
+@1 remove #1 op=channel/beam
+@1 remove #0 op=channel/beam_glow
+g @1 state-exit reason=EVENT | state=channel
+g @1 cast-end | pose
+## pose-hit yaw=0 pitch=0
+@0 spawn #0 op=channel/beam_glow kind=ribbon from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000 thick=0.180000 color=#4fd0ff alpha=0.333333 frames=[0.000000,0.250000,23.600000|-0.180000,0.000000,0.000000|0.000000,-0.179990,0.001907]
+@0 spawn #1 op=channel/beam kind=ribbon from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000 thick=0.060000 color=#eaf6ff alpha=1.000000 frames=[0.000000,0.250000,23.600000|-0.060000,0.000000,0.000000|0.000000,-0.059997,0.000636]
+@0 sound - op=channel/snd_start sound=astera:skill/wand/cast cat=master vol=0.6 pitch=1.5 at=0.000000,0.000000,0.000000
+@0 particle - op=channel/spark[0] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3252896235349904291
+@0 hit - op=channel/burn[0] at=0.000000,1.620000,24.000000 r=1.500000 shape=area
+@0 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
+@0 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
+@0 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
+@1 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@1 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@2 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@2 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@2 particle - op=channel/spark[1] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5622625251381878618
+@3 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@3 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@4 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@4 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@4 particle - op=channel/spark[2] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-443967227110848248
+@4 hit - op=channel/burn[1] at=0.000000,1.620000,24.000000 r=1.500000 shape=area
+@4 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
+@4 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
+@4 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
+@5 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@5 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@6 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@6 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@6 particle - op=channel/spark[3] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2912811556743889548
+@7 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@7 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@8 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@8 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@8 particle - op=channel/spark[4] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6130830353202215152
+@8 hit - op=channel/burn[2] at=0.000000,1.620000,24.000000 r=1.500000 shape=area
+@8 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
+@8 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
+@8 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
+@9 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@9 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@10 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@10 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@10 particle - op=channel/spark[5] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4530265006245746992
+@11 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@11 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@12 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@12 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@12 particle - op=channel/spark[6] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1142853692591733050
+@12 hit - op=channel/burn[3] at=0.000000,1.620000,24.000000 r=1.500000 shape=area
+@12 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
+@12 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
+@12 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
+@13 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@13 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@14 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@14 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@14 particle - op=channel/spark[7] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7483167599360018164
+@15 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@15 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@16 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@16 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@16 particle - op=channel/spark[8] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1444709521151862122
+@16 hit - op=channel/burn[4] at=0.000000,1.620000,24.000000 r=1.500000 shape=area
+@16 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
+@16 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
+@16 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
+@17 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@17 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@18 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@18 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@18 particle - op=channel/spark[9] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3852594132707634908
+@19 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@19 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@20 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@20 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@20 particle - op=channel/spark[10] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5821738322284696760
+@20 hit - op=channel/burn[5] at=0.000000,1.620000,24.000000 r=1.500000 shape=area
+@20 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
+@20 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
+@20 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
+@21 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@21 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@22 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@22 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@22 particle - op=channel/spark[11] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2744246357705040360
+@23 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@23 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@24 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@24 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@24 particle - op=channel/spark[12] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8228492361449882248
+@24 hit - op=channel/burn[6] at=0.000000,1.620000,24.000000 r=1.500000 shape=area
+@24 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
+@24 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
+@24 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
+@25 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@25 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@26 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@26 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@26 particle - op=channel/spark[13] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2168215493328082375
+@27 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@27 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@28 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@28 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@28 particle - op=channel/spark[14] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8451556877330296057
+@28 hit - op=channel/burn[7] at=0.000000,1.620000,24.000000 r=1.500000 shape=area
+@28 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
+@28 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
+@28 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
+@29 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@29 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@30 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@30 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@30 particle - op=channel/spark[15] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3361628778468835286
+@31 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@31 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@32 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@32 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@32 particle - op=channel/spark[16] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9056229398492402544
+@32 hit - op=channel/burn[8] at=0.000000,1.620000,24.000000 r=1.500000 shape=area
+@32 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
+@32 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
+@32 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
+@33 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@33 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@34 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@34 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@34 particle - op=channel/spark[17] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7818350919132632634
+@35 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@35 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@36 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@36 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@36 particle - op=channel/spark[18] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2111210541826576267
+@36 hit - op=channel/burn[9] at=0.000000,1.620000,24.000000 r=1.500000 shape=area
+@36 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
+@36 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
+@36 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
+@37 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@37 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@38 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@38 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@38 particle - op=channel/spark[19] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2933896955168140838
+@39 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@39 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@40 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@40 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@40 particle - op=channel/spark[20] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=35998743101562656
+@40 hit - op=channel/burn[10] at=0.000000,1.620000,24.000000 r=1.500000 shape=area
+@40 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
+@40 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
+@40 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
+@41 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@41 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@42 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@42 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@42 particle - op=channel/spark[21] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8564538360112452237
+@43 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@43 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@44 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@44 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@44 particle - op=channel/spark[22] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5280077905448457986
+@44 hit - op=channel/burn[11] at=0.000000,1.620000,24.000000 r=1.500000 shape=area
+@44 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
+@44 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
+@44 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
+@45 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@45 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@46 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@46 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@46 particle - op=channel/spark[23] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4755895625884755552
+@47 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@47 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@48 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@48 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@48 particle - op=channel/spark[24] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7014677717576538162
+@48 hit - op=channel/burn[12] at=0.000000,1.620000,24.000000 r=1.500000 shape=area
+@48 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
+@48 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
+@48 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
+@49 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@49 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@50 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@50 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@50 particle - op=channel/spark[25] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2926468764454806425
+@51 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@51 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@52 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@52 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@52 particle - op=channel/spark[26] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8960516890255285735
+@52 hit - op=channel/burn[13] at=0.000000,1.620000,24.000000 r=1.500000 shape=area
+@52 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
+@52 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
+@52 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
+@53 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@53 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@54 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@54 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@54 particle - op=channel/spark[27] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7860823305504165
+@55 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@55 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@56 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@56 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@56 particle - op=channel/spark[28] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5070013671224443975
+@56 hit - op=channel/burn[14] at=0.000000,1.620000,24.000000 r=1.500000 shape=area
+@56 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-4.500000,0.000000,5.500000 ignoreinv=false ignorearmor=false
+@56 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
+@56 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
+@57 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@57 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@58 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@58 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@58 particle - op=channel/spark[29] type=electric_spark count=3 at=0.000000,1.620000,24.000000 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1244562190575944409
+@59 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@59 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@60 line #0 op=channel/beam_glow from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@60 line #1 op=channel/beam from=0.000000,1.370000,0.400000 to=0.000000,1.620000,24.000000
+@60 remove #0 op=channel/beam_glow
+@60 remove #1 op=channel/beam
+g @60 state-exit reason=TIMER | state=channel
+g @60 cast-end | pose
+## pose-hit yaw=37 pitch=0
+@0 spawn #0 op=channel/beam_glow kind=ribbon from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252 thick=0.180000 color=#4fd0ff alpha=0.333333 frames=[-14.202835,0.250000,18.847798|-0.143754,0.000000,-0.108327|-0.001147,-0.179990,0.001523]
+@0 spawn #1 op=channel/beam kind=ribbon from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252 thick=0.060000 color=#eaf6ff alpha=1.000000 frames=[-14.202835,0.250000,18.847798|-0.047918,0.000000,-0.036109|-0.000382,-0.059997,0.000508]
+@0 sound - op=channel/snd_start sound=astera:skill/wand/cast cat=master vol=0.6 pitch=1.5 at=0.000000,0.000000,0.000000
+@0 particle - op=channel/spark[0] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3252896235349904291
+@0 hit - op=channel/burn[0] at=-14.443561,1.620000,19.167252 r=1.500000 shape=area
+@0 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false
+@0 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
+@0 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
+@1 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@1 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@2 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@2 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@2 particle - op=channel/spark[1] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5622625251381878618
+@3 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@3 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@4 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@4 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@4 particle - op=channel/spark[2] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-443967227110848248
+@4 hit - op=channel/burn[1] at=-14.443561,1.620000,19.167252 r=1.500000 shape=area
+@4 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false
+@4 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
+@4 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
+@5 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@5 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@6 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@6 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@6 particle - op=channel/spark[3] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2912811556743889548
+@7 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@7 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@8 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@8 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@8 particle - op=channel/spark[4] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6130830353202215152
+@8 hit - op=channel/burn[2] at=-14.443561,1.620000,19.167252 r=1.500000 shape=area
+@8 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false
+@8 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
+@8 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
+@9 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@9 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@10 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@10 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@10 particle - op=channel/spark[5] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4530265006245746992
+@11 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@11 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@12 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@12 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@12 particle - op=channel/spark[6] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1142853692591733050
+@12 hit - op=channel/burn[3] at=-14.443561,1.620000,19.167252 r=1.500000 shape=area
+@12 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false
+@12 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
+@12 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
+@13 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@13 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@14 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@14 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@14 particle - op=channel/spark[7] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7483167599360018164
+@15 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@15 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@16 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@16 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@16 particle - op=channel/spark[8] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1444709521151862122
+@16 hit - op=channel/burn[4] at=-14.443561,1.620000,19.167252 r=1.500000 shape=area
+@16 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false
+@16 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
+@16 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
+@17 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@17 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@18 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@18 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@18 particle - op=channel/spark[9] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3852594132707634908
+@19 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@19 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@20 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@20 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@20 particle - op=channel/spark[10] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5821738322284696760
+@20 hit - op=channel/burn[5] at=-14.443561,1.620000,19.167252 r=1.500000 shape=area
+@20 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false
+@20 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
+@20 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
+@21 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@21 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@22 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@22 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@22 particle - op=channel/spark[11] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2744246357705040360
+@23 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@23 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@24 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@24 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@24 particle - op=channel/spark[12] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8228492361449882248
+@24 hit - op=channel/burn[6] at=-14.443561,1.620000,19.167252 r=1.500000 shape=area
+@24 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false
+@24 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
+@24 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
+@25 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@25 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@26 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@26 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@26 particle - op=channel/spark[13] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2168215493328082375
+@27 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@27 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@28 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@28 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@28 particle - op=channel/spark[14] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8451556877330296057
+@28 hit - op=channel/burn[7] at=-14.443561,1.620000,19.167252 r=1.500000 shape=area
+@28 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false
+@28 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
+@28 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
+@29 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@29 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@30 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@30 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@30 particle - op=channel/spark[15] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3361628778468835286
+@31 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@31 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@32 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@32 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@32 particle - op=channel/spark[16] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=9056229398492402544
+@32 hit - op=channel/burn[8] at=-14.443561,1.620000,19.167252 r=1.500000 shape=area
+@32 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false
+@32 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
+@32 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
+@33 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@33 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@34 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@34 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@34 particle - op=channel/spark[17] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7818350919132632634
+@35 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@35 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@36 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@36 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@36 particle - op=channel/spark[18] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2111210541826576267
+@36 hit - op=channel/burn[9] at=-14.443561,1.620000,19.167252 r=1.500000 shape=area
+@36 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false
+@36 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
+@36 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
+@37 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@37 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@38 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@38 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@38 particle - op=channel/spark[19] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2933896955168140838
+@39 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@39 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@40 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@40 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@40 particle - op=channel/spark[20] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=35998743101562656
+@40 hit - op=channel/burn[10] at=-14.443561,1.620000,19.167252 r=1.500000 shape=area
+@40 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false
+@40 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
+@40 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
+@41 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@41 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@42 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@42 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@42 particle - op=channel/spark[21] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8564538360112452237
+@43 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@43 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@44 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@44 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@44 particle - op=channel/spark[22] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5280077905448457986
+@44 hit - op=channel/burn[11] at=-14.443561,1.620000,19.167252 r=1.500000 shape=area
+@44 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false
+@44 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
+@44 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
+@45 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@45 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@46 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@46 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@46 particle - op=channel/spark[23] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4755895625884755552
+@47 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@47 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@48 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@48 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@48 particle - op=channel/spark[24] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7014677717576538162
+@48 hit - op=channel/burn[12] at=-14.443561,1.620000,19.167252 r=1.500000 shape=area
+@48 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false
+@48 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
+@48 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
+@49 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@49 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@50 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@50 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@50 particle - op=channel/spark[25] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2926468764454806425
+@51 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@51 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@52 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@52 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@52 particle - op=channel/spark[26] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8960516890255285735
+@52 hit - op=channel/burn[13] at=-14.443561,1.620000,19.167252 r=1.500000 shape=area
+@52 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false
+@52 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
+@52 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
+@53 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@53 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@54 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@54 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@54 particle - op=channel/spark[27] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7860823305504165
+@55 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@55 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@56 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@56 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@56 particle - op=channel/spark[28] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5070013671224443975
+@56 hit - op=channel/burn[14] at=-14.443561,1.620000,19.167252 r=1.500000 shape=area
+@56 damage 00000000-0000-0000-0000-00000000000d op=- electric=3 skill=prism-lance at=-6.903842,0.000000,1.684328 ignoreinv=false ignorearmor=false
+@56 damage 00000000-0000-0000-0000-00000000000c op=- electric=3 skill=prism-lance at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
+@56 damage 00000000-0000-0000-0000-00000000000b op=- electric=3 skill=prism-lance at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
+@57 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@57 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@58 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@58 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@58 particle - op=channel/spark[29] type=electric_spark count=3 at=-14.443561,1.620000,19.167252 off=0.200000,0.200000,0.200000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1244562190575944409
+@59 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@59 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@60 line #0 op=channel/beam_glow from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@60 line #1 op=channel/beam from=-0.240726,1.370000,0.319454 to=-14.443561,1.620000,19.167252
+@60 remove #0 op=channel/beam_glow
+@60 remove #1 op=channel/beam
+g @60 state-exit reason=TIMER | state=channel
+g @60 cast-end | pose
+## gameplay-static
+g @0..60 cast-length | cast
+g @60 state-end then=end final=false | state=channel
+g @0 damage electric=3.000000 to=enemies@1.500000x3 | state=channel
+g @4 damage electric=3.000000 to=enemies@1.500000x3 | state=channel
+g @8 damage electric=3.000000 to=enemies@1.500000x3 | state=channel
+g @12 damage electric=3.000000 to=enemies@1.500000x3 | state=channel
+g @16 damage electric=3.000000 to=enemies@1.500000x3 | state=channel
+g @20 damage electric=3.000000 to=enemies@1.500000x3 | state=channel
+g @24 damage electric=3.000000 to=enemies@1.500000x3 | state=channel
+g @28 damage electric=3.000000 to=enemies@1.500000x3 | state=channel
+g @32 damage electric=3.000000 to=enemies@1.500000x3 | state=channel
+g @36 damage electric=3.000000 to=enemies@1.500000x3 | state=channel
+g @40 damage electric=3.000000 to=enemies@1.500000x3 | state=channel
+g @44 damage electric=3.000000 to=enemies@1.500000x3 | state=channel
+g @48 damage electric=3.000000 to=enemies@1.500000x3 | state=channel
+g @52 damage electric=3.000000 to=enemies@1.500000x3 | state=channel
+g @56 damage electric=3.000000 to=enemies@1.500000x3 | state=channel
+g @0 state-end then=- final=true | state=end

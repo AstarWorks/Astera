@@ -171,7 +171,7 @@ abstract class SkillEngineScenario {
     fun play(skill: CompiledSkill, seed: Long, events: List<RuntimeEvent> = emptyList(), ticks: Int? = null): List<RecordedCall> =
         play(skill, seed, events, ticks, GatewayRecorder())
 
-    fun play(skill: CompiledSkill, seed: Long, events: List<RuntimeEvent>, ticks: Int?, rec: GatewayRecorder, yawDeg: Double = 0.0, pitchDeg: Double = 0.0, cancelAtEnd: Boolean = false): List<RecordedCall> {
+    fun play(skill: CompiledSkill, seed: Long, events: List<RuntimeEvent>, ticks: Int?, rec: GatewayRecorder, yawDeg: Double = 0.0, pitchDeg: Double = 0.0, cancelAtEnd: Boolean = false, beforeTick: (Int) -> Unit = {}): List<RecordedCall> {
         rec.casterYawDeg = yawDeg
         rec.casterPitchDeg = pitchDeg
         val player = TablePlayer(rec.visual, rec.particles, rec.sounds, rec.gameplay, rec.query, rec.live, rec, rec.movement, rec.items, rec.world)
@@ -195,6 +195,7 @@ abstract class SkillEngineScenario {
         val end = ticks ?: (skill.table.bounds.path.max + skill.table.bounds.tail + 2)
         for (now in 0..end) {
             rec.tick = now
+            beforeTick(now)
             events.filter { it.tick == now }.forEach { player.deliver(cast, it) }
             player.tick(now)
         }

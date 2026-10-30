@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.skillengine.load.ops.control.Group
 import com.astarworks.astera.core.application.skillengine.load.ops.control.LockOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.control.UseOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.DamageOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.BlinkOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.DashOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.EmitOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.HealOpSpec
@@ -69,6 +70,7 @@ public object SkillEngineSpecs {
         PullOpSpec,
         HealOpSpec,
         ResourceOpSpec,
+        BlinkOpSpec,
         DashOpSpec,
         ReelOpSpec,
         RigOpSpec,
