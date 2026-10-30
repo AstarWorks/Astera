@@ -22,13 +22,14 @@ fun playProbe(
     visual: ISkillVisualGateway = rec.visual,
     live: LiveValueSource = rec.live,
     events: List<RuntimeEvent> = emptyList(),
+    heldItem: String? = skill.def.item?.takeIf { it != "any" },
 ): TablePlayer {
     val player = TablePlayer(visual, rec.particles, rec.sounds, rec.gameplay, rec.query, live, rec, rec.movement, rec.items, rec.world)
     player.hooks = rec.hooks
     val request = CastRequest(
         skill = skill, caster = rec.caster, world = WorldId("world"), casterFeet = Vec3(0.0, 0.0, 0.0),
         casterYawDeg = 0.0, casterPitchDeg = 0.0, seed = seed, startTick = 0,
-        heldItem = skill.def.item?.takeIf { it != "any" },
+        heldItem = heldItem,
     )
     val cast = when (val s = player.start(request, skill)) {
         is Result.Success -> s.value
