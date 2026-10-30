@@ -63,6 +63,11 @@ public class ParticleOp(
 ) : OpNode
 
 public object ParticleOpSpec : OpSpec<ParticleOp> {
+    /** Particles whose Bukkit `dataType` is `BlockData`: they need a block state and no other particle takes one. */
+    private val BLOCK_PARTICLES = setOf("block", "block_crumble", "block_marker", "falling_dust", "dust_pillar")
+
+    /** Vanilla block-state syntax: `[namespace:]path` with optional `[prop=value,...]`. Whether the block exists is the Paper gateway's `createBlockData` (no host block catalog is wired into the decoder). */
+    private val BLOCK_STATE = Regex("^([a-z0-9_.-]+:)?[a-z0-9_/.-]+(\\[[a-z0-9_]+=[a-z0-9_]+(,[a-z0-9_]+=[a-z0-9_]+)*])?$")
     private val HEX = Regex("^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$")
     private val PARTICLE = Field.required("particle", Types.loadText, "vanilla Particle id (dust, crit, end_rod, flame, ...)")
     private val COUNT = Field.optional("count", Types.number, Value.Literal(1.0), "vanilla count; 0 = one particle, offset is the direction")
@@ -70,7 +75,7 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
     private val EXTRA = Field.optional("extra", Types.number, Value.Literal(0.0), "vanilla extra (speed for most particles)")
     private val COLOR = Field.optional("color", Types.nullable(Types.loadText), null, "#rrggbb, with size: Particle.DustOptions")
     private val SIZE = Field.optional("size", Types.nullable(Types.number), null, "dust scale, with color")
-    private val BLOCK = Field.optional("block", Types.nullable(Types.idValue), null, "block key for BlockData; under times a per-index list or '= CEL' over i")
+    private val BLOCK = Field.optional("block", Types.nullable(Types.idValue), null, "vanilla block state (minecraft:stone, minecraft:oak_log[axis=y]); required by block, block_crumble, block_marker, falling_dust and dust_pillar, under times a per-index list or '= CEL' over i")
     private val ITEM = Field.optional("item", Types.nullable(Types.idValue), null, "material key for ItemStack data; under times a per-index list or '= CEL' over i")
     private val ANCHOR = Field.required("anchor", Types.anchorRef, "emission point: anchor name or {of, offset, to, samples, sweep}; to + samples = n rows along the segment of -> to")
     private val SHIFT = Field.optional("shift", Types.nullable(FrameVecs.type), null, "per-copy displacement of the emission point: {forward, up, left} in the anchor's axes, or a whole world vec; reads i, n, draw, roll")
@@ -91,13 +96,18 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
             if (count is Value.Literal && (count.value < 0.0 || count.value % 1.0 != 0.0)) {
                 ctx.fail("count", "count must be a whole number >= 0 (0 = one particle, direction mode)")
             }
+            val particle = values[PARTICLE]
+            val style = styleOf(values, ctx)
+            val wantsBlock = particle.removePrefix("minecraft:") in BLOCK_PARTICLES
+            if (wantsBlock && style !is ParticleStyle.Block) ctx.fail("block", "particle '$particle' needs a block state: give block: minecraft:<block>")
+            if (!wantsBlock && style is ParticleStyle.Block) ctx.fail("block", "particle '$particle' takes no block state (only ${BLOCK_PARTICLES.joinToString()} do)")
             ParticleOp(
                 id, src, whenExpr, timing,
-                particle = values[PARTICLE],
+                particle = particle,
                 count = count,
                 offset = values[OFFSET],
                 extra = values[EXTRA],
-                style = styleOf(values, ctx),
+                style = style,
                 anchor = values[ANCHOR],
                 shift = values[SHIFT],
                 motion = values[MOTION] ?: emptyList(),
@@ -143,7 +153,11 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
         val data = when (val s = op.style) {
             ParticleStyle.Plain -> null
             is ParticleStyle.Dust -> ParticleData.Dust(s.color, (dustSize(s.size, lc) ?: return dustSizeError(lc)).toFloat())
-            is ParticleStyle.Block -> ParticleData.Block(dataKey(s.key, lc) ?: return dataKeyError("block", lc))
+            is ParticleStyle.Block -> {
+                val key = dataKey(s.key, lc) ?: return dataKeyError("block", lc)
+                if (!BLOCK_STATE.matches(key)) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".block", "'$key' is not a block state: expected [minecraft:]name or name[prop=value,...]"))
+                ParticleData.Block(key)
+            }
             is ParticleStyle.Item -> ParticleData.Item(dataKey(s.key, lc) ?: return dataKeyError("item", lc))
         }
 

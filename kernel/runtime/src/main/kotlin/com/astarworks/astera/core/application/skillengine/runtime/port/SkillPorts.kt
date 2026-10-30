@@ -152,6 +152,8 @@ public data class ParticleBurst(
     val speed: Double,
     val colorHex: String?,
     val dataSize: Double?,
+    /** Vanilla block state (`minecraft:stone`, `minecraft:oak_log[axis=y]`) of a `BlockData` particle (`block`, `block_crumble`, `block_marker`, `falling_dust`, `dust_pillar`); null for every other particle. */
+    val blockKey: String? = null,
     /** `dir` sugar; null = plain vanilla spawn. */
     val dir: Vec3?,
     val spreadDeg: Double,

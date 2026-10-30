@@ -341,7 +341,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             emittedAt += Triple(tick, burst.particle, burst.at)
             add(
                 "particle", "-", "type=${burst.particle}" + (burst.count?.let { " count=$it" } ?: ""),
-                "at=${OracleFmt.v(burst.at)} off=${OracleFmt.v(burst.offset)} speed=${OracleFmt.f(burst.speed)} color=${OracleFmt.s(burst.colorHex)} size=${burst.dataSize?.let { OracleFmt.f(it) } ?: "-"} " +
+                "at=${OracleFmt.v(burst.at)} off=${OracleFmt.v(burst.offset)} speed=${OracleFmt.f(burst.speed)} color=${OracleFmt.s(burst.colorHex)} size=${burst.dataSize?.let { OracleFmt.f(it) } ?: "-"} " + (burst.blockKey?.let { "block=${OracleFmt.s(it)} " } ?: "") +
                     "dir=${burst.dir?.let { OracleFmt.v(it) } ?: "-"} spread=${OracleFmt.f(burst.spreadDeg)} vel=${burst.inheritVelocity?.let { OracleFmt.v(it) } ?: "-"} look=${OracleFmt.v(burst.look)} seed=${burst.seed}",
             )
         }

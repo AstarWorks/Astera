@@ -6,12 +6,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * Shipped skills that still raise a real counted fault. Found by this guard: `block` / `item` particle data has no field on
- * `ParticleBurst` (TablePlayer.particleData), so mace-quake's block bursts fault every tick. Remove the entry when the engine carries it.
- */
-private val openFaults = setOf("mace-quake")
-
-/**
  * Load-time guards of the skill engine (audit G3/G7):
  *  - a callee-only skill (`frames_in` / unvalued `required` params) is marked in the catalog at load, and an item-binding style cast
  *    (`SkillCastRequested`) of it is refused at the gate, so no `SkillCast` is ever published for it;
@@ -39,7 +33,7 @@ class SkillLoadGuardsScenarioTest {
     fun `every castable shipped skill leaves the fault counter at zero`() {
         scenario("load-guards-fault-counter") {
             val catalog = sim.combat.skillCatalog
-            val castable = catalog.ids().filter { '@' !in it && catalog.calleeOnlyCallers(it) == null && it !in openFaults }.sorted()
+            val castable = catalog.ids().filter { '@' !in it && catalog.calleeOnlyCallers(it) == null  }.sorted()
             assertThat(castable).describedAs("shipped castable skills").isNotEmpty()
             val caster = player("caster", team = "red")
             val dummy = mob("dummy", at = Vec3(0.0, groundY, 4.0), team = "blue")

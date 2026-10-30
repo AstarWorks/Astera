@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.skillengine.runtime.port.ParticleB
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.effect.ParticleColor
+import com.astarworks.astera.core.domain.effect.ParticleData
 import com.astarworks.astera.core.domain.effect.ParticleDefinition
 import com.astarworks.astera.core.domain.effect.ParticleEmitContext
 import com.astarworks.astera.core.domain.effect.ParticleEmitter
@@ -135,16 +136,17 @@ public fun toParticleCalls(burst: ParticleBurst, definitions: (String) -> Partic
             .map { ParticleCall(it.at, if (color != null) it.spec.copy(color = color) else it.spec) }
     }
     val scale = burst.dataSize?.toFloat() ?: 1.0f
+    val data = burst.blockKey?.let { ParticleData.Block(it) }
     val dir = burst.dir
         ?: return listOf(
-            ParticleCall(burst.at, ParticleSpec(burst.particle, count = burst.count ?: 1, offset = burst.offset, extra = burst.speed, color = color, scale = scale)),
+            ParticleCall(burst.at, ParticleSpec(burst.particle, count = burst.count ?: 1, offset = burst.offset, extra = burst.speed, color = color, scale = scale, data = data)),
         )
     val rng = Random(burst.seed)
     val axis = dir.normalize().takeIf { it.lengthSquared() > 0.0 }
     return List((burst.count ?: 1).coerceIn(0, MAX_PER_BURST)) {
         val direction = if (axis != null) cone(axis, burst.spreadDeg, rng) else Vec3.ZERO
         val velocity = direction * burst.speed + (burst.inheritVelocity ?: Vec3.ZERO)
-        ParticleCall(burst.at, ParticleSpec(burst.particle, count = 0, offset = velocity, extra = 1.0, color = color, scale = scale))
+        ParticleCall(burst.at, ParticleSpec(burst.particle, count = 0, offset = velocity, extra = 1.0, color = color, scale = scale, data = data))
     }
 }
 

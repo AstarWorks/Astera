@@ -1188,30 +1188,34 @@ public class TablePlayer(
     private fun particle(run: Run, row: Row, a: Action.Particle, ctx: RowCtx, now: Int) {
         val pos = vec(run, a.position, ctx)
         val off = vec(run, a.offset, ctx)
-        val (hex, size) = particleData(run, row, a.data, now)
+        val data = particleData(run, row, a.data, now)
         val req = run.request
         particles.emit(
             castRef(run),
             ParticleBurst(
                 particle = a.type, at = Vec3(pos.x, pos.y, pos.z), count = run.fields[row.instance]?.get("count")?.toInt() ?: int(run, a.count, ctx), offset = Vec3(off.x, off.y, off.z),
-                speed = num(run, a.extra, ctx), colorHex = hex, dataSize = size, dir = null, spreadDeg = 0.0, inheritVelocity = null,
+                speed = num(run, a.extra, ctx), colorHex = data.hex, dataSize = data.size, blockKey = data.blockKey, dir = null, spreadDeg = 0.0, inheritVelocity = null,
                 look = Frame.fromYawPitch(Vec3.ZERO, req.casterYawDeg, req.casterPitchDeg).forward(),
                 seed = rowStream(run, row, ctx).nextLong(),
             ),
         )
     }
 
-    private fun particleData(run: Run, row: Row, d: ParticleData?, now: Int): Pair<String?, Double?> {
+    /** The `ParticleBurst` data fields one [ParticleData] fills. */
+    private class BurstData(val hex: String? = null, val size: Double? = null, val blockKey: String? = null)
+
+    private fun particleData(run: Run, row: Row, d: ParticleData?, now: Int): BurstData {
         fun hex(c: com.astarworks.astera.core.domain.effect.ParticleColor) = "#%02x%02x%02x".format(c.r, c.g, c.b)
         return when (d) {
-            null -> null to null
-            is ParticleData.Dust -> hex(d.color) to d.scale.toDouble()
-            is ParticleData.DustTransition -> hex(d.from) to d.scale.toDouble()
-            is ParticleData.Tint -> hex(d.color) to null
-            is ParticleData.Spell -> hex(d.color) to d.power.toDouble()
+            null -> BurstData()
+            is ParticleData.Dust -> BurstData(hex = hex(d.color), size = d.scale.toDouble())
+            is ParticleData.DustTransition -> BurstData(hex = hex(d.from), size = d.scale.toDouble())
+            is ParticleData.Tint -> BurstData(hex = hex(d.color))
+            is ParticleData.Spell -> BurstData(hex = hex(d.color), size = d.power.toDouble())
+            is ParticleData.Block -> BurstData(blockKey = d.blockKey)
             else -> {
                 fault(run, now, row.src.value, "particle data ${d::class.simpleName} has no ParticleBurst field")
-                null to null
+                BurstData()
             }
         }
     }
