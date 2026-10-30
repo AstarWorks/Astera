@@ -50,7 +50,7 @@ machine:
             block:
               - {id: pull, op: impulse, at: 0, target: caster, vector: {of: caster, forward: "${pull_forward}", up: "${pull_up}"}}
               - {id: bite_wall, use: "fragment:bite", frames: {spot: contact}}
-        - {id: hook, op: display, kind: item, item: tripwire_hook, context: fixed, anchor: bolt, scale: [0.9, 0.9, 0.9], at: 0, until: bolt.end}
+        - {id: hook, op: display, kind: item, item: "minecraft:tripwire_hook", context: fixed, anchor: bolt, scale: [0.9, 0.9, 0.9], at: 0, until: bolt.end}
         - id: trail
           op: group
           at: 0

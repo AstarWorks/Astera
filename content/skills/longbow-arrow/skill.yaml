@@ -48,7 +48,7 @@ machine:
             block:
               - {id: block_snd, op: sound, at: 0, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
               - {id: block_fx, op: particle_def, at: 0, def: hit-spark, anchor: contact.point}
-        - {id: shaft, op: display, kind: item, item: arrow, context: fixed, anchor: bolt, scale: [1.0, 1.0, 1.0], at: 0, until: bolt.end}
+        - {id: shaft, op: display, kind: item, item: "minecraft:arrow", context: fixed, anchor: bolt, scale: [1.0, 1.0, 1.0], at: 0, until: bolt.end}
         - id: trail
           op: group
           at: 0

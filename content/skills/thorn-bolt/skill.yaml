@@ -56,7 +56,7 @@ machine:
               - {id: block_fx, use: "fragment:impact", with: {volume: 0.8, pitch: 0.8}, frames: {spot: contact}}
             expire:
               - {id: expire_fx, op: particle_def, at: 0, def: verdant-impact-sparkle, anchor: contact.point}
-        - {id: thorn, op: display, kind: item, item: sweet_berries, context: fixed, anchor: bolt, scale: [0.8, 0.8, 0.8], at: 0, until: bolt.end}
+        - {id: thorn, op: display, kind: item, item: "minecraft:sweet_berries", context: fixed, anchor: bolt, scale: [0.8, 0.8, 0.8], at: 0, until: bolt.end}
         - id: trail
           op: group
           at: 0
