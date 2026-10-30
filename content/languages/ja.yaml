@@ -1394,6 +1394,7 @@ astera:
         open: "<gray>未占領ゾーン:</gray> <white>{open}/{total}</white>"
         penalty: "{you}<{color}>{team}</{color}> <red>+{seconds}秒 ペナルティ</red>"
       you: "<gray>あなた</gray> <{color}><bold>{team}</bold></{color}>"
+      kd: "<gray>キル</gray> <green><bold>{kills}</bold></green> <dark_gray>/</dark_gray> <gray>デス</gray> <red><bold>{deaths}</bold></red>"
       level: "<gray>ノルマ</gray> <aqua>Lv {level}</aqua><dark_gray>/{max}</dark_gray> <dark_gray>|</dark_gray> <yellow>*</yellow> <white>{stars}</white>"
       next-unlock: "<gray>次:</gray> <white>Lv {level}</white> <white>{rarity}</white> <gray>解放</gray>"
       objective-star: "<gray>目標：</gray> <yellow>スター</yellow> <white>{progress}/{target}</white>"

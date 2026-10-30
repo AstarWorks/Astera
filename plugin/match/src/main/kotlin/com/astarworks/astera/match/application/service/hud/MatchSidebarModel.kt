@@ -26,6 +26,7 @@ import com.astarworks.astera.match.domain.norma.NormaHud
  * > Red  12  ...        <- per team: score / pillars / objective (own team marked, bars where a goal exists)
  * ----------------
  * You: Red              <- added per viewer by [MatchSidebarModel.layoutFor]
+ * Kills 3 / Deaths 1    <- this match only
  * Norma Lv 2/5  * 3
  * Goal Star 3/10
  * [bar] 30%
@@ -97,11 +98,16 @@ public object MatchSidebarModel {
         viewer: PlayerId,
         messages: IMessageRenderer,
         norma: NormaHud?,
+        /** This match's `kills to deaths` of the viewer; `null` hides the K/D row. */
+        killDeath: Pair<Int, Int>? = null,
     ): HudLayout.Sidebar {
         val teams = match.teams.associateBy { it.id }
         val own = match.teams.firstOrNull { viewer in it.members }
         val viewerBlock = buildList {
             own?.let { add(toText(HudLine(MessageKey("astera.hud.sidebar.you"), team = it.id), it, own, viewer, messages)) }
+            if (own != null && killDeath != null) {
+                add(HudComponent.Text(MessageKey("astera.hud.sidebar.kd"), placeholders = mapOf("kills" to killDeath.first.toString(), "deaths" to killDeath.second.toString())))
+            }
             if (norma != null) {
                 // The star count rides on the level row so it stays visible whichever goal (STAR or KILL) the player is on.
                 val levelParams = mapOf("level" to norma.level.toString(), "max" to norma.maxLevel.toString(), "stars" to norma.stars.toString())

@@ -62,6 +62,7 @@ internal object MatchHudWiring {
             modes?.let { registry -> (key?.let(registry::get)) ?: registry.get(CarryTntGameMode.ID) }
         }
 
+        val killTally = com.astarworks.astera.match.application.service.hud.MatchKillTally()
         val matchSidebar = MatchSidebarService(
             matches = env.matches,
             modeOf = modeOf,
@@ -73,6 +74,7 @@ internal object MatchHudWiring {
             },
             objectiveParams = { id -> com.astarworks.astera.match.application.gamemode.siege.CountRules.briefingParams(env.modeConfigOf(id)) },
             scheduler = env.scheduler,
+            killTally = killTally,
         )
         env.shutdownHooks += { matchSidebar.stop() }
 
@@ -80,7 +82,11 @@ internal object MatchHudWiring {
         subscriptions += eventBus.subscribe(PhaseChanged::class) { matchSidebar.refresh(it.matchId) }
         subscriptions += eventBus.subscribe(EntityPickedUpItem::class) { matchSidebar.refresh(it.matchId) }
         subscriptions += eventBus.subscribe(PlayerKilled::class) { event ->
-            env.matches.findMatchOf(event.victim)?.let { matchSidebar.refresh(it.id) }
+            env.matches.findMatchOf(event.victim)?.let {
+                // Same scope and killer attribution as the kill feed; tally first so the redraw already shows it.
+                if (event.context.countsForProgression) killTally.record(it.id, event.victim, event.killer)
+                matchSidebar.refresh(it.id)
+            }
         }
         subscriptions += eventBus.subscribe(MatchEnded::class) { matchSidebar.release(it.matchId) }
         // Entering a match swaps the lobby sidebar for the match one at once, not on the next poll.

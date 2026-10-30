@@ -169,6 +169,34 @@ class HudScenarioTest {
     }
 
     @Test
+    fun `match sidebar shows the viewer's kills and deaths of this match only`() {
+        scenario("hud-sidebar-kill-death") {
+            val red = player("red", team = "red")
+            val blue = player("blue", team = "blue")
+            val bus = sim.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IDomainEventBus>()
+            fun kd(p: com.astarworks.astera.core.domain.player.PlayerId): Pair<String, String> {
+                val row = checkNotNull(sim.hud.sidebar(p)).texts().first { it.messageKey.value == "astera.hud.sidebar.kd" }
+                return row.placeholders["kills"]!! to row.placeholders["deaths"]!!
+            }
+            startMatch("steal-jewelry", mapOf(red to "red", blue to "blue"))
+            advance(40)
+            assertThat(kd(red.id)).isEqualTo("0" to "0")
+
+            bus.publish(com.astarworks.astera.combat.domain.event.PlayerKilled(blue.id, red.id, com.astarworks.astera.combat.domain.damage.DamageSource.Environment.Generic, sim.tick))
+            advance(2)
+            assertThat(kd(red.id)).`as`("killer").isEqualTo("1" to "0")
+            assertThat(kd(blue.id)).`as`("victim").isEqualTo("0" to "1")
+
+            // Environment death: death only.
+            bus.publish(com.astarworks.astera.combat.domain.event.PlayerKilled(blue.id, null, com.astarworks.astera.combat.domain.damage.DamageSource.Environment.Generic, sim.tick))
+            advance(2)
+            assertThat(kd(blue.id)).isEqualTo("0" to "2")
+            assertThat(kd(red.id)).isEqualTo("1" to "0")
+            assertThat(checkNotNull(sim.hud.sidebar(red.id)).lines.size).isLessThanOrEqualTo(15)
+        }
+    }
+
+    @Test
     fun `annihilation sidebar shows the nexus clock and pillars standing per team`() {
         val config = AnnihilationConfig(pillarHp = 40, buildPhaseTicks = 200, engagePhaseTicks = 100_000, tier3PhaseTicks = 100_000)
         scenario("hud-sidebar-annihilation", config) {
