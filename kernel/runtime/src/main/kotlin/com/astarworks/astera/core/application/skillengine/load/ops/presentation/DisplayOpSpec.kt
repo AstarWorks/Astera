@@ -28,7 +28,12 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.Types
 import com.astarworks.astera.core.application.skillengine.compose.ExprClass
 import com.astarworks.astera.core.application.skillengine.expr.cel.ExprClassifier
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
+import com.astarworks.astera.core.application.skillengine.compose.Occurrence
+import com.astarworks.astera.core.application.skillengine.load.motion.AlignMotion
 import com.astarworks.astera.core.application.skillengine.load.motion.KeysMotion
+import com.astarworks.astera.core.application.skillengine.load.motion.OrbitMotion
+import com.astarworks.astera.core.application.skillengine.load.motion.RateMotion
+import com.astarworks.astera.core.domain.skillengine.motion.SpinRate
 import com.astarworks.astera.core.application.skillengine.load.motion.LawKey
 import com.astarworks.astera.core.application.skillengine.load.motion.LawSource
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
@@ -248,6 +253,15 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
 
     // ------------------------------------------------------------------------------------------------ decode
 
+    /** A law that turns the display itself (a billboard's client-side facing would fight it). */
+    private fun rotatesObject(law: MotionLaw): Boolean = when (law) {
+        is RateMotion -> law.rate is SpinRate
+        is AlignMotion -> true
+        is OrbitMotion -> law.face != "keep"
+        is KeysMotion -> law.keys.any { it.pose != null }
+        else -> false
+    }
+
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<DisplayOp, SkillDecodeError> =
         Grammar.guard {
             val p = id.value
@@ -275,6 +289,15 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 val tr = values[translationF]
                 if (!(tr is Value.Literal && tr.value == Vec3(0.0, 0.0, 0.0))) {
                     ctx.fail("$p.translation", "a billboarded display carries its offset in the entity location ('offset'), never in translation (2.3)")
+                }
+            }
+            if (billboard != "fixed") {
+                // ADR-0303 15.7: the client's billboard is a sprite / text facing, never a third pose mode
+                if (kind != DisplayKind.SPRITE && kind != DisplayKind.TEXT) {
+                    ctx.fail("$p.billboard", "billboard '$billboard' needs kind sprite or text: a billboarded ${values[kindF]} display is a facing 3D object, which is a third pose mode")
+                }
+                values[motionF]?.laws(Occurrence(0, 1, null))?.firstOrNull { rotatesObject(it) }?.let {
+                    ctx.fail("$p.billboard", "billboard '$billboard' excludes a rotation law (spin, align, orbit with face, keys with pose) at ${it.path}: the client turns the display toward the camera and would fight it")
                 }
             }
             val subject: Value<String> = when (kind) {
