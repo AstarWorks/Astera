@@ -4565,6 +4565,19 @@
                             "description": "vanilla view range multiplier",
                             "default": 1.0
                         },
+                        "glowing": {
+                            "oneOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "string",
+                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                }
+                            ],
+                            "description": "vanilla Entity glowing flag; default false, independent of glow_color",
+                            "default": false
+                        },
                         "glow_color": {
                             "anyOf": [
                                 {

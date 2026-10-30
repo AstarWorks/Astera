@@ -966,11 +966,11 @@ public class TablePlayer(
         val cast = castRef(run)
         val look = a.look
         val brightness = look.fields["brightness"]?.let { int(run, it as Val<Int>, ctx) }
-        val glow = look.fields["glow"]?.let { strOf(run, it, ctx) }
+        val glow = look.fields["glow_color"]?.let { strOf(run, it, ctx) }
         // `viewers:` of the row; a row that writes none (all) takes its anchor's (a hidden frame hides everything riding it)
         rec.viewers = look.fields["viewers"]?.let { RowViewers.fromYaml(strOf(run, it, ctx)) }?.takeIf { it != RowViewers.ALL }
             ?: a.anchor?.let { run.recs[it]?.viewers } ?: RowViewers.ALL
-        val view = DisplayView(rec.viewers.audience, VfxLane.CORE, null, rec.viewers)
+        val view = DisplayView(rec.viewers.audience, VfxLane.CORE, null, rec.viewers, flag(run, look, "glowing", ctx), glow)
         val h: VisualHandle? = when (a.kind) {
             SpawnKind.FRAME, SpawnKind.PROJECTILE_BODY -> null
             SpawnKind.ITEM -> visual.spawnMesh(
@@ -982,16 +982,15 @@ public class TablePlayer(
                     rigShading = look.fields["rig_shading"]?.let { any(run, it, ctx) as? Boolean } ?: true,
                 ),
                 view = view,
-                glow = glow,
             )
-            SpawnKind.BLOCK -> visual.spawnBlock(cast, req(run, look, "block", ctx), pose, brightness, view = view, glow = glow)
+            SpawnKind.BLOCK -> visual.spawnBlock(cast, req(run, look, "block", ctx), pose, brightness, view = view)
             SpawnKind.TEXT -> visual.spawnText(
                 cast, req(run, look, "text", ctx), look.fields["background"]?.let { strOf(run, it, ctx) } ?: "#00000000",
                 flag(run, look, "shadow", ctx), flag(run, look, "see_through", ctx), pose, brightness, view,
             )
             SpawnKind.SPRITE -> visual.spawnPlate(
                 cast, req(run, look, "sprite", ctx), look.fields["alpha"]?.let { dbl(run, it, ctx) } ?: 1.0,
-                look.fields["color"]?.let { strOf(run, it, ctx) }, flag(run, look, "see_through", ctx), pose, brightness, view = view, glow = glow,
+                look.fields["color"]?.let { strOf(run, it, ctx) }, flag(run, look, "see_through", ctx), pose, brightness, view = view,
             )
             SpawnKind.RIBBON -> if (strOf(run, look.fields["shape"] ?: throw IllegalArgumentException("ribbon look needs 'shape'"), ctx) == "line") {
                 // ADR-0303 section 5 `shape: line`: both ends are live anchors read again every tick (lineStep), so the thread follows its frames

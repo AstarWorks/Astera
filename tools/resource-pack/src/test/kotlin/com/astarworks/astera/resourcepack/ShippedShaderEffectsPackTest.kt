@@ -32,6 +32,37 @@ class ShippedShaderEffectsPackTest {
     lateinit var temp: Path
 
     @Test
+    fun `particle effect composes both confirmations and preserves vanilla dust frames`() {
+        val vertex = pack.getValue("assets/minecraft/shaders/core/particle.vsh").toString(Charsets.UTF_8)
+        val fragment = pack.getValue("assets/minecraft/shaders/core/particle.fsh").toString(Charsets.UTF_8)
+        assertThat(vertex).contains("asteraParticleRaw = Color", "Color * sample_lightmap(Sampler2, UV2)")
+        assertThat(fragment).contains("asteraParticleTint && asteraParticleSprite", "254.0 / 255.0", "executeAlphaOnlyPhase", "calculateFinalColor")
+        assertThat(vertex + fragment).doesNotContain("@@ hook:", "\${")
+        val ledger = json.readTree(pack.getValue("assets/astera/shader-effects/markers.json"))
+        assertThat(ledger.filter { it.path("effect").asText() == "emissive-particle" }.map { it.path("channel").asText() })
+            .containsExactlyInAnyOrder("particle-tint-rgb", "particle-sprite-alpha")
+        val vanilla = VanillaShaders.fromEnvironment()
+        val sprites = json.readTree(pack.getValue("assets/minecraft/particles/dust.json")).path("textures")
+        assertThat(sprites.size()).isEqualTo(8)
+        for (i in 0..7) {
+            val original = javax.imageio.ImageIO.read(java.io.ByteArrayInputStream(vanilla.particleSprite("generic_$i.png")))
+            val marked = javax.imageio.ImageIO.read(java.io.ByteArrayInputStream(pack.getValue("assets/minecraft/textures/particle/astera_dust_$i.png")))
+            assertThat(marked.width).isEqualTo(original.width)
+            assertThat(marked.height).isEqualTo(original.height)
+            for (y in 0 until original.height) for (x in 0 until original.width) {
+                val before = original.getRGB(x, y)
+                val expected = if (before ushr 24 == 255) (before and 0xffffff) or (254 shl 24) else before
+                assertThat(marked.getRGB(x, y)).isEqualTo(expected)
+            }
+            assertThat(sprites[7 - i].asText()).isEqualTo("minecraft:astera_dust_$i")
+        }
+        val (tables, _) = SkillEngineRegistries.frameTables(content.resolve("frames"))
+        val catalog = catalog(tables)
+        assertThat(SkillEngineContents(catalog).reload(content.resolve("skills")).failures).isEmpty()
+        assertThat(catalog.get("demo-glow-comparison")).isNotNull()
+    }
+
+    @Test
     fun `real pack composes three isolated effects and preserves the skin rig shader`() {
         for ((stage, expected) in mapOf(
             "vsh" to "15b468dc5815d84e48c096865313c88e820e40c531fecd7288c162142b658dd7",
@@ -106,7 +137,14 @@ class ShippedShaderEffectsPackTest {
     }
 
     @Test
-    fun `duplicate markers fail the real pack build loudly`() {
+    fun `particle protocol rejects a missing second confirmation`() {
+        copyContentWithEffectRegistry()
+        val effect = temp.resolve("shader-patches/effects/emissive-particle/effect.yaml")
+        Files.writeString(effect, Files.readString(effect).lineSequence().filterNot { "particle-sprite-alpha" in it }.joinToString("\n"))
+        assertThatThrownBy { ResourcePackBuilder(temp).collect() }.hasMessageContaining("requires tint AND sprite confirmation")
+    }
+
+    private fun copyContentWithEffectRegistry() {
         Files.list(content).use { paths -> paths.forEach { source ->
             if (source.fileName.toString() != "shader-patches") Files.createSymbolicLink(temp.resolve(source.fileName), source)
         } }
@@ -115,6 +153,11 @@ class ShippedShaderEffectsPackTest {
             val target = temp.resolve("shader-patches").resolve(sourceRoot.relativize(source))
             if (Files.isDirectory(source)) Files.createDirectories(target) else Files.copy(source, target)
         } }
+    }
+
+    @Test
+    fun `duplicate markers fail the real pack build loudly`() {
+        copyContentWithEffectRegistry()
         val effect = temp.resolve("shader-patches/effects/uv-flow/effect.yaml")
         Files.writeString(effect, Files.readString(effect).replace("66050", "66049"))
         assertThatThrownBy { ResourcePackBuilder(temp).collect() }.hasMessageContaining("already claimed")
