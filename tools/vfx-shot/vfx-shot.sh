@@ -946,12 +946,16 @@ write_meta() { # dir view n  (fps = $FPS; FPS=60 frames are 3 per tick)
     printf '{"view":"compare","case":"%s","camera":"%s","skill":"%s","fps":%d,"cast_tick_ms":%d,"frames":%d,"fov":%s,"fovMode":"%s","resolution":"%s"}\n' \
       "$CASE" "$CAMERA" "$SKILL" "$FPS" "$((PRE_TICKS * 50))" "$n" "${FOV:-70}" "$fov_mode" "$RES_FILM" > "$dir/meta.json"
     SCENE_TARGET_OFFSET="$ENEMY_X" SCENE_TARGET_AXIS=x \
-      meta_py "$HERE/capture_meta.py" "$ROOT/tools/skill-compare/data/$CASE/case.json" "$dir" "$INTENT"
+      meta_py "$HERE/capture_meta.py" "$ROOT/tools/skill-compare/data/$CASE/case.json" "$dir" "$INTENT" \
+      || die "capture_meta.py failed for view $view"
   else
     printf '{"view":"%s","skill":"%s","fps":%d,"cast_tick_ms":0,"frames":%d,"fov":%s,"fovMode":"%s","resolution":"%s"}\n' \
       "$view" "$SKILL" "$FPS" "$n" "${FOV:-70}" "$fov_mode" "$RES_FILM" > "$dir/meta.json"
-    SCENE_TARGET_OFFSET="$DISTANCE" SCENE_TARGET_AXIS=z SCENE_CAM_STATIC="$(orbit_cam "$view")" \
-      meta_py "$HERE/capture_meta.py" - "$dir"
+    # caster / opponent are first-person views: there is no spectator Watcher camera, so no static camera key (the scene block stays)
+    local cam=""
+    case "$view" in caster|opponent) ;; *) cam="$(orbit_cam "$view")" || die "orbit_cam failed for view $view" ;; esac
+    SCENE_TARGET_OFFSET="$DISTANCE" SCENE_TARGET_AXIS=z SCENE_CAM_STATIC="$cam" \
+      meta_py "$HERE/capture_meta.py" - "$dir" || die "capture_meta.py failed for view $view"
   fi
 }
 
