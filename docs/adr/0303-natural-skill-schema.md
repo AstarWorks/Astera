@@ -11,7 +11,7 @@ superseded_by: null
 
 ## Status
 
-Accepted (manager decision 2026-10-30; was Proposed through rev4.20). Board SKL-16 (rev1-3), SKL-20 (rev4). The engine on `wp/se-adr0303` implements this document; where the two disagree the code wins and the ADR is edited to match (rev4.21).
+Accepted (manager decision 2026-10-30; was Proposed through rev4.20). Board SKL-16 (rev1-3), SKL-20 (rev4). The engine on `wp/se-adr0303` implements this document; where the two disagree the code wins and the ADR is edited to match (rev4.21, rev4.22).
 
 **rev4 (2026-10-29, Fable, SKL-20)**: adds the **precompute contract** (section C, the centre of this ADR), generic nesting of timing groups
 (2.0), the rewritten projectile op (3.6), named conditions (3.8), `lock` and `cancel` (10.6), the expansion dump format and static checks
@@ -112,6 +112,8 @@ instance ids, ribbon opacity as the colour alpha. Each sentence names the commit
 **rev4.20 (2026-10-30, dead v2 deleted)**: the v2 skill types, the `_skills-2` types, `SkillArchetype` and the old projectile line are deleted from the code. Shas 9b90f3dd0, 1f480512d, c005d49bc.
 
 **rev4.21 (2026-10-30, tidy to the code, doc only)**: Status is Accepted (manager decision 2026-10-30). Q6 is closed as option A (the engine has no `damage_delay`). Rewritten to the code: the garbled rev4.5 / rev4.6 / rev4.7 text; section 6 (migration is done); 10.1 / 10.2 (nested machine is `start:` + `states:`, `parallel:` regions, `machine.tail` / `world`); section 12 (real test classes); section 13 (envelope has `fragments`, Patch example has `id` / `patchKind`, patchKind semantics, reload); Open decisions 1, 3, 4. No field is added or removed.
+
+**rev4.22 (2026-10-31, sync to wp/se-integrate30 b5a81b4a1, doc only)**: the ADR had stopped at rev4.21 while the engine grew. Section 15 now records, with code paths: the `react` op (15.1); the `viewers: all | owner-hidden` row filter on displays, frames and rigs, with particle rows in progress (15.2; this REPLACES the old "Rejected: a viewers/receiver policy" note in Open decisions); dash clearance and `pass_through` (15.3); the weapon hold table, the `root` status and the ban on chance for hold statuses (15.4); the callee-only cast guard (15.5); the caster-eye clutter survival model (15.6); the closed questions with their dates (15.7). Q6 stays closed as option A (rev4.21). Nothing is added or removed in the schema by this entry.
 
 **Partially supersedes [[adr/0301-skill-engine-v2-frame-tree]]** (0301's body is not edited). Map:
 
@@ -1327,6 +1329,88 @@ Every port call takes `cast: CastRef(castId, caster, world)` as its first parame
 `ISkillMovementGateway` (dash, impulse, lock, freeze), `ISkillItemGateway` (`consume_item`), `ISkillWorldGateway` (the 10.1c ops, `revertAll(cast)`),
 `ISkillGameplayGateway` (adds `consumeStatus`, `cameraShake`, `stopSound`, `playBodyClip` / `stopBodyClip`). `currentWorld` is deleted (the world is `cast.world`).
 
+### 15. Reactions, audiences, dash clearance, hold table, callee guard, clutter model (rev4.22)
+
+Everything in this section is shipped on `wp/se-integrate30` (b5a81b4a1) unless a line says "in progress". Decisions are quoted with their date; a
+decision without a founder quote is written "manager decision" and is open to the founder's veto at the next founder-check.
+
+**15.1 `react` (victim body reaction).** Spec: `kernel/runtime/src/main/kotlin/com/astarworks/astera/core/application/skillengine/load/ops/gameplay/ReactOpSpec.kt`
+(`ReactOp`, gameplay section, extended timing). Fields: `target` (required; only `event.victim`, so it lives in an `on.hit` handler), `flinch: true`
+(the vanilla hurt animation tilted from the caster), `push: {back, up}` (blocks per tick away from the caster / upwards; `forward` is refused, write
+`back: -x`), `hold: N` (ticks the victim's movement is held, a whole number >= 1 that folds at load), `player: {anim, speed}` (a body clip layer played
+only when the victim is a player; a mob skips it by name, `react_skip`), and `for` (required, the window in ticks, >= hold; `every` / `times` / `until`
+are refused). Scenario: `tools/game-sim/src/test/kotlin/com/astarworks/astera/gamesim/skillengine/ReactScenarioTest.kt`. Shipped use:
+`content/skills/couture-rapier-s2/skill.yaml:63,131` (`flinch: true, for: 6`), `bastion-greatsword-s1`, and about 18 rows in total. Founder 10/30:
+mob reaction C (skin animation for players only; mob puppets later) and hit-stun C (heavy skills only); "strength" numbers were left to the manager
+(manager decision 2026-10-30, hold numbers superseded by 15.4). A mob victim gets flinch / push / hold only; the body clip skip is a decided
+exception to "no silent drops" and is logged (`PaperSkillGameplayGateway.kt:190`).
+
+**15.2 Row audience: `viewers: all | owner-hidden`.** A display, a frame (children inherit it) and a rig take `viewers`; the default is `all`, except
+a rig, whose default is `owner-hidden`. `RowViewers` (`kernel/domain/src/main/kotlin/com/astarworks/astera/core/domain/effect/RowViewers.kt`) maps
+`owner-hidden` to `Audience.OTHERS` and rides the existing `Audience` / `AudienceResolver` / `DisplayScope` path (no second mechanism). Decoders:
+`load/ops/presentation/DisplayOpSpec.kt:109,222`, `FrameOpSpec.kt:88,105`, `load/ops/gameplay/RigOpSpec.kt:73,93,158` (`defaultViewers()`); an unknown
+spelling is a strict decode error, no alias. Paper hides the entity from the owner's client for its whole life
+(`kernel/paper/src/main/kotlin/com/astarworks/astera/core/adapter/paper/presentation/PaperPlayerPresentation.kt:185`; a hidden rig also leaves the
+caster's own hand alone, `plugin/combat/.../PaperSkillVisualGateway.kt:143`). Scenario: `DisplayViewersScenarioTest`, `CasterRigNearEyeScenarioTest`.
+Why: a weapon or slash display that spawns about a block from the caster's eye covers the caster's own first-person screen; others must still see it.
+Rule: hide only rows that sit near the eye; the hit / impact VFX at the target stays visible to the caster. This is the first per-viewer state in the
+engine, and it is an EXCEPTION to the rev4.1 rejection above: it is a closed enum, not a receiver policy, and it needs no per-viewer table. History:
+`others-only` was drafted and deleted (a07437204); `all | owner-hidden` only. Decision record: manager decision 2026-10-30 (se-viewers 30367149a,
+a07437204; rig default 2026-10-30 near-eye-rig). The founder has NOT yet answered the audit question "may `viewers` be a formal exception"
+(audit-engine-v3 Q-C); the founder-check is "bastion ego: the caster sees no sword during the slam". In progress (wp/se-clutter22, 81b60f73a): `particle`
+rows take the same field, and the clutter checker (15.6) ignores owner-hidden particles exactly as it ignores owner-hidden displays (manager decision
+2026-10-31, option 1). Until that merges, `viewers` on a particle row is an unknown key.
+
+**15.3 Dash clearance and `pass_through`.** `dash` never ends with the caster inside another body: `runtime/ops/DashClearance.kt` grows each body
+hitbox by the caster box (`CASTER_HALF_WIDTH` 0.3, the caster height) into a forbidden feet box and resolves the step. A plain dash stops `GAP` (0.02)
+in front of the first forbidden box on its way and ends there (`frontEdge`). `pass_through: true` (`DashOpSpec.kt:53,96`, bound in
+`TablePlayer.kt:1825`) runs on and rests `GAP` behind the body (`behind`); if no clear spot exists, or `stop_on_block` meets a solid block while the
+way out is inside a body, the driver records a `PlayerFault` and finishes (`runtime/ops/DashDriver.kt:16-18,100-130`). Bodies come from
+`query.bodiesNear` (Paper: `PaperSkillEntityQuery.kt:44-54`, the live `boundingBox`). Scenario: `DashClearanceScenarioTest`. Shipped:
+`pass_through: true` on `content/skills/katana-iaido/skill.yaml:44` and `iron-blade-lunge/skill.yaml:44`; `spear-charge` stops at the front edge.
+Consequence for authors: every existing dash (couture s1/s2, bastion s1/s2/ego) now ends at the front edge of a target in the way, not inside it
+(founder-check pending). Limit: the geometry is runtime-dependent and proven in game-sim only; the Paper `boundingBox` versus sim `HitBox` difference
+is not covered by an e2e row (audit-engine-v3 G3). Manager decision 2026-10-31 (se-iaido 7e5da9327).
+
+**15.4 Weapon hold table.** Founder 10/30: 「移動阻害は立派な能力というか効果なのであくまで武器特性であることを忘れずに」 (a hold is a weapon trait, not
+a per-skill add-on). Founder 10/31 answers to the proposal `hold-table-proposal.md`: Q2 = A (bastion-greatsword-s1 loses its `hit_stop`; hit-stop is for
+heavy skills only), Q3 = A (a hold status is always applied: no `chance`, the strength of a hold is its `for:` window), Q4 = A (couture-rapier-s2 pins
+a hit victim with a short `root`), Q5 = A (the player is shown the trait). Q1 was decided by the manager (2026-10-31): the reserved rows of the
+eight deleted Limbus families live only in a memo; skill-less items say "none". Shipped in `ee88df0b6`: `content/status/root.yaml` (`kind: paralysis`,
+`params.type: disable`, default 10 ticks, not stackable; locks movement only, attacks and turning stay possible), applied on a needle hit as
+`{op: status, status: root, for: "= root_ticks"}` (`root_ticks` default 9, `content/skills/couture-rapier-s2/skill.yaml`); `frost-shard`
+`freeze_ticks` 60 -> 40 with the 70% gate removed; `lightning-bolt` / `shock-wand-*` / `chain-lightning` / `frost-rod-sleet` without their `chance`;
+`StatusOpSpec.kt:70-90` makes a hold status (`freeze`, `shock`, `root`, `slow`, `sinking`, `stun`) gated by `rand()` / `roll()` in `when:` a LOAD
+ERROR (`holdChanceError`). The status icon and the codex slot are `tools/resource-pack/.../StatusEffectArt.kt` and `content/gui/status-codex.yaml`
+(index 11); the HUD glyph list is `StatusEffectHudGlyphs.kt`. Guard scenario: `WeaponHoldTableScenarioTest` (no hold status carries chance; each hold
+family keeps only its table kind). Shipped families (checked by that scenario): couture s2 roots, frost-shard and frost-rod-sleet freeze, lightning-bolt and shock-wand-zap shock. The per-weapon proposal table is `/tmp/claude-1000/skill-engine/hold-table-proposal.md` (a memo, not part of the engine). In progress (not
+in b5a81b4a1): the structured hold row in `core/feature-gameplay/.../service/item/ItemTooltip.kt` (manager decision 2026-10-31: a generated tooltip
+row, not a hand-written lore line).
+
+**15.5 Callee-only guard.** A skill with `frames_in` or an unvalued `required` param can only be reached through a caller's `use:`
+(`SkillDef.isCalleeOnly`, `kernel/domain/.../skillengine/model/SkillDef.kt:63`). Casting it directly used to do nothing silently (frost-shard-burst).
+Now `TablePlayer.start` returns `CastError.CalleeOnly` (`TablePlayer.kt:170`, `runtime/CastRunner.kt:42`); the admin path refuses it up front naming the
+callers (`CastSkillError.CalleeOnly` in `CastSkillUseCase.kt:258`, `AdminSkillCaster.kt:30`, `AdminSkillsPanel.kt:130`); the cast list built in
+`CombatWiring.kt:701` skips callee-only skills; vfx-shot capture refuses one. Scenario: `CalleeOnlyGuardScenarioTest`. Manager decision 2026-10-31
+(01f761b83, 143c1d7b0). Open: moving the check into load so a callee-only skill never appears in a cast list at all is a possible refinement.
+
+**15.6 Caster-eye clutter survival model.** A skill must not fill the caster's own first-person screen. `CasterEyeClutter`
+(`tools/game-sim/src/test/kotlin/com/astarworks/astera/gamesim/skillengine/CasterEyeClutter.kt`) reads the recorded oracle: a forward cone
+(`HALF_ANGLE_DEG` 70, `RADIUS` 1.5 from the eye, nothing below eye - `FLOOR_BELOW_EYE` 0.9) may hold at most `LIMIT` 10 lingering vanilla particles
+(mean client lifetime >= `LINGER_TICKS` 6; lifetimes transcribed from the 26.3 client jar, listed in the file header; a content particle id resolves
+to its `vanilla_particle`; each particle def row counts its authored `count`), and block / item displays inside `DISPLAY_RANGE` 3.0 may not exceed a
+coverage sum of `DISPLAY_COVERAGE_LIMIT` 1.5 for `DISPLAY_SUSTAIN_TICKS` 4 consecutive ticks. Rows the caster cannot see (`viewers=owner-hidden`) are
+skipped. Called from `ShippedV3ContentScenarioTest`, `CasterRigNearEyeScenarioTest`, `DisplayViewersScenarioTest`. The rule is a test, not a load check,
+so it protects shipped content only; promoting it to a StaticChecks warning is an open item (audit-engine-v3 G2). Stricter rule `245bb544a`
+flagged 22 skills; 20 were fixed by content (81b60f73a), the bastion s1/s2 rows by 15.2 (particle viewers, in progress).
+
+**15.7 Decision ledger (rev4.22).** Quoted, dated founder decisions: absorbed hit = not hit (10/29, rev4.10); `victim.center` = hitbox centre (10/29,
+rev4.9); right-hand rule rotation (10/29, rev4.10 H2); random is visual only, never schedule / timing / end (10/29; `sample_ticks` deleted
+2026-10-30); Limbus keeps bastion + couture (10/29); hold is a weapon trait (10/30) and hold Q2-Q5 = A (10/31). Manager decisions (no founder quote):
+Q1 of the hold table, callee guard, dash clearance, rig default `owner-hidden`, particle `viewers`, tooltip hold row (all above). Open for the founder:
+`viewers` as a formal exception (audit Q-C), `billboard` as a third display orientation (audit Q-A), the 12 `sample-*` skills (audit Q-B), patch variant
+selection (audit Q-D). Q6 stays closed: the handler `at: 1` form (rev4.21); the handoff lists it as answered "A".
+
 ## Consequences
 
 ### Positive
@@ -1372,7 +1456,7 @@ Resolved (not founder decisions; engine facts, rev3/rev4):
 - **Law window start is `at`, never `from` (rev4, M6)**: `from` is only a range start (`speed: {from, to}`, `every: {from, to}`); the projectile origin is `origin:`. Examples a/d/e/g/i/b/f/j updated; `from` on a law or projectile is `UnknownKey`.
 - **`then_event` deleted (rev4)**: the only spelling is `on: [{event: <call>.end, to}]` (example f updated). **`bound:`** has one form: `{expr: "= ...", bound: [lo, hi]}`.
 - **Camera / viewer-relative frame is NOT added (rev4, R3)**: a frame that faces a viewer is per-viewer, and one cast has many viewers but ONE
-  table (C1); the client's `billboard` is the only per-viewer facing, and it is a display field, not a frame. Edge-travel wording for swings
+  table (C1); the client's `billboard` is the only per-viewer facing, and it is a display field, not a frame (the one per-viewer thing that IS table state is the `viewers` audience filter of 15.2, which hides a row from its caster and does not rotate anything). Edge-travel wording for swings
   (`spin` from the `from` edge to the `to` edge about a named axis, memory 2026-10-26) plus the `caster.eye` basis cover every authoring case
   found in the kept skills. If a case appears that needs it, it is a new ADR, not a field.
 - **Group blocks do not inherit (rev4)**: a timing group's fields are its own occurrence schedule, never its children's defaults (2.0a).
@@ -1380,7 +1464,8 @@ Resolved (not founder decisions; engine facts, rev3/rev4):
 - **RTM lessons (rev4.1, `design/rtm-lessons.md`)** - adopted: additive parent-relative child offsets (2.0a, already); `until` = mask over a finite
   horizon, `n` never -1; `ceil` occurrence count; family vs repeater as two lowerings; one tick phase order + same-tick cascade cap; one cancel path with
   `exit.reason`; handler sub-tables owned by the cast with snapshot frames; swept collision instead of substep counts; timing never class L; one
-  server-tick clock; JSON `src` per row. Rejected: a `viewers`/receiver policy per effect (per-viewer is not table state; vanilla range rules apply; a
+  server-tick clock; JSON `src` per row. Rejected at rev4.1 and SUPERSEDED by rev4.22 / 15.2 (a closed `viewers: all | owner-hidden` row filter shipped as a dated exception; the
+  original reasoning is kept below for the record): a `viewers`/receiver policy per effect (per-viewer is not table state; vanilla range rules apply; a
   future ADR if ever needed); cross-cast trigger-combo state (lives in the item / trigger layer, outside the engine); a material flipbook construct (N
   displays with staggered `at`/`for` are static rows already); mutable circle / angle state across occurrences (laws recompute from `i`, `t`);
   parameter-specialised precompiled timing variants (timing takes no parameter that is not class S at the call site; `with:` args are S or the call
