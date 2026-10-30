@@ -1,10 +1,6 @@
 package com.astarworks.astera.combat.domain.skill
 
-/**
- * High-level skill family. The archetype constrains which [com.astarworks.astera.combat.domain.skill.params.SkillParams]
- * variant a [SkillSpec] may carry; validation of that pairing lives in the
- * application layer when YAML is materialized into specs.
- */
+/** Admin panel grouping of a [SkillSpec]; the v3 engine does not use it (every skill is [SEQUENCE]). */
 public enum class SkillArchetype {
     PROJECTILE,
     MELEE,

@@ -50,10 +50,10 @@ machine:
       range: "= throw_range"
       part: held
       radius: 0.22
-      # v2 hit shape: radius 0.22 around the volley's own held part (a rider frame of another state cannot carry a shape: it must be a sibling of the projectile).
+      # hit shape: radius 0.22 around the volley's own held part (a rider frame of another state cannot carry a shape: it must be a sibling of the projectile).
       hit: {targets: enemies, once: true, attach: {for: "= stick_ticks"}}
       block: {mode: stick, for: "= stick_ticks"}
-      # v2 align: the long axis stands up (ease out) with heading caster.forward, then the volley spins about it for 7 ticks (one turn at spin_dpt 54). One turn channel, so the two laws run one after the other; the three riders (fly_a / fly_b / fly_body) carry the volley laws and run the spin for its own length, past the 7-tick throw state (the hit leaves the throw early; machine.tail covers the rest).
+      # align: the long axis stands up (ease out) with heading caster.forward, then the volley spins about it for 7 ticks (one turn at spin_dpt 54). One turn channel, so the two laws run one after the other; the three riders (fly_a / fly_b / fly_body) carry the volley laws and run the spin for its own length, past the 7-tick throw state (the hit leaves the throw early; machine.tail covers the rest).
       motion:
         - {law: align, axis: long, to: world.up, up: caster.forward, at: 0, for: 3, ease: out_cubic}
         - {law: spin, axis: long, deg_per_tick: "${spin_dpt}", at: 4, for: 7}

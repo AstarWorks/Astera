@@ -46,9 +46,8 @@ public interface ProjectileImpactHandler {
  * hit, lifetime end) and calls one of the `on*` methods exactly once per
  * projectile; this class decides *what* it does:
  *
- *  1. the spec's [OnHitEffect] list (damage / status / sound / particle) on
- *     entity or block hits — `Explode` / `SpawnChild` are still held;
- *  2. cover chipping for skill-bound projectiles (ADR-0280).
+ * the spec's [OnHitEffect] list (damage / status / sound / particle) on
+ * entity or block hits — `Explode` / `SpawnChild` are still held.
  *
  * Callers own idempotency (untrack the projectile after the call).
  */
@@ -60,8 +59,6 @@ public class ProjectileImpactResolver(
     private val soundScheduler: ISoundScheduler,
     /** WP10: world structures (pillars); a projectile that lands on one hits it like an entity. Lazy: Match registers it later. */
     private val structures: () -> IStructureTargets? = { null },
-    /** ADR-0280: a landing projectile of a skill with `block_damage` chips cover. */
-    private val coverEffects: SkillCoverEffects? = null,
     private val log: Logger = LoggerFactory.getLogger(ProjectileImpactResolver::class.java),
 ) : ProjectileImpactHandler {
 
@@ -79,25 +76,18 @@ public class ProjectileImpactResolver(
      */
     override fun onHitEntity(flight: Flight, target: PlayerId?, at: Vec3) {
         runOnHitEffects(flight, target, at)
-        chipCover(flight, at)
     }
 
     /** The projectile struck a block at [at]. */
     override fun onHitBlock(flight: Flight, at: Vec3) {
         // WP10: landing on (or touching) a damageable structure block is an entity hit on it.
         structureNear(flight, at)?.let { return onHitEntity(flight, it, at) }
-        chipCover(flight, at)
         runOnHitEffects(flight, null, at)
     }
 
     /** The projectile's lifetime ended in flight at [at] without striking anything. */
     override fun onExpire(flight: Flight, at: Vec3) {
         // Nothing to resolve: an expired projectile has no on-hit effects.
-    }
-
-    private fun chipCover(flight: Flight, at: Vec3) {
-        val binding = flight.spec.skill ?: return
-        coverEffects?.onImpact(binding.skillId, flight.owner, binding.worldId, at, binding.blockDamage)
     }
 
     private fun structureNear(flight: Flight, at: Vec3): PlayerId? =

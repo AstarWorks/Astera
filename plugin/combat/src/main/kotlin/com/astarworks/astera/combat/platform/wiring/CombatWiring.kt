@@ -8,7 +8,6 @@ import com.astarworks.astera.combat.application.contents.ComboRouteContents
 import com.astarworks.astera.combat.application.contents.StatusContents
 import com.astarworks.astera.combat.application.port.outbound.IArmorEquipmentProvider
 import com.astarworks.astera.combat.application.port.outbound.IArmorRegistry
-import com.astarworks.astera.combat.application.port.outbound.ICelEvaluator
 import com.astarworks.astera.combat.application.port.outbound.IComboTracker
 import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
 import com.astarworks.astera.combat.application.port.outbound.IDamageHistoryService
@@ -35,7 +34,6 @@ import com.astarworks.astera.combat.application.service.ArenaBlockEditGuard
 import com.astarworks.astera.combat.application.service.SummonRegistry
 import com.astarworks.astera.combat.application.service.NoOpKnockbackGateway
 import com.astarworks.astera.combat.application.service.StubArmorEquipmentProvider
-import com.astarworks.astera.combat.application.service.StubCelEvaluator
 import com.astarworks.astera.combat.application.service.YamlElementMatrix
 import com.astarworks.astera.combat.application.service.YamlStatusEffectInteractionRule
 import com.astarworks.astera.combat.application.service.aoe.InMemoryAreaEffectGateway
@@ -137,7 +135,6 @@ public object CombatWiring {
         // replace the legacy Mutable*Registry + *LoaderService pairs and participate
         // in the unified /astera reload <category> dispatcher.
         val skillsContentDir = ctx.contentDir.resolve("skills")
-        val contentCelEvaluator = services.get<ICelEvaluator>() ?: StubCelEvaluator()
         // Skill engine v3 (ADR-0303): the catalog is the one skill store; the cast gate reads its `meta:` blocks.
         val (frameTables, frameErrors) = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries
             .frameTables(ctx.contentDir.resolve("frames"))
@@ -230,10 +227,6 @@ public object CombatWiring {
         registrations += services.register<IDamageHistoryService>(damageHistory)
         registrations += services.register<IStatusEffectInteractionRule>(statusInteractionRule)
 
-        // Wave 5f (ADR-0035, RTM #21): CEL evaluator port + Stub impl. Real
-        // evaluator (JCEL / proxima / DIY) lands in a Phase 6 wave; Phase 1
-        // ships the Stub so port consumers can wire against the surface.
-        registrations += services.register<ICelEvaluator>(contentCelEvaluator)
 
         // WP3: host spatial query (players + mobs) before anything captures it.
         // WP10: wrapped so world structures (Annihilation pillars, IStructureTargets,
@@ -562,7 +555,6 @@ public object CombatWiring {
                 )
             }
 
-            val celEvaluator = services.getOrThrow<ICelEvaluator>()
             val broadcaster = services.get<IBroadcaster>()
             // Wave 5effects (ADR-0109): optional pull-through of Core's
             // particle/sound infra so Mechanic.SpawnParticle + PlaySound stop
@@ -577,10 +569,6 @@ public object CombatWiring {
             registrations += services.register<SummonRegistry>(summonRegistry)
             // Shared by every host: Paper's ProjectileHitListener and the
             // headless simulator's projectile stepper both resolve impacts here.
-            // ADR-0280: opt-in cover damage / placement for skills (the CoverBlockService is Core's, resolved lazily).
-            val coverEffects = com.astarworks.astera.combat.application.service.SkillCoverEffects(
-                cover = { services.get<com.astarworks.astera.core.application.service.CoverBlockService>() },
-            )
             val particleSchedulerForImpacts = particleScheduler
             val soundSchedulerForImpacts =
                 services.get<com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler>()
@@ -593,7 +581,6 @@ public object CombatWiring {
                         particleScheduler = particleSchedulerForImpacts,
                         soundScheduler = soundSchedulerForImpacts,
                         structures = { services.get<com.astarworks.astera.core.application.port.outbound.IStructureTargets>() },
-                        coverEffects = coverEffects,
                     ),
                 )
             }

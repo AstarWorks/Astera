@@ -11,8 +11,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 /**
  * Wire shape for [Condition]. Polymorphic by `kind:` discriminator.
  *
- * Phase 1's `StubCelEvaluator` warn-skips [Cel]; other variants evaluate
- * directly in the dispatcher.
+ * Variants evaluate directly in the dispatcher.
  *
  * Wave _skills-2 / ADR-0077.
  */
