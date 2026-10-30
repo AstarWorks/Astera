@@ -152,7 +152,7 @@ cmd_run() {
 
   if [ "$KIND" = vfx ]; then mem_need="${HEAVY_MIN_FREE_GB:-4}"; mem_cap="${HEAVY_MEM:-4g}"
   else mem_need="${HEAVY_MIN_FREE_GB:-3}"; mem_cap="${HEAVY_MEM:-4g}"; fi
-  cpus="${HEAVY_CPUS:-6}"; xmx="${HEAVY_GRADLE_XMX:-2g}"
+  cpus="${HEAVY_CPUS:-6}"; xmx="${HEAVY_GRADLE_XMX:-2560m}"
   memory_guard "$mem_need"
 
   # env for the runner: forwarded names + per-kind defaults (the one place for the small-VM tuning)
@@ -179,9 +179,11 @@ cmd_run() {
     ( sleep "${HEAVY_RUN_TIMEOUT:-7200}"; log "run timeout (HEAVY_RUN_TIMEOUT), stopping the runner"; docker rm -f "$NAME" >/dev/null 2>&1 ) &
     TIMER=$!
   fi
+  # Kotlin compiles inside the Gradle JVM: a separate Kotlin daemon inherits -Xmx and two such JVMs overrun the 4g cap.
   docker run "${BASE_ARGS[@]}" "${tty[@]}" --env-file "$MERGED" \
     --memory "$mem_cap" --memory-swap "$mem_cap" --cpus "$cpus" --oom-score-adj 500 \
     -e "GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=$cpus -Dorg.gradle.jvmargs=-Xmx$xmx -XX:MaxMetaspaceSize=512m" \
+    -e "ORG_GRADLE_PROJECT_kotlin.compiler.execution.strategy=in-process" \
     "$IMAGE" "$@" </dev/null {SLOT_FD}>&- &
   wait $!
   RC=$?
