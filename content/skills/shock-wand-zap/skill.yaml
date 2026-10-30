@@ -13,8 +13,7 @@ params:
   speed:        {type: number, default: 3.2}
   flight_ticks: {type: ticks,  default: 40}
   dmg_electric: {type: number, default: 16.0}
-  shock_ticks:  {type: ticks,  default: 30}
-  shock_chance: {type: number, default: 0.3}
+  shock_ticks:  {type: ticks,  default: 8}
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 1.8}, mode: follow}
@@ -49,7 +48,7 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {electric: "${dmg_electric}"}}
-              - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}", when: "= rand() < ${shock_chance}"}
+              - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}"}
               - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", anchor: contact, volume: 0.7, pitch: 1.2, detach: true}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
               - {op: use, use: "fragment:impact", frames: {spot: heart}, detach: true}

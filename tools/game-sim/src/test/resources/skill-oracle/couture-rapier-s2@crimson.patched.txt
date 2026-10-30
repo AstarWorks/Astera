@@ -775,6 +775,7 @@
 @36 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @36 damage 00000000-0000-0000-0000-00000000000a op=- physical=18 skill=couture-rapier-s2@crimson at=-0.043227,1.624631,2.200000 ignoreinv=false ignorearmor=false
 @36 status 00000000-0000-0000-0000-00000000000a op=- status=bleed stacks=2 for=60
+@36 status 00000000-0000-0000-0000-00000000000a op=- status=root stacks=1 for=9
 @36 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0.0499 y=0.12 z=0.3464
 @36 effect 00000000-0000-0000-0000-000000000001 op=- freeze=2
 @36 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
@@ -4216,6 +4217,7 @@ r @98 run-end tail=4 | pose
 @36 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @36 damage 00000000-0000-0000-0000-00000000000a op=- physical=18 skill=couture-rapier-s2@crimson at=-0.043227,1.624631,2.200000 ignoreinv=false ignorearmor=false
 @36 status 00000000-0000-0000-0000-00000000000a op=- status=bleed stacks=2 for=60
+@36 status 00000000-0000-0000-0000-00000000000a op=- status=root stacks=1 for=9
 @36 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0.0499 y=0.12 z=0.3464
 @36 effect 00000000-0000-0000-0000-000000000001 op=- freeze=2
 @36 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
@@ -6106,6 +6108,7 @@ r @117 run-end tail=4 | pose
 @36 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @36 damage 00000000-0000-0000-0000-00000000000a op=- physical=18 skill=couture-rapier-s2@crimson at=-1.333079,1.624672,1.696589 ignoreinv=false ignorearmor=false
 @36 status 00000000-0000-0000-0000-00000000000a op=- status=bleed stacks=2 for=60
+@36 status 00000000-0000-0000-0000-00000000000a op=- status=root stacks=1 for=9
 @36 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.1737 y=0.12 z=0.3039
 @36 effect 00000000-0000-0000-0000-000000000001 op=- freeze=2
 @36 frame hide_held op=hide_held pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
@@ -7244,6 +7247,7 @@ g.end @35..67 handler max=1 | sub=volley.end
 g.hit @35..67 handler max=1 | sub=volley.hit
 g.hit @0 damage physical=18.000000 | sub=volley.hit
 g.hit @0 status bleed stacks=2.000000 for=60 | sub=volley.hit
+g.hit @0 status root stacks=1.000000 for=9 | sub=volley.hit
 g.hit @0 impulse target=live(victim) vector=live(%3D%20-contact.normal%20*%200.35%20+%20vec(0,%200.12,%200)) | sub=volley.hit
 g.hit @0 freeze scope=caster;instance:volley ticks=2.000000 | sub=volley.hit
 g.unstick @63..67 handler max=1 | sub=volley.unstick

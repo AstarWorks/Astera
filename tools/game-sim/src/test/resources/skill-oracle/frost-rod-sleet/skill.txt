@@ -57,6 +57,7 @@ g @1 cast-end | pose
 @1 particle - op=fly/bolt.hit/use_4/ring_up[7] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.494975,0.700000,-0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8678301601274127491
 @1 particle - op=fly/bolt.hit/use_4/pop type=snowflake count=5 at=0.000000,1.200000,2.500000 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2119028212036563979
 @1 damage 00000000-0000-0000-0000-00000000000a op=- water=18 skill=frost-rod-sleet at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@1 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=16
 @1 remove #0 op=fly/core
 g @1 state-exit reason=EVENT | state=fly
 g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
@@ -96,6 +97,7 @@ g @1 cast-end | pose
 @1 particle - op=fly/bolt.hit/use_4/ring_up[7] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.494975,0.700000,-0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8678301601274127491
 @1 particle - op=fly/bolt.hit/use_4/pop type=snowflake count=5 at=-1.504538,1.200000,1.996589 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2119028212036563979
 @1 damage 00000000-0000-0000-0000-00000000000a op=- water=18 skill=frost-rod-sleet at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@1 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=16
 @1 remove #0 op=fly/core
 g @1 state-exit reason=EVENT | state=fly
 g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
@@ -109,4 +111,4 @@ g.block @1..45 handler max=1 | sub=fly/bolt.block
 g.end @1..45 handler max=1 | sub=fly/bolt.end
 g.hit @1..45 handler max=1 | sub=fly/bolt.hit
 g.hit @0 damage water=18.000000 | sub=fly/bolt.hit
-g.hit @0 status freeze stacks=1.000000 for=40 when | sub=fly/bolt.hit
+g.hit @0 status freeze stacks=1.000000 for=16 | sub=fly/bolt.hit

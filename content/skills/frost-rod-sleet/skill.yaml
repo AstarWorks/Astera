@@ -13,8 +13,7 @@ params:
   launch_speed:       {type: number, default: 2.4}
   max_lifetime_ticks: {type: ticks,  default: 45}
   dmg_water:          {type: number, default: 18.0}
-  freeze_ticks:       {type: ticks,  default: 40}
-  freeze_chance:      {type: number, default: 0.4}
+  freeze_ticks:       {type: ticks,  default: 16}
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 1.8}, mode: snapshot}
@@ -46,7 +45,7 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {water: "${dmg_water}"}}
-              - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: "${freeze_ticks}", when: "= rand() < ${freeze_chance}"}
+              - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: "${freeze_ticks}"}
               - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: contact, volume: 0.7, pitch: 1.2}
               - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
               - {op: use, use: "fragment:impact", frames: {spot: heart}}

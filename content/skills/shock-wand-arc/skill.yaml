@@ -13,8 +13,7 @@ params:
   radius:       {type: blocks, default: 3.5}
   dmg_electric: {type: number, default: 15.0}
   falloff:      {type: number, default: 0.5}
-  shock_ticks:  {type: ticks,  default: 30}
-  shock_chance: {type: number, default: 0.5}
+  shock_ticks:  {type: ticks,  default: 15}
 anchors:
   - {id: ring, anchor: caster, offset: {up: 0.15}, mode: follow}
 machine:
@@ -36,7 +35,7 @@ machine:
           damage: {electric: "= ${dmg_electric} * (1.0 - ${falloff} * dist(event.victim, caster) / ${radius})"}
           on:
             hit:
-              - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}", when: "= rand() < ${shock_chance}"}
+              - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}"}
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
         - {id: fx_spark, op: particle, particle: electric_spark, anchor: ring, at: 0, count: 0, extra: 0.03}
         - {id: fx_dust, op: particle, particle: dust, anchor: ring, at: 0, count: 1, color: "#fff078", size: 1.4}

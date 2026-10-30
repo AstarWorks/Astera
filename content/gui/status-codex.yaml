@@ -1,6 +1,6 @@
 # Status effect codex - every status with what it does (UI-12). Opened by `/astera status codex` and linked from
 # the Help text. The tooltip of each icon is the shared one-line effect text `astera.statusdesc.<id>`; the icon name
-# is the status name. Row 0 and 1 hold the 18 statuses (alphabetical by id); Back returns to the main menu.
+# is the status name. Row 0 and 1 hold the 19 statuses (alphabetical by id); Back returns to the main menu.
 id: status-codex
 title_key: astera.statuscodex.title
 size: CHEST_27
@@ -63,41 +63,46 @@ slots:
       - astera.statusdesc.reloading
   - type: static
     index: 11
+    item: gui-tile-status-root
+    tooltip:
+      - astera.statusdesc.root
+  - type: static
+    index: 12
     item: gui-tile-status-rupture
     tooltip:
       - astera.statusdesc.rupture
   - type: static
-    index: 12
+    index: 13
     item: gui-tile-status-shock
     tooltip:
       - astera.statusdesc.shock
   - type: static
-    index: 13
+    index: 14
     item: gui-tile-status-silence
     tooltip:
       - astera.statusdesc.silence
   - type: static
-    index: 14
+    index: 15
     item: gui-tile-status-sinking
     tooltip:
       - astera.statusdesc.sinking
   - type: static
-    index: 15
+    index: 16
     item: gui-tile-status-swift
     tooltip:
       - astera.statusdesc.swift
   - type: static
-    index: 16
+    index: 17
     item: gui-tile-status-tremor
     tooltip:
       - astera.statusdesc.tremor
   - type: static
-    index: 17
+    index: 18
     item: gui-tile-status-wet
     tooltip:
       - astera.statusdesc.wet
   - type: static
-    index: 18
+    index: 19
     item: gui-tile-back
     on_left:
       key: gui.back
