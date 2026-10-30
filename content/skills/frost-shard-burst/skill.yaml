@@ -15,6 +15,6 @@ machine:
       then: e
       enter:
         - {id: fx_snow, op: particle, particle: snowflake, anchor: spot, count: "${snow}", extra: 0.15, at: 0}
-        - {id: fx_rod, op: particle, particle: end_rod, anchor: spot, count: "${rod}", extra: 0.2, at: 0}
+        - {id: fx_rod, op: particle, particle: snowflake, anchor: spot, count: "${rod}", extra: 0.2, at: 0}
         - {id: fx_dust, op: particle, particle: dust, anchor: spot, count: "${dust}", offset: [0.4, 0.4, 0.4], color: "#bee6ff", size: 1.4, at: 0}
     e: {final: true}

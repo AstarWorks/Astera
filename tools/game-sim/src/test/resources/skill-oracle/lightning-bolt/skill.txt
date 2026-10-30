@@ -58,7 +58,7 @@ r @3 run-end tail=2 | pose
 @1 particle - op=fly/bolt.hit/sky_spark type=electric_spark count=1 at=0.000000,8.000000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1715070095458169109
 @1 particle - op=fly/bolt.hit/sky_rod type=end_rod count=1 at=0.000000,8.000000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5979533632495722382
 @1 particle - op=fly/bolt.hit/use_8/spark type=electric_spark count=40 at=0.000000,0.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.350000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=655324340431568035
-@1 particle - op=fly/bolt.hit/use_8/rod type=end_rod count=12 at=0.000000,0.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4290415246530276365
+@1 particle - op=fly/bolt.hit/use_8/rod type=electric_spark count=12 at=0.000000,0.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-332479007903827036
 @1 particle - op=fly/bolt.hit/use_8/fan type=electric_spark count=0 at=0.000000,0.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-495914974178743381
 @1 particle - op=fly/bolt.hit/use_9/ring[0] type=electric_spark count=0 at=0.000000,1.000000,2.500000 off=1.000000,0.000000,0.000000 speed=0.400000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2848562744718337384
 @1 particle - op=fly/bolt.hit/use_9/ring[1] type=electric_spark count=0 at=0.000000,1.000000,2.500000 off=0.923880,0.000000,0.382683 speed=0.400000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3487292863514214691
@@ -84,7 +84,7 @@ r @3 run-end tail=2 | pose
 @1 particle - op=fly/bolt.hit/use_9/ring_up[5] type=electric_spark count=0 at=0.000000,1.000000,2.500000 off=-0.494975,0.700000,-0.494975 speed=0.320000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8294824194905609944
 @1 particle - op=fly/bolt.hit/use_9/ring_up[6] type=electric_spark count=0 at=0.000000,1.000000,2.500000 off=0.000000,0.700000,-0.700000 speed=0.320000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5229478608215353230
 @1 particle - op=fly/bolt.hit/use_9/ring_up[7] type=electric_spark count=0 at=0.000000,1.000000,2.500000 off=0.494975,0.700000,-0.494975 speed=0.320000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2849151912836855701
-@1 particle - op=fly/bolt.hit/use_9/pop type=end_rod count=8 at=0.000000,1.000000,2.500000 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5606132539485927266
+@1 particle - op=fly/bolt.hit/use_9/pop type=electric_spark count=8 at=0.000000,1.000000,2.500000 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5629938391542820191
 @1 damage 00000000-0000-0000-0000-00000000000a op=- electric=25 skill=lightning-bolt at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
 @1 remove #1 op=fly/core
 @1 remove #0 op=fly/mesh
@@ -111,7 +111,7 @@ r @3 run-end tail=2 | pose
 @1 particle - op=fly/bolt.hit/sky_spark type=electric_spark count=1 at=-1.504538,8.000000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1715070095458169109
 @1 particle - op=fly/bolt.hit/sky_rod type=end_rod count=1 at=-1.504538,8.000000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5979533632495722382
 @1 particle - op=fly/bolt.hit/use_8/spark type=electric_spark count=40 at=-1.504538,0.200000,1.996589 off=0.000000,0.000000,0.000000 speed=0.350000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=655324340431568035
-@1 particle - op=fly/bolt.hit/use_8/rod type=end_rod count=12 at=-1.504538,0.200000,1.996589 off=0.000000,0.000000,0.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4290415246530276365
+@1 particle - op=fly/bolt.hit/use_8/rod type=electric_spark count=12 at=-1.504538,0.200000,1.996589 off=0.000000,0.000000,0.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-332479007903827036
 @1 particle - op=fly/bolt.hit/use_8/fan type=electric_spark count=0 at=-1.504538,0.200000,1.996589 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-495914974178743381
 @1 particle - op=fly/bolt.hit/use_9/ring[0] type=electric_spark count=0 at=-1.504538,1.000000,1.996589 off=1.000000,0.000000,0.000000 speed=0.400000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2848562744718337384
 @1 particle - op=fly/bolt.hit/use_9/ring[1] type=electric_spark count=0 at=-1.504538,1.000000,1.996589 off=0.923880,0.000000,0.382683 speed=0.400000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3487292863514214691
@@ -137,7 +137,7 @@ r @3 run-end tail=2 | pose
 @1 particle - op=fly/bolt.hit/use_9/ring_up[5] type=electric_spark count=0 at=-1.504538,1.000000,1.996589 off=-0.494975,0.700000,-0.494975 speed=0.320000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8294824194905609944
 @1 particle - op=fly/bolt.hit/use_9/ring_up[6] type=electric_spark count=0 at=-1.504538,1.000000,1.996589 off=0.000000,0.700000,-0.700000 speed=0.320000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5229478608215353230
 @1 particle - op=fly/bolt.hit/use_9/ring_up[7] type=electric_spark count=0 at=-1.504538,1.000000,1.996589 off=0.494975,0.700000,-0.494975 speed=0.320000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2849151912836855701
-@1 particle - op=fly/bolt.hit/use_9/pop type=end_rod count=8 at=-1.504538,1.000000,1.996589 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5606132539485927266
+@1 particle - op=fly/bolt.hit/use_9/pop type=electric_spark count=8 at=-1.504538,1.000000,1.996589 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5629938391542820191
 @1 damage 00000000-0000-0000-0000-00000000000a op=- electric=25 skill=lightning-bolt at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
 @1 remove #1 op=fly/core
 @1 remove #0 op=fly/mesh

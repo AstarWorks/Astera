@@ -62,7 +62,7 @@ r @3 run-end tail=2 | pose
 @1 particle - op=fly/bolt.hit/use_4/ring_up[5] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=-0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3715744916324597589
 @1 particle - op=fly/bolt.hit/use_4/ring_up[6] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.000000,0.700000,-0.700000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2301521535779289677
 @1 particle - op=fly/bolt.hit/use_4/ring_up[7] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5637732587782194514
-@1 particle - op=fly/bolt.hit/use_4/pop type=end_rod count=8 at=0.000000,1.200000,2.500000 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5606132539485927266
+@1 particle - op=fly/bolt.hit/use_4/pop type=snowflake count=8 at=0.000000,1.200000,2.500000 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4072245851039853612
 @1 damage 00000000-0000-0000-0000-00000000000a op=- water=15 skill=glacier-spike at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
 @1 status 00000000-0000-0000-0000-00000000000a op=- status=sinking stacks=1 for=60
 @1 remove #0 op=fly/core
@@ -105,7 +105,7 @@ r @3 run-end tail=2 | pose
 @1 particle - op=fly/bolt.hit/use_4/ring_up[5] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=-0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3715744916324597589
 @1 particle - op=fly/bolt.hit/use_4/ring_up[6] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.000000,0.700000,-0.700000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2301521535779289677
 @1 particle - op=fly/bolt.hit/use_4/ring_up[7] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5637732587782194514
-@1 particle - op=fly/bolt.hit/use_4/pop type=end_rod count=8 at=-1.504538,1.200000,1.996589 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5606132539485927266
+@1 particle - op=fly/bolt.hit/use_4/pop type=snowflake count=8 at=-1.504538,1.200000,1.996589 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4072245851039853612
 @1 damage 00000000-0000-0000-0000-00000000000a op=- water=15 skill=glacier-spike at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
 @1 status 00000000-0000-0000-0000-00000000000a op=- status=sinking stacks=1 for=60
 @1 remove #0 op=fly/core

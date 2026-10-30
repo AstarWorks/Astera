@@ -25,7 +25,7 @@ fragments:
     do:
       - {id: ring, op: particle, particle: electric_spark, anchor: spot, times: 16, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.25}
       - {id: ring_up, op: particle, particle: electric_spark, anchor: spot, times: 8, at: 0, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.2}
-      - {id: pop, op: particle, particle: end_rod, anchor: spot, count: 4, offset: [0.15, 0.15, 0.15], extra: 0.12, at: 0}
+      - {id: pop, op: particle, particle: electric_spark, anchor: spot, count: 4, offset: [0.15, 0.15, 0.15], extra: 0.12, at: 0}
 machine:
   start: fly
   tail: 2
