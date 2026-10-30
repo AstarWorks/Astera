@@ -283,7 +283,6 @@ detached follow checkout に build がなくても primary の生成物を閲覧
 ```sh
 PORT=18197 HOST=127.0.0.1 bun tools/skill-compare/server.mjs
 HUB_URL=http://127.0.0.1:18197 bun tools/skill-compare/scripts/gallery-browser.e2e.mjs
-HUB_URL=http://127.0.0.1:18197 bun tools/skill-compare/scripts/samples-browser.e2e.mjs
 HUB_URL=http://127.0.0.1:18197 bun tools/skill-compare/scripts/hub-browser.e2e.mjs
 ```
 

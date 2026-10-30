@@ -42,26 +42,20 @@ The builder composes real skill/VFX YAML and generates only referenced combinati
 
 The current `vfx-shot` warm-stack pack fingerprint predates mesh-reference-driven variants. Until the QA owner adds `skills`, `vfx` and `frames` to `tools/vfx-shot/shotstate.py`'s pack inputs, run `make vfx-shot-down` before filming a changed model/effect reference. A cold shot always rebuilds the pack. The Gradle pack task already tracks all three directories.
 
-## Sprite shader combinations (Minecraft samples)
+## Shader effect demos
 
-The three `content/skills/sample-*/` shader demos use double-sided, four-block
-item meshes from `content/pack-assets/assets/astera/models/vfx-samples/`.
-They reference the same graph-generated horizontal sprite strips; the adjacent
-`.mcmeta.json` supplies 64×64 frames 0–7 at one tick per frame. The item atlas
-includes only the animated sprite entries (single sources), rather than uploading
-all plate-only strips. Unlike plate flipbooks, atlas animation phase is
-client-global and does not restart on cast. Meshes face the side capture camera
-(fixed 90° yaw); they are not viewer billboards.
+The `content/vfx/demo-shader-*.yaml` demos show the three ADR-0305 effects on a
+shipped item (`iron-warden-chestplate`, scale 2, 100 ticks, double-sided model):
 
-| sample | shader_effect | Meaning |
-|---|---|---|
-| `sample-dissolve-sigil` | `dissolve` | rotating sigil plus noise erosion |
-| `sample-energy-orb` | `emissive-pulse` | animated orb plus pulsing unlit colour boost |
-| `sample-heat-haze` | `uv-flow` | animated heat ribbons plus flowing cyan bands |
+| demo | shader_effect |
+|---|---|
+| `demo-shader-dissolve` | `dissolve` |
+| `demo-shader-emissive-pulse` | `emissive-pulse` |
+| `demo-shader-uv-flow` | `uv-flow` |
 
-The orb's painted ring is not a view-dependent rim shader. Heat haze does not
-refract or distort the background. These use the three existing ADR-0305 effects;
-no new marker or screen-reading shader is needed. The skill-compare 「VFX サンプル」 tab (`/samples`, http://192.168.11.5:8097) displays effect ids
-and the real-client side sheets from `build/vfx-shot/<sample>/side/sheet.png`.
+The former `sample-*` gallery skills (animated sprite meshes for the same three
+effects) were removed; no shipped skill currently combines a shader effect with an
+animated sprite surface. Those sprite sources still live under `content/sprites/`
+and `content/textures/` until the textures owner removes them.
 
 Browser review uses `make skill-compare-up`; the 「スプライト」 tab retains source YAML and node intermediates. Shader appearance must be checked with the real-client sheets or the 「ライブ」 tab, rather than the dimension approximation.
