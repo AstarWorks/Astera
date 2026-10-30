@@ -388,6 +388,7 @@ public object EconomyWiring {
                 },
                 stock = ownedStock,
                 catalog = { matchShopLoader.catalog },
+                state = ctx.stateful { com.astarworks.astera.economy.application.service.MatchShopNpcState() },
             )
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchStarted::class) { event ->
                 matchShopNpcs.onStarted(event)
