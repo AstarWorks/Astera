@@ -71,7 +71,7 @@ abstract class SkillEngineScenario {
         }
     }
 
-    private val compiler: SkillCompiler by lazy { SkillCompiler(specs, exprs, frameTables, EngineConfig(), com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(contentDir.resolve("sprites"))) }
+    private val compiler: SkillCompiler by lazy { SkillCompiler(specs, exprs, frameTables, EngineConfig(), com.astarworks.astera.gamesim.SimClutter.context(), com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(contentDir.resolve("sprites"))) }
 
     /** Parts shipped under `content/skill-parts` (empty until wave 2 migrates content). */
     protected val shippedParts: Map<String, Part> by lazy {

@@ -156,7 +156,19 @@ public object CombatWiring {
         if (engine is com.astarworks.astera.core.domain.Result.Failure) logger.severe("[skill-error] engine/skill-engine.yaml: ${engine.error}")
         val engineConfig = (engine as? com.astarworks.astera.core.domain.Result.Success)?.value
             ?: com.astarworks.astera.core.domain.skillengine.model.EngineConfig()
-        val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries.catalog(frameTables, skillParts, com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(ctx.contentDir.resolve("sprites")), engineConfig)
+        // Load-time check 16 needs the vanilla particle lifetimes; without them every particle row fails loudly (an empty table names each id).
+        val clutter = when (val r = com.astarworks.astera.core.application.skillengine.compose.drycast.ClutterContext.load(
+            ctx.contentDir, bodySkeleton,
+        ) { clip -> runCatching { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>()?.find(com.astarworks.astera.core.domain.animation.player.CustomAnimationId(clip)) }.getOrNull() }) {
+            is com.astarworks.astera.core.domain.Result.Success -> r.value
+            is com.astarworks.astera.core.domain.Result.Failure -> {
+                logger.severe("[skill-error] engine/particle-lifetimes.yaml: ${r.error}")
+                com.astarworks.astera.core.application.skillengine.compose.drycast.ClutterContext(
+                    com.astarworks.astera.core.domain.skillengine.model.ParticleLifetimes(emptyMap()), emptyMap(), bodySkeleton, { null },
+                )
+            }
+        }
+        val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries.catalog(frameTables, skillParts, com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(ctx.contentDir.resolve("sprites")), clutter, engineConfig)
         val skillEngineContents = com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents(skillCatalog, engineConfig = engine)
         val skillGate = SkillMetaRegistry(skillCatalog)
         val skillReport = skillEngineContents.reload(skillsContentDir)

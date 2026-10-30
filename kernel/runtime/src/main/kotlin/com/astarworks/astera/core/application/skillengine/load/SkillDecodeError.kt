@@ -121,4 +121,28 @@ public sealed interface SkillDecodeError {
         override val path: String get() = "check $check"
         override val message: String get() = detail
     }
+
+    /** Check 16: more than [limit] lingering particles fill the caster's own view at [tick] of [pose] (spawned that tick or alive at once). [rows] are the YAML rows that emit them, largest first. */
+    public data class CasterEyeClutter(
+        val pose: String, val tick: Int, val expectedAlive: Int, val limit: Int, val alive: Boolean, val rows: List<String>, override val skillId: String = "",
+    ) : SkillDecodeError {
+        override val path: String get() = rows.firstOrNull() ?: "tick $tick"
+        override val message: String
+            get() = "$pose @$tick: $expectedAlive lingering particles ${if (alive) "ALIVE at once" else "spawned this tick"} in the caster's first-person view (limit $limit); rows: ${rows.joinToString(", ")}"
+    }
+
+    /** Check 16: block / item displays fill the caster's screen for [sustain] ticks (coverage [coverage] > [limit]). */
+    public data class DisplayCoverage(
+        val pose: String, val tick: Int, val coverage: Double, val limit: Double, val sustain: Int, val rows: List<String>, override val skillId: String = "",
+    ) : SkillDecodeError {
+        override val path: String get() = rows.firstOrNull() ?: "tick $tick"
+        override val message: String
+            get() = "$pose @$tick: block/item displays cover ~${"%.2f".format(coverage)} of the caster's view (limit $limit, scale^2/distance^2 summed) for $sustain+ ticks; largest: ${rows.joinToString(", ")}"
+    }
+
+    /** Check 16: an emitted vanilla particle has no entry in `content/engine/particle-lifetimes.yaml`; the check will not guess its life. */
+    public data class UnknownParticleLifetime(val vanillaId: String, val row: String, override val skillId: String = "") : SkillDecodeError {
+        override val path: String get() = row
+        override val message: String get() = "particle '$vanillaId' has no lifetime in content/engine/particle-lifetimes.yaml (source it from the vanilla jar and add it)"
+    }
 }

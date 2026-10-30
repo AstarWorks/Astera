@@ -26,17 +26,17 @@ public object SkillEngineRegistries {
     public fun bodySkeleton(framesDir: Path): com.astarworks.astera.core.domain.Result<com.astarworks.astera.core.domain.animation.skinrig.BodySkeleton, SkillDecodeError> =
         BodyFramesDecoder.load(framesDir)
 
-    public fun compiler(tables: Map<String, ItemFrames>, sprites: SpriteCatalog, config: EngineConfig = EngineConfig()): SkillCompiler {
+    public fun compiler(tables: Map<String, ItemFrames>, sprites: SpriteCatalog, clutter: com.astarworks.astera.core.application.skillengine.compose.drycast.ClutterContext, config: EngineConfig = EngineConfig()): SkillCompiler {
         val frames = object : FrameTables {
             override fun item(item: String): ItemFrames? = tables[item]
         }
-        return SkillCompiler(OpSpecRegistry(SkillEngineSpecs.all()), CelExprCompiler(), frames, config, sprites)
+        return SkillCompiler(OpSpecRegistry(SkillEngineSpecs.all()), CelExprCompiler(), frames, config, clutter, sprites)
     }
 
-    public fun catalog(tables: Map<String, ItemFrames>, parts: Map<String, Part>, sprites: SpriteCatalog, config: EngineConfig = EngineConfig()): InMemorySkillCatalog {
+    public fun catalog(tables: Map<String, ItemFrames>, parts: Map<String, Part>, sprites: SpriteCatalog, clutter: com.astarworks.astera.core.application.skillengine.compose.drycast.ClutterContext, config: EngineConfig = EngineConfig()): InMemorySkillCatalog {
         val partCatalog = object : PartCatalog {
             override fun part(id: String): Part? = parts[id]
         }
-        return InMemorySkillCatalog(documentDecoder(), compiler(tables, sprites, config), partCatalog, parts.keys)
+        return InMemorySkillCatalog(documentDecoder(), compiler(tables, sprites, clutter, config), partCatalog, parts.keys)
     }
 }

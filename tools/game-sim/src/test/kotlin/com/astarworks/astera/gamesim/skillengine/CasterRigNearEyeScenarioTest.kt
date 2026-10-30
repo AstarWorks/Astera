@@ -10,7 +10,7 @@ import kotlin.math.sqrt
 import kotlin.math.tan
 
 /**
- * Caster-view rule for held rig meshes, the sibling of [CasterEyeClutter]. A `rig` op without `of:` draws the caster's weapon as an item display at the
+ * Caster-view rule for held rig meshes, the sibling of load-time check 16 (caster-eye clutter). A `rig` op without `of:` draws the caster's weapon as an item display at the
  * caster's grip. Every row is visible to the caster (the owner-hidden design was removed by the founder, 2026-10-31), and the vanilla grip is about 0.95
  * blocks from the eye, so a distance-to-the-grip criterion measures nothing real. The real concern is that a held mesh swinging across the caster's
  * first-person view covers too much of the screen (club-slam / mace-smash covered about a quarter of the frame). So this test projects the mesh into the
@@ -18,7 +18,7 @@ import kotlin.math.tan
  *
  * Read from the committed goldens (`skill-oracle/<skill>/skill.txt`), which [ShippedV3ContentScenarioTest] keeps equal to the engine's output: the
  * `write` rows of every `kind=item item=main_hand` display give its world position, rotation and scale per tick (feet at the origin, eye at
- * [CasterEyeClutter.EYE_Y], look from the pose's yaw / pitch, same convention as [CasterEyeClutter.checkDisplays]). The mesh is the item display's flat
+ * 1.62 (`caster_eye.eye_height`), look from the pose's yaw / pitch). The mesh is the item display's flat
  * quad: scale x by scale y by [QUAD_THICKNESS] (a held weapon item is a thin plate; the model extent of content/models is not read). The camera is the
  * vanilla one: vertical FOV [FOV_DEG], 16:9. The share is the area of the projected plate inside the frame over the frame area, and it must stay at or
  * under [MAX_FRAME_SHARE] at every tick of every recorded pose.
@@ -96,7 +96,7 @@ class CasterRigNearEyeScenarioTest : SkillEngineScenario() {
         for (sx in intArrayOf(-1, 1)) for (sy in intArrayOf(-1, 1)) for (sz in intArrayOf(-1, 1)) {
             val local = doubleArrayOf(sx * 0.5 * d.scale[0], sy * 0.5 * d.scale[1], sz * 0.5 * QUAD_THICKNESS * d.scale[2])
             val w = rotate(d.rot, local)
-            val rel = doubleArrayOf(d.pos[0] + w[0], d.pos[1] + w[1] - CasterEyeClutter.EYE_Y, d.pos[2] + w[2])
+            val rel = doubleArrayOf(d.pos[0] + w[0], d.pos[1] + w[1] - 1.62, d.pos[2] + w[2])
             corners += doubleArrayOf(dot(rel, c.right), dot(rel, c.up), dot(rel, c.look))
         }
         // near-plane clip over all box edges, then project the points in front
