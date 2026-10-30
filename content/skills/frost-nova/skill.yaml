@@ -30,7 +30,7 @@ machine:
           kind: sprite
           sprite: ring
           anchor: cast_body
-          size: [1.0, 1.0]
+          size: [0.8, 0.8]
           color: "#aae1ff"
           billboard: fixed
           brightness: {block: 15, sky: 15}
