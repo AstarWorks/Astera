@@ -18,15 +18,4 @@ public data class ProjectileSpec(
     val lifetime: LifetimePolicy,
     val onHit: List<OnHitEffect>,
     val visual: ProjectileVisual = ProjectileVisual.None,
-    /**
-     * Skill lifecycle binding (ADR-0174): when set, impact / expiry also runs the
-     * skill's `hit_entity` / `hit_block` / `miss` / `expire` phase mechanics.
-     */
-    val skill: ProjectileSkillBinding? = null,
-) {
-    init {
-        require(onHit.isNotEmpty() || skill != null) {
-            "ProjectileSpec needs at least one onHit effect or a skill binding"
-        }
-    }
-}
+)

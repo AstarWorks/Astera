@@ -123,9 +123,8 @@ public class PaperProjectileService(
         direction: Vec3,
         owner: PlayerId,
     ): IProjectileHandle {
-        // The caster's world (from the cast pose), else the owner's current world, else the first loaded one.
-        val world = spec.skill?.worldId?.let { server.getWorld(it.value) }
-            ?: server.getPlayer(owner.uuid)?.world
+        // The owner's current world, else the first loaded one.
+        val world = server.getPlayer(owner.uuid)?.world
             ?: server.worlds.firstOrNull()
         if (world == null) {
             log.warn("PaperProjectileService.spawn: no loaded world; dropping spawn for owner={}", owner)

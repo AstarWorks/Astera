@@ -67,12 +67,6 @@ internal object Icons {
         put("indicator-on", IconSpec(Glyph.ORB_ON, Theme.GOOD, plaque = false))
         put("indicator-off", IconSpec(Glyph.ORB_OFF, Theme.ADMIN, plaque = false))
         // skill kinds
-        t("gui-skill-aoe", Glyph.AOE, Theme.SKILL)
-        t("gui-skill-melee", Glyph.SLASH, Theme.SKILL)
-        t("gui-skill-projectile", Glyph.ARROW_SHOT, Theme.SKILL)
-        t("gui-skill-buff", Glyph.BUFF, Theme.SKILL)
-        t("gui-skill-summon", Glyph.SKULL, Theme.SKILL)
-        t("gui-skill-teleport", Glyph.PORTAL, Theme.SKILL)
         t("skill-tester", Glyph.BOLT, Theme.SKILL)
         // admin panel
         t("gui-admin-back", Glyph.BACK, Theme.ADMIN)

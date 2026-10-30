@@ -91,16 +91,15 @@ public class ProjectileImpactResolver(
     }
 
     private fun structureNear(flight: Flight, at: Vec3): PlayerId? =
-        structures()?.findInRadius(at, STRUCTURE_HIT_RADIUS, flight.spec.skill?.worldId)?.minByOrNull { it.position.distanceSquared(at) }?.id
+        structures()?.findInRadius(at, STRUCTURE_HIT_RADIUS, null)?.minByOrNull { it.position.distanceSquared(at) }?.id
 
     private fun runOnHitEffects(flight: Flight, targetPlayerId: PlayerId?, impactPos: Vec3) {
         val spec = flight.spec
         if (spec.onHit.isEmpty()) return
-        val world = spec.skill?.worldId
         val source = DamageSource.Projectile(
             projectileId = flight.id,
             ownerId = flight.owner,
-            origin = ProjectileOrigin.FromSkill(spec.skill?.skillId ?: PROJECTILE_FALLBACK_SKILL_ID),
+            origin = ProjectileOrigin.FromSkill(PROJECTILE_FALLBACK_SKILL_ID),
         )
         for (effect in spec.onHit) {
             when (effect) {
@@ -151,7 +150,7 @@ public class ProjectileImpactResolver(
                             sound = effect.sound,
                             position = impactPos,
                             atTick = scheduler.currentTick(),
-                            world = world,
+                            world = null,
                         ),
                     )
                 is OnHitEffect.SpawnParticle ->
@@ -160,7 +159,7 @@ public class ProjectileImpactResolver(
                             particle = effect.particle,
                             position = impactPos,
                             atTick = scheduler.currentTick(),
-                            world = world,
+                            world = null,
                         ),
                     )
             }
@@ -174,7 +173,7 @@ public class ProjectileImpactResolver(
         /** A block hit within this distance of a structure block's centre counts as hitting it. */
         public const val STRUCTURE_HIT_RADIUS: Double = 1.2
 
-        /** Origin skill id for projectiles that carry no [ProjectileSpec.skill] binding. */
+        /** Origin skill id for projectiles. */
         public val PROJECTILE_FALLBACK_SKILL_ID: SkillId = SkillId("projectile")
     }
 }

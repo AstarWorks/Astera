@@ -71,11 +71,6 @@ class ProjectileLifecycleScenarioTest {
                 hit = HitProfile.Sphere(0.5),
                 lifetime = LifetimePolicy.Ticks(30),
                 onHit = emptyList(),
-                skill = com.astarworks.astera.combat.domain.projectile.ProjectileSkillBinding(
-                    skillId = com.astarworks.astera.core.domain.skill.SkillId("pistol-shot"),
-                    castOrigin = shooter.position,
-                    worldId = null,
-                ),
             )
             val stepper = ProjectileStepper({ null })
             val flight = ProjectileFlight(ProjectileId.random(), shooter.id, spec, muzzle, stepper.launchVelocity(spec, dir), 0L)

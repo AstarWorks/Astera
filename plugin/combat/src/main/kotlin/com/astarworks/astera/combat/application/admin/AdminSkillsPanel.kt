@@ -44,7 +44,7 @@ public class AdminSkillsPanel(
                 icon = ItemId("gui-admin-skills"),
                 name = GuiText(K_HUB),
                 lore = listOf(GuiText(K_HUB_LORE)),
-                intent = GuiIntent(AdminSkillCatalog.INTENT_OPEN, mapOf(AdminSkillCatalog.PAYLOAD_ARCHETYPE to "all")),
+                intent = GuiIntent(AdminSkillCatalog.INTENT_OPEN, emptyMap()),
             ),
         ),
         router.register(AdminIntents.SKILLS_PREFIX, guard.guarded(::handle)),
@@ -53,19 +53,15 @@ public class AdminSkillsPanel(
     /** `admin.skills.*` entry point (public so tests can drive it without a router). */
     public fun handle(intent: GuiIntent, player: IMcPlayer) {
         when (intent.key) {
-            AdminSkillCatalog.INTENT_OPEN -> open(
-                player,
-                AdminSkillCatalog.parse(intent.payload[AdminSkillCatalog.PAYLOAD_ARCHETYPE]),
-                intent.payload["page"]?.toIntOrNull() ?: 0,
-            )
+            AdminSkillCatalog.INTENT_OPEN -> open(player, intent.payload["page"]?.toIntOrNull() ?: 0)
             AdminSkillCatalog.INTENT_CAST -> withSkill(player, intent) { cast(player, it) }
             AdminSkillCatalog.INTENT_TESTER -> withSkill(player, intent) { giveTester(player, it) }
             else -> log.warn("Unknown admin.skills intent '{}' from {}", intent.key, player.name)
         }
     }
 
-    private fun open(player: IMcPlayer, filter: com.astarworks.astera.combat.domain.skill.SkillArchetype?, page: Int) {
-        val spec = AdminSkillCatalog.buildSpec(caster.all(), filter, page)
+    private fun open(player: IMcPlayer, page: Int) {
+        val spec = AdminSkillCatalog.buildSpec(caster.all(), page)
         if (!AdminPanelUi.show(guiAdapter, player, spec)) guard.tell(player, K_OPEN_REJECTED)
     }
 

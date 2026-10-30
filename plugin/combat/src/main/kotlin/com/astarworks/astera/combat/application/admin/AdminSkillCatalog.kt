@@ -1,6 +1,5 @@
 package com.astarworks.astera.combat.application.admin
 
-import com.astarworks.astera.combat.domain.skill.SkillArchetype
 import com.astarworks.astera.combat.domain.skill.SkillSpec
 import com.astarworks.astera.combat.domain.skill.SkillTag
 import com.astarworks.astera.core.application.admin.panel.AdminPanelUi
@@ -17,7 +16,7 @@ import com.astarworks.astera.core.domain.item.ItemId
 
 /**
  * Pure catalog logic of the admin panel's "Skills" page (F2-5, ADR-0196): every
- * registered skill as an icon (by archetype), click = cast, shift-click = give a
+ * registered skill as an icon, click = cast, shift-click = give a
  * skill tester item. Callers pass the live skills so a content reload shows up on
  * the next open.
  */
@@ -30,68 +29,36 @@ public object AdminSkillCatalog {
     public const val INTENT_OPEN: String = "admin.skills.open"
     public const val INTENT_CAST: String = "admin.skills.cast"
     public const val INTENT_TESTER: String = "admin.skills.tester"
-    public const val PAYLOAD_ARCHETYPE: String = "archetype"
     public const val PAYLOAD_SKILL: String = "skill"
 
     private val K_TITLE = MessageKey("astera.admin.panel.skills.title")
-    private val K_TAB_LORE = MessageKey("astera.admin.panel.skills.tab.lore")
     private val K_ENTRY_NAME = MessageKey("astera.admin.panel.skills.entry.name")
     private val K_ENTRY_INFO = MessageKey("astera.admin.panel.skills.entry.info")
     private val K_ENTRY_HINT = MessageKey("astera.admin.panel.skills.entry.hint")
     private val K_ENTRY_HINT_SHIFT = MessageKey("astera.admin.panel.skills.entry.hint-shift")
     private val K_EMPTY = MessageKey("astera.admin.panel.skills.empty")
 
-    private val ICON_ALL = ItemId("gui-admin-skills")
+    private val ICON_SKILL = ItemId("gui-admin-skills")
     private val ICON_EMPTY = ItemId("gui-admin-empty")
-
-    /** Panel icon of [archetype]; plain items `gui-skill-<archetype>` in `content/items/`. */
-    public fun iconOf(archetype: SkillArchetype): ItemId = ItemId("gui-skill-${archetype.name.lowercase()}")
-
-    public fun parse(key: String?): SkillArchetype? = SkillArchetype.entries.firstOrNull { it.name.equals(key, ignoreCase = true) }
 
     /** Skill tag that marks a dev / demo skill (ADR-0270): castable by id, not listed on the Skills page. */
     public val DEMO_TAG: SkillTag = SkillTag("demo")
 
-    /** Skills of [filter] (`null` = all) without demo skills, ordered by archetype then id. */
-    public fun entries(skills: Collection<SkillSpec>, filter: SkillArchetype?): List<SkillSpec> =
-        skills.filter { DEMO_TAG !in it.tags }
-            .filter { filter == null || it.archetype == filter }
-            .sortedWith(compareBy({ it.archetype.ordinal }, { it.id.value }))
+    /** Skills without demo skills, ordered by id. */
+    public fun entries(skills: Collection<SkillSpec>): List<SkillSpec> =
+        skills.filter { DEMO_TAG !in it.tags }.sortedBy { it.id.value }
 
     public fun pageCount(entryCount: Int): Int = AdminPanelUi.pageCount(entryCount, PAGE_SIZE)
 
     public fun pageOf(entries: List<SkillSpec>, page: Int): List<SkillSpec> =
         entries.drop(AdminPanelUi.clampPage(page, pageCount(entries.size)) * PAGE_SIZE).take(PAGE_SIZE)
 
-    /** Build the Skills page (CHEST_54) for [filter] at [requestedPage]. */
-    public fun buildSpec(skills: Collection<SkillSpec>, filter: SkillArchetype?, requestedPage: Int): GuiSpec {
-        val shown = entries(skills, filter)
+    /** Build the Skills page (CHEST_54) at [requestedPage]. */
+    public fun buildSpec(skills: Collection<SkillSpec>, requestedPage: Int): GuiSpec {
+        val shown = entries(skills)
         val pages = pageCount(shown.size)
         val page = AdminPanelUi.clampPage(requestedPage, pages)
-        val filterKey = filter?.name?.lowercase() ?: "all"
         return GuiSpec.build(GUI_ID, K_TITLE, GuiSize.CHEST_54) {
-            val tabs: List<SkillArchetype?> = listOf(null) + SkillArchetype.entries
-            tabs.forEachIndexed { i, archetype ->
-                val count = if (archetype == null) skills.size else skills.count { it.archetype == archetype }
-                slot(
-                    SlotIndex(i),
-                    GuiSlot.Static(
-                        itemId = archetype?.let(::iconOf) ?: ICON_ALL,
-                        onLeftClick = GuiIntent(
-                            INTENT_OPEN,
-                            mapOf(PAYLOAD_ARCHETYPE to (archetype?.name?.lowercase() ?: "all"), "page" to "0"),
-                        ),
-                        displayName = GuiText(
-                            MessageKey("astera.admin.panel.skills.tab.${archetype?.name?.lowercase() ?: "all"}"),
-                            mapOf(
-                                "count" to count.toString(),
-                                "mark" to if (archetype == filter) "<yellow>></yellow>" else "<dark_gray>-</dark_gray>",
-                            ),
-                        ),
-                        lore = listOf(GuiText(K_TAB_LORE)),
-                    ),
-                )
-            }
             slot(SlotIndex(8), AdminPanelUi.back())
 
             val pageEntries = pageOf(shown, page)
@@ -99,7 +66,7 @@ public object AdminSkillCatalog {
                 slot(
                     SlotIndex(9 + i),
                     GuiSlot.Static(
-                        itemId = iconOf(skill.archetype),
+                        itemId = ICON_SKILL,
                         onLeftClick = GuiIntent(INTENT_CAST, mapOf(PAYLOAD_SKILL to skill.id.value)),
                         onShiftClick = GuiIntent(INTENT_TESTER, mapOf(PAYLOAD_SKILL to skill.id.value)),
                         displayName = GuiText(K_ENTRY_NAME, mapOf("id" to skill.id.value)),
@@ -107,7 +74,6 @@ public object AdminSkillCatalog {
                             GuiText(
                                 K_ENTRY_INFO,
                                 mapOf(
-                                    "archetype" to skill.archetype.name.lowercase(),
                                     "cooldown" to skill.cooldownTicks.toString(),
                                 ),
                             ),
@@ -123,7 +89,7 @@ public object AdminSkillCatalog {
 
             pager(
                 key = INTENT_OPEN,
-                payload = mapOf(PAYLOAD_ARCHETYPE to filterKey),
+                payload = emptyMap(),
                 page = page,
                 pages = pages,
                 prevSlot = 48,

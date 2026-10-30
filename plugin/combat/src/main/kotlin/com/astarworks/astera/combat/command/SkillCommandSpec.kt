@@ -174,7 +174,7 @@ private fun listSubcommand(caster: AdminSkillCaster): CommandSpec.Literal = Comm
         for (s in skills) {
             ctx.reply(
                 K_LIST_ENTRY,
-                mapOf("id" to s.id.value, "archetype" to s.archetype.name.lowercase(), "cooldown" to s.cooldownTicks.toString()),
+                mapOf("id" to s.id.value, "cooldown" to s.cooldownTicks.toString()),
             )
         }
         CommandResult.Success

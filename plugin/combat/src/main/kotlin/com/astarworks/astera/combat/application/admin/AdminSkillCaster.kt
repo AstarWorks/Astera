@@ -29,7 +29,7 @@ public class AdminSkillCaster(
         return cast.execute(casterId = caster, skillId = skillId, ignoreResource = true)
     }
 
-    /** All skills, ordered by archetype then id (stable listing for `skill list` and the panel). */
+    /** All skills, ordered by id (stable listing for `skill list` and the panel). */
     public fun all(): List<SkillSpec> =
-        skills.all().sortedWith(compareBy({ it.archetype.ordinal }, { it.id.value }))
+        skills.all().sortedBy { it.id.value }
 }

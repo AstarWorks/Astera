@@ -104,7 +104,7 @@ public class ProjectileStepper(
         now: Long,
         probe: ProjectileWorldProbe,
         beforeResolve: (ProjectileStepOutcome) -> Unit = {},
-    ): ProjectileStepOutcome = ExecutionCosts.measure("projectile.step", flight.spec.skill?.skillId?.value ?: "unbound") {
+    ): ProjectileStepOutcome = ExecutionCosts.measure("projectile.step", "unbound") {
         stepFlight(flight, now, probe, beforeResolve)
     }
 
@@ -118,7 +118,7 @@ public class ProjectileStepper(
         steer(flight, probe)
         val from = flight.position
         val to = from + flight.velocity
-        val outcome: ProjectileStepOutcome = when (val contact = ExecutionCosts.measure("target.projectile_contact", flight.spec.skill?.skillId?.value ?: "unbound") { probe.firstContact(flight, from, to) }) {
+        val outcome: ProjectileStepOutcome = when (val contact = ExecutionCosts.measure("target.projectile_contact", "unbound") { probe.firstContact(flight, from, to) }) {
             is ProjectileContact.Entity -> {
                 flight.position = contact.at
                 flight.travelled += from.distance(contact.at)
@@ -157,7 +157,7 @@ public class ProjectileStepper(
     /** Homing: bend the velocity toward the nearest valid target in range. */
     private fun steer(flight: ProjectileFlight, probe: ProjectileWorldProbe) {
         val m = flight.spec.motion as? MotionProfile.Homing ?: return
-        val aim = ExecutionCosts.measure("target.homing", flight.spec.skill?.skillId?.value ?: "unbound") {
+        val aim = ExecutionCosts.measure("target.homing", "unbound") {
             probe.homingTarget(flight, m.acquisitionRadius)
         } ?: return
         val speed = flight.velocity.length()

@@ -1,7 +1,6 @@
 package com.astarworks.astera.combat.platform.wiring
 
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
-import com.astarworks.astera.combat.domain.skill.SkillArchetype
 import com.astarworks.astera.combat.domain.skill.SkillSpec
 import com.astarworks.astera.combat.domain.skill.SkillTag
 import com.astarworks.astera.core.domain.i18n.LocaleCode
@@ -14,7 +13,7 @@ import com.astarworks.astera.core.domain.skillengine.model.SkillMeta
 /**
  * The cast gate's skill registry (ADR-0301). The [SkillCatalog] is the only skill store; each skill's gate data
  * (skin variants `id@skin` are not skills; cooldown, resource, E.G.O cost, reload, ready cue, name, tags) comes from its `meta:` block and is turned into a
- * [SkillSpec] with a placeholder archetype (the spec type is now the gate's record, nothing executes from it).
+ * [SkillSpec] (the spec type is the gate's record, nothing executes from it).
  */
 public class SkillMetaRegistry(private val catalog: SkillCatalog) : ISkillRegistry {
 
@@ -30,7 +29,6 @@ public class SkillMetaRegistry(private val catalog: SkillCatalog) : ISkillRegist
             if (m.isEmpty()) fallback else LocalizedText(m.mapKeys { LocaleCode(it.key) })
         return SkillSpec(
             id = id,
-            archetype = SkillArchetype.SEQUENCE,
             name = text(meta.name, LocalizedText.EMPTY),
             description = text(meta.description, LocalizedText.EMPTY),
             cooldownTicks = meta.cooldownTicks,

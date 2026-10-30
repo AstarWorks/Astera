@@ -10,7 +10,6 @@ import com.astarworks.astera.core.domain.skill.SkillId
  * executes from it (the v3 `ExpansionTable` / `TablePlayer` runs the skill).
  *
  *  - [name] / [description] - inline localized text, no `MessageKey`.
- *  - [archetype] - admin panel grouping only; every v3 skill carries [SkillArchetype.SEQUENCE].
  *  - [tags] - free-form designer-facing classifiers (see [SkillTag]).
  *  - [resourceType] / [resourceCost] - what a cast spends from the caster's resource pool (ammo / energy).
  *    `resourceType == null` means "the resource of the item the cast comes from"; `resourceCost == null` means
@@ -26,7 +25,6 @@ public data class SkillSpec(
     val id: SkillId,
     val name: LocalizedText,
     val description: LocalizedText,
-    val archetype: SkillArchetype,
     val cooldownTicks: Int,
     val tags: Set<SkillTag> = emptySet(),
     val resourceType: ResourceType? = null,
