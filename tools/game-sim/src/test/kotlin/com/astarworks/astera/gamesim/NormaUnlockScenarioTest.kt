@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 
 /**
  * ADR-0292: a Norma level opens weapon rarities (`rarity_levels` of `content/norma-layer/layer.yaml`: common 1,
- * uncommon 2, rare 3, epic 4, legendary 5). An epic weapon (ember-gauntlet) does nothing - no attack, no skill - until
+ * uncommon 2, rare 3, epic 4, legendary 5). An epic weapon (couture-rapier) does nothing - no attack, no skill - until
  * its holder reaches Lv 4, with a deny line naming the level and rarity; a common weapon works from Lv 1. The level-up
  * names the rarity it opened. Outside a match nothing is gated.
  */
@@ -49,7 +49,7 @@ class NormaUnlockScenarioTest {
     fun `outside a match nothing is gated`() {
         scenario("norma-unlock-no-match") {
             val red = player("red-1", team = "red")
-            red.holds("ember-gauntlet")
+            red.holds("couture-rapier")
             red.leftClick()
             advance(4)
             assertThat(castsBy(red)).`as`("no Norma match, no gate").isNotEmpty()
