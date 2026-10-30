@@ -1,0 +1,5 @@
+id: skill-line
+programs: [item]
+markers:
+  - {channel: light-uv, value: "192:240"}
+constants: {}

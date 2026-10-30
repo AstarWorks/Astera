@@ -43,20 +43,20 @@ class GunTracerScenarioTest : SkillEngineScenario() {
         rec.faithfulPose = true
         rec.victims = victims
         val calls = play(shipped(skill), seed = 1L, events = emptyList(), ticks = 60, rec = rec)
-        return calls.filter { it.verb == "spawn" && it.payload == "kind=ribbon" && it.detail.contains("quads=") }.map { it.detail }
+        return calls.filter { it.verb == "spawn" && it.payload == "kind=ribbon" && it.detail.contains("frames=") }.map { it.detail }
     }
 
     private fun assertVolumetric(detail: String) {
         val from = vec(Regex("""from=(-?[0-9.]+,-?[0-9.]+,-?[0-9.]+)""").find(detail)!!.groupValues[1])
         val to = vec(Regex("""to=(-?[0-9.]+,-?[0-9.]+,-?[0-9.]+)""").find(detail)!!.groupValues[1])
         val dir = (to - from).normalize()
-        val across = Regex("""\[[^|]+\|(-?[0-9.]+,-?[0-9.]+,-?[0-9.]+)\]""").findAll(detail).map { vec(it.groupValues[1]) }.toList()
+        val across = Regex("""\[[^|]+\|(-?[0-9.]+,-?[0-9.]+,-?[0-9.]+)\|(-?[0-9.]+,-?[0-9.]+,-?[0-9.]+)\]""").findAll(detail).flatMap { listOf(vec(it.groupValues[1]), vec(it.groupValues[2])) }.toList()
         assertThat(across).hasSize(2)
         for (a in across) {
             assertThat(a.length()).isGreaterThan(0.01)
             assertThat(abs(a.dot(dir))).isLessThan(1e-3)
         }
-        // the two quads span two different directions across the line: a flat plane seen edge-on would have one
+        // the two crossed planes span two different directions across the line: a flat plane seen edge-on would have one
         assertThat(abs(across[0].normalize().dot(across[1].normalize()))).isLessThan(1e-3)
     }
 

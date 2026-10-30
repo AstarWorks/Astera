@@ -60,6 +60,7 @@ public class ResourcePackBuilder(
         addModels(files)
         addBlockVisuals(files)
         addHeldHiddenDefinition(files)
+        addSkillLine(files)
         addSounds(files)
         addHud(files)
         addFonts(files)
@@ -204,6 +205,46 @@ public class ResourcePackBuilder(
     private fun addHeldHiddenDefinition(files: MutableMap<String, ByteArray>) {
         files["assets/$NAMESPACE/items/held_hidden.json"] =
             json(mapOf("model" to mapOf("type" to "minecraft:empty"), "hand_animation_on_swap" to false)).toByteArray()
+    }
+
+    /**
+     * `astera:skill_line` (ADR-0303 rev4.15): the model of one segment of a `shape: line` ribbon. Two zero-thickness planes crossed
+     * about the x axis (the line), each with both opposite faces, so every plane is visible from both sides. The colour is the
+     * `custom_model_data` colour tint (`tintindex 0`); opacity is one of [LINE_ALPHA_STEPS] white textures selected by the first
+     * custom_model_data string (`a01`..`a15`). Emitted from code, never authored.
+     */
+    private fun addSkillLine(files: MutableMap<String, ByteArray>) {
+        fun step(n: Int) = "a%02d".format(n)
+        val tints = listOf(mapOf("type" to "minecraft:custom_model_data", "index" to 0, "default" to -1))
+        fun face() = mapOf("uv" to listOf(0, 0, 16, 16), "texture" to "#0", "tintindex" to 0)
+        val cases = (1..LINE_ALPHA_STEPS).map { n ->
+            val key = "$NAMESPACE:items/skill_line/${step(n)}"
+            files["assets/$NAMESPACE/models/item/skill_line/${step(n)}.json"] = json(
+                mapOf(
+                    "textures" to mapOf("0" to key),
+                    "elements" to listOf(
+                        mapOf("from" to listOf(0, 0, 8), "to" to listOf(16, 16, 8), "shade" to false,
+                            "faces" to mapOf("north" to face(), "south" to face())),
+                        mapOf("from" to listOf(0, 8, 0), "to" to listOf(16, 8, 16), "shade" to false,
+                            "faces" to mapOf("up" to face(), "down" to face())),
+                    ),
+                ),
+            ).toByteArray()
+            val image = java.awt.image.BufferedImage(16, 16, java.awt.image.BufferedImage.TYPE_INT_ARGB)
+            val argb = (Math.round(255.0 * n / LINE_ALPHA_STEPS).toInt() shl 24) or 0xFFFFFF
+            for (x in 0 until 16) for (y in 0 until 16) image.setRGB(x, y, argb)
+            val png = java.io.ByteArrayOutputStream()
+            check(javax.imageio.ImageIO.write(image, "png", png)) { "no PNG writer" }
+            files["assets/$NAMESPACE/textures/items/skill_line/${step(n)}.png"] = png.toByteArray()
+            mapOf("when" to step(n), "model" to mapOf("type" to "minecraft:model", "model" to "$NAMESPACE:item/skill_line/${step(n)}", "tints" to tints))
+        }
+        val fallback = mapOf("type" to "minecraft:model", "model" to "$NAMESPACE:item/skill_line/${step(LINE_ALPHA_STEPS)}", "tints" to tints)
+        files["assets/$NAMESPACE/items/skill_line.json"] = json(
+            mapOf(
+                "model" to mapOf("type" to "minecraft:select", "property" to "minecraft:custom_model_data", "index" to 0, "cases" to cases, "fallback" to fallback),
+                "hand_animation_on_swap" to false,
+            ),
+        ).toByteArray()
     }
 
     private fun modelTints(model: JsonNode): List<Int> {
@@ -416,6 +457,9 @@ public class ResourcePackBuilder(
         public const val NAMESPACE: String = "astera"
         public const val ZIP_NAME: String = "astera.zip"
         public const val SPRITE_SIZE: Int = 9
+
+        /** Opacity ladder of the `astera:skill_line` model: texture `a01`..`a15` (ADR-0303 rev4.15). */
+        public const val LINE_ALPHA_STEPS: Int = 15
 
         /** Subdirectory of `content/textures/` holding generator inputs (ADR-0238); never packed. */
         public const val SOURCES_DIR: String = "sources"

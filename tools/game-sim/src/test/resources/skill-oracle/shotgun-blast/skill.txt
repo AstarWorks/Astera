@@ -1,5 +1,5 @@
 ## pose yaw=0 pitch=0
-@0 spawn #0 op=cast/tracer/line kind=ribbon from=-0.350000,0.970000,0.750000 to=0.000000,1.420000,6.000000 thick=0.140000 color=#ffe070 alpha=1.000000 quads=[0.350000,0.450000,5.250000|0.139690,0.000000,-0.009313],[0.350000,0.450000,5.250000|-0.000794,0.139491,-0.011903]
+@0 spawn #0 op=cast/tracer/line kind=ribbon from=-0.350000,0.970000,0.750000 to=0.000000,1.420000,6.000000 thick=0.140000 color=#ffe070 alpha=1.000000 frames=[0.350000,0.450000,5.250000|-0.139690,0.000000,0.009313|0.000794,-0.139491,0.011903]
 @0 sound - op=cast/snd sound=astera:weapons/shotgun-blast cat=master vol=0.6 pitch=1.4 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=shotgun-muzzle at=-0.350000,0.970000,0.750000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9180353879789664804
 @0 particle - op=cast/fx_2 type=shotgun-cone-smoke at=0.000000,1.420000,2.400000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5546567132215837783
@@ -18,7 +18,7 @@
 @4 line #0 op=cast/tracer/line from=-0.350000,0.970000,0.750000 to=0.000000,1.420000,6.000000
 @4 remove #0 op=cast/tracer/line
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=cast/tracer/line kind=ribbon from=-0.837455,1.265715,0.529766 to=-3.434293,3.484182,4.557461 thick=0.140000 color=#ffe070 alpha=1.000000 quads=[-2.596839,2.218467,4.027695|0.117664,0.000000,0.075863],[-2.596839,2.218467,4.027695|0.031870,0.127047,-0.049430]
+@0 spawn #0 op=cast/tracer/line kind=ribbon from=-0.837455,1.265715,0.529766 to=-3.434293,3.484182,4.557461 thick=0.140000 color=#ffe070 alpha=1.000000 frames=[-2.596839,2.218467,4.027695|-0.117664,0.000000,-0.075863|-0.031870,-0.127047,0.049430]
 @0 sound - op=cast/snd sound=astera:weapons/shotgun-blast cat=master vol=0.6 pitch=1.4 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=shotgun-muzzle at=-0.837455,1.265715,0.529766 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=9180353879789664804
 @0 particle - op=cast/fx_2 type=shotgun-cone-smoke at=-1.398417,2.252910,1.855762 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5546567132215837783
@@ -29,7 +29,7 @@
 @4 line #0 op=cast/tracer/line from=-0.837455,1.265715,0.529766 to=-3.434293,3.484182,4.557461
 @4 remove #0 op=cast/tracer/line
 ## pose-hit yaw=0 pitch=0
-@0 spawn #0 op=cast/tracer/line kind=ribbon from=-0.350000,0.970000,0.750000 to=0.000000,1.420000,6.000000 thick=0.140000 color=#ffe070 alpha=1.000000 quads=[0.350000,0.450000,5.250000|0.139690,0.000000,-0.009313],[0.350000,0.450000,5.250000|-0.000794,0.139491,-0.011903]
+@0 spawn #0 op=cast/tracer/line kind=ribbon from=-0.350000,0.970000,0.750000 to=0.000000,1.420000,6.000000 thick=0.140000 color=#ffe070 alpha=1.000000 frames=[0.350000,0.450000,5.250000|-0.139690,0.000000,0.009313|0.000794,-0.139491,0.011903]
 @0 sound - op=cast/snd sound=astera:weapons/shotgun-blast cat=master vol=0.6 pitch=1.4 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=shotgun-muzzle at=-0.350000,0.970000,0.750000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9180353879789664804
 @0 particle - op=cast/fx_2 type=shotgun-cone-smoke at=0.000000,1.420000,2.400000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5546567132215837783
@@ -47,7 +47,7 @@ g @1 state-exit reason=TIMER | state=cast
 g @1 cast-end | pose
 r @5 run-end tail=4 | pose
 ## pose-hit yaw=37 pitch=0
-@0 spawn #0 op=cast/tracer/line kind=ribbon from=-0.730884,0.970000,0.388341 to=-3.610890,1.420000,4.791813 thick=0.140000 color=#ffe070 alpha=1.000000 quads=[-2.880006,0.450000,4.403472|0.117166,0.000000,0.076630],[-2.880006,0.450000,4.403472|0.006530,0.139491,-0.009984]
+@0 spawn #0 op=cast/tracer/line kind=ribbon from=-0.730884,0.970000,0.388341 to=-3.610890,1.420000,4.791813 thick=0.140000 color=#ffe070 alpha=1.000000 frames=[-2.880006,0.450000,4.403472|-0.117166,0.000000,-0.076630|-0.006530,-0.139491,0.009984]
 @0 sound - op=cast/snd sound=astera:weapons/shotgun-blast cat=master vol=0.6 pitch=1.4 at=0.000000,0.000000,0.000000
 @0 particle - op=cast/fx type=shotgun-muzzle at=-0.730884,0.970000,0.388341 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=9180353879789664804
 @0 particle - op=cast/fx_2 type=shotgun-cone-smoke at=-1.444356,1.420000,1.916725 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5546567132215837783

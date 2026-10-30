@@ -7,7 +7,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Row
 /**
  * The vertices of a polyline line ribbon (`ribbon` `from`/`to` with `segments` N, ADR-0303 rev4.14): `v_0 = from`, `v_N = to` exactly, every inner vertex
  * is `from + (to - from) * (k/N + a_k) + u * s_k + w * t_k` with `u`, `w` the two unit vectors perpendicular to the line (built from its direction alone,
- * never from the eye, so the bolt does not swim when the camera moves). `s_k`, `t_k` in `[-spread, spread]`, `a_k` in `[-along, along] / N`.
+ * never from the eye (see [LineBasis]), so the bolt does not swim when the camera moves). `s_k`, `t_k` in `[-spread, spread]`, `a_k` in `[-along, along] / N`.
  *
  * The offsets are visual randomness: a pure function of (row seed, [epoch], k, axis). The segment count, the epochs and the end are table facts; only the
  * displacement of the inner vertices is drawn. Sim and Paper both call this, so the goldens and the client agree byte for byte.
@@ -17,11 +17,9 @@ public object LinePath {
         require(segments >= 1) { "a line has at least one segment" }
         if (segments == 1) return listOf(from, to)
         val span = to - from
-        val length = span.length()
-        val dir = if (length < 1e-9) Vec3(1.0, 0.0, 0.0) else span * (1.0 / length)
-        val ref = if (kotlin.math.abs(dir.y) > 0.99) Vec3(1.0, 0.0, 0.0) else Vec3(0.0, 1.0, 0.0)
-        val u = dir.cross(ref).normalize()
-        val w = dir.cross(u)
+        val basis = LineBasis.of(from, to)
+        val u = basis.u
+        val w = basis.w
         return List(segments + 1) { k ->
             when (k) {
                 0 -> from

@@ -36,7 +36,7 @@ r @5 run-end tail=4 | pose
 @1 particle - op=fire/trail_crit[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4422400065892599329
 @1 particle - op=fire/trail_smoke[1] type=white_smoke count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3735225102261560443
 @1 hit - op=fire/bolt at=0.000000,1.620000,2.100000 r=2.100000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.700000 rad=0.500000
-@1 spawn #1 op=- kind=ribbon from=-0.350000,0.970000,0.450000 to=0.000000,1.620000,2.200000 thick=0.100000 color=#ffe070 alpha=1.000000 quads=[0.350000,0.650000,1.750000|0.098058,0.000000,-0.019612],[0.350000,0.650000,1.750000|-0.006712,0.093962,-0.033558]
+@1 spawn #1 op=- kind=ribbon from=-0.350000,0.970000,0.450000 to=0.000000,1.620000,2.200000 thick=0.100000 color=#ffe070 alpha=1.000000 frames=[0.350000,0.650000,1.750000|-0.098058,0.000000,0.019612|0.006712,-0.093962,0.033558]
 @1 sound - op=fire/bolt.hit/fx_hit/snd sound=astera:weapons/gun-impact cat=master vol=1 pitch=1 at=0.000000,0.810000,2.500000
 @1 particle - op=fire/bolt.hit/fx_hit/fx type=gun-impact at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3451322200420063412
 @1 damage 00000000-0000-0000-0000-00000000000a op=- physical=51 skill=pistol-shot-t4 at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
@@ -59,7 +59,7 @@ r @5 run-end tail=4 | pose
 @1 particle - op=fire/trail_crit[1] type=crit count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4422400065892599329
 @1 particle - op=fire/trail_smoke[1] type=white_smoke count=1 at=-0.300908,1.620000,0.399318 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3735225102261560443
 @1 hit - op=fire/bolt at=-1.263812,1.620000,1.677135 r=2.100000 shape=capsule a=-0.300908,1.620000,0.399318 b=-2.226716,1.620000,2.954951 rad=0.500000
-@1 spawn #1 op=- kind=ribbon from=-0.550339,0.970000,0.148751 to=-1.278471,1.620000,1.696589 thick=0.100000 color=#ffe070 alpha=1.000000 quads=[-0.728132,0.650000,1.547838|0.090488,0.000000,0.042567],[-0.728132,0.650000,1.547838|0.015120,0.093479,-0.032142]
+@1 spawn #1 op=- kind=ribbon from=-0.550339,0.970000,0.148751 to=-1.278471,1.620000,1.696589 thick=0.100000 color=#ffe070 alpha=1.000000 frames=[-0.728132,0.650000,1.547838|-0.090488,0.000000,-0.042567|-0.015120,-0.093479,0.032142]
 @1 sound - op=fire/bolt.hit/fx_hit/snd sound=astera:weapons/gun-impact cat=master vol=1 pitch=1 at=-1.504538,0.810000,1.996589
 @1 particle - op=fire/bolt.hit/fx_hit/fx type=gun-impact at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3451322200420063412
 @1 damage 00000000-0000-0000-0000-00000000000a op=- physical=51 skill=pistol-shot-t4 at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false

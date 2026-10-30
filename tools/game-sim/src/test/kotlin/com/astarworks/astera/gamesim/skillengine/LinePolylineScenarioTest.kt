@@ -107,9 +107,9 @@ class LinePolylineScenarioTest : SkillEngineScenario() {
                 assertThat(perp.length()).`as`("tick $tick vertex $k perpendicular").isLessThanOrEqualTo(0.4 * sqrt(2.0) + 1e-6)
             }
         }
-        // the spawn records one crossed pair per segment
+        // the spawn records one item-display frame per segment
         val spawn = calls.first { it.verb == "spawn" && it.payload == "kind=ribbon" }
-        assertThat(Regex("""\[[^|\]]+\|[^\]]+\]""").findAll(spawn.detail.substringAfter("quads=")).count()).isEqualTo(10)
+        assertThat(Regex("""\[[^|\]]+\|[^|\]]+\|[^\]]+\]""").findAll(spawn.detail.substringAfter("frames=")).count()).isEqualTo(5)
     }
 
     @Test
@@ -138,7 +138,7 @@ class LinePolylineScenarioTest : SkillEngineScenario() {
         val calls = run(skill(ribbon("beam", "")))
         val spawn = calls.first { it.verb == "spawn" && it.payload == "kind=ribbon" }
         assertThat(spawn.detail).doesNotContain("verts=")
-        assertThat(Regex("""\[[^|\]]+\|[^\]]+\]""").findAll(spawn.detail.substringAfter("quads=")).count()).isEqualTo(2)
+        assertThat(Regex("""\[[^|\]]+\|[^|\]]+\|[^\]]+\]""").findAll(spawn.detail.substringAfter("frames=")).count()).isEqualTo(1)
         val lines = calls.filter { it.verb == "line" }
         assertThat(lines).isNotEmpty
         assertThat(lines.all { !it.detail.contains("verts=") }).isTrue()

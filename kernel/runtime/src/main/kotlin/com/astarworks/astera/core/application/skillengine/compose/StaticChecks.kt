@@ -831,15 +831,15 @@ public object StaticChecks {
     }
 
     /**
-     * How many live displays a spawn row costs: a `shape: line` ribbon is `segments` crossed-quad pairs, two text displays each (look key
-     * `segments`, absent = 1); everything else, a trail included, is one.
+     * How many live displays a spawn row costs: a `shape: line` ribbon is one item display per segment (look key `segments`, absent = 1,
+     * ADR-0303 rev4.15); everything else, a trail included, is one.
      */
     private fun displayWeight(row: Row): Int {
         val spawn = row.action as? Action.Spawn ?: return 1
         val look = spawn.look
         if (spawn.kind != SpawnKind.RIBBON || (look.fields["shape"] as? Val.Known<*>)?.value != "line") return 1
         val segments = ((look.fields["segments"] as? Val.Known<*>)?.value as? Number)?.toInt() ?: 1
-        return 2 * segments
+        return segments
     }
 
     /**

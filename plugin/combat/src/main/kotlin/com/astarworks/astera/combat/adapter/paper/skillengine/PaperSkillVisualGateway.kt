@@ -8,7 +8,7 @@ import com.astarworks.astera.core.application.skillengine.load.ItemFrames
 import com.astarworks.astera.core.application.skillengine.load.MeshModel
 import com.astarworks.astera.core.application.skillengine.load.MeshModels
 import com.astarworks.astera.core.application.skillengine.runtime.port.LineGeometry
-import com.astarworks.astera.core.application.skillengine.runtime.port.LinePlane
+import com.astarworks.astera.core.application.skillengine.runtime.port.LineSegmentFrame
 import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
 import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway
 import com.astarworks.astera.core.application.skillengine.runtime.port.MeshLook
@@ -42,10 +42,16 @@ import com.astarworks.astera.core.domain.world.WorldId
 import net.kyori.adventure.text.Component
 import org.bukkit.Color
 import org.bukkit.Location
+import org.bukkit.Material
+import org.bukkit.inventory.ItemStack
+import io.papermc.paper.datacomponent.DataComponentTypes
+import io.papermc.paper.datacomponent.item.CustomModelData
+import net.kyori.adventure.key.Key
 import org.bukkit.Server
 import org.bukkit.World
 import org.bukkit.entity.BlockDisplay
 import org.bukkit.entity.Display
+import org.bukkit.entity.ItemDisplay
 import org.bukkit.entity.TextDisplay
 import org.joml.Matrix4f
 import org.slf4j.LoggerFactory
@@ -102,7 +108,7 @@ public class PaperSkillVisualGateway(
     private class Slab(val axes: RibbonMesh.SlabAxes, val edge: Boolean, val thickness: Double)
     private class Seg(val display: UUID, var age: Int, val style: PieceStyle?, val slab: Slab?)
     /** A thread between two points: one text-display strip that the runtime re-ends every tick. */
-    private class LineEntry(val world: World, val owner: UUID, val displays: List<TextDisplay>, val thickness: Double) : Entry
+    private class LineEntry(val world: World, val owner: UUID, val displays: List<ItemDisplay>, val thickness: Double) : Entry
     /** A camera-anchored quad on one viewer's screen; re-placed in front of the eye every tick. */
     private class VeilEntry(val handle: DisplayHandle, val viewer: UUID, val distance: Double, val side: Double, val ticks: Int) : Entry
 
@@ -227,27 +233,23 @@ public class PaperSkillVisualGateway(
         require(vertices.size >= 2) { "a line needs at least two vertices" }
         val castOwner = cast.caster
         val world = worldOf(cast) ?: return dead("line")
-        val rgb = argb(colorHex) and 0xFFFFFF
-        val argb = Color.fromARGB((alpha.coerceIn(0.0, 1.0) * 255.0).toInt(), rgb shr 16 and 0xFF, rgb shr 8 and 0xFF, rgb and 0xFF)
+        val stack = lineStack(argb(colorHex) and 0xFFFFFF, alpha)
         // a jagged bolt (more than one segment) re-jags as a cut: no slide between two shapes; a straight thread keeps its one-tick glide
         val glide = if (vertices.size > 2) 0 else 1
-        val displays = ArrayList<TextDisplay>(2 * (vertices.size - 1))
+        val displays = ArrayList<ItemDisplay>(vertices.size - 1)
         for (s in 0 until vertices.size - 1) {
             val mid = (vertices[s] + vertices[s + 1]) * 0.5
-            val planes = LineGeometry.planes(vertices[s], vertices[s + 1], thickness, eyeOf(castOwner, mid))
-            for (plane in planes) {
-                displays += world.spawn(Location(world, mid.x, mid.y, mid.z), TextDisplay::class.java) {
-                    PaperManagedEntities.mark(it, "skill-ribbon")
-                    it.billboard = Display.Billboard.FIXED
-                    it.text(Component.text(" "))
-                    it.backgroundColor = argb
-                    it.textOpacity = 255.toByte()
-                    it.brightness = Display.Brightness(15, 15)
-                    it.shadowRadius = 0f
-                    it.teleportDuration = glide
-                    it.interpolationDuration = glide
-                    it.setTransformationMatrix(planeMatrix(plane))
-                }
+            val frame = LineGeometry.frame(vertices[s], vertices[s + 1], thickness)
+            displays += world.spawn(Location(world, mid.x, mid.y, mid.z), ItemDisplay::class.java) {
+                PaperManagedEntities.mark(it, "skill-ribbon")
+                it.billboard = Display.Billboard.FIXED
+                it.itemDisplayTransform = ItemDisplay.ItemDisplayTransform.NONE
+                it.setItemStack(stack.clone())
+                it.brightness = LINE_BRIGHTNESS
+                it.shadowRadius = 0f
+                it.teleportDuration = glide
+                it.interpolationDuration = glide
+                it.setTransformationMatrix(segmentMatrix(frame))
             }
         }
         return register(castOwner, LineEntry(world, castOwner, displays, thickness))
@@ -255,17 +257,13 @@ public class PaperSkillVisualGateway(
 
     override fun updateLine(handle: VisualHandle, vertices: List<Vec3>) {
         val e = entries[handle.id] as? LineEntry ?: return
-        if (vertices.size != e.displays.size / 2 + 1) return
-        var i = 0
+        if (vertices.size != e.displays.size + 1) return
         for (s in 0 until vertices.size - 1) {
             val mid = (vertices[s] + vertices[s + 1]) * 0.5
-            val planes = LineGeometry.planes(vertices[s], vertices[s + 1], e.thickness, eyeOf(e.owner, mid))
-            for (plane in planes) {
-                val d = e.displays[i++]
-                d.teleportAsync(Location(e.world, mid.x, mid.y, mid.z))
-                d.interpolationDelay = 0
-                d.setTransformationMatrix(planeMatrix(plane))
-            }
+            val d = e.displays[s]
+            d.teleportAsync(Location(e.world, mid.x, mid.y, mid.z))
+            d.interpolationDelay = 0
+            d.setTransformationMatrix(segmentMatrix(LineGeometry.frame(vertices[s], vertices[s + 1], e.thickness)))
         }
     }
 
@@ -297,20 +295,28 @@ public class PaperSkillVisualGateway(
 
     private fun eyeDirection(player: org.bukkit.entity.Player): Vec3 = player.eyeLocation.direction.let { Vec3(it.x, it.y, it.z) }
 
-    /** The viewer the strip turns its face to: the caster's eye (the thread is seen from where the caster stands), straight up when offline. */
-    private fun eyeOf(owner: UUID, near: Vec3): Vec3 =
-        server.getPlayer(owner)?.eyeLocation?.let { Vec3(it.x, it.y, it.z) } ?: (near + Vec3(0.0, 1.0, 0.0))
-
-    /** One quad of a thread as a display transform: length along [LinePlane.along], [LinePlane.across] the other edge, the face on [LinePlane.normal]. */
-    private fun planeMatrix(plane: LinePlane): Matrix4f {
-        val m = ribbonColumns(plane.along, plane.across, plane.normal)
-        return Matrix4f(
-            m.col0.x.toFloat(), m.col0.y.toFloat(), m.col0.z.toFloat(), 0f,
-            m.col1.x.toFloat(), m.col1.y.toFloat(), m.col1.z.toFloat(), 0f,
-            m.col2.x.toFloat(), m.col2.y.toFloat(), m.col2.z.toFloat(), 0f,
-            m.shift.x.toFloat(), m.shift.y.toFloat(), m.shift.z.toFloat(), 1f,
+    /**
+     * The item of one thread segment (ADR-0303 rev4.15): model `astera:skill_line`, tint = [rgb], opacity = the texture step `a01..a15`
+     * (`strings[0]`) nearest [alpha]. Both are fixed at spawn, as a line's colour and alpha always were.
+     */
+    private fun lineStack(rgb: Int, alpha: Double): ItemStack {
+        val step = (alpha.coerceIn(0.0, 1.0) * LINE_ALPHA_STEPS).roundToInt().coerceIn(1, LINE_ALPHA_STEPS)
+        val stack = ItemStack(Material.PAPER)
+        stack.setData(DataComponentTypes.ITEM_MODEL, Key.key("astera", "skill_line"))
+        stack.setData(
+            DataComponentTypes.CUSTOM_MODEL_DATA,
+            CustomModelData.customModelData().addColor(Color.fromRGB(rgb)).addString("a%02d".format(step)).build(),
         )
+        return stack
     }
+
+    /** One segment as a display transform: columns [LineSegmentFrame.along], [LineSegmentFrame.across], [LineSegmentFrame.normal]; the model is centred, so no translation. */
+    private fun segmentMatrix(frame: LineSegmentFrame): Matrix4f = Matrix4f(
+        frame.along.x.toFloat(), frame.along.y.toFloat(), frame.along.z.toFloat(), 0f,
+        frame.across.x.toFloat(), frame.across.y.toFloat(), frame.across.z.toFloat(), 0f,
+        frame.normal.x.toFloat(), frame.normal.y.toFloat(), frame.normal.z.toFloat(), 0f,
+        0f, 0f, 0f, 1f,
+    )
 
     /**
      * `set text_opacity` for a text or sprite display (`value` 0..1). The client does not interpolate it, so the table
@@ -545,6 +551,12 @@ public class PaperSkillVisualGateway(
     private fun argb(hex: String): Int = SkillDisplaySpecs.argb(hex)
 
     private companion object {
+        /** Brightness(12, 15) = UV2 (192, 240): the marker of the ADR-0305 shader effect `skill-line`. */
+        val LINE_BRIGHTNESS = Display.Brightness(12, 15)
+
+        /** Texture steps `a01..a15` of the `astera:skill_line` model (ResourcePackBuilder.LINE_ALPHA_STEPS). */
+        const val LINE_ALPHA_STEPS = 15
+
         val HAND = PresentationMask(hand = true)
 
         val BODY = PresentationMask(hand = true, offhand = true, armor = true, body = true, pinPose = true)

@@ -1,0 +1,8 @@
+# Astera skill-line (ADR-0303 rev4.15): the item displays of a `shape: line` ribbon carry Brightness(12, 15) = UV2 (192, 240).
+# They are drawn flat (authored colour, no face-normal shading) and fullbright, so both crossed planes read alike from every side.
+@@ hook: shade
+    bool asteraSkillLine = UV2.x == 192 && UV2.y == 240 && ProjMat[3][3] < 0.5;
+    if (asteraSkillLine) vertexColor = Color;
+
+@@ hook: light
+    if (asteraSkillLine) lightMapColor = vec4(1.0);

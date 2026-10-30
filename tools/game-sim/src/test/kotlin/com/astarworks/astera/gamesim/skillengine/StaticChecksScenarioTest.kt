@@ -103,13 +103,13 @@ class StaticChecksScenarioTest : SkillEngineScenario() {
             subTables = emptyMap(), writes = emptyMap(), conditions = emptyMap(), config = EngineConfig(),
         )
         val cfg = EngineConfig()
-        // 3 rows x segments 24 x 2 quads = 144 > 64
+        // 3 rows x segments 24 x 1 item display = 72 > 64
         val err = (StaticChecks.run(table((1..3).map { line(it, 24) }), cfg) as Result.Failure).error
         assertThat(err).isInstanceOf(SkillDecodeError.LiveDisplayCap::class.java)
-        assertThat(err.message).contains("144 displays")
-        // a line without segments is one segment = 2 displays; 32 of them fit the cap of 64, 33 do not
-        assertThat(StaticChecks.run(table((1..32).map { line(it, null) }), cfg)).isInstanceOf(Result.Success::class.java)
-        assertThat(StaticChecks.run(table((1..33).map { line(it, null) }), cfg)).isInstanceOf(Result.Failure::class.java)
+        assertThat(err.message).contains("72 displays")
+        // a line without segments is one segment = 1 display; 64 of them fit the cap of 64, 65 do not
+        assertThat(StaticChecks.run(table((1..64).map { line(it, null) }), cfg)).isInstanceOf(Result.Success::class.java)
+        assertThat(StaticChecks.run(table((1..65).map { line(it, null) }), cfg)).isInstanceOf(Result.Failure::class.java)
     }
 
     private fun detachedLine(name: String, at: Int, segments: Int, endAt: Int?): List<Row> {
@@ -130,11 +130,11 @@ class StaticChecksScenarioTest : SkillEngineScenario() {
     @Test
     fun detachedLinesThatDoNotOverlapAreCountedByTick() {
         val cfg = EngineConfig()
-        // two 20-segment lines = 40 displays each; alive [0,5) and [5,10): the plain sum (80) would refuse, the peak (40) fits
-        val apart = detachedLine("a", 0, 20, 5) + detachedLine("b", 5, 20, 10)
+        // two 40-segment lines = 40 displays each; alive [0,5) and [5,10): the plain sum (80) would refuse, the peak (40) fits
+        val apart = detachedLine("a", 0, 40, 5) + detachedLine("b", 5, 40, 10)
         assertThat(StaticChecks.run(detachedTable(apart), cfg)).isInstanceOf(Result.Success::class.java)
         // moved one tick earlier they coexist for a tick: 80 > 64
-        val overlapping = detachedLine("a", 0, 20, 5) + detachedLine("b", 4, 20, 9)
+        val overlapping = detachedLine("a", 0, 40, 5) + detachedLine("b", 4, 40, 9)
         val err = (StaticChecks.run(detachedTable(overlapping), cfg) as Result.Failure).error
         assertThat(err).isInstanceOf(SkillDecodeError.LiveDisplayCap::class.java)
         assertThat(err.message).contains("80 displays")
@@ -144,12 +144,12 @@ class StaticChecksScenarioTest : SkillEngineScenario() {
     fun detachedLineWithoutFixedEndCountsToCastEndPlusTail() {
         val cfg = EngineConfig()
         // "a" has no End row: its interval is not fixed, so it lives to cast end + tail and meets "b" even though b starts long after a would have ended
-        val open = detachedLine("a", 0, 20, null) + detachedLine("b", 6, 20, 9)
+        val open = detachedLine("a", 0, 40, null) + detachedLine("b", 6, 40, 9)
         val err = (StaticChecks.run(detachedTable(open), cfg) as Result.Failure).error
         assertThat(err).isInstanceOf(SkillDecodeError.LiveDisplayCap::class.java)
         assertThat(err.message).contains("80 displays")
         // the open line alone, or followed by nothing alive with it, is 40
-        assertThat(StaticChecks.run(detachedTable(detachedLine("a", 0, 20, null) + detachedLine("b", 0, 2, 3)), cfg)).isInstanceOf(Result.Success::class.java)
+        assertThat(StaticChecks.run(detachedTable(detachedLine("a", 0, 40, null) + detachedLine("b", 0, 2, 3)), cfg)).isInstanceOf(Result.Success::class.java)
     }
 
     /** chain-lightning's shape (first link + 3 hops every 3 ticks, each a core + glow line alive 5 ticks) at 8 segments per line. */
@@ -210,13 +210,14 @@ $core
 
     @Test
     fun chainLightningLinksAtEightSegmentsFit() {
-        // first link + 3 hops every 3 ticks, each a core + glow line of 8 segments alive 5 ticks: at most two links coexist = 2 x 2 x 16 = 64
+        // first link + 3 hops every 3 ticks, each a core + glow line of 8 segments alive 5 ticks: at most two links coexist = 2 links x 2 lines x 8 = 32
         val r = loadInline(chainProbe(8, 8, withCore = false))
         assertThat(r).describedAs((r as? Result.Failure)?.error?.message ?: "").isInstanceOf(Result.Success::class.java)
-        // the bolt's own sprite is one more display alive while the links are: 65 > 64, so the real skill needs one fewer segment somewhere
-        val err = failure(chainProbe(8, 8, withCore = true))
+        // the bolt's own sprite is one more display alive while the links are: 33, still under the cap
+        assertThat(loadInline(chainProbe(8, 8, withCore = true))).isInstanceOf(Result.Success::class.java)
+        // 24-segment links: 2 x 2 x 24 + 1 = 97 > 64
+        val err = failure(chainProbe(24, 24, withCore = true))
         assertThat(err).isInstanceOf(SkillDecodeError.LiveDisplayCap::class.java)
-        assertThat(err.message).contains("65 displays")
-        assertThat(loadInline(chainProbe(8, 7, withCore = true))).isInstanceOf(Result.Success::class.java)
+        assertThat(err.message).contains("97 displays")
     }
 }

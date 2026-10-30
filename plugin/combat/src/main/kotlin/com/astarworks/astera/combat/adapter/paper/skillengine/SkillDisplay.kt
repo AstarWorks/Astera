@@ -32,7 +32,7 @@ public data class Intrinsic(val unit: Vec3, val centre: Vec3 = Vec3.ZERO) {
         public val BLOCK: Intrinsic = Intrinsic(Vec3(1.0, 1.0, 1.0), Vec3(-0.5, -0.5, -0.5))
 
         /**
-         * Ribbon scale units per block of length and thickness (the one-line text quad of MC 26.3).
+         * Trail ribbon scale units per block of length and thickness (the one-line text quad of MC 26.3). Line ribbons no longer use these: they are item displays (ADR-0303 rev4.15).
          * Width: the background of `Component.text(" ")` is not the 5 px a space advances (the v1 derivation of ADR-0220): a real client
          * (vfx-shot, 1080p side view, `rifle-shot` and a 4.0 block / 2.0 block probe line) drew 0.42-0.45 of the asked length at 8 units
          * per block, i.e. the box is [SOLID_BOX_PX_X] = 2.34 px wide (fitted over two probe lines), so one block of length is `1 / (2.34 * 0.025)` scale units.

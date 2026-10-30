@@ -1,6 +1,6 @@
 # chain-lightning: a bolt whose impact arcs to every enemy near the victim in one tick. Written from zero on the rev4.10 grammar.
 # The bolt hits its victim, then the arc jumps 3 times (every 3 ticks) to the nearest enemy not yet hit; each hop deals less (decay) and shocks for less.
-# Every link is drawn as a jagged polyline (8 segments on the first link, 7 per hop; check 10 counts the displays alive per tick, peak 64): the first from the wand tip (fx) to the bolt's victim, each hop from the previous victim to the new one.
+# Every link is drawn as a jagged polyline (8 segments on the first link, 7 per hop; check 10 counts the displays alive per tick, peak 32): the first from the wand tip (fx) to the bolt's victim, each hop from the previous victim to the new one.
 # A link = white core + wider blue glow (the glow follows the core's vertex stream), re-kinked every 2 ticks, alive 5 ticks; both ends are read live.
 # Rule D: the hops drain after bolt.end (last hop at +9), so tail 14 = last hop 9 + its 5-tick ribbons.
 apiVersion: astera/v3

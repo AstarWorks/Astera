@@ -285,14 +285,13 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun spawnLine(cast: CastRef, vertices: List<Vec3>, thickness: Double, colorHex: String, alpha: Double): VisualHandle {
             val from = vertices.first()
             val to = vertices.last()
-            // a straight thread prints exactly the two-end form (goldens unchanged); a polyline adds its vertices and one crossed pair per segment
-            val quads = (0 until vertices.size - 1).joinToString(",") { s ->
-                val a = vertices[s]
-                val b = vertices[s + 1]
-                LineGeometry.planes(a, b, thickness, Vec3(0.0, 1.0, 0.0) + (a + b) * 0.5).joinToString(",") { "[${OracleFmt.v(it.along)}|${OracleFmt.v(it.across)}]" }
+            // a straight thread prints the two-end form; a polyline adds its vertices; one item-display frame [along|across|normal] per segment (rev4.15)
+            val frames = (0 until vertices.size - 1).joinToString(",") { s ->
+                val f = LineGeometry.frame(vertices[s], vertices[s + 1], thickness)
+                "[${OracleFmt.v(f.along)}|${OracleFmt.v(f.across)}|${OracleFmt.v(f.normal)}]"
             }
             val verts = if (vertices.size > 2) " verts=${vertices.joinToString(";") { OracleFmt.v(it) }}" else ""
-            return spawned(cast, "ribbon", "from=${OracleFmt.v(from)} to=${OracleFmt.v(to)}$verts thick=${OracleFmt.f(thickness)} color=${OracleFmt.s(colorHex)} alpha=${OracleFmt.f(alpha)} quads=$quads")
+            return spawned(cast, "ribbon", "from=${OracleFmt.v(from)} to=${OracleFmt.v(to)}$verts thick=${OracleFmt.f(thickness)} color=${OracleFmt.s(colorHex)} alpha=${OracleFmt.f(alpha)} frames=$frames")
         }
 
         override fun updateLine(handle: VisualHandle, vertices: List<Vec3>) =
