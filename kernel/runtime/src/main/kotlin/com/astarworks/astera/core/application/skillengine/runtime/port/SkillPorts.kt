@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.skillengine.runtime.port
 
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
+import com.astarworks.astera.core.domain.effect.ParticleData
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.skillengine.hit.HitBox
@@ -148,8 +149,8 @@ public data class ParticleBurst(
     val offset: Vec3,
     /** Vanilla `extra`. */
     val speed: Double,
-    val colorHex: String?,
-    val dataSize: Double?,
+    /** The typed vanilla particle data (dust colour / block / item / sculk roll / ...); null = the particle takes none or its default. */
+    val data: ParticleData?,
     /** `dir` sugar; null = plain vanilla spawn. */
     val dir: Vec3?,
     val spreadDeg: Double,

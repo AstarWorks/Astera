@@ -7305,6 +7305,66 @@
                             "description": "material key for ItemStack data; under times a per-index list or '= CEL' over i",
                             "default": null
                         },
+                        "roll": {
+                            "anyOf": [
+                                {
+                                    "oneOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string",
+                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "radians, for particle sculk_charge (its Float data)",
+                            "default": null
+                        },
+                        "delay": {
+                            "anyOf": [
+                                {
+                                    "oneOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string",
+                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "ticks before the pulse, for particle shriek (its Integer data)",
+                            "default": null
+                        },
+                        "power": {
+                            "anyOf": [
+                                {
+                                    "oneOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string",
+                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "for particle dragon_breath (its Float data)",
+                            "default": null
+                        },
                         "anchor": {
                             "oneOf": [
                                 {

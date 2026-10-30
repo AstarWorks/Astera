@@ -4,7 +4,6 @@ import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGate
 import com.astarworks.astera.core.application.skillengine.runtime.port.ParticleBurst
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayTransform
-import com.astarworks.astera.core.domain.effect.ParticleColor
 import com.astarworks.astera.core.domain.effect.ParticleDefinition
 import com.astarworks.astera.core.domain.effect.ParticleEmitContext
 import com.astarworks.astera.core.domain.effect.ParticleEmitter
@@ -128,23 +127,21 @@ private val CUSTOM_ID = Regex("^[a-z][a-z0-9-]*$")
  */
 public fun toParticleCalls(burst: ParticleBurst, definitions: (String) -> ParticleDefinition? = { null }): List<ParticleCall> {
     val definition = if (CUSTOM_ID.matches(burst.particle)) definitions(burst.particle) else null
-    val color = burst.colorHex?.let(::particleColor)
     if (definition != null) {
         val ctx = ParticleEmitContext(look = burst.dir ?: burst.look, random = kotlin.random.Random(burst.seed))
         return ParticleEmitter.plan(definition, burst.at, ctx, countOverride = burst.count)
-            .map { ParticleCall(it.at, if (color != null) it.spec.copy(color = color) else it.spec) }
+            .map { ParticleCall(it.at, if (burst.data != null) it.spec.copy(data = burst.data) else it.spec) }
     }
-    val scale = burst.dataSize?.toFloat() ?: 1.0f
     val dir = burst.dir
         ?: return listOf(
-            ParticleCall(burst.at, ParticleSpec(burst.particle, count = burst.count ?: 1, offset = burst.offset, extra = burst.speed, color = color, scale = scale)),
+            ParticleCall(burst.at, ParticleSpec(burst.particle, count = burst.count ?: 1, offset = burst.offset, extra = burst.speed, data = burst.data)),
         )
     val rng = Random(burst.seed)
     val axis = dir.normalize().takeIf { it.lengthSquared() > 0.0 }
     return List((burst.count ?: 1).coerceIn(0, MAX_PER_BURST)) {
         val direction = if (axis != null) cone(axis, burst.spreadDeg, rng) else Vec3.ZERO
         val velocity = direction * burst.speed + (burst.inheritVelocity ?: Vec3.ZERO)
-        ParticleCall(burst.at, ParticleSpec(burst.particle, count = 0, offset = velocity, extra = 1.0, color = color, scale = scale))
+        ParticleCall(burst.at, ParticleSpec(burst.particle, count = 0, offset = velocity, extra = 1.0, data = burst.data))
     }
 }
 
@@ -158,9 +155,4 @@ private fun cone(axis: Vec3, spreadDeg: Double, rng: Random): Vec3 {
     val a = axis.cross(helper).normalize()
     val b = axis.cross(a)
     return (axis + a * (r * cos(phi)) + b * (r * sin(phi))).normalize()
-}
-
-private fun particleColor(hex: String): ParticleColor? {
-    val rgb = hex.removePrefix("#").take(6).toIntOrNull(16) ?: return null
-    return ParticleColor((rgb shr 16) and 0xFF, (rgb shr 8) and 0xFF, rgb and 0xFF)
 }

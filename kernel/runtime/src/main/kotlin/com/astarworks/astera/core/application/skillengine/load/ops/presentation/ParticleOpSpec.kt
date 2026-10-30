@@ -24,6 +24,7 @@ import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.effect.ParticleColor
 import com.astarworks.astera.core.domain.effect.ParticleData
+import com.astarworks.astera.core.domain.effect.ParticleDataRules
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
@@ -37,12 +38,15 @@ import com.astarworks.astera.core.domain.skillengine.table.Row
 import com.astarworks.astera.core.domain.skillengine.table.Val
 import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 
-/** The single data slot of the vanilla overload (2.2): Dust(color + size), Block or Item, or none. */
+/** The single data slot of the vanilla overload (2.2): Dust(color + size), Block, Item, a sculk roll, a shriek delay, a dragon-breath power, or none. */
 public sealed interface ParticleStyle {
     public data object Plain : ParticleStyle
     public data class Dust(public val color: ParticleColor, public val size: Value<Double>) : ParticleStyle
     public data class Block(public val key: Value<String>) : ParticleStyle
     public data class Item(public val key: Value<String>) : ParticleStyle
+    public data class SculkCharge(public val roll: Value<Double>) : ParticleStyle
+    public data class Shriek(public val delay: Value<Double>) : ParticleStyle
+    public data class Power(public val value: Value<Double>) : ParticleStyle
 }
 
 /** Decoded `particle` op: one `spawnParticle` call per occurrence (ADR-0303 2.2). */
@@ -72,6 +76,9 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
     private val SIZE = Field.optional("size", Types.nullable(Types.number), null, "dust scale, with color")
     private val BLOCK = Field.optional("block", Types.nullable(Types.idValue), null, "block key for BlockData; under times a per-index list or '= CEL' over i")
     private val ITEM = Field.optional("item", Types.nullable(Types.idValue), null, "material key for ItemStack data; under times a per-index list or '= CEL' over i")
+    private val ROLL = Field.optional("roll", Types.nullable(Types.number), null, "radians, for particle sculk_charge (its Float data)")
+    private val DELAY = Field.optional("delay", Types.nullable(Types.number), null, "ticks before the pulse, for particle shriek (its Integer data)")
+    private val POWER = Field.optional("power", Types.nullable(Types.number), null, "for particle dragon_breath (its Float data)")
     private val ANCHOR = Field.required("anchor", Types.anchorRef, "emission point: anchor name or {of, offset, to, samples, sweep}; to + samples = n rows along the segment of -> to")
     private val SHIFT = Field.optional("shift", Types.nullable(FrameVecs.type), null, "per-copy displacement of the emission point: {forward, up, left} in the anchor's axes, or a whole world vec; reads i, n, draw, roll")
 
@@ -82,7 +89,7 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
     override val timing: TimingKind? = TimingKind.POINT
     override val fields: Fields = Fields.of(
         "particle",
-        PARTICLE, COUNT, OFFSET, EXTRA, COLOR, SIZE, BLOCK, ITEM, ANCHOR, SHIFT, MOTION,
+        PARTICLE, COUNT, OFFSET, EXTRA, COLOR, SIZE, BLOCK, ITEM, ROLL, DELAY, POWER, ANCHOR, SHIFT, MOTION,
     )
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ParticleOp, SkillDecodeError> =
@@ -145,7 +152,15 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
             is ParticleStyle.Dust -> ParticleData.Dust(s.color, (dustSize(s.size, lc) ?: return dustSizeError(lc)).toFloat())
             is ParticleStyle.Block -> ParticleData.Block(dataKey(s.key, lc) ?: return dataKeyError("block", lc))
             is ParticleStyle.Item -> ParticleData.Item(dataKey(s.key, lc) ?: return dataKeyError("item", lc))
+            is ParticleStyle.SculkCharge -> ParticleData.SculkCharge((foldedNum(s.roll, lc) ?: return dataNumError("roll", lc)).toFloat())
+            is ParticleStyle.Shriek -> {
+                val delay = foldedNum(s.delay, lc) ?: return dataNumError("delay", lc)
+                if (delay < 0.0 || delay % 1.0 != 0.0) return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".delay", "delay must be a whole number of ticks >= 0, got $delay"))
+                ParticleData.Shriek(delay.toInt())
+            }
+            is ParticleStyle.Power -> ParticleData.Power((foldedNum(s.value, lc) ?: return dataNumError("power", lc)).toFloat())
         }
+        ParticleDataRules.check(op.particle, data)?.let { return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value, it)) }
 
         val rows = placedAll.map { placed ->
             val action = Action.Particle(
@@ -167,9 +182,12 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
         val size = values[SIZE]
         val block = values[BLOCK]
         val item = values[ITEM]
+        val roll = values[ROLL]
+        val delay = values[DELAY]
+        val power = values[POWER]
         val dust = color != null || size != null
-        if (listOf(dust, block != null, item != null).count { it } > 1) {
-            ctx.fail("particle", "color/size, block and item are alternative data slots: give one")
+        if (listOf(dust, block != null, item != null, roll != null, delay != null, power != null).count { it } > 1) {
+            ctx.fail("particle", "color/size, block, item, roll, delay and power are alternative data slots: give one")
         }
         return when {
             dust -> {
@@ -180,6 +198,12 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
             }
             block != null -> ParticleStyle.Block(foldText(block, ctx))
             item != null -> ParticleStyle.Item(foldText(item, ctx))
+            roll != null -> ParticleStyle.SculkCharge(foldNum(roll, ctx))
+            delay != null -> {
+                if (delay is Value.Literal && (delay.value < 0.0 || delay.value % 1.0 != 0.0)) ctx.fail("delay", "delay must be a whole number of ticks >= 0")
+                ParticleStyle.Shriek(foldNum(delay, ctx))
+            }
+            power != null -> ParticleStyle.Power(foldNum(power, ctx))
             else -> ParticleStyle.Plain
         }
     }
@@ -188,11 +212,17 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
         if (v is Value.ParamRef) (ctx.params?.get(v.name) as? ParamValue.Num)?.let { Value.Literal(it.value) } ?: v else v
 
     /** The dust size of this copy: a literal, or a `= CEL` over params / `i` / `n` folded here (the client reads `Particle.DustOptions` once at spawn); null = it cannot be known at load. */
-    private fun dustSize(v: Value<Double>, lc: LowerContext): Double? = when (v) {
+    private fun dustSize(v: Value<Double>, lc: LowerContext): Double? = foldedNum(v, lc)?.takeIf { it > 0.0 }
+
+    /** A number of the particle data (dust size, sculk roll, shriek delay, power): a literal, or a `= CEL` folded here; null = it cannot be known at load. */
+    private fun foldedNum(v: Value<Double>, lc: LowerContext): Double? = when (v) {
         is Value.Literal -> v.value
         is Value.Expr -> (OccurrenceBake.fold(lc, v.source, ExprType.NUM) as? ExprValue.Num)?.value
         is Value.ParamRef -> null
-    }?.takeIf { it > 0.0 }
+    }
+
+    private fun dataNumError(what: String, lc: LowerContext): Result<Lowered, SkillDecodeError> =
+        Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".$what", "$what is baked into the particle data: write a value that folds at load (literal, \${param}, or = CEL of params and i)"))
 
     private fun dustSizeError(lc: LowerContext): Result<Lowered, SkillDecodeError> =
         Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".size", "size is sent inside Particle.DustOptions, which the client reads once: write a value that folds at load (literal, \${param}, or = CEL of params and i) and is > 0"))
