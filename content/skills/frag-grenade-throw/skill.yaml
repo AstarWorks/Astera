@@ -62,6 +62,6 @@ machine:
             end:
               - {op: use, use: "fragment:blast", with: {radius: "${blast_radius}", damage: "${blast_damage}", bleed: "${bleed_ticks}"}, frames: {spot: bolt}}
         - {id: shell, op: display, kind: item, item: "minecraft:firework_star", context: fixed, anchor: bolt, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
-        - {id: smoke, op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], at: 0, every: 1, until: bolt.end}
+        - {id: smoke, op: particle_def, def: smoke-dark, anchor: bolt, at: 0, every: 1, until: bolt.end}
         - {id: spark, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], at: 0, every: 1, until: bolt.end}
     end: {final: true}
