@@ -306,6 +306,7 @@ astera:
       skill-trace: "Turn the skill engine cast lifecycle log on or off"
       skill-reload: "Reload one skill from content without a restart"
       skill-expand: "Print and write the compiled table of a skill (or all; --json adds source rows)"
+      skill-skin: "Grant, revoke, equip or clear a skill skin for a player"
       announce: "Fire a presentation moment on one server or all (name=value args fill the text)"
       norma-check: "Show your Norma progress and what the next level unlocks"
       economy: "Currency"

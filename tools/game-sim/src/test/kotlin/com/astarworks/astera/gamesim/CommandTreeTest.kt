@@ -44,7 +44,7 @@ class CommandTreeTest {
                 "replay start", "replay stop", "replay export",
             )
             assertThat(tree.getValue("items")).containsExactlyInAnyOrder("give", "refresh")
-            assertThat(tree.getValue("skill")).containsExactlyInAnyOrder("list", "cast", "trace", "reload", "expand")
+            assertThat(tree.getValue("skill")).containsExactlyInAnyOrder("list", "cast", "trace", "reload", "expand", "skin")
             assertThat(tree.getValue("economy")).containsExactlyInAnyOrder("balance", "grant", "withdraw", "transfer")
             assertThat(tree.getValue("stats")).containsExactlyInAnyOrder("show", "last", "leaderboard", "xp grant")
             assertThat(tree.getValue("admin")).contains(
