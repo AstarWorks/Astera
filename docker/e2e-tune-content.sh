@@ -139,6 +139,10 @@ meta:
   cooldown_ticks: 0
   resource_cost: 0
   tags: [probe]
+params:
+  dmg: {type: number, default: 10}
+anchors:
+  - {id: feet, anchor: caster.feet, mode: follow}
 machine:
   start: hold
   states:
@@ -147,5 +151,7 @@ machine:
       then: done
       do:
         - {id: pin, op: lock, at: 0, for: 40, pitch: true}
+        - {id: glow, op: particle, particle: dust, anchor: feet, count: 1, color: "#ffffff", size: 1.0, at: 0}
+        - {id: hit, op: damage, at: 0, target: {kind: enemies, around: origin, radius: 8, max_count: 8, include_self: false}, damage: {physical: "${dmg}"}}
     done: {final: true}
 YAML

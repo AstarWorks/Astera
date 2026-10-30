@@ -15,50 +15,46 @@ import com.astarworks.astera.match.domain.norma.NormaGoal
 import com.astarworks.astera.match.domain.norma.NormaHud
 
 /**
- * Viewer-neutral content of a match sidebar (WP14, ADR-0177).
+ * Viewer-neutral content of a match sidebar (WP14, ADR-0177). The match layout is its own decorated screen,
+ * separate from the lobby's account block (no level / XP / gold / achievements here):
  *
  * ```
  * <mode title>
  * Active  3:12          <- phase + elapsed (or the mode's own clock)
- *                       <- spacer
- * <mode lines>          <- per team: score / pillars / objective progress
- *                       <- spacer
- * You: Red   Lv + stars / goal / next unlock  <- added per viewer by [MatchSidebarModel.layoutFor]
+ * <objective one-liner> <- OBJECTIVE_MODES only
+ * ----------------
+ * > Red  12  ...        <- per team: score / pillars / objective (own team marked, bars where a goal exists)
+ * ----------------
+ * You: Red              <- added per viewer by [MatchSidebarModel.layoutFor]
+ * Norma Lv 2/5  * 3
+ * Goal Star 3/10
+ * [bar] 30%
+ * play.astera.example
  * ```
  */
 public data class SidebarModel(
     public val titleKey: MessageKey,
     public val lines: List<HudLine>,
-    /** Rows kept after the viewer footer is added; the footer is never cut, the body is. */
-    public val maxLines: Int = MatchSidebarModel.MAX_LINES,
 )
 
 public object MatchSidebarModel {
 
-    /**
-     * Rows kept on the sidebar (the client allows 15, but a player mid-fight reads about seven): header 1, one-line
-     * mode objective 1, mode body 2, viewer footer 3 (team, level, goal),
-     * server address 1.
-     */
-    public const val MAX_LINES: Int = 8
-
-    /** Lines left for the mode after header (1), objective (1), the viewer footer (3) and the server address (1). */
-    public const val MAX_MODE_LINES: Int = MAX_LINES - 1 - 1 - 3 - 1
+    /** The client draws at most 15 rows; the viewer block and the address are never cut, the mode body is. */
+    public const val MAX_LINES: Int = 15
 
     /** Modes that have an `astera.match.objective.<id>.subtitle` one-liner to pin under the phase line. */
     private val OBJECTIVE_MODES: Set<String> = setOf(
         "annihilation", "carry-tnt", "carry-mini-tnt", "capture-wool", "steal-jewelry", "pve-waves",
     )
 
-    /** Footer rows in the worst case: team, level, goal, next unlock, server address. */
-    private const val MAX_FOOTER_LINES: Int = 5
+    private const val SEPARATOR_KEY: String = "astera.hud.sidebar.separator"
 
-    /**
-     * Modes whose body must stay whole: Annihilation is played on the enemy pillars' HP, so every team's line (one per
-     * team, three in all) has to stay readable instead of being cut to fit [MAX_LINES]. Steal Jewelry shows each team's count line
-     * plus its pedestal jewel line (4 rows), which the 2-row mode budget would cut to the counts alone.
-     */
-    private val WHOLE_BODY_MODES: Set<String> = setOf("annihilation", "steal-jewelry")
+    /** Bar sources inside a mode line: numerator key, denominator key, colour. The first pair present wins. */
+    private val BAR_PAIRS: List<Triple<String, String, String>> = listOf(
+        Triple("have", "need", "green"),
+        Triple("wave", "waves", "gold"),
+        Triple("lives", "max", "red"),
+    )
 
     /** The viewer-independent part, built from the mode's own [IGameMode.hudStatus]. */
     public fun build(mode: IGameMode, match: Match, nowTick: Long, timeLimitTicks: Long = 0L, objectiveParams: Map<String, String> = emptyMap()): SidebarModel {
@@ -69,11 +65,9 @@ public object MatchSidebarModel {
             // Always-visible "what to do now": the mode's one-sentence objective.
             val modeId = mode.id().value
             if (modeId in OBJECTIVE_MODES) add(HudLine(MessageKey("astera.match.objective.$modeId.subtitle"), objectiveParams))
-            val keep = if (modeId in WHOLE_BODY_MODES) status.lines.size else if (modeId in OBJECTIVE_MODES) MAX_MODE_LINES else MAX_MODE_LINES + 1
-            addAll(status.lines.take(keep))
+            addAll(status.lines)
         }
-        val maxLines = if (mode.id().value in WHOLE_BODY_MODES) lines.size + MAX_FOOTER_LINES else MAX_LINES
-        return SidebarModel(titleKey = mode.titleKey(), lines = lines, maxLines = maxLines)
+        return SidebarModel(titleKey = mode.titleKey(), lines = lines)
     }
 
     private fun genericPhaseLine(match: Match, nowTick: Long, timeLimitTicks: Long): HudLine {
@@ -93,9 +87,9 @@ public object MatchSidebarModel {
     }
 
     /**
-     * Resolves [model] for one viewer: team names / colours in the viewer's
-     * locale, plus the viewer's own team, Norma level with the carried star count, and goal (omitted when
-     * [norma] is `null`) as the footer.
+     * Resolves [model] for one viewer: team names / colours in the viewer's locale with the viewer's own team marked,
+     * then the viewer block (team, Norma level with the carried star count, goal bar; the goal rows are omitted when
+     * [norma] is `null`) and the server address.
      */
     public fun layoutFor(
         model: SidebarModel,
@@ -105,10 +99,9 @@ public object MatchSidebarModel {
         norma: NormaHud?,
     ): HudLayout.Sidebar {
         val teams = match.teams.associateBy { it.id }
-        val footer = buildList {
-            match.teams.firstOrNull { viewer in it.members }?.let { own ->
-                add(toText(HudLine(MessageKey("astera.hud.sidebar.you"), team = own.id), own, viewer, messages))
-            }
+        val own = match.teams.firstOrNull { viewer in it.members }
+        val viewerBlock = buildList {
+            own?.let { add(toText(HudLine(MessageKey("astera.hud.sidebar.you"), team = it.id), it, own, viewer, messages)) }
             if (norma != null) {
                 // The star count rides on the level row so it stays visible whichever goal (STAR or KILL) the player is on.
                 val levelParams = mapOf("level" to norma.level.toString(), "max" to norma.maxLevel.toString(), "stars" to norma.stars.toString())
@@ -118,8 +111,10 @@ public object MatchSidebarModel {
                 } else if (norma.ready) {
                     add(HudComponent.Text(MessageKey("astera.hud.sidebar.objective-ready")))
                 } else {
-                    val key = if (norma.goal == NormaGoal.STAR) "astera.hud.sidebar.objective-star" else "astera.hud.sidebar.objective-kill"
+                    val star = norma.goal == NormaGoal.STAR
+                    val key = if (star) "astera.hud.sidebar.objective-star" else "astera.hud.sidebar.objective-kill"
                     add(HudComponent.Text(MessageKey(key), placeholders = mapOf("progress" to norma.progress.toString(), "target" to norma.target.toString())))
+                    add(barText(norma.progress.toLong(), norma.target.toLong(), if (star) "yellow" else "red"))
                 }
                 // What the next level opens for this player (ADR-0292): the next weapon rarity it opens.
                 norma.nextUnlock?.let {
@@ -132,20 +127,49 @@ public object MatchSidebarModel {
                 }
             }
         }
-        // The footer carries the viewer's Norma goal, so it is never the part that gets cut: the mode body shrinks instead.
         val address = SidebarBars.footer(viewer, messages)
-        val body = model.lines.take(model.maxLines - footer.size - 1).map { line -> toText(line, teams[line.team], viewer, messages) }
-        return HudLayout.Sidebar(titleKey = model.titleKey, lines = body + footer + address)
+        val separator = HudComponent.Text(MessageKey(SEPARATOR_KEY))
+        // Fixed rows: phase, two separators, the viewer block, the address. The mode body takes what is left.
+        val bodyBudget = (MAX_LINES - 1 - 2 - viewerBlock.size - 1).coerceAtLeast(0)
+        val phase = model.lines.firstOrNull()?.let { toText(it, teams[it.team], own, viewer, messages) }
+        val body = model.lines.drop(1).take(bodyBudget).map { line -> toText(line, teams[line.team], own, viewer, messages) }
+        return HudLayout.Sidebar(
+            titleKey = model.titleKey,
+            lines = listOfNotNull(phase) + separator + body + separator + viewerBlock + address,
+        )
     }
 
-    private fun toText(line: HudLine, team: Team?, viewer: PlayerId, messages: IMessageRenderer): HudComponent.Text {
-        if (team == null) return HudComponent.Text(line.key, placeholders = line.placeholders)
+    private fun barText(value: Long, max: Long, color: String): HudComponent.Text =
+        HudComponent.Text(
+            MessageKey("astera.hud.sidebar.bar"),
+            placeholders = mapOf(
+                "bar" to SidebarBars.bar(value, max, color),
+                "percent" to SidebarBars.percent(value, max).toString(),
+                "color" to color,
+            ),
+        )
+
+    /** `have`/`need`-style counters in a mode line become a coloured `bar` placeholder (6 cells, fits next to the text). */
+    private fun barPlaceholders(placeholders: Map<String, String>): Map<String, String> {
+        for ((num, den, color) in BAR_PAIRS) {
+            val n = placeholders[num]?.toLongOrNull() ?: continue
+            val d = placeholders[den]?.toLongOrNull() ?: continue
+            return mapOf("bar" to SidebarBars.bar(n, d, color, cells = 6))
+        }
+        return emptyMap()
+    }
+
+    private fun toText(line: HudLine, team: Team?, own: Team?, viewer: PlayerId, messages: IMessageRenderer): HudComponent.Text {
+        val withBar = line.placeholders + barPlaceholders(line.placeholders)
+        if (team == null) return HudComponent.Text(line.key, placeholders = withBar)
         val color = messages.render(viewer, team.colorKey).takeIf { it.isValidColorName() } ?: "white"
         val name = messages.render(viewer, team.displayNameKey)
+        // The viewer's own team row starts with a bright marker; the others keep a dim dot so the names stay aligned.
+        val mark = if (own != null && own.id == team.id) "<yellow>▶</yellow> " else "<dark_gray>·</dark_gray> "
         return HudComponent.Text(
             messageKey = line.key,
             color = null,
-            placeholders = line.placeholders + mapOf("team" to name, "color" to color),
+            placeholders = withBar + mapOf("team" to name, "color" to color, "you" to mark),
         )
     }
 

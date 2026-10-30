@@ -89,7 +89,8 @@ astera:
   hud.sidebar.account.level: "<gray>Lv</gray> <aqua><bold>{level}</bold></aqua>  <white>{xp}</white><dark_gray>/</dark_gray><gray>{need} XP</gray>"
   hud.sidebar.account.bar: "{bar} <aqua>{percent}%</aqua>"
   hud.sidebar.account.achievements: "<gray>Achievements</gray> <green><bold>{done}</bold></green><dark_gray>/</dark_gray><white>{total}</white> {bar}"
-  hud.sidebar.count: "<{color}>{team}</{color}><gray>:</gray> <white>{count}</white>"
+  hud.sidebar.bar: "{bar} <{color}>{percent}%</{color}>"
+  hud.sidebar.count: "{you}<{color}>{team}</{color}><gray>:</gray> <white>{count}</white>"
   hud.sidebar.phase.count-active: "<green>Left</green> <white>{time}</white>"
   hud.sidebar.phase.count-overtime: "<red><bold>OVERTIME</bold></red> <white>{time}</white>"
   system:
@@ -1365,28 +1366,28 @@ astera:
         engage: "<yellow>Engage</yellow> <white>{time}</white>"
         tier3: "<gold>Tier 3</gold> <white>{time}</white>"
         sudden-death: "<red>Sudden death</red>"
-      score: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white>"
+      score: "{you}<{color}>{team}</{color}><gray>:</gray> <white>{score}</white>"
       annihilation:
-        team: "<{color}>{team}</{color}> <white>{tiers}</white> <gray>{hp} HP</gray>"
-        eliminated: "<dark_gray><st>{team}</st> out</dark_gray>"
+        team: "{you}<{color}>{team}</{color}> <white>{tiers}</white> <gray>{hp} HP</gray>"
+        eliminated: "{you}<dark_gray><st>{team}</st> out</dark_gray>"
       carry-tnt:
         carried: "<gray>TNT carried by</gray> <{color}>{team}</{color}>"
         loose: "<gray>TNT is up for grabs</gray>"
       carry-mini-tnt:
         loose: "<gray>Clams on the map:</gray> <white>{count}</white>"
-        bank: "<{color}>{team}</{color}> <gray>clams</gray> <white>{have}/{need}</white>"
+        bank: "{you}<{color}>{team}</{color}> <gray>clams</gray> <white>{have}/{need}</white> {bar}"
       steal-jewelry:
-        pedestal: "<{color}>{team}</{color}> <gray>jewels</gray> <white>{left}</white>"
+        pedestal: "{you}<{color}>{team}</{color}> <gray>jewels</gray> <white>{left}</white>"
       pve-waves:
         ready: "<gray>Get ready: <white>{waves}</white> waves incoming</gray>"
-        wave: "<gold>Wave {wave}/{waves}</gold> <gray>-</gray> <white>{left}</white> <gray>enemies left</gray>"
+        wave: "<gold>Wave {wave}/{waves}</gold> <gray>-</gray> <white>{left}</white> <gray>enemies left</gray> {bar}"
         next: "<gold>Wave {wave}/{waves}</gold> <gray>in</gray> <white>{seconds}s</white>"
-        lives: "<gray>Lives:</gray> <red>{lives}</red><gray>/{max}</gray>"
+        lives: "<gray>Lives:</gray> <red>{lives}</red><gray>/{max}</gray> {bar}"
         kills: "<gray>Defeated:</gray> <white>{kills}</white>"
       capture-wool:
         open: "<gray>Open zones:</gray> <white>{open}/{total}</white>"
-        penalty: "<{color}>{team}</{color}> <red>+{seconds}s penalty</red>"
-      you: "<gray>You:</gray> <{color}>{team}</{color}>"
+        penalty: "{you}<{color}>{team}</{color}> <red>+{seconds}s penalty</red>"
+      you: "<gray>You</gray> <{color}><bold>{team}</bold></{color}>"
       level: "<gray>Norma</gray> <aqua>Lv {level}</aqua><dark_gray>/{max}</dark_gray> <dark_gray>|</dark_gray> <yellow>*</yellow> <white>{stars}</white>"
       next-unlock: "<gray>Next:</gray> <white>Lv {level}</white> <white>{rarity}</white>"
       objective-star: "<gray>Goal:</gray> <yellow>Stars</yellow> <white>{progress}/{target}</white>"
