@@ -150,7 +150,7 @@ cmd_run() {
     "$(sed -n 's/^ASTERA_HEAVY_CALLER=//p' "$envfile" | head -1)" "$KIND" "$*" "$(date '+%F %T')" > "$HB/locks/slot.$SLOT_N.owner"
   docker rm -f "$NAME" >/dev/null 2>&1   # leftover of a dead run: this slot is ours now
 
-  if [ "$KIND" = vfx ]; then mem_need="${HEAVY_MIN_FREE_GB:-4}"; mem_cap="${HEAVY_MEM:-3g}"
+  if [ "$KIND" = vfx ]; then mem_need="${HEAVY_MIN_FREE_GB:-4}"; mem_cap="${HEAVY_MEM:-4g}"
   else mem_need="${HEAVY_MIN_FREE_GB:-3}"; mem_cap="${HEAVY_MEM:-4g}"; fi
   cpus="${HEAVY_CPUS:-6}"; xmx="${HEAVY_GRADLE_XMX:-2g}"
   memory_guard "$mem_need"
