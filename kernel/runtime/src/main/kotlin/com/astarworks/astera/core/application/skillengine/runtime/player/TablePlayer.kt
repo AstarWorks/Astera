@@ -242,6 +242,10 @@ public class TablePlayer(
         // a cast already ended and only lingering for its detached visuals: cancel cuts them
         if (run.finishing) {
             run.cutting = true
+            // rule D: the gameplay rows still held by a drain (and any detached visuals) are dropped with the cast, never silently
+            for (sc in run.cursor.subCursors) {
+                for (row in sc.sub.rows.drop(sc.nextRow)) if (row.drainsAfterExit || row.detached) trace.cut(cast, row.src.value, now, sc.owner ?: run.cursor.skill.table.states.first().state, ExitReason.CANCEL)
+            }
             finalize(run, now)
             runs.values.removeAll { it.finalized }
             return

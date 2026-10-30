@@ -92,13 +92,14 @@ public class DefaultCastRunner(private val player: ISkillTablePlayer) : CastRunn
     override fun isRunning(cast: CastHandle): Boolean = cast in player.live()
 
     override fun cancelAllOf(caster: UUID): Int {
-        val mine = ownedLive(caster)
+        // death / quit / world change: a run draining its handler rows (finishing) is still the caster's cast and is cut too
+        val mine = ownedRunning(caster)
         mine.forEach { player.cancel(it, CancelScope.Cast) }
         return mine.size
     }
 
     override fun cancelAll(): Int {
-        val all = player.live()
+        val all = player.running()
         // one cast failing to wind down must not leave the rest running (nor throw out of a MatchEnded handler): log it loudly, carry on
         all.forEach { cast ->
             try {
@@ -112,8 +113,15 @@ public class DefaultCastRunner(private val player: ISkillTablePlayer) : CastRunn
 
     override fun tick(currentTick: Int) {
         player.tick(currentTick)
-        val live = player.live().toSet()
-        owners.keys.retainAll(live)
+        val running = player.running().toSet()
+        owners.keys.retainAll(running)
+    }
+
+    /** Every unfinalised run of [caster], including one that only drains handler rows or lingers for its detached tail. */
+    private fun ownedRunning(caster: UUID): List<CastHandle> {
+        val running = player.running().toSet()
+        owners.keys.retainAll(running)
+        return owners.filterValues { it == caster }.keys.toList()
     }
 
     private fun ownedLive(caster: UUID): List<CastHandle> {
