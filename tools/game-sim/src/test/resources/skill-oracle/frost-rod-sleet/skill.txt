@@ -60,7 +60,7 @@ g @1 cast-end | pose
 @1 particle - op=fly/bolt.hit/use_4/ring_up[5] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=-0.494975,0.700000,-0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-436630741222320522
 @1 particle - op=fly/bolt.hit/use_4/ring_up[6] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.000000,0.700000,-0.700000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3404764354142315669
 @1 particle - op=fly/bolt.hit/use_4/ring_up[7] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.494975,0.700000,-0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8678301601274127491
-@1 particle - op=fly/bolt.hit/use_4/pop type=end_rod count=5 at=0.000000,1.200000,2.500000 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6901848473255778127
+@1 particle - op=fly/bolt.hit/use_4/pop type=snowflake count=5 at=0.000000,1.200000,2.500000 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2119028212036563979
 @1 damage 00000000-0000-0000-0000-00000000000a op=- water=18 skill=frost-rod-sleet at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
 @1 remove #0 op=fly/core
 g @1 state-exit reason=EVENT | state=fly
@@ -101,7 +101,7 @@ g @1 cast-end | pose
 @1 particle - op=fly/bolt.hit/use_4/ring_up[5] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=-0.494975,0.700000,-0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-436630741222320522
 @1 particle - op=fly/bolt.hit/use_4/ring_up[6] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.000000,0.700000,-0.700000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3404764354142315669
 @1 particle - op=fly/bolt.hit/use_4/ring_up[7] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.494975,0.700000,-0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8678301601274127491
-@1 particle - op=fly/bolt.hit/use_4/pop type=end_rod count=5 at=-1.504538,1.200000,1.996589 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6901848473255778127
+@1 particle - op=fly/bolt.hit/use_4/pop type=snowflake count=5 at=-1.504538,1.200000,1.996589 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2119028212036563979
 @1 damage 00000000-0000-0000-0000-00000000000a op=- water=18 skill=frost-rod-sleet at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
 @1 remove #0 op=fly/core
 g @1 state-exit reason=EVENT | state=fly

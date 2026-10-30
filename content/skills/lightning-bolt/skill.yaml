@@ -30,12 +30,12 @@ fragments:
     do:
       - {id: ring, op: particle, particle: electric_spark, anchor: spot, times: 16, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.4}
       - {id: ring_up, op: particle, particle: electric_spark, anchor: spot, times: 8, at: 0, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.32}
-      - {id: pop, op: particle, particle: end_rod, anchor: spot, count: 8, offset: [0.15, 0.15, 0.15], extra: 0.12, at: 0}
+      - {id: pop, op: particle, particle: electric_spark, anchor: spot, count: 8, offset: [0.15, 0.15, 0.15], extra: 0.12, at: 0}
   flash:
     frames_in: {spot: anchor}
     do:
       - {id: spark, op: particle, particle: electric_spark, anchor: spot, count: 40, extra: 0.35}
-      - {id: rod, op: particle, particle: end_rod, anchor: spot, count: 12, extra: 0.25}
+      - {id: rod, op: particle, particle: electric_spark, anchor: spot, count: 12, extra: 0.25}
       - {id: fan, op: particle, particle: electric_spark, anchor: spot, count: 0, extra: 0.1}
 machine:
   start: fly
