@@ -12,6 +12,7 @@ params:
   open_deg: {type: number, default: 70}
   lane: {type: number, default: 0.35}
   stick_ticks: {type: ticks, default: 28}
+  root_ticks: {type: ticks, default: 9}
   reel_speed: {type: number, default: 0.45}
   dmg_coin1: {type: number, default: 30}
   dmg_throw: {type: number, default: 18}
@@ -62,6 +63,7 @@ machine:
           - {id: throw_react, op: react, target: event.victim, flinch: true, for: 6}
           - {id: throw_dmg, op: damage, at: 0, target: event.victim, damage: {physical: "= dmg_throw"}}
           - {id: bleed, op: status, at: 0, target: event.victim, status: bleed, stacks: "= bleed_stacks", for: "= bleed_ticks"}
+          - {id: root, op: status, at: 0, target: event.victim, status: root, stacks: 1, for: "= root_ticks"}
           - {id: push, op: impulse, at: 0, target: event.victim, vector: "= -contact.normal * 0.35 + vec(0, 0.12, 0)"}
           - {id: hitstop, op: freeze, at: 0, ticks: 2, scope: [caster, volley]}
           - {id: stab_snd, op: sound, sound: couture.stab, anchor: contact, pitch: "= 1.2 - 0.2 * clamp(length(velocity(volley) - velocity(victim)) / 2.0, 0.0, 1.0)", detach: true}

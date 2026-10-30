@@ -23,7 +23,7 @@ params:
   dmg_physical_3: {type: number, default: 60}
   knockback: {type: number, default: 0.4}
   knockback_2: {type: number, default: 0.5}
-  knockback_3: {type: number, default: 0.9}
+  knockback_3: {type: number, default: 1.3}
 anchors:
   # doc-level anchors exist from tick 0 and follow the caster
   - {id: fx2_fx_ring, anchor: caster.look, mode: follow}
@@ -48,7 +48,7 @@ machine:
           anim: bastion-s2-body
           rest: [{axis: left, deg: 72}]
           respect_hit_stop: true
-          freezes: [{at: 13, ticks: 2}, {at: 32, ticks: 2}, {at: 53, ticks: 3}]
+          freezes: [{at: 13, ticks: 2}, {at: 32, ticks: 2}, {at: 53, ticks: 8}]
           for: 80
           detach: true
           swing:
@@ -197,7 +197,7 @@ machine:
       then: end
       do:
         # --- gameplay swing 3 (v2 t53 sector hit that spends the charge / t54 dash) ---
-        - {id: hit3, op: hit, at: 8, anchor: caster.eye, shape: {sector: {deg: "${arc_deg}", range: "${reach}", height: 2.0, forward: yaw}}, targets: enemies, damage: {physical: "= dmg_physical_3 + 0.5 * stacks(caster, 'charge')"}, window: once, ignore_invulnerability: true, on: {hit: [{id: react_3, op: react, target: event.victim, flinch: true, for: 6}, {id: stop_3, op: freeze, at: 0, ticks: 3, scope: [caster, event.victim]}, {id: kb_3, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback_3}"}]}}
+        - {id: hit3, op: hit, at: 8, anchor: caster.eye, shape: {sector: {deg: "${arc_deg}", range: "${reach}", height: 2.0, forward: yaw}}, targets: enemies, damage: {physical: "= dmg_physical_3 + 0.5 * stacks(caster, 'charge')"}, window: once, ignore_invulnerability: true, on: {hit: [{id: react_3, op: react, target: event.victim, flinch: true, for: 6}, {id: stop_3, op: freeze, at: 0, ticks: 8, scope: [caster, event.victim]}, {id: kb_3, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback_3}"}]}}
         - {id: spend, op: consume_status, at: 8, target: caster, status: charge}
         - {id: dash_hit_3, op: hit, at: 9, for: 3, every: 1, anchor: caster.body, shape: {sphere: 0.6}, targets: enemies, window: once, ignore_invulnerability: false}
         - {id: dash_3, op: dash, at: 9, speed: "= dash_distance_3 / 3", for: 3, until: dash_hit_3.hit, direction: {forward: 1.0}, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}

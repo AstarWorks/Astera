@@ -1,7 +1,7 @@
 # Bastion greatsword S1 (Moon Sweep), natural v3 grammar: three states (sweep1 / sweep2 / slam) = the three weapon swings; the rig is declared once
 # in sweep1 and detached so it runs through the whole cast (machine.tail), later states read /sweep1/rig.root and /sweep1/rig.tip. Blade fx are segments
 # between the rig points, dust/impact/ring bursts are small families (times / shift CEL) at one centre point instead of baked frame+particle pairs.
-# Gameplay (hit ticks 7 / 31, damage, status, knockback, dashes, freezes) and the cast length 58 are the v2 values unchanged.
+# Gameplay (hit ticks 7 / 31, damage, status, knockback, dashes) and the cast length 58 are the v2 values unchanged; the v2 hit-stops are removed by the hold table (founder 2026-10-31).
 apiVersion: astera/v3
 kind: Skill
 id: bastion-greatsword-s1
@@ -33,10 +33,10 @@ machine:
       for: 28
       then: sweep2
       do:
-        # --- gameplay swing 1 (v2 t4 dash / t7 hit): the dash ends at its first victim, the hit freezes caster and victim 2 ticks ---
+        # --- gameplay swing 1 (v2 t4 dash / t7 hit): the dash ends at its first victim, the hit has no hit-stop (hold table: light skills do not stop) ---
         - {id: dash_hit, op: hit, at: 4, for: 3, every: 1, anchor: caster.body, shape: {sphere: 1.7}, targets: enemies, window: once, ignore_invulnerability: false}
         - {id: dash, op: dash, at: 4, speed: "= dash_distance / 3", for: 3, until: dash_hit.hit, direction: {forward: 1.0}, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
-        - {id: hit1, op: hit, at: 7, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "${dmg_physical}"}, window: once, ignore_invulnerability: true, on: {hit: [{id: react, op: react, target: event.victim, flinch: true, for: 6}, {id: stop, op: freeze, at: 0, ticks: 2, scope: [caster, event.victim]}]}}
+        - {id: hit1, op: hit, at: 7, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "${dmg_physical}"}, window: once, ignore_invulnerability: true, on: {hit: [{id: react, op: react, target: event.victim, flinch: true, for: 6}]}}
         - {id: st_charge, op: status, at: 7, target: caster, status: charge, stacks: "${charge_stacks}", for: "${charge_ticks}", when: "= nearest_enemy_dist(caster) < 3.6"}
         - id: rig
           op: rig
@@ -44,8 +44,6 @@ machine:
           mount: caster.hand_r
           anim: bastion-s1-body
           rest: [{axis: left, deg: 72}]
-          respect_hit_stop: true
-          freezes: [{at: 7, ticks: 2}, {at: 31, ticks: 2}]
           for: 58
           detach: true
           swing:
@@ -126,10 +124,10 @@ machine:
       for: 18
       then: slam
       do:
-        # --- gameplay swing 2 (v2 t28 dash / t31 hit): hit 2 freezes 2 ticks and knocks the victim back ---
+        # --- gameplay swing 2 (v2 t28 dash / t31 hit): hit 2 knocks the victim back (no hit-stop) ---
         - {id: dash_hit_2, op: hit, at: 0, for: 3, every: 1, anchor: caster.body, shape: {sphere: 1.7}, targets: enemies, window: once, ignore_invulnerability: false}
         - {id: dash_2, op: dash, at: 0, speed: "= dash_distance_2 / 3", for: 3, until: dash_hit_2.hit, direction: {forward: 1.0}, invulnerable: true, stop_on_block: true, follow_pitch: false, face_movement: false}
-        - {id: hit2, op: hit, at: 3, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "${dmg_physical_2}"}, window: once, ignore_invulnerability: true, on: {hit: [{id: react_2, op: react, target: event.victim, flinch: true, for: 6}, {id: stop_2, op: freeze, at: 0, ticks: 2, scope: [caster, event.victim]}, {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback}"}]}}
+        - {id: hit2, op: hit, at: 3, anchor: caster, shape: {sphere: "${radius}"}, targets: enemies, damage: {physical: "${dmg_physical_2}"}, window: once, ignore_invulnerability: true, on: {hit: [{id: react_2, op: react, target: event.victim, flinch: true, for: 6}, {id: kb, op: knockback, target: event.victim, direction: "= normalize(flat(pos(event.victim) - pos(caster))) + vec(0.0, 0.2, 0.0)", strength: "${knockback}"}]}}
         # --- sound ---
         - {id: snd_18, op: sound, at: 3, sound: item.mace.smash_ground_heavy, anchor: caster, volume: 1.0, pitch: 0.7}
         - {id: snd_19, op: sound, at: 3, sound: block.anvil.land, anchor: caster, volume: 1.0, pitch: 0.5}

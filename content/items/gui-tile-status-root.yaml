@@ -1,0 +1,7 @@
+# UI-12 status codex tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-status-root
+material: COBWEB
+name:
+  ja: "<gold>拘束</gold>"
+  en: "<gold>Rooted</gold>"

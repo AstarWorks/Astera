@@ -2368,6 +2368,8 @@ astera:
       name: "チャージ"
     immunity:
       name: "無敵"
+    root:
+      name: "拘束"
 
   # F3-2: message keys referenced from Kotlin (MessageKey / labelKey / button / text literals).
   damage.target_offline: "<red>対象のプレイヤーはオフラインです。</red>"
@@ -2794,6 +2796,7 @@ astera:
   statusdesc.charge: "自分に溜まる。チャージ系スキルが消費して追加ダメージにする。"
   statusdesc.immunity: "一瞬だけダメージを受けない。"
   statusdesc.silence: "少しの間スキルを使えない。"
+  statusdesc.root: "少しの間その場から動けない。攻撃と向きの変更はできる。"
 
   # Cross-server chat (ADR-0289)
   chat.japanize.on: "日本語変換を有効にしました。"
