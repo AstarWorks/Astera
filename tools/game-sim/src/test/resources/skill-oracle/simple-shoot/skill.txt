@@ -8,6 +8,9 @@
 @1 particle - op=fly/trail_dust[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8480432604492404447
 @1 hit - op=fly/beam at=0.000000,1.620000,1.500000 r=1.500000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,2.500000 rad=0.500000
 g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/beam.end
+g @1 dropped reason=owner-exited:fly | sub=fly/beam.hit
+g @1 dropped reason=owner-exited:fly | sub=fly/beam.end
 g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
@@ -19,6 +22,7 @@ g @1 cast-end | pose
 @1 particle - op=fly/trail_dust[1] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8480432604492404447
 @1 hit - op=fly/beam at=-0.848282,2.133030,1.125708 r=1.500000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.413803,2.475050,1.876180 rad=0.500000
 g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/beam.end
 g @1 cast-end | pose
 ## pose-hit yaw=0 pitch=0
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
@@ -37,6 +41,7 @@ g @1 cast-end | pose
 @1 particle - op=fly/beam.hit/fx_hit/dust_mid type=dust count=1 at=0.000000,1.620000,2.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=2.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5967125376864042607
 @1 damage 00000000-0000-0000-0000-00000000000a op=- fire=25 skill=simple-shoot at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
 g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/beam.end
 g @1 cast-end | pose
 ## pose-hit yaw=37 pitch=0
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
@@ -55,6 +60,7 @@ g @1 cast-end | pose
 @1 particle - op=fly/beam.hit/fx_hit/dust_mid type=dust count=1 at=-1.278471,1.620000,1.696589 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=2.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5967125376864042607
 @1 damage 00000000-0000-0000-0000-00000000000a op=- fire=25 skill=simple-shoot at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
 g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/beam.end
 g @1 cast-end | pose
 ## gameplay-static
 g @0..1200 cast-length | cast

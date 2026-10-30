@@ -565,12 +565,16 @@ public class TablePlayer(
         val offered = offer(run, ev, binding, now, only = null)
         val sub = run.cursor.skill.table.subTables[ev.path] ?: return
         if (ev.path in offered.pasted) return
-        val owner = run.cursor.levels.firstOrNull { it.state == sub.owner } ?: return
-        val lt = now - owner.enteredAt
-        if (lt < sub.window.min || lt > sub.window.max) return
+        // a machine-root handler (world op) is cast-relative and survives every state exit; any other is bounded by its owner state's life
+        val root = sub.owner == SubTable.MACHINE_ROOT
+        // a state-owned handler whose state has already exited is late by design (the event outlived its owner); it is dropped, and said so in the trace
+        val ownerLevel = if (root) null else run.cursor.levels.firstOrNull { it.state == sub.owner }
+        if (!root && ownerLevel == null) { trace.dropped(run.cursor.handle, ev.path, now, "owner-exited:${sub.owner.value}"); return }
+        val lt = now - (ownerLevel?.enteredAt ?: run.request.startTick)
+        if (lt < sub.window.min || lt > sub.window.max) { trace.dropped(run.cursor.handle, ev.path, now, "outside-window:lt=$lt"); return }
         if ((run.firings[ev.path] ?: 0) >= sub.maxFirings) return
         run.firings[ev.path] = (run.firings[ev.path] ?: 0) + 1
-        pasteSub(run, ev.path, now, binding, owner = sub.owner, direct = false)
+        pasteSub(run, ev.path, now, binding, owner = if (root) null else sub.owner, direct = false)
     }
 
     /**

@@ -18,6 +18,9 @@
 @1 remove #0 op=cast/shell
 g @1 state-exit reason=PREEMPT | state=cast/fly
 g @1 state-exit reason=EVENT | state=cast
+g @1 dropped reason=owner-exited:cast | sub=cast/ball.end
+g @1 dropped reason=owner-exited:cast | sub=cast/ball.hit
+g @1 dropped reason=owner-exited:cast | sub=cast/ball.end
 g @1 cast-end | pose
 r @3 run-end tail=2 | pose
 ## pose yaw=37 pitch=-20
@@ -40,6 +43,7 @@ r @3 run-end tail=2 | pose
 @1 remove #0 op=cast/shell
 g @1 state-exit reason=PREEMPT | state=cast/fly
 g @1 state-exit reason=EVENT | state=cast
+g @1 dropped reason=owner-exited:cast | sub=cast/ball.end
 g @1 cast-end | pose
 r @3 run-end tail=2 | pose
 ## pose-hit yaw=0 pitch=0
@@ -73,6 +77,7 @@ r @3 run-end tail=2 | pose
 @1 remove #0 op=cast/shell
 g @1 state-exit reason=PREEMPT | state=cast/fly
 g @1 state-exit reason=EVENT | state=cast
+g @1 dropped reason=owner-exited:cast | sub=cast/ball.end
 g @1 cast-end drain=1 until=2 | pose
 r @4 run-end tail=2 | pose
 ## pose-hit yaw=37 pitch=0
@@ -106,6 +111,7 @@ r @4 run-end tail=2 | pose
 @1 remove #0 op=cast/shell
 g @1 state-exit reason=PREEMPT | state=cast/fly
 g @1 state-exit reason=EVENT | state=cast
+g @1 dropped reason=owner-exited:cast | sub=cast/ball.end
 g @1 cast-end drain=1 until=2 | pose
 r @4 run-end tail=2 | pose
 ## gameplay-static

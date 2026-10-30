@@ -178,10 +178,14 @@ public object MachineTables {
         // supplies only the anchor scope; the rows are not part of any state's table, so a state exit never ends them.
         var worldRows: List<Row> = emptyList()
         if (machine.world.isNotEmpty()) {
+            val before = subs.keys.toSet()
             when (val r = section(all.getValue(machine.start), "world", machine.world, null)) {
                 is Result.Failure -> return r
                 is Result.Success -> worldRows = r.value
             }
+            // the event handlers of a world op (`volley.hit`, `volley.end`, ...) belong to the machine root like the op itself: they fire on the cast
+            // clock whichever state the cast is in, so the start state's duration must not bound them (SubTable.owner = MACHINE_ROOT)
+            for (k in subs.keys.toList()) if (k !in before) subs[k] = subs.getValue(k).copy(owner = SubTable.MACHINE_ROOT)
         }
 
         for ((id, st) in all) {

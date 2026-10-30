@@ -70,6 +70,12 @@ public data class SubTable(
      */
     val mask: Boolean = false,
 )
+{
+    public companion object {
+        /** The owner of a machine-level `world:` op's handlers (R45): no state; the window counts from the cast's start tick. */
+        public val MACHINE_ROOT: StatePath = StatePath("")
+    }
+}
 
 public data class Bounds(
     /** C6, check 11. */

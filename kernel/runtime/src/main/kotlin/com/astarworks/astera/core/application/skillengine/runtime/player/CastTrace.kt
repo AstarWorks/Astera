@@ -42,6 +42,9 @@ public interface CastTrace {
     /** A non-detached presentation row [row] (its YAML path) of a handler was dropped because its owner [state] exited ([reason]) before the row's tick. */
     public fun cut(cast: CastHandle, row: String, tick: Int, state: StatePath, reason: ExitReason) {}
 
+    /** An event reached sub-table [sub] and was dropped, not pasted: [reason] says why (`owner-exited:<state>` or `outside-window:lt=<n>`). Never silent. */
+    public fun dropped(cast: CastHandle, sub: EventPath, tick: Int, reason: String) {}
+
     public companion object {
         public val NONE: CastTrace = object : CastTrace {
             override fun enter(cast: CastHandle, state: StatePath, tick: Int) {}

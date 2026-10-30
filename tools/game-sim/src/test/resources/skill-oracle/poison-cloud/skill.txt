@@ -7,6 +7,9 @@
 @1 particle - op=throw/trail1[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5aaa3c size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7291813754082299789
 @1 hit - op=throw/bolt at=0.000000,1.620000,1.150000 r=1.150000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,1.800000 rad=0.500000
 g @1 state-exit reason=EVENT | state=throw
+g @1 dropped reason=owner-exited:throw | sub=throw/bolt.end
+g @1 dropped reason=owner-exited:throw | sub=throw/bolt.hit
+g @1 dropped reason=owner-exited:throw | sub=throw/bolt.end
 g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
 @0 sound - op=throw/snd sound=entity.splash_potion.throw cat=master vol=0.9 pitch=0.9 at=0.000000,0.000000,0.000000
@@ -17,6 +20,7 @@ g @1 cast-end | pose
 @1 particle - op=throw/trail1[1] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5aaa3c size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7291813754082299789
 @1 hit - op=throw/bolt at=-0.650349,2.013323,0.863043 r=1.150000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.017938,2.235636,1.350849 rad=0.500000
 g @1 state-exit reason=EVENT | state=throw
+g @1 dropped reason=owner-exited:throw | sub=throw/bolt.end
 g @1 cast-end | pose
 ## pose-hit yaw=0 pitch=0
 @0 sound - op=throw/snd sound=entity.splash_potion.throw cat=master vol=0.9 pitch=0.9 at=0.000000,0.000000,0.000000
@@ -35,6 +39,7 @@ g @1 cast-end | pose
 @1 status 00000000-0000-0000-0000-00000000000c op=- status=poison stacks=1 for=80
 @1 status 00000000-0000-0000-0000-00000000000d op=- status=poison stacks=1 for=80
 g @1 state-exit reason=EVENT | state=throw
+g @1 dropped reason=owner-exited:throw | sub=throw/bolt.end
 g @1 cast-end | pose
 ## pose-hit yaw=37 pitch=0
 @0 sound - op=throw/snd sound=entity.splash_potion.throw cat=master vol=0.9 pitch=0.9 at=0.000000,0.000000,0.000000
@@ -53,6 +58,7 @@ g @1 cast-end | pose
 @1 status 00000000-0000-0000-0000-00000000000c op=- status=poison stacks=1 for=80
 @1 status 00000000-0000-0000-0000-00000000000d op=- status=poison stacks=1 for=80
 g @1 state-exit reason=EVENT | state=throw
+g @1 dropped reason=owner-exited:throw | sub=throw/bolt.end
 g @1 cast-end | pose
 ## gameplay-static
 g @0..1200 cast-length | cast

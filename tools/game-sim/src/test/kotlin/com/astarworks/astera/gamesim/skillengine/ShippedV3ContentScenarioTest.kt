@@ -266,6 +266,12 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
             out += "g @$tick state-exit reason=$reason | state=$state"
             castEnd = maxOf(castEnd, tick)
         }
+        // an event that reached a sub-table and was not pasted (owner already exited, or outside its window) is a visible line, never a silent return
+        for (t in rec.trace) if (t.startsWith("dropped:")) {
+            val tick = t.substringAfterLast('@').toInt()
+            val (sub, reason) = t.removePrefix("dropped:").substringBeforeLast('@').let { it.substringBefore(':') to it.substringAfter(':') }
+            out += "g @$tick dropped reason=$reason | sub=$sub"
+        }
         // rev4.14 rule D: gameplay rows the handlers still hold at the cast end play on; the line says how many and until when
         val drain = rec.trace.firstOrNull { it.startsWith("drain:") }?.let { t -> t.removePrefix("drain:").substringBeforeLast('@').split(':').let { it[0] to it[1].toInt() } }
         if (castEnd >= 0) out += "g @$castEnd cast-end" + (drain?.let { " drain=${it.first} until=${it.second}" } ?: "") + " | pose"
