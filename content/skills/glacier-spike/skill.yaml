@@ -67,12 +67,12 @@ machine:
           billboard: center
           brightness: {block: 15, sky: 15}
           flipbook: {frames: 6, every: 1, loop: true}
-          at: 0
-          for: 40
+          at: 2                       # the bolt is 2.2 blocks/tick: from tick 2 the core is past the caster's eye volume (CasterEyeClutter)
+          for: 38
           motion:
-            - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 40}
+            - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 38}
         - id: trail
-          at: 0
+          at: 2                       # same: ticks 0-1 would put long-life snowflake/dust inside the eye volume next to the 8-dust cast puff
           every: 1
           until: bolt.end
           do:
