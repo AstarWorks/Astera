@@ -64,7 +64,8 @@ internal class SimSkillEngine private constructor(
     private val scheduler: IScheduler,
     private val eventBus: IDomainEventBus,
     private val combat: CombatWiringResult,
-    private val live: SimLiveValueSource,
+    /** The live-value source the table player reads; the victim-velocity scenario probes it directly. */
+    internal val live: SimLiveValueSource,
     private val movement: SimSkillMovement,
     private val hooks: SimPlayerHooks,
     private val player: TablePlayer,

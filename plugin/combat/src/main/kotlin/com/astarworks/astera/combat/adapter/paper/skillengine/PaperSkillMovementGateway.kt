@@ -21,6 +21,7 @@ import kotlin.math.sqrt
  */
 public class PaperSkillMovementGateway(
     private val server: Server,
+    private val entityVelocity: PaperEntityVelocity,
 ) : ISkillMovementGateway {
 
     private val invulnerableUntil = ConcurrentHashMap<UUID, Int>()
@@ -35,7 +36,7 @@ public class PaperSkillMovementGateway(
     }
 
     override fun velocity(cast: CastRef, entity: UUID): Vec3 =
-        (living(entity) ?: error("skill engine: velocity of entity $entity: not a loaded living entity")).velocity.let { Vec3(it.x, it.y, it.z) }
+        entityVelocity.of(living(entity) ?: error("skill engine: velocity of entity $entity: not a loaded living entity"))
 
     override fun addVelocity(cast: CastRef, entity: UUID, v: Vec3) {
         val e = living(entity) ?: return EntityGone.skipped("movement.addVelocity", entity)
