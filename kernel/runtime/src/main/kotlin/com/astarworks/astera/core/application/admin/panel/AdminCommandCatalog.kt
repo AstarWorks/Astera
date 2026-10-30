@@ -113,6 +113,7 @@ public object AdminCommandCatalog {
         AdminPanelAction("skill cast", AdminCategory.SKILLS, playerArg = "target"),
         AdminPanelAction("skill trace", AdminCategory.SKILLS),
         AdminPanelAction("skill reload", AdminCategory.SKILLS),
+        AdminPanelAction("skill faults", AdminCategory.SKILLS),
         AdminPanelAction("skill expand", AdminCategory.SKILLS),
         AdminPanelAction("skill skin", AdminCategory.SKILLS, playerArg = "player"),
     )
