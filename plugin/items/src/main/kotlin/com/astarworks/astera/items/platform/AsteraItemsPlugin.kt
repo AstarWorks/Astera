@@ -3,7 +3,9 @@ package com.astarworks.astera.items.platform
 import com.astarworks.astera.core.platform.paper.listeners
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.platform.AsteraCorePlugin
-import com.astarworks.astera.core.application.wiring.WiringOwner
+import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.platform.wiring.RewireCoordinator
+import com.astarworks.astera.items.platform.wiring.ItemsLifecycle
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import com.astarworks.astera.items.adapter.paper.PaperItemDelivery
 import com.astarworks.astera.items.adapter.paper.PaperItemCooldownSweepGateway
@@ -40,8 +42,7 @@ import org.bukkit.plugin.java.JavaPlugin
  */
 public class AsteraItemsPlugin : JavaPlugin() {
 
-    private var wiringContext: WiringContext? = null
-    private var itemsResult: ItemsWiringResult? = null
+    private var coordinator: RewireCoordinator? = null
 
     override fun onEnable() {
         logger.info("Astera-Items enabling…")
@@ -52,10 +53,22 @@ public class AsteraItemsPlugin : JavaPlugin() {
                 server.pluginManager.disablePlugin(this); return
             }
 
-        val ctx = WiringContext(WiringOwner("Astera-Items"), 0, core.services, core.contentDir, logger, core.serverEnvironment.role, core.serverEnvironment.name)
-        wiringContext = ctx
+        // Host-neutral wiring plus the Paper-only step, driven through the rewire lifecycle (ADR-0311).
+        val rewire = core.rewire
+        rewire.register(ItemsLifecycle { ctx -> installGeneration(ctx, core) })
+        when (val up = rewire.up(ItemsLifecycle.OWNER)) {
+            is Result.Success -> coordinator = rewire
+            is Result.Failure -> {
+                logger.severe("Astera-Items failed to start: ${up.error.message}")
+                server.pluginManager.disablePlugin(this); return
+            }
+        }
 
-        // Paper-side item adapters (ADR-0174: injected into the host-neutral wiring).
+        logger.info("Astera-Items enabled.")
+    }
+
+    /** One generation: Paper-side item adapters (ADR-0174), the shared wiring, then the click bridge and tooltip guard. */
+    private fun installGeneration(ctx: WiringContext, core: AsteraCorePlugin): ItemsWiringResult {
         var materializer: PaperItemMaterializer? = null
         var rackFrames: PaperTrainingRackGateway? = null
         val ports = ItemsPlatformPorts(
@@ -80,19 +93,15 @@ public class AsteraItemsPlugin : JavaPlugin() {
         )
 
         val wired = ItemsWiring.install(ctx, ports)
-        itemsResult = wired
         val listeners = ctx.listeners(this)
         PaperItemTooltipGuard { materializer }.start(this, listeners)
         ItemsPaperBindings.register(this, listeners, wired, checkNotNull(rackFrames), { core.services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>()?.world?.value })
-
-        logger.info("Astera-Items enabled.")
+        return wired
     }
 
     override fun onDisable() {
-        itemsResult?.shutdown()
-        itemsResult = null
-        wiringContext?.close()
-        wiringContext = null
+        coordinator?.down(ItemsLifecycle.OWNER)
+        coordinator = null
         logger.info("Astera-Items disabled.")
     }
 }

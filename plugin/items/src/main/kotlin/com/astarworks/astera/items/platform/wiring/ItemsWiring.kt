@@ -94,9 +94,8 @@ public object ItemsWiring {
 
         // Cooldown tracker — shared with Combat (the registry returns
         // whichever impl was registered first; in-memory at priority 0).
-        if (services.get<ICooldownTracker>() == null) {
-            registrations += services.register<ICooldownTracker>(InMemoryCooldownTracker(scheduler), priority = 0)
-        }
+        // Carried across a rewire (ADR-0311): running cooldowns survive; it ticks on the carried scheduler.
+        ctx.stateful<ICooldownTracker> { InMemoryCooldownTracker(ctx.carriedScheduler) }
 
         // Host-side item adapters (Paper materializer / simulator fakes).
         val itemDelivery: IItemDelivery = ports.itemDelivery(services)
@@ -128,16 +127,8 @@ public object ItemsWiring {
         // Per-instance state + per-item profile registry. Persistence will
         // overlay the in-memory repository at priority 100 via the V30
         // `item_instances` migration (Wave 3 / ADR-0020 pattern).
-        val instanceRepo: IItemInstanceRepository =
-            services.get<IItemInstanceRepository>()
-                ?: InMemoryItemInstanceRepository().also {
-                    registrations += services.register<IItemInstanceRepository>(it, priority = 0)
-                }
-        val refinementRandomizer: IRefinementRandomizer =
-            services.get<IRefinementRandomizer>()
-                ?: KotlinRandomRefinementRandomizer().also {
-                    registrations += services.register<IRefinementRandomizer>(it, priority = 0)
-                }
+        val instanceRepo: IItemInstanceRepository = ctx.stateful { InMemoryItemInstanceRepository() }
+        val refinementRandomizer: IRefinementRandomizer = ctx.stateful { KotlinRandomRefinementRandomizer() }
         val refinementProfiles = RefinementProfileRegistry()
         // Refinement is optional content: no `content/refinement/` means no profiles, not a warning.
         val refinementDir = ctx.contentDir.resolve("refinement")
@@ -222,11 +213,7 @@ public object ItemsWiring {
             logger.info("Astera-Items: glow-profile.yaml not found; using GlowProfile.DEFAULTS.")
         }
         registrations += services.register(glowProfiles, priority = 0)
-        val itemRenderer: IItemRenderer =
-            services.get<IItemRenderer>()
-                ?: RecordingItemRenderer().also {
-                    registrations += services.register<IItemRenderer>(it, priority = 0)
-                }
+        val itemRenderer: IItemRenderer = ctx.stateful { RecordingItemRenderer() }
         val applyHeldGlow = ApplyHeldItemGlowUseCase(
             items = itemRegistry,
             renderer = itemRenderer,
@@ -247,11 +234,11 @@ public object ItemsWiring {
 
         // F3-11 (ADR-0200): lobby training weapon rack, claimed by right-clicking its frames.
         val shutdownHooks = mutableListOf<() -> Unit>()
-        shutdownHooks += services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry>()
+        services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry>()
             .register(
                 com.astarworks.astera.items.application.service.glow.GlowContents(glowProfiles),
                 ctx.contentDir.resolve("flex"),
-            )::unregister
+            )
         var trainingRack: TrainingRackService? = null
         val rackGateway = ports.trainingRack?.invoke(services)
         val trainingInventory = ports.trainingInventory?.invoke(services)
@@ -309,10 +296,14 @@ public object ItemsWiring {
         val tooltipRegistry = services.get<
             com.astarworks.astera.core.application.port.outbound.guidepth.ITooltipRegistry,
             >()
+        val tooltipProviders = mutableListOf<com.astarworks.astera.core.application.port.outbound.guidepth.ITooltipRegistry.Registration>()
         if (tooltipRegistry != null) {
             val rarityGlow = com.astarworks.astera.items.application.service.tooltip
                 .RarityGlowTooltipProvider(itemRegistry)
-            tooltipRegistry.register(
+            ctx.onClose {
+                tooltipProviders.asReversed().forEach { it.unregister() }
+            }
+            tooltipProviders += tooltipRegistry.register(
                 com.astarworks.astera.core.domain.guidepth.TooltipScope.AllItems,
                 rarityGlow,
             )
@@ -325,7 +316,7 @@ public object ItemsWiring {
                 com.astarworks.astera.core.domain.item.Rarity.EPIC,
                 com.astarworks.astera.core.domain.item.Rarity.LEGENDARY,
             )) {
-                tooltipRegistry.register(
+                tooltipProviders += tooltipRegistry.register(
                     com.astarworks.astera.core.domain.guidepth.TooltipScope.ByRarity(rare),
                     refinementTier,
                 )
