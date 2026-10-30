@@ -1,6 +1,12 @@
 package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
+import com.astarworks.astera.combat.domain.damage.DamageSource
+import com.astarworks.astera.combat.domain.event.PlayerKilled
+import com.astarworks.astera.match.application.port.outbound.IMatchNormaStore
+import com.astarworks.astera.match.application.port.outbound.IMatchStarStore
+import com.astarworks.astera.match.application.service.MatchCarriedState
+import com.astarworks.astera.match.application.service.result.MatchTallyService
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectRegistry
 import com.astarworks.astera.combat.domain.status.StatusEffectInstance
 import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
@@ -154,6 +160,41 @@ class RewireScenarioTest {
             advance(40)
             val ended = sim.services.getOrThrow<IMatchLifecycle>().end(matchId, EndReason.AdminEnded)
             assertThat(ended).isInstanceOf(Result.Success::class.java)
+        }
+    }
+
+    private fun clockSlot(carry: MatchCarriedState): Map<*, *> =
+        carry.slot<java.util.concurrent.ConcurrentHashMap<*, *>>("star-clock-start") { error("star clock slot missing") }
+
+    @Test
+    fun `stars norma level kill tally and the star clock keep counting across a match rewire`() {
+        scenario("rewire-match-counters") {
+            val rewire = sim.services.getOrThrow<IRewireService>()
+            val red = player("red1", team = "red")
+            val blue = player("blue1", team = "blue")
+            val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "siege-isles-tnt")
+            advance(40)
+            val stars = sim.services.getOrThrow<IMatchStarStore>()
+            val norma = sim.services.getOrThrow<IMatchNormaStore>()
+            stars.add(matchId, red.id, 7)
+            sim.eventBus.publish(PlayerKilled(blue.id, red.id, DamageSource.Environment.Generic, 1L))
+            val carry = sim.services.getOrThrow<MatchCarriedState>()
+            val clockBefore = clockSlot(carry).toMap()
+            val levelBefore = norma.get(matchId, red.id).level
+
+            rewire.ok("match")
+
+            assertThat(sim.services.getOrThrow<MatchCarriedState>()).isSameAs(carry)
+            assertThat(sim.services.getOrThrow<IMatchStarStore>().get(matchId, red.id)).isEqualTo(7)
+            assertThat(sim.services.getOrThrow<IMatchNormaStore>().get(matchId, red.id).level).isEqualTo(levelBefore)
+            assertThat(clockSlot(carry).toMap())
+                .isEqualTo(clockBefore)
+
+            // Progress continues on the new generation: a second kill adds to the first one's tally.
+            sim.eventBus.publish(PlayerKilled(blue.id, red.id, DamageSource.Environment.Generic, 2L))
+            advance(20)
+            val counts = sim.services.getOrThrow<MatchTallyService>().take(matchId)
+            assertThat(counts[red.id]?.kills).isEqualTo(2)
         }
     }
 

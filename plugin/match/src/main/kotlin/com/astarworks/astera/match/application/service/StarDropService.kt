@@ -53,9 +53,10 @@ public class StarDropService(
     private val deathDropRatio: (MatchId) -> Double,
     private val random: Random = Random.Default,
     private val log: (String) -> Unit = {},
+    /** Carried across a Match rewire: the stars lying in the arena and the id counter. */
+    private val drops: MutableMap<Long, StarDrop> = ConcurrentHashMap(),
+    private val nextId: AtomicLong = AtomicLong(1),
 ) {
-    private val drops: MutableMap<Long, StarDrop> = ConcurrentHashMap()
-    private val nextId = AtomicLong(1)
 
     public fun onSpawned(event: ResourceSpawned) {
         if (event.dropItem != null) return // item generators are GeneratorItemDropService's

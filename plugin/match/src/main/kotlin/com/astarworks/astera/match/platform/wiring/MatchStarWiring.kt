@@ -80,7 +80,12 @@ internal object MatchStarWiring {
         val configOf: (MatchId) -> NormaConfig = { id -> NormaConfig.parse(env.modeConfigOf(id)) }
 
         val dropWorld = env.ports.starDropWorld?.invoke(services)
-        val clock = StarSupplyClock(env.scheduler) { id -> StarSupply.parse(env.modeConfigOf(id)) }
+        val carry = env.ctx.stateful<com.astarworks.astera.match.application.service.MatchCarriedState> { com.astarworks.astera.match.application.service.MatchCarriedState() }
+        val clock = StarSupplyClock(
+            env.scheduler,
+            { id -> StarSupply.parse(env.modeConfigOf(id)) },
+            carry.slot("star-clock-start") { java.util.concurrent.ConcurrentHashMap<MatchId, Long>() },
+        )
         val presentationPort = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>()
         val drops = StarDropService(
             clock = clock,
@@ -95,6 +100,8 @@ internal object MatchStarWiring {
             presentation = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>(),
             deathDropRatio = { id -> configOf(id).deathDropRatio },
             log = { env.ctx.logger.fine(it) },
+            drops = carry.slot("star-drops") { java.util.concurrent.ConcurrentHashMap<Long, com.astarworks.astera.match.domain.star.StarDrop>() },
+            nextId = carry.slot("star-drop-next-id") { java.util.concurrent.atomic.AtomicLong(1) },
         )
         val norma = NormaLevelService(
             matches = env.matches,
@@ -104,6 +111,8 @@ internal object MatchStarWiring {
             isNorma = env.normaLayerOf,
             eventBus = eventBus,
             baseZone = com.astarworks.astera.match.application.service.NormaBaseZone(env.stages, positions),
+            awaitingCheck = carry.slot("norma-awaiting-check") { java.util.concurrent.ConcurrentHashMap.newKeySet<com.astarworks.astera.core.domain.player.PlayerId>() },
+            finalStandings = carry.slot("norma-final-standings") { java.util.concurrent.ConcurrentHashMap<MatchId, List<com.astarworks.astera.match.domain.norma.NormaStanding>>() },
         )
         val lifecycle = MatchStarLifecycle(
             registry = registry,
@@ -124,6 +133,7 @@ internal object MatchStarWiring {
             scheduler = env.scheduler,
             presentation = presentationPort,
             eventBus = eventBus,
+            states = carry.slot("star-waves") { java.util.concurrent.ConcurrentHashMap<Pair<MatchId, com.astarworks.astera.match.domain.generator.GeneratorId>, com.astarworks.astera.match.application.service.StarWaveService.State>() },
         )
         subs += eventBus.subscribe(MatchStarted::class) { clock.onStarted(it.matchId) }
         subs += eventBus.subscribe(MatchEnded::class) { clock.onEnded(it.matchId); waves.clear(it.matchId) }
@@ -147,6 +157,8 @@ internal object MatchStarWiring {
             server = services.getOrThrow<IMcServer>(),
             world = env.ports.oreNodeWorld?.invoke(services),
             scheduler = env.scheduler,
+            lastHit = carry.slot("ore-last-hit") { java.util.concurrent.ConcurrentHashMap<com.astarworks.astera.core.domain.player.PlayerId, Long>() },
+            nodes = carry.slot("ore-nodes") { java.util.concurrent.ConcurrentHashMap<com.astarworks.astera.match.application.service.OreNodeService.Key, com.astarworks.astera.match.application.service.OreNodeService.Node>() },
             levelOf = { norma.levelOf(it) },
             onInvalid = { id, reason -> env.ctx.logger.warning("Ore nodes of stage $id not placed: $reason") },
         )

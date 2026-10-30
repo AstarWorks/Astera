@@ -311,8 +311,11 @@ public object MatchWiring {
         val matchTimer = ctx.stateful<com.astarworks.astera.match.application.port.outbound.IMatchTimerService> {
             com.astarworks.astera.match.application.service.MatchTimerService(matches)
         }
+        val matchCarry = ctx.stateful<com.astarworks.astera.match.application.service.MatchCarriedState> { com.astarworks.astera.match.application.service.MatchCarriedState() }
         val phaseTimer = PhaseTimerUseCase(
             matches, scheduler, switchPhase, matchTimer as com.astarworks.astera.match.application.service.MatchTimerService,
+            insufficientSince = matchCarry.slot("phase-insufficient-since") { java.util.concurrent.ConcurrentHashMap<MatchId, Long>() },
+            suddenDeathEnteredAt = matchCarry.slot("phase-sudden-death-at") { java.util.concurrent.ConcurrentHashMap<MatchId, Long>() },
             countdownTicks = { queueSettings.current().matchCountdownSeconds * 20L },
             // G1: the sudden-death timer must end the match for real (result screen, rewards, return to lobby).
             onSuddenDeathExpired = { id ->
@@ -527,7 +530,10 @@ public object MatchWiring {
             pillarTargets,
         )
         val pillarWorld = worldGateway?.let {
-            AnnihilationPillarWorld(annihilationTracker, it, matches, playerGateway, msgRenderer)
+            AnnihilationPillarWorld(
+                annihilationTracker, it, matches, playerGateway, msgRenderer,
+                matchCarry.slot("pillar-placed") { mutableMapOf<MatchId, AnnihilationPillarWorld.Placed>() },
+            )
         }
         pillarWorld?.let { subscriptions += it.subscribe(eventBus) }
         val annihilationConfig = ports.annihilationConfig ?: run {
@@ -594,6 +600,7 @@ public object MatchWiring {
             StealJewelryGameMode(siegeEnv(StealJewelryGameMode.ID)),
         )
         for (mode in siegeModes) {
+            mode.carryRuns(matchCarry.slot("siege-runs.${mode.id().value}") { java.util.concurrent.ConcurrentHashMap<MatchId, com.astarworks.astera.match.application.gamemode.siege.SiegeRun>() })
             gameModeFrameworkRegistry.register(mode)
             subscriptions += mode.subscribe()
         }
@@ -605,6 +612,7 @@ public object MatchWiring {
             env = siegeEnv(PveWaveGameMode.ID),
             pve = if (pveSpawner != null && pveEncounters != null) PveEnv(pveSpawner, pveEncounters) else null,
         )
+        pveMode.carryRuns(matchCarry.slot("siege-runs.${pveMode.id().value}") { java.util.concurrent.ConcurrentHashMap<MatchId, com.astarworks.astera.match.application.gamemode.siege.SiegeRun>() })
         gameModeFrameworkRegistry.register(pveMode)
         subscriptions += pveMode.subscribeAll()
         logger.info("WP11 wiring: ${siegeModes.size} objective game modes registered into IGameModeFrameworkRegistry.")

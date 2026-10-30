@@ -127,8 +127,8 @@ public object ItemsWiring {
         // Per-instance state + per-item profile registry. Persistence will
         // overlay the in-memory repository at priority 100 via the V30
         // `item_instances` migration (Wave 3 / ADR-0020 pattern).
-        val instanceRepo: IItemInstanceRepository = ctx.stateful { InMemoryItemInstanceRepository() }
-        val refinementRandomizer: IRefinementRandomizer = ctx.stateful { KotlinRandomRefinementRandomizer() }
+        val instanceRepo: IItemInstanceRepository = ctx.stateful<IItemInstanceRepository> { InMemoryItemInstanceRepository() }
+        val refinementRandomizer: IRefinementRandomizer = ctx.stateful<IRefinementRandomizer> { KotlinRandomRefinementRandomizer() }
         val refinementProfiles = RefinementProfileRegistry()
         // Refinement is optional content: no `content/refinement/` means no profiles, not a warning.
         val refinementDir = ctx.contentDir.resolve("refinement")
@@ -213,7 +213,7 @@ public object ItemsWiring {
             logger.info("Astera-Items: glow-profile.yaml not found; using GlowProfile.DEFAULTS.")
         }
         registrations += services.register(glowProfiles, priority = 0)
-        val itemRenderer: IItemRenderer = ctx.stateful { RecordingItemRenderer() }
+        val itemRenderer: IItemRenderer = ctx.stateful<IItemRenderer> { RecordingItemRenderer() }
         val applyHeldGlow = ApplyHeldItemGlowUseCase(
             items = itemRegistry,
             renderer = itemRenderer,

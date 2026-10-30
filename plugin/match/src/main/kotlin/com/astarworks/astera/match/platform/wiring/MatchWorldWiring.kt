@@ -83,7 +83,7 @@ internal object MatchWorldWiring {
 
         // BlockChangeJournal subscribes to BlockPlaced/BlockBroken so the
         // RestoreBlocksOnMatchEndedUseCase can replay reverts on MatchEnded.
-        val blockJournal = BlockChangeJournal()
+        val blockJournal = env.ctx.stateful<BlockChangeJournal> { BlockChangeJournal() }
         subscriptions += blockJournal.subscribe(eventBus)
 
         val restoreOnEnd = RestoreBlocksOnMatchEndedUseCase(

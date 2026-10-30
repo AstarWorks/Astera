@@ -210,7 +210,7 @@ public object CombatWiring {
 
         // Wave 5a-fix2 — sliding-window damage history for assist attribution (ADR-0063)
         // Carried across a rewire (ADR-0311): the assist window keeps its hits.
-        val damageHistory: IDamageHistoryService = ctx.stateful { InMemoryDamageHistoryService() }
+        val damageHistory: IDamageHistoryService = ctx.stateful<IDamageHistoryService> { InMemoryDamageHistoryService() }
 
         // Wave 5o (ADR-0081) — status-effect interaction matrix.
         // YAML at content/balance/status-effect-interactions.yaml is loaded
@@ -354,13 +354,13 @@ public object CombatWiring {
         val comboReport = comboRouteContents.bootstrap(comboContentDir)
         logger.info("Combo routes loaded: ${comboReport.loaded} ok, ${comboReport.failed} failed")
 
-        val comboTracker: IComboTracker = ctx.stateful { InMemoryComboTracker(depthEventBus) }
+        val comboTracker: IComboTracker = ctx.stateful<IComboTracker> { InMemoryComboTracker(depthEventBus) }
         comboRouteContents.all().forEach { comboTracker.registerRoute(it) }
         reloadRegistry.register(comboRouteContents, comboContentDir)
 
-        val focusFireTracker: IFocusFireTracker = ctx.stateful { InMemoryFocusFireTracker(depthEventBus) }
+        val focusFireTracker: IFocusFireTracker = ctx.stateful<IFocusFireTracker> { InMemoryFocusFireTracker(depthEventBus) }
 
-        val targetLockController: ITargetLockController = ctx.stateful { InMemoryTargetLockController(depthEventBus) }
+        val targetLockController: ITargetLockController = ctx.stateful<ITargetLockController> { InMemoryTargetLockController(depthEventBus) }
 
         // 4. Wire use cases if runtime impls are present -----------------------
         val eventBus = services.getOrThrow<IDomainEventBus>()
@@ -462,7 +462,7 @@ public object CombatWiring {
 
         // F1-D (ADR-0183): admin god mode, consulted by ApplyDamageUseCase.
         val godModeService: com.astarworks.astera.combat.application.port.outbound.IGodModeService =
-            ctx.stateful { com.astarworks.astera.combat.application.service.InMemoryGodModeService() }
+            ctx.stateful<com.astarworks.astera.combat.application.port.outbound.IGodModeService> { com.astarworks.astera.combat.application.service.InMemoryGodModeService() }
 
         // Wave 6a-1 5paper-sweep-knockback (ADR-0144): Paper knockback
         // adapter overlays NoOpKnockbackGateway at priority 100. Reads

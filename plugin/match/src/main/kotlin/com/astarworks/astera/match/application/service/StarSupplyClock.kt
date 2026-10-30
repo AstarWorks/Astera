@@ -12,8 +12,9 @@ import java.util.concurrent.ConcurrentHashMap
 public class StarSupplyClock(
     private val scheduler: IScheduler,
     private val supplyOf: (MatchId) -> StarSupply,
+    /** Carried across a Match rewire so the star pace keeps its elapsed time. */
+    private val startTicks: MutableMap<MatchId, Long> = ConcurrentHashMap(),
 ) {
-    private val startTicks: MutableMap<MatchId, Long> = ConcurrentHashMap()
 
     public fun onStarted(matchId: MatchId) {
         startTicks[matchId] = scheduler.currentTick()

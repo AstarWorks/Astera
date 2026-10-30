@@ -76,12 +76,13 @@ public class DeathRespawnCoordinator(
     private val cycler: SpectatorTargetCycler?,
     private val eliminatedTeams: EliminatedTeamSpectators?,
     private val configOf: (MatchId) -> DeathRespawnConfig,
+    /** Carried across a Match rewire: players waiting to respawn. */
+    private val pending: MutableMap<PlayerId, Pending> = ConcurrentHashMap(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    private class Pending(val matchId: MatchId, val tasks: MutableList<IScheduler.TaskHandle> = mutableListOf())
+    public class Pending(val matchId: MatchId, val tasks: MutableList<IScheduler.TaskHandle> = mutableListOf())
 
-    private val pending: MutableMap<PlayerId, Pending> = ConcurrentHashMap()
 
     /** True while [player] is in a death countdown (spectating, waiting to respawn). */
     public fun isDead(player: PlayerId): Boolean = pending.containsKey(player)

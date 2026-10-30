@@ -38,11 +38,12 @@ public class NormaTimeLimitListener(
     private val overtimeMaxTicks: (MatchId) -> Long = { 0L },
     private val starsOf: (Match, TeamId) -> Int = { _, _ -> 0 },
     private val killsOf: (Match, TeamId) -> Int = { match, team -> match.score.valueFor(team) },
+    /** Carried across a Match rewire so the time limit keeps counting from the real start. */
+    private val activeSince: MutableMap<MatchId, Long> = ConcurrentHashMap(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     /** Tick at which each match turned ACTIVE (the time limit counts from there). */
-    private val activeSince: MutableMap<MatchId, Long> = ConcurrentHashMap()
 
     public fun onPhaseChanged(event: PhaseChanged) {
         when (event.to) {

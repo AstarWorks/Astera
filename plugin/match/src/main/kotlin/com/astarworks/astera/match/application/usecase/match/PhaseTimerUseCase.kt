@@ -61,10 +61,12 @@ public class PhaseTimerUseCase(
      * hanging in COUNTDOWN forever. Null keeps the legacy "retry every sweep" behaviour (tests).
      */
     private val onInsufficientPlayers: ((MatchId) -> Unit)? = null,
+    /** Carried across a Match rewire so the roster-floor grace and the sudden-death clock keep running. */
+    private val insufficientSince: MutableMap<MatchId, Long> = ConcurrentHashMap(),
+    private val suddenDeathEnteredAt: MutableMap<MatchId, Long> = ConcurrentHashMap(),
 ) {
 
     /** First sweep at which a match's countdown was blocked by the roster floor. */
-    private val insufficientSince: MutableMap<MatchId, Long> = ConcurrentHashMap()
 
     /**
      * In-memory cache of when each match first entered SUDDEN_DEATH.
@@ -75,7 +77,6 @@ public class PhaseTimerUseCase(
      * across restarts in Phase 2); Phase 3 with persistent matches will need
      * either an event-sourced rebuild or a dedicated domain field.
      */
-    private val suddenDeathEnteredAt: MutableMap<MatchId, Long> = ConcurrentHashMap()
 
     /**
      * Sweep every active match, applying timer-based transitions.

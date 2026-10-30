@@ -39,6 +39,9 @@ public class NormaLevelService(
     private val isNorma: (MatchId) -> Boolean,
     private val eventBus: IDomainEventBus,
     private val baseZone: NormaBaseZone,
+    /** Carried across a Match rewire: ready players owing the check, and the standings kept at match end. */
+    private val awaitingCheck: MutableSet<PlayerId> = java.util.concurrent.ConcurrentHashMap.newKeySet(),
+    private val finalStandings: MutableMap<MatchId, List<NormaStanding>> = java.util.concurrent.ConcurrentHashMap(),
 ) {
     public fun onKilled(event: PlayerKilled) {
         val killer = event.killer ?: return
@@ -103,8 +106,6 @@ public class NormaLevelService(
      * Players who met their goal and still owe the check. Polled by [autoCheckReady]: walking into the own base zone while
      * ready runs the check by itself (the command stays for bots and tests).
      */
-    private val awaitingCheck: MutableSet<PlayerId> = java.util.concurrent.ConcurrentHashMap.newKeySet()
-
     /** Runs the Norma check for every ready player standing in their own base; the rest stay queued, dead ends drop out. */
     public fun autoCheckReady() {
         for (id in awaitingCheck.toList()) {
@@ -176,8 +177,6 @@ public class NormaLevelService(
 
     /** The standings [clear] kept for [matchId] (empty outside a Norma match); each match's are handed out once. */
     public fun takeFinalStandings(matchId: MatchId): List<NormaStanding> = finalStandings.remove(matchId).orEmpty()
-
-    private val finalStandings: MutableMap<MatchId, List<NormaStanding>> = java.util.concurrent.ConcurrentHashMap()
 
     /** Marks [playerId] READY (once per level) when the goal is met; the level itself only rises in [check]. */
     private fun evaluate(match: Match, playerId: PlayerId) {

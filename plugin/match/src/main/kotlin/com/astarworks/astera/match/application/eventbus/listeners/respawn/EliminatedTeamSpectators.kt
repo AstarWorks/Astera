@@ -41,10 +41,11 @@ public class EliminatedTeamSpectators(
     private val leaveSpectator: LeaveSpectatorUseCase? = null,
     private val cycler: SpectatorTargetCycler? = null,
     private val hud: IHudGateway? = null,
+    /** Carried across a Match rewire: eliminated teams and their spectators. */
+    private val eliminated: MutableMap<MatchId, MutableSet<TeamId>> = ConcurrentHashMap(),
+    private val spectators: MutableMap<MatchId, MutableSet<PlayerId>> = ConcurrentHashMap(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
-    private val eliminated: MutableMap<MatchId, MutableSet<TeamId>> = ConcurrentHashMap()
-    private val spectators: MutableMap<MatchId, MutableSet<PlayerId>> = ConcurrentHashMap()
 
     public fun onTeamEliminated(event: TeamEliminated) {
         eliminated.computeIfAbsent(event.matchId) { ConcurrentHashMap.newKeySet() }.add(event.teamId)

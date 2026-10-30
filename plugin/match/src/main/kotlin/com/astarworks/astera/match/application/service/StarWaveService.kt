@@ -39,10 +39,11 @@ public class StarWaveService(
     private val presentation: IPresentation,
     private val eventBus: IDomainEventBus,
     private val random: Random = Random.Default,
+    /** Carried across a Match rewire so a wave in progress keeps its schedule. */
+    private val states: MutableMap<Pair<MatchId, GeneratorId>, State> = ConcurrentHashMap(),
 ) {
-    private class State(var next: Int = 1, var warned: Boolean = false)
+    public class State(var next: Int = 1, var warned: Boolean = false)
 
-    private val states: MutableMap<Pair<MatchId, GeneratorId>, State> = ConcurrentHashMap()
 
     /** Checks every running match's wave generators. */
     public fun poll() {

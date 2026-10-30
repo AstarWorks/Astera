@@ -282,7 +282,10 @@ internal object MatchGameplayWiring {
         }
         env.spectatorCycler = cycler
         val sessions = services.get<IPlayerSessionRepository>()
+        val carry = env.ctx.stateful<com.astarworks.astera.match.application.service.MatchCarriedState> { com.astarworks.astera.match.application.service.MatchCarriedState() }
         val eliminatedTeams = EliminatedTeamSpectators(
+            eliminated = carry.slot("eliminated-teams") { java.util.concurrent.ConcurrentHashMap<com.astarworks.astera.core.domain.match.MatchId, MutableSet<com.astarworks.astera.core.domain.match.TeamId>>() },
+            spectators = carry.slot("eliminated-spectators") { java.util.concurrent.ConcurrentHashMap<com.astarworks.astera.core.domain.match.MatchId, MutableSet<com.astarworks.astera.core.domain.player.PlayerId>>() },
             matches = matches,
             healthGateway = health,
             spectator = spectatorPort,
@@ -304,6 +307,7 @@ internal object MatchGameplayWiring {
         env.stars = matchStars
         commands.register(MatchCommandSpecs.buildNormaCommandSpec(matchStars.norma))
         val deathRespawn = DeathRespawnCoordinator(
+            pending = carry.slot("death-respawn-pending") { java.util.concurrent.ConcurrentHashMap<com.astarworks.astera.core.domain.player.PlayerId, DeathRespawnCoordinator.Pending>() },
             matches = matches,
             stages = stages,
             spawnSelector = respawnSelectorPort,
@@ -430,6 +434,7 @@ internal object MatchGameplayWiring {
         // 0 = none): the mode's own objective standing first, then highest Norma level, then stars carried, then kills; still tied is a draw.
         val frameworkModes = services.get<com.astarworks.astera.match.application.port.outbound.IGameModeFrameworkRegistry>()
         val normaKills = com.astarworks.astera.match.application.eventbus.listeners.victory.NormaTimeLimitListener(
+            activeSince = carry.slot("norma-time-limit-since") { java.util.concurrent.ConcurrentHashMap<com.astarworks.astera.core.domain.match.MatchId, Long>() },
             matches = matches,
             lifecycle = env.facade,
             isNorma = env.normaLayerOf,
@@ -561,7 +566,9 @@ internal object MatchGameplayWiring {
         subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PhaseChanged::class) { matchCueListener.onPhaseChanged(it) }
 
         // F3-4: per-match kills / deaths / assists / objectives behind the result screen.
-        val matchTally = com.astarworks.astera.match.application.service.result.MatchTallyService(matches)
+        val matchTally = env.ctx.stateful<com.astarworks.astera.match.application.service.result.MatchTallyService> {
+            com.astarworks.astera.match.application.service.result.MatchTallyService(matches)
+        }
         subscriptions += eventBus.subscribe(MatchStarted::class) { matchTally.onMatchStarted(it.matchId, it.modeKey.orEmpty()) }
         subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) {
             matchTally.onKill(it.victim, it.killer)
