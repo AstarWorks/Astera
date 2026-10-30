@@ -2,6 +2,9 @@
 
 撮影結果の閲覧は `make skill-compare-up` → http://192.168.11.5:8097/captures。スキル比較・VFX サンプル・ライブも同じナビゲーションから開く。
 
+**By default `make vfx-shot` / `anim-shot` / `vfx-shot-status|down|reap` run on the Astera VM `astera-mc`** (sync -> run in a runner container -> pull `build/vfx-shot`), not on the shared dev host: see `tools/remote/README.md`.
+Warm stacks (`SHOT_KEEP=1`, `vfx-shot-up`) are local-only: `ASTERA_HEAVY_HOST= make vfx-shot-up`. The rest of this file describes the script itself (it runs the same way inside the runner).
+
 Film one skill cast with a **real Minecraft client** (headless: Xvfb + llvmpipe software GL) against an
 Astera server, so VFX can be judged as a player sees them. Scripts only; compile-only Gradle tasks run on the host.
 

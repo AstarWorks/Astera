@@ -168,6 +168,10 @@ self-contained (absolute paths, SHAs, ADR numbers).
 - `make help` — every common operation (build / docker / kind / argocd).
 - `make check` / `./gradlew check` — full verification including Konsist.
 - `./gradlew :tools:architecture-test:test` — Konsist only.
+- `make vfx-shot` and heavy Gradle (`make build` / `check` / `skill-trace` / `remote-gradle ARGS=...`) run on the Astera VM
+  `astera-mc` via `tools/remote` (`ASTERA_HEAVY_HOST`, default `astera@192.168.14.3`; `make heavy-setup` once, `make heavy-status`).
+  Never run them directly on the shared dev host: no raw `./gradlew` for shadowJar / check / game-sim, and no
+  `ASTERA_HEAVY_HOST=` (run locally) unless astera-mc is down. See `tools/remote/README.md`.
 
 ## Sibling AstarWorks repos
 
