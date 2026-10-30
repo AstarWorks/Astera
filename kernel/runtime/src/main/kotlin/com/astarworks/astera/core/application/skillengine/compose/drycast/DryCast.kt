@@ -137,7 +137,7 @@ public object DryCast {
 
         val particles: ISkillParticleGateway = object : ISkillParticleGateway {
             override fun emit(cast: CastRef, burst: ParticleBurst) {
-                particleSamples += ParticleSample(tick, burst.particle, burst.at, burst.count, burst.dataSize, burst.offset, burst.speed, burst.look, src)
+                particleSamples += ParticleSample(tick, burst.particle, burst.at, burst.count, (burst.data as? com.astarworks.astera.core.domain.effect.ParticleData.Dust)?.scale?.toDouble(), burst.offset, burst.speed, burst.look, src)
             }
         }
 
