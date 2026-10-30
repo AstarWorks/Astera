@@ -31,8 +31,15 @@ import com.astarworks.astera.core.domain.player.PlayerId
  */
 public interface ITooltipRegistry {
 
-    /** Register a [provider] to fire for every item matching [scope]. */
-    public fun register(scope: TooltipScope, provider: ITooltipExtensionProvider)
+    /**
+     * Register a [provider] to fire for every item matching [scope]. The returned [Registration] takes it out again
+     * (a plugin rewire, ADR-0311, retires its providers this way).
+     */
+    public fun register(scope: TooltipScope, provider: ITooltipExtensionProvider): Registration
+
+    public fun interface Registration {
+        public fun unregister()
+    }
 
     /**
      * Compute the aggregated tooltip-line extensions for [item] as seen by

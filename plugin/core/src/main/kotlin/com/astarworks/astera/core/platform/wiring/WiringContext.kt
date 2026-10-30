@@ -71,6 +71,29 @@ public class WiringContext(
     public val reloadables: OwnedReloadables
         get() = services.getOrThrow<IReloadableContentsRegistry>() as OwnedReloadables
 
+    /**
+     * The scheduler / event bus for objects that outlive a generation ([stateful] instances). Unlike [scheduler] and
+     * [eventBus] they belong to no generation, so retiring one does not cancel what such an object started.
+     */
+    public val carriedScheduler: IScheduler get() = rootServices.getOrThrow<IScheduler>()
+    public val carriedEventBus: IDomainEventBus get() = rootServices.getOrThrow<IDomainEventBus>()
+
+    /**
+     * Staging (ADR-0311 P2): until [activate], tasks and event subscriptions this generation asks for are recorded
+     * but not started, so `wire` stays side-effect free even where the existing wiring code schedules or subscribes
+     * inline. The coordinator holds before `wire` and activates at the start of `bind`.
+     */
+    public fun hold() {
+        scheduler.hold()
+        eventBus.hold()
+    }
+
+    /** Starts what [hold] deferred. */
+    public fun activate() {
+        scheduler.release()
+        eventBus.release()
+    }
+
     /** Host-specific per-generation state (the Paper host keeps its `OwnedListeners` here). */
     public val attachments: MutableMap<String, Any> = mutableMapOf()
 
@@ -142,9 +165,11 @@ public class WiringContext(
     /**
      * Tears this whole generation down (ADR-0311): scheduler tasks, event subscriptions, GUI intents, reload
      * bindings, host hooks, then every service and command registration stamped with [tag]. Newest first.
+     * With [drainOneShots] (a rewire retiring the old generation) already scheduled one-shot tasks still run once
+     * instead of being cancelled; repeating tasks always stop.
      */
-    public fun close() {
-        runCatching { scheduler.cancelAll() }
+    public fun close(drainOneShots: Boolean = false) {
+        runCatching { if (drainOneShots) scheduler.cancelRepeating() else scheduler.cancelAll() }
         runCatching { eventBus.cancelAll() }
         runCatching { intents.unregisterAll() }
         runCatching { reloadables.unregisterAll() }

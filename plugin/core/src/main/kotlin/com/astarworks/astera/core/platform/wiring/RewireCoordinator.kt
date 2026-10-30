@@ -48,6 +48,7 @@ public class RewireCoordinator(private val base: WiringContext) : IRewireService
         val slot = slots[owner] ?: return Result.Failure(unknown(owner.id))
         check(!slot.up) { "$owner is already up" }
         val ctx = base.forOwner(owner, 0)
+        ctx.hold()
         val wired = when (val r = slot.lifecycle.wire(ctx)) {
             is Result.Success -> r.value
             is Result.Failure -> {
@@ -55,6 +56,7 @@ public class RewireCoordinator(private val base: WiringContext) : IRewireService
                 return Result.Failure(RewireError.WireFailed(owner.id, r.error.message))
             }
         }
+        ctx.activate()
         when (val r = slot.lifecycle.bind(ctx, wired)) {
             is Result.Success -> Unit
             is Result.Failure -> {
@@ -126,6 +128,7 @@ public class RewireCoordinator(private val base: WiringContext) : IRewireService
         for (owner in plan) {
             val slot = slots.getValue(owner)
             val ctx = oldCtx.getValue(owner).forOwner(owner, slot.gen + 1)
+            ctx.hold()
             val result = runCatching { slot.lifecycle.wire(ctx) }
                 .getOrElse { Result.Failure(LifecycleFailure("${it::class.simpleName}: ${it.message}")) }
             when (result) {
@@ -144,6 +147,7 @@ public class RewireCoordinator(private val base: WiringContext) : IRewireService
         for (owner in plan) {
             val (ctx, wired) = staged.getValue(owner)
             val slot = slots.getValue(owner)
+            ctx.activate()
             val result = runCatching { slot.lifecycle.bind(ctx, wired) }
                 .getOrElse { Result.Failure(LifecycleFailure("${it::class.simpleName}: ${it.message}")) }
             if (result is Result.Failure) {
@@ -163,7 +167,7 @@ public class RewireCoordinator(private val base: WiringContext) : IRewireService
         // 4. retire generation N: everything stamped with the old tags goes.
         val changes = mutableListOf<RewireChange>()
         val warnings = mutableListOf<String>()
-        plan.asReversed().forEach { oldCtx.getValue(it).close() }
+        plan.asReversed().forEach { oldCtx.getValue(it).close(drainOneShots = true) }
         for (owner in plan) {
             val slot = slots.getValue(owner)
             val (ctx, wired) = staged.getValue(owner)

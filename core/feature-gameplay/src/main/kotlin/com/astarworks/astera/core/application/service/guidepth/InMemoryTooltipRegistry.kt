@@ -52,26 +52,15 @@ public class InMemoryTooltipRegistry(
     private val byItemProviders: MutableMap<ItemId, CopyOnWriteArrayList<ITooltipExtensionProvider>> =
         mutableMapOf()
 
-    override fun register(scope: TooltipScope, provider: ITooltipExtensionProvider) {
-        when (scope) {
-            TooltipScope.AllItems ->
-                allItemsProviders.add(provider)
-
-            is TooltipScope.ByRarity ->
-                byRarityProviders
-                    .getOrPut(scope.rarity) { CopyOnWriteArrayList() }
-                    .add(provider)
-
-            is TooltipScope.ByCategory ->
-                byCategoryProviders
-                    .getOrPut(scope.category) { CopyOnWriteArrayList() }
-                    .add(provider)
-
-            is TooltipScope.ByItem ->
-                byItemProviders
-                    .getOrPut(scope.itemId) { CopyOnWriteArrayList() }
-                    .add(provider)
+    override fun register(scope: TooltipScope, provider: ITooltipExtensionProvider): ITooltipRegistry.Registration {
+        val list = when (scope) {
+            TooltipScope.AllItems -> allItemsProviders
+            is TooltipScope.ByRarity -> byRarityProviders.getOrPut(scope.rarity) { CopyOnWriteArrayList() }
+            is TooltipScope.ByCategory -> byCategoryProviders.getOrPut(scope.category) { CopyOnWriteArrayList() }
+            is TooltipScope.ByItem -> byItemProviders.getOrPut(scope.itemId) { CopyOnWriteArrayList() }
         }
+        list.add(provider)
+        return ITooltipRegistry.Registration { list.remove(provider) }
     }
 
     override fun lookup(item: ItemId, viewer: PlayerId): List<TooltipLine> {
