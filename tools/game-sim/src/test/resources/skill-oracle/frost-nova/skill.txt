@@ -6,7 +6,7 @@
 @0 write #0 op=cast/ring dur=2 pos=0.000000,0.150000,0.000000 rot=-0.707107,0.000000,0.000000,0.707107 scale=9.666667,9.666667,9.666667 bb=FIXED
 @0 sound - op=cast/snd sound=astera:skills/frost-cast cat=master vol=1 pitch=0.9 at=0.000000,0.000000,0.000000
 @0 sound - op=cast/snd_2 sound=astera:skills/frost-impact cat=master vol=0.7 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx_burst type=snowflake count=40 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2148490432387180694
+@0 particle - op=cast/fx_burst type=electric_spark count=40 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6567428171051484063
 @0 particle - op=cast/fx_snow type=snowflake count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7436155443605885080
 @0 particle - op=cast/fx_dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8ebff size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4963399765982826323
 @0 particle - op=cast/fx_rod type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3908550969281822914
@@ -34,7 +34,7 @@ g @1 cast-end | pose
 @0 write #0 op=cast/ring dur=2 pos=0.000000,0.150000,0.000000 rot=-0.670566,-0.224368,-0.224368,0.670566 scale=9.666667,9.666667,9.666667 bb=FIXED
 @0 sound - op=cast/snd sound=astera:skills/frost-cast cat=master vol=1 pitch=0.9 at=0.000000,0.000000,0.000000
 @0 sound - op=cast/snd_2 sound=astera:skills/frost-impact cat=master vol=0.7 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx_burst type=snowflake count=40 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2148490432387180694
+@0 particle - op=cast/fx_burst type=electric_spark count=40 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6567428171051484063
 @0 particle - op=cast/fx_snow type=snowflake count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7436155443605885080
 @0 particle - op=cast/fx_dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8ebff size=1.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4963399765982826323
 @0 particle - op=cast/fx_rod type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3908550969281822914
@@ -63,7 +63,7 @@ g @1 cast-end | pose
 @0 write #0 op=cast/ring dur=2 pos=0.000000,0.150000,0.000000 rot=-0.707107,0.000000,0.000000,0.707107 scale=9.666667,9.666667,9.666667 bb=FIXED
 @0 sound - op=cast/snd sound=astera:skills/frost-cast cat=master vol=1 pitch=0.9 at=0.000000,0.000000,0.000000
 @0 sound - op=cast/snd_2 sound=astera:skills/frost-impact cat=master vol=0.7 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx_burst type=snowflake count=40 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2148490432387180694
+@0 particle - op=cast/fx_burst type=electric_spark count=40 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6567428171051484063
 @0 particle - op=cast/fx_snow type=snowflake count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7436155443605885080
 @0 particle - op=cast/fx_dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8ebff size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4963399765982826323
 @0 particle - op=cast/fx_rod type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3908550969281822914
@@ -100,7 +100,7 @@ g @3 cast-end | pose
 @0 write #0 op=cast/ring dur=2 pos=0.000000,0.150000,0.000000 rot=-0.670566,-0.224368,-0.224368,0.670566 scale=9.666667,9.666667,9.666667 bb=FIXED
 @0 sound - op=cast/snd sound=astera:skills/frost-cast cat=master vol=1 pitch=0.9 at=0.000000,0.000000,0.000000
 @0 sound - op=cast/snd_2 sound=astera:skills/frost-impact cat=master vol=0.7 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx_burst type=snowflake count=40 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2148490432387180694
+@0 particle - op=cast/fx_burst type=electric_spark count=40 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6567428171051484063
 @0 particle - op=cast/fx_snow type=snowflake count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7436155443605885080
 @0 particle - op=cast/fx_dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8ebff size=1.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4963399765982826323
 @0 particle - op=cast/fx_rod type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3908550969281822914

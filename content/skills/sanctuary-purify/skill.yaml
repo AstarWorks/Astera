@@ -21,5 +21,5 @@ machine:
         - {id: dust, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#f0f0aa", size: 1.4}
       do:
         # state is 1 tick, so no display fits (StateOverrun): a flat particle disc across the radius stands in for the ring
-        - {id: disc, op: particle, particle: dust, anchor: feet, count: 20, offset: [3.0, 0.1, 3.0], extra: 0, color: "#f0f0aa", size: 1.2, at: 0}
+        - {id: disc, op: particle, particle: dust, anchor: feet, count: 20, offset: [3.0, 0.1, 3.0], extra: 0, color: "#f0f0aa", size: 0.3, at: 0}
     end: {final: true}

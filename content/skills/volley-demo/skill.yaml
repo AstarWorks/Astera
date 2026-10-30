@@ -18,6 +18,8 @@ let:
   petal_step: "= 360 / petals"
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.6}, mode: follow}
+  # the flourish (sparks, petal ring) plays at arm's length, outside the 2-block caster-eye sphere (CasterEyeClutter), so it never fills the caster's own view
+  - {id: tip, anchor: caster.eye, offset: {forward: 2.4}, mode: follow}
 
 # one skill-local fragment, called from the ball's on.hit (the handler's victim / contact are visible to the rows)
 fragments:
@@ -50,7 +52,7 @@ machine:
         - seq:
             - {id: charge_chime, op: sound, sound: block.amethyst_block.chime, anchor: caster, volume: 0.5, pitch: 1.0}
             - {wait: 1}
-            - {id: charge_spark, op: particle_def, def: hit-spark, anchor: muzzle}
+            - {id: charge_spark, op: particle_def, def: hit-spark, anchor: tip}
 
         # the volley: occurrences at 1, 6, 11, 16 (n = 4), each occurrence lives 20 ticks
         - id: volley
@@ -111,7 +113,7 @@ machine:
                 - id: wisp
                   op: particle
                   particle: crit
-                  anchor: muzzle
+                  anchor: tip
                   count: "= 2 + parent.i + i"
                   offset: "= vec(0.15, 0.15 + 0.1 * i, 0.15)"
                   extra: "= 0.03 + 0.04 * rand('wisp')"       # visual spread only
@@ -159,7 +161,7 @@ machine:
         - id: petal
           op: particle
           particle: crit
-          anchor: muzzle
+          anchor: tip
           times: 6
           at: 20
           count: 0

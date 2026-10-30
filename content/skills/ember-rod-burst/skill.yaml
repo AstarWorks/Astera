@@ -27,9 +27,9 @@ machine:
         - {id: flame, op: particle, particle: flame, anchor: ground, count: 0, extra: 0.03, at: 0}
         - {id: dust, op: particle, particle: dust, anchor: ground, count: 1, color: "#ff6e14", size: 1.4, at: 0}
         # the shock ring: 24 flames flung outward on the ground plane, two lifted rings behind it; the burst lasts one tick so these are instant rows
-        - {id: ring, op: particle, particle: flame, anchor: ground, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 0.45}
-        - {id: ring_hi, op: particle, particle: lava, anchor: ground, times: 12, at: 0, count: 0, offset: "= vec(0.6 * cos(i * 2 * pi / 12), 0.8, 0.6 * sin(i * 2 * pi / 12))", extra: 0.3}
-        - {id: embers, op: particle, particle: smoke, anchor: ground, count: 20, offset: "= vec(1.2, 0.3, 1.2)", extra: 0.04, at: 0}
+        - {id: ring, op: particle, particle: dust, color: "#ff6e14", size: 0.3, anchor: ground, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 1.5}
+        - {id: ring_hi, op: particle, particle: dust, color: "#b43c0a", size: 0.3, anchor: ground, times: 12, at: 0, count: 0, offset: "= vec(0.6 * cos(i * 2 * pi / 12), 0.8, 0.6 * sin(i * 2 * pi / 12))", extra: 0.9}
+        - {id: embers, op: particle, particle: dust, color: "#50505a", size: 0.3, anchor: ground, count: 20, offset: "= vec(1.2, 0.3, 1.2)", extra: 0.04, at: 0}
       enter:
         - id: blast
           op: hit

@@ -21,7 +21,7 @@
 @10 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
 @10 sound - op=ward/snd_strike sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=0.000000,0.050000,0.000000
 @10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-945729953341526182
-@10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1718114278210476355
+@10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=0.300000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8027437099129995725
 @10 hit - op=ward/smite at=0.000000,0.050000,0.000000 r=5.000000 shape=area
 @10 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=sanctuary-ward at=0.000000,0.000000,2.500000 ignoreinv=false ignorearmor=false
 @10 damage 00000000-0000-0000-0000-00000000000b op=- electric=12 skill=sanctuary-ward at=0.000000,0.000000,5.000000 ignoreinv=false ignorearmor=false
@@ -95,7 +95,7 @@
 @10 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER
 @10 sound - op=ward/snd_strike sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=0.000000,0.050000,0.000000
 @10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-945729953341526182
-@10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1718114278210476355
+@10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=0.300000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8027437099129995725
 @10 hit - op=ward/smite at=0.000000,0.050000,0.000000 r=5.000000 shape=area
 @10 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=sanctuary-ward at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
 @10 damage 00000000-0000-0000-0000-00000000000b op=- electric=12 skill=sanctuary-ward at=-3.009075,0.000000,3.993178 ignoreinv=false ignorearmor=false
@@ -169,7 +169,7 @@
 @10 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
 @10 sound - op=ward/snd_strike sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=0.000000,0.050000,0.000000
 @10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-945729953341526182
-@10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1718114278210476355
+@10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=0.300000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8027437099129995725
 @10 hit - op=ward/smite at=0.000000,0.050000,0.000000 r=5.000000 shape=area
 @10 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=sanctuary-ward at=0.000000,0.000000,2.500000 ignoreinv=false ignorearmor=false
 @10 damage 00000000-0000-0000-0000-00000000000b op=- electric=12 skill=sanctuary-ward at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
@@ -246,7 +246,7 @@ g @40 cast-end | pose
 @10 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER
 @10 sound - op=ward/snd_strike sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=0.000000,0.050000,0.000000
 @10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-945729953341526182
-@10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1718114278210476355
+@10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=0.300000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8027437099129995725
 @10 hit - op=ward/smite at=0.000000,0.050000,0.000000 r=5.000000 shape=area
 @10 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=sanctuary-ward at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
 @10 damage 00000000-0000-0000-0000-00000000000b op=- electric=12 skill=sanctuary-ward at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false

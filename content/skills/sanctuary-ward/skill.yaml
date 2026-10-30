@@ -98,5 +98,5 @@ machine:
             - {law: fade, start: 1.0, to: 0.0, at: 12, for: 14}
         # --- burst on the strike ---
         - {id: fx_heal, op: particle_def, def: verdant-heal, anchor: chest, at: 10}
-        - {id: fx_dust, op: particle, particle: dust, anchor: ground, count: 24, offset: [3.0, 0.2, 3.0], extra: 0, color: "#fff3c8", size: 1.2, at: 10}
+        - {id: fx_dust, op: particle, particle: dust, anchor: ground, count: 24, offset: [3.0, 0.2, 3.0], extra: 0, color: "#fff3c8", size: 0.3, at: 10}
     end: {final: true}

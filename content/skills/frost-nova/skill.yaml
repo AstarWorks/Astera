@@ -42,7 +42,7 @@ machine:
             - {law: fade, start: 1.0, to: 0.0, at: 0, for: 3}
         - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 1.0, pitch: 0.9, at: 0}
         - {id: snd_2, op: sound, sound: "astera:skills/frost-impact", anchor: caster, volume: 0.7, pitch: 1.0, at: 0}
-        - {id: fx_burst, op: particle, particle: snowflake, anchor: cast_body, count: 40, extra: 0.12, at: 0}
+        - {id: fx_burst, op: particle, particle: electric_spark, anchor: cast_body, count: 40, extra: 0.12, at: 0}
         - {id: fx_snow, op: particle, particle: snowflake, anchor: cast_body, count: 0, extra: 0.03, at: 0}
         - {id: fx_dust, op: particle, particle: dust, anchor: cast_body, count: 1, color: "#c8ebff", size: 1.6, at: 0}
         - {id: fx_rod, op: particle, particle: end_rod, anchor: cast_body, count: 0, extra: 0.02, at: 0}
