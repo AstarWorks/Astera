@@ -1,0 +1,33 @@
+# syntax=docker/dockerfile:1.7
+#
+# Runner for heavy Astera jobs on astera-mc (tools/remote): JDK 25 + gradle (same base as docker/Dockerfile.e2e-runner) plus
+# everything tools/vfx-shot needs (Xvfb, xdotool, ffmpeg, ImageMagick, mesa software GL, python PIL/numpy, docker CLI + compose).
+# Built ON the VM by tools/remote/setup.sh; build context = tools/remote only:
+#   docker build -f Dockerfile.heavy-runner --build-arg HEAVY_UID=$(id -u) --build-arg HEAVY_GID=$(id -g) -t astera/heavy-runner:local .
+ARG GRADLE_IMAGE=gradle:9.5.1-jdk25
+ARG DOCKER_CLI_IMAGE=docker:27.3.1-cli
+ARG COMPOSE_BIN_IMAGE=docker/compose-bin:v2.29.7
+
+FROM ${DOCKER_CLI_IMAGE} AS dockercli
+FROM ${COMPOSE_BIN_IMAGE} AS composebin
+
+FROM ${GRADLE_IMAGE}
+USER root
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      xvfb xdotool ffmpeg imagemagick jq git make rsync \
+      python3 python3-venv python3-pip python3-pil python3-numpy \
+      util-linux procps ca-certificates curl \
+      libgl1 libglx-mesa0 libgl1-mesa-dri libx11-6 libxext6 libxrender1 libxtst6 libxi6 libxrandr2 libxcursor1 libxxf86vm1 libpulse0 \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=dockercli /usr/local/bin/docker /usr/local/bin/docker
+COPY --from=composebin /docker-compose /usr/libexec/docker/cli-plugins/docker-compose
+
+# The job runs as the VM user's uid (so files written into the bind-mounted repo belong to it); give that uid a passwd entry.
+ARG HEAVY_UID=1000
+ARG HEAVY_GID=1000
+RUN (getent group "${HEAVY_GID}" >/dev/null || groupadd -g "${HEAVY_GID}" heavy) \
+ && (getent passwd "${HEAVY_UID}" >/dev/null || useradd -u "${HEAVY_UID}" -g "${HEAVY_GID}" -d /heavy-home -M -s /bin/bash heavy) \
+ && mkdir -p /heavy-home && chmod 777 /heavy-home
+
+ENV ASTERA_HEAVY_INSIDE=1

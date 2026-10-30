@@ -54,10 +54,11 @@ SERVER_IP=""
 SUBNET=""
 declare -A DISP XPID CPID
 
-compose() {
+compose() { # SHOT_COMPOSE_EXTRA=<file>: one more compose file on top (tools/remote sets memory caps for astera-mc)
+  local extra=(); [ -n "${SHOT_COMPOSE_EXTRA:-}" ] && extra=(-f "$SHOT_COMPOSE_EXTRA")
   SHOT_SUBNET_PREFIX="$SUBNET" ASTERA_E2E_ID="$SHOT_ID" RCON_PASSWORD="$RCON_PASS" \
     docker compose -p "$PROJECT" -f "$ROOT/docker/docker-compose.e2e.yml" \
-    -f "$HERE/compose.override.yml" --profile e2e "$@"
+    -f "$HERE/compose.override.yml" "${extra[@]}" --profile e2e "$@"
 }
 rcon() { python3 -I "$HERE/rcon.py" "$SERVER_IP" "$RCON_PORT" "$RCON_PASS" "$@"; }
 

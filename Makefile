@@ -5,6 +5,15 @@ SHELL := /usr/bin/env bash
 .DEFAULT_GOAL := help
 
 GRADLEW := ./gradlew
+
+# Heavy jobs (vfx-shot, heavy Gradle) run on the Astera VM via tools/remote (sync -> run -> pull), not on the shared dev host.
+# ASTERA_HEAVY_HOST: unset = astera@192.168.14.3; `ASTERA_HEAVY_HOST=` (empty) runs the command locally. See tools/remote/README.md.
+HEAVY := bash tools/remote/run.sh
+ifneq ($(origin ASTERA_HEAVY_HOST),undefined)
+export ASTERA_HEAVY_HOST
+endif
+HEAVY_GRADLE_PULL := $(foreach p,plugin/*/build/libs tools/*/build/reports plugin/*/build/reports build/reports tools/game-sim/build/sim-traces tools/game-sim/build/test-results build/resource-pack,--pull '$(p)')
+VFX_ENV := $(foreach v,VIEW CASE TICKS DUMMIES ITEM FOV FOV_DOLLY FOV_OPT FOV_EFFECT_SCALE RES GUI_SCALE BEAT_TICKS STEPPED FPS DISTANCE TIME_OF_DAY JOIN_SETTLE SETTLE SETTLE_WARM PRE_ROLL SHEET_STEP SHEET_COLS CAMERA RENDER_DISTANCE PRE_TICKS_CMP FLOOR_BLOCK LP_NUM_THREADS MC_VERSION PMC_VERSION CPU ANIM D REST_TICK HIDE_HUD CAST_LAG_MS,--env $(v)) --env 'SHOT_*'
 DOCKER_COMPOSE := docker compose -f docker/docker-compose.yml
 DOCKER_COMPOSE_HOTSWAP := docker compose -f docker/docker-compose.yml -f docker/docker-compose.hotswap.yml
 KIND_CLUSTER ?= astera
@@ -24,8 +33,8 @@ help: ## Show this help
 # ----------------------------------------------------------------------------
 
 .PHONY: build
-build: ## Build the 8 Astera plugin shadow jars (plugin/*/build/libs/astera-*.jar)
-	$(GRADLEW) $(foreach p,core chat items combat match stats economy persistence,:plugin:$(p):shadowJar)
+build: ## Build the 8 Astera plugin shadow jars (plugin/*/build/libs/astera-*.jar); runs on astera-mc, jars are pulled back
+	$(HEAVY) --kind gradle $(HEAVY_GRADLE_PULL) -- $(GRADLEW) $(foreach p,core chat items combat match stats economy persistence,:plugin:$(p):shadowJar)
 
 .PHONY: anim-import
 anim-import: ## Import Blockbench player animations: make anim-import BB=path.bbmodel [OUT=content/animations]
@@ -33,8 +42,20 @@ anim-import: ## Import Blockbench player animations: make anim-import BB=path.bb
 	$(GRADLEW) :tools:anim-import:importAnimations -Pbb="$(BB)" -PanimOut="$(or $(OUT),content/animations)"
 
 .PHONY: check
-check: ## Run unit tests + Konsist architecture tests
-	$(GRADLEW) check
+check: ## Run unit tests + Konsist architecture tests (on astera-mc, reports pulled back)
+	$(HEAVY) --kind gradle $(HEAVY_GRADLE_PULL) -- $(GRADLEW) check
+
+.PHONY: remote-gradle
+remote-gradle: ## Run Gradle on astera-mc: make remote-gradle ARGS=":tools:game-sim:compileKotlin" [PULL="path/or/glob ..."] (default pulls: jars, reports, sim-traces, resource-pack)
+	@test -n "$(ARGS)" || { echo "usage: make remote-gradle ARGS=\"<gradle args>\" [PULL=\"<path or glob> ...\"]"; exit 2; }
+	$(HEAVY) --kind gradle $(HEAVY_GRADLE_PULL) $(foreach p,$(PULL),--pull '$(p)') -- $(GRADLEW) $(ARGS)
+
+.PHONY: heavy-setup heavy-status
+heavy-setup: ## One-time: build the runner image + dirs on astera-mc (tools/remote/setup.sh; idempotent)
+	bash tools/remote/setup.sh
+
+heavy-status: ## astera-mc: runner slots, who holds them, free memory, shot stacks, image
+	$(HEAVY) --status
 
 .PHONY: clean
 clean: ## Clean Gradle build outputs
@@ -213,26 +234,26 @@ live-view-down: ## Stop this checkout's live viewer, clients, private audio daem
 	bash tools/live-view/live-view.sh down
 
 .PHONY: vfx-shot
-vfx-shot: ## Film a skill with a real headless MC client (serialized host-wide, torn down on exit; SHOT_KEEP=1 keeps it warm for SHOT_KEEP_TTL): make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|compare|all] [CASE=<case>] [TICKS=60] [FOV=90] [BEAT_TICKS=case|0,8,16]
+vfx-shot: ## Film a skill with a real headless MC client on astera-mc (serialized, torn down on exit; SHOT_KEEP is local-only): make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|compare|all] [CASE=<case>] [TICKS=60] [FOV=90] [BEAT_TICKS=case|0,8,16]
 	@test -n "$(SKILL)" || { echo "usage: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|compare|all] [CASE=<case>] [TICKS=60]"; exit 2; }
-	SKILL="$(SKILL)" VIEW="$(or $(VIEW),all)" TICKS="$(TICKS)" DUMMIES="$(DUMMIES)" bash tools/vfx-shot/vfx-shot.sh
+	$(HEAVY) --kind vfx --pull build/vfx-shot $(VFX_ENV) -- env SKILL="$(SKILL)" VIEW="$(or $(VIEW),all)" TICKS="$(TICKS)" DUMMIES="$(DUMMIES)" bash tools/vfx-shot/vfx-shot.sh
 
 .PHONY: vfx-shot-up
 vfx-shot-up: ## Create/refresh this checkout's kept capture stack and park the clients for SHOT_KEEP_TTL s (VIEW=compare CASE=<case> | side), no capture
-	VIEW="$(or $(VIEW),all)" bash tools/vfx-shot/vfx-shot.sh up
+	$(HEAVY) --local-only "vfx-shot-up (warm stacks) is not supported on astera-mc; run it locally: ASTERA_HEAVY_HOST= make vfx-shot-up" -- env VIEW="$(or $(VIEW),all)" bash tools/vfx-shot/vfx-shot.sh up
 
 .PHONY: vfx-shot-status
 vfx-shot-status: ## Warm capture stack state: server, deployed content/pack/code vs working tree, parked clients, locks
-	bash tools/vfx-shot/vfx-shot.sh status
+	$(HEAVY) --kind vfx $(VFX_ENV) -- bash tools/vfx-shot/vfx-shot.sh status
 
 .PHONY: anim-shot
 anim-shot: ## Film a skin-rig animation for the skill-compare /anim review: make anim-shot ANIM=<animation-id | skill-id>
 	@test -n "$(ANIM)" || { echo "usage: make anim-shot ANIM=<animation-id | skill-id>"; exit 2; }
-	bash tools/vfx-shot/anim-shot.sh "$(ANIM)"
+	$(HEAVY) --kind vfx --pull build/vfx-shot/anim $(VFX_ENV) -- bash tools/vfx-shot/anim-shot.sh "$(ANIM)"
 
 .PHONY: vfx-shot-down
 vfx-shot-down: ## Stop the parked clients and drop this checkout's capture stack (server, pack host, volumes), kept or not
-	bash tools/vfx-shot/vfx-shot.sh down
+	$(HEAVY) --kind vfx $(VFX_ENV) -- bash tools/vfx-shot/vfx-shot.sh down
 
 .PHONY: vfx-auto-up vfx-auto-down vfx-auto-status vfx-auto-once
 vfx-auto-up: ## Capture farm: on every dev "deployed <sha>" film the changed skills (top+side, stepped) and publish to skill-compare as "auto <sha>"
@@ -247,7 +268,7 @@ vfx-auto-once: ## Run the farm for one commit now: make vfx-auto-once SHA=<sha> 
 
 .PHONY: vfx-shot-reap
 vfx-shot-reap: ## Kill vfx-shot clients / astera-shot-* stacks of dead runs, host-wide (live runs + kept stacks within TTL survive; SHOT_REAP_DRY=1 only lists)
-	bash tools/vfx-shot/vfx-shot.sh reap
+	$(HEAVY) --kind vfx $(VFX_ENV) -- bash tools/vfx-shot/vfx-shot.sh reap
 
 # ----------------------------------------------------------------------------
 # bots inside the LIVE stack (QA-2, ADR-0221) - Velocity modern forwarding, needs the astera-dev stack
@@ -300,7 +321,7 @@ skill-pairs: ## Video vs MC frame pairs at video times -> build/pairs/<case>.png
 .PHONY: skill-trace
 skill-trace: ## Cast a v2 skill once in game-sim (real cast runner, dummy 6 blocks ahead) -> tools/game-sim/build/sim-traces/v2/<skill>.json (astera-sim-trace/2): make skill-trace SKILL=<skill-id>[,<skill-id>...]
 	@test -n "$(SKILL)" || { echo "usage: make skill-trace SKILL=<skill-id>[,<skill-id>...]"; exit 2; }
-	$(GRADLEW) :tools:game-sim:test --tests '*SkillTraceExportScenarioTest' -Pskill="$(SKILL)" --offline -q
+	$(HEAVY) --kind gradle $(HEAVY_GRADLE_PULL) -- $(GRADLEW) :tools:game-sim:test --tests '*SkillTraceExportScenarioTest' -Pskill="$(SKILL)" --offline -q
 	@for s in $$(echo "$(SKILL)" | tr ',' ' '); do python3 -I tools/vfx-shot/trace_v2.py "tools/game-sim/build/sim-traces/v2/$$s.json" && echo "trace ok: tools/game-sim/build/sim-traces/v2/$$s.json"; done
 
 .PHONY: skill-preview
