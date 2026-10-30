@@ -87,6 +87,7 @@ public object AdminCommandCatalog {
 
         // ---- Server ----
         AdminPanelAction("admin maintenance", AdminCategory.SERVER, destructive = true, presets = mapOf("reason" to restartReasons())),
+        AdminPanelAction("admin rewire", AdminCategory.SERVER, destructive = true, presets = mapOf("plugin" to raw("status", "chat", "economy", "stats"))),
         AdminPanelAction("admin health", AdminCategory.SERVER),
         AdminPanelAction("admin announce", AdminCategory.SERVER, presets = mapOf("message-key" to announcements())),
         AdminPanelAction("announce", AdminCategory.SERVER),

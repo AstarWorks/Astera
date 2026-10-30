@@ -133,7 +133,7 @@ class AdminConsoleScenarioTest {
                 assertThat(rows).`as`("${action.path} rows").isEqualTo(args)
                 opened += action.path
             }
-            assertThat(opened).contains("mod ban", "economy grant", "items give", "match start", "admin reload", "admin audit")
+            assertThat(opened).contains("mod ban", "economy grant", "items give", "match start", "admin reload", "admin rewire", "admin audit")
         }
     }
 

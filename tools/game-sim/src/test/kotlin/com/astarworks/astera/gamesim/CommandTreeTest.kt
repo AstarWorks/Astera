@@ -89,7 +89,7 @@ class CommandTreeTest {
                 val node = byPath[open] ?: error("missing $open")
                 assertThat(node.access.name).`as`(open).isEqualTo("EVERYONE")
             }
-            for (admin in listOf("items give", "match start", "economy grant", "admin health", "admin reload", "mod ban", "admin maintenance")) {
+            for (admin in listOf("items give", "match start", "economy grant", "admin health", "admin reload", "admin rewire", "mod ban", "admin maintenance")) {
                 val node = byPath[admin] ?: error("missing $admin")
                 assertThat(node.access.name).`as`(admin).isEqualTo("OPERATOR")
             }
@@ -279,6 +279,7 @@ class CommandTreeTest {
             assertThat(before).doesNotContain("late")
             val handle = registry.register(
                 "Test-Late",
+                0,
                 CommandSpec.Literal(
                     name = "late",
                     executor = { com.astarworks.astera.core.application.command.CommandResult.Success },
@@ -287,7 +288,7 @@ class CommandTreeTest {
             assertThat(registry.snapshot().literals.map { it.name }).contains("late")
             handle.unregister()
             assertThat(registry.snapshot().literals.map { it.name }).doesNotContain("late")
-            registry.register("Test-Late", CommandSpec.Literal(name = "late2", executor = { com.astarworks.astera.core.application.command.CommandResult.Success }))
+            registry.register("Test-Late", 0, CommandSpec.Literal(name = "late2", executor = { com.astarworks.astera.core.application.command.CommandResult.Success }))
             registry.unregisterOwner("Test-Late")
             assertThat(registry.snapshot().literals.map { it.name }).doesNotContain("late2")
         }
@@ -301,6 +302,7 @@ class CommandTreeTest {
             val clash = runCatching {
                 registry.register(
                     "Test-Clash",
+                    0,
                     listOf("queue"),
                     CommandSpec.Literal(name = "join", executor = { com.astarworks.astera.core.application.command.CommandResult.Success }),
                 )
