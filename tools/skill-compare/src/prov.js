@@ -4,7 +4,7 @@
 // kind: "preview" | "lint" | "round" (published review views; no FOV) or absent (a real-client capture).
 export function renderProv(box, p) {
   const chip = (txt, cls, title) => { const e = document.createElement("span"); e.className = "pv " + (cls || ""); e.textContent = txt; if (title) e.title = title; box.appendChild(e); };
-  const when = { preview: "プレビュー生成", lint: "lint 実行", round: "メモ公開" }[p.kind] || "撮影";
+  const when = { preview: "プレビュー生成", lint: "オーバーレイ生成", round: "メモ公開" }[p.kind] || "撮影";
   box.hidden = false;
   if (p.kind === "preview") chip("PREVIEW・実機ではありません", "pvw", "skill-preview（クライアント非使用の近似描画）。実機の見た目の判断材料にしない");
   if (p.caseRev === "unknown") chip("case 版 不明", "warn", "この撮影は参照動画/ケースの revision を記録していない。ケースと一致するか未確認");

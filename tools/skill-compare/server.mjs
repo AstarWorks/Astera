@@ -82,9 +82,9 @@ export function makeHandler(opts = {}) {
       stale: cur && m.contentRevision ? m.contentRevision !== cur.contentRevision : null, currentContent: cur?.contentRevision ?? null };
   };
 
-  /** Preview / lint / round notes published for a skill (build/skill-compare-published/<skill>/{preview,lint,round}/current.json). */
+  /** Preview / overlay (kind lint) / round notes published for a skill (build/skill-compare-published/<skill>/{preview,lint,round}/current.json). */
   function reviewViews(skill, referenceRevision) {
-    const out = { tree: currentTree(), preview: null, previewSide: null, lint: null, round: null };
+    const out = { tree: currentTree(), preview: null, previewSide: null, overlay: null, round: null };
     if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill || "")) return out;
     const cur = (kind) => { const f = join(publishedDir, skill, kind, "current.json"); if (!existsSync(f)) return null; try { return readJson(f); } catch { return null; } };
     // preview = the intent's moving compare camera; preview-side = fixed side camera, caster faces screen-right (skill-preview --camera side).
@@ -100,8 +100,8 @@ export function makeHandler(opts = {}) {
     out.previewSide = previewOf("preview-side");
     const ln = cur("lint");
     if (ln && /^[a-f0-9]{64}$/.test(ln.revision || "")) {
-      out.lint = { revision: ln.revision, report: ln.report ?? null, overlays: ln.overlays ?? [], base: `/lint/${skill}/${ln.revision}/overlay/`,
-        prov: ln.report ? { ...provOf(ln.report.provenance ?? {}), published: true, kind: "lint" } : null };
+      out.overlay = { revision: ln.revision, overlays: ln.overlays ?? [], base: `/lint/${skill}/${ln.revision}/overlay/`,
+        prov: { ...provOf(ln.meta ?? {}), published: true, kind: "lint" }, warnings: ln.meta?.warnings ?? [] };
     }
     const rd = cur("round");
     if (rd && typeof rd.text === "string") out.round = { text: rd.text, revision: rd.revision, images: Array.isArray(rd.images) ? rd.images : [], imgBase: `/round/${skill}/${rd.revision}/img/`, prov: { ...provOf(rd), published: true, kind: "round" } };
@@ -358,7 +358,7 @@ export function makeHandler(opts = {}) {
     return json(r.body);
   }
 
-  // Keypoints for the pose solver (tools/pose-solve): content/skill-lint/<skill>.keypoints.yaml, read / written through kp.py (the one validator).
+  // Keypoints for the pose solver (tools/pose-solve): content/skill-lint/<skill>.keypoints.yaml (data dir name kept), read / written through kp.py (the one validator).
   const kpScript = join(repo, "tools", "pose-solve", "kp.py");
   const kpRun = (args, input) => spawnSync("python3", [kpScript, ...args], { cwd: repo, input, encoding: "utf8", timeout: 60_000 });
 

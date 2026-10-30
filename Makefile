@@ -308,7 +308,7 @@ skill-preview: ## Cast a v2 skill in game-sim (skill-trace), render it from the 
 	@test -n "$(SKILL)" || { echo "usage: make skill-preview SKILL=<skill-id> [TRACE=f] [CASE=..] [TICKS=a-b] [EVERY=n] [FOV=deg] [OVERLAY=1] [NOREF=1]"; exit 2; }
 	$(if $(TRACE),,$(MAKE) skill-trace SKILL="$(SKILL)")
 	cd tools/skill-viewer && bun install --frozen-lockfile >/dev/null && bun run build >/dev/null && bun scripts/trace-preview.mjs --skill "$(SKILL)" $(if $(TRACE),--trace "$(abspath $(TRACE))") $(if $(CASE),--case "$(CASE)") $(if $(TICKS),--ticks "$(TICKS)") $(if $(EVERY),--every "$(EVERY)") $(if $(FOV),--fov "$(FOV)") $(if $(NOREF),--no-ref) $(if $(OVERLAY),--overlay) && bun scripts/trace-preview.mjs --skill "$(SKILL)" $(if $(TRACE),--trace "$(abspath $(TRACE))") --no-ref --camera side --out "$(CURDIR)/build/skill-preview/$(SKILL)/side"
-	$(if $(filter 0,$(PUBLISH)),,node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" && node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" --src "build/skill-preview/$(SKILL)/side" --kind preview-side)
+	$(if $(filter 0,$(PUBLISH)),,node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" && node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" --src "build/skill-preview/$(SKILL)/side" --kind preview-side$(if $(OVERLAY), && node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" --kind lint))
 
 .PHONY: pose-solve
 pose-solve: ## Reference keypoints -> skin-rig body keys + wrist keys in content/skill-lint/solved/ (never overwrites shipped keys): make pose-solve SKILL=<skill-id>
