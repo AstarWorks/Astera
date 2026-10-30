@@ -3,11 +3,7 @@
 @0 sound - op=fire/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=1.2 at=0.000000,0.000000,0.000000
 @0 particle - op=fire/flash type=gun-muzzle-flash at=-0.350000,0.970000,0.450000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4542385259443998189
 @0 particle - op=fire/smoke type=gun-muzzle-smoke at=-0.350000,0.970000,0.450000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=756825325119067440
-@0 particle - op=fire/trail_crit[0] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8921663076798262585
-@0 particle - op=fire/trail_smoke[0] type=white_smoke count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5773465135384344530
 @0 frame fire/bolt op=fire/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
-@1 particle - op=fire/trail_crit[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4422400065892599329
-@1 particle - op=fire/trail_smoke[1] type=white_smoke count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3735225102261560443
 @1 hit - op=fire/bolt at=0.000000,1.620000,2.100000 r=2.100000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.700000 rad=0.500000
 @1 remove #0 op=fire/slug
 g @1 state-exit reason=EVENT | state=fire
@@ -21,11 +17,7 @@ r @5 run-end tail=4 | pose
 @0 sound - op=fire/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=1.2 at=0.000000,0.000000,0.000000
 @0 particle - op=fire/flash type=gun-muzzle-flash at=-0.667798,1.163109,0.304624 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4542385259443998189
 @0 particle - op=fire/smoke type=gun-muzzle-smoke at=-0.667798,1.163109,0.304624 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=756825325119067440
-@0 particle - op=fire/trail_crit[0] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8921663076798262585
-@0 particle - op=fire/trail_smoke[0] type=white_smoke count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5773465135384344530
 @0 frame fire/bolt op=fire/bolt pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916
-@1 particle - op=fire/trail_crit[1] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4422400065892599329
-@1 particle - op=fire/trail_smoke[1] type=white_smoke count=1 at=-0.282761,1.791010,0.375236 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3735225102261560443
 @1 hit - op=fire/bolt at=-1.187594,2.338242,1.575991 r=2.100000 shape=capsule a=-0.282761,1.791010,0.375236 b=-2.092428,2.885475,2.776746 rad=0.500000
 @1 remove #0 op=fire/slug
 g @1 state-exit reason=EVENT | state=fire
@@ -37,11 +29,7 @@ r @5 run-end tail=4 | pose
 @0 sound - op=fire/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=1.2 at=0.000000,0.000000,0.000000
 @0 particle - op=fire/flash type=gun-muzzle-flash at=-0.350000,0.970000,0.450000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4542385259443998189
 @0 particle - op=fire/smoke type=gun-muzzle-smoke at=-0.350000,0.970000,0.450000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=756825325119067440
-@0 particle - op=fire/trail_crit[0] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8921663076798262585
-@0 particle - op=fire/trail_smoke[0] type=white_smoke count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5773465135384344530
 @0 frame fire/bolt op=fire/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
-@1 particle - op=fire/trail_crit[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4422400065892599329
-@1 particle - op=fire/trail_smoke[1] type=white_smoke count=1 at=0.000000,1.620000,0.500000 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3735225102261560443
 @1 hit - op=fire/bolt at=0.000000,1.620000,2.100000 r=2.100000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.700000 rad=0.500000
 @1 spawn #1 op=- kind=ribbon from=-0.350000,0.970000,0.450000 to=0.000000,1.620000,2.200000 thick=0.100000 color=#ffe070 alpha=1.000000 frames=[0.350000,0.650000,1.750000|-0.098058,0.000000,0.019612|0.006712,-0.093962,0.033558]
 @1 sound - op=fire/bolt.hit/fx_hit/snd sound=astera:weapons/gun-impact cat=master vol=1 pitch=1 at=0.000000,0.810000,2.500000
@@ -62,11 +50,7 @@ r @5 run-end tail=4 | pose
 @0 sound - op=fire/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=1.2 at=0.000000,0.000000,0.000000
 @0 particle - op=fire/flash type=gun-muzzle-flash at=-0.550339,0.970000,0.148751 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4542385259443998189
 @0 particle - op=fire/smoke type=gun-muzzle-smoke at=-0.550339,0.970000,0.148751 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=756825325119067440
-@0 particle - op=fire/trail_crit[0] type=crit count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8921663076798262585
-@0 particle - op=fire/trail_smoke[0] type=white_smoke count=1 at=-0.300908,1.620000,0.399318 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5773465135384344530
 @0 frame fire/bolt op=fire/bolt pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324
-@1 particle - op=fire/trail_crit[1] type=crit count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4422400065892599329
-@1 particle - op=fire/trail_smoke[1] type=white_smoke count=1 at=-0.300908,1.620000,0.399318 off=0.020000,0.020000,0.020000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3735225102261560443
 @1 hit - op=fire/bolt at=-1.263812,1.620000,1.677135 r=2.100000 shape=capsule a=-0.300908,1.620000,0.399318 b=-2.226716,1.620000,2.954951 rad=0.500000
 @1 spawn #1 op=- kind=ribbon from=-0.550339,0.970000,0.148751 to=-1.278471,1.620000,1.696589 thick=0.100000 color=#ffe070 alpha=1.000000 frames=[-0.728132,0.650000,1.547838|-0.090488,0.000000,-0.042567|-0.015120,-0.093479,0.032142]
 @1 sound - op=fire/bolt.hit/fx_hit/snd sound=astera:weapons/gun-impact cat=master vol=1 pitch=1 at=-1.504538,0.810000,1.996589

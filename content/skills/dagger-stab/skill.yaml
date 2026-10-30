@@ -57,5 +57,5 @@ machine:
               - {id: bleed, op: status, target: event.victim, status: bleed, stacks: 1, for: "${bleed_ticks}", when: "= rand() < 0.6"}
         - {id: snd, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 1.0, pitch: 1.6, at: 0, detach: true}
         - {id: fx1, op: particle_def, def: stab-spark, anchor: fx, at: 0, detach: true}
-        - {id: trail_fx, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 5}, count: 1, extra: 0.04, at: 0, every: 1, for: 6, detach: true}
+        - {id: trail_fx, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 2}, count: 1, extra: 0.04, at: 0, every: 1, for: 3, detach: true}
     end: {final: true}

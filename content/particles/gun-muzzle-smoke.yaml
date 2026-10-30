@@ -7,7 +7,7 @@ color:
   r: 200
   g: 200
   b: 200
-count: 6
+count: 4
 lifetime_ticks: 20
 vanilla_particle: white_smoke
 speed: 0.02

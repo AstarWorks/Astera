@@ -1,4 +1,5 @@
 # Fire staff bolt: one flying fire charge; on a victim it deals fire damage and may ignite, on a block it bursts, on expiry it fizzles.
+# The flight trail starts at tick 2 (the bolt is past the caster eye view volume by then; near-eye rule, CasterEyeClutter).
 # Re-authored from zero on ADR-0303 rev4.10. The cast ends with the body (fly + 1 ticks). The two impact bursts share one fragment.
 apiVersion: astera/v3
 kind: Skill
@@ -45,10 +46,10 @@ machine:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.8, pitch: 1.1}
         - {id: fx, op: particle_def, def: fire-cast, anchor: cast_fx}
         - {id: shell, op: display, kind: item, item: "minecraft:fire_charge", context: fixed, anchor: bolt, scale: [0.9, 0.9, 0.9], at: 0, until: bolt.end}
-        - {id: trail_flame, op: particle, particle: flame, anchor: {of: bolt, sweep: 0.3}, count: 3, offset: [0.12, 0.12, 0.12], extra: 0.02, at: 0, every: 1, until: bolt.end}
-        - {id: trail_dust, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.1, 0.1, 0.1], color: "#ff7814", size: 1.6, at: 0, every: 1, until: bolt.end}
-        - {id: trail_lava, op: particle, particle: lava, anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.08, 0.08, 0.08], at: 0, every: 1, until: bolt.end}
-        - {id: trail_smoke, op: particle_def, def: smoke-dark, anchor: bolt, at: 0, every: 1, until: bolt.end}
+        - {id: trail_flame, op: particle, particle: flame, anchor: {of: bolt, sweep: 0.3}, count: 3, offset: [0.12, 0.12, 0.12], extra: 0.02, at: 2, every: 1, until: bolt.end}
+        - {id: trail_dust, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.1, 0.1, 0.1], color: "#ff7814", size: 1.6, at: 2, every: 1, until: bolt.end}
+        - {id: trail_lava, op: particle, particle: lava, anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.08, 0.08, 0.08], at: 2, every: 1, until: bolt.end}
+        - {id: trail_smoke, op: particle_def, def: smoke-dark, anchor: bolt, at: 2, every: 1, until: bolt.end}
         - id: bolt
           op: projectile
           origin: muzzle
