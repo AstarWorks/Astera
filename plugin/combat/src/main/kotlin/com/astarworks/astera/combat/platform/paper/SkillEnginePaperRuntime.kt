@@ -182,6 +182,7 @@ internal class SkillEnginePaperRuntime(
             movement = movementGateway,
             items = itemGateway,
             world = worldGateway3,
+            faultLedger = wired.skillFaults,
         )
         val playerHooks = PaperPlayerHooks(server, scheduler, gameplay, live, visualGateway)
         player.config = wired.engineConfig

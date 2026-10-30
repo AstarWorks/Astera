@@ -97,6 +97,9 @@ public class CastSkillUseCase(
         val spec = skillRegistry.find(skillId)
             ?: return Result.failure(CastSkillError.SkillNotFound(skillId))
 
+        // 1b. Callee-only skills are marked at load: refused before anything is checked or spent (item binding and admin cast alike)
+        spec.calleeOnlyCallers?.let { return Result.failure(CastSkillError.CalleeOnly(skillId, it)) }
+
         // 2. Silence check
         if (statusContainer.has(casterId, SILENCE_ID)) {
             return reject(casterId, skillId, CastRejectionReason.SILENCED, CastSkillError.Silenced(casterId))

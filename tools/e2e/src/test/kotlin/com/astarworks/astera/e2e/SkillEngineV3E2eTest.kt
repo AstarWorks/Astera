@@ -279,4 +279,60 @@ class SkillEngineV3E2eTest : E2eBase() {
             "clean"
         }
     }
+
+    private fun posOf(selector: String): Triple<Double, Double, Double>? =
+        Regex("(-?\\d+(?:\\.\\d+)?)d").findAll(clean(rcon("data get entity $selector Pos"))).map { it.groupValues[1].toDouble() }.toList()
+            .takeIf { it.size >= 3 }?.let { Triple(it[0], it[1], it[2]) }
+
+    private fun faultTotal(): Int? = Regex("faults total=(\\d+)").find(clean(rcon("astera skill faults")))?.groupValues?.get(1)?.toInt()
+
+    /**
+     * Audit G3 (DashClearance proven on Paper): a caster dashes straight at a dummy 3 blocks ahead. `katana-iaido` runs through its victim
+     * (`pass_through`), `spear-charge` stops at it; neither may end with the caster's eye inside the dummy's hitbox (0.6 x 1.95 zombie box on
+     * Paper's real `boundingBox`), and the engine's fault counter (`astera skill faults`, per skill id and kind) must still read 0 afterwards.
+     */
+    @Test
+    fun dashNeverEndsInsideVictimAndRaisesNoFault() {
+        val a = bot("DashClear")
+        op(a)
+        Thread.sleep(500)
+        val tag = "dash_dummy"
+        val dummy = "@e[type=minecraft:zombie,tag=$tag,limit=1]"
+        rcon("kill @e[type=minecraft:zombie,tag=$tag]")
+        Thread.sleep(300)
+        runCatching { rcon("astera skill faults reset") }
+        val logMark = ServerLog.lineCount()
+        try {
+            for (skill in listOf("katana-iaido", "spear-charge")) {
+                rcon("execute in minecraft:overworld run tp ${a.name} 0.5 -60 0.5 0 0")
+                rcon("kill @e[type=minecraft:zombie,tag=$tag]")
+                Thread.sleep(800)
+                rcon("execute in minecraft:overworld run summon minecraft:zombie 0.5 -60 3.5 {NoAI:1b,Silent:1b,PersistenceRequired:1b,Tags:[\"$tag\"],attributes:[{id:\"minecraft:max_health\",base:2000}],Health:2000f,active_effects:[{id:\"minecraft:fire_resistance\",duration:100000,show_particles:0b}]}")
+                Thread.sleep(800)
+                rcon("astera skill cast $skill ${a.name} --force")
+                Thread.sleep(2_000)
+                val caster = posOf(a.name)
+                val victim = posOf(dummy)
+                E2eReport.check(suite, "$skill dash does not end with the caster eye inside the dummy hitbox", "RCON data get entity Pos (caster, dummy) after the cast") {
+                    assertThat(caster).describedAs("caster Pos").isNotNull()
+                    assertThat(victim).describedAs("dummy Pos (alive)").isNotNull()
+                    val eyeY = caster!!.second + 1.62
+                    val inside = Math.abs(caster.first - victim!!.first) < 0.3 && Math.abs(caster.third - victim.third) < 0.3 &&
+                        eyeY > victim.second && eyeY < victim.second + 1.95
+                    assertThat(inside).describedAs("caster $caster eyeY=$eyeY inside dummy $victim").isFalse()
+                    "caster=$caster dummy=$victim"
+                }
+            }
+            E2eReport.check(suite, "no engine fault was counted for the dash casts", "RCON astera skill faults") {
+                assertThat(faultTotal()).describedAs("fault total after the dash casts").isEqualTo(0)
+                "faults total=0"
+            }
+        } finally {
+            rcon("kill @e[type=minecraft:zombie,tag=$tag]")
+        }
+        E2eReport.check(suite, "no skill-engine error in the server log for the dash casts", "server log") {
+            assertThat(skillErrorsSince(logMark)).describedAs("skill-engine log problems").isEmpty()
+            "clean"
+        }
+    }
 }

@@ -99,6 +99,8 @@ public class CombatWiringResult(
     public val bodySkeleton: com.astarworks.astera.core.domain.animation.skinrig.BodySkeleton,
     /** `content/engine/skill-engine.yaml`; the Paper runtime hands it to the table player (server caps). */
     public val engineConfig: com.astarworks.astera.core.domain.skillengine.model.EngineConfig,
+    /** Runtime fault counters the table player writes and `/astera skill faults` reads. */
+    public val skillFaults: com.astarworks.astera.core.application.skillengine.runtime.player.SkillFaultLedger,
     public val statusContents: StatusContents,
     public val armorContents: ArmorContents,
     public val applyDamage: ApplyDamageUseCase?,
@@ -182,6 +184,8 @@ public object CombatWiring {
         val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries.catalog(frameTables, skillParts, com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(ctx.contentDir.resolve("sprites")), clutter, engineConfig)
         val skillEngineContents = com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents(skillCatalog, engineConfig = engine)
         val skillGate = SkillMetaRegistry(skillCatalog)
+        // runtime fault counters of the table player (read by `/astera skill faults`)
+        val skillFaults = ctx.stateful<com.astarworks.astera.core.application.skillengine.runtime.player.SkillFaultLedger> { com.astarworks.astera.core.application.skillengine.runtime.player.SkillFaultLedger() }
         val skillReport = skillEngineContents.reload(skillsContentDir)
         // A skill file that is not a v3 `kind: Skill` document is rejected here and does not run (never skipped silently).
         skillReport.failures.forEach { logger.severe("[skill-error] ${it.file}: ${it.message}") }
@@ -715,18 +719,6 @@ public object CombatWiring {
             skills = skillGate,
             castSkill = castSkillOut,
             cooldowns = cooldownTracker,
-            // a callee-only skill (frames_in / unvalued required params) is refused up front, naming the skills whose `use: skill:<id>` call it
-            calleeOnlyCallers = { id ->
-                if (skillCatalog.get(id.value)?.def?.isCalleeOnly != true) {
-                    null
-                } else {
-                    val call = Regex("use:\\s*skill:" + Regex.escape(id.value.substringBefore('@')) + "(?![A-Za-z0-9_-])")
-                    java.nio.file.Files.walk(skillsContentDir).use { paths ->
-                        paths.filter { it.toString().endsWith(".yaml") && call.containsMatchIn(java.nio.file.Files.readString(it)) }
-                            .map { it.parent.fileName.toString() }.filter { it != id.value }.distinct().sorted().toList()
-                    }
-                }
-            },
         )
         registrations += services.register(adminSkillCaster)
         registrations += com.astarworks.astera.combat.application.admin.AdminSkillsPanel(
@@ -778,6 +770,7 @@ public object CombatWiring {
                     tableOf = { id -> skillCatalog.get(id)?.table },
                     outDir = java.nio.file.Path.of(engineConfig.expandDir),
                 ),
+                faults = skillFaults,
             ),
         )
         // UI-12: `/astera status [id]` lookup and `/astera status codex` (the status codex GUI).
@@ -801,6 +794,7 @@ public object CombatWiring {
             skillCatalog = skillCatalog,
             skillVariantResolver = skillVariantResolver,
             skillSkins = skillSkins,
+            skillFaults = skillFaults,
             engineConfig = engineConfig,
             reloadSkills = { skillEngineContents.reload(skillsContentDir) },
             frameTables = frameTables,

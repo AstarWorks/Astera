@@ -21,6 +21,11 @@ import com.astarworks.astera.core.domain.skillengine.world.WorldShapes
 public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess) : ISkillWorldGateway {
     protected val editor: SkillWorldEditor = SkillWorldEditor(blocks)
     private val log = org.slf4j.LoggerFactory.getLogger(javaClass)
+    private val faults = java.util.concurrent.ConcurrentHashMap<Long, java.util.concurrent.ConcurrentLinkedQueue<String>>()
+
+    override fun drainFaults(cast: CastRef): List<String> {
+        return faults.remove(cast.castId)?.toList() ?: emptyList()
+    }
 
     override fun breakArea(cast: CastRef, spec: BreakAreaSpec, aim: WorldAim) {
         val centre = WorldShapes.breakCentre(aim)
@@ -81,7 +86,9 @@ public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess
                 if (ok) placed++
                 // A whole shape that places nothing because the world refuses edits (not an arena / lobby) is loud, never a silent no-op.
                 if (++settled == ordered.size && placed == 0 && denied > 0) {
-                    log.warn("place_shape {} of cast {} placed nothing: {} of {} cells are not editable for the caster (outside_arena={})", key, cast.castId, denied, ordered.size, spec.outsideArena)
+                    val reason = "place_shape $key placed nothing: $denied of ${ordered.size} cells are not editable for the caster (outside_arena=${spec.outsideArena})"
+                    log.warn("cast {}: {}", cast.castId, reason)
+                    faults.computeIfAbsent(cast.castId) { java.util.concurrent.ConcurrentLinkedQueue() }.add(reason)
                 }
             }
         }

@@ -91,8 +91,8 @@ import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
-/** Something the player could not do and said so (no silent drops). The cast keeps playing; game-sim asserts the list is empty. */
-public data class PlayerFault(val cast: CastHandle, val tick: Int, val src: String, val message: String)
+/** Something the player could not do and said so (no silent drops). The cast keeps playing; every fault is also counted per [skill] and [kind] in [TablePlayer.faultCounts], which game-sim and e2e assert is empty. */
+public data class PlayerFault(val cast: CastHandle, val tick: Int, val src: String, val message: String, val skill: String = "?", val kind: FaultKind = FaultKind.ROW)
 
 /**
  * What the player cannot own itself: CEL guard evaluation (W1-24) and caster input locks (movement / look gateways).
@@ -148,6 +148,7 @@ public class TablePlayer(
     private val movement: ISkillMovementGateway,
     private val items: ISkillItemGateway,
     private val world: ISkillWorldGateway,
+    private val faultLedger: SkillFaultLedger = SkillFaultLedger(),
 ) : ISkillTablePlayer {
     /** Server caps (`maxLifeTicks`, `maxCastTicks`); set by the platform from `EngineConfig`. */
     public var config: EngineConfig = EngineConfig()
@@ -162,6 +163,9 @@ public class TablePlayer(
     private val resolver = DefaultContactResolver()
 
     public fun faults(): List<PlayerFault> = faultLog.toList()
+
+    /** Faults counted per skill id and kind since start; [clearFaults] does not reset it. */
+    public val faultCounts: ISkillFaultReader get() = faultLedger
 
     public fun clearFaults() {
         faultLog.clear()
@@ -199,15 +203,17 @@ public class TablePlayer(
             try {
                 tickRun(run, now)
             } catch (e: RuntimeException) {
-                fault(run, now, "tick", "cast aborted, ${e.javaClass.simpleName}: ${e.message}")
+                fault(run, now, "tick", "cast aborted, ${e.javaClass.simpleName}: ${e.message}", FaultKind.ABORT)
                 try {
                     finalize(run, now)
                 } catch (cleanup: RuntimeException) {
-                    fault(run, now, "tick", "cleanup of the aborted cast threw ${cleanup.javaClass.simpleName}: ${cleanup.message}")
+                    fault(run, now, "tick", "cleanup of the aborted cast threw ${cleanup.javaClass.simpleName}: ${cleanup.message}", FaultKind.ABORT)
                 } finally {
                     run.finalized = true
                 }
             }
+            // a world op the world refused (inline this tick or on an earlier ripple tick) is a counted fault of this cast, never just a warn
+            world.drainFaults(castRef(run)).forEach { fault(run, now, "world", it, FaultKind.WORLD) }
         }
         runs.values.removeAll { it.finalized }
     }
@@ -275,7 +281,7 @@ public class TablePlayer(
 
     private fun tickRun(run: Run, now: Int) {
         if (now - run.request.startTick >= config.maxCastTicks) {
-            fault(run, now, "cast", "cast older than max_cast_ticks (${config.maxCastTicks}); swept without exit actions")
+            fault(run, now, "cast", "cast older than max_cast_ticks (${config.maxCastTicks}); swept without exit actions", FaultKind.LIMIT)
             finalize(run, now)
             return
         }
@@ -353,7 +359,7 @@ public class TablePlayer(
         var first = true
         while (run.pending.isNotEmpty() || (first && withTimers)) {
             if (depth > cap) {
-                fault(run, now, "cascade", "same-tick event cascade deeper than $cap (table sameTickDepth ${cap - 1}); dropped ${run.pending.size} events")
+                fault(run, now, "cascade", "same-tick event cascade deeper than $cap (table sameTickDepth ${cap - 1}); dropped ${run.pending.size} events", FaultKind.LIMIT)
                 run.pending.clear()
                 return
             }
@@ -393,7 +399,7 @@ public class TablePlayer(
         run.pendingEnds.clear()
         for (rec in run.recs.entries.toList()) {
             if (now - rec.value.spawnTick >= config.maxLifeTicks) {
-                fault(run, now, rec.key.text, "instance older than max_life_ticks (${config.maxLifeTicks}); swept")
+                fault(run, now, rec.key.text, "instance older than max_life_ticks (${config.maxLifeTicks}); swept", FaultKind.LIMIT)
                 endInstance(run, rec.key)
             }
         }
@@ -660,7 +666,7 @@ public class TablePlayer(
     private fun guardOk(run: Run, b: Branch, binding: EventBinding, lt: Int, now: Int): Boolean {
         val g = b.guard ?: return true
         val r = hooks.guard(run.cursor.handle, g, run.cursor.skill.table.conditions, binding, lt, run.request.seed)
-        if (r == null) fault(run, now, b.event.value, "no guard evaluator for $g")
+        if (r == null) fault(run, now, b.event.value, "no guard evaluator for $g", FaultKind.GUARD)
         return r == true
     }
 
@@ -863,7 +869,7 @@ public class TablePlayer(
         if (g != null) {
             // a class-L / seeded `when` on a point gameplay op (ADR-0303 item 13): the row exists, the guard decides at its tick
             val ok = hooks.guard(run.cursor.handle, g, run.cursor.skill.table.conditions, ctx.binding, now - ctx.base, guardSeed(run, row, ctx, now))
-            if (ok == null) { fault(run, now, src, "no guard evaluator for $g"); return }
+            if (ok == null) { fault(run, now, src, "no guard evaluator for $g", FaultKind.GUARD); return }
             if (!ok) return
         }
         ctx.scope = rowScope(run, row, ctx.binding)
@@ -910,7 +916,7 @@ public class TablePlayer(
                     if (hooks.lock(run.request.caster, a.move, a.pitch, a.yaw, until)) {
                         run.locks += LockRec(ctx.owner, a.move, a.pitch, a.yaw, until)
                     } else {
-                        fault(run, now, src, "no lock sink in PlayerHooks (move=${a.move} pitch=${a.pitch} yaw=${a.yaw})")
+                        fault(run, now, src, "no lock sink in PlayerHooks (move=${a.move} pitch=${a.pitch} yaw=${a.yaw})", FaultKind.UNSUPPORTED)
                     }
                 }
                 is Action.Call -> {
@@ -1236,7 +1242,7 @@ public class TablePlayer(
             if (rec != null && rec.kind != SpawnKind.TEXT && rec.kind != SpawnKind.SPRITE) {
                 fault(run, now, src, "set ${a.field}: '${row.instance.text}' is a ${rec.kind.name.lowercase()} display; it is for text and sprite displays")
             } else if (handle == null) fault(run, now, src, "set ${a.field}: '${row.instance.text}' has no display handle")
-            else if (!hooks.setDisplayText(handle, a.field, strOf(run, a.value, ctx))) fault(run, now, src, "set ${a.field}: no display sink in PlayerHooks")
+            else if (!hooks.setDisplayText(handle, a.field, strOf(run, a.value, ctx))) fault(run, now, src, "set ${a.field}: no display sink in PlayerHooks", FaultKind.UNSUPPORTED)
             return
         }
         val value = dbl(run, a.value, ctx)
@@ -1254,7 +1260,7 @@ public class TablePlayer(
                 if (rec != null && rec.kind != SpawnKind.TEXT && rec.kind != SpawnKind.SPRITE) {
                     fault(run, now, src, "set text_opacity: '${row.instance.text}' is a ${rec.kind.name.lowercase()} display; fade is for text and sprite displays (use grow on item / block)")
                 } else if (handle == null) fault(run, now, src, "set text_opacity: '${row.instance.text}' has no display handle")
-                else if (!hooks.setDisplayField(handle, a.field, value)) fault(run, now, src, "set text_opacity: no display sink in PlayerHooks")
+                else if (!hooks.setDisplayField(handle, a.field, value)) fault(run, now, src, "set text_opacity: no display sink in PlayerHooks", FaultKind.UNSUPPORTED)
             }
             else -> fault(run, now, src, "set: unknown field '${a.field}'")
         }
@@ -1804,7 +1810,7 @@ public class TablePlayer(
                 val at = liveVec(run, s("from").removePrefix("instance:"), ctx)
                 victims.forEach { gameplay.hurt(castRef(run), it, Vec3(at.x, at.y, at.z)) }
             }
-            else -> fault(run, now, src, "effect '$kind' has no handler in TablePlayer")
+            else -> fault(run, now, src, "effect '$kind' has no handler in TablePlayer", FaultKind.UNSUPPORTED)
         }
     }
 
@@ -1826,8 +1832,8 @@ public class TablePlayer(
             faceMovement = bool(run, cell("face_movement"), ctx),
             passThrough = p["pass_through"]?.let { bool(run, it, ctx) } ?: false,
         )
-        run.dash.start(row.instance.text, params)?.let { fault(run, now, src, it) }
-        run.dash.drainFaults().forEach { fault(run, now, src, it) }
+        run.dash.start(row.instance.text, params)?.let { fault(run, now, src, it, FaultKind.DASH) }
+        run.dash.drainFaults().forEach { fault(run, now, src, it, FaultKind.DASH) }
     }
 
     private fun reelStart(run: Run, row: Row, p: Map<String, Val<Any>>, ctx: RowCtx, now: Int, src: String) {
@@ -1956,7 +1962,7 @@ public class TablePlayer(
 
     private fun driversStep(run: Run, now: Int) {
         run.dash.tick()
-        run.dash.drainFaults().forEach { fault(run, now, "dash", it) }
+        run.dash.drainFaults().forEach { fault(run, now, "dash", it, FaultKind.DASH) }
         for ((id, line) in run.lines.entries.toList()) lineStep(run, id, line, now)
         for (veil in run.veils.values) {
             val age = (now - veil.start).coerceAtMost(veil.ticks)
@@ -2431,8 +2437,10 @@ public class TablePlayer(
 
     private fun castRef(run: Run): CastRef = CastRef(run.cursor.handle.value, run.request.caster, run.request.world, run.request.skill.def.item, run.request.heldItem)
 
-    private fun fault(run: Run, tick: Int, src: String, message: String) {
-        faultLog += PlayerFault(run.cursor.handle, tick, src, message)
+    private fun fault(run: Run, tick: Int, src: String, message: String, kind: FaultKind = FaultKind.ROW) {
+        val skill = run.cursor.skill.def.id
+        faultLog += PlayerFault(run.cursor.handle, tick, src, message, skill, kind)
+        faultLedger.record(skill, kind)
     }
 
     // ------------------------------------------------------------------ state

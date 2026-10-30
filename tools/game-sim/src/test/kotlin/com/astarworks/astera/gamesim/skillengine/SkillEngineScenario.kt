@@ -203,6 +203,8 @@ abstract class SkillEngineScenario {
         if (cancelAtEnd) player.cancel(cast, com.astarworks.astera.core.domain.skillengine.table.CancelScope.Cast)
         // a row the player could not play is a Paper `[skill-error]` too: the recorded calls alone would only show a smaller trace
         check(player.faults().isEmpty()) { "${skill.def.id} faulted while playing: " + player.faults().joinToString("; ") { "tick ${it.tick} ${it.src}: ${it.message}" } }
+        // the per-skill / per-kind counter (what `/astera skill faults` serves to e2e) must agree with the log: 0 faults after a full cast
+        check(player.faultCounts.total() == 0) { "${skill.def.id} fault counter is ${player.faultCounts.total()}: ${player.faultCounts.counts()}" }
         return rec.calls
     }
 

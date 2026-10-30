@@ -36,6 +36,21 @@ public class InMemorySkillCatalog(
 
     override fun ids(): Set<String> = skills.keys.toSet()
 
+    @Volatile
+    private var calleeOnly: Map<String, List<String>> = emptyMap()
+
+    override fun calleeOnlyCallers(skillId: String): List<String>? = calleeOnly[skillId]
+
+    /** Rebuilds the callee-only marker from the current skills (called at the end of every load, so a cast never has to expand to find out). */
+    private fun markCalleeOnly() {
+        calleeOnly = skills.values.filter { it.def.isCalleeOnly }.associate { callee ->
+            val base = callee.def.baseId
+            // usedSkills is the closure of what a skill calls (through parts and other skills too), so every skill that reaches the callee is named
+            callee.def.id to skills.values.filter { c -> c.def.baseId != base && c.usedSkills.any { it.substringBefore('@') == base } }
+                .map { it.def.baseId }.distinct().sorted()
+        }
+    }
+
     @Synchronized
     override fun reload(composed: List<ComposedSkill>): SkillLoadReport {
         val failed = LinkedHashMap<String, SkillDecodeError>()
@@ -80,6 +95,7 @@ public class InMemorySkillCatalog(
         skills.putAll(ok)
         val loaded = ArrayList(ok.keys)
         loaded += recompileDependents(changedParts, ok.keys, ok.keys, failed)
+        markCalleeOnly()
         return SkillLoadReport(loaded, failed)
     }
 
@@ -89,9 +105,11 @@ public class InMemorySkillCatalog(
             val partId = skillId.removePrefix(PART_KEY)
             partOverlay.remove(partId)
             recompileDependents(setOf(partId), emptySet(), emptySet(), LinkedHashMap())
+            markCalleeOnly()
             return
         }
         skills.remove(skillId)
+        markCalleeOnly()
     }
 
     /**

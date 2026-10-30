@@ -211,6 +211,7 @@ internal class SimSkillEngine private constructor(
                 movement = movement,
                 items = SimSkillItemGateway(mcServer, combat, { services.get<ICooldownTracker>() }, { services.get<IResourcePoolService>() }),
                 world = ledger,
+                faultLedger = combat.skillFaults,
             )
             val hooks = SimPlayerHooks(scheduler, gameplay, live)
             player.config = combat.engineConfig
