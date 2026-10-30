@@ -13,7 +13,7 @@ params:
   freeze_ticks: {type: ticks, default: 60}
   wet_ticks:    {type: ticks, default: 100}
 anchors:
-  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+  - {id: muzzle,  anchor: caster.eye, offset: {forward: 1.6}, mode: snapshot}
   - {id: cast_fx, anchor: caster.eye, offset: {up: -0.2, forward: 1.0}, mode: snapshot}
   - {id: spray_a, anchor: caster.eye, offset: {up: -0.2, forward: 1.6}, mode: snapshot}
   - {id: spray_b, anchor: caster.eye, offset: {up: -0.2, forward: 2.6}, mode: snapshot}
@@ -30,7 +30,7 @@ machine:
       do:
         - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 0.8, pitch: 1.4, at: 0}
         - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx, at: 0}
-        - {id: spray, op: particle, particle: snowflake, anchor: {of: spray_a, to: spray_b, samples: 6}, count: 2, offset: [0.1, 0.1, 0.1], extra: 0.03, at: 0}
+        - {id: spray, op: particle, particle: dust, anchor: {of: spray_a, to: spray_b, samples: 6}, count: 2, offset: [0.1, 0.1, 0.1], color: "#ebf5ff", size: 0.45, at: 0}
         - {id: shell, op: display, kind: item, item: "minecraft:prismarine_shard", context: fixed, anchor: ball, scale: [0.9, 0.9, 0.9], at: 0, until: ball.end}
         - {id: tr0, op: particle, particle: snowflake, anchor: {of: ball, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], extra: 0.01, at: 0, every: 1, until: ball.end}
         - {id: tr1, op: particle, particle: dust, anchor: {of: ball, sweep: 0.3}, count: 2, offset: [0.06, 0.06, 0.06], color: "#ebf5ff", size: 0.9, at: 0, every: 1, until: ball.end}
