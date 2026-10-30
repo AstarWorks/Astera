@@ -369,6 +369,19 @@ read_inputs() {
 stage_content() { # stages content/ into $STATE/content-stage with the E2E_FAST tuning the e2e image has
   python3 -I "$HERE/shotstate.py" stage "$ROOT" "$STATE/content-stage" >/dev/null || die "could not stage content/"
   sh "$ROOT/docker/e2e-tune-content.sh" "$STATE/content-stage" || die "e2e content tuning failed (content drifted from docker/e2e-tune-content.sh)"
+  # The baseline also pins per-player time on join/teleport; `time set` alone cannot film night.
+  python3 -I - "$STATE/content-stage/world-rules/baseline.yaml" "$TIME_OF_DAY" <<'PYTIME' || die "could not set capture baseline time"
+from pathlib import Path
+import re, sys
+path = Path(sys.argv[1])
+time = int(sys.argv[2])
+if not 0 <= time < 24000:
+    raise ValueError("TIME_OF_DAY must be an integer in 0..23999")
+text, count = re.subn(r"(?m)^time_of_day:[^\n]*$", f"time_of_day: {time}", path.read_text())
+if count != 1:
+    raise ValueError("capture baseline needs exactly one time_of_day field")
+path.write_text(text)
+PYTIME
   STAGE_HASH="$(tree_hash "$STATE/content-stage")"
 }
 
@@ -536,7 +549,7 @@ create_stack() {
   : > "$STATE/deployed.json"
   verify_pack
   dset contentSourceHash "$IN_CONTENT" deployedContentHash "$STAGE_HASH" contentVerified true packHash "$IN_PACK" \
-    codeHash "$IN_CODE" deployedJars "$(cat "${JARS[@]}" | sha256sum | cut -c1-16)" noFx "${SHOT_NO_FX:-0}"
+    codeHash "$IN_CODE" deployedJars "$(cat "${JARS[@]}" | sha256sum | cut -c1-16)" noFx "${SHOT_NO_FX:-0}" captureTimeOfDay "$TIME_OF_DAY"
   record_code_revision
   install_stamp
   [ "$(container_content_hash)" = "$STAGE_HASH" ] || die "content hash mismatch right after the first copy"
@@ -560,6 +573,7 @@ boot_server() {
     STACK_WAS_COLD=1
   else
     STACK_WAS_COLD=0
+    [ "$(dget captureTimeOfDay)" = "$TIME_OF_DAY" ] || die "capture baseline time changed or unknown; run make vfx-shot-down before changing TIME_OF_DAY"
     phase "reusing stack $PROJECT (subnet $SUBNET.0/24, server $state)"
     if [ "$state" != running ]; then
       memory_guard "starting the server"

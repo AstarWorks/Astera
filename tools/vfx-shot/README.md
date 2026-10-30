@@ -351,7 +351,11 @@ When reusing one client for several comparison cases, pass its actual FOV in deg
 
 ### Lighting and occlusion comparison
 
-`TIME_OF_DAY=6000` films noon; `TIME_OF_DAY=18000` films midnight, with time and
+`TIME_OF_DAY=6000` films noon; `TIME_OF_DAY=18000` films midnight. The numeric
+value (0..23999) is also written into the throwaway staged world baseline, since
+its per-player clock would otherwise keep every viewer at noon. Run
+`make vfx-shot-down` before changing this value on a kept stack; a mismatched or
+unknown deployed clock fails loudly. With time and
 weather held fixed. `SHOT_WALL=1` places a stone wall at x=299, y=100..104,
 z=300..309, between the ordinary side camera and the caster-forward demo rows.
 It is cleared on the next take by arena rebuilding. Use `DISTANCE=8` to frame
