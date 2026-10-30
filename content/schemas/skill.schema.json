@@ -13772,6 +13772,21 @@
                             "description": "hit-stop windows",
                             "default": []
                         },
+                        "viewers": {
+                            "anyOf": [
+                                {
+                                    "enum": [
+                                        "all",
+                                        "owner-hidden"
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "who sees the held mesh: all | owner-hidden (not the caster); absent = owner-hidden (the caster keeps the vanilla held item)",
+                            "default": null
+                        },
                         "at": {
                             "anyOf": [
                                 {

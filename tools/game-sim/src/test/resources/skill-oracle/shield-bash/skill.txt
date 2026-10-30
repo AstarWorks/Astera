@@ -1,5 +1,5 @@
 ## pose yaw=0 pitch=0
-@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=OTHERS lane=CORE target=- viewers=owner-hidden
 @0 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.100000,0.700000,0.100000,0.700000 scale=0.937500,0.937500,0.937500 bb=FIXED
 @0 sound - op=windup/snd_windup sound=item.armor.equip_iron cat=master vol=0.6 pitch=0.7 at=0.000000,0.000000,0.000000
 @0 particle - op=windup/charge[0] type=crit count=2 at=0.000000,0.000000,1.300000 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3891593718361781345
@@ -33,7 +33,7 @@ g @5 state-exit reason=TIMER | state=strike
 g @5 cast-end | pose
 r @15 run-end tail=10 | pose
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=OTHERS lane=CORE target=- viewers=owner-hidden
 @0 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=0.063102,0.441713,0.126563,0.885940 scale=0.937500,0.937500,0.937500 bb=FIXED
 @0 sound - op=windup/snd_windup sound=item.armor.equip_iron cat=master vol=0.6 pitch=0.7 at=0.000000,0.000000,0.000000
 @0 particle - op=windup/charge[0] type=crit count=2 at=-0.782360,0.000000,1.038226 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3891593718361781345
@@ -67,7 +67,7 @@ g @5 state-exit reason=TIMER | state=strike
 g @5 cast-end | pose
 r @15 run-end tail=10 | pose
 ## pose-hit yaw=0 pitch=0
-@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=OTHERS lane=CORE target=- viewers=owner-hidden
 @0 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.100000,0.700000,0.100000,0.700000 scale=0.937500,0.937500,0.937500 bb=FIXED
 @0 sound - op=windup/snd_windup sound=item.armor.equip_iron cat=master vol=0.6 pitch=0.7 at=0.000000,0.000000,0.000000
 @0 particle - op=windup/charge[0] type=crit count=2 at=0.000000,0.000000,1.300000 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3891593718361781345
@@ -102,7 +102,7 @@ g @5 state-exit reason=TIMER | state=strike
 g @5 cast-end | pose
 r @15 run-end tail=10 | pose
 ## pose-hit yaw=37 pitch=0
-@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=OTHERS lane=CORE target=- viewers=owner-hidden
 @0 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=0.063102,0.441713,0.126563,0.885940 scale=0.937500,0.937500,0.937500 bb=FIXED
 @0 sound - op=windup/snd_windup sound=item.armor.equip_iron cat=master vol=0.6 pitch=0.7 at=0.000000,0.000000,0.000000
 @0 particle - op=windup/charge[0] type=crit count=2 at=-0.782360,0.000000,1.038226 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3891593718361781345
