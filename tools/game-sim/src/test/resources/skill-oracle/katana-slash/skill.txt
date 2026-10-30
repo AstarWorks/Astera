@@ -1,5 +1,5 @@
 ## pose yaw=0 pitch=0
-@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=OTHERS lane=CORE target=- viewers=owner-hidden
+@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.642113,-0.455766,-0.092706,0.609405 scale=0.937500,0.937500,0.937500 bb=FIXED
 @0 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.642113,-0.455766,-0.092706,0.609405
 @1 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.642113,-0.455766,-0.092706,0.609405 scale=0.937500,0.937500,0.937500 bb=FIXED
@@ -78,7 +78,7 @@ g @3 state-exit reason=TIMER | state=strike
 g @3 cast-end | pose
 r @12 run-end tail=9 | pose
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=OTHERS lane=CORE target=- viewers=owner-hidden
+@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=0.638347,-0.625580,0.115830,0.433296 scale=0.937500,0.937500,0.937500 bb=FIXED
 @0 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=0.638347,-0.625580,0.115830,0.433296
 @1 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=0.638347,-0.625580,0.115830,0.433296 scale=0.937500,0.937500,0.937500 bb=FIXED
@@ -153,7 +153,7 @@ g @3 state-exit reason=TIMER | state=strike
 g @3 cast-end | pose
 r @12 run-end tail=9 | pose
 ## pose-hit yaw=0 pitch=0
-@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=OTHERS lane=CORE target=- viewers=owner-hidden
+@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.642113,-0.455766,-0.092706,0.609405 scale=0.937500,0.937500,0.937500 bb=FIXED
 @0 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.642113,-0.455766,-0.092706,0.609405
 @1 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.642113,-0.455766,-0.092706,0.609405 scale=0.937500,0.937500,0.937500 bb=FIXED
@@ -233,7 +233,7 @@ g @3 state-exit reason=TIMER | state=strike
 g @3 cast-end | pose
 r @12 run-end tail=9 | pose
 ## pose-hit yaw=37 pitch=0
-@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=OTHERS lane=CORE target=- viewers=owner-hidden
+@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.937500,0.937500,0.937500 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=0.638347,-0.625580,0.115830,0.433296 scale=0.937500,0.937500,0.937500 bb=FIXED
 @0 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=0.638347,-0.625580,0.115830,0.433296
 @1 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=0.638347,-0.625580,0.115830,0.433296 scale=0.937500,0.937500,0.937500 bb=FIXED

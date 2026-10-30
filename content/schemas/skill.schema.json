@@ -1403,14 +1403,6 @@
                             "description": "whose axes the frame takes: caster | victim | world; absent = the anchor's own axes",
                             "default": null
                         },
-                        "viewers": {
-                            "enum": [
-                                "all",
-                                "owner-hidden"
-                            ],
-                            "description": "who sees the displays riding this frame: all | owner-hidden; a display with its own non-all viewers keeps its own",
-                            "default": "all"
-                        },
                         "motion": {
                             "anyOf": [
                                 {
@@ -4576,14 +4568,6 @@
                             ],
                             "description": "#rrggbb glow override; absent = none",
                             "default": null
-                        },
-                        "viewers": {
-                            "enum": [
-                                "all",
-                                "owner-hidden"
-                            ],
-                            "description": "who sees this display: all | owner-hidden (not the caster); a hidden frame's children inherit it",
-                            "default": "all"
                         },
                         "interpolation_delay": {
                             "oneOf": [
@@ -13784,21 +13768,6 @@
                             },
                             "description": "hit-stop windows",
                             "default": []
-                        },
-                        "viewers": {
-                            "anyOf": [
-                                {
-                                    "enum": [
-                                        "all",
-                                        "owner-hidden"
-                                    ]
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ],
-                            "description": "who sees the held mesh: all | owner-hidden (not the caster); absent = owner-hidden (the caster keeps the vanilla held item)",
-                            "default": null
                         },
                         "at": {
                             "anyOf": [

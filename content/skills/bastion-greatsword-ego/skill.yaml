@@ -85,12 +85,12 @@ machine:
             - {for: 1, from: {up: 0.5, forward: -0.86603}, to: {up: 0.99255, forward: -0.12187}, edge: leading}
             - {for: 1, from: {up: 0.99255, forward: -0.12187}, to: {up: -0.88295, forward: 0.46947}, edge: leading}
             - {for: 2, from: {up: -0.88295, forward: 0.46947}, to: {up: -0.91355, forward: 0.40674}, edge: leading}
-        - {id: blade_face, op: display, kind: block, viewers: owner-hidden, block: "minecraft:gray_concrete", scale: [0.46, 1.9, 0.07], anchor: blade, offset: {up: 1.55}, brightness: {block: 15, sky: 15}, at: 27, for: 43}
-        - {id: blade_rim, op: display, kind: block, viewers: owner-hidden, block: "minecraft:white_concrete", scale: [0.07, 1.9, 0.12], anchor: blade, offset: {left: "= 0.25 - 0.5 * i", up: 1.55}, times: 2, brightness: {block: 15, sky: 15}, at: 27, for: 43}
-        - {id: blade_end, op: display, kind: block, viewers: owner-hidden, block: "minecraft:white_concrete", scale: [0.58, 0.08, 0.12], anchor: blade, offset: {up: "= 2.5 - 1.88 * i"}, times: 2, brightness: {block: 15, sky: 15}, at: 27, for: 43}
-        - {id: blade_inset, op: display, kind: block, viewers: owner-hidden, block: "minecraft:yellow_concrete", scale: [0.09, 0.2, 0.09], anchor: blade, offset: {up: 0.86}, brightness: {block: 15, sky: 15}, at: 27, for: 43}
-        - {id: blade_guard, op: display, kind: block, viewers: owner-hidden, block: "minecraft:black_concrete", scale: [0.62, 0.1, 0.18], anchor: blade, offset: {up: 0.5}, brightness: {block: 15, sky: 15}, at: 27, for: 43}
-        - {id: blade_grip, op: display, kind: block, viewers: owner-hidden, block: "minecraft:black_concrete", scale: [0.09, 0.8, 0.09], anchor: blade, offset: {up: 0.05}, brightness: {block: 15, sky: 15}, at: 27, for: 43}
+        - {id: blade_face, op: display, kind: block, block: "minecraft:gray_concrete", scale: [0.46, 1.9, 0.07], anchor: blade, offset: {up: 1.55}, brightness: {block: 15, sky: 15}, at: 27, for: 43}
+        - {id: blade_rim, op: display, kind: block, block: "minecraft:white_concrete", scale: [0.07, 1.9, 0.12], anchor: blade, offset: {left: "= 0.25 - 0.5 * i", up: 1.55}, times: 2, brightness: {block: 15, sky: 15}, at: 27, for: 43}
+        - {id: blade_end, op: display, kind: block, block: "minecraft:white_concrete", scale: [0.58, 0.08, 0.12], anchor: blade, offset: {up: "= 2.5 - 1.88 * i"}, times: 2, brightness: {block: 15, sky: 15}, at: 27, for: 43}
+        - {id: blade_inset, op: display, kind: block, block: "minecraft:yellow_concrete", scale: [0.09, 0.2, 0.09], anchor: blade, offset: {up: 0.86}, brightness: {block: 15, sky: 15}, at: 27, for: 43}
+        - {id: blade_guard, op: display, kind: block, block: "minecraft:black_concrete", scale: [0.62, 0.1, 0.18], anchor: blade, offset: {up: 0.5}, brightness: {block: 15, sky: 15}, at: 27, for: 43}
+        - {id: blade_grip, op: display, kind: block, block: "minecraft:black_concrete", scale: [0.09, 0.8, 0.09], anchor: blade, offset: {up: 0.05}, brightness: {block: 15, sky: 15}, at: 27, for: 43}
         - {id: snd_trident, op: sound, sound: item.trident.return, anchor: caster, volume: 0.8, pitch: 0.6, at: 27}
         # --- impact (tick 31) ---
         - {id: flash_star, op: display, kind: text, text: "✦", anchor: impact, brightness: {block: 15, sky: 15}, at: 31, for: 6, motion: [{law: keys, keys: [{t: 0, offset: {up: 1.0, forward: 1.7}, scale: {left: 2.25, up: 2.25, forward: 1.0}, alpha: 1.0, color: "#FFF2B0"}, {t: 1, scale: {left: 15, up: 15, forward: 1.0}, ease: out_back}, {t: 6, scale: {left: 7.5, up: 7.5, forward: 1.0}, alpha: 0.0, color: "#FFD060", ease: out_quad}]}]}
