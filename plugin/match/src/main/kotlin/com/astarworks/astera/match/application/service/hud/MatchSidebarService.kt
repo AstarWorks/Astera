@@ -48,6 +48,7 @@ public class MatchSidebarService(
     /** Count-model placeholders of the match's mode (`start`, `per_<event>`, `need_<event>`) for the objective one-liner. */
     private val objectiveParams: (MatchId) -> Map<String, String> = { emptyMap() },
     private val scheduler: IScheduler,
+    private val killTally: MatchKillTally = MatchKillTally(),
     pollPeriodTicks: Long = DEFAULT_POLL_PERIOD_TICKS,
 ) {
 
@@ -93,6 +94,7 @@ public class MatchSidebarService(
      * region here would race with that and leave the player with no sidebar.
      */
     public fun release(matchId: MatchId) {
+        killTally.clear(matchId)
         val match = matches.findById(matchId) ?: return
         for (team in match.teams) {
             for (member in team.members) lastSent.remove(member)
@@ -111,7 +113,7 @@ public class MatchSidebarService(
     private fun push(match: Match, model: SidebarModel, playerId: PlayerId) {
         // The push may run a tick after the poll; a match that ended meanwhile hands the sidebar to the lobby service.
         if (matches.findById(match.id)?.isLive() != true) return
-        val layout = MatchSidebarModel.layoutFor(model, match, playerId, messages, norma(playerId))
+        val layout = MatchSidebarModel.layoutFor(model, match, playerId, messages, norma(playerId), killTally.of(match.id, playerId))
         if (lastSent[playerId] == layout) return
         lastSent[playerId] = layout
         when (val outcome = hud.showFor(playerId, layout)) {

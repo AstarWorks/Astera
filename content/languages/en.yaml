@@ -1412,6 +1412,7 @@ astera:
         open: "<gray>Open zones:</gray> <white>{open}/{total}</white>"
         penalty: "{you}<{color}>{team}</{color}> <red>+{seconds}s penalty</red>"
       you: "<gray>You</gray> <{color}><bold>{team}</bold></{color}>"
+      kd: "<gray>Kills</gray> <green><bold>{kills}</bold></green> <dark_gray>/</dark_gray> <gray>Deaths</gray> <red><bold>{deaths}</bold></red>"
       level: "<gray>Norma</gray> <aqua>Lv {level}</aqua><dark_gray>/{max}</dark_gray> <dark_gray>|</dark_gray> <yellow>*</yellow> <white>{stars}</white>"
       next-unlock: "<gray>Next:</gray> <white>Lv {level}</white> <white>{rarity}</white>"
       objective-star: "<gray>Goal:</gray> <yellow>Stars</yellow> <white>{progress}/{target}</white>"
