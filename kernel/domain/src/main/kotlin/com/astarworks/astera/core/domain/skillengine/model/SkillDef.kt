@@ -55,6 +55,12 @@ public data class SkillDef(
 ) {
     /** Base id without `@variant`. */
     val baseId: String get() = id.substringBefore('@')
+
+    /** `required` params nobody can value on a direct cast (no default). */
+    val unvaluedRequiredParams: List<String> get() = params.values.filter { it.required && it.default == null }.map { it.name }
+
+    /** Callee-only: a caller's `use:` must bind its `frames_in` frames / value its `required` params, so it cannot be cast on its own. */
+    val isCalleeOnly: Boolean get() = framesIn.isNotEmpty() || unvaluedRequiredParams.isNotEmpty()
 }
 
 /** `anchors:` entry (ADR-0303 1): a named point on the caster or a frame, with an optional offset (a number, `${param}` or `= CEL`) and a mandatory [mode]. */
