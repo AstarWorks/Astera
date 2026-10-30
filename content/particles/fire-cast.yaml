@@ -7,7 +7,7 @@ color:
   r: 255
   g: 140
   b: 30
-count: 14
+count: 6
 lifetime_ticks: 20
 vanilla_particle: flame
 speed: 0.05

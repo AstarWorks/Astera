@@ -7,7 +7,7 @@ color:
   r: 235
   g: 245
   b: 255
-count: 14
+count: 5
 lifetime_ticks: 20
 vanilla_particle: snowflake
 speed: 0.04
