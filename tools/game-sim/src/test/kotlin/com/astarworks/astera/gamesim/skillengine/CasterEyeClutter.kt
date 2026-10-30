@@ -137,19 +137,39 @@ internal object CasterEyeClutter {
         return out
     }
 
-    /** One problem line per (pose, tick) that puts more than [LIMIT] lingering particles inside the eye sphere. */
+    /**
+     * Two problem kinds per pose. (1) [LIMIT] per spawn tick (a burst at one tick). (2) [LIMIT] ALIVE at once: every lingering particle spawned in the
+     * view volume stays on screen for its mean life, so rows of several ticks add up (glacier-spike: 8 cast dust + trail snow/dust at tick 0 and 1 = 12 on screen
+     * at tick 1, each tick alone <= 10). A particle is counted alive for `round(meanLife)` ticks from its spawn tick (its spawn position decides the volume test; the
+     * drift afterwards is ignored).
+     */
     fun check(key: String, lines: List<String>, particlesDir: Path): List<String> {
         val defs = defs(particlesDir)
         val problems = ArrayList<String>()
         var pose = ""
-        val perTick = java.util.TreeMap<Int, Int>()
-        val ops = HashMap<Int, MutableMap<String, Int>>()
+        class Spawn(val tick: Int, val count: Int, val life: Int, val name: String)
+        val spawns = ArrayList<Spawn>()
         fun flush() {
+            val perTick = java.util.TreeMap<Int, Int>()
+            for (sp in spawns) perTick.merge(sp.tick, sp.count, Int::plus)
             for ((tick, n) in perTick) if (n > LIMIT) {
-                val top = ops.getValue(tick).entries.sortedByDescending { it.value }.take(4).joinToString(", ") { "${it.key} x${it.value}" }
+                val top = spawns.filter { it.tick == tick }.groupBy { it.name }.mapValues { e -> e.value.sumOf { it.count } }.entries.sortedByDescending { it.value }.take(4).joinToString(", ") { "${it.key} x${it.value}" }
                 problems += "$key [$pose] @$tick: $n lingering particles in the first-person view volume (cone ${HALF_ANGLE_DEG.toInt()} deg, $RADIUS blocks, above eye-$FLOOR_BELOW_EYE) (limit $LIMIT): $top"
             }
-            perTick.clear(); ops.clear()
+            if (spawns.isNotEmpty()) {
+                val last = spawns.maxOf { it.tick + it.life }
+                var worst = -1; var worstN = 0
+                for (t in 0..last) {
+                    val alive = spawns.filter { t >= it.tick && t < it.tick + it.life }
+                    val n = alive.sumOf { it.count }
+                    if (n > worstN) { worstN = n; worst = t }
+                }
+                if (worstN > LIMIT) {
+                    val top = spawns.filter { worst >= it.tick && worst < it.tick + it.life }.groupBy { it.name }.mapValues { e -> e.value.sumOf { it.count } }.entries.sortedByDescending { it.value }.take(4).joinToString(", ") { "${it.key} x${it.value}" }
+                    problems += "$key [$pose] @$worst: $worstN lingering particles ALIVE at once in the first-person view volume (spawned over several ticks, each alive its mean life) (limit $LIMIT): $top"
+                }
+            }
+            spawns.clear()
         }
         for (l in lines) {
             if (l.startsWith("## ")) { flush(); pose = l.removePrefix("## "); continue }
@@ -165,11 +185,11 @@ internal object CasterEyeClutter {
             val def = defs[id]
             val vanilla = def?.vanilla ?: id
             val scale = m.groupValues[8].toDoubleOrNull() ?: def?.scale
-            if (meanLife(vanilla, scale) < LINGER_TICKS) continue
+            val life = meanLife(vanilla, scale)
+            if (life < LINGER_TICKS) continue
             // A content-particle row carries no count: the def's own count is what spawns (a 5-flame burst used to be counted as 1).
             val count = maxOf(1, m.groupValues[4].toIntOrNull() ?: def?.count ?: 1)
-            perTick.merge(tick, count, Int::plus)
-            ops.getOrPut(tick) { HashMap() }.merge("${m.groupValues[2].replace(Regex("\\[\\d+]"), "[]")}($vanilla)", count, Int::plus)
+            spawns += Spawn(tick, count, Math.round(life).toInt(), "${m.groupValues[2].replace(Regex("\\[\\d+]"), "[]")}($vanilla)")
         }
         flush()
         return problems
