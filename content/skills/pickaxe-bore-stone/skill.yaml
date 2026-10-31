@@ -64,7 +64,7 @@ machine:
       for: 1
       then: end
       do:
-        - {id: break, op: break_area, anchor: caster, shape: {line: {length: "${length}", width: 3, height: 3}}, tool: pickaxe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
+        - {id: break, op: break_area, frame: body, shape: {line: {length: "${length}", width: 3, height: 3}}, tool: pickaxe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
         - {id: snd, op: sound, sound: block.stone.break, frame: body, volume: 1.0, pitch: "${stone_pitch}"}
         - {id: snd_2, op: sound, sound: item.trident.hit_ground, frame: body, volume: "${thud_vol}", pitch: "${thud_pitch}", when: "= ${thud}"}
         - {id: snd_3, op: sound, sound: block.amethyst_cluster.break, frame: body, volume: 0.8, pitch: 1.0, when: "= ${amethyst}"}

@@ -66,7 +66,7 @@ machine:
       for: 1
       then: end
       do:
-        - {id: dig, op: break_area, anchor: caster, shape: {box: {width: "${width}", height: "${height}", length: "${length}"}}, tool: shovel, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
+        - {id: dig, op: break_area, frame: body, shape: {box: {width: "${width}", height: "${height}", length: "${length}"}}, tool: shovel, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
         - {id: snd, op: sound, sound: block.gravel.break, frame: body, volume: 1.0, pitch: "${gravel_pitch}"}
         - {id: snd_2, op: sound, sound: block.rooted_dirt.break, frame: body, volume: "${dirt_vol}", pitch: "${dirt_pitch}", when: "= ${dirt}"}
         - {id: snd_3, op: sound, sound: item.shovel.flatten, frame: body, volume: 0.8, pitch: 0.9, when: "= ${flatten}"}

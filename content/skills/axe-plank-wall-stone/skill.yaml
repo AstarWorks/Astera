@@ -66,7 +66,7 @@ machine:
       for: 1
       then: end
       do:
-        - {id: wall, op: place_shape, anchor: caster, shape: {wall: {width: "${width}", height: "${height}"}}, block: "astera:reinforced_planks", consume: none, ripple: 29, revert: 200, outside_arena: false}
+        - {id: wall, op: place_shape, frame: body, shape: {wall: {width: "${width}", height: "${height}"}}, block: "astera:reinforced_planks", consume: none, ripple: 29, revert: 200, outside_arena: false}
         - {id: snd, op: sound, sound: item.axe.strip, frame: body, volume: 1.0, pitch: "${strip_pitch}"}
         - {id: snd_2, op: sound, sound: block.wood.break, frame: body, volume: "${break_vol}", pitch: "${break_pitch}"}
         - {id: snd_3, op: sound, sound: entity.player.attack.strong, frame: body, volume: 0.6, pitch: 0.9, when: "= ${strong}"}

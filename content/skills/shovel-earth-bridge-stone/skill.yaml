@@ -65,7 +65,7 @@ machine:
       for: 1
       then: end
       do:
-        - {id: bridge, op: place_shape, anchor: caster, shape: {bridge: {length: "${length}", width: "${width}"}}, block: "astera:packed_clay", consume: none, ripple: 29, revert: 200, outside_arena: false}
+        - {id: bridge, op: place_shape, frame: body, shape: {bridge: {length: "${length}", width: "${width}"}}, block: "astera:packed_clay", consume: none, ripple: 29, revert: 200, outside_arena: false}
         - {id: snd, op: sound, sound: block.gravel.break, frame: body, volume: 1.0, pitch: "${gravel_pitch}"}
         - {id: snd_2, op: sound, sound: block.rooted_dirt.break, frame: body, volume: "${dirt_vol}", pitch: "${dirt_pitch}", when: "= ${dirt}"}
         - {id: snd_3, op: sound, sound: item.shovel.flatten, frame: body, volume: 0.8, pitch: 0.9, when: "= ${flatten}"}
