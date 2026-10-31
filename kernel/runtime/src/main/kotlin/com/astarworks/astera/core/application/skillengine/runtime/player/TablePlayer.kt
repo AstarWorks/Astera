@@ -2392,8 +2392,11 @@ public class TablePlayer(
     private fun frameState(run: Run, ref: FrameRef, binding: EventBinding?): FrameState =
         frameInst(run, ref, binding).state ?: throw IllegalArgumentException("frame '${ref.frame}' has no pose this tick (its axes are degenerate or its origin unreadable; see the fault)")
 
-    private fun frameVec(run: Run, ref: FrameRef, binding: EventBinding?): Vector3d =
-        frameState(run, ref, binding).world(ref.at).let { Vector3d(it.x, it.y, it.z) }
+    /** A `pos` cell: the frame's origin plus the coefficients along its axes; a `dir` cell (ADR-0314): the same weighted axes with no origin. */
+    private fun frameVec(run: Run, ref: FrameRef, binding: EventBinding?): Vector3d {
+        val st = frameState(run, ref, binding)
+        return (if (ref.direction) st.basis.direction(ref.at) else st.world(ref.at)).let { Vector3d(it.x, it.y, it.z) }
+    }
 
     private fun frameRot(run: Run, ref: FrameRef, binding: EventBinding?): Quaterniond =
         frameState(run, ref, binding).orientation().let { Quaterniond(it.x, it.y, it.z, it.w) }
