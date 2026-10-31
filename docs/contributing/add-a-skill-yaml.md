@@ -232,9 +232,9 @@ on:
 ```
 
 ```yaml
-# 銃 (pistol-shot): 弾道線は共有 skill gun-tracer を `use: skill:` で呼び、着弾は skill-local fragment
-- {id: tracer_h, use: skill:gun-tracer, with: {thickness: 0.1}, frames: {muzzle: muzzle, tip: contact}}
-- {id: fx_hit, op: use, use: "fragment:impact", frames: {spot: heart}}
+# 銃 (pistol-shot): 弾道線は無し。銃口 (flash / 弾 / 煙) は frame `gun` の 1 点、着弾は frame `hit` / `blk` の点
+- {id: flash, op: particle_def, at: 0, def: gun-muzzle-flash, frame: gun, pos: {v: 0.62, w: 0.24}}
+- {id: fx_hit, op: particle_def, def: gun-impact, frame: hit, pos: {v: -0.2}, detach: true}
 ```
 
 ```yaml
