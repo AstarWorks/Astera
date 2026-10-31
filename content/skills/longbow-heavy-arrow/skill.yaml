@@ -14,13 +14,6 @@ anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
   - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
   - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
-fragments:
-  impact:
-    frames_in: {spot: anchor}
-    do:
-      - {id: snd, op: sound, at: 0, sound: "astera:weapons/blade-crit", anchor: spot, volume: 0.7, pitch: 1.2}
-      - {id: spark, op: particle_def, at: 0, def: hit-spark, anchor: spot}
-      - {id: fleck, op: particle, at: 0, particle: dust, anchor: spot, count: 4, offset: [0.15, 0.15, 0.15], color: "#a07846", size: 1.0}
 machine:
   start: fly
   tail: 14
@@ -44,7 +37,7 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
-              - {id: hit_fx, use: "fragment:impact", frames: {spot: heart}}
+              - {id: hit_fx, use: strike-impact, with: {snd: "astera:weapons/blade-crit", color: "#a07846"}, frames: {spot: heart}}
             block:
               - {id: block_snd, op: sound, at: 0, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
               - {id: block_fx, op: particle_def, at: 0, def: hit-spark, anchor: contact.point}

@@ -1,0 +1,24 @@
+# ring-impact: the elemental bolt impact: a flat ring of 16 particles, a raised ring of 8 and a small pop, all at the contact point `spot`.
+# The ring is a particle with count 0, so each copy's offset is its DIRECTION and `extra` its speed (ADR-0303 2.2).
+#   - {op: use, use: ring-impact, with: {particle: flame, pop: lava, pop_count: 5, ring_speed: 0.25, up_speed: 0.2}, frames: {spot: heart}}
+# The row ids (ring / ring_up / pop) are part of the shipped goldens: rename them only together with `regenSkillOracle`.
+---
+apiVersion: astera/v3
+kind: Part
+id: ring-impact
+params:
+  particle:   {type: string, required: true}   # the ring particle (flame, snowflake, electric_spark, ...)
+  pop:        {type: string, required: true}   # the particle of the centre pop
+  pop_count:  {type: number, required: true}
+  ring_speed: {type: number, required: true}   # outward speed of the flat ring
+  up_speed:   {type: number, required: true}   # outward speed of the raised ring
+frames_in: {spot: anchor}
+machine:
+  start: main
+  states:
+    main:
+      final: true
+      do:
+        - {id: ring, op: particle, particle: "${particle}", anchor: spot, times: 16, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: "${ring_speed}"}
+        - {id: ring_up, op: particle, particle: "${particle}", anchor: spot, times: 8, at: 0, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: "${up_speed}"}
+        - {id: pop, op: particle, particle: "${pop}", anchor: spot, count: "${pop_count}", offset: [0.15, 0.15, 0.15], extra: 0.12, at: 0}

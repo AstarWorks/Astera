@@ -198,6 +198,59 @@ anchors:
   - {id: heart,  anchor: victim.center, mode: follow}
 ```
 
+## 共有 part で武器を書く (`content/skill-parts`)
+
+新しい武器の YAML には、その武器固有の値だけを書く。型の決まった塊は `content/skill-parts/<id>.yaml` の part を
+`use: <id>` で呼ぶ (`with:` が param、`frames:` が `frames_in` の束縛)。part の先頭コメントに呼び出し例がある。
+
+| part | 何を出すか | 主な param |
+|---|---|---|
+| `strike-impact` | 矢 / ナイフ / 銛の着弾: 音 + `hit-spark` + 粉 (dust) | `snd`, `color` (+ `vol` `pitch` `size`) |
+| `ring-impact` | 属性弾の着弾: 水平リング 16 + 上向きリング 8 + 中心 pop | `particle`, `pop`, `pop_count`, `ring_speed`, `up_speed` |
+| `parry` | ガード窓と受け流し | `window`, `arc`, `range`, `recover`, `whiff_lag` |
+| `jagged-line` | 前方へ揺らぐ電光の線 | `length`, `jitter`, `hold` |
+
+どの archetype も、弾 / 判定 (`projectile` or `hit`) と自分の `on.hit` / `on.block` は skill に書き、着弾の見た目だけを part に渡す。
+
+```yaml
+# 弓・投擲 (shortbow-arrow の on: 部分)
+on:
+  hit:
+    - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
+    - {id: hit_fx, use: strike-impact, with: {snd: "astera:weapons/blade-hit", color: "#bea064", size: 0.9}, frames: {spot: heart}}
+  block:
+    - {id: block_fx, op: particle_def, def: hit-spark, anchor: contact.point}
+```
+
+```yaml
+# 魔法の弾 (ember-rod-spark の on: 部分)。hit と block で同じ part を contact 違いで呼ぶ
+on:
+  hit:
+    - {op: use, use: ring-impact, with: {particle: flame, pop: lava, pop_count: 5, ring_speed: 0.25, up_speed: 0.2}, frames: {spot: heart}, detach: true}
+  block:
+    - {op: use, use: ring-impact, with: {particle: flame, pop: lava, pop_count: 5, ring_speed: 0.25, up_speed: 0.2}, frames: {spot: contact}, detach: true}
+```
+
+```yaml
+# 銃 (pistol-shot): 弾道線は共有 skill gun-tracer を `use: skill:` で呼び、着弾は skill-local fragment
+- {id: tracer_h, use: skill:gun-tracer, with: {thickness: 0.1}, frames: {muzzle: muzzle, tip: contact}}
+- {id: fx_hit, op: use, use: "fragment:impact", frames: {spot: heart}}
+```
+
+```yaml
+# 近接 (bastion-greatsword-def): 受け流しは state ごと part。part の終わりを event で受ける
+guard:
+  use: parry
+  with: {window: 16, arc: 110, range: 4, recover: 4, whiff_lag: 1}
+  frames: {weapon: shield}
+  on:
+    - {event: brace/guard.end, to: held}
+```
+
+part を足す時は、呼び出し側の op id (`hit_fx` など) と part 内の id がそのまま `skill-oracle` の `op=` に出る点に注意する。
+part 化で既存 skill の行を変えない条件: 呼び出し id を元の fragment 呼び出しと同じにし、part 内の id も同じにする。
+`projectile` 本体、発射口の音 + 煙、軌跡の rider (`until: bolt.end`) は呼び出し id が op path の前に付くので part にできない (engine gap)。
+
 ## 参考
 
 - [ADR-0303 Natural skill schema](../adr/0303-natural-skill-schema.md)

@@ -24,12 +24,6 @@ anchors:
   - {id: feet,   anchor: victim.root, offset: {up: 0.2}, mode: follow}
   - {id: sky,    anchor: victim.root, offset: {up: 8.0}, mode: follow}
 fragments:
-  impact:
-    frames_in: {spot: anchor}
-    do:
-      - {id: ring, op: particle, particle: electric_spark, anchor: spot, times: 16, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.4}
-      - {id: ring_up, op: particle, particle: electric_spark, anchor: spot, times: 8, at: 0, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.32}
-      - {id: pop, op: particle, particle: electric_spark, anchor: spot, count: 8, offset: [0.15, 0.15, 0.15], extra: 0.12, at: 0}
   flash:
     frames_in: {spot: anchor}
     do:
@@ -65,12 +59,12 @@ machine:
               - {id: sky_spark, op: particle, particle: electric_spark, anchor: sky, count: 1, detach: true}
               - {id: sky_rod, op: particle, particle: end_rod, anchor: sky, count: 1, detach: true}
               - {op: use, use: "fragment:flash", frames: {spot: feet}, detach: true}
-              - {op: use, use: "fragment:impact", frames: {spot: heart}, detach: true}
+              - {op: use, use: ring-impact, with: {particle: electric_spark, pop: electric_spark, pop_count: 8, ring_speed: 0.4, up_speed: 0.32}, frames: {spot: heart}, detach: true}
             block:
               - {id: chip_blk, op: break_area, anchor: contact, shape: {sphere: {radius: "${chip_radius}"}}, tool: none, block_damage: "${chip_damage}", ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_blk, op: sound, sound: "astera:skills/lightning-impact", anchor: contact, volume: 0.5, pitch: 1.6, detach: true}
               - {op: use, use: "fragment:flash", frames: {spot: contact}, detach: true}
-              - {op: use, use: "fragment:impact", frames: {spot: contact}, detach: true}
+              - {op: use, use: ring-impact, with: {particle: electric_spark, pop: electric_spark, pop_count: 8, ring_speed: 0.4, up_speed: 0.32}, frames: {spot: contact}, detach: true}
             expire:
               - {id: fx_exp, op: particle_def, def: thunder-impact-glow, anchor: contact, detach: true}
       do:
