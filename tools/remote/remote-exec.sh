@@ -7,6 +7,12 @@
 #   w/<id>/repo      synced working copy of one local checkout      locks/slot.<n>.{lock,owner}
 #   home/            runner $HOME (gradle + MC client caches)       locks/claude-1000  runner /tmp/claude-1000
 #   heavy.env        host defaults (HEAVY_SLOTS=...)                bin/remote-exec.sh copy for `status`
+#
+# Disk cap (the VM's / is small; every checkout sync is ~2 GB): w/ is reaped LRU at the end of every `prepare` so it stays at
+# most HEAVY_MAX_DIRS=10 checkouts and HEAVY_MAX_GB=20 GB (override in heavy.env). LRU = w/<id>/.last-use (touched by run.sh's
+# sync, by prepare and by the end of a run). Never reaped: the checkout being prepared, one touched < 15 min ago (between sync
+# and run), one whose run holds w/<id>/.use.lock, one mounted by a running astera.heavy container. The reaper also prunes
+# dangling docker images once a day (never `-a`: that would take the runner image and the astera-dev-* images).
 set -uo pipefail
 
 HB="${ASTERA_HEAVY_BASE:-astera-heavy}"
@@ -29,11 +35,48 @@ load_heavy_env() {
 
 mem_available_gb() { awk '/^MemAvailable:/ {printf "%d", $2 / 1048576}' /proc/meminfo; }
 
+# ---------------------------------------------------------------- reap
+reap_checkouts() { # reap_checkouts <current id>
+  local cur="$1" maxdirs="${HEAVY_MAX_DIRS:-10}" maxkb=$(( ${HEAVY_MAX_GB:-20} * 1048576 )) now d id st kb total=0 n=0 fd
+  [ -d "$HB/w" ] || return 0
+  now=$(date +%s)
+  # oldest first: "<stamp> <id>" (checkouts without a stamp use their heavy-sync ref mtime, else the dir mtime)
+  while IFS= read -r d; do
+    id="${d##*/}"
+    st=$(stat -c %Y "$d/.last-use" 2>/dev/null || stat -c %Y "$d/repo/.git/refs/heads/heavy-sync" 2>/dev/null || stat -c %Y "$d")
+    printf '%s %s\n' "$st" "$id"
+  done < <(find "$HB/w" -mindepth 1 -maxdepth 1 -type d) | sort -n > "$HB/.reap.list"
+  while read -r st id; do
+    kb=$(du -sk "$HB/w/$id" 2>/dev/null | cut -f1); kb="${kb:-0}"
+    printf '%s %s %s\n' "$st" "$id" "$kb"
+  done < "$HB/.reap.list" > "$HB/.reap.sized"
+  while read -r st id kb; do total=$((total + kb)); n=$((n + 1)); done < "$HB/.reap.sized"
+  while read -r st id kb; do
+    [ "$n" -gt "$maxdirs" ] || [ "$total" -gt "$maxkb" ] || break
+    [ "$id" = "$cur" ] && continue
+    [ $((now - st)) -ge 900 ] || continue
+    docker ps -q --filter label=astera.heavy=1 | xargs -r docker inspect -f '{{range .Mounts}}{{.Source}} {{end}}' 2>/dev/null | grep -qF "$HB/w/$id/" && continue
+    exec {fd}>>"$HB/w/$id/.use.lock" 2>/dev/null || continue
+    if flock -n "$fd"; then
+      log "reap: removing w/$id ($((kb / 1024)) MB, last use $(date -d "@$st" '+%F %T'))"
+      rm -rf "$HB/w/$id"
+      total=$((total - kb)); n=$((n - 1))
+    fi
+    exec {fd}>&-
+  done < "$HB/.reap.sized"
+  rm -f "$HB/.reap.list" "$HB/.reap.sized"
+  # dangling images, at most once a day
+  if [ -z "$(find "$HB/.last-image-prune" -mmin -1440 2>/dev/null)" ]; then
+    docker image prune -f >/dev/null 2>&1; touch "$HB/.last-image-prune"
+  fi
+}
+
 # ---------------------------------------------------------------- prepare
 cmd_prepare() {
   local id="${1:?id}" w r
   w="$HB/w/$id"; r="$w/repo"
   mkdir -p "$r" && cd "$r" || die "cannot create $r"
+  touch "$w/.last-use"
   [ -d .git ] || git init -q
   git config receive.denyCurrentBranch ignore
   git rev-parse -q --verify refs/heads/heavy-sync >/dev/null || die "no heavy-sync ref in $r (the push failed?)"
@@ -55,6 +98,7 @@ for p in out.split(b'\0'):
 print('[heavy] removed %d stale file(s)' % n, file=sys.stderr)
 PY
   fi
+  reap_checkouts "$id" >&2
 }
 
 # ---------------------------------------------------------------- run
@@ -123,6 +167,7 @@ cleanup() {
     fi
   fi
   [ -n "$MERGED" ] && rm -f "$MERGED"
+  [ -n "$REPO" ] && touch "$(dirname "$REPO")/.last-use" 2>/dev/null
   [ -n "$SLOT_N" ] && rm -f "$HB/locks/slot.$SLOT_N.owner"
   exit "$RC"
 }
@@ -139,6 +184,8 @@ cmd_run() {
   docker image inspect "$IMAGE" >/dev/null 2>&1 \
     || die "runner image $IMAGE not found (or no docker access): run tools/remote/setup.sh (make heavy-setup) first"
   mkdir -p "$HB/home" "$HB/locks/claude-1000"
+  touch "$HB/w/$id/.last-use"
+  exec {USE_FD}>>"$HB/w/$id/.use.lock" && flock -n "$USE_FD" || true   # reapers skip this checkout while the run lives
 
   acquire_slot
   NAME="astera-heavy-slot$SLOT_N"

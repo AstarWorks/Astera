@@ -112,7 +112,7 @@ if [ "$DRY" = 1 ]; then
   hlog "DRY: env file would contain:"; sed 's/^/[heavy]   /' "$TMP/run.env" >&2
   REPO="<remote-home>/$BASE/w/$ID/repo"
 else
-  REPO="$(ssh_run "$(heavy_remote_base_snippet); mkdir -p \"\$HB/w/$ID/repo\" && cd \"\$HB/w/$ID/repo\" && { [ -d .git ] || git init -q; } && git config receive.denyCurrentBranch ignore && pwd -P")" \
+  REPO="$(ssh_run "$(heavy_remote_base_snippet); mkdir -p \"\$HB/w/$ID/repo\" && touch \"\$HB/w/$ID/.last-use\" && cd \"\$HB/w/$ID/repo\" && { [ -d .git ] || git init -q; } && git config receive.denyCurrentBranch ignore && pwd -P")" \
     || { heavy_ssh_hint "$HOST"; exit 1; }
 fi
 W="$(dirname "$REPO")"
