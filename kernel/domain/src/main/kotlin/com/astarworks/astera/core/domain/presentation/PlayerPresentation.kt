@@ -47,14 +47,12 @@ public class PresentationLease(
 /**
  * A display in a presentation bundle. [viewRange] is the range a staged display takes when revealed (`null` = leave it);
  * [beforeSend] runs when the bundle is built at server tick end, after the entity tracker's flush, and applies the display's
- * pending transform so it travels inside the bundle and not as a separate tracker packet. [ownerVisible] false hides it from the owner only.
+ * pending transform so it travels inside the bundle and not as a separate tracker packet.
  */
 public class PresentationDisplay(
     public val id: UUID,
     public val viewRange: Float?,
     public val beforeSend: () -> Unit = {},
-    /** false = the owner's own client never gets this display (the caster's own body puppet is not drawn around the caster's camera); everyone else sees it. */
-    public val ownerVisible: Boolean = true,
 )
 
 public sealed class PresentationError {

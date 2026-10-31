@@ -191,7 +191,12 @@ public class PaperSkillGameplayGateway(
             return
         }
         val player = PlayerId(target)
-        if (bodyRegistry.find(id) != null) bodyRigs.play(player, id, holds = holds, ownerVisible = false) else bodyPoses.playCustomAnimation(player, id, POSE_CLIP_TICKS)
+        if (bodyRegistry.find(id) == null) {
+            bodyPoses.playCustomAnimation(player, id, POSE_CLIP_TICKS)
+            return
+        }
+        // a refused rig (off-region, dead, lease busy) is reported: the clip must never vanish silently
+        bodyRigs.play(player, id, holds = holds).onFailure { log.warn("skill engine: body clip '{}' on {} not played: {}", anim, target, it) }
     }
 
     override fun bodyClip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation? =

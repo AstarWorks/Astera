@@ -100,12 +100,10 @@ public class PaperSkinRigAnimator(
         task = null
     }
 
-    override fun play(playerId: PlayerId, animation: CustomAnimationId, speed: Double, holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold>, ownerVisible: Boolean): Result<Unit, SkinRigError> {
+    override fun play(playerId: PlayerId, animation: CustomAnimationId, speed: Double, holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold>): Result<Unit, SkinRigError> {
         if (server.getPlayer(playerId.uuid)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(it) } != true) return Result.failure(SkinRigError.Platform("off-main"))
         val definition = registry()?.find(animation) ?: return Result.failure(SkinRigError.UnknownAnimation(animation))
         val player = server.getPlayer(playerId.uuid) ?: return Result.failure(SkinRigError.UnknownPlayer(playerId))
-        // the owner-hidden rig is revealed (and hidden from the owner) by the presentation lease; without one it would stay visible to the owner
-        if (!ownerVisible && presentation() == null) return Result.failure(SkinRigError.Platform("owner-hidden rig needs the presentation service"))
         if (player.isDead) return Result.failure(SkinRigError.Platform("player-dead"))
         rigs[playerId]?.let { teardown(it) }
         val lease = when (val claimed = presentation()?.claim(
@@ -151,7 +149,7 @@ public class PaperSkinRigAnimator(
         spawnHeld(rig, origin, rest.heldItem, staged = lease != null)
         if (definition.lockMovement) lockMovement(player, true).also { rig.lockedMovement = true }
         if (lease != null) {
-            val shown = (displays.values + listOfNotNull(rig.held)).map { PresentationDisplay(it.uniqueId, 1f, ownerVisible = ownerVisible) }
+            val shown = (displays.values + listOfNotNull(rig.held)).map { PresentationDisplay(it.uniqueId, 1f) }
             presentation()?.reveal(lease, shown)
         }
         ensureTask()
