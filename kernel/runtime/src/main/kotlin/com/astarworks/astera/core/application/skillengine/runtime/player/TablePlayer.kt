@@ -2300,8 +2300,20 @@ public class TablePlayer(
             inst.state = null
             return
         }
+        // a frame-point origin needs its parent's pose of this tick first (the parent is evaluated on demand; a cycle is a load error)
+        val parentOrigin = decl.origin as? OriginSpec.Frame
+        val parentState = parentOrigin?.let { po ->
+            val parentDecl = run.cursor.skill.def.frames.firstOrNull { it.id == po.frame }
+            val pinst = parentDecl?.let { run.frames.getOrPut(it.id) { FrameInst(it, lastTick, binding) } }
+            if (pinst != null && pinst.evaluatedTick != now) evaluateFrame(run, parentDecl.id, pinst, now)
+            pinst?.state
+        }
+        if (parentOrigin != null && parentState == null) {
+            inst.state = null
+            return
+        }
         val origin = try {
-            frameOrigin(run, decl, binding, scope, now)
+            if (parentOrigin != null) parentState!!.world(parentOrigin.pos) else frameOrigin(run, decl, binding, scope, now)
         } catch (e: IllegalArgumentException) {
             inst.state = null
             fault(run, now, "frames.${decl.id}", "frame '${decl.id}' origin: ${e.message}")
@@ -2350,9 +2362,12 @@ public class TablePlayer(
             is OriginSpec.Caster -> when (o.point) {
                 "hand_r" -> handOrigin(run, false, now)
                 "hand_l" -> handOrigin(run, true, now)
+                "shoulder_r" -> handOrigin(run, false, now, joint = true)
+                "shoulder_l" -> handOrigin(run, true, now, joint = true)
                 "" -> v3(live.vec(handle, "caster", binding, scope))
                 else -> v3(live.vec(handle, "caster.${o.point}", binding, scope))
             }
+            is OriginSpec.Frame -> error("a frame-point origin is read from its parent's state")
             is OriginSpec.Victim -> v3(live.vec(handle, "victim.${o.point}", binding, scope))
             is OriginSpec.Contact -> binding?.contact?.point?.let { Vec3(it.x, it.y, it.z) }
                 ?: throw IllegalArgumentException("no block contact is bound (an on: event.block frame is read under on.block)")
@@ -2369,7 +2384,7 @@ public class TablePlayer(
      * the held-grip offset along it, in the caster's axes; [left] = the left arm (`caster.hand_l`). The same arm the skin rig draws the weapon on.
      * When the newest clip is a frame rig's, that hand is pinned onto the ridden frame's origin (ADR-0315): the origin is the hand.
      */
-    private fun handOrigin(run: Run, left: Boolean, now: Int): Vec3 {
+    private fun handOrigin(run: Run, left: Boolean, now: Int, joint: Boolean = false): Vec3 {
         val scope = RowScope.cast(run.request.seed)
         val handle = run.cursor.handle
         val slim = gameplay.isSlimSkin(run.request.caster)
@@ -2379,7 +2394,7 @@ public class TablePlayer(
                 ?: rec.frameRig?.let { r -> Triple(r.start, r.anim, (now - r.start).toDouble()) }
         }.maxByOrNull { it.first }
         val pinned = run.recs.values.mapNotNull { it.frameRig }.filter { it.off == left }.maxByOrNull { it.start }
-        if (pinned != null && newest != null && pinned.start >= newest.first) {
+        if (!joint && pinned != null && newest != null && pinned.start >= newest.first) {
             run.frames[pinned.frame]?.let { inst ->
                 if (inst.evaluatedTick != now) evaluateFrame(run, pinned.frame, inst, now)
                 inst.state?.let { return it.origin }
@@ -2392,7 +2407,8 @@ public class TablePlayer(
         } ?: RigBodyTrack.restArm(slim, left)
         val off = SkinRigTransforms.HELD_GRIP_OFFSET
         val gx = if (left) -off.x else off.x
-        val grip = arm.position + arm.rotation.rotate(Vec3(gx, off.y, off.z))
+        // the shoulder joint is the arm's own pivot (what the straight arm turns about); the hand is the grip along the arm
+        val grip = if (joint) arm.position else arm.position + arm.rotation.rotate(Vec3(gx, off.y, off.z))
         val casterPos = live.vec(handle, "caster", null, scope)
         val casterRot = live.rot(handle, "caster", null, scope)
         val w = Vector3d(grip.x, grip.y, grip.z).rotate(casterRot).add(casterPos)
