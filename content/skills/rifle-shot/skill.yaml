@@ -50,7 +50,7 @@ machine:
   tail: 10
   states:
     fire:
-      for: 41
+      for: "${life}"
       then: end
       on:
         - {event: bolt.end, to: end}

@@ -38,7 +38,7 @@ machine:
   tail: 14
   states:
     fly:
-      for: 40      # = max_lifetime_ticks (a state `for` cannot read a param yet)
+      for: "${max_lifetime_ticks}"
       then: end
       on:
         - {event: arrow.end, to: end}
