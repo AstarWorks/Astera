@@ -34,7 +34,7 @@ machine:
         - {event: bolt.end, to: end}
       do:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", frame: tip, volume: 0.8, pitch: 1.1}
-        - {id: fx, op: particle_def, def: fire-cast, frame: tip}
+        - {id: fx, op: particle, particle: flame, frame: tip, count: 2, offset: [0.04, 0.04, 0.04]}
         - {id: shell, op: display, kind: item, item: "minecraft:fire_charge", context: fixed, frame: head, scale: [0.9, 0.9, 0.9], at: 0, until: bolt.end}
         - {id: trail_flame, op: particle, particle: flame, frame: head, pos: {v: 0}, to: {v: -1.4}, samples: 3, count: 1, offset: [0.12, 0.12, 0.12], extra: 0.02, at: 2, every: 1, until: bolt.end}
         - {id: trail_dust, op: particle, particle: dust, frame: head, pos: {v: 0}, to: {v: -1.4}, samples: 2, count: 1, offset: [0.1, 0.1, 0.1], color: "#ff7814", size: 1.6, at: 2, every: 1, until: bolt.end}
