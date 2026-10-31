@@ -46,7 +46,7 @@ public sealed interface Rotation {
             val neg = t.axis.startsWith("-")
             val name = t.axis.removePrefix("-")
             val v = axes.axis(name)
-                ?: ctx.fail("$path[$i].axis", "axis '${t.axis}' cannot be resolved here (known: forward back up down left right)")
+                ?: ctx.fail("$path[$i].axis", "axis '${t.axis}' cannot be resolved here (known: forward back up down left right; v w s on a frame-placed display)")
             (if (neg) v * -1.0 else v) to t.deg
         }
         if (resolved.all { it.second is Value.Literal }) {
@@ -64,9 +64,9 @@ public sealed interface Rotation {
 }
 
 public object Rotations {
-    private val AXIS_NAMES = setOf("forward", "back", "up", "down", "left", "right", "long", "edge", "face")
+    private val AXIS_NAMES = setOf("forward", "back", "up", "down", "left", "right", "long", "edge", "face", "v", "w", "s")
 
-    public val axisField: Field<String> = Field.required("axis", Types.id, "forward|back|up|down|left|right|long|edge|face, optionally '<frame>.' prefixed and '-' negated")
+    public val axisField: Field<String> = Field.required("axis", Types.id, "forward|back|up|down|left|right|long|edge|face (or v|w|s on a frame-placed display, ADR-0314), optionally '<frame>.' prefixed and '-' negated")
     public val degField: Field<Value<Double>> = Field.required("deg", Types.number, "degrees about the axis; +deg carries the basis axes forward -> left -> up -> forward (+deg about up carries forward toward left); a swing direction is not written with this, see RigSwings")
     public val turn: Fields = Fields.of("rotate-step", axisField, degField)
 

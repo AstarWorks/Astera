@@ -353,7 +353,8 @@ def main():
             print(f"      th {th:7.1f}  d {dth:+6.1f} {sense:<3}  roll {roll:5.1f}  tip {np.round(wp['tip'], 2).tolist()}")
         prev, prev_wp = p, wp
         poses.append((b.tick, rig_tick(b.tick), p, None if not poses else "linear", s.name))
-    poses.append((52, rig_tick(52), RM.Pose(), "step", "hand-back"))  # the vanilla held pose (all zero)
+    # the vanilla held pose (all zero), eased to over the hold (a step here snapped the hand 0.6 blocks in one tick: the tip left the cut plane, ADR-0314)
+    poses.append((52, rig_tick(52), RM.Pose(), "linear", "hand-back"))
     # body yaml
     L = []
     L.append("# bastion-s1-body: HAND-AUTHORED 3D performance, written by tools/pose-solve/author_bastion_s1.py (edit the pose table there and rerun).")

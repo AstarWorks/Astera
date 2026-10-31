@@ -5,6 +5,8 @@ import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRef
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
 import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
 import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
@@ -39,7 +41,9 @@ public class SoundOp(
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val sound: String,
-    public val anchor: String,
+    /** Source point: an anchor name, or null when [frame] places the sound. */
+    public val anchor: String?,
+    public val frame: FrameRef?,
     public val volume: Value<Double>,
     public val pitch: Value<Double>,
     public val category: String,
@@ -52,7 +56,7 @@ public object SoundOpSpec : OpSpec<SoundOp> {
     private val CATEGORIES = listOf("master", "music", "records", "weather", "blocks", "hostile", "neutral", "players", "ambient", "voice")
 
     private val SOUND: Field<String> = Field.required("sound", Types.id, "sound event id, e.g. entity.player.attack.sweep")
-    private val ANCHOR: Field<String> = Field.required("anchor", Types.id, "source point: an anchor name declared in the skill")
+    private val ANCHOR: Field<String?> = Field.optional("anchor", Types.nullable(Types.id), null, "source point: an anchor name declared in the skill (or frame: + pos:)")
     private val VOLUME: Field<Value<Double>> = Field.optional("volume", Types.number, Value.Literal(1.0), "vanilla volume, 1.0 by default")
     private val PITCH: Field<Value<Double>> = Field.optional("pitch", Types.number, Value.Literal(1.0), "vanilla pitch, 1.0 by default")
     private val CATEGORY: Field<String> = Field.optional("category", Types.enumOf(*CATEGORIES.toTypedArray()), "master", "vanilla SoundCategory")
@@ -62,11 +66,13 @@ public object SoundOpSpec : OpSpec<SoundOp> {
     override val name: String = "sound"
     override val section: OpSection = OpSection.PRESENTATION
     override val timing: TimingKind? = TimingKind.POINT
-    override val fields: Fields = Fields.of("sound", SOUND, ANCHOR, VOLUME, PITCH, CATEGORY, MOTION)
+    override val fields: Fields = Fields.of("sound", SOUND, ANCHOR, FrameRefs.FRAME, FrameRefs.POS, VOLUME, PITCH, CATEGORY, MOTION)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<SoundOp, SkillDecodeError> =
         Grammar.guard {
             val path = "sound[${id.value}]"
+            val frame = FrameRefs.read(values, ctx, path, anchorGiven = values[ANCHOR] != null)
+            if (frame == null && values[ANCHOR] == null) ctx.fail("$path.anchor", "sound needs anchor: <name> or frame: <id>")
             SoundOp(
                 id = id,
                 src = src,
@@ -74,6 +80,7 @@ public object SoundOpSpec : OpSpec<SoundOp> {
                 timing = timing,
                 sound = values[SOUND],
                 anchor = values[ANCHOR],
+                frame = frame,
                 volume = ctx.checked(values[VOLUME], ExprType.NUM, "$path.volume"),
                 pitch = ctx.checked(values[PITCH], ExprType.NUM, "$path.pitch"),
                 category = values[CATEGORY],
@@ -86,7 +93,7 @@ public object SoundOpSpec : OpSpec<SoundOp> {
      * Literals stay [Val.Known]; a `${param}` and a `= CEL` stay [Val.Live] until the player resolves them (see W1-24 / W1-19).
      */
     override fun lower(op: SoundOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
-        val position = when (val r = ParticlePlacement.position(lc, op.anchor, "sound")) {
+        val position: Val<Vector3d> = op.frame?.position() ?: when (val r = ParticlePlacement.position(lc, op.anchor!!, "sound")) {
             is Result.Failure -> return r
             is Result.Success -> r.value
         }

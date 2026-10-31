@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.domain.skillengine.model
 
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.FrameDecl
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.LineDecl
 import com.astarworks.astera.core.domain.skillengine.part.Machine
 import com.astarworks.astera.core.domain.skillengine.part.Part
 import com.astarworks.astera.core.domain.skillengine.part.ParamSpec
@@ -47,6 +49,10 @@ public data class SkillDef(
     val framesIn: Map<String, String> = emptyMap(),
     val emits: List<String> = emptyList(),
     val anchors: List<AnchorDecl> = emptyList(),
+    /** `frames:` (ADR-0314): origin + v, w, s frames every draw op places by coefficients; evaluated once per tick by the runtime. */
+    val frames: List<FrameDecl> = emptyList(),
+    /** `lines:` (ADR-0314): named segments of a frame, read by draw ops with `along: <id>`. */
+    val lines: List<LineDecl> = emptyList(),
     /** Named conditions (3.8), CEL source. */
     val conditions: Map<String, String> = emptyMap(),
     /** Skill-local fragments (`fragments:`): flat op lists called by `use: fragment:<name>`; part ids are `<skill>#<name>`. */

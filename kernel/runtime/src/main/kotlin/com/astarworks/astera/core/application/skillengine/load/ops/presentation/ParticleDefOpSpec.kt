@@ -6,6 +6,8 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.AnchorRef
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRef
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
 import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVec
 import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVecs
 import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
@@ -36,14 +38,16 @@ public class ParticleDefOp(
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val def: String,
-    public val anchor: AnchorRef,
+    /** Emission point as an anchor, or null when [frame] places the emission. */
+    public val anchor: AnchorRef?,
+    public val frame: FrameRef?,
     public val shift: FrameVec?,
     public val count: Value<Double>?,
 ) : OpNode
 
 public object ParticleDefOpSpec : OpSpec<ParticleDefOp> {
     private val DEF = Field.required("def", Types.id, "id of a custom particle definition (content/particles)")
-    private val ANCHOR = Field.required("anchor", Types.anchorRef, "emission point: anchor name or {of, offset, to, samples}; to + samples = n rows along the segment of -> to")
+    private val ANCHOR = Field.optional("anchor", Types.nullable(Types.anchorRef), null, "emission point: anchor name or {of, offset, to, samples}; to + samples = n rows along the segment of -> to (or frame: + pos:)")
     private val COUNT = Field.optional("count", Types.nullable(Types.number), null, "particles per emission (whole number >= 0; absent = the definition's own count); a literal, a param or an = expression over i / n")
     private val SHIFT = Field.optional("shift", Types.nullable(FrameVecs.type), null, "per-copy displacement of the emission point: {forward, up, left} in the anchor's axes, or a whole world vec; reads i, n, draw, roll")
 
@@ -51,22 +55,29 @@ public object ParticleDefOpSpec : OpSpec<ParticleDefOp> {
     override val section: OpSection = OpSection.PRESENTATION
     /** ADR-0303 2.0 lists `particle_def` among the point kinds that carry the shared timing block. */
     override val timing: TimingKind? = TimingKind.POINT
-    override val fields: Fields = Fields.of("particle_def", DEF, ANCHOR, SHIFT, COUNT)
+    override val fields: Fields = Fields.of("particle_def", DEF, ANCHOR, FrameRefs.FRAME, FrameRefs.POS, FrameRefs.TO, FrameRefs.SAMPLES, FrameRefs.ALONG, SHIFT, COUNT)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ParticleDefOp, SkillDecodeError> =
         Grammar.guard {
             val count = values[COUNT]
             if (count is Value.Literal && (count.value < 0.0 || count.value % 1.0 != 0.0)) ctx.fail("count", "count must be a whole number >= 0")
-            ParticleDefOp(id, src, whenExpr, timing, def = values[DEF], anchor = values[ANCHOR], shift = values[SHIFT], count = values[COUNT])
+            val path = "particle_def[${id.value}]"
+            val frame = FrameRefs.readSegment(values, ctx, path, anchorGiven = values[ANCHOR] != null)
+            if (frame == null && values[ANCHOR] == null) ctx.fail("$path.anchor", "particle_def needs anchor: <name> or frame: <id>")
+            if (frame != null && values[SHIFT] != null) ctx.fail("$path.shift", "shift is an anchor-axes displacement; with frame: write the point as pos: {v, w, s}")
+            ParticleDefOp(id, src, whenExpr, timing, def = values[DEF], anchor = values[ANCHOR], frame = frame, shift = values[SHIFT], count = values[COUNT])
         }
 
     override fun lower(op: ParticleDefOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
-        if (op.anchor.sweep != null) {
+        if (op.anchor?.sweep != null) {
             return Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value, "particle_def '${op.def}': sweep is a vanilla particle rider (R14); a definition is emitted once per call"))
         }
-        val placed = when (val r = ParticlePlacement.placeAll("particle_def '${op.def}'", lc, op.anchor, op.shift)) {
-            is Result.Success -> r.value
-            is Result.Failure -> return r
+        val placed = when (val frame = op.frame) {
+            null -> when (val r = ParticlePlacement.placeAll("particle_def '${op.def}'", lc, op.anchor!!, op.shift)) {
+                is Result.Success -> r.value
+                is Result.Failure -> return r
+            }
+            else -> frame.points().map { ParticlePlacement.Placed(it, null, null) }
         }
         val count: Val<Int>? = when (val c = op.count) {
             null -> null
