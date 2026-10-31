@@ -1,0 +1,36 @@
+# sentry-turret: the summoned half of sentry-totem (ADR-0313). It has one frames_in frame, its spawn point, fires three times and is cut by its owner's `life`.
+apiVersion: astera/v3
+kind: Skill
+id: sentry-turret
+frames_in: {spot: anchor}
+meta:
+  cooldown_ticks: 0
+  resource_cost: 0
+params:
+  dmg: {type: number, default: 6.0}
+machine:
+  start: watch
+  states:
+    watch:
+      for: 40
+      then: end
+      do:
+        - id: body
+          op: display
+          kind: sprite
+          sprite: flame
+          anchor: spot
+          size: [0.9, 0.9]
+          color: "#80ffa0"
+          billboard: center
+          at: 0
+          for: 40
+        - id: volley
+          at: 8
+          every: 10
+          times: 3
+          do:
+            - {id: pew, op: sound, sound: "entity.blaze.shoot", anchor: spot, volume: 0.5, pitch: 1.6}
+            - {id: spark, op: particle_def, def: hit-spark, anchor: spot}
+            - {id: hurt, op: damage, target: {kind: enemies, around: spot, radius: 6.0}, damage: {electric: "${dmg}"}}
+    end: {final: true}

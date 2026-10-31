@@ -128,6 +128,12 @@ private val RIDER_KINDS = setOf(SpawnKind.ITEM, SpawnKind.BLOCK, SpawnKind.TEXT,
 /** Margin added to a ray anchor's body query radius so a hitbox whose centre lies off the ray is still read. */
 private const val RAY_BODY_REACH: Double = 3.0
 
+/** Live `summon` runs one caster may own at once (ADR-0313); the next one is a counted LIMIT fault. */
+private const val MAX_SUMMONS_PER_CASTER = 8
+
+/** Multiplier of the summon seed derivation (a 64-bit LCG constant). */
+private const val SEED_MIX = 6364136223846793005L
+
 /** A bounced body restarts this far off the surface along its normal, so the next tick's ray does not begin inside the block. */
 private const val CONTACT_SKIN = 0.02
 
@@ -178,6 +184,11 @@ public class TablePlayer(
         if (skill.def.isCalleeOnly) {
             return Result.Failure(CastError.CalleeOnly(skill.def.id, skill.def.framesIn.keys.toList(), skill.def.unvaluedRequiredParams))
         }
+        return startRun(request, skill)
+    }
+
+    /** [start] without the callee-only gate: a `summon` (ADR-0313) is the caller that binds the callee's one `frames_in` frame. */
+    private fun startRun(request: CastRequest, skill: CompiledSkill): Result<CastHandle, CastError> {
         // the table's first state is the entry (MachineTables puts it there): a part call as `machine.start` is expanded to its child path
         val states = skill.table.states.associateBy { it.state }
         val rootPath = skill.table.states.firstOrNull()?.state ?: StatePath(skill.def.machine.start)
@@ -198,6 +209,15 @@ public class TablePlayer(
         world.tick()
         for (run in runs.values.toList()) {
             if (run.finalized || now < run.request.startTick) continue
+            // a summon lasts out (ADR-0313): cut like a cancelled cast, so its exit rows and tail play as for any cancel
+            if (now >= run.expireAt && !run.expired) {
+                run.expired = true
+                if (!run.finishing) {
+                    cancelScope(run, CancelScope.Cast, now, null)
+                    settle(run, now)
+                }
+                if (run.finalized) continue
+            }
             // Rows fault inside playRow; anything else thrown here (drivers, sweeps, transitions) must end THIS cast only. An uncaught throw
             // would abort the whole tick loop on every later tick, so a single poisoned cast silently froze every cast behind it.
             try {
@@ -276,6 +296,14 @@ public class TablePlayer(
     override fun live(): List<CastHandle> = runs.values.filter { !it.finalized && !it.finishing }.map { it.cursor.handle }
 
     override fun running(): List<CastHandle> = runs.values.filter { !it.finalized }.map { it.cursor.handle }
+
+    override fun ownerOf(cast: CastHandle): UUID? = runs[cast.value]?.takeIf { !it.finalized }?.request?.caster
+
+    /**
+     * What resolves the id of a `summon` row to its compiled skill (the platform sets it from the skill catalog). A summon whose skill it
+     * does not know is a counted fault of the summoning cast, never a silent skip.
+     */
+    public var summonSkills: (String) -> CompiledSkill? = { null }
 
     // ------------------------------------------------------------------ one tick (10.2a)
 
@@ -705,6 +733,50 @@ public class TablePlayer(
         run.pending += RuntimeEvent(path, now, binding?.index, binding?.contact, binding?.victim, binding?.attacker)
     }
 
+    // ------------------------------------------------------------------ summon (ADR-0313)
+
+    /**
+     * `summon`: an independent run of [Action.Summon.skill] starts next tick with its one `frames_in` frame at the spawn point, facing the caster's
+     * heading. It is a run of the same caster (damage credit, [ownerOf], `cancelAllOf` on death, `cancelAll` at match end) with its own machine, clock and
+     * seed (derived from the summoner's, never random); it outlives the summoning cast and is cut [Action.Summon.lasts] ticks after it starts.
+     */
+    private fun summon(run: Run, a: Action.Summon, ctx: RowCtx, now: Int, src: String) {
+        val skill = summonSkills(a.skill)
+        if (skill == null) {
+            fault(run, now, src, "summon: no compiled skill '${a.skill}'", FaultKind.UNSUPPORTED)
+            return
+        }
+        val frameName = skill.def.framesIn.keys.singleOrNull()
+        if (frameName == null) {
+            fault(run, now, src, "summon: '${a.skill}' must declare exactly one frames_in frame, found ${skill.def.framesIn.keys}", FaultKind.UNSUPPORTED)
+            return
+        }
+        val owner = run.request.caster
+        if (runs.values.count { it.summoned && !it.finalized && it.request.caster == owner } >= MAX_SUMMONS_PER_CASTER) {
+            fault(run, now, src, "summon: $owner already has $MAX_SUMMONS_PER_CASTER live summons; '${a.skill}' not started", FaultKind.LIMIT)
+            return
+        }
+        val at = vec(run, a.origin, ctx)
+        val fwd = vec(run, a.forward, ctx)
+        val turn = kotlin.math.atan2(fwd.x, fwd.z)
+        var seed = (run.request.seed * SEED_MIX + now) * SEED_MIX + run.summonSeq++
+        seed = seed xor (seed ushr 29)
+        val request = CastRequest(
+            skill, owner, run.request.world, Vec3(at.x, at.y, at.z), -Math.toDegrees(turn), 0.0, seed, run.request.modifiers, now + 1, run.request.heldItem,
+        )
+        val started = startRun(request, skill)
+        if (started is Result.Failure) {
+            fault(run, now, src, "summon: '${a.skill}' did not start: ${started.error}", FaultKind.UNSUPPORTED)
+            return
+        }
+        val child = runs.getValue((started as Result.Success).value.value)
+        child.summoned = true
+        child.expireAt = request.startTick + a.lasts
+        val frame = InstanceId(listOf(InstanceId.Segment(OpId(frameName), null)))
+        child.recs[frame] = Rec(SpawnKind.FRAME, null, "world", request.startTick, null, false, PoseV(at, Quaterniond().rotateY(turn), Vector3d(1.0, 1.0, 1.0)))
+        live.register(child.cursor.handle, request)
+    }
+
     // ------------------------------------------------------------------ cancel
 
     private fun cancelScope(run: Run, scope: CancelScope, now: Int, ctx: RowCtx?) {
@@ -907,6 +979,7 @@ public class TablePlayer(
                 }
                 is Action.Effect -> effect(run, row, a, ctx, now, src)
                 is Action.World -> WorldRows.execute(world, castRef(run), a, vec(run, a.origin, ctx), vec(run, a.forward, ctx), eye = { runCatching { live.vec(run.cursor.handle, "caster.eye", ctx.binding, ctx.scope) }.getOrNull() ?: vec(run, a.origin, ctx) }) { cell -> num(run, cell as Num, ctx) }
+                is Action.Summon -> summon(run, a, ctx, now, src)
                 is Action.Lock -> {
                     val until = when (val end = a.until) {
                         is LockEnd.AtTick -> ctx.base + end.tick
@@ -1406,7 +1479,23 @@ public class TablePlayer(
             } ?: ProjectileKinematics.constant(velocity.length()) // speed absent = |velocity| (3.6)
         val gravity = f["gravity"]?.let { dbl(run, it, ctx) } ?: 0.0
         val drag = f["drag"]?.let { dbl(run, it, ctx) } ?: 0.0
-        return Flight(Vector3d(velocity).normalize(), speed, Vector3d(local.pos), gravity, drag)
+        val turn = f["homing.turn"]?.let { Math.toRadians(dbl(run, it, ctx)) }
+        val steer = if (turn == null) null else homingSteer(run, dbl(run, f.getValue("homing.acquire"), ctx))
+        return Flight(Vector3d(velocity).normalize(), speed, Vector3d(local.pos), gravity, drag, steer, turn ?: 0.0)
+    }
+
+    /**
+     * `homing` (ADR-0313): where the body steers each tick. The nearest living enemy body (`enemyBodiesNear`, a pure geometry read; ties broken by the box
+     * corner so the pick never depends on list order) within [acquire] blocks of the body, aimed at its hitbox centre; null when there is none, and the body
+     * then flies straight on its current heading. Nothing here reads the clock or a random source.
+     */
+    private fun homingSteer(run: Run, acquire: Double): (Vector3d) -> Vector3d? = { at ->
+        val cast = castRef(run)
+        query.enemyBodiesNear(cast, Vec3(at.x, at.y, at.z), acquire)
+            .map { it.center }
+            .filter { c -> val dx = c.x - at.x; val dy = c.y - at.y; val dz = c.z - at.z; dx * dx + dy * dy + dz * dz <= acquire * acquire }
+            .minWithOrNull(compareBy<Vec3>({ c -> val dx = c.x - at.x; val dy = c.y - at.y; val dz = c.z - at.z; dx * dx + dy * dy + dz * dz }, { it.x }, { it.y }, { it.z }))
+            ?.let { Vector3d(it.x, it.y, it.z) }
     }
 
     private fun projectileStep(run: Run, now: Int) {
@@ -1512,7 +1601,7 @@ public class TablePlayer(
         val old = rec.flight ?: return
         val speed = vel.length()
         val dir = if (speed < 1e-9) Vector3d(0.0, -1.0, 0.0) else Vector3d(vel).mul(1.0 / speed)
-        rec.flight = Flight(dir, ProjectileKinematics.constant(speed), Vector3d(pos), old.gravity, old.drag)
+        rec.flight = Flight(dir, ProjectileKinematics.constant(speed), Vector3d(pos), old.gravity, old.drag, old.steer, old.turnRad)
         val cur = rec.localAt(now)
         rec.moveTo(PoseV(Vector3d(pos), cur.rot, cur.scale), now, 0)
         rec.clockBase = now - rec.spawnTick - rec.frozenTicks
@@ -2456,16 +2545,50 @@ public class TablePlayer(
         val start: Vector3d,
         val gravity: Double,
         val drag: Double,
+        /** `homing` (ADR-0313): the point to steer at from a position, or null; with [turnRad] it makes the flight step-wise (the heading changes per tick). */
+        val steer: ((Vector3d) -> Vector3d?)? = null,
+        val turnRad: Double = 0.0,
     ) {
         private val keep = 1.0 - drag
+        private var heading = Vector3d(dir)
+        private var pos = Vector3d(start)
         private var k = 0
         private var prevPath = 0.0
         private var launchOffset = 0.0
         private var fallVel = 0.0
         private var fallOffset = 0.0
 
+        /** Turns [heading] toward [to] by at most [turnRad] radians (the great-circle step); exactly onto it when the angle is smaller. */
+        private fun turnToward(to: Vector3d) {
+            if (to.lengthSquared() < 1e-18) return
+            val want = Vector3d(to).normalize()
+            val cos = (heading.x * want.x + heading.y * want.y + heading.z * want.z).coerceIn(-1.0, 1.0)
+            val angle = Math.acos(cos)
+            if (angle <= turnRad) {
+                heading = want
+                return
+            }
+            // the axis-free rotation in the plane of heading and want; a head-on target (angle ~ pi) picks the horizontal side, never a random one
+            var side = Vector3d(want).sub(Vector3d(heading).mul(cos))
+            if (side.lengthSquared() < 1e-12) side = Vector3d(heading).cross(Vector3d(0.0, 1.0, 0.0)).let { if (it.lengthSquared() < 1e-12) Vector3d(1.0, 0.0, 0.0) else it }
+            side.normalize()
+            heading = Vector3d(heading).mul(Math.cos(turnRad)).add(side.mul(Math.sin(turnRad))).normalize()
+        }
+
         /** The position [ticks] whole ticks after spawn; steps the state forward one tick at a time (called with non-decreasing ticks). */
         fun at(ticks: Int): Vector3d {
+            if (steer != null) {
+                while (k < ticks) {
+                    k++
+                    steer.invoke(pos)?.let { turnToward(Vector3d(it).sub(pos)) }
+                    val path = ProjectileKinematics.pathLength(speed, k.toDouble())
+                    val step = (path - prevPath) * Math.pow(keep, k.toDouble())
+                    prevPath = path
+                    fallVel = (fallVel - gravity) * keep
+                    pos = Vector3d(heading).mul(step).add(pos).add(0.0, fallVel, 0.0)
+                }
+                return Vector3d(pos)
+            }
             if (gravity == 0.0 && drag == 0.0) return Vector3d(dir).mul(ProjectileKinematics.pathLength(speed, ticks.toDouble())).add(start)
             while (k < ticks) {
                 k++
@@ -2695,5 +2818,11 @@ public class TablePlayer(
         /** The tick the tail ends (the run finalizes after its rows); [Int.MIN_VALUE] until the cast has ended. */
         var tailEnd = Int.MIN_VALUE
         var finalized = false
+
+        /** A run started by a `summon` row (ADR-0313): [expireAt] is the tick it is cut; [summonSeq] numbers the summons this run made (the seed derivation). */
+        var summoned = false
+        var expireAt = Int.MAX_VALUE
+        var expired = false
+        var summonSeq = 0
     }
 }

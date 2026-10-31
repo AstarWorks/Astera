@@ -49,6 +49,7 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
                     }
                 }
                 // pass 2: compile, replay, golden each id
+                summonSkills = { sid -> defs[sid]?.let { (compileAgainst(it, defs) as? Result.Success)?.value } }
                 for ((id, def) in defs) {
                     val key = keys.getValue(id)
                     val variant = '@' in id
@@ -60,6 +61,8 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
                             writeEvidence(if (variant) id else "shipped-" + id.replace('/', '_') + "_skill", r.value.table, if (variant) "variant composition of $id" else null)
                             // a callee-only skill (frames_in) cannot be cast directly; it is replayed inside its callers' goldens
                             if (def.isCalleeOnly) continue
+                            // a summon starts a second run the table oracle does not model (ADR-0313): its rows are in the golden, its behaviour in SummonHomingPathScenarioTest
+                            if (summonReach(r.value) > 0) continue
                             try {
                                 assertPlays(r.value)
                             } catch (e: AssertionError) {
@@ -82,6 +85,12 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
         Files.createDirectories(evidenceDir)
         Files.writeString(evidenceDir.resolve("shipped-summary.txt"), "v3 checked: $checked\n")
         assertThat(problems).`as`("A9 problems ($checked composed skill ids checked)").isEmpty()
+    }
+
+    /** Last tick a `summon` row of [skill] keeps its summoned run alive (row tick + 1 start + life); 0 when it summons nothing. */
+    private fun summonReach(skill: CompiledSkill): Int {
+        val rows = skill.table.worldRows + skill.table.states.flatMap { it.rows } + skill.table.subTables.values.flatMap { it.rows }
+        return rows.mapNotNull { r -> (r.action as? com.astarworks.astera.core.domain.skillengine.table.Action.Summon)?.let { r.tick + 1 + it.lasts } }.maxOrNull() ?: 0
     }
 
     /** One golden per composed id (design 1.6): a skill id that composes without a golden file fails here by name, whatever its file layout. */
@@ -137,7 +146,8 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
         val problems = ArrayList<String>()
         for ((key, skill) in skills) {
             val lines = recordings[key] ?: continue
-            val pathMax = skill.table.bounds.path.max
+            // a summoned run is cut `life` ticks after it starts (next tick): the summoning skill's visible rows reach that far (ADR-0313)
+            val pathMax = maxOf(skill.table.bounds.path.max, summonReach(skill))
             val tail = skill.table.bounds.tail
             var pose = ""
             var section = ArrayList<String>()

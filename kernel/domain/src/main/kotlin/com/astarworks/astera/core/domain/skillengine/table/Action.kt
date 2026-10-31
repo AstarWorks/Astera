@@ -66,6 +66,11 @@ public sealed interface Action {
      * Nobody found = this hop and every later hop of the chain are skipped.
      */
     public data class Pick(val chain: String, val hop: Int, val area: TargetRule.Area) : Action
+    /**
+     * `summon` (ADR-0313): at its tick starts an independent run of [skill] (its own machine and clock) whose single `frames_in` frame sits at [origin]
+     * facing [forward]'s heading. The run is owned by the caster (damage credit, cleanup) and is cut [lasts] ticks later, when the caster dies or the match ends.
+     */
+    public data class Summon(val skill: String, val origin: Vec, val forward: Vec, val lasts: Int) : Action
     public data class Lock(val move: LockMove, val pitch: Boolean, val yaw: Boolean, val until: LockEnd) : Action
 
     // structure
@@ -92,7 +97,7 @@ public val Action.phase: Phase
         is Action.Key, is Action.Teleport, is Action.TrailPoint -> Phase.WRITE
         is Action.Particle, is Action.ParticleDef, is Action.Sound, is Action.Set -> Phase.PRESENTATION
         is Action.Effect -> if (spawnsAnchor) Phase.SPAWN else Phase.GAMEPLAY
-        is Action.Hit, is Action.Damage, is Action.Status, is Action.World -> Phase.GAMEPLAY
+        is Action.Hit, is Action.Damage, is Action.Status, is Action.World, is Action.Summon -> Phase.GAMEPLAY
         is Action.Lock -> Phase.LOCK
         is Action.Call -> Phase.CALL
         is Action.Emit, is Action.Cancel -> Phase.EMIT

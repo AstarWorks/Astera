@@ -84,6 +84,9 @@ public data class ProjectileBlock(
     val fused: Boolean = false,
 )
 
+/** `homing:` (ADR-0313): the body turns its heading toward [target] by at most [turnDegPerTick] each tick; [acquire] is the pick radius in blocks. */
+public data class ProjectileHoming(val target: String, val turnDegPerTick: Value<Double>, val acquire: Value<Double>)
+
 /**
  * Decoded `projectile` op (ADR-0303 3.6). The flight length is the timing block's `for` and/or `range`; `times` makes a family (the unroller supplies `i`), while `every`, `until`
  * and `lasts` are not accepted (repeat a projectile with a group). The handler lists of `on:` are ops of any kind, so they are kept raw in [rawOn] and decoded by
@@ -107,12 +110,13 @@ public class ProjectileOp(
     public val block: ProjectileBlock,
     public val gravity: Value<Double>?,
     public val drag: Value<Double>?,
+    public val homing: ProjectileHoming?,
     public val rawOn: Map<ProjectileEvent, List<Any?>>,
     public val handlers: Map<ProjectileEvent, List<OpNode>> = emptyMap(),
     public val lowerHandlers: HandlerLowering? = null,
 ) : OpNode {
     public fun withHandlers(decoded: Map<ProjectileEvent, List<OpNode>>, lowering: HandlerLowering): ProjectileOp =
-        ProjectileOp(id, src, whenExpr, timing, origin, part, velocity, speed, range, radius, hit, motion, block, gravity, drag, rawOn, decoded, lowering)
+        ProjectileOp(id, src, whenExpr, timing, origin, part, velocity, speed, range, radius, hit, motion, block, gravity, drag, homing, rawOn, decoded, lowering)
 }
 
 public object ProjectileOpSpec : OpSpec<ProjectileOp> {
@@ -209,9 +213,14 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
     private val block = Field.required("block", Types.nested(blockFields))
     private val gravity = Field.optional("gravity", Types.nullable(Types.number), null, "blocks per tick squared, down")
     private val drag = Field.optional("drag", Types.nullable(Types.number), null, "speed fraction lost per tick")
+    private val homingTarget = Field.required("target", Types.enumOf("enemy"), "enemy: the nearest living enemy body within `acquire` of the body, re-picked every tick")
+    private val homingTurn = Field.required("turn_deg_per_tick", Types.number, "largest heading change per tick in degrees; > 0")
+    private val homingAcquire = Field.required("acquire", Types.number, "blocks around the body in which a target is picked; none in range = fly straight on the current heading")
+    private val homingFields = Fields.of("projectile-homing", homingTarget, homingTurn, homingAcquire)
+    private val homing = Field.optional("homing", Types.nullable(Types.nested(homingFields)), null, "ADR-0313: steer toward a target each tick instead of flying a fixed line; deterministic, no randomness")
     private val on = Field.optional("on", Types.nullable(Types.nested(onFields)), null, "handlers by event: hit, bounce, stick, unstick, block, expire, end")
 
-    override val fields: Fields = Fields.of("projectile", origin, partF, velocity, speed, range, radius, hit, motion, block, gravity, drag, on)
+    override val fields: Fields = Fields.of("projectile", origin, partF, velocity, speed, range, radius, hit, motion, block, gravity, drag, homing, on)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ProjectileOp, SkillDecodeError> =
         Grammar.guard {
@@ -284,7 +293,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             }
 
             val keys = values[motion]?.let { m -> LawSource(m, ctx.forLaws(com.astarworks.astera.core.application.skillengine.load.grammar.PartAxes(ctx.lawAxes(values[partF]))), "$path.motion").also { it.probe(timing?.times?.let { t -> ctx.resolveNumber(t) }?.toInt()?.coerceAtLeast(1) ?: 1) } }
-            ProjectileOp(id, src, whenExpr, timing, values[origin], values[partF], values[velocity], values[speed], values[range], values[radius], hitSpec, keys, blockSpec, values[gravity], values[drag], raw)
+            ProjectileOp(id, src, whenExpr, timing, values[origin], values[partF], values[velocity], values[speed], values[range], values[radius], hitSpec, keys, blockSpec, values[gravity], values[drag], values[homing]?.let { ProjectileHoming(it[homingTarget], it[homingTurn], it[homingAcquire]) }, raw)
         }
 
     /** The events a body of this mode can fire (3.6): `pass` has no block events; `blocks_only` has no victim hit. */
@@ -416,6 +425,16 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             if (op.block.mode == "stick") look["block.for"] = Val.Known(stickTicks.toDouble())
             op.gravity?.let { look["gravity"] = num(it) }
             op.drag?.let { look["drag"] = num(it) }
+            op.homing?.let { h ->
+                if (lc.anchors.resolve(op.origin)?.instance != null) return bad("homing needs a world origin (a builtin or document anchor), not the frame instance '${op.origin}': the steering reads world positions")
+                val turn = number("homing.turn_deg_per_tick", h.turnDegPerTick).getOr { return Result.Failure(it) }
+                val acquire = number("homing.acquire", h.acquire).getOr { return Result.Failure(it) }
+                if (turn <= 0.0 || turn > 180.0) return bad("homing.turn_deg_per_tick must be in (0, 180], got $turn")
+                if (acquire <= 0.0) return bad("homing.acquire must be positive, got $acquire")
+                look["homing.target"] = Val.Known(h.target)
+                look["homing.turn"] = Val.Known(turn)
+                look["homing.acquire"] = Val.Known(acquire)
+            }
             op.block.friction?.let { look["block.friction"] = num(it) }
             if (op.block.fused) look["block.fused"] = Val.Known(true)
             if (op.hit.reflect) look["hit.reflect"] = Val.Known(true)

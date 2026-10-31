@@ -1,0 +1,21 @@
+# sentry-totem: plants a sentry turret ahead of the caster (ADR-0313 `summon`). The turret is an independent run owned by the caster.
+apiVersion: astera/v3
+kind: Skill
+id: sentry-totem
+meta:
+  name: {ja: "センチネル", en: Sentry totem}
+  description: {ja: "前方に自動で撃つ砲台を置く。", en: "Plants a turret that fires on its own."}
+  cooldown_ticks: 100
+  resource_cost: 12
+  tags: [summon]
+anchors:
+  - {id: plant, anchor: caster.feet, offset: {forward: 2}, mode: snapshot}
+machine:
+  start: place
+  states:
+    place:
+      for: 2
+      then: end
+      do:
+        - {id: turret, op: summon, at: 0, skill: sentry-turret, anchor: plant, life: 60}
+    end: {final: true}
