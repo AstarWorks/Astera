@@ -338,8 +338,20 @@ PLUGINS=(core items combat match stats economy persistence)
 # watchdog abort) every process carrying this stack's marker (client process groups: portablemc + java + what they spawned,
 # Xvfb, parker) is killed and the compose project removed. run.done tells the watchdog the teardown is complete.
 cleanup() {
+  local rc=$?
   [ "$RUN_STARTED" = 1 ] || return 0
   trap '' INT TERM HUP   # a second Ctrl-C must not cut the teardown short
+  # A failed run keeps the full server log and the [vfx|skill-trace] lines (the compose project goes with `down -v`), so a
+  # "no fx drawn" abort can be diagnosed without a re-run. tools/remote/run.sh pulls $OUT_ROOT/failed/ back on a failed vfx run.
+  if [ "$rc" != 0 ] && [ -n "${SERVER_CT:-}" ]; then
+    local fd="$OUT_ROOT/failed/${SKILL:-run}-$SHOT_ID"
+    if mkdir -p "$fd" 2>/dev/null && docker logs "$SERVER_CT" > "$fd/server.log" 2>&1; then
+      tr -d '\r' < "$fd/server.log" | grep -E '\[(vfx|skill)-trace\]' > "$fd/trace.log" || true
+      cp "$STATE/phases.log" "$fd/phases.log" 2>/dev/null || true
+      cp "$CLIENTS/Caster/bot.log" "$fd/caster-bot.log" 2>/dev/null || true
+      log "run failed (rc=$rc): server log and trace kept in $fd"
+    fi
+  fi
   [ -n "$FILM_PID" ] && kill "$FILM_PID" 2>/dev/null
   if [ -e "$STATE/abort" ]; then KEEP=0; log "stopped by the watchdog: $(grep -E 'stopping run' "$STATE/watchdog.log" | tail -1)"; fi
   if [ "$KEEP" = 1 ]; then

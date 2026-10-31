@@ -43,10 +43,10 @@ public sealed interface TargetRef {
     public data object Caster : TargetRef
     /** Who dealt the damage of a `hurt` event (`event.attacker`, ADR-0303 10.3). */
     public data object Attacker : TargetRef
-    /** Non-allies within [radius] of [around]; [maxCount] keeps only the nearest N to [around] (`max_count`). */
-    public data class Enemies(val around: PointRef, val radius: Value<Double>, val maxCount: Int? = null) : TargetRef
+    /** Non-allies within [radius] of [around] (an anchor) or of [at] (a frame point, ADR-0314; exactly one of the two); [maxCount] keeps only the nearest N (`max_count`). */
+    public data class Enemies(val around: PointRef?, val radius: Value<Double>, val maxCount: Int? = null, val at: com.astarworks.astera.core.domain.skillengine.frame.grammar.FramePoint? = null) : TargetRef
     /** Team mates (never the caster) within [radius] of [around]; the caster is listed first, unconditionally, only when [includeSelf] (`include_self`, default false). */
-    public data class Allies(val around: PointRef, val radius: Value<Double>, val maxCount: Int? = null, val includeSelf: Boolean = false) : TargetRef
+    public data class Allies(val around: PointRef?, val radius: Value<Double>, val maxCount: Int? = null, val includeSelf: Boolean = false, val at: com.astarworks.astera.core.domain.skillengine.frame.grammar.FramePoint? = null) : TargetRef
 }
 
 /** A place: a frame point or a computed vector (world space). */

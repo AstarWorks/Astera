@@ -159,6 +159,41 @@ fi
 T_RUN=$SECONDS
 hlog "run finished rc=$RC in $((T_RUN - T_SYNC))s"
 
+# ---- failure diagnostics (a failed run only; a run that exits 0 pulls nothing extra)
+if [ "$DRY" != 1 ] && [ "$RC" != 0 ] && [ "$RC" != 255 ]; then
+  if [ "$KIND" = gradle ]; then
+    rsync -a -R --include='*/' --include='build/test-results/**/*.xml' --exclude='*' --prune-empty-dirs -e "$RSH" "$HOST:$REPO/./" ./ 2>/dev/null
+    # the glob above is relative to the repo root; collect the pulled XML (modules nest build/ dirs)
+    mapfile -d '' XMLS < <(find . -path ./node_modules -prune -o -path '*/build/test-results/*' -name '*.xml' -newermt "@$((EPOCHSECONDS - (SECONDS - T0) - 5))" -print0 2>/dev/null)
+    if [ "${#XMLS[@]}" -gt 0 ]; then
+      python3 -I - "${XMLS[@]}" <<'PY' >&2
+import sys, xml.etree.ElementTree as ET
+n = 0
+for f in sys.argv[1:]:
+    try: root = ET.parse(f).getroot()
+    except Exception: continue
+    for tc in root.iter("testcase"):
+        for k in ("failure", "error"):
+            e = tc.find(k)
+            if e is None: continue
+            if n < 30:
+                msg = (e.get("message") or e.text or "").strip().splitlines()
+                print("FAILED %s#%s: %s" % (tc.get("classname"), tc.get("name"), msg[0] if msg else k))
+            n += 1
+            break
+if n > 30: print("... %d more failed testcase(s)" % (n - 30))
+PY
+      hlog "pulled ${#XMLS[@]} test-result XML file(s):"
+      printf '[heavy]   %s\n' "${XMLS[@]:0:30}" >&2
+    else
+      hlog "no failed-test XML found under build/test-results (compile or config failure? see the log above)"
+    fi
+  elif [ "$KIND" = vfx ]; then
+    rsync -a -R --exclude='.state/' --exclude='.clients/' -e "$RSH" "$HOST:$REPO/./build/vfx-shot/failed" ./ 2>/dev/null
+    [ -d build/vfx-shot/failed ] && hlog "failed vfx run: server log + trace pulled to $ROOT/build/vfx-shot/failed/<skill>-<id>/"
+  fi
+fi
+
 # ---- pull (also after a failed run)
 for p in "${PULLS[@]+"${PULLS[@]}"}"; do
   x rsync -a -R --exclude='.state/' --exclude='.clients/' --exclude='*.lock' -e "$RSH" "$HOST:$REPO/./$p" ./

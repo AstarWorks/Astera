@@ -4,6 +4,8 @@ import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.Coeff
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
 import com.astarworks.astera.core.application.skillengine.load.grammar.Timing
@@ -29,7 +31,9 @@ public class PullOp(
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     val target: TargetRef,
-    val direction: Value<Vec3>,
+    val direction: Value<Vec3>?,
+    /** `frame:` + `dir:` (ADR-0314): the pull direction along the frame's axes, instead of [direction]. */
+    val frameDirection: Val<Any>?,
     val distance: Value<Double>,
     val lift: Value<Double>,
 ) : OpNode
@@ -40,14 +44,14 @@ public object PullOpSpec : OpSpec<PullOp> {
     override val timing: TimingKind? = TimingKind.POINT
 
     private val targetField = Field.required("target", GameplayOps.target, "victim, caster or an area")
-    private val directionField = Field.required("direction", Types.worldVec3, "world vec3 toward the pull point; only its horizontal part is used")
+    private val directionField = Field.optional("direction", Types.nullable(Types.worldVec3), null, "world vec3 toward the pull point; only its horizontal part is used; or write frame: + dir: {v, w, s} instead (ADR-0314)")
     private val distanceField = Field.required("distance", Types.number, "horizontal blocks the target should travel before it rests (drag and gravity solved); <= 0 does nothing")
     private val liftField = Field.optional("lift", Types.number, Value.Literal(0.3), "upward launch velocity, blocks per tick")
 
-    override val fields: Fields = Fields.of("pull", targetField, directionField, distanceField, liftField)
+    override val fields: Fields = Fields.of("pull", targetField, directionField, FrameRefs.FRAME, FrameRefs.DIR, distanceField, liftField)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<PullOp, SkillDecodeError> =
-        Result.Success(PullOp(id, src, whenExpr, timing, values[targetField], values[directionField], values[distanceField], values[liftField]))
+        Result.Success(PullOp(id, src, whenExpr, timing, values[targetField], values[directionField], GameplayOps.frameDirection(values, ctx, "pull '${id.value}'", values[directionField] != null), values[distanceField], values[liftField]))
 
     override fun lower(op: PullOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value
@@ -58,7 +62,7 @@ public object PullOpSpec : OpSpec<PullOp> {
                     "pull",
                     mapOf<String, Val<Any>>(
                         "target" to target,
-                        "direction" to GameplayOps.liveVec(op.direction),
+                        "direction" to (op.frameDirection ?: GameplayOps.liveVec(op.direction!!)),
                         "distance" to GameplayOps.live(op.distance),
                         "lift" to GameplayOps.live(op.lift),
                     ),

@@ -44,6 +44,12 @@ public data class Coeff(val v: Double = 0.0, val w: Double = 0.0, val s: Double 
     }
 }
 
+/**
+ * One point of a declared frame: `{frame: <id>, pos: {v, w, s}}` (ADR-0314). The one point type every op that places or ends on a frame
+ * reads (an area `target`, a ribbon end, a line end): the frame's origin plus [pos] along its axes, evaluated per tick.
+ */
+public data class FramePoint(val frame: String, val pos: Coeff = Coeff.ZERO)
+
 /** Three vectors, not required to be orthogonal or unit; only non-degenerate (they span a volume). */
 public data class Basis3(val v: Vec3, val w: Vec3, val s: Vec3) {
     /** Signed volume of the parallelepiped: zero = coplanar. */
@@ -167,9 +173,10 @@ public data class FrameDecl(
 /**
  * `lines: {<id>: {frame, from, to}}` (ADR-0314): a named segment of one frame, between two coefficient points. A draw op reads it with
  * `along: <id>` + `samples: n` and emits at n points spread from [from] to [to], ends included - the blade edge is written once and
- * every trail, gather and sheath row names it.
+ * every trail, gather and sheath row names it. The two ends may sit on different frames ([FramePoint.frame] of [from] != of [to]): a beam or ribbon between
+ * two moving points, written `from: {frame: a, pos: {...}}` / `to: {frame: b, pos: {...}}`.
  */
-public data class LineDecl(val id: String, val frame: String, val from: Coeff, val to: Coeff)
+public data class LineDecl(val id: String, val from: FramePoint, val to: FramePoint)
 
 /** What the runtime reads for one frame instance at one tick. */
 public class FrameInputs(
