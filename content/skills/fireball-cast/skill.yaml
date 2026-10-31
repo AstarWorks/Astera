@@ -1,7 +1,7 @@
 # fireball-cast: a straight fire bolt that bursts where it lands, in the frame grammar (ADR-0314). Four frames carry everything drawn:
 #   tip  - the staff head, rooted in the caster's eye / aim basis like the revolver's gun (v = aim, s = right, w = s x v = the up that is
 #          perpendicular to the aim): 1.3 ahead, 0.3 below the eye line, 0.25 to the right = the right hand's staff pointing along the look.
-#          The cast puff, the cast sound and the bolt itself leave it (the bolt flies along the look from there).
+#          The cast puff (two flames, tip only), the cast sound and the bolt itself leave it (the bolt flies along the look from there).
 #   head - the bolt's body, v along its velocity: the sprite core sits on it and the trail is a segment of it (v 0 -> -1.5 = the
 #          1.5 blocks flown this tick, two flames spread along it).
 #   hit / blk - one per victim / block contact, v the way the bolt came in: the burst (flame ring, raised ring, pop, sound) is drawn on it.
@@ -40,7 +40,7 @@ machine:
         - {event: bolt.end, to: end}
       enter:
         - {id: snd, op: sound, frame: tip, sound: "entity.blaze.shoot", volume: 0.9, pitch: 0.9}
-        - {id: fx, op: particle_def, frame: tip, def: fire-cast}
+        - {id: fx, op: particle, particle: flame, frame: tip, count: 2, offset: [0.04, 0.04, 0.04]}
       do:
         - id: bolt
           op: projectile
@@ -73,7 +73,7 @@ machine:
           kind: sprite
           sprite: flame
           frame: head
-          size: [1.0, 1.0]
+          size: [1.8, 1.8]
           color: "#ffc060"
           billboard: center
           brightness: {block: 15, sky: 15}
@@ -84,7 +84,7 @@ machine:
             - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 60}
         - id: trail
           at: 0
-          every: 2
+          every: 3
           until: bolt.end
           do:
             - {id: flame, op: particle, particle: flame, frame: head, pos: {v: -0.75}, count: 1, offset: [0.08, 0.08, 0.08]}
