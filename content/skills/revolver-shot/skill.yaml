@@ -1,4 +1,7 @@
-# revolver-shot: slow heavy bullet. Visuals only: muzzle flash, crit + smoke trail, hit spark. No 3D.
+# revolver-shot: slow heavy bullet, in the frame grammar (ADR-0314). Three frames: `gun` on the right hand, aimed where the caster looks,
+# kicking back 0.1 along its own v on the shot; `hit` one per victim at the victim's centre, v facing the way the bullet came in; `blk` one
+# per block contact at the contact point, v the way the bullet came in. Everything drawn or heard is a point of one of them: the flash and
+# the bolt at v 0.7 (the barrel), the sparks at v -0.2 (the entry side, on a victim or a block). No 3D.
 apiVersion: astera/v3
 kind: Skill
 id: revolver-shot
@@ -13,16 +16,29 @@ params:
   dmg:   {type: number, default: 30}
   speed: {type: number, default: 3.6}
   life:  {type: ticks, default: 40}
-anchors:
-  - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.7, left: -0.3, up: -0.3}, mode: snapshot}  # barrel of the held gun: right of and below the crosshair, so the flash reads at the gun, not on the target
-  - {id: heart,  anchor: victim.center, mode: follow}
-fragments:
-  impact:   # a small bright spark and a little dust; the target stays visible
-    frames_in: {spot: anchor}
-    do:
-      - {id: spark, op: particle, particle: dust, anchor: spot, count: 4, offset: [0.06, 0.06, 0.06], color: "#ffd060", size: 0.45}
-      - {id: dust, op: particle, particle: dust, anchor: spot, count: 3, offset: [0.12, 0.12, 0.12], color: "#8c8c8c", size: 0.6}
+frames:
+  - id: gun
+    origin: caster.hand_r
+    v: aim
+    w: up
+    s: v x w
+    move:
+      - {at: 0, for: 2, to: {v: -0.1}, ease: out_quad}   # recoil
+      - {at: 2, for: 6, to: {v: 0}, ease: in_out_sine}
+  - id: hit
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
+  - id: blk
+    on: event.block
+    each: true
+    origin: contact
+    v: incoming
+    w: up
+    s: v x w
 machine:
   start: fire
   tail: 4
@@ -32,12 +48,13 @@ machine:
       then: end
       on:
         - {event: bolt.end, to: end}
-      enter:
-        - {id: fire_fx, use: gun-muzzle, with: {snd: "astera:weapons/gun-shot", pitch: 0.8, smoke: false}, frames: {muzzle: muzzle}}
       do:
+        - {id: snd, op: sound, at: 0, sound: "astera:weapons/gun-shot", frame: gun, volume: 0.8, pitch: 0.8}
+        - {id: flash, op: particle_def, at: 0, def: gun-muzzle-flash, frame: gun, pos: {v: 0.7}}
         - id: bolt
           op: projectile
-          origin: start
+          frame: gun
+          pos: {v: 0.7}
           velocity: "= look(caster) * ${speed}"
           for: "${life}"
           radius: 0.5
@@ -46,11 +63,13 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg}"}}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact.point, volume: 0.8, detach: true}
-              - {id: fx_hit, op: use, use: "fragment:impact", frames: {spot: heart}, detach: true}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", frame: hit, volume: 0.8, detach: true}
+              - {id: spark, op: particle, particle: dust, frame: hit, pos: {v: -0.2}, count: 4, offset: [0.06, 0.06, 0.06], color: "#ffd060", size: 0.45, detach: true}
+              - {id: dust, op: particle, particle: dust, frame: hit, pos: {v: -0.2, w: 0.1}, count: 3, offset: [0.12, 0.12, 0.12], color: "#8c8c8c", size: 0.6, detach: true}
             block:
-              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5, detach: true}
-              - {id: fx_blk, op: use, use: "fragment:impact", frames: {spot: contact}, detach: true}
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", frame: blk, volume: 0.5, pitch: 1.5, detach: true}
+              - {id: spark_blk, op: particle, particle: dust, frame: blk, pos: {v: -0.2}, count: 4, offset: [0.06, 0.06, 0.06], color: "#ffd060", size: 0.45, detach: true}
+              - {id: dust_blk, op: particle, particle: dust, frame: blk, pos: {v: -0.2, w: 0.1}, count: 3, offset: [0.12, 0.12, 0.12], color: "#8c8c8c", size: 0.6, detach: true}
         - {id: trail0, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.02, 0.02, 0.02], color: "#ffe9a8", size: 0.3, at: 2, every: 1, until: bolt.end}
         - {id: trail1, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], color: "#9a9a9a", size: 0.35, at: 2, every: 1, until: bolt.end}
     end: {final: true}

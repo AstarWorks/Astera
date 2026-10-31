@@ -7,6 +7,8 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRef
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
 import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVec
 import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVecs
 import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
@@ -82,7 +84,9 @@ public class ParticleOp(
     public val offset: ParticleOffset,
     public val extra: Value<Double>,
     public val style: ParticleStyle,
-    public val anchor: AnchorRef,
+    /** Emission point as an anchor, or null when [frame] places the emission. */
+    public val anchor: AnchorRef?,
+    public val frame: FrameRef?,
     public val shift: FrameVec?,
     /** Property laws (ADR-0303 3.4), sampled once per occurrence. */
     public val motion: List<PointLaw>,
@@ -110,7 +114,7 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
     private val TARGET = Field.optional("target", Types.nullable(Types.anchorRef), null, "where a trail / vibration travels to: an anchor, resolved per row like anchor; with duration (trail) or arrival_ticks (vibration)")
     private val DURATION = Field.optional("duration", Types.nullable(Types.number), null, "ticks a trail takes to reach target (whole number >= 1), with color + target")
     private val ARRIVAL = Field.optional("arrival_ticks", Types.nullable(Types.number), null, "ticks a vibration takes to reach target (whole number >= 1), with target")
-    private val ANCHOR = Field.required("anchor", Types.anchorRef, "emission point: anchor name or {of, offset, to, samples, sweep}; to + samples = n rows along the segment of -> to")
+    private val ANCHOR = Field.optional("anchor", Types.nullable(Types.anchorRef), null, "emission point: anchor name or {of, offset, to, samples, sweep}; to + samples = n rows along the segment of -> to (or frame: + pos:)")
     private val SHIFT = Field.optional("shift", Types.nullable(FrameVecs.type), null, "per-copy displacement of the emission point: {forward, up, left} in the anchor's axes, or a whole world vec; reads i, n, draw, roll")
 
     private val MOTION = Field.optional("motion", Types.nullable(PointLawsType(setOf("count", "offset", "extra"), "count")), null, "property laws grow / fade, sampled per occurrence (section 3.4)")
@@ -120,7 +124,7 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
     override val timing: TimingKind? = TimingKind.POINT
     override val fields: Fields = Fields.of(
         "particle",
-        PARTICLE, COUNT, OFFSET, EXTRA, COLOR, TO_COLOR, SIZE, BLOCK, ITEM, ROLL, DELAY, POWER, TARGET, DURATION, ARRIVAL, ANCHOR, SHIFT, MOTION,
+        PARTICLE, COUNT, OFFSET, EXTRA, COLOR, TO_COLOR, SIZE, BLOCK, ITEM, ROLL, DELAY, POWER, TARGET, DURATION, ARRIVAL, ANCHOR, FrameRefs.FRAME, FrameRefs.POS, FrameRefs.TO, FrameRefs.SAMPLES, FrameRefs.ALONG, SHIFT, MOTION,
     )
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ParticleOp, SkillDecodeError> =
@@ -134,6 +138,11 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
             val wantsBlock = particle.removePrefix("minecraft:") in BLOCK_PARTICLES
             if (wantsBlock && style !is ParticleStyle.Block) ctx.fail("block", "particle '$particle' needs a block state: give block: minecraft:<block>")
             if (!wantsBlock && style is ParticleStyle.Block) ctx.fail("block", "particle '$particle' takes no block state (only ${BLOCK_PARTICLES.joinToString()} do)")
+            val path = "particle[${id.value}]"
+            val frame = FrameRefs.readSegment(values, ctx, path, anchorGiven = values[ANCHOR] != null)
+            if (frame == null && values[ANCHOR] == null) ctx.fail("$path.anchor", "particle needs anchor: <name> or frame: <id>")
+            if (frame != null && values[SHIFT] != null) ctx.fail("$path.shift", "shift is an anchor-axes displacement; with frame: write the point as pos: {v, w, s}")
+            if (frame != null && values[OFFSET] is ParticleOffset.Frame) ctx.fail("$path.offset", "with frame: the vanilla offset is a world vec [x, y, z] (a spread box cannot rotate, ADR-0312); a frame-axes direction is not placed by offset")
             ParticleOp(
                 id, src, whenExpr, timing,
                 particle = particle,
@@ -142,6 +151,7 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
                 extra = values[EXTRA],
                 style = style,
                 anchor = values[ANCHOR],
+                frame = frame,
                 shift = values[SHIFT],
                 motion = values[MOTION] ?: emptyList(),
             )
@@ -156,7 +166,7 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
         }
         // `anchor` in the op's own expressions names its emission anchor (ADR-0303 3.2: `offset: "= anchor.forward"`)
         val own = Regex("(?<![\\w.])anchor\\.(forward|up|left)\\b")
-        fun bound(source: String): String = own.replace(source) { "axis(${op.anchor.of}, '${it.groupValues[1]}')" }
+        fun bound(source: String): String = op.anchor?.let { a -> own.replace(source) { "axis(${a.of}, '${it.groupValues[1]}')" } } ?: source
         val baseExtra: Val<Double> = when (val e = op.extra) {
             is Value.Literal -> Val.Known(e.value)
             is Value.ParamRef -> Val.Live(e.name, null)
@@ -176,9 +186,12 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
         }
         val offset = PointTau.vector(baseOffset, op.motion, "offset", tau) ?: return unknown("offset")
         val extra = PointTau.scalar(baseExtra, op.motion, "extra", tau) ?: return unknown("extra")
-        val placedAll = when (val r = ParticlePlacement.placeAll("particle", lc, op.anchor, op.shift)) {
-            is Result.Success -> r.value
-            is Result.Failure -> return r
+        val placedAll = when (val frame = op.frame) {
+            null -> when (val r = ParticlePlacement.placeAll("particle", lc, op.anchor!!, op.shift)) {
+                is Result.Success -> r.value
+                is Result.Failure -> return r
+            }
+            else -> frame.points().map { ParticlePlacement.Placed(it, null, null) }
         }
 
         var target: Val<Vector3d>? = null
@@ -278,9 +291,10 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
                     }
                     return Result.Success(Val.Known(Vector3d(sizes[0], sizes[0], sizes[0])))
                 }
-                val frame = when (val b = ParticlePlacement.base(lc, op.anchor.of, "particle")) {
+                val anchor = op.anchor ?: return invalid("a frame-axis offset {forward, up, left} needs anchor:; with frame: write a world vec")
+                val frame = when (val b = ParticlePlacement.base(lc, anchor.of, "particle")) {
                     is Result.Failure -> return b
-                    is Result.Success -> b.value ?: return invalid("anchor '${op.anchor.of}' is not declared in this scope")
+                    is Result.Success -> b.value ?: return invalid("anchor '${anchor.of}' is not declared in this scope")
                 }
                 val terms = axes.mapNotNull { (axis, c) ->
                     val src = ParticlePlacement.componentSource(c) ?: return invalid("a \${param} in offset.$axis was not substituted before lowering")

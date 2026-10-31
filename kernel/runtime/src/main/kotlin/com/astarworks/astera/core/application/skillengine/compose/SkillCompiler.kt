@@ -160,6 +160,7 @@ public class SkillCompiler(
             is Result.Failure -> return r
             is Result.Success -> Unit
         }
+        FrameRefCheck.run(def, table)?.let { return Result.Failure(it) }
         val skill = CompiledSkill(def, table, emptySet(), emptySet())
         val traces = config.casterEye.poses.map { it to com.astarworks.astera.core.application.skillengine.compose.drycast.DryCast.run(skill, it, config, clutter) }
         CasterEyeClutterCheck.run(traces, config.casterEye, clutter)?.let { return Result.Failure(withSkill(it, def.id)) }
@@ -233,6 +234,7 @@ public class SkillCompiler(
         private val decoder = OpListDecoder(specs)
         private val grammar = GrammarContext(original.id, null, exprs, V3Bindings.spec(DEEP, ExprEnvSpec(variables = ANCHOR_AXES.associate { "anchor.$it" to ExprType.VEC3 }, frames = flat.anchors.map { it.id }.toSet() + flat.framesIn.keys + com.astarworks.astera.core.application.skillengine.load.grammar.ExprFrames.ofMachine(flat.machine))),
             paramDefaults = loadTimeDefaults(original.params),
+            lines = original.lines.associateBy { it.id },
             partAxes = flat.item?.takeIf { it != "any" }?.let { item -> { part -> frames.item(item)?.partFor(part)?.axes } },
             partConstants = com.astarworks.astera.core.application.skillengine.load.grammar.PartConstants.of(
                 com.astarworks.astera.core.application.skillengine.load.grammar.ExprFrames.partsOf(flat.machine),

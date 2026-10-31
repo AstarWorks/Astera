@@ -170,6 +170,9 @@ abstract class SkillEngineScenario {
     /** What a `summon` row resolves its skill id to (ADR-0313); empty unless a scenario sets it, as the platform does from the skill catalog. */
     protected var summonSkills: (String) -> CompiledSkill? = { null }
 
+    /** The [TablePlayer] the last [play] ran on (its counters, e.g. [TablePlayer.frameEvaluations], are read after the run). */
+    protected var lastPlayer: TablePlayer? = null
+
     /** Runs the skill through the real [TablePlayer] on a fresh [GatewayRecorder]; ticks default to the table's longest path plus 2. */
     fun play(skill: CompiledSkill, seed: Long, events: List<RuntimeEvent> = emptyList(), ticks: Int? = null): List<RecordedCall> =
         play(skill, seed, events, ticks, GatewayRecorder())
@@ -178,6 +181,7 @@ abstract class SkillEngineScenario {
         rec.casterYawDeg = yawDeg
         rec.casterPitchDeg = pitchDeg
         val player = TablePlayer(rec.visual, rec.particles, rec.sounds, rec.gameplay, rec.query, rec.live, rec, rec.movement, rec.items, rec.world)
+        lastPlayer = player
         player.hooks = rec.hooks
         player.summonSkills = summonSkills
         rec.castItem = skill.def.item
@@ -242,7 +246,8 @@ abstract class SkillEngineScenario {
             when (val a = row.action) {
                 is Action.Spawn -> if (a.kind != SpawnKind.FRAME && a.kind != SpawnKind.PROJECTILE_BODY) {
                     ordinals[id] = ordinals.size
-                    if (a.anchor?.text in bodyOps) riderOps += id
+                    // a display on a projectile body or on a frame (ADR-0314) is a rider: its follow writes are the engine's, not the table's
+                    if (a.anchor?.text in bodyOps || a.anchorName.startsWith("frame:")) riderOps += id
                     out += tick to RecordedCall(tick, "spawn", "#${ordinals.getValue(id)}", "kind=${a.kind.name.lowercase()}")
                 }
                 // a screen veil is an instance-lived quad per viewer; the sim's only viewer is the caster

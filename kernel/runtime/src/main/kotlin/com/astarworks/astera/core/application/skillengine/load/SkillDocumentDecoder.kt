@@ -122,6 +122,8 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
         val framesIn = stringMap(boot, tree["frames_in"], "frames_in")
         val emits = stringList(boot, tree["emits"], "emits")
         val anchors = anchors(boot, tree["anchors"])
+        val frames = FrameDeclDecoder.read(boot, tree["frames"], anchors.map { it.id }.toSet())
+        val lines = FrameDeclDecoder.readLines(boot, tree["lines"], frames.map { it.id }.toSet())
         val docEnv = ExprEnvSpec(
             env.exprEnv.variables + params.mapValues { (_, p) ->
                 when (p.type) {
@@ -132,7 +134,10 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
             },
             (env.exprEnv.frames + anchors.map { it.id } + framesIn.keys + ExprFrames.ofRaw(tree["machine"])),
         )
-        val ctx = GrammarContext(file, null, exprs, docEnv, paramDefaults = loadTimeDefaults(params), partConstants = PartConstants.standIn(ExprFrames.partsOfRaw(tree["machine"])))
+        val ctx = GrammarContext(
+            file, null, exprs, docEnv, paramDefaults = loadTimeDefaults(params), partConstants = PartConstants.standIn(ExprFrames.partsOfRaw(tree["machine"])),
+            lines = lines.associateBy { it.id },
+        )
         val conditions = LinkedHashMap<String, String>()
         for ((name, raw) in mapAt(boot, tree["conditions"], "conditions")) {
             val src = raw as? String ?: boot.mismatch("conditions.$name", "'= expr'", raw)
@@ -150,7 +155,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
         val machine = machine(ctx, tree)
         return SkillDef(
             id = id, item = item, importance = importance, meta = meta,
-            params = params, framesIn = framesIn, emits = emits, anchors = anchors, conditions = conditions, fragments = fragments, machine = machine,
+            params = params, framesIn = framesIn, emits = emits, anchors = anchors, frames = frames, lines = lines, conditions = conditions, fragments = fragments, machine = machine,
         )
     }
 
@@ -326,7 +331,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
     private companion object {
         const val MAX_RAY_BLOCKS: Double = 32.0
         val TOP_KEYS = setOf(
-            "apiVersion", "kind", "id", "item", "importance", "meta", "params", "frames_in", "emits", "anchors", "conditions", "fragments", "machine",
+            "apiVersion", "kind", "id", "item", "importance", "meta", "params", "frames_in", "emits", "anchors", "frames", "lines", "conditions", "fragments", "machine",
         )
         val META_KEYS = setOf("name", "description", "cooldown_ticks", "resource_type", "resource_cost", "ego_cost", "reload_ticks", "ready_cue", "tags")
         val STATE_KEYS = setOf("for", "then", "final", "enter", "do", "exit", "on", "use", "with", "frames", "start", "states", "parallel")

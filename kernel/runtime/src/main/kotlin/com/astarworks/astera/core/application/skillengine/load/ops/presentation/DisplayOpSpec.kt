@@ -13,6 +13,8 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRef
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
 import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVec
 import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVecs
 import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
@@ -43,7 +45,9 @@ import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
 import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.geometry.math.Basis
 import com.astarworks.astera.core.domain.geometry.math.Frame
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.FrameLocal
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEnv
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEvalException
 import com.astarworks.astera.core.application.skillengine.load.ops.OccurrenceBake
@@ -85,7 +89,11 @@ public class DisplayOp(
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val kind: DisplayKind,
-    public val anchor: String,
+    /** Anchor name, or null when [frame] places the display (ADR-0314). */
+    public val anchor: String?,
+    public val frame: FrameRef?,
+    /** `plane: [a, b]` of a frame-placed display (ADR-0314): the plate's width axis and height axis, in the frame's local space; null = the plate faces `v`. */
+    public val plane: Pair<Vec3, Vec3>?,
     public val offset: FrameVec?,
     /** Item model id, block id, sprite id, or text (by [kind]). */
     public val subject: Value<String>,
@@ -157,8 +165,9 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     }
 
     private val kindF = Field.required("kind", Types.enumOf("item", "block", "text", "sprite"), "item | block | text | sprite")
-    private val anchorF = Field.required("anchor", Types.id, "anchor name; the entity LOCATION is the anchor's world origin plus offset (2.3)")
+    private val anchorF = Field.optional("anchor", Types.nullable(Types.id), null, "anchor name; the entity LOCATION is the anchor's world origin plus offset (2.3). Or frame: + pos: (ADR-0314)")
     private val offsetF = Field.optional("offset", Types.nullable(FrameVecs.type), null, "{forward, up, left} in the anchor's axes, folded into the entity location; absent = none")
+    private val planeF = Field.optional("plane", Types.nullable(Types.list(Types.id)), null, "with frame: [a, b] of v|w|s (optionally '-'): the plate's width runs along a and its height along b (ADR-0314); absent = the plate faces v")
 
     // item
     private val itemF = Field.optional("item", Types.nullable(Types.idValue), null, "kind item: item_model id (main_hand = the held item's model, resolved at cast start); under times a per-index list or '= CEL' over i")
@@ -234,7 +243,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     )
 
     override val fields: Fields = Fields.of(
-        "display", kindF, anchorF, offsetF,
+        "display", kindF, anchorF, FrameRefs.FRAME, FrameRefs.POS, offsetF, planeF,
         itemF, partF, contextF, shaderEffectF, blockF,
         textF, backgroundF, alignmentF, lineWidthF, textOpacityF, seeThroughF, shadowF,
         spriteF, sizeF, pivotF, flipbookF, colorF,
@@ -358,8 +367,20 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             }
             val viewRange = foldNum(values[viewRangeF], ctx).also { checkPositive(it, "$p.view_range", ctx) }
 
+            val frame = FrameRefs.read(values, ctx, p, anchorGiven = values[anchorF] != null)
+            if (frame == null && values[anchorF] == null) ctx.fail("$p.anchor", "display needs anchor: <name> or frame: <id>")
+            if (frame != null && values[offsetF] != null) ctx.fail("$p.offset", "offset is an anchor-axes displacement; with frame: write the point as pos: {v, w, s}")
+            val plane = values[planeF]?.let { names ->
+                if (frame == null) ctx.fail("$p.plane", "plane: places a plate by a frame's axes; it needs frame: <id>")
+                if (billboard != "fixed") ctx.fail("$p.plane", "a billboard '$billboard' plate faces the camera; plane: has no effect on it (drop one of the two)")
+                if (names.size != 2) ctx.fail("$p.plane", "plane: is [a, b], two of v, w, s (optionally '-' negated), was $names")
+                val a = FrameLocal.axis(names[0]) ?: ctx.fail("$p.plane[0]", "'${names[0]}' is not a frame axis (v, w, s, optionally '-' negated)")
+                val b = FrameLocal.axis(names[1]) ?: ctx.fail("$p.plane[1]", "'${names[1]}' is not a frame axis (v, w, s, optionally '-' negated)")
+                if (names[0].removePrefix("-") == names[1].removePrefix("-")) ctx.fail("$p.plane", "plane: [${names[0]}, ${names[1]}] spans no area; name two different axes")
+                a to b
+            }
             DisplayOp(
-                id, src, whenExpr, foldTiming(t, ctx), kind, values[anchorF], values[offsetF],
+                id, src, whenExpr, foldTiming(t, ctx), kind, values[anchorF], frame, plane, values[offsetF],
                 subject, values[contextF], values[partF], style, size, if (kind == DisplayKind.SPRITE) values[pivotF] else null, color, seeThrough, flipbook,
                 values[translationF], values[rotateF], values[scaleF], values[rightF],
                 foldNum(values[pitchF], ctx), billboard, brightness, viewRange, glow,
@@ -384,17 +405,20 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                     gc.fail("${l.path}", "billboard '${op.billboard}' allows only a roll about the local Z axis (axis forward / back): $why")
                 }
             }
-            AnchorNames.bareFamilyError(lc.anchors, op.anchor, "display '${op.id.value.substringAfterLast('/')}'")?.let { gc.fail("${src.value}.anchor", it) }
+            if (op.anchor != null) AnchorNames.bareFamilyError(lc.anchors, op.anchor, "display '${op.id.value.substringAfterLast('/')}'")?.let { gc.fail("${src.value}.anchor", it) }
             val itemAxes = if (op.kind != DisplayKind.ITEM) null else if (op.part != null) {
                 val skillItem = lc.skills.skill(lc.skillId)?.item
                     ?: gc.fail("${src.value}.part", "part '${op.part}' needs the skill's item to find content/frames/<item>.yaml, but this skill has no item")
                 (lc.frames.item(skillItem)?.partFor(op.part)
                     ?: gc.fail("${src.value}.part", "content/frames/$skillItem.yaml has no part '${op.part}'")).axes
             } else lc.frames.item(literalSubject(op, lc, "item"))?.partFor(null)?.axes
-            val axes = AxisResolver { n -> LocalAxes.axis(n) ?: if (n == "face") FACE else itemAxes?.get(n) }
+            // a frame-placed display (ADR-0314) turns about the frame's own axes v, w, s; the caster-local names (left, up, forward) are not its vocabulary
+            val axes = if (op.frame != null) AxisResolver { n -> FrameLocal.axis(n) } else AxisResolver { n -> LocalAxes.axis(n) ?: if (n == "face") FACE else itemAxes?.get(n) }
             for ((r, f) in listOf(op.rotate to "rotate", op.right to "right")) {
                 if (r is Rotation.Turns) r.turns.forEachIndexed { i, turn ->
                     if (turn.frame != null) gc.fail("${src.value}.$f[$i].axis", "a frame-qualified axis ('${turn.frame}.${turn.axis}') is not supported on a display rotation; use a plain or item axis")
+                    if (op.frame != null && FrameLocal.axis(turn.axis) == null) gc.fail("${src.value}.$f[$i].axis", "a display on frame '${op.frame.frame}' turns about the frame's axes: write axis v, w or s (optionally '-'), not '${turn.axis}'")
+                    if (op.frame == null && FrameLocal.axis(turn.axis) != null) gc.fail("${src.value}.$f[$i].axis", "axis '${turn.axis}' is a frame axis; it needs frame: <id> (an anchored display turns about forward / up / left or an item part axis)")
                 }
             }
             // an angle that is a `= CEL` of constants and this copy's i folds here, so the base rotation is a literal a motion composes onto
@@ -410,7 +434,14 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             fun foldAxis(v: Value<Double>): Value<Double> =
                 (v as? Value.Expr)?.let { (OccurrenceBake.fold(lc, it.source, ExprType.NUM) as? ExprValue.Num)?.let { n -> Value.Literal(n.value) } } ?: v
             val foldedOffset = (op.offset as? FrameVec.Parts)?.let { FrameVec.Parts(foldAxis(it.forward), foldAxis(it.up), foldAxis(it.left)) } ?: op.offset
-            val left = foldedRotate.toValue(gc, "${src.value}.rotate", axes)
+            // plane: [a, b] = the plate's width along a and height along b: local x -> a, local y -> b, so the plate normal is a x b; the turns act on that
+            val planeRot = op.plane?.let { (a, b) -> Basis.facing(a.cross(b), b) }
+            val turned = foldedRotate.toValue(gc, "${src.value}.rotate", axes)
+            val left = when {
+                planeRot == null -> turned
+                turned is Value.Literal -> Value.Literal(turned.value * planeRot)
+                else -> gc.fail("${src.value}.plane", "plane: composes with literal rotate degrees only; this display's rotate is a '= CEL' angle")
+            }
             val right = op.right.toValue(gc, "${src.value}.right", axes)
 
             val end = endTick(op, t, lc)
@@ -421,10 +452,11 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 scale = sprite?.scale ?: vecCell(op.scale, lc),
             )
             // a rider of a MOVING frame skips it (its keys are absolute, so riding the frame's rec would count the frame's laws twice): it spawns on the chain's parent with the chain's base folded in
-            val inChain = lc.anchors.chain(op.anchor)
+            val inChain = op.anchor?.let { lc.anchors.chain(it) }
             val spawnPose = if (inChain != null) PoseCompose.combine(inChain.base, pose) { gc.fail("${src.value}.offset", it) } else pose
-            val spawnParent = if (inChain != null) inChain.parent else anchorInstance(op, lc)
-            val spawnHost = inChain?.parentName ?: AnchorNames.host(lc.anchors, op.anchor)
+            // a frame-placed display (ADR-0314) spawns on no instance: its parent pose is the frame cell, re-read from the frame table every tick
+            val spawnParent = if (inChain != null) inChain.parent else if (op.frame != null) null else anchorInstance(op, lc)
+            val spawnHost = inChain?.parentName ?: op.frame?.cell ?: AnchorNames.host(lc.anchors, op.anchor!!)
             val spawn = Row(0, instance, Action.Spawn(spawnKind(op.kind), spawnParent, spawnHost, spawnPose, look(op, right, sprite, lc)), src)
 
             val rows = ArrayList<Row>()
@@ -445,7 +477,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             val flipRows = op.flipbook?.let { flipbookRows(op, it, instance, end, lc) }.orEmpty()
             rows += flipRows
             // The anchor's own laws ride first: left_rotation = anchor.rot(t) * rider (item 16).
-            val laws = MotionLaws.rider(inChain?.laws ?: lc.anchors.laws(op.anchor), op.motion?.laws(lc.occurrence).orEmpty() + (sprite?.sizeLaws ?: emptyList()), "skill '${lc.skillId}' rider '${op.id.value.substringAfterLast('/')}'") { gc.fail("${src.value}.motion", it) }
+            val laws = MotionLaws.rider(inChain?.laws ?: op.anchor?.let { lc.anchors.laws(it) }.orEmpty(), op.motion?.laws(lc.occurrence).orEmpty() + (sprite?.sizeLaws ?: emptyList()), "skill '${lc.skillId}' rider '${op.id.value.substringAfterLast('/')}'") { gc.fail("${src.value}.motion", it) }
             if (laws.isNotEmpty()) {
                 val moved = LawSegmenter.segments(instance, laws, lc, FADE_FIELD)
                 when (moved) {
@@ -606,7 +638,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     private fun instanceOf(lc: LowerContext): InstanceId = lc.self
 
     /** The anchor as an instance when it names an op of this cast (`ball`); null for a named skill / caster anchor. */
-    private fun anchorInstance(op: DisplayOp, lc: LowerContext): InstanceId? = lc.anchors.resolve(op.anchor)?.instance
+    private fun anchorInstance(op: DisplayOp, lc: LowerContext): InstanceId? = op.anchor?.let { lc.anchors.resolve(it)?.instance }
 
     /** Tick (relative to the occurrence) the instance ends at; null = lives until the cast ends or an `until` event. */
     private fun endTick(op: DisplayOp, t: Timing, lc: LowerContext): Int? {

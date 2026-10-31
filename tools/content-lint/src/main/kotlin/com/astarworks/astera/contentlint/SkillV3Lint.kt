@@ -125,6 +125,7 @@ internal class SkillV3Lint(private val contentDir: Path, private val schemasDir:
                     if (declared != null && declared.isObject && declared.size() > 0) framesIn[id] = declared.fieldNames().asSequence().toSet()
                 }
                 errors += fxReferenceErrors(node, where)
+                errors += decimalErrors(node, where)
                 return@forEachIndexed
             }
             if (kind == null || kind !in KIND_SCHEMAS.keys) {
@@ -161,6 +162,36 @@ internal class SkillV3Lint(private val contentDir: Path, private val schemasDir:
      * `[cue-dropped]`, the player sees and hears nothing). A `"${param}"` id is checked as the document's own string param default
      * (what the loader folds it to); other expressions (`=`, a param without a default) are not checked.
      */
+    /**
+     * ADR-0314: a skill written in the frame grammar (it declares `frames:`) is hand-authored, and a hand-authored placement is a short
+     * coefficient (`pos: {v: 0.5, w: -0.1}`), a whole-degree angle or a 1-2 decimal offset. A number with 3+ decimals under a placement key
+     * (`pos`, `move`, `rotate`, `scale`, `offset`, `shift`, `size`, `from`, `to`) is a plot copied from a tool, not an authored value: it fails, naming
+     * the skill and the field. Skills without `frames:` (the old anchor / offset grammar) are not checked here until they move over.
+     */
+    private fun decimalErrors(root: JsonNode, where: String): List<String> {
+        if (root.get("frames") == null) return emptyList()
+        val skill = root.get("id")?.asText() ?: where
+        val out = mutableListOf<String>()
+        fun check(n: JsonNode, path: String) {
+            when {
+                n.isNumber -> {
+                    val decimals = n.decimalValue().stripTrailingZeros().scale()
+                    if (decimals > MAX_PLACEMENT_DECIMALS) out += "$where: skill '$skill': $path = ${n.asText()} has $decimals decimals; a hand-authored placement has at most $MAX_PLACEMENT_DECIMALS (ADR-0314)"
+                }
+                n.isObject -> n.fieldNames().forEach { k -> check(n.get(k), "$path.$k") }
+                n.isArray -> n.forEachIndexed { i, v -> check(v, "$path[$i]") }
+            }
+        }
+        fun walk(n: JsonNode, path: String) {
+            when {
+                n.isObject -> n.fieldNames().forEach { k -> if (k in PLACEMENT_KEYS) check(n.get(k), "$path.$k") else walk(n.get(k), "$path.$k") }
+                n.isArray -> n.forEachIndexed { i, v -> walk(v, "$path[$i]") }
+            }
+        }
+        walk(root, "")
+        return out
+    }
+
     private fun fxReferenceErrors(root: JsonNode, where: String): List<String> {
         val out = mutableListOf<String>()
         val params = root.get("params")
@@ -231,6 +262,9 @@ internal class SkillV3Lint(private val contentDir: Path, private val schemasDir:
         /** Clips the player animation gateway plays without a content/animations file. */
         private val POSE_ONLY_ANIMATIONS = setOf("crouch", "hide-main-hand", "swing-main-hand")
         private val PARAM_REF = Regex("""^\$\{([A-Za-z_][A-Za-z0-9_]*)}$""")
+        /** ADR-0314: placement keys a frame-grammar skill writes by hand, and the most decimals one of their numbers may carry. */
+        private val PLACEMENT_KEYS = setOf("pos", "move", "rotate", "scale", "offset", "shift", "size", "from", "to")
+        private const val MAX_PLACEMENT_DECIMALS = 2
         private val ID_LINE = Regex("(?m)^id:\\s*[\"']?([^\"'\\s#]+)")
         private val RESOURCE_KEY_LINE = Regex("(?m)^resource_key:\\s*[\"']?([^\"'\\s#]+)")
         /** `org.bukkit.Particle` constants (Paper 26.3) in the lower-case form content uses. */
