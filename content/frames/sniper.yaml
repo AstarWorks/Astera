@@ -1,0 +1,18 @@
+# Point table for the sniper (ADR-0315: the `gun` frame rig of its skills draws it). Chain as content/frames/revolver.yaml. Flat `handheld` item (1 model unit = 2 px, texture row 0 = model y 16): the gun lies level, the barrel runs to the right; long = root -> tip, edge = the top of the gun.
+# grip = the grip centre, root = where the barrel leaves the frame, tip = the muzzle.
+apiVersion: astera/v3
+kind: ItemFrames
+item: sniper
+parts:
+  held:
+    model: astera:sniper
+    display: fixed
+    length: 0.7085
+    points: { grip: [-0.1094, -0.1094, -0.0000], pivot: [-0.1094, -0.1094, -0.0000], root: [-0.0156, 0.1094, -0.0000], tip: [0.4219, 0.3594, 0.0000] }
+    axes: { long: [0.8682, 0.4961, 0.0000], edge: [-0.4961, 0.8682, -0.0000] }
+  held_hand:
+    model: astera:sniper
+    display: thirdperson_righthand
+    length: 0.6022
+    points: { grip: [0.0000, 0.0000, 0.0000], pivot: [0.0000, 0.0000, 0.0000], root: [-0.0000, 0.1719, 0.1066], tip: [-0.0000, 0.5984, 0.0674], hand_anchor: [-0.0000, 0.1295, 0.0228] }
+    axes: { long: [0.0000, 0.9958, -0.0916], edge: [-0.0000, 0.0916, 0.9958] }
