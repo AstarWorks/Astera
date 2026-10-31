@@ -68,4 +68,7 @@ public interface ISkillTablePlayer {
 
     /** The caster a run belongs to, a summoned run (ADR-0313) included; null for a handle that is not running. */
     public fun ownerOf(cast: CastHandle): UUID?
+
+    /** True for a summoned run the caster's death / quit / swap does not cut (`outlives_caster`); `cancelAll` still cuts it. */
+    public fun outlivesCaster(cast: CastHandle): Boolean
 }

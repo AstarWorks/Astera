@@ -1,4 +1,4 @@
-# sentry-turret: the summoned half of sentry-totem (ADR-0313). It has one frames_in frame, its spawn point, fires three times and is cut by its owner's `life`.
+# sentry-turret: the summoned half of sentry-totem (ADR-0313). It has one frames_in frame, its spawn point, fires three times and is cut by its owner's `life`. An enemy that wears its body down breaks it (`destroyed`): the break state plays and the run ends.
 apiVersion: astera/v3
 kind: Skill
 id: sentry-turret
@@ -14,6 +14,8 @@ machine:
     watch:
       for: 40
       then: end
+      on:
+        - {event: destroyed, to: broken}
       do:
         - id: body
           op: display
@@ -33,4 +35,10 @@ machine:
             - {id: pew, op: sound, sound: "entity.blaze.shoot", anchor: spot, volume: 0.5, pitch: 1.6}
             - {id: spark, op: particle_def, def: hit-spark, anchor: spot}
             - {id: hurt, op: damage, target: {kind: enemies, around: spot, radius: 6.0}, damage: {electric: "${dmg}"}}
+    broken:
+      for: 6
+      then: end
+      do:
+        - {id: crack, op: sound, sound: "entity.generic.explode", anchor: spot, volume: 0.6, pitch: 1.4}
+        - {id: debris, op: particle_def, def: hit-spark, anchor: spot}
     end: {final: true}

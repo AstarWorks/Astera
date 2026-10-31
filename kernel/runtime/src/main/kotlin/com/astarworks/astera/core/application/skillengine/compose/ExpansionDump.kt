@@ -288,7 +288,9 @@ public object ExpansionDump {
         is Action.Status -> listOf("targets" to a.targets, "status" to a.status, "stacks" to a.stacks, "for" to a.forTicks)
         is Action.Effect -> listOf("op" to a.op, "payload" to a.payload)
         is Action.World -> listOf("op" to a.op, "origin" to a.origin, "forward" to a.forward, "payload" to a.payload)
-        is Action.Summon -> listOf("skill" to a.skill, "origin" to a.origin, "forward" to a.forward, "lasts" to a.lasts)
+        is Action.Summon -> listOf("skill" to a.skill, "origin" to a.origin, "forward" to a.forward, "lasts" to a.lasts) +
+            (if (a.outlivesCaster) listOf("outlives_caster" to true) else emptyList()) +
+            (a.body?.let { listOf("body" to "hp=${it.hp} ${it.width}x${it.height}") } ?: emptyList())
         is Action.Lock -> listOf("move" to a.move, "pitch" to a.pitch, "yaw" to a.yaw, "until" to a.until)
         is Action.Pick -> listOf("chain" to a.chain, "hop" to a.hop, "kind" to a.area.kind, "around" to a.area.aroundName, "r" to a.area.radius, "nearest" to 1, "exclude" to "chain")
         is Action.Call -> listOf("callee" to a.callee, "id" to a.callId, "with" to a.with, "frames" to a.frames)

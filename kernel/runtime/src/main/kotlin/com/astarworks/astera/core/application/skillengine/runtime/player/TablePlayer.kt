@@ -131,6 +131,9 @@ private const val RAY_BODY_REACH: Double = 3.0
 /** Live `summon` runs one caster may own at once (ADR-0313); the next one is a counted LIMIT fault. */
 private const val MAX_SUMMONS_PER_CASTER = 8
 
+/** High half of the synthetic id of a summon body: a recognisable, deterministic UUID that is never a real entity's. */
+private const val BODY_ID_MSB = 0x5B0D1E5000000000L
+
 /** Multiplier of the summon seed derivation (a 64-bit LCG constant). */
 private const val SEED_MIX = 6364136223846793005L
 
@@ -147,8 +150,8 @@ public class TablePlayer(
     private val visual: ISkillVisualGateway,
     private val particles: ISkillParticleGateway,
     private val sounds: ISkillSoundGateway,
-    private val gameplay: ISkillGameplayGateway,
-    private val query: ISkillEntityQuery,
+    gameplay: ISkillGameplayGateway,
+    query: ISkillEntityQuery,
     private val live: LiveValueSource,
     private val trace: CastTrace = CastTrace.NONE,
     private val movement: ISkillMovementGateway,
@@ -160,6 +163,15 @@ public class TablePlayer(
     public var config: EngineConfig = EngineConfig()
 
     public var hooks: PlayerHooks = NoHooks
+
+    /** Gives a summon's `body` a presence in the world (Paper: an interaction entity). Default: no entity, the body is visible to the kernel's queries only. */
+    public var bodyGateway: ISkillBodyGateway = NoBodyGateway
+
+    // summon bodies (ADR-0313 rev): every query and damage call of every run goes through these two decorators, so a body is a victim like any other
+    private val bodies = SummonBodies { broken -> onBodyBroken(broken) }
+    private val query: ISkillEntityQuery = bodies.Query(query)
+    private val gameplay: SummonBodies.Gameplay = bodies.Gameplay(gameplay, query)
+    private var nextBody = 1L
 
     private val runs = LinkedHashMap<Long, Run>()
     private val faultLog = ArrayList<PlayerFault>()
@@ -296,6 +308,8 @@ public class TablePlayer(
     override fun live(): List<CastHandle> = runs.values.filter { !it.finalized && !it.finishing }.map { it.cursor.handle }
 
     override fun running(): List<CastHandle> = runs.values.filter { !it.finalized }.map { it.cursor.handle }
+
+    override fun outlivesCaster(cast: CastHandle): Boolean = runs[cast.value]?.takeIf { !it.finalized }?.outlivesCaster == true
 
     override fun ownerOf(cast: CastHandle): UUID? = runs[cast.value]?.takeIf { !it.finalized }?.request?.caster
 
@@ -494,6 +508,7 @@ public class TablePlayer(
         for (l in run.locks.toList()) hooks.unlock(run.request.caster, l.move, l.pitch, l.yaw)
         run.locks.clear()
         run.cursor.subCursors.clear()
+        dropBodiesOf(run)
         run.finalized = true
     }
 
@@ -772,10 +787,48 @@ public class TablePlayer(
         val child = runs.getValue((started as Result.Success).value.value)
         child.summoned = true
         child.expireAt = request.startTick + a.lasts
+        child.outlivesCaster = a.outlivesCaster
+        a.body?.let { spec ->
+            val id = UUID(BODY_ID_MSB, nextBody++)
+            val feet = Vec3(at.x, at.y, at.z)
+            bodies.live[id] = SummonBodyRec(id, child.cursor.handle.value, owner, run.request.world, feet, spec, spec.hp)
+            bodyGateway.spawn(id, run.request.world, feet, spec.width, spec.height)
+        }
         val frame = InstanceId(listOf(InstanceId.Segment(OpId(frameName), null)))
         child.recs[frame] = Rec(SpawnKind.FRAME, null, "world", request.startTick, null, false, PoseV(at, Quaterniond().rotateY(turn), Vector3d(1.0, 1.0, 1.0)))
         live.register(child.cursor.handle, request)
     }
+
+    /** A body ran out of hp: its run hears `destroyed` (an `on: destroyed` state plays its break), and a run with no such handler is cut at once. */
+    private fun onBodyBroken(body: SummonBodyRec) {
+        bodyGateway.remove(body.id)
+        val run = runs[body.run]?.takeIf { !it.finalized } ?: return
+        if (EventPath("destroyed") in run.listened) {
+            run.external.add(RuntimeEvent(EventPath("destroyed"), lastTick, null, null, null))
+        } else {
+            run.expireAt = min(run.expireAt, lastTick)
+        }
+    }
+
+    private fun dropBodiesOf(run: Run) {
+        val mine = bodies.live.values.filter { it.run == run.cursor.handle.value }
+        for (b in mine) {
+            bodies.live.remove(b.id)
+            bodyGateway.remove(b.id)
+        }
+    }
+
+    /**
+     * A hit from outside a skill (a player's melee blow, a vanilla projectile) on the summon body [body]: true when it broke. Allies of the owner change nothing.
+     * False for an id that is not a live body.
+     */
+    public fun damageBody(body: UUID, attacker: UUID, amount: Double): Boolean {
+        val rec = bodies.live[body] ?: return false
+        return gameplay.hit(attacker, rec, amount)
+    }
+
+    /** Whether [id] is a live summon body (the platform's hitbox entity maps back to it). */
+    public fun isBody(id: UUID): Boolean = id in bodies.live
 
     // ------------------------------------------------------------------ cancel
 
@@ -2821,6 +2874,7 @@ public class TablePlayer(
 
         /** A run started by a `summon` row (ADR-0313): [expireAt] is the tick it is cut; [summonSeq] numbers the summons this run made (the seed derivation). */
         var summoned = false
+        var outlivesCaster = false
         var expireAt = Int.MAX_VALUE
         var expired = false
         var summonSeq = 0
