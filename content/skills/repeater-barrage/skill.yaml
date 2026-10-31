@@ -1,4 +1,7 @@
-# repeater-barrage: one heavy bolt. The state lasts exactly the flight (life) and also ends on the body end.
+# repeater-barrage: a heavy volley bolt, in the frame grammar (ADR-0314, ADR-0315). `bow` is rooted in the caster's right hand (the `crossbow-aim` body pose, v = aim, s = right,
+# w = s x v), so the bolt leaves the crossbow's muzzle 0.35 ahead of the hand along the aim, not the head. The hand pose stays the body clip (the crossbow
+# has no 3D model to rig). Cast sound at the hand; the bolt display and trail ride the body; `hit` one per victim at its centre, `blk` one per block
+# contact, v the way the bolt came in; the sparks sit at v -0.2 of them. The state lasts exactly the flight (life) and also ends on the body end.
 apiVersion: astera/v3
 kind: Skill
 id: repeater-barrage
@@ -13,10 +16,26 @@ params:
   dmg:   {type: number, default: 26}
   speed: {type: number, default: 3.4}
   life:  {type: ticks, default: 40}
-anchors:
-  - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.9, left: -0.35, up: -0.5}, mode: snapshot}
-  - {id: heart,  anchor: victim.center, mode: follow}
+frames:
+  - id: bow
+    origin: caster.hand_r
+    v: aim
+    w: s x v
+    s: right
+  - id: hit
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
+  - id: blk
+    on: event.block
+    each: true
+    origin: contact
+    v: incoming
+    w: up
+    s: v x w
 machine:
   start: fire
   tail: 14
@@ -26,13 +45,13 @@ machine:
       then: end
       on:
         - {event: bolt.end, to: end}
-      enter:
-        - {id: fire_fx, use: gun-muzzle, with: {snd: "item.crossbow.shoot", vol: 0.9, pitch: 0.8, smoke: false}, frames: {muzzle: muzzle}}
       do:
         - {id: draw, op: body, target: caster, anim: crossbow-aim, speed: 1.0, at: 0, for: 14, detach: true}
+        - {id: snd, op: sound, at: 0, sound: "item.crossbow.shoot", frame: bow, volume: 0.9, pitch: 0.8}
         - id: bolt
           op: projectile
-          origin: start
+          frame: bow
+          pos: {v: 0.35}
           velocity: "= look(caster) * ${speed}"
           for: "${life}"
           radius: 0.5
@@ -41,12 +60,11 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg}"}}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact, volume: 0.8, pitch: 0.9, detach: true}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", frame: hit, volume: 0.8, pitch: 0.9, detach: true}
+              - {id: fx_hit, op: particle_def, def: hit-spark, frame: hit, pos: {v: -0.2}, detach: true}
             block:
-              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5, detach: true}
-              - {id: fx_blk0, op: particle_def, def: hit-spark, anchor: contact, detach: true}
-        # the visible round, riding the body
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", frame: blk, volume: 0.5, pitch: 1.5, detach: true}
+              - {id: fx_blk, op: particle_def, def: hit-spark, frame: blk, pos: {v: -0.2}, detach: true}
         - {id: slug, op: display, kind: item, item: "minecraft:arrow", context: fixed, anchor: bolt, scale: [0.8, 0.8, 0.8], at: 0, until: bolt.end}
         - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.05, 0.05, 0.05], at: 2, every: 1, until: bolt.end}
         - {id: trail1, op: particle_def, def: smoke-dark, anchor: bolt, at: 2, every: 1, until: bolt.end}
