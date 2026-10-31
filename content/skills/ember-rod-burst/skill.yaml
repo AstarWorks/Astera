@@ -1,4 +1,6 @@
-# ember-rod-burst: a fire nova around the caster, damage falling off with distance. Written from zero on the rev4.10 grammar.
+# ember-rod-burst: a fire nova around the caster, damage falling off with distance, on the frame grammar (ADR-0314).
+# ground - the plate under the caster's feet (v up, w forward, s right): the shock ring, the lifted ring and the four ember puffs (w / s offsets) are drawn on it.
+# Gameplay unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: ember-rod-burst
@@ -14,8 +16,9 @@ params:
   dmg_fire:   {type: number, default: 22.5}
   falloff:    {type: number, default: 0.5}
   burn_ticks: {type: ticks,  default: 20}
-anchors:
-  - {id: ground, anchor: caster, offset: {up: 0.15}, mode: follow}
+frames:
+  - {id: ground, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 0.15}}]}
+  - {id: foe, on: event.victim, each: true, origin: victim.center, v: up, w: forward, s: right}
 machine:
   start: cast
   states:
@@ -23,21 +26,22 @@ machine:
       for: 1
       then: end
       do:
-        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 1.0, pitch: 0.9, at: 0}
-        - {id: flame, op: particle, particle: flame, anchor: ground, count: 0, extra: 0.03, at: 0}
-        - {id: dust, op: particle, particle: dust, anchor: ground, count: 1, color: "#ff6e14", size: 1.4, at: 0}
-        # the shock ring: 24 flames flung outward on the ground plane, two lifted rings behind it; the burst lasts one tick so these are instant rows
-        - {id: ring, op: particle, particle: flame, anchor: ground, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 0.45}
-        - {id: ring_hi, op: particle, particle: lava, anchor: ground, times: 12, at: 0, count: 0, offset: "= vec(0.6 * cos(i * 2 * pi / 12), 0.8, 0.6 * sin(i * 2 * pi / 12))", extra: 0.3}
-        - {id: embers_f, op: particle_def, def: smoke-dark, anchor: {of: ground, offset: {forward: 1.8}}, at: 0}
-        - {id: embers_b, op: particle_def, def: smoke-dark, anchor: {of: ground, offset: {forward: -1.8}}, at: 0}
-        - {id: embers_l, op: particle_def, def: smoke-dark, anchor: {of: ground, offset: {left: 1.8}}, at: 0}
-        - {id: embers_r, op: particle_def, def: smoke-dark, anchor: {of: ground, offset: {left: -1.8}}, at: 0}
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", frame: ground, volume: 1.0, pitch: 0.9, at: 0}
+        - {id: flame, op: particle, particle: flame, frame: ground, count: 0, extra: 0.03, at: 0}
+        - {id: dust, op: particle, particle: dust, frame: ground, count: 1, color: "#ff6e14", size: 1.4, at: 0}
+        # the shock ring: 24 flames flung outward on the ground plane, a lifted ring of 12 lava behind it (instant rows: the burst lasts one tick)
+        - {id: ring, op: particle, particle: flame, frame: ground, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 0.45}
+        - {id: ring_hi, op: particle, particle: lava, frame: ground, times: 12, at: 0, count: 0, offset: "= vec(0.6 * cos(i * 2 * pi / 12), 0.8, 0.6 * sin(i * 2 * pi / 12))", extra: 0.3}
+        - {id: embers_f, op: particle_def, def: smoke-dark, frame: ground, pos: {w: 1.8}, at: 0}
+        - {id: embers_b, op: particle_def, def: smoke-dark, frame: ground, pos: {w: -1.8}, at: 0}
+        - {id: embers_l, op: particle_def, def: smoke-dark, frame: ground, pos: {s: -1.8}, at: 0}
+        - {id: embers_r, op: particle_def, def: smoke-dark, frame: ground, pos: {s: 1.8}, at: 0}
       enter:
         - id: blast
           op: hit
           at: 0
-          anchor: caster
+          frame: ground
+          pos: {v: -0.15}
           shape: {sphere: "${radius}"}
           targets: enemies
           window: once
@@ -45,6 +49,6 @@ machine:
           damage: {fire: "= ${dmg_fire} * (1.0 - ${falloff} * dist(event.victim, caster) / ${radius})"}
           on:
             hit:
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: foe, volume: 0.7, pitch: 1.0}
               - {id: burn, op: status, target: event.victim, status: burn, stacks: 1, for: "${burn_ticks}"}
     end: {final: true}

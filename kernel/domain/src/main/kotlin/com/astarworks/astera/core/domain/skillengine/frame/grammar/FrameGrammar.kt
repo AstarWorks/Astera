@@ -93,11 +93,18 @@ public data class FrameState(val origin: Vec3, val basis: Basis3) {
 
 /** Where the origin of a frame is read from each tick. */
 public sealed interface OriginSpec {
-    /** A caster point: `caster`, `caster.eye`, `caster.hand_r`, `caster.hand_l`, `caster.feet`. */
+    /** A caster point: `caster`, `caster.eye`, `caster.hand_r`, `caster.hand_l`, `caster.shoulder_r`, `caster.shoulder_l`, `caster.feet`. */
     public data class Caster(val point: String) : OriginSpec
 
     /** A live instance of the skill (a projectile body, a frame, a rig). */
     public data class Instance(val name: String) : OriginSpec
+
+    /**
+     * A point of another frame of this skill, `origin: {frame: <id>, pos: {v, w, s}}`: the parent's origin plus [pos] along the parent's axes
+     * this tick. A child of a rotating parent therefore stays [pos]-far from the parent's origin on every tick (an arm frame rooted on the
+     * shoulder, a blade frame at its reach). The parent is evaluated first; a cycle is a load error.
+     */
+    public data class Frame(val frame: String, val pos: Coeff) : OriginSpec
 
     /** The victim the frame is instantiated for (`on: event.victim`); [point] = `center` (default), `eye`, `feet`, `body`. */
     public data class Victim(val point: String) : OriginSpec

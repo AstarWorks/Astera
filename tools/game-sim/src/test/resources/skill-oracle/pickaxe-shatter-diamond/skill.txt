@@ -1,336 +1,200 @@
 ## pose yaw=0 pitch=0
-@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@0 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.021509,0.820391,0.569494,0.046614 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@0 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.021509,0.820391,0.569494,0.046614
-@1 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.021509,0.820391,0.569494,0.046614 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@1 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.021509,0.820391,0.569494,0.046614
-@2 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.037053,0.971743,0.230389,0.035533 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@2 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.037053,0.971743,0.230389,0.035533
-@3 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.044031,0.998646,0.008370,0.026397 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@3 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.044031,0.998646,0.008370,0.026397
-@4 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.045881,0.996479,-0.066285,0.023032 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@0 effect 00000000-0000-0000-0000-000000000001 op=- body=skill-engine-rest-body
+@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=-0.370000,0.880482,0.417804 rot=0.642805,0.000000,0.000000,0.766030 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=windup/rig dur=0 pos=-0.370000,0.880482,0.417804 rot=0.642805,0.000000,0.000000,0.766030 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@0 frame windup/rig op=windup/rig pos=-0.370000,0.950000,0.250000 rot=0.642805,0.000000,0.000000,0.766030
+@1 write #0 op=windup/rig dur=0 pos=-0.347778,1.591115,0.225269 rot=0.164114,0.000000,0.000000,0.986441 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@1 frame windup/rig op=windup/rig pos=-0.347778,1.477778,0.083333 rot=0.164114,0.000000,0.000000,0.986441
+@2 write #0 op=windup/rig dur=0 pos=-0.334444,1.970113,0.029503 rot=-0.154496,0.000000,0.000000,0.987993 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@2 frame windup/rig op=windup/rig pos=-0.334444,1.794444,-0.016667 rot=-0.154496,0.000000,0.000000,0.987993
+@3 write #0 op=windup/rig dur=0 pos=-0.330000,2.081461,-0.042067 rot=-0.258797,0.000000,0.000000,0.965932 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@3 particle - op=windup/trail[0] type=crit count=1 at=-0.330000,2.275877,-0.186808 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1188943385455692072
+@3 particle - op=windup/trail[0] type=crit count=1 at=-0.330000,2.432492,-0.243811 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8838167319895302010
+@3 particle - op=windup/trail[0] type=crit count=1 at=-0.330000,2.589108,-0.300815 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2606434903541131255
+@3 particle - op=windup/trail[0] type=crit count=1 at=-0.330000,2.745723,-0.357818 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3863526387240834989
+@3 frame windup/rig op=windup/rig pos=-0.330000,1.900000,-0.050000 rot=-0.258797,0.000000,0.000000,0.965932
+@4 write #0 op=windup/rig dur=0 pos=-0.330000,1.407867,0.515321 rot=0.562958,0.000000,0.000000,0.826486 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @4 sound - op=cast/snd sound=block.stone.break cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
 @4 sound - op=cast/snd_2 sound=item.trident.hit_ground cat=master vol=0.8 pitch=1 at=0.000000,0.000000,0.000000
 @4 sound - op=cast/snd_3 sound=block.amethyst_cluster.break cat=master vol=0.8 pitch=1 at=0.000000,0.000000,0.000000
-@4 particle - op=cast/spark type=tool-pick-diamond at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3952910227357734279
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.348056,0.834404,0.338290 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5811407057899964072
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.335710,0.943014,0.286722 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2256178676308745132
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.323365,1.051625,0.235153 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5970744055859463225
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.311020,1.160235,0.183584 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8109459806336858497
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.298674,1.268845,0.132015 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3373049453030437577
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.286329,1.377456,0.080447 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4437551317598276061
-@4 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.045881,0.996479,-0.066285,0.023032
-@5 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.066461,0.724168,0.686117,0.020179 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.353969,0.717381,0.355327 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7967778795194611178
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.341626,0.759738,0.467851 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4972286625346216496
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.329284,0.802096,0.580374 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3777632966337847158
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.316941,0.844453,0.692897 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2476447144069348401
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.304598,0.886810,0.805420 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2236732693291685271
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.292255,0.929168,0.917944 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5852786811048559026
-@5 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.066461,0.724168,0.686117,0.020179
-@6 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.057421,0.486638,0.870838,0.039079 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.359759,0.691061,0.315443 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6033629769641101315
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.356056,0.662017,0.432707 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4159317841648342662
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.352353,0.632973,0.549970 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7970502531532483058
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.348650,0.603928,0.667234 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=918543747082344630
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.344947,0.574884,0.784497 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3216898679064883165
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.341244,0.545840,0.901760 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2596912596396983072
-@6 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.057421,0.486638,0.870838,0.039079
-@7 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.055677,0.448526,0.891067,0.041525 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.360386,0.689431,0.308685 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7518055280663364785
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.358108,0.650441,0.423064 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7285627133477889421
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.355830,0.611452,0.537443 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5999326571793579785
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.353553,0.572462,0.651823 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2315552693884019993
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.351275,0.533473,0.766202 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8875461630881321061
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.348997,0.494483,0.880581 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6867159785116339995
-@7 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.055677,0.448526,0.891067,0.041525
-@8 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.000000,0.364847,0.931068,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.351563,0.687307,0.293524 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1606901973237543289
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.351563,0.627993,0.398832 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9114087203232606244
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.351563,0.568680,0.504141 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8251200423000370430
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.351563,0.509366,0.609449 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6818874338187834048
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.351563,0.450052,0.714757 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4691934709286482086
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.351563,0.390738,0.820066 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9104746806517681787
-@8 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.000000,0.364847,0.931068,0.000000
-@9 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.000000,0.306220,0.951961,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.351563,0.687807,0.283494 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7198433744508552861
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.351563,0.615875,0.380622 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5055215322599264674
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.351563,0.543944,0.477750 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3146609386601713647
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.351563,0.472012,0.574878 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4407625256384586807
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.351563,0.400081,0.672006 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-586609174015581004
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.351563,0.328149,0.769134 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7222588453096656817
-@9 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.000000,0.306220,0.951961,0.000000
-@10 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.000000,0.270067,0.962842,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.351563,0.688716,0.277469 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6468602858553400203
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.351563,0.609662,0.368893 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5277863946780655380
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.351563,0.530608,0.460317 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8909951701431969304
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.351563,0.451554,0.551742 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3111650306256646741
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.351563,0.372500,0.643166 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5122166940907496261
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.351563,0.293446,0.734591 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7125523291382235141
-@10 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.000000,0.270067,0.962842,0.000000
-@11 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.000000,0.251349,0.967897,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.351563,0.689359,0.274406 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2690039770930336897
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.351563,0.606820,0.362697 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5957616533229786488
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.351563,0.524281,0.450987 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=522466232576512780
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.351563,0.441742,0.539278 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4683222197684451637
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.351563,0.359203,0.627569 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5558420027875956769
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.351563,0.276664,0.715860 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6495991859994770770
-@11 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.000000,0.251349,0.967897,0.000000
-@12 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.000000,0.244428,0.969667,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@12 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.000000,0.244428,0.969667,0.000000
+@4 particle - op=cast/spark type=tool-pick-diamond at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8356126021663420935
+@4 frame windup/rig op=windup/rig pos=-0.330000,1.442593,0.337037 rot=0.562958,0.000000,0.000000,0.826486
+@5 write #0 op=windup/rig dur=0 pos=-0.330000,1.140550,0.602764 rot=0.792383,0.000000,0.000000,0.610024 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@5 particle - op=windup/trail[1] type=crit count=1 at=-0.330000,1.106199,0.842697 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1793439122801995335
+@5 particle - op=windup/trail[1] type=crit count=1 at=-0.330000,1.036252,0.993975 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-434236050356780901
+@5 particle - op=windup/trail[1] type=crit count=1 at=-0.330000,0.966304,1.145254 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7599060340270772756
+@5 particle - op=windup/trail[1] type=crit count=1 at=-0.330000,0.896356,1.296532 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3416835923098942915
+@5 frame windup/rig op=windup/rig pos=-0.330000,1.274074,0.479630 rot=0.792383,0.000000,0.000000,0.610024
+@6 write #0 op=windup/rig dur=0 pos=-0.330000,1.105894,0.610563 rot=0.819165,0.000000,0.000000,0.573558 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@6 frame windup/rig op=windup/rig pos=-0.330000,1.250000,0.500000 rot=0.819165,0.000000,0.000000,0.573558
+@7 write #0 op=windup/rig dur=0 pos=-0.344074,0.938475,0.561837 rot=0.897240,0.000000,0.000000,0.441543 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@7 particle - op=windup/trail[2] type=crit count=1 at=-0.344074,0.813912,0.769759 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8864116134194570151
+@7 particle - op=windup/trail[2] type=crit count=1 at=-0.344074,0.690851,0.882159 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9007173193859320389
+@7 particle - op=windup/trail[2] type=crit count=1 at=-0.344074,0.567789,0.994558 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5769663005762144676
+@7 particle - op=windup/trail[2] type=crit count=1 at=-0.344074,0.444728,1.106958 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5416116469893342529
+@7 frame windup/rig op=windup/rig pos=-0.344074,1.109259,0.500000 rot=0.897240,0.000000,0.000000,0.441543
+@8 write #0 op=windup/rig dur=0 pos=-0.349259,0.880735,0.542163 rot=0.920766,0.000000,0.000000,0.390115 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@8 frame windup/rig op=windup/rig pos=-0.349259,1.057407,0.500000 rot=0.920766,0.000000,0.000000,0.390115
+@9 write #0 op=windup/rig dur=0 pos=-0.350000,0.872669,0.539303 rot=0.923888,0.000000,0.000000,0.382662 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@9 frame windup/rig op=windup/rig pos=-0.350000,1.050000,0.500000 rot=0.923888,0.000000,0.000000,0.382662
+@10 write #0 op=windup/rig dur=0 pos=-0.355000,0.862093,0.517825 rot=0.871439,0.000000,0.000000,0.490503 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@10 frame windup/rig op=windup/rig pos=-0.355000,1.025000,0.437500 rot=0.871439,0.000000,0.000000,0.490503
+@11 write #0 op=windup/rig dur=0 pos=-0.365000,0.867590,0.458972 rot=0.729880,0.000000,0.000000,0.683575 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@11 frame windup/rig op=windup/rig pos=-0.365000,0.975000,0.312500 rot=0.729880,0.000000,0.000000,0.683575
+@12 write #0 op=windup/rig dur=0 pos=-0.370000,0.880482,0.417804 rot=0.642805,0.000000,0.000000,0.766030 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@12 frame windup/rig op=windup/rig pos=-0.370000,0.950000,0.250000 rot=0.642805,0.000000,0.000000,0.766030
+@12 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=skill-engine-rest-body
 @12 remove #0 op=windup/rig
 g @5 state-exit reason=TIMER | state=cast
 g @5 cast-end | pose
 r @15 run-end tail=10 | pose
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@0 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.160305,0.763205,0.546889,0.304519 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@0 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.160305,0.763205,0.546889,0.304519
-@1 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.160305,0.763205,0.546889,0.304519 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@1 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.160305,0.763205,0.546889,0.304519
-@2 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.037965,0.910252,0.230240,0.342036 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@2 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.037965,0.910252,0.230240,0.342036
-@3 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=0.039100,0.938664,0.021909,0.341908 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@3 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=0.039100,0.938664,0.021909,0.341908
-@4 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=0.064542,0.937676,-0.048302,0.338030 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@0 effect 00000000-0000-0000-0000-000000000001 op=- body=skill-engine-rest-body
+@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=-0.546936,0.880482,0.111002 rot=0.609587,-0.243065,0.203965,0.726444 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=windup/rig dur=0 pos=-0.546936,0.880482,0.111002 rot=0.609587,-0.243065,0.203965,0.726444 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@0 frame windup/rig op=windup/rig pos=-0.445949,0.950000,-0.023013 rot=0.609587,-0.243065,0.203965,0.726444
+@1 write #0 op=windup/rig dur=0 pos=-0.413318,1.591115,-0.029390 rot=0.155633,-0.313002,0.052074,0.935466 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@1 frame windup/rig op=windup/rig pos=-0.327899,1.477778,-0.142745 rot=0.155633,-0.313002,0.052074,0.935466
+@2 write #0 op=windup/rig dur=0 pos=-0.284854,1.970113,-0.177712 rot=-0.146512,-0.313495,-0.049022,0.936938 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@2 frame windup/rig op=windup/rig pos=-0.257069,1.794444,-0.214584 rot=-0.146512,-0.313495,-0.049022,0.936938
+@3 write #0 op=windup/rig dur=0 pos=-0.238233,2.081461,-0.232195 rot=-0.245423,-0.306495,-0.082117,0.916016 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@3 particle - op=windup/trail[0] type=crit count=1 at=-0.151126,2.275877,-0.347791 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1188943385455692072
+@3 particle - op=windup/trail[0] type=crit count=1 at=-0.116820,2.432492,-0.393315 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8838167319895302010
+@3 particle - op=windup/trail[0] type=crit count=1 at=-0.082515,2.589108,-0.438840 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2606434903541131255
+@3 particle - op=windup/trail[0] type=crit count=1 at=-0.048209,2.745723,-0.484365 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3863526387240834989
+@3 frame windup/rig op=windup/rig pos=-0.233459,1.900000,-0.238531 rot=-0.245423,-0.306495,-0.082117,0.916016
+@4 write #0 op=windup/rig dur=0 pos=-0.573678,1.407867,0.212955 rot=0.533866,-0.262248,0.178629,0.783776 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @4 sound - op=cast/snd sound=block.stone.break cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
 @4 sound - op=cast/snd_2 sound=item.trident.hit_ground cat=master vol=0.8 pitch=1 at=0.000000,0.000000,0.000000
 @4 sound - op=cast/snd_3 sound=block.amethyst_cluster.break cat=master vol=0.8 pitch=1 at=0.000000,0.000000,0.000000
-@4 particle - op=cast/spark type=tool-pick-diamond at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3952910227357734279
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.481558,0.834404,0.060705 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5811407057899964072
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.440664,0.943014,0.026950 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2256178676308745132
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.399769,1.051625,-0.006804 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5970744055859463225
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.358875,1.160235,-0.040559 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8109459806336858497
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.317981,1.268845,-0.074314 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3373049453030437577
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.277086,1.377456,-0.108069 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4437551317598276061
-@4 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=0.064542,0.937676,-0.048302,0.338030
-@5 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.154681,0.680343,0.671750,0.248918 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.496534,0.717381,0.070753 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7967778795194611178
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.554395,0.759738,0.168046 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4972286625346216496
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.612255,0.802096,0.265339 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3777632966337847158
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.670116,0.844453,0.362633 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2476447144069348401
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.727977,0.886810,0.459926 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2236732693291685271
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.785838,0.929168,0.557219 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5852786811048559026
-@5 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.154681,0.680343,0.671750,0.248918
-@6 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.221867,0.449090,0.844056,0.191472 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.477155,0.691061,0.035416 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6033629769641101315
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.544769,0.662017,0.131295 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4159317841648342662
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.612382,0.632973,0.227174 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7970502531532483058
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.679995,0.603928,0.323054 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=918543747082344630
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.747609,0.574884,0.418933 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3216898679064883165
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.815222,0.545840,0.514812 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2596912596396983072
-@6 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.221867,0.449090,0.844056,0.191472
-@7 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.229939,0.412172,0.862686,0.181699 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.473588,0.689431,0.029641 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7518055280663364785
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.540604,0.650441,0.122359 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7285627133477889421
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.607620,0.611452,0.215077 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5999326571793579785
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.674636,0.572462,0.307795 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2315552693884019993
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.741652,0.533473,0.400514 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8875461630881321061
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.808668,0.494483,0.493232 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6867159785116339995
-@7 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.229939,0.412172,0.862686,0.181699
-@8 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.295432,0.345993,0.882953,0.115768 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.457417,0.687307,0.022843 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1606901973237543289
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.520794,0.627993,0.106946 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=9114087203232606244
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.584170,0.568680,0.191049 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8251200423000370430
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.647546,0.509366,0.275152 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6818874338187834048
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.710922,0.450052,0.359255 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4691934709286482086
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.774298,0.390738,0.443358 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=9104746806517681787
-@8 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.295432,0.345993,0.882953,0.115768
-@9 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.302062,0.290396,0.902767,0.097165 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.451381,0.687807,0.014833 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7198433744508552861
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.509834,0.615875,0.092403 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5055215322599264674
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.568287,0.543944,0.169972 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3146609386601713647
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.626740,0.472012,0.247542 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4407625256384586807
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.685193,0.400081,0.325112 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-586609174015581004
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.743646,0.328149,0.402682 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7222588453096656817
-@9 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.302062,0.290396,0.902767,0.097165
-@10 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.305514,0.256111,0.913085,0.085693 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.447755,0.688716,0.010021 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6468602858553400203
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.502776,0.609662,0.083035 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5277863946780655380
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.557796,0.530608,0.156050 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8909951701431969304
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.612817,0.451554,0.229065 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3111650306256646741
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.667837,0.372500,0.302080 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5122166940907496261
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.722858,0.293446,0.375094 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7125523291382235141
-@10 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.305514,0.256111,0.913085,0.085693
-@11 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.307118,0.238360,0.917879,0.079754 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.445912,0.689359,0.007574 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2690039770930336897
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.499047,0.606820,0.078087 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5957616533229786488
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.552181,0.524281,0.148599 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=522466232576512780
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.605316,0.441742,0.219111 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4683222197684451637
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.658451,0.359203,0.289623 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5558420027875956769
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.711586,0.276664,0.360136 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6495991859994770770
-@11 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.307118,0.238360,0.917879,0.079754
-@12 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.307680,0.231797,0.919558,0.077558 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@12 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.307680,0.231797,0.919558,0.077558
+@4 particle - op=cast/spark type=tool-pick-diamond at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8356126021663420935
+@4 frame windup/rig op=windup/rig pos=-0.466384,1.442593,0.070571 rot=0.533866,-0.262248,0.178629,0.783776
+@5 write #0 op=windup/rig dur=0 pos=-0.626302,1.140550,0.282790 rot=0.751435,-0.193564,0.251427,0.578501 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@5 particle - op=windup/trail[1] type=crit count=1 at=-0.770698,1.106199,0.474409 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1793439122801995335
+@5 particle - op=windup/trail[1] type=crit count=1 at=-0.861739,1.036252,0.595225 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-434236050356780901
+@5 particle - op=windup/trail[1] type=crit count=1 at=-0.952781,0.966304,0.716041 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7599060340270772756
+@5 particle - op=windup/trail[1] type=crit count=1 at=-1.043822,0.896356,0.836857 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3416835923098942915
+@5 frame windup/rig op=windup/rig pos=-0.552198,1.274074,0.184450 rot=0.751435,-0.193564,0.251427,0.578501
+@6 write #0 op=windup/rig dur=0 pos=-0.630996,1.105894,0.289019 rot=0.776834,-0.181992,0.259925,0.543918 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@6 frame windup/rig op=windup/rig pos=-0.564457,1.250000,0.200719 rot=0.776834,-0.181992,0.259925,0.543918
+@7 write #0 op=windup/rig dur=0 pos=-0.612912,0.938475,0.241634 rot=0.850874,-0.140104,0.284698,0.418726 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@7 particle - op=windup/trail[2] type=crit count=1 at=-0.738042,0.813912,0.407688 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8864116134194570151
+@7 particle - op=windup/trail[2] type=crit count=1 at=-0.805686,0.690851,0.497454 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-9007173193859320389
+@7 particle - op=windup/trail[2] type=crit count=1 at=-0.873330,0.567789,0.587221 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5769663005762144676
+@7 particle - op=windup/trail[2] type=crit count=1 at=-0.940974,0.444728,0.676987 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5416116469893342529
+@7 frame windup/rig op=windup/rig pos=-0.575697,1.109259,0.192249 rot=0.850874,-0.140104,0.284698,0.418726
+@8 write #0 op=windup/rig dur=0 pos=-0.605213,0.880735,0.222801 rot=0.873184,-0.123785,0.292163,0.369955 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@8 frame windup/rig op=windup/rig pos=-0.579838,1.057407,0.189128 rot=0.873184,-0.123785,0.292163,0.369955
+@9 write #0 op=windup/rig dur=0 pos=-0.604083,0.872669,0.220071 rot=0.876145,-0.121420,0.293154,0.362888 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@9 frame windup/rig op=windup/rig pos=-0.580430,1.050000,0.188682 rot=0.876145,-0.121420,0.293154,0.362888
+@10 write #0 op=windup/rig dur=0 pos=-0.595151,0.862093,0.199909 rot=0.826406,-0.155639,0.276512,0.465156 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@10 frame windup/rig op=windup/rig pos=-0.546810,1.025000,0.135759 rot=0.826406,-0.155639,0.276512,0.465156
+@11 write #0 op=windup/rig dur=0 pos=-0.567718,0.867590,0.146889 rot=0.692162,-0.216902,0.231594,0.648251 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@11 frame windup/rig op=windup/rig pos=-0.479569,0.975000,0.029911 rot=0.692162,-0.216902,0.231594,0.648251
+@12 write #0 op=windup/rig dur=0 pos=-0.546936,0.880482,0.111002 rot=0.609587,-0.243065,0.203965,0.726444 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@12 frame windup/rig op=windup/rig pos=-0.445949,0.950000,-0.023013 rot=0.609587,-0.243065,0.203965,0.726444
+@12 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=skill-engine-rest-body
 @12 remove #0 op=windup/rig
 g @5 state-exit reason=TIMER | state=cast
 g @5 cast-end | pose
 r @15 run-end tail=10 | pose
 ## pose-hit yaw=0 pitch=0
-@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@0 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.021509,0.820391,0.569494,0.046614 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@0 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.021509,0.820391,0.569494,0.046614
-@1 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.021509,0.820391,0.569494,0.046614 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@1 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.021509,0.820391,0.569494,0.046614
-@2 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.037053,0.971743,0.230389,0.035533 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@2 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.037053,0.971743,0.230389,0.035533
-@3 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.044031,0.998646,0.008370,0.026397 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@3 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.044031,0.998646,0.008370,0.026397
-@4 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.045881,0.996479,-0.066285,0.023032 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@0 effect 00000000-0000-0000-0000-000000000001 op=- body=skill-engine-rest-body
+@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=-0.370000,0.880482,0.417804 rot=0.642805,0.000000,0.000000,0.766030 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=windup/rig dur=0 pos=-0.370000,0.880482,0.417804 rot=0.642805,0.000000,0.000000,0.766030 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@0 frame windup/rig op=windup/rig pos=-0.370000,0.950000,0.250000 rot=0.642805,0.000000,0.000000,0.766030
+@1 write #0 op=windup/rig dur=0 pos=-0.347778,1.591115,0.225269 rot=0.164114,0.000000,0.000000,0.986441 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@1 frame windup/rig op=windup/rig pos=-0.347778,1.477778,0.083333 rot=0.164114,0.000000,0.000000,0.986441
+@2 write #0 op=windup/rig dur=0 pos=-0.334444,1.970113,0.029503 rot=-0.154496,0.000000,0.000000,0.987993 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@2 frame windup/rig op=windup/rig pos=-0.334444,1.794444,-0.016667 rot=-0.154496,0.000000,0.000000,0.987993
+@3 write #0 op=windup/rig dur=0 pos=-0.330000,2.081461,-0.042067 rot=-0.258797,0.000000,0.000000,0.965932 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@3 particle - op=windup/trail[0] type=crit count=1 at=-0.330000,2.275877,-0.186808 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1188943385455692072
+@3 particle - op=windup/trail[0] type=crit count=1 at=-0.330000,2.432492,-0.243811 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8838167319895302010
+@3 particle - op=windup/trail[0] type=crit count=1 at=-0.330000,2.589108,-0.300815 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2606434903541131255
+@3 particle - op=windup/trail[0] type=crit count=1 at=-0.330000,2.745723,-0.357818 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3863526387240834989
+@3 frame windup/rig op=windup/rig pos=-0.330000,1.900000,-0.050000 rot=-0.258797,0.000000,0.000000,0.965932
+@4 write #0 op=windup/rig dur=0 pos=-0.330000,1.407867,0.515321 rot=0.562958,0.000000,0.000000,0.826486 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @4 sound - op=cast/snd sound=block.stone.break cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
 @4 sound - op=cast/snd_2 sound=item.trident.hit_ground cat=master vol=0.8 pitch=1 at=0.000000,0.000000,0.000000
 @4 sound - op=cast/snd_3 sound=block.amethyst_cluster.break cat=master vol=0.8 pitch=1 at=0.000000,0.000000,0.000000
-@4 particle - op=cast/spark type=tool-pick-diamond at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3952910227357734279
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.348056,0.834404,0.338290 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5811407057899964072
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.335710,0.943014,0.286722 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2256178676308745132
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.323365,1.051625,0.235153 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5970744055859463225
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.311020,1.160235,0.183584 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8109459806336858497
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.298674,1.268845,0.132015 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3373049453030437577
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.286329,1.377456,0.080447 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4437551317598276061
-@4 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.045881,0.996479,-0.066285,0.023032
-@5 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.066461,0.724168,0.686117,0.020179 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.353969,0.717381,0.355327 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7967778795194611178
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.341626,0.759738,0.467851 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4972286625346216496
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.329284,0.802096,0.580374 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3777632966337847158
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.316941,0.844453,0.692897 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2476447144069348401
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.304598,0.886810,0.805420 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2236732693291685271
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.292255,0.929168,0.917944 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5852786811048559026
-@5 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.066461,0.724168,0.686117,0.020179
-@6 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.057421,0.486638,0.870838,0.039079 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.359759,0.691061,0.315443 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6033629769641101315
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.356056,0.662017,0.432707 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4159317841648342662
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.352353,0.632973,0.549970 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7970502531532483058
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.348650,0.603928,0.667234 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=918543747082344630
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.344947,0.574884,0.784497 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3216898679064883165
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.341244,0.545840,0.901760 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2596912596396983072
-@6 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.057421,0.486638,0.870838,0.039079
-@7 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.055677,0.448526,0.891067,0.041525 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.360386,0.689431,0.308685 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7518055280663364785
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.358108,0.650441,0.423064 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7285627133477889421
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.355830,0.611452,0.537443 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5999326571793579785
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.353553,0.572462,0.651823 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2315552693884019993
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.351275,0.533473,0.766202 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8875461630881321061
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.348997,0.494483,0.880581 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6867159785116339995
-@7 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.055677,0.448526,0.891067,0.041525
-@8 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.000000,0.364847,0.931068,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.351563,0.687307,0.293524 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1606901973237543289
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.351563,0.627993,0.398832 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9114087203232606244
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.351563,0.568680,0.504141 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8251200423000370430
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.351563,0.509366,0.609449 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6818874338187834048
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.351563,0.450052,0.714757 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4691934709286482086
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.351563,0.390738,0.820066 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9104746806517681787
-@8 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.000000,0.364847,0.931068,0.000000
-@9 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.000000,0.306220,0.951961,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.351563,0.687807,0.283494 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7198433744508552861
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.351563,0.615875,0.380622 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5055215322599264674
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.351563,0.543944,0.477750 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3146609386601713647
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.351563,0.472012,0.574878 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4407625256384586807
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.351563,0.400081,0.672006 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-586609174015581004
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.351563,0.328149,0.769134 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7222588453096656817
-@9 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.000000,0.306220,0.951961,0.000000
-@10 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.000000,0.270067,0.962842,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.351563,0.688716,0.277469 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6468602858553400203
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.351563,0.609662,0.368893 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5277863946780655380
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.351563,0.530608,0.460317 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8909951701431969304
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.351563,0.451554,0.551742 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3111650306256646741
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.351563,0.372500,0.643166 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5122166940907496261
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.351563,0.293446,0.734591 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7125523291382235141
-@10 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.000000,0.270067,0.962842,0.000000
-@11 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.000000,0.251349,0.967897,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.351563,0.689359,0.274406 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2690039770930336897
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.351563,0.606820,0.362697 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5957616533229786488
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.351563,0.524281,0.450987 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=522466232576512780
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.351563,0.441742,0.539278 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4683222197684451637
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.351563,0.359203,0.627569 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5558420027875956769
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.351563,0.276664,0.715860 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6495991859994770770
-@11 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.000000,0.251349,0.967897,0.000000
-@12 write #0 op=windup/rig dur=0 pos=-0.351563,0.768016,0.292517 rot=0.000000,0.244428,0.969667,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@12 frame windup/rig op=windup/rig pos=-0.351563,0.768016,0.292517 rot=0.000000,0.244428,0.969667,0.000000
+@4 particle - op=cast/spark type=tool-pick-diamond at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8356126021663420935
+@4 frame windup/rig op=windup/rig pos=-0.330000,1.442593,0.337037 rot=0.562958,0.000000,0.000000,0.826486
+@5 write #0 op=windup/rig dur=0 pos=-0.330000,1.140550,0.602764 rot=0.792383,0.000000,0.000000,0.610024 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@5 particle - op=windup/trail[1] type=crit count=1 at=-0.330000,1.106199,0.842697 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1793439122801995335
+@5 particle - op=windup/trail[1] type=crit count=1 at=-0.330000,1.036252,0.993975 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-434236050356780901
+@5 particle - op=windup/trail[1] type=crit count=1 at=-0.330000,0.966304,1.145254 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7599060340270772756
+@5 particle - op=windup/trail[1] type=crit count=1 at=-0.330000,0.896356,1.296532 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3416835923098942915
+@5 frame windup/rig op=windup/rig pos=-0.330000,1.274074,0.479630 rot=0.792383,0.000000,0.000000,0.610024
+@6 write #0 op=windup/rig dur=0 pos=-0.330000,1.105894,0.610563 rot=0.819165,0.000000,0.000000,0.573558 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@6 frame windup/rig op=windup/rig pos=-0.330000,1.250000,0.500000 rot=0.819165,0.000000,0.000000,0.573558
+@7 write #0 op=windup/rig dur=0 pos=-0.344074,0.938475,0.561837 rot=0.897240,0.000000,0.000000,0.441543 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@7 particle - op=windup/trail[2] type=crit count=1 at=-0.344074,0.813912,0.769759 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8864116134194570151
+@7 particle - op=windup/trail[2] type=crit count=1 at=-0.344074,0.690851,0.882159 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9007173193859320389
+@7 particle - op=windup/trail[2] type=crit count=1 at=-0.344074,0.567789,0.994558 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5769663005762144676
+@7 particle - op=windup/trail[2] type=crit count=1 at=-0.344074,0.444728,1.106958 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5416116469893342529
+@7 frame windup/rig op=windup/rig pos=-0.344074,1.109259,0.500000 rot=0.897240,0.000000,0.000000,0.441543
+@8 write #0 op=windup/rig dur=0 pos=-0.349259,0.880735,0.542163 rot=0.920766,0.000000,0.000000,0.390115 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@8 frame windup/rig op=windup/rig pos=-0.349259,1.057407,0.500000 rot=0.920766,0.000000,0.000000,0.390115
+@9 write #0 op=windup/rig dur=0 pos=-0.350000,0.872669,0.539303 rot=0.923888,0.000000,0.000000,0.382662 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@9 frame windup/rig op=windup/rig pos=-0.350000,1.050000,0.500000 rot=0.923888,0.000000,0.000000,0.382662
+@10 write #0 op=windup/rig dur=0 pos=-0.355000,0.862093,0.517825 rot=0.871439,0.000000,0.000000,0.490503 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@10 frame windup/rig op=windup/rig pos=-0.355000,1.025000,0.437500 rot=0.871439,0.000000,0.000000,0.490503
+@11 write #0 op=windup/rig dur=0 pos=-0.365000,0.867590,0.458972 rot=0.729880,0.000000,0.000000,0.683575 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@11 frame windup/rig op=windup/rig pos=-0.365000,0.975000,0.312500 rot=0.729880,0.000000,0.000000,0.683575
+@12 write #0 op=windup/rig dur=0 pos=-0.370000,0.880482,0.417804 rot=0.642805,0.000000,0.000000,0.766030 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@12 frame windup/rig op=windup/rig pos=-0.370000,0.950000,0.250000 rot=0.642805,0.000000,0.000000,0.766030
+@12 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=skill-engine-rest-body
 @12 remove #0 op=windup/rig
 g @4 state-exit reason=TIMER | state=windup
 g @5 state-exit reason=TIMER | state=cast
 g @5 cast-end | pose
 r @15 run-end tail=10 | pose
 ## pose-hit yaw=37 pitch=0
-@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@0 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.160305,0.763205,0.546889,0.304519 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@0 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.160305,0.763205,0.546889,0.304519
-@1 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.160305,0.763205,0.546889,0.304519 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@1 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.160305,0.763205,0.546889,0.304519
-@2 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.037965,0.910252,0.230240,0.342036 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@2 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.037965,0.910252,0.230240,0.342036
-@3 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=0.039100,0.938664,0.021909,0.341908 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@3 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=0.039100,0.938664,0.021909,0.341908
-@4 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=0.064542,0.937676,-0.048302,0.338030 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@0 effect 00000000-0000-0000-0000-000000000001 op=- body=skill-engine-rest-body
+@0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=-0.546936,0.880482,0.111002 rot=0.609587,-0.243065,0.203965,0.726444 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=windup/rig dur=0 pos=-0.546936,0.880482,0.111002 rot=0.609587,-0.243065,0.203965,0.726444 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@0 frame windup/rig op=windup/rig pos=-0.445949,0.950000,-0.023013 rot=0.609587,-0.243065,0.203965,0.726444
+@1 write #0 op=windup/rig dur=0 pos=-0.413318,1.591115,-0.029390 rot=0.155633,-0.313002,0.052074,0.935466 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@1 frame windup/rig op=windup/rig pos=-0.327899,1.477778,-0.142745 rot=0.155633,-0.313002,0.052074,0.935466
+@2 write #0 op=windup/rig dur=0 pos=-0.284854,1.970113,-0.177712 rot=-0.146512,-0.313495,-0.049022,0.936938 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@2 frame windup/rig op=windup/rig pos=-0.257069,1.794444,-0.214584 rot=-0.146512,-0.313495,-0.049022,0.936938
+@3 write #0 op=windup/rig dur=0 pos=-0.238233,2.081461,-0.232195 rot=-0.245423,-0.306495,-0.082117,0.916016 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@3 particle - op=windup/trail[0] type=crit count=1 at=-0.151126,2.275877,-0.347791 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1188943385455692072
+@3 particle - op=windup/trail[0] type=crit count=1 at=-0.116820,2.432492,-0.393315 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8838167319895302010
+@3 particle - op=windup/trail[0] type=crit count=1 at=-0.082515,2.589108,-0.438840 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2606434903541131255
+@3 particle - op=windup/trail[0] type=crit count=1 at=-0.048209,2.745723,-0.484365 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3863526387240834989
+@3 frame windup/rig op=windup/rig pos=-0.233459,1.900000,-0.238531 rot=-0.245423,-0.306495,-0.082117,0.916016
+@4 write #0 op=windup/rig dur=0 pos=-0.573678,1.407867,0.212955 rot=0.533866,-0.262248,0.178629,0.783776 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @4 sound - op=cast/snd sound=block.stone.break cat=master vol=1 pitch=0.6 at=0.000000,0.000000,0.000000
 @4 sound - op=cast/snd_2 sound=item.trident.hit_ground cat=master vol=0.8 pitch=1 at=0.000000,0.000000,0.000000
 @4 sound - op=cast/snd_3 sound=block.amethyst_cluster.break cat=master vol=0.8 pitch=1 at=0.000000,0.000000,0.000000
-@4 particle - op=cast/spark type=tool-pick-diamond at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3952910227357734279
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.481558,0.834404,0.060705 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5811407057899964072
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.440664,0.943014,0.026950 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2256178676308745132
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.399769,1.051625,-0.006804 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5970744055859463225
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.358875,1.160235,-0.040559 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8109459806336858497
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.317981,1.268845,-0.074314 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3373049453030437577
-@4 particle - op=cast/trail/trail[0] type=crit count=1 at=-0.277086,1.377456,-0.108069 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4437551317598276061
-@4 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=0.064542,0.937676,-0.048302,0.338030
-@5 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.154681,0.680343,0.671750,0.248918 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.496534,0.717381,0.070753 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7967778795194611178
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.554395,0.759738,0.168046 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4972286625346216496
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.612255,0.802096,0.265339 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3777632966337847158
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.670116,0.844453,0.362633 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2476447144069348401
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.727977,0.886810,0.459926 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2236732693291685271
-@5 particle - op=cast/trail/trail[1] type=crit count=1 at=-0.785838,0.929168,0.557219 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5852786811048559026
-@5 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.154681,0.680343,0.671750,0.248918
-@6 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.221867,0.449090,0.844056,0.191472 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.477155,0.691061,0.035416 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6033629769641101315
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.544769,0.662017,0.131295 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4159317841648342662
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.612382,0.632973,0.227174 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7970502531532483058
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.679995,0.603928,0.323054 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=918543747082344630
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.747609,0.574884,0.418933 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3216898679064883165
-@6 particle - op=cast/trail/trail[2] type=crit count=1 at=-0.815222,0.545840,0.514812 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2596912596396983072
-@6 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.221867,0.449090,0.844056,0.191472
-@7 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.229939,0.412172,0.862686,0.181699 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.473588,0.689431,0.029641 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7518055280663364785
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.540604,0.650441,0.122359 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7285627133477889421
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.607620,0.611452,0.215077 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5999326571793579785
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.674636,0.572462,0.307795 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2315552693884019993
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.741652,0.533473,0.400514 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8875461630881321061
-@7 particle - op=cast/trail/trail[3] type=crit count=1 at=-0.808668,0.494483,0.493232 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6867159785116339995
-@7 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.229939,0.412172,0.862686,0.181699
-@8 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.295432,0.345993,0.882953,0.115768 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.457417,0.687307,0.022843 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1606901973237543289
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.520794,0.627993,0.106946 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=9114087203232606244
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.584170,0.568680,0.191049 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8251200423000370430
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.647546,0.509366,0.275152 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6818874338187834048
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.710922,0.450052,0.359255 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4691934709286482086
-@8 particle - op=cast/trail/trail[4] type=crit count=1 at=-0.774298,0.390738,0.443358 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=9104746806517681787
-@8 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.295432,0.345993,0.882953,0.115768
-@9 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.302062,0.290396,0.902767,0.097165 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.451381,0.687807,0.014833 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7198433744508552861
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.509834,0.615875,0.092403 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5055215322599264674
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.568287,0.543944,0.169972 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3146609386601713647
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.626740,0.472012,0.247542 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4407625256384586807
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.685193,0.400081,0.325112 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-586609174015581004
-@9 particle - op=cast/trail/trail[5] type=crit count=1 at=-0.743646,0.328149,0.402682 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7222588453096656817
-@9 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.302062,0.290396,0.902767,0.097165
-@10 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.305514,0.256111,0.913085,0.085693 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.447755,0.688716,0.010021 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6468602858553400203
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.502776,0.609662,0.083035 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5277863946780655380
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.557796,0.530608,0.156050 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8909951701431969304
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.612817,0.451554,0.229065 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3111650306256646741
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.667837,0.372500,0.302080 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5122166940907496261
-@10 particle - op=cast/trail/trail[6] type=crit count=1 at=-0.722858,0.293446,0.375094 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7125523291382235141
-@10 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.305514,0.256111,0.913085,0.085693
-@11 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.307118,0.238360,0.917879,0.079754 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.445912,0.689359,0.007574 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2690039770930336897
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.499047,0.606820,0.078087 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5957616533229786488
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.552181,0.524281,0.148599 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=522466232576512780
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.605316,0.441742,0.219111 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4683222197684451637
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.658451,0.359203,0.289623 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5558420027875956769
-@11 particle - op=cast/trail/trail[7] type=crit count=1 at=-0.711586,0.276664,0.360136 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6495991859994770770
-@11 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.307118,0.238360,0.917879,0.079754
-@12 write #0 op=windup/rig dur=0 pos=-0.456811,0.768016,0.022039 rot=-0.307680,0.231797,0.919558,0.077558 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@12 frame windup/rig op=windup/rig pos=-0.456811,0.768016,0.022039 rot=-0.307680,0.231797,0.919558,0.077558
+@4 particle - op=cast/spark type=tool-pick-diamond at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8356126021663420935
+@4 frame windup/rig op=windup/rig pos=-0.466384,1.442593,0.070571 rot=0.533866,-0.262248,0.178629,0.783776
+@5 write #0 op=windup/rig dur=0 pos=-0.626302,1.140550,0.282790 rot=0.751435,-0.193564,0.251427,0.578501 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@5 particle - op=windup/trail[1] type=crit count=1 at=-0.770698,1.106199,0.474409 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1793439122801995335
+@5 particle - op=windup/trail[1] type=crit count=1 at=-0.861739,1.036252,0.595225 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-434236050356780901
+@5 particle - op=windup/trail[1] type=crit count=1 at=-0.952781,0.966304,0.716041 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7599060340270772756
+@5 particle - op=windup/trail[1] type=crit count=1 at=-1.043822,0.896356,0.836857 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3416835923098942915
+@5 frame windup/rig op=windup/rig pos=-0.552198,1.274074,0.184450 rot=0.751435,-0.193564,0.251427,0.578501
+@6 write #0 op=windup/rig dur=0 pos=-0.630996,1.105894,0.289019 rot=0.776834,-0.181992,0.259925,0.543918 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@6 frame windup/rig op=windup/rig pos=-0.564457,1.250000,0.200719 rot=0.776834,-0.181992,0.259925,0.543918
+@7 write #0 op=windup/rig dur=0 pos=-0.612912,0.938475,0.241634 rot=0.850874,-0.140104,0.284698,0.418726 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@7 particle - op=windup/trail[2] type=crit count=1 at=-0.738042,0.813912,0.407688 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8864116134194570151
+@7 particle - op=windup/trail[2] type=crit count=1 at=-0.805686,0.690851,0.497454 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-9007173193859320389
+@7 particle - op=windup/trail[2] type=crit count=1 at=-0.873330,0.567789,0.587221 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5769663005762144676
+@7 particle - op=windup/trail[2] type=crit count=1 at=-0.940974,0.444728,0.676987 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5416116469893342529
+@7 frame windup/rig op=windup/rig pos=-0.575697,1.109259,0.192249 rot=0.850874,-0.140104,0.284698,0.418726
+@8 write #0 op=windup/rig dur=0 pos=-0.605213,0.880735,0.222801 rot=0.873184,-0.123785,0.292163,0.369955 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@8 frame windup/rig op=windup/rig pos=-0.579838,1.057407,0.189128 rot=0.873184,-0.123785,0.292163,0.369955
+@9 write #0 op=windup/rig dur=0 pos=-0.604083,0.872669,0.220071 rot=0.876145,-0.121420,0.293154,0.362888 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@9 frame windup/rig op=windup/rig pos=-0.580430,1.050000,0.188682 rot=0.876145,-0.121420,0.293154,0.362888
+@10 write #0 op=windup/rig dur=0 pos=-0.595151,0.862093,0.199909 rot=0.826406,-0.155639,0.276512,0.465156 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@10 frame windup/rig op=windup/rig pos=-0.546810,1.025000,0.135759 rot=0.826406,-0.155639,0.276512,0.465156
+@11 write #0 op=windup/rig dur=0 pos=-0.567718,0.867590,0.146889 rot=0.692162,-0.216902,0.231594,0.648251 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@11 frame windup/rig op=windup/rig pos=-0.479569,0.975000,0.029911 rot=0.692162,-0.216902,0.231594,0.648251
+@12 write #0 op=windup/rig dur=0 pos=-0.546936,0.880482,0.111002 rot=0.609587,-0.243065,0.203965,0.726444 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@12 frame windup/rig op=windup/rig pos=-0.445949,0.950000,-0.023013 rot=0.609587,-0.243065,0.203965,0.726444
+@12 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=skill-engine-rest-body
 @12 remove #0 op=windup/rig
 g @4 state-exit reason=TIMER | state=windup
 g @5 state-exit reason=TIMER | state=cast

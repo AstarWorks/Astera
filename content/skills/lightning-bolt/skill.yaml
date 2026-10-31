@@ -1,5 +1,7 @@
-# lightning-bolt: a fast bolt that strikes where it lands and paralyzes. Written from zero on the rev4.10 grammar.
-# The landing flash (spark ring + end-rod ring + vanilla fan) is one fragment shared by the hit and the block handler.
+# lightning-bolt: a fast bolt that strikes where it lands and paralyzes, on the frame grammar (ADR-0314).
+#   tip - the staff head on the caster's eye/aim basis (cast puff, sound and the bolt leave it); head - the bolt body (end-rod mesh, sprite core, trail segment 3.0 long);
+#   hit / blk - one frame per victim / block contact: the landing flash (spark, rod, fan, ring-impact rings) is drawn on them; the strike
+#   (lightning visual) keeps the victim anchor, an op without frame support. Gameplay unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: lightning-bolt
@@ -17,19 +19,13 @@ params:
   shock_ticks:        {type: ticks,  default: 30}
   chip_radius:        {type: blocks, default: 1.0}
   chip_damage:        {type: number, default: 25}
+frames:
+  - {id: tip, origin: caster.eye, v: aim, w: s x v, s: right, move: [{at: 0, for: 0, to: {v: 1.3, w: -0.3, s: 0.25}}]}
+  - {id: head, origin: bolt, v: velocity, w: up, s: v x w}
+  - {id: hit, on: event.victim, each: true, origin: victim.center, v: incoming, w: up, s: v x w}
+  - {id: blk, on: event.block, each: true, origin: contact, v: incoming, w: up, s: v x w}
 anchors:
-  - {id: origin, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: muzzle, anchor: caster.eye, offset: {up: -0.2, forward: 1.8}, mode: snapshot}
-  - {id: heart,  anchor: victim.root, offset: {up: 1.0}, mode: follow}
-  - {id: feet,   anchor: victim.root, offset: {up: 0.2}, mode: follow}
-  - {id: sky,    anchor: victim.root, offset: {up: 8.0}, mode: follow}
-fragments:
-  flash:
-    frames_in: {spot: anchor}
-    do:
-      - {id: spark, op: particle, particle: electric_spark, anchor: spot, count: 40, extra: 0.35}
-      - {id: rod, op: particle, particle: electric_spark, anchor: spot, count: 12, extra: 0.25}
-      - {id: fan, op: particle, particle: electric_spark, anchor: spot, count: 0, extra: 0.1}
+  - {id: sky, anchor: victim.root, offset: {up: 8.0}, mode: follow}
 machine:
   start: fly
   tail: 2
@@ -42,7 +38,7 @@ machine:
       enter:
         - id: bolt
           op: projectile
-          origin: origin
+          frame: tip
           velocity: "= look(caster) * ${launch_speed}"
           for: "${max_lifetime_ticks}"
           radius: 0.5
@@ -54,28 +50,36 @@ machine:
               - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}"}
               - {id: lightning, op: lightning, anchor: victim.root, visual_only: true}
               - {id: chip, op: break_area, anchor: contact, shape: {sphere: {radius: "${chip_radius}"}}, tool: none, block_damage: "${chip_damage}", ripple: 29, revert: 200, outside_arena: false}
-              - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", anchor: heart, volume: 0.7, pitch: 1.3, detach: true}
-              - {id: fx_impact, op: particle_def, def: thunder-impact, anchor: heart, detach: true}
+              - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", frame: hit, volume: 0.7, pitch: 1.3, detach: true}
+              - {id: fx_impact, op: particle_def, def: thunder-impact, frame: hit, detach: true}
               - {id: sky_spark, op: particle, particle: electric_spark, anchor: sky, count: 1, detach: true}
               - {id: sky_rod, op: particle, particle: end_rod, anchor: sky, count: 1, detach: true}
-              - {op: use, use: "fragment:flash", frames: {spot: feet}, detach: true}
-              - {op: use, use: ring-impact, with: {particle: electric_spark, pop: electric_spark, pop_count: 8, ring_speed: 0.4, up_speed: 0.32}, frames: {spot: heart}, detach: true}
+              - {id: spark, op: particle, particle: electric_spark, frame: hit, pos: {w: -0.8}, count: 40, extra: 0.35, detach: true}
+              - {id: rod, op: particle, particle: electric_spark, frame: hit, pos: {w: -0.8}, count: 12, extra: 0.25, detach: true}
+              - {id: fan, op: particle, particle: electric_spark, frame: hit, pos: {w: -0.8}, count: 0, extra: 0.1, detach: true}
+              - {id: ring, op: particle, particle: electric_spark, frame: hit, times: 16, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.4, detach: true}
+              - {id: ring_up, op: particle, particle: electric_spark, frame: hit, times: 8, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.32, detach: true}
+              - {id: pop, op: particle, particle: electric_spark, frame: hit, count: 8, offset: [0.15, 0.15, 0.15], extra: 0.12, detach: true}
             block:
               - {id: chip_blk, op: break_area, anchor: contact, shape: {sphere: {radius: "${chip_radius}"}}, tool: none, block_damage: "${chip_damage}", ripple: 29, revert: 200, outside_arena: false}
-              - {id: snd_blk, op: sound, sound: "astera:skills/lightning-impact", anchor: contact, volume: 0.5, pitch: 1.6, detach: true}
-              - {op: use, use: "fragment:flash", frames: {spot: contact}, detach: true}
-              - {op: use, use: ring-impact, with: {particle: electric_spark, pop: electric_spark, pop_count: 8, ring_speed: 0.4, up_speed: 0.32}, frames: {spot: contact}, detach: true}
+              - {id: snd_blk, op: sound, sound: "astera:skills/lightning-impact", frame: blk, volume: 0.5, pitch: 1.6, detach: true}
+              - {id: spark_blk, op: particle, particle: electric_spark, frame: blk, count: 40, extra: 0.35, detach: true}
+              - {id: rod_blk, op: particle, particle: electric_spark, frame: blk, count: 12, extra: 0.25, detach: true}
+              - {id: fan_blk, op: particle, particle: electric_spark, frame: blk, count: 0, extra: 0.1, detach: true}
+              - {id: ring_blk, op: particle, particle: electric_spark, frame: blk, times: 16, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.4, detach: true}
+              - {id: ring_up_blk, op: particle, particle: electric_spark, frame: blk, times: 8, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.32, detach: true}
+              - {id: pop_blk, op: particle, particle: electric_spark, frame: blk, count: 8, offset: [0.15, 0.15, 0.15], extra: 0.12, detach: true}
             expire:
               - {id: fx_exp, op: particle_def, def: thunder-impact-glow, anchor: contact, detach: true}
       do:
-        - {id: mesh, op: display, kind: item, item: minecraft:end_rod, context: none, anchor: bolt, scale: [0.8, 0.8, 0.8], until: bolt.end}
-        - {id: snd_cast, op: sound, sound: "astera:skill/wand/cast", anchor: caster, at: 0, volume: 0.45, pitch: 1.8}
-        - {id: fx_cast, op: particle_def, def: thunder-cast, anchor: muzzle, at: 0}
+        - {id: mesh, op: display, kind: item, item: minecraft:end_rod, context: none, frame: head, scale: [0.8, 0.8, 0.8], until: bolt.end}
+        - {id: snd_cast, op: sound, sound: "astera:skill/wand/cast", frame: tip, at: 0, volume: 0.45, pitch: 1.8}
+        - {id: fx_cast, op: particle_def, def: thunder-cast, frame: tip, at: 0}
         - id: core
           op: display
           kind: sprite
           sprite: thunder-spark
-          anchor: bolt
+          frame: head
           size: [0.9, 0.9]
           color: "#fff6a0"
           billboard: center
@@ -90,8 +94,6 @@ machine:
           every: 1
           until: bolt.end
           do:
-            - {id: tr_spark, op: particle, particle: electric_spark, anchor: {of: bolt, sweep: 0.5}, count: 4, offset: [0.15, 0.15, 0.15], extra: 0.05}
-            - {id: tr_rod, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.5}, count: 1, offset: [0.02, 0.02, 0.02], color: "#fffbd0", size: 0.35}
-            - {id: tr_spark2, op: particle, particle: electric_spark, anchor: {of: bolt, sweep: 0.5}, count: 1}
-            - {id: tr_rod2, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.5}, count: 1, color: "#fffbd0", size: 0.35}
+            - {id: tr_spark, op: particle, particle: electric_spark, frame: head, pos: {v: 0}, to: {v: -3.0}, samples: 4, count: 4, offset: [0.15, 0.15, 0.15], extra: 0.05}
+            - {id: tr_rod, op: particle, particle: dust, frame: head, pos: {v: 0}, to: {v: -3.0}, samples: 4, count: 1, offset: [0.02, 0.02, 0.02], color: "#fffbd0", size: 0.35}
     end: {final: true}

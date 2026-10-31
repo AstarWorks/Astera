@@ -22,6 +22,19 @@ internal object FrameRefCheck {
         // an instance-rooted frame (`origin: bolt`) names an op of this skill that spawns an instance; an id no op spawns would wait forever, so it is a load error
         val spawned = rows.filter { val a = it.action; a is Action.Summon || a is Action.Spawn || (a is Action.Effect && a.spawnsAnchor) }
             .map { it.instance.text.substringAfterLast('/') }.toSet()
+        // a frame-point origin (`origin: {frame, pos}`) names a declared plain frame of this skill, and the chain of parents must not loop
+        val byId = def.frames.associateBy { it.id }
+        for (f in def.frames) {
+            val parent = (f.origin as? com.astarworks.astera.core.domain.skillengine.frame.grammar.OriginSpec.Frame)?.frame ?: continue
+            val target = byId[parent] ?: return SkillDecodeError.UndefinedReference(def.id, "frames.${f.id}.origin", "frame '$parent' (frame '${f.id}': not under frames:)")
+            if (target.perEvent) return SkillDecodeError.UndefinedReference(def.id, "frames.${f.id}.origin", "frame '$parent' (frame '${f.id}': an on: event frame cannot be a parent, it exists per victim / contact)")
+            val seen = linkedSetOf(f.id)
+            var cur: String? = parent
+            while (cur != null) {
+                if (!seen.add(cur)) return SkillDecodeError.UndefinedReference(def.id, "frames.${f.id}.origin", "cycle ${seen.joinToString(" -> ")} -> $cur (frame origins must not loop)")
+                cur = (byId[cur]?.origin as? com.astarworks.astera.core.domain.skillengine.frame.grammar.OriginSpec.Frame)?.frame
+            }
+        }
         for (f in def.frames) {
             val origin = f.origin as? com.astarworks.astera.core.domain.skillengine.frame.grammar.OriginSpec.Instance ?: continue
             if (origin.name !in spawned) {

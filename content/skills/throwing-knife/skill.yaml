@@ -1,6 +1,9 @@
-# throwing-knife: a fast, flat knife; the cast ends when the knife body ends. Rewritten from zero on the rev4.10 grammar (ADR-0303):
-# a visible item display riding the projectile body, the impact as one skill-local fragment, the trail as one rider group.
-# Straight flight on purpose (no gravity): the hit tick is balance. Randomness: none. Visuals need a founder look on skill-compare.
+# throwing-knife: a fast, flat knife, in the frame grammar (ADR-0314 / ADR-0315). The cast ends when the knife body ends. Straight flight
+# on purpose (no gravity): the hit tick is balance. Randomness: none. Gameplay (speed 2.8, 14 physical, 30 ticks, spawn 0.5 ahead of the eye) is unchanged.
+# Frames: `eye` is the caster's eye / aim basis (v = aim, s = right, w = s x v); the knife leaves at v 0.5 (where the old muzzle anchor was)
+# and the throw flash is at v 0.9, w -0.25. There is no `hand` frame / rig: the item has no point table in content/frames (rig needs one), so the arm stays on the vanilla pose. `blade` rides the projectile (v = its velocity, w up): the knife display and
+# its tail (the line `tail`, 1.1 behind the knife, 3 samples) are points of it. `hit` / `blk` are the contact frames, one per victim /
+# per block, v the way the knife came in: the impact sound, hit-spark and fleck sit at v -0.2 on them.
 apiVersion: astera/v3
 kind: Skill
 id: throwing-knife
@@ -10,23 +13,48 @@ params:
   launch_speed: {type: number, default: 2.8}
   dmg_physical: {type: number, default: 14}
   max_lifetime_ticks: {type: ticks, default: 30}
-anchors:
-  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: follow}
-  - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
+frames:
+  - id: eye
+    origin: caster.eye
+    v: aim
+    w: s x v
+    s: right
+  - id: blade
+    origin: bolt
+    v: velocity
+    w: up
+    s: v x w
+  - id: hit
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
+  - id: blk
+    on: event.block
+    each: true
+    origin: contact
+    v: incoming
+    w: up
+    s: v x w
+lines:
+  tail: {frame: blade, from: {v: -1.1}, to: {v: 0}}      # the knife's wake
 machine:
   start: fly
+  tail: 10
   states:
     fly:
       on:
         - {event: bolt.end, to: end}
       do:
-        - {id: snd, op: sound, at: 0, sound: "astera:weapons/sword-swing", anchor: caster, volume: 0.8, pitch: 1.8}
-        - {id: fx, op: particle_def, at: 0, def: stab-spark, anchor: cast_fx}
+        - {id: snd, op: sound, at: 0, sound: "astera:weapons/sword-swing", frame: eye, volume: 0.8, pitch: 1.8}
+        - {id: fx, op: particle_def, at: 0, def: stab-spark, frame: eye, pos: {v: 0.9, w: -0.25}}
         - id: bolt
           op: projectile
           at: 0
-          origin: muzzle
+          frame: eye
+          pos: {v: 0.5}
           velocity: "= look(caster) * ${launch_speed}"
           for: "${max_lifetime_ticks}"
           radius: 0.5
@@ -35,9 +63,13 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
-              - {id: hit_fx, use: strike-impact, with: {snd: "astera:weapons/gun-impact", color: "#e6e6e6"}, frames: {spot: heart}}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", frame: hit, volume: 0.7, pitch: 1.2, detach: true}
+              - {id: spark, op: particle_def, def: hit-spark, frame: hit, pos: {v: -0.2}, detach: true}
+              - {id: fleck, op: particle, particle: dust, frame: hit, pos: {v: -0.2}, count: 4, offset: [0.15, 0.15, 0.15], color: "#e6e6e6", size: 1.0, detach: true}
             block:
-              - {id: block_snd, op: sound, at: 0, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
-              - {id: block_fx, op: particle_def, at: 0, def: hit-spark, anchor: contact.point}
-        - {id: shaft, use: projectile-body, with: {item: "minecraft:iron_sword", scale: 0.5, color: "#e6e6e6"}, frames: {body: bolt}, events: {body_end: bolt.end}}
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", frame: blk, volume: 0.5, pitch: 1.5, detach: true}
+              - {id: spark_blk, op: particle_def, def: hit-spark, frame: blk, pos: {v: -0.2}, detach: true}
+        - {id: shaft, op: display, kind: item, item: "minecraft:iron_sword", context: fixed, frame: blade, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
+        - {id: wake, op: particle, particle: crit, along: tail, samples: 3, count: 1, offset: [0.04, 0.04, 0.04], at: 0, every: 1, until: bolt.end}
+        - {id: dust, op: particle, particle: dust, along: tail, samples: 3, count: 1, color: "#e6e6e6", size: 1.0, at: 0, every: 1, until: bolt.end}
     end: {final: true}
