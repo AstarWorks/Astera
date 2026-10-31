@@ -28,8 +28,10 @@ import com.astarworks.astera.core.domain.skillengine.motion.RateLaw
 import com.astarworks.astera.core.domain.skillengine.motion.RateLawExpander
 import com.astarworks.astera.core.domain.skillengine.motion.SpinRate
 import com.astarworks.astera.core.domain.skillengine.op.TrackKey
+import kotlin.math.atan2
 import kotlin.math.floor
 import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 /**
  * The `motion:` list of a display / anchor (ADR-0303 section 3, SKL-20 E5): rate laws `spin`, `move`, `grow`, `fade` and irregular `keys`,
@@ -62,7 +64,7 @@ import kotlin.math.roundToInt
 public object MotionLaws {
     private const val MAX_KEY_TURN_DEG = 170.0
 
-    private val LAWS = listOf("spin", "move", "orbit", "grow", "fade", "align", "follow", "stretch", "keys")
+    private val LAWS = listOf("spin", "move", "orbit", "grow", "fade", "align", "follow", "stretch", "path", "keys")
 
     private val CLOSED_FORM_ONLY = setOf("orbit", "align", "follow", "stretch")
 
@@ -108,6 +110,9 @@ public object MotionLaws {
     private val keyFields = Fields.of("motion-key", tF, keyOffsetF, keyPoseF, keyScaleF, keyAlphaF, keyColorF, keyEaseF)
     private val keysF = Field.required("keys", Types.list(Types.nested(keyFields)), "irregular choreography only")
 
+    // path (ADR-0313)
+    private val pathPointsF = Field.required("points", Types.list(FrameVecs.type), "the curve's points {forward, up, left} in the parent basis, at least 2 (literal); the first is where the law starts, the last where it ends")
+
     // orbit (ADR-0303 section 3; center is a literal frame-local pivot, see LawSegmenter)
     private val centerF = Field.required("center", FrameVecs.type, "pivot the position rotates about, {forward, up, left} in the parent basis (literal)")
     private val phaseF = Field.optional("phase_deg", Types.number, Value.Literal(0.0), "angle the orbit starts at")
@@ -134,6 +139,7 @@ public object MotionLaws {
         "follow" to (Fields.of("follow-law", lawField("follow")) + window + Fields.of("follow", targetF, stepF)),
         "stretch" to (Fields.of("stretch-law", lawField("stretch")) + window + Fields.of("stretch", baseF, tipF, stretchAxisF, stepF)),
         "fade" to (Fields.of("fade-law", lawField("fade")) + window + Fields.of("fade", fadeStartF, fadeToF, exponentF)),
+        "path" to Fields.of("path-law", lawField("path"), atF, TimingSpec.forSpan, easeF, pathPointsF),
         "keys" to Fields.of("keys-law", lawField("keys"), keysF),
     )
 
@@ -206,6 +212,7 @@ public object MotionLaws {
         val v = spec.read(raw, ctx, path)
         return when (name) {
             "keys" -> keysOf(v, ctx, n, path, order)
+            "path" -> pathOf(v, ctx, n, path, order)
             in CLOSED_FORM_ONLY -> extraOf(name, v, ctx, n, path, order)
             else -> rateOf(name, v, ctx, n, path, order)
         }
@@ -429,6 +436,66 @@ public object MotionLaws {
             out += s
         }
         return out
+    }
+
+    // ------------------------------------------------------------------------------------------ path (ADR-0313)
+
+    /**
+     * `{law: path, points: [...], at, for, ease}`: the position follows a uniform Catmull-Rom spline through the frame-relative [points] (the curve passes
+     * through every point; the end tangents come from reflecting the neighbour, so two points are a straight line) and the forward axis points along the
+     * tangent. `ease` shapes the progress along the curve over the window. It lowers at load to one absolute key per tick (offset + pose), the same table a
+     * `keys` law gives, so the runtime and the segmenter know nothing new; the position at an integer tick is the exact curve point.
+     */
+    private fun pathOf(v: FieldValues, ctx: GrammarContext, n: LawNumbers, path: String, order: Int): Lowered {
+        val from = n.ticks(v[atF], "$path.at")
+        val span = v[TimingSpec.forSpan] ?: ctx.abortMissing(path, "for")
+        val forTicks = when (span) {
+            is Span.Ticks -> n.ticks(span.ticks, "$path.for").also { if (it < 1) ctx.fail("$path.for", "a path runs for at least 1 tick") }
+            Span.UntilCastEnds -> ctx.fail("$path.for", "a path needs a finite window in ticks; 'cast' cannot be lowered to a key table")
+        }
+        val curve = v[easeF]?.let { LawEase.curve(it, ctx, "$path.ease") } ?: { u: Double -> u }
+        val pts = v[pathPointsF].mapIndexed { i, p -> n.frameVec(p, "$path.points[$i]") }
+        if (pts.size < 2) ctx.fail("$path.points", "a path needs at least 2 points (start and end), was ${pts.size}")
+        val m = pts.size
+        fun at(i: Int): Vec3 = when {
+            i < 0 -> pts[0] * 2.0 - pts[1]
+            i >= m -> pts[m - 1] * 2.0 - pts[m - 2]
+            else -> pts[i]
+        }
+        val keys = ArrayList<TrackKey>()
+        val pieces = ArrayList<Piece>()
+        val lawKeys = ArrayList<LawKey>()
+        var heading = Vec3(0.0, 0.0, 1.0) // local x = left, y = up, z = forward; kept when the curve stalls (repeated points)
+        for (j in 0..forTicks) {
+            val progress = curve(j.toDouble() / forTicks).coerceIn(0.0, 1.0)
+            val sPos = progress * (m - 1)
+            val seg = floor(sPos).toInt().coerceAtMost(m - 2)
+            val t = sPos - seg
+            val p0 = at(seg - 1); val p1 = at(seg); val p2 = at(seg + 1); val p3 = at(seg + 2)
+            val pos = (p1 * 2.0 + (p2 - p0) * t + (p0 * 2.0 - p1 * 5.0 + p2 * 4.0 - p3) * (t * t) + (p1 * 3.0 - p0 - p2 * 3.0 + p3) * (t * t * t)) * 0.5
+            val tan = ((p2 - p0) + (p0 * 2.0 - p1 * 5.0 + p2 * 4.0 - p3) * (2.0 * t) + (p1 * 3.0 - p0 - p2 * 3.0 + p3) * (3.0 * t * t)) * 0.5
+            val len = sqrt(tan.x * tan.x + tan.y * tan.y + tan.z * tan.z)
+            if (len > 1e-9) heading = Vec3(tan.x / len, tan.y / len, tan.z / len)
+            val turn = rotationFromForward(heading)
+            val tick = from + j
+            keys += TrackKey(tick, Value.Literal(pos), Value.Literal(turn), null, null)
+            lawKeys += LawKey(tick, pos, turn, null, null, null)
+            pieces += Piece("$path.points", "offset", tick, tick, order, null)
+            pieces += Piece("$path.points", "turn", tick, tick, order, null)
+        }
+        return Lowered(keys, pieces, listOf(KeysMotion(lawKeys, order, path)))
+    }
+
+    /** Rotation vector (axis * degrees) that turns local forward (0, 0, 1) onto the unit [to]; head-on picks the up axis, never a random one. */
+    private fun rotationFromForward(to: Vec3): Vec3 {
+        val cos = to.z.coerceIn(-1.0, 1.0)
+        // forward x to = (-to.y, to.x, 0) in (left, up, forward)
+        val ax = -to.y
+        val ay = to.x
+        val sin = sqrt(ax * ax + ay * ay)
+        if (sin < 1e-9) return if (cos > 0) Vec3(0.0, 0.0, 0.0) else Vec3(0.0, 180.0, 0.0)
+        val deg = Math.toDegrees(atan2(sin, cos))
+        return Vec3(ax / sin * deg, ay / sin * deg, 0.0)
     }
 
     // ------------------------------------------------------------------------------------------ keys

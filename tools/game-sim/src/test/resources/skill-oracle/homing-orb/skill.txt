@@ -1,0 +1,57 @@
+## pose yaw=0 pitch=0
+@0 spawn #0 op=fly/core kind=sprite sprite=flame alpha=1.000000 tint=#a0c8ff seethrough=false pos=0.000000,1.620000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.875000,0.875000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=fly/snd sound=entity.blaze.shoot cat=master vol=0.7 pitch=1.4 at=0.000000,0.000000,0.000000
+@0 frame fly/orb op=fly/orb pos=0.000000,1.620000,1.200000 rot=0.000000,0.000000,0.000000,1.000000
+@1 hit - op=fly/orb at=0.000000,1.550413,1.695134 r=1.000000 shape=capsule a=0.000000,1.620000,1.200000 b=0.000000,1.480827,2.190268 rad=0.500000
+@1 remove #0 op=fly/core
+g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/orb.end
+g @1 dropped reason=owner-exited:fly | sub=fly/orb.hit
+g @1 dropped reason=owner-exited:fly | sub=fly/orb.end
+g @1 cast-end | pose
+r @3 run-end tail=2 | pose
+## pose yaw=37 pitch=-20
+@0 spawn #0 op=fly/core kind=sprite sprite=flame alpha=1.000000 tint=#a0c8ff seethrough=false pos=-0.678625,2.030424,0.900566 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.875000,0.875000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=fly/snd sound=entity.blaze.shoot cat=master vol=0.7 pitch=1.4 at=0.000000,0.000000,0.000000
+@0 frame fly/orb op=fly/orb pos=-0.678625,2.030424,0.900566 rot=-0.164675,-0.312484,-0.055099,0.933916
+@1 hit - op=fly/orb at=-0.972957,2.134380,1.291158 r=1.000000 shape=capsule a=-0.678625,2.030424,0.900566 b=-1.267289,2.238336,1.681750 rad=0.500000
+@1 remove #0 op=fly/core
+g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/orb.end
+g @1 dropped reason=owner-exited:fly | sub=fly/orb.hit
+g @1 dropped reason=owner-exited:fly | sub=fly/orb.end
+g @1 cast-end | pose
+r @3 run-end tail=2 | pose
+## pose-hit yaw=0 pitch=0
+@0 spawn #0 op=fly/core kind=sprite sprite=flame alpha=1.000000 tint=#a0c8ff seethrough=false pos=0.000000,1.620000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.875000,0.875000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=fly/snd sound=entity.blaze.shoot cat=master vol=0.7 pitch=1.4 at=0.000000,0.000000,0.000000
+@0 frame fly/orb op=fly/orb pos=0.000000,1.620000,1.200000 rot=0.000000,0.000000,0.000000,1.000000
+@1 hit - op=fly/orb at=0.000000,1.550413,1.695134 r=1.000000 shape=capsule a=0.000000,1.620000,1.200000 b=0.000000,1.480827,2.190268 rad=0.500000
+@1 particle - op=fly/orb.hit/fx_hit type=hit-spark at=0.000000,1.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2399310534705720609
+@1 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=homing-orb at=0.000000,1.480827,2.200000 ignoreinv=false ignorearmor=false
+@1 remove #0 op=fly/core
+g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/orb.end
+g @1 cast-end | pose
+r @3 run-end tail=2 | pose
+## pose-hit yaw=37 pitch=0
+@0 spawn #0 op=fly/core kind=sprite sprite=flame alpha=1.000000 tint=#a0c8ff seethrough=false pos=-0.722178,1.620000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.875000,0.875000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=fly/snd sound=entity.blaze.shoot cat=master vol=0.7 pitch=1.4 at=0.000000,0.000000,0.000000
+@0 frame fly/orb op=fly/orb pos=-0.722178,1.620000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324
+@1 hit - op=fly/orb at=-1.020157,1.550413,1.353794 r=1.000000 shape=capsule a=-0.722178,1.620000,0.958363 b=-1.318136,1.480827,1.749226 rad=0.500000
+@1 particle - op=fly/orb.hit/fx_hit type=hit-spark at=-1.504538,1.200000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2399310534705720609
+@1 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=homing-orb at=-1.278471,1.490090,1.696589 ignoreinv=false ignorearmor=false
+@1 remove #0 op=fly/core
+g @1 state-exit reason=EVENT | state=fly
+g @1 dropped reason=owner-exited:fly | sub=fly/orb.end
+g @1 cast-end | pose
+r @3 run-end tail=2 | pose
+## gameplay-static
+g @0..50 cast-length | cast
+g @50 state-end then=end final=false | state=fly
+g @0 state-end then=- final=true | state=end
+g.absorbed @1..50 handler max=1 | sub=fly/orb.absorbed
+g.block @1..50 handler max=1 | sub=fly/orb.block
+g.end @1..50 handler max=1 | sub=fly/orb.end
+g.hit @1..50 handler max=1 | sub=fly/orb.hit
+g.hit @0 damage electric=12.000000 | sub=fly/orb.hit

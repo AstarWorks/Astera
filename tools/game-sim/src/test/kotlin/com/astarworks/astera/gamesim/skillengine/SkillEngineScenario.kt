@@ -167,6 +167,9 @@ abstract class SkillEngineScenario {
 
     // ---- player ----------------------------------------------------------------------------------------------------
 
+    /** What a `summon` row resolves its skill id to (ADR-0313); empty unless a scenario sets it, as the platform does from the skill catalog. */
+    protected var summonSkills: (String) -> CompiledSkill? = { null }
+
     /** Runs the skill through the real [TablePlayer] on a fresh [GatewayRecorder]; ticks default to the table's longest path plus 2. */
     fun play(skill: CompiledSkill, seed: Long, events: List<RuntimeEvent> = emptyList(), ticks: Int? = null): List<RecordedCall> =
         play(skill, seed, events, ticks, GatewayRecorder())
@@ -176,6 +179,7 @@ abstract class SkillEngineScenario {
         rec.casterPitchDeg = pitchDeg
         val player = TablePlayer(rec.visual, rec.particles, rec.sounds, rec.gameplay, rec.query, rec.live, rec, rec.movement, rec.items, rec.world)
         player.hooks = rec.hooks
+        player.summonSkills = summonSkills
         rec.castItem = skill.def.item
         val request = CastRequest(
             skill = skill,

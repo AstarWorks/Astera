@@ -27,6 +27,7 @@ import com.astarworks.astera.core.application.skillengine.load.ops.presentation.
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.RibbonOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.SoundOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.CleanseOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.SummonOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ConsumeItemOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ConsumeStatusOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.FreezeOpSpec
@@ -92,5 +93,6 @@ public object SkillEngineSpecs {
         PlaceShapeOpSpec,
         ExplodeOpSpec,
         LightningOpSpec,
+        SummonOpSpec,
     )
 }

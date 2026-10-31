@@ -215,6 +215,7 @@ internal class SimSkillEngine private constructor(
             )
             val hooks = SimPlayerHooks(scheduler, gameplay, live)
             player.config = combat.engineConfig
+            player.summonSkills = { id -> combat.skillCatalog.get(id) }
             player.hooks = hooks
             val engine = SimSkillEngine(sim, scheduler, services.getOrThrow<IDomainEventBus>(), combat, live, movement, hooks, player, ledger, visuals, simSeed)
             applyDamage.incomingInterceptor = engine.interceptor()

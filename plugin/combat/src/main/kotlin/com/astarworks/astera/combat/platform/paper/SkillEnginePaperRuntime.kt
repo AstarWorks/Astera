@@ -186,6 +186,7 @@ internal class SkillEnginePaperRuntime(
         )
         val playerHooks = PaperPlayerHooks(server, scheduler, gameplay, live, visualGateway)
         player.config = wired.engineConfig
+        player.summonSkills = { id -> wired.skillCatalog.get(id) }
         player.hooks = playerHooks
         hooks = playerHooks
         val cast = DefaultCastRunner(player)

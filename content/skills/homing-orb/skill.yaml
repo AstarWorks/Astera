@@ -1,0 +1,53 @@
+# homing-orb: a bolt that bends toward the nearest enemy (ADR-0313 `homing`); with no enemy in reach it flies straight.
+apiVersion: astera/v3
+kind: Skill
+id: homing-orb
+meta:
+  name: {ja: "追尾の宝珠", en: Homing orb}
+  description: {ja: "近くの敵へ曲がって追う光弾。", en: "A bolt that bends toward the nearest enemy."}
+  cooldown_ticks: 40
+  resource_cost: 8
+  tags: [ranged, magic]
+params:
+  speed: {type: number, default: 1.0}
+  dmg:   {type: number, default: 12.0}
+anchors:
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 1.2}, mode: snapshot}
+  - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
+machine:
+  start: fly
+  tail: 2
+  states:
+    fly:
+      for: 50
+      then: end
+      on:
+        - {event: orb.end, to: end}
+      enter:
+        - {id: snd, op: sound, sound: "entity.blaze.shoot", anchor: caster, volume: 0.7, pitch: 1.4}
+      do:
+        - id: orb
+          op: projectile
+          origin: muzzle
+          velocity: "= look(caster) * ${speed}"
+          for: 50
+          radius: 0.5
+          homing: {target: enemy, turn_deg_per_tick: 8, acquire: 14}
+          hit: {targets: enemies, once: true, attach: false}
+          block: {mode: despawn}
+          on:
+            hit:
+              - {id: hurt, op: damage, target: event.victim, damage: {electric: "${dmg}"}}
+              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
+        - id: core
+          op: display
+          kind: sprite
+          sprite: flame
+          anchor: orb
+          size: [0.7, 0.7]
+          color: "#a0c8ff"
+          billboard: center
+          brightness: {block: 15, sky: 15}
+          at: 0
+          for: 50
+    end: {final: true}

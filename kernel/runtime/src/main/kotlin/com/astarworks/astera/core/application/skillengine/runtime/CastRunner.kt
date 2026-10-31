@@ -129,9 +129,10 @@ public class DefaultCastRunner(private val player: ISkillTablePlayer) : CastRunn
 
     /** Every unfinalised run of [caster], including one that only drains handler rows or lingers for its detached tail. */
     private fun ownedRunning(caster: UUID): List<CastHandle> {
-        val running = player.running().toSet()
-        owners.keys.retainAll(running)
-        return owners.filterValues { it == caster }.keys.toList()
+        val running = player.running()
+        owners.keys.retainAll(running.toSet())
+        // a summoned run (ADR-0313) is started by the player, not by this runner, so ownership is asked of the player
+        return running.filter { player.ownerOf(it) == caster }
     }
 
     private fun ownedLive(caster: UUID): List<CastHandle> {

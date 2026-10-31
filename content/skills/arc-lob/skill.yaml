@@ -1,0 +1,40 @@
+# arc-lob: a lobbed shell on a spline path (ADR-0313 `law: path`); the display follows the curve, damage lands where it ends.
+apiVersion: astera/v3
+kind: Skill
+id: arc-lob
+meta:
+  name: {ja: "山なりの一撃", en: Arc lob}
+  description: {ja: "山なりの軌道で落ちる砲弾。", en: "A shell lobbed along a curved path."}
+  cooldown_ticks: 60
+  resource_cost: 10
+  tags: [ranged]
+params:
+  dmg: {type: number, default: 14.0}
+anchors:
+  - {id: hand, anchor: caster.eye, offset: {forward: 0.8, up: -0.3}, mode: snapshot}
+  - {id: land, anchor: caster.feet, offset: {forward: 8}, mode: snapshot}
+machine:
+  start: lob
+  tail: 2
+  states:
+    lob:
+      for: 26
+      then: end
+      enter:
+        - {id: snd, op: sound, sound: "entity.blaze.shoot", anchor: caster, volume: 0.6, pitch: 0.8}
+      do:
+        - id: shell
+          op: display
+          kind: sprite
+          sprite: flame
+          anchor: hand
+          size: [0.8, 0.8]
+          color: "#ffd080"
+          brightness: {block: 15, sky: 15}
+          at: 0
+          for: 24
+          motion:
+            - {law: path, points: [{forward: 0}, {forward: 3, up: 2.5}, {forward: 6, up: 3.5}, {forward: 8, up: -1.2}], at: 0, for: 24, ease: in_out_sine}
+        - {id: boom, op: particle, particle: flame, anchor: land, count: 20, offset: [0.5, 0.2, 0.5], extra: 0.1, at: 23, detach: true}
+        - {id: hurt, op: damage, at: 23, target: {kind: enemies, around: land, radius: 3.0}, damage: {fire: "${dmg}"}}
+    end: {final: true}
