@@ -35,7 +35,7 @@ machine:
         - {event: bolt.end, to: end}
       do:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", frame: tip, volume: 0.8, pitch: 1.2, at: 0}
-        - {id: fx1, op: particle_def, def: fire-cast, frame: tip, at: 0}
+        - {id: fx1, op: particle, particle: flame, frame: tip, at: 0, count: 2, offset: [0.04, 0.04, 0.04]}
         - id: bolt
           op: projectile
           at: 0
