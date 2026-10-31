@@ -1,4 +1,6 @@
-# simple-shoot: a flame-and-ember beam that bursts into a ring where it lands (hit, block or expiry share one fragment).
+# simple-shoot: a flame-and-ember beam that bursts into a ring where it lands (hit, block or expiry share one fragment), in the frame grammar (ADR-0314).
+# `hand` is the firing hand, rooted in the caster's eye / aim basis (v = aim, s = right, w = s x v) at 0.57 ahead, 0.51 below the eye line, 0.30 right:
+# the beam starts 0.40 ahead of it along the aim (it leaves the hand, not the head); the cast burst plays 1.8 ahead, outside the caster-eye clutter limit. The burst lands on the contact point.
 apiVersion: astera/v3
 kind: Skill
 id: simple-shoot
@@ -12,11 +14,18 @@ meta:
 params:
   speed: {type: number, default: 2.0}
   life:  {type: ticks, default: 40}
-  dmg:   {type: number, default: 25.0}
+  dmg:   {type: number, default: 25}
   ember: {type: string, default: "#ff6414"}
+frames:
+  - id: hand
+    origin: caster.eye
+    v: aim
+    w: s x v
+    s: right
+    move:
+      - {at: 0, for: 0, to: {v: 0.57, w: -0.51, s: 0.30}}
 anchors:
   - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: front,  anchor: caster, offset: {forward: 1.2}, mode: follow}
 fragments:
   burst:
     params:
@@ -35,13 +44,14 @@ machine:
       on:
         - {event: beam.end, to: end}
       enter:
-        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster}
-        - {id: cast_flame, op: particle, particle: flame, count: 50, extra: 0.2, anchor: front}
-        - {id: cast_dust, op: particle, particle: dust, count: 20, offset: [0.2, 0.2, 0.2], extra: 0, color: "${ember}", size: 1.6, anchor: front}
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", frame: hand}
+        - {id: cast_flame, op: particle, particle: flame, count: 50, extra: 0.2, frame: hand, pos: {v: 1.8}}
+        - {id: cast_dust, op: particle, particle: dust, count: 20, offset: [0.2, 0.2, 0.2], extra: 0, color: "${ember}", size: 1.6, frame: hand, pos: {v: 1.8}}
       do:
         - id: beam
           op: projectile
-          origin: muzzle
+          frame: hand
+          pos: {v: 0.4}
           velocity: "= look(caster) * ${speed}"
           speed: "${speed}"
           for: "${life}"
