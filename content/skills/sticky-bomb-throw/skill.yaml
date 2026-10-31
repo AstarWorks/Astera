@@ -1,5 +1,11 @@
-# Sticky bomb: a lobbed body that sticks to the first block or enemy it touches and still bursts at the fixed fuse tick after
-# the throw (fuse_ticks = the projectile `for`, fixed at load). One fragment is the blast, called on the body end.
+# Sticky bomb, in the frame grammar (ADR-0314 / ADR-0315): a lobbed body that sticks to the first block or enemy it touches and still bursts at the
+# fixed fuse tick after the throw (fuse_ticks = the projectile `for`, fixed at load). Gameplay (speed 1.2, fuse 60, blast 3.0 blocks / 30 fire,
+# chip 1.0 sphere) is unchanged; the fragment `blast` keeps only its gameplay rows (explode, damage, chip).
+# Frames: `eye` is the caster's eye / aim basis (v = aim, s = right, w = s x v); the bomb leaves at v 0.5 (the old muzzle) and the cast puff is at
+# v 1.8, w -0.25. There is no `hand` frame / rig: the item has no point table in content/frames (rig needs one), so the arm stays on the vanilla pose. `body` rides the bomb (v forward, w up, so it stays valid while the bomb is stuck and its
+# velocity is 0): the slime-ball shell, its smoke and the green ember tail (the line `tail`, 0.4 behind, 2 samples) are points of it.
+# `hit` is one per victim at the victim's centre and `blk` one per block contact at the contact point, v the way the bomb came in: the
+# sticking sound and hit-spark sit on them.
 apiVersion: astera/v3
 kind: Skill
 id: sticky-bomb-throw
@@ -15,10 +21,33 @@ params:
   fuse_ticks:   {type: ticks, default: 60}
   blast_radius: {type: blocks, default: 3.0}
   blast_damage: {type: number, default: 30.0}
-anchors:
-  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: flash,  anchor: caster.eye, offset: {up: -0.25, forward: 1.8}, mode: follow}
-  - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
+frames:
+  - id: eye
+    origin: caster.eye
+    v: aim
+    w: s x v
+    s: right
+  - id: body
+    origin: bolt
+    v: forward
+    w: up
+    s: v x w
+  - id: hit
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
+  - id: blk
+    on: event.block
+    each: true
+    origin: contact
+    v: incoming
+    w: up
+    s: v x w
+lines:
+  tail: {frame: body, from: {v: -0.4}, to: {v: 0}}
 fragments:
   blast:
     params:
@@ -37,11 +66,12 @@ machine:
       for: "= fuse_ticks"
       then: end
       do:
-        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.8, pitch: 0.8, at: 0}
-        - {id: puff, op: particle_def, def: fire-cast, anchor: flash, at: 0}
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", frame: eye, volume: 0.8, pitch: 0.8, at: 0}
+        - {id: puff, op: particle_def, def: fire-cast, frame: eye, pos: {v: 1.8, w: -0.25}, at: 0}
         - id: bolt
           op: projectile
-          origin: muzzle
+          frame: eye
+          pos: {v: 0.5}
           velocity: "= look(caster) * ${launch_speed}"
           for: "${fuse_ticks}"
           gravity: 0.04
@@ -50,14 +80,14 @@ machine:
           block: {mode: stick, fused: true}
           on:
             hit:
-              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact, volume: 0.7, pitch: 1.2, detach: true}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
+              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", frame: hit, volume: 0.7, pitch: 1.2, detach: true}
+              - {id: fx_hit, op: particle_def, def: hit-spark, frame: hit, detach: true}
             block:
-              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5, detach: true}
-              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact, detach: true}
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", frame: blk, volume: 0.5, pitch: 1.5, detach: true}
+              - {id: fx_blk, op: particle_def, def: hit-spark, frame: blk, detach: true}
             end:
               - {op: use, use: "fragment:blast", with: {radius: "${blast_radius}", damage: "${blast_damage}"}, frames: {spot: bolt}}
-        - {id: shell, op: display, kind: item, item: "minecraft:slime_ball", context: fixed, anchor: bolt, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
-        - {id: smoke, op: particle_def, def: smoke-dark, anchor: bolt, at: 2, every: 1, until: bolt.end}
-        - {id: ember, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, color: "#78c850", size: 1.0, at: 2, every: 1, until: bolt.end}
+        - {id: shell, op: display, kind: item, item: "minecraft:slime_ball", context: fixed, frame: body, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
+        - {id: smoke, op: particle_def, def: smoke-dark, frame: body, at: 2, every: 1, until: bolt.end}
+        - {id: ember, op: particle, particle: dust, along: tail, samples: 2, count: 1, color: "#78c850", size: 1.0, at: 2, every: 1, until: bolt.end}
     end: {final: true}

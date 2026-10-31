@@ -1,4 +1,5 @@
-# also bound to items: shotgun
+# backstep, in the frame grammar (ADR-0314). Also bound to items: shotgun. Gameplay (evasive 25 ticks, impulse -1.1 forward and 0.35 up) unchanged.
+# One frame, `feet`: the caster's feet, v forward / w up / s right. The whoosh is a point of it, the dash cloud sits 0.2 above it.
 apiVersion: astera/v3
 kind: Skill
 id: backstep
@@ -13,8 +14,12 @@ params:
   evasive_ticks: {type: ticks, default: 25}
   propel:   {type: number, default: -1.1}
   propel_2: {type: number, default: 0.35}
-anchors:
-  - {id: feet, anchor: caster, offset: {up: 0.2}, mode: follow}
+frames:
+  - id: feet
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
 machine:
   start: cast
   states:
@@ -22,8 +27,8 @@ machine:
       for: 1
       then: end
       do:
-        - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.0}
-        - {id: cloud, op: particle_def, def: dash-cloud, anchor: feet}
+        - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", frame: feet, volume: 1.0, pitch: 1.0}
+        - {id: cloud, op: particle_def, def: dash-cloud, frame: feet, pos: {w: 0.2}}
         - {id: evade, op: status, target: caster, status: evasive, stacks: 1, for: "${evasive_ticks}"}
         - {id: back, op: impulse, at: 0, target: caster, vector: {of: caster, forward: "${propel}"}}
         - {id: lift, op: impulse, at: 0, target: caster, vector: {x: 0, y: "${propel_2}", z: 0}}
