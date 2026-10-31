@@ -1,0 +1,18 @@
+# Point table for the rifle (ADR-0315: the `gun` frame rig of its skills draws it). Chain as content/frames/revolver.yaml. 3D model, held in thirdperson_righthand (rotation 67.5/90/0, scale .75); long = the barrel (model +X), edge = model +Y (the top of the gun).
+# grip = the grip centre, root = where the barrel leaves the frame, tip = the muzzle.
+apiVersion: astera/v3
+kind: ItemFrames
+item: rifle
+parts:
+  held:
+    model: astera:rifle
+    display: fixed
+    length: 1.0471
+    points: { grip: [-0.1551, -0.2685, 0.0923], pivot: [-0.1551, -0.2685, 0.0923], root: [-0.1244, -0.0046, 0.0923], tip: [0.5732, 0.4839, 0.0923] }
+    axes: { long: [0.8192, 0.5736, 0.0000], edge: [-0.5736, 0.8192, -0.0000] }
+  held_hand:
+    model: astera:rifle
+    display: thirdperson_righthand
+    length: 1.1124
+    points: { grip: [0.0000, 0.0000, 0.0000], pivot: [0.0000, 0.0000, 0.0000], root: [0.0000, 0.2539, -0.1231], tip: [-0.0000, 1.0898, 0.2231], hand_anchor: [-0.0000, 0.2673, 0.2122] }
+    axes: { long: [-0.0000, 0.9239, 0.3827], edge: [0.0000, 0.3827, -0.9239] }
