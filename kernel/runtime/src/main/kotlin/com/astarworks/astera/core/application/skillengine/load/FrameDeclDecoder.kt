@@ -39,7 +39,7 @@ import com.astarworks.astera.core.domain.skillengine.frame.grammar.ScaleKey
  */
 internal object FrameDeclDecoder {
     private val KEYS = setOf("id", "origin", "v", "w", "s", "rotate", "move", "scale", "on", "each")
-    private val CASTER_POINTS = setOf("", "eye", "feet", "body", "center", "hand_r", "hand_l")
+    private val CASTER_POINTS = setOf("", "eye", "feet", "body", "center", "hand_r", "hand_l", "shoulder_r", "shoulder_l")
     private val VICTIM_POINTS = setOf("", "eye", "feet", "body", "center")
     private val CROSS = Regex("""^\s*([vws])\s*x\s*([vws])\s*$""")
 
@@ -103,7 +103,13 @@ internal object FrameDeclDecoder {
                 else -> ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "origin"))
             }
         }
-        val s = raw as? String ?: ctx.mismatch("$p.origin", "caster[.point], victim[.point], contact or an instance id", raw)
+        if (raw is Map<*, *>) {
+            if (on != null) ctx.fail("$p.origin", "frame '$id': an on: event frame is rooted on its victim / contact; a frame-point origin is for plain frames")
+            for (key in raw.keys) if (key != "frame" && key != "pos") ctx.abort(SkillDecodeError.UnknownKey(ctx.file, "$p.origin", key.toString(), "expected frame, pos"))
+            val parent = raw["frame"] as? String ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, "$p.origin", "frame"))
+            return OriginSpec.Frame(parent, coeff(ctx, raw["pos"], "$p.origin.pos", Coeff.ZERO))
+        }
+        val s = raw as? String ?: ctx.mismatch("$p.origin", "caster[.point], victim[.point], contact, an instance id or {frame, pos}", raw)
         val base = s.substringBefore('.')
         val point = if ('.' in s) s.substringAfter('.') else ""
         if (perBlock) {
@@ -112,7 +118,7 @@ internal object FrameDeclDecoder {
         }
         return when (base) {
             "caster" -> {
-                if (point !in CASTER_POINTS) ctx.fail("$p.origin", "frame '$id': caster point '$point' is not one of eye, feet, body, center, hand_r, hand_l")
+                if (point !in CASTER_POINTS) ctx.fail("$p.origin", "frame '$id': caster point '$point' is not one of eye, feet, body, center, hand_r, hand_l, shoulder_r, shoulder_l")
                 OriginSpec.Caster(point)
             }
             "victim", "event" -> {
