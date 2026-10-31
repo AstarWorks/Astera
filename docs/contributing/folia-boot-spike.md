@@ -103,7 +103,7 @@ shows what will fail once the scheduler is ported (main sources only):
   `PaperWorldGateway.kt:203,229` (behind the `IMcPlayer` teleport port that every
   match spawn / respawn / travel use case calls), `PaperLobbyRulesListener.kt:51,121`,
   `PaperAdminPlayerGateway.kt:28`, `PaperHologramGateway.kt:363`,
-  `PaperSkinRigAnimator.kt:200,233`, `PaperDisplayEntityGateway.kt:188`,
+  `PaperSkinRigPuppet.kt` (`pose`: every bone display, by design - ADR-0315 drives the puppet synchronously at the engine tick), `PaperDisplayEntityGateway.kt:188`,
   `PaperProjectileService.kt:201`, `PaperEntityCasterBody.kt:34`,
   `PaperSkillPreviewStage.kt:94,101`, `PaperTrainingDummyShells.kt:63`.
   Zero `teleportAsync` uses today.

@@ -184,8 +184,13 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     /** Every display `write` as (tick, handle name, pose): kept out of [calls] so the oracle diff still compares verbs and payloads only. */
     val writtenPoses = ArrayList<Triple<Int, String, VisualPose>>()
     /** [casterPosition] at the moment of each entry of [writtenPoses] (same index): lets a scenario compare a mesh with the caster's pose of that tick. */
-    var lastBodyHolds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold> = emptyList()
     val writtenCasterAt = ArrayList<Vector3d>()
+
+    /** One `poseBody` push of the driven puppet (ADR-0315): the frame and anchor the engine drew the body with at [tick]. */
+    class PushedBody(val tick: Int, val target: UUID, val frame: com.astarworks.astera.core.domain.animation.skinrig.RigFrame, val anchor: com.astarworks.astera.core.domain.animation.skinrig.RigAnchor?)
+
+    /** Every puppet pose pushed, in order; kept out of [calls] like [writtenPoses] so the oracle diff is unchanged by them. */
+    val pushedBody = ArrayList<PushedBody>()
 
     /** Where a guard sees the guarded caster (feet, yaw): null = the origin facing +z. A duel sets it to the victim's pose. */
     var guardCaster: com.astarworks.astera.core.domain.geometry.math.Frame? = null
@@ -431,15 +436,28 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun isPlayer(entity: UUID): Boolean = entity !in mobs
 
-        override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double, holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold>) {
-            lastBodyHolds = holds
+        override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double) {
             seen("gameplay.playBodyClip", cast)
             add("effect", target.toString(), "body=$anim speed=${RecordedCall.num(speed)}")
+        }
+
+        override fun poseBody(cast: CastRef, target: UUID, frame: com.astarworks.astera.core.domain.animation.skinrig.RigFrame, anchor: com.astarworks.astera.core.domain.animation.skinrig.RigAnchor?) {
+            pushedBody += PushedBody(tick, target, frame, anchor)
         }
 
         override fun stopBodyClip(cast: CastRef, target: UUID, anim: String) {
             seen("gameplay.stopBodyClip", cast)
             add("effect", target.toString(), "body_stop=$anim")
+        }
+
+        override fun showBody(cast: CastRef, target: UUID) {
+            seen("gameplay.showBody", cast)
+            add("effect", target.toString(), "body=${com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation.REST_BODY.id}")
+        }
+
+        override fun hideBody(cast: CastRef, target: UUID) {
+            seen("gameplay.hideBody", cast)
+            add("effect", target.toString(), "body_stop=${com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation.REST_BODY.id}")
         }
 
         override fun setHeldModel(cast: CastRef, caster: UUID, model: String) {

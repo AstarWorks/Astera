@@ -104,12 +104,46 @@ public object SkinRigTransforms {
         return parentXf(parent, frame, slim) * localXf(parent, frame, slim, euler(frame.bones.getValue(parent).rotation))
     }
 
-    /** Right-hand grip (the held-item origin) in rig pixels, from the right arm's full chain. */
+    /** The grip relative to the right-arm joint, in bone-local px (the arm at rest hangs along -Y; the grip is 10 px down it). */
+    private fun gripFromJointPx(): Vector3d = Vector3d(HAND_OFFSET).rotateX(Math.toRadians(HELD_GRIP_PITCH))
+
+    /** Right-hand grip (the held-item origin) in rig pixels, from the right arm's full chain (the hand pin included). */
     private fun rightGripPx(frame: RigFrame, slim: Boolean): Vector3d {
         val arm = parentXf(SkinRigBone.RIGHT_ARM, frame, slim) *
-            localXf(SkinRigBone.RIGHT_ARM, frame, slim, euler(frame.bones.getValue(SkinRigBone.RIGHT_ARM).rotation))
+            localXf(SkinRigBone.RIGHT_ARM, frame, slim, rightArmRot(frame, slim))
         // bone space: the joint at its rest pivot, the grip HAND_OFFSET away in the tilted held frame
-        return arm.apply(Vector3d(HAND_OFFSET).rotateX(Math.toRadians(HELD_GRIP_PITCH)).add(vec(SkinRigBone.RIGHT_ARM.rest(slim).pivot)))
+        return arm.apply(gripFromJointPx().add(vec(SkinRigBone.RIGHT_ARM.rest(slim).pivot)))
+    }
+
+    /**
+     * Local rotation of the right arm for this frame: the authored one, or, when [RigFrame.rightHandTarget] is set, the
+     * smallest turn away from the authored rotation that puts the grip on the line from the joint to the target (look-at
+     * IK mirroring [leftArmRot], ADR-0315). The arm is one rigid bone, so the grip lands at grip length along that line;
+     * [rightHandReach] says how far the target itself is from there.
+     */
+    private fun rightArmRot(frame: RigFrame, slim: Boolean): Quaterniond {
+        val authored = euler(frame.bones.getValue(SkinRigBone.RIGHT_ARM).rotation)
+        val target = frame.rightHandTarget ?: return authored
+        val parent = parentXf(SkinRigBone.RIGHT_ARM, frame, slim)
+        val joint = parent.apply(vec(SkinRigBone.RIGHT_ARM.rest(slim).pivot).add(vec(frame.bones.getValue(SkinRigBone.RIGHT_ARM).position)))
+        val dirWorld = Vector3d(target.x, target.y, target.z).div(PX * PLAYER_SCALE).sub(joint)
+        if (dirWorld.lengthSquared() < 1e-9) return authored
+        val dirLocal = dirWorld.normalize().rotate(Quaterniond(parent.rot).invert())
+        val gripAuthored = gripFromJointPx().rotate(authored).normalize()
+        return Quaterniond().rotationTo(gripAuthored, dirLocal).mul(authored)
+    }
+
+    /**
+     * Signed reach error of the right-hand pin, blocks: distance from the joint to [RigFrame.rightHandTarget] minus the
+     * grip length (about 0.60 blocks). Null without a pin. Non-zero means the grip sits on the line to the target but not
+     * on it (the arm cannot stretch or shrink).
+     */
+    public fun rightHandReach(frame: RigFrame, slim: Boolean): Double? {
+        val target = frame.rightHandTarget ?: return null
+        val parent = parentXf(SkinRigBone.RIGHT_ARM, frame, slim)
+        val joint = parent.apply(vec(SkinRigBone.RIGHT_ARM.rest(slim).pivot).add(vec(frame.bones.getValue(SkinRigBone.RIGHT_ARM).position)))
+        val px = PX * PLAYER_SCALE
+        return Vector3d(target.x, target.y, target.z).div(px).sub(joint).length() * px - gripFromJointPx().length() * px
     }
 
     /**
@@ -130,9 +164,12 @@ public object SkinRigTransforms {
         return if (w >= 1.0) aim else Quaterniond(authored).slerp(aim, w)
     }
 
-    /** Local rotation of [bone] in this frame (the left arm may be aimed at the grip, see [leftArmRot]). */
-    private fun boneRot(bone: SkinRigBone, frame: RigFrame, slim: Boolean): Quaterniond =
-        if (bone == SkinRigBone.LEFT_ARM) leftArmRot(frame, slim) else euler(frame.bones.getValue(bone).rotation)
+    /** Local rotation of [bone] in this frame (the right arm may be pinned, the left aimed at the grip; see [rightArmRot], [leftArmRot]). */
+    private fun boneRot(bone: SkinRigBone, frame: RigFrame, slim: Boolean): Quaterniond = when (bone) {
+        SkinRigBone.RIGHT_ARM -> rightArmRot(frame, slim)
+        SkinRigBone.LEFT_ARM -> leftArmRot(frame, slim)
+        else -> euler(frame.bones.getValue(bone).rotation)
+    }
 
     /** The anatomical frame the held weapon hangs from (root x body x right arm); independent of the item pitch. */
     public fun rightArm(frame: RigFrame, slim: Boolean): ArmFrame = armFrame(SkinRigBone.RIGHT_ARM, frame, slim)
