@@ -25,6 +25,6 @@ g @1 cast-end | pose
 ## gameplay-static
 g @0..1 cast-length | cast
 g @1 state-end then=end final=false | state=lift
-g @0 impulse target=live(caster) vector=live(%3D%20forward(caster)%20*%201.0) | state=lift
-g @0 impulse target=live(caster) vector=0.000000,0.600000,0.000000 | state=lift
+g @0 impulse target=live(caster) vector=live(frame:feet^0.0,1.0,0.0) | state=lift
+g @0 impulse target=live(caster) vector=live(frame:feet^0.6,0.0,0.0) | state=lift
 g @0 state-end then=- final=true | state=end

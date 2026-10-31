@@ -84,9 +84,9 @@ machine:
             - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 60}
         - id: trail
           at: 0
-          every: 1
+          every: 2
           until: bolt.end
           do:
-            - {id: flame, op: particle, particle: flame, frame: head, pos: {v: 0}, to: {v: -1.5}, samples: 2, count: 1, offset: [0.08, 0.08, 0.08]}
+            - {id: flame, op: particle, particle: flame, frame: head, pos: {v: -0.75}, count: 1, offset: [0.08, 0.08, 0.08]}
             - {id: smoke, op: particle_def, def: smoke-dark, frame: head}
     end: {final: true}

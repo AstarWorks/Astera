@@ -41,7 +41,7 @@
 @0 particle - op=cast/haze type=dust count=20 at=0.000000,0.150000,0.000000 off=1.400000,0.300000,1.400000 speed=0.000000 color=#dff3ff size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=508071745113495241
 @0 hit - op=cast/burst at=0.000000,0.000000,0.000000 r=4.000000 shape=sphere rad=4.000000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- water=8.5938 skill=frost-rod-chill at=0.000000,0.000000,2.200000 ignoreinv=false ignorearmor=false
-@0 sound - op=cast/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=0.000000,0.000000,2.200000
+@0 sound - op=cast/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=0.000000,0.810000,2.500000
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=40
 ## pose yaw=37 pitch=-20
 @0 sound - op=cast/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=0.000000,0.150000,0.000000
@@ -86,7 +86,7 @@
 @0 particle - op=cast/haze type=dust count=20 at=0.000000,0.150000,0.000000 off=1.400000,0.300000,1.400000 speed=0.000000 color=#dff3ff size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=508071745113495241
 @0 hit - op=cast/burst at=0.000000,0.000000,0.000000 r=4.000000 shape=sphere rad=4.000000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- water=8.5938 skill=frost-rod-chill at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
-@0 sound - op=cast/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589
+@0 sound - op=cast/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.504538,0.810000,1.996589
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=40
 ## pose-hit yaw=0 pitch=0
 @0 sound - op=cast/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=0.000000,0.150000,0.000000
@@ -132,9 +132,9 @@
 @0 hit - op=cast/burst at=0.000000,0.000000,0.000000 r=4.000000 shape=sphere rad=4.000000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- water=8.5938 skill=frost-rod-chill at=0.000000,0.000000,2.200000 ignoreinv=false ignorearmor=false
 @0 damage 00000000-0000-0000-0000-00000000000b op=- water=6.8663 skill=frost-rod-chill at=-1.700000,0.000000,2.700000 ignoreinv=false ignorearmor=false
-@0 sound - op=cast/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=0.000000,0.000000,2.200000
+@0 sound - op=cast/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=0.000000,0.810000,2.500000
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=40
-@0 sound - op=cast/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.700000,0.000000,2.700000
+@0 sound - op=cast/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-2.000000,0.810000,3.000000
 @0 status 00000000-0000-0000-0000-00000000000b op=- status=freeze stacks=1 for=40
 g @1 state-exit reason=TIMER | state=cast
 g @1 cast-end | pose
@@ -182,9 +182,9 @@ g @1 cast-end | pose
 @0 hit - op=cast/burst at=0.000000,0.000000,0.000000 r=4.000000 shape=sphere rad=4.000000
 @0 damage 00000000-0000-0000-0000-00000000000a op=- water=8.5938 skill=frost-rod-chill at=-1.204538,0.000000,1.696589 ignoreinv=false ignorearmor=false
 @0 damage 00000000-0000-0000-0000-00000000000b op=- water=6.8663 skill=frost-rod-chill at=-3.102716,0.000000,0.892276 ignoreinv=false ignorearmor=false
-@0 sound - op=cast/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.204538,0.000000,1.696589
+@0 sound - op=cast/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-1.504538,0.810000,1.996589
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=40
-@0 sound - op=cast/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-3.102716,0.000000,0.892276
+@0 sound - op=cast/burst.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1 at=-3.402716,0.810000,1.192276
 @0 status 00000000-0000-0000-0000-00000000000b op=- status=freeze stacks=1 for=40
 g @1 state-exit reason=TIMER | state=cast
 g @1 cast-end | pose

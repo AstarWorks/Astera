@@ -1,152 +1,219 @@
 ## pose yaw=0 pitch=0
 @0 spawn #0 op=ward/ring kind=sprite sprite=ring alpha=1.000000 tint=- seethrough=false pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@0 spawn #1 op=ward/spine kind=sprite sprite=line-thin alpha=1.000000 tint=#fff3c8 seethrough=false pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.750000,1.250000,1.000000 bb=VERTICAL bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=ward/spine kind=ribbon from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000 thick=0.150000 color=#fff3c8 alpha=1.000000 frames=[0.000000,2.350000,0.000000|0.000000,0.000000,-0.150000|-0.150000,0.000000,0.000000]
 @0 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=3.640625,3.640625,3.640625 bb=FIXED
-@0 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
 @0 sound - op=ward/snd_open sound=astera:skills/heal-chime cat=master vol=0.8 pitch=0.8 at=0.000000,0.050000,0.000000
 @0 sound - op=ward/hum[0] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
+@1 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @1 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=5.625000,5.625000,5.625000 bb=FIXED
+@2 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.189119,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.382581,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.501486,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.846689,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=7.046875,7.046875,7.046875 bb=FIXED
+@3 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @3 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=8.000000,8.000000,8.000000 bb=FIXED
+@4 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @4 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=8.578125,8.578125,8.578125 bb=FIXED
-@4 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@5 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @5 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=8.875000,8.875000,8.875000 bb=FIXED
+@6 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @6 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=8.984375,8.984375,8.984375 bb=FIXED
 @6 sound - op=ward/hum[1] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
+@7 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @7 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=9.000000,9.000000,9.000000 bb=FIXED
-@8 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@8 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@9 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@10 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @10 spawn #6 op=ward/halo kind=sprite sprite=sparkle-cross alpha=1.000000 tint=- seethrough=false pos=0.000000,0.750000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @10 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
 @10 sound - op=ward/snd_strike sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=0.000000,0.050000,0.000000
-@10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-945729953341526182
+@10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5752966973615328259
 @10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7597756050773603128
 @10 hit - op=ward/smite at=0.000000,0.050000,0.000000 r=5.000000 shape=area
 @10 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=sanctuary-ward at=0.000000,0.000000,2.500000 ignoreinv=false ignorearmor=false
 @10 damage 00000000-0000-0000-0000-00000000000b op=- electric=12 skill=sanctuary-ward at=0.000000,0.000000,5.000000 ignoreinv=false ignorearmor=false
 @10 hit - op=ward/mend at=0.000000,0.050000,0.000000 r=5.000000 shape=area
 @10 hit - op=ward/purge at=0.000000,0.050000,0.000000 r=5.000000 shape=area
-@12 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@11 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@12 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @12 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
 @12 sound - op=ward/hum[2] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
+@13 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@14 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @14 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
-@16 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@15 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@16 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @16 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
+@17 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@18 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @18 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
 @18 sound - op=ward/hum[3] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
-@20 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@19 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@20 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @20 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
+@21 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@22 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @22 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.914286,0.914286,0.914286 bb=CENTER
-@24 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@23 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@24 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @24 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.828571,0.828571,0.828571 bb=CENTER
 @24 sound - op=ward/hum[4] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
+@25 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@26 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @26 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.742857,0.742857,0.742857 bb=CENTER
-@28 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@27 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@28 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @28 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.657143,0.657143,0.657143 bb=CENTER
+@29 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@30 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @30 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.571429,0.571429,0.571429 bb=CENTER
 @30 sound - op=ward/hum[5] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
-@32 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@31 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@32 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @32 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.485714,0.485714,0.485714 bb=CENTER
+@33 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@34 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @34 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.400000,0.400000,0.400000 bb=CENTER
-@36 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@35 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@36 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @36 effect 00000000-0000-0000-0000-000000000001 op=- stop_sound=block.amethyst_block.resonate
 @36 remove #2 op=ward/mote[0]
 @36 remove #3 op=ward/mote[1]
 @36 remove #4 op=ward/mote[2]
 @36 remove #5 op=ward/mote[3]
 @36 remove #6 op=ward/halo
+@37 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@38 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@39 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@40 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @40 remove #0 op=ward/ring
 @40 remove #1 op=ward/spine
 ## pose yaw=37 pitch=-20
 @0 spawn #0 op=ward/ring kind=sprite sprite=ring alpha=1.000000 tint=- seethrough=false pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@0 spawn #1 op=ward/spine kind=sprite sprite=line-thin alpha=1.000000 tint=#fff3c8 seethrough=false pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.750000,1.250000,1.000000 bb=VERTICAL bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=ward/spine kind=ribbon from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000 thick=0.150000 color=#fff3c8 alpha=1.000000 frames=[0.000000,2.350000,0.000000|0.000000,0.000000,-0.150000|-0.150000,0.000000,0.000000]
 @0 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=3.640625,3.640625,3.640625 bb=FIXED
-@0 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
 @0 sound - op=ward/snd_open sound=astera:skills/heal-chime cat=master vol=0.8 pitch=0.8 at=0.000000,0.050000,0.000000
 @0 sound - op=ward/hum[0] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
+@1 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @1 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=5.625000,5.625000,5.625000 bb=FIXED
+@2 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.189119,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.382581,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.501486,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.846689,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=7.046875,7.046875,7.046875 bb=FIXED
+@3 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @3 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=8.000000,8.000000,8.000000 bb=FIXED
+@4 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @4 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=8.578125,8.578125,8.578125 bb=FIXED
-@4 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@5 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @5 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=8.875000,8.875000,8.875000 bb=FIXED
+@6 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @6 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=8.984375,8.984375,8.984375 bb=FIXED
 @6 sound - op=ward/hum[1] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
+@7 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @7 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=9.000000,9.000000,9.000000 bb=FIXED
-@8 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@8 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@9 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@10 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @10 spawn #6 op=ward/halo kind=sprite sprite=sparkle-cross alpha=1.000000 tint=- seethrough=false pos=0.000000,0.750000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @10 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER
 @10 sound - op=ward/snd_strike sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=0.000000,0.050000,0.000000
-@10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-945729953341526182
+@10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5752966973615328259
 @10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7597756050773603128
 @10 hit - op=ward/smite at=0.000000,0.050000,0.000000 r=5.000000 shape=area
 @10 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=sanctuary-ward at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
 @10 damage 00000000-0000-0000-0000-00000000000b op=- electric=12 skill=sanctuary-ward at=-3.009075,0.000000,3.993178 ignoreinv=false ignorearmor=false
 @10 hit - op=ward/mend at=0.000000,0.050000,0.000000 r=5.000000 shape=area
 @10 hit - op=ward/purge at=0.000000,0.050000,0.000000 r=5.000000 shape=area
-@12 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@11 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@12 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @12 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER
 @12 sound - op=ward/hum[2] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
+@13 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@14 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @14 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER
-@16 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@15 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@16 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @16 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER
+@17 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@18 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @18 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER
 @18 sound - op=ward/hum[3] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
-@20 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@19 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@20 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @20 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER
+@21 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@22 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @22 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.914286,0.914286,0.914286 bb=CENTER
-@24 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@23 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@24 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @24 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.828571,0.828571,0.828571 bb=CENTER
 @24 sound - op=ward/hum[4] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
+@25 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@26 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @26 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.742857,0.742857,0.742857 bb=CENTER
-@28 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@27 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@28 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @28 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.657143,0.657143,0.657143 bb=CENTER
+@29 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@30 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @30 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.571429,0.571429,0.571429 bb=CENTER
 @30 sound - op=ward/hum[5] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
-@32 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@31 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@32 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @32 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.485714,0.485714,0.485714 bb=CENTER
+@33 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@34 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @34 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.400000,0.400000,0.400000 bb=CENTER
-@36 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@35 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@36 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @36 effect 00000000-0000-0000-0000-000000000001 op=- stop_sound=block.amethyst_block.resonate
 @36 remove #2 op=ward/mote[0]
 @36 remove #3 op=ward/mote[1]
 @36 remove #4 op=ward/mote[2]
 @36 remove #5 op=ward/mote[3]
 @36 remove #6 op=ward/halo
+@37 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@38 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@39 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@40 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @40 remove #0 op=ward/ring
 @40 remove #1 op=ward/spine
 ## pose-hit yaw=0 pitch=0
 @0 spawn #0 op=ward/ring kind=sprite sprite=ring alpha=1.000000 tint=- seethrough=false pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@0 spawn #1 op=ward/spine kind=sprite sprite=line-thin alpha=1.000000 tint=#fff3c8 seethrough=false pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.750000,1.250000,1.000000 bb=VERTICAL bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=ward/spine kind=ribbon from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000 thick=0.150000 color=#fff3c8 alpha=1.000000 frames=[0.000000,2.350000,0.000000|0.000000,0.000000,-0.150000|-0.150000,0.000000,0.000000]
 @0 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=3.640625,3.640625,3.640625 bb=FIXED
-@0 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
 @0 sound - op=ward/snd_open sound=astera:skills/heal-chime cat=master vol=0.8 pitch=0.8 at=0.000000,0.050000,0.000000
 @0 sound - op=ward/hum[0] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
+@1 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @1 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=5.625000,5.625000,5.625000 bb=FIXED
+@2 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.189119,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.382581,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.501486,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.846689,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=7.046875,7.046875,7.046875 bb=FIXED
+@3 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @3 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=8.000000,8.000000,8.000000 bb=FIXED
+@4 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @4 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=8.578125,8.578125,8.578125 bb=FIXED
-@4 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@5 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @5 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=8.875000,8.875000,8.875000 bb=FIXED
+@6 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @6 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=8.984375,8.984375,8.984375 bb=FIXED
 @6 sound - op=ward/hum[1] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
+@7 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @7 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=9.000000,9.000000,9.000000 bb=FIXED
-@8 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@8 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@9 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@10 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @10 spawn #6 op=ward/halo kind=sprite sprite=sparkle-cross alpha=1.000000 tint=- seethrough=false pos=0.000000,0.750000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @10 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
 @10 sound - op=ward/snd_strike sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=0.000000,0.050000,0.000000
-@10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-945729953341526182
+@10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5752966973615328259
 @10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7597756050773603128
 @10 hit - op=ward/smite at=0.000000,0.050000,0.000000 r=5.000000 shape=area
 @10 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=sanctuary-ward at=0.000000,0.000000,2.500000 ignoreinv=false ignorearmor=false
@@ -154,64 +221,94 @@
 @10 damage 00000000-0000-0000-0000-00000000000c op=- electric=12 skill=sanctuary-ward at=-3.000000,0.000000,4.500000 ignoreinv=false ignorearmor=false
 @10 hit - op=ward/mend at=0.000000,0.050000,0.000000 r=5.000000 shape=area
 @10 hit - op=ward/purge at=0.000000,0.050000,0.000000 r=5.000000 shape=area
-@12 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@11 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@12 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @12 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
 @12 sound - op=ward/hum[2] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
+@13 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@14 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @14 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
-@16 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@15 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@16 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @16 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
+@17 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@18 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @18 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
 @18 sound - op=ward/hum[3] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
-@20 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@19 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@20 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @20 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,1.000000,1.000000 bb=CENTER
+@21 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@22 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @22 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.914286,0.914286,0.914286 bb=CENTER
-@24 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@23 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@24 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @24 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.828571,0.828571,0.828571 bb=CENTER
 @24 sound - op=ward/hum[4] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
+@25 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@26 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @26 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.742857,0.742857,0.742857 bb=CENTER
-@28 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@27 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@28 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @28 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.657143,0.657143,0.657143 bb=CENTER
+@29 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@30 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @30 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.571429,0.571429,0.571429 bb=CENTER
 @30 sound - op=ward/hum[5] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
-@32 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@31 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@32 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @32 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.485714,0.485714,0.485714 bb=CENTER
+@33 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@34 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @34 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.400000,0.400000,0.400000 bb=CENTER
-@36 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@35 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@36 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @36 effect 00000000-0000-0000-0000-000000000001 op=- stop_sound=block.amethyst_block.resonate
 @36 remove #2 op=ward/mote[0]
 @36 remove #3 op=ward/mote[1]
 @36 remove #4 op=ward/mote[2]
 @36 remove #5 op=ward/mote[3]
 @36 remove #6 op=ward/halo
+@37 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@38 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@39 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@40 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @40 remove #0 op=ward/ring
 @40 remove #1 op=ward/spine
 g @40 state-exit reason=TIMER | state=ward
 g @40 cast-end | pose
 ## pose-hit yaw=37 pitch=0
 @0 spawn #0 op=ward/ring kind=sprite sprite=ring alpha=1.000000 tint=- seethrough=false pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@0 spawn #1 op=ward/spine kind=sprite sprite=line-thin alpha=1.000000 tint=#fff3c8 seethrough=false pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.750000,1.250000,1.000000 bb=VERTICAL bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=ward/spine kind=ribbon from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000 thick=0.150000 color=#fff3c8 alpha=1.000000 frames=[0.000000,2.350000,0.000000|0.000000,0.000000,-0.150000|-0.150000,0.000000,0.000000]
 @0 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=3.640625,3.640625,3.640625 bb=FIXED
-@0 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
 @0 sound - op=ward/snd_open sound=astera:skills/heal-chime cat=master vol=0.8 pitch=0.8 at=0.000000,0.050000,0.000000
 @0 sound - op=ward/hum[0] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
+@1 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @1 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=5.625000,5.625000,5.625000 bb=FIXED
+@2 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.189119,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.382581,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.501486,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.846689,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @2 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=7.046875,7.046875,7.046875 bb=FIXED
+@3 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @3 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=8.000000,8.000000,8.000000 bb=FIXED
+@4 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @4 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=8.578125,8.578125,8.578125 bb=FIXED
-@4 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@5 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @5 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=8.875000,8.875000,8.875000 bb=FIXED
+@6 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @6 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=8.984375,8.984375,8.984375 bb=FIXED
 @6 sound - op=ward/hum[1] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
+@7 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @7 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=9.000000,9.000000,9.000000 bb=FIXED
-@8 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@8 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@9 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@10 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @10 spawn #6 op=ward/halo kind=sprite sprite=sparkle-cross alpha=1.000000 tint=- seethrough=false pos=0.000000,0.750000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @10 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER
 @10 sound - op=ward/snd_strike sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=0.000000,0.050000,0.000000
-@10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-945729953341526182
+@10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5752966973615328259
 @10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7597756050773603128
 @10 hit - op=ward/smite at=0.000000,0.050000,0.000000 r=5.000000 shape=area
 @10 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=sanctuary-ward at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
@@ -219,35 +316,58 @@ g @40 cast-end | pose
 @10 damage 00000000-0000-0000-0000-00000000000c op=- electric=12 skill=sanctuary-ward at=-5.104074,0.000000,1.788415 ignoreinv=false ignorearmor=false
 @10 hit - op=ward/mend at=0.000000,0.050000,0.000000 r=5.000000 shape=area
 @10 hit - op=ward/purge at=0.000000,0.050000,0.000000 r=5.000000 shape=area
-@12 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@11 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@12 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @12 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER
 @12 sound - op=ward/hum[2] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
+@13 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@14 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @14 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER
-@16 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@15 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@16 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @16 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER
+@17 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@18 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @18 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER
 @18 sound - op=ward/hum[3] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
-@20 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@19 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@20 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @20 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,1.000000,1.000000 bb=CENTER
+@21 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@22 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @22 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.914286,0.914286,0.914286 bb=CENTER
-@24 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@23 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@24 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @24 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.828571,0.828571,0.828571 bb=CENTER
 @24 sound - op=ward/hum[4] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
+@25 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@26 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @26 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.742857,0.742857,0.742857 bb=CENTER
-@28 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@27 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@28 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @28 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.657143,0.657143,0.657143 bb=CENTER
+@29 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@30 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @30 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.571429,0.571429,0.571429 bb=CENTER
 @30 sound - op=ward/hum[5] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
-@32 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@31 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@32 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @32 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.485714,0.485714,0.485714 bb=CENTER
+@33 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@34 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @34 write #6 op=ward/halo dur=2 pos=0.000000,1.620000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.400000,0.400000,0.400000 bb=CENTER
-@36 write #1 op=ward/spine dur=4 pos=0.000000,0.050000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.000000,2.350000,1.000000 bb=VERTICAL
+@35 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@36 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @36 effect 00000000-0000-0000-0000-000000000001 op=- stop_sound=block.amethyst_block.resonate
 @36 remove #2 op=ward/mote[0]
 @36 remove #3 op=ward/mote[1]
 @36 remove #4 op=ward/mote[2]
 @36 remove #5 op=ward/mote[3]
 @36 remove #6 op=ward/halo
+@37 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@38 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@39 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
+@40 line #1 op=ward/spine from=0.000000,0.050000,0.000000 to=0.000000,2.400000,0.000000
 @40 remove #0 op=ward/ring
 @40 remove #1 op=ward/spine
 g @40 state-exit reason=TIMER | state=ward

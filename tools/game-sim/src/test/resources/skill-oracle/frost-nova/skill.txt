@@ -10,13 +10,13 @@
 @0 particle - op=cast/fx_snow type=snowflake count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6434536294395098476
 @0 particle - op=cast/fx_dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8ebff size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6973732914584847828
 @0 particle - op=cast/fx_rod type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2751202827974670140
-@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=0.000000,0.000000,2.200000
+@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=0.000000,0.810000,2.500000
 @0 particle - op=cast/burst/burst.hit/fx_snow_v type=snowflake count=30 at=0.000000,0.710000,2.500000 off=0.400000,0.800000,0.400000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5309985533205068252
 @0 particle - op=cast/burst/burst.hit/fx_dust_v type=dust count=20 at=0.000000,0.710000,2.500000 off=0.400000,0.800000,0.400000 speed=0.000000 color=#aae1ff size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6563271500844666406
 @0 particle - op=cast/burst/burst.hit/fx_rod_v type=snowflake count=10 at=0.000000,0.710000,2.500000 off=0.350000,0.800000,0.350000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5579795492711679086
 @0 particle - op=cast/burst/burst.hit/fx_rod2 type=end_rod count=0 at=0.000000,0.710000,2.500000 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9109577948226902262
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=60
-@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=0.000000,0.000000,4.700000
+@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=0.000000,0.810000,5.000000
 @0 particle - op=cast/burst/burst.hit/fx_snow_v type=snowflake count=30 at=0.000000,0.710000,5.000000 off=0.400000,0.800000,0.400000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5309985533205068252
 @0 particle - op=cast/burst/burst.hit/fx_dust_v type=dust count=20 at=0.000000,0.710000,5.000000 off=0.400000,0.800000,0.400000 speed=0.000000 color=#aae1ff size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6563271500844666406
 @0 particle - op=cast/burst/burst.hit/fx_rod_v type=snowflake count=10 at=0.000000,0.710000,5.000000 off=0.350000,0.800000,0.350000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5579795492711679086
@@ -39,13 +39,13 @@ g @1 cast-end | pose
 @0 particle - op=cast/fx_snow type=snowflake count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6434536294395098476
 @0 particle - op=cast/fx_dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8ebff size=1.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6973732914584847828
 @0 particle - op=cast/fx_rod type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2751202827974670140
-@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=-1.204538,0.000000,1.696589
+@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=-1.504538,0.810000,1.996589
 @0 particle - op=cast/burst/burst.hit/fx_snow_v type=snowflake count=30 at=-1.504538,0.710000,1.996589 off=0.400000,0.800000,0.400000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5309985533205068252
 @0 particle - op=cast/burst/burst.hit/fx_dust_v type=dust count=20 at=-1.504538,0.710000,1.996589 off=0.400000,0.800000,0.400000 speed=0.000000 color=#aae1ff size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6563271500844666406
 @0 particle - op=cast/burst/burst.hit/fx_rod_v type=snowflake count=10 at=-1.504538,0.710000,1.996589 off=0.350000,0.800000,0.350000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5579795492711679086
 @0 particle - op=cast/burst/burst.hit/fx_rod2 type=end_rod count=0 at=-1.504538,0.710000,1.996589 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-9109577948226902262
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=60
-@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=-2.709075,0.000000,3.693178
+@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=-3.009075,0.810000,3.993178
 @0 particle - op=cast/burst/burst.hit/fx_snow_v type=snowflake count=30 at=-3.009075,0.710000,3.993178 off=0.400000,0.800000,0.400000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5309985533205068252
 @0 particle - op=cast/burst/burst.hit/fx_dust_v type=dust count=20 at=-3.009075,0.710000,3.993178 off=0.400000,0.800000,0.400000 speed=0.000000 color=#aae1ff size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6563271500844666406
 @0 particle - op=cast/burst/burst.hit/fx_rod_v type=snowflake count=10 at=-3.009075,0.710000,3.993178 off=0.350000,0.800000,0.350000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5579795492711679086
@@ -69,19 +69,19 @@ g @1 cast-end | pose
 @0 particle - op=cast/fx_snow type=snowflake count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6434536294395098476
 @0 particle - op=cast/fx_dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8ebff size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6973732914584847828
 @0 particle - op=cast/fx_rod type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2751202827974670140
-@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=0.000000,0.000000,2.200000
+@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=0.000000,0.810000,2.500000
 @0 particle - op=cast/burst/burst.hit/fx_snow_v type=snowflake count=30 at=0.000000,0.710000,2.500000 off=0.400000,0.800000,0.400000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5309985533205068252
 @0 particle - op=cast/burst/burst.hit/fx_dust_v type=dust count=20 at=0.000000,0.710000,2.500000 off=0.400000,0.800000,0.400000 speed=0.000000 color=#aae1ff size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6563271500844666406
 @0 particle - op=cast/burst/burst.hit/fx_rod_v type=snowflake count=10 at=0.000000,0.710000,2.500000 off=0.350000,0.800000,0.350000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5579795492711679086
 @0 particle - op=cast/burst/burst.hit/fx_rod2 type=end_rod count=0 at=0.000000,0.710000,2.500000 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9109577948226902262
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=60
-@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=-1.700000,0.000000,2.700000
+@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=-2.000000,0.810000,3.000000
 @0 particle - op=cast/burst/burst.hit/fx_snow_v type=snowflake count=30 at=-2.000000,0.710000,3.000000 off=0.400000,0.800000,0.400000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5309985533205068252
 @0 particle - op=cast/burst/burst.hit/fx_dust_v type=dust count=20 at=-2.000000,0.710000,3.000000 off=0.400000,0.800000,0.400000 speed=0.000000 color=#aae1ff size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6563271500844666406
 @0 particle - op=cast/burst/burst.hit/fx_rod_v type=snowflake count=10 at=-2.000000,0.710000,3.000000 off=0.350000,0.800000,0.350000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5579795492711679086
 @0 particle - op=cast/burst/burst.hit/fx_rod2 type=end_rod count=0 at=-2.000000,0.710000,3.000000 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9109577948226902262
 @0 status 00000000-0000-0000-0000-00000000000b op=- status=freeze stacks=1 for=60
-@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=-2.700000,0.000000,4.200000
+@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=-3.000000,0.810000,4.500000
 @0 particle - op=cast/burst/burst.hit/fx_snow_v type=snowflake count=30 at=-3.000000,0.710000,4.500000 off=0.400000,0.800000,0.400000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5309985533205068252
 @0 particle - op=cast/burst/burst.hit/fx_dust_v type=dust count=20 at=-3.000000,0.710000,4.500000 off=0.400000,0.800000,0.400000 speed=0.000000 color=#aae1ff size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6563271500844666406
 @0 particle - op=cast/burst/burst.hit/fx_rod_v type=snowflake count=10 at=-3.000000,0.710000,4.500000 off=0.350000,0.800000,0.350000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5579795492711679086
@@ -107,13 +107,13 @@ g @3 cast-end | pose
 @0 particle - op=cast/fx_snow type=snowflake count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6434536294395098476
 @0 particle - op=cast/fx_dust type=dust count=1 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#c8ebff size=1.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6973732914584847828
 @0 particle - op=cast/fx_rod type=end_rod count=0 at=0.000000,0.150000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2751202827974670140
-@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=-1.204538,0.000000,1.696589
+@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=-1.504538,0.810000,1.996589
 @0 particle - op=cast/burst/burst.hit/fx_snow_v type=snowflake count=30 at=-1.504538,0.710000,1.996589 off=0.400000,0.800000,0.400000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5309985533205068252
 @0 particle - op=cast/burst/burst.hit/fx_dust_v type=dust count=20 at=-1.504538,0.710000,1.996589 off=0.400000,0.800000,0.400000 speed=0.000000 color=#aae1ff size=1.400000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6563271500844666406
 @0 particle - op=cast/burst/burst.hit/fx_rod_v type=snowflake count=10 at=-1.504538,0.710000,1.996589 off=0.350000,0.800000,0.350000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5579795492711679086
 @0 particle - op=cast/burst/burst.hit/fx_rod2 type=end_rod count=0 at=-1.504538,0.710000,1.996589 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-9109577948226902262
 @0 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=60
-@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=-3.102716,0.000000,0.892276
+@0 sound - op=cast/burst/burst.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=1 pitch=1 at=-3.402716,0.810000,1.192276
 @0 particle - op=cast/burst/burst.hit/fx_snow_v type=snowflake count=30 at=-3.402716,0.710000,1.192276 off=0.400000,0.800000,0.400000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5309985533205068252
 @0 particle - op=cast/burst/burst.hit/fx_dust_v type=dust count=20 at=-3.402716,0.710000,1.192276 off=0.400000,0.800000,0.400000 speed=0.000000 color=#aae1ff size=1.400000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6563271500844666406
 @0 particle - op=cast/burst/burst.hit/fx_rod_v type=snowflake count=10 at=-3.402716,0.710000,1.192276 off=0.350000,0.800000,0.350000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5579795492711679086
