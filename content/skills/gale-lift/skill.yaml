@@ -4,9 +4,6 @@ kind: Skill
 id: gale-lift
 item: gale-fan
 meta: {name: {ja: "追い風", en: Updraft}, description: {ja: "自分を前上方へ吹き飛ばす。", en: "Launches you up and forward."}, cooldown_ticks: 160, resource_cost: 10, tags: [magic, wind, movement]}
-params:
-  forward: {type: number, default: 1.0}
-  up:      {type: number, default: 0.6}
 frames:
   - {id: feet, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 0.2}}]}
 machine:
@@ -16,8 +13,8 @@ machine:
       for: 1
       then: end
       do:
-        - {id: propel, op: impulse, at: 0, target: caster, vector: {of: caster, forward: "${forward}"}}
-        - {id: propel_up, op: impulse, at: 0, target: caster, vector: {x: 0, y: "${up}", z: 0}}
+        - {id: propel, op: impulse, at: 0, target: caster, frame: feet, dir: {w: 1.0}}
+        - {id: propel_up, op: impulse, at: 0, target: caster, frame: feet, dir: {v: 0.6}}
         - {id: snd, op: sound, at: 0, sound: entity.breeze.jump, frame: feet, volume: 0.9, pitch: 1.1}
         - {id: fx, op: particle_def, at: 0, def: dash-cloud, frame: feet}
     end: {final: true}

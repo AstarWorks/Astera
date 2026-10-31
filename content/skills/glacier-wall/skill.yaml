@@ -27,5 +27,5 @@ machine:
         - {id: fx, op: particle_def, def: frost-cast, frame: wall, pos: {w: 0.2}}
         - {id: wall_snow, op: particle, particle: snowflake, frame: wall, pos: {w: 1.5}, count: 24, offset: [1.5, 1.5, 0.15], extra: 0.02, at: 0}
         - {id: wall_dust, op: particle, particle: dust, frame: wall, pos: {w: 1.5}, count: 60, offset: [1.5, 1.5, 0.15], color: "#d2ebff", size: 1.2, at: 0}
-        - {id: place, op: place_shape, at: 0, anchor: caster, shape: {wall: {width: "${width}", height: "${height}"}}, block: "astera:tempered_glass", consume: none, ripple: 29, revert: 160, outside_arena: false}
+        - {id: place, op: place_shape, at: 0, frame: wall, pos: {v: -2.0}, shape: {wall: {width: "${width}", height: "${height}"}}, block: "astera:tempered_glass", consume: none, ripple: 29, revert: 160, outside_arena: false}
     end: {final: true}

@@ -18,6 +18,7 @@ params:
   burn_ticks: {type: ticks,  default: 20}
 frames:
   - {id: ground, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 0.15}}]}
+  - {id: foe, on: event.victim, each: true, origin: victim.center, v: up, w: forward, s: right}
 machine:
   start: cast
   states:
@@ -39,7 +40,8 @@ machine:
         - id: blast
           op: hit
           at: 0
-          anchor: caster
+          frame: ground
+          pos: {v: -0.15}
           shape: {sphere: "${radius}"}
           targets: enemies
           window: once
@@ -47,6 +49,6 @@ machine:
           damage: {fire: "= ${dmg_fire} * (1.0 - ${falloff} * dist(event.victim, caster) / ${radius})"}
           on:
             hit:
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: foe, volume: 0.7, pitch: 1.0}
               - {id: burn, op: status, target: event.victim, status: burn, stacks: 1, for: "${burn_ticks}"}
     end: {final: true}

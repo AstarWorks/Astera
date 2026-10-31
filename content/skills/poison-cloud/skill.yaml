@@ -2,7 +2,7 @@
 # The cast ends when the projectile body ends. Frame grammar (ADR-0314): tip - the caster's hand (eye / aim basis, 0.9 ahead, 0.25 below, 0.25 right):
 # the throw sound, the cast puff and the flask leave it; head - the flask's body (v along its velocity), the trail is a segment of it;
 # hit / blk - one per victim / block contact: the cloud puff is drawn on it (hit sits at the victim's centre, 0.75 down = the feet).
-# The poison status stays one fragment shared by both handlers: it is gameplay and binds a spot. Gameplay unchanged.
+# The poison status is one row per handler, its area centred on the hit / blk frame. Gameplay unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: poison-cloud
@@ -18,14 +18,6 @@ frames:
   - {id: head, origin: bolt, v: velocity, w: up, s: v x w}
   - {id: hit, on: event.victim, each: true, origin: victim.center, v: incoming, w: up, s: v x w}
   - {id: blk, on: event.block, each: true, origin: contact, v: incoming, w: up, s: v x w}
-fragments:
-  cloud:
-    frames_in: {spot: anchor}
-    params:
-      radius:       {type: blocks, default: 3.5}
-      poison_ticks: {type: ticks, default: 80}
-    do:
-      - {id: st_poison, op: status, target: {kind: enemies, around: spot, radius: "${radius}"}, status: poison, stacks: 1, for: "${poison_ticks}"}
 machine:
   start: throw
   states:
@@ -46,12 +38,12 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: fx, op: use, use: "fragment:cloud", with: {radius: "${radius}", poison_ticks: "${poison_ticks}"}, frames: {spot: victim}}
+              - {id: st_poison, op: status, target: {kind: enemies, frame: hit, pos: {v: 0}, radius: "${radius}"}, status: poison, stacks: 1, for: "${poison_ticks}"}
               - {id: pts, op: particle, particle: happy_villager, frame: hit, pos: {w: -0.75}, count: 0, extra: 0.02}
               - {id: dust, op: particle, particle: dust, frame: hit, pos: {w: -0.75}, count: 1, extra: 0, color: "#5aaa3c", size: 1.4}
               - {id: snd_hit, op: sound, sound: entity.splash_potion.break, frame: hit, pos: {w: -0.75}, volume: 0.8, pitch: 0.8}
             block:
-              - {id: fx, op: use, use: "fragment:cloud", with: {radius: "${radius}", poison_ticks: "${poison_ticks}"}, frames: {spot: contact}}
+              - {id: st_poison_b, op: status, target: {kind: enemies, frame: blk, pos: {v: 0}, radius: "${radius}"}, status: poison, stacks: 1, for: "${poison_ticks}"}
               - {id: pts_b, op: particle, particle: happy_villager, frame: blk, pos: {w: 0.15}, count: 0, extra: 0.02}
               - {id: dust_b, op: particle, particle: dust, frame: blk, pos: {w: 0.15}, count: 1, extra: 0, color: "#5aaa3c", size: 1.4}
               - {id: snd_blk, op: sound, sound: entity.splash_potion.break, frame: blk, volume: 0.8, pitch: 0.8}

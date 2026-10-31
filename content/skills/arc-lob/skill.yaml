@@ -1,6 +1,6 @@
 # arc-lob: a lobbed shell on a spline path (ADR-0313 `law: path`); the display follows the curve, damage lands where it ends.
 # Frame grammar (ADR-0314): lob - the caster's hand (eye, v forward, w up, s right; 0.8 ahead, 0.3 below the eye line): the shell sprite and its
-# path points stay in the caster-local `forward`/`up` axes the `path` law reads, the cast sound leaves it. The landing burst and the damage keep the `land` anchor (the same point as the path's end).
+# path points stay in the caster-local `forward`/`up` axes the `path` law reads, the cast sound leaves it. The landing burst and the damage sit on the `land` frame (8 ahead of the feet, the same point as the path's end).
 apiVersion: astera/v3
 kind: Skill
 id: arc-lob
@@ -14,8 +14,7 @@ params:
   dmg: {type: number, default: 14.0}
 frames:
   - {id: lob, origin: caster.eye, v: forward, w: up, s: right, move: [{at: 0, for: 0, to: {v: 0.8, w: -0.3}}]}
-anchors:
-  - {id: land, anchor: caster.feet, offset: {forward: 8}, mode: snapshot}
+  - {id: land, origin: caster.feet, v: forward, w: up, s: right, move: [{at: 0, for: 0, to: {v: 8}}]}
 machine:
   start: lob
   tail: 2
@@ -38,6 +37,6 @@ machine:
           for: 24
           motion:
             - {law: path, points: [{forward: 0}, {forward: 3, up: 2.5}, {forward: 6, up: 3.5}, {forward: 8, up: -1.2}], at: 0, for: 24, ease: in_out_sine}
-        - {id: boom, op: particle, particle: flame, anchor: land, count: 20, offset: [0.5, 0.2, 0.5], extra: 0.1, at: 23, detach: true}
-        - {id: hurt, op: damage, at: 23, target: {kind: enemies, around: land, radius: 3.0}, damage: {fire: "${dmg}"}}
+        - {id: boom, op: particle, particle: flame, frame: land, count: 20, offset: [0.5, 0.2, 0.5], extra: 0.1, at: 23, detach: true}
+        - {id: hurt, op: damage, at: 23, target: {kind: enemies, frame: land, pos: {v: 0}, radius: 3.0}, damage: {fire: "${dmg}"}}
     end: {final: true}

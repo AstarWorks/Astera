@@ -58,7 +58,8 @@ machine:
             - id: burst
               op: hit
               at: 0
-              anchor: caster
+              frame: ground
+              pos: {v: -0.15}
               targets: enemies
               shape: {sphere: "${radius}"}
               window: once
@@ -67,11 +68,11 @@ machine:
               on:
                 hit:
                   - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: "${freeze_ticks}"}
-                  - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: contact, volume: 1.0, pitch: 1.0}
+                  - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", frame: foe, volume: 1.0, pitch: 1.0}
                   - {id: fx_snow_v, op: particle, particle: snowflake, frame: foe, pos: {v: -0.1}, count: 30, offset: [0.4, 0.8, 0.4], extra: 0.02}
                   - {id: fx_dust_v, op: particle, particle: dust, frame: foe, pos: {v: -0.1}, count: 20, offset: [0.4, 0.8, 0.4], color: "#aae1ff", size: 1.4}
                   - {id: fx_rod_v, op: particle, particle: snowflake, frame: foe, pos: {v: -0.1}, count: 10, offset: [0.35, 0.8, 0.35], extra: 0.02}
                   - {id: fx_rod2, op: particle, particle: end_rod, frame: foe, pos: {v: -0.1}, count: 0, extra: 0.01}
-            - {id: chip, op: break_area, at: 0, anchor: caster, shape: {sphere: {radius: 2.5}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
+            - {id: chip, op: break_area, at: 0, frame: ground, pos: {v: -0.15}, shape: {sphere: {radius: 2.5}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
         recover: {final: true}
     done: {final: true}

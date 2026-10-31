@@ -5,7 +5,7 @@
 #   head - the bolt's body, v along its velocity: the sprite core sits on it and the trail is a segment of it (v 0 -> -1.5 = the
 #          1.5 blocks flown this tick, two flames spread along it).
 #   hit / blk - one per victim / block contact, v the way the bolt came in: the burst (flame ring, raised ring, pop, sound) is drawn on it.
-# The blast itself (explosion + area damage) stays one skill-local fragment shared by the hit and the block handler: those are gameplay ops.
+# The blast (explosion + area damage) is one pair of rows per handler, centred on the hit / blk frame.
 # Gameplay (speed 1.5, flight 60, damage, burn, blast) is unchanged.
 apiVersion: astera/v3
 kind: Skill
@@ -29,16 +29,6 @@ frames:
   - {id: head, origin: bolt, v: velocity, w: up, s: v x w}
   - {id: hit, on: event.victim, each: true, origin: victim.center, v: incoming, w: up, s: v x w}
   - {id: blk, on: event.block, each: true, origin: contact, v: incoming, w: up, s: v x w}
-fragments:
-  blast:
-    params:
-      power:  {type: number, required: true}
-      radius: {type: blocks, required: true}
-      dmg:    {type: number, required: true}
-    frames_in: {spot: anchor}
-    do:
-      - {id: boom, op: explode, at: 0, anchor: spot, power: "${power}", break_blocks: false, fire: false}
-      - {id: boom_dmg, op: damage, target: {kind: enemies, around: spot, radius: "${radius}"}, damage: {fire: "${dmg}"}}
 machine:
   start: fly
   tail: 2
@@ -62,7 +52,8 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {op: use, use: "fragment:blast", with: {power: "${blast_power}", radius: "${blast_radius}", dmg: "${dmg_fire}"}, frames: {spot: victim}}
+              - {id: boom, op: explode, at: 0, frame: hit, pos: {v: 0}, power: "${blast_power}", break_blocks: false, fire: false}
+              - {id: boom_dmg, op: damage, target: {kind: enemies, frame: hit, pos: {v: 0}, radius: "${blast_radius}"}, damage: {fire: "${dmg_fire}"}}
               - {id: st_burn, op: status, target: event.victim, status: burn, stacks: 1, for: "${burn_ticks}"}
               - {id: snd_hit, op: sound, frame: hit, sound: "astera:skills/fire-impact", volume: 0.7, detach: true}
               - {id: fx_hit, op: particle_def, frame: hit, pos: {v: -0.3}, def: hit-spark, detach: true}
@@ -70,7 +61,8 @@ machine:
               - {id: ring_up, op: particle, particle: flame, frame: hit, times: 8, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.28, detach: true}
               - {id: pop, op: particle, particle: lava, frame: hit, count: 10, offset: [0.15, 0.15, 0.15], extra: 0.12, detach: true}
             block:
-              - {op: use, use: "fragment:blast", with: {power: "${blast_power}", radius: "${blast_radius}", dmg: "${dmg_fire}"}, frames: {spot: contact}}
+              - {id: boom_b, op: explode, at: 0, frame: blk, pos: {v: 0}, power: "${blast_power}", break_blocks: false, fire: false}
+              - {id: boom_dmg_b, op: damage, target: {kind: enemies, frame: blk, pos: {v: 0}, radius: "${blast_radius}"}, damage: {fire: "${dmg_fire}"}}
               - {id: snd_blk, op: sound, frame: blk, sound: "astera:skills/fire-impact", volume: 0.7, detach: true}
               - {id: fx_blk, op: particle_def, frame: blk, pos: {v: -0.3}, def: hit-spark, detach: true}
               - {id: ring_blk, op: particle, particle: flame, frame: blk, times: 16, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.35, detach: true}

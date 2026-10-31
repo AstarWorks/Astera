@@ -5,8 +5,8 @@
 # Particles: the impact pop and the trail mote are `crit` (white star, ~4-10 ticks); `end_rod` lives ~60 ticks and piled into an opaque white blob on the victim (see docs/contributing/vfx-team/particles.md).
 # Frame grammar (ADR-0314): tip - the wand head (eye / aim basis, 1.3 ahead, 0.3 below, 0.25 right): the cast sound and puff and the bolt leave it;
 # head - the bolt's body (v along its velocity): the spark core and the trail segment ride it; hit / blk - one per victim / block contact:
-# the impact pop and the ring burst (ring-impact rows inlined, the shared part binds an anchor) are drawn on it. The link and hop ribbons keep their
-# `fx` / `heart` / `from` anchors: a ribbon between two moving points is not expressible on one frame. Gameplay unchanged.
+# the impact pop and the ring burst (ring-impact rows inlined, the shared part binds an anchor) are drawn on it. The first link is a ribbon from the `tip` frame to the `hit` frame;
+# the hop ribbons and sparks live in the `arc` fragment, which binds anchors (`from` / `heart`), so they keep them. Gameplay unchanged.
 # Rule D: the hops drain after bolt.end (last hop at +9), so tail 14 = last hop 9 + its 5-tick ribbons.
 apiVersion: astera/v3
 kind: Skill
@@ -25,7 +25,6 @@ params:
   dmg_electric:       {type: number, default: 18}
   shock_ticks:        {type: ticks,  default: 8}
 anchors:
-  - {id: fx,     anchor: caster.eye, offset: {forward: 1.8, up: -0.2}, mode: follow}
   - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
 frames:
   - {id: tip, origin: caster.eye, v: aim, w: s x v, s: right, move: [{at: 0, for: 0, to: {v: 1.3, w: -0.3, s: 0.25}}]}
@@ -71,8 +70,8 @@ machine:
               - {id: dmg, op: damage, target: event.victim, damage: {electric: "${dmg_electric}"}}
               - {id: shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}"}
               - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", frame: hit, volume: 0.7, pitch: 1.2}
-              - {id: link_glow, op: ribbon, from: fx, to: heart, thickness: 0.22, color: "#6690d0ff", segments: 8, jitter: {spread: 0.35, along: 0.2, every: 2, follow: link}, at: 0, for: 5, detach: true}
-              - {id: link, op: ribbon, from: fx, to: heart, thickness: 0.07, color: "#ffeaf6ff", segments: 8, jitter: {spread: 0.35, along: 0.2, every: 2}, at: 0, for: 5, detach: true}
+              - {id: link_glow, op: ribbon, from: {frame: tip, pos: {v: 0}}, to: {frame: hit, pos: {v: 0}}, thickness: 0.22, color: "#6690d0ff", segments: 8, jitter: {spread: 0.35, along: 0.2, every: 2, follow: link}, at: 0, for: 5, detach: true}
+              - {id: link, op: ribbon, from: {frame: tip, pos: {v: 0}}, to: {frame: hit, pos: {v: 0}}, thickness: 0.07, color: "#ffeaf6ff", segments: 8, jitter: {spread: 0.35, along: 0.2, every: 2}, at: 0, for: 5, detach: true}
               - {id: imp, op: particle_def, def: thunder-impact, frame: hit}
               - {id: jump, op: use, use: "fragment:arc", chain: {hops: 3, every: 3, pick: {kind: enemies, around: from, radius: 4.5, nearest: 1, exclude: chain}}, frames: {spot: heart}, with: {dmg: "${dmg_electric}", decay: "${decay}", shock: "${shock_ticks}"}}
               - {id: ring, op: particle, particle: electric_spark, frame: hit, times: 16, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.35, detach: true}

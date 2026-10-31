@@ -2,7 +2,7 @@
 # One tick: hit, damage and knockback all on tick 0; the cast ends on tick 1. The wind (a fan of streaks sweeping out over 7 ticks
 # plus a cloud burst) is detached presentation so it outlives the one-tick cast; no gameplay row moves.
 # Frame grammar (ADR-0314): wind - the caster's feet (v forward, w up, s right): the streaks are placed and fly in its coefficients
-# (old `left` = -s), the cloud puff leaves 1.5 ahead of it. The sector selection and knockback keep the caster anchor. Gameplay unchanged.
+# (old `left` = -s), the cloud puff leaves 1.5 ahead of it. The sector selection sits on an eye frame (`sector`), the knockback direction stays a world expression. Gameplay unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: gale-gust
@@ -17,6 +17,7 @@ params:
   dmg_physical: {type: number, default: 10.0}
 frames:
   - {id: wind, origin: caster.feet, v: forward, w: up, s: right}
+  - {id: sector, origin: caster.eye, v: aim, w: s x v, s: right}
 machine:
   tail: 8
   start: cast
@@ -28,7 +29,8 @@ machine:
         - id: sel
           op: hit
           at: 0
-          anchor: caster.eye
+          frame: sector
+          pos: {v: 0}
           shape: {sector: {deg: "${arc_deg}", range: "${reach}", height: "${sector_h}", forward: look}}
           targets: enemies
           window: once

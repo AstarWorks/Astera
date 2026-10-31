@@ -17,6 +17,7 @@ params:
   shock_ticks:  {type: ticks,  default: 15}
 frames:
   - {id: ring, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 0.15}}]}
+  - {id: foe, on: event.victim, each: true, origin: victim.center, v: up, w: forward, s: right}
 machine:
   start: burst
   states:
@@ -28,7 +29,8 @@ machine:
         - id: area
           op: hit
           at: 0
-          anchor: caster
+          frame: ring
+          pos: {v: -0.15}
           shape: {sphere: "${radius}"}
           targets: enemies
           window: once
@@ -37,7 +39,7 @@ machine:
           on:
             hit:
               - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}"}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: foe, volume: 0.7, pitch: 1.0}
         - {id: fx_spark, op: particle, particle: electric_spark, frame: ring, at: 0, count: 0, extra: 0.03}
         - {id: fx_dust, op: particle, particle: dust, frame: ring, at: 0, count: 1, color: "#fff078", size: 1.4}
         # the discharge ring: 24 sparks flung outward on the ground plane, a lifted ring behind it (instant rows: the state lasts one tick)

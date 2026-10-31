@@ -17,6 +17,7 @@ params:
   freeze_ticks: {type: ticks,  default: 40}
 frames:
   - {id: ground, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 0.15}}]}
+  - {id: foe, on: event.victim, each: true, origin: victim.center, v: up, w: forward, s: right}
 machine:
   start: cast
   states:
@@ -34,7 +35,8 @@ machine:
         - id: burst
           op: hit
           at: 0
-          anchor: caster
+          frame: ground
+          pos: {v: -0.15}
           shape: {sphere: "${radius}"}
           targets: enemies
           window: once
@@ -43,5 +45,5 @@ machine:
           on:
             hit:
               - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: "${freeze_ticks}"}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: foe, volume: 0.7, pitch: 1.0}
     done: {final: true}

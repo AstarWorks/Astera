@@ -17,7 +17,7 @@ machine:
       then: end
       enter:
         - {id: snd, op: sound, sound: "block.amethyst_block.chime", frame: ground, volume: 0.8, pitch: 1.2}
-        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: caster, radius: "${radius}", include_self: true}}
+        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, frame: ground, pos: {v: -0.15}, radius: "${radius}", include_self: true}}
         - {id: pts,  op: particle, particle: end_rod, frame: ground, count: 0, extra: 0.02}
         - {id: dust, op: particle, particle: dust, frame: ground, count: 1, extra: 0, color: "#f0f0aa", size: 1.4}
       do:

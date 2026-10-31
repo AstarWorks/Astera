@@ -25,8 +25,8 @@ machine:
       then: end
       enter:
         - {id: buff, op: status, target: caster, status: regen, stacks: 1, for: "${regen_ticks}"}
-        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: caster, radius: "${radius}", include_self: true}}
-        - {id: st_regen, op: status, target: {kind: allies, around: caster, radius: "${radius}", include_self: false}, status: regen, stacks: 1, for: "${regen_ticks}"}
+        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, frame: ground, pos: {v: -0.1}, radius: "${radius}", include_self: true}}
+        - {id: st_regen, op: status, target: {kind: allies, frame: ground, pos: {v: -0.1}, radius: "${radius}", include_self: false}, status: regen, stacks: 1, for: "${regen_ticks}"}
       do:
         - id: ring
           op: display
