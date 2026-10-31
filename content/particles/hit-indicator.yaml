@@ -1,12 +1,5 @@
 # heavy hit feedback: broken hearts above the victim
 id: hit-indicator
-shape:
-  kind: burst
-  spread_blocks: 0.2
-color:
-  r: 255
-  g: 80
-  b: 80
+particle: damage_indicator
 count: 3
-lifetime_ticks: 20
-vanilla_particle: damage_indicator
+offset: [0.2, 0.2, 0.2]

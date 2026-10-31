@@ -1,9 +1,5 @@
 # r28 cut trail: crit sparks sprayed off the swept tip arc in every direction.
 id: bastion-s1-p-trail-crit
-shape: { kind: burst, spread_blocks: 0.06 }
-color: { r: 255, g: 255, b: 255 }
+particle: crit
 count: 2
-lifetime_ticks: 8
-vanilla_particle: crit
-velocity: { direction: along_tangent, speed: 0.32, spread_degrees: 12, speed_jitter: 0.5 }
-force: true
+velocity: {direction: along_tangent, speed: 0.32, spread_degrees: 12, speed_jitter: 0.5}

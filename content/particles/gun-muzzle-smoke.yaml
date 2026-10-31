@@ -1,13 +1,6 @@
 # muzzle smoke
 id: gun-muzzle-smoke
-shape:
-  kind: burst
-  spread_blocks: 0.1
-color:
-  r: 200
-  g: 200
-  b: 200
+particle: white_smoke
 count: 4
-lifetime_ticks: 20
-vanilla_particle: white_smoke
-speed: 0.02
+offset: [0.1, 0.1, 0.1]
+extra: 0.02

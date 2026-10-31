@@ -1,12 +1,5 @@
 # verdant staff muzzle burst
 id: verdant-cast
-shape:
-  kind: burst
-  spread_blocks: 0.3
-color:
-  r: 80
-  g: 200
-  b: 80
+particle: happy_villager
 count: 4
-lifetime_ticks: 20
-vanilla_particle: happy_villager
+offset: [0.3, 0.3, 0.3]

@@ -335,10 +335,14 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     /** Every particle burst as (tick, particle, world position). */
     val emittedAt = ArrayList<Triple<Int, String, Vec3>>()
 
+    /** Every particle burst whole, with its tick: the vanilla `count` / `offset` / `extra` the gateway would send. Not part of the oracle text. */
+    val bursts = ArrayList<Pair<Int, ParticleBurst>>()
+
     val particles: ISkillParticleGateway = object : ISkillParticleGateway {
         override fun emit(cast: CastRef, burst: ParticleBurst) {
             seen("particles.emit", cast)
             emittedAt += Triple(tick, burst.particle, burst.at)
+            bursts += tick to burst
             add(
                 "particle", "-", "type=${burst.particle}" + (burst.count?.let { " count=$it" } ?: ""),
                 "at=${OracleFmt.v(burst.at)} off=${OracleFmt.v(burst.offset)} speed=${OracleFmt.f(burst.speed)} color=${OracleFmt.s(OracleFmt.dataColor(burst.data))} size=${OracleFmt.dataSize(burst.data)?.let { OracleFmt.f(it) } ?: "-"}${OracleFmt.dataExtra(burst.data)} " +

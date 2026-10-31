@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.AnchorRef
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
+import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
 import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVec
@@ -59,6 +60,17 @@ public sealed interface ParticleStyle {
     public data class Power(public val value: Value<Double>) : ParticleStyle
 }
 
+/**
+ * The vanilla `offset` of a `particle` op in the basis it is written in (ADR-0312). [World] is the raw vanilla vector (`[x, y, z]`,
+ * `${param}` or `= expr`): the world-axis spread box, or the world direction when count is 0. [Frame] is `{forward, up, left}` in the
+ * axes of the op's anchor frame: a direction (count 0) is resolved against those axes at every emission tick and sent as the vanilla
+ * world direction; a spread box (count > 0) is allowed only when it is a cube, which no rotation can change.
+ */
+public sealed interface ParticleOffset {
+    public data class World(public val value: Value<Vec3>) : ParticleOffset
+    public data class Frame(public val forward: Value<Double>, public val up: Value<Double>, public val left: Value<Double>) : ParticleOffset
+}
+
 /** Decoded `particle` op: one `spawnParticle` call per occurrence (ADR-0303 2.2). */
 public class ParticleOp(
     override val id: OpId,
@@ -67,7 +79,7 @@ public class ParticleOp(
     override val timing: Timing?,
     public val particle: String,
     public val count: Value<Double>,
-    public val offset: Value<Vec3>,
+    public val offset: ParticleOffset,
     public val extra: Value<Double>,
     public val style: ParticleStyle,
     public val anchor: AnchorRef,
@@ -85,7 +97,7 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
     private val HEX = Regex("^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$")
     private val PARTICLE = Field.required("particle", Types.loadText, "vanilla Particle id (dust, crit, end_rod, flame, ...)")
     private val COUNT = Field.optional("count", Types.number, Value.Literal(1.0), "vanilla count; 0 = one particle, offset is the direction")
-    private val OFFSET = Field.optional("offset", Types.worldVec3, Value.Literal(Vec3(0.0, 0.0, 0.0)), "world-axis spread box, or direction when count is 0")
+    private val OFFSET = Field.optional("offset", Types.nullable(ParticleOffsetType), null, "absent = [0, 0, 0]. [x, y, z] / \${param} / '= expr': world-axis spread box, or world direction when count is 0. {forward, up, left}: the same in the anchor's axes (direction resolved each emission tick; a spread box must be a cube)")
     private val EXTRA = Field.optional("extra", Types.number, Value.Literal(0.0), "vanilla extra (speed for most particles)")
     private val COLOR = Field.optional("color", Types.nullable(Types.loadText), null, "#rrggbb: with size Particle.DustOptions; alone the tint of entity_effect / flash / tinted_leaves; with power Particle.Spell; with target + duration Particle.Trail")
     private val TO_COLOR = Field.optional("to_color", Types.nullable(Types.loadText), null, "#rrggbb end colour, with color + size: Particle.DustTransition (dust_color_transition)")
@@ -126,7 +138,7 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
                 id, src, whenExpr, timing,
                 particle = particle,
                 count = count,
-                offset = values[OFFSET],
+                offset = values[OFFSET] ?: ParticleOffset.World(Value.Literal(Vec3(0.0, 0.0, 0.0))),
                 extra = values[EXTRA],
                 style = style,
                 anchor = values[ANCHOR],
@@ -151,18 +163,16 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
             is Value.Expr -> (OccurrenceBake.fold(lc, bound(e.source), ExprType.NUM) as? ExprValue.Num)?.let { Val.Known(it.value) }
                 ?: Val.Live("= ${OccurrenceBake.bake(bound(e.source), lc.occurrence)}", null)
         }
-        val baseOffset: Val<Vector3d> = when (val o = op.offset) {
-            is Value.Literal -> Val.Known(Vector3d(o.value.x, o.value.y, o.value.z))
-            is Value.ParamRef -> Val.Live(o.name, null)
-            is Value.Expr -> (OccurrenceBake.fold(lc, bound(o.source), ExprType.VEC3) as? ExprValue.Vec3)?.let { Val.Known(Vector3d(it.value.x, it.value.y, it.value.z)) }
-                ?: Val.Live("= ${OccurrenceBake.bake(bound(o.source), lc.occurrence)}", null)
-        }
         val tau = lc.tau
         fun unknown(prop: String) = Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".motion", "a law on '$prop' needs a base value known at compile time"))
         val count: Val<Int> = if (op.motion.none { it.prop == "count" }) baseCount else {
             val known = (baseCount as? Val.Known<Int>)?.value ?: return unknown("count")
             val r = PointTau.scalar(Val.Known(known.toDouble()), op.motion, "count", tau) as Val.Known<Double>
             Val.Known(Math.round(r.value).toInt().coerceAtLeast(0))
+        }
+        val baseOffset: Val<Vector3d> = when (val r = baseOffsetOf(op, count, lc, ::bound)) {
+            is Result.Success -> r.value
+            is Result.Failure -> return r
         }
         val offset = PointTau.vector(baseOffset, op.motion, "offset", tau) ?: return unknown("offset")
         val extra = PointTau.scalar(baseExtra, op.motion, "extra", tau) ?: return unknown("extra")
@@ -234,6 +244,64 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
             Row(tick = 0, instance = lc.self, action = action, src = lc.src, sample = placed.sample)
         }
         return Result.Success(Lowered(rows = rows))
+    }
+
+    /**
+     * The vanilla offset vector of [op]. A world offset is taken as written. A frame offset needs the final [count] at load: 0 lowers the
+     * direction to one `= expr` cell over the anchor frame's axes (evaluated at each emission tick, 1:1 with a vanilla direction); above 0
+     * the spread box must be a cube (equal forward / up / left), the only box a rotation cannot change, and is sent as the vanilla cube.
+     */
+    private fun baseOffsetOf(op: ParticleOp, count: Val<Int>, lc: LowerContext, bound: (String) -> String): Result<Val<Vector3d>, SkillDecodeError> {
+        fun invalid(message: String) = Result.Failure(SkillDecodeError.Invalid(lc.skillId, lc.src.value + ".offset", message))
+        when (val o = op.offset) {
+            is ParticleOffset.World -> return Result.Success(
+                when (val v = o.value) {
+                    is Value.Literal -> Val.Known(Vector3d(v.value.x, v.value.y, v.value.z))
+                    is Value.ParamRef -> Val.Live(v.name, null)
+                    is Value.Expr -> (OccurrenceBake.fold(lc, bound(v.source), ExprType.VEC3) as? ExprValue.Vec3)?.let { Val.Known(Vector3d(it.value.x, it.value.y, it.value.z)) }
+                        ?: Val.Live("= ${OccurrenceBake.bake(bound(v.source), lc.occurrence)}", null)
+                },
+            )
+            is ParticleOffset.Frame -> {
+                val n = (count as? Val.Known<Int>)?.value
+                    ?: return invalid("a frame-axis offset {forward, up, left} needs a count known at load (0 = direction, above 0 = cube spread): write count as a literal, a known param or an '= expr' over i / n")
+                val axes = listOf("forward" to o.forward, "up" to o.up, "left" to o.left)
+                if (n > 0) {
+                    val sizes = axes.map { (axis, c) ->
+                        foldedNum(c, lc) ?: return invalid("offset.$axis of a spread box must fold at load (literal, \${param} or '= expr' over i / n)")
+                    }
+                    if (sizes.any { it != sizes[0] }) {
+                        return invalid(
+                            "a vanilla spread box is axis-aligned in the world and cannot be rotated into the anchor frame: forward / up / left must be equal (a cube, " +
+                                "got ${sizes[0]} / ${sizes[1]} / ${sizes[2]}). Write it as a world vec [x, y, z], or use count 0 for a direction",
+                        )
+                    }
+                    return Result.Success(Val.Known(Vector3d(sizes[0], sizes[0], sizes[0])))
+                }
+                val frame = when (val b = ParticlePlacement.base(lc, op.anchor.of, "particle")) {
+                    is Result.Failure -> return b
+                    is Result.Success -> b.value ?: return invalid("anchor '${op.anchor.of}' is not declared in this scope")
+                }
+                val terms = axes.mapNotNull { (axis, c) ->
+                    val src = ParticlePlacement.componentSource(c) ?: return invalid("a \${param} in offset.$axis was not substituted before lowering")
+                    if (src == "0.0") null else "axis(${frame.frame}, '$axis') * ${bound(src)}"
+                }
+                if (terms.isEmpty()) return Result.Success(Val.Known(Vector3d(0.0, 0.0, 0.0)))
+                return Result.Success(Val.Live("= ${OccurrenceBake.bake(terms.joinToString(" + "), lc.occurrence)}", null))
+            }
+        }
+    }
+
+    /** `[x, y, z]` / `${param}` / `= expr` (world), or the map `{forward, up, left}` (the anchor's axes). */
+    private object ParticleOffsetType : FieldType<ParticleOffset> {
+        override val label = "[x, y, z], {forward, up, left}, \${param} or '= expr'"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): ParticleOffset {
+            if (raw !is Map<*, *>) return ParticleOffset.World(Types.worldVec3.decode(raw, ctx, path))
+            val v = FrameVecs.axes.read(raw, ctx, path)
+            return ParticleOffset.Frame(v[FrameVecs.forward], v[FrameVecs.up], v[FrameVecs.left])
+        }
+        override fun schema(): Map<String, Any?> =
+            linkedMapOf("oneOf" to (Types.worldVec3.schema()["oneOf"] as List<*> + listOf(FrameVecs.axes.jsonSchema())))
     }
 
     private fun styleOf(values: FieldValues, ctx: GrammarContext): ParticleStyle {

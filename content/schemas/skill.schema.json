@@ -7207,26 +7207,75 @@
                             "default": 1.0
                         },
                         "offset": {
-                            "oneOf": [
+                            "anyOf": [
                                 {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "number"
-                                    },
-                                    "minItems": 3,
-                                    "maxItems": 3
+                                    "oneOf": [
+                                        {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            },
+                                            "minItems": 3,
+                                            "maxItems": 3
+                                        },
+                                        {
+                                            "type": "string",
+                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "required": [],
+                                            "properties": {
+                                                "forward": {
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
+                                                    "description": "blocks along the frame's forward axis",
+                                                    "default": 0.0
+                                                },
+                                                "up": {
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
+                                                    "description": "blocks along the frame's up axis",
+                                                    "default": 0.0
+                                                },
+                                                "left": {
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                                        }
+                                                    ],
+                                                    "description": "blocks along the frame's left axis",
+                                                    "default": 0.0
+                                                }
+                                            }
+                                        }
+                                    ]
                                 },
                                 {
-                                    "type": "string",
-                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
+                                    "type": "null"
                                 }
                             ],
-                            "description": "world-axis spread box, or direction when count is 0",
-                            "default": [
-                                0.0,
-                                0.0,
-                                0.0
-                            ]
+                            "description": "absent = [0, 0, 0]. [x, y, z] / ${param} / '= expr': world-axis spread box, or world direction when count is 0. {forward, up, left}: the same in the anchor's axes (direction resolved each emission tick; a spread box must be a cube)",
+                            "default": null
                         },
                         "extra": {
                             "oneOf": [

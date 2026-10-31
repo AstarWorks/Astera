@@ -1,11 +1,5 @@
 id: example-burst
-shape:
-  kind: burst
-  spread_blocks: 1.5
-color:
-  r: 200
-  g: 80
-  b: 30
+particle: flame
 count: 24
-lifetime_ticks: 20
+offset: [1.5, 1.5, 1.5]
 display_name_key: astera.particle.example-burst.name

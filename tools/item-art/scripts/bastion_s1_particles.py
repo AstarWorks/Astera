@@ -22,20 +22,25 @@ VFX = ROOT / "content/vfx"
 MARK = "# --- particle layer (tools/item-art/scripts/bastion_s1_particles.py): do not edit by hand ---"
 
 
-def rgb(c):
-    return "{ r: %d, g: %d, b: %d }" % c
+def hexc(c):
+    return '"#%02x%02x%02x"' % c
 
 
-def pdef(name, comment, vanilla, count, lifetime, shape="{ kind: point }", color=(255, 255, 255), data=None, velocity=None, size=None):
-    lines = ["# " + comment, "id: bastion-s1-p-" + name, "shape: " + shape, "color: " + rgb(color), "count: %d" % count,
-             "lifetime_ticks: %d" % lifetime, "vanilla_particle: " + vanilla]
-    if size is not None:
-        lines.append("size: %s" % size)
+def pdef(name, comment, vanilla, count, shape=None, color=(255, 255, 255), data=None, velocity=None, size=None, speed=None):
+    """One content/particles file in the op dialect (ADR-0312): `particle`, `count`, `offset` (the burst spread as a world cube),
+    `extra`, and the particle data as flat `color` / `to_color` / `size` fields. `shape` is a (spread,) tuple = the vanilla scatter
+    cube; `data` is a dust_color_transition (from, to, scale) tuple; `velocity` replaces the scatter and the extra."""
+    lines = ["# " + comment, "id: bastion-s1-p-" + name, "particle: " + vanilla, "count: %d" % count]
+    if shape and not velocity:
+        lines.append("offset: [%s, %s, %s]" % ((shape[0],) * 3))
+    if speed and not velocity:
+        lines.append("extra: %s" % speed)
     if data:
-        lines.append("data: " + data)
+        lines += ["color: " + hexc(data[0]), "to_color: " + hexc(data[1]), "size: %s" % data[2]]
+    elif size is not None:
+        lines += ["color: " + hexc(color), "size: %s" % size]
     if velocity:
         lines.append("velocity: " + velocity)
-    lines.append("force: true")
     (PART / ("bastion-s1-p-%s.yaml" % name)).write_text("\n".join(lines) + "\n")
 
 
@@ -120,7 +125,7 @@ def patch(path, fx):
 # rig through rig_path.py (plan dump = the runtime's own blade per tick), nothing is hand-placed, so a re-keyed motion moves
 # the whole layer with it: re-run this script after any rig / skill timing change .
 #
-# Volume: every emitter is a vanilla scatter (`shape: burst` = gaussian position spread in all three axes, `speed` = random
+# Volume: every emitter is a vanilla scatter (`offset: [s, s, s]` = gaussian position spread in all three axes, `extra` = random
 # velocity in all three axes) or a random-direction `outward` spray, so the particles form a sheath AROUND the blade, not a
 # plane: they read the same from the front, back, both sides, above and from a player standing next to the caster.
 #
@@ -150,17 +155,15 @@ CHAR = (60, 34, 20)
 DEFS = {}
 
 
-def vdef(name, comment, vanilla, count, life, shape="{ kind: point }", color=(255, 255, 255), data=None, velocity=None,
+def vdef(name, comment, vanilla, count, life, shape=None, color=(255, 255, 255), data=None, velocity=None,
          speed=None, size=None):
-    pdef(name, comment, vanilla, count, life, shape=shape, color=color, data=data, velocity=velocity, size=size)
-    if speed is not None:  # pdef has no `speed:` line (vanilla random-velocity scale for count > 0 scatter)
-        f = PART / ("bastion-s1-p-%s.yaml" % name)
-        f.write_text(f.read_text().replace("force: true\n", "speed: %s\nforce: true\n" % speed))
+    """`life` is the original authoring-time lifetime hint; the def no longer carries it (the client owns the particle life)."""
+    pdef(name, comment, vanilla, count, shape=shape, color=color, data=data, velocity=velocity, size=size, speed=speed)
     DEFS[name] = dict(vanilla=vanilla, count=count)
 
 
 def dct(a, b, scale):
-    return "{ kind: dust_color_transition, from: %s, to: %s, scale: %s }" % (rgb(a), rgb(b), scale)
+    return (a, b, scale)
 
 
 def defs():
@@ -169,7 +172,7 @@ def defs():
         old.unlink()
     # dust life (DustParticleBase, 26.3 jar): 8 / (0.2 + 0.8 U) ticks x scale, so scale 0.45 lives 4-18 (median ~7): the
     # sheath re-rolls every tick instead of piling up; scale 1.0 hung a full ring of trail dust for 20+ ticks (r28 sim).
-    burst = lambda s: "{ kind: burst, spread_blocks: %s }" % s  # noqa: E731
+    burst = lambda s: (s,)  # noqa: E731
     # blade sheath (held poses, every tick, every 0.2 blocks root -> tip)
     vdef("sheath", "r28 blade sheath: gold -> orange dust, 2 per point scattered round the blade (3D), re-rolled every tick.",
          "dust_color_transition", 1, 10, burst(0.04), GOLD, dct(GOLD_HOT, ORANGE, 0.28), speed=0.0)

@@ -1,13 +1,6 @@
 # tool skill hit area (shovel: earth puff); heavier at diamond tier
 id: tool-shovel-diamond
-shape:
-  kind: burst
-  spread_blocks: 0.6
-color:
-  r: 255
-  g: 255
-  b: 255
+particle: poof
 count: 12
-lifetime_ticks: 12
-vanilla_particle: poof
-speed: 0.04
+offset: [0.6, 0.6, 0.6]
+extra: 0.04

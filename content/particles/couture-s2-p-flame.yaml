@@ -1,10 +1,5 @@
 # orange flame flecks
 id: couture-s2-p-flame
-shape: {kind: burst, spread_blocks: 0.15}
-color: {r: 255, g: 140, b: 40}
+particle: flame
 count: 6
-lifetime_ticks: 8
-vanilla_particle: flame
-speed: 0.0
 velocity: {direction: outward, speed: 0.22, spread_degrees: 0, speed_jitter: 0.5}
-force: true

@@ -1,13 +1,7 @@
 # frost nova: blue-white dust cloud
 id: frost-nova-dust
-shape:
-  kind: sphere
-  radius_blocks: 2.0
-color:
-  r: 190
-  g: 225
-  b: 255
+particle: dust
 count: 70
-lifetime_ticks: 20
-vanilla_particle: dust
+color: "#bee1ff"
 size: 1.4
+shape: {kind: sphere, radius_blocks: 2.0}

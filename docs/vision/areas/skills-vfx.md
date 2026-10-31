@@ -9,7 +9,7 @@ Owner track `wp/skills-vfx`. Items: Board prefix `SKL-`. Sources: handoff `limbu
 - **Done = reviewer PASS + founder approval.** The reviewer judges motion match per beat against the reference and the founder's words, never particle counts.
 
 ## 現状
-- 基準点は 079262164 (integrate19, 2026-10-30)。スキル engine は v3 (ADR-0303, Status **Proposed**, rev4.17 `docs/adr/0303-natural-skill-schema.md`)。
+- 基準点は 079262164 (integrate19, 2026-10-30)。スキル engine は v3 (ADR-0303, Status **Accepted** rev4.22, rev4.17 時点の記述 `docs/adr/0303-natural-skill-schema.md`)。
 - スコープ: `content/skills/` に Limbus は bastion-greatsword (def/s1/s2/ego) と couture-rapier (def/s1/s2/s3/ego) の 9 文書のみ。他 8 family は founder 2026-10-29 の決定で削除 (`content/skills` に id なし)。基本スキルは残し v3 へ移行、sample-* 14 を含め計 131 文書 (ls)。
 - 時間: 事前 compile された tick 表 (TablePlayer) を進める。ランダムは visual のみ (founder 10/29, ADR-0303 rev4 precompute contract, `TablePlayerRulesScenarioTest.kt`)。
 - 継承: tier は `extends` で base skill から派生 (ADR-0303 l.921-933)。
@@ -21,6 +21,7 @@ Owner track `wp/skills-vfx`. Items: Board prefix `SKL-`. Sources: handoff `limbu
 - 銃の tracer: 射線は交差 2 quad の line ribbon (`1288f286d`, `GunTracerScenarioTest.kt`)。1 人称の muzzle は hand 位置 (`0fa37220d`)。
 - end_rod: 撃ち込み・詠唱の burst 13 行を element 別の electric_spark / snowflake / crit に置換。count-1 の trail は end_rod のまま (`0428c51ab`)。content で end_rod を参照するファイルは 12 (grep)。
 - line: `shape: line` の ribbon segment は 1 item_display (両面モデル) で、どの角度からも同じ太さで途切れない (ADR-0303 rev4.15, capture `/tmp/claude-1000/skill-engine/shots-line/` chain-lightning / rifle-shot の side・caster 4 枚で連続を確認)。PoseCompose は instance base scale ∘ reactive scale (rev4.16)、`pull` op は rev4.17。
+- particle frame basis (ADR-0312): `particle` op の `offset` は `{forward, up, left}` で書ける。count 0 は emission tick ごとに anchor の軸で world 方向に解決 (vanilla 1:1)、count > 0 は立方体のみ、非立方体は load error。`content/particles/*.yaml` は op と同一 dialect (94 files 書換、`lifetime_ticks` 等削除)。`ParticleFrameBasisScenarioTest`。
 - 近カメラの crit / electric_spark の拡大は未確認 (shot 待ち、`/tmp/claude-1000/skill-engine/board-pending.md` l.411)。
 - 検証: 079262164 時点の game-sim は 724 件中 30 件 fail (`board-pending.md` l.421)。実クライアントの再撮影と e2e は manager の統合 window 待ち。
 - 14 `sample-*` (machine/display 形式) と shader demo 3 件 (ADR-0305, `content/vfx/demo-shader-{dissolve,uv-flow,emissive-pulse}.yaml`)。旧 capture は v2 世代の記録。v3 での再撮影は未。

@@ -1,15 +1,8 @@
 # pink-white speed dust
 id: couture-s2-p-pink
-shape: {kind: burst, spread_blocks: 0.3}
-color: {r: 255, g: 190, b: 215}
+particle: dust_color_transition
 count: 4
-lifetime_ticks: 10
-vanilla_particle: dust_color_transition
-data:
-  kind: dust_color_transition
-  from: {r: 255, g: 230, b: 240}
-  to: {r: 255, g: 150, b: 195}
-  scale: 1.1
-speed: 0.0
+color: "#ffe6f0"
+to_color: "#ff96c3"
+size: 1.1
 velocity: {direction: outward, speed: 0.12, spread_degrees: 0, speed_jitter: 0.6}
-force: true

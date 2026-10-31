@@ -1,13 +1,6 @@
 # thunder impact: white glints
 id: thunder-impact-glow
-shape:
-  kind: burst
-  spread_blocks: 0.4
-color:
-  r: 255
-  g: 255
-  b: 255
+particle: electric_spark
 count: 14
-lifetime_ticks: 20
-vanilla_particle: electric_spark
-speed: 0.15
+offset: [0.4, 0.4, 0.4]
+extra: 0.15

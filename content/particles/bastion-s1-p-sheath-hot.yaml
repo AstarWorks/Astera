@@ -1,10 +1,8 @@
 # r28 white-hot edge glints on the outer half of the blade.
 id: bastion-s1-p-sheath-hot
-shape: { kind: burst, spread_blocks: 0.035 }
-color: { r: 255, g: 252, b: 230 }
+particle: dust_color_transition
 count: 1
-lifetime_ticks: 8
-vanilla_particle: dust_color_transition
-data: { kind: dust_color_transition, from: { r: 255, g: 252, b: 230 }, to: { r: 255, g: 200, b: 70 }, scale: 0.35 }
-speed: 0.0
-force: true
+offset: [0.035, 0.035, 0.035]
+color: "#fffce6"
+to_color: "#ffc846"
+size: 0.35

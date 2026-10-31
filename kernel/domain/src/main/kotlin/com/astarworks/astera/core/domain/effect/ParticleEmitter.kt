@@ -47,7 +47,7 @@ public object ParticleEmitter {
         public val pointCount: Int? get() = samples?.size
     }
 
-    public fun bake(shape: ParticleShape): BakedShape {
+    public fun bake(shape: ParticleShape?): BakedShape {
         // Store raw curve results: rotating by identity here would change signed-zero/rounding behaviour.
         fun local(c: Curve, points: Int, planar: Boolean = true, spherical: Boolean = false): List<Sample> =
             c.distribute(points).map { t ->
@@ -60,7 +60,7 @@ public object ParticleEmitter {
                 Sample(position, c.tangent(t), outward.takeIf { it.lengthSquared() > EPS } ?: UP)
             }
         val samples = when (shape) {
-            ParticleShape.Point, is ParticleShape.Burst -> null
+            null -> null
             is ParticleShape.Line -> shape.points?.let { local(Curve.Line(Vec3.ZERO, Vec3(0.0, 0.0, shape.lengthBlocks)), it, planar = false) }
             is ParticleShape.Circle -> shape.points?.let { local(Curve.Arc(shape.radiusBlocks, 0.0, 360.0), it) }
             is ParticleShape.Ring -> local(Curve.Arc(shape.radiusBlocks, 0.0, 360.0), shape.points)

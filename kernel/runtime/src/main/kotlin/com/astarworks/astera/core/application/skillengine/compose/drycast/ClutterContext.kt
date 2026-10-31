@@ -29,7 +29,7 @@ public class ClutterContext(
                 is Result.Success -> Result.Success(ClutterContext(l.value, particleDefs(contentDir.resolve("particles")), bodySkeleton, bodyClip))
             }
 
-        /** Flat line scan (the same fields the particle loader reads): `vanilla_particle:`, the top-level `count:` and a `scale:` in the data block. */
+        /** Flat line scan (the same fields the particle loader reads): `particle:`, the top-level `count:` and the dust `size:`. */
         public fun particleDefs(dir: Path): Map<String, ParticleDefInfo> {
             if (!Files.isDirectory(dir)) return emptyMap()
             val out = HashMap<String, ParticleDefInfo>()
@@ -47,8 +47,8 @@ public class ClutterContext(
             return out
         }
 
-        private val VANILLA = Regex("(?m)^vanilla_particle:\\s*(\\S+)")
-        private val SCALE = Regex("scale:\\s*([0-9.]+)")
+        private val VANILLA = Regex("(?m)^particle:\\s*(\\S+)")
+        private val SCALE = Regex("(?m)^size:\\s*([0-9.]+)")
         private val COUNT = Regex("(?m)^count:\\s*(\\d+)")
     }
 }

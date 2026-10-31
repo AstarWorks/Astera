@@ -229,7 +229,7 @@ internal class LintRunner(private val cli: CliArgs) {
         if (skins.isEmpty()) return emptyList()
         val users = yamlFilesIn("particles").mapNotNull { f ->
             val node = runCatching { f.reader().use { YamlToJson.parse(it) } }.getOrNull() ?: return@mapNotNull null
-            node.get("vanilla_particle")?.asText()?.removePrefix("minecraft:")?.let { it to f.name }
+            node.get("particle")?.asText()?.removePrefix("minecraft:")?.let { it to f.name }
         }
         return skins.map { (type, channel) ->
             val using = users.filter { it.first == type }.map { it.second }

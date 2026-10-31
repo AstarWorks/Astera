@@ -1,13 +1,6 @@
 # tool skill hit area (pickaxe: sparks off the rock); heavier at stone tier
 id: tool-pick-stone
-shape:
-  kind: burst
-  spread_blocks: 0.25
-color:
-  r: 255
-  g: 255
-  b: 255
+particle: electric_spark
 count: 10
-lifetime_ticks: 12
-vanilla_particle: electric_spark
-speed: 0.35
+offset: [0.25, 0.25, 0.25]
+extra: 0.35

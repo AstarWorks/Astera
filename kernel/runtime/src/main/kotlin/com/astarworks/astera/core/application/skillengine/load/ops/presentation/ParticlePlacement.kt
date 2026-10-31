@@ -163,7 +163,7 @@ internal object ParticlePlacement {
         return Result.Success(rows)
     }
 
-    private fun componentSource(c: Value<Double>): String? = when (c) {
+    fun componentSource(c: Value<Double>): String? = when (c) {
         is Value.Literal -> c.value.toString()
         is Value.Expr -> "(${c.source})"
         is Value.ParamRef -> null
