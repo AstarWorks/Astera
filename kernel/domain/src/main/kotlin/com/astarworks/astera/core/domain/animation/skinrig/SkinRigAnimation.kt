@@ -164,13 +164,24 @@ public data class BonePose(
 /**
  * A sampled pose of every bone plus the whole-rig [root] transform; bones the animation does not touch are at rest.
  * [leftHandGrip] (0..1) is how far the left arm is turned from its authored rotation to aim at the right-hand grip.
+ * [rightHandTarget] (rig frame, blocks, `PLAYER_SCALE` applied: +X the player's left, +Y up, +Z front) pins the right
+ * hand: when set, the right arm's authored rotation is replaced by a look-at onto this point (ADR-0315), so the grip of
+ * the held item is the point. The skill engine fills it with the origin of the weapon frame the rig rides.
  */
 public data class RigFrame(
     public val root: BonePose,
     public val bones: Map<SkinRigBone, BonePose>,
     public val leftHandGrip: Double = 0.0,
+    public val rightHandTarget: Vec3? = null,
 ) {
     public companion object {
         public val REST: RigFrame = RigFrame(BonePose.REST, SkinRigBone.entries.associateWith { BonePose.REST })
     }
 }
+
+/**
+ * Where a driven puppet stands this tick (ADR-0315): [feet] in world blocks, [yawDeg] / [pitchDeg] in Minecraft degrees
+ * (yaw 0 = +Z, positive turns clockwise seen from above; pitch positive looks down). The rig frame is turned by the yaw,
+ * the head bone follows the pitch. The skill engine pushes it from the same `caster` frame its own tables use.
+ */
+public data class RigAnchor(public val feet: Vec3, public val yawDeg: Double, public val pitchDeg: Double)

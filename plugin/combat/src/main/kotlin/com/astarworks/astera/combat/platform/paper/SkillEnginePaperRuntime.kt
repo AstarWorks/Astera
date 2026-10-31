@@ -146,7 +146,7 @@ internal class SkillEnginePaperRuntime(
             randomizer = services.getOrThrow<IDamageRandomizer>(),
             resourcePool = { services.get<IResourcePoolService>() },
             feedback = ports.playerFeedbackGateway?.invoke(services) ?: startFailed("no player feedback gateway (camera_shake / screen_flash / stop_sound)"),
-            bodyRigs = services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() ?: startFailed("no ISkinRigAnimator (body clips)"),
+            puppet = services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigPuppet>() ?: startFailed("no ISkinRigPuppet (body clips)"),
             bodyRegistry = services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() ?: startFailed("no ISkinRigRegistry (body clips)"),
             bodyPoses = services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>() ?: startFailed("no IPlayerAnimationGateway (body pose clips)"),
             bodySkeleton = wired.bodySkeleton,

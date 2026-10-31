@@ -163,7 +163,8 @@ public object DryCast {
             override fun cameraShake(cast: CastRef, viewer: UUID, intensity: Double, ticks: Int, from: Vec3?) {}
             override fun screenFlash(cast: CastRef, viewer: UUID, overlay: String, colorRgb: Int?, fadeInTicks: Int, stayTicks: Int, fadeOutTicks: Int) {}
             override fun stopSound(cast: CastRef, viewer: UUID, sound: String) {}
-            override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double, holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold>) {}
+            override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double) {}
+            override fun poseBody(cast: CastRef, target: UUID, frame: com.astarworks.astera.core.domain.animation.skinrig.RigFrame, anchor: com.astarworks.astera.core.domain.animation.skinrig.RigAnchor?) {}
             override fun isPlayer(entity: UUID) = entity == CASTER
             override fun bodyClip(anim: String) = ctx.bodyClip(anim)
             override fun bodySkeleton() = ctx.bodySkeleton

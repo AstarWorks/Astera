@@ -88,7 +88,7 @@ internal class CorePaperBindings(
     @Volatile private var arenaWorld: com.astarworks.astera.core.adapter.paper.arena.PaperArenaWorld? = null
 
     private var playerAnimationGateway: com.astarworks.astera.core.adapter.paper.animation.PaperPlayerAnimationGateway? = null
-    private var skinRigAnimator: com.astarworks.astera.core.adapter.paper.animation.PaperSkinRigAnimator? = null
+    private var skinRigPuppet: com.astarworks.astera.core.adapter.paper.animation.PaperSkinRigPuppet? = null
     private var playerPresentation: com.astarworks.astera.core.adapter.paper.presentation.PaperPlayerPresentation? = null
 
     /** Retained so [shutdown] can call [PaperScheduler.stop]. */
@@ -342,14 +342,13 @@ internal class CorePaperBindings(
                     playerPresentation = it
                 }
             },
-            skinRigAnimator = { services ->
-                com.astarworks.astera.core.adapter.paper.animation.PaperSkinRigAnimator(
+            skinRigPuppet = { services ->
+                com.astarworks.astera.core.adapter.paper.animation.PaperSkinRigPuppet(
                     server = server,
                     scheduler = scheduler,
-                    registry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
                     presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>() },
                 ).also {
-                    skinRigAnimator = it
+                    skinRigPuppet = it
                 }
             },
             cameraGateway = { services ->
@@ -931,8 +930,8 @@ internal class CorePaperBindings(
 
     /** Paper-side teardown; the host-neutral wiring tears down via `WiringContext.close()` + `CoreWiringResult.shutdown()`. */
     fun shutdown() {
-        skinRigAnimator?.shutdown()
-        skinRigAnimator = null
+        skinRigPuppet?.shutdown()
+        skinRigPuppet = null
         playerPresentation?.shutdown()
         playerPresentation = null
         playerAnimationGateway?.shutdown()

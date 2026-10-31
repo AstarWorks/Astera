@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 
 /**
  * One weapon per cast (founder 10/31: the bastion greatsword showed twice). The weapon of a cast is the skill's main-hand rig mesh; the
- * caster's body puppet (`body` op -> skin rig) draws no main-hand stack of its own (`playBodyClip` -> `ISkinRigAnimator.play(heldItem = false)`
+ *  caster's body puppet (`body` op -> skin rig) draws no main-hand stack of its own (`playBodyClip` -> `ISkinRigPuppet.show(heldItem = false)`
  * in `PaperSkillGameplayGateway`, the Paper-side half of the contract). This pins the engine half: at every tick of the cast the number
  * of live main-hand mesh displays is at most 1, and the skill draws one at all.
  */

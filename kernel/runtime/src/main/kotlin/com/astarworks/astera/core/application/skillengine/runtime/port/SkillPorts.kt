@@ -256,8 +256,20 @@ public interface ISkillGameplayGateway {
     /** `stop_sound` (R26): stops the named sound for [viewer]. */
     public fun stopSound(cast: CastRef, viewer: UUID, sound: String)
 
-    /** `body` (R41): plays the clip [anim] on [target]'s body (skin rig, else a pose clip) at [speed]; [target] is the caster, or the victim / attacker of the event (`body target:`). */
-    public fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double, holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold>)
+    /**
+     * `body` (R41): shows the clip [anim] on [target]'s body: a skin-rig clip puts up the driven puppet, which the engine then
+     * poses every tick through [poseBody] (ADR-0315); any other id plays as a pose clip. [speed] is the clip clock the engine
+     * samples with. [target] is the caster, or the victim / attacker of the event (`body target:`).
+     */
+    public fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double)
+
+    /**
+     * One tick of the driven puppet (ADR-0315): [frame] is the body pose the engine's own frame table used this tick (the
+     * right hand pinned to the weapon frame origin when a `rig frame:` rides it), [anchor] the caster's feet / yaw / pitch
+     * of the same tick; null for a body the engine has no table anchor for (a victim's), the puppet then stands where that
+     * player stands. No puppet shown on [target] is a no-op.
+     */
+    public fun poseBody(cast: CastRef, target: UUID, frame: com.astarworks.astera.core.domain.animation.skinrig.RigFrame, anchor: com.astarworks.astera.core.domain.animation.skinrig.RigAnchor?)
 
     /** True when [entity] is an online player (a body clip only plays on one; `react player:` is skipped for any other living entity). */
     public fun isPlayer(entity: UUID): Boolean

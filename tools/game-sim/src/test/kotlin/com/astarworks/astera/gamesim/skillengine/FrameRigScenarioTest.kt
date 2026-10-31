@@ -1,12 +1,9 @@
 package com.astarworks.astera.gamesim.skillengine
 
 import com.astarworks.astera.core.domain.Result
-import com.astarworks.astera.core.domain.animation.skinrig.RigFrame
-import com.astarworks.astera.core.domain.animation.skinrig.SkinRigPlayback
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigTransforms
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
-import com.astarworks.astera.gamesim.SimClips
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
@@ -17,7 +14,7 @@ import kotlin.math.asin
  * A `rig` riding a frame (ADR-0314, bastion-greatsword-s1 `frame: blade`): the held mesh is placed with the part's `long` axis along the
  * frame's `v` and its `edge` along `w`, grip on the origin. Two things the frame grammar promises by construction:
  *
- *  - (b) the weapon frame origin is the skin-rig hand: the mesh's grip point sits on the hand of the caster's body pose at every tick;
+ *  - (b) the skin-rig hand is the weapon frame origin: the puppet's right hand is pinned onto the frame origin the mesh's grip sits on, every tick (ADR-0315);
  *  - (d) the edge leads: a swing is a turn about the frame's own `s`, so the tip's velocity lies in the blade plane (long x edge) on every
  *        tick the blade moves. Measured from the model's real axes through the whole chain (arm + hand + frame rotation) and the tip's
  *        finite-difference velocity. Ticks with a slow tip (the hand's own translation dominates) and the `reset` window (a slerp back to
@@ -56,22 +53,32 @@ class FrameRigScenarioTest : SkillEngineScenario() {
         return Played(start, frames, caster, rec)
     }
 
+    /**
+     * ADR-0315: the puppet is driven by the engine, one `poseBody` per tick with the frame the table used, its right hand pinned onto the
+     * `blade` frame's origin by look-at. Judged on what the Paper puppet draws: the held-item grip of the pushed frame, placed by the pushed
+     * anchor, against the mesh's grip point (which sits on the frame origin by construction). Reach is reported per tick: a target the
+     * straight arm cannot reach (farther, or nearer, than the arm + grip) is clamped onto the arm's ray and listed.
+     */
     @Test
-    fun theHeldMeshGripSitsOnTheSkinRigHandEveryTick() {
+    fun thePuppetGripSitsOnTheBladeFrameOriginEveryTick() {
         val p = playS1()
-        val playback = SkinRigPlayback(SimClips.clip("bastion-s1-body") ?: error("clip bastion-s1-body"), 1.0, p.rec.lastBodyHolds)
+        val pushed = p.rec.pushedBody.associateBy { it.tick }
         var worst = 0.0
         var worstTick = -1
-        for ((tick, frame) in p.meshFrames) {
-            val s = (tick - p.start - 1).coerceAtLeast(0)
-            val rigFrame = playback.frameAt(s) ?: RigFrame.REST
-            val hand = SkinRigTransforms.compute(rigFrame, true).heldItem.translation.let { Vec3(it.x, it.y, it.z) } + p.casterAt.getValue(tick)
+        val reach = ArrayList<String>()
+        for ((tick, frame) in p.meshFrames.entries.sortedBy { it.key }) {
+            val push = pushed[tick] ?: throw AssertionError("no puppet pose was pushed on t$tick (the mesh was written there)")
+            val anchor = push.anchor ?: throw AssertionError("the caster's puppet was pushed without its anchor on t$tick")
+            assertThat(push.frame.rightHandTarget).describedAs("the right hand is pinned on t$tick").isNotNull
+            val rig = Frame.fromYawPitch(anchor.feet, anchor.yawDeg, 0.0)
+            val hand = rig.toWorld(SkinRigTransforms.compute(push.frame, false).heldItem.translation.let { Vec3(it.x, it.y, it.z) })
             val d = frame.toWorld(grip).distance(hand)
             if (d > worst) { worst = d; worstTick = tick }
+            SkinRigTransforms.rightHandReach(push.frame, false)?.let { if (abs(it) > 0.02) reach += "t%d %+.3f".format(tick, it) }
         }
-        println("FRAME-RIG grip-to-hand worst=%.4f at t%d over %d ticks".format(worst, worstTick, p.meshFrames.size))
+        println("FRAME-RIG puppet grip vs blade origin worst=%.4f at t%d over %d ticks; reach clamped (blocks beyond the arm): %s".format(worst, worstTick, p.meshFrames.size, if (reach.isEmpty()) "none" else reach.joinToString(" ")))
         assertThat(p.meshFrames.size).isGreaterThan(50)
-        assertThat(worst).describedAs("the weapon frame origin is the skin-rig hand").isLessThan(0.08)
+        assertThat(worst).describedAs("the puppet's right-hand grip sits on the blade frame origin (worst at t$worstTick)").isLessThan(0.05)
     }
 
     @Test

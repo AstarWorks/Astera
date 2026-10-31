@@ -11,7 +11,8 @@ blade along a direction with its broad face toward a hint, the head looking at a
 Frames: world = rig frame of the cast (X = the caster's LEFT at the cast, Y up, Z = toward the enemy); `yaw` > 0 turns the
 chest to its left (a right-handed forehand spin). Positions in blocks, feet at y 0. Points can be given in the WORLD frame (`w`)
 or the pose's HEADING frame (`h`: f = where the chest faces after the yaw, l = its left, u = up).
-Writes content/animations/bastion-s1-body.yaml and the `swing:` keys of content/vfx/bastion-s1-rig.yaml.
+Writes content/animations/bastion-s1-body.yaml and the `move:` keys of the `blade` frame in content/skills/bastion-greatsword-s1/skill.yaml
+(the right hand is pinned onto that frame origin by the engine, ADR-0315; the clip has no right_arm track).
 """
 from __future__ import annotations
 
@@ -193,7 +194,7 @@ def report(spec, p):
     lh = np.linalg.norm(lm["hand_l"] - (wp["grip"] - wp["axis"] * 0.17)) if spec.two_hand else 0
     sc = [round(float(p.bones[n]["scale"][1]), 2) for n in ("right_leg", "left_leg")]
     lh = max(lh, 0) if not spec.two_hand else float(np.linalg.norm(lm["hand_l"] - wp["grip"]))  # the lint's number: left hand end to the grip origin
-    print(f"  {spec.name:<14} grip err {rg:.3f} lhand err {lh:.3f} grip {np.round(wp['grip'], 2).tolist()}"
+    print(f"  {spec.name:<14} grip err {rg:.3f} lhand err {lh:.3f} grip {np.round(wp['grip'], 2).tolist()} shoulder {np.round(lm['joint_r'], 2).tolist()}"
           f" head_top y {lm['head_top'][1]:.2f} hips y {lm['hips'][1]:.2f} leg scale {sc}")
 
 
@@ -231,8 +232,8 @@ def W(v):
 
 GRIP_PIN = {  # world (x_left, y, z_fwd) grip of each key as the approved blade path reached it (the ring derives from it): the BODY moves, the blade does not
     "coil": (-0.383, 0.533, -0.297),
-    "coil-hold": (-0.383, 0.533, -0.297),
-    "wind-back": (-0.261, 0.808, -0.570),
+    "lift": (-0.383, 1.333, -0.297),        # straight above the coil grip: the lift stays in the (still vertical) blade plane
+    "lift-hold": (-0.383, 1.333, -0.297),
     "cut1-a": (-0.727, 1.348, -0.132),
     "cut1-b": (-0.021, 1.308, 0.910),
     "cut1-hit": (0.642, 1.313, -0.109),
@@ -240,8 +241,8 @@ GRIP_PIN = {  # world (x_left, y, z_fwd) grip of each key as the approved blade 
     "follow-b": (0.255, 1.210, -0.397),
     "over": (0.205, 1.205, -0.400),
     "over-hold": (0.181, 1.207, -0.418),
-    "settle-a": (0.137, 0.710, -0.408),
-    "settle-b": (0.072, 0.678, -0.449),
+    "settle-a": (0.134, 1.021, -0.435),     # the hand comes down evenly over 16-19 (0.19 blocks a tick, below the tip-speed the edge test judges)
+    "settle-b": (0.088, 0.836, -0.451),
     "rest-away": (0.041, 0.650, -0.468),
     "rest-hold": (0.041, 0.650, -0.468),
     "crouch2": (0.075, 0.719, -0.364),
@@ -252,8 +253,8 @@ GRIP_PIN = {  # world (x_left, y, z_fwd) grip of each key as the approved blade 
     "thrust2-m2": (-0.058, 0.811, 0.711),
     "thrust2-m3": (-0.080, 0.812, 0.712),
     "thrust2-hold": (-0.101, 0.812, 0.713),
-    "drop2": (-0.464, 0.460, 0.047),
-    "drop2-b": (-0.410, 0.530, -0.259),
+    "drop2": (-0.15, 0.70, 0.25),           # the blade runs out level (37-39) and is rolled for the slam with the hand still (40): the hand comes
+    "drop2-b": (-0.22, 0.60, -0.30),        # back in to the body.s right-front, then right-back, descending 0.1 a tick (at arm.s length of each beat.s shoulder)
     "coil-end": (-0.383, 0.533, -0.297),
 }
 
@@ -291,8 +292,10 @@ ENEMY = np.array([0.0, 1.3, 4.0])
 AWAY = np.array([0.8, 0.6, -3.5])
 BEATS = [  # skill tick, chest yaw, tip azimuth, tip height, face; ticks 1, 8-9 and 32-33 have no rig tick (cast tick / hit-stop)
     Beat(0, -35, -62, 0.05, "cam", lean=24, name="coil"),
-    Beat(3, -35, -62, 0.05, "cam", lean=24, name="coil-hold"),
-    Beat(4, -45, -75, 1.15, ("cam", "ccw", 0.6), lean=28, drop=0.24, grip_y=1.15, name="wind-back"),  # anticipation: lift behind the shoulder, against the cut
+    # ADR-0315: the hand lifts straight up over t0-2 while the blade is still edge-up (the lift is IN the blade plane), the blade rolls flat
+    # at t2-3 with the hand still, then the wind-back t3-5 travels level: every tick the tip moves, it moves along the edge
+    Beat(2, -35, -62, 2.9, "cam", lean=24, grip_y=1.33, name="lift"),
+    Beat(3, -35, -62, 2.9, "cam", lean=24, grip_y=1.33, name="lift-hold"),
     # r5: the blade lies IN the ring plane through the swing + follow-through (plane ~y 1.3, derived from the tip path): grip at 1.2-1.25
     # (arm raised to ~shoulder height, shallower crouch) and tip at 1.3-1.4, so blade-vs-plane stays under ~6 deg on skill 5-16
     Beat(5, 5, 5, 1.30, "ccw", lean=18, drop=0.12, grip_y=1.32, name="cut1-a", twist=TW),                          # behind -> the near side
@@ -321,13 +324,107 @@ BEATS = [  # skill tick, chest yaw, tip azimuth, tip height, face; ticks 1, 8-9 
 
 
 def rig_tick(skill_tick):
-    if skill_tick == 0:
-        return 0  # the rig starts one effect tick after the cast: rig 0 is what the cast tick shows
-    stops = RM.stops_from_freezes(FREEZES, base=1)
-    for l in range(DURATION + 1):
-        if RM.effect_tick_of_rig_tick(l, 1, stops) == skill_tick:
-            return l
-    raise SystemExit(f"skill tick {skill_tick} is inside a freeze window: no rig tick lands on it")
+    """ADR-0315: the engine pushes the clip frame of its own tick to the puppet (clip tick = skill tick since the rig row's cast tick); the
+    hit-stop freezes no longer shift the body, the frame keys span them like the blade's rotate keys do."""
+    return skill_tick
+
+
+# ------------------------------------------------------------------------------------------------ the hand path (blade frame `move:` keys)
+G_LEN = float(np.linalg.norm(RM.HELD_GRIP_OFFSET))  # joint -> grip, blocks (0.600): the look-at IK lands the grip at this distance on the line to the target
+REACH_TOL = 0.02                                     # a target farther off the arm's sphere than this gets its own key (the lerp chord between keys cuts inside)
+
+
+def body_doc_of(poses):
+    """The written clip as the engine samples it (linear between keys, held outside), for per-tick FK."""
+    doc = {"bones": {}, "root": {"rotation": [], "position": []}}
+    for st, rt, p, ease, _ in poses:
+        doc["root"]["rotation"].append({"t": rt, "v": p.root_rot.tolist()})
+        doc["root"]["position"].append({"t": rt, "v": p.root_pos.tolist()})
+        for bone in RM.BONE_NAMES:
+            ch = doc["bones"].setdefault(bone, {"rotation": [], "scale": []})
+            ch["rotation"].append({"t": rt, "v": p.bones[bone]["rotation"].tolist()})
+            ch["scale"].append({"t": rt, "v": p.bones[bone]["scale"].tolist()})
+    return doc
+
+
+def track(keys, t):
+    """FrameGrammar.track: each key holds `cur` until its `at`, lerps to `to` over `for`, a `for: 0` key is `to` from `at` on."""
+    cur = np.zeros(3)
+    for at, dur, to in keys:
+        if t < at:
+            return cur
+        if dur <= 0 or t >= at + dur:
+            cur = np.array(to, float)
+            continue
+        return cur + (np.array(to, float) - cur) * (t - at) / dur
+    return cur
+
+
+LIFT_Y = 1.45  # hand height the lift ends at: the cut height (cut1-a's grip)
+
+
+def lift_arc(coil: RM.Pose):
+    """The lift t0 -> t2 (ADR-0315): the arm swings in the sagittal plane (x fixed) about the coil's shoulder, up through the back, until the
+    hand is at LIFT_Y. Every tick's travel is then in the (still vertical) blade plane, and every point is at arm's length. Returns the
+    t1 point and the end point (the `lift` / `lift-hold` pin)."""
+    lm = RM.fk(coil)
+    j, d0 = lm["joint_r"], lm["grip"] - lm["joint_r"]
+    r = math.sqrt(max(G_LEN * G_LEN - d0[0] * d0[0], 1e-6))
+    phi0 = math.atan2(d0[2], d0[1])                       # angle in the (y, z) plane, 0 = straight up, -90 = straight back
+    phi1 = -math.acos(max(-1.0, min(1.0, (LIFT_Y - j[1]) / r)))  # the back-side solution at LIFT_Y
+    if phi0 > 0:
+        phi0 -= 2 * math.pi                               # the coil hangs behind: measure the way through the back
+    def at(phi):
+        return j + np.array([d0[0], r * math.cos(phi), r * math.sin(phi)])
+    return at(phi0 + (phi1 - phi0) * 0.5), at(phi1)
+
+
+def hand_path(poses, extra):
+    """`move:` keys of the blade frame (world x_left, y, z_fwd): the solved grip of every beat plus the `extra` points (tick -> point), then a
+    key on every tick the lerp between keys leaves the arm's reach sphere (the joint moves with the body, so the chord between two reachable
+    grips need not be reachable)."""
+    doc = body_doc_of(poses)
+    pts = {}
+    for st, rt, p, ease, name in poses:
+        pts[rt] = RM.fk(p)["grip"]
+    pts.update(extra)
+    clamped = []
+    for _ in range(60):
+        ticks = sorted(pts)
+        keys = [(ticks[0], 0, pts[ticks[0]])] + [(ticks[i], ticks[i + 1] - ticks[i], pts[ticks[i + 1]]) for i in range(len(ticks) - 1)]
+        worst = None
+        for t in range(DURATION + 1):
+            if t in pts:
+                continue
+            joint = RM.fk(RM.pose_from_yaml(doc, None, t))["joint_r"]
+            target = track(keys, t)
+            reach = float(np.linalg.norm(target - joint)) - G_LEN
+            if abs(reach) > REACH_TOL and (worst is None or abs(reach) > abs(worst[1])):
+                worst = (t, reach, joint + unit(target - joint) * G_LEN)
+        if worst is None:
+            break
+        pts[worst[0]] = worst[2]
+        clamped.append(f"t{worst[0]} {worst[1]:+.3f}")
+    else:
+        raise SystemExit("hand path: the reach sphere keys did not settle in 60 passes")
+    ticks = sorted(pts)
+    keys = [(ticks[0], 0, pts[ticks[0]])] + [(ticks[i], ticks[i + 1] - ticks[i], pts[ticks[i + 1]]) for i in range(len(ticks) - 1)]
+    print("hand path: reach-sphere keys added " + (", ".join(clamped) if clamped else "none"))
+    for t in range(DURATION + 1):
+        joint = RM.fk(RM.pose_from_yaml(doc, None, t))["joint_r"]
+        target = track(keys, t)
+        print(f"  t{t:<3} grip {np.round(target, 3).tolist()}  reach {float(np.linalg.norm(target - joint)) - G_LEN:+.3f}")
+    return keys
+
+
+def move_yaml(keys):
+    """Blade frame `move:` lines: origin caster (feet), v forward / w up / s right, so (x_left, y, z_fwd) -> {v: z, w: y, s: -x}."""
+    out = ["    move:"]
+    for i, (at, dur, to) in enumerate(keys):
+        if i > 0 and np.allclose(to, keys[i - 1][2], atol=1e-6):
+            continue  # a hold is the key before it holding; the next key starts from there
+        out.append(f"      - {{at: {at}, for: {dur}, to: {{v: {to[2]:.2f}, w: {to[1]:.2f}, s: {-to[0]:.2f}}}}}")
+    return out
 
 
 def r1(v):
@@ -338,9 +435,15 @@ def main():
     poses = []
     print("poses (th = tip azimuth from above, + = CCW; roll = turn of the broad face about the blade since the previous key):")
     prev, prev_wp = None, None
+    extra = {}
     for b in BEATS:
         s = spec_of(b)
         p = build(s, prev)
+        if b.name == "coil":
+            mid, end = lift_arc(p)
+            extra[1] = mid
+            GRIP_PIN["lift"] = GRIP_PIN["lift-hold"] = tuple(float(x) for x in end)
+            print(f"  lift arc: t1 {np.round(mid, 3).tolist()} -> t2 {np.round(end, 3).tolist()} (shoulder {np.round(RM.fk(p)['joint_r'], 3).tolist()})")
         report(s, p)
         wp = RM.weapon(p)
         th = math.degrees(math.atan2(wp["tip"][2], -wp["tip"][0]))
@@ -355,17 +458,19 @@ def main():
         poses.append((b.tick, rig_tick(b.tick), p, None if not poses else "linear", s.name))
     # the vanilla held pose (all zero), eased to over the hold (a step here snapped the hand 0.6 blocks in one tick: the tip left the cut plane, ADR-0314)
     poses.append((52, rig_tick(52), RM.Pose(), "linear", "hand-back"))
-    # body yaml
+    # body yaml. No right_arm track: the engine pins the right hand onto the blade frame's origin by look-at IK (ADR-0315), the hand path
+    # below is that origin's `move:` keys, so the arm the solver found here is only the source of those keys.
     L = []
     L.append("# bastion-s1-body: HAND-AUTHORED 3D performance, written by tools/pose-solve/author_bastion_s1.py (edit the pose table there and rerun).")
     L.append("# Per-tick keys through the swings (cut 1 CCW from above, cut 2 CW), holds between; spine (`body`) carries the lean + most of the twist (ADR-0278).")
-    L.append("# Keys are RIG ticks; the hit-stop freezes (7/31) shift them to skill ticks.")
-    L.append("# beats (skill tick -> rig tick): " + ", ".join(f"{n} {st}->{rt}" for st, rt, _, _, n in poses))
+    L.append("# Keys are SKILL ticks (the engine drives the puppet from its own tick, ADR-0315). No right_arm track: the right hand is pinned onto the")
+    L.append("# blade frame's origin (content/skills/bastion-greatsword-s1/skill.yaml `move:` keys, written by the same script).")
+    L.append("# beats (skill tick): " + ", ".join(f"{n} {st}" for st, rt, _, _, n in poses))
     L += ["id: bastion-s1-body", f"length_ticks: {DURATION}", "loop: false", "lock_movement: false", "blend_in_ticks: 0", "blend_out_ticks: 0", "bones:"]
 
     def key(rt, v, ease):
         return f"      - {{ t: {rt}, v: {r1(v)}" + (f", ease: {ease} }}" if ease and ease != "linear" else " }")
-    for bone in ("head", "body", "right_arm", "left_arm", "right_leg", "left_leg"):
+    for bone in ("head", "body", "left_arm", "right_leg", "left_leg"):
         L.append(f"  {bone}:")
         L.append("    rotation:")
         for st, rt, p, ease, _ in poses:
@@ -382,15 +487,15 @@ def main():
     for st, rt, p, ease, _ in poses:
         L.append(key(rt, p.root_pos, ease).replace("      ", "    ", 1))
     (ROOT / "content/animations/bastion-s1-body.yaml").write_text("\n".join(L) + "\n")
-    # rig swing keys
-    rig = ROOT / "content/vfx/bastion-s1-rig.yaml"
-    txt = rig.read_text()
-    sw = ["  swing:"]
-    for st, rt, p, ease, name in poses:
-        sw.append(f"  - {{ t: {rt}, rotate: {r1(p.wrist)}" + (f", ease: {ease} }}" if ease and ease != "linear" else " }") + f"   # skill {st} {name}")
-    txt = re.sub(r"  swing:\n(  - .*\n)+", "\n".join(sw) + "\n", txt)
-    rig.write_text(txt)
-    print("wrote", "content/animations/bastion-s1-body.yaml", "and the swing keys of", rig.relative_to(ROOT))
+    # the blade frame's hand path: the `move:` block of frame `blade` in the skill (the block holds nothing but `- {at: ...}` lines)
+    skill = ROOT / "content/skills/bastion-greatsword-s1/skill.yaml"
+    txt = skill.read_text()
+    block = "\n".join(move_yaml(hand_path(poses, extra))) + "\n"
+    new, n = re.subn(r"    move:\n(      - \{at: .*\n)+", block, txt, count=1)
+    if n != 1:
+        raise SystemExit("skill.yaml: no `    move:` block of `- {at: ...}` lines under the blade frame to rewrite")
+    skill.write_text(new)
+    print("wrote content/animations/bastion-s1-body.yaml and the blade `move:` keys of", skill.relative_to(ROOT))
 
 
 if __name__ == "__main__":

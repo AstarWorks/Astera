@@ -59,6 +59,8 @@ import com.astarworks.astera.core.domain.skillengine.table.HitShape
 import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.animation.skinrig.BodySkeleton
+import com.astarworks.astera.core.domain.animation.skinrig.RigAnchor
+import com.astarworks.astera.core.domain.animation.skinrig.RigFrame
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigPlayback
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigTransforms
@@ -1942,7 +1944,7 @@ public class TablePlayer(
                     bodyRec.body = BodyPoints(clip, gameplay.bodySkeleton(), gameplay.isSlimSkin(who), speed)
                     freshBody(bodyRec)
                 }
-                gameplay.playBodyClip(castRef(run), who, anim, speed, emptyList())
+                gameplay.playBodyClip(castRef(run), who, anim, speed)
             }
             "held_model" -> {
                 val id = row.instance
@@ -2070,7 +2072,7 @@ public class TablePlayer(
         fun motion(hitStop: Boolean) = RigMotion(swing, v3("tilt"), v3("rest"), v3("pivot"), mounted, freezes, hitStop, track, slim, off)
         val pose = motion(respect)
         val bodyClock = if (bodyRespect && !respect) motion(true) else pose
-        if (anim != null) gameplay.playBodyClip(castRef(run), caster, anim, 1.0, bodyClock.holds)
+        if (anim != null) gameplay.playBodyClip(castRef(run), caster, anim, 1.0)
         // the rig is an anchor instance (ADR-0303 10.5): its rec lives at the rig's own id, carries the part's model points
         // (`rig.tip`, `rig.root`, ...) and holds the driver; with `of` the rec is only the carrier and the driven frame owns the pose.
         val carrier = row.instance
@@ -2141,6 +2143,64 @@ public class TablePlayer(
             rec.rig?.let { rigPose(run, it, now) }
             rec.frameRig?.let { frameRigPose(run, rec, now) }
         }
+        pushBodies(run, now)
+    }
+
+    // ------------------------------------------------------------------ driven puppet (ADR-0315)
+
+    /** One body to push this tick: [start] orders the bodies on one entity (the newest wins, as [handOrigin] reads it). */
+    private class BodyPush(val start: Int, val who: UUID, val frame: () -> RigFrame, val anchored: Boolean)
+
+    /**
+     * The puppet of every body shown this tick is posed from here with the frame the engine's own tables used: a `body` op at
+     * `(now - spawn) * speed`, a mounted rig at its body clock (the hit-stop holds are in the clock, so the puppet holds with it), a frame
+     * rig at `now - start` with its right hand pinned onto the ridden frame's origin. The caster's puppet stands on the caster cell of
+     * this tick (feet, body yaw, look pitch); a body on another entity carries no table anchor (the puppet stands where that player is).
+     */
+    private fun pushBodies(run: Run, now: Int) {
+        val pushes = ArrayList<BodyPush>()
+        for ((id, rec) in run.recs.entries) {
+            rec.body?.let { b ->
+                val who = run.bodyClips[id]?.first ?: return@let
+                pushes += BodyPush(rec.spawnTick, who, { SkinRigPlayback(b.clip, b.speed).frameAt(now - rec.spawnTick) }, rec.anchorName == "caster")
+            }
+            rec.rig?.let { r ->
+                val anim = r.anim ?: return@let
+                val clip = gameplay.bodyClip(anim) ?: return@let
+                val s = r.bodyClock.clock(now - r.start)
+                pushes += BodyPush(r.start, r.caster, { run.armTracks.getOrPut(anim to false) { RigBodyTrack(clip, gameplay.isSlimSkin(r.caster)) }.frameAt(Math.floor(s).toInt()) }, true)
+            }
+            rec.frameRig?.let { fr ->
+                val anim = fr.anim ?: return@let
+                val clip = gameplay.bodyClip(anim) ?: return@let
+                pushes += BodyPush(fr.start, fr.caster, {
+                    val frame = run.armTracks.getOrPut(anim to false) { RigBodyTrack(clip, gameplay.isSlimSkin(fr.caster)) }.frameAt(now - fr.start)
+                    if (fr.off) frame else frame.copy(rightHandTarget = pinnedHandTarget(run, fr))
+                }, true)
+            }
+        }
+        if (pushes.isEmpty()) return
+        val scope = RowScope.cast(run.request.seed)
+        val handle = run.cursor.handle
+        val anchor by lazy {
+            val feet = live.vec(handle, "caster", null, scope)
+            val fwd = Vector3d(0.0, 0.0, 1.0).rotate(live.rot(handle, "caster", null, scope))
+            val aim = Vector3d(0.0, 0.0, 1.0).rotate(live.rot(handle, "caster.look", null, scope))
+            RigAnchor(Vec3(feet.x, feet.y, feet.z), Math.toDegrees(kotlin.math.atan2(-fwd.x, fwd.z)), Math.toDegrees(kotlin.math.asin((-aim.y).coerceIn(-1.0, 1.0))))
+        }
+        for (push in pushes.groupBy { it.who }.values.map { bodies -> bodies.maxBy { it.start } }) {
+            gameplay.poseBody(castRef(run), push.who, push.frame(), if (push.anchored) anchor else null)
+        }
+    }
+
+    /** The ridden frame's origin in the caster's rig frame (+X left, +Y up, +Z front; blocks): where the puppet's right-hand grip must be. */
+    private fun pinnedHandTarget(run: Run, fr: FrameRigRec): Vec3? {
+        val origin = run.frames[fr.frame]?.state?.origin ?: return null
+        val scope = RowScope.cast(run.request.seed)
+        val handle = run.cursor.handle
+        val feet = live.vec(handle, "caster", null, scope)
+        val local = Vector3d(origin.x - feet.x, origin.y - feet.y, origin.z - feet.z).rotate(Quaterniond(live.rot(handle, "caster", null, scope)).conjugate())
+        return Vec3(local.x, local.y, local.z)
     }
 
     // ------------------------------------------------------------------ frames (ADR-0314)
@@ -2157,8 +2217,11 @@ public class TablePlayer(
         var prevOrigin: Vec3? = null
     }
 
-    /** A `rig` riding a frame (ADR-0314): the held mesh ([held]) sits on the frame with the part's long axis along `v` and its edge along `w`; [anim] is the clip carrying the arm. */
-    private class FrameRigRec(val frame: String, val start: Int, val anim: String?, val caster: UUID, val held: Rec)
+    /**
+     * A `rig` riding a frame (ADR-0314): the held mesh ([held]) sits on the frame with the part's long axis along `v` and its edge along `w`;
+     * [anim] is the clip of the caster's body, whose carrying hand (the left one when [off]) is pinned onto the frame's origin (ADR-0315).
+     */
+    private class FrameRigRec(val frame: String, val start: Int, val anim: String?, val caster: UUID, val held: Rec, val off: Boolean)
 
     private fun evaluateFrames(run: Run, now: Int) {
         for ((key, inst) in run.frames.entries.toList()) if (inst.evaluatedTick != now) evaluateFrame(run, key, inst, now)
@@ -2238,6 +2301,7 @@ public class TablePlayer(
     /**
      * The grip of the caster's arm in the world: the arm of the newest live rig clip at its body-clock tick (the rest arm when no clip plays),
      * the held-grip offset along it, in the caster's axes; [left] = the left arm (`caster.hand_l`). The same arm the skin rig draws the weapon on.
+     * When the newest clip is a frame rig's, that hand is pinned onto the ridden frame's origin (ADR-0315): the origin is the hand.
      */
     private fun handOrigin(run: Run, left: Boolean, now: Int): Vec3 {
         val scope = RowScope.cast(run.request.seed)
@@ -2245,8 +2309,15 @@ public class TablePlayer(
         val slim = gameplay.isSlimSkin(run.request.caster)
         val newest = run.recs.values.mapNotNull { rec ->
             rec.rig?.let { r -> r.anim?.let { Triple(r.start, it, r.bodyClock.clock(now - r.start)) } }
-                ?: rec.frameRig?.let { r -> r.anim?.let { Triple(r.start, it, (now - r.start - 1).coerceAtLeast(0).toDouble()) } }
+                ?: rec.frameRig?.let { r -> r.anim?.let { Triple(r.start, it, (now - r.start).toDouble()) } }
         }.maxByOrNull { it.first }
+        val pinned = run.recs.values.mapNotNull { it.frameRig }.filter { it.anim != null && it.off == left }.maxByOrNull { it.start }
+        if (pinned != null && newest != null && pinned.start >= newest.first) {
+            run.frames[pinned.frame]?.let { inst ->
+                if (inst.evaluatedTick != now) evaluateFrame(run, pinned.frame, inst, now)
+                inst.state?.let { return it.origin }
+            }
+        }
         val arm = newest?.let { triple ->
             val clip = gameplay.bodyClip(triple.second) ?: return@let null
             run.armTracks.getOrPut(triple.second to left) { RigBodyTrack(clip, slim, left) }.armAt(triple.third)
@@ -2315,7 +2386,14 @@ public class TablePlayer(
         }
         val caster = run.request.caster
         val off = p["hand"]?.let { any(run, it, ctx) as String } == "off"
-        if (anim != null) gameplay.playBodyClip(castRef(run), caster, anim, 1.0, emptyList())
+        // ADR-0315: the rig pins the carrying hand onto the frame's origin, so a frame whose origin IS that hand would read itself
+        val riddenOrigin = (run.cursor.skill.def.frames.firstOrNull { it.id == frameId }?.origin as? OriginSpec.Caster)?.point
+        val hand = if (off) "hand_l" else "hand_r"
+        if (riddenOrigin == hand) {
+            fault(run, now, src, "rig: frame '$frameId' has origin caster.$hand, the hand this rig pins onto the frame's origin (ADR-0315): give the frame origin: caster and move: keys for the hand's path")
+            return
+        }
+        if (anim != null) gameplay.playBodyClip(castRef(run), caster, anim, 1.0)
         val carrier = row.instance
         if (run.recs[carrier] != null) endInstance(run, carrier)
         val align = any(run, cell("align"), ctx) as Quaterniond
@@ -2330,10 +2408,10 @@ public class TablePlayer(
         val local = PoseV(Vector3d(-grip.x, -grip.y, -grip.z), Quaterniond(), Vector3d(SkinRigTransforms.PLAYER_SCALE))
         val held = Rec(SpawnKind.ITEM, carrier, "", now, ctx.owner, ctx.detached, local)
         held.binding = ctx.binding
-        carrierRec.frameRig = FrameRigRec(frameId, now, anim, caster, held)
-        // the frame's hand origin now reads this rig's clip (its first frame), not the rest arm the table was evaluated on before the row ran:
+        carrierRec.frameRig = FrameRigRec(frameId, now, anim, caster, held, off)
+        // a frame on the pinned hand now reads this frame's origin, not the rest arm the table was evaluated on before the row ran:
         // the one re-evaluation of a frame inside a tick, on the tick a rig takes the hand
-        run.frames[frameId]?.let { evaluateFrame(run, frameId, it, now) }
+        for ((key, inst) in run.frames.entries.toList()) if ((inst.decl.origin as? OriginSpec.Caster)?.point == hand && inst.evaluatedTick == now) evaluateFrame(run, key, inst, now)
         val view = DisplayView()
         val h = if (off) {
             visual.spawnMesh(

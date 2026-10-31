@@ -229,7 +229,9 @@ internal class SimSkillGameplayGateway(
 
     override fun bodySkeleton() = skeleton
 
-    override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double, holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold>) {}
+    override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double) {}
+
+    override fun poseBody(cast: CastRef, target: UUID, frame: com.astarworks.astera.core.domain.animation.skinrig.RigFrame, anchor: com.astarworks.astera.core.domain.animation.skinrig.RigAnchor?) {}
 
     override fun isPlayer(entity: UUID): Boolean = world.find(PlayerId(entity))?.kind != com.astarworks.astera.gamesim.SimEntityKind.MOB
 

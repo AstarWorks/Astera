@@ -220,7 +220,8 @@ public object FrameEvaluator {
      * Rotation at [t]: every key turns the frame about one of its OWN axes (`v`, `w` or `s` as they stand after the keys listed before it)
      * from its start angle to `to`, keys composed in list order as body rotations. A key's start is its `from`, else the angle the
      * previous key about the same axis ended at (else 0), so keys chain and the end pose is carried; a key with `to: 0` interpolates the
-     * reset. Before `at` the key already holds its start angle (an explicit `from` is a pose, not a jump mid-key).
+     * reset. Before `at` the key holds its start angle (an explicit `from` is a pose, not a jump mid-key); at `at` it begins, so a
+     * `for: 0` step is the value AT its own tick (a `{at: 0, for: 0}` key places a frame on the cast tick, ADR-0315).
      *
      * Body axes make the cut plane a construction, not a number: a weapon rides a frame with its length along `v` and its edge along
      * `w`, so a key `about: s` moves the tip along the edge (edge-leading) whatever earlier keys (a roll about `v`, a yaw about `w`) did
@@ -236,7 +237,7 @@ public object FrameEvaluator {
                 // reset: the chain so far eases back to the rest pose; every key after it starts from rest
                 carried.clear()
                 q = when {
-                    t <= k.at -> q
+                    t < k.at -> q
                     k.forTicks <= 0 || t >= k.at + k.forTicks -> Quaternion.IDENTITY
                     else -> Quaternion.slerp(q, Quaternion.IDENTITY, k.ease.apply((t - k.at).toDouble() / k.forTicks))
                 }
@@ -257,7 +258,7 @@ public object FrameEvaluator {
 
     /** The angle (degrees) key [k] is at when tick [t] is seen, given its start angle. */
     public fun angleOf(k: RotateKey, start: Double, t: Int): Double = when {
-        t <= k.at -> start
+        t < k.at -> start
         k.forTicks <= 0 || t >= k.at + k.forTicks -> k.to
         else -> start + (k.to - start) * k.ease.apply((t - k.at).toDouble() / k.forTicks)
     }
@@ -268,11 +269,11 @@ public object FrameEvaluator {
 
     private class Key(val at: Int, val forTicks: Int, val to: Coeff, val ease: Easing)
 
-    /** Keys in list order: each holds until its `at`, eases to its `to` over `for`, then the next key starts from there. */
+    /** Keys in list order: each holds until its `at`, eases to its `to` over `for` (a `for: 0` step is `to` from `at` on), then the next key starts from there. */
     private fun track(keys: List<Key>, t: Int, start: Coeff): Coeff {
         var cur = start
         for (k in keys) {
-            if (t <= k.at) return cur
+            if (t < k.at) return cur
             if (k.forTicks <= 0 || t >= k.at + k.forTicks) {
                 cur = k.to
                 continue
