@@ -1,6 +1,18 @@
-# Shear Passage: crouch and fold the air, snip open a pair of shears, lunge through the target and cut a cross.
-# Written in the ADR-0303 high-level form: one op per visual object, copies as `times:` families, shape as laws and keys.
-# Rate-law numbers must be literals (no `i`), so pieces whose laws differ per copy are listed one op each.
+# Shear Passage (couture rapier S1) in the frame grammar (ADR-0314): crouch and fold the air, snip open a pair of shears, lunge through
+# the target and cut a cross. Every drawn thing is a point of one of these frames; `left` / `up` / `forward` are not written. Axes of a
+# caster frame: v = forward, w = up, s = v x w (to the right), so a display's own x runs along -s, y along w and z along v.
+#   body    - the caster's feet. The five lavender folds and the spindle pinch together 1.2 ahead of it (ticks 2..11, before the lunge
+#             starts), the crescent of the cut trails behind it (ticks 13..22).
+#   hinge_a - the pivot of the right scissor half: feet + 0.45 ahead, 1.05 up, 0.295 to the right. Its blade (three tapering steel plates
+#             along v, the edge strip on top, the five-piece loop handle behind) lies in the v-w plane; the `rotate` keys about s ARE the
+#             snip: the half drops 22 degrees (6-10), kicks back 5 up (10-13), settles 17 down (13-18) and closes to 32 down (18-21).
+#   hinge_b - the left half, 0.205 to the right of the pivot, starts 64 degrees nose-up (rotate about s: positive turns v towards w)
+#             and swings down through the other half: 46, 9, -9, -24 degrees, so the two cross at the hinge and shut like shears.
+#   flower  - the white four-cube flower on the hinge; it follows the caster like the halves.
+#   cut     - one per victim, at the victim's centre, v the way the blow came in: the white cross, the dark shards, the bloom and the
+#             eight petals of the golden-angle burst. Its scale key is the burst: it opens from 0.1 to 1 over 7 ticks (out_cubic), so
+#             every shard and petal, placed at its final radius, flies out and slows. One frame, because all of them start on the hit.
+# Gameplay (dash, hit window, damage, react, states, cast length 37) and the sounds are unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: couture-rapier-s1
@@ -9,6 +21,54 @@ meta: {name: {ja: "切り合わせ", en: "Shear Passage"}, description: {ja: "�
 params:
   dash_distance: {type: blocks, default: 9}
   dmg_physical: {type: number, default: 40}
+frames:
+  - id: body
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+  - id: hinge_a
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+    move:
+      - {at: 0, for: 0, to: {v: 0.45, w: 1.05, s: 0.30}}
+    rotate:
+      - {at: 6, for: 4, about: s, to: -22}
+      - {at: 10, for: 3, about: s, to: 5}
+      - {at: 13, for: 5, about: s, to: -17}
+      - {at: 18, for: 3, about: s, to: -32}
+  - id: hinge_b
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+    move:
+      - {at: 0, for: 0, to: {v: 0.45, w: 1.05, s: 0.20}}
+    rotate:
+      - {at: 0, for: 0, about: s, to: 64}
+      - {at: 6, for: 4, about: s, to: 46}
+      - {at: 10, for: 3, about: s, to: 9}
+      - {at: 13, for: 5, about: s, to: -9}
+      - {at: 18, for: 3, about: s, to: -24}
+  - id: flower
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+    move:
+      - {at: 0, for: 0, to: {v: 0.45, w: 1.05}}
+  - id: cut
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
+    scale:
+      - {at: 0, for: 0, to: {v: 0.1, w: 0.1, s: 0.1}}
+      - {at: 0, for: 7, to: {v: 1, w: 1, s: 1}, ease: out_cubic}
 machine:
   start: cast
   states:
@@ -22,164 +82,44 @@ machine:
       do:
         - {id: anim, op: body, target: caster, anim: crouch, speed: 1.0, at: 2, for: 35}
 
-        # --- tick 0..14: five lavender folds and a spindle pinch together in front of the caster
-        - {id: windup, op: frame, anchor: caster, mode: snapshot, at: 0, for: 14}
-        - {id: fold_0, op: display, kind: text, text: "◆", color: "#8573B0", anchor: windup, at: 2, for: 12, offset: {up: 0.25, forward: 1.2}, scale: [4.5, 1.5, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: grow, per_tick: {left: -0.16364, up: -0.063636}, at: 0, for: 11}, {law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.4}, {t: 10, alpha: 0.32}, {t: 11, alpha: 0}]}]}
-        - {id: fold_1, op: display, kind: text, text: "◆", color: "#8573B0", anchor: windup, at: 2, for: 12, offset: {up: 0.65, forward: 1.2}, scale: [5.75, 1.5, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: grow, per_tick: {left: -0.20909, up: -0.063636}, at: 0, for: 11}, {law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.4}, {t: 10, alpha: 0.32}, {t: 11, alpha: 0}]}]}
-        - {id: fold_2, op: display, kind: text, text: "◆", color: "#8573B0", anchor: windup, at: 2, for: 12, offset: {up: 1.05, forward: 1.2}, scale: [3.5, 1.5, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: grow, per_tick: {left: -0.12727, up: -0.063636}, at: 0, for: 11}, {law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.4}, {t: 10, alpha: 0.32}, {t: 11, alpha: 0}]}]}
-        - {id: fold_3, op: display, kind: text, text: "◆", color: "#8573B0", anchor: windup, at: 2, for: 12, offset: {up: 1.45, forward: 1.2}, scale: [6, 1.5, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: grow, per_tick: {left: -0.21818, up: -0.063636}, at: 0, for: 11}, {law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.4}, {t: 10, alpha: 0.32}, {t: 11, alpha: 0}]}]}
-        - {id: fold_4, op: display, kind: text, text: "◆", color: "#8573B0", anchor: windup, at: 2, for: 12, offset: {up: 1.8, forward: 1.2}, scale: [4.5, 1.5, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: grow, per_tick: {left: -0.16364, up: -0.063636}, at: 0, for: 11}, {law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.4}, {t: 10, alpha: 0.32}, {t: 11, alpha: 0}]}]}
-        - id: spindle
-          op: display
-          kind: text
-          text: " "
-          background: "#B2A3CF"
-          anchor: windup
-          at: 2
-          for: 12
-          offset: {up: 1, forward: 1.2}
-          scale: [0.48, 7.2, 1]
-          billboard: center
-          brightness: {block: 15, sky: 15}
-          motion:
-            - {law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.35}, {t: 11, alpha: 0}]}
+        # --- tick 2..10: five lavender folds and a spindle pinch together 1.2 ahead of the caster (the lunge starts at 11)
+        - {id: fold_0, op: display, kind: text, text: "◆", color: "#8573B0", frame: body, pos: {v: 1.2, w: 0.25}, at: 2, for: 9, scale: [4.5, 1.5, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.4, scale: {left: 3.83, up: 1.29, forward: 1}}, {t: 7, alpha: 0.32, scale: {left: 2.92, up: 0.93, forward: 1}}, {t: 8, alpha: 0, scale: {left: 2.7, up: 0.8, forward: 1}}]}]}
+        - {id: fold_1, op: display, kind: text, text: "◆", color: "#8573B0", frame: body, pos: {v: 1.2, w: 0.65}, at: 2, for: 9, scale: [5.75, 1.5, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.4, scale: {left: 4.89, up: 1.29, forward: 1}}, {t: 7, alpha: 0.32, scale: {left: 3.74, up: 0.93, forward: 1}}, {t: 8, alpha: 0, scale: {left: 3.45, up: 0.8, forward: 1}}]}]}
+        - {id: fold_2, op: display, kind: text, text: "◆", color: "#8573B0", frame: body, pos: {v: 1.2, w: 1.05}, at: 2, for: 9, scale: [3.5, 1.5, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.4, scale: {left: 2.98, up: 1.29, forward: 1}}, {t: 7, alpha: 0.32, scale: {left: 2.28, up: 0.93, forward: 1}}, {t: 8, alpha: 0, scale: {left: 2.1, up: 0.8, forward: 1}}]}]}
+        - {id: fold_3, op: display, kind: text, text: "◆", color: "#8573B0", frame: body, pos: {v: 1.2, w: 1.45}, at: 2, for: 9, scale: [6.0, 1.5, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.4, scale: {left: 5.1, up: 1.29, forward: 1}}, {t: 7, alpha: 0.32, scale: {left: 3.9, up: 0.93, forward: 1}}, {t: 8, alpha: 0, scale: {left: 3.6, up: 0.8, forward: 1}}]}]}
+        - {id: fold_4, op: display, kind: text, text: "◆", color: "#8573B0", frame: body, pos: {v: 1.2, w: 1.8}, at: 2, for: 9, scale: [4.5, 1.5, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.4, scale: {left: 3.83, up: 1.29, forward: 1}}, {t: 7, alpha: 0.32, scale: {left: 2.92, up: 0.93, forward: 1}}, {t: 8, alpha: 0, scale: {left: 2.7, up: 0.8, forward: 1}}]}]}
+        - {id: spindle, op: display, kind: text, text: " ", background: "#B2A3CF", frame: body, pos: {v: 1.2, w: 1.0}, at: 2, for: 9, scale: [0.48, 7.2, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, alpha: 0.12}, {t: 3, alpha: 0.35}, {t: 8, alpha: 0}]}]}
 
-        # --- tick 6..22: two scissor halves, 64 degrees apart, snip about the hinge (up 1.05, forward 0.45) and shrink away
-        - {id: shears, op: frame, anchor: caster, mode: follow, at: 6, for: 16}
-        - id: hinge_a
-          op: frame
-          anchor: shears
-          at: 6
-          for: 16
-          offset: {left: -0.295, up: 1.05, forward: 0.45}
-          motion:
-            - {law: spin, axis: left, deg_per_tick: 5.5, at: 0, for: 4}
-            - {law: spin, axis: left, deg_per_tick: -9, at: 4, for: 3}
-            - {law: spin, axis: left, deg_per_tick: 4.4, at: 7, for: 5}
-            - {law: spin, axis: left, deg_per_tick: 5, at: 12, for: 3}
-        - id: blade_a
-          op: display
-          kind: block
-          block: gray_concrete
-          anchor: hinge_a
-          at: 6
-          for: 16
-          times: 3
-          offset: [{up: -0.04875, forward: 0.39702}, {up: -0.13406, forward: 1.0918}, {up: -0.19499, forward: 1.58807}]
-          rotate: [{axis: left, deg: 7}]
-          scale: [[0.06, 0.19, 0.8], [0.06, 0.12, 0.6], [0.06, 0.045, 0.4]]
-          motion:
-            - {law: grow, to: 0, at: 12, for: 3}
-        - id: edge_a
-          op: display
-          kind: block
-          block: iron_block
-          anchor: hinge_a
-          at: 6
-          for: 16
-          times: 3
-          offset: [{up: 0.01066, forward: 0.40431}, {up: -0.09654, forward: 1.09641}, {up: -0.18092, forward: 1.5898}]
-          rotate: [[{axis: left, deg: 10.66907}], [{axis: left, deg: 10.09097}], [{axis: left, deg: 8.73982}]]
-          scale: [[0.06, 0.025, 0.80164], [0.06, 0.025, 0.60087], [0.06, 0.025, 0.40018]]
-          motion:
-            - {law: grow, to: 0, at: 12, for: 3}
-        - id: handle_a
-          op: display
-          kind: block
-          block: black_concrete
-          anchor: hinge_a
-          at: 6
-          for: 16
-          times: 5
-          offset: [{up: 0.13234, forward: -0.17518}, {up: 0.26745, forward: -0.4961}, {up: 0.1924, forward: -0.78742}, {up: -0.01821, forward: -0.67223}, {up: -0.06574, forward: -0.28514}]
-          rotate: [[{axis: left, deg: -128}], [{axis: left, deg: -176.81407}], [{axis: left, deg: 127.06858}], [{axis: left, deg: 34.14968}], [{axis: left, deg: -20.14968}]]
-          scale: [[0.06, 0.045, 0.31113], [0.06, 0.045, 0.451], [0.06, 0.045, 0.21954], [0.06, 0.045, 0.43829], [0.06, 0.045, 0.43829]]
-          motion:
-            - {law: grow, to: 0, at: 12, for: 3}
-        - id: hinge_b
-          op: frame
-          anchor: shears
-          at: 6
-          for: 16
-          offset: {left: -0.205, up: 1.05, forward: 0.45}
-          turn: [{axis: left, deg: -64}]
-          motion:
-            - {law: spin, axis: left, deg_per_tick: 4.5, at: 0, for: 4}
-            - {law: spin, axis: left, deg_per_tick: 12.33333, at: 4, for: 3}
-            - {law: spin, axis: left, deg_per_tick: 3.6, at: 7, for: 5}
-            - {law: spin, axis: left, deg_per_tick: 5, at: 12, for: 3}
-        - id: blade_b
-          op: display
-          kind: block
-          block: gray_concrete
-          anchor: hinge_b
-          at: 6
-          for: 16
-          times: 3
-          offset: [{up: -0.04875, forward: 0.39702}, {up: -0.13406, forward: 1.0918}, {up: -0.19499, forward: 1.58807}]
-          rotate: [{axis: left, deg: 7}]
-          scale: [[0.06, 0.19, 0.8], [0.06, 0.12, 0.6], [0.06, 0.045, 0.4]]
-          motion:
-            - {law: grow, to: 0, at: 12, for: 3}
-        - id: edge_b
-          op: display
-          kind: block
-          block: iron_block
-          anchor: hinge_b
-          at: 6
-          for: 16
-          times: 3
-          offset: [{up: 0.01066, forward: 0.40431}, {up: -0.09654, forward: 1.09641}, {up: -0.18092, forward: 1.5898}]
-          rotate: [[{axis: left, deg: 10.66907}], [{axis: left, deg: 10.09097}], [{axis: left, deg: 8.73982}]]
-          scale: [[0.06, 0.025, 0.80164], [0.06, 0.025, 0.60087], [0.06, 0.025, 0.40018]]
-          motion:
-            - {law: grow, to: 0, at: 12, for: 3}
-        - id: handle_b
-          op: display
-          kind: block
-          block: black_concrete
-          anchor: hinge_b
-          at: 6
-          for: 16
-          times: 5
-          offset: [{up: 0.13234, forward: -0.17518}, {up: 0.26745, forward: -0.4961}, {up: 0.1924, forward: -0.78742}, {up: -0.01821, forward: -0.67223}, {up: -0.06574, forward: -0.28514}]
-          rotate: [[{axis: left, deg: -128}], [{axis: left, deg: -176.81407}], [{axis: left, deg: 127.06858}], [{axis: left, deg: 34.14968}], [{axis: left, deg: -20.14968}]]
-          scale: [[0.06, 0.045, 0.31113], [0.06, 0.045, 0.451], [0.06, 0.045, 0.21954], [0.06, 0.045, 0.43829], [0.06, 0.045, 0.43829]]
-          motion:
-            - {law: grow, to: 0, at: 12, for: 3}
-        - id: hinge_flower
-          op: display
-          kind: block
-          block: white_concrete
-          anchor: shears
-          at: 6
-          for: 16
-          times: 4
-          offset: [{left: -0.37, up: 1.05, forward: 0.45}, {left: -0.13, up: 1.05, forward: 0.45}, {left: -0.25, up: 1.17, forward: 0.45}, {left: -0.25, up: 0.93, forward: 0.45}]
-          scale: [0.15, 0.15, 0.12]
-          motion:
-            - {law: grow, to: 0, at: 12, for: 3}
+        # --- tick 6..22: two scissor halves snip about the hinge and shrink away; each plate sits at its centre along v, flat in the v-w plane
+        - {id: blade_a0, op: display, kind: block, block: gray_concrete, frame: hinge_a, pos: {v: 0.4, w: -0.05}, rotate: [{axis: s, deg: -7}], scale: [0.06, 0.19, 0.8], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: blade_a1, op: display, kind: block, block: gray_concrete, frame: hinge_a, pos: {v: 1.09, w: -0.13}, rotate: [{axis: s, deg: -7}], scale: [0.06, 0.12, 0.6], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: blade_a2, op: display, kind: block, block: gray_concrete, frame: hinge_a, pos: {v: 1.59, w: -0.19}, rotate: [{axis: s, deg: -7}], scale: [0.06, 0.045, 0.4], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: edge_a0, op: display, kind: block, block: iron_block, frame: hinge_a, pos: {v: 0.4, w: 0.01}, rotate: [{axis: s, deg: -11}], scale: [0.06, 0.025, 0.8], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: edge_a1, op: display, kind: block, block: iron_block, frame: hinge_a, pos: {v: 1.1, w: -0.1}, rotate: [{axis: s, deg: -10}], scale: [0.06, 0.025, 0.6], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: edge_a2, op: display, kind: block, block: iron_block, frame: hinge_a, pos: {v: 1.59, w: -0.18}, rotate: [{axis: s, deg: -9}], scale: [0.06, 0.025, 0.4], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: handle_a0, op: display, kind: block, block: black_concrete, frame: hinge_a, pos: {v: -0.18, w: 0.13}, rotate: [{axis: s, deg: 128}], scale: [0.06, 0.045, 0.31], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: handle_a1, op: display, kind: block, block: black_concrete, frame: hinge_a, pos: {v: -0.5, w: 0.27}, rotate: [{axis: s, deg: 177}], scale: [0.06, 0.045, 0.45], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: handle_a2, op: display, kind: block, block: black_concrete, frame: hinge_a, pos: {v: -0.79, w: 0.19}, rotate: [{axis: s, deg: -127}], scale: [0.06, 0.045, 0.22], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: handle_a3, op: display, kind: block, block: black_concrete, frame: hinge_a, pos: {v: -0.67, w: -0.02}, rotate: [{axis: s, deg: -34}], scale: [0.06, 0.045, 0.44], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: handle_a4, op: display, kind: block, block: black_concrete, frame: hinge_a, pos: {v: -0.29, w: -0.07}, rotate: [{axis: s, deg: 20}], scale: [0.06, 0.045, 0.44], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: blade_b0, op: display, kind: block, block: gray_concrete, frame: hinge_b, pos: {v: 0.4, w: -0.05}, rotate: [{axis: s, deg: -7}], scale: [0.06, 0.19, 0.8], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: blade_b1, op: display, kind: block, block: gray_concrete, frame: hinge_b, pos: {v: 1.09, w: -0.13}, rotate: [{axis: s, deg: -7}], scale: [0.06, 0.12, 0.6], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: blade_b2, op: display, kind: block, block: gray_concrete, frame: hinge_b, pos: {v: 1.59, w: -0.19}, rotate: [{axis: s, deg: -7}], scale: [0.06, 0.045, 0.4], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: edge_b0, op: display, kind: block, block: iron_block, frame: hinge_b, pos: {v: 0.4, w: 0.01}, rotate: [{axis: s, deg: -11}], scale: [0.06, 0.025, 0.8], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: edge_b1, op: display, kind: block, block: iron_block, frame: hinge_b, pos: {v: 1.1, w: -0.1}, rotate: [{axis: s, deg: -10}], scale: [0.06, 0.025, 0.6], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: edge_b2, op: display, kind: block, block: iron_block, frame: hinge_b, pos: {v: 1.59, w: -0.18}, rotate: [{axis: s, deg: -9}], scale: [0.06, 0.025, 0.4], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: handle_b0, op: display, kind: block, block: black_concrete, frame: hinge_b, pos: {v: -0.18, w: 0.13}, rotate: [{axis: s, deg: 128}], scale: [0.06, 0.045, 0.31], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: handle_b1, op: display, kind: block, block: black_concrete, frame: hinge_b, pos: {v: -0.5, w: 0.27}, rotate: [{axis: s, deg: 177}], scale: [0.06, 0.045, 0.45], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: handle_b2, op: display, kind: block, block: black_concrete, frame: hinge_b, pos: {v: -0.79, w: 0.19}, rotate: [{axis: s, deg: -127}], scale: [0.06, 0.045, 0.22], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: handle_b3, op: display, kind: block, block: black_concrete, frame: hinge_b, pos: {v: -0.67, w: -0.02}, rotate: [{axis: s, deg: -34}], scale: [0.06, 0.045, 0.44], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: handle_b4, op: display, kind: block, block: black_concrete, frame: hinge_b, pos: {v: -0.29, w: -0.07}, rotate: [{axis: s, deg: 20}], scale: [0.06, 0.045, 0.44], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: flower_0, op: display, kind: block, block: white_concrete, frame: flower, pos: {w: 0, s: 0.37}, scale: [0.15, 0.15, 0.12], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: flower_1, op: display, kind: block, block: white_concrete, frame: flower, pos: {w: 0, s: 0.13}, scale: [0.15, 0.15, 0.12], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: flower_2, op: display, kind: block, block: white_concrete, frame: flower, pos: {w: 0.12, s: 0.25}, scale: [0.15, 0.15, 0.12], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
+        - {id: flower_3, op: display, kind: block, block: white_concrete, frame: flower, pos: {w: -0.12, s: 0.25}, scale: [0.15, 0.15, 0.12], at: 6, for: 16, motion: [{law: grow, to: 0, at: 12, for: 3}]}
 
         # --- tick 13..22: the cut leaves a crescent of light behind the caster
-        - {id: passage, op: frame, anchor: caster, mode: follow, at: 13, for: 9}
-        - id: crescent
-          op: display
-          kind: sprite
-          sprite: couture-cut
-          anchor: passage
-          at: 13
-          for: 9
-          offset: {up: 1, forward: -0.2}
-          rotate: [{axis: forward, deg: -60}]
-          size: [5.2, 4]
-          billboard: center
-          brightness: {block: 15, sky: 15}
-          flipbook: {frames: 6, every: 2, loop: false}
-          motion:
-            - {law: move, velocity: {up: -0.033333, forward: -0.033333}, at: 0, for: 3}
-            - {law: move, velocity: {up: -0.0125, forward: -0.025}, at: 3, for: 4}
-            - {law: grow, per_tick: {left: 0.08, up: 0.053333}, at: 0, for: 3}
-            - {law: grow, per_tick: {left: 0.04, up: -0.16}, at: 3, for: 4}
+        - {id: crescent, op: display, kind: sprite, sprite: couture-cut, frame: body, pos: {v: -0.2, w: 1.0}, at: 13, for: 9, rotate: [{axis: v, deg: -60}], size: [5.2, 4], billboard: center, brightness: {block: 15, sky: 15}, flipbook: {frames: 6, every: 2, loop: false}}
       states:
         wind:
           for: 11
@@ -206,52 +146,23 @@ machine:
               on:
                 hit:
                   - {id: react, op: react, target: event.victim, flinch: true, for: 6}
-                  - {id: hit_pt, op: frame, anchor: victim, axes: caster, mode: snapshot, for: 9}
-                  # a white cross: two thin bars at +-45 degrees, thinning to nothing
-                  - id: cross
-                    op: display
-                    kind: block
-                    block: white_concrete
-                    anchor: hit_pt
-                    for: 9
-                    times: 2
-                    offset: {up: 1.05}
-                    rotate: [{axis: left, deg: "= -45 + 90 * i"}]
-                    scale: [0.05, 3.3, 0.06]
-                    brightness: {block: 15, sky: 15}
-                    motion:
-                      - {law: grow, per_tick: {left: -0.005, forward: -0.006667}, at: 0, for: 3}
-                      - {law: grow, per_tick: {left: -0.007, forward: -0.008}, at: 3, for: 5, ease: in_quad}
-                  # four dark shards fan out, spinning faster the further they travel
-                  - {id: dark_0, op: display, kind: text, text: " ", background: "#28201C", anchor: hit_pt, for: 7, offset: {up: 1.1}, scale: [0.96, 0.64, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {up: -0.13333, forward: -0.15}, at: 0, for: 6, ease: out_cubic}, {law: grow, per_tick: {left: -0.093333, up: -0.053333}, at: 0, for: 6, ease: out_cubic}, {law: fade, at: 0, for: 6, ease: out_cubic}]}
-                  - {id: dark_1, op: display, kind: text, text: " ", background: "#28201C", anchor: hit_pt, for: 7, offset: {up: 1.1}, scale: [0.96, 0.64, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: spin, axis: forward, deg_per_tick: 10, at: 0, for: 6, ease: out_cubic}, {law: move, velocity: {up: -0.08333, forward: -0.05}, at: 0, for: 6, ease: out_cubic}, {law: grow, per_tick: {left: -0.093333, up: -0.053333}, at: 0, for: 6, ease: out_cubic}, {law: fade, at: 0, for: 6, ease: out_cubic}]}
-                  - {id: dark_2, op: display, kind: text, text: " ", background: "#28201C", anchor: hit_pt, for: 7, offset: {up: 1.1}, scale: [0.96, 0.64, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: spin, axis: forward, deg_per_tick: 20, at: 0, for: 6, ease: out_cubic}, {law: move, velocity: {up: -0.03333, forward: 0.05}, at: 0, for: 6, ease: out_cubic}, {law: grow, per_tick: {left: -0.093333, up: -0.053333}, at: 0, for: 6, ease: out_cubic}, {law: fade, at: 0, for: 6, ease: out_cubic}]}
-                  - {id: dark_3, op: display, kind: text, text: " ", background: "#28201C", anchor: hit_pt, for: 7, offset: {up: 1.1}, scale: [0.96, 0.64, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: spin, axis: forward, deg_per_tick: 30, at: 0, for: 6, ease: out_cubic}, {law: move, velocity: {up: 0.01667, forward: 0.15}, at: 0, for: 6, ease: out_cubic}, {law: grow, per_tick: {left: -0.093333, up: -0.053333}, at: 0, for: 6, ease: out_cubic}, {law: fade, at: 0, for: 6, ease: out_cubic}]}
-                  - id: bloom
-                    op: display
-                    kind: text
-                    text: " "
-                    background: "#EAD9B0"
-                    anchor: hit_pt
-                    for: 6
-                    offset: {up: 1.1}
-                    scale: [4, 2, 1]
-                    billboard: center
-                    brightness: {block: 15, sky: 15}
-                    motion:
-                      - {law: keys, keys: [{t: 0, scale: {left: 4, up: 2, forward: 1}, alpha: 0.2}, {t: 1, scale: {left: 12, up: 6, forward: 1}}, {t: 5, scale: {left: 16, up: 8, forward: 1}, alpha: 0}]}
-                  # eight petals burst out on a golden-angle spiral, slowing by 7% per tick (two move segments approximate the decay), and fade
-                  - {id: petal_0, op: display, kind: text, text: " ", background: "#FFF5E9", anchor: hit_pt, for: 8, offset: {up: 1.1}, scale: [0.58, 0.29, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {left: 0.05872, up: 0.09921, forward: 0}, at: 0, for: 3}, {law: move, velocity: {left: 0.04562, up: 0.07707, forward: 0}, at: 3, for: 4}, {law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}, {law: keys, keys: [{t: 0, alpha: 1}, {t: 7, alpha: 0}]}]}
-                  - {id: petal_1, op: display, kind: text, text: " ", background: "#FFF5E9", anchor: hit_pt, for: 8, offset: {up: 1.1}, scale: [0.58, 0.29, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {left: -0.06982, up: 0.06888, forward: 0.06397}, at: 0, for: 3}, {law: move, velocity: {left: -0.05424, up: 0.05352, forward: 0.04969}, at: 3, for: 4}, {law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}, {law: keys, keys: [{t: 0, alpha: 1}, {t: 7, alpha: 0}]}]}
-                  - {id: petal_2, op: display, kind: text, text: " ", background: "#FFF5E9", anchor: hit_pt, for: 8, offset: {up: 1.1}, scale: [0.58, 0.29, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {left: 0.00983, up: 0.03856, forward: -0.11202}, at: 0, for: 3}, {law: move, velocity: {left: 0.00764, up: 0.02996, forward: -0.08703}, at: 3, for: 4}, {law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}, {law: keys, keys: [{t: 0, alpha: 1}, {t: 7, alpha: 0}]}]}
-                  - {id: petal_3, op: display, kind: text, text: " ", background: "#FFF5E9", anchor: hit_pt, for: 8, offset: {up: 1.1}, scale: [0.58, 0.29, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {left: 0.07323, up: 0.00824, forward: 0.09551}, at: 0, for: 3}, {law: move, velocity: {left: 0.05689, up: 0.0064, forward: 0.0742}, at: 3, for: 4}, {law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}, {law: keys, keys: [{t: 0, alpha: 1}, {t: 7, alpha: 0}]}]}
-                  - {id: petal_4, op: display, kind: text, text: " ", background: "#FFF5E9", anchor: hit_pt, for: 8, offset: {up: 1.1}, scale: [0.58, 0.29, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {left: -0.1185, up: -0.02209, forward: -0.02096}, at: 0, for: 3}, {law: move, velocity: {left: -0.09206, up: -0.01716, forward: -0.01628}, at: 3, for: 4}, {law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}, {law: keys, keys: [{t: 0, alpha: 1}, {t: 7, alpha: 0}]}]}
-                  - {id: petal_5, op: display, kind: text, text: " ", background: "#FFF5E9", anchor: hit_pt, for: 8, offset: {up: 1.1}, scale: [0.58, 0.29, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {left: 0.09488, up: -0.05241, forward: -0.06035}, at: 0, for: 3}, {law: move, velocity: {left: 0.07371, up: -0.04072, forward: -0.04689}, at: 3, for: 4}, {law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}, {law: keys, keys: [{t: 0, alpha: 1}, {t: 7, alpha: 0}]}]}
-                  - {id: petal_6, op: display, kind: text, text: " ", background: "#FFF5E9", anchor: hit_pt, for: 8, offset: {up: 1.1}, scale: [0.58, 0.29, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {left: -0.02459, up: -0.08274, forward: 0.09144}, at: 0, for: 3}, {law: move, velocity: {left: -0.0191, up: -0.06428, forward: 0.07104}, at: 3, for: 4}, {law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}, {law: keys, keys: [{t: 0, alpha: 1}, {t: 7, alpha: 0}]}]}
-                  - {id: petal_7, op: display, kind: text, text: " ", background: "#FFF5E9", anchor: hit_pt, for: 8, offset: {up: 1.1}, scale: [0.58, 0.29, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {left: -0.02706, up: -0.11306, forward: -0.05212}, at: 0, for: 3}, {law: move, velocity: {left: -0.02103, up: -0.08784, forward: -0.04049}, at: 3, for: 4}, {law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}, {law: keys, keys: [{t: 0, alpha: 1}, {t: 7, alpha: 0}]}]}
-                  - {id: sparks_at, op: frame, anchor: hit_pt, mode: follow, offset: {up: 1.1}, for: 1}
-                  - {id: sparks, op: particle_def, def: stab-spark, anchor: sparks_at, every: 3, times: 2}
-                  - {id: snd, op: sound, sound: entity.player.attack.strong, anchor: victim, volume: 0.7, pitch: 1.1}
+                  # the cut lands on this victim: a white cross, four dark shards, a bloom, eight petals on a golden-angle spiral, sparks
+                  - {id: cross, op: display, kind: block, block: white_concrete, frame: cut, pos: {w: 0.15}, for: 9, times: 2, rotate: [{axis: s, deg: "= 45 - 90 * i"}], scale: [0.05, 3.3, 0.06], brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, scale: {left: 0.05, up: 3.3, forward: 0.06}}, {t: 3, scale: {left: 0.04, up: 3.3, forward: 0.04}}, {t: 8, scale: {left: 0.01, up: 3.3, forward: 0.01}}]}]}
+                  - {id: dark_0, op: display, kind: text, text: " ", background: "#28201C", frame: cut, pos: {v: -0.9, w: -0.6}, for: 7, rotate: [{axis: v, deg: 0}], scale: [0.96, 0.64, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: grow, per_tick: {left: -0.093333, up: -0.053333}, at: 0, for: 6, ease: out_cubic}, {law: fade, at: 0, for: 6, ease: out_cubic}]}
+                  - {id: dark_1, op: display, kind: text, text: " ", background: "#28201C", frame: cut, pos: {v: -0.3, w: -0.3}, for: 7, rotate: [{axis: v, deg: 30}], scale: [0.96, 0.64, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: grow, per_tick: {left: -0.093333, up: -0.053333}, at: 0, for: 6, ease: out_cubic}, {law: fade, at: 0, for: 6, ease: out_cubic}]}
+                  - {id: dark_2, op: display, kind: text, text: " ", background: "#28201C", frame: cut, pos: {v: 0.3, w: 0.0}, for: 7, rotate: [{axis: v, deg: 60}], scale: [0.96, 0.64, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: grow, per_tick: {left: -0.093333, up: -0.053333}, at: 0, for: 6, ease: out_cubic}, {law: fade, at: 0, for: 6, ease: out_cubic}]}
+                  - {id: dark_3, op: display, kind: text, text: " ", background: "#28201C", frame: cut, pos: {v: 0.9, w: 0.3}, for: 7, rotate: [{axis: v, deg: 90}], scale: [0.96, 0.64, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: grow, per_tick: {left: -0.093333, up: -0.053333}, at: 0, for: 6, ease: out_cubic}, {law: fade, at: 0, for: 6, ease: out_cubic}]}
+                  - {id: bloom, op: display, kind: text, text: " ", background: "#EAD9B0", frame: cut, pos: {w: 0.2}, for: 6, scale: [4, 2, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, scale: {left: 4, up: 2, forward: 1}, alpha: 0.2}, {t: 1, scale: {left: 12, up: 6, forward: 1}}, {t: 5, scale: {left: 16, up: 8, forward: 1}, alpha: 0}]}]}
+                  - {id: petal_0, op: display, kind: text, text: " ", background: "#FFF5E9", frame: cut, pos: {v: 0.0, w: 0.81, s: -0.36}, for: 8, scale: [0.58, 0.29, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}, {law: keys, keys: [{t: 0, alpha: 1}, {t: 7, alpha: 0}]}]}
+                  - {id: petal_1, op: display, kind: text, text: " ", background: "#FFF5E9", frame: cut, pos: {v: 0.39, w: 0.62, s: 0.43}, for: 8, scale: [0.58, 0.29, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}, {law: keys, keys: [{t: 0, alpha: 1}, {t: 7, alpha: 0}]}]}
+                  - {id: petal_2, op: display, kind: text, text: " ", background: "#FFF5E9", frame: cut, pos: {v: -0.68, w: 0.44, s: -0.06}, for: 8, scale: [0.58, 0.29, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}, {law: keys, keys: [{t: 0, alpha: 1}, {t: 7, alpha: 0}]}]}
+                  - {id: petal_3, op: display, kind: text, text: " ", background: "#FFF5E9", frame: cut, pos: {v: 0.58, w: 0.25, s: -0.45}, for: 8, scale: [0.58, 0.29, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}, {law: keys, keys: [{t: 0, alpha: 1}, {t: 7, alpha: 0}]}]}
+                  - {id: petal_4, op: display, kind: text, text: " ", background: "#FFF5E9", frame: cut, pos: {v: -0.13, w: 0.07, s: 0.72}, for: 8, scale: [0.58, 0.29, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}, {law: keys, keys: [{t: 0, alpha: 1}, {t: 7, alpha: 0}]}]}
+                  - {id: petal_5, op: display, kind: text, text: " ", background: "#FFF5E9", frame: cut, pos: {v: -0.37, w: -0.12, s: -0.58}, for: 8, scale: [0.58, 0.29, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}, {law: keys, keys: [{t: 0, alpha: 1}, {t: 7, alpha: 0}]}]}
+                  - {id: petal_6, op: display, kind: text, text: " ", background: "#FFF5E9", frame: cut, pos: {v: 0.56, w: -0.31, s: 0.15}, for: 8, scale: [0.58, 0.29, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}, {law: keys, keys: [{t: 0, alpha: 1}, {t: 7, alpha: 0}]}]}
+                  - {id: petal_7, op: display, kind: text, text: " ", background: "#FFF5E9", frame: cut, pos: {v: -0.32, w: -0.49, s: 0.17}, for: 8, scale: [0.58, 0.29, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}, {law: keys, keys: [{t: 0, alpha: 1}, {t: 7, alpha: 0}]}]}
+                  - {id: sparks, op: particle_def, def: stab-spark, frame: cut, pos: {w: 0.2}, every: 3, times: 2}
+                  - {id: snd, op: sound, sound: entity.player.attack.strong, frame: cut, volume: 0.7, pitch: 1.1}
         settle: {for: 12, then: done}
         done: {final: true}
     end: {final: true}
