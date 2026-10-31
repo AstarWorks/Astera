@@ -1,4 +1,6 @@
 # arc-lob: a lobbed shell on a spline path (ADR-0313 `law: path`); the display follows the curve, damage lands where it ends.
+# Frame grammar (ADR-0314): lob - the caster's hand (eye, v forward, w up, s right; 0.8 ahead, 0.3 below the eye line): the shell sprite and its
+# path points stay in the caster-local `forward`/`up` axes the `path` law reads, the cast sound leaves it. The landing burst and the damage keep the `land` anchor (the same point as the path's end).
 apiVersion: astera/v3
 kind: Skill
 id: arc-lob
@@ -10,8 +12,9 @@ meta:
   tags: [ranged]
 params:
   dmg: {type: number, default: 14.0}
+frames:
+  - {id: lob, origin: caster.eye, v: forward, w: up, s: right, move: [{at: 0, for: 0, to: {v: 0.8, w: -0.3}}]}
 anchors:
-  - {id: hand, anchor: caster.eye, offset: {forward: 0.8, up: -0.3}, mode: snapshot}
   - {id: land, anchor: caster.feet, offset: {forward: 8}, mode: snapshot}
 machine:
   start: lob
@@ -21,13 +24,13 @@ machine:
       for: 26
       then: end
       enter:
-        - {id: snd, op: sound, sound: "entity.blaze.shoot", anchor: caster, volume: 0.6, pitch: 0.8}
+        - {id: snd, op: sound, sound: "entity.blaze.shoot", frame: lob, volume: 0.6, pitch: 0.8}
       do:
         - id: shell
           op: display
           kind: sprite
           sprite: flame
-          anchor: hand
+          frame: lob
           size: [0.8, 0.8]
           color: "#ffd080"
           brightness: {block: 15, sky: 15}

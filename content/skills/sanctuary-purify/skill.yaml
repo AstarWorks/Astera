@@ -1,4 +1,5 @@
-# Sanctuary staff purify: on tick 0 the caster and allies within `radius` lose their harmful effects; the cast ends on tick 1. Re-authored from zero on ADR-0303 rev4.10.
+# Sanctuary staff purify: on tick 0 the caster and allies within `radius` lose their harmful effects; the cast ends on tick 1. Frame grammar (ADR-0314):
+# ground - the plate under the caster's feet (v up): the flat dust disc is drawn on it (the state is 1 tick, so no display fits: StateOverrun). Gameplay unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: sanctuary-purify
@@ -6,8 +7,8 @@ item: sanctuary-staff
 meta: {name: {ja: "浄化", en: Purify}, description: {ja: "自分と周囲の味方の状態異常を取り除く。", en: "Clears harmful effects from you and nearby allies."}, cooldown_ticks: 200, resource_cost: 20, tags: [magic, support]}
 params:
   radius: {type: blocks, default: 6.0}
-anchors:
-  - {id: feet, anchor: caster, offset: {up: 0.15}, mode: follow}
+frames:
+  - {id: ground, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 0.15}}]}
 machine:
   start: bless
   states:
@@ -15,11 +16,10 @@ machine:
       for: 1
       then: end
       enter:
-        - {id: snd, op: sound, sound: "block.amethyst_block.chime", anchor: caster, volume: 0.8, pitch: 1.2}
+        - {id: snd, op: sound, sound: "block.amethyst_block.chime", frame: ground, volume: 0.8, pitch: 1.2}
         - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: caster, radius: "${radius}", include_self: true}}
-        - {id: pts,  op: particle, particle: end_rod, anchor: feet, count: 0, extra: 0.02}
-        - {id: dust, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#f0f0aa", size: 1.4}
+        - {id: pts,  op: particle, particle: end_rod, frame: ground, count: 0, extra: 0.02}
+        - {id: dust, op: particle, particle: dust, frame: ground, count: 1, extra: 0, color: "#f0f0aa", size: 1.4}
       do:
-        # state is 1 tick, so no display fits (StateOverrun): a flat particle disc across the radius stands in for the ring
-        - {id: disc, op: particle, particle: dust, anchor: feet, count: 20, offset: [3.0, 0.1, 3.0], extra: 0, color: "#f0f0aa", size: 1.2, at: 0}
+        - {id: disc, op: particle, particle: dust, frame: ground, count: 20, offset: [3.0, 0.1, 3.0], extra: 0, color: "#f0f0aa", size: 1.2, at: 0}
     end: {final: true}

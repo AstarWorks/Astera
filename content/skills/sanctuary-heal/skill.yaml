@@ -1,4 +1,6 @@
-# Sanctuary staff heal: on tick 0 the caster and allies within `radius` are healed; the cast ends on tick 1. Re-authored from zero on ADR-0303 rev4.10.
+# Sanctuary staff heal: on tick 0 the caster and allies within `radius` are healed; the cast ends on tick 1. Frame grammar (ADR-0314):
+# ground - the plate under the caster's feet (v up): the flat dust disc across the radius is drawn on it (the state is 1 tick, so no display fits: StateOverrun);
+# chest - the caster's chest for the heal glow. Gameplay unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: sanctuary-heal
@@ -7,9 +9,9 @@ meta: {name: {ja: "癒しの輪", en: "Healing Circle"}, description: {ja: "周�
 params:
   radius: {type: blocks, default: 6.0}
   heal:   {type: number, default: 30.0}
-anchors:
-  - {id: feet,  anchor: caster, offset: {up: 0.15}, mode: follow}
-  - {id: chest, anchor: caster, offset: {up: 1.0}, mode: follow}
+frames:
+  - {id: ground, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 0.15}}]}
+  - {id: chest, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 1.0}}]}
 machine:
   start: bless
   states:
@@ -18,11 +20,10 @@ machine:
       then: end
       enter:
         - {id: heal, op: heal, target: {kind: allies, around: caster, radius: "${radius}", include_self: true}, amount: "${heal}"}
-        - {id: snd, op: sound, sound: "astera:skills/heal-chime", anchor: caster, volume: 0.7, pitch: 1.0}
-        - {id: emit, op: particle, particle: happy_villager, anchor: feet, count: 0, extra: 0.02}
-        - {id: emit_2, op: particle, particle: dust, anchor: feet, count: 1, color: "#5ae65a", size: 1.4}
-        - {id: emit_3, op: particle_def, def: verdant-heal, anchor: chest}
+        - {id: snd, op: sound, sound: "astera:skills/heal-chime", frame: ground, volume: 0.7, pitch: 1.0}
+        - {id: emit, op: particle, particle: happy_villager, frame: ground, count: 0, extra: 0.02}
+        - {id: emit_2, op: particle, particle: dust, frame: ground, count: 1, color: "#5ae65a", size: 1.4}
+        - {id: emit_3, op: particle_def, def: verdant-heal, frame: chest}
       do:
-        # state is 1 tick, so no display fits (StateOverrun): a flat particle disc across the radius stands in for the ring
-        - {id: disc, op: particle, particle: dust, anchor: feet, count: 24, offset: [3.0, 0.1, 3.0], extra: 0, color: "#5ae65a", size: 1.2, at: 0}
+        - {id: disc, op: particle, particle: dust, frame: ground, count: 24, offset: [3.0, 0.1, 3.0], extra: 0, color: "#5ae65a", size: 1.2, at: 0}
     end: {final: true}
