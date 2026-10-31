@@ -2,6 +2,7 @@ package com.astarworks.astera.gamesim.skillengine
 
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.animation.skinrig.BonePose
+import com.astarworks.astera.core.domain.animation.skinrig.RigDisplayContract
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigTransforms
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
@@ -34,7 +35,8 @@ class FrameRigScenarioTest : SkillEngineScenario() {
     // content/frames/revolver.yaml, part held_hand: the grip is the part origin
     private val gunGrip = Vec3(0.0, 0.0, 0.0)
 
-    private class Played(val start: Int, val meshFrames: Map<Int, Frame>, val casterAt: Map<Int, Vec3>, val rec: GatewayRecorder)
+    /** [meshWrites]: the index into `rec.writtenPoses` of the held mesh's write on each tick (its root and interpolation length live there). */
+    private class Played(val start: Int, val meshFrames: Map<Int, Frame>, val casterAt: Map<Int, Vec3>, val meshWrites: Map<Int, Int>, val rec: GatewayRecorder)
 
     /**
      * [faithful] = the recorder answers the caster cells as Paper does (feet at the origin, eye 1.62 up, `caster.eye` pitched); off, every
@@ -55,13 +57,40 @@ class FrameRigScenarioTest : SkillEngineScenario() {
         val start = rec.writtenPoses.first { it.second == mesh.instance }.first
         val frames = LinkedHashMap<Int, Frame>()
         val caster = LinkedHashMap<Int, Vec3>()
+        val writes = LinkedHashMap<Int, Int>()
         for ((i, w) in rec.writtenPoses.withIndex()) {
             val (tick, name, pose) = w
             if (name != mesh.instance) continue
             frames[tick] = pose.frame
             caster[tick] = rec.writtenCasterAt[i].let { Vec3(it.x, it.y, it.z) }
+            writes[tick] = i
         }
-        return Played(start, frames, caster, rec)
+        return Played(start, frames, caster, writes, rec)
+    }
+
+    /**
+     * The Display contract the client needs to draw the weapon in the fist (ADR-0315, [RigDisplayContract]): on every tick the held mesh is
+     * written, its `root` is the very anchor the caster's body was pushed with (so the Paper adapter roots both on one entity position and
+     * yaw), and the write carries the contract's interpolation length. The sim measures the engine's grip (`gripOnOrigin`); this is the
+     * part the client could still split: a weapon moved by entity position while the hand moves by transformation lands a tick apart
+     * (dev 2026-11-01, the guard 0.6 blocks from the fist on the swing ticks).
+     */
+    private fun sharedRoot(p: Played): Int {
+        val pushed = p.rec.pushedBody.associateBy { it.tick }
+        var checked = 0
+        for ((tick, i) in p.meshWrites) {
+            val pose = p.rec.writtenPoses[i].third
+            val root = pose.root ?: throw AssertionError("the held mesh write of t$tick is not rooted on the caster's puppet anchor")
+            val push = pushed[tick]
+            if (push != null) { // a rig without a clip pushes no body: the rest body stays, the root alone is checked
+                val anchor = push.anchor ?: throw AssertionError("the caster's puppet was pushed without its anchor on t$tick")
+                assertThat(root).describedAs("the held mesh write of t$tick is rooted on the puppet anchor of that tick").isEqualTo(anchor)
+            }
+            assertThat(p.rec.writtenInterpolation[i]).describedAs("the held mesh write of t$tick uses the rig display contract").isEqualTo(RigDisplayContract.INTERPOLATION_TICKS)
+            assertThat(pose.anchorFeet).describedAs("a rig mesh is rooted, never a passenger (t$tick)").isNull()
+            checked++
+        }
+        return checked
     }
 
     private class GripReport(val worst: Double, val worstTick: Int, val judged: Int, val reach: List<String>)
@@ -102,10 +131,68 @@ class FrameRigScenarioTest : SkillEngineScenario() {
      */
     @Test
     fun thePuppetGripSitsOnTheBladeFrameOriginEveryTick() {
-        val r = gripOnOrigin(play("bastion-greatsword-s1", 60), grip)
+        val p = play("bastion-greatsword-s1", 60)
+        // per-tick pin + reach of the first swing, in the rig frame: the live `[vfx-trace] rig hand ... target= reach=` rows are compared with these
+        val r = gripOnOrigin(p, grip) { tick, push ->
+            if (tick <= 12) println("FRAME-RIG s1 t%d target=%s reach=%s".format(tick, push.frame.rightHandTarget, SkinRigTransforms.rightHandReach(push.frame, false)?.let { "%.4f".format(it) }))
+        }
         println("FRAME-RIG puppet grip vs blade origin worst=%.4f at t%d over %d ticks; reach clamped (blocks beyond the arm): %s".format(r.worst, r.worstTick, r.judged, if (r.reach.isEmpty()) "none" else r.reach.joinToString(" ")))
         assertThat(r.judged).isGreaterThan(50)
         assertThat(r.worst).describedAs("the puppet's right-hand grip sits on the blade frame origin (worst at t${r.worstTick})").isLessThan(0.05)
+        assertThat(sharedRoot(p)).describedAs("held mesh writes rooted on the pushed anchor").isGreaterThanOrEqualTo(r.judged)
+    }
+
+    /**
+     * One clock per run (dev 2026-11-01, the second cause of the guard off the fist): Paper handles the click packet after the engine's
+     * global tick, so a cast started at `currentTick()` had its frames one tick ahead of its rows. The body clip (a row) then lagged the
+     * blade frame (started at `startTick`) by one tick and the pin hit a joint one clip tick behind. First half: that skew, reproduced
+     * from the sim's own pushes (the body of tick t with the pin of tick t+1) gives the reach the live `[vfx-trace] rig hand` rows showed
+     * (-0.13, -0.20, +0.59, +0.79 at t3..t6: these are the gaps of 0.12 / 0.18 / 0.59 / 0.82 blocks the capture's rig check measured).
+     * Second half: the player refuses a start tick it already ran, so a platform that computes it wrong fails every full-sim scenario loudly
+     * instead of drawing the sword a tick off the hand.
+     */
+    @Test
+    fun aCastStartedOnATickThePlayerAlreadyRanIsRefused() {
+        val p = play("bastion-greatsword-s1", 12)
+        val pushed = p.rec.pushedBody.associateBy { it.tick }
+        val skewed = (0..8).map { t ->
+            val body = pushed.getValue(t).frame
+            val pin = pushed.getValue(t + 1).frame.rightHandTarget
+            t to (SkinRigTransforms.rightHandReach(body.copy(rightHandTarget = pin), false) ?: 0.0)
+        }
+        println("FRAME-RIG s1 body of t with the pin of t+1 (the Paper skew), reach: " + skewed.joinToString(" ") { "t%d %+.3f".format(it.first, it.second) })
+        assertThat(skewed.maxOf { abs(it.second) }).describedAs("a one-tick skew between clip and frame throws the pin out of the arm's reach").isGreaterThan(0.5)
+        assertThat(pushed.values.maxOf { abs(SkinRigTransforms.rightHandReach(it.frame, false) ?: 0.0) }).describedAs("on one clock the pin stays in reach").isLessThan(0.02)
+
+        val text = Files.readString(contentDir.resolve("skills/bastion-greatsword-s1/skill.yaml"))
+        val skill = (compileText("bastion-greatsword-s1/skill.yaml", text) as Result.Success).value
+        val rec = GatewayRecorder()
+        val player = com.astarworks.astera.core.application.skillengine.runtime.player.TablePlayer(rec.visual, rec.particles, rec.sounds, rec.gameplay, rec.query, rec.live, rec, rec.movement, rec.items, rec.world)
+        player.hooks = rec.hooks
+        fun request(at: Int) = com.astarworks.astera.core.application.skillengine.runtime.CastRequest(
+            skill = skill, caster = rec.caster, world = com.astarworks.astera.core.domain.world.WorldId("world"), casterFeet = Vec3(0.0, 0.0, 0.0),
+            casterYawDeg = 0.0, casterPitchDeg = 0.0, seed = 1L, startTick = at,
+        )
+        assertThat(player.start(request(0), skill)).describedAs("a run may start on the tick the player has not run yet").isInstanceOf(Result.Success::class.java)
+        for (now in 0..3) { rec.tick = now; player.tick(now) }
+        val late = player.start(request(3), skill)
+        assertThat(late).describedAs("a start tick already run is refused").isInstanceOf(Result.Failure::class.java)
+        val error = (late as Result.Failure).error
+        assertThat(error).isInstanceOf(com.astarworks.astera.core.application.skillengine.runtime.CastError.FrameSetup::class.java)
+        assertThat((error as com.astarworks.astera.core.application.skillengine.runtime.CastError.FrameSetup).reason).contains("already ran tick 3").contains("must be 4 or later")
+        assertThat(player.start(request(4), skill)).describedAs("the next tick is the first one the player will run").isInstanceOf(Result.Success::class.java)
+        assertThat(player.running()).describedAs("the refused cast left nothing behind").hasSize(2)
+    }
+
+    /** The same contract for a rig without a clip (revolver-shot, rest body + pin) and for a mounted rig (`rig of:`, katana-slash). */
+    @Test
+    fun everyRigMeshWriteIsRootedOnThePushedAnchor() {
+        for ((skill, ticks, faithful) in listOf(Triple("revolver-shot", 20, true), Triple("katana-slash", 30, false))) {
+            val p = play(skill, ticks, faithful)
+            val n = sharedRoot(p)
+            println("FRAME-RIG $skill: $n held mesh writes rooted on the pushed anchor")
+            assertThat(n).describedAs("$skill: ticks checked").isGreaterThan(5)
+        }
     }
 
     /**

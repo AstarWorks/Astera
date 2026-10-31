@@ -85,6 +85,8 @@ internal class SkillEnginePaperRuntime(
     private val notInCatalog = ConcurrentHashMap.newKeySet<String>()
     private val missingSkins = ConcurrentHashMap.newKeySet<String>()
     private var castSequence = 0L
+    /** The last tick the engine ticked on: a cast handled after it (the click packet lands after the global tasks) starts on the next tick. */
+    private var tickedThrough = Long.MIN_VALUE
 
     private var movement: PaperSkillMovementGateway? = null
     private var worldOps: PaperSkillWorldGateway? = null
@@ -213,6 +215,7 @@ internal class SkillEnginePaperRuntime(
             val now = scheduler.currentTick()
             // A throw here would kill the repeating task and silently freeze every cast: each stage logs by name and the loop goes on.
             guardStage("cast") { cast.tick(now.toInt()) }
+            tickedThrough = now
             guardStage("hooks") { playerHooks.tick(now.toInt()) }
             guardStage("movement") { movementGateway.tick(now.toInt()) }
             guardStage("live-retain") { live.retain(player.running().toSet()) }
@@ -301,6 +304,10 @@ internal class SkillEnginePaperRuntime(
         }
         val loc = player.location
         val world = WorldId(player.world.name)
+        // One clock per run (TablePlayer.startRun): the run starts on the first tick the engine will run for it, the next one when this
+        // tick's engine tick already went (the click packet lands after the global tasks). Frames, rows and the rig body share that tick.
+        val now = scheduler.currentTick()
+        val startTick = if (tickedThrough >= now) now + 1 else now
         val request = CastRequest(
             skill = skill,
             caster = event.caster.uuid,
@@ -310,7 +317,7 @@ internal class SkillEnginePaperRuntime(
             casterPitchDeg = loc.pitch.toDouble(),
             // Per cast: tick and caster tell casts apart, the counter separates two casts of one caster in the same tick.
             seed = (event.atTick xor event.caster.uuid.leastSignificantBits) xor (castSequence++ * -0x61c8864680b583ebL),
-            startTick = scheduler.currentTick().toInt(),
+            startTick = startTick.toInt(),
             // fixed here, at cast start: the item that fired the cast, else the item the skill is bound to. The live main hand is never read again.
             heldItem = event.sourceItemId?.value ?: skill.def.item?.takeIf { it != "any" },
         )

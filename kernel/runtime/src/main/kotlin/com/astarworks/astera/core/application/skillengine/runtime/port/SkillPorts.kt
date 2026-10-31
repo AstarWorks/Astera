@@ -39,6 +39,12 @@ public data class VisualPose(
     val anchorFeet: Vec3? = null,
     /** `teleport_duration` of the write when it differs from the interpolation length (a followed effect); null = same. */
     val teleportTicks: Int? = null,
+    /**
+     * A rig mesh (ADR-0315): the puppet anchor the caster's body was pushed with this tick. The adapter roots the display on it
+     * (entity position = feet, entity yaw = body yaw, the pose in the rig frame as a transformation, [RigDisplayContract] durations)
+     * exactly as the puppet's bones are, so the weapon and the hand change in the same client ticks.
+     */
+    val root: com.astarworks.astera.core.domain.animation.skinrig.RigAnchor? = null,
 )
 
 /** How a mesh item is drawn: pack model key set on the item, ItemDisplayContext, and whether the weapon-rig shader rule lights it. */

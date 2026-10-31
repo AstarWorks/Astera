@@ -972,6 +972,10 @@ film() { # viewer view_dir
   if [ -n "$ct" ]; then
     docker logs "$SERVER_CT" 2>&1 | grep -E '\[(vfx|skill)-trace\]' | tr -d '\r' \
       | awk -v lo="$((ct - 1))" -v hi="$((ct + TICKS + PRE_TICKS + 10))" '{ if (match($0, /tick=[0-9]+/)) { t = substr($0, RSTART + 5, RLENGTH - 5) + 0; if (t >= lo && t <= hi) print } }' > "$dir/trace.log" || true
+    # ADR-0315: the weapon display and the puppet's right hand must be sent on one entity position / yaw / interpolation contract, grip on origin
+    python3 -I "$HERE/rig_trace_check.py" "$dir/trace.log" "$dir/rig-check.txt" > "$STATE/rig-check.out" 2>&1 \
+      || die "rig check failed ($(tail -1 "$dir/rig-check.txt" 2>/dev/null)); see $dir/rig-check.txt and $dir/trace.log"
+    log "rig check: $(tail -1 "$dir/rig-check.txt")"
   fi
   log "tick stamp: $(cat "$STATE/framestamp.out")"
   # nothing ever drawn after the cast = a silent no-op (rejected cast, wrong skill, dead fx): never a successful capture

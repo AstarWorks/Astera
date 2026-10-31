@@ -16,6 +16,7 @@ import com.astarworks.astera.core.application.skillengine.runtime.port.SpriteInf
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle
 import com.astarworks.astera.core.application.skillengine.runtime.port.DisplayView
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
+import com.astarworks.astera.core.application.skillengine.runtime.VfxTrace
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.DisplaySpec
@@ -88,7 +89,7 @@ public class PaperSkillVisualGateway(
     private val owners = ConcurrentHashMap<Long, UUID>()
 
     private sealed interface Entry
-    private class MeshEntry(val handle: DisplayHandle, val owner: UUID, val heldItem: Boolean = false) : Entry
+    private class MeshEntry(val handle: DisplayHandle, val owner: UUID, val heldItem: Boolean = false, val leftHand: Boolean = false) : Entry
     /** One hand lease per caster, shared by every live `main_hand` mesh of that caster. */
     private class HandHide(val lease: PresentationLease) { var users: Int = 0 }
     private val handHides = ConcurrentHashMap<UUID, HandHide>()
@@ -135,11 +136,12 @@ public class PaperSkillVisualGateway(
         val heldItem = model == MeshModel.HeldItem
         if (heldItem && cast.heldItem == null) return dead("mesh $item (the cast carries no item)")
         val kind = SkillDisplaySpecs.meshKind(model, look, cast.heldItem)
-        val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, 0)
+        // a rig mesh is born on its root (the puppet anchor), every other mesh on its own origin: the first write re-places it either way
+        val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, 0, root = pose.root)
         val spec = SkillDisplaySpecs.mesh(kind, first.transform, brightness, look.rigShading, look.shaderEffect).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
-        val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null, view) ?: return dead("mesh $item")
+        val handle = spawnDisplay(world, castOwner, first.at, spec, emptyList(), pose.anchorFeet != null, view) ?: return dead("mesh $item")
         if (heldItem) hideHand(castOwner)
-        return register(castOwner, MeshEntry(handle, castOwner, heldItem))
+        return register(castOwner, MeshEntry(handle, castOwner, heldItem, leftHand = look.mode == com.astarworks.astera.core.domain.effect.DisplayItemMode.THIRDPERSON_LEFTHAND))
     }
 
     override fun spawnSkinBone(cast: CastRef, bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, slim: Boolean, ghost: Boolean, pose: VisualPose): VisualHandle {
@@ -385,17 +387,38 @@ public class PaperSkillVisualGateway(
 
     override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {
         when (val e = entries[handle.id]) {
-            is MeshEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
-            is SkinEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
-            is PlateEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, e.intrinsic, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
-            is BlockEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.BLOCK, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
-            is TextEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, e.intrinsic, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks))
+            is MeshEntry -> {
+                val write = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks, pose.root)
+                displays.place(e.handle, write)
+                if (pose.root != null && VfxTrace.enabled) traceRigMesh(e, pose, write)
+            }
+            is SkinEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks, pose.root))
+            is PlateEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, e.intrinsic, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks, pose.root))
+            is BlockEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, Intrinsic.BLOCK, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks, pose.root))
+            is TextEntry -> displays.place(e.handle, toDisplayWrite(pose.frame, pose.size, e.intrinsic, pose.billboard, interpolationTicks, anchorOf(e.owner, pose.anchorFeet), pose.teleportTicks, pose.root))
             is TrailEntry -> error("a trail is fed through pushTrailPoint, never written")
             is LineEntry -> error("a line is moved through updateLine, never written")
             is VeilEntry -> error("a screen veil is moved through updateScreenVeil, never written")
             null -> Unit // already removed (owner quit / cast ended): nothing left to move
         }
     }
+
+    /**
+     * `[vfx-trace] rig mesh` (ADR-0315): the entity data this write sends for a rig mesh (position, yaw, durations, the transformation
+     * translation in the rig frame) and the world origin it stands for, keyed by the world's `gameTime`, so `tools/vfx-shot/rig_trace_check.py`
+     * can pair it with the puppet's `rig hand` row of the same tick.
+     */
+    private fun traceRigMesh(e: MeshEntry, pose: VisualPose, write: DisplayWrite) {
+        val display = server.getEntity(e.handle.id) as? Display ?: return
+        val t = write.transform.translation
+        log.info(
+            "[vfx-trace] rig mesh tick={} player={} hand={} at={} yaw={} tp={} ip={} local={} origin={}",
+            display.world.gameTime, e.owner, if (e.leftHand) "l" else "r", fmt(write.at), "%.4f".format(write.yaw), write.teleportDuration, write.interpolationDuration,
+            fmt(t), fmt(pose.frame.origin),
+        )
+    }
+
+    private fun fmt(v: Vec3): String = "%.4f,%.4f,%.4f".format(v.x, v.y, v.z)
 
     override fun pushTrailPoint(handle: VisualHandle, root: Vec3, tip: Vec3) {
         val t = entries[handle.id] as? TrailEntry ?: return

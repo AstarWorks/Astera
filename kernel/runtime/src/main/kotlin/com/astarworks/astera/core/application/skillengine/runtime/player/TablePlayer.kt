@@ -60,6 +60,7 @@ import com.astarworks.astera.core.domain.skillengine.table.InstanceId
 import com.astarworks.astera.core.domain.skillengine.table.OpId
 import com.astarworks.astera.core.domain.animation.skinrig.BodySkeleton
 import com.astarworks.astera.core.domain.animation.skinrig.RigAnchor
+import com.astarworks.astera.core.domain.animation.skinrig.RigDisplayContract
 import com.astarworks.astera.core.domain.animation.skinrig.RigFrame
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigPlayback
@@ -187,6 +188,8 @@ public class TablePlayer(
     private var nextCast = 1L
     private var nextSynthetic = -1L
     private var lastTick = 0
+    /** The last tick [tick] ran; a run can only start on a later one (see [startRun]). */
+    private var tickedThrough = Int.MIN_VALUE
     private val resolver = DefaultContactResolver()
 
     public fun faults(): List<PlayerFault> = faultLog.toList()
@@ -210,6 +213,13 @@ public class TablePlayer(
 
     /** [start] without the callee-only gate: a `summon` (ADR-0313) is the caller that binds the callee's one `frames_in` frame. */
     private fun startRun(request: CastRequest, skill: CompiledSkill): Result<CastHandle, CastError> {
+        // One clock per run: the frame instances start at `startTick`, the rows (every op, the body clip of a `rig` included) on the first
+        // tick this player runs for the run. A start tick already ticked puts the frames one tick ahead of the rows (dev 2026-11-01: the
+        // puppet body a clip tick behind the blade frame, the fist 0.8 blocks off the guard on the swing ticks). Refused, never rebased:
+        // the platform computes the first tick it will run (a cast handled after this tick's engine tick starts next tick, like a summon).
+        if (request.startTick <= tickedThrough) {
+            return Result.Failure(CastError.FrameSetup("cast of '${skill.def.id}' starts at tick ${request.startTick} but the player already ran tick $tickedThrough; the start tick must be ${tickedThrough + 1} or later"))
+        }
         // the table's first state is the entry (MachineTables puts it there): a part call as `machine.start` is expanded to its child path
         val states = skill.table.states.associateBy { it.state }
         val rootPath = skill.table.states.firstOrNull()?.state ?: StatePath(skill.def.machine.start)
@@ -230,6 +240,7 @@ public class TablePlayer(
 
     override fun tick(now: Int) {
         lastTick = now
+        tickedThrough = max(tickedThrough, now)
         world.tick()
         for (run in runs.values.toList()) {
             if (run.finalized || now < run.request.startTick) continue
@@ -957,11 +968,13 @@ public class TablePlayer(
         return PoseV(Vector3d(local.pos).rotate(pr).add(pp), Quaterniond(pr).mul(local.rot), Vector3d(local.scale))
     }
 
-    private fun visualPose(rec: Rec, w: PoseV): VisualPose =
+    /** [root]: a rig mesh (ADR-0315) names the puppet anchor it is rooted on, the same object [pushBodies] pushes the body with this tick. */
+    private fun visualPose(rec: Rec, w: PoseV, root: RigAnchor? = null): VisualPose =
         VisualPose(
             Frame(Vec3(w.pos.x, w.pos.y, w.pos.z), Quaternion(w.rot.x, w.rot.y, w.rot.z, w.rot.w)),
             Vec3(w.scale.x, w.scale.y, w.scale.z),
             rec.billboard,
+            root = root,
         )
 
     // ------------------------------------------------------------------ rows
@@ -2096,14 +2109,15 @@ public class TablePlayer(
             val rec = Rec(SpawnKind.ITEM, carrier, "", now, ctx.owner, ctx.detached, local)
             val view = DisplayView()
             // main hand: the caster's real stack (THIRDPERSON_RIGHTHAND); off hand: the off-hand part's own pack model (THIRDPERSON_LEFTHAND), the real off-hand slot is empty
+            val root = casterAnchor(run)
             val h = if (off) {
                 visual.spawnMesh(
-                    castRef(run), any(run, cell("mesh_model"), ctx) as String, null, visualPose(rec, worldOf(run, rec, local, ctx.binding, now)), null,
+                    castRef(run), any(run, cell("mesh_model"), ctx) as String, null, visualPose(rec, worldOf(run, rec, local, ctx.binding, now), root), null,
                     MeshLook(mode = DisplayItemMode.THIRDPERSON_LEFTHAND, rigShading = true), view = view,
                 )
             } else {
                 visual.spawnMesh(
-                    castRef(run), MeshModels.MAIN_HAND, null, visualPose(rec, worldOf(run, rec, local, ctx.binding, now)), null, MeshLook(rigShading = true), view = view,
+                    castRef(run), MeshModels.MAIN_HAND, null, visualPose(rec, worldOf(run, rec, local, ctx.binding, now), root), null, MeshLook(rigShading = true), view = view,
                 )
             }
             rec.real = h
@@ -2126,8 +2140,10 @@ public class TablePlayer(
         val cur = rec.localAt(now)
         val target = PoseV(Vector3d(origin.x, origin.y, origin.z), Quaterniond(q.x, q.y, q.z, q.w), Vector3d(cur.scale))
         rec.moveTo(target, now, 0)
-        rec.real?.let { visual.write(it, visualPose(rec, worldOf(run, rec, target, null, now)), 0) }
-        rig.held?.let { h -> h.real?.let { visual.write(it, visualPose(h, worldOf(run, h, h.localAt(now), null, now)), 0) } }
+        // the carried meshes are rooted on the puppet anchor of this tick (ADR-0315, RigDisplayContract): the hand and the weapon share one root
+        val root = casterAnchor(run)
+        rec.real?.let { visual.write(it, visualPose(rec, worldOf(run, rec, target, null, now), root), RigDisplayContract.INTERPOLATION_TICKS) }
+        rig.held?.let { h -> h.real?.let { visual.write(it, visualPose(h, worldOf(run, h, h.localAt(now), null, now), root), RigDisplayContract.INTERPOLATION_TICKS) } }
     }
 
     private fun driversStep(run: Run, now: Int) {
@@ -2186,16 +2202,23 @@ public class TablePlayer(
             }
         }
         if (pushes.isEmpty()) return
-        if (run.tableFeet == null) snapshotCaster(run)
-        val anchor by lazy {
-            val feet = run.tableFeet!!
-            val fwd = Vector3d(0.0, 0.0, 1.0).rotate(run.tableRot!!)
-            val aim = Vector3d(0.0, 0.0, 1.0).rotate(run.tableLook!!)
-            RigAnchor(Vec3(feet.x, feet.y, feet.z), Math.toDegrees(kotlin.math.atan2(-fwd.x, fwd.z)), Math.toDegrees(kotlin.math.asin((-aim.y).coerceIn(-1.0, 1.0))))
-        }
+        val anchor by lazy { casterAnchor(run) }
         for (push in pushes.groupBy { it.who }.values.map { bodies -> bodies.maxBy { it.start } }) {
             gameplay.poseBody(castRef(run), push.who, push.frame(), if (push.anchored) anchor else null)
         }
+    }
+
+    /**
+     * The caster's puppet anchor of this tick (ADR-0315): the caster cells the frame table reads (feet, body yaw, look pitch). One
+     * function for the body push and for the root of every rig mesh write of the tick, so the weapon display and the bones stand on
+     * the same entity position and yaw by construction ([RigDisplayContract]); the game-sim asserts the two are equal.
+     */
+    private fun casterAnchor(run: Run): RigAnchor {
+        if (run.tableFeet == null) snapshotCaster(run)
+        val feet = run.tableFeet!!
+        val fwd = Vector3d(0.0, 0.0, 1.0).rotate(run.tableRot!!)
+        val aim = Vector3d(0.0, 0.0, 1.0).rotate(run.tableLook!!)
+        return RigAnchor(Vec3(feet.x, feet.y, feet.z), Math.toDegrees(kotlin.math.atan2(-fwd.x, fwd.z)), Math.toDegrees(kotlin.math.asin((-aim.y).coerceIn(-1.0, 1.0))))
     }
 
     /** The caster cells the frame table reads this tick (see [Run.tableFeet]). */
@@ -2429,13 +2452,14 @@ public class TablePlayer(
         // the one re-evaluation of a frame inside a tick, on the tick a rig takes the hand
         for ((key, inst) in run.frames.entries.toList()) if ((inst.decl.origin as? OriginSpec.Caster)?.point == hand && inst.evaluatedTick == now) evaluateFrame(run, key, inst, now)
         val view = DisplayView()
+        val root = casterAnchor(run)
         val h = if (off) {
             visual.spawnMesh(
-                castRef(run), any(run, cell("mesh_model"), ctx) as String, null, visualPose(held, worldOf(run, held, local, ctx.binding, now)), null,
+                castRef(run), any(run, cell("mesh_model"), ctx) as String, null, visualPose(held, worldOf(run, held, local, ctx.binding, now), root), null,
                 MeshLook(mode = DisplayItemMode.THIRDPERSON_LEFTHAND, rigShading = true), view = view,
             )
         } else {
-            visual.spawnMesh(castRef(run), MeshModels.MAIN_HAND, null, visualPose(held, worldOf(run, held, local, ctx.binding, now)), null, MeshLook(rigShading = true), view = view)
+            visual.spawnMesh(castRef(run), MeshModels.MAIN_HAND, null, visualPose(held, worldOf(run, held, local, ctx.binding, now), root), null, MeshLook(rigShading = true), view = view)
         }
         held.real = h
         run.recs[heldId] = held
@@ -2447,7 +2471,8 @@ public class TablePlayer(
     private fun frameRigPose(run: Run, rec: Rec, now: Int) {
         val fr = rec.frameRig ?: return
         val h = fr.held
-        h.real?.let { visual.write(it, visualPose(h, worldOf(run, h, h.localAt(now), rec.binding, now)), 0) }
+        // rooted on the puppet anchor of this tick (ADR-0315, RigDisplayContract): the pinned hand and the mesh share one root
+        h.real?.let { visual.write(it, visualPose(h, worldOf(run, h, h.localAt(now), rec.binding, now), casterAnchor(run)), RigDisplayContract.INTERPOLATION_TICKS) }
     }
 
     /** One tick of a line ribbon: both ends are read again and the polyline is re-drawn between them (the one function W2 owns; the drain rule never touches it). */

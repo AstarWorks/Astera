@@ -185,6 +185,8 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     val writtenPoses = ArrayList<Triple<Int, String, VisualPose>>()
     /** [casterPosition] at the moment of each entry of [writtenPoses] (same index): lets a scenario compare a mesh with the caster's pose of that tick. */
     val writtenCasterAt = ArrayList<Vector3d>()
+    /** The interpolation length of each entry of [writtenPoses] (same index): a rig mesh must write with [com.astarworks.astera.core.domain.animation.skinrig.RigDisplayContract]. */
+    val writtenInterpolation = ArrayList<Int>()
 
     /** One `poseBody` push of the driven puppet (ADR-0315): the frame and anchor the engine drew the body with at [tick]. */
     class PushedBody(val tick: Int, val target: UUID, val frame: com.astarworks.astera.core.domain.animation.skinrig.RigFrame, val anchor: com.astarworks.astera.core.domain.animation.skinrig.RigAnchor?)
@@ -315,6 +317,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {
             writtenPoses += Triple(tick, name(handle), pose)
             writtenCasterAt += Vector3d(casterPosition.x, casterPosition.y, casterPosition.z)
+            writtenInterpolation += interpolationTicks
             add("write", name(handle), "dur=$interpolationTicks", OracleFmt.pose(pose))
         }
 
@@ -901,7 +904,9 @@ internal object OracleFmt {
 
     fun pose(p: VisualPose): String =
         "pos=${v(p.frame.origin)} rot=${q(p.frame.rotation)} scale=${v(p.size)} bb=${p.billboard}" +
-            (p.anchorFeet?.let { " feet=${v(it)}" } ?: "") + (p.teleportTicks?.let { " tp=$it" } ?: "")
+            (p.anchorFeet?.let { " feet=${v(it)}" } ?: "") + (p.teleportTicks?.let { " tp=$it" } ?: "") +
+            // a rig mesh (ADR-0315): the puppet anchor it is rooted on (feet, body yaw) — the same object the body push of the tick carries
+            (p.root?.let { " root=${v(it.feet)} ryaw=${f(it.yawDeg)}" } ?: "")
 
     /** A resolved hit volume: kind and its dimensions (capsule a/b/radius, sphere radius, sector origin/forward/left/deg/range/height, box centre/half/rotation). */
     fun volume(vol: com.astarworks.astera.core.domain.skillengine.hit.ResolvedVolume): String = when (vol) {

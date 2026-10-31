@@ -14,8 +14,11 @@ import com.astarworks.astera.core.domain.presentation.PresentationKind
 import com.astarworks.astera.core.domain.presentation.PresentationLease
 import com.astarworks.astera.core.domain.presentation.PresentationMask
 import com.astarworks.astera.core.domain.animation.player.CustomAnimationId
+import com.astarworks.astera.core.application.skillengine.runtime.VfxTrace
 import com.astarworks.astera.core.domain.animation.skinrig.RigAnchor
+import com.astarworks.astera.core.domain.animation.skinrig.RigDisplayContract
 import com.astarworks.astera.core.domain.animation.skinrig.RigFrame
+import com.astarworks.astera.core.domain.animation.skinrig.rigFrame
 import com.astarworks.astera.core.domain.animation.skinrig.RigPartTransform
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone
@@ -52,13 +55,18 @@ import org.slf4j.LoggerFactory
  *    display transform stretches the cube to the bone's box.
  *  - **Driven, not clocked (ADR-0315).** The puppet samples nothing itself: [pose] receives the frame and the anchor
  *    (feet, yaw, pitch) its caller computed, and in that same call moves every display there and writes the new
- *    transformation (`teleport_duration = 1`, `interpolation_duration = 1`, so the client lerps both across the tick).
- *    The move is `teleportAsync` (the only teleport the architecture allows in a Paper adapter, Folia-ready); within one
- *    loaded world it completes before it returns, so the entity is at the anchor in the same tick as the transformation.
- *    A move that did not complete in the call is counted and reported once when the rig goes down, so a lag has a
- *    number instead of an offset. The skill engine pushes the frame of its own frame table, so the body and the weapon
+ *    transformation. The move is `teleportAsync` (the only teleport the architecture allows in a Paper adapter, Folia-ready);
+ *    within one loaded world it completes before it returns, so the entity is at the anchor in the same tick as the
+ *    transformation. A move that did not complete in the call is counted and reported once when the rig goes down, so a lag
+ *    has a number instead of an offset. The skill engine pushes the frame of its own frame table, so the body and the weapon
  *    frame riding the hand are drawn from one pose and one anchor; an emote pushes the clip it plays on its own clock.
  *    The earlier free-running tick (own clock, own body-yaw estimate, anchor read a tick late) is gone.
+ *  - **One Display contract with the weapon ([RigDisplayContract]).** Every bone stands on the anchor (entity position = feet,
+ *    entity yaw = body yaw, the bone's transform in that rig frame) and writes with the contract's `teleport_duration` /
+ *    `interpolation_duration`; a rig mesh the skill engine writes is rooted on the same anchor with the same durations. The
+ *    client applies an entity position at receipt and a transformation at its next tick, so two displays that move one by
+ *    position and one by transformation split by a tick of travel: rooting both the same way is what keeps the weapon in the
+ *    fist (the earlier `1 / 1` bones with a position-moved weapon were 0.6 blocks apart on the swing ticks).
  *  - **Hiding the real player (ADR-0276).** [show] claims an EMOTE lease of [IPlayerPresentation]: the real body, armor and
  *    held item are hidden by the lease service in one bundle with the reveal of the (staged) rig, and given back by its release.
  *    This class sends no equipment or invisibility packets itself. A skill performance preempts an emote, and an emote is
@@ -130,8 +138,8 @@ public class PaperSkinRigPuppet(
                 // The hidden player's shadow disappears with them; the body display stands in for it (vanilla 0.5 / 1.0).
                 d.shadowRadius = if (bone == SkinRigBone.BODY) SHADOW_RADIUS else 0f
                 d.shadowStrength = if (bone == SkinRigBone.BODY) SHADOW_STRENGTH else 0f
-                d.interpolationDuration = 1
-                d.teleportDuration = 1
+                d.interpolationDuration = RigDisplayContract.INTERPOLATION_TICKS
+                d.teleportDuration = RigDisplayContract.TELEPORT_TICKS
                 // Staged: invisible until the lease reveals them in the bundle that also hides the real body (ADR-0276).
                 d.viewRange = if (lease != null) 0f else 1f
                 d.transformation = transformation(rest.bones.getValue(bone), cancelItemFlip = true)
@@ -176,6 +184,7 @@ public class PaperSkinRigPuppet(
                 move(rig, held, at)
                 held.transformation = transformation(transforms.heldItem)
             }
+            if (anchor != null && VfxTrace.enabled) traceHand(player, rig, frame, anchor, transforms)
         } catch (e: Exception) {
             log.warn("Skin rig pose failed for {}; tearing it down", player.name, e)
             teardown(rig)
@@ -186,6 +195,27 @@ public class PaperSkinRigPuppet(
     private fun move(rig: Rig, display: ItemDisplay, at: Location) {
         if (!display.teleportAsync(at).isDone) rig.deferredMoves++
     }
+
+    /**
+     * `[vfx-trace] rig hand`: the entity data this pose sends for the right hand (position, yaw, the contract durations) and where
+     * the grip (the held-item translation of the rig frame) lands in the world, keyed by the world's `gameTime`; paired with the
+     * skill engine's `rig mesh` row of the same tick by `tools/vfx-shot/rig_trace_check.py`.
+     */
+    private fun traceHand(player: Player, rig: Rig, frame: RigFrame, anchor: RigAnchor, transforms: com.astarworks.astera.core.domain.animation.skinrig.RigTransforms) {
+        val local = transforms.heldItem.translation
+        val grip = anchor.rigFrame().toWorld(local)
+        // target = the pin the engine sent (rig frame), reach = how far that pin is beyond / short of the rigid arm (blocks)
+        val target = frame.rightHandTarget
+        val reach = SkinRigTransforms.rightHandReach(frame, rig.slim)
+        log.info(
+            "[vfx-trace] rig hand tick={} player={} at={} yaw={} tp={} ip={} local={} grip={} target={} reach={} slim={}",
+            player.world.gameTime, player.uniqueId, fmt(anchor.feet), "%.4f".format(anchor.yawDeg.toFloat()),
+            RigDisplayContract.TELEPORT_TICKS, RigDisplayContract.INTERPOLATION_TICKS, fmt(local), fmt(grip),
+            target?.let { fmt(it) } ?: "-", reach?.let { "%.4f".format(it) } ?: "-", rig.slim,
+        )
+    }
+
+    private fun fmt(v: Vec3): String = "%.4f,%.4f,%.4f".format(v.x, v.y, v.z)
 
     override fun hide(playerId: PlayerId) {
         rigs[playerId]?.let { teardown(it) }
@@ -206,8 +236,8 @@ public class PaperSkinRigPuppet(
             d.itemDisplayTransform = ItemDisplay.ItemDisplayTransform.THIRDPERSON_RIGHTHAND
             d.billboard = Display.Billboard.FIXED
             d.shadowRadius = 0f
-            d.interpolationDuration = 1
-            d.teleportDuration = 1
+            d.interpolationDuration = RigDisplayContract.INTERPOLATION_TICKS
+            d.teleportDuration = RigDisplayContract.TELEPORT_TICKS
             d.viewRange = 0f
             d.transformation = transformation(part)
         }
