@@ -1,5 +1,12 @@
-# Wind-up W = 3 ticks (round_half_up(5 / attack_speed 1.7)): the blade is raised high to the right, the slash hits at tick 3, the cast ends one tick later.
-# The rig is the blade's travel (high right -> low left diagonal, edge leading); rig, trail and sweep are detach: true.
+# iron-blade-slash: high-right to low-left diagonal cut of the iron blade (wind-up 3 ticks, hit at tick 3).
+# Frames (ADR-0314, ADR-0315), the gameplay (hit tick, shape, damage, knockback, cooldown, cast length) is unchanged:
+#   blade  - the iron blade. Origin at the caster feet, moved along a hand path (guard -> raised high at the right -> down across to the left -> guard). Long axis along v (grip at the
+#            origin, tip at v 0.92), edge along w. Roll -135 about v lays the edge on the descending diagonal, then the cut is a turn about s (v moves towards w):
+#            the edge leads. The wind-up tips the point to the right (-55), the cut carries it to the left (+85, hit at tick 3), `reset` eases back.
+#            The engine pins the right hand to the origin, so every `move:` point lies inside the 0.60 reach of the right shoulder (v 0 / w 1.29 / s 0.29).
+#   body   - the caster's feet, v forward / w up / s right: sounds and the cast fx.
+#   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
+#   edge   - line along the blade from part-way to the tip (v 0.56 .. 0.92), what the trail rows draw along.
 apiVersion: astera/v3
 kind: Skill
 id: iron-blade-slash
@@ -15,10 +22,45 @@ params:
   range:        {type: blocks, default: 3.4}
   dmg_physical: {type: number, default: 36.0}
   knockback:    {type: number, default: 0.4}
-anchors:
-  - {id: eye, anchor: caster.eye, mode: follow}
-  - {id: heart, anchor: victim.root, offset: {up: 1.2}, mode: follow}
-  - {id: sweep, anchor: caster.eye, offset: {up: -0.2, forward: 1.4}, mode: snapshot}
+frames:
+  - id: blade
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+    move:
+      - {at: 0, for: 0, to: {v: 0.45, w: 0.9, s: 0.36}}  # guard
+      - {at: 0, for: 1, to: {v: 0.4, w: 1.17, s: 0.73}}
+      - {at: 1, for: 1, to: {v: 0.16, w: 1.51, s: 0.83}}
+      - {at: 2, for: 1, to: {v: 0.43, w: 0.88, s: 0.25}}
+      - {at: 3, for: 1, to: {v: 0.3, w: 0.84, s: 0.03}}
+      - {at: 4, for: 1, to: {v: 0.29, w: 0.84, s: 0.01}}
+      - {at: 5, for: 1, to: {v: 0.3, w: 0.84, s: 0.03}}
+      - {at: 6, for: 1, to: {v: 0.31, w: 0.82, s: 0.07}}
+      - {at: 7, for: 1, to: {v: 0.37, w: 0.84, s: 0.15}}
+      - {at: 8, for: 1, to: {v: 0.41, w: 0.85, s: 0.25}}
+      - {at: 9, for: 1, to: {v: 0.44, w: 0.88, s: 0.29}}
+      - {at: 10, for: 1, to: {v: 0.45, w: 0.9, s: 0.35}}
+      - {at: 11, for: 1, to: {v: 0.45, w: 0.9, s: 0.36}}
+    rotate:
+      - {at: 0, for: 0, about: v, to: -135}  # roll the edge into the cut plane
+      - {at: 0, for: 2, about: s, to: -55, ease: in_out_sine}  # wind-up turn
+      - {at: 2, for: 3, about: s, to: 85, ease: out_cubic}  # the cut, edge first
+      - {at: 5, for: 7, reset: true, ease: in_out_sine}
+  - id: body
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+  - id: wound
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
+lines:
+  edge: {frame: blade, from: {v: 0.56}, to: {v: 0.92}}
 machine:
   start: windup
   tail: 9
@@ -27,24 +69,14 @@ machine:
       for: 3
       then: strike
       do:
-        - id: rig
-          op: rig
-          parent: caster
-          mount: caster.hand_r
-          rest: [{axis: left, deg: 72}]
-          for: 12
-          detach: true
-          swing:
-            - {at: 0, for: 3, from: {left: -0.1, up: 0.8, forward: 0.6}, to: {left: -0.85, up: 0.5, forward: 0.15}, edge: trailing, ease: in_out_sine}
-            - {at: 3, for: 4, to: {left: 0.9, up: -0.3, forward: 0.4}, edge: leading, roll: 20, ease: out_cubic}
-            - {at: 7, for: 5, to: {left: 0.0, up: 0.6, forward: 0.75}, edge: trailing, ease: in_out_sine}
+        - {id: rig, op: rig, frame: blade, for: 12, detach: true}
     strike:
       for: 1
       then: end
       enter:
         - id: swing
           op: hit
-          anchor: eye
+          anchor: caster.eye
           at: 0
           shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
           targets: enemies
@@ -55,9 +87,9 @@ machine:
           on:
             hit:
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: "${knockback}"}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2, detach: true}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
-        - {id: snd_swing, op: sound, sound: "astera:weapons/sword-swing", anchor: caster, volume: 1.0, pitch: 1.0, at: 0, detach: true}
-        - {id: fx_swing, op: particle_def, def: slash-sweep, anchor: sweep, at: 0, detach: true}
-        - {id: trail_fx, use: swing-trail, with: {samples: 2, span: 7}, frames: {weapon: /windup/rig}, detach: true}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: wound, volume: 0.7, pitch: 1.2, detach: true}
+              - {id: fx_hit, op: particle_def, def: hit-spark, frame: wound, pos: {w: 0.2}, detach: true}
+        - {id: snd_swing, op: sound, sound: "astera:weapons/sword-swing", frame: body, volume: 1.0, pitch: 1.0, at: 0, detach: true}
+        - {id: fx_swing, op: particle_def, def: slash-sweep, frame: body, pos: {v: 1.4, w: 1.42}, at: 0, detach: true}
+        - {id: trail_fx, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.04, at: 0, every: 1, for: 4, detach: true}
     end: {final: true}

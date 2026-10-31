@@ -1,4 +1,12 @@
-# halberd-hook: wind-up 5 ticks (rule round(5 / attack_speed)), hit at tick 5. Low hook at the legs: reached high on the right, swept low across to the left.
+# halberd-hook: low hook at the legs: reached high on the right, swept low across to the left (wind-up 5 ticks, hit at tick 5).
+# Frames (ADR-0314, ADR-0315), the gameplay (hit tick, shape, damage, knockback, cooldown, cast length) is unchanged:
+#   blade  - the halberd. Origin at the caster feet, moved along a hand path (guard -> reached high at the right -> swept low across to the left -> guard). Long axis along v (grip at the origin, head at v 0.94..1.33), edge along w.
+#            Roll -115 about v lays the edge on the falling flat diagonal, the hook is a turn about s (v moves towards w): the edge leads. The wind-up tips the head to the right (-35),
+#            the hook carries it low across the legs to the left (+85, hit at tick 5), `reset` eases back.
+#            The engine pins the right hand to the origin, so every `move:` point lies inside the 0.60 reach of the right shoulder (v 0 / w 1.29 / s 0.29).
+#   body   - the caster's feet, v forward / w up / s right: sounds and the cast fx.
+#   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
+#   edge   - line along the blade from the guard to the tip (v 0.94 .. 1.33), what the trail rows draw along.
 apiVersion: astera/v3
 kind: Skill
 id: halberd-hook
@@ -10,9 +18,46 @@ params:
   dmg_physical: {type: number, default: 22}
   knockback:    {type: number, default: 0.2}
   tremor_ticks: {type: ticks, default: 40}
-anchors:
-  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.1, forward: 1.6}, mode: follow}
-  - {id: heart, anchor: victim.center, mode: follow}
+frames:
+  - id: blade
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+    move:
+      - {at: 0, for: 0, to: {v: 0.48, w: 0.94, s: 0.36}}  # guard
+      - {at: 0, for: 1, to: {v: 0.5, w: 0.99, s: 0.43}}
+      - {at: 1, for: 1, to: {v: 0.47, w: 1.22, s: 0.65}}
+      - {at: 2, for: 1, to: {v: 0.29, w: 1.5, s: 0.77}}
+      - {at: 3, for: 1, to: {v: 0.19, w: 1.57, s: 0.78}}
+      - {at: 4, for: 1, to: {v: 0.49, w: 0.97, s: 0.14}}
+      - {at: 5, for: 1, to: {v: 0.38, w: 0.9, s: 0.04}}
+      - {at: 6, for: 1, to: {v: 0.37, w: 0.9, s: 0.02}}
+      - {at: 7, for: 1, to: {v: 0.38, w: 0.9, s: 0.04}}
+      - {at: 8, for: 1, to: {v: 0.42, w: 0.91, s: 0.08}}
+      - {at: 9, for: 1, to: {v: 0.45, w: 0.91, s: 0.16}}
+      - {at: 10, for: 1, to: {v: 0.47, w: 0.92, s: 0.26}}
+      - {at: 11, for: 1, to: {v: 0.48, w: 0.93, s: 0.33}}
+      - {at: 12, for: 1, to: {v: 0.48, w: 0.94, s: 0.36}}
+    rotate:
+      - {at: 0, for: 0, about: v, to: -115}  # roll the edge into the cut plane
+      - {at: 0, for: 4, about: s, to: -35, ease: in_out_sine}  # wind-up turn
+      - {at: 4, for: 3, about: s, to: 85, ease: out_cubic}  # the cut, edge first
+      - {at: 7, for: 6, reset: true, ease: in_out_sine}
+  - id: body
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+  - id: wound
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
+lines:
+  edge: {frame: blade, from: {v: 0.94}, to: {v: 1.33}}
 machine:
   start: windup
   tail: 10
@@ -21,20 +66,10 @@ machine:
       for: 5
       then: strike
       do:
-        - {id: snd_windup, op: sound, sound: item.armor.equip_iron, anchor: caster, volume: 0.5, pitch: 0.8}
+        - {id: snd_windup, op: sound, sound: item.armor.equip_iron, frame: body, volume: 0.5, pitch: 0.8}
         # weapon rig: low hooking sweep. One performance in the windup state, detached so it plays on through the strike and the tail:
         # drawn back over 4 ticks, the cut starts at tick 4 so the blade crosses the target zone at the hit (tick 5), then 6 ticks of follow-through.
-        - id: rig
-          op: rig
-          parent: caster
-          mount: caster.hand_r
-          rest: [{axis: left, deg: 72}]
-          detach: true
-          for: 13
-          swing:
-            - {at: 0, for: 4, from: {left: 0.000, up: 0.507, forward: 0.862}, to: {left: -0.609, up: 0.508, forward: 0.609}, edge: trailing, roll: 0, ease: out_quad}
-            - {at: 4, for: 3, to: {left: 0.704, up: -0.503, forward: 0.503}, edge: leading, roll: 0, ease: out_cubic}
-            - {at: 7, for: 6, to: {left: 0.936, up: -0.351, forward: 0.000}, edge: leading, roll: 0, ease: out_cubic}
+        - {id: rig, op: rig, frame: blade, for: 13, detach: true}
     strike:
       for: 1
       then: end
@@ -53,9 +88,9 @@ machine:
               - {id: react, op: react, target: event.victim, flinch: true, for: 6}
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: "${knockback}"}
               - {id: st_tremor, op: status, target: event.victim, status: tremor, stacks: 1, for: "${tremor_ticks}"}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2, detach: true}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
-        - {id: snd, op: sound, sound: "entity.player.attack.sweep", anchor: caster, volume: 1.0, pitch: 0.8, detach: true}
-        - {id: fx, op: particle_def, def: stab-spark, anchor: cast_fx, detach: true}
-        - {id: trail, use: swing-trail, with: {samples: 6, span: 8}, frames: {weapon: /windup/rig}, detach: true}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: wound, volume: 0.7, pitch: 1.2, detach: true}
+              - {id: fx_hit, op: particle_def, def: hit-spark, frame: wound, pos: {w: 0.2}, detach: true}
+        - {id: snd, op: sound, sound: "entity.player.attack.sweep", frame: body, volume: 1.0, pitch: 0.8, detach: true}
+        - {id: fx, op: particle_def, def: stab-spark, frame: body, pos: {v: 1.6, w: 1.52}, detach: true}
+        - {id: trail, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.04, at: 0, every: 1, for: 4, detach: true}
     end: {final: true}
