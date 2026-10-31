@@ -67,7 +67,7 @@ machine:
       then: end
       do:
         - {id: snd, op: sound, sound: "astera:skill/wand/cast", frame: eye, volume: 0.8, pitch: 0.8, at: 0}
-        - {id: puff, op: particle_def, def: fire-cast, frame: eye, pos: {v: 1.8, w: -0.25}, at: 0}
+        - {id: puff, op: particle, particle: flame, frame: eye, pos: {v: 1.8, w: -0.25}, count: 2, offset: [0.04, 0.04, 0.04], at: 0}
         - id: bolt
           op: projectile
           frame: eye
