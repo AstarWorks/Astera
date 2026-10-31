@@ -19,7 +19,19 @@ drop_inherited_locks() {
 }
 
 log() { printf '[vfx-shot] %s\n' "$*" >&2; }
-die() { log "ERROR: $*"; exit 1; }
+# A failed setup step leaves the server's last lines and the caster bot's log in the run output (the stack is reaped right after).
+die() {
+  log "ERROR: $*"
+  if [ -n "${SERVER_CT:-}" ]; then
+    log "--- server log (last 40 lines of $SERVER_CT) ---"
+    docker logs --tail 40 "$SERVER_CT" 2>&1 | sed 's/^/[server] /' >&2 || true
+  fi
+  if [ -s "${CLIENTS:-/nonexistent}/Caster/bot.log" ]; then
+    log "--- caster bot log ---"
+    tail -15 "$CLIENTS/Caster/bot.log" | sed 's/^/[caster-bot] /' >&2
+  fi
+  exit 1
+}
 
 # Pick a /24 that docker accepts: try 10.N.77.0/24 (N = 211..250) with a throwaway network.
 pick_subnet_prefix() {

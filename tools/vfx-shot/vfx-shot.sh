@@ -747,13 +747,36 @@ ensure_caster() {
   : > "$CLIENTS/Caster/bot.log"
   VFX_SHOT_STATE="$STATE" setsid java -Xmx128m -Xms32m -XX:+UseSerialGC -cp "$lib/*" com.astarworks.astera.vfxshot.CasterBotMainKt \
     Caster "$SERVER_IP" 25565 >"$CLIENTS/Caster/bot.log" 2>&1 {STACK_LOCK_FD}>&- {SLOT_FD}>&- < /dev/null &
+  BOT_PID=$!
+  # ready = the bot got its first position packet (it prints "joined") AND the server lists it; a bot that exited ends the wait
   for i in $(seq 1 60); do
-    grep -qw -- Caster <<<"$(rcon list 2>/dev/null)" && break
+    grep -q '^\[caster-bot\] Caster joined' "$CLIENTS/Caster/bot.log" && grep -qw -- Caster <<<"$(rcon list 2>/dev/null)" && break
+    kill -0 "$BOT_PID" 2>/dev/null || break
     sleep 1
   done
-  grep -qw -- Caster <<<"$(rcon list 2>/dev/null)" || { tail -20 "$CLIENTS/Caster/bot.log" >&2; die "caster bot never joined"; }
+  grep -q '^\[caster-bot\] Caster joined' "$CLIENTS/Caster/bot.log" && grep -qw -- Caster <<<"$(rcon list 2>/dev/null)" \
+    || die "setup step 'caster bot join': the bot never reached the world (bot process alive: $(kill -0 "$BOT_PID" 2>/dev/null && echo yes || echo no))"
   log "caster bot joined"
   CLIENT_STARTED=1
+}
+
+# require_online <step> <player...>: a player the view needs must still be on the server. A caster bot that dropped (kick / timeout)
+# is rejoined once and the reason logged; anything else is a hard failure naming the step.
+require_online() {
+  local step="$1" who joined
+  shift
+  for who in "$@"; do
+    joined="$(rcon list 2>/dev/null)"
+    grep -qw -- "$who" <<<"$joined" && continue
+    if [ "$who" = Caster ] && [ "${SHOT_CASTER:-bot}" != client ] && [ "${CASTER_REJOINED:-0}" = 0 ]; then
+      log "WARN: setup step '$step': caster bot left the server ($(grep 'left:' "$CLIENTS/Caster/bot.log" | tail -1)); rejoining it once"
+      CASTER_REJOINED=1
+      ensure_caster
+      sleep "$JOIN_SETTLE"
+      continue
+    fi
+    die "setup step '$step': player $who is not on the server (online: $(tr -s ' \n' ' ' <<<"$joined"))"
+  done
 }
 
 pack_reloads() { grep -c 'Reloading ResourceManager:.*server/' "$CLIENTS/$1/client.log" 2>/dev/null || echo 0; }
@@ -868,9 +891,17 @@ summon_target() {
 target_z() { awk -v z="$CZ" -v d="$DISTANCE" 'BEGIN{printf "%.1f", z+d}'; }
 
 give_item() { # player
+  local out i
   rcon "clear $1" >/dev/null
   [ "$ITEM" = none ] && return 0
-  grep -qi "gave" <<<"$(rcon "astera items give $1 $ITEM")" || die "could not give item '$ITEM' to $1 (set ITEM=<item-id>)"
+  # poll for the real condition ("gave") while the player stays online; a player that left fails loudly in require_online
+  for i in $(seq 1 10); do
+    out="$(rcon "astera items give $1 $ITEM")"
+    grep -qi "gave" <<<"$out" && return 0
+    require_online "give item $ITEM to $1" "$1"
+    sleep 1
+  done
+  die "setup step 'give item': could not give '$ITEM' to $1 (set ITEM=<item-id>); last reply: $out"
 }
 
 # ---------------------------------------------------------------- capture
@@ -1191,6 +1222,7 @@ prepare_view() {
   # place the scene and re-place until everybody has stayed in the overworld
   local settle="$SETTLE"
   if [ "$CLIENT_STARTED" = 1 ]; then sleep "$JOIN_SETTLE"; else settle="$SETTLE_WARM"; fi
+  require_online "settle after join" $(players_of "$view")
   reset_arena
   [ -n "$SKILL" ] && give_item Caster
   local tries ok who
@@ -1198,11 +1230,12 @@ prepare_view() {
     place_scene "$view" "$tz"
     sleep "$settle"
     ok=1
-    for who in $(players_of "$view"); do in_arena "$who" || ok=0; done
+    require_online "place scene (attempt $tries)" $(players_of "$view")
+    for who in $(players_of "$view"); do in_arena "$who" || { ok=0; log "$who is not in the arena: $(rcon "data get entity $who Dimension") $(rcon "data get entity $who Pos")"; }; done
     [ "$ok" = 1 ] && break
     log "players were moved out of the arena (attempt $tries), placing again"
   done
-  [ "$ok" = 1 ] || die "could not keep the players in the overworld arena"
+  [ "$ok" = 1 ] || die "setup step 'place scene': could not keep the players in the overworld arena"
   rcon "kill @e[type=minecraft:item]" >/dev/null
   [ "$view" = compare ] || key "$VIEWER" 1
   sleep 1
