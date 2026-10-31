@@ -1,6 +1,14 @@
-# Raises a wall of reinforced planks in front of the caster; the tiers differ in wall size. Base of the axe-plank-wall tiers (this is the stone tier);
+# Raises a wall of reinforced planks in front of the caster, in the frame grammar (ADR-0314 / ADR-0315). Base of the axe-plank-wall tiers (this is the stone tier);
 # axe-plank-wall-iron / -diamond extend it (ADR-0303 9.3): same document, other id / item / meta and the `with:` values below.
-# Wind-up W = 6 ticks (round_half_up(5 / attack_speed 0.8 (vanilla stone axe; the iron axe 0.9 also rounds to 6, the diamond axe 1.0 would be 5 but tiers share the base))): the held rig swings in the wind-up and the blocks give way at tick 6 (the impact), as the melee skills.
+# Wind-up W = 6 ticks (round_half_up(5 / attack_speed 0.8 (vanilla stone axe; the iron axe 0.9 also rounds to 6, the diamond axe 1.0 would be 5
+# but tiers share the base))):
+# the axe is drawn back over 5 ticks, the cut starts at tick 5 so the head crosses the target at the impact (tick 6) and the wall rises there; then 6 ticks of follow-through.
+# Gameplay (wall size, sounds, cooldown) is unchanged.
+# Two frames carry everything drawn:
+#   tool - the axe: origin at the caster's feet moved along the hand path (`move:`), the held axe rides it, long axis along v (grip at the origin,
+#          head at v 0.8). The right hand is pinned onto this origin by the engine (ADR-0315): the head leads, the hand follows. The chop is a turn about s, which moves v towards w: the axe goes up and back to 110 degrees, comes down through the target to -30 and runs out to -55,
+#          then `reset` eases it back to the rest pose before the rig ends. The line `edge` (head base 0.3 -> head 0.8) is what the trail draws along.
+#   body - the caster's feet, v forward / w up / s right: the hit area spark and the sounds are points of it.
 apiVersion: astera/v3
 kind: Skill
 id: axe-plank-wall-stone
@@ -20,8 +28,30 @@ params:
   strong: {type: bool, default: false}
   crit: {type: bool, default: false}
   spark: {type: string, default: tool-axe-stone}
-anchors:
-  - {id: aim_pt, anchor: caster, offset: {forward: 2.0}, mode: follow}
+frames:
+  - id: tool
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+    move:
+      - {at: 0, for: 0, to: {v: 0.25, w: 0.95, s: 0.37}}
+      - {at: 0, for: 5, to: {v: -0.05, w: 1.90, s: 0.33}, ease: out_quad}      # drawn back
+      - {at: 5, for: 3, to: {v: 0.50, w: 1.25, s: 0.33}, ease: out_cubic}      # the cut
+      - {at: 8, for: 3, to: {v: 0.50, w: 1.05, s: 0.35}, ease: out_cubic}      # follow-through
+      - {at: 11, for: 3, to: {v: 0.25, w: 0.95, s: 0.37}, ease: in_out_sine}      # back to the hip
+    rotate:
+      - {at: 0, for: 5, about: s, to: 110, ease: out_quad}
+      - {at: 5, for: 3, about: s, to: -30, ease: out_cubic}
+      - {at: 8, for: 3, about: s, to: -55, ease: out_cubic}
+      - {at: 11, for: 3, reset: true, ease: in_out_sine}
+  - id: body
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+lines:
+  edge: {frame: tool, from: {v: 0.3}, to: {v: 0.8}}      # head base -> head
 machine:
   start: windup
   tail: 10
@@ -30,28 +60,16 @@ machine:
       for: 6
       then: cast
       do:
-        # held rig: one performance in the wind-up, detached so it plays on through the impact and the tail. Overhead strike written as the head's travel (caster frame left/up/forward):
-        # drawn back over 5 ticks, the cut starts at tick 5 so the head crosses the target at the impact (tick 6), then 6 ticks of follow-through.
-        - id: rig
-          op: rig
-          parent: caster
-          mount: caster.hand_r
-          rest: [{axis: left, deg: 72}]
-          detach: true
-          for: 14
-          swing:
-            - {at: 0, for: 5, from: {left: 0.000, up: 0.507, forward: 0.862}, to: {left: 0.100, up: 0.949, forward: -0.300}, edge: trailing, roll: 0, ease: out_quad}
-            - {at: 5, for: 3, to: {left: 0.000, up: -0.447, forward: 0.894}, edge: leading, roll: 0, ease: out_cubic}
-            - {at: 8, for: 6, to: {left: 0.000, up: -0.786, forward: 0.618}, edge: leading, roll: 0, ease: out_cubic}
+        - {id: rig, op: rig, frame: tool, for: 14, detach: true}
+        - {id: trail, op: particle, particle: crit, along: edge, samples: 4, count: 1, extra: 0.04, at: 5, every: 2, for: 6, detach: true}
     cast:
       for: 1
       then: end
       do:
         - {id: wall, op: place_shape, anchor: caster, shape: {wall: {width: "${width}", height: "${height}"}}, block: "astera:reinforced_planks", consume: none, ripple: 29, revert: 200, outside_arena: false}
-        - {id: snd, op: sound, sound: item.axe.strip, anchor: caster, volume: 1.0, pitch: "${strip_pitch}"}
-        - {id: snd_2, op: sound, sound: block.wood.break, anchor: caster, volume: "${break_vol}", pitch: "${break_pitch}"}
-        - {id: snd_3, op: sound, sound: entity.player.attack.strong, anchor: caster, volume: 0.6, pitch: 0.9, when: "= ${strong}"}
-        - {id: snd_4, op: sound, sound: entity.player.attack.crit, anchor: caster, volume: 0.8, pitch: 0.9, when: "= ${crit}"}
-        - {id: spark, op: particle_def, def: "${spark}", anchor: aim_pt}
-        - {id: trail, use: swing-trail, with: {samples: 6, span: 8}, frames: {weapon: /windup/rig}, detach: true}
+        - {id: snd, op: sound, sound: item.axe.strip, frame: body, volume: 1.0, pitch: "${strip_pitch}"}
+        - {id: snd_2, op: sound, sound: block.wood.break, frame: body, volume: "${break_vol}", pitch: "${break_pitch}"}
+        - {id: snd_3, op: sound, sound: entity.player.attack.strong, frame: body, volume: 0.6, pitch: 0.9, when: "= ${strong}"}
+        - {id: snd_4, op: sound, sound: entity.player.attack.crit, frame: body, volume: 0.8, pitch: 0.9, when: "= ${crit}"}
+        - {id: spark, op: particle_def, def: "${spark}", frame: body, pos: {v: 2.0}}
     end: {final: true}
