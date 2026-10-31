@@ -415,6 +415,34 @@ $rows
     }
 
     @Test
+    fun aFrameRootedOnAnIdNoOpSpawnsIsALoadErrorNamingFrameAndId() {
+        val r = loadInline(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: typo-origin
+            anchors:
+              - {id: start, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+            frames:
+              - {id: head, origin: bolt, v: velocity, w: up, s: v x w}
+            machine:
+              start: s
+              states:
+                s:
+                  for: 6
+                  then: end
+                  do:
+                    - {id: blot, op: projectile, origin: start, velocity: "= look(caster) * 2.0", for: 6, radius: 0.3, hit: {targets: enemies, once: true, attach: false}, block: {mode: despawn}}
+                    - {id: mark, op: particle, particle: flame, frame: head, count: 1, at: 1}
+                end: {final: true}
+            """.trimIndent(),
+        )
+        assertThat(r).isInstanceOf(Result.Failure::class.java)
+        val msg = (r as Result.Failure<SkillDecodeError>).error.toString()
+        assertThat(msg).describedAs("names the frame and the instance id").contains("head").contains("bolt")
+    }
+
+    @Test
     fun anUndeclaredFrameIsACompileErrorNamingTheRow() {
         val r = loadInline(
             """
