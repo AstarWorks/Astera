@@ -1435,6 +1435,25 @@ public class TablePlayer(
     // hit: broad phase from the query, narrow phase from the domain resolver, swept along the frame's last-tick displacement (no tunnelling).
     // Victims are ordered nearest-first from the shape origin, cut to targets.maxCount, damaged (every amount read before any damage lands), then the
     // `<op>.hit` handlers start (one event per victim, index = victim ordinal). `<op>.miss` fires once, on the op's final detection, if nothing was ever hit.
+    /**
+     * The sweep of a hit placed on a frame (ADR-0314): this tick's resolved point minus the previous tick's, both read from the same per-tick frame
+     * table. It feeds the same pose loop an anchored hit sweeps with. Null when the hit is not on a frame; zero on the frame's first tick.
+     */
+    private fun frameSweep(run: Run, a: Action.Hit, ctx: RowCtx): Vector3d? {
+        if (a.anchor != null) return null
+        val cell: Val<*> = when (val s = a.shape) {
+            is HitShape.Sphere -> s.center
+            is HitShape.Capsule -> s.from
+            is HitShape.Sector -> s.origin
+            is HitShape.Box -> s.center
+        }
+        val ref = (cell as? Val.Live)?.name?.let { FrameRefs.parse(it) }?.takeIf { !it.direction } ?: return null
+        val inst = frameInst(run, ref, ctx.binding)
+        val cur = inst.state?.world(ref.at) ?: return null
+        val prev = inst.prevState?.world(ref.at) ?: return Vector3d()
+        return Vector3d(cur.x - prev.x, cur.y - prev.y, cur.z - prev.z)
+    }
+
     private fun hit(run: Run, row: Row, a: Action.Hit, ctx: RowCtx, now: Int) {
         val caster = run.request.caster
         // frozen targets are skipped: `if (isFrozen(...)) continue`
@@ -1443,7 +1462,7 @@ public class TablePlayer(
             val cur = worldOf(run, r, r.localAt(now), ctx.binding, now).pos
             val prev = worldOf(run, r, r.prevLocal(now), ctx.binding, now - 1).pos
             Vector3d(cur).sub(prev)
-        } ?: Vector3d()
+        } ?: frameSweep(run, a, ctx) ?: Vector3d()
         fun back(p: Vector3d, k: Double) = Vec3(p.x - delta.x * k, p.y - delta.y * k, p.z - delta.z * k)
         var sweepRadius: Double
         val origin: Vector3d
@@ -2248,6 +2267,8 @@ public class TablePlayer(
     /** One live `frames:` instance; [binding] carries the victim of a per-victim frame. */
     private class FrameInst(val decl: FrameDecl, val start: Int, val binding: EventBinding?) {
         var state: FrameState? = null
+        /** The pose of the previous evaluation: a hit on the frame sweeps from it to [state]. */
+        var prevState: FrameState? = null
         var evaluatedTick: Int = Int.MIN_VALUE
         /** The origin the previous evaluation read: `velocity` is its one-tick travel. */
         var prevOrigin: Vec3? = null
@@ -2268,6 +2289,7 @@ public class TablePlayer(
         val scope = RowScope.cast(run.request.seed)
         val binding = inst.binding
         val handle = run.cursor.handle
+        inst.prevState = inst.state
         inst.evaluatedTick = now
         frameEvaluations++
         val origin = try {

@@ -375,6 +375,42 @@ $rows
     private fun damaged(rec: GatewayRecorder, verb: String = "damage") = rec.calls.filter { it.verb == verb }.map { it.instance }.toSet()
 
     @Test
+    fun aHitOnARotatingFrameSweepsFromLastTicksPointAndCatchesAVictimBetweenTwoSamples() {
+        // f turns 30 degrees a tick about s; the hit sits at v 3 (radius 0.2) and fires on tick 1 only. Its tick-0 point is (z 3, y 1) and its
+        // tick-1 point is 30 degrees round the arc, well clear of the victim (z 3, box y 0..1.8). Only the sweep between the two reaches him.
+        val skill = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: hit-frame-sweep
+            frames:
+              - {id: f, origin: caster, v: forward, w: up, s: v x w, rotate: [{at: 0, for: 3, about: s, to: 90}]}
+            machine:
+              start: s
+              states:
+                s:
+                  for: 6
+                  then: end
+                  do:
+                    - id: cut
+                      op: hit
+                      at: 1
+                      frame: f
+                      pos: {v: 3.0}
+                      shape: {sphere: 0.2}
+                      targets: enemies
+                      ignore_invulnerability: true
+                      on:
+                        hit:
+                          - {id: dmg, op: damage, target: event.victim, damage: {physical: 3.0}}
+                end: {final: true}
+            """.trimIndent(),
+        )
+        val rec = playRec(skill) { it.victims = listOf(candidate(near, 0.0, 3.0)) }
+        assertThat(damaged(rec)).describedAs("the victim between two tick samples of the turning frame").containsExactly(near.toString())
+    }
+
+    @Test
     fun hitAndAreaTargetsAtAFramePointPickTheSameVictimsAsTheAnchorForm() {
         val hitFrame = playRec(single("hit-frame", """
                 - id: sel
