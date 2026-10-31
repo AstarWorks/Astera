@@ -225,6 +225,19 @@ public class PaperSkillGameplayGateway(
         if (puppet.shown(PlayerId(target)) == CustomAnimationId(anim)) puppet.hide(PlayerId(target))
     }
 
+    override fun showBody(cast: CastRef, target: UUID) {
+        if (server.getPlayer(target) == null) {
+            log.warn("skill engine: rest body dropped, target {} is not an online player", target)
+            return
+        }
+        val rest = com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation.REST_BODY
+        puppet.show(PlayerId(target), rest, heldItem = false).onFailure { log.warn("skill engine: rest body on {} not shown: {}", target, it) }
+    }
+
+    override fun hideBody(cast: CastRef, target: UUID) {
+        if (puppet.shown(PlayerId(target)) == com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation.REST_BODY.id) puppet.hide(PlayerId(target))
+    }
+
     /** The item model each caster's weapon had before a `held_model` swap (empty = no `item_model` component). */
     private val heldOriginal = java.util.concurrent.ConcurrentHashMap<UUID, java.util.Optional<org.bukkit.NamespacedKey>>()
 

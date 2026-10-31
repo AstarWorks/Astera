@@ -253,9 +253,10 @@ GRIP_PIN = {  # world (x_left, y, z_fwd) grip of each key as the approved blade 
     "thrust2-m2": (-0.058, 0.811, 0.711),
     "thrust2-m3": (-0.080, 0.812, 0.712),
     "thrust2-hold": (-0.101, 0.812, 0.713),
-    "drop2": (-0.15, 0.70, 0.25),           # the blade runs out level (37-39) and is rolled for the slam with the hand still (40): the hand comes
-    "drop2-b": (-0.22, 0.60, -0.30),        # back in to the body.s right-front, then right-back, descending 0.1 a tick (at arm.s length of each beat.s shoulder)
-    "coil-end": (-0.383, 0.533, -0.297),
+    "drop2": (-0.25, 0.79, 0.40),           # the blade runs out level (37-39) and is rolled for the slam with the hand still (40-44): the hand stays
+    "drop2-b": (-0.35, 0.79, -0.20),        # level (a drop while the blade is not turning about s would leave the cut plane) and comes back in to the right
+    "coil-end": (-0.383, 0.79, -0.297),
+    "coil-end-hold": (-0.383, 0.79, -0.297),
 }
 
 
@@ -320,6 +321,7 @@ BEATS = [  # skill tick, chest yaw, tip azimuth, tip height, face; ticks 1, 8-9 
     Beat(39, -20, 10, 0.8, "cw", lean=22, drop=0.2, look=ENEMY, name="drop2"),
     Beat(40, -30, -40, 0.45, ("cw", "cam", 0.6), lean=23, drop=0.2, look=ENEMY, name="drop2-b"),
     Beat(41, -35, -62, 0.05, "cam", lean=24, name="coil-end"),
+    Beat(44, -35, -62, 0.05, "cam", lean=24, name="coil-end-hold"),  # the hand is still while the blade rolls for the slam (rotate about v, 40-44)
 ]
 
 

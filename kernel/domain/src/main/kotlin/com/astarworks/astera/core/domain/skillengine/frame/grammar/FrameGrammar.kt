@@ -129,7 +129,7 @@ public data class RotateKey(val at: Int, val forTicks: Int, val about: String?, 
     }
 }
 
-/** `move:` key: at tick [at], over [forTicks] ticks, the origin offset goes to [to] (coefficients of the current axes). */
+/** `move:` key: at tick [at], over [forTicks] ticks, the origin offset goes to [to] (coefficients of the DECLARED axes, before any `rotate` / `scale` key: the origin path is the caster-relative path of the hand, whatever the blade is doing about it, ADR-0315). */
 public data class MoveKey(val at: Int, val forTicks: Int, val to: Coeff, val ease: Easing)
 
 /** `scale:` key: at tick [at], over [forTicks] ticks, the axis lengths go to [to] (1 = as read). */
@@ -190,7 +190,7 @@ public object FrameEvaluator {
         if (base.isDegenerate) return Outcome.Degenerate("s", "frame '${decl.id}': v, w, s are coplanar (determinant ${base.determinant}); the frame has no volume")
         val rot = rotationAt(decl, base, t)
         val turned = base.rotated(rot).scaled(scaleAt(decl, t))
-        val origin = turned.point(inputs.origin, moveAt(decl, t))
+        val origin = base.point(inputs.origin, moveAt(decl, t))
         return Outcome.Ok(FrameState(origin, turned))
     }
 

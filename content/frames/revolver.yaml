@@ -1,0 +1,27 @@
+# Point table for the revolver (ADR-0315: the `gun` frame rig of revolver-shot draws it). Frame and chain as content/frames/dagger.yaml:
+# item-display-local, block units, q = RotY(180) * ( T + Rxyz * ( S * (p/16 - 0.5) ) ) with T/R/S from the vanilla display block.
+# content/models/generated/items/revolver.model.json is a flat `minecraft:item/handheld` item (32x32 texture, 1 model unit = 2 px, texture
+# row 0 = model y 16): the grip is the lower-left blob (px cols 1-7, rows 19-24), the barrel runs level to the right (rows 8-11, muzzle col 31).
+#   grip = centre of the grip (2.5, 5.5, 8): where the hand holds; pivot = grip
+#   root = where the barrel leaves the frame above the grip (5, 11, 8); tip = the muzzle (15.5, 11, 8)
+#   long = root -> tip = model +X (the barrel); edge = model +Y (the top of the gun: sights and hammer side), so a rig with long along
+#   `aim` and edge along `up` holds the gun level and upright. length = grip bottom (2.5, 3.75) to the muzzle.
+# held = under item/generated `fixed` (rot [0,180,0], scale 1); held_hand = under item/handheld `thirdperson_righthand` (rot [0,-90,55],
+# tr [0,4,0.5], scale 0.85), the transform the rig's main-hand mesh draws with; hand_anchor = model centre (8,8,8). Both relative to grip.
+# Muzzle from grip in held_hand: 0.6906 along long, 0.2922 along edge (display units; the rig scales them by PLAYER_SCALE: 0.65 / 0.27).
+apiVersion: astera/v3
+kind: ItemFrames
+item: revolver
+parts:
+  held:
+    model: astera:revolver
+    display: fixed
+    length: 0.9303
+    points: { grip: [-0.3438, -0.1562, 0.0], pivot: [-0.3438, -0.1562, 0.0], root: [-0.1875, 0.1875, 0.0], tip: [0.4688, 0.1875, 0.0] }
+    axes: { long: [1.0, 0.0, 0.0], edge: [0.0, 1.0, 0.0] }
+  held_hand:
+    model: astera:revolver
+    display: thirdperson_righthand
+    length: 0.7908
+    points: { grip: [0.0, 0.0, 0.0], pivot: [0.0, 0.0, 0.0], root: [0.0, 0.2764, 0.1632], tip: [0.0, 0.7333, -0.1568], hand_anchor: [0.0, 0.3155, -0.0588] }
+    axes: { long: [0.0, 0.8192, -0.5736], edge: [0.0, 0.5736, 0.8192] }

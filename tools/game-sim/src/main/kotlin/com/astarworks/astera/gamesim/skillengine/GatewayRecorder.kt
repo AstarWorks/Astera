@@ -450,6 +450,16 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             add("effect", target.toString(), "body_stop=$anim")
         }
 
+        override fun showBody(cast: CastRef, target: UUID) {
+            seen("gameplay.showBody", cast)
+            add("effect", target.toString(), "body=${com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation.REST_BODY.id}")
+        }
+
+        override fun hideBody(cast: CastRef, target: UUID) {
+            seen("gameplay.hideBody", cast)
+            add("effect", target.toString(), "body_stop=${com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation.REST_BODY.id}")
+        }
+
         override fun setHeldModel(cast: CastRef, caster: UUID, model: String) {
             seen("gameplay.setHeldModel", cast)
             add("effect", caster.toString(), "held_model=$model")

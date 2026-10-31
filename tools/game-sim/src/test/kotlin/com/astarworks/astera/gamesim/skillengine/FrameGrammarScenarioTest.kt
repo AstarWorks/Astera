@@ -168,10 +168,10 @@ $rows
             val expected = (FrameEvaluator.evaluate(decl, tick, inputs) as FrameEvaluator.Outcome.Ok).state.world(com.astarworks.astera.core.domain.skillengine.frame.grammar.Coeff(v = 1.0))
             assertThat(at.distance(expected)).describedAs("tick $tick: runtime vs FrameEvaluator").isLessThan(1e-6)
         }
-        // by hand at the key's end (t = 4): v turned 90 about s = v x w onto w (0,1,0), w onto -forward; the origin moved 2 along the turned v and 1 along the turned w,
-        // and pos v 1.0 is one more along the turned v
+        // by hand at the key's end (t = 4): the origin moved 2 along the DECLARED v (forward) and 1 along the declared w (up) - a move is the hand's
+        // caster-relative path, untouched by the rotate keys (ADR-0315); v turned 90 about s = v x w onto w (0,1,0), and pos v 1.0 is one along the turned v
         val t4 = emitted.getValue(4)
-        assertThat(t4.distance(origin + Vec3(0.0, 2.0, -1.0) + Vec3(0.0, 1.0, 0.0))).describedAs("t4 = origin + 2v' + w' + v' = origin + (0,3,-1)").isLessThan(1e-6)
+        assertThat(t4.distance(origin + Vec3(0.0, 1.0, 2.0) + Vec3(0.0, 1.0, 0.0))).describedAs("t4 = origin + 2v + w + v' = origin + (0,2,2)").isLessThan(1e-6)
         // at t = 0 nothing has moved: pos v 1.0 is one block forward
         assertThat(emitted.getValue(0).distance(origin + Vec3(0.0, 0.0, 1.0))).isLessThan(1e-6)
     }

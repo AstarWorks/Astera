@@ -237,6 +237,10 @@ internal class SimSkillGameplayGateway(
 
     override fun stopBodyClip(cast: CastRef, target: UUID, anim: String) {}
 
+    override fun showBody(cast: CastRef, target: UUID) {}
+
+    override fun hideBody(cast: CastRef, target: UUID) {}
+
     override fun setHeldModel(cast: CastRef, caster: UUID, model: String) {}
 
     override fun clearHeldModel(cast: CastRef, caster: UUID) {}

@@ -147,6 +147,16 @@ public class SkinRigAnimation(
 
     public companion object {
         public const val MAX_LENGTH_TICKS: Int = 20 * 60
+
+        /**
+         * ADR-0315: the body of a `rig frame:` without `anim:`. The puppet is shown at rest and the engine pushes every
+         * pose: the rest body with the carrying hand pinned onto the frame origin (an aimed pistol, a held tool). No
+         * tracks, no movement lock: the pose is the frame's, the feet are the player's.
+         */
+        public val REST_BODY: SkinRigAnimation = SkinRigAnimation(
+            id = CustomAnimationId("skill-engine-rest-body"), lengthTicks = 1, loop = false, lockMovement = false,
+            blendInTicks = 0, blendOutTicks = 0, bones = emptyMap(), root = null,
+        )
     }
 }
 

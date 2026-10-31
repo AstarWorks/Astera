@@ -286,6 +286,16 @@ public interface ISkillGameplayGateway {
     /** Ends the [anim] clip on [target] (the `body` window closed). A clip that is not playing is a no-op. */
     public fun stopBodyClip(cast: CastRef, target: UUID, anim: String)
 
+    /**
+     * ADR-0315: puts up [target]'s driven puppet with no clip (`SkinRigAnimation.REST_BODY`): a `rig frame:` without `anim:`
+     * draws the rest body, its carrying hand pinned onto the frame origin by [poseBody] every tick (an aimed pistol). Until
+     * [hideBody] the puppet shows nothing but what [poseBody] pushes.
+     */
+    public fun showBody(cast: CastRef, target: UUID)
+
+    /** Takes down the puppet [showBody] put up on [target]; a puppet showing a clip is left to [stopBodyClip]. No puppet is a no-op. */
+    public fun hideBody(cast: CastRef, target: UUID)
+
     /** `held_model` (ADR-0303 rev4.6): shows the item model [model] on the weapon [caster] holds. The item's own model is remembered on the first call. */
     public fun setHeldModel(cast: CastRef, caster: UUID, model: String)
 
