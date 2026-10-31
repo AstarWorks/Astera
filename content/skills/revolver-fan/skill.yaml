@@ -1,4 +1,7 @@
-# revolver-fan: one close-range sector hit with a push, on the cast tick.
+# revolver-fan: one close-range sector hit with a push, on the cast tick, in the frame grammar (ADR-0314).
+# `eye` is the caster's eye with v = aim, s = right, w = s x v (the up perpendicular to the aim): the sector hit sits on its origin and the
+# muzzle flash is a point of it, 1.1 ahead and 0.25 below the eye line, so the flash pitches with the look. `hit` is one frame per victim at
+# the victim's centre, v the way the shot came in: the spark and the impact sound are points of it. Nothing is authored in world offsets.
 apiVersion: astera/v3
 kind: Skill
 id: revolver-fan
@@ -14,10 +17,19 @@ params:
   range:        {type: blocks, default: 5.0}
   dmg_physical: {type: number, default: 21.0}
   knockback:    {type: number, default: 0.5}
-anchors:
-  - {id: eye,    anchor: caster.eye, mode: follow}
-  - {id: muzzle, anchor: caster.eye, offset: {up: -0.25, forward: 1.1}, mode: snapshot}
-  - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
+frames:
+  - id: eye
+    origin: caster.eye
+    v: aim
+    w: s x v
+    s: right
+  - id: hit
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
 machine:
   start: strike
   states:
@@ -26,11 +38,11 @@ machine:
       then: end
       do:
         - {id: snd, op: sound, at: 0, sound: "astera:weapons/gun-shot", anchor: caster, volume: 0.9, pitch: 1.1}
-        - {id: fx, op: particle_def, at: 0, def: shotgun-muzzle, anchor: muzzle}
+        - {id: fx, op: particle_def, at: 0, def: shotgun-muzzle, frame: eye, pos: {v: 1.1, w: -0.25}}
         - id: swing
           op: hit
           at: 0
-          anchor: eye
+          frame: eye
           shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
           targets: enemies
           window: once
@@ -39,6 +51,6 @@ machine:
           on:
             hit:
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: "${knockback}"}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: hit, volume: 0.7, pitch: 1.2, detach: true}
+              - {id: fx_hit, op: particle_def, def: hit-spark, frame: hit, pos: {v: -0.2}, detach: true}
     end: {final: true}

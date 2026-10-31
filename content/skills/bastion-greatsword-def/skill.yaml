@@ -1,4 +1,8 @@
-# Tower Shield: a translucent barrier in front of the caster. One visual object = one op; the shared pose lives on the anchor.
+# Tower Shield: a translucent barrier in front of the caster, in the frame grammar (ADR-0314). One visual object = one op.
+# `shield` is the barrier's own frame: rooted on the caster (v forward, w up, s = v x w), the plate centre 1.15 ahead, 1.3 up and 0.2 to the
+# left (s -0.2), turned 50 degrees about `w` so the barrier stands across the front at an angle. Every plate is a `plane: [s, w]` of it, 1.92
+# wide and 3.71 tall, a face each way (`s` and `-s`): the shared pose lives on the frame, not on any row. The shared parry part only takes an
+# anchor (its visuals ride `weapon`), so `guard` carries the same point for it; the plates do not read it.
 apiVersion: astera/v3
 kind: Skill
 id: bastion-greatsword-def
@@ -13,7 +17,17 @@ params:
   charge_ticks: {type: ticks, default: 400}
   charge_stacks: {type: number, default: 1}
 anchors:
-  - {id: shield, anchor: caster, mode: follow, offset: {left: 0.2, up: 1.3, forward: 1.15}}
+  - {id: guard, anchor: caster, mode: follow, offset: {left: 0.2, up: 1.3, forward: 1.15}}
+frames:
+  - id: shield
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+    move:
+      - {at: 0, for: 0, to: {v: 1.15, w: 1.3, s: -0.2}}
+    rotate:
+      - {at: 0, for: 0, about: w, to: -50}
 machine:
   start: brace
   states:
@@ -26,7 +40,7 @@ machine:
         guard:
           use: parry
           with: {window: 16, arc: 110, range: 4, recover: 4, whiff_lag: 1}
-          frames: {weapon: shield}
+          frames: {weapon: guard}
           on:
             - {event: brace/guard.end, to: held}
         held: {final: true}
@@ -40,23 +54,26 @@ machine:
           do:
             - {id: st, op: status, target: caster, status: charge, stacks: "${charge_stacks}", for: "${charge_ticks}"}
         - {id: snd, op: sound, sound: item.shield.block, anchor: caster, at: 0}
-        # Two plate pairs (outer, tinted inner); the pair is the two faces: forward +90 / -90.
-        - {id: rim0, op: display, kind: sprite, sprite: bastion-rim, anchor: shield, times: 2, size: [3.712, 1.92], rotate: [{axis: up, deg: -50}, {axis: forward, deg: "= 90 - 180 * i"}], billboard: fixed, see_through: true, brightness: {block: 15, sky: 15}, for: 162}
-        - {id: rim1, op: display, kind: sprite, sprite: bastion-rim, anchor: shield, times: 2, size: [3.072, 1.408], color: "#FFF3C8", rotate: [{axis: up, deg: -50}, {axis: forward, deg: "= 90 - 180 * i"}], billboard: fixed, see_through: true, brightness: {block: 15, sky: 15}, for: 162}
-        - {id: crest, op: display, kind: sprite, sprite: bastion-crest, anchor: shield, offset: {up: 0.05}, rotate: [{axis: up, deg: -50}], size: [1.664, 1.664], billboard: fixed, see_through: true, brightness: {block: 15, sky: 15}, for: 162}
+        # Two plate pairs (outer, tinted inner), a face each way.
+        - {id: rim0, op: display, kind: sprite, sprite: bastion-rim, frame: shield, plane: [s, w], size: [1.92, 3.712], see_through: true, brightness: {block: 15, sky: 15}, for: 162}
+        - {id: rim0b, op: display, kind: sprite, sprite: bastion-rim, frame: shield, plane: [-s, w], size: [1.92, 3.712], see_through: true, brightness: {block: 15, sky: 15}, for: 162}
+        - {id: rim1, op: display, kind: sprite, sprite: bastion-rim, frame: shield, plane: [s, w], size: [1.408, 3.072], color: "#FFF3C8", see_through: true, brightness: {block: 15, sky: 15}, for: 162}
+        - {id: rim1b, op: display, kind: sprite, sprite: bastion-rim, frame: shield, plane: [-s, w], size: [1.408, 3.072], color: "#FFF3C8", see_through: true, brightness: {block: 15, sky: 15}, for: 162}
+        - {id: crest, op: display, kind: sprite, sprite: bastion-crest, frame: shield, pos: {w: 0.05}, plane: [s, w], size: [1.664, 1.664], see_through: true, brightness: {block: 15, sky: 15}, for: 162}
+        - {id: crest_b, op: display, kind: sprite, sprite: bastion-crest, frame: shield, pos: {w: 0.05}, plane: [-s, w], size: [1.664, 1.664], see_through: true, brightness: {block: 15, sky: 15}, for: 162}
         - id: fill
           op: display
           kind: text
           text: "●"
           color: "#FFD66E"
-          anchor: shield
-          billboard: fixed
+          frame: shield
+          plane: [s, w]
           brightness: {block: 15, sky: 15}
           for: 162
           motion:
             - law: keys
               keys:
-                - {t: 0, pose: [{axis: up, deg: -50}], scale: {left: 1.5, up: 3, forward: 1.0}, alpha: 0.0}
+                - {t: 0, scale: {left: 1.5, up: 3, forward: 1.0}, alpha: 0.0}
                 - {t: 6, scale: {left: 7.5, up: 16.5, forward: 1.0}, alpha: 0.14, ease: out_cubic}
                 - {t: 152, alpha: 0.14}
                 - {t: 162, scale: {left: 7, up: 15.5, forward: 1.0}, alpha: 0, ease: in_quad}
