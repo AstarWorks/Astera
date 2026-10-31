@@ -173,9 +173,10 @@ public data class FrameDecl(
 /**
  * `lines: {<id>: {frame, from, to}}` (ADR-0314): a named segment of one frame, between two coefficient points. A draw op reads it with
  * `along: <id>` + `samples: n` and emits at n points spread from [from] to [to], ends included - the blade edge is written once and
- * every trail, gather and sheath row names it.
+ * every trail, gather and sheath row names it. The two ends may sit on different frames ([FramePoint.frame] of [from] != of [to]): a beam or ribbon between
+ * two moving points, written `from: {frame: a, pos: {...}}` / `to: {frame: b, pos: {...}}`.
  */
-public data class LineDecl(val id: String, val frame: String, val from: Coeff, val to: Coeff)
+public data class LineDecl(val id: String, val from: FramePoint, val to: FramePoint)
 
 /** What the runtime reads for one frame instance at one tick. */
 public class FrameInputs(

@@ -19,6 +19,15 @@ internal object FrameRefCheck {
     fun run(def: SkillDef, table: ExpansionTable): SkillDecodeError? {
         val declared = def.frames.map { it.id }.toSet()
         val rows = table.states.flatMap { it.rows } + table.subTables.values.flatMap { it.rows }
+        // an instance-rooted frame (`origin: bolt`) names an op of this skill that spawns an instance; an id no op spawns would wait forever, so it is a load error
+        val spawned = rows.filter { val a = it.action; a is Action.Summon || a is Action.Spawn || (a is Action.Effect && a.spawnsAnchor) }
+            .map { it.instance.text.substringAfterLast('/') }.toSet()
+        for (f in def.frames) {
+            val origin = f.origin as? com.astarworks.astera.core.domain.skillengine.frame.grammar.OriginSpec.Instance ?: continue
+            if (origin.name !in spawned) {
+                return SkillDecodeError.UndefinedReference(def.id, "frames.${f.id}.origin", "instance '${origin.name}' (frame '${f.id}': no op of this skill spawns a projectile, summon or anchor with that id)")
+            }
+        }
         for (row in rows) {
             val bad = refsOf(row).firstOrNull { it !in declared } ?: continue
             return SkillDecodeError.UndefinedReference(def.id, row.src.value, "${FrameRefs.PREFIX}$bad (not under frames:)")
@@ -26,7 +35,7 @@ internal object FrameRefCheck {
         return null
     }
 
-    private fun refsOf(row: Row): List<String> {
+    fun refsOf(row: Row): List<String> {
         val names = ArrayList<String>()
         fun cell(v: Val<*>?) { if (v is Val.Live) names += v.name }
         fun rule(t: TargetRule) { if (t is TargetRule.Area) names += t.aroundName }
@@ -63,6 +72,6 @@ internal object FrameRefCheck {
             }
             else -> Unit
         }
-        return names.mapNotNull { FrameRefs.parse(it)?.frame }
+        return names.mapNotNull { FrameRefs.parse(it) }.flatMap { listOf(it.frame, it.toFrame) }
     }
 }

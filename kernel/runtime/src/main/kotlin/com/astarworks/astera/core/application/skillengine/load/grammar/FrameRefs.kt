@@ -11,7 +11,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Val
  * cell name [cell] that the runtime resolves from its per-tick frame table ([FrameRefs.PREFIX]); the compiler checks every such cell
  * names a declared frame ([FrameRefs.parse]).
  */
-public data class FrameRef(val frame: String, val at: Coeff, val to: Coeff? = null, val samples: Int = 1, val direction: Boolean = false) {
+public data class FrameRef(val frame: String, val at: Coeff, val to: Coeff? = null, val samples: Int = 1, val direction: Boolean = false, val toFrame: String = frame, val u: Double = 0.0) {
     /** The live-cell name of `pos`: `frame:<id>#<v>,<w>,<s>`; of a direction (`dir`, no origin): `frame:<id>^<v>,<w>,<s>`. */
     public val cell: String get() = cellOf(at)
 
@@ -23,12 +23,16 @@ public data class FrameRef(val frame: String, val at: Coeff, val to: Coeff? = nu
      */
     public fun points(): List<Val.Live<Vector3d>> {
         val end = to ?: return listOf(position())
+        if (toFrame != frame) return (0 until samples).map { i -> Val.Live(crossCell(i.toDouble() / (samples - 1)), null) }
         if (samples <= 1) return listOf(Val.Live(cellOf(end), null))
         return (0 until samples).map { i ->
             val u = i.toDouble() / (samples - 1)
             Val.Live(cellOf(Coeff(at.v + (end.v - at.v) * u, at.w + (end.w - at.w) * u, at.s + (end.s - at.s) * u)), null)
         }
     }
+
+    /** A point `u` of the way from `pos` on [frame] to `to` on [toFrame]: `frame:<a>#c|<b>#c@u`, the lerp of the two frames' world points. */
+    private fun crossCell(u: Double): String = "${FrameRefs.PREFIX}$frame#${at.v},${at.w},${at.s}|$toFrame#${to!!.v},${to.w},${to.s}@$u"
 
     private fun cellOf(c: Coeff): String = "${FrameRefs.PREFIX}$frame${if (direction) '^' else '#'}${c.v},${c.w},${c.s}"
 }
@@ -142,7 +146,7 @@ public object FrameRefs {
             val line = ctx.lines?.get(along) ?: ctx.abort(SkillDecodeError.UndefinedReference(ctx.file, "$path.along", "line '$along' (not under lines:)"))
             val n = samples ?: ctx.fail("$path.samples", "along: needs samples: <n> (points from the line's from to its to, ends included)")
             if (n < 2) ctx.fail("$path.samples", "samples: is at least 2 (both ends of the line are drawn)")
-            return FrameRef(line.frame, line.from, line.to, n)
+            return FrameRef(line.from.frame, line.from.pos, line.to.pos, n, toFrame = line.to.frame)
         }
         val base = read(values, ctx, path, anchorGiven)
         if (base == null) {
@@ -163,6 +167,14 @@ public object FrameRefs {
     public fun parse(name: String): FrameRef? {
         if (!name.startsWith(PREFIX)) return null
         val body = name.removePrefix(PREFIX)
+        if ('|' in body) {
+            val a = body.substringBefore('|')
+            val rest = body.substringAfter('|')
+            val u = rest.substringAfter('@').toDouble()
+            val b = rest.substringBefore('@')
+            fun co(t: String): Coeff = t.substringAfter('#').split(',').let { Coeff(it[0].toDouble(), it[1].toDouble(), it[2].toDouble()) }
+            return FrameRef(a.substringBefore('#'), co(a), co(b), 2, toFrame = b.substringBefore('#'), u = u)
+        }
         val hash = body.indexOf('#')
         val caret = body.indexOf('^')
         val direction = caret >= 0 && (hash < 0 || caret < hash)
