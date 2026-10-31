@@ -1,4 +1,4 @@
-# sentry-totem: plants a sentry turret ahead of the caster (ADR-0313 `summon`). The turret is an independent run owned by the caster.
+# sentry-totem: plants a sentry turret ahead of the caster (ADR-0313 `summon`). The turret is an independent run owned by the caster; it outlives the caster's death and has a breakable 20 hp body.
 apiVersion: astera/v3
 kind: Skill
 id: sentry-totem
@@ -17,5 +17,5 @@ machine:
       for: 2
       then: end
       do:
-        - {id: turret, op: summon, at: 0, skill: sentry-turret, anchor: plant, life: 60}
+        - {id: turret, op: summon, at: 0, skill: sentry-turret, anchor: plant, life: 60, outlives_caster: true, body: {hp: 20, width: 0.9, height: 1.2}}
     end: {final: true}

@@ -80,6 +80,7 @@ internal class SkillEnginePaperRuntime(
     private var interruptions: org.bukkit.event.Listener? = null
     private var runner: CastRunner? = null
     private var visuals: PaperSkillVisualGateway? = null
+    private var bodies: com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillBodyGateway? = null
     private var hooks: PaperPlayerHooks? = null
     private val notInCatalog = ConcurrentHashMap.newKeySet<String>()
     private val missingSkins = ConcurrentHashMap.newKeySet<String>()
@@ -189,6 +190,13 @@ internal class SkillEnginePaperRuntime(
         player.summonSkills = { id -> wired.skillCatalog.get(id) }
         player.hooks = playerHooks
         hooks = playerHooks
+        // summon bodies (ADR-0313 rev): the hitbox entity of a `summon ... body:`; a blow on it is routed back to the kernel's hp and team rules
+        val bodyGateway = com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillBodyGateway(server) { body, attacker, amount -> player.damageBody(body, attacker, amount) }
+        val strayBodies = bodyGateway.sweepOrphans()
+        if (strayBodies > 0) log.info("skill engine removed {} orphaned summon bodies left by an earlier run", strayBodies)
+        player.bodyGateway = bodyGateway
+        bodies = bodyGateway
+        listeners.register(bodyGateway)
         val cast = DefaultCastRunner(player)
         runner = cast
 
@@ -246,6 +254,7 @@ internal class SkillEnginePaperRuntime(
             movementGateway.releaseAll()
             visualGateway.removeAll()
             playerHooks.releaseAll()
+            bodyGateway.removeAll()
         }
         ctx.subscriptions += eventBus.subscribe(SkillReleased::class) { event ->
             cast.raiseAllOf(event.caster.uuid, "input.release", event.atTick.toInt())
@@ -359,5 +368,7 @@ internal class SkillEnginePaperRuntime(
         hooks = null
         visuals?.removeAll()
         visuals = null
+        bodies?.let { org.bukkit.event.HandlerList.unregisterAll(it); it.removeAll() }
+        bodies = null
     }
 }

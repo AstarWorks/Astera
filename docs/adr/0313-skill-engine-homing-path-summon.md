@@ -47,7 +47,17 @@ Three primitives, no new runtime clock and no new randomness.
 
 ## Open question
 
-Does a summoned entity get a hitbox (so enemies can destroy it)? Not decided here; summons are display and frame only. Needs a founder decision (what damages it, who sees it as a target).
+Resolved by rev 2026-10-31 (below). Still open: whether an ally can heal or buff a summon body (today an ally's hit changes nothing, and no status or heal lands on a body). Out of scope here.
+
+## Rev 2026-10-31: per-summon options (founder: 「召喚物は普通に場合による。死んでも残るやつ、倒せる奴、HPあるやつetc...」)
+
+The hitbox question is closed: whether a summon outlives its caster, can be killed and has hp is a per-skill choice on the `summon` op, not an engine default. Two optional fields, both absent = today's behaviour (goldens of every skill that does not set them are byte-identical; the dump prints them only when set).
+
+- `outlives_caster: true|false` (literal, default false). True: `CastRunner.cancelAllOf` (death, quit, weapon swap, world change) skips the run; `life`, a broken body and `cancelAll` (match end, reload) still cut it.
+- `body: {hp, width, height}` (`hp` > 0 required, `width` 0.8 and `height` 1.6 by default). The kernel keeps a registry of live bodies owned by the `TablePlayer`: a synthetic UUID, the owner, hp, and a box standing on the spawn point. Every `ISkillEntityQuery` call and every `ISkillGameplayGateway.damage` of every run goes through two decorators, so enemy hits, damage ops, projectiles and ray/area queries see the body like any other victim. Teams are the existing rules: `isAlly` maps a body to its owner, so the owner, the owner's team and the owner's own area ops pass over it, and a hit from an ally (or the owner) leaves hp unchanged; an enemy's damage lowers hp. Status, heal, impulse and freeze on a body id are no-ops. At hp <= 0 the body is removed and `damage` reports a kill.
+- `on: destroyed`: a body that reaches 0 hp raises the event `destroyed` on its run (a `GLOBAL_EVENTS` name). A summoned skill may handle it like any event (`on: [{event: destroyed, to: broken}]`) and play a break state; a run with no handler is cut at once. A summoned skill that handles `destroyed` while the summon op gives no `body` is a load error.
+- Paper: the new port `ISkillBodyGateway` (`TablePlayer.bodyGateway`) spawns a non-living, non-persistent `Interaction` entity per body (`PaperSkillBodyGateway`), so vanilla melee and arrows have something to hit while the living-entity query never sees it twice. Its damage events are cancelled and routed to `TablePlayer.damageBody`. The entity is removed exactly once when the run is finalized for any reason (life, break, `cancelAll` on reload / match end, cancel), tagged for a start-up sweep, and removed again by `removeAll`. The sim uses the default `NoBodyGateway` (kernel queries only).
+- Examples: `sentry-totem` summons `sentry-turret` with `outlives_caster: true, body: {hp: 20}`; the turret handles `destroyed` with a `broken` state. Scenarios: `SummonBodyScenarioTest`.
 
 ## References
 

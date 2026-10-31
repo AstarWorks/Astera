@@ -70,7 +70,16 @@ public sealed interface Action {
      * `summon` (ADR-0313): at its tick starts an independent run of [skill] (its own machine and clock) whose single `frames_in` frame sits at [origin]
      * facing [forward]'s heading. The run is owned by the caster (damage credit, cleanup) and is cut [lasts] ticks later, when the caster dies or the match ends.
      */
-    public data class Summon(val skill: String, val origin: Vec, val forward: Vec, val lasts: Int) : Action
+    public data class Summon(
+        val skill: String,
+        val origin: Vec,
+        val forward: Vec,
+        val lasts: Int,
+        /** True: the caster's death / quit / weapon swap does not cut it (only [lasts], a destroyed [body] and the match end do). */
+        val outlivesCaster: Boolean = false,
+        /** Optional hittable body: enemies' hits, damage, projectiles and area ops see it; null = untargetable. */
+        val body: SummonBody? = null,
+    ) : Action
     public data class Lock(val move: LockMove, val pitch: Boolean, val yaw: Boolean, val until: LockEnd) : Action
 
     // structure
@@ -83,6 +92,9 @@ public sealed interface Action {
     public data class Enter(val state: StatePath) : Action
     public data class Exit(val state: StatePath, val reason: ExitReason) : Action
 }
+
+/** The body a summon may own (ADR-0313 rev): [hp] health points, a box [width] x [height] standing on the spawn point. */
+public data class SummonBody(val hp: Double, val width: Double, val height: Double)
 
 public enum class ExitReason { TIMER, EVENT, PREEMPT, CANCEL }
 

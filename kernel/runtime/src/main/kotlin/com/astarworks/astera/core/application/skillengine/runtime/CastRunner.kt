@@ -65,7 +65,7 @@ public interface CastRunner {
 
     public fun isRunning(cast: CastHandle): Boolean
 
-    /** Cancels every running cast of [caster] (quit, death, weapon swap, world change); returns how many ended. */
+    /** Cancels every running cast of [caster] (quit, death, weapon swap, world change) except a summon that `outlives_caster`; returns how many ended. */
     public fun cancelAllOf(caster: UUID): Int
 
     /** Cancels every running cast (plugin disable, reload). */
@@ -103,7 +103,7 @@ public class DefaultCastRunner(private val player: ISkillTablePlayer) : CastRunn
 
     override fun cancelAllOf(caster: UUID): Int {
         // death / quit / world change: a run draining its handler rows (finishing) is still the caster's cast and is cut too
-        val mine = ownedRunning(caster)
+        val mine = ownedRunning(caster).filter { !player.outlivesCaster(it) }
         mine.forEach { player.cancel(it, CancelScope.Cast) }
         return mine.size
     }
