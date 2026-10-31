@@ -24,9 +24,10 @@ internal object ValueForms {
  * An `anchor:` value (ADR-0303 1, R14): a declared anchor id, or `{of, offset: {forward, up, left}, to?, samples?, sweep?}` = a point displaced in that
  * anchor's basis. [sweep] (blocks of anchor travel per call) is meaningful for particles only; other ops reject it.
  * [to] + [samples] (rev4.8) name a segment `of -> to`: the lowering emits [samples] rows per tick at `of + (to - of) * k / (samples - 1)`;
- * particle / particle_def only. Both or neither.
+ * particle / particle_def only. Both or neither. [from] (0 <= from < 1, default 0) starts the samples that far along the segment, so a row can leave out the
+ * inner part of a blade (the part by the caster's own eye) without thinning the outer part.
  */
-public data class AnchorRef(val of: String, val offset: FrameVec?, val sweep: Double?, val to: String? = null, val samples: Int? = null)
+public data class AnchorRef(val of: String, val offset: FrameVec?, val sweep: Double?, val to: String? = null, val samples: Int? = null, val from: Double = 0.0)
 
 /** The field types of the shared grammar. Every numeric/vector/bool/text type also accepts `${param}` and `= CEL` (ADR-0303 section 0, 11). */
 public object Types {
@@ -197,7 +198,8 @@ public object Types {
     private val anchorSweep = Field.optional("sweep", Types.nullable(number), null, "blocks of anchor travel per call (particles only)")
     private val anchorTo = Field.optional("to", Types.nullable(id), null, "second end of a segment; the lowering emits `samples` rows along of -> to (particle / particle_def)")
     private val anchorSamples = Field.optional("samples", Types.nullable(number), null, "rows per tick along of -> to, a whole number >= 2 (compile-time constant; with `to`)")
-    private val anchorFields by lazy { Fields.of("anchor", anchorOf, anchorOffset, anchorTo, anchorSamples, anchorSweep) }
+    private val anchorFrom = Field.optional("from", Types.nullable(number), null, "fraction 0 <= from < 1 of the segment where the samples start (default 0; with `to`)")
+    private val anchorFields by lazy { Fields.of("anchor", anchorOf, anchorOffset, anchorTo, anchorSamples, anchorFrom, anchorSweep) }
 
     /** `anchor: <id>` or `anchor: {of, offset?, to?, samples?, sweep?}`. */
     public val anchorRef: FieldType<AnchorRef> = object : FieldType<AnchorRef> {
@@ -221,7 +223,14 @@ public object Types {
                     if (n % 1.0 != 0.0 || n < 2.0) ctx.fail("$path.samples", "samples must be a whole number >= 2 (was $n)")
                     samples = n.toInt()
                 }
-                AnchorRef(v[anchorOf], v[anchorOffset], (sweep as? Value.Literal)?.value, to, samples)
+                val fromRaw = v[anchorFrom]
+                var from = 0.0
+                if (fromRaw != null) {
+                    if (to == null) ctx.fail("$path.from", "from needs 'to' and 'samples' (a segment)")
+                    from = (fromRaw as? Value.Literal)?.value ?: ctx.fail("$path.from", "from must be a literal number (compile-time constant)")
+                    if (from < 0.0 || from >= 1.0) ctx.fail("$path.from", "from must satisfy 0 <= from < 1 (was $from)")
+                }
+                AnchorRef(v[anchorOf], v[anchorOffset], (sweep as? Value.Literal)?.value, to, samples, from)
             }
             else -> ctx.mismatch(path, label, raw)
         }

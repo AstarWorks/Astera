@@ -57,8 +57,8 @@ machine:
           on:
             hit:
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 1.0, pitch: 1.0, detach: true}
-        # readable cut: bright non-lingering sparks (electric_spark, sweep_attack) carry the edge so check 16 stays clear near the eye; crit keeps its original cadence
-        - {id: trail_fx, use: swing-trail, with: {samples: 3, span: 11, every: 3}, frames: {weapon: /windup/rig}, detach: true}
+        # the whole katana lies inside the caster eye volume (check 16): the lingering crit streak stays on the outer half at a slower cadence; the dense streak is the electric_spark trail_edge below
+        - {id: trail_fx, use: swing-trail, with: {samples: 2, from: 0.5, span: 11, every: 2}, frames: {weapon: /windup/rig}, detach: true}
         - {id: trail_edge, op: particle, particle: electric_spark, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 8}, count: 2, extra: 0.02, at: 0, every: 1, for: 11, detach: true}
         - {id: trail_arc, op: particle, particle: sweep_attack, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 2}, count: 1, at: 0, every: 2, for: 10, detach: true}
     end: {final: true}
