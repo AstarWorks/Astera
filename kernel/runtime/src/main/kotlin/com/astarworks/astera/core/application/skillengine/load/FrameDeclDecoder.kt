@@ -7,6 +7,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.AxisSpec
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.Basis3
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.Coeff
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.FramePoint
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.FrameDecl
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.LineDecl
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.MoveKey
@@ -38,7 +39,7 @@ import com.astarworks.astera.core.domain.skillengine.frame.grammar.ScaleKey
  */
 internal object FrameDeclDecoder {
     private val KEYS = setOf("id", "origin", "v", "w", "s", "rotate", "move", "scale", "on", "each")
-    private val CASTER_POINTS = setOf("", "eye", "feet", "body", "center", "hand_r", "hand_l")
+    private val CASTER_POINTS = setOf("", "eye", "feet", "body", "center", "hand_r", "hand_l", "shoulder_r", "shoulder_l")
     private val VICTIM_POINTS = setOf("", "eye", "feet", "body", "center")
     private val CROSS = Regex("""^\s*([vws])\s*x\s*([vws])\s*$""")
 
@@ -102,7 +103,13 @@ internal object FrameDeclDecoder {
                 else -> ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "origin"))
             }
         }
-        val s = raw as? String ?: ctx.mismatch("$p.origin", "caster[.point], victim[.point], contact or an instance id", raw)
+        if (raw is Map<*, *>) {
+            if (on != null) ctx.fail("$p.origin", "frame '$id': an on: event frame is rooted on its victim / contact; a frame-point origin is for plain frames")
+            for (key in raw.keys) if (key != "frame" && key != "pos") ctx.abort(SkillDecodeError.UnknownKey(ctx.file, "$p.origin", key.toString(), "expected frame, pos"))
+            val parent = raw["frame"] as? String ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, "$p.origin", "frame"))
+            return OriginSpec.Frame(parent, coeff(ctx, raw["pos"], "$p.origin.pos", Coeff.ZERO))
+        }
+        val s = raw as? String ?: ctx.mismatch("$p.origin", "caster[.point], victim[.point], contact, an instance id or {frame, pos}", raw)
         val base = s.substringBefore('.')
         val point = if ('.' in s) s.substringAfter('.') else ""
         if (perBlock) {
@@ -111,7 +118,7 @@ internal object FrameDeclDecoder {
         }
         return when (base) {
             "caster" -> {
-                if (point !in CASTER_POINTS) ctx.fail("$p.origin", "frame '$id': caster point '$point' is not one of eye, feet, body, center, hand_r, hand_l")
+                if (point !in CASTER_POINTS) ctx.fail("$p.origin", "frame '$id': caster point '$point' is not one of eye, feet, body, center, hand_r, hand_l, shoulder_r, shoulder_l")
                 OriginSpec.Caster(point)
             }
             "victim", "event" -> {
@@ -131,7 +138,7 @@ internal object FrameDeclDecoder {
     }
 
     /**
-     * `lines: {<id>: {frame: <frame id>, from: {v, w, s}, to: {v, w, s}}}`: named segments draw ops read with `along:`. Every error names
+     * `lines: {<id>: {frame: <frame id>, from: {v, w, s}, to: {v, w, s}}}` (or each end `{frame, pos}` on its own frame): named segments draw ops read with `along:`. Every error names
      * the line and the field; a line on an undeclared frame fails here.
      */
     fun readLines(ctx: GrammarContext, raw: Any?, frameIds: Set<String>): List<LineDecl> {
@@ -144,17 +151,36 @@ internal object FrameDeclDecoder {
             if (id.isBlank() || id.any { it.isWhitespace() }) ctx.fail(p, "'$id' is not a line id")
             val body = e as? Map<*, *> ?: ctx.mismatch(p, "map {frame, from, to}", e)
             for (key in body.keys) if (key !in LINE_KEYS) ctx.abort(SkillDecodeError.UnknownKey(ctx.file, p, key.toString(), "expected ${LINE_KEYS.joinToString()}"))
-            val frame = body["frame"]?.let { it as? String ?: ctx.mismatch("$p.frame", "frame id", it) } ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "frame"))
-            if (frame !in frameIds) ctx.abort(SkillDecodeError.UndefinedReference(ctx.file, "$p.frame", "frame '$frame' (not under frames:)"))
-            val from = coeff(ctx, body["from"] ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "from")), "$p.from", Coeff.ZERO)
-            val to = coeff(ctx, body["to"] ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "to")), "$p.to", Coeff.ZERO)
-            if (from == to) ctx.fail("$p.to", "line '$id': from and to are the same point; a line has a length")
-            out += LineDecl(id, frame, from, to)
+            // two spellings: `frame:` + `from`/`to` coefficients (one frame), or each end `{frame, pos}` (the ends on different frames)
+            val crossEnds = body["from"] is Map<*, *> && (body["from"] as Map<*, *>).containsKey("frame")
+            val from: FramePoint
+            val to: FramePoint
+            if (crossEnds) {
+                if (body.containsKey("frame")) ctx.fail("$p.frame", "line '$id': frame: and per-end {frame, pos} are exclusive")
+                fun end(name: String): FramePoint {
+                    val e2 = body[name] as? Map<*, *> ?: ctx.mismatch("$p.$name", "{frame, pos}", body[name])
+                    for (key in e2.keys) if (key !in END_KEYS) ctx.abort(SkillDecodeError.UnknownKey(ctx.file, "$p.$name", key.toString(), "expected frame, pos"))
+                    val f = e2["frame"]?.let { it as? String ?: ctx.mismatch("$p.$name.frame", "frame id", it) } ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, "$p.$name", "frame"))
+                    if (f !in frameIds) ctx.abort(SkillDecodeError.UndefinedReference(ctx.file, "$p.$name.frame", "frame '$f' (not under frames:)"))
+                    return FramePoint(f, coeff(ctx, e2["pos"] ?: emptyMap<String, Any>(), "$p.$name.pos", Coeff.ZERO))
+                }
+                from = end("from")
+                to = end("to")
+                if (from == to) ctx.fail("$p.to", "line '$id': from and to are the same point; a line has a length")
+            } else {
+                val frame = body["frame"]?.let { it as? String ?: ctx.mismatch("$p.frame", "frame id", it) } ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "frame"))
+                if (frame !in frameIds) ctx.abort(SkillDecodeError.UndefinedReference(ctx.file, "$p.frame", "frame '$frame' (not under frames:)"))
+                from = FramePoint(frame, coeff(ctx, body["from"] ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "from")), "$p.from", Coeff.ZERO))
+                to = FramePoint(frame, coeff(ctx, body["to"] ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "to")), "$p.to", Coeff.ZERO))
+                if (from == to) ctx.fail("$p.to", "line '$id': from and to are the same point; a line has a length")
+            }
+            out += LineDecl(id, from, to)
         }
         return out
     }
 
     private val LINE_KEYS = setOf("frame", "from", "to")
+    private val END_KEYS = setOf("frame", "pos")
 
     private fun axis(ctx: GrammarContext, id: String, p: String, name: String, raw: Any?): AxisSpec = when (raw) {
         null -> ctx.abort(SkillDecodeError.MissingField(ctx.file, p, name))

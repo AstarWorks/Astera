@@ -3,6 +3,8 @@ package com.astarworks.astera.core.application.skillengine.load.ops.world
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
+import com.astarworks.astera.core.application.skillengine.load.grammar.OpPlacement
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
@@ -27,12 +29,12 @@ public class BreakAreaOp(
     override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
-    public val anchor: com.astarworks.astera.core.application.skillengine.load.grammar.AnchorRef,
+    public val place: com.astarworks.astera.core.application.skillengine.load.grammar.OpPlacement,
     public val spec: BreakAreaSpec,
 ) : OpNode
 
 public object BreakAreaOpSpec : OpSpec<BreakAreaOp> {
-    private val ANCHOR = WorldOps.anchorField
+    private val ANCHOR = WorldOps.anchorOptional
     private val SHAPE: Field<AreaShape> = Field.required("shape", WorldOps.areaShape, "sphere, line or box")
     private val TOOL: Field<String> = Field.required("tool", Types.enumOf("axe", "pickaxe", "shovel", "none"), "tool class the strike counts as")
     private val BLOCK_DAMAGE: Field<Int> = Field.required("block_damage", WorldOps.blockDamage, "block HP removed per strike, 0..2000")
@@ -43,16 +45,16 @@ public object BreakAreaOpSpec : OpSpec<BreakAreaOp> {
     override val name: String = "break_area"
     override val section: OpSection = OpSection.GAMEPLAY
     override val timing: TimingKind? = TimingKind.POINT
-    override val fields: Fields = Fields.of("break_area", ANCHOR, SHAPE, TOOL, BLOCK_DAMAGE, RIPPLE, REVERT, OUTSIDE)
+    override val fields: Fields = Fields.of("break_area", ANCHOR, FrameRefs.FRAME, FrameRefs.POS, SHAPE, TOOL, BLOCK_DAMAGE, RIPPLE, REVERT, OUTSIDE)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<BreakAreaOp, SkillDecodeError> =
         Result.Success(
             BreakAreaOp(
-                id, src, whenExpr, timing, values[ANCHOR],
+                id, src, whenExpr, timing, OpPlacement.read(values[ANCHOR], values, ctx, "breakarea '${id.value}'"),
                 BreakAreaSpec(values[SHAPE], values[TOOL], values[BLOCK_DAMAGE], values[RIPPLE], values[REVERT], values[OUTSIDE]),
             ),
         )
 
     override fun lower(op: BreakAreaOp, lc: LowerContext): Result<Lowered, SkillDecodeError> =
-        WorldOps.lower(OpId(name), op.anchor, mapOf<String, Val<Any>>("spec" to Val.Known(op.spec)), lc)
+        WorldOps.lower(OpId(name), op.place, mapOf<String, Val<Any>>("spec" to Val.Known(op.spec)), lc)
 }

@@ -5,6 +5,8 @@ import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.Coeff
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarSource
@@ -31,7 +33,9 @@ public class ImpulseOp(
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     val target: TargetRef,
-    val vector: OffsetVec,
+    val vector: OffsetVec?,
+    /** `frame:` + `dir:` (ADR-0314): the velocity direction along the frame's axes, instead of [vector]. */
+    val frameDirection: Val<Any>?,
 ) : OpNode
 
 public object ImpulseOpSpec : OpSpec<ImpulseOp> {
@@ -40,18 +44,23 @@ public object ImpulseOpSpec : OpSpec<ImpulseOp> {
     override val timing: TimingKind? = TimingKind.POINT
 
     private val targetField = Field.required("target", GameplayOps.target, "victim, caster or an area")
-    private val vectorField = Field.required("vector", Types.offsetVec, "{of: <anchor>, forward, up, left} along that anchor's axes at the row tick, {x, y, z} in world axes, or a world CEL vec3")
+    private val vectorField = Field.optional("vector", Types.nullable(Types.offsetVec), null, "{of: <anchor>, forward, up, left} along that anchor's axes at the row tick, {x, y, z} in world axes, or a world CEL vec3; or write frame: + dir: {v, w, s} instead (ADR-0314)")
 
-    override val fields: Fields = Fields.of("impulse", targetField, vectorField)
+    override val fields: Fields = Fields.of("impulse", targetField, vectorField, FrameRefs.FRAME, FrameRefs.DIR)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ImpulseOp, SkillDecodeError> =
-        Result.Success(ImpulseOp(id, src, whenExpr, timing, values[targetField], values[vectorField]))
+        Result.Success(ImpulseOp(id, src, whenExpr, timing, values[targetField], values[vectorField], GameplayOps.frameDirection(values, ctx, "impulse '${id.value}'", values[vectorField] != null)))
 
     override fun lower(op: ImpulseOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value
         return GameplayOps.targetCell(op.target, lc, path).flatMap { target ->
-            vector(op.vector, lc, "$path.vector").map { vector ->
-                GameplayOps.effect(lc, "impulse", mapOf<String, Val<Any>>("target" to target, "vector" to vector))
+            val frameDir = op.frameDirection
+            if (frameDir != null) {
+                Result.Success(GameplayOps.effect(lc, "impulse", mapOf<String, Val<Any>>("target" to target, "vector" to frameDir)))
+            } else {
+                vector(op.vector!!, lc, "$path.vector").map { vector ->
+                    GameplayOps.effect(lc, "impulse", mapOf<String, Val<Any>>("target" to target, "vector" to vector))
+                }
             }
         }
     }
