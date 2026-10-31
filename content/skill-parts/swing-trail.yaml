@@ -1,5 +1,6 @@
 # swing-trail: the particle streak a melee swing leaves along the weapon rig (a model-backed anchor), from its root point to its tip point:
 #   - {id: trail, use: swing-trail, with: {samples: 6, extra: 0.04, span: 8}, frames: {weapon: /windup/rig}, detach: true}
+# `from` starts the samples part-way along the weapon (check 16: a lingering particle by the caster's eye is not allowed, so those rows start outside it).
 # One particle per sample point every `every` ticks for `span` ticks, starting at the call tick.
 # The row id (trail) is part of the shipped goldens: rename it only together with `regenSkillOracle`.
 ---
@@ -11,6 +12,7 @@ params:
   span:     {type: ticks, required: true}    # ticks the streak lasts
   extra:    {type: number, default: 0.04}    # particle speed
   every:    {type: ticks, default: 1}
+  from:     {type: number, default: 0}       # fraction of the weapon (root 0 -> tip 1) where the samples start: 0.5 leaves out the inner half by the caster's eye
   particle: {type: string, default: crit}
 frames_in: {weapon: anchor}
 machine:
@@ -19,4 +21,4 @@ machine:
     main:
       final: true
       do:
-        - {id: trail, op: particle, particle: "${particle}", anchor: {of: weapon.root, to: weapon.tip, samples: "${samples}"}, count: 1, extra: "${extra}", at: 0, every: "${every}", for: "${span}"}
+        - {id: trail, op: particle, particle: "${particle}", anchor: {of: weapon.root, to: weapon.tip, samples: "${samples}", from: "${from}"}, count: 1, extra: "${extra}", at: 0, every: "${every}", for: "${span}"}

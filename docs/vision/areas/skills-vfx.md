@@ -27,6 +27,7 @@ Owner track `wp/skills-vfx`. Items: Board prefix `SKL-`. Sources: handoff `limbu
 - 検証: 079262164 時点の game-sim は 724 件中 30 件 fail (`board-pending.md` l.421)。実クライアントの再撮影と e2e は manager の統合 window 待ち。
 - 14 `sample-*` (machine/display 形式) と shader demo 3 件 (ADR-0305, `content/vfx/demo-shader-{dissolve,uv-flow,emissive-pulse}.yaml`)。旧 capture は v2 世代の記録。v3 での再撮影は未。
 - ツール: skill-compare (`make skill-compare-up`, 192.168.11.5:8097) が閲覧入口。`make live-view SKILL=<id>` が実 Java クライアントの capture (`tools/live-view/README.md`)。sprite は `tools/item-art` の YAML node graph (ADR-0304)。
+- 劣化 fix (founder 10/31): スキンアニメーション消失は `321dae406` (owner-hidden rig) が原因で撤去済み (rig は全 viewer に見える)。bastion greatsword の品質低下は check 16 を行の削除で満たした `499e6632a`/`6ed672133`/`a1ed9c864` が原因。lingering なのは crit 系のみ (dust は size 0.17-0.32 で非 lingering) なので dust/steel/sheath/trail は承認時の密度へ復元し、crit 行は anchor の `from:` (segment の開始位置, 0<=from<1) で刃の外側半分から出す。check 16 の上限・判定は不変、caster から何も隠さない。katana-iaido は刀全体が eye volume 内なので crit trail のみ cadence を落とし、dense な筋は electric_spark の trail_edge が担う。`BastionGreatswordFullDensityScenarioTest` が密度の下限を固定。
 - bastion S1 は v2 世代の r1-r26 が founder に却下 (「S1 got worse」)。v3 での founder 確認は未。couture-ego の look は v1 に戻した (`242c54b39`) が founder 確認待ち。
 - 高速化案 (warm vfx-shot stack, keypoint → IK, local client particle sim) は founder go 待ち。
 
