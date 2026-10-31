@@ -78,7 +78,8 @@ machine:
         # dash corridor: capsule radius 1.0, hit_once, no early end (the dash runs through everyone).
         - id: strike
           op: hit
-          anchor: caster.body
+          frame: body
+          pos: {w: 0.9}
           at: 0
           every: 1
           for: "= ${dash_ticks}"

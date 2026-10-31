@@ -21,9 +21,7 @@
 @2 particle - op=dash/trail_arc[0] type=sweep_attack count=1 at=0.321777,1.151777,0.414784 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6472251044548237415
 @2 particle - op=dash/trail_arc[0] type=sweep_attack count=1 at=0.682423,1.512423,0.991645 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3817364647112012932
 @2 move - op=- to=0,0,1.3333 yaw=- pitch=-
-@2 hit - op=dash/strike[0] at=0.000000,0.900000,1.333333 r=1.000000 shape=sphere rad=1.000000
-@2 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=katana-iaido at=0.000000,0.900000,2.200000 ignoreinv=false ignorearmor=false
-@2 sound - op=dash/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=0.000000,0.810000,2.500000
+@2 hit - op=dash/strike[0] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
 @2 frame windup/rig op=windup/rig pos=0.200000,1.030000,0.220000 rot=0.615303,-0.254867,-0.285464,0.689170
 @3 move - op=- to=0,0,3.12 yaw=- pitch=-
 @3 write #0 op=windup/rig dur=0 pos=0.290000,1.360000,3.240000 rot=0.389091,-0.161167,-0.347091,0.837951 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,3.120000 ryaw=0.000000
@@ -35,7 +33,13 @@
 @3 particle - op=dash/trail_edge[1] type=electric_spark count=2 at=0.843717,1.913717,3.447114 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-534921892472234291
 @3 particle - op=dash/trail_edge[1] type=electric_spark count=2 at=0.918913,1.988913,3.475240 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6699879920929012307
 @3 particle - op=dash/trail_edge[1] type=electric_spark count=2 at=0.994109,2.064109,3.503367 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6121205728602291926
+@3 hit - op=dash/strike[1] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
+@3 hit - op=dash/strike[1] at=0.000000,0.900000,0.780000 r=1.000000 shape=sphere rad=1.000000
+@3 hit - op=dash/strike[1] at=0.000000,0.900000,1.560000 r=1.000000 shape=sphere rad=1.000000
+@3 hit - op=dash/strike[1] at=0.000000,0.900000,2.340000 r=1.000000 shape=sphere rad=1.000000
 @3 hit - op=dash/strike[1] at=0.000000,0.900000,3.120000 r=1.000000 shape=sphere rad=1.000000
+@3 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=katana-iaido at=0.000000,0.900000,2.200000 ignoreinv=false ignorearmor=false
+@3 sound - op=dash/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=0.000000,0.810000,2.500000
 @3 frame windup/rig op=windup/rig pos=0.290000,1.360000,3.240000 rot=0.389091,-0.161167,-0.347091,0.837951
 @4 move - op=- to=0,0,4 yaw=- pitch=-
 @4 move - op=- add_velocity v=0.000000,0.000000,0.000000
@@ -52,6 +56,7 @@
 @4 particle - op=dash/trail_edge[2] type=electric_spark count=2 at=1.007255,2.077255,4.298858 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=391939465951041397
 @4 particle - op=dash/trail_arc[1] type=sweep_attack count=1 at=0.471055,1.541055,4.165149 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2818532937898123947
 @4 particle - op=dash/trail_arc[1] type=sweep_attack count=1 at=1.007255,2.077255,4.298858 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7770617502060736468
+@4 hit - op=dash/strike[2] at=0.000000,0.900000,3.120000 r=1.000000 shape=sphere rad=1.000000
 @4 hit - op=dash/strike[2] at=0.000000,0.900000,4.000000 r=1.000000 shape=sphere rad=1.000000
 @4 damage 00000000-0000-0000-0000-00000000000b op=- physical=40 skill=katana-iaido at=0.000000,0.900000,4.700000 ignoreinv=false ignorearmor=false
 @4 sound - op=dash/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=0.000000,0.810000,5.000000
@@ -172,9 +177,7 @@ r @16 run-end tail=11 | pose
 @2 particle - op=dash/trail_arc[0] type=sweep_attack count=1 at=0.007359,1.151777,0.524911 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6472251044548237415
 @2 particle - op=dash/trail_arc[0] type=sweep_attack count=1 at=-0.051780,1.512423,1.202655 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3817364647112012932
 @2 move - op=- to=-0.8024,0,1.0648 yaw=- pitch=-
-@2 hit - op=dash/strike[0] at=-0.802420,0.900000,1.064847 r=1.000000 shape=sphere rad=1.000000
-@2 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=katana-iaido at=-1.204538,0.900000,1.696589 ignoreinv=false ignorearmor=false
-@2 sound - op=dash/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=-1.504538,0.810000,1.996589
+@2 hit - op=dash/strike[0] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
 @2 frame windup/rig op=windup/rig pos=0.027328,1.030000,0.296063 rot=0.674085,-0.460373,-0.075473,0.572686
 @3 move - op=- to=-1.9687,0,2.6126 yaw=- pitch=-
 @3 write #0 op=windup/rig dur=0 pos=-1.809320,1.360000,2.882924 rot=0.479118,-0.418724,-0.205694,0.743509 scale=0.937500,0.937500,0.937500 bb=FIXED root=-1.968706,0.000000,2.612561 ryaw=37.000000
@@ -186,7 +189,13 @@ r @16 run-end tail=11 | pose
 @3 particle - op=dash/trail_edge[1] type=electric_spark count=2 at=-1.491746,1.913717,3.381567 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-534921892472234291
 @3 particle - op=dash/trail_edge[1] type=electric_spark count=2 at=-1.448619,1.988913,3.449284 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6699879920929012307
 @3 particle - op=dash/trail_edge[1] type=electric_spark count=2 at=-1.405492,2.064109,3.517001 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6121205728602291926
+@3 hit - op=dash/strike[1] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
+@3 hit - op=dash/strike[1] at=-0.492177,0.900000,0.653140 r=1.000000 shape=sphere rad=1.000000
+@3 hit - op=dash/strike[1] at=-0.984353,0.900000,1.306281 r=1.000000 shape=sphere rad=1.000000
+@3 hit - op=dash/strike[1] at=-1.476530,0.900000,1.959421 r=1.000000 shape=sphere rad=1.000000
 @3 hit - op=dash/strike[1] at=-1.968706,0.900000,2.612561 r=1.000000 shape=sphere rad=1.000000
+@3 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=katana-iaido at=-1.204538,0.900000,1.696589 ignoreinv=false ignorearmor=false
+@3 sound - op=dash/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=-1.504538,0.810000,1.996589
 @3 frame windup/rig op=windup/rig pos=-1.809320,1.360000,2.882924 rot=0.479118,-0.418724,-0.205694,0.743509
 @4 move - op=- to=-2.4073,0,3.1945 yaw=- pitch=-
 @4 move - op=- add_velocity v=0.000000,0.000000,0.000000
@@ -203,6 +212,7 @@ r @16 run-end tail=11 | pose
 @4 particle - op=dash/trail_edge[2] type=electric_spark count=2 at=-1.782687,2.077255,4.039402 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=391939465951041397
 @4 particle - op=dash/trail_arc[1] type=sweep_attack count=1 at=-2.130448,1.541055,3.609923 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2818532937898123947
 @4 particle - op=dash/trail_arc[1] type=sweep_attack count=1 at=-1.782687,2.077255,4.039402 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7770617502060736468
+@4 hit - op=dash/strike[2] at=-1.968706,0.900000,2.612561 r=1.000000 shape=sphere rad=1.000000
 @4 hit - op=dash/strike[2] at=-2.407260,0.900000,3.194542 r=1.000000 shape=sphere rad=1.000000
 @4 damage 00000000-0000-0000-0000-00000000000b op=- physical=40 skill=katana-iaido at=-2.709075,0.900000,3.693178 ignoreinv=false ignorearmor=false
 @4 sound - op=dash/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=-3.009075,0.810000,3.993178
@@ -323,9 +333,7 @@ r @16 run-end tail=11 | pose
 @2 particle - op=dash/trail_arc[0] type=sweep_attack count=1 at=0.321777,1.151777,0.414784 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6472251044548237415
 @2 particle - op=dash/trail_arc[0] type=sweep_attack count=1 at=0.682423,1.512423,0.991645 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3817364647112012932
 @2 move - op=- to=0,0,1.3333 yaw=- pitch=-
-@2 hit - op=dash/strike[0] at=0.000000,0.900000,1.333333 r=1.000000 shape=sphere rad=1.000000
-@2 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=katana-iaido at=0.000000,0.900000,2.200000 ignoreinv=false ignorearmor=false
-@2 sound - op=dash/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=0.000000,0.810000,2.500000
+@2 hit - op=dash/strike[0] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
 @2 frame windup/rig op=windup/rig pos=0.200000,1.030000,0.220000 rot=0.615303,-0.254867,-0.285464,0.689170
 @3 move - op=- to=0,0,3.12 yaw=- pitch=-
 @3 write #0 op=windup/rig dur=0 pos=0.290000,1.360000,3.240000 rot=0.389091,-0.161167,-0.347091,0.837951 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,3.120000 ryaw=0.000000
@@ -337,7 +345,13 @@ r @16 run-end tail=11 | pose
 @3 particle - op=dash/trail_edge[1] type=electric_spark count=2 at=0.843717,1.913717,3.447114 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-534921892472234291
 @3 particle - op=dash/trail_edge[1] type=electric_spark count=2 at=0.918913,1.988913,3.475240 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6699879920929012307
 @3 particle - op=dash/trail_edge[1] type=electric_spark count=2 at=0.994109,2.064109,3.503367 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6121205728602291926
+@3 hit - op=dash/strike[1] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
+@3 hit - op=dash/strike[1] at=0.000000,0.900000,0.780000 r=1.000000 shape=sphere rad=1.000000
+@3 hit - op=dash/strike[1] at=0.000000,0.900000,1.560000 r=1.000000 shape=sphere rad=1.000000
+@3 hit - op=dash/strike[1] at=0.000000,0.900000,2.340000 r=1.000000 shape=sphere rad=1.000000
 @3 hit - op=dash/strike[1] at=0.000000,0.900000,3.120000 r=1.000000 shape=sphere rad=1.000000
+@3 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=katana-iaido at=0.000000,0.900000,2.200000 ignoreinv=false ignorearmor=false
+@3 sound - op=dash/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=0.000000,0.810000,2.500000
 @3 frame windup/rig op=windup/rig pos=0.290000,1.360000,3.240000 rot=0.389091,-0.161167,-0.347091,0.837951
 @4 move - op=- to=0,0,4 yaw=- pitch=-
 @4 move - op=- add_velocity v=0.000000,0.000000,0.000000
@@ -354,6 +368,7 @@ r @16 run-end tail=11 | pose
 @4 particle - op=dash/trail_edge[2] type=electric_spark count=2 at=1.007255,2.077255,4.298858 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=391939465951041397
 @4 particle - op=dash/trail_arc[1] type=sweep_attack count=1 at=0.471055,1.541055,4.165149 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2818532937898123947
 @4 particle - op=dash/trail_arc[1] type=sweep_attack count=1 at=1.007255,2.077255,4.298858 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7770617502060736468
+@4 hit - op=dash/strike[2] at=0.000000,0.900000,3.120000 r=1.000000 shape=sphere rad=1.000000
 @4 hit - op=dash/strike[2] at=0.000000,0.900000,4.000000 r=1.000000 shape=sphere rad=1.000000
 @4 frame windup/rig op=windup/rig pos=0.290000,1.360000,4.120000 rot=0.353550,-0.146445,-0.353554,0.853555
 @5 write #0 op=windup/rig dur=0 pos=0.290000,1.360000,4.120000 rot=0.374771,-0.142934,-0.345077,0.848550 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,4.000000 ryaw=0.000000
@@ -473,9 +488,7 @@ r @16 run-end tail=11 | pose
 @2 particle - op=dash/trail_arc[0] type=sweep_attack count=1 at=0.007359,1.151777,0.524911 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6472251044548237415
 @2 particle - op=dash/trail_arc[0] type=sweep_attack count=1 at=-0.051780,1.512423,1.202655 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3817364647112012932
 @2 move - op=- to=-0.8024,0,1.0648 yaw=- pitch=-
-@2 hit - op=dash/strike[0] at=-0.802420,0.900000,1.064847 r=1.000000 shape=sphere rad=1.000000
-@2 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=katana-iaido at=-1.204538,0.900000,1.696589 ignoreinv=false ignorearmor=false
-@2 sound - op=dash/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=-1.504538,0.810000,1.996589
+@2 hit - op=dash/strike[0] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
 @2 frame windup/rig op=windup/rig pos=0.027328,1.030000,0.296063 rot=0.674085,-0.460373,-0.075473,0.572686
 @3 move - op=- to=-1.9687,0,2.6126 yaw=- pitch=-
 @3 write #0 op=windup/rig dur=0 pos=-1.809320,1.360000,2.882924 rot=0.479118,-0.418724,-0.205694,0.743509 scale=0.937500,0.937500,0.937500 bb=FIXED root=-1.968706,0.000000,2.612561 ryaw=37.000000
@@ -487,7 +500,13 @@ r @16 run-end tail=11 | pose
 @3 particle - op=dash/trail_edge[1] type=electric_spark count=2 at=-1.491746,1.913717,3.381567 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-534921892472234291
 @3 particle - op=dash/trail_edge[1] type=electric_spark count=2 at=-1.448619,1.988913,3.449284 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6699879920929012307
 @3 particle - op=dash/trail_edge[1] type=electric_spark count=2 at=-1.405492,2.064109,3.517001 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6121205728602291926
+@3 hit - op=dash/strike[1] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
+@3 hit - op=dash/strike[1] at=-0.492177,0.900000,0.653140 r=1.000000 shape=sphere rad=1.000000
+@3 hit - op=dash/strike[1] at=-0.984353,0.900000,1.306281 r=1.000000 shape=sphere rad=1.000000
+@3 hit - op=dash/strike[1] at=-1.476530,0.900000,1.959421 r=1.000000 shape=sphere rad=1.000000
 @3 hit - op=dash/strike[1] at=-1.968706,0.900000,2.612561 r=1.000000 shape=sphere rad=1.000000
+@3 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=katana-iaido at=-1.204538,0.900000,1.696589 ignoreinv=false ignorearmor=false
+@3 sound - op=dash/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=-1.504538,0.810000,1.996589
 @3 frame windup/rig op=windup/rig pos=-1.809320,1.360000,2.882924 rot=0.479118,-0.418724,-0.205694,0.743509
 @4 move - op=- to=-2.4073,0,3.1945 yaw=- pitch=-
 @4 move - op=- add_velocity v=0.000000,0.000000,0.000000
@@ -504,6 +523,7 @@ r @16 run-end tail=11 | pose
 @4 particle - op=dash/trail_edge[2] type=electric_spark count=2 at=-1.782687,2.077255,4.039402 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=391939465951041397
 @4 particle - op=dash/trail_arc[1] type=sweep_attack count=1 at=-2.130448,1.541055,3.609923 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2818532937898123947
 @4 particle - op=dash/trail_arc[1] type=sweep_attack count=1 at=-1.782687,2.077255,4.039402 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7770617502060736468
+@4 hit - op=dash/strike[2] at=-1.968706,0.900000,2.612561 r=1.000000 shape=sphere rad=1.000000
 @4 hit - op=dash/strike[2] at=-2.407260,0.900000,3.194542 r=1.000000 shape=sphere rad=1.000000
 @4 frame windup/rig op=windup/rig pos=-2.247874,1.360000,3.464905 rot=0.447464,-0.409714,-0.223101,0.762979
 @5 write #0 op=windup/rig dur=0 pos=-2.247874,1.360000,3.464905 rot=0.464899,-0.404797,-0.208328,0.759347 scale=0.937500,0.937500,0.937500 bb=FIXED root=-2.407260,0.000000,3.194542 ryaw=37.000000

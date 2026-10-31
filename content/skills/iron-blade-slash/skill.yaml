@@ -76,7 +76,7 @@ machine:
       enter:
         - id: swing
           op: hit
-          anchor: caster.eye
+          frame: blade
           at: 0
           shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
           targets: enemies

@@ -13,13 +13,15 @@
 @3 particle - op=charge/trail_fx[0] type=crit count=1 at=-0.490000,0.996589,1.208653 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5042120908789519422
 @3 particle - op=charge/trail_fx[0] type=crit count=1 at=-0.490000,0.974883,1.557979 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7452151984683344153
 @3 move - op=- to=0,0,1 yaw=- pitch=-
-@3 hit - op=charge/strike[0] at=0.000000,0.900000,1.000000 r=1.000000 shape=sphere rad=1.000000
+@3 hit - op=charge/strike[0] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
 @3 frame windup/rig op=windup/rig pos=-0.490000,1.040000,0.510000 rot=0.900907,0.000000,0.000000,0.434012
 @4 move - op=- to=0,0,1.88 yaw=- pitch=-
 @4 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @4 write #0 op=windup/rig dur=0 pos=-0.410000,1.140000,2.450000 rot=0.888793,0.000000,0.000000,0.458309 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,1.880000 ryaw=0.000000
 @4 particle - op=charge/trail_fx[1] type=crit count=1 at=-0.410000,1.134570,3.149979 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2353486763500355652
 @4 particle - op=charge/trail_fx[1] type=crit count=1 at=-0.410000,1.131855,3.499968 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4354711976998211401
+@4 hit - op=charge/strike[1] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
+@4 hit - op=charge/strike[1] at=0.000000,0.900000,0.940000 r=1.000000 shape=sphere rad=1.000000
 @4 hit - op=charge/strike[1] at=0.000000,0.900000,1.880000 r=1.000000 shape=sphere rad=1.000000
 @4 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=spear-charge at=0.000000,0.900000,2.200000 ignoreinv=false ignorearmor=false
 @4 sound - op=charge/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=0.000000,0.810000,2.500000
@@ -76,13 +78,15 @@ r @22 run-end tail=13 | pose
 @3 particle - op=charge/trail_fx[0] type=crit count=1 at=-1.118717,0.996589,0.670384 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5042120908789519422
 @3 particle - op=charge/trail_fx[0] type=crit count=1 at=-1.328947,0.974883,0.949368 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7452151984683344153
 @3 move - op=- to=-0.6018,0,0.7986 yaw=- pitch=-
-@3 hit - op=charge/strike[0] at=-0.601815,0.900000,0.798636 r=1.000000 shape=sphere rad=1.000000
+@3 hit - op=charge/strike[0] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
 @3 frame windup/rig op=windup/rig pos=-0.698257,1.040000,0.112415 rot=0.854351,-0.137714,0.285862,0.411584
 @4 move - op=- to=-1.0404,0,1.3806 yaw=- pitch=-
 @4 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @4 write #0 op=windup/rig dur=0 pos=-1.710844,1.140000,1.589094 rot=0.842864,-0.145423,0.282018,0.434625 scale=0.937500,0.937500,0.937500 bb=FIXED root=-1.040369,0.000000,1.380616 ryaw=37.000000
 @4 particle - op=charge/trail_fx[1] type=crit count=1 at=-2.132102,1.134570,2.148122 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2353486763500355652
 @4 particle - op=charge/trail_fx[1] type=crit count=1 at=-2.342731,1.131855,2.427636 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4354711976998211401
+@4 hit - op=charge/strike[1] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
+@4 hit - op=charge/strike[1] at=-0.520184,0.900000,0.690308 r=1.000000 shape=sphere rad=1.000000
 @4 hit - op=charge/strike[1] at=-1.040369,0.900000,1.380616 r=1.000000 shape=sphere rad=1.000000
 @4 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=spear-charge at=-1.204538,0.900000,1.696589 ignoreinv=false ignorearmor=false
 @4 sound - op=charge/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=-1.504538,0.810000,1.996589
@@ -139,13 +143,15 @@ r @22 run-end tail=13 | pose
 @3 particle - op=charge/trail_fx[0] type=crit count=1 at=-0.490000,0.996589,1.208653 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5042120908789519422
 @3 particle - op=charge/trail_fx[0] type=crit count=1 at=-0.490000,0.974883,1.557979 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7452151984683344153
 @3 move - op=- to=0,0,1 yaw=- pitch=-
-@3 hit - op=charge/strike[0] at=0.000000,0.900000,1.000000 r=1.000000 shape=sphere rad=1.000000
+@3 hit - op=charge/strike[0] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
 @3 frame windup/rig op=windup/rig pos=-0.490000,1.040000,0.510000 rot=0.900907,0.000000,0.000000,0.434012
 @4 move - op=- to=0,0,1.88 yaw=- pitch=-
 @4 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @4 write #0 op=windup/rig dur=0 pos=-0.410000,1.140000,2.450000 rot=0.888793,0.000000,0.000000,0.458309 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,1.880000 ryaw=0.000000
 @4 particle - op=charge/trail_fx[1] type=crit count=1 at=-0.410000,1.134570,3.149979 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2353486763500355652
 @4 particle - op=charge/trail_fx[1] type=crit count=1 at=-0.410000,1.131855,3.499968 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4354711976998211401
+@4 hit - op=charge/strike[1] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
+@4 hit - op=charge/strike[1] at=0.000000,0.900000,0.940000 r=1.000000 shape=sphere rad=1.000000
 @4 hit - op=charge/strike[1] at=0.000000,0.900000,1.880000 r=1.000000 shape=sphere rad=1.000000
 @4 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=spear-charge at=0.000000,0.900000,2.200000 ignoreinv=false ignorearmor=false
 @4 sound - op=charge/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=0.000000,0.810000,2.500000
@@ -203,13 +209,15 @@ r @22 run-end tail=13 | pose
 @3 particle - op=charge/trail_fx[0] type=crit count=1 at=-1.118717,0.996589,0.670384 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5042120908789519422
 @3 particle - op=charge/trail_fx[0] type=crit count=1 at=-1.328947,0.974883,0.949368 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7452151984683344153
 @3 move - op=- to=-0.6018,0,0.7986 yaw=- pitch=-
-@3 hit - op=charge/strike[0] at=-0.601815,0.900000,0.798636 r=1.000000 shape=sphere rad=1.000000
+@3 hit - op=charge/strike[0] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
 @3 frame windup/rig op=windup/rig pos=-0.698257,1.040000,0.112415 rot=0.854351,-0.137714,0.285862,0.411584
 @4 move - op=- to=-1.0404,0,1.3806 yaw=- pitch=-
 @4 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @4 write #0 op=windup/rig dur=0 pos=-1.710844,1.140000,1.589094 rot=0.842864,-0.145423,0.282018,0.434625 scale=0.937500,0.937500,0.937500 bb=FIXED root=-1.040369,0.000000,1.380616 ryaw=37.000000
 @4 particle - op=charge/trail_fx[1] type=crit count=1 at=-2.132102,1.134570,2.148122 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2353486763500355652
 @4 particle - op=charge/trail_fx[1] type=crit count=1 at=-2.342731,1.131855,2.427636 off=0.000000,0.000000,0.000000 speed=0.030000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4354711976998211401
+@4 hit - op=charge/strike[1] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
+@4 hit - op=charge/strike[1] at=-0.520184,0.900000,0.690308 r=1.000000 shape=sphere rad=1.000000
 @4 hit - op=charge/strike[1] at=-1.040369,0.900000,1.380616 r=1.000000 shape=sphere rad=1.000000
 @4 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=spear-charge at=-1.204538,0.900000,1.696589 ignoreinv=false ignorearmor=false
 @4 sound - op=charge/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=-1.504538,0.810000,1.996589

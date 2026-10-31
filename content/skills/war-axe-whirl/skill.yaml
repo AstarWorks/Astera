@@ -79,7 +79,7 @@ machine:
         - id: burst
           op: hit
           at: 0
-          anchor: caster
+          frame: body
           shape: {sphere: "${radius}"}
           targets: enemies
           ignore_invulnerability: false

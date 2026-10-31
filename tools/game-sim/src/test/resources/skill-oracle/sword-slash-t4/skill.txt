@@ -12,7 +12,8 @@
 @3 particle - op=strike/fx type=slash-sweep at=0.000000,1.400000,1.400000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5644417900271623658
 @3 particle - op=strike/trail_fx[0] type=crit count=1 at=0.268649,0.970293,0.938564 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5029667745381485919
 @3 particle - op=strike/trail_fx[0] type=crit count=1 at=0.538504,1.017875,1.282824 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9091538587112695831
-@3 hit - op=strike/swing at=0.000000,1.620000,0.000000 r=5.500000 shape=sector fwd=0.000000,0.000000,1.000000 left=1.000000,0.000000,0.000000 deg=100.000000 range=3.500000 height=2.000000
+@3 hit - op=strike/swing at=-0.860000,1.300000,0.190000 r=5.500000 shape=sector fwd=0.613306,0.108142,0.782407 left=0.787022,0.000000,-0.616924 deg=100.000000 range=3.500000 height=2.000000
+@3 hit - op=strike/swing at=-0.130000,0.900000,0.430000 r=5.500000 shape=sector fwd=0.613306,0.108142,0.782407 left=0.787022,0.000000,-0.616924 deg=100.000000 range=3.500000 height=2.000000
 @3 damage 00000000-0000-0000-0000-00000000000a op=- physical=82 skill=sword-slash-t4 at=0.000000,0.900000,2.500000 ignoreinv=false ignorearmor=false
 @3 sound - op=strike/swing.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=0.000000,0.810000,2.500000
 @3 particle - op=strike/swing.hit/fx_hit type=hit-spark at=0.000000,1.010000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=795394129615538271
@@ -61,7 +62,12 @@ r @14 run-end tail=9 | pose
 @3 particle - op=strike/fx type=slash-sweep at=-0.842541,1.400000,1.118090 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5644417900271623658
 @3 particle - op=strike/trail_fx[0] type=crit count=1 at=-0.350289,0.970293,0.911248 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5029667745381485919
 @3 particle - op=strike/trail_fx[0] type=crit count=1 at=-0.341954,1.017875,1.348588 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-9091538587112695831
-@3 hit - op=strike/swing at=0.000000,1.620000,0.000000 r=5.500000 shape=sector fwd=-0.565521,0.342020,0.750472 left=0.798636,0.000000,0.601815 deg=100.000000 range=3.500000 height=2.000000
+@3 hit - op=strike/swing at=-0.801171,1.300000,-0.365820 r=5.500000 shape=sector fwd=0.018944,0.108142,0.993955 left=0.999818,0.000000,-0.019056 deg=100.000000 range=3.500000 height=2.000000
+@3 hit - op=strike/swing at=-0.362603,0.900000,0.265177 r=5.500000 shape=sector fwd=0.018944,0.108142,0.993955 left=0.999818,0.000000,-0.019056 deg=100.000000 range=3.500000 height=2.000000
+@3 damage 00000000-0000-0000-0000-00000000000a op=- physical=82 skill=sword-slash-t4 at=-1.504538,0.900000,1.996589 ignoreinv=false ignorearmor=false
+@3 sound - op=strike/swing.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=-1.504538,0.810000,1.996589
+@3 particle - op=strike/swing.hit/fx_hit type=hit-spark at=-1.504538,1.010000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=795394129615538271
+@3 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.2407 y=0 z=0.3195
 @3 frame windup/rig op=windup/rig pos=-0.362603,0.900000,0.265177 rot=0.646250,-0.594666,-0.277545,0.389488
 @4 write #0 op=windup/rig dur=0 pos=-0.038645,0.950000,0.283913 rot=0.492786,-0.478636,-0.448962,0.571404 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @4 particle - op=strike/trail_fx[1] type=crit count=1 at=0.352266,1.058930,0.791675 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5402295010212734757
@@ -70,7 +76,6 @@ r @14 run-end tail=9 | pose
 @5 write #0 op=windup/rig dur=0 pos=-0.038645,0.950000,0.283913 rot=0.466435,-0.457838,-0.470153,0.593110 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @5 particle - op=strike/trail_fx[2] type=crit count=1 at=0.396887,1.061157,0.753440 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8917243270585824285
 @5 particle - op=strike/trail_fx[2] type=crit count=1 at=0.691709,1.136401,1.071274 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7647501890830048648
-@5 sound - op=strike/swing.miss/snd_miss sound=astera:weapons/blade-miss cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
 @5 frame windup/rig op=windup/rig pos=-0.038645,0.950000,0.283913 rot=0.466435,-0.457838,-0.470153,0.593110
 @6 write #0 op=windup/rig dur=0 pos=-0.078577,0.900000,0.253822 rot=0.498660,-0.450291,-0.437489,0.597645 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @6 particle - op=strike/trail_fx[3] type=crit count=1 at=0.324070,1.039160,0.744750 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8255687326632756182
@@ -107,7 +112,8 @@ r @14 run-end tail=9 | pose
 @3 particle - op=strike/fx type=slash-sweep at=0.000000,1.400000,1.400000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5644417900271623658
 @3 particle - op=strike/trail_fx[0] type=crit count=1 at=0.268649,0.970293,0.938564 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5029667745381485919
 @3 particle - op=strike/trail_fx[0] type=crit count=1 at=0.538504,1.017875,1.282824 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9091538587112695831
-@3 hit - op=strike/swing at=0.000000,1.620000,0.000000 r=5.500000 shape=sector fwd=0.000000,0.000000,1.000000 left=1.000000,0.000000,0.000000 deg=100.000000 range=3.500000 height=2.000000
+@3 hit - op=strike/swing at=-0.860000,1.300000,0.190000 r=5.500000 shape=sector fwd=0.613306,0.108142,0.782407 left=0.787022,0.000000,-0.616924 deg=100.000000 range=3.500000 height=2.000000
+@3 hit - op=strike/swing at=-0.130000,0.900000,0.430000 r=5.500000 shape=sector fwd=0.613306,0.108142,0.782407 left=0.787022,0.000000,-0.616924 deg=100.000000 range=3.500000 height=2.000000
 @3 damage 00000000-0000-0000-0000-00000000000a op=- physical=82 skill=sword-slash-t4 at=0.000000,0.900000,2.500000 ignoreinv=false ignorearmor=false
 @3 sound - op=strike/swing.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=0.000000,0.810000,2.500000
 @3 particle - op=strike/swing.hit/fx_hit type=hit-spark at=0.000000,1.010000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=795394129615538271
@@ -157,7 +163,8 @@ r @14 run-end tail=9 | pose
 @3 particle - op=strike/fx type=slash-sweep at=-0.842541,1.400000,1.118090 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5644417900271623658
 @3 particle - op=strike/trail_fx[0] type=crit count=1 at=-0.350289,0.970293,0.911248 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5029667745381485919
 @3 particle - op=strike/trail_fx[0] type=crit count=1 at=-0.341954,1.017875,1.348588 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-9091538587112695831
-@3 hit - op=strike/swing at=0.000000,1.620000,0.000000 r=5.500000 shape=sector fwd=-0.601815,0.000000,0.798636 left=0.798636,0.000000,0.601815 deg=100.000000 range=3.500000 height=2.000000
+@3 hit - op=strike/swing at=-0.801171,1.300000,-0.365820 r=5.500000 shape=sector fwd=0.018944,0.108142,0.993955 left=0.999818,0.000000,-0.019056 deg=100.000000 range=3.500000 height=2.000000
+@3 hit - op=strike/swing at=-0.362603,0.900000,0.265177 r=5.500000 shape=sector fwd=0.018944,0.108142,0.993955 left=0.999818,0.000000,-0.019056 deg=100.000000 range=3.500000 height=2.000000
 @3 damage 00000000-0000-0000-0000-00000000000a op=- physical=82 skill=sword-slash-t4 at=-1.504538,0.900000,1.996589 ignoreinv=false ignorearmor=false
 @3 sound - op=strike/swing.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=1 pitch=1 at=-1.504538,0.810000,1.996589
 @3 particle - op=strike/swing.hit/fx_hit type=hit-spark at=-1.504538,1.010000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=795394129615538271

@@ -83,7 +83,8 @@ machine:
           at: 0
           every: 1
           for: "${ticks}"
-          anchor: caster.body
+          frame: body
+          pos: {w: 0.9}
           shape: {sphere: 1.0}
           targets: enemies
           ignore_invulnerability: false

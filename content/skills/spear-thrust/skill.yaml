@@ -75,7 +75,7 @@ machine:
         - id: swing
           op: hit
           at: 0
-          anchor: caster.eye
+          frame: blade
           shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
           targets: enemies
           ignore_invulnerability: false

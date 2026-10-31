@@ -41,7 +41,7 @@ machine:
         - {id: snd_crack, op: sound, sound: "astera:weapons/blade-crit", frame: body, pos: {v: 1.6, w: 0.15}, volume: 0.8, pitch: 0.55}
         - id: burst
           op: hit
-          anchor: caster
+          frame: body
           at: 0
           shape: {sphere: "${radius}"}
           targets: enemies

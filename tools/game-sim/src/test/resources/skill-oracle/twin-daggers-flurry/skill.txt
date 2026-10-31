@@ -17,7 +17,12 @@
 @2 particle - op=strike/fx type=stab-spark at=0.000000,1.420000,1.600000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8707341773979918163
 @2 particle - op=strike/trail_fx[0] type=crit count=1 at=0.102323,0.832728,0.615363 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5978775374917354656
 @2 particle - op=strike/trail_fx[0] type=crit count=1 at=0.235600,0.856228,0.788813 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1177913823287622648
-@2 hit - op=strike/swing at=0.000000,1.620000,0.000000 r=4.500000 shape=sector fwd=0.000000,0.000000,1.000000 left=1.000000,0.000000,0.000000 deg=70.000000 range=2.500000 height=2.000000
+@2 hit - op=strike/swing at=-0.860000,1.110000,0.030000 r=4.500000 shape=sector fwd=0.605806,0.106820,0.788409 left=0.792946,0.000000,-0.609293 deg=70.000000 range=2.500000 height=2.000000
+@2 hit - op=strike/swing at=-0.140000,0.790000,0.300000 r=4.500000 shape=sector fwd=0.605806,0.106820,0.788409 left=0.792946,0.000000,-0.609293 deg=70.000000 range=2.500000 height=2.000000
+@2 damage 00000000-0000-0000-0000-00000000000a op=- physical=18 skill=twin-daggers-flurry at=0.000000,0.900000,2.500000 ignoreinv=false ignorearmor=false
+@2 sound - op=strike/swing.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1.2 at=0.000000,0.810000,2.500000
+@2 particle - op=strike/swing.hit/fx_hit type=hit-spark at=0.000000,1.010000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2848877350036165882
+@2 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0 z=0.1
 @2 frame windup/rig op=windup/rig pos=-0.140000,0.790000,0.300000 rot=0.527487,-0.442615,-0.466120,0.555501
 @2 frame windup/rig_off op=windup/rig_off pos=0.030000,0.830000,0.290000 rot=0.527487,0.442615,0.466120,0.555501
 @3 write #0 op=windup/rig dur=0 pos=0.150000,0.950000,0.200000 rot=0.351519,-0.294960,-0.571117,0.680631 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
@@ -90,7 +95,12 @@ r @12 run-end tail=9 | pose
 @2 particle - op=strike/fx type=stab-spark at=-0.962904,1.420000,1.277817 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8707341773979918163
 @2 particle - op=strike/trail_fx[0] type=crit count=1 at=-0.288617,0.832728,0.553030 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5978775374917354656
 @2 particle - op=strike/trail_fx[0] type=crit count=1 at=-0.286561,0.856228,0.771762 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1177913823287622648
-@2 hit - op=strike/swing at=0.000000,1.620000,0.000000 r=4.500000 shape=sector fwd=-0.565521,0.342020,0.750472 left=0.798636,0.000000,0.601815 deg=70.000000 range=2.500000 height=2.000000
+@2 hit - op=strike/swing at=-0.704881,1.110000,-0.493602 r=4.500000 shape=sector fwd=0.009342,0.106820,0.994234 left=0.999956,0.000000,-0.009396 deg=70.000000 range=2.500000 height=2.000000
+@2 hit - op=strike/swing at=-0.292353,0.790000,0.155337 r=4.500000 shape=sector fwd=0.009342,0.106820,0.994234 left=0.999956,0.000000,-0.009396 deg=70.000000 range=2.500000 height=2.000000
+@2 damage 00000000-0000-0000-0000-00000000000a op=- physical=18 skill=twin-daggers-flurry at=-1.504538,0.900000,1.996589 ignoreinv=false ignorearmor=false
+@2 sound - op=strike/swing.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1.2 at=-1.504538,0.810000,1.996589
+@2 particle - op=strike/swing.hit/fx_hit type=hit-spark at=-1.504538,1.010000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2848877350036165882
+@2 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.0602 y=0 z=0.0799
 @2 frame windup/rig op=windup/rig pos=-0.292353,0.790000,0.155337 rot=0.648131,-0.596005,-0.274659,0.386351
 @2 frame windup/rig_off op=windup/rig_off pos=-0.150567,0.830000,0.249659 rot=0.352327,0.243479,0.609407,0.667238
 @3 write #0 op=windup/rig dur=0 pos=-0.000568,0.950000,0.249999 rot=0.514572,-0.495684,-0.430065,0.551866 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
@@ -163,7 +173,12 @@ r @12 run-end tail=9 | pose
 @2 particle - op=strike/fx type=stab-spark at=0.000000,1.420000,1.600000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8707341773979918163
 @2 particle - op=strike/trail_fx[0] type=crit count=1 at=0.102323,0.832728,0.615363 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5978775374917354656
 @2 particle - op=strike/trail_fx[0] type=crit count=1 at=0.235600,0.856228,0.788813 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1177913823287622648
-@2 hit - op=strike/swing at=0.000000,1.620000,0.000000 r=4.500000 shape=sector fwd=0.000000,0.000000,1.000000 left=1.000000,0.000000,0.000000 deg=70.000000 range=2.500000 height=2.000000
+@2 hit - op=strike/swing at=-0.860000,1.110000,0.030000 r=4.500000 shape=sector fwd=0.605806,0.106820,0.788409 left=0.792946,0.000000,-0.609293 deg=70.000000 range=2.500000 height=2.000000
+@2 hit - op=strike/swing at=-0.140000,0.790000,0.300000 r=4.500000 shape=sector fwd=0.605806,0.106820,0.788409 left=0.792946,0.000000,-0.609293 deg=70.000000 range=2.500000 height=2.000000
+@2 damage 00000000-0000-0000-0000-00000000000a op=- physical=18 skill=twin-daggers-flurry at=0.000000,0.900000,2.500000 ignoreinv=false ignorearmor=false
+@2 sound - op=strike/swing.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1.2 at=0.000000,0.810000,2.500000
+@2 particle - op=strike/swing.hit/fx_hit type=hit-spark at=0.000000,1.010000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2848877350036165882
+@2 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0 z=0.1
 @2 frame windup/rig op=windup/rig pos=-0.140000,0.790000,0.300000 rot=0.527487,-0.442615,-0.466120,0.555501
 @2 frame windup/rig_off op=windup/rig_off pos=0.030000,0.830000,0.290000 rot=0.527487,0.442615,0.466120,0.555501
 @3 write #0 op=windup/rig dur=0 pos=0.150000,0.950000,0.200000 rot=0.351519,-0.294960,-0.571117,0.680631 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
@@ -237,7 +252,12 @@ r @12 run-end tail=9 | pose
 @2 particle - op=strike/fx type=stab-spark at=-0.962904,1.420000,1.277817 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8707341773979918163
 @2 particle - op=strike/trail_fx[0] type=crit count=1 at=-0.288617,0.832728,0.553030 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5978775374917354656
 @2 particle - op=strike/trail_fx[0] type=crit count=1 at=-0.286561,0.856228,0.771762 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1177913823287622648
-@2 hit - op=strike/swing at=0.000000,1.620000,0.000000 r=4.500000 shape=sector fwd=-0.601815,0.000000,0.798636 left=0.798636,0.000000,0.601815 deg=70.000000 range=2.500000 height=2.000000
+@2 hit - op=strike/swing at=-0.704881,1.110000,-0.493602 r=4.500000 shape=sector fwd=0.009342,0.106820,0.994234 left=0.999956,0.000000,-0.009396 deg=70.000000 range=2.500000 height=2.000000
+@2 hit - op=strike/swing at=-0.292353,0.790000,0.155337 r=4.500000 shape=sector fwd=0.009342,0.106820,0.994234 left=0.999956,0.000000,-0.009396 deg=70.000000 range=2.500000 height=2.000000
+@2 damage 00000000-0000-0000-0000-00000000000a op=- physical=18 skill=twin-daggers-flurry at=-1.504538,0.900000,1.996589 ignoreinv=false ignorearmor=false
+@2 sound - op=strike/swing.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1.2 at=-1.504538,0.810000,1.996589
+@2 particle - op=strike/swing.hit/fx_hit type=hit-spark at=-1.504538,1.010000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2848877350036165882
+@2 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.0602 y=0 z=0.0799
 @2 frame windup/rig op=windup/rig pos=-0.292353,0.790000,0.155337 rot=0.648131,-0.596005,-0.274659,0.386351
 @2 frame windup/rig_off op=windup/rig_off pos=-0.150567,0.830000,0.249659 rot=0.352327,0.243479,0.609407,0.667238
 @3 write #0 op=windup/rig dur=0 pos=-0.000568,0.950000,0.249999 rot=0.514572,-0.495684,-0.430065,0.551866 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
