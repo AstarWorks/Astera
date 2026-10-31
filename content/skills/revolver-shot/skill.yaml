@@ -1,4 +1,4 @@
-# revolver-shot: slow heavy bullet. The state lasts exactly the flight (life) and also ends on the body end.
+# revolver-shot: slow heavy bullet. Visuals only: muzzle flash, crit + smoke trail, hit spark. No 3D.
 apiVersion: astera/v3
 kind: Skill
 id: revolver-shot
@@ -15,8 +15,14 @@ params:
   life:  {type: ticks, default: 40}
 anchors:
   - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.45, left: -0.35, up: -0.65}, mode: snapshot}  # gun position: right of the eye, below it, so the FP tracer runs from the held item to the crosshair
+  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.7, left: -0.3, up: -0.3}, mode: snapshot}  # barrel of the held gun: right of and below the crosshair, so the flash reads at the gun, not on the target
   - {id: heart,  anchor: victim.center, mode: follow}
+fragments:
+  impact:   # a small bright spark and a little dust; the target stays visible
+    frames_in: {spot: anchor}
+    do:
+      - {id: spark, op: particle, particle: dust, anchor: spot, count: 4, offset: [0.06, 0.06, 0.06], color: "#ffd060", size: 0.45}
+      - {id: dust, op: particle, particle: dust, anchor: spot, count: 3, offset: [0.12, 0.12, 0.12], color: "#8c8c8c", size: 0.6}
 machine:
   start: fire
   tail: 4
@@ -39,18 +45,12 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: tracer_h, use: skill:gun-tracer, with: {thickness: 0.12}, frames: {muzzle: muzzle, tip: contact}}
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg}"}}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact.point, volume: 0.8, pitch: 1.0, detach: true}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", anchor: contact.point, volume: 0.8, detach: true}
+              - {id: fx_hit, op: use, use: "fragment:impact", frames: {spot: heart}, detach: true}
             block:
-              - {id: tracer_b, use: skill:gun-tracer, with: {thickness: 0.12}, frames: {muzzle: muzzle, tip: contact}}
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5, detach: true}
-              - {id: fx_blk0, op: particle_def, def: hit-spark, anchor: contact, detach: true}
-            expire:
-              - {id: tracer_e, use: skill:gun-tracer, with: {thickness: 0.12}, frames: {muzzle: muzzle, tip: contact}}
-        # the visible round, riding the body
-        - {id: slug, op: display, kind: item, item: "minecraft:gold_nugget", context: fixed, anchor: bolt, scale: [0.6, 0.6, 0.6], at: 0, until: bolt.end}
-        - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], at: 2, every: 1, until: bolt.end}
-        - {id: trail1, op: particle_def, def: smoke-dark, anchor: bolt, at: 2, every: 1, until: bolt.end}
+              - {id: fx_blk, op: use, use: "fragment:impact", frames: {spot: contact}, detach: true}
+        - {id: trail0, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.02, 0.02, 0.02], color: "#ffe9a8", size: 0.3, at: 2, every: 1, until: bolt.end}
+        - {id: trail1, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], color: "#9a9a9a", size: 0.35, at: 2, every: 1, until: bolt.end}
     end: {final: true}
