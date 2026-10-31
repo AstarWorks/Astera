@@ -3,7 +3,7 @@
 # is only read by the docker CLI inside the runner.
 services:
   e2e:
-    mem_limit: 3g
+    mem_limit: 2500m
     oom_score_adj: 500
   e2e-resource-pack:
     mem_limit: 128m

@@ -626,8 +626,8 @@ version:5023
 fov:${FOV_OPT:-0.0}
 fovEffectScale:${FOV_EFFECT_SCALE:-1.0}
 bobView:false
-renderDistance:$RENDER_DISTANCE
-simulationDistance:6
+renderDistance:$([ "$name" = Caster ] && echo "${SHOT_DUMMY_RENDER:-2}" || echo "$RENDER_DISTANCE")
+simulationDistance:${SHOT_CLIENT_SIM:-4}
 particles:0
 guiScale:$GUI_SCALE
 chatVisibility:2
@@ -653,7 +653,7 @@ EOF
   python3 -I "$HERE/mkzip.py" "$HERE/overlay-pack" "$wd/resourcepacks/astera-shot-fix.zip"
 }
 
-client_sig() { echo "$1x$2 fov=${FOV_OPT:-0.0} rd=$RENDER_DISTANCE gui=$GUI_SCALE ip=$SERVER_IP sound=${SHOT_SOUND_VOLUME:-0.0} fps=${SHOT_MAX_FPS:-60} pulse=${SHOT_PULSE_PREFIX:-}"; }
+client_sig() { echo "$1x$2 fov=${FOV_OPT:-0.0} rd=$RENDER_DISTANCE sim=${SHOT_CLIENT_SIM:-4} dr=${SHOT_DUMMY_RENDER:-2} gui=$GUI_SCALE ip=$SERVER_IP sound=${SHOT_SOUND_VOLUME:-0.0} fps=${SHOT_MAX_FPS:-60} pulse=${SHOT_PULSE_PREFIX:-}"; }
 
 save_client() { # name sig
   printf 'CPID=%s\nXPID=%s\nDISPLAY_NUM=%s\nSIG=%s\n' "${CPID[$1]}" "${XPID[$1]}" "${DISP[$1]}" "$2" > "$STATE/clients/$1.env"
@@ -690,7 +690,7 @@ start_client() { # name width height
   VFX_SHOT_STATE="$STATE" DBUS_SESSION_BUS_ADDRESS="disabled:" NO_AT_BRIDGE=1 \
   DISPLAY=":$d" LIBGL_ALWAYS_SOFTWARE=1 LP_NUM_THREADS="${LP_NUM_THREADS:-4}" XDG_RUNTIME_DIR="$wd" \
     setsid env "${audio_env[@]}" "$VENV/bin/portablemc" --main-dir "$MCDIR" start "$MC_VERSION" --mc-dir "$wd" -u "$name" \
-    "--jvm-arg=-Xmx${SHOT_CLIENT_XMX:-1536m}" "--jvm-arg=-Xms256m" \
+    "--jvm-arg=-Xmx$([ "$name" = Caster ] && echo "${SHOT_DUMMY_XMX:-512m}" || echo "${SHOT_CLIENT_XMX:-1024m}")" "--jvm-arg=-Xms128m" \
     --join-server "$SERVER_IP" --join-server-port 25565 --resolution "${w}x${h}" \
     >"$wd/client.log" 2>&1 {STACK_LOCK_FD}>&- {SLOT_FD}>&- &
   CPID[$name]=$!
@@ -727,6 +727,33 @@ wait_client_ready() { # name
   if grep -q 'Missing textures in model astera:generated/items/' "$wd/client.log"; then
     log "WARN: $name still reports missing Astera item textures (check the overlay pack)"
   fi
+}
+
+# The second player of a single-view shot (the one that stands in the arena and casts) never has to be drawn. SHOT_CASTER=bot
+# (default) joins it as a protocol bot (tools/bot-runner vfxshot.CasterBotMain, ~150 MB); SHOT_CASTER=client starts a real
+# 480x270 client as before (~2 GB resident). The bot carries VFX_SHOT_STATE like every client, so the reaper removes it.
+CASTER_BUILT=0
+ensure_caster() {
+  if [ "${SHOT_CASTER:-bot}" = client ]; then ensure_client "Caster" 480 270; return 0; fi
+  local lib="$ROOT/tools/bot-runner/build/install/bot-runner/lib" i
+  if grep -qw -- Caster <<<"$(rcon list 2>/dev/null)"; then log "caster bot: joined, reusing"; return 0; fi
+  if [ "$CASTER_BUILT" = 0 ]; then
+    phase "gradle installDist (caster bot)"
+    (cd "$ROOT" && ./gradlew -q :tools:bot-runner:installDist >"$STATE/gradle-bot.log" 2>&1 {STACK_LOCK_FD}>&- {SLOT_FD}>&-) \
+      || { tail -30 "$STATE/gradle-bot.log" >&2; die "caster bot build failed"; }
+    CASTER_BUILT=1
+  fi
+  mkdir -p "$CLIENTS/Caster"
+  : > "$CLIENTS/Caster/bot.log"
+  VFX_SHOT_STATE="$STATE" setsid java -Xmx128m -Xms32m -XX:+UseSerialGC -cp "$lib/*" com.astarworks.astera.vfxshot.CasterBotMainKt \
+    Caster "$SERVER_IP" 25565 >"$CLIENTS/Caster/bot.log" 2>&1 {STACK_LOCK_FD}>&- {SLOT_FD}>&- < /dev/null &
+  for i in $(seq 1 60); do
+    grep -qw -- Caster <<<"$(rcon list 2>/dev/null)" && break
+    sleep 1
+  done
+  grep -qw -- Caster <<<"$(rcon list 2>/dev/null)" || { tail -20 "$CLIENTS/Caster/bot.log" >&2; die "caster bot never joined"; }
+  log "caster bot joined"
+  CLIENT_STARTED=1
 }
 
 pack_reloads() { grep -c 'Reloading ResourceManager:.*server/' "$CLIENTS/$1/client.log" 2>/dev/null || echo 0; }
@@ -1159,7 +1186,7 @@ prepare_view() {
   fi
   ensure_client "$VIEWER" "$W" "$H"
   # one at a time: Paper's connection throttle (4 s per address) drops a second simultaneous login
-  if [ "$DUMMY_CASTER" = 1 ]; then ensure_client "Caster" 480 270; fi
+  if [ "$DUMMY_CASTER" = 1 ]; then ensure_caster; fi
   # the lobby plugin keeps relocating freshly joined players for a few seconds: let it finish, then
   # place the scene and re-place until everybody has stayed in the overworld
   local settle="$SETTLE"
@@ -1246,7 +1273,7 @@ print_status() {
   state="$(docker inspect -f '{{.State.Status}} since {{.State.StartedAt}}' "$SERVER_CT" 2>/dev/null || echo 'absent')"
   echo "stack      $PROJECT ($ROOT)"
   echo "server     $state${SUBNET:+, $SUBNET.0/24}"
-  echo "memory     $(mem_available_gb) GB available (guard: SHOT_MIN_FREE_GB=${SHOT_MIN_FREE_GB:-8})"
+  echo "memory     $(mem_available_gb) GB available (guard: SHOT_MIN_FREE_GB=${SHOT_MIN_FREE_GB:-6})"
   if [ "$have_sub" = 1 ] && [ -s "$STATE/deployed.json" ]; then
     read_inputs
     echo "content    deployed $(dget contentSourceHash) / working tree $IN_CONTENT  $([ "$(dget contentSourceHash)" = "$IN_CONTENT" ] && echo fresh || echo STALE)  (container hash $(dget deployedContentHash), verified $(dget contentVerified))"

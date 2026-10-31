@@ -73,12 +73,13 @@ with_global_lock() {
 }
 
 # Memory guard (replaces "wrap every capture in the e2e flock"): the e2e lock exists because of host OOM, not because
-# capture stacks share anything with e2e. A warm stack is ~6-7 GB resident (2 GB server heap + 2 clients), so refuse
-# to start a server or a client while the host has less than SHOT_MIN_FREE_GB (default 8) available.
+# capture stacks share anything with e2e. A lean single-view stack peaks at ~5.3 GB (measured: server container 1.8 GB + one real client with Xvfb/ffmpeg 2.8-3.4 GB;
+# the caster is a ~150 MB protocol bot), so refuse to start a server or a client while the host has less than SHOT_MIN_FREE_GB
+# (default 6) available.
 mem_available_gb() { awk '/^MemAvailable:/ {printf "%d", $2 / 1048576}' /proc/meminfo; }
 
 memory_guard() { # <what>
-  local need="${SHOT_MIN_FREE_GB:-8}" wait="${SHOT_MEM_WAIT:-900}" deadline announced=0 have
+  local need="${SHOT_MIN_FREE_GB:-6}" wait="${SHOT_MEM_WAIT:-900}" deadline announced=0 have
   deadline=$((SECONDS + wait))
   while :; do
     have="$(mem_available_gb)"

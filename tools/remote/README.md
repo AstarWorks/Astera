@@ -29,7 +29,7 @@ make vfx-shot SKILL=... | anim-shot | vfx-shot-status|down|reap | build | check 
 
 Env vars named by `--env NAME|PREFIX*` are forwarded (vfx knobs `VIEW CASE TICKS ... SHOT_*`; `SHOT_CACHE/LOCK/REGISTRY/SLOT_DIR`
 are host paths and dropped). The remote vfx defaults live in one block in `remote-exec.sh`: `SHOT_KEEP=0`, `SHOT_MIN_FREE_GB=3`,
-`SHOT_CLIENT_XMX=1024m`, `LP_NUM_THREADS=3`, `SHOT_REAP_SCOPE=host`, `SHOT_COMPOSE_EXTRA` (caller values win except SHOT_KEEP).
+`SHOT_CLIENT_XMX=1024m` (the caster is a protocol bot, see tools/vfx-shot/README.md), `LP_NUM_THREADS=3`, `SHOT_REAP_SCOPE=host`, `SHOT_COMPOSE_EXTRA` (caller values win except SHOT_KEEP).
 
 `tools/remote/run.sh --dry-run ...` prints the planned git/rsync/ssh commands and the env file without connecting.
 
