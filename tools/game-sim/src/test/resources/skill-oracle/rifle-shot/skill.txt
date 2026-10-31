@@ -161,8 +161,8 @@ g @1 dropped reason=owner-exited:fire | sub=fire/bolt.end
 g @1 cast-end | pose
 r @11 run-end tail=10 | pose
 ## gameplay-static
-g @0..41 cast-length | cast
-g @41 state-end then=end final=false | state=fire
+g @0..40 cast-length | cast
+g @40 state-end then=end final=false | state=fire
 g @0 state-end then=- final=true | state=end
 g.absorbed @1..40 handler max=1 | sub=fire/bolt.absorbed
 g.block @1..40 handler max=1 | sub=fire/bolt.block
