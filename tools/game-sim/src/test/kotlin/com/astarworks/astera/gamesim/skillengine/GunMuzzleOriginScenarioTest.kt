@@ -14,17 +14,17 @@ import org.junit.jupiter.api.Test
  * caster stands at the origin, eye 1.62 up, looking along +z.
  */
 class GunMuzzleOriginScenarioTest : SkillEngineScenario() {
-    /** skill -> (flash op id, smoke op id or null, has a projectile body named bolt). The shotgun is hitscan and its cone smoke is a cone, not the muzzle. */
+    /** skill -> (flash particle type, smoke particle type or null, has a projectile body named bolt). The shotgun is hitscan and its cone smoke is a cone, not the muzzle. */
     private val guns = mapOf(
-        "revolver-shot" to Triple("flash", null, true),
-        "pistol-shot" to Triple("flash", "smoke", true),
-        "pistol-shot-t2" to Triple("flash", "smoke", true),
-        "pistol-shot-t3" to Triple("flash", "smoke", true),
-        "pistol-shot-t4" to Triple("flash", "smoke", true),
-        "smg-burst" to Triple("flash", null, true),
-        "rifle-shot" to Triple("flash", "smoke", true),
-        "sniper-shot" to Triple("flash", null, true),
-        "shotgun-blast" to Triple("fx", null, false),
+        "revolver-shot" to Triple("gun-muzzle-flash", null, true),
+        "pistol-shot" to Triple("gun-muzzle-flash", "gun-muzzle-smoke", true),
+        "pistol-shot-t2" to Triple("gun-muzzle-flash", "gun-muzzle-smoke", true),
+        "pistol-shot-t3" to Triple("gun-muzzle-flash", "gun-muzzle-smoke", true),
+        "pistol-shot-t4" to Triple("gun-muzzle-flash", "gun-muzzle-smoke", true),
+        "smg-burst" to Triple("gun-muzzle-flash", null, true),
+        "rifle-shot" to Triple("gun-muzzle-flash", "gun-muzzle-smoke", true),
+        "sniper-shot" to Triple("gun-muzzle-flash", null, true),
+        "shotgun-blast" to Triple("shotgun-muzzle", null, false),
     )
 
     private fun shipped(id: String): CompiledSkill {
@@ -62,15 +62,15 @@ class GunMuzzleOriginScenarioTest : SkillEngineScenario() {
             play(shipped(skill), seed = 1L, events = emptyList(), ticks = 4, rec = rec)
             val rows = rec.oracleRows.filter { it.tick == 0 }.map { "${it.verb} ${it.instance} ${it.payload} ${it.detail}" }
 
-            val flash = firstAt(rows, Regex("""^particle \S+ op=\S*/$flashId type=\S+ at=($triple)""")) ?: error("$skill: no muzzle flash at tick 0: $rows")
-            val grip = firstAt(rows, Regex("""^frame \S+ op=\S*/rig pos=($triple)""")) ?: error("$skill: no rig frame at tick 0: $rows")
+            val flash = firstAt(rows, Regex("""^particle \S+ +type=$flashId at=($triple)""")) ?: error("$skill: no muzzle flash at tick 0: $rows")
+            val grip = firstAt(rows, Regex("""^frame \S*/rig +pos=($triple)""")) ?: error("$skill: no rig frame at tick 0: $rows")
 
             if (smokeId != null) {
-                val smoke = firstAt(rows, Regex("""^particle \S+ op=\S*/$smokeId type=\S+ at=($triple)""")) ?: error("$skill: no muzzle smoke at tick 0")
+                val smoke = firstAt(rows, Regex("""^particle \S+ +type=$smokeId at=($triple)""")) ?: error("$skill: no muzzle smoke at tick 0")
                 assertThat((smoke - flash).length()).describedAs("$skill smoke vs flash").isLessThanOrEqualTo(0.05)
             }
             if (hasBolt) {
-                val bolt = firstAt(rows, Regex("""^frame \S+ op=\S*/bolt pos=($triple)""")) ?: error("$skill: no bolt spawn at tick 0")
+                val bolt = firstAt(rows, Regex("""^frame \S*/bolt +pos=($triple)""")) ?: error("$skill: no bolt spawn at tick 0")
                 assertThat((bolt - flash).length()).describedAs("$skill bolt $bolt vs flash $flash").isLessThanOrEqualTo(0.05)
             }
 
