@@ -7,6 +7,7 @@ import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
 import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
@@ -110,8 +111,15 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
 
     private val of = Field.optional("of", Types.nullable(Types.id), null, "trail: tip anchor whose history is drawn")
     private val root = Field.optional("root", Types.nullable(Types.id), null, "trail: second anchor the ribbon fans out from")
-    private val from = Field.optional("from", Types.nullable(Types.id), null, "line: start anchor (a frame instance, or a live name: caster.eye, victim.center, from.center, a document anchor)")
-    private val to = Field.optional("to", Types.nullable(Types.id), null, "line: end anchor (as from)")
+    /** A line end: an anchor name, or a `{frame, pos}` point of a declared frame (ADR-0314), kept as its `frame:<id>#v,w,s` cell text. */
+    private val lineEndType: FieldType<String> = object : FieldType<String> {
+        override val label = "anchor name or {frame: <id>, pos: {v, w, s}}"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): String =
+            if (raw is Map<*, *>) FrameRefs.cellOf(FrameRefs.POINT.decode(raw, ctx, path)) else Types.id.decode(raw, ctx, path)
+        override fun schema(): Map<String, Any?> = linkedMapOf("oneOf" to listOf(Types.id.schema(), FrameRefs.POINT.schema()))
+    }
+    private val from = Field.optional("from", Types.nullable(lineEndType), null, "line: start anchor (a frame instance, or a live name: caster.eye, victim.center, from.center, a document anchor), or {frame, pos: {v, w, s}} of a declared frame")
+    private val to = Field.optional("to", Types.nullable(lineEndType), null, "line: end anchor (as from)")
     private val thickness = Field.optional("thickness", Types.nullable(Types.number), null, "line: bar thickness in blocks")
     private val segments = Field.optional("segments", Types.nullable(Types.number), null, "line: pieces of the polyline, a literal whole number 1..24 (absent = 1, a straight thread)")
     private val jitter = Field.optional("jitter", Types.nullable(rawMap), null, "line: {spread, along?, every?, follow?} displacement of the inner vertices of a polyline (needs segments >= 2)")
@@ -267,6 +275,8 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
      * The instance is null for a live name; the cell is what the player reads each tick.
      */
     private fun lineEnd(text: String, k: Int, lc: LowerContext, path: String): Result<Pair<InstanceId?, String>, SkillDecodeError> {
+        // a frame point (ADR-0314): the cell is read from the per-tick frame table every tick, no instance
+        if (text.startsWith(FrameRefs.PREFIX)) return Result.Success(null to text)
         anchorOf(text, k, lc, path).let {
             if (it is Result.Success) {
                 // a name a call bound is the caller's frame, which may be a builtin or a document anchor as well as an instance: the bare name answers all three
@@ -329,7 +339,7 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
                 is RibbonShape.Line -> {
                     val a = when (val r = lineEnd(s.from, k, lc, "$p.from")) { is Result.Success -> r.value; is Result.Failure -> return r }
                     val b = when (val r = lineEnd(s.to, k, lc, "$p.to")) { is Result.Success -> r.value; is Result.Failure -> return r }
-                    tipAnchor = a.first; tipName = AnchorNames.host(lc.anchors, s.from.replace("[i]", "[$k]"))
+                    tipAnchor = a.first; tipName = if (s.from.startsWith(FrameRefs.PREFIX)) "" else AnchorNames.host(lc.anchors, s.from.replace("[i]", "[$k]"))
                     look["shape"] = Val.Known("line")
                     look["from"] = Val.Known(a.second)
                     look["to"] = Val.Known(b.second)

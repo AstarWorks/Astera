@@ -44,6 +44,12 @@ public data class Coeff(val v: Double = 0.0, val w: Double = 0.0, val s: Double 
     }
 }
 
+/**
+ * One point of a declared frame: `{frame: <id>, pos: {v, w, s}}` (ADR-0314). The one point type every op that places or ends on a frame
+ * reads (an area `target`, a ribbon end, a line end): the frame's origin plus [pos] along its axes, evaluated per tick.
+ */
+public data class FramePoint(val frame: String, val pos: Coeff = Coeff.ZERO)
+
 /** Three vectors, not required to be orthogonal or unit; only non-degenerate (they span a volume). */
 public data class Basis3(val v: Vec3, val w: Vec3, val s: Vec3) {
     /** Signed volume of the parallelepiped: zero = coplanar. */
