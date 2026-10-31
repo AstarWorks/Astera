@@ -1,7 +1,8 @@
 ## gameplay-static
-g @0..40 cast-length | cast
+g @0..46 cast-length | cast
 g @40 state-end then=end final=false | state=watch
 g @8 damage electric=6.000000 to=enemies@6.000000 | state=watch
 g @18 damage electric=6.000000 to=enemies@6.000000 | state=watch
 g @28 damage electric=6.000000 to=enemies@6.000000 | state=watch
+g @6 state-end then=end final=false | state=broken
 g @0 state-end then=- final=true | state=end
