@@ -1,6 +1,6 @@
 ## pose yaw=0 pitch=0
 @0 sound - op=fire/fire_fx/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=fire/fire_fx/flash type=gun-muzzle-flash at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5933698540868222238
+@0 particle - op=fire/fire_fx/flash type=gun-muzzle-flash at=-0.300000,1.320000,0.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5933698540868222238
 @0 frame fire/bolt op=fire/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 hit - op=fire/bolt at=0.000000,1.620000,2.300000 r=2.300000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,4.100000 rad=0.500000
 g @1 state-exit reason=EVENT | state=fire
@@ -11,7 +11,7 @@ g @1 cast-end | pose
 r @5 run-end tail=4 | pose
 ## pose yaw=37 pitch=-20
 @0 sound - op=fire/fire_fx/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=fire/fire_fx/flash type=gun-muzzle-flash at=-0.560427,1.692895,0.743712 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5933698540868222238
+@0 particle - op=fire/fire_fx/flash type=gun-muzzle-flash at=-0.697205,1.577506,0.426731 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5933698540868222238
 @0 frame fire/bolt op=fire/bolt pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916
 @1 hit - op=fire/bolt at=-1.300699,2.406646,1.726085 r=2.300000 shape=capsule a=-0.282761,1.791010,0.375236 b=-2.318637,3.022283,3.076935 rad=0.500000
 g @1 state-exit reason=EVENT | state=fire
@@ -20,11 +20,12 @@ g @1 cast-end | pose
 r @5 run-end tail=4 | pose
 ## pose-hit yaw=0 pitch=0
 @0 sound - op=fire/fire_fx/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=fire/fire_fx/flash type=gun-muzzle-flash at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5933698540868222238
+@0 particle - op=fire/fire_fx/flash type=gun-muzzle-flash at=-0.300000,1.320000,0.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5933698540868222238
 @0 frame fire/bolt op=fire/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 hit - op=fire/bolt at=0.000000,1.620000,2.300000 r=2.300000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,4.100000 rad=0.500000
 @1 sound - op=fire/bolt.hit/snd_hit sound=astera:weapons/gun-impact cat=master vol=0.8 pitch=1 at=0.000000,1.620000,2.200000
-@1 particle - op=fire/bolt.hit/fx_hit type=hit-spark at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3086570504760286198
+@1 particle - op=fire/bolt.hit/fx_hit/spark type=dust count=4 at=0.000000,0.810000,2.500000 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ffd060 size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8612650419025130295
+@1 particle - op=fire/bolt.hit/fx_hit/dust type=dust count=3 at=0.000000,0.810000,2.500000 off=0.120000,0.120000,0.120000 speed=0.000000 color=#8c8c8c size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6446901533274699036
 @1 damage 00000000-0000-0000-0000-00000000000a op=- physical=30 skill=revolver-shot at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
 g @1 state-exit reason=EVENT | state=fire
 g @1 dropped reason=owner-exited:fire | sub=fire/bolt.end
@@ -32,11 +33,12 @@ g @1 cast-end | pose
 r @5 run-end tail=4 | pose
 ## pose-hit yaw=37 pitch=0
 @0 sound - op=fire/fire_fx/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=fire/fire_fx/flash type=gun-muzzle-flash at=-0.541634,1.370000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5933698540868222238
+@0 particle - op=fire/fire_fx/flash type=gun-muzzle-flash at=-0.660861,1.320000,0.378500 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5933698540868222238
 @0 frame fire/bolt op=fire/bolt pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324
 @1 hit - op=fire/bolt at=-1.384175,1.620000,1.836862 r=2.300000 shape=capsule a=-0.300908,1.620000,0.399318 b=-2.467442,1.620000,3.274406 rad=0.500000
 @1 sound - op=fire/bolt.hit/snd_hit sound=astera:weapons/gun-impact cat=master vol=0.8 pitch=1 at=-1.278471,1.620000,1.696589
-@1 particle - op=fire/bolt.hit/fx_hit type=hit-spark at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3086570504760286198
+@1 particle - op=fire/bolt.hit/fx_hit/spark type=dust count=4 at=-1.504538,0.810000,1.996589 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ffd060 size=0.450000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8612650419025130295
+@1 particle - op=fire/bolt.hit/fx_hit/dust type=dust count=3 at=-1.504538,0.810000,1.996589 off=0.120000,0.120000,0.120000 speed=0.000000 color=#8c8c8c size=0.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6446901533274699036
 @1 damage 00000000-0000-0000-0000-00000000000a op=- physical=30 skill=revolver-shot at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
 g @1 state-exit reason=EVENT | state=fire
 g @1 dropped reason=owner-exited:fire | sub=fire/bolt.end
