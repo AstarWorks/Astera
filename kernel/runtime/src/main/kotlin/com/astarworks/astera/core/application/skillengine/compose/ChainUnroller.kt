@@ -83,7 +83,7 @@ internal object ChainUnroller {
             )
             val copyNode = if (node.args.values.none { it is List<*> }) node else UseOp(
                 node.id, node.src, node.whenExpr, node.timing, node.target,
-                node.args.mapValues { (_, v) -> if (v is List<*>) v[k - 1] else v }, node.frames, node.gateCooldown, node.gateCost, node.chain,
+                node.args.mapValues { (_, v) -> if (v is List<*>) v[k - 1] else v }, node.frames, node.gateCooldown, node.gateCost, node.chain, node.events,
             )
             val lo = when (val r = lowerOnce.lower(copyNode, occ)) {
                 is Result.Success -> r.value

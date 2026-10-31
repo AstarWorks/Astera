@@ -59,5 +59,5 @@ machine:
         - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 1.2, detach: true}
         - {id: fx_crit, op: particle, particle: crit, anchor: ring_pt, count: 0, extra: 0.03, detach: true}
         - {id: fx_dust, op: particle, particle: dust, anchor: ring_pt, count: 1, color: "#dcdcdc", size: 1.4, detach: true}
-        - {id: trail, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 3}, count: 1, extra: 0.05, at: 0, every: 1, for: 8, detach: true}
+        - {id: trail, use: swing-trail, with: {samples: 3, span: 8, extra: 0.05}, frames: {weapon: /windup/rig}, detach: true}
     end: {final: true}

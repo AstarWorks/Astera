@@ -39,13 +39,5 @@ machine:
             block:
               - {id: block_snd, op: sound, at: 0, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
               - {id: block_fx, op: particle_def, at: 0, def: hit-spark, anchor: contact.point}
-        - {id: shaft, op: display, kind: item, item: "minecraft:iron_sword", context: fixed, anchor: bolt, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
-        - id: trail
-          op: group
-          at: 0
-          every: 1
-          until: bolt.end
-          do:
-            - {id: wake, op: particle, particle: crit, count: 1, offset: [0.04, 0.04, 0.04], anchor: {of: bolt, sweep: 0.4}, at: 0}
-            - {id: dust, op: particle, particle: dust, count: 1, color: "#e6e6e6", size: 1.0, anchor: {of: bolt, sweep: 0.4}, at: 0}
+        - {id: shaft, use: projectile-body, with: {item: "minecraft:iron_sword", scale: 0.5, color: "#e6e6e6"}, frames: {body: bolt}, events: {body_end: bolt.end}}
     end: {final: true}

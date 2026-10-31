@@ -129,8 +129,10 @@ public object AnchorNames {
         val parts = split(name) ?: return name
         if (parts.state != null || parts.index != null) return name
         val inst = scope.resolve(name)?.instance?.text ?: return name
-        if (inst == parts.base || inst.contains('[') || inst.contains('/')) return name
-        return inst + (parts.point?.let { ".$it" } ?: "")
+        if (inst == parts.base || inst.contains('[')) return name
+        // a state-qualified instance (`windup/rig`) is spelled by its bare op id in an expression, like the caller's own `rig.root`
+        val spelled = if (inst.contains('/')) inst.substringAfterLast('/') else inst
+        return spelled + (parts.point?.let { ".$it" } ?: "")
     }
 
     /** True when the name addresses a family member (`blade[i]`); builtin anchors never have an index. */

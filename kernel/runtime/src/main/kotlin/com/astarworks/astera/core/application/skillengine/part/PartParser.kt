@@ -105,7 +105,7 @@ public object PartParser {
         } catch (e: LetError) {
             abort("$where.${e.path}", e.message)
         }
-        checkKeys(doc, where, setOf("apiVersion", "kind", "id", "params", "frames_in", "frames_out", "emits", "machine"))
+        checkKeys(doc, where, setOf("apiVersion", "kind", "id", "params", "frames_in", "frames_out", "emits", "events_in", "machine"))
         if (doc["apiVersion"] != API_VERSION) abort("$where.apiVersion", "apiVersion must be $API_VERSION, was '${doc["apiVersion"]}'")
         val id = doc["id"] as? String ?: abort("$where.id", "missing string 'id'")
         if (!Regex("[a-z][a-z0-9_-]*").matches(id)) abort("$where.id", "part id '$id' must match [a-z][a-z0-9_-]*")
@@ -118,8 +118,14 @@ public object PartParser {
         val framesOut = stringMap(doc["frames_out"], "$where.frames_out")
         val emits = (doc["emits"] as? List<*>)?.map { it as? String ?: abort("$where.emits", "emits entries must be strings") }
             ?: if (doc["emits"] == null) emptyList() else abort("$where.emits", "emits must be a list of event names")
+        val eventsIn = (doc["events_in"] as? List<*>)?.map { it as? String ?: abort("$where.events_in", "events_in entries must be strings") }
+            ?: if (doc["events_in"] == null) emptyList() else abort("$where.events_in", "events_in must be a list of event names")
+        for (e in eventsIn) {
+            if (!Regex("[a-z][a-z0-9_]*").matches(e)) abort("$where.events_in", "event name '$e' must match [a-z][a-z0-9_]*")
+            if (e in params) abort("$where.events_in", "event name '$e' is also a param")
+        }
         val mach = machine(doc["machine"] ?: abort("$where.machine", "a part is an automaton: missing 'machine'"), "$where.machine")
-        return Part(id, params, framesIn, framesOut, emits, mach)
+        return Part(id, params, framesIn, framesOut, emits, mach, eventsIn)
     }
 
     private fun param(name: String, raw: Any?, where: String): ParamSpec {

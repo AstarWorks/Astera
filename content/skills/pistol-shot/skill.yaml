@@ -40,9 +40,7 @@ machine:
       on:
         - {event: bolt.end, to: end}
       enter:
-        - {id: snd, op: sound, sound: "astera:weapons/gun-shot", anchor: caster, volume: 0.8, pitch: 1.2}
-        - {id: flash, op: particle_def, def: gun-muzzle-flash, anchor: muzzle}
-        - {id: smoke, op: particle_def, def: gun-muzzle-smoke, anchor: muzzle}
+        - {id: fire_fx, use: gun-muzzle, with: {snd: "astera:weapons/gun-shot"}, frames: {muzzle: muzzle}}
       do:
         - id: bolt
           op: projectile
@@ -63,7 +61,5 @@ machine:
             expire:
               - {id: tracer_e, use: skill:gun-tracer, with: {thickness: 0.1}, frames: {muzzle: muzzle, tip: contact}}
         # the visible round and its trail, both riding the body
-        - {id: slug, op: display, kind: item, item: "minecraft:iron_nugget", context: fixed, anchor: bolt, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
-        - {id: trail_crit, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.5}, count: 1, at: 2, every: 1, until: bolt.end}
-        - {id: trail_smoke, op: particle, particle: white_smoke, anchor: {of: bolt, sweep: 0.5}, count: 1, offset: [0.02, 0.02, 0.02], at: 2, every: 1, until: bolt.end}
+        - {id: slug, use: bullet-body, with: {item: "minecraft:iron_nugget", scale: 0.5}, frames: {body: bolt}, events: {body_end: bolt.end}}
     end: {final: true}

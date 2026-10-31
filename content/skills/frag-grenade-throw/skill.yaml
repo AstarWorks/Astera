@@ -42,8 +42,7 @@ machine:
       for: "= fuse_ticks"
       then: end
       do:
-        - {id: snd, op: sound, sound: "entity.snowball.throw", anchor: caster, volume: 0.9, pitch: 0.7, at: 0}
-        - {id: fx, op: particle_def, def: gun-muzzle-smoke, anchor: cast_fx, at: 0}
+        - {id: fire_fx, use: gun-muzzle, with: {snd: "entity.snowball.throw", vol: 0.9, pitch: 0.7, flash: false}, frames: {muzzle: cast_fx}}
         - id: bolt
           op: projectile
           origin: muzzle

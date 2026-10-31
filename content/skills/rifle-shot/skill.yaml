@@ -27,9 +27,7 @@ machine:
       on:
         - {event: bolt.end, to: end}
       enter:
-        - {id: snd, op: sound, sound: "astera:weapons/rifle-crack", anchor: caster, volume: 1.0, pitch: 0.7}
-        - {id: fl0, op: particle_def, def: gun-muzzle-flash, anchor: muzzle}
-        - {id: fl1, op: particle_def, def: gun-muzzle-smoke, anchor: muzzle}
+        - {id: fire_fx, use: gun-muzzle, with: {snd: "astera:weapons/rifle-crack", vol: 1.0, pitch: 0.7}, frames: {muzzle: muzzle}}
       do:
         - id: bolt
           op: projectile
@@ -55,7 +53,5 @@ machine:
             expire:
               - {id: tracer_e, use: skill:gun-tracer, with: {thickness: 0.14}, frames: {muzzle: muzzle, tip: contact}}
         # the visible round, riding the body
-        - {id: slug, op: display, kind: item, item: "minecraft:iron_nugget", context: fixed, anchor: bolt, scale: [0.6, 0.6, 0.6], at: 0, until: bolt.end}
-        - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.5}, count: 1, at: 2, every: 1, until: bolt.end}
-        - {id: trail1, op: particle, particle: white_smoke, anchor: {of: bolt, sweep: 0.5}, count: 1, offset: [0.02, 0.02, 0.02], at: 2, every: 1, until: bolt.end}
+        - {id: slug, use: bullet-body, with: {item: "minecraft:iron_nugget", scale: 0.6}, frames: {body: bolt}, events: {body_end: bolt.end}}
     end: {final: true}

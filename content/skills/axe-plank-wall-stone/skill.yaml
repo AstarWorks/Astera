@@ -53,5 +53,5 @@ machine:
         - {id: snd_3, op: sound, sound: entity.player.attack.strong, anchor: caster, volume: 0.6, pitch: 0.9, when: "= ${strong}"}
         - {id: snd_4, op: sound, sound: entity.player.attack.crit, anchor: caster, volume: 0.8, pitch: 0.9, when: "= ${crit}"}
         - {id: spark, op: particle_def, def: "${spark}", anchor: aim_pt}
-        - {id: trail, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 6}, count: 1, extra: 0.04, at: 0, every: 1, for: 8, detach: true}
+        - {id: trail, use: swing-trail, with: {samples: 6, span: 8}, frames: {weapon: /windup/rig}, detach: true}
     end: {final: true}

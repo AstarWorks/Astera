@@ -23,8 +23,7 @@ machine:
         - {event: bolt.end, to: end}
       do:
         - {id: draw, op: body, target: caster, anim: bow-draw, speed: 1.0, at: 0, for: 14, detach: true}
-        - {id: snd, op: sound, at: 0, sound: "astera:weapons/sword-swing", anchor: caster, volume: 0.8, pitch: 0.7}
-        - {id: fx, op: particle_def, at: 0, def: gun-muzzle-smoke, anchor: cast_fx}
+        - {id: fire_fx, use: gun-muzzle, with: {snd: "astera:weapons/sword-swing", pitch: 0.7, flash: false}, frames: {muzzle: cast_fx}}
         - id: bolt
           op: projectile
           at: 0
@@ -41,13 +40,5 @@ machine:
             block:
               - {id: block_snd, op: sound, at: 0, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5}
               - {id: block_fx, op: particle_def, at: 0, def: hit-spark, anchor: contact.point}
-        - {id: shaft, op: display, kind: item, item: "minecraft:arrow", context: fixed, anchor: bolt, scale: [1.4, 1.4, 1.4], at: 0, until: bolt.end}
-        - id: trail
-          op: group
-          at: 0
-          every: 1
-          until: bolt.end
-          do:
-            - {id: wake, op: particle, particle: crit, count: 1, offset: [0.04, 0.04, 0.04], anchor: {of: bolt, sweep: 0.4}, at: 0}
-            - {id: dust, op: particle, particle: dust, count: 1, color: "#a07846", size: 1.0, anchor: {of: bolt, sweep: 0.4}, at: 0}
+        - {id: shaft, use: projectile-body, with: {item: "minecraft:arrow", scale: 1.4, color: "#a07846"}, frames: {body: bolt}, events: {body_end: bolt.end}}
     end: {final: true}

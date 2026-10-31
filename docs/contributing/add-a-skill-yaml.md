@@ -247,9 +247,33 @@ guard:
     - {event: brace/guard.end, to: held}
 ```
 
-part を足す時は、呼び出し側の op id (`hit_fx` など) と part 内の id がそのまま `skill-oracle` の `op=` に出る点に注意する。
-part 化で既存 skill の行を変えない条件: 呼び出し id を元の fragment 呼び出しと同じにし、part 内の id も同じにする。
-`projectile` 本体、発射口の音 + 煙、軌跡の rider (`until: bolt.end`) は呼び出し id が op path の前に付くので part にできない (engine gap)。
+発射口・弾体・斬撃の軌跡も part で書く (op レベルの `use:`)。弾体と軌跡は呼び出し側の event で終わるので、part は `events_in` で受ける名前を宣言し、呼び出し側が `events:` で束縛する。
+
+```yaml
+# 銃・弓 (shortbow-arrow): 発射口 + 弾体 + 軌跡。projectile 本体と on.hit / on.block は skill に残す
+- {id: fire_fx, use: gun-muzzle, with: {snd: "astera:weapons/sword-swing", vol: 0.7, pitch: 1.3, flash: false}, frames: {muzzle: cast_fx}}
+- {id: shaft, use: projectile-body, with: {item: "minecraft:arrow", scale: 0.9, color: "#bea064"}, frames: {body: arrow}, events: {body_end: arrow.end}}
+# 銃弾 (pistol-shot): 弾体 + 1〜2 本の軌跡粒子
+- {id: slug, use: bullet-body, with: {item: "minecraft:iron_nugget", scale: 0.5}, frames: {body: bolt}, events: {body_end: bolt.end}}
+# 近接 (sword-slash): rig の root から tip への粒子の筋
+- {id: trail_fx, use: swing-trail, with: {samples: 6, span: 8}, frames: {weapon: /windup/rig}, detach: true}
+```
+
+| part | 何を出すか | 主な param |
+|---|---|---|
+| `gun-muzzle` | 発射口の音 + 閃光 + 煙 (`frames_in: muzzle`) | `snd` (+ `vol` `pitch` `flash` `smoke`) |
+| `projectile-body` | 矢 / ボルト / ナイフの本体 display + wake + 粉の軌跡 (`events_in: body_end`) | `item`, `scale`, `color` (+ `size` `wake` `spread`) |
+| `bullet-body` | 銃弾の display + 軌跡粒子 1〜2 本 (`events_in: body_end`) | `item`, `scale` (+ `sweep` `start` `first` `second` `next`) |
+| `swing-trail` | 近接 rig の root-tip 間に沿う粒子の筋 (`frames_in: weapon`) | `samples`, `span` (+ `extra` `every`) |
+
+`events_in` の規則: part は `events_in: [name]` を宣言し、本体で `until: "${name}"` と書く。呼び出し側は全ての名前を `events: {name: caller.event}` で束縛する (未束縛・未知の名前は load error)。
+`events_in` を持つ part は op レベルの `use:` 専用 (state の `use:` は拒否)。呼び出し instance の終了で rider を止めないので、rider は束縛した event まで生きる。
+op レベルの呼び出しで `every` + `until` だけを書いた繰り返しは、呼び出し元 state の horizon (`for` / projectile の寿命) まで展開される。
+`frames:` に渡す rig は、part 内の frame 名 (`weapon` など) が呼び出し側の別 op と同名にならないようにする。
+
+part を足す時は、呼び出し側の op id (`hit_fx` など) と part 内の id が `skill-oracle` の `op=` に出る点に注意する。op レベルの呼び出しは instance path が 1 段増えるので、
+粒子の `seed=` は変わる (見た目の散らばりだけが再抽選され、tick / 位置 / 数 / 速度は同一)。変換が正しいことは
+`tools/game-sim/scripts/oracle-normalized-diff.sh <base-ref>` (op path ラベルと `seed=` を除いた差分が空) で確かめる。
 
 ## 参考
 

@@ -116,7 +116,10 @@ public object PartInliner {
             if (stack.size + 1 > w.config.maxPartDepth) {
                 return Result.failure(SkillDecodeError.Invalid(w.skillId, "$at.use", "part nesting deeper than ${w.config.maxPartDepth}"))
             }
-            checkCall(w.skillId, at, part, call.args, call.frames, visible)?.let { return Result.failure(it) }
+            if (part.eventsIn.isNotEmpty()) {
+                return Result.failure(SkillDecodeError.Invalid(w.skillId, "$at.use", "part '${part.id}' declares events_in (${part.eventsIn.joinToString()}); call it from an op with use: and events:, a state-level call cannot bind them"))
+            }
+            checkCall(w.skillId, at, part, call.args, call.frames, emptyMap(), visible)?.let { return Result.failure(it) }
             w.depth = maxOf(w.depth, stack.size + 1)
             val bound = when (val r = bind(w.skillId, at, part, call.args)) {
                 is Result.Success -> r.value
@@ -140,6 +143,7 @@ public object PartInliner {
         part: Part,
         args: Map<String, Any?>,
         frames: Map<String, String>,
+        events: Map<String, String>,
         visible: Set<String>,
     ): SkillDecodeError? {
         for ((k, v) in args) {
@@ -149,6 +153,8 @@ public object PartInliner {
         for ((name, spec) in part.params) if (spec.required && name !in args) return SkillDecodeError.MissingField(skillId, "$at.with", name)
         for (k in frames.keys) if (k !in part.framesIn) return SkillDecodeError.UnknownKey(skillId, "$at.frames.$k", k)
         for (k in part.framesIn.keys) if (k !in frames) return SkillDecodeError.MissingField(skillId, "$at.frames", k)
+        for (k in events.keys) if (k !in part.eventsIn) return SkillDecodeError.UnknownKey(skillId, "$at.events.$k", k)
+        for (k in part.eventsIn) if (k !in events) return SkillDecodeError.MissingField(skillId, "$at.events", k)
         for ((k, v) in frames) {
             val root = v.substringBefore('.').substringBefore('[')
             if (root !in visible) return SkillDecodeError.UndefinedReference(skillId, "$at.frames.$k", v)

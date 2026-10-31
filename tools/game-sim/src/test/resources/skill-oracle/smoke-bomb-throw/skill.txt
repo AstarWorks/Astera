@@ -1,7 +1,7 @@
 ## pose yaw=0 pitch=0
 @0 spawn #0 op=fly/shell kind=item item=minecraft:gunpowder part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.500000,0.500000,0.500000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@0 sound - op=fly/snd sound=entity.generic.extinguish_fire cat=master vol=0.9 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/puff type=gun-muzzle-smoke at=0.000000,1.370000,1.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4583942791601951732
+@0 sound - op=fly/fire_fx/snd sound=entity.generic.extinguish_fire cat=master vol=0.9 pitch=1 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/fire_fx/smoke type=gun-muzzle-smoke at=0.000000,1.370000,1.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2876312863672058258
 @0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 hit - op=fly/bolt at=0.000000,1.600000,1.100000 r=1.100333 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.580000,1.700000 rad=0.500000
 @1 write #0 op=fly/shell dur=1 pos=0.000000,1.580000,1.680000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.500000,0.500000,0.500000 bb=FIXED
@@ -200,8 +200,8 @@
 @49 frame fly/bolt op=fly/bolt pos=0.000000,-46.996000,-21.360000 rot=0.000000,0.000000,0.000000,1.000000
 @50 hit - op=fly/bolt at=0.000000,-47.992000,-21.600000 r=1.524508 shape=capsule a=0.000000,-46.996000,-21.360000 b=0.000000,-48.988000,-21.840000 rad=0.500000
 @50 sound - op=fly/bolt.end/use_0/snd sound=entity.generic.extinguish_fire cat=master vol=0.8 pitch=0.7 at=0.000000,-48.988000,-21.840000
-@50 particle - op=fly/bolt.end/use_0/big type=large_smoke count=0 at=0.000000,-48.988000,-21.840000 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8843335469052791331
-@50 particle - op=fly/bolt.end/use_0/small type=smoke count=0 at=0.000000,-48.988000,-21.840000 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7284219646500509230
+@50 particle - op=fly/bolt.end/use_0/big type=large_smoke count=0 at=0.000000,-48.988000,-21.840000 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5243582739586676819
+@50 particle - op=fly/bolt.end/use_0/small type=smoke count=0 at=0.000000,-48.988000,-21.840000 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7468893587998773680
 @50 hit - op=fly/bolt.end/use_0/evasive at=0.000000,-48.988000,-21.840000 r=4.000000 shape=area
 @50 remove #0 op=fly/shell
 g @50 state-exit reason=TIMER | state=fly
@@ -209,8 +209,8 @@ g @50 cast-end | pose
 r @52 run-end tail=2 | pose
 ## pose yaw=37 pitch=-20
 @0 spawn #0 op=fly/shell kind=item item=minecraft:gunpowder part=- pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.500000,0.500000,0.500000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@0 sound - op=fly/snd sound=entity.generic.extinguish_fire cat=master vol=0.9 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/puff type=gun-muzzle-smoke at=-1.012844,1.966511,1.344090 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4583942791601951732
+@0 sound - op=fly/fire_fx/snd sound=entity.generic.extinguish_fire cat=master vol=0.9 pitch=1 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/fire_fx/smoke type=gun-muzzle-smoke at=-1.012844,1.966511,1.344090 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2876312863672058258
 @0 frame fly/bolt op=fly/bolt pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916
 @1 hit - op=fly/bolt at=-0.622073,1.976222,0.825519 r=1.093457 shape=capsule a=-0.282761,1.791010,0.375236 b=-0.961386,2.161434,1.275802 rad=0.500000
 @1 write #0 op=fly/shell dur=1 pos=-0.961386,2.161434,1.275802 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.500000,0.500000,0.500000 bb=FIXED
@@ -409,8 +409,8 @@ r @52 run-end tail=2 | pose
 @49 frame fly/bolt op=fly/bolt pos=17.391021,-30.204193,-8.509686 rot=-0.164675,-0.312484,-0.055099,0.933916
 @50 hit - op=fly/bolt at=17.593329,-31.032023,-8.623217 r=1.359721 shape=capsule a=17.391021,-30.204193,-8.509686 b=17.795636,-31.859853,-8.736748 rad=0.500000
 @50 sound - op=fly/bolt.end/use_0/snd sound=entity.generic.extinguish_fire cat=master vol=0.8 pitch=0.7 at=17.795636,-31.859853,-8.736748
-@50 particle - op=fly/bolt.end/use_0/big type=large_smoke count=0 at=17.795636,-31.859853,-8.736748 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8843335469052791331
-@50 particle - op=fly/bolt.end/use_0/small type=smoke count=0 at=17.795636,-31.859853,-8.736748 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7284219646500509230
+@50 particle - op=fly/bolt.end/use_0/big type=large_smoke count=0 at=17.795636,-31.859853,-8.736748 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5243582739586676819
+@50 particle - op=fly/bolt.end/use_0/small type=smoke count=0 at=17.795636,-31.859853,-8.736748 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7468893587998773680
 @50 hit - op=fly/bolt.end/use_0/evasive at=17.795636,-31.859853,-8.736748 r=4.000000 shape=area
 @50 remove #0 op=fly/shell
 g @50 state-exit reason=TIMER | state=fly
@@ -418,8 +418,8 @@ g @50 cast-end | pose
 r @52 run-end tail=2 | pose
 ## pose-hit yaw=0 pitch=0
 @0 spawn #0 op=fly/shell kind=item item=minecraft:gunpowder part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.500000,0.500000,0.500000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@0 sound - op=fly/snd sound=entity.generic.extinguish_fire cat=master vol=0.9 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/puff type=gun-muzzle-smoke at=0.000000,1.370000,1.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4583942791601951732
+@0 sound - op=fly/fire_fx/snd sound=entity.generic.extinguish_fire cat=master vol=0.9 pitch=1 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/fire_fx/smoke type=gun-muzzle-smoke at=0.000000,1.370000,1.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2876312863672058258
 @0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
 @1 hit - op=fly/bolt at=0.000000,1.600000,1.100000 r=1.100333 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.580000,1.700000 rad=0.500000
 @1 write #0 op=fly/shell dur=1 pos=0.000000,1.580000,1.680000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.500000,0.500000,0.500000 bb=FIXED
@@ -618,8 +618,8 @@ r @52 run-end tail=2 | pose
 @49 frame fly/bolt op=fly/bolt pos=0.000000,-46.996000,-21.360000 rot=0.000000,0.000000,0.000000,1.000000
 @50 hit - op=fly/bolt at=0.000000,-47.992000,-21.600000 r=1.524508 shape=capsule a=0.000000,-46.996000,-21.360000 b=0.000000,-48.988000,-21.840000 rad=0.500000
 @50 sound - op=fly/bolt.end/use_0/snd sound=entity.generic.extinguish_fire cat=master vol=0.8 pitch=0.7 at=0.000000,-48.988000,-21.840000
-@50 particle - op=fly/bolt.end/use_0/big type=large_smoke count=0 at=0.000000,-48.988000,-21.840000 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8843335469052791331
-@50 particle - op=fly/bolt.end/use_0/small type=smoke count=0 at=0.000000,-48.988000,-21.840000 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7284219646500509230
+@50 particle - op=fly/bolt.end/use_0/big type=large_smoke count=0 at=0.000000,-48.988000,-21.840000 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5243582739586676819
+@50 particle - op=fly/bolt.end/use_0/small type=smoke count=0 at=0.000000,-48.988000,-21.840000 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7468893587998773680
 @50 hit - op=fly/bolt.end/use_0/evasive at=0.000000,-48.988000,-21.840000 r=4.000000 shape=area
 @50 remove #0 op=fly/shell
 g @50 state-exit reason=TIMER | state=fly
@@ -627,8 +627,8 @@ g @50 cast-end | pose
 r @52 run-end tail=2 | pose
 ## pose-hit yaw=37 pitch=0
 @0 spawn #0 op=fly/shell kind=item item=minecraft:gunpowder part=- pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.500000,0.500000,0.500000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@0 sound - op=fly/snd sound=entity.generic.extinguish_fire cat=master vol=0.9 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/puff type=gun-muzzle-smoke at=-1.023086,1.370000,1.357680 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4583942791601951732
+@0 sound - op=fly/fire_fx/snd sound=entity.generic.extinguish_fire cat=master vol=0.9 pitch=1 at=0.000000,0.000000,0.000000
+@0 particle - op=fly/fire_fx/smoke type=gun-muzzle-smoke at=-1.023086,1.370000,1.357680 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2876312863672058258
 @0 frame fly/bolt op=fly/bolt pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324
 @1 hit - op=fly/bolt at=-0.661997,1.600000,0.878499 r=1.100333 shape=capsule a=-0.300908,1.620000,0.399318 b=-1.023086,1.580000,1.357680 rad=0.500000
 @1 write #0 op=fly/shell dur=1 pos=-1.008943,1.580000,1.343538 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.500000,0.500000,0.500000 bb=FIXED
@@ -827,8 +827,8 @@ r @52 run-end tail=2 | pose
 @49 frame fly/bolt op=fly/bolt pos=19.658991,-46.996000,-10.254908 rot=0.000000,-0.317305,0.000000,0.948324
 @50 hit - op=fly/bolt at=19.874282,-47.992000,-10.375725 r=1.526140 shape=capsule a=19.658991,-46.996000,-10.254908 b=20.089573,-48.988000,-10.496542 rad=0.500000
 @50 sound - op=fly/bolt.end/use_0/snd sound=entity.generic.extinguish_fire cat=master vol=0.8 pitch=0.7 at=20.089573,-48.988000,-10.496542
-@50 particle - op=fly/bolt.end/use_0/big type=large_smoke count=0 at=20.089573,-48.988000,-10.496542 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8843335469052791331
-@50 particle - op=fly/bolt.end/use_0/small type=smoke count=0 at=20.089573,-48.988000,-10.496542 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7284219646500509230
+@50 particle - op=fly/bolt.end/use_0/big type=large_smoke count=0 at=20.089573,-48.988000,-10.496542 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5243582739586676819
+@50 particle - op=fly/bolt.end/use_0/small type=smoke count=0 at=20.089573,-48.988000,-10.496542 off=0.000000,0.000000,0.000000 speed=0.010000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7468893587998773680
 @50 hit - op=fly/bolt.end/use_0/evasive at=20.089573,-48.988000,-10.496542 r=4.000000 shape=area
 @50 remove #0 op=fly/shell
 g @50 state-exit reason=TIMER | state=fly

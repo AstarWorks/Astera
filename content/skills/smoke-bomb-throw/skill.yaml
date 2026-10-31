@@ -37,8 +37,7 @@ machine:
       for: "= fuse_ticks"
       then: end
       do:
-        - {id: snd, op: sound, sound: entity.generic.extinguish_fire, anchor: caster, volume: 0.9, pitch: 1.0, at: 0}
-        - {id: puff, op: particle_def, def: gun-muzzle-smoke, anchor: flash, at: 0}
+        - {id: fire_fx, use: gun-muzzle, with: {snd: "entity.generic.extinguish_fire", vol: 0.9, pitch: 1.0, flash: false}, frames: {muzzle: flash}}
         - id: bolt
           op: projectile
           origin: muzzle

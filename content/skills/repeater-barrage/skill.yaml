@@ -27,8 +27,7 @@ machine:
       on:
         - {event: bolt.end, to: end}
       enter:
-        - {id: snd, op: sound, sound: "item.crossbow.shoot", anchor: caster, volume: 0.9, pitch: 0.8}
-        - {id: fl0, op: particle_def, def: gun-muzzle-flash, anchor: muzzle}
+        - {id: fire_fx, use: gun-muzzle, with: {snd: "item.crossbow.shoot", vol: 0.9, pitch: 0.8, smoke: false}, frames: {muzzle: muzzle}}
       do:
         - {id: draw, op: body, target: caster, anim: crossbow-aim, speed: 1.0, at: 0, for: 14, detach: true}
         - id: bolt

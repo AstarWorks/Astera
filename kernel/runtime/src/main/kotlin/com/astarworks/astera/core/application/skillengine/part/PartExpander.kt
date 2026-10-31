@@ -150,6 +150,7 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
         (op["id"] as? String)?.let { out["id"] = if (phase.startsWith("t")) "$path/$phase/$it" else "$path/$it" }
         (op["emit"] as? String)?.let { out["emit"] = join(evPrefix, it) }
         (op["until"] as? String)?.let { out["until"] = localEvent(it, path, localIds) }
+        (op["events"] as? Map<*, *>)?.let { m -> out["events"] = m.entries.associate { (k, v) -> k to if (v is String) localEvent(v, path, localIds) else v } }
         out
     }
 }

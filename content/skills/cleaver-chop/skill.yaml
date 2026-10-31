@@ -62,5 +62,5 @@ machine:
               - {id: bleed, op: status, target: event.victim, status: bleed, stacks: 1, for: "${bleed_ticks}", when: "= rand() < 0.5"}
         - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 0.8, detach: true}
         - {id: fx1, op: particle_def, def: slash-sweep, anchor: fx, detach: true}
-        - {id: trail, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 6}, count: 1, extra: 0.04, at: 0, every: 1, for: 8, detach: true}
+        - {id: trail, use: swing-trail, with: {samples: 6, span: 8}, frames: {weapon: /windup/rig}, detach: true}
     end: {final: true}

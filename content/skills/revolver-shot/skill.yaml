@@ -27,8 +27,7 @@ machine:
       on:
         - {event: bolt.end, to: end}
       enter:
-        - {id: snd, op: sound, sound: "astera:weapons/gun-shot", anchor: caster, volume: 0.8, pitch: 0.8}
-        - {id: fl0, op: particle_def, def: gun-muzzle-flash, anchor: muzzle}
+        - {id: fire_fx, use: gun-muzzle, with: {snd: "astera:weapons/gun-shot", pitch: 0.8, smoke: false}, frames: {muzzle: muzzle}}
       do:
         - id: bolt
           op: projectile

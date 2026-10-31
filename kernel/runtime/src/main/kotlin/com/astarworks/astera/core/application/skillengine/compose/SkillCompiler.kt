@@ -251,6 +251,9 @@ public class SkillCompiler(
         /** Latest `<op>.end` tick of the bodies a state without `for:` has spawned so far (its natural length). */
         private val bodyHorizon = HashMap<String, Int>()
 
+        /** The horizon of the state section being lowered: an op-level call whose callee state has no `for` repeats against it (`every` + `until`). */
+        private var sectionHorizon: Int? = null
+
         /** Instances the sections of a state lowered so far spawned (the lexical lookup of a relative `cancel: <id>`). */
         private val stateSpawned = HashMap<String, MutableList<InstanceId>>()
         private val callStack = ArrayList<String>().apply { add(SkillCallInliner.PREFIX + original.id) }
@@ -296,6 +299,7 @@ public class SkillCompiler(
                     bodyHorizon[state.value],
                     nodes.filterIsInstance<ProjectileOp>().mapNotNull { ((it.timing?.span as? Span.Ticks)?.ticks as? Value.Literal)?.value?.toInt() }.maxOrNull(),
                 ).maxOrNull()
+            sectionHorizon = horizon
             checkQualifiedRefs(state, ops, section).let { if (it != null) return@SectionLowerer Result.Failure(it) }
             val registry = registries.getOrPut(state.value) {
                 DefaultAnchorScope(
@@ -464,7 +468,7 @@ public class SkillCompiler(
                 }
                 mapOf("hop" to (lc.occurrence.i + 1).toDouble(), "hops" to lc.occurrence.n.toDouble())
             }
-            val bound = PartInliner.bind(original.id, at, part, args, chainBindings).getOr { return Result.Failure(it) }
+            val bound = PartInliner.bind(original.id, at, part, args, chainBindings + op.events).getOr { return Result.Failure(it) }
 
             val m = bound.machine
             if (m.states.isEmpty()) return Result.Failure(SkillDecodeError.Invalid(original.id, "$at.use", "'${op.target}' has no states"))
@@ -501,7 +505,8 @@ public class SkillCompiler(
                                 original.id, lc.state, call.callId, Occurrence(0, 1, null), lc.clockOffset + acc, calleeAnchors, frames, parts, skills,
                                 lc.item, sprites, lc.conditions, exprs, config, lc.seed, n.src, hitScope = lc.hitScope, keys = keys,
                             )
-                            val lo = GroupUnroller.unroll(n, base, forTicks, childLowering).getOr { return Result.Failure(it) }
+                            val callHorizon = forTicks ?: sectionHorizon?.minus(lc.clockOffset + acc)
+                            val lo = GroupUnroller.unroll(n, base, callHorizon, childLowering).getOr { return Result.Failure(it) }
                             for (r in lo.rows) {
                                 val a = r.action
                                 val shifted = r.copy(tick = r.tick + acc)
@@ -526,7 +531,8 @@ public class SkillCompiler(
                     cur = st.then
                 }
                 rows += Row(acc, call.callId, Action.Emit(EventPath(call.callId.text + ".end")), callRow.src)
-                rows += Row(acc, call.callId, Action.End(call.callId), callRow.src)
+                // a part with events_in hands its riders to the caller's events: ending the call instance here would end them at the call tick
+                if (part.eventsIn.isEmpty()) rows += Row(acc, call.callId, Action.End(call.callId), callRow.src)
                 return Result.Success(
                     Lowered(
                         lowered.rows + rows, lowered.subTables + subs, lowered.instances + inst, lowered.events + events,

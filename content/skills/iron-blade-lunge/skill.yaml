@@ -58,5 +58,5 @@ machine:
           on:
             hit:
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 1.0, pitch: 1.0, detach: true}
-        - {id: trail_fx, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 3}, count: 1, extra: 0.04, at: 0, every: 3, for: 8, detach: true}
+        - {id: trail_fx, use: swing-trail, with: {samples: 3, span: 8, every: 3}, frames: {weapon: /windup/rig}, detach: true}
     end: {final: true}

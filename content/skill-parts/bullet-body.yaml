@@ -1,0 +1,30 @@
+# bullet-body: the visible round of a gun shot riding a `projectile` op, and its one or two trail particles every tick:
+#   - {id: slug, use: bullet-body, with: {item: "minecraft:iron_nugget", scale: 0.5}, frames: {body: bolt}, events: {body_end: bolt.end}}
+# The defaults are the pistol round (crit then white_smoke, from tick 2, sweep 0.5); `second: false` keeps only the first particle.
+# The display and the trail end on `body_end`, not at the call tick: the part declares `events_in`.
+# The row ids (slug / trail0 / trail1) are part of the shipped goldens: rename them only together with `regenSkillOracle`.
+---
+apiVersion: astera/v3
+kind: Part
+id: bullet-body
+params:
+  item:   {type: string, required: true}
+  scale:  {type: number, required: true}
+  sweep:  {type: number, default: 0.5}       # trail sample length along the body's path
+  start:  {type: ticks, default: 2}          # first trail tick
+  first:  {type: string, default: crit}
+  off1:   {type: number, default: 0.0}       # first particle offset on each axis
+  second: {type: bool, default: true}
+  next:   {type: string, default: white_smoke}
+  off2:   {type: number, default: 0.02}
+frames_in: {body: anchor}
+events_in: [body_end]
+machine:
+  start: main
+  states:
+    main:
+      final: true
+      do:
+        - {id: slug, op: display, kind: item, item: "${item}", context: fixed, anchor: body, scale: ["${scale}", "${scale}", "${scale}"], at: 0, until: "${body_end}"}
+        - {id: trail0, op: particle, particle: "${first}", anchor: {of: body, sweep: "${sweep}"}, count: 1, offset: ["${off1}", "${off1}", "${off1}"], at: "${start}", every: 1, until: "${body_end}"}
+        - {id: trail1, op: particle, particle: "${next}", anchor: {of: body, sweep: "${sweep}"}, count: 1, offset: ["${off2}", "${off2}", "${off2}"], at: "${start}", every: 1, until: "${body_end}", when: "= ${second}"}
