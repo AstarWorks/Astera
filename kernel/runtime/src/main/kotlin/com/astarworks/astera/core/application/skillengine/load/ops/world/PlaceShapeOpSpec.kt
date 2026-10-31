@@ -3,6 +3,8 @@ package com.astarworks.astera.core.application.skillengine.load.ops.world
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
+import com.astarworks.astera.core.application.skillengine.load.grammar.OpPlacement
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
@@ -27,12 +29,12 @@ public class PlaceShapeOp(
     override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
-    public val anchor: com.astarworks.astera.core.application.skillengine.load.grammar.AnchorRef,
+    public val place: com.astarworks.astera.core.application.skillengine.load.grammar.OpPlacement,
     public val spec: PlaceShapeSpec,
 ) : OpNode
 
 public object PlaceShapeOpSpec : OpSpec<PlaceShapeOp> {
-    private val ANCHOR = WorldOps.anchorField
+    private val ANCHOR = WorldOps.anchorOptional
     private val SHAPE: Field<BuildShape> = Field.required("shape", WorldOps.buildShape, "wall, bridge, pillar or platform")
     private val BLOCK: Field<String> = Field.required("block", Types.id, "block id to place")
     private val CONSUME: Field<String?> = Field.required("consume", WorldOps.consume, "item id taken per placed cell, or none")
@@ -43,16 +45,16 @@ public object PlaceShapeOpSpec : OpSpec<PlaceShapeOp> {
     override val name: String = "place_shape"
     override val section: OpSection = OpSection.GAMEPLAY
     override val timing: TimingKind? = TimingKind.POINT
-    override val fields: Fields = Fields.of("place_shape", ANCHOR, SHAPE, BLOCK, CONSUME, RIPPLE, REVERT, OUTSIDE)
+    override val fields: Fields = Fields.of("place_shape", ANCHOR, FrameRefs.FRAME, FrameRefs.POS, SHAPE, BLOCK, CONSUME, RIPPLE, REVERT, OUTSIDE)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<PlaceShapeOp, SkillDecodeError> =
         Result.Success(
             PlaceShapeOp(
-                id, src, whenExpr, timing, values[ANCHOR],
+                id, src, whenExpr, timing, OpPlacement.read(values[ANCHOR], values, ctx, "placeshape '${id.value}'"),
                 PlaceShapeSpec(values[SHAPE], values[BLOCK], values[CONSUME], values[RIPPLE], values[REVERT], values[OUTSIDE]),
             ),
         )
 
     override fun lower(op: PlaceShapeOp, lc: LowerContext): Result<Lowered, SkillDecodeError> =
-        WorldOps.lower(OpId(name), op.anchor, mapOf<String, Val<Any>>("spec" to Val.Known(op.spec)), lc)
+        WorldOps.lower(OpId(name), op.place, mapOf<String, Val<Any>>("spec" to Val.Known(op.spec)), lc)
 }

@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.ValueDecoding
 import com.astarworks.astera.core.application.skillengine.load.grammar.ValueForms
 import com.astarworks.astera.core.application.skillengine.load.grammar.AnchorRef
+import com.astarworks.astera.core.application.skillengine.load.grammar.OpPlacement
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
@@ -168,12 +169,24 @@ internal object WorldOps {
         }
     }
 
-    /** One `Action.World` row at this occurrence's own tick; shapes face the caster's horizontal heading (the yaw-only caster frame). */
-    fun lower(op: OpId, anchor: AnchorRef, payload: Map<String, Val<Any>>, lc: LowerContext): Result<Lowered, SkillDecodeError> =
-        position(anchor, lc).map { origin ->
+    /**
+     * One `Action.World` row at this occurrence's own tick. An anchor placement faces the caster's horizontal heading (the yaw-only caster
+     * frame); a frame placement (ADR-0314) is centred on the frame point and its shape faces the frame's `v` axis.
+     */
+    fun lower(op: OpId, place: OpPlacement, payload: Map<String, Val<Any>>, lc: LowerContext): Result<Lowered, SkillDecodeError> {
+        val frameCentre = place.centre()
+        if (frameCentre != null) {
+            val action = Action.World(op, frameCentre, place.forward()!!, payload)
+            return Result.Success(Lowered(rows = listOf(Row(0, lc.self, action, lc.src))))
+        }
+        return position(place.anchor!!, lc).map { origin ->
             val action = Action.World(op, origin, Val.Live<Vector3d>("= forward(caster)", null), payload)
             Lowered(rows = listOf(Row(0, lc.self, action, lc.src)))
         }
+    }
+
+    /** The optional `anchor:` of an op that may instead be placed by `frame:` + `pos:` ([OpPlacement.read] demands one of the two). */
+    val anchorOptional: Field<AnchorRef?> = Field.optional("anchor", com.astarworks.astera.core.application.skillengine.load.grammar.Types.nullable(com.astarworks.astera.core.application.skillengine.load.grammar.Types.anchorRef), null, "where it happens: a declared anchor, or caster / caster.eye / caster.feet / contact.point, or {of, offset: {forward, up, left}}; or write frame: + pos: {v, w, s} instead (ADR-0314)")
 
     val anchorField: Field<AnchorRef> = Field.required("anchor", com.astarworks.astera.core.application.skillengine.load.grammar.Types.anchorRef, "where it happens: a declared anchor, or caster / caster.eye / caster.feet / contact.point, or {of, offset: {forward, up, left}}")
     val outsideArena: Field<Boolean> = Field.required("outside_arena", com.astarworks.astera.core.application.skillengine.load.ops.gameplay.GameplayOps.flag, "true lifts the arena-only edit restriction")
