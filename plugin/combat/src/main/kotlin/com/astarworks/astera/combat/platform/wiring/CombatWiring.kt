@@ -93,6 +93,8 @@ public class CombatWiringResult(
     public val skillSkins: com.astarworks.astera.combat.application.usecase.skin.SkillSkinUseCase,
     /** Reloads `content/skills`; the Paper runtime calls it once the block registries exist so skills that named a custom block retry. */
     public val reloadSkills: () -> com.astarworks.astera.core.application.service.ContentLoader.LoadReport,
+    /** `/astera skill reload <id>`: re-reads only that skill's files (and its patches) and swaps the recomposed skills in. */
+    public val reloadSkill: (String) -> com.astarworks.astera.core.domain.Result<com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents.SkillReload, com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents.SkillReloadError>,
     /** Decoded `content/frames` point tables for the v2 compiler and point source. */
     public val frameTables: Map<String, com.astarworks.astera.core.application.skillengine.load.ItemFrames>,
     /** `content/frames/body.yaml`: the shared named points of the skin rig that `body` clips are read through. */
@@ -797,6 +799,7 @@ public object CombatWiring {
             skillFaults = skillFaults,
             engineConfig = engineConfig,
             reloadSkills = { skillEngineContents.reload(skillsContentDir) },
+            reloadSkill = { id -> skillEngineContents.reloadSkill(skillsContentDir, id) },
             frameTables = frameTables,
             bodySkeleton = bodySkeleton,
             statusContents = statusContents,

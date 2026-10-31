@@ -206,13 +206,22 @@ class SkillEngineV3E2eTest : E2eBase() {
 
         val logMark = ServerLog.lineCount()
         try {
+            val baseDump = expandDump("reload-probe")
             val base = castAndMeasure()
             patchFile.writeText("apiVersion: astera/v3\nkind: Patch\nid: reload-probe-overlay-balance\ntarget: reload-probe\npatchKind: balance\nops:\n  - {path: \"params.dmg.default\", ${'$'}patch: replace, value: 20}\n")
             val reply = clean(rcon("astera skill reload reload-probe"))
+            val tunedDump = expandDump("reload-probe")
             val tuned = castAndMeasure()
-            patchFile.delete()
+            check(patchFile.delete()) { "could not delete the balance patch ${patchFile.absolutePath}" }
             val reply2 = clean(rcon("astera skill reload reload-probe"))
+            val restoredDump = expandDump("reload-probe")
             val restored = castAndMeasure()
+
+            // The compiled table is the product layer, the Health delta the runtime layer: a red names which one drifted.
+            E2eReport.check(suite, "removing the balance patch and reloading restores the base table dump", "RCON astera skill expand reload-probe, before/after each reload") {
+                assertThat(restoredDump).describedAs("table dump after removing the patch; reload reply='$reply2'; patched dump differs=${tunedDump != baseDump}").isEqualTo(baseDump)
+                "table dump restored"
+            }
 
             E2eReport.check(suite, "balance patch doubles the next cast's damage after reload, removing it restores the base", "dummy Health before/after each cast around astera skill reload") {
                 assertThat(base).describedAs("base damage").isGreaterThan(0.0)
