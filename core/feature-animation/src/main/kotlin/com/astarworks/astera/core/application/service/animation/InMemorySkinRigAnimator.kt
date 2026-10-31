@@ -26,7 +26,7 @@ public class InMemorySkinRigAnimator(
 
     private val runs = ConcurrentHashMap<PlayerId, Run>()
 
-    override fun play(playerId: PlayerId, animation: CustomAnimationId, speed: Double, holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold>): Result<Unit, SkinRigError> {
+    override fun play(playerId: PlayerId, animation: CustomAnimationId, speed: Double, holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold>, heldItem: Boolean): Result<Unit, SkinRigError> {
         val definition = registry()?.find(animation) ?: return Result.failure(SkinRigError.UnknownAnimation(animation))
         runs.remove(playerId)?.task?.cancel()
         val run = Run(SkinRigPlayback(definition, speed, holds))

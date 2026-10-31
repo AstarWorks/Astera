@@ -100,7 +100,7 @@ public class PaperSkinRigAnimator(
         task = null
     }
 
-    override fun play(playerId: PlayerId, animation: CustomAnimationId, speed: Double, holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold>): Result<Unit, SkinRigError> {
+    override fun play(playerId: PlayerId, animation: CustomAnimationId, speed: Double, holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold>, heldItem: Boolean): Result<Unit, SkinRigError> {
         if (server.getPlayer(playerId.uuid)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(it) } != true) return Result.failure(SkinRigError.Platform("off-main"))
         val definition = registry()?.find(animation) ?: return Result.failure(SkinRigError.UnknownAnimation(animation))
         val player = server.getPlayer(playerId.uuid) ?: return Result.failure(SkinRigError.UnknownPlayer(playerId))
@@ -146,7 +146,7 @@ public class PaperSkinRigAnimator(
         val rig = Rig(player, playback, slim, displays)
         rig.lease = lease
         rigs[playerId] = rig
-        spawnHeld(rig, origin, rest.heldItem, staged = lease != null)
+        if (heldItem) spawnHeld(rig, origin, rest.heldItem, staged = lease != null)
         if (definition.lockMovement) lockMovement(player, true).also { rig.lockedMovement = true }
         if (lease != null) {
             val shown = (displays.values + listOfNotNull(rig.held)).map { PresentationDisplay(it.uniqueId, 1f) }

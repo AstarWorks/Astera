@@ -196,7 +196,8 @@ public class PaperSkillGameplayGateway(
             return
         }
         // a refused rig (off-region, dead, lease busy) is reported: the clip must never vanish silently
-        bodyRigs.play(player, id, holds = holds).onFailure { log.warn("skill engine: body clip '{}' on {} not played: {}", anim, target, it) }
+        // the skill's weapon rig is the one weapon of the cast: the puppet draws no main-hand stack (founder 10/31: the greatsword showed twice)
+        bodyRigs.play(player, id, holds = holds, heldItem = false).onFailure { log.warn("skill engine: body clip '{}' on {} not played: {}", anim, target, it) }
     }
 
     override fun bodyClip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation? =
