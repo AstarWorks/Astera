@@ -413,7 +413,7 @@ public class TablePlayer(
     /** [CastTrace.frame] for every live authored `frame` and every projectile body (not a body clip) at its world pose this tick. */
     private fun traceFrames(run: Run, now: Int) {
         for ((id, rec) in run.recs) {
-            if ((rec.kind != SpawnKind.FRAME && rec.kind != SpawnKind.PROJECTILE_BODY) || rec.body != null) continue
+            if ((rec.kind != SpawnKind.FRAME && rec.kind != SpawnKind.PROJECTILE_BODY) || rec.body != null || rec.untraced) continue
             val w = worldOf(run, rec, rec.localAt(now), null, now)
             trace.frame(run.cursor.handle, id, now, Vec3(w.pos.x, w.pos.y, w.pos.z), Quaternion(w.rot.x, w.rot.y, w.rot.z, w.rot.w))
         }
@@ -791,7 +791,7 @@ public class TablePlayer(
      * heading. It is a run of the same caster (damage credit, [ownerOf], `cancelAllOf` on death, `cancelAll` at match end) with its own machine, clock and
      * seed (derived from the summoner's, never random); it outlives the summoning cast and is cut [Action.Summon.lasts] ticks after it starts.
      */
-    private fun summon(run: Run, a: Action.Summon, ctx: RowCtx, now: Int, src: String) {
+    private fun summon(run: Run, row: Row, a: Action.Summon, ctx: RowCtx, now: Int, src: String) {
         val skill = summonSkills(a.skill)
         if (skill == null) {
             fault(run, now, src, "summon: no compiled skill '${a.skill}'", FaultKind.UNSUPPORTED)
@@ -833,6 +833,8 @@ public class TablePlayer(
         val frame = InstanceId(listOf(InstanceId.Segment(OpId(frameName), null)))
         child.recs[frame] = Rec(SpawnKind.FRAME, null, "world", request.startTick, null, false, PoseV(at, Quaterniond().rotateY(turn), Vector3d(1.0, 1.0, 1.0)))
         live.register(child.cursor.handle, request)
+        // the summon op's id names the summoned body for the summoning run's frames (`origin: <summon id>`, ADR-0314): a frame at the spawn point, facing the summon's way
+        run.recs[row.instance] = Rec(SpawnKind.FRAME, null, "world", now, ctx.owner, ctx.detached, PoseV(at, Quaterniond().rotateY(turn), Vector3d(1.0, 1.0, 1.0))).also { it.untraced = true }
     }
 
     /** A body ran out of hp: its run hears `destroyed` (an `on: destroyed` state plays its break), and a run with no such handler is cut at once. */
@@ -1070,7 +1072,7 @@ public class TablePlayer(
                 }
                 is Action.Effect -> effect(run, row, a, ctx, now, src)
                 is Action.World -> WorldRows.execute(world, castRef(run), a, vec(run, a.origin, ctx), vec(run, a.forward, ctx), eye = { runCatching { live.vec(run.cursor.handle, "caster.eye", ctx.binding, ctx.scope) }.getOrNull() ?: vec(run, a.origin, ctx) }) { cell -> num(run, cell as Num, ctx) }
-                is Action.Summon -> summon(run, a, ctx, now, src)
+                is Action.Summon -> summon(run, row, a, ctx, now, src)
                 is Action.Lock -> {
                     val until = when (val end = a.until) {
                         is LockEnd.AtTick -> ctx.base + end.tick
@@ -2270,6 +2272,12 @@ public class TablePlayer(
         val handle = run.cursor.handle
         inst.evaluatedTick = now
         frameEvaluations++
+        // an instance-rooted frame (a projectile's body) has no state until that op has spawned: nothing reads it before then
+        val rooted = decl.origin
+        if (rooted is OriginSpec.Instance && anchorOf(run, rooted.name) == null) {
+            inst.state = null
+            return
+        }
         val origin = try {
             frameOrigin(run, decl, binding, scope, now)
         } catch (e: IllegalArgumentException) {
@@ -2385,15 +2393,28 @@ public class TablePlayer(
             else -> decl.id
         }
         val inst = run.frames.getOrPut(key) { FrameInst(decl, lastTick, binding) }
-        if (inst.evaluatedTick != lastTick) evaluateFrame(run, key, inst, lastTick)
+        // an instance-rooted frame evaluated before its op spawned this tick (the table runs before the rows): read again once the instance exists
+        val pending = inst.state == null && (decl.origin as? OriginSpec.Instance)?.let { anchorOf(run, it.name) != null } == true
+        if (inst.evaluatedTick != lastTick || pending) evaluateFrame(run, key, inst, lastTick)
         return inst
     }
 
     private fun frameState(run: Run, ref: FrameRef, binding: EventBinding?): FrameState =
-        frameInst(run, ref, binding).state ?: throw IllegalArgumentException("frame '${ref.frame}' has no pose this tick (its axes are degenerate or its origin unreadable; see the fault)")
+        frameInst(run, ref, binding).let { inst ->
+            inst.state ?: throw IllegalArgumentException(
+                (inst.decl.origin as? OriginSpec.Instance)?.let { "frame '${ref.frame}' waits for its origin '${it.name}' to spawn (the compiler orders a reader after the op that spawns it within a tick)" }
+                    ?: "frame '${ref.frame}' has no pose this tick (its axes are degenerate or its origin unreadable; see the fault)",
+            )
+        }
 
-    private fun frameVec(run: Run, ref: FrameRef, binding: EventBinding?): Vector3d =
-        frameState(run, ref, binding).world(ref.at).let { Vector3d(it.x, it.y, it.z) }
+    private fun frameVec(run: Run, ref: FrameRef, binding: EventBinding?): Vector3d {
+        val a = frameState(run, ref, binding).world(ref.at).let { Vector3d(it.x, it.y, it.z) }
+        if (ref.toFrame == ref.frame) return a
+        // a cross-frame line point (the ends on two frames): the lerp between the frames' world points
+        val end = ref.to ?: return a
+        val b = frameState(run, FrameRef(ref.toFrame, end), binding).world(end).let { Vector3d(it.x, it.y, it.z) }
+        return a.lerp(b, ref.u)
+    }
 
     private fun frameRot(run: Run, ref: FrameRef, binding: EventBinding?): Quaterniond =
         frameState(run, ref, binding).orientation().let { Quaterniond(it.x, it.y, it.z, it.w) }
@@ -3058,6 +3079,8 @@ public class TablePlayer(
         var to: PoseV,
     ) {
         var real: VisualHandle? = null
+        /** A frame record that only names a point for the run's `frames:` (a summon's spawn point): not part of the cast trace. */
+        var untraced = false
         /** The world pose of the parent instance this rider was last placed against (null before the first look): [followRiders] writes the rider when it changes. */
         var parentSeen: PoseV? = null
         /** A `rig` anchor instance: the driver that poses [RigRec.driven] each tick (this rec itself when the rig has no `of`). */

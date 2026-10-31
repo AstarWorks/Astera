@@ -23,7 +23,7 @@ internal object FrameRefCheck {
         return null
     }
 
-    private fun refsOf(row: Row): List<String> {
+    fun refsOf(row: Row): List<String> {
         val names = ArrayList<String>()
         fun cell(v: Val<*>?) { if (v is Val.Live) names += v.name }
         when (val a = row.action) {
@@ -38,6 +38,6 @@ internal object FrameRefCheck {
             is Action.Effect -> ((a.payload["frame"] as? Val.Known)?.value as? String)?.let { names += FrameRefs.PREFIX + it }
             else -> Unit
         }
-        return names.mapNotNull { FrameRefs.parse(it)?.frame }
+        return names.mapNotNull { FrameRefs.parse(it) }.flatMap { listOf(it.frame, it.toFrame) }
     }
 }

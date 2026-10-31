@@ -290,6 +290,127 @@ $rows
     }
 
     @Test
+    fun aProjectileBodyIsAFrameOriginThatTravelsWithTheBullet() {
+        val skill = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: bolt-frame
+            anchors:
+              - {id: start, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
+            frames:
+              - {id: shot, origin: bolt, v: velocity, w: up, s: v x w}
+            lines:
+              tail: {frame: shot, from: {}, to: {v: -0.4}}
+            machine:
+              start: s
+              states:
+                s:
+                  for: 6
+                  then: end
+                  do:
+                    - {id: bolt, op: projectile, origin: start, velocity: "= look(caster) * 2.0", for: 6, radius: 0.3, hit: {targets: enemies, once: true, attach: false}, block: {mode: despawn}}
+                    - {id: trail, op: particle, particle: flame, frame: shot, pos: {v: -0.4}, count: 1, at: 0, every: 1, for: 6}
+                end: {final: true}
+            """,
+        )
+        val rec = GatewayRecorder()
+        play(skill, 1L, emptyList(), 9, rec)
+        val emitted = rec.emittedAt.filter { it.second == "flame" }.sortedBy { it.first }
+        assertThat(emitted.map { it.first }).describedAs("a presentation row at the bolt's spawn tick reads its frame, which then follows it every tick").containsExactly(0, 1, 2, 3, 4, 5)
+        assertThat(emitted.first().third.z).describedAs("at the spawn tick the frame sits at the muzzle (0.5 ahead), the point 0.4 behind it").isBetween(0.09, 0.11)
+        for ((a, b) in emitted.drop(1).zipWithNext()) assertThat(a.third.distance(b.third)).describedAs("the trail point rides the bullet: 2 blocks a tick once it flies").isBetween(1.99, 2.01)
+    }
+
+    @Test
+    fun aSummonBodyIsAFrameOriginAtItsSpawnPoint() {
+        val text = """
+            apiVersion: astera/v3
+            kind: Skill
+            id: turret
+            frames_in: {spot: anchor}
+            meta: {cooldown_ticks: 0, resource_cost: 0}
+            machine:
+              start: watch
+              states:
+                watch:
+                  for: 10
+                  then: end
+                  do: []
+                end: {final: true}
+            ---
+            apiVersion: astera/v3
+            kind: Skill
+            id: totem
+            meta: {cooldown_ticks: 0, resource_cost: 0}
+            anchors:
+              - {id: plant, anchor: caster.feet, offset: {forward: 2}, mode: snapshot}
+            frames:
+              - {id: post, origin: sentry, v: forward, w: up, s: v x w}
+            machine:
+              start: place
+              states:
+                place:
+                  for: 5
+                  then: end
+                  do:
+                    - {id: sentry, op: summon, at: 0, skill: turret, anchor: plant, life: 10}
+                    - {id: mark, op: particle, particle: flame, frame: post, pos: {v: 1.0, w: 0.5}, count: 1, at: 0, every: 1, for: 4}
+                end: {final: true}
+            """.trimIndent()
+        val docs = (decodeAll("<inline>", text) as? Result.Success)?.value ?: error("expected a clean decode")
+        val turret = (compileMain(docs, "turret") as? Result.Success)?.value ?: error("turret did not compile")
+        val totem = (compileMain(docs, "totem") as? Result.Success)?.value ?: error("totem did not compile")
+        summonSkills = { if (it == "turret") turret else null }
+        val rec = GatewayRecorder()
+        play(totem, 1L, emptyList(), 7, rec)
+        val marks = rec.emittedAt.filter { it.second == "flame" }.sortedBy { it.first }
+        assertThat(marks.map { it.first }).describedAs("a presentation row at the spawn tick reads the frame: the compiler orders it after the summon that roots it").containsExactly(0, 1, 2, 3)
+        for (m in marks) {
+            assertThat(m.third.x).isBetween(-0.01, 0.01)
+            assertThat(m.third.z).describedAs("the turret stands 2 ahead, the mark 1 beyond it").isBetween(2.99, 3.01)
+            // The recorder answers caster.feet at casterPosition (GatewayRecorder.kt:645, default y 1.0); the w axis adds 0.5 above the spawn point.
+            assertThat(m.third.y).describedAs("spawn point y plus w 0.5").isBetween(rec.casterPosition.y + 0.49, rec.casterPosition.y + 0.51)
+        }
+    }
+
+    @Test
+    fun aLineWhoseEndsSitOnTwoFramesFollowsBoth() {
+        val skill = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: beam
+            frames:
+              - {id: a, origin: caster, v: forward, w: up, s: v x w}
+              - id: b
+                origin: caster
+                v: forward
+                w: up
+                s: v x w
+                move:
+                  - {at: 0, for: 4, to: {v: 4.0}, ease: linear}
+            lines:
+              span: {from: {frame: a, pos: {v: 1.0}}, to: {frame: b, pos: {v: 1.0}}}
+            machine:
+              start: s
+              states:
+                s:
+                  for: 6
+                  then: end
+                  do:
+                    - {id: beam, op: particle, particle: flame, along: span, samples: 3, count: 1, at: 4}
+                end: {final: true}
+            """,
+        )
+        val rec = GatewayRecorder()
+        play(skill, 1L, emptyList(), 7, rec)
+        val pts = rec.emittedAt.filter { it.second == "flame" && it.first == 4 }.map { it.third }.sortedBy { it.z }
+        assertThat(pts).describedAs("three samples from frame a's point to frame b's point, the far end 4 further along").hasSize(3)
+        assertThat(pts.map { it.z }).satisfies({ z -> assertThat(z[0]).isBetween(0.99, 1.01); assertThat(z[1]).isBetween(2.99, 3.01); assertThat(z[2]).isBetween(4.99, 5.01) })
+    }
+
+    @Test
     fun anUndeclaredFrameIsACompileErrorNamingTheRow() {
         val r = loadInline(
             """

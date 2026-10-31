@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.OriginSpec
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.load.IVanillaKeyCatalog
@@ -155,7 +156,7 @@ public class SkillCompiler(
             partDepth = maxOf(inlined.depth, session.maxCallDepth), path = TickRange(0, pathMax), sameTickDepth = sameTick.depth, tail = flat.machine.tail ?: 0,
         )
         PolylineFollow.check(def.id, m.states, subs.values)?.let { return Result.Failure(it) }
-        val table = TableAssembler.assemble(def.id, sampleSeed, emptyMap(), bounds, m.states, subs, m.writes, flat.conditions, config, m.world)
+        val table = TableAssembler.assemble(def.id, sampleSeed, emptyMap(), bounds, m.states, subs, m.writes, flat.conditions, config, m.world, def.frames.mapNotNull { f -> (f.origin as? OriginSpec.Instance)?.let { f.id to it.name } }.toMap())
         when (val r = StaticChecks.run(table, config, def.emits)) {
             is Result.Failure -> return r
             is Result.Success -> Unit
