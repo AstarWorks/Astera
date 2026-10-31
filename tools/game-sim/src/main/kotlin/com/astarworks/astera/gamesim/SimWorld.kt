@@ -65,7 +65,16 @@ public class SimEntity(
 public class SimWorld(
     /** Feet level of the ground plane. Ballistic projectiles that fall below it hit a block. */
     public val groundY: Double = DEFAULT_GROUND_Y,
+    /** The sim seed: every id the sim mints derives from it, so a scenario replays identically (never `UUID.randomUUID()`). */
+    private val idSeed: Long = 0L,
 ) {
+    private var idCounter: Long = 0L
+
+    /** The next sim-minted UUID: a pure function of the seed and how many ids this world minted before. */
+    public fun nextUuid(): UUID = UUID.nameUUIDFromBytes("astera-sim:$idSeed:${idCounter++}".toByteArray())
+
+    public fun nextPlayerId(): PlayerId = PlayerId(nextUuid())
+
     private val byId: MutableMap<PlayerId, SimEntity> = linkedMapOf()
     private val blocks: MutableMap<Triple<String, Int, Pair<Int, Int>>, BlockType> = mutableMapOf()
 
@@ -172,5 +181,3 @@ public class SimMcServer(private val world: SimWorld) : IMcServer {
         return views.getOrPut(id) { SimMcPlayer(entity) }.also { it.rebind(entity) }
     }
 }
-
-internal fun newPlayerId(): PlayerId = PlayerId(UUID.randomUUID())

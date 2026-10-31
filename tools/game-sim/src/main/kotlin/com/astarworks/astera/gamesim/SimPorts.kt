@@ -484,7 +484,7 @@ public class SimTrainingShells(
     override fun spawn(world: WorldId, spot: com.astarworks.astera.core.domain.lobby.TrainingDummySpot, at: Vec3): PlayerId? {
         if (!worldLoaded) return null
         val entity = SimEntity(
-            id = newPlayerId(),
+            id = this.world.nextPlayerId(),
             name = "training-dummy-${spot.id}",
             kind = SimEntityKind.MOB,
             position = at,

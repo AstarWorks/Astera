@@ -178,7 +178,7 @@ internal class SimSkillGameplayGateway(
             else -> return
         }
         val container = attributes.containerFor(PlayerId(victim))
-        val source = "skill-engine:modify_attribute:${UUID.randomUUID()}"
+        val source = "skill-engine:modify_attribute:${world.nextUuid()}"
         container.addModifier(AttributeModifier(key, op, value, source))
         if (durationTicks != null && durationTicks > 0) {
             scheduler.run(ExecutionScope.Entity(victim), com.astarworks.astera.core.application.port.outbound.ticks(durationTicks.toLong())) {

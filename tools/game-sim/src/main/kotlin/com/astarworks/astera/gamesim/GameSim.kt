@@ -104,7 +104,7 @@ public class GameSim private constructor(
     }
 
     /** Displays spawned by SpawnDisplay (WP5). */
-    public val displays: SimDisplayGateway = SimDisplayGateway(scheduler, recorder).also { gateway ->
+    public val displays: SimDisplayGateway = SimDisplayGateway(world, scheduler, recorder).also { gateway ->
     }
 
     /** Bodies of the lobby training dummies (F3-11). */
@@ -145,7 +145,7 @@ public class GameSim private constructor(
     public val spectator: SimSpectator = SimSpectator()
 
     /** Star drops lying in the simulated world; collected by [SimStarDropWorld.pickupSweep] like a vanilla item pickup. */
-    public val starDrops: SimStarDropWorld = SimStarDropWorld()
+    public val starDrops: SimStarDropWorld = SimStarDropWorld(world)
 
     /** Mid ore node blocks and `drop_item` generator drops of the simulated world. */
     public val wornItems: SimWornItems = SimWornItems()
@@ -251,7 +251,7 @@ public class GameSim private constructor(
         worldId: WorldId = WorldId("world"),
         clientLocale: String = "en",
     ): SimEntity {
-        val entity = world.add(SimEntity(newPlayerId(), name, SimEntityKind.PLAYER, at, facing.normalize(), team, world = worldId, locale = clientLocale))
+        val entity = world.add(SimEntity(world.nextPlayerId(), name, SimEntityKind.PLAYER, at, facing.normalize(), team, world = worldId, locale = clientLocale))
         recorder.registerEntity(entity)
         if (join) {
             handoff?.onJoin(entity.id)
@@ -285,7 +285,7 @@ public class GameSim private constructor(
 
     /** Adds a mob (addressed by id like a player; has an HP container and a hitbox). */
     public fun spawnMob(name: String, at: Vec3, team: TeamId? = null): SimEntity {
-        val entity = world.add(SimEntity(newPlayerId(), name, SimEntityKind.MOB, at, Vec3(0.0, 0.0, 1.0), team))
+        val entity = world.add(SimEntity(world.nextPlayerId(), name, SimEntityKind.MOB, at, Vec3(0.0, 0.0, 1.0), team))
         recorder.registerEntity(entity)
         return entity
     }
@@ -536,7 +536,7 @@ public class GameSim private constructor(
             botGateway: com.astarworks.astera.core.application.port.outbound.bots.IBotRequestGateway? = null,
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
-            val world = SimWorld(groundY)
+            val world = SimWorld(groundY, seed)
             val scheduler = FakeScheduler()
             val rootServices = ServiceRegistry()
             val services = rootServices.scoped(com.astarworks.astera.core.application.wiring.WiringTag.SUBSTRATE)

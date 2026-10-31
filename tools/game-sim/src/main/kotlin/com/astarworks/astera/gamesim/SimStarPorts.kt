@@ -13,7 +13,6 @@ import com.astarworks.astera.match.application.port.outbound.IStarDropWorld
 import com.astarworks.astera.match.domain.norma.NormaGoal
 import com.astarworks.astera.core.domain.item.Rarity
 import com.astarworks.astera.match.domain.norma.NormaUnlock
-import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -22,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * standing within [PICKUP_REACH] of a drop (checked every tick by [pickupSweep] and on every move) attempts to pick
  * it up once its pickup delay is over; there is no other way to collect.
  */
-public class SimStarDropWorld : IStarDropWorld {
+public class SimStarDropWorld(private val world: SimWorld) : IStarDropWorld {
     public data class Drop(val handle: String, val world: WorldId, var position: Vec3, var amount: Int, val readyAtTick: Long, val velocity: Vec3? = null)
 
     private val drops: MutableMap<String, Drop> = ConcurrentHashMap()
@@ -33,7 +32,7 @@ public class SimStarDropWorld : IStarDropWorld {
     public fun lying(): List<Drop> = drops.values.toList()
 
     override fun spawn(world: WorldId, position: Vec3, amount: Int, velocity: Vec3?, pickupDelayTicks: Int): String {
-        val handle = UUID.randomUUID().toString()
+        val handle = this.world.nextUuid().toString()
         drops[handle] = Drop(handle, world, position, amount, tick + pickupDelayTicks, velocity)
         return handle
     }

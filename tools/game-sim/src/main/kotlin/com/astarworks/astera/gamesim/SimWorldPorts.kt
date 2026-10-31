@@ -23,7 +23,6 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import java.util.UUID
 
 /**
  * Simulator counterpart of `PaperExplosionGateway` (WP5): entity damage with
@@ -84,6 +83,7 @@ public class SimExplosionGateway(
 
 /** [IDisplayEntityGateway] that only records spawns and removals (displays have no gameplay state). */
 public class SimDisplayGateway(
+    private val world: SimWorld,
     private val scheduler: IScheduler,
     private val recorder: TraceRecorder,
 ) : IDisplayEntityGateway {
@@ -127,7 +127,7 @@ public class SimDisplayGateway(
     public val styles: MutableList<Style> = mutableListOf()
 
     override fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): IDisplayEntityGateway.DisplayHandle {
-        val handle = IDisplayEntityGateway.DisplayHandle(UUID.randomUUID())
+        val handle = IDisplayEntityGateway.DisplayHandle(this.world.nextUuid())
         spec.viewRange?.let { viewRanges[handle] = it }
         val record = Spawned(handle, world, at, spec, renderedLines, scheduler.currentTick())
         active[handle] = record
@@ -339,7 +339,7 @@ public class SimSummonGateway(
         if (':' in key && !key.startsWith("minecraft:")) return null
         val type = key.removePrefix("minecraft:")
         val entity = SimEntity(
-            id = newPlayerId(),
+            id = world.nextPlayerId(),
             name = "summon-$type-${++counter}",
             kind = SimEntityKind.MOB,
             position = request.position,
