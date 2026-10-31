@@ -1,3 +1,9 @@
+# frost-shard: a bouncing ice shard that chills its target, on the frame grammar (ADR-0314).
+#   tip  - the staff head (eye / aim basis, 1.4 ahead, 0.3 below the eye line, 0.25 right): the cast puff, the spray and the shard leave it.
+#   head - the shard's body (v along its velocity): the prismarine shard display rides it and the trail is a segment of it.
+#   blk  - one per block bounce / end contact (v the way the shard came in): the bounce sound and frost puffs are drawn on it.
+# The victim burst stays the shared frost-shard-burst fragment, which binds an anchor (`heart`), and the contact-to-victim snowflake line keeps
+# its anchor pair: a line between two moving points is not expressible on one frame. Gameplay (speed ramp, bounces, damage, chill) is unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: frost-shard
@@ -12,12 +18,12 @@ params:
   dmg_water:    {type: number, default: 25.0}
   freeze_ticks: {type: ticks, default: 40}
   wet_ticks:    {type: ticks, default: 100}
+frames:
+  - {id: tip, origin: caster.eye, v: aim, w: s x v, s: right, move: [{at: 0, for: 0, to: {v: 1.4, w: -0.3, s: 0.25}}]}
+  - {id: head, origin: ball, v: velocity, w: up, s: v x w}
+  - {id: blk, on: event.block, each: true, origin: contact, v: incoming, w: up, s: v x w}
 anchors:
-  - {id: muzzle,  anchor: caster.eye, offset: {forward: 1.6}, mode: snapshot}
-  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.2, forward: 1.0}, mode: snapshot}
-  - {id: spray_a, anchor: caster.eye, offset: {up: -0.2, forward: 1.6}, mode: snapshot}
-  - {id: spray_b, anchor: caster.eye, offset: {up: -0.2, forward: 2.6}, mode: snapshot}
-  - {id: heart,   anchor: victim.center, mode: follow}
+  - {id: heart, anchor: victim.center, mode: follow}
 machine:
   start: cast
   tail: 2
@@ -28,17 +34,17 @@ machine:
         - {event: ball.end, to: done}
         - {event: end, to: done}
       do:
-        - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 0.8, pitch: 1.4, at: 0}
-        - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx, at: 0}
-        - {id: spray, op: particle, particle: dust, anchor: {of: spray_a, to: spray_b, samples: 6}, count: 2, offset: [0.1, 0.1, 0.1], color: "#ebf5ff", size: 0.45, at: 0}
-        - {id: shell, op: display, kind: item, item: "minecraft:prismarine_shard", context: fixed, anchor: ball, scale: [0.9, 0.9, 0.9], at: 0, until: ball.end}
-        - {id: tr0, op: particle, particle: dust, anchor: {of: ball, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], color: "#e6f4ff", size: 0.4, at: 0, every: 1, until: ball.end}
-        - {id: tr1, op: particle, particle: dust, anchor: {of: ball, sweep: 0.3}, count: 2, offset: [0.06, 0.06, 0.06], color: "#ebf5ff", size: 0.45, at: 0, every: 1, until: ball.end}
-        - {id: tr2, op: particle, particle: dust, anchor: {of: ball, sweep: 0.3}, count: 1, offset: [0.02, 0.02, 0.02], color: "#f5fbff", size: 0.35, at: 0, every: 1, until: ball.end}
+        - {id: snd, op: sound, sound: "astera:skills/frost-cast", frame: tip, volume: 0.8, pitch: 1.4, at: 0}
+        - {id: fx, op: particle_def, def: frost-cast, frame: tip, at: 0}
+        - {id: spray, op: particle, particle: dust, frame: tip, pos: {v: 0.2}, to: {v: 1.2}, samples: 4, count: 1, offset: [0.1, 0.1, 0.1], color: "#ebf5ff", size: 0.45, at: 0}
+        - {id: shell, op: display, kind: item, item: "minecraft:prismarine_shard", context: fixed, frame: head, scale: [0.9, 0.9, 0.9], at: 0, until: ball.end}
+        - {id: tr0, op: particle, particle: dust, frame: head, pos: {v: -1.1}, count: 1, offset: [0.08, 0.08, 0.08], color: "#e6f4ff", size: 0.4, at: 0, every: 1, until: ball.end}
+        - {id: tr1, op: particle, particle: dust, frame: head, pos: {v: -1.1}, count: 1, offset: [0.06, 0.06, 0.06], color: "#ebf5ff", size: 0.45, at: 0, every: 1, until: ball.end}
+        - {id: tr2, op: particle, particle: dust, frame: head, pos: {v: -1.1}, count: 1, offset: [0.02, 0.02, 0.02], color: "#f5fbff", size: 0.35, at: 0, every: 1, until: ball.end}
         - id: ball
           op: projectile
           at: 0
-          origin: muzzle
+          frame: tip
           velocity: "= look(caster)"
           speed: {from: 2.6, to: 1.8, for: 50, ease: out_quad}
           range: 90
@@ -57,9 +63,9 @@ machine:
               - {id: burst, use: skill:frost-shard-burst, with: {snow: 30, rod: 10, dust: 20}, frames: {spot: heart}}
             bounce:
               - {id: chip_b, op: break_area, at: 0, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
-              - {id: snd_blk, op: sound, sound: "astera:skills/frost-impact", anchor: contact.point, volume: "= 0.5 - 0.1 * event.i", pitch: "= 1.6 + 0.1 * event.i", detach: true}
-              - {id: fx_blk, op: particle_def, def: frost-impact, anchor: contact.point, detach: true}
-              - {id: fx_blk_dust, op: particle_def, def: frost-impact-dust, anchor: contact.point, detach: true}
+              - {id: snd_blk, op: sound, sound: "astera:skills/frost-impact", frame: blk, volume: "= 0.5 - 0.1 * event.i", pitch: "= 1.6 + 0.1 * event.i", detach: true}
+              - {id: fx_blk, op: particle_def, def: frost-impact, frame: blk, detach: true}
+              - {id: fx_blk_dust, op: particle_def, def: frost-impact-dust, frame: blk, detach: true}
             end:
               - {id: fx_end, op: particle_def, def: frost-impact, anchor: contact.point, detach: true}
       states:
