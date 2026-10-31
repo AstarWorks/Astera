@@ -1,4 +1,10 @@
-# pistol-shot: base of the pistol tiers. pistol-shot-t2..t4 extend it (ADR-0303 9.3): another id, item, meta and dmg.
+# pistol-shot: the pistol (tiers t2..t4 are this file with another id, item, dmg and the muzzle of their own sprite), in the frame grammar (ADR-0314, ADR-0315).
+# Same hand as revolver-shot: `gun` is rooted in the caster's eye / aim basis (v = aim, s = right, w = s x v) at the aimed position 0.57 ahead,
+# 0.51 below the eye line and 0.30 right (the right arm straight out, the mesh far enough from the eye for the display coverage check). The rig
+# rides it, so the right arm is pinned onto the frame origin and the gun points along `v`. Recoil is a swing on the arm's 0.60 sphere: `move:`
+# kicks the hand up 0.04 over 2 ticks and settles over 4, `rotate:` about `s` flips the muzzle up 14 degrees and back.
+# `hit` one per victim at the victim's centre, `blk` one per block contact, v the way the bullet came in.
+# Flash, smoke, bolt and trail share ONE muzzle point on `gun`, v 0.62 / w 0.24 (the item's grip -> tip x 0.94, content/frames/pistol.yaml). The sparks sit at v -0.2 of the contact. No 3D, no ribbon: the bolt's dust trail is the tracer.
 # Schedule: the bullet flies `life` ticks at constant speed; hit tick, damage and end tick are arithmetic (speed, life), randomness is not used.
 apiVersion: astera/v3
 kind: Skill
@@ -11,40 +17,54 @@ meta:
   resource_cost: 1
   tags: [ranged, gun]
 params:
-  dmg:   {type: number, default: 25.0}
-  speed: {type: number, default: 3.2}
-  life:  {type: ticks, default: 30}
-anchors:
-  - {id: start,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.45, left: -0.35, up: -0.65}, mode: snapshot}  # gun position: right of the eye, below it, so the FP tracer runs from the held item to the crosshair
-  - {id: heart,  anchor: victim.center, mode: follow}
-fragments:
-  # one impact, called from the hit and the block handler with the contact point as `spot`
-  impact:
-    params:
-      snd:   {type: string, default: "astera:weapons/gun-impact"}
-      vol:   {type: number, default: 1.0}
-      pitch: {type: number, default: 1.0}
-      smoke: {type: bool, default: false}
-    frames_in: {spot: anchor}
-    do:
-      - {id: snd, op: sound, sound: "${snd}", anchor: spot, volume: "${vol}", pitch: "${pitch}"}
-      - {id: fx, op: particle_def, def: gun-impact, anchor: spot}
-      - {id: fx_smoke, op: particle_def, def: gun-impact-smoke, anchor: spot, when: "= ${smoke}"}
-      - {id: chip, op: break_area, anchor: spot, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 12, ripple: 29, revert: 200, outside_arena: false}
+  dmg:      {type: number, default: 25}
+  speed:    {type: number, default: 3.2}
+  life:     {type: ticks, default: 30}
+frames:
+  - id: gun
+    origin: caster.eye
+    v: aim
+    w: s x v
+    s: right
+    move:
+      - {at: 0, for: 0, to: {v: 0.57, w: -0.51, s: 0.30}}                      # aimed: straight out from the right shoulder
+      - {at: 0, for: 2, to: {v: 0.58, w: -0.47, s: 0.30}, ease: out_quad}      # recoil: the arm kicks up
+      - {at: 2, for: 4, to: {v: 0.57, w: -0.51, s: 0.30}, ease: in_out_sine}   # settle
+    rotate:
+      - {at: 0, for: 2, about: s, to: 14, ease: out_quad}                      # muzzle flip
+      - {at: 2, for: 4, about: s, to: 0, ease: in_out_sine}
+  - id: hit
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
+  - id: blk
+    on: event.block
+    each: true
+    origin: contact
+    v: incoming
+    w: up
+    s: v x w
 machine:
-  tail: 4
   start: fire
+  tail: 10
   states:
     fire:
+      for: 30
+      then: end
       on:
         - {event: bolt.end, to: end}
-      enter:
-        - {id: fire_fx, use: gun-muzzle, with: {snd: "astera:weapons/gun-shot"}, frames: {muzzle: muzzle}}
       do:
+        - {id: rig, op: rig, frame: gun, for: 10, detach: true}
+        - {id: snd, op: sound, at: 0, sound: "astera:weapons/gun-shot", frame: gun, volume: 0.8}
+        - {id: flash, op: particle_def, at: 0, def: gun-muzzle-flash, frame: gun, pos: {v: 0.62, w: 0.24}}
+        - {id: smoke, op: particle_def, at: 0, def: gun-muzzle-smoke, frame: gun, pos: {v: 0.62, w: 0.24}}
         - id: bolt
           op: projectile
-          origin: start
+          frame: gun
+          pos: {v: 0.62, w: 0.24}
           velocity: "= look(caster) * ${speed}"
           for: "${life}"
           radius: 0.5
@@ -52,14 +72,15 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {id: tracer_h, use: skill:gun-tracer, with: {thickness: 0.1}, frames: {muzzle: muzzle, tip: contact}}
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg}"}}
-              - {id: fx_hit, op: use, use: "fragment:impact", frames: {spot: heart}}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", frame: hit, detach: true}
+              - {id: fx_hit, op: particle_def, def: gun-impact, frame: hit, pos: {v: -0.2}, detach: true}
+              - {id: chip, op: break_area, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 12, ripple: 29, revert: 200, outside_arena: false}
             block:
-              - {id: tracer_b, use: skill:gun-tracer, with: {thickness: 0.1}, frames: {muzzle: muzzle, tip: contact}}
-              - {id: fx_blk, op: use, use: "fragment:impact", with: {snd: "astera:weapons/gun-impact-block", vol: 0.6, pitch: 1.6, smoke: true}, frames: {spot: contact}}
-            expire:
-              - {id: tracer_e, use: skill:gun-tracer, with: {thickness: 0.1}, frames: {muzzle: muzzle, tip: contact}}
-        # the visible round and its trail, both riding the body
-        - {id: slug, use: bullet-body, with: {item: "minecraft:iron_nugget", scale: 0.5}, frames: {body: bolt}, events: {body_end: bolt.end}}
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", frame: blk, volume: 0.6, pitch: 1.6, detach: true}
+              - {id: fx_blk, op: particle_def, def: gun-impact, frame: blk, pos: {v: -0.2}, detach: true}
+              - {id: smoke_blk, op: particle_def, def: gun-impact-smoke, frame: blk, pos: {v: -0.2}, detach: true}
+              - {id: chip_blk, op: break_area, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 12, ripple: 29, revert: 200, outside_arena: false}
+        - {id: trail0, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.02, 0.02, 0.02], color: "#ffe9a8", size: 0.3, at: 1, every: 1, until: bolt.end}
+        - {id: trail1, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], color: "#9a9a9a", size: 0.35, at: 1, every: 1, until: bolt.end}
     end: {final: true}
