@@ -77,7 +77,7 @@ abstract class SkillEngineScenario {
     protected val shippedParts: Map<String, Part> by lazy {
         when (val r = PartParser.loadDirectory(contentDir.resolve("skill-parts"))) {
             is Result.Success -> r.value
-            is Result.Failure -> emptyMap()
+            is Result.Failure -> error("content/skill-parts failed to load: ${r.error.joinToString("; ")}")
         }
     }
 
