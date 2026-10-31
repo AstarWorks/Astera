@@ -5,6 +5,8 @@ import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ParticlePlacement
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.FramePoint
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
@@ -80,11 +82,11 @@ internal object GameplayOps {
 
     /** `{kind: enemies|allies, around, radius, max_count?, include_self?}` (ADR-0303 3 target grammar). */
     private val areaKind = Field.required("kind", Types.enumOf("enemies", "allies"), "enemies or allies")
-    private val areaAround = Field.required("around", Types.id, "point or frame the area is centred on")
+    private val areaAround = Field.optional("around", Types.nullable(Types.id), null, "point or frame the area is centred on; or write frame: + pos: {v, w, s} instead (ADR-0314)")
     private val areaRadius = Field.required("radius", Types.number, "radius in blocks")
     private val areaMax = maxCountField("keep the nearest N to `around`; `all` = unlimited")
     private val areaSelf = Field.optional("include_self", flag, false, "allies only: include the caster")
-    private val areaFields: Fields = Fields.of("target", areaKind, areaAround, areaRadius, areaMax, areaSelf)
+    private val areaFields: Fields = Fields.of("target", areaKind, areaAround, FrameRefs.FRAME, FrameRefs.POS, areaRadius, areaMax, areaSelf)
 
     /** `victim`, `event.victim`, `event.attacker`, `caster` or an area map. Read as a plain string or a map, never a bare CEL value. */
     val target: FieldType<TargetRef> = object : FieldType<TargetRef> {
@@ -107,13 +109,17 @@ internal object GameplayOps {
 
     private fun decodeArea(raw: Map<*, *>, ctx: GrammarContext, path: String): TargetRef {
         val v = areaFields.read(raw, ctx, path)
+        val around = v[areaAround]?.let { PointRef.parse(it) }
+        val frame = FrameRefs.read(v, ctx, path, anchorGiven = around != null)
+        if (around == null && frame == null) ctx.fail(path, "an area needs a centre: around: <id>, or frame: <id> with pos: {v, w, s} (ADR-0314)")
+        val at = frame?.let { FramePoint(it.frame, it.at) }
         return when (v[areaKind]) {
             "enemies" -> {
                 // ADR-0303 3: an area target writes include_self on both kinds; the caster is never an enemy, so only false is meaningful there
                 if (v[areaSelf]) ctx.fail(path, "include_self: true is only valid for allies (the caster is never an enemy)")
-                TargetRef.Enemies(PointRef.parse(v[areaAround]), v[areaRadius], v[areaMax])
+                TargetRef.Enemies(around, v[areaRadius], v[areaMax], at)
             }
-            else -> TargetRef.Allies(PointRef.parse(v[areaAround]), v[areaRadius], v[areaMax], v[areaSelf])
+            else -> TargetRef.Allies(around, v[areaRadius], v[areaMax], v[areaSelf], at)
         }
     }
 
@@ -221,11 +227,16 @@ internal object GameplayOps {
         TargetRef.Victim -> requireHitScope(lc, path, "victim").map { TargetRule.Entity("event.victim") }
         TargetRef.Caster -> Result.Success(TargetRule.Entity("caster"))
         TargetRef.Attacker -> Result.Success(TargetRule.Entity("event.attacker"))
-        is TargetRef.Enemies -> area(lc, path, "enemies", t.around, t.radius, t.maxCount, false)
-        is TargetRef.Allies -> area(lc, path, "allies", t.around, t.radius, t.maxCount, t.includeSelf)
+        is TargetRef.Enemies -> area(lc, path, "enemies", t.around, t.at, t.radius, t.maxCount, false)
+        is TargetRef.Allies -> area(lc, path, "allies", t.around, t.at, t.radius, t.maxCount, t.includeSelf)
     }
 
-    private fun area(lc: LowerContext, path: String, kind: String, around: PointRef, radius: Value<Double>, maxCount: Int?, includeSelf: Boolean): Result<TargetRule, SkillDecodeError> {
+    private fun area(lc: LowerContext, path: String, kind: String, around: PointRef?, at: FramePoint?, radius: Value<Double>, maxCount: Int?, includeSelf: Boolean): Result<TargetRule, SkillDecodeError> {
+        if (at != null) {
+            // frame form: the centre is a cell of the per-tick frame table, resolved like every pos: (no anchor instance)
+            return num(radius, lc, "$path.radius").map { r -> TargetRule.Area(kind, null, FrameRefs.cellOf(at), r, maxCount, includeSelf) }
+        }
+        around!!
         // an undeclared name would only fail when the area is first evaluated (on Paper); the load refuses it instead
         val name = point(around.frame, around.point)
         when (val b = ParticlePlacement.base(lc, name, "target")) {
@@ -237,6 +248,22 @@ internal object GameplayOps {
         return num(radius, lc, "$path.radius").map { r ->
             TargetRule.Area(kind, lc.anchors.resolve(around.frame)?.instance, AnchorNames.host(lc.anchors, name), r, maxCount, includeSelf)
         }
+    }
+
+    /**
+     * The `frame:` + `dir: {v, w, s}` alternative of a push op's world vector (knockback / pull `direction`, impulse `vector`): null when
+     * absent, else the live direction cell (the frame's axes weighted by the coefficients, no origin) read from the per-tick frame table.
+     */
+    fun frameDirection(values: FieldValues, ctx: GrammarContext, path: String, worldGiven: Boolean): Val.Live<com.astarworks.astera.core.domain.skillengine.math.Vector3d>? {
+        val frame = values[FrameRefs.FRAME]
+        val dir = values[FrameRefs.DIR]
+        if (frame == null) {
+            if (dir != null) ctx.fail("$path.dir", "dir: {v, w, s} needs frame: <id>")
+            if (!worldGiven) ctx.fail(path, "needs a direction: the world vector, or frame: <id> with dir: {v, w, s} (ADR-0314)")
+            return null
+        }
+        if (worldGiven) ctx.fail("$path.frame", "frame: + dir: and the world vector are exclusive; write one")
+        return Val.Live(FrameRefs.directionCell(frame, dir ?: com.astarworks.astera.core.domain.skillengine.frame.grammar.Coeff(1.0, 0.0, 0.0)), null)
     }
 
     fun row(lc: LowerContext, instance: InstanceId, action: Action): Row = Row(0, instance, action, lc.src)

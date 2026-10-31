@@ -2,7 +2,8 @@ package com.astarworks.astera.core.application.skillengine.load.ops.gameplay
 
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
-import com.astarworks.astera.core.application.skillengine.load.grammar.AnchorRef
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
+import com.astarworks.astera.core.application.skillengine.load.grammar.OpPlacement
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
@@ -37,7 +38,7 @@ public class SummonOp(
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
     public val skill: String,
-    public val anchor: AnchorRef,
+    public val place: OpPlacement,
     public val lasts: Int,
     public val outlivesCaster: Boolean,
     public val body: SummonBody?,
@@ -49,7 +50,7 @@ public object SummonOpSpec : OpSpec<SummonOp> {
     override val timing: TimingKind? = TimingKind.POINT
 
     private val skillField = Field.required("skill", Types.id, "id of the skill to run: its one frames_in frame is the spawn point")
-    private val anchorField = Field.required("anchor", Types.anchorRef, "where it spawns: a declared anchor, or caster / caster.feet / contact.point, or {of, offset: {forward, up, left}}; it faces the caster's heading")
+    private val anchorField = WorldOps.anchorOptional
     private val lastsField = Field.required("life", WorldOps.intIn(1, 1200), "ticks the summon lives, then it is cut like a cancelled cast")
 
     private val outlivesField = Field.optional("outlives_caster", Types.bool, Value.Literal(false), "true = the caster's death, quit or weapon swap does not cut it (only life, a destroyed body and the match end do); false = it goes with the caster")
@@ -59,13 +60,13 @@ public object SummonOpSpec : OpSpec<SummonOp> {
     private val bodyFields = Fields.of("summon-body", bodyHp, bodyWidth, bodyHeight)
     private val bodyField = Field.optional("body", Types.nullable(Types.nested(bodyFields)), null, "optional hittable body: enemy hits, damage, projectiles and area ops see it; none = untargetable. The summoned skill may react to its break with `on: {event: destroyed}`")
 
-    override val fields: Fields = Fields.of("summon", skillField, anchorField, lastsField, outlivesField, bodyField)
+    override val fields: Fields = Fields.of("summon", skillField, anchorField, FrameRefs.FRAME, FrameRefs.POS, lastsField, outlivesField, bodyField)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<SummonOp, SkillDecodeError> =
         Grammar.guard {
             val outlives = (values[outlivesField] as? Value.Literal)?.value ?: ctx.fail("summon(${id.value}).outlives_caster", "must be a literal true/false")
             val body = values[bodyField]?.let { SummonBody(it[bodyHp], it[bodyWidth], it[bodyHeight]) }
-            SummonOp(id, src, whenExpr, timing, values[skillField], values[anchorField], values[lastsField], outlives, body)
+            SummonOp(id, src, whenExpr, timing, values[skillField], OpPlacement.read(values[anchorField], values, ctx, "summon '${id.value}'"), values[lastsField], outlives, body)
         }
 
     override fun lower(op: SummonOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
@@ -84,7 +85,12 @@ public object SummonOpSpec : OpSpec<SummonOp> {
         if (reactsToBreak && op.body == null) {
             return Result.failure(SkillDecodeError.Invalid(lc.skillId, at, "summoned skill '${callee.id}' reacts to `destroyed` but this summon has no `body`; give it `body: {hp: ...}`"))
         }
-        return WorldOps.position(op.anchor, lc).map { origin ->
+        val frameCentre = op.place.centre()
+        if (frameCentre != null) {
+            val action = Action.Summon(op.skill, frameCentre, op.place.forward()!!, op.lasts, op.outlivesCaster, op.body)
+            return Result.Success(Lowered(rows = listOf(Row(0, lc.self, action, lc.src))))
+        }
+        return WorldOps.position(op.place.anchor!!, lc).map { origin ->
             val action = Action.Summon(op.skill, origin, Val.Live<Vector3d>("= forward(caster)", null), op.lasts, op.outlivesCaster, op.body)
             Lowered(rows = listOf(Row(0, lc.self, action, lc.src)))
         }

@@ -7,6 +7,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.AxisSpec
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.Basis3
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.Coeff
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.FramePoint
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.FrameDecl
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.LineDecl
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.MoveKey
@@ -146,32 +147,28 @@ internal object FrameDeclDecoder {
             for (key in body.keys) if (key !in LINE_KEYS) ctx.abort(SkillDecodeError.UnknownKey(ctx.file, p, key.toString(), "expected ${LINE_KEYS.joinToString()}"))
             // two spellings: `frame:` + `from`/`to` coefficients (one frame), or each end `{frame, pos}` (the ends on different frames)
             val crossEnds = body["from"] is Map<*, *> && (body["from"] as Map<*, *>).containsKey("frame")
-            val frame: String
-            val toFrame: String
-            val from: Coeff
-            val to: Coeff
+            val from: FramePoint
+            val to: FramePoint
             if (crossEnds) {
                 if (body.containsKey("frame")) ctx.fail("$p.frame", "line '$id': frame: and per-end {frame, pos} are exclusive")
-                fun end(name: String): Pair<String, Coeff> {
+                fun end(name: String): FramePoint {
                     val e2 = body[name] as? Map<*, *> ?: ctx.mismatch("$p.$name", "{frame, pos}", body[name])
                     for (key in e2.keys) if (key !in END_KEYS) ctx.abort(SkillDecodeError.UnknownKey(ctx.file, "$p.$name", key.toString(), "expected frame, pos"))
                     val f = e2["frame"]?.let { it as? String ?: ctx.mismatch("$p.$name.frame", "frame id", it) } ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, "$p.$name", "frame"))
                     if (f !in frameIds) ctx.abort(SkillDecodeError.UndefinedReference(ctx.file, "$p.$name.frame", "frame '$f' (not under frames:)"))
-                    return f to coeff(ctx, e2["pos"] ?: emptyMap<String, Any>(), "$p.$name.pos", Coeff.ZERO)
+                    return FramePoint(f, coeff(ctx, e2["pos"] ?: emptyMap<String, Any>(), "$p.$name.pos", Coeff.ZERO))
                 }
-                val a = end("from")
-                val z = end("to")
-                frame = a.first; from = a.second; toFrame = z.first; to = z.second
-                if (frame == toFrame && from == to) ctx.fail("$p.to", "line '$id': from and to are the same point; a line has a length")
+                from = end("from")
+                to = end("to")
+                if (from == to) ctx.fail("$p.to", "line '$id': from and to are the same point; a line has a length")
             } else {
-                frame = body["frame"]?.let { it as? String ?: ctx.mismatch("$p.frame", "frame id", it) } ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "frame"))
+                val frame = body["frame"]?.let { it as? String ?: ctx.mismatch("$p.frame", "frame id", it) } ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "frame"))
                 if (frame !in frameIds) ctx.abort(SkillDecodeError.UndefinedReference(ctx.file, "$p.frame", "frame '$frame' (not under frames:)"))
-                toFrame = frame
-                from = coeff(ctx, body["from"] ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "from")), "$p.from", Coeff.ZERO)
-                to = coeff(ctx, body["to"] ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "to")), "$p.to", Coeff.ZERO)
+                from = FramePoint(frame, coeff(ctx, body["from"] ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "from")), "$p.from", Coeff.ZERO))
+                to = FramePoint(frame, coeff(ctx, body["to"] ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "to")), "$p.to", Coeff.ZERO))
                 if (from == to) ctx.fail("$p.to", "line '$id': from and to are the same point; a line has a length")
             }
-            out += LineDecl(id, frame, from, to, toFrame)
+            out += LineDecl(id, from, to)
         }
         return out
     }

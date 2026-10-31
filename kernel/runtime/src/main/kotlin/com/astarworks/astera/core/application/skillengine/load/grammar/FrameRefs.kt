@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.skillengine.load.grammar
 
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.Coeff
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.FramePoint
 import com.astarworks.astera.core.domain.skillengine.math.Vector3d
 import com.astarworks.astera.core.domain.skillengine.table.Val
 
@@ -10,8 +11,8 @@ import com.astarworks.astera.core.domain.skillengine.table.Val
  * cell name [cell] that the runtime resolves from its per-tick frame table ([FrameRefs.PREFIX]); the compiler checks every such cell
  * names a declared frame ([FrameRefs.parse]).
  */
-public data class FrameRef(val frame: String, val at: Coeff, val to: Coeff? = null, val samples: Int = 1, val toFrame: String = frame, val u: Double = 0.0) {
-    /** The live-cell name of `pos`: `frame:<id>#<v>,<w>,<s>`. */
+public data class FrameRef(val frame: String, val at: Coeff, val to: Coeff? = null, val samples: Int = 1, val direction: Boolean = false, val toFrame: String = frame, val u: Double = 0.0) {
+    /** The live-cell name of `pos`: `frame:<id>#<v>,<w>,<s>`; of a direction (`dir`, no origin): `frame:<id>^<v>,<w>,<s>`. */
     public val cell: String get() = cellOf(at)
 
     public fun position(): Val.Live<Vector3d> = Val.Live(cell, null)
@@ -33,7 +34,7 @@ public data class FrameRef(val frame: String, val at: Coeff, val to: Coeff? = nu
     /** A point `u` of the way from `pos` on [frame] to `to` on [toFrame]: `frame:<a>#c|<b>#c@u`, the lerp of the two frames' world points. */
     private fun crossCell(u: Double): String = "${FrameRefs.PREFIX}$frame#${at.v},${at.w},${at.s}|$toFrame#${to!!.v},${to.w},${to.s}@$u"
 
-    private fun cellOf(c: Coeff): String = "${FrameRefs.PREFIX}$frame#${c.v},${c.w},${c.s}"
+    private fun cellOf(c: Coeff): String = "${FrameRefs.PREFIX}$frame${if (direction) '^' else '#'}${c.v},${c.w},${c.s}"
 }
 
 public object FrameRefs {
@@ -50,6 +51,12 @@ public object FrameRefs {
     /** `to: {v, w, s}` field (with `frame:` + `samples:`): the far end of a segment of sample points. */
     public val TO: Field<Coeff?> = Field.optional("to", Types.nullable(coeffType()), null, "far end {v, w, s} of a segment from pos: (with frame: and samples:)")
 
+    /** `dir: {v, w, s}` field (with `frame:`): a direction (no origin) along the frame's axes, for the ops that push or aim (knockback, pull, impulse). */
+    public val DIR: Field<Coeff?> = Field.optional("dir", Types.nullable(coeffType()), null, "direction {v, w, s} along the frame's axes (with frame:)")
+
+    /** `{frame, pos}` point (ADR-0314): the one point type of a ribbon end, an area target centre or a line end. */
+    public val POINT: FieldType<FramePoint> = pointType()
+
     /** `samples: n` field (with `frame:` + `to:`, or `along:`): the number of points spread from `pos` to `to`, ends included. */
     public val SAMPLES: Field<Int?> = Field.optional("samples", Types.nullable(intType()), null, "points spread evenly from pos: to to: (or along a line), ends included (with frame: or along:)")
 
@@ -65,6 +72,35 @@ public object FrameRefs {
         }
         override fun schema(): Map<String, Any?> = linkedMapOf("type" to "integer")
     }
+
+    private fun pointType(): FieldType<FramePoint> = object : FieldType<FramePoint> {
+        override val label = "{frame: <id>, pos: {v, w, s}}"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): FramePoint {
+            val m = raw as? Map<*, *> ?: ctx.mismatch(path, label, raw)
+            for (k in m.keys) if (k !in setOf("frame", "pos")) ctx.abort(SkillDecodeError.UnknownKey(ctx.file, path, k.toString(), "expected frame, pos"))
+            val frame = Types.id.decode(m["frame"] ?: ctx.fail("$path.frame", "a frame point needs frame: <id>"), ctx, "$path.frame")
+            val pos = m["pos"]?.let { coeffType().decode(it, ctx, "$path.pos") } ?: Coeff.ZERO
+            return FramePoint(frame, pos)
+        }
+        override fun schema(): Map<String, Any?> = linkedMapOf(
+            "type" to "object",
+            "required" to listOf("frame"),
+            "properties" to linkedMapOf("frame" to linkedMapOf("type" to "string"), "pos" to coeffType().schema()),
+            "additionalProperties" to false,
+        )
+    }
+
+    /** The live-cell name of [p] (a position): `frame:<id>#<v>,<w>,<s>`, read from the per-tick frame table like every `pos:`. */
+    public fun cellOf(p: FramePoint): String = FrameRef(p.frame, p.pos).cell
+
+    /** The live position cell of the frame point [p]. */
+    public fun position(p: FramePoint): Val.Live<Vector3d> = Val.Live(cellOf(p), null)
+
+    /** The live direction cell of `frame: [frame]` + `dir: [dir]`: the frame's axes weighted by the coefficients, no origin. */
+    public fun directionCell(frame: String, dir: Coeff): String = FrameRef(frame, dir, direction = true).cell
+
+    /** `{v, w, s}` coefficients of a frame's axes. */
+    public val COEFF: FieldType<Coeff> get() = coeffType()
 
     private fun coeffType(): FieldType<Coeff> = object : FieldType<Coeff> {
         override val label = "{v, w, s}"
@@ -110,7 +146,7 @@ public object FrameRefs {
             val line = ctx.lines?.get(along) ?: ctx.abort(SkillDecodeError.UndefinedReference(ctx.file, "$path.along", "line '$along' (not under lines:)"))
             val n = samples ?: ctx.fail("$path.samples", "along: needs samples: <n> (points from the line's from to its to, ends included)")
             if (n < 2) ctx.fail("$path.samples", "samples: is at least 2 (both ends of the line are drawn)")
-            return FrameRef(line.frame, line.from, line.to, n, line.toFrame)
+            return FrameRef(line.from.frame, line.from.pos, line.to.pos, n, toFrame = line.to.frame)
         }
         val base = read(values, ctx, path, anchorGiven)
         if (base == null) {
@@ -137,11 +173,15 @@ public object FrameRefs {
             val u = rest.substringAfter('@').toDouble()
             val b = rest.substringBefore('@')
             fun co(t: String): Coeff = t.substringAfter('#').split(',').let { Coeff(it[0].toDouble(), it[1].toDouble(), it[2].toDouble()) }
-            return FrameRef(a.substringBefore('#'), co(a), co(b), 2, b.substringBefore('#'), u)
+            return FrameRef(a.substringBefore('#'), co(a), co(b), 2, toFrame = b.substringBefore('#'), u = u)
         }
-        val id = body.substringBefore('#')
-        val c = body.substringAfter('#', "").split(',')
-        if (c.size != 3) return FrameRef(id, Coeff.ZERO)
-        return FrameRef(id, Coeff(c[0].toDouble(), c[1].toDouble(), c[2].toDouble()))
+        val hash = body.indexOf('#')
+        val caret = body.indexOf('^')
+        val direction = caret >= 0 && (hash < 0 || caret < hash)
+        val sep = if (direction) '^' else '#'
+        val id = body.substringBefore(sep)
+        val c = body.substringAfter(sep, "").split(',')
+        if (c.size != 3) return FrameRef(id, Coeff.ZERO, direction = direction)
+        return FrameRef(id, Coeff(c[0].toDouble(), c[1].toDouble(), c[2].toDouble()), direction = direction)
     }
 }

@@ -2407,8 +2407,10 @@ public class TablePlayer(
             )
         }
 
+    /** A `pos` cell: the frame's origin plus the coefficients along its axes; a `dir` cell (ADR-0314): the same weighted axes with no origin. */
     private fun frameVec(run: Run, ref: FrameRef, binding: EventBinding?): Vector3d {
-        val a = frameState(run, ref, binding).world(ref.at).let { Vector3d(it.x, it.y, it.z) }
+        val st = frameState(run, ref, binding)
+        val a = (if (ref.direction) st.basis.direction(ref.at) else st.world(ref.at)).let { Vector3d(it.x, it.y, it.z) }
         if (ref.toFrame == ref.frame) return a
         // a cross-frame line point (the ends on two frames): the lerp between the frames' world points
         val end = ref.to ?: return a
