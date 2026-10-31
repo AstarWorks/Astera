@@ -1,0 +1,18 @@
+# Point table for the smg (ADR-0315: the `gun` frame rig of its skills draws it). Chain as content/frames/revolver.yaml. Flat `handheld` item (1 model unit = 2 px, texture row 0 = model y 16): the gun lies level, the barrel runs to the right; long = root -> tip, edge = the top of the gun.
+# grip = the grip centre, root = where the barrel leaves the frame, tip = the muzzle.
+apiVersion: astera/v3
+kind: ItemFrames
+item: smg
+parts:
+  held:
+    model: astera:smg
+    display: fixed
+    length: 0.7428
+    points: { grip: [-0.2344, -0.0781, -0.0000], pivot: [-0.2344, -0.0781, -0.0000], root: [-0.2344, 0.2031, -0.0000], tip: [0.4531, 0.2031, 0.0000] }
+    axes: { long: [1.0000, 0.0000, 0.0000], edge: [0.0000, 1.0000, 0.0000] }
+  held_hand:
+    model: astera:smg
+    display: thirdperson_righthand
+    length: 0.6314
+    points: { grip: [0.0000, 0.0000, 0.0000], pivot: [0.0000, 0.0000, 0.0000], root: [-0.0000, 0.1371, 0.1958], tip: [0.0000, 0.6158, -0.1394], hand_anchor: [0.0000, 0.2013, -0.0599] }
+    axes: { long: [0.0000, 0.8192, -0.5736], edge: [-0.0000, 0.5736, 0.8192] }
