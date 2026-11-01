@@ -1,44 +1,72 @@
-# shovel-earth-bridge — presentation pass
+# shovel-earth-bridge — round 3 presentation review
 
-Baseline: unmodified content at `e68a3a18`. Cases contain no reference video.
+No reference video. Branch: `wp/tool-skills-polish3d`.
 
-Underhand building scoop. Clay dust pushes outward along the inherited bridge length and width 0.15 blocks above the deck surface; packed-mud/rooted-dirt placement sounds replace breaking.
+Grey clay debris is replaced with brown coarse-dirt clumps and falling_dust. Slow upward arcs and a sparse tan cloud sit above the deck; the shared white ring, sparks and end rods are removed.
 
-Stone | iron | diamond: material debris | metallic sparks/ring | cyan flash/end-rod/chime.
-The shared stone document owns the sequence; tier documents only override values.
+The core occupies the same position and tick as a material emission on the actual affected footprint, rather than a shared fixed offset. The shatter core uses the same live aim-point expression as its mechanical row. Particle counts, spread, velocity, colour and dust scale are presentation only. All 18 skills retain their original metadata, cooldown, dimensions, state durations, damage and break/place rows verbatim (validated against 0c044c264).
 
-Mechanics: the original break/place row, state duration, cooldown and tier dimensions are unchanged. `block_damage: 100` matches ADR-0297 (base damage before held-tool tier multipliers), so no contradiction was found.
+Stone → iron → diamond increases core density and dust scale (0.30 → 0.45 → 0.60). Pickaxe: grey → beige → cyan. Axe: brown → warm wood → blonde wood. Shovel: dark brown → brown → tan; dust density is only 2 → 3 → 4 per lane.
 
-Review evidence is under `/tmp/claude-1000/tool-skills/round-N/`; all 54 real-client captures are complete and have zero missing ticks. Sound: not listened.
+Round-2 sheet: `/tmp/claude-1000/tool-skills/round-2/tool-shovel-earth-bridge.png`.
+Round-3 sheet: `/tmp/claude-1000/tool-skills/round-3/tool-shovel-earth-bridge.png`.
+All-tier captures: `/tmp/claude-1000/tool-skills/round-3/captures/shovel-earth-bridge-{stone,iron,diamond}/compare/`.
 
-Validation: content-lint uses the production loader. New integration coverage: `ToolSkillPresentationScenarioTest.tool families propagate material effects and tier light through the real cast path` (manager runs it; no tests executed in this worktree).
+Review status: final-source tier sheets reviewed below; founder acceptance remains open.
 
-Round 2 preserves the first round’s main bursts, fills the quarter/three-quarter gaps, and adds a delayed deepslate settling ring to shatter. Bridge emissions are above the deck surface so the floor cannot hide them.
+## Sound measurement
 
-Round 1 review: rejected. Its deck emissions at feet -0.15 were hidden by the flat capture floor. Round 2 moves them to feet +0.15 and fills the travelling-wave gaps; mechanical bridge cells remain at feet -1.
+Each skill now plays one matching vanilla material block-break cue, volume 1.0 and pitch 1.0, on its mechanical impact tick. Generic attack/wind, anvil, chime and delayed step layers were removed. Measured all four vanilla sample variants per material with ffmpeg `ebur128=peak=true,astats=metadata=1:reset=0`; one-second zero padding supplies the measurement window for short samples. Cue/ref delta is 0.0 LU for all twelve source samples. This measures source audio with authored gain/pitch, not a microphone recording of the client mix.
 
-## Validation and integration
+Raw ffmpeg logs, WAVs, original asset hashes and measurements: `/tmp/claude-1000/tool-skills/round-3/audio/`. Final per-skill sound/onset table: `/tmp/claude-1000/tool-skills/round-3/report.md`.
 
-Content-lint: PASS (39 runtime categories, 0 failures; 969 pack files, 0 unresolved references). Game-sim and Konsist test sources compile. Test tasks, e2e and check were not run, per worker instructions. The manager must run `ToolSkillPresentationScenarioTest` and Konsist, and regenerate the 18 intentional `skill-oracle/<skill>/skill.txt` presentation goldens. Sound is not listened and has no approval.
+## Integration verification
 
-## Documentation drift found
+`ToolSkillPresentationScenarioTest.tool families propagate material effects and tier light through the real cast path` casts all 18 shipped skills using the production loader, inheritance, player and gateways. It checks material motion, forbidden shared sparkles/crescents, footprint-aligned accents, core size, one unmodified vanilla cue and sound/impact op schedule equality. It writes `tool-op-<skill>.txt` alongside the per-tick scenario JSON traces.
 
-- `docs/vision/VISION.md` still says CEL is unimplemented; the current engine and shipped skills use CEL, including the existing shatter aim-point expression. Followed the implementation.
-- `docs/contributing/vfx-team/sound.md` still shows the old `type: play_sound` / `delay_ticks` dialect; current v3 skills use `op: sound` / `at`. Followed the implementation.
-- `docs/contributing/vfx-team/skill-preview.md` and `make skill-trace` depend on `SkillTraceExportScenarioTest`, which is absent from this checkout. Real-client captures were used, so no synthetic preview was substituted.
+The existing `:tools:game-sim:regenSkillOracle` path is used with a temporary content tree containing only the 18 tool skills. Only the resulting 18 tool goldens are copied back; no non-tool golden is generated or rewritten. Final class: `ShippedV3ContentScenarioTest`. PASS: scoped regenSkillOracle; normal ShippedV3ContentScenarioTest (2 tests, 0 failures); updated ToolSkillPresentationScenarioTest (1 test, 0 failures); compileKotlin; :tools:e2e:compileTestKotlin; :tools:content-lint:run (39 categories, 0 failures; 969 pack files, 0 unresolved); :tools:architecture-test:test (80 tests). XML/logs: `/tmp/claude-1000/tool-skills/round-3/validation/` and `required-checks-3c.log`.
 
-Area-spec update belongs to ops-harness: append the 18 tool skill presentation sequences and the six review cases to the 現状 section of `docs/vision/areas/skills-vfx.md`. No engine, model, sound asset, language or harness source files were changed.
+## Documentation drift / owner requests
 
-## Final comparison
+- `docs/vision/VISION.md` says CEL is unimplemented; the shipped engine and these existing aim-point expressions use CEL.
+- `docs/contributing/vfx-team/sound.md` documents `type: play_sound` / `delay_ticks`; shipped v3 content uses `op: sound` / `at`.
+- `make skill-trace` and `docs/contributing/vfx-team/skill-preview.md` reference the absent `SkillTraceExportScenarioTest`. This pass exports its op schedules and runtime JSON from the owned presentation scenario instead.
+- `tools/vfx-shot/README.md` describes frame indices as ticks after cast, while captures include pre-cast frames. Comparisons must use `meta.json` / `framestamp.json` mapping.
 
-Rows: round 2 / round 1 / baseline. Columns: wind-up / impact / propagation / settle. These are the standard skill-compare API pixels, without hand-made crops.
+依頼: ops-harness に `docs/vision/areas/skills-vfx.md` の現状へこの18ツールの素材別演出・音量測定・oracle更新を追記。Area spec is outside this task's owned paths.
 
-![Round 2, round 1 and baseline](evidence/presentation.png)
+## Required particle registry dependency
 
-Before: `/tmp/claude-1000/tool-skills/round-0/tool-shovel-earth-bridge.png`
 
-After: `/tmp/claude-1000/tool-skills/round-2/tool-shovel-earth-bridge.png`
 
-Case: `tool-shovel-earth-bridge`; skill: `shovel-earth-bridge-diamond`. All three tiers were captured in every round.
+Sourced owner proposal: `/tmp/claude-1000/tool-skills/round-3/falling-dust-dependency.md` (`mean: 57.0273`, vanilla 26.3 FallingDustParticle constructor).
 
-Review: final material footprint and tool motion remain legible; round 2 retains the round-1 primary effects and adds intermediate debris. The bridge floor occlusion found in round 1 is fixed. Human sound approval and manager integration checks remain pending.
+## polish3c: replay and eye clearance
+
+The initial blade-trail emission stays in windup; subsequent emissions are in cast at relative tick 1, every 2, for trail_span-2. This removes the old-state detached trail / later-state particle ordering ambiguity while preserving every emission tick and count. No shared test/engine source changed. Only the 18 tool goldens moved; all 105 non-tool goldens remain byte-identical to 0c044c264. Detailed row classification and mechanical equality: `round-3/validation/golden-classification-3c.json`, `rig-golden-classification-3c.json`, and `mechanics-3c.json`. Rig/frame pose differences against the stale round-2 golden already exist in the inherited b60ed3c84 and are unchanged here.
+
+Near-eye minimum for shovel-earth-bridge, all three tiers: **0.954425 blocks**. Measured every particle `at=` in all four golden poses against eye=(0,1.62,0), matching the incoming ShippedNearEyeScenarioTest metric (held main_hand rigs are excluded and have a separate camera test). All 18 tool minima are >=0.8. Pickaxe's inner blade trail starts at v=0.5 rather than 0.4, retaining five samples; axe's inherited round-3 sweep already clears the rule. The owned real-cast scenario asserts every emission's distance. The shared new class was absent from the polish3c verification base; it was not added or edited here. This is the retained polish3c measurement, not a new shared-test result.
+
+The explicitly authorized `falling_dust: { mean: 57.0273, source: jar-26.3 }` lifetime registry entry is now present; all six shovel fall_* rows use vanilla falling_dust with coarse_dirt block data. The scenario asserts this real particle type. The 24-bit random / float32 expectation is 57.02730482816696 ticks; derivation: `/tmp/claude-1000/tool-skills/round-3/falling-dust-dependency.md`.
+
+Round-0 sheet: `/tmp/claude-1000/tool-skills/round-0/tool-shovel-earth-bridge.png`.
+Final-source visual review is recorded below. Earlier exploratory captures are excluded.
+
+## polish3d: final capture review
+
+Capture-only finish; tool skills and tool particle sources remain identical to `d23fa0642`. Captures use the scoped-reaper merged base (`ad8cf6eec`, resumed at `6862e92e1`). Each accepted take has stepped tick stamps, zero skipped ticks and no invalid flag. The standard compare API checked every selected skill identity. No content, golden or test source changed in this finish.
+
+round-0: `/tmp/claude-1000/tool-skills/round-0/tool-shovel-earth-bridge.png`.
+round-2: `/tmp/claude-1000/tool-skills/round-2/tool-shovel-earth-bridge.png`.
+round-3: `/tmp/claude-1000/tool-skills/round-3/tool-shovel-earth-bridge.png`.
+
+All three current sheets: `/tmp/claude-1000/tool-skills/round-3/tool-shovel-earth-bridge-{stone,iron,diamond}.png`. Round-2 tier sheets: `/tmp/claude-1000/tool-skills/round-3/baseline/tool-shovel-earth-bridge-{stone,iron,diamond}.png`. Two-row comparisons (round3 above round2): `/tmp/claude-1000/tool-skills/round-3/comparisons/tool-shovel-earth-bridge-{stone,iron,diamond}.png`. Additional diamond decay beats t12/18/24/29: `/tmp/claude-1000/tool-skills/round-3/late/tool-shovel-earth-bridge.png`.
+
+- stone: PARTIAL: grey/clay debris becomes brown dirt clumps along a low deck-aligned strip, no white ring; dust faint. t11 remains open but not clearly thinner than the already sparse round2 bridge. Strong lighting limitation: idle119 vs149 (~20% lower), distant terrain differs; brightness comparisons inconclusive. The low horizontal silhouette overlaps bore/fell, so all-six colour-independent distinction is not established.
+- iron: Material PASS / shape-t11 PARTIAL: grey clay becomes brown dirt clumps over low deck strip; common white ring at t7 removed. Wider/longer strip than stone. Idle148 vs149 stable. Dust faint, t11 sparse but not clearly reduced vs already sparse round2. Horizontal strip overlaps bore/fell shape.
+- diamond: Material PASS / shape-t11 PARTIAL: long low strip of brown coarse-dirt clumps plus faint tan dust replaces grey clay, no shared white sparkle ring. Widest/longest bridge tier; stable idle148 vs149. t11 remains sparse but further thinning vs sparse round2 is not obvious. Low strip still overlaps bore/fell silhouette.
+  Viewed late/tool-shovel-earth-bridge.png: scattered brown clumps and faint tan dust decay through t18-29, a few particles remain at t29.
+
+ShippedV3ContentScenarioTest and ToolSkillPresentationScenarioTest PASS results above belong to polish3c and are preserved. Merged-base compileKotlin, :tools:e2e:compileTestKotlin, :tools:content-lint:run and :tools:architecture-test:test: PASS (base 6862e92e1, required-checks-3d.log, rc0); see round-3/report.md. No new test is needed for capture-only notes/evidence.
+
+Additional documentation drift: `.claude/rules/coding-posture.md` says Kotlin2.2/JVM24; `gradle/libs.versions.toml` pins Kotlin2.3.21 with JVM25 support. Build configuration was followed.

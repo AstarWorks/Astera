@@ -89,6 +89,8 @@ class MatchDriver private constructor(
     /** The brain of each bot seat by player, for metrics hooks. */
     override fun brainOf(player: com.astarworks.astera.core.domain.player.PlayerId): BotBrain? = seats.firstOrNull { it.entity.id == player }?.brain
 
+    override val seatOrder: List<String> get() = seats.map { "${it.name}@${it.team}" }
+
     /** Registers [listener], called with the new tick after every step. */
     override fun onTick(listener: (Long) -> Unit) { listeners += listener }
 

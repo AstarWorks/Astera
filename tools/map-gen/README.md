@@ -101,27 +101,64 @@ The original town, spawn, pillar, supply, ore, bridge and ladder anchors stay fi
 Outer turf rolls through gentle terraces, blending to the fixed broad walking
 corridors; riverbank terraces join the existing bridges and climb-outs. The quarry keeps its original
 height envelope. Coherent headlands, exposed stone/coarse dirt and gravel seams
-break up the rim; noisy rock undersides extend 15–30 blocks down at the perimeter
-and taper deeper inward, above kill y16. Winding worn paths blend dirt path,
+break up the rim. The completed footprint (including town corners) contracts
+downward into a noisy inverted cone over roughly 40 blocks, above kill y16.
+Warped stone/andesite/tuff/deepslate bands, occasional ore, tapered rock spires,
+log roots with supported hanging-root tips and river-outlet falls articulate the underside. Winding worn paths blend dirt path,
 coarse dirt, gravel and turf inside the existing walkable corridor. Lantern
 posts, wooden signboards (no block-entity text), barrels, broken walls and the
 existing wagons mark shoulders.
 
 Seeded groves and clearings replace tree rows: oak, birch, spruce and dark oak
-have 5/7/10-block stems, branched broadleaf crowns, spruce cones and multi-stem
-veteran oaks. Ferns, flowers, bushes, fallen logs and small boulders fill woodland
+have 5/7/10-block stems, rounded layered crowns with seeded corner omissions,
+branch-supported overhangs, spruce whorls and 2×2 veteran oak/dark-oak/spruce trunks. Ferns, flowers, bushes, fallen logs and small boulders fill woodland
 shoulders while keeping the through-routes open.
 
-`HighmarchScenario` additionally checks the decoded perimeter thickness, outer
-turf elevations, all four tree species, undergrowth and blended track materials,
+`HighmarchScenario` additionally checks shrinking decoded underside sections,
+a maximum six-block exposed vertical run below y61, roots, outlet falls, rounded
+crowns and giant spruce, outer turf elevations, all four species, undergrowth and blended tracks,
 and rejects turf left above the excavated quarry. Star-distance checks now use
 the founder's tighter 20–25 bounds. `--baseline` omits the new quality checks.
 
-The offline preview emits two fixed-camera perspective images for Highmarch,
+The offline preview emits three fixed-camera perspective images for Highmarch,
 in addition to top/iso/section/height: `annihilation-arena-perspective.png`
 (red base edge toward the western outpost and yellow, eye -38.5/100/-91.5),
-and `annihilation-arena-eye.png` (same corridor, eye -52.5/66.6/-94.5).
+`annihilation-arena-eye.png` (same corridor, eye -52.5/66.6/-94.5),
+and `annihilation-arena-underside.png` (blue south rim, eye 193.5/28.6/154.5
+toward 115/58/80).
 Voxel DDA uses the actual decoded import, flat material colours and depth fog;
 plants render as full voxels, with no Minecraft textures or lighting. These
 views compare terrain and silhouettes; live appearance remains manager review.
-Evidence and before/after fairness tables: `/tmp/claude-1000/anni-map/quality/`.
+Evidence and before/after fairness tables: `/tmp/claude-1000/anni-map/quality2/`.
+
+## Tick-stable import (anni-tickstable)
+
+The final turf pass runs after all buildings, trees and ore-pocket carving.
+Grass stays under air, plants and the authored light-transmitting covers;
+solid roofs, trunks and foundations have dirt underneath. Exposed dirt,
+including soil under open fences/walls, becomes coarse dirt so grass cannot
+spread into a different imported material. Only materials/states change;
+occupied cells and every gameplay anchor remain fixed.
+
+Kitchen gardens and the yellow farm retain their mature wheat and use
+`farmland[moisture=0]`, the settled state without nearby irrigation. This
+preserves the field footprint and route collision; cropped dry farmland stays
+farmland. This dry state assumes clear weather, as configured by map-shot; rain can
+rehydrate farmland.
+`HighmarchTickStable` in the production-loader `HighmarchScenario` rejects
+buried turf, spreading exposed dirt and wet/uncropped farmland. The real-client
+`HighmarchInworldIT` capture remains the physics proof, with the unchanged
+strict `scan-world.py` comparison:
+
+```sh
+MAP_SETTLE=30 bash tools/map-gen/capture-highmarch.sh /tmp/claude-1000/anni-map/inworld2
+```
+
+No outer flock: map-shot owns its lock and tears down its isolated stack.
+All four cameras wait 30 seconds before capture, longer than the previous
+15-second waits. Evidence: `inworld2/{scan.md,mismatches.csv,phases.log}` and
+`inworld2/after/{founder-view,eye-level,top-down,underside-low}.png`.
+
+Observed: `foreign = 0; missing = 0`, 1,416,561 expected/actual blocks,
+zero material/state mismatches. All 730 routes pass; fairness, spawn-star
+and traversal tables are byte-identical to `quality2/after/`.

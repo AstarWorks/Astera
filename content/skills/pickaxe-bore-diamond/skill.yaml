@@ -11,12 +11,8 @@ meta:
   tags: [tool, cover]
 with:
   length: 8
-  stone_pitch: 0.6
-  thud_vol: 0.8
-  thud_pitch: 1.0
-  thud: true
-  amethyst: true
-  spark: tool-pick-diamond
   trail_span: 10
-  metallic: true
+  chips: 7
+  core_color: "#64f5ef"
+  core_size: 0.6
   bright: true

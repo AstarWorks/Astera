@@ -38,6 +38,13 @@ class AgentPortScenarioTest {
         """{"op":"end"}""",
     )
 
+    /** What one mined `astera:ore_iron_node` of the arena gives, read from `content/ore-nodes/annihilation-arena.yaml` (not a magic number). */
+    private fun ironNodeYield(): Int {
+        val yaml = GameSim.defaultContentDir().resolve("ore-nodes/annihilation-arena.yaml").toFile().readText()
+        val group = yaml.substringAfter("block: astera:ore_iron_node").substringBefore("- block:")
+        return Regex("""item_id: ore-iron, count: (\d+)""").find(group)!!.groupValues[1].toInt()
+    }
+
     @Test
     fun `a scripted seat goes mine buy skip and star through the real port`() {
         val port = AgentPort(DriverMatchHost, GameSim.defaultContentDir().toFile(), GameSim.defaultTraceDir())
@@ -68,7 +75,7 @@ class AgentPortScenarioTest {
         assertThat(obs[2]["stopped"]!!.jsonPrimitive.content).isEqualTo("arrived")
         assertThat(obs[2]["map"]!!.jsonPrimitive.content.lines().size).isLessThanOrEqualTo(20)
         assertThat(obs[3]["stopped"]!!.jsonPrimitive.content).isEqualTo("mined")
-        assertThat(obs[3]["me"]!!.jsonObject["ore"]!!.jsonObject["iron"]!!.jsonPrimitive.int).isEqualTo(2)
+        assertThat(obs[3]["me"]!!.jsonObject["ore"]!!.jsonObject["iron"]!!.jsonPrimitive.int).isEqualTo(ironNodeYield())
 
         // shop + buy: reachable, and the refusal says what is missing.
         assertThat(obs[4]["stopped"]!!.jsonPrimitive.content).isEqualTo("arrived")

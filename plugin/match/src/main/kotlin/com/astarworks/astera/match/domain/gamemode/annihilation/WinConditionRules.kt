@@ -1,7 +1,11 @@
 package com.astarworks.astera.match.domain.gamemode.annihilation
 
+import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.domain.nexus.Nexus
+import com.astarworks.astera.core.domain.nexus.NexusId
 import com.astarworks.astera.core.domain.nexus.NexusPhase
+import com.astarworks.astera.core.domain.nexus.NexusState
 
 /**
  * Win-condition resolver for Annihilation matches (ADR-0108, Wave 5annihilation).
@@ -17,7 +21,8 @@ import com.astarworks.astera.core.domain.nexus.NexusPhase
  *  2. **Sudden-death timer expiry**: in [NexusPhase.Phase5SuddenDeath],
  *     if multiple teams remain when `currentTick - phaseEnteredAtTick
  *     >= config.suddenDeathTicks`, the team with the highest
- *     summed remaining pillar HP wins (ADR-0319); an exact tie at the top is a draw.
+ *     summed remaining pillar HP wins, counting HP lost to play only: the bleed each standing pillar took is added back
+ *     so the bleed never decides (ADR-0319); an exact tie at the top goes to the chain damage dealt to enemy pillars, then kills, then a draw.
  *
  * Both conditions can produce **draw outcomes** (no winner):
  *
@@ -40,7 +45,11 @@ public object WinConditionRules {
         public data object InProgress : Outcome
 
         /** A single team is the winner. */
-        public data class Winner(val team: TeamId) : Outcome
+        public data class Winner(
+            val team: TeamId,
+            /** Null = decided by elimination; otherwise the clock criterion that broke the field. */
+            val decidedBy: EndReason.PillarHpDecision.Criterion? = null,
+        ) : Outcome
 
         /** No winner — multiple teams tied at the end. */
         public data object Draw : Outcome
@@ -49,7 +58,11 @@ public object WinConditionRules {
     /**
      * Resolve the current outcome from [state] at [currentTick].
      */
-    public fun evaluate(state: AnnihilationMatchState, currentTick: Long): Outcome {
+    public fun evaluate(
+        state: AnnihilationMatchState,
+        currentTick: Long,
+        tiebreak: Tiebreak = Tiebreak.NONE,
+    ): Outcome {
         // A single-team match (solo playtest, min_players 1 with the other teams
         // vacated) has nobody to beat: there is no winner by elimination.
         if (state.allTeams.size < 2) return Outcome.InProgress
@@ -63,10 +76,46 @@ public object WinConditionRules {
         val elapsed = currentTick - state.phaseEnteredAtTick
         if (elapsed < state.config.suddenDeathTicks) return Outcome.InProgress
 
-        // Sudden-death timer fired: the team with the most summed pillar HP wins; an exact HP tie at the top is a
-        // draw. Team order never decides (the survivors set has no meaningful order here).
-        val scores = AnnihilationScore.computeAll(survivors, state.pillars.values)
-        val top = scores.first()
-        return if (scores.count { it.score == top.score } > 1) Outcome.Draw else Outcome.Winner(top.team)
+        // Clock decision: most summed pillar HP, bleed taken added back (bleed is pressure, never the decider). Only an exact
+        // tie at the top goes on to the tiebreak chain among the tied teams: damage dealt to enemy pillars, then kills;
+        // still level = draw. Team order never decides.
+        val playHp = playHp(survivors, state.pillars.values, tiebreak.bleedTaken)
+        val topHp = playHp.values.max()
+        var tied = survivors.filter { playHp.getValue(it) == topHp }
+        if (tied.size == 1) return Outcome.Winner(tied.single(), EndReason.PillarHpDecision.Criterion.PILLAR_HP)
+        for ((criterion, values) in listOf(
+            EndReason.PillarHpDecision.Criterion.DAMAGE_DEALT to tiebreak.damageDealt,
+            EndReason.PillarHpDecision.Criterion.KILLS to tiebreak.kills,
+        )) {
+            val best = tied.maxOf { values[it] ?: 0 }
+            tied = tied.filter { (values[it] ?: 0) == best }
+            if (tied.size == 1) return Outcome.Winner(tied.single(), criterion)
+        }
+        return Outcome.Draw
+    }
+
+    /**
+     * Per-team "HP lost to play" for the clock decision: the HP of each standing pillar plus the bleed it took. A pillar
+     * that was destroyed contributes nothing (neither HP nor its earlier bleed), so for a standing pillar this is exactly
+     * its max HP minus the damage players dealt to it, and a team with more pillars does not bleed more points.
+     */
+    public fun playHp(teams: Collection<TeamId>, pillars: Collection<Nexus>, bleedTaken: Map<NexusId, Int>): Map<TeamId, Int> =
+        teams.associateWith { team ->
+            pillars.filter { it.owningTeam == team && it.state != NexusState.DESTROYED }
+                .sumOf { it.hp + (bleedTaken[it.id] ?: 0) }
+        }
+
+    /**
+     * Per-team numbers for the clock decision. [bleedTaken] is the bleed each pillar took (by pillar id) and is added back
+     * to the HP comparison; [damageDealt] and [kills] are only used after an exact tie.
+     */
+    public data class Tiebreak(
+        val damageDealt: Map<TeamId, Int>,
+        val kills: Map<TeamId, Int>,
+        val bleedTaken: Map<NexusId, Int> = emptyMap(),
+    ) {
+        public companion object {
+            public val NONE: Tiebreak = Tiebreak(emptyMap(), emptyMap())
+        }
     }
 }

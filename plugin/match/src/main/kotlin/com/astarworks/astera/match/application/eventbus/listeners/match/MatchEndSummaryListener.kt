@@ -125,7 +125,7 @@ public class MatchEndSummaryListener(
                 if (reason.leader != null) HudComponent.Text(MessageKey("astera.match.summary.subtitle.timer"))
                 else HudComponent.Text(MessageKey("astera.match.summary.subtitle.time-draw"))
             is EndReason.PillarHpDecision ->
-                if (reason.winner != null) HudComponent.Text(MessageKey("astera.match.summary.subtitle.pillar-hp"), placeholders = team(reason.winner))
+                if (reason.winner != null) HudComponent.Text(MessageKey("astera.match.summary.subtitle.${pillarKey(reason.decidedBy)}"), placeholders = team(reason.winner))
                 else HudComponent.Text(MessageKey("astera.match.summary.subtitle.pillar-hp-draw"))
             is EndReason.EncounterCleared -> HudComponent.Text(MessageKey("astera.match.summary.subtitle.pve-cleared"), placeholders = mapOf("waves" to reason.waves.toString()))
             is EndReason.EncounterFailed -> HudComponent.Text(
@@ -182,7 +182,7 @@ public class MatchEndSummaryListener(
                 }
             }
             is EndReason.PillarHpDecision ->
-                reason.winner?.let { w -> send("astera.match.summary.reason.pillar-hp", *teamParams(viewer, teamsById[w], w.value)) }
+                reason.winner?.let { w -> send("astera.match.summary.reason.${pillarKey(reason.decidedBy)}", *teamParams(viewer, teamsById[w], w.value)) }
                     ?: send("astera.match.summary.reason.pillar-hp-draw")
             is EndReason.EncounterCleared -> send("astera.match.summary.reason.encounter-cleared", "waves" to reason.waves.toString())
             is EndReason.EncounterFailed -> send(
@@ -265,6 +265,12 @@ public class MatchEndSummaryListener(
 
         // Clickable line that re-opens this card later from anywhere (the lobby keeps it as the last-match record).
         send("astera.match.result.open-last")
+    }
+
+    private fun pillarKey(by: EndReason.PillarHpDecision.Criterion): String = when (by) {
+        EndReason.PillarHpDecision.Criterion.PILLAR_HP -> "pillar-hp"
+        EndReason.PillarHpDecision.Criterion.DAMAGE_DEALT -> "pillar-damage"
+        EndReason.PillarHpDecision.Criterion.KILLS -> "pillar-kills"
     }
 
     private fun teamParams(viewer: PlayerId, team: com.astarworks.astera.core.domain.match.Team?, fallbackName: String): Array<Pair<String, String>> =

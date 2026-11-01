@@ -34,6 +34,7 @@ public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess
         for ((index, cell) in ordered.withIndex()) {
             if (!blocks.canEdit(cast, cell, spec.outsideArena)) continue
             val type = blocks.blockAt(cast, cell)
+            if (!matchesFamily(cast, spec, cell)) continue
             if (blocks.isCover(cast, cell)) {
                 scheduleCoverStrikes(cast, spec, toolClass, cell, index, ordered.size)
                 continue
@@ -55,16 +56,20 @@ public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess
     private fun scheduleCoverStrikes(cast: CastRef, spec: BreakAreaSpec, toolClass: String?, cell: BlockCell, index: Int, total: Int) {
         if (spec.blockDamage <= 0) return
         schedule(cast, index, total, spec.rippleTicks) {
-            if (blocks.canEdit(cast, cell, spec.outsideArena) && blocks.isCover(cast, cell)) blocks.damage(cast, cell, spec.blockDamage, toolClass)
+            if (blocks.canEdit(cast, cell, spec.outsideArena) && matchesFamily(cast, spec, cell) && blocks.isCover(cast, cell)) blocks.damage(cast, cell, spec.blockDamage, toolClass)
         }
     }
 
     private fun strikeTerrain(cast: CastRef, spec: BreakAreaSpec, toolClass: String?, cell: BlockCell) {
         if (!blocks.canEdit(cast, cell, spec.outsideArena)) return
+        if (!matchesFamily(cast, spec, cell)) return
         val current = blocks.blockAt(cast, cell)
         if (!blocks.isStructure(cast, cell) && (WorldBlockRules.isAir(current) || WorldBlockRules.isProtected(current!!))) return
         editor.edit(cast, cell, spec.revertTicks.toLong()) { blocks.damage(cast, cell, spec.blockDamage, toolClass) == BlockDamageOutcome.BROKEN }
     }
+
+    private fun matchesFamily(cast: CastRef, spec: BreakAreaSpec, cell: BlockCell): Boolean =
+        spec.family?.let { family -> blocks.blockAt(cast, cell)?.let(WorldBlockRules::normalize) in family.blocks } ?: true
 
     override fun placeShape(cast: CastRef, spec: PlaceShapeSpec, aim: WorldAim) {
         val key = WorldBlockRules.normalize(spec.block)

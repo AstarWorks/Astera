@@ -9,6 +9,7 @@ import com.astarworks.astera.core.domain.event.AnnihilationPhaseTransitioned
 import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.event.TeamEliminated
 import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.nexus.NexusPhase
 import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationMatchTracker
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
@@ -63,6 +64,8 @@ public class AnnihilationWinConditionListener(
     private val lifecycle: IMatchLifecycle,
     private val scheduler: IScheduler,
     private val eventBus: IDomainEventBus,
+    /** Kills so far per team of a match (the clock tiebreak after an exact pillar HP tie and equal damage dealt). */
+    private val killsByTeam: (MatchId) -> Map<TeamId, Int> = { emptyMap() },
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -74,7 +77,7 @@ public class AnnihilationWinConditionListener(
     )
 
     public fun handleTeamEliminated(event: TeamEliminated) {
-        val outcome = tracker.evaluateWinCondition(event.matchId, event.atTick)
+        val outcome = tracker.evaluateWinCondition(event.matchId, event.atTick, killsByTeam(event.matchId))
         when (outcome) {
             is WinConditionRules.Outcome.Winner ->
                 endMatch(event.matchId, EndReason.TeamVictory(outcome.team), "winner=${outcome.team}")
@@ -90,13 +93,19 @@ public class AnnihilationWinConditionListener(
         // The match's own phase-5 length (ADR-0319), not the global default.
         val suddenDeathTicks = tracker.state(event.matchId)?.config?.suddenDeathTicks ?: AnnihilationConfig.DEFAULT.suddenDeathTicks
         scheduler.run(ExecutionScope.Global, ticks(suddenDeathTicks)) {
-            val outcome = tracker.evaluateWinCondition(event.matchId, scheduler.currentTick())
+            val outcome = tracker.evaluateWinCondition(event.matchId, scheduler.currentTick(), killsByTeam(event.matchId))
             // InProgress at SD timer expiry is unexpected (the rules say SD must
             // resolve at elapsed >= suddenDeathTicks; a single-team playtest is the
             // one legitimate case). Still end the match - hanging in SD is worse -
             // without a winner.
-            val winner = (outcome as? WinConditionRules.Outcome.Winner)?.team
-            endMatch(event.matchId, EndReason.PillarHpDecision(winner), "sudden-death outcome=$outcome")
+            val won = outcome as? WinConditionRules.Outcome.Winner
+            val by = won?.decidedBy ?: EndReason.PillarHpDecision.Criterion.PILLAR_HP
+            val figures = tracker.clockFigures(event.matchId)
+            endMatch(
+                event.matchId,
+                EndReason.PillarHpDecision(won?.team, by, playHp = figures.playHp, bleedTaken = figures.bleedTaken),
+                "sudden-death outcome=$outcome",
+            )
         }
     }
 

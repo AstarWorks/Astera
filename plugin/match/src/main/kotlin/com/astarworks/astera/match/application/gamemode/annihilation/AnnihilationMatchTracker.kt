@@ -115,6 +115,7 @@ public class AnnihilationMatchTracker(
             hpOverrides = placed.mapNotNull { p -> p.hp?.let { (p.team to p.tier) to it } }.toMap(),
         ).copy(phaseEnteredAtTick = atTick)
         matches[matchId] = seeded
+        damageDealt.remove(matchId)
         if (world != null && placed.isNotEmpty()) {
             sites[matchId] = PillarSites(
                 world,
@@ -131,6 +132,8 @@ public class AnnihilationMatchTracker(
         matches.remove(matchId)
         sites.remove(matchId)
         bleedsApplied.remove(matchId)
+        damageDealt.remove(matchId)
+        bleedTaken.remove(matchId)
     }
 
     /**
@@ -156,6 +159,7 @@ public class AnnihilationMatchTracker(
         amount: Int,
         attackerId: PlayerId?,
         atTick: Long,
+        attackerTeam: TeamId? = null,
     ): NexusDamageOutcome {
         val state = matches[matchId] ?: return NexusDamageOutcome.Ignored(
             reason = com.astarworks.astera.core.domain.nexus.IgnoreReason.ALREADY_DESTROYED,
@@ -165,6 +169,14 @@ public class AnnihilationMatchTracker(
         )
         val (next, outcome) = state.applyDamage(nexusId, amount)
         matches[matchId] = next
+        if (attackerTeam != null && attackerTeam != priorPillar.owningTeam) {
+            val dealt = when (outcome) {
+                is NexusDamageOutcome.Damaged -> outcome.previousHp - outcome.currentHp
+                is NexusDamageOutcome.Destroyed -> outcome.previousHp
+                is NexusDamageOutcome.Ignored -> 0
+            }
+            if (dealt > 0) damageDealt.getOrPut(matchId) { mutableMapOf() }.merge(attackerTeam, dealt, Int::plus)
+        }
 
         when (outcome) {
             is NexusDamageOutcome.Ignored -> Unit
@@ -264,10 +276,43 @@ public class AnnihilationMatchTracker(
      * decides what to do on a non-`InProgress` outcome (typically: end the
      * match via `IMatchLifecycle` — wired in Wave 6 paper adapter).
      */
-    public fun evaluateWinCondition(matchId: MatchId, currentTick: Long): WinConditionRules.Outcome {
+    public fun evaluateWinCondition(
+        matchId: MatchId,
+        currentTick: Long,
+        kills: Map<TeamId, Int> = emptyMap(),
+    ): WinConditionRules.Outcome {
         val state = matches[matchId] ?: return WinConditionRules.Outcome.InProgress
-        return WinConditionRules.evaluate(state, currentTick)
+        return WinConditionRules.evaluate(
+            state,
+            currentTick,
+            WinConditionRules.Tiebreak(damageDealt[matchId]?.toMap().orEmpty(), kills, bleedTaken[matchId]?.toMap().orEmpty()),
+        )
     }
+
+    /** Pillar HP each team has removed from enemy pillars in [matchId] (bleed and environment excluded). */
+    public fun damageDealtBy(matchId: MatchId): Map<TeamId, Int> = damageDealt[matchId]?.toMap().orEmpty()
+
+    private val damageDealt: MutableMap<MatchId, MutableMap<TeamId, Int>> = mutableMapOf()
+
+    /** Sudden-death bleed each pillar of [matchId] has taken so far (the clock HP comparison adds it back). */
+    private val bleedTaken: MutableMap<MatchId, MutableMap<NexusId, Int>> = mutableMapOf()
+
+    /**
+     * The figures the clock HP decision compares, per team: [ClockFigures.playHp] (standing pillar HP plus the bleed taken on
+     * those pillars) and [ClockFigures.bleedTaken] (that bleed alone). A destroyed pillar counts for neither.
+     */
+    public fun clockFigures(matchId: MatchId): ClockFigures {
+        val state = matches[matchId] ?: return ClockFigures(emptyMap(), emptyMap())
+        val bleed = bleedTaken[matchId].orEmpty()
+        val teams = state.survivingTeams
+        val standing = state.pillars.values.filter { it.state != NexusState.DESTROYED }
+        return ClockFigures(
+            playHp = WinConditionRules.playHp(teams, standing, bleed),
+            bleedTaken = teams.associateWith { t -> standing.filter { it.owningTeam == t }.sumOf { bleed[it.id] ?: 0 } },
+        )
+    }
+
+    public data class ClockFigures(val playHp: Map<TeamId, Int>, val bleedTaken: Map<TeamId, Int>)
 
     /**
      * Score snapshot for every team currently tracked in [matchId]. Empty
@@ -303,7 +348,12 @@ public class AnnihilationMatchTracker(
         return standing.mapNotNull { p ->
             val floor = p.maxHp * cfg.bleedFloorPercent / 100
             val amount = minOf(p.maxHp * cfg.bleedPercent / 100, p.hp - floor)
-            if (amount <= 0) null else recordDamage(matchId, p.id, amount, attackerId = null, atTick = currentTick)
+            if (amount <= 0) {
+                null
+            } else {
+                bleedTaken.getOrPut(matchId) { mutableMapOf() }.merge(p.id, amount, Int::plus)
+                recordDamage(matchId, p.id, amount, attackerId = null, atTick = currentTick)
+            }
         }
     }
 

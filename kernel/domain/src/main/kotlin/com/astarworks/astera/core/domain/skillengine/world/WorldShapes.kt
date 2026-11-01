@@ -40,7 +40,17 @@ public data class BreakAreaSpec(
     val rippleTicks: Int,
     val revertTicks: Int,
     val outsideArena: Boolean,
-)
+    val family: BlockFamily? = null,
+) {
+    override fun toString(): String =
+        "BreakAreaSpec(shape=$shape, tool=$tool, blockDamage=$blockDamage, rippleTicks=$rippleTicks, revertTicks=$revertTicks, outsideArena=$outsideArena" +
+            (family?.let { ", family=${it.id}" } ?: "") + ")"
+}
+
+/** A content family resolved at composition; casts keep this immutable snapshot across reloads. */
+public data class BlockFamily(val id: String, val blocks: Set<String>) {
+    override fun toString(): String = id
+}
 
 /** `place_shape` as the gateway receives it: [consume] is an item id taken per placed cell, null = free. */
 public data class PlaceShapeSpec(

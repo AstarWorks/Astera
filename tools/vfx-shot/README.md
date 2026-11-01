@@ -347,6 +347,25 @@ Speed knobs that apply to every stepped capture:
 
 ## Troubleshooting
 
+### Map stills and full-slot verification
+
+`bash tools/map-gen/capture-highmarch.sh /tmp/claude-1000/anni-map/inworld`
+is the **HighmarchInworldIT** integration scenario: boot a fresh Paper stack,
+wait for the production clear/paste/verify Ready gate, join one real 1920x1080
+client, take four stills, stop/save the server, copy its world and compare the
+slot to the shipped RLE plus generator pedestals. A mismatch fails the scenario.
+It uses the existing slot lock and teardown trap; never wrap it in an outer flock.
+The stock capture image receives the same boot-loaded void datapack as the normal
+server image. No legacy fixture is seeded. The founder camera is a documented
+estimate at FOV70; the source screenshot contains no camera metadata.
+
+For another camera plan, use `bash tools/vfx-shot/map-shot.sh CAMERAS.tsv OUTPUT_DIR
+[stage-id]`. TSV columns are `name local-x feet-y local-z yaw pitch`; x/z are
+translated by the actual Ready slot origin. `after/*.png`, `cameras.log`,
+`placement.txt`, `server.log` and the stopped `world/` snapshot are retained.
+The scanner needs the existing Python PyYAML dependency. Run this heavy scenario
+on the approved capture host; it does not call the batched e2e suite.
+
 - **`Pool overlaps`** creating the network: the script probes for a free `10.N.77.0/24`; if all of N=211..250
   are taken, free one with `docker network prune`.
 - **Client exits / never joins**: `build/vfx-shot/.clients/<name>/client.log`; GL problems -> make sure

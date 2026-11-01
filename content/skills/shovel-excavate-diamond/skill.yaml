@@ -13,12 +13,7 @@ with:
   width: 5
   height: 4
   length: 5
-  gravel_pitch: 0.6
-  dirt_vol: 0.9
-  dirt_pitch: 0.8
-  dirt: true
-  flatten: true
-  spark: tool-shovel-diamond
   trail_span: 10
-  metallic: true
-  bright: true
+  chips: 4
+  core_color: "#d5b783"
+  core_size: 0.6
