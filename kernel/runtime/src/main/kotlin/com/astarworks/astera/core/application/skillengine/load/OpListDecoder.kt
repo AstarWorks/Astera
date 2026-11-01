@@ -142,7 +142,7 @@ public class OpListDecoder(private val specs: OpSpecRegistry) {
                     ctx.fail(
                         "$p.${f.name}",
                         "$what (times: $n): '${f.name}: [${raw.joinToString(", ")}]' is ambiguous: one value of the field or $n per-copy values; " +
-                            "write the field in its own form (for example a map {left: , up: , forward: }) for one value, or per_index: {${f.name}: [${raw.joinToString(", ")}]} for one value per copy",
+                            "write the field in its own form (for example a map {v: , w: , s: }) for one value, or per_index: {${f.name}: [${raw.joinToString(", ")}]} for one value per copy",
                     )
                 }
                 continue
@@ -162,9 +162,9 @@ public class OpListDecoder(private val specs: OpSpecRegistry) {
 
     /** A per-index list of frame-vec maps `{left, up, forward}`: one `= [..][int(i)]` per axis (a missing axis is 0), so the field keeps its frame-vec shape. */
     private fun indexedFrameVec(entries: List<Map<*, *>>, ctx: GrammarContext, path: String): Map<String, Any?> {
-        val axes = listOf("left", "up", "forward")
+        val axes = if (entries.any { e -> e.keys.any { it == "v" || it == "w" || it == "s" } }) listOf("v", "w", "s") else listOf("left", "up", "forward")
         entries.forEachIndexed { k, m ->
-            m.keys.firstOrNull { it !in axes }?.let { ctx.fail("$path[$k]", "unknown frame-vector axis '$it' (expected left, up, forward)") }
+            m.keys.firstOrNull { it !in axes }?.let { ctx.fail("$path[$k]", "unknown frame-vector axis '$it' (expected ${axes.joinToString(", ")})") }
         }
         val out = linkedMapOf<String, Any?>()
         for (a in axes) {
