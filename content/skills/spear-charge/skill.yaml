@@ -80,8 +80,7 @@ machine:
           at: 0
           every: 1
           for: "${ticks}"
-          frame: body
-          pos: {w: 0.9}
+          anchor: caster.body
           shape: {sphere: 1.0}
           targets: enemies
           ignore_invulnerability: false
@@ -90,5 +89,5 @@ machine:
           on:
             hit:
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: wound, detach: true}
-        - {id: trail_fx, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.03, at: 0, every: 1, for: 4, detach: true}
+        - {id: trail_fx, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.03, at: 0, every: 1, for: 9, detach: true}
     end: {final: true}

@@ -453,7 +453,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             val originHost: String
             val originPosition: Val<Vector3d>
             val originRotation: Val<Quaterniond>
-            val originFrame = op.originFrame
+            val originFrame = op.originFrame?.baked(lc)
             val originName = op.origin
             if (originFrame != null) {
                 // ADR-0314: the body starts at the frame point `pos:` and faces the frame (`v` forward, `w` up); no instance parent, the

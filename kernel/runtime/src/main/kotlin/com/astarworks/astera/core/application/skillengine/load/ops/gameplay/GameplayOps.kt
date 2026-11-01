@@ -3,6 +3,7 @@ package com.astarworks.astera.core.application.skillengine.load.ops.gameplay
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRef
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.ParticlePlacement
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
 import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
@@ -234,7 +235,7 @@ internal object GameplayOps {
     private fun area(lc: LowerContext, path: String, kind: String, around: PointRef?, at: FramePoint?, radius: Value<Double>, maxCount: Int?, includeSelf: Boolean): Result<TargetRule, SkillDecodeError> {
         if (at != null) {
             // frame form: the centre is a cell of the per-tick frame table, resolved like every pos: (no anchor instance)
-            return num(radius, lc, "$path.radius").map { r -> TargetRule.Area(kind, null, FrameRefs.cellOf(at), r, maxCount, includeSelf) }
+            return num(radius, lc, "$path.radius").map { r -> TargetRule.Area(kind, null, FrameRef(at.frame, at.pos).baked(lc).cell, r, maxCount, includeSelf) }
         }
         around!!
         // an undeclared name would only fail when the area is first evaluated (on Paper); the load refuses it instead

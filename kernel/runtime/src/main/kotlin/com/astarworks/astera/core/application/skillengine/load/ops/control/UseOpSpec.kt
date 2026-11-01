@@ -204,12 +204,14 @@ private object UseLowering {
         }
         // ADR-0303 1: a document `anchors:` entry is a valid frame for a call (it resolves to no instance, like a builtin)
         val documented = frameRoots.filter { lc.anchors.document(it) != null }.toSet()
-        val visible = frameRoots.filter { it in resolvedRoots || it in AnchorNames.BUILTIN_FRAMES || it in documented }.toSet()
+        // a frame of the skill's own `frames:` binds like a state-level `use:` binds it (the compiler renames it in the callee's ops)
+        val skillFrame = frameRoots.filter { it !in resolvedRoots && it in lc.anchors.skillFrames }.toSet()
+        val visible = frameRoots.filter { it in resolvedRoots || it in AnchorNames.BUILTIN_FRAMES || it in documented || it in skillFrame }.toSet()
         PartInliner.checkCall(lc.skillId, at, part, op.args, op.frames, op.events, visible + AnchorNames.BUILTIN_FRAMES + frameRoots.filter { it in visible })?.let { return Result.failure(it) }
         for ((k, v) in op.frames) {
             val full = lc.anchors.resolve(v)
             val root = v.substringBefore('.').substringBefore('[')
-            if (full == null && root !in resolvedRoots && root !in AnchorNames.BUILTIN_FRAMES && root !in documented) {
+            if (full == null && root !in resolvedRoots && root !in AnchorNames.BUILTIN_FRAMES && root !in documented && root !in skillFrame) {
                 return Result.failure(SkillDecodeError.UndefinedReference(lc.skillId, "$at.frames.$k", v))
             }
         }

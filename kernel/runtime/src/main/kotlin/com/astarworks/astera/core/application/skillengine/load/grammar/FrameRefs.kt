@@ -145,10 +145,9 @@ public object FrameRefs {
      * Reads the pair from decoded [values]: null when no `frame:`; a named load error when `pos:` is given without `frame:` or when
      * [anchorGiven] (the op also wrote an anchor) - an op is placed by exactly one of the two.
      */
-    public fun read(values: FieldValues, ctx: GrammarContext, path: String, anchorGiven: Boolean, allowExpr: Boolean = false): FrameRef? {
+    public fun read(values: FieldValues, ctx: GrammarContext, path: String, anchorGiven: Boolean): FrameRef? {
         val frame = values[FRAME]
         val pos = values[POS]
-        if (pos?.exprs != null && !allowExpr) ctx.fail("$path.pos", "an '= expr' coefficient is read by particle, particle_def and sound only; this op takes numeric v, w, s")
         if (frame == null) {
             if (pos != null) ctx.fail("$path.pos", "pos: {v, w, s} needs frame: <id>")
             return null
@@ -161,7 +160,7 @@ public object FrameRefs {
      * [read] plus the `to:` + `samples:` segment (a draw op that emits along a line of frame points), or `along: <line>` + `samples:`
      * (the same segment named once under `lines:`).
      */
-    public fun readSegment(values: FieldValues, ctx: GrammarContext, path: String, anchorGiven: Boolean, allowExpr: Boolean = false): FrameRef? {
+    public fun readSegment(values: FieldValues, ctx: GrammarContext, path: String, anchorGiven: Boolean): FrameRef? {
         val along = values[ALONG]
         val to = values[TO]
         val samples = values[SAMPLES]
@@ -173,7 +172,7 @@ public object FrameRefs {
             if (n < 2) ctx.fail("$path.samples", "samples: is at least 2 (both ends of the line are drawn)")
             return FrameRef(line.from.frame, line.from.pos, line.to.pos, n, toFrame = line.to.frame)
         }
-        val base = read(values, ctx, path, anchorGiven, allowExpr)
+        val base = read(values, ctx, path, anchorGiven)
         if (base?.at?.exprs != null && (to != null || samples != null)) ctx.fail("$path.pos", "an '= expr' coefficient is a single point: it does not combine with to: / samples:")
         if (base == null) {
             if (to != null) ctx.fail("$path.to", "to: {v, w, s} needs frame: <id>")

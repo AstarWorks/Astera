@@ -458,7 +458,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             val spawnPose = if (inChain != null) PoseCompose.combine(inChain.base, pose) { gc.fail("${src.value}.offset", it) } else pose
             // a frame-placed display (ADR-0314) spawns on no instance: its parent pose is the frame cell, re-read from the frame table every tick
             val spawnParent = if (inChain != null) inChain.parent else if (op.frame != null) null else anchorInstance(op, lc)
-            val spawnHost = inChain?.parentName ?: op.frame?.cell ?: AnchorNames.host(lc.anchors, op.anchor!!)
+            val spawnHost = inChain?.parentName ?: op.frame?.baked(lc)?.cell ?: AnchorNames.host(lc.anchors, op.anchor!!)
             val spawn = Row(0, instance, Action.Spawn(spawnKind(op.kind), spawnParent, spawnHost, spawnPose, look(op, right, sprite, lc)), src)
 
             val rows = ArrayList<Row>()

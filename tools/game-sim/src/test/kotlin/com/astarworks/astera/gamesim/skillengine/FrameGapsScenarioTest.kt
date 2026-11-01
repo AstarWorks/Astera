@@ -2,6 +2,10 @@ package com.astarworks.astera.gamesim.skillengine
 
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.animation.skinrig.SkinRigTransforms
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.hit.HitBox
+import com.astarworks.astera.core.domain.skillengine.hit.HitCandidate
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -288,8 +292,242 @@ class FrameGapsScenarioTest : SkillEngineScenario() {
     }
 
     @Test
-    fun aPosExpressionOnAnOpThatTakesNumbersOnlyIsALoudLoadError() {
-        val e = failure(exprSkill("pos-expr-display", "{id: d, op: display, kind: text, text: hi, frame: line, pos: {v: \"= i\"}, for: 3}"))
-        assertThat(e.toString()).describedAs(e.toString()).contains("pos")
+    fun aPosExpressionOnADisplayRowSpacesTheFamilyAlongTheAxis() {
+        val skill = compiled(exprSkill("pos-expr-display", "{id: d, op: display, kind: text, text: hi, frame: line, pos: {v: \"= i * 0.5\"}, times: 3, for: 4}"))
+        val rec = GatewayRecorder()
+        play(skill, 1L, emptyList(), 6, rec)
+        val o = rec.calls.filter { it.verb == "spawn" && it.payload == "kind=text" }.map { c ->
+            val (x, _, z) = Regex("pos=(-?[0-9.]+),(-?[0-9.]+),(-?[0-9.]+)").find(c.detail)!!.destructured.toList().map { it.toDouble() }
+            Pair(x, z)
+        }
+        assertThat(o).hasSize(3)
+        val d1 = Math.hypot(o[1].first - o[0].first, o[1].second - o[0].second)
+        val d2 = Math.hypot(o[2].first - o[0].first, o[2].second - o[0].second)
+        assertThat(d1).isCloseTo(0.5, org.assertj.core.data.Offset.offset(1e-6))
+        assertThat(d2).isCloseTo(1.0, org.assertj.core.data.Offset.offset(1e-6))
+    }
+
+    @Test
+    fun aPosExpressionOnALightningRowBakesAtItsSpawnTick() {
+        val skill = compiled(exprSkill("pos-expr-bolt", "{id: bolt, op: lightning, at: 0, frame: line, pos: {v: \"= i * 0.5\"}, visual_only: true, times: 3}"))
+        val rec = GatewayRecorder()
+        play(skill, 1L, emptyList(), 6, rec)
+        val at = rec.world.lightnings.map { it.at }
+        assertThat(at).hasSize(3)
+        val d = at.map { Math.hypot(it.x - at[0].x, it.z - at[0].z) }.sorted()
+        assertThat(d[1]).isCloseTo(0.5, org.assertj.core.data.Offset.offset(1e-6))
+        assertThat(d[2]).isCloseTo(1.0, org.assertj.core.data.Offset.offset(1e-6))
+    }
+
+    @Test
+    fun anArmFrameOnTheBodyAxesFollowsTheTorsoWithNoKeys() {
+        val skill = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: arm-on-torso
+            frames:
+              - {id: arm, origin: caster.shoulder_r, v: body.forward, w: body.up, s: v x w}
+            machine:
+              start: s
+              world:
+                - {id: body_anim, op: body, target: caster, anim: bastion-s1-body, speed: 1.0, for: 12}
+              states:
+                s:
+                  for: 12
+                  enter:
+                    - {id: shoulder, op: particle, particle: flame, frame: arm, pos: {}, at: 0, every: 1, for: 12}
+                    - {id: hand, op: particle, particle: crit, frame: arm, pos: {v: 0.6}, at: 0, every: 1, for: 12}
+            """,
+        )
+        val rec = GatewayRecorder()
+        play(skill, 1L, emptyList(), 12, rec)
+        val shoulder = rec.emittedAt.filter { it.second == "flame" }.associate { it.first to it.third }
+        val hand = rec.emittedAt.filter { it.second == "crit" }.associate { it.first to it.third }
+        val pushed = rec.pushedBody.associateBy { it.tick }
+        var turned = 0.0
+        var judged = 0
+        for ((tick, s) in shoulder) {
+            val h = hand[tick] ?: continue
+            val torso = SkinRigTransforms.spine((pushed[tick] ?: continue).frame, false).rotation
+            // the torso turns the caster's forward axis (0, 0, 1); a caster at yaw 0 reads it in world axes
+            val fx = 2 * (torso.x * torso.z + torso.w * torso.y)
+            val fy = 2 * (torso.y * torso.z - torso.w * torso.x)
+            val fz = 1 - 2 * (torso.x * torso.x + torso.y * torso.y)
+            assertThat(h.x - s.x).describedAs("t$tick shoulder->hand x in body space").isCloseTo(0.6 * fx, org.assertj.core.data.Offset.offset(1e-4))
+            assertThat(h.y - s.y).describedAs("t$tick shoulder->hand y in body space").isCloseTo(0.6 * fy, org.assertj.core.data.Offset.offset(1e-4))
+            assertThat(h.z - s.z).describedAs("t$tick shoulder->hand z in body space").isCloseTo(0.6 * fz, org.assertj.core.data.Offset.offset(1e-4))
+            turned = maxOf(turned, Math.hypot(fx, fy))
+            judged++
+        }
+        assertThat(judged).describedAs("ticks judged").isGreaterThan(6)
+        assertThat(turned).describedAs("the clip really turns the torso (otherwise the check proves nothing)").isGreaterThan(0.05)
+    }
+
+    @Test
+    fun hitStopOnTheCasterStandsStillEveryFrameClock() {
+        val skill = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: stop-frames
+            frames:
+              - {id: blade, origin: caster, v: forward, w: up, s: v x w, move: [{at: 0, for: 10, to: {v: 5.0}}]}
+            machine:
+              start: s
+              states:
+                s:
+                  for: 12
+                  then: end
+                  do:
+                    - {id: track, op: particle, particle: flame, frame: blade, pos: {}, count: 1, at: 0, every: 1, for: 12}
+                    - id: sel
+                      op: hit
+                      at: 3
+                      anchor: caster
+                      shape: {sphere: 8.0}
+                      targets: enemies
+                      ignore_invulnerability: true
+                      on:
+                        hit:
+                          - {id: stop, op: freeze, ticks: 4, scope: [caster]}
+                end: {final: true}
+            """,
+        )
+        val rec = GatewayRecorder()
+        rec.victimMotion = { _ -> listOf(candidate(victimA, 0.0, 3.0)) }
+        play(skill, 1L, emptyList(), 13, rec)
+        val z = rec.emittedAt.filter { it.second == "flame" }.associate { it.first to it.third.z }
+        assertThat(z[3]!!).describedAs("the blade moves before the stop").isGreaterThan(z[2]!!)
+        for (t in 4..7) assertThat(z[t]!!).describedAs("t$t: the blade stands still for the 4 hit-stop ticks").isCloseTo(z[3]!!, org.assertj.core.data.Offset.offset(1e-9))
+        assertThat(z[8]!!).describedAs("the blade runs on after the stop").isGreaterThan(z[7]!!)
+        assertThat(z[8]!! - z[7]!!).describedAs("at the same rate as before").isCloseTo(z[3]!! - z[2]!!, org.assertj.core.data.Offset.offset(1e-9))
+    }
+
+    @Test
+    fun aDisplayRowReachesASnapshotFrameByFrameAndPos() {
+        val skill = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: display-on-snapshot
+            frames:
+              - {id: live, origin: caster, v: forward, w: up, s: v x w}
+              - {id: held, origin: caster, v: forward, w: up, s: v x w, snapshot: 2}
+            machine:
+              start: s
+              states:
+                s:
+                  for: 8
+                  then: end
+                  do:
+                    - {id: ref, op: particle, particle: crit, frame: held, pos: {v: 3.0}, count: 1, at: 5}
+                    - {id: dh, op: display, kind: text, text: held, frame: held, pos: {v: 3.0}, at: 5, for: 2}
+                    - {id: dl, op: display, kind: text, text: live, frame: live, pos: {v: 3.0}, at: 5, for: 2}
+                end: {final: true}
+            """,
+        )
+        val rec = GatewayRecorder()
+        rec.faithfulPose = true
+        play(skill, 1L, emptyList(), 9, rec, beforeTick = { t -> if (t >= 3) rec.casterYawDeg = 90.0 })
+        val at = rec.calls.filter { it.verb == "spawn" && it.payload == "kind=text" }.map { c ->
+            val (x, _, z) = Regex("pos=(-?[0-9.]+),(-?[0-9.]+),(-?[0-9.]+)").find(c.detail)!!.destructured.toList().map { it.toDouble() }
+            Pair(x, z)
+        }
+        val ref = rec.emittedAt.first { it.second == "crit" }.third
+        assertThat(at).hasSize(2)
+        assertThat(at[0].first).describedAs("the display on the snapshot sits where the snapshot froze").isCloseTo(ref.x, org.assertj.core.data.Offset.offset(1e-4))
+        assertThat(at[0].second).isCloseTo(ref.z, org.assertj.core.data.Offset.offset(1e-4))
+        assertThat(Math.hypot(at[1].first - ref.x, at[1].second - ref.z)).describedAs("the live frame's display followed the turned caster").isGreaterThan(1.0)
+    }
+
+    @Test
+    fun aMisspeltBodyAxisIsALoudLoadErrorNamingIt() {
+        val e = failure(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: arm-typo
+            frames:
+              - {id: arm, origin: caster.shoulder_r, v: body.forwrd, w: up, s: v x w}
+            machine:
+              start: s
+              states:
+                s: {for: 2, then: end}
+                end: {final: true}
+            """,
+        )
+        assertThat(e.toString()).describedAs(e.toString()).contains("body.forwrd")
+    }
+
+    private val victimA = java.util.UUID(0L, 41L)
+    private val victimB = java.util.UUID(0L, 42L)
+
+    private fun candidate(id: java.util.UUID, x: Double, z: Double) =
+        HitCandidate(id, Vec3(x, 0.0, z), 0.0, HitBox(Vec3(x - 0.3, 0.0, z - 0.3), Vec3(x + 0.3, 1.8, z + 0.3)), 1.62)
+
+    @Test
+    fun anOpLevelSkillCallCanBindAnEventFrameOfTheCaller() {
+        val skill = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: shard
+            frames:
+              - {id: hit, on: event.victim, each: true, origin: victim.center, v: incoming, w: up, s: v x w}
+            machine:
+              start: s
+              states:
+                s:
+                  for: 6
+                  then: end
+                  do:
+                    - id: sel
+                      op: hit
+                      at: 2
+                      anchor: caster
+                      shape: {sphere: 8.0}
+                      targets: enemies
+                      ignore_invulnerability: true
+                      on:
+                        hit:
+                          - {id: burst, use: skill:shard-burst, with: {snow: 3, rod: 1, dust: 1}, frames: {spot: hit}}
+                end: {final: true}
+            ---
+            apiVersion: astera/v3
+            kind: Skill
+            id: shard-burst
+            meta: {cooldown_ticks: 0, resource_cost: 0}
+            frames_in: {spot: anchor}
+            params:
+              snow: {type: number, required: true}
+              rod:  {type: number, required: true}
+              dust: {type: number, required: true}
+            machine:
+              start: s
+              states:
+                s:
+                  for: 1
+                  then: e
+                  enter:
+                    - {id: fx_snow, op: particle, particle: snowflake, anchor: spot, count: "${'$'}{snow}", extra: 0.15, at: 0}
+                    - {id: fx_rod, op: particle, particle: snowflake, anchor: spot, count: "${'$'}{rod}", extra: 0.2, at: 0}
+                    - {id: fx_dust, op: particle, particle: dust, anchor: spot, count: "${'$'}{dust}", offset: [0.4, 0.4, 0.4], color: "#bee6ff", size: 1.4, at: 0}
+                e: {final: true}
+            """,
+        )
+        val rec = GatewayRecorder()
+        rec.victimMotion = { _ -> listOf(candidate(victimA, -2.0, 3.0), candidate(victimB, 2.0, 3.0)) }
+        play(skill, 1L, emptyList(), 10, rec)
+        val centres = rec.victimMotion!!(0).map { it.center }
+        val burst = rec.emittedAt.filter { it.second == "snowflake" || it.second == "dust" }
+        assertThat(burst).describedAs("burst rows played").isNotEmpty()
+        val covered = HashSet<Int>()
+        for ((tick, name, at) in burst) {
+            val k = centres.indexOfFirst { it.distance(at) < 1e-6 }
+            assertThat(k).describedAs("t$tick $name at $at sits on a victim's hit-frame origin").isGreaterThanOrEqualTo(0)
+            covered += k
+        }
+        assertThat(covered).describedAs("each victim has its own burst").containsExactlyInAnyOrder(0, 1)
     }
 }
