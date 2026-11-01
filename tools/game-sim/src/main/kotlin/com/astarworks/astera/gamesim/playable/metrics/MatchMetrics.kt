@@ -154,6 +154,14 @@ class MatchMetrics(
     private var stage: Stage? = null
     private var pillarIds: Map<PlayerId, TeamId> = emptyMap()
     private val pillarHp = HashMap<PlayerId, Double>()
+    private var pillarTierOf: Map<PlayerId, Int> = emptyMap()
+    private val destroyedPillars = HashSet<PlayerId>()
+    // Per-team pillar accounting (team id value -> HP). Unattributed damage is in taken AND in the unattributed buckets, never in dealt.
+    private val pillarDealtByTeam = HashMap<String, Double>()
+    private val pillarTakenByTeam = HashMap<String, Double>()
+    private val pillarTakenUnattributedByTeam = HashMap<String, Double>()
+    private val pillarSelfInflictedByTeam = HashMap<String, Double>()
+    private var pillarUnattributedTotal = 0.0
     private var bounds: DoubleArray? = null // minX, minZ, maxX, maxZ
 
     private val players = LinkedHashMap<PlayerId, PlayerState>()
@@ -217,7 +225,7 @@ class MatchMetrics(
             is BlockBroken -> miners += e.playerId
             is NexusDamaged -> if (e.matchId == matchId) e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.damageAmount.toDouble(), Double::plus) }
             is PlayerKilled -> onKill(e)
-            is NexusDestroyed -> if (e.matchId == matchId) { if (firstPillarLossTick == null) firstPillarLossTick = tick; pillarLosses += Triple(tick, e.owningTeam.value, e.tier.toString()); e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.previousHp.toDouble(), Double::plus) } }
+            is NexusDestroyed -> if (e.matchId == matchId) { if (firstPillarLossTick == null) firstPillarLossTick = tick; pillarLosses += Triple(tick, e.owningTeam.value, e.tier.toString()); destroyedPillars += AnnihilationPillarTargets.idOf("${e.matchId.value}-${e.owningTeam.value}-${e.tier.ordinalValue}"); e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.previousHp.toDouble(), Double::plus) } }
             is StarSupplied -> if (e.matchId == matchId) starsSupplied += e.amount
             is StarsCollected -> if (e.matchId == matchId) { starsCollected += e.amount; collected++ }
             is NormaLevelUp -> if (e.matchId == matchId) normaLevel[e.playerId] = maxOf(normaLevel[e.playerId] ?: 0, e.level)
@@ -240,6 +248,9 @@ class MatchMetrics(
         if (st != null) {
             pillarIds = st.pillars.associate {
                 AnnihilationPillarTargets.idOf("${e.matchId.value}-${it.team.value}-${it.tier.ordinalValue}") to it.team
+            }
+            pillarTierOf = st.pillars.associate {
+                AnnihilationPillarTargets.idOf("${e.matchId.value}-${it.team.value}-${it.tier.ordinalValue}") to it.tier.ordinalValue
             }
             val xs = st.pillars.map { it.position.x } + (st.layout?.islands?.map { it.x.toDouble() } ?: emptyList())
             val zs = st.pillars.map { it.position.z } + (st.layout?.islands?.map { it.z.toDouble() } ?: emptyList())
@@ -310,11 +321,12 @@ class MatchMetrics(
     private fun trackPillars(attackers: Set<PlayerId>, direct: Map<PlayerId, Double>) {
         val targets = sim.services.get<IStructureTargets>() ?: return
         var delta = 0.0
-        for (id in pillarIds.keys) {
+        val perPillar = mutableListOf<Pair<TeamId, Double>>()
+        for ((id, owner) in pillarIds) {
             // null = the match no longer tracks the pillar (ended/cleaned up): not damage, so the remaining HP must not count.
             val hp = targets.hitPoints(id) ?: continue
             val prev = pillarHp[id]
-            if (prev != null && hp < prev) delta += prev - hp
+            if (prev != null && hp < prev) { delta += prev - hp; perPillar += owner to (prev - hp) }
             pillarHp[id] = hp
         }
         if (delta <= 0.0) return
@@ -325,6 +337,21 @@ class MatchMetrics(
             direct.isNotEmpty() -> direct.mapValues { delta * it.value / direct.values.sum() }
             who.isNotEmpty() -> who.associateWith { delta / who.size }
             else -> mapOf(null to delta)
+        }
+        for ((owner, d) in perPillar) {
+            pillarTakenByTeam.merge(owner.value, d, Double::plus)
+            for ((pid, amount) in shares) {
+                val part = d * amount / delta
+                val attackerTeam = pid?.let { teamOf[it] ?: sim.world.find(it)?.team }
+                when {
+                    attackerTeam == null -> {
+                        pillarUnattributedTotal += part
+                        pillarTakenUnattributedByTeam.merge(owner.value, part, Double::plus)
+                    }
+                    attackerTeam == owner -> pillarSelfInflictedByTeam.merge(owner.value, part, Double::plus)
+                    else -> pillarDealtByTeam.merge(attackerTeam.value, part, Double::plus)
+                }
+            }
         }
         for ((pid, amount) in shares) {
             pillarDamageByKey.merge(if (pid == null) "unattributed" else group(pid), amount, Double::plus)
@@ -413,6 +440,16 @@ class MatchMetrics(
         val playerList = players.values.toList()
         val reason = ended?.reason?.let { it::class.simpleName } ?: "running"
         val winner = ended?.winningTeam?.value ?: (ended?.reason as? EndReason.TeamVictory)?.winner?.value
+        // Normalised from the real win-condition result: TeamVictory = last team standing, PillarHpDecision = the sudden-death HP tiebreak.
+        val endReasonKind = when (val r = ended?.reason) {
+            null -> "running"
+            is EndReason.TeamVictory -> if (r.winner != null) "elimination" else "draw"
+            is EndReason.PillarHpDecision -> if (r.winner != null) "hp_decision" else "draw"
+            else -> "other:${r::class.simpleName}"
+        }
+        val pillarTeams = (pillarIds.values + (stage?.pillars?.map { it.team } ?: emptyList())).map { it.value }.distinct().sorted()
+        fun hpLeft(id: PlayerId): Double? = if (id in destroyedPillars) 0.0 else pillarHp[id]
+        val hpLeftByTeam = pillarTeams.associateWith { t -> pillarIds.filterValues { it.value == t }.keys.sumOf { hpLeft(it) ?: 0.0 } }
 
         scalars["duration_s"] = seconds
         scalars["ended"] = if (ended != null) 1.0 else 0.0
@@ -473,6 +510,12 @@ class MatchMetrics(
             if (p2Kpm == null) na["p2_kills_per_min"] = "zero engage duration"
         }
         scalars["pillar_damage_total"] = pillarDamageTotal
+        scalars["pillar_damage_unattributed"] = pillarUnattributedTotal
+        for (t in pillarTeams) {
+            scalars["pillar_damage_dealt_$t"] = pillarDealtByTeam[t] ?: 0.0
+            scalars["pillar_damage_taken_$t"] = pillarTakenByTeam[t] ?: 0.0
+            scalars["pillar_hp_left_$t"] = hpLeftByTeam[t]
+        }
         scalars["first_pillar_hit_s"] = firstPillarHitTick?.let { (it - (start ?: it)) / 20.0 }
         scalars["first_pillar_loss_s"] = firstPillarLossTick?.let { (it - (start ?: it)) / 20.0 }
         if (firstPillarHitTick == null) na["first_pillar_hit_s"] = "no pillar took damage"
@@ -537,6 +580,22 @@ class MatchMetrics(
             put("endTick", endTick)
             put("durationSeconds", seconds)
             put("endReason", reason)
+            put("end_reason", endReasonKind)
+            put("end_decided_by", (ended?.reason as? EndReason.PillarHpDecision)?.decidedBy?.name)
+            put("pillar_damage_unattributed", pillarUnattributedTotal)
+            put("teams", JsonObject(pillarTeams.associateWith { t ->
+                buildJsonObject {
+                    put("pillar_damage_dealt", pillarDealtByTeam[t] ?: 0.0)
+                    put("pillar_damage_taken", pillarTakenByTeam[t] ?: 0.0)
+                    put("pillar_damage_taken_unattributed", pillarTakenUnattributedByTeam[t] ?: 0.0)
+                    put("pillar_damage_self_inflicted", pillarSelfInflictedByTeam[t] ?: 0.0)
+                    put("pillar_hp_left", buildJsonObject {
+                        put("sum", hpLeftByTeam[t])
+                        val own = pillarIds.filterValues { it.value == t }.keys
+                        put("by_tier", JsonObject(own.sortedBy { pillarTierOf[it] ?: 0 }.associate { "tier${pillarTierOf[it]}" to JsonPrimitive(hpLeft(it)) }))
+                    })
+                }
+            }))
             put("winner", winner)
             put("ttffSeconds", ttff)
             put("firstPillarHitSeconds", scalars["first_pillar_hit_s"])

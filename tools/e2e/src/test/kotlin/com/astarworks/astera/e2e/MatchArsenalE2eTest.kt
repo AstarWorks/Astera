@@ -256,6 +256,29 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             "second cycle ok: +2 iron, cobblestone, ore back"
         }
 
+        E2eReport.check(suite, "holding the dig on the iron node (one START, arm swings, no re-clicks) mines it: ore arrives, cobblestone, then it regrows", "RCON clear + block") {
+            selectTool(a, "stone_pickaxe")
+            tpArena(a.name, 4.5, 65.0, 14.5, 0f, 0f)
+            Thread.sleep(1_000)
+            val before = count(a, "iron_ingot")
+            // 8 stone-pickaxe hits at the 6-tick cadence = ~2.5 s; 8 s leaves room for latency.
+            a.digHeld(4 + originX, 65, 16 + originZ, 8_000) { count(a, "iron_ingot") > before }
+            val got = a.waitUntil(3_000) { count(a, "iron_ingot") > before }
+            assertThat(got).describedAs("held dig gave no ore; iron=${count(a, "iron_ingot")} (before $before)").isTrue()
+            assertThat(count(a, "iron_ingot") - before).describedAs("held dig drop count").isEqualTo(2)
+            assertThat(arenaBlockIs(4, 65, 16, "minecraft:cobblestone")).describedAs("node is not cobblestone after the held dig").isTrue()
+            var back = false
+            val end = System.currentTimeMillis() + 45_000
+            while (System.currentTimeMillis() < end && !back) {
+                keep.forEach { it.nudge() }
+                a.nudge()
+                Thread.sleep(1_000)
+                back = arenaBlockIs(4, 65, 16, "minecraft:iron_ore")
+            }
+            assertThat(back).describedAs("iron_ore did not return after the held dig").isTrue()
+            "held dig: +2 iron, cobblestone, ore back"
+        }
+
         E2eReport.check(suite, "bore leaves ore-node cells untouched", "ore-node exclusion after timed cast") {
             tpArena(a.name, 0.5, 65.0, 16.5, 270f, 0f)
             selectTool(a, "stone_pickaxe")

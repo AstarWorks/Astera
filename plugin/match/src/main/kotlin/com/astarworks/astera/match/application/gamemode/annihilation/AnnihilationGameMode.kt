@@ -84,10 +84,10 @@ public class AnnihilationGameMode @JvmOverloads constructor(
     override fun defaultPhases(): List<IGameModePhase> = DEFAULT_PHASES
 
     /**
-     * Annihilation ticks at 20-tick cadence (1 sec). The phase rules + DoT
-     * are time-based, so finer cadence would just produce idle work.
+     * Annihilation ticks every 10 ticks: the compass particle trail redraws each time; [AnnihilationClarity] runs its
+     * slow pass (labels, bars, guide) on every second call. Phase rules + DoT are time-based, so the finer cadence is idle for them.
      */
-    override fun tickPeriodTicks(): Long = 20L
+    override fun tickPeriodTicks(): Long = 10L
 
     override fun onMatchStarted(context: GameModeContext) {
         // Seed the match-state in the tracker. Bus-less variant is a no-op

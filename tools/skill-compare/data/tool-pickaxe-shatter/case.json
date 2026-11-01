@@ -5,7 +5,7 @@
   "start_s": 0,
   "end_s": 1.5,
   "status": "built",
-  "iterations": 2,
+  "iterations": 3,
   "skill": {
     "name": "pickaxe-shatter",
     "coins": 1,
@@ -58,11 +58,11 @@
       "label": "Settle"
     }
   ],
-  "notes": "`no-reference` is a marker: no reference video exists.\n\nNo reference video. Stone | iron | diamond: grey/brown material debris | metallic sparks + ring | cyan flash + end_rod + chime. Same mechanics as HEAD. Before = round 0; after = round 1/2.\n\n| stone | iron | diamond |\n| --- | --- | --- |\n| ![stone](/mc/vfx/pickaxe-shatter-stone/compare/frame_012.webp) | ![iron](/mc/vfx/pickaxe-shatter-iron/compare/frame_012.webp) | ![diamond](/mc/vfx/pickaxe-shatter-diamond/compare/frame_012.webp) |\n\nUse the diamond compare sheet current / prev / prev2 for the two presentation rounds and baseline. Sound: not listened.",
+  "notes": "The impact core stays on the same aim_point anchor as break_area. Deepslate chips keep the crater silhouette; the electric ring and end rods are replaced by two compact flint sparks and a grey/beige/cyan ore core. Stone / iron / diamond increase material-core density, size and brightness. See notes.md for measured sound and round-2/round-3 evidence.",
   "editLog": [],
   "report": "/casefile/tool-pickaxe-shatter/notes.md",
   "verification": {
     "evidence": "/casefile/tool-pickaxe-shatter/evidence/presentation.png",
-    "reason": "54 valid real-client captures: baseline + rounds 1 and 2, all 18 tool skills; zero skipped ticks. Round 1 bridge rejected for floor occlusion; round 2 moves dust above the deck. Sound not listened; manager runs integration tests and Konsist."
+    "reason": "Oracle, presentation scenario (including particle eye clearance), compile, content-lint and architecture checks PASS. Final-source visual captures/review pending; see notes.md. No e2e/check/unit tests."
   }
 }

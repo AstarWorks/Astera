@@ -46,7 +46,8 @@ public class SkillEngineContents(
     /** Registry + playable VFX examples share the same content root as skills. */
     private fun auxiliary(dir: Path): Map<String, FileStamp> =
         scan(dir.parent.resolve("shader-patches/effects")).mapKeys { "effects/${it.key}" } +
-            scan(dir.parent.resolve("vfx")).mapKeys { "vfx/${it.key}" }
+            scan(dir.parent.resolve("vfx")).mapKeys { "vfx/${it.key}" } +
+            scan(dir.parent.resolve("engine")).mapKeys { "engine/${it.key}" }
 
     private fun loadEffectIds(dir: Path): Set<String> {
         val effects = dir.parent.resolve("shader-patches/effects")

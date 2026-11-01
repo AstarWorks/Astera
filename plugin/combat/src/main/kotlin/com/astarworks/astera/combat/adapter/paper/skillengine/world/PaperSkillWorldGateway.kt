@@ -103,7 +103,13 @@ internal class PaperBlockAccess(
     private fun worldId(w: World): WorldId = WorldId(w.name)
     private fun pos(cell: BlockCell): Vec3 = Vec3(cell.x.toDouble(), cell.y.toDouble(), cell.z.toDouble())
 
-    override fun blockAt(cast: CastRef, cell: BlockCell): String? = block(cast, cell)?.type?.takeIf { !it.isAir }?.key?.toString()
+    override fun blockAt(cast: CastRef, cell: BlockCell): String? {
+        val block = block(cast, cell) ?: return null
+        val registry = covers()
+        val custom = registry?.resolveByBlockData(block.blockData.asString)
+            ?: if (isOreNode(block.world, cell)) registry?.resolveByBaseMaterial(block.type.name) else null
+        return custom?.id?.key ?: block.type.takeIf { !it.isAir }?.key?.toString()
+    }
 
     override fun canEdit(cast: CastRef, cell: BlockCell, outsideArena: Boolean): Boolean {
         val w = worldOf(cast) ?: return false

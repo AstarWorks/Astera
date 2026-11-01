@@ -123,7 +123,15 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
             val mine = ordered.filter { it.key == id }
             composeBase(id, mine, ordered, errors)?.let { out[id] = it }
         }
-        return out
+        val families = BlockFamilies(root.parent)
+        return out.mapValues { (_, entries) ->
+            entries.map { entry ->
+                runCatching { entry.copy(tree = families.expand(entry.tree)) }.getOrElse {
+                    errors += ComposeError.InvalidDocument(entry.sources.first(), "block_family", it.message ?: "invalid block families")
+                    entry
+                }
+            }
+        }
     }
 
     private fun composeBase(id: String, docs: List<Doc>, all: List<Doc>, errors: MutableList<ComposeError>): List<ComposedSkill>? {
