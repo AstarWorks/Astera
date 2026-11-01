@@ -9,7 +9,7 @@ package com.astarworks.astera.core.domain.music
  *  - [Lobby] — pre-match peaceful idle.
  *  - [Match] — generic in-match (default for `Phase1Build` / `Phase2Engage`).
  *  - [BossReveal] — boss spawn cutscene sting.
- *  - [HighIntensity] — `Phase3Tier3` / boss-low-HP / sudden-death.
+ *  - [HighIntensity] — `Phase3Center` / boss-low-HP / sudden-death.
  *  - [Victory] — post-match win sting (winning team only).
  *  - [Defeat] — post-match loss sting (losing team / eliminated only).
  *  - [Cinematic] — generic cutscene background (intro / tutorial).

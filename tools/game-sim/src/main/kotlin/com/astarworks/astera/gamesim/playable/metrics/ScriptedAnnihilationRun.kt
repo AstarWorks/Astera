@@ -127,7 +127,7 @@ class ScriptedAnnihilationRun(
             pillarDamage = PillarDamageTuning(weaponMult = 1.0),
             buildPhaseTicks = 200,
             engagePhaseTicks = 2400,
-            tier3PhaseTicks = 2400,
+            centerPhaseTicks = 2400,
             suddenDeathTicks = 1200,
         )
     }

@@ -198,7 +198,7 @@ class HudScenarioTest {
 
     @Test
     fun `annihilation sidebar shows the nexus clock and pillars standing per team`() {
-        val config = AnnihilationConfig(pillarHp = 40, buildPhaseTicks = 200, engagePhaseTicks = 100_000, tier3PhaseTicks = 100_000)
+        val config = AnnihilationConfig(pillarHp = 40, buildPhaseTicks = 200, engagePhaseTicks = 100_000, centerPhaseTicks = 100_000)
         scenario("hud-sidebar-annihilation", config) {
             val red = player("red", team = "red")
             val blue = player("blue", team = "blue")

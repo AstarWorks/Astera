@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 class HeldRigEmptyHandScenarioTest {
     @Test
     fun `held rig spawns with the cast item although the main hand is emptied before the windup`() {
-        scenario("held-rig-empty-hand", AnnihilationConfig(buildPhaseTicks = 200, engagePhaseTicks = 100_000, tier3PhaseTicks = 100_000)) {
+        scenario("held-rig-empty-hand", AnnihilationConfig(buildPhaseTicks = 200, engagePhaseTicks = 100_000, centerPhaseTicks = 100_000)) {
             val red = player("red-1", team = "red")
             red.position = Vec3(0.0, groundY, 0.0)
             red.holds("stone-pickaxe")

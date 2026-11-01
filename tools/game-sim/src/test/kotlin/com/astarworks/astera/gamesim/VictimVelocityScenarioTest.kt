@@ -28,7 +28,7 @@ class VictimVelocityScenarioTest : SkillEngineScenario() {
             is Result.Success -> r.value
             is Result.Failure -> error("couture-rapier-s2 must load: ${r.error.message}")
         }
-        scenario("victim-velocity", AnnihilationConfig(buildPhaseTicks = 200, engagePhaseTicks = 100_000, tier3PhaseTicks = 100_000)) {
+        scenario("victim-velocity", AnnihilationConfig(buildPhaseTicks = 200, engagePhaseTicks = 100_000, centerPhaseTicks = 100_000)) {
             val red = player("red-1", team = "red")
             val victim = mob("dummy", Vec3(0.0, groundY, 4.0), team = "blue")
             val cast = CastHandle(9_000_001L)

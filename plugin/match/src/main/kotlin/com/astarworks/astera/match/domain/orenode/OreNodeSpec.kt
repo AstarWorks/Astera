@@ -36,6 +36,8 @@ public data class OreNodeSpec(
     val levelSpeed: Map<Int, Double>,
     /** Multiplier of a tool-skill strike relative to a hand hit. */
     val skillMult: Double,
+    /** First phase (`NexusPhase.number`, 1-based) of a phase-driven match in which the node may be damaged; 1 = open from the start. */
+    val minPhase: Int = 1,
 )
 
 /** Pure damage arithmetic of an ore node. */

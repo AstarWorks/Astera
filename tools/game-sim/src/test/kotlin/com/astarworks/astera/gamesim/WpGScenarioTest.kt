@@ -56,14 +56,14 @@ class WpGScenarioTest {
     }
 
     @Test
-    fun `annihilation reads its phase timers from the yaml - 60s build`() {
+    fun `annihilation reads its phase timers from the yaml - 6 min preparation`() {
         scenario("wpg-annihilation-yaml-config") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
             val yellow = player("yellow-1", team = "yellow") // the annihilation lane needs 3 teams to leave the countdown
             val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow to "yellow"), stage = "annihilation-arena")
 
-            advance(1000)
+            advance(7000)
             assertThat(eventsOf<AnnihilationPhaseTransitioned>().filter { it.matchId == matchId }).isEmpty()
             advance(400)
             val t = eventsOf<AnnihilationPhaseTransitioned>().first { it.matchId == matchId }
