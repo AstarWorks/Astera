@@ -585,6 +585,7 @@ class BotModeRolesScenarioTest {
     @Test
     fun `splat zones - a bot takes the zones and the red count falls`() {
         scenario("bot-progress-zones") {
+            // temple-trouble is the stage content/matchmaking/queue.yaml routes capture-wool to (ADR-0281); its siege-isles-wool copy is unrouted.
             val (count, kinds) = playUntilScored("capture-wool", "temple-trouble", 600)
             assertThat(count).`as`("red count after the bot held zones; plan $kinds").isLessThan(100)
         }

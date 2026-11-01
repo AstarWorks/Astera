@@ -553,7 +553,7 @@ class BotBrain(
         planner?.let { pl ->
             val markers = bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z }
             observed?.update(markers, sightings())
-            observed?.updateRainmaker(bot.bossBarTitles, glowingPlayers())
+            observed?.updateRainmaker(bot.bossBarTitles, glowingPlayers(), bot.bossBarColors)
             pl.noteRoster(roster())
             observed?.updatePillarLabels(bot.entityTextsById.values.flatten())
             pl.noteMarkers(bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z })
