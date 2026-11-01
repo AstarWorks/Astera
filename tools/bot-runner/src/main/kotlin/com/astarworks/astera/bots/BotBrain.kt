@@ -260,6 +260,7 @@ class BotBrain(
     }
 
     /** What the brain was doing every ~2.5 s of the fight (decision kind, status, position): for stall diagnosis in reports. */
+    fun dbg(): String = "step=${lastEconStep?.kind}/${lastEconStep?.ore}@(${lastEconStep?.x?.toInt()},${lastEconStep?.z?.toInt()}) bag=${carriedOre()} pos=(${bot.x.toInt()},${bot.z.toInt()}) rung=${economy?.rung} cd=${econCooldownUntil}"
     fun traceText(): String = trace.joinToString(" ; ")
 
     fun summary(): String = "swings=${swings.get()} drinks=${drinks.get()} shots=${shots.get()} reloads=${reloads.get()} enemyTicks=${ticksWithEnemy.get()} edgeBlocks=${blockedByEdge.get()} stars=${starsCollected.get()} falls=${edgeFalls.get()} sight=${firstSightMs}ms attack=${firstAttackMs}ms searches=${nav.searches.get()} stuckReplans=${nav.stuckReplans.get()} maxSearchUs=${nav.maxSearchMicros} avgNodes=${nav.expandedTotal.get() / nav.searches.get().coerceAtLeast(1)} goal=${objective?.name}/$goal loadout=$loadout"
@@ -792,7 +793,7 @@ class BotBrain(
         val team = src.ownTeamAt(spawnX - originX, spawnZ - originZ) ?: return null
         val ladder = src.economyLadder().takeIf { it.isNotEmpty() } ?: return null
         val sites = src.economySites(team)?.shifted(originX, originZ) ?: return null
-        return EconomyPlanner(sites, ladder)
+        return EconomyPlanner(sites, ladder, spread = bot.name.hashCode())
     }
 
     /** Ore the bot carries by item id (the bag's display names, see [EconomyPlanner.oreOfName]). */

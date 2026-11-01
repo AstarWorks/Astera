@@ -23,6 +23,8 @@ import kotlin.math.hypot
 class EconomyPlanner(
     private val sites: Sites,
     private val shopping: List<Buy>,
+    /** Stable per-bot number: bots of one team pick different nodes of a cluster instead of crowding the nearest one (a node gives its drop to one swing). */
+    private val spread: Int = 0,
 ) {
     private val ladder: List<Map<String, Int>> = shopping.map { it.price }
 
@@ -168,7 +170,10 @@ class EconomyPlanner(
         var target = mineTarget
         if (target == null) {
             val pick = sites.nodes.filter { it.ore == ore && (blockedUntil[blockOf(it)] ?: 0L) <= now }
-                .minByOrNull { hypot(it.x - x, it.z - z) } ?: return null
+                .sortedBy { hypot(it.x - x, it.z - z) }.let { sorted ->
+                    val near = sorted.filter { hypot(it.x - x, it.z - z) <= hypot(sorted[0].x - x, sorted[0].z - z) + CLUSTER_RADIUS }
+                    near.getOrNull(Math.floorMod(spread, near.size.coerceAtLeast(1))) ?: return null
+                }
             target = blockOf(pick)
             mineTarget = target
             mineSince = 0L
@@ -186,6 +191,7 @@ class EconomyPlanner(
         const val SHOP_WAIT_MS = 4_000L
         const val SHOP_RETRY_MS = 60_000L
         const val COLLECT_RADIUS = 1.5
+        const val CLUSTER_RADIUS = 8.0
         const val MINE_ARRIVE = 3.0
         const val MINE_REACH = 4.5
         const val MINE_GIVE_UP_MS = 15_000L
