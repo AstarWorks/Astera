@@ -103,4 +103,6 @@ public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess
     override fun revertCast(cast: CastRef) = editor.revertCast(cast)
 
     override fun revertAll() = editor.revertAll()
+
+    override fun revertAllNow() = editor.revertAllNow()
 }

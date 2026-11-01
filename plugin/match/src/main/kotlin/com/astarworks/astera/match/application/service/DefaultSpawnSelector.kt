@@ -22,8 +22,8 @@ import java.util.concurrent.ConcurrentHashMap
  */
 public class DefaultSpawnSelector(
     private val matches: IMatchRepository,
+    private val random: kotlin.random.Random,
     private val enemyPositionsProvider: (MatchId, PlayerId) -> List<Vec3> = { _, _ -> emptyList() },
-    private val random: kotlin.random.Random = kotlin.random.Random.Default,
 ) : ISpawnSelector {
 
     private val usage = ConcurrentHashMap<MatchId, MutableMap<SpawnPoint, Int>>()

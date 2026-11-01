@@ -15,8 +15,8 @@ params:
   dmg:   {type: number, default: 12.0}
 frames:
   - {id: tip, origin: caster.eye, v: aim, w: s x v, s: right, move: [{at: 0, for: 0, to: {v: 1.2}}]}
-  - {id: head, origin: orb, v: velocity, w: up, s: v x w}
-  - {id: hit, on: event.victim, each: true, origin: victim.center, v: incoming, w: up, s: v x w}
+  - {id: head, origin: orb, v: velocity, w: up, w_fallback: [1, 0, 0], s: v x w}
+  - {id: hit, on: event.victim, each: true, origin: victim.center, v: incoming, w: up, w_fallback: [1, 0, 0], s: v x w}
 machine:
   start: fly
   tail: 5

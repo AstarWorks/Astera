@@ -115,6 +115,19 @@ internal class PaperBlockAccess(
         return guard()?.canEdit(PlayerId(cast.caster), worldId(w), pos(cell)) ?: true
     }
 
+    /** Hittable living body (not dead, armor stand, spectator, invulnerable mob) whose box overlaps the cell: a restored block would bury it. */
+    override fun isBodyIn(cast: CastRef, cell: BlockCell): Boolean {
+        val w = worldOf(cast) ?: return false
+        val box = org.bukkit.util.BoundingBox(cell.x.toDouble(), cell.y.toDouble(), cell.z.toDouble(), cell.x + 1.0, cell.y + 1.0, cell.z + 1.0)
+        return w.getNearbyEntities(box) { e ->
+            e is org.bukkit.entity.LivingEntity && e.isValid && !e.isDead && when (e) {
+                is org.bukkit.entity.Player -> e.gameMode != org.bukkit.GameMode.SPECTATOR
+                is org.bukkit.entity.ArmorStand -> false
+                else -> !e.isInvulnerable
+            }
+        }.isNotEmpty()
+    }
+
     override fun isCover(cast: CastRef, cell: BlockCell): Boolean {
         val w = worldOf(cast) ?: return false
         return blockStates()?.isCover(worldId(w), pos(cell)) ?: false
