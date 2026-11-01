@@ -207,6 +207,10 @@ internal object MatchStarWiring {
         env.ctx.registrations += services.register<com.astarworks.astera.match.application.service.OreNodeService>(oreNodes, priority = 0)
         env.ctx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion>(oreNodes, priority = 0)
         env.ctx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IOreNodeStrikes>(oreNodes, priority = 0)
+        env.ctx.registrations += services.register<com.astarworks.astera.match.application.port.inbound.IOreNodeAccess>(
+            com.astarworks.astera.match.application.service.OreNodeAccessService(oreNodeContents, services.getOrThrow<com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry>()),
+            priority = 0,
+        )
         env.ports.oreDigSight?.invoke(services)?.let { sight ->
             val hold = com.astarworks.astera.match.application.service.OreDigHold(
                 nodes = { services.get<com.astarworks.astera.match.application.service.OreNodeService>() },

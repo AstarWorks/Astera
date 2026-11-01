@@ -38,7 +38,10 @@ public data class OreNodeSpec(
     val skillMult: Double,
     /** First phase (`NexusPhase.number`, 1-based) of a phase-driven match in which the node may be damaged; 1 = open from the start. */
     val minPhase: Int = 1,
-)
+) {
+    /** What the node asks of a miner; the input of [OreNodeAccess]. */
+    val gate: OreNodeGate get() = OreNodeGate(minPhase, minNormaLevel, requiredTier)
+}
 
 /** Pure damage arithmetic of an ore node. */
 public object OreNodeRules {

@@ -29,6 +29,8 @@ import com.astarworks.astera.match.application.port.outbound.IMatchPhaseClock
 import com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository
 import com.astarworks.astera.match.application.port.outbound.IOreNodeRegistry
 import com.astarworks.astera.match.application.port.outbound.IOreNodeWorld
+import com.astarworks.astera.match.domain.orenode.OreAccess
+import com.astarworks.astera.match.domain.orenode.OreNodeAccess
 import com.astarworks.astera.match.domain.orenode.OreNodeRules
 import com.astarworks.astera.match.domain.orenode.OreNodeSpec
 import java.util.concurrent.ConcurrentHashMap
@@ -144,45 +146,44 @@ public class OreNodeService(
         val node = nodes[keyOf(worldId, pos)] ?: return Outcome.NotANode
         if (node.regrowing) return Outcome.Regrowing
         val tool = held?.let { HitCustomBlockUseCase.toolOf(items, it) }
-        gate(player, node, throttled = false)?.let { return it }
-        if (tool == null || tool.tier.ordinal < node.spec.requiredTier.ordinal) {
-            refuse(player, node, NEEDS_TIER, mapOf("tier" to node.spec.requiredTier.name.lowercase()), throttled = false)
-            return Outcome.TooWeak
-        }
-        val level = levelOf(player) ?: 1
-        val damage = OreNodeRules.damage(node.spec, tool.kind, tool.tier, level)
-        if (damage <= 0) {
-            refuse(player, node, WRONG_TOOL, emptyMap(), throttled = false)
-            return Outcome.WrongTool
-        }
+        gate(player, node, tool, throttled = false)?.let { return it }
         val now = scheduler.currentTick()
         // Only a landed hit restarts the cooldown: a click inside it must not push the next hit further away.
         val last = lastHit[player]
         if (last != null && now - last < HIT_COOLDOWN_TICKS) return Outcome.Cooldown
         lastHit[player] = now
-        return hit(node, player, damage)
+        return hit(node, player, OreNodeRules.damage(node.spec, tool!!.kind, tool.tier, levelOf(player) ?: 1))
     }
 
     /**
-     * Phase gate (ADR-0319), then level gate: a refusal [Outcome] (via [refuse]: action bar, cue, puff) or null when [player] may damage [node].
-     * The phase gate is the same for everyone: "opens in phase N (in mm:ss)".
+     * Asks [OreNodeAccess] (the one gate shared with the bot planner) and, on Locked, answers through [refuse] (action bar, cue, puff):
+     * a refusal [Outcome], or null when [player] may damage [node] with [tool].
      */
-    private fun gate(player: PlayerId, node: Node, throttled: Boolean): Outcome? {
-        phaseGate(player, node, throttled)?.let { return it }
-        val level = levelOf(player) ?: return null
-        if (level >= node.spec.minNormaLevel) return null
-        refuse(player, node, NEEDS_LEVEL, mapOf("level" to node.spec.minNormaLevel.toString()), throttled)
-        return Outcome.LevelLocked(node.spec.minNormaLevel)
-    }
-
-    private fun phaseGate(player: PlayerId, node: Node, throttled: Boolean): Outcome? {
-        val required = node.spec.minPhase
-        if (required <= 1) return null
-        val target = NexusPhase.byNumber(required) ?: return null
-        val remaining = phases()?.ticksUntil(node.matchId, target) ?: return null
-        if (remaining <= 0L) return null
-        refuse(player, node, NEEDS_PHASE, mapOf("phase" to required.toString(), "time" to formatClock(remaining)), throttled)
-        return Outcome.PhaseLocked(required)
+    private fun gate(player: PlayerId, node: Node, tool: ToolType?, throttled: Boolean): Outcome? {
+        val phase = phases()?.current(node.matchId)?.phase?.number
+        val locked = OreNodeAccess.check(node.spec, phase, levelOf(player), tool) as? OreAccess.Locked ?: return null
+        val unlock = locked.unlock
+        return when (locked.reason) {
+            OreAccess.Reason.NEEDS_PHASE -> {
+                val required = checkNotNull(unlock.phase)
+                val remaining = NexusPhase.byNumber(required)?.let { phases()?.ticksUntil(node.matchId, it) } ?: 0L
+                refuse(player, node, NEEDS_PHASE, mapOf("phase" to required.toString(), "time" to formatClock(remaining)), throttled)
+                Outcome.PhaseLocked(required)
+            }
+            OreAccess.Reason.NEEDS_LEVEL -> {
+                val required = checkNotNull(unlock.level)
+                refuse(player, node, NEEDS_LEVEL, mapOf("level" to required.toString()), throttled)
+                Outcome.LevelLocked(required)
+            }
+            OreAccess.Reason.NEEDS_TIER -> {
+                refuse(player, node, NEEDS_TIER, mapOf("tier" to checkNotNull(unlock.tier).name.lowercase()), throttled)
+                Outcome.TooWeak
+            }
+            OreAccess.Reason.WRONG_TOOL -> {
+                refuse(player, node, WRONG_TOOL, emptyMap(), throttled)
+                Outcome.WrongTool
+            }
+        }
     }
 
     override fun isNode(world: WorldId, pos: Vec3): Boolean = nodes.containsKey(keyOf(world, pos))
@@ -191,16 +192,8 @@ public class OreNodeService(
     override fun strike(player: PlayerId, world: WorldId, pos: Vec3, tool: ToolType, blockDamage: Int): IOreNodeStrikes.Result {
         val node = nodes[keyOf(world, pos)] ?: return IOreNodeStrikes.Result.NONE
         if (node.regrowing) return IOreNodeStrikes.Result.NONE
-        if (gate(player, node, throttled = true) != null) return IOreNodeStrikes.Result.NONE
-        if (tool.tier.ordinal < node.spec.requiredTier.ordinal) {
-            refuse(player, node, NEEDS_TIER, mapOf("tier" to node.spec.requiredTier.name.lowercase()), throttled = true)
-            return IOreNodeStrikes.Result.NONE
-        }
+        if (gate(player, node, tool, throttled = true) != null) return IOreNodeStrikes.Result.NONE
         val damage = OreNodeRules.damage(node.spec, tool.kind, tool.tier, levelOf(player) ?: 1, blockDamage)
-        if (damage <= 0) {
-            refuse(player, node, WRONG_TOOL, emptyMap(), throttled = true)
-            return IOreNodeStrikes.Result.NONE
-        }
         return if (hit(node, player, damage) is Outcome.Mined) IOreNodeStrikes.Result.MINED else IOreNodeStrikes.Result.HIT
     }
 

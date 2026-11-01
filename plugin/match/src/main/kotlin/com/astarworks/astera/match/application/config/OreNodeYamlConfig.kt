@@ -4,6 +4,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.world.ToolKind
 import com.astarworks.astera.core.domain.world.ToolTier
 import com.astarworks.astera.match.domain.orenode.OreDrop
+import com.astarworks.astera.match.domain.orenode.OreNodeGate
 import com.astarworks.astera.match.domain.orenode.OreNodeSpec
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -76,6 +77,13 @@ public data class OreRegionYaml(public val min: OrePosYaml, public val max: OreP
 @Serializable
 public data class OreDropYaml(@SerialName("item_id") public val itemId: String, public val count: Int = 1)
 
+/** The gate of this group, read straight from the file (no custom block needed): what the planner and [toSpec] both use. */
+public fun OreNodeGroupYaml.gate(file: OreNodeYamlConfig): OreNodeGate {
+    val tier = runCatching { ToolTier.valueOf(requiredTier.trim().uppercase()) }.getOrNull()?.takeIf { it != ToolTier.NONE }
+        ?: throw IllegalArgumentException("ore node '$block': unknown required_tier '$requiredTier'")
+    return OreNodeGate(file.phaseGates[block] ?: 1, minNormaLevel, tier)
+}
+
 /**
  * [blockOf] resolves [OreNodeGroupYaml.block] to its custom block (the registry); a miss is an authoring error. HP and the
  * per-class / per-tier hit damage come from it; [file] supplies the level table and the skill multiplier.
@@ -89,8 +97,7 @@ public fun OreNodeGroupYaml.toSpec(
     val hitDamage = blockSpec.toolEffectiveness.orEmpty().filterKeys { it.kind != ToolKind.NONE }
     require(hitDamage.values.any { it > 0 }) { "ore node '$block': the block needs tool_effectiveness entries (PICKAXE/AXE/SHOVEL) with damage > 0" }
     require(blockSpec.baseDurability > 0) { "ore node '$block': base_durability must be > 0" }
-    val tier = runCatching { ToolTier.valueOf(requiredTier.trim().uppercase()) }.getOrNull()?.takeIf { it != ToolTier.NONE }
-        ?: throw IllegalArgumentException("ore node '$block': unknown required_tier '$requiredTier'")
+    val gate = gate(file)
     require(minNormaLevel >= 1) { "ore node '$block': min_norma_level must be >= 1 (got $minNormaLevel)" }
     require(regrowSeconds >= 1) { "ore node '$block': regrow_seconds must be >= 1" }
     require(drops.isNotEmpty()) { "ore node '$block': drops must not be empty" }
@@ -104,8 +111,8 @@ public fun OreNodeGroupYaml.toSpec(
     val cells = positions.map { Vec3(it.x, it.y, it.z) } + filled
     require(cells.isNotEmpty()) { "ore node '$block': give positions or region" }
     return OreNodeSpec(
-        material, placeholder.trim().uppercase(), regrowSeconds, tier, drops.map { OreDrop(it.itemId, it.count) }, cells,
+        material, placeholder.trim().uppercase(), regrowSeconds, gate.requiredTier, drops.map { OreDrop(it.itemId, it.count) }, cells,
         blockSpec.baseDurability, hitDamage, minNormaLevel, file.levelSpeed, file.skillMult,
-        minPhase = file.phaseGates[block] ?: 1,
+        minPhase = gate.minPhase,
     )
 }
