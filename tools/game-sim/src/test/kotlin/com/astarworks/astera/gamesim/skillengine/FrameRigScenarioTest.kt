@@ -32,8 +32,8 @@ class FrameRigScenarioTest : SkillEngineScenario() {
     private val long = Vec3(-0.0387, 0.8287, -0.5584).normalize()
     private val edge = Vec3(-0.0315, -0.5596, -0.8282).normalize()
 
-    // content/frames/revolver.yaml, part held_hand: the grip is the part origin
-    private val gunGrip = Vec3(0.0, 0.0, 0.0)
+    // content/frames/revolver.yaml, part held_hand (absolute display-local points, as the blade above)
+    private val gunGrip = Vec3(0.0, -0.0655, 0.0276) * scale
 
     /** [meshWrites]: the index into `rec.writtenPoses` of the held mesh's write on each tick (its root and interpolation length live there). */
     private class Played(val start: Int, val meshFrames: Map<Int, Frame>, val casterAt: Map<Int, Vec3>, val meshWrites: Map<Int, Int>, val rec: GatewayRecorder)
