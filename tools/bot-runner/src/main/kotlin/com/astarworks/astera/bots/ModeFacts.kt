@@ -75,6 +75,9 @@ interface ModeFacts {
     /** Enemy players in sight. */
     fun enemies(): List<Sighting> = emptyList()
 
+    /** annihilation: the running phase, 1 = Preparation (enemy pillars immune) .. 5 = Sudden Death; null = unknown (no phase signal on screen). */
+    fun phase(): Int? = null
+
     companion object {
         val NONE: ModeFacts = object : ModeFacts {}
     }
@@ -101,6 +104,7 @@ class ObservedModeFacts(
     @Volatile private var bars: List<String> = emptyList()
     @Volatile private var glowing: List<GlowingPlayer> = emptyList()
     @Volatile private var lastCarrier: Pair<Double, Double>? = null
+    @Volatile private var phaseSeen = 0
 
     fun update(looseMarkers: List<Pair<Double, Double>>, sightings: List<Sighting>) {
         markers = looseMarkers
@@ -131,6 +135,16 @@ class ObservedModeFacts(
 
     override fun enemies(): List<Sighting> = seen
 
+    /** The annihilation boss bar every player sees ("Phase 2: Engage next in 4:10", or "Final phase ends in 1:00"); the highest phase seen sticks. */
+    override fun phase(): Int? {
+        if (modeId != "annihilation") return null
+        val n = bars.firstNotNullOfOrNull { b ->
+            PHASE_BAR.find(b)?.groupValues?.get(1)?.toIntOrNull() ?: if (FINAL_BAR.containsMatchIn(b)) FINAL_PHASE else null
+        } ?: return phaseSeen.takeIf { it > 0 }
+        phaseSeen = maxOf(phaseSeen, n)
+        return phaseSeen
+    }
+
     @Volatile private var ownPillarHp: Map<Int, PillarHpFact> = emptyMap()
 
     /**
@@ -149,6 +163,9 @@ class ObservedModeFacts(
 
     private companion object {
         /** en / ja of `objective.bar.carry-tnt.carried` and `.shield` (content/languages): the team token is the scoreboard team id. */
+        const val FINAL_PHASE = 5
+        val PHASE_BAR = Regex("(?:Phase |フェーズ)(\\d+)")
+        val FINAL_BAR = Regex("Final phase|決着フェーズ")
         val CARRIED_BAR = Regex("(\\w+) (?:is carrying the TNT|がTNTを運搬中)")
         val OWN_PILLAR = Regex("(?:Your pillar|自軍の柱) \\(Tier (\\d+)\\)\\s*HP (\\d+)/(\\d+)")
         val SHIELD_BAR = Regex("(?:TNT shield|TNT シールド)\\s+(\\d+(?:\\.\\d+)?)\\s*HP")

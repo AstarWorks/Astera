@@ -42,6 +42,9 @@ class BotModeRolesScenarioTest {
         val gone = HashSet<Pair<String, Int>>()
         var seen: List<Sighting> = emptyList()
         val pillarHps = HashMap<Int, PillarHpFact>()
+        /** annihilation phase on the boss bar; 2 = pillars open, so tests that are not about Preparation see the usual plan. */
+        var phase: Int? = 2
+        override fun phase() = phase
         override fun tnt() = tnt
         override fun shieldHp() = shield
         override fun zoneOwner(zone: String) = owners[zone]
@@ -443,6 +446,49 @@ class BotModeRolesScenarioTest {
             assertThat(q.step(ModePlanner.CHASE_MEMORY_MS + 1, x, z)?.kind).isEqualTo("pillar")
             q.noteLastKnown(x + 1, z, seenAt = 10_000)
             assertThat(q.step(10_100, x, z)?.kind).isEqualTo("pillar") // already within CHASE_ARRIVE
+        }
+    }
+
+    @Test
+    fun `annihilation - preparation keeps attackers out of enemy bases and gathering, the open pillars send them to the pillar`() {
+        scenario("bot-roles-annihilation-preparation") {
+            val src = objectives("annihilation")
+            val zones = checkNotNull(src.zones())
+            val spawn = checkNotNull(zones.point("center"))
+            val x = spawn.first; val z = spawn.third
+            val blue = zones.pillars().single { it.team == "blue" && it.tier == 1 }
+            val facts = Facts().also { it.phase = 1 }
+            fun attacker(f: ModeFacts = facts) = planner("annihilation", src, "r1", "red", listOf("blue", "yellow"), f, squad("r", spawn))
+
+            // Phase 1: no pillar step (the brain gathers instead), enemy bases are off limits, the field is not.
+            val p1 = attacker()
+            assertThat(p1.step(0, x, z)).isNull()
+            assertThat(p1.preparing(0)).isTrue()
+            assertThat(p1.offLimits(0, blue.x + 0.5, blue.z + 0.5)).isTrue()
+            assertThat(p1.offLimits(0, x, z)).isFalse()
+            val own = zones.pillars().first { it.team == "red" }
+            assertThat(p1.offLimits(0, own.x + 0.5, own.z + 0.5)).isFalse()
+
+            // An enemy in the field is fought, one inside an enemy base is not followed, and a target last seen there is not chased.
+            val gather = attacker().also { it.step(0, x, z) }
+            assertThat(gather.engages(Sighting("e", x + 20, z, 1.0), 100, x, z)).isTrue()
+            assertThat(gather.engages(Sighting("e", blue.x + 5.0, blue.z.toDouble(), 0.2), 100, blue.x - 60.0, blue.z.toDouble())).isFalse()
+            gather.noteLastKnown(blue.x + 5.0, blue.z.toDouble(), seenAt = 200)
+            assertThat(gather.step(300, x, z)).isNull()
+
+            // Phase 2 opens the pillars: the same bot walks to the pillar and a far enemy in the base can be engaged again.
+            facts.phase = 2
+            val p2 = attacker()
+            val step = checkNotNull(p2.step(0, x, z))
+            assertThat(step.kind).isEqualTo("pillar")
+            assertThat(step.strike).isEqualTo(Triple(blue.x, blue.y, blue.z))
+            assertThat(p2.offLimits(0, blue.x + 0.5, blue.z + 0.5)).isFalse()
+
+            // A host without a phase bar: the build-phase timer decides, and the highest phase seen sticks.
+            val timed = attacker(Facts().also { it.phase = null })
+            assertThat(timed.step(0, x, z)).isNull()
+            assertThat(timed.step(ModePlanner.BUILD_PHASE_MS - 1, x, z)).isNull()
+            assertThat(timed.step(ModePlanner.BUILD_PHASE_MS + 1, x, z)?.kind).isEqualTo("pillar")
         }
     }
 
