@@ -49,7 +49,7 @@ frames:
       - {at: 5, for: 3, about: s, to: 60, ease: out_cubic}  # the cut, edge first
       - {at: 8, for: 6, reset: true, ease: in_out_sine}
   - id: arc
-    origin: {frame: blade, pos: {v: 0}}
+    origin: {frame: blade}
     v: forward
     w: up
     s: v x w
@@ -100,6 +100,6 @@ machine:
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-crit", frame: wound, volume: 0.7, pitch: 1.2, detach: true}
               - {id: fx_hit, op: particle_def, def: hit-spark, frame: wound, pos: {w: 0.2}, detach: true}
         - {id: snd_swing, op: sound, sound: "astera:weapons/blade-heavy-swing", frame: body, volume: 1.0, pitch: 0.7, detach: true}
-        - {id: fx_swing, op: display, at: 0, for: 3, kind: sprite, sprite: slash, size: [1.62, 1.62], frame: arc, pos: {v: 0}, plane: [w, v], see_through: true, brightness: {block: 15, sky: 15}, detach: true}  # the sweep arc: a flat crescent on the fixed cut plane `arc`, rim at the blade tip, over the cut ticks
+        - {id: fx_swing, op: display, at: 0, for: 3, kind: sprite, sprite: slash, size: [1.62, 1.62], frame: arc, plane: [w, v], see_through: true, brightness: {block: 15, sky: 15}, detach: true}  # the sweep arc: a flat crescent on the fixed cut plane `arc`, rim at the blade tip, over the cut ticks
         - {id: trail, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.04, at: 0, every: 1, for: 4, detach: true}
     end: {final: true}

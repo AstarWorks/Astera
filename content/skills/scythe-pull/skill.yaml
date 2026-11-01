@@ -44,7 +44,7 @@ frames:
       - {at: 3, for: 3, about: s, to: 60, ease: out_cubic}  # the head rakes down and back
       - {at: 6, for: 6, reset: true, ease: in_out_sine}
   - id: arc
-    origin: {frame: blade, pos: {v: 0}}
+    origin: {frame: blade}
     v: forward
     w: up
     s: v x w
@@ -93,6 +93,6 @@ machine:
               - {id: kb, op: pull, target: event.victim, direction: "= flat(pos(caster) - pos(event.victim))", distance: "= length(flat(pos(caster) - pos(event.victim))) - ${pull_stop}"}
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
         - {id: snd, op: sound, sound: entity.player.attack.sweep, frame: body, volume: 1.0, pitch: 0.6, detach: true}
-        - {id: fx, op: display, at: 0, for: 3, kind: sprite, sprite: slash, size: [2.40, 2.40], frame: arc, pos: {v: 0}, plane: [w, v], see_through: true, brightness: {block: 15, sky: 15}, detach: true}  # the sweep arc: a flat crescent on the fixed cut plane `arc`, rim at the blade tip, over the cut ticks
+        - {id: fx, op: display, at: 0, for: 3, kind: sprite, sprite: slash, size: [2.40, 2.40], frame: arc, plane: [w, v], see_through: true, brightness: {block: 15, sky: 15}, detach: true}  # the sweep arc: a flat crescent on the fixed cut plane `arc`, rim at the blade tip, over the cut ticks
         - {id: trail, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.04, at: 0, every: 1, for: 4, detach: true}
     end: {final: true}

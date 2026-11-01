@@ -920,7 +920,8 @@ internal object OracleFmt {
 
     fun view(v: DisplayView): String =
         "aud=${v.audience} lane=${v.lane} target=${v.target ?: "-"}" +
-            (if (v.glowing) " glowing=true" else "")
+            (if (v.glowing) " glowing=true" else "") +
+            (v.viewRange?.let { " view_range=${f(it.toDouble())}" } ?: "")
 
     /** A string value on one token: whitespace and `=` escaped, null = `-`. */
     fun s(x: String?): String = x?.replace("%", "%25")?.replace(" ", "%20")?.replace("\n", "%0A")?.replace("=", "%3D")?.ifEmpty { "%00" } ?: "-"

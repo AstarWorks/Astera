@@ -47,7 +47,7 @@ frames:
       - {at: 3, for: 3, about: s, to: -90, ease: out_cubic}  # the reap: a level cut across the front to the left, edge first (hit as the blade crosses, tick 4)
       - {at: 6, for: 4, about: s, to: 0, ease: in_out_sine}  # carried back to face forward
   - id: arc
-    origin: {frame: blade, pos: {v: 0}}
+    origin: {frame: blade}
     v: forward
     w: left
     s: v x w
@@ -97,6 +97,6 @@ machine:
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: wound, volume: 0.7, pitch: 1.2, detach: true}
               - {id: fx_hit, op: particle_def, def: hit-spark, frame: wound, pos: {w: 0.2}, detach: true}
         - {id: snd, op: sound, sound: entity.player.attack.sweep, frame: body, volume: 1.0, pitch: 1.0, detach: true}
-        - {id: fx, op: display, at: 0, for: 3, kind: sprite, sprite: slash, size: [2.40, 2.40], frame: arc, pos: {v: 0}, plane: [w, v], see_through: true, brightness: {block: 15, sky: 15}, detach: true}  # the sweep arc: a flat crescent on the fixed cut plane `arc`, rim at the blade tip, over the cut ticks
+        - {id: fx, op: display, at: 0, for: 3, kind: sprite, sprite: slash, size: [2.40, 2.40], frame: arc, plane: [w, v], see_through: true, brightness: {block: 15, sky: 15}, detach: true}  # the sweep arc: a flat crescent on the fixed cut plane `arc`, rim at the blade tip, over the cut ticks
         - {id: trail, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.04, at: 0, every: 1, for: 4, detach: true}
     end: {final: true}

@@ -118,9 +118,6 @@ public class DisplayOp(
     public val viewRange: Value<Double>,
     public val glowing: Value<Boolean>,
     public val glowColor: Value<String>?,
-    public val interpolationDelay: Value<Double>,
-    public val interpolationDuration: Value<Double>,
-    public val teleportDuration: Value<Double>,
     /** The `motion:` list; read per copy by [LawSource.laws] (so a law number may read `i`) and segmented into `Key` rows (and `Set` rows for a fade) by [LawSegmenter] at compile. */
     public val motion: LawSource?,
     public val shaderEffect: String?,
@@ -231,9 +228,6 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     private val viewRangeF = Field.optional("view_range", Types.number, Value.Literal(1.0), "vanilla view range multiplier")
     private val glowingF = Field.optional("glowing", Types.bool, Value.Literal(false), "vanilla Entity glowing flag; default false, independent of glow_color")
     private val glowColorF = Field.optional("glow_color", Types.nullable(Types.text), null, "#rrggbb glow override; absent = none")
-    private val interpDelayF = Field.optional("interpolation_delay", Types.number, Value.Literal(0.0), "engine-owned after spawn (section 4); written only for hand-tuned loops")
-    private val interpDurationF = Field.optional("interpolation_duration", Types.number, Value.Literal(0.0), "engine-owned after spawn (section 4)")
-    private val teleportDurationF = Field.optional("teleport_duration", Types.number, Value.Literal(0.0), "engine-owned after spawn (section 4)")
     private val motionF = Field.optional("motion", Types.nullable(MOTION), null, "rate laws and keys (section 3)")
 
     /** Fields that belong to exactly one kind; written on another kind they are a load error (nothing is silently dropped). */
@@ -249,13 +243,16 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         itemF, partF, contextF, shaderEffectF, blockF,
         textF, backgroundF, alignmentF, lineWidthF, textOpacityF, seeThroughF, shadowF,
         spriteF, sizeF, pivotF, flipbookF, colorF,
-        translationF, rotateF, scaleF, rightF, pitchF, billboardF, brightnessF, viewRangeF, glowingF, glowColorF,
-        interpDelayF, interpDurationF, teleportDurationF, motionF,
+        translationF, rotateF, scaleF, rightF, pitchF, billboardF, brightnessF, viewRangeF, glowingF, glowColorF, motionF,
     ).rejecting(
         "yaw",
         "entity yaw is never written in a skill file (the display is spawned at yaw 0 and all orientation lives in 'rotate'); " +
             "write a turn as {axis: up, deg: N} (vanilla yaw = -deg about up)",
-    )
+    ).rejecting("interpolation_delay", ENGINE_OWNED("interpolation_delay"))
+        .rejecting("interpolation_duration", ENGINE_OWNED("interpolation_duration"))
+        .rejecting("teleport_duration", ENGINE_OWNED("teleport_duration"))
+
+    private fun ENGINE_OWNED(name: String) = "'$name' is engine-owned: the engine sets it per tick from the motion; remove it from the skill file"
 
     // ------------------------------------------------------------------------------------------------ decode
 
@@ -365,6 +362,10 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
             val brightness = values[brightnessF]?.let { b ->
                 val blk = wholeNum(b[brightnessBlock], "$p.brightness.block", ctx, 0.0, 15.0)
                 val sky = wholeNum(b[brightnessSky], "$p.brightness.sky", ctx, 0.0, 15.0)
+                // the display gateway carries ONE light level (block = sky): a split override would be silently flattened
+                if (blk is Value.Literal && sky is Value.Literal && blk.value != sky.value) {
+                    ctx.fail("$p.brightness", "block ${blk.value} and sky ${sky.value} must be equal (the display gateway takes a single light level)")
+                }
                 blk to sky
             }
             val viewRange = foldNum(values[viewRangeF], ctx).also { checkPositive(it, "$p.view_range", ctx) }
@@ -386,9 +387,6 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 subject, values[contextF], values[partF], style, size, if (kind == DisplayKind.SPRITE) values[pivotF] else null, color, seeThrough, flipbook,
                 values[translationF], values[rotateF], values[scaleF], values[rightF],
                 foldNum(values[pitchF], ctx), billboard, brightness, viewRange, values[glowingF], glow,
-                wholeNum(values[interpDelayF], "$p.interpolation_delay", ctx, 0.0, null),
-                wholeNum(values[interpDurationF], "$p.interpolation_duration", ctx, 0.0, null),
-                wholeNum(values[teleportDurationF], "$p.teleport_duration", ctx, 0.0, null),
                 values[motionF], shaderEffect,
             )
         }
@@ -720,9 +718,6 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         f["view_range"] = cell(op.viewRange)
         f["glowing"] = cell(op.glowing)
         op.glowColor?.let { f["glow_color"] = cell(it) }
-        f["interpolation_delay"] = cell(op.interpolationDelay)
-        f["interpolation_duration"] = cell(op.interpolationDuration)
-        f["teleport_duration"] = cell(op.teleportDuration)
         return Look(f)
     }
 

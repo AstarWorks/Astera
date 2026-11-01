@@ -4787,45 +4787,6 @@
                             "description": "#rrggbb glow override; absent = none",
                             "default": null
                         },
-                        "interpolation_delay": {
-                            "oneOf": [
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "string",
-                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
-                                }
-                            ],
-                            "description": "engine-owned after spawn (section 4); written only for hand-tuned loops",
-                            "default": 0.0
-                        },
-                        "interpolation_duration": {
-                            "oneOf": [
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "string",
-                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
-                                }
-                            ],
-                            "description": "engine-owned after spawn (section 4)",
-                            "default": 0.0
-                        },
-                        "teleport_duration": {
-                            "oneOf": [
-                                {
-                                    "type": "number"
-                                },
-                                {
-                                    "type": "string",
-                                    "pattern": "(^\\$\\{[A-Za-z_][A-Za-z0-9_]*}$)|(^= .+)"
-                                }
-                            ],
-                            "description": "engine-owned after spawn (section 4)",
-                            "default": 0.0
-                        },
                         "motion": {
                             "anyOf": [
                                 {

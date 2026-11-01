@@ -71,6 +71,37 @@ class DisplayOpScenarioTest : SkillEngineScenario() {
     }
 
     @Test
+    fun frameAndAnchorPlacedBrightnessReachesTheGatewayAndASplitIsRejected() {
+        val yaml = skill(
+            "{id: a, op: display, kind: sprite, sprite: arcane-slash, size: [1, 1], frame: lamp, plane: [w, v], brightness: {block: 15, sky: 15}, for: 20}",
+            "{id: b, op: display, kind: block, anchor: caster, block: minecraft:white_concrete, brightness: {block: 9, sky: 9}, for: 20}",
+        ).replace("machine:", "frames:\n  - {id: lamp, origin: caster, v: forward, w: up, s: v x w}\nmachine:")
+        val compiled = (loadInline(yaml) as? Result.Success)?.value ?: throw AssertionError("brightness probe did not load")
+        val spawn = play(compiled, 7L).filter { it.verb == "spawn" }
+        assertThat(spawn).hasSize(2)
+        assertThat(spawn[0].detail).contains("bright=15")
+        assertThat(spawn[1].detail).contains("bright=9")
+        assertThat(loadInline(skill("{id: bad, op: display, kind: block, anchor: caster, block: minecraft:stone, brightness: {block: 15, sky: 3}, for: 10}")))
+            .isInstanceOf(Result.Failure::class.java)
+    }
+
+    @Test
+    fun viewRangeReachesTheGatewayAndEngineOwnedInterpolationFieldsAreRejected() {
+        val yaml = skill(
+            "{id: a, op: display, kind: block, anchor: caster, block: minecraft:white_concrete, view_range: 3, for: 20}",
+        )
+        val compiled = (loadInline(yaml) as? Result.Success)?.value ?: throw AssertionError("view_range probe did not load")
+        val spawn = play(compiled, 7L).filter { it.verb == "spawn" }
+        assertThat(spawn).hasSize(1)
+        assertThat(spawn[0].detail).contains("view_range=3")
+        for (field in listOf("interpolation_delay", "interpolation_duration", "teleport_duration")) {
+            val bad = loadInline(skill("{id: bad, op: display, kind: block, anchor: caster, block: minecraft:stone, $field: 2, for: 10}"))
+            assertThat(bad).isInstanceOf(Result.Failure::class.java)
+            assertThat(bad.toString()).contains(field, "engine-owned")
+        }
+    }
+
+    @Test
     fun framePlacedGlowKeepsSharedMetadataAndFollowsTheFrame() {
         val yaml = skill(
             "{id: a, op: display, kind: block, frame: glow, pos: {v: 1}, block: minecraft:white_concrete, for: 20, glowing: true, glow_color: '#00ffff'}",
