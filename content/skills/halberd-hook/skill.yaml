@@ -1,9 +1,10 @@
 # halberd-hook: low hook at the legs: reached high on the right, swept low across to the left (wind-up 5 ticks, hit at tick 5).
 # Frames (ADR-0314, ADR-0315), the gameplay (hit tick, shape, damage, knockback, cooldown, cast length) is unchanged:
-#   blade  - the halberd. Origin at the caster feet, moved along a hand path (guard -> reached high at the right -> swept low across to the left -> guard). Long axis along v (grip at the origin, head at v 0.94..1.33), edge along w.
+#   arm    - the right arm, rotate keys only. Origin = the right shoulder (`caster.shoulder_r`); the arm is one rigid 0.60 bone, so the hand travels on a sphere about it and a turn of this frame is that travel (about w left/right, about s up/down). Hand path: guard -> raised at the right -> hooked down and across -> guard.
+#   blade  - the halberd. Origin = the hand, 0.60 along the arm frame (the hand path is the arm's turn: guard -> reached high at the right -> swept low across to the left -> guard). Long axis along v (grip at the origin, head at v 0.94..1.33), edge along w.
 #            Roll -115 about v lays the edge on the falling flat diagonal, the hook is a turn about s (v moves towards w): the edge leads. The wind-up tips the head to the right (-35),
 #            the hook carries it low across the legs to the left (+85, hit at tick 5), `reset` eases back.
-#            The engine pins the right hand to the origin, so every `move:` point lies inside the 0.60 reach of the right shoulder (v 0 / w 1.29 / s 0.29).
+#            The engine pins the right hand to the origin; the origin sits exactly on the 0.60 reach sphere of the shoulder by construction.
 #   body   - the caster's feet, v forward / w up / s right: sounds and the cast fx.
 #   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
 #   edge   - line along the blade from the guard to the tip (v 0.94 .. 1.33), what the trail rows draw along.
@@ -19,26 +20,25 @@ params:
   knockback:    {type: number, default: 0.2}
   tremor_ticks: {type: ticks, default: 40}
 frames:
-  - id: blade
-    origin: caster
+  - id: arm
+    origin: caster.shoulder_r
     v: forward
     w: up
     s: v x w
-    move:
-      - {at: 0, for: 0, to: {v: 0.48, w: 0.94, s: 0.36}}  # guard
-      - {at: 0, for: 1, to: {v: 0.5, w: 0.99, s: 0.43}}
-      - {at: 1, for: 1, to: {v: 0.47, w: 1.22, s: 0.65}}
-      - {at: 2, for: 1, to: {v: 0.29, w: 1.5, s: 0.77}}
-      - {at: 3, for: 1, to: {v: 0.19, w: 1.57, s: 0.78}}
-      - {at: 4, for: 1, to: {v: 0.49, w: 0.97, s: 0.14}}
-      - {at: 5, for: 1, to: {v: 0.38, w: 0.9, s: 0.04}}
-      - {at: 6, for: 1, to: {v: 0.37, w: 0.9, s: 0.02}}
-      - {at: 7, for: 1, to: {v: 0.38, w: 0.9, s: 0.04}}
-      - {at: 8, for: 1, to: {v: 0.42, w: 0.91, s: 0.08}}
-      - {at: 9, for: 1, to: {v: 0.45, w: 0.91, s: 0.16}}
-      - {at: 10, for: 1, to: {v: 0.47, w: 0.92, s: 0.26}}
-      - {at: 11, for: 1, to: {v: 0.48, w: 0.93, s: 0.33}}
-      - {at: 12, for: 1, to: {v: 0.48, w: 0.94, s: 0.36}}
+    rotate:
+      - {at: 0, for: 0, about: w, to: -8}   # guard
+      - {at: 0, for: 4, about: w, to: -69, ease: in_out_sine}   # raise the halberd at the right
+      - {at: 4, for: 3, about: w, to: 33, ease: out_cubic}   # the hook: down and across
+      - {at: 7, for: 6, about: w, to: -8, ease: in_out_sine}   # back to guard
+      - {at: 0, for: 0, about: s, to: -36}
+      - {at: 0, for: 4, about: s, to: 28, ease: in_out_sine}
+      - {at: 4, for: 3, about: s, to: -41, ease: out_cubic}
+      - {at: 7, for: 6, about: s, to: -36, ease: in_out_sine}
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
     rotate:
       - {at: 0, for: 0, about: v, to: -115}  # roll the edge into the cut plane
       - {at: 0, for: 4, about: s, to: -35, ease: in_out_sine}  # wind-up turn

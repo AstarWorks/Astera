@@ -1,8 +1,9 @@
 # iron-blade-lunge: the iron blade drawn back, then a thrust-slash along the lunge dash (wind-up 3 ticks, dash 4 ticks, every-tick hit).
 # Frames (ADR-0314, ADR-0315), the gameplay (hit tick, shape, damage, knockback, cooldown, cast length) is unchanged:
-#   blade  - the iron blade. Origin at the caster feet, moved along a hand path (guard -> drawn back -> thrust straight ahead along v -> guard). Long axis along v (grip at the origin, tip at v 0.92),
-#            edge along w. The thrust is the hand `move:` along v, the point leads by construction; the wind-up aims the point slightly (-12), `reset` eases back to guard.
-#            The engine pins the right hand to the origin, so every `move:` point lies inside the 0.60 reach of the right shoulder (v 0 / w 1.29 / s 0.29).
+#   arm    - the right arm, rotate keys only. Origin = the right shoulder (`caster.shoulder_r`); the arm is one rigid 0.60 bone, so the hand travels on a sphere about it and a turn of this frame is that travel (about w left/right, about s up/down). Hand path: guard -> drawn back to the right hip -> shot forward -> guard.
+#   blade  - the iron blade. Origin = the hand, 0.60 along the arm frame (the hand path is the arm's turn: guard -> drawn back -> thrust straight ahead along v -> guard). Long axis along v (grip at the origin, tip at v 0.92),
+#            edge along w. The thrust is the hand swinging forward on the arm, the point leads by construction; the wind-up aims the point slightly (-12), `reset` eases back to guard.
+#            The engine pins the right hand to the origin; the origin sits exactly on the 0.60 reach sphere of the shoulder by construction.
 #   body   - the caster's feet, v forward / w up / s right: sounds and the cast fx.
 #   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
 #   edge   - line along the blade (v 0.56 .. 0.92), what the trail rows draw along.
@@ -21,26 +22,25 @@ params:
   dash_ticks: {type: ticks, default: 4}
   dmg_physical: {type: number, default: 30.0}
 frames:
-  - id: blade
-    origin: caster
+  - id: arm
+    origin: caster.shoulder_r
     v: forward
     w: up
     s: v x w
-    move:
-      - {at: 0, for: 0, to: {v: 0.48, w: 0.96, s: 0.43}}  # guard
-      - {at: 0, for: 1, to: {v: 0.28, w: 0.82, s: 0.54}}
-      - {at: 1, for: 1, to: {v: 0, w: 0.77, s: 0.59}}
-      - {at: 2, for: 1, to: {v: 0.46, w: 0.91, s: 0.33}}
-      - {at: 3, for: 1, to: {v: 0.51, w: 0.98, s: 0.26}}
-      - {at: 4, for: 1, to: {v: 0.52, w: 0.99, s: 0.25}}
-      - {at: 6, for: 1, to: {v: 0.5, w: 0.96, s: 0.26}}
-      - {at: 7, for: 1, to: {v: 0.51, w: 0.97, s: 0.3}}
-      - {at: 8, for: 1, to: {v: 0.5, w: 0.96, s: 0.33}}
-      - {at: 9, for: 1, to: {v: 0.41, w: 0.86, s: 0.33}}
-      - {at: 10, for: 1, to: {v: 0.44, w: 0.89, s: 0.35}}
-      - {at: 11, for: 1, to: {v: 0.47, w: 0.93, s: 0.4}}
-      - {at: 12, for: 1, to: {v: 0.49, w: 0.97, s: 0.43}}
-      - {at: 13, for: 1, to: {v: 0.48, w: 0.96, s: 0.43}}
+    rotate:
+      - {at: 0, for: 0, about: w, to: -16}   # guard
+      - {at: 0, for: 2, about: w, to: -90, ease: in_out_sine}   # draw back: the hand to the right hip
+      - {at: 2, for: 3, about: w, to: 4, ease: out_cubic}   # the lunge: the hand shoots forward
+      - {at: 5, for: 9, about: w, to: -16, ease: in_out_sine}   # recover to guard
+      - {at: 0, for: 0, about: s, to: -33}
+      - {at: 0, for: 2, about: s, to: -60, ease: in_out_sine}
+      - {at: 2, for: 3, about: s, to: -30, ease: out_cubic}
+      - {at: 5, for: 9, about: s, to: -33, ease: in_out_sine}
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
     rotate:
       - {at: 0, for: 2, about: s, to: -12, ease: in_out_sine}  # aim while drawing
       - {at: 2, for: 3, about: s, to: 0, ease: out_cubic}  # level on the target

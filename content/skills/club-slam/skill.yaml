@@ -1,9 +1,10 @@
 # club-slam: ground slam of the club, raised overhead, driven into the ground at the hit (wind-up 5 ticks, hit at tick 5).
 # Frames (ADR-0314, ADR-0315), the gameplay (hit tick, shape, damage, knockback, cooldown, cast length) is unchanged:
-#   blade  - the club. Origin at the caster feet, moved along a hand path (guard -> raised overhead -> down in front -> guard). Long axis along v (grip at the origin,
+#   arm    - the right arm, rotate keys only. Origin = the right shoulder (`caster.shoulder_r`); the arm is one rigid 0.60 bone, so the hand travels on a sphere about it and a turn of this frame is that travel (about w left/right, about s up/down). Hand path: guard -> raised high at the right -> slammed down in front -> guard.
+#   blade  - the club. Origin = the hand, 0.60 along the arm frame (the hand path is the arm's turn: guard -> raised overhead -> down in front -> guard). Long axis along v (grip at the origin,
 #            tip at v 0.74), edge along w. Roll 180 about v turns the edge down, the chop is then a turn about s that brings the tip down edge first. The wind-up raises the point behind the head (-110), the chop
 #            drives it down in front (+90, hit while the head passes the target), `reset` eases back to guard.
-#            The engine pins the right hand to the origin, so every `move:` point lies inside the 0.60 reach of the right shoulder (v 0 / w 1.29 / s 0.29).
+#            The engine pins the right hand to the origin; the origin sits exactly on the 0.60 reach sphere of the shoulder by construction.
 #   body   - the caster's feet, v forward / w up / s right: sounds and the cast fx.
 #   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
 #   edge   - line along the blade from part-way to the tip (v 0.33 .. 0.74), what the trail rows draw along.
@@ -22,26 +23,25 @@ params:
   dmg_physical: {type: number, default: 16}
   knockback:    {type: number, default: 1.1}
 frames:
-  - id: blade
-    origin: caster
+  - id: arm
+    origin: caster.shoulder_r
     v: forward
     w: up
     s: v x w
-    move:
-      - {at: 0, for: 0, to: {v: 0.51, w: 0.98, s: 0.36}}  # guard
-      - {at: 0, for: 1, to: {v: 0.46, w: 0.93, s: 0.42}}
-      - {at: 1, for: 1, to: {v: 0.59, w: 1.21, s: 0.38}}
-      - {at: 2, for: 1, to: {v: -0.14, w: 1.87, s: 0.28}}
-      - {at: 3, for: 1, to: {v: -0.11, w: 1.87, s: 0.2}}
-      - {at: 4, for: 1, to: {v: 0.43, w: 0.88, s: 0.31}}
-      - {at: 5, for: 1, to: {v: 0.46, w: 0.9, s: 0.3}}
-      - {at: 6, for: 1, to: {v: 0.45, w: 0.9, s: 0.3}}
-      - {at: 7, for: 1, to: {v: 0.46, w: 0.9, s: 0.3}}
-      - {at: 8, for: 1, to: {v: 0.47, w: 0.92, s: 0.3}}
-      - {at: 9, for: 1, to: {v: 0.5, w: 0.95, s: 0.3}}
-      - {at: 10, for: 1, to: {v: 0.52, w: 0.99, s: 0.33}}
-      - {at: 11, for: 1, to: {v: 0.52, w: 1, s: 0.32}}
-      - {at: 12, for: 1, to: {v: 0.51, w: 0.98, s: 0.36}}
+    rotate:
+      - {at: 0, for: 0, about: w, to: -8}   # guard
+      - {at: 0, for: 4, about: w, to: -90, ease: in_out_sine}   # raise the club high at the right
+      - {at: 4, for: 3, about: w, to: -1, ease: out_cubic}   # the slam: down in front
+      - {at: 7, for: 6, about: w, to: -8, ease: in_out_sine}   # back to guard
+      - {at: 0, for: 0, about: s, to: -31}
+      - {at: 0, for: 4, about: s, to: 55, ease: in_out_sine}
+      - {at: 4, for: 3, about: s, to: -38, ease: out_cubic}
+      - {at: 7, for: 6, about: s, to: -31, ease: in_out_sine}
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
     rotate:
       - {at: 0, for: 0, about: v, to: 180}  # edge down
       - {at: 0, for: 4, about: s, to: -110, ease: in_out_sine}  # raise the point behind the head

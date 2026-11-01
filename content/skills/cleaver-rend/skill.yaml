@@ -1,9 +1,10 @@
 # cleaver-rend: tearing diagonal of the cleaver, raised on the left, ripped down to the right (wind-up 6 ticks, hit at tick 6).
 # Frames (ADR-0314, ADR-0315), the gameplay (hit tick, shape, damage, knockback, cooldown, cast length) is unchanged:
-#   blade  - the cleaver. Origin at the caster feet, moved along a hand path (guard -> raised at the left -> ripped down across to the right -> guard). Long axis along v (grip at the origin, tip at v 0.63),
+#   arm    - the right arm, rotate keys only. Origin = the right shoulder (`caster.shoulder_r`); the arm is one rigid 0.60 bone, so the hand travels on a sphere about it and a turn of this frame is that travel (about w left/right, about s up/down). Hand path: guard -> raised high at the left -> rent down and across to the right -> guard.
+#   blade  - the cleaver. Origin = the hand, 0.60 along the arm frame (the hand path is the arm's turn: guard -> raised at the left -> ripped down across to the right -> guard). Long axis along v (grip at the origin, tip at v 0.63),
 #            edge along w. Roll +135 about v lays the edge on the diagonal that falls to the right, the rip is a turn about s (v moves towards w): the edge leads. The wind-up
 #            tips the point back (-55), the rip drives it through (+85, hit while the blade crosses the middle), `reset` eases back.
-#            The engine pins the right hand to the origin, so every `move:` point lies inside the 0.60 reach of the right shoulder (v 0 / w 1.29 / s 0.29).
+#            The engine pins the right hand to the origin; the origin sits exactly on the 0.60 reach sphere of the shoulder by construction.
 #   body   - the caster's feet, v forward / w up / s right: sounds and the cast fx.
 #   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
 #   edge   - line along the blade from the guard to the tip (v 0.3 .. 0.63), what the trail rows draw along.
@@ -24,27 +25,25 @@ params:
   knockback:    {type: number, default: 0.1}
   bleed_ticks:  {type: ticks, default: 100}
 frames:
-  - id: blade
-    origin: caster
+  - id: arm
+    origin: caster.shoulder_r
     v: forward
     w: up
     s: v x w
-    move:
-      - {at: 0, for: 0, to: {v: 0.48, w: 0.93, s: 0.25}}  # guard
-      - {at: 0, for: 1, to: {v: 0.49, w: 0.95, s: 0.23}}
-      - {at: 1, for: 1, to: {v: 0.37, w: 0.9, s: 0.02}}
-      - {at: 2, for: 1, to: {v: 0.16, w: 1.27, s: -0.29}}
-      - {at: 3, for: 1, to: {v: 0.09, w: 1.53, s: -0.25}}
-      - {at: 4, for: 1, to: {v: 0.07, w: 1.57, s: -0.23}}
-      - {at: 5, for: 1, to: {v: 0.48, w: 0.97, s: 0.45}}
-      - {at: 6, for: 1, to: {v: 0.41, w: 0.96, s: 0.58}}
-      - {at: 7, for: 1, to: {v: 0.4, w: 0.96, s: 0.59}}
-      - {at: 8, for: 1, to: {v: 0.41, w: 0.96, s: 0.57}}
-      - {at: 9, for: 1, to: {v: 0.44, w: 0.94, s: 0.51}}
-      - {at: 10, for: 1, to: {v: 0.46, w: 0.93, s: 0.42}}
-      - {at: 11, for: 1, to: {v: 0.47, w: 0.92, s: 0.33}}
-      - {at: 12, for: 1, to: {v: 0.47, w: 0.92, s: 0.27}}
-      - {at: 13, for: 1, to: {v: 0.48, w: 0.93, s: 0.25}}
+    rotate:
+      - {at: 0, for: 0, about: w, to: 5}   # guard
+      - {at: 0, for: 4, about: w, to: 100, ease: out_cubic}   # raise the cleaver high at the left
+      - {at: 5, for: 3, about: w, to: -36, ease: out_cubic}   # the rend: down and across to the right
+      - {at: 8, for: 6, about: w, to: 5, ease: in_out_sine}   # back to guard
+      - {at: 0, for: 0, about: s, to: -37}
+      - {at: 0, for: 4, about: s, to: 20, ease: out_cubic}
+      - {at: 5, for: 3, about: s, to: -33, ease: out_cubic}
+      - {at: 8, for: 6, about: s, to: -37, ease: in_out_sine}
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
     rotate:
       - {at: 0, for: 0, about: v, to: 135}  # roll the edge into the cut plane
       - {at: 0, for: 5, about: s, to: -55, ease: in_out_sine}  # wind-up turn

@@ -1,8 +1,9 @@
 # dagger-stab: dagger stab from the hip (wind-up 2 ticks, hit at tick 2).
 # Frames (ADR-0314, ADR-0315), the gameplay (hit tick, shape, damage, knockback, cooldown, cast length) is unchanged:
-#   blade  - the dagger. Origin at the caster feet, moved along a hand path (guard -> drawn back -> thrust straight ahead along v -> guard). Long axis along v (grip at the origin, tip at v 0.61),
-#            edge along w. The thrust is the hand `move:` along v, the point leads by construction; the wind-up aims the point slightly (15), `reset` eases back to guard.
-#            The engine pins the right hand to the origin, so every `move:` point lies inside the 0.60 reach of the right shoulder (v 0 / w 1.29 / s 0.29).
+#   arm    - the right arm, rotate keys only. Origin = the right shoulder (`caster.shoulder_r`); the arm is one rigid 0.60 bone, so the hand travels on a sphere about it and a turn of this frame is that travel (about w left/right, about s up/down). Hand path: guard -> pulled back -> driven forward -> guard.
+#   blade  - the dagger. Origin = the hand, 0.60 along the arm frame (the hand path is the arm's turn: guard -> drawn back -> thrust straight ahead along v -> guard). Long axis along v (grip at the origin, tip at v 0.61),
+#            edge along w. The thrust is the hand swinging forward on the arm, the point leads by construction; the wind-up aims the point slightly (15), `reset` eases back to guard.
+#            The engine pins the right hand to the origin; the origin sits exactly on the 0.60 reach sphere of the shoulder by construction.
 #   body   - the caster's feet, v forward / w up / s right: sounds and the cast fx.
 #   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
 #   edge   - line along the blade (v 0.38 .. 0.61), what the trail rows draw along.
@@ -22,24 +23,25 @@ params:
   dmg_physical: {type: number, default: 25}
   bleed_ticks:  {type: ticks, default: 100}
 frames:
-  - id: blade
-    origin: caster
+  - id: arm
+    origin: caster.shoulder_r
     v: forward
     w: up
     s: v x w
-    move:
-      - {at: 0, for: 0, to: {v: 0.33, w: 0.82, s: 0.47}}  # guard
-      - {at: 0, for: 1, to: {v: 0, w: 0.75, s: 0.55}}
-      - {at: 1, for: 1, to: {v: 0.52, w: 1.04, s: 0.45}}
-      - {at: 2, for: 1, to: {v: 0.57, w: 1.13, s: 0.39}}
-      - {at: 3, for: 1, to: {v: 0.58, w: 1.12, s: 0.32}}
-      - {at: 4, for: 1, to: {v: 0.58, w: 1.14, s: 0.33}}
-      - {at: 5, for: 1, to: {v: 0.55, w: 1.07, s: 0.38}}
-      - {at: 6, for: 1, to: {v: 0.51, w: 1, s: 0.41}}
-      - {at: 7, for: 1, to: {v: 0.42, w: 0.87, s: 0.41}}
-      - {at: 8, for: 1, to: {v: 0.4, w: 0.86, s: 0.43}}
-      - {at: 9, for: 1, to: {v: 0.34, w: 0.83, s: 0.47}}
-      - {at: 10, for: 1, to: {v: 0.33, w: 0.82, s: 0.47}}
+    rotate:
+      - {at: 0, for: 0, about: w, to: -29}   # guard
+      - {at: 0, for: 1, about: w, to: -90, ease: in_out_sine}   # pull the hand back to the right hip
+      - {at: 1, for: 3, about: w, to: -8, ease: out_cubic}   # the stab: the hand drives forward
+      - {at: 4, for: 7, about: w, to: -29, ease: in_out_sine}   # back to guard
+      - {at: 0, for: 0, about: s, to: -51}
+      - {at: 0, for: 1, about: s, to: -64, ease: in_out_sine}
+      - {at: 1, for: 3, about: s, to: -15, ease: out_cubic}
+      - {at: 4, for: 7, about: s, to: -51, ease: in_out_sine}
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
     rotate:
       - {at: 0, for: 1, about: s, to: 15, ease: in_out_sine}  # aim while drawing
       - {at: 1, for: 3, about: s, to: 0, ease: out_cubic}  # level on the target

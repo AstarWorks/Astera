@@ -1,9 +1,10 @@
 # katana-slash: rising diagonal cut of the katana (wind-up 2 ticks, hit at tick 2).
 # Frames (ADR-0314, ADR-0315), the gameplay (hit tick, shape, damage, knockback, cooldown, cast length) is unchanged:
-#   blade  - the katana. Origin at the caster feet, moved along a hand path (guard -> drawn low at the right -> up across to the high left -> guard). Long axis along v (grip at the origin, tip at v 1.03), edge along w. Roll -45 about v lays the edge on
+#   arm    - the right arm, rotate keys only. Origin = the right shoulder (`caster.shoulder_r`); the arm is one rigid 0.60 bone, so the hand travels on a sphere about it and a turn of this frame is that travel (about w left/right, about s up/down). Hand path: guard -> drawn to the right -> one long cut to the far left -> guard.
+#   blade  - the katana. Origin = the hand, 0.60 along the arm frame (the hand path is the arm's turn: guard -> drawn low at the right -> up across to the high left -> guard). Long axis along v (grip at the origin, tip at v 1.03), edge along w. Roll -45 about v lays the edge on
 #            the diagonal, then the cut is a turn about s (v moves towards w): the edge leads. The wind-up tips the point back (-50), the cut carries it through (+80, hit
 #            while the blade crosses the middle), `reset` eases back to guard.
-#            The engine pins the right hand to the origin, so every `move:` point lies inside the 0.60 reach of the right shoulder (v 0 / w 1.29 / s 0.29).
+#            The engine pins the right hand to the origin; the origin sits exactly on the 0.60 reach sphere of the shoulder by construction.
 #   body   - the caster's feet, v forward / w up / s right: sounds and the cast fx.
 #   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
 #   edge   - line along the blade from part-way to the tip (v 0.65 .. 1.03), what the trail rows draw along.
@@ -23,23 +24,25 @@ params:
   dmg_physical: {type: number, default: 26.0}
   knockback: {type: number, default: 0.2}
 frames:
-  - id: blade
-    origin: caster
+  - id: arm
+    origin: caster.shoulder_r
     v: forward
     w: up
     s: v x w
-    move:
-      - {at: 0, for: 0, to: {v: 0.45, w: 0.9, s: 0.36}}  # guard
-      - {at: 0, for: 1, to: {v: 0.24, w: 0.88, s: 0.66}}
-      - {at: 1, for: 1, to: {v: 0.2, w: 1.08, s: -0.24}}
-      - {at: 2, for: 1, to: {v: 0.12, w: 1.36, s: -0.29}}
-      - {at: 4, for: 1, to: {v: 0.14, w: 1.35, s: -0.29}}
-      - {at: 5, for: 1, to: {v: 0.18, w: 1.18, s: -0.27}}
-      - {at: 6, for: 1, to: {v: 0.25, w: 0.95, s: -0.14}}
-      - {at: 7, for: 1, to: {v: 0.41, w: 0.88, s: 0.12}}
-      - {at: 8, for: 1, to: {v: 0.47, w: 0.92, s: 0.29}}
-      - {at: 9, for: 1, to: {v: 0.46, w: 0.91, s: 0.34}}
-      - {at: 10, for: 1, to: {v: 0.45, w: 0.9, s: 0.36}}
+    rotate:
+      - {at: 0, for: 0, about: w, to: -9}   # guard
+      - {at: 0, for: 1, about: w, to: -57, ease: in_out_sine}   # draw back to the right
+      - {at: 1, for: 3, about: w, to: 95, ease: out_cubic}   # the cut: across to the far left, hand rising
+      - {at: 4, for: 7, about: w, to: -9, ease: in_out_sine}   # sheathe back to guard
+      - {at: 0, for: 0, about: s, to: -41}
+      - {at: 0, for: 1, about: s, to: -43, ease: in_out_sine}
+      - {at: 1, for: 3, about: s, to: 0, ease: out_cubic}
+      - {at: 4, for: 7, about: s, to: -41, ease: in_out_sine}
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
     rotate:
       - {at: 0, for: 0, about: v, to: -45}  # roll the edge into the cut plane
       - {at: 0, for: 1, about: s, to: -50, ease: in_out_sine}  # wind-up turn

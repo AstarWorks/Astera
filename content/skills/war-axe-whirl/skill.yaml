@@ -1,9 +1,10 @@
 # war-axe-whirl: spin: coil to the right-back, then a full turn of the axe around the caster (wind-up 5 ticks, burst at tick 5).
 # Frames (ADR-0314, ADR-0315), the gameplay (hit tick, shape, damage, knockback, cooldown, cast length) is unchanged:
-#   blade  - the war axe. Origin at the caster feet, moved along a short hand path (guard -> coiled to the right-back -> across the front -> guard). Long axis along v (grip at the origin, head at v 0.60..0.94), edge along w.
+#   arm    - the right arm, rotate keys only. Origin = the right shoulder (`caster.shoulder_r`); the arm is one rigid 0.60 bone, so the hand travels on a sphere about it and a turn of this frame is that travel (about w left/right, about s up/down). Hand path: guard -> coiled to the right-back -> whirled across the front -> guard.
+#   blade  - the war axe. Origin = the hand, 0.60 along the arm frame (the hand path is the arm's turn: guard -> coiled to the right-back -> across the front -> guard). Long axis along v (grip at the origin, head at v 0.60..0.94), edge along w.
 #            The whirl is a turn about w (up): -120 to coil the head to the right-back, then +360 in six ticks (the burst hits at tick 5) and +80 more; a roll of -90 about v, listed
 #            after the turn, lays the edge along the tangent, so the edge leads the spin.
-#            The engine pins the right hand to the origin, so every `move:` point lies inside the 0.60 reach of the right shoulder (v 0 / w 1.29 / s 0.29).
+#            The engine pins the right hand to the origin; the origin sits exactly on the 0.60 reach sphere of the shoulder by construction.
 #   body   - the caster's feet, v forward / w up / s right: sounds and the cast fx.
 #   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
 #   edge   - line along the axe head (v 0.60 .. 0.94), what the trail rows draw along.
@@ -21,26 +22,25 @@ params:
   radius:       {type: blocks, default: 3.5}
   dmg_physical: {type: number, default: 35}
 frames:
-  - id: blade
-    origin: caster
+  - id: arm
+    origin: caster.shoulder_r
     v: forward
     w: up
     s: v x w
-    move:
-      - {at: 0, for: 0, to: {v: 0.41, w: 0.89, s: 0.47}}  # guard
-      - {at: 0, for: 1, to: {v: 0.4, w: 0.91, s: 0.53}}
-      - {at: 1, for: 1, to: {v: 0.32, w: 0.99, s: 0.7}}
-      - {at: 2, for: 1, to: {v: 0.18, w: 1.13, s: 0.84}}
-      - {at: 3, for: 1, to: {v: 0.11, w: 1.2, s: 0.87}}
-      - {at: 4, for: 1, to: {v: 0.14, w: 1.17, s: 0.86}}
-      - {at: 5, for: 1, to: {v: 0.26, w: 1.06, s: 0.78}}
-      - {at: 6, for: 1, to: {v: 0.39, w: 0.94, s: 0.58}}
-      - {at: 7, for: 1, to: {v: 0.44, w: 0.88, s: 0.29}}
-      - {at: 8, for: 1, to: {v: 0.42, w: 0.89, s: 0.13}}
-      - {at: 9, for: 1, to: {v: 0.41, w: 0.9, s: 0.1}}
-      - {at: 10, for: 1, to: {v: 0.43, w: 0.88, s: 0.21}}
-      - {at: 11, for: 1, to: {v: 0.43, w: 0.88, s: 0.4}}
-      - {at: 12, for: 1, to: {v: 0.41, w: 0.89, s: 0.47}}
+    rotate:
+      - {at: 0, for: 0, about: w, to: -24}   # guard
+      - {at: 0, for: 4, about: w, to: -79, ease: out_quad}   # coil to the right-back
+      - {at: 4, for: 6, about: w, to: 25, ease: in_quad}   # the whirl: round across the front
+      - {at: 10, for: 3, about: w, to: -24, ease: out_cubic}   # back to guard
+      - {at: 0, for: 0, about: s, to: -42}
+      - {at: 0, for: 4, about: s, to: -9, ease: out_quad}
+      - {at: 4, for: 6, about: s, to: -41, ease: in_quad}
+      - {at: 10, for: 3, about: s, to: -42, ease: out_cubic}
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
     rotate:
       - {at: 0, for: 4, about: w, to: -120, ease: out_quad}                     # coil: the axe head swings to the right-back
       - {at: 4, for: 6, about: w, to: 240, ease: in_quad}                       # one full turn (360) around the caster, ending at the right-back again

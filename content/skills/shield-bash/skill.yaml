@@ -1,9 +1,10 @@
 # shield-bash: shield bash: the shield drawn back, shoved forward at the hit (wind-up 4 ticks, hit at tick 4).
 # Frames (ADR-0314, ADR-0315), the gameplay (hit tick, shape, damage, knockback, cooldown, cast length) is unchanged:
-#   blade  - the shield-bulwark (the held item stays the vanilla SHIELD so blocking keeps working). This frame is turned to the shield model: v UP (the long axis of the model), w RIGHT (its edge),
-#            s = v x w = FORWARD (the outer face). So the `move:` coefficients read up / right / forward from the feet. The bash is the hand `move:` along s: drawn back over three ticks, shoved
-#            forward so the face reaches the target zone at the hit (tick 4), eased back; the turn about w tips the top toward the caster while drawing back and ahead on the shove.
-#            The engine pins the right hand to the origin, so every `move:` point lies inside the 0.60 reach of the right shoulder (v 0 / w 1.29 / s 0.29).
+#   arm    - the right arm, rotate keys only. Origin = the right shoulder (`caster.shoulder_r`); the arm is one rigid 0.60 bone, so the hand travels on a sphere about it and a turn of this frame is that travel
+#            (about w left/right, about s up/down). Hand path: guard low in front -> tucked in and down over three ticks -> driven straight ahead at the hit (tick 4) -> back to guard.
+#   shield - the shield-bulwark (the held item stays the vanilla SHIELD so blocking keeps working). Origin = the hand, 0.60 along the arm frame. This frame is turned to the shield model: v UP (the long axis
+#            of the model), w RIGHT (its edge), s = v x w = FORWARD (the outer face). The turn about w tips the top toward the caster while drawing back and ahead on the shove.
+#            The engine pins the right hand to the origin; the origin sits exactly on the 0.60 reach sphere of the shoulder by construction.
 #   body   - the caster's feet, v forward / w up / s right: sounds and the cast fx.
 #   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
 apiVersion: astera/v3
@@ -23,23 +24,25 @@ params:
   knockback:    {type: number, default: 1.3}
   tremor_ticks: {type: ticks, default: 40}
 frames:
+  - id: arm
+    origin: caster.shoulder_r
+    v: forward
+    w: up
+    s: v x w
+    rotate:
+      - {at: 0, for: 0, about: w, to: -12}   # guard: the shield held low in front
+      - {at: 0, for: 3, about: w, to: 14, ease: out_quad}   # draw back: the arm tucks in and down
+      - {at: 3, for: 1, about: w, to: 0, ease: out_cubic}   # the shove: the arm drives straight ahead
+      - {at: 5, for: 5, about: w, to: -12, ease: in_out_sine}   # back to guard
+      - {at: 0, for: 0, about: s, to: -43}
+      - {at: 0, for: 3, about: s, to: -57, ease: out_quad}
+      - {at: 3, for: 1, about: s, to: -24, ease: out_cubic}
+      - {at: 5, for: 5, about: s, to: -43, ease: in_out_sine}
   - id: shield
-    origin: caster
+    origin: {frame: arm, pos: {v: 0.6}}
     v: up
     w: right
     s: v x w
-    move:
-      - {at: 0, for: 0, to: {v: 0.88, w: 0.38, s: 0.43}}  # guard
-      - {at: 0, for: 1, to: {v: 0.83, w: 0.3, s: 0.38}}
-      - {at: 1, for: 1, to: {v: 0.8, w: 0.23, s: 0.34}}
-      - {at: 2, for: 1, to: {v: 0.79, w: 0.21, s: 0.31}}
-      - {at: 3, for: 1, to: {v: 1.05, w: 0.29, s: 0.55}}
-      - {at: 4, for: 1, to: {v: 1.08, w: 0.3, s: 0.56}}
-      - {at: 5, for: 1, to: {v: 1.06, w: 0.31, s: 0.55}}
-      - {at: 6, for: 1, to: {v: 1.01, w: 0.32, s: 0.53}}
-      - {at: 7, for: 1, to: {v: 0.95, w: 0.35, s: 0.49}}
-      - {at: 8, for: 1, to: {v: 0.9, w: 0.37, s: 0.45}}
-      - {at: 9, for: 1, to: {v: 0.88, w: 0.38, s: 0.43}}
     rotate:
       - {at: 0, for: 3, about: w, to: 20, ease: out_quad}                       # top toward the caster while drawing back
       - {at: 3, for: 2, about: w, to: -8, ease: out_cubic}                      # top leans ahead on the shove

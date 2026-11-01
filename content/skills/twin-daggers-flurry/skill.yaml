@@ -1,10 +1,12 @@
 # twin-daggers-flurry: two-blade flurry: cut left, back-cut right (wind-up 2 ticks, hit at tick 2).
 # Frames (ADR-0314, ADR-0315), the gameplay (hit tick, shape, damage, knockback, cooldown, cast length) is unchanged:
-#   blade  - the twin daggers, one frame per hand (blade = right/main hand, blade_off = left hand, `hand: off` on its rig). Origin at the caster feet, moved along a short hand path (guard -> drawn back high on the own side ->
+#   arm    - the right arm, rotate keys only. Origin = the right shoulder (`caster.shoulder_r`); the arm is one rigid 0.60 bone, so the hand travels on a sphere about it and a turn of this frame is that travel (about w left/right, about s up/down). Right-hand path: guard -> drawn back -> across to the left -> back to the right -> guard. `arm_off` mirrors it for the left hand.
+#   arm_off - the left arm, the mirror of `arm` (origin `caster.shoulder_l`).
+#   blade  - the twin daggers, one frame per hand (blade = right/main hand, blade_off = left hand, `hand: off` on its rig). Origin = the hand, 0.60 along the arm frame (the hand path is the arm's turn: guard -> drawn back high on the own side ->
 #            cut across to the other side -> back-cut -> guard); the off hand is the mirror image of the main hand (s negated, the roll about v negated). Long axis along v (grip at the origin, tip at v 0.62),
 #            edge along w. Roll -80 (main) / +80 (off) about v lays the edge across the cut, the cut is a turn about s (v moves towards w): the edge leads. The back-cut turns the blade over
 #            about v (+160 / -160) so the other edge leads on the way back.
-#            The engine pins the right hand to the origin, so every `move:` point lies inside the 0.60 reach of the right shoulder (v 0 / w 1.29 / s 0.29).
+#            The engine pins the right hand to the origin; the origin sits exactly on the 0.60 reach sphere of the shoulder by construction.
 #   body   - the caster's feet, v forward / w up / s right: sounds and the cast fx.
 #   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
 #   edge, edge_off - line along each blade, outer half (v 0.40 .. 0.62), what the trail rows draw along.
@@ -19,20 +21,27 @@ meta:
   resource_cost: 4
   tags: [melee, physical]
 frames:
-  - id: blade
-    origin: caster
+  - id: arm
+    origin: caster.shoulder_r
     v: forward
     w: up
     s: v x w
-    move:
-      - {at: 0, for: 0, to: {v: 0.33, w: 0.83, s: 0.48}}  # guard
-      - {at: 0, for: 1, to: {v: 0.03, w: 1.11, s: 0.86}}
-      - {at: 1, for: 1, to: {v: 0.3, w: 0.79, s: 0.14}}
-      - {at: 2, for: 1, to: {v: 0.2, w: 0.95, s: -0.15}}
-      - {at: 4, for: 1, to: {v: 0.33, w: 0.83, s: 0.48}}
-      - {at: 5, for: 1, to: {v: 0.32, w: 0.9, s: 0.61}}
-      - {at: 8, for: 1, to: {v: 0.34, w: 0.87, s: 0.56}}
-      - {at: 9, for: 1, to: {v: 0.33, w: 0.83, s: 0.48}}
+    rotate:
+      - {at: 0, for: 0, about: w, to: -30}   # guard
+      - {at: 0, for: 1, about: w, to: -87, ease: in_out_sine}   # draw the right dagger back
+      - {at: 1, for: 3, about: w, to: 95, ease: out_cubic}   # first stroke: across to the left
+      - {at: 4, for: 3, about: w, to: -85, ease: out_cubic}   # second stroke: back to the right
+      - {at: 7, for: 4, about: w, to: -30, ease: in_out_sine}   # back to guard
+      - {at: 0, for: 0, about: s, to: -50}
+      - {at: 0, for: 1, about: s, to: -18, ease: in_out_sine}
+      - {at: 1, for: 3, about: s, to: -30, ease: out_cubic}
+      - {at: 4, for: 3, about: s, to: -45, ease: out_cubic}
+      - {at: 7, for: 4, about: s, to: -50, ease: in_out_sine}
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
     rotate:
       - {at: 0, for: 0, about: v, to: -80}                        # edge to the left
       - {at: 0, for: 1, about: s, to: -50, ease: in_out_sine}    # point away from the cut side
@@ -40,21 +49,27 @@ frames:
       - {at: 4, for: 3, about: s, to: -45, ease: out_cubic}      # the back-cut returns the point
       - {at: 4, for: 3, about: v, to: 80, ease: out_cubic}       # the blade turns over: the other edge leads the back-cut
       - {at: 7, for: 4, reset: true, ease: in_out_sine}
-  - id: blade_off
-    origin: caster
+  - id: arm_off
+    origin: caster.shoulder_l
     v: forward
     w: up
     s: v x w
-    move:
-      - {at: 0, for: 0, to: {v: 0.33, w: 0.83, s: -0.48}}  # guard
-      - {at: 0, for: 1, to: {v: 0.23, w: 1.31, s: -0.84}}
-      - {at: 1, for: 1, to: {v: 0.29, w: 0.83, s: -0.03}}
-      - {at: 2, for: 1, to: {v: 0.2, w: 0.95, s: 0.15}}
-      - {at: 4, for: 1, to: {v: 0.34, w: 0.87, s: -0.56}}
-      - {at: 5, for: 1, to: {v: 0.32, w: 1.06, s: -0.74}}
-      - {at: 7, for: 1, to: {v: 0.33, w: 1, s: -0.7}}
-      - {at: 8, for: 1, to: {v: 0.33, w: 0.92, s: -0.62}}
-      - {at: 9, for: 1, to: {v: 0.33, w: 0.83, s: -0.48}}
+    rotate:
+      - {at: 0, for: 0, about: w, to: 30}   # guard
+      - {at: 0, for: 1, about: w, to: 87, ease: in_out_sine}   # draw the left dagger back
+      - {at: 1, for: 3, about: w, to: -95, ease: out_cubic}   # first stroke: across to the right
+      - {at: 4, for: 3, about: w, to: 85, ease: out_cubic}   # second stroke: back to the left
+      - {at: 7, for: 4, about: w, to: 30, ease: in_out_sine}   # back to guard
+      - {at: 0, for: 0, about: s, to: -50}
+      - {at: 0, for: 1, about: s, to: -18, ease: in_out_sine}
+      - {at: 1, for: 3, about: s, to: -30, ease: out_cubic}
+      - {at: 4, for: 3, about: s, to: -45, ease: out_cubic}
+      - {at: 7, for: 4, about: s, to: -50, ease: in_out_sine}
+  - id: blade_off
+    origin: {frame: arm_off, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
     rotate:
       - {at: 0, for: 0, about: v, to: 80}                        # edge to the right
       - {at: 0, for: 1, about: s, to: -50, ease: in_out_sine}    # point away from the cut side

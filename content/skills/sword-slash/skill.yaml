@@ -1,13 +1,15 @@
 # sword-slash: the knight-sword's basic cut in the frame grammar (ADR-0314, ADR-0315). sword-slash-t2..t4 extend it (ADR-0303 9.3): another id, item, meta and
 # dmg, the same frames, so the four tiers cut the same arc. Wind-up W = 3 ticks, the sweep hits at tick 3, the cast ends one tick later; the rig, the sweep fx
 # and the trail are detach: true and play on after the cast end (tail).
-# Three frames carry everything drawn:
-#   blade  - the sword. Origin at the caster's feet, moved along the hand path (`move:`: guard low in front -> cocked high at the right -> across to the left
-#            -> back to guard; every point inside the 0.60 reach of the right shoulder at v 0 / w 1.29 / s 0.29, the engine pins the right hand to the
-#            origin). Long axis along v (grip at the origin, tip at v 1.09), edge along w. One roll about v turns the edge to the left, then the cut is a turn
-#            about s, which moves v towards w: the edge leads by construction. The wind-up turns the tip to the right (-60), the cut carries it across the front
-#            to the left (+80, hit at tick 3 while the blade crosses the middle), `reset` eases the chain back to guard.
-#            The line `edge` (guard 0.2 -> tip 1.09) is what the trail rows draw along.
+# Four frames carry everything drawn:
+#   arm    - the right arm, rotate keys only. Origin = the right shoulder (`caster.shoulder_r`); the arm is one rigid 0.60 bone, so the hand can only travel on
+#            a sphere about that point, and a turn of this frame is exactly that travel. About w the hand swings left/right, about s it rises and falls:
+#            guard (low in front) -> drawn out to the right at shoulder height -> across to the left and down (the cut) -> back to guard.
+#   blade  - the sword. Origin = the point 0.60 along the arm (`{frame: arm, pos: {v: 0.6}}`), i.e. the hand; the engine pins the right hand to it. Long axis
+#            along v (grip at the origin, tip at v 1.09), edge along w. One roll about v turns the edge to the left, then the cut is a turn about s, which
+#            moves v towards w: the edge leads by construction. The wind-up turns the tip to the right (-60), the cut carries it across the front to the left
+#            (+80, hit at tick 3 while the blade crosses the middle), `reset` eases the chain back to guard.
+#            The line `edge` (0.65 -> tip 1.09) is what the trail rows draw along.
 #   body   - the caster's feet, v forward / w up / s right: the sound and the sweep fx (1.4 ahead, at chest height).
 #   wound  - one per victim at the victim's centre, v the way the blow came in: the hit spark and the hit sound.
 # Gameplay (hit tick, sector, damage, knockback, cooldown, cast length) is unchanged.
@@ -23,24 +25,24 @@ meta:
 params:
   dmg: {type: number, default: 40.0}
 frames:
-  - id: blade
-    origin: caster
+  - id: arm
+    origin: caster.shoulder_r
     v: forward
     w: up
     s: v x w
-    move:
-      - {at: 0, for: 0, to: {v: 0.45, w: 0.9, s: 0.36}}  # guard
-      - {at: 0, for: 1, to: {v: 0.39, w: 1.06, s: 0.69}}
-      - {at: 1, for: 1, to: {v: 0.19, w: 1.3, s: 0.86}}
-      - {at: 2, for: 1, to: {v: 0.43, w: 0.9, s: 0.13}}
-      - {at: 3, for: 1, to: {v: 0.25, w: 0.95, s: -0.14}}
-      - {at: 5, for: 1, to: {v: 0.25, w: 0.9, s: -0.09}}
-      - {at: 6, for: 1, to: {v: 0.31, w: 0.87, s: -0.02}}
-      - {at: 7, for: 1, to: {v: 0.34, w: 0.85, s: 0.07}}
-      - {at: 8, for: 1, to: {v: 0.42, w: 0.87, s: 0.25}}
-      - {at: 9, for: 1, to: {v: 0.43, w: 0.87, s: 0.28}}
-      - {at: 10, for: 1, to: {v: 0.45, w: 0.9, s: 0.34}}
-      - {at: 11, for: 1, to: {v: 0.45, w: 0.9, s: 0.36}}
+    rotate:
+      - {at: 0, for: 2, about: w, to: -72, ease: in_out_sine}                 # draw: the hand swings out to the right ...
+      - {at: 2, for: 3, about: w, to: 72, ease: out_cubic}                    # the cut: the hand sweeps across to the left, back down
+      - {at: 5, for: 7, about: w, to: -9, ease: in_out_sine}                  # follow-through: back to guard
+      - {at: 0, for: 0, about: s, to: -41}                                    # guard: the hand low in front of the hip
+      - {at: 0, for: 2, about: s, to: 1, ease: in_out_sine}                   # ... and up to shoulder height
+      - {at: 2, for: 3, about: s, to: -34, ease: out_cubic}
+      - {at: 5, for: 7, about: s, to: -41, ease: in_out_sine}
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
     rotate:
       - {at: 0, for: 0, about: v, to: -80}                                    # edge to the left: the cut is flat, a touch rising
       - {at: 0, for: 2, about: s, to: -60, ease: in_out_sine}                 # tip to the right

@@ -1,8 +1,9 @@
 # scythe-reap: right-to-left reap of the scythe (wind-up 4 ticks, hit at tick 4).
 # Frames (ADR-0314, ADR-0315), the gameplay (hit tick, shape, damage, knockback, cooldown, cast length) is unchanged:
-#   blade  - the scythe. Origin at the caster feet, moved along a hand path (guard -> drawn back high at the right -> across to the left -> guard). Long axis along v (grip at the origin), edge along w. Roll -80 about v lays the edge on the left, the cut is then a turn about s (v moves towards w), so the edge leads. The wind-up tips the point to the right (-60),
+#   arm    - the right arm, rotate keys only. Origin = the right shoulder (`caster.shoulder_r`); the arm is one rigid 0.60 bone, so the hand travels on a sphere about it and a turn of this frame is that travel (about w left/right, about s up/down). Hand path: guard -> wound out to the right -> a wide reap to the left -> guard.
+#   blade  - the scythe. Origin = the hand, 0.60 along the arm frame (the hand path is the arm's turn: guard -> drawn back high at the right -> across to the left -> guard). Long axis along v (grip at the origin), edge along w. Roll -80 about v lays the edge on the left, the cut is then a turn about s (v moves towards w), so the edge leads. The wind-up tips the point to the right (-60),
 #            the cut carries it across the front to the left (90, hit when the blade crosses the middle), `reset` eases back to guard.
-#            The engine pins the right hand to the origin, so every `move:` point lies inside the 0.60 reach of the right shoulder (v 0 / w 1.29 / s 0.29).
+#            The engine pins the right hand to the origin; the origin sits exactly on the 0.60 reach sphere of the shoulder by construction.
 #   body   - the caster's feet, v forward / w up / s right: sounds and the cast fx.
 #   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
 #   edge   - line along the curved blade from its root (v 0.88, s 0.69) to its tip (v 0.13, s 0.82), what the trail rows draw along.
@@ -17,24 +18,25 @@ params:
   dmg_physical: {type: number, default: 28}
   knockback:    {type: number, default: 0.3}
 frames:
-  - id: blade
-    origin: caster
+  - id: arm
+    origin: caster.shoulder_r
     v: forward
     w: up
     s: v x w
-    move:
-      - {at: 0, for: 0, to: {v: 0.45, w: 0.9, s: 0.36}}  # guard
-      - {at: 0, for: 1, to: {v: 0.45, w: 0.96, s: 0.5}}
-      - {at: 1, for: 1, to: {v: 0.29, w: 1.15, s: 0.79}}
-      - {at: 2, for: 1, to: {v: 0.19, w: 1.3, s: 0.86}}
-      - {at: 3, for: 1, to: {v: 0.43, w: 0.9, s: 0.13}}
-      - {at: 4, for: 1, to: {v: 0.25, w: 0.95, s: -0.14}}
-      - {at: 6, for: 1, to: {v: 0.25, w: 0.9, s: -0.09}}
-      - {at: 7, for: 1, to: {v: 0.32, w: 0.87, s: 0}}
-      - {at: 8, for: 1, to: {v: 0.34, w: 0.82, s: 0.14}}
-      - {at: 9, for: 1, to: {v: 0.43, w: 0.87, s: 0.29}}
-      - {at: 10, for: 1, to: {v: 0.46, w: 0.9, s: 0.34}}
-      - {at: 11, for: 1, to: {v: 0.45, w: 0.9, s: 0.36}}
+    rotate:
+      - {at: 0, for: 0, about: w, to: -9}   # guard
+      - {at: 0, for: 3, about: w, to: -72, ease: in_out_sine}   # wind out to the right
+      - {at: 3, for: 3, about: w, to: 60, ease: out_cubic}   # the reap: a wide cut to the left
+      - {at: 6, for: 6, about: w, to: -9, ease: in_out_sine}   # back to guard
+      - {at: 0, for: 0, about: s, to: -41}
+      - {at: 0, for: 3, about: s, to: 1, ease: in_out_sine}
+      - {at: 3, for: 3, about: s, to: -34, ease: out_cubic}
+      - {at: 6, for: 6, about: s, to: -41, ease: in_out_sine}
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
     rotate:
       - {at: 0, for: 0, about: v, to: -80}  # roll the edge into the cut plane
       - {at: 0, for: 3, about: s, to: -60, ease: in_out_sine}  # wind-up turn
