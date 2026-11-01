@@ -67,6 +67,7 @@ import com.astarworks.astera.core.domain.animation.skinrig.SkinRigPlayback
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigTransforms
 import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRef
 import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.AxisSpec
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.FrameDecl
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.FrameEvaluator
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.FrameInputs
@@ -1349,7 +1350,7 @@ public class TablePlayer(
         val rec = run.recs[a.ribbon] ?: return
         val h = rec.real ?: return
         val tip = vec(run, a.position, ctx)
-        val root = worldOf(run, rec, rec.localAt(now), ctx.binding, now).pos
+        val root = a.root?.let { vec(run, it, ctx) } ?: if (rec.anchor == null && a.root == null && rec.anchorName.isEmpty()) tip else worldOf(run, rec, rec.localAt(now), ctx.binding, now).pos
         visual.pushTrailPoint(h, Vec3(root.x, root.y, root.z), Vec3(tip.x, tip.y, tip.z))
     }
 
@@ -2273,7 +2274,11 @@ public class TablePlayer(
         var evaluatedTick: Int = Int.MIN_VALUE
         /** The origin the previous evaluation read: `velocity` is its one-tick travel. */
         var prevOrigin: Vec3? = null
+        /** `snapshot:` (ADR-0314): the origin and named directions read once at the snapshot tick, held for the rest of the life. */
+        var frozen: Frozen? = null
     }
+
+    private class Frozen(val origin: Vec3, val directions: Map<String, Vec3>)
 
     /**
      * A `rig` riding a frame (ADR-0314): the held mesh ([held]) sits on the frame with the part's long axis along `v` and its edge along `w`;
@@ -2311,7 +2316,9 @@ public class TablePlayer(
             inst.state = null
             return
         }
-        val origin = try {
+        val snapshotAt = decl.snapshotAt
+        val held = if (snapshotAt != null && now - inst.start >= snapshotAt) inst.frozen else null
+        val origin = held?.origin ?: try {
             if (parentOrigin != null) parentState!!.world(parentOrigin.pos) else frameOrigin(run, decl, binding, scope, now)
         } catch (e: IllegalArgumentException) {
             inst.state = null
@@ -2324,7 +2331,7 @@ public class TablePlayer(
         val aim = turned(lookRot, Vec3(0.0, 0.0, 1.0))
         val prev = inst.prevOrigin
         inst.prevOrigin = origin
-        val direction: (String) -> Vec3? = { name ->
+        val liveDirection: (String) -> Vec3? = { name ->
             when (name) {
                 "aim" -> aim
                 "up" -> Vec3(0.0, 1.0, 0.0)
@@ -2345,7 +2352,13 @@ public class TablePlayer(
                 else -> null
             }
         }
-        when (val out = FrameEvaluator.evaluate(decl, now - inst.start, FrameInputs(origin, direction))) {
+        // snapshot: the first evaluation at or after the snapshot tick reads the live inputs and keeps them; later ticks replay the held ones
+        if (snapshotAt != null && held == null && now - inst.start >= snapshotAt) {
+            inst.frozen = Frozen(origin, AxisSpec.NAMED.mapNotNull { n -> liveDirection(n)?.let { n to it } }.toMap())
+        }
+        val frozen = if (snapshotAt != null) inst.frozen else null
+        val inputs = if (frozen != null) FrameInputs(frozen.origin) { frozen.directions[it] } else FrameInputs(origin, liveDirection)
+        when (val out = FrameEvaluator.evaluate(decl, now - inst.start, inputs)) {
             is FrameEvaluator.Outcome.Ok -> inst.state = out.state
             is FrameEvaluator.Outcome.Degenerate -> {
                 inst.state = null

@@ -161,6 +161,11 @@ public data class FrameDecl(
     /** `on: event.victim` / `on: event.block`: one instance per victim / block contact of the event in scope (`each: true`), rooted on it. */
     val on: String? = null,
     val each: Boolean = false,
+    /**
+     * `snapshot: cast | <tick>`: the origin and the named directions are read once, at this tick of the frame's life (`cast` = 0), and held in
+     * world space from then on; `move` / `rotate` / `scale` keys still run on the frozen frame. Null = the frame follows its origin every tick.
+     */
+    val snapshotAt: Int? = null,
 ) {
     /** `on: event.victim`: one instance per hit victim, rooted on that victim. */
     val perVictim: Boolean get() = on == ON_VICTIM

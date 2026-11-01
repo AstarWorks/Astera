@@ -11,7 +11,8 @@ public sealed interface Action {
     public data class Spawn(val kind: SpawnKind, val anchor: InstanceId?, val anchorName: String, val pose: Pose, val look: Look) : Action
     public data class Key(val display: InstanceId, val durationTicks: Int, val translation: Vec, val leftRotation: Rot, val scale: Vec) : Action
     public data class Teleport(val display: InstanceId, val durationTicks: Int, val position: Vec, val yaw: Num, val pitch: Num) : Action
-    public data class TrailPoint(val ribbon: InstanceId, val position: Vec) : Action
+    /** [root] is the fan-out end when the trail was written with a frame point (`root: {frame, pos}`); null = the ribbon's own anchor point. */
+    public data class TrailPoint(val ribbon: InstanceId, val position: Vec, val root: Vec? = null) : Action
     /**
      * [target] is the per-row destination of a trail / vibration [data] (whose own target is a placeholder); the player evaluates it and
      * swaps it in as `ParticleTarget.Absolute`. Null for every other data.
