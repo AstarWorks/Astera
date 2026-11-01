@@ -1,6 +1,7 @@
-# tool skill hit area (shovel: earth puff); heavier at stone tier
+# Typical material accent; impact layout is authored in each skill.
 id: tool-shovel-stone
-particle: poof
-count: 4
-offset: [0.3, 0.3, 0.3]
-extra: 0.04
+particle: block
+block: minecraft:dirt
+count: 10
+offset: [0.22, 0.22, 0.22]
+extra: 0.08
