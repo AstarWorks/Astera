@@ -68,7 +68,7 @@ class AgentPortScenarioTest {
         assertThat(obs[2]["stopped"]!!.jsonPrimitive.content).isEqualTo("arrived")
         assertThat(obs[2]["map"]!!.jsonPrimitive.content.lines().size).isLessThanOrEqualTo(20)
         assertThat(obs[3]["stopped"]!!.jsonPrimitive.content).isEqualTo("mined")
-        assertThat(obs[3]["me"]!!.jsonObject["ore"]!!.jsonObject["iron"]!!.jsonPrimitive.int).isEqualTo(1)
+        assertThat(obs[3]["me"]!!.jsonObject["ore"]!!.jsonObject["iron"]!!.jsonPrimitive.int).isEqualTo(2)
 
         // shop + buy: reachable, and the refusal says what is missing.
         assertThat(obs[4]["stopped"]!!.jsonPrimitive.content).isEqualTo("arrived")
