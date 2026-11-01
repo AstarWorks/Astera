@@ -152,6 +152,7 @@ class BotBrain(
     private var wasFighting = false
     private var spawnX = 0.0
     private var spawnZ = 0.0
+    private var spawnY = 0.0
     private var objective: Objective? = null
     private var lastEnemyAt = 0L
     private var lastEnemyX = 0.0
@@ -289,7 +290,7 @@ class BotBrain(
         if (!wasFighting) {
             wasFighting = true
             resetCombatMemory()
-            spawnX = bot.x; spawnZ = bot.z
+            spawnX = bot.x; spawnZ = bot.z; spawnY = bot.y
             // Stages are authored around (0,0) and pasted into a slot on a fixed grid (ADR-0255): find that slot's origin.
             val originX = Math.round(spawnX / SLOT_PITCH) * SLOT_PITCH
             val originZ = Math.round(spawnZ / SLOT_PITCH) * SLOT_PITCH
@@ -303,7 +304,8 @@ class BotBrain(
             nav.clear()
             retreating = false
             stuck.reset()
-            planner = buildPlanner(originX, originZ)
+            selector.seedTies(TieBreak.seed(matchKey(originX, originZ), bot.name))
+            planner = buildPlanner(originX, originZ, matchKey(originX, originZ))
             economy = buildEconomy(originX, originZ)
             econSliceStart = 0L
             econCooldownUntil = if (planner != null) now + ECON_OPENING_MS else 0L
@@ -419,7 +421,7 @@ class BotBrain(
         } else {
             ineffective.disengage()
             strikeLook = null
-            val dest = chasing?.let { Dest(it.lastX, it.lastZ, null, CHASE_ARRIVE, "enemy-chase") } ?: chooseDest(now, starDest)
+            val dest = chasing?.takeIf { !offLimits(now, it.lastX, it.lastZ) }?.let { Dest(it.lastX, it.lastZ, null, CHASE_ARRIVE, "enemy-chase") } ?: chooseDest(now, starDest)
             decisionKindNow = dest?.kind ?: "idle"
             if (dest == null) {
                 endTravel()
@@ -528,7 +530,7 @@ class BotBrain(
             TargetPolicy.eligible(bot.name, myTeam, it) && it.hasLos && hypot(it.x - bot.x, it.z - bot.z) <= WeaponPolicy.FIRE_MAX
         }
         val attacker = threats.firstOrNull { it.id == lastTargetId } ?: threats.minByOrNull { hypot(it.x - bot.x, it.z - bot.z) }
-        if (attacker != null) selector.noteAttackedBy(attacker.id, now)
+        if (attacker != null) { selector.noteAttackedBy(attacker.id, now); planner?.noteAttackerTeam(now, attacker.team) }
     }
 
     /** New life or new match: forget targets, threats, a half-sent skill cast. */
@@ -544,13 +546,16 @@ class BotBrain(
      * Where to walk with nobody in sight: a star, a generator that may hold stars (STAR goal), a recent enemy
      * sighting, then the mode objective and a patrol of the stage's points of interest, else roam.
      */
+    /** Annihilation Preparation phase: a spot inside an enemy base, where the bot has nothing to do until the pillars open. */
+    private fun offLimits(now: Long, x: Double, z: Double) = planner?.offLimits(now, x, z) == true
+
     private fun chooseDest(now: Long, starDest: Dest?): Dest? {
         if (starDest != null) return starDest
         normaHomeDest()?.let { return it }
         planner?.let { pl ->
             val markers = bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z }
             observed?.update(markers, sightings())
-            observed?.updateRainmaker(bot.bossBarTitles, glowingPlayers())
+            observed?.updateRainmaker(bot.bossBarTitles, glowingPlayers(), bot.bossBarColors)
             pl.noteRoster(roster())
             observed?.updatePillarLabels(bot.entityTextsById.values.flatten())
             pl.noteMarkers(bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z })
@@ -560,18 +565,19 @@ class BotBrain(
                     .minByOrNull { hypot(it.x - bot.x, it.z - bot.z) }?.let { bot.interact(it.id); lastClickAt = now }
             }
         }
+        baseCacheDest(now)?.let { return it }
         economyDest(now)?.let { return it }
         // A cache close by is a short detour even while the mode plan runs (never while carrying the objective).
-        if (goal == Goal.STAR && planner?.role != Role.PILLAR_ATTACKER && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
+        if (goal == Goal.STAR && !offence(now) && !hungry(now) && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
             nearestCache(now, CACHE_DETOUR_RANGE)?.let { return it }
         }
         // A paying block close by (barrel / chest / crafting table) is a short detour while nothing is in sight (never while carrying the objective).
-        if (!starBlocksDry && goal == Goal.STAR && planner?.role != Role.PILLAR_ATTACKER && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
+        if (!starBlocksDry && goal == Goal.STAR && !offence(now) && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
             starBlocks.tick(now, bot.x, bot.y, bot.z)
-            starBlockTarget = starBlocks.nearest(bot.x, bot.y, bot.z)
+            starBlockTarget = starBlocks.nearest(bot.x, bot.y, bot.z, rank = if (planner?.preparing(now) == true) teamSlot().first else 0)
             starBlockTarget?.let { return Dest(it.first + 0.5, it.third + 0.5, it.second.toDouble(), STAR_BLOCK_ARRIVE, "block") }
         }
-        if (now >= modePausedUntil) planner?.step(now, bot.x, bot.z)?.let { st ->
+        if (now >= modePausedUntil && !hungry(now)) planner?.step(now, bot.x, bot.z)?.let { st ->
             return Dest(st.x, st.z, st.y, st.arrive, "mode", zone = st.zone, strike = st.strike, affinity = st.affinity)
         }
         if (goal == Goal.STAR && (starPoints.isNotEmpty() || cachePoints.isNotEmpty())) {
@@ -579,17 +585,25 @@ class BotBrain(
             // (a star that is visible is already handled by starTarget); no spot is camped, each is skipped for GEN_COOLDOWN_MS after a look.
             var bestI = -1
             var bestScore = Double.MAX_VALUE
+            val hungryNow = hungry(now)
             for ((i, p) in starPoints.withIndex()) {
                 if (now - (visitedAt[i] ?: -GEN_COOLDOWN_MS) < GEN_COOLDOWN_MS) continue
+                if (offLimits(now, p.first, p.second)) continue
+                if (hungryNow && hypot(p.first - spawnX, p.second - spawnZ) > BASE_SWEEP_RADIUS) continue
                 val score = hypot(p.first - bot.x, p.second - bot.z)
                 if (score < bestScore) { bestScore = score; bestI = i }
             }
-            val cache = nearestCache(now, Double.MAX_VALUE)
+            val cache = if (hungryNow) null else nearestCache(now, Double.MAX_VALUE)?.takeIf { !offLimits(now, it.x, it.z) }
+            if (bestI < 0 && hungryNow) {
+                // Every base spot was just looked at: wait at one (rotated by slot) for the next pop instead of walking off.
+                val near = starPoints.indices.filter { hypot(starPoints[it].first - spawnX, starPoints[it].second - spawnZ) <= BASE_SWEEP_RADIUS }
+                near.getOrNull(teamSlot().first % near.size.coerceAtLeast(1))?.let { return Dest(starPoints[it].first, starPoints[it].second, null, 2.0, "gen", it) }
+            }
             if (cache != null && hypot(cache.x - bot.x, cache.z - bot.z) / CACHE_VALUE_WEIGHT < bestScore) return cache
             if (bestI >= 0) return Dest(starPoints[bestI].first, starPoints[bestI].second, null, 2.0, "gen", bestI)
         }
-        if (now - lastEnemyAt < 8_000) return Dest(lastEnemyX, lastEnemyZ, null, 3.0, "enemy-seen")
-        val patrol = patrolPoints()
+        if (now - lastEnemyAt < 8_000 && !offLimits(now, lastEnemyX, lastEnemyZ)) return Dest(lastEnemyX, lastEnemyZ, null, 3.0, "enemy-seen")
+        val patrol = patrolPoints().filter { !offLimits(now, it.first, it.second) }
         if (patrol.isNotEmpty()) {
             val i = patrolIndex % patrol.size
             val p = patrol[i]
@@ -642,7 +656,7 @@ class BotBrain(
             val seen = cacheVisitedAt[i]
             if (seen != null && now - seen < c.respawnMs) continue
             val d = hypot(c.x - bot.x, c.z - bot.z) + abs(c.y - bot.y) * 0.5
-            if (d <= range && d < bestD) { bestD = d; bestI = i }
+            if (d <= range && d < bestD && !offLimits(now, c.x, c.z)) { bestD = d; bestI = i }
         }
         if (bestI < 0) return null
         val c = cachePoints[bestI]
@@ -805,6 +819,7 @@ class BotBrain(
 
     private fun economyDest(now: Long): Dest? {
         val eco = economy ?: return null
+        if (hungry(now)) return null
         val pl = planner
         if (pl != null) {
             if (pl.holdingTnt || pl.carried > 0 || pl.clickWanted) { econSliceStart = 0L; return null }
@@ -822,7 +837,10 @@ class BotBrain(
         return Dest(st.x, st.z, null, st.arrive, "econ-${st.kind}", strike = st.strike, affinity = st.strike?.let { LoadoutClassifier.Affinity.PICKAXE })
     }
 
-    private fun buildPlanner(originX: Double, originZ: Double): ModePlanner? {
+    /** Key of the running match for [TieBreak]: mode and stage slot (no match id reaches a bot; no clock, so a pick never changes between ticks). */
+    private fun matchKey(originX: Double, originZ: Double) = "$modeId@${originX.toLong()},${originZ.toLong()}"
+
+    private fun buildPlanner(originX: Double, originZ: Double, matchKey: String): ModePlanner? {
         val id = modeId ?: return null
         val src = objectives ?: return null
         if (id !in ModePlanner.MODES) return null
@@ -840,7 +858,7 @@ class BotBrain(
             tntSpawn = world.point(ModePlanner.TNT_SPAWN)?.let { it.first to it.third },
         ).also { observed = it }
         val modeFacts = src.modeFacts(facts, originX, originZ) ?: facts
-        return ModePlanner(id, bot.name, own, src.teams().filter { it != own }, world, facts = modeFacts).takeIf { it.handles() }
+        return ModePlanner(id, bot.name, own, src.teams().filter { it != own }, world, facts = modeFacts, matchKey = matchKey, teamOf = { bot.teamOf(it) }).takeIf { it.handles() }
     }
 
     /**
@@ -914,6 +932,9 @@ class BotBrain(
         nav.clear()
     }
 
+    /** A pillar attacker whose pillars can be hit: it is the team's offence and only picks up what lies on its way. In Preparation it gathers like everybody. */
+    private fun offence(now: Long) = planner?.role == Role.PILLAR_ATTACKER && planner?.preparing(now) != true
+
     private fun isStarItem(e: Seen): Boolean {
         if (e.type != "ITEM") return false
         val texts = bot.entityTextsById[e.id]
@@ -924,17 +945,58 @@ class BotBrain(
     private fun starTarget(now: Long): Dest? {
         // A pillar attacker is the team's offence: it only picks up a star on its way (ATTACKER_STAR_RANGE) instead of chasing
         // every star on the stage while the enemy pillars stand untouched.
-        val limit = if (goal != Goal.STAR) KILL_DETOUR_RANGE else if (planner?.role == Role.PILLAR_ATTACKER) ATTACKER_STAR_RANGE else STAR_SIGHT_RANGE
+        val limit = if (goal != Goal.STAR) KILL_DETOUR_RANGE else if (offence(now)) ATTACKER_STAR_RANGE else if (hungry(now)) BASE_SWEEP_RADIUS + 15.0 else STAR_SIGHT_RANGE
         var best: Seen? = null
         var bestD = Double.MAX_VALUE
+        val sweep = if (goal == Goal.STAR) baseSweepStars(now) else emptyList()
+        // Preparation: the stars lying at the own base are split over the team (slot k takes the k-th), so mates do not chase the same one.
+        val share = if (sweep.size > 1) sweep.getOrNull(teamSlot().first % sweep.size) else null
+        if (share != null) return Dest(share.x, share.z, null, 0.9, "star", share.id)
         for (e in bot.entities.values) {
             if (!isStarItem(e)) continue
             val until = ignoredStars[e.id]
             if (until != null && until > now) continue
+            if (offLimits(now, e.x, e.z)) continue
+            if (hungry(now) && hypot(e.x - spawnX, e.z - spawnZ) > BASE_SWEEP_RADIUS + 15.0) continue
             val d = hypot(e.x - bot.x, e.z - bot.z) + abs(e.y - bot.y) * 0.5
             if (d <= limit && d < bestD) { best = e; bestD = d }
         }
         return best?.let { Dest(it.x, it.z, null, 0.9, "star", it.id) }
+    }
+
+    /**
+     * Preparation (ModePlanner.preparing, up to [HUNGRY_MAX_MS]) and this bot has not been paid a single star yet: it sweeps its own
+     * base supply (stars, caches, paying blocks, the base star spots) before any role job, shop trip or far star chase.
+     */
+    private fun hungry(now: Long) =
+        goal == Goal.STAR && now - fightStartedAt < HUNGRY_MAX_MS && planner?.preparing(now) == true && starPickupCues() == 0
+
+    /** Preparation only: dropped stars within [BASE_SWEEP_RADIUS] of the own spawn, in a fixed (x, z, id) order shared by the whole team. */
+    private fun baseSweepStars(now: Long): List<Seen> {
+        if (planner?.preparing(now) != true) return emptyList()
+        return bot.entities.values.filter { e ->
+            isStarItem(e) && (ignoredStars[e.id] ?: 0L) <= now && hypot(e.x - spawnX, e.z - spawnZ) <= BASE_SWEEP_RADIUS && !offLimits(now, e.x, e.z)
+        }.sortedWith(compareBy({ it.x }, { it.z }, { it.id }))
+    }
+
+    /** (this bot's index, team size) among the team's names (sorted, dead mates included), so the same split is computed by every mate without talking. */
+    private fun teamSlot(): Pair<Int, Int> {
+        val names = (roster().map { it.name } + bot.name).distinct().sorted()
+        return names.indexOf(bot.name).coerceAtLeast(0) to names.size
+    }
+
+    /** Preparation: the own-base cache this bot opens first (caches within [BASE_SWEEP_RADIUS] of the spawn, one per team slot); null once opened or when none. */
+    private fun baseCacheDest(now: Long): Dest? {
+        if (goal != Goal.STAR || planner?.preparing(now) != true) return null
+        // Only caches on the spawn's level (a roof or gallery cache needs a climb); one opener per cache, the other slots go elsewhere.
+        val own = cachePoints.indices.filter { hypot(cachePoints[it].x - spawnX, cachePoints[it].z - spawnZ) <= BASE_SWEEP_RADIUS && cachePoints[it].y - spawnY <= 3.0 }
+            .sortedWith(compareBy({ cachePoints[it].x }, { cachePoints[it].z }))
+        val i = own.getOrNull(teamSlot().first) ?: return null
+        val seen = cacheVisitedAt[i]
+        if (seen != null && now - seen < cachePoints[i].respawnMs) return null
+        val c = cachePoints[i]
+        if (offLimits(now, c.x, c.z)) return null
+        return Dest(c.x, c.z, c.y, CACHE_ARRIVE, "cache", i)
     }
 
     /** Counts stars picked up: a star item that vanishes while the bot stands next to it. */
@@ -1271,6 +1333,10 @@ class BotBrain(
         const val STAR_SIGHT_RANGE = 90.0
         /** How far a pillar attacker leaves its route for a visible star. */
         const val ATTACKER_STAR_RANGE = 14.0
+        /** Preparation: stars and caches within this distance of the own spawn are the team's opening supply, swept first and split by team slot. */
+        const val BASE_SWEEP_RADIUS = 45.0
+        /** A bot without a star stops sweeping the base supply after this long and plays on as usual. */
+        const val HUNGRY_MAX_MS = 50_000L
         const val NORMA_HOME_ARRIVE = 6.0
         val NORMA_READY = Regex("Norma goal met|ノルマ達成")
         const val STAR_CHASE_MS = 20_000L

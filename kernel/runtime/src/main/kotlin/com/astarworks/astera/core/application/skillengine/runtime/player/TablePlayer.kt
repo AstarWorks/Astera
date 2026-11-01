@@ -139,6 +139,7 @@ private val RIDER_KINDS = setOf(SpawnKind.ITEM, SpawnKind.BLOCK, SpawnKind.TEXT,
 
 /** Margin added to a ray anchor's body query radius so a hitbox whose centre lies off the ray is still read. */
 private const val RAY_BODY_REACH: Double = 3.0
+private const val HEAD_UP_BLEND_FROM: Double = 0.99
 
 /** Live `summon` runs one caster may own at once (ADR-0313); the next one is a counted LIMIT fault. */
 private const val MAX_SUMMONS_PER_CASTER = 8
@@ -1172,9 +1173,11 @@ public class TablePlayer(
         val pose = visualPose(rec, world)
         val cast = castRef(run)
         val look = a.look
-        val brightness = look.fields["brightness"]?.let { int(run, it as Val<Int>, ctx) }
+        // the lowering writes `brightness_block` / `brightness_sky` (equal: the loader rejects a split); the block level is the single light level
+        val brightness = look.fields["brightness_block"]?.let { dbl(run, it, ctx).toInt() }
         val glow = look.fields["glow_color"]?.let { strOf(run, it, ctx) }
-        val view = DisplayView(glowing = flag(run, look, "glowing", ctx), glowColor = glow)
+        val viewRange = look.fields["view_range"]?.let { dbl(run, it, ctx).toFloat() }?.takeIf { it != 1.0f }
+        val view = DisplayView(glowing = flag(run, look, "glowing", ctx), glowColor = glow, viewRange = viewRange)
         val h: VisualHandle? = when (a.kind) {
             SpawnKind.FRAME, SpawnKind.PROJECTILE_BODY -> null
             SpawnKind.ITEM -> visual.spawnMesh(
@@ -2386,6 +2389,16 @@ public class TablePlayer(
             when (name) {
                 "aim" -> aim
                 "up" -> Vec3(0.0, 1.0, 0.0)
+                // world up, until the look is within ~8 degrees of vertical; from there it blends to the caster's head-up (always perpendicular to the look),
+                // so a frame on v: aim, w: head.up never collapses at pitch +-90 and its basis stays continuous. Below the blend it is exactly `up`.
+                "head.up" -> {
+                    val k = ((Math.abs(aim.y) - HEAD_UP_BLEND_FROM) / (1.0 - HEAD_UP_BLEND_FROM)).coerceIn(0.0, 1.0)
+                    if (k <= 0.0) Vec3(0.0, 1.0, 0.0) else {
+                        val head = turned(lookRot, Vec3(0.0, 1.0, 0.0))
+                        val u = k * k * (3.0 - 2.0 * k)
+                        Vector3d(0.0, 1.0 - u, 0.0).add(Vector3d(head.x, head.y, head.z).mul(u)).normalize().let { Vec3(it.x, it.y, it.z) }
+                    }
+                }
                 "down" -> Vec3(0.0, -1.0, 0.0)
                 "forward" -> turned(casterRot, Vec3(0.0, 0.0, 1.0))
                 "back" -> turned(casterRot, Vec3(0.0, 0.0, -1.0))
@@ -2404,6 +2417,12 @@ public class TablePlayer(
                 "incoming" -> if (decl.perEvent) {
                     val eye = live.vec(handle, "caster.eye", binding, scope).let { Vec3(it.x, it.y, it.z) }
                     (origin - eye).takeIf { it.lengthSquared() > 1e-12 }?.normalize() ?: aim
+                } else aim
+                // from the caster's own position (feet) to the frame origin: `incoming` measured foot to foot (the pushed-away direction of a sector hit,
+                // `normalize(pos(victim) - pos(caster))`); a frame not on an event has no such side: the aim
+                "incoming.feet" -> if (decl.perEvent) {
+                    val feet = live.vec(handle, "caster", binding, scope).let { Vec3(it.x, it.y, it.z) }
+                    (origin - feet).takeIf { it.lengthSquared() > 1e-12 }?.normalize() ?: aim
                 } else aim
                 // the origin's travel since the previous tick; the first tick (nothing travelled yet) takes the aim
                 "velocity" -> prev?.let { origin - it }?.takeIf { it.lengthSquared() > 1e-12 }?.normalize() ?: aim
@@ -2445,7 +2464,19 @@ public class TablePlayer(
                     is Value.ParamRef -> (paramOf(run, "param:${r.name}") as? Number)?.toDouble() ?: throw IllegalArgumentException("frame '${decl.id}': aim param '${r.name}' is not a number")
                     is Value.Expr -> live.num(handle, "= ${r.source}", binding, scope)
                 }
-                v3(live.vec(handle, "= aim_point(caster, $range)", binding, scope))
+                if (!o.stopsAtEntities) v3(live.vec(handle, "= aim_point(caster, $range)", binding, scope)) else {
+                    // the aim ray also ends at the entry point of the first enemy hitbox (the old `ray_stops: entities` anchor)
+                    val from = live.vec(handle, "caster.eye", binding, scope).let { Vec3(it.x, it.y, it.z) }
+                    val dir = Vector3d(0.0, 0.0, 1.0).rotate(live.rot(handle, "caster.look", binding, scope))
+                    val to = Vec3(from.x + dir.x * range, from.y + dir.y * range, from.z + dir.z * range)
+                    val cast = castRef(run)
+                    var stop = query.raycastBlock(cast, from, to)?.point ?: to
+                    val delta = stop - from
+                    val bodies = query.enemyBodiesNear(cast, from + delta * 0.5, delta.length() / 2.0 + RAY_BODY_REACH)
+                    val enter = bodies.mapNotNull { com.astarworks.astera.core.application.skillengine.runtime.ops.DashClearance.slab(it, from, delta)?.first }.minOrNull()
+                    if (enter != null) stop = from + delta * enter
+                    Vec3(stop.x, stop.y, stop.z)
+                }
             }
             is OriginSpec.Victim -> v3(live.vec(handle, "victim.${o.point}", binding, scope))
             // the attacker is read as a victim of a binding made for it: the live source already knows an entity's points

@@ -140,7 +140,10 @@ public class ScenarioScope(public val sim: GameSim) {
             is com.astarworks.astera.core.domain.Result.Success -> started.value
             is com.astarworks.astera.core.domain.Result.Failure -> error("start failed: ${started.error}")
         }
-        teams.forEach { (entity, team) -> lifecycle.entry(matchId, entity.id, TeamId(team)) }
+        teams.forEach { (entity, team) ->
+            lifecycle.entry(matchId, entity.id, TeamId(team))
+            entity.team = TeamId(team)
+        }
         if (skipCountdown) {
             lifecycle.switchPhase(matchId, com.astarworks.astera.match.domain.match.MatchStateMachine.TransitionTrigger.CountdownComplete)
         }

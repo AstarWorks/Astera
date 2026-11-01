@@ -10,7 +10,7 @@ superseded_by: null
 
 ## Status
 
-Accepted
+Accepted; amended by ADR-0322
 
 ## Context
 

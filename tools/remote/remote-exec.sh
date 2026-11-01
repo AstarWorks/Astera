@@ -229,7 +229,7 @@ cmd_run() {
     add_default SHOT_MIN_FREE_GB 3
     add_default SHOT_CLIENT_XMX 1024m
     add_default LP_NUM_THREADS 3
-    add_default SHOT_REAP_SCOPE host
+    add_default SHOT_REAP_SCOPE self   # a runner mounts only its own checkout: it can neither see nor judge a neighbour slot's stacks
     add_default SHOT_SLOTS "${HEAVY_SLOTS:-1}"   # vfx-shot's own slot lock (shared /tmp/claude-1000) must admit as many runs as the heavy slots, or the 2nd run queues inside its runner
     add_default SHOT_COMPOSE_EXTRA "$REPO/tools/remote/compose.heavy.yml"
   fi

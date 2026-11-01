@@ -50,7 +50,7 @@ machine:
               - {id: burst_blk, op: particle_def, at: 0, def: verdant-impact, frame: blk}
               - {id: sparkle_blk, op: particle_def, at: 0, def: verdant-impact-sparkle, frame: blk}
             expire:
-              - {id: expire_fx, op: particle_def, at: 0, def: verdant-impact-sparkle, anchor: contact.point}
+              - {id: expire_fx, op: particle_def, at: 0, def: verdant-impact-sparkle, frame: head}
         - {id: thorn, op: display, kind: item, item: "minecraft:sweet_berries", context: fixed, frame: head, scale: [0.8, 0.8, 0.8], at: 0, until: bolt.end}
         - id: trail
           op: group

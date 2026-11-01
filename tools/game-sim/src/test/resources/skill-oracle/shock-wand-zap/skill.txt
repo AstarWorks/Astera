@@ -1,5 +1,5 @@
 ## pose yaw=0 pitch=0
-@0 spawn #0 op=fly/core kind=sprite sprite=thunder-spark alpha=1.000000 tint=#fff6a0 seethrough=false pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=fly/core kind=sprite sprite=thunder-spark alpha=1.000000 tint=#fff6a0 seethrough=false pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=fly/core dur=7 pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.994522,0.104528 scale=0.625000,0.625000,1.000000 bb=CENTER
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=-0.250000,1.320000,1.300000
 @0 particle - op=fly/fx type=thunder-cast at=-0.250000,1.320000,1.300000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2202791974998004953
@@ -13,7 +13,7 @@ g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
 g @1 cast-end | pose
 r @3 run-end tail=2 | pose
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=fly/core kind=sprite sprite=thunder-spark alpha=1.000000 tint=#fff6a0 seethrough=false pos=-0.996586,1.782718,0.907105 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=fly/core kind=sprite sprite=thunder-spark alpha=1.000000 tint=#fff6a0 seethrough=false pos=-0.996586,1.782718,0.907105 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=fly/core dur=7 pos=-0.996586,1.782718,0.907105 rot=-0.327985,0.131109,0.923041,0.152418 scale=0.625000,0.625000,1.000000 bb=CENTER
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=-0.996586,1.782718,0.907105
 @0 particle - op=fly/fx type=thunder-cast at=-0.996586,1.782718,0.907105 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2202791974998004953
@@ -27,7 +27,7 @@ g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
 g @1 cast-end | pose
 r @3 run-end tail=2 | pose
 ## pose-hit yaw=0 pitch=0
-@0 spawn #0 op=fly/core kind=sprite sprite=thunder-spark alpha=1.000000 tint=#fff6a0 seethrough=false pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=fly/core kind=sprite sprite=thunder-spark alpha=1.000000 tint=#fff6a0 seethrough=false pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=fly/core dur=7 pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.994522,0.104528 scale=0.625000,0.625000,1.000000 bb=CENTER
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=-0.250000,1.320000,1.300000
 @0 particle - op=fly/fx type=thunder-cast at=-0.250000,1.320000,1.300000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2202791974998004953
@@ -68,7 +68,7 @@ g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
 g @1 cast-end | pose
 r @3 run-end tail=2 | pose
 ## pose-hit yaw=37 pitch=0
-@0 spawn #0 op=fly/core kind=sprite sprite=thunder-spark alpha=1.000000 tint=#fff6a0 seethrough=false pos=-0.982018,1.320000,0.887772 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=fly/core kind=sprite sprite=thunder-spark alpha=1.000000 tint=#fff6a0 seethrough=false pos=-0.982018,1.320000,0.887772 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=fly/core dur=7 pos=-0.982018,1.320000,0.887772 rot=-0.315566,-0.033167,0.943129,0.099127 scale=0.625000,0.625000,1.000000 bb=CENTER
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=-0.982018,1.320000,0.887772
 @0 particle - op=fly/fx type=thunder-cast at=-0.982018,1.320000,0.887772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2202791974998004953

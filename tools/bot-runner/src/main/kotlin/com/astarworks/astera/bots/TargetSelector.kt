@@ -5,7 +5,7 @@ import kotlin.math.hypot
 
 /**
  * Stateful target choice of a bot: line of sight, low-HP and threat weighting, hysteresis and a short memory of the
- * last target. Pure and deterministic (the clock is passed in, no randomness), so a game-sim scenario drives the very
+ * last target. Pure and deterministic (the clock is passed in, ties by a seeded rank, never a live random), so a game-sim scenario drives the very
  * decision [BotBrain] makes. Eligibility (self, team, spectators) is [TargetPolicy.eligible].
  *
  * score = distance - [LOW_HP_BONUS] * (1 - hp) - [THREAT_BONUS] (attacker of me) - [STICKY_BONUS] (current target);
@@ -27,6 +27,12 @@ class TargetSelector {
     private var lastZ = 0.0
     private var lastCand: TargetPolicy.Candidate? = null
     private val attackedMeAt = HashMap<Int, Long>()
+    private var tieSeed: Long? = null
+
+    /** Seeds the rank that breaks exact score ties (match key + bot name, see [TieBreak]); unseeded, the first candidate keeps a tie. */
+    fun seedTies(seed: Long) { tieSeed = seed }
+
+    private fun tieRank(id: Int): Long = tieSeed?.let { TieBreak.priority(it, id.toString()) } ?: 0L
 
     /** The bot took damage from the player entity [id] (BotBrain: the attacker of a damage event). */
     fun noteAttackedBy(id: Int, now: Long) { attackedMeAt[id] = now }
@@ -46,7 +52,18 @@ class TargetSelector {
             val d = hypot(c.x - x, c.z - z) + abs(c.y - y) * 0.5
             if (d > sightRange) continue
             val s = score(c, d, now)
-            if (s < bestScore) { best = c; bestScore = s }
+            if (best == null || s < bestScore - TIE_EPS) { best = c; bestScore = s; continue }
+            if (s > bestScore + TIE_EPS) continue
+            // An exact tie is never decided by the order the entities come in: the one that hit us last wins, then a seeded draw.
+            val b = best
+            val cAt = attackedMeAt[c.id] ?: Long.MIN_VALUE
+            val bAt = attackedMeAt[b.id] ?: Long.MIN_VALUE
+            when {
+                cAt > bAt -> { best = c;}
+                // Stateless seeded rank per entity id: the same tied set gives the same pick every tick (no flipping).
+                cAt == bAt && tieRank(c.id) > tieRank(b.id) -> best = c
+            }
+            if (s < bestScore) bestScore = s
         }
         if (best != null) {
             currentId = best.id; lastSeenAt = now; lastX = best.x; lastY = best.y; lastZ = best.z; lastCand = best
@@ -67,6 +84,9 @@ class TargetSelector {
     companion object {
         /** Same sight range as the nearest-enemy rule (blocks). */
         const val SIGHT_RANGE = 70.0
+
+        /** Scores closer than this are a tie. */
+        const val TIE_EPS = 1e-6
 
         /** Full health to dead is worth this many blocks of distance (easy kill). */
         const val LOW_HP_BONUS = 20.0

@@ -3,7 +3,9 @@ package com.astarworks.astera.gamesim.playable
 import com.astarworks.astera.bots.BotBrain
 import com.astarworks.astera.bots.BotSkill
 import com.astarworks.astera.bots.StageObjectives
+import com.astarworks.astera.core.application.port.outbound.IBotPlayers
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
+import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.application.service.InMemoryPlayerInventorySnapshotRepository
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.Result
@@ -34,6 +36,8 @@ data class MatchConfig(
     /** The first [humanSeats] seats of this team are human seats: players with no brain, driven by the caller through [hostOf]. */
     val humanTeam: String? = null,
     val humanSeats: Int = 1,
+    /** Server-wide UI language (`en`, `ja`; ADR-0283): the language the boss bar and other i18n text reach the bots in. */
+    val locale: String = "en",
 )
 
 /** One player of the match: [brain] is `null` for a human seat. */
@@ -135,9 +139,11 @@ class MatchDriver private constructor(
 
         fun boot(config: MatchConfig): MatchDriver {
             val contentDir = GameSim.defaultContentDir()
-            val sim = GameSim.boot("playable-${config.mode}", seed = config.seed, snapshots = InMemoryPlayerInventorySnapshotRepository())
+            val sim = GameSim.boot("playable-${config.mode}", seed = config.seed, snapshots = InMemoryPlayerInventorySnapshotRepository(), defaultLocale = com.astarworks.astera.core.domain.i18n.LocaleCode(config.locale))
             try {
                 val stage = checkNotNull(sim.services.getOrThrow<IStageRegistry>().find(StageId(config.stage))) { "unknown stage ${config.stage}" }
+                // The server-side base-shop buyer (EconomyWiring) only serves accounts this port calls bots, as on the live server.
+                sim.services.register<IBotPlayers>(IBotPlayers { id -> sim.world.find(id)?.name?.startsWith("Bot_") == true })
                 val terrain = SimTerrainLoader.load(sim, stage, contentDir)
                 val hub = SimHostHub(sim, terrain)
 

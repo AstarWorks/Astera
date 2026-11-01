@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test
 /**
  * The star economy of the annihilation-arena (ADR-0318) on the real shipped content: a budget of
  * `per_player_minute(t) x N_alive`, drawn by timer generators (candidate spots, rotation), mining, block breaks, exploration
- * caches, Mid waves sized by N, and a kill/bounty rule. Played for 15 game minutes with 3, 6 and 12 players who mine,
+ * caches, Mid waves sized by N, and a kill/bounty rule. Played for 20 game minutes with 3, 6 and 12 players who mine,
  * break blocks, walk to caches, pick up what lies on the map and kill now and then. Prints the table that goes into the ADR
  * and asserts (with the real phase lengths 6/8/8/6/5 min): the Mid wave idles in P1/P2 and opens at P3 (first wave one warn after
  * the P3 start, ADR-0318 follow-up), its budget share moves to the open sources, the per-phase total stays within 20% of the budget,
@@ -71,9 +71,9 @@ class StarEconomyScenarioTest {
 
     @Test
     fun `income per player stays on the budget at 3, 6 and 12 players, spots rotate, waves scale, a kill on the leader pays more`() {
-        val results = listOf(3, 6, 12).map { run(it, 15) }
+        val results = listOf(3, 6, 12).map { run(it, 20) }
         val out = StringBuilder()
-        out.appendLine("ADR-0318 star economy, 15 game minutes, shipped content")
+        out.appendLine("ADR-0318 star economy, 20 game minutes, shipped content")
         for (r in results) {
             val minutes = r.minutes
             out.appendLine()
@@ -102,6 +102,7 @@ class StarEconomyScenarioTest {
             assertThat(r.leaderPayout).`as`("N=${r.n}: a kill on the leader pays more than a kill on a trailing player").isGreaterThan(r.trailingPayout)
             assertWaveGate(r)
             assertPhaseBudget(r, 0..1)
+            assertP3Budget(r)
             r.spotPops.forEach { (gen, pops) -> assertThat(pops.count { it > 0 }).`as`("$gen uses several spots").isGreaterThanOrEqualTo(3) }
         }
         val firstWavePerPlayer = results.map { it.waves.first().toDouble() / it.n }
@@ -162,6 +163,14 @@ class StarEconomyScenarioTest {
             val issued = range.sumOf { m -> r.perMinute[m].filterKeys { it != StarSource.BOUNTY }.values.sum() }.toDouble()
             assertThat(issued / range.sumOf { r.budgetPerMinute[it] }).`as`("N=${r.n} ${phaseNames[i]}: issued / budget").isBetween(0.8, 1.2)
         }
+    }
+
+    /** P3 (the Mid wave opens): the issued total over the covered P3 minutes stays at most 15% above the budget. */
+    private fun assertP3Budget(r: Result) {
+        val range = r.phaseMinutes(2)
+        assertThat(range.count()).`as`("N=${r.n}: the run covers at least 5 minutes of P3").isGreaterThanOrEqualTo(5)
+        val issued = range.sumOf { m -> r.perMinute[m].filterKeys { it != StarSource.BOUNTY }.values.sum() }.toDouble()
+        assertThat(issued / range.sumOf { r.budgetPerMinute[it] }).`as`("N=${r.n} ${phaseNames[2]}: issued / budget").isLessThanOrEqualTo(1.15)
     }
 
     private fun run(n: Int, minutes: Int, phaseClock: Boolean = true): Result {

@@ -109,7 +109,7 @@ class SummonHomingPathScenarioTest : SkillEngineScenario() {
 
     // ---- path --------------------------------------------------------------------------------------------------------
 
-    private fun pathSkill(points: String): CompiledSkill {
+    private fun pathSkill(points: String, orient: String? = null, billboard: Boolean = false): CompiledSkill {
         val yaml = """
             apiVersion: astera/v3
             kind: Skill
@@ -131,10 +131,11 @@ class SummonHomingPathScenarioTest : SkillEngineScenario() {
                       sprite: flame
                       anchor: base
                       size: [0.5, 0.5]
+                      ${if (billboard) "billboard: center" else ""}
                       at: 0
                       for: 16
                       motion:
-                        - {law: path, points: $points, at: 0, for: 16}
+                        - {law: path, points: $points, at: 0, for: 16${if (orient != null) ", orient: $orient" else ""}}
                 done: {final: true}
         """.trimIndent()
         return (loadInline(yaml) as? Result.Success)?.value ?: error("expected a clean decode: ${loadInline(yaml)}")
@@ -159,6 +160,39 @@ class SummonHomingPathScenarioTest : SkillEngineScenario() {
         val i = poses.indexOf(apex)
         assertThat(poses[i - 2].forward().y).describedAs("rising").isGreaterThan(0.1)
         assertThat(poses[i + 2].forward().y).describedAs("falling").isLessThan(-0.1)
+    }
+
+    @Test
+    fun orientNoneKeepsThePathPositionsWritesNoRotationAndLetsTheDisplayBillboard() {
+        val pts = "[{v: 0}, {v: 4, w: 2}, {v: 8}]"
+        val tangent = GatewayRecorder()
+        play(pathSkill(pts), seed = 1L, events = emptyList(), ticks = 24, rec = tangent)
+        val none = GatewayRecorder()
+        play(pathSkill(pts, orient = "none", billboard = true), seed = 1L, events = emptyList(), ticks = 24, rec = none)
+        val a = tangent.writtenPoses.map { it.third.frame }
+        val b = none.writtenPoses.map { it.third.frame }
+        assertThat(b).describedAs("the billboarded none-form loads and plays").isNotEmpty()
+        // What a client shows at tick t: a write at tick w with interpolation d arrives at w + d. The tangent form snaps to each key (d = 0, a turn changes every tick);
+        // the position-only form lerps one tick (d = 1) to the next key, so the same curve point is reached one write earlier. The spawn pose is the curve start, so
+        // the none form has no tick-0 write (nothing changed) and its last write (tick 15, d = 1) is what brings the display to the end point at tick 16.
+        fun shown(rec: GatewayRecorder): Map<Int, Vec3> {
+            val out = HashMap<Int, Vec3>()
+            rec.writtenPoses.forEachIndexed { i, w -> out[w.first + rec.writtenInterpolation[i]] = w.third.frame.origin }
+            return out
+        }
+        val sa = shown(tangent)
+        val sb = shown(none)
+        assertThat(sa.keys).describedAs("tangent arrival ticks").isEqualTo((0..15).toSet())
+        assertThat(sb.keys).describedAs("none arrival ticks (tick 0 is the unchanged spawn pose)").isEqualTo((1..16).toSet())
+        val spawn = sa.getValue(0)
+        for (t in 0..16) {
+            val x = if (t == 0) spawn else sb.getValue(t)
+            val y = sa[t] ?: sb.getValue(t) // the tangent display ends before its tick-16 write; the curve end is the none form's
+            assertThat(x.distance(y)).describedAs("shown position at tick $t").isLessThan(1e-12)
+        }
+        assertThat(sb.getValue(16).distance(Vec3(spawn.x, spawn.y, spawn.z + 8.0))).describedAs("the none form ends on the curve end").isLessThan(1e-12)
+        assertThat(a.map { it.forward() }.distinct().size).describedAs("the tangent form turns").isGreaterThan(1)
+        assertThat(b.map { it.forward() }.distinct()).describedAs("no rotation is written").hasSize(1)
     }
 
     @Test

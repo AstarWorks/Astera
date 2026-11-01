@@ -45,7 +45,7 @@ def held_hand_grip_offset(frames_path):
     """PLAYER_SCALE * |grip| of the `held_hand` part (blocks): how far the engine puts the display origin from the pin."""
     if not frames_path:
         return 0.0
-    part = open(frames_path, encoding="utf-8").read().split("held_hand:", 1)
+    part = re.split(r"^\s*held_hand:", open(frames_path, encoding="utf-8").read(), maxsplit=1, flags=re.M)  # the part key, never a comment mentioning it
     m = GRIP.search(part[1]) if len(part) == 2 else None
     if not m:
         return 0.0
@@ -111,9 +111,10 @@ def main(trace_path, out_path, frames_path=None):
                 worst_left, worst_left_tick = gap, tick
         elif gap > worst:
             worst, worst_tick = gap, tick
-        if gap > (TOL_GRIP if side == "r" else TOL):
-            problems.append(f"origin {mesh['origin']} vs pin {hand['grip']} is {raw:.4f} apart, the held grip offset is {grip_offset:.4f} (gap={gap:.4f})")
         reach = float(hand["reach"]) if hand.get("reach") not in (None, "null") else 0.0
+        if gap > (TOL_GRIP if side == "r" else TOL):
+            why = f"; the frame origin is {abs(reach):.4f} {'inside' if reach < 0 else 'outside'} the arm's sphere (reach {reach:+.4f}): move the frame key onto it" if abs(reach) > TOL_GRIP / 2 else ""
+            problems.append(f"origin {mesh['origin']} vs pin {hand['grip']} is {raw:.4f} apart, the held grip offset is {grip_offset:.4f} (gap={gap:.4f}){why}")
         if abs(reach) > abs(worst_reach):
             worst_reach, worst_reach_tick = reach, tick
         if abs(reach) > TOL:

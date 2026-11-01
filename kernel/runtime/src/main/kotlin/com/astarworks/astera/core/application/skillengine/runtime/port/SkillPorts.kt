@@ -65,6 +65,8 @@ public data class DisplayView(
     val target: UUID? = null,
     val glowing: Boolean = false,
     val glowColor: String? = null,
+    /** `view_range` multiplier of the display; null = the vanilla default (1.0), nothing to set. */
+    val viewRange: Float? = null,
 )
 
 /** A sprite's flipbook length and texture edge in pixels (its natural size is `px * 0.025` blocks). */

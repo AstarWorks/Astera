@@ -78,12 +78,12 @@ machine:
           billboard: center
           brightness: {block: 15, sky: 15}
           flipbook: {frames: 6, every: 1, loop: true}
-          at: 0
-          for: 60
+          at: 2
+          for: 58
           motion:
-            - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 60}
+            - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 58}
         - id: trail
-          at: 0
+          at: 3
           every: 3
           until: bolt.end
           do:

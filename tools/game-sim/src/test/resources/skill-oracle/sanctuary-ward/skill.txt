@@ -1,14 +1,14 @@
 ## pose yaw=0 pitch=0
-@0 spawn #0 op=ward/ring kind=sprite sprite=ring alpha=1.000000 tint=- seethrough=false pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@0 spawn #1 op=ward/spine kind=sprite sprite=line-thin alpha=1.000000 tint=#fff3c8 seethrough=true pos=0.000000,1.250000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.750000,3.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=ward/ring kind=sprite sprite=ring alpha=1.000000 tint=- seethrough=false pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=15 glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=ward/spine kind=sprite sprite=line-thin alpha=1.000000 tint=#fff3c8 seethrough=true pos=0.000000,1.250000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.750000,3.000000,1.000000 bb=FIXED bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=3.640625,3.640625,3.640625 bb=FIXED
 @0 sound - op=ward/snd_open sound=astera:skills/heal-chime cat=master vol=0.8 pitch=0.8 at=0.000000,0.050000,0.000000
 @0 sound - op=ward/hum[0] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
 @1 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=5.625000,5.625000,5.625000 bb=FIXED
-@2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.131088,2.200000 rot=0.000000,0.707107,0.707107,0.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-2.200000,1.250085,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.563179,-2.200000 rot=0.000000,0.707107,0.707107,0.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=2.200000,1.764177,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.131088,2.200000 rot=0.000000,0.707107,0.707107,0.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-2.200000,1.250085,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.563179,-2.200000 rot=0.000000,0.707107,0.707107,0.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=2.200000,1.764177,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @2 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=7.046875,7.046875,7.046875 bb=FIXED
 @3 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=8.000000,8.000000,8.000000 bb=FIXED
 @3 write #2 op=ward/mote[0] dur=1 pos=0.532228,1.131088,2.134651 rot=-0.086175,-0.701836,-0.701836,0.086175 scale=0.625000,0.625000,1.000000 bb=CENTER
@@ -44,7 +44,7 @@
 @9 write #3 op=ward/mote[1] dur=1 pos=0.306181,1.250085,2.178590 rot=-0.533660,-0.463904,-0.463904,0.533660 scale=0.625000,0.625000,1.000000 bb=CENTER
 @9 write #4 op=ward/mote[2] dur=1 pos=-2.178590,1.563179,0.306181 rot=-0.533660,-0.463904,-0.463904,0.533660 scale=0.625000,0.625000,1.000000 bb=CENTER
 @9 write #5 op=ward/mote[3] dur=1 pos=-0.306181,1.764177,-2.178590 rot=-0.533660,-0.463904,-0.463904,0.533660 scale=0.625000,0.625000,1.000000 bb=CENTER
-@10 spawn #6 op=ward/halo kind=sprite sprite=sparkle-cross alpha=1.000000 tint=- seethrough=false pos=0.000000,1.620000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@10 spawn #6 op=ward/halo kind=sprite sprite=sparkle-cross alpha=1.000000 tint=- seethrough=false pos=0.000000,1.620000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @10 sound - op=ward/snd_strike sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=0.000000,0.050000,0.000000
 @10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6914811239872778270
 @10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6712665765066030903
@@ -175,16 +175,16 @@
 @40 remove #0 op=ward/ring
 @40 remove #1 op=ward/spine
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=ward/ring kind=sprite sprite=ring alpha=1.000000 tint=- seethrough=false pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@0 spawn #1 op=ward/spine kind=sprite sprite=line-thin alpha=1.000000 tint=#fff3c8 seethrough=true pos=0.000000,1.250000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.750000,3.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=ward/ring kind=sprite sprite=ring alpha=1.000000 tint=- seethrough=false pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=15 glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=ward/spine kind=sprite sprite=line-thin alpha=1.000000 tint=#fff3c8 seethrough=true pos=0.000000,1.250000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.750000,3.000000,1.000000 bb=FIXED bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=3.640625,3.640625,3.640625 bb=FIXED
 @0 sound - op=ward/snd_open sound=astera:skills/heal-chime cat=master vol=0.8 pitch=0.8 at=0.000000,0.050000,0.000000
 @0 sound - op=ward/hum[0] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
 @1 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=5.625000,5.625000,5.625000 bb=FIXED
-@2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.131088,1.756998 rot=-0.224368,0.670566,0.670566,0.224368 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.756998,1.250085,-1.323993 rot=-0.224368,0.670566,0.670566,0.224368 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=1.323993,1.563179,-1.756998 rot=-0.224368,0.670566,0.670566,0.224368 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=1.756998,1.764177,1.323993 rot=-0.224368,0.670566,0.670566,0.224368 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.131088,1.756998 rot=-0.224368,0.670566,0.670566,0.224368 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.756998,1.250085,-1.323993 rot=-0.224368,0.670566,0.670566,0.224368 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=1.323993,1.563179,-1.756998 rot=-0.224368,0.670566,0.670566,0.224368 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=1.756998,1.764177,1.323993 rot=-0.224368,0.670566,0.670566,0.224368 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @2 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=7.046875,7.046875,7.046875 bb=FIXED
 @3 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=8.000000,8.000000,8.000000 bb=FIXED
 @3 write #2 op=ward/mote[0] dur=1 pos=-0.859608,1.131088,2.025111 rot=-0.140974,0.692911,0.692911,0.140974 scale=0.625000,0.625000,1.000000 bb=CENTER
@@ -220,7 +220,7 @@
 @9 write #3 op=ward/mote[1] dur=1 pos=-1.066581,1.250085,1.924163 rot=-0.358884,-0.609264,-0.609264,0.358884 scale=0.625000,0.625000,1.000000 bb=CENTER
 @9 write #4 op=ward/mote[2] dur=1 pos=-1.924163,1.563179,-1.066581 rot=-0.358884,-0.609264,-0.609264,0.358884 scale=0.625000,0.625000,1.000000 bb=CENTER
 @9 write #5 op=ward/mote[3] dur=1 pos=1.066581,1.764177,-1.924163 rot=-0.358884,-0.609264,-0.609264,0.358884 scale=0.625000,0.625000,1.000000 bb=CENTER
-@10 spawn #6 op=ward/halo kind=sprite sprite=sparkle-cross alpha=1.000000 tint=- seethrough=false pos=0.000000,1.620000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@10 spawn #6 op=ward/halo kind=sprite sprite=sparkle-cross alpha=1.000000 tint=- seethrough=false pos=0.000000,1.620000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @10 sound - op=ward/snd_strike sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=0.000000,0.050000,0.000000
 @10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6914811239872778270
 @10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6712665765066030903
@@ -351,16 +351,16 @@
 @40 remove #0 op=ward/ring
 @40 remove #1 op=ward/spine
 ## pose-hit yaw=0 pitch=0
-@0 spawn #0 op=ward/ring kind=sprite sprite=ring alpha=1.000000 tint=- seethrough=false pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@0 spawn #1 op=ward/spine kind=sprite sprite=line-thin alpha=1.000000 tint=#fff3c8 seethrough=true pos=0.000000,1.250000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.750000,3.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=ward/ring kind=sprite sprite=ring alpha=1.000000 tint=- seethrough=false pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=15 glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=ward/spine kind=sprite sprite=line-thin alpha=1.000000 tint=#fff3c8 seethrough=true pos=0.000000,1.250000,0.000000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.750000,3.000000,1.000000 bb=FIXED bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=3.640625,3.640625,3.640625 bb=FIXED
 @0 sound - op=ward/snd_open sound=astera:skills/heal-chime cat=master vol=0.8 pitch=0.8 at=0.000000,0.050000,0.000000
 @0 sound - op=ward/hum[0] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
 @1 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=5.625000,5.625000,5.625000 bb=FIXED
-@2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.131088,2.200000 rot=0.000000,0.707107,0.707107,0.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-2.200000,1.250085,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.563179,-2.200000 rot=0.000000,0.707107,0.707107,0.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=2.200000,1.764177,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.131088,2.200000 rot=0.000000,0.707107,0.707107,0.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-2.200000,1.250085,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=0.000000,1.563179,-2.200000 rot=0.000000,0.707107,0.707107,0.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=2.200000,1.764177,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @2 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=7.046875,7.046875,7.046875 bb=FIXED
 @3 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=8.000000,8.000000,8.000000 bb=FIXED
 @3 write #2 op=ward/mote[0] dur=1 pos=0.532228,1.131088,2.134651 rot=-0.086175,-0.701836,-0.701836,0.086175 scale=0.625000,0.625000,1.000000 bb=CENTER
@@ -396,7 +396,7 @@
 @9 write #3 op=ward/mote[1] dur=1 pos=0.306181,1.250085,2.178590 rot=-0.533660,-0.463904,-0.463904,0.533660 scale=0.625000,0.625000,1.000000 bb=CENTER
 @9 write #4 op=ward/mote[2] dur=1 pos=-2.178590,1.563179,0.306181 rot=-0.533660,-0.463904,-0.463904,0.533660 scale=0.625000,0.625000,1.000000 bb=CENTER
 @9 write #5 op=ward/mote[3] dur=1 pos=-0.306181,1.764177,-2.178590 rot=-0.533660,-0.463904,-0.463904,0.533660 scale=0.625000,0.625000,1.000000 bb=CENTER
-@10 spawn #6 op=ward/halo kind=sprite sprite=sparkle-cross alpha=1.000000 tint=- seethrough=false pos=0.000000,1.620000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@10 spawn #6 op=ward/halo kind=sprite sprite=sparkle-cross alpha=1.000000 tint=- seethrough=false pos=0.000000,1.620000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @10 sound - op=ward/snd_strike sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=0.000000,0.050000,0.000000
 @10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6914811239872778270
 @10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6712665765066030903
@@ -530,16 +530,16 @@
 g @40 state-exit reason=TIMER | state=ward
 g @40 cast-end | pose
 ## pose-hit yaw=37 pitch=0
-@0 spawn #0 op=ward/ring kind=sprite sprite=ring alpha=1.000000 tint=- seethrough=false pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
-@0 spawn #1 op=ward/spine kind=sprite sprite=line-thin alpha=1.000000 tint=#fff3c8 seethrough=true pos=0.000000,1.250000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.750000,3.000000,1.000000 bb=FIXED bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=ward/ring kind=sprite sprite=ring alpha=1.000000 tint=- seethrough=false pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=15 glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=ward/spine kind=sprite sprite=line-thin alpha=1.000000 tint=#fff3c8 seethrough=true pos=0.000000,1.250000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.750000,3.000000,1.000000 bb=FIXED bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=3.640625,3.640625,3.640625 bb=FIXED
 @0 sound - op=ward/snd_open sound=astera:skills/heal-chime cat=master vol=0.8 pitch=0.8 at=0.000000,0.050000,0.000000
 @0 sound - op=ward/hum[0] sound=block.amethyst_block.resonate cat=master vol=0.9 pitch=0.7 at=0.000000,0.050000,0.000000
 @1 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=5.625000,5.625000,5.625000 bb=FIXED
-@2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.131088,1.756998 rot=-0.224368,0.670566,0.670566,0.224368 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.756998,1.250085,-1.323993 rot=-0.224368,0.670566,0.670566,0.224368 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=1.323993,1.563179,-1.756998 rot=-0.224368,0.670566,0.670566,0.224368 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=1.756998,1.764177,1.323993 rot=-0.224368,0.670566,0.670566,0.224368 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@2 spawn #2 op=ward/mote[0] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.323993,1.131088,1.756998 rot=-0.224368,0.670566,0.670566,0.224368 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@2 spawn #3 op=ward/mote[1] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=-1.756998,1.250085,-1.323993 rot=-0.224368,0.670566,0.670566,0.224368 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@2 spawn #4 op=ward/mote[2] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=1.323993,1.563179,-1.756998 rot=-0.224368,0.670566,0.670566,0.224368 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@2 spawn #5 op=ward/mote[3] kind=sprite sprite=holy-glint alpha=1.000000 tint=- seethrough=false pos=1.756998,1.764177,1.323993 rot=-0.224368,0.670566,0.670566,0.224368 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @2 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=7.046875,7.046875,7.046875 bb=FIXED
 @3 write #0 op=ward/ring dur=1 pos=0.000000,0.050000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=8.000000,8.000000,8.000000 bb=FIXED
 @3 write #2 op=ward/mote[0] dur=1 pos=-0.859608,1.131088,2.025111 rot=-0.140974,0.692911,0.692911,0.140974 scale=0.625000,0.625000,1.000000 bb=CENTER
@@ -575,7 +575,7 @@ g @40 cast-end | pose
 @9 write #3 op=ward/mote[1] dur=1 pos=-1.066581,1.250085,1.924163 rot=-0.358884,-0.609264,-0.609264,0.358884 scale=0.625000,0.625000,1.000000 bb=CENTER
 @9 write #4 op=ward/mote[2] dur=1 pos=-1.924163,1.563179,-1.066581 rot=-0.358884,-0.609264,-0.609264,0.358884 scale=0.625000,0.625000,1.000000 bb=CENTER
 @9 write #5 op=ward/mote[3] dur=1 pos=1.066581,1.764177,-1.924163 rot=-0.358884,-0.609264,-0.609264,0.358884 scale=0.625000,0.625000,1.000000 bb=CENTER
-@10 spawn #6 op=ward/halo kind=sprite sprite=sparkle-cross alpha=1.000000 tint=- seethrough=false pos=0.000000,1.620000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@10 spawn #6 op=ward/halo kind=sprite sprite=sparkle-cross alpha=1.000000 tint=- seethrough=false pos=0.000000,1.620000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @10 sound - op=ward/snd_strike sound=astera:skills/lightning-impact cat=master vol=0.8 pitch=1.1 at=0.000000,0.050000,0.000000
 @10 particle - op=ward/fx_heal type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6914811239872778270
 @10 particle - op=ward/fx_dust type=dust count=24 at=0.000000,0.050000,0.000000 off=3.000000,0.200000,3.000000 speed=0.000000 color=#fff3c8 size=1.200000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6712665765066030903

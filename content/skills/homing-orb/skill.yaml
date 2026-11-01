@@ -54,8 +54,8 @@ machine:
           color: "#a0c8ff"
           billboard: center
           brightness: {block: 15, sky: 15}
-          at: 0
-          for: 50
+          at: 2
+          for: 48
         - id: halo
           op: display
           kind: sprite

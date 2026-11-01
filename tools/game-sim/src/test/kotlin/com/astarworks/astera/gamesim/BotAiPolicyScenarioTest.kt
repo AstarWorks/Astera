@@ -124,7 +124,10 @@ class BotAiPolicyScenarioTest {
                 return hypot(hypot(bx - gx, by - gy), bz - gz)
             }
             assertThat(miss(lead)).`as`("lead aim lands on the moving target").isLessThan(0.5)
-            assertThat(miss(naive)).`as`("aiming at the current position misses by a lot").isGreaterThan(2.0)
+            // The naive shot misses by strafe speed x flight time: 0.2 b/tick x (30.07 / GUN speed 3.2 = 9.4 ticks) = 1.88 blocks.
+            // Bound = analytic 1.88 minus 0.08 tolerance (rounding of the integer flight ticks);
+            // the old 2.0 was above the analytic value and could never hold at 30 blocks.
+            assertThat(miss(naive)).`as`("aiming at the current position misses by ~1.88 blocks (analytic)").isGreaterThan(1.8)
 
             // Gravity: an arc projectile is aimed above the straight line.
             val straight = AimPolicy.solve(eye.x, eye.y, eye.z, tx, ty, tz, 0.0, 0.0, 0.0, AimPolicy.Profile(1.8, 0.0, 60))

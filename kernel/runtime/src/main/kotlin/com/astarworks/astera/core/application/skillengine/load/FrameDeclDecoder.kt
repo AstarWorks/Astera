@@ -137,17 +137,24 @@ internal object FrameDeclDecoder {
         }
         if (raw is Map<*, *>) {
             if (on != null && !onState) ctx.fail("$p.origin", "frame '$id': an on: event frame is rooted on its victim / contact / attacker; a frame-point origin is for plain frames")
-            if (raw.keys == setOf("aim")) {
+            if ("aim" in raw.keys) {
                 if (on != null) ctx.fail("$p.origin", "frame '$id': an aim origin is for plain frames (not on: event / state)")
-                return OriginSpec.Aim(com.astarworks.astera.core.application.skillengine.load.grammar.Types.number.decode(raw["aim"], ctx, "$p.origin.aim"))
+                for (key in raw.keys) if (key != "aim" && key != "stops") ctx.abort(SkillDecodeError.UnknownKey(ctx.file, "$p.origin", key.toString(), "an aim origin takes aim and stops"))
+                val entities = when (val st = raw["stops"]) {
+                    null, "blocks" -> false
+                    "entities" -> true
+                    else -> ctx.mismatch("$p.origin.stops", "'blocks' or 'entities'", st)
+                }
+                return OriginSpec.Aim(com.astarworks.astera.core.application.skillengine.load.grammar.Types.number.decode(raw["aim"], ctx, "$p.origin.aim"), entities)
             }
             for (key in raw.keys) if (key != "frame" && key != "pos") ctx.abort(SkillDecodeError.UnknownKey(ctx.file, "$p.origin", key.toString(), "expected frame, pos or aim"))
             val parent = raw["frame"] as? String ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, "$p.origin", "frame"))
-            return OriginSpec.Frame(parent, coeff(ctx, raw["pos"], "$p.origin.pos", Coeff.ZERO))
+            return OriginSpec.Frame(parent, coeff(ctx, raw["pos"] ?: emptyMap<String, Any>(), "$p.origin.pos", Coeff.ZERO))
         }
         val s = raw as? String ?: ctx.mismatch("$p.origin", "caster[.point], victim[.point], attacker[.point], contact, an instance id or {frame, pos}", raw)
         val base = s.substringBefore('.')
         val point = if ('.' in s) s.substringAfter('.') else ""
+        if (perVictim && (s == "contact" || s == "contact.point")) return OriginSpec.Contact
         if (perBlock) {
             if (s != "contact" && s != "contact.point") ctx.fail("$p.origin", "frame '$id': an on: event.block frame is rooted on the block contact; origin must be contact or absent")
             return OriginSpec.Contact
@@ -168,7 +175,7 @@ internal object FrameDeclDecoder {
                 if (point !in VICTIM_POINTS) ctx.fail("$p.origin", "frame '$id': attacker point '$point' is not one of eye, feet, body, center")
                 OriginSpec.Attacker(point.ifEmpty { "center" })
             }
-            "contact" -> ctx.fail("$p.origin", "frame '$id': a contact origin needs on: event.block, each: true")
+            "contact" -> ctx.fail("$p.origin", "frame '$id': a contact origin needs on: event.block (or event.victim), each: true")
             else -> {
                 if (perVictim) ctx.fail("$p.origin", "frame '$id': an on: event.victim frame is rooted on the victim; origin must be victim[.point] or absent")
                 if (perAttacker) ctx.fail("$p.origin", "frame '$id': an on: event.attacker frame is rooted on the attacker; origin must be attacker[.point] or absent")
