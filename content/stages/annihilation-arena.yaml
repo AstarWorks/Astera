@@ -5,7 +5,8 @@
 # Ward centres are 20+ blocks apart, joined by broad streets; shops face the plaza edge.
 # Quarry r42: rim y64 / upper y60 / middle y55 / floor y50; three 7-wide ramps.
 # Spawn -> rim ~70-90 blocks; enemy gate court ~180-230 blocks along routes.
-# Outposts (85,-50), (-85,-50), (0,112); seven-wide stone bridges over void.
+# One continent: wooded valleys to Mid; seven-wide stone bridges cross the river gorge.
+# Outposts (85,-50), (-85,-50), (0,112) lie on covered flank ridge paths.
 # Keep floor y68 (tier 3 y69); other wards floor y64 (tiers 1/2 y65).
 # Four spawns/team, 3 exposed single-block pillars/team; monument crowns are visual only.
 id: annihilation-arena

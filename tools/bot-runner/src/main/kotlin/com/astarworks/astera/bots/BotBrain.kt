@@ -67,8 +67,8 @@ fun interface ObjectiveSource {
     /** Stage-local shop, base ore generators and Mid ore nodes of [team] for the lull-time [EconomyPlanner]; null = the stage has no shop. */
     fun economySites(team: String): EconomyPlanner.Sites? = null
 
-    /** Upgrade prices of the base shop, cheapest rung first. */
-    fun economyLadder(): List<Map<String, Int>> = emptyList()
+    /** Shopping list of the base shop in priority order (items and price per rung). */
+    fun economyLadder(): List<EconomyPlanner.Companion.Buy> = emptyList()
 }
 
 /**
@@ -190,7 +190,12 @@ class BotBrain(
     /** Barrels / chests / crafting tables near the bot that pay a star when broken (ADR-0318 `star_blocks`). */
     private val starBlocks = StarBlockScanner(bot.terrain)
     private var starBlockTarget: Triple<Int, Int, Int>? = null
-    private var lastBlockDigAt = 0L
+    /** The dig whose payout is still awaited: block, `star/pickup` cue count when it started, and when the verdict is due. */
+    private var pendingDig: PendingDig? = null
+    private var unpaidBreaks = 0
+    /** True once [STAR_BLOCK_UNPAID_LIMIT] broken blocks in a row paid no star: the block bucket is empty, stop breaking for good. */
+    @Volatile var starBlocksDry = false; private set
+    private class PendingDig(val block: Triple<Int, Int, Int>, val paidBefore: Int, val verdictAt: Long)
     private var starApproachSince = 0L
     private var highY = Double.NEGATIVE_INFINITY
     private var fellRecently = false
@@ -215,6 +220,11 @@ class BotBrain(
     val skillCasts = AtomicInteger()
     private var planner: ModePlanner? = null
     private var economy: EconomyPlanner? = null
+    @Volatile private var decisionKindNow: String = "idle"
+    /** Read-only for metrics: the mode role of the last plan step (null = no mode plan / no role yet). */
+    val currentRole: Role? get() = planner?.role
+    /** Read-only for metrics: `Dest.kind` of the current decision (`fight`, `mode`, `star`, `econ-shop`, `idle`, ...). */
+    val currentDecisionKind: String get() = decisionKindNow
     private var econSliceStart = 0L
     private var econCooldownUntil = 0L
     /** Kind (`shop` / `collect` / `mine`) of the last economy step, for reports and tests. */
@@ -324,6 +334,7 @@ class BotBrain(
         }
         val hasLos = visible?.hasLos ?: true
         trackStars(now)
+        judgeStarBlockDig(now)
         updateRetreat(enemy, now)
         tryDrinkPotion(now)
         if (chooseNormaGoal) updateGoal(enemy, now)
@@ -385,6 +396,7 @@ class BotBrain(
 
             // Long way, a different height, a gap in the way, a star to fetch or a retreat: plan a route (A*) instead of steering.
             // A ranged bot with a clear line inside its firing band steers locally (strafe / back off) instead of walking a route.
+            decisionKindNow = "fight"
             val holdsBand = weapon?.kind == WeaponKind.RANGED && hasLos && flat <= WeaponPolicy.RANGED_MAX
             val needRoute = retreating || goForStar || (flat > LOCAL_STEER_RANGE && !holdsBand) || abs(enemy.y - bot.y) > 3.0 ||
                 (flat > 3.0 && now - localBlockedAt < 2_000)
@@ -408,6 +420,7 @@ class BotBrain(
             ineffective.disengage()
             strikeLook = null
             val dest = chasing?.let { Dest(it.lastX, it.lastZ, null, CHASE_ARRIVE, "enemy-chase") } ?: chooseDest(now, starDest)
+            decisionKindNow = dest?.kind ?: "idle"
             if (dest == null) {
                 endTravel()
                 standStill = true
@@ -418,12 +431,14 @@ class BotBrain(
                 if (st != Navigator.Status.MOVING) endTravel()
                 lastKind = "go>${dest.kind}:$st"
                 if (st == Navigator.Status.ARRIVED) stuck.reset()
+                if (st != Navigator.Status.NO_PATH) noPathStreak = 0
                 when (st) {
                     Navigator.Status.MOVING -> { dwellOn(dest, now); return }
                     Navigator.Status.ARRIVED -> {
                         arrivedAt(dest, now)
                     }
                     Navigator.Status.NO_PATH -> {
+                        if (dest.kind.startsWith("econ-") && noPathGivesUp(dest, st)) lastEconStep?.let { economy?.unreachable(it, now) }
                         if (dest.kind == "mode") modePausedUntil = now + 5_000 // unreachable for now: patrol / roam meanwhile
                         if (dest.kind == "star") ignoreStar(dest.starId, now) else if (dest.kind != "enemy-seen") arrivedAt(dest, now, unreachable = true)
                     }
@@ -547,11 +562,11 @@ class BotBrain(
         }
         economyDest(now)?.let { return it }
         // A cache close by is a short detour even while the mode plan runs (never while carrying the objective).
-        if (goal == Goal.STAR && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
+        if (goal == Goal.STAR && planner?.role != Role.PILLAR_ATTACKER && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
             nearestCache(now, CACHE_DETOUR_RANGE)?.let { return it }
         }
         // A paying block close by (barrel / chest / crafting table) is a short detour while nothing is in sight (never while carrying the objective).
-        if (goal == Goal.STAR && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
+        if (!starBlocksDry && goal == Goal.STAR && planner?.role != Role.PILLAR_ATTACKER && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
             starBlocks.tick(now, bot.x, bot.y, bot.z)
             starBlockTarget = starBlocks.nearest(bot.x, bot.y, bot.z)
             starBlockTarget?.let { return Dest(it.first + 0.5, it.third + 0.5, it.second.toDouble(), STAR_BLOCK_ARRIVE, "block") }
@@ -656,7 +671,10 @@ class BotBrain(
         }
     }
 
-    /** Breaks the targeted star block: face it, one long dig per [STAR_BLOCK_DIG_INTERVAL_MS]; out of reach or unreachable = give up on it. */
+    /**
+     * Breaks the targeted star block: face it, take the axe if the kit has one, then hold the dig for the vanilla break time of
+     * the tool in hand ([DigTime]); one dig at a time until its payout is judged. Out of reach or unreachable = give up on it.
+     */
     private fun breakStarBlock(unreachable: Boolean, now: Long) {
         val b = starBlockTarget ?: return
         val dx = b.first + 0.5 - bot.x
@@ -664,11 +682,35 @@ class BotBrain(
         val dy = b.second + 0.5 - (bot.y + EYE_HEIGHT)
         if (unreachable || sqrt(dx * dx + dy * dy + dz * dz) > STRIKE_REACH) { starBlocks.giveUp(b); starBlockTarget = null; return }
         strikeLook = Math.toDegrees(atan2(-dx, dz)).toFloat() to (-Math.toDegrees(atan2(dy, hypot(dx, dz).coerceAtLeast(0.01)))).toFloat()
-        if (now - lastBlockDigAt < STAR_BLOCK_DIG_INTERVAL_MS) return
-        lastBlockDigAt = now
+        if (pendingDig != null) return
+        val axe = toolSlots[LoadoutClassifier.Affinity.AXE]
+        if (axe != null && bot.selectedSlot != axe) {
+            if (now - lastSwitchAt > 300) { lastSwitchAt = now; bot.selectHotbar(axe) }
+            return
+        }
+        val holdMs = DigTime.holdMs(bot.hotbarName(bot.selectedSlot))
+        pendingDig = PendingDig(b, starPickupCues(), now + holdMs + STAR_BLOCK_PAY_WINDOW_MS)
         starBlocks.noteDig(b)
         blocksBroken.incrementAndGet()
-        bot.digAsync(b.first, b.second, b.third, STAR_BLOCK_HOLD_MS)
+        bot.digAsync(b.first, b.second, b.third, holdMs)
+    }
+
+    /** The server plays the `astera:star/pickup` cue to the player whenever it pays a star (a capped payout plays nothing). */
+    private fun starPickupCues(): Int = bot.sounds.count { it.contains("star/pickup") }
+
+    /**
+     * Judges the last star-block dig once its hold and [STAR_BLOCK_PAY_WINDOW_MS] have passed: the block is gone but no pickup cue
+     * came = an unpaid break. [STAR_BLOCK_UNPAID_LIMIT] in a row = the block star bucket is empty; stop for the rest of the match.
+     * (A star picked up elsewhere inside the window counts as paid, which only delays the verdict.)
+     */
+    private fun judgeStarBlockDig(now: Long) {
+        val p = pendingDig ?: return
+        if (now < p.verdictAt) return
+        pendingDig = null
+        val gone = bot.terrain.blockName(p.block.first, p.block.second, p.block.third).let { it != null && it !in StarBlockScanner.PAYING }
+        if (!gone) return
+        if (starPickupCues() > p.paidBefore) { unpaidBreaks = 0; return }
+        if (++unpaidBreaks >= STAR_BLOCK_UNPAID_LIMIT) { starBlocksDry = true; starBlockTarget = null }
     }
 
     private var starArrivedSince = 0L
@@ -680,7 +722,9 @@ class BotBrain(
         // Face the block: the tool skill is aimed with the look direction.
         val dx = block.first + 0.5 - bot.x
         val dz = block.third + 0.5 - bot.z
-        val dy = block.second + 0.5 - (bot.y + 1.62)
+        // Aim at the pillar entity's position (block y), the centre of its hit box (y-0.5..y+0.5); the block centre (y+0.5) is the
+        // box's top edge and the ray there lands on the block face above it, which deals no pillar damage.
+        val dy = block.second.toDouble() - (bot.y + 1.62)
         val yaw = Math.toDegrees(atan2(-dx, dz)).toFloat()
         val pitch = (-Math.toDegrees(atan2(dy, hypot(dx, dz).coerceAtLeast(0.01)))).toFloat()
         strikeLook = yaw to pitch
@@ -747,6 +791,18 @@ class BotBrain(
      * [ECON_SLICE_MS] after [ECON_OPENING_MS] of match start, never while carrying the objective or with an enemy seen in the last
      * [LULL_MS], and hands over to the plan for [OBJECTIVE_SLICE_MS] after each slice. (Enemies in sight never reach here: the fight branch wins.)
      */
+    private var lastEconStep: EconomyPlanner.Step? = null
+    private var noPathStreak = 0
+    private var noPathKey = ""
+
+    /** Consecutive NO_PATH ticks towards the same goal; [NO_PATH_GIVE_UP_TICKS] of them mean the goal is not reachable, not a chunk still loading. */
+    private fun noPathGivesUp(dest: Dest, st: Navigator.Status): Boolean {
+        if (st != Navigator.Status.NO_PATH) { noPathStreak = 0; return false }
+        val key = "${dest.kind}:${dest.x.toInt()}:${dest.z.toInt()}"
+        if (key != noPathKey) { noPathKey = key; noPathStreak = 0 }
+        return ++noPathStreak >= NO_PATH_GIVE_UP_TICKS
+    }
+
     private fun economyDest(now: Long): Dest? {
         val eco = economy ?: return null
         val pl = planner
@@ -758,10 +814,11 @@ class BotBrain(
                 return null
             }
         }
-        val st = eco.step(now, bot.x, bot.z, carriedOre(), toolSlots.containsKey(LoadoutClassifier.Affinity.PICKAXE))
+        val st = eco.step(now, bot.x, bot.z, carriedOre(), toolSlots.containsKey(LoadoutClassifier.Affinity.PICKAXE), bot.carriedItemIds())
         if (st == null) { econSliceStart = 0L; return null }
         if (pl != null && econSliceStart == 0L) econSliceStart = now
         economyKind = st.kind
+        lastEconStep = st
         return Dest(st.x, st.z, null, st.arrive, "econ-${st.kind}", strike = st.strike, affinity = st.strike?.let { LoadoutClassifier.Affinity.PICKAXE })
     }
 
@@ -791,6 +848,7 @@ class BotBrain(
      * dig through. Returns true when this tick was spent on a sidestep.
      */
     private fun escapeStuck(dest: Dest, now: Long): Boolean {
+        unbury(now)
         val moving = hypot(dest.x - bot.x, dest.z - bot.z) > dest.arrive
         when (stuck.update(now, bot.x, bot.z, moving)) {
             StuckEscapePolicy.Action.NONE -> Unit
@@ -808,6 +866,22 @@ class BotBrain(
             return true
         }
         return false
+    }
+
+    /**
+     * A block placed over the bot (arena restore, a rebuilt pillar ring) leaves it inside solid terrain, where no start cell exists
+     * and every plan is NO_PATH for good. Dig the block at head height, then at the feet, until the bot stands in air again.
+     */
+    private fun unbury(now: Long) {
+        if (now - lastBreakAt < 1_500) return
+        val bx = Math.floor(bot.x).toInt()
+        val bz = Math.floor(bot.z).toInt()
+        val by = Math.floor(bot.y + 0.05).toInt()
+        val y = listOf(by + 1, by).firstOrNull { bot.terrain.isSolid(bx, it, bz) == true } ?: return
+        lastBreakAt = now
+        blocksBroken.incrementAndGet()
+        bot.digAsync(bx, y, bz, 400)
+        nav.clear()
     }
 
     /** Digs the first solid block (head height, then feet height) in front towards [dest]; the server decides whether it breaks. */
@@ -848,7 +922,9 @@ class BotBrain(
 
     /** The star pick-up to fetch: nearest dropped star item within reach (any distance with the STAR goal, a short detour with KILL). */
     private fun starTarget(now: Long): Dest? {
-        val limit = if (goal == Goal.STAR) STAR_SIGHT_RANGE else KILL_DETOUR_RANGE
+        // A pillar attacker is the team's offence: it only picks up a star on its way (ATTACKER_STAR_RANGE) instead of chasing
+        // every star on the stage while the enemy pillars stand untouched.
+        val limit = if (goal != Goal.STAR) KILL_DETOUR_RANGE else if (planner?.role == Role.PILLAR_ATTACKER) ATTACKER_STAR_RANGE else STAR_SIGHT_RANGE
         var best: Seen? = null
         var bestD = Double.MAX_VALUE
         for (e in bot.entities.values) {
@@ -1173,9 +1249,10 @@ class BotBrain(
         const val STRIKE_INTERVAL_MS = 450L
         const val TOOL_CAST_INTERVAL_MS = 2_000L
         const val STRIKE_REACH = 4.5
+        const val NO_PATH_GIVE_UP_TICKS = 10
         const val STAR_BLOCK_ARRIVE = 2.2
-        const val STAR_BLOCK_HOLD_MS = 3_500L
-        const val STAR_BLOCK_DIG_INTERVAL_MS = 4_000L
+        const val STAR_BLOCK_PAY_WINDOW_MS = 3_000L
+        const val STAR_BLOCK_UNPAID_LIMIT = 2
         const val MELEE_REACH = 2.9
         const val EYE_HEIGHT = 1.62
         const val CHEST_HEIGHT = 1.0
@@ -1192,6 +1269,8 @@ class BotBrain(
         const val LULL_MS = 10_000L
         const val KILL_DETOUR_RANGE = 4.0
         const val STAR_SIGHT_RANGE = 90.0
+        /** How far a pillar attacker leaves its route for a visible star. */
+        const val ATTACKER_STAR_RANGE = 14.0
         const val NORMA_HOME_ARRIVE = 6.0
         val NORMA_READY = Regex("Norma goal met|ノルマ達成")
         const val STAR_CHASE_MS = 20_000L

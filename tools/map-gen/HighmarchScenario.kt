@@ -8,6 +8,9 @@ import com.astarworks.astera.match.application.contents.StageContents
 import kotlinx.serialization.json.*
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.roundToInt
 import kotlin.math.floor
 import kotlin.math.hypot
 
@@ -35,7 +38,7 @@ fun main(args: Array<String>) {
     check(nodes.size == 74)
     nodes.forEach { p -> blocks[ArenaBlockPos(p.x.toInt(), p.y.toInt(), p.z.toInt())] = "minecraft:stone" }
     val finder = PathFinder { x, y, z -> blocks.containsKey(ArenaBlockPos(x, y, z)) }
-    // Every fixed supply cell stays open, including candidates not selected by the temporary preview.
+    // Every fixed supply cell stays open, including candidates not selected by the shipped generators.
     for ((name, value) in coordinates.getValue("stars").jsonObject) {
         val p = value.jsonArray.map { it.jsonPrimitive.int }
         check(finder.standable(p[0], p[1], p[2])) { "fixed star spot obstructed: $name $p" }
@@ -46,6 +49,62 @@ fun main(args: Array<String>) {
         val crown = y + 8 + pillar.tier.ordinalValue * 2
         check(plan.stateAt(x, crown, z) == "minecraft:${pillar.team.value}_concrete")
         check(plan.stateAt(x, crown + 2, z) == "minecraft:glowstone")
+    }
+    // Art-pass regressions use the real decoded plan: broad coloured lips and
+    // substantial ore/raw seams around EVERY quarry pocket, with no added nodes.
+    val seams = mapOf(
+        "iron" to setOf("iron_ore", "raw_iron_block"),
+        "gold" to setOf("gold_ore", "raw_gold_block"),
+        "diamond" to setOf("deepslate_diamond_ore", "diamond_block"),
+        "emerald" to setOf("emerald_ore", "emerald_block"),
+    )
+    for ((name, materials) in seams) {
+        for (value in coordinates.getValue("ore").jsonObject.getValue(name).jsonArray) {
+            val (x, y, z) = value.jsonArray.map { it.jsonPrimitive.int }
+            if (hypot(x.toDouble(), z.toDouble()) > 43) continue
+            val mineralCount = (-6..6).sumOf { dx -> (-6..6).sumOf { dz ->
+                (-2..4).count { dy -> plan.stateAt(x + dx, y + dy, z + dz)?.removePrefix("minecraft:") in materials }
+            } }
+            check(mineralCount >= 15) { "$name pocket $x,$y,$z has only $mineralCount mineral blocks" }
+        }
+    }
+    for (colour in listOf("calcite", "yellow_concrete", "light_blue_concrete", "lime_concrete", "blue_concrete")) {
+        val visible = plan.blocks.count { (p, state) ->
+            hypot(p.x.toDouble(), p.z.toDouble()) <= 42 && p.y in 50..64 &&
+                state == "minecraft:$colour" && !plan.isSolid(p.x, p.y + 1, p.z)
+        }
+        check(visible >= 20) { "quarry lip colour $colour lost: $visible exposed blocks" }
+    }
+    for ((x, z) in listOf(0 to -65, 44 to 47, -44 to 47)) {
+        check(plan.stateAt(x, 56, z) == "minecraft:water") { "mid-lane gorge missing at $x,$z" }
+    }
+    for ((x, z) in listOf(-14 to -62, 41 to 53, -41 to 53)) {
+        check(plan.stateAt(x, 66, z) == "minecraft:lantern") { "wayside shrine missing at $x,$z" }
+    }
+    // Check the final imported plan: bridge/town passes must never bury a ladder.
+    for (degrees in 0 until 360 step 20) {
+        val angle = Math.toRadians(degrees.toDouble())
+        for (radius in listOf(62 + 2 * cos(3 * angle), 68 + 2 * cos(3 * angle))) {
+            val x = (cos(angle) * radius).roundToInt(); val z = (sin(angle) * radius).roundToInt()
+            check((57..64).all { plan.stateAt(x, it, z)?.startsWith("minecraft:ladder") == true }) { "buried climb-out at $x,$z" }
+            check(!plan.isSolid(x, 65, z) && !plan.isSolid(x, 66, z)) { "blocked climb-out headroom at $x,$z" }
+        }
+    }
+    // R4b: verify the decoded import, not just the generator's geometry.
+    for (x in -54..54) for (z in -54..54) {
+        if (hypot(x.toDouble(), z.toDouble()) > 42 && hypot(x.toDouble(), z.toDouble()) <= 54)
+            check(plan.isSolid(x, 64, z) && plan.stateAt(x, 64, z) != "minecraft:water") { "broken dry band $x,$z" }
+    }
+    for (material in listOf("coarse_dirt", "gravel", "tuff", "andesite", "cobbled_deepslate")) {
+        val exposed = plan.blocks.count { (p, state) ->
+            hypot(p.x.toDouble(), p.z.toDouble()) <= 42 && p.y in 50..64 &&
+                state == "minecraft:$material" && !plan.isSolid(p.x, p.y + 1, p.z)
+        }
+        check(exposed >= 30) { "lost exposed geology $material: $exposed" }
+    }
+    for (x in listOf(-88, 88)) {
+        check(plan.stateAt(x, 56, -25) == "minecraft:water")
+        check(plan.stateAt(x, 64, -25) == "minecraft:coarse_dirt") { "lost ridge crossing $x,-25" }
     }
     val rows = StringBuilder("# Highmarch integration traversal\n\nShipped import, stage and ore loaders + production PathFinder, cap 5000 with at most 12 progress replans; paths count cells as TraversalCheck does (5.6 cells/s). Diagonals count as one cell, so these are comparable estimates, not elapsed play time.\n\n| Scenario | Route | Reached | Path blocks | Sprint s |\n|---|---|---|---:|---:|\n")
     var failures = 0
@@ -113,6 +172,14 @@ fun main(args: Array<String>) {
             walk("$team spawn -> $name", start, Triple(p[0], p[1], p[2]), 2.0)
         }
     }
+    for ((name, a, b) in listOf(
+        Triple("red-east", Triple(39, 65, -108), Triple(85, 65, -50)),
+        Triple("east-blue", Triple(85, 65, -50), Triple(94, 65, 15)),
+        Triple("red-west", Triple(-39, 65, -108), Triple(-85, 65, -50)),
+        Triple("west-yellow", Triple(-85, 65, -50), Triple(-94, 65, 15)),
+        Triple("blue-south", Triple(94, 65, 93), Triple(0, 65, 112)),
+        Triple("south-yellow", Triple(0, 65, 112), Triple(-94, 65, 93)),
+    )) walk("ridge $name", a, b, 2.0)
     // All 74 ore cells are still air before OreNodeService writes them, and have a mining stance beside them.
     val red = cell(stage.spawnPoints.first { it.team?.value == "red" }.position)
     for ((i, p) in nodes.withIndex()) {
@@ -122,6 +189,7 @@ fun main(args: Array<String>) {
         val goal = checkNotNull(stances.firstOrNull { finder.standable(it.first, it.second, it.third) }) { "ore $i has no mining stance" }
         walk("red spawn -> ore#$i", red, goal, 1.5)
     }
+    walk("west channel -> bank stair", Triple(-64, 57, 0), Triple(-81, 65, 0))
     val radius = coordinates.getValue("center_wave_radius").jsonPrimitive.int
     fun safeScatter(r: Int): Boolean {
         // Runtime generators are at block centres. Include EVERY cell touched by the continuous disk,

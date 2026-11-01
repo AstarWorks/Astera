@@ -1,5 +1,6 @@
-# Mid ore nodes of annihilation-arena: stage-relative x/z, absolute y. Annihilation-style dense mine: emerald at the very centre, then diamond,
-# gold-tier (gold / goldheart wood / gold silt), and iron-tier (iron / ironwood / iron clay) on the rim. The pickaxe breaks the stone ores,
+# Highmarch ore pockets: stage-relative x/z, absolute y; 74 nodes on quarry terrace faces and town forge banks.
+# Emerald/diamond occupy deep ledges (y51); gold/heartwood/silt the middle ledges (y56); starter ores the upper ledges (y61) and town forges (y65).
+# Large visible mineral seams surround the open pockets. The pickaxe breaks stone ores,
 # the axe the wood ones, the shovel the clay / silt ones; the wrong tool barely scratches (see content/blocks/ore-*-node.yaml).
 # level_speed: break-speed multiplier by Norma level (highest key <= level; level 1 required). skill_mult: a tool skill's damage multiplier
 # (same as the Annihilation pillar tool-skill match mult). min_norma_level: below it the node takes no damage (deny sound + action bar).

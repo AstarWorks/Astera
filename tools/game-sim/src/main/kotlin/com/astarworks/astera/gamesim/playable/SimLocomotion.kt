@@ -32,10 +32,26 @@ class SimLocomotion(
         get() = liftValue
         set(value) {
             adoptExternalMoves()
-            liftValue = value
-            entity.position = floor + Vec3(0.0, value, 0.0)
+            liftValue = minOf(value, headroom())
+            entity.position = floor + Vec3(0.0, liftValue, 0.0)
             lastWritten = entity.position
         }
+    /**
+     * How far the body can rise from [floor] before the head meets a solid block (a jump under a low ceiling is cut short,
+     * as in the real game); 0 when the ceiling is already within the 1.8 block body.
+     */
+    private fun headroom(): Double {
+        val feetCell = floor(floor.y + 0.05).toInt()
+        var ceiling = Int.MAX_VALUE
+        for (ox in CORNERS) for (oz in CORNERS) {
+            val cx = floor(floor.x + ox).toInt()
+            val cz = floor(floor.z + oz).toInt()
+            for (y in (feetCell + 1)..(feetCell + 3)) if (terrain.isOccupied(cx, y, cz)) { ceiling = minOf(ceiling, y); break }
+        }
+        if (ceiling == Int.MAX_VALUE) return Double.MAX_VALUE
+        return maxOf(0.0, ceiling - HEIGHT - floor.y)
+    }
+
     var sprinting: Boolean = false
     var falling: Boolean = false
         private set
@@ -82,8 +98,17 @@ class SimLocomotion(
         var ty = ny
         if (ty > floor.y + MAX_STEP_UP) ty = floor.y + MAX_STEP_UP
         if (ty < floor.y - MAX_DROP) ty = floor.y - MAX_DROP
-        val fy = floor(ty + 0.05).toInt()
-        if (terrain.isOccupied(cx, fy, cz) || terrain.isOccupied(cx, fy + 1, cz)) return
+        var fy = floor(ty + 0.05).toInt()
+        if (terrain.isOccupied(cx, fy, cz) || terrain.isOccupied(cx, fy + 1, cz)) {
+            // A one-block ledge in the way: the player auto-jumps onto it (the path planner's step-up cells are walked
+            // without a separate jump input), provided there is room for the body on top and the ledge is one step high.
+            val ledge = fy + 1
+            val canStep = terrain.isOccupied(cx, fy, cz) && !terrain.isOccupied(cx, ledge, cz) && !terrain.isOccupied(cx, ledge + 1, cz) &&
+                ledge <= floor(floor.y + 0.05).toInt() + MAX_STEP_UP.toInt()
+            if (!canStep) return
+            ty = ledge.toDouble()
+            fy = ledge
+        }
         apply(tx, ty, tz)
     }
 
@@ -98,6 +123,7 @@ class SimLocomotion(
     }
 
     private fun publish() {
+        liftValue = minOf(liftValue, headroom())
         val to = floor + Vec3(0.0, lift, 0.0)
         sim.moveTo(entity, to)
         lastWritten = entity.position
@@ -147,6 +173,7 @@ class SimLocomotion(
         const val SLACK = 0.05
         const val MAX_STEP_UP = 1.0
         const val MAX_DROP = 3.0
+        const val HEIGHT = 1.8
         private val CORNERS = doubleArrayOf(-0.3, 0.0, 0.3)
     }
 }

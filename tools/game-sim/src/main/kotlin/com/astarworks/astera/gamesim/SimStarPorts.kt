@@ -110,11 +110,30 @@ public class SimMatchPlayerPositions(
 }
 
 /** Ore node blocks of the simulated world: the current material per cell, in the order they were set. */
-public class SimOreNodeWorld : com.astarworks.astera.match.application.port.outbound.IOreNodeWorld {
+public class SimOreNodeWorld(
+    private val delivery: SimItemDelivery? = null,
+    private val tick: () -> Long = { 0L },
+) : com.astarworks.astera.match.application.port.outbound.IOreNodeWorld {
     private val blocks = ConcurrentHashMap<Triple<Int, Int, Int>, String>()
+    private val oreMaterial = ConcurrentHashMap<Triple<Int, Int, Int>, String>()
+
+    /** A node that was mined: its cell, the ore it held, who mined it (null when the drops reached nobody) and what they got. */
+    public data class Mined(val tick: Long, val x: Int, val y: Int, val z: Int, val material: String, val miner: PlayerId?, val items: Int)
+
+    /** Every node mined so far, in order. The miner is the player the node's drops were delivered to in that tick. */
+    public val mined: MutableList<Mined> = CopyOnWriteArrayList()
 
     override fun setBlock(world: WorldId, pos: Vec3, material: String) {
-        blocks[Triple(kotlin.math.floor(pos.x).toInt(), kotlin.math.floor(pos.y).toInt(), kotlin.math.floor(pos.z).toInt())] = material
+        val cell = Triple(kotlin.math.floor(pos.x).toInt(), kotlin.math.floor(pos.y).toInt(), kotlin.math.floor(pos.z).toInt())
+        val before = blocks.put(cell, material)
+        val ore = oreMaterial.putIfAbsent(cell, material) ?: material
+        // OreNodeService hands the drops out first, then swaps the ore for its placeholder: that swap is the mining.
+        if (before != null && before == ore && material != ore) {
+            val now = tick()
+            val gives = delivery?.drainGives(now).orEmpty()
+            val miner = gives.firstOrNull()?.player
+            mined += Mined(now, cell.first, cell.second, cell.third, ore, miner, gives.filter { it.player == miner }.sumOf { it.amount })
+        }
     }
 
     private val cracks = ConcurrentHashMap<Triple<Int, Int, Int>, Pair<Int, Int>>()
