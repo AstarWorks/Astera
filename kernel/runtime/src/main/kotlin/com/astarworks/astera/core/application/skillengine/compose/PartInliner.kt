@@ -69,7 +69,7 @@ public object PartInliner {
             is Result.Success -> r.value
             is Result.Failure -> return Result.failure(r.error)
         }
-        return when (val r = PartExpander(resolved, config.maxPartDepth).expand(bound)) {
+        return when (val r = PartExpander(resolved, config.maxPartDepth, def.frames.map { it.id }.toSet()).expand(bound)) {
             is Result.Success -> Result.success(Inlined(def.copy(machine = r.value), w.depth))
             is Result.Failure -> Result.failure(r.error.toDecodeError(def.id))
         }

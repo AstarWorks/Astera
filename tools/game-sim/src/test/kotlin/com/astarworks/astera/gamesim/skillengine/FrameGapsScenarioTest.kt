@@ -68,7 +68,7 @@ class FrameGapsScenarioTest : SkillEngineScenario() {
                 end: {final: true}
             """,
         )
-        assertThat(e.toString()).describedAs(e.toString()).contains("held").contains("snapshot")
+        assertThat(e.toString()).describedAs(e.toString()).contains("frames[0].snapshot").contains("whole tick")
     }
 
     @Test
@@ -92,5 +92,118 @@ class FrameGapsScenarioTest : SkillEngineScenario() {
             """,
         )
         assertThat(skill.def.id).isEqualTo("parry-on-frame")
+    }
+
+    @Test
+    fun anItemPartRidesAFrameAndTurnsAboutItsOwnEdge() {
+        val skill = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: item-part-frame
+            item: bastion-greatsword
+            frames:
+              - {id: sword, origin: caster, v: forward, w: up, s: v x w}
+            machine:
+              start: s
+              states:
+                s:
+                  for: 4
+                  then: end
+                  enter:
+                    - {id: blade, op: display, kind: item, item: "astera:bastion-greatsword", part: held, frame: sword, pos: {s: 0.5}, rotate: [{axis: edge, deg: 35}], for: 4}
+                end: {final: true}
+            """,
+        )
+        val rec = GatewayRecorder()
+        play(skill, 1L, emptyList(), 5, rec)
+        assertThat(rec.calls.filter { it.verb == "spawn" && it.payload == "kind=item" }).hasSize(1)
+    }
+
+    @Test
+    fun anUnknownItemAxisOnAFrameDisplayIsALoudLoadError() {
+        val e = failure(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: item-axis-typo
+            item: bastion-greatsword
+            frames:
+              - {id: sword, origin: caster, v: forward, w: up, s: v x w}
+            machine:
+              start: s
+              states:
+                s:
+                  for: 4
+                  then: end
+                  enter:
+                    - {id: blade, op: display, kind: item, item: "astera:bastion-greatsword", part: held, frame: sword, rotate: [{axis: egde, deg: 35}], for: 4}
+                end: {final: true}
+            """,
+        )
+        assertThat(e.toString()).describedAs(e.toString()).contains("egde")
+    }
+
+    @Test
+    fun aTrailAndAThreadRunBetweenFramePoints() {
+        val skill = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: ribbon-frame-points
+            frames:
+              - {id: piece, origin: caster, v: forward, w: up, s: v x w, move: [{at: 0, for: 6, to: {v: 6}}]}
+              - {id: palm, origin: caster, v: forward, w: up, s: v x w}
+            machine:
+              start: s
+              states:
+                s:
+                  for: 8
+                  then: end
+                  enter:
+                    - {id: trail, op: ribbon, of: {frame: piece, pos: {v: 1}}, root: {frame: piece, pos: {v: 0}}, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "#59ff5fa2", at: 0, for: 7}
+                    - {id: thread, op: ribbon, from: {frame: palm, pos: {}}, to: {frame: piece, pos: {w: 1}}, thickness: 0.05, color: "#ff5fa2", at: 0, for: 7}
+                end: {final: true}
+            """,
+        )
+        val rec = GatewayRecorder()
+        play(skill, 1L, emptyList(), 8, rec)
+        val trail = rec.oracleRows.filter { it.verb == "trail" }.map { it.detail }
+        assertThat(trail).describedAs("one trail point per tick").hasSizeGreaterThan(4)
+        assertThat(trail.first()).describedAs("root and tip are two different frame points").isNotEqualTo(trail.last())
+        val thread = rec.oracleRows.first { it.verb == "spawn" && it.detail.startsWith("from=") }.detail
+        assertThat(thread).contains("from=").contains("to=")
+    }
+
+    @Test
+    fun aFrameCanSitOnAnAnimatedBodyHand() {
+        val skill = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: frame-on-hand
+            anchors:
+              - {id: right_hand, anchor: body_anim.hand_r, mode: follow}
+            frames:
+              - {id: palm, origin: body_anim.hand_r, v: forward, w: up, s: v x w}
+            machine:
+              start: s
+              world:
+                - {id: body_anim, op: body, target: caster, anim: bastion-s1-body, speed: 1.0, for: 12}
+              states:
+                s:
+                  for: 12
+                  enter:
+                    - {id: fp, op: particle, particle: flame, frame: palm, pos: {}, at: 0, every: 4, for: 9}
+                    - {id: ap, op: particle, particle: crit, anchor: right_hand, at: 0, every: 4, for: 9}
+            """,
+        )
+        val rec = GatewayRecorder()
+        play(skill, 1L, emptyList(), 12, rec)
+        val viaFrame = rec.emittedAt.filter { it.second == "flame" }.map { it.third }
+        val viaAnchor = rec.emittedAt.filter { it.second == "crit" }.map { it.third }
+        assertThat(viaFrame).hasSize(3)
+        assertThat(viaFrame.first()).describedAs("the hand moves with the clip").isNotEqualTo(viaFrame.last())
+        assertThat(viaFrame).describedAs("a frame on the hand reads the same point as the anchor").isEqualTo(viaAnchor)
     }
 }
