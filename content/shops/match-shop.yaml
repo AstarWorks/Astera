@@ -1,5 +1,6 @@
 # In-match ore shop (wp/match-arsenal). Opened from the shop NPC in each team's base; priced in ore items
-# (ore-iron / ore-gold / ore-diamond / ore-emerald), never GOLD. The lobby GOLD shops are the other files in this folder.
+# (ore-iron / ore-gold / ore-diamond / ore-emerald), never GOLD. The cheap rung (basic building blocks, smoke, grappling hook) is priced in
+# ore-timber / ore-clay (axe / shovel base nodes); iron stays the currency of weapons and armour. The lobby GOLD shops are the other files in this folder.
 # Offer shape: {item_id, price: {<ore item>: n}, tab: weapons|blocks|armor|upgrades, stack, upgrade_from?, restock?}. One offer per block.
 # `restock: true` = throwable bought again and again; every other plain weapon is hidden/refused while the player carries it.
 # Weapon upgrades (tab: upgrades, BedWars / Annihilation style): `upgrade_from` names the item the buyer must carry; the purchase
@@ -144,11 +145,11 @@ offers:
     tab: weapons
     stack: 1
   - item_id: smoke-bomb
-    price: { ore-iron: 6 }
+    price: { ore-clay: 4 }
     tab: weapons
     stack: 1
   - item_id: grappling-hook
-    price: { ore-iron: 8 }
+    price: { ore-timber: 6 }
     tab: weapons
     stack: 1
   - item_id: shield-bulwark
@@ -169,19 +170,19 @@ offers:
     stack: 1
     restock: true
   - item_id: wool-block
-    price: { ore-iron: 4 }
+    price: { ore-timber: 4 }
     tab: blocks
     stack: 16
   - item_id: hardened-soil-block
-    price: { ore-iron: 6 }
+    price: { ore-clay: 4 }
     tab: blocks
     stack: 16
   - item_id: packed-clay-block
-    price: { ore-iron: 6 }
+    price: { ore-clay: 6 }
     tab: blocks
     stack: 16
   - item_id: reinforced-planks-block
-    price: { ore-iron: 8 }
+    price: { ore-timber: 6 }
     tab: blocks
     stack: 16
   - item_id: tempered-glass-block

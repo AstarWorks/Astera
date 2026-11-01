@@ -1,6 +1,17 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.adapter.api.server.IMcServer
+import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
+import com.astarworks.astera.core.application.skillengine.compose.blockProperTools
+import com.astarworks.astera.core.domain.world.BlockType
+import com.astarworks.astera.core.domain.world.ToolKind
+import com.astarworks.astera.match.application.config.toSpec
+import com.astarworks.astera.match.application.port.outbound.IOreNodeRegistry
+import java.nio.file.Paths
+import java.util.concurrent.ConcurrentHashMap
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.event.EndReason
@@ -78,7 +89,7 @@ class MidOreNodeScenarioTest {
     }
 
     @Test
-    fun `the matching tool breaks a node fast and the other classes only scratch it`() {
+    fun `the matching tool class breaks a node and another class is refused without damage`() {
         scenario("mid-ore-affinity") {
             val red = player("red-miner", team = "red")
             val blue = player("blue-miner", team = "blue")
@@ -88,23 +99,84 @@ class MidOreNodeScenarioTest {
             val nodes = sim.services.getOrThrow<OreNodeService>()
             fun cell(x: Int, z: Int) = Vec3(origin.x + x, 65.0, origin.z + z)
 
-            // Ironwood (axe affinity, 800 HP): a stone axe deals 100, a stone pickaxe only 12.
+            // Ironwood (axe, 800 HP): a stone axe deals 100; a stone pickaxe is refused, the node keeps all its HP.
             val timberAxe = cell(-16, -4)
             val timberPick = cell(-16, 4)
             assertThat(nodes.mine(red.id, worldId, timberAxe, ItemId("stone-axe"))).isEqualTo(OreNodeService.Outcome.Hit(700, 800))
             advance(6) // OreNodeService.HIT_COOLDOWN_TICKS
-            assertThat(nodes.mine(red.id, worldId, timberPick, ItemId("stone-pickaxe"))).isEqualTo(OreNodeService.Outcome.Hit(788, 800))
+            assertThat(nodes.mine(red.id, worldId, timberPick, ItemId("stone-pickaxe"))).isEqualTo(OreNodeService.Outcome.WrongTool)
 
             // Iron clay (shovel affinity, 800 HP): an iron shovel deals 150.
             advance(6)
             assertThat(nodes.mine(red.id, worldId, cell(-20, -4), ItemId("iron-shovel"))).isEqualTo(OreNodeService.Outcome.Hit(650, 800))
 
-            // An iron node is the pickaxe's: a stone axe scratches 15 off it, a stone pickaxe 100.
+            // An iron node is the pickaxe's: a stone axe is refused, a stone pickaxe deals 100.
             advance(6)
-            assertThat(nodes.mine(red.id, worldId, cell(20, 0), ItemId("stone-axe"))).isEqualTo(OreNodeService.Outcome.Hit(785, 800))
+            assertThat(nodes.mine(red.id, worldId, cell(20, 0), ItemId("stone-axe"))).isEqualTo(OreNodeService.Outcome.WrongTool)
             advance(6)
-            assertThat(nodes.mine(red.id, worldId, cell(20, 0), ItemId("stone-pickaxe"))).isEqualTo(OreNodeService.Outcome.Hit(685, 800))
+            assertThat(nodes.mine(red.id, worldId, cell(20, 0), ItemId("stone-pickaxe"))).isEqualTo(OreNodeService.Outcome.Hit(700, 800))
 
+            sim.services.getOrThrow<IMatchLifecycle>().end(matchId, EndReason.AdminEnded)
+        }
+    }
+
+    @Test
+    fun `every wrong tool class on every shipped ore node is refused at equal tool strength, node HP unchanged, refusal and hint recorded`() {
+        scenario("mid-ore-wrong-tool-matrix") {
+            val red = player("red-miner", team = "red")
+            val blue = player("blue-miner", team = "blue")
+            val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"))
+            val worldId = checkNotNull(sim.services.getOrThrow<IMatchWorldRepository>().findByMatch(matchId)).worldId
+            val origin = sim.services.getOrThrow<IStageRegistry>().find(StageId("siege-isles"))?.origin ?: Vec3(0.0, 0.0, 0.0)
+            val registry = sim.services.getOrThrow<IOreNodeRegistry>()
+            val customBlocks = sim.services.getOrThrow<ICustomBlockRegistry>()
+            val properTools = blockProperTools(Paths.get(System.getProperty("astera.sim.contentDir")))
+            val bars = checkNotNull(sim.server.view(red.id)).actionBars
+            // Diamond tier + Norma level 5 clear every tier / level gate, so the tool class is the only thing that can refuse.
+            val diamond = mapOf(
+                ToolKind.PICKAXE to ItemId("diamond-pickaxe"),
+                ToolKind.AXE to ItemId("diamond-axe"),
+                ToolKind.SHOVEL to ItemId("diamond-shovel"),
+            )
+            val map = ConcurrentHashMap<OreNodeService.Key, OreNodeService.Node>()
+            val service = OreNodeService(
+                registry = registry, properToolOf = properTools::get, stages = null,
+                matchWorlds = sim.services.getOrThrow<IMatchWorldRepository>(), customBlocks = customBlocks,
+                items = sim.services.getOrThrow<IItemRegistry>(), delivery = { sim.services.get(IItemDelivery::class) },
+                server = sim.services.getOrThrow<IMcServer>(), world = sim.oreNodes, scheduler = sim.scheduler,
+                levelOf = { 5 }, nodes = map,
+            )
+            var pairs = 0
+            for (stageId in listOf("siege-isles", "annihilation-arena")) {
+                val file = checkNotNull(registry.find(stageId)) { "no content/ore-nodes/$stageId.yaml" }
+                for (group in file.nodes) {
+                    val spec = group.toSpec(file, { customBlocks.find(BlockType(it)) }, properTools::get)
+                    val cell = spec.cells.first().let { Vec3(it.x + origin.x, it.y, it.z + origin.z) }
+                    val key = OreNodeService.Key(worldId.value, cell.x.toInt(), cell.y.toInt(), cell.z.toInt())
+                    assertThat(spec.hitDamage.keys.map { it.kind }.toSet()).`as`("${group.block}: only the proper class has an entry").containsExactly(spec.requiredTool)
+                    for ((kind, tool) in diamond) {
+                        map.clear()
+                        val node = OreNodeService.Node(matchId, worldId, cell, spec)
+                        map[key] = node
+                        advance(20)
+                        val barsBefore = bars.size
+                        val refusalsBefore = sim.oreNodes.refusals.size
+                        val outcome = service.mine(red.id, worldId, cell, tool)
+                        if (kind == spec.requiredTool) {
+                            assertThat(outcome).`as`("${group.block} with proper $kind").isInstanceOf(OreNodeService.Outcome.Hit::class.java)
+                            assertThat(node.hp).isLessThan(spec.maxHp)
+                        } else {
+                            assertThat(outcome).`as`("${group.block} with wrong $kind").isEqualTo(OreNodeService.Outcome.WrongTool)
+                            assertThat(node.hp).`as`("${group.block} HP after wrong $kind").isEqualTo(spec.maxHp)
+                            assertThat(sim.oreNodes.refusals.size).`as`("${group.block} refusal recorded").isEqualTo(refusalsBefore + 1)
+                            assertThat(bars.drop(barsBefore).map { it.value })
+                                .`as`("${group.block} hint names the proper tool").containsExactly(OreNodeService.wrongToolKey(spec.requiredTool).value)
+                            pairs++
+                        }
+                    }
+                }
+            }
+            assertThat(pairs).`as`("wrong-tool pairs checked").isGreaterThanOrEqualTo(16)
             sim.services.getOrThrow<IMatchLifecycle>().end(matchId, EndReason.AdminEnded)
         }
     }
