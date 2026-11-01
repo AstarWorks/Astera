@@ -182,6 +182,8 @@ public data class FrameDecl(
      * world space from then on; `move` / `rotate` / `scale` keys still run on the frozen frame. Null = the frame follows its origin every tick.
      */
     val snapshotAt: Int? = null,
+    /** Explicit world axis used instead of w when v x w has squared length below DEGENERATE_EPS; s must be v x w. */
+    val wFallback: Vec3? = null,
 ) {
     /** `on: event.victim`: one instance per hit victim, rooted on that victim. */
     val perVictim: Boolean get() = on == ON_VICTIM
@@ -258,6 +260,11 @@ public object FrameEvaluator {
             is AxisSpec.Cross -> null
         }
         for ((name, spec) in listOf("v" to decl.v, "w" to decl.w, "s" to decl.s)) plain(name, spec)?.let { resolved[name] = it }
+        decl.wFallback?.let { fallback ->
+            val v = resolved["v"] ?: return null
+            val w = resolved["w"] ?: return null
+            if (v.cross(w).lengthSquared() < Basis3.DEGENERATE_EPS) resolved["w"] = fallback
+        }
         for ((name, spec) in listOf("v" to decl.v, "w" to decl.w, "s" to decl.s)) {
             if (spec is AxisSpec.Cross) {
                 val a = resolved[spec.a] ?: return null

@@ -11,8 +11,8 @@ package com.astarworks.astera.match.domain.star
  * ```
  *
  * Total supply therefore tracks the number of players: three players get a third of what twelve get, the per-player
- * income stays the same. Kills move stars between players (see [killShare], [killGroundShare]) and pay a bounty out
- * of the budget.
+ * income stays the same. A death bursts [deathGroundShare] of the victim's carried stars on the ground (the victim keeps the rest);
+ * a kill also pays a bounty out of the budget.
  */
 public data class StarEconomy(
     val basePerPlayerMinute: Double = DEFAULT_BASE,
@@ -21,10 +21,8 @@ public data class StarEconomy(
     val miningStars: Int = 1,
     val blockStars: Int = 1,
     val blockMaterials: Set<String> = emptySet(),
-    /** Share of a victim's carried stars the killer takes directly. */
-    val killShare: Double = 0.4,
-    /** Share of a victim's carried stars that drops on the ground. The rest is lost. */
-    val killGroundShare: Double = 0.2,
+    /** Share of a victim's carried stars that bursts on the ground at death; the victim keeps the rest. */
+    val deathGroundShare: Double = 0.5,
     /** Bounty = rate x (victim carried - match average carried), clamped to [bountyCap]. */
     val bountyRate: Double = 0.5,
     val bountyCap: Int = 12,
@@ -39,7 +37,7 @@ public data class StarEconomy(
         require(shares.values.sum() <= 1.0 + 1e-9) { "star_share_* must add up to at most 1 (was ${shares.values.sum()})" }
         require((shares[StarSource.SPOT] ?: 0.0) <= MAX_SPOT_SHARE) { "star_share_spot is a minor source: at most $MAX_SPOT_SHARE" }
         require(miningStars >= 1 && blockStars >= 1) { "star_mining_per_node / star_block_per_break must be >= 1" }
-        require(killShare in 0.0..1.0 && killGroundShare in 0.0..1.0 && killShare + killGroundShare <= 1.0) { "star_kill_share + star_kill_ground_share must stay within 0..1" }
+        require(deathGroundShare in 0.0..1.0) { "star_death_ground_share must stay within 0..1" }
         require(bountyRate >= 0.0 && bountyCap >= 0) { "star_bounty_rate / star_bounty_cap must be >= 0" }
     }
 
@@ -115,8 +113,7 @@ public data class StarEconomy(
                 miningStars = number("star_mining_per_node", d.miningStars.toDouble()).toInt(),
                 blockStars = number("star_block_per_break", d.blockStars.toDouble()).toInt(),
                 blockMaterials = raw["star_blocks"]?.split(',')?.map { it.trim().uppercase() }?.filter { it.isNotEmpty() }?.toSet() ?: d.blockMaterials,
-                killShare = number("star_kill_share", d.killShare),
-                killGroundShare = number("star_kill_ground_share", d.killGroundShare),
+                deathGroundShare = number("star_death_ground_share", d.deathGroundShare),
                 bountyRate = number("star_bounty_rate", d.bountyRate),
                 bountyCap = number("star_bounty_cap", d.bountyCap.toDouble()).toInt(),
             )

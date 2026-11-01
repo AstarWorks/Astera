@@ -83,6 +83,8 @@ internal object MatchStarWiring {
             ?: LocationLookupMatchPlayerPositions { services.get<IPlayerLocationLookup>() }
         val configOf: (MatchId) -> NormaConfig = { id -> NormaConfig.parse(env.modeConfigOf(id)) }
 
+        val randomSource: com.astarworks.astera.match.application.port.outbound.IMatchRandomSource =
+            services.get() ?: com.astarworks.astera.match.application.port.outbound.IMatchRandomSource { kotlin.random.Random.Default }
         val dropWorld = env.ports.starDropWorld?.invoke(services)
         val carry = env.ctx.stateful<com.astarworks.astera.match.application.service.MatchCarriedState> { com.astarworks.astera.match.application.service.MatchCarriedState() }
         val clock = StarSupplyClock(
@@ -115,6 +117,7 @@ internal object MatchStarWiring {
             eventBus = eventBus,
             world = dropWorld,
             presentation = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>(),
+            random = randomSource.stream("star-drop"),
             log = { env.ctx.logger.fine(it) },
             drops = carry.slot("star-drops") { java.util.concurrent.ConcurrentHashMap<Long, com.astarworks.astera.match.domain.star.StarDrop>() },
             nextId = carry.slot("star-drop-next-id") { java.util.concurrent.atomic.AtomicLong(1) },
@@ -151,6 +154,7 @@ internal object MatchStarWiring {
             scheduler = env.scheduler,
             presentation = presentationPort,
             eventBus = eventBus,
+            random = randomSource.stream("star-wave"),
             states = carry.slot("star-waves") { java.util.concurrent.ConcurrentHashMap<Pair<MatchId, com.astarworks.astera.match.domain.generator.GeneratorId>, com.astarworks.astera.match.application.service.StarWaveService.State>() },
         )
         val caches = StarCacheService(

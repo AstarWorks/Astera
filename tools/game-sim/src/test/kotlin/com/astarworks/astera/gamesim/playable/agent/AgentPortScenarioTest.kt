@@ -32,6 +32,9 @@ class AgentPortScenarioTest {
         """{"op":"skip","until":"phase=engage","max":9000,"interrupts":false,"map":"off"}""",
         """{"op":"act","do":"goto base:red","max":1200,"map":"off"}""",
         """{"op":"act","do":"norma star","max":300,"map":"off"}""",
+        """{"op":"act","do":"buy","map":"off"}""",
+        """{"op":"act","do":"goto nowhere-land","map":"off"}""",
+        """{"op":"act","do":"attack nearest","max":40,"map":"off"}""",
         """{"op":"end"}""",
     )
 
@@ -72,6 +75,18 @@ class AgentPortScenarioTest {
         assertThat(obs[5]["ok"]!!.jsonPrimitive.content).isEqualTo("false")
         assertThat(obs[5]["result"]!!.jsonPrimitive.content).contains("needs 6 iron")
 
+        // UX: at the shop the menu lists priced buy lines (real catalogue prices), 5-8 of them, same style as goto lines.
+        val shopMenu = obs[4]["menu"]!!.jsonArray.map { it.jsonPrimitive.content }
+        val buyLines = shopMenu.filter { it.startsWith("buy ") }
+        assertThat(buyLines.size).isBetween(5, 8)
+        assertThat(buyLines).allMatch { it.matches(Regex("buy \\S+ \\(\\d+ \\w+ ore(\\+\\d+ \\w+ ore)*, (affordable|short .+)\\)")) }
+
+        // UX: norma have/need and the wallet are in every observation.
+        val me4 = obs[4]["me"]!!.jsonObject
+        assertThat(me4["norma"]!!.jsonObject["need"]!!.jsonPrimitive.int).isGreaterThan(0)
+        assertThat(me4["norma"]!!.jsonObject["have"]!!.jsonPrimitive.int).isGreaterThanOrEqualTo(0)
+        assertThat(me4["wallet"]!!.jsonObject.keys).contains("gold")
+
         // skip DSL stops on its own condition, not on max.
         assertThat(obs[6]["stopped"]!!.jsonPrimitive.content).isEqualTo("until:phase=engage")
         assertThat(obs[6]["phase"]!!.jsonPrimitive.content).isEqualTo("engage")
@@ -84,11 +99,29 @@ class AgentPortScenarioTest {
         assertThat(obs[8]["result"]!!.jsonPrimitive.content).contains("still lv1")
         assertThat(last["norma"]!!.jsonObject["lv"]!!.jsonPrimitive.int).isEqualTo(1)
 
+        // bare buy: the filtered, priced list (not the 68-item catalogue) with affordability.
+        val bare = obs[9]
+        assertThat(bare["ok"]!!.jsonPrimitive.content).isEqualTo("true")
+        val shop = bare["shop"]!!.jsonArray.map { it.jsonObject }
+        assertThat(shop.size).isBetween(1, 12)
+        assertThat(shop).allMatch { it["price"]!!.jsonObject.isNotEmpty() && it.containsKey("affordable") }
+
+        // failed decisions: reported on their line, an unknown target is a failure, `attack nearest` is accepted.
+        assertThat(obs[10]["ok"]!!.jsonPrimitive.content).isEqualTo("false")
+        assertThat(obs[10]["stopped"]!!.jsonPrimitive.content).isEqualTo("unknown_target")
+        assertThat(obs[10]["failed"]!!.jsonPrimitive.content).isEqualTo("true")
+        assertThat(obs[11]["stopped"]!!.jsonPrimitive.content).isNotEqualTo("unknown_target")
+
         // end: summary, three reflection questions, a trace path.
         val end = obs.last()
         assertThat(end["ended"]!!.jsonPrimitive.content).isEqualTo("true")
         assertThat(end["questions"]!!.jsonArray).hasSize(3)
         assertThat(end["trace"]!!.jsonPrimitive.content).isNotBlank()
+        val summary = end["summary"]!!.jsonObject
+        assertThat(summary["decisions_failed"]!!.jsonPrimitive.int).isGreaterThanOrEqualTo(2) // the refused dagger buy + the unknown goto
+        assertThat(summary["decisions_ok"]!!.jsonPrimitive.int + summary["decisions_failed"]!!.jsonPrimitive.int).isEqualTo(summary["decisions"]!!.jsonPrimitive.int)
+        assertThat(end["timeline"]!!.jsonObject.keys).containsExactlyInAnyOrder("first_star_pickup", "first_kill", "first_norma_levelup")
+        assertThat(end["failed_decisions"]!!.jsonArray).isNotEmpty()
     }
 
     @Test

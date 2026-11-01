@@ -123,6 +123,12 @@ class AgentPort(
             put("ok", true)
             put("ended", true)
             putJsonObject("summary") { stats.forEach { (k, v) -> put(k, v.toString().toLongOrNull()?.let(::JsonPrimitive) ?: JsonPrimitive(v.toString())) } }
+            putJsonObject("timeline") {
+                put("first_star_pickup", moment(s.firstStar))
+                put("first_kill", moment(s.firstKill))
+                put("first_norma_levelup", moment(s.firstNormaLevelUp))
+            }
+            putJsonArray("failed_decisions") { s.failures.takeLast(10).forEach { add(JsonPrimitive(it)) } }
             putJsonArray("star_moments") { s.starMoments.takeLast(8).forEach { add(JsonPrimitive(it)) } }
             putJsonArray("questions") { reflection(s).forEach { add(JsonPrimitive(it)) } }
             put("trace", trace?.toString() ?: "")
@@ -148,6 +154,8 @@ class AgentPort(
             put("ok", outcome.ok)
             put("stopped", outcome.stopped)
             put("result", outcome.note)
+            if (outcome.failed) put("failed", true)
+            outcome.shop?.let { lines -> put("shop", buildJsonArray { lines.forEach { add(shopLine(it)) } }) }
             put("t", s.tick())
             put("phase", s.phaseId())
             if (s.isOver()) put("match_over", true)
@@ -158,7 +166,8 @@ class AgentPort(
                 put("held", v.held?.let(::JsonPrimitive) ?: JsonNull)
                 put("stars", v.stars)
                 putJsonObject("ore") { v.ore.forEach { (k, n) -> put(k, n) } }
-                putJsonObject("norma") { put("lv", v.normaLevel); put("goal", v.normaGoal); if (v.ready) put("ready", true) }
+                putJsonObject("norma") { put("lv", v.normaLevel); put("goal", v.normaGoal); put("have", v.normaHave); put("need", v.normaNeed); if (v.ready) put("ready", true) }
+                putJsonObject("wallet") { v.wallet.forEach { (k, n) -> put(k, n) } }
                 put("tool", v.tool?.let(::JsonPrimitive) ?: JsonNull)
                 if (v.cooldowns.isNotEmpty()) putJsonObject("cooldowns") { v.cooldowns.forEach { (k, n) -> put(k, n) } }
                 if (v.inv.isNotEmpty()) putJsonObject("inv") { v.inv.forEach { (k, n) -> put(k, n) } }
@@ -184,6 +193,18 @@ class AgentPort(
             else -> default
         }
     }
+
+    private fun shopLine(l: ShopLine): JsonObject = buildJsonObject {
+        put("id", l.id)
+        put("tab", l.tab)
+        putJsonObject("price") { l.price.forEach { (k, n) -> put(k, n) } }
+        put("affordable", l.affordable)
+        if (l.missing.isNotEmpty()) putJsonObject("missing") { l.missing.forEach { (k, n) -> put(k, n) } }
+        l.lockedUntilLevel?.let { put("locked", "needs norma lv$it") }
+        l.needsBase?.let { put("locked_base", "needs $it first") }
+    }
+
+    private fun moment(m: Moment?): JsonElement = m?.let { buildJsonObject { put("tick", it.tick); put("seconds", it.seconds) } } ?: JsonNull
 
     private fun entity(name: String, pos: IntArray, hp: String): JsonObject = buildJsonObject {
         put("name", name)
