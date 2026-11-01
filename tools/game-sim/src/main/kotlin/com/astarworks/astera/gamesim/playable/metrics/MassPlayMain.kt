@@ -8,7 +8,7 @@ import java.nio.file.Path
  * `./gradlew :tools:game-sim:massPlay -Pruns=20 [-Pseed=<base>]` -> build/play/summary-<firstSeed>-<lastSeed>.md.
  * Run i (1..runs) uses seed base+i. Without -Pseed the base is the current epoch second, so separate invocations never
  * replay the same matches; the base is printed so a batch can be reproduced with -Pseed.
- * Each match is the real bot-vs-bot [MatchDriver]: 3 teams x 3 BotBrain seats on annihilation-arena.
+ * Each match is the real bot-vs-bot [MatchDriver]: every stage team x 3 BotBrain seats on annihilation-arena.
  */
 fun main(args: Array<String>) {
     val outDir = Path.of(args.getOrElse(0) { "build/play" })

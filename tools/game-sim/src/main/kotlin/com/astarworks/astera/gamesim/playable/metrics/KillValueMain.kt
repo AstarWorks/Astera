@@ -12,7 +12,7 @@ import com.astarworks.astera.match.domain.star.StarSource
 import kotlin.math.hypot
 
 /**
- * Kill-value probe: `./gradlew -q :tools:game-sim:killValue -Pseeds=1,2,...,10 -Psizes=3,6,12` prints, per N (players per team, 3 teams,
+ * Kill-value probe: `./gradlew -q :tools:game-sim:killValue -Pseeds=1,2,...,10 -Psizes=3,6,12` prints, per N (players per team, every stage team,
  * annihilation-arena, full match), how much a kill is worth against farming. Additive diagnostic; reads only sim events and star drops.
  *
  * Attribution rule: a death drop is a star drop that appears within 4 blocks of a victim on the tick of a kill (or the next 2 ticks). It counts

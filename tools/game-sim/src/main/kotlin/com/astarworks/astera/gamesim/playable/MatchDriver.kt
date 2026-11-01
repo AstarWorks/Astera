@@ -26,7 +26,7 @@ data class MatchConfig(
     val mode: String = "annihilation",
     val stage: String = "annihilation-arena",
     /** Teams in play, in spawn order; empty = the stage's own teams (at most [teamCount] when it is above 0, [humanTeam] always kept). */
-    val teams: List<String> = listOf("red", "blue", "yellow"),
+    val teams: List<String> = emptyList(),
     val teamCount: Int = 0,
     /** Seats per team (bots plus, on [humanTeam], the human seats). */
     val botsPerTeam: Int = 3,

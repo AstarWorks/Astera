@@ -919,7 +919,8 @@ class BotBrain(
             tntSpawn = world.point(ModePlanner.TNT_SPAWN)?.let { it.first to it.third },
         ).also { observed = it }
         val modeFacts = src.modeFacts(facts, originX, originZ) ?: facts
-        return ModePlanner(id, bot.name, own, src.teams().filter { it != own }, world, facts = modeFacts, matchKey = matchKey, teamOf = { bot.teamOf(it) }).takeIf { it.handles() }
+        return ModePlanner(id, bot.name, own, src.teams().filter { it != own }, world, facts = modeFacts, matchKey = matchKey, teamOf = { bot.teamOf(it) },
+            liveTeams = { bot.playerNames.values.mapNotNullTo(HashSet()) { bot.teamOf(it) } }).takeIf { it.handles() }
     }
 
     /**

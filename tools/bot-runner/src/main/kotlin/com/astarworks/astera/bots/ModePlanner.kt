@@ -27,7 +27,7 @@ class ModePlanner(
     private val modeId: String,
     private val botName: String,
     private val ownTeam: String,
-    private val enemyTeams: List<String>,
+    private val stageEnemyTeams: List<String>,
     private val zones: Zones,
     private val carryLimit: Int = 8,
     private val pickupCooldownMs: Long = 20_000,
@@ -38,6 +38,8 @@ class ModePlanner(
      */
     private val matchKey: String = "",
     private val teamOf: (String) -> String? = { null },
+    /** Teams that actually have players in this match (scoreboard; the default treats every listed enemy as playing). A stage base with nobody on it (a 1v1 on a 4-base map) is not an enemy. */
+    private val liveTeams: () -> Set<String> = { stageEnemyTeams.toSet() },
 ) {
     /** Stage regions by name (world coordinates). */
     interface Zones {
@@ -59,6 +61,9 @@ class ModePlanner(
             Triple(cx, cz, l.maxOf { hypot(it.second - cx, it.third - cz) } + SPAWN_ZONE_MARGIN)
         }
     }
+
+    /** The stage's other teams that are playing now, in stage order; empty until the scoreboard shows an enemy player. */
+    private val enemyTeams: List<String> get() = liveTeams().let { live -> stageEnemyTeams.filter { it in live } }
 
     /** True when (x, z) lies inside the spawn zone of [team]. */
     fun inSpawnZone(team: String?, x: Double, z: Double): Boolean =

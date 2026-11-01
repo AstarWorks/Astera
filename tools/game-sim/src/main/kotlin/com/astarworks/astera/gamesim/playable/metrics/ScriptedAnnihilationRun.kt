@@ -28,7 +28,7 @@ import java.util.Random
 class ScriptedAnnihilationRun(
     seed: Long,
     private val playersPerTeam: Int = 2,
-    private val teams: List<String> = listOf("red", "blue", "yellow"),
+    teams: List<String> = emptyList(),
     config: AnnihilationConfig = DEFAULT_CONFIG,
 ) : MatchRun {
 
@@ -42,6 +42,9 @@ class ScriptedAnnihilationRun(
     private class Seat(val entity: SimEntity, val team: String, val attacker: Boolean, var goal: Vec3, var nextAction: Long = 0)
 
     private val seats = mutableListOf<Seat>()
+
+    /** [teams] when given, else every team the stage has a spawn for (no fixed team list). */
+    private val teams: List<String> = teams.ifEmpty { stage.spawnPoints.mapNotNull { it.team?.value }.distinct() }
 
     init {
         val lifecycle = sim.services.getOrThrow<IMatchLifecycle>()

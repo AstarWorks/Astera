@@ -17,7 +17,7 @@ import kotlin.math.hypot
 /**
  * Star-flow probe: `./gradlew -q :tools:game-sim:starFlow -Pseeds=101,...,110 -Psize=6 [-PmaxTicks=24000]`. Per phase (P1..P5) and
  * source, over all seeds (values are per-match means): budget tokens available (integral of the source's bucket refill rate), tokens
- * requested, stars minted, picked up by team (red/blue/yellow), despawned (gone from the ground without a pickup), and still on the
+ * requested, stars minted, picked up by team (every stage team), despawned (gone from the ground without a pickup), and still on the
  * ground at the end of the match. Additive diagnostic; reads only sim events, the budget stats and the sim's star drops.
  *
  * Sources: spot (flank/base timer pops), opening (a base lane's first-tick pops, outside the buckets), wave, mining, blocks, cache,
