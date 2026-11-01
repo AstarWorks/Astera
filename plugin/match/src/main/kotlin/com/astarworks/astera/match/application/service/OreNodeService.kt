@@ -8,6 +8,8 @@ import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IOreNodeStrikes
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
+import com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer
+import com.astarworks.astera.core.domain.effect.SoundCues
 import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
 import com.astarworks.astera.core.application.port.outbound.runLaterTicks
 import com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase
@@ -56,6 +58,8 @@ public class OreNodeService(
     private val onInvalid: (stageId: String, reason: String) -> Unit = { _, _ -> },
     /** Phase clock of phase-driven matches (Annihilation): a node whose `phase_gates` entry is later than the match's phase takes no damage. Null = no phase gate. */
     private val phases: () -> IMatchPhaseClock? = { null },
+    /** Plays the `astera:ore/mined` cue to the miner. Null = silent (no sound system). */
+    private val sounds: () -> ISoundCuePlayer? = { null },
     /** Carried across a Match rewire: which nodes are mined or regrowing, and each player's last hit. */
     private val lastHit: ConcurrentHashMap<PlayerId, Long> = ConcurrentHashMap(),
     private val nodes: ConcurrentHashMap<Key, Node> = ConcurrentHashMap(),
@@ -211,6 +215,7 @@ public class OreNodeService(
             val spec = items.find(ItemId(id)) ?: continue
             if (target != null && deliver != null) deliver.give(target, spec, count)
         }
+        announceMined(node, player, given)
         world?.setBlock(node.world, node.pos, node.spec.placeholder)
         scheduler.runLaterTicks(ExecutionScope.Global, node.spec.regrowSeconds * TICKS_PER_SECOND) {
             if (nodes[keyOf(node.world, node.pos)] === node) {
@@ -220,6 +225,17 @@ public class OreNodeService(
             }
         }
         return Outcome.Mined(given)
+    }
+
+    /**
+     * The miner must see the mining pay: debris particles at the block, a pickup cue and an action-bar line per drop
+     * (`astera.ore.mined.<item id>`). This only reports; the star for the break is granted separately by the caller through StarBudget.
+     */
+    private fun announceMined(node: Node, player: PlayerId, given: List<Pair<String, Int>>) {
+        world?.mined(node.world, node.pos, node.spec.material)
+        sounds()?.play(player, SoundCues.ORE_MINED, node.pos, node.world)
+        val target = server.findPlayer(player) ?: return
+        for ((id, count) in given) target.postActionBar(MessageKey("astera.ore.mined.$id"), mapOf("amount" to count.toString()))
     }
 
     /** A node cell (mined or regrowing) is never removed by an area skill: nodes are mined one at a time. */
