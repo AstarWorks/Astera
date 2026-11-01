@@ -14,6 +14,9 @@ import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import com.astarworks.astera.core.domain.nexus.NexusPillarTier
 import com.astarworks.astera.core.domain.nexus.NexusState
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.world.ToolTier
+import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationNavigation.OreSite
+import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationNavigation.PlayerState
 import com.astarworks.astera.match.application.gamemode.siege.ObjectiveKit
 import com.astarworks.astera.match.application.gamemode.siege.SiegeEnv
 import com.astarworks.astera.match.application.port.outbound.IMatchPhaseClock
@@ -29,7 +32,8 @@ import com.astarworks.astera.match.application.service.OreNodeService
  *
  * ADR-0319 phase flow: every phase change shows a title + sound to all participants, the objective boss bar carries the phase
  * name and the time to the next phase, and each player gets one "what to do next" line (objective action bar, compass target
- * alike): defend an attacked own pillar, mine ore while the Norma level is low, else attack the weakest enemy pillar.
+ * alike): defend an attacked own pillar, point at a Mid tier that just opened, attack the weakest enemy pillar, else mine the nearest
+ * ore node the player can mine right now ([AnnihilationNavigation] holds the rules).
  */
 public class AnnihilationClarity(
     private val env: SiegeEnv,
@@ -37,12 +41,14 @@ public class AnnihilationClarity(
     private val phases: IMatchPhaseClock,
     /** The Norma level of a player (null = unknown, treated as 1). */
     private val levelOf: (PlayerId) -> Int?,
-    /** The ore ladder of the match's stage: which Norma level unlocks which ore (one entry per ore node group). */
-    private val oreLadder: (Match) -> List<OreStep>,
+    /** Every ore node of the match's stage in world coordinates, with its level / tool tier / phase gate. */
+    private val oreSites: (Match) -> List<OreSite>,
+    /**
+     * The best field-tool tier a player carries right now; null = unknown (no tool seen), then the Norma level alone decides,
+     * because the loaned tools follow it.
+     */
+    private val toolTierOf: (PlayerId) -> ToolTier?,
 ) {
-
-    /** [itemId] (its drop) becomes minable at Norma [level]. */
-    public data class OreStep(val level: Int, val itemId: String)
 
     /** One player's "what next": the hint [key] and its [params], and where the compass should point (null = text only). */
     private data class Goal(val key: MessageKey, val params: Map<String, String>, val target: Vec3?)
@@ -50,6 +56,7 @@ public class AnnihilationClarity(
     private class Watch {
         var phase: NexusPhase? = null
         var ticks: Int = 0
+        var phaseSince: Long = 0L
         val hp: MutableMap<NexusId, Int> = mutableMapOf()
         val attacked: MutableMap<TeamId, Pair<Long, Vec3>> = mutableMapOf()
         val labelled: MutableSet<NexusId> = mutableSetOf()
@@ -85,6 +92,7 @@ public class AnnihilationClarity(
             if (snapshot != null) {
                 if (watch.phase != snapshot.phase) {
                     watch.phase = snapshot.phase
+                    watch.phaseSince = now
                     announce(match, snapshot.phase)
                 }
                 showBar(match, snapshot.phase, snapshot.remainingTicks, snapshot.phaseTicks)
@@ -177,15 +185,20 @@ public class AnnihilationClarity(
     }
 
     private fun guide(match: Match, watch: Watch, views: List<AnnihilationMatchTracker.PillarView>, now: Long, phase: NexusPhase) {
-        val ladder = oreLadder(match)
+        val sites = oreSites(match)
         val textTurn = watch.ticks % TEXT_EVERY_TICKS == 0
         for (team in match.teams) {
             val hit = watch.attacked[team.id]?.takeIf { now - it.first <= ATTACK_WINDOW_TICKS }
             val weakest = weakestEnemy(team.id, views)
-            val home = views.filter { it.nexus.owningTeam == team.id && it.nexus.state != NexusState.DESTROYED && it.site != null }
-                .minByOrNull { it.nexus.tier.ordinalValue }?.site?.centre
             for (member in team.members) {
-                val goal = goalOf(member, phase, hit?.second, weakest, home, ladder)
+                val state = PlayerState(
+                    level = levelOf(member) ?: 1,
+                    toolTier = toolTierOf(member) ?: ToolTier.NETHERITE,
+                    ownPillarHit = hit != null,
+                    enemyAttackable = weakest != null,
+                )
+                val objective = AnnihilationNavigation.objectiveOf(sites, state, phase, now - watch.phaseSince, env.poses()?.poseOf(member)?.position ?: kit.positionOf(member))
+                val goal = goalOf(member, objective, hit?.second, weakest, phase)
                 if (goal == null) {
                     kit.playerDown(member)
                     continue
@@ -203,39 +216,44 @@ public class AnnihilationClarity(
         }
     }
 
-    /** Defend first, then mine while the Norma level is low, then attack the weakest enemy pillar. */
+    /** Renders the pure [objective] into the hint line and the compass target (every line with a target carries `{dist}`). */
     private fun goalOf(
         player: PlayerId,
-        phase: NexusPhase,
+        objective: AnnihilationNavigation.Objective,
         hit: Vec3?,
         weakest: AnnihilationMatchTracker.PillarView?,
-        home: Vec3?,
-        ladder: List<OreStep>,
-    ): Goal? {
-        if (hit != null) return Goal(HINT_DEFEND, emptyMap(), hit)
-        val level = levelOf(player) ?: 1
-        val next = ladder.filter { it.level > level }.minByOrNull { it.level }
-        if (phase == NexusPhase.Phase1Build || (level < LOW_LEVEL && next != null)) {
-            if (next == null) return Goal(HINT_MINE_MAX, emptyMap(), home)
-            val ore = env.messages.render(player, MessageKey("astera.annihilation.ore.name.${next.itemId}"))
-            return Goal(HINT_MINE, mapOf("ore" to ore, "lv" to next.level.toString()), home)
+        phase: NexusPhase,
+    ): Goal? = when (objective) {
+        AnnihilationNavigation.Objective.Defend -> Goal(HINT_DEFEND, emptyMap(), hit)
+        is AnnihilationNavigation.Objective.MidOpened -> {
+            val kinds = objective.kinds.joinToString(" / ") { oreName(player, it) }
+            Goal(HINT_MID_OPENED, mapOf("kind" to kinds), objective.target)
         }
-        val enemy = weakest ?: return null
-        val key = when (phase) {
-            NexusPhase.Phase3Center -> HINT_ATTACK_CENTER
-            NexusPhase.Phase5SuddenDeath -> HINT_SUDDEN
-            else -> HINT_ATTACK
+        AnnihilationNavigation.Objective.Attack -> weakest?.let { enemy ->
+            val key = when (phase) {
+                NexusPhase.Phase3Center -> HINT_ATTACK_CENTER
+                NexusPhase.Phase5SuddenDeath -> HINT_SUDDEN
+                else -> HINT_ATTACK
+            }
+            val params = mapOf(
+                "team" to env.messages.render(player, MessageKey("astera.match.team.${enemy.nexus.owningTeam.value}")),
+                "tier" to enemy.nexus.tier.ordinalValue.toString(),
+            )
+            Goal(key, params, enemy.site?.centre)
         }
-        val params = mapOf(
-            "team" to env.messages.render(player, MessageKey("astera.match.team.${enemy.nexus.owningTeam.value}")),
-            "tier" to enemy.nexus.tier.ordinalValue.toString(),
-        )
-        return Goal(key, params, enemy.site?.centre)
+        is AnnihilationNavigation.Objective.Mine -> {
+            val area = env.messages.render(player, MessageKey(if (objective.site.isMid) "astera.annihilation.area.mid" else "astera.annihilation.area.base"))
+            Goal(HINT_MINE, mapOf("ore" to oreName(player, objective.site.itemId), "area" to area), objective.site.pos)
+        }
+        AnnihilationNavigation.Objective.None -> null
     }
+
+    private fun oreName(player: PlayerId, itemId: String): String =
+        env.messages.render(player, MessageKey("astera.annihilation.ore.name.$itemId"))
 
     /** `{arrow}` / `{dist}` for the plain-text line shown while the compass is not in hand (no arrow, distance when known). */
     private fun textOnly(player: PlayerId, target: Vec3?): Map<String, String> {
-        val from = kit.positionOf(player)
+        val from = env.poses()?.poseOf(player)?.position ?: kit.positionOf(player)
         val dist = if (from != null && target != null) ObjectiveKit.flatDistance(from, target).toInt().toString() else "?"
         return mapOf("arrow" to "", "dist" to dist)
     }
@@ -249,14 +267,13 @@ public class AnnihilationClarity(
         const val MODE = "annihilation"
         const val LABEL_LIFT = 2.2
         const val ATTACK_WINDOW_TICKS = 200L
-        const val LOW_LEVEL = 2
         const val TEXT_EVERY_TICKS = 3
         const val TEXT_TTL_TICKS = 70
         val HINT_ATTACK = MessageKey("astera.objective.hint.annihilation.attack")
         val HINT_ATTACK_CENTER = MessageKey("astera.objective.hint.annihilation.attack-center")
         val HINT_SUDDEN = MessageKey("astera.objective.hint.annihilation.sudden")
         val HINT_MINE = MessageKey("astera.objective.hint.annihilation.mine")
-        val HINT_MINE_MAX = MessageKey("astera.objective.hint.annihilation.mine-max")
+        val HINT_MID_OPENED = MessageKey("astera.objective.hint.annihilation.mid-opened")
         val HINT_DEFEND = MessageKey("astera.objective.hint.annihilation.defend")
     }
 }

@@ -233,7 +233,7 @@ class AnnihilationPhaseFlowScenarioTest {
             advance(120)
             val mine = actionBarTexts(red).filter { it.startsWith("astera.objective.hint.annihilation.mine{") }
             assertThat(mine).`as`("a level-1 player in phase 1 is told to mine").isNotEmpty()
-            assertThat(mine.last()).contains("ore=").contains("lv=")
+            assertThat(mine.last()).contains("ore=").contains("area=")
 
             // Phase 2: an own pillar takes a hit -> the line turns to "defend".
             assertThat(advanceUntil(600) { clock.current(matchId)?.phase == NexusPhase.Phase2Engage }).isTrue()

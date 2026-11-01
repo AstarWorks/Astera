@@ -111,6 +111,9 @@ for gf in "$root"/generators/*.yaml; do
   if grep -Eq '^wave:' "$gf"; then
     patch "generators/$g.yaml" 's/^  wave_period_seconds:.*/  wave_period_seconds: 10.0/' '^  wave_period_seconds:'
     patch "generators/$g.yaml" 's/^  wave_warn_seconds:.*/  wave_warn_seconds: 2.0/' '^  wave_warn_seconds:'
+  elif grep -Eq '^cache:' "$gf"; then
+    # Exploration caches (a `cache:` block, no period): 90s -> 5s respawn, so a spot refills within the suite.
+    patch "generators/$g.yaml" 's/^  respawn_seconds:.*/  respawn_seconds: 5.0/' '^  respawn_seconds:'
   else
     patch "generators/$g.yaml" 's/^period_seconds:.*/period_seconds: 3.0/' '^period_seconds:'
   fi

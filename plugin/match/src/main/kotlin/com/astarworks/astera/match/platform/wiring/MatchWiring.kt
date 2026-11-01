@@ -597,11 +597,29 @@ public object MatchWiring {
                     annihilationTracker,
                     com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationPhaseClock(annihilationTracker) { scheduler.currentTick() },
                     levelOf = { id -> services.get<com.astarworks.astera.match.application.service.NormaLevelService>()?.levelOf(id) },
-                    oreLadder = { match ->
-                        val source = stages.find(match.stageId)?.templateId?.value ?: match.stageId.value
-                        services.get<com.astarworks.astera.match.application.port.outbound.IOreNodeRegistry>()?.find(source)?.nodes
-                            ?.map { com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationClarity.OreStep(it.minNormaLevel, it.drops.first().itemId) }
-                            .orEmpty()
+                    oreSites = { match ->
+                        val stage = stages.find(match.stageId)
+                        val source = stage?.templateId?.value ?: match.stageId.value
+                        val origin = stage?.origin ?: com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 0.0)
+                        val config = services.get<com.astarworks.astera.match.application.port.outbound.IOreNodeRegistry>()?.find(source)
+                        config?.nodes.orEmpty().flatMap { group ->
+                            val tier = runCatching { com.astarworks.astera.core.domain.world.ToolTier.valueOf(group.requiredTier.trim().uppercase()) }
+                                .getOrDefault(com.astarworks.astera.core.domain.world.ToolTier.NONE)
+                            val phase = config?.phaseGates?.get(group.block) ?: 1
+                            val item = group.drops.first().itemId
+                            group.positions.map {
+                                com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationNavigation.OreSite(
+                                    com.astarworks.astera.core.domain.geometry.Vec3(origin.x + it.x + 0.5, it.y, origin.z + it.z + 0.5),
+                                    item, group.minNormaLevel, tier, phase,
+                                )
+                            }
+                        }
+                    },
+                    toolTierOf = { id ->
+                        val items = services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>()
+                        val carried = services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemQuery>()?.itemIds(id).orEmpty()
+                        carried.mapNotNull { item -> items?.let { com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase.toolOf(it, item) }?.tier }
+                            .maxOrNull()
                     },
                 ),
             ),
