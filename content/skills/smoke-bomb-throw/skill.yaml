@@ -1,5 +1,9 @@
-# Smoke bomb: a lobbed body bounces and rolls, then fills its spot with smoke at a fixed fuse tick after the throw
-# (fuse_ticks = the projectile `for`, fixed at load); allies near it turn evasive.
+# Smoke bomb, in the frame grammar (ADR-0314 / ADR-0315): a lobbed body bounces and rolls, then fills its spot with smoke at a fixed fuse tick after
+# the throw (fuse_ticks = the projectile `for`, fixed at load); allies near it turn evasive. Gameplay (speed 1.2, fuse 50, 4 blocks, evasive 80) is
+# unchanged; the fragment `cloud` keeps only the evasive status (a gameplay row, around the burst point).
+# Frames: `eye` is the caster's eye / aim basis (v = aim, s = right, w = s x v); the bomb leaves at v 0.5 (the old muzzle) and the throw puff is at
+# v 1.7, w -0.25. There is no `hand` frame / rig: the item has no point table in content/frames (rig needs one), so the arm stays on the vanilla pose. `body` rides the bomb (v forward, w up): the gunpowder shell and its smoke tail (the line
+# `tail`, 0.4 behind, 2 samples) are points of it; the cloud (hiss, large and small smoke) is drawn on `body` at the body end.
 apiVersion: astera/v3
 kind: Skill
 id: smoke-bomb-throw
@@ -15,20 +19,27 @@ params:
   fuse_ticks:    {type: ticks, default: 50}
   radius:        {type: blocks, default: 4.0}
   evasive_ticks: {type: ticks, default: 80}
-anchors:
-  - {id: muzzle,    anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: flash,     anchor: caster.eye, offset: {up: -0.25, forward: 1.7}, mode: follow}
+frames:
+  - id: eye
+    origin: caster.eye
+    v: aim
+    w: s x v
+    s: right
+  - id: body
+    origin: bolt
+    v: forward
+    w: up
+    s: v x w
+lines:
+  tail: {frame: body, from: {v: -0.4}, to: {v: 0}}
 fragments:
   cloud:
     params:
       radius:  {type: blocks, required: true}
       evasive: {type: ticks, required: true}
-    frames_in: {spot: anchor, puff: anchor}
+    frames_in: {spot: anchor}
     do:
       - {id: evasive, op: status, target: {kind: allies, around: spot, radius: "${radius}", include_self: true}, status: evasive, stacks: 1, for: "${evasive}"}
-      - {id: snd, op: sound, sound: entity.generic.extinguish_fire, anchor: spot, volume: 0.8, pitch: 0.7, detach: true}
-      - {id: big, op: particle, particle: large_smoke, anchor: puff, count: 0, extra: 0.01, detach: true}
-      - {id: small, op: particle, particle: smoke, anchor: puff, count: 0, extra: 0.01, detach: true}
 machine:
   start: fly
   tail: 2
@@ -37,10 +48,12 @@ machine:
       for: "= fuse_ticks"
       then: end
       do:
-        - {id: fire_fx, use: gun-muzzle, with: {snd: "entity.generic.extinguish_fire", vol: 0.9, pitch: 1.0, flash: false}, frames: {muzzle: flash}}
+        - {id: snd, op: sound, at: 0, sound: "entity.generic.extinguish_fire", frame: eye, volume: 0.9, pitch: 1.0}
+        - {id: puff, op: particle_def, at: 0, def: gun-muzzle-smoke, frame: eye, pos: {v: 1.7, w: -0.25}}
         - id: bolt
           op: projectile
-          origin: muzzle
+          frame: eye
+          pos: {v: 0.5}
           velocity: "= look(caster) * ${launch_speed}"
           for: "${fuse_ticks}"
           gravity: 0.04
@@ -48,7 +61,11 @@ machine:
           hit: {targets: enemies, once: true, attach: false, reflect: true}
           block: {mode: bounce, restitution: 0.4, friction: 0.2, times: 3}
           on:
-            end: [{op: use, use: "fragment:cloud", with: {radius: "${radius}", evasive: "${evasive_ticks}"}, frames: {spot: bolt, puff: bolt}}]
-        - {id: shell, op: display, kind: item, item: "minecraft:gunpowder", context: fixed, anchor: bolt, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
-        - {id: trail, op: particle, particle: smoke, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04], at: 2, every: 1, until: bolt.end}
+            end:
+              - {op: use, use: "fragment:cloud", with: {radius: "${radius}", evasive: "${evasive_ticks}"}, frames: {spot: bolt}}
+              - {id: hiss, op: sound, sound: entity.generic.extinguish_fire, frame: body, volume: 0.8, pitch: 0.7, detach: true}
+              - {id: big, op: particle, particle: large_smoke, frame: body, count: 0, extra: 0.01, detach: true}
+              - {id: small, op: particle, particle: smoke, frame: body, count: 0, extra: 0.01, detach: true}
+        - {id: shell, op: display, kind: item, item: "minecraft:gunpowder", context: fixed, frame: body, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
+        - {id: trail, op: particle, particle: smoke, along: tail, samples: 2, count: 1, offset: [0.04, 0.04, 0.04], at: 2, every: 1, until: bolt.end}
     end: {final: true}

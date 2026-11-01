@@ -1,4 +1,12 @@
-# shield-bash: wind-up 4 ticks (rule round(5 / attack_speed)), hit at tick 4. Rig: the shield model astera:shield-bulwark (content/models/items/shield-bulwark.model.json, frame table content/frames/shield-bulwark.yaml; the held item stays the vanilla SHIELD so blocking keeps working). The shield is drawn back over 3 ticks (top toward the caster), shoved forward so it reaches the target zone at the hit (tick 4), then eased back; long = up, edge = -X, outer face forward.
+# shield-bash: shield bash: the shield drawn back, shoved forward at the hit (wind-up 4 ticks, hit at tick 4).
+# Frames (ADR-0314, ADR-0315), the gameplay (hit tick, shape, damage, knockback, cooldown, cast length) is unchanged:
+#   arm    - the right arm, rotate keys only. Origin = the right shoulder (`caster.shoulder_r`); the arm is one rigid 0.60 bone, so the hand travels on a sphere about it and a turn of this frame is that travel
+#            (about w left/right, about s up/down). Hand path: guard low in front -> tucked in and down over three ticks -> driven straight ahead at the hit (tick 4) -> back to guard.
+#   shield - the shield-bulwark (the held item stays the vanilla SHIELD so blocking keeps working). Origin = the hand, 0.60 along the arm frame. This frame is turned to the shield model: v UP (the long axis
+#            of the model), w RIGHT (its edge), s = v x w = FORWARD (the outer face). The turn about w tips the top toward the caster while drawing back and ahead on the shove.
+#            The engine pins the right hand to the origin; the origin sits exactly on the 0.60 reach sphere of the shoulder by construction.
+#   body   - the caster's feet, v forward / w up / s right: sounds and the cast fx.
+#   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
 apiVersion: astera/v3
 kind: Skill
 id: shield-bash
@@ -15,10 +23,42 @@ params:
   dmg_physical: {type: number, default: 18}
   knockback:    {type: number, default: 1.3}
   tremor_ticks: {type: ticks, default: 40}
-anchors:
-  - {id: eye,   anchor: caster.eye, mode: follow}
-  - {id: front, anchor: caster, offset: {forward: 1.3}, mode: follow}
-  - {id: heart, anchor: victim.center, mode: follow}
+frames:
+  - id: arm
+    origin: caster.shoulder_r
+    v: forward
+    w: up
+    s: v x w
+    rotate:
+      - {at: 0, for: 0, about: w, to: -12}   # guard: the shield held low in front
+      - {at: 0, for: 3, about: w, to: 14, ease: out_quad}   # draw back: the arm tucks in and down
+      - {at: 3, for: 1, about: w, to: 0, ease: out_cubic}   # the shove: the arm drives straight ahead
+      - {at: 5, for: 5, about: w, to: -12, ease: in_out_sine}   # back to guard
+      - {at: 0, for: 0, about: s, to: -43}
+      - {at: 0, for: 3, about: s, to: -57, ease: out_quad}
+      - {at: 3, for: 1, about: s, to: -24, ease: out_cubic}
+      - {at: 5, for: 5, about: s, to: -43, ease: in_out_sine}
+  - id: shield
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: up
+    w: right
+    s: v x w
+    rotate:
+      - {at: 0, for: 3, about: w, to: 20, ease: out_quad}                       # top toward the caster while drawing back
+      - {at: 3, for: 2, about: w, to: -8, ease: out_cubic}                      # top leans ahead on the shove
+      - {at: 5, for: 5, reset: true, ease: in_out_sine}
+  - id: body
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+  - id: wound
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
 machine:
   start: windup
   tail: 10
@@ -27,18 +67,9 @@ machine:
       for: 4
       then: strike
       do:
-        - {id: snd_windup, op: sound, sound: item.armor.equip_iron, anchor: caster, volume: 0.6, pitch: 0.7}
-        - {id: charge, op: particle, particle: crit, anchor: front, count: 2, extra: 0.1, every: 2, for: 4}
-        - id: rig
-          op: rig
-          parent: caster
-          mount: caster.hand_r
-          detach: true
-          for: 10
-          swing:
-            - {at: 0, for: 3, from: {left: 0.000, up: 0.960, forward: 0.280}, to: {left: 0.000, up: 0.930, forward: -0.370}, edge: leading, roll: 0, ease: out_quad}
-            - {at: 3, for: 2, to: {left: 0.000, up: 0.900, forward: 0.440}, edge: trailing, roll: 0, ease: out_cubic}
-            - {at: 5, for: 5, to: {left: 0.000, up: 0.970, forward: 0.220}, edge: leading, roll: 0, ease: out_cubic}
+        - {id: snd_windup, op: sound, sound: item.armor.equip_iron, frame: body, volume: 0.6, pitch: 0.7}
+        - {id: charge, op: particle, particle: crit, frame: body, pos: {v: 1.3}, count: 2, extra: 0.1, every: 2, for: 4}
+        - {id: rig, op: rig, frame: shield, for: 10, detach: true}
     strike:
       for: 1
       then: end
@@ -46,7 +77,7 @@ machine:
         - id: swing
           op: hit
           at: 0
-          anchor: eye
+          frame: shield
           shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
           targets: enemies
           window: once
@@ -57,8 +88,8 @@ machine:
               - {id: react, op: react, target: event.victim, flinch: true, for: 6}
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: "${knockback}"}
               - {id: st_tremor, op: status, target: event.victim, status: tremor, stacks: 1, for: "${tremor_ticks}"}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2, detach: true}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
-        - {id: snd, op: sound, sound: item.shield.block, anchor: caster, volume: 1.0, pitch: 0.9, detach: true}
-        - {id: fx, op: particle_def, def: hit-spark, anchor: front, detach: true}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: wound, volume: 0.7, pitch: 1.2, detach: true}
+              - {id: fx_hit, op: particle_def, def: hit-spark, frame: wound, pos: {w: 0.2}, detach: true}
+        - {id: snd, op: sound, sound: item.shield.block, frame: body, volume: 1.0, pitch: 0.9, detach: true}
+        - {id: fx, op: particle_def, def: hit-spark, frame: body, pos: {v: 1.3}, detach: true}
     end: {final: true}
