@@ -614,6 +614,11 @@ create_stack() {
   phase "copying jars, content and pack into the containers"
   for jar in "${JARS[@]}"; do docker cp "$jar" "$SERVER_CT:/plugins/$(basename "$jar")" || die "docker cp jar failed"; done
   docker cp "$STATE/content-stage/." "$SERVER_CT:/content" || die "docker cp content failed"
+  # The stock image bypasses docker/server-type-start.sh. Match its void preset
+  # before the first level is created; preserve uid 1000 so Paper can lock world/.
+  mkdir -p "$STATE/void-seed/world/datapacks/astera-void"
+  cp -R "$ROOT/docker/void-world/." "$STATE/void-seed/world/datapacks/astera-void/"
+  docker cp -a "$STATE/void-seed/." "$SERVER_CT:/data/" || die "docker cp void preset failed"
   push_pack
   phase "starting the server"
   compose up -d --no-build --wait e2e e2e-resource-pack e2e-redis > "$STATE/compose-up.log" 2>&1 \
