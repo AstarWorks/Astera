@@ -86,7 +86,7 @@ def terrace(w, x, z, radius, top=64, town=False):
             if edge < 0 or (town and max(abs(u), abs(v)) > 39 and gorge_distance(*w.xz(x + u, z + v)) < 5):
                 continue
             w.box(x + u, x + u, top + 1, top + 3, z + v, z + v, None)
-            bottom = top - 3 - int(min(34, edge * .95 + 2 * math.sin((u + v) / 11)))
+            bottom = max(27, top - 18 - int(min(12, edge * .65) + 3 * math.sin(u / 7) * math.cos(v / 9)))
             for y in range(bottom, top + 1):
                 state = 'deepslate' if y < 39 else 'stone'
                 if y in (43, 44, 56):
@@ -609,14 +609,40 @@ def gorge_exits(w):
                 w.box(side * x, side * x, 57, 64, z, z, f'ladder[facing={facing}]')
 
 
+def tree(w, x, h, z, species, size):
+    """Three scales, branched broadleaf crowns, conical spruce and multi-stem veteran oaks."""
+    trunks = ((0, 0), (1, 0), (0, 1), (1, 1)) if size == 10 and species in ('oak', 'dark_oak') else ((0, 0),)
+    for dx, dz in trunks:
+        w.box(x + dx, x + dx, h + 1, h + size, z + dz, z + dz, f'{species}_log[axis=y]')
+    if species == 'spruce':
+        crowns = [(0, 0, size - 1)]
+    else:
+        crowns = [(0, 0, size), (-2, 1, size - 2), (2, -1, size - 1)] if size >= 7 else [(0, 0, size)]
+        for dx, dz, dy in crowns[1:]:
+            for i in range(1, 3):
+                w.set(x + round(dx * i / 2), h + dy - 1, z + round(dz * i / 2), f'{species}_log[axis=y]')
+    for cx, cz, cy in crowns:
+        for dy in range(-3, 3):
+            radius = max(1, (size - (cy + dy)) // 2 + 1) if species == 'spruce' else (3 if size == 10 else 2)
+            for dx in range(-radius, radius + 1):
+                for dz in range(-radius, radius + 1):
+                    if species != 'spruce' and (dx / (radius + .3)) ** 2 + (dz / (radius + .3)) ** 2 + (dy / 3) ** 2 > 1.4:
+                        continue
+                    p = x + cx + dx, h + cy + dy, z + cz + dz
+                    if p not in w.blocks:
+                        w.set(*p, f'{species}_leaves[persistent=true]')
+
+
 def continent(w):
     lanes = [(point(t, 0, 39), end) for t, end in
              [('red', (0, -40)), ('blue', (35, 20)), ('yellow', (-35, 20))]]
     ridges = ridge_routes()
     heights = {}
-    for x in range(-146, 147):
+    for x in range(-149, 150):
         for z in range(-158, 140):
-            edge = (1 - math.hypot(x / 146, (z + 9) / 149)) * 146
+            # Add coherent rocky headlands without removing any of the existing land.
+            edge = ((1 - math.hypot(x / 146, (z + 9) / 149)) * 146
+                    + max(0, 2 * math.sin(x / 8) + math.cos(z / 11)))
             if edge < 0:
                 continue
             road = min(lane_distance(x, z, a, b) for a, b in lanes)
@@ -625,49 +651,92 @@ def continent(w):
             hill = max(0, *(6 - max(abs(x - hx), abs(z - hz)) // 2
                             for hx, hz in ((-49, -89), (49, -89), (-79, 0), (79, 0), (-39, 88), (39, 88))))
             hill = max(hill, max(0, 3 - int(abs(math.hypot(x, z) - 51) / 2)))
-            h = 64 + min(hill, max(0, int(road - 11)), max(0, int(ridge - 6)))
+            # Continuous low-frequency relief, with a one-block-per-cell envelope
+            # around protected streets and outpost courts. No coordinate moves.
+            relief = int(4 + 2.4 * math.sin(x / 18 + math.sin(z / 31)) + 2 * math.cos(z / 21 - x / 39))
+            town_clearance = min(max(abs(x - tx), abs(z - tz)) - 45 for tx, tz, _ in TEAMS.values())
+            outpost_clearance = min(math.hypot(x - ox, z - oz) - 18 for ox, oz in OUTPOSTS.values())
+            h = 64 + max(0, min(max(hill, relief), int(road - 7), int(ridge - 5),
+                                int(town_clearance), int(outpost_clearance)))
+            # Quarry carving owns y<=67: preserve its original rim relief, so
+            # the outer-hill pass cannot leave floating turf above the excavated pit.
+            if math.hypot(x, z) <= 55:
+                h = 64 + min(hill, max(0, int(road - 11)), max(0, int(ridge - 6)))
             d = gorge_distance(x, z)
             if d < 5:
                 h = 55 if d < 3 else 56 + int((d - 3) * 4)
-            outer = math.hypot(x, z) - gorge_centre(math.atan2(z, x))
-            if 3 <= outer < 12 and d >= 3:
-                h = 56 + min(8, int(outer - 3))
+            if 3 <= d < 11 and math.hypot(x, z) > 54:
+                h = 56 + int(d - 3)
             heights[x, z] = h
-            bottom = min(h - 3, max(27, 61 - int(min(34, edge * .7))))
+            depth = 20 + int(3 * math.sin(x / 7 + math.sin(z / 13)) + 2 * math.cos(z / 9))
+            bottom = max(27, h - depth - int(min(12, edge * .65)))
             for y in range(bottom, h + 1):
                 material = 'deepslate' if y < 40 else 'tuff' if y in (43, 44, 56) else 'stone'
+                if edge < 6 and h - 13 < y < h - 2 and math.sin(x / 5 + y / 7) + math.cos(z / 6) > 1:
+                    material = 'gravel'
                 if y >= h - 2:
                     material = 'dirt'
                 if y == h:
-                    material = 'gravel' if d < 5 else 'coarse_dirt' if road < 3 or ridge < 3 else 'grass_block'
+                    material = 'gravel' if d < 5 else 'grass_block'
+                    if edge < 4:
+                        patch = math.sin(x / 4) + math.cos(z / 5)
+                        material = 'stone' if patch > 1 else 'coarse_dirt' if patch > -.4 else 'grass_block'
+                    if road < 5 or ridge < 5:
+                        material = 'coarse_dirt' if road < 3 or ridge < 3 else 'gravel'
                 w.set(x, y, z, material)
             if d < 3:
                 w.set(x, 56, z, 'water')
-    # Forest on both flanks of each 23-wide valley; clear roads stay wide enough to fight in.
+    # Rejection sampling against a smooth grove field avoids rows and preserves clearings.
     rng = random.Random(SEED)
-    for x in range(-132, 133, 9):
-        for z in range(-141, 133, 9):
-            x1, z1 = x + rng.randint(-3, 3), z + rng.randint(-3, 3)
-            if rng.random() < .18:
-                continue
-            h = heights.get((x1, z1))
-            if h is None or gorge_distance(x1, z1) < 10 or math.hypot(x1, z1) < 47:
-                continue
-            if any(max(abs(x1 - tx), abs(z1 - tz)) < 48 for tx, tz, _ in TEAMS.values()):
-                continue
-            if any(math.hypot(x1 - ox, z1 - oz) < 20 for ox, oz in OUTPOSTS.values()):
-                continue
-            if min(lane_distance(x1, z1, a, b) for a, b in lanes) < 13 or min(lane_distance(x1, z1, a, b) for a, b in ridges) < 7:
-                continue
-            species = ('oak', 'spruce', 'birch')[(x // 9 + z // 9) % 3]
-            tall = 5 + (x * z % 3)
-            w.box(x1, x1, h + 1, h + tall, z1, z1, f'{species}_log[axis=y]')
-            for dy in range(3, tall + 3):
-                r = max(1, (tall + 3 - dy) // 2) if species == 'spruce' else (1 if dy == tall + 2 else 2)
-                for dx in range(-r, r + 1):
-                    for dz in range(-r, r + 1):
-                        if abs(dx) + abs(dz) <= r + 1 and (dx or dz or dy > tall):
-                            w.set(x1 + dx, h + dy, z1 + dz, f'{species}_leaves[persistent=true]')
+    planted = []
+    for _ in range(2700):
+        x, z = rng.randint(-144, 144), rng.randint(-155, 136)
+        h = heights.get((x, z))
+        if h is None or math.hypot(x, z) < 55 or gorge_distance(x, z) < 12:
+            continue
+        if any(max(abs(x - tx), abs(z - tz)) < 49 for tx, tz, _ in TEAMS.values()):
+            continue
+        if any(math.hypot(x - ox, z - oz) < 22 for ox, oz in OUTPOSTS.values()):
+            continue
+        if min(lane_distance(x, z, a, b) for a, b in lanes) < 12 or min(lane_distance(x, z, a, b) for a, b in ridges) < 10:
+            continue
+        grove = math.sin(x / 13 + math.sin(z / 23)) + math.cos(z / 17 - x / 29)
+        if grove < -.35 or any(math.hypot(x - px, z - pz) < 7 for px, pz in planted):
+            continue
+        size = rng.choice((5, 7, 10))
+        species = rng.choice(('oak', 'birch', 'spruce', 'dark_oak'))
+        tree(w, x, h, z, species, size)
+        planted.append((x, z))
+    # Groundcover follows the same grove field, leaving broad battle clearings.
+    for (x, z), h in heights.items():
+        if h < 64 or math.hypot(x, z) < 55 or w.blocks.get((x, h, z)) != 'minecraft:grass_block':
+            continue
+        if any(max(abs(x - tx), abs(z - tz)) < 46 for tx, tz, _ in TEAMS.values()):
+            continue
+        if any(math.hypot(x - ox, z - oz) < 20 for ox, oz in OUTPOSTS.values()):
+            continue
+        if min(lane_distance(x, z, a, b) for a, b in lanes + ridges) < 6 or (x, h + 1, z) in w.blocks:
+            continue
+        chance = rng.random()
+        grove = math.sin(x / 13 + math.sin(z / 23)) + math.cos(z / 17 - x / 29)
+        if chance < .15:
+            w.set(x, h + 1, z, 'fern' if grove > 0 else 'short_grass')
+        elif chance < .17:
+            w.set(x, h + 1, z, rng.choice(('dandelion', 'poppy', 'azure_bluet', 'oxeye_daisy')))
+        elif chance < .173 and grove > 0:
+            for dx, dz in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)):
+                ground = heights.get((x + dx, z + dz), h)
+                if (x + dx, ground + 1, z + dz) not in w.blocks:
+                    w.set(x + dx, ground + 1, z + dz, 'oak_leaves[persistent=true]')
+        elif chance < .174 and grove > 0:
+            for dx in range(-2, 3):
+                ground = heights.get((x + dx, z), h)
+                w.set(x + dx, ground + 1, z, 'oak_log[axis=x]')
+        elif chance < .175:
+            for dx, dz in ((0, 0), (1, 0), (0, 1), (-1, 0)):
+                ground = heights.get((x + dx, z + dz), h)
+                w.set(x + dx, ground + 1, z + dz, 'mossy_cobblestone')
+            w.set(x, h + 2, z, 'andesite')
     # A recessed stair in the west outer bank gives a dry, bot-walkable
     # escape from the channel as well as the regular ladders. It crosses no water.
     angle = math.radians(180)
@@ -688,6 +757,43 @@ def continent(w):
                     w.box(x, x, 61, 63, z, z, 'stone')
                     w.set(x, 64, z, 'coarse_dirt')
                     w.box(x, x, 65, 67, z, z, None)
+    # Worn winding tracks inside the broad walkable corridors. Their edges blend
+    # into gravel and turf; the unobstructed corridor keeps the original route budget.
+    for a, b in lanes + ridges:
+        length = math.dist(a, b)
+        nx, nz = -(b[1] - a[1]) / length, (b[0] - a[0]) / length
+        for x in range(min(a[0], b[0]) - 7, max(a[0], b[0]) + 8):
+            for z in range(min(a[1], b[1]) - 7, max(a[1], b[1]) + 8):
+                t = ((x - a[0]) * (b[0] - a[0]) + (z - a[1]) * (b[1] - a[1])) / length ** 2
+                if not 0 <= t <= 1 or math.hypot(x, z) < 55:
+                    continue
+                across = (x - a[0]) * nx + (z - a[1]) * nz
+                d = abs(across - 2.2 * math.sin(t * math.pi * 2) * math.sin(t * math.pi))
+                h = heights.get((x, z))
+                if h is None or h != 64 or gorge_distance(x, z) < 6:
+                    continue
+                if (x, z) in ((-88, -25), (88, -25)):
+                    continue
+                if d < 2.3:
+                    w.set(x, h, z, 'dirt_path' if math.sin(x / 3) + math.cos(z / 4) > -.5 else 'coarse_dirt')
+                elif d < 4.5:
+                    patch = math.sin(x / 2 + z / 3)
+                    w.set(x, h, z, 'gravel' if patch > .3 else 'coarse_dirt' if patch > -.4 else 'grass_block')
+        for t, side in ((.28, -7), (.62, 7), (.83, -7)):
+            x, z = (round(a[i] + (b[i] - a[i]) * t + n * side) for i, n in enumerate((nx, nz)))
+            h = heights.get((x, z))
+            if h is None or h < 64 or gorge_distance(x, z) < 12:
+                continue
+            if any(max(abs(x - tx), abs(z - tz)) < 48 for tx, tz, _ in TEAMS.values()):
+                continue
+            if any(math.hypot(x - ox, z - oz) < 20 for ox, oz in OUTPOSTS.values()):
+                continue
+            w.box(x, x, h + 1, h + 3, z, z, 'spruce_fence')
+            w.set(x, h + 4, z, 'lantern')
+            w.set(x + 1, h + 2, z, 'spruce_wall_sign[facing=east]')
+            w.set(x - 2, h + 1, z, 'barrel[facing=up]')
+            for dx in range(-3, 1):
+                w.set(x + dx, h + 1, z + 2, 'mossy_cobblestone_wall')
     # Low walls, boulders and abandoned wagons on the wide approach shoulders.
     for a, b in lanes:
         distance = math.dist(a, b)
