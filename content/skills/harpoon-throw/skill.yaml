@@ -73,7 +73,7 @@ machine:
             block:
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", frame: blk, volume: 0.5, pitch: 1.5, detach: true}
               - {id: fx_blk, op: particle_def, def: hit-spark, frame: blk, pos: {v: -0.2}, detach: true}
-        - {id: shaft, op: display, kind: item, item: "minecraft:trident", context: fixed, anchor: bolt, scale: [1.2, 1.2, 1.2], at: 0, until: bolt.end}
+        - {id: shaft, op: display, kind: item, item: "minecraft:trident", context: fixed, frame: body, pos: {}, scale: [1.2, 1.2, 1.2], at: 0, until: bolt.end}
         - id: trail
           op: group
           at: 2

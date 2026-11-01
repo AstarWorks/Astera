@@ -72,7 +72,7 @@ machine:
             block:
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", frame: blk, volume: 0.5, pitch: 1.5, detach: true}
               - {id: fx_blk, op: particle_def, def: hit-spark, frame: blk, pos: {v: -0.2}, detach: true}
-        - {id: slug, op: display, kind: item, item: "minecraft:arrow", context: fixed, anchor: bolt, scale: [0.6, 0.6, 0.6], at: 0, until: bolt.end}
+        - {id: slug, op: display, kind: item, item: "minecraft:arrow", context: fixed, frame: body, pos: {}, scale: [0.6, 0.6, 0.6], at: 0, until: bolt.end}
         - {id: trail0, op: particle, particle: crit, along: trail, samples: 2, count: 1, offset: [0.03, 0.03, 0.03], at: 0, every: 1, until: bolt.end}
         - {id: trail1, op: particle, particle: dust, along: trail, samples: 2, count: 1, color: "#aa9678", size: 0.8, at: 0, every: 1, until: bolt.end}
     end: {final: true}
