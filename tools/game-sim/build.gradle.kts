@@ -67,10 +67,10 @@ tasks.register<Test>("regenSkillOracle") {
     systemProperty("astera.oracle.regen", "true")
 }
 
-// Mass bot-vs-bot play (ADR-0316): `./gradlew :tools:game-sim:massPlay -Pruns=20 [-Pseed=<base>] (run i uses base+i; default base = epoch seconds, printed)` -> build/play/summary.md.
+// Mass bot-vs-bot play (ADR-0316): `./gradlew :tools:game-sim:massPlay -Pruns=20 [-Pseed=<base>] (run i uses base+i; default base = epoch seconds, printed)` -> build/play/summary-<firstSeed>-<lastSeed>.md.
 tasks.register<JavaExec>("massPlay") {
     group = "verification"
-    description = "Runs N headless matches and writes build/play/<run>/metrics.json + build/play/summary.md."
+    description = "Runs N headless matches and writes build/play/<run>/metrics.json + build/play/summary-<firstSeed>-<lastSeed>.md."
     classpath = sourceSets["main"].runtimeClasspath
     mainClass.set("com.astarworks.astera.gamesim.playable.metrics.MassPlayMainKt")
     workingDir = rootDir

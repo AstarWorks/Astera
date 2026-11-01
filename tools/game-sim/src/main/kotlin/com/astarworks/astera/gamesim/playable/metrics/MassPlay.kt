@@ -6,11 +6,14 @@ import java.nio.file.Path
 import kotlin.math.floor
 
 /**
- * Runs N headless matches (one per seed), writes `<outDir>/<run>/metrics.json` per match and `<outDir>/summary.md`
+ * Runs N headless matches (one per seed), writes `<outDir>/<run>/metrics.json` per match and `<outDir>/summary-<firstSeed>-<lastSeed>.md` (one file per batch, earlier batches survive)
  * (min / median / max and a short distribution per metric). Same content, only the seed differs (design 4.1).
  */
 object MassPlay {
     private val pretty = Json { prettyPrint = true }
+
+    /** Per-batch summary file named after the seed range, so a later batch never overwrites an earlier one. */
+    fun summaryFileName(seeds: List<Long>) = "summary-${seeds.first()}-${seeds.last()}.md"
 
     class Config(
         /** Hard cap of one match, ticks (20/s). A match still running then is reported as `running`. */
@@ -32,7 +35,7 @@ object MassPlay {
         require(dup.isEmpty()) { "massPlay: runs in one batch would replay identical matches, duplicate seeds ${dup.joinToString()} in ${seeds.joinToString()}" }
         Files.createDirectories(outDir)
         val results = seeds.map { seed -> playOne(seed, outDir, config, newMatch) }
-        Files.writeString(outDir.resolve("summary.md"), summary(results))
+        Files.writeString(outDir.resolve(summaryFileName(seeds)), summary(results))
         return results
     }
 
@@ -105,17 +108,19 @@ object MassPlay {
         appendLine()
         appendLine("Pillar damage per run and team (dealt = to enemy pillars by the attacker's team; taken includes unattributed; hp_left = standing pillar HP at the end):")
         appendLine()
-        appendLine("| run | seed | end_reason | team | pillar_damage_dealt | pillar_damage_taken | pillar_hp_left | unattributed (match) |")
-        appendLine("|---|---:|---|---|---:|---:|---:|---:|")
+        appendLine("| run | seed | end_reason | end_decided_by | team | pillar_damage_dealt | pillar_damage_taken | pillar_hp_left | unattributed (match) |")
+        appendLine("|---|---:|---|---|---|---:|---:|---:|---:|")
         for (r in results) {
             val teams = r.result.json["teams"] as? kotlinx.serialization.json.JsonObject ?: continue
             val endKind = (r.result.json["end_reason"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: "n/a"
+            val decidedBy = (r.result.json["end_decided_by"] as? kotlinx.serialization.json.JsonPrimitive)
+                ?.takeIf { it !is kotlinx.serialization.json.JsonNull }?.content ?: "-"
             val unattr = r.result.scalars["pillar_damage_unattributed"] ?: 0.0
             for ((team, v) in teams) {
                 val o = v as kotlinx.serialization.json.JsonObject
                 fun num(k: String) = (o[k] as? kotlinx.serialization.json.JsonPrimitive)?.content?.toDoubleOrNull() ?: 0.0
                 val left = ((o["pillar_hp_left"] as? kotlinx.serialization.json.JsonObject)?.get("sum") as? kotlinx.serialization.json.JsonPrimitive)?.content?.toDoubleOrNull() ?: 0.0
-                appendLine("| ${r.run} | ${r.seed} | $endKind | $team | ${fmt(num("pillar_damage_dealt"))} | ${fmt(num("pillar_damage_taken"))} | ${fmt(left)} | ${fmt(unattr)} |")
+                appendLine("| ${r.run} | ${r.seed} | $endKind | $decidedBy | $team | ${fmt(num("pillar_damage_dealt"))} | ${fmt(num("pillar_damage_taken"))} | ${fmt(left)} | ${fmt(unattr)} |")
             }
         }
         appendLine()

@@ -581,6 +581,7 @@ class MatchMetrics(
             put("durationSeconds", seconds)
             put("endReason", reason)
             put("end_reason", endReasonKind)
+            put("end_decided_by", (ended?.reason as? EndReason.PillarHpDecision)?.decidedBy?.name)
             put("pillar_damage_unattributed", pillarUnattributedTotal)
             put("teams", JsonObject(pillarTeams.associateWith { t ->
                 buildJsonObject {

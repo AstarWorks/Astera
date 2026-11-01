@@ -106,6 +106,7 @@ class PillarTeamMetricsScenarioTest {
 
             val json = metrics.finish().json
             assertThat(json["end_reason"]!!.jsonPrimitive.content).isEqualTo("hp_decision")
+            assertThat(json["end_decided_by"]!!.jsonPrimitive.content).isEqualTo("PILLAR_HP")
             val teams = json["teams"]!!.jsonObject
             val tol = within(1e-6)
             assertThat(teams["blue"]!!.jsonObject.num("pillar_damage_dealt")).isEqualTo(onRed + onYellow1 + onYellow2, tol)
@@ -145,6 +146,8 @@ class PillarTeamMetricsScenarioTest {
             }
             assertThat(json["end_reason"]!!.jsonPrimitive.content).isEqualTo(expected)
             assertThat(expected).isEqualTo("draw")
+            // A tie is still decided by the HP path, so the criterion is the one the real event carries (not null).
+            assertThat(json["end_decided_by"]!!.jsonPrimitive.content).isEqualTo((ended.reason as EndReason.PillarHpDecision).decidedBy.name)
 
             val teams = json["teams"]!!.jsonObject
             val unattributed = json.num("pillar_damage_unattributed")
