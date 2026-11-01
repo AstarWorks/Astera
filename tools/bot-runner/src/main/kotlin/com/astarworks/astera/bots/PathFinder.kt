@@ -20,7 +20,7 @@ import kotlin.math.min
  * Unknown chunks are never walkable.
  */
 class PathFinder(private val solidAt: (Int, Int, Int) -> Boolean?) {
-    constructor(terrain: Terrain) : this(terrain::isSolid)
+    constructor(terrain: TerrainView) : this(terrain::isSolid)
 
     data class Cell(val x: Int, val y: Int, val z: Int, val jump: Boolean)
 

@@ -15,7 +15,7 @@ import kotlinx.serialization.Serializable
  *   - { item_id: dagger, price: { ore-iron: 8 }, tab: weapons, stack: 1 }
  * ```
  *
- * `tab` is `weapons | tools | blocks | armor`; `price` maps ore item ids to counts (all must be paid); `stack` defaults to 1; `upgrade_from` (upgrades tab only) is the item the buyer hands in.
+ * `tab` is `weapons | blocks | armor | upgrades`; `price` maps ore item ids to counts (all must be paid); `stack` defaults to 1; `upgrade_from` (upgrades tab only) is the item the buyer hands in.
  */
 @Serializable
 public data class MatchShopYamlConfig(

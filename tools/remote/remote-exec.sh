@@ -154,6 +154,22 @@ base_args() {
     -v "$HB/locks/claude-1000:/tmp/claude-1000")
 }
 
+# free_runner_name <name>: removes a leftover runner container of that name and waits until the name is really free. Only called while this
+# process holds the slot's flock (acquire_slot); a live job holds that lock for its whole run, so a container found here belongs to a dead job
+# (a killed ssh/run.sh leaves the docker client's container running; a finished `--rm` container may still be mid-removal). A single
+# `docker rm -f` with its output discarded raced that removal ("removal of container ... is already in progress") and the next `docker run`
+# failed with rc=125 "name already in use" on the slot.
+free_runner_name() {
+  local name="$1" i out
+  for i in $(seq 1 30); do
+    docker inspect "$name" >/dev/null 2>&1 || return 0
+    out="$(docker rm -f "$name" 2>&1)" || log "leftover container $name: $(printf '%s' "$out" | head -c 200)"
+    sleep 1
+  done
+  docker inspect "$name" >/dev/null 2>&1 || return 0
+  die "leftover container $name could not be removed in 30 s"
+}
+
 cleanup() {
   trap '' INT TERM HUP
   [ -n "$TIMER" ] && { pkill -P "$TIMER" 2>/dev/null; kill "$TIMER" 2>/dev/null; }
@@ -198,10 +214,10 @@ cmd_run() {
   log "$SLOT_PFX $SLOT_N acquired after $((SECONDS - t0))s"
   printf 'caller=%s kind=%s cmd=%.120s start=%s\n' \
     "$(sed -n 's/^ASTERA_HEAVY_CALLER=//p' "$envfile" | head -1)" "$KIND" "$*" "$(date '+%F %T')" > "$HB/locks/$SLOT_PFX.$SLOT_N.owner"
-  docker rm -f "$NAME" >/dev/null 2>&1   # leftover of a dead run: this slot is ours now
+  free_runner_name "$NAME"   # leftover of a dead run: the slot lock is ours now, so no live job owns this name
 
   if [ "$KIND" = vfx ]; then mem_need="${HEAVY_MIN_FREE_GB:-4}"; mem_cap="${HEAVY_MEM:-4g}"
-  else mem_need="${HEAVY_MIN_FREE_GB:-3}"; mem_cap="${HEAVY_MEM:-4g}"; fi
+  else mem_need="${HEAVY_MIN_FREE_GB:-3}"; mem_cap="${HEAVY_MEM:-8g}"; fi
   cpus="${HEAVY_CPUS:-6}"; xmx="${HEAVY_GRADLE_XMX:-2560m}"
   memory_guard "$mem_need"
 

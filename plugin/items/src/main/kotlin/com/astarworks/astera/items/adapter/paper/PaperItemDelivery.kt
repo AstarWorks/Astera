@@ -3,6 +3,8 @@ package com.astarworks.astera.items.adapter.paper
 import com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.adapter.paper.lobby.MenuKitTag
+import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.item.ItemSpec
 import com.astarworks.astera.core.application.port.outbound.item.DeliveryResult
 import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
@@ -59,6 +61,19 @@ public class PaperItemDelivery(
             }
             DeliveryResult.InventoryFull(target.name)
         }
+    }
+
+    override fun replace(target: IMcPlayer, from: ItemId, spec: ItemSpec): DeliveryResult {
+        val bukkitPlayer = server.getPlayer(target.id.uuid)
+            ?: return DeliveryResult.InventoryFull(target.name)
+        val inv = bukkitPlayer.inventory
+        val contents = inv.contents
+        val index = contents.indices.firstOrNull { i ->
+            val stack = contents[i]
+            stack != null && !TrainingItemTag.isTraining(stack) && !MenuKitTag.isKit(stack) && idResolver.itemIdOf(stack) == from
+        } ?: return give(target, spec, 1, ItemOrigin.STANDARD)
+        inv.setItem(index, materializer.build(spec, target, 1))
+        return DeliveryResult.Delivered
     }
 
     /** Puts a single armour [stack] into the [spec]'s armour slot when that slot is empty. */

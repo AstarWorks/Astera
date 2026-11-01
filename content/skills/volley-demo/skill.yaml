@@ -1,5 +1,5 @@
 # volley-demo: ADR-0303 feature showcase S7 (foundation audit section 5), written from zero on the rev4.10 grammar.
-# A hidden demo (item skill-tester, no real item binds it); nothing here is balance. Randomness is visual only
+# Frame grammar (ADR-0314): the muzzle and the flourish point are positions on `hand`. A hidden demo (item skill-tester, no real item binds it); nothing here is balance. Randomness is visual only
 # (particle spread); every tick of the schedule is arithmetic (C5).
 apiVersion: astera/v3
 kind: Skill
@@ -16,10 +16,14 @@ params:
 let:
   petals: 6
   petal_step: "= 360 / petals"
-anchors:
-  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.6}, mode: follow}
-  # the flourish (sparks, petal ring) plays at arm's length, outside the 2-block caster-eye sphere (CasterEyeClutter), so it never fills the caster's own view
-  - {id: tip, anchor: caster.eye, offset: {forward: 2.4}, mode: follow}
+# `hand` is the caster's eye / aim basis (v = aim, s = right, w = s x v): the fireballs leave it 0.6 ahead, the flourish (sparks, petal ring) plays at arm's
+# length 2.4 ahead, outside the 2-block caster-eye sphere (CasterEyeClutter), so it never fills the caster's own view
+frames:
+  - id: hand
+    origin: caster.eye
+    v: aim
+    w: s x v
+    s: right
 
 # one skill-local fragment, called from the ball's on.hit (the handler's victim / contact are visible to the rows)
 fragments:
@@ -52,7 +56,7 @@ machine:
         - seq:
             - {id: charge_chime, op: sound, sound: block.amethyst_block.chime, anchor: caster, volume: 0.5, pitch: 1.0}
             - {wait: 1}
-            - {id: charge_spark, op: particle_def, def: hit-spark, anchor: tip}
+            - {id: charge_spark, op: particle_def, def: hit-spark, frame: hand, pos: {v: 2.4}}
 
         # the volley: occurrences at 1, 6, 11, 16 (n = 4), each occurrence lives 20 ticks
         - id: volley
@@ -63,7 +67,8 @@ machine:
           do:
             - id: ball
               op: projectile
-              origin: muzzle
+              frame: hand
+              pos: {v: 0.6}
               velocity: "= look(caster) * 1.0"
               speed: 1.0
               range: 12
@@ -100,7 +105,8 @@ machine:
             - id: whoosh
               op: sound
               sound: entity.blaze.shoot
-              anchor: muzzle
+              frame: hand
+              pos: {v: 0.6}
               volume: 0.8
               pitch: "= 1.0 + 0.1 * i"
               at: 0
@@ -113,7 +119,8 @@ machine:
                 - id: wisp
                   op: particle
                   particle: crit
-                  anchor: tip
+                  frame: hand
+                  pos: {v: 2.4}
                   count: "= 2 + parent.i + i"
                   offset: "= vec(0.15, 0.15 + 0.1 * i, 0.15)"
                   extra: "= 0.03 + 0.04 * rand('wisp')"       # visual spread only
@@ -161,7 +168,8 @@ machine:
         - id: petal
           op: particle
           particle: crit
-          anchor: tip
+          frame: hand
+          pos: {v: 2.4}
           times: 6
           at: 20
           count: 0

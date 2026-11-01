@@ -1,14 +1,17 @@
 ## pose yaw=0 pitch=0
-@0 spawn #0 op=fire/slug kind=item item=minecraft:arrow part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@0 sound - op=fire/fire_fx/snd sound=item.crossbow.shoot cat=master vol=0.6 pitch=1.3 at=0.000000,0.000000,0.000000
-@0 particle - op=fire/fire_fx/flash type=gun-muzzle-flash at=-0.350000,1.120000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8193269642083820620
-@0 particle - op=fire/trail0[0] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8075553933465036981
-@0 particle - op=fire/trail1[0] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4666636678511866346
+@0 spawn #0 op=fire/slug kind=item item=minecraft:arrow part=- pos=-0.351563,0.768016,0.642517 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=fire/snd sound=item.crossbow.shoot cat=master vol=0.6 pitch=1.3 at=-0.351563,0.768016,0.292517
+@0 particle - op=fire/trail0[0] type=crit count=1 at=-0.351563,0.768016,0.242517 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8075553933465036981
+@0 particle - op=fire/trail0[0] type=crit count=1 at=-0.351563,0.768016,0.642517 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5936005907810434337
+@0 particle - op=fire/trail1[0] type=dust count=1 at=-0.351563,0.768016,0.242517 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4666636678511866346
+@0 particle - op=fire/trail1[0] type=dust count=1 at=-0.351563,0.768016,0.642517 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5552667467208405756
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=crossbow-aim speed=1
-@0 frame fire/bolt op=fire/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
-@1 particle - op=fire/trail0[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8398803946107941904
-@1 particle - op=fire/trail1[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2704812326838115264
-@1 hit - op=fire/bolt at=0.000000,1.620000,2.000000 r=2.000000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.500000 rad=0.500000
+@0 frame fire/bolt op=fire/bolt pos=-0.351563,0.768016,0.642517 rot=0.000000,0.000000,0.000000,1.000000
+@1 particle - op=fire/trail0[1] type=crit count=1 at=-0.351563,0.768016,0.242517 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8398803946107941904
+@1 particle - op=fire/trail0[1] type=crit count=1 at=-0.351563,0.768016,0.642517 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8911164571309052737
+@1 particle - op=fire/trail1[1] type=dust count=1 at=-0.351563,0.768016,0.242517 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2704812326838115264
+@1 particle - op=fire/trail1[1] type=dust count=1 at=-0.351563,0.768016,0.642517 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7680429223793479375
+@1 hit - op=fire/bolt at=-0.351563,0.768016,2.142517 r=2.000000 shape=capsule a=-0.351563,0.768016,0.642517 b=-0.351563,0.768016,3.642517 rad=0.500000
 @1 remove #0 op=fire/slug
 @14 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=crossbow-aim
 g @1 state-exit reason=EVENT | state=fire
@@ -18,36 +21,44 @@ g @1 dropped reason=owner-exited:fire | sub=fire/bolt.end
 g @1 cast-end | pose
 r @15 run-end tail=14 | pose
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=fire/slug kind=item item=minecraft:arrow part=- pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@0 sound - op=fire/fire_fx/snd sound=item.crossbow.shoot cat=master vol=0.6 pitch=1.3 at=0.000000,0.000000,0.000000
-@0 particle - op=fire/fire_fx/flash type=gun-muzzle-flash at=-0.891408,1.457972,0.601364 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8193269642083820620
-@0 particle - op=fire/trail0[0] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8075553933465036981
-@0 particle - op=fire/trail1[0] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4666636678511866346
+@0 spawn #0 op=fire/slug kind=item item=minecraft:arrow part=- pos=-0.654744,0.887723,0.284704 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=fire/snd sound=item.crossbow.shoot cat=master vol=0.6 pitch=1.3 at=-0.456811,0.768016,0.022039
+@0 particle - op=fire/trail0[0] type=crit count=1 at=-0.414018,0.887723,-0.034751 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8075553933465036981
+@0 particle - op=fire/trail0[0] type=crit count=1 at=-0.654744,0.887723,0.284704 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5936005907810434337
+@0 particle - op=fire/trail1[0] type=dust count=1 at=-0.414018,0.887723,-0.034751 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4666636678511866346
+@0 particle - op=fire/trail1[0] type=dust count=1 at=-0.654744,0.887723,0.284704 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5552667467208405756
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=crossbow-aim speed=1
-@0 frame fire/bolt op=fire/bolt pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916
-@1 particle - op=fire/trail0[1] type=crit count=1 at=-0.282761,1.791010,0.375236 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8398803946107941904
-@1 particle - op=fire/trail1[1] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2704812326838115264
-@1 hit - op=fire/bolt at=-1.131042,2.304040,1.500944 r=2.000000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.979324,2.817071,2.626652 rad=0.500000
+@0 frame fire/bolt op=fire/bolt pos=-0.654744,0.887723,0.284704 rot=-0.164675,-0.312484,-0.055099,0.933916
+@1 particle - op=fire/trail0[1] type=crit count=1 at=-0.414018,0.887723,-0.034751 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8398803946107941904
+@1 particle - op=fire/trail0[1] type=crit count=1 at=-0.654744,0.887723,0.284704 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8911164571309052737
+@1 particle - op=fire/trail1[1] type=dust count=1 at=-0.414018,0.887723,-0.034751 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2704812326838115264
+@1 particle - op=fire/trail1[1] type=dust count=1 at=-0.654744,0.887723,0.284704 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7680429223793479375
+@1 hit - op=fire/bolt at=-1.503025,1.400753,1.410412 r=2.000000 shape=capsule a=-0.654744,0.887723,0.284704 b=-2.351307,1.913783,2.536119 rad=0.500000
 @1 remove #0 op=fire/slug
 @14 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=crossbow-aim
 g @1 state-exit reason=EVENT | state=fire
 g @1 dropped reason=owner-exited:fire | sub=fire/bolt.end
+g @1 dropped reason=owner-exited:fire | sub=fire/bolt.hit
+g @1 dropped reason=owner-exited:fire | sub=fire/bolt.end
 g @1 cast-end | pose
 r @15 run-end tail=14 | pose
 ## pose-hit yaw=0 pitch=0
-@0 spawn #0 op=fire/slug kind=item item=minecraft:arrow part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@0 sound - op=fire/fire_fx/snd sound=item.crossbow.shoot cat=master vol=0.6 pitch=1.3 at=0.000000,0.000000,0.000000
-@0 particle - op=fire/fire_fx/flash type=gun-muzzle-flash at=-0.350000,1.120000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8193269642083820620
-@0 particle - op=fire/trail0[0] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8075553933465036981
-@0 particle - op=fire/trail1[0] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4666636678511866346
+@0 spawn #0 op=fire/slug kind=item item=minecraft:arrow part=- pos=-0.351563,0.768016,0.642517 rot=0.000000,0.000000,0.000000,1.000000 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=fire/snd sound=item.crossbow.shoot cat=master vol=0.6 pitch=1.3 at=-0.351563,0.768016,0.292517
+@0 particle - op=fire/trail0[0] type=crit count=1 at=-0.351563,0.768016,0.242517 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8075553933465036981
+@0 particle - op=fire/trail0[0] type=crit count=1 at=-0.351563,0.768016,0.642517 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5936005907810434337
+@0 particle - op=fire/trail1[0] type=dust count=1 at=-0.351563,0.768016,0.242517 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4666636678511866346
+@0 particle - op=fire/trail1[0] type=dust count=1 at=-0.351563,0.768016,0.642517 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5552667467208405756
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=crossbow-aim speed=1
-@0 frame fire/bolt op=fire/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
-@1 particle - op=fire/trail0[1] type=crit count=1 at=0.000000,1.620000,0.500000 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8398803946107941904
-@1 particle - op=fire/trail1[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2704812326838115264
-@1 hit - op=fire/bolt at=0.000000,1.620000,2.000000 r=2.000000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,3.500000 rad=0.500000
-@1 sound - op=fire/bolt.hit/snd_hit sound=astera:weapons/gun-impact cat=master vol=0.6 pitch=1.2 at=0.000000,0.000000,2.500000
-@1 particle - op=fire/bolt.hit/fx_hit type=hit-spark at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-885283884164318139
-@1 damage 00000000-0000-0000-0000-00000000000a op=- physical=7.5 skill=repeater-bolt at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@0 frame fire/bolt op=fire/bolt pos=-0.351563,0.768016,0.642517 rot=0.000000,0.000000,0.000000,1.000000
+@1 particle - op=fire/trail0[1] type=crit count=1 at=-0.351563,0.768016,0.242517 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8398803946107941904
+@1 particle - op=fire/trail0[1] type=crit count=1 at=-0.351563,0.768016,0.642517 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8911164571309052737
+@1 particle - op=fire/trail1[1] type=dust count=1 at=-0.351563,0.768016,0.242517 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2704812326838115264
+@1 particle - op=fire/trail1[1] type=dust count=1 at=-0.351563,0.768016,0.642517 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7680429223793479375
+@1 hit - op=fire/bolt at=-0.351563,0.768016,2.142517 r=2.000000 shape=capsule a=-0.351563,0.768016,0.642517 b=-0.351563,0.768016,3.642517 rad=0.500000
+@1 sound - op=fire/bolt.hit/snd_hit sound=astera:weapons/gun-impact cat=master vol=0.6 pitch=1.2 at=0.000000,0.810000,2.500000
+@1 particle - op=fire/bolt.hit/fx_hit type=hit-spark at=0.000000,0.871645,2.309737 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-885283884164318139
+@1 damage 00000000-0000-0000-0000-00000000000a op=- physical=7.5 skill=repeater-bolt at=-0.300000,0.768016,2.200000 ignoreinv=false ignorearmor=false
 @1 remove #0 op=fire/slug
 @14 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=crossbow-aim
 g @1 state-exit reason=EVENT | state=fire
@@ -55,19 +66,22 @@ g @1 dropped reason=owner-exited:fire | sub=fire/bolt.end
 g @1 cast-end | pose
 r @15 run-end tail=14 | pose
 ## pose-hit yaw=37 pitch=0
-@0 spawn #0 op=fire/slug kind=item item=minecraft:arrow part=- pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@0 sound - op=fire/fire_fx/snd sound=item.crossbow.shoot cat=master vol=0.6 pitch=1.3 at=0.000000,0.000000,0.000000
-@0 particle - op=fire/fire_fx/flash type=gun-muzzle-flash at=-0.821156,1.120000,0.508137 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8193269642083820620
-@0 particle - op=fire/trail0[0] type=crit count=1 at=-0.300908,1.620000,0.399318 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8075553933465036981
-@0 particle - op=fire/trail1[0] type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4666636678511866346
+@0 spawn #0 op=fire/slug kind=item item=minecraft:arrow part=- pos=-0.667446,0.768016,0.301561 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.600000,0.600000,0.600000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 sound - op=fire/snd sound=item.crossbow.shoot cat=master vol=0.6 pitch=1.3 at=-0.456811,0.768016,0.022039
+@0 particle - op=fire/trail0[0] type=crit count=1 at=-0.426720,0.768016,-0.017893 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8075553933465036981
+@0 particle - op=fire/trail0[0] type=crit count=1 at=-0.667446,0.768016,0.301561 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5936005907810434337
+@0 particle - op=fire/trail1[0] type=dust count=1 at=-0.426720,0.768016,-0.017893 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4666636678511866346
+@0 particle - op=fire/trail1[0] type=dust count=1 at=-0.667446,0.768016,0.301561 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5552667467208405756
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=crossbow-aim speed=1
-@0 frame fire/bolt op=fire/bolt pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324
-@1 particle - op=fire/trail0[1] type=crit count=1 at=-0.300908,1.620000,0.399318 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8398803946107941904
-@1 particle - op=fire/trail1[1] type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2704812326838115264
-@1 hit - op=fire/bolt at=-1.203630,1.620000,1.597271 r=2.000000 shape=capsule a=-0.300908,1.620000,0.399318 b=-2.106353,1.620000,2.795224 rad=0.500000
-@1 sound - op=fire/bolt.hit/snd_hit sound=astera:weapons/gun-impact cat=master vol=0.6 pitch=1.2 at=-1.504538,0.000000,1.996589
-@1 particle - op=fire/bolt.hit/fx_hit type=hit-spark at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-885283884164318139
-@1 damage 00000000-0000-0000-0000-00000000000a op=- physical=7.5 skill=repeater-bolt at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@0 frame fire/bolt op=fire/bolt pos=-0.667446,0.768016,0.301561 rot=0.000000,-0.317305,0.000000,0.948324
+@1 particle - op=fire/trail0[1] type=crit count=1 at=-0.426720,0.768016,-0.017893 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8398803946107941904
+@1 particle - op=fire/trail0[1] type=crit count=1 at=-0.667446,0.768016,0.301561 off=0.030000,0.030000,0.030000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8911164571309052737
+@1 particle - op=fire/trail1[1] type=dust count=1 at=-0.426720,0.768016,-0.017893 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2704812326838115264
+@1 particle - op=fire/trail1[1] type=dust count=1 at=-0.667446,0.768016,0.301561 off=0.000000,0.000000,0.000000 speed=0.000000 color=#aa9678 size=0.800000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7680429223793479375
+@1 hit - op=fire/bolt at=-1.570169,0.768016,1.499514 r=2.000000 shape=capsule a=-0.667446,0.768016,0.301561 b=-2.472891,0.768016,2.697467 rad=0.500000
+@1 sound - op=fire/bolt.hit/snd_hit sound=astera:weapons/gun-impact cat=master vol=0.6 pitch=1.2 at=-1.504538,0.810000,1.996589
+@1 particle - op=fire/bolt.hit/fx_hit type=hit-spark at=-1.390035,0.871645,1.844638 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-885283884164318139
+@1 damage 00000000-0000-0000-0000-00000000000a op=- physical=7.5 skill=repeater-bolt at=-1.718675,0.768016,1.696589 ignoreinv=false ignorearmor=false
 @1 remove #0 op=fire/slug
 @14 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=crossbow-aim
 g @1 state-exit reason=EVENT | state=fire

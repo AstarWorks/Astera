@@ -23,6 +23,8 @@ dependencies {
     api(project(":plugin:match"))
     api(project(":plugin:stats"))
     api(project(":plugin:economy"))
+    // playable.metrics.FrameRenderer reuses ArenaRenderer.top for the per-decision PNG (ADR-0316).
+    implementation(project(":tools:arena-preview"))
     testImplementation(project(":plugin:chat"))
 
     // Cross-plugin in-memory fakes (FakeScheduler, FakeGuiAdapter, FakeBroadcaster, ...).
@@ -63,4 +65,16 @@ tasks.register<Test>("regenSkillOracle") {
     classpath = verification.classpath
     filter { includeTestsMatching("*ShippedV3ContentScenarioTest*") }
     systemProperty("astera.oracle.regen", "true")
+}
+
+// Mass bot-vs-bot play (ADR-0316): `./gradlew :tools:game-sim:massPlay -Pruns=20 [-Pseeds=1,2,3]` -> build/play/summary.md.
+tasks.register<JavaExec>("massPlay") {
+    group = "verification"
+    description = "Runs N headless matches and writes build/play/<run>/metrics.json + build/play/summary.md."
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.astarworks.astera.gamesim.playable.metrics.MassPlayMainKt")
+    workingDir = rootDir
+    jvmArgs("-Djava.awt.headless=true", "-Xmx2g", "-Dastera.sim.contentDir=${rootProject.file("content").absolutePath}")
+    val out = layout.buildDirectory.dir("play").get().asFile.absolutePath
+    args(out, providers.gradleProperty("runs").getOrElse("5"), providers.gradleProperty("seeds").getOrElse(""))
 }

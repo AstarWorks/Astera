@@ -755,7 +755,6 @@ astera:
       npc: "<gold>鉱石ショップ</gold>"
       tab:
         weapons: "<red>武器</red>"
-        tools: "<yellow>ツール</yellow>"
         blocks: "<aqua>ブロック</aqua>"
         armor: "<green>防具</green>"
         upgrades: "<light_purple>強化</light_purple>"
@@ -1043,6 +1042,12 @@ astera:
         title: "<gold><bold>ノルマ完全達成！</bold></gold>"
         subtitle: "<yellow>最高レベル Lv {level} に到達</yellow>{unlocked}"
         broadcast: "<gold><bold>{player}</bold></gold> <yellow>が最高ノルマレベル Lv {level}/{max} に到達！</yellow>"
+    norma-tools:
+      upgraded: "<green>道具が</green><gold>{tier}</gold><green>に強化された！</green>"
+      tier:
+        stone: "石"
+        iron: "鉄"
+        diamond: "ダイヤ"
     norma-locked:
       bar: "<red>ロック中</red> <gray>-</gray> <gold>Lv {level}</gold> <gray>で</gray> <white>{rarity}</white> <gray>解放</gray>"
     norma-choice:
@@ -2977,3 +2982,6 @@ astera:
   announce.invalid: "&c重複のない key=value 形式で指定してください。"
   announce.sent: "&a通知を送信しました。"
   announce.failed: "&c通知に失敗しました: {reason}"
+
+  # astera.stage.* — anni-map / Highmarch (ADR-0317), append-only.
+  stage.annihilation-highmarch.name: "ハイマーチ"
