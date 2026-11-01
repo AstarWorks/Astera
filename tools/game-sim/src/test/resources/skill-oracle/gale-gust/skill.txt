@@ -17,16 +17,16 @@
 @1 spawn #4 op=cast/wind_4 kind=block block=white_concrete pos=0.500000,0.900000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
 @1 write #3 op=cast/wind_1 dur=3 pos=-1.720000,1.400000,3.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED
 @1 write #4 op=cast/wind_4 dur=3 pos=0.860000,0.900000,3.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED
-@2 spawn #5 op=cast/wind_3 kind=block block=white_concrete pos=0.000000,1.600000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
+@2 spawn #5 op=cast/wind_3 kind=block block=white_concrete pos=0.000000,1.600000,1.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
 @2 spawn #6 op=cast/wind_6 kind=block block=white_concrete pos=1.500000,0.500000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
-@2 write #5 op=cast/wind_3 dur=3 pos=0.000000,1.600000,3.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED
+@2 write #5 op=cast/wind_3 dur=3 pos=0.000000,1.600000,4.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED
 @2 write #6 op=cast/wind_6 dur=3 pos=2.580000,0.500000,3.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED
 @3 write #0 op=cast/wind_0 dur=3 pos=-3.660000,0.500000,5.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
 @3 write #1 op=cast/wind_2 dur=3 pos=-1.220000,0.900000,5.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
 @3 write #2 op=cast/wind_5 dur=3 pos=2.440000,1.400000,5.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
 @4 write #3 op=cast/wind_1 dur=3 pos=-2.440000,1.400000,5.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
 @4 write #4 op=cast/wind_4 dur=3 pos=1.220000,0.900000,5.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
-@5 write #5 op=cast/wind_3 dur=3 pos=0.000000,1.600000,5.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
+@5 write #5 op=cast/wind_3 dur=3 pos=0.000000,1.600000,6.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
 @5 write #6 op=cast/wind_6 dur=3 pos=3.660000,0.500000,5.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
 @6 remove #0 op=cast/wind_0
 @6 remove #1 op=cast/wind_2
@@ -50,16 +50,16 @@
 @1 spawn #4 op=cast/wind_4 kind=block block=white_concrete pos=0.038229,0.900000,0.780089 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
 @1 write #3 op=cast/wind_1 dur=3 pos=-3.269370,1.400000,1.480580 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED
 @1 write #4 op=cast/wind_4 dur=3 pos=-1.208891,0.900000,3.033263 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED
-@2 spawn #5 op=cast/wind_3 kind=block block=white_concrete pos=-0.361089,1.600000,0.479181 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
+@2 spawn #5 op=cast/wind_3 kind=block block=white_concrete pos=-0.962904,1.600000,1.277817 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
 @2 spawn #6 op=cast/wind_6 kind=block block=white_concrete pos=0.836864,0.500000,1.381904 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
-@2 write #5 op=cast/wind_3 dur=3 pos=-1.895717,1.600000,2.515702 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED
+@2 write #5 op=cast/wind_3 dur=3 pos=-2.497532,1.600000,3.314337 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED
 @2 write #6 op=cast/wind_6 dur=3 pos=0.164762,0.500000,4.068385 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED
 @3 write #0 op=cast/wind_0 dur=3 pos=-6.353352,0.500000,2.349579 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
 @3 write #1 op=cast/wind_2 dur=3 pos=-4.404681,0.900000,3.818008 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
 @3 write #2 op=cast/wind_5 dur=3 pos=-1.481675,1.400000,6.020651 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
 @4 write #3 op=cast/wind_1 dur=3 pos=-5.379016,1.400000,3.083794 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
 @4 write #4 op=cast/wind_4 dur=3 pos=-2.456010,0.900000,5.286437 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
-@5 write #5 op=cast/wind_3 dur=3 pos=-3.430346,1.600000,4.552222 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
+@5 write #5 op=cast/wind_3 dur=3 pos=-4.032161,1.600000,5.350858 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
 @5 write #6 op=cast/wind_6 dur=3 pos=-0.507340,0.500000,6.754865 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
 @6 remove #0 op=cast/wind_0
 @6 remove #1 op=cast/wind_2
@@ -89,16 +89,16 @@
 @1 spawn #4 op=cast/wind_4 kind=block block=white_concrete pos=0.500000,0.900000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
 @1 write #3 op=cast/wind_1 dur=3 pos=-1.720000,1.400000,3.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED
 @1 write #4 op=cast/wind_4 dur=3 pos=0.860000,0.900000,3.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED
-@2 spawn #5 op=cast/wind_3 kind=block block=white_concrete pos=0.000000,1.600000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
+@2 spawn #5 op=cast/wind_3 kind=block block=white_concrete pos=0.000000,1.600000,1.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
 @2 spawn #6 op=cast/wind_6 kind=block block=white_concrete pos=1.500000,0.500000,0.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
-@2 write #5 op=cast/wind_3 dur=3 pos=0.000000,1.600000,3.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED
+@2 write #5 op=cast/wind_3 dur=3 pos=0.000000,1.600000,4.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED
 @2 write #6 op=cast/wind_6 dur=3 pos=2.580000,0.500000,3.150000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,1.400000 bb=FIXED
 @3 write #0 op=cast/wind_0 dur=3 pos=-3.660000,0.500000,5.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
 @3 write #1 op=cast/wind_2 dur=3 pos=-1.220000,0.900000,5.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
 @3 write #2 op=cast/wind_5 dur=3 pos=2.440000,1.400000,5.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
 @4 write #3 op=cast/wind_1 dur=3 pos=-2.440000,1.400000,5.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
 @4 write #4 op=cast/wind_4 dur=3 pos=1.220000,0.900000,5.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
-@5 write #5 op=cast/wind_3 dur=3 pos=0.000000,1.600000,5.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
+@5 write #5 op=cast/wind_3 dur=3 pos=0.000000,1.600000,6.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
 @5 write #6 op=cast/wind_6 dur=3 pos=3.660000,0.500000,5.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
 @6 remove #0 op=cast/wind_0
 @6 remove #1 op=cast/wind_2
@@ -131,16 +131,16 @@ r @9 run-end tail=8 | pose
 @1 spawn #4 op=cast/wind_4 kind=block block=white_concrete pos=0.038229,0.900000,0.780089 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
 @1 write #3 op=cast/wind_1 dur=3 pos=-3.269370,1.400000,1.480580 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED
 @1 write #4 op=cast/wind_4 dur=3 pos=-1.208891,0.900000,3.033263 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED
-@2 spawn #5 op=cast/wind_3 kind=block block=white_concrete pos=-0.361089,1.600000,0.479181 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
+@2 spawn #5 op=cast/wind_3 kind=block block=white_concrete pos=-0.962904,1.600000,1.277817 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
 @2 spawn #6 op=cast/wind_6 kind=block block=white_concrete pos=0.836864,0.500000,1.381904 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
-@2 write #5 op=cast/wind_3 dur=3 pos=-1.895717,1.600000,2.515702 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED
+@2 write #5 op=cast/wind_3 dur=3 pos=-2.497532,1.600000,3.314337 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED
 @2 write #6 op=cast/wind_6 dur=3 pos=0.164762,0.500000,4.068385 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,1.400000 bb=FIXED
 @3 write #0 op=cast/wind_0 dur=3 pos=-6.353352,0.500000,2.349579 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
 @3 write #1 op=cast/wind_2 dur=3 pos=-4.404681,0.900000,3.818008 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
 @3 write #2 op=cast/wind_5 dur=3 pos=-1.481675,1.400000,6.020651 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
 @4 write #3 op=cast/wind_1 dur=3 pos=-5.379016,1.400000,3.083794 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
 @4 write #4 op=cast/wind_4 dur=3 pos=-2.456010,0.900000,5.286437 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
-@5 write #5 op=cast/wind_3 dur=3 pos=-3.430346,1.600000,4.552222 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
+@5 write #5 op=cast/wind_3 dur=3 pos=-4.032161,1.600000,5.350858 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
 @5 write #6 op=cast/wind_6 dur=3 pos=-0.507340,0.500000,6.754865 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
 @6 remove #0 op=cast/wind_0
 @6 remove #1 op=cast/wind_2

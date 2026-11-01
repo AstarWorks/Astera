@@ -69,6 +69,6 @@ machine:
               - {id: ring_flame_blk, op: particle, particle: flame, frame: blk, count: 0, extra: 0.08}
               - {id: ring_dust_blk, op: particle, particle: dust, frame: blk, count: 1, color: "#ff6e14", size: 2.0}
             expire:
-              - {id: snd_end, op: sound, sound: "astera:skills/fire-impact", anchor: contact.point, volume: 0.4, pitch: 1.2}
-              - {id: fx_end, op: particle_def, def: fire-impact-smoke, anchor: contact.point}
+              - {id: snd_end, op: sound, sound: "astera:skills/fire-impact", frame: head, volume: 0.4, pitch: 1.2}
+              - {id: fx_end, op: particle_def, def: fire-impact-smoke, frame: head}
     end: {final: true}

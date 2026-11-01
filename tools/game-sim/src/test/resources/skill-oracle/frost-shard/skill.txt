@@ -4,11 +4,7 @@
 @0 particle - op=cast/fx type=frost-cast at=-0.250000,1.320000,1.400000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6660799370272920130
 @0 particle - op=cast/spray type=dust count=1 at=-0.250000,1.320000,1.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2155776087548512625
 @0 particle - op=cast/spray type=dust count=1 at=-0.250000,1.320000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4713016451277066334
-@0 particle - op=cast/tr0[0] type=dust count=1 at=-0.250000,1.320000,0.300000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#e6f4ff size=0.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4824140331545689674
-@0 particle - op=cast/tr2[0] type=dust count=1 at=-0.250000,1.320000,0.300000 off=0.020000,0.020000,0.020000 speed=0.000000 color=#f5fbff size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6443659469114114459
 @0 frame cast/ball op=cast/ball pos=-0.250000,1.320000,1.400000 rot=0.000000,0.000000,0.000000,1.000000
-@1 particle - op=cast/tr0[1] type=dust count=1 at=-0.250000,1.320000,0.300000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#e6f4ff size=0.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7884367364370300616
-@1 particle - op=cast/tr2[1] type=dust count=1 at=-0.250000,1.320000,0.300000 off=0.020000,0.020000,0.020000 speed=0.000000 color=#f5fbff size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7831071647995235711
 @1 hit - op=cast/ball at=-0.250000,1.320000,2.692053 r=1.792053 shape=capsule a=-0.250000,1.320000,1.400000 b=-0.250000,1.320000,3.984107 rad=0.500000
 @1 remove #0 op=cast/shell
 g @1 state-exit reason=PREEMPT | state=cast/fly
@@ -24,11 +20,7 @@ r @3 run-end tail=2 | pose
 @0 particle - op=cast/fx type=frost-cast at=-1.053138,1.816920,0.982152 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6660799370272920130
 @0 particle - op=cast/spray type=dust count=1 at=-1.166243,1.885324,1.132246 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2155776087548512625
 @0 particle - op=cast/spray type=dust count=1 at=-1.731764,2.227345,1.882718 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4713016451277066334
-@0 particle - op=cast/tr0[0] type=dust count=1 at=-0.431065,1.440698,0.156633 off=0.080000,0.080000,0.080000 speed=0.000000 color=#e6f4ff size=0.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4824140331545689674
-@0 particle - op=cast/tr2[0] type=dust count=1 at=-0.431065,1.440698,0.156633 off=0.020000,0.020000,0.020000 speed=0.000000 color=#f5fbff size=0.350000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6443659469114114459
 @0 frame cast/ball op=cast/ball pos=-1.053138,1.816920,0.982152 rot=-0.164675,-0.312484,-0.055099,0.933916
-@1 particle - op=cast/tr0[1] type=dust count=1 at=-0.431065,1.440698,0.156633 off=0.080000,0.080000,0.080000 speed=0.000000 color=#e6f4ff size=0.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7884367364370300616
-@1 particle - op=cast/tr2[1] type=dust count=1 at=-0.431065,1.440698,0.156633 off=0.020000,0.020000,0.020000 speed=0.000000 color=#f5fbff size=0.350000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7831071647995235711
 @1 hit - op=cast/ball at=-1.783822,2.258829,1.951801 r=1.792053 shape=capsule a=-1.053138,1.816920,0.982152 b=-2.514505,2.700737,2.921451 rad=0.500000
 @1 remove #0 op=cast/shell
 g @1 state-exit reason=PREEMPT | state=cast/fly
@@ -44,11 +36,7 @@ r @3 run-end tail=2 | pose
 @0 particle - op=cast/fx type=frost-cast at=-0.250000,1.320000,1.400000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6660799370272920130
 @0 particle - op=cast/spray type=dust count=1 at=-0.250000,1.320000,1.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2155776087548512625
 @0 particle - op=cast/spray type=dust count=1 at=-0.250000,1.320000,2.600000 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4713016451277066334
-@0 particle - op=cast/tr0[0] type=dust count=1 at=-0.250000,1.320000,0.300000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#e6f4ff size=0.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4824140331545689674
-@0 particle - op=cast/tr2[0] type=dust count=1 at=-0.250000,1.320000,0.300000 off=0.020000,0.020000,0.020000 speed=0.000000 color=#f5fbff size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6443659469114114459
 @0 frame cast/ball op=cast/ball pos=-0.250000,1.320000,1.400000 rot=0.000000,0.000000,0.000000,1.000000
-@1 particle - op=cast/tr0[1] type=dust count=1 at=-0.250000,1.320000,0.300000 off=0.080000,0.080000,0.080000 speed=0.000000 color=#e6f4ff size=0.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7884367364370300616
-@1 particle - op=cast/tr2[1] type=dust count=1 at=-0.250000,1.320000,0.300000 off=0.020000,0.020000,0.020000 speed=0.000000 color=#f5fbff size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7831071647995235711
 @1 hit - op=cast/ball at=-0.250000,1.320000,2.692053 r=1.792053 shape=capsule a=-0.250000,1.320000,1.400000 b=-0.250000,1.320000,3.984107 rad=0.500000
 @1 sound - op=cast/ball.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=0.7 pitch=1.5 at=0.000000,0.810000,2.500000
 @1 particle - op=cast/ball.hit/line type=snowflake count=1 at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6230205205384280383
@@ -74,11 +62,7 @@ r @4 run-end tail=2 | pose
 @0 particle - op=cast/fx type=frost-cast at=-1.042200,1.320000,0.967636 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6660799370272920130
 @0 particle - op=cast/spray type=dust count=1 at=-1.162563,1.320000,1.127363 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2155776087548512625
 @0 particle - op=cast/spray type=dust count=1 at=-1.764378,1.320000,1.925999 off=0.100000,0.100000,0.100000 speed=0.000000 color=#ebf5ff size=0.450000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4713016451277066334
-@0 particle - op=cast/tr0[0] type=dust count=1 at=-0.380203,1.320000,0.089137 off=0.080000,0.080000,0.080000 speed=0.000000 color=#e6f4ff size=0.400000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4824140331545689674
-@0 particle - op=cast/tr2[0] type=dust count=1 at=-0.380203,1.320000,0.089137 off=0.020000,0.020000,0.020000 speed=0.000000 color=#f5fbff size=0.350000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6443659469114114459
 @0 frame cast/ball op=cast/ball pos=-1.042200,1.320000,0.967636 rot=0.000000,-0.317305,0.000000,0.948324
-@1 particle - op=cast/tr0[1] type=dust count=1 at=-0.380203,1.320000,0.089137 off=0.080000,0.080000,0.080000 speed=0.000000 color=#e6f4ff size=0.400000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7884367364370300616
-@1 particle - op=cast/tr2[1] type=dust count=1 at=-0.380203,1.320000,0.089137 off=0.020000,0.020000,0.020000 speed=0.000000 color=#f5fbff size=0.350000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7831071647995235711
 @1 hit - op=cast/ball at=-1.819777,1.320000,1.999516 r=1.792053 shape=capsule a=-1.042200,1.320000,0.967636 b=-2.597354,1.320000,3.031395 rad=0.500000
 @1 sound - op=cast/ball.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=0.7 pitch=1.5 at=-1.504538,0.810000,1.996589
 @1 particle - op=cast/ball.hit/line type=snowflake count=1 at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,0.000000 speed=0.050000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6230205205384280383
