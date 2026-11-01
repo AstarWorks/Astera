@@ -63,6 +63,6 @@
   "report": "/casefile/tool-axe-plank-wall/notes.md",
   "verification": {
     "evidence": "/casefile/tool-axe-plank-wall/evidence/presentation.png",
-    "reason": "Round-3 verification in progress; see notes.md for actual execution results. No e2e or check run by this track."
+    "reason": "Oracle, presentation scenario (including particle eye clearance), compile, content-lint and architecture checks PASS. Final-source visual captures/review pending; see notes.md. No e2e/check/unit tests."
   }
 }

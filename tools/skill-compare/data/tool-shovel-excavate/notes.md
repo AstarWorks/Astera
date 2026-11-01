@@ -1,10 +1,10 @@
 # shovel-excavate — round 3 presentation review
 
-No reference video. Branch: `wp/tool-skills-polish3b`.
+No reference video. Branch: `wp/tool-skills-polish3c`.
 
-Brown dirt clumps rise on a slow upward velocity and fall with coarse-dirt block_crumble fragments. Smaller bursts and a sparse brown/tan cloud replace the noisy t11 debris and white sparkle ring. No electric sparks or end rods.
+Brown dirt clumps rise on a slow upward velocity and fall with coarse-dirt falling_dust. Smaller bursts and a sparse brown/tan cloud replace the noisy t11 debris and white sparkle ring. No electric sparks or end rods.
 
-The core occupies the same position and tick as a material emission on the actual affected footprint, rather than a shared fixed offset. The shatter core uses the same live aim-point expression as its mechanical row. Particle counts, spread, velocity, colour and dust scale are presentation only. All 18 skills retain their original metadata, cooldown, dimensions, state durations, damage and break/place rows verbatim.
+The core occupies the same position and tick as a material emission on the actual affected footprint, rather than a shared fixed offset. The shatter core uses the same live aim-point expression as its mechanical row. Particle counts, spread, velocity, colour and dust scale are presentation only. All 18 skills retain their original metadata, cooldown, dimensions, state durations, damage and break/place rows verbatim (validated against 0c044c264).
 
 Stone → iron → diamond increases core density and dust scale (0.30 → 0.45 → 0.60). Pickaxe: grey → beige → cyan. Axe: brown → warm wood → blonde wood. Shovel: dark brown → brown → tan; dust density is only 2 → 3 → 4 per lane.
 
@@ -24,7 +24,7 @@ Raw ffmpeg logs, WAVs, original asset hashes and measurements: `/tmp/claude-1000
 
 `ToolSkillPresentationScenarioTest.tool families propagate material effects and tier light through the real cast path` casts all 18 shipped skills using the production loader, inheritance, player and gateways. It checks material motion, forbidden shared sparkles/crescents, footprint-aligned accents, core size, one unmodified vanilla cue and sound/impact op schedule equality. It writes `tool-op-<skill>.txt` alongside the per-tick scenario JSON traces.
 
-The existing `:tools:game-sim:regenSkillOracle` path is used with a temporary content tree containing only the 18 tool skills. Only the resulting 18 tool goldens are copied back; no non-tool golden is generated or rewritten. Final class: `ShippedV3ContentScenarioTest`. Execution results pending shared VM Gradle slot.
+The existing `:tools:game-sim:regenSkillOracle` path is used with a temporary content tree containing only the 18 tool skills. Only the resulting 18 tool goldens are copied back; no non-tool golden is generated or rewritten. Final class: `ShippedV3ContentScenarioTest`. PASS: scoped regenSkillOracle; normal ShippedV3ContentScenarioTest (2 tests, 0 failures); updated ToolSkillPresentationScenarioTest (1 test, 0 failures); compileKotlin; :tools:e2e:compileTestKotlin; :tools:content-lint:run (39 categories, 0 failures; 969 pack files, 0 unresolved); :tools:architecture-test:test (80 tests). XML/logs: `/tmp/claude-1000/tool-skills/round-3/validation/` and `required-checks-3c.log`.
 
 ## Documentation drift / owner requests
 
@@ -37,8 +37,17 @@ The existing `:tools:game-sim:regenSkillOracle` path is used with a temporary co
 
 ## Required particle registry dependency
 
-`falling_dust` was attempted but the production loader rejects it: no entry exists in `content/engine/particle-lifetimes.yaml`. That file is outside this task’s owned paths. The submitted content uses registered `block_crumble` fragments plus brown dust so the six shovel skills load. Literal vanilla `falling_dust` remains unfulfilled pending the owner’s sourced lifetime entry; this is not a full acceptance claim.
 
-依頼: tool-skills kernel owner に `content/engine/particle-lifetimes.yaml` の vanilla 26.3 `falling_dust` lifetime を出典付きで追加し、ショベルの fall_* rows を falling_dust へ切替。
 
 Sourced owner proposal: `/tmp/claude-1000/tool-skills/round-3/falling-dust-dependency.md` (`mean: 57.0273`, vanilla 26.3 FallingDustParticle constructor).
+
+## polish3c: replay and eye clearance
+
+The initial blade-trail emission stays in windup; subsequent emissions are in cast at relative tick 1, every 2, for trail_span-2. This removes the old-state detached trail / later-state particle ordering ambiguity while preserving every emission tick and count. No shared test/engine source changed. Only the 18 tool goldens moved; all 105 non-tool goldens remain byte-identical to 0c044c264. Detailed row classification and mechanical equality: `round-3/validation/golden-classification-3c.json`, `rig-golden-classification-3c.json`, and `mechanics-3c.json`. Rig/frame pose differences against the stale round-2 golden already exist in the inherited b60ed3c84 and are unchanged here.
+
+Near-eye minimum for shovel-excavate, all three tiers: **0.954425 blocks**. Measured every particle `at=` in all four golden poses against eye=(0,1.62,0), matching the incoming ShippedNearEyeScenarioTest metric (held main_hand rigs are excluded and have a separate camera test). All 18 tool minima are >=0.8. Pickaxe's inner blade trail starts at v=0.5 rather than 0.4, retaining five samples; axe's inherited round-3 sweep already clears the rule. The owned real-cast scenario asserts every emission's distance. The shared new class is not on origin/main as of this verification, so it was not added or edited here.
+
+The explicitly authorized `falling_dust: { mean: 57.0273, source: jar-26.3 }` lifetime registry entry is now present; all six shovel fall_* rows use vanilla falling_dust with coarse_dirt block data. The scenario asserts this real particle type. The 24-bit random / float32 expectation is 57.02730482816696 ticks; derivation: `/tmp/claude-1000/tool-skills/round-3/falling-dust-dependency.md`.
+
+Round-0 sheet: `/tmp/claude-1000/tool-skills/round-0/tool-shovel-excavate.png`.
+Final-source visual review is pending; final per-tier comparison sheets will be in `round-3/comparisons/tool-shovel-excavate-{stone,iron,diamond}.png`. The earlier axe-plank-wall-stone shot with -24% idle brightness is excluded; it is being reshot.
