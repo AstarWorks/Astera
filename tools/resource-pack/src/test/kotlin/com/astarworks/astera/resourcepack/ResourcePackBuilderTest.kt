@@ -94,7 +94,9 @@ class ResourcePackBuilderTest {
             assertThat(model.path("textures").path("layer0").asText()).isEqualTo("astera:generated/items/$id")
             val def = json(files.getValue("assets/astera/items/$id.json")).path("model")
             assertThat(def.path("type").asText()).isEqualTo("minecraft:model")
-            assertThat(def.path("model").asText()).isEqualTo("astera:generated/items/$id")
+            // Every weapon has a Studio model content/models/items/<id>: the definition points at it, not the procedural icon.
+            assertThat(files).containsKey("assets/astera/models/items/$id.json")
+            assertThat(def.path("model").asText()).isEqualTo("astera:items/$id")
         }
         assertThat(json(files.getValue("assets/astera/models/generated/items/fire-staff.json")).path("parent").asText())
             .isEqualTo("minecraft:item/handheld")
@@ -132,7 +134,9 @@ class ResourcePackBuilderTest {
         ZipFile(first.zip.toFile()).use { zip ->
             val names = zip.entries().asSequence().map { it.name }.toList()
             assertThat(names).isEqualTo(names.sorted()).hasSize(first.entryCount)
-            assertThat(names).first().isEqualTo("assets/astera/font/default.json")
+            ZipFile(second.zip.toFile()).use { other ->
+                assertThat(other.entries().asSequence().map { it.name }.toList()).isEqualTo(names)
+            }
             assertThat(names).contains("pack.mcmeta")
             assertThat(zip.entries().asSequence().map { it.timeLocal.year }.toSet()).containsExactly(1980)
         }
@@ -172,7 +176,14 @@ class ResourcePackBuilderTest {
     fun `an empty content tree still yields a valid pack with the vanilla overrides`(@TempDir tmp: Path) {
         val files = ResourcePackBuilder(tmp).collect()
         assertThat(files).containsKey("pack.mcmeta")
-        assertThat(files.keys.filter { it.startsWith("assets/minecraft/") }).hasSameSizeAs(ResourcePackBuilder.HIDDEN_SPRITES)
+        // Vanilla overrides: the hidden HUD sprites, plus the items atlas that always exists because the pack always ships
+        // the `astera:skill_line` ribbon textures under textures/items/skill_line (f778a60f6).
+        val hidden = ResourcePackBuilder.HIDDEN_SPRITES.map { "assets/minecraft/textures/gui/sprites/hud/$it.png" }
+        assertThat(files.keys.filter { it.startsWith("assets/minecraft/") })
+            .containsExactlyInAnyOrder(*(hidden + "assets/minecraft/atlases/items.json").toTypedArray())
+        assertThat(json(files.getValue("assets/minecraft/atlases/items.json")).path("sources").map { it.path("source").asText() })
+            .containsExactly("items")
+        assertThat(files).containsKey("assets/astera/items/skill_line.json")
         assertThat(files).doesNotContainKey("assets/astera/font/default.json")
     }
 }
