@@ -37,10 +37,14 @@ frames:
     rotate:
       # pitch about s: where the straight arm points (angle from forward, towards up); the arm only turns, the hand rides its end
       - {at: 0, for: 0, about: s, to: -30}                                   # rest: the hand at the hip
-      - {at: 0, for: 5, about: s, to: 95, ease: out_quad}                        # drawn back over the head
+      - {at: 0, for: 5, about: s, to: 55, ease: out_quad}                        # drawn back, hand at head height
       - {at: 5, for: 3, about: s, to: -5, ease: out_cubic}                       # the cut
       - {at: 8, for: 3, about: s, to: -25, ease: out_cubic}                      # follow-through
       - {at: 11, for: 3, about: s, to: -30, ease: in_out_sine}                    # back to the hip
+      # yaw about w: the draw goes up at the right of the eye line, so the arm and the axe head stay in frame in first person (as C's mace-smash)
+      - {at: 0, for: 0, about: w, to: 0}
+      - {at: 0, for: 5, about: w, to: -90, ease: in_out_sine}
+      - {at: 5, for: 3, about: w, to: 0, ease: out_cubic}
   - id: tool
     origin: {frame: arm, pos: {v: 0.6}}
     v: forward
