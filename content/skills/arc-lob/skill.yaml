@@ -50,6 +50,19 @@ machine:
           for: 24
           motion:
             - {law: path, points: [{forward: 0}, {forward: 3, up: 2.5}, {forward: 6, up: 3.5}, {forward: 8, up: -1.2}], at: 0, for: 24, ease: in_out_sine}
+        - id: shell_h
+          op: display
+          kind: sprite
+          sprite: flame
+          frame: lob
+          size: [1.6, 1.6]
+          rotate: [{axis: v, deg: 90}]
+          color: "#ffd080"
+          brightness: {block: 15, sky: 15}
+          at: 0
+          for: 24
+          motion:
+            - {law: path, points: [{forward: 0}, {forward: 3, up: 2.5}, {forward: 6, up: 3.5}, {forward: 8, up: -1.2}], at: 0, for: 24, ease: in_out_sine}
         - {id: boom, op: particle, particle: flame, frame: land, count: 20, offset: [0.5, 0.2, 0.5], extra: 0.1, at: 23, detach: true}
         - {id: hurt, op: damage, at: 23, target: {kind: enemies, frame: land, pos: {v: 0}, radius: 3.0}, damage: {fire: "${dmg}"}}
     end: {final: true}

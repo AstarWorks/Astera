@@ -65,7 +65,7 @@ machine:
               - {id: fx_blk, op: particle_def, def: frost-impact, frame: blk, detach: true}
               - {id: fx_blk_dust, op: particle_def, def: frost-impact-dust, frame: blk, detach: true}
             end:
-              - {id: fx_end, op: particle_def, def: frost-impact, anchor: contact.point, detach: true}
+              - {id: fx_end, op: particle_def, def: frost-impact, frame: head, detach: true}
       states:
         fly:
           for: 50

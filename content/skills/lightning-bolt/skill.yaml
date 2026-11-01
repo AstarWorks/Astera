@@ -23,9 +23,9 @@ frames:
   - {id: tip, origin: caster.eye, v: aim, w: s x v, s: right, move: [{at: 0, for: 0, to: {v: 1.3, w: -0.3, s: 0.25}}]}
   - {id: head, origin: bolt, v: velocity, w: up, s: v x w}
   - {id: hit, on: event.victim, each: true, origin: victim.center, v: incoming, w: up, s: v x w}
+  - {id: sky, on: event.victim, each: true, origin: victim.feet, v: incoming, w: up, s: v x w, move: [{at: 0, for: 0, to: {w: 8.0}}]}
+  - {id: root, on: event.victim, each: true, origin: victim.feet, v: incoming, w: up, s: v x w}
   - {id: blk, on: event.block, each: true, origin: contact, v: incoming, w: up, s: v x w}
-anchors:
-  - {id: sky, anchor: victim.root, offset: {up: 8.0}, mode: follow}
 machine:
   start: fly
   tail: 2
@@ -48,12 +48,12 @@ machine:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {electric: "${dmg_electric}"}}
               - {id: st_shock, op: status, target: event.victim, status: shock, stacks: 1, for: "${shock_ticks}"}
-              - {id: lightning, op: lightning, anchor: victim.root, visual_only: true}
+              - {id: lightning, op: lightning, frame: root, visual_only: true}
               - {id: chip, op: break_area, anchor: contact, shape: {sphere: {radius: "${chip_radius}"}}, tool: none, block_damage: "${chip_damage}", ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "astera:skills/lightning-impact", frame: hit, volume: 0.7, pitch: 1.3, detach: true}
               - {id: fx_impact, op: particle_def, def: thunder-impact, frame: hit, detach: true}
-              - {id: sky_spark, op: particle, particle: electric_spark, anchor: sky, count: 1, detach: true}
-              - {id: sky_rod, op: particle, particle: end_rod, anchor: sky, count: 1, detach: true}
+              - {id: sky_spark, op: particle, particle: electric_spark, frame: sky, count: 1, detach: true}
+              - {id: sky_rod, op: particle, particle: end_rod, frame: sky, count: 1, detach: true}
               - {id: spark, op: particle, particle: electric_spark, frame: hit, pos: {w: -0.8}, count: 40, extra: 0.35, detach: true}
               - {id: rod, op: particle, particle: electric_spark, frame: hit, pos: {w: -0.8}, count: 12, extra: 0.25, detach: true}
               - {id: fan, op: particle, particle: electric_spark, frame: hit, pos: {w: -0.8}, count: 0, extra: 0.1, detach: true}
@@ -61,7 +61,7 @@ machine:
               - {id: ring_up, op: particle, particle: electric_spark, frame: hit, times: 8, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.32, detach: true}
               - {id: pop, op: particle, particle: electric_spark, frame: hit, count: 8, offset: [0.15, 0.15, 0.15], extra: 0.12, detach: true}
             block:
-              - {id: chip_blk, op: break_area, anchor: contact, shape: {sphere: {radius: "${chip_radius}"}}, tool: none, block_damage: "${chip_damage}", ripple: 29, revert: 200, outside_arena: false}
+              - {id: chip_blk, op: break_area, frame: blk, shape: {sphere: {radius: "${chip_radius}"}}, tool: none, block_damage: "${chip_damage}", ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_blk, op: sound, sound: "astera:skills/lightning-impact", frame: blk, volume: 0.5, pitch: 1.6, detach: true}
               - {id: spark_blk, op: particle, particle: electric_spark, frame: blk, count: 40, extra: 0.35, detach: true}
               - {id: rod_blk, op: particle, particle: electric_spark, frame: blk, count: 12, extra: 0.25, detach: true}
@@ -70,7 +70,7 @@ machine:
               - {id: ring_up_blk, op: particle, particle: electric_spark, frame: blk, times: 8, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.32, detach: true}
               - {id: pop_blk, op: particle, particle: electric_spark, frame: blk, count: 8, offset: [0.15, 0.15, 0.15], extra: 0.12, detach: true}
             expire:
-              - {id: fx_exp, op: particle_def, def: thunder-impact-glow, anchor: contact, detach: true}
+              - {id: fx_exp, op: particle_def, def: thunder-impact-glow, frame: head, detach: true}
       do:
         - {id: mesh, op: display, kind: item, item: minecraft:end_rod, context: none, frame: head, scale: [0.8, 0.8, 0.8], until: bolt.end}
         - {id: snd_cast, op: sound, sound: "astera:skill/wand/cast", frame: tip, at: 0, volume: 0.45, pitch: 1.8}
