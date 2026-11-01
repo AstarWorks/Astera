@@ -8,9 +8,11 @@ import org.junit.jupiter.api.Test
 /**
  * The real BotBrain plays a whole Annihilation match headless (ADR-0316): 3 teams x 3 bots on the generated
  * annihilation-arena, driven by [MatchDriver] over real wiring and real content. The match runs to its end or the tick cap;
- * Not asserted: same-seed reproducibility. The brains and the sim clock are deterministic, but plugin/match draws star-burst
- * directions and respawn points from kotlin Random.Default (StarDropService, DefaultSpawnSelector), so two runs diverge until
- * those take a seeded Random from the sim (request to the plugin/match owner).
+ * Not asserted: same-seed reproducibility. Remaining plugin-side sources, each needing a seeded stream from the sim
+ * (request to the plugin/match owner): StartMatchUseCase.kt:74 draws the MatchId from UUID.randomUUID() and
+ * BotLoadoutService.kt:152 seeds the bot weapon pairs from that id hash (pool `seed` unset), so loadouts differ from tick 0;
+ * StarDropService.kt:61 and StarWaveService.kt:46 default to Random.Default (MatchStarWiring.kt:99/143 pass no seeded stream).
+ * The per-bot maxSearchUs in BotBrain.summary() is wall-clock A* time and must be excluded from any equality compare.
  * The per-bot brain summaries and the end reason are printed so the bot AI can be tuned against numbers, not a live server.
  */
 class BotBrainSimParityScenarioTest {
