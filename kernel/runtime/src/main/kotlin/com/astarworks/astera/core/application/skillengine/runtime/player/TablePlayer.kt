@@ -392,7 +392,7 @@ public class TablePlayer(
             val h = rec.real ?: continue
             if (rec.anchor == null && rec.anchorName.startsWith(FrameRefs.PREFIX) && rec.kind in RIDER_KINDS) {
                 // a display placed by a frame (ADR-0314) follows the frame table: re-written when the frame moved since it last looked
-                val pw = framePose(run, rec.anchorName, rec.binding)
+                val pw = framePose(run, rec.anchorName, rec.binding, rec.scope)
                 val seen = rec.parentSeen
                 rec.parentSeen = pw
                 if (seen != null && samePose(seen, pw)) continue
@@ -1230,7 +1230,7 @@ public class TablePlayer(
         rec.real = h
         rec.anchor?.let { run.recs[it] }?.let { p -> rec.parentSeen = worldOf(run, p, p.localAt(now), null, now) }
         // a frame display (ADR-0314) has seen its frame at spawn: followRiders writes it only once the frame moves (no spawn-tick write)
-        if (rec.anchor == null && rec.anchorName.startsWith(FrameRefs.PREFIX) && rec.kind in RIDER_KINDS) rec.parentSeen = framePose(run, rec.anchorName, ctx.binding)
+        if (rec.anchor == null && rec.anchorName.startsWith(FrameRefs.PREFIX) && rec.kind in RIDER_KINDS) rec.parentSeen = framePose(run, rec.anchorName, ctx.binding, ctx.scope).also { rec.scope = ctx.scope }
         // a glyph quad: the text colour and opacity of the spawn row are written like a first `set` (spawnText has no slot for them)
         if (h != null && a.kind == SpawnKind.TEXT) {
             look.fields["color"]?.let { hooks.setDisplayText(h, "color", strOf(run, it, ctx)) }
@@ -1450,7 +1450,7 @@ public class TablePlayer(
             is HitShape.Sector -> s.origin
             is HitShape.Box -> s.center
         }
-        val ref = (cell as? Val.Live)?.name?.let { FrameRefs.parse(it) }?.takeIf { !it.direction } ?: return null
+        val ref = (cell as? Val.Live)?.name?.let { FrameRefs.parse(it) }?.takeIf { !it.direction }?.let { concrete(run, it, ctx.binding, ctx.scope) } ?: return null
         val inst = frameInst(run, ref, ctx.binding)
         val cur = inst.state?.world(ref.at) ?: return null
         val prev = inst.prevState?.world(ref.at) ?: return Vector3d()
@@ -2200,6 +2200,19 @@ public class TablePlayer(
      * Runs at the end of the tick, so a rig that started on this tick's rows is pushed on the tick its mesh was first written.
      */
     private fun pushBodies(run: Run, now: Int) {
+        val pushes = bodyPushes(run, now, pinHand = true)
+        if (pushes.isEmpty()) return
+        val anchor by lazy { casterAnchor(run) }
+        for (push in pushes.groupBy { it.who }.values.map { bodies -> bodies.maxBy { it.start } }) {
+            gameplay.poseBody(castRef(run), push.who, push.frame(), if (push.anchored) anchor else null)
+        }
+    }
+
+    /**
+     * Every body shown at [now], with the frame the engine's tables used. [pinHand] = the frame rig's right hand is pinned onto its ridden
+     * frame's origin (the push); the torso reading ([torsoRot]) leaves it off, since that pin reads the very frame being evaluated.
+     */
+    private fun bodyPushes(run: Run, now: Int, pinHand: Boolean): List<BodyPush> {
         val pushes = ArrayList<BodyPush>()
         for ((id, rec) in run.recs.entries) {
             rec.body?.let { b ->
@@ -2219,15 +2232,23 @@ public class TablePlayer(
                     // no clip (ADR-0315): the rest body, the pinned hand is all that moves
                     val frame = if (anim == null || clip == null) RigFrame.REST
                     else run.armTracks.getOrPut(anim to false) { RigBodyTrack(clip, gameplay.isSlimSkin(fr.caster)) }.frameAt(now - fr.start)
-                    if (fr.off) frame else frame.copy(rightHandTarget = pinnedHandTarget(run, fr))
+                    if (fr.off || !pinHand) frame else frame.copy(rightHandTarget = pinnedHandTarget(run, fr))
                 }, true)
             }
         }
-        if (pushes.isEmpty()) return
-        val anchor by lazy { casterAnchor(run) }
-        for (push in pushes.groupBy { it.who }.values.map { bodies -> bodies.maxBy { it.start } }) {
-            gameplay.poseBody(castRef(run), push.who, push.frame(), if (push.anchored) anchor else null)
-        }
+        return pushes
+    }
+
+    /**
+     * The caster's torso (root x body, the spine landmark of the puppet the skin draws) in the caster's axes at [now]: the newest body shown on the
+     * caster, the rest body when none plays. `body.forward` / `body.up` / `body.left` frame axes turn by it, so an arm frame follows the torso
+     * on the same clock as the skin (ADR-0315) with no hand-keyed yaw.
+     */
+    private fun torsoRot(run: Run, now: Int): Quaterniond {
+        val caster = run.request.caster
+        val frame = bodyPushes(run, now, pinHand = false).filter { it.who == caster }.maxByOrNull { it.start }?.frame?.invoke() ?: RigFrame.REST
+        val q = SkinRigTransforms.spine(frame, gameplay.isSlimSkin(caster)).rotation
+        return Quaterniond(q.x, q.y, q.z, q.w)
     }
 
     /**
@@ -2330,6 +2351,7 @@ public class TablePlayer(
         val lookRot = live.rot(handle, "caster.look", binding, scope)
         fun turned(q: Quaterniond, v: Vec3): Vec3 = Vector3d(v.x, v.y, v.z).rotate(q).let { Vec3(it.x, it.y, it.z) }
         val aim = turned(lookRot, Vec3(0.0, 0.0, 1.0))
+        val torso by lazy { torsoRot(run, now) }
         val prev = inst.prevOrigin
         inst.prevOrigin = origin
         val liveDirection: (String) -> Vec3? = { name ->
@@ -2341,6 +2363,13 @@ public class TablePlayer(
                 "back" -> turned(casterRot, Vec3(0.0, 0.0, -1.0))
                 "left" -> turned(casterRot, Vec3(1.0, 0.0, 0.0))
                 "right" -> turned(casterRot, Vec3(-1.0, 0.0, 0.0))
+                // the torso of the body shown on the caster this tick (the puppet the skin draws), in the caster's axes
+                "body.forward" -> turned(Quaterniond(casterRot).mul(torso), Vec3(0.0, 0.0, 1.0))
+                "body.back" -> turned(Quaterniond(casterRot).mul(torso), Vec3(0.0, 0.0, -1.0))
+                "body.up" -> turned(Quaterniond(casterRot).mul(torso), Vec3(0.0, 1.0, 0.0))
+                "body.down" -> turned(Quaterniond(casterRot).mul(torso), Vec3(0.0, -1.0, 0.0))
+                "body.left" -> turned(Quaterniond(casterRot).mul(torso), Vec3(1.0, 0.0, 0.0))
+                "body.right" -> turned(Quaterniond(casterRot).mul(torso), Vec3(-1.0, 0.0, 0.0))
                 // the block's surface normal at the contact (an on: event.block frame); any other frame has no contact
                 "normal" -> binding?.contact?.normal?.let { Vec3(it.x, it.y, it.z) }?.takeIf { it.lengthSquared() > 1e-12 }?.normalize()
                 // from the caster's eye to the frame origin (a victim / contact frame: the way the blow came in); a frame on the caster has no incoming side: the aim
@@ -2458,14 +2487,21 @@ public class TablePlayer(
             )
         }
 
+    /**
+     * The ONE place an `= expr` coefficient is evaluated (every op that takes `frame:` + `pos:` reads its cell through here): each component runs
+     * through the same `= CEL` path as every live cell, then the reference is an ordinary numeric one. A summon / world op / projectile reads its
+     * cell at its spawn tick (so it is baked once there); a display or a hit re-reads its cell every tick.
+     */
+    private fun concrete(run: Run, ref: FrameRef, binding: EventBinding?, scope: RowScope?): FrameRef {
+        val ex = ref.at.exprs ?: return ref
+        val sc = scope ?: throw IllegalArgumentException("frame '${ref.frame}': an '= expr' coefficient is read without a row scope")
+        fun c(i: Int, n: Double): Double = ex[i]?.let { live.num(run.cursor.handle, "= $it", binding, sc) } ?: n
+        return ref.copy(at = Coeff(c(0, ref.at.v), c(1, ref.at.w), c(2, ref.at.s)))
+    }
+
     /** A `pos` cell: the frame's origin plus the coefficients along its axes; a `dir` cell (ADR-0314): the same weighted axes with no origin. */
     private fun frameVec(run: Run, ref0: FrameRef, binding: EventBinding?, scope: RowScope? = null): Vector3d {
-        // `pos: {v: "= i * 0.2"}`: each expression component is evaluated now (the same path as every `= CEL` cell), then the cell is an ordinary one
-        val ref = ref0.at.exprs?.let { ex ->
-            val sc = scope ?: throw IllegalArgumentException("frame '${ref0.frame}': an '= expr' coefficient is read where a row scope exists (particle, particle_def, sound)")
-            fun c(i: Int, n: Double): Double = ex[i]?.let { live.num(run.cursor.handle, "= $it", binding, sc) } ?: n
-            ref0.copy(at = Coeff(c(0, ref0.at.v), c(1, ref0.at.w), c(2, ref0.at.s)))
-        } ?: ref0
+        val ref = concrete(run, ref0, binding, scope)
         val st = frameState(run, ref, binding)
         val a = (if (ref.direction) st.basis.direction(ref.at) else st.world(ref.at)).let { Vector3d(it.x, it.y, it.z) }
         if (ref.toFrame == ref.frame) return a
@@ -2478,9 +2514,9 @@ public class TablePlayer(
     private fun frameRot(run: Run, ref: FrameRef, binding: EventBinding?): Quaterniond =
         frameState(run, ref, binding).orientation().let { Quaterniond(it.x, it.y, it.z, it.w) }
 
-    private fun framePose(run: Run, cell: String, binding: EventBinding?): PoseV {
+    private fun framePose(run: Run, cell: String, binding: EventBinding?, scope: RowScope?): PoseV {
         val ref = FrameRefs.parse(cell) ?: throw IllegalArgumentException("'$cell' is not a frame cell")
-        return PoseV(frameVec(run, ref, binding), frameRot(run, ref, binding), Vector3d(1.0, 1.0, 1.0))
+        return PoseV(frameVec(run, ref, binding, scope), frameRot(run, ref, binding), Vector3d(1.0, 1.0, 1.0))
     }
 
     /**
@@ -3151,6 +3187,8 @@ public class TablePlayer(
         var frameRig: FrameRigRec? = null
         /** The hit that spawned this instance (null outside `on.hit`): a `victim` anchor/axes keeps resolving to that victim after the row is gone (end-of-cast freeze, later ticks). */
         var binding: EventBinding? = null
+        /** The row scope a frame display was spawned under: its host cell may carry `= expr` coefficients, evaluated each tick in it. */
+        var scope: RowScope? = null
         var flight: Flight? = null
         /** R16: the tick the flight ends by range / `for` (-1 none), the body events that end it early, and whether one did. */
         var expireTick: Int = -1

@@ -296,6 +296,11 @@ part を足す時は、呼び出し側の op id (`hit_fx` など) と part 内�
 - **`scale` は常に掛け算 (置換ではない)**: display 自身の `scale:` を基準に、`keys.scale` と `grow` は表示 scale へ**乗算**される
   (`LawSegmenter`: `scale = mul(scale, key)`)。grow-in は「`scale:` = 最終サイズ、keys は 0 -> 1 -> 0」と書く。`scale: [0, 0, 0]` に最終サイズの keys を足すと
   全期間 0 が書かれる。frame の `scale:` track (`frames:` 内) は別物で、frame の軸長を変える (座標の係数 `pos: {v, w, s}` に掛かる)。
+- **`pos: {v, w, s}` の係数は数・`${param}`・`= CEL`**: `frame:` + `pos:` を取る op は全て同じ規則 (display / particle / particle_def / sound / lightning / explode / break_area / place_shape / summon / projectile の origin / hit・area の中心)。
+  `pos: {v: "= i * 0.5"}` の `i` / `n` は展開時に焼かれ、評価は player の一箇所 (`TablePlayer.concrete`)。**評価 tick**: display と hit は毎 tick 読み直し、summon・world op・projectile origin・particle・sound は spawn / 発火 tick に一度だけ評価する (焼き込み)。
+  式の typo は row の path (`pos.v`) 付きの load error。`to:` / `samples:` / `dir:` と ribbon の点は数のみ。
+- **`body.forward` / `body.up` / `body.left` (`back` `down` `right`)**: frame の軸 (`v:` `w:` `s:`) に書ける胴体向き。skin が描く driven puppet の胴 (root x body) の同 tick の姿勢から読むので、
+  胴を回す body clip に腕 frame が追従する (手で yaw を打ち消す key は要らない)。body clip が無い間は caster の向きと同じ。
 - `motion` の値に CEL 文字列を書いても、family の per-index list とは見なされない (`"= ..."` は一つの数値式)。
 
 ### 被弾側 (victim side): `react` と `hit.attach`

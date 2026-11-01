@@ -139,7 +139,7 @@ public object ParticleOpSpec : OpSpec<ParticleOp> {
             if (wantsBlock && style !is ParticleStyle.Block) ctx.fail("block", "particle '$particle' needs a block state: give block: minecraft:<block>")
             if (!wantsBlock && style is ParticleStyle.Block) ctx.fail("block", "particle '$particle' takes no block state (only ${BLOCK_PARTICLES.joinToString()} do)")
             val path = "particle[${id.value}]"
-            val frame = FrameRefs.readSegment(values, ctx, path, allowExpr = true, anchorGiven = values[ANCHOR] != null)
+            val frame = FrameRefs.readSegment(values, ctx, path, anchorGiven = values[ANCHOR] != null)
             if (frame == null && values[ANCHOR] == null) ctx.fail("$path.anchor", "particle needs anchor: <name> or frame: <id>")
             if (frame != null && values[SHIFT] != null) ctx.fail("$path.shift", "shift is an anchor-axes displacement; with frame: write the point as pos: {v, w, s}")
             if (frame != null && values[OFFSET] is ParticleOffset.Frame) ctx.fail("$path.offset", "with frame: the vanilla offset is a world vec [x, y, z] (a spread box cannot rotate, ADR-0312); a frame-axes direction is not placed by offset")
