@@ -52,19 +52,19 @@ nodes:
     drops: [{ item_id: ore-gold, count: 2 }]
   - block: astera:ore_iron_node
     positions: [{ x: -33, y: 61, z: 11 }, { x: -33, y: 61, z: 10 }, { x: -33, y: 61, z: 9 }, { x: -34, y: 61, z: 8 }, { x: -34, y: 61, z: 7 }, { x: -34, y: 61, z: 6 }, { x: -34, y: 61, z: 5 }, { x: -34, y: 61, z: 4 }, { x: -30, y: 61, z: 20 }, { x: -34, y: 61, z: 3 }, { x: -34, y: 61, z: 2 }, { x: -31, y: 65, z: -92 }, { x: -29, y: 65, z: -92 }, { x: -27, y: 65, z: -92 }, { x: 78, y: 65, z: 23 }, { x: 78, y: 65, z: 25 }, { x: 78, y: 65, z: 27 }, { x: -78, y: 65, z: 85 }, { x: -78, y: 65, z: 83 }, { x: -78, y: 65, z: 81 }]
-    regrow_seconds: 20
+    regrow_seconds: 6
     required_tier: STONE
     min_norma_level: 1
-    drops: [{ item_id: ore-iron, count: 2 }]
+    drops: [{ item_id: ore-iron, count: 3 }]
   - block: astera:ore_timber_node
     positions: [{ x: 3, y: 61, z: -36 }, { x: 4, y: 61, z: -34 }, { x: 5, y: 61, z: -34 }, { x: 6, y: 61, z: -34 }, { x: -32, y: 65, z: -92 }, { x: -26, y: 65, z: -92 }, { x: 78, y: 65, z: 22 }, { x: 78, y: 65, z: 28 }, { x: -78, y: 65, z: 86 }, { x: -78, y: 65, z: 80 }]
-    regrow_seconds: 20
+    regrow_seconds: 6
     required_tier: STONE
     min_norma_level: 1
-    drops: [{ item_id: ore-iron, count: 2 }]
+    drops: [{ item_id: ore-iron, count: 3 }]
   - block: astera:ore_clay_node
     positions: [{ x: 22, y: 61, z: 27 }, { x: 21, y: 61, z: 28 }, { x: 20, y: 61, z: 28 }, { x: 23, y: 61, z: 26 }, { x: 19, y: 61, z: 29 }, { x: 24, y: 61, z: 25 }, { x: -30, y: 65, z: -92 }, { x: -28, y: 65, z: -92 }, { x: 78, y: 65, z: 24 }, { x: 78, y: 65, z: 26 }, { x: -78, y: 65, z: 84 }, { x: -78, y: 65, z: 82 }]
-    regrow_seconds: 20
+    regrow_seconds: 6
     required_tier: STONE
     min_norma_level: 1
-    drops: [{ item_id: ore-iron, count: 2 }]
+    drops: [{ item_id: ore-iron, count: 3 }]
