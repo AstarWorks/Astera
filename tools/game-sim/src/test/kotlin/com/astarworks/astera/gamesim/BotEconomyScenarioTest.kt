@@ -137,7 +137,7 @@ class BotEconomyScenarioTest {
             var clock = 0L
             var guard = 0
             while (bought.size < 4 && guard++ < 400) {
-                val step = planner.step(clock, bot.position.x, bot.position.z, have(), hasPickaxe = false)
+                val step = planner.step(clock, bot.position.x, bot.position.z, have(), hasPickaxe = false, owned = bought.toSet())
                     ?: error("planner stalled: bought=$bought bag=$bag rung=${planner.rung}")
                 bot.position = Vec3(step.x, step.y, step.z)
                 when (step.kind) {
@@ -160,7 +160,7 @@ class BotEconomyScenarioTest {
             // Norma Lv2 hands the bot an iron pickaxe (ADR-0319): the gold node is now the next thing to work on.
             bag += "iron-pickaxe"
             clock += 400
-            val next = checkNotNull(planner.step(clock, bot.position.x, bot.position.z, have(), hasPickaxe = true)) { "planner idle with a pickaxe" }
+            val next = checkNotNull(planner.step(clock, bot.position.x, bot.position.z, have(), hasPickaxe = true, owned = bought.toSet())) { "planner idle with a pickaxe" }
             assertThat(next.kind to next.ore).isEqualTo("mine" to "ore-gold")
         }
     }
@@ -313,6 +313,6 @@ class BotEconomyScenarioTest {
         // A better helmet already worn passes the leather helmet rung without a shop trip.
         val better = EconomyPlanner(sites, buys)
         better.step(0, 20.0, 20.0, emptyMap(), false, setOf("iron-warden-helmet"))
-        assertThat(better.rung).isEqualTo(1)
+        assertThat(better.rung).`as`("leather + chain-guard + iron-warden helmet rungs are all covered by the worn iron-warden helmet").isEqualTo(3)
     }
 }
