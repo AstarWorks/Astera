@@ -3,12 +3,12 @@
 #   body    - the caster's feet; the looks that follow the caster hang on it.
 #   pre     - the caster at tick 2 (held in the world): the white line and the lavender haze. c1 / wisp - the caster at ticks 7 and 15: the coin1 cut.
 #   raise   - the right hand, lifted 0.9 over 6 ticks: the held shears go overhead before they come apart.
-#   spin    - the right hand: the three pieces whirl about s (54 degrees a tick, ticks 4..34, one turn is 360 so 30 ticks make 4.5 turns). The blades
+#   spin    - the right hand: the body piece whirls about s (54 degrees a tick, ticks 4..34; one turn is 360, so 30 ticks make 4.5 turns).
 #   spin_a / spin_b - the same whirl, with the blade opening listed AFTER the s sweep so it turns about the swept edge (w): 35 / -35 degrees over ticks 4..8.
 #             The body rides plain `spin`. (The whoosh volume and pitch read the tip speed spin_dpt x 0.0175 (radians) x the 0.77 tip radius: Paper gives a
 #             frame no live velocity, only caster / victim / target, so the old speed(piece_a.tip) had no frame equivalent; it varied only with the hand.)
-#   hand    - the right hand again, unrotated: the start of the three threads.
-#   over_a / over_b - 2.5 above the caster: the overhead slash loops turn about v (+-600 degrees over ticks 22..32).
+#   hand    - the right hand again, unrotated: the threads start 0.8 forward of it (pos v 0.8), so in first person they leave a point ahead of the eye, not the eye.
+#   over_a / over_b - 2.5 above and 2.2 ahead of the caster (in the world, never at the camera): the overhead slash loops (three sprites each, 0.1 apart) turn about v (+-600 degrees, ticks 22..32).
 #   shot    - the thrown volley (release at tick 34), upright: the flight fan and the tip glints. vol - the same, but it spins about v by 378 degrees
 #             (ticks 38..45, release + 4..11): the three pieces ride it at +-0.35 (the old lane). Keys count from the cast start, so these two are
 #             exact only because the release is always tick 34.
@@ -170,8 +170,8 @@ machine:
         - {id: piece_a_m, op: display, kind: item, item: "astera:couture-rapier", part: blade_a, frame: spin_a, at: 4, for: 30}
         - {id: piece_b_m, op: display, kind: item, item: "astera:couture-rapier", part: blade_b, frame: spin_b, at: 4, for: 30}
         # trails: the blade tip (0.77 up, 0.54 to the side) behind the root; alpha 0.35 = byte 0x59 of the colour, fade 1.5
-        - {id: trail_a, op: ribbon, of: {frame: spin, pos: {v: 0.77, s: -0.54}}, root: {frame: spin, pos: {v: -0.06}}, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "= trail_color", at: 4, for: 30}
-        - {id: trail_b, op: ribbon, of: {frame: spin, pos: {v: 0.77, s: 0.54}}, root: {frame: spin, pos: {v: -0.06}}, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "= trail_color", at: 4, for: 30}
+        - {id: trail_a, op: ribbon, of: {frame: spin_a, pos: {v: 0.77, s: -0.54}}, root: {frame: spin_a, pos: {v: -0.06}}, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "= trail_color", at: 4, for: 30}
+        - {id: trail_b, op: ribbon, of: {frame: spin_b, pos: {v: 0.77, s: 0.54}}, root: {frame: spin_b, pos: {v: -0.06}}, history: 6, style: soft, width_frac: 0.6, fade: 1.5, color: "= trail_color", at: 4, for: 30}
         - {id: whoosh, op: sound, sound: couture.whoosh, anchor: shears, at: 4, every: 4, for: 30, volume: "= clamp(spin_dpt * 0.0175 * 0.77 / 1.5, 0.2, 1.0)", pitch: "= 0.9 + 0.3 * clamp(spin_dpt * 0.0175 * 0.77 / 2.0, 0.0, 1.0)"}
         # coin1: 30 degree / 9 block cone around the caster pose of tick 8; damage lands one tick after the selector (delay op)
         - {id: slash, op: frame, anchor: caster, mode: snapshot, at: 8, for: 1}
@@ -247,9 +247,9 @@ machine:
         # palm_f stays: the reel flies the volley back to it. The three threads run from the hand to each piece's root.
         - {id: palm_f, op: frame, anchor: palm, until: reel.end}
         # the reel ends on arrival (a runtime distance), so the threads have no static length: until: reel.end ends them the tick the reel lands.
-        - {id: thread_a, op: ribbon, from: {frame: hand, pos: {}}, to: {frame: vol, pos: {s: 0.35, v: -0.06}}, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
-        - {id: thread_b, op: ribbon, from: {frame: hand, pos: {}}, to: {frame: vol, pos: {s: -0.35, v: -0.06}}, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
-        - {id: thread_body, op: ribbon, from: {frame: hand, pos: {}}, to: {frame: vol, pos: {}}, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
+        - {id: thread_a, op: ribbon, from: {frame: hand, pos: {v: 0.8}}, to: {frame: vol, pos: {s: 0.35, v: -0.06}}, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
+        - {id: thread_b, op: ribbon, from: {frame: hand, pos: {v: 0.8}}, to: {frame: vol, pos: {s: -0.35, v: -0.06}}, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
+        - {id: thread_body, op: ribbon, from: {frame: hand, pos: {v: 0.8}}, to: {frame: vol, pos: {}}, thickness: "= thread_thick", color: "= thread_color", until: reel.end}
         # the flight fan: the crescent lies in the plane of the flight direction (w) and up (v), alpha 0.5, size 6.4 x 0.15625 = 1.0 rendered
         - {id: flight_fan, op: display, kind: sprite, sprite: couture-s2-crescent, size: [6.4, 6.4], color: "#80ffffff", frame: shot, plane: [w, v], billboard: fixed, for: 7}
       on:
