@@ -4251,7 +4251,7 @@
                                     "type": "null"
                                 }
                             ],
-                            "description": "with frame: [a, b] of v|w|s (optionally '-'): the plate's width runs along a and its height along b (ADR-0314); absent = the plate faces v",
+                            "description": "with frame: [a, b] of v|w|s (optionally '-'): the plate's width runs along a and its height along b (ADR-0314); the FRONT face looks along a x b (right-hand rule: [v, w] faces s, [w, v] faces -s) and the back face is culled by the client; absent = the plate faces v",
                             "default": null
                         },
                         "item": {

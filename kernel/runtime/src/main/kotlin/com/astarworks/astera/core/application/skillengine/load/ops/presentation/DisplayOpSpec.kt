@@ -165,7 +165,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     private val kindF = Field.required("kind", Types.enumOf("item", "block", "text", "sprite"), "item | block | text | sprite")
     private val anchorF = Field.optional("anchor", Types.nullable(Types.id), null, "anchor name; the entity LOCATION is the anchor's world origin plus offset (2.3). Or frame: + pos: (ADR-0314)")
     private val offsetF = Field.optional("offset", Types.nullable(FrameVecs.type), null, "{forward, up, left} in the anchor's axes, folded into the entity location; absent = none")
-    private val planeF = Field.optional("plane", Types.nullable(Types.list(Types.id)), null, "with frame: [a, b] of v|w|s (optionally '-'): the plate's width runs along a and its height along b (ADR-0314); absent = the plate faces v")
+    private val planeF = Field.optional("plane", Types.nullable(Types.list(Types.id)), null, "with frame: [a, b] of v|w|s (optionally '-'): the plate's width runs along a and its height along b (ADR-0314); the FRONT face looks along a x b (right-hand rule: [v, w] faces s, [w, v] faces -s) and the back face is culled by the client; absent = the plate faces v")
 
     // item
     private val itemF = Field.optional("item", Types.nullable(Types.idValue), null, "kind item: item_model id (main_hand = the held item's model, resolved at cast start); under times a per-index list or '= CEL' over i")

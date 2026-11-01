@@ -86,6 +86,26 @@ class DisplayOpScenarioTest : SkillEngineScenario() {
     }
 
     @Test
+    fun planeNormalIsTheRightHandCrossOfTheDeclaredAxesAndTheFrontFaceLooksAlongIt() {
+        val yaml = skill(
+            "{id: a, op: display, kind: sprite, sprite: arcane-slash, size: [1, 1], frame: flat, plane: [v, w], for: 20}",
+            "{id: b, op: display, kind: sprite, sprite: arcane-slash, size: [1, 1], frame: flat, plane: [w, v], for: 20}",
+        ).replace("machine:", "frames:\n  - {id: flat, origin: caster, v: forward, w: left, s: v x w}\nmachine:")
+        val compiled = (loadInline(yaml) as? Result.Success)?.value ?: throw AssertionError("plane probe did not load")
+        val spawn = play(compiled, 7L).filter { it.verb == "spawn" }
+        assertThat(spawn).hasSize(2)
+        fun normalY(detail: String): Double {
+            val q = Regex("rot=([-0-9.]+),([-0-9.]+),([-0-9.]+),([-0-9.]+)").find(detail)!!.groupValues.drop(1).map { it.toDouble() }
+            val (x, y, z, w) = q
+            // the local +Z (the quad's front normal) rotated by the quaternion, y component
+            return 2 * (y * z - w * x)
+        }
+        // s = forward x left points up: [v, w] faces up, [w, v] is the same plate seen from below
+        assertThat(normalY(spawn[0].detail)).isGreaterThan(0.99)
+        assertThat(normalY(spawn[1].detail)).isLessThan(-0.99)
+    }
+
+    @Test
     fun viewRangeReachesTheGatewayAndEngineOwnedInterpolationFieldsAreRejected() {
         val yaml = skill(
             "{id: a, op: display, kind: block, anchor: caster, block: minecraft:white_concrete, view_range: 3, for: 20}",
