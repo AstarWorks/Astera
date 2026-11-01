@@ -154,6 +154,14 @@ class MatchMetrics(
     private var stage: Stage? = null
     private var pillarIds: Map<PlayerId, TeamId> = emptyMap()
     private val pillarHp = HashMap<PlayerId, Double>()
+    private var pillarTierOf: Map<PlayerId, Int> = emptyMap()
+    private val destroyedPillars = HashSet<PlayerId>()
+    // Per-team pillar accounting (team id value -> HP). Unattributed damage is in taken AND in the unattributed buckets, never in dealt.
+    private val pillarDealtByTeam = HashMap<String, Double>()
+    private val pillarTakenByTeam = HashMap<String, Double>()
+    private val pillarTakenUnattributedByTeam = HashMap<String, Double>()
+    private val pillarSelfInflictedByTeam = HashMap<String, Double>()
+    private var pillarUnattributedTotal = 0.0
     private var bounds: DoubleArray? = null // minX, minZ, maxX, maxZ
 
     private val players = LinkedHashMap<PlayerId, PlayerState>()
@@ -232,6 +240,7 @@ class MatchMetrics(
         var collected = 0
         val pillarAttackers = HashSet<PlayerId>()
         val pillarDirect = HashMap<PlayerId, Double>()
+        val pillarEvents = mutableListOf<PillarHit>()
         for (e in fresh) when (e) {
             is MatchStarted -> if (matchId == null) onMatchStarted(e)
             is AnnihilationPhaseTransitioned -> if (e.matchId == matchId) phaseTicks.putIfAbsent(e.newPhase.id.toString(), e.atTick)
@@ -245,9 +254,12 @@ class MatchMetrics(
                 }
             }
             is BlockBroken -> miners += e.playerId
-            is NexusDamaged -> if (e.matchId == matchId) e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.damageAmount.toDouble(), Double::plus) }
+            is NexusDamaged -> if (e.matchId == matchId) {
+                pillarEvents += PillarHit(e.owningTeam, (e.previousHp - e.currentHp).toDouble(), e.attackerId)
+                e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.damageAmount.toDouble(), Double::plus) }
+            }
             is PlayerKilled -> onKill(e)
-            is NexusDestroyed -> if (e.matchId == matchId) { if (firstPillarLossTick == null) firstPillarLossTick = tick; pillarLosses += Triple(tick, e.owningTeam.value, e.tier.toString()); e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.previousHp.toDouble(), Double::plus) } }
+            is NexusDestroyed -> if (e.matchId == matchId) { if (firstPillarLossTick == null) firstPillarLossTick = tick; pillarLosses += Triple(tick, e.owningTeam.value, e.tier.toString()); destroyedPillars += AnnihilationPillarTargets.idOf("${e.matchId.value}-${e.owningTeam.value}-${e.tier.ordinalValue}"); pillarEvents += PillarHit(e.owningTeam, e.previousHp.toDouble(), e.attackerId); firstTierLossTickByTeam.putIfAbsent(e.owningTeam.value, tick); e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.previousHp.toDouble(), Double::plus) } }
             is StarSupplied -> if (e.matchId == matchId) starsSupplied += e.amount
             is StarsCollected -> if (e.matchId == matchId) { starsCollected += e.amount; collected++ }
             is NormaLevelUp -> if (e.matchId == matchId) {
@@ -258,7 +270,7 @@ class MatchMetrics(
         }
         val started = startTick ?: return
         if (endTick != null && tick > endTick!!) return
-        trackPillars(pillarAttackers, pillarDirect)
+        trackPillars(pillarEvents)
         trackStars(collected)
         trackPlayers(fighters, miners)
         if (tick > started && (tick - started) % leadSampleTicks == 0L) sampleLead(tick)
@@ -274,6 +286,9 @@ class MatchMetrics(
         if (st != null) {
             pillarIds = st.pillars.associate {
                 AnnihilationPillarTargets.idOf("${e.matchId.value}-${it.team.value}-${it.tier.ordinalValue}") to it.team
+            }
+            pillarTierOf = st.pillars.associate {
+                AnnihilationPillarTargets.idOf("${e.matchId.value}-${it.team.value}-${it.tier.ordinalValue}") to it.tier.ordinalValue
             }
             val xs = st.pillars.map { it.position.x } + (st.layout?.islands?.map { it.x.toDouble() } ?: emptyList())
             val zs = st.pillars.map { it.position.z } + (st.layout?.islands?.map { it.z.toDouble() } ?: emptyList())
@@ -341,29 +356,71 @@ class MatchMetrics(
         killsByItem.merge(e.killer?.let { sim.world.find(it)?.heldItem?.value } ?: "none", 1, Int::plus)
     }
 
-    private fun trackPillars(attackers: Set<PlayerId>, direct: Map<PlayerId, Double>) {
+    /** One pillar HP loss event (NexusDamaged / NexusDestroyed): the plugin's own record; attacker null = the Phase 5 bleed (its only null-attacker source). */
+    private class PillarHit(val owner: TeamId, val amount: Double, val attacker: PlayerId?)
+
+    private val pillarBleedByTeam = HashMap<String, Double>()
+    private val pillarUnknownByTeam = HashMap<String, Double>()
+    private var bleedApplications = 0
+    private val firstTierLossTickByTeam = HashMap<String, Long>()
+
+    /**
+     * Attribution is event-driven: every HP loss the tracker publishes carries its attacker (player hit) or none (the bleed,
+     * AnnihilationMatchTracker.applyBleedIfDue, the only caller that passes no attacker). The sampled HP delta is only a
+     * cross-check: whatever it shows beyond the events is `unknown`. Dealt / taken / self-inflicted keep their meaning.
+     */
+    private fun trackPillars(events: List<PillarHit>) {
         val targets = sim.services.get<IStructureTargets>() ?: return
-        var delta = 0.0
-        for (id in pillarIds.keys) {
+        val sampled = HashMap<String, Double>()
+        for ((id, owner) in pillarIds) {
             // null = the match no longer tracks the pillar (ended/cleaned up): not damage, so the remaining HP must not count.
             val hp = targets.hitPoints(id) ?: continue
             val prev = pillarHp[id]
-            if (prev != null && hp < prev) delta += prev - hp
+            if (prev != null && hp < prev) sampled.merge(owner.value, prev - hp, Double::plus)
             pillarHp[id] = hp
         }
-        if (delta <= 0.0) return
-        pillarDamageTotal += delta
+        val eventSum = HashMap<String, Double>()
+        var bleedThisTick = false
+        for (ev in events) {
+            val owner = ev.owner.value
+            eventSum.merge(owner, ev.amount, Double::plus)
+            pillarTakenByTeam.merge(owner, ev.amount, Double::plus)
+            val pid = ev.attacker
+            if (pid == null) {
+                pillarBleedByTeam.merge(owner, ev.amount, Double::plus)
+                bleedThisTick = true
+                account(null, owner, ev.amount)
+                continue
+            }
+            val attackerTeam = teamOf[pid] ?: sim.world.find(pid)?.team
+            if (attackerTeam == null) { pillarUnknownByTeam.merge(owner, ev.amount, Double::plus); account(null, owner, ev.amount); continue }
+            if (attackerTeam.value == owner) pillarSelfInflictedByTeam.merge(owner, ev.amount, Double::plus)
+            else pillarDealtByTeam.merge(attackerTeam.value, ev.amount, Double::plus)
+            account(pid, owner, ev.amount)
+        }
+        if (bleedThisTick) bleedApplications++
+        for ((owner, d) in sampled) {
+            val residual = d - (eventSum[owner] ?: 0.0)
+            if (residual > 1e-9) {
+                pillarTakenByTeam.merge(owner, residual, Double::plus)
+                pillarUnknownByTeam.merge(owner, residual, Double::plus)
+                account(null, owner, residual)
+            }
+        }
+        val total = maxOf(sampled.values.sum(), eventSum.values.sum())
+        if (total <= 0.0) return
+        pillarDamageTotal += total
         if (firstPillarHitTick == null) firstPillarHitTick = lastTick
-        val who = attackers.filter { isPlayer(it) }
-        val shares: Map<PlayerId?, Double> = when {
-            direct.isNotEmpty() -> direct.mapValues { delta * it.value / direct.values.sum() }
-            who.isNotEmpty() -> who.associateWith { delta / who.size }
-            else -> mapOf(null to delta)
+    }
+
+    /** One slice of pillar damage: pid null goes to the unattributed bucket; both feed the per-group / per-item tallies. */
+    private fun account(pid: PlayerId?, owner: String, amount: Double) {
+        if (pid == null) {
+            pillarUnattributedTotal += amount
+            pillarTakenUnattributedByTeam.merge(owner, amount, Double::plus)
         }
-        for ((pid, amount) in shares) {
-            pillarDamageByKey.merge(if (pid == null) "unattributed" else group(pid), amount, Double::plus)
-            pillarDamageByItem.merge(pid?.let { sim.world.find(it)?.heldItem?.value } ?: "unattributed", amount, Double::plus)
-        }
+        pillarDamageByKey.merge(if (pid == null) "unattributed" else group(pid), amount, Double::plus)
+        pillarDamageByItem.merge(pid?.let { sim.world.find(it)?.heldItem?.value } ?: "unattributed", amount, Double::plus)
     }
 
     private fun trackStars(collected: Int) {
@@ -447,6 +504,16 @@ class MatchMetrics(
         val playerList = players.values.toList()
         val reason = ended?.reason?.let { it::class.simpleName } ?: "running"
         val winner = ended?.winningTeam?.value ?: (ended?.reason as? EndReason.TeamVictory)?.winner?.value
+        // Normalised from the real win-condition result: TeamVictory = last team standing, PillarHpDecision = the sudden-death HP tiebreak.
+        val endReasonKind = when (val r = ended?.reason) {
+            null -> "running"
+            is EndReason.TeamVictory -> if (r.winner != null) "elimination" else "draw"
+            is EndReason.PillarHpDecision -> if (r.winner != null) "hp_decision" else "draw"
+            else -> "other:${r::class.simpleName}"
+        }
+        val pillarTeams = (pillarIds.values + (stage?.pillars?.map { it.team } ?: emptyList())).map { it.value }.distinct().sorted()
+        fun hpLeft(id: PlayerId): Double? = if (id in destroyedPillars) 0.0 else pillarHp[id]
+        val hpLeftByTeam = pillarTeams.associateWith { t -> pillarIds.filterValues { it.value == t }.keys.sumOf { hpLeft(it) ?: 0.0 } }
 
         scalars["duration_s"] = seconds
         scalars["ended"] = if (ended != null) 1.0 else 0.0
@@ -507,6 +574,15 @@ class MatchMetrics(
             if (p2Kpm == null) na["p2_kills_per_min"] = "zero engage duration"
         }
         scalars["pillar_damage_total"] = pillarDamageTotal
+        scalars["pillar_damage_unattributed"] = pillarUnattributedTotal
+        scalars["pillar_damage_bleed"] = pillarBleedByTeam.values.sum()
+        scalars["pillar_damage_unknown"] = pillarUnknownByTeam.values.sum()
+        scalars["bleed_applications"] = bleedApplications.toDouble()
+        for (t in pillarTeams) {
+            scalars["pillar_damage_dealt_$t"] = pillarDealtByTeam[t] ?: 0.0
+            scalars["pillar_damage_taken_$t"] = pillarTakenByTeam[t] ?: 0.0
+            scalars["pillar_hp_left_$t"] = hpLeftByTeam[t]
+        }
         scalars["first_pillar_hit_s"] = firstPillarHitTick?.let { (it - (start ?: it)) / 20.0 }
         scalars["first_pillar_loss_s"] = firstPillarLossTick?.let { (it - (start ?: it)) / 20.0 }
         if (firstPillarHitTick == null) na["first_pillar_hit_s"] = "no pillar took damage"
@@ -571,6 +647,28 @@ class MatchMetrics(
             put("endTick", endTick)
             put("durationSeconds", seconds)
             put("endReason", reason)
+            put("end_reason", endReasonKind)
+            put("end_decided_by", (ended?.reason as? EndReason.PillarHpDecision)?.decidedBy?.name)
+            put("pillar_damage_unattributed", pillarUnattributedTotal)
+            put("pillar_damage_bleed", pillarBleedByTeam.values.sum())
+            put("pillar_damage_unknown", pillarUnknownByTeam.values.sum())
+            put("bleed_applications", bleedApplications)
+            put("teams", JsonObject(pillarTeams.associateWith { t ->
+                buildJsonObject {
+                    put("pillar_damage_dealt", pillarDealtByTeam[t] ?: 0.0)
+                    put("pillar_damage_taken", pillarTakenByTeam[t] ?: 0.0)
+                    put("pillar_damage_taken_unattributed", pillarTakenUnattributedByTeam[t] ?: 0.0)
+                    put("pillar_damage_self_inflicted", pillarSelfInflictedByTeam[t] ?: 0.0)
+                    put("pillar_damage_bleed", pillarBleedByTeam[t] ?: 0.0)
+                    put("pillar_damage_unknown", pillarUnknownByTeam[t] ?: 0.0)
+                    put("first_tier_loss_min", firstTierLossTickByTeam[t]?.let { (it - (start ?: it)) / 1200.0 })
+                    put("pillar_hp_left", buildJsonObject {
+                        put("sum", hpLeftByTeam[t])
+                        val own = pillarIds.filterValues { it.value == t }.keys
+                        put("by_tier", JsonObject(own.sortedBy { pillarTierOf[it] ?: 0 }.associate { "tier${pillarTierOf[it]}" to JsonPrimitive(hpLeft(it)) }))
+                    })
+                }
+            }))
             put("winner", winner)
             put("ttffSeconds", ttff)
             put("firstPillarHitSeconds", scalars["first_pillar_hit_s"])

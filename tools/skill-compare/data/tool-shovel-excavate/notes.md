@@ -1,6 +1,6 @@
 # shovel-excavate — round 3 presentation review
 
-No reference video. Branch: `wp/tool-skills-polish3c`.
+No reference video. Branch: `wp/tool-skills-polish3d`.
 
 Brown dirt clumps rise on a slow upward velocity and fall with coarse-dirt falling_dust. Smaller bursts and a sparse brown/tan cloud replace the noisy t11 debris and white sparkle ring. No electric sparks or end rods.
 
@@ -12,7 +12,7 @@ Round-2 sheet: `/tmp/claude-1000/tool-skills/round-2/tool-shovel-excavate.png`.
 Round-3 sheet: `/tmp/claude-1000/tool-skills/round-3/tool-shovel-excavate.png`.
 All-tier captures: `/tmp/claude-1000/tool-skills/round-3/captures/shovel-excavate-{stone,iron,diamond}/compare/`.
 
-Review status: pending final real-client capture and tier comparison. The first exploratory axe capture was invalidated by edits during capture and is excluded from evidence.
+Review status: final-source tier sheets reviewed below; founder acceptance remains open.
 
 ## Sound measurement
 
@@ -45,9 +45,28 @@ Sourced owner proposal: `/tmp/claude-1000/tool-skills/round-3/falling-dust-depen
 
 The initial blade-trail emission stays in windup; subsequent emissions are in cast at relative tick 1, every 2, for trail_span-2. This removes the old-state detached trail / later-state particle ordering ambiguity while preserving every emission tick and count. No shared test/engine source changed. Only the 18 tool goldens moved; all 105 non-tool goldens remain byte-identical to 0c044c264. Detailed row classification and mechanical equality: `round-3/validation/golden-classification-3c.json`, `rig-golden-classification-3c.json`, and `mechanics-3c.json`. Rig/frame pose differences against the stale round-2 golden already exist in the inherited b60ed3c84 and are unchanged here.
 
-Near-eye minimum for shovel-excavate, all three tiers: **0.954425 blocks**. Measured every particle `at=` in all four golden poses against eye=(0,1.62,0), matching the incoming ShippedNearEyeScenarioTest metric (held main_hand rigs are excluded and have a separate camera test). All 18 tool minima are >=0.8. Pickaxe's inner blade trail starts at v=0.5 rather than 0.4, retaining five samples; axe's inherited round-3 sweep already clears the rule. The owned real-cast scenario asserts every emission's distance. The shared new class is not on origin/main as of this verification, so it was not added or edited here.
+Near-eye minimum for shovel-excavate, all three tiers: **0.954425 blocks**. Measured every particle `at=` in all four golden poses against eye=(0,1.62,0), matching the incoming ShippedNearEyeScenarioTest metric (held main_hand rigs are excluded and have a separate camera test). All 18 tool minima are >=0.8. Pickaxe's inner blade trail starts at v=0.5 rather than 0.4, retaining five samples; axe's inherited round-3 sweep already clears the rule. The owned real-cast scenario asserts every emission's distance. The shared new class was absent from the polish3c verification base; it was not added or edited here. This is the retained polish3c measurement, not a new shared-test result.
 
 The explicitly authorized `falling_dust: { mean: 57.0273, source: jar-26.3 }` lifetime registry entry is now present; all six shovel fall_* rows use vanilla falling_dust with coarse_dirt block data. The scenario asserts this real particle type. The 24-bit random / float32 expectation is 57.02730482816696 ticks; derivation: `/tmp/claude-1000/tool-skills/round-3/falling-dust-dependency.md`.
 
 Round-0 sheet: `/tmp/claude-1000/tool-skills/round-0/tool-shovel-excavate.png`.
-Final-source visual review is pending; final per-tier comparison sheets will be in `round-3/comparisons/tool-shovel-excavate-{stone,iron,diamond}.png`. The earlier axe-plank-wall-stone shot with -24% idle brightness is excluded; it is being reshot.
+Final-source visual review is recorded below. Earlier exploratory captures are excluded.
+
+## polish3d: final capture review
+
+Capture-only finish; tool skills and tool particle sources remain identical to `d23fa0642`. Captures use the scoped-reaper merged base (`ad8cf6eec`, resumed at `6862e92e1`). Each accepted take has stepped tick stamps, zero skipped ticks and no invalid flag. The standard compare API checked every selected skill identity. No content, golden or test source changed in this finish.
+
+round-0: `/tmp/claude-1000/tool-skills/round-0/tool-shovel-excavate.png`.
+round-2: `/tmp/claude-1000/tool-skills/round-2/tool-shovel-excavate.png`.
+round-3: `/tmp/claude-1000/tool-skills/round-3/tool-shovel-excavate.png`.
+
+All three current sheets: `/tmp/claude-1000/tool-skills/round-3/tool-shovel-excavate-{stone,iron,diamond}.png`. Round-2 tier sheets: `/tmp/claude-1000/tool-skills/round-3/baseline/tool-shovel-excavate-{stone,iron,diamond}.png`. Two-row comparisons (round3 above round2): `/tmp/claude-1000/tool-skills/round-3/comparisons/tool-shovel-excavate-{stone,iron,diamond}.png`. Additional diamond decay beats t12/18/24/29: `/tmp/claude-1000/tool-skills/round-3/late/tool-shovel-excavate.png`.
+
+- stone: PASS brown dirt clumps in compact upward/forward fan; t11 distinctly thinner than round2 dense dirt cloud, with floor visible between fragments. No shared white ring. Dust is faint/subtle at this camera rather than a thick cloud. Stable idle148 vs149.
+- iron: PASS brown dirt clumps; t7 common white ring removed. t11 less crowded than round2 with clearly separated clumps and floor visible. Broader/taller fan than stone gives non-colour tier cue. Dust subtle. Idle139 vs149 (~6% lower), distant trees differ; no luminance improvement claim.
+- diamond: PASS brown clumps with faint tan/orange dust; t11 is substantially thinner than round2, floor visible and white sparkle ring removed. Broad forward/upward fan grows across tiers without relying only on colour. Idle141 vs149 (~5% lower), distant terrain differs; brightness not used as proof.
+  Viewed late/tool-shovel-excavate.png: clumps/dust thin over t18-29, a few falling pieces and tan dust remain.
+
+ShippedV3ContentScenarioTest and ToolSkillPresentationScenarioTest PASS results above belong to polish3c and are preserved. Merged-base compileKotlin, :tools:e2e:compileTestKotlin, :tools:content-lint:run and :tools:architecture-test:test: PASS (base 6862e92e1, required-checks-3d.log, rc0); see round-3/report.md. No new test is needed for capture-only notes/evidence.
+
+Additional documentation drift: `.claude/rules/coding-posture.md` says Kotlin2.2/JVM24; `gradle/libs.versions.toml` pins Kotlin2.3.21 with JVM25 support. Build configuration was followed.

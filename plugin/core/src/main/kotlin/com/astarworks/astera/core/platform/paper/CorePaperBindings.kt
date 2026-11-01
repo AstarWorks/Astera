@@ -847,6 +847,9 @@ internal class CorePaperBindings(
             logger.info("Arena worlds skipped (server role ${ctx.serverRole}).")
             return
         }
+        val arenaWeather = com.astarworks.astera.core.adapter.paper.arena.PaperArenaWeather(plugin, ctx.contentDir)
+        listeners.register(arenaWeather)
+        arenaWeather.settleWeather()
         val arena = com.astarworks.astera.core.adapter.paper.arena.PaperArenaWorld(
             plugin = plugin,
             stages = { ctx.services.get<com.astarworks.astera.core.application.port.outbound.IStageRegistry>() },
