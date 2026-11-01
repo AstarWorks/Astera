@@ -16,6 +16,9 @@ import com.astarworks.astera.match.domain.event.StarSupplied
 import com.astarworks.astera.match.domain.event.StarsCollected
 import com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig
 import com.astarworks.astera.match.domain.star.StarSource
+import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository
+import com.astarworks.astera.match.application.service.OreDigHold
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -33,12 +36,13 @@ class SimActionStarsScenarioTest {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
             val yellow = player("yellow-1", team = "yellow")
-            startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow to "yellow"), stage = "annihilation-arena")
+            val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow to "yellow"), stage = "annihilation-arena")
             val origin = sim.services.getOrThrow<IStageRegistry>().find(StageId("annihilation-arena"))?.origin ?: Vec3(0.0, 0.0, 0.0)
             val paid = mutableListOf<StarsCollected>()
             sim.services.getOrThrow<IDomainEventBus>().subscribe(StarsCollected::class) { if (it.playerId == red.id) paid += it }
             red.holds("diamond-pickaxe")
-            advance(25)
+            // The action sources draw from a token bucket that refills with match time: a mine in the first seconds is rightly unpaid.
+            advance(1200)
 
             // Mine: swing at the phase-1 iron node until it breaks (hit cooldown), through the sim's break path.
             val iron = Vec3(origin.x + 19, 61.0, origin.z - 28)
@@ -58,6 +62,17 @@ class SimActionStarsScenarioTest {
             red.breaks(logCell)
             assertThat(paid).`as`("a listed block paid block stars").hasSize(1)
             assertThat(paid.single().amount).isEqualTo(1)
+
+            // Parity with the bot dig (SimBotHost.dig -> OreDigHold.begin, held swings): a base node dig completion reaches onOreMined too.
+            val hold = sim.services.getOrThrow<OreDigHold>()
+            val worldId = checkNotNull(sim.services.getOrThrow<IMatchWorldRepository>().findByMatch(matchId)).worldId
+            val baseIron = Vec3(origin.x - 31, 65.0, origin.z - 92)
+            sim.oreDigSight.held[red.id] = ItemId("diamond-pickaxe")
+            sim.oreDigSight.aimAt(red.id, baseIron.x.toInt(), 65, baseIron.z.toInt())
+            paid.clear()
+            var holds = 0
+            while (paid.isEmpty() && holds++ < 60) { advance(7); hold.swung(red.id); hold.begin(red.id, worldId, baseIron) }
+            assertThat(paid).`as`("a held base node dig paid mining stars via OreDigHold").hasSize(1)
         }
     }
 
