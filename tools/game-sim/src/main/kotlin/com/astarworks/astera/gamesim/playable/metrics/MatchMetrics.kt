@@ -170,6 +170,8 @@ class MatchMetrics(
     private var firstPillarHitTick: Long? = null
     private var firstPillarLossTick: Long? = null
     private val phaseTicks = LinkedHashMap<String, Long>()
+    /** Ticks of cross-team engagements: a player-vs-player DamageDealt between different teams (any range), or a once-per-second sample with an alive cross-team pair within [ENGAGE_RADIUS] blocks. */
+    private val engagementTicks = mutableListOf<Long>()
     private val pillarLosses = mutableListOf<Triple<Long, String, String>>()
     private val normaLevel = HashMap<PlayerId, Int>()
 
@@ -249,6 +251,9 @@ class MatchMetrics(
                 val attacker = e.attacker
                 // Pillar damage of every kind (weapon, tool skill, hand-break) is attributed from NexusDamaged / NexusDestroyed below.
                 if (e.target !in pillarIds.keys && attacker != null && isPlayer(attacker) && isPlayer(e.target)) {
+                    val ta = sim.world.find(attacker)?.team
+                    val tt = sim.world.find(e.target)?.team
+                    if (ta != null && tt != null && ta != tt) engagementTicks += e.atTick
                     fighters += attacker; fighters += e.target
                     if (firstFightTick == null) firstFightTick = e.atTick
                 }
@@ -274,7 +279,15 @@ class MatchMetrics(
         trackStars(collected)
         trackPlayers(fighters, miners)
         if (tick > started && (tick - started) % leadSampleTicks == 0L) sampleLead(tick)
-        if (tick > started && (tick - started) % 20 == 0L) sampleTools(tick, started)
+        if (tick > started && (tick - started) % 20 == 0L) { sampleTools(tick, started); sampleProximity(tick) }
+    }
+
+    private fun sampleProximity(tick: Long) {
+        val alive = sim.world.entities.filter { it.kind == SimEntityKind.PLAYER && it.team != null && sim.isAlive(it.id) }
+        val r2 = ENGAGE_RADIUS * ENGAGE_RADIUS
+        for (i in alive.indices) for (j in i + 1 until alive.size) {
+            if (alive[i].team != alive[j].team && alive[i].position.distanceSquared(alive[j].position) <= r2) { engagementTicks += tick; return }
+        }
     }
 
     private fun isPlayer(id: PlayerId): Boolean = sim.world.find(id)?.kind == SimEntityKind.PLAYER
@@ -557,22 +570,34 @@ class MatchMetrics(
 
         scalars["kills_total"] = killTotal.toDouble()
 
-        // Phase 2 (engage): from its start tick to the next phase's start, or the end of the match if it ended first.
-        val engageStart = phaseTicks[NexusPhase.Phase2Engage.id]
-        val engageEnd = engageStart?.let { s0 -> minOf(phaseTicks[NexusPhase.Phase3Center.id] ?: Long.MAX_VALUE, end).coerceAtLeast(s0) }
-        val engageKills = if (engageStart == null) emptyList() else killTicks.filter { it >= engageStart && it <= engageEnd!! }
-        val p2Ttff = if (engageStart == null) null else engageKills.minOrNull()?.let { (it - engageStart) / 20.0 }
-        val p2Minutes = if (engageStart == null) 0.0 else (engageEnd!! - engageStart) / 1200.0
-        val p2Kpm = if (p2Minutes > 0) engageKills.size / p2Minutes else null
-        scalars["p2_ttff_s"] = p2Ttff
-        scalars["p2_kills_per_min"] = p2Kpm
-        if (engageStart == null) {
-            na["p2_ttff_s"] = "the match never reached phase 2 (engage)"
-            na["p2_kills_per_min"] = "the match never reached phase 2 (engage)"
-        } else {
-            if (p2Ttff == null) na["p2_ttff_s"] = "no kill happened during phase 2 (engage)"
-            if (p2Kpm == null) na["p2_kills_per_min"] = "zero engage duration"
+        // Phase windows [start, next start) (the last one includes the match end tick). P4+ = Phase4Escalation + Phase5SuddenDeath.
+        // A phase the match never reached has zero minutes and zero kills, so pooling over matches stays a plain sum / sum.
+        val p1Start = start
+        val p2Start = phaseTicks[NexusPhase.Phase2Engage.id]
+        val p3Start = phaseTicks[NexusPhase.Phase3Center.id]
+        val p4Start = phaseTicks[NexusPhase.Phase4Escalation.id] ?: phaseTicks[NexusPhase.Phase5SuddenDeath.id]
+        val bounds4 = listOf(p1Start, p2Start, p3Start, p4Start).map { t -> t?.coerceAtMost(end) }
+        val phaseNames = listOf("p1", "p2", "p3", "p4plus")
+        var p2KillsInPhase = emptyList<Long>()
+        for (i in 0 until 4) {
+            val from = bounds4[i]
+            val to = (i + 1 until 4).firstNotNullOfOrNull { bounds4[it] } ?: end
+            val inPhase = if (from == null) emptyList() else killTicks.filter { it >= from && (it < to || (to == end && it == end)) }
+            if (i == 1) p2KillsInPhase = inPhase
+            scalars["kills_${phaseNames[i]}"] = inPhase.size.toDouble()
+            scalars["minutes_${phaseNames[i]}"] = if (from == null) 0.0 else (to - from).coerceAtLeast(0L) / 1200.0
         }
+        val p2Ttff = if (p2Start == null) null else p2KillsInPhase.minOrNull()?.let { (it - p2Start) / 20.0 }
+        scalars["p2_ttff_s"] = p2Ttff
+        if (p2Start == null) na["p2_ttff_s"] = "the match never reached phase 2 (engage)"
+        else if (p2Ttff == null) na["p2_ttff_s"] = "no kill happened during phase 2 (engage)"
+
+        // Stall signature: maximal gaps of at least STALL_WINDOW_TICKS between cross-team engagements inside P3+ (P3 start .. match end).
+        val stallWindows = if (p3Start == null) 0 else {
+            val pts = (listOf(p3Start) + engagementTicks.filter { it >= p3Start && it <= end }.sorted() + listOf(end))
+            pts.zipWithNext().count { (a, b) -> b - a >= STALL_WINDOW_TICKS }
+        }
+        scalars["stall_windows_p3plus"] = stallWindows.toDouble()
         scalars["pillar_damage_total"] = pillarDamageTotal
         scalars["pillar_damage_unattributed"] = pillarUnattributedTotal
         scalars["pillar_damage_bleed"] = pillarBleedByTeam.values.sum()
@@ -681,7 +706,9 @@ class MatchMetrics(
             put("phaseStartSeconds", JsonObject(phaseTicks.mapValues { JsonPrimitive(((it.value - (start ?: it.value)) / 20.0)) }))
             put("killsTotal", killTotal)
             put("p2TtffSeconds", p2Ttff)
-            put("p2KillsPerMinute", p2Kpm)
+            put("killsByPhase", JsonObject(phaseNames.associateWith { JsonPrimitive(scalars["kills_$it"]) }))
+            put("minutesByPhase", JsonObject(phaseNames.associateWith { JsonPrimitive(scalars["minutes_$it"]) }))
+            put("stallWindowsP3Plus", stallWindows)
             put("killsPerMinute", kpm)
             put("killsPerMinutePerPlayer", scalars["kills_per_min_per_player"])
             put("killsPerMinuteByTeam", JsonObject(killsByTeam.mapValues { JsonPrimitive(if (minutes > 0) it.value / minutes else 0.0) }))
@@ -783,3 +810,9 @@ private fun medianOf(sorted: List<Double>): Double? = when {
     sorted.size % 2 == 1 -> sorted[sorted.size / 2]
     else -> (sorted[sorted.size / 2 - 1] + sorted[sorted.size / 2]) / 2
 }
+
+/** A cross-team engagement for the stall signature: alive players of different teams this close (blocks), or any cross-team damage. */
+internal const val ENGAGE_RADIUS = 12.0
+
+/** A stall window: at least 3 minutes (3600 ticks) in P3+ with no cross-team engagement. */
+internal const val STALL_WINDOW_TICKS = 3_600L

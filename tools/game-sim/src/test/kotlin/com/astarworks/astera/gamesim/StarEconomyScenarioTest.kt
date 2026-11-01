@@ -7,6 +7,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.application.port.outbound.IGeneratorRepository
@@ -176,8 +177,9 @@ class StarEconomyScenarioTest {
     private fun run(n: Int, minutes: Int, phaseClock: Boolean = true): Result {
         var result: Result? = null
         scenario("star-economy-n$n", config) {
-            val teams = listOf("red", "blue", "yellow")
-            val entries = (0 until n).map { i -> player("${teams[i % 3]}-${i / 3}", team = teams[i % 3], at = Vec3(400.0 + i, groundY, 400.0)) to teams[i % 3] }
+            val teams = checkNotNull(sim.services.getOrThrow<IStageRegistry>().find(StageId("annihilation-arena"))).spawnPoints
+                .filter { it.role == com.astarworks.astera.core.domain.stage.SpawnRole.TEAM }.mapNotNull { it.team?.value }.distinct()
+            val entries = (0 until n).map { i -> player("${teams[i % teams.size]}-${i / teams.size}", team = teams[i % teams.size], at = Vec3(400.0 + i, groundY, 400.0)) to teams[i % teams.size] }
             val players = entries.map { it.first }
             val lifecycle = sim.services.getOrThrow<IMatchLifecycle>()
             val matchId: MatchId = (lifecycle.start(StageId("annihilation-arena"), "annihilation") as com.astarworks.astera.core.domain.Result.Success).value

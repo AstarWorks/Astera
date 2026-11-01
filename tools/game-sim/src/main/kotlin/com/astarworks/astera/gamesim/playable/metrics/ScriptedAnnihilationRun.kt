@@ -28,7 +28,7 @@ import java.util.Random
 class ScriptedAnnihilationRun(
     seed: Long,
     private val playersPerTeam: Int = 2,
-    teams: List<String> = emptyList(),
+    teamsOverride: List<String>? = null,
     config: AnnihilationConfig = DEFAULT_CONFIG,
 ) : MatchRun {
 
@@ -38,13 +38,13 @@ class ScriptedAnnihilationRun(
     private val matchId: MatchId
     private val stage = checkNotNull(sim.services.getOrThrow<IStageRegistry>().find(StageId("annihilation-arena")))
     private val targets = sim.services.getOrThrow<IStructureTargets>()
+    /** The stage's own spawn teams unless overridden: no team list is hardcoded here. */
+    private val teams: List<String> = teamsOverride
+        ?: stage.spawnPoints.filter { it.role == com.astarworks.astera.core.domain.stage.SpawnRole.TEAM }.mapNotNull { it.team?.value }.distinct()
 
     private class Seat(val entity: SimEntity, val team: String, val attacker: Boolean, var goal: Vec3, var nextAction: Long = 0)
 
     private val seats = mutableListOf<Seat>()
-
-    /** [teams] when given, else every team the stage has a spawn for (no fixed team list). */
-    private val teams: List<String> = teams.ifEmpty { stage.spawnPoints.mapNotNull { it.team?.value }.distinct() }
 
     init {
         val lifecycle = sim.services.getOrThrow<IMatchLifecycle>()

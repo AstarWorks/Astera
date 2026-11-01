@@ -23,7 +23,7 @@ class BotBrainSimParityScenarioTest {
 
     private fun play(seed: Long): Outcome {
         val started = System.nanoTime()
-        MatchDriver.boot(MatchConfig(mode = "annihilation", stage = "annihilation-arena", teams = listOf("red", "blue", "yellow"), botsPerTeam = 3, seed = seed)).use { driver ->
+        MatchDriver.boot(MatchConfig(mode = "annihilation", stage = "annihilation-arena", botsPerTeam = 3, seed = seed)).use { driver ->
             driver.stepUntil(CAP) { driver.ended }
             val end = driver.endEvent()
             val reason = end?.let { "MatchEnded(reason=${it.reason}, winner=${it.winningTeam?.value}, atTick=${it.atTick})" } ?: "no end within $CAP ticks"

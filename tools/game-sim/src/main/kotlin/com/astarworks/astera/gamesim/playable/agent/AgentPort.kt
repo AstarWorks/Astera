@@ -90,7 +90,7 @@ class AgentPort(
         val request = MatchRequest(
             mode = cmd.str("mode") ?: "annihilation",
             stage = cmd.str("stage"),
-            teams = cmd.int("teams") ?: 3,
+            teams = cmd.int("teams") ?: 0,
             botsPerTeam = cmd.int("bots_per_team") ?: 3,
             me = cmd.str("me") ?: "red",
             seed = cmd.long("seed") ?: GameSim.DEFAULT_SEED,

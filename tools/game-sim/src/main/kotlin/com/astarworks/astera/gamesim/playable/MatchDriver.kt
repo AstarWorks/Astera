@@ -25,8 +25,9 @@ import java.util.Random
 data class MatchConfig(
     val mode: String = "annihilation",
     val stage: String = "annihilation-arena",
-    /** Teams in play, in spawn order; empty = the stage's own teams (at most [teamCount] when it is above 0, [humanTeam] always kept). */
+    /** Explicit teams in play, in spawn order (each must be on the stage); empty = derive from [teamCount] / the stage. */
     val teams: List<String> = emptyList(),
+    /** 0 = every team the stage has spawns for; N > 0 = the stage's `team_layouts[N]` (fails loudly when the stage has none). */
     val teamCount: Int = 0,
     /** Seats per team (bots plus, on [humanTeam], the human seats). */
     val botsPerTeam: Int = 3,
@@ -130,13 +131,17 @@ class MatchDriver private constructor(
         private const val MAX_ERRORS = 50
         const val HUMAN_PREFIX = "Human_"
 
-        private fun resolveTeams(config: MatchConfig, stageTeams: List<String>): List<String> {
-            if (config.teams.isNotEmpty()) return config.teams
+        private fun resolveTeams(config: MatchConfig, stageTeams: List<String>, contentDir: java.nio.file.Path): List<String> {
             val human = config.humanTeam
-            check(human == null || human in stageTeams) { "team '$human' is not on stage ${config.stage} (teams: $stageTeams)" }
-            if (config.teamCount <= 0 || config.teamCount >= stageTeams.size) return stageTeams
-            val keep = (stageTeams - listOfNotNull(human).toSet()).take(config.teamCount - (if (human != null) 1 else 0)).toSet() + listOfNotNull(human)
-            return stageTeams.filter { it in keep }
+            val teams = when {
+                config.teams.isNotEmpty() -> config.teams
+                config.teamCount > 0 -> StageTeamLayouts.teamsFor(contentDir, config.stage, config.teamCount)
+                else -> stageTeams
+            }
+            val unknown = teams.filter { it !in stageTeams }
+            check(unknown.isEmpty()) { "teams $unknown are not on stage ${config.stage} (spawn teams: $stageTeams)" }
+            check(human == null || human in teams) { "team '$human' is not in the match teams $teams on stage ${config.stage}" }
+            return teams
         }
 
         fun boot(config: MatchConfig): MatchDriver {
@@ -152,7 +157,7 @@ class MatchDriver private constructor(
                 // Everyone joins first, then the real lifecycle puts them on their team spawns.
                 val parked = Vec3(0.0, terrain.plan.surfaceY + 1.0, 0.0)
                 val roster = ArrayList<Pair<SimEntity, String>>()
-                val teams = resolveTeams(config, stage.spawnPoints.filter { it.role == SpawnRole.TEAM }.mapNotNull { it.team?.value }.distinct())
+                val teams = resolveTeams(config, stage.spawnPoints.filter { it.role == SpawnRole.TEAM }.mapNotNull { it.team?.value }.distinct(), contentDir)
                 for (team in teams) {
                     for (i in 1..(config.teamSizes[team] ?: config.botsPerTeam)) {
                         val human = team == config.humanTeam && i <= config.humanSeats
