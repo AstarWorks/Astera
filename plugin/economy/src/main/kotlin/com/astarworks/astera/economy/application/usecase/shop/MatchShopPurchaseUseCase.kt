@@ -37,6 +37,7 @@ public class MatchShopPurchaseUseCase(
         val items = delivery() ?: return Result.failure(MatchShopError.DeliveryFailed("Item delivery is not available"))
         val owned = stock() ?: return Result.failure(MatchShopError.DeliveryFailed("Inventory access is not available"))
 
+        if (offer.isBaseWeapon && owned.count(playerId, offer.itemId) >= 1) return Result.failure(MatchShopError.AlreadyOwned(offer.itemId))
         val base = offer.upgradeFrom
         if (base != null && owned.count(playerId, base) < 1) return Result.failure(MatchShopError.MissingBaseItem(base))
         val missing = offer.price.entries.firstOrNull { (ore, count) -> owned.count(playerId, ore) < count }
@@ -92,6 +93,9 @@ public sealed class MatchShopError {
 
     /** An upgrade needs [item] in the inventory and the buyer carries none. */
     public data class MissingBaseItem(public val item: ItemId) : MatchShopError()
+
+    /** A base weapon the buyer already carries is not sold again. */
+    public data class AlreadyOwned(public val item: ItemId) : MatchShopError()
 
     public data class DeliveryFailed(public val detail: String) : MatchShopError()
 }

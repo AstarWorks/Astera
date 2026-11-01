@@ -90,6 +90,7 @@ public class MatchShopIntentHandler(
                 )
                 MatchShopError.NotInMatch -> send(player, MSG_NOT_IN_MATCH)
                 is MatchShopError.MissingBaseItem -> send(player, MSG_NEED_BASE, mapOf("from" to e.item.value))
+                is MatchShopError.AlreadyOwned -> send(player, MSG_ALREADY_OWNED, mapOf("item" to e.item.value))
                 MatchShopError.PlayerNotOnline -> Unit
                 is MatchShopError.DeliveryFailed -> {
                     log.warn("match shop delivery failed for {}: {}", player.id, e.detail)
@@ -107,12 +108,16 @@ public class MatchShopIntentHandler(
     }
 
     private fun buildGui(playerId: PlayerId, current: MatchShopTab): GuiSpec {
-        val offers = catalog().tab(current).take(MAX_OFFERS)
+        val owned = stock()
+        // Base weapons the player already carries are hidden; each slot keeps the offer's catalog index so a stale click still hits the same offer.
+        val offers = catalog().tab(current).withIndex()
+            .filter { (_, o) -> !(o.isBaseWeapon && owned != null && owned.count(playerId, o.itemId) >= 1) }
+            .take(MAX_OFFERS)
         val rows = ((offers.size + 8) / 9).coerceAtLeast(1)
         val size = GuiSize.entries.first { it.slotCount == (rows + 1) * 9 }
         val footer = size.slotCount - 9
         return GuiSpec.build(id = GUI_ID, title = TITLE, size = size) {
-            offers.forEachIndexed { index, offer -> slot(SlotIndex(index), offerSlot(playerId, current, index, offer)) }
+            offers.forEachIndexed { pos, (index, offer) -> slot(SlotIndex(pos), offerSlot(playerId, current, index, offer)) }
             for (col in 0 until 9) slot(SlotIndex(footer + col), GuiSlot.Border(FOOTER_PANE))
             // Tabs sit side by side in the middle of the footer row (columns 2..5 for four tabs).
             MatchShopTab.entries.forEachIndexed { i, tab -> slot(SlotIndex(footer + 2 + i), tabSlot(tab, tab == current)) }
@@ -179,6 +184,7 @@ public class MatchShopIntentHandler(
         private val LORE_UPGRADE = MessageKey("astera.economy.matchshop.lore.upgrade")
         private val LORE_NEED_BASE = MessageKey("astera.economy.matchshop.lore.need-base")
         private val MSG_NEED_BASE = MessageKey("astera.economy.matchshop.need-base")
+        private val MSG_ALREADY_OWNED = MessageKey("astera.economy.matchshop.already-owned")
         private val MSG_BOUGHT = MessageKey("astera.economy.matchshop.bought")
         private val MSG_SHORT = MessageKey("astera.economy.matchshop.short")
         private val MSG_WRONG_TEAM = MessageKey("astera.economy.matchshop.wrong-team")
