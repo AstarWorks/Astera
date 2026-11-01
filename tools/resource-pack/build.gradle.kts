@@ -28,6 +28,7 @@ dependencies {
     runtimeOnly(libs.logback.classic)
 
     implementation(project(":kernel:runtime"))
+    testImplementation(project(":core:feature-animation")) // the shipped skin-rig clips body-clip skills dry-cast against
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
     testRuntimeOnly(libs.junit.platform.launcher)
