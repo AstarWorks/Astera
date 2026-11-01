@@ -638,7 +638,7 @@ class BotBrain(
         if (now - lastStrikeAt < STRIKE_INTERVAL_MS) return
         lastStrikeAt = now
         blocksBroken.incrementAndGet()
-        Thread({ runCatching { bot.dig(block.first, block.second, block.third, 400) } }, "bot-strike-${bot.name}").also { it.isDaemon = true }.start()
+        bot.digAsync(block.first, block.second, block.third, 400)
     }
 
     /** The bot's team as it sees it: every Tab-listed team mate with its entity position (NaN out of sight, then the shared spawn) and whether it is alive. */
@@ -762,7 +762,7 @@ class BotBrain(
         val y = listOf(by + 1, by).firstOrNull { bot.terrain.isSolid(fx, it, fz) == true } ?: return
         lastBreakAt = now
         blocksBroken.incrementAndGet()
-        Thread({ runCatching { bot.dig(fx, y, fz, 400) } }, "bot-dig-${bot.name}").also { it.isDaemon = true }.start()
+        bot.digAsync(fx, y, fz, 400)
         nav.clear()
     }
 
@@ -1098,8 +1098,7 @@ class BotBrain(
     private fun probeForAmmo(slot: Int): Weapon {
         val barsBefore = bot.actionBars.size
         bot.selectHotbar(slot)
-        val end = bot.now() + 1_200
-        while (bot.now() < end && bot.actionBars.drop(barsBefore).none { AMMO.containsMatchIn(it.text) }) Thread.sleep(30)
+        bot.waitUntil(1_200) { bot.actionBars.drop(barsBefore).any { AMMO.containsMatchIn(it.text) } }
         val ammo = bot.actionBars.drop(barsBefore).any { AMMO.containsMatchIn(it.text) }
         return Weapon(slot, if (ammo) WeaponKind.RANGED else WeaponKind.MELEE, magazine = ammo)
     }

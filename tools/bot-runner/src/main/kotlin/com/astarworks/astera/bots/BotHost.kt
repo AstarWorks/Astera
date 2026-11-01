@@ -60,6 +60,8 @@ interface BotHost {
     fun note(text: String)
     fun isSpectator(player: UUID): Boolean
     fun teamOf(player: String): String?
+    /** HP fraction 0..1 of another living entity, `null` = unknown. */
+    fun healthOf(entityId: Int): Float?
     fun hotbar(): List<Int>
     fun hotbarName(slot: Int): String
     fun hotbarLore(slot: Int): String
@@ -77,6 +79,15 @@ interface BotHost {
     fun respawn()
     fun dropSelected(wholeStack: Boolean = false)
     fun dig(bx: Int, by: Int, bz: Int, holdMs: Long = 300)
+    /** [dig] without blocking the brain tick; a stepped sim host runs it synchronously. */
+    fun digAsync(bx: Int, by: Int, bz: Int, holdMs: Long = 300) {
+        Thread({ runCatching { dig(bx, by, bz, holdMs) } }, "bot-dig-$name").also { it.isDaemon = true }.start()
+    }
+    /** Waits up to [timeoutMs] of host time for [cond]. The real client polls; a stepped sim cannot block, so it checks once. */
+    fun waitUntil(timeoutMs: Long, cond: () -> Boolean) {
+        val end = now() + timeoutMs
+        while (now() < end && !cond()) Thread.sleep(30)
+    }
     fun closeWindow(id: Int)
     fun nudge()
     fun moveTo(nx: Double, ny: Double, nz: Double, yaw: Float, pitch: Float)
@@ -129,6 +140,7 @@ class ProtocolBotHost(val bot: Bot) : BotHost {
     override fun note(text: String) = Bot.noteSink(text)
     override fun isSpectator(player: UUID) = bot.playerGameModes[player] == GameMode.SPECTATOR
     override fun teamOf(player: String) = bot.teamOf(player)?.first
+    override fun healthOf(entityId: Int) = bot.healthFractionOf(entityId)
     override fun hotbar() = bot.hotbar()
     override fun hotbarName(slot: Int) = bot.hotbarName(slot)
     override fun hotbarLore(slot: Int) = bot.hotbarLore(slot)
