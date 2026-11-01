@@ -42,7 +42,7 @@ class BotVsBotE2eTest : PlaythroughBase() {
         // the server runs; without it they roam at random, which on the 140-block sky-island arena rarely ends in a meeting.
         val objectives = com.astarworks.astera.bots.StageObjectives.load(java.io.File(System.getProperty("astera.live.contentDir", "/workspace/content")), "carry-tnt")
         // chooseNormaGoal = false: this loop sends `norma choose kill` itself so stars cannot end the match before a fight.
-        bots.forEach { brains += BotBrain(it, objectives = objectives, chooseNormaGoal = false).start() }
+        bots.forEach { brains += BotBrain(com.astarworks.astera.bots.ProtocolBotHost(it), objectives = objectives, chooseNormaGoal = false).start() }
 
         // --- queue -> handoff -> ACTIVE -------------------------------------------------------------------------
         val tQueue = System.nanoTime()

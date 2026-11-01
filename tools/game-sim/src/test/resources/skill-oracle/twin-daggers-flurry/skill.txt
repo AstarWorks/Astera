@@ -3,7 +3,7 @@
 @0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=-0.485805,0.829436,0.334002 rot=0.679488,-0.570158,-0.296809,0.353723 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=windup/rig dur=0 pos=-0.485805,0.829436,0.334002 rot=0.679488,-0.570158,-0.296809,0.353723 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=skill-engine-rest-body
-@0 spawn #1 op=windup/rig_off kind=item item=main_hand part=- pos=0.485805,0.829436,0.334002 rot=0.679488,0.570158,0.296809,0.353723 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=windup/rig_off kind=item item=astera:twin-daggers-offhand part=- pos=0.485805,0.829436,0.334002 rot=0.679488,0.570158,0.296809,0.353723 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000 bright=- model=- mode=THIRDPERSON_LEFTHAND rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #1 op=windup/rig_off dur=0 pos=0.485805,0.829436,0.334002 rot=0.679488,0.570158,0.296809,0.353723 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @0 frame windup/rig op=windup/rig pos=-0.485805,0.829436,0.334002 rot=0.679488,-0.570158,-0.296809,0.353723
 @0 frame windup/rig_off op=windup/rig_off pos=0.485805,0.829436,0.334002 rot=0.679488,0.570158,0.296809,0.353723
@@ -77,7 +77,7 @@ r @12 run-end tail=9 | pose
 @0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=-0.588989,0.829436,-0.025619 rot=0.738554,-0.652933,-0.065866,0.154530 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=windup/rig dur=0 pos=-0.588989,0.829436,-0.025619 rot=0.738554,-0.652933,-0.065866,0.154530 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=skill-engine-rest-body
-@0 spawn #1 op=windup/rig_off kind=item item=main_hand part=- pos=0.186974,0.829436,0.559111 rot=0.550196,0.428457,0.497075,0.516358 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=windup/rig_off kind=item item=astera:twin-daggers-offhand part=- pos=0.186974,0.829436,0.559111 rot=0.550196,0.428457,0.497075,0.516358 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000 bright=- model=- mode=THIRDPERSON_LEFTHAND rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #1 op=windup/rig_off dur=0 pos=0.186974,0.829436,0.559111 rot=0.550196,0.428457,0.497075,0.516358 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @0 frame windup/rig op=windup/rig pos=-0.588989,0.829436,-0.025619 rot=0.738554,-0.652933,-0.065866,0.154530
 @0 frame windup/rig_off op=windup/rig_off pos=0.186974,0.829436,0.559111 rot=0.550196,0.428457,0.497075,0.516358
@@ -151,7 +151,7 @@ r @12 run-end tail=9 | pose
 @0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=-0.485805,0.829436,0.334002 rot=0.679488,-0.570158,-0.296809,0.353723 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=windup/rig dur=0 pos=-0.485805,0.829436,0.334002 rot=0.679488,-0.570158,-0.296809,0.353723 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=skill-engine-rest-body
-@0 spawn #1 op=windup/rig_off kind=item item=main_hand part=- pos=0.485805,0.829436,0.334002 rot=0.679488,0.570158,0.296809,0.353723 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=windup/rig_off kind=item item=astera:twin-daggers-offhand part=- pos=0.485805,0.829436,0.334002 rot=0.679488,0.570158,0.296809,0.353723 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000 bright=- model=- mode=THIRDPERSON_LEFTHAND rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #1 op=windup/rig_off dur=0 pos=0.485805,0.829436,0.334002 rot=0.679488,0.570158,0.296809,0.353723 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @0 frame windup/rig op=windup/rig pos=-0.485805,0.829436,0.334002 rot=0.679488,-0.570158,-0.296809,0.353723
 @0 frame windup/rig_off op=windup/rig_off pos=0.485805,0.829436,0.334002 rot=0.679488,0.570158,0.296809,0.353723
@@ -226,7 +226,7 @@ r @12 run-end tail=9 | pose
 @0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=-0.588989,0.829436,-0.025619 rot=0.738554,-0.652933,-0.065866,0.154530 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=windup/rig dur=0 pos=-0.588989,0.829436,-0.025619 rot=0.738554,-0.652933,-0.065866,0.154530 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @0 effect 00000000-0000-0000-0000-000000000001 op=- body=skill-engine-rest-body
-@0 spawn #1 op=windup/rig_off kind=item item=main_hand part=- pos=0.186974,0.829436,0.559111 rot=0.550196,0.428457,0.497075,0.516358 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #1 op=windup/rig_off kind=item item=astera:twin-daggers-offhand part=- pos=0.186974,0.829436,0.559111 rot=0.550196,0.428457,0.497075,0.516358 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000 bright=- model=- mode=THIRDPERSON_LEFTHAND rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #1 op=windup/rig_off dur=0 pos=0.186974,0.829436,0.559111 rot=0.550196,0.428457,0.497075,0.516358 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @0 frame windup/rig op=windup/rig pos=-0.588989,0.829436,-0.025619 rot=0.738554,-0.652933,-0.065866,0.154530
 @0 frame windup/rig_off op=windup/rig_off pos=0.186974,0.829436,0.559111 rot=0.550196,0.428457,0.497075,0.516358

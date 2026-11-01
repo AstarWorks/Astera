@@ -1,8 +1,5 @@
 package com.astarworks.astera.bots
 
-import com.astarworks.astera.e2e.Bot
-import com.astarworks.astera.e2e.EntityView
-import org.geysermc.mcprotocollib.protocol.data.game.entity.player.GameMode
 import java.util.Random
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -83,13 +80,15 @@ fun interface ObjectiveSource {
  * It only acts while [mode] is [Mode.FIGHT]; the owner flips that when the bot is in a match.
  */
 class BotBrain(
-    private val bot: Bot,
+    private val bot: BotHost,
     private val skill: BotSkill = BotSkill(),
     private val objectives: ObjectiveSource? = null,
     /** Pick the Norma goal (`/astera norma choose star|kill`) from the situation. Off = keep whatever the server set. */
     private val chooseNormaGoal: Boolean = true,
     /** Game-mode id of the lane (lane id = mode id): selects the per-mode objective plan ([ModePlanner]). */
     private val modeId: String? = null,
+    /** Aim-error / jitter source; the default seeds from the bot name (live bots), a sim passes its own. */
+    private val rnd: Random = Random(bot.name.hashCode().toLong()),
 ) : AutoCloseable {
 
     enum class Mode { IDLE, FIGHT }
@@ -126,7 +125,6 @@ class BotBrain(
     /** Pickaxe / shovel / axe hotbar slots by class (right-click tool skill, digs pillars); never part of the weapon [loadout]. */
     private val toolSlots = java.util.concurrent.ConcurrentHashMap<LoadoutClassifier.Affinity, Int>()
 
-    private val rnd = Random(bot.name.hashCode().toLong())
     private val exec: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor { r ->
         Thread(r, "bot-brain-${bot.name}").also { it.isDaemon = true }
     }
@@ -208,7 +206,7 @@ class BotBrain(
     val blocksBroken = AtomicInteger()
 
     fun start(): BotBrain {
-        exec.scheduleAtFixedRate({ runCatching { tick() }.onFailure { Bot.noteSink("bot ${bot.name}: brain error $it") } }, 500, 50, TimeUnit.MILLISECONDS)
+        exec.scheduleAtFixedRate({ runCatching { tick() }.onFailure { bot.note("bot ${bot.name}: brain error $it") } }, 500, 50, TimeUnit.MILLISECONDS)
         return this
     }
 
@@ -224,8 +222,8 @@ class BotBrain(
 
     // --- the tick ------------------------------------------------------------------------------------------------
 
-    private fun tick() {
-        val now = System.currentTimeMillis()
+    fun tick() {
+        val now = bot.now()
         if (!bot.joined) return
         dismissScreens()
         if (mode != Mode.FIGHT) {
@@ -240,8 +238,7 @@ class BotBrain(
             if (now - lastRespawnAt > 1_000) { lastRespawnAt = now; bot.respawn() }
             return
         }
-        val gm = bot.gameMode
-        if (gm == GameMode.SPECTATOR) {
+        if (bot.spectating) {
             // Death cam: the server owns us until it respawns us. Stay quiet.
             endTravel()
             planner?.onDeath(bot.x, bot.z)
@@ -408,8 +405,8 @@ class BotBrain(
 
     // --- target selection ------------------------------------------------------------------------------------------
 
-    private fun nearestEnemy(now: Long): EntityView? {
-        val myTeam = bot.teamOf(bot.name)?.first
+    private fun nearestEnemy(now: Long): Seen? {
+        val myTeam = bot.teamOf(bot.name)
         val candidates = ArrayList<TargetPolicy.Candidate>()
         for (e in bot.entities.values) {
             if (e.type != "PLAYER" || e.id == bot.selfEntityId) continue
@@ -418,8 +415,8 @@ class BotBrain(
             // someone who is not on our team, and a dead one is caught by IneffectiveTargets (no hit lands).
             val name = bot.playerNames[e.uuid]
             candidates += TargetPolicy.Candidate(
-                id = e.id, name = name ?: "?${e.uuid}", team = name?.let { bot.teamOf(it)?.first },
-                spectating = bot.playerGameModes[e.uuid] == GameMode.SPECTATOR,
+                id = e.id, name = name ?: "?${e.uuid}", team = name?.let { bot.teamOf(it) },
+                spectating = bot.isSpectator(e.uuid),
                 x = e.x, y = e.y, z = e.z, listed = name != null,
             )
         }
@@ -437,7 +434,7 @@ class BotBrain(
         planner?.let { pl ->
             val markers = bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z }
             observed?.update(markers, sightings())
-            observed?.updateRainmaker(bot.bossBars.values.map { it.title }, glowingPlayers())
+            observed?.updateRainmaker(bot.bossBarTitles, glowingPlayers())
             pl.noteRoster(roster())
             pl.noteMarkers(bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z })
             pl.noteConfirmed(bot.sounds.count { it.contains("objective/pickup") })
@@ -558,12 +555,12 @@ class BotBrain(
 
     /** The bot's team as it sees it: every Tab-listed team mate with its entity position (NaN out of sight, then the shared spawn) and whether it is alive. */
     private fun roster(): List<Mate> {
-        val myTeam = bot.teamOf(bot.name)?.first ?: return emptyList()
+        val myTeam = bot.teamOf(bot.name) ?: return emptyList()
         val byUuid = bot.entities.values.filter { it.type == "PLAYER" }.associateBy { it.uuid }
         return bot.playerNames.mapNotNull { (uuid, name) ->
-            if (name == bot.name || bot.teamOf(name)?.first != myTeam) return@mapNotNull null
+            if (name == bot.name || bot.teamOf(name) != myTeam) return@mapNotNull null
             val e = byUuid[uuid]
-            Mate(name, e?.x ?: spawnX, e?.z ?: spawnZ, alive = bot.playerGameModes[uuid] != GameMode.SPECTATOR)
+            Mate(name, e?.x ?: spawnX, e?.z ?: spawnZ, alive = !bot.isSpectator(uuid))
         }
     }
 
@@ -575,11 +572,11 @@ class BotBrain(
         }
 
     private fun sightings(): List<Sighting> {
-        val myTeam = bot.teamOf(bot.name)?.first
+        val myTeam = bot.teamOf(bot.name)
         return bot.entities.values.filter { it.type == "PLAYER" && it.id != bot.selfEntityId }.mapNotNull { e ->
             val name = bot.playerNames[e.uuid]
-            val team = name?.let { bot.teamOf(it)?.first }
-            if (bot.playerGameModes[e.uuid] == GameMode.SPECTATOR || (team != null && team == myTeam)) null else Sighting(name, e.x, e.z)
+            val team = name?.let { bot.teamOf(it) }
+            if (bot.isSpectator(e.uuid) || (team != null && team == myTeam)) null else Sighting(name, e.x, e.z)
         }
     }
 
@@ -594,7 +591,7 @@ class BotBrain(
 
     /** Ore the bot carries by item id (the bag's display names, see [EconomyPlanner.oreOfName]). */
     private fun carriedOre(): Map<String, Int> =
-        EconomyPlanner.oreCounts((bot.contents[0] ?: emptyList()).filter { it.amount > 0 }.map { it.name to it.amount })
+        EconomyPlanner.oreCounts(bot.carriedStacks())
 
     /**
      * Lull-time economy: collect base-generator ore, mine Mid ore nodes, walk to the own base shop once the next upgrade is
@@ -695,7 +692,7 @@ class BotBrain(
         nav.clear()
     }
 
-    private fun isStarItem(e: EntityView): Boolean {
+    private fun isStarItem(e: Seen): Boolean {
         if (e.type != "ITEM") return false
         val texts = bot.entityTextsById[e.id]
         return texts == null || texts.isEmpty() || texts.any { it.contains('★') || it.contains("star", ignoreCase = true) }
@@ -704,7 +701,7 @@ class BotBrain(
     /** The star pick-up to fetch: nearest dropped star item within reach (any distance with the STAR goal, a short detour with KILL). */
     private fun starTarget(now: Long): Dest? {
         val limit = if (goal == Goal.STAR) STAR_SIGHT_RANGE else KILL_DETOUR_RANGE
-        var best: EntityView? = null
+        var best: Seen? = null
         var bestD = Double.MAX_VALUE
         for (e in bot.entities.values) {
             if (!isStarItem(e)) continue
@@ -750,7 +747,7 @@ class BotBrain(
         drinks.incrementAndGet()
     }
 
-    private fun updateRetreat(enemy: EntityView?, now: Long) {
+    private fun updateRetreat(enemy: Seen?, now: Long) {
         val hp = bot.health
         val enemyNear = enemy != null && hypot(enemy.x - bot.x, enemy.z - bot.z) < 14.0
         if (!retreating) {
@@ -761,7 +758,7 @@ class BotBrain(
     }
 
     /** STAR goal while the field is quiet, KILL while an enemy is on us; re-sent after the picker window resets it. */
-    private fun updateGoal(enemy: EntityView?, now: Long) {
+    private fun updateGoal(enemy: Seen?, now: Long) {
         if (starPoints.isEmpty()) return
         if (enemy != null && hypot(enemy.x - bot.x, enemy.z - bot.z) < 25.0) engagedAt = now
         val desired = if (now - engagedAt < 3_000) Goal.KILL else Goal.STAR
@@ -781,7 +778,7 @@ class BotBrain(
 
     /**
      * Non-combat travel (objective, stars, waypoints, roaming) sprint-jumps per [SprintJumpPolicy]: sets the sprint state
-     * and the jump-arc [Bot.lift] that the next position packet (sent by [Navigator.follow]) carries. The floor pose
+     * and the jump-arc [BotHost.lift] that the next position packet (sent by [Navigator.follow]) carries. The floor pose
      * the navigator works on is not changed, so path and edge checks stay on the ground.
      */
     private fun travel(dest: Dest, inCombat: Boolean = false): Double {
@@ -872,7 +869,7 @@ class BotBrain(
     private fun chooseWeapon(dist: Double, now: Long): Weapon? =
         WeaponPolicy.choose(loadout, dist, now, reloadBusyUntil, loadout.firstOrNull { it.slot == bot.selectedSlot })
 
-    private fun act(enemy: EntityView, weapon: Weapon?, dist: Double, now: Long, yaw: Float, pitch: Float) {
+    private fun act(enemy: Seen, weapon: Weapon?, dist: Double, now: Long, yaw: Float, pitch: Float) {
         val aimYaw = yaw + ((rnd.nextFloat() - 0.5f) * 2f * skill.aimErrorDeg)
         val aimPitch = pitch + ((rnd.nextFloat() - 0.5f) * skill.aimErrorDeg)
         if (weapon == null) {
@@ -984,8 +981,8 @@ class BotBrain(
     private fun probeForAmmo(slot: Int): Weapon {
         val barsBefore = bot.actionBars.size
         bot.selectHotbar(slot)
-        val end = System.currentTimeMillis() + 1_200
-        while (System.currentTimeMillis() < end && bot.actionBars.drop(barsBefore).none { AMMO.containsMatchIn(it.text) }) Thread.sleep(30)
+        val end = bot.now() + 1_200
+        while (bot.now() < end && bot.actionBars.drop(barsBefore).none { AMMO.containsMatchIn(it.text) }) Thread.sleep(30)
         val ammo = bot.actionBars.drop(barsBefore).any { AMMO.containsMatchIn(it.text) }
         return Weapon(slot, if (ammo) WeaponKind.RANGED else WeaponKind.MELEE, magazine = ammo)
     }

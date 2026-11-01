@@ -101,7 +101,7 @@ machine:
       then: strike
       do:
         - {id: rig, op: rig, frame: blade, for: 11, detach: true}
-        - {id: rig_off, op: rig, frame: blade_off, for: 11, detach: true}
+        - {id: rig_off, op: rig, frame: blade_off, hand: off, for: 11, detach: true}
     strike:
       for: 1
       then: end

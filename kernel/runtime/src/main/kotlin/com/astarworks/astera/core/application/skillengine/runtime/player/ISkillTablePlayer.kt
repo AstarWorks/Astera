@@ -29,6 +29,8 @@ public data class EventBinding(
     val attacker: UUID? = null,
     /** `from` (chain targeting, ADR-0303 9.4): the previous victim of the chain, bound while a chain hop's rows run; null outside a chain. */
     val from: EntityRef? = null,
+    /** The tick the event happened on: the clock an `on: event.*` frame counts its `move:` / `rotate:` keys from; null for a binding that is not an event's. */
+    val tick: Int? = null,
 )
 
 public data class RuntimeEvent(
