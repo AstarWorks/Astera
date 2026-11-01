@@ -183,7 +183,7 @@ public class OreNodeService(
                 Outcome.TooWeak
             }
             OreAccess.Reason.WRONG_TOOL -> {
-                refuse(player, node, WRONG_TOOL, emptyMap(), throttled)
+                refuse(player, node, wrongToolKey(node.spec.requiredTool), emptyMap(), throttled)
                 Outcome.WrongTool
             }
         }
@@ -273,7 +273,9 @@ public class OreNodeService(
             val seconds = (ticks + TICKS_PER_SECOND - 1) / TICKS_PER_SECOND
             return "%d:%02d".format(seconds / 60, seconds % 60)
         }
-        val WRONG_TOOL = MessageKey("astera.ore.wrong-tool")
+
+        /** The action-bar hint naming the node's proper tool class (`astera.ore.wrong-tool.<pickaxe|axe|shovel>`). */
+        fun wrongToolKey(proper: ToolKind) = MessageKey("astera.ore.wrong-tool." + proper.name.lowercase())
         const val TICKS_PER_SECOND = 20L
         const val HIT_COOLDOWN_TICKS = 6L
         const val REFUSAL_WINDOW_TICKS = 10L

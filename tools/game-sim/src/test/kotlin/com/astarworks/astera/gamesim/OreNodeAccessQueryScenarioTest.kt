@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * One ore-node gate query for the server and the bot planner ([IOreNodeAccess] / [OreNodeAccess]). For every shipped node of
- * `annihilation-arena`, phases 1-5, Norma levels 1-5 and four tools (bare hand, stone / iron / diamond pickaxe) the query's verdict
+ * `annihilation-arena`, phases 1-5, Norma levels 1-5 and six tools (bare hand, stone / iron / diamond pickaxe, iron axe, iron shovel) the query's verdict
  * equals what [OreNodeService] does to a hand hit: it lands, or it is refused for the same reason with the same unlock.
  */
 class OreNodeAccessQueryScenarioTest {
@@ -68,7 +68,7 @@ class OreNodeAccessQueryScenarioTest {
             val customBlocks = sim.services.getOrThrow<ICustomBlockRegistry>()
             val items = sim.services.getOrThrow<IItemRegistry>()
             val access = sim.services.getOrThrow<IOreNodeAccess>()
-            val tools: List<ItemId?> = listOf(null, ItemId("stone-pickaxe"), ItemId("iron-pickaxe"), ItemId("diamond-pickaxe"))
+            val tools: List<ItemId?> = listOf(null, ItemId("stone-pickaxe"), ItemId("iron-pickaxe"), ItemId("diamond-pickaxe"), ItemId("iron-axe"), ItemId("iron-shovel"))
             fun toolOf(id: ItemId?): ToolType? = id?.let { HitCustomBlockUseCase.toolOf(items, it) }
 
             val properTools = com.astarworks.astera.core.application.skillengine.compose.blockProperTools(java.nio.file.Paths.get(System.getProperty("astera.sim.contentDir")))
@@ -123,16 +123,15 @@ class OreNodeAccessQueryScenarioTest {
             }
             assertThat(compared).isEqualTo(file.nodes.size * 5 * 5 * tools.size)
 
-            // Wrong tool: the shipped blocks hurt every tool class a little, so derive an axe-only node from the real iron spec.
+            // Wrong tool: the shipped iron node is a pickaxe node with no entry for other classes, so a stone axe is refused as WRONG_TOOL.
             val iron = file.nodes.first { it.block == "astera:ore_iron_node" }.toSpec(file, { customBlocks.find(BlockType(it)) }, properTools::get)
-            val axeOnly = iron.copy(hitDamage = iron.hitDamage.filterKeys { it.kind == ToolKind.AXE })
             val wrongCell = iron.cells.first().let { Vec3(it.x + origin.x, it.y, it.z + origin.z) }
             val wrongMap = ConcurrentHashMap<OreNodeService.Key, OreNodeService.Node>()
             wrongMap[OreNodeService.Key(worldId.value, wrongCell.x.toInt(), wrongCell.y.toInt(), wrongCell.z.toInt())] =
-                OreNodeService.Node(matchId, worldId, wrongCell, axeOnly)
-            val wrongOutcome = serviceAt(NexusPhase.Phase1Build, 1, wrongMap).mine(red.id, worldId, wrongCell, ItemId("stone-pickaxe"))
+                OreNodeService.Node(matchId, worldId, wrongCell, iron)
+            val wrongOutcome = serviceAt(NexusPhase.Phase1Build, 1, wrongMap).mine(red.id, worldId, wrongCell, ItemId("stone-axe"))
             assertThat(wrongOutcome).isEqualTo(OreNodeService.Outcome.WrongTool)
-            assertThat(OreNodeAccess.check(axeOnly, 1, 1, ToolType(ToolKind.PICKAXE, ToolTier.STONE)))
+            assertThat(OreNodeAccess.check(iron, 1, 1, ToolType(ToolKind.AXE, ToolTier.STONE)))
                 .isEqualTo(OreAccess.Locked(OreAccess.Reason.WRONG_TOOL, OreAccess.Unlock()))
 
             // Concrete gold cases (opens in phase 2, needs level 2 and an iron tool).

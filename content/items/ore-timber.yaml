@@ -1,0 +1,26 @@
+# Match currency of the cheap shop rung (building blocks, utility): earned from the timber (axe) nodes, spent at the in-match shop
+# (content/shops/match-shop.yaml). Match-scoped: leftovers are wiped at match end. Never sold for GOLD.
+
+id: ore-timber
+
+material: OAK_LOG
+
+name:
+  ja: "原木"
+  en: "Timber"
+role:
+  ja: "素材 / ショップ用の試合通貨（終了時に消滅）"
+  en: "Material / shop currency, match-only"
+
+rarity: common
+level_requirement: 1
+
+equip_slot: mainhand
+unbreakable: true
+enchantable: false
+drop_on_death: true
+keep_on_death: false
+
+pdc_tags:
+  astera:rarity: common
+  astera:currency: "ore-timber"

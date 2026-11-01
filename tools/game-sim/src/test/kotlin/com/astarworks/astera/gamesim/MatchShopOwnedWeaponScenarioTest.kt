@@ -52,6 +52,7 @@ class MatchShopOwnedWeaponScenarioTest {
             items(red) += "pistol"
             repeat(20) { items(red) += "ore-gold" }
             repeat(20) { items(red) += "ore-iron" }
+            repeat(20) { items(red) += "ore-timber" } // wool-block is on the cheap rung, priced in ore-timber (4)
             repeat(10) { items(blue) += "ore-gold" }
 
             dispatch(red, "matchshop.open", "team" to "red")

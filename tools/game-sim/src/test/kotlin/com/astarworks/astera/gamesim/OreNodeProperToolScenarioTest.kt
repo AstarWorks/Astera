@@ -21,7 +21,7 @@ import java.nio.file.Paths
 /**
  * Proper-tool principle for the base ore nodes of the shipped annihilation-arena: timber is an axe node, clay a shovel node, iron a pickaxe
  * node (from content/engine/block-families.yaml). The proper tool lands a full hit and mines the node into its configured drop; a tool of
- * another class only scratches it (the shipped blocks give every class a weak entry, so that is a Hit of a few HP, not WRONG_TOOL).
+ * another class is refused (WRONG_TOOL; the shipped blocks have an entry for the proper class only).
  */
 class OreNodeProperToolScenarioTest {
 
@@ -40,7 +40,7 @@ class OreNodeProperToolScenarioTest {
     private class Case(val block: String, val tool: ToolKind, val proper: String, val wrong: String)
 
     @Test
-    fun `timber is an axe node, clay a shovel node and iron a pickaxe node, the proper tool mines the configured drop and another class only scratches`() {
+    fun `timber is an axe node, clay a shovel node and iron a pickaxe node, the proper tool mines the configured drop and another class is refused`() {
         val properTools = blockProperTools(Paths.get(System.getProperty("astera.sim.contentDir")))
         val cases = listOf(
             Case("astera:ore_timber_node", ToolKind.AXE, "stone-axe", "stone-pickaxe"),
@@ -69,17 +69,15 @@ class OreNodeProperToolScenarioTest {
                 val cell = spec.cells.first().let { Vec3(it.x + origin.x, it.y, it.z + origin.z) }
                 val ore = group.drops.single()
 
-                // Another class only scratches: a Hit well under the proper tool's, never a refusal.
-                val scratch = nodes.mine(red.id, worldId, cell, ItemId(c.wrong))
-                assertThat(scratch).`as`("${c.block} wrong class").isInstanceOf(OreNodeService.Outcome.Hit::class.java)
-                val scratched = spec.maxHp - (scratch as OreNodeService.Outcome.Hit).hp
-                assertThat(scratched).`as`("${c.block} scratch").isBetween(1, spec.maxHp / 20)
+                // Another class is refused: WrongTool, the node keeps all its HP.
+                val refused = nodes.mine(red.id, worldId, cell, ItemId(c.wrong))
+                assertThat(refused).`as`("${c.block} wrong class").isEqualTo(OreNodeService.Outcome.WrongTool)
 
-                // The proper tool lands a full hit, then mines it into the configured drop.
+                // The proper tool lands a full hit (100 at stone tier, no level bonus), then mines it into the configured drop.
                 advance(6)
                 val first = nodes.mine(red.id, worldId, cell, ItemId(c.proper))
                 assertThat(first).isInstanceOf(OreNodeService.Outcome.Hit::class.java)
-                assertThat(spec.maxHp - scratched - (first as OreNodeService.Outcome.Hit).hp).`as`("${c.block} proper hit").isEqualTo(100)
+                assertThat(spec.maxHp - (first as OreNodeService.Outcome.Hit).hp).`as`("${c.block} proper hit").isEqualTo(100)
                 val before = inventory.count { it == ore.itemId }
                 var outcome: OreNodeService.Outcome = first
                 var swings = 0
