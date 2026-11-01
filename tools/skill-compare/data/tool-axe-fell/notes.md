@@ -1,6 +1,6 @@
 # axe-fell — round 3 presentation review
 
-No reference video. Branch: `wp/tool-skills-polish3c`.
+No reference video. Branch: `wp/tool-skills-polish3d`.
 
 Oak-log splinters follow the unchanged fell line. All sweep_attack crescents, electric sparks, end rods and the shared fixed-distance core are removed. There are no white crescents that can overshoot the target.
 
@@ -12,7 +12,7 @@ Round-2 sheet: `/tmp/claude-1000/tool-skills/round-2/tool-axe-fell.png`.
 Round-3 sheet: `/tmp/claude-1000/tool-skills/round-3/tool-axe-fell.png`.
 All-tier captures: `/tmp/claude-1000/tool-skills/round-3/captures/axe-fell-{stone,iron,diamond}/compare/`.
 
-Review status: pending final real-client capture and tier comparison. The first exploratory axe capture was invalidated by edits during capture and is excluded from evidence.
+Review status: final-source tier sheets reviewed below; founder acceptance remains open.
 
 ## Sound measurement
 
@@ -39,9 +39,28 @@ The existing `:tools:game-sim:regenSkillOracle` path is used with a temporary co
 
 The initial blade-trail emission stays in windup; subsequent emissions are in cast at relative tick 1, every 2, for trail_span-2. This removes the old-state detached trail / later-state particle ordering ambiguity while preserving every emission tick and count. No shared test/engine source changed. Only the 18 tool goldens moved; all 105 non-tool goldens remain byte-identical to 0c044c264. Detailed row classification and mechanical equality: `round-3/validation/golden-classification-3c.json`, `rig-golden-classification-3c.json`, and `mechanics-3c.json`. Rig/frame pose differences against the stale round-2 golden already exist in the inherited b60ed3c84 and are unchanged here.
 
-Near-eye minimum for axe-fell, all three tiers: **0.889050 blocks**. Measured every particle `at=` in all four golden poses against eye=(0,1.62,0), matching the incoming ShippedNearEyeScenarioTest metric (held main_hand rigs are excluded and have a separate camera test). All 18 tool minima are >=0.8. Pickaxe's inner blade trail starts at v=0.5 rather than 0.4, retaining five samples; axe's inherited round-3 sweep already clears the rule. The owned real-cast scenario asserts every emission's distance. The shared new class is not on origin/main as of this verification, so it was not added or edited here.
+Near-eye minimum for axe-fell, all three tiers: **0.889050 blocks**. Measured every particle `at=` in all four golden poses against eye=(0,1.62,0), matching the incoming ShippedNearEyeScenarioTest metric (held main_hand rigs are excluded and have a separate camera test). All 18 tool minima are >=0.8. Pickaxe's inner blade trail starts at v=0.5 rather than 0.4, retaining five samples; axe's inherited round-3 sweep already clears the rule. The owned real-cast scenario asserts every emission's distance. The shared new class was absent from the polish3c verification base; it was not added or edited here. This is the retained polish3c measurement, not a new shared-test result.
 
 The explicitly authorized `falling_dust: { mean: 57.0273, source: jar-26.3 }` lifetime registry entry is now present; all six shovel fall_* rows use vanilla falling_dust with coarse_dirt block data. The scenario asserts this real particle type. The 24-bit random / float32 expectation is 57.02730482816696 ticks; derivation: `/tmp/claude-1000/tool-skills/round-3/falling-dust-dependency.md`.
 
 Round-0 sheet: `/tmp/claude-1000/tool-skills/round-0/tool-axe-fell.png`.
-Final-source visual review is pending; final per-tier comparison sheets will be in `round-3/comparisons/tool-axe-fell-{stone,iron,diamond}.png`. The earlier axe-plank-wall-stone shot with -24% idle brightness is excluded; it is being reshot.
+Final-source visual review is recorded below. Earlier exploratory captures are excluded.
+
+## polish3d: final capture review
+
+Capture-only finish; tool skills and tool particle sources remain identical to `d23fa0642`. Captures use the scoped-reaper merged base (`ad8cf6eec`, resumed at `6862e92e1`). Each accepted take has stepped tick stamps, zero skipped ticks and no invalid flag. The standard compare API checked every selected skill identity. No content, golden or test source changed in this finish.
+
+round-0: `/tmp/claude-1000/tool-skills/round-0/tool-axe-fell.png`.
+round-2: `/tmp/claude-1000/tool-skills/round-2/tool-axe-fell.png`.
+round-3: `/tmp/claude-1000/tool-skills/round-3/tool-axe-fell.png`.
+
+All three current sheets: `/tmp/claude-1000/tool-skills/round-3/tool-axe-fell-{stone,iron,diamond}.png`. Round-2 tier sheets: `/tmp/claude-1000/tool-skills/round-3/baseline/tool-axe-fell-{stone,iron,diamond}.png`. Two-row comparisons (round3 above round2): `/tmp/claude-1000/tool-skills/round-3/comparisons/tool-axe-fell-{stone,iron,diamond}.png`. Additional diamond decay beats t12/18/24/29: `/tmp/claude-1000/tool-skills/round-3/late/tool-axe-fell.png`.
+
+- stone: PASS brown log chips along horizontal fell footprint, no shared ring/white crescent. Stable idle148 vs149. The horizontal spread is distinct from plank-wall vertical column. Literal crescent endpoint/fade unmet: crescents removed, not shortened.
+- iron: Material/shape PASS: horizontal brown log chip line extends farther than stone; round2 white ring and crescents absent. Lighting limitation: idle123 vs149 (~17% lower) and distant backdrop differs, so no brightness improvement claim. Literal crescent endpoint/fade unmet; removed.
+- diamond: PASS brown log-chip horizontal footprint/no white ring; stable idle148 vs149. Wider/longer distribution than stone, distinct from vertical plank wall. Literal crescent endpoint/fade unmet because crescents removed. Impact reads as distributed wood debris, not a sharply localized target flash.
+  Viewed late/tool-axe-fell.png: large chips shrink to sparse flecks by t18-29; not fully gone by t29. No crescent present.
+
+ShippedV3ContentScenarioTest and ToolSkillPresentationScenarioTest PASS results above belong to polish3c and are preserved. Merged-base compileKotlin, :tools:e2e:compileTestKotlin, :tools:content-lint:run and :tools:architecture-test:test: PASS (base 6862e92e1, required-checks-3d.log, rc0); see round-3/report.md. No new test is needed for capture-only notes/evidence.
+
+Additional documentation drift: `.claude/rules/coding-posture.md` says Kotlin2.2/JVM24; `gradle/libs.versions.toml` pins Kotlin2.3.21 with JVM25 support. Build configuration was followed.
