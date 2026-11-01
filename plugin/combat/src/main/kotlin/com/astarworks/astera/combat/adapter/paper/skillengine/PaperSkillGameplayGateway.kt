@@ -6,6 +6,7 @@ import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
 import com.astarworks.astera.combat.application.port.outbound.IPlayerFeedbackGateway
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.service.MechanicStatuses
+import com.astarworks.astera.combat.application.trace.SkillEngineTrace
 import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
 import com.astarworks.astera.combat.domain.damage.DamageAttempt
@@ -110,6 +111,11 @@ public class PaperSkillGameplayGateway(
         )
         // A refused hit (immune, friendly fire, gateway failure) used to vanish; e2e could only see "no damage".
         if (result is Result.Failure) log.info("skill engine: damage by {} from {} on {} refused: {}", skillId, caster, victim, result.error)
+        if (SkillEngineTrace.enabled && result is Result.Success) {
+            // Observe the accepted damage op before armor/crit. Health deltas remain useful for proving it landed,
+            // but a random production crit must not change a balance-reload measurement.
+            log.info("[skill-damage] skill={} caster={} victim={} base={}", skillId, caster, victim, components.sumOf { it.amount })
+        }
         return result is Result.Success && result.value is DamageOutcome.Killed
     }
 

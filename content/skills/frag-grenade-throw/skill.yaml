@@ -40,6 +40,7 @@ frames:
     origin: contact
     v: incoming
     w: up
+    w_fallback: [1, 0, 0]
     s: v x w
 lines:
   tail: {frame: body, from: {v: -0.4}, to: {v: 0}}
