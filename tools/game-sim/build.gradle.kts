@@ -33,8 +33,9 @@ dependencies {
     implementation(libs.slf4j.api)
     runtimeOnly(libs.logback.classic)
 
-    // The bot brain's pure weapon choice (WeaponPolicy) is driven against real wiring by BotTwoWeaponsScenarioTest.
-    testImplementation(project(":tools:bot-runner"))
+    // The bot brain's pure weapon choice (WeaponPolicy) is driven against real wiring by BotTwoWeaponsScenarioTest;
+    // the playable-sim AgentPort walks the human seat with the bot Navigator / StageObjectives (ADR-0316).
+    implementation(project(":tools:bot-runner"))
     testImplementation(libs.kotlinx.collections.immutable) // GuiSpec.slots is a PersistentMap
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
@@ -63,4 +64,19 @@ tasks.register<Test>("regenSkillOracle") {
     classpath = verification.classpath
     filter { includeTestsMatching("*ShippedV3ContentScenarioTest*") }
     systemProperty("astera.oracle.regen", "true")
+}
+
+// Playable sim (ADR-0316): a Claude session plays one seat headless over JSON lines.
+//   printf '%s\n' '{"op":"new","mode":"annihilation","me":"red"}' '{"op":"skip","until":"phase=engage"}' '{"op":"end"}' | ./gradlew -q :tools:game-sim:play
+//   ./gradlew -q :tools:game-sim:play --args="path/to/commands.jsonl"     (commands from a file instead of stdin)
+tasks.register<JavaExec>("play") {
+    group = "application"
+    description = "JSON-lines agent port: stdin ops (new/act/skip/look/end) -> one observation line each on stdout."
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.astarworks.astera.gamesim.playable.agent.PlayMainKt")
+    standardInput = System.`in`
+    workingDir = rootDir
+    jvmArgs("-Xmx2g")
+    systemProperty("astera.sim.contentDir", rootProject.file("content").absolutePath)
+    systemProperty("astera.sim.traceDir", layout.buildDirectory.dir("play").get().asFile.absolutePath)
 }
