@@ -20,7 +20,15 @@ class RiderLawsScenarioTest : SkillEngineScenario() {
         }
     }
 
-    private fun rot(rows: List<String>, tick: Int, id: String) = rows.first { it.startsWith("@$tick frame throw/$id ") }.substringAfter("rot=")
+    /** The flying shears' display for [part] (body / blade_a / blade_b): the item display spawned at the release, tick 34. */
+    private fun instanceOf(rows: List<String>, part: String) = rows.first { it.startsWith("@34 spawn ") && it.contains(" kind=item ") && it.contains(" part=$part ") }.split(' ')[2]
+
+    /** The rotation the flying display of [id] carries at [tick]: its last spawn or write row at or before that tick (an unchanged display is not rewritten). */
+    private fun rot(rows: List<String>, tick: Int, id: String): String {
+        val inst = instanceOf(rows, id)
+        return rows.filter { it.split(' ')[2] == inst && (it.contains(" write ") || it.contains(" spawn ")) && it.substringBefore(' ').drop(1).toInt() <= tick }
+            .last().substringAfter(" rot=").substringBefore(' ')
+    }
 
     @Test
     fun spinKeepsRunningPastTheThrowStateAndTheBladesKeepTheirTilt() {
@@ -28,15 +36,16 @@ class RiderLawsScenarioTest : SkillEngineScenario() {
         play(shipped(), seed = 1L, events = emptyList(), ticks = 60, rec = rec)
         val rows = rec.oracleRows.map { "@${it.tick} ${it.verb} ${it.instance} ${it.payload} ${it.detail}" }
         // the volley hits at 36 and the throw state (34..41) is left early; the spin (body ticks 4..11 = 38..45) is the riders' own length and still plays
-        assertThat(rot(rows, 39, "fly_body")).isNotEqualTo(rot(rows, 41, "fly_body"))
-        assertThat(rot(rows, 41, "fly_body")).isNotEqualTo(rot(rows, 44, "fly_body"))
+        assertThat(rot(rows, 39, "body")).isNotEqualTo(rot(rows, 41, "body"))
+        assertThat(rot(rows, 41, "body")).isNotEqualTo(rot(rows, 44, "body"))
         // ...and ends where it was authored: held after body tick 11 (= 45)
-        assertThat(rot(rows, 46, "fly_body")).isEqualTo(rot(rows, 50, "fly_body"))
+        assertThat(rot(rows, 46, "body")).isEqualTo(rot(rows, 50, "body"))
         // the tilt: blade a and blade b turn opposite ways about their edge (not the body's rotation, not each other's)
-        assertThat(rot(rows, 50, "fly_a")).isNotEqualTo(rot(rows, 50, "fly_body"))
-        assertThat(rot(rows, 50, "fly_a")).isNotEqualTo(rot(rows, 50, "fly_b"))
+        assertThat(rot(rows, 50, "blade_a")).isNotEqualTo(rot(rows, 50, "body"))
+        assertThat(rot(rows, 50, "blade_a")).isNotEqualTo(rot(rows, 50, "blade_b"))
         // the cast end counts the riders' last write: they are still being written at 45, inside the machine tail
-        assertThat(rec.oracleRows.any { it.tick >= 45 && it.instance.toString().contains("fly_body") }).isTrue()
+        val body = instanceOf(rows, "body")
+        assertThat(rows.any { it.substringBefore(' ').drop(1).toInt() >= 45 && it.contains(" write ") && it.split(' ')[2] == body }).isTrue()
     }
 
     @Test
