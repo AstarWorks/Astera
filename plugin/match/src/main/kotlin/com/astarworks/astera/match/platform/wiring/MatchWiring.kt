@@ -501,6 +501,9 @@ public object MatchWiring {
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) {
                 botLoadoutService.onMatchEnded(it.matchId)
             }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.NormaLevelUp::class) {
+                botLoadoutService.onLevelUp(it.matchId, it.playerId, it.level)
+            }
         }
 
         // Reflective impl resolution (Phase 1 PoC; Koin replaces this in

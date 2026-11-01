@@ -1,5 +1,6 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.item.IMatchEntryLoadout
@@ -14,6 +15,7 @@ import com.astarworks.astera.match.application.contents.BotLoadoutContents
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
 import com.astarworks.astera.match.application.service.loadout.BotLoadoutService
+import com.astarworks.astera.match.domain.event.NormaLevelUp
 import com.astarworks.astera.match.domain.loadout.BotWeaponFamily
 import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
 import org.assertj.core.api.Assertions.assertThat
@@ -146,6 +148,49 @@ class BotLoadoutScenarioTest {
             bots.forEach { bot ->
                 assertThat(service.loadoutOf(matchId, bot.id)).isNull()
                 assertThat(checkNotNull(sim.inventory).items(bot.id)).`as`("restored to the (empty) pre-match hotbar").isEmpty()
+            }
+        } finally {
+            sim.shutdown()
+        }
+    }
+
+    @Test
+    fun `a team of bots at mixed Norma levels carries at least three distinct weapons of both ranged and melee kinds`() {
+        val sim = GameSim.boot("bot-loadout-levels", snapshots = InMemoryPlayerInventorySnapshotRepository())
+        try {
+            val bots = listOf("Bot_Ash", "Bot_Birch", "Bot_Cedar", "Bot_Dusk").map { sim.spawnPlayer(it) }
+            sim.step(5)
+            val matchmaker = sim.services.getOrThrow<IMatchmaker>()
+            bots.forEach { matchmaker.enqueue(it.id, MatchmakingMode.CARRY_TNT) }
+            assertThat(sim.stepUntil(900) { sim.eventsOf<PlayerEnteredMatch>().size == 4 }).isTrue()
+
+            val service = sim.services.getOrThrow<IMatchEntryLoadout>() as BotLoadoutService
+            val matchId = sim.services.getOrThrow<IMatchRepository>().findActiveMatches().single().id
+            // Every bot enters at level 1 (common pool only); the Norma check then lifts three of them to levels 2, 3 and 5.
+            val entry = bots.map { checkNotNull(service.loadoutOf(matchId, it.id)) }
+            assertThat(entry.map { it.toSet() }.toSet()).`as`("level 1 pool is common only").hasSize(1)
+
+            val bus = sim.services.getOrThrow<IDomainEventBus>()
+            listOf(bots[1] to 2, bots[2] to 3, bots[3] to 5).forEach { (bot, level) -> bus.publish(NormaLevelUp(matchId, bot.id, level)) }
+            sim.step(5)
+
+            val loadouts = bots.map { checkNotNull(service.loadoutOf(matchId, it.id)) }
+            val weapons = loadouts.flatten().map { it.value }.toSet()
+            assertThat(weapons).`as`("distinct weapons across the team: $loadouts").hasSizeGreaterThanOrEqualTo(3)
+            val families = loadouts.flatten().map { familyOf(it.value) }.toSet()
+            assertThat(families).contains(BotWeaponFamily.RANGED, BotWeaponFamily.MELEE)
+            bots.zip(loadouts).forEach { (bot, loadout) ->
+                assertThat(loadout).hasSize(2)
+                assertThat(weaponsOf(sim, bot)).`as`("${bot.name} carries its re-rolled loadout").containsAll(loadout.map { it.value })
+            }
+            // A re-roll never hands out a weapon whose rarity the level has not opened.
+            val registry = sim.services.getOrThrow<IItemRegistry>()
+            val norma = listOf(1 to 2, 2 to 3, 3 to 5).associate { (i, level) -> bots[i] to level }
+            norma.forEach { (bot, level) ->
+                checkNotNull(service.loadoutOf(matchId, bot.id)).forEach { id ->
+                    val needed = mapOf("COMMON" to 1, "UNCOMMON" to 2, "RARE" to 3, "EPIC" to 4, "LEGENDARY" to 5).getValue(registry.find(id)!!.rarity.name)
+                    assertThat(needed).`as`("${bot.name} at level $level holds ${id.value}").isLessThanOrEqualTo(level)
+                }
             }
         } finally {
             sim.shutdown()

@@ -31,7 +31,8 @@ import kotlin.random.Random
  *
  *  - A player is a bot when its name starts with the pool's `bot_name_prefix` (the runner's accounts; the game server
  *    never sees the Redis bot status, only the login name).
- *  - Only weapons usable at Norma level 1 are drawn (the rarity gate of the match, ADR-0292).
+ *  - Only weapons usable at the bot's Norma level are drawn (the rarity gate of the match, ADR-0292): level 1 on entry, and a
+ *    NormaLevelUp ([onLevelUp]) re-rolls an unspent loadout from the wider pool. Family combinations rotate across the match.
  *  - Draws are seeded (pool `seed`, else the match id) and avoid a pair another bot of the match already got, so bots of
  *    one match differ whenever the pool allows it. A rejoin re-arms the same loadout.
  */
@@ -48,7 +49,10 @@ public class BotLoadoutService(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    private val assignments: MutableMap<MatchId, MutableMap<PlayerId, BotLoadout>> = HashMap()
+    /** A bot's loadout and the Norma level whose rarity pool it was drawn from. */
+    private data class Assigned(val loadout: BotLoadout, val level: Int)
+
+    private val assignments: MutableMap<MatchId, MutableMap<PlayerId, Assigned>> = HashMap()
 
     /** Problems of [pool] against the item registry: unknown ids, items that are not weapons, items without skill bindings. */
     public fun validate(pool: BotLoadoutPool): List<String> =
@@ -64,16 +68,16 @@ public class BotLoadoutService(
             }
         }
 
-    /** Pool entries per family a bot of a match with [norma] may be handed (rarity open at level 1). */
-    public fun eligibleCounts(pool: BotLoadoutPool, norma: NormaConfig): Map<BotWeaponFamily, Int> =
-        BotWeaponFamily.entries.associateWith { family -> eligible(pool, norma).count { it.family == family } }
+    /** Pool entries per family a bot of a match with [norma] may be handed at Norma [level] (rarity open at that level). */
+    public fun eligibleCounts(pool: BotLoadoutPool, norma: NormaConfig, level: Int = START_LEVEL): Map<BotWeaponFamily, Int> =
+        BotWeaponFamily.entries.associateWith { family -> eligible(pool, norma, level).count { it.family == family } }
 
-    private fun eligible(pool: BotLoadoutPool, norma: NormaConfig): List<BotWeapon> =
+    private fun eligible(pool: BotLoadoutPool, norma: NormaConfig, level: Int): List<BotWeapon> =
         pool.families.flatMap { (family, ids) ->
             ids.mapNotNull { id ->
                 val spec = items.find(id) ?: return@mapNotNull null
                 val category = WeaponCategory.of(spec) ?: return@mapNotNull null
-                if (spec.skillBindings.isEmpty() || norma.levelFor(spec.rarity) > START_LEVEL) null else BotWeapon(id, family, category)
+                if (spec.skillBindings.isEmpty() || norma.levelFor(spec.rarity) > level) null else BotWeapon(id, family, category)
             }
         }
 
@@ -89,7 +93,8 @@ public class BotLoadoutService(
         if (!player.name.startsWith(pool.botNamePrefix)) return
         val matchId = matchOf(playerId) ?: return
         val perMatch = assignments.getOrPut(matchId) { LinkedHashMap() }
-        val loadout = perMatch[playerId] ?: draw(pool, matchId, playerId, perMatch)?.also { perMatch[playerId] = it } ?: return
+        val assigned = perMatch[playerId] ?: draw(pool, matchId, playerId, perMatch, START_LEVEL)?.also { perMatch[playerId] = it } ?: return
+        val loadout = assigned.loadout
         val query = owned() ?: return
         val itemDelivery = delivery() ?: return
         val carried = query.itemIds(playerId)
@@ -100,19 +105,45 @@ public class BotLoadoutService(
         log.info("Bot {} carries {} for match {}", player.name, loadout.items.map { it.value }, matchId.value)
     }
 
-    private fun draw(pool: BotLoadoutPool, matchId: MatchId, playerId: PlayerId, perMatch: Map<PlayerId, BotLoadout>): BotLoadout? {
+    /**
+     * A bot cleared its Norma goal: the rarity pool widens to [level], so a bot that still carries both weapons it was handed
+     * (it has not traded either in at the shop) re-rolls from the wider pool and swaps them. A bot that upgraded or lost a
+     * weapon keeps what it has; humans and unknown players are ignored.
+     */
+    @Synchronized
+    public fun onLevelUp(matchId: MatchId, playerId: PlayerId, level: Int) {
+        val pool = pool() ?: return
+        val perMatch = assignments[matchId] ?: return
+        val current = perMatch[playerId] ?: return
+        if (level <= current.level) return
+        val player = server.findPlayer(playerId) ?: return
+        val query = owned() ?: return
+        val itemDelivery = delivery() ?: return
+        val carried = query.itemIds(playerId)
+        if (!current.loadout.items.all { it in carried }) return
+        val rolled = draw(pool, matchId, playerId, perMatch - playerId, level) ?: return
+        perMatch[playerId] = rolled
+        if (rolled.loadout.key == current.loadout.key) return
+        val take = removal()
+        current.loadout.items.filter { it !in rolled.loadout.items }.forEach { take?.removeOne(playerId, it) }
+        rolled.loadout.items.filter { it !in carried }.mapNotNull { items.find(it) }.forEach { itemDelivery.give(player, it, 1) }
+        log.info("Bot {} reached Norma level {}: loadout {} -> {}", player.name, level, current.loadout.items.map { it.value }, rolled.loadout.items.map { it.value })
+    }
+
+    private fun draw(pool: BotLoadoutPool, matchId: MatchId, playerId: PlayerId, others: Map<PlayerId, Assigned>, level: Int): Assigned? {
         val problems = validate(pool)
         if (problems.isNotEmpty()) log.error("Bot loadout pool has invalid entries (skipped): {}", problems)
-        val weapons = eligible(pool, normaOf(matchId))
-        val random = Random(Objects.hash(pool.seed ?: matchId.value.hashCode().toLong(), playerId.uuid))
-        val picked = BotLoadoutPicker.pick(weapons, perMatch.values.map { it.key }.toSet(), random)
-        if (picked == null) log.error("No bot loadout can be drawn for {} in match {}: pool has no valid pair", playerId, matchId.value)
-        return picked
+        val weapons = eligible(pool, normaOf(matchId), level)
+        val random = Random(Objects.hash(pool.seed ?: matchId.value.hashCode().toLong(), playerId.uuid, level))
+        val taken = others.values.map { it.loadout }
+        val picked = BotLoadoutPicker.pick(weapons, taken.map { it.key }.toSet(), random, taken)
+        if (picked == null) log.error("No bot loadout can be drawn for {} in match {} at level {}: pool has no valid pair", playerId, matchId.value, level)
+        return picked?.let { Assigned(it, level) }
     }
 
     /** The loadout [playerId] was handed in [matchId], if any. */
     @Synchronized
-    public fun loadoutOf(matchId: MatchId, playerId: PlayerId): List<ItemId>? = assignments[matchId]?.get(playerId)?.items
+    public fun loadoutOf(matchId: MatchId, playerId: PlayerId): List<ItemId>? = assignments[matchId]?.get(playerId)?.loadout?.items
 
     @Synchronized
     public fun onMatchEnded(matchId: MatchId) {
