@@ -272,7 +272,15 @@ class AnnihilationPhaseFlowScenarioTest {
             assertThat(advanceUntil(1_500) { eventsOf<MatchEnded>().isNotEmpty() }).isTrue()
             val ended = eventsOf<MatchEnded>().single()
             assertThat(ended.winningTeam).isEqualTo(TeamId("blue"))
-            assertThat(clockDecision(ended)).isEqualTo(TeamId("blue") to EndReason.PillarHpDecision.Criterion.PILLAR_HP)
+            // 1000 max HP x 3 pillars = 3000 per team; one hit removes 300 (raw 100 x tool-skill match 3.0 x falloff 1.0 x phase 2 mult 1.0).
+            // Red took 1 hit (2700), yellow 2 (2400), blue none (3000). No bleed (interval 100_000 ticks): bleedTaken = 0 for every team.
+            assertThat(ended.reason).isEqualTo(
+                EndReason.PillarHpDecision(
+                    TeamId("blue"), EndReason.PillarHpDecision.Criterion.PILLAR_HP,
+                    playHp = mapOf(TeamId("red") to 2700, TeamId("blue") to 3000, TeamId("yellow") to 2400),
+                    bleedTaken = mapOf(TeamId("red") to 0, TeamId("blue") to 0, TeamId("yellow") to 0),
+                ),
+            )
         }
     }
 
@@ -297,7 +305,14 @@ class AnnihilationPhaseFlowScenarioTest {
             hit(matchId, red, "yellow", NexusPillarTier.TIER_1)
         }
         assertThat(ended.winningTeam).isEqualTo(TeamId("red"))
-        assertThat(clockDecision(ended)).isEqualTo(TeamId("red") to EndReason.PillarHpDecision.Criterion.DAMAGE_DEALT)
+        // 1000 max HP x 3 pillars = 3000 per team; one hit removes 300 (raw 100 x tool-skill match 3.0 x falloff 1.0 x phase 2 mult 1.0).
+        // Only yellow's tier 1 was hit once: play-HP red 3000, blue 3000, yellow 2700. No bleed (interval 100_000 ticks).
+        assertThat(ended.reason).isEqualTo(
+            EndReason.PillarHpDecision(
+                TeamId("red"), EndReason.PillarHpDecision.Criterion.DAMAGE_DEALT,
+                playHp = mapOf(TeamId("red") to 3000, TeamId("blue") to 3000, TeamId("yellow") to 2700),
+                bleedTaken = mapOf(TeamId("red") to 0, TeamId("blue") to 0, TeamId("yellow") to 0),
+            ))
     }
 
     @Test
@@ -309,7 +324,14 @@ class AnnihilationPhaseFlowScenarioTest {
             sim.services.getOrThrow<IDomainEventBus>().publish(PlayerKilled(yellow.id, blue.id, com.astarworks.astera.combat.domain.damage.DamageSource.Environment.Generic, 1L))
         }
         assertThat(ended.winningTeam).isEqualTo(TeamId("blue"))
-        assertThat(clockDecision(ended)).isEqualTo(TeamId("blue") to EndReason.PillarHpDecision.Criterion.KILLS)
+        // 1000 max HP x 3 pillars = 3000 per team; one hit removes 300 (raw 100 x tool-skill match 3.0 x falloff 1.0 x phase 2 mult 1.0).
+        // Yellow's tier 1 was hit twice (red, blue): play-HP red 3000, blue 3000, yellow 2400. No bleed (interval 100_000 ticks).
+        assertThat(ended.reason).isEqualTo(
+            EndReason.PillarHpDecision(
+                TeamId("blue"), EndReason.PillarHpDecision.Criterion.KILLS,
+                playHp = mapOf(TeamId("red") to 3000, TeamId("blue") to 3000, TeamId("yellow") to 2400),
+                bleedTaken = mapOf(TeamId("red") to 0, TeamId("blue") to 0, TeamId("yellow") to 0),
+            ))
     }
 
     @Test
@@ -320,12 +342,13 @@ class AnnihilationPhaseFlowScenarioTest {
             hit(matchId, blue, "yellow", NexusPillarTier.TIER_1)
         }
         assertThat(ended.winningTeam).isNull()
-        assertThat(clockDecision(ended)).isEqualTo(null to EndReason.PillarHpDecision.Criterion.PILLAR_HP)
-    }
-
-    private fun clockDecision(ended: MatchEnded): Pair<TeamId?, EndReason.PillarHpDecision.Criterion> {
-        val r = ended.reason as EndReason.PillarHpDecision
-        return r.winner to r.decidedBy
+        // Same hits as the kills case (yellow's tier 1 hit twice): play-HP red 3000, blue 3000, yellow 2400, no bleed; level on damage and kills = draw.
+        assertThat(ended.reason).isEqualTo(
+            EndReason.PillarHpDecision(
+                null, EndReason.PillarHpDecision.Criterion.PILLAR_HP,
+                playHp = mapOf(TeamId("red") to 3000, TeamId("blue") to 3000, TeamId("yellow") to 2400),
+                bleedTaken = mapOf(TeamId("red") to 0, TeamId("blue") to 0, TeamId("yellow") to 0),
+            ))
     }
 
     /** Hits [team]'s [tier] pillar until it is at [target] HP or lower (a first 100 hit measures the damage factor). */
