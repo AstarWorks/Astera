@@ -69,6 +69,25 @@ class BotTeamFocusScenarioTest {
     }
 
     @Test
+    fun `a tied pick is stable across consecutive ticks`() {
+        for (phase in listOf(2, 3)) {
+            val facts = Facts().apply { this.phase = phase }
+            for (k in (0 until 20).map { "match-$it" }) {
+                val p = planner("r1", facts, key = k)
+                val ticks = (0 until 50).map { targetOf(p) }
+                assertThat(ticks.toSet()).hasSize(1)
+                // A fresh planner (e.g. after a respawn) with the same key lands on the same team: nothing time-dependent.
+                assertThat(targetOf(planner("r1", facts, key = k))).isEqualTo(ticks.first())
+            }
+        }
+        // Same for the per-entity tie of the target selector: identical scores, 50 ticks, one pick.
+        val cands = (1..4).map { com.astarworks.astera.bots.TargetPolicy.Candidate(it, "e$it", "blue", false, 10.0, 64.0, 10.0) }
+        val sel = com.astarworks.astera.bots.TargetSelector().apply { seedTies(com.astarworks.astera.bots.TieBreak.seed("m", "r1")) }
+        val picks = (0 until 50).map { sel.select(it * 50L, "r1", "red", 0.0, 64.0, 0.0, cands).target?.id }
+        assertThat(picks.toSet()).hasSize(1)
+    }
+
+    @Test
     fun `the team that hurt us last wins a tie`() {
         val facts = Facts()
         for (k in (0 until 20).map { "match-$it" }) {
@@ -106,6 +125,25 @@ class BotTeamFocusScenarioTest {
         facts.seen = listOf(Sighting("b1", redPillar.x + 0.5, redPillar.z + 0.5))
         val threatened = squad.map { planner(it.name, facts) }.onEach { it.step(0, spawn.first, spawn.third) }
         assertThat(threatened.count { it.role == Role.PILLAR_DEFENDER }).isGreaterThanOrEqualTo(1)
+    }
+
+    @Test
+    fun `attackers do not camp an enemy spawn zone but fight defenders that leave it or hit them`() {
+        val facts = Facts().apply { phase = 3 }
+        val blueSpawns = zones.spawns().filter { it.first == "blue" }
+        assertThat(blueSpawns).isNotEmpty()
+        val sx = blueSpawns.map { it.second }.average()
+        val sz = blueSpawns.map { it.third }.average()
+        fun fresh() = ModePlanner("annihilation", "r1", "red", listOf("blue", "yellow"), zones, facts = facts, matchKey = "m0", teamOf = { "blue" })
+            .also { it.noteRoster(squad); it.step(0, sx, sz) }
+        val inside = Sighting("b1", sx + 1.0, sz + 1.0)
+        // Standing in the blue spawn zone with a blue defender next to us: not engaged (pillar first).
+        assertThat(inside.let { fresh().engages(it, 1_000, sx, sz) }).isFalse()
+        // Hit lately: engaged again.
+        assertThat(fresh().also { it.noteDamaged(900) }.engages(inside, 1_000, sx, sz)).isTrue()
+        // The same defender far outside the zone, within engage range of an attacker next to it: engaged.
+        val ox = sx + 80.0
+        assertThat(fresh().engages(Sighting("b1", ox, sz), 1_000, ox - 3.0, sz)).isTrue()
     }
 
     @Test

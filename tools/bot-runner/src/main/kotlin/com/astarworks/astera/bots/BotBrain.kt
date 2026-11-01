@@ -303,8 +303,8 @@ class BotBrain(
             nav.clear()
             retreating = false
             stuck.reset()
-            selector.seedTies(TieBreak.seed(matchKey(originX, originZ, now, exact = true), bot.name))
-            planner = buildPlanner(originX, originZ, matchKey(originX, originZ, now, exact = false))
+            selector.seedTies(TieBreak.seed(matchKey(originX, originZ), bot.name))
+            planner = buildPlanner(originX, originZ, matchKey(originX, originZ))
             economy = buildEconomy(originX, originZ)
             econSliceStart = 0L
             econCooldownUntil = if (planner != null) now + ECON_OPENING_MS else 0L
@@ -827,9 +827,8 @@ class BotBrain(
         return Dest(st.x, st.z, null, st.arrive, "econ-${st.kind}", strike = st.strike, affinity = st.strike?.let { LoadoutClassifier.Affinity.PICKAXE })
     }
 
-    /** Key of the running match for [TieBreak]: mode, stage slot and start (a 5-minute bucket so the squad shares it; exact for a bot's own stream). */
-    private fun matchKey(originX: Double, originZ: Double, now: Long, exact: Boolean) =
-        "$modeId@${originX.toLong()},${originZ.toLong()}@${if (exact) now else now / MATCH_KEY_BUCKET_MS}"
+    /** Key of the running match for [TieBreak]: mode and stage slot (no match id reaches a bot; no clock, so a pick never changes between ticks). */
+    private fun matchKey(originX: Double, originZ: Double) = "$modeId@${originX.toLong()},${originZ.toLong()}"
 
     private fun buildPlanner(originX: Double, originZ: Double, matchKey: String): ModePlanner? {
         val id = modeId ?: return null
@@ -1262,7 +1261,6 @@ class BotBrain(
         const val STRIKE_INTERVAL_MS = 450L
         const val TOOL_CAST_INTERVAL_MS = 2_000L
         const val STRIKE_REACH = 4.5
-        const val MATCH_KEY_BUCKET_MS = 300_000L
         const val NO_PATH_GIVE_UP_TICKS = 10
         const val STAR_BLOCK_ARRIVE = 2.2
         const val STAR_BLOCK_PAY_WINDOW_MS = 3_000L

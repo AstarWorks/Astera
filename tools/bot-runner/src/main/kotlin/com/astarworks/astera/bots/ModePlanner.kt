@@ -46,7 +46,23 @@ class ModePlanner(
 
         /** Annihilation pillar sites (block coordinates) of every team. */
         fun pillars(): List<PillarSite> = emptyList()
+
+        /** Respawn points of every team as (team, x, z); empty when the stage has none. */
+        fun spawns(): List<Triple<String, Double, Double>> = emptyList()
     }
+
+    /** Spawn zone of [team]: centroid of its respawn points and the radius that covers them plus [SPAWN_ZONE_MARGIN] (derived from the stage). */
+    private val spawnZones: Map<String, Triple<Double, Double, Double>> by lazy {
+        zones.spawns().groupBy { it.first }.mapValues { (_, l) ->
+            val cx = l.sumOf { it.second } / l.size
+            val cz = l.sumOf { it.third } / l.size
+            Triple(cx, cz, l.maxOf { hypot(it.second - cx, it.third - cz) } + SPAWN_ZONE_MARGIN)
+        }
+    }
+
+    /** True when (x, z) lies inside the spawn zone of [team]. */
+    fun inSpawnZone(team: String?, x: Double, z: Double): Boolean =
+        team != null && spawnZones[team]?.let { hypot(x - it.first, z - it.second) <= it.third } == true
 
     /** One pillar block of an Annihilation stage: [x]/[y]/[z] are the block coordinates. */
     data class PillarSite(val team: String, val tier: Int, val x: Int, val y: Int, val z: Int, val affinity: String? = null) {
@@ -445,6 +461,13 @@ class ModePlanner(
         // Preparation phase: an enemy inside an enemy base is not worth following (nothing to win there); one in the field is fought as usual.
         if (offLimits(now, enemy.x, enemy.z) && !offLimits(now, x, z)) { farFightSince = NEVER; return false }
         val d = hypot(enemy.x - x, enemy.z - z)
+        // Next to the pillar and nobody is hitting us: dig. A defended base otherwise pulls the attacker into a perpetual fight with
+        // respawning defenders (0 pillar damage in 2,300 player-seconds); being hit, or an enemy within melee range, still fights.
+        val hit = lastDamagedAt != NEVER && now - lastDamagedAt in 0..DAMAGED_MEMORY_MS
+        // No spawn camping: a defender still inside its own spawn zone is left alone (pillar damage first) until it leaves or hits us.
+        if (role == Role.PILLAR_ATTACKER && !hit && inSpawnZone(teamOf(enemy.name), enemy.x, enemy.z)) { farFightSince = NEVER; return false }
+        if (role == Role.PILLAR_ATTACKER && !objectiveX.isNaN() && !hit && d > DIG_MELEE_RADIUS &&
+            hypot(objectiveX - x, objectiveZ - z) <= DIG_FOCUS_RADIUS) { farFightSince = NEVER; return false }
         if (d <= lastEngage) { farFightSince = NEVER; return true }
         if (role != Role.PILLAR_ATTACKER || d > ATTACK_ENGAGE_FAR || now < farBlockedUntil) { farFightSince = NEVER; return false }
         val damaged = lastDamagedAt != NEVER && now - lastDamagedAt in 0..DAMAGED_MEMORY_MS
@@ -594,6 +617,13 @@ class ModePlanner(
         const val PILLAR_REACH = 3.5
         /** Annihilation phase from which the squad focuses one enemy team (Center: Tier 2 + 3 vulnerable). */
         const val FOCUS_PHASE = 3
+
+        /** Within this many blocks of the target pillar an unhurt attacker digs instead of fighting; an enemy this close still gets hit. */
+        const val DIG_FOCUS_RADIUS = 15.0
+        const val DIG_MELEE_RADIUS = 4.0
+
+        /** Blocks added to the spread of a team's respawn points to get its spawn zone. */
+        const val SPAWN_ZONE_MARGIN = 12.0
         const val NEXUS_TIER = 3
         /** An enemy this close to an own pillar that just lost HP is taken as the one who hit it. */
         const val PILLAR_ATTACKER_RADIUS = 20.0

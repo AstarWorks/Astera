@@ -41,6 +41,7 @@ class StageObjectives private constructor(
         override fun point(name: String) = regions.firstOrNull { it.name == name }?.let { Triple(it.cx, it.cy, it.cz) }
         override fun names(prefix: String) = zoneNames(prefix)
         override fun pillars() = this@StageObjectives.pillars
+        override fun spawns() = this@StageObjectives.spawns.map { Triple(it.team, it.x, it.z) }
     }
 
     override fun ownTeamAt(spawnX: Double, spawnZ: Double): String? =
