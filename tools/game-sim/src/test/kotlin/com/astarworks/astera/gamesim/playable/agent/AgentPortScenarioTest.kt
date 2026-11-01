@@ -120,8 +120,54 @@ class AgentPortScenarioTest {
         val summary = end["summary"]!!.jsonObject
         assertThat(summary["decisions_failed"]!!.jsonPrimitive.int).isGreaterThanOrEqualTo(2) // the refused dagger buy + the unknown goto
         assertThat(summary["decisions_ok"]!!.jsonPrimitive.int + summary["decisions_failed"]!!.jsonPrimitive.int).isEqualTo(summary["decisions"]!!.jsonPrimitive.int)
-        assertThat(end["timeline"]!!.jsonObject.keys).containsExactlyInAnyOrder("first_star_pickup", "first_kill", "first_norma_levelup")
+        assertThat(end["timeline"]!!.jsonObject.keys).containsExactlyInAnyOrder("first_star_pickup", "first_kill", "first_norma_levelup", "failed_decisions")
         assertThat(end["failed_decisions"]!!.jsonArray).isNotEmpty()
+    }
+
+    private val ux2Script = listOf(
+        """{"op":"new","mode":"annihilation","stage":"annihilation-arena","me":"red","seed":7,"bots_per_team":1}""",
+        """{"op":"act","do":"goto star","max":50,"map":"off"}""",
+        """{"op":"act","do":"goto nowhere-land","map":"off"}""",
+        """{"op":"act","do":"wait 5","map":"off"}""",
+        """{"op":"act","do":"dig mid-ore:iron","until":"ore>=4","max":4000,"interrupts":false,"map":"off"}""",
+        """{"op":"act","do":"goto star","until":"arrived","max":40,"interrupts":false,"map":"off"}""",
+        """{"op":"end"}""",
+    )
+
+    @Test
+    fun `dig keeps going under until, goto star waits for a spawn, and failures carry their reason`() {
+        val port = AgentPort(DriverMatchHost, GameSim.defaultContentDir().toFile(), GameSim.defaultTraceDir())
+        val out = StringBuilder()
+        port.run(BufferedReader(StringReader(ux2Script.joinToString("\n"))), out)
+        val obs = out.lines().filter { it.isNotBlank() }.map { Json.parseToJsonElement(it).jsonObject }
+        assertThat(obs).hasSize(ux2Script.size)
+        fun text(o: JsonObject, k: String) = o[k]!!.jsonPrimitive.content
+
+        // goto star without until and without a star: fails as before.
+        assertThat(text(obs[1], "stopped")).isEqualTo("unknown_target")
+        assertThat(obs[1]["failed"]!!.jsonPrimitive.content).isEqualTo("true")
+
+        // each failure is flagged on the line that runs right after it at the same tick (the wait advances the clock, so the dig is not tagged).
+        assertThat(text(obs[2], "result")).contains("ran right after failed 'goto star'")
+        assertThat(text(obs[3], "result")).contains("ran right after failed 'goto nowhere-land'")
+        assertThat(text(obs[4], "result")).doesNotContain("ran right after")
+
+        // dig without an index, until ore>=4: more than one node mined, nodes regrow in between, ends on the until.
+        val dig = obs[4]
+        assertThat(text(dig, "stopped")).isEqualTo("until:ore>=4")
+        assertThat(text(dig, "result")).containsPattern("mined [2-9]\\d* nodes")
+        assertThat(dig["me"]!!.jsonObject["ore"]!!.jsonObject.values.sumOf { it.jsonPrimitive.int }).isGreaterThanOrEqualTo(4)
+
+        // goto star until arrived waits (bounded by max) instead of failing instantly.
+        assertThat(text(obs[5], "stopped")).isNotEqualTo("unknown_target")
+        assertThat(text(obs[5], "result")).containsAnyOf("no star spawned", "short of star", "at star")
+
+        // the failure reasons are in the summary's failed_decisions and in the timeline.
+        val end = obs.last()
+        val failed = end["failed_decisions"]!!.jsonArray.map { it.jsonPrimitive.content }
+        assertThat(failed).anyMatch { it.contains("goto star") && it.contains("unknown_target") }
+        val timelineFailed = end["timeline"]!!.jsonObject["failed_decisions"]!!.jsonArray.map { it.jsonObject }
+        assertThat(timelineFailed.map { text(it, "stopped") }).contains("unknown_target")
     }
 
     @Test
