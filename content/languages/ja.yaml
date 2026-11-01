@@ -2975,3 +2975,6 @@ astera:
   announce.invalid: "&c重複のない key=value 形式で指定してください。"
   announce.sent: "&a通知を送信しました。"
   announce.failed: "&c通知に失敗しました: {reason}"
+
+  # astera.stage.* — anni-map / Highmarch (ADR-0317), append-only.
+  stage.annihilation-highmarch.name: "ハイマーチ"

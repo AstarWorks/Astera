@@ -15,3 +15,11 @@ stone-brick plinths for the star generators and two stepped spawn daises added; 
 
 Per-file credits (title, authors, source, licence, modifications) are repeated in the `credits` block of each
 `content/arenas/*.yaml`. The converter and per-map configs are in `tools/map-import/`.
+
+## Original map: Highmarch
+
+`annihilation-arena` imports `content/arenas/annihilation-highmarch.yaml`, titled **Highmarch**, by **AstarWorks**.
+Original source: `tools/map-gen/highmarch.py` in this repository. **Copyright (c) 2026 AstarWorks. MIT; see repository
+LICENSE.** No third-party map data, Shotbow layout or dimensions are included. Generated as an original work with
+fortified towns, a terraced quarry and stone bridges; it is not an adaptation of the CC BY-SA map above. Per-file
+credits are repeated in the arena YAML. See ADR-0317.

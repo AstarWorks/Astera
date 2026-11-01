@@ -2987,3 +2987,6 @@ astera:
   announce.invalid: "&cUse unique key=value arguments."
   announce.sent: "&aAnnouncement sent."
   announce.failed: "&cAnnouncement failed: {reason}"
+
+  # astera.stage.* — anni-map / Highmarch (ADR-0317), append-only.
+  stage.annihilation-highmarch.name: "Highmarch"
