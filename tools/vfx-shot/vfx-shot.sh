@@ -1013,6 +1013,15 @@ film() { # viewer view_dir
       printf '%s\trotate Caster %s %s\n' "$(( t_tick * 50 ))" "$t_yaw" "${t_pitch:-~}" >> "$STATE/camera-plan.tsv"
     done
   fi
+  # ATTACKER=1 (opt-in): the nearest dummy husk deals ONE melee hit to the Caster ATTACK_AT ticks after the cast (default 10, inside a 30-tick guard
+  # window), through the normal damage path (`damage ... by <husk>` = EntityDamageByEntityEvent with the husk as damager), so a counter / guard skill
+  # (couture-rapier-def: hurt -> parry -> riposte) fires its on-hit branch. The director logs the command reply; a hit that did not land fails below.
+  ATTACK_TICK=""
+  if [ "${ATTACKER:-0}" = 1 ]; then
+    ATTACK_TICK="${ATTACK_AT:-10}"
+    [[ "$ATTACK_TICK" =~ ^[0-9]+$ ]] && [ "$ATTACK_TICK" -lt "$TICKS" ] || die "ATTACK_AT must be a tick number below TICKS ($TICKS), got '$ATTACK_TICK'"
+    printf '%s\texecute at Caster run damage Caster 1 minecraft:mob_attack by @e[type=minecraft:husk,sort=nearest,limit=1]\n' "$(( ATTACK_TICK * 50 ))" >> "$STATE/camera-plan.tsv"
+  fi
   # one RCON connection: game time, cast, game time, then (compare) the camera cuts of the plan. Stepped: the server is frozen and
   # advanced one tick at a time until the viewer's screen shows each new tick; realtime: the plan runs on the wall clock.
   local dstep=()
@@ -1061,6 +1070,11 @@ film() { # viewer view_dir
     log "rig check: $(tail -1 "$dir/rig-check.txt")"
   fi
   log "tick stamp: $(cat "$STATE/framestamp.out")"
+  if [ -n "$ATTACK_TICK" ]; then
+    local areply; areply="$(grep -m1 "^PLAN_REPLY $((ATTACK_TICK * 50)) " "$STATE/director.stderr" | cut -d' ' -f3- | head -c 300)"
+    log "ATTACKER: hit at +$ATTACK_TICK ticks, reply: ${areply:-<empty>}"
+    case "$areply" in *[Aa]pplied*damage*) ;; *) die "ATTACKER=1: the hit did not land (reply: ${areply:-<empty>}): no husk in the scene or the Caster cannot be damaged" ;; esac
+  fi
   # The gate is the server's own trace, not pixels: the cast was acknowledged (above) AND the [vfx-trace] fx rows (PaperSkillParticleGateway:
   # `fx particle`, PaperSkillVisualGateway: `fx display`, ASTERA_VFX_TRACE=1 in the compose) hold at least one row at or after the cast tick.
   # An empty trace is a failure, never a pass. The pixel measurement (noise, peak, first fx tick) is information only.
