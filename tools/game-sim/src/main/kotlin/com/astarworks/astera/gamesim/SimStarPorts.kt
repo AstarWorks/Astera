@@ -111,6 +111,8 @@ public class SimMatchPlayerPositions(
 
 /** Ore node blocks of the simulated world: the current material per cell, in the order they were set. */
 public class SimOreNodeWorld(
+    /** The sim terrain the node blocks are placed into, as `PaperOreNodeWorld` sets them on the real world (null: bookkeeping only). */
+    private val terrain: SimWorld? = null,
     private val delivery: SimItemDelivery? = null,
     private val tick: () -> Long = { 0L },
 ) : com.astarworks.astera.match.application.port.outbound.IOreNodeWorld {
@@ -126,6 +128,7 @@ public class SimOreNodeWorld(
     override fun setBlock(world: WorldId, pos: Vec3, material: String) {
         val cell = Triple(kotlin.math.floor(pos.x).toInt(), kotlin.math.floor(pos.y).toInt(), kotlin.math.floor(pos.z).toInt())
         val before = blocks.put(cell, material)
+        terrain?.placeBlock(world, pos, com.astarworks.astera.core.domain.world.BlockType(material.lowercase().let { if (':' in it) it else "minecraft:$it" }))
         val ore = oreMaterial.putIfAbsent(cell, material) ?: material
         // OreNodeService hands the drops out first, then swaps the ore for its placeholder: that swap is the mining.
         if (before != null && before == ore && material != ore) {
