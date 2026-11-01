@@ -63,7 +63,7 @@ object MassPlay {
             val reason = (result.json["endReason"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: "?"
             return RunResult(run, seed, result, reason)
         } finally {
-            match.sim.shutdown()
+            (match as? AutoCloseable)?.close() ?: match.sim.shutdown()
         }
     }
 
