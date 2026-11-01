@@ -1,0 +1,6 @@
+id: emissive-particle
+programs: [particle]
+markers:
+  - {channel: particle-tint-rgb, value: '255'}
+  - {channel: particle-sprite-alpha, value: '254'}
+constants: {}

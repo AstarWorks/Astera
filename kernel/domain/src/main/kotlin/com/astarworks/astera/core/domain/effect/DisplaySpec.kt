@@ -26,7 +26,9 @@ public data class DisplaySpec(
     public val billboard: DisplayBillboard = DisplayBillboard.FIXED,
     /** Fixed block + sky light (0..15) for an emissive look; `null` = world lighting. */
     public val brightness: Int? = null,
-    /** ARGB outline glow colour; `null` = no glow. */
+    /** Vanilla Entity glowing flag, independent of the colour override. */
+    public val glowing: Boolean = false,
+    /** ARGB outline colour override; null uses vanilla/team colour. */
     public val glowArgb: Int? = null,
     /** Render-distance multiplier; `null` = vanilla default. */
     public val viewRange: Float? = null,
