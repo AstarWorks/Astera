@@ -173,6 +173,36 @@ class MatchMetrics(
     private val pillarLosses = mutableListOf<Triple<Long, String, String>>()
     private val normaLevel = HashMap<PlayerId, Int>()
 
+    /** Field tool / weapon tier tracking: a change = any of the four tiers differs from the previous 1 s sample. */
+    class ToolChange(val tick: Long, val normaLevel: Int, val before: List<Int>, val after: List<Int>)
+    private val normaUps = HashMap<PlayerId, MutableList<Pair<Long, Int>>>()
+    private val toolNow = HashMap<PlayerId, List<Int>>()
+    private val toolChanges = HashMap<PlayerId, MutableList<ToolChange>>()
+    private val toolAtMinute = HashMap<PlayerId, MutableMap<Int, List<Int>>>()
+    private val toolKinds = listOf("pickaxe", "axe", "shovel")
+    private val toolTierNames = listOf("stone", "iron", "diamond")
+
+    /** [pickaxe, axe, shovel, weapon] tiers: tools 0 none / 1 stone / 2 iron / 3 diamond, weapon = highest `-tN` given item (1 = base). */
+    private fun toolTiers(id: PlayerId): List<Int>? {
+        val stock = sim.services.get<IOwnedItemStock>() ?: return null
+        val given = sim.server.view(id)?.givenItems ?: return null
+        val tools = toolKinds.map { kind ->
+            toolTierNames.indices.reversed().firstOrNull { stock.count(id, ItemId("${toolTierNames[it]}-$kind")) > 0 }?.plus(1) ?: 0
+        }
+        val weapon = given.mapNotNull { Regex("-t([2-9])$").find(it)?.groupValues?.get(1)?.toInt() }.maxOrNull() ?: 1
+        return tools + weapon
+    }
+
+    private fun sampleTools(tick: Long, started: Long) {
+        val elapsed = tick - started
+        for (st in players.values) {
+            val now = toolTiers(st.id) ?: continue
+            val prev = toolNow.put(st.id, now)
+            if (prev != null && prev != now) toolChanges.getOrPut(st.id) { mutableListOf() } += ToolChange(tick, normaLevel[st.id] ?: 0, prev, now)
+            if (elapsed > 0 && elapsed % 6_000L == 0L) toolAtMinute.getOrPut(st.id) { HashMap() }[(elapsed / 1_200).toInt()] = now
+        }
+    }
+
     private val kills = HashMap<String, Int>()
     private val killsByItem = HashMap<String, Int>()
     private var killTotal = 0
@@ -232,7 +262,10 @@ class MatchMetrics(
             is NexusDestroyed -> if (e.matchId == matchId) { if (firstPillarLossTick == null) firstPillarLossTick = tick; pillarLosses += Triple(tick, e.owningTeam.value, e.tier.toString()); destroyedPillars += AnnihilationPillarTargets.idOf("${e.matchId.value}-${e.owningTeam.value}-${e.tier.ordinalValue}"); pillarEvents += PillarHit(e.owningTeam, e.previousHp.toDouble(), e.attackerId); firstTierLossTickByTeam.putIfAbsent(e.owningTeam.value, tick); e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.previousHp.toDouble(), Double::plus) } }
             is StarSupplied -> if (e.matchId == matchId) starsSupplied += e.amount
             is StarsCollected -> if (e.matchId == matchId) { starsCollected += e.amount; collected++ }
-            is NormaLevelUp -> if (e.matchId == matchId) normaLevel[e.playerId] = maxOf(normaLevel[e.playerId] ?: 0, e.level)
+            is NormaLevelUp -> if (e.matchId == matchId) {
+                normaLevel[e.playerId] = maxOf(normaLevel[e.playerId] ?: 0, e.level)
+                normaUps.getOrPut(e.playerId) { mutableListOf() } += tick to e.level
+            }
             else -> {}
         }
         val started = startTick ?: return
@@ -241,6 +274,7 @@ class MatchMetrics(
         trackStars(collected)
         trackPlayers(fighters, miners)
         if (tick > started && (tick - started) % leadSampleTicks == 0L) sampleLead(tick)
+        if (tick > started && (tick - started) % 20 == 0L) sampleTools(tick, started)
     }
 
     private fun isPlayer(id: PlayerId): Boolean = sim.world.find(id)?.kind == SimEntityKind.PLAYER
@@ -691,6 +725,18 @@ class MatchMetrics(
                         put("cost", JsonObject(fp.cost.mapValues { JsonPrimitive(it.value) }))
                     })
                     put("team", teamOf[st.id]?.value)
+                    put("toolTiers", buildJsonObject {
+                        put("order", "pickaxe,axe,shovel,weapon")
+                        put("normaLevelFinal", normaLevel[st.id] ?: 0)
+                        put("normaUps", JsonArray((normaUps[st.id] ?: emptyList()).map { (t, l) -> buildJsonObject { put("tick", t); put("level", l) } }))
+                        put("atMinute", JsonObject((toolAtMinute[st.id] ?: emptyMap()).entries.sortedBy { it.key }.associate { it.key.toString() to JsonArray(it.value.map { v -> JsonPrimitive(v) }) }))
+                        put("changes", JsonArray((toolChanges[st.id] ?: emptyList()).map { c ->
+                            buildJsonObject {
+                                put("tick", c.tick); put("normaLevel", c.normaLevel)
+                                put("before", JsonArray(c.before.map { JsonPrimitive(it) })); put("after", JsonArray(c.after.map { JsonPrimitive(it) }))
+                            }
+                        }))
+                    })
                     put("idleRatio", if (st.activeTicks > 0) st.ticksByActivity[Activity.IDLE.ordinal].toDouble() / st.activeTicks else null)
                     put("decisionsPerMinute", if (minutes > 0) st.transitions / minutes else null)
                     put("ticksByActivity", JsonObject(Activity.entries.associate { it.name.lowercase() to JsonPrimitive(st.ticksByActivity[it.ordinal]) }))

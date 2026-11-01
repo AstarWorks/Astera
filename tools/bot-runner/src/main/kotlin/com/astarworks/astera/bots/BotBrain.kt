@@ -184,6 +184,13 @@ class BotBrain(
     /** Cache spots shifted to the slot, and when each was last visited (a cache is empty until its respawn has passed). */
     private var cachePoints: List<ObjectiveSource.CachePoint> = emptyList()
     private val cacheVisitedAt = HashMap<Int, Long>()
+    /** A cache reached but not (yet) judged paid is skipped until this time, then retried: an unpaid cache means "not yet", not "empty". */
+    private val cacheRetryAt = HashMap<Int, Long>()
+    private var pendingCache: PendingCache? = null
+    /** Pickup cues counted so far and when the last one arrived: the server pays a cache from its open radius, a little before the bot reaches [CACHE_ARRIVE]. */
+    private var cuesSeen = 0
+    private var lastCueAt = Long.MIN_VALUE
+    private class PendingCache(val index: Int, val paidBefore: Int, val verdictAt: Long)
     private val visitedAt = HashMap<Int, Long>()
     private val ignoredStars = HashMap<Int, Long>()
     private val starsSeen = HashMap<Int, DoubleArray>()
@@ -305,6 +312,8 @@ class BotBrain(
             starPoints = objectives?.starPoints().orEmpty().map { (x, z) -> (x + originX) to (z + originZ) }
             cachePoints = objectives?.cachePoints().orEmpty().map { ObjectiveSource.CachePoint(it.x + originX, it.y, it.z + originZ, it.respawnMs) }
             cacheVisitedAt.clear()
+            cacheRetryAt.clear()
+            pendingCache = null
             fightStartedAt = now
             nav.clear()
             retreating = false
@@ -342,6 +351,7 @@ class BotBrain(
         val hasLos = visible?.hasLos ?: true
         trackStars(now)
         judgeStarBlockDig(now)
+        judgeCache(now)
         updateRetreat(enemy, now)
         tryDrinkPotion(now)
         if (chooseNormaGoal) updateGoal(enemy, now)
@@ -665,6 +675,7 @@ class BotBrain(
         for ((i, c) in cachePoints.withIndex()) {
             val seen = cacheVisitedAt[i]
             if (seen != null && now - seen < c.respawnMs) continue
+            if (now < (cacheRetryAt[i] ?: 0L)) continue
             val d = hypot(c.x - bot.x, c.z - bot.z) + abs(c.y - bot.y) * 0.5
             if (d <= range && d < bestD && !offLimits(now, c.x, c.z)) { bestD = d; bestI = i }
         }
@@ -676,7 +687,14 @@ class BotBrain(
     private fun arrivedAt(d: Dest, now: Long, unreachable: Boolean = false) {
         if (d.strike != null && hypot(d.x - bot.x, d.z - bot.z) <= STRIKE_REACH) strikeBlock(d.strike, d.affinity, now)
         when (d.kind) {
-            "cache" -> cacheVisitedAt[d.starId] = now
+            "cache" -> if (pendingCache == null && now >= (cacheRetryAt[d.starId] ?: 0L)) {
+                // Judged by the pickup cue within CACHE_PAY_WINDOW_MS; until then (and after an unpaid visit) the cache is off the list for CACHE_RETRY_MS.
+                if (now - lastCueAt <= CACHE_PAY_LOOKBACK_MS) cacheVisitedAt[d.starId] = now
+                else {
+                    pendingCache = PendingCache(d.starId, starPickupCues(), now + CACHE_PAY_WINDOW_MS)
+                    cacheRetryAt[d.starId] = now + CACHE_RETRY_MS
+                }
+            }
             "block" -> breakStarBlock(unreachable, now)
             "gen" -> {
                 if (unreachable) { visitedAt[d.starId] = now; return }
@@ -735,6 +753,18 @@ class BotBrain(
         if (!gone) return
         if (starPickupCues() > p.paidBefore) { unpaidBreaks = 0; return }
         if (++unpaidBreaks >= STAR_BLOCK_UNPAID_LIMIT) { starBlocksDry = true; starBlockTarget = null }
+    }
+
+    /** A cache visit counts (45 s cooldown) only once the server paid a star for it; an unpaid one is retried after [CACHE_RETRY_MS]. */
+    private fun judgeCache(now: Long) {
+        val cues = starPickupCues()
+        if (cues > cuesSeen) { cuesSeen = cues; lastCueAt = now }
+        val p = pendingCache ?: return
+        if (starPickupCues() > p.paidBefore) {
+            cacheVisitedAt[p.index] = now
+            cacheRetryAt.remove(p.index)
+            pendingCache = null
+        } else if (now >= p.verdictAt) pendingCache = null
     }
 
     private var starArrivedSince = 0L
@@ -1019,6 +1049,7 @@ class BotBrain(
         val i = own.getOrNull(teamSlot().first) ?: return null
         val seen = cacheVisitedAt[i]
         if (seen != null && now - seen < cachePoints[i].respawnMs) return null
+        if (now < (cacheRetryAt[i] ?: 0L)) return null
         val c = cachePoints[i]
         if (offLimits(now, c.x, c.z)) return null
         return Dest(c.x, c.z, c.y, CACHE_ARRIVE, "cache", i)
@@ -1340,6 +1371,9 @@ class BotBrain(
         const val STAR_BLOCK_ARRIVE = 2.2
         const val STAR_BLOCK_PAY_WINDOW_MS = 3_000L
         const val STAR_BLOCK_UNPAID_LIMIT = 2
+        const val CACHE_PAY_WINDOW_MS = 2_000L
+        const val CACHE_PAY_LOOKBACK_MS = 3_000L
+        const val CACHE_RETRY_MS = 10_000L
         const val MELEE_REACH = 2.9
         const val EYE_HEIGHT = 1.62
         const val CHEST_HEIGHT = 1.0

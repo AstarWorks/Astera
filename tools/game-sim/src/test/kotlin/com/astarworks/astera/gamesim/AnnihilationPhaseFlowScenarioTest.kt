@@ -65,13 +65,13 @@ class AnnihilationPhaseFlowScenarioTest {
         checkNotNull(sim.services.getOrThrow<IStructureTargets>().hitPoints(pillarId(matchId, team, tier)))
 
     /** One raw 100 tool-skill hit on [team]'s [tier] pillar from 5 blocks; returns the HP it removed (null = rejected). */
-    private fun ScenarioScope.hit(matchId: MatchId, attacker: SimEntity, team: String, tier: NexusPillarTier): Double? {
+    private fun ScenarioScope.hit(matchId: MatchId, attacker: SimEntity, team: String, tier: NexusPillarTier, rawDamage: Double = 100.0): Double? {
         val stage = checkNotNull(sim.services.getOrThrow<IStageRegistry>().find(StageId("annihilation-arena")))
         val p = stage.pillars.first { it.team.value == team && it.tier == tier }
         val before = pillarHp(matchId, team, tier)
         val from = Vec3(p.centre.x, p.position.y, p.centre.z + 5.0)
         val r = sim.services.getOrThrow<IStructureTargets>()
-            .damage(pillarId(matchId, team, tier), attacker.id, 100.0, DamageSource(DamageKind.TOOL_SKILL, p.affinity, from))
+            .damage(pillarId(matchId, team, tier), attacker.id, rawDamage, DamageSource(DamageKind.TOOL_SKILL, p.affinity, from))
         return if (r is Result.Success) before - r.value else null
     }
 
@@ -272,7 +272,15 @@ class AnnihilationPhaseFlowScenarioTest {
             assertThat(advanceUntil(1_500) { eventsOf<MatchEnded>().isNotEmpty() }).isTrue()
             val ended = eventsOf<MatchEnded>().single()
             assertThat(ended.winningTeam).isEqualTo(TeamId("blue"))
-            assertThat(ended.reason).isEqualTo(EndReason.PillarHpDecision(TeamId("blue")))
+            // 1000 max HP x 3 pillars = 3000 per team; one hit removes 300 (raw 100 x tool-skill match 3.0 x falloff 1.0 x phase 2 mult 1.0).
+            // Red took 1 hit (2700), yellow 2 (2400), blue none (3000). No bleed (interval 100_000 ticks): bleedTaken = 0 for every team.
+            assertThat(ended.reason).isEqualTo(
+                EndReason.PillarHpDecision(
+                    TeamId("blue"), EndReason.PillarHpDecision.Criterion.PILLAR_HP,
+                    playHp = mapOf(TeamId("red") to 2700, TeamId("blue") to 3000, TeamId("yellow") to 2400),
+                    bleedTaken = mapOf(TeamId("red") to 0, TeamId("blue") to 0, TeamId("yellow") to 0),
+                ),
+            )
         }
     }
 
@@ -297,7 +305,14 @@ class AnnihilationPhaseFlowScenarioTest {
             hit(matchId, red, "yellow", NexusPillarTier.TIER_1)
         }
         assertThat(ended.winningTeam).isEqualTo(TeamId("red"))
-        assertThat(ended.reason).isEqualTo(EndReason.PillarHpDecision(TeamId("red"), EndReason.PillarHpDecision.Criterion.DAMAGE_DEALT))
+        // 1000 max HP x 3 pillars = 3000 per team; one hit removes 300 (raw 100 x tool-skill match 3.0 x falloff 1.0 x phase 2 mult 1.0).
+        // Only yellow's tier 1 was hit once: play-HP red 3000, blue 3000, yellow 2700. No bleed (interval 100_000 ticks).
+        assertThat(ended.reason).isEqualTo(
+            EndReason.PillarHpDecision(
+                TeamId("red"), EndReason.PillarHpDecision.Criterion.DAMAGE_DEALT,
+                playHp = mapOf(TeamId("red") to 3000, TeamId("blue") to 3000, TeamId("yellow") to 2700),
+                bleedTaken = mapOf(TeamId("red") to 0, TeamId("blue") to 0, TeamId("yellow") to 0),
+            ))
     }
 
     @Test
@@ -309,7 +324,14 @@ class AnnihilationPhaseFlowScenarioTest {
             sim.services.getOrThrow<IDomainEventBus>().publish(PlayerKilled(yellow.id, blue.id, com.astarworks.astera.combat.domain.damage.DamageSource.Environment.Generic, 1L))
         }
         assertThat(ended.winningTeam).isEqualTo(TeamId("blue"))
-        assertThat(ended.reason).isEqualTo(EndReason.PillarHpDecision(TeamId("blue"), EndReason.PillarHpDecision.Criterion.KILLS))
+        // 1000 max HP x 3 pillars = 3000 per team; one hit removes 300 (raw 100 x tool-skill match 3.0 x falloff 1.0 x phase 2 mult 1.0).
+        // Yellow's tier 1 was hit twice (red, blue): play-HP red 3000, blue 3000, yellow 2400. No bleed (interval 100_000 ticks).
+        assertThat(ended.reason).isEqualTo(
+            EndReason.PillarHpDecision(
+                TeamId("blue"), EndReason.PillarHpDecision.Criterion.KILLS,
+                playHp = mapOf(TeamId("red") to 3000, TeamId("blue") to 3000, TeamId("yellow") to 2400),
+                bleedTaken = mapOf(TeamId("red") to 0, TeamId("blue") to 0, TeamId("yellow") to 0),
+            ))
     }
 
     @Test
@@ -320,7 +342,80 @@ class AnnihilationPhaseFlowScenarioTest {
             hit(matchId, blue, "yellow", NexusPillarTier.TIER_1)
         }
         assertThat(ended.winningTeam).isNull()
-        assertThat(ended.reason).isEqualTo(EndReason.PillarHpDecision(null))
+        // Same hits as the kills case (yellow's tier 1 hit twice): play-HP red 3000, blue 3000, yellow 2400, no bleed; level on damage and kills = draw.
+        assertThat(ended.reason).isEqualTo(
+            EndReason.PillarHpDecision(
+                null, EndReason.PillarHpDecision.Criterion.PILLAR_HP,
+                playHp = mapOf(TeamId("red") to 3000, TeamId("blue") to 3000, TeamId("yellow") to 2400),
+                bleedTaken = mapOf(TeamId("red") to 0, TeamId("blue") to 0, TeamId("yellow") to 0),
+            ))
+    }
+
+    /** Hits [team]'s [tier] pillar until it is at [target] HP or lower (a first 100 hit measures the damage factor). */
+    private fun ScenarioScope.drainTo(matchId: MatchId, attacker: SimEntity, team: String, tier: NexusPillarTier, target: Double) {
+        val factor = checkNotNull(hit(matchId, attacker, team, tier)) / 100.0
+        repeat(40) {
+            val remaining = pillarHp(matchId, team, tier) - target
+            if (remaining < 0.5) return
+            checkNotNull(hit(matchId, attacker, team, tier, rawDamage = remaining / factor))
+        }
+    }
+
+    @Test
+    fun `the clock HP decision adds the bleed back, so a team with more pillars standing does not lose on bleed alone`() {
+        // Pillar max HP 5000 / 5600 / 5600; 1% of max bled every 20 ticks for 24 intervals = 24% of each standing pillar's max.
+        val cfg = config.copy(
+            pillarHp = 5000, pillarHpTier2 = 5600, pillarHpTier3 = 5600,
+            suddenDeathTicks = 490, bleedIntervalTicks = 20, bleedPercent = 1, bleedFloorPercent = 10,
+        )
+        scenario("annihilation-phase-flow-tiebreak-excludes-bleed", cfg) {
+            val a = player("red-1", team = "red")
+            val b = player("blue-1", team = "blue")
+            val c = player("yellow-1", team = "yellow")
+            val matchId = startMatch("annihilation", mapOf(a to "red", b to "blue", c to "yellow"), stage = "annihilation-arena")
+            val clock = sim.services.getOrThrow<IMatchPhaseClock>()
+
+            // Blue's tier 1 falls in the clash phase; in the center phase blue's tier 2 falls and red is worn down to 8000 in total.
+            assertThat(advanceUntil(300) { clock.current(matchId)?.phase == NexusPhase.Phase2Engage }).isTrue()
+            hit(matchId, a, "blue", NexusPillarTier.TIER_1, rawDamage = 1_000_000.0)
+            assertThat(hit(matchId, a, "blue", NexusPillarTier.TIER_1)).`as`("blue tier 1 is destroyed").isNull()
+            assertThat(advanceUntil(300) { clock.current(matchId)?.phase == NexusPhase.Phase3Center }).isTrue()
+            advance(5)
+            hit(matchId, a, "blue", NexusPillarTier.TIER_2, rawDamage = 1_000_000.0)
+            assertThat(hit(matchId, a, "blue", NexusPillarTier.TIER_2)).`as`("blue tier 2 is destroyed").isNull()
+            // A third team only makes the match legal (min players); it is knocked out so red and blue decide on the clock.
+            for (tier in NexusPillarTier.ordered()) hit(matchId, a, "yellow", tier, rawDamage = 1_000_000.0)
+            drainTo(matchId, b, "red", NexusPillarTier.TIER_1, 2_500.0)
+            drainTo(matchId, b, "red", NexusPillarTier.TIER_2, 2_800.0)
+            drainTo(matchId, b, "red", NexusPillarTier.TIER_3, 2_700.0)
+            val redStart = NexusPillarTier.ordered().sumOf { pillarHp(matchId, "red", it) }
+            val blueStart = pillarHp(matchId, "blue", NexusPillarTier.TIER_3)
+            assertThat(redStart).isBetween(7_990.0, 8_001.0)
+            assertThat(blueStart).isEqualTo(5_600.0)
+
+            // The whole last phase runs; read the real HP just before the clock ends it.
+            assertThat(advanceUntil(2_000) { clock.current(matchId)?.phase == NexusPhase.Phase5SuddenDeath }).isTrue()
+            advance(485)
+            val redRaw = NexusPillarTier.ordered().sumOf { pillarHp(matchId, "red", it) }
+            val blueRaw = pillarHp(matchId, "blue", NexusPillarTier.TIER_3)
+            assertThat(eventsOf<MatchEnded>()).isEmpty()
+            // Before the fix blue (4256) beat red (about 4112) on the raw numbers: red bled more only because it had more pillars.
+            assertThat(blueRaw).isEqualTo(4_256.0)
+            assertThat(redRaw).isBetween(redStart - 3_888.0 - 1.0, redStart - 3_888.0 + 1.0)
+            assertThat(redRaw).`as`("the raw bled HP would have named blue").isLessThan(blueRaw)
+
+            assertThat(advanceUntil(500) { eventsOf<MatchEnded>().isNotEmpty() }).isTrue()
+            val ended = eventsOf<MatchEnded>().single()
+            val reason = ended.reason as EndReason.PillarHpDecision
+            assertThat(ended.winningTeam).`as`("red had more HP lost to play").isEqualTo(TeamId("red"))
+            assertThat(reason.winner).isEqualTo(TeamId("red"))
+            assertThat(reason.decidedBy).isEqualTo(EndReason.PillarHpDecision.Criterion.PILLAR_HP)
+            // The bleed exclusion is recorded: play HP = standing HP + bleed taken, per team.
+            assertThat(reason.bleedTaken[TeamId("red")]!!).isEqualTo(3_888)
+            assertThat(reason.bleedTaken[TeamId("blue")]!!).isEqualTo(1_344)
+            assertThat(reason.playHp[TeamId("red")]!!.toDouble()).isBetween(redStart - 1.0, redStart + 1.0)
+            assertThat(reason.playHp[TeamId("blue")]).isEqualTo(5_600)
+        }
     }
 
     @Test
