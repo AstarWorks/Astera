@@ -45,6 +45,13 @@ frames:
     v: incoming
     w: up
     s: v x w
+  - id: body
+    origin: bolt
+    v: forward
+    w: up
+    s: v x w
+lines:
+  trail: {frame: body, from: {v: -0.4}, to: {v: 0}}
 machine:
   start: fire
   tail: 10
@@ -73,12 +80,12 @@ machine:
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg}"}}
               - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", frame: hit, volume: 1.0, pitch: 1.0, detach: true}
               - {id: fx_hit, op: particle_def, def: gun-impact, frame: hit, pos: {v: -0.2}, detach: true}
-              - {id: chip, op: break_area, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
+              - {id: chip, op: break_area, at: 0, frame: blk, pos: {v: 0}, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
             block:
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", frame: blk, volume: 0.6, pitch: 1.6, detach: true}
               - {id: fx_blk0, op: particle_def, def: gun-impact, frame: blk, pos: {v: -0.2}, detach: true}
               - {id: fx_blk1, op: particle_def, def: gun-impact-smoke, frame: blk, pos: {v: -0.2}, detach: true}
-              - {id: chip_blk, op: break_area, anchor: contact, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
-        - {id: trail0, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.02, 0.02, 0.02], color: "#ffe9a8", size: 0.3, at: 1, every: 1, until: bolt.end}
-        - {id: trail1, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], color: "#9a9a9a", size: 0.35, at: 1, every: 1, until: bolt.end}
+              - {id: chip_blk, op: break_area, at: 0, frame: blk, pos: {v: 0}, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 20, ripple: 29, revert: 200, outside_arena: false}
+        - {id: trail0, op: particle, particle: dust, along: trail, samples: 2, count: 1, offset: [0.02, 0.02, 0.02], color: "#ffe9a8", size: 0.3, at: 1, every: 1, until: bolt.end}
+        - {id: trail1, op: particle, particle: dust, along: trail, samples: 2, count: 1, offset: [0.03, 0.03, 0.03], color: "#9a9a9a", size: 0.35, at: 1, every: 1, until: bolt.end}
     end: {final: true}

@@ -37,6 +37,13 @@ frames:
     v: incoming
     w: up
     s: v x w
+  - id: body
+    origin: bolt
+    v: forward
+    w: up
+    s: v x w
+lines:
+  trail: {frame: body, from: {v: -0.4}, to: {v: 0}}
 machine:
   start: cast
   tail: 2
@@ -75,6 +82,6 @@ machine:
           every: 1
           until: bolt.end
           do:
-            - {id: wake, op: particle, particle: crit, count: 1, offset: [0.02, 0.02, 0.02], anchor: {of: bolt, sweep: 0.4}, at: 0}
-            - {id: chain, op: particle, particle: dust, count: 1, color: "#787878", size: 0.8, anchor: {of: bolt, sweep: 0.4}, at: 0}
+            - {id: wake, op: particle, particle: crit, count: 1, offset: [0.02, 0.02, 0.02], along: trail, samples: 2, at: 0}
+            - {id: chain, op: particle, particle: dust, count: 1, color: "#787878", size: 0.8, along: trail, samples: 2, at: 0}
     done: {final: true}

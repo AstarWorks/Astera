@@ -35,6 +35,13 @@ frames:
     v: incoming
     w: up
     s: v x w
+  - id: body
+    origin: bolt
+    v: forward
+    w: up
+    s: v x w
+lines:
+  trail: {frame: body, from: {v: -0.4}, to: {v: 0}}
 machine:
   start: fly
   tail: 2
@@ -73,6 +80,6 @@ machine:
           every: 1
           until: bolt.end
           do:
-            - {id: wake, op: particle, particle: crit, count: 1, offset: [0.03, 0.03, 0.03], anchor: {of: bolt, sweep: 0.4}, at: 0}
-            - {id: dust, op: particle, particle: dust, count: 1, color: "#5abec8", size: 1.0, anchor: {of: bolt, sweep: 0.4}, at: 0}
+            - {id: wake, op: particle, particle: crit, count: 1, offset: [0.03, 0.03, 0.03], along: trail, samples: 2, at: 0}
+            - {id: dust, op: particle, particle: dust, count: 1, color: "#5abec8", size: 1.0, along: trail, samples: 2, at: 0}
     end: {final: true}

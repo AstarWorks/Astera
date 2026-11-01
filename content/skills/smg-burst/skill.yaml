@@ -45,6 +45,13 @@ frames:
     v: incoming
     w: up
     s: v x w
+  - id: body
+    origin: bolt
+    v: forward
+    w: up
+    s: v x w
+lines:
+  trail: {frame: body, from: {v: -0.4}, to: {v: 0}}
 machine:
   start: fire
   tail: 10
@@ -73,6 +80,6 @@ machine:
             block:
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", frame: blk, volume: 0.5, pitch: 1.5, detach: true}
               - {id: fx_blk0, op: particle_def, def: hit-spark, frame: blk, pos: {v: -0.2}, detach: true}
-        - {id: trail0, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.02, 0.02, 0.02], color: "#ffe9a8", size: 0.3, at: 1, every: 1, until: bolt.end}
-        - {id: trail1, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.03, 0.03, 0.03], color: "#9a9a9a", size: 0.35, at: 1, every: 1, until: bolt.end}
+        - {id: trail0, op: particle, particle: dust, along: trail, samples: 2, count: 1, offset: [0.02, 0.02, 0.02], color: "#ffe9a8", size: 0.3, at: 1, every: 1, until: bolt.end}
+        - {id: trail1, op: particle, particle: dust, along: trail, samples: 2, count: 1, offset: [0.03, 0.03, 0.03], color: "#9a9a9a", size: 0.35, at: 1, every: 1, until: bolt.end}
     end: {final: true}

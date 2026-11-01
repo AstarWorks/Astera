@@ -37,6 +37,13 @@ fragments:
       - {id: ring, op: particle, particle: flame, count: 0, extra: 0.06, anchor: spot}
       - {id: dust_big, op: particle, particle: dust, count: 1, color: "${ember}", size: 2.5, anchor: spot}
       - {id: dust_mid, op: particle, particle: dust, count: 1, color: "${ember}", size: 2.0, anchor: spot}
+  - id: body
+    origin: beam
+    v: forward
+    w: up
+    s: v x w
+lines:
+  trail: {frame: body, from: {v: -0.25}, to: {v: 0}}
 machine:
   start: fly
   states:
@@ -67,6 +74,6 @@ machine:
               - {id: fx_blk, op: use, use: "fragment:burst", with: {ember: "${ember}"}, frames: {spot: contact}}
             expire:
               - {id: fx_end, op: use, use: "fragment:burst", with: {ember: "${ember}"}, frames: {spot: contact}}
-        - {id: trail_flame, op: particle, particle: flame, count: 1, anchor: {of: beam, sweep: 0.25}, at: 0, every: 1, until: beam.end}
-        - {id: trail_dust, op: particle, particle: dust, count: 1, color: "${ember}", size: 1.5, anchor: {of: beam, sweep: 0.25}, at: 0, every: 1, until: beam.end}
+        - {id: trail_flame, op: particle, particle: flame, count: 1, along: trail, samples: 2, at: 0, every: 1, until: beam.end}
+        - {id: trail_dust, op: particle, particle: dust, count: 1, color: "${ember}", size: 1.5, along: trail, samples: 2, at: 0, every: 1, until: beam.end}
     end: {final: true}

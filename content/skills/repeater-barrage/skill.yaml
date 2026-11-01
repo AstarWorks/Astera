@@ -36,6 +36,13 @@ frames:
     v: incoming
     w: up
     s: v x w
+  - id: body
+    origin: bolt
+    v: forward
+    w: up
+    s: v x w
+lines:
+  trail: {frame: body, from: {v: -0.4}, to: {v: 0}}
 machine:
   start: fire
   tail: 14
@@ -66,6 +73,6 @@ machine:
               - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", frame: blk, volume: 0.5, pitch: 1.5, detach: true}
               - {id: fx_blk, op: particle_def, def: hit-spark, frame: blk, pos: {v: -0.2}, detach: true}
         - {id: slug, op: display, kind: item, item: "minecraft:arrow", context: fixed, anchor: bolt, scale: [0.8, 0.8, 0.8], at: 0, until: bolt.end}
-        - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.05, 0.05, 0.05], at: 2, every: 1, until: bolt.end}
+        - {id: trail0, op: particle, particle: crit, along: trail, samples: 2, count: 1, offset: [0.05, 0.05, 0.05], at: 2, every: 1, until: bolt.end}
         - {id: trail1, op: particle_def, def: smoke-dark, anchor: bolt, at: 2, every: 1, until: bolt.end}
     end: {final: true}
