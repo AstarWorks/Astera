@@ -2,7 +2,7 @@
 # frames, so `left` / `up` / `forward` are not written. A caster frame has v = forward, w = up, s = v x w (to the right).
 #   body          - the caster's feet. Both crescents of 12 white blades (ticks 28 and 43), the overhead glass arc (58) and the ten black
 #                   threads on the ring at the feet (89) are points of it, each blade rotated in its own plane about w / s / v.
-#   blade         - the rapier in the hand: origin at the caster's right hand (0.45 forward, 1.1 up, 0.3 right), long axis along v. Its `move` lifts the
+#   blade         - the rapier in the hand: origin at the arm tip (0.6 along the arm frame v), long axis along v. Its `move` lifts the
 #                   hand to wind up and drops it into each cut; its `rotate` about s IS the cut (tip up 55 / 75 degrees, then down through -35 / -45),
 #                   one beat per blow, timed so the hit tick (24, 40, 107) falls mid-cut. The engine pins the right hand to this origin.
 #   pivotN        - one per blow N (shears at ticks 24, 40, 107): the victim's feet, v the caster's forward. It is the point the flower sits on:
@@ -31,7 +31,7 @@ frames:
     v: forward
     w: up
     s: v x w
-  # arm: the right arm. Origin = the right shoulder, rotate keys only; the hand is 0.45 along its v, so it can never leave arm reach.
+  # arm: the right arm. Origin = the right shoulder, rotate keys only; the hand is 0.6 along its v, so it can never leave arm reach.
   - id: arm
     origin: caster.shoulder_r
     v: forward

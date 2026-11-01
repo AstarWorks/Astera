@@ -27,7 +27,7 @@ frames:
     v: forward
     w: up
     s: v x w
-  # arm: the right arm. Origin = the right shoulder, rotate keys only; the hand is 0.45 along its v, so it can never leave arm reach.
+  # arm: the right arm. Origin = the right shoulder, rotate keys only; the hand is 0.6 along its v, so it can never leave arm reach.
   - id: arm
     origin: caster.shoulder_r
     v: forward
