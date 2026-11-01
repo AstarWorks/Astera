@@ -70,7 +70,6 @@ class Session(private val host: MatchHost, contentDir: File) {
     private val navHost = host.meHost()
     private val navigator = Navigator(terrain, objectives.routeGraph())
     private val catalog = MatchShopLoaderService().also { it.loadFrom(contentDir.toPath().resolve("shops")) }.catalog
-    private val nodes = sim.services.getOrThrow<OreNodeService>()
     private val stars = sim.services.getOrThrow<IMatchStarStore>()
     private val normaStore = sim.services.getOrThrow<IMatchNormaStore>()
     private val normaService = sim.services.get<NormaLevelService>()
@@ -406,7 +405,7 @@ class Session(private val host: MatchHost, contentDir: File) {
             if (host.tick < nextSwing) return@run null
             nextSwing = host.tick + HIT_COOLDOWN
             val tool = toolFor(poi.ore)
-            when (val out = nodes.mine(me.id, worldId, cell, tool?.let(::ItemId))) {
+            when (val out = sim.mineNode(me, worldId, cell, tool?.let(::ItemId))) {
                 is OreNodeService.Outcome.Hit -> { result = "hit ${out.hp}/${out.maxHp}"; null }
                 OreNodeService.Outcome.Cooldown -> null
                 is OreNodeService.Outcome.Mined -> { result = "mined"; learnPlaceholder(poi); "mined" }
