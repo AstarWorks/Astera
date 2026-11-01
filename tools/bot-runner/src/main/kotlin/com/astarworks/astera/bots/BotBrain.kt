@@ -431,12 +431,14 @@ class BotBrain(
                 if (st != Navigator.Status.MOVING) endTravel()
                 lastKind = "go>${dest.kind}:$st"
                 if (st == Navigator.Status.ARRIVED) stuck.reset()
+                if (st != Navigator.Status.NO_PATH) noPathStreak = 0
                 when (st) {
                     Navigator.Status.MOVING -> { dwellOn(dest, now); return }
                     Navigator.Status.ARRIVED -> {
                         arrivedAt(dest, now)
                     }
                     Navigator.Status.NO_PATH -> {
+                        if (dest.kind.startsWith("econ-") && noPathGivesUp(dest, st)) lastEconStep?.let { economy?.unreachable(it, now) }
                         if (dest.kind == "mode") modePausedUntil = now + 5_000 // unreachable for now: patrol / roam meanwhile
                         if (dest.kind == "star") ignoreStar(dest.starId, now) else if (dest.kind != "enemy-seen") arrivedAt(dest, now, unreachable = true)
                     }
@@ -789,6 +791,18 @@ class BotBrain(
      * [ECON_SLICE_MS] after [ECON_OPENING_MS] of match start, never while carrying the objective or with an enemy seen in the last
      * [LULL_MS], and hands over to the plan for [OBJECTIVE_SLICE_MS] after each slice. (Enemies in sight never reach here: the fight branch wins.)
      */
+    private var lastEconStep: EconomyPlanner.Step? = null
+    private var noPathStreak = 0
+    private var noPathKey = ""
+
+    /** Consecutive NO_PATH ticks towards the same goal; [NO_PATH_GIVE_UP_TICKS] of them mean the goal is not reachable, not a chunk still loading. */
+    private fun noPathGivesUp(dest: Dest, st: Navigator.Status): Boolean {
+        if (st != Navigator.Status.NO_PATH) { noPathStreak = 0; return false }
+        val key = "${dest.kind}:${dest.x.toInt()}:${dest.z.toInt()}"
+        if (key != noPathKey) { noPathKey = key; noPathStreak = 0 }
+        return ++noPathStreak >= NO_PATH_GIVE_UP_TICKS
+    }
+
     private fun economyDest(now: Long): Dest? {
         val eco = economy ?: return null
         val pl = planner
@@ -804,6 +818,7 @@ class BotBrain(
         if (st == null) { econSliceStart = 0L; return null }
         if (pl != null && econSliceStart == 0L) econSliceStart = now
         economyKind = st.kind
+        lastEconStep = st
         return Dest(st.x, st.z, null, st.arrive, "econ-${st.kind}", strike = st.strike, affinity = st.strike?.let { LoadoutClassifier.Affinity.PICKAXE })
     }
 
@@ -833,6 +848,7 @@ class BotBrain(
      * dig through. Returns true when this tick was spent on a sidestep.
      */
     private fun escapeStuck(dest: Dest, now: Long): Boolean {
+        unbury(now)
         val moving = hypot(dest.x - bot.x, dest.z - bot.z) > dest.arrive
         when (stuck.update(now, bot.x, bot.z, moving)) {
             StuckEscapePolicy.Action.NONE -> Unit
@@ -850,6 +866,22 @@ class BotBrain(
             return true
         }
         return false
+    }
+
+    /**
+     * A block placed over the bot (arena restore, a rebuilt pillar ring) leaves it inside solid terrain, where no start cell exists
+     * and every plan is NO_PATH for good. Dig the block at head height, then at the feet, until the bot stands in air again.
+     */
+    private fun unbury(now: Long) {
+        if (now - lastBreakAt < 1_500) return
+        val bx = Math.floor(bot.x).toInt()
+        val bz = Math.floor(bot.z).toInt()
+        val by = Math.floor(bot.y + 0.05).toInt()
+        val y = listOf(by + 1, by).firstOrNull { bot.terrain.isSolid(bx, it, bz) == true } ?: return
+        lastBreakAt = now
+        blocksBroken.incrementAndGet()
+        bot.digAsync(bx, y, bz, 400)
+        nav.clear()
     }
 
     /** Digs the first solid block (head height, then feet height) in front towards [dest]; the server decides whether it breaks. */
@@ -1217,6 +1249,7 @@ class BotBrain(
         const val STRIKE_INTERVAL_MS = 450L
         const val TOOL_CAST_INTERVAL_MS = 2_000L
         const val STRIKE_REACH = 4.5
+        const val NO_PATH_GIVE_UP_TICKS = 10
         const val STAR_BLOCK_ARRIVE = 2.2
         const val STAR_BLOCK_PAY_WINDOW_MS = 3_000L
         const val STAR_BLOCK_UNPAID_LIMIT = 2

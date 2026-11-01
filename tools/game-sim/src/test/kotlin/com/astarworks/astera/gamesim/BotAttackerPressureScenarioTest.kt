@@ -9,7 +9,7 @@ import java.nio.file.Files
 
 /**
  * Regression guard for bot aggression (bisect 2026-11-01): a full 3x3 Annihilation match driven by the shipped [com.astarworks.astera.bots.BotBrain]
- * must contain early, frequent fights (pillar damage is printed, not asserted: attackers still reach pillars too rarely on some seeds). When pillar attackers chased every dropped star, cache and paying block on the stage,
+ * must contain early, frequent fights and damage the enemy pillar (the sim routes pickaxe digs through the pillar hand-break rule like the Paper listener). When pillar attackers chased every dropped star, cache and paying block on the stage,
  * kills/min fell to ~1 and no pillar was ever hit. Not run by the agent; the manager's window runs it.
  */
 class BotAttackerPressureScenarioTest {
@@ -25,5 +25,6 @@ class BotAttackerPressureScenarioTest {
         println("[bot-attacker-pressure] ttff=$ttff kills/min=$kpm pillarDamage=$pillar end=${run.endReason}")
         assertThat(kpm).`as`("kills per minute over the match").isGreaterThan(2.0)
         assertThat(ttff).`as`("first fight within 3 minutes").isLessThan(180.0)
+        assertThat(pillar).`as`("pillar damage over the match").isGreaterThan(0.0)
     }
 }
