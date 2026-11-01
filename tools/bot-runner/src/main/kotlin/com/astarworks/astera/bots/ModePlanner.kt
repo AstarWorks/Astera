@@ -83,7 +83,9 @@ class ModePlanner(
      * fighting or digging there. Null when it is not in one, or when it could not get out for [ZONE_TRAP_MS] (then [zoneTrapped]).
      */
     fun zoneEscape(now: Long, x: Double, z: Double): Step? {
-        val team = if (role == Role.PILLAR_ATTACKER && modeId == "annihilation" && !preparing(now)) enemyZoneOf(x, z) else null
+        val hit = lastDamagedAt != NEVER && now - lastDamagedAt in 0..DAMAGED_MEMORY_MS
+        // Only a hit attacker leaves: merely crossing a zone on the way to a pillar (A* may route through it) must not be pushed back out, or it never arrives.
+        val team = if (role == Role.PILLAR_ATTACKER && modeId == "annihilation" && !preparing(now) && !atObjective(x, z) && (hit || zoneSince != NEVER)) enemyZoneOf(x, z) else null
         if (team == null) { zoneSince = NEVER; zoneTrapped = false; return null }
         if (zoneSince == NEVER) zoneSince = now
         if (now - zoneSince > ZONE_TRAP_MS) { zoneTrapped = true; return null }
@@ -99,7 +101,7 @@ class ModePlanner(
     private fun detour(x: Double, z: Double, tx: Double, tz: Double, y: Double, zone: String): Step? {
         for (team in enemyTeams) {
             val (cx, cz, r) = spawnZones[team] ?: continue
-            if (hypot(x - cx, z - cz) <= r || hypot(tx - cx, tz - cz) <= r) continue
+            if (hypot(x - cx, z - cz) <= r + DETOUR_OUT + 3.0 || hypot(tx - cx, tz - cz) <= r) continue
             if (distToSegment(cx, cz, x, z, tx, tz) >= r + DETOUR_MARGIN) continue
             val dx = tx - x; val dz = tz - z
             val len2 = dx * dx + dz * dz

@@ -156,11 +156,12 @@ class BotTeamFocusScenarioTest {
         assertThat(hurt.enemyZoneOf(x, z)).isNull()
         assertThat(hurt.zoneTrapped).isFalse()
         // Trapped (could not get out for ZONE_TRAP_MS): the only case it fights back.
-        val trapped = fresh().also { it.noteDamaged(1_000) }
+        val trapped = ModePlanner("annihilation", "r1", "red", listOf("blue", "yellow"), zones, facts = facts, matchKey = "m0", teamOf = { n -> if (n == "nobody") "red" else "blue" })
+            .also { it.noteRoster(squad); it.step(0, sx, sz); it.noteDamaged(1_000) }
         trapped.zoneEscape(1_000, sx, sz)
         assertThat(trapped.zoneEscape(1_000 + ModePlanner.ZONE_TRAP_MS + 1, sx, sz)).isNull()
         assertThat(trapped.zoneTrapped).isTrue()
-        assertThat(trapped.engages(inside, 1_000 + ModePlanner.ZONE_TRAP_MS + 2, sx, sz)).isTrue()
+        assertThat(trapped.engages(Sighting("nobody", sx + 1.0, sz), 1_000 + ModePlanner.ZONE_TRAP_MS + 2, sx, sz)).isTrue()
         // The same defender far outside the zone, within engage range of an attacker next to it: engaged.
         val ox = sx + 80.0
         assertThat(fresh().engages(Sighting("b1", ox, sz), 1_000, ox - 3.0, sz)).isTrue()
