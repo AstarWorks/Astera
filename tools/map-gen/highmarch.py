@@ -77,6 +77,30 @@ class World:
             self.set(x, y, z, state)
 
 
+# Authored covers that transmit light; all other covers in this map are solid.
+TURF_COVERS = {'short_grass', 'fern', 'dandelion', 'azure_bluet', 'oxeye_daisy', 'poppy'}
+
+
+def turf_open(above):
+    if above is None:
+        return True
+    name = above.removeprefix('minecraft:').split('[')[0]
+    return name in TURF_COVERS or name.endswith(('_leaves', '_fence', '_wall', '_wall_sign', '_trapdoor')) or name == 'iron_bars'
+
+
+def settle_turf(w):
+    # Run after all carving/building: roofs, trunks and foundations bury turf.
+    # Exposed soil (including under open fences/walls) must never accept grass spread.
+    for (x, y, z), state in w.blocks.items():
+        if state not in ('minecraft:grass_block', 'minecraft:dirt'):
+            continue
+        exposed = turf_open(w.blocks.get((x, y + 1, z)))
+        if state == 'minecraft:grass_block' and not exposed:
+            w.blocks[x, y, z] = 'minecraft:dirt'
+        elif state == 'minecraft:dirt' and exposed:
+            w.blocks[x, y, z] = 'minecraft:coarse_dirt'
+
+
 def terrace(w, x, z, radius, top=64, town=False):
     """Layered rock with a tapered, faceted underside; no random single-block speckle."""
     for u in range(-radius, radius + 1):
@@ -474,7 +498,7 @@ def town_fabric(w, team):
     for x0, z0 in ((9, -34), (-18, 35), (24, 36)):
         for x in range(x0, x0 + 6):
             for z in range(z0, z0 + 2):
-                w.set(x, 64, z, 'farmland[moisture=7]')
+                w.set(x, 64, z, 'farmland[moisture=0]')
                 w.set(x, 65, z, 'wheat[age=7]')
     # Inner ward terrace wraps a recessed, eight-block-clear objective court.
     w.box(-35, -15, 65, 66, -14, 6, 'stone_bricks')
@@ -1020,7 +1044,7 @@ def town_character(w, team):
         # Timber-frame barn and a full field beside the western farm ward.
         for u in range(-34, -20):
             for v in range(31, 38):
-                t.set(u, 64, v, 'farmland[moisture=7]')
+                t.set(u, 64, v, 'farmland[moisture=0]')
                 t.set(u, 65, v, 'wheat[age=7]')
         for u, v in ((-32, 28), (-22, 28), (31, 35)):
             t.box(u, u + 2, 65, 66, v, v + 1, 'hay_block')
@@ -1243,6 +1267,7 @@ def make_world():
             bx, _, bz = min((p for p in sides if p not in pockets), key=lambda p: math.hypot(p[0], p[2]))
             w.set(bx, y - 1, bz, 'cobbled_deepslate')
             w.box(bx, bx, y, y + 2, bz, bz, None)
+    settle_turf(w)
     return w, data
 
 
