@@ -63,6 +63,8 @@ class ToolSkillPresentationScenarioTest {
                         .describedAs("$skill ${call.spec.key} @${call.tick} distance to eye").isGreaterThanOrEqualTo(0.8)
                 }
                 if (tool == "shovel") {
+                    assertThat(calls.any { it.spec.data is ParticleData.Block && it.at.y - caster.position.y >= 2.3 })
+                        .describedAs("$skill raised ballistic clump silhouette").isTrue()
                     assertThat(calls.any { it.spec.key == "falling_dust" }).describedAs("$skill vanilla falling dust").isTrue()
                 }
                 val ticks = sim.recorder.toJson().jsonObject.getValue("ticks").jsonArray
@@ -110,12 +112,16 @@ class ToolSkillPresentationScenarioTest {
                         }
                     }
                 }
-                val contact = calls.filter { it.at.z == caster.position.z + 6.0 && it.at.y == caster.position.y + 1.0 }
+                val contact = calls.filter { kotlin.math.abs(it.at.z - caster.position.z - 5.65) < 0.001 && it.at.y == caster.position.y + 1.0 }
                 assertThat(contact.any { it.spec.data is ParticleData.Block && it.spec.count >= 24 })
                     .describedAs("$skill dense body contact").isTrue()
                 if (tool == "axe") {
                     assertThat(calls.any { it.spec.key == "sweep_attack" && it.at.z == 6.0 })
                         .describedAs("$skill crescent ends at contact").isTrue()
+                    val terminalTick = calls.filter { it.spec.key == "sweep_attack" }.maxOf { it.tick }
+                    assertThat(terminalTick - firstDebrisTick).describedAs("$skill terminal sweep beat").isEqualTo(4L)
+                    assertThat(contact.any { it.tick == terminalTick && it.spec.data is ParticleData.Block && it.spec.count >= 15 })
+                        .describedAs("$skill terminal chips remain on the body").isTrue()
                     val crescent = calls.filter { it.spec.key == "dust" && it.spec.count == 1 && it.at.z > 1.39 }
                     assertThat(crescent.maxOf { it.at.z }).isLessThanOrEqualTo(6.00001)
                 }
