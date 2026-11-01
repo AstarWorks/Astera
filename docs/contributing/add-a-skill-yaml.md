@@ -320,3 +320,13 @@ part を足す時は、呼び出し側の op id (`hit_fx` など) と part 内�
 ```
 
 刺さった姿勢は命中時点の被弾者 feet 基底 (feet 原点 + yaw) で保存され、被弾者の位置と yaw に追従する。
+
+### Vertical incidence in a frame
+
+A live `v: incoming` (or `velocity`) can be parallel to `w: up`. Author
+`w_fallback: [1, 0, 0]` alongside `s: v x w` to keep a pose for vertical hits.
+When `|v x w|² < 1e-6`, the evaluator substitutes that explicit world vector for
+`w`, then derives `s`. Otherwise the original basis is unchanged. No axis is
+substituted without this field. A still-degenerate fallback fails loudly at runtime.
+The decoder requires plain `v` and `w`, `s: v x w`, and a finite, nonzero literal
+fallback vector; a fallback parallel to a literal `w` (or `up`/`down`) is a load error.

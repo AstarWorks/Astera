@@ -59,8 +59,9 @@ class PresentationCueCoverageScenarioTest {
             val log = visuals()
 
             // Pop + pickup: red stands on the east generator.
-            red.moveTo(Vec3(12.5, 65.0, 0.5))
-            blue.moveTo(Vec3(-34.0, 65.0, 0.0))
+            val generators = sim.services.getOrThrow<com.astarworks.astera.match.application.port.outbound.IGeneratorRepository>().listForMatch(matchId)
+            red.moveTo(generators.maxBy { it.position.x }.position)
+            blue.moveTo(generators.minBy { it.position.x }.position + Vec3(-40.0, 0.0, 0.0))
             advance(650)
             assertThat(heard(red, com.astarworks.astera.core.domain.effect.SoundCues.STAR_POP)).`as`("pop is heard nearby").isGreaterThanOrEqualTo(1)
             val particleIds = log.calls.filterIsInstance<LoggingPresentationVisuals.Call.Particles>()
@@ -101,10 +102,11 @@ class PresentationCueCoverageScenarioTest {
             val blue = player("blue-1", team = "blue")
             startMatch("norma", mapOf(red to "red", blue to "blue"), stage = "example-arena")
             val presentation = sim.services.getOrThrow<IPresentation>()
+            val pickupKey = checkNotNull(sim.services.getOrThrow<ISoundRegistry>().find(com.astarworks.astera.core.domain.effect.SoundCues.STAR_PICKUP)).resourceKey
             sim.playerSounds.clear()
             repeat(3) { presentation.play(PresentationMoments.STAR_PICKUP, red.id) }
             val pitches = sim.playerSounds.calls
-                .filter { it.playerId == red.id && it.sound.key == "minecraft:entity.experience_orb.pickup" }
+                .filter { it.playerId == red.id && it.sound.key == pickupKey }
                 .map { it.sound.pitch }
             assertThat(pitches).hasSize(3)
             assertThat(pitches[1]).isGreaterThan(pitches[0])

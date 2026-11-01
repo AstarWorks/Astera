@@ -58,6 +58,7 @@ frames:
     origin: victim.center
     v: incoming
     w: up
+    w_fallback: [1, 0, 0]
     s: v x w
 machine:
   start: windup

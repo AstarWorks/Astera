@@ -66,6 +66,25 @@ class FirstTenMinutesE2eTest : PlaythroughBase() {
         return victim.waitUntil(4_000) { victim.deaths.size > deathsBefore }
     }
 
+    /** Match navigation can update its compass slot before the give lands. Identify the weapon by its PDC. */
+    private fun equipStoryWeapon(b: Bot, item: String): Int? {
+        rcon("clear ${b.name}")
+        rcon("astera items give ${b.name} $item")
+        fun itemAt(slot: Int): Boolean = rcon(
+            "data get entity ${b.name} Inventory[{Slot:${slot}b}].components.\"minecraft:custom_data\".PublicBukkitValues.\"astera-items:item_id\"",
+        ).contains("\"$item\"")
+        var slot: Int? = null
+        b.waitUntil(5_000) { (0..7).firstOrNull(::itemAt)?.also { slot = it } != null }
+        val selected = slot ?: return null
+        b.selectHotbar((selected + 1) % 8)
+        Thread.sleep(150)
+        b.selectHotbar(selected)
+        check(b.waitUntil(3_000) {
+            rcon("data get entity ${b.name} SelectedItem.components.\"minecraft:custom_data\".PublicBukkitValues.\"astera-items:item_id\"").contains("\"$item\"")
+        }) { "${b.name} did not hold $item after selecting slot $selected" }
+        return selected
+    }
+
     private fun reachedLevel(b: Bot, m: Marks, level: Int): Boolean = b.waitUntil(6_000) {
         told(b, m.chat, m.titles, m.bars).any { Regex("(Lv|Level|レベル)\\s*$level\\b").containsMatchIn(it) || (level >= 3 && it.contains("NORMA COMPLETE", true)) }
     }
@@ -163,10 +182,14 @@ class FirstTenMinutesE2eTest : PlaythroughBase() {
         for (i in 0..2) {
             val victim = victims[i]
             val kind = kinds[i]
-            val slot = equip(learner, items[i])
+            val slot = equipStoryWeapon(learner, items[i])
             bots.forEach { it.command("astera norma choose kill") }
             Thread.sleep(500)
             rcon("effect give ${victim.name} minecraft:instant_health 1 4 true")
+            E2eReport.check(suite, "$kind: the requested weapon is selected before input", "SelectedItem Astera item_id") {
+                assertThat(slot).describedAs("${items[i]} never reached a weapon slot (0..7)").isNotNull()
+                "${items[i]} selected in slot $slot"
+            }
             val m = mark(learner, victim)
             val killed = when (kind) {
                 "gun" -> duel(learner, victim, keepAlive = bots.filter { it != learner && it != victim }).killed

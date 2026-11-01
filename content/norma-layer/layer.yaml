@@ -1,7 +1,7 @@
 # The Norma layer: a standard layer of EVERY game mode, not a mode of its own (founder 2026-10-26, MODE-15).
 #
-# What the layer is (docs/game-design/stars-and-norma.md): star generators pop stars on the stage, a kill pays the killer and bursts part of the
-# victim's carried stars, every player climbs Norma levels with ONE goal per level chosen in the picker (carry stars
+# What the layer is (docs/game-design/stars-and-norma.md): star generators pop stars on the stage, a death bursts part of the victim's carried
+# stars on the ground and a kill on a leader pays the killer a bounty, every player climbs Norma levels with ONE goal per level chosen in the picker (carry stars
 # or make kills), and the level-up is presented to the whole match. Everything is dropped at match end.
 #
 # These are the DEFAULTS. A game mode overrides any key in its own `default_config` (content/game-modes/<id>.yaml);
@@ -50,11 +50,10 @@ defaults:
   star_block_per_break: "1"
   star_blocks: "COAL_ORE,DEEPSLATE_COAL_ORE,IRON_ORE,DEEPSLATE_IRON_ORE,GOLD_ORE,LAPIS_ORE,REDSTONE_ORE,GLOWSTONE,OBSIDIAN,OAK_LOG,SPRUCE_LOG,BIRCH_LOG,BARREL,CHEST,CRAFTING_TABLE"
 
-  # Kill rule: the victim loses ALL carried stars. The killer gets star_kill_share of them directly, star_kill_ground_share
-  # bursts on the ground, the rest is lost. Bounty = star_bounty_rate x (victim carried - roster average), capped at
+  # Death rule: star_death_ground_share of the victim's carried stars burst on the ground (anyone can pick them up), the
+  # victim keeps the rest; nothing is destroyed and nothing goes straight to the killer. Bounty = star_bounty_rate x (victim carried - roster average), capped at
   # star_bounty_cap, paid from the bounty share of the budget (a kill on the leader pays more than one on a trailing player).
-  star_kill_share: "0.4"
-  star_kill_ground_share: "0.2"
+  star_death_ground_share: "0.5"
   star_bounty_rate: "0.5"
   star_bounty_cap: "12"
 

@@ -24,7 +24,7 @@ Status: spec, ADR-0271. Written 2026-10-24 from the founder's statements and the
 | 100% Orange Juice (public rules) | Norma level N asks the player for one of two goals, chosen when they level: collect enough Stars, or enough Wins (KOs). Reaching the goal at a check raises the Norma level; the highest Norma levels are the way to win the game. |
 
 The RTM README gives no numeric death-drop ratio. Decision: the ratio is content config
-(superseded by ADR-0318: the victim loses all carried stars, split into killer share / ground / lost).
+(ADR-0318 briefly replaced this with a 40/20/40 killer/ground/destroyed split; the founder restored the old rule on 2026-11-01: `star_death_ground_share: 0.5`).
 
 ## Spec
 
@@ -38,10 +38,10 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
   Q or move into an ender chest, and nothing to clear on leave); "+N ★" action bar and a pickup sound). Output grows late in the match
   (generator `late_game_multiplier`). (2) Kill burst (below). Nothing else: winning, quests, login, level rewards, dummy
   hits and lobby activity give no stars.
-- **Kill rule (ADR-0318; the killer is credited, see Pace):** when a player dies in a match, all carried stars leave the victim's counter and
-  become pickable drops scattered around the death position (stacks of 1, random offsets within ~2.5 blocks, capped
-  per death). The killer is not credited directly; anyone alive (including the killer and the victim's team) can pick
-  them up. The victim keeps `carried - dropped`.
+- **Death rule (`star_death_ground_share`, default 0.5; founder 2026-11-01 restored the pre-ADR-0318 outcome):** when a player dies in a match,
+  `floor(carried * 0.5)` stars leave the victim's counter and become pickable drops scattered around the death position
+  (capped per death); the victim keeps the rest. Nothing is destroyed and nothing is credited directly to the killer; anyone alive
+  (including the killer and the victim's team) can pick the drops up. The leader bounty (see Pace) is minted from its own budget share and never taken from the victim.
 - **Use:** stars are not consumed by norma level-up (RTM). Spending (items, ultimates) is a later feature; the store
   keeps a `spend` operation. The respawn-time sink invented earlier is removed (no document supports it).
 
@@ -90,11 +90,11 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
   (2) **Flank and base timer generators** are a minor source: each has several candidate `spots` (rotation, never the same spot twice in a row, one star per
   spot); base-generator stars are team-locked (`StarDrop.team`). (3) **Caches** (`annihilation-cache`): one-shot spots (5 stars x ramp) with a 45 s respawn.
   (4) **Actions:** mining and listed blocks pay the player directly.
-- **Pace (ADR-0318):** 5 levels, star goals 10, 30, 60, 100, kill goals 1,2,3,4. The victim of a kill loses all carried stars: the killer gets
-  40% directly, 20% bursts on the ground, the rest is lost, plus a capped bounty on carriers above the roster average. Leaving a running match still drops
+- **Pace (ADR-0318):** 5 levels, star goals 10, 30, 60, 100, kill goals 1,2,3,4. A death bursts half of the victim's carried stars on the ground (the victim keeps the other half);
+  a kill pays the killer a capped bounty (rate 0.5 x carried above the roster average, cap 12) on carriers above the roster average. Leaving a running match still drops
   everything. Measured by `StarEconomyScenarioTest` (about 16.5 stars per player-minute at 3, 6 and 12 players; 100 stars at about 8 minutes).
 - **Leave = drop:** a connection drop and `/astera travel lobby` (travel menu) are the same. In COUNTDOWN the player is simply
-  removed. In ACTIVE: every star they carry bursts at the spot they stand on (all of it, regardless of the kill rule; anyone
+  removed. In ACTIVE: every star they carry bursts at the spot they stand on (all of it, regardless of the death rule; anyone
   alive can pick them up), the seat is held for a **60 s** window (reconnect countdown on the action bar; the lobby routes the
   login back to the game server).
 - **Back within 60 s:** same match, same team side, spawn protection, same Norma level and stats (the carried stars are gone).
