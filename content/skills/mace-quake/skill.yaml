@@ -41,7 +41,7 @@ machine:
         - {id: snd_crack, op: sound, sound: "astera:weapons/blade-crit", frame: body, pos: {v: 1.6, w: 0.15}, volume: 0.8, pitch: 0.55}
         - id: burst
           op: hit
-          frame: body
+          anchor: caster
           at: 0
           shape: {sphere: "${radius}"}
           targets: enemies
@@ -63,7 +63,7 @@ machine:
         - {id: fx_core, op: particle, particle: crit, frame: body, pos: {v: 1.6, w: 0.15}, at: 0, count: 12, offset: [0.3, 0.1, 0.3], extra: 0.3}
         - {id: wave_fast, op: particle, particle: block, block: "minecraft:coarse_dirt", frame: body, pos: {w: 0.15}, times: 32, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 32), 0.0, sin(i * 2 * pi / 32))", extra: 0.55}
         - {id: wave_slow, op: particle, particle: block, block: "minecraft:dirt", frame: body, pos: {w: 0.15}, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 0.35}
-        - {id: wave_dust, op: particle, particle: poof, frame: body, pos: {w: 0.15}, times: 16, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.05, sin(i * 2 * pi / 16))", extra: 0.45}
+        - {id: ring_dust, op: particle, particle: dust, frame: body, pos: {w: 0.15}, at: 0, count: 8, offset: [1.6, 0.1, 1.6], color: "#a6a6a6", size: 0.5}
         - {id: wave_debris, op: particle, particle: block, block: "minecraft:stone", frame: body, pos: {w: 0.15}, times: 12, at: 0, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 12), 0.8, 0.7 * sin(i * 2 * pi / 12))", extra: 0.3}
         # impact weight: a crater flash, a big debris fountain and a wider, faster outer ring flung out beyond the first
         - {id: wave_flash, op: particle, particle: crit, frame: body, pos: {v: 1.6, w: 0.15}, times: 16, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.5}
@@ -73,5 +73,5 @@ machine:
         - {id: fx_fountain, op: particle, particle: block, block: "minecraft:stone", frame: body, pos: {v: 1.6, w: 0.15}, at: 0, count: 36, offset: [0.35, 0.7, 0.35], extra: 0.45}
         - {id: fx_clods, op: particle, particle: block, block: "minecraft:coarse_dirt", frame: body, pos: {v: 1.6, w: 0.15}, at: 0, count: 24, offset: [0.5, 0.5, 0.5], extra: 0.3}
         - {id: wave_outer, op: particle, particle: block, block: "minecraft:coarse_dirt", frame: body, pos: {w: 0.15}, times: 40, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 40), 0.0, sin(i * 2 * pi / 40))", extra: 0.8}
-        - {id: wave_outer_dust, op: particle, particle: poof, frame: body, pos: {w: 0.15}, times: 20, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 20), 0.05, sin(i * 2 * pi / 20))", extra: 0.65}
+        - {id: ring_dust_outer, op: particle, particle: dust, frame: body, pos: {w: 0.15}, at: 0, count: 8, offset: [3.0, 0.1, 3.0], color: "#7a7a7a", size: 0.5}
     end: {final: true}

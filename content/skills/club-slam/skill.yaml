@@ -80,7 +80,7 @@ machine:
         - id: blast
           op: hit
           at: 0
-          frame: body
+          anchor: caster
           shape: {sphere: "${radius}"}
           targets: enemies
           window: once

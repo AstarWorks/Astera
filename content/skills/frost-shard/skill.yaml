@@ -3,7 +3,7 @@
 #   head - the shard's body (v along its velocity): the prismarine shard display rides it and the trail is a segment of it.
 #   blk  - one per block bounce / end contact (v the way the shard came in): the bounce sound and frost puffs are drawn on it.
 #   hit - one per victim: the sound, the chip and the contact-to-victim snowflake line (v -0.5 -> 0) sit on it.
-# The burst is the shared frost-shard-burst part, which binds an anchor (`heart`), so it keeps it. Gameplay (speed ramp, bounces, damage, chill) is unchanged. The end-of-flight puff keeps the `contact.point` anchor (no frame is alive at the end).
+# The burst is the shared frost-shard-burst part, and is handed the `hit` frame as its `spot`. Gameplay (speed ramp, bounces, damage, chill) is unchanged. The end-of-flight puff keeps the `contact.point` anchor (no frame is alive at the end).
 apiVersion: astera/v3
 kind: Skill
 id: frost-shard
@@ -18,8 +18,6 @@ params:
   dmg_water:    {type: number, default: 25.0}
   freeze_ticks: {type: ticks, default: 40}
   wet_ticks:    {type: ticks, default: 100}
-anchors:
-  - {id: heart, anchor: victim.center, mode: follow}
 frames:
   - {id: tip, origin: caster.eye, v: aim, w: s x v, s: right, move: [{at: 0, for: 0, to: {v: 1.4, w: -0.3, s: 0.25}}]}
   - {id: head, origin: ball, v: velocity, w: up, s: v x w}
@@ -60,7 +58,7 @@ machine:
               - {id: chip, op: break_area, at: 0, frame: hit, pos: {v: 0}, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", frame: hit, volume: 0.7, pitch: 1.5, detach: true}
               - {id: line, op: particle, particle: snowflake, frame: hit, pos: {v: 0}, to: {v: 0.5}, samples: 5, count: 1, extra: 0.05, detach: true}
-              - {id: burst, use: skill:frost-shard-burst, with: {snow: 30, rod: 10, dust: 20}, frames: {spot: heart}}
+              - {id: burst, use: skill:frost-shard-burst, with: {snow: 30, rod: 10, dust: 20}, frames: {spot: hit}}
             bounce:
               - {id: chip_b, op: break_area, at: 0, frame: blk, pos: {v: 0}, shape: {sphere: {radius: 0.5}}, tool: none, block_damage: 10, ripple: 29, revert: 200, outside_arena: false}
               - {id: snd_blk, op: sound, sound: "astera:skills/frost-impact", frame: blk, volume: "= 0.5 - 0.1 * event.i", pitch: "= 1.6 + 0.1 * event.i", detach: true}
