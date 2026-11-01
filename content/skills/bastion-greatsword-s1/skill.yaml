@@ -289,6 +289,6 @@ machine:
       then: end
       do:
         # swing 3 (49-55): raise and bring the blade down; the chain resets to the rest pose at 55
-        - {id: b3_slash, op: particle_def, def: bastion-s1-p-slash, at: 4, every: 1, for: 6, along: edge, samples: 11}
+        - {id: b3_slash, op: particle_def, def: bastion-s1-p-slash, at: 4, every: 1, for: 6, along: tip, samples: 4}
         - {id: b3_steel, op: particle_def, def: bastion-s1-p-steel, at: 4, every: 1, for: 6, frame: blade, pos: {v: 1.7}}
     end: {final: true}
