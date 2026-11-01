@@ -1,12 +1,13 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.bots.ObjectiveSource
+import com.astarworks.astera.bots.EconomyPlanner
 import com.astarworks.astera.bots.Mate
 import com.astarworks.astera.bots.ModeFacts
 import com.astarworks.astera.bots.ModePlanner
 import com.astarworks.astera.bots.StageObjectives
 import com.astarworks.astera.gamesim.playable.MatchConfig
 import com.astarworks.astera.gamesim.playable.MatchDriver
-import com.astarworks.astera.gamesim.playable.StageTeamLayouts
 import com.astarworks.astera.gamesim.playable.metrics.MassPlay
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -103,8 +104,8 @@ class BotTeamCountScenarioTest {
     @Test
     fun `a real two team match on the three base stage never touches the unplayed base`() {
         val out = Files.createTempDirectory("bot-team-count")
-        // The pairing comes from the stage's team_layouts[2] when the stage has one (c5, ADR-0323); the current 3-base stage has none, so the two teams are named explicitly (MatchConfig.teams).
-        val pair = StageTeamLayouts.available(GameSim.defaultContentDir(), "annihilation-arena")[2] ?: listOf("red", "blue")
+        // The two teams are named explicitly (MatchConfig.teams); the bots never read the stage layout, only the scoreboard.
+        val pair = listOf("red", "blue")
         var seated: List<String> = emptyList()
         val driver = { seed: Long -> MatchDriver.boot(MatchConfig(seed = seed, teams = pair, botsPerTeam = 3)).also { d -> seated = d.seats.map { it.team }.distinct() } }
         val run = MassPlay.run(listOf(20261102L), out, MassPlay.Config(renderFrames = false), driver).single()
@@ -115,5 +116,38 @@ class BotTeamCountScenarioTest {
         println("[bot-team-count] end=${run.endReason} untouched=$unplayed dealt=${s.filterKeys { it.startsWith("pillar_damage_dealt_") }}")
         assertThat(unplayed).`as`("exactly the sealed team's base stays untouched").hasSize(1)
         assertThat(s["pillar_damage_total"] ?: 0.0).`as`("the two live teams fight over pillars").isGreaterThan(0.0)
+    }
+
+    private val ladder = listOf(EconomyPlanner.Companion.Buy(listOf("pick"), mapOf("iron_ore" to 1)))
+
+    private fun mineTarget(sites: EconomyPlanner.Sites, team: String): EconomyPlanner.Step {
+        val planner = EconomyPlanner(sites.forTeam(team), ladder)
+        return checkNotNull(planner.step(0, 0.0, 0.0, emptyMap(), hasPickaxe = true)) { "planner idle although a legal node exists" }
+    }
+
+    @Test
+    fun `a bot beside an enemy team ore node ignores it and mines its own or the neutral node`() {
+        // 2 and 3 team matches: every other team's group sits next to the bot, the neutral Mid node is far away.
+        for (others in listOf(listOf("green"), listOf("blue", "yellow"))) {
+            val sites = EconomyPlanner.Sites(
+                EconomyPlanner.Site(0.0, 65.0, 0.0), emptyList(),
+                others.mapIndexed { i, t -> EconomyPlanner.Site(2.0 + i, 65.0, 1.0, "iron_ore", team = t) } + EconomyPlanner.Site(60.0, 65.0, 0.0, "iron_ore"),
+            )
+            assertThat(mineTarget(sites, "red").x).`as`("neutral node, not the enemy group $others").isEqualTo(60.0)
+            val withOwn = EconomyPlanner.Sites(sites.shop, emptyList(), sites.nodes + EconomyPlanner.Site(30.0, 65.0, 0.0, "iron_ore", team = "red"))
+            assertThat(mineTarget(withOwn, "red").x).`as`("own group beats the farther neutral one").isEqualTo(30.0)
+        }
+    }
+
+    @Test
+    fun `a bot never opens another team's base box, sealed or enemy`() {
+        val caches = listOf(
+            ObjectiveSource.CachePoint(1.0, 65.0, 1.0, 1000, team = "green"), // a sealed base's box beside the bot
+            ObjectiveSource.CachePoint(2.0, 65.0, 2.0, 1000, team = "blue"), // an enemy base box
+            ObjectiveSource.CachePoint(3.0, 65.0, 3.0, 1000, team = "red"),
+            ObjectiveSource.CachePoint(50.0, 65.0, 0.0, 1000),
+        )
+        assertThat(ObjectiveSource.cachesFor("red", caches).map { it.x }).containsExactly(3.0, 50.0)
+        assertThat(ObjectiveSource.cachesFor(null, caches).map { it.x }).containsExactly(50.0)
     }
 }

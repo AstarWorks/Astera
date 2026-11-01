@@ -102,7 +102,7 @@ class StageObjectives private constructor(
             val spotPoints = here.filter { it.cache == null && it.dropItem == null }
                 .flatMap { g -> if (g.spots.isEmpty()) listOf(g.position.x to g.position.z) else g.spots.map { it.x to it.z } }
             val cachePoints = here.filter { it.cache != null }
-                .flatMap { g -> g.spots.map { ObjectiveSource.CachePoint(it.x, it.y, it.z, (g.cache!!.respawnSeconds * 1000).toLong()) } }
+                .flatMap { g -> g.spots.map { ObjectiveSource.CachePoint(it.x, it.y, it.z, (g.cache!!.respawnSeconds * 1000).toLong(), g.affiliation.takeIf { a -> a.kind.equals("team", ignoreCase = true) }?.teamId) } }
             of(stage, spotPoints, economyOf(contentDir, stage, stageId, here), cachePoints)
         }.onFailure { System.err.println("Bot stage '$lane' could not load: ${it.message}") }.getOrNull()
 
