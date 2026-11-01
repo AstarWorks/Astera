@@ -6,7 +6,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * grapple-shot's wall pull is `dir: {v: pull_up, w: pull_forward}` on a heading frame (v up, w forward). The old row was the CEL
+ * grapple-shot's wall pull is `dir: {v: pull_up, w: pull_forward}` on the built-in caster.feet frame (v horizontal forward, w up). The old row was the CEL
  * `forward(caster) * 1.3 + up(caster) * 0.4`. Both are played from the same pose (flat, and yaw 37 / pitch -20) and the world
  * impulse the player applies must be the same vector to 1e-6.
  */
@@ -34,8 +34,8 @@ class GrappleHeadingParityScenarioTest : SkillEngineScenario() {
         val old = skill("pull-old", "", "{id: pull, op: impulse, at: 1, target: caster, vector: \"= forward(caster) * 1.3 + up(caster) * 0.4\"}")
         val new = skill(
             "pull-new",
-            "frames:\n  - {id: heading, origin: caster.feet, v: up, w: forward, s: right}\n",
-            "{id: pull, op: impulse, at: 1, target: caster, frame: heading, dir: {v: 0.4, w: 1.3}}",
+            "",
+            "{id: pull, op: impulse, at: 1, target: caster, frame: caster.feet, dir: {v: 1.3, w: 0.4}}",
         )
         for ((yaw, pitch) in listOf(0.0 to 0.0, 37.0 to -20.0, -120.0 to 45.0)) {
             val a = impulse(old, yaw, pitch)
