@@ -149,7 +149,7 @@ internal object FrameDeclDecoder {
             }
             for (key in raw.keys) if (key != "frame" && key != "pos") ctx.abort(SkillDecodeError.UnknownKey(ctx.file, "$p.origin", key.toString(), "expected frame, pos or aim"))
             val parent = raw["frame"] as? String ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, "$p.origin", "frame"))
-            return OriginSpec.Frame(parent, coeff(ctx, raw["pos"], "$p.origin.pos", Coeff.ZERO))
+            return OriginSpec.Frame(parent, coeff(ctx, raw["pos"] ?: emptyMap<String, Any>(), "$p.origin.pos", Coeff.ZERO))
         }
         val s = raw as? String ?: ctx.mismatch("$p.origin", "caster[.point], victim[.point], attacker[.point], contact, an instance id or {frame, pos}", raw)
         val base = s.substringBefore('.')

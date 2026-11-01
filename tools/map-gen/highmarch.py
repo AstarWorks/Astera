@@ -194,6 +194,29 @@ def monument(w, team, tier=1):
         w.set(x, crown - 1, 0, f'{team}_wall_banner[facing=south]')
 
 
+def spawn_guardhall(w, team):
+    # A roofed garrison protects respawns from the keep/T1/side-gate crossfire.
+    # Its broad east arcade opens towards the market; no screen divides the star plaza.
+    w.box(-6, 7, 64, 70, -9, 2, 'stone_bricks')
+    w.box(-5, 6, 65, 69, -8, 1, None)
+    w.box(7, 7, 65, 68, -3, -1, None)
+    for x, v in itertools.product((-6, 7), (-9, 2)):
+        w.box(x, x, 65, 70, v, v, 'stripped_spruce_log[axis=y]')
+    for x in (-3, 3):
+        for v in (-9, 2):
+            w.box(x - 1, x + 1, 67, 68, v, v, 'glass_pane[east=true,west=true]')
+    for v in (-6, -2):
+        w.box(-6, -6, 67, 68, v, v, 'glass_pane[north=true,south=true]')
+    for x in range(-7, 9):
+        h = 71 + min(x + 7, 8 - x) // 2
+        w.box(x, x, h, h, -10, 3, 'deepslate_tiles')
+        for v in (-9, 2):
+            w.box(x, x, 71, h - 1, v, v, f'{team}_wool')
+    w.set(7, 69, -2, f'{team}_wall_banner[facing=east]')
+    w.set(4, 69, 0, 'lantern[hanging=true]')
+    w.set(-5, 65, 0, 'barrel[facing=up]')
+
+
 def house(w, team, forge_building=False):
     w.box(-5, 5, 64, 64, -5, 5, 'stone_bricks')
     for x in range(-5, 6):
@@ -971,11 +994,12 @@ def make_world():
         town_fabric(t, team)
         monument(t.frame(*PILLARS[0]), team, tier=1)
         # Front court: T1 is 29 blocks behind the first gate entry, with a shorter
-        # defender approach from the east plaza. Low cover leaves both lanes open.
+        # defender approach from the roofed guardhall. Low cover leaves both lanes open.
         t.box(-7, 7, 64, 64, 16, 26, 'gravel')
         for u in (-7, 7):
             t.box(u, u, 65, 66, 19, 22, 'stone_bricks')
         town_character(w, team)
+        spawn_guardhall(t, team)
         # The wider gate court meets the barracks' original interior stair.
         for step in range(5):
             t.set(10, 64 + step, 31 - step, 'spruce_planks')
@@ -1028,7 +1052,7 @@ def coordinates():
             'landmarks': [], 'stars': {}, 'ore': {}, 'climbs': {}, 'exploration_blocks': {}}
     for team in TEAMS:
         data['districts'][team] = {name: list(point(team, *pos)) for name, pos in DISTRICTS.items()}
-        data['spawns'][team] = [xyz(team, u, 1) for u in (20, 18, 22, 16)]
+        data['spawns'][team] = [xyz(team, u, v) for u, v in ((0, -8), (-2, -8), (-2, -6), (-4, -6))]
         data['pillars'][team] = [xyz(team, *p, y=69 if i == 2 else 65) for i, p in enumerate(PILLARS)]
         data['shops'][team] = xyz(team, 24, -2)
         for i, (u, v) in enumerate(((20, -2), (25, -2), (25, 3), (20, 3))):
@@ -1133,7 +1157,7 @@ def stage_yaml(data):
              '# Town centres red (0,-108), blue (94,54), yellow (-94,54); each plateau radius ~44.',
              '# Local wards (u right, v inward): plaza (23,1), market (25,-2), forge (-27,24),',
              '# gate court (0,9), inner ward (-25,-4), keep (0,-27), house (25,-27).',
-             '# Objective wards have broad streets; four market-plaza spawns face a contestable front court.',
+             '# Objective wards have broad streets; four roofed guardhall spawns face the market through an east arcade.',
              '# Quarry r42: rim y64 / upper y60 / middle y55 / floor y50; three 7-wide ramps.',
              '# Spawn -> rim ~70-90 blocks; enemy gate court ~165-230 blocks along routes.',
              '# One continent: wooded valleys to Mid; seven-wide stone bridges cross the river gorge.',
@@ -1161,12 +1185,12 @@ def stage_yaml(data):
                       f'  block: minecraft:{block}', f'  affinity: {affinity}']
     lines += ['spawn_points:']
     for team, cells in data['spawns'].items():
-        yaw = {'red': 180.0, 'blue': 270.0, 'yellow': 90.0}[team]
+        yaw = {'red': 270.0, 'blue': 0.0, 'yellow': 180.0}[team]
         for x, y, z in cells:
             lines += [f'- team: {team}', f'  position: {{x: {x + .5}, y: {y}.0, z: {z + .5}}}', f'  yaw: {yaw}']
     lines += ['- role: lobby', '  position: {x: 0.5, y: 65.0, z: -43.5}',
               '- role: spectator', '  position: {x: 0.5, y: 110.0, z: 0.5}', '  pitch: 60.0',
-              '# Shop NPCs stand on the market edge, within 15 blocks of the nearest plaza spawn.', 'shop_npcs:']
+              '# Shop NPCs remain at the market edge, east of the spawn guardhall.', 'shop_npcs:']
     for team, (x, y, z) in data['shops'].items():
         yaw = {'red': 90.0, 'blue': 180.0, 'yellow': 0.0}[team]
         lines += [f'- {{team: {team}, x: {x + .5}, y: {y}.0, z: {z + .5}, yaw: {yaw}}}']
@@ -1226,8 +1250,6 @@ def validate(w, data):
     for team, spawns in data['spawns'].items():
         for x, y, z in spawns:
             assert (x, y - 1, z) in w.blocks and (x, y, z) not in w.blocks and (x, y + 1, z) not in w.blocks
-        sx, _, sz = data['shops'][team]
-        assert min(math.hypot(x - sx, z - sz) for x, _, z in spawns) < 15
     for x, z in data['landmarks']:
         assert (x, 64, z) in w.blocks and (x, 65, z) not in w.blocks, (x, z)
     cells = [tuple(cell) for group in data['ore'].values() for cell in group]

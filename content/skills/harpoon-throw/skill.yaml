@@ -1,6 +1,6 @@
 # harpoon-throw: a thrown harpoon that reels its victim toward the caster, in the frame grammar (ADR-0314, ADR-0315). `throw` is the throwing hand: rooted
 # in the caster's eye / aim basis (v = aim, s = right, w = s x v) at the aimed position 0.57 ahead, 0.51 below the eye line, 0.30 right (the right arm out
-# from the shoulder), so the harpoon leaves the hand 0.40 ahead along the aim, not the head. The cast spark and sound are points of it. The trident display
+# from the shoulder). The cast spark and sound are points of it. `launch` is where the harpoon is born, 0.5 ahead of the eye (the balance origin of the hit tick). The trident display
 # and its wake ride the body; `hit` one per victim at its centre, `blk` one per block contact, v the way the harpoon came in; the sparks sit at v -0.2.
 # Straight flight on purpose (no gravity): the hit tick is balance. Randomness: none.
 apiVersion: astera/v3
@@ -21,6 +21,7 @@ frames:
     s: right
     move:
       - {at: 0, for: 0, to: {v: 0.57, w: -0.51, s: 0.30}}
+  - {id: launch, origin: caster.eye, v: aim, w: s x v, s: right}   # where the harpoon is born: 0.5 ahead of the eye (the balance origin)
   - id: hit
     on: event.victim
     each: true
@@ -59,8 +60,8 @@ machine:
         - id: bolt
           op: projectile
           at: 0
-          frame: throw
-          pos: {v: 0.4}
+          frame: launch
+          pos: {v: 0.5}
           velocity: "= look(caster) * ${launch_speed}"
           for: "${max_lifetime_ticks}"
           radius: 0.5

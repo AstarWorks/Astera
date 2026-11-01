@@ -172,11 +172,25 @@ class SummonHomingPathScenarioTest : SkillEngineScenario() {
         val a = tangent.writtenPoses.map { it.third.frame }
         val b = none.writtenPoses.map { it.third.frame }
         assertThat(b).describedAs("the billboarded none-form loads and plays").isNotEmpty()
-        // a write equal to the spawn pose (start) or to the previous pose is not repeated, so the two forms may differ only in the two curve ends
-        val pa = a.map { it.origin }.toSet()
-        val pb = b.map { it.origin }.toSet()
-        assertThat(pa.intersect(pb)).describedAs("same positions as the tangent form").hasSizeGreaterThanOrEqualTo(15)
-        assertThat(pa.union(pb)).describedAs("all on the same 17-point curve").hasSize(17)
+        // What a client shows at tick t: a write at tick w with interpolation d arrives at w + d. The tangent form snaps to each key (d = 0, a turn changes every tick);
+        // the position-only form lerps one tick (d = 1) to the next key, so the same curve point is reached one write earlier. The spawn pose is the curve start, so
+        // the none form has no tick-0 write (nothing changed) and its last write (tick 15, d = 1) is what brings the display to the end point at tick 16.
+        fun shown(rec: GatewayRecorder): Map<Int, Vec3> {
+            val out = HashMap<Int, Vec3>()
+            rec.writtenPoses.forEachIndexed { i, w -> out[w.first + rec.writtenInterpolation[i]] = w.third.frame.origin }
+            return out
+        }
+        val sa = shown(tangent)
+        val sb = shown(none)
+        assertThat(sa.keys).describedAs("tangent arrival ticks").isEqualTo((0..15).toSet())
+        assertThat(sb.keys).describedAs("none arrival ticks (tick 0 is the unchanged spawn pose)").isEqualTo((1..16).toSet())
+        val spawn = sa.getValue(0)
+        for (t in 0..16) {
+            val x = if (t == 0) spawn else sb.getValue(t)
+            val y = sa[t] ?: sb.getValue(t) // the tangent display ends before its tick-16 write; the curve end is the none form's
+            assertThat(x.distance(y)).describedAs("shown position at tick $t").isLessThan(1e-12)
+        }
+        assertThat(sb.getValue(16).distance(Vec3(spawn.x, spawn.y, spawn.z + 8.0))).describedAs("the none form ends on the curve end").isLessThan(1e-12)
         assertThat(a.map { it.forward() }.distinct().size).describedAs("the tangent form turns").isGreaterThan(1)
         assertThat(b.map { it.forward() }.distinct()).describedAs("no rotation is written").hasSize(1)
     }

@@ -2,7 +2,7 @@
 # Town centres red (0,-108), blue (94,54), yellow (-94,54); each plateau radius ~44.
 # Local wards (u right, v inward): plaza (23,1), market (25,-2), forge (-27,24),
 # gate court (0,9), inner ward (-25,-4), keep (0,-27), house (25,-27).
-# Objective wards have broad streets; four market-plaza spawns face a contestable front court.
+# Objective wards have broad streets; four roofed guardhall spawns face the market through an east arcade.
 # Quarry r42: rim y64 / upper y60 / middle y55 / floor y50; three 7-wide ramps.
 # Spawn -> rim ~70-90 blocks; enemy gate court ~165-230 blocks along routes.
 # One continent: wooded valleys to Mid; seven-wide stone bridges cross the river gorge.
@@ -102,47 +102,47 @@ pillars:
   affinity: pickaxe
 spawn_points:
 - team: red
-  position: {x: 20.5, y: 65.0, z: -106.5}
-  yaw: 180.0
+  position: {x: 0.5, y: 65.0, z: -115.5}
+  yaw: 270.0
 - team: red
-  position: {x: 18.5, y: 65.0, z: -106.5}
-  yaw: 180.0
+  position: {x: -1.5, y: 65.0, z: -115.5}
+  yaw: 270.0
 - team: red
-  position: {x: 22.5, y: 65.0, z: -106.5}
-  yaw: 180.0
+  position: {x: -1.5, y: 65.0, z: -113.5}
+  yaw: 270.0
 - team: red
-  position: {x: 16.5, y: 65.0, z: -106.5}
+  position: {x: -3.5, y: 65.0, z: -113.5}
+  yaw: 270.0
+- team: blue
+  position: {x: 102.5, y: 65.0, z: 54.5}
+  yaw: 0.0
+- team: blue
+  position: {x: 102.5, y: 65.0, z: 52.5}
+  yaw: 0.0
+- team: blue
+  position: {x: 100.5, y: 65.0, z: 52.5}
+  yaw: 0.0
+- team: blue
+  position: {x: 100.5, y: 65.0, z: 50.5}
+  yaw: 0.0
+- team: yellow
+  position: {x: -101.5, y: 65.0, z: 54.5}
   yaw: 180.0
-- team: blue
-  position: {x: 93.5, y: 65.0, z: 74.5}
-  yaw: 270.0
-- team: blue
-  position: {x: 93.5, y: 65.0, z: 72.5}
-  yaw: 270.0
-- team: blue
-  position: {x: 93.5, y: 65.0, z: 76.5}
-  yaw: 270.0
-- team: blue
-  position: {x: 93.5, y: 65.0, z: 70.5}
-  yaw: 270.0
 - team: yellow
-  position: {x: -92.5, y: 65.0, z: 34.5}
-  yaw: 90.0
+  position: {x: -101.5, y: 65.0, z: 56.5}
+  yaw: 180.0
 - team: yellow
-  position: {x: -92.5, y: 65.0, z: 36.5}
-  yaw: 90.0
+  position: {x: -99.5, y: 65.0, z: 56.5}
+  yaw: 180.0
 - team: yellow
-  position: {x: -92.5, y: 65.0, z: 32.5}
-  yaw: 90.0
-- team: yellow
-  position: {x: -92.5, y: 65.0, z: 38.5}
-  yaw: 90.0
+  position: {x: -99.5, y: 65.0, z: 58.5}
+  yaw: 180.0
 - role: lobby
   position: {x: 0.5, y: 65.0, z: -43.5}
 - role: spectator
   position: {x: 0.5, y: 110.0, z: 0.5}
   pitch: 60.0
-# Shop NPCs stand on the market edge, within 15 blocks of the nearest plaza spawn.
+# Shop NPCs remain at the market edge, east of the spawn guardhall.
 shop_npcs:
 - {team: red, x: 24.5, y: 65.0, z: -109.5, yaw: 90.0}
 - {team: blue, x: 96.5, y: 65.0, z: 78.5, yaw: 180.0}
