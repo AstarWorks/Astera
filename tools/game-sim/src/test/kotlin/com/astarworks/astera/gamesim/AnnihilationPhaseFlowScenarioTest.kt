@@ -9,6 +9,7 @@ import com.astarworks.astera.core.application.service.presentation.LoggingPresen
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.AnnihilationPhaseTransitioned
+import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.hud.HudLayout
@@ -217,6 +218,43 @@ class AnnihilationPhaseFlowScenarioTest {
 
             assertThat(advanceUntil(1_500) { eventsOf<MatchEnded>().isNotEmpty() }).`as`("the match ends when phase 5 expires").isTrue()
             assertThat(eventsOf<MatchEnded>().single().winningTeam).isEqualTo(TeamId("red"))
+        }
+    }
+
+    @Test
+    fun `the clock decision names the most pillar HP, whichever team is listed first`() {
+        scenario("annihilation-phase-flow-hp-not-order", config.copy(suddenDeathTicks = 100, bleedIntervalTicks = 100_000)) {
+            val (red, blue, yellow) = threeTeams()
+            val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow to "yellow"), stage = "annihilation-arena")
+            val clock = sim.services.getOrThrow<IMatchPhaseClock>()
+            assertThat(advanceUntil(300) { clock.current(matchId)?.phase == NexusPhase.Phase2Engage }).isTrue()
+            // Red (first listed) and yellow are both hit; blue keeps every point of HP.
+            hit(matchId, blue, "red", NexusPillarTier.TIER_1)
+            hit(matchId, blue, "yellow", NexusPillarTier.TIER_1)
+            advance(8)
+            hit(matchId, blue, "yellow", NexusPillarTier.TIER_1)
+
+            assertThat(advanceUntil(1_500) { eventsOf<MatchEnded>().isNotEmpty() }).isTrue()
+            val ended = eventsOf<MatchEnded>().single()
+            assertThat(ended.winningTeam).isEqualTo(TeamId("blue"))
+            assertThat(ended.reason).isEqualTo(EndReason.PillarHpDecision(TeamId("blue")))
+        }
+    }
+
+    @Test
+    fun `an exact pillar HP tie at the top is a draw, never decided by team order`() {
+        scenario("annihilation-phase-flow-hp-draw", config.copy(suddenDeathTicks = 100, bleedIntervalTicks = 100_000)) {
+            val (red, blue, yellow) = threeTeams()
+            val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow to "yellow"), stage = "annihilation-arena")
+            val clock = sim.services.getOrThrow<IMatchPhaseClock>()
+            assertThat(advanceUntil(300) { clock.current(matchId)?.phase == NexusPhase.Phase2Engage }).isTrue()
+            // Red and blue untouched (equal totals); yellow is the one that lost HP.
+            hit(matchId, red, "yellow", NexusPillarTier.TIER_1)
+
+            assertThat(advanceUntil(1_500) { eventsOf<MatchEnded>().isNotEmpty() }).isTrue()
+            val ended = eventsOf<MatchEnded>().single()
+            assertThat(ended.winningTeam).isNull()
+            assertThat(ended.reason).isEqualTo(EndReason.PillarHpDecision(null))
         }
     }
 
