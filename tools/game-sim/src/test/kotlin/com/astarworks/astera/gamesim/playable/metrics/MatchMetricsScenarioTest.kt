@@ -22,7 +22,7 @@ import java.nio.file.Path
 /**
  * Mass-play metrics (ADR-0316, design 4.1): a scripted annihilation match over several seeds on the real shipped
  * content. Every metric column is either a number or an explicit n/a with a reason; metrics.json, PNG frames and
- * summary.md are written.
+ * summary-<first>-<last>.md are written.
  */
 class MatchMetricsScenarioTest {
 
@@ -50,7 +50,7 @@ class MatchMetricsScenarioTest {
             r.result.scalars["p2_kills_per_min"]?.let { assertThat(it).`as`("p2_kills_per_min of ${r.run}").isGreaterThanOrEqualTo(0.0) }
         }
         assertThat(results.map { it.result.scalars["pillar_damage_total"] ?: 0.0 }.sum()).`as`("the scripted attackers hurt pillars").isGreaterThan(0.0)
-        val summary = Files.readString(out.resolve("summary.md"))
+        val summary = Files.readString(out.resolve(MassPlay.summaryFileName(seeds)))
         for (column in listOf("duration_s", "ttff_s", "lead_changes", "comeback", "stars_per_player_minute", "idle_ratio_mean",
             "decisions_per_min_mean", "kills_total", "p2_ttff_s", "p2_kills_per_min", "kills_per_min", "kills_per_min_per_player", "pillar_damage_total", "heatmap_unvisited_ratio", "ore_contention",
             "star_pickup_top_cell_share")) {
@@ -68,7 +68,7 @@ class MatchMetricsScenarioTest {
         assertThat(results.map { it.seed }.distinct()).`as`("a batch must not replay one seed").hasSize(2)
         assertThatThrownBy { MassPlay.run(listOf(5L, 5L), out) { MatchDriver.boot(MatchConfig(seed = it)) } }
             .isInstanceOf(IllegalArgumentException::class.java).hasMessageContaining("duplicate seeds 5")
-        assertThat(out.resolve("summary.md")).content().contains("| seed |")
+        assertThat(out.resolve("summary-21-22.md")).content().contains("| seed |")
         for (r in results) {
             assertThat(out.resolve(r.run).resolve("metrics.json")).content().contains("\"seed\": ${r.seed}")
             assertThat(out.resolve(r.run).resolve("metrics.json")).exists()
