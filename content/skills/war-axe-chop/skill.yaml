@@ -5,7 +5,7 @@
 #            tip at v 0.94), edge along w. Roll 180 about v turns the edge down, the chop is then a turn about s that brings the tip down edge first. The wind-up raises the point behind the head (-110), the chop
 #            drives it down in front (+55, hit while the head passes the target), `reset` eases back to guard.
 #            The engine pins the right hand to the origin; the origin sits exactly on the 0.60 reach sphere of the shoulder by construction.
-#   body   - the caster's feet, v forward / w up / s right: the sounds. (The sweep arc sprite `fx` rides the blade frame: a flat crescent in the blade's v-w cut plane, as long as the blade, spawned mid-cut.)
+#   body   - the caster's feet, v forward / w up / s right: the sounds. (The sweep arc sprite `fx` sits on frame `arc` (origin = the hand, a fixed cut plane, so it does not turn with the blade): a flat crescent centred on the hand, in a fixed vertical cut plane, twice the blade length so its rim is at the blade tip: it shows the path the edge travels.)
 #   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
 #   edge   - line along the blade from the guard to the tip (v 0.6 .. 0.94), what the trail rows draw along.
 apiVersion: astera/v3
@@ -48,6 +48,11 @@ frames:
       - {at: 0, for: 4, about: s, to: -110, ease: in_out_sine}  # raise the point behind the head
       - {at: 4, for: 3, about: s, to: 55, ease: out_cubic}  # the cut, edge first
       - {at: 7, for: 6, reset: true, ease: in_out_sine}
+  - id: arc
+    origin: {frame: blade, pos: {v: 0}}
+    v: forward
+    w: up
+    s: v x w
   - id: body
     origin: caster
     v: forward
@@ -94,6 +99,6 @@ machine:
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-crit", frame: wound, volume: 0.7, pitch: 1.2, detach: true}
               - {id: fx_hit, op: particle_def, def: hit-spark, frame: wound, pos: {w: 0.2}, detach: true}
         - {id: snd, op: sound, sound: "astera:weapons/blade-heavy-swing", frame: body, volume: 1.0, pitch: 0.9, detach: true}
-        - {id: fx, op: display, at: 0, for: 3, kind: sprite, sprite: slash, size: [0.94, 0.94], frame: blade, pos: {v: 0.47}, plane: [w, v], see_through: true, brightness: {block: 15, sky: 15}, detach: true}  # the sweep arc: a flat crescent lying in the blade's cut plane (v, w), as long as the blade, mid-cut
+        - {id: fx, op: display, at: 0, for: 3, kind: sprite, sprite: slash, size: [1.88, 1.88], frame: arc, pos: {v: 0}, plane: [w, v], see_through: true, brightness: {block: 15, sky: 15}, detach: true}  # the sweep arc: a flat crescent on the fixed cut plane `arc`, rim at the blade tip, over the cut ticks
         - {id: trail, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.04, at: 0, every: 1, for: 4, detach: true}
     end: {final: true}
