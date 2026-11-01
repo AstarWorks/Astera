@@ -102,7 +102,9 @@ class PillarTeamMetricsScenarioTest {
             val yellowT1LeftAtHit = hp(matchId, "yellow", NexusPillarTier.TIER_1)
             runUntilEnded(metrics, 1_500)
             val ended = eventsOf<MatchEnded>().single()
-            assertThat(ended.reason).isEqualTo(EndReason.PillarHpDecision(com.astarworks.astera.core.domain.match.TeamId("blue")))
+            val decision = ended.reason as EndReason.PillarHpDecision
+            assertThat(decision.winner).isEqualTo(com.astarworks.astera.core.domain.match.TeamId("blue"))
+            assertThat(decision.decidedBy).isEqualTo(EndReason.PillarHpDecision.Criterion.PILLAR_HP)
 
             val json = metrics.finish().json
             assertThat(json["end_reason"]!!.jsonPrimitive.content).isEqualTo("hp_decision")
