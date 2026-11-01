@@ -3,6 +3,14 @@ package com.astarworks.astera.gamesim
 import com.astarworks.astera.core.domain.effect.ParticleData
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import com.astarworks.astera.core.domain.skillengine.table.Action
+import com.astarworks.astera.core.domain.skillengine.table.Duration
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.long
 
 /** Cast the 18 shipped tool skills through the real loader, inheritance, table player and effect gateways. */
 class ToolSkillPresentationScenarioTest {
@@ -22,13 +30,46 @@ class ToolSkillPresentationScenarioTest {
                 caster.cast(skill)
                 advance(30)
                 assertThat(sim.skillEngine.problems).describedAs(skill).isEmpty()
+                // The shipped expansion table is the per-tick op schedule the real player executes.
+                val table = sim.combat.skillCatalog.get(skill)!!.table
+                val states = table.states.associateBy { it.state }
+                var state = table.states.first()
+                var entry = 0
+                val opTrace = mutableListOf<String>()
+                val cueTicks = mutableListOf<Int>()
+                val impactTicks = mutableListOf<Int>()
+                while (!state.isFinal) {
+                    for (row in state.rows) {
+                        val tick = entry + row.tick
+                        opTrace += "@$tick ${row.instance.text} ${row.action}"
+                        if (row.action is Action.Sound) cueTicks += tick
+                        if (row.action is Action.World) impactTicks += tick
+                    }
+                    entry += (state.duration as Duration.Fixed).ticks
+                    state = states.getValue(state.then!!)
+                }
+                assertThat(cueTicks).describedAs("$skill sound op tick vs world impact op tick").isEqualTo(impactTicks)
+                val traceDir = Path.of(System.getProperty("astera.sim.traceDir"))
+                Files.createDirectories(traceDir)
+                Files.writeString(traceDir.resolve("tool-op-$skill.txt"), opTrace.joinToString("\n", postfix = "\n"))
                 val calls = sim.recorder.particleCalls()
+                val ticks = sim.recorder.toJson().jsonObject.getValue("ticks").jsonArray
+                val soundTicks = ticks.filter { it.jsonObject.getValue("sounds").jsonArray.isNotEmpty() }
+                assertThat(soundTicks).describedAs("$skill single material impact cue").hasSize(1)
+                val soundTick = soundTicks.single().jsonObject
+                val cue = soundTick.getValue("sounds").jsonArray.single().jsonObject
+                val reference = when (tool) { "pickaxe" -> "block.stone.break"; "axe" -> "block.wood.break"; else -> "block.gravel.break" }
+                assertThat(cue.getValue("key").jsonPrimitive.content).isEqualTo(reference)
+                assertThat(cue.getValue("volume").jsonPrimitive.content.toDouble()).isEqualTo(1.0)
+                assertThat(cue.getValue("pitch").jsonPrimitive.content.toDouble()).isEqualTo(1.0)
+                val firstDebrisTick = calls.filter { it.spec.data is ParticleData.Block }.minOf { it.tick }
+                assertThat(soundTick.getValue("tick").jsonPrimitive.long).describedAs("$skill impact onset").isEqualTo(firstDebrisTick)
                 val material = when (family) {
                     "pickaxe-shatter" -> "minecraft:deepslate"
                     "pickaxe-bore" -> "minecraft:stone"
                     "axe-fell" -> "minecraft:oak_log"
                     "axe-plank-wall" -> "minecraft:oak_planks"
-                    "shovel-earth-bridge" -> "minecraft:clay"
+                    "shovel-earth-bridge" -> "minecraft:coarse_dirt"
                     else -> "minecraft:dirt"
                 }
                 val debris = calls.filter { (it.spec.data as? ParticleData.Block)?.blockKey == material }
@@ -40,8 +81,33 @@ class ToolSkillPresentationScenarioTest {
                     val extent = if (family == "axe-plank-wall") debris.map { it.at.y } else debris.map { it.at.z }
                     assertThat(extent.max() - extent.min()).describedAs("$skill spatial footprint").isGreaterThan(0.9)
                 }
-                assertThat(calls.any { it.spec.key == "electric_spark" }).describedAs("$skill metal").isEqualTo(tier != "stone")
-                assertThat(calls.any { it.spec.key == "end_rod" }).describedAs("$skill diamond").isEqualTo(tier == "diamond")
+                assertThat(calls.map { it.spec.key }).describedAs("$skill no shared sparkle ring or detached crescents")
+                    .doesNotContain("crit", "end_rod", "sweep_attack")
+                assertThat(calls.any { it.spec.key == "electric_spark" }).describedAs("$skill flint sparks only for pickaxe")
+                    .isEqualTo(tool == "pickaxe")
+                if (family == "pickaxe-bore" || tool == "shovel") {
+                    val directed = debris.filter { it.spec.count == 0 }
+                    assertThat(directed).describedAs("$skill directed material").isNotEmpty()
+                    for (call in directed) {
+                        if (tool == "pickaxe") {
+                            assertThat(call.spec.offset.z).isGreaterThan(call.spec.offset.y)
+                            assertThat(call.spec.extra).isGreaterThan(0.25)
+                        } else {
+                            assertThat(call.spec.offset.y).isGreaterThan(call.spec.offset.z)
+                            assertThat(call.spec.extra).isLessThan(0.2)
+                        }
+                    }
+                }
+                // Bright cores stay on the material footprint, including the aim-point shatter.
+                val accents = calls.filter { it.spec.key == "electric_spark" || (it.spec.key == "dust" && it.spec.count > 1) }
+                for (accent in accents) {
+                    assertThat(debris.any { it.tick == accent.tick && it.at == accent.at })
+                        .describedAs("$skill impact accent @${accent.tick} ${accent.at}").isTrue()
+                }
+                val expectedSize = when (tier) { "stone" -> 0.3; "iron" -> 0.45; else -> 0.6 }
+                val dust = calls.mapNotNull { it.spec.data as? ParticleData.Dust }
+                assertThat(dust.any { kotlin.math.abs(it.scale - expectedSize) < 0.001 })
+                    .describedAs("$skill tier core size").isTrue()
             }
         }
     }

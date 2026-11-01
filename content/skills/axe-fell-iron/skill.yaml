@@ -11,10 +11,8 @@ meta:
   tags: [tool, cover]
 with:
   length: 7
-  strip_pitch: 0.7
-  break_vol: 0.9
-  break_pitch: 0.8
-  strong: true
-  spark: tool-axe-iron
   trail_span: 8
-  metallic: true
+  splinters: 8
+  chips: 5
+  core_color: "#c29c63"
+  core_size: 0.45

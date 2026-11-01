@@ -1,42 +1,36 @@
-# pickaxe-bore — presentation pass
+# pickaxe-bore — round 3 presentation review
 
-Baseline: unmodified content at `e68a3a18`. Cases contain no reference video.
+No reference video. Branch: `wp/tool-skills-polish3b`.
 
-Overhead strike. Five stone-chip rows travel from 1 block to the inherited bore length at impact +0/+1/+2/+3/+4 ticks.
+Low, fast stone/deepslate chips along the unchanged bore footprint; two flint sparks per lane on three travelling beats. The shared fixed-distance sparkle ring is gone. Iron adds beige ore dust; diamond adds cyan dust.
 
-Stone | iron | diamond: material debris | metallic sparks/ring | cyan flash/end-rod/chime.
-The shared stone document owns the sequence; tier documents only override values.
+The core occupies the same position and tick as a material emission on the actual affected footprint, rather than a shared fixed offset. The shatter core uses the same live aim-point expression as its mechanical row. Particle counts, spread, velocity, colour and dust scale are presentation only. All 18 skills retain their original metadata, cooldown, dimensions, state durations, damage and break/place rows verbatim.
 
-Mechanics: the original break/place row, state duration, cooldown and tier dimensions are unchanged. `block_damage: 100` matches ADR-0297 (base damage before held-tool tier multipliers), so no contradiction was found.
+Stone → iron → diamond increases core density and dust scale (0.30 → 0.45 → 0.60). Pickaxe: grey → beige → cyan. Axe: brown → warm wood → blonde wood. Shovel: dark brown → brown → tan; dust density is only 2 → 3 → 4 per lane.
 
-Review evidence is under `/tmp/claude-1000/tool-skills/round-N/`; all 54 real-client captures are complete and have zero missing ticks. Sound: not listened.
+Round-2 sheet: `/tmp/claude-1000/tool-skills/round-2/tool-pickaxe-bore.png`.
+Round-3 sheet: `/tmp/claude-1000/tool-skills/round-3/tool-pickaxe-bore.png`.
+All-tier captures: `/tmp/claude-1000/tool-skills/round-3/captures/pickaxe-bore-{stone,iron,diamond}/compare/`.
 
-Validation: content-lint uses the production loader. New integration coverage: `ToolSkillPresentationScenarioTest.tool families propagate material effects and tier light through the real cast path` (manager runs it; no tests executed in this worktree).
+Review status: pending final real-client capture and tier comparison. The first exploratory axe capture was invalidated by edits during capture and is excluded from evidence.
 
-Round 2 preserves the first round’s main bursts, fills the quarter/three-quarter gaps, and adds a delayed deepslate settling ring to shatter. Bridge emissions are above the deck surface so the floor cannot hide them.
+## Sound measurement
 
-## Validation and integration
+Each skill now plays one matching vanilla material block-break cue, volume 1.0 and pitch 1.0, on its mechanical impact tick. Generic attack/wind, anvil, chime and delayed step layers were removed. Measured all four vanilla sample variants per material with ffmpeg `ebur128=peak=true,astats=metadata=1:reset=0`; one-second zero padding supplies the measurement window for short samples. Cue/ref delta is 0.0 LU for all twelve source samples. This measures source audio with authored gain/pitch, not a microphone recording of the client mix.
 
-Content-lint: PASS (39 runtime categories, 0 failures; 969 pack files, 0 unresolved references). Game-sim and Konsist test sources compile. Test tasks, e2e and check were not run, per worker instructions. The manager must run `ToolSkillPresentationScenarioTest` and Konsist, and regenerate the 18 intentional `skill-oracle/<skill>/skill.txt` presentation goldens. Sound is not listened and has no approval.
+Raw ffmpeg logs, WAVs, original asset hashes and measurements: `/tmp/claude-1000/tool-skills/round-3/audio/`. Final per-skill sound/onset table: `/tmp/claude-1000/tool-skills/round-3/report.md`.
 
-## Documentation drift found
+## Integration verification
 
-- `docs/vision/VISION.md` still says CEL is unimplemented; the current engine and shipped skills use CEL, including the existing shatter aim-point expression. Followed the implementation.
-- `docs/contributing/vfx-team/sound.md` still shows the old `type: play_sound` / `delay_ticks` dialect; current v3 skills use `op: sound` / `at`. Followed the implementation.
-- `docs/contributing/vfx-team/skill-preview.md` and `make skill-trace` depend on `SkillTraceExportScenarioTest`, which is absent from this checkout. Real-client captures were used, so no synthetic preview was substituted.
+`ToolSkillPresentationScenarioTest.tool families propagate material effects and tier light through the real cast path` casts all 18 shipped skills using the production loader, inheritance, player and gateways. It checks material motion, forbidden shared sparkles/crescents, footprint-aligned accents, core size, one unmodified vanilla cue and sound/impact op schedule equality. It writes `tool-op-<skill>.txt` alongside the per-tick scenario JSON traces.
 
-Area-spec update belongs to ops-harness: append the 18 tool skill presentation sequences and the six review cases to the 現状 section of `docs/vision/areas/skills-vfx.md`. No engine, model, sound asset, language or harness source files were changed.
+The existing `:tools:game-sim:regenSkillOracle` path is used with a temporary content tree containing only the 18 tool skills. Only the resulting 18 tool goldens are copied back; no non-tool golden is generated or rewritten. Final class: `ShippedV3ContentScenarioTest`. Execution results pending shared VM Gradle slot.
 
-## Final comparison
+## Documentation drift / owner requests
 
-Rows: round 2 / round 1 / baseline. Columns: wind-up / impact / propagation / settle. These are the standard skill-compare API pixels, without hand-made crops.
+- `docs/vision/VISION.md` says CEL is unimplemented; the shipped engine and these existing aim-point expressions use CEL.
+- `docs/contributing/vfx-team/sound.md` documents `type: play_sound` / `delay_ticks`; shipped v3 content uses `op: sound` / `at`.
+- `make skill-trace` and `docs/contributing/vfx-team/skill-preview.md` reference the absent `SkillTraceExportScenarioTest`. This pass exports its op schedules and runtime JSON from the owned presentation scenario instead.
+- `tools/vfx-shot/README.md` describes frame indices as ticks after cast, while captures include pre-cast frames. Comparisons must use `meta.json` / `framestamp.json` mapping.
 
-![Round 2, round 1 and baseline](evidence/presentation.png)
-
-Before: `/tmp/claude-1000/tool-skills/round-0/tool-pickaxe-bore.png`
-
-After: `/tmp/claude-1000/tool-skills/round-2/tool-pickaxe-bore.png`
-
-Case: `tool-pickaxe-bore`; skill: `pickaxe-bore-diamond`. All three tiers were captured in every round.
-
-Review: final material footprint and tool motion remain legible; round 2 retains the round-1 primary effects and adds intermediate debris. The bridge floor occlusion found in round 1 is fixed. Human sound approval and manager integration checks remain pending.
+依頼: ops-harness に `docs/vision/areas/skills-vfx.md` の現状へこの18ツールの素材別演出・音量測定・oracle更新を追記。Area spec is outside this task's owned paths.

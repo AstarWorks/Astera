@@ -5,7 +5,7 @@
   "start_s": 0,
   "end_s": 1.5,
   "status": "built",
-  "iterations": 2,
+  "iterations": 3,
   "skill": {
     "name": "axe-plank-wall",
     "coins": 1,
@@ -58,11 +58,11 @@
       "label": "Settle"
     }
   ],
-  "notes": "`no-reference` is a marker: no reference video exists.\n\nNo reference video. Stone | iron | diamond: grey/brown material debris | metallic sparks + ring | cyan flash + end_rod + chime. Same mechanics as HEAD. Before = round 0; after = round 1/2.\n\n| stone | iron | diamond |\n| --- | --- | --- |\n| ![stone](/mc/vfx/axe-plank-wall-stone/compare/frame_014.webp) | ![iron](/mc/vfx/axe-plank-wall-iron/compare/frame_014.webp) | ![diamond](/mc/vfx/axe-plank-wall-diamond/compare/frame_014.webp) |\n\nUse the diamond compare sheet current / prev / prev2 for the two presentation rounds and baseline. Sound: not listened.",
+  "notes": "Oak-plank splinters and a warm wood-dust core rise on the unchanged wall footprint. No white sparkle ring, electric sparks or end rods. The brighter blonde wood core increases with tier. Stone / iron / diamond increase material-core density, size and brightness. See notes.md for measured sound and round-2/round-3 evidence.",
   "editLog": [],
   "report": "/casefile/tool-axe-plank-wall/notes.md",
   "verification": {
     "evidence": "/casefile/tool-axe-plank-wall/evidence/presentation.png",
-    "reason": "54 valid real-client captures: baseline + rounds 1 and 2, all 18 tool skills; zero skipped ticks. Round 1 bridge rejected for floor occlusion; round 2 moves dust above the deck. Sound not listened; manager runs integration tests and Konsist."
+    "reason": "Round-3 verification in progress; see notes.md for actual execution results. No e2e or check run by this track."
   }
 }

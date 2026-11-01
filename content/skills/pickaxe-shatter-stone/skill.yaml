@@ -13,14 +13,10 @@ meta:
 params:
   radius: {type: number, default: 2}
   ahead: {type: number, default: 6.0}
-  stone_pitch: {type: number, default: 0.8}
-  thud_vol: {type: number, default: 0.7}
-  thud_pitch: {type: number, default: 1.2}
-  thud: {type: bool, default: false}
-  amethyst: {type: bool, default: false}
-  spark: {type: string, default: tool-pick-stone}
   trail_span: {type: number, default: 6}
-  metallic: {type: bool, default: false}
+  chips: {type: number, default: 3}
+  core_color: {type: string, default: "#777777"}
+  core_size: {type: number, default: 0.3}
   bright: {type: bool, default: false}
 frames:
   - id: arm
@@ -64,24 +60,16 @@ machine:
       do:
         - {id: rig, op: rig, frame: tool, for: 12, detach: true}
         - {id: trail, op: particle, particle: dust, along: edge, samples: 5, count: 1, color: "#999999", size: 0.35, extra: 0, at: 3, every: 2, for: "${trail_span}", detach: true}
-        - {id: wind, op: sound, sound: entity.player.attack.sweep, frame: body, at: 2, volume: 0.35, pitch: 0.65}
     cast:
       for: 1
       then: end
       do:
         - {id: break, op: break_area, anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster.eye), aim_point(caster, ${ahead}))"}}, shape: {sphere: {radius: "${radius}"}}, tool: pickaxe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
-        - {id: snd, op: sound, sound: block.stone.break, frame: body, volume: 1.0, pitch: "${stone_pitch}"}
-        - {id: snd_2, op: sound, sound: item.trident.hit_ground, frame: body, volume: "${thud_vol}", pitch: "${thud_pitch}", when: "= ${thud}"}
-        - {id: snd_3, op: sound, sound: block.amethyst_cluster.break, frame: body, volume: 0.8, pitch: 1.0, when: "= ${amethyst}"}
-        - {id: crater, op: particle, particle: block, block: minecraft:deepslate, anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster.eye), aim_point(caster, ${ahead}))"}}, count: 32, offset: [0.14, 0.14, 0.14], extra: 0.18, at: 0}
+        - {id: snd, op: sound, sound: block.stone.break, frame: body, volume: 1.0, pitch: 1.0}
+        - {id: crater, op: particle, particle: block, block: minecraft:deepslate, anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster.eye), aim_point(caster, ${ahead}))"}}, count: 32, offset: [0.2, 0.05, 0.2], extra: 0.22, at: 0}
         - {id: crater_rim, op: particle, particle: block_crumble, block: minecraft:stone, anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster.eye), aim_point(caster, ${ahead}))"}}, times: 24, shift: {forward: "= ${radius} * cos(i * 2 * pi / 24)", left: "= ${radius} * sin(i * 2 * pi / 24)", up: -0.5}, count: 2, extra: 0.06}
         - {id: crater_settle, op: particle, particle: block_crumble, block: minecraft:deepslate, anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster.eye), aim_point(caster, ${ahead}))"}}, times: 24, shift: {forward: "= ${radius} * cos(i * 2 * pi / 24)", left: "= ${radius} * sin(i * 2 * pi / 24)", up: -0.5}, count: 2, extra: 0.03, at: 3, detach: true}
-        - {id: material_accent, op: particle_def, def: "${spark}", anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster.eye), aim_point(caster, ${ahead}))"}}}
-        - {id: metal, op: particle, particle: electric_spark, anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster.eye), aim_point(caster, ${ahead}))"}}, count: 12, offset: [0.14, 0.14, 0.14], extra: 0.12, at: 0, when: "= ${metallic}"}
-        - {id: diamond_flash, op: particle, particle: dust, anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster.eye), aim_point(caster, ${ahead}))"}}, count: 12, offset: [0.14, 0.14, 0.14], extra: 0, at: 0, color: "#64f5ef", size: 0.8, when: "= ${bright}"}
-        - {id: diamond_glint, op: particle, particle: end_rod, anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster.eye), aim_point(caster, ${ahead}))"}}, count: 6, offset: [0.14, 0.14, 0.14], extra: 0.04, at: 2, detach: true, when: "= ${bright}"}
-        - {id: metal_rim, op: particle, particle: electric_spark, anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster.eye), aim_point(caster, ${ahead}))"}}, shift: {forward: "= ${radius} * cos(i * 2 * pi / 16)", left: "= ${radius} * sin(i * 2 * pi / 16)", up: -0.3}, times: 16, count: 1, extra: 0.02, when: "= ${metallic}"}
-        - {id: ring, op: sound, sound: block.anvil.land, frame: body, pos: {v: "= dist(pos(caster.eye), aim_point(caster, ${ahead}))", w: 1.62}, volume: 0.18, pitch: 1.4, when: "= ${metallic}"}
-        - {id: chime, op: sound, sound: block.amethyst_block.chime, frame: body, pos: {v: "= dist(pos(caster.eye), aim_point(caster, ${ahead}))", w: 1.62}, volume: 0.6, pitch: 1.3, when: "= ${bright}"}
-        - {id: settle, op: sound, sound: block.stone.step, frame: body, pos: {v: "= dist(pos(caster.eye), aim_point(caster, ${ahead}))", w: 1.62}, at: 5, detach: true, volume: 0.4, pitch: 0.75}
+        - {id: crater_core, op: particle, particle: electric_spark, anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster.eye), aim_point(caster, ${ahead}))"}}, count: 2, offset: [0.06, 0.03, 0.06], extra: 0.02}
+        - {id: crater_ore, op: particle, particle: dust, anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster.eye), aim_point(caster, ${ahead}))"}}, count: "${chips}", color: "${core_color}", size: "${core_size}", extra: 0}
+        - {id: crater_cyan, op: particle, particle: dust, anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster.eye), aim_point(caster, ${ahead}))"}}, count: 4, color: "#64f5ef", size: "${core_size}", extra: 0, when: "= ${bright}"}
     end: {final: true}
