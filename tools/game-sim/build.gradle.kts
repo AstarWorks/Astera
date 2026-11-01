@@ -115,3 +115,14 @@ tasks.register<JavaExec>("play") {
     systemProperty("astera.sim.contentDir", rootProject.file("content").absolutePath)
     systemProperty("astera.sim.traceDir", layout.buildDirectory.dir("play").get().asFile.absolutePath)
 }
+
+// Star-flow probe: `./gradlew -q :tools:game-sim:starFlow -Pseeds=101,102 -Psize=6` (per phase x source: budget, minted, picked up per team, despawned, left on the ground).
+tasks.register<JavaExec>("starFlow") {
+    group = "verification"
+    description = "Per phase and star source: budget tokens, minted, picked up per team, despawned, still on the ground."
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.astarworks.astera.gamesim.playable.metrics.StarFlowMainKt")
+    workingDir = rootDir
+    jvmArgs("-Djava.awt.headless=true", "-Xmx${providers.gradleProperty("xmx").getOrElse("3g")}", "-Dastera.sim.contentDir=${rootProject.file("content").absolutePath}")
+    args(providers.gradleProperty("seeds").getOrElse("101"), providers.gradleProperty("size").getOrElse("6"), providers.gradleProperty("maxTicks").getOrElse("24000"))
+}

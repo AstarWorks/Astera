@@ -126,6 +126,7 @@ class PillarTeamMetricsScenarioTest {
             assertThat(teams["yellow"]!!.jsonObject.num("pillar_damage_taken")).isEqualTo(onYellow1 + onYellow2, tol)
             assertThat(teams["blue"]!!.jsonObject.num("pillar_damage_taken")).isEqualTo(0.0, tol)
             assertThat(json.num("pillar_damage_unattributed")).isEqualTo(0.0, tol)
+            for ((team, v) in teams) assertThat(v.jsonObject.num("pillar_damage_taken_by_players")).`as`("taken_by_players of $team (no bleed)").isEqualTo(v.jsonObject.num("pillar_damage_taken"), tol)
 
             val redLeft = teams["red"]!!.jsonObject["pillar_hp_left"]!!.jsonObject
             assertThat(startHp - onRed).isEqualTo(redLeftAtHit, tol)
@@ -135,6 +136,30 @@ class PillarTeamMetricsScenarioTest {
             assertThat(blueLeft.num("sum")).isGreaterThan(redLeft.num("sum"))
             // The sum is the per-tier breakdown.
             assertThat(redLeft["by_tier"]!!.jsonObject.values.sumOf { it.jsonPrimitive.content.toDouble() }).isEqualTo(redLeft.num("sum"), tol)
+        }
+    }
+
+    @Test
+    fun `end_play_hp and end_bleed_taken follow the real PillarHpDecision and are null when the clock did not decide`() {
+        scenario("pillar-team-metrics-end-play-hp", base.copy(bleedIntervalTicks = 20)) {
+            val red = player("red-1", team = "red")
+            val blue = player("blue-1", team = "blue")
+            val yellow = player("yellow-1", team = "yellow")
+            startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow to "yellow"), stage = "annihilation-arena")
+            val metrics = MatchMetrics(sim)
+            runUntilEnded(metrics, 3_000)
+            val reason = eventsOf<MatchEnded>().single().reason
+            val json = metrics.finish().json
+            if (reason is EndReason.PillarHpDecision && reason.playHp.isNotEmpty()) {
+                for ((field, expected) in listOf("end_play_hp" to reason.playHp, "end_bleed_taken" to reason.bleedTaken)) {
+                    val o = json[field]!!.jsonObject
+                    assertThat(o.keys).`as`(field).isEqualTo(expected.keys.map { it.value }.toSet())
+                    for ((team, v) in expected) assertThat(o.getValue(team.value).jsonPrimitive.content.toInt()).`as`("$field $team").isEqualTo(v)
+                }
+            } else {
+                assertThat(json["end_play_hp"]).isEqualTo(kotlinx.serialization.json.JsonNull)
+                assertThat(json["end_bleed_taken"]).isEqualTo(kotlinx.serialization.json.JsonNull)
+            }
         }
     }
 
@@ -173,6 +198,11 @@ class PillarTeamMetricsScenarioTest {
             assertThat(json.num("pillar_damage_bleed")).isEqualTo(unattributed, within(1e-6))
             assertThat(json.num("pillar_damage_unknown")).isEqualTo(0.0, within(1e-6))
             assertThat(json.num("bleed_applications")).isGreaterThan(0.0)
+            for ((team, v) in teams) {
+                val o = v.jsonObject
+                assertThat(o.num("pillar_damage_taken_by_players")).`as`("taken_by_players of $team").isEqualTo(o.num("pillar_damage_taken") - o.num("pillar_damage_bleed"), within(1e-6))
+                assertThat(o.num("pillar_damage_taken_by_players")).isEqualTo(0.0, within(1e-6))
+            }
 
             // Batch aggregate over two identical runs: sums double, shares stay, draws are separate from wins.
             val result = metrics.finish()
