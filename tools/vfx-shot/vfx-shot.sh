@@ -1330,6 +1330,9 @@ run_view() { # view
       place_scene "$view" "$(target_z)"
       rcon "kill @e[type=minecraft:item]" >/dev/null
       sleep 2
+      # the warm-up's client-side fx (a sleet's snow, an arc's sparks) outlive the fixed waits and become the pre-cast "noise" that
+      # framestamp.py triples into its fx threshold, hiding the filmed cast's own burst: wait until the picture is still
+      log "screen: $(DISPLAY=":${DISP[$VIEWER]}" python3 -I "$HERE/screen_quiet.py" ":${DISP[$VIEWER]}" "$RES_FILM" "${SHOT_QUIET_MAX:-25}" 2>&1 | tail -1)"
     fi
     phase "filming $view (tick rate $SLOW_RATE)"
     film "$VIEWER" "$out"
