@@ -116,6 +116,7 @@ class PillarTeamMetricsScenarioTest {
             assertThat(teams["yellow"]!!.jsonObject.num("pillar_damage_taken")).isEqualTo(onYellow1 + onYellow2, tol)
             assertThat(teams["blue"]!!.jsonObject.num("pillar_damage_taken")).isEqualTo(0.0, tol)
             assertThat(json.num("pillar_damage_unattributed")).isEqualTo(0.0, tol)
+            for ((team, v) in teams) assertThat(v.jsonObject.num("pillar_damage_taken_by_players")).`as`("taken_by_players of $team (no bleed)").isEqualTo(v.jsonObject.num("pillar_damage_taken"), tol)
 
             val redLeft = teams["red"]!!.jsonObject["pillar_hp_left"]!!.jsonObject
             assertThat(startHp - onRed).isEqualTo(redLeftAtHit, tol)
@@ -163,6 +164,11 @@ class PillarTeamMetricsScenarioTest {
             assertThat(json.num("pillar_damage_bleed")).isEqualTo(unattributed, within(1e-6))
             assertThat(json.num("pillar_damage_unknown")).isEqualTo(0.0, within(1e-6))
             assertThat(json.num("bleed_applications")).isGreaterThan(0.0)
+            for ((team, v) in teams) {
+                val o = v.jsonObject
+                assertThat(o.num("pillar_damage_taken_by_players")).`as`("taken_by_players of $team").isEqualTo(o.num("pillar_damage_taken") - o.num("pillar_damage_bleed"), within(1e-6))
+                assertThat(o.num("pillar_damage_taken_by_players")).isEqualTo(0.0, within(1e-6))
+            }
 
             // Batch aggregate over two identical runs: sums double, shares stay, draws are separate from wins.
             val result = metrics.finish()

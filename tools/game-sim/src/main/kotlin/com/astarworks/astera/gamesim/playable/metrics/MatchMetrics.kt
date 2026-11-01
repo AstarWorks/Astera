@@ -626,6 +626,7 @@ class MatchMetrics(
                     put("pillar_damage_taken_unattributed", pillarTakenUnattributedByTeam[t] ?: 0.0)
                     put("pillar_damage_self_inflicted", pillarSelfInflictedByTeam[t] ?: 0.0)
                     put("pillar_damage_bleed", pillarBleedByTeam[t] ?: 0.0)
+                    put("pillar_damage_taken_by_players", (pillarTakenByTeam[t] ?: 0.0) - (pillarBleedByTeam[t] ?: 0.0))
                     put("pillar_damage_unknown", pillarUnknownByTeam[t] ?: 0.0)
                     put("first_tier_loss_min", firstTierLossTickByTeam[t]?.let { (it - (start ?: it)) / 1200.0 })
                     put("pillar_hp_left", buildJsonObject {
