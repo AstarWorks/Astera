@@ -8,7 +8,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Row
  * of its spec. Adding or defaulting a look field, a cell or a flag on an op must not re-roll anything, so no part of the action (its
  * `toString()`, look fields, resolved cells) feeds the seed.
  *
- * Identity = skill id, the instance path (op ids with their copy indices: the id of the row that is an each-victim or `times` instance),
+ * Identity = base skill id (a skin `id@variant` seeds as its base: a skin must not change gameplay), the instance path (op ids with their copy indices: the id of the row that is an each-victim or `times` instance),
  * the tick, the action kind, sample `k/n` and the chain hop. The label of one `rand()` call is added by the evaluator (the k-th `rand()`
  * of a field is the stream `@k`). Rows that still collide (the same op at the same tick, e.g. a doubled emitter) get a counter in
  * document order of the list they sit in, so each still has its own stream.
@@ -28,6 +28,6 @@ public object RowSeeds {
 
     /** The row's identity text; two rows with equal text are duplicates told apart by their document order. */
     public fun identity(row: Row, skillId: String): String =
-        "$skillId|${row.instance.text}|${row.tick}|${row.action::class.simpleName}|" +
+        "${skillId.substringBefore('@')}|${row.instance.text}|${row.tick}|${row.action::class.simpleName}|" +
             (row.sample?.let { "${it.k}/${it.n}" } ?: "") + "|" + (row.chain?.toString() ?: "")
 }
