@@ -565,6 +565,12 @@ public class GameSim private constructor(
             services.register<com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer>(
                 com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer(seed),
             )
+            // plugin/match draws spawn picks and anomaly rolls from per-service streams of the sim seed (name-keyed, so a new service never shifts the others).
+            services.register<com.astarworks.astera.match.application.port.outbound.IMatchRandomSource>(
+                com.astarworks.astera.match.application.port.outbound.IMatchRandomSource { name ->
+                    kotlin.random.Random(seed xor java.util.zip.CRC32().also { it.update(name.toByteArray()) }.value * -0x61c8864680b583ebL)
+                },
+            )
             if (botGateway != null) {
                 services.register<com.astarworks.astera.core.application.port.outbound.bots.IBotRequestGateway>(botGateway, priority = 100)
             }
