@@ -33,8 +33,8 @@ dependencies {
     implementation(libs.slf4j.api)
     runtimeOnly(libs.logback.classic)
 
-    // The bot brain's pure weapon choice (WeaponPolicy) is driven against real wiring by BotTwoWeaponsScenarioTest.
-    testImplementation(project(":tools:bot-runner"))
+    // The real BotBrain runs headless against the sim through SimBotHost (ADR-0316); scenarios also drive its pure policies.
+    api(project(":tools:bot-runner"))
     testImplementation(libs.kotlinx.collections.immutable) // GuiSpec.slots is a PersistentMap
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
