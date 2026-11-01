@@ -72,6 +72,9 @@
                 },
                 "scatter_seconds": {
                     "type": "number"
+                },
+                "opens_at_phase": {
+                    "type": "integer"
                 }
             },
             "required": [
