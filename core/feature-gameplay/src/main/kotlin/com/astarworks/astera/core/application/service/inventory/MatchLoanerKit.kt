@@ -6,6 +6,7 @@ import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
 import com.astarworks.astera.core.application.port.outbound.item.IOwnedItemQuery
+import com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.item.WeaponCategory
@@ -29,7 +30,11 @@ public class MatchLoanerKit(
     private val players: IPlayerGateway,
     private val messages: IMessageRenderer,
     private val kitItems: () -> List<ItemId>,
-    private val toolItems: () -> List<ItemId> = { emptyList() },
+    /** The field tools lent at a Norma level (ADR-0319): the highest tier of `match_tool_tiers` at or below it. */
+    private val toolsAt: (Int) -> List<ItemId> = { emptyList() },
+    /** The player's in-match Norma level; `null` (outside a Norma match, Match absent) lends the level-1 tier. */
+    private val levelOf: (PlayerId) -> Int? = { null },
+    private val removal: () -> IOwnedItemRemoval? = { null },
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -51,7 +56,7 @@ public class MatchLoanerKit(
     /** Field tools go to every participant (they are not weapons), skipping ones already carried. */
     private fun lendTools(playerId: PlayerId, query: IOwnedItemQuery): Boolean {
         val carried = query.itemIds(playerId).toSet()
-        val specs = toolItems().filter { it !in carried }.mapNotNull { items.find(it) }
+        val specs = toolsAt(levelOf(playerId) ?: 1).filter { it !in carried }.mapNotNull { items.find(it) }
         if (specs.isEmpty()) return false
         val itemDelivery = delivery() ?: return false
         val player = server.findPlayer(playerId) ?: return false
@@ -60,7 +65,36 @@ public class MatchLoanerKit(
         return true
     }
 
+    /**
+     * Norma [level] was just reached: when it opens a new tool tier, each tool of the previous tier is swapped for its
+     * successor in the same slot (a missing one is simply given) and any leftover copy of the old tool is removed.
+     * @return the new tier, or `null` when the level changes nothing (or the player is offline).
+     */
+    public fun upgradeTools(playerId: PlayerId, level: Int): ToolTierChange? {
+        val now = toolsAt(level)
+        val before = toolsAt(level - 1)
+        if (now.isEmpty() || now == before) return null
+        val itemDelivery = delivery() ?: return null
+        val player = server.findPlayer(playerId) ?: return null
+        val carried = owned()?.itemIds(playerId).orEmpty().toSet()
+        before.zip(now).forEach { (old, new) ->
+            if (new !in carried) {
+                val spec = items.find(new) ?: return@forEach
+                if (old in carried) itemDelivery.replace(player, old, spec) else itemDelivery.give(player, spec, 1)
+            }
+            val take = removal() ?: return@forEach
+            var guard = MAX_STALE_COPIES
+            while (guard-- > 0 && take.removeOne(playerId, old)) Unit
+        }
+        log.info("Upgraded field tools {} -> {} for {} at Norma Lv{}", before.map { it.value }, now.map { it.value }, playerId, level)
+        return ToolTierChange(level, now)
+    }
+
+    /** The tool tier a Norma level-up opened: [tools] are the items now carried (same class order as before). */
+    public data class ToolTierChange(val level: Int, val tools: List<ItemId>)
+
     private companion object {
+        const val MAX_STALE_COPIES = 8
         val LOANED = MessageKey("astera.match.loaner-kit")
     }
 }

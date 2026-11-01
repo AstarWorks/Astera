@@ -305,6 +305,7 @@ internal object MatchGameplayWiring {
         val deathConfigLogged = ConcurrentHashMap.newKeySet<String>()
         val matchStars = MatchStarWiring.install(env)
         env.stars = matchStars
+        MatchToolTierWiring.install(env, matchStars.norma)
         commands.register(MatchCommandSpecs.buildNormaCommandSpec(matchStars.norma))
         val deathRespawn = DeathRespawnCoordinator(
             pending = carry.slot("death-respawn-pending") { java.util.concurrent.ConcurrentHashMap<com.astarworks.astera.core.domain.player.PlayerId, DeathRespawnCoordinator.Pending>() },

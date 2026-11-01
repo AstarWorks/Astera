@@ -146,6 +146,15 @@ public class SimMcPlayer(private var entity: SimEntity) : IMcPlayer {
         if (entity.heldItem == null) entity.heldItem = item
     }
 
+    /** Swaps the first [from] for [to] in the same position (and in hand); `false` when [from] is not carried. */
+    public fun replaceItem(from: ItemId, to: ItemId): Boolean {
+        val index = givenItems.indexOf(from.value)
+        if (index < 0) return false
+        givenItems[index] = to.value
+        if (entity.heldItem == from) entity.heldItem = to
+        return true
+    }
+
     override fun heldItemMaterialKey(): String? = entity.heldItem?.value
 
     override fun postActionBar(messageKey: MessageKey, placeholders: Map<String, String>) {
