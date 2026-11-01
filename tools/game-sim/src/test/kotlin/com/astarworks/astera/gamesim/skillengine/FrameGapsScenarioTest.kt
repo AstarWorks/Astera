@@ -365,6 +365,83 @@ class FrameGapsScenarioTest : SkillEngineScenario() {
     }
 
     @Test
+    fun hitStopOnTheCasterStandsStillEveryFrameClock() {
+        val skill = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: stop-frames
+            frames:
+              - {id: blade, origin: caster, v: forward, w: up, s: v x w, move: [{at: 0, for: 10, to: {v: 5.0}}]}
+            machine:
+              start: s
+              states:
+                s:
+                  for: 12
+                  then: end
+                  do:
+                    - {id: track, op: particle, particle: flame, frame: blade, pos: {}, count: 1, at: 0, every: 1, for: 12}
+                    - id: sel
+                      op: hit
+                      at: 3
+                      anchor: caster
+                      shape: {sphere: 8.0}
+                      targets: enemies
+                      ignore_invulnerability: true
+                      on:
+                        hit:
+                          - {id: stop, op: freeze, ticks: 4, scope: [caster]}
+                end: {final: true}
+            """,
+        )
+        val rec = GatewayRecorder()
+        rec.victimMotion = { _ -> listOf(candidate(victimA, 0.0, 3.0)) }
+        play(skill, 1L, emptyList(), 13, rec)
+        val z = rec.emittedAt.filter { it.second == "flame" }.associate { it.first to it.third.z }
+        assertThat(z[3]!!).describedAs("the blade moves before the stop").isGreaterThan(z[2]!!)
+        for (t in 4..7) assertThat(z[t]!!).describedAs("t$t: the blade stands still for the 4 hit-stop ticks").isCloseTo(z[3]!!, org.assertj.core.data.Offset.offset(1e-9))
+        assertThat(z[8]!!).describedAs("the blade runs on after the stop").isGreaterThan(z[7]!!)
+        assertThat(z[8]!! - z[7]!!).describedAs("at the same rate as before").isCloseTo(z[3]!! - z[2]!!, org.assertj.core.data.Offset.offset(1e-9))
+    }
+
+    @Test
+    fun aDisplayRowReachesASnapshotFrameByFrameAndPos() {
+        val skill = compiled(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: display-on-snapshot
+            frames:
+              - {id: live, origin: caster, v: forward, w: up, s: v x w}
+              - {id: held, origin: caster, v: forward, w: up, s: v x w, snapshot: 2}
+            machine:
+              start: s
+              states:
+                s:
+                  for: 8
+                  then: end
+                  do:
+                    - {id: ref, op: particle, particle: crit, frame: held, pos: {v: 3.0}, count: 1, at: 5}
+                    - {id: dh, op: display, kind: text, text: held, frame: held, pos: {v: 3.0}, at: 5, for: 2}
+                    - {id: dl, op: display, kind: text, text: live, frame: live, pos: {v: 3.0}, at: 5, for: 2}
+                end: {final: true}
+            """,
+        )
+        val rec = GatewayRecorder()
+        rec.faithfulPose = true
+        play(skill, 1L, emptyList(), 9, rec, beforeTick = { t -> if (t >= 3) rec.casterYawDeg = 90.0 })
+        val at = rec.calls.filter { it.verb == "spawn" && it.payload == "kind=text" }.map { c ->
+            val (x, _, z) = Regex("pos=(-?[0-9.]+),(-?[0-9.]+),(-?[0-9.]+)").find(c.detail)!!.destructured.toList().map { it.toDouble() }
+            Pair(x, z)
+        }
+        val ref = rec.emittedAt.first { it.second == "crit" }.third
+        assertThat(at).hasSize(2)
+        assertThat(at[0].first).describedAs("the display on the snapshot sits where the snapshot froze").isCloseTo(ref.x, org.assertj.core.data.Offset.offset(1e-4))
+        assertThat(at[0].second).isCloseTo(ref.z, org.assertj.core.data.Offset.offset(1e-4))
+        assertThat(Math.hypot(at[1].first - ref.x, at[1].second - ref.z)).describedAs("the live frame's display followed the turned caster").isGreaterThan(1.0)
+    }
+
+    @Test
     fun aMisspeltBodyAxisIsALoudLoadErrorNamingIt() {
         val e = failure(
             """

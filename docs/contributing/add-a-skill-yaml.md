@@ -301,6 +301,9 @@ part を足す時は、呼び出し側の op id (`hit_fx` など) と part 内�
   式の typo は row の path (`pos.v`) 付きの load error。`to:` / `samples:` / `dir:` と ribbon の点は数のみ。
 - **`body.forward` / `body.up` / `body.left` (`back` `down` `right`)**: frame の軸 (`v:` `w:` `s:`) に書ける胴体向き。skin が描く driven puppet の胴 (root x body) の同 tick の姿勢から読むので、
   胴を回す body clip に腕 frame が追従する (手で yaw を打ち消す key は要らない)。body clip が無い間は caster の向きと同じ。
+- **op 呼び出しで skill 自身の frame を束縛**: `{id: burst, use: skill:frost-shard-burst, with: {...}, frames: {spot: hit}}` のように、右辺が呼び出し側 skill の `frames:` (event frame `hit` など) なら state 側 `use:` と同じ解決で callee の frame 名に束縛される。
+- **hit stop は frame clock を止める**: `op: freeze` の scope に `caster` を含めると、その ticks の間すべての frame の move/rotate/scale key と frame に乗る `op: rig` clip が止まり、明けると続きから進む (op 毎の flag は無い。frame clock の一つの規則)。非 frame の `op: rig` は従来どおり `freezes:`。
+- **snapshot frame への display**: `display` / `particle` / `sound` など全 op は `frame: <id>` + `pos:` で snapshot frame を参照できる。`anchor: <frame id>` は増やさない。
 - `motion` の値に CEL 文字列を書いても、family の per-index list とは見なされない (`"= ..."` は一つの数値式)。
 
 ### 被弾側 (victim side): `react` と `hit.attach`

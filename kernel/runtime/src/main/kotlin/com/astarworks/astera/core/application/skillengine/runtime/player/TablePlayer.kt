@@ -1948,6 +1948,12 @@ public class TablePlayer(
                         else if (ticks > 0) run.frozenUntil[target] = now + ticks
                     }
                 }
+                // hit stop on the caster stops every frame clock for those ticks (clockOf): ticks now+1 .. now+ticks stand still
+                if (ticks > 0 && caster in entities) {
+                    // windows are added in tick order; one that touches the last extends it, so a tick is never counted twice
+                    val last = run.casterStops.lastOrNull()
+                    if (last != null && now + 1 <= last[1] + 1) last[1] = maxOf(last[1], now + ticks) else run.casterStops += intArrayOf(now + 1, now + ticks)
+                }
                 if (ticks > 0 && entities.isNotEmpty()) gameplay.freezeEntities(entities.toList(), ticks)
             }
             "camera_shake" -> {
@@ -2231,7 +2237,7 @@ public class TablePlayer(
                 pushes += BodyPush(fr.start, fr.caster, {
                     // no clip (ADR-0315): the rest body, the pinned hand is all that moves
                     val frame = if (anim == null || clip == null) RigFrame.REST
-                    else run.armTracks.getOrPut(anim to false) { RigBodyTrack(clip, gameplay.isSlimSkin(fr.caster)) }.frameAt(now - fr.start)
+                    else run.armTracks.getOrPut(anim to false) { RigBodyTrack(clip, gameplay.isSlimSkin(fr.caster)) }.frameAt(clockOf(run, fr.start, now))
                     if (fr.off || !pinHand) frame else frame.copy(rightHandTarget = pinnedHandTarget(run, fr))
                 }, true)
             }
@@ -2312,6 +2318,20 @@ public class TablePlayer(
         for ((key, inst) in run.frames.entries.toList()) if (inst.evaluatedTick != now) evaluateFrame(run, key, inst, now)
     }
 
+    /**
+     * The clock of anything that runs on a frame (its move / rotate / scale keys, a clip riding it): ticks since [start], minus the ticks the
+     * caster stood in hit stop since then. The one place hit stop pauses frames; no op carries a flag for it.
+     */
+    private fun clockOf(run: Run, start: Int, now: Int): Int {
+        var stalled = 0
+        for (w in run.casterStops) {
+            val lo = maxOf(w[0], start + 1)
+            val hi = minOf(w[1], now)
+            if (hi >= lo) stalled += hi - lo + 1
+        }
+        return now - start - stalled
+    }
+
     private fun evaluateFrame(run: Run, key: String, inst: FrameInst, now: Int) {
         val decl = inst.decl
         val scope = RowScope.cast(run.request.seed)
@@ -2339,7 +2359,7 @@ public class TablePlayer(
             return
         }
         val snapshotAt = decl.snapshotAt
-        val held = if (snapshotAt != null && now - inst.start >= snapshotAt) inst.frozen else null
+        val held = if (snapshotAt != null && clockOf(run, inst.start, now) >= snapshotAt) inst.frozen else null
         val origin = held?.origin ?: try {
             if (parentOrigin != null) parentState!!.world(parentOrigin.pos) else frameOrigin(run, decl, binding, scope, now)
         } catch (e: IllegalArgumentException) {
@@ -2383,12 +2403,12 @@ public class TablePlayer(
             }
         }
         // snapshot: the first evaluation at or after the snapshot tick reads the live inputs and keeps them; later ticks replay the held ones
-        if (snapshotAt != null && held == null && now - inst.start >= snapshotAt) {
+        if (snapshotAt != null && held == null && clockOf(run, inst.start, now) >= snapshotAt) {
             inst.frozen = Frozen(origin, AxisSpec.NAMED.mapNotNull { n -> liveDirection(n)?.let { n to it } }.toMap())
         }
         val frozen = if (snapshotAt != null) inst.frozen else null
         val inputs = if (frozen != null) FrameInputs(frozen.origin) { frozen.directions[it] } else FrameInputs(origin, liveDirection)
-        when (val out = FrameEvaluator.evaluate(decl, now - inst.start, inputs)) {
+        when (val out = FrameEvaluator.evaluate(decl, clockOf(run, inst.start, now), inputs)) {
             is FrameEvaluator.Outcome.Ok -> inst.state = out.state
             is FrameEvaluator.Outcome.Degenerate -> {
                 inst.state = null
@@ -2433,7 +2453,7 @@ public class TablePlayer(
         // (start, clip or null for a clip-less frame rig's rest body, body-clock tick)
         val newest = run.recs.values.mapNotNull { rec ->
             rec.rig?.let { r -> r.anim?.let { Triple<Int, String?, Double>(r.start, it, r.bodyClock.clock(now - r.start)) } }
-                ?: rec.frameRig?.let { r -> Triple(r.start, r.anim, (now - r.start).toDouble()) }
+                ?: rec.frameRig?.let { r -> Triple(r.start, r.anim, clockOf(run, r.start, now).toDouble()) }
         }.maxByOrNull { it.first }
         val pinned = run.recs.values.mapNotNull { it.frameRig }.filter { it.off == left }.maxByOrNull { it.start }
         if (!joint && pinned != null && newest != null && pinned.start >= newest.first) {
@@ -3349,6 +3369,9 @@ public class TablePlayer(
 
         /** `freeze` on a frame instance: the tick it lifts (exclusive), per instance. */
         val frozenUntil = HashMap<InstanceId, Int>()
+
+        /** The tick windows (first, last; inclusive) the caster stood in hit stop (`freeze` with the caster in scope): frame clocks do not run in them. */
+        val casterStops = ArrayList<IntArray>()
 
         /** Ops (identity without the occurrence index) that have found a victim at least once / already raised `miss`. */
         val hitEver = HashSet<InstanceId>()
