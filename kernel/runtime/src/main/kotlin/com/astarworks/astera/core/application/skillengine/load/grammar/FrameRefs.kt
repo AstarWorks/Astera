@@ -34,13 +34,24 @@ public data class FrameRef(val frame: String, val at: Coeff, val to: Coeff? = nu
     /** A point `u` of the way from `pos` on [frame] to `to` on [toFrame]: `frame:<a>#c|<b>#c@u`, the lerp of the two frames' world points. */
     private fun crossCell(u: Double): String = "${FrameRefs.PREFIX}$frame#${at.v},${at.w},${at.s}|$toFrame#${to!!.v},${to.w},${to.s}@$u"
 
-    private fun cellOf(c: Coeff): String = "${FrameRefs.PREFIX}$frame${if (direction) '^' else '#'}${c.v},${c.w},${c.s}"
+    private fun cellOf(c: Coeff): String {
+        val ex = c.exprs ?: return "${FrameRefs.PREFIX}$frame${if (direction) '^' else '#'}${c.v},${c.w},${c.s}"
+        // an expression cell: `frame:<id>#=<v>;<w>;<s>`, each part a CEL source or a number (CEL has no `;`)
+        return "${FrameRefs.PREFIX}$frame#=" + listOf(c.v, c.w, c.s).mapIndexed { i, n -> ex[i] ?: n.toString() }.joinToString(";")
+    }
+
+    /** This reference with every coefficient expression baked for the lowered occurrence (`i`, `n`, the `rand` stream). */
+    internal fun baked(lc: com.astarworks.astera.core.application.skillengine.compose.LowerContext): FrameRef {
+        val ex = at.exprs ?: return this
+        val b = ex.map { it?.let { src -> com.astarworks.astera.core.application.skillengine.load.ops.OccurrenceBake.bake(src, lc.occurrence) } }
+        return copy(at = at.copy(exprs = b))
+    }
 }
 
 public object FrameRefs {
     public const val PREFIX: String = "frame:"
 
-    private val coeffField = Field.optional("pos", Types.nullable(coeffType()), null, "coefficients {v, w, s} of the frame's axes (with frame:); absent = the origin")
+    private val coeffField = Field.optional("pos", Types.nullable(coeffType(allowExpr = true)), null, "coefficients {v, w, s} of the frame's axes (with frame:); absent = the origin")
 
     /** `frame: <id>` field: absent = the op uses `anchor:` instead. */
     public val FRAME: Field<String?> = Field.optional("frame", Types.nullable(Types.id), null, "a frame declared under frames: (ADR-0314); the op is placed by pos: {v, w, s} from its origin")
@@ -102,13 +113,26 @@ public object FrameRefs {
     /** `{v, w, s}` coefficients of a frame's axes. */
     public val COEFF: FieldType<Coeff> get() = coeffType()
 
-    private fun coeffType(): FieldType<Coeff> = object : FieldType<Coeff> {
-        override val label = "{v, w, s}"
+    private fun coeffType(allowExpr: Boolean = false): FieldType<Coeff> = object : FieldType<Coeff> {
+        override val label = if (allowExpr) "{v, w, s} (a number or an '= expr' each)" else "{v, w, s}"
         override fun decode(raw: Any?, ctx: GrammarContext, path: String): Coeff {
             val m = raw as? Map<*, *> ?: ctx.mismatch(path, label, raw)
             for (k in m.keys) if (k !in setOf("v", "w", "s")) ctx.abort(SkillDecodeError.UnknownKey(ctx.file, path, k.toString(), "expected v, w, s"))
-            fun c(k: String): Double = m[k]?.let { (it as? Number)?.toDouble() ?: ctx.mismatch("$path.$k", "number (literal coefficient)", it) } ?: 0.0
-            return Coeff(c("v"), c("w"), c("s"))
+            val exprs = arrayOfNulls<String>(3)
+            fun c(k: String, slot: Int): Double {
+                val v = m[k] ?: return 0.0
+                if (v is Number) return v.toDouble()
+                if (allowExpr && v is String && v.startsWith("= ")) {
+                    // compiled once here: a bad expression is a load error naming this path
+                    val e = Types.number.decode(v, ctx, "$path.$k") as? com.astarworks.astera.core.domain.skillengine.model.Value.Expr
+                        ?: ctx.mismatch("$path.$k", "number or '= expr'", v)
+                    exprs[slot] = e.source
+                    return 0.0
+                }
+                ctx.mismatch("$path.$k", if (allowExpr) "number or '= expr' (a CEL expression)" else "number (literal coefficient)", v)
+            }
+            val cv = c("v", 0); val cw = c("w", 1); val cs = c("s", 2)
+            return Coeff(cv, cw, cs, if (exprs.any { it != null }) exprs.toList() else null)
         }
         override fun schema(): Map<String, Any?> = linkedMapOf(
             "type" to "object",
@@ -121,9 +145,10 @@ public object FrameRefs {
      * Reads the pair from decoded [values]: null when no `frame:`; a named load error when `pos:` is given without `frame:` or when
      * [anchorGiven] (the op also wrote an anchor) - an op is placed by exactly one of the two.
      */
-    public fun read(values: FieldValues, ctx: GrammarContext, path: String, anchorGiven: Boolean): FrameRef? {
+    public fun read(values: FieldValues, ctx: GrammarContext, path: String, anchorGiven: Boolean, allowExpr: Boolean = false): FrameRef? {
         val frame = values[FRAME]
         val pos = values[POS]
+        if (pos?.exprs != null && !allowExpr) ctx.fail("$path.pos", "an '= expr' coefficient is read by particle, particle_def and sound only; this op takes numeric v, w, s")
         if (frame == null) {
             if (pos != null) ctx.fail("$path.pos", "pos: {v, w, s} needs frame: <id>")
             return null
@@ -136,7 +161,7 @@ public object FrameRefs {
      * [read] plus the `to:` + `samples:` segment (a draw op that emits along a line of frame points), or `along: <line>` + `samples:`
      * (the same segment named once under `lines:`).
      */
-    public fun readSegment(values: FieldValues, ctx: GrammarContext, path: String, anchorGiven: Boolean): FrameRef? {
+    public fun readSegment(values: FieldValues, ctx: GrammarContext, path: String, anchorGiven: Boolean, allowExpr: Boolean = false): FrameRef? {
         val along = values[ALONG]
         val to = values[TO]
         val samples = values[SAMPLES]
@@ -148,7 +173,8 @@ public object FrameRefs {
             if (n < 2) ctx.fail("$path.samples", "samples: is at least 2 (both ends of the line are drawn)")
             return FrameRef(line.from.frame, line.from.pos, line.to.pos, n, toFrame = line.to.frame)
         }
-        val base = read(values, ctx, path, anchorGiven)
+        val base = read(values, ctx, path, anchorGiven, allowExpr)
+        if (base?.at?.exprs != null && (to != null || samples != null)) ctx.fail("$path.pos", "an '= expr' coefficient is a single point: it does not combine with to: / samples:")
         if (base == null) {
             if (to != null) ctx.fail("$path.to", "to: {v, w, s} needs frame: <id>")
             if (samples != null) ctx.fail("$path.samples", "samples: needs frame: <id> and to:")
@@ -167,6 +193,12 @@ public object FrameRefs {
     public fun parse(name: String): FrameRef? {
         if (!name.startsWith(PREFIX)) return null
         val body = name.removePrefix(PREFIX)
+        val exprAt = body.indexOf("#=")
+        if (exprAt >= 0) {
+            val parts = body.substring(exprAt + 2).split(';')
+            val ex = parts.map { it.toDoubleOrNull() }
+            return FrameRef(body.substring(0, exprAt), Coeff(ex[0] ?: 0.0, ex[1] ?: 0.0, ex[2] ?: 0.0, parts.mapIndexed { i, t -> if (ex[i] == null) t else null }))
+        }
         if ('|' in body) {
             val a = body.substringBefore('|')
             val rest = body.substringAfter('|')
