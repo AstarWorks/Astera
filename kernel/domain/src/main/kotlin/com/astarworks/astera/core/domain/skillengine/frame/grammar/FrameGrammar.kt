@@ -36,8 +36,11 @@ public object FrameLocal {
     }
 }
 
-/** Coefficients along `v`, `w`, `s`. */
-public data class Coeff(val v: Double = 0.0, val w: Double = 0.0, val s: Double = 0.0) {
+/**
+ * Coefficients along `v`, `w`, `s`. A component written as a CEL expression (`pos: {v: "= i * 0.2"}`) keeps its source in [exprs]
+ * (index 0/1/2 = v/w/s; null = a numeric component) and its numeric slot is 0; the player evaluates the expression each tick.
+ */
+public data class Coeff(val v: Double = 0.0, val w: Double = 0.0, val s: Double = 0.0, val exprs: List<String?>? = null) {
     public companion object {
         public val ZERO: Coeff = Coeff()
         public val ONE: Coeff = Coeff(1.0, 1.0, 1.0)
@@ -161,6 +164,11 @@ public data class FrameDecl(
     /** `on: event.victim` / `on: event.block`: one instance per victim / block contact of the event in scope (`each: true`), rooted on it. */
     val on: String? = null,
     val each: Boolean = false,
+    /**
+     * `snapshot: cast | <tick>`: the origin and the named directions are read once, at this tick of the frame's life (`cast` = 0), and held in
+     * world space from then on; `move` / `rotate` / `scale` keys still run on the frozen frame. Null = the frame follows its origin every tick.
+     */
+    val snapshotAt: Int? = null,
 ) {
     /** `on: event.victim`: one instance per hit victim, rooted on that victim. */
     val perVictim: Boolean get() = on == ON_VICTIM

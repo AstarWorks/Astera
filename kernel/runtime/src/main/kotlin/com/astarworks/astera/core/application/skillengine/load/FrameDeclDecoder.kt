@@ -26,6 +26,7 @@ import com.astarworks.astera.core.domain.skillengine.frame.grammar.ScaleKey
  *   s: v x w
  *   rotate: [{at: 2, for: 5, about: w, from: 120, to: -30, ease: in_quad}]
  *   move:   [{at: 0, for: 3, to: {v: 0.5}}]
+ *   snapshot: cast                 # optional: origin + directions read once at that tick ("cast" or a whole tick), then held in world space
  * - id: stuck
  *   on: event.victim
  *   each: true
@@ -38,7 +39,7 @@ import com.astarworks.astera.core.domain.skillengine.frame.grammar.ScaleKey
  * Every error names the frame and the field; a coplanar literal basis fails here, a coplanar live basis fails at the tick it happens.
  */
 internal object FrameDeclDecoder {
-    private val KEYS = setOf("id", "origin", "v", "w", "s", "rotate", "move", "scale", "on", "each")
+    private val KEYS = setOf("id", "origin", "v", "w", "s", "rotate", "move", "scale", "on", "each", "snapshot")
     private val CASTER_POINTS = setOf("", "eye", "feet", "body", "center", "hand_r", "hand_l", "shoulder_r", "shoulder_l")
     private val VICTIM_POINTS = setOf("", "eye", "feet", "body", "center")
     private val CROSS = Regex("""^\s*([vws])\s*x\s*([vws])\s*$""")
@@ -89,7 +90,10 @@ internal object FrameDeclDecoder {
             val scale = keys(ctx, "$p.scale", m["scale"], setOf("at", "for", "to", "ease")) { k, kp ->
                 ScaleKey(tick(ctx, k["at"], "$kp.at"), ticks(ctx, k["for"], "$kp.for"), coeff(ctx, k["to"] ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, kp, "to")), "$kp.to", Coeff.ONE), ease(ctx, k["ease"], "$kp.ease"))
             }
-            FrameDecl(id, origin, v, w, s, rotate, move, scale, on, each)
+            val snapshotAt = m["snapshot"]?.let { raw ->
+                if (raw == "cast") 0 else if (raw is Number) tick(ctx, raw, "$p.snapshot") else ctx.mismatch("$p.snapshot", "'cast' or a whole tick", raw)
+            }
+            FrameDecl(id, origin, v, w, s, rotate, move, scale, on, each, snapshotAt = snapshotAt)
         }
     }
 
