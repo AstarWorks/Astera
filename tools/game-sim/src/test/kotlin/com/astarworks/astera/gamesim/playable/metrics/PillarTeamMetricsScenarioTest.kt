@@ -102,7 +102,17 @@ class PillarTeamMetricsScenarioTest {
             val yellowT1LeftAtHit = hp(matchId, "yellow", NexusPillarTier.TIER_1)
             runUntilEnded(metrics, 1_500)
             val ended = eventsOf<MatchEnded>().single()
-            assertThat(ended.reason).isEqualTo(EndReason.PillarHpDecision(com.astarworks.astera.core.domain.match.TeamId("blue")))
+            // 1000 max HP x 3 pillars = 3000 per team. Each hit removes 300 (raw 100 x tool-skill match 3.0 x falloff 1.0 x phase mult 1.0):
+            // red took one (2700), yellow two (2400), blue none (3000). The bleed interval is 100_000 ticks, so no bleed was taken.
+            assertThat(listOf(onRed, onYellow1, onYellow2)).containsExactly(300.0, 300.0, 300.0)
+            val team = { n: String -> com.astarworks.astera.core.domain.match.TeamId(n) }
+            assertThat(ended.reason).isEqualTo(
+                EndReason.PillarHpDecision(
+                    team("blue"), EndReason.PillarHpDecision.Criterion.PILLAR_HP,
+                    playHp = mapOf(team("red") to 2700, team("blue") to 3000, team("yellow") to 2400),
+                    bleedTaken = mapOf(team("red") to 0, team("blue") to 0, team("yellow") to 0),
+                ),
+            )
 
             val json = metrics.finish().json
             assertThat(json["end_reason"]!!.jsonPrimitive.content).isEqualTo("hp_decision")

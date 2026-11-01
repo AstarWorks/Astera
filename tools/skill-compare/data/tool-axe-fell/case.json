@@ -63,6 +63,6 @@
   "report": "/casefile/tool-axe-fell/notes.md",
   "verification": {
     "evidence": "/casefile/tool-axe-fell/evidence/presentation.png",
-    "reason": "Oracle, presentation scenario (including particle eye clearance), compile, content-lint and architecture checks PASS. Final-source visual captures/review pending; see notes.md. No e2e/check/unit tests."
+    "reason": "All three final-content tier captures and round2 comparisons reviewed; see notes.md for per-tier verdicts and unmet goals. Merged-base compileKotlin, e2e compileTestKotlin, content-lint and architecture checks PASS; retained polish3c oracle/presentation scenario PASS. No e2e/check/unit tests."
   }
 }

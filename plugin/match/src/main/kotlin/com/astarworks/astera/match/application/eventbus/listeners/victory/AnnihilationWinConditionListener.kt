@@ -100,7 +100,12 @@ public class AnnihilationWinConditionListener(
             // without a winner.
             val won = outcome as? WinConditionRules.Outcome.Winner
             val by = won?.decidedBy ?: EndReason.PillarHpDecision.Criterion.PILLAR_HP
-            endMatch(event.matchId, EndReason.PillarHpDecision(won?.team, by), "sudden-death outcome=$outcome")
+            val figures = tracker.clockFigures(event.matchId)
+            endMatch(
+                event.matchId,
+                EndReason.PillarHpDecision(won?.team, by, playHp = figures.playHp, bleedTaken = figures.bleedTaken),
+                "sudden-death outcome=$outcome",
+            )
         }
     }
 
