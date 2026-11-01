@@ -4,12 +4,12 @@
 id: annihilation-cache
 match_stage_id: annihilation-arena
 position: { x: 23.5, y: 65.0, z: -137.5 }
-amount: 4
+amount: 5
 tier: iron
 affiliation:
   kind: neutral
 cache:
-  respawn_seconds: 90.0
+  respawn_seconds: 45.0
   open_radius: 2.0
 spots:
   - { x: 23.5, y: 65.0, z: -137.5 }

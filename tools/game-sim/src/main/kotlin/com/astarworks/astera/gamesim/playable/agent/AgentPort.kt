@@ -91,7 +91,7 @@ class AgentPort(
             mode = cmd.str("mode") ?: "annihilation",
             stage = cmd.str("stage"),
             teams = cmd.int("teams") ?: 3,
-            botsPerTeam = cmd.int("bots_per_team") ?: 0,
+            botsPerTeam = cmd.int("bots_per_team") ?: 3,
             me = cmd.str("me") ?: "red",
             seed = cmd.long("seed") ?: GameSim.DEFAULT_SEED,
         )
@@ -159,6 +159,7 @@ class AgentPort(
                 putJsonObject("ore") { v.ore.forEach { (k, n) -> put(k, n) } }
                 putJsonObject("norma") { put("lv", v.normaLevel); put("goal", v.normaGoal); if (v.ready) put("ready", true) }
                 put("tool", v.tool?.let(::JsonPrimitive) ?: JsonNull)
+                if (v.cooldowns.isNotEmpty()) putJsonObject("cooldowns") { v.cooldowns.forEach { (k, n) -> put(k, n) } }
                 if (v.inv.isNotEmpty()) putJsonObject("inv") { v.inv.forEach { (k, n) -> put(k, n) } }
             }
             put("team", buildJsonArray { v.team.forEach { (n, p, h) -> add(entity(n, p, h)) } })

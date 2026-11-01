@@ -174,6 +174,7 @@ public data class GeneratorYamlConfig(
  *   wave_warn_seconds: 10      # announced 10 s ahead (title + sound + action bar)
  *   scatter_radius: 16         # stars land on a disc of this radius around the generator
  *   scatter_seconds: 8         # the stars drop one by one across this long
+ *   opens_at_phase: 3          # (optional, default 1) idle before this Annihilation phase; first wave = warn after it began
  * ```
  */
 @Serializable
@@ -182,17 +183,18 @@ public data class WaveYamlConfig(
     @SerialName("wave_warn_seconds") public val waveWarnSeconds: Double,
     @SerialName("scatter_radius") public val scatterRadius: Double,
     @SerialName("scatter_seconds") public val scatterSeconds: Double,
+    @SerialName("opens_at_phase") public val opensAtPhase: Int = 1,
 ) {
     public fun toDomain(): Result<StarWave, ConfigError> =
-        if (wavePeriodSeconds <= 0.0 || waveWarnSeconds < 0.0 || waveWarnSeconds >= wavePeriodSeconds || scatterRadius <= 0.0 || scatterSeconds <= 0.0) {
+        if (wavePeriodSeconds <= 0.0 || waveWarnSeconds < 0.0 || waveWarnSeconds >= wavePeriodSeconds || scatterRadius <= 0.0 || scatterSeconds <= 0.0 || opensAtPhase !in 1..5) {
             Result.failure(
                 ConfigError.FieldShapeMismatch(
                     field = "wave",
-                    detailMessage = "need wave_period_seconds > 0, 0 <= wave_warn_seconds < period, scatter_radius > 0, scatter_seconds > 0",
+                    detailMessage = "need wave_period_seconds > 0, 0 <= wave_warn_seconds < period, scatter_radius > 0, scatter_seconds > 0, opens_at_phase 1..5",
                 ),
             )
         } else {
-            Result.success(StarWave(wavePeriodSeconds.seconds, waveWarnSeconds.seconds, scatterRadius, scatterSeconds.seconds))
+            Result.success(StarWave(wavePeriodSeconds.seconds, waveWarnSeconds.seconds, scatterRadius, scatterSeconds.seconds, opensAtPhase))
         }
 }
 

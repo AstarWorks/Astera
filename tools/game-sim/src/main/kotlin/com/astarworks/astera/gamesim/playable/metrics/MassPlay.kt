@@ -40,7 +40,7 @@ object MassPlay {
         Files.createDirectories(dir)
         val match = newMatch(seed)
         try {
-            val metrics = MatchMetrics(match.sim)
+            val metrics = MatchMetrics(match.sim, roleOf = { p -> match.brainOf(p)?.currentRole?.name }, decisionKindOf = { p -> match.brainOf(p)?.currentDecisionKind })
             var frames: FrameRenderer? = null
             fun frame(tick: Long) {
                 if (!config.renderFrames) return
@@ -63,7 +63,7 @@ object MassPlay {
             val reason = (result.json["endReason"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: "?"
             return RunResult(run, seed, result, reason)
         } finally {
-            match.sim.shutdown()
+            (match as? AutoCloseable)?.close() ?: match.sim.shutdown()
         }
     }
 

@@ -28,6 +28,8 @@ import kotlin.random.Random
  * `n * wave_period_seconds` of match time; `wave_warn_seconds` before that the whole match gets the warning moment
  * (title, sound, action bar). The wave's size is the generator `amount` (stars per player) times the players alive times the
  * supply ramp at landing time ([StarSupplyClock]), and has to fit the wave cap of the [StarBudget]; it is thrown as separate star items one by one over a disc around the generator.
+ * A wave generator with `opens_at_phase` > 1 idles until that phase begins ([StarGate]); then the first warning goes out at once
+ * and the first wave lands one warn after it, the next ones every period.
  * Driven by [poll] (the same 10-tick task as the drop poll), so timing is at most one poll late.
  */
 public class StarWaveService(
@@ -37,6 +39,7 @@ public class StarWaveService(
     private val drops: StarDropService,
     private val clock: StarSupplyClock,
     private val budget: StarBudget,
+    private val gate: StarGate,
     private val scheduler: IScheduler,
     private val presentation: IPresentation,
     private val eventBus: IDomainEventBus,
@@ -56,8 +59,11 @@ public class StarWaveService(
                 val wave = generator.wave ?: continue
                 val state = states.computeIfAbsent(match.id to generator.id) { State() }
                 val now = clock.elapsedSeconds(match.id)
-                val landAt = state.next * wave.period.inWholeMilliseconds / 1000.0
+                val openAt = gate.openAtSeconds(match.id, generator)
+                if (now < openAt) continue
+                val periodSeconds = wave.period.inWholeMilliseconds / 1000.0
                 val warnSeconds = wave.warn.inWholeMilliseconds / 1000.0
+                val landAt = if (openAt <= 0.0) state.next * periodSeconds else openAt + warnSeconds + (state.next - 1) * periodSeconds
                 if (now >= landAt) {
                     land(match.id, generator)
                     state.next += 1

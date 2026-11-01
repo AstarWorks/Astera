@@ -22,15 +22,13 @@ import java.io.StringReader
 class AgentPortScenarioTest {
 
     private val script = listOf(
-        """{"op":"new","mode":"annihilation","stage":"annihilation-arena","me":"red","seed":7}""",
+        """{"op":"new","mode":"annihilation","stage":"annihilation-arena","me":"red","seed":7,"bots_per_team":1}""",
         """{"op":"look"}""",
         """{"op":"act","do":"goto mid-ore:iron-8","max":2400}""",
         """{"op":"act","do":"dig mid-ore:iron-8","max":600}""",
         """{"op":"act","do":"goto shop:red","max":2400}""",
         """{"op":"act","do":"buy dagger","max":100,"map":"off"}""",
         """{"op":"skip","until":"phase=engage","max":3000,"map":"off"}""",
-        """{"op":"act","do":"goto star","max":1200,"map":"off"}""",
-        """{"op":"act","do":"goto star","max":1200,"map":"off"}""",
         """{"op":"act","do":"goto base:red","max":1200,"map":"off"}""",
         """{"op":"act","do":"norma star","max":300,"map":"off"}""",
         """{"op":"end"}""",
@@ -38,7 +36,7 @@ class AgentPortScenarioTest {
 
     @Test
     fun `a scripted seat goes mine buy skip and star through the real port`() {
-        val port = AgentPort(SoloMatchHost, GameSim.defaultContentDir().toFile(), GameSim.defaultTraceDir())
+        val port = AgentPort(DriverMatchHost, GameSim.defaultContentDir().toFile(), GameSim.defaultTraceDir())
         val out = StringBuilder()
         port.run(BufferedReader(StringReader(script.joinToString("\n"))), out)
         val lines = out.lines().filter { it.isNotBlank() }
@@ -77,10 +75,13 @@ class AgentPortScenarioTest {
         assertThat(obs[6]["stopped"]!!.jsonPrimitive.content).isEqualTo("until:phase=engage")
         assertThat(obs[6]["phase"]!!.jsonPrimitive.content).isEqualTo("engage")
 
-        // stars and norma: lv2 is reached by collecting stars and checking at the base.
-        val last = obs[10]["me"]!!.jsonObject
-        assertThat(obs[8]["me"]!!.jsonObject["stars"]!!.jsonPrimitive.int).isGreaterThan(0)
-        assertThat(last["norma"]!!.jsonObject["lv"]!!.jsonPrimitive.int).isGreaterThanOrEqualTo(2)
+        // stars and norma: with real bots in the other seats no star exists at the start of engage (stars come from the
+        // match's own economy), so the port must say so plainly and the norma check must explain its refusal.
+        assertThat(obs[7]["stopped"]!!.jsonPrimitive.content).isEqualTo("arrived")
+        val last = obs[8]["me"]!!.jsonObject
+        assertThat(obs[8]["stopped"]!!.jsonPrimitive.content).isEqualTo("not_ready")
+        assertThat(obs[8]["result"]!!.jsonPrimitive.content).contains("still lv1")
+        assertThat(last["norma"]!!.jsonObject["lv"]!!.jsonPrimitive.int).isEqualTo(1)
 
         // end: summary, three reflection questions, a trace path.
         val end = obs.last()

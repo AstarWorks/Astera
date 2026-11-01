@@ -82,8 +82,13 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
   `StarActionService`, `StarCacheService`. Each supply is published as `StarSupplied`.
 - **Annihilation arena generators (ADR-0318):** (1) **Mid star wave** (`annihilation-center-wave`): every `wave_period_seconds` (100) a wave lands,
   announced 10 s ahead; size = 7 stars per player x players alive x ramp(t), thrown over a disc of `scatter_radius` around Mid within 8 s.
+  The wave is **phase-gated** (`wave.opens_at_phase: 3`, ADR-0319 phase clock): idle in P1 準備 and P2 交戦, the first warning goes out right after the
+  P3 中央 start and the first wave lands 10 s later, then every 100 s through P4 and P5. A mode without a phase clock (`IMatchPhaseClock.current` = null) is
+  never gated. While it is gated `StarBudget` moves the wave's budget share to the open sources (`StarEconomy.effectiveShare`: every open cap x
+  all shares / open shares, the timer spots never above `MAX_SPOT_SHARE`), so spot 0.15, mining 0.326, blocks 0.222, cache 0.222, bounty 0.059 of the budget
+  until P3; the wave bucket then opens full (one first wave). `StarGate` turns the phase into a match second.
   (2) **Flank and base timer generators** are a minor source: each has several candidate `spots` (rotation, never the same spot twice in a row, one star per
-  spot); base-generator stars are team-locked (`StarDrop.team`). (3) **Caches** (`annihilation-cache`): one-shot spots with a 90 s respawn.
+  spot); base-generator stars are team-locked (`StarDrop.team`). (3) **Caches** (`annihilation-cache`): one-shot spots (5 stars x ramp) with a 45 s respawn.
   (4) **Actions:** mining and listed blocks pay the player directly.
 - **Pace (ADR-0318):** 5 levels, star goals 10, 30, 60, 100, kill goals 1,2,3,4. The victim of a kill loses all carried stars: the killer gets
   40% directly, 20% bursts on the ground, the rest is lost, plus a capped bounty on carriers above the roster average. Leaving a running match still drops

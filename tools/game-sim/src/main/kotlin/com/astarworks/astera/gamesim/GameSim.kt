@@ -111,7 +111,7 @@ public class GameSim private constructor(
     public val trainingShells: SimTrainingShells = SimTrainingShells(world, recorder)
 
     /** Stacks given by the lobby training weapon rack (F3-11); the rack frames it asked for. */
-    public val itemDelivery: SimItemDelivery = SimItemDelivery()
+    public val itemDelivery: SimItemDelivery = SimItemDelivery { scheduler.currentTick() }
     public val trainingRack: SimTrainingRackGateway = SimTrainingRackGateway()
 
     /** This server's hotbar when booted with a shared snapshot store (F3-6); `null` otherwise. */
@@ -149,7 +149,7 @@ public class GameSim private constructor(
 
     /** Mid ore node blocks and `drop_item` generator drops of the simulated world. */
     public val wornItems: SimWornItems = SimWornItems()
-    public val oreNodes: SimOreNodeWorld = SimOreNodeWorld()
+    public val oreNodes: SimOreNodeWorld = SimOreNodeWorld(itemDelivery) { scheduler.currentTick() }
     public val generatorDrops: SimGeneratorItemDrop = SimGeneratorItemDrop()
 
     /** Carrier looks, world markers and boss bars of the objective modes. */

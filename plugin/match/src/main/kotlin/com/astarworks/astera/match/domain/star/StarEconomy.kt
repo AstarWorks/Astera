@@ -60,9 +60,29 @@ public data class StarEconomy(
     /** The whole match's budget in stars per minute for [players] alive. */
     public fun budgetPerMinute(seconds: Double, players: Int): Double = perPlayerMinuteAt(seconds) * players
 
-    /** Refill rate of a [source] bucket in stars per second ([players] only matters for shared sources). */
-    public fun sourceRatePerSecond(source: StarSource, seconds: Double, players: Int): Double =
-        (shares.getValue(source) * perPlayerMinuteAt(seconds) * (if (source.perPlayer) 1 else players)) / 60.0
+    /**
+     * Refill rate of a [source] bucket in stars per second ([players] only matters for shared sources).
+     * [openAt] is the match second each source opens at (phase-gated sources, 0 = from the start): a source is 0 before it
+     * opens, and while some are closed their shares move to the open ones (every open cap is raised by
+     * `all shares / open shares`, the timer generators never above [MAX_SPOT_SHARE]), so the caps still add up to the whole budget.
+     */
+    public fun sourceRatePerSecond(source: StarSource, seconds: Double, players: Int, openAt: (StarSource) -> Double = { 0.0 }): Double =
+        (effectiveShare(source, seconds, openAt) * perPlayerMinuteAt(seconds) * (if (source.perPlayer) 1 else players)) / 60.0
+
+    /** The [shares] entry of [source] at [seconds] once the shares of closed sources ([openAt]) have moved to the open ones. */
+    public fun effectiveShare(source: StarSource, seconds: Double, openAt: (StarSource) -> Double = { 0.0 }): Double {
+        if (seconds < openAt(source)) return 0.0
+        val open = StarSource.entries.filter { seconds >= openAt(it) }
+        val openShare = open.sumOf { shares.getValue(it) }
+        if (openShare <= 0.0) return 0.0
+        val pool = StarSource.entries.sumOf { shares.getValue(it) }
+        val boost = pool / openShare
+        val spotShare = shares.getValue(StarSource.SPOT)
+        if (StarSource.SPOT !in open || spotShare * boost <= MAX_SPOT_SHARE) return shares.getValue(source) * boost
+        // The minor source stays at its limit; everything else shares what is left.
+        if (source == StarSource.SPOT) return MAX_SPOT_SHARE
+        return shares.getValue(source) * (pool - MAX_SPOT_SHARE) / (openShare - spotShare)
+    }
 
     public companion object {
         public const val MAX_SPOT_SHARE: Double = 0.15
