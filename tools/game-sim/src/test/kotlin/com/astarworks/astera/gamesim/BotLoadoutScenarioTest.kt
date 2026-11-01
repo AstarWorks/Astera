@@ -86,9 +86,17 @@ class BotLoadoutScenarioTest {
                 assertThat(weapons).hasSize(2)
                 assertThat(weapons.map { familyOf(it) }.toSet()).`as`("two families for ${bot.name}: $weapons").hasSize(2)
                 assertThat(weapons.map { categoryOf(sim, it) }.toSet()).`as`("fits gun:1,sword:1,staff:1").hasSize(2)
+                // Why UNCOMMON can be legal: 13ac3ee58 (ADR-0319, Y-RyuZU) made bots enter at the humans' average Norma level (1 here)
+                // moved by -1/0/+1 seeded from (match id, player) - BotLoadoutService.entryLevel - so a bot enters at level 1 or 2. The
+                // spread is replayed here from the entry event, so the assertion stays exact: level 1 => COMMON only, level 2 =>
+                // COMMON or UNCOMMON (shipped ladder common:1, uncommon:2); rare and above never.
+                val entered = sim.eventsOf<PlayerEnteredMatch>().single { it.playerId == bot.id }
+                val spread = kotlin.random.Random(java.util.Objects.hash(entered.matchId.value.hashCode(), bot.id.uuid)).nextInt(3) - 1
+                val level = (1 + spread).coerceAtLeast(1)
+                val allowed = if (level == 1) setOf("COMMON") else setOf("COMMON", "UNCOMMON")
                 weapons.forEach { id ->
                     val rarity = sim.services.getOrThrow<IItemRegistry>().find(ItemId(id))!!.rarity
-                    assertThat(rarity.name).`as`("$id is usable at Norma level 1").isEqualTo("COMMON")
+                    assertThat(rarity.name).`as`("$id of ${bot.name} entering at Norma level $level").isIn(allowed)
                 }
             }
         } finally {

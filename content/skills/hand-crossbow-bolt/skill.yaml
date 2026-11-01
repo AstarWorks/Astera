@@ -24,6 +24,7 @@ frames:
     origin: victim.center
     v: incoming
     w: up
+    w_fallback: [1, 0, 0]
     s: v x w
   - id: blk
     on: event.block
@@ -31,6 +32,7 @@ frames:
     origin: contact
     v: incoming
     w: up
+    w_fallback: [1, 0, 0]
     s: v x w
 machine:
   start: fly

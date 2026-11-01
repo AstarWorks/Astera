@@ -20,9 +20,9 @@ params:
   wet_ticks:    {type: ticks, default: 100}
 frames:
   - {id: tip, origin: caster.eye, v: aim, w: s x v, s: right, move: [{at: 0, for: 0, to: {v: 1.4, w: -0.3, s: 0.25}}]}
-  - {id: head, origin: ball, v: velocity, w: up, s: v x w}
-  - {id: hit, on: event.victim, each: true, origin: victim.center, v: incoming, w: up, s: v x w}
-  - {id: blk, on: event.block, each: true, origin: contact, v: incoming, w: up, s: v x w}
+  - {id: head, origin: ball, v: velocity, w: up, w_fallback: [1, 0, 0], s: v x w}
+  - {id: hit, on: event.victim, each: true, origin: victim.center, v: incoming, w: up, w_fallback: [1, 0, 0], s: v x w}
+  - {id: blk, on: event.block, each: true, origin: contact, v: incoming, w: up, w_fallback: [1, 0, 0], s: v x w}
 machine:
   start: cast
   tail: 2
@@ -37,8 +37,8 @@ machine:
         - {id: fx, op: particle_def, def: frost-cast, frame: tip, at: 0}
         - {id: spray, op: particle, particle: dust, frame: tip, pos: {v: 0.2}, to: {v: 1.2}, samples: 2, count: 1, offset: [0.1, 0.1, 0.1], color: "#ebf5ff", size: 0.45, at: 0}
         - {id: shell, op: display, kind: item, item: "minecraft:prismarine_shard", context: fixed, frame: head, scale: [0.9, 0.9, 0.9], at: 0, until: ball.end}
-        - {id: tr0, op: particle, particle: dust, frame: head, pos: {v: -1.1}, count: 1, offset: [0.08, 0.08, 0.08], color: "#e6f4ff", size: 0.4, at: 0, every: 1, until: ball.end}
-        - {id: tr2, op: particle, particle: dust, frame: head, pos: {v: -1.1}, count: 1, offset: [0.02, 0.02, 0.02], color: "#f5fbff", size: 0.35, at: 0, every: 1, until: ball.end}
+        - {id: tr0, op: particle, particle: dust, frame: head, pos: {v: -1.1}, count: 1, offset: [0.08, 0.08, 0.08], color: "#e6f4ff", size: 0.4, at: 2, every: 1, until: ball.end}
+        - {id: tr2, op: particle, particle: dust, frame: head, pos: {v: -1.1}, count: 1, offset: [0.02, 0.02, 0.02], color: "#f5fbff", size: 0.35, at: 2, every: 1, until: ball.end}
         - id: ball
           op: projectile
           at: 0

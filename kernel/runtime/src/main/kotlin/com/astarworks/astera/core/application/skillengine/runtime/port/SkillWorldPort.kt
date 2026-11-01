@@ -34,8 +34,14 @@ public interface ISkillWorldGateway {
     /** Restore every temporary edit of [cast] now and drop its pending ripple (that cast was cancelled). */
     public fun revertCast(cast: CastRef)
 
-    /** Restore every temporary edit of every cast now (match end, reload, shutdown). */
+    /**
+     * Restore every temporary edit of every cast (match end, reload). A cell a living body stands in waits for it to leave
+     * (at most a short grace, see the ledger) instead of burying it.
+     */
     public fun revertAll()
+
+    /** Restore every temporary edit now, bodies or not: shutdown, when no further tick will retry a deferred cell. */
+    public fun revertAllNow() { revertAll() }
 }
 
 /**
@@ -72,6 +78,12 @@ public interface ISkillBlockAccess {
      * cover by the match-end rebuild.
      */
     public fun damage(cast: CastRef, cell: BlockCell, blockDamage: Int, toolClass: String?): BlockDamageOutcome
+
+    /**
+     * A living body (player, bot, mob) has a hitbox overlapping [cell]: the ledger must not restore a block there, it would bury
+     * the body. Dead, spectating and invulnerable non-player bodies do not count.
+     */
+    public fun isBodyIn(cast: CastRef, cell: BlockCell): Boolean = false
 
     /** Take one [itemId] from [caster]'s inventory; false when none is left. */
     public fun consumeItem(cast: CastRef, itemId: String): Boolean

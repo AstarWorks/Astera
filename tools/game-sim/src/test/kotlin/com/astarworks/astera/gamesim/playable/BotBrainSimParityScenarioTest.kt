@@ -7,15 +7,19 @@ import org.junit.jupiter.api.Test
 
 /**
  * The real BotBrain plays a whole Annihilation match headless (ADR-0316): 3 teams x 3 bots on the generated
- * annihilation-arena, driven by [MatchDriver] over real wiring and real content. The match runs to its end or the tick cap;
- * Not asserted: same-seed reproducibility. The brains and the sim clock are deterministic, but plugin/match draws star-burst
- * directions and respawn points from kotlin Random.Default (StarDropService, DefaultSpawnSelector), so two runs diverge until
- * those take a seeded Random from the sim (request to the plugin/match owner).
- * The per-bot brain summaries and the end reason are printed so the bot AI can be tuned against numbers, not a live server.
+ * annihilation-arena, driven by [MatchDriver] over real wiring and real content. The match runs to its end or the tick cap.
+ * Reproducibility: the MatchId, bot loadouts and star services all draw from the sim seed, so two runs of the same seed
+ * must produce an identical outcome (end reason, tick, kill/respawn counts, every per-bot brain summary); another seed must
+ * differ. Only the wall-clock A* timing (`maxSearchUs`) is stripped from the compare. Anomaly ids are unseeded tags and are
+ * not part of the compared outcome. The brain summaries and end reason are printed so the bot AI can be tuned against numbers.
  */
 class BotBrainSimParityScenarioTest {
 
-    private class Outcome(val summaries: List<String>, val endReason: String, val ticks: Long, val wallMs: Long)
+    private class Outcome(val summaries: List<String>, val endReason: String, val ticks: Long, val kills: Int, val respawns: Int, val wallMs: Long) {
+        /** Everything deterministic: wall-clock timing stripped. */
+        val fingerprint: List<String> = listOf("$endReason tick=$ticks kills=$kills respawns=$respawns") +
+            summaries.map { it.replace(Regex("maxSearchUs=\\d+"), "maxSearchUs=*") }
+    }
 
     private fun play(seed: Long): Outcome {
         val started = System.nanoTime()
@@ -30,7 +34,7 @@ class BotBrainSimParityScenarioTest {
             summaries.forEach { println("[sim-parity seed=$seed] $it") }
             driver.brainErrors.take(5).forEach { println("[sim-parity seed=$seed] brain error: $it") }
             assertThat(driver.brainErrors).`as`("brains never throw").isEmpty()
-            return Outcome(summaries, reason, driver.tick, (System.nanoTime() - started) / 1_000_000)
+            return Outcome(summaries, reason, driver.tick, kills, respawns, (System.nanoTime() - started) / 1_000_000)
         }
     }
 
@@ -47,7 +51,17 @@ class BotBrainSimParityScenarioTest {
         assertThat(first.summaries.sumOf { count(it, "stars") }).`as`("the bots collected stars").isPositive()
     }
 
+    @Test
+    fun `same seed replays the same match, another seed plays a different one`() {
+        val a = play(seed = SEED)
+        val b = play(seed = SEED)
+        assertThat(b.fingerprint).`as`("same seed, same outcome").isEqualTo(a.fingerprint)
+        val c = play(seed = SEED + 1)
+        assertThat(c.fingerprint).`as`("another seed differs").isNotEqualTo(a.fingerprint)
+    }
+
     private companion object {
+        const val SEED = 7L
         const val CAP = 24_000
         const val MAX_STUCK_REPLANS = 200
     }

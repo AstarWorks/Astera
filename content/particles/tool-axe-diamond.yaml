@@ -1,5 +1,7 @@
-# tool skill hit area (axe: chop arcs); heavier at diamond tier
+# Typical material accent; impact layout is authored in each skill.
 id: tool-axe-diamond
-particle: sweep_attack
-count: 3
-offset: [1.2, 1.2, 1.2]
+particle: block
+block: minecraft:oak_log
+count: 18
+offset: [0.22, 0.22, 0.22]
+extra: 0.08

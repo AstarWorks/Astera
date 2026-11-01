@@ -1,5 +1,5 @@
 ## pose yaw=0 pitch=0
-@0 spawn #0 op=lob/shell kind=sprite sprite=flame alpha=1.000000 tint=#ff9a3c seethrough=false pos=0.000000,1.320000,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.500000,1.500000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=lob/shell kind=sprite sprite=flame alpha=1.000000 tint=#ff9a3c seethrough=false pos=0.000000,1.320000,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.500000,1.500000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=lob/shell dur=1 pos=0.000000,1.352204,2.220419 rot=0.000000,0.000000,0.000000,1.000000 scale=1.500000,1.500000,1.000000 bb=CENTER
 @0 sound - op=lob/snd sound=entity.blaze.shoot cat=master vol=0.6 pitch=0.8 at=0.000000,1.320000,2.200000
 @1 write #0 op=lob/shell dur=1 pos=0.000000,1.449637,2.280043 rot=0.000000,0.000000,0.000000,1.000000 scale=1.500000,1.500000,1.000000 bb=CENTER
@@ -39,7 +39,7 @@
 @29 particle - op=lob/fire[3] type=flame count=30 at=0.000000,0.000000,8.000000 off=1.200000,0.400000,1.200000 speed=0.080000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2336491296309423493
 @31 particle - op=lob/fire[4] type=flame count=30 at=0.000000,0.000000,8.000000 off=1.200000,0.400000,1.200000 speed=0.080000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5642222886449649205
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=lob/shell kind=sprite sprite=flame alpha=1.000000 tint=#ff9a3c seethrough=false pos=-1.323993,1.320000,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.500000,1.500000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=lob/shell kind=sprite sprite=flame alpha=1.000000 tint=#ff9a3c seethrough=false pos=-1.323993,1.320000,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.500000,1.500000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=lob/shell dur=1 pos=-1.336281,1.352204,1.773305 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.500000,1.500000,1.000000 bb=CENTER
 @0 sound - op=lob/snd sound=entity.blaze.shoot cat=master vol=0.6 pitch=0.8 at=-1.323993,1.320000,1.756998
 @1 write #0 op=lob/shell dur=1 pos=-1.372164,1.449637,1.820923 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.500000,1.500000,1.000000 bb=CENTER
@@ -79,7 +79,7 @@
 @29 particle - op=lob/fire[3] type=flame count=30 at=-4.814520,0.000000,6.389084 off=1.200000,0.400000,1.200000 speed=0.080000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2336491296309423493
 @31 particle - op=lob/fire[4] type=flame count=30 at=-4.814520,0.000000,6.389084 off=1.200000,0.400000,1.200000 speed=0.080000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5642222886449649205
 ## pose-hit yaw=0 pitch=0
-@0 spawn #0 op=lob/shell kind=sprite sprite=flame alpha=1.000000 tint=#ff9a3c seethrough=false pos=0.000000,1.320000,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.500000,1.500000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=lob/shell kind=sprite sprite=flame alpha=1.000000 tint=#ff9a3c seethrough=false pos=0.000000,1.320000,2.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.500000,1.500000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=lob/shell dur=1 pos=0.000000,1.352204,2.220419 rot=0.000000,0.000000,0.000000,1.000000 scale=1.500000,1.500000,1.000000 bb=CENTER
 @0 sound - op=lob/snd sound=entity.blaze.shoot cat=master vol=0.6 pitch=0.8 at=0.000000,1.320000,2.200000
 @1 write #0 op=lob/shell dur=1 pos=0.000000,1.449637,2.280043 rot=0.000000,0.000000,0.000000,1.000000 scale=1.500000,1.500000,1.000000 bb=CENTER
@@ -124,7 +124,7 @@ g @26 state-exit reason=TIMER | state=lob
 g @26 cast-end | pose
 r @34 run-end tail=8 | pose
 ## pose-hit yaw=37 pitch=0
-@0 spawn #0 op=lob/shell kind=sprite sprite=flame alpha=1.000000 tint=#ff9a3c seethrough=false pos=-1.323993,1.320000,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.500000,1.500000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=lob/shell kind=sprite sprite=flame alpha=1.000000 tint=#ff9a3c seethrough=false pos=-1.323993,1.320000,1.756998 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.500000,1.500000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=lob/shell dur=1 pos=-1.336281,1.352204,1.773305 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.500000,1.500000,1.000000 bb=CENTER
 @0 sound - op=lob/snd sound=entity.blaze.shoot cat=master vol=0.6 pitch=0.8 at=-1.323993,1.320000,1.756998
 @1 write #0 op=lob/shell dur=1 pos=-1.372164,1.449637,1.820923 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.500000,1.500000,1.000000 bb=CENTER

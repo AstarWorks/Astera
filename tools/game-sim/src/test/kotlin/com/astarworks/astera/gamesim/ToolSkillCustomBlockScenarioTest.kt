@@ -145,4 +145,31 @@ class ToolSkillCustomBlockScenarioTest {
             sim.services.getOrThrow<IMatchLifecycle>().end(matchId, EndReason.AdminEnded)
         }
     }
+
+    @Test
+    fun `a temporarily broken block is not restored into a body standing in its cell until the body leaves`() {
+        scenario("tool-skill-restore-deferred") {
+            val caster = player("caster", team = "red", facing = Vec3(1.0, 0.0, 0.0))
+            val stone = BlockType("minecraft:stone")
+            val cell = Vec3(2.0, groundY + 1, 0.0)
+            val free = Vec3(3.0, groundY + 1, 0.0)
+            sim.world.placeBlock(caster.world, cell, stone)
+            sim.world.placeBlock(caster.world, free, stone)
+
+            sim.cast(caster, "pickaxe-bore-diamond", "diamond-pickaxe")
+            advance(30)
+            assertThat(sim.world.blockAt(caster.world, cell)).`as`("bore broke the stone").isNull()
+            assertThat(sim.world.blockAt(caster.world, free)).isNull()
+
+            // A body walks into the hole; the revert (200 ticks) comes due while it stands there.
+            val walker = mob("walker", Vec3(cell.x + 0.5, cell.y, cell.z + 0.5))
+            advance(300)
+            assertThat(sim.world.blockAt(caster.world, cell)).`as`("deferred while the body stands in the cell").isNull()
+            assertThat(sim.world.blockAt(caster.world, free)).`as`("a free cell restores on time").isEqualTo(stone)
+
+            walker.position = Vec3(cell.x + 5.5, cell.y, cell.z + 0.5)
+            advance(3)
+            assertThat(sim.world.blockAt(caster.world, cell)).`as`("restored once the body left").isEqualTo(stone)
+        }
+    }
 }

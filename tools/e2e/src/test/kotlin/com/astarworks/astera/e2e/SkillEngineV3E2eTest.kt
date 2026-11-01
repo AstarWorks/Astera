@@ -173,8 +173,9 @@ class SkillEngineV3E2eTest : E2eBase() {
 
     /**
      * Founder #13/#14, balance: a test-only `patchKind: balance` file next to the probe skill doubles the `dmg` param (10 -> 20). After
-     * `astera skill reload reload-probe` the NEXT cast hurts a dummy twice as much (ratio 1.8..2.2: the damage matrix may scale the number);
-     * removing the patch and reloading brings it back to the base damage. The probe row is `{op: damage, damage: {physical: "${'$'}{dmg}"}}`
+     * `astera skill reload reload-probe` the NEXT cast sends twice the base damage to a dummy (ratio 1.8..2.2);
+     * removing the patch and reloading brings it back to the base damage. Every cast must also lower Health; the trace measures
+     * the accepted op before production crit so the single-sample ratio is deterministic. The probe row is `{op: damage, damage: {physical: "${'$'}{dmg}"}}`
      * around the caster (docker/e2e-tune-content.sh).
      */
     @Test
@@ -186,25 +187,33 @@ class SkillEngineV3E2eTest : E2eBase() {
         op(a)
         Thread.sleep(500)
         val tag = "reload_dummy"
+        val dummyId = "00000000-0000-0000-0000-00000000004d"
         val dummy = "@e[type=minecraft:zombie,tag=$tag,limit=1]"
         rcon("kill @e[type=minecraft:zombie,tag=$tag]")
         rcon("execute in minecraft:overworld run tp ${a.name} 0.5 -60 0.5 0 0")
         Thread.sleep(800)
-        rcon("execute in minecraft:overworld run summon minecraft:zombie 0.5 -60 3.5 {NoAI:1b,Silent:1b,PersistenceRequired:1b,Tags:[\"$tag\"],attributes:[{id:\"minecraft:max_health\",base:500}],Health:500f,active_effects:[{id:\"minecraft:fire_resistance\",duration:100000,show_particles:0b}]}")
+        rcon("execute in minecraft:overworld run summon minecraft:zombie 0.5 -60 3.5 {UUID:[I;0,0,0,77],NoAI:1b,Silent:1b,PersistenceRequired:1b,Tags:[\"$tag\"],attributes:[{id:\"minecraft:max_health\",base:500}],Health:500f,active_effects:[{id:\"minecraft:fire_resistance\",duration:100000,show_particles:0b}]}")
         Thread.sleep(1_000)
 
         fun castAndMeasure(): Double {
             rcon("data merge entity $dummy {Health:500f}")
             Thread.sleep(300)
             val before = healthOf(dummy) ?: error("dummy health unreadable")
+            val damageMark = ServerLog.lineCount()
             rcon("astera skill cast reload-probe ${a.name} --force")
             Thread.sleep(1_500)
             val after = healthOf(dummy) ?: error("dummy health unreadable after the cast")
             Thread.sleep(2_500) // the 40-tick hold ends and the invulnerability window closes
-            return before - after
+            check(before > after) { "the probe did not damage the dummy: $before -> $after" }
+            val samples = ServerLog.read().lineSequence().drop(damageMark)
+                .filter { "[skill-damage] skill=reload-probe caster=${a.uuid} victim=$dummyId " in it }
+                .mapNotNull { Regex("base=([0-9.eE+-]+)").find(it)?.groupValues?.get(1)?.toDoubleOrNull() }.toList()
+            check(samples.size == 1) { "expected one accepted probe damage op: $samples" }
+            return samples.single()
         }
 
         val logMark = ServerLog.lineCount()
+        rcon("astera skill trace on")
         try {
             val baseDump = expandDump("reload-probe")
             val base = castAndMeasure()
@@ -217,13 +226,13 @@ class SkillEngineV3E2eTest : E2eBase() {
             val restoredDump = expandDump("reload-probe")
             val restored = castAndMeasure()
 
-            // The compiled table is the product layer, the Health delta the runtime layer: a red names which one drifted.
+            // The compiled table is the product layer, the accepted pre-crit damage op the runtime layer: a red names which one drifted.
             E2eReport.check(suite, "removing the balance patch and reloading restores the base table dump", "RCON astera skill expand reload-probe, before/after each reload") {
                 assertThat(restoredDump).describedAs("table dump after removing the patch; reload reply='$reply2'; patched dump differs=${tunedDump != baseDump}").isEqualTo(baseDump)
                 "table dump restored"
             }
 
-            E2eReport.check(suite, "balance patch doubles the next cast's damage after reload, removing it restores the base", "dummy Health before/after each cast around astera skill reload") {
+            E2eReport.check(suite, "balance patch doubles the next cast's damage after reload, removing it restores the base", "accepted skill-damage base before crit, plus dummy Health drops on every cast") {
                 assertThat(base).describedAs("base damage").isGreaterThan(0.0)
                 assertThat(tuned / base).describedAs("tuned/base damage ratio (base=$base tuned=$tuned); reload reply='$reply'").isBetween(1.8, 2.2)
                 assertThat(restored).describedAs("damage after removing the patch; reload reply='$reply2'").isCloseTo(base, org.assertj.core.data.Offset.offset(0.5))
@@ -233,6 +242,7 @@ class SkillEngineV3E2eTest : E2eBase() {
             patchFile.delete()
             runCatching { rcon("astera skill reload reload-probe") }
             rcon("kill @e[type=minecraft:zombie,tag=$tag]")
+            rcon("astera skill trace off")
         }
         E2eReport.check(suite, "no skill-engine error in the server log for the balance reload", "server log") {
             assertThat(skillErrorsSince(logMark)).describedAs("skill-engine log problems").isEmpty()
@@ -316,7 +326,7 @@ class SkillEngineV3E2eTest : E2eBase() {
                 rcon("execute in minecraft:overworld run tp ${a.name} 0.5 -60 0.5 0 0")
                 rcon("kill @e[type=minecraft:zombie,tag=$tag]")
                 Thread.sleep(800)
-                rcon("execute in minecraft:overworld run summon minecraft:zombie 0.5 -60 3.5 {NoAI:1b,Silent:1b,PersistenceRequired:1b,Tags:[\"$tag\"],attributes:[{id:\"minecraft:max_health\",base:2000}],Health:2000f,active_effects:[{id:\"minecraft:fire_resistance\",duration:100000,show_particles:0b}]}")
+                rcon("execute in minecraft:overworld run summon minecraft:zombie 0.5 -60 3.5 {UUID:[I;0,0,0,77],NoAI:1b,Silent:1b,PersistenceRequired:1b,Tags:[\"$tag\"],attributes:[{id:\"minecraft:max_health\",base:2000}],Health:2000f,active_effects:[{id:\"minecraft:fire_resistance\",duration:100000,show_particles:0b}]}")
                 Thread.sleep(800)
                 rcon("astera skill cast $skill ${a.name} --force")
                 Thread.sleep(2_000)

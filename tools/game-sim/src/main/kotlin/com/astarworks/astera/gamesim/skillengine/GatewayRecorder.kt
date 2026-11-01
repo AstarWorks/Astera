@@ -628,6 +628,12 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         /** As `PaperLiveValueSource.victimFrame`: the bound victim's body centre (feet / root / eye / body points), yaw only; null without a bound victim. */
         private fun victimFrame(binding: EventBinding?, point: String?): SimFrame? {
             val id = binding?.victim?.id ?: return null
+            if (id == this@GatewayRecorder.caster) {
+                // the caster is a loaded entity too (an attacker frame of a duel rides on it)
+                val f = Vec3(casterPosition.x, casterPosition.y - 1.0, casterPosition.z)
+                val o = when (point) { null, "body", "center" -> Vec3(f.x, f.y + 0.9, f.z); "feet", "root" -> f; "eye" -> Vec3(f.x, f.y + casterEyeHeight, f.z); else -> return null }
+                return SimFrame.fromYawPitch(o, casterYawDeg, 0.0)
+            }
             val c = victims.firstOrNull { it.entityId == id } ?: return null
             val o = when (point) {
                 null, "body" -> c.box.center
@@ -920,7 +926,8 @@ internal object OracleFmt {
 
     fun view(v: DisplayView): String =
         "aud=${v.audience} lane=${v.lane} target=${v.target ?: "-"}" +
-            (if (v.glowing) " glowing=true" else "")
+            (if (v.glowing) " glowing=true" else "") +
+            (v.viewRange?.let { " view_range=${f(it.toDouble())}" } ?: "")
 
     /** A string value on one token: whitespace and `=` escaped, null = `-`. */
     fun s(x: String?): String = x?.replace("%", "%25")?.replace(" ", "%20")?.replace("\n", "%0A")?.replace("=", "%3D")?.ifEmpty { "%00" } ?: "-"

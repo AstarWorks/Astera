@@ -1,5 +1,6 @@
 package com.astarworks.astera.gamesim.playable.agent
 
+import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.gamesim.GameSim
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -28,9 +29,12 @@ class AgentPortScenarioTest {
         """{"op":"act","do":"dig mid-ore:iron-8","max":600}""",
         """{"op":"act","do":"goto shop:red","max":2400}""",
         """{"op":"act","do":"buy dagger","max":100,"map":"off"}""",
-        """{"op":"skip","until":"phase=engage","max":3000,"map":"off"}""",
+        """{"op":"skip","until":"phase=engage","max":9000,"interrupts":false,"map":"off"}""",
         """{"op":"act","do":"goto base:red","max":1200,"map":"off"}""",
         """{"op":"act","do":"norma star","max":300,"map":"off"}""",
+        """{"op":"act","do":"buy","map":"off"}""",
+        """{"op":"act","do":"goto nowhere-land","map":"off"}""",
+        """{"op":"act","do":"attack nearest","max":40,"map":"off"}""",
         """{"op":"end"}""",
     )
 
@@ -64,12 +68,24 @@ class AgentPortScenarioTest {
         assertThat(obs[2]["stopped"]!!.jsonPrimitive.content).isEqualTo("arrived")
         assertThat(obs[2]["map"]!!.jsonPrimitive.content.lines().size).isLessThanOrEqualTo(20)
         assertThat(obs[3]["stopped"]!!.jsonPrimitive.content).isEqualTo("mined")
-        assertThat(obs[3]["me"]!!.jsonObject["ore"]!!.jsonObject["iron"]!!.jsonPrimitive.int).isEqualTo(1)
+        assertThat(obs[3]["me"]!!.jsonObject["ore"]!!.jsonObject["iron"]!!.jsonPrimitive.int).isEqualTo(2)
 
         // shop + buy: reachable, and the refusal says what is missing.
         assertThat(obs[4]["stopped"]!!.jsonPrimitive.content).isEqualTo("arrived")
         assertThat(obs[5]["ok"]!!.jsonPrimitive.content).isEqualTo("false")
         assertThat(obs[5]["result"]!!.jsonPrimitive.content).contains("needs 6 iron")
+
+        // UX: at the shop the menu lists priced buy lines (real catalogue prices), 5-8 of them, same style as goto lines.
+        val shopMenu = obs[4]["menu"]!!.jsonArray.map { it.jsonPrimitive.content }
+        val buyLines = shopMenu.filter { it.startsWith("buy ") }
+        assertThat(buyLines.size).isBetween(5, 8)
+        assertThat(buyLines).allMatch { it.matches(Regex("buy \\S+ \\(\\d+ \\w+ ore(\\+\\d+ \\w+ ore)*, (affordable|short .+)\\)")) }
+
+        // UX: norma have/need and the wallet are in every observation.
+        val me4 = obs[4]["me"]!!.jsonObject
+        assertThat(me4["norma"]!!.jsonObject["need"]!!.jsonPrimitive.int).isGreaterThan(0)
+        assertThat(me4["norma"]!!.jsonObject["have"]!!.jsonPrimitive.int).isGreaterThanOrEqualTo(0)
+        assertThat(me4["wallet"]!!.jsonObject.keys).contains("gold")
 
         // skip DSL stops on its own condition, not on max.
         assertThat(obs[6]["stopped"]!!.jsonPrimitive.content).isEqualTo("until:phase=engage")
@@ -83,11 +99,57 @@ class AgentPortScenarioTest {
         assertThat(obs[8]["result"]!!.jsonPrimitive.content).contains("still lv1")
         assertThat(last["norma"]!!.jsonObject["lv"]!!.jsonPrimitive.int).isEqualTo(1)
 
+        // bare buy: the filtered, priced list (not the 68-item catalogue) with affordability.
+        val bare = obs[9]
+        assertThat(bare["ok"]!!.jsonPrimitive.content).isEqualTo("true")
+        val shop = bare["shop"]!!.jsonArray.map { it.jsonObject }
+        assertThat(shop.size).isBetween(1, 12)
+        assertThat(shop).allMatch { it["price"]!!.jsonObject.isNotEmpty() && it.containsKey("affordable") }
+
+        // failed decisions: reported on their line, an unknown target is a failure, `attack nearest` is accepted.
+        assertThat(obs[10]["ok"]!!.jsonPrimitive.content).isEqualTo("false")
+        assertThat(obs[10]["stopped"]!!.jsonPrimitive.content).isEqualTo("unknown_target")
+        assertThat(obs[10]["failed"]!!.jsonPrimitive.content).isEqualTo("true")
+        assertThat(obs[11]["stopped"]!!.jsonPrimitive.content).isNotEqualTo("unknown_target")
+
         // end: summary, three reflection questions, a trace path.
         val end = obs.last()
         assertThat(end["ended"]!!.jsonPrimitive.content).isEqualTo("true")
         assertThat(end["questions"]!!.jsonArray).hasSize(3)
         assertThat(end["trace"]!!.jsonPrimitive.content).isNotBlank()
+        val summary = end["summary"]!!.jsonObject
+        assertThat(summary["decisions_failed"]!!.jsonPrimitive.int).isGreaterThanOrEqualTo(2) // the refused dagger buy + the unknown goto
+        assertThat(summary["decisions_ok"]!!.jsonPrimitive.int + summary["decisions_failed"]!!.jsonPrimitive.int).isEqualTo(summary["decisions"]!!.jsonPrimitive.int)
+        assertThat(end["timeline"]!!.jsonObject.keys).containsExactlyInAnyOrder("first_star_pickup", "first_kill", "first_norma_levelup")
+        assertThat(end["failed_decisions"]!!.jsonArray).isNotEmpty()
+    }
+
+    @Test
+    fun `a dead seat reports died once then waits for the match respawn instead of stopping every tick`() {
+        val host = DriverMatchHost.boot(MatchRequest(botsPerTeam = 1, seed = 7))
+        host.use {
+            val session = Session(it, GameSim.defaultContentDir().toFile())
+            session.skip(null, 60, false)
+            val killer = com.astarworks.astera.core.application.service.arena.VoidFallKiller(
+                health = { it.sim.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>() },
+                currentTick = { it.sim.tick },
+            )
+            assertThat(killer.kill(it.me().id)).isTrue()
+            val died = session.skip(null, 200, true)
+            assertThat(died.stopped).isEqualTo("died")
+            assertThat(session.view().dead).isTrue()
+            assertThat(session.view().respawnIn).isGreaterThan(0)
+            assertThat(session.menu().single()).contains("respawn in")
+
+            // The next skip waits out the respawn timer and carries on to its own end (no instant re-stop).
+            val after = session.skip(null, 300, true)
+            assertThat(after.stopped).isNotEqualTo("died")
+            assertThat(after.note).isEqualTo("skipped 300 ticks")
+            assertThat(session.view().dead).isFalse()
+            assertThat(session.view().hp).isGreaterThan(0)
+            assertThat(session.drainEvents()).anyMatch { e -> e == "respawned" }
+            assertThat(session.act("goto star", null, 60, true).stopped).isNotEqualTo("died")
+        }
     }
 
     private fun JsonObject.bool(key: String): Boolean = this[key]!!.jsonPrimitive.content.toBoolean()

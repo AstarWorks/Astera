@@ -10,7 +10,7 @@
 #            moves v towards w: the edge leads by construction. The wind-up turns the tip to the right (-60), the cut carries it across the front to the left
 #            (+80, hit at tick 3 while the blade crosses the middle), `reset` eases the chain back to guard.
 #            The line `edge` (0.65 -> tip 1.09) is what the trail rows draw along.
-#   body   - the caster's feet, v forward / w up / s right: the sound and the sweep fx (1.4 ahead, at chest height).
+#   body   - the caster's feet, v forward / w up / s right: the sound. (The sweep arc sprite `fx` sits on frame `arc` (origin = the hand, a fixed cut plane, so it does not turn with the blade): a flat crescent centred on the hand, in a fixed horizontal cut plane, twice the blade length so its rim is at the blade tip: it shows the path the edge travels.)
 #   wound  - one per victim at the victim's centre, v the way the blow came in: the hit spark and the hit sound.
 # Gameplay (hit tick, sector, damage, knockback, cooldown, cast length) is unchanged.
 apiVersion: astera/v3
@@ -48,6 +48,11 @@ frames:
       - {at: 0, for: 2, about: s, to: -60, ease: in_out_sine}                 # tip to the right
       - {at: 2, for: 3, about: s, to: 80, ease: out_cubic}                    # the cut, edge first
       - {at: 5, for: 7, reset: true, ease: in_out_sine}
+  - id: arc
+    origin: {frame: blade}
+    v: forward
+    w: left
+    s: v x w
   - id: body
     origin: caster
     v: forward
@@ -59,6 +64,7 @@ frames:
     origin: victim.center
     v: incoming
     w: up
+    w_fallback: [1, 0, 0]
     s: v x w
 lines:
   edge: {frame: blade, from: {v: 0.65}, to: {v: 1.09}}           # outer half of the blade (the inner half stays out of the caster eye volume)
@@ -92,6 +98,6 @@ machine:
             miss:
               - {id: snd_miss, op: sound, at: 2, sound: "astera:weapons/blade-miss", frame: body, detach: true}
         - {id: snd, op: sound, at: 0, sound: "astera:weapons/sword-swing", frame: body, detach: true}
-        - {id: fx, op: particle_def, at: 0, def: slash-sweep, frame: body, pos: {v: 1.4, w: 1.4}, detach: true}
+        - {id: fx, op: display, at: 0, for: 3, kind: sprite, sprite: slash, size: [2.18, 2.18], frame: arc, plane: [v, w], see_through: true, brightness: {block: 15, sky: 15}, detach: true}  # the sweep arc: a flat crescent on the fixed cut plane `arc`, rim at the blade tip, over the cut ticks
         - {id: trail_fx, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.05, at: 0, every: 1, for: 4, detach: true}
     end: {final: true}

@@ -21,11 +21,11 @@ params:
   chip_damage:        {type: number, default: 25}
 frames:
   - {id: tip, origin: caster.eye, v: aim, w: s x v, s: right, move: [{at: 0, for: 0, to: {v: 1.3, w: -0.3, s: 0.25}}]}
-  - {id: head, origin: bolt, v: velocity, w: up, s: v x w}
-  - {id: hit, on: event.victim, each: true, origin: victim.center, v: incoming, w: up, s: v x w}
-  - {id: sky, on: event.victim, each: true, origin: victim.feet, v: incoming, w: up, s: v x w, move: [{at: 0, for: 0, to: {w: 8.0}}]}
-  - {id: root, on: event.victim, each: true, origin: victim.feet, v: incoming, w: up, s: v x w}
-  - {id: blk, on: event.block, each: true, origin: contact, v: incoming, w: up, s: v x w}
+  - {id: head, origin: bolt, v: velocity, w: up, w_fallback: [1, 0, 0], s: v x w}
+  - {id: hit, on: event.victim, each: true, origin: victim.center, v: incoming, w: up, w_fallback: [1, 0, 0], s: v x w}
+  - {id: sky, on: event.victim, each: true, origin: victim.feet, v: incoming, w: up, w_fallback: [1, 0, 0], s: v x w, move: [{at: 0, for: 0, to: {w: 8.0}}]}
+  - {id: root, on: event.victim, each: true, origin: victim.feet, v: incoming, w: up, w_fallback: [1, 0, 0], s: v x w}
+  - {id: blk, on: event.block, each: true, origin: contact, v: incoming, w: up, w_fallback: [1, 0, 0], s: v x w}
 machine:
   start: fly
   tail: 2
@@ -85,10 +85,10 @@ machine:
           billboard: center
           brightness: {block: 15, sky: 15}
           flipbook: {frames: 6, every: 1, loop: true}
-          at: 0
-          for: 40
+          at: 2
+          for: 38
           motion:
-            - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 40}
+            - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 38}
         - id: trail
           at: 2
           every: 1

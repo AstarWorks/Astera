@@ -74,9 +74,20 @@ tasks.register<JavaExec>("massPlay") {
     classpath = sourceSets["main"].runtimeClasspath
     mainClass.set("com.astarworks.astera.gamesim.playable.metrics.MassPlayMainKt")
     workingDir = rootDir
-    jvmArgs("-Djava.awt.headless=true", "-Xmx2g", "-Dastera.sim.contentDir=${rootProject.file("content").absolutePath}")
+    jvmArgs("-Djava.awt.headless=true", "-Xmx2g", "-Dastera.massplay.maxTicks=${providers.gradleProperty("maxTicks").getOrElse("24000")}", "-Dastera.sim.contentDir=${rootProject.file("content").absolutePath}")
     val out = layout.buildDirectory.dir("play").get().asFile.absolutePath
     args(out, providers.gradleProperty("runs").getOrElse("5"), providers.gradleProperty("seeds").getOrElse(""))
+}
+
+// First-star probe: `./gradlew -q :tools:game-sim:firstStar -Pseeds=1,2 -Psize=3 [-Psecs=120]`.
+tasks.register<JavaExec>("firstStar") {
+    group = "verification"
+    description = "Per team and seed: seconds from match start to each player's first star."
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.astarworks.astera.gamesim.playable.metrics.FirstStarMainKt")
+    workingDir = rootDir
+    jvmArgs("-Djava.awt.headless=true", "-Xmx2g", "-Dastera.sim.contentDir=${rootProject.file("content").absolutePath}")
+    args(providers.gradleProperty("seeds").getOrElse("1"), providers.gradleProperty("size").getOrElse("3"), providers.gradleProperty("secs").getOrElse("120"))
 }
 
 // Playable sim (ADR-0316): a Claude session plays one seat headless over JSON lines.

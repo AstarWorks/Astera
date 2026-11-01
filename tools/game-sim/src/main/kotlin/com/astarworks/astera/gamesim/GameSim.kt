@@ -547,6 +547,8 @@ public class GameSim private constructor(
             arenas: com.astarworks.astera.core.application.port.outbound.IArenaBuilder? = null,
             /** Stand-in for the Redis link to the bot runner (ADR-0248); `null` = "bots unavailable", like a server without Redis. */
             botGateway: com.astarworks.astera.core.application.port.outbound.bots.IBotRequestGateway? = null,
+            /** The server-wide UI language (ADR-0283); scenarios assert English text, so en unless a scenario is about another locale. */
+            defaultLocale: com.astarworks.astera.core.domain.i18n.LocaleCode = com.astarworks.astera.core.domain.i18n.LocaleCode.EN,
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
             val world = SimWorld(groundY, seed)
@@ -560,6 +562,12 @@ public class GameSim private constructor(
             // One seeded source for every random roll; CombatWiring picks it up instead of its own.
             services.register<com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer>(
                 com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer(seed),
+            )
+            // plugin/match draws spawn picks and anomaly rolls from per-service streams of the sim seed (name-keyed, so a new service never shifts the others).
+            services.register<com.astarworks.astera.match.application.port.outbound.IMatchRandomSource>(
+                com.astarworks.astera.match.application.port.outbound.IMatchRandomSource { name ->
+                    kotlin.random.Random(seed xor java.util.zip.CRC32().also { it.update(name.toByteArray()) }.value * -0x61c8864680b583ebL)
+                },
             )
             if (botGateway != null) {
                 services.register<com.astarworks.astera.core.application.port.outbound.bots.IBotRequestGateway>(botGateway, priority = 100)
@@ -591,8 +599,8 @@ public class GameSim private constructor(
                 mcServer = mcServer,
                 scheduler = scheduler,
                 broadcaster = broadcaster,
-                // Scenarios assert English text; the sim pins en like the e2e server (ADR-0283).
-                defaultLocale = com.astarworks.astera.core.domain.i18n.LocaleCode.EN,
+                // Scenarios assert English text; the sim pins en like the e2e server (ADR-0283) unless a scenario asks otherwise.
+                defaultLocale = defaultLocale,
                 guiAdapter = GuiAdapterFactory { _, _, _ -> FakeGuiAdapter() },
                 // ADR-0276: the headless lease service with a per-viewer model of what each client was sent.
                 playerPresentation = {

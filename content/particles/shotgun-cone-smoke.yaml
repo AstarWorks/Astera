@@ -1,6 +1,8 @@
-# shotgun smoke cloud
+# shotgun smoke cloud: a short puff of grey dust (client life 1.4-14 ticks at size 0.8, gone by about t+14) instead of the vanilla large_smoke,
+# whose long fixed life left a black clump drifting up for 50 ticks.
 id: shotgun-cone-smoke
-particle: large_smoke
+particle: dust
 count: 4
 offset: [0.3, 0.3, 0.3]
-extra: 0.03
+color: "#a0a0a0"
+size: 0.8

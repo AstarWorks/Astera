@@ -93,7 +93,8 @@ def main():
             if mark:
                 print("CUT_MARK %d %.3f %s" % (t_ms, time.time(), run(sock, mark).strip()), file=sys.stderr, flush=True)
             sent = time.time()
-            run(sock, cmd)
+            reply = run(sock, cmd)
+            print("PLAN_REPLY %d %s" % (t_ms, " ".join(reply.split())), file=sys.stderr, flush=True)
             print("CAMERA %d SENT %.3f ACK %.3f" % (t_ms, sent, time.time()), file=sys.stderr, flush=True)
     return 0
 

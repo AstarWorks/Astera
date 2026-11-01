@@ -1,16 +1,16 @@
-# revolver-shot: slow heavy bullet, in the frame grammar (ADR-0314). Three frames: `gun` is the pistol hand, rooted in the caster's eye /
+# revolver-shot: slow heavy bullet, in the frame grammar (ADR-0314). Frames: `gun` is the pistol hand, rooted in the caster's eye /
 # aim basis (v = aim, s = right, w = s x v: the up that is perpendicular to the aim, so the hand pitches with the look and the eye distance
-# is the same at every pitch) at an aimed position (ADR-0315): 0.50 ahead along `aim`, 0.63 below the eye line, 0.30 to the right = the right
+# is the same at every pitch) at an aimed position (ADR-0315): 0.52 ahead along `aim`, 0.63 below the eye line, 0.30 to the right = the right
 # arm straight out from the shoulder, 22 degrees down, the barrel (0.27 above the grip) 0.36 under the eye line. Not higher: the caster-eye display
 # coverage check (check 16, limit 1.5 = scale^2 / distance^2) wants the 0.94-scale mesh at least 0.77 from the eye, and the straight arm
 # reaches 0.60 from a shoulder 0.44 from the eye, so the hand goes low and far rather than up to the eye. The rig rides it, so the right arm
 # is pinned onto the frame origin by look-at and the gun points along `v`: nothing is authored on the body. The arm is one rigid bone, so
-# every hand point lies on the 0.60 sphere about the shoulder: recoil is a swing on it, not a pull-back. `move:` kicks the hand up 0.05 and
-# forward 0.03 (the arm 5 degrees up) over 2 ticks and settles over 4, `rotate:` about `s` flips the muzzle up 20 degrees and back.
+# every hand point lies on the 0.60 sphere about the shoulder (joint 0.29 right, 0.33 under the eye at pitch 0; arm 0.6004): recoil is a swing on it, not a pull-back. `move:` kicks the hand up 0.08 and
+# forward 0.04 (the arm 8 degrees up) over 2 ticks and settles over 4, `rotate:` about `s` flips the muzzle up 20 degrees and back.
 # `shot` is rooted on the bullet's body (the `bolt` op), v the way it flies: the trail rows draw along `tail`, the 0.4 behind it.
 # `hit` one per victim at the victim's centre, v facing the way the bullet came in; `blk` one per block contact at the contact point,
 # v the way the bullet came in.
-# Everything drawn or heard is a point of one of them: the flash and the bolt at the muzzle (v 0.65, w 0.27 from the grip, see
+# Everything drawn or heard is a point of one of them: the flash, the 3-tick glare and the bolt at `weapon.muzzle` (the barrel mouth of the held revolver,
 # content/frames/revolver.yaml), the sparks at v -0.2 (the entry side, on a victim or a block). No 3D.
 apiVersion: astera/v3
 kind: Skill
@@ -33,9 +33,9 @@ frames:
     w: s x v
     s: right
     move:
-      - {at: 0, for: 0, to: {v: 0.50, w: -0.63, s: 0.30}}                      # aimed: straight out from the right shoulder
-      - {at: 0, for: 2, to: {v: 0.53, w: -0.58, s: 0.30}, ease: out_quad}      # recoil: the arm kicks up
-      - {at: 2, for: 4, to: {v: 0.50, w: -0.63, s: 0.30}, ease: in_out_sine}   # settle
+      - {at: 0, for: 0, to: {v: 0.52, w: -0.63, s: 0.30}}                      # aimed: straight out from the right shoulder
+      - {at: 0, for: 2, to: {v: 0.56, w: -0.55, s: 0.30}, ease: out_quad}      # recoil: the arm kicks up
+      - {at: 2, for: 4, to: {v: 0.52, w: -0.63, s: 0.30}, ease: in_out_sine}   # settle
     rotate:
       - {at: 0, for: 2, about: s, to: 20, ease: out_quad}                      # muzzle flip
       - {at: 2, for: 4, about: s, to: 0, ease: in_out_sine}
@@ -43,6 +43,7 @@ frames:
     origin: bolt
     v: velocity
     w: up
+    w_fallback: [1, 0, 0]
     s: v x w
   - id: hit
     on: event.victim
@@ -50,6 +51,7 @@ frames:
     origin: victim.center
     v: incoming
     w: up
+    w_fallback: [1, 0, 0]
     s: v x w
   - id: blk
     on: event.block
@@ -57,6 +59,7 @@ frames:
     origin: contact
     v: incoming
     w: up
+    w_fallback: [1, 0, 0]
     s: v x w
 lines:
   tail: {frame: shot, from: {}, to: {v: -0.4}}                  # the bullet's last 0.4
@@ -72,11 +75,11 @@ machine:
       do:
         - {id: rig, op: rig, frame: gun, for: 10, detach: true}
         - {id: snd, op: sound, at: 0, sound: "astera:weapons/gun-shot", frame: gun, volume: 0.8, pitch: 0.8}
-        - {id: flash, op: particle_def, at: 0, def: gun-muzzle-flash, frame: gun, pos: {v: 0.65, w: 0.27}}
+        - {id: flash, op: particle_def, at: 0, def: gun-muzzle-flash, frame: weapon.muzzle}
+        - {id: glare, op: particle, particle: dust, frame: weapon.muzzle, count: 2, offset: [0.03, 0.03, 0.03], color: "#fff0a0", size: 1.0, at: 0, every: 1, for: 3}
         - id: bolt
           op: projectile
-          frame: gun
-          pos: {v: 0.65, w: 0.27}
+          frame: weapon.muzzle
           velocity: "= look(caster) * ${speed}"
           for: "${life}"
           radius: 0.5

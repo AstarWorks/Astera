@@ -4,27 +4,40 @@ import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.port.outbound.IStructureTargets
+import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
+import com.astarworks.astera.core.application.port.outbound.item.DeliveryResult
+import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
+import com.astarworks.astera.core.application.port.outbound.item.IOwnedItemStock
+import com.astarworks.astera.core.application.port.outbound.item.ItemOrigin
+import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
+import com.astarworks.astera.core.application.services.register
+import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.item.ItemSpec
 import com.astarworks.astera.core.domain.event.BlockBroken
 import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.MatchStarted
 import com.astarworks.astera.core.domain.event.NexusDamaged
 import com.astarworks.astera.core.domain.event.NexusDestroyed
+import com.astarworks.astera.core.domain.event.AnnihilationPhaseTransitioned
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.nexus.NexusPhase
 import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.gamesim.GameSim
 import com.astarworks.astera.gamesim.SimEntity
 import com.astarworks.astera.gamesim.SimEntityKind
 import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationPillarTargets
+import com.astarworks.astera.match.application.port.outbound.IMatchPhaseClock
 import com.astarworks.astera.match.domain.event.NormaLevelUp
 import com.astarworks.astera.match.domain.event.StarSupplied
 import com.astarworks.astera.match.domain.event.StarsCollected
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
@@ -37,6 +50,8 @@ class MatchMetricsResult(
     val json: JsonObject,
     val scalars: Map<String, Double?>,
     val notAvailable: Map<String, String>,
+    /** Seconds from MatchStarted to each buyer's first match-shop purchase (pooled across runs by [MassPlay]). */
+    val firstBuySeconds: List<Double> = emptyList(),
 )
 
 /**
@@ -65,6 +80,45 @@ class MatchMetrics(
         var transitions = 0
     }
 
+    /** First successful match-shop buy of a player: absolute sim [tick], the item and the ore actually taken for it. */
+    class FirstPurchase(val tick: Long, val item: String, val cost: Map<String, Int>)
+
+    private val firstPurchase = HashMap<PlayerId, FirstPurchase>()
+    private val pendingOre = HashMap<PlayerId, MutableMap<String, Int>>()
+    private val purchaseTaps = mutableListOf<ServiceRegistry.Registration>()
+
+    /**
+     * plugin:economy publishes no event for a match-shop buy, so the real purchase path is tapped through the two ports
+     * `MatchShopPurchaseUseCase` resolves from the service registry on every call: ore taken out of the inventory
+     * ([IOwnedItemStock.remove]) and the delivery with [ItemOrigin.EQUIP_IF_FREE], which only that use case uses. A buy counts
+     * once the delivery succeeded (a refund or failed delivery never reaches that point); the ore taken since the player's
+     * last delivery is the cost. The decorators are registered above the winner and removed in [finish].
+     */
+    private fun tapPurchasePath() {
+        val services = sim.services
+        val delivery = services.get<IItemDelivery>()
+        val stock = services.get<IOwnedItemStock>()
+        if (stock != null) purchaseTaps += services.register<IOwnedItemStock>(object : IOwnedItemStock by stock {
+            override fun remove(playerId: PlayerId, itemId: ItemId, amount: Int): Boolean {
+                val ok = stock.remove(playerId, itemId, amount)
+                if (ok && itemId.value.startsWith("ore-")) pendingOre.getOrPut(playerId) { linkedMapOf() }.merge(itemId.value, amount, Int::plus)
+                return ok
+            }
+        }, priority = TAP_PRIORITY)
+        if (delivery != null) purchaseTaps += services.register<IItemDelivery>(object : IItemDelivery by delivery {
+            override fun give(target: IMcPlayer, spec: ItemSpec, amount: Int, origin: ItemOrigin): DeliveryResult {
+                val result = delivery.give(target, spec, amount, origin)
+                val taken = pendingOre.remove(target.id)
+                if (origin == ItemOrigin.EQUIP_IF_FREE && result !is DeliveryResult.UnknownTemplate) {
+                    firstPurchase.putIfAbsent(target.id, FirstPurchase(sim.tick, spec.id.value, taken ?: emptyMap()))
+                }
+                return result
+            }
+        }, priority = TAP_PRIORITY)
+    }
+
+    init { tapPurchasePath() }
+
     private var cursor = 0
     private var matchId: MatchId? = null
     private var stageId: StageId? = null
@@ -81,11 +135,16 @@ class MatchMetrics(
     private val players = LinkedHashMap<PlayerId, PlayerState>()
     private val teamOf = HashMap<PlayerId, TeamId>()
     private var firstFightTick: Long? = null
+    private var firstPillarHitTick: Long? = null
+    private var firstPillarLossTick: Long? = null
+    private val phaseTicks = LinkedHashMap<String, Long>()
+    private val pillarLosses = mutableListOf<Triple<Long, String, String>>()
     private val normaLevel = HashMap<PlayerId, Int>()
 
     private val kills = HashMap<String, Int>()
     private val killsByItem = HashMap<String, Int>()
     private var killTotal = 0
+    private val killTicks = mutableListOf<Long>()
     private val killsByTeam = HashMap<String, Int>()
     private val killsByPlayer = HashMap<String, Int>()
     private val pillarDamageByKey = HashMap<String, Double>()
@@ -121,6 +180,7 @@ class MatchMetrics(
         val pillarDirect = HashMap<PlayerId, Double>()
         for (e in fresh) when (e) {
             is MatchStarted -> if (matchId == null) onMatchStarted(e)
+            is AnnihilationPhaseTransitioned -> if (e.matchId == matchId) phaseTicks.putIfAbsent(e.newPhase.id.toString(), e.atTick)
             is MatchEnded -> if (e.matchId == matchId && ended == null) { ended = e; endTick = e.atTick }
             is DamageDealt -> {
                 val attacker = e.attacker
@@ -133,7 +193,7 @@ class MatchMetrics(
             is BlockBroken -> miners += e.playerId
             is NexusDamaged -> if (e.matchId == matchId) e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.damageAmount.toDouble(), Double::plus) }
             is PlayerKilled -> onKill(e)
-            is NexusDestroyed -> if (e.matchId == matchId) e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.previousHp.toDouble(), Double::plus) }
+            is NexusDestroyed -> if (e.matchId == matchId) { if (firstPillarLossTick == null) firstPillarLossTick = tick; pillarLosses += Triple(tick, e.owningTeam.value, e.tier.toString()); e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.previousHp.toDouble(), Double::plus) } }
             is StarSupplied -> if (e.matchId == matchId) starsSupplied += e.amount
             is StarsCollected -> if (e.matchId == matchId) { starsCollected += e.amount; collected++ }
             is NormaLevelUp -> if (e.matchId == matchId) normaLevel[e.playerId] = maxOf(normaLevel[e.playerId] ?: 0, e.level)
@@ -166,9 +226,34 @@ class MatchMetrics(
     private fun group(id: PlayerId?): String =
         if (id == null) "environment" else roleOf?.invoke(id) ?: "team:${sim.world.find(id)?.team?.value ?: "?"}"
 
+    /** A kill in phase 1 (build) whose victim (killer on another team) stood within [ENEMY_BASE_RADIUS] blocks (horizontal) of a pillar of the victim's own team. */
+    class EnemyBaseKill(val tick: Long, val killer: String, val victim: String, val distance: Double)
+
+    private val enemyBaseKills = mutableListOf<EnemyBaseKill>()
+
+    private fun recordEnemyBaseKill(e: PlayerKilled) {
+        val killerEntity = e.killer?.let { sim.world.find(it) } ?: return
+        val victim = sim.world.find(e.victim) ?: return
+        val mid = matchId ?: return
+        val phase = sim.services.get<IMatchPhaseClock>()?.current(mid)?.phase
+        if (phase != NexusPhase.Phase1Build) return
+        val st = stage ?: return
+        val killerTeam = killerEntity.team ?: return
+        val victimTeam = victim.team ?: return
+        if (killerTeam == victimTeam) return
+        val d = st.pillars.filter { it.team == victimTeam }.minOfOrNull { p ->
+            val dx = p.centre.x - victim.position.x
+            val dz = p.centre.z - victim.position.z
+            sqrt(dx * dx + dz * dz)
+        } ?: return
+        if (d <= ENEMY_BASE_RADIUS) enemyBaseKills += EnemyBaseKill(e.atTick, killerEntity.name, victim.name, d)
+    }
+
     private fun onKill(e: PlayerKilled) {
         if (!isPlayer(e.victim)) return
+        recordEnemyBaseKill(e)
         killTotal++
+        killTicks += e.atTick
         kills.merge(group(e.killer), 1, Int::plus)
         e.killer?.let { k ->
             val ent = sim.world.find(k)
@@ -190,6 +275,7 @@ class MatchMetrics(
         }
         if (delta <= 0.0) return
         pillarDamageTotal += delta
+        if (firstPillarHitTick == null) firstPillarHitTick = lastTick
         val who = attackers.filter { isPlayer(it) }
         val shares: Map<PlayerId?, Double> = when {
             direct.isNotEmpty() -> direct.mapValues { delta * it.value / direct.values.sum() }
@@ -270,6 +356,8 @@ class MatchMetrics(
     }
 
     fun finish(): MatchMetricsResult {
+        purchaseTaps.forEach { it.unregister() }
+        purchaseTaps.clear()
         val na = linkedMapOf<String, String>()
         val scalars = linkedMapOf<String, Double?>()
         val start = startTick
@@ -314,8 +402,36 @@ class MatchMetrics(
         if (scalars["decisions_per_min_mean"] == null) na["decisions_per_min_mean"] = "no players or zero duration"
         if (decisionKindOf == null) na["decision_density_basis"] = "proxy: activity-class transitions per minute (no bot Dest.kind / Claude act seat attached)"
 
+        val buyerSeconds = playerList.mapNotNull { st -> firstPurchase[st.id]?.let { (it.tick - (start ?: it.tick)) / 20.0 } }.sorted()
+        scalars["first_buy_median_s"] = medianOf(buyerSeconds)
+        scalars["never_bought"] = playerList.count { it.id !in firstPurchase }.toDouble()
+        if (buyerSeconds.isEmpty()) na["first_buy_median_s"] = "no player completed a match-shop purchase"
+
+        scalars["p1_kills_in_enemy_base"] = enemyBaseKills.size.toDouble()
+
         scalars["kills_total"] = killTotal.toDouble()
+
+        // Phase 2 (engage): from its start tick to the next phase's start, or the end of the match if it ended first.
+        val engageStart = phaseTicks[NexusPhase.Phase2Engage.id]
+        val engageEnd = engageStart?.let { s0 -> minOf(phaseTicks[NexusPhase.Phase3Center.id] ?: Long.MAX_VALUE, end).coerceAtLeast(s0) }
+        val engageKills = if (engageStart == null) emptyList() else killTicks.filter { it >= engageStart && it <= engageEnd!! }
+        val p2Ttff = if (engageStart == null) null else engageKills.minOrNull()?.let { (it - engageStart) / 20.0 }
+        val p2Minutes = if (engageStart == null) 0.0 else (engageEnd!! - engageStart) / 1200.0
+        val p2Kpm = if (p2Minutes > 0) engageKills.size / p2Minutes else null
+        scalars["p2_ttff_s"] = p2Ttff
+        scalars["p2_kills_per_min"] = p2Kpm
+        if (engageStart == null) {
+            na["p2_ttff_s"] = "the match never reached phase 2 (engage)"
+            na["p2_kills_per_min"] = "the match never reached phase 2 (engage)"
+        } else {
+            if (p2Ttff == null) na["p2_ttff_s"] = "no kill happened during phase 2 (engage)"
+            if (p2Kpm == null) na["p2_kills_per_min"] = "zero engage duration"
+        }
         scalars["pillar_damage_total"] = pillarDamageTotal
+        scalars["first_pillar_hit_s"] = firstPillarHitTick?.let { (it - (start ?: it)) / 20.0 }
+        scalars["first_pillar_loss_s"] = firstPillarLossTick?.let { (it - (start ?: it)) / 20.0 }
+        if (firstPillarHitTick == null) na["first_pillar_hit_s"] = "no pillar took damage"
+        if (firstPillarLossTick == null) na["first_pillar_loss_s"] = "no pillar fell"
         val kpm = if (minutes > 0) killTotal / minutes else null
         scalars["kills_per_min"] = kpm
         scalars["kills_per_min_per_player"] = if (minutes > 0 && playerList.isNotEmpty()) killTotal / minutes / playerList.size else null
@@ -378,7 +494,13 @@ class MatchMetrics(
             put("endReason", reason)
             put("winner", winner)
             put("ttffSeconds", ttff)
+            put("firstPillarHitSeconds", scalars["first_pillar_hit_s"])
+            put("firstPillarLossSeconds", scalars["first_pillar_loss_s"])
+            put("pillarLosses", JsonArray(pillarLosses.map { JsonPrimitive("${(it.first - (start ?: it.first)) / 20.0}s ${it.second} ${it.third}") }))
+            put("phaseStartSeconds", JsonObject(phaseTicks.mapValues { JsonPrimitive(((it.value - (start ?: it.value)) / 20.0)) }))
             put("killsTotal", killTotal)
+            put("p2TtffSeconds", p2Ttff)
+            put("p2KillsPerMinute", p2Kpm)
             put("killsPerMinute", kpm)
             put("killsPerMinutePerPlayer", scalars["kills_per_min_per_player"])
             put("killsPerMinuteByTeam", JsonObject(killsByTeam.mapValues { JsonPrimitive(if (minutes > 0) it.value / minutes else 0.0) }))
@@ -388,8 +510,26 @@ class MatchMetrics(
             put("starsSupplied", starsSupplied)
             put("starsCollected", starsCollected)
             put("starsSuppliedPerPlayerMinute", perPlayerMinute)
+            put("p1KillsInEnemyBase", enemyBaseKills.size)
+            put("p1KillsInEnemyBaseList", JsonArray(enemyBaseKills.map { k ->
+                buildJsonObject {
+                    put("tick", k.tick)
+                    put("killer", k.killer)
+                    put("victim", k.victim)
+                    put("distance", k.distance)
+                }
+            }))
+            put("firstBuyMedianSeconds", scalars["first_buy_median_s"])
+            put("neverBought", scalars["never_bought"]?.toInt())
             put("players", JsonObject(playerList.associate { st ->
                 st.name to buildJsonObject {
+                    val fp = firstPurchase[st.id]
+                    put("first_purchase", if (fp == null) JsonNull else buildJsonObject {
+                        put("tick", fp.tick)
+                        put("seconds", (fp.tick - (start ?: fp.tick)) / 20.0)
+                        put("item", fp.item)
+                        put("cost", JsonObject(fp.cost.mapValues { JsonPrimitive(it.value) }))
+                    })
                     put("team", teamOf[st.id]?.value)
                     put("idleRatio", if (st.activeTicks > 0) st.ticksByActivity[Activity.IDLE.ordinal].toDouble() / st.activeTicks else null)
                     put("decisionsPerMinute", if (minutes > 0) st.transitions / minutes else null)
@@ -415,6 +555,17 @@ class MatchMetrics(
             }))
             put("notAvailable", JsonObject(na.mapValues { JsonPrimitive(it.value) }))
         }
-        return MatchMetricsResult(json, scalars, na)
+        return MatchMetricsResult(json, scalars, na, buyerSeconds)
     }
+}
+
+private const val TAP_PRIORITY = 1_000
+
+/** Phase-1 base-kill radius, blocks (horizontal). */
+private const val ENEMY_BASE_RADIUS = 35.0
+
+private fun medianOf(sorted: List<Double>): Double? = when {
+    sorted.isEmpty() -> null
+    sorted.size % 2 == 1 -> sorted[sorted.size / 2]
+    else -> (sorted[sorted.size / 2 - 1] + sorted[sorted.size / 2]) / 2
 }

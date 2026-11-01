@@ -419,7 +419,7 @@ class BotBrain(
         } else {
             ineffective.disengage()
             strikeLook = null
-            val dest = chasing?.let { Dest(it.lastX, it.lastZ, null, CHASE_ARRIVE, "enemy-chase") } ?: chooseDest(now, starDest)
+            val dest = chasing?.takeIf { !offLimits(now, it.lastX, it.lastZ) }?.let { Dest(it.lastX, it.lastZ, null, CHASE_ARRIVE, "enemy-chase") } ?: chooseDest(now, starDest)
             decisionKindNow = dest?.kind ?: "idle"
             if (dest == null) {
                 endTravel()
@@ -544,13 +544,16 @@ class BotBrain(
      * Where to walk with nobody in sight: a star, a generator that may hold stars (STAR goal), a recent enemy
      * sighting, then the mode objective and a patrol of the stage's points of interest, else roam.
      */
+    /** Annihilation Preparation phase: a spot inside an enemy base, where the bot has nothing to do until the pillars open. */
+    private fun offLimits(now: Long, x: Double, z: Double) = planner?.offLimits(now, x, z) == true
+
     private fun chooseDest(now: Long, starDest: Dest?): Dest? {
         if (starDest != null) return starDest
         normaHomeDest()?.let { return it }
         planner?.let { pl ->
             val markers = bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z }
             observed?.update(markers, sightings())
-            observed?.updateRainmaker(bot.bossBarTitles, glowingPlayers())
+            observed?.updateRainmaker(bot.bossBarTitles, glowingPlayers(), bot.bossBarColors)
             pl.noteRoster(roster())
             observed?.updatePillarLabels(bot.entityTextsById.values.flatten())
             pl.noteMarkers(bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z })
@@ -562,11 +565,11 @@ class BotBrain(
         }
         economyDest(now)?.let { return it }
         // A cache close by is a short detour even while the mode plan runs (never while carrying the objective).
-        if (goal == Goal.STAR && planner?.role != Role.PILLAR_ATTACKER && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
+        if (goal == Goal.STAR && !offence(now) && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
             nearestCache(now, CACHE_DETOUR_RANGE)?.let { return it }
         }
         // A paying block close by (barrel / chest / crafting table) is a short detour while nothing is in sight (never while carrying the objective).
-        if (!starBlocksDry && goal == Goal.STAR && planner?.role != Role.PILLAR_ATTACKER && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
+        if (!starBlocksDry && goal == Goal.STAR && !offence(now) && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
             starBlocks.tick(now, bot.x, bot.y, bot.z)
             starBlockTarget = starBlocks.nearest(bot.x, bot.y, bot.z)
             starBlockTarget?.let { return Dest(it.first + 0.5, it.third + 0.5, it.second.toDouble(), STAR_BLOCK_ARRIVE, "block") }
@@ -581,15 +584,16 @@ class BotBrain(
             var bestScore = Double.MAX_VALUE
             for ((i, p) in starPoints.withIndex()) {
                 if (now - (visitedAt[i] ?: -GEN_COOLDOWN_MS) < GEN_COOLDOWN_MS) continue
+                if (offLimits(now, p.first, p.second)) continue
                 val score = hypot(p.first - bot.x, p.second - bot.z)
                 if (score < bestScore) { bestScore = score; bestI = i }
             }
-            val cache = nearestCache(now, Double.MAX_VALUE)
+            val cache = nearestCache(now, Double.MAX_VALUE)?.takeIf { !offLimits(now, it.x, it.z) }
             if (cache != null && hypot(cache.x - bot.x, cache.z - bot.z) / CACHE_VALUE_WEIGHT < bestScore) return cache
             if (bestI >= 0) return Dest(starPoints[bestI].first, starPoints[bestI].second, null, 2.0, "gen", bestI)
         }
-        if (now - lastEnemyAt < 8_000) return Dest(lastEnemyX, lastEnemyZ, null, 3.0, "enemy-seen")
-        val patrol = patrolPoints()
+        if (now - lastEnemyAt < 8_000 && !offLimits(now, lastEnemyX, lastEnemyZ)) return Dest(lastEnemyX, lastEnemyZ, null, 3.0, "enemy-seen")
+        val patrol = patrolPoints().filter { !offLimits(now, it.first, it.second) }
         if (patrol.isNotEmpty()) {
             val i = patrolIndex % patrol.size
             val p = patrol[i]
@@ -642,7 +646,7 @@ class BotBrain(
             val seen = cacheVisitedAt[i]
             if (seen != null && now - seen < c.respawnMs) continue
             val d = hypot(c.x - bot.x, c.z - bot.z) + abs(c.y - bot.y) * 0.5
-            if (d <= range && d < bestD) { bestD = d; bestI = i }
+            if (d <= range && d < bestD && !offLimits(now, c.x, c.z)) { bestD = d; bestI = i }
         }
         if (bestI < 0) return null
         val c = cachePoints[bestI]
@@ -914,6 +918,9 @@ class BotBrain(
         nav.clear()
     }
 
+    /** A pillar attacker whose pillars can be hit: it is the team's offence and only picks up what lies on its way. In Preparation it gathers like everybody. */
+    private fun offence(now: Long) = planner?.role == Role.PILLAR_ATTACKER && planner?.preparing(now) != true
+
     private fun isStarItem(e: Seen): Boolean {
         if (e.type != "ITEM") return false
         val texts = bot.entityTextsById[e.id]
@@ -924,13 +931,14 @@ class BotBrain(
     private fun starTarget(now: Long): Dest? {
         // A pillar attacker is the team's offence: it only picks up a star on its way (ATTACKER_STAR_RANGE) instead of chasing
         // every star on the stage while the enemy pillars stand untouched.
-        val limit = if (goal != Goal.STAR) KILL_DETOUR_RANGE else if (planner?.role == Role.PILLAR_ATTACKER) ATTACKER_STAR_RANGE else STAR_SIGHT_RANGE
+        val limit = if (goal != Goal.STAR) KILL_DETOUR_RANGE else if (offence(now)) ATTACKER_STAR_RANGE else STAR_SIGHT_RANGE
         var best: Seen? = null
         var bestD = Double.MAX_VALUE
         for (e in bot.entities.values) {
             if (!isStarItem(e)) continue
             val until = ignoredStars[e.id]
             if (until != null && until > now) continue
+            if (offLimits(now, e.x, e.z)) continue
             val d = hypot(e.x - bot.x, e.z - bot.z) + abs(e.y - bot.y) * 0.5
             if (d <= limit && d < bestD) { best = e; bestD = d }
         }

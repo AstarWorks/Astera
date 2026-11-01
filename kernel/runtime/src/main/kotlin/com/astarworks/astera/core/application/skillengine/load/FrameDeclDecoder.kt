@@ -32,14 +32,14 @@ import com.astarworks.astera.core.domain.skillengine.frame.grammar.ScaleKey
  *   each: true
  *   v: incoming
  *   w: up
+ *   w_fallback: [1, 0, 0]          # explicit axis for vertical incidence
  *   s: v x w
- *   for: 20
  * ```
  *
  * Every error names the frame and the field; a coplanar literal basis fails here, a coplanar live basis fails at the tick it happens.
  */
 internal object FrameDeclDecoder {
-    private val KEYS = setOf("id", "origin", "v", "w", "s", "rotate", "move", "scale", "on", "each", "snapshot")
+    private val KEYS = setOf("id", "origin", "v", "w", "s", "rotate", "move", "scale", "on", "each", "snapshot", "w_fallback")
     private val CASTER_POINTS = setOf("", "eye", "feet", "body", "center", "hand_r", "hand_l", "shoulder_r", "shoulder_l")
     private val VICTIM_POINTS = setOf("", "eye", "feet", "body", "center")
     private val CROSS = Regex("""^\s*([vws])\s*x\s*([vws])\s*$""")
@@ -75,6 +75,26 @@ internal object FrameDeclDecoder {
             val w = axis(ctx, id, p, "w", m["w"])
             val s = axis(ctx, id, p, "s", m["s"])
             checkCross(ctx, id, p, mapOf("v" to v, "w" to w, "s" to s))
+            val wFallback = m["w_fallback"]?.let {
+                if (v is AxisSpec.Cross || w is AxisSpec.Cross || s != AxisSpec.Cross("v", "w")) {
+                    ctx.fail("$p.w_fallback", "frame '$id': w_fallback requires plain v and w, and s: v x w")
+                }
+                val fallback = axis(ctx, id, p, "w_fallback", it) as? AxisSpec.Literal
+                    ?: ctx.fail("$p.w_fallback", "frame '$id': w_fallback must be an explicit world vector [x, y, z]")
+                if (!fallback.vector.x.isFinite() || !fallback.vector.y.isFinite() || !fallback.vector.z.isFinite()) {
+                    ctx.fail("$p.w_fallback", "frame '$id': w_fallback must be finite")
+                }
+                val primary = when (w) {
+                    is AxisSpec.Literal -> w.vector
+                    AxisSpec.Named("up") -> Vec3(0.0, 1.0, 0.0)
+                    AxisSpec.Named("down") -> Vec3(0.0, -1.0, 0.0)
+                    else -> null
+                }
+                if (primary != null && primary.cross(fallback.vector).lengthSquared() < Basis3.DEGENERATE_EPS) {
+                    ctx.fail("$p.w_fallback", "frame '$id': w_fallback is parallel to w and cannot repair a parallel v/w basis")
+                }
+                fallback.vector
+            }
             checkLiteralBasis(ctx, id, p, v, w, s)
 
             val rotate = keys(ctx, "$p.rotate", m["rotate"], setOf("at", "for", "about", "from", "to", "ease", "reset"), { if (it["reset"] != null) RESET else it["about"] as? String }) { k, kp ->
@@ -98,7 +118,7 @@ internal object FrameDeclDecoder {
             val snapshotAt = m["snapshot"]?.let { raw ->
                 if (raw == "cast") 0 else if (raw is Number) tick(ctx, raw, "$p.snapshot") else ctx.mismatch("$p.snapshot", "'cast' or a whole tick", raw)
             }
-            FrameDecl(id, origin, v, w, s, rotate, move, scale, on, each, snapshotAt = snapshotAt)
+            FrameDecl(id, origin, v, w, s, rotate, move, scale, on, each, snapshotAt = snapshotAt, wFallback = wFallback)
         }
     }
 
@@ -129,7 +149,7 @@ internal object FrameDeclDecoder {
             }
             for (key in raw.keys) if (key != "frame" && key != "pos") ctx.abort(SkillDecodeError.UnknownKey(ctx.file, "$p.origin", key.toString(), "expected frame, pos or aim"))
             val parent = raw["frame"] as? String ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, "$p.origin", "frame"))
-            return OriginSpec.Frame(parent, coeff(ctx, raw["pos"], "$p.origin.pos", Coeff.ZERO))
+            return OriginSpec.Frame(parent, coeff(ctx, raw["pos"] ?: emptyMap<String, Any>(), "$p.origin.pos", Coeff.ZERO))
         }
         val s = raw as? String ?: ctx.mismatch("$p.origin", "caster[.point], victim[.point], attacker[.point], contact, an instance id or {frame, pos}", raw)
         val base = s.substringBefore('.')

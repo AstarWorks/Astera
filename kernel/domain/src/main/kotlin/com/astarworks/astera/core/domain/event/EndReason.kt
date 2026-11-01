@@ -38,6 +38,13 @@ public sealed interface EndReason {
      */
     public data class TeamVictory(val winner: com.astarworks.astera.core.domain.match.TeamId?) : EndReason
 
+    /**
+     * Annihilation: the last phase ran out with two or more teams still standing and the summed remaining pillar HP
+     * decided it (ADR-0319). [winner] is the team with the most pillar HP; `null` is an exact tie (a draw), never
+     * broken by team order. Carried into `MatchEnded.winningTeam` as is.
+     */
+    public data class PillarHpDecision(val winner: com.astarworks.astera.core.domain.match.TeamId?) : EndReason
+
     /** Norma: the time limit ran out; [leader] was ahead on Norma level, then stars carried, then kills; `null` is a draw. */
     public data class NormaTimeLimit(val leader: com.astarworks.astera.core.domain.match.TeamId?) : EndReason
 

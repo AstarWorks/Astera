@@ -39,6 +39,8 @@ class HudScenarioTest {
             val alice = player("alice")
             player("bob")
             sim.services.getOrThrow<ICurrencyLedger>().credit(alice.id, Currency.GOLD, 25)
+            // A fresh account has 0 XP into its level and the bar is rightly all empty; give some XP so the filled cells render too.
+            sim.stats.grantXp.execute(alice.id, 50L, com.astarworks.astera.core.domain.event.XpSource.AdminGrant)
             advance(40)
 
             val idle = checkNotNull(sim.hud.sidebar(alice.id)) { "no lobby sidebar" }
@@ -67,8 +69,9 @@ class HudScenarioTest {
             val inQueue = checkNotNull(sim.hud.sidebar(alice.id))
             assertThat(inQueue.keys()).contains(
                 "astera.hud.lobby.queue.mode",
-                "astera.hud.lobby.queue.position",
-                "astera.hud.lobby.queue.eta",
+                "astera.hud.lobby.queue.players",
+                "astera.hud.lobby.queue.elapsed",
+                "astera.hud.lobby.queue.status.waiting",
             )
             assertThat(inQueue.keys()).doesNotContain("astera.hud.lobby.queue.idle")
 
