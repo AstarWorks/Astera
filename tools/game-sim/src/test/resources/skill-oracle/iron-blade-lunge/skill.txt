@@ -9,16 +9,16 @@
 @2 frame windup/rig op=windup/rig pos=-0.592969,0.769447,0.000000 rot=0.930416,0.000000,0.000000,0.366505
 @3 write #0 op=windup/rig dur=0 pos=-0.481819,0.912375,0.427133 rot=0.900907,0.000000,0.000000,0.434012 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @3 sound - op=dash/snd_dash sound=astera:weapons/dash-whoosh cat=master vol=1 pitch=1.1 at=0.000000,0.000000,0.000000
-@3 particle - op=dash/fx_dash type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5553575529339805077
-@3 particle - op=dash/trail_fx[0] type=crit count=1 at=-0.481819,0.877646,0.986055 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6553566573502361204
-@3 particle - op=dash/trail_fx[0] type=crit count=1 at=-0.481819,0.855320,1.345362 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1876330099286112130
+@3 particle - op=dash/fx_dash type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9072151821253144644
+@3 particle - op=dash/trail_fx[0] type=crit count=1 at=-0.481819,0.877646,0.986055 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4338694782329050690
+@3 particle - op=dash/trail_fx[0] type=crit count=1 at=-0.481819,0.855320,1.345362 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9130889297839305237
 @3 move - op=- to=0,0,0.75 yaw=- pitch=-
 @3 hit - op=dash/strike[0] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
 @3 frame windup/rig op=windup/rig pos=-0.481819,0.912375,0.427133 rot=0.900907,0.000000,0.000000,0.434012
 @4 move - op=- to=0,0,1.5 yaw=- pitch=-
 @4 write #0 op=windup/rig dur=0 pos=-0.288320,0.979043,2.013679 rot=0.888793,0.000000,0.000000,0.458309 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,1.500000 ryaw=0.000000
-@4 particle - op=dash/trail_fx[1] type=crit count=1 at=-0.288320,0.974699,2.573662 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3492514996663218764
-@4 particle - op=dash/trail_fx[1] type=crit count=1 at=-0.288320,0.971906,2.933651 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9222811407686925953
+@4 particle - op=dash/trail_fx[1] type=crit count=1 at=-0.288320,0.974699,2.573662 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6363412857334153065
+@4 particle - op=dash/trail_fx[1] type=crit count=1 at=-0.288320,0.971906,2.933651 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4091564645530303316
 @4 hit - op=dash/strike[1] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
 @4 hit - op=dash/strike[1] at=0.000000,0.900000,0.750000 r=1.000000 shape=sphere rad=1.000000
 @4 hit - op=dash/strike[1] at=0.000000,0.900000,1.500000 r=1.000000 shape=sphere rad=1.000000
@@ -27,16 +27,16 @@
 @4 frame windup/rig op=windup/rig pos=-0.288320,0.979043,2.013679 rot=0.888793,0.000000,0.000000,0.458309
 @5 move - op=- to=0,0,3.12 yaw=- pitch=-
 @5 write #0 op=windup/rig dur=0 pos=-0.256722,0.989063,3.638349 rot=0.887009,0.000000,0.000000,0.461752 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,3.120000 ryaw=0.000000
-@5 particle - op=dash/trail_fx[2] type=crit count=1 at=-0.256722,0.989063,4.198349 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-400058513386434658
-@5 particle - op=dash/trail_fx[2] type=crit count=1 at=-0.256722,0.989063,4.558349 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5839441501743889276
+@5 particle - op=dash/trail_fx[2] type=crit count=1 at=-0.256722,0.989063,4.198349 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2360420622188738024
+@5 particle - op=dash/trail_fx[2] type=crit count=1 at=-0.256722,0.989063,4.558349 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4614774242725613728
 @5 hit - op=dash/strike[2] at=0.000000,0.900000,1.500000 r=1.000000 shape=sphere rad=1.000000
 @5 hit - op=dash/strike[2] at=0.000000,0.900000,2.310000 r=1.000000 shape=sphere rad=1.000000
 @5 hit - op=dash/strike[2] at=0.000000,0.900000,3.120000 r=1.000000 shape=sphere rad=1.000000
 @5 frame windup/rig op=windup/rig pos=-0.256722,0.989063,3.638349 rot=0.887009,0.000000,0.000000,0.461752
 @6 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @6 write #0 op=windup/rig dur=0 pos=-0.262208,0.988242,3.638229 rot=0.887009,0.000000,0.000000,0.461752 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,3.120000 ryaw=0.000000
-@6 particle - op=dash/trail_fx[3] type=crit count=1 at=-0.262208,0.988242,4.198229 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9113028195782130079
-@6 particle - op=dash/trail_fx[3] type=crit count=1 at=-0.262208,0.988242,4.558229 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6841850729315053134
+@6 particle - op=dash/trail_fx[3] type=crit count=1 at=-0.262208,0.988242,4.198229 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7589915483141271788
+@6 particle - op=dash/trail_fx[3] type=crit count=1 at=-0.262208,0.988242,4.558229 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6930922381293633193
 @6 hit - op=dash/strike[3] at=0.000000,0.900000,3.120000 r=1.000000 shape=sphere rad=1.000000
 @6 frame windup/rig op=windup/rig pos=-0.262208,0.988242,3.638229 rot=0.887009,0.000000,0.000000,0.461752
 @7 write #0 op=windup/rig dur=0 pos=-0.277966,0.985886,3.637551 rot=0.887009,0.000000,0.000000,0.461752 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,3.120000 ryaw=0.000000
@@ -71,16 +71,16 @@ r @18 run-end tail=11 | pose
 @2 frame windup/rig op=windup/rig pos=-0.473566,0.769447,-0.356858 rot=0.882336,-0.116294,0.295225,0.347565
 @3 write #0 op=windup/rig dur=0 pos=-0.641852,0.912375,0.051158 rot=0.854351,-0.137714,0.285862,0.411584 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @3 sound - op=dash/snd_dash sound=astera:weapons/dash-whoosh cat=master vol=1 pitch=1.1 at=0.000000,0.000000,0.000000
-@3 particle - op=dash/fx_dash type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5553575529339805077
-@3 particle - op=dash/trail_fx[0] type=crit count=1 at=-0.978220,0.877646,0.497533 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6553566573502361204
-@3 particle - op=dash/trail_fx[0] type=crit count=1 at=-1.194457,0.855320,0.784488 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1876330099286112130
+@3 particle - op=dash/fx_dash type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=9072151821253144644
+@3 particle - op=dash/trail_fx[0] type=crit count=1 at=-0.978220,0.877646,0.497533 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4338694782329050690
+@3 particle - op=dash/trail_fx[0] type=crit count=1 at=-1.194457,0.855320,0.784488 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-9130889297839305237
 @3 move - op=- to=-0.4514,0,0.599 yaw=- pitch=-
 @3 hit - op=dash/strike[0] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
 @3 frame windup/rig op=windup/rig pos=-0.641852,0.912375,0.051158 rot=0.854351,-0.137714,0.285862,0.411584
 @4 move - op=- to=-0.9027,0,1.198 yaw=- pitch=-
 @4 write #0 op=windup/rig dur=0 pos=-1.442125,0.979043,1.434680 rot=0.842864,-0.145423,0.282018,0.434625 scale=0.937500,0.937500,0.937500 bb=FIXED root=-0.902723,0.000000,1.197953 ryaw=37.000000
-@4 particle - op=dash/trail_fx[1] type=crit count=1 at=-1.779131,0.974699,1.881903 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3492514996663218764
-@4 particle - op=dash/trail_fx[1] type=crit count=1 at=-1.995778,0.971906,2.169403 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=9222811407686925953
+@4 particle - op=dash/trail_fx[1] type=crit count=1 at=-1.779131,0.974699,1.881903 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6363412857334153065
+@4 particle - op=dash/trail_fx[1] type=crit count=1 at=-1.995778,0.971906,2.169403 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4091564645530303316
 @4 hit - op=dash/strike[1] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
 @4 hit - op=dash/strike[1] at=-0.451361,0.900000,0.598977 r=1.000000 shape=sphere rad=1.000000
 @4 hit - op=dash/strike[1] at=-0.902723,0.900000,1.197953 r=1.000000 shape=sphere rad=1.000000
@@ -89,16 +89,16 @@ r @18 run-end tail=11 | pose
 @4 frame windup/rig op=windup/rig pos=-1.442125,0.979043,1.434680 rot=0.842864,-0.145423,0.282018,0.434625
 @5 move - op=- to=-1.9687,0,2.6126 yaw=- pitch=-
 @5 write #0 op=windup/rig dur=0 pos=-2.485684,0.989063,2.872035 rot=0.841172,-0.146516,0.281452,0.437891 scale=0.937500,0.937500,0.937500 bb=FIXED root=-1.968706,0.000000,2.612561 ryaw=37.000000
-@5 particle - op=dash/trail_fx[2] type=crit count=1 at=-2.822701,0.989063,3.319270 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-400058513386434658
-@5 particle - op=dash/trail_fx[2] type=crit count=1 at=-3.039354,0.989063,3.606779 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5839441501743889276
+@5 particle - op=dash/trail_fx[2] type=crit count=1 at=-2.822701,0.989063,3.319270 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2360420622188738024
+@5 particle - op=dash/trail_fx[2] type=crit count=1 at=-3.039354,0.989063,3.606779 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4614774242725613728
 @5 hit - op=dash/strike[2] at=-0.902723,0.900000,1.197953 r=1.000000 shape=sphere rad=1.000000
 @5 hit - op=dash/strike[2] at=-1.435714,0.900000,1.905257 r=1.000000 shape=sphere rad=1.000000
 @5 hit - op=dash/strike[2] at=-1.968706,0.900000,2.612561 r=1.000000 shape=sphere rad=1.000000
 @5 frame windup/rig op=windup/rig pos=-2.485684,0.989063,2.872035 rot=0.841172,-0.146516,0.281452,0.437891
 @6 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @6 write #0 op=windup/rig dur=0 pos=-2.489993,0.988242,2.868637 rot=0.841172,-0.146516,0.281452,0.437891 scale=0.937500,0.937500,0.937500 bb=FIXED root=-1.968706,0.000000,2.612561 ryaw=37.000000
-@6 particle - op=dash/trail_fx[3] type=crit count=1 at=-2.827009,0.988242,3.315872 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=9113028195782130079
-@6 particle - op=dash/trail_fx[3] type=crit count=1 at=-3.043663,0.988242,3.603381 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6841850729315053134
+@6 particle - op=dash/trail_fx[3] type=crit count=1 at=-2.827009,0.988242,3.315872 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7589915483141271788
+@6 particle - op=dash/trail_fx[3] type=crit count=1 at=-3.043663,0.988242,3.603381 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6930922381293633193
 @6 hit - op=dash/strike[3] at=-1.968706,0.900000,2.612561 r=1.000000 shape=sphere rad=1.000000
 @6 frame windup/rig op=windup/rig pos=-2.489993,0.988242,2.868637 rot=0.841172,-0.146516,0.281452,0.437891
 @7 write #0 op=windup/rig dur=0 pos=-2.502169,0.985886,2.858612 rot=0.841172,-0.146516,0.281452,0.437891 scale=0.937500,0.937500,0.937500 bb=FIXED root=-1.968706,0.000000,2.612561 ryaw=37.000000
@@ -133,16 +133,16 @@ r @18 run-end tail=11 | pose
 @2 frame windup/rig op=windup/rig pos=-0.592969,0.769447,0.000000 rot=0.930416,0.000000,0.000000,0.366505
 @3 write #0 op=windup/rig dur=0 pos=-0.481819,0.912375,0.427133 rot=0.900907,0.000000,0.000000,0.434012 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @3 sound - op=dash/snd_dash sound=astera:weapons/dash-whoosh cat=master vol=1 pitch=1.1 at=0.000000,0.000000,0.000000
-@3 particle - op=dash/fx_dash type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5553575529339805077
-@3 particle - op=dash/trail_fx[0] type=crit count=1 at=-0.481819,0.877646,0.986055 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6553566573502361204
-@3 particle - op=dash/trail_fx[0] type=crit count=1 at=-0.481819,0.855320,1.345362 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1876330099286112130
+@3 particle - op=dash/fx_dash type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9072151821253144644
+@3 particle - op=dash/trail_fx[0] type=crit count=1 at=-0.481819,0.877646,0.986055 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4338694782329050690
+@3 particle - op=dash/trail_fx[0] type=crit count=1 at=-0.481819,0.855320,1.345362 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9130889297839305237
 @3 move - op=- to=0,0,0.75 yaw=- pitch=-
 @3 hit - op=dash/strike[0] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
 @3 frame windup/rig op=windup/rig pos=-0.481819,0.912375,0.427133 rot=0.900907,0.000000,0.000000,0.434012
 @4 move - op=- to=0,0,1.5 yaw=- pitch=-
 @4 write #0 op=windup/rig dur=0 pos=-0.288320,0.979043,2.013679 rot=0.888793,0.000000,0.000000,0.458309 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,1.500000 ryaw=0.000000
-@4 particle - op=dash/trail_fx[1] type=crit count=1 at=-0.288320,0.974699,2.573662 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3492514996663218764
-@4 particle - op=dash/trail_fx[1] type=crit count=1 at=-0.288320,0.971906,2.933651 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9222811407686925953
+@4 particle - op=dash/trail_fx[1] type=crit count=1 at=-0.288320,0.974699,2.573662 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6363412857334153065
+@4 particle - op=dash/trail_fx[1] type=crit count=1 at=-0.288320,0.971906,2.933651 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4091564645530303316
 @4 hit - op=dash/strike[1] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
 @4 hit - op=dash/strike[1] at=0.000000,0.900000,0.750000 r=1.000000 shape=sphere rad=1.000000
 @4 hit - op=dash/strike[1] at=0.000000,0.900000,1.500000 r=1.000000 shape=sphere rad=1.000000
@@ -151,16 +151,16 @@ r @18 run-end tail=11 | pose
 @4 frame windup/rig op=windup/rig pos=-0.288320,0.979043,2.013679 rot=0.888793,0.000000,0.000000,0.458309
 @5 move - op=- to=0,0,3.12 yaw=- pitch=-
 @5 write #0 op=windup/rig dur=0 pos=-0.256722,0.989063,3.638349 rot=0.887009,0.000000,0.000000,0.461752 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,3.120000 ryaw=0.000000
-@5 particle - op=dash/trail_fx[2] type=crit count=1 at=-0.256722,0.989063,4.198349 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-400058513386434658
-@5 particle - op=dash/trail_fx[2] type=crit count=1 at=-0.256722,0.989063,4.558349 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5839441501743889276
+@5 particle - op=dash/trail_fx[2] type=crit count=1 at=-0.256722,0.989063,4.198349 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2360420622188738024
+@5 particle - op=dash/trail_fx[2] type=crit count=1 at=-0.256722,0.989063,4.558349 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4614774242725613728
 @5 hit - op=dash/strike[2] at=0.000000,0.900000,1.500000 r=1.000000 shape=sphere rad=1.000000
 @5 hit - op=dash/strike[2] at=0.000000,0.900000,2.310000 r=1.000000 shape=sphere rad=1.000000
 @5 hit - op=dash/strike[2] at=0.000000,0.900000,3.120000 r=1.000000 shape=sphere rad=1.000000
 @5 frame windup/rig op=windup/rig pos=-0.256722,0.989063,3.638349 rot=0.887009,0.000000,0.000000,0.461752
 @6 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @6 write #0 op=windup/rig dur=0 pos=-0.262208,0.988242,3.638229 rot=0.887009,0.000000,0.000000,0.461752 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,3.120000 ryaw=0.000000
-@6 particle - op=dash/trail_fx[3] type=crit count=1 at=-0.262208,0.988242,4.198229 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9113028195782130079
-@6 particle - op=dash/trail_fx[3] type=crit count=1 at=-0.262208,0.988242,4.558229 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6841850729315053134
+@6 particle - op=dash/trail_fx[3] type=crit count=1 at=-0.262208,0.988242,4.198229 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7589915483141271788
+@6 particle - op=dash/trail_fx[3] type=crit count=1 at=-0.262208,0.988242,4.558229 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6930922381293633193
 @6 hit - op=dash/strike[3] at=0.000000,0.900000,3.120000 r=1.000000 shape=sphere rad=1.000000
 @6 frame windup/rig op=windup/rig pos=-0.262208,0.988242,3.638229 rot=0.887009,0.000000,0.000000,0.461752
 @7 write #0 op=windup/rig dur=0 pos=-0.277966,0.985886,3.637551 rot=0.887009,0.000000,0.000000,0.461752 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,3.120000 ryaw=0.000000
@@ -196,16 +196,16 @@ r @18 run-end tail=11 | pose
 @2 frame windup/rig op=windup/rig pos=-0.473566,0.769447,-0.356858 rot=0.882336,-0.116294,0.295225,0.347565
 @3 write #0 op=windup/rig dur=0 pos=-0.641852,0.912375,0.051158 rot=0.854351,-0.137714,0.285862,0.411584 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @3 sound - op=dash/snd_dash sound=astera:weapons/dash-whoosh cat=master vol=1 pitch=1.1 at=0.000000,0.000000,0.000000
-@3 particle - op=dash/fx_dash type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5553575529339805077
-@3 particle - op=dash/trail_fx[0] type=crit count=1 at=-0.978220,0.877646,0.497533 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6553566573502361204
-@3 particle - op=dash/trail_fx[0] type=crit count=1 at=-1.194457,0.855320,0.784488 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1876330099286112130
+@3 particle - op=dash/fx_dash type=dash-cloud at=0.000000,0.200000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=9072151821253144644
+@3 particle - op=dash/trail_fx[0] type=crit count=1 at=-0.978220,0.877646,0.497533 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4338694782329050690
+@3 particle - op=dash/trail_fx[0] type=crit count=1 at=-1.194457,0.855320,0.784488 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-9130889297839305237
 @3 move - op=- to=-0.4514,0,0.599 yaw=- pitch=-
 @3 hit - op=dash/strike[0] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
 @3 frame windup/rig op=windup/rig pos=-0.641852,0.912375,0.051158 rot=0.854351,-0.137714,0.285862,0.411584
 @4 move - op=- to=-0.9027,0,1.198 yaw=- pitch=-
 @4 write #0 op=windup/rig dur=0 pos=-1.442125,0.979043,1.434680 rot=0.842864,-0.145423,0.282018,0.434625 scale=0.937500,0.937500,0.937500 bb=FIXED root=-0.902723,0.000000,1.197953 ryaw=37.000000
-@4 particle - op=dash/trail_fx[1] type=crit count=1 at=-1.779131,0.974699,1.881903 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3492514996663218764
-@4 particle - op=dash/trail_fx[1] type=crit count=1 at=-1.995778,0.971906,2.169403 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=9222811407686925953
+@4 particle - op=dash/trail_fx[1] type=crit count=1 at=-1.779131,0.974699,1.881903 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6363412857334153065
+@4 particle - op=dash/trail_fx[1] type=crit count=1 at=-1.995778,0.971906,2.169403 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4091564645530303316
 @4 hit - op=dash/strike[1] at=0.000000,0.900000,0.000000 r=1.000000 shape=sphere rad=1.000000
 @4 hit - op=dash/strike[1] at=-0.451361,0.900000,0.598977 r=1.000000 shape=sphere rad=1.000000
 @4 hit - op=dash/strike[1] at=-0.902723,0.900000,1.197953 r=1.000000 shape=sphere rad=1.000000
@@ -214,16 +214,16 @@ r @18 run-end tail=11 | pose
 @4 frame windup/rig op=windup/rig pos=-1.442125,0.979043,1.434680 rot=0.842864,-0.145423,0.282018,0.434625
 @5 move - op=- to=-1.9687,0,2.6126 yaw=- pitch=-
 @5 write #0 op=windup/rig dur=0 pos=-2.485684,0.989063,2.872035 rot=0.841172,-0.146516,0.281452,0.437891 scale=0.937500,0.937500,0.937500 bb=FIXED root=-1.968706,0.000000,2.612561 ryaw=37.000000
-@5 particle - op=dash/trail_fx[2] type=crit count=1 at=-2.822701,0.989063,3.319270 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-400058513386434658
-@5 particle - op=dash/trail_fx[2] type=crit count=1 at=-3.039354,0.989063,3.606779 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5839441501743889276
+@5 particle - op=dash/trail_fx[2] type=crit count=1 at=-2.822701,0.989063,3.319270 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2360420622188738024
+@5 particle - op=dash/trail_fx[2] type=crit count=1 at=-3.039354,0.989063,3.606779 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4614774242725613728
 @5 hit - op=dash/strike[2] at=-0.902723,0.900000,1.197953 r=1.000000 shape=sphere rad=1.000000
 @5 hit - op=dash/strike[2] at=-1.435714,0.900000,1.905257 r=1.000000 shape=sphere rad=1.000000
 @5 hit - op=dash/strike[2] at=-1.968706,0.900000,2.612561 r=1.000000 shape=sphere rad=1.000000
 @5 frame windup/rig op=windup/rig pos=-2.485684,0.989063,2.872035 rot=0.841172,-0.146516,0.281452,0.437891
 @6 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @6 write #0 op=windup/rig dur=0 pos=-2.489993,0.988242,2.868637 rot=0.841172,-0.146516,0.281452,0.437891 scale=0.937500,0.937500,0.937500 bb=FIXED root=-1.968706,0.000000,2.612561 ryaw=37.000000
-@6 particle - op=dash/trail_fx[3] type=crit count=1 at=-2.827009,0.988242,3.315872 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=9113028195782130079
-@6 particle - op=dash/trail_fx[3] type=crit count=1 at=-3.043663,0.988242,3.603381 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6841850729315053134
+@6 particle - op=dash/trail_fx[3] type=crit count=1 at=-2.827009,0.988242,3.315872 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7589915483141271788
+@6 particle - op=dash/trail_fx[3] type=crit count=1 at=-3.043663,0.988242,3.603381 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6930922381293633193
 @6 hit - op=dash/strike[3] at=-1.968706,0.900000,2.612561 r=1.000000 shape=sphere rad=1.000000
 @6 frame windup/rig op=windup/rig pos=-2.489993,0.988242,2.868637 rot=0.841172,-0.146516,0.281452,0.437891
 @7 write #0 op=windup/rig dur=0 pos=-2.502169,0.985886,2.858612 rot=0.841172,-0.146516,0.281452,0.437891 scale=0.937500,0.937500,0.937500 bb=FIXED root=-1.968706,0.000000,2.612561 ryaw=37.000000

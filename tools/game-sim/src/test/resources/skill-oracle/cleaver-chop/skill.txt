@@ -16,27 +16,28 @@
 @5 frame windup/rig op=windup/rig pos=-0.637115,1.780554,0.000000 rot=0.000000,0.887013,-0.461745,0.000000
 @6 write #0 op=windup/rig dur=0 pos=-0.559405,1.202067,0.530646 rot=0.000000,0.861135,0.508377,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @6 sound - op=strike/snd sound=astera:weapons/blade-heavy-swing cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
-@6 particle - op=strike/fx1 type=slash-sweep at=0.000000,1.520000,1.300000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4395953815525941467
-@6 particle - op=strike/trail[0] type=crit count=1 at=-0.559405,1.170166,0.828814 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8973215906669518380
-@6 particle - op=strike/trail[0] type=crit count=1 at=-0.559405,1.152601,0.992876 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2683800310327890097
-@6 particle - op=strike/trail[0] type=crit count=1 at=-0.559405,1.135036,1.156938 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1485526893534667382
+@6 particle - op=strike/fx1 type=slash-sweep at=0.000000,1.520000,1.300000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7051359767462370223
+@6 particle - op=strike/trail[0] type=crit count=1 at=-0.559405,1.170166,0.828814 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5298357080595920583
+@6 particle - op=strike/trail[0] type=crit count=1 at=-0.559405,1.152601,0.992876 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5515015999396217603
+@6 particle - op=strike/trail[0] type=crit count=1 at=-0.559405,1.135036,1.156938 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5427610523347109424
 @6 hit - op=strike/strike at=-0.637115,1.780554,0.000000 r=4.800000 shape=sector fwd=0.000000,-0.106457,0.994317 left=1.000000,0.000000,0.000000 deg=90.000000 range=2.800000 height=2.000000
 @6 hit - op=strike/strike at=-0.559405,1.202103,0.530518 r=4.800000 shape=sector fwd=0.000000,-0.106457,0.994317 left=1.000000,0.000000,0.000000 deg=90.000000 range=2.800000 height=2.000000
 @6 damage 00000000-0000-0000-0000-00000000000a op=- physical=62 skill=cleaver-chop at=0.000000,0.900000,2.500000 ignoreinv=false ignorearmor=false
 @6 sound - op=strike/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1.2 at=0.000000,0.810000,2.500000
-@6 particle - op=strike/strike.hit/spark type=hit-spark at=0.000000,1.010000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8634956881699031184
+@6 particle - op=strike/strike.hit/spark type=hit-spark at=0.000000,1.010000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8719922182279712897
 @6 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @6 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0 z=0.5
+@6 status 00000000-0000-0000-0000-00000000000a op=- status=bleed stacks=1 for=60
 @6 frame windup/rig op=windup/rig pos=-0.559405,1.202103,0.530518 rot=0.000000,0.861135,0.508377,0.000000
 @7 write #0 op=windup/rig dur=0 pos=-0.322662,0.973963,0.509875 rot=0.000000,0.616422,0.787416,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@7 particle - op=strike/trail[1] type=crit count=1 at=-0.322662,0.748046,0.707062 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2067254677896619458
-@7 particle - op=strike/trail[1] type=crit count=1 at=-0.322662,0.623729,0.815553 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6316321273691130553
-@7 particle - op=strike/trail[1] type=crit count=1 at=-0.322662,0.499412,0.924044 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1783481826266213309
+@7 particle - op=strike/trail[1] type=crit count=1 at=-0.322662,0.748046,0.707062 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5044684455006937194
+@7 particle - op=strike/trail[1] type=crit count=1 at=-0.322662,0.623729,0.815553 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2285800879439424528
+@7 particle - op=strike/trail[1] type=crit count=1 at=-0.322662,0.499412,0.924044 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6637886779780279378
 @7 frame windup/rig op=windup/rig pos=-0.322662,0.974077,0.509806 rot=0.000000,0.616422,0.787416,0.000000
 @8 write #0 op=windup/rig dur=0 pos=-0.292969,0.944796,0.491547 rot=0.000000,0.573573,0.819154,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@8 particle - op=strike/trail[2] type=crit count=1 at=-0.292969,0.699171,0.663564 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4840975330964045815
-@8 particle - op=strike/trail[2] type=crit count=1 at=-0.292969,0.564011,0.758204 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5267927129066334480
-@8 particle - op=strike/trail[2] type=crit count=1 at=-0.292969,0.428851,0.852844 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4021458272784885177
+@8 particle - op=strike/trail[2] type=crit count=1 at=-0.292969,0.699171,0.663564 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9166958068205056937
+@8 particle - op=strike/trail[2] type=crit count=1 at=-0.292969,0.564011,0.758204 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1000400508173802342
+@8 particle - op=strike/trail[2] type=crit count=1 at=-0.292969,0.428851,0.852844 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2990704127979016104
 @8 frame windup/rig op=windup/rig pos=-0.292969,0.944917,0.491491 rot=0.000000,0.573573,0.819154,0.000000
 @9 write #0 op=windup/rig dur=0 pos=-0.293561,0.945948,0.492351 rot=0.093162,0.570401,0.814624,0.048498 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @9 frame windup/rig op=windup/rig pos=-0.293544,0.946067,0.492294 rot=0.093162,0.570401,0.814624,0.048498
@@ -73,27 +74,28 @@ r @17 run-end tail=10 | pose
 @5 frame windup/rig op=windup/rig pos=-0.508822,1.780554,-0.383425 rot=0.146514,0.841175,-0.437884,0.281453
 @6 write #0 op=windup/rig dur=0 pos=-0.766111,1.202067,0.087134 rot=-0.161310,0.816634,0.482106,0.273242 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @6 sound - op=strike/snd sound=astera:weapons/blade-heavy-swing cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
-@6 particle - op=strike/fx1 type=slash-sweep at=-0.782360,1.520000,1.038226 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4395953815525941467
-@6 particle - op=strike/trail[0] type=crit count=1 at=-0.945553,1.170166,0.325262 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8973215906669518380
-@6 particle - op=strike/trail[0] type=crit count=1 at=-1.044288,1.152601,0.456288 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2683800310327890097
-@6 particle - op=strike/trail[0] type=crit count=1 at=-1.143024,1.135036,0.587314 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1485526893534667382
+@6 particle - op=strike/fx1 type=slash-sweep at=-0.782360,1.520000,1.038226 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7051359767462370223
+@6 particle - op=strike/trail[0] type=crit count=1 at=-0.945553,1.170166,0.325262 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5298357080595920583
+@6 particle - op=strike/trail[0] type=crit count=1 at=-1.044288,1.152601,0.456288 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5515015999396217603
+@6 particle - op=strike/trail[0] type=crit count=1 at=-1.143024,1.135036,0.587314 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5427610523347109424
 @6 hit - op=strike/strike at=-0.508822,1.780554,-0.383425 r=4.800000 shape=sector fwd=-0.598395,-0.106457,0.794097 left=0.798636,0.000000,0.601815 deg=90.000000 range=2.800000 height=2.000000
 @6 hit - op=strike/strike at=-0.766035,1.202103,0.087032 r=4.800000 shape=sector fwd=-0.598395,-0.106457,0.794097 left=0.798636,0.000000,0.601815 deg=90.000000 range=2.800000 height=2.000000
 @6 damage 00000000-0000-0000-0000-00000000000a op=- physical=62 skill=cleaver-chop at=-1.504538,0.900000,1.996589 ignoreinv=false ignorearmor=false
 @6 sound - op=strike/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1.2 at=-1.504538,0.810000,1.996589
-@6 particle - op=strike/strike.hit/spark type=hit-spark at=-1.504538,1.010000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8634956881699031184
+@6 particle - op=strike/strike.hit/spark type=hit-spark at=-1.504538,1.010000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8719922182279712897
 @6 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @6 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.3009 y=0 z=0.3993
+@6 status 00000000-0000-0000-0000-00000000000a op=- status=bleed stacks=1 for=60
 @6 frame windup/rig op=windup/rig pos=-0.766035,1.202103,0.087032 rot=-0.161310,0.816634,0.482106,0.273242
 @7 write #0 op=windup/rig dur=0 pos=-0.564539,0.973963,0.213021 rot=-0.249851,0.584568,0.746725,0.195594 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@7 particle - op=strike/trail[1] type=crit count=1 at=-0.683210,0.748046,0.370503 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2067254677896619458
-@7 particle - op=strike/trail[1] type=crit count=1 at=-0.748501,0.623729,0.457147 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6316321273691130553
-@7 particle - op=strike/trail[1] type=crit count=1 at=-0.813793,0.499412,0.543792 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1783481826266213309
+@7 particle - op=strike/trail[1] type=crit count=1 at=-0.683210,0.748046,0.370503 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5044684455006937194
+@7 particle - op=strike/trail[1] type=crit count=1 at=-0.748501,0.623729,0.457147 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=2285800879439424528
+@7 particle - op=strike/trail[1] type=crit count=1 at=-0.813793,0.499412,0.543792 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6637886779780279378
 @7 frame windup/rig op=windup/rig pos=-0.564498,0.974077,0.212967 rot=-0.249851,0.584568,0.746725,0.195594
 @8 write #0 op=windup/rig dur=0 pos=-0.529796,0.944796,0.216254 rot=-0.259922,0.543933,0.776823,0.181997 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@8 particle - op=strike/trail[2] type=crit count=1 at=-0.633318,0.699171,0.353633 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4840975330964045815
-@8 particle - op=strike/trail[2] type=crit count=1 at=-0.690274,0.564011,0.429216 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5267927129066334480
-@8 particle - op=strike/trail[2] type=crit count=1 at=-0.747230,0.428851,0.504799 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4021458272784885177
+@8 particle - op=strike/trail[2] type=crit count=1 at=-0.633318,0.699171,0.353633 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-9166958068205056937
+@8 particle - op=strike/trail[2] type=crit count=1 at=-0.690274,0.564011,0.429216 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1000400508173802342
+@8 particle - op=strike/trail[2] type=crit count=1 at=-0.747230,0.428851,0.504799 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2990704127979016104
 @8 frame windup/rig op=windup/rig pos=-0.529762,0.944917,0.216209 rot=-0.259922,0.543933,0.776823,0.181997
 @9 write #0 op=windup/rig dur=0 pos=-0.530753,0.945948,0.216540 rot=-0.170136,0.525536,0.802088,0.226982 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @9 frame windup/rig op=windup/rig pos=-0.530705,0.946067,0.216504 rot=-0.170136,0.525536,0.802088,0.226982
@@ -130,27 +132,28 @@ r @17 run-end tail=10 | pose
 @5 frame windup/rig op=windup/rig pos=-0.637115,1.780554,0.000000 rot=0.000000,0.887013,-0.461745,0.000000
 @6 write #0 op=windup/rig dur=0 pos=-0.559405,1.202067,0.530646 rot=0.000000,0.861135,0.508377,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @6 sound - op=strike/snd sound=astera:weapons/blade-heavy-swing cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
-@6 particle - op=strike/fx1 type=slash-sweep at=0.000000,1.520000,1.300000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4395953815525941467
-@6 particle - op=strike/trail[0] type=crit count=1 at=-0.559405,1.170166,0.828814 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8973215906669518380
-@6 particle - op=strike/trail[0] type=crit count=1 at=-0.559405,1.152601,0.992876 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2683800310327890097
-@6 particle - op=strike/trail[0] type=crit count=1 at=-0.559405,1.135036,1.156938 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1485526893534667382
+@6 particle - op=strike/fx1 type=slash-sweep at=0.000000,1.520000,1.300000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7051359767462370223
+@6 particle - op=strike/trail[0] type=crit count=1 at=-0.559405,1.170166,0.828814 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5298357080595920583
+@6 particle - op=strike/trail[0] type=crit count=1 at=-0.559405,1.152601,0.992876 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5515015999396217603
+@6 particle - op=strike/trail[0] type=crit count=1 at=-0.559405,1.135036,1.156938 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5427610523347109424
 @6 hit - op=strike/strike at=-0.637115,1.780554,0.000000 r=4.800000 shape=sector fwd=0.000000,-0.106457,0.994317 left=1.000000,0.000000,0.000000 deg=90.000000 range=2.800000 height=2.000000
 @6 hit - op=strike/strike at=-0.559405,1.202103,0.530518 r=4.800000 shape=sector fwd=0.000000,-0.106457,0.994317 left=1.000000,0.000000,0.000000 deg=90.000000 range=2.800000 height=2.000000
 @6 damage 00000000-0000-0000-0000-00000000000a op=- physical=62 skill=cleaver-chop at=0.000000,0.900000,2.500000 ignoreinv=false ignorearmor=false
 @6 sound - op=strike/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1.2 at=0.000000,0.810000,2.500000
-@6 particle - op=strike/strike.hit/spark type=hit-spark at=0.000000,1.010000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8634956881699031184
+@6 particle - op=strike/strike.hit/spark type=hit-spark at=0.000000,1.010000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8719922182279712897
 @6 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @6 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=0 y=0 z=0.5
+@6 status 00000000-0000-0000-0000-00000000000a op=- status=bleed stacks=1 for=60
 @6 frame windup/rig op=windup/rig pos=-0.559405,1.202103,0.530518 rot=0.000000,0.861135,0.508377,0.000000
 @7 write #0 op=windup/rig dur=0 pos=-0.322662,0.973963,0.509875 rot=0.000000,0.616422,0.787416,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@7 particle - op=strike/trail[1] type=crit count=1 at=-0.322662,0.748046,0.707062 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2067254677896619458
-@7 particle - op=strike/trail[1] type=crit count=1 at=-0.322662,0.623729,0.815553 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6316321273691130553
-@7 particle - op=strike/trail[1] type=crit count=1 at=-0.322662,0.499412,0.924044 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1783481826266213309
+@7 particle - op=strike/trail[1] type=crit count=1 at=-0.322662,0.748046,0.707062 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5044684455006937194
+@7 particle - op=strike/trail[1] type=crit count=1 at=-0.322662,0.623729,0.815553 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2285800879439424528
+@7 particle - op=strike/trail[1] type=crit count=1 at=-0.322662,0.499412,0.924044 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6637886779780279378
 @7 frame windup/rig op=windup/rig pos=-0.322662,0.974077,0.509806 rot=0.000000,0.616422,0.787416,0.000000
 @8 write #0 op=windup/rig dur=0 pos=-0.292969,0.944796,0.491547 rot=0.000000,0.573573,0.819154,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@8 particle - op=strike/trail[2] type=crit count=1 at=-0.292969,0.699171,0.663564 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4840975330964045815
-@8 particle - op=strike/trail[2] type=crit count=1 at=-0.292969,0.564011,0.758204 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5267927129066334480
-@8 particle - op=strike/trail[2] type=crit count=1 at=-0.292969,0.428851,0.852844 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4021458272784885177
+@8 particle - op=strike/trail[2] type=crit count=1 at=-0.292969,0.699171,0.663564 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9166958068205056937
+@8 particle - op=strike/trail[2] type=crit count=1 at=-0.292969,0.564011,0.758204 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1000400508173802342
+@8 particle - op=strike/trail[2] type=crit count=1 at=-0.292969,0.428851,0.852844 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2990704127979016104
 @8 frame windup/rig op=windup/rig pos=-0.292969,0.944917,0.491491 rot=0.000000,0.573573,0.819154,0.000000
 @9 write #0 op=windup/rig dur=0 pos=-0.293561,0.945948,0.492351 rot=0.093162,0.570401,0.814624,0.048498 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @9 frame windup/rig op=windup/rig pos=-0.293544,0.946067,0.492294 rot=0.093162,0.570401,0.814624,0.048498
@@ -188,27 +191,28 @@ r @17 run-end tail=10 | pose
 @5 frame windup/rig op=windup/rig pos=-0.508822,1.780554,-0.383425 rot=0.146514,0.841175,-0.437884,0.281453
 @6 write #0 op=windup/rig dur=0 pos=-0.766111,1.202067,0.087134 rot=-0.161310,0.816634,0.482106,0.273242 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @6 sound - op=strike/snd sound=astera:weapons/blade-heavy-swing cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
-@6 particle - op=strike/fx1 type=slash-sweep at=-0.782360,1.520000,1.038226 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4395953815525941467
-@6 particle - op=strike/trail[0] type=crit count=1 at=-0.945553,1.170166,0.325262 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8973215906669518380
-@6 particle - op=strike/trail[0] type=crit count=1 at=-1.044288,1.152601,0.456288 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2683800310327890097
-@6 particle - op=strike/trail[0] type=crit count=1 at=-1.143024,1.135036,0.587314 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1485526893534667382
+@6 particle - op=strike/fx1 type=slash-sweep at=-0.782360,1.520000,1.038226 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7051359767462370223
+@6 particle - op=strike/trail[0] type=crit count=1 at=-0.945553,1.170166,0.325262 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5298357080595920583
+@6 particle - op=strike/trail[0] type=crit count=1 at=-1.044288,1.152601,0.456288 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5515015999396217603
+@6 particle - op=strike/trail[0] type=crit count=1 at=-1.143024,1.135036,0.587314 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5427610523347109424
 @6 hit - op=strike/strike at=-0.508822,1.780554,-0.383425 r=4.800000 shape=sector fwd=-0.598395,-0.106457,0.794097 left=0.798636,0.000000,0.601815 deg=90.000000 range=2.800000 height=2.000000
 @6 hit - op=strike/strike at=-0.766035,1.202103,0.087032 r=4.800000 shape=sector fwd=-0.598395,-0.106457,0.794097 left=0.798636,0.000000,0.601815 deg=90.000000 range=2.800000 height=2.000000
 @6 damage 00000000-0000-0000-0000-00000000000a op=- physical=62 skill=cleaver-chop at=-1.504538,0.900000,1.996589 ignoreinv=false ignorearmor=false
 @6 sound - op=strike/strike.hit/snd_hit sound=astera:weapons/blade-hit cat=master vol=0.7 pitch=1.2 at=-1.504538,0.810000,1.996589
-@6 particle - op=strike/strike.hit/spark type=hit-spark at=-1.504538,1.010000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8634956881699031184
+@6 particle - op=strike/strike.hit/spark type=hit-spark at=-1.504538,1.010000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8719922182279712897
 @6 effect 00000000-0000-0000-0000-00000000000a op=- hurt
 @6 effect 00000000-0000-0000-0000-00000000000a op=- impulse x=-0.3009 y=0 z=0.3993
+@6 status 00000000-0000-0000-0000-00000000000a op=- status=bleed stacks=1 for=60
 @6 frame windup/rig op=windup/rig pos=-0.766035,1.202103,0.087032 rot=-0.161310,0.816634,0.482106,0.273242
 @7 write #0 op=windup/rig dur=0 pos=-0.564539,0.973963,0.213021 rot=-0.249851,0.584568,0.746725,0.195594 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@7 particle - op=strike/trail[1] type=crit count=1 at=-0.683210,0.748046,0.370503 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2067254677896619458
-@7 particle - op=strike/trail[1] type=crit count=1 at=-0.748501,0.623729,0.457147 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6316321273691130553
-@7 particle - op=strike/trail[1] type=crit count=1 at=-0.813793,0.499412,0.543792 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1783481826266213309
+@7 particle - op=strike/trail[1] type=crit count=1 at=-0.683210,0.748046,0.370503 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5044684455006937194
+@7 particle - op=strike/trail[1] type=crit count=1 at=-0.748501,0.623729,0.457147 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2285800879439424528
+@7 particle - op=strike/trail[1] type=crit count=1 at=-0.813793,0.499412,0.543792 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6637886779780279378
 @7 frame windup/rig op=windup/rig pos=-0.564498,0.974077,0.212967 rot=-0.249851,0.584568,0.746725,0.195594
 @8 write #0 op=windup/rig dur=0 pos=-0.529796,0.944796,0.216254 rot=-0.259922,0.543933,0.776823,0.181997 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@8 particle - op=strike/trail[2] type=crit count=1 at=-0.633318,0.699171,0.353633 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4840975330964045815
-@8 particle - op=strike/trail[2] type=crit count=1 at=-0.690274,0.564011,0.429216 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5267927129066334480
-@8 particle - op=strike/trail[2] type=crit count=1 at=-0.747230,0.428851,0.504799 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4021458272784885177
+@8 particle - op=strike/trail[2] type=crit count=1 at=-0.633318,0.699171,0.353633 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-9166958068205056937
+@8 particle - op=strike/trail[2] type=crit count=1 at=-0.690274,0.564011,0.429216 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1000400508173802342
+@8 particle - op=strike/trail[2] type=crit count=1 at=-0.747230,0.428851,0.504799 off=0.000000,0.000000,0.000000 speed=0.040000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2990704127979016104
 @8 frame windup/rig op=windup/rig pos=-0.529762,0.944917,0.216209 rot=-0.259922,0.543933,0.776823,0.181997
 @9 write #0 op=windup/rig dur=0 pos=-0.530753,0.945948,0.216540 rot=-0.170136,0.525536,0.802088,0.226982 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @9 frame windup/rig op=windup/rig pos=-0.530705,0.946067,0.216504 rot=-0.170136,0.525536,0.802088,0.226982

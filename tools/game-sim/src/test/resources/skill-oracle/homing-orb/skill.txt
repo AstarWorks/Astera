@@ -27,7 +27,7 @@ r @3 run-end tail=2 | pose
 @0 sound - op=fly/snd sound=entity.blaze.shoot cat=master vol=0.7 pitch=1.4 at=0.000000,1.620000,1.200000
 @0 frame fly/orb op=fly/orb pos=0.000000,1.620000,1.200000 rot=0.000000,0.000000,0.000000,1.000000
 @1 hit - op=fly/orb at=0.000000,1.550413,1.695134 r=1.000000 shape=capsule a=0.000000,1.620000,1.200000 b=0.000000,1.480827,2.190268 rad=0.500000
-@1 particle - op=fly/orb.hit/fx_hit type=hit-spark at=0.000000,1.110000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1592604824379917329
+@1 particle - op=fly/orb.hit/fx_hit type=hit-spark at=0.000000,1.110000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2479582473517320524
 @1 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=homing-orb at=0.000000,1.480827,2.200000 ignoreinv=false ignorearmor=false
 @1 remove #0 op=fly/core
 g @1 state-exit reason=EVENT | state=fly
@@ -39,7 +39,7 @@ r @3 run-end tail=2 | pose
 @0 sound - op=fly/snd sound=entity.blaze.shoot cat=master vol=0.7 pitch=1.4 at=-0.722178,1.620000,0.958363
 @0 frame fly/orb op=fly/orb pos=-0.722178,1.620000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324
 @1 hit - op=fly/orb at=-1.020157,1.550413,1.353794 r=1.000000 shape=capsule a=-0.722178,1.620000,0.958363 b=-1.318136,1.480827,1.749226 rad=0.500000
-@1 particle - op=fly/orb.hit/fx_hit type=hit-spark at=-1.504538,1.110000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1592604824379917329
+@1 particle - op=fly/orb.hit/fx_hit type=hit-spark at=-1.504538,1.110000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2479582473517320524
 @1 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=homing-orb at=-1.278471,1.490090,1.696589 ignoreinv=false ignorearmor=false
 @1 remove #0 op=fly/core
 g @1 state-exit reason=EVENT | state=fly

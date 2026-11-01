@@ -2510,7 +2510,10 @@ public class TablePlayer(
         carrierRec.frameRig = FrameRigRec(frameId, now, anim, caster, held, off)
         // a frame on the pinned hand now reads this frame's origin, not the rest arm the table was evaluated on before the row ran:
         // the one re-evaluation of a frame inside a tick, on the tick a rig takes the hand
-        for ((key, inst) in run.frames.entries.toList()) if ((inst.decl.origin as? OriginSpec.Caster)?.point == hand && inst.evaluatedTick == now) evaluateFrame(run, key, inst, now)
+        // (and the shoulder joint the clip now drives, with the frames whose origin is a point on such a frame: parents first)
+        val shoulder = if (off) "shoulder_l" else "shoulder_r"
+        for ((key, inst) in run.frames.entries.toList()) if (((inst.decl.origin as? OriginSpec.Caster)?.point.let { it == hand || it == shoulder }) && inst.evaluatedTick == now) evaluateFrame(run, key, inst, now)
+        for ((key, inst) in run.frames.entries.toList()) if (inst.decl.origin is OriginSpec.Frame && inst.evaluatedTick == now) evaluateFrame(run, key, inst, now)
         val view = DisplayView()
         val root = casterAnchor(run)
         val h = if (off) {
@@ -3007,7 +3010,7 @@ public class TablePlayer(
     }
 
     private fun rowScope(run: Run, row: Row, binding: EventBinding? = null): RowScope {
-        // the seed is the row's content seed (RowSeeds), never an op id: renaming or reordering ops keeps every spread
+        // the seed is the row's identity seed (RowSeeds), never the spec's text: adding a look field or reordering ops keeps every spread
         val indices = row.instance.path.mapNotNull { it.index }.asReversed()
         return RowScope(V3Bindings.rowSeed(run.request.seed, row.seed), run.request.seed, indices, framesOf(run, row, binding), run.frameNames)
     }
