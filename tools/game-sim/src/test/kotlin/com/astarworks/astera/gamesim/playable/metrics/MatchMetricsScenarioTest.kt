@@ -54,6 +54,8 @@ class MatchMetricsScenarioTest {
             for ((key, value) in r.result.scalars) {
                 assertThat(value != null || key in r.result.notAvailable).`as`("$key is n/a without a reason in ${r.run}").isTrue()
             }
+            assertThat(r.result.scalars["ore_contention"]).`as`("ore_contention of ${r.run}: ${r.result.notAvailable["ore_contention"]}").isNotNull()
+            assertThat(r.result.scalars["ore_per_role"]).`as`("ore_per_role of ${r.run}: ${r.result.notAvailable["ore_per_role"]}").isNotNull().isGreaterThan(0.0)
         }
     }
 }

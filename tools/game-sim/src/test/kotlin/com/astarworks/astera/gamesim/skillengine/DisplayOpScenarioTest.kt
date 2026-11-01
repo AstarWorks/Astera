@@ -32,6 +32,9 @@ class DisplayOpScenarioTest : SkillEngineScenario() {
             is Result.Failure -> throw AssertionError("did not load: ${r.error}")
         }
 
+    /** A spawn call keeps its display metadata (glow, shader, view) in `detail`; `payload` is just the kind. */
+    private val com.astarworks.astera.gamesim.skillengine.RecordedCall.meta: Set<String> get() = detail.split(' ').filter { it.isNotEmpty() }.toSet()
+
     private fun rows(s: CompiledSkill): List<Row> = s.table.states.flatMap { it.rows }
 
     @Test
@@ -41,8 +44,8 @@ class DisplayOpScenarioTest : SkillEngineScenario() {
         val calls = play(skill, 7L)
         val spawns = calls.filter { it.verb == "spawn" }
         assertThat(spawns).hasSize(18)
-        assertThat(spawns.count { "glowing=true" in it.tokens }).isEqualTo(12)
-        assertThat(spawns.count { "shader=emissive-pulse" in it.tokens }).isEqualTo(6)
+        assertThat(spawns.count { "glowing=true" in it.meta }).isEqualTo(12)
+        assertThat(spawns.count { "shader=emissive-pulse" in it.meta }).isEqualTo(6)
         val particles = calls.filter { it.verb == "particle" }
         assertThat(particles).hasSize(2)
         assertThat(particles.all { "type=dust" in it.tokens && "count=40" in it.tokens }).isTrue()
@@ -58,9 +61,9 @@ class DisplayOpScenarioTest : SkillEngineScenario() {
         )
         val spawn = play(s, 7L).filter { it.verb == "spawn" }
         assertThat(spawn).hasSize(3)
-        assertThat(spawn[0].payload).contains("glowing=true", "glow=#00ffff")
-        assertThat(spawn[1].payload).contains("glow=#ff0000").doesNotContain("glowing=true")
-        assertThat(spawn[2].payload).contains("glowing=true", "glow=-")
+        assertThat(spawn[0].detail).contains("glowing=true", "glow=#00ffff")
+        assertThat(spawn[1].detail).contains("glow=#ff0000").doesNotContain("glowing=true")
+        assertThat(spawn[2].detail).contains("glowing=true", "glow=-")
         for (bad in listOf("glowing: 1", "glowing: 'yes'", "glow_color: '#f00'", "glow_color: '#ff00ffff'")) {
             assertThat(loadInline(skill("{id: bad, op: display, kind: block, anchor: caster, block: minecraft:stone, for: 10, $bad}")))
                 .describedAs(bad).isInstanceOf(Result.Failure::class.java)
@@ -86,7 +89,7 @@ class DisplayOpScenarioTest : SkillEngineScenario() {
         assertThat(textViews).containsExactly(DisplayView(glowing = true, glowColor = "#ff0000"))
         val spawns = rec.calls.filter { it.verb == "spawn" }
         assertThat(spawns).hasSize(2)
-        assertThat(spawns.first().payload).contains("glowing=true", "glow=#00ffff")
+        assertThat(spawns.first().detail).contains("glowing=true", "glow=#00ffff")
         assertThat(rec.writtenPoses.filter { it.first in 1..10 }.map { it.third.frame.origin.z }.distinct().size).isGreaterThan(1)
         assertThat(rec.calls.filter { it.verb == "remove" }).hasSize(2)
     }

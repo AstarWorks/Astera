@@ -95,6 +95,8 @@ class SimBotHost(
         hub.hosts[entity.id] = this
     }
 
+    override fun carriedItemIds(): Set<String>? = sim.server.view(entity.id)?.givenItems?.toSet()
+
     fun recordHit(text: String) { hits += text }
 
     // --- observations ---------------------------------------------------------------------------------------------

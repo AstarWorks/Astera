@@ -78,8 +78,7 @@ machine:
         # dash corridor: capsule radius 1.0, hit_once, no early end (the dash runs through everyone).
         - id: strike
           op: hit
-          frame: body
-          pos: {w: 0.9}
+          anchor: caster.body
           at: 0
           every: 1
           for: "= ${dash_ticks}"
@@ -92,5 +91,5 @@ machine:
           on:
             hit:
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: wound, volume: 1.0, pitch: 1.0, detach: true}
-        - {id: trail_fx, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.04, at: 0, every: 1, for: 4, detach: true}
+        - {id: trail_fx, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.04, at: 0, every: 1, for: 8, detach: true}
     end: {final: true}

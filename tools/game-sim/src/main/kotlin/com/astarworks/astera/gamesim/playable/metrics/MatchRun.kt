@@ -9,6 +9,9 @@ import com.astarworks.astera.gamesim.GameSim
 interface MatchRun {
     val sim: GameSim
 
+    /** The bot brain behind [player] (role / decision kind for the metrics); null for runs without brains. */
+    fun brainOf(player: com.astarworks.astera.core.domain.player.PlayerId): com.astarworks.astera.bots.BotBrain? = null
+
     /** Advance the match [n] sim ticks; every tick calls the [onTick] listeners once, with the new tick number. */
     fun step(n: Int)
 

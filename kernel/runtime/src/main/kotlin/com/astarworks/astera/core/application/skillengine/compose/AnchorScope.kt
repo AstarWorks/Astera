@@ -33,6 +33,9 @@ public interface AnchorScope {
 
     /** The model points the instance behind [anchor] declares (`root`, `tip`); null when the anchor is not a model-backed instance, so any point is accepted. */
     public fun points(anchor: String): Set<String>? = null
+
+    /** The ids of the skill's own `frames:` entries: a call may bind one to a part's frame name, as a state-level `use:` does. */
+    public val skillFrames: Set<String> get() = emptySet()
 }
 
 public data class ResolvedAnchor(val instance: InstanceId, val basis: ExprClass)
@@ -146,12 +149,13 @@ public class DefaultAnchorScope private constructor(
     private val foreign: (String) -> AnchorRegistry?,
     private val published: (String) -> Entry?,
     private val ownFamily: Int? = null,
+    override val skillFrames: Set<String> = emptySet(),
 ) : AnchorRegistry {
     /** [foreign] answers the registry of an earlier state for a state-qualified name (`/throw/volley`); a name without a state never reads it. */
     public constructor(
         occurrence: Occurrence, documents: Map<String, AnchorDecl> = emptyMap(), foreign: (String) -> AnchorRegistry? = { null },
-        published: (String) -> Any? = { null },
-    ) : this(occurrence, LinkedHashMap(), documents, foreign, { n -> published(n) as? Entry })
+        skillFrames: Set<String> = emptySet(), published: (String) -> Any? = { null },
+    ) : this(occurrence, LinkedHashMap(), documents, foreign, { n -> published(n) as? Entry }, null, skillFrames)
 
     /** The entry [name] of this scope that a PART published to its caller (ADR-0303 9 `frames_out`): declared by an op inside a called part's state (id `call/state/op`; a plain top-level op is `state/op` and is never read by bare name from another state). */
     internal fun publishedEntry(name: String): Any? = entries[name]?.takeIf { it.instance.path.last().op.value.count { c -> c == '/' } >= 2 }
@@ -204,7 +208,7 @@ public class DefaultAnchorScope private constructor(
         return (if (k != null) e.copies[k] else null) ?: e.laws
     }
 
-    override fun at(occurrence: Occurrence, family: Int?): AnchorRegistry = DefaultAnchorScope(occurrence, entries, documents, foreign, published, family)
+    override fun at(occurrence: Occurrence, family: Int?): AnchorRegistry = DefaultAnchorScope(occurrence, entries, documents, foreign, published, family, skillFrames)
 
     override fun resolve(name: String): ResolvedAnchor? {
         val parts = AnchorNames.split(name) ?: return null

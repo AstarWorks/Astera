@@ -71,7 +71,7 @@ public object SoundOpSpec : OpSpec<SoundOp> {
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<SoundOp, SkillDecodeError> =
         Grammar.guard {
             val path = "sound[${id.value}]"
-            val frame = FrameRefs.read(values, ctx, path, allowExpr = true, anchorGiven = values[ANCHOR] != null)
+            val frame = FrameRefs.read(values, ctx, path, anchorGiven = values[ANCHOR] != null)
             if (frame == null && values[ANCHOR] == null) ctx.fail("$path.anchor", "sound needs anchor: <name> or frame: <id>")
             SoundOp(
                 id = id,
