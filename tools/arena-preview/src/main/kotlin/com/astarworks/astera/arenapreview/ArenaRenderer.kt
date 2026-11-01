@@ -73,9 +73,10 @@ object ArenaRenderer {
         return image
     }
 
-    /** Vertical cut along X through the centre of the first island: shows flanks, overhangs, shelves and spires in profile. */
+    /** Cut through the tier-3 sanctum when present, otherwise the first island/spawn: exposes the keep and rock taper. */
     fun section(stage: Stage, plan: ArenaBuildPlan): BufferedImage {
-        val z = stage.layout!!.islands.firstOrNull()?.z ?: stage.spawnPoints.first { it.team != null }.position.z.toInt()
+        val z = stage.pillars.firstOrNull { it.tier.ordinalValue == 3 }?.position?.z?.toInt()
+            ?: stage.layout!!.islands.firstOrNull()?.z ?: stage.spawnPoints.first { it.team != null }.position.z.toInt()
         val sx = 3; val sy = 4
         val w = plan.maxX - plan.minX + 1; val h = plan.maxY - plan.minY + 1
         val image = BufferedImage(w * sx + 48, h * sy + 72, BufferedImage.TYPE_INT_RGB)

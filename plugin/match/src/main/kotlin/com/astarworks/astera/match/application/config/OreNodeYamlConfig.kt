@@ -15,6 +15,8 @@ import kotlinx.serialization.Serializable
  * id: siege-isles                 # the stage id (the generators' match_stage_id)
  * level_speed: { 1: 1.0, 3: 1.3, 5: 1.75 }   # break-speed multiplier by Norma level (highest key at or below the player's); level 1 required
  * skill_mult: 3.0                 # a tool-skill strike hits this many times a hand hit (x block_damage / 100)
+ * phase_gates:                    # optional; only read by phase-driven matches (Annihilation). Block id -> first phase number it opens in
+ *   astera:ore_iron_node: 1       # (1 build, 2 engage, 3 center, 4 escalation, 5 sudden death). When present, EVERY block of `nodes` must be listed
  * nodes:
  *   - block: astera:ore_iron_node # a content/blocks/ id; its base_bukkit_material is what the node looks like
  *     positions: [{ x: 5, y: 65, z: 5 }]   # stage-relative x/z, absolute y (or `region: {min, max}` to fill a box)
@@ -32,6 +34,7 @@ public data class OreNodeYamlConfig(
     public val id: String,
     @SerialName("level_speed") public val levelSpeed: Map<Int, Double>,
     @SerialName("skill_mult") public val skillMult: Double,
+    @SerialName("phase_gates") public val phaseGates: Map<String, Int> = emptyMap(),
     public val nodes: List<OreNodeGroupYaml>,
 ) {
     init {
@@ -39,6 +42,16 @@ public data class OreNodeYamlConfig(
         require(levelSpeed.all { (level, mult) -> level >= 1 && mult > 0.0 }) { "ore nodes '$id': level_speed levels must be >= 1 and multipliers > 0 ($levelSpeed)" }
         require(skillMult > 0.0) { "ore nodes '$id': skill_mult must be > 0 (got $skillMult)" }
         require(nodes.isNotEmpty()) { "ore nodes '$id': nodes must not be empty" }
+        if (phaseGates.isNotEmpty()) {
+            val kinds = nodes.map { it.block }.toSet()
+            require(kinds.all { it in phaseGates }) {
+                "ore nodes '$id': phase_gates must map every block of the file, missing ${(kinds - phaseGates.keys).sorted()}"
+            }
+            require(phaseGates.keys.all { it in kinds }) {
+                "ore nodes '$id': phase_gates names blocks that are not in nodes: ${(phaseGates.keys - kinds).sorted()}"
+            }
+            require(phaseGates.values.all { it in 1..5 }) { "ore nodes '$id': phase_gates phases must be 1..5 ($phaseGates)" }
+        }
     }
 }
 
@@ -93,5 +106,6 @@ public fun OreNodeGroupYaml.toSpec(
     return OreNodeSpec(
         material, placeholder.trim().uppercase(), regrowSeconds, tier, drops.map { OreDrop(it.itemId, it.count) }, cells,
         blockSpec.baseDurability, hitDamage, minNormaLevel, file.levelSpeed, file.skillMult,
+        minPhase = file.phaseGates[block] ?: 1,
     )
 }

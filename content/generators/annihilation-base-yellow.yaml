@@ -1,12 +1,20 @@
-# Small star generator on the yellow team's base island (founder 2026-10-29, anti-snowball supply): only members of the
-# yellow team can pick up its stars. Grows with the star supply multiplier like every generator (norma-layer/layer.yaml).
+# Timer star generator of the annihilation-arena "Highmarch" (ADR-0318, ADR-0317 coordinates from anni-map): a MINOR source of the star economy
+# (spot share <= 15% of the budget). It no longer pops at one fixed point (founder 2026-11-01: "stars pop at fixed spots, one at a time" was
+# the complaint): every pop picks the next of the candidate `spots` below by a seeded rotation (never the same spot twice in a row), holds at
+# most one star per spot, and is throttled by the spot budget. `position` is the first candidate (the anchor).
 id: annihilation-base-yellow
 match_stage_id: annihilation-arena
-position: { x: -58.5, y: 65.0, z: 27.5 }
-period_seconds: 20.0
-amount: 2
+position: { x: -95.5, y: 65.0, z: 34.5 }
+period_seconds: 12.0
+amount: 1
+stockpile_cap: 1
 tier: iron
 affiliation:
   kind: team
   team_id: yellow
 late_game_multiplier: 2.0
+spots:
+  - { x: -95.5, y: 65.0, z: 34.5 }
+  - { x: -95.5, y: 65.0, z: 29.5 }
+  - { x: -90.5, y: 65.0, z: 29.5 }
+  - { x: -90.5, y: 65.0, z: 34.5 }

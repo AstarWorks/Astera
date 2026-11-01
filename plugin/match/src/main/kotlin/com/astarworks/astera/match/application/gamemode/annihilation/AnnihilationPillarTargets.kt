@@ -30,6 +30,7 @@ import kotlin.math.floor
  * Rules enforced here (not in the tracker, which knows no players):
  *  - the attacker must be in the same match as the pillar;
  *  - a team cannot damage its own pillars ([IStructureTargets.Rejection.FRIENDLY]);
+ *  - the phase damage multiplier (escalation x1.5, sudden death x2; ADR-0319) scales every player hit;
  *  - phase gating (Build immunity, tier opening) stays with the tracker's pillar
  *    state: damage to a pillar that is not [NexusState.VULNERABLE] is rejected as
  *    [IStructureTargets.Rejection.NOT_VULNERABLE] and changes nothing.
@@ -96,7 +97,8 @@ public class AnnihilationPillarTargets(
         val site = hit.view.site!!
         val tuning = tracker.state(hit.matchId)?.config?.pillarDamage ?: PillarDamageTuning()
         val origin = source.origin ?: locate(attacker)
-        val effective = PillarDamageRules.effective(
+        val phaseMult = tracker.state(hit.matchId)?.let { it.config.damageMultOf(it.phase) } ?: 1.0
+        val effective = phaseMult * PillarDamageRules.effective(
             tuning = tuning,
             raw = amount,
             kind = when (source.kind) {
