@@ -172,7 +172,9 @@ internal object Binding {
         }
         for (k in call.frames.keys) if (k !in part.framesIn) abort("$where.frames.$k", "part '${part.id}' takes no frame '$k' (${part.framesIn.keys.joinToString()})")
         for (k in part.framesIn.keys) if (k !in call.frames) abort("$where.frames.$k", "frame '$k' of part '${part.id}' is not bound")
-        val env = Env(values, call.frames, skillFrames)
+        // a built-in frame (`caster.eye`, `weapon.muzzle`) bound to a frame-typed `frames_in` name places its ops by `frame:` like a declared one
+        val builtinBound = call.frames.filter { (k, v) -> part.framesIn[k] == "frame" && com.astarworks.astera.core.application.skillengine.compose.BuiltinFrames.isBuiltin(v) }.values
+        val env = Env(values, call.frames, skillFrames + builtinBound)
         val m = part.machine
         if (m.world.isNotEmpty()) abort("$where.world", "part '${part.id}' declares machine.world: only a skill machine owns cast-level rows")
         return Machine(
@@ -200,7 +202,7 @@ internal object Binding {
     class Env(private val params: Map<String, Any?>, private val frames: Map<String, String>, private val skillFrames: Set<String> = emptySet()) {
         private companion object {
             /** Op fields typed as a closed keyword set whose words can equal a frame name (`center`, `fixed`...). */
-            val FRAME_PLACED = setOf("sound", "particle", "display")
+            val FRAME_PLACED = setOf("sound", "particle", "particle_def", "display", "hit", "explode", "lightning", "break_area", "place_shape", "summon")
             val ENUM_KEYS = setOf("billboard", "alignment", "pivot", "face", "mode", "kind", "direction", "forward", "targets", "category", "context", "operation", "tool", "law")
         }
 
