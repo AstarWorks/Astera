@@ -27,12 +27,22 @@ class BotStarBlockScenarioTest {
         override val type = "PLAYER"
     }
 
-    private class Dig(val bx: Int, val by: Int, val bz: Int, val botX: Double, val botZ: Double)
+    private class Dig(val bx: Int, val by: Int, val bz: Int, val botX: Double, val botZ: Double, val holdMs: Long, val slot: Int)
 
-    private class BlockHost(private val blockAt: Triple<Int, Int, Int>, private val foe: Foe? = null) : BotHost {
+    /**
+     * [blocks] are barrels; each dig breaks one. [paying] = the server pays a star (plays `astera:star/pickup`) per break; false = the
+     * block bucket is empty. [hotbarNames] fills slots 0.. (slot 0 is the sword).
+     */
+    private class BlockHost(
+        blocks: Set<Triple<Int, Int, Int>>,
+        private val foe: Foe? = null,
+        private val paying: Boolean = true,
+        private val hotbarNames: List<String> = listOf("Knight Sword"),
+    ) : BotHost {
+        constructor(blockAt: Triple<Int, Int, Int>, foe: Foe? = null) : this(setOf(blockAt), foe)
+        private val standing = blocks.toMutableSet()
         var clock = 1_000_000L
-        var barrelBroken = false
-        override val name = "red-bot"
+                override val name = "red-bot"
         override val joined = true
         override var x = 0.0
         override var y = 64.0
@@ -44,7 +54,7 @@ class BotStarBlockScenarioTest {
         override val spectating = false
         override val selfEntityId = 1
         override var selectedSlot = 0
-        private fun isBarrel(x: Int, y: Int, z: Int) = !barrelBroken && Triple(x, y, z) == blockAt
+        private fun isBarrel(x: Int, y: Int, z: Int) = Triple(x, y, z) in standing
         override val terrain = object : TerrainView {
             override fun isSolid(x: Int, y: Int, z: Int): Boolean? =
                 if (x !in -60..60 || z !in -60..60) null else y <= 63 || isBarrel(x, y, z)
@@ -64,7 +74,7 @@ class BotStarBlockScenarioTest {
         override val actionBars: List<HostLine> = emptyList()
         override val screens: List<HostScreen> = emptyList()
         override val bossBarTitles: List<String> = emptyList()
-        override val sounds: List<String> = emptyList()
+        override val sounds = ArrayList<String>()
         override val damageNumbers: List<String> = emptyList()
         override var lift = 0.0
         val digs = ArrayList<Dig>()
@@ -74,9 +84,9 @@ class BotStarBlockScenarioTest {
         override fun isSpectator(player: UUID) = false
         override fun teamOf(player: String) = if (player == name) "red" else "blue"
         override fun healthOf(entityId: Int): Float? = null
-        override fun hotbar() = listOf(1, -1, -1, -1, -1, -1, -1, -1, -1)
-        override fun hotbarName(slot: Int) = "Knight Sword"
-        override fun hotbarLore(slot: Int) = "[LMB] Slash"
+        override fun hotbar() = List(9) { if (it < hotbarNames.size) it + 1 else -1 }
+        override fun hotbarName(slot: Int) = hotbarNames.getOrElse(slot) { "" }
+        override fun hotbarLore(slot: Int) = if (slot == 0) "[LMB] Slash" else ""
         override fun carriedStacks() = emptyList<Pair<String, Int>>()
         override fun command(cmd: String) {}
         override fun selectHotbar(slot: Int) { selectedSlot = slot }
@@ -89,8 +99,8 @@ class BotStarBlockScenarioTest {
         override fun respawn() {}
         override fun dropSelected(wholeStack: Boolean) {}
         override fun dig(bx: Int, by: Int, bz: Int, holdMs: Long) {
-            digs += Dig(bx, by, bz, x, z)
-            if (Triple(bx, by, bz) == blockAt) barrelBroken = true
+            digs += Dig(bx, by, bz, x, z, holdMs, selectedSlot)
+            if (standing.remove(Triple(bx, by, bz)) && paying) sounds += "astera:star/pickup"
         }
         override fun digAsync(bx: Int, by: Int, bz: Int, holdMs: Long) = dig(bx, by, bz, holdMs)
         override fun closeWindow(id: Int) {}
@@ -147,5 +157,35 @@ class BotStarBlockScenarioTest {
         }
         assertThat(brain.ticksWithEnemy.get()).`as`("the bot is engaged with the enemy").isGreaterThan(50)
         assertThat(host.digs).`as`("it fights instead of digging the barrel").isEmpty()
+    }
+
+    @Test
+    fun `an empty block bucket stops the bot after two unpaid breaks`() {
+        val barrels = setOf(Triple(6, 64, 0), Triple(0, 64, 6), Triple(-6, 64, 0), Triple(0, 64, -6))
+        val dry = BlockHost(barrels, paying = false)
+        val dryBrain = brain(dry)
+        repeat(2000) { dry.clock += 50; dryBrain.tick() }
+        assertThat(dry.digs).`as`("two broken blocks without a star, then the bot gives up the rest").hasSize(2)
+        assertThat(dryBrain.starBlocksDry).isTrue()
+
+        val paid = BlockHost(barrels, paying = true)
+        val paidBrain = brain(paid)
+        repeat(2000) { paid.clock += 50; paidBrain.tick() }
+        assertThat(paid.digs).`as`("every break pays a star, so every block is taken").hasSize(4)
+        assertThat(paidBrain.starBlocksDry).isFalse()
+    }
+
+    @Test
+    fun `dig hold follows the vanilla break time of the tool in hand`() {
+        // hardness 2.5 wood: ticks = ceil(75 / speed), +3 ticks margin, 50 ms each. Bare hand speed 1, stone 4, iron 6, diamond 8.
+        val expected = listOf(null to 3_900L, "Stone Axe" to 1_100L, "Iron Axe" to 800L, "Diamond Axe" to 650L)
+        for ((axe, hold) in expected) {
+            val host = BlockHost(setOf(Triple(6, 64, 0)), hotbarNames = listOfNotNull("Knight Sword", axe))
+            val brain = brain(host)
+            repeat(400) { host.clock += 50; brain.tick() }
+            assertThat(host.digs).`as`("dig with ${axe ?: "bare hand"}").hasSize(1)
+            assertThat(host.digs.single().holdMs).`as`("hold with ${axe ?: "bare hand"}").isEqualTo(hold)
+            if (axe != null) assertThat(host.digs.single().slot).`as`("the axe is in hand").isEqualTo(1)
+        }
     }
 }

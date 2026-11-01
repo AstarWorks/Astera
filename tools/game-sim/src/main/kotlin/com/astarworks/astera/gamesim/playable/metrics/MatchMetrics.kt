@@ -93,6 +93,9 @@ class MatchMetrics(
     private var starsSupplied = 0
     private var starsCollected = 0
 
+    private var oreByGroup: Map<String, Double> = emptyMap()
+    private val contentionWindowTicks = 2_400L
+
     private val heat = Array(gridSize) { IntArray(gridSize) }
     private val leadSamples = mutableListOf<Triple<Long, TeamId?, Map<String, Double>>>()
     private var leader: TeamId? = null
@@ -326,10 +329,28 @@ class MatchMetrics(
         scalars["heatmap_unvisited_ratio"] = if (bounds != null && total > 0) unvisited else null
         if (scalars["heatmap_unvisited_ratio"] == null) na["heatmap_unvisited_ratio"] = "stage bounds unknown or no player ticks"
 
-        scalars["ore_contention"] = null
-        scalars["ore_per_role"] = null
-        na["ore_contention"] = "GameSim exposes no ore-node positions or mining events (SimOreNodeWorld keeps them private)"
-        na["ore_per_role"] = "SimItemDelivery.delivered carries no player; ore gain cannot be attributed"
+        val mined = sim.oreNodes.mined
+        if (mined.isEmpty()) {
+            scalars["ore_contention"] = null
+            scalars["ore_per_role"] = null
+            na["ore_contention"] = "no ore node was mined"
+            na["ore_per_role"] = "no ore node was mined"
+        } else {
+            val byCell = mined.groupBy { Triple(it.x, it.y, it.z) }
+            val contested = byCell.values.count { events ->
+                val teams = events.filter { it.miner != null }.map { it.tick to (sim.world.find(it.miner!!)?.team?.value ?: "?") }
+                teams.any { (t, team) -> teams.any { (t2, team2) -> team != team2 && kotlin.math.abs(t - t2) <= contentionWindowTicks } }
+            }
+            scalars["ore_contention"] = contested.toDouble() / byCell.size
+            na["ore_contention_basis"] = "share of mined node cells that two different teams mined within ${contentionWindowTicks / 20}s of each other (${byCell.size} cells, ${mined.size} minings)"
+            val perPlayer = playerList.associate { it.id to 0 }.toMutableMap()
+            for (m in mined) m.miner?.let { perPlayer.merge(it, m.items, Int::plus) }
+            val groups = perPlayer.entries.groupBy({ group(it.key) }, { it.value })
+            oreByGroup = groups.mapValues { (_, v) -> v.average() }
+            scalars["ore_per_role"] = perPlayer.values.takeIf { it.isNotEmpty() }?.average()
+            if (scalars["ore_per_role"] == null) na["ore_per_role"] = "no players"
+            na["ore_per_role_basis"] = "mean ore items mined per player (detail per ${if (roleOf != null) "role" else "team, no RoleAssigner role source attached"} in metrics.json oreByGroup); miner = player the drops were delivered to"
+        }
 
         val pick = pickupPositions
         if (pick.size >= 2) {
@@ -373,6 +394,8 @@ class MatchMetrics(
                     put("ticksByActivity", JsonObject(Activity.entries.associate { it.name.lowercase() to JsonPrimitive(st.ticksByActivity[it.ordinal]) }))
                 }
             }))
+            put("oreByGroup", JsonObject(oreByGroup.mapValues { JsonPrimitive(it.value) }))
+            put("oreNodesMined", mined.size)
             put("killsByGroup", JsonObject(kills.mapValues { JsonPrimitive(it.value) }))
             put("killsByItem", JsonObject(killsByItem.mapValues { JsonPrimitive(it.value) }))
             put("pillarDamageByGroup", JsonObject(pillarDamageByKey.mapValues { JsonPrimitive(it.value) }))
