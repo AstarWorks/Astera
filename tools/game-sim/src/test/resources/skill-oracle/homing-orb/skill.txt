@@ -1,13 +1,11 @@
 ## pose yaw=0 pitch=0
-@0 spawn #0 op=fly/core kind=sprite sprite=flame alpha=1.000000 tint=#a0c8ff seethrough=false pos=0.000000,1.620000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.375000,1.375000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
-@0 spawn #1 op=fly/halo kind=sprite sprite=flame alpha=1.000000 tint=#ffffff seethrough=false pos=0.000000,1.620000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=fly/halo kind=sprite sprite=flame alpha=1.000000 tint=#ffffff seethrough=false pos=0.000000,1.620000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=entity.blaze.shoot cat=master vol=0.7 pitch=1.4 at=0.000000,1.620000,1.200000
 @0 particle - op=fly/trail[0] type=crit count=3 at=0.000000,1.620000,1.200000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1986490718309559717
 @0 frame fly/orb op=fly/orb pos=0.000000,1.620000,1.200000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=fly/trail[1] type=crit count=3 at=0.000000,1.620000,1.200000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2693056083388348958
 @1 hit - op=fly/orb at=0.000000,1.550413,1.695134 r=1.000000 shape=capsule a=0.000000,1.620000,1.200000 b=0.000000,1.480827,2.190268 rad=0.500000
-@1 remove #1 op=fly/halo
-@1 remove #0 op=fly/core
+@1 remove #0 op=fly/halo
 @2 particle - op=fly/trail[2] type=crit count=3 at=0.000000,1.480827,2.190268 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2704437626382947084
 @3 particle - op=fly/trail[3] type=crit count=3 at=0.000000,1.480827,2.190268 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6893615523143380748
 @4 particle - op=fly/trail[4] type=crit count=3 at=0.000000,1.480827,2.190268 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7315000732269749476
@@ -20,15 +18,13 @@ g @1 dropped reason=owner-exited:fly | sub=fly/orb.end
 g @1 cast-end | pose
 r @6 run-end tail=5 | pose
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=fly/core kind=sprite sprite=flame alpha=1.000000 tint=#a0c8ff seethrough=false pos=-0.678625,2.030424,0.900566 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=1.375000,1.375000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
-@0 spawn #1 op=fly/halo kind=sprite sprite=flame alpha=1.000000 tint=#ffffff seethrough=false pos=-0.678625,2.030424,0.900566 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=fly/halo kind=sprite sprite=flame alpha=1.000000 tint=#ffffff seethrough=false pos=-0.678625,2.030424,0.900566 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=entity.blaze.shoot cat=master vol=0.7 pitch=1.4 at=-0.678625,2.030424,0.900566
 @0 particle - op=fly/trail[0] type=crit count=3 at=-0.678625,2.030424,0.900566 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1986490718309559717
 @0 frame fly/orb op=fly/orb pos=-0.678625,2.030424,0.900566 rot=-0.164675,-0.312484,-0.055099,0.933916
 @1 particle - op=fly/trail[1] type=crit count=3 at=-0.678625,2.030424,0.900566 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2693056083388348958
 @1 hit - op=fly/orb at=-0.972957,2.134380,1.291158 r=1.000000 shape=capsule a=-0.678625,2.030424,0.900566 b=-1.267289,2.238336,1.681750 rad=0.500000
-@1 remove #1 op=fly/halo
-@1 remove #0 op=fly/core
+@1 remove #0 op=fly/halo
 @2 particle - op=fly/trail[2] type=crit count=3 at=-1.267289,2.238336,1.681750 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2704437626382947084
 @3 particle - op=fly/trail[3] type=crit count=3 at=-1.267289,2.238336,1.681750 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6893615523143380748
 @4 particle - op=fly/trail[4] type=crit count=3 at=-1.267289,2.238336,1.681750 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7315000732269749476
@@ -41,53 +37,49 @@ g @1 dropped reason=owner-exited:fly | sub=fly/orb.end
 g @1 cast-end | pose
 r @6 run-end tail=5 | pose
 ## pose-hit yaw=0 pitch=0
-@0 spawn #0 op=fly/core kind=sprite sprite=flame alpha=1.000000 tint=#a0c8ff seethrough=false pos=0.000000,1.620000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=1.375000,1.375000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
-@0 spawn #1 op=fly/halo kind=sprite sprite=flame alpha=1.000000 tint=#ffffff seethrough=false pos=0.000000,1.620000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=fly/halo kind=sprite sprite=flame alpha=1.000000 tint=#ffffff seethrough=false pos=0.000000,1.620000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=entity.blaze.shoot cat=master vol=0.7 pitch=1.4 at=0.000000,1.620000,1.200000
 @0 particle - op=fly/trail[0] type=crit count=3 at=0.000000,1.620000,1.200000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1986490718309559717
 @0 frame fly/orb op=fly/orb pos=0.000000,1.620000,1.200000 rot=0.000000,0.000000,0.000000,1.000000
 @1 particle - op=fly/trail[1] type=crit count=3 at=0.000000,1.620000,1.200000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2693056083388348958
 @1 hit - op=fly/orb at=0.000000,1.550413,1.695134 r=1.000000 shape=capsule a=0.000000,1.620000,1.200000 b=0.000000,1.480827,2.190268 rad=0.500000
-@1 spawn #2 op=- kind=sprite sprite=sparkle-cross alpha=1.000000 tint=#ffffff seethrough=false pos=0.000000,0.810000,2.500000 rot=0.156024,0.000000,0.000000,0.987753 scale=3.000000,3.000000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
-@1 write #2 op=- dur=5 pos=0.000000,0.810000,2.500000 rot=0.156024,0.000000,0.000000,0.987753 scale=3.600000,3.600000,1.200000 bb=CENTER
+@1 spawn #1 op=fly/core kind=sprite sprite=sparkle-cross alpha=1.000000 tint=#ffffff seethrough=false pos=0.000000,0.810000,2.500000 rot=0.156024,0.000000,0.000000,0.987753 scale=3.000000,3.000000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@1 write #1 op=fly/core dur=5 pos=0.000000,0.810000,2.500000 rot=0.156024,0.000000,0.000000,0.987753 scale=3.600000,3.600000,1.200000 bb=CENTER
 @1 particle - op=fly/orb.hit/fx_hit type=hit-spark at=0.000000,1.110000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2479582473517320524
 @1 particle - op=fly/orb.hit/burst_flame type=flame count=24 at=0.000000,0.810000,2.500000 off=0.350000,0.350000,0.350000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2739143265106368730
 @1 particle - op=fly/orb.hit/burst_crit type=crit count=24 at=0.000000,0.810000,2.500000 off=0.300000,0.300000,0.300000 speed=0.450000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5482272575433190853
 @1 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=homing-orb at=0.000000,1.480827,2.200000 ignoreinv=false ignorearmor=false
-@1 remove #1 op=fly/halo
-@1 remove #0 op=fly/core
+@1 remove #0 op=fly/halo
 @2 particle - op=fly/trail[2] type=crit count=3 at=0.000000,1.480827,2.190268 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2704437626382947084
 @3 particle - op=fly/trail[3] type=crit count=3 at=0.000000,1.480827,2.190268 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6893615523143380748
 @4 particle - op=fly/trail[4] type=crit count=3 at=0.000000,1.480827,2.190268 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7315000732269749476
 @5 particle - op=fly/trail[5] type=crit count=3 at=0.000000,1.480827,2.190268 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2999447497741098571
 @6 particle - op=fly/trail[6] type=crit count=3 at=0.000000,1.480827,2.190268 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4284021736689367565
-@6 remove #2 op=-
+@6 remove #1 op=fly/core
 g @1 state-exit reason=EVENT | state=fly
 g @1 dropped reason=owner-exited:fly | sub=fly/orb.end
 g @1 cast-end | pose
 r @6 run-end tail=5 | pose
 ## pose-hit yaw=37 pitch=0
-@0 spawn #0 op=fly/core kind=sprite sprite=flame alpha=1.000000 tint=#a0c8ff seethrough=false pos=-0.722178,1.620000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=1.375000,1.375000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
-@0 spawn #1 op=fly/halo kind=sprite sprite=flame alpha=1.000000 tint=#ffffff seethrough=false pos=-0.722178,1.620000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=fly/halo kind=sprite sprite=flame alpha=1.000000 tint=#ffffff seethrough=false pos=-0.722178,1.620000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=entity.blaze.shoot cat=master vol=0.7 pitch=1.4 at=-0.722178,1.620000,0.958363
 @0 particle - op=fly/trail[0] type=crit count=3 at=-0.722178,1.620000,0.958363 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1986490718309559717
 @0 frame fly/orb op=fly/orb pos=-0.722178,1.620000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324
 @1 particle - op=fly/trail[1] type=crit count=3 at=-0.722178,1.620000,0.958363 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2693056083388348958
 @1 hit - op=fly/orb at=-1.020157,1.550413,1.353794 r=1.000000 shape=capsule a=-0.722178,1.620000,0.958363 b=-1.318136,1.480827,1.749226 rad=0.500000
-@1 spawn #2 op=- kind=sprite sprite=sparkle-cross alpha=1.000000 tint=#ffffff seethrough=false pos=-1.504538,0.810000,1.996589 rot=0.147961,-0.313419,0.049507,0.936710 scale=3.000000,3.000000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
-@1 write #2 op=- dur=5 pos=-1.504538,0.810000,1.996589 rot=0.147961,-0.313419,0.049507,0.936710 scale=3.600000,3.600000,1.200000 bb=CENTER
+@1 spawn #1 op=fly/core kind=sprite sprite=sparkle-cross alpha=1.000000 tint=#ffffff seethrough=false pos=-1.504538,0.810000,1.996589 rot=0.147961,-0.313419,0.049507,0.936710 scale=3.000000,3.000000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
+@1 write #1 op=fly/core dur=5 pos=-1.504538,0.810000,1.996589 rot=0.147961,-0.313419,0.049507,0.936710 scale=3.600000,3.600000,1.200000 bb=CENTER
 @1 particle - op=fly/orb.hit/fx_hit type=hit-spark at=-1.504538,1.110000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2479582473517320524
 @1 particle - op=fly/orb.hit/burst_flame type=flame count=24 at=-1.504538,0.810000,1.996589 off=0.350000,0.350000,0.350000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2739143265106368730
 @1 particle - op=fly/orb.hit/burst_crit type=crit count=24 at=-1.504538,0.810000,1.996589 off=0.300000,0.300000,0.300000 speed=0.450000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5482272575433190853
 @1 damage 00000000-0000-0000-0000-00000000000a op=- electric=12 skill=homing-orb at=-1.278471,1.490090,1.696589 ignoreinv=false ignorearmor=false
-@1 remove #1 op=fly/halo
-@1 remove #0 op=fly/core
+@1 remove #0 op=fly/halo
 @2 particle - op=fly/trail[2] type=crit count=3 at=-1.318136,1.480827,1.749226 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2704437626382947084
 @3 particle - op=fly/trail[3] type=crit count=3 at=-1.318136,1.480827,1.749226 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6893615523143380748
 @4 particle - op=fly/trail[4] type=crit count=3 at=-1.318136,1.480827,1.749226 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7315000732269749476
 @5 particle - op=fly/trail[5] type=crit count=3 at=-1.318136,1.480827,1.749226 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2999447497741098571
 @6 particle - op=fly/trail[6] type=crit count=3 at=-1.318136,1.480827,1.749226 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4284021736689367565
-@6 remove #2 op=-
+@6 remove #1 op=fly/core
 g @1 state-exit reason=EVENT | state=fly
 g @1 dropped reason=owner-exited:fly | sub=fly/orb.end
 g @1 cast-end | pose

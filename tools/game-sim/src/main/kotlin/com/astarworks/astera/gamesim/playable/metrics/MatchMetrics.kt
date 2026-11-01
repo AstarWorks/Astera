@@ -273,9 +273,29 @@ class MatchMetrics(
         if (d <= ENEMY_BASE_RADIUS) enemyBaseKills += EnemyBaseKill(e.atTick, killerEntity.name, victim.name, d)
     }
 
+    /** A kill whose victim stood inside its own team's spawn zone (centroid of the team's spawn points, spread + 12 blocks): spawn camping. */
+    class SpawnZoneKill(val tick: Long, val killer: String, val victim: String, val distance: Double)
+
+    private val spawnZoneKills = mutableListOf<SpawnZoneKill>()
+
+    private fun recordSpawnZoneKill(e: PlayerKilled) {
+        val killerEntity = e.killer?.let { sim.world.find(it) } ?: return
+        val victim = sim.world.find(e.victim) ?: return
+        val victimTeam = victim.team ?: return
+        if (killerEntity.team == victimTeam) return
+        val pts = stage?.spawnPoints?.filter { it.team == victimTeam } ?: return
+        if (pts.isEmpty()) return
+        val cx = pts.map { it.position.x }.average()
+        val cz = pts.map { it.position.z }.average()
+        val radius = pts.maxOf { sqrt((it.position.x - cx) * (it.position.x - cx) + (it.position.z - cz) * (it.position.z - cz)) } + 12.0
+        val d = sqrt((victim.position.x - cx) * (victim.position.x - cx) + (victim.position.z - cz) * (victim.position.z - cz))
+        if (d <= radius) spawnZoneKills += SpawnZoneKill(e.atTick, killerEntity.name, victim.name, d)
+    }
+
     private fun onKill(e: PlayerKilled) {
         if (!isPlayer(e.victim)) return
         recordEnemyBaseKill(e)
+        recordSpawnZoneKill(e)
         killTotal++
         killTicks += e.atTick
         kills.merge(group(e.killer), 1, Int::plus)
@@ -537,6 +557,15 @@ class MatchMetrics(
             put("starsSuppliedPerPlayerMinute", perPlayerMinute)
             put("p1KillsInEnemyBase", enemyBaseKills.size)
             put("p1KillsInEnemyBaseList", JsonArray(enemyBaseKills.map { k ->
+                buildJsonObject {
+                    put("tick", k.tick)
+                    put("killer", k.killer)
+                    put("victim", k.victim)
+                    put("distance", k.distance)
+                }
+            }))
+            put("killsInVictimSpawnZone", spawnZoneKills.size)
+            put("killsInVictimSpawnZoneList", JsonArray(spawnZoneKills.map { k ->
                 buildJsonObject {
                     put("tick", k.tick)
                     put("killer", k.killer)

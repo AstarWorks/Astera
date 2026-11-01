@@ -226,9 +226,8 @@ class BotEconomyScenarioTest {
                     if (!failNew) realDelivery else object : IItemDelivery {
                         override fun give(target: com.astarworks.astera.core.adapter.api.entity.IMcPlayer, spec: com.astarworks.astera.core.domain.item.ItemSpec, amount: Int, origin: com.astarworks.astera.core.application.port.outbound.item.ItemOrigin) =
                             if (spec.id == offer.itemId) com.astarworks.astera.core.application.port.outbound.item.DeliveryResult.UnknownTemplate(spec.id.value)
-                            // SimItemDelivery.give adds ONE inventory entry whatever `amount` is, and the bag counts one entry per
-                            // unit, so a refund of a 2-gold price is handed over unit by unit.
-                            else (1..amount).map { realDelivery.give(target, spec, 1, origin) }.last()
+                            // SimItemDelivery.give honours `amount` (one inventory entry per unit in the bag).
+                            else realDelivery.give(target, spec, amount, origin)
                         override fun refreshHeld(items: IItemRegistry): Int = 0
                         override fun replace(target: com.astarworks.astera.core.adapter.api.entity.IMcPlayer, from: ItemId, spec: com.astarworks.astera.core.domain.item.ItemSpec) = realDelivery.replace(target, from, spec)
                     }

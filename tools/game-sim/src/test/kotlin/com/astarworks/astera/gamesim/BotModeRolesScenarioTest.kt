@@ -343,11 +343,13 @@ class BotModeRolesScenarioTest {
                 .containsEntry("r1", Role.PILLAR_ATTACKER).containsEntry("r3", Role.PILLAR_ATTACKER).containsEntry("r4", Role.PILLAR_DEFENDER)
             assertThat(make("r4").step(0, spawn.first, spawn.third)?.kind).isEqualTo("guard")
 
-            // Everything stands: the first enemy by name (blue) is attacked at its tier-1 pillar, which is a block of the stage.
+            // Everything stands (a tie): one of the enemies is attacked at its tier-1 pillar, which is a block of the stage (which one is
+            // a seeded draw, see BotTeamFocusScenarioTest).
             val first = checkNotNull(make("r1").step(0, spawn.first, spawn.third))
             val bluePillar = zones.pillars().single { it.team == "blue" && it.tier == 1 }
+            val tied = listOf("blue", "yellow").map { t -> zones.pillars().single { it.team == t && it.tier == 1 } }
             assertThat(first.kind).isEqualTo("pillar")
-            assertThat(first.strike).isEqualTo(Triple(bluePillar.x, bluePillar.y, bluePillar.z))
+            assertThat(first.strike).isIn(tied.map { Triple(it.x, it.y, it.z) })
 
             // BOT-A5: an attacker only leaves its pillar trip for an enemy inside the bounded engage radius, so one standing
             // 40 blocks away (the brain compares the distance with this) never aborts it; it digs with the pillar's tool class.
@@ -481,7 +483,8 @@ class BotModeRolesScenarioTest {
             val p2 = attacker()
             val step = checkNotNull(p2.step(0, x, z))
             assertThat(step.kind).isEqualTo("pillar")
-            assertThat(step.strike).isEqualTo(Triple(blue.x, blue.y, blue.z))
+            // The enemy is a seeded draw between the tied enemies (never the alphabetical first): any enemy tier-1 pillar.
+            assertThat(step.strike).isIn(zones.pillars().filter { it.team != "red" && it.tier == 1 }.map { Triple(it.x, it.y, it.z) })
             assertThat(p2.offLimits(0, blue.x + 0.5, blue.z + 0.5)).isFalse()
 
             // A host without a phase bar: the build-phase timer decides, and the highest phase seen sticks.

@@ -2,7 +2,7 @@
 @0 spawn #0 op=bloom/ring kind=sprite sprite=ring alpha=1.000000 tint=#8cff78 seethrough=false pos=0.000000,0.100000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=bloom/ring dur=1 pos=0.000000,0.100000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=1.740525,1.740525,1.740525 bb=FIXED
 @0 sound - op=bloom/snd sound=astera:skills/heal-chime cat=master vol=0.5 pitch=1 at=0.000000,0.100000,0.000000
-@0 particle - op=bloom/fx type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1098070529374300754
+@0 particle - op=bloom/fx type=verdant-heal at=0.000000,0.800000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1098070529374300754
 @0 particle - op=bloom/leaf_a type=happy_villager count=0 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6186464376136775895
 @0 particle - op=bloom/dust_a type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5ae65a size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1659682316981912980
 @0 particle - op=bloom/hearts type=heart count=8 at=0.000000,0.100000,0.000000 off=0.800000,0.800000,0.800000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6797978351261559995
@@ -23,7 +23,7 @@
 @0 spawn #0 op=bloom/ring kind=sprite sprite=ring alpha=1.000000 tint=#8cff78 seethrough=false pos=0.000000,0.100000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=bloom/ring dur=1 pos=0.000000,0.100000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.740525,1.740525,1.740525 bb=FIXED
 @0 sound - op=bloom/snd sound=astera:skills/heal-chime cat=master vol=0.5 pitch=1 at=0.000000,0.100000,0.000000
-@0 particle - op=bloom/fx type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1098070529374300754
+@0 particle - op=bloom/fx type=verdant-heal at=0.000000,0.800000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1098070529374300754
 @0 particle - op=bloom/leaf_a type=happy_villager count=0 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6186464376136775895
 @0 particle - op=bloom/dust_a type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5ae65a size=1.400000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1659682316981912980
 @0 particle - op=bloom/hearts type=heart count=8 at=0.000000,0.100000,0.000000 off=0.800000,0.800000,0.800000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6797978351261559995
@@ -44,7 +44,7 @@
 @0 spawn #0 op=bloom/ring kind=sprite sprite=ring alpha=1.000000 tint=#8cff78 seethrough=false pos=0.000000,0.100000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=bloom/ring dur=1 pos=0.000000,0.100000,0.000000 rot=0.000000,0.707107,0.707107,0.000000 scale=1.740525,1.740525,1.740525 bb=FIXED
 @0 sound - op=bloom/snd sound=astera:skills/heal-chime cat=master vol=0.5 pitch=1 at=0.000000,0.100000,0.000000
-@0 particle - op=bloom/fx type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1098070529374300754
+@0 particle - op=bloom/fx type=verdant-heal at=0.000000,0.800000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1098070529374300754
 @0 particle - op=bloom/leaf_a type=happy_villager count=0 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6186464376136775895
 @0 particle - op=bloom/dust_a type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5ae65a size=1.400000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1659682316981912980
 @0 particle - op=bloom/hearts type=heart count=8 at=0.000000,0.100000,0.000000 off=0.800000,0.800000,0.800000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6797978351261559995
@@ -67,7 +67,7 @@ g @7 cast-end | pose
 @0 spawn #0 op=bloom/ring kind=sprite sprite=ring alpha=1.000000 tint=#8cff78 seethrough=false pos=0.000000,0.100000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=15 glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=bloom/ring dur=1 pos=0.000000,0.100000,0.000000 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.740525,1.740525,1.740525 bb=FIXED
 @0 sound - op=bloom/snd sound=astera:skills/heal-chime cat=master vol=0.5 pitch=1 at=0.000000,0.100000,0.000000
-@0 particle - op=bloom/fx type=verdant-heal at=0.000000,1.000000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1098070529374300754
+@0 particle - op=bloom/fx type=verdant-heal at=0.000000,0.800000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1098070529374300754
 @0 particle - op=bloom/leaf_a type=happy_villager count=0 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.020000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6186464376136775895
 @0 particle - op=bloom/dust_a type=dust count=1 at=0.000000,0.100000,0.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#5ae65a size=1.400000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1659682316981912980
 @0 particle - op=bloom/hearts type=heart count=8 at=0.000000,0.100000,0.000000 off=0.800000,0.800000,0.800000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6797978351261559995

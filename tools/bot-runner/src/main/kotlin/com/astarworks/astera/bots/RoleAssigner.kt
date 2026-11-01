@@ -142,8 +142,22 @@ class RoleAssigner(
         const val REACT_DEFENDERS = 2
         const val STICKY_BONUS = 10.0
 
-        /** The enemy team to burn first: the one with the fewest pillars standing (unknown counts as all three), ties by name. */
-        fun weakestTeam(enemyTeams: List<String>, standing: (String) -> Int): String? =
-            enemyTeams.sorted().filter { standing(it) > 0 }.minByOrNull { standing(it) }
+        /**
+         * The enemy team to burn first: among the teams that are not [eliminated], the one with the fewest pillars standing
+         * ([standing]; unknown counts as all three). A tie goes to the team that damaged us most recently ([lastHitAt], null =
+         * never), then to the highest [priority] (a seeded number per team, see [TieBreak]); the team's name never decides.
+         */
+        fun weakestTeam(
+            enemyTeams: List<String>,
+            standing: (String) -> Int,
+            eliminated: (String) -> Boolean = { false },
+            lastHitAt: (String) -> Long? = { null },
+            priority: (String) -> Long = { 0L },
+        ): String? {
+            val live = enemyTeams.filter { !eliminated(it) && standing(it) > 0 }
+            val fewest = live.minOfOrNull { standing(it) } ?: return null
+            return live.filter { standing(it) == fewest }
+                .maxWithOrNull(compareBy<String>({ lastHitAt(it) ?: Long.MIN_VALUE }, { priority(it) }))
+        }
     }
 }

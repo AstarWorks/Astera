@@ -26,7 +26,7 @@ machine:
       on:
         - {event: input.release, to: end}
       enter:
-        - {id: snd_start, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.6, pitch: 1.5}
+        - {id: snd_start, op: sound, sound: "astera:skill/wand/cast", frame: caster.feet, volume: 0.6, pitch: 1.5}
       do:
         - {id: beam_glow, op: ribbon, from: {frame: muzzle, pos: {v: 0}}, to: tip, thickness: 0.18, color: "#554fd0ff", at: 0, for: "${channel_ticks}"}
         - {id: beam, op: ribbon, from: {frame: muzzle, pos: {v: 0}}, to: tip, thickness: 0.06, color: "#ffeaf6ff", at: 0, for: "${channel_ticks}"}

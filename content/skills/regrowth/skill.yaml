@@ -16,7 +16,7 @@ params:
   radius:      {type: blocks, default: 3.0}
 frames:
   - {id: ground, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 0.1}}]}
-  - {id: chest, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 1.0}}]}
+  - {id: chest, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 0.8}}]}
 machine:
   start: bloom
   states:

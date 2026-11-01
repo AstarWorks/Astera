@@ -47,17 +47,18 @@ class StarBlockScanner(private val terrain: TerrainView) {
         }
     }
 
-    /** The nearest paying block within [RADIUS] of the bot that is still there and not given up on; null = none. */
-    fun nearest(x: Double, y: Double, z: Double): Triple<Int, Int, Int>? {
-        var best: Triple<Int, Int, Int>? = null
-        var bestD = Double.MAX_VALUE
+    /** The [rank]-th nearest (0 = nearest; teams spread over the blocks by slot, clamped to the farthest) paying block within [RADIUS] of the bot that is still there and not given up on; null = none. */
+    fun nearest(x: Double, y: Double, z: Double, rank: Int = 0): Triple<Int, Int, Int>? {
+        val ranked = ArrayList<Pair<Double, Triple<Int, Int, Int>>>()
         for (p in found) {
             if (key(p.first, p.second, p.third) in done) continue
             val d = hypot(p.first + 0.5 - x, p.third + 0.5 - z) + abs(p.second - y) * 0.5
             if (d > RADIUS) continue
-            if (d < bestD && terrain.blockName(p.first, p.second, p.third) in PAYING) { best = p; bestD = d }
+            if (terrain.blockName(p.first, p.second, p.third) in PAYING) ranked += d to p
         }
-        return best
+        if (ranked.isEmpty()) return null
+        ranked.sortBy { it.first }
+        return ranked[rank.coerceIn(0, ranked.lastIndex)].second
     }
 
     /** One dig was issued on [p]; after [MAX_ATTEMPTS] digs the block counts as unbreakable and is dropped. */
