@@ -44,19 +44,58 @@ class MatchMetricsScenarioTest {
             assertThat(r.result.scalars["players"]).isEqualTo(6.0)
             assertThat(r.result.scalars["p1_kills_in_enemy_base"]).`as`("p1_kills_in_enemy_base of ${r.run} is a count, with a per-kill list in metrics.json").isNotNull().isGreaterThanOrEqualTo(0.0)
             assertThat(Files.readString(out.resolve(r.run).resolve("metrics.json"))).contains("\"p1KillsInEnemyBaseList\"")
-            assertThat(Files.readString(out.resolve(r.run).resolve("metrics.json"))).contains("\"p2TtffSeconds\"", "\"p2KillsPerMinute\"")
-            assertThat(r.result.scalars).containsKeys("p2_ttff_s", "p2_kills_per_min")
+            assertThat(Files.readString(out.resolve(r.run).resolve("metrics.json"))).contains("\"p2TtffSeconds\"", "\"killsByPhase\"", "\"minutesByPhase\"", "\"stallWindowsP3Plus\"")
+            assertThat(r.result.scalars).containsKeys("p2_ttff_s", "kills_p1", "kills_p2", "kills_p3", "kills_p4plus", "minutes_p1", "minutes_p2", "minutes_p3", "minutes_p4plus", "stall_windows_p3plus")
+            // Definition: the phases partition the match, so phase kills and phase minutes add up to the match totals.
+            val phases = listOf("p1", "p2", "p3", "p4plus")
+            assertThat(phases.sumOf { r.result.scalars["kills_$it"]!! }).`as`("phase kills of ${r.run}").isEqualTo(r.result.scalars["kills_total"])
+            assertThat(phases.sumOf { r.result.scalars["minutes_$it"]!! }).`as`("phase minutes of ${r.run}").isCloseTo(r.result.scalars["duration_s"]!! / 60.0, org.assertj.core.data.Offset.offset(1e-9))
+            assertThat(r.result.scalars["stall_windows_p3plus"]).`as`("stall windows of ${r.run}").isGreaterThanOrEqualTo(0.0)
             r.result.scalars["p2_ttff_s"]?.let { assertThat(it).`as`("p2_ttff_s of ${r.run}").isGreaterThanOrEqualTo(0.0) }
-            r.result.scalars["p2_kills_per_min"]?.let { assertThat(it).`as`("p2_kills_per_min of ${r.run}").isGreaterThanOrEqualTo(0.0) }
         }
         assertThat(results.map { it.result.scalars["pillar_damage_total"] ?: 0.0 }.sum()).`as`("the scripted attackers hurt pillars").isGreaterThan(0.0)
         val summary = Files.readString(out.resolve(MassPlay.summaryFileName(seeds)))
         for (column in listOf("duration_s", "ttff_s", "lead_changes", "comeback", "stars_per_player_minute", "idle_ratio_mean",
-            "decisions_per_min_mean", "kills_total", "p2_ttff_s", "p2_kills_per_min", "kills_per_min", "kills_per_min_per_player", "pillar_damage_total", "heatmap_unvisited_ratio", "ore_contention",
+            "decisions_per_min_mean", "kills_total", "p2_ttff_s", "kills_p2", "minutes_p2", "stall_windows_p3plus", "kills_per_min", "kills_per_min_per_player", "pillar_damage_total", "heatmap_unvisited_ratio", "ore_contention",
             "star_pickup_top_cell_share")) {
             assertThat(summary).contains("| $column |")
         }
+        // Headline = pooled kills/min = sum(kills) / sum(minutes), recomputed here from the per-match scalars.
+        val pooled = results.sumOf { it.result.scalars["kills_total"]!! } / results.sumOf { it.result.scalars["duration_s"]!! / 60.0 }
+        assertThat(summary).contains("**Headline: pooled kills/min = ${"%.2f".format(pooled)}**", "bootstrap 90% interval", "| P2+ (P2 + P3 + P4+) |", "| P4+ escalation / sudden death |")
+        assertThat(summary.lineSequence().first { it.isNotBlank() && !it.startsWith("#") }).`as`("stall line comes first").startsWith("Stall signature: matches with at least one stall window")
         println(summary)
+    }
+
+    @Test
+    fun `pooled and per-phase kill rates weigh minutes not matches, the interval is deterministic, stalls are counted`() {
+        fun run(seed: Long, endReason: String, kills: Double, minutes: Double, phase: List<Pair<Double, Double>>, stalls: Double): MassPlay.RunResult {
+            val scalars = linkedMapOf<String, Double?>("kills_total" to kills, "duration_s" to minutes * 60, "kills_per_min" to (if (minutes > 0) kills / minutes else null), "stall_windows_p3plus" to stalls)
+            listOf("p1", "p2", "p3", "p4plus").forEachIndexed { i, ph -> scalars["kills_$ph"] = phase[i].first; scalars["minutes_$ph"] = phase[i].second }
+            val json = kotlinx.serialization.json.JsonObject(mapOf("end_reason" to kotlinx.serialization.json.JsonPrimitive(endReason)))
+            return MassPlay.RunResult("seed-$seed", seed, MatchMetricsResult(json, scalars, emptyMap()), endReason)
+        }
+        // A 30-minute stall (1 kill/min) and a 10-minute elimination (4 kills/min): median-of-matches would say 2.5, pooled says 70/40 = 1.75.
+        val stall = run(1, "hp_decision", 30.0, 30.0, listOf(0.0 to 6.0, 6.0 to 8.0, 10.0 to 8.0, 14.0 to 8.0), 2.0)
+        val elim = run(2, "elimination", 40.0, 10.0, listOf(0.0 to 6.0, 40.0 to 4.0, 0.0 to 0.0, 0.0 to 0.0), 0.0)
+        val timeout = run(3, "running", 0.0, 0.0, listOf(0.0 to 0.0, 0.0 to 0.0, 0.0 to 0.0, 0.0 to 0.0), 1.0)
+        val results = listOf(stall, elim, timeout)
+        val summary = MassPlay.summary(results)
+
+        assertThat(MassPlay.pooledRate(70.0, 40.0)).isEqualTo(1.75)
+        assertThat(summary).contains("**Headline: pooled kills/min = 1.75** (70 kills / 40.0 match-min")
+        assertThat(summary).contains("Per-match median 2.50, mean 2.50")
+        assertThat(summary).contains("| P1 build | 0 | 12.0 | 0.00 |", "| P2 engage | 46 | 12.0 | 3.83 |", "| P3 center | 10 | 8.0 | 1.25 |", "| P4+ escalation / sudden death | 14 | 8.0 | 1.75 |", "| P2+ (P2 + P3 + P4+) | 70 | 28.0 | 2.50 |")
+        assertThat(summary).contains("Stall signature: matches with at least one stall window 2 of 3; total stall windows 3")
+        assertThat(summary).contains("Stall share = (hp_decision + timeout) / matches = (1 + 1) / 3 = 66.7%")
+        assertThat(summary).contains("Match ends: elimination 1, hp_decision (stall) 1, draw 0, timeout (running at cap) 1, other 0.")
+
+        val kills = listOf(30.0, 40.0); val minutes = listOf(30.0, 10.0)
+        val ci = MassPlay.bootstrapInterval(kills, minutes)!!
+        assertThat(MassPlay.bootstrapInterval(kills, minutes)).`as`("fixed RNG seed: same interval every call").isEqualTo(ci)
+        // Two matches: every resample is one of (stall,stall)=1.0, (stall,elim)=1.75, (elim,elim)=4.0, so the interval is bounded by those.
+        assertThat(ci.first).isBetween(1.0, 4.0)
+        assertThat(ci.second).isBetween(ci.first, 4.0)
     }
 
     @Test
