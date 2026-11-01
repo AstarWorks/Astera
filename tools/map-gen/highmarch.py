@@ -5,6 +5,7 @@ import collections
 import itertools
 import json
 import math
+import random
 from pathlib import Path
 import re
 import time
@@ -293,7 +294,8 @@ def bridge(w, a, b, width=7):
         for side in (-4, 4):
             u, v = round(x + nx * side), round(z + nz * side)
             w.set(u, 64, v, 'stone_bricks')
-            w.set(u, 65, v, 'stone_brick_wall')
+            if i % 9 not in (4, 5):
+                w.set(u, 65, v, 'stone_brick_wall')
     # The diagonal raster has no holes: infill between adjacent deck samples.
     for x in range(min(ax, bx) - 4, max(ax, bx) + 5):
         for z in range(min(az, bz) - 4, max(az, bz) + 5):
@@ -519,15 +521,260 @@ def quarry_detail(w, data):
         rail.set(0, h + 3, 0, 'cobbled_deepslate')
 
 
+def lane_distance(x, z, a, b):
+    ax, az = a; bx, bz = b
+    t = max(0, min(1, ((x - ax) * (bx - ax) + (z - az) * (bz - az)) / ((bx - ax) ** 2 + (bz - az) ** 2)))
+    return math.hypot(x - ax - t * (bx - ax), z - az - t * (bz - az))
+
+
+def ridge_routes():
+    return [(point('red', 39, 0), OUTPOSTS['east']), (OUTPOSTS['east'], point('blue', -39, 0)),
+            (point('red', -39, 0), OUTPOSTS['west']), (OUTPOSTS['west'], point('yellow', 39, 0)),
+            (point('blue', 39, 0), OUTPOSTS['north']), (OUTPOSTS['north'], point('yellow', -39, 0))]
+
+
+def gorge_distance(x, z):
+    # A river curls around the quarry, with two outlets all the way to the continent edge.
+    radius = math.hypot(x, z)
+    bend = 8 * max(0, z / max(1, radius)) ** 4
+    return min(abs(radius - 50 - bend),
+               lane_distance(x, z, (-43, -25), (-144, -25)),
+               lane_distance(x, z, (43, -25), (144, -25)))
+
+
+def continent(w):
+    lanes = [(point(t, 0, 39), end) for t, end in
+             [('red', (0, -40)), ('blue', (35, 20)), ('yellow', (-35, 20))]]
+    ridges = ridge_routes()
+    heights = {}
+    for x in range(-146, 147):
+        for z in range(-158, 140):
+            edge = (1 - math.hypot(x / 146, (z + 9) / 149)) * 146
+            if edge < 0:
+                continue
+            road = min(lane_distance(x, z, a, b) for a, b in lanes)
+            ridge = min(lane_distance(x, z, a, b) for a, b in ridges)
+            # Broad cone-shaped hills, each rise capped to one block per horizontal cell.
+            hill = max(0, *(6 - max(abs(x - hx), abs(z - hz)) // 2
+                            for hx, hz in ((-49, -89), (49, -89), (-79, 0), (79, 0), (-39, 88), (39, 88))))
+            h = 64 + min(hill, max(0, int(road - 11)), max(0, int(ridge - 6)))
+            d = gorge_distance(x, z)
+            if d < 5:
+                h = 55 if d < 3 else 56 + int((d - 3) * 4)
+            heights[x, z] = h
+            bottom = min(h - 3, max(27, 61 - int(min(34, edge * .7))))
+            for y in range(bottom, h + 1):
+                material = 'deepslate' if y < 40 else 'tuff' if y in (43, 44, 56) else 'stone'
+                if y >= h - 2:
+                    material = 'dirt'
+                if y == h:
+                    material = 'gravel' if d < 5 else 'coarse_dirt' if road < 3 or ridge < 3 else 'grass_block'
+                w.set(x, y, z, material)
+            if d < 3:
+                w.set(x, 56, z, 'water')
+    # Forest on both flanks of each 23-wide valley; clear roads stay wide enough to fight in.
+    rng = random.Random(SEED)
+    for x in range(-132, 133, 9):
+        for z in range(-141, 133, 9):
+            x1, z1 = x + rng.randint(-3, 3), z + rng.randint(-3, 3)
+            if rng.random() < .18:
+                continue
+            h = heights.get((x1, z1))
+            if h is None or gorge_distance(x1, z1) < 10 or math.hypot(x1, z1) < 47:
+                continue
+            if any(max(abs(x1 - tx), abs(z1 - tz)) < 48 for tx, tz, _ in TEAMS.values()):
+                continue
+            if any(math.hypot(x1 - ox, z1 - oz) < 20 for ox, oz in OUTPOSTS.values()):
+                continue
+            if min(lane_distance(x1, z1, a, b) for a, b in lanes) < 13 or min(lane_distance(x1, z1, a, b) for a, b in ridges) < 7:
+                continue
+            species = ('oak', 'spruce', 'birch')[(x // 9 + z // 9) % 3]
+            tall = 5 + (x * z % 3)
+            w.box(x1, x1, h + 1, h + tall, z1, z1, f'{species}_log[axis=y]')
+            for dy in range(3, tall + 3):
+                r = max(1, (tall + 3 - dy) // 2) if species == 'spruce' else (1 if dy == tall + 2 else 2)
+                for dx in range(-r, r + 1):
+                    for dz in range(-r, r + 1):
+                        if abs(dx) + abs(dz) <= r + 1 and (dx or dz or dy > tall):
+                            w.set(x1 + dx, h + dy, z1 + dz, f'{species}_leaves[persistent=true]')
+    # Bank ladders at <=26-block intervals, on BOTH banks. No extra bridge across the river.
+    for degrees in range(0, 360, 24):
+        angle = math.radians(degrees)
+        dx, dz = math.cos(angle), math.sin(angle)
+        bend = 8 * max(0, dz) ** 4
+        for radius, outward in ((47 + bend, -1), (53 + bend, 1)):
+            x, z = round(dx * radius), round(dz * radius)
+            sx, sz = (1 if dx > 0 else -1, 0) if abs(dx) > abs(dz) else (0, 1 if dz > 0 else -1)
+            sx *= outward; sz *= outward
+            facing = {(1, 0): 'west', (-1, 0): 'east', (0, 1): 'north', (0, -1): 'south'}[sx, sz]
+            w.box(x + sx, x + sx, 56, 64, z + sz, z + sz, 'stone')
+            w.box(x, x, 57, 65, z, z, f'ladder[facing={facing}]')
+    for side in (-1, 1):
+        for x in range(75, 140, 24):
+            for z, facing in ((-22, 'south'), (-28, 'north')):
+                w.box(side * x, side * x, 56, 64, z + (1 if z == -22 else -1), z + (1 if z == -22 else -1), 'stone')
+                w.box(side * x, side * x, 57, 65, z, z, f'ladder[facing={facing}]')
+    # Ridge roads cross the outlets on solid natural rock arches; they pass through the outposts.
+    for a, b in ridges:
+        for x in range(min(a[0], b[0]) - 4, max(a[0], b[0]) + 5):
+            for z in range(min(a[1], b[1]) - 4, max(a[1], b[1]) + 5):
+                if lane_distance(x, z, a, b) <= 3:
+                    w.box(x, x, 61, 63, z, z, 'stone')
+                    w.set(x, 64, z, 'coarse_dirt')
+                    w.box(x, x, 65, 67, z, z, None)
+    # Low walls, boulders and abandoned wagons on the wide approach shoulders.
+    for a, b in lanes:
+        distance = math.dist(a, b)
+        nx, nz = -(b[1] - a[1]) / distance, (b[0] - a[0]) / distance
+        for t, side in ((.15, -9), (.3, 9), (.9, -9)):
+            x, z = (round(a[i] + (b[i] - a[i]) * t + n * side) for i, n in enumerate((nx, nz)))
+            if any(gorge_distance(x + dx, z + dz) < 6 for dx in range(-2, 3) for dz in range(-2, 3)):
+                continue
+            w.box(x - 2, x + 2, 65, 66, z, z + 1, 'cobblestone')
+        x, z = (round(a[i] + (b[i] - a[i]) * .18 + n * 9) for i, n in enumerate((nx, nz)))
+        w.box(x - 1, x + 1, 65, 65, z - 2, z + 2, 'spruce_planks')
+        for u in (x - 2, x + 2):
+            w.box(u, u, 65, 66, z - 1, z + 1, 'dark_oak_log[axis=z]')
+
+
+def town_character(w, team):
+    # Palette swaps affect this town's existing fabric, preserving all interiors and access stairs.
+    replacements = {
+        'red': {'stone_bricks': 'deepslate_bricks', 'spruce_planks': 'bricks', 'coarse_dirt': 'blackstone'},
+        'blue': {'stone_bricks': 'calcite', 'spruce_planks': 'smooth_quartz', 'deepslate_bricks': 'prismarine',
+                 'deepslate_tile_stairs': 'prismarine_brick_stairs', 'coarse_dirt': 'smooth_stone'},
+        'yellow': {'stone_bricks': 'oak_planks', 'spruce_planks': 'oak_planks',
+                   'deepslate_tile_stairs': 'oak_stairs', 'deepslate_bricks': 'stripped_oak_log'}}[team]
+    cx, cz, turn = TEAMS[team]
+    for (x, y, z), state in list(w.blocks.items()):
+        if max(abs(x - cx), abs(z - cz)) > 43 or y < 64:
+            continue
+        name, bracket, props = state.removeprefix('minecraft:').partition('[')
+        if name in replacements:
+            w.blocks[x, y, z] = 'minecraft:' + replacements[name] + (bracket + props if bracket else '')
+    t = w.frame(cx, cz, turn)
+    # Dogleg barbicans bend the flank routes through cover, preserving the travel-time budget.
+    for u, v, rotation in ((-39, 0, 1), (39, 0, 3), (0, 39, 0)):
+        gate = t.frame(u, v, rotation)
+        gate.box(-8, 8, 61, 63, 3, 11, 'stone')
+        gate.box(-8, 8, 64, 64, 3, 11, 'coarse_dirt')
+        gate.box(-8, 8, 65, 68, 3, 11, None)
+        for side in (-8, 8):
+            gate.box(side, side, 65, 67, 3, 11, 'stone_bricks')
+        gate.box(-8, 2, 65, 66, 5, 5, 'stone_bricks')
+        gate.box(-2, 8, 65, 66, 8, 8, 'stone_bricks')
+    if team == 'red':
+        for u, v in ((-27, -27), (-14, 28), (28, 28)):
+            t.box(u - 4, u - 2, 65, 85, v - 1, v + 1, 'deepslate_bricks')
+            t.set(u - 3, 86, v, 'campfire[lit=true,signal_fire=true]')
+            t.set(u, 65, v + 2, 'blast_furnace[facing=south,lit=true]')
+        for u in range(-34, -21):
+            t.set(u, 64, 33, 'lava')
+            t.box(u, u, 65, 66, 32, 32, 'iron_bars[east=true,west=true]')
+            t.box(u, u, 65, 66, 34, 34, 'iron_bars[east=true,west=true]')
+        for u in (-31, -27, -23):
+            t.set(u, 65, 29, 'anvil[facing=east]')
+        t.box(-35, -35, 65, 66, 32, 34, 'blackstone')
+        t.box(-21, -21, 65, 66, 32, 34, 'blackstone')
+        ramp(t, -35, 21, 12, rise=12, width=1, material='deepslate_bricks')
+    elif team == 'blue':
+        # The harbour-side gate tower also opens onto the ore quarter's service alley.
+        t.box(-36, -36, 65, 67, 6, 8, None)
+        # Harbour basin and quay on the outer edge, away from fixed cache/keep stairs.
+        t.box(-32, -15, 62, 63, -43, -35, 'water')
+        t.box(-32, -15, 64, 67, -43, -35, None)
+        t.box(-33, -14, 61, 61, -44, -34, 'prismarine')
+        for u in (-33, -14):
+            t.box(u, u, 62, 64, -44, -34, 'calcite')
+        t.box(-33, -14, 64, 64, -34, -34, 'smooth_stone')
+        for u in (-28, -20):
+            boat = t.frame(u, -39)
+            boat.box(-2, 2, 64, 64, -1, 1, 'spruce_planks')
+            for side in (-2, 2):
+                boat.set(side, 65, 0, 'spruce_trapdoor[open=true]')
+            boat.box(0, 0, 65, 69, 0, 0, 'oak_fence')
+            boat.box(1, 2, 67, 69, 0, 0, 'white_wool')
+        # Lantern cupola on the east corner of the keep; the pinned roof route remains open.
+        t.box(6, 8, 85, 91, -35, -33, 'calcite')
+        t.box(6, 8, 92, 94, -35, -33, 'glass')
+        t.set(7, 93, -34, 'sea_lantern')
+        t.box(5, 9, 95, 95, -36, -32, 'prismarine')
+        t.set(7, 96, -34, 'blue_banner[rotation=0]')
+    else:
+        # Timber-frame barn and a full field beside the western farm ward.
+        for u in range(-34, -20):
+            for v in range(31, 38):
+                t.set(u, 64, v, 'farmland[moisture=7]')
+                t.set(u, 65, v, 'wheat[age=7]')
+        for u, v in ((-32, 28), (-22, 28), (31, 35)):
+            t.box(u, u + 2, 65, 66, v, v + 1, 'hay_block')
+        for u, v, width, depth, _, rotation in TOWN_HOUSES:
+            barn = t.frame(u, v, rotation)
+            for a in (-width, width):
+                for b in (-depth, depth):
+                    barn.box(a, a, 65, 69, b, b, 'stripped_oak_log[axis=y]')
+        # Four cloth sails on a working-height windmill, above the rear farm house.
+        t.box(-29, -25, 77, 86, -29, -25, 'oak_planks')
+        t.box(-30, -24, 87, 87, -30, -24, 'yellow_wool')
+        for d in range(-7, 8):
+            t.set(-27 + d, 83, -21, 'stripped_oak_log[axis=x]')
+            t.set(-27, 83 + d, -21, 'stripped_oak_log[axis=y]')
+            if abs(d) > 2:
+                t.set(-27 + d, 84, -21, 'white_wool')
+                t.set(-26, 83 + d, -21, 'white_wool')
+        t.box(-27, -27, 83, 83, -25, -21, 'stripped_oak_log[axis=z]')
+
+
+def quarry_finish(w, data):
+    colours = {'iron': ('iron_ore', 'raw_iron_block', 'calcite'),
+               'gold': ('gold_ore', 'raw_gold_block', 'yellow_concrete'),
+               'diamond': ('deepslate_diamond_ore', 'diamond_block', 'light_blue_concrete'),
+               'emerald': ('emerald_ore', 'emerald_block', 'lime_concrete'),
+               'heartwood': ('oak_log', 'moss_block', 'oak_planks'),
+               'timber': ('spruce_log', 'oak_planks', 'tuff'),
+               'silt': ('clay', 'terracotta', 'tuff'), 'clay': ('clay', 'terracotta', 'dripstone_block')}
+    for name, cells in data['ore'].items():
+        for x, y, z in cells:
+            if math.hypot(x, z) > 43:
+                continue
+            # Replace existing rock only: coloured veins never intrude into a mining stance/node.
+            for dx in range(-2, 3):
+                for dz in range(-2, 3):
+                    for dy in range(-2, 4):
+                        pos = x + dx, y + dy, z + dz
+                        if pos in w.blocks and dx * dx + dz * dz + dy * dy <= 11:
+                            material = colours[name][(abs(dx) + abs(dz) + abs(dy)) % 3]
+                            # Bright mineral bands also read in the texture-free preview palette.
+                            if name in ('iron', 'gold', 'diamond', 'emerald') and (dx + dz + dy) % 2 == 0:
+                                material = colours[name][2]
+                            w.set(*pos, material)
+    # Shallow pool beyond the scatter disk. One-block submerged steps on every side.
+    for x in range(18, 25):
+        for z in range(-5, 5):
+            if ((x - 21) / 4) ** 2 + (z / 5) ** 2 <= 1:
+                w.set(x, 49, z, 'gravel')
+                w.set(x, 50, z, 'water')
+                w.box(x, x, 51, 59, z, z, None)
+    for x in range(24, 30):
+        h = 50 + x - 24
+        w.box(x, x, 49, h, -4, 4, 'gravel')
+        w.box(x, x, h + 1, 59, -4, 4, None)
+    # Tower spire visible above y64 banks from all three gates; existing lookout stays at y79.
+    for y in range(82, 99):
+        r = 2 if y < 91 else 1 if y < 96 else 0
+        for dx in range(-r, r + 1):
+            for dz in range(-r, r + 1):
+                if max(abs(dx), abs(dz)) == r:
+                    w.set(-30 + dx, y, -19 + dz, 'mossy_stone_bricks' if y < 91 else 'deepslate_bricks')
+    w.set(-30, 99, -19, 'glowstone')
+
+
 def make_world():
     w = World()
+    continent(w)
     # Bridges first; terrain and buildings own their abutments and do not get overwritten by bridge rails.
     for team in TEAMS:
         bridge(w, point(team, 0, 39), (0, -40) if team == 'red' else ((35, 20) if team == 'blue' else (-35, 20)))
-    for a, b in [(point('red', 39, 0), OUTPOSTS['east']), (OUTPOSTS['east'], point('blue', -39, 0)),
-                 (point('red', -39, 0), OUTPOSTS['west']), (OUTPOSTS['west'], point('yellow', 39, 0)),
-                 (point('blue', 39, 0), OUTPOSTS['north']), (OUTPOSTS['north'], point('yellow', -39, 0))]:
-        bridge(w, a, b)
     terrace(w, 0, 0, 42, top=64)
     for x in range(-42, 43):
         for z in range(-42, 43):
@@ -590,7 +837,9 @@ def make_world():
         t.box(19, 29, 64, 64, -5, 3, 'smooth_stone')
         town_fabric(t, team)
         monument(t.frame(*PILLARS[0]), team, tier=1)
+        town_character(w, team)
     data = coordinates()
+    quarry_finish(w, data)
     # Forge pockets are cut into a continuous rock bank; all remaining nodes sit against terrace faces.
     for cells in data['ore'].values():
         for x, y, z in cells:
@@ -691,7 +940,8 @@ def stage_yaml(data):
              '# Ward centres are 20+ blocks apart, joined by broad streets; shops face the plaza edge.',
              '# Quarry r42: rim y64 / upper y60 / middle y55 / floor y50; three 7-wide ramps.',
              '# Spawn -> rim ~70-90 blocks; enemy gate court ~180-230 blocks along routes.',
-             '# Outposts (85,-50), (-85,-50), (0,112); seven-wide stone bridges over void.',
+             '# One continent: wooded valleys to Mid; seven-wide stone bridges cross the river gorge.',
+             '# Outposts (85,-50), (-85,-50), (0,112) lie on covered flank ridge paths.',
              '# Keep floor y68 (tier 3 y69); other wards floor y64 (tiers 1/2 y65).',
              '# Four spawns/team, 3 exposed single-block pillars/team; monument crowns are visual only.',
              'id: annihilation-arena', 'display_name_key: astera.stage.annihilation-highmarch.name',
@@ -797,6 +1047,26 @@ def validate(w, data):
                 assert (x + dx, y - 1, z + dz) in w.blocks and (x + dx, y, z + dz) not in w.blocks, (x, z, dx, dz)
     assert min(y for _, y, _ in w.blocks) > 16
     assert all(abs(x) < 512 and abs(z) < 512 for x, _, z in w.blocks)
+    # Validate the actual authored world, including regenerated terrain and all fixed supply anchors.
+    for name, (x, y, z) in data['stars'].items():
+        assert (x, y - 1, z) in w.blocks and (x, y, z) not in w.blocks and (x, y + 1, z) not in w.blocks, name
+    for x in range(-146, 147):
+        for z in range(-158, 140):
+            if math.hypot(x / 146, (z + 9) / 149) <= 1:
+                assert any((x, y, z) in w.blocks for y in range(27, 65)), (x, z, 'continent hole')
+    assert all(any(s.startswith(f'minecraft:{species}_leaves') for s in w.blocks.values()) for species in ('oak', 'spruce', 'birch'))
+    assert sum(s.startswith('minecraft:ladder') for s in w.blocks.values()) >= 300
+    for x, z in ((21, 0), (0, -50), (0, 58), (-120, -25), (120, -25)):
+        y = 50 if (x, z) == (21, 0) else 56
+        assert w.blocks[x, y, z] == 'minecraft:water', (x, y, z)
+        assert (x, y - 1, z) in w.blocks
+    # A ray from the outside of each gate to the spire must hit only the spire itself.
+    for team in TEAMS:
+        x, z = point(team, 0, 43)
+        start, end = (x, 67, z), (-30, 99, -19)
+        for i in range(1, 200):
+            p = tuple(round(a + (b - a) * i / 200) for a, b in zip(start, end))
+            assert p not in w.blocks or math.dist(p, end) < 3, (team, p, 'spire hidden from gate')
 
 
 def main():
