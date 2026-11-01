@@ -32,6 +32,9 @@ class SimTerrain(val stage: Stage, val plan: ArenaBuildPlan, val world: WorldId,
         override fun knows(x: Double, z: Double): Boolean =
             inBounds(Math.floor(x).toInt(), Math.floor(z).toInt())
 
+        override fun blockName(x: Int, y: Int, z: Int): String? =
+            if (inBounds(x, z)) sim.blockAt(world, Vec3(x.toDouble(), y.toDouble(), z.toDouble()))?.key ?: "minecraft:air" else null
+
         // Same rule as the protocol client's Terrain.floorAt: highest solid block with two free blocks above it.
         override fun floorAt(x: Double, z: Double, feetY: Double, maxStepUp: Int, maxDrop: Int): Double? {
             val bx = Math.floor(x).toInt()
