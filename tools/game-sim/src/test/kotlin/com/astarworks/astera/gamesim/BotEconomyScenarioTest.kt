@@ -31,12 +31,13 @@ import java.nio.file.Files
 class BotEconomyScenarioTest {
 
     @Test
-    fun `the shipped shop parses to a shopping list - base armour, upgrades, Mid armour (no tools) - and bag names map to ore ids`() {
-        val ladder = EconomyPlanner.parseShoppingList(Files.readString(GameSim.defaultContentDir().resolve("shops/match-shop.yaml"))).map { it.price }
-        assertThat(ladder).containsExactly(
-            mapOf("ore-iron" to 22), mapOf("ore-gold" to 11), mapOf("ore-gold" to 16),
-            mapOf("ore-gold" to 6), mapOf("ore-diamond" to 4), mapOf("ore-emerald" to 3), mapOf("ore-diamond" to 11),
-        )
+    fun `the shipped shop parses to a shopping list - base armour piece by piece cheapest first, upgrades, Mid armour (no tools) - and bag names map to ore ids`() {
+        val list = EconomyPlanner.parseShoppingList(Files.readString(GameSim.defaultContentDir().resolve("shops/match-shop.yaml")))
+        val prices = list.map { it.price.values.single() }
+        assertThat(list.map { it.items.single() }.take(4)).containsExactly("leather-scout-helmet", "leather-scout-boots", "leather-scout-leggings", "leather-scout-chestplate")
+        assertThat(prices).containsExactly(4, 4, 6, 8, 2, 2, 3, 4, 3, 3, 4, 6, 6, 4, 3, 2, 2, 3, 4)
+        assertThat(list.first().supersededBy).`as`("a leather helmet is pointless once a better helmet is owned").contains("chain-guard-helmet", "iron-warden-helmet", "diamond-champion-helmet")
+        assertThat(list.map { it.price.keys.single() }.drop(12).take(3)).containsExactly("ore-gold", "ore-diamond", "ore-emerald")
         assertThat(EconomyPlanner.oreCounts(listOf("Diamond Ore" to 2, "ダイヤ鉱石" to 1, "Stone" to 9, "エメラルド鉱石" to 3)))
             .isEqualTo(mapOf("ore-diamond" to 3, "ore-emerald" to 3))
     }
@@ -47,7 +48,7 @@ class BotEconomyScenarioTest {
             val objectives = checkNotNull(StageObjectives.load(GameSim.defaultContentDir().toFile(), "carry-tnt")) { "stage did not load" }
             val local = checkNotNull(objectives.economySites("red")) { "no economy sites for red" }
             val ladder = objectives.economyLadder()
-            assertThat(ladder).hasSize(7)
+            assertThat(ladder).hasSize(19)
             assertThat(local.shop).isNotNull
             assertThat(local.generators.map { it.ore }).contains("ore-gold")
             assertThat(local.nodes.map { it.ore }).contains("ore-diamond", "ore-emerald")
@@ -136,7 +137,7 @@ class BotEconomyScenarioTest {
             var clock = 0L
             var guard = 0
             while (bought.size < 4 && guard++ < 400) {
-                val step = planner.step(clock, bot.position.x, bot.position.z, have(), hasPickaxe = false)
+                val step = planner.step(clock, bot.position.x, bot.position.z, have(), hasPickaxe = false, owned = bought.toSet())
                     ?: error("planner stalled: bought=$bought bag=$bag rung=${planner.rung}")
                 bot.position = Vec3(step.x, step.y, step.z)
                 when (step.kind) {
@@ -159,7 +160,7 @@ class BotEconomyScenarioTest {
             // Norma Lv2 hands the bot an iron pickaxe (ADR-0319): the gold node is now the next thing to work on.
             bag += "iron-pickaxe"
             clock += 400
-            val next = checkNotNull(planner.step(clock, bot.position.x, bot.position.z, have(), hasPickaxe = true)) { "planner idle with a pickaxe" }
+            val next = checkNotNull(planner.step(clock, bot.position.x, bot.position.z, have(), hasPickaxe = true, owned = bought.toSet())) { "planner idle with a pickaxe" }
             assertThat(next.kind to next.ore).isEqualTo("mine" to "ore-gold")
         }
     }
@@ -284,5 +285,33 @@ class BotEconomyScenarioTest {
         assertThat(blind.step(tb, 0.0, 0.0, rich, false, null)?.kind).`as`("snoozed: not at the shop").isNotEqualTo("shop")
         assertThat(blind.step(tb + EconomyPlanner.SHOP_RETRY_MS + 1, 0.0, 0.0, rich, false, null)?.kind).isEqualTo("shop")
         assertThat(t).isGreaterThan(0L)
+    }
+
+    @Test
+    fun `a bot buys as soon as ONE piece is affordable instead of saving for the whole tier, cheapest piece first`() {
+        val buys = EconomyPlanner.parseShoppingList(Files.readString(GameSim.defaultContentDir().resolve("shops/match-shop.yaml")))
+        val sites = EconomyPlanner.Sites(
+            shop = EconomyPlanner.Site(0.0, 0.0, 0.0),
+            generators = listOf(EconomyPlanner.Site(10.0, 0.0, 10.0, "ore-iron")),
+            nodes = emptyList(),
+        )
+        val price = buys.first().price.getValue("ore-iron")
+        assertThat(price).`as`("the cheapest piece costs far less than the 22 iron of the whole tier").isLessThan(22)
+
+        val short = EconomyPlanner(sites, buys)
+        assertThat(short.step(0, 20.0, 20.0, mapOf("ore-iron" to price - 1), false, emptySet())?.kind).`as`("one iron short: keep collecting").isEqualTo("collect")
+
+        val enough = EconomyPlanner(sites, buys)
+        assertThat(enough.step(0, 20.0, 20.0, mapOf("ore-iron" to price), false, emptySet())?.kind).`as`("one piece affordable: go to the shop").isEqualTo("shop")
+
+        // After the helmet is owned the next piece (boots, same price) is the next target, again without waiting for the rest of the tier.
+        val next = EconomyPlanner(sites, buys)
+        val owned = setOf(buys[0].items.single())
+        assertThat(next.step(0, 20.0, 20.0, mapOf("ore-iron" to price), false, owned)?.kind).isEqualTo("shop")
+        assertThat(next.rung).isEqualTo(1)
+        // A better helmet already worn passes the leather helmet rung without a shop trip.
+        val better = EconomyPlanner(sites, buys)
+        better.step(0, 20.0, 20.0, emptyMap(), false, setOf("iron-warden-helmet"))
+        assertThat(better.rung).`as`("leather + chain-guard + iron-warden helmet rungs are all covered by the worn iron-warden helmet").isEqualTo(3)
     }
 }
