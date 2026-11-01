@@ -483,7 +483,8 @@ class BotModeRolesScenarioTest {
             val p2 = attacker()
             val step = checkNotNull(p2.step(0, x, z))
             assertThat(step.kind).isEqualTo("pillar")
-            assertThat(step.strike).isEqualTo(Triple(blue.x, blue.y, blue.z))
+            // The enemy is a seeded draw between the tied enemies (never the alphabetical first): any enemy tier-1 pillar.
+            assertThat(step.strike).isIn(zones.pillars().filter { it.team != "red" && it.tier == 1 }.map { Triple(it.x, it.y, it.z) })
             assertThat(p2.offLimits(0, blue.x + 0.5, blue.z + 0.5)).isFalse()
 
             // A host without a phase bar: the build-phase timer decides, and the highest phase seen sticks.

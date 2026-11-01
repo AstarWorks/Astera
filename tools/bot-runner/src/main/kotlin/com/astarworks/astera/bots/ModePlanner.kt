@@ -465,7 +465,7 @@ class ModePlanner(
         // respawning defenders (0 pillar damage in 2,300 player-seconds); being hit, or an enemy within melee range, still fights.
         val hit = lastDamagedAt != NEVER && now - lastDamagedAt in 0..DAMAGED_MEMORY_MS
         // No spawn camping: a defender still inside its own spawn zone is left alone (pillar damage first) until it leaves or hits us.
-        if (role == Role.PILLAR_ATTACKER && !hit && inSpawnZone(teamOf(enemy.name), enemy.x, enemy.z)) { farFightSince = NEVER; return false }
+        if (role == Role.PILLAR_ATTACKER && !hit && inSpawnZone(enemy.name?.let(teamOf), enemy.x, enemy.z)) { farFightSince = NEVER; return false }
         if (role == Role.PILLAR_ATTACKER && !objectiveX.isNaN() && !hit && d > DIG_MELEE_RADIUS &&
             hypot(objectiveX - x, objectiveZ - z) <= DIG_FOCUS_RADIUS) { farFightSince = NEVER; return false }
         if (d <= lastEngage) { farFightSince = NEVER; return true }
