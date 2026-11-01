@@ -18,7 +18,7 @@ import kotlin.math.sin
 
 /**
  * In-match stars and Norma levels (docs/game-design/stars-and-norma.md): a generator pop lies on the map and the
- * participant standing there takes it by item pickup (no proximity crediting); a kill pays the killer kill_share of the victim's carried stars, bursts kill_ground_share as drops anyone can pick up and loses the rest (ADR-0318); the
+ * participant standing there takes it by item pickup (no proximity crediting); a death bursts star_death_ground_share (half) of the victim's carried stars as drops anyone can pick up and the victim keeps the rest, nothing goes straight to the killer; the
  * Norma level goal (stars carried) levels the player up; nothing outlives the match.
  */
 // carry-tnt's default_config time_limit_seconds (900) beats the layer default (600); the limit ends the match after this many ACTIVE ticks.
@@ -47,7 +47,7 @@ class StarsNormaScenarioTest {
             assertThat(stars.get(matchId, red.id)).isGreaterThanOrEqualTo(1)
             assertThat(stars.get(matchId, blue.id)).`as`("blue is far from every generator").isEqualTo(0)
 
-            // (b) Carrying 80 stars, blue is killed by red: red gets 40% (32) at once, 20% (16) fountain out as 16 items, 40% are lost, blue keeps 0.
+            // (b) Carrying 80 stars, blue is killed by red: half (40) fountain out as 16 items, blue keeps the other 40, red is credited nothing directly.
             stars.add(matchId, blue.id, 80)
             val redBeforeKill = stars.get(matchId, red.id)
             sim.setMaxHealth(blue, 1.0)
@@ -63,15 +63,16 @@ class StarsNormaScenarioTest {
                 }
             }
             assertThat(eventsOf<PlayerKilled>().any { it.victim == blue.id }).isTrue()
-            assertThat(stars.get(matchId, blue.id)).`as`("the victim loses every carried star").isEqualTo(0)
-            assertThat(stars.get(matchId, red.id) - redBeforeKill).`as`("the killer gets kill_share of the carried stars directly").isEqualTo(32)
+            assertThat(stars.get(matchId, blue.id)).`as`("the victim keeps the half that did not burst").isEqualTo(40)
+            assertThat(stars.get(matchId, red.id) - redBeforeKill).`as`("the killer gets nothing directly").isEqualTo(0)
 
             // The burst lies on the map as items; being a few blocks away takes nothing (pickup is the item pickup only).
             val lyingBurst = sim.starDrops.lying().filter { it.world == deathWorld }
-            assertThat(lyingBurst.filter { it.amount <= 2 }.sumOf { it.amount }).`as`("16 stars (kill_ground_share) lie on the map as burst items").isEqualTo(16)
-            assertThat(lyingBurst.count { it.amount <= 2 }).`as`("the fountain throws 16 separate star items").isEqualTo(16)
+            val burstDrops = lyingBurst.filter { it.velocity != null }
+            assertThat(burstDrops.sumOf { it.amount }).`as`("40 stars (star_death_ground_share) lie on the map as burst items").isEqualTo(40)
+            assertThat(burstDrops.size).`as`("the fountain throws 16 star stacks").isEqualTo(16)
             // The flings differ per star: random azimuth, speed and elevation (some almost flat, some nearly vertical).
-            val flings = lyingBurst.filter { it.amount <= 2 }.mapNotNull { it.velocity }
+            val flings = burstDrops.mapNotNull { it.velocity }
             assertThat(flings).`as`("every burst star is thrown").hasSize(16)
             val speeds = flings.map { it.distance(Vec3(0.0, 0.0, 0.0)) }
             assertThat(speeds.max() - speeds.min()).`as`("launch speeds spread widely").isGreaterThan(0.15)

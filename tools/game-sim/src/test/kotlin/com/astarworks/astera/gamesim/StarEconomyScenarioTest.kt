@@ -84,8 +84,8 @@ class StarEconomyScenarioTest {
             out.appendLine("total    | %6.2f | 100.0%%".format(issuedAll / r.n / minutes))
             out.appendLine("per minute (stars, whole match): " + r.perMinute.mapIndexed { i, m -> "m$i=${m.values.sum()}" }.joinToString(" "))
             out.appendLine("wave sizes: ${r.waves} (per player at first wave %.1f)".format(r.waves.first().toDouble() / r.n))
-            val direct = r.kill.getValue("kill-direct"); val bounty = r.total.getValue(StarSource.BOUNTY)
-            out.appendLine("kills: direct %d, ground %d, lost %d, bounty payouts %d (%d stars); kill income share of all income %.1f%%".format(direct, r.kill.getValue("kill-ground"), r.kill.getValue("kill-lost"), r.kill.getValue("bounty-paid"), bounty, 100.0 * (direct + bounty) / (issuedAll + direct)))
+            val ground = r.kill.getValue("kill-ground"); val bounty = r.total.getValue(StarSource.BOUNTY)
+            out.appendLine("kills: ground burst %d, bounty payouts %d (%d stars); bounty share of all income %.1f%%; (ground stars are re-picked, not new supply)".format(ground, r.kill.getValue("bounty-paid"), bounty, 100.0 * bounty / issuedAll))
             out.appendLine("leader kill payout %d vs trailing kill payout %d".format(r.leaderPayout, r.trailingPayout))
             out.appendLine("minutes to level (carry 10/30/60/100): " + goals.joinToString(" ") { g -> r.levelMinutes[g]?.let { "%.1f".format(it) } ?: "n/a" })
             out.appendLine("timer generator (spot) share: %.1f%% of issued, %.1f%% of the budget".format(100.0 * r.total.getValue(StarSource.SPOT) / issuedAll, 100.0 * r.total.getValue(StarSource.SPOT) / r.budget))
@@ -256,7 +256,7 @@ class StarEconomyScenarioTest {
             val waveEvents = waveSupplied.map { (it.atTick - t0) to it.amount }
             val spotPops = spotGens.associate { g -> g.id.value to g.spots.indices.map { budget.stats.get(matchId, "spot:${g.id.value}:$it") } }
 
-            // Leader vs trailing: the same killer takes a leader (100 carried) and a trailing player (5 carried).
+            // Leader vs trailing: the same killer takes a leader (40 above the richest carrier) and a trailing player (1 carried). The payout is the bounty only.
             fun payout(carried: Int, victimIdx: Int): Int {
                 val victim = players[victimIdx]
                 stars.spend(matchId, victim.id, stars.get(matchId, victim.id))
@@ -265,14 +265,14 @@ class StarEconomyScenarioTest {
                 sim.eventBus.publish(PlayerKilled(victim.id, players[0].id, DamageSource.Environment.Generic, sim.tick))
                 return stars.get(matchId, players[0].id) - before
             }
-            val trailingPayout = payout(5, n - 1)
-            val leaderPayout = payout(100, if (n >= 3) n - 2 else 1)
+            val trailingPayout = payout(1, n - 1)
+            val leaderPayout = payout(players.maxOf { stars.get(matchId, it.id) } + 40, if (n >= 3) n - 2 else 1)
             result = Result(
                 n, minutes, perMinute, total,
                 sources.associateWith { budget.stats.get(matchId, "requested:${it.key}") },
                 sources.associateWith { budget.stats.capHits(matchId, it) },
                 budgetIntegral, waves,
-                listOf("kill-direct", "kill-ground", "kill-lost", "bounty-paid").associateWith { budget.stats.get(matchId, it) },
+                listOf("kill-ground", "bounty-paid").associateWith { budget.stats.get(matchId, it) },
                 spotPops, levelMinutes, leaderPayout, trailingPayout,
                 budgetPerMinute, waveEvents, p3StartTick, warnTicks,
             )

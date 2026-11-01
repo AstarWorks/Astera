@@ -134,10 +134,10 @@ public class StarDropService(
     }
 
     /**
-     * A kill inside a match (ADR-0318). The victim loses every carried star: the killer gets `kill_share` of them straight
-     * into their counter, `kill_ground_share` bursts on the ground, the rest is gone. On top the killer earns a bounty
-     * that grows with how far the victim carried above the roster average (capped, drawn from the bounty budget).
-     * A death without a killer drops both shares on the ground.
+     * A death inside a match: `floor(carried * star_death_ground_share)` of the victim's stars burst on the ground (anyone
+     * can pick them up), the victim keeps the rest, nothing is destroyed and nothing goes straight to the killer. On top
+     * a kill on a player carrying above the roster average earns the killer a bounty, minted from the bounty share of
+     * the budget (never taken from the victim), capped by `star_bounty_cap`.
      */
     public fun onKilled(event: PlayerKilled) {
         if (event.context !is CombatContext.Match) { log("star burst skipped: context ${event.context}"); return }
@@ -149,21 +149,17 @@ public class StarDropService(
         val economy = economyOf(match.id)
         val killer = event.killer?.takeIf { it != event.victim && it in members }
         val average = members.map { store.get(match.id, it) }.average()
-        val direct = if (killer != null) floor(carried * economy.killShare).toInt() else 0
-        val ground = floor(carried * (economy.killGroundShare + if (killer == null) economy.killShare else 0.0)).toInt().coerceAtMost(carried - direct)
-        val lost = carried - direct - ground
-        log("star kill: victim=${event.victim} carried=$carried direct=$direct ground=$ground lost=$lost")
-        if (store.spend(match.id, event.victim, carried - ground) is com.astarworks.astera.core.domain.Result.Failure) return
-        budget.stats.add(match.id, "kill-direct", direct)
+        val ground = floor(carried * economy.deathGroundShare).toInt()
+        log("star death: victim=${event.victim} carried=$carried ground=$ground kept=${carried - ground}")
         budget.stats.add(match.id, "kill-ground", ground)
-        budget.stats.add(match.id, "kill-lost", lost)
         if (killer != null) {
             val wanted = Math.round(economy.bountyRate * (carried - average)).toInt().coerceIn(0, economy.bountyCap)
             val bounty = budget.grant(match.id, StarSource.BOUNTY, null, wanted)
-            if (bounty > 0) budget.stats.add(match.id, "bounty-paid", 1)
-            if (direct + bounty > 0) issuer.credit(match.id, killer, if (bounty > 0) StarSource.BOUNTY else null, direct + bounty)
-            val args = mapOf("amount" to direct.toString(), "bounty" to bounty.toString(), "victim" to event.victim.toString())
-            hint(killer, if (bounty > 0) "astera.match.star.bounty" else "astera.match.star.kill-income", args)
+            if (bounty > 0) {
+                budget.stats.add(match.id, "bounty-paid", 1)
+                issuer.credit(match.id, killer, StarSource.BOUNTY, bounty)
+                hint(killer, "astera.match.star.bounty", mapOf("bounty" to bounty.toString(), "victim" to event.victim.toString()))
+            }
         }
         scatter(match.id, event.victim, ground, killer)
     }
