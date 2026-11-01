@@ -116,6 +116,7 @@ public class DisplayOp(
     public val billboard: String,
     public val brightness: Pair<Value<Double>, Value<Double>>?,
     public val viewRange: Value<Double>,
+    public val glowing: Value<Boolean>,
     public val glowColor: Value<String>?,
     public val interpolationDelay: Value<Double>,
     public val interpolationDuration: Value<Double>,
@@ -228,6 +229,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
     private val brightnessFields = Fields.of("brightness", brightnessBlock, brightnessSky)
     private val brightnessF = Field.optional("brightness", Types.nullable(Types.nested(brightnessFields)), null, "{block, sky}; absent = world light")
     private val viewRangeF = Field.optional("view_range", Types.number, Value.Literal(1.0), "vanilla view range multiplier")
+    private val glowingF = Field.optional("glowing", Types.bool, Value.Literal(false), "vanilla Entity glowing flag; default false, independent of glow_color")
     private val glowColorF = Field.optional("glow_color", Types.nullable(Types.text), null, "#rrggbb glow override; absent = none")
     private val interpDelayF = Field.optional("interpolation_delay", Types.number, Value.Literal(0.0), "engine-owned after spawn (section 4); written only for hand-tuned loops")
     private val interpDurationF = Field.optional("interpolation_duration", Types.number, Value.Literal(0.0), "engine-owned after spawn (section 4)")
@@ -247,7 +249,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         itemF, partF, contextF, shaderEffectF, blockF,
         textF, backgroundF, alignmentF, lineWidthF, textOpacityF, seeThroughF, shadowF,
         spriteF, sizeF, pivotF, flipbookF, colorF,
-        translationF, rotateF, scaleF, rightF, pitchF, billboardF, brightnessF, viewRangeF, glowColorF,
+        translationF, rotateF, scaleF, rightF, pitchF, billboardF, brightnessF, viewRangeF, glowingF, glowColorF,
         interpDelayF, interpDurationF, teleportDurationF, motionF,
     ).rejecting(
         "yaw",
@@ -383,7 +385,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                 id, src, whenExpr, foldTiming(t, ctx), kind, values[anchorF], frame, plane, values[offsetF],
                 subject, values[contextF], values[partF], style, size, if (kind == DisplayKind.SPRITE) values[pivotF] else null, color, seeThrough, flipbook,
                 values[translationF], values[rotateF], values[scaleF], values[rightF],
-                foldNum(values[pitchF], ctx), billboard, brightness, viewRange, glow,
+                foldNum(values[pitchF], ctx), billboard, brightness, viewRange, values[glowingF], glow,
                 wholeNum(values[interpDelayF], "$p.interpolation_delay", ctx, 0.0, null),
                 wholeNum(values[interpDurationF], "$p.interpolation_duration", ctx, 0.0, null),
                 wholeNum(values[teleportDurationF], "$p.teleport_duration", ctx, 0.0, null),
@@ -716,6 +718,7 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
         f["billboard"] = Val.Known(op.billboard)
         op.brightness?.let { (b, s) -> f["brightness_block"] = cell(b); f["brightness_sky"] = cell(s) }
         f["view_range"] = cell(op.viewRange)
+        f["glowing"] = cell(op.glowing)
         op.glowColor?.let { f["glow_color"] = cell(it) }
         f["interpolation_delay"] = cell(op.interpolationDelay)
         f["interpolation_duration"] = cell(op.interpolationDuration)

@@ -282,8 +282,8 @@ public class PaperDisplayEntityGateway(
                 com.astarworks.astera.core.domain.effect.ShaderEffect.SKY_LIGHT,
             )
         }
+        display.isGlowing = spec.glowing
         spec.glowArgb?.let {
-            display.isGlowing = true
             display.glowColorOverride = Color.fromARGB(it)
         }
         spec.viewRange?.let { display.viewRange = it }

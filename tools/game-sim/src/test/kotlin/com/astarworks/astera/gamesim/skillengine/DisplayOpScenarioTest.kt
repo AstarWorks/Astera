@@ -1,5 +1,9 @@
 package com.astarworks.astera.gamesim.skillengine
 
+import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
+import com.astarworks.astera.core.application.skillengine.runtime.port.DisplayView
+import com.astarworks.astera.core.application.skillengine.runtime.port.ISkillVisualGateway
+import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
@@ -29,6 +33,63 @@ class DisplayOpScenarioTest : SkillEngineScenario() {
         }
 
     private fun rows(s: CompiledSkill): List<Row> = s.table.states.flatMap { it.rows }
+
+    @Test
+    fun shippedGlowComparisonPlaysAllFourRoutesAndRemovesDisplays() {
+        val loaded = loadInline(java.nio.file.Files.readString(contentDir.resolve("vfx/demo-glow-comparison.yaml")))
+        val skill = (loaded as? Result.Success)?.value ?: throw AssertionError("glow demo did not load: $loaded")
+        val calls = play(skill, 7L)
+        val spawns = calls.filter { it.verb == "spawn" }
+        assertThat(spawns).hasSize(18)
+        assertThat(spawns.count { "glowing=true" in it.tokens }).isEqualTo(12)
+        assertThat(spawns.count { "shader=emissive-pulse" in it.tokens }).isEqualTo(6)
+        val particles = calls.filter { it.verb == "particle" }
+        assertThat(particles).hasSize(2)
+        assertThat(particles.all { "type=dust" in it.tokens && "count=40" in it.tokens }).isTrue()
+        assertThat(calls.filter { it.verb == "remove" }).hasSize(18)
+    }
+
+    @Test
+    fun displayGlowingAndColourReachRuntimeIndependently() {
+        val s = compiled(
+            "{id: a, op: display, kind: block, anchor: caster, block: minecraft:white_concrete, for: 20, glowing: true, glow_color: '#00ffff'}",
+            "{id: b, op: display, kind: block, anchor: caster, block: minecraft:white_concrete, for: 20, glow_color: '#ff0000'}",
+            "{id: c, op: display, kind: block, anchor: caster, block: minecraft:white_concrete, for: 20, glowing: true}",
+        )
+        val spawn = play(s, 7L).filter { it.verb == "spawn" }
+        assertThat(spawn).hasSize(3)
+        assertThat(spawn[0].payload).contains("glowing=true", "glow=#00ffff")
+        assertThat(spawn[1].payload).contains("glow=#ff0000").doesNotContain("glowing=true")
+        assertThat(spawn[2].payload).contains("glowing=true", "glow=-")
+        for (bad in listOf("glowing: 1", "glowing: 'yes'", "glow_color: '#f00'", "glow_color: '#ff00ffff'")) {
+            assertThat(loadInline(skill("{id: bad, op: display, kind: block, anchor: caster, block: minecraft:stone, for: 10, $bad}")))
+                .describedAs(bad).isInstanceOf(Result.Failure::class.java)
+        }
+    }
+
+    @Test
+    fun framePlacedGlowKeepsSharedMetadataAndFollowsTheFrame() {
+        val yaml = skill(
+            "{id: a, op: display, kind: block, frame: glow, pos: {v: 1}, block: minecraft:white_concrete, for: 20, glowing: true, glow_color: '#00ffff'}",
+            "{id: b, op: display, kind: text, frame: glow, pos: {v: 2}, text: glow, for: 20, glowing: true, glow_color: '#ff0000'}",
+        ).replace("machine:", "frames:\n  - {id: glow, origin: caster, v: forward, w: up, s: v x w, move: [{at: 0, for: 10, to: {v: 2}}]}\nmachine:")
+        val loaded = loadInline(yaml)
+        val compiled = (loaded as? Result.Success)?.value ?: throw AssertionError("frame glow did not load: $loaded")
+        val rec = GatewayRecorder()
+        val textViews = mutableListOf<DisplayView>()
+        val visual = object : ISkillVisualGateway by rec.visual {
+            override fun spawnText(cast: CastRef, text: String, backgroundArgbHex: String, shadow: Boolean, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView) =
+                rec.visual.spawnText(cast, text, backgroundArgbHex, shadow, seeThrough, pose, brightness, view).also { textViews += view }
+        }
+        val player = playProbe(compiled, ticks = 102, rec = rec, visual = visual)
+        assertThat(player.faults()).isEmpty()
+        assertThat(textViews).containsExactly(DisplayView(glowing = true, glowColor = "#ff0000"))
+        val spawns = rec.calls.filter { it.verb == "spawn" }
+        assertThat(spawns).hasSize(2)
+        assertThat(spawns.first().payload).contains("glowing=true", "glow=#00ffff")
+        assertThat(rec.writtenPoses.filter { it.first in 1..10 }.map { it.third.frame.origin.z }.distinct().size).isGreaterThan(1)
+        assertThat(rec.calls.filter { it.verb == "remove" }).hasSize(2)
+    }
 
     @Test
     fun rigResetIsZeroDurationWrite() {
