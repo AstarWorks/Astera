@@ -1,6 +1,6 @@
 # homing-orb: a bolt that bends toward the nearest enemy (ADR-0313 `homing`); with no enemy in reach it flies straight.
 # Frame grammar (ADR-0314): tip - the wand head (eye / aim basis, 1.2 ahead): the orb leaves it; head - the orb's body (v along its velocity) carries
-# the sprite core, a white inner core and a spark trail (visual only); hit - one per victim contact (v the way the orb came in) for the hit spark. Gameplay unchanged.
+# the sprite core, a white inner core and a spark trail, and an impact flash + flame/crit burst on the hit frame (visual only); hit - one per victim contact (v the way the orb came in) for the hit spark. Gameplay unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: homing-orb
@@ -19,7 +19,7 @@ frames:
   - {id: hit, on: event.victim, each: true, origin: victim.center, v: incoming, w: up, s: v x w}
 machine:
   start: fly
-  tail: 2
+  tail: 5
   states:
     fly:
       for: 50
@@ -42,6 +42,9 @@ machine:
             hit:
               - {id: hurt, op: damage, target: event.victim, damage: {electric: "${dmg}"}}
               - {id: fx_hit, op: particle_def, def: hit-spark, frame: hit, pos: {w: 0.3}, detach: true}
+              - {id: flash, op: display, kind: sprite, sprite: sparkle-cross, frame: hit, pos: {v: 0}, size: [2.4, 2.4], color: "#ffffff", billboard: center, brightness: {block: 15, sky: 15}, detach: true, at: 0, for: 5, motion: [{law: grow, by: 1.2, at: 0, for: 5}, {law: fade, start: 1.0, to: 0.0, at: 1, for: 4}]}
+              - {id: burst_flame, op: particle, particle: flame, frame: hit, count: 24, offset: [0.4, 0.4, 0.4], extra: 0.12, detach: true}
+              - {id: burst_crit, op: particle, particle: crit, frame: hit, count: 24, offset: [0.3, 0.3, 0.3], extra: 0.45, detach: true}
         - id: core
           op: display
           kind: sprite
