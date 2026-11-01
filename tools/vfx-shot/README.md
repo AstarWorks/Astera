@@ -201,7 +201,7 @@ framed with `/tp x y z yaw pitch`. Arena: overworld flat world at (300.5, -60, 3
 
 ### `ATTACKER=1 [ATTACK_AT=<tick>]` (any view; counter / guard skills)
 Opt-in: the nearest dummy husk hits the Caster once, `ATTACK_AT` ticks after the cast (default 10, inside a 30-tick guard window; must be below
-`TICKS`), by `damage Caster 1 minecraft:mob_attack by <husk>` (the normal damage path, so the skill's `hurt` trigger fires). Sent as a camera-plan
+`TICKS`), by `astera skill hurt Caster <husk-uuid> 1` (ApplyDamageUseCase with the husk as attacker, the call a skill damage op makes, so the skill hurt trigger fires). Sent as a camera-plan
 command; the director logs its reply as `PLAN_REPLY` and the run fails loudly if the damage was not applied. Example:
 `make vfx-shot SKILL=couture-rapier-def ATTACKER=1 VIEW=caster DISTANCE=3` (the husk must stand within the guard's range: couture-rapier-def 3.5).
 Absent: dummies stay passive, nothing changes.
