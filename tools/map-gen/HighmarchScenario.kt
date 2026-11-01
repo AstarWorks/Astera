@@ -47,6 +47,30 @@ fun main(args: Array<String>) {
         check(plan.stateAt(x, y, z) == null) { "HighmarchImportIsolation: legacy frost cell ($x,$y,$z) is not void" }
     }
     println("HighmarchImportIsolation: ${plan.blocks.size} cells match the shipped import and pedestal overlay; legacy cells are void")
+    // HighmarchTickStable: inspect the actual shipped import, after every terrain/building pass.
+    val plants = setOf("short_grass", "fern", "dandelion", "azure_bluet", "oxeye_daisy", "poppy")
+    var turf = 0
+    var farmland = 0
+    for ((p, state) in imported.blocks) {
+        if (state !in setOf("minecraft:grass_block", "minecraft:dirt") && !state.startsWith("minecraft:farmland")) continue
+        val above = imported.blocks[ArenaBlockPos(p.x, p.y + 1, p.z)]?.substringBefore('[')?.removePrefix("minecraft:")
+        val open = above == null || above in plants || above == "iron_bars" ||
+            listOf("_leaves", "_fence", "_wall", "_wall_sign", "_trapdoor").any { above.endsWith(it) }
+        when {
+            state == "minecraft:grass_block" -> {
+                check(open) { "HighmarchTickStable: buried turf at $p under $above" }
+                turf++
+            }
+            state == "minecraft:dirt" -> check(!open) { "HighmarchTickStable: spreading soil at $p under $above" }
+            else -> {
+                check(state == "minecraft:farmland[moisture=0]") { "HighmarchTickStable: unwatered farmland $p: $state" }
+                check(above == "wheat") { "HighmarchTickStable: dry farmland needs its crop at $p" }
+                farmland++
+            }
+        }
+    }
+    check(turf > 30000 && farmland > 100)
+    println("HighmarchTickStable: $turf open turf cells, $farmland dry cropped farmland cells; no spreading exposed dirt")
     // Match placement replaces exactly these nine exposed cells; include them in navigation collision.
     val blocks = plan.blocks.toMutableMap()
     stage.pillars.forEach { p -> blocks[ArenaBlockPos(p.position.x.toInt(), p.position.y.toInt(), p.position.z.toInt())] = p.block.key }

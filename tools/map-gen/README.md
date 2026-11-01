@@ -130,3 +130,35 @@ Voxel DDA uses the actual decoded import, flat material colours and depth fog;
 plants render as full voxels, with no Minecraft textures or lighting. These
 views compare terrain and silhouettes; live appearance remains manager review.
 Evidence and before/after fairness tables: `/tmp/claude-1000/anni-map/quality2/`.
+
+## Tick-stable import (anni-tickstable)
+
+The final turf pass runs after all buildings, trees and ore-pocket carving.
+Grass stays under air, plants and the authored light-transmitting covers;
+solid roofs, trunks and foundations have dirt underneath. Exposed dirt,
+including soil under open fences/walls, becomes coarse dirt so grass cannot
+spread into a different imported material. Only materials/states change;
+occupied cells and every gameplay anchor remain fixed.
+
+Kitchen gardens and the yellow farm retain their mature wheat and use
+`farmland[moisture=0]`, the settled state without nearby irrigation. This
+preserves the field footprint and route collision; cropped dry farmland stays
+farmland. This dry state assumes clear weather, as configured by map-shot; rain can
+rehydrate farmland.
+`HighmarchTickStable` in the production-loader `HighmarchScenario` rejects
+buried turf, spreading exposed dirt and wet/uncropped farmland. The real-client
+`HighmarchInworldIT` capture remains the physics proof, with the unchanged
+strict `scan-world.py` comparison:
+
+```sh
+MAP_SETTLE=30 bash tools/map-gen/capture-highmarch.sh /tmp/claude-1000/anni-map/inworld2
+```
+
+No outer flock: map-shot owns its lock and tears down its isolated stack.
+All four cameras wait 30 seconds before capture, longer than the previous
+15-second waits. Evidence: `inworld2/{scan.md,mismatches.csv,phases.log}` and
+`inworld2/after/{founder-view,eye-level,top-down,underside-low}.png`.
+
+Observed: `foreign = 0; missing = 0`, 1,416,561 expected/actual blocks,
+zero material/state mismatches. All 730 routes pass; fairness, spawn-star
+and traversal tables are byte-identical to `quality2/after/`.
