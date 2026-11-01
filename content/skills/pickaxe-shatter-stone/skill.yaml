@@ -3,10 +3,12 @@
 # Wind-up W = 4 ticks (round_half_up(5 / attack_speed 1.2 (vanilla pickaxe))):
 # the pickaxe is drawn back over 3 ticks, the cut starts at tick 3 so the head crosses the target at the impact (tick 4) and the blocks give way there; then 6 ticks of follow-through.
 # Gameplay (the sphere, sounds, cooldown) is unchanged.
-# Two frames carry everything drawn:
-#   tool - the pickaxe: origin at the caster's feet moved along the hand path (`move:`), the held pickaxe rides it, long axis along v (grip at the origin,
-#          head at v 0.9). The right hand is pinned onto this origin by the engine (ADR-0315): the head leads, the hand follows. The chop is a turn about s, which moves v towards w: the pickaxe goes up and back to 110 degrees, comes down through the target to -30 and runs out to -55,
-#          then `reset` eases it back to the rest pose before the rig ends. The line `edge` (head base 0.4 -> head 0.9) is what the trail draws along.
+# Three frames carry everything drawn:
+#   arm  - the caster's right shoulder (`caster.shoulder_r`); it only turns (pitch about s), so the arm points where the hand goes.
+#   tool - the held tool: its origin is the point 0.6 along the arm (`origin: {frame: arm, pos: {v: 0.6}}`, the length of the rigid arm), so the
+#          hand reaches it on every tick by construction. The right hand is pinned onto this origin by the engine (ADR-0315): the head leads,
+#          the hand follows. The head turns about its own s (v towards w): drawn back, down through the target, run out, then `reset` eases it
+#          back to the rest pose before the rig ends. The line `edge` (head base -> head) is what the trail draws along.
 #   body - the caster's feet, v forward / w up / s right: the hit area spark and the sounds are points of it.
 apiVersion: astera/v3
 kind: Skill
@@ -28,17 +30,23 @@ params:
   amethyst: {type: bool, default: false}
   spark: {type: string, default: tool-pick-stone}
 frames:
-  - id: tool
-    origin: caster
+  - id: arm
+    origin: caster.shoulder_r
     v: forward
     w: up
     s: v x w
-    move:
-      - {at: 0, for: 0, to: {v: 0.25, w: 0.95, s: 0.37}}
-      - {at: 0, for: 3, to: {v: -0.05, w: 1.90, s: 0.33}, ease: out_quad}      # drawn back
-      - {at: 3, for: 3, to: {v: 0.50, w: 1.25, s: 0.33}, ease: out_cubic}      # the cut
-      - {at: 6, for: 3, to: {v: 0.50, w: 1.05, s: 0.35}, ease: out_cubic}      # follow-through
-      - {at: 9, for: 3, to: {v: 0.25, w: 0.95, s: 0.37}, ease: in_out_sine}      # back to the hip
+    rotate:
+      # pitch about s: where the straight arm points (angle from forward, towards up); the arm only turns, the hand rides its end
+      - {at: 0, for: 0, about: s, to: -30}                                   # rest: the hand at the hip
+      - {at: 0, for: 3, about: s, to: 95, ease: out_quad}                        # drawn back over the head
+      - {at: 3, for: 3, about: s, to: -5, ease: out_cubic}                       # the cut
+      - {at: 6, for: 3, about: s, to: -25, ease: out_cubic}                      # follow-through
+      - {at: 9, for: 3, about: s, to: -30, ease: in_out_sine}                    # back to the hip
+  - id: tool
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
     rotate:
       - {at: 0, for: 3, about: s, to: 110, ease: out_quad}
       - {at: 3, for: 3, about: s, to: -30, ease: out_cubic}
