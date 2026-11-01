@@ -6,6 +6,7 @@ import com.astarworks.astera.bots.ModePlanner
 import com.astarworks.astera.bots.StageObjectives
 import com.astarworks.astera.gamesim.playable.MatchConfig
 import com.astarworks.astera.gamesim.playable.MatchDriver
+import com.astarworks.astera.gamesim.playable.StageTeamLayouts
 import com.astarworks.astera.gamesim.playable.metrics.MassPlay
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -102,9 +103,13 @@ class BotTeamCountScenarioTest {
     @Test
     fun `a real two team match on the three base stage never touches the unplayed base`() {
         val out = Files.createTempDirectory("bot-team-count")
-        val driver = { seed: Long -> MatchDriver.boot(MatchConfig(seed = seed, teamCount = 2, botsPerTeam = 3)) }
+        // The pairing comes from the stage's team_layouts[2] when the stage has one (c5, ADR-0323); the current 3-base stage has none, so the two teams are named explicitly (MatchConfig.teams).
+        val pair = StageTeamLayouts.available(GameSim.defaultContentDir(), "annihilation-arena")[2] ?: listOf("red", "blue")
+        var seated: List<String> = emptyList()
+        val driver = { seed: Long -> MatchDriver.boot(MatchConfig(seed = seed, teams = pair, botsPerTeam = 3)).also { d -> seated = d.seats.map { it.team }.distinct() } }
         val run = MassPlay.run(listOf(20261102L), out, MassPlay.Config(renderFrames = false), driver).single()
         val s = run.result.scalars
+        assertThat(seated).`as`("the scoreboard teams (what the bots read as live) are exactly the configured pairing").containsExactlyElementsOf(pair)
         val unplayed = s.keys.filter { it.startsWith("pillar_damage_taken_") }.map { it.removePrefix("pillar_damage_taken_") }
             .filter { t -> (s["pillar_damage_dealt_$t"] ?: 0.0) == 0.0 && (s["pillar_damage_taken_$t"] ?: 0.0) == 0.0 }
         println("[bot-team-count] end=${run.endReason} untouched=$unplayed dealt=${s.filterKeys { it.startsWith("pillar_damage_dealt_") }}")
