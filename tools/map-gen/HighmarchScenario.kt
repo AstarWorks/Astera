@@ -29,6 +29,24 @@ fun main(args: Array<String>) {
     check(plan.problems.isEmpty()) { plan.problems }
     check(stage.layout!!.islands.isEmpty() && stage.layout!!.bridges.isEmpty() && stage.layout!!.structures.isEmpty())
     check(stage.pillars.size == 9)
+    // HighmarchImportIsolation: real RLE loader -> production plan. Air holes and outer void must
+    // stay absent; the only planned overlay is each shipped generator's iron pedestal.
+    val imported = checkNotNull(imports["annihilation-highmarch"])
+    val pedestals = stage.layout!!.landmarks.map { ArenaBlockPos(it.x, plan.surfaceY, it.z) }.toSet()
+    check(plan.blocks.size == imported.blocks.size) { "Highmarch import added/dropped cells" }
+    for ((p, state) in plan.blocks) {
+        check(state == if (p in pedestals) "minecraft:iron_block" else imported.blocks[p]) {
+            "HighmarchImportIsolation: foreign state $state at $p (import=${imported.blocks[p]})"
+        }
+        check(p.x in -512..512 && p.z in -512..512 && p.y in -64..319)
+        check(state.substringBefore('[') !in setOf("minecraft:barrier", "minecraft:structure_void", "minecraft:light")) {
+            "HighmarchImportIsolation: visible/debug marker $state at $p"
+        }
+    }
+    for ((x, y, z) in listOf(Triple(0, 64, 203), Triple(177, 64, -101), Triple(-177, 64, -101), Triple(0, 100, -187))) {
+        check(plan.stateAt(x, y, z) == null) { "HighmarchImportIsolation: legacy frost cell ($x,$y,$z) is not void" }
+    }
+    println("HighmarchImportIsolation: ${plan.blocks.size} cells match the shipped import and pedestal overlay; legacy cells are void")
     // Match placement replaces exactly these nine exposed cells; include them in navigation collision.
     val blocks = plan.blocks.toMutableMap()
     stage.pillars.forEach { p -> blocks[ArenaBlockPos(p.position.x.toInt(), p.position.y.toInt(), p.position.z.toInt())] = p.block.key }

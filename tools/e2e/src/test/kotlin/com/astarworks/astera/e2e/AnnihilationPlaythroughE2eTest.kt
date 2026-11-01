@@ -156,6 +156,30 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
         if (active == null) return
         Thread.sleep(1_500)
 
+        E2eReport.check(suite, "Highmarch import leaves no legacy frost islands, bridge or high beacon", "RCON stage-local air probes") {
+            // Dev 2026-11-01: old pre-relief annihilation-arena at slot origin (4096,0).
+            // These cells sit outside Highmarch, but inside the owned +-512 full-height sweep.
+            val strays = listOf(
+                Triple(0, 64, 203), Triple(0, 65, 203), // snow flank-blue-yellow / star pedestal
+                Triple(80, 64, 136), Triple(-80, 64, 136), // long spruce bridge decks
+                Triple(177, 64, -101), Triple(-177, 64, -101), // other snow outposts
+                Triple(0, 100, -187), // old red beacon's stained glass, above the import roof
+                Triple(0, -63, 203), Triple(0, 319, 203), // full build height, below and above the map
+                Triple(500, 64, 0), Triple(-500, 64, 0), // explicit slot margin
+            )
+            // The importer deliberately never generates empty margin chunks. Load the two distant probes
+            // explicitly, otherwise RCON reports "position is not loaded" even when the owned volume is clean.
+            val margin = listOf(-500, 500)
+            try {
+                margin.forEach { x -> inArena("run forceload add ${originX + x} $originZ") }
+                bots.first().waitUntil(10_000) { margin.all { arenaBlockIs(it, 64, 0, "minecraft:air") } }
+                strays.forEach { (x, y, z) -> assertArenaBlock(x, y, z, "minecraft:air", bots) }
+            } finally {
+                margin.forEach { x -> inArena("run forceload remove ${originX + x} $originZ") }
+            }
+            "${strays.size} legacy/margin cells are air at slot ($originX,$originZ); runtime also verifies the full volume before Ready"
+        }
+
         val teams = bots.associateWith { teamOfBot(it) }
         val a = bots.firstOrNull { teams[it] == "Red" }
         val blue = bots.firstOrNull { teams[it] == "Blue" }
