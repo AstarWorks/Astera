@@ -864,7 +864,7 @@ class BotBrain(
 
     /** The economy trip outranks an enemy that is farther than [ECON_ENGAGE_RANGE] unless the bot was hit in the last [ECON_HIT_MS]. */
     private fun econIgnores(ex: Double, ez: Double, now: Long): Boolean =
-        now - econOwnedAt <= 400 && now - lastHitAt > ECON_HIT_MS && hypot(ex - bot.x, ez - bot.z) > ECON_ENGAGE_RANGE
+        (economy?.rung ?: 1) == 0 && now - econOwnedAt <= 400 && now - lastHitAt > ECON_HIT_MS && hypot(ex - bot.x, ez - bot.z) > ECON_ENGAGE_RANGE
 
     private fun economyDest(now: Long): Dest? {
         val eco = economy ?: return null
@@ -876,6 +876,8 @@ class BotBrain(
         }
         val st = eco.step(now, bot.x, bot.z, carriedOre(), toolSlots.containsKey(LoadoutClassifier.Affinity.PICKAXE), bot.carriedItemIds())
         if (st == null) { econActiveMs = 0L; econLastTickAt = 0L; return null }
+        // A pillar attacker on the offence only buys what it already carries, and only when the shop is close; mining and shop trips are the other roles' work.
+        if (pl != null && offence(now) && (st.kind != "shop" || hypot(st.x - bot.x, st.z - bot.z) > ECON_ATTACKER_SHOP_RANGE)) return null
         if (pl != null) {
             // The slice is economy time, not wall time: a fight or an interruption pauses it and the trip resumes where it stopped. A buy
             // in reach (the shop step) always finishes.
@@ -1392,13 +1394,15 @@ class BotBrain(
         const val STAR_YIELD_RANGE = 12.0
         const val ECON_OPENING_MS = 30_000L
         const val ECON_SLICE_MS = 60_000L
-        const val OBJECTIVE_SLICE_MS = 45_000L
+        const val OBJECTIVE_SLICE_MS = 120_000L
         /** A pillar attacker's walk to the enemy pillar is long: after an economy slice it digs for this long before the next trip. */
         const val ATTACKER_OBJECTIVE_SLICE_MS = 240_000L
-        const val LULL_MS = 4_000L
+        const val LULL_MS = 10_000L
         /** An enemy farther than this does not pull a bot off its economy trip (unless it was hit within [ECON_HIT_MS]). */
         const val ECON_ENGAGE_RANGE = 16.0
         const val ECON_HIT_MS = 6_000L
+        /** An attacker on the offence only visits a shop within this many blocks. */
+        const val ECON_ATTACKER_SHOP_RANGE = 30.0
         /** A bot still unpaid this long after the match start stops waiting for its first star before an economy trip (the opening sweep owns the first stars; same as HUNGRY_MAX_MS). */
         const val ECON_STAR_FIRST_MS = 50_000L
         /** A star this close is picked up even on an economy trip. */
