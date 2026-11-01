@@ -111,6 +111,9 @@ for gf in "$root"/generators/*.yaml; do
   if grep -Eq '^wave:' "$gf"; then
     patch "generators/$g.yaml" 's/^  wave_period_seconds:.*/  wave_period_seconds: 10.0/' '^  wave_period_seconds:'
     patch "generators/$g.yaml" 's/^  wave_warn_seconds:.*/  wave_warn_seconds: 2.0/' '^  wave_warn_seconds:'
+  elif grep -Eq '^cache:' "$gf"; then
+    # Exploration caches (a `cache:` block, no period): 90s -> 5s respawn, so a spot refills within the suite.
+    patch "generators/$g.yaml" 's/^  respawn_seconds:.*/  respawn_seconds: 5.0/' '^  respawn_seconds:'
   else
     patch "generators/$g.yaml" 's/^period_seconds:.*/period_seconds: 3.0/' '^period_seconds:'
   fi
@@ -122,7 +125,8 @@ done
 patch norma-layer/layer.yaml 's/^(  norma_max_level:).*/\1 "3"/' '^  norma_max_level:'
 patch norma-layer/layer.yaml 's/^(  norma_stars_goal:).*/\1 "2,3"/' '^  norma_stars_goal:'
 patch norma-layer/layer.yaml 's/^(  norma_kills_goal:).*/\1 "1,2"/' '^  norma_kills_goal:'
-patch norma-layer/layer.yaml 's/^(  death_drop_ratio:).*/\1 "1.0"/' '^  death_drop_ratio:'
+patch norma-layer/layer.yaml 's/^(  star_kill_share:).*/\1 "0.0"/' '^  star_kill_share:'
+patch norma-layer/layer.yaml 's/^(  star_kill_ground_share:).*/\1 "1.0"/' '^  star_kill_ground_share:'
 
 # SkillEngineV3E2eTest#reloadOneSkillChangesNextCastOnly: an e2e-only probe skill whose directory is a named volume
 # (docker-compose.e2e.yml `e2e-skill-probe`, mounted read-write into the runner) so the suite can rewrite its YAML and

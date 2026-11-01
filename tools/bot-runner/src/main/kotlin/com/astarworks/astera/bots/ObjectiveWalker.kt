@@ -25,6 +25,7 @@ class ObjectiveWalker(
     enum class Result { ARRIVED, TIMEOUT, STOPPED }
 
     /** The route graph is stage-local; [originX]/[originZ] is the world position of the slot the stage is pasted at (ADR-0255). */
+    private val host = ProtocolBotHost(bot)
     private val nav = Navigator(bot.terrain, objectives?.routeGraph()).also { it.originX = originX; it.originZ = originZ }
     private var screensSeen = bot.screens.size
     private var lastRespawnAt = 0L
@@ -48,7 +49,7 @@ class ObjectiveWalker(
             if (stop()) return Result.STOPPED
             if (now > end) return Result.TIMEOUT
             if (alive(now)) {
-                when (nav.follow(bot, x, z, null, arrive, speed, now, null, 0f)) {
+                when (nav.follow(host, x, z, null, arrive, speed, now, null, 0f)) {
                     Navigator.Status.ARRIVED -> return Result.ARRIVED
                     Navigator.Status.MOVING -> Unit
                     Navigator.Status.NO_PATH -> bot.nudge() // chunks still loading or a blocked cell: stand and replan

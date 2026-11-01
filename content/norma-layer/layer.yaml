@@ -1,6 +1,6 @@
 # The Norma layer: a standard layer of EVERY game mode, not a mode of its own (founder 2026-10-26, MODE-15).
 #
-# What the layer is (docs/game-design/stars-and-norma.md): star generators pop stars on the stage, a kill bursts the
+# What the layer is (docs/game-design/stars-and-norma.md): star generators pop stars on the stage, a kill pays the killer and bursts part of the
 # victim's carried stars, every player climbs Norma levels with ONE goal per level chosen in the picker (carry stars
 # or make kills), and the level-up is presented to the whole match. Everything is dropped at match end.
 #
@@ -24,7 +24,7 @@ defaults:
   # Meeting the goal only makes the player READY (action bar + sidebar); the level rises at the Norma check
   # (automatic on standing in the OWN team base while ready; `/astera norma check` for bots/tests) while the goal still holds (stars lost on a death un-ready).
   # Pace (docs/game-design/stars-and-norma.md "Pace"): the supply grows over the match (star_supply_* below) and the
-  # measured per-minute table and level times live in that doc (StarSupplyPaceScenarioTest prints them). Annihilation:
+  # measured per-minute table and level times live in that doc (StarEconomyScenarioTest prints them). Annihilation:
   # Mid waves + small flank and per-team base generators put 100 stars ~7-8 min in for an active team player.
   norma_max_level: "5"
   norma_stars_goal: "10,30,60,100"
@@ -32,17 +32,31 @@ defaults:
   # The base zone of the Norma check: blocks (horizontal) around the centroid of the team's spawn points (stage YAML).
   norma_check_radius: "16"
 
-  # Star supply formula (founder 2026-10-29, anti-snowball): every star generator's pop / Mid wave is scaled by
-  #   multiplier(t) = min(star_supply_max_multiplier, 1 + star_supply_growth * t / star_supply_ramp_seconds)
-  # with t = seconds since the match went active, amount = round(authored amount * multiplier). So stars keep growing
-  # as the match goes on and a comeback stays possible. Tunable after release.
-  star_supply_growth: "1.5"
-  star_supply_ramp_seconds: "600"
-  star_supply_max_multiplier: "2.5"
+  # Star economy (ADR-0318, founder 2026-11-01; supersedes the 2026-10-29 time-ramp multiplier). The supply is a BUDGET:
+  #   budget(t, N) = star_supply_per_player_minute x ramp(t) x N_alive   (stars per minute, whole match)
+  # ramp(t) is piecewise linear over minutes ("minute:multiplier,..."). Every source draws from the budget and has its own
+  # per-source cap (its star_share_* of the budget; per player per minute for mining / blocks / caches), so 3, 6 or 12 players
+  # earn about the same each. Timer generators (flank / base, `spots:`) are a MINOR source (share <= 0.15, enforced by the loader).
+  star_supply_per_player_minute: "16"
+  star_supply_ramp: "0:0.25,1:0.75,3:1.0,11:1.4,16:1.6"
+  star_share_spot: "0.12"
+  star_share_mining: "0.22"
+  star_share_blocks: "0.15"
+  star_share_cache: "0.15"
+  star_share_wave: "0.30"
+  star_share_bounty: "0.04"
+  # Actions: stars per ore-node mine and per listed block break (annihilation matches; Material names).
+  star_mining_per_node: "1"
+  star_block_per_break: "1"
+  star_blocks: "COAL_ORE,DEEPSLATE_COAL_ORE,IRON_ORE,DEEPSLATE_IRON_ORE,GOLD_ORE,LAPIS_ORE,REDSTONE_ORE,GLOWSTONE,OBSIDIAN,OAK_LOG,SPRUCE_LOG,BIRCH_LOG,BARREL,CHEST,CRAFTING_TABLE"
 
-  # Share of a victim's carried stars that bursts out on death (floor(carried * ratio)); 0..1. Half: with a 100 goal a
-  # full drop would reset a nearly-won run; the fountain is still ~30-50 stars at the late-game peak.
-  death_drop_ratio: "0.5"
+  # Kill rule: the victim loses ALL carried stars. The killer gets star_kill_share of them directly, star_kill_ground_share
+  # bursts on the ground, the rest is lost. Bounty = star_bounty_rate x (victim carried - roster average), capped at
+  # star_bounty_cap, paid from the bounty share of the budget (a kill on the leader pays more than one on a trailing player).
+  star_kill_share: "0.4"
+  star_kill_ground_share: "0.2"
+  star_bounty_rate: "0.5"
+  star_bounty_cap: "12"
 
   # F3-5 death / respawn (seconds): death-screen countdown, killer death-cam length, post-respawn invulnerability
   # (ends on attack).

@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap
  * Only "air or not" matters: state id 0 is air in every registry version. A column that was never received answers
  * `null` (unknown), which callers treat as "do not walk there".
  */
-class Terrain {
+class Terrain : TerrainView {
     private val chunks = ConcurrentHashMap<Long, Array<ChunkSection?>>()
 
     @Volatile private var minY = DEFAULT_MIN_Y
@@ -56,16 +56,18 @@ class Terrain {
     }
 
     /** True when the chunk holding ([x], [z]) was received (a missing floor there means a real hole, not "unknown"). */
-    fun knows(x: Double, z: Double): Boolean = chunks.containsKey(key(Math.floor(x).toInt() shr 4, Math.floor(z).toInt() shr 4))
+    override fun knows(x: Double, z: Double): Boolean = chunks.containsKey(key(Math.floor(x).toInt() shr 4, Math.floor(z).toInt() shr 4))
 
-    fun isSolid(x: Int, y: Int, z: Int): Boolean? = stateAt(x, y, z)?.let { it != AIR }
+    override fun isSolid(x: Int, y: Int, z: Int): Boolean? = stateAt(x, y, z)?.let { it != AIR }
+
+    override fun blockName(x: Int, y: Int, z: Int): String? = stateAt(x, y, z)?.let { BlockStateNames.nameOf(it) }
 
     /**
      * Feet height of the walkable floor in the column of ([x], [z]) within [maxStepUp] above / [maxDrop] below
      * [feetY]: the top of the highest solid block that has air above it. `null` = no floor (a hole or the edge of
      * the island) or the column is unknown.
      */
-    fun floorAt(x: Double, z: Double, feetY: Double, maxStepUp: Int = 0, maxDrop: Int = 2): Double? {
+    override fun floorAt(x: Double, z: Double, feetY: Double, maxStepUp: Int, maxDrop: Int): Double? {
         val bx = Math.floor(x).toInt()
         val bz = Math.floor(z).toInt()
         val top = Math.floor(feetY + 0.05).toInt() + maxStepUp

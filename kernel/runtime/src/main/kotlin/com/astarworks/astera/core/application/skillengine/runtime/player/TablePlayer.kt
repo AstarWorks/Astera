@@ -235,7 +235,7 @@ public class TablePlayer(
         val run = Run(cursor, request, states, listened, DashDriver(CastRef(handle.value, request.caster, request.world, request.skill.def.item, request.heldItem), movement, query))
         runs[handle.value] = run
         // ADR-0314: a caster / instance frame lives with the cast; a per-victim one is instantiated at its first read for that victim
-        for (decl in skill.def.frames) if (!decl.perEvent) run.frames[decl.id] = FrameInst(decl, request.startTick, null)
+        for (decl in skill.def.frames) if (!decl.perEvent && !decl.perState) run.frames[decl.id] = FrameInst(decl, request.startTick, null)
         lastTick = max(lastTick, request.startTick)
         return Result.Success(handle)
     }
@@ -285,7 +285,7 @@ public class TablePlayer(
     }
 
     private fun absorbsRun(run: Run, event: RuntimeEvent, now: Int): Boolean {
-        val binding = EventBinding(event.path, event.index, event.contact, event.victim, event.attacker)
+        val binding = EventBinding(event.path, event.index, event.contact, event.victim, event.attacker, tick = event.tick)
         for (lvl in run.cursor.levels.sortedByDescending { it.depth }) {
             if (lvl.done) continue
             val st = run.states[lvl.state] ?: continue
@@ -581,6 +581,8 @@ public class TablePlayer(
         val levels = run.cursor.levels.toMutableList()
         levels.add(min(at ?: levels.size, levels.size), lvl)
         run.cursor.levels = levels
+        // an on: state.<name> frame is born on the entry of its state: its keys count from this tick, on the binding that entered it
+        for (decl in run.cursor.skill.def.frames) if (decl.startsOnState(state.value)) run.frames[decl.id] = FrameInst(decl, now, binding)
         advanceLevel(run, lvl, now)
         if (st.isFinal) {
             lvl.done = true
@@ -683,7 +685,7 @@ public class TablePlayer(
     private fun deliverEvent(run: Run, ev: RuntimeEvent, now: Int) {
         if (!bodyEventLive(run, ev.path)) return
         run.seen += ev.path
-        val binding = EventBinding(ev.path, ev.index, ev.contact, ev.victim, ev.attacker)
+        val binding = EventBinding(ev.path, ev.index, ev.contact, ev.victim, ev.attacker, tick = ev.tick)
         val offered = offer(run, ev, binding, now, only = null)
         val sub = run.cursor.skill.table.subTables[ev.path] ?: return
         if (ev.path in offered.pasted) return
@@ -2196,7 +2198,7 @@ public class TablePlayer(
     // ------------------------------------------------------------------ driven puppet (ADR-0315)
 
     /** One body to push this tick: [start] orders the bodies on one entity (the newest wins, as [handOrigin] reads it). */
-    private class BodyPush(val start: Int, val who: UUID, val frame: () -> RigFrame, val anchored: Boolean)
+    private class BodyPush(val start: Int, val who: UUID, val frame: () -> RigFrame, val anchored: Boolean, val pin: FrameRigRec? = null)
 
     /**
      * The puppet of every body shown this tick is posed from here with the frame the engine's own tables used: a `body` op at
@@ -2206,19 +2208,26 @@ public class TablePlayer(
      * Runs at the end of the tick, so a rig that started on this tick's rows is pushed on the tick its mesh was first written.
      */
     private fun pushBodies(run: Run, now: Int) {
-        val pushes = bodyPushes(run, now, pinHand = true)
+        val pushes = bodyPushes(run, now)
         if (pushes.isEmpty()) return
         val anchor by lazy { casterAnchor(run) }
-        for (push in pushes.groupBy { it.who }.values.map { bodies -> bodies.maxBy { it.start } }) {
-            gameplay.poseBody(castRef(run), push.who, push.frame(), if (push.anchored) anchor else null)
+        for (bodies in pushes.groupBy { it.who }.values) {
+            val push = bodies.maxBy { it.start }
+            // every frame rig of the body pins its own hand: the newest main rig the right, the newest `hand: off` rig the left (ADR-0315)
+            val right = bodies.mapNotNull { it.pin }.filter { !it.off }.maxByOrNull { it.start }
+            val left = bodies.mapNotNull { it.pin }.filter { it.off }.maxByOrNull { it.start }
+            var frame = push.frame()
+            if (right != null) frame = frame.copy(rightHandTarget = pinnedHandTarget(run, right))
+            if (left != null) frame = frame.copy(leftHandTarget = pinnedHandTarget(run, left))
+            gameplay.poseBody(castRef(run), push.who, frame, if (push.anchored) anchor else null)
         }
     }
 
     /**
-     * Every body shown at [now], with the frame the engine's tables used. [pinHand] = the frame rig's right hand is pinned onto its ridden
-     * frame's origin (the push); the torso reading ([torsoRot]) leaves it off, since that pin reads the very frame being evaluated.
+     * Every body shown at [now], with the frame the engine's tables used (the hand pins are applied by the push; the torso reading
+     * ([torsoRot]) leaves them off, since a pin reads the very frame being evaluated).
      */
-    private fun bodyPushes(run: Run, now: Int, pinHand: Boolean): List<BodyPush> {
+    private fun bodyPushes(run: Run, now: Int): List<BodyPush> {
         val pushes = ArrayList<BodyPush>()
         for ((id, rec) in run.recs.entries) {
             rec.body?.let { b ->
@@ -2238,8 +2247,8 @@ public class TablePlayer(
                     // no clip (ADR-0315): the rest body, the pinned hand is all that moves
                     val frame = if (anim == null || clip == null) RigFrame.REST
                     else run.armTracks.getOrPut(anim to false) { RigBodyTrack(clip, gameplay.isSlimSkin(fr.caster)) }.frameAt(clockOf(run, fr.start, now))
-                    if (fr.off || !pinHand) frame else frame.copy(rightHandTarget = pinnedHandTarget(run, fr))
-                }, true)
+                    frame
+                }, true, fr)
             }
         }
         return pushes
@@ -2252,7 +2261,7 @@ public class TablePlayer(
      */
     private fun torsoRot(run: Run, now: Int): Quaterniond {
         val caster = run.request.caster
-        val frame = bodyPushes(run, now, pinHand = false).filter { it.who == caster }.maxByOrNull { it.start }?.frame?.invoke() ?: RigFrame.REST
+        val frame = bodyPushes(run, now).filter { it.who == caster }.maxByOrNull { it.start }?.frame?.invoke() ?: RigFrame.REST
         val q = SkinRigTransforms.spine(frame, gameplay.isSlimSkin(caster)).rotation
         return Quaterniond(q.x, q.y, q.z, q.w)
     }
@@ -2431,6 +2440,11 @@ public class TablePlayer(
             }
             is OriginSpec.Frame -> error("a frame-point origin is read from its parent's state")
             is OriginSpec.Victim -> v3(live.vec(handle, "victim.${o.point}", binding, scope))
+            // the attacker is read as a victim of a binding made for it: the live source already knows an entity's points
+            is OriginSpec.Attacker -> {
+                val attacker = binding?.attacker ?: throw IllegalArgumentException("no attacker is bound (an on: event.attacker frame is read under an event that carries one)")
+                v3(live.vec(handle, "victim.${o.point}", binding.copy(victim = EntityRef(attacker)), scope))
+            }
             is OriginSpec.Contact -> binding?.contact?.point?.let { Vec3(it.x, it.y, it.z) }
                 ?: throw IllegalArgumentException("no block contact is bound (an on: event.block frame is read under on.block)")
             is OriginSpec.Instance -> {
@@ -2490,9 +2504,15 @@ public class TablePlayer(
                 val c = binding?.contact ?: throw IllegalArgumentException("frame '${ref.frame}' is one per block contact (on: event.block); this row has no contact, write it under on.block")
                 "${decl.id}@${c.point.x},${c.point.y},${c.point.z}"
             }
+            decl.perAttacker -> {
+                val attacker = binding?.attacker ?: throw IllegalArgumentException("frame '${ref.frame}' is one per attacker (on: event.attacker); this row has no attacker, write it under the event that carries one (parried, hurt)")
+                "${decl.id}@$attacker"
+            }
             else -> decl.id
         }
-        val inst = run.frames.getOrPut(key) { FrameInst(decl, lastTick, binding) }
+        if (decl.perState && key !in run.frames) throw IllegalArgumentException("frame '${ref.frame}' is born on the entry of state '${decl.stateName}' (on: state.${decl.stateName}); this row runs before that state was entered")
+        // an event frame counts its keys from the tick of the event that made it (the first read may come a tick later)
+        val inst = run.frames.getOrPut(key) { FrameInst(decl, binding?.tick ?: lastTick, binding) }
         // an instance-rooted frame evaluated before its op spawned this tick (the table runs before the rows): read again once the instance exists
         val pending = inst.state == null && (decl.origin as? OriginSpec.Instance)?.let { anchorOf(run, it.name) != null } == true
         if (inst.evaluatedTick != lastTick || pending) evaluateFrame(run, key, inst, lastTick)

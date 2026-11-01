@@ -3,6 +3,7 @@ package com.astarworks.astera.core.application.config
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.player.MatchToolTier
 import com.astarworks.astera.core.domain.player.StarterGrant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -50,8 +51,14 @@ public data class StarterGrantYamlConfig(
     @SerialName("wallet_grants") public val walletGrants: Map<String, Long> = emptyMap(),
     public val tutorial: TutorialBlock = TutorialBlock(),
     @SerialName("welcome_dialog_id") public val welcomeDialogId: String? = null,
-    @SerialName("match_tools") public val matchTools: List<String> = emptyList(),
+    @SerialName("match_tool_tiers") public val matchToolTiers: List<ToolTierBlock>? = null,
 ) {
+    @Serializable
+    public data class ToolTierBlock(
+        public val level: Int,
+        public val tools: List<String> = emptyList(),
+    )
+
     @Serializable
     public data class TutorialBlock(
         @SerialName("auto_enroll") public val autoEnroll: Boolean = false,
@@ -114,24 +121,42 @@ public data class StarterGrantYamlConfig(
             }
         }
 
-        val parsedTools = matchTools.mapIndexed { idx, raw ->
-            try {
-                ItemId(raw)
-            } catch (e: IllegalArgumentException) {
-                return Result.failure(
-                    ConfigError.InvalidIdentifier(
-                        field = "match_tools[$idx]",
-                        rawValue = raw,
-                        constraint = e.message ?: "kebab-case [a-z0-9-]",
-                    ),
-                )
+        val tiers = matchToolTiers
+        val parsedTiers = mutableListOf<MatchToolTier>()
+        if (tiers != null) {
+            if (tiers.isEmpty()) {
+                return Result.failure(ConfigError.FieldShapeMismatch(field = "match_tool_tiers", detailMessage = "must not be empty (omit the key to lend no tools)"))
+            }
+            tiers.forEachIndexed { idx, tier ->
+                val field = "match_tool_tiers[$idx]"
+                if (tier.level < 1) return Result.failure(ConfigError.OutOfRange(field = "$field.level", rawValue = tier.level.toString(), constraint = "must be >= 1"))
+                if (tier.tools.isEmpty()) return Result.failure(ConfigError.FieldShapeMismatch(field = "$field.tools", detailMessage = "must not be empty"))
+                val tools = tier.tools.mapIndexed { j, raw ->
+                    try {
+                        ItemId(raw)
+                    } catch (e: IllegalArgumentException) {
+                        return Result.failure(
+                            ConfigError.InvalidIdentifier(field = "$field.tools[$j]", rawValue = raw, constraint = e.message ?: "kebab-case [a-z0-9-]"),
+                        )
+                    }
+                }
+                parsedTiers += MatchToolTier(tier.level, tools)
+            }
+            if (parsedTiers.first().level != 1) {
+                return Result.failure(ConfigError.FieldShapeMismatch(field = "match_tool_tiers", detailMessage = "the first tier must be level 1"))
+            }
+            if (!parsedTiers.zipWithNext().all { (a, b) -> a.level < b.level }) {
+                return Result.failure(ConfigError.FieldShapeMismatch(field = "match_tool_tiers", detailMessage = "levels must be strictly ascending"))
+            }
+            if (parsedTiers.any { it.tools.size != parsedTiers.first().tools.size }) {
+                return Result.failure(ConfigError.FieldShapeMismatch(field = "match_tool_tiers", detailMessage = "every tier must list the same number of tools, in the same tool-class order"))
             }
         }
 
         return Result.success(
             StarterGrant(
                 starterItems = parsedItems,
-                matchTools = parsedTools,
+                matchToolTiers = parsedTiers.toList(),
                 walletGrants = parsedWallet.toMap(),
                 tutorialAutoEnroll = tutorial.autoEnroll,
                 tutorialScriptId = tutorial.scriptId?.takeIf { tutorial.autoEnroll },

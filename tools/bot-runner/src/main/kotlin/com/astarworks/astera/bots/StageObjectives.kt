@@ -16,6 +16,7 @@ class StageObjectives private constructor(
     private val graph: ArenaRouteGraph?,
     private val pillars: List<ModePlanner.PillarSite> = emptyList(),
     private val economy: Economy = Economy(),
+    private val caches: List<ObjectiveSource.CachePoint> = emptyList(),
 ) : ObjectiveSource {
     /** Stage-local shop NPCs, base ore generators and Mid ore nodes of every team, plus the shop's upgrade-price ladder. */
     class Economy(
@@ -33,6 +34,7 @@ class StageObjectives private constructor(
     override fun economyLadder(): List<Map<String, Int>> = economy.ladder
 
     override fun starPoints(): List<Pair<Double, Double>> = generators
+    override fun cachePoints(): List<ObjectiveSource.CachePoint> = caches
     override fun routeGraph(): ArenaRouteGraph? = graph
 
     override fun zones(): ModePlanner.Zones = object : ModePlanner.Zones {
@@ -75,7 +77,7 @@ class StageObjectives private constructor(
         private val STAGE = Regex("^\\s*stage:\\s*(\\S+)")
 
         /** Objectives of an already loaded [stage] with its star pedestals; shared with the offline arena traversal check. */
-        fun of(stage: Stage, starPoints: List<Pair<Double, Double>>, economy: Economy = Economy()): StageObjectives = StageObjectives(
+        fun of(stage: Stage, starPoints: List<Pair<Double, Double>>, economy: Economy = Economy(), caches: List<ObjectiveSource.CachePoint> = emptyList()): StageObjectives = StageObjectives(
             stage.spawnPoints.mapNotNull { point -> point.team?.let { Spawn(it.value, point.position.x, point.position.z) } },
             stage.regions.mapNotNull { region -> region.name?.let { Region(it, (region.min.x + region.max.x) / 2, region.min.y, (region.min.z + region.max.z) / 2) } },
             starPoints,
@@ -84,6 +86,7 @@ class StageObjectives private constructor(
                 ModePlanner.PillarSite(it.team.value, it.tier.ordinalValue, Math.floor(it.position.x).toInt(), Math.floor(it.position.y).toInt(), Math.floor(it.position.z).toInt(), it.affinity.name.lowercase())
             },
             economy,
+            caches,
         )
 
         fun load(contentDir: File, lane: String): StageObjectives? = runCatching {
@@ -93,11 +96,13 @@ class StageObjectives private constructor(
             val stage = contents.find(StageId(stageId)) ?: return null
             val generators = GeneratorContents()
             check(generators.bootstrap(contentDir.toPath().resolve("generators")).failed == 0)
-            of(
-                stage,
-                generators.all().filter { it.matchStageId == stageId }.map { it.position.x to it.position.z },
-                economyOf(contentDir, stage, stageId, generators.all().filter { it.matchStageId == stageId }),
-            )
+            val here = generators.all().filter { it.matchStageId == stageId }
+            // ADR-0318: a timer generator pops on one of its candidate spots (rotating), so every candidate is a place stars can be.
+            val spotPoints = here.filter { it.cache == null && it.dropItem == null }
+                .flatMap { g -> if (g.spots.isEmpty()) listOf(g.position.x to g.position.z) else g.spots.map { it.x to it.z } }
+            val cachePoints = here.filter { it.cache != null }
+                .flatMap { g -> g.spots.map { ObjectiveSource.CachePoint(it.x, it.y, it.z, (g.cache!!.respawnSeconds * 1000).toLong()) } }
+            of(stage, spotPoints, economyOf(contentDir, stage, stageId, here), cachePoints)
         }.onFailure { System.err.println("Bot stage '$lane' could not load: ${it.message}") }.getOrNull()
 
         /** Shop NPCs of [stage], the team base ore generators of [stageId] and the pickaxe Mid nodes of its `content/ore-nodes/` file. */

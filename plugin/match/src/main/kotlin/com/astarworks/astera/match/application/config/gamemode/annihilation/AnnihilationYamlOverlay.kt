@@ -29,11 +29,16 @@ import com.astarworks.astera.match.domain.gamemode.annihilation.PillarDamageTuni
  *   pillar_weapon_mult: 0.18                 # double, weapon melee / skill / projectile
  *   pillar_falloff_near: 8.0                 # double, blocks: full damage up to here
  *   pillar_falloff_far: 32.0                 # double, blocks: zero damage from here (linear in between)
- *   build_phase_ticks: 6000                  # long (= 5 min @ 20 tps)
- *   engage_phase_ticks: 12000                # long
- *   tier3_phase_ticks: 6000                  # long
- *   sudden_death_ticks: 1200                 # long (= 60 sec)
- *   sudden_death_dot_per_tick: 5             # int
+ *   build_phase_ticks: 7200                  # long (= 6 min @ 20 tps), phase 1
+ *   engage_phase_ticks: 9600                 # long, phase 2
+ *   center_phase_ticks: 9600                 # long, phase 3
+ *   escalation_phase_ticks: 7200             # long, phase 4
+ *   sudden_death_ticks: 6000                 # long, phase 5 (then the HP tiebreak ends the match)
+ *   escalation_damage_mult: 1.5              # double >= 1, pillar damage in phase 4
+ *   sudden_death_damage_mult: 2.0            # double >= escalation_damage_mult, pillar damage in phase 5
+ *   bleed_interval_ticks: 600                # long, phase 5: every interval each pillar bleeds
+ *   bleed_percent: 10                        # int 1..100, percent of max HP lost per bleed
+ *   bleed_floor_percent: 10                  # int 0..99, the bleed never goes below this percent of max HP
  *   respawn_delay_seconds_tier1_lost: 2      # int
  *   resource_regen_mult_tier2_lost: 0.5      # double 0.0..1.0
  * ```
@@ -41,32 +46,26 @@ import com.astarworks.astera.match.domain.gamemode.annihilation.PillarDamageTuni
  * `pillar_count` is **not** YAML-overridable in Phase 1 — only 3-pillar
  * variant is supported (enforced in `AnnihilationConfig.init`).
  *
- * Unknown keys are silently ignored — same as the `GameModeYamlConfig`
- * convention. Unparseable values fall back to the default for that field
- * and surface a warning via the supplied callback.
+ * Unknown keys are ignored (the map is shared with the Norma layer and the mode framework), but a known key
+ * with an unparseable or out-of-range value fails loudly with an [IllegalArgumentException] (ADR-0319).
  */
 public object AnnihilationYamlOverlay {
 
-    /**
-     * Resolve [defaults] augmented with overrides from [raw]. Returns the
-     * typed config + a list of warning messages for unparseable values.
-     *
-     * Implementation note: parse failures are *soft* — we don't fail the
-     * whole `GameModeContents.bootstrap` call because of a malformed
-     * `engage_phase_ticks: "twelve thousand"`. The default is kept and the
-     * warning is logged so the operator notices.
-     */
+    /** Resolve [defaults] augmented with overrides from [raw]. Throws [IllegalArgumentException] on a bad value. */
     public fun parse(
         raw: Map<String, String>,
         defaults: AnnihilationConfig = AnnihilationConfig.DEFAULT,
     ): Result {
         val warnings = mutableListOf<String>()
+        for (removed in REMOVED_KEYS) {
+            require(removed !in raw) { "annihilation.yaml: '$removed' was removed by ADR-0319 (see the phase keys in this file's header)" }
+        }
 
         val pillarHp = parseInt(raw, "pillar_hp", defaults.pillarHp, warnings)
         val hpTier2 = parseInt(raw, "pillar_hp_tier2", defaults.pillarHpTier2 ?: pillarHp, warnings)
         val hpTier3 = parseInt(raw, "pillar_hp_tier3", defaults.pillarHpTier3 ?: pillarHp, warnings)
         val d = defaults.pillarDamage
-        val damage = try {
+        val damage = run {
             PillarDamageTuning(
                 handBreakDamage = parseInt(raw, "pillar_break_damage", d.handBreakDamage, warnings),
                 handMatchMult = parseDouble(raw, "pillar_hand_match_mult", d.handMatchMult, warnings),
@@ -76,15 +75,17 @@ public object AnnihilationYamlOverlay {
                 falloffNear = parseDouble(raw, "pillar_falloff_near", d.falloffNear, warnings),
                 falloffFar = parseDouble(raw, "pillar_falloff_far", d.falloffFar, warnings),
             )
-        } catch (e: IllegalArgumentException) {
-            warnings += "annihilation.yaml: pillar damage tunables rejected (${e.message}); using defaults."
-            d
         }
         val buildTicks = parseLong(raw, "build_phase_ticks", defaults.buildPhaseTicks, warnings)
         val engageTicks = parseLong(raw, "engage_phase_ticks", defaults.engagePhaseTicks, warnings)
-        val tier3Ticks = parseLong(raw, "tier3_phase_ticks", defaults.tier3PhaseTicks, warnings)
+        val centerTicks = parseLong(raw, "center_phase_ticks", defaults.centerPhaseTicks, warnings)
+        val escalationTicks = parseLong(raw, "escalation_phase_ticks", defaults.escalationPhaseTicks, warnings)
         val suddenTicks = parseLong(raw, "sudden_death_ticks", defaults.suddenDeathTicks, warnings)
-        val suddenDot = parseInt(raw, "sudden_death_dot_per_tick", defaults.suddenDeathDotPerTick, warnings)
+        val escalationMult = parseDouble(raw, "escalation_damage_mult", defaults.escalationDamageMult, warnings)
+        val suddenMult = parseDouble(raw, "sudden_death_damage_mult", defaults.suddenDeathDamageMult, warnings)
+        val bleedInterval = parseLong(raw, "bleed_interval_ticks", defaults.bleedIntervalTicks, warnings)
+        val bleedPercent = parseInt(raw, "bleed_percent", defaults.bleedPercent, warnings)
+        val bleedFloor = parseInt(raw, "bleed_floor_percent", defaults.bleedFloorPercent, warnings)
         val respawnDelay = parseInt(
             raw, "respawn_delay_seconds_tier1_lost", defaults.respawnDelaySecondsTier1Lost, warnings,
         )
@@ -92,7 +93,7 @@ public object AnnihilationYamlOverlay {
             raw, "resource_regen_mult_tier2_lost", defaults.resourceRegenMultTier2Lost, warnings,
         )
 
-        val config = try {
+        val config = run {
             AnnihilationConfig(
                 pillarCount = defaults.pillarCount,
                 pillarHp = pillarHp,
@@ -101,42 +102,37 @@ public object AnnihilationYamlOverlay {
                 pillarDamage = damage,
                 buildPhaseTicks = buildTicks,
                 engagePhaseTicks = engageTicks,
-                tier3PhaseTicks = tier3Ticks,
+                centerPhaseTicks = centerTicks,
+                escalationPhaseTicks = escalationTicks,
                 suddenDeathTicks = suddenTicks,
-                suddenDeathDotPerTick = suddenDot,
+                escalationDamageMult = escalationMult,
+                suddenDeathDamageMult = suddenMult,
+                bleedIntervalTicks = bleedInterval,
+                bleedPercent = bleedPercent,
+                bleedFloorPercent = bleedFloor,
                 respawnDelaySecondsTier1Lost = respawnDelay,
                 resourceRegenMultTier2Lost = regenMult,
             )
-        } catch (e: IllegalArgumentException) {
-            warnings += "annihilation.yaml: config rejected by domain validation (${e.message}); using defaults."
-            defaults
         }
         return Result(config, warnings)
     }
+
+    private val REMOVED_KEYS = listOf("tier3_phase_ticks", "sudden_death_dot_per_tick")
 
     public data class Result(val config: AnnihilationConfig, val warnings: List<String>)
 
     private fun parseInt(raw: Map<String, String>, key: String, default: Int, warnings: MutableList<String>): Int {
         val v = raw[key] ?: return default
-        return v.toIntOrNull() ?: run {
-            warnings += "annihilation.yaml: '$key' is not an Int (got '$v'); using default $default."
-            default
-        }
+        return v.toIntOrNull() ?: throw IllegalArgumentException("annihilation.yaml: '$key' is not an Int (got '$v')")
     }
 
     private fun parseLong(raw: Map<String, String>, key: String, default: Long, warnings: MutableList<String>): Long {
         val v = raw[key] ?: return default
-        return v.toLongOrNull() ?: run {
-            warnings += "annihilation.yaml: '$key' is not a Long (got '$v'); using default $default."
-            default
-        }
+        return v.toLongOrNull() ?: throw IllegalArgumentException("annihilation.yaml: '$key' is not a Long (got '$v')")
     }
 
     private fun parseDouble(raw: Map<String, String>, key: String, default: Double, warnings: MutableList<String>): Double {
         val v = raw[key] ?: return default
-        return v.toDoubleOrNull() ?: run {
-            warnings += "annihilation.yaml: '$key' is not a Double (got '$v'); using default $default."
-            default
-        }
+        return v.toDoubleOrNull() ?: throw IllegalArgumentException("annihilation.yaml: '$key' is not a Double (got '$v')")
     }
 }

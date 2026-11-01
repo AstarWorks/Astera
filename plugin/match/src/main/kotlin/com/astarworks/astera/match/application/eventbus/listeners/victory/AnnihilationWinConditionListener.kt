@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory
  *       `TeamVictory(null)` (`MatchEnded.winningTeam = null`).
  *     - [WinConditionRules.Outcome.InProgress] → drop (a single team
  *       wipe out of three may leave two survivors fighting on).
- *  2. **AnnihilationPhaseTransitioned to Phase4SuddenDeath** — the
+ *  2. **AnnihilationPhaseTransitioned to Phase5SuddenDeath** — the
  *     sudden-death timer becomes authoritative. The listener schedules
  *     a one-shot tick task at `now + suddenDeathTicks`. At expiry it
  *     re-asks the tracker; whatever the outcome says, the match ends.
@@ -63,7 +63,6 @@ public class AnnihilationWinConditionListener(
     private val lifecycle: IMatchLifecycle,
     private val scheduler: IScheduler,
     private val eventBus: IDomainEventBus,
-    private val suddenDeathTicks: Long = AnnihilationConfig.DEFAULT.suddenDeathTicks,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -85,9 +84,11 @@ public class AnnihilationWinConditionListener(
     }
 
     public fun handlePhaseTransition(event: AnnihilationPhaseTransitioned) {
-        if (event.newPhase != NexusPhase.Phase4SuddenDeath) return
+        if (event.newPhase != NexusPhase.Phase5SuddenDeath) return
         // One-shot timer: at sudden-death expiry, ask the tracker for the
         // final outcome and end the match regardless of who wins / draw.
+        // The match's own phase-5 length (ADR-0319), not the global default.
+        val suddenDeathTicks = tracker.state(event.matchId)?.config?.suddenDeathTicks ?: AnnihilationConfig.DEFAULT.suddenDeathTicks
         scheduler.run(ExecutionScope.Global, ticks(suddenDeathTicks)) {
             val outcome = tracker.evaluateWinCondition(event.matchId, scheduler.currentTick())
             // InProgress at SD timer expiry is unexpected (the rules say SD must

@@ -63,7 +63,7 @@ class MatchEntryInventoryScenarioTest {
             matchmaker.enqueue(unarmed.id, MatchmakingMode.CARRY_TNT)
             assertThat(sim.stepUntil(600) { sim.eventsOf<PlayerEnteredMatch>().size == 2 }).isTrue()
 
-            // Everyone is also lent the field tools (match_tools) after their own items.
+            // Everyone is also lent the field tools (match_tool_tiers, Lv1) after their own items.
             assertThat(armedItems).containsExactlyElementsOf(ShippedStarterGrant.starterItems + ShippedStarterGrant.matchTools)
             assertThat(unarmedItems).containsExactlyElementsOf(listOf("gui-pane-dark") + ShippedStarterGrant.matchTools + ShippedStarterGrant.starterItems)
             assertThat(checkNotNull(sim.server.view(unarmed.id)).messages).anyMatch { "on loan" in it }

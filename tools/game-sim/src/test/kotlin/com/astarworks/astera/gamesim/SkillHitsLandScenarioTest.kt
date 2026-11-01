@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test
  */
 class SkillHitsLandScenarioTest {
 
-    private val config = AnnihilationConfig(buildPhaseTicks = 200, engagePhaseTicks = 100_000, tier3PhaseTicks = 100_000)
+    private val config = AnnihilationConfig(buildPhaseTicks = 200, engagePhaseTicks = 100_000, centerPhaseTicks = 100_000)
 
     @Test
     fun `sword skill kills an enemy player and drops an enemy pillar, an i-frame refuses only the second hit`() {

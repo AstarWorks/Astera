@@ -130,7 +130,7 @@ internal class MatchWiringEnv(
     /**
      * Whether the Norma layer (stars, kill burst, Norma levels, time-limit ranking) runs in this match. It is a
      * standard layer of every game mode: on unless the mode's `default_config` says `norma_layer: "false"`. The
-     * layer's tunables are the same merged config (`norma_*`, `time_limit_seconds`, `death_drop_ratio`).
+     * layer's tunables are the same merged config (`norma_*`, `time_limit_seconds`).
      */
     val normaLayerOf: (com.astarworks.astera.core.domain.match.MatchId) -> Boolean,
     val scheduledTasks: MutableList<IScheduler.TaskHandle>,
@@ -482,6 +482,10 @@ public object MatchWiring {
                 server = services.getOrThrow<com.astarworks.astera.core.adapter.api.server.IMcServer>(),
                 matchOf = { playerId -> matches.findMatchOf(playerId)?.id },
                 normaOf = { id -> com.astarworks.astera.match.domain.norma.NormaConfig.parse(modeConfigOf(id)) },
+                membersOf = { playerId -> matches.findMatchOf(playerId)?.teams?.flatMap { it.members }.orEmpty() },
+                levelOf = { id, playerId ->
+                    services.get(com.astarworks.astera.match.application.port.outbound.IMatchNormaStore::class)?.get(id, playerId)?.level
+                },
             )
             botLoadouts.current()?.let { pool ->
                 val problems = botLoadoutService.validate(pool)
@@ -500,6 +504,9 @@ public object MatchWiring {
             )
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) {
                 botLoadoutService.onMatchEnded(it.matchId)
+            }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.NormaLevelUp::class) {
+                botLoadoutService.onLevelUp(it.matchId, it.playerId, it.level)
             }
         }
 
@@ -526,6 +533,10 @@ public object MatchWiring {
         val pillarTargets = AnnihilationPillarTargets(annihilationTracker, matches, scheduler) { id ->
             services.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>()?.locate(id)?.position
         }
+        registrations += services.register<com.astarworks.astera.match.application.port.outbound.IMatchPhaseClock>(
+            com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationPhaseClock(annihilationTracker) { scheduler.currentTick() },
+            priority = 0,
+        )
         registrations += services.register<com.astarworks.astera.core.application.port.outbound.IStructureTargets>(
             pillarTargets,
         )
@@ -581,7 +592,36 @@ public object MatchWiring {
                 eventBus = eventBus,
                 defaultConfig = annihilationConfig,
                 clock = { scheduler.currentTick() },
-                clarity = com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationClarity(siegeEnv(AnnihilationGameMode.ID), annihilationTracker),
+                clarity = com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationClarity(
+                    siegeEnv(AnnihilationGameMode.ID),
+                    annihilationTracker,
+                    com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationPhaseClock(annihilationTracker) { scheduler.currentTick() },
+                    levelOf = { id -> services.get<com.astarworks.astera.match.application.service.NormaLevelService>()?.levelOf(id) },
+                    oreSites = { match ->
+                        val stage = stages.find(match.stageId)
+                        val source = stage?.templateId?.value ?: match.stageId.value
+                        val origin = stage?.origin ?: com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 0.0)
+                        val config = services.get<com.astarworks.astera.match.application.port.outbound.IOreNodeRegistry>()?.find(source)
+                        config?.nodes.orEmpty().flatMap { group ->
+                            val tier = runCatching { com.astarworks.astera.core.domain.world.ToolTier.valueOf(group.requiredTier.trim().uppercase()) }
+                                .getOrDefault(com.astarworks.astera.core.domain.world.ToolTier.NONE)
+                            val phase = config?.phaseGates?.get(group.block) ?: 1
+                            val item = group.drops.first().itemId
+                            group.positions.map {
+                                com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationNavigation.OreSite(
+                                    com.astarworks.astera.core.domain.geometry.Vec3(origin.x + it.x + 0.5, it.y, origin.z + it.z + 0.5),
+                                    item, group.minNormaLevel, tier, phase,
+                                )
+                            }
+                        }
+                    },
+                    toolTierOf = { id ->
+                        val items = services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>()
+                        val carried = services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemQuery>()?.itemIds(id).orEmpty()
+                        carried.mapNotNull { item -> items?.let { com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase.toolOf(it, item) }?.tier }
+                            .maxOrNull()
+                    },
+                ),
             ),
         )
         logger.info(

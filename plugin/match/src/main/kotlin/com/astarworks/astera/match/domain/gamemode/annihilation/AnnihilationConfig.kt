@@ -1,13 +1,13 @@
 package com.astarworks.astera.match.domain.gamemode.annihilation
 
+import com.astarworks.astera.core.domain.nexus.NexusPhase
 import com.astarworks.astera.core.domain.nexus.NexusPillarTier
 
 /**
  * Configuration knobs for an Astera Annihilation match (ADR-0108,
  * Wave 5annihilation).
  *
- * Defaults match the Hypixel Annihilation cadence (5/10/sudden death) scaled
- * for Astera's smaller team count (3 teams vs 4). Configurable per-match via
+ * Defaults follow a Shotbow-style five-phase cadence (6/8/8/6 min + 5 min sudden death, ADR-0319). Configurable per-match via
  * `content/game-modes/annihilation.yaml`'s `default_config` map and parsed
  * into this domain type by [com.astarworks.astera.match.application.config.gamemode.annihilation.AnnihilationYamlOverlay].
  *
@@ -36,17 +36,16 @@ import com.astarworks.astera.core.domain.nexus.NexusPillarTier
  * @property pillarHpTier2 HP of a Tier 2 pillar; null = [pillarHp].
  * @property pillarHpTier3 HP of a Tier 3 pillar (the Nexus proper); null = [pillarHp].
  *   A stage `pillars[].hp` still beats all three.
- * @property buildPhaseTicks Duration of [com.astarworks.astera.core.domain.nexus.NexusPhase.Phase1Build]
- *   in server ticks (20 ticks = 1 sec). Default 6000 = 5 min.
- * @property engagePhaseTicks Duration of [com.astarworks.astera.core.domain.nexus.NexusPhase.Phase2Engage]
- *   in server ticks. Default 12000 = 10 min.
- * @property tier3PhaseTicks Duration of [com.astarworks.astera.core.domain.nexus.NexusPhase.Phase3Tier3]
- *   before sudden-death triggers. Default 6000 = 5 min.
- * @property suddenDeathTicks Duration of [com.astarworks.astera.core.domain.nexus.NexusPhase.Phase4SuddenDeath]
- *   before forced HP-tiebreaker win. Default 1200 = 60 sec.
- * @property suddenDeathDotPerTick Sudden-death DoT applied to every surviving
- *   Tier 3 pillar per `IGameMode.onTick` invocation (mode default cadence:
- *   20 ticks). Default 5 HP per tick = 5 HP / sec → 300 HP / min.
+ * @property buildPhaseTicks Length of Phase1Build in server ticks (20 ticks = 1 sec). Default 7200 = 6 min.
+ * @property engagePhaseTicks Length of Phase2Engage. Default 9600 = 8 min.
+ * @property centerPhaseTicks Length of Phase3Center. Default 9600 = 8 min.
+ * @property escalationPhaseTicks Length of Phase4Escalation. Default 7200 = 6 min.
+ * @property suddenDeathTicks Length of Phase5SuddenDeath before the forced HP tiebreak. Default 6000 = 5 min.
+ * @property escalationDamageMult Pillar damage multiplier in Phase4Escalation (default 1.5).
+ * @property suddenDeathDamageMult Pillar damage multiplier in Phase5SuddenDeath (default 2.0).
+ * @property bleedIntervalTicks Phase5 bleed cadence: every this many ticks each standing pillar loses [bleedPercent] of its max HP. Default 600 = 30 s.
+ * @property bleedPercent Percent of a pillar's max HP lost per bleed (default 10).
+ * @property bleedFloorPercent The bleed never takes a pillar below this percent of its max HP (default 10), so the bleed alone never destroys a pillar.
  * @property respawnDelaySecondsTier1Lost Extra respawn delay applied to the
  *   owning team after their Tier 1 pillar falls. Default +2 sec.
  * @property resourceRegenMultTier2Lost Multiplier on the owning team's
@@ -58,11 +57,16 @@ public data class AnnihilationConfig(
     public val pillarHp: Int = 500,
     /** Pillar damage sources, multipliers and distance falloff (the pillar block itself never breaks). */
     public val pillarDamage: PillarDamageTuning = PillarDamageTuning(),
-    public val buildPhaseTicks: Long = 6000L,
-    public val engagePhaseTicks: Long = 12000L,
-    public val tier3PhaseTicks: Long = 6000L,
-    public val suddenDeathTicks: Long = 1200L,
-    public val suddenDeathDotPerTick: Int = 5,
+    public val buildPhaseTicks: Long = 7200L,
+    public val engagePhaseTicks: Long = 9600L,
+    public val centerPhaseTicks: Long = 9600L,
+    public val escalationPhaseTicks: Long = 7200L,
+    public val suddenDeathTicks: Long = 6000L,
+    public val escalationDamageMult: Double = 1.5,
+    public val suddenDeathDamageMult: Double = 2.0,
+    public val bleedIntervalTicks: Long = 600L,
+    public val bleedPercent: Int = 10,
+    public val bleedFloorPercent: Int = 10,
     public val respawnDelaySecondsTier1Lost: Int = 2,
     public val resourceRegenMultTier2Lost: Double = 0.5,
     public val pillarHpTier2: Int? = null,
@@ -77,17 +81,38 @@ public data class AnnihilationConfig(
         require((pillarHpTier3 ?: 1) > 0) { "AnnihilationConfig.pillarHpTier3 must be > 0 (got=$pillarHpTier3)" }
         require(buildPhaseTicks >= 0) { "AnnihilationConfig.buildPhaseTicks must be >= 0 (got=$buildPhaseTicks)" }
         require(engagePhaseTicks > 0) { "AnnihilationConfig.engagePhaseTicks must be > 0 (got=$engagePhaseTicks)" }
-        require(tier3PhaseTicks > 0) { "AnnihilationConfig.tier3PhaseTicks must be > 0 (got=$tier3PhaseTicks)" }
+        require(centerPhaseTicks > 0) { "AnnihilationConfig.centerPhaseTicks must be > 0 (got=$centerPhaseTicks)" }
+        require(escalationPhaseTicks > 0) { "AnnihilationConfig.escalationPhaseTicks must be > 0 (got=$escalationPhaseTicks)" }
         require(suddenDeathTicks > 0) { "AnnihilationConfig.suddenDeathTicks must be > 0 (got=$suddenDeathTicks)" }
-        require(suddenDeathDotPerTick > 0) {
-            "AnnihilationConfig.suddenDeathDotPerTick must be > 0 (got=$suddenDeathDotPerTick)"
+        require(escalationDamageMult >= 1.0) { "AnnihilationConfig.escalationDamageMult must be >= 1 (got=$escalationDamageMult)" }
+        require(suddenDeathDamageMult >= escalationDamageMult) {
+            "AnnihilationConfig.suddenDeathDamageMult must be >= escalationDamageMult (got=$suddenDeathDamageMult)"
         }
+        require(bleedIntervalTicks > 0) { "AnnihilationConfig.bleedIntervalTicks must be > 0 (got=$bleedIntervalTicks)" }
+        require(bleedPercent in 1..100) { "AnnihilationConfig.bleedPercent must be in 1..100 (got=$bleedPercent)" }
+        require(bleedFloorPercent in 0..99) { "AnnihilationConfig.bleedFloorPercent must be in 0..99 (got=$bleedFloorPercent)" }
         require(respawnDelaySecondsTier1Lost >= 0) {
             "AnnihilationConfig.respawnDelaySecondsTier1Lost must be >= 0 (got=$respawnDelaySecondsTier1Lost)"
         }
         require(resourceRegenMultTier2Lost in 0.0..1.0) {
             "AnnihilationConfig.resourceRegenMultTier2Lost must be in 0.0..1.0 (got=$resourceRegenMultTier2Lost)"
         }
+    }
+
+    /** Length in ticks of [phase]. */
+    public fun ticksOf(phase: NexusPhase): Long = when (phase) {
+        NexusPhase.Phase1Build -> buildPhaseTicks
+        NexusPhase.Phase2Engage -> engagePhaseTicks
+        NexusPhase.Phase3Center -> centerPhaseTicks
+        NexusPhase.Phase4Escalation -> escalationPhaseTicks
+        NexusPhase.Phase5SuddenDeath -> suddenDeathTicks
+    }
+
+    /** Multiplier on every point of pillar damage while [phase] runs. */
+    public fun damageMultOf(phase: NexusPhase): Double = when (phase) {
+        NexusPhase.Phase4Escalation -> escalationDamageMult
+        NexusPhase.Phase5SuddenDeath -> suddenDeathDamageMult
+        else -> 1.0
     }
 
     /** Starting HP of a pillar of [tier] (before any stage override). */

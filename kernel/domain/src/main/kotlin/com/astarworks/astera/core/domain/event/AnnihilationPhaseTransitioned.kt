@@ -16,11 +16,9 @@ import java.time.Instant
  *  - The phase timer expiring ([com.astarworks.astera.core.domain.nexus.NexusPhase.Phase1Build]
  *    → [com.astarworks.astera.core.domain.nexus.NexusPhase.Phase2Engage] at
  *    default `build.duration_seconds` from `annihilation.yaml`).
- *  - HP-threshold conditions ([com.astarworks.astera.core.domain.nexus.NexusPhase.Phase2Engage]
- *    → [com.astarworks.astera.core.domain.nexus.NexusPhase.Phase3Tier3] once
- *    a team has lost both Tier 1 + Tier 2).
- *  - The sudden-death timer trigger ([com.astarworks.astera.core.domain.nexus.NexusPhase.Phase3Tier3]
- *    → [com.astarworks.astera.core.domain.nexus.NexusPhase.Phase4SuddenDeath]).
+ *  - Every later boundary is timer-driven too (Phase2Engage -> Phase3Center -> Phase4Escalation ->
+ *    [com.astarworks.astera.core.domain.nexus.NexusPhase.Phase5SuddenDeath]); lengths come from
+ *    `content/game-modes/annihilation.yaml` (ADR-0319).
  *
  * # Subscribers
  *
@@ -36,7 +34,7 @@ import java.time.Instant
  * (`WAITING`/`COUNTDOWN`/`ACTIVE`/`SUDDEN_DEATH`/`ENDED`). Annihilation has
  * 4 internal phases that all live inside `MatchPhase.ACTIVE` (build /
  * engage / tier3 are all "ACTIVE" from the state-machine's POV; only
- * `Phase4SuddenDeath` maps to `SUDDEN_DEATH`). The Annihilation-specific
+ * `Phase5SuddenDeath` maps to `SUDDEN_DEATH`). The Annihilation-specific
  * phase signal needs its own event so HUD / audit can render the *internal*
  * mode-phase distinction without re-deriving from match HP state.
  */
