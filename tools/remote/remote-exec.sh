@@ -219,6 +219,27 @@ cmd_run() {
   fi
 
   base_args "$NAME"
+  # One Gradle user home per slot/lane: concurrent builds sharing one home fight over caches/journal-1 and time out on each other.
+  # Seeded once from the shared home (build-cache hardlinked = no extra disk); that shared home also stays mounted as a read-only dependency cache.
+  local gh="$HB/home/gradle-homes/$SLOT_PFX$SLOT_N" gb="$HB/home/.gradle"
+  if [ ! -d "$gh/caches" ]; then
+    log "seeding $gh from the shared Gradle home"
+    rm -rf "$gh.tmp"; mkdir -p "$gh.tmp/caches"
+    for d in 9.5.1 jars-9; do [ -d "$gb/caches/$d" ] && cp -a "$gb/caches/$d" "$gh.tmp/caches/$d"; done
+    # hard-link ONLY the immutable cache entries (32-hex names); lock/gc files must stay per-home or the homes share one lock inode
+    if [ -d "$gb/caches/build-cache-1" ]; then
+      mkdir -p "$gh.tmp/caches/build-cache-1"
+      ( cd "$gb/caches/build-cache-1" && find . -maxdepth 1 -type f -regextype posix-extended -regex '\./[0-9a-f]{32}' -print0 \
+          | xargs -0 -r ln -t "$gh.tmp/caches/build-cache-1" )
+    fi
+    [ -d "$gb/wrapper" ] && cp -a "$gb/wrapper" "$gh.tmp/wrapper"
+    rm -rf "$gh"; mv "$gh.tmp" "$gh"
+  fi
+  # repair homes seeded by the earlier cp -al: unshare the lock/gc files (we hold this slot, so no other job uses this home)
+  for f in build-cache-1.lock gc.properties; do
+    [ -e "$gh/caches/build-cache-1/$f" ] && [ "$(stat -c %h "$gh/caches/build-cache-1/$f")" -gt 1 ] && rm -f "$gh/caches/build-cache-1/$f"
+  done
+  BASE_ARGS+=(-e "GRADLE_USER_HOME=/heavy-home/gradle-homes/$SLOT_PFX$SLOT_N" -e "GRADLE_RO_DEP_CACHE=/heavy-home/.gradle/caches")
   local tty=(); [ -t 0 ] && tty=(-t)
   log "run: kind=$KIND mem=$mem_cap cpus=$cpus gradle-xmx=$xmx: $*"
   # Remote end of a dead ssh: with a pty the HUP arrives by itself; without one, stdin EOF means the client is gone.

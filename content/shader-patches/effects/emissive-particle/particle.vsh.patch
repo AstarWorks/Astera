@@ -1,0 +1,6 @@
+# Dust randomizes RGB independently; exact zero red/green survive that jitter.
+# Keep ordinary light until the fragment confirms the reserved sprite alpha too.
+@@ hook: declarations
+layout(location = 4) out vec4 asteraParticleRaw;
+@@ hook: light
+    asteraParticleRaw = Color;

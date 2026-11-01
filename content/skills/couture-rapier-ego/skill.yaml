@@ -1,6 +1,16 @@
-# Falling Cutout (E.G.O): an overhead arc of glass sweeps up, then five timed hits - giant shears drop on the nearest enemy twice, a cut with a white cross lands twice, and a pink rosette closes it.
-# Written in the ADR-0303 high-level form: one op per visual object, copies as `times:` families, shape as laws and keys.
-# The shears are the rapier shears at 2x scale, hinged about a frame that drops from 6.5 blocks above the victim; the cross is the rapier-def cross.
+# Falling Cutout (E.G.O) in the frame grammar (ADR-0314): an overhead arc of glass sweeps up, then five timed hits - giant shears drop on the nearest
+# enemy twice, a cut with a white cross lands twice, and a pink rosette closes it. A caster frame has v = forward, w = up, s = v x w (to the right).
+#   body      - the caster's feet: the 12 glass panes of the overhead arc (radius 1.7, -80 to 110 degrees about the head) are points of it.
+#   blade     - the caster's hand and the rapier (rig): the tip sweeps up and over with the arc, then cuts down at ticks 29 and 59.
+#   fallN     - one per shears drop N (hits at ticks 18 and 48): the victim's feet, v the caster's forward. The flower sits on it. It
+#               falls from 6.5 above the victim to 2.8 in 8 ticks, then drifts to 2.69 above and 0.37 ahead in 3 more.
+#   fall_aN/_bN - the two halves of the giant shears (2x the rapier shears), 0.09 either side; they ride the same drop. The `rotate` keys
+#               about s ARE the snip: half A starts 113 degrees and closes to 85, half B starts 53 and opens to 81 (ticks 8..11).
+#   cutN      - the victim's centre, v the way the blow came in: cross, four shards, bloom, eight petals, fill and sparks of the cut that lands
+#               (ticks 29 and 59). Its scale key is the burst: 0.1 to 1 over 7 ticks (out_cubic), so every shard and petal, placed at its
+#               final radius, flies out and slows. One frame per blow because a per-victim frame's keys run from its first use.
+#   ring      - the victim's feet: the 15 pink blades of the rosette (tick 62) close around the head at 2.6 and collapse.
+# Gameplay (hit ticks 18, 29, 48, 59, 62, windows, damage, cast length 73) is unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: couture-rapier-ego
@@ -11,6 +21,153 @@ params:
   reach: {type: blocks, default: 12}
   dmg_physical: {type: number, default: 75}
   dmg_physical_2: {type: number, default: 100}
+frames:
+  - id: body
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+  # arm: the right arm. Origin = the right shoulder, rotate keys only; the hand is 0.6 along its v, so it can never leave arm reach.
+  - id: arm
+    origin: caster.shoulder_r
+    v: forward
+    w: up
+    s: v x w
+    rotate:
+      - {at: 0, for: 0, about: w, to: -70}
+      - {at: 0, for: 0, about: s, to: -35}
+      - {at: 0, for: 14, about: s, to: -5, ease: out_quad}
+      - {at: 19, for: 8, about: s, to: 0}
+      - {at: 25, for: 4, about: s, to: -5, ease: out_quad}
+      - {at: 29, for: 3, about: s, to: -25, ease: in_quad}
+      - {at: 32, for: 8, about: s, to: 0}
+      - {at: 54, for: 5, about: s, to: -5, ease: out_quad}
+      - {at: 59, for: 3, about: s, to: -25, ease: in_quad}
+      - {at: 62, for: 8, about: s, to: 0}
+  # blade: the rapier. Origin = the hand (arm tip); its keys are the blade angle (positive about s lifts the point).
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
+    rotate:
+      # the overhead sweep (ticks 0..14): the point rises from low in front up and over, riding the glass arc
+      - {at: 0, for: 0, about: s, to: -35}
+      - {at: 0, for: 14, about: s, to: 110, ease: out_quad}
+      - {at: 19, for: 8, about: s, to: 0}
+      # the cut that lands at tick 29: wind up, then down across the front
+      - {at: 25, for: 4, about: s, to: 70, ease: out_quad}
+      - {at: 29, for: 3, about: s, to: -30, ease: in_quad}
+      - {at: 32, for: 8, about: s, to: 0}
+      # the cut that lands at tick 59 (the shears drop at 48)
+      - {at: 54, for: 5, about: s, to: 80, ease: out_quad}
+      - {at: 59, for: 3, about: s, to: -30, ease: in_quad}
+      - {at: 62, for: 8, about: s, to: 0}
+  - id: fall1
+    on: event.victim
+    each: true
+    origin: victim
+    v: forward
+    w: up
+    s: v x w
+    move:
+      - {at: 0, for: 0, to: {w: 6.5}}
+      - {at: 0, for: 8, to: {w: 2.8}}
+      - {at: 8, for: 3, to: {v: 0.37, w: 2.69}}
+  - id: fall_a1
+    on: event.victim
+    each: true
+    origin: victim
+    v: forward
+    w: up
+    s: v x w
+    move:
+      - {at: 0, for: 0, to: {w: 6.5, s: 0.09}}
+      - {at: 0, for: 8, to: {w: 2.8, s: 0.09}}
+      - {at: 8, for: 3, to: {v: 0.37, w: 2.69, s: 0.09}}
+    rotate:
+      - {at: 0, for: 0, about: s, to: -113}
+      - {at: 8, for: 3, about: s, to: -85}
+  - id: fall_b1
+    on: event.victim
+    each: true
+    origin: victim
+    v: forward
+    w: up
+    s: v x w
+    move:
+      - {at: 0, for: 0, to: {w: 6.5, s: -0.09}}
+      - {at: 0, for: 8, to: {w: 2.8, s: -0.09}}
+      - {at: 8, for: 3, to: {v: 0.37, w: 2.69, s: -0.09}}
+    rotate:
+      - {at: 0, for: 0, about: s, to: -53}
+      - {at: 8, for: 3, about: s, to: -81}
+  - id: cut1
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
+    scale:
+      - {at: 0, for: 0, to: {v: 0.1, w: 0.1, s: 0.1}}
+      - {at: 0, for: 7, to: {v: 1, w: 1, s: 1}, ease: out_cubic}
+  - id: fall2
+    on: event.victim
+    each: true
+    origin: victim
+    v: forward
+    w: up
+    s: v x w
+    move:
+      - {at: 0, for: 0, to: {w: 6.5}}
+      - {at: 0, for: 8, to: {w: 2.8}}
+      - {at: 8, for: 3, to: {v: 0.37, w: 2.69}}
+  - id: fall_a2
+    on: event.victim
+    each: true
+    origin: victim
+    v: forward
+    w: up
+    s: v x w
+    move:
+      - {at: 0, for: 0, to: {w: 6.5, s: 0.09}}
+      - {at: 0, for: 8, to: {w: 2.8, s: 0.09}}
+      - {at: 8, for: 3, to: {v: 0.37, w: 2.69, s: 0.09}}
+    rotate:
+      - {at: 0, for: 0, about: s, to: -113}
+      - {at: 8, for: 3, about: s, to: -85}
+  - id: fall_b2
+    on: event.victim
+    each: true
+    origin: victim
+    v: forward
+    w: up
+    s: v x w
+    move:
+      - {at: 0, for: 0, to: {w: 6.5, s: -0.09}}
+      - {at: 0, for: 8, to: {w: 2.8, s: -0.09}}
+      - {at: 8, for: 3, to: {v: 0.37, w: 2.69, s: -0.09}}
+    rotate:
+      - {at: 0, for: 0, about: s, to: -53}
+      - {at: 8, for: 3, about: s, to: -81}
+  - id: cut2
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
+    scale:
+      - {at: 0, for: 0, to: {v: 0.1, w: 0.1, s: 0.1}}
+      - {at: 0, for: 7, to: {v: 1, w: 1, s: 1}, ease: out_cubic}
+  - id: ring
+    on: event.victim
+    each: true
+    origin: victim
+    v: forward
+    w: up
+    s: v x w
 machine:
   start: cast
   states:
@@ -19,23 +176,9 @@ machine:
       then: end
       do:
         # --- tick 0..19: an arc of 12 glass panes (radius 1.7, -80 to 110 degrees) sweeps up over the caster's head
-        - {id: overhead_at, op: frame, anchor: caster, mode: snapshot, at: 0, for: 19}
-        - id: overhead
-          op: display
-          kind: block
-          block: white_stained_glass
-          anchor: overhead_at
-          at: 0
-          for: 19
-          times: 12
-          offset: {up: "= 1.1 + 1.7 * sin(rad(-80 + 190 / 11 * i))", forward: "= 0.4 + 1.7 * cos(rad(-80 + 190 / 11 * i))"}
-          rotate: [{axis: left, deg: "= -10 - 190 / 11 * i"}]
-          scale: [0, 0, 0]
-          brightness: {block: 15, sky: 15}
-          motion:
-            - {law: grow, per_tick: {left: 0.025, up: "= 0.02686 + 0.0452 * sin(3.14159265 * i / 11)", forward: 0.294685}, at: 0, for: 2}
-            - {law: grow, per_tick: {left: -0.002941, up: "= -0.11765 * (0.02686 + 0.0452 * sin(3.14159265 * i / 11))", forward: -0.013868}, at: 2, for: 17}
+        - {id: arc, op: display, kind: block, block: white_stained_glass, frame: body, pos: {v: 0.4, w: 1.1}, at: 0, for: 19, times: 6, rotate: [{axis: s, deg: "= 30 * i"}], scale: [0.05, 0.05, 2.4], brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, scale: [0, 0, 0]}, {t: 2, scale: [1, 1, 1]}, {t: 19, scale: [0, 0, 0]}]}]}
         # origin eye, yaw-only forward, sector 45 deg full opening, ignore_invulnerability; trigger-only hits omit damage; max_count 1 = nearest target.
+        - {id: rig, op: rig, frame: blade, for: 73}
         - id: sel
           op: hit
           at: 18
@@ -47,125 +190,13 @@ machine:
           ignore_invulnerability: true
           on:
             hit:
-              # --- tick +0..21: a giant pair of shears (2x the rapier shears) drops from 6.5 blocks above the victim, snips about its hinge and shrinks away
-              - {id: fall_at, op: frame, anchor: victim, axes: caster, mode: snapshot, at: 0, for: 21}
-              - id: fall_drop
-                op: frame
-                anchor: fall_at
-                offset: {up: 6.5}
-                at: 0
-                for: 21
-                motion:
-                  - {law: move, velocity: {up: -0.4625}, at: 0, for: 8}
-                  - {law: move, velocity: {up: -0.035563, forward: 0.124027}, at: 8, for: 3}
-              - id: fall_hinge_a
-                op: frame
-                anchor: fall_drop
-                offset: {left: -0.09}
-                turn: [{axis: left, deg: 113}]
-                at: 0
-                for: 21
-                motion:
-                  - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 3}
-              - id: fall_blade_a
-                op: display
-                kind: block
-                block: gray_concrete
-                anchor: fall_hinge_a
-                at: 0
-                for: 21
-                times: 3
-                offset: [{up: -0.0975, forward: 0.79404}, {up: -0.26812, forward: 2.1836}, {up: -0.38998, forward: 3.17614}]
-                rotate: [{axis: left, deg: 7}]
-                scale: [[0.12, 0.38, 1.6], [0.12, 0.24, 1.2], [0.12, 0.09, 0.8]]
-                motion:
-                  - {law: grow, to: 0, at: 16, for: 4}
-              - id: fall_edge_a
-                op: display
-                kind: block
-                block: iron_block
-                anchor: fall_hinge_a
-                at: 0
-                for: 21
-                times: 3
-                offset: [{up: 0.02132, forward: 0.80862}, {up: -0.19308, forward: 2.19282}, {up: -0.36184, forward: 3.1796}]
-                rotate: [[{axis: left, deg: 10.66907}], [{axis: left, deg: 10.09097}], [{axis: left, deg: 8.73982}]]
-                scale: [[0.12, 0.05, 1.60328], [0.12, 0.05, 1.20174], [0.12, 0.05, 0.80036]]
-                motion:
-                  - {law: grow, to: 0, at: 16, for: 4}
-              - id: fall_handle_a
-                op: display
-                kind: block
-                block: black_concrete
-                anchor: fall_hinge_a
-                at: 0
-                for: 21
-                times: 5
-                offset: [{up: 0.26468, forward: -0.35036}, {up: 0.5349, forward: -0.9922}, {up: 0.3848, forward: -1.57484}, {up: -0.03642, forward: -1.34446}, {up: -0.13148, forward: -0.57028}]
-                rotate: [[{axis: left, deg: -128}], [{axis: left, deg: -176.81407}], [{axis: left, deg: 127.06858}], [{axis: left, deg: 34.14968}], [{axis: left, deg: -20.14968}]]
-                scale: [[0.12, 0.09, 0.62226], [0.12, 0.09, 0.902], [0.12, 0.09, 0.43908], [0.12, 0.09, 0.87658], [0.12, 0.09, 0.87658]]
-                motion:
-                  - {law: grow, to: 0, at: 16, for: 4}
-              - id: fall_hinge_b
-                op: frame
-                anchor: fall_drop
-                offset: {left: 0.09}
-                turn: [{axis: left, deg: 53}]
-                at: 0
-                for: 21
-                motion:
-                  - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 3}
-              - id: fall_blade_b
-                op: display
-                kind: block
-                block: gray_concrete
-                anchor: fall_hinge_b
-                at: 0
-                for: 21
-                times: 3
-                offset: [{up: -0.0975, forward: 0.79404}, {up: -0.26812, forward: 2.1836}, {up: -0.38998, forward: 3.17614}]
-                rotate: [{axis: left, deg: 7}]
-                scale: [[0.12, 0.38, 1.6], [0.12, 0.24, 1.2], [0.12, 0.09, 0.8]]
-                motion:
-                  - {law: grow, to: 0, at: 16, for: 4}
-              - id: fall_edge_b
-                op: display
-                kind: block
-                block: iron_block
-                anchor: fall_hinge_b
-                at: 0
-                for: 21
-                times: 3
-                offset: [{up: 0.02132, forward: 0.80862}, {up: -0.19308, forward: 2.19282}, {up: -0.36184, forward: 3.1796}]
-                rotate: [[{axis: left, deg: 10.66907}], [{axis: left, deg: 10.09097}], [{axis: left, deg: 8.73982}]]
-                scale: [[0.12, 0.05, 1.60328], [0.12, 0.05, 1.20174], [0.12, 0.05, 0.80036]]
-                motion:
-                  - {law: grow, to: 0, at: 16, for: 4}
-              - id: fall_handle_b
-                op: display
-                kind: block
-                block: black_concrete
-                anchor: fall_hinge_b
-                at: 0
-                for: 21
-                times: 5
-                offset: [{up: 0.26468, forward: -0.35036}, {up: 0.5349, forward: -0.9922}, {up: 0.3848, forward: -1.57484}, {up: -0.03642, forward: -1.34446}, {up: -0.13148, forward: -0.57028}]
-                rotate: [[{axis: left, deg: -128}], [{axis: left, deg: -176.81407}], [{axis: left, deg: 127.06858}], [{axis: left, deg: 34.14968}], [{axis: left, deg: -20.14968}]]
-                scale: [[0.12, 0.09, 0.62226], [0.12, 0.09, 0.902], [0.12, 0.09, 0.43908], [0.12, 0.09, 0.87658], [0.12, 0.09, 0.87658]]
-                motion:
-                  - {law: grow, to: 0, at: 16, for: 4}
-              - id: fall_flower
-                op: display
-                kind: block
-                block: white_concrete
-                anchor: fall_drop
-                at: 0
-                for: 21
-                times: 4
-                offset: [{left: -0.24}, {left: 0.24}, {up: 0.24}, {up: -0.24}]
-                scale: [0.3, 0.3, 0.24]
-                motion:
-                  - {law: grow, to: 0, at: 16, for: 4}
+              - {id: a1_blade, op: display, kind: block, block: gray_concrete, frame: fall_a1, pos: {v: 1.8, w: -0.15}, rotate: [{axis: s, deg: -7}], for: 21, scale: [0.12, 0.25, 3.6], motion: [{law: grow, to: 0, at: 16, for: 4}]}
+              - {id: a1_edge, op: display, kind: block, block: iron_block, frame: fall_a1, pos: {v: 1.8, w: -0.05}, rotate: [{axis: s, deg: -10}], for: 21, scale: [0.12, 0.05, 3.6], motion: [{law: grow, to: 0, at: 16, for: 4}]}
+              - {id: a1_handle, op: display, kind: block, block: black_concrete, frame: fall_a1, pos: {v: -0.8, w: 0.2}, rotate: [{axis: s, deg: 20}], for: 21, scale: [0.12, 0.1, 1.2], motion: [{law: grow, to: 0, at: 16, for: 4}]}
+              - {id: b1_blade, op: display, kind: block, block: gray_concrete, frame: fall_b1, pos: {v: 1.8, w: -0.15}, rotate: [{axis: s, deg: -7}], for: 21, scale: [0.12, 0.25, 3.6], motion: [{law: grow, to: 0, at: 16, for: 4}]}
+              - {id: b1_edge, op: display, kind: block, block: iron_block, frame: fall_b1, pos: {v: 1.8, w: -0.05}, rotate: [{axis: s, deg: -10}], for: 21, scale: [0.12, 0.05, 3.6], motion: [{law: grow, to: 0, at: 16, for: 4}]}
+              - {id: b1_handle, op: display, kind: block, block: black_concrete, frame: fall_b1, pos: {v: -0.8, w: 0.2}, rotate: [{axis: s, deg: 20}], for: 21, scale: [0.12, 0.1, 1.2], motion: [{law: grow, to: 0, at: 16, for: 4}]}
+              - {id: flower1, op: display, kind: block, block: white_concrete, frame: fall1, rotate: [{axis: v, deg: "= 45 * i"}], for: 21, times: 4, scale: [0.08, 0.08, 0.6], motion: [{law: grow, to: 0, at: 16, for: 4}]}
         - id: sel_2
           op: hit
           at: 29
@@ -178,98 +209,13 @@ machine:
           ignore_invulnerability: true
           on:
             hit:
-              # --- tick +0..9: the cut lands. A white cross, four dark shards, a bloom, eight petals and a flash at the victim
-              - {id: hit1_at, op: frame, anchor: victim, axes: caster, mode: snapshot, at: 0, for: 9}
-              - id: hit1_cross
-                op: display
-                kind: block
-                block: white_concrete
-                anchor: hit1_at
-                at: 0
-                for: 9
-                times: 3
-                offset: {up: 1.05}
-                rotate: [[{axis: left, deg: -45}], [{axis: left, deg: 45}], [{axis: left, deg: 0}]]
-                scale: {left: 0.05, up: 3.3, forward: 0.06}
-                brightness: {block: 15, sky: 15}
-                motion:
-                  - {law: grow, per_tick: {left: -0.005, forward: -0.006667}, at: 0, for: 3}
-                  - {law: grow, per_tick: {left: -0.007, forward: -0.008}, at: 3, for: 5, ease: in_quad}
-              - id: hit1_dark
-                op: display
-                kind: text
-                text: " "
-                background: "#28201C"
-                anchor: hit1_at
-                at: 0
-                for: 7
-                times: 4
-                offset: {up: 1.1}
-                scale: [0.96, 0.64, 1]
-                billboard: center
-                brightness: {block: 15, sky: 15}
-                motion:
-                  - {law: spin, axis: forward, deg_per_tick: "= 10 * i", at: 0, for: 6, ease: out_cubic}
-                  - {law: move, velocity: {up: "= -0.13333 + 0.05 * i", forward: "= -0.15 + 0.1 * i"}, at: 0, for: 6, ease: out_cubic}
-                  - {law: grow, per_tick: {left: -0.093333, up: -0.053333}, at: 0, for: 6, ease: out_cubic}
-                  - {law: fade, at: 0, for: 6, ease: out_cubic}
-              - id: hit1_bloom
-                op: display
-                kind: text
-                text: " "
-                background: "#EAD9B0"
-                anchor: hit1_at
-                at: 0
-                for: 6
-                offset: {up: 1.1}
-                scale: [4, 2, 1]
-                billboard: center
-                brightness: {block: 15, sky: 15}
-                motion:
-                  - {law: keys, keys: [{t: 0, scale: {left: 4, up: 2, forward: 1}, alpha: 0.2}, {t: 1, scale: {left: 12, up: 6, forward: 1}}, {t: 5, scale: {left: 16, up: 8, forward: 1}, alpha: 0}]}
-              - id: hit1_petal
-                op: display
-                kind: text
-                text: " "
-                background: "#FFF5E9"
-                anchor: hit1_at
-                at: 0
-                for: 8
-                times: 8
-                offset: {up: 1.1}
-                scale: [0.58, 0.29, 1]
-                billboard: center
-                brightness: {block: 15, sky: 15}
-                motion:
-                  - law: grow
-                    prop: offset
-                    per_tick: {left: "= 0.1237 * sqrt(1 - pow(0.86 - 0.2457 * i, 2)) * cos(rad(137.5 * i))", up: "= 0.1237 * (0.86 - 0.2457 * i)", forward: "= 0.1237 * sqrt(1 - pow(0.86 - 0.2457 * i, 2)) * sin(rad(137.5 * i))"}
-                    accel: {left: "= -0.0067 * sqrt(1 - pow(0.86 - 0.2457 * i, 2)) * cos(rad(137.5 * i))", up: "= -0.0067 * (0.86 - 0.2457 * i)", forward: "= -0.0067 * sqrt(1 - pow(0.86 - 0.2457 * i, 2)) * sin(rad(137.5 * i))"}
-                    at: 0
-                    for: 7
-                  - {law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}
-                  - {law: fade, at: 0, for: 7}
-              - id: hit1_fill
-                op: display
-                kind: text
-                text: "✦"
-                color: "#FFF8ED"
-                see_through: true
-                anchor: hit1_at
-                at: 0
-                for: 7
-                offset: {up: 1.1}
-                scale: [0.5, 0.5, 1]
-                billboard: center
-                brightness: {block: 15, sky: 15}
-                motion:
-                  - {law: grow, per_tick: {left: 8.5, up: 8.5}, at: 0, for: 1, ease: out_expo}
-                  - {law: grow, per_tick: {left: -0.5, up: -0.5}, at: 1, for: 2}
-                  - {law: grow, per_tick: {left: -2.333333, up: -2.333333}, at: 3, for: 3, ease: in_quad}
-                  - {law: fade, at: 0, for: 6, ease: in_quad}
-              - {id: hit1_sparks_at, op: frame, anchor: hit1_at, mode: follow, offset: {up: 1.1}, at: 0, for: 1}
-              - {id: hit1_sparks, op: particle_def, def: stab-spark, anchor: hit1_sparks_at, at: 0, every: 3, times: 2}
-              - {id: snd, op: sound, sound: entity.player.attack.strong, anchor: contact, volume: 0.7, pitch: 1.1}
+              - {id: cross_1, op: display, kind: block, block: white_concrete, frame: cut1, pos: {w: 0.15}, for: 9, times: 2, rotate: [{axis: s, deg: "= 45 - 90 * i"}], scale: [0.05, 3.3, 0.05], brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 3, scale: [0.8, 1, 0.8]}, {t: 8, scale: [0.2, 1, 0.2]}]}]}
+              - {id: smoke_1, op: display, kind: text, text: " ", background: "#28201C", frame: cut1, pos: {v: -0.9, w: -0.6}, for: 7, scale: [1.2, 0.8, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 6, scale: [0.3, 0.3, 1]}]}, {law: fade, at: 0, for: 6, ease: out_cubic}]}
+              - {id: bloom_1, op: display, kind: text, text: " ", background: "#EAD9B0", frame: cut1, pos: {w: 0.2}, for: 6, scale: [4, 2, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 1, scale: [2, 2, 1]}, {t: 5, scale: [2.5, 2.5, 1]}]}, {law: fade, at: 1, for: 4}]}
+              - {id: petal_1, op: display, kind: block, block: white_concrete, frame: cut1, pos: {w: 0.1}, for: 8, times: 4, rotate: [{axis: v, deg: "= 45 * i"}], scale: [0.05, 0.05, 1.6], brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 7, scale: [0.1, 0.1, 0.3]}]}]}
+              - {id: fill_1, op: display, kind: text, text: "✦", color: "#FFF8ED", see_through: true, frame: cut1, pos: {w: 0.2}, for: 7, scale: [1, 1, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, scale: [0.5, 0.5, 1]}, {t: 1, scale: [9, 9, 1]}, {t: 3, scale: [8, 8, 1]}, {t: 6, scale: [1, 1, 1]}]}, {law: fade, at: 0, for: 6, ease: in_quad}]}
+              - {id: sparks_1, op: particle_def, def: stab-spark, frame: cut1, pos: {w: 0.2}, every: 3, times: 2}
+              - {id: snd_1, op: sound, sound: entity.player.attack.strong, frame: cut1, volume: 0.7, pitch: 1.1}
         - id: fall2_pick
           op: hit
           at: 48
@@ -281,125 +227,13 @@ machine:
           ignore_invulnerability: true
           on:
             hit:
-              # --- tick +0..21: a giant pair of shears (2x the rapier shears) drops from 6.5 blocks above the victim, snips about its hinge and shrinks away
-              - {id: fall2_at, op: frame, anchor: victim, axes: caster, mode: snapshot, at: 0, for: 21}
-              - id: fall2_drop
-                op: frame
-                anchor: fall2_at
-                offset: {up: 6.5}
-                at: 0
-                for: 21
-                motion:
-                  - {law: move, velocity: {up: -0.4625}, at: 0, for: 8}
-                  - {law: move, velocity: {up: -0.035563, forward: 0.124027}, at: 8, for: 3}
-              - id: fall2_hinge_a
-                op: frame
-                anchor: fall2_drop
-                offset: {left: -0.09}
-                turn: [{axis: left, deg: 113}]
-                at: 0
-                for: 21
-                motion:
-                  - {law: spin, axis: left, deg_per_tick: -9.33333, at: 8, for: 3}
-              - id: fall2_blade_a
-                op: display
-                kind: block
-                block: gray_concrete
-                anchor: fall2_hinge_a
-                at: 0
-                for: 21
-                times: 3
-                offset: [{up: -0.0975, forward: 0.79404}, {up: -0.26812, forward: 2.1836}, {up: -0.38998, forward: 3.17614}]
-                rotate: [{axis: left, deg: 7}]
-                scale: [[0.12, 0.38, 1.6], [0.12, 0.24, 1.2], [0.12, 0.09, 0.8]]
-                motion:
-                  - {law: grow, to: 0, at: 16, for: 4}
-              - id: fall2_edge_a
-                op: display
-                kind: block
-                block: iron_block
-                anchor: fall2_hinge_a
-                at: 0
-                for: 21
-                times: 3
-                offset: [{up: 0.02132, forward: 0.80862}, {up: -0.19308, forward: 2.19282}, {up: -0.36184, forward: 3.1796}]
-                rotate: [[{axis: left, deg: 10.66907}], [{axis: left, deg: 10.09097}], [{axis: left, deg: 8.73982}]]
-                scale: [[0.12, 0.05, 1.60328], [0.12, 0.05, 1.20174], [0.12, 0.05, 0.80036]]
-                motion:
-                  - {law: grow, to: 0, at: 16, for: 4}
-              - id: fall2_handle_a
-                op: display
-                kind: block
-                block: black_concrete
-                anchor: fall2_hinge_a
-                at: 0
-                for: 21
-                times: 5
-                offset: [{up: 0.26468, forward: -0.35036}, {up: 0.5349, forward: -0.9922}, {up: 0.3848, forward: -1.57484}, {up: -0.03642, forward: -1.34446}, {up: -0.13148, forward: -0.57028}]
-                rotate: [[{axis: left, deg: -128}], [{axis: left, deg: -176.81407}], [{axis: left, deg: 127.06858}], [{axis: left, deg: 34.14968}], [{axis: left, deg: -20.14968}]]
-                scale: [[0.12, 0.09, 0.62226], [0.12, 0.09, 0.902], [0.12, 0.09, 0.43908], [0.12, 0.09, 0.87658], [0.12, 0.09, 0.87658]]
-                motion:
-                  - {law: grow, to: 0, at: 16, for: 4}
-              - id: fall2_hinge_b
-                op: frame
-                anchor: fall2_drop
-                offset: {left: 0.09}
-                turn: [{axis: left, deg: 53}]
-                at: 0
-                for: 21
-                motion:
-                  - {law: spin, axis: left, deg_per_tick: 9.33333, at: 8, for: 3}
-              - id: fall2_blade_b
-                op: display
-                kind: block
-                block: gray_concrete
-                anchor: fall2_hinge_b
-                at: 0
-                for: 21
-                times: 3
-                offset: [{up: -0.0975, forward: 0.79404}, {up: -0.26812, forward: 2.1836}, {up: -0.38998, forward: 3.17614}]
-                rotate: [{axis: left, deg: 7}]
-                scale: [[0.12, 0.38, 1.6], [0.12, 0.24, 1.2], [0.12, 0.09, 0.8]]
-                motion:
-                  - {law: grow, to: 0, at: 16, for: 4}
-              - id: fall2_edge_b
-                op: display
-                kind: block
-                block: iron_block
-                anchor: fall2_hinge_b
-                at: 0
-                for: 21
-                times: 3
-                offset: [{up: 0.02132, forward: 0.80862}, {up: -0.19308, forward: 2.19282}, {up: -0.36184, forward: 3.1796}]
-                rotate: [[{axis: left, deg: 10.66907}], [{axis: left, deg: 10.09097}], [{axis: left, deg: 8.73982}]]
-                scale: [[0.12, 0.05, 1.60328], [0.12, 0.05, 1.20174], [0.12, 0.05, 0.80036]]
-                motion:
-                  - {law: grow, to: 0, at: 16, for: 4}
-              - id: fall2_handle_b
-                op: display
-                kind: block
-                block: black_concrete
-                anchor: fall2_hinge_b
-                at: 0
-                for: 21
-                times: 5
-                offset: [{up: 0.26468, forward: -0.35036}, {up: 0.5349, forward: -0.9922}, {up: 0.3848, forward: -1.57484}, {up: -0.03642, forward: -1.34446}, {up: -0.13148, forward: -0.57028}]
-                rotate: [[{axis: left, deg: -128}], [{axis: left, deg: -176.81407}], [{axis: left, deg: 127.06858}], [{axis: left, deg: 34.14968}], [{axis: left, deg: -20.14968}]]
-                scale: [[0.12, 0.09, 0.62226], [0.12, 0.09, 0.902], [0.12, 0.09, 0.43908], [0.12, 0.09, 0.87658], [0.12, 0.09, 0.87658]]
-                motion:
-                  - {law: grow, to: 0, at: 16, for: 4}
-              - id: fall2_flower
-                op: display
-                kind: block
-                block: white_concrete
-                anchor: fall2_drop
-                at: 0
-                for: 21
-                times: 4
-                offset: [{left: -0.24}, {left: 0.24}, {up: 0.24}, {up: -0.24}]
-                scale: [0.3, 0.3, 0.24]
-                motion:
-                  - {law: grow, to: 0, at: 16, for: 4}
+              - {id: a2_blade, op: display, kind: block, block: gray_concrete, frame: fall_a2, pos: {v: 1.8, w: -0.15}, rotate: [{axis: s, deg: -7}], for: 21, scale: [0.12, 0.25, 3.6], motion: [{law: grow, to: 0, at: 16, for: 4}]}
+              - {id: a2_edge, op: display, kind: block, block: iron_block, frame: fall_a2, pos: {v: 1.8, w: -0.05}, rotate: [{axis: s, deg: -10}], for: 21, scale: [0.12, 0.05, 3.6], motion: [{law: grow, to: 0, at: 16, for: 4}]}
+              - {id: a2_handle, op: display, kind: block, block: black_concrete, frame: fall_a2, pos: {v: -0.8, w: 0.2}, rotate: [{axis: s, deg: 20}], for: 21, scale: [0.12, 0.1, 1.2], motion: [{law: grow, to: 0, at: 16, for: 4}]}
+              - {id: b2_blade, op: display, kind: block, block: gray_concrete, frame: fall_b2, pos: {v: 1.8, w: -0.15}, rotate: [{axis: s, deg: -7}], for: 21, scale: [0.12, 0.25, 3.6], motion: [{law: grow, to: 0, at: 16, for: 4}]}
+              - {id: b2_edge, op: display, kind: block, block: iron_block, frame: fall_b2, pos: {v: 1.8, w: -0.05}, rotate: [{axis: s, deg: -10}], for: 21, scale: [0.12, 0.05, 3.6], motion: [{law: grow, to: 0, at: 16, for: 4}]}
+              - {id: b2_handle, op: display, kind: block, block: black_concrete, frame: fall_b2, pos: {v: -0.8, w: 0.2}, rotate: [{axis: s, deg: 20}], for: 21, scale: [0.12, 0.1, 1.2], motion: [{law: grow, to: 0, at: 16, for: 4}]}
+              - {id: flower2, op: display, kind: block, block: white_concrete, frame: fall2, rotate: [{axis: v, deg: "= 45 * i"}], for: 21, times: 4, scale: [0.08, 0.08, 0.6], motion: [{law: grow, to: 0, at: 16, for: 4}]}
         - id: sel_4
           op: hit
           at: 59
@@ -412,98 +246,13 @@ machine:
           ignore_invulnerability: true
           on:
             hit:
-              # --- tick +0..9: the cut lands. A white cross, four dark shards, a bloom, eight petals and a flash at the victim
-              - {id: hit2_at, op: frame, anchor: victim, axes: caster, mode: snapshot, at: 0, for: 9}
-              - id: hit2_cross
-                op: display
-                kind: block
-                block: white_concrete
-                anchor: hit2_at
-                at: 0
-                for: 9
-                times: 3
-                offset: {up: 1.05}
-                rotate: [[{axis: left, deg: -45}], [{axis: left, deg: 45}], [{axis: left, deg: 0}]]
-                scale: {left: 0.05, up: 3.3, forward: 0.06}
-                brightness: {block: 15, sky: 15}
-                motion:
-                  - {law: grow, per_tick: {left: -0.005, forward: -0.006667}, at: 0, for: 3}
-                  - {law: grow, per_tick: {left: -0.007, forward: -0.008}, at: 3, for: 5, ease: in_quad}
-              - id: hit2_dark
-                op: display
-                kind: text
-                text: " "
-                background: "#28201C"
-                anchor: hit2_at
-                at: 0
-                for: 7
-                times: 4
-                offset: {up: 1.1}
-                scale: [0.96, 0.64, 1]
-                billboard: center
-                brightness: {block: 15, sky: 15}
-                motion:
-                  - {law: spin, axis: forward, deg_per_tick: "= 10 * i", at: 0, for: 6, ease: out_cubic}
-                  - {law: move, velocity: {up: "= -0.13333 + 0.05 * i", forward: "= -0.15 + 0.1 * i"}, at: 0, for: 6, ease: out_cubic}
-                  - {law: grow, per_tick: {left: -0.093333, up: -0.053333}, at: 0, for: 6, ease: out_cubic}
-                  - {law: fade, at: 0, for: 6, ease: out_cubic}
-              - id: hit2_bloom
-                op: display
-                kind: text
-                text: " "
-                background: "#EAD9B0"
-                anchor: hit2_at
-                at: 0
-                for: 6
-                offset: {up: 1.1}
-                scale: [4, 2, 1]
-                billboard: center
-                brightness: {block: 15, sky: 15}
-                motion:
-                  - {law: keys, keys: [{t: 0, scale: {left: 4, up: 2, forward: 1}, alpha: 0.2}, {t: 1, scale: {left: 12, up: 6, forward: 1}}, {t: 5, scale: {left: 16, up: 8, forward: 1}, alpha: 0}]}
-              - id: hit2_petal
-                op: display
-                kind: text
-                text: " "
-                background: "#FFF5E9"
-                anchor: hit2_at
-                at: 0
-                for: 8
-                times: 8
-                offset: {up: 1.1}
-                scale: [0.58, 0.29, 1]
-                billboard: center
-                brightness: {block: 15, sky: 15}
-                motion:
-                  - law: grow
-                    prop: offset
-                    per_tick: {left: "= 0.1237 * sqrt(1 - pow(0.86 - 0.2457 * i, 2)) * cos(rad(137.5 * i))", up: "= 0.1237 * (0.86 - 0.2457 * i)", forward: "= 0.1237 * sqrt(1 - pow(0.86 - 0.2457 * i, 2)) * sin(rad(137.5 * i))"}
-                    accel: {left: "= -0.0067 * sqrt(1 - pow(0.86 - 0.2457 * i, 2)) * cos(rad(137.5 * i))", up: "= -0.0067 * (0.86 - 0.2457 * i)", forward: "= -0.0067 * sqrt(1 - pow(0.86 - 0.2457 * i, 2)) * sin(rad(137.5 * i))"}
-                    at: 0
-                    for: 7
-                  - {law: grow, to: {left: 0.058, up: 0.029, forward: 1}, at: 0, for: 7}
-                  - {law: fade, at: 0, for: 7}
-              - id: hit2_fill
-                op: display
-                kind: text
-                text: "✦"
-                color: "#FFF8ED"
-                see_through: true
-                anchor: hit2_at
-                at: 0
-                for: 7
-                offset: {up: 1.1}
-                scale: [0.5, 0.5, 1]
-                billboard: center
-                brightness: {block: 15, sky: 15}
-                motion:
-                  - {law: grow, per_tick: {left: 8.5, up: 8.5}, at: 0, for: 1, ease: out_expo}
-                  - {law: grow, per_tick: {left: -0.5, up: -0.5}, at: 1, for: 2}
-                  - {law: grow, per_tick: {left: -2.333333, up: -2.333333}, at: 3, for: 3, ease: in_quad}
-                  - {law: fade, at: 0, for: 6, ease: in_quad}
-              - {id: hit2_sparks_at, op: frame, anchor: hit2_at, mode: follow, offset: {up: 1.1}, at: 0, for: 1}
-              - {id: hit2_sparks, op: particle_def, def: stab-spark, anchor: hit2_sparks_at, at: 0, every: 3, times: 2}
-              - {id: snd_2, op: sound, sound: entity.player.attack.strong, anchor: contact, volume: 0.7, pitch: 1.1}
+              - {id: cross_2, op: display, kind: block, block: white_concrete, frame: cut2, pos: {w: 0.15}, for: 9, times: 2, rotate: [{axis: s, deg: "= 45 - 90 * i"}], scale: [0.05, 3.3, 0.05], brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 3, scale: [0.8, 1, 0.8]}, {t: 8, scale: [0.2, 1, 0.2]}]}]}
+              - {id: smoke_2, op: display, kind: text, text: " ", background: "#28201C", frame: cut2, pos: {v: -0.9, w: -0.6}, for: 7, scale: [1.2, 0.8, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 6, scale: [0.3, 0.3, 1]}]}, {law: fade, at: 0, for: 6, ease: out_cubic}]}
+              - {id: bloom_2, op: display, kind: text, text: " ", background: "#EAD9B0", frame: cut2, pos: {w: 0.2}, for: 6, scale: [4, 2, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 1, scale: [2, 2, 1]}, {t: 5, scale: [2.5, 2.5, 1]}]}, {law: fade, at: 1, for: 4}]}
+              - {id: petal_2, op: display, kind: block, block: white_concrete, frame: cut2, pos: {w: 0.1}, for: 8, times: 4, rotate: [{axis: v, deg: "= 45 * i"}], scale: [0.05, 0.05, 1.6], brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 7, scale: [0.1, 0.1, 0.3]}]}]}
+              - {id: fill_2, op: display, kind: text, text: "✦", color: "#FFF8ED", see_through: true, frame: cut2, pos: {w: 0.2}, for: 7, scale: [1, 1, 1], billboard: center, brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, scale: [0.5, 0.5, 1]}, {t: 1, scale: [9, 9, 1]}, {t: 3, scale: [8, 8, 1]}, {t: 6, scale: [1, 1, 1]}]}, {law: fade, at: 0, for: 6, ease: in_quad}]}
+              - {id: sparks_2, op: particle_def, def: stab-spark, frame: cut2, pos: {w: 0.2}, every: 3, times: 2}
+              - {id: snd_2, op: sound, sound: entity.player.attack.strong, frame: cut2, volume: 0.7, pitch: 1.1}
         - id: rosette_pick
           op: hit
           at: 62
@@ -515,21 +264,5 @@ machine:
           ignore_invulnerability: true
           on:
             hit:
-              # --- tick +0..11: a ring of 15 pink arcs (radius 2.6) blooms around the victim and contracts again
-              - {id: rosette_at, op: frame, anchor: victim, axes: caster, mode: snapshot, at: 0, for: 11}
-              - id: rosette
-                op: display
-                kind: block
-                block: pink_concrete
-                anchor: rosette_at
-                at: 0
-                for: 11
-                times: 15
-                offset: {up: "= 1.1 + 2.6 * sin(rad(24 * i))", forward: "= 0.4 + 2.6 * cos(rad(24 * i))"}
-                rotate: [{axis: left, deg: "= -90 - 24 * i"}]
-                scale: [0, 0, 0]
-                brightness: {block: 15, sky: 15}
-                motion:
-                  - {law: grow, per_tick: {left: 0.025, up: "= 0.0235 + 0.0487 * sin(3.14159265 * i / 15)", forward: 0.626225}, at: 0, for: 2}
-                  - {law: grow, per_tick: {left: -0.005556, up: "= -0.2222 * (0.0235 + 0.0487 * sin(3.14159265 * i / 15))", forward: -0.055664}, at: 2, for: 9}
+              - {id: rosette, op: display, kind: block, block: pink_concrete, frame: ring, pos: {w: 1.1}, for: 11, times: 6, rotate: [{axis: s, deg: "= 30 * i"}], scale: [0.05, 0.1, 6], brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, scale: [0, 0, 0]}, {t: 2, scale: [1, 1, 1]}, {t: 11, scale: [0, 0, 0]}]}]}
     end: {final: true}
