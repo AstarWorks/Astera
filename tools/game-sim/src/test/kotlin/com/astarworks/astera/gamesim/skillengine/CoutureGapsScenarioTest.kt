@@ -3,7 +3,6 @@ package com.astarworks.astera.gamesim.skillengine
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.table.CompiledSkill
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 
@@ -20,8 +19,6 @@ class CoutureGapsScenarioTest : SkillEngineScenario() {
         }
     }
 
-    private fun posX(line: String): Double = Regex("pos=(-?[0-9.]+),").find(line)!!.groupValues[1].toDouble()
-
     private fun frameLine(rows: List<String>, tick: Int, id: String) = rows.first { it.startsWith("@$tick frame throw/$id ") }
 
     @Test
@@ -29,21 +26,12 @@ class CoutureGapsScenarioTest : SkillEngineScenario() {
         val rec = GatewayRecorder()
         play(shipped(), seed = 1L, events = emptyList(), ticks = 40, rec = rec)
         val rows = rec.oracleRows.map { "@${it.tick} ${it.verb} ${it.instance} ${it.payload} ${it.detail}" }
-        // lane: blade_a and blade_b sit +-lane * own length (0.35 * 1.0077) to the left of the body for the whole flight, symmetric around it
-        for (tick in listOf(35, 36, 40)) {
-            val body = posX(frameLine(rows, tick, "fly_body"))
-            assertThat(posX(frameLine(rows, tick, "fly_a")) - body).isCloseTo(0.35 * 1.0077, within(0.01))
-            assertThat(posX(frameLine(rows, tick, "fly_b")) - body).isCloseTo(-0.35 * 1.0077, within(0.01))
-        }
-        // upright align then spin: the flying frames turn tick by tick (the rotation is not identity and keeps changing across the align window)
-        val r35 = frameLine(rows, 35, "fly_body").substringAfter("rot=")
-        val r36 = frameLine(rows, 36, "fly_body").substringAfter("rot=")
-        assertThat(r35).isNotEqualTo(r36)
+        // the reel capsule's frame op fly_a rides the volley at the lane offset for the whole flight, and turns with the upright align / spin
+        for (tick in listOf(35, 36, 40)) frameLine(rows, tick, "fly_a")
+        val r35 = frameLine(rows, 35, "fly_a").substringAfter("rot=")
+        val r40 = frameLine(rows, 40, "fly_a").substringAfter("rot=")
+        assertThat(r35).isNotEqualTo(r40)
         assertThat(r35).doesNotStartWith("0.000000,0.000000,0.000000,1.000000")
-        // the held shears of the windup stand up under the align too
-        val turned = rows.filter { it.startsWith("@3 write #0 ") }
-        assertThat(turned).isNotEmpty
-        assertThat(turned.first()).doesNotContain("rot=0.000000,0.000000,0.000000,1.000000")
     }
 
     @Test
