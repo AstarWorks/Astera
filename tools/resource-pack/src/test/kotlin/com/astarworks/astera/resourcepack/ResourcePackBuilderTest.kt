@@ -1,5 +1,6 @@
 package com.astarworks.astera.resourcepack
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -78,8 +79,38 @@ class ResourcePackBuilderTest {
         val itemDefs = files.keys.filter { it.startsWith("assets/astera/items/") && it.endsWith(".json") }
         assertThat(itemDefs).isNotEmpty()
         for (def in itemDefs) {
-            val model = json(files.getValue(def)).path("model").path("model").asText()
-            assertThat(files).`as`(def).containsKey("assets/astera/models/" + model.substringAfter("astera:") + ".json")
+            val models = mutableListOf<String>()
+            collectModels(json(files.getValue(def)).path("model"), def, models)
+            for (model in models) {
+                assertThat(model).`as`("$def: model reference namespace").startsWith("astera:")
+                assertThat(files).`as`("$def -> $model").containsKey("assets/astera/models/" + model.substringAfter("astera:") + ".json")
+            }
+        }
+    }
+
+    /**
+     * Walks the whole item-definition tree (select / range_dispatch / condition / composite / special, with their nested
+     * `cases`, `entries`, `models`, `on_true`, `on_false`, `fallback`) and collects every `minecraft:model` reference.
+     * A `minecraft:empty` node (weapon_model hide key) must carry no model reference. Any node that names a model without
+     * being `minecraft:model` fails, so an unknown shape cannot hide a dangling reference.
+     */
+    private fun collectModels(node: JsonNode, where: String, out: MutableList<String>) {
+        when {
+            node.isObject -> {
+                val type = node.path("type").asText()
+                when (type) {
+                    "minecraft:model" -> {
+                        val model = node.path("model").asText()
+                        assertThat(model).`as`("$where: minecraft:model names a model").isNotBlank()
+                        out += model
+                    }
+                    "minecraft:empty" ->
+                        assertThat(node.has("model")).`as`("$where: an empty definition carries no model reference").isFalse()
+                    else -> assertThat(node.path("model").isTextual).`as`("$where: $type node with a textual model").isFalse()
+                }
+                node.fields().forEach { (key, child) -> if (key != "model" || child.isContainerNode) collectModels(child, where, out) }
+            }
+            node.isArray -> node.forEach { collectModels(it, where, out) }
         }
     }
 
@@ -94,7 +125,9 @@ class ResourcePackBuilderTest {
             assertThat(model.path("textures").path("layer0").asText()).isEqualTo("astera:generated/items/$id")
             val def = json(files.getValue("assets/astera/items/$id.json")).path("model")
             assertThat(def.path("type").asText()).isEqualTo("minecraft:model")
-            assertThat(def.path("model").asText()).isEqualTo("astera:generated/items/$id")
+            // Every weapon has a Studio model content/models/items/<id>: the definition points at it, not the procedural icon.
+            assertThat(files).containsKey("assets/astera/models/items/$id.json")
+            assertThat(def.path("model").asText()).isEqualTo("astera:items/$id")
         }
         assertThat(json(files.getValue("assets/astera/models/generated/items/fire-staff.json")).path("parent").asText())
             .isEqualTo("minecraft:item/handheld")
@@ -132,7 +165,9 @@ class ResourcePackBuilderTest {
         ZipFile(first.zip.toFile()).use { zip ->
             val names = zip.entries().asSequence().map { it.name }.toList()
             assertThat(names).isEqualTo(names.sorted()).hasSize(first.entryCount)
-            assertThat(names).first().isEqualTo("assets/astera/font/default.json")
+            ZipFile(second.zip.toFile()).use { other ->
+                assertThat(other.entries().asSequence().map { it.name }.toList()).isEqualTo(names)
+            }
             assertThat(names).contains("pack.mcmeta")
             assertThat(zip.entries().asSequence().map { it.timeLocal.year }.toSet()).containsExactly(1980)
         }
@@ -172,7 +207,14 @@ class ResourcePackBuilderTest {
     fun `an empty content tree still yields a valid pack with the vanilla overrides`(@TempDir tmp: Path) {
         val files = ResourcePackBuilder(tmp).collect()
         assertThat(files).containsKey("pack.mcmeta")
-        assertThat(files.keys.filter { it.startsWith("assets/minecraft/") }).hasSameSizeAs(ResourcePackBuilder.HIDDEN_SPRITES)
+        // Vanilla overrides: the hidden HUD sprites, plus the items atlas that always exists because the pack always ships
+        // the `astera:skill_line` ribbon textures under textures/items/skill_line (f778a60f6).
+        val hidden = ResourcePackBuilder.HIDDEN_SPRITES.map { "assets/minecraft/textures/gui/sprites/hud/$it.png" }
+        assertThat(files.keys.filter { it.startsWith("assets/minecraft/") })
+            .containsExactlyInAnyOrder(*(hidden + "assets/minecraft/atlases/items.json").toTypedArray())
+        assertThat(json(files.getValue("assets/minecraft/atlases/items.json")).path("sources").map { it.path("source").asText() })
+            .containsExactly("items")
+        assertThat(files).containsKey("assets/astera/items/skill_line.json")
         assertThat(files).doesNotContainKey("assets/astera/font/default.json")
     }
 }

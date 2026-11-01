@@ -21,6 +21,11 @@ class ShippedShaderEffectsPackTest {
     private val json = ObjectMapper()
     private val pack by lazy { ResourcePackBuilder(content).collect() }
 
+    // The shipped skin-rig clips, resolved the way the combat plugin, content-lint and SimClips resolve them (body-clip skills dry-cast against them).
+    private val clips by lazy {
+        com.astarworks.astera.core.application.contents.SkinRigContents().also { it.bootstrap(content.resolve("animations")) }
+    }
+
     private fun catalog(tables: Map<String, ItemFrames>) =
         SkillEngineRegistries.catalog(
             tables,
@@ -28,7 +33,7 @@ class ShippedShaderEffectsPackTest {
             ContentSpriteCatalog.load(content.resolve("sprites")),
             (com.astarworks.astera.core.application.skillengine.compose.drycast.ClutterContext.load(
                 content, (SkillEngineRegistries.bodySkeleton(content.resolve("frames")) as Result.Success).value,
-            ) { null } as Result.Success).value,
+            ) { clip -> runCatching { clips.find(com.astarworks.astera.core.domain.animation.player.CustomAnimationId(clip)) }.getOrNull() } as Result.Success).value,
         )
 
     @TempDir
