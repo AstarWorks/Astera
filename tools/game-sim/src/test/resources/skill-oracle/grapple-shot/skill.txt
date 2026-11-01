@@ -12,7 +12,7 @@ g @1 dropped reason=owner-exited:cast | sub=cast/bolt.end
 g @1 cast-end | pose
 r @3 run-end tail=2 | pose
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=cast/hook kind=item item=minecraft:tripwire_hook part=- pos=-0.893121,1.472516,0.686719 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.900000,0.900000,0.900000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=cast/hook kind=item item=minecraft:tripwire_hook part=- pos=-0.893121,1.472516,0.686719 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.900000,0.900000,0.900000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=cast/snd sound=block.chain.place cat=master vol=0.9 pitch=1.2 at=-0.666912,1.335708,0.386531
 @0 particle - op=cast/fx type=hit-spark at=-0.893121,1.472516,0.686719 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-40335680305962147
 @0 frame cast/bolt op=cast/bolt pos=-0.893121,1.472516,0.686719 rot=-0.164675,-0.312484,-0.055099,0.933916

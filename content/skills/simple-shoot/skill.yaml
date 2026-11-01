@@ -47,6 +47,7 @@ lines:
   trail: {frame: body, from: {v: -0.25}, to: {v: 0}}
 machine:
   start: fly
+  tail: 10
   states:
     fly:
       on:
