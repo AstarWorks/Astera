@@ -31,10 +31,10 @@ import java.nio.file.Files
 class BotEconomyScenarioTest {
 
     @Test
-    fun `the shipped shop parses to a shopping list - iron pick, base armour, upgrades, Mid armour - and bag names map to ore ids`() {
+    fun `the shipped shop parses to a shopping list - base armour, upgrades, Mid armour (no tools) - and bag names map to ore ids`() {
         val ladder = EconomyPlanner.parseLadder(Files.readString(GameSim.defaultContentDir().resolve("shops/match-shop.yaml")))
         assertThat(ladder).containsExactly(
-            mapOf("ore-iron" to 12), mapOf("ore-iron" to 22), mapOf("ore-gold" to 11), mapOf("ore-gold" to 16),
+            mapOf("ore-iron" to 22), mapOf("ore-gold" to 11), mapOf("ore-gold" to 16),
             mapOf("ore-gold" to 6), mapOf("ore-diamond" to 4), mapOf("ore-emerald" to 3), mapOf("ore-diamond" to 11),
         )
         assertThat(EconomyPlanner.oreCounts(listOf("Diamond Ore" to 2, "ダイヤ鉱石" to 1, "Stone" to 9, "エメラルド鉱石" to 3)))
@@ -47,7 +47,7 @@ class BotEconomyScenarioTest {
             val objectives = checkNotNull(StageObjectives.load(GameSim.defaultContentDir().toFile(), "carry-tnt")) { "stage did not load" }
             val local = checkNotNull(objectives.economySites("red")) { "no economy sites for red" }
             val ladder = objectives.economyLadder()
-            assertThat(ladder).hasSize(8)
+            assertThat(ladder).hasSize(7)
             assertThat(local.shop).isNotNull
             assertThat(local.generators.map { it.ore }).contains("ore-gold")
             assertThat(local.nodes.map { it.ore }).contains("ore-diamond", "ore-emerald")
@@ -108,11 +108,12 @@ class BotEconomyScenarioTest {
     }
 
     @Test
-    fun `a bot without a pickaxe and without base gold buys the iron pick, then armour, instead of stalling on the gold step`() {
+    fun `a bot without a pickaxe buys armour first, never a tool, and digs Mid ore once the Norma level hands it a pickaxe`() {
         scenario("bot-economy-shopping") {
             val shopsDir = GameSim.defaultContentDir().resolve("shops")
             val yaml = Files.readString(shopsDir.resolve("match-shop.yaml"))
             val buys = EconomyPlanner.parseShoppingList(yaml)
+            assertThat(buys.flatMap { it.items }).`as`("tools are never on the list").noneMatch { it.endsWith("pickaxe") || it.endsWith("axe") || it.endsWith("shovel") }
             val catalog = checkNotNull(MatchShopLoaderService().parse(shopsDir).second) { "match-shop.yaml did not load" }
             val purchase = MatchShopPurchaseUseCase(
                 itemRegistry = sim.services.getOrThrow<IItemRegistry>(),
@@ -123,7 +124,7 @@ class BotEconomyScenarioTest {
             )
             val bot = player("Bot_Shopper", team = "red")
             val bag = checkNotNull(sim.server.view(bot.id)).givenItems
-            // A base with a shop and an iron generator only: gold is reachable solely by digging a Mid node, which needs a pickaxe the bot lacks.
+            // A base with a shop and an iron generator only: gold is reachable solely by digging a Mid node, which needs a pickaxe the bot lacks at Lv1.
             val sites = EconomyPlanner.Sites(
                 shop = EconomyPlanner.Site(0.0, 0.0, 0.0),
                 generators = listOf(EconomyPlanner.Site(10.0, 0.0, 10.0, "ore-iron")),
@@ -131,12 +132,11 @@ class BotEconomyScenarioTest {
             )
             val planner = EconomyPlanner(sites, buys.map { it.price })
             fun have() = bag.filter { it.startsWith("ore-") }.groupingBy { it }.eachCount()
-            fun hasPickaxe() = bag.any { it.endsWith("pickaxe") }
             val bought = ArrayList<String>()
             var clock = 0L
             var guard = 0
-            while (bought.size < 5 && guard++ < 400) {
-                val step = planner.step(clock, bot.position.x, bot.position.z, have(), hasPickaxe())
+            while (bought.size < 4 && guard++ < 400) {
+                val step = planner.step(clock, bot.position.x, bot.position.z, have(), hasPickaxe = false)
                     ?: error("planner stalled: bought=$bought bag=$bag rung=${planner.rung}")
                 bot.position = Vec3(step.x, step.y, step.z)
                 when (step.kind) {
@@ -153,10 +153,14 @@ class BotEconomyScenarioTest {
                 advance(8)
                 clock += 400
             }
-            assertThat(bought.first()).`as`("the iron pick comes first: $bought").isEqualTo("iron-pickaxe")
-            assertThat(bought.drop(1)).`as`("then the leather armour set: $bought").containsExactlyInAnyOrder(
+            assertThat(bought).`as`("the leather armour set comes first, no tool: $bought").containsExactlyInAnyOrder(
                 "leather-scout-helmet", "leather-scout-chestplate", "leather-scout-leggings", "leather-scout-boots",
             )
+            // Norma Lv2 hands the bot an iron pickaxe (ADR-0319): the gold node is now the next thing to work on.
+            bag += "iron-pickaxe"
+            clock += 400
+            val next = checkNotNull(planner.step(clock, bot.position.x, bot.position.z, have(), hasPickaxe = true)) { "planner idle with a pickaxe" }
+            assertThat(next.kind to next.ore).isEqualTo("mine" to "ore-gold")
         }
     }
 }

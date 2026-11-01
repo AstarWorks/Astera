@@ -4,7 +4,7 @@ import kotlin.math.hypot
 
 /**
  * The lull-time economy of a bot: earn the ore of the next useful buy the way a player does and spend it at the OWN base shop
- * (`content/shops/match-shop.yaml`: iron pick, armour tiers, weapon upgrades; see [parseShoppingList]). Pure and deterministic like
+ * (`content/shops/match-shop.yaml`: armour tiers, weapon upgrades; see [parseShoppingList]). Pure and deterministic like
  * [ModePlanner]: the clock and the carried ore are passed in, so a game-sim scenario drives the very planner the live [BotBrain] uses.
  *
  * The ladder is the shopping list's prices in priority order ([parseLadder]). A rung the bag already pays goes to the shop first;
@@ -200,14 +200,14 @@ class EconomyPlanner(
         }
 
         /**
-         * What a bot saves for, in priority order, read from the shop file: the first pickaxe of the tools tab (it opens the Mid ore
-         * nodes), then each armour tier as one bundle (the four pieces, summed price, file order), then the weapon upgrades (one entry
-         * per distinct price). The planner skips an entry it cannot fund yet instead of waiting for it.
+         * What a bot saves for, in priority order, read from the shop file: each base-ore armour tier as one bundle (the four pieces,
+         * summed price, file order), then the weapon upgrades (one entry per distinct price), then Mid-ore armour. Tools are never
+         * bought (they follow the Norma level, ADR-0319), whether or not the shop still lists a tools tab; ore that needs a pickaxe
+         * waits until the bot carries one. The planner skips an entry it cannot fund yet instead of waiting for it.
          */
         fun parseShoppingList(shopYaml: String): List<Buy> {
             val all = offers(shopYaml)
             val out = ArrayList<Buy>()
-            all.firstOrNull { it.tab == "tools" && "pickaxe" in it.item }?.let { out += Buy(listOf(it.item), it.price) }
             val tiers = LinkedHashMap<String, MutableList<Offer>>()
             all.filter { it.tab == "armor" }.forEach { tiers.getOrPut(it.item.replace(ARMOR_PIECE, "")) { ArrayList() } += it }
             val armour = tiers.values.map { pieces ->

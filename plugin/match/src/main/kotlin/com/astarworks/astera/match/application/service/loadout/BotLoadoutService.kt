@@ -31,7 +31,7 @@ import kotlin.random.Random
  *
  *  - A player is a bot when its name starts with the pool's `bot_name_prefix` (the runner's accounts; the game server
  *    never sees the Redis bot status, only the login name).
- *  - Only weapons usable at the bot's Norma level are drawn (the rarity gate of the match, ADR-0292): level 1 on entry, and a
+ *  - Only weapons usable at the bot's Norma level are drawn (the rarity gate of the match, ADR-0292): the humans' average level (+-1) on entry, and a
  *    NormaLevelUp ([onLevelUp]) re-rolls an unspent loadout from the wider pool. Family combinations rotate across the match.
  *  - Draws are seeded (pool `seed`, else the match id) and avoid a pair another bot of the match already got, so bots of
  *    one match differ whenever the pool allows it. A rejoin re-arms the same loadout.
@@ -45,6 +45,10 @@ public class BotLoadoutService(
     private val server: IMcServer,
     private val matchOf: (PlayerId) -> MatchId?,
     private val normaOf: (MatchId) -> NormaConfig,
+    /** Everyone (all teams) in the match [PlayerId] plays. */
+    private val membersOf: (PlayerId) -> List<PlayerId>,
+    /** Norma level of a player in a match, or null when unknown. */
+    private val levelOf: (MatchId, PlayerId) -> Int?,
 ) : IMatchEntryLoadout, IBotPlayers {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -93,7 +97,7 @@ public class BotLoadoutService(
         if (!player.name.startsWith(pool.botNamePrefix)) return
         val matchId = matchOf(playerId) ?: return
         val perMatch = assignments.getOrPut(matchId) { LinkedHashMap() }
-        val assigned = perMatch[playerId] ?: draw(pool, matchId, playerId, perMatch, START_LEVEL)?.also { perMatch[playerId] = it } ?: return
+        val assigned = perMatch[playerId] ?: draw(pool, matchId, playerId, perMatch, entryLevel(matchId, playerId))?.also { perMatch[playerId] = it } ?: return
         val loadout = assigned.loadout
         val query = owned() ?: return
         val itemDelivery = delivery() ?: return
@@ -103,6 +107,17 @@ public class BotLoadoutService(
             .forEach { take?.removeOne(playerId, it) }
         loadout.items.filter { it !in carried }.mapNotNull { items.find(it) }.forEach { itemDelivery.give(player, it, 1) }
         log.info("Bot {} carries {} for match {}", player.name, loadout.items.map { it.value }, matchId.value)
+    }
+
+    /**
+     * The level a bot's entry roll uses: the average Norma level of the human players in its match (1 when there is none),
+     * moved by -1 / 0 / +1 per bot (seeded from match and player), never below 1. A bot joining a veteran lobby is not stuck with the starter pair.
+     */
+    private fun entryLevel(matchId: MatchId, playerId: PlayerId): Int {
+        val humans = membersOf(playerId).filter { it != playerId && !isBot(it) }.mapNotNull { levelOf(matchId, it) }
+        val average = if (humans.isEmpty()) START_LEVEL else Math.round(humans.average()).toInt()
+        val spread = Random(Objects.hash(matchId.value.hashCode(), playerId.uuid)).nextInt(3) - 1
+        return (average + spread).coerceAtLeast(START_LEVEL)
     }
 
     /**

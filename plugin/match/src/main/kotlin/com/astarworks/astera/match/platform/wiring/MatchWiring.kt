@@ -482,6 +482,10 @@ public object MatchWiring {
                 server = services.getOrThrow<com.astarworks.astera.core.adapter.api.server.IMcServer>(),
                 matchOf = { playerId -> matches.findMatchOf(playerId)?.id },
                 normaOf = { id -> com.astarworks.astera.match.domain.norma.NormaConfig.parse(modeConfigOf(id)) },
+                membersOf = { playerId -> matches.findMatchOf(playerId)?.teams?.flatMap { it.members }.orEmpty() },
+                levelOf = { id, playerId ->
+                    services.get(com.astarworks.astera.match.application.port.outbound.IMatchNormaStore::class)?.get(id, playerId)?.level
+                },
             )
             botLoadouts.current()?.let { pool ->
                 val problems = botLoadoutService.validate(pool)
