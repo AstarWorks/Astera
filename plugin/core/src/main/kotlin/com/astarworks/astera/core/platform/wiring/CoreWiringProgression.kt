@@ -290,8 +290,12 @@ internal fun CoreWiringState.wireProgression() {
         players = playerGateway,
         messages = messages,
         kitItems = { profileService.starterItemIds() },
-        toolItems = { profileService.matchToolIds() },
+        toolsAt = { profileService.matchToolsAt(it) },
+        levelOf = { services.get<com.astarworks.astera.core.application.port.outbound.IMatchPlayerLevel>()?.levelOf(it) },
+        removal = { services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval>() },
     )
+    // Match upgrades the loaned tools on a Norma level-up through this (ADR-0319).
+    services.register<com.astarworks.astera.core.application.service.inventory.MatchLoanerKit>(loanerKit, priority = 0)
     // Match weapon restriction: trims an over-full inventory right after the entry snapshot (and gates pickups/moves
     // through the Paper listener). The limit comes from Match (IWeaponLimitProvider), removal from Items.
     val weaponLimits = com.astarworks.astera.core.application.service.inventory.WeaponLimitService(

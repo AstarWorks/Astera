@@ -426,6 +426,13 @@ public class SimItemDelivery : IItemDelivery {
         return DeliveryResult.Delivered
     }
 
+    override fun replace(target: IMcPlayer, from: ItemId, spec: ItemSpec): DeliveryResult {
+        val player = target as? SimMcPlayer ?: return DeliveryResult.UnknownTemplate(spec.id.value)
+        if (!player.replaceItem(from, spec.id)) return give(target, spec, 1, ItemOrigin.STANDARD)
+        delivered += spec
+        return DeliveryResult.Delivered
+    }
+
     /** The simulator keeps item ids only, there is no name/lore/model on a held item to refresh. */
     override fun refreshHeld(items: IItemRegistry): Int = 0
 }
