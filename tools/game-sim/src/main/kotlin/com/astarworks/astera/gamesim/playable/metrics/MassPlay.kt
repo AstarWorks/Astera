@@ -14,7 +14,7 @@ object MassPlay {
 
     class Config(
         /** Hard cap of one match, ticks (20/s). A match still running then is reported as `running`. */
-        val maxTicks: Int = 24_000,
+        val maxTicks: Int = System.getProperty("astera.massplay.maxTicks")?.toIntOrNull() ?: 24_000,
         /** Render a PNG every this many ticks (0 = only the final frame). */
         val frameEveryTicks: Int = 1_200,
         val renderFrames: Boolean = true,
