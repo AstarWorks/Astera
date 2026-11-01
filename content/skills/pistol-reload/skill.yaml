@@ -1,4 +1,6 @@
-# pistol-reload: a 30-tick reload window (the reloading status and the state share the length; state "for" takes no param, so both are literal).
+# pistol-reload: a 30-tick reload window in the frame grammar (ADR-0314). The reloading status and the state share the length (state "for" takes no
+# param, so both are literal). `hand` is rooted in the caster's eye / aim basis at the aimed pistol hand (0.57 ahead, 0.51 below, 0.30 right): the two
+# clicks are points of it, so they sound and spark at the gun, not at the head.
 apiVersion: astera/v3
 kind: Skill
 id: pistol-reload
@@ -10,8 +12,14 @@ meta:
   resource_cost: 0
   reload_ticks: 30
   tags: [gun, reload]
-anchors:
-  - {id: click, anchor: caster.eye, offset: {up: -0.3, forward: 0.7}, mode: snapshot}
+frames:
+  - id: hand
+    origin: caster.eye
+    v: aim
+    w: s x v
+    s: right
+    move:
+      - {at: 0, for: 0, to: {v: 0.57, w: -0.51, s: 0.30}}
 machine:
   start: reloading
   states:
@@ -20,12 +28,12 @@ machine:
       then: ready
       enter:
         - {id: buff, op: status, target: caster, status: reloading, stacks: 1, for: 30}
-        - {id: snd, op: sound, sound: "astera:weapons/gun-reload-start", anchor: caster, volume: 0.7, pitch: 1.3}
-        - {id: click0, op: particle_def, def: reload-click, anchor: click}
+        - {id: snd, op: sound, sound: "astera:weapons/gun-reload-start", frame: hand, volume: 0.7, pitch: 1.3}
+        - {id: click0, op: particle_def, def: reload-click, frame: hand, pos: {v: 0.3, w: 0.1}}
     ready:
       for: 1
       then: end
       enter:
-        - {id: snd_end, op: sound, sound: "astera:weapons/gun-reload-end", anchor: caster, volume: 0.5, pitch: 1.7}
-        - {id: click1, op: particle_def, def: reload-click, anchor: click}
+        - {id: snd_end, op: sound, sound: "astera:weapons/gun-reload-end", frame: hand, volume: 0.5, pitch: 1.7}
+        - {id: click1, op: particle_def, def: reload-click, frame: hand, pos: {v: 0.3, w: 0.1}}
     end: {final: true}
