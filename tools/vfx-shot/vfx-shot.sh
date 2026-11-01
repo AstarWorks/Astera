@@ -72,6 +72,20 @@ compose() { # SHOT_COMPOSE_EXTRA=<file>: one more compose file on top (tools/rem
 }
 rcon() { python3 -I "$HERE/rcon.py" "$SERVER_IP" "$RCON_PORT" "$RCON_PASS" "$@"; }
 
+# fetch_skill_list: print `astera skill list`. rcon.py is already one connection per call, so a "rcon closed" is the SERVER dropping that
+# connection (it does so right after a bot joins: profile creation / tutorial / pack push; see wait_client_ready), never an idle timeout of
+# a held session. Reconnect with a fresh session, bounded (SHOT_RCON_TRIES, default 4), logging each reason. An empty / failed answer is
+# "rcon unreachable", never "skill not registered".
+fetch_skill_list() {
+  local tries="${SHOT_RCON_TRIES:-4}" i out err="$STATE/rcon-skill-list.err"
+  for i in $(seq 1 "$tries"); do
+    if out="$(rcon "astera skill list" 2>"$err")" && [ -n "$out" ]; then printf '%s\n' "$out"; return 0; fi
+    log "rcon 'astera skill list' failed (attempt $i/$tries): $(tail -n1 "$err" 2>/dev/null || true); reconnecting with a fresh rcon session"
+    sleep 2
+  done
+  die "rcon unreachable at $SERVER_IP:$RCON_PORT after $tries attempts (last: $(tail -n1 "$err" 2>/dev/null)); this is not a missing skill"
+}
+
 load_subnet() {
   [ -n "$SUBNET" ] && return 0
   SUBNET="$(cat "$STATE/subnet" 2>/dev/null || true)"
@@ -1476,7 +1490,7 @@ run_batch() {
   local rdir="$OUT_ROOT/batch-$run_id"; mkdir -p "$rdir"
   local tsv="$rdir/batch-summary.tsv" md="$rdir/batch-summary.md" B0=$SECONDS
   [ "${SHOT_CASTER:-bot}" = client ] || build_caster_bot
-  skill_list="$(rcon "astera skill list")"
+  skill_list="$(fetch_skill_list)" || exit 1
   printf 'skill\tview\tstatus\tseconds\treason\n' > "$tsv"
   total=$(( $(wc -w <<<"$SKILLS") * $(wc -w <<<"$views") ))
   log "batch: $total shot(s): skills [$SKILLS] x views [$views]"
@@ -1606,7 +1620,7 @@ if [ "$CMD" = up ]; then
   exit 0
 fi
 if [ "$BATCH" = 1 ]; then run_batch; exit $?; fi
-skill_list="$(rcon "astera skill list")"
+skill_list="$(fetch_skill_list)" || exit 1
 if ! grep -qw -- "$SKILL" <<<"$skill_list"; then
   head -c 300 <<<"$skill_list" >&2
   die "skill '$SKILL' is not registered on the server (see: astera skill list)"
