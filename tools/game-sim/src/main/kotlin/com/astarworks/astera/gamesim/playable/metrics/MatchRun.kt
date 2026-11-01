@@ -3,8 +3,8 @@ package com.astarworks.astera.gamesim.playable.metrics
 import com.astarworks.astera.gamesim.GameSim
 
 /**
- * One headless match as [MassPlay] drives it. `playable.MatchDriver` (bot-vs-bot) implements this at merge
- * (ADR-0316); [ScriptedAnnihilationRun] is the GameSim-only stand-in until then.
+ * One headless match as [MassPlay] drives it. `playable.MatchDriver` (bot-vs-bot) implements this (ADR-0316);
+ * [ScriptedAnnihilationRun] is the GameSim-only scripted variant (no brains) the metrics scenario can still use.
  */
 interface MatchRun {
     val sim: GameSim

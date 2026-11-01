@@ -1,31 +1,28 @@
 package com.astarworks.astera.gamesim.playable.agent
 
-import com.astarworks.astera.core.domain.event.MatchEnded
-import com.astarworks.astera.core.application.port.outbound.IStageRegistry
-import com.astarworks.astera.core.application.service.InMemoryPlayerInventorySnapshotRepository
-import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.match.MatchId
-import com.astarworks.astera.core.domain.stage.SpawnRole
-import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.gamesim.GameSim
-import com.astarworks.astera.gamesim.ScenarioScope
 import com.astarworks.astera.gamesim.SimEntity
+import com.astarworks.astera.gamesim.playable.MatchConfig
+import com.astarworks.astera.gamesim.playable.MatchDriver
+import com.astarworks.astera.gamesim.playable.SimBotHost
+import com.astarworks.astera.gamesim.playable.SimTerrain
 
 /** What the `new` op asks for (ADR-0316 §2.1). */
 data class MatchRequest(
     val mode: String = "annihilation",
     val stage: String? = null,
     val teams: Int = 3,
-    val botsPerTeam: Int = 0,
+    /** Seats per team: every enemy team has this many real bots; the agent's team has the agent plus (this - 1) bot mates. At least 1. */
+    val botsPerTeam: Int = 3,
     /** Team of the agent's seat. */
     val me: String = "red",
     val seed: Long = GameSim.DEFAULT_SEED,
 )
 
 /**
- * The seam between the AgentPort and whatever runs the match (ADR-0316). [SoloMatchHost] is the GameSim-only host
- * (the agent's seat alone); the bot-seat driver implements the same interface. The agent only ever touches the match
- * through this, so bot seats appear as ordinary entities in [sim].
+ * The seam between the AgentPort and whatever runs the match (ADR-0316). The agent only ever touches the match through
+ * this, so bot seats appear as ordinary entities in [sim].
  */
 interface MatchHost : AutoCloseable {
     val sim: GameSim
@@ -34,11 +31,17 @@ interface MatchHost : AutoCloseable {
     val stageId: String
     val tick: Long get() = sim.tick
 
+    /** The generated stage terrain the seat walks on. */
+    val terrain: SimTerrain
+
     /** True once the match is over (`MatchEnded` published). */
     val ended: Boolean
 
     /** The agent's own seat. */
     fun me(): SimEntity
+
+    /** The agent seat's [SimBotHost]: position, physics and the bot-runner `Navigator` walk it like a bot. */
+    fun meHost(): SimBotHost
 
     fun step(n: Int)
 
@@ -46,51 +49,40 @@ interface MatchHost : AutoCloseable {
     fun stepUntil(maxTicks: Int, cond: () -> Boolean): Boolean
 }
 
-/** Starts a match for a [MatchRequest]; the manager swaps in the bot-seat driver at merge. */
+/** Starts a match for a [MatchRequest]. */
 fun interface MatchHostFactory {
     fun boot(request: MatchRequest): MatchHost
 }
 
-/**
- * GameSim only: the agent's seat plus one inert stand-in per other team in the real wired match; no bot seats
- * ([MatchRequest.botsPerTeam] is not honoured here).
- */
-class SoloMatchHost private constructor(
-    override val sim: GameSim,
+/** The agent seat plus real [com.astarworks.astera.bots.BotBrain] bots in every other seat, run by [MatchDriver]. */
+class DriverMatchHost private constructor(
+    private val driver: MatchDriver,
     override val request: MatchRequest,
-    private val self: SimEntity,
-    override val matchId: MatchId,
     override val stageId: String,
 ) : MatchHost {
+    private val seat = driver.humanSeats.first()
 
-    override val ended: Boolean get() = sim.events.any { it is MatchEnded && it.matchId == matchId }
+    override val sim: GameSim get() = driver.sim
+    override val matchId: MatchId get() = driver.matchId
+    override val terrain: SimTerrain get() = driver.terrain
+    override val ended: Boolean get() = driver.ended
 
-    override fun me(): SimEntity = self
-
-    override fun step(n: Int) = sim.step(n)
-
-    override fun stepUntil(maxTicks: Int, cond: () -> Boolean): Boolean = sim.stepUntil(maxTicks, cond)
-
-    override fun close() = sim.shutdown()
+    override fun me(): SimEntity = seat.entity
+    override fun meHost(): SimBotHost = driver.hostOf(seat)
+    override fun step(n: Int) = driver.step(n)
+    override fun stepUntil(maxTicks: Int, cond: () -> Boolean): Boolean = driver.stepUntil(maxTicks, cond)
+    override fun close() = driver.close()
 
     companion object : MatchHostFactory {
-        override fun boot(request: MatchRequest): SoloMatchHost {
-            val sim = GameSim.boot("play-${request.mode}-${request.seed}", seed = request.seed, snapshots = InMemoryPlayerInventorySnapshotRepository())
-            val scope = ScenarioScope(sim)
+        override fun boot(request: MatchRequest): DriverMatchHost {
             val stageId = request.stage ?: StageLookup.laneStage(request.mode)
-            val stage = checkNotNull(sim.services.getOrThrow<IStageRegistry>().find(StageId(stageId))) { "unknown stage '$stageId'" }
-            val teams = stage.spawnPoints.filter { it.role == SpawnRole.TEAM }.mapNotNull { it.team?.value }.distinct()
-            check(request.me in teams) { "team '${request.me}' is not on stage $stageId (teams: $teams)" }
-            val seat = scope.player("Claude", team = request.me)
-            // A match with one occupied team ends at once (every other team is "eliminated"), so each other team gets an
-            // inert stand-in that never acts: the seat plays a living match, and the stand-ins are targets for `attack`.
-            val standIns = teams.filter { it != request.me }.take((request.teams - 1).coerceAtLeast(1)).associate { team ->
-                scope.player("idle-$team", team = team) to team
-            }
-            val matchId = scope.startMatch(request.mode, mapOf(seat to request.me) + standIns, stageId)
-            // Match entry lends the field tools of the seat's Norma level (ADR-0319) when a snapshot repository is wired, and a
-            // NormaLevelUp upgrades them in place, both through the real match wiring GameSim boots.
-            return SoloMatchHost(sim, request, seat, matchId, stageId)
+            val driver = MatchDriver.boot(
+                MatchConfig(
+                    mode = request.mode, stage = stageId, teams = emptyList(), teamCount = request.teams,
+                    botsPerTeam = request.botsPerTeam.coerceAtLeast(1), seed = request.seed, humanTeam = request.me, humanSeats = 1,
+                ),
+            )
+            return DriverMatchHost(driver, request, stageId)
         }
     }
 }
