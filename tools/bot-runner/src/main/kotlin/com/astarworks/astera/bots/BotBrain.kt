@@ -42,8 +42,13 @@ fun interface ObjectiveSource {
     /** Star generator pedestals (x, z) of the stage, where stars wait to be picked up. */
     fun starPoints(): List<Pair<Double, Double>> = emptyList()
 
-    /** One exploration cache spot (ADR-0318): refills [respawnMs] after it was opened. Stage-local coordinates. */
-    class CachePoint(val x: Double, val y: Double, val z: Double, val respawnMs: Long)
+    /** One exploration cache spot (ADR-0318): refills [respawnMs] after it was opened. Stage-local coordinates. [team] = owner of a base box, null = neutral. */
+    class CachePoint(val x: Double, val y: Double, val z: Double, val respawnMs: Long, val team: String? = null)
+
+    companion object {
+        /** The caches [own] may open: neutral ones and its own base's. Another team's base box (an enemy's, or a sealed base's) is never a target. */
+        fun cachesFor(own: String?, all: List<CachePoint>): List<CachePoint> = all.filter { it.team == null || it.team == own }
+    }
 
     /** Exploration caches of the stage; empty = none. */
     fun cachePoints(): List<CachePoint> = emptyList()
@@ -310,7 +315,9 @@ class BotBrain(
             objective = objectives?.objectiveFor(spawnX - originX, spawnZ - originZ)
                 ?.let { it.copy(x = it.x + originX, z = it.z + originZ) }
             starPoints = objectives?.starPoints().orEmpty().map { (x, z) -> (x + originX) to (z + originZ) }
-            cachePoints = objectives?.cachePoints().orEmpty().map { ObjectiveSource.CachePoint(it.x + originX, it.y, it.z + originZ, it.respawnMs) }
+            val ownTeam = objectives?.ownTeamAt(spawnX - originX, spawnZ - originZ)
+            // another team's base box (an enemy's, or a sealed base's) is never a cache target; only own-team and neutral spots are
+            cachePoints = ObjectiveSource.cachesFor(ownTeam, objectives?.cachePoints().orEmpty()).map { ObjectiveSource.CachePoint(it.x + originX, it.y, it.z + originZ, it.respawnMs, it.team) }
             cacheVisitedAt.clear()
             cacheRetryAt.clear()
             pendingCache = null
@@ -836,7 +843,7 @@ class BotBrain(
         val src = objectives ?: return null
         val team = src.ownTeamAt(spawnX - originX, spawnZ - originZ) ?: return null
         val ladder = src.economyLadder().takeIf { it.isNotEmpty() } ?: return null
-        val sites = src.economySites(team)?.shifted(originX, originZ) ?: return null
+        val sites = src.economySites(team)?.forTeam(team)?.shifted(originX, originZ) ?: return null
         return EconomyPlanner(sites, ladder, spread = bot.name.hashCode())
     }
 
@@ -919,7 +926,8 @@ class BotBrain(
             tntSpawn = world.point(ModePlanner.TNT_SPAWN)?.let { it.first to it.third },
         ).also { observed = it }
         val modeFacts = src.modeFacts(facts, originX, originZ) ?: facts
-        return ModePlanner(id, bot.name, own, src.teams().filter { it != own }, world, facts = modeFacts, matchKey = matchKey, teamOf = { bot.teamOf(it) }).takeIf { it.handles() }
+        return ModePlanner(id, bot.name, own, src.teams().filter { it != own }, world, facts = modeFacts, matchKey = matchKey, teamOf = { bot.teamOf(it) },
+            liveTeams = { bot.playerNames.values.mapNotNullTo(HashSet()) { bot.teamOf(it) } }).takeIf { it.handles() }
     }
 
     /**

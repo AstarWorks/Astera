@@ -63,7 +63,7 @@ class BotModeRolesScenarioTest {
         (1..count).map { Mate("$prefix$it", at.first, at.third) }
 
     private fun planner(mode: String, src: StageObjectives, name: String, team: String, enemies: List<String>, facts: ModeFacts, roster: List<Mate>) =
-        ModePlanner(mode, name, team, enemies, checkNotNull(src.zones()), facts = facts).also { it.noteRoster(roster) }
+        ModePlanner(mode, name, team, enemies, checkNotNull(src.zones()), facts = facts, liveTeams = { enemies.toSet() }).also { it.noteRoster(roster) }
 
     /** Role every mate of [names] takes at the mate's own position. */
     private fun rolesOf(names: List<String>, make: (String) -> ModePlanner, at: (String) -> Triple<Double, Double, Double>): Map<String, Role?> =

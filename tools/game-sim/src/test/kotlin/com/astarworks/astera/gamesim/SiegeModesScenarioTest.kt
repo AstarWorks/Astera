@@ -325,7 +325,7 @@ class SiegeModesScenarioTest {
                 snapshot = { query.objectiveSnapshot(matchId) },
                 players = { id -> sim.world.find(id)?.let { PlayerView(it.name, it.team?.value, it.position.x, it.position.z) } },
             )
-            val plan = ModePlanner("steal-jewelry", "runner", "red", listOf("blue"), checkNotNull(src.zones()), facts = facts)
+            val plan = ModePlanner("steal-jewelry", "runner", "red", listOf("blue"), checkNotNull(src.zones()), facts = facts, liveTeams = { setOf("blue") })
             var now = 0L
             var held = 0
             var confirmed = 0

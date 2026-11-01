@@ -29,9 +29,12 @@ class EconomyPlanner(
     private val ladder: List<Map<String, Int>> = shopping.map { it.price }
 
     /** One ore source or the shop, in world coordinates ([ore] = item id of what it gives, "" for the shop). */
-    data class Site(val x: Double, val y: Double, val z: Double, val ore: String = "")
+    data class Site(val x: Double, val y: Double, val z: Double, val ore: String = "", val team: String? = null)
 
     data class Sites(val shop: Site?, val generators: List<Site>, val nodes: List<Site>) {
+        /** Only what [team] may work: its own sources and neutral ones. Another team's ore group is off-limits. */
+        fun forTeam(team: String) = Sites(shop, generators.filter { it.team == null || it.team == team }, nodes.filter { it.team == null || it.team == team })
+
         fun shifted(dx: Double, dz: Double) = Sites(
             shop?.let { it.copy(x = it.x + dx, z = it.z + dz) },
             generators.map { it.copy(x = it.x + dx, z = it.z + dz) },

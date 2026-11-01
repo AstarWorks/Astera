@@ -24,7 +24,7 @@ class BotModeObjectiveScenarioTest {
 
     private fun planner(mode: String, name: String, team: String, enemy: String): ModePlanner {
         val src = objectives(mode)
-        return ModePlanner(mode, name, team, listOf(enemy), checkNotNull(src.zones()))
+        return ModePlanner(mode, name, team, listOf(enemy), checkNotNull(src.zones()), liveTeams = { setOf(enemy) })
     }
 
     /** Teleports the sim player to each destination the planner names; the planner holds there (pickups and deliveries are short holds). */

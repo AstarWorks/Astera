@@ -144,7 +144,7 @@ class RoleAssigner(
 
         /**
          * The enemy team to burn first: among the teams that are not [eliminated], the one with the fewest pillars standing
-         * ([standing]; unknown counts as all three). A tie goes to the team that damaged us most recently ([lastHitAt], null =
+         * ([standing]; unknown counts as every pillar). A tie goes to the team that damaged us most recently ([lastHitAt], null =
          * never), then to the highest [priority] (a seeded number per team, see [TieBreak]); the team's name never decides.
          */
         fun weakestTeam(
