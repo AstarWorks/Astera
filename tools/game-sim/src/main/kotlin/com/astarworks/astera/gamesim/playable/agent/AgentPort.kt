@@ -127,6 +127,7 @@ class AgentPort(
                 put("first_star_pickup", moment(s.firstStar))
                 put("first_kill", moment(s.firstKill))
                 put("first_norma_levelup", moment(s.firstNormaLevelUp))
+                putJsonArray("failed_decisions") { s.failureLog.takeLast(10).forEach { f -> add(buildJsonObject { put("tick", f.tick); put("do", f.label); put("stopped", f.stopped); put("note", f.note.take(100)) }) } }
             }
             putJsonArray("failed_decisions") { s.failures.takeLast(10).forEach { add(JsonPrimitive(it)) } }
             putJsonArray("star_moments") { s.starMoments.takeLast(8).forEach { add(JsonPrimitive(it)) } }

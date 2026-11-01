@@ -15,7 +15,7 @@ import kotlinx.serialization.Serializable
  *   - { item_id: dagger, price: { ore-iron: 8 }, tab: weapons, stack: 1 }
  * ```
  *
- * `tab` is `weapons | blocks | armor | upgrades`; `price` maps ore item ids to counts (all must be paid); `stack` defaults to 1; `upgrade_from` (upgrades tab only) is the item the buyer hands in.
+ * `tab` is `weapons | blocks | armor | upgrades`; `price` maps ore item ids to counts (all must be paid); `stack` defaults to 1; `upgrade_from` (upgrades tab only) is the item the buyer hands in; `restock: true` marks a throwable that may be bought again while carried.
  */
 @Serializable
 public data class MatchShopYamlConfig(
@@ -32,6 +32,7 @@ public data class MatchShopOfferYamlConfig(
     val tab: String,
     val stack: Int = 1,
     @SerialName("upgrade_from") val upgradeFrom: String? = null,
+    val restock: Boolean = false,
 ) {
     public fun toDomain(): MatchShopOffer = MatchShopOffer(
         itemId = ItemId(itemId),
@@ -39,5 +40,6 @@ public data class MatchShopOfferYamlConfig(
         tab = requireNotNull(MatchShopTab.fromKey(tab)) { "match-shop offer '$itemId': unknown tab '$tab'" },
         stack = stack,
         upgradeFrom = upgradeFrom?.let(::ItemId),
+        restock = restock,
     )
 }

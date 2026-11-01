@@ -109,6 +109,7 @@ public object MotionLaws {
     private val keysF = Field.required("keys", Types.list(Types.nested(keyFields)), "irregular choreography only")
 
     // path (ADR-0313)
+    private val orientF = Field.optional("orient", Types.enumOf("tangent", "none"), "tangent", "tangent = the display's forward axis follows the curve (writes a turn per tick); none = position only, no rotation is written (required for a billboarded display)")
     private val pathPointsF = Field.required("points", Types.list(MotionVecs.type), "the curve's points {v, w, s} in the parent basis, at least 2 (literal); the first is where the law starts, the last where it ends")
 
     // orbit (ADR-0303 section 3; center is a literal frame-local pivot, see LawSegmenter)
@@ -137,7 +138,7 @@ public object MotionLaws {
         "follow" to (Fields.of("follow-law", lawField("follow")) + window + Fields.of("follow", targetF, stepF)),
         "stretch" to (Fields.of("stretch-law", lawField("stretch")) + window + Fields.of("stretch", baseF, tipF, stretchAxisF, stepF)),
         "fade" to (Fields.of("fade-law", lawField("fade")) + window + Fields.of("fade", fadeStartF, fadeToF, exponentF)),
-        "path" to Fields.of("path-law", lawField("path"), atF, TimingSpec.forSpan, easeF, pathPointsF),
+        "path" to Fields.of("path-law", lawField("path"), atF, TimingSpec.forSpan, easeF, orientF, pathPointsF),
         "keys" to Fields.of("keys-law", lawField("keys"), keysF),
     )
 
@@ -446,7 +447,7 @@ public object MotionLaws {
     /**
      * `{law: path, points: [...], at, for, ease}`: the position follows a uniform Catmull-Rom spline through the frame-relative [points] (the curve passes
      * through every point; the end tangents come from reflecting the neighbour, so two points are a straight line) and the forward axis points along the
-     * tangent. `ease` shapes the progress along the curve over the window. It lowers at load to one absolute key per tick (offset + pose), the same table a
+     * tangent (`orient: tangent`, the default; `orient: none` writes no rotation, so the display can be billboarded). `ease` shapes the progress along the curve over the window. It lowers at load to one absolute key per tick (offset + pose), the same table a
      * `keys` law gives, so the runtime and the segmenter know nothing new; the position at an integer tick is the exact curve point.
      */
     private fun pathOf(v: FieldValues, ctx: GrammarContext, n: LawNumbers, path: String, order: Int): Lowered {
@@ -465,6 +466,7 @@ public object MotionLaws {
             i >= m -> pts[m - 1] * 2.0 - pts[m - 2]
             else -> pts[i]
         }
+        val tangent = v[orientF] == "tangent"
         val keys = ArrayList<TrackKey>()
         val pieces = ArrayList<Piece>()
         val lawKeys = ArrayList<LawKey>()
@@ -479,12 +481,12 @@ public object MotionLaws {
             val tan = ((p2 - p0) + (p0 * 2.0 - p1 * 5.0 + p2 * 4.0 - p3) * (2.0 * t) + (p1 * 3.0 - p0 - p2 * 3.0 + p3) * (3.0 * t * t)) * 0.5
             val len = sqrt(tan.x * tan.x + tan.y * tan.y + tan.z * tan.z)
             if (len > 1e-9) heading = Vec3(tan.x / len, tan.y / len, tan.z / len)
-            val turn = rotationFromForward(heading)
+            val turn = if (tangent) rotationFromForward(heading) else null
             val tick = from + j
-            keys += TrackKey(tick, Value.Literal(pos), Value.Literal(turn), null, null)
+            keys += TrackKey(tick, Value.Literal(pos), turn?.let { Value.Literal(it) }, null, null)
             lawKeys += LawKey(tick, pos, turn, null, null, null)
             pieces += Piece("$path.points", "offset", tick, tick, order, null)
-            pieces += Piece("$path.points", "turn", tick, tick, order, null)
+            if (tangent) pieces += Piece("$path.points", "turn", tick, tick, order, null)
         }
         return Lowered(keys, pieces, listOf(KeysMotion(lawKeys, order, path)))
     }
