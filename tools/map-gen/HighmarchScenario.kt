@@ -114,6 +114,49 @@ fun main(args: Array<String>) {
         check(plan.stateAt(x, 56, -25) == "minecraft:water")
         check(plan.stateAt(x, 64, -25) == "minecraft:coarse_dirt") { "lost ridge crossing $x,-25" }
     }
+    if (args.getOrNull(3) != "--baseline") {
+        // Quality regression on the real shipped import: thick noisy perimeter,
+        // rolling outer turf, mixed veteran woodland and visible path shoulders.
+        check(plan.blocks.none { (p, state) -> hypot(p.x.toDouble(), p.z.toDouble()) <= 42 && state == "minecraft:grass_block" }) {
+            "outer hill pass left turf floating above the quarry"
+        }
+        val turf = plan.blocks.filter { (p, state) ->
+            state == "minecraft:grass_block" && hypot(p.x.toDouble(), p.z.toDouble()) > 75
+        }
+        check(turf.keys.map { it.y }.distinct().size >= 7) { "outer ring became a flat lawn" }
+        check(turf.count { it.key.y >= 67 } >= 1500) { "outer hills lost" }
+        fun count(material: String) = plan.blocks.values.count { it.substringBefore('[') == "minecraft:$material" }
+        for (species in listOf("oak", "birch", "spruce", "dark_oak")) {
+            check(count("${species}_log") >= 50 && count("${species}_leaves") >= 200) { "lost woodland species $species" }
+        }
+        val stemLengths = plan.blocks.filterValues { it.endsWith("_log[axis=y]") }.mapNotNull { (p, state) ->
+            if (plan.stateAt(p.x, p.y - 1, p.z) == state) null else {
+                var length = 0
+                while (plan.stateAt(p.x, p.y + length, p.z) == state) length++
+                length
+            }
+        }.toSet()
+        check(stemLengths.containsAll(listOf(5, 7, 10))) { "lost three woodland scales: $stemLengths" }
+        check(plan.blocks.any { (p, state) ->
+            state in setOf("minecraft:oak_log[axis=y]", "minecraft:dark_oak_log[axis=y]") &&
+                plan.stateAt(p.x + 1, p.y, p.z) == state && plan.stateAt(p.x, p.y, p.z + 1) == state &&
+                plan.stateAt(p.x + 1, p.y, p.z + 1) == state
+        }) { "lost multi-trunk veteran trees" }
+        check(count("spruce_wall_sign") > 0) { "lost roadside posts" }
+        check(count("fern") >= 100 && count("short_grass") >= 300) { "lost undergrowth" }
+        check(count("dirt_path") >= 500 && count("gravel") >= 500) { "lost blended tracks" }
+        val bottoms = plan.blocks.keys.groupingBy { it.x to it.z }.fold(Int.MAX_VALUE) { y, p -> minOf(y, p.y) }
+        var edges = 0
+        for (x in -146..146) for (z in -158..139) {
+            fun inside(a: Int, b: Int) = hypot(a / 146.0, (b + 9) / 149.0) <= 1
+            if (!inside(x, z) || listOf(1 to 0, -1 to 0, 0 to 1, 0 to -1).all { (dx, dz) -> inside(x + dx, z + dz) }) continue
+            val ground = (55..76).lastOrNull { plan.stateAt(x, it, z) in setOf("minecraft:grass_block", "minecraft:coarse_dirt", "minecraft:stone", "minecraft:gravel", "minecraft:dirt_path") } ?: continue
+            check(bottoms.getValue(x to z) <= ground - 15) { "thin perimeter $x,$z" }
+            edges++
+        }
+        check(edges >= 400) { "missing perimeter samples: $edges" }
+        println("HighmarchQuality: $edges thick perimeter columns; ${turf.keys.map { it.y }.distinct().sorted()} turf levels; four woodland species and blended tracks")
+    }
     val rows = StringBuilder("# Highmarch integration traversal\n\nShipped import, stage and ore loaders + production PathFinder, cap 5000 with at most 12 progress replans; paths count cells as TraversalCheck does (5.6 cells/s). Diagonals count as one cell, so these are comparable estimates, not elapsed play time.\n\n| Scenario | Route | Reached | Path blocks | Sprint s |\n|---|---|---|---:|---:|\n")
     var failures = 0
     fun walk(label: String, start: Triple<Int, Int, Int>, goal: Triple<Int, Int, Int>, arrive: Double = .6): Int? {
@@ -199,9 +242,9 @@ fun main(args: Array<String>) {
             starTable.append("| $team#$index | ${p.x}/${p.y}/${p.z} | $nearest | %.3f | $nearestPath | %.3f |\n".format(straight, ratio))
             check(finder.standable(cell(p).first, cell(p).second, cell(p).third)) { "unsafe spawn $team#$index" }
             if (!baseline) {
-                check(straight in 20.0..35.0) { "$team#$index star straight distance $straight" }
-                check(nearestPath in 20..35) { "$team#$index nearest straight star path $nearestPath" }
-                check(path in 20..35) { "$team#$index star path distance $path" }
+                check(straight in 20.0..25.0) { "$team#$index star straight distance $straight" }
+                check(nearestPath in 20..25) { "$team#$index nearest straight star path $nearestPath" }
+                check(path in 20..25) { "$team#$index star path distance $path" }
                 check(ratio <= 1.4) { "$team#$index star detour ratio $ratio" }
             }
         }
