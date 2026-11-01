@@ -21,7 +21,7 @@ machine:
           op: display
           kind: sprite
           sprite: flame
-          anchor: spot
+          frame: spot
           size: [0.9, 0.9]
           color: "#80ffa0"
           billboard: center
@@ -32,13 +32,13 @@ machine:
           every: 10
           times: 3
           do:
-            - {id: pew, op: sound, sound: "entity.blaze.shoot", anchor: spot, volume: 0.5, pitch: 1.6}
-            - {id: spark, op: particle_def, def: hit-spark, anchor: spot}
-            - {id: hurt, op: damage, target: {kind: enemies, around: spot, radius: 6.0}, damage: {electric: "${dmg}"}}
+            - {id: pew, op: sound, sound: "entity.blaze.shoot", frame: spot, volume: 0.5, pitch: 1.6}
+            - {id: spark, op: particle_def, def: hit-spark, frame: spot}
+            - {id: hurt, op: damage, target: {kind: enemies, frame: spot, pos: {v: 0}, radius: 6.0}, damage: {electric: "${dmg}"}}
     broken:
       for: 6
       then: end
       do:
-        - {id: crack, op: sound, sound: "entity.generic.explode", anchor: spot, volume: 0.6, pitch: 1.4}
-        - {id: debris, op: particle_def, def: hit-spark, anchor: spot}
+        - {id: crack, op: sound, sound: "entity.generic.explode", frame: spot, volume: 0.6, pitch: 1.4}
+        - {id: debris, op: particle_def, def: hit-spark, frame: spot}
     end: {final: true}

@@ -47,6 +47,6 @@ machine:
               - {id: pts_b, op: particle, particle: happy_villager, frame: blk, pos: {w: 0.15}, count: 0, extra: 0.02}
               - {id: dust_b, op: particle, particle: dust, frame: blk, pos: {w: 0.15}, count: 1, extra: 0, color: "#5aaa3c", size: 1.4}
               - {id: snd_blk, op: sound, sound: entity.splash_potion.break, frame: blk, volume: 0.8, pitch: 0.8}
-        - {id: trail0, op: particle, particle: happy_villager, frame: head, pos: {v: 0}, to: {v: -1.3}, samples: 2, count: 1, offset: [0.04, 0.04, 0.04], extra: 0, at: 0, every: 1, until: bolt.end}
-        - {id: trail1, op: particle, particle: dust, frame: head, pos: {v: 0}, to: {v: -1.3}, samples: 2, count: 1, extra: 0, color: "#5aaa3c", size: 1.0, at: 0, every: 1, until: bolt.end}
+        - {id: trail0, op: particle, particle: happy_villager, frame: head, pos: {v: 0}, to: {v: -1.3}, samples: 2, count: 1, offset: [0.04, 0.04, 0.04], extra: 0, at: 2, every: 1, until: bolt.end}
+        - {id: trail1, op: particle, particle: dust, frame: head, pos: {v: 0}, to: {v: -1.3}, samples: 2, count: 1, extra: 0, color: "#5aaa3c", size: 1.0, at: 2, every: 1, until: bolt.end}
     end: {final: true}

@@ -1173,9 +1173,11 @@ public class TablePlayer(
         val pose = visualPose(rec, world)
         val cast = castRef(run)
         val look = a.look
-        val brightness = look.fields["brightness"]?.let { int(run, it as Val<Int>, ctx) }
+        // the lowering writes `brightness_block` / `brightness_sky` (equal: the loader rejects a split); the block level is the single light level
+        val brightness = look.fields["brightness_block"]?.let { dbl(run, it, ctx).toInt() }
         val glow = look.fields["glow_color"]?.let { strOf(run, it, ctx) }
-        val view = DisplayView(glowing = flag(run, look, "glowing", ctx), glowColor = glow)
+        val viewRange = look.fields["view_range"]?.let { dbl(run, it, ctx).toFloat() }?.takeIf { it != 1.0f }
+        val view = DisplayView(glowing = flag(run, look, "glowing", ctx), glowColor = glow, viewRange = viewRange)
         val h: VisualHandle? = when (a.kind) {
             SpawnKind.FRAME, SpawnKind.PROJECTILE_BODY -> null
             SpawnKind.ITEM -> visual.spawnMesh(

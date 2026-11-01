@@ -1,5 +1,5 @@
 # arc-lob: a lobbed shell on a spline path (ADR-0313 `law: path`); the display follows the curve, damage lands where it ends.
-# Frame grammar (ADR-0314): lob - the caster's hand (eye, v forward, w up, s right; 0.8 ahead, 0.3 below the eye line): the shell sprite and its
+# Frame grammar (ADR-0314): lob - the caster's hand (eye, v forward, w up, s right; 2.2 ahead so the 1.2 sprite's rim stays beyond 0.8 of the eye, 0.3 below the eye line): the shell sprite and its
 # path points stay in the caster-local `forward`/`up` axes the `path` law reads, the cast sound leaves it. The landing burst and the damage sit on the `land` frame (8 ahead of the feet, the same point as the path's end).
 apiVersion: astera/v3
 kind: Skill
@@ -13,11 +13,11 @@ meta:
 params:
   dmg: {type: number, default: 14.0}
 frames:
-  - {id: lob, origin: caster.eye, v: forward, w: up, s: right, move: [{at: 0, for: 0, to: {v: 0.8, w: -0.3}}], snapshot: cast}
+  - {id: lob, origin: caster.eye, v: forward, w: up, s: right, move: [{at: 0, for: 0, to: {v: 2.2, w: -0.3}}], snapshot: cast}
   - {id: land, origin: caster.feet, v: forward, w: up, s: right, move: [{at: 0, for: 0, to: {v: 8}}], snapshot: cast}
 machine:
   start: lob
-  tail: 2
+  tail: 8
   states:
     lob:
       for: 26
@@ -30,13 +30,17 @@ machine:
           kind: sprite
           sprite: flame
           frame: lob
-          size: [0.8, 0.8]
-          color: "#ffd080"
+          size: [1.2, 1.2]
+          color: "#ff9a3c"
+          billboard: center
           brightness: {block: 15, sky: 15}
           at: 0
           for: 24
           motion:
-            - {law: path, points: [{v: 0}, {v: 3, w: 2.5}, {v: 6, w: 3.5}, {v: 8, w: -1.2}], at: 0, for: 24, ease: in_out_sine}
-        - {id: boom, op: particle, particle: flame, frame: land, count: 20, offset: [0.5, 0.2, 0.5], extra: 0.1, at: 23, detach: true}
+            - {law: path, points: [{v: 0}, {v: 1.6, w: 2.5}, {v: 4.6, w: 3.5}, {v: 6.6, w: -1.2}], at: 0, for: 24, ease: in_out_sine, orient: none}
+        - {id: flash, op: particle, particle: flash, frame: land, count: 1, at: 23, detach: true}
+        - {id: blast, op: particle, particle: explosion, frame: land, pos: {w: 0.6}, count: 2, offset: [0.8, 0.3, 0.8], at: 23, detach: true}
+        - {id: fire, op: particle, particle: flame, frame: land, count: 30, offset: [1.2, 0.4, 1.2], extra: 0.08, at: 23, every: 2, times: 5, detach: true}
+        - {id: smoke, op: particle, particle: large_smoke, frame: land, pos: {w: 0.5}, count: 5, offset: [1.0, 0.5, 1.0], extra: 0.04, at: 24, every: 2, times: 2, detach: true}
         - {id: hurt, op: damage, at: 23, target: {kind: enemies, frame: land, pos: {v: 0}, radius: 3.0}, damage: {fire: "${dmg}"}}
     end: {final: true}

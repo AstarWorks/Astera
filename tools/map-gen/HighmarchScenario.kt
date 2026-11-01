@@ -34,8 +34,16 @@ fun main(args: Array<String>) {
     stage.pillars.forEach { p -> blocks[ArenaBlockPos(p.position.x.toInt(), p.position.y.toInt(), p.position.z.toInt())] = p.block.key }
     val ores = OreNodeContents()
     check(ores.bootstrap(root.resolve("content/ore-nodes")).failed == 0)
-    val nodes = checkNotNull(ores.find("annihilation-arena")).nodes.flatMap { it.positions }
-    check(nodes.size == 74)
+    val groups = checkNotNull(ores.find("annihilation-arena")).nodes
+    val nodes = groups.flatMap { it.positions }
+    for (group in groups) {
+        val name = group.block.removePrefix("astera:ore_").removeSuffix("_node")
+        val expected = coordinates.getValue("ore").jsonObject.getValue(name).jsonArray
+            .map { it.jsonArray.map { n -> n.jsonPrimitive.int } }
+        check(group.positions.map { listOf(it.x.toInt(), it.y.toInt(), it.z.toInt()) } == expected) {
+            "$name handoff coordinates differ from shipped ore content"
+        }
+    }
     nodes.forEach { p -> blocks[ArenaBlockPos(p.x.toInt(), p.y.toInt(), p.z.toInt())] = "minecraft:stone" }
     val finder = PathFinder { x, y, z -> blocks.containsKey(ArenaBlockPos(x, y, z)) }
     // Every fixed supply cell stays open, including candidates not selected by the shipped generators.
@@ -128,6 +136,114 @@ fun main(args: Array<String>) {
         return if (complete) cells else null
     }
     fun cell(p: com.astarworks.astera.core.domain.geometry.Vec3) = Triple(floor(p.x).toInt(), floor(p.y).toInt(), floor(p.z).toInt())
+    // Measure identical endpoints for baseline and candidate. Entry is the first cell
+    // inside each of the three gate throats, not the Mid bridge or a hand-picked road.
+    val teams = listOf("red", "blue", "yellow")
+    fun local(team: String, u: Int, v: Int, y: Int = 65): Triple<Int, Int, Int> = when (team) {
+        "red" -> Triple(u, y, -108 + v)
+        "blue" -> Triple(94 - v, y, 54 + u)
+        else -> Triple(-94 + v, y, 54 - u)
+    }
+    val baseline = args.getOrNull(3) == "--baseline"
+    if (!baseline) {
+        for ((name, values) in coordinates.getValue("ore").jsonObject) {
+            val mid = values.jsonArray.map { it.jsonArray.map { p -> p.jsonPrimitive.int } }
+                .filter { hypot(it[0].toDouble(), it[2].toDouble()) <= 43 }
+            check(mid.isNotEmpty() && mid.size % 3 == 0) { "$name has unequal Mid sector counts" }
+            for (orbit in mid.chunked(3)) for (sector in 1..2) {
+                val (x, y, z) = orbit.first()
+                val a = sector * 2 * Math.PI / 3
+                check(orbit[sector] == listOf((x * cos(a) - z * sin(a)).roundToInt(), y,
+                    (x * sin(a) + z * cos(a)).roundToInt())) { "$name is not a rounded 120-degree orbit: $orbit" }
+            }
+        }
+    }
+    val starTable = StringBuilder("# Spawn → nearest base star\n\nHorizontal Euclidean distance uses the shipped spawn position and fixed star anchor. PathFinder distances count cells including start; diagonals count as one (ADR-0322). All four candidates are searched; the nearest straight spot is also routed explicitly. Ratio = path to that spot / horizontal distance.\n\n| Spawn | Position x/y/z | Nearest straight spot | Straight | Path | Path / straight |\n|---|---|---|---:|---:|---:|\n")
+    val fairness = linkedMapOf<String, MutableList<Int>>()
+    fun measure(row: String, team: String, start: Triple<Int, Int, Int>, goals: List<Triple<Int, Int, Int>>): Int {
+        check(finder.standable(start.first, start.second, start.third)) { "invalid fairness start $row $team $start" }
+        check(goals.isNotEmpty()) { "no fairness goals $row $team" }
+        val distances = goals.map { goal -> checkNotNull(walk("fairness $team $row", start, goal, .6)) }
+        return distances.min().also { fairness.getOrPut(row) { mutableListOf() }.add(it) }
+    }
+    for (team in teams) {
+        val spawn = cell(stage.spawnPoints.first { it.team?.value == team }.position)
+        for ((name, values) in coordinates.getValue("ore").jsonObject) {
+            val goals = values.jsonArray.map { it.jsonArray.map { n -> n.jsonPrimitive.int } }
+                .filter { hypot(it[0].toDouble(), it[2].toDouble()) <= 43 }
+                .flatMap { (x, y, z) -> listOf(1 to 0, -1 to 0, 0 to 1, 0 to -1).map { (dx, dz) -> Triple(x + dx, y, z + dz) } }
+                .filter { finder.standable(it.first, it.second, it.third) }.distinct()
+            measure("spawn → Mid $name", team, spawn, goals)
+        }
+        val spawns = stage.spawnPoints.filter { it.team?.value == team }
+        val redSpawns = stage.spawnPoints.filter { it.team?.value == "red" }
+        check(spawns.size == 4)
+        for ((point, red) in spawns.zip(redSpawns)) {
+            val r = cell(red.position)
+            check(cell(point.position) == local(team, r.first, r.third + 108)) { "spawn layout differs for $team" }
+            val p = cell(point.position)
+            if (!baseline) check(plan.isSolid(p.first, p.second + 5, p.third)) { "spawn lacks guardhall roof: $team $p" }
+        }
+        val arcade = local(team, 7, -2)
+        if (!baseline) check((65..68).all { !plan.isSolid(arcade.first, it, arcade.third) }) { "guardhall arcade blocked: $team" }
+        val baseStars = coordinates.getValue("stars").jsonObject.filterKeys { it.startsWith("base-$team-") }
+            .map { (name, value) -> name to value.jsonArray.map { it.jsonPrimitive.int }.let { Triple(it[0], it[1], it[2]) } }
+        check(baseStars.size == 4)
+        for ((index, point) in spawns.withIndex()) {
+            val p = point.position
+            val (nearest, goal) = baseStars.minBy { (_, g) -> hypot(p.x - g.first, p.z - g.third) }
+            val straight = hypot(p.x - goal.first, p.z - goal.third)
+            val path = measure("spawn#$index → nearest base star", team, cell(p), baseStars.map { it.second })
+            val nearestPath = checkNotNull(walk("$team spawn#$index → $nearest", cell(p), goal))
+            val ratio = nearestPath / straight
+            starTable.append("| $team#$index | ${p.x}/${p.y}/${p.z} | $nearest | %.3f | $nearestPath | %.3f |\n".format(straight, ratio))
+            check(finder.standable(cell(p).first, cell(p).second, cell(p).third)) { "unsafe spawn $team#$index" }
+            if (!baseline) {
+                check(straight in 20.0..35.0) { "$team#$index star straight distance $straight" }
+                check(nearestPath in 20..35) { "$team#$index nearest straight star path $nearestPath" }
+                check(path in 20..35) { "$team#$index star path distance $path" }
+                check(ratio <= 1.4) { "$team#$index star detour ratio $ratio" }
+            }
+        }
+        val own = stage.pillars.filter { it.team.value == team }.sortedBy { it.tier.ordinalValue }
+        fun stances(p: com.astarworks.astera.core.domain.geometry.Vec3): List<Triple<Int, Int, Int>> {
+            val (x, y, z) = cell(p)
+            return listOf(1 to 0, -1 to 0, 0 to 1, 0 to -1).map { (dx, dz) -> Triple(x + dx, y - 1, z + dz) }
+        }
+        for (pillar in own) measure("spawn → own T${pillar.tier.ordinalValue}", team, spawn, stances(pillar.position))
+        val contest = local(team, 5, 15)
+        val defenders = stage.spawnPoints.filter { it.team?.value == team }.map {
+            checkNotNull(walk("fairness $team defender → contest", cell(it.position), contest))
+        }
+        measure("spawn → contest", team, spawn, listOf(contest))
+        for ((gate, uv) in listOf("Mid" to (0 to 38), "left" to (-38 to 0), "right" to (38 to 0))) {
+            val entry = local(team, uv.first, uv.second)
+            val attack = measure("$gate entry → T1", team, entry, stances(own.first().position))
+            val approach = measure("$gate entry → contest", team, entry, listOf(contest))
+            if (!baseline) {
+                check(defenders.max() < approach) { "$team defenders cannot contest $gate: $defenders vs $approach" }
+                val defence = checkNotNull(walk("fairness $team defender → T1", spawn, stances(own.first().position).first()))
+                check(defence < attack) { "$team cannot defend T1 before $gate entry" }
+            }
+        }
+    }
+    val table = StringBuilder("# Highmarch ${if (baseline) "before" else "after"} fairness\n\nShipped Highmarch content, production PathFinder, nearest reachable mining/chest-height stance, path cells including start; diagonals count as one. First spawn in each team's shipped spawn list. Entries: local (0,38), (-38,0), (38,0), first interior cell at the Mid/left/right gate. All candidate nodes and four mining stances are searched.\n\n| Route (cells) | Red | Blue | Yellow | Max/min |\n|---|---:|---:|---:|---:|\n")
+    for ((name, values) in fairness) {
+        val ratio = values.max().toDouble() / values.min()
+        table.append("| $name | ${values.joinToString(" | ")} | %.3f |\n".format(ratio))
+        if (!baseline && ratio > 1.10) { failures++; System.err.println("Unfair $name: $values ratio=$ratio") }
+    }
+    if (!baseline) {
+        // Keep the ADR-0322 reference pacing within 10%, as well as cross-team parity.
+        for ((row, target) in mapOf("spawn → own T1" to 20, "spawn → own T2" to 45,
+            "spawn → own T3" to 32, "Mid entry → T1" to 42, "left entry → T1" to 49, "right entry → T1" to 38)) {
+            check(fairness.getValue(row).all { kotlin.math.abs(it - target) <= target * .10 }) { "ADR-0322 pacing drift: $row ${fairness.getValue(row)}" }
+        }
+        check(fairness.getValue("spawn → own T2").all { it > 30 })
+        check(fairness.getValue("spawn → own T3").all { it > 30 })
+    }
+    Files.writeString(reportPath.parent.resolve(if (baseline) "spawn-stars-before.md" else "spawn-stars-after.md"), starTable)
+    Files.writeString(reportPath.parent.resolve(if (baseline) "before.md" else "after.md"), table)
     val rim = mapOf("red" to Triple(0, 65, -42), "blue" to Triple(36, 65, 21), "yellow" to Triple(-36, 65, 21))
     for (team in listOf("red", "blue", "yellow")) {
         val spawns = stage.spawnPoints.filter { it.team?.value == team }
@@ -180,7 +296,7 @@ fun main(args: Array<String>) {
         Triple("blue-south", Triple(94, 65, 93), Triple(0, 65, 112)),
         Triple("south-yellow", Triple(0, 65, 112), Triple(-94, 65, 93)),
     )) walk("ridge $name", a, b, 2.0)
-    // All 74 ore cells are still air before OreNodeService writes them, and have a mining stance beside them.
+    // All shipped ore cells are still air before OreNodeService writes them, and have a mining stance beside them.
     val red = cell(stage.spawnPoints.first { it.team?.value == "red" }.position)
     for ((i, p) in nodes.withIndex()) {
         val x = p.x.toInt(); val y = p.y.toInt(); val z = p.z.toInt()

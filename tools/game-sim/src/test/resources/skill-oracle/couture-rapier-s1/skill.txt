@@ -7,8 +7,8 @@ g @1 state-exit reason=PREEMPT | state=cast/wind
 g @1 state-exit reason=EVENT | state=cast
 g @1 cast-end | pose
 ## pose-hit yaw=0 pitch=0
-@2 spawn #0 op=cast/fold kind=text text=◆ bg=#00000000 shadow=false seethrough=false pos=0.000000,0.600000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=4.500000,1.500000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@2 spawn #1 op=cast/spindle kind=text text=%20 bg=#B2A3CF shadow=false seethrough=false pos=0.000000,1.000000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.480000,7.200000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@2 spawn #0 op=cast/fold kind=text text=◆ bg=#00000000 shadow=false seethrough=false pos=0.000000,0.600000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=4.500000,1.500000,1.000000 bb=CENTER bright=15 aud=ALL lane=CORE target=-
+@2 spawn #1 op=cast/spindle kind=text text=%20 bg=#B2A3CF shadow=false seethrough=false pos=0.000000,1.000000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.480000,7.200000,1.000000 bb=CENTER bright=15 aud=ALL lane=CORE target=-
 @2 effect 00000000-0000-0000-0000-000000000001 op=- body=crouch speed=1
 @2 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @3 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
@@ -63,14 +63,14 @@ g @1 cast-end | pose
 @11 move - op=- to=0,0,1.8 yaw=- pitch=-
 @11 hit - op=cast/dash/dash_hit[0] at=0.000000,0.900000,1.800000 r=0.800000 shape=sphere rad=0.800000
 @11 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=couture-rapier-s1 at=0.000000,0.900000,2.200000 ignoreinv=true ignorearmor=false
-@11 spawn #12 op=cast/crescent kind=block block=white_concrete pos=0.000000,0.825000,2.500000 rot=0.036352,0.000000,0.000000,0.999339 scale=0.050000,3.300000,0.050000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@11 spawn #13 op=- kind=block block=white_concrete pos=0.000000,0.825000,2.500000 rot=0.732344,0.000000,0.000000,0.680935 scale=0.050000,3.300000,0.050000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@11 spawn #14 op=- kind=text text=%20 bg=#28201C shadow=false seethrough=false pos=0.000000,0.818095,2.441152 rot=0.416015,0.000000,0.000000,0.909358 scale=1.200000,0.800000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #15 op=- kind=text text=%20 bg=#EAD9B0 shadow=false seethrough=false pos=0.000000,0.830000,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=4.000000,2.000000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #16 op=- kind=block block=white_concrete pos=0.000000,0.820000,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=0.050000,0.050000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@11 spawn #17 op=- kind=block block=white_concrete pos=0.000000,0.820000,2.500000 rot=0.384348,-0.159202,0.347996,0.840137 scale=0.050000,0.050000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@11 spawn #18 op=- kind=block block=white_concrete pos=0.000000,0.820000,2.500000 rot=0.294167,-0.294167,0.643013,0.643013 scale=0.050000,0.050000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@11 spawn #19 op=- kind=block block=white_concrete pos=0.000000,0.820000,2.500000 rot=0.159202,-0.384348,0.840137,0.347996 scale=0.050000,0.050000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #12 op=cast/crescent kind=block block=white_concrete pos=0.000000,0.825000,2.500000 rot=0.036352,0.000000,0.000000,0.999339 scale=0.050000,3.300000,0.050000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #13 op=- kind=block block=white_concrete pos=0.000000,0.825000,2.500000 rot=0.732344,0.000000,0.000000,0.680935 scale=0.050000,3.300000,0.050000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #14 op=- kind=text text=%20 bg=#28201C shadow=false seethrough=false pos=0.000000,0.818095,2.441152 rot=0.416015,0.000000,0.000000,0.909358 scale=1.200000,0.800000,1.000000 bb=CENTER bright=15 aud=ALL lane=CORE target=-
+@11 spawn #15 op=- kind=text text=%20 bg=#EAD9B0 shadow=false seethrough=false pos=0.000000,0.830000,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=4.000000,2.000000,1.000000 bb=CENTER bright=15 aud=ALL lane=CORE target=-
+@11 spawn #16 op=- kind=block block=white_concrete pos=0.000000,0.820000,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=0.050000,0.050000,1.600000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #17 op=- kind=block block=white_concrete pos=0.000000,0.820000,2.500000 rot=0.384348,-0.159202,0.347996,0.840137 scale=0.050000,0.050000,1.600000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #18 op=- kind=block block=white_concrete pos=0.000000,0.820000,2.500000 rot=0.294167,-0.294167,0.643013,0.643013 scale=0.050000,0.050000,1.600000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #19 op=- kind=block block=white_concrete pos=0.000000,0.820000,2.500000 rot=0.159202,-0.384348,0.840137,0.347996 scale=0.050000,0.050000,1.600000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
 @11 write #12 op=cast/crescent dur=3 pos=0.000000,0.825000,2.500000 rot=0.036352,0.000000,0.000000,0.999339 scale=0.040000,3.300000,0.040000 bb=FIXED
 @11 write #13 op=- dur=3 pos=0.000000,0.825000,2.500000 rot=0.732344,0.000000,0.000000,0.680935 scale=0.040000,3.300000,0.040000 bb=FIXED
 @11 write #14 op=- dur=6 pos=0.000000,0.818095,2.441152 rot=0.416015,0.000000,0.000000,0.909358 scale=0.360000,0.240000,1.000000 bb=CENTER
@@ -111,7 +111,7 @@ g @1 cast-end | pose
 @12 write #18 op=- dur=1 pos=0.000000,0.853324,2.500000 rot=0.294167,-0.294167,0.643013,0.643013 scale=0.043571,0.043571,1.440000 bb=FIXED
 @12 write #19 op=- dur=1 pos=0.000000,0.853324,2.500000 rot=0.159202,-0.384348,0.840137,0.347996 scale=0.043571,0.043571,1.440000 bb=FIXED
 @12 frame cast/anim op=cast/anim pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@13 spawn #20 op=- kind=sprite sprite=couture-cut alpha=1.000000 tint=- seethrough=false pos=0.000000,1.000000,1.600000 rot=0.000000,0.000000,-0.500000,0.866025 scale=1.625000,1.250000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@13 spawn #20 op=- kind=sprite sprite=couture-cut alpha=1.000000 tint=- seethrough=false pos=0.000000,1.000000,1.600000 rot=0.000000,0.000000,-0.500000,0.866025 scale=1.625000,1.250000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @13 hit - op=cast/dash/dash_hit[2] at=0.000000,0.900000,1.800000 r=0.800000 shape=sphere rad=0.800000
 @13 write #2 op=cast/a_blade dur=1 pos=-0.300000,0.979011,3.159649 rot=0.017452,0.000000,0.000000,0.999848 scale=0.120000,0.250000,1.800000 bb=FIXED
 @13 write #3 op=cast/a_edge dur=1 pos=-0.300000,1.078630,3.150933 rot=0.043619,0.000000,0.000000,0.999048 scale=0.120000,0.050000,1.800000 bb=FIXED
@@ -279,8 +279,8 @@ g @37 state-exit reason=PREEMPT | state=cast/settle
 g @37 state-exit reason=TIMER | state=cast
 g @37 cast-end | pose
 ## pose-hit yaw=37 pitch=0
-@2 spawn #0 op=cast/fold kind=text text=◆ bg=#00000000 shadow=false seethrough=false pos=-0.722178,0.600000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=4.500000,1.500000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@2 spawn #1 op=cast/spindle kind=text text=%20 bg=#B2A3CF shadow=false seethrough=false pos=-0.722178,1.000000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.480000,7.200000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@2 spawn #0 op=cast/fold kind=text text=◆ bg=#00000000 shadow=false seethrough=false pos=-0.722178,0.600000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=4.500000,1.500000,1.000000 bb=CENTER bright=15 aud=ALL lane=CORE target=-
+@2 spawn #1 op=cast/spindle kind=text text=%20 bg=#B2A3CF shadow=false seethrough=false pos=-0.722178,1.000000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.480000,7.200000,1.000000 bb=CENTER bright=15 aud=ALL lane=CORE target=-
 @2 effect 00000000-0000-0000-0000-000000000001 op=- body=crouch speed=1
 @2 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
 @3 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
@@ -336,14 +336,14 @@ g @37 cast-end | pose
 @11 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @11 hit - op=cast/dash/dash_hit[0] at=-1.040369,0.900000,1.380616 r=0.800000 shape=sphere rad=0.800000
 @11 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=couture-rapier-s1 at=-1.204538,0.900000,1.696589 ignoreinv=true ignorearmor=false
-@11 spawn #12 op=cast/crescent kind=block block=white_concrete pos=-1.504538,0.825000,1.996589 rot=0.011608,-0.317281,0.003884,0.948253 scale=0.050000,3.300000,0.050000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@11 spawn #13 op=- kind=block block=white_concrete pos=-1.504538,0.825000,1.996589 rot=0.678724,-0.221605,0.227098,0.662308 scale=0.050000,3.300000,0.050000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@11 spawn #14 op=- kind=text text=%20 bg=#28201C shadow=false seethrough=false pos=-1.467187,0.815178,1.947023 rot=0.373605,-0.291643,0.125006,0.871629 scale=1.200000,0.800000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #15 op=- kind=text text=%20 bg=#EAD9B0 shadow=false seethrough=false pos=-1.504538,0.830000,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=4.000000,2.000000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #16 op=- kind=block block=white_concrete pos=-1.504538,0.820000,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.050000,0.050000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@11 spawn #17 op=- kind=block block=white_concrete pos=-1.504538,0.820000,1.996589 rot=0.233559,-0.412415,0.449049,0.757443 scale=0.050000,0.050000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@11 spawn #18 op=- kind=block block=white_concrete pos=-1.504538,0.820000,1.996589 rot=0.057956,-0.470401,0.704728,0.527942 scale=0.050000,0.050000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@11 spawn #19 op=- kind=block block=white_concrete pos=-1.504538,0.820000,1.996589 rot=-0.126471,-0.456773,0.853118,0.218067 scale=0.050000,0.050000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #12 op=cast/crescent kind=block block=white_concrete pos=-1.504538,0.825000,1.996589 rot=0.011608,-0.317281,0.003884,0.948253 scale=0.050000,3.300000,0.050000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #13 op=- kind=block block=white_concrete pos=-1.504538,0.825000,1.996589 rot=0.678724,-0.221605,0.227098,0.662308 scale=0.050000,3.300000,0.050000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #14 op=- kind=text text=%20 bg=#28201C shadow=false seethrough=false pos=-1.467187,0.815178,1.947023 rot=0.373605,-0.291643,0.125006,0.871629 scale=1.200000,0.800000,1.000000 bb=CENTER bright=15 aud=ALL lane=CORE target=-
+@11 spawn #15 op=- kind=text text=%20 bg=#EAD9B0 shadow=false seethrough=false pos=-1.504538,0.830000,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=4.000000,2.000000,1.000000 bb=CENTER bright=15 aud=ALL lane=CORE target=-
+@11 spawn #16 op=- kind=block block=white_concrete pos=-1.504538,0.820000,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.050000,0.050000,1.600000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #17 op=- kind=block block=white_concrete pos=-1.504538,0.820000,1.996589 rot=0.233559,-0.412415,0.449049,0.757443 scale=0.050000,0.050000,1.600000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #18 op=- kind=block block=white_concrete pos=-1.504538,0.820000,1.996589 rot=0.057956,-0.470401,0.704728,0.527942 scale=0.050000,0.050000,1.600000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #19 op=- kind=block block=white_concrete pos=-1.504538,0.820000,1.996589 rot=-0.126471,-0.456773,0.853118,0.218067 scale=0.050000,0.050000,1.600000 bb=FIXED bright=15 rigshade=false glow=- aud=ALL lane=CORE target=-
 @11 write #12 op=cast/crescent dur=3 pos=-1.504538,0.825000,1.996589 rot=0.011608,-0.317281,0.003884,0.948253 scale=0.040000,3.300000,0.040000 bb=FIXED
 @11 write #13 op=- dur=3 pos=-1.504538,0.825000,1.996589 rot=0.678724,-0.221605,0.227098,0.662308 scale=0.040000,3.300000,0.040000 bb=FIXED
 @11 write #14 op=- dur=6 pos=-1.467187,0.815178,1.947023 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.360000,0.240000,1.000000 bb=CENTER
@@ -383,7 +383,7 @@ g @37 cast-end | pose
 @12 write #18 op=- dur=1 pos=-1.504538,0.853324,1.996589 rot=0.057956,-0.470401,0.704728,0.527942 scale=0.043571,0.043571,1.440000 bb=FIXED
 @12 write #19 op=- dur=1 pos=-1.504538,0.853324,1.996589 rot=-0.126471,-0.456773,0.853118,0.218067 scale=0.043571,0.043571,1.440000 bb=FIXED
 @12 frame cast/anim op=cast/anim pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@13 spawn #20 op=- kind=sprite sprite=couture-cut alpha=1.000000 tint=- seethrough=false pos=-0.920006,1.000000,1.220889 rot=0.158652,-0.274794,-0.474162,0.821272 scale=1.625000,1.250000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@13 spawn #20 op=- kind=sprite sprite=couture-cut alpha=1.000000 tint=- seethrough=false pos=-0.920006,1.000000,1.220889 rot=0.158652,-0.274794,-0.474162,0.821272 scale=1.625000,1.250000,1.000000 bb=CENTER bright=15 glow=- aud=ALL lane=CORE target=-
 @13 hit - op=cast/dash/dash_hit[2] at=-1.040369,0.900000,1.380616 r=0.800000 shape=sphere rad=0.800000
 @13 write #2 op=cast/a_blade dur=1 pos=-2.098216,0.979011,2.285935 rot=0.016551,-0.317256,0.005538,0.948179 scale=0.120000,0.250000,1.800000 bb=FIXED
 @13 write #3 op=cast/a_edge dur=1 pos=-2.092971,1.078630,2.278975 rot=0.041365,-0.317003,0.013841,0.947421 scale=0.120000,0.050000,1.800000 bb=FIXED
