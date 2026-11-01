@@ -11,7 +11,9 @@ import kotlin.math.hypot
  * otherwise the bot works on the first unpassed rung whose missing ore it can actually get (an unreachable rung is skipped, never
  * waited on). Working on a rung is one of:
  *  - `shop`: the price is in the bag -> walk to the own team's shop NPC and stand there (the server-side buyer then buys);
- *    after [SHOP_WAIT_MS] the rung counts as passed whether or not ore left the bag (a bot without the base weapon cannot buy);
+ *    a rung counts as passed ONLY when its price has actually left the bag (the server-side buyer bought it). If the price is still
+ *    there after [SHOP_WAIT_MS] nothing was bought (no base weapon, tier already owned): the rung is snoozed for [SHOP_RETRY_MS]
+ *    and the bot goes on with other rungs, then tries again;
  *  - `collect`: an ore the own base generators drop -> stand at the nearest one and let the drops come to it;
  *  - `mine`: an ore only Mid nodes give -> dig the nearest pickaxe node of that ore. A node that gave nothing for [MINE_GIVE_UP_MS]
  *    (Norma level too low, regrowing, unreachable) is dropped for [BLOCK_MS]; the whole ore then rests for [ORE_RETRY_MS] (the
@@ -37,6 +39,7 @@ class EconomyPlanner(
     data class Step(val kind: String, val x: Double, val y: Double, val z: Double, val arrive: Double, val ore: String, val strike: Triple<Int, Int, Int>? = null)
 
     private val passed = BooleanArray(ladder.size)
+    private val snoozedUntil = LongArray(ladder.size)
 
     /** Rungs of the ladder already passed (bought or given up). */
     val rung: Int get() = passed.count { it }
@@ -79,14 +82,14 @@ class EconomyPlanner(
             committed = -1
             toShop = false
         }
-        val ready = ladder.indices.firstOrNull { !passed[it] && affordable(ladder[it], have) }
+        val ready = ladder.indices.firstOrNull { !passed[it] && snoozedUntil[it] <= now && affordable(ladder[it], have) }
         if (ready != null) {
             committed = ready
             return shopStep(now, x, z, have, hasPickaxe)
         }
         for (i in ladder.indices) {
             if (passed[i]) continue
-            val lacking = ladder[i].entries.first { (have[it.key] ?: 0) < it.value }.key
+            val lacking = ladder[i].entries.firstOrNull { (have[it.key] ?: 0) < it.value }?.key ?: continue // affordable but snoozed: the shop did not sell it
             if (!sourceable(lacking, now, hasPickaxe)) continue
             val own = sites.generators.filter { it.ore == lacking }
             if (own.isNotEmpty()) {
@@ -114,7 +117,10 @@ class EconomyPlanner(
         if (hypot(shop.x - x, shop.z - z) > SHOP_RADIUS + 0.5) { shopSince = 0L; return s }
         if (shopSince == 0L) shopSince = now
         if (now - shopSince < SHOP_WAIT_MS) return s
-        finishCommitted()
+        snoozedUntil[committed] = now + SHOP_RETRY_MS // the price is still in the bag: nothing was bought, so the rung is NOT passed
+        committed = -1
+        shopSince = 0L
+        toShop = false
         return step(now, x, z, have, hasPickaxe)
     }
 
@@ -151,6 +157,7 @@ class EconomyPlanner(
     companion object {
         const val SHOP_RADIUS = 3.5
         const val SHOP_WAIT_MS = 4_000L
+        const val SHOP_RETRY_MS = 60_000L
         const val COLLECT_RADIUS = 1.5
         const val MINE_ARRIVE = 3.0
         const val MINE_REACH = 4.5

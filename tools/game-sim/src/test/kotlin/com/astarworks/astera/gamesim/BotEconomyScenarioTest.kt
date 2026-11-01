@@ -163,4 +163,47 @@ class BotEconomyScenarioTest {
             assertThat(next.kind to next.ore).isEqualTo("mine" to "ore-gold")
         }
     }
+
+    @Test
+    fun `a bot at its shop replaces armour with each better tier it can pay in full, never a lower or equal tier, and never buys a tool`() {
+        scenario("bot-economy-armour-tiers") {
+            val objectives = checkNotNull(StageObjectives.load(GameSim.defaultContentDir().toFile(), "carry-tnt")) { "stage did not load" }
+            val local = checkNotNull(objectives.economySites("red")) { "no economy sites for red" }
+            val bot = player("Bot_Armour", team = "red")
+            val enemy = player("blue-guard", team = "blue")
+            val matchId = startMatch("carry-tnt", mapOf(bot to "red", enemy to "blue"), stage = "siege-isles-tnt")
+            advance(60)
+            val origin = sim.services.getOrThrow<IStageRegistry>().find(StageId("siege-isles-tnt"))!!.origin
+            val shop = checkNotNull(local.shop)
+            bot.position = Vec3(shop.x + origin.x + 1.0, shop.y + origin.y, shop.z + origin.z)
+            val bag = checkNotNull(sim.server.view(bot.id)).givenItems
+            val slots = listOf("helmet", "chestplate", "leggings", "boots")
+            fun pieces(tier: String) = slots.map { "$tier-$it" }
+            fun worn(tier: String) = pieces(tier).count { it in bag }
+            val delivery = sim.services.getOrThrow<IItemDelivery>() as com.astarworks.astera.gamesim.SimItemDelivery
+            fun bought() = delivery.delivered.map { it.id.value }.filter { id -> slots.any { id.endsWith("-$it") } }
+
+            repeat(22) { bag += "ore-iron" }
+            advance(60)
+            assertThat(worn("leather-scout")).`as`("leather set bought with 22 iron, bag=%s", bag).isEqualTo(4)
+
+            repeat(16) { bag += "ore-gold" }
+            advance(60)
+            assertThat(worn("iron-warden")).`as`("iron-warden set (gold 16) replaces leather, bag=%s", bag).isEqualTo(4)
+            assertThat(worn("leather-scout")).`as`("the replaced leather is handed in").isZero()
+            assertThat(worn("chain-guard")).`as`("the lower chain tier is never bought on top").isZero()
+
+            repeat(11) { bag += "ore-diamond" }
+            advance(60)
+            assertThat(worn("diamond-champion")).`as`("diamond set replaces iron-warden, bag=%s", bag).isEqualTo(4)
+            assertThat(worn("iron-warden")).isZero()
+
+            repeat(40) { bag += "ore-iron"; bag += "ore-gold"; bag += "ore-diamond" }
+            advance(120)
+            val all = bought()
+            assertThat(all).`as`("no piece bought twice, no lower tier after a higher one: %s", all).doesNotHaveDuplicates()
+            assertThat(all.filter { it.startsWith("leather") || it.startsWith("chain") || it.startsWith("iron-warden") }.size).isEqualTo(8)
+            assertThat(delivery.delivered.map { it.id.value }).`as`("no tool is ever bought").noneMatch { it.endsWith("pickaxe") || it.endsWith("shovel") }
+        }
+    }
 }
