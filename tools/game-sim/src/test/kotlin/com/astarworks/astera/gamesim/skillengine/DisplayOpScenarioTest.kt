@@ -114,7 +114,7 @@ class DisplayOpScenarioTest : SkillEngineScenario() {
         assertThat(live.first().name).contains("world.up").contains("caster.forward")
         // velocity form: `up` other than world.up is a load error
         val bad = loadInline(
-            skill("{id: p, op: frame, anchor: caster, for: 20, motion: [{law: move, velocity: {forward: 1}, at: 0, for: 10}, {law: align, axis: forward, to: velocity, up: caster.up, at: 0, for: 10}]}"),
+            skill("{id: p, op: frame, anchor: caster, for: 20, motion: [{law: move, velocity: {v: 1}, at: 0, for: 10}, {law: align, axis: forward, to: velocity, up: caster.up, at: 0, for: 10}]}"),
         )
         assertThat(bad).isInstanceOf(Result.Failure::class.java)
     }

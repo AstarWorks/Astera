@@ -66,7 +66,7 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
 
     @Test
     fun orbit() {
-        val ks = keysOf("- {law: orbit, center: {forward: 2}, axis: up, deg_per_tick: 9, for: 40}")
+        val ks = keysOf("- {law: orbit, center: {v: 2}, axis: up, deg_per_tick: 9, for: 40}")
         val pivot = Vec3(0.0, 0.0, 2.0)
         assertThat(ks.size).isGreaterThan(1)
         for (k in ks) {
@@ -80,11 +80,21 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
     }
 
     @Test
+    fun aMoveVelocityIsWrittenInVWSAndSPointsRight() {
+        // v forward (+z), w up (+y), s = v x w to the right = local -x (the object's x axis is its left)
+        val ks = keysOf("- {law: move, velocity: {v: 0.5, w: 0.25, s: 1.0}, for: 4}")
+        near(ks.last().pos, Vec3(-4.0, 1.0, 2.0), 1e-6)
+        // a grow offset reads its s the same way; a grow scale does not flip it (a scale is not a direction)
+        val off = keysOf("- {law: grow, prop: offset, to: {s: 2.0}, for: 4}")
+        near(off.last().pos, Vec3(-2.0, 0.0, 0.0), 1e-6)
+    }
+
+    @Test
     fun align() {
         // to velocity: the object's forward axis points where the move laws go (left = +x), ONE write per constant-direction segment
         val ks = keysOf(
             """
-            - {law: move, velocity: {left: 0.5}, for: 10}
+            - {law: move, velocity: {s: -0.5}, for: 10}
             - {law: align, to: velocity, for: 10}
             """,
         )
@@ -115,7 +125,7 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
 
     @Test
     fun twoWritesOnOneTickIsMachineCheck12() {
-        val rows = lowerRows("- {law: move, velocity: {forward: 0.4}, for: 5}")
+        val rows = lowerRows("- {law: move, velocity: {v: 0.4}, for: 5}")
         assertThat(LawSegmenter.checkOneWritePerTick(rows, SrcPath("t"))).isNull()
         val dup = rows + rows
         val e = LawSegmenter.checkOneWritePerTick(dup, SrcPath("t"))
@@ -144,7 +154,7 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
 
     @Test
     fun moveHasNoAccel() {
-        val r = MotionLaws.decodeLaws(Yaml().load<Any?>("- {law: move, velocity: {forward: 0.1}, accel: {forward: 0.1}, for: 5}"), gctx, "motion")
+        val r = MotionLaws.decodeLaws(Yaml().load<Any?>("- {law: move, velocity: {v: 0.1}, accel: {v: 0.1}, for: 5}"), gctx, "motion")
         val e = (r as? Result.Failure)?.error ?: error("accel on move must not load")
         assertThat(e).isInstanceOf(SkillDecodeError.UnknownKey::class.java)
         assertThat((e as SkillDecodeError.UnknownKey).key).isEqualTo("accel")
@@ -156,7 +166,7 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
     @Test
     fun moveWithDragIsGeometric() {
         val f = 0.07
-        val ks = keysOf("- {law: move, velocity: {forward: 0.6}, drag: $f, for: 24}")
+        val ks = keysOf("- {law: move, velocity: {v: 0.6}, drag: $f, for: 24}")
         for (k in ks) {
             val e = (k.tick + k.dur).toDouble()
             assertThat(k.pos.z).isCloseTo(0.6 * (1.0 - Math.pow(1.0 - f, e)) / f, within(1e-9))
@@ -180,9 +190,9 @@ class MotionLawsWiredScenarioTest : SkillEngineScenario() {
             val r = MotionLaws.decodeLaws(Yaml().load<Any?>("- $law"), gctx, "motion")
             return ((r as? Result.Failure)?.error as? SkillDecodeError.Invalid)?.message ?: error("must not load: $law")
         }
-        assertThat(msg("{law: move, velocity: {forward: 0.1}, drag: 0.1, ease: linear, for: 5}")).contains("mutually exclusive")
+        assertThat(msg("{law: move, velocity: {v: 0.1}, drag: 0.1, ease: linear, for: 5}")).contains("mutually exclusive")
         assertThat(msg("{law: spin, axis: up, deg_per_tick: 5, drag: 0.1, accel: 1, for: 5}")).contains("mutually exclusive")
-        assertThat(msg("{law: move, velocity: {forward: 0.1}, drag: 1.0, for: 5}")).contains("between 0 and 1")
+        assertThat(msg("{law: move, velocity: {v: 0.1}, drag: 1.0, for: 5}")).contains("between 0 and 1")
     }
 
     @Test
