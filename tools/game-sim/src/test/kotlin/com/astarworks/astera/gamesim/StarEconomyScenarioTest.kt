@@ -216,20 +216,35 @@ class StarEconomyScenarioTest {
                     if ((sec + i * 7) % 20 == 0) p.moveTo(cacheSpots[((sec / 20) * 5 + i * 3) % cacheSpots.size])  // scouting walk to a cache
                 }
                 // The players pick up whatever lies on the map (the item pickup itself, team-locked drops included).
+                // A pickup walk is a short detour: every lying star gets its own walker (a chunk of at most one star per player per
+                // tick), and the walkers are back where they stood afterwards, so how many stars lie around (a bigger kill
+                // burst) neither leaves stars uncollected nor pulls the scouts off their cache spots.
+                val returnTo = mutableMapOf<Int, Vec3>()
+                var spent = 0
                 if (second % 3 == 0) {
-                    // One player walks over each lying star (team-locked base drops: a player of that team), rotating who picks up.
-                    sim.starDrops.lying().forEachIndexed { k, d ->
-                        val owner = baseTeams.entries.firstOrNull { (_, pos) -> pos.distance(d.position) < 14.0 }?.key
-                        val pool = players.indices.filter { owner == null || entries[it].second == owner }
-                        players[pool[(k + second) % pool.size]].moveTo(d.position)
+                    // Team-locked base drops need a player of that team; the rest rotate who picks up.
+                    val chunks = sim.starDrops.lying().withIndex().groupBy { (k, _) -> k / players.size }
+                    for ((_, chunk) in chunks) {
+                        val busy = mutableSetOf<Int>()
+                        for ((k, d) in chunk) {
+                            val owner = baseTeams.entries.firstOrNull { (_, pos) -> pos.distance(d.position) < 14.0 }?.key
+                            val pool = players.indices.filter { owner == null || entries[it].second == owner }
+                            val start = (k + second) % pool.size
+                            val who = pool.indices.map { pool[(start + it) % pool.size] }.firstOrNull { it !in busy } ?: continue
+                            busy += who
+                            returnTo.putIfAbsent(who, players[who].position)
+                            players[who].moveTo(d.position)
+                        }
+                        advance(1); spent += 1
                     }
                 }
+                returnTo.forEach { (who, at) -> players[who].moveTo(at) }
                 if (kills.any { it * 60 == sec } && n >= 2) {
                     val killer = players[0]
                     val victim = players.drop(1).maxBy { stars.get(matchId, it.id) }
                     sim.eventBus.publish(PlayerKilled(victim.id, killer.id, DamageSource.Environment.Generic, sim.tick))
                 }
-                advance(20)
+                advance((20 - spent).coerceAtLeast(0))
                 val warnNow = (sim.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentationVisuals>() as com.astarworks.astera.core.application.service.presentation.LoggingPresentationVisuals).calls.count { it is com.astarworks.astera.core.application.service.presentation.LoggingPresentationVisuals.Call.Title && it.title.toString().contains("wave-warn") }
                 if (warnNow > warnTitles) { warnTitles = warnNow; warnTicks += sim.tick - t0 }
                 val delta = (sim.tick - lastTick) / 20.0 * shippedEconomy.budgetPerMinute((sim.tick - t0) / 20.0, n) / 60.0
