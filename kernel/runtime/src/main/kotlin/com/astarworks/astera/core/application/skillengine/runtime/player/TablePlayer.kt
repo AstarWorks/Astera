@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.runtime.player
 
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.Coeff
 import com.astarworks.astera.core.domain.skillengine.table.drainsAfterExit
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.runtime.CastError
@@ -2458,7 +2459,13 @@ public class TablePlayer(
         }
 
     /** A `pos` cell: the frame's origin plus the coefficients along its axes; a `dir` cell (ADR-0314): the same weighted axes with no origin. */
-    private fun frameVec(run: Run, ref: FrameRef, binding: EventBinding?): Vector3d {
+    private fun frameVec(run: Run, ref0: FrameRef, binding: EventBinding?, scope: RowScope? = null): Vector3d {
+        // `pos: {v: "= i * 0.2"}`: each expression component is evaluated now (the same path as every `= CEL` cell), then the cell is an ordinary one
+        val ref = ref0.at.exprs?.let { ex ->
+            val sc = scope ?: throw IllegalArgumentException("frame '${ref0.frame}': an '= expr' coefficient is read where a row scope exists (particle, particle_def, sound)")
+            fun c(i: Int, n: Double): Double = ex[i]?.let { live.num(run.cursor.handle, "= $it", binding, sc) } ?: n
+            ref0.copy(at = Coeff(c(0, ref0.at.v), c(1, ref0.at.w), c(2, ref0.at.s)))
+        } ?: ref0
         val st = frameState(run, ref, binding)
         val a = (if (ref.direction) st.basis.direction(ref.at) else st.world(ref.at)).let { Vector3d(it.x, it.y, it.z) }
         if (ref.toFrame == ref.frame) return a
@@ -2763,7 +2770,7 @@ public class TablePlayer(
     }
 
     private fun liveVec(run: Run, name: String, ctx: RowCtx): Vector3d {
-        FrameRefs.parse(name)?.let { return frameVec(run, it, ctx.binding) }
+        FrameRefs.parse(name)?.let { return frameVec(run, it, ctx.binding, ctx.scope) }
         paramOf(run, name)?.let { return toVector(it, name) }
         anchorOf(run, name, ctx.owner)?.let { (rec, part) ->
             if (part == "rotation") throw IllegalArgumentException("'$name' is a rotation, not a vector")
@@ -2784,7 +2791,7 @@ public class TablePlayer(
         if (name == "from" || name.startsWith("from.")) {
             return namedVec(run, "victim" + name.removePrefix("from"), binding?.copy(victim = binding.from), scope)
         }
-        FrameRefs.parse(name)?.let { return frameVec(run, it, binding) }
+        FrameRefs.parse(name)?.let { return frameVec(run, it, binding, scope) }
         val doc = documentOf(run, name) ?: return live.vec(run.cursor.handle, name, binding, scope)
         if (doc.second == "rotation") throw IllegalArgumentException("'$name' is a rotation, not a vector")
         val pose = documentPose(run, doc.first, binding, scope)

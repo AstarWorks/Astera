@@ -71,7 +71,7 @@ public object SoundOpSpec : OpSpec<SoundOp> {
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<SoundOp, SkillDecodeError> =
         Grammar.guard {
             val path = "sound[${id.value}]"
-            val frame = FrameRefs.read(values, ctx, path, anchorGiven = values[ANCHOR] != null)
+            val frame = FrameRefs.read(values, ctx, path, allowExpr = true, anchorGiven = values[ANCHOR] != null)
             if (frame == null && values[ANCHOR] == null) ctx.fail("$path.anchor", "sound needs anchor: <name> or frame: <id>")
             SoundOp(
                 id = id,
@@ -93,7 +93,7 @@ public object SoundOpSpec : OpSpec<SoundOp> {
      * Literals stay [Val.Known]; a `${param}` and a `= CEL` stay [Val.Live] until the player resolves them (see W1-24 / W1-19).
      */
     override fun lower(op: SoundOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
-        val position: Val<Vector3d> = op.frame?.position() ?: when (val r = ParticlePlacement.position(lc, op.anchor!!, "sound")) {
+        val position: Val<Vector3d> = op.frame?.baked(lc)?.position() ?: when (val r = ParticlePlacement.position(lc, op.anchor!!, "sound")) {
             is Result.Failure -> return r
             is Result.Success -> r.value
         }

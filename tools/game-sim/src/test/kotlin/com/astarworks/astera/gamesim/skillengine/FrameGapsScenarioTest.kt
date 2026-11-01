@@ -251,4 +251,45 @@ class FrameGapsScenarioTest : SkillEngineScenario() {
         assertThat(offset(3)).describedAs("before the spin").isNotEqualTo(offset(6))
         assertThat(offset(6)).describedAs("the spin keeps the radius").satisfies({ o -> assertThat(Math.sqrt(o.sumOf { it * it })).isCloseTo(1.0, org.assertj.core.data.Offset.offset(1e-6)) })
     }
+
+    private fun exprSkill(id: String, op: String) = """
+        apiVersion: astera/v3
+        kind: Skill
+        id: $id
+        frames:
+          - {id: line, origin: caster, v: forward, w: up, s: v x w}
+        machine:
+          start: s
+          states:
+            s:
+              for: 6
+              then: end
+              do:
+                - $op
+            end: {final: true}
+    """
+
+    @Test
+    fun aPosCoefficientCanBeACelExpressionOfTheOccurrenceIndex() {
+        val skill = compiled(exprSkill("pos-expr", "{id: spark, op: particle, particle: flame, frame: line, pos: {v: \"= i * 0.5\", w: \"= 1.0 + t * 0.0\"}, count: 1, at: 0, every: 1, for: 4}"))
+        val rec = GatewayRecorder()
+        play(skill, 1L, emptyList(), 6, rec)
+        val at = rec.emittedAt.filter { it.second == "flame" }.sortedBy { it.first }.map { it.third }
+        assertThat(at).hasSize(4)
+        val d = (1 until at.size).map { Math.hypot(at[it].x - at[0].x, at[it].z - at[0].z) }
+        assertThat(d[0]).describedAs("occurrence 1 sits 0.5 along v from occurrence 0").isCloseTo(0.5, org.assertj.core.data.Offset.offset(1e-6))
+        assertThat(d[2]).describedAs("occurrence 3 sits 1.5 along v").isCloseTo(1.5, org.assertj.core.data.Offset.offset(1e-6))
+    }
+
+    @Test
+    fun aBadPosExpressionIsALoudLoadErrorNamingThePath() {
+        val e = failure(exprSkill("pos-expr-bad", "{id: spark, op: particle, particle: flame, frame: line, pos: {v: \"= i * \"}, count: 1, at: 0, for: 2}"))
+        assertThat(e.toString()).describedAs(e.toString()).contains("pos.v")
+    }
+
+    @Test
+    fun aPosExpressionOnAnOpThatTakesNumbersOnlyIsALoudLoadError() {
+        val e = failure(exprSkill("pos-expr-display", "{id: d, op: display, kind: text, text: hi, frame: line, pos: {v: \"= i\"}, for: 3}"))
+        assertThat(e.toString()).describedAs(e.toString()).contains("pos")
+    }
 }
