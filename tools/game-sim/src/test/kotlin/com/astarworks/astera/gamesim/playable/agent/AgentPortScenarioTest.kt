@@ -58,7 +58,7 @@ class AgentPortScenarioTest {
         val first = obs[0]
         assertThat(first.bool("ok")).isTrue()
         assertThat(first["phase"]!!.jsonPrimitive.content).isEqualTo("build")
-        assertThat(first["enemies"]!!.jsonArray).hasSize(2)
+        assertThat(first["enemies"]!!.jsonArray).hasSize(com.astarworks.astera.gamesim.playable.StageTeams.of("annihilation-arena").size - 1)
         assertThat(first["menu"]!!.jsonArray).isNotEmpty()
         val rows = mapRows(first)
         assertThat(rows.size).isBetween(20, 80)

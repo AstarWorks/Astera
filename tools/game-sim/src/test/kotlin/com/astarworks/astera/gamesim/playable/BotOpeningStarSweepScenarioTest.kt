@@ -15,7 +15,7 @@ class BotOpeningStarSweepScenarioTest {
     @Test
     fun `each bot of every team is paid a star in the opening`() {
         for (seed in listOf(4L, 10L)) {
-            MatchDriver.boot(MatchConfig(mode = "annihilation", stage = "annihilation-arena", teams = listOf("red", "blue", "yellow"), botsPerTeam = 3, seed = seed)).use { d ->
+            MatchDriver.boot(MatchConfig(mode = "annihilation", stage = "annihilation-arena", botsPerTeam = 3, seed = seed)).use { d ->
                 var started: Long? = null
                 val first = HashMap<String, Long>()
                 var cursor = 0
