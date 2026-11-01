@@ -21,3 +21,9 @@ entity.vsh:
   skin_rig_0: 'before: void main() {'
   skin_rig_1: 'after: void main() {'
   skin_rig_2: 'replace: lightMapColor = sample_lightmap(Sampler2, UV2);'
+particle.vsh:
+  declarations: 'before: void main() {'
+  light: 'after: vertexColor = Color * sample_lightmap(Sampler2, UV2);'
+particle.fsh:
+  declarations: 'before: uniform sampler2D Sampler0;'
+  surface: 'after: vec4 color = texture(Sampler0, texCoord0) * vertexColor * ColorModulator;'
