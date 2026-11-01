@@ -225,7 +225,12 @@ class BotBrain(
     val currentRole: Role? get() = planner?.role
     /** Read-only for metrics: `Dest.kind` of the current decision (`fight`, `mode`, `star`, `econ-shop`, `idle`, ...). */
     val currentDecisionKind: String get() = decisionKindNow
-    private var econSliceStart = 0L
+    /** Economy time spent in the current slice (only ticks that actually walk an economy step count, so a fight or a star does not eat it). */
+    private var econActiveMs = 0L
+    private var econLastTickAt = 0L
+    /** Last tick the economy owned the destination (the economy outranks far enemies and stars while it did), and the last tick the bot lost health. */
+    private var econOwnedAt = -1_000_000L
+    private var lastHitAt = -1_000_000L
     private var econCooldownUntil = 0L
     /** Kind (`shop` / `collect` / `mine`) of the last economy step, for reports and tests. */
     @Volatile var economyKind: String = "-"; private set
@@ -305,7 +310,7 @@ class BotBrain(
             stuck.reset()
             planner = buildPlanner(originX, originZ)
             economy = buildEconomy(originX, originZ)
-            econSliceStart = 0L
+            econActiveMs = 0L; econLastTickAt = 0L; econOwnedAt = -1_000_000L; lastHitAt = -1_000_000L
             econCooldownUntil = if (planner != null) now + ECON_OPENING_MS else 0L
         }
         trackFall()
@@ -331,7 +336,7 @@ class BotBrain(
         val enemy = visible?.seen?.takeIf { e ->
             val pl = planner
             if (pl != null) pl.engages(Sighting(visible.name, e.x, e.z, visible.hpFraction), now, bot.x, bot.z) else true
-        }
+        }?.takeIf { e -> !econIgnores(e.x, e.z, now) }
         val hasLos = visible?.hasLos ?: true
         trackStars(now)
         judgeStarBlockDig(now)
@@ -523,6 +528,7 @@ class BotBrain(
         val dropped = lastHealth >= 0f && hp < lastHealth - 0.01f
         lastHealth = hp
         if (!dropped) return
+        lastHitAt = now
         planner?.noteDamaged(now)
         val threats = candidates.filter {
             TargetPolicy.eligible(bot.name, myTeam, it) && it.hasLos && hypot(it.x - bot.x, it.z - bot.z) <= WeaponPolicy.FIRE_MAX
@@ -548,7 +554,11 @@ class BotBrain(
     private fun offLimits(now: Long, x: Double, z: Double) = planner?.offLimits(now, x, z) == true
 
     private fun chooseDest(now: Long, starDest: Dest?): Dest? {
-        if (starDest != null) return starDest
+        if (starDest != null) {
+            // A bot on an economy trip finishes it (mine until a piece is affordable, then buy) unless the star is right here or it is being hit.
+            if (!normaCheckPending && now - lastHitAt > ECON_HIT_MS && hypot(starDest.x - bot.x, starDest.z - bot.z) > ECON_STAR_DETOUR) economyDest(now)?.let { return it }
+            return starDest
+        }
         normaHomeDest()?.let { return it }
         planner?.let { pl ->
             val markers = bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z }
@@ -807,20 +817,33 @@ class BotBrain(
         return ++noPathStreak >= NO_PATH_GIVE_UP_TICKS
     }
 
+    /** The economy trip outranks an enemy that is farther than [ECON_ENGAGE_RANGE] unless the bot was hit in the last [ECON_HIT_MS]. */
+    private fun econIgnores(ex: Double, ez: Double, now: Long): Boolean =
+        now - econOwnedAt <= 400 && now - lastHitAt > ECON_HIT_MS && hypot(ex - bot.x, ez - bot.z) > ECON_ENGAGE_RANGE
+
     private fun economyDest(now: Long): Dest? {
         val eco = economy ?: return null
         val pl = planner
         if (pl != null) {
-            if (pl.holdingTnt || pl.carried > 0 || pl.clickWanted) { econSliceStart = 0L; return null }
-            if (now < econCooldownUntil || now - lastEnemyAt < LULL_MS) return null
-            if (econSliceStart != 0L && now - econSliceStart > ECON_SLICE_MS) {
-                econSliceStart = 0L; econCooldownUntil = now + OBJECTIVE_SLICE_MS
-                return null
-            }
+            if (pl.holdingTnt || pl.carried > 0 || pl.clickWanted) { econActiveMs = 0L; econLastTickAt = 0L; return null }
+            if (now < econCooldownUntil || now - lastEnemyAt < LULL_MS) { econLastTickAt = 0L; return null }
         }
         val st = eco.step(now, bot.x, bot.z, carriedOre(), toolSlots.containsKey(LoadoutClassifier.Affinity.PICKAXE), bot.carriedItemIds())
-        if (st == null) { econSliceStart = 0L; return null }
-        if (pl != null && econSliceStart == 0L) econSliceStart = now
+        if (st == null) { econActiveMs = 0L; econLastTickAt = 0L; return null }
+        if (pl != null) {
+            // The slice is economy time, not wall time: a fight or an interruption pauses it and the trip resumes where it stopped. A buy
+            // in reach (the shop step) always finishes.
+            val gap = now - econLastTickAt
+            econLastTickAt = now
+            if (st.kind != "shop") {
+                if (gap in 1..300) econActiveMs += gap
+                if (econActiveMs > ECON_SLICE_MS) {
+                    econActiveMs = 0L; econLastTickAt = 0L; econCooldownUntil = now + OBJECTIVE_SLICE_MS
+                    return null
+                }
+            }
+        }
+        econOwnedAt = now
         economyKind = st.kind
         lastEconStep = st
         return Dest(st.x, st.z, null, st.arrive, "econ-${st.kind}", strike = st.strike, affinity = st.strike?.let { LoadoutClassifier.Affinity.PICKAXE })
@@ -1274,7 +1297,12 @@ class BotBrain(
         const val ECON_OPENING_MS = 30_000L
         const val ECON_SLICE_MS = 60_000L
         const val OBJECTIVE_SLICE_MS = 45_000L
-        const val LULL_MS = 10_000L
+        const val LULL_MS = 4_000L
+        /** An enemy farther than this does not pull a bot off its economy trip (unless it was hit within [ECON_HIT_MS]). */
+        const val ECON_ENGAGE_RANGE = 16.0
+        const val ECON_HIT_MS = 6_000L
+        /** A star this close is picked up even on an economy trip. */
+        const val ECON_STAR_DETOUR = 8.0
         const val KILL_DETOUR_RANGE = 4.0
         const val STAR_SIGHT_RANGE = 90.0
         /** How far a pillar attacker leaves its route for a visible star. */
