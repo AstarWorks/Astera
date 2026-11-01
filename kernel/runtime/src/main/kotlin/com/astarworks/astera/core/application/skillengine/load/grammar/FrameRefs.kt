@@ -122,9 +122,11 @@ public object FrameRefs {
             fun c(k: String, slot: Int): Double {
                 val v = m[k] ?: return 0.0
                 if (v is Number) return v.toDouble()
-                if (allowExpr && v is String && v.startsWith("= ")) {
+                // a whole-string `${param}` is the expression `= ${param}`: a top-level skill param reads like any `= expr` cell
+                val src = if (allowExpr && v is String && v.startsWith("\${") && v.endsWith("}")) "= $v" else v
+                if (allowExpr && src is String && src.startsWith("= ")) {
                     // compiled once here: a bad expression is a load error naming this path
-                    val e = Types.number.decode(v, ctx, "$path.$k") as? com.astarworks.astera.core.domain.skillengine.model.Value.Expr
+                    val e = Types.number.decode(src, ctx, "$path.$k") as? com.astarworks.astera.core.domain.skillengine.model.Value.Expr
                         ?: ctx.mismatch("$path.$k", "number or '= expr'", v)
                     exprs[slot] = e.source
                     return 0.0

@@ -183,7 +183,7 @@ internal object FrameDeclDecoder {
                     val e2 = body[name] as? Map<*, *> ?: ctx.mismatch("$p.$name", "{frame, pos}", body[name])
                     for (key in e2.keys) if (key !in END_KEYS) ctx.abort(SkillDecodeError.UnknownKey(ctx.file, "$p.$name", key.toString(), "expected frame, pos"))
                     val f = e2["frame"]?.let { it as? String ?: ctx.mismatch("$p.$name.frame", "frame id", it) } ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, "$p.$name", "frame"))
-                    if (f !in frameIds) ctx.abort(SkillDecodeError.UndefinedReference(ctx.file, "$p.$name.frame", "frame '$f' (not under frames:)"))
+                    if (f !in frameIds && !com.astarworks.astera.core.application.skillengine.compose.BuiltinFrames.isBuiltin(f)) ctx.abort(SkillDecodeError.UndefinedReference(ctx.file, "$p.$name.frame", "frame '$f' (not under frames:)"))
                     return FramePoint(f, coeff(ctx, e2["pos"] ?: emptyMap<String, Any>(), "$p.$name.pos", Coeff.ZERO))
                 }
                 from = end("from")
@@ -191,7 +191,7 @@ internal object FrameDeclDecoder {
                 if (from == to) ctx.fail("$p.to", "line '$id': from and to are the same point; a line has a length")
             } else {
                 val frame = body["frame"]?.let { it as? String ?: ctx.mismatch("$p.frame", "frame id", it) } ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "frame"))
-                if (frame !in frameIds) ctx.abort(SkillDecodeError.UndefinedReference(ctx.file, "$p.frame", "frame '$frame' (not under frames:)"))
+                if (frame !in frameIds && !com.astarworks.astera.core.application.skillengine.compose.BuiltinFrames.isBuiltin(frame)) ctx.abort(SkillDecodeError.UndefinedReference(ctx.file, "$p.frame", "frame '$frame' (not under frames:)"))
                 from = FramePoint(frame, coeff(ctx, body["from"] ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "from")), "$p.from", Coeff.ZERO))
                 to = FramePoint(frame, coeff(ctx, body["to"] ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "to")), "$p.to", Coeff.ZERO))
                 if (from == to) ctx.fail("$p.to", "line '$id': from and to are the same point; a line has a length")

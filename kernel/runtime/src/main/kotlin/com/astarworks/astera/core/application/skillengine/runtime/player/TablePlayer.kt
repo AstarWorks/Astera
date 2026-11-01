@@ -2858,6 +2858,11 @@ public class TablePlayer(
 
     private fun liveVec(run: Run, name: String, ctx: RowCtx): Vector3d {
         FrameRefs.parse(name)?.let { return frameVec(run, it, ctx.binding, ctx.scope) }
+        // a frame id (declared, a built-in the compiler declared, or a `frames_in` name) as a follow / stretch / trail role: its origin in world
+        val skillDef = run.cursor.skill.def
+        if (skillDef.frames.any { it.id == name } || name in skillDef.framesIn) {
+            return frameVec(run, FrameRef(name, Coeff(0.0, 0.0, 0.0)), ctx.binding, ctx.scope)
+        }
         paramOf(run, name)?.let { return toVector(it, name) }
         anchorOf(run, name, ctx.owner)?.let { (rec, part) ->
             if (part == "rotation") throw IllegalArgumentException("'$name' is a rotation, not a vector")
