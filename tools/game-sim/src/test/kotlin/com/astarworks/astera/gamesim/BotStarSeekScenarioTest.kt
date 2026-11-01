@@ -57,7 +57,8 @@ class BotStarSeekScenarioTest {
         override val actionBars: List<HostLine> = emptyList()
         override val screens: List<HostScreen> = emptyList()
         override val bossBarTitles: List<String> = emptyList()
-        override val sounds: List<String> = emptyList()
+        override val sounds = ArrayList<String>()
+        var onMove: () -> Unit = {}
         override val damageNumbers: List<String> = emptyList()
         override var lift = 0.0
 
@@ -83,7 +84,7 @@ class BotStarSeekScenarioTest {
         override fun dig(bx: Int, by: Int, bz: Int, holdMs: Long) {}
         override fun closeWindow(id: Int) {}
         override fun nudge() {}
-        override fun moveTo(nx: Double, ny: Double, nz: Double, yaw: Float, pitch: Float) { x = nx; y = ny; z = nz; yawDeg = yaw; pitchDeg = pitch }
+        override fun moveTo(nx: Double, ny: Double, nz: Double, yaw: Float, pitch: Float) { x = nx; y = ny; z = nz; yawDeg = yaw; pitchDeg = pitch; onMove() }
     }
 
     private class Stage(private val spots: List<Pair<Double, Double>>, private val caches: List<Point>) : ObjectiveSource {
@@ -136,6 +137,9 @@ class BotStarSeekScenarioTest {
         val far = Point(0.0, 64.0, 35.0)
         val brain = BotBrain(host, BotSkill(aimErrorDeg = 0f), Stage(listOf(70.0 to 70.0), listOf(near, far)), chooseNormaGoal = true, rnd = Random(5))
         brain.mode = BotBrain.Mode.FIGHT
+        // The server pays a cache bundle (pickup cue) once the bot stands on it; only a paid visit starts the respawn cooldown.
+        val opened = HashSet<Point>()
+        host.onMove = { for (c in listOf(near, far)) if (c !in opened && dist(host, c.x, c.z) <= 1.6) { opened += c; host.sounds += "astera:star/pickup" } }
 
         var nearEntries = 0
         var inNear = false

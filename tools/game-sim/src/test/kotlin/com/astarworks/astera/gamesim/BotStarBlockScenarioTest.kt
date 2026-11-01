@@ -105,7 +105,13 @@ class BotStarBlockScenarioTest {
         override fun digAsync(bx: Int, by: Int, bz: Int, holdMs: Long) = dig(bx, by, bz, holdMs)
         override fun closeWindow(id: Int) {}
         override fun nudge() {}
-        override fun moveTo(nx: Double, ny: Double, nz: Double, yaw: Float, pitch: Float) { x = nx; y = ny; z = nz; yawDeg = yaw; pitchDeg = pitch }
+        var onMove: () -> Unit = {}
+        override fun moveTo(nx: Double, ny: Double, nz: Double, yaw: Float, pitch: Float) { x = nx; y = ny; z = nz; yawDeg = yaw; pitchDeg = pitch; onMove() }
+    }
+
+    private class CacheStage(private val cache: Triple<Double, Double, Double>) : ObjectiveSource {
+        override fun objectiveFor(spawnX: Double, spawnZ: Double): Objective? = null
+        override fun cachePoints() = listOf(ObjectiveSource.CachePoint(cache.first, cache.second, cache.third, 45_000L))
     }
 
     private class Stage(private val spots: List<Pair<Double, Double>>) : ObjectiveSource {
@@ -187,5 +193,27 @@ class BotStarBlockScenarioTest {
             assertThat(host.digs.single().holdMs).`as`("hold with ${axe ?: "bare hand"}").isEqualTo(hold)
             if (axe != null) assertThat(host.digs.single().slot).`as`("the axe is in hand").isEqualTo(1)
         }
+    }
+
+    @Test
+    fun `a cache that pays nothing is retried and pays once it has tokens`() {
+        val host = BlockHost(emptySet())
+        val cache = Triple(8.0, 64.0, 0.0)
+        val payAt = host.clock + 25_000L
+        var visits = 0
+        var wasNear = false
+        var paidAt: Long? = null
+        host.onMove = {
+            val near = hypot(host.x - cache.first, host.z - cache.third) <= 3.0
+            if (near && !wasNear) visits++
+            wasNear = near
+            // The server tries every 5 s while the bot stands in the open radius; an empty bucket pays nothing, so only a later visit is paid.
+            if (near && host.clock >= payAt && paidAt == null) { host.sounds += "astera:star/pickup"; paidAt = host.clock }
+        }
+        val brain = BotBrain(host, BotSkill(aimErrorDeg = 0f), CacheStage(cache), chooseNormaGoal = true, rnd = Random(11))
+            .also { it.mode = BotBrain.Mode.FIGHT }
+        repeat(1_200) { host.clock += 50; brain.tick() }
+        assertThat(visits).`as`("the unpaid cache is walked to again, not written off for 45 s").isGreaterThanOrEqualTo(2)
+        assertThat(paidAt).`as`("a retry after the cache had tokens is paid").isNotNull
     }
 }

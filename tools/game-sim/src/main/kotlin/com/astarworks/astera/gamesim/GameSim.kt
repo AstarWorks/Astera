@@ -151,7 +151,7 @@ public class GameSim private constructor(
 
     /** Mid ore node blocks and `drop_item` generator drops of the simulated world. */
     public val wornItems: SimWornItems = SimWornItems()
-    public val oreNodes: SimOreNodeWorld = SimOreNodeWorld(itemDelivery) { scheduler.currentTick() }
+    public val oreNodes: SimOreNodeWorld = SimOreNodeWorld(world, itemDelivery) { scheduler.currentTick() }
     public val oreDigSight: SimOreDigSight = SimOreDigSight()
     public val generatorDrops: SimGeneratorItemDrop = SimGeneratorItemDrop()
 

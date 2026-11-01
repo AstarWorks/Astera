@@ -47,6 +47,13 @@ public sealed interface EndReason {
         val winner: com.astarworks.astera.core.domain.match.TeamId?,
         /** What decided it: HP first; only after an exact HP tie the damage dealt to enemy pillars, then kills. */
         val decidedBy: Criterion = Criterion.PILLAR_HP,
+        /**
+         * The per-team figure the HP comparison used: standing pillar HP plus the bleed taken on those pillars, i.e. HP lost
+         * to play only (sudden-death bleed never decides). Empty when the match was not decided on the clock.
+         */
+        val playHp: Map<com.astarworks.astera.core.domain.match.TeamId, Int> = emptyMap(),
+        /** Per-team bleed taken on standing pillars that was added back into [playHp]. Empty when not decided on the clock. */
+        val bleedTaken: Map<com.astarworks.astera.core.domain.match.TeamId, Int> = emptyMap(),
     ) : EndReason {
         public enum class Criterion { PILLAR_HP, DAMAGE_DEALT, KILLS }
     }
