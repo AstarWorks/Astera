@@ -7,7 +7,7 @@
 #   long = root -> tip = model +X (the barrel); edge = model +Y (the top of the gun: sights and hammer side), so a rig with long along
 #   `aim` and edge along `up` holds the gun level and upright. length = grip bottom (2.5, 3.75) to the muzzle.
 # held = under item/generated `fixed` (rot [0,180,0], scale 1); held_hand = under item/handheld `thirdperson_righthand` (rot [0,-90,55],
-# tr [0,4,0.5], scale 0.85), the transform the rig's main-hand mesh draws with; hand_anchor = model centre (8,8,8). Both relative to grip.
+# tr [0,4,0.5], scale 0.85), the transform the rig's main-hand mesh draws with; hand_anchor = model centre (8,8,8). Absolute display-local points (the rig puts `grip` on the frame origin).
 # Muzzle from grip in held_hand: 0.6906 along long, 0.2922 along edge (display units; the rig scales them by PLAYER_SCALE: 0.65 / 0.27).
 apiVersion: astera/v3
 kind: ItemFrames
