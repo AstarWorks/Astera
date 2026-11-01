@@ -131,7 +131,7 @@ public sealed interface AxisSpec {
     public data class Literal(val vector: Vec3) : AxisSpec
 
     public companion object {
-        public val NAMED: Set<String> = setOf("aim", "up", "down", "forward", "back", "left", "right", "incoming", "velocity", "normal")
+        public val NAMED: Set<String> = setOf("aim", "up", "down", "forward", "back", "left", "right", "incoming", "velocity", "normal", "body.forward", "body.back", "body.up", "body.down", "body.left", "body.right")
     }
 }
 

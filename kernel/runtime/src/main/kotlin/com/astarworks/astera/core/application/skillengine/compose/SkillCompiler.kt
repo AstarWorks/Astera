@@ -43,6 +43,7 @@ import com.astarworks.astera.core.domain.skillengine.part.Machine
 import com.astarworks.astera.core.domain.skillengine.part.MachineState
 import com.astarworks.astera.core.domain.skillengine.part.OpMap
 import com.astarworks.astera.core.domain.skillengine.part.Part
+import com.astarworks.astera.core.application.skillengine.part.Binding
 import com.astarworks.astera.core.domain.skillengine.table.drainsAfterExit
 import com.astarworks.astera.core.domain.skillengine.table.Action
 import com.astarworks.astera.core.domain.skillengine.table.Bounds
@@ -306,7 +307,7 @@ public class SkillCompiler(
             checkQualifiedRefs(state, ops, section).let { if (it != null) return@SectionLowerer Result.Failure(it) }
             val registry = registries.getOrPut(state.value) {
                 DefaultAnchorScope(
-                    Occurrence(0, 1, null), documents, { registries[it] },
+                    Occurrence(0, 1, null), documents, { registries[it] }, skillFrames = flat.frames.map { it.id }.toSet(),
                 ) { name ->
                     registries.values.firstNotNullOfOrNull { (it as? DefaultAnchorScope)?.publishedEntry(name) }
                         ?: if (name in worldBodies) (registries[flat.machine.start] as? DefaultAnchorScope)?.entryOf(name) else null
@@ -476,9 +477,13 @@ public class SkillCompiler(
             val m = bound.machine
             if (m.states.isEmpty()) return Result.Failure(SkillDecodeError.Invalid(original.id, "$at.use", "'${op.target}' has no states"))
 
+            // a name bound to a frame of the caller's own `frames:` is renamed in the callee's ops, the one rewrite a state-level `use:` applies (PartExpander.Env)
+            val skillFrames = lc.anchors.skillFrames
+            val frameBound = op.frames.filter { (_, v) -> v.substringBefore('.').substringBefore('[').let { it in skillFrames && lc.anchors.resolve(it) == null } }
+            val env = Binding.Env(emptyMap(), frameBound, skillFrames)
             val bindings = HashMap<String, ResolvedAnchor>()
-            for ((name, inst) in call.frames) bindings[name] = ResolvedAnchor(inst, op.frames[name]?.let { lc.anchors.resolve(it)?.basis } ?: ExprClass.L)
-            val calleeAnchors = BoundAnchors(DefaultAnchorScope(Occurrence(0, 1, null)), bindings)
+            for ((name, inst) in call.frames) if (name !in frameBound) bindings[name] = ResolvedAnchor(inst, op.frames[name]?.let { lc.anchors.resolve(it)?.basis } ?: ExprClass.L)
+            val calleeAnchors = BoundAnchors(DefaultAnchorScope(Occurrence(0, 1, null), skillFrames = skillFrames), bindings)
 
             callStack += op.target
             try {
@@ -502,7 +507,7 @@ public class SkillCompiler(
                         else -> return Result.Failure(SkillDecodeError.Invalid(original.id, "$at.use", "'for' of state '${st.id}' must be a compile-time tick count, got '$f'"))
                     }
                     for ((sec, ops) in listOf("enter" to st.enter, "do" to st.doOps)) {
-                        val nodes = decodeList(ops, "$at.use[${op.target}].states.${st.id}.$sec").getOr { return Result.Failure(it) }
+                        val nodes = decodeList(if (frameBound.isEmpty()) ops else ops.map { env.op(it) },  "$at.use[${op.target}].states.${st.id}.$sec").getOr { return Result.Failure(it) }
                         for (n in nodes) {
                             val base = LowerContext(
                                 original.id, lc.state, call.callId, Occurrence(0, 1, null), lc.clockOffset + acc, calleeAnchors, frames, parts, skills,

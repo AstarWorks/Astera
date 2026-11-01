@@ -108,7 +108,7 @@ class RayAnchorScenarioTest : SkillEngineScenario() {
         val base = Files.readString(contentDir.resolve("skills/prism-lance/skill.yaml"))
         val missing = compileText("skill.yaml", base.replace("ray_stops: entities, ", ""))
         assertThat(missing).isInstanceOf(Result.Failure::class.java)
-        val orphan = compileText("skill.yaml", base.replace("{id: muzzle, anchor: caster.eye,", "{id: muzzle, ray_stops: blocks, anchor: caster.eye,"))
+        val orphan = compileText("skill.yaml", base.replace("ray: 24, ray_stops: entities, mode: follow}", "ray: 24, ray_stops: entities, mode: follow}\n  - {id: aside, anchor: caster.eye, ray_stops: blocks, mode: follow}"))
         assertThat(orphan).isInstanceOf(Result.Failure::class.java)
     }
 
