@@ -558,7 +558,7 @@ class BotBrain(
     private fun chooseDest(now: Long, starDest: Dest?): Dest? {
         if (starDest != null) {
             // A bot on an economy trip finishes it (mine until a piece is affordable, then buy) unless the star is right here or it is being hit.
-            if (!normaCheckPending && now - lastHitAt > ECON_HIT_MS && hypot(starDest.x - bot.x, starDest.z - bot.z) > ECON_STAR_DETOUR) economyDest(now)?.let { return it }
+            if (!normaCheckPending && starPickupCues() > 0 && now - lastHitAt > ECON_HIT_MS && hypot(starDest.x - bot.x, starDest.z - bot.z) > ECON_STAR_DETOUR) economyDest(now)?.let { return it }
             return starDest
         }
         normaHomeDest()?.let { return it }

@@ -197,7 +197,7 @@ class EconomyPlanner(
         const val MINE_GIVE_UP_MS = 15_000L
         const val BLOCK_MS = 120_000L
         const val UNREACHABLE_BLOCK_MS = 3_600_000L
-        const val REGROW_BLOCK_MS = 30_000L
+        const val REGROW_BLOCK_MS = 12_000L
         const val ORE_RETRY_MS = 90_000L
 
         /** Ore item id from a stack's display name (en/ja), or null for anything that is not a shop ore. */
