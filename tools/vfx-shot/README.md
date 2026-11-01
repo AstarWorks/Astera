@@ -161,7 +161,7 @@ make vfx-shot SKILLS="fireball-cast sword-slash pistol-shot" VIEWS="caster side"
   `rig_trace_check` runs per shot. A shot that fails (no fx drawn, rig check, missing ticks, bot dropped) is saved under
   `build/vfx-shot/failed/<skill>-<view>/` (partial output, `reason.txt`, `shot.log`, `server.log`, `trace.log`, `caster-bot.log`, `director.stderr`)
   and the batch continues. A dead server (no RCON) skips the rest.
-- Summary: `build/vfx-shot/batch-summary.md` / `.tsv` (ok/failed, seconds, reason per shot). Exit code 0 only if every shot is ok.
+- Summary: `build/vfx-shot/batch-<run id>/batch-summary.md` / `.tsv` (one directory per run, path printed at the end; `build/vfx-shot/batch-summary.*` is a copy of the latest finished batch) (ok/failed, seconds, reason per shot). Exit code 0 only if every shot is ok.
 - The run timeout scales with the batch (`SHOT_TIMEOUT` default 2700 + 180 s per shot). tools/remote caps a whole run at
   `HEAVY_RUN_TIMEOUT` (default 7200 s): for more than ~60 shots pass a larger one (`HEAVY_RUN_TIMEOUT=14400 make vfx-shot ...`) or split the list.
 - Skills are read at the stack boot (same checkout for the whole batch). Per-shot `DISTANCE`/`ITEM`/`DUMMIES` are derived per skill unless the env sets them.

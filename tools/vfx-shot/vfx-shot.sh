@@ -1005,6 +1005,11 @@ film() { # viewer view_dir
   phase "cast + camera plan done"
   cast_stamp="$(awk '/^STAMP/{print $2}' "$STATE/director.stderr")"
   [ -n "$cast_stamp" ] || { kill "$fpid" 2>/dev/null; die "cast command failed"; }
+  # The cast ack: the command's own reply ("Cast <skill> for Caster." or the refusal: cooldown, unknown skill, caster offline).
+  # Without this a refused cast and a cast whose fx the detector missed are the same "no fx" failure.
+  cast_reply="$(grep -i -m1 -E "cast|cooldown|unknown|offline|not " "$STATE/director.stdout" | head -c 300)"
+  log "cast reply: ${cast_reply:-<empty>}"
+  case "$cast_reply" in *[Cc]ast*"$SKILL"*) ;; *) kill "$fpid" 2>/dev/null; rcon "tick rate 20" >/dev/null 2>&1; die "the cast was not acknowledged (reply: ${cast_reply:-<empty>}); the skill did not start" ;; esac
   # film until the motion (plus the pre-ticks of the window) is over
   end_wait="$(awk -v c="$cast_stamp" -v t="$TICKS" -v n="$(date +%s.%N)" -v st="$STEPPED" -v r="$SLOW_RATE" 'BEGIN{w = (st == 1 ? c + t/r + 1.0 - n : c + t/20 + 0.8 - n); printf "%.2f", (w > 0 ? w : 0)}')"
   sleep "$end_wait"
@@ -1039,9 +1044,13 @@ film() { # viewer view_dir
     log "rig check: $(tail -1 "$dir/rig-check.txt")"
   fi
   log "tick stamp: $(cat "$STATE/framestamp.out")"
-  # nothing ever drawn after the cast = a silent no-op (rejected cast, wrong skill, dead fx): never a successful capture
-  [ "$(jq -r '.firstFxTickAfterCast // "none"' "$dir/framestamp.json" 2>/dev/null)" != none ] \
-    || die "no fx was ever drawn after the cast (first fx +None ticks): the cast did nothing; check the server log for [skill-error]"
+  # The gate is the server's own trace, not pixels: the cast was acknowledged (above) AND the [vfx-trace] fx rows (PaperSkillParticleGateway:
+  # `fx particle`, PaperSkillVisualGateway: `fx display`, ASTERA_VFX_TRACE=1 in the compose) hold at least one row at or after the cast tick.
+  # An empty trace is a failure, never a pass. The pixel measurement (noise, peak, first fx tick) is information only.
+  local fx_rows
+  fx_rows="$(awk -v ct="$ct" '/\[vfx-trace\] fx / { if (match($0, /tick=[0-9]+/) && substr($0, RSTART + 5, RLENGTH - 5) + 0 >= ct) n++ } END { print n + 0 }' "$dir/trace.log" 2>/dev/null)"
+  log "fx trace rows at/after cast tick ${ct:-?}: ${fx_rows:-0}; pixels (info): first fx +$(jq -r '.firstFxTickAfterCast // "none"' "$dir/framestamp.json" 2>/dev/null) ticks, noise $(jq -r '.changeNoise // "?"' "$dir/framestamp.json" 2>/dev/null), threshold $(jq -r '.changeThreshold // "?"' "$dir/framestamp.json" 2>/dev/null)"
+  [ "${fx_rows:-0}" -gt 0 ] || die "the cast was acknowledged but the server drew nothing: no [vfx-trace] fx row at or after the cast tick $ct (see $dir/trace.log, and the server log for [skill-error])"
   if [ "${SHOT_KEEP_REC:-0}" = 1 ]; then mv "$rec" "$dir/recording.mkv"; mv "$rec.log" "$dir/recording.showinfo.log"; else rm -f "$rec" "$rec.log"; fi
   if [ -n "$BEAT_TICKS" ]; then keep_beats "$all" "$dir"; fi
 }
@@ -1365,7 +1374,7 @@ run_view() { # view
 # One stack boot, then every view x skill. Views are the OUTER loop, so a viewer client / the caster bot is started once per view, not once
 # per shot. Each shot runs in a subshell: a `die` fails only that shot. Its partial output, the server log so far, the [vfx|skill-trace]
 # lines and the bot / director logs go to $OUT_ROOT/failed/<skill>-<view>/ and the batch goes on. An ok shot writes exactly the single-run
-# layout, $OUT_ROOT/<skill>/<view>/. Summary: $OUT_ROOT/batch-summary.{md,tsv}; exit 0 only when every shot is ok.
+# layout, $OUT_ROOT/<skill>/<view>/. Summary: $OUT_ROOT/batch-<run id>/batch-summary.{md,tsv} (per run, so parallel batches do not overwrite each other; batch-summary.* at the top is a copy of the latest); exit 0 only when every shot is ok.
 batch_clients_for() { # view: leave only the clients this view needs (a 1080p viewer costs ~3 GB; a stale one would starve the next)
   local view="$1" n i stopped=()
   for n in Watcher Target Caster; do
@@ -1404,7 +1413,9 @@ batch_recover() { # after a failed shot: undo what the aborted shot may have lef
 
 run_batch() {
   local views="${VIEW//,/ }" v s t0 rc reason shotlog n_ok=0 n_fail=0 total=0 lost=0 skill_list
-  local tsv="$OUT_ROOT/batch-summary.tsv" md="$OUT_ROOT/batch-summary.md" B0=$SECONDS
+  local run_id; run_id="$(date +%m%d-%H%M%S)-$$"
+  local rdir="$OUT_ROOT/batch-$run_id"; mkdir -p "$rdir"
+  local tsv="$rdir/batch-summary.tsv" md="$rdir/batch-summary.md" B0=$SECONDS
   [ "${SHOT_CASTER:-bot}" = client ] || build_caster_bot
   skill_list="$(rcon "astera skill list")"
   printf 'skill\tview\tstatus\tseconds\treason\n' > "$tsv"
@@ -1456,7 +1467,9 @@ run_batch() {
     echo "|---|---|---|---|---|"
     tail -n +2 "$tsv" | awk -F'\t' '{printf "| %s | %s | %s | %s | %s |\n", $1, $2, $3, $4, $5}'
   } > "$md"
-  cp "$PHASE_LOG" "$OUT_ROOT/batch-phases.log" 2>/dev/null || true
+  cp "$PHASE_LOG" "$rdir/batch-phases.log" 2>/dev/null || true
+  cp "$md" "$OUT_ROOT/batch-summary.md"; cp "$tsv" "$OUT_ROOT/batch-summary.tsv"   # the latest finished batch, for a single-batch worktree
+  log "batch summary: $rdir/batch-summary.md"
   phase "batch done: $n_ok ok, $n_fail failed of $total"
   cat "$md" >&2
   [ "$n_fail" = 0 ]
