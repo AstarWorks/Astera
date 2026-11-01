@@ -236,12 +236,16 @@ def read_kv(path):
     return d
 
 
-def try_lock(state, wait=0.0):
-    """-> open file holding the stack lock, or None when a live run holds it. A missing state dir counts as unlocked."""
+def try_lock(state, wait=0.0, running=False):
+    """-> open file holding the stack lock, or None when a live run holds it (or may hold it: the lock cannot be probed).
+    A missing / unreadable state dir counts as unlocked only when the project has no running container."""
     path = os.path.join(state, "stack.lock")
     if not os.path.isdir(state):
-        return open(os.devnull, "a")
-    f = open(path, "a")
+        return None if running else open(os.devnull, "a")
+    try:
+        f = open(path, "a")
+    except OSError:
+        return None if running else open(os.devnull, "a")
     deadline = time.time() + wait
     while True:
         try:
@@ -385,7 +389,7 @@ def unseen(path, info):
     run unless its containers are older than any run may last."""
     if path and os.path.isdir(path):
         return False
-    return info is not None and NOW - info["created"] < FOREIGN_GRACE
+    return info is not None and (info["running"] or NOW - info["created"] < FOREIGN_GRACE)
 
 
 def decide(st, evict=False, force=False):
@@ -438,9 +442,10 @@ def main():
             log(f"{st.state}: state dir not visible from this runner (another heavy slot's checkout), skipped")
             return False
         if not lock_held:
-            lk = try_lock(st.state, wait)
+            running = bool((projects.get(st.project) or {}).get("running"))
+            lk = try_lock(st.state, wait, running)
             if lk is None and hung_owner(st):
-                lk = try_lock(st.state, 5)
+                lk = try_lock(st.state, 5, running)
             if lk is None:
                 log(f"{st.state}: live run holds the stack lock, skipped")
                 return False
@@ -472,8 +477,15 @@ def main():
         st = by_project.get(proj)
         if st is None:
             if not info["root"] or not os.path.isdir(info["root"]):
-                remove_project(proj, "its checkout no longer exists")
-                reaped.add(proj)
+                # Root not visible from this runner: another heavy slot's checkout (see unseen()), not a deleted one. Its stack
+                # is foreign: never removed while a container runs; reaped only when all containers are stopped and older than the grace.
+                if info["running"]:
+                    log(f"{proj}: foreign project (root {info['root'] or '?'} not visible from this runner) has running containers, skipped")
+                elif NOW - info["created"] < FOREIGN_GRACE:
+                    log(f"{proj}: foreign project (root {info['root'] or '?'} not visible from this runner) is {int(NOW - info['created'])}s old < grace {FOREIGN_GRACE}s, skipped")
+                else:
+                    remove_project(proj, f"foreign project, root not visible, all containers stopped, older than {FOREIGN_GRACE}s")
+                    reaped.add(proj)
             elif NOW - info["created"] > A.timeout:
                 remove_project(proj, f"no state dir found and older than SHOT_TIMEOUT ({A.timeout}s)")
                 reaped.add(proj)
