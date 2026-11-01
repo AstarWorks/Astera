@@ -62,9 +62,10 @@ default_config:
   sudden_death_ticks: "6000"
   escalation_damage_mult: "1.5"
   sudden_death_damage_mult: "2.0"
-  # Phase 5 bleed: 10% of max HP every 30 s, floor 10% => a pillar bottoms out after ~9 bleeds; the HP tiebreak then decides.
-  bleed_interval_ticks: "600"
-  bleed_percent: "10"
+  # Phase 5 bleed: 1% of max HP every 12 s => at most 25% of a pillar over a full 5 min (founder: bleed pressures, never decides);
+  # floor 10% keeps a pillar standing; the HP tiebreak decides at expiry.
+  bleed_interval_ticks: "240"
+  bleed_percent: "1"
   bleed_floor_percent: "10"
   respawn_delay_seconds_tier1_lost: "2"
   resource_regen_mult_tier2_lost: "0.5"
