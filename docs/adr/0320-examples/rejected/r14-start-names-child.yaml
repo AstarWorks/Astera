@@ -1,0 +1,14 @@
+# error: SkillDecodeError.StartNamesChild   (10 / 10.4: `machine.start` names a top-level state only; `p/c` names a child)
+apiVersion: astera/v3
+kind: Skill
+id: rejected-r14
+item: couture-rapier
+meta: {cooldown_ticks: 10, resource_cost: 0}
+machine:
+  start: p/c
+  states:
+    p:
+      start: c
+      states:
+        c: {for: 10, then: end}
+    end: {final: true}

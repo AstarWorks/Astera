@@ -54,7 +54,7 @@ abstract class SkillEngineScenario {
 
     protected val contentDir: Path = Paths.get(System.getProperty("astera.sim.contentDir")).toAbsolutePath()
     protected val repoRoot: Path = contentDir.parent
-    protected val examplesDir: Path = repoRoot.resolve("docs/adr/0303-examples")
+    protected val examplesDir: Path = repoRoot.resolve("docs/adr/0320-examples")
     protected val evidenceDir: Path =
         Paths.get(System.getProperty("astera.sim.traceDir")).toAbsolutePath().parent.resolve("skill-expand")
 
@@ -142,7 +142,7 @@ abstract class SkillEngineScenario {
             is Result.Failure -> Result.failure(l.error)
         }
 
-    /** docs/adr/0303-examples/<name>.yaml (multi-document: parts and skills; the first skill document is the main skill). */
+    /** docs/adr/0320-examples/<name>.yaml (multi-document: parts and skills; the first skill document is the main skill). */
     fun loadExample(name: String): CompiledSkill {
         val file = examplesDir.resolve("$name.yaml")
         return when (val r = compileText(file.fileName.toString(), Files.readString(file))) {

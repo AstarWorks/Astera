@@ -11,7 +11,7 @@ superseded_by: null
 
 ## Status
 
-Accepted (manager decision 2026-10-30; was Proposed through rev4.20). Board SKL-16 (rev1-3), SKL-20 (rev4). The engine on `wp/se-adr0303` implements this document; where the two disagree the code wins and the ADR is edited to match (rev4.21, rev4.22).
+Accepted; its example fixtures (0303-examples) are superseded by ADR-0320 (motion vectors in {v, w, s}) (manager decision 2026-10-30; was Proposed through rev4.20). Board SKL-16 (rev1-3), SKL-20 (rev4). The engine on `wp/se-adr0303` implements this document; where the two disagree the code wins and the ADR is edited to match (rev4.21, rev4.22).
 
 **rev4 (2026-10-29, Fable, SKL-20)**: adds the **precompute contract** (section C, the centre of this ADR), generic nesting of timing groups
 (2.0), the rewritten projectile op (3.6), named conditions (3.8), `lock` and `cancel` (10.6), the expansion dump format and static checks
