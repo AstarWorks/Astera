@@ -6,7 +6,7 @@ usage: python3 -I tools/map-import/convert.py <maps/config.json> <world-dir> <ou
 The world directory is untrusted data: it is only parsed (NBT), never executed. The config carries the arena id, the
 column whose floor block must land on surface_y, the stray-component cut-off, optional `fill` boxes (bridges and plinths
 added by hand, original coordinates) and the licence/authorship credits.
-Every produced block-data string is checked against tools/lobby-gen's block registry (the one the preview and the
+Every produced block-data string is checked against kernel/runtime's block registry (the one the preview and the
 server guard use); unknown ids or properties abort the conversion.
 """
 import collections
@@ -19,7 +19,7 @@ sys.path.insert(0, HERE)
 import anvil  # noqa: E402
 import legacy  # noqa: E402
 
-REGISTRY = os.path.join(HERE, '..', 'lobby-gen', 'src', 'main', 'resources', 'block-registry.txt')
+REGISTRY = os.path.join(HERE, '..', '..', 'kernel', 'runtime', 'src', 'main', 'resources', 'block-registry.txt')
 SURFACE_Y = 64
 
 

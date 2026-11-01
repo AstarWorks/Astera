@@ -10,7 +10,7 @@ superseded_by: null
 
 ## Status
 
-Accepted
+Superseded by ADR-0321
 
 ## Context
 
