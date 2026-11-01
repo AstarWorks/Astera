@@ -3,13 +3,13 @@
 @0 spawn #0 op=fire/rig kind=item item=main_hand part=- pos=-0.300000,1.004025,0.565142 rot=0.000000,0.887009,0.461752,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=fire/rig dur=0 pos=-0.300000,1.004025,0.565142 rot=0.000000,0.887009,0.461752,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @0 sound - op=fire/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=0.8 at=-0.300000,0.990000,0.500000
-@0 particle - op=fire/flash type=gun-muzzle-flash at=-0.300000,1.280000,1.140000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4021387592852636512
-@0 particle - op=fire/glare[0] type=dust count=2 at=-0.300000,1.280000,1.140000 off=0.030000,0.030000,0.030000 speed=0.000000 color=#fff0a0 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=740600450381123588
+@0 particle - op=fire/flash type=gun-muzzle-flash at=-0.300000,1.276343,1.135011 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4021387592852636512
+@0 particle - op=fire/glare[0] type=dust count=2 at=-0.300000,1.276343,1.135011 off=0.030000,0.030000,0.030000 speed=0.000000 color=#fff0a0 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=740600450381123588
 @0 frame fire/rig op=fire/rig pos=-0.300000,0.990000,0.500000 rot=0.000000,0.887009,0.461752,0.000000
-@0 frame fire/bolt op=fire/bolt pos=-0.300000,1.280000,1.140000 rot=0.000000,0.000000,0.000000,1.000000
+@0 frame fire/bolt op=fire/bolt pos=-0.300000,1.276343,1.135011 rot=0.000000,0.000000,0.000000,1.000000
 @1 write #0 op=fire/rig dur=0 pos=-0.300000,1.057907,0.581793 rot=0.000000,0.939691,0.342024,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@1 particle - op=fire/glare[1] type=dust count=2 at=-0.300000,1.473263,1.065635 off=0.030000,0.030000,0.030000 speed=0.000000 color=#fff0a0 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=30538928823053519
-@1 hit - op=fire/bolt at=-0.300000,1.280000,2.940000 r=2.300000 shape=capsule a=-0.300000,1.280000,1.140000 b=-0.300000,1.280000,4.740000 rad=0.500000
+@1 particle - op=fire/glare[1] type=dust count=2 at=-0.300000,1.313843,1.157511 off=0.030000,0.030000,0.030000 speed=0.000000 color=#fff0a0 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=30538928823053519
+@1 hit - op=fire/bolt at=-0.300000,1.276343,2.935011 r=2.300000 shape=capsule a=-0.300000,1.276343,1.135011 b=-0.300000,1.276343,4.735011 rad=0.500000
 @1 frame fire/rig op=fire/rig pos=-0.300000,1.027500,0.522500 rot=0.000000,0.939691,0.342024,0.000000
 @2 write #0 op=fire/rig dur=0 pos=-0.300000,1.075459,0.586417 rot=0.000000,0.953716,0.300710,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @2 frame fire/rig op=fire/rig pos=-0.300000,1.040000,0.530000 rot=0.000000,0.953716,0.300710,0.000000
@@ -42,13 +42,13 @@ r @11 run-end tail=10 | pose
 @0 spawn #0 op=fire/rig kind=item item=main_hand part=- pos=-0.685979,1.234463,0.411832 rot=-0.095417,0.904431,0.285170,0.302618 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=fire/rig dur=0 pos=-0.685979,1.234463,0.411832 rot=-0.095417,0.904431,0.285170,0.302618 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @0 sound - op=fire/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=0.8 at=-0.652026,1.199004,0.366776
-@0 particle - op=fire/flash type=gun-muzzle-flash at=-0.954268,1.690407,0.767864 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4021387592852636512
-@0 particle - op=fire/glare[0] type=dust count=2 at=-0.954268,1.690407,0.767864 off=0.030000,0.030000,0.030000 speed=0.000000 color=#fff0a0 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=740600450381123588
+@0 particle - op=fire/flash type=gun-muzzle-flash at=-1.011138,1.702533,0.843333 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4021387592852636512
+@0 particle - op=fire/glare[0] type=dust count=2 at=-1.011138,1.702533,0.843333 off=0.030000,0.030000,0.030000 speed=0.000000 color=#fff0a0 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=740600450381123588
 @0 frame fire/rig op=fire/rig pos=-0.652026,1.199004,0.366776 rot=-0.095417,0.904431,0.285170,0.302618
-@0 frame fire/bolt op=fire/bolt pos=-0.954268,1.690407,0.767864 rot=-0.164675,-0.312484,-0.055099,0.933916
+@0 frame fire/bolt op=fire/bolt pos=-1.011138,1.702533,0.843333 rot=-0.164675,-0.312484,-0.055099,0.933916
 @1 write #0 op=fire/rig dur=0 pos=-0.684304,1.290791,0.409610 rot=-0.055101,0.933916,0.164679,0.312484 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@1 particle - op=fire/glare[1] type=dust count=2 at=-0.872433,1.846581,0.659266 off=0.030000,0.030000,0.030000 speed=0.000000 color=#fff0a0 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=30538928823053519
-@1 hit - op=fire/bolt at=-1.972206,2.306044,2.118714 r=2.300000 shape=capsule a=-0.954268,1.690407,0.767864 b=-2.990144,2.921680,3.469563 rad=0.500000
+@1 particle - op=fire/glare[1] type=dust count=2 at=-1.016143,1.745467,0.849976 off=0.030000,0.030000,0.030000 speed=0.000000 color=#fff0a0 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=30538928823053519
+@1 hit - op=fire/bolt at=-2.029076,2.318170,2.194183 r=2.300000 shape=capsule a=-1.011138,1.702533,0.843333 b=-3.047014,2.933806,3.545032 rad=0.500000
 @1 frame fire/rig op=fire/rig pos=-0.657031,1.241938,0.373418 rot=-0.055101,0.933916,0.164679,0.312484
 @2 write #0 op=fire/rig dur=0 pos=-0.683306,1.308866,0.408286 rot=-0.041418,0.940210,0.123785,0.314590 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @2 frame fire/rig op=fire/rig pos=-0.658700,1.256249,0.375632 rot=-0.041418,0.940210,0.123785,0.314590
@@ -81,17 +81,17 @@ r @11 run-end tail=10 | pose
 @0 spawn #0 op=fire/rig kind=item item=main_hand part=- pos=-0.300000,1.004025,0.565142 rot=0.000000,0.887009,0.461752,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=fire/rig dur=0 pos=-0.300000,1.004025,0.565142 rot=0.000000,0.887009,0.461752,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @0 sound - op=fire/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=0.8 at=-0.300000,0.990000,0.500000
-@0 particle - op=fire/flash type=gun-muzzle-flash at=-0.300000,1.280000,1.140000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4021387592852636512
-@0 particle - op=fire/glare[0] type=dust count=2 at=-0.300000,1.280000,1.140000 off=0.030000,0.030000,0.030000 speed=0.000000 color=#fff0a0 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=740600450381123588
+@0 particle - op=fire/flash type=gun-muzzle-flash at=-0.300000,1.276343,1.135011 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4021387592852636512
+@0 particle - op=fire/glare[0] type=dust count=2 at=-0.300000,1.276343,1.135011 off=0.030000,0.030000,0.030000 speed=0.000000 color=#fff0a0 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=740600450381123588
 @0 frame fire/rig op=fire/rig pos=-0.300000,0.990000,0.500000 rot=0.000000,0.887009,0.461752,0.000000
-@0 frame fire/bolt op=fire/bolt pos=-0.300000,1.280000,1.140000 rot=0.000000,0.000000,0.000000,1.000000
+@0 frame fire/bolt op=fire/bolt pos=-0.300000,1.276343,1.135011 rot=0.000000,0.000000,0.000000,1.000000
 @1 write #0 op=fire/rig dur=0 pos=-0.300000,1.057907,0.581793 rot=0.000000,0.939691,0.342024,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@1 particle - op=fire/glare[1] type=dust count=2 at=-0.300000,1.473263,1.065635 off=0.030000,0.030000,0.030000 speed=0.000000 color=#fff0a0 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=30538928823053519
-@1 hit - op=fire/bolt at=-0.300000,1.280000,2.940000 r=2.300000 shape=capsule a=-0.300000,1.280000,1.140000 b=-0.300000,1.280000,4.740000 rad=0.500000
+@1 particle - op=fire/glare[1] type=dust count=2 at=-0.300000,1.313843,1.157511 off=0.030000,0.030000,0.030000 speed=0.000000 color=#fff0a0 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=30538928823053519
+@1 hit - op=fire/bolt at=-0.300000,1.276343,2.935011 r=2.300000 shape=capsule a=-0.300000,1.276343,1.135011 b=-0.300000,1.276343,4.735011 rad=0.500000
 @1 sound - op=fire/bolt.hit/snd_hit sound=astera:weapons/gun-impact cat=master vol=0.8 pitch=1 at=0.000000,0.810000,2.500000
 @1 particle - op=fire/bolt.hit/spark type=dust count=4 at=0.000000,0.871645,2.309737 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ffd060 size=0.450000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3791077261901408415
 @1 particle - op=fire/bolt.hit/dust type=dust count=3 at=0.000000,0.971645,2.309737 off=0.120000,0.120000,0.120000 speed=0.000000 color=#8c8c8c size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8192579929752815274
-@1 damage 00000000-0000-0000-0000-00000000000a op=- physical=30 skill=revolver-shot at=-0.300000,1.280000,2.200000 ignoreinv=false ignorearmor=false
+@1 damage 00000000-0000-0000-0000-00000000000a op=- physical=30 skill=revolver-shot at=-0.300000,1.276343,2.200000 ignoreinv=false ignorearmor=false
 @1 frame fire/rig op=fire/rig pos=-0.300000,1.027500,0.522500 rot=0.000000,0.939691,0.342024,0.000000
 @2 write #0 op=fire/rig dur=0 pos=-0.300000,1.075459,0.586417 rot=0.000000,0.953716,0.300710,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @2 frame fire/rig op=fire/rig pos=-0.300000,1.040000,0.530000 rot=0.000000,0.953716,0.300710,0.000000
@@ -122,17 +122,17 @@ r @11 run-end tail=10 | pose
 @0 spawn #0 op=fire/rig kind=item item=main_hand part=- pos=-0.579702,1.004025,0.270798 rot=-0.146516,0.841172,0.437891,0.281452 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=fire/rig dur=0 pos=-0.579702,1.004025,0.270798 rot=-0.146516,0.841172,0.437891,0.281452 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @0 sound - op=fire/snd sound=astera:weapons/gun-shot cat=master vol=0.8 pitch=0.8 at=-0.540498,0.990000,0.218773
-@0 particle - op=fire/flash type=gun-muzzle-flash at=-0.925660,1.280000,0.729900 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4021387592852636512
-@0 particle - op=fire/glare[0] type=dust count=2 at=-0.925660,1.280000,0.729900 off=0.030000,0.030000,0.030000 speed=0.000000 color=#fff0a0 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=740600450381123588
+@0 particle - op=fire/flash type=gun-muzzle-flash at=-0.922657,1.276343,0.725915 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4021387592852636512
+@0 particle - op=fire/glare[0] type=dust count=2 at=-0.922657,1.276343,0.725915 off=0.030000,0.030000,0.030000 speed=0.000000 color=#fff0a0 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=740600450381123588
 @0 frame fire/rig op=fire/rig pos=-0.540498,0.990000,0.218773 rot=-0.146516,0.841172,0.437891,0.281452
-@0 frame fire/bolt op=fire/bolt pos=-0.925660,1.280000,0.729900 rot=0.000000,-0.317305,0.000000,0.948324
+@0 frame fire/bolt op=fire/bolt pos=-0.922657,1.276343,0.725915 rot=0.000000,-0.317305,0.000000,0.948324
 @1 write #0 op=fire/rig dur=0 pos=-0.589722,1.057907,0.284096 rot=-0.108526,0.891131,0.324349,0.298168 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@1 particle - op=fire/glare[1] type=dust count=2 at=-0.880906,1.473263,0.670509 off=0.030000,0.030000,0.030000 speed=0.000000 color=#fff0a0 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=30538928823053519
-@1 hit - op=fire/bolt at=-2.008927,1.280000,2.167444 r=2.300000 shape=capsule a=-0.925660,1.280000,0.729900 b=-3.092194,1.280000,3.604988 rad=0.500000
+@1 particle - op=fire/glare[1] type=dust count=2 at=-0.936198,1.313843,0.743885 off=0.030000,0.030000,0.030000 speed=0.000000 color=#fff0a0 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=30538928823053519
+@1 hit - op=fire/bolt at=-2.005924,1.276343,2.163459 r=2.300000 shape=capsule a=-0.922657,1.276343,0.725915 b=-3.089191,1.276343,3.601003 rad=0.500000
 @1 sound - op=fire/bolt.hit/snd_hit sound=astera:weapons/gun-impact cat=master vol=0.8 pitch=1 at=-1.504538,0.810000,1.996589
 @1 particle - op=fire/bolt.hit/spark type=dust count=4 at=-1.390035,0.871645,1.844638 off=0.060000,0.060000,0.060000 speed=0.000000 color=#ffd060 size=0.450000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3791077261901408415
 @1 particle - op=fire/bolt.hit/dust type=dust count=3 at=-1.390035,0.971645,1.844638 off=0.120000,0.120000,0.120000 speed=0.000000 color=#8c8c8c size=0.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8192579929752815274
-@1 damage 00000000-0000-0000-0000-00000000000a op=- physical=30 skill=revolver-shot at=-1.654112,1.280000,1.696589 ignoreinv=false ignorearmor=false
+@1 damage 00000000-0000-0000-0000-00000000000a op=- physical=30 skill=revolver-shot at=-1.654112,1.276343,1.696589 ignoreinv=false ignorearmor=false
 @1 frame fire/rig op=fire/rig pos=-0.554039,1.027500,0.236743 rot=-0.108526,0.891131,0.324349,0.298168
 @2 write #0 op=fire/rig dur=0 pos=-0.592505,1.075459,0.287789 rot=-0.095417,0.904431,0.285170,0.302618 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @2 frame fire/rig op=fire/rig pos=-0.558553,1.040000,0.242732 rot=-0.095417,0.904431,0.285170,0.302618

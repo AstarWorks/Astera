@@ -10,7 +10,7 @@
 # `shot` is rooted on the bullet's body (the `bolt` op), v the way it flies: the trail rows draw along `tail`, the 0.4 behind it.
 # `hit` one per victim at the victim's centre, v facing the way the bullet came in; `blk` one per block contact at the contact point,
 # v the way the bullet came in.
-# Everything drawn or heard is a point of one of them: the flash, the 3-tick glare and the bolt at `muzzle` (one point on `gun`, v 0.64 / w 0.29 from the grip, see
+# Everything drawn or heard is a point of one of them: the flash, the 3-tick glare and the bolt at `weapon.muzzle` (the barrel mouth of the held revolver,
 # content/frames/revolver.yaml), the sparks at v -0.2 (the entry side, on a victim or a block). No 3D.
 apiVersion: astera/v3
 kind: Skill
@@ -39,7 +39,6 @@ frames:
     rotate:
       - {at: 0, for: 2, about: s, to: 20, ease: out_quad}                      # muzzle flip
       - {at: 2, for: 4, about: s, to: 0, ease: in_out_sine}
-  - {id: muzzle, origin: {frame: gun, pos: {v: 0.64, w: 0.29}}, v: aim, w: s x v, s: right}   # the barrel mouth, declared once (content/frames/revolver.yaml)
   - id: shot
     origin: bolt
     v: velocity
@@ -73,11 +72,11 @@ machine:
       do:
         - {id: rig, op: rig, frame: gun, for: 10, detach: true}
         - {id: snd, op: sound, at: 0, sound: "astera:weapons/gun-shot", frame: gun, volume: 0.8, pitch: 0.8}
-        - {id: flash, op: particle_def, at: 0, def: gun-muzzle-flash, frame: muzzle}
-        - {id: glare, op: particle, particle: dust, frame: muzzle, count: 2, offset: [0.03, 0.03, 0.03], color: "#fff0a0", size: 1.0, at: 0, every: 1, for: 3}
+        - {id: flash, op: particle_def, at: 0, def: gun-muzzle-flash, frame: weapon.muzzle}
+        - {id: glare, op: particle, particle: dust, frame: weapon.muzzle, count: 2, offset: [0.03, 0.03, 0.03], color: "#fff0a0", size: 1.0, at: 0, every: 1, for: 3}
         - id: bolt
           op: projectile
-          frame: muzzle
+          frame: weapon.muzzle
           velocity: "= look(caster) * ${speed}"
           for: "${life}"
           radius: 0.5
