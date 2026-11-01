@@ -37,7 +37,7 @@ internal object BuiltinFrames {
     private fun casterFrame(id: String): FrameDecl {
         val point = id.removePrefix("caster").removePrefix(".")
         val v = AxisSpec.Named(if (point == "feet") "forward" else "aim")
-        return FrameDecl(id, OriginSpec.Caster(point), v, AxisSpec.Named("up"), AxisSpec.Cross("v", "w"))
+        return FrameDecl(id, OriginSpec.Caster(point), v, AxisSpec.Named(if (point == "feet") "up" else "head.up"), AxisSpec.Cross("v", "w"))
     }
 
     /**
@@ -72,7 +72,7 @@ internal object BuiltinFrames {
             val rel = p - grip
             val k = SkinRigTransforms.PLAYER_SCALE
             add(casterFrame("caster.hand_r"))
-            add(FrameDecl(id, OriginSpec.Frame("caster.hand_r", Coeff(rel.dot(long) * k, rel.dot(edge) * k, 0.0)), AxisSpec.Named("aim"), AxisSpec.Named("up"), AxisSpec.Cross("v", "w")))
+            add(FrameDecl(id, OriginSpec.Frame("caster.hand_r", Coeff(rel.dot(long) * k, rel.dot(edge) * k, 0.0)), AxisSpec.Named("aim"), AxisSpec.Named("head.up"), AxisSpec.Cross("v", "w")))
         }
         return Result.Success(def.copy(frames = def.frames + out))
     }

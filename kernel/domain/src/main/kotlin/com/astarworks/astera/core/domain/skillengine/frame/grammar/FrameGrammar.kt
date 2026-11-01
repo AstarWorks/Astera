@@ -117,17 +117,17 @@ public sealed interface OriginSpec {
 
     /**
      * The aim point (`origin: {aim: <range>}`): a ray from `caster.eye` along the look direction; the origin is the first block it hits within
-     * [range] blocks, else the point at [range]. The same semantics as the `aim_point(caster, range)` expression; [range] is a number, `${param}` or `= expr`.
+     * [range] blocks, else the point at [range]. The same semantics as the `aim_point(caster, range)` expression; [range] is a number, `${param}` or `= expr`. `stops: entities` also ends the ray at the entry point of the first enemy hitbox it meets (the old `ray_stops: entities`).
      */
-    public data class Aim(val range: com.astarworks.astera.core.domain.skillengine.model.Value<Double>) : OriginSpec
+    public data class Aim(val range: com.astarworks.astera.core.domain.skillengine.model.Value<Double>, val stopsAtEntities: Boolean = false) : OriginSpec
 
-    /** The block contact the frame is instantiated for (`on: event.block`): the point where the projectile struck the block. */
+    /** The contact the frame is instantiated for (`on: event.block`: where the projectile struck the block; `on: event.victim`: the hit point of the event, the old `anchor: contact`). */
     public data object Contact : OriginSpec
 }
 
 /** How one axis of a frame is read each tick, before rotation and scale. */
 public sealed interface AxisSpec {
-    /** A named world direction: `aim`, `up`, `forward`, `left`, `incoming`, `velocity`, `down`, `back`, `right`. */
+    /** A named world direction: `aim`, `up`, `head.up` (world up, turning smoothly to the caster's head-up as the look nears vertical, so `v: aim, w: head.up` has volume at pitch +-90), `forward`, `left`, `incoming`, `velocity`, `down`, `back`, `right`. */
     public data class Named(val name: String) : AxisSpec
 
     /** The cross product of two of this frame's own base axes (`v x w`, `w x s`, `s x v`, ...), read after both are resolved. */
@@ -137,7 +137,7 @@ public sealed interface AxisSpec {
     public data class Literal(val vector: Vec3) : AxisSpec
 
     public companion object {
-        public val NAMED: Set<String> = setOf("aim", "up", "down", "forward", "back", "left", "right", "incoming", "velocity", "normal", "body.forward", "body.back", "body.up", "body.down", "body.left", "body.right")
+        public val NAMED: Set<String> = setOf("aim", "up", "head.up", "down", "forward", "back", "left", "right", "incoming", "incoming.feet", "velocity", "normal", "body.forward", "body.back", "body.up", "body.down", "body.left", "body.right")
     }
 }
 
