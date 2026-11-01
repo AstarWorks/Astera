@@ -1,5 +1,7 @@
-# tool skill hit area (axe: chop arcs); heavier at iron tier
+# Typical material accent; impact layout is authored in each skill.
 id: tool-axe-iron
-particle: sweep_attack
-count: 2
-offset: [0.9, 0.9, 0.9]
+particle: block
+block: minecraft:oak_log
+count: 14
+offset: [0.22, 0.22, 0.22]
+extra: 0.08

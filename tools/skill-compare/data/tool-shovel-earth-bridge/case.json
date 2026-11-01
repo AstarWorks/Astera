@@ -1,0 +1,68 @@
+{
+  "id": "tool-shovel-earth-bridge",
+  "rev": 0,
+  "videoId": "no-reference",
+  "start_s": 0,
+  "end_s": 1.5,
+  "status": "built",
+  "iterations": 2,
+  "skill": {
+    "name": "shovel-earth-bridge",
+    "coins": 1,
+    "asteraSkillId": "shovel-earth-bridge-diamond"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "shovel-earth-bridge",
+      "start_s": 0,
+      "end_s": 1.5
+    },
+    {
+      "id": "impact",
+      "kind": "hit",
+      "label": "Impact",
+      "t_s": 0.25
+    }
+  ],
+  "beats": [
+    {
+      "tick": 0,
+      "t_s": 0.0,
+      "label": "Wind-up"
+    },
+    {
+      "tick": 5,
+      "t_s": 0.25,
+      "label": "Impact"
+    },
+    {
+      "tick": 8,
+      "t_s": 0.4,
+      "label": "Propagation"
+    },
+    {
+      "tick": 11,
+      "t_s": 0.55,
+      "label": "Settle"
+    }
+  ],
+  "notes": "`no-reference` is a marker: no reference video exists.\n\nNo reference video. Stone | iron | diamond: grey/brown material debris | metallic sparks + ring | cyan flash + end_rod + chime. Same mechanics as HEAD. Before = round 0; after = round 1/2.\n\n| stone | iron | diamond |\n| --- | --- | --- |\n| ![stone](/mc/vfx/shovel-earth-bridge-stone/compare/frame_013.webp) | ![iron](/mc/vfx/shovel-earth-bridge-iron/compare/frame_013.webp) | ![diamond](/mc/vfx/shovel-earth-bridge-diamond/compare/frame_013.webp) |\n\nUse the diamond compare sheet current / prev / prev2 for the two presentation rounds and baseline. Sound: not listened.",
+  "editLog": [],
+  "report": "/casefile/tool-shovel-earth-bridge/notes.md",
+  "verification": {
+    "evidence": "/casefile/tool-shovel-earth-bridge/evidence/presentation.png",
+    "reason": "54 valid real-client captures: baseline + rounds 1 and 2, all 18 tool skills; zero skipped ticks. Round 1 bridge rejected for floor occlusion; round 2 moves dust above the deck. Sound not listened; manager runs integration tests and Konsist."
+  }
+}

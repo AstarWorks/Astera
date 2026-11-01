@@ -16,3 +16,5 @@ with:
   thud_pitch: 1.2
   thud: true
   spark: tool-pick-iron
+  trail_span: 8
+  metallic: true
