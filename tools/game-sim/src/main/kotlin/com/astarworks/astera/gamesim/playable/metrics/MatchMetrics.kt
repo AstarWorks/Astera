@@ -649,6 +649,9 @@ class MatchMetrics(
             put("endReason", reason)
             put("end_reason", endReasonKind)
             put("end_decided_by", (ended?.reason as? EndReason.PillarHpDecision)?.decidedBy?.name)
+            // Per team, from the decision itself; null unless the clock decided (empty map) or the end was not a PillarHpDecision.
+            put("end_play_hp", (ended?.reason as? EndReason.PillarHpDecision)?.playHp?.takeIf { it.isNotEmpty() }?.let { m -> JsonObject(m.entries.associate { it.key.value to JsonPrimitive(it.value) }) } ?: kotlinx.serialization.json.JsonNull)
+            put("end_bleed_taken", (ended?.reason as? EndReason.PillarHpDecision)?.bleedTaken?.takeIf { it.isNotEmpty() }?.let { m -> JsonObject(m.entries.associate { it.key.value to JsonPrimitive(it.value) }) } ?: kotlinx.serialization.json.JsonNull)
             put("pillar_damage_unattributed", pillarUnattributedTotal)
             put("pillar_damage_bleed", pillarBleedByTeam.values.sum())
             put("pillar_damage_unknown", pillarUnknownByTeam.values.sum())

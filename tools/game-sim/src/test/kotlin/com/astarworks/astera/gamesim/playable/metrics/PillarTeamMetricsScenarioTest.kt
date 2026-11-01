@@ -140,6 +140,30 @@ class PillarTeamMetricsScenarioTest {
     }
 
     @Test
+    fun `end_play_hp and end_bleed_taken follow the real PillarHpDecision and are null when the clock did not decide`() {
+        scenario("pillar-team-metrics-end-play-hp", base.copy(bleedIntervalTicks = 20)) {
+            val red = player("red-1", team = "red")
+            val blue = player("blue-1", team = "blue")
+            val yellow = player("yellow-1", team = "yellow")
+            startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow to "yellow"), stage = "annihilation-arena")
+            val metrics = MatchMetrics(sim)
+            runUntilEnded(metrics, 3_000)
+            val reason = eventsOf<MatchEnded>().single().reason
+            val json = metrics.finish().json
+            if (reason is EndReason.PillarHpDecision && reason.playHp.isNotEmpty()) {
+                for ((field, expected) in listOf("end_play_hp" to reason.playHp, "end_bleed_taken" to reason.bleedTaken)) {
+                    val o = json[field]!!.jsonObject
+                    assertThat(o.keys).`as`(field).isEqualTo(expected.keys.map { it.value }.toSet())
+                    for ((team, v) in expected) assertThat(o.getValue(team.value).jsonPrimitive.content.toInt()).`as`("$field $team").isEqualTo(v)
+                }
+            } else {
+                assertThat(json["end_play_hp"]).isEqualTo(kotlinx.serialization.json.JsonNull)
+                assertThat(json["end_bleed_taken"]).isEqualTo(kotlinx.serialization.json.JsonNull)
+            }
+        }
+    }
+
+    @Test
     fun `sudden-death bleed has no attacker, so it is taken and unattributed but dealt by nobody, and an equal result is a draw`() {
         scenario("pillar-team-metrics-unattributed", base.copy(bleedIntervalTicks = 20)) {
             val red = player("red-1", team = "red")

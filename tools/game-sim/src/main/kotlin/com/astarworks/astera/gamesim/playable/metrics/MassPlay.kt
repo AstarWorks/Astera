@@ -111,19 +111,20 @@ object MassPlay {
         appendLine()
         appendLine("Pillar damage per run and team (dealt = to enemy pillars by the attacker's team; taken includes unattributed; hp_left = standing pillar HP at the end):")
         appendLine()
-        appendLine("| run | seed | end_reason | end_decided_by | team | pillar_damage_dealt | pillar_damage_taken | pillar_hp_left | unattributed (match) | taken_by_players (team) | bleed (team) | unknown (team) | first_tier_loss_min |")
-        appendLine("|---|---:|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|")
+        appendLine("| run | seed | end_reason | end_decided_by | team | pillar_damage_dealt | pillar_damage_taken | pillar_hp_left | unattributed (match) | taken_by_players (team) | bleed (team) | unknown (team) | first_tier_loss_min | end_play_hp | end_bleed_taken |")
+        appendLine("|---|---:|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
         for (r in results) {
             val teams = r.result.json["teams"] as? kotlinx.serialization.json.JsonObject ?: continue
             val endKind = (r.result.json["end_reason"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: "n/a"
             val decidedBy = (r.result.json["end_decided_by"] as? kotlinx.serialization.json.JsonPrimitive)
                 ?.takeIf { it !is kotlinx.serialization.json.JsonNull }?.content ?: "-"
             val unattr = r.result.scalars["pillar_damage_unattributed"] ?: 0.0
+            fun endMap(k: String, team: String) = ((r.result.json[k] as? kotlinx.serialization.json.JsonObject)?.get(team) as? kotlinx.serialization.json.JsonPrimitive)?.content ?: "n/a"
             for ((team, v) in teams) {
                 val o = v as kotlinx.serialization.json.JsonObject
                 fun num(k: String) = (o[k] as? kotlinx.serialization.json.JsonPrimitive)?.content?.toDoubleOrNull() ?: 0.0
                 val left = ((o["pillar_hp_left"] as? kotlinx.serialization.json.JsonObject)?.get("sum") as? kotlinx.serialization.json.JsonPrimitive)?.content?.toDoubleOrNull() ?: 0.0
-                appendLine("| ${r.run} | ${r.seed} | $endKind | $decidedBy | $team | ${fmt(num("pillar_damage_dealt"))} | ${fmt(num("pillar_damage_taken"))} | ${fmt(left)} | ${fmt(unattr)} | ${fmt(num("pillar_damage_taken_by_players"))} | ${fmt(num("pillar_damage_bleed"))} | ${fmt(num("pillar_damage_unknown"))} | ${firstTierLossMin(o)?.let { "%.2f".format(it) } ?: "none"} |")
+                appendLine("| ${r.run} | ${r.seed} | $endKind | $decidedBy | $team | ${fmt(num("pillar_damage_dealt"))} | ${fmt(num("pillar_damage_taken"))} | ${fmt(left)} | ${fmt(unattr)} | ${fmt(num("pillar_damage_taken_by_players"))} | ${fmt(num("pillar_damage_bleed"))} | ${fmt(num("pillar_damage_unknown"))} | ${firstTierLossMin(o)?.let { "%.2f".format(it) } ?: "none"} | ${endMap("end_play_hp", team)} | ${endMap("end_bleed_taken", team)} |")
             }
         }
         appendLine()
