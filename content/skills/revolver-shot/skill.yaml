@@ -6,7 +6,7 @@
 # reaches 0.60 from a shoulder 0.44 from the eye, so the hand goes low and far rather than up to the eye. The rig rides it, so the right arm
 # is pinned onto the frame origin by look-at and the gun points along `v`: nothing is authored on the body. The arm is one rigid bone, so
 # every hand point lies on the 0.60 sphere about the shoulder: recoil is a swing on it, not a pull-back. `move:` kicks the hand up 0.05 and
-# forward 0.02 (the arm 5 degrees up) over 2 ticks and settles over 4, `rotate:` about `s` flips the muzzle up 20 degrees and back.
+# forward 0.03 (the arm 5 degrees up) over 2 ticks and settles over 4, `rotate:` about `s` flips the muzzle up 20 degrees and back.
 # `shot` is rooted on the bullet's body (the `bolt` op), v the way it flies: the trail rows draw along `tail`, the 0.4 behind it.
 # `hit` one per victim at the victim's centre, v facing the way the bullet came in; `blk` one per block contact at the contact point,
 # v the way the bullet came in.
@@ -34,7 +34,7 @@ frames:
     s: right
     move:
       - {at: 0, for: 0, to: {v: 0.50, w: -0.63, s: 0.30}}                      # aimed: straight out from the right shoulder
-      - {at: 0, for: 2, to: {v: 0.52, w: -0.58, s: 0.30}, ease: out_quad}      # recoil: the arm kicks up
+      - {at: 0, for: 2, to: {v: 0.53, w: -0.58, s: 0.30}, ease: out_quad}      # recoil: the arm kicks up
       - {at: 2, for: 4, to: {v: 0.50, w: -0.63, s: 0.30}, ease: in_out_sine}   # settle
     rotate:
       - {at: 0, for: 2, about: s, to: 20, ease: out_quad}                      # muzzle flip

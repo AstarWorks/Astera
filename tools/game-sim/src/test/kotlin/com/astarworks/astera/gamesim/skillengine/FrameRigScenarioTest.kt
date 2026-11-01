@@ -214,7 +214,7 @@ class FrameRigScenarioTest : SkillEngineScenario() {
             // rig frame: +X the player's left, +Y up, +Z front; the caster looks along +Z at yaw 0 with its eye 1.62 above the feet
             assertThat(t.x).describedAs("pin right of the eye line on t$tick (s 0.30)").isCloseTo(-0.30, org.assertj.core.data.Offset.offset(0.02))
             assertThat(t.y).describedAs("pin below the eye on t$tick (w -0.63..-0.58)").isBetween(1.62 - 0.63 - 0.02, 1.62 - 0.58 + 0.02)
-            assertThat(t.z).describedAs("pin ahead on t$tick (v 0.50..0.52)").isBetween(0.50 - 0.02, 0.52 + 0.02)
+            assertThat(t.z).describedAs("pin ahead on t$tick (v 0.50..0.53)").isBetween(0.50 - 0.02, 0.53 + 0.02)
         }
         println("FRAME-RIG revolver: puppet grip vs gun origin worst=%.4f at t%d over %d ticks (feet %s); rest bodies %d; reach clamped: %s".format(
             r.worst, r.worstTick, r.judged, feet, restBodies, if (r.reach.isEmpty()) "none" else r.reach.joinToString(" "),
