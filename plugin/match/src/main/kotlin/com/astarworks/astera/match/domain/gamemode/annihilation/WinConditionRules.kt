@@ -17,14 +17,13 @@ import com.astarworks.astera.core.domain.nexus.NexusPhase
  *  2. **Sudden-death timer expiry**: in [NexusPhase.Phase5SuddenDeath],
  *     if multiple teams remain when `currentTick - phaseEnteredAtTick
  *     >= config.suddenDeathTicks`, the team with the highest
- *     [AnnihilationScore] wins (tiebreakers in score's compareTo).
+ *     summed remaining pillar HP wins (ADR-0319); an exact tie at the top is a draw.
  *
  * Both conditions can produce **draw outcomes** (no winner):
  *
  *  - Simultaneous elimination: all surviving Tier 3s fall on the same
  *    tick (very rare; defensive guard).
- *  - Sudden-death tiebreaker tied at every level (score + pillarsAlive +
- *    tier3Alive).
+ *  - Sudden-death pillar HP tied exactly between the top teams.
  *
  * The tracker calls [evaluate] after every damage application and once
  * per tick. A non-`InProgress` outcome ends the match via
@@ -64,15 +63,10 @@ public object WinConditionRules {
         val elapsed = currentTick - state.phaseEnteredAtTick
         if (elapsed < state.config.suddenDeathTicks) return Outcome.InProgress
 
-        // Sudden-death timer fired — resolve via score tiebreaker.
+        // Sudden-death timer fired: the team with the most summed pillar HP wins; an exact HP tie at the top is a
+        // draw. Team order never decides (the survivors set has no meaningful order here).
         val scores = AnnihilationScore.computeAll(survivors, state.pillars.values)
         val top = scores.first()
-        // A true tie (compareTo == 0 against #2) is a draw.
-        val secondOrNull = scores.getOrNull(1)
-        return if (secondOrNull != null && secondOrNull.compareTo(top) == 0) {
-            Outcome.Draw
-        } else {
-            Outcome.Winner(top.team)
-        }
+        return if (scores.count { it.score == top.score } > 1) Outcome.Draw else Outcome.Winner(top.team)
     }
 }
