@@ -32,6 +32,7 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kaml) // StageTeamLayouts reads the stage yaml's team_layouts
     implementation(libs.slf4j.api)
     runtimeOnly(libs.logback.classic)
 
@@ -67,7 +68,7 @@ tasks.register<Test>("regenSkillOracle") {
     systemProperty("astera.oracle.regen", "true")
 }
 
-// Mass bot-vs-bot play (ADR-0316): `./gradlew :tools:game-sim:massPlay -Pruns=20 [-Pseed=<base>] (run i uses base+i; default base = epoch seconds, printed)` -> build/play/summary-<firstSeed>-<lastSeed>.md.
+// Mass bot-vs-bot play (ADR-0316): `./gradlew :tools:game-sim:massPlay -Pruns=20 [-Pseed=<base>] [-Pteams=N] (run i uses base+i; default base = epoch seconds, printed)` -> build/play/summary-<firstSeed>-<lastSeed>.md.
 tasks.register<JavaExec>("massPlay") {
     group = "verification"
     description = "Runs N headless matches and writes build/play/<run>/metrics.json + build/play/summary-<firstSeed>-<lastSeed>.md."
@@ -76,7 +77,7 @@ tasks.register<JavaExec>("massPlay") {
     workingDir = rootDir
     jvmArgs("-Djava.awt.headless=true", "-Xmx2g", "-Dastera.massplay.maxTicks=${providers.gradleProperty("maxTicks").getOrElse("24000")}", "-Dastera.sim.contentDir=${rootProject.file("content").absolutePath}")
     val out = layout.buildDirectory.dir("play").get().asFile.absolutePath
-    args(out, providers.gradleProperty("runs").getOrElse("5"), providers.gradleProperty("seed").getOrElse(""))
+    args(out, providers.gradleProperty("runs").getOrElse("5"), providers.gradleProperty("seed").getOrElse(""), providers.gradleProperty("teams").getOrElse("0"))
 }
 
 // First-star probe: `./gradlew -q :tools:game-sim:firstStar -Pseeds=1,2 -Psize=3 [-Psecs=120]`.

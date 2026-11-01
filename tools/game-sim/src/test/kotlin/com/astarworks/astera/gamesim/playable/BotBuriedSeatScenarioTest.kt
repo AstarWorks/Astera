@@ -15,7 +15,7 @@ class BotBuriedSeatScenarioTest {
 
     @Test
     fun `no seat spawns or respawns inside a solid block and jumps stop at the ceiling`() {
-        MatchDriver.boot(MatchConfig(mode = "annihilation", stage = "annihilation-arena", teams = listOf("red", "blue", "yellow"), botsPerTeam = 3, seed = 20261101L)).use { driver ->
+        MatchDriver.boot(MatchConfig(mode = "annihilation", stage = "annihilation-arena", botsPerTeam = 3, seed = 20261101L)).use { driver ->
             val terrain = driver.terrain
             fun buried(x: Double, y: Double, z: Double): Boolean {
                 val bx = floor(x).toInt()
