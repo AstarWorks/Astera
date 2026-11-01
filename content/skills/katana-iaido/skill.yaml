@@ -81,8 +81,7 @@ machine:
         # dash_strike corridor: capsule radius 1.0, hit_once, no early end (the dash runs through everyone).
         - id: strike
           op: hit
-          frame: body
-          pos: {w: 0.9}
+          anchor: caster.body
           at: 0
           every: 1
           for: "${dash_ticks}"
@@ -95,7 +94,7 @@ machine:
             hit:
               - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: wound, volume: 1.0, pitch: 1.0, detach: true}
         # the whole katana lies inside the caster eye volume (check 16): the lingering crit streak stays on the outer half at a slower cadence; the dense streak is the electric_spark trail_edge below
-        - {id: trail_fx, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.04, at: 0, every: 2, for: 4, detach: true}
+        - {id: trail_fx, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.04, at: 0, every: 2, for: 11, detach: true}
         - {id: trail_edge, op: particle, particle: electric_spark, along: edge_full, samples: 8, count: 2, extra: 0.02, at: 0, every: 1, for: 11, detach: true}
         - {id: trail_arc, op: particle, particle: sweep_attack, along: edge_full, samples: 2, count: 1, at: 0, every: 2, for: 10, detach: true}
     end: {final: true}
