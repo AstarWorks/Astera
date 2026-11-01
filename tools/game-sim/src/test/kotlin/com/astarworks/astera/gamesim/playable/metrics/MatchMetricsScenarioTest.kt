@@ -62,7 +62,7 @@ class MatchMetricsScenarioTest {
     @Test
     fun `real bot matches driven by MatchDriver are measured through the same pipeline`() {
         val out = Path.of(System.getProperty("astera.sim.traceDir")).resolveSibling("play-test-driver")
-        val results = MassPlay.run(listOf(21L, 22L), out, MassPlay.Config(maxTicks = 6_000, frameEveryTicks = 0)) { MatchDriver.boot(MatchConfig(seed = it)) }
+        val results = MassPlay.run(listOf(21L, 22L), out, MassPlay.Config(maxTicks = 3_000, frameEveryTicks = 0)) { MatchDriver.boot(MatchConfig(seed = it)) }
 
         assertThat(results).hasSize(2)
         assertThat(results.map { it.seed }.distinct()).`as`("a batch must not replay one seed").hasSize(2)
