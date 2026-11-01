@@ -162,12 +162,6 @@ public class PaperOreNodeWorld(private val plugin: JavaPlugin) : IOreNodeWorld {
         })
     }
 
-    override fun deny(world: WorldId, pos: Vec3) {
-        val w = plugin.server.getWorld(world.value) ?: return
-        val at = Location(w, pos.x, pos.y, pos.z)
-        plugin.server.regionScheduler.execute(plugin, at, Runnable { at.world.playSound(at, org.bukkit.Sound.ENTITY_VILLAGER_NO, 0.8f, 1.0f) })
-    }
-
     override fun refused(world: WorldId, pos: Vec3) {
         val w = plugin.server.getWorld(world.value) ?: return
         val at = Location(w, pos.x, pos.y, pos.z)
