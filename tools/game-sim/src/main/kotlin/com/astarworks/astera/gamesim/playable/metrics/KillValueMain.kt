@@ -89,6 +89,8 @@ fun main(args: Array<String>) {
                 d.stepUntil(maxTicks + 1200) { d.ended || (started?.let { d.tick - it > maxTicks } ?: false) }
                 val minutes = (endTick - (started ?: 0L)) / 1200.0
                 by.values.forEach { stats += it to minutes }
+                by.values.forEach { println("RAW,$n,$seed,${it.id},%.2f,${it.kills},${it.killDrop},${it.bounty},${it.farm},${it.total}".format(minutes)) }
+                System.err.println("run N=$n seed=$seed kills=${by.values.sumOf { it.kills }} minutes=%.1f".format(minutes))
             }
         }
         fun q(v: List<Double>, p: Double): Double = if (v.isEmpty()) Double.NaN else v.sorted().let { it[((it.size - 1) * p).toInt().coerceIn(0, it.size - 1)] }
@@ -101,6 +103,6 @@ fun main(args: Array<String>) {
         val totalKills = stats.sumOf { it.first.kills }
         val pooledPerKill = if (totalKills == 0) Double.NaN else stats.sumOf { it.first.killDrop + it.first.bounty }.toDouble() / totalKills
         val rPooled = pooledPerKill / (farm.average() * 0.5)
-        println("| $n | ${seeds.size} | ${stats.size} | $totalKills | ${spread(share.map { it * 100 }, "%.1f")}% | %.2f; ${spread(perKill)} | ${spread(farm)} | %.2f | ${spread(rPer)} |".format(pooledPerKill, rPooled))
+        println("| $n | ${seeds.size} | ${stats.size} | $totalKills | ${spread(share.map { it * 100 }, "%.1f")} | ${"%.2f".format(pooledPerKill)}; ${spread(perKill)} | ${spread(farm)} | ${"%.2f".format(rPooled)} | ${spread(rPer)} |")
     }
 }

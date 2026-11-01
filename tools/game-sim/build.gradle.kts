@@ -97,7 +97,7 @@ tasks.register<JavaExec>("killValue") {
     classpath = sourceSets["main"].runtimeClasspath
     mainClass.set("com.astarworks.astera.gamesim.playable.metrics.KillValueMainKt")
     workingDir = rootDir
-    jvmArgs("-Djava.awt.headless=true", "-Xmx3g", "-Dastera.sim.contentDir=${rootProject.file("content").absolutePath}")
+    jvmArgs("-Djava.awt.headless=true", "-Xmx${providers.gradleProperty("xmx").getOrElse("3g")}", "-Dastera.sim.contentDir=${rootProject.file("content").absolutePath}")
     args(providers.gradleProperty("seeds").getOrElse("1"), providers.gradleProperty("sizes").getOrElse("3,6,12"), providers.gradleProperty("maxTicks").getOrElse("24000"))
 }
 
