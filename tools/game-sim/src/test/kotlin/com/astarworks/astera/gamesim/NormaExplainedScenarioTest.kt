@@ -2,7 +2,6 @@ package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.event.MatchEnded
-import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.match.application.port.outbound.IMatchStarStore
 import com.astarworks.astera.match.domain.event.StarsCollected
@@ -25,6 +24,7 @@ class NormaExplainedScenarioTest {
             stars.add(matchId, who.id, 25)
             sim.eventBus.publish(StarsCollected(matchId, who.id, 25, stars.get(matchId, who.id)))
             advance(2)
+            normaCheckAtHome(matchId, who)
         }
     }
 
@@ -33,7 +33,7 @@ class NormaExplainedScenarioTest {
         scenario("norma-explained-carry-tnt") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "siege-isles-tnt")
+            val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "siege-isles-tnt")
             advance(40)
 
             assertThat(chat(red)).contains("Goal").contains("Carry the TNT into the enemy base").contains("run it to the enemy goal")
@@ -47,16 +47,11 @@ class NormaExplainedScenarioTest {
             assertThat(sidebar).`as`("the clock shows the limit (the sim shows the sidebar line keys with their placeholders)").contains("phase.count-active{time=13:")
             assertThat(sidebar).`as`("the own Norma level is on the sidebar").contains("level=1,max=5")
 
-            repeat(2) {
-                red.moveTo(Vec3(0.0, 65.0, -6.0))
-                advance(40)
-                red.moveTo(Vec3(100.0, 65.0, 0.0))
-                advance(40)
-            }
+            deliverTnt(red, matchId)
 
             eventsOf<MatchEnded>().single()
             val loserChat = chat(blue)
-            assertThat(loserChat).`as`("the verdict says what decided it, not 'objective completion'").contains("delivered the TNT to the enemy base")
+            assertThat(loserChat).`as`("the verdict says what decided it, not 'objective completion'").contains("carried the TNT into the enemy goal")
             assertThat(loserChat).`as`("both teams' final Norma level is on the result screen").contains("Norma").contains("Lv 1/5")
             assertThat(loserChat).`as`("no 'reach level N to win' hint exists any more").doesNotContain("To win:")
         }
@@ -69,6 +64,7 @@ class NormaExplainedScenarioTest {
             val blue = player("blue-1", team = "blue")
             val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"))
             climb(matchId, red, levels = 4)
+            assertThat(sim.services.getOrThrow<com.astarworks.astera.match.application.port.outbound.IMatchNormaStore>().get(matchId, red.id).level).isEqualTo(5)
 
             advance(40)
             assertThat(eventsOf<MatchEnded>()).`as`("only the mode's own objective ends a match").isEmpty()

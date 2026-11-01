@@ -19,6 +19,8 @@ import com.astarworks.astera.core.domain.event.PlayerRespawned
 import com.astarworks.astera.core.domain.event.QuestChainCompleted
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.gui.GuiIntent
+import com.astarworks.astera.core.domain.hud.HudComponent
+import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.music.MusicMood
@@ -27,6 +29,7 @@ import com.astarworks.astera.core.domain.quest.QuestChainId
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
+import com.astarworks.astera.match.application.gamemode.siege.ObjectiveKit
 import com.astarworks.astera.match.domain.event.PhaseChanged
 import com.astarworks.astera.stats.domain.event.LeveledUp
 import com.astarworks.astera.stats.domain.level.Level
@@ -72,6 +75,12 @@ class MilestoneSoundScenarioTest {
             assertThat(heard(red, SoundCues.MATCH_COUNTDOWN_TICK)).`as`("countdown ticks").isEqualTo(5)
             assertThat(heard(blue, SoundCues.MATCH_COUNTDOWN_TICK)).isEqualTo(5)
             assertThat(heard(red, SoundCues.MATCH_GO)).`as`("go").isEqualTo(1)
+            for (who in listOf(red, blue)) {
+                val numbers = sim.hud.entries.filter { it.player == who.id }
+                    .mapNotNull { (it.layout as? HudLayout.Subtitle)?.component as? HudComponent.Text }
+                    .map { it.messageKey.value }.filter { it.startsWith("astera.match.countdown.") }
+                assertThat(numbers).containsExactlyElementsOf((5 downTo 1).map { "astera.match.countdown.$it" })
+            }
             // Last stretch: warning sting for every member, then BGM tension.
             sim.playerSounds.clear()
             sim.eventBus.publish(PhaseChanged(matchId, MatchPhase.ACTIVE, MatchPhase.SUDDEN_DEATH, 1L))
@@ -80,6 +89,8 @@ class MilestoneSoundScenarioTest {
             assertThat(bgm.moodOf(red.id)).isEqualTo(MusicMood.HIGH_INTENSITY)
             assertThat(bgm.trackOf(red.id)).isEqualTo(MusicTrackId("high-intensity-drums"))
 
+            // Let the shipped 10-second match countdown finish before fighting.
+            advance(100)
             // Red shoots blue (1 HP) dead: kill cue for the killer, death cue for the victim, respawn cue later.
             sim.setMaxHealth(blue, 1.0)
             val blueSpawn = blue.position
@@ -165,6 +176,8 @@ class MilestoneSoundScenarioTest {
             val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "example-arena")
             val stars = sim.services.getOrThrow<com.astarworks.astera.match.application.port.outbound.IMatchStarStore>()
 
+            // Match-position lookup is fed by movement, just as a client reports walking into the arena.
+            blue.moveTo(ObjectiveKit.centreOf(checkNotNull(matchStage(matchId).region("center-platform")), 1.0))
             stars.add(matchId, blue.id, 6)
             sim.setMaxHealth(blue, 1.0)
             val deathSpot = blue.position
@@ -178,17 +191,18 @@ class MilestoneSoundScenarioTest {
                     advance(10)
                 }
             }
+            assertThat(eventsOf<PlayerKilled>().map { it.victim }).containsExactly(blue.id)
+            assertThat(stars.get(matchId, blue.id)).`as`("the victim keeps half of six stars").isEqualTo(3)
             assertThat(heard(blue, SoundCues.STAR_BURST)).`as`("victim hears the burst").isEqualTo(1)
-            assertThat(heard(red, SoundCues.STAR_BURST)).`as`("killer hears the burst").isEqualTo(1)
+            assertThat(heard(red, SoundCues.STAR_BURST_GAIN)).`as`("killer hears the gain cue").isEqualTo(1)
 
-            // Red walks over the dropped stars.
+            // Stand on the real drops through their authored pickup delay, rather than leaving just before it expires.
+            val burst = sim.starDrops.lying().filter { it.world == blue.world && it.velocity != null }
+            assertThat(burst.sumOf { it.amount }).isEqualTo(3)
             red.moveTo(deathSpot)
-            advance(10)
-            for (i in 0 until 12) {
-                val a = i * Math.PI / 6
-                red.moveTo(Vec3(deathSpot.x + Math.cos(a) * 1.5, deathSpot.y, deathSpot.z + Math.sin(a) * 1.5))
-                advance(10)
-            }
+            advance((burst.maxOf { it.readyAtTick } - sim.tick).coerceAtLeast(0).toInt())
+            advance(2) // The pickup sweep runs after the scheduler; the Global ledger credit lands on the following tick.
+            assertThat(stars.get(matchId, red.id)).`as`("all three dropped stars were picked up").isEqualTo(3)
             assertThat(heard(red, SoundCues.STAR_PICKUP)).`as`("pickup cue").isGreaterThanOrEqualTo(1)
         }
     }

@@ -10,7 +10,7 @@ import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import com.astarworks.astera.core.domain.event.MatchStarted
 import com.astarworks.astera.core.domain.match.MatchPhase
-import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.music.MusicMood
 import com.astarworks.astera.match.domain.event.PhaseChanged
 
@@ -30,21 +30,22 @@ public class MatchCueListener(
 ) {
 
     public fun onStarted(event: MatchStarted) {
-        val match = matches.findById(event.matchId) ?: return
-        val recipients = match.teams.flatMap { it.members }
-        if (recipients.isEmpty()) return
         for (n in MatchCountdownListener.COUNTDOWN_FROM downTo 1) {
             val offset = (MatchCountdownListener.COUNTDOWN_FROM - n).toLong() * MatchCountdownListener.TICKS_PER_SECOND
-            cueAt(recipients, offset, PresentationMoments.COUNTDOWN_TICK)
+            cueAt(event.matchId, offset, PresentationMoments.COUNTDOWN_TICK)
         }
         val goAt = MatchCountdownListener.COUNTDOWN_FROM.toLong() * MatchCountdownListener.TICKS_PER_SECOND
-        cueAt(recipients, goAt, PresentationMoments.COUNTDOWN_GO)
+        cueAt(event.matchId, goAt, PresentationMoments.COUNTDOWN_GO)
     }
 
     /** Each cue plays on its listener's own thread. */
-    private fun cueAt(recipients: List<PlayerId>, delayTicks: Long, moment: String) {
-        for (player in recipients) {
-            scheduler.run(ExecutionScope.Entity(player.uuid), ticks(delayTicks)) { presentation.play(moment, player) }
+    private fun cueAt(matchId: MatchId, delayTicks: Long, moment: String) {
+        // MatchStarted precedes roster entry. Resolve recipients when the cue is due.
+        scheduler.run(ExecutionScope.Global, ticks(delayTicks)) {
+            val match = matches.findById(matchId)?.takeIf { it.phase != MatchPhase.ENDED } ?: return@run
+            for (player in match.teams.flatMap { it.members }) {
+                scheduler.run(ExecutionScope.Entity(player.uuid), ticks(0)) { presentation.play(moment, player) }
+            }
         }
     }
 

@@ -16,6 +16,9 @@ import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.damage.DamageProfile
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.entity.EntityHandle
+import com.astarworks.astera.core.domain.advancement.AdvancementReward
+import com.astarworks.astera.core.domain.event.AdvancementRewardGranted
+import com.astarworks.astera.core.domain.event.CurrencyChangeReason
 import com.astarworks.astera.core.domain.event.CurrencyChanged
 import com.astarworks.astera.core.domain.event.MobKilled
 import com.astarworks.astera.core.domain.event.SkillXpGained
@@ -138,13 +141,14 @@ class CombatContextProgressionScenarioTest {
     }
 
     @Test
-    fun `a PvP kill between match participants moves stats, XP, missions and the kill feed but pays no GOLD`() {
+    fun `a PvP kill moves progression and pays only the level and first-kill milestone rewards`() {
         scenario("context-match-kill") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
             advance(110)
             startMatch("carry-tnt", mapOf(red to "red", blue to "blue"))
             val before = snapshot(red)
+            val currencyEventsBefore = eventsOf<CurrencyChanged>().size
 
             hit(red, blue.id, 500.0)
             advance(5)
@@ -158,8 +162,13 @@ class CombatContextProgressionScenarioTest {
             assertThat(after.xp).isGreaterThan(before.xp)
             assertThat(after.missions).isNotEqualTo(before.missions)
             assertThat(after.messages).describedAs("kill feed line").isGreaterThan(before.messages)
-            // XP never converts to a currency: only the match-end table pays GOLD.
-            assertThat(after.gold).describedAs("gold changes: " + eventsOf<com.astarworks.astera.core.domain.event.CurrencyChanged>().map { it.reason to it.delta }).isEqualTo(before.gold)
+            // The kill has no repeatable GOLD payout: reaching Lv2 pays 50, and first-kill pays 100 once.
+            val currencyChanges = eventsOf<CurrencyChanged>().drop(currencyEventsBefore).filter { it.playerId == red.id }
+            assertThat(currencyChanges.map { it.reason to it.delta }).containsExactly(CurrencyChangeReason.LevelReward(2) to 50L)
+            val milestones = eventsOf<AdvancementRewardGranted>().filter { it.playerId == red.id }
+            assertThat(milestones.map { it.advancementId.value }).containsExactly("first-kill")
+            assertThat(milestones.map { it.reward }).containsExactly(AdvancementReward.GrantCurrency(Currency.GOLD, 100L))
+            assertThat(after.gold).isEqualTo(before.gold + 150L)
         }
     }
 }

@@ -8,6 +8,7 @@ import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.MatchStarted
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.match.application.gamemode.siege.ObjectiveKit
 import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
 import com.astarworks.astera.core.domain.status.StatusEffectId
 import org.assertj.core.api.Assertions.assertThat
@@ -18,19 +19,7 @@ import org.junit.jupiter.api.Test
  * wounded players, spectating state) must be gone when the second one starts.
  */
 class ConsecutiveMatchResetScenarioTest {
-    private val tntSpawn = Vec3(0.0, 65.0, -6.0)
-    private val blueBase = Vec3(100.0, 65.0, 0.0)
     private val nowhere = Vec3(0.0, 65.0, -50.0)
-
-    /** [who] (red) carries the TNT to the blue base twice, which wins the match. */
-    private fun ScenarioScope.deliverTwice(who: SimEntity) {
-        repeat(2) {
-            who.moveTo(tntSpawn)
-            advance(40)
-            who.moveTo(blueBase)
-            advance(40)
-        }
-    }
 
     @Test
     fun `the second match on a stage starts with the objective marker back and the players clean`() {
@@ -46,7 +35,7 @@ class ConsecutiveMatchResetScenarioTest {
             // Leave the first match wounded and burning, having delivered the TNT.
             statuses.apply(StatusEffectInstance(burn, defender.id, 400, 1, sim.tick))
             health.setHealth(defender.id, 1.0, HealthChangeSource.Other("test"))
-            deliverTwice(attacker)
+            deliverTnt(attacker, first)
             assertThat(eventsOf<MatchEnded>().single().matchId).isEqualTo(first)
             advance(20)
 
@@ -57,13 +46,13 @@ class ConsecutiveMatchResetScenarioTest {
             val second = startMatch("carry-tnt", teams, stage = "siege-isles-tnt")
             assertThat(second).isNotEqualTo(first)
             assertThat(eventsOf<MatchStarted>()).hasSize(2)
-            assertThat(blockAt(tntSpawn.copy(y = 64.0))).`as`("the TNT marker is back for match 2").isEqualTo("minecraft:tnt")
+            assertThat(blockAt(ObjectiveKit.centreOf(checkNotNull(matchStage(second).region("tnt-spawn"))))).`as`("the TNT marker is back for match 2").isEqualTo("minecraft:tnt")
             assertThat(statuses.has(defender.id, StatusEffectId("burn"))).isFalse()
             assertThat(sim.isAlive(attacker.id)).isTrue()
             assertThat(sim.isAlive(defender.id)).isTrue()
 
             // And match 2 is a real match: the same objective still ends it.
-            deliverTwice(attacker)
+            deliverTnt(attacker, second)
             assertThat(eventsOf<MatchEnded>()).hasSize(2)
             assertThat(eventsOf<MatchEnded>().last().matchId).isEqualTo(second)
         }

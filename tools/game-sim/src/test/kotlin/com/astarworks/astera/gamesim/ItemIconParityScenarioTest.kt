@@ -106,7 +106,17 @@ class ItemIconParityScenarioTest {
                 }
             }
             // Tiles that should have art but have no generated icon yet (tools/item-art has no design for them).
-            assertThat(pending).containsExactlyInAnyOrder("gui-tile-admin", "gui-tile-item-catalog")
+            assertThat(pending).containsExactlyInAnyOrder(
+                "gui-tile-admin", "gui-tile-item-catalog", "gui-tile-daily", "gui-tile-last-result",
+                "gui-tile-hud-hp", "gui-tile-hud-damage", "gui-tile-hud-hints",
+                "gui-tile-play-bots", "gui-tile-leave-queue", "gui-tile-norma-star", "gui-tile-norma-kill",
+                "gui-tile-mission", "gui-tile-mission-done",
+                "gui-tile-status-bleed", "gui-tile-status-burn", "gui-tile-status-charge", "gui-tile-status-dash",
+                "gui-tile-status-evasive", "gui-tile-status-freeze", "gui-tile-status-immunity", "gui-tile-status-poise",
+                "gui-tile-status-poison", "gui-tile-status-regen", "gui-tile-status-reloading", "gui-tile-status-root",
+                "gui-tile-status-rupture", "gui-tile-status-shock", "gui-tile-status-silence", "gui-tile-status-sinking",
+                "gui-tile-status-swift", "gui-tile-status-tremor", "gui-tile-status-wet",
+            )
         }
     }
 }
