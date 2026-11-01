@@ -22,6 +22,7 @@ import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.nexus.NexusPhase
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.BlockType
+import com.astarworks.astera.core.domain.world.ToolKind
 import com.astarworks.astera.core.domain.world.ToolType
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.application.config.toSpec
@@ -55,6 +56,8 @@ public class OreNodeService(
     private val scheduler: IScheduler,
     /** The player's Norma level, or null outside a Norma match (then no level gate applies and the level-1 multiplier is used). */
     private val levelOf: (PlayerId) -> Int? = { null },
+    /** Block id -> proper tool class, from `content/engine/block-families.yaml`. */
+    private val properToolOf: (String) -> ToolKind?,
     private val onInvalid: (stageId: String, reason: String) -> Unit = { _, _ -> },
     /** Phase clock of phase-driven matches (Annihilation): a node whose `phase_gates` entry is later than the match's phase takes no damage. Null = no phase gate. */
     private val phases: () -> IMatchPhaseClock? = { null },
@@ -114,7 +117,7 @@ public class OreNodeService(
         val origin = stage?.origin ?: Vec3(0.0, 0.0, 0.0)
         val config = registry.find(source) ?: return
         val specs = config.nodes.mapNotNull { group ->
-            runCatching { group.toSpec(config) { id -> customBlocks.find(BlockType(id)) } }
+            runCatching { group.toSpec(config, { id -> customBlocks.find(BlockType(id)) }, properToolOf) }
                 .onFailure { onInvalid(source, it.message ?: it.toString()) }
                 .getOrNull()
         }

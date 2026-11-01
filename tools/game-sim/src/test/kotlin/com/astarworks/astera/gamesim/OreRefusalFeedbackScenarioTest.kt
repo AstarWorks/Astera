@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IOreNodeStrikes
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
+import com.astarworks.astera.core.application.skillengine.compose.blockProperTools
 import com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer
 import com.astarworks.astera.core.application.port.outbound.effect.ISoundRegistry
 import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
@@ -57,9 +58,10 @@ class OreRefusalFeedbackScenarioTest {
             val origin = sim.services.getOrThrow<IStageRegistry>().find(StageId("annihilation-arena"))?.origin ?: Vec3(0.0, 0.0, 0.0)
             val oreFile = checkNotNull(sim.services.getOrThrow<IOreNodeRegistry>().find("annihilation-arena")) { "no content/ore-nodes/annihilation-arena.yaml" }
             val customBlocks = sim.services.getOrThrow<ICustomBlockRegistry>()
+            val properTools = blockProperTools(java.nio.file.Paths.get(System.getProperty("astera.sim.contentDir")))
             // Phase-1, level-1 starter ore: only the tool gate can refuse it.
             val group = oreFile.nodes.first { it.block == "astera:ore_iron_node" }
-            val spec = group.toSpec(oreFile) { customBlocks.find(BlockType(it)) }
+            val spec = group.toSpec(oreFile, { customBlocks.find(BlockType(it)) }, properTools::get)
             val cells = spec.cells.map { Vec3(it.x + origin.x, it.y, it.z + origin.z) }
             check(cells.size >= 3) { "need 3 iron cells" }
             val nodes = sim.services.getOrThrow<OreNodeService>()
@@ -108,6 +110,7 @@ class OreRefusalFeedbackScenarioTest {
                 server = sim.services.getOrThrow<IMcServer>(),
                 world = sim.oreNodes,
                 scheduler = sim.scheduler,
+                properToolOf = properTools::get,
                 sounds = { sim.services.get(ISoundCuePlayer::class) },
                 nodes = map,
             )
@@ -146,7 +149,7 @@ class OreRefusalFeedbackScenarioTest {
 
             // Phase-locked: a Mid gold node (opens in phase 2) in phase 1 answers like any other refusal: its own line, the same cue and puff, no damage.
             val goldGroup = oreFile.nodes.first { it.block == "astera:ore_gold_node" }
-            val goldSpec = goldGroup.toSpec(oreFile) { customBlocks.find(BlockType(it)) }
+            val goldSpec = goldGroup.toSpec(oreFile, { customBlocks.find(BlockType(it)) }, properTools::get)
             check(goldSpec.minPhase > 1) { "gold must be phase-gated in annihilation-arena.yaml" }
             val goldCell = goldSpec.cells.first().let { Vec3(it.x + origin.x, it.y, it.z + origin.z) }
             val needsPhase = OreNodeService.NEEDS_PHASE.value
@@ -184,6 +187,7 @@ class OreRefusalFeedbackScenarioTest {
                 world = sim.oreNodes,
                 scheduler = sim.scheduler,
                 levelOf = { 1 },
+                properToolOf = properTools::get,
                 sounds = { sim.services.get(ISoundCuePlayer::class) },
                 nodes = levelMap,
             )

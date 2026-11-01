@@ -21,6 +21,8 @@ public data class OreDrop(val itemId: String, val count: Int)
  */
 public data class OreNodeSpec(
     val material: String,
+    /** The proper tool class of the node's block family (`content/engine/block-families.yaml`): axe for timber, shovel for clay, pickaxe for iron. */
+    val requiredTool: ToolKind,
     val placeholder: String,
     val regrowSeconds: Int,
     /** Minimum tier of whatever tool is used (any class). */

@@ -186,8 +186,10 @@ internal object MatchStarWiring {
         env.ctx.logger.info("Loaded ${oreReport.loaded} ore node file(s) from $oreNodeDir (failed: ${oreReport.failed})")
         env.ctx.registrations += services.register<com.astarworks.astera.match.application.port.outbound.IOreNodeRegistry>(oreNodeContents, priority = 0)
         services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry>().register(oreNodeContents, oreNodeDir)
+        val properTools = com.astarworks.astera.core.application.skillengine.compose.blockProperTools(env.ctx.contentDir)
         val oreNodes = com.astarworks.astera.match.application.service.OreNodeService(
             registry = oreNodeContents,
+            properToolOf = { properTools[it] },
             stages = env.stages,
             matchWorlds = services.getOrThrow<IMatchWorldRepository>(),
             customBlocks = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry>(),

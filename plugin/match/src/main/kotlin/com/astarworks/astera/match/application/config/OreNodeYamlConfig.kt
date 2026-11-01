@@ -77,17 +77,24 @@ public data class OreRegionYaml(public val min: OrePosYaml, public val max: OreP
 public data class OreDropYaml(@SerialName("item_id") public val itemId: String, public val count: Int = 1)
 
 /**
- * [blockOf] resolves [OreNodeGroupYaml.block] to its custom block (the registry); a miss is an authoring error. HP and the
+ * [properToolOf] gives a block id's tool class from the block families (null = authoring error). [blockOf] resolves [OreNodeGroupYaml.block] to its custom block (the registry); a miss is an authoring error. HP and the
  * per-class / per-tier hit damage come from it; [file] supplies the level table and the skill multiplier.
  */
 public fun OreNodeGroupYaml.toSpec(
     file: OreNodeYamlConfig,
     blockOf: (String) -> com.astarworks.astera.core.domain.block.CustomBlockSpec?,
+    properToolOf: (String) -> ToolKind?,
 ): OreNodeSpec {
     val blockSpec = blockOf(block) ?: throw IllegalArgumentException("ore node block '$block' is not a known custom block")
     val material = blockSpec.baseBukkitMaterial
     val hitDamage = blockSpec.toolEffectiveness.orEmpty().filterKeys { it.kind != ToolKind.NONE }
     require(hitDamage.values.any { it > 0 }) { "ore node '$block': the block needs tool_effectiveness entries (PICKAXE/AXE/SHOVEL) with damage > 0" }
+    val requiredTool = properToolOf(block)
+        ?: throw IllegalArgumentException("ore node '$block': its block has no tool family in content/engine/block-families.yaml (pickaxe / axe / shovel)")
+    val strongest = hitDamage.maxByOrNull { it.value }!!.key.kind
+    require(strongest == requiredTool) {
+        "ore node '$block': block-families.yaml says $requiredTool but tool_effectiveness is strongest for $strongest"
+    }
     require(blockSpec.baseDurability > 0) { "ore node '$block': base_durability must be > 0" }
     val tier = runCatching { ToolTier.valueOf(requiredTier.trim().uppercase()) }.getOrNull()?.takeIf { it != ToolTier.NONE }
         ?: throw IllegalArgumentException("ore node '$block': unknown required_tier '$requiredTier'")
@@ -104,7 +111,7 @@ public fun OreNodeGroupYaml.toSpec(
     val cells = positions.map { Vec3(it.x, it.y, it.z) } + filled
     require(cells.isNotEmpty()) { "ore node '$block': give positions or region" }
     return OreNodeSpec(
-        material, placeholder.trim().uppercase(), regrowSeconds, tier, drops.map { OreDrop(it.itemId, it.count) }, cells,
+        material, requiredTool, placeholder.trim().uppercase(), regrowSeconds, tier, drops.map { OreDrop(it.itemId, it.count) }, cells,
         blockSpec.baseDurability, hitDamage, minNormaLevel, file.levelSpeed, file.skillMult,
         minPhase = file.phaseGates[block] ?: 1,
     )
