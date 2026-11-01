@@ -762,6 +762,7 @@ wait_client_ready() { # name
   local name="$1" wd="$CLIENTS/$1" i
   for i in $(seq 1 120); do
     grep -qw -- "$name" <<<"$(rcon list 2>/dev/null)" && break
+    [ "$(docker inspect -f '{{.State.Running}}' "$SERVER_CT" 2>/dev/null)" = true ] || die "the server container $SERVER_CT is gone (torn down by another run's reaper?)"
     kill -0 "${CPID[$name]}" 2>/dev/null || { tail -20 "$wd/client.log" >&2; die "client $name exited before joining"; }
     sleep 2
   done
