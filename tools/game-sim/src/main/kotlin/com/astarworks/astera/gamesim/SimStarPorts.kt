@@ -146,6 +146,13 @@ public class SimOreNodeWorld(
         cracks.remove(Triple(kotlin.math.floor(pos.x).toInt(), kotlin.math.floor(pos.y).toInt(), kotlin.math.floor(pos.z).toInt()))
     }
 
+    /** Cells whose mining burst (debris particles + break sound) was shown, as (x, y, z, ore material). */
+    public val bursts: MutableList<List<Any>> = java.util.concurrent.CopyOnWriteArrayList()
+
+    override fun mined(world: WorldId, pos: Vec3, material: String) {
+        bursts += listOf(kotlin.math.floor(pos.x).toInt(), kotlin.math.floor(pos.y).toInt(), kotlin.math.floor(pos.z).toInt(), material)
+    }
+
     /** Cells a level-locked swing was denied at, in order (x, y, z). */
     public val denied: MutableList<Triple<Int, Int, Int>> = java.util.concurrent.CopyOnWriteArrayList()
 

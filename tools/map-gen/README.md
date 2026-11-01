@@ -9,7 +9,7 @@ python3 tools/map-gen/highmarch.py --check
 
 The first command deterministically emits `content/arenas/annihilation-highmarch.yaml`, the matching `content/stages/annihilation-arena.yaml`, and **only positions lines** in `content/ore-nodes/annihilation-arena.yaml`. The second validates block states, anchors, ore pockets/counts, pillar approaches and exact regeneration without writing repository files. `--handoff PATH` controls the external handoff location (default `/tmp/claude-1000/anni-map/star-spots.txt`); a sibling `coordinates.json` and JSON stdout describe the same anchors (3D coordinates use x/y/z; district centres use x/z). Do not hand-edit the world or stage. Ore values / top-level key order remain in their original file; this supports norma-tools' parallel `phase_gates` addition.
 
-The fixed seed identifies this authored revision; terrain is constructed from fixed strata and geometric terraces, without random noise. `World.frame` rotates geometry and directional block states together. Builders compose walls, arches and gate towers, stepped keeps, houses with doors/windows/gables, striped market stalls, forge chimneys, tiered shrine monuments, arched stone bridges, terraces, ramps, a ruined chapel and crane scaffolds. Full-block ramps intentionally let the existing bot walk the same one-block rises as a player. Stair blocks are used for roofs, slabs for counters, connected panes/fences/walls where appropriate, and team wool/concrete/banners for accents.
+The fixed seed identifies this authored revision. Terrain uses coherent trigonometric relief and strata; seeded rejection sampling places woodland and undergrowth reproducibly. `World.frame` rotates geometry and directional block states together. Builders compose walls, arches and gate towers, stepped keeps, houses with doors/windows/gables, striped market stalls, forge chimneys, tiered shrine monuments, arched stone bridges, terraces, ramps, a ruined chapel and crane scaffolds. Full-block ramps intentionally let the existing bot walk the same one-block rises as a player. Stair blocks are used for roofs, slabs for counters, connected panes/fences/walls where appropriate, and team wool/concrete/banners for accents.
 
 Town centres: red `(0,-108)`, blue `(94,54)`, yellow `(-94,54)`. Local `u` points right, `v` toward the main gate; red uses `(x,z)=(u,v)`, blue rotates 90°, yellow 270°. District centres: plaza `(23,1)`, market `(25,-2)`, forge `(-27,24)`, gate court `(0,9)`, inner ward `(-25,-4)`, keep `(0,-27)`, house `(25,-27)`. Objective wards have separate courts; the four spawns occupy a roofed guardhall at local `(0,-8)`, `(-2,-8)`, `(-2,-6)`, `(-4,-6)`. Its stone walls, sealed windows and full roof shelter respawns from keep/T1/side-gate crossfire; a three-wide east arcade opens toward the market. This is a spawn shelter, with no partition across the star plaza. The vacated gate court is contestable approach ground, with low shoulder cover and a shorter defender route from the guardhall. Shops remain at the market edge, about 25 straight-line blocks from the nearest spawn; the former within-15 claim is removed. Spawns face the arcade; main gates face the quarry. The server's `warm_slots` default remains unchanged (no stage override).
 
@@ -82,7 +82,7 @@ any entry; defenders must also reach T1 first. T1/T2/T3 are 21/45/35 path cells
 from the reference spawn (ADR-0322: 20/45/32); each stays within 10% of that reference.
 Entry-to-T1 paths remain 42/49/38. Every spawn also checks both its shortest
 base-star path and the path to its nearest horizontal base-star anchor: each
-is 20–35 cells, horizontal distance is 20–35 blocks, and path/horizontal <=1.4.
+is 20–25 cells, horizontal distance is 20–25 blocks, and path/horizontal <=1.4.
 `spawn-stars-{before,after}.md` records all twelve spawns, while `after.md`
 adds a fairness row for every spawn index. Rotated spawn layouts, guardhall
 roofs and the clear arcade are checked against the decoded import. All three ore-quarter gate towers now share the
@@ -94,3 +94,34 @@ all nine pillar anchors, shops, ore cells and star/cache anchors; it replaces
 the market spawns with the guardhall and adopts none of the rejected
 spawn-stars market partition. Evidence: `/tmp/claude-1000/anni-map/spawn-stars2/`. Live play and batched
 e2e remain manager checks.
+
+## Outer-ring quality pass (anni-quality)
+
+The original town, spawn, pillar, supply, ore, bridge and ladder anchors stay fixed.
+Outer turf rolls through gentle terraces, blending to the fixed broad walking
+corridors; riverbank terraces join the existing bridges and climb-outs. The quarry keeps its original
+height envelope. Coherent headlands, exposed stone/coarse dirt and gravel seams
+break up the rim; noisy rock undersides extend 15–30 blocks down at the perimeter
+and taper deeper inward, above kill y16. Winding worn paths blend dirt path,
+coarse dirt, gravel and turf inside the existing walkable corridor. Lantern
+posts, wooden signboards (no block-entity text), barrels, broken walls and the
+existing wagons mark shoulders.
+
+Seeded groves and clearings replace tree rows: oak, birch, spruce and dark oak
+have 5/7/10-block stems, branched broadleaf crowns, spruce cones and multi-stem
+veteran oaks. Ferns, flowers, bushes, fallen logs and small boulders fill woodland
+shoulders while keeping the through-routes open.
+
+`HighmarchScenario` additionally checks the decoded perimeter thickness, outer
+turf elevations, all four tree species, undergrowth and blended track materials,
+and rejects turf left above the excavated quarry. Star-distance checks now use
+the founder's tighter 20–25 bounds. `--baseline` omits the new quality checks.
+
+The offline preview emits two fixed-camera perspective images for Highmarch,
+in addition to top/iso/section/height: `annihilation-arena-perspective.png`
+(red base edge toward the western outpost and yellow, eye -38.5/100/-91.5),
+and `annihilation-arena-eye.png` (same corridor, eye -52.5/66.6/-94.5).
+Voxel DDA uses the actual decoded import, flat material colours and depth fog;
+plants render as full voxels, with no Minecraft textures or lighting. These
+views compare terrain and silhouettes; live appearance remains manager review.
+Evidence and before/after fairness tables: `/tmp/claude-1000/anni-map/quality/`.
