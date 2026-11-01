@@ -72,8 +72,8 @@ public class MatchShopBotBuyer(
     private fun ownedRank(member: PlayerId, owned: IOwnedItemStock, tiers: List<Tier>, slot: String): Int =
         tiers.filter { t -> t.pieces[slot]?.let { owned.count(member, it.itemId) >= 1 } == true }.maxOfOrNull { it.rank } ?: -1
 
-    private fun buy(member: PlayerId, name: String, offer: MatchShopOffer) {
-        when (val result = purchase.execute(member, offer)) {
+    private fun buy(member: PlayerId, name: String, offer: MatchShopOffer, handIn: List<ItemId> = emptyList()) {
+        when (val result = purchase.execute(member, offer, handIn)) {
             is Result.Success -> log.info("Bot {} bought {} at its base shop", name, offer.itemId.value)
             is Result.Failure -> log.warn("Bot {} could not buy {}: {}", name, offer.itemId.value, result.error)
         }
@@ -81,8 +81,8 @@ public class MatchShopBotBuyer(
 
     /**
      * Within one ore group the bot buys the BEST tier whose missing pieces it can pay in full (a lower tier it could also pay
-     * would be replaced at once, so it is skipped). Each worn lower-tier piece is handed in first so the new one is equipped
-     * into the freed armour slot.
+     * would be replaced at once, so it is skipped). Each lower-tier piece of the slot is handed in by the purchase itself
+     * (atomic: a failed purchase keeps the old piece), freeing the armour slot for the new one.
      */
     private fun armourGroup(member: PlayerId, name: String, owned: IOwnedItemStock, tiers: List<Tier>, mid: Boolean) {
         var best: Pair<Tier, List<Map.Entry<String, MatchShopOffer>>>? = null
@@ -93,12 +93,9 @@ public class MatchShopBotBuyer(
         }
         val (tier, need) = best ?: return
         for ((slot, offer) in need) {
-            for (lower in tiers) {
-                if (lower.rank >= tier.rank) continue
-                val old = lower.pieces[slot] ?: continue
-                while (owned.count(member, old.itemId) > 0 && owned.remove(member, old.itemId, 1)) { /* hand in every copy */ }
-            }
-            buy(member, name, offer)
+            val handIn = tiers.filter { it.rank < tier.rank }.mapNotNull { it.pieces[slot]?.itemId }
+                .flatMap { id -> List(owned.count(member, id)) { id } }
+            buy(member, name, offer, handIn)
         }
     }
 
