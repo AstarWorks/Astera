@@ -431,7 +431,7 @@ public class SimItemDelivery(private val tick: () -> Long = { 0L }) : IItemDeliv
 
     override fun give(target: IMcPlayer, spec: ItemSpec, amount: Int, origin: ItemOrigin): DeliveryResult {
         delivered += spec
-        (target as? SimMcPlayer)?.receive(spec.id) ?: return DeliveryResult.UnknownTemplate(spec.id.value)
+        (target as? SimMcPlayer)?.receive(spec.id, amount) ?: return DeliveryResult.UnknownTemplate(spec.id.value)
         val now = tick()
         synchronized(pending) {
             pending.removeAll { it.tick != now }

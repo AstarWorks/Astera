@@ -127,6 +127,7 @@ class SimBotHost(
     override val actionBars: List<HostLine> get() = bars
     override val screens: List<HostScreen> get() = emptyList()
     override val bossBarTitles: List<String> get() = sim.objectiveStage.plainTitles(entity.id)
+    override val bossBarColors: List<String> get() = sim.objectiveStage.barColors(entity.id)
     override val sounds: List<String> get() = emptyList()
     override val damageNumbers: List<String> get() = hits
     override var lift: Double

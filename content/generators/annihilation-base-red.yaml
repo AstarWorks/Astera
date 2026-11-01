@@ -5,7 +5,7 @@
 id: annihilation-base-red
 match_stage_id: annihilation-arena
 position: { x: 20.5, y: 65.0, z: -109.5 }
-period_seconds: 12.0
+period_seconds: 5.0
 amount: 1
 stockpile_cap: 1
 tier: iron

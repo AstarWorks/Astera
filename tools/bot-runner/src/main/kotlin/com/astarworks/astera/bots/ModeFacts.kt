@@ -1,5 +1,7 @@
 package com.astarworks.astera.bots
 
+import org.slf4j.LoggerFactory
+
 /** Where the TNT is (carry-tnt) and which team's player holds it; [carrierTeam] null = lying on the ground / not known. */
 data class TntFact(val x: Double, val z: Double, val carrierTeam: String? = null, val carrierName: String? = null)
 
@@ -105,6 +107,8 @@ class ObservedModeFacts(
     @Volatile private var glowing: List<GlowingPlayer> = emptyList()
     @Volatile private var lastCarrier: Pair<Double, Double>? = null
     @Volatile private var phaseSeen = 0
+    @Volatile private var barColourNames: List<String> = emptyList()
+    private var phaseErrorLogged = false
 
     fun update(looseMarkers: List<Pair<Double, Double>>, sightings: List<Sighting>) {
         markers = looseMarkers
@@ -112,8 +116,9 @@ class ObservedModeFacts(
     }
 
     /** [barTitles]: plain titles of the boss bars on screen; [glowingPlayers]: every player with the glowing flag, self included. */
-    fun updateRainmaker(barTitles: List<String>, glowingPlayers: List<GlowingPlayer>) {
+    fun updateRainmaker(barTitles: List<String>, glowingPlayers: List<GlowingPlayer>, barColors: List<String> = emptyList()) {
         bars = barTitles
+        barColourNames = barColors
         glowing = glowingPlayers
     }
 
@@ -135,14 +140,26 @@ class ObservedModeFacts(
 
     override fun enemies(): List<Sighting> = seen
 
-    /** The annihilation boss bar every player sees ("Phase 2: Engage next in 4:10", or "Final phase ends in 1:00"); the highest phase seen sticks. */
+    /**
+     * The annihilation phase, read from the colour of the boss bar every player sees, never from its text (the text is i18n:
+     * en / ja / a reworded key all differ, the colour is fixed by the plugin's AnnihilationClarity.showBar): GREEN = 1 Preparation,
+     * BLUE = 2 Engage, YELLOW = 3 Centre, RED = 4 (Escalation and the Final phase share the colour; the bot only needs "Preparation
+     * or not"). The highest phase seen sticks. No bar yet = null, and the caller may use its timer. A bar that IS on screen but has no
+     * phase colour means the signal broke: log an error once and throw, never fall back to a guess.
+     */
     override fun phase(): Int? {
         if (modeId != "annihilation") return null
-        val n = bars.firstNotNullOfOrNull { b ->
-            PHASE_BAR.find(b)?.groupValues?.get(1)?.toIntOrNull() ?: if (FINAL_BAR.containsMatchIn(b)) FINAL_PHASE else null
-        } ?: return phaseSeen.takeIf { it > 0 }
-        phaseSeen = maxOf(phaseSeen, n)
-        return phaseSeen
+        val colours = barColourNames
+        if (bars.isNotEmpty()) {
+            val n = colours.firstNotNullOfOrNull { PHASE_BY_COLOUR[it] }
+            if (n == null) {
+                val msg = "annihilation boss bar present ($bars) but its colour $colours is not a phase colour ${PHASE_BY_COLOUR.keys}; the phase signal changed"
+                if (!phaseErrorLogged) { phaseErrorLogged = true; LoggerFactory.getLogger(ObservedModeFacts::class.java).error(msg) }
+                error(msg)
+            }
+            phaseSeen = maxOf(phaseSeen, n)
+        }
+        return phaseSeen.takeIf { it > 0 }
     }
 
     @Volatile private var ownPillarHp: Map<Int, PillarHpFact> = emptyMap()
@@ -163,9 +180,8 @@ class ObservedModeFacts(
 
     private companion object {
         /** en / ja of `objective.bar.carry-tnt.carried` and `.shield` (content/languages): the team token is the scoreboard team id. */
-        const val FINAL_PHASE = 5
-        val PHASE_BAR = Regex("(?:Phase |フェーズ)(\\d+)")
-        val FINAL_BAR = Regex("Final phase|決着フェーズ")
+        /** `AnnihilationClarity.showBar`: Build green, Engage blue, Centre yellow, Escalation and Sudden death red. */
+        val PHASE_BY_COLOUR = mapOf("GREEN" to 1, "BLUE" to 2, "YELLOW" to 3, "RED" to 4)
         val CARRIED_BAR = Regex("(\\w+) (?:is carrying the TNT|がTNTを運搬中)")
         val OWN_PILLAR = Regex("(?:Your pillar|自軍の柱) \\(Tier (\\d+)\\)\\s*HP (\\d+)/(\\d+)")
         val SHIELD_BAR = Regex("(?:TNT shield|TNT シールド)\\s+(\\d+(?:\\.\\d+)?)\\s*HP")

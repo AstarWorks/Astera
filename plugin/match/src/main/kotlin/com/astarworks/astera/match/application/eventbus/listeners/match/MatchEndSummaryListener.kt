@@ -124,6 +124,9 @@ public class MatchEndSummaryListener(
             is EndReason.NormaTimeLimit ->
                 if (reason.leader != null) HudComponent.Text(MessageKey("astera.match.summary.subtitle.timer"))
                 else HudComponent.Text(MessageKey("astera.match.summary.subtitle.time-draw"))
+            is EndReason.PillarHpDecision ->
+                if (reason.winner != null) HudComponent.Text(MessageKey("astera.match.summary.subtitle.pillar-hp"), placeholders = team(reason.winner))
+                else HudComponent.Text(MessageKey("astera.match.summary.subtitle.pillar-hp-draw"))
             is EndReason.EncounterCleared -> HudComponent.Text(MessageKey("astera.match.summary.subtitle.pve-cleared"), placeholders = mapOf("waves" to reason.waves.toString()))
             is EndReason.EncounterFailed -> HudComponent.Text(
                 MessageKey("astera.match.summary.subtitle.pve-failed"),
@@ -178,6 +181,9 @@ public class MatchEndSummaryListener(
                     send("astera.match.summary.reason.norma-time-draw")
                 }
             }
+            is EndReason.PillarHpDecision ->
+                reason.winner?.let { w -> send("astera.match.summary.reason.pillar-hp", *teamParams(viewer, teamsById[w], w.value)) }
+                    ?: send("astera.match.summary.reason.pillar-hp-draw")
             is EndReason.EncounterCleared -> send("astera.match.summary.reason.encounter-cleared", "waves" to reason.waves.toString())
             is EndReason.EncounterFailed -> send(
                 if (reason.timeUp) "astera.match.summary.reason.encounter-time-up" else "astera.match.summary.reason.encounter-failed",
@@ -291,6 +297,7 @@ public class MatchEndSummaryListener(
             EndReason.WorldUnloaded -> "world-unloaded"
             is EndReason.Cancelled -> "cancelled"
             is EndReason.TeamVictory -> "objective"
+            is EndReason.PillarHpDecision -> "pillar-hp"
             // Norma results are named by pushChat (they carry the team); this is only the generic fallback.
             is EndReason.NormaTimeLimit -> "score-threshold"
             // PvE results are named by pushChat (they carry the wave counts); this is only the generic fallback.

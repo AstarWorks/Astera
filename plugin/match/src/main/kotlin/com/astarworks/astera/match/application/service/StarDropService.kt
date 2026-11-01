@@ -66,6 +66,8 @@ public class StarDropService(
     /** Which candidate spot each live spot-drop lies on, and the rotation per spot generator (ADR-0318). */
     private val spotOf: MutableMap<Long, Int> = ConcurrentHashMap(),
     private val rotations: MutableMap<Pair<MatchId, GeneratorId>, SpotRotation> = ConcurrentHashMap(),
+    /** Base lanes that already popped their opening stars (first-star guarantee). */
+    private val openingLanes: MutableSet<Pair<MatchId, GeneratorId>> = ConcurrentHashMap.newKeySet(),
 ) {
 
     public fun onSpawned(event: ResourceSpawned) {
@@ -105,11 +107,33 @@ public class StarDropService(
             drops[drop.id] = drop
             spotOf[drop.id] = index
             budget.stats.add(event.matchId, "spot:${generator.id.value}:$index", 1)
+            if (openingLanes.add(event.matchId to generator.id)) popOpeningStars(event, generator, world, team, index)
         }
         eventBus.publish(StarSupplied(event.matchId, generator.id, amount, team, scheduler.currentTick()))
         // FX-04: a new star lights up where it lies for everyone close enough to see it.
         for (near in nearby(event.matchId, world, at, POP_RADIUS)) {
             presentation.play(PresentationMoments.STAR_POP, near, mapOf("amount" to amount.toString()), at, world)
+        }
+    }
+
+    /**
+     * First-star guarantee: a team's base lane opens with one star per team member (the lane's own opening star plus the
+     * rest here, each on a spot of the lane, spots reused when the team has more members than spots), so every player has
+     * a star to walk to in the first seconds. Like the lane's opening star these are a one-off outside the buckets
+     * (about one star per player per match, counted as issued by the timer source).
+     */
+    private fun popOpeningStars(event: ResourceSpawned, generator: StarGenerator, world: WorldId, team: com.astarworks.astera.core.domain.match.TeamId?, firstIndex: Int) {
+        if (team == null) return
+        val members = matches.findById(event.matchId)?.teams?.firstOrNull { it.id == team }?.members?.size ?: return
+        for (i in 1 until members) {
+            val index = (firstIndex + i) % generator.spots.size
+            val at = generator.spots[index]
+            val drop = StarDrop(nextId.getAndIncrement(), event.matchId, world, at, 1, generator.pickupRadius, generator.id, team = team)
+                .let { withEntity(it, null) }
+            drops[drop.id] = drop
+            spotOf[drop.id] = index
+            budget.stats.add(event.matchId, "issued:${StarSource.SPOT.key}", 1)
+            eventBus.publish(StarSupplied(event.matchId, generator.id, 1, team, scheduler.currentTick()))
         }
     }
 
@@ -269,6 +293,7 @@ public class StarDropService(
             d.entity?.let { world?.remove(it) }
         }
         rotations.keys.removeIf { it.first == matchId }
+        openingLanes.removeIf { it.first == matchId }
     }
 
     /** Stars lying on the map for [matchId] (diagnostics / tests). */

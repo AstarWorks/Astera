@@ -485,8 +485,9 @@ class ModePlanner(
     private var phaseSeen = 0
 
     /**
-     * Annihilation Preparation phase (pillars immune): [ModeFacts.phase] says which phase runs (the boss bar); a host that
-     * shows no bar falls back to the [BUILD_PHASE_MS] timer from the first question. The highest phase seen sticks.
+     * Annihilation Preparation phase (pillars immune): [ModeFacts.phase] says which phase runs (the boss bar colour). The
+     * [BUILD_PHASE_MS] timer is used ONLY while no bar has been seen at all (facts return null); a bar that cannot be read makes
+     * [ModeFacts.phase] throw, so there is no silent fallback to the timer. The highest phase seen sticks.
      */
     fun preparing(now: Long): Boolean {
         if (modeId != "annihilation") return false

@@ -144,6 +144,7 @@ class MatchMetrics(
     private val kills = HashMap<String, Int>()
     private val killsByItem = HashMap<String, Int>()
     private var killTotal = 0
+    private val killTicks = mutableListOf<Long>()
     private val killsByTeam = HashMap<String, Int>()
     private val killsByPlayer = HashMap<String, Int>()
     private val pillarDamageByKey = HashMap<String, Double>()
@@ -252,6 +253,7 @@ class MatchMetrics(
         if (!isPlayer(e.victim)) return
         recordEnemyBaseKill(e)
         killTotal++
+        killTicks += e.atTick
         kills.merge(group(e.killer), 1, Int::plus)
         e.killer?.let { k ->
             val ent = sim.world.find(k)
@@ -408,6 +410,23 @@ class MatchMetrics(
         scalars["p1_kills_in_enemy_base"] = enemyBaseKills.size.toDouble()
 
         scalars["kills_total"] = killTotal.toDouble()
+
+        // Phase 2 (engage): from its start tick to the next phase's start, or the end of the match if it ended first.
+        val engageStart = phaseTicks[NexusPhase.Phase2Engage.id]
+        val engageEnd = engageStart?.let { s0 -> minOf(phaseTicks[NexusPhase.Phase3Center.id] ?: Long.MAX_VALUE, end).coerceAtLeast(s0) }
+        val engageKills = if (engageStart == null) emptyList() else killTicks.filter { it >= engageStart && it <= engageEnd!! }
+        val p2Ttff = if (engageStart == null) null else engageKills.minOrNull()?.let { (it - engageStart) / 20.0 }
+        val p2Minutes = if (engageStart == null) 0.0 else (engageEnd!! - engageStart) / 1200.0
+        val p2Kpm = if (p2Minutes > 0) engageKills.size / p2Minutes else null
+        scalars["p2_ttff_s"] = p2Ttff
+        scalars["p2_kills_per_min"] = p2Kpm
+        if (engageStart == null) {
+            na["p2_ttff_s"] = "the match never reached phase 2 (engage)"
+            na["p2_kills_per_min"] = "the match never reached phase 2 (engage)"
+        } else {
+            if (p2Ttff == null) na["p2_ttff_s"] = "no kill happened during phase 2 (engage)"
+            if (p2Kpm == null) na["p2_kills_per_min"] = "zero engage duration"
+        }
         scalars["pillar_damage_total"] = pillarDamageTotal
         scalars["first_pillar_hit_s"] = firstPillarHitTick?.let { (it - (start ?: it)) / 20.0 }
         scalars["first_pillar_loss_s"] = firstPillarLossTick?.let { (it - (start ?: it)) / 20.0 }
@@ -480,6 +499,8 @@ class MatchMetrics(
             put("pillarLosses", JsonArray(pillarLosses.map { JsonPrimitive("${(it.first - (start ?: it.first)) / 20.0}s ${it.second} ${it.third}") }))
             put("phaseStartSeconds", JsonObject(phaseTicks.mapValues { JsonPrimitive(((it.value - (start ?: it.value)) / 20.0)) }))
             put("killsTotal", killTotal)
+            put("p2TtffSeconds", p2Ttff)
+            put("p2KillsPerMinute", p2Kpm)
             put("killsPerMinute", kpm)
             put("killsPerMinutePerPlayer", scalars["kills_per_min_per_player"])
             put("killsPerMinuteByTeam", JsonObject(killsByTeam.mapValues { JsonPrimitive(if (minutes > 0) it.value / minutes else 0.0) }))

@@ -153,8 +153,8 @@ public class SimMcPlayer(private var entity: SimEntity) : IMcPlayer {
     }
 
     /** Puts [item] in the inventory; the first item received becomes the held (main-hand) item. */
-    public fun receive(item: ItemId) {
-        givenItems += item.value
+    public fun receive(item: ItemId, amount: Int = 1) {
+        repeat(amount) { givenItems += item.value }
         if (entity.heldItem == null) entity.heldItem = item
     }
 

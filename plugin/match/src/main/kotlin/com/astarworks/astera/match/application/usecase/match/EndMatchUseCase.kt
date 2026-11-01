@@ -37,6 +37,7 @@ public class EndMatchUseCase(
         // A mode that decided the match itself (WP10 Annihilation) carries its winner.
         val winningTeam = when (reason) {
             is EndReason.TeamVictory -> reason.winner
+            is EndReason.PillarHpDecision -> reason.winner
             is EndReason.NormaTimeLimit -> reason.leader
             is EndReason.EncounterCleared -> reason.winner
             is EndReason.EncounterFailed -> reason.opponent
