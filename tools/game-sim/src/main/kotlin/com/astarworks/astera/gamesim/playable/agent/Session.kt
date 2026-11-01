@@ -6,8 +6,6 @@ import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
-import com.astarworks.astera.core.application.service.arena.ArenaImportContent
-import com.astarworks.astera.core.application.service.arena.ArenaStructureContent
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.event.AnnihilationPhaseTransitioned
 import com.astarworks.astera.core.domain.event.DomainEvent
@@ -17,7 +15,6 @@ import com.astarworks.astera.core.domain.gui.GuiIntent
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.stage.ArenaBuildPlan
-import com.astarworks.astera.core.domain.stage.ArenaIslandGenerator
 import com.astarworks.astera.core.domain.stage.SpawnRole
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.economy.application.service.MatchShopLoaderService
@@ -51,11 +48,9 @@ class Session(private val host: MatchHost, contentDir: File) {
         ?: error("no stage objectives for lane '${host.request.mode}'")
     private val stage = sim.services.getOrThrow<IStageRegistry>().find(StageId(host.stageId)) ?: error("stage ${host.stageId} missing")
     private val origin = stage.origin
-    private val plan: ArenaBuildPlan? = stage.layout?.let {
-        ArenaIslandGenerator.generate(stage, ArenaStructureContent.load(contentDir.toPath()), ArenaImportContent.load(contentDir.toPath()))
-    }
-    private val terrain = ArenaTerrain(plan ?: error("stage ${host.stageId} has no island layout to walk on"))
-    private val navHost = PlayerNavHost(sim, me, terrain)
+    private val plan: ArenaBuildPlan = host.terrain.plan
+    private val terrain = host.terrain.view
+    private val navHost = host.meHost()
     private val navigator = Navigator(terrain, objectives.routeGraph())
     private val catalog = MatchShopLoaderService().also { it.loadFrom(contentDir.toPath().resolve("shops")) }.catalog
     private val nodes = sim.services.getOrThrow<OreNodeService>()
@@ -94,7 +89,7 @@ class Session(private val host: MatchHost, contentDir: File) {
     val starMoments = ArrayList<String>()
 
     init {
-        sim.step(1)
+        host.step(1)
         pump()
     }
 
@@ -428,8 +423,13 @@ class Session(private val host: MatchHost, contentDir: File) {
         val hp: Int, val pos: IntArray, val held: String?, val stars: Int, val ore: Map<String, Int>, val inv: Map<String, Int>,
         val normaLevel: Int, val normaGoal: String, val tool: String?,
         val team: List<Triple<String, IntArray, String>>, val enemies: List<Triple<String, IntArray, String>>,
-        val ready: Boolean,
+        val ready: Boolean, val cooldowns: Map<String, Int>,
     )
+
+    /** Item id -> remaining cooldown ticks, from the hotbar cooldown sweeps the items side asked for (the latest sweep per item). */
+    private fun cooldowns(): Map<String, Int> =
+        sim.sweeps.of(me.id).groupBy { it.item.value }.mapValues { (_, l) -> l.last() }
+            .mapValues { (_, w) -> (w.tick + w.ticks - sim.tick).toInt() }.filterValues { it > 0 }
 
     fun view(): View {
         val inv = inventory()
@@ -450,11 +450,12 @@ class Session(private val host: MatchHost, contentDir: File) {
             team = ally.map(::entry),
             enemies = foes.map(::entry),
             ready = progress.readyNotified,
+            cooldowns = cooldowns(),
         )
     }
 
     fun map(scale: Int): MapRender {
-        val p = plan!!
+        val p = plan
         val marks = ArrayList<MapMark>()
         for (poi in pois.pois) when (poi.kind) {
             "shop" -> marks += MapMark(poi.x, poi.z, '$', 4)
