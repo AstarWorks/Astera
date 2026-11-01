@@ -55,12 +55,6 @@ object MassPlay {
             }
             match.onTick { tick ->
                 metrics.onTick(tick)
-                if (System.getenv("ECON_TRACE") == seed.toString() && tick % 100 == 0L) {
-                    match.sim.world.entities.filter { it.name.startsWith("Bot_") || it.name.contains("-") }.forEach { e ->
-                        val b = match.brainOf(e.id) ?: return@forEach
-                        System.err.println("TRACE t=$tick ${e.name} dec=${b.currentDecisionKind} eco=${b.economyKind} ${b.dbg()}")
-                    }
-                }
                 if (config.frameEveryTicks > 0 && tick % config.frameEveryTicks == 0L) frame(tick)
             }
             var ticks = 0
