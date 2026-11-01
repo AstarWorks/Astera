@@ -10,6 +10,15 @@ import com.astarworks.astera.combat.application.preview.SkillPreviewService
 import com.astarworks.astera.combat.application.usecase.skin.SkillSkinUseCase
 import com.astarworks.astera.combat.application.usecase.skin.SkinError
 import com.astarworks.astera.combat.application.trace.SkillEngineTrace
+import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageError
+import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
+import com.astarworks.astera.combat.domain.damage.DamageAttempt
+import com.astarworks.astera.combat.domain.damage.DamageSource
+import com.astarworks.astera.core.domain.damage.DamageAttribute
+import com.astarworks.astera.core.domain.damage.DamageComponent
+import com.astarworks.astera.core.domain.damage.DamageProfile
+import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.skill.value.NumericValue
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.command.ArgumentType
 import com.astarworks.astera.core.application.command.CommandContext
@@ -44,6 +53,7 @@ internal fun skillCommandSpec(
     expand: CommandSpec.Literal? = null,
     skins: SkillSkinUseCase? = null,
     faults: SkillFaultLedger? = null,
+    applyDamage: ApplyDamageUseCase? = null,
 ): CommandSpec.Literal =
     CommandSpec.Literal(
         name = "skill",
@@ -56,10 +66,55 @@ internal fun skillCommandSpec(
             preview?.let { previewSubcommand(caster, it) },
             expand,
             faults?.let { faultsSubcommand(it) },
+            applyDamage?.let { hurtSubcommand(it, server) },
         ),
     )
 
 private val K_FAULT_LINE = MessageKey("astera.skill.expand.line")
+
+/**
+ * `/astera skill hurt <victim> <attacker-uuid> [amount]`: ONE hit on an online player from an entity (a dummy mob), through the regular
+ * [ApplyDamageUseCase] path (the same call a skill's `damage` op makes), so a guard / counter window on the victim sees its `hurt`
+ * with the attacker bound. Capture tooling only (`ATTACKER=1` of tools/vfx-shot). Replies one `hurt result=...` line; an absorbed
+ * hit (parry) and an immune target both come back as `immune`.
+ */
+private fun hurtSubcommand(applyDamage: ApplyDamageUseCase, server: IMcServer): CommandSpec.Literal = CommandSpec.Literal(
+    name = "hurt",
+    subcommands = listOf(
+        CommandSpec.Argument(name = "victim", type = ArgumentType.PlayerName),
+        CommandSpec.Argument(name = "attacker", type = ArgumentType.StringArg()),
+        CommandSpec.Argument(name = "amount", type = ArgumentType.StringArg(), optional = true),
+    ),
+    executor = { ctx ->
+        val victimName = ctx.required<String>("victim")
+        val victim = server.findPlayerByName(victimName)?.id
+        val attacker = runCatching { java.util.UUID.fromString(ctx.required<String>("attacker")) }.getOrNull()
+        val amount = ctx.optional<String>("amount")?.toDoubleOrNull() ?: 1.0
+        if (victim == null) {
+            CommandResult.Failure(K_NO_PLAYER, mapOf("player" to victimName))
+        } else if (attacker == null) {
+            CommandResult.Failure(K_FAULT_LINE, mapOf("line" to "hurt: attacker must be a uuid"))
+        } else {
+            val result = applyDamage.execute(
+                DamageAttempt(
+                    targetId = victim,
+                    baseProfile = DamageProfile(listOf(DamageComponent(base = NumericValue.Literal(amount), attribute = DamageAttribute.PHYSICAL))),
+                    source = DamageSource.Skill(skillId = SkillId("capture-attacker"), casterId = PlayerId(attacker)),
+                ),
+            )
+            val line = when (result) {
+                is Result.Success -> "hurt result=applied"
+                is Result.Failure -> when (result.error) {
+                    is ApplyDamageError.TargetImmune -> "hurt result=immune"
+                    is ApplyDamageError.FriendlyFireBlocked -> "hurt result=friendly-fire"
+                    is ApplyDamageError.GatewayFailed -> "hurt result=gateway-failed"
+                }
+            }
+            ctx.reply(K_FAULT_LINE, mapOf("line" to line))
+            CommandResult.Success
+        }
+    },
+).requirePermission(Permission("astera.skill.cast"))
 
 /**
  * `/astera skill faults [reset]`: the runtime faults counted per skill id and kind since boot (`faults total=N`, then one

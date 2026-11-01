@@ -199,6 +199,13 @@ The cast is `/astera skill cast <skill> Caster --force` (existing operator comma
 cast pipeline, no resource cost, cooldown cleared). The caster aims where its client looks, so the scene is
 framed with `/tp x y z yaw pitch`. Arena: overworld flat world at (300.5, -60, 300.5), away from the lobby.
 
+### `ATTACKER=1 [ATTACK_AT=<tick>]` (any view; counter / guard skills)
+Opt-in: the nearest dummy husk hits the Caster once, `ATTACK_AT` ticks after the cast (default 10, inside a 30-tick guard window; must be below
+`TICKS`), by `astera skill hurt Caster <husk-uuid> 1` (ApplyDamageUseCase with the husk as attacker, the call a skill damage op makes, so the skill hurt trigger fires). Sent as a camera-plan
+command; the director logs its reply as `PLAN_REPLY` and the run fails loudly if the damage was not applied. Example:
+`make vfx-shot SKILL=couture-rapier-def ATTACKER=1 VIEW=caster DISTANCE=3` (the husk must stand within the guard's range: couture-rapier-def 3.5).
+Absent: dummies stay passive, nothing changes.
+
 ### `SHOT_CASTER_TURN=<tick>:<yaw>[,<tick>:<yaw>...]` (any view)
 
 Turns the caster (`/rotate Caster <yaw> ~`, no teleport so the rig passengers stay mounted; absolute yaw in degrees) that many ticks after the cast, through the same RCON plan as the camera
