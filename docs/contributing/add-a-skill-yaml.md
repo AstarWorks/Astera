@@ -232,9 +232,9 @@ on:
 ```
 
 ```yaml
-# 銃 (pistol-shot): 弾道線は共有 skill gun-tracer を `use: skill:` で呼び、着弾は skill-local fragment
-- {id: tracer_h, use: skill:gun-tracer, with: {thickness: 0.1}, frames: {muzzle: muzzle, tip: contact}}
-- {id: fx_hit, op: use, use: "fragment:impact", frames: {spot: heart}}
+# 銃 (pistol-shot): 弾道線は無し。銃口 (flash / 弾 / 煙) は frame `gun` の 1 点、着弾は frame `hit` / `blk` の点
+- {id: flash, op: particle_def, at: 0, def: gun-muzzle-flash, frame: gun, pos: {v: 0.62, w: 0.24}}
+- {id: fx_hit, op: particle_def, def: gun-impact, frame: hit, pos: {v: -0.2}, detach: true}
 ```
 
 ```yaml
@@ -293,6 +293,9 @@ part を足す時は、呼び出し側の op id (`hit_fx` など) と part 内�
   位置 = `start + per_tick * tau + accel * tau^2 / 2` (start 省略時は 0)。`accel` が 0 でなければ 1 tick ごとに key を出す。
 - **三つ組**: `keys.scale` と `grow.to` / `grow.start` は `[left, up, forward]` の 3 要素 list でも書ける
   (`{left: .., up: .., forward: ..}` の map と同値)。要素数が 3 以外は load error。
+- **`scale` は常に掛け算 (置換ではない)**: display 自身の `scale:` を基準に、`keys.scale` と `grow` は表示 scale へ**乗算**される
+  (`LawSegmenter`: `scale = mul(scale, key)`)。grow-in は「`scale:` = 最終サイズ、keys は 0 -> 1 -> 0」と書く。`scale: [0, 0, 0]` に最終サイズの keys を足すと
+  全期間 0 が書かれる。frame の `scale:` track (`frames:` 内) は別物で、frame の軸長を変える (座標の係数 `pos: {v, w, s}` に掛かる)。
 - `motion` の値に CEL 文字列を書いても、family の per-index list とは見なされない (`"= ..."` は一つの数値式)。
 
 ### 被弾側 (victim side): `react` と `hit.attach`

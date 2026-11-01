@@ -747,7 +747,6 @@ astera:
       npc: "<gold>Ore Shop</gold>"
       tab:
         weapons: "<red>Weapons</red>"
-        tools: "<yellow>Tools</yellow>"
         blocks: "<aqua>Blocks</aqua>"
         armor: "<green>Armor</green>"
         upgrades: "<light_purple>Upgrades</light_purple>"
@@ -1036,6 +1035,12 @@ astera:
         title: "<gold><bold>NORMA COMPLETE!</bold></gold>"
         subtitle: "<yellow>Top level Lv {level} reached</yellow>{unlocked}"
         broadcast: "<gold><bold>{player}</bold></gold> <yellow>reached the top Norma level Lv {level}/{max}!</yellow>"
+    norma-tools:
+      upgraded: "<green>Your tools were upgraded to</green> <gold>{tier}</gold><green>!</green>"
+      tier:
+        stone: "stone"
+        iron: "iron"
+        diamond: "diamond"
     norma-locked:
       bar: "<red>Locked</red> <gray>-</gray> <white>{rarity}</white> <gray>unlocks at</gray> <gold>Lv {level}</gold>"
     norma-choice:

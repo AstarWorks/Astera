@@ -1,6 +1,5 @@
 package com.astarworks.astera.bots
 
-import com.astarworks.astera.e2e.Bot
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -13,7 +12,7 @@ import kotlin.math.min
  * progress for 1.5 s (the cell in front is then blocked for a while), the next cell is no longer walkable, or the bot
  * was pushed/teleported away from the path. Searches are throttled so a chasing bot costs one search per ~0.6 s.
  */
-class Navigator(private val terrain: Terrain, private val graph: ArenaRouteGraph? = null) {
+class Navigator(private val terrain: TerrainView, private val graph: ArenaRouteGraph? = null) {
     private val waypoints = ArrayDeque<ArenaRouteGraph.Point>()
     private var routeGx = Double.NaN
     private var routeGz = Double.NaN
@@ -47,7 +46,7 @@ class Navigator(private val terrain: Terrain, private val graph: ArenaRouteGraph
     fun clear() { clearLocal(); waypoints.clear(); routeGx = Double.NaN }
 
     /** Height of the next path cell above [bot] (0 when there is none): > 0.5 means the route climbs right ahead. */
-    fun nextRise(bot: Bot): Double = cells.getOrNull(idx)?.let { it.y - bot.y } ?: 0.0
+    fun nextRise(bot: BotHost): Double = cells.getOrNull(idx)?.let { it.y - bot.y } ?: 0.0
 
     /** Stuck escape: the cell in front is bad, plan around it (it stays blocked for a while). */
     fun markStuck(now: Long) {
@@ -57,7 +56,7 @@ class Navigator(private val terrain: Terrain, private val graph: ArenaRouteGraph
     }
 
     /** Moves one tick towards ([gx], [gz]) until within [arrive] blocks horizontally. [yaw] null = face the movement. */
-    fun follow(bot: Bot, gx: Double, gz: Double, gy: Double?, arrive: Double, speed: Double, now: Long, yaw: Float?, pitch: Float): Status {
+    fun follow(bot: BotHost, gx: Double, gz: Double, gy: Double?, arrive: Double, speed: Double, now: Long, yaw: Float?, pitch: Float): Status {
         if (hypot(gx - bot.x, gz - bot.z) <= arrive && (gy == null || abs(gy - bot.y) <= 2.5)) { clear(); return Status.ARRIVED }
         if (routeGx.isNaN() || hypot(gx - routeGx, gz - routeGz) > 3.0) {
             waypoints.clear()
@@ -76,7 +75,7 @@ class Navigator(private val terrain: Terrain, private val graph: ArenaRouteGraph
         else followLocal(bot, next.x, next.z, next.y, 2.0, speed, now, yaw, pitch)
     }
 
-    private fun followLocal(bot: Bot, gx: Double, gz: Double, gy: Double?, arrive: Double, speed: Double, now: Long, yaw: Float?, pitch: Float): Status {
+    private fun followLocal(bot: BotHost, gx: Double, gz: Double, gy: Double?, arrive: Double, speed: Double, now: Long, yaw: Float?, pitch: Float): Status {
         if (hypot(gx - bot.x, gz - bot.z) <= arrive && (gy == null || abs(gy - bot.y) <= 2.5)) { clear(); return Status.ARRIVED }
 
         if (stuckAt == 0L) { stuckX = bot.x; stuckZ = bot.z; stuckAt = now }
@@ -129,7 +128,7 @@ class Navigator(private val terrain: Terrain, private val graph: ArenaRouteGraph
         return Status.MOVING
     }
 
-    private fun plan(bot: Bot, gx: Double, gz: Double, gy: Double?, arrive: Double, now: Long): Boolean {
+    private fun plan(bot: BotHost, gx: Double, gz: Double, gy: Double?, arrive: Double, now: Long): Boolean {
         blocked.entries.removeIf { it.value < now }
         finder.clearCache()
         val start = finder.cellAt(bot.x, bot.y, bot.z)

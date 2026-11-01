@@ -119,7 +119,28 @@ class RoleAssigner(
         return if (index >= n - defenders) Assignment(Role.PILLAR_DEFENDER) else Assignment(Role.PILLAR_ATTACKER)
     }
 
+    /**
+     * Annihilation with the own pillar under attack: the [REACT_DEFENDERS] mates nearest to ([pillarX], [pillarZ]) defend
+     * (mates whose position is unknown rank last, ties by name), on top of the usual name-ordered defender. A bot that is a
+     * defender already ([sticky]) counts [STICKY_BONUS] blocks nearer, so the set does not flip while the squad runs home.
+     */
+    fun annihilationUnderAttack(threatened: Boolean, pillarX: Double, pillarZ: Double, selfX: Double, selfZ: Double, sticky: Boolean): Assignment {
+        val base = annihilation(threatened)
+        if (base.role == Role.PILLAR_DEFENDER) return base
+        fun dist(m: Mate): Double {
+            val d = if (m.name == self) hypot(selfX - pillarX, selfZ - pillarZ) else if (m.known()) hypot(m.x - pillarX, m.z - pillarZ) else Double.MAX_VALUE
+            return if (m.name == self && sticky) d - STICKY_BONUS else d
+        }
+        val baseDefenders = if (n >= 3) (if (threatened && n >= 4) 2 else 1) else 0
+        val pool = alive.take(n - baseDefenders).sortedWith(compareBy<Mate>({ dist(it) }, { it.name }))
+        return if (pool.take(minOf(REACT_DEFENDERS, pool.size - 1).coerceAtLeast(0)).any { it.name == self }) Assignment(Role.PILLAR_DEFENDER) else base
+    }
+
     companion object {
+        /** Attackers that fall back to defend while the own pillar is being hit. */
+        const val REACT_DEFENDERS = 2
+        const val STICKY_BONUS = 10.0
+
         /** The enemy team to burn first: the one with the fewest pillars standing (unknown counts as all three), ties by name. */
         fun weakestTeam(enemyTeams: List<String>, standing: (String) -> Int): String? =
             enemyTeams.sorted().filter { standing(it) > 0 }.minByOrNull { standing(it) }

@@ -48,10 +48,22 @@ public data class StarterGrant(
     val tutorialAutoEnroll: Boolean,
     val tutorialScriptId: String?,
     val welcomeDialogId: String?,
-    /** Field tools (pickaxe / axe / shovel) lent to every match participant for the match only; not part of the first-login grant. */
-    val matchTools: List<ItemId> = emptyList(),
+    /**
+     * Field tools (pickaxe / axe / shovel) lent to every match participant for the match only, by Norma level (ADR-0319);
+     * not part of the first-login grant. Empty = no tools lent. Otherwise strictly ascending by level, starting at 1,
+     * every tier the same size and in the same tool-class order (so tier N+1 replaces tier N slot for slot).
+     */
+    val matchToolTiers: List<MatchToolTier> = emptyList(),
 ) {
+    /** The tools lent at Norma [level]: the highest tier whose level is `<= level`; empty when no tiers are declared. */
+    public fun matchToolsAt(level: Int): List<ItemId> = matchToolTiers.lastOrNull { it.level <= level }?.tools.orEmpty()
+
     init {
+        if (matchToolTiers.isNotEmpty()) {
+            require(matchToolTiers.first().level == 1) { "StarterGrant.matchToolTiers must start at level 1" }
+            require(matchToolTiers.zipWithNext().all { (a, b) -> a.level < b.level }) { "StarterGrant.matchToolTiers must be strictly ascending by level" }
+            require(matchToolTiers.all { it.tools.size == matchToolTiers.first().tools.size }) { "StarterGrant.matchToolTiers tiers must all list the same number of tools" }
+        }
         walletGrants.forEach { (currency, amount) ->
             require(amount >= 0) {
                 "StarterGrant.walletGrants[$currency] must be >= 0, got $amount"
@@ -73,5 +85,13 @@ public data class StarterGrant(
             tutorialScriptId = null,
             welcomeDialogId = null,
         )
+    }
+}
+
+/** The tools lent from Norma [level] on (until the next tier). Same order across tiers = same tool class. */
+public data class MatchToolTier(val level: Int, val tools: List<ItemId>) {
+    init {
+        require(level >= 1) { "MatchToolTier.level must be >= 1, got $level" }
+        require(tools.isNotEmpty()) { "MatchToolTier(level=$level).tools must not be empty" }
     }
 }

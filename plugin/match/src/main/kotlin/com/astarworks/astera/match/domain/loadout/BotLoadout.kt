@@ -47,16 +47,22 @@ public object BotLoadoutPicker {
         return out
     }
 
-    /** @return a loadout from [weapons] not in [used], or any pair once all were used; `null` when no pair exists. */
-    public fun pick(weapons: List<BotWeapon>, used: Set<Set<ItemId>>, random: Random): BotLoadout? {
+    private fun comboKey(pair: BotLoadout): String = listOf(pair.first.family.ordinal, pair.second.family.ordinal).sorted().joinToString("-")
+
+    /**
+     * @return a loadout from [weapons] not in [used], or any pair once all were used; `null` when no pair exists. Among the family
+     * combinations the one [taken] (the loadouts the match already handed out) used least wins, so ranged and melee bots mix across
+     * a team instead of every draw landing on the same combination; the item pair inside the combination is the seeded random draw.
+     */
+    public fun pick(weapons: List<BotWeapon>, used: Set<Set<ItemId>>, random: Random, taken: Collection<BotLoadout> = emptyList()): BotLoadout? {
         val all = pairs(weapons)
         if (all.isEmpty()) return null
         val fresh = all.filter { it.key !in used }.ifEmpty { all }
-        val groups = fresh
-            .groupBy { pair -> listOf(pair.first.family.ordinal, pair.second.family.ordinal).sorted().joinToString("-") }
-            .entries.sortedBy { it.key }
-            .map { it.value }
-        val group = groups[random.nextInt(groups.size)]
+        val usage = taken.groupingBy { comboKey(it) }.eachCount()
+        val groups = fresh.groupBy { comboKey(it) }.entries.sortedBy { it.key }
+        val least = groups.minOf { usage[it.key] ?: 0 }
+        val candidates = groups.filter { (usage[it.key] ?: 0) == least }.map { it.value }
+        val group = candidates[random.nextInt(candidates.size)]
         return group[random.nextInt(group.size)]
     }
 }

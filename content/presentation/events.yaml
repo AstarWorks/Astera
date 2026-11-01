@@ -116,6 +116,11 @@ moments:
     subtitle: "astera.match.norma-up.max.subtitle"
     title_stay_ticks: 80
     particle: norma-level-max
+  norma-tools-up:
+    # The loaned field tools were upgraded in place on a Norma level-up (ADR-0319): chat line, action bar and a chime.
+    cue: "astera:ui/level-up"
+    chat: "astera.match.norma-tools.upgraded"
+    action_bar: "astera.match.norma-tools.upgraded"
   norma-locked:
     # A weapon used below the Norma level its rarity opens at (ADR-0292): deny sound and "Lv N で <rarity> 解放".
     cue: "astera:ui/deny"

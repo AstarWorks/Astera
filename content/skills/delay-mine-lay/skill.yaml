@@ -1,6 +1,8 @@
-# Frame grammar (ADR-0314): NOT converted. The mine sits at a fixed world point (anchor `spot`, caster forward 2.5, mode snapshot) while the caster
-# walks on; a frame is live (its origin follows the caster) and has no snapshot mode, so a frame placed on the caster would drag the mine along.
-# Reported as inexpressible in this group (no engine change allowed here).
+# Delay mine in the frame grammar (ADR-0314). Two frames carry everything drawn:
+#   mine - the caster at the cast tick, frozen there (`snapshot: cast`): v forward / w up / s right. The mine sits at the point 2.5 ahead of where the
+#          caster stood when the mine was laid, however far the caster walks on; plate, core, lamp, ring and the smoke puff are points of it.
+#   body - the caster (live): the arming click.
+# The blast rows (explosion, damage) keep the gameplay anchor `spot` (caster forward 2.5, snapshot) - gameplay is unchanged.
 # Delay mine: plants a mine ahead; it detonates 50 ticks later (arithmetic schedule) and the cast ends one tick after.
 # The mine is a flat dark plate with a red core and a pulsing red ring on the ground, visible from the tick it is laid until the blast.
 apiVersion: astera/v3
@@ -18,8 +20,10 @@ params:
   explode_radius:   {type: blocks, default: 2.5}
   explode_physical: {type: number, default: 55}
 anchors:
-  - {id: spot,     anchor: caster, offset: {forward: 2.5}, mode: snapshot}
-  - {id: smoke_at, anchor: caster, offset: {forward: 2.5, up: 0.1}, mode: follow}
+  - {id: spot, anchor: caster, offset: {forward: 2.5}, mode: snapshot}
+frames:
+  - {id: mine, origin: caster, v: forward, w: up, s: v x w, snapshot: cast}
+  - {id: body, origin: caster, v: forward, w: up, s: v x w}
 machine:
   start: armed
   states:
@@ -27,12 +31,12 @@ machine:
       for: 51      # fuse 50 + 1: the blast rows sit on tick 50
       then: end
       do:
-        - {id: click, op: sound, sound: "block.stone_pressure_plate.click_on", anchor: caster, volume: 1.0, pitch: 0.8, at: 0}
-        - {id: plate, op: display, kind: block, block: black_concrete, anchor: spot, at: 0, for: 51, offset: {up: 0.07}, scale: [0.8, 0.14, 0.8], brightness: {block: 15, sky: 15}}
-        - {id: core, op: display, kind: block, block: red_concrete, anchor: spot, at: 0, for: 51, offset: {up: 0.17}, scale: [0.34, 0.08, 0.34], brightness: {block: 15, sky: 15}}
-        - {id: lamp, op: display, kind: block, block: redstone_block, anchor: spot, at: 0, for: 51, offset: {up: 0.24}, scale: [0.14, 0.06, 0.14], brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, scale: [0.14, 0.06, 0.14]}, {t: 5, scale: [0.22, 0.1, 0.22], ease: in_out_quad}, {t: 10, scale: [0.14, 0.06, 0.14], ease: in_out_quad}, {t: 15, scale: [0.22, 0.1, 0.22], ease: in_out_quad}, {t: 20, scale: [0.14, 0.06, 0.14], ease: in_out_quad}, {t: 25, scale: [0.22, 0.1, 0.22], ease: in_out_quad}, {t: 30, scale: [0.14, 0.06, 0.14], ease: in_out_quad}, {t: 35, scale: [0.22, 0.1, 0.22], ease: in_out_quad}, {t: 40, scale: [0.14, 0.06, 0.14], ease: in_out_quad}, {t: 45, scale: [0.22, 0.1, 0.22], ease: in_out_quad}, {t: 50, scale: [0.14, 0.06, 0.14], ease: in_out_quad}]}]}
-        - {id: ring, op: display, kind: sprite, sprite: ring, anchor: spot, at: 0, for: 51, offset: {up: 0.16}, size: [1.5, 1.5], color: "#ff3220", billboard: fixed, brightness: {block: 15, sky: 15}, motion: [{law: align, axis: forward, to: world.up, at: 0, for: 51}]}
-        - {id: smoke, op: particle_def, def: gun-smoke, anchor: smoke_at, at: 0}
+        - {id: click, op: sound, sound: "block.stone_pressure_plate.click_on", frame: body, volume: 1.0, pitch: 0.8, at: 0}
+        - {id: plate, op: display, kind: block, block: black_concrete, frame: mine, pos: {v: 2.5, w: 0.07}, at: 0, for: 51, scale: [0.8, 0.14, 0.8], brightness: {block: 15, sky: 15}}
+        - {id: core, op: display, kind: block, block: red_concrete, frame: mine, pos: {v: 2.5, w: 0.17}, at: 0, for: 51, scale: [0.34, 0.08, 0.34], brightness: {block: 15, sky: 15}}
+        - {id: lamp, op: display, kind: block, block: redstone_block, frame: mine, pos: {v: 2.5, w: 0.24}, at: 0, for: 51, scale: [0.14, 0.06, 0.14], brightness: {block: 15, sky: 15}, motion: [{law: keys, keys: [{t: 0, scale: [0.14, 0.06, 0.14]}, {t: 5, scale: [0.22, 0.1, 0.22], ease: in_out_quad}, {t: 10, scale: [0.14, 0.06, 0.14], ease: in_out_quad}, {t: 15, scale: [0.22, 0.1, 0.22], ease: in_out_quad}, {t: 20, scale: [0.14, 0.06, 0.14], ease: in_out_quad}, {t: 25, scale: [0.22, 0.1, 0.22], ease: in_out_quad}, {t: 30, scale: [0.14, 0.06, 0.14], ease: in_out_quad}, {t: 35, scale: [0.22, 0.1, 0.22], ease: in_out_quad}, {t: 40, scale: [0.14, 0.06, 0.14], ease: in_out_quad}, {t: 45, scale: [0.22, 0.1, 0.22], ease: in_out_quad}, {t: 50, scale: [0.14, 0.06, 0.14], ease: in_out_quad}]}]}
+        - {id: ring, op: display, kind: sprite, sprite: ring, frame: mine, pos: {v: 2.5, w: 0.16}, at: 0, for: 51, size: [1.5, 1.5], color: "#ff3220", billboard: fixed, brightness: {block: 15, sky: 15}, motion: [{law: align, axis: forward, to: world.up, at: 0, for: 51}]}
+        - {id: smoke, op: particle_def, def: gun-smoke, frame: mine, pos: {v: 2.5, w: 0.1}, at: 0}
         - {id: boom, op: explode, at: 50, anchor: spot, power: "${explode_power}", break_blocks: false, fire: false}
         - {id: blast, op: damage, at: 50, target: {kind: enemies, around: spot, radius: "${explode_radius}"}, damage: {physical: "${explode_physical}"}}
     end: {final: true}
