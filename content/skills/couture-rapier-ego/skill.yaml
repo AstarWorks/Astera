@@ -27,23 +27,31 @@ frames:
     v: forward
     w: up
     s: v x w
-  - id: blade
-    origin: caster
+  # arm: the right arm. Origin = the right shoulder, rotate keys only; the hand is 0.45 along its v, so it can never leave arm reach.
+  - id: arm
+    origin: caster.shoulder_r
     v: forward
     w: up
     s: v x w
-    move:
-      - {at: 0, for: 0, to: {v: 0.35, w: 1.05, s: 0.55}}
-      - {at: 0, for: 14, to: {v: 0.35, w: 1.05, s: 0.55}, ease: out_quad}
-      - {at: 19, for: 8, to: {v: 0.35, w: 1.1, s: 0.55}}
-      - {at: 25, for: 4, to: {v: 0.35, w: 1.1, s: 0.55}, ease: out_quad}
-      - {at: 29, for: 3, to: {v: 0.35, w: 1.0, s: 0.55}, ease: in_quad}
-      - {at: 32, for: 8, to: {v: 0.35, w: 1.1, s: 0.55}}
-      - {at: 54, for: 5, to: {v: 0.35, w: 1.1, s: 0.55}, ease: out_quad}
-      - {at: 59, for: 3, to: {v: 0.35, w: 1.0, s: 0.55}, ease: in_quad}
-      - {at: 62, for: 8, to: {v: 0.35, w: 1.1, s: 0.55}}
     rotate:
-      # the overhead sweep (ticks 0..14): the tip rises from low in front up and over the head, riding the glass arc
+      - {at: 0, for: 0, about: w, to: -70}
+      - {at: 0, for: 0, about: s, to: -35}
+      - {at: 0, for: 14, about: s, to: -5, ease: out_quad}
+      - {at: 19, for: 8, about: s, to: 0}
+      - {at: 25, for: 4, about: s, to: -5, ease: out_quad}
+      - {at: 29, for: 3, about: s, to: -25, ease: in_quad}
+      - {at: 32, for: 8, about: s, to: 0}
+      - {at: 54, for: 5, about: s, to: -5, ease: out_quad}
+      - {at: 59, for: 3, about: s, to: -25, ease: in_quad}
+      - {at: 62, for: 8, about: s, to: 0}
+  # blade: the rapier. Origin = the hand (arm tip); its keys are the blade angle (positive about s lifts the point).
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
+    rotate:
+      # the overhead sweep (ticks 0..14): the point rises from low in front up and over, riding the glass arc
       - {at: 0, for: 0, about: s, to: -35}
       - {at: 0, for: 14, about: s, to: 110, ease: out_quad}
       - {at: 19, for: 8, about: s, to: 0}

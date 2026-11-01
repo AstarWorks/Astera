@@ -31,24 +31,31 @@ frames:
     v: forward
     w: up
     s: v x w
-  - id: blade
-    origin: caster
+  # arm: the right arm. Origin = the right shoulder, rotate keys only; the hand is 0.45 along its v, so it can never leave arm reach.
+  - id: arm
+    origin: caster.shoulder_r
     v: forward
     w: up
     s: v x w
-    move:
-      - {at: 0, for: 0, to: {v: 0.35, w: 1.1, s: 0.55}}
-      - {at: 14, for: 8, to: {v: 0.35, w: 1.05, s: 0.55}, ease: out_quad}
-      - {at: 22, for: 4, to: {v: 0.35, w: 1.0, s: 0.55}, ease: in_quad}
-      - {at: 26, for: 8, to: {v: 0.35, w: 1.1, s: 0.55}}
-      - {at: 32, for: 6, to: {v: 0.35, w: 1.05, s: 0.55}, ease: out_quad}
-      - {at: 38, for: 4, to: {v: 0.35, w: 1.0, s: 0.55}, ease: in_quad}
-      - {at: 44, for: 8, to: {v: 0.35, w: 1.1, s: 0.55}}
-      - {at: 96, for: 9, to: {v: 0.35, w: 1.1, s: 0.55}, ease: out_quad}
-      - {at: 105, for: 4, to: {v: 0.6, w: 0.95, s: 0.5}, ease: in_quad}
-      - {at: 116, for: 10, to: {v: 0.35, w: 1.1, s: 0.55}}
     rotate:
-      # blow 1 (hit 24): raise the tip, cut down across the front, come back
+      - {at: 0, for: 0, about: w, to: -70}
+      - {at: 14, for: 8, about: s, to: 10, ease: out_quad}
+      - {at: 22, for: 4, about: s, to: -20, ease: in_quad}
+      - {at: 26, for: 8, about: s, to: 0}
+      - {at: 32, for: 6, about: s, to: 10, ease: out_quad}
+      - {at: 38, for: 4, about: s, to: -20, ease: in_quad}
+      - {at: 44, for: 8, about: s, to: 0}
+      - {at: 96, for: 9, about: s, to: 10, ease: out_quad}
+      - {at: 105, for: 4, about: s, to: -25, ease: in_quad}
+      - {at: 116, for: 10, about: s, to: 0}
+  # blade: the rapier. Origin = the hand (arm tip); its keys are the blade angle (positive about s lifts the point).
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
+    rotate:
+      # blow 1 (hit 24): raise the point, cut down across the front, come back
       - {at: 14, for: 8, about: s, to: 55, ease: out_quad}
       - {at: 22, for: 4, about: s, to: -35, ease: in_quad}
       - {at: 26, for: 8, about: s, to: 0}
