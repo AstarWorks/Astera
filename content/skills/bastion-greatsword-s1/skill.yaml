@@ -1,9 +1,9 @@
-# Bastion greatsword S1 (Moon Sweep) in the frame grammar (ADR-0314). Three frames carry everything drawn:
-#   blade - the sword: origin at the caster's feet moved along the hand path (`move:`: a hand-written key per beat, the lift and the slam raise split further so
-#           the straight 0.6 arm still reaches the origin on every tick: the hand moves along the arm's sphere, a chord between keys dips inside it),
-#           the greatsword rides it, long axis along v (grip at the origin, tip at v 1.7), edge along w. The
-#           caster's right hand is pinned onto this origin by the engine (ADR-0315): the blade leads, the hand follows. Its rotate keys ARE
-#           the three swings: the hand lifts the upright blade, one roll about v turns the edge to the left, then every cut is a turn about
+# Bastion greatsword S1 (Moon Sweep) in the frame grammar (ADR-0314). These frames carry everything drawn:
+#   arm   - the caster's right shoulder (`caster.shoulder_r`), turned by yaw (about w) then pitch (about s) keys: where the straight arm points.
+#   blade - the sword: its origin is the point 0.6 along the arm (`origin: {frame: arm, pos: {v: 0.6}}`), the length of the rigid arm, so the
+#           hand reaches the origin on every tick by construction (no fitting keys). The greatsword rides it, long axis along v (grip at the
+#           origin, tip at v 1.7), edge along w. The caster's right hand is pinned onto this origin by the engine (ADR-0315): the blade leads,
+#           the hand follows. Its rotate keys ARE the three swings: one roll about v turns the edge to the left, then every cut is a turn about
 #           s, which moves v towards w - the edge leads by construction. The first sweep goes right -> left, the moon keeps turning the same
 #           way round the back and across the front again, then the edge is rolled down for the slam. `reset` eases the chain back to the
 #           rest pose before the rig ends.
@@ -37,33 +37,48 @@ params:
   dash_distance_2: {type: blocks, default: 2.6}
   knockback: {type: number, default: 0.5}
 frames:
-  - id: blade
-    origin: caster
+  - id: arm
+    origin: caster.shoulder_r
     v: forward
     w: up
     s: v x w
-    move:
-      - {at: 0, for: 0, to: {v: -0.29, w: 0.50, s: 0.37}}                              # rest: the grip at the right hip
-      - {at: 0, for: 1, to: {v: -0.68, w: 1.21, s: 0.27}, ease: out_quad}              # lift: the upright blade goes up along the arm's sphere
-      - {at: 1, for: 1, to: {v: -0.58, w: 1.35, s: 0.44}, ease: out_quad}
-      - {at: 2, for: 1, to: {v: -0.55, w: 1.41, s: 0.49}, ease: in_out_sine}
-      - {at: 3, for: 2, to: {v: -0.30, w: 1.45, s: 0.70}, ease: in_out_sine}           # wind-up: back and out to the right
-      - {at: 5, for: 1, to: {v: 0.96, w: 1.36, s: -0.12}, ease: in_quad}               # cut 1, first half: forward across the front
-      - {at: 6, for: 1, to: {v: -0.11, w: 1.31, s: -0.64}, ease: out_quad}             # cut 1 lands, drawn in to the left (hit at 7)
-      - {at: 7, for: 3, to: {v: -0.37, w: 1.23, s: -0.38}, ease: out_quad}             # run-out: the hand settles
-      - {at: 10, for: 1, to: {v: -0.38, w: 1.22, s: -0.31}, ease: out_sine}
-      - {at: 11, for: 1, to: {v: -0.36, w: 1.21, s: -0.27}, ease: out_sine}
-      - {at: 12, for: 4, to: {v: -0.42, w: 1.20, s: -0.18}, ease: out_sine}
-      - {at: 16, for: 3, to: {v: -0.47, w: 0.65, s: -0.04}, ease: in_out_sine}         # the hand drops to the hip for the moon
-      - {at: 28, for: 1, to: {v: -0.39, w: 0.62, s: -0.15}, ease: in_quad}             # moon: round the left side
-      - {at: 29, for: 1, to: {v: -0.03, w: 0.60, s: -0.63}, ease: in_quad}
-      - {at: 30, for: 1, to: {v: 0.72, w: 0.81, s: 0.04}, ease: out_quad}              # cut 2: out across the front (hit at 31)
-      - {at: 31, for: 7, to: {v: 0.75, w: 0.80, s: 0.08}}                              # cut 2 run-out
-      - {at: 38, for: 1, to: {v: 0.52, w: 0.75, s: 0.11}, ease: in_out_sine}           # the hand comes home
-      - {at: 39, for: 2, to: {v: -0.30, w: 0.70, s: 0.25}, ease: in_out_sine}
-      - {at: 41, for: 2, to: {v: -0.21, w: 0.66, s: 0.22}, ease: in_out_sine}          # slam: set the grip for the raise
-      - {at: 43, for: 4, to: {v: 0.07, w: 0.62, s: 0.25}, ease: in_out_sine}
-      - {at: 47, for: 5, to: {v: 0.29, w: 0.77, s: 0.35}, ease: in_out_sine}
+    rotate:
+      # yaw about w, then pitch about s: the arm's direction from the shoulder (listed yaw first, so the two compose as yaw . pitch)
+      - {at: 0, for: 0, about: w, to: 73}                                   # rest: the hand at the hip
+      - {at: 0, for: 1, about: w, to: 146}                                  # lift: the arm comes up
+      - {at: 1, for: 1, about: w, to: 125}
+      - {at: 2, for: 3, about: w, to: 172}                                  # wind-up to the right
+      - {at: 5, for: 1, about: w, to: 71}                                   # cut 1: across the front ...
+      - {at: 6, for: 1, about: w, to: 133}                                  # ... and in to the left (hit at 7)
+      - {at: 7, for: 5, about: w, to: 164}                                  # run-out
+      - {at: 12, for: 7, about: w, to: 219}                                 # the hand drops back for the moon
+      - {at: 27, for: 2, about: w, to: 243}                                 # moon: round the left side
+      - {at: 29, for: 1, about: w, to: 112}
+      - {at: 30, for: 1, about: w, to: 34}                                  # cut 2: out across the front (hit at 31)
+      - {at: 31, for: 8, about: w, to: 17}                                  # run-out, the hand comes home
+      - {at: 39, for: 1, about: w, to: 123}                                 # slam: set the grip, raise, bring it down
+      - {at: 40, for: 8, about: w, to: 88}
+      - {at: 48, for: 4, about: w, to: -11}
+      - {at: 0, for: 0, about: s, to: -63}
+      - {at: 0, for: 1, about: s, to: -23}
+      - {at: 1, for: 1, about: s, to: 43}
+      - {at: 2, for: 3, about: s, to: 31}
+      - {at: 5, for: 1, about: s, to: 19}
+      - {at: 6, for: 1, about: s, to: 19}
+      - {at: 7, for: 5, about: s, to: 8}
+      - {at: 12, for: 7, about: s, to: -43}
+      - {at: 27, for: 2, about: s, to: -14}
+      - {at: 29, for: 1, about: s, to: -29}
+      - {at: 30, for: 1, about: s, to: -18}
+      - {at: 31, for: 8, about: s, to: -36}
+      - {at: 39, for: 1, about: s, to: -34}
+      - {at: 40, for: 8, about: s, to: -70}
+      - {at: 48, for: 4, about: s, to: -60}
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
     rotate:
       # the lift (0-2) is straight up with the edge still up, so it lies in the blade plane; then the roll, with the hand still
       - {at: 2, for: 1, about: v, to: -80}                       # edge to the left: the sweeps are flat, a touch rising

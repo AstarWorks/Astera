@@ -55,12 +55,12 @@ machine:
             - {id: st, op: status, target: caster, status: charge, stacks: "${charge_stacks}", for: "${charge_ticks}"}
         - {id: snd, op: sound, sound: item.shield.block, anchor: caster, at: 0}
         # Two plate pairs (outer, tinted inner), a face each way.
-        - {id: rim0, op: display, kind: sprite, sprite: bastion-rim, frame: shield, plane: [s, w], size: [1.92, 3.712], see_through: true, brightness: {block: 15, sky: 15}, for: 162}
-        - {id: rim0b, op: display, kind: sprite, sprite: bastion-rim, frame: shield, plane: [-s, w], size: [1.92, 3.712], see_through: true, brightness: {block: 15, sky: 15}, for: 162}
-        - {id: rim1, op: display, kind: sprite, sprite: bastion-rim, frame: shield, plane: [s, w], size: [1.408, 3.072], color: "#FFF3C8", see_through: true, brightness: {block: 15, sky: 15}, for: 162}
-        - {id: rim1b, op: display, kind: sprite, sprite: bastion-rim, frame: shield, plane: [-s, w], size: [1.408, 3.072], color: "#FFF3C8", see_through: true, brightness: {block: 15, sky: 15}, for: 162}
-        - {id: crest, op: display, kind: sprite, sprite: bastion-crest, frame: shield, pos: {w: 0.05}, plane: [s, w], size: [1.664, 1.664], see_through: true, brightness: {block: 15, sky: 15}, for: 162}
-        - {id: crest_b, op: display, kind: sprite, sprite: bastion-crest, frame: shield, pos: {w: 0.05}, plane: [-s, w], size: [1.664, 1.664], see_through: true, brightness: {block: 15, sky: 15}, for: 162}
+        - {id: rim0, op: display, kind: sprite, sprite: bastion-rim, frame: shield, plane: [s, w], size: [1.92, 3.71], see_through: true, brightness: {block: 15, sky: 15}, for: 162}
+        - {id: rim0b, op: display, kind: sprite, sprite: bastion-rim, frame: shield, plane: [-s, w], size: [1.92, 3.71], see_through: true, brightness: {block: 15, sky: 15}, for: 162}
+        - {id: rim1, op: display, kind: sprite, sprite: bastion-rim, frame: shield, plane: [s, w], size: [1.41, 3.07], color: "#FFF3C8", see_through: true, brightness: {block: 15, sky: 15}, for: 162}
+        - {id: rim1b, op: display, kind: sprite, sprite: bastion-rim, frame: shield, plane: [-s, w], size: [1.41, 3.07], color: "#FFF3C8", see_through: true, brightness: {block: 15, sky: 15}, for: 162}
+        - {id: crest, op: display, kind: sprite, sprite: bastion-crest, frame: shield, pos: {w: 0.05}, plane: [s, w], size: [1.66, 1.66], see_through: true, brightness: {block: 15, sky: 15}, for: 162}
+        - {id: crest_b, op: display, kind: sprite, sprite: bastion-crest, frame: shield, pos: {w: 0.05}, plane: [-s, w], size: [1.66, 1.66], see_through: true, brightness: {block: 15, sky: 15}, for: 162}
         - id: fill
           op: display
           kind: text

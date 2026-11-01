@@ -51,6 +51,6 @@ machine:
           on:
             hit:
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: "${knockback}"}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: hit, volume: 0.7, pitch: 1.2, detach: true}
-              - {id: fx_hit, op: particle_def, def: hit-spark, frame: hit, pos: {v: -0.2}, detach: true}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: hit, volume: 0.7, pitch: 1.2}
+              - {id: fx_hit, op: particle_def, def: hit-spark, frame: hit, pos: {v: -0.2}}
     end: {final: true}
