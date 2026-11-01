@@ -75,6 +75,7 @@ public object PresentationMoments {
     public const val NORMA_LEVEL_UP: String = "norma-level-up"
     public const val NORMA_LEVEL_MAX: String = "norma-level-max"
     public const val NORMA_LOCKED: String = "norma-locked"
+    public const val NORMA_TOOLS_UP: String = "norma-tools-up"
     public const val OBJECTIVE_PICKUP: String = "objective-pickup"
     public const val OBJECTIVE_COLLECT: String = "objective-collect"
     public const val OBJECTIVE_ALERT: String = "objective-alert"
@@ -103,6 +104,8 @@ public object PresentationMoments {
     public const val QUEUE_JOIN: String = "queue-join"
     public const val MATCH_FOUND: String = "match-found"
     public const val SUDDEN_DEATH: String = "sudden-death"
+    public const val ANNIHILATION_PHASE: String = "annihilation-phase"
+    public const val ANNIHILATION_FINAL: String = "annihilation-final"
     public const val MATCH_WIN: String = "match-win"
     public const val MATCH_LOSE: String = "match-lose"
     public const val MATCH_DRAW: String = "match-draw"
@@ -121,7 +124,7 @@ public object PresentationMoments {
         OBJECTIVE_PICKUP, OBJECTIVE_COLLECT, OBJECTIVE_ALERT, OBJECTIVE_DROP, OBJECTIVE_RETURN, OBJECTIVE_DELIVER,
         OBJECTIVE_DELIVER_AGAINST, OBJECTIVE_WARN, OBJECTIVE_CHANNEL, OBJECTIVE_TENSION, OBJECTIVE_CAPTURE,
         TIME_60, TIME_30, TIME_10, TIME_TICK, OVERTIME_START, OVERTIME_PULSE, LEAD_GAIN, LEAD_LOSS, OBJECTIVE_TAKEN, OBJECTIVE_LOST, COUNT_LOW_OURS, COUNT_LOW_THEIRS, KNOCKOUT_WIN, KNOCKOUT_LOSE,
-        QUEUE_JOIN, MATCH_FOUND, SUDDEN_DEATH, MATCH_WIN, MATCH_LOSE, MATCH_DRAW, REWARD_LOGIN, PURCHASE, QUEST_COMPLETE, PLAYER_LEVEL_UP,
+        QUEUE_JOIN, MATCH_FOUND, SUDDEN_DEATH, ANNIHILATION_PHASE, ANNIHILATION_FINAL, MATCH_WIN, MATCH_LOSE, MATCH_DRAW, REWARD_LOGIN, PURCHASE, QUEST_COMPLETE, PLAYER_LEVEL_UP,
         UI_CLICK, UI_CONFIRM, UI_DENY,
     )
 }

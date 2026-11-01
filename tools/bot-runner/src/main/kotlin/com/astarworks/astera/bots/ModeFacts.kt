@@ -16,7 +16,10 @@ data class WaypointFact(val x: Double, val z: Double, val goal: Boolean)
 data class CarrierFact(val name: String, val team: String?, val x: Double, val z: Double, val count: Int)
 
 /** An enemy player the bot can see right now ([name] null when the Tab list does not show it). */
-data class Sighting(val name: String?, val x: Double, val z: Double)
+data class Sighting(val name: String?, val x: Double, val z: Double, val hpFraction: Double? = null)
+
+/** Current and maximum HP of one pillar. */
+data class PillarHpFact(val hp: Int, val max: Int)
 
 /** A player of the bot's own team as the bot sees it; [x]/[z] are NaN when it is out of sight. Dead players are `alive = false`. */
 data class Mate(val name: String, val x: Double, val z: Double, val alive: Boolean = true) {
@@ -65,6 +68,9 @@ interface ModeFacts {
 
     /** annihilation: whether the pillar of [team] / [tier] (1..3) still stands; null = unknown. */
     fun pillarStanding(team: String, tier: Int): Boolean? = null
+
+    /** annihilation: HP of the pillar of [team] / [tier] as the viewer can read it (own team's pillars at least); null = unknown. */
+    fun pillarHp(team: String, tier: Int): PillarHpFact? = null
 
     /** Enemy players in sight. */
     fun enemies(): List<Sighting> = emptyList()
@@ -125,12 +131,26 @@ class ObservedModeFacts(
 
     override fun enemies(): List<Sighting> = seen
 
+    @Volatile private var ownPillarHp: Map<Int, PillarHpFact> = emptyMap()
+
+    /**
+     * [labels]: the plain texts of the text displays in view. The viewer's own pillars carry "Your pillar (Tier n)  HP a/b"
+     * (`label.pillar.ours`, en / ja); that is the only pillar HP a client sees, so [pillarHp] answers for the own team only.
+     */
+    fun updatePillarLabels(labels: List<String>) {
+        ownPillarHp = labels.mapNotNull { OWN_PILLAR.find(it) }
+            .associate { it.groupValues[1].toInt() to PillarHpFact(it.groupValues[2].toInt(), it.groupValues[3].toInt()) }
+    }
+
+    override fun pillarHp(team: String, tier: Int): PillarHpFact? = ownPillarHp[tier]
+
     override fun pillarStanding(team: String, tier: Int): Boolean? =
         pillarBlock(team, tier)?.let { (x, y, z) -> solidAt(x, y, z) }
 
     private companion object {
         /** en / ja of `objective.bar.carry-tnt.carried` and `.shield` (content/languages): the team token is the scoreboard team id. */
         val CARRIED_BAR = Regex("(\\w+) (?:is carrying the TNT|がTNTを運搬中)")
+        val OWN_PILLAR = Regex("(?:Your pillar|自軍の柱) \\(Tier (\\d+)\\)\\s*HP (\\d+)/(\\d+)")
         val SHIELD_BAR = Regex("(?:TNT shield|TNT シールド)\\s+(\\d+(?:\\.\\d+)?)\\s*HP")
     }
 }

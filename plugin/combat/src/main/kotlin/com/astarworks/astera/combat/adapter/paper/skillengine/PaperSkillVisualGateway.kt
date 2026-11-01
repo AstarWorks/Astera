@@ -607,6 +607,7 @@ public class PaperSkillVisualGateway(
 
     private fun register(owner: UUID, entry: Entry): VisualHandle {
         val id = ids.getAndIncrement()
+        if (VfxTrace.enabled) log.info("[vfx-trace] fx display tick={} owner={} kind={}", server.getPlayer(owner)?.world?.gameTime, owner, entry.javaClass.simpleName)
         entries[id] = entry
         owners[id] = owner
         return VisualHandle(id)

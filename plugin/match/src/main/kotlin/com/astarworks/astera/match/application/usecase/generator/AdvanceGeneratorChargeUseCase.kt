@@ -60,8 +60,8 @@ public class AdvanceGeneratorChargeUseCase(
 
         val now: Long = scheduler.currentTick()
 
-        // Wave generators are driven by StarWaveService, not by a charge period.
-        for (generator in generators.listForMatch(matchId).filter { it.wave == null }) {
+        // Wave generators are driven by StarWaveService, cache generators by StarCacheService, not by a charge period.
+        for (generator in generators.listForMatch(matchId).filter { it.wave == null && it.cache == null }) {
             val world = matchWorlds()?.findByMatch(matchId)?.worldId ?: continue
             scheduler.run(regionScope(world, generator.position), kotlin.time.Duration.ZERO) {
             val currentEnergy: Double = generator.attributes

@@ -71,6 +71,10 @@ public data class GeneratorYamlConfig(
     @SerialName("drop_item") public val dropItem: String? = null,
     /** Wave mode (Mid): replaces `period_seconds`; `amount` is then the size of one wave before the supply multiplier. */
     public val wave: WaveYamlConfig? = null,
+    /** Candidate pop positions of a timer generator, or the cache spots of a cache generator (ADR-0318). */
+    public val spots: List<Vec3YamlConfig> = emptyList(),
+    /** Exploration cache mode: every spot holds a one-shot bundle of `amount` stars (x the supply ramp) that refills after `respawn_seconds`. */
+    public val cache: CacheYamlConfig? = null,
 ) {
     /**
      * Convert the parsed DTO into a domain [StarGenerator] under [matchId].
@@ -105,7 +109,14 @@ public data class GeneratorYamlConfig(
         val parsedWave = wave?.toDomain()
             ?.onFailure { return Result.failure(it) }
             ?.let { (it as Result.Success).value }
+        val parsedCache = cache?.toDomain()
+            ?.onFailure { return Result.failure(it) }
+            ?.let { (it as Result.Success).value }
+        if (parsedCache != null && (parsedWave != null || periodSeconds != null || spots.isEmpty())) {
+            return Result.failure(ConfigError.FieldShapeMismatch(field = "cache", detailMessage = "a cache generator takes spots and cache.respawn_seconds only (no period_seconds, no wave)"))
+        }
         val period = when {
+            parsedCache != null -> parsedCache.respawn
             parsedWave != null && periodSeconds != null -> return Result.failure(
                 ConfigError.FieldShapeMismatch(field = "period_seconds", detailMessage = "a wave generator takes wave.wave_period_seconds, not period_seconds"),
             )
@@ -133,6 +144,8 @@ public data class GeneratorYamlConfig(
                 lateGameMultiplier = lateGameMultiplier,
                 dropItem = dropItem,
                 wave = parsedWave,
+                spots = spots.map { it.toVec3() },
+                cache = parsedCache,
             ),
         )
     }
@@ -180,6 +193,20 @@ public data class WaveYamlConfig(
             )
         } else {
             Result.success(StarWave(wavePeriodSeconds.seconds, waveWarnSeconds.seconds, scatterRadius, scatterSeconds.seconds))
+        }
+}
+
+/** `cache:` block of an exploration cache generator (see [com.astarworks.astera.match.domain.star.StarCache]). */
+@Serializable
+public data class CacheYamlConfig(
+    @SerialName("respawn_seconds") public val respawnSeconds: Double,
+    @SerialName("open_radius") public val openRadius: Double = 2.0,
+) {
+    public fun toDomain(): Result<com.astarworks.astera.match.domain.star.StarCache, ConfigError> =
+        if (respawnSeconds <= 0.0 || openRadius <= 0.0) {
+            Result.failure(ConfigError.FieldShapeMismatch(field = "cache", detailMessage = "need respawn_seconds > 0 and open_radius > 0"))
+        } else {
+            Result.success(com.astarworks.astera.match.domain.star.StarCache(respawnSeconds.seconds, openRadius))
         }
 }
 

@@ -4,6 +4,7 @@ import com.astarworks.astera.bots.ClamFact
 import com.astarworks.astera.bots.Mate
 import com.astarworks.astera.bots.ModeFacts
 import com.astarworks.astera.bots.ModePlanner
+import com.astarworks.astera.bots.PillarHpFact
 import com.astarworks.astera.bots.PlayerView
 import com.astarworks.astera.bots.PowerTntFact
 import com.astarworks.astera.bots.Role
@@ -40,6 +41,7 @@ class BotModeRolesScenarioTest {
         var clamList: List<ClamFact>? = null
         val gone = HashSet<Pair<String, Int>>()
         var seen: List<Sighting> = emptyList()
+        val pillarHps = HashMap<Int, PillarHpFact>()
         override fun tnt() = tnt
         override fun shieldHp() = shield
         override fun zoneOwner(zone: String) = owners[zone]
@@ -48,6 +50,7 @@ class BotModeRolesScenarioTest {
         override fun powerTnt() = power
         override fun pillarStanding(team: String, tier: Int) = (team to tier) !in gone
         override fun enemies() = seen
+        override fun pillarHp(team: String, tier: Int) = pillarHps[tier]
     }
 
     private fun objectives(lane: String): StageObjectives =
@@ -355,6 +358,116 @@ class BotModeRolesScenarioTest {
             val second = checkNotNull(make("r1").step(0, spawn.first, spawn.third))
             val yellowPillar = zones.pillars().single { it.team == "yellow" && it.tier == 2 }
             assertThat(second.strike).isEqualTo(Triple(yellowPillar.x, yellowPillar.y, yellowPillar.z))
+        }
+    }
+
+    @Test
+    fun `annihilation - an attacker engages a threatening or weak enemy at 20 blocks, ignores a healthy one, and the far fight is leashed`() {
+        scenario("bot-roles-annihilation-engage") {
+            val src = objectives("annihilation")
+            val spawn = checkNotNull(checkNotNull(src.zones()).point("center"))
+            val red = squad("r", spawn)
+            val facts = Facts()
+            fun attacker() = planner("annihilation", src, "r1", "red", listOf("blue", "yellow"), facts, red)
+                .also { assertThat(it.step(0, spawn.first, spawn.third)?.role).isEqualTo(Role.PILLAR_ATTACKER) }
+            val x = spawn.first; val z = spawn.third
+            // Perpendicular to the way to the objective would be ideal; a point behind the bot is never near the path segment.
+            fun behind(d: Double, hp: Double? = null, p: ModePlanner): Sighting {
+                val toward = p.step(0, x, z)!!
+                val ux = (toward.x - x) / kotlin.math.hypot(toward.x - x, toward.z - z)
+                val uz = (toward.z - z) / kotlin.math.hypot(toward.x - x, toward.z - z)
+                return Sighting("e", x - ux * d, z - uz * d, hp)
+            }
+
+            val a = attacker()
+            val healthy = behind(20.0, 1.0, a)
+            assertThat(a.engages(healthy, 100, x, z)).isFalse()
+            assertThat(a.engages(behind(20.0, 0.2, a), 100, x, z)).isTrue()
+            assertThat(a.engages(behind(35.0, 0.2, a), 100, x, z)).isFalse()
+            assertThat(a.engages(behind(11.0, 1.0, a), 100, x, z)).isTrue()
+            // Damaged a moment ago: the healthy enemy at 20 is the one that hurts, and the memory fades.
+            a.noteDamaged(200)
+            assertThat(a.engages(healthy, 300, x, z)).isTrue()
+            assertThat(a.engages(healthy, 200 + ModePlanner.DAMAGED_MEMORY_MS + 1, x, z)).isFalse()
+            // An enemy ON the way to the pillar is a threat to the trip even when healthy and quiet.
+            val toward = a.step(0, x, z)!!
+            val ux = (toward.x - x) / kotlin.math.hypot(toward.x - x, toward.z - z)
+            val uz = (toward.z - z) / kotlin.math.hypot(toward.x - x, toward.z - z)
+            assertThat(a.engages(Sighting("e", x + ux * 20, z + uz * 20, 1.0), 400_000, x, z)).isTrue()
+
+            // Leash: a far fight lasts FAR_FIGHT_MS, then the bot goes back to the objective for FAR_COOLDOWN_MS.
+            val b = attacker()
+            val weak = behind(20.0, 0.2, b)
+            assertThat(b.engages(weak, 0, x, z)).isTrue()
+            assertThat(b.engages(weak, ModePlanner.FAR_FIGHT_MS - 1_000, x, z)).isTrue()
+            assertThat(b.engages(weak, ModePlanner.FAR_FIGHT_MS + 1_000, x, z)).isFalse()
+            assertThat(b.engages(weak, ModePlanner.FAR_FIGHT_MS + 3_000, x, z)).isFalse()
+            assertThat(b.engages(weak, ModePlanner.FAR_FIGHT_MS + 1_000 + ModePlanner.FAR_COOLDOWN_MS + 1, x, z)).isTrue()
+        }
+    }
+
+    @Test
+    fun `annihilation - an attacker chases the last known spot of its target, then gives up and returns to the pillar`() {
+        scenario("bot-roles-annihilation-chase") {
+            val src = objectives("annihilation")
+            val spawn = checkNotNull(checkNotNull(src.zones()).point("center"))
+            val facts = Facts()
+            val p = planner("annihilation", src, "r1", "red", listOf("blue", "yellow"), facts, squad("r", spawn))
+            val x = spawn.first; val z = spawn.third
+            assertThat(p.step(0, x, z)?.kind).isEqualTo("pillar")
+
+            p.noteLastKnown(x + 15, z, seenAt = 1_000)
+            val chase = checkNotNull(p.step(1_500, x, z))
+            assertThat(chase.kind).isEqualTo("chase")
+            assertThat(chase.x).isEqualTo(x + 15)
+            assertThat(chase.z).isEqualTo(z)
+            assertThat(chase.engage).isEqualTo(ModePlanner.ATTACK_ENGAGE_FAR)
+
+            // Never arriving: the chase times out and the plan is the pillar again, not endlessly the old spot.
+            assertThat(p.step(1_500 + ModePlanner.CHASE_MS + 100, x, z)?.kind).isEqualTo("pillar")
+            p.noteLastKnown(x + 15, z, seenAt = 1_500 + ModePlanner.CHASE_MS + 200)
+            assertThat(p.step(1_500 + ModePlanner.CHASE_MS + 300, x, z)?.kind).isEqualTo("pillar") // cooldown
+
+            // A stale memory is not chased; reaching the spot ends the chase.
+            val q = planner("annihilation", src, "r1", "red", listOf("blue", "yellow"), facts, squad("r", spawn))
+            q.step(0, x, z)
+            q.noteLastKnown(x + 15, z, seenAt = 0)
+            assertThat(q.step(ModePlanner.CHASE_MEMORY_MS + 1, x, z)?.kind).isEqualTo("pillar")
+            q.noteLastKnown(x + 1, z, seenAt = 10_000)
+            assertThat(q.step(10_100, x, z)?.kind).isEqualTo("pillar") // already within CHASE_ARRIVE
+        }
+    }
+
+    @Test
+    fun `annihilation - own pillar damage flips the nearest attackers to defend and they switch back after a quiet period`() {
+        scenario("bot-roles-annihilation-switch") {
+            val src = objectives("annihilation")
+            val zones = checkNotNull(src.zones())
+            val spawn = checkNotNull(zones.point("center"))
+            val own = zones.pillars().first { it.team == "red" && it.tier == 1 }
+            val at = mapOf(
+                "r1" to (own.x + 2.0 to own.z + 2.0), "r2" to (own.x + 12.0 to own.z + 0.0), "r3" to (spawn.first to spawn.third), "r4" to (own.x + 5.0 to own.z + 0.0),
+            )
+            val roster = at.map { (n, p) -> Mate(n, p.first, p.second) }
+            val facts = Facts()
+            val planners = at.keys.associateWith { planner("annihilation", src, it, "red", listOf("blue", "yellow"), facts, roster) }
+            fun roles(now: Long) = planners.mapValues { (n, p) -> p.step(now, at.getValue(n).first, at.getValue(n).second); p.role }
+
+            facts.pillarHps[1] = PillarHpFact(100, 100)
+            assertThat(roles(0)).containsEntry("r1", Role.PILLAR_ATTACKER).containsEntry("r2", Role.PILLAR_ATTACKER)
+                .containsEntry("r3", Role.PILLAR_ATTACKER).containsEntry("r4", Role.PILLAR_DEFENDER)
+
+            // The pillar loses HP: the two attackers nearest to it defend, the far one keeps attacking.
+            facts.pillarHps[1] = PillarHpFact(70, 100)
+            assertThat(roles(1_000)).containsEntry("r1", Role.PILLAR_DEFENDER).containsEntry("r2", Role.PILLAR_DEFENDER)
+                .containsEntry("r3", Role.PILLAR_ATTACKER).containsEntry("r4", Role.PILLAR_DEFENDER)
+            val guard = checkNotNull(planners.getValue("r1").step(1_500, at.getValue("r1").first, at.getValue("r1").second))
+            assertThat(guard.kind).isEqualTo("guard")
+            assertThat(guard.x).isEqualTo(own.x + 0.5)
+
+            // Hysteresis: still defending while no further hit came but the quiet period is not over, back to attack after it.
+            assertThat(roles(1_000 + ModePlanner.DEFEND_QUIET_MS - 1_000)).containsEntry("r1", Role.PILLAR_DEFENDER)
+            assertThat(roles(1_000 + ModePlanner.DEFEND_QUIET_MS + 1_000)).containsEntry("r1", Role.PILLAR_ATTACKER).containsEntry("r2", Role.PILLAR_ATTACKER)
         }
     }
 

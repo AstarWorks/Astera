@@ -116,6 +116,11 @@ moments:
     subtitle: "astera.match.norma-up.max.subtitle"
     title_stay_ticks: 80
     particle: norma-level-max
+  norma-tools-up:
+    # The loaned field tools were upgraded in place on a Norma level-up (ADR-0319): chat line, action bar and a chime.
+    cue: "astera:ui/level-up"
+    chat: "astera.match.norma-tools.upgraded"
+    action_bar: "astera.match.norma-tools.upgraded"
   norma-locked:
     # A weapon used below the Norma level its rarity opens at (ADR-0292): deny sound and "Lv N で <rarity> 解放".
     cue: "astera:ui/deny"
@@ -243,6 +248,18 @@ moments:
     title: "astera.presentation.sudden-death.title"
     subtitle: "astera.presentation.sudden-death.subtitle"
     title_stay_ticks: 50
+
+  # ADR-0319: every Annihilation phase change (title = phase number + name, subtitle = what to do) and the last phase (bleed).
+  annihilation-phase:
+    cue: "astera:match/overtime-start"
+    title: "astera.annihilation.phase.title"
+    subtitle: "astera.annihilation.phase.subtitle"
+    title_stay_ticks: 70
+  annihilation-final:
+    cue: "astera:match/sudden-death"
+    title: "astera.annihilation.final.title"
+    subtitle: "astera.annihilation.phase.subtitle"
+    title_stay_ticks: 80
 
   match-win:
     cue: "astera:match/win"
