@@ -124,6 +124,10 @@ class WeaponUpgradeShopScenarioTest {
             listOf(rich, poor, away).forEach { bot ->
                 items(bot).removeAll { it == "knight-sword" }
                 items(bot) += "knight-sword"
+                // The buyer runs armour BEFORE weapon upgrades and gold buys armour pieces (iron-warden-* costs 3-6 gold), so the ore of
+                // this test would go on armour. Carrying the best gold-priced set (the diamond set needs diamond) leaves nothing to buy
+                // in the armour step; the assertions below are about the weapon rung only.
+                listOf("helmet", "chestplate", "leggings", "boots").forEach { items(bot) += "iron-warden-$it" }
             }
             repeat(6) { items(rich) += "ore-gold" }
             repeat(6) { items(away) += "ore-gold" }
