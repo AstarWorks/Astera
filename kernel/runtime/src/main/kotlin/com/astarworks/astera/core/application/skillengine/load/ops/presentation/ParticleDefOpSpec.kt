@@ -62,7 +62,7 @@ public object ParticleDefOpSpec : OpSpec<ParticleDefOp> {
             val count = values[COUNT]
             if (count is Value.Literal && (count.value < 0.0 || count.value % 1.0 != 0.0)) ctx.fail("count", "count must be a whole number >= 0")
             val path = "particle_def[${id.value}]"
-            val frame = FrameRefs.readSegment(values, ctx, path, allowExpr = true, anchorGiven = values[ANCHOR] != null)
+            val frame = FrameRefs.readSegment(values, ctx, path, anchorGiven = values[ANCHOR] != null)
             if (frame == null && values[ANCHOR] == null) ctx.fail("$path.anchor", "particle_def needs anchor: <name> or frame: <id>")
             if (frame != null && values[SHIFT] != null) ctx.fail("$path.shift", "shift is an anchor-axes displacement; with frame: write the point as pos: {v, w, s}")
             ParticleDefOp(id, src, whenExpr, timing, def = values[DEF], anchor = values[ANCHOR], frame = frame, shift = values[SHIFT], count = values[COUNT])

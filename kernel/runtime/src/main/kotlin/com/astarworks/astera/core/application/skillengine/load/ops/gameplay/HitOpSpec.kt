@@ -223,7 +223,7 @@ public object HitOpSpec : OpSpec<HitOp> {
         fun bad(message: String): Result.Failure<SkillDecodeError> =
             Result.Failure(SkillDecodeError.Invalid(lc.skillId, src.value, "hit '${op.id.value}': $message"))
 
-        val placeFrame = op.place.frame
+        val placeFrame = op.place.frame?.baked(lc)
         val ref = PointRef.parse(op.place.anchor ?: "caster.body")
         val anchorInstance = if (placeFrame != null) null else lc.anchors.resolve(ref.frame)?.instance
         fun point(name: String?): Vec = Val.Live(GameplayOps.point(anchorInstance?.text ?: ref.frame, name), null)

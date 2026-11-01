@@ -174,7 +174,7 @@ internal object WorldOps {
      * frame); a frame placement (ADR-0314) is centred on the frame point and its shape faces the frame's `v` axis.
      */
     fun lower(op: OpId, place: OpPlacement, payload: Map<String, Val<Any>>, lc: LowerContext): Result<Lowered, SkillDecodeError> {
-        val frameCentre = place.centre()
+        val frameCentre = place.centre(lc)
         if (frameCentre != null) {
             val action = Action.World(op, frameCentre, place.forward()!!, payload)
             return Result.Success(Lowered(rows = listOf(Row(0, lc.self, action, lc.src))))
