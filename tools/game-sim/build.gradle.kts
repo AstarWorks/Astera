@@ -67,7 +67,7 @@ tasks.register<Test>("regenSkillOracle") {
     systemProperty("astera.oracle.regen", "true")
 }
 
-// Mass bot-vs-bot play (ADR-0316): `./gradlew :tools:game-sim:massPlay -Pruns=20 [-Pseeds=1,2,3]` -> build/play/summary.md.
+// Mass bot-vs-bot play (ADR-0316): `./gradlew :tools:game-sim:massPlay -Pruns=20 [-Pseed=<base>] (run i uses base+i; default base = epoch seconds, printed)` -> build/play/summary.md.
 tasks.register<JavaExec>("massPlay") {
     group = "verification"
     description = "Runs N headless matches and writes build/play/<run>/metrics.json + build/play/summary.md."
@@ -76,7 +76,7 @@ tasks.register<JavaExec>("massPlay") {
     workingDir = rootDir
     jvmArgs("-Djava.awt.headless=true", "-Xmx2g", "-Dastera.massplay.maxTicks=${providers.gradleProperty("maxTicks").getOrElse("24000")}", "-Dastera.sim.contentDir=${rootProject.file("content").absolutePath}")
     val out = layout.buildDirectory.dir("play").get().asFile.absolutePath
-    args(out, providers.gradleProperty("runs").getOrElse("5"), providers.gradleProperty("seeds").getOrElse(""))
+    args(out, providers.gradleProperty("runs").getOrElse("5"), providers.gradleProperty("seed").getOrElse(""))
 }
 
 // First-star probe: `./gradlew -q :tools:game-sim:firstStar -Pseeds=1,2 -Psize=3 [-Psecs=120]`.
