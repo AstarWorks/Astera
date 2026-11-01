@@ -32,6 +32,12 @@ class ModePlanner(
     private val carryLimit: Int = 8,
     private val pickupCooldownMs: Long = 20_000,
     private val facts: ModeFacts = ModeFacts.NONE,
+    /**
+     * Key of the running match, equal for the whole squad (stage slot + start bucket), and the scoreboard team of a player name
+     * (null = unknown). They only feed [TieBreak]: which of several equally good enemy teams a bot burns first.
+     */
+    private val matchKey: String = "",
+    private val teamOf: (String) -> String? = { null },
 ) {
     /** Stage regions by name (world coordinates). */
     interface Zones {
@@ -404,6 +410,21 @@ class ModePlanner(
     /** The bot took damage at [now] (from whom is not known): an enemy up to [ATTACK_ENGAGE_FAR] away then counts as a threat for [DAMAGED_MEMORY_MS]. */
     fun noteDamaged(now: Long) { lastDamagedAt = now }
 
+    /** The team that most recently damaged us (a player of it hit the bot, or stood at our pillar when it lost HP). */
+    private val damagedByAt = HashMap<String, Long>()
+
+    /** The bot was hurt by a player of [team] (null/own = unknown): ties between equal enemy teams go to that team first. */
+    fun noteAttackerTeam(now: Long, team: String?) { if (team != null && team != ownTeam) damagedByAt[team] = now }
+
+    /** Seeds of the tie-break numbers: a squad shares [teamSeed] (so P3+ focus agrees), [botSeed] is the bot's own stream. */
+    private val teamSeed = TieBreak.seed(matchKey, ownTeam)
+    private val botSeed = TieBreak.seed(matchKey, ownTeam, botName)
+
+    /** The enemy team this bot burns now (kept while it stays among the weakest). */
+    private var committed: String? = null
+    /** The enemy team the squad focuses on (P3+), for traces and scenarios. */
+    var focusTeam: String? = null; private set
+
     /**
      * Where the bot's target was last seen (the target memory of the fight policy), at [seenAt]. An attacker whose enemy
      * dropped out of sight chases to that spot for at most [CHASE_MS] and [CHASE_LEASH] blocks from where the chase began.
@@ -450,7 +471,13 @@ class ModePlanner(
         for (p in own) {
             val hp = facts.pillarHp(ownTeam, p.tier)?.hp ?: continue
             val before = pillarHpSeen.put(p.tier, hp)
-            if (before != null && hp < before) { pillarHitAt = now; pillarHit = p }
+            if (before != null && hp < before) {
+                pillarHitAt = now; pillarHit = p
+                // Who is at the pillar: the nearest enemy in sight within PILLAR_ATTACKER_RADIUS of it.
+                facts.enemies().filter { hypot(it.x - (p.x + 0.5), it.z - (p.z + 0.5)) <= PILLAR_ATTACKER_RADIUS }
+                    .minByOrNull { hypot(it.x - (p.x + 0.5), it.z - (p.z + 0.5)) }
+                    ?.name?.let { teamOf(it) }?.let { noteAttackerTeam(now, it) }
+            }
         }
     }
 
@@ -493,10 +520,16 @@ class ModePlanner(
         watchOwnPillars(now, mine)
         val threatened = facts.enemies().any { e -> mine.any { hypot(e.x - (it.x + 0.5), e.z - (it.z + 0.5)) <= THREAT_RANGE } }
         val underAttack = pillarUnderAttack(now)
+        preparing(now) // advances phaseSeen
+        // From phase 3 the whole squad commits to one enemy team and its Nexus; defenders stay home only while the own pillars are at risk.
+        val focus = phaseSeen >= FOCUS_PHASE
         val home = (if (underAttack) pillarHit?.takeIf { h -> mine.any { it.tier == h.tier } } else null) ?: mine.firstOrNull()
-        val a = if (underAttack && home != null)
-            assigner().annihilationUnderAttack(threatened, home.x + 0.5, home.z + 0.5, x, z, sticky = role == Role.PILLAR_DEFENDER)
-        else assigner().annihilation(threatened)
+        val a = when {
+            focus && !threatened && !underAttack -> Assignment(Role.PILLAR_ATTACKER)
+            underAttack && home != null ->
+                assigner().annihilationUnderAttack(threatened, home.x + 0.5, home.z + 0.5, x, z, sticky = role == Role.PILLAR_DEFENDER)
+            else -> assigner().annihilation(threatened)
+        }
         if (a.role == Role.PILLAR_DEFENDER) {
             val p = home ?: return null
             // Switched defenders run to the hit pillar and fight on top of it; the regular guard keeps its post radius.
@@ -504,8 +537,23 @@ class ModePlanner(
         }
         // Preparation: attackers gather (ore, stars, caches, shop, norma) until the pillars open; the brain falls through to those.
         if (preparing(now)) return null
-        val target = RoleAssigner.weakestTeam(enemyTeams) { t -> all.count { it.team == t && standing(it) } } ?: return null
-        val p = all.filter { it.team == target && standing(it) }.minByOrNull { it.tier } ?: return null
+        fun count(t: String) = all.count { it.team == t && standing(it) }
+        // Eliminated: no pillar left, or the Nexus (tier 3) is gone.
+        fun eliminated(t: String) = count(t) == 0 || all.any { it.team == t && it.tier == NEXUS_TIER && !standing(it) }
+        // P1-2: every bot breaks a tie by who hurt it last, then by its own seeded stream. P3+: the squad must agree, so only the
+        // squad-shared seed decides (what a bot was hit by is its own business).
+        val pick = RoleAssigner.weakestTeam(
+            enemyTeams, ::count, ::eliminated,
+            lastHitAt = { t -> if (focus) null else damagedByAt[t] },
+            priority = { t -> TieBreak.priority(if (focus) teamSeed else botSeed, t) },
+        )
+        val cur = committed
+        val target = (if (cur != null && pick != null && !eliminated(cur) && count(cur) <= count(pick)) cur else pick) ?: return null
+        committed = target
+        if (focus) focusTeam = target
+        // Phase 3+: the Nexus first (losing it eliminates the team); before that the outermost standing pillar.
+        val theirs = all.filter { it.team == target && standing(it) }
+        val p = (if (focus) theirs.maxByOrNull { it.tier } else theirs.minByOrNull { it.tier }) ?: return null
         objectiveX = p.x + 0.5; objectiveZ = p.z + 0.5
         chase(now, x, z)?.let { return it }
         return Step("pillar-$target-${p.tier}", p.x + 0.5, p.y.toDouble(), p.z + 0.5, PILLAR_REACH, "pillar", Role.PILLAR_ATTACKER,
@@ -543,6 +591,11 @@ class ModePlanner(
         const val ESCORT_RADIUS = 4.0
         const val BARRIER_WAIT = 14.0
         const val PILLAR_REACH = 3.5
+        /** Annihilation phase from which the squad focuses one enemy team (Center: Tier 2 + 3 vulnerable). */
+        const val FOCUS_PHASE = 3
+        const val NEXUS_TIER = 3
+        /** An enemy this close to an own pillar that just lost HP is taken as the one who hit it. */
+        const val PILLAR_ATTACKER_RADIUS = 20.0
         const val THREAT_RANGE = 30.0
         /** How far away an enemy may be for the brain to leave the step: a TNT carrier only fights what is on top of it. */
         const val CARRY_ENGAGE = 6.0
