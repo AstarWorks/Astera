@@ -3,10 +3,12 @@
 # Wind-up W = 5 ticks (round_half_up(5 / attack_speed 1.0 (vanilla shovel))):
 # the shovel is drawn back over 4 ticks, the cut starts at tick 4 so the blade crosses the target at the impact (tick 5) and the blocks give way there; then 6 ticks of follow-through.
 # Gameplay (the box, sounds, cooldown) is unchanged.
-# Two frames carry everything drawn:
-#   tool - the shovel: origin at the caster's feet moved along the hand path (`move:`), the held shovel rides it, long axis along v (grip at the origin,
-#          blade at v 0.9). The right hand is pinned onto this origin by the engine (ADR-0315): the blade leads, the hand follows. The scoop is a turn about s, which moves v towards w: the blade is drawn back to 95 degrees, scooped down through the target to -35 and runs out to -60,
-#          then `reset` eases it back to the rest pose before the rig ends. The line `edge` (blade base 0.4 -> blade 0.9) is what the trail draws along.
+# Three frames carry everything drawn:
+#   arm  - the caster's right shoulder (`caster.shoulder_r`); it only turns (pitch about s), so the arm points where the hand goes.
+#   tool - the held tool: its origin is the point 0.6 along the arm (`origin: {frame: arm, pos: {v: 0.6}}`, the length of the rigid arm), so the
+#          hand reaches it on every tick by construction. The right hand is pinned onto this origin by the engine (ADR-0315): the head leads,
+#          the hand follows. The head turns about its own s (v towards w): drawn back, down through the target, run out, then `reset` eases it
+#          back to the rest pose before the rig ends. The line `edge` (head base -> head) is what the trail draws along.
 #   body - the caster's feet, v forward / w up / s right: the hit area spark and the sounds are points of it.
 apiVersion: astera/v3
 kind: Skill
@@ -29,17 +31,23 @@ params:
   flatten: {type: bool, default: false}
   spark: {type: string, default: tool-shovel-stone}
 frames:
-  - id: tool
-    origin: caster
+  - id: arm
+    origin: caster.shoulder_r
     v: forward
     w: up
     s: v x w
-    move:
-      - {at: 0, for: 0, to: {v: 0.20, w: 0.95, s: 0.45}}
-      - {at: 0, for: 4, to: {v: 0.30, w: 1.35, s: 0.52}, ease: out_quad}      # drawn back
-      - {at: 4, for: 3, to: {v: 0.55, w: 1.15, s: 0.42}, ease: out_cubic}      # the cut
-      - {at: 7, for: 3, to: {v: 0.55, w: 1.00, s: 0.40}, ease: out_cubic}      # follow-through
-      - {at: 10, for: 3, to: {v: 0.20, w: 0.95, s: 0.45}, ease: in_out_sine}      # back to the hip
+    rotate:
+      # pitch about s: where the straight arm points (angle from forward, towards up); the arm only turns, the hand rides its end
+      - {at: 0, for: 0, about: s, to: -30}                                   # rest: the hand at the hip
+      - {at: 0, for: 4, about: s, to: 95, ease: out_quad}                        # drawn back over the head
+      - {at: 4, for: 3, about: s, to: -5, ease: out_cubic}                       # the cut
+      - {at: 7, for: 3, about: s, to: -25, ease: out_cubic}                      # follow-through
+      - {at: 10, for: 3, about: s, to: -30, ease: in_out_sine}                    # back to the hip
+  - id: tool
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
     rotate:
       - {at: 0, for: 4, about: s, to: 95, ease: out_quad}
       - {at: 4, for: 3, about: s, to: -35, ease: out_cubic}
