@@ -16,9 +16,9 @@
 @4 spawn #3 op=windup/piece_body_m kind=item item=astera:couture-rapier part=body pos=-0.296095,0.918866,1.620136 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @4 spawn #4 op=windup/piece_a_m kind=item item=astera:couture-rapier part=blade_a pos=-0.296095,0.918866,1.620136 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @4 spawn #5 op=windup/piece_b_m kind=item item=astera:couture-rapier part=blade_b pos=-0.296095,0.918866,1.620136 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@4 spawn #6 op=windup/trail_a kind=ribbon ticks=6 width=0.600000 color=#ff5fa2 alpha=0.349020
+@4 spawn #6 op=windup/trail_a kind=ribbon ticks=6 width=0.600000 color=#ff5fa2 alpha=0.749020
 @4 trail_look #6 op=windup/trail_a fade=1.500000 style=soft
-@4 spawn #7 op=windup/trail_b kind=ribbon ticks=6 width=0.600000 color=#ff5fa2 alpha=0.349020
+@4 spawn #7 op=windup/trail_b kind=ribbon ticks=6 width=0.600000 color=#ff5fa2 alpha=0.749020
 @4 trail_look #7 op=windup/trail_b fade=1.500000 style=soft
 @4 trail #6 op=windup/trail_a root=-0.296095,0.858866,1.620136 tip=-0.836095,1.688866,1.620136
 @4 trail #7 op=windup/trail_b root=-0.296095,0.858866,1.620136 tip=0.243905,1.688866,1.620136
@@ -1629,9 +1629,9 @@ r @117 run-end tail=4 | pose
 @4 spawn #3 op=windup/piece_body_m kind=item item=astera:couture-rapier part=body pos=-1.211494,0.918866,1.115704 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @4 spawn #4 op=windup/piece_a_m kind=item item=astera:couture-rapier part=blade_a pos=-1.211494,0.918866,1.115704 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @4 spawn #5 op=windup/piece_b_m kind=item item=astera:couture-rapier part=blade_b pos=-1.211494,0.918866,1.115704 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@4 spawn #6 op=windup/trail_a kind=ribbon ticks=6 width=0.600000 color=#ff5fa2 alpha=0.349020
+@4 spawn #6 op=windup/trail_a kind=ribbon ticks=6 width=0.600000 color=#ff5fa2 alpha=0.749020
 @4 trail_look #6 op=windup/trail_a fade=1.500000 style=soft
-@4 spawn #7 op=windup/trail_b kind=ribbon ticks=6 width=0.600000 color=#ff5fa2 alpha=0.349020
+@4 spawn #7 op=windup/trail_b kind=ribbon ticks=6 width=0.600000 color=#ff5fa2 alpha=0.749020
 @4 trail_look #7 op=windup/trail_b fade=1.500000 style=soft
 @4 trail #6 op=windup/trail_a root=-1.211494,0.858866,1.115704 tip=-1.642757,1.688866,0.790724
 @4 trail #7 op=windup/trail_b root=-1.211494,0.858866,1.115704 tip=-0.780231,1.688866,1.440684
@@ -2970,9 +2970,9 @@ r @98 run-end tail=4 | pose
 @4 spawn #3 op=windup/piece_body_m kind=item item=astera:couture-rapier part=body pos=-0.296095,0.918866,1.620136 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @4 spawn #4 op=windup/piece_a_m kind=item item=astera:couture-rapier part=blade_a pos=-0.296095,0.918866,1.620136 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @4 spawn #5 op=windup/piece_b_m kind=item item=astera:couture-rapier part=blade_b pos=-0.296095,0.918866,1.620136 rot=0.000000,0.707107,0.707107,0.000000 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@4 spawn #6 op=windup/trail_a kind=ribbon ticks=6 width=0.600000 color=#ff5fa2 alpha=0.349020
+@4 spawn #6 op=windup/trail_a kind=ribbon ticks=6 width=0.600000 color=#ff5fa2 alpha=0.749020
 @4 trail_look #6 op=windup/trail_a fade=1.500000 style=soft
-@4 spawn #7 op=windup/trail_b kind=ribbon ticks=6 width=0.600000 color=#ff5fa2 alpha=0.349020
+@4 spawn #7 op=windup/trail_b kind=ribbon ticks=6 width=0.600000 color=#ff5fa2 alpha=0.749020
 @4 trail_look #7 op=windup/trail_b fade=1.500000 style=soft
 @4 trail #6 op=windup/trail_a root=-0.296095,0.858866,1.620136 tip=-0.836095,1.688866,1.620136
 @4 trail #7 op=windup/trail_b root=-0.296095,0.858866,1.620136 tip=0.243905,1.688866,1.620136
@@ -4584,9 +4584,9 @@ r @117 run-end tail=4 | pose
 @4 spawn #3 op=windup/piece_body_m kind=item item=astera:couture-rapier part=body pos=-1.211494,0.918866,1.115704 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @4 spawn #4 op=windup/piece_a_m kind=item item=astera:couture-rapier part=blade_a pos=-1.211494,0.918866,1.115704 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @4 spawn #5 op=windup/piece_b_m kind=item item=astera:couture-rapier part=blade_b pos=-1.211494,0.918866,1.115704 rot=-0.224368,0.670566,0.670566,0.224368 scale=1.000000,1.000000,1.000000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
-@4 spawn #6 op=windup/trail_a kind=ribbon ticks=6 width=0.600000 color=#ff5fa2 alpha=0.349020
+@4 spawn #6 op=windup/trail_a kind=ribbon ticks=6 width=0.600000 color=#ff5fa2 alpha=0.749020
 @4 trail_look #6 op=windup/trail_a fade=1.500000 style=soft
-@4 spawn #7 op=windup/trail_b kind=ribbon ticks=6 width=0.600000 color=#ff5fa2 alpha=0.349020
+@4 spawn #7 op=windup/trail_b kind=ribbon ticks=6 width=0.600000 color=#ff5fa2 alpha=0.749020
 @4 trail_look #7 op=windup/trail_b fade=1.500000 style=soft
 @4 trail #6 op=windup/trail_a root=-1.211494,0.858866,1.115704 tip=-1.642757,1.688866,0.790724
 @4 trail #7 op=windup/trail_b root=-1.211494,0.858866,1.115704 tip=-0.780231,1.688866,1.440684
