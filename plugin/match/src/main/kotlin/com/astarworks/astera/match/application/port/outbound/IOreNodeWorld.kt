@@ -16,6 +16,9 @@ public interface IOreNodeWorld {
     /** The node [material] was just mined: show debris particles and its break sound at the block (the placeholder swap follows). */
     public fun mined(world: WorldId, pos: Vec3, material: String)
 
+    /** A swing was refused (tool too weak or wrong for the node): show a small deny puff at the node. */
+    public fun refused(world: WorldId, pos: Vec3)
+
     /** A player under the node's Norma level swung at it: play the deny sound at the node. */
     public fun deny(world: WorldId, pos: Vec3)
 }

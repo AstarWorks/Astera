@@ -12,10 +12,7 @@ meta:
 with:
   length: 7
   width: 3
-  gravel_pitch: 0.7
-  dirt_vol: 0.8
-  dirt_pitch: 0.9
-  dirt: true
-  spark: tool-shovel-iron
   trail_span: 8
-  metallic: true
+  chips: 3
+  core_color: "#b88b57"
+  core_size: 0.45
