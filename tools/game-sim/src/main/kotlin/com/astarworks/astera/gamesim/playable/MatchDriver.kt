@@ -11,24 +11,32 @@ import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.domain.stage.SpawnRole
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.gamesim.GameSim
 import com.astarworks.astera.gamesim.SimEntity
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
+import com.astarworks.astera.gamesim.playable.metrics.MatchRun
 import com.astarworks.astera.match.domain.match.MatchStateMachine
 import java.util.Random
 
 data class MatchConfig(
     val mode: String = "annihilation",
     val stage: String = "annihilation-arena",
+    /** Teams in play, in spawn order; empty = the stage's own teams (at most [teamCount] when it is above 0, [humanTeam] always kept). */
     val teams: List<String> = listOf("red", "blue", "yellow"),
+    val teamCount: Int = 0,
+    /** Seats per team (bots plus, on [humanTeam], the human seats). */
     val botsPerTeam: Int = 3,
+    /** Per-team override of [botsPerTeam]. */
+    val teamSizes: Map<String, Int> = emptyMap(),
     val seed: Long = GameSim.DEFAULT_SEED,
-    /** This team's first seat is a human seat: a player with no brain, driven by the caller through [hostOf]. */
+    /** The first [humanSeats] seats of this team are human seats: players with no brain, driven by the caller through [hostOf]. */
     val humanTeam: String? = null,
+    val humanSeats: Int = 1,
 )
 
-/** One player of the match: [brain] is `null` for the human seat. */
+/** One player of the match: [brain] is `null` for a human seat. */
 class Seat(val name: String, val team: String, val entity: SimEntity, val brain: BotBrain?)
 
 /**
@@ -40,21 +48,24 @@ class Seat(val name: String, val team: String, val entity: SimEntity, val brain:
  */
 class MatchDriver private constructor(
     val config: MatchConfig,
-    val sim: GameSim,
+    override val sim: GameSim,
     val seats: List<Seat>,
     private val hub: SimHostHub,
     val matchId: MatchId,
-) : AutoCloseable {
+) : MatchRun, AutoCloseable {
 
     private val listeners = ArrayList<(Long) -> Unit>()
     private val errors = ArrayList<String>()
     private var endedAt: MatchEnded? = null
 
+    /** The generated stage terrain the match runs on (walkable view, plan, kill plane). */
+    val terrain: SimTerrain get() = hub.terrain
+
     /** The current virtual tick. */
     val tick: Long get() = sim.tick
 
     /** The match reached `MatchEnded` (win, timeout, all eliminated, ...). */
-    val ended: Boolean get() = endEvent() != null
+    override val ended: Boolean get() = endEvent() != null
 
     /** The `MatchEnded` event once [ended]. */
     fun endEvent(): MatchEnded? {
@@ -68,10 +79,16 @@ class MatchDriver private constructor(
     /** The host behind a seat (also the human seat's: the caller drives it, there is no brain). */
     fun hostOf(seat: Seat): SimBotHost = checkNotNull(hub.hosts[seat.entity.id]) { "no host for ${seat.name}" }
 
-    /** Registers [listener], called with the new tick after every step. */
-    fun onTick(listener: (Long) -> Unit) { listeners += listener }
+    /** The seats of the human team without a brain, in seat order. */
+    val humanSeats: List<Seat> get() = seats.filter { it.brain == null }
 
-    fun step(n: Int = 1) {
+    /** The brain of each bot seat by player, for metrics hooks. */
+    fun brainOf(player: com.astarworks.astera.core.domain.player.PlayerId): BotBrain? = seats.firstOrNull { it.entity.id == player }?.brain
+
+    /** Registers [listener], called with the new tick after every step. */
+    override fun onTick(listener: (Long) -> Unit) { listeners += listener }
+
+    override fun step(n: Int) {
         repeat(n) {
             for (seat in seats) {
                 val host = hostOf(seat)
@@ -105,6 +122,16 @@ class MatchDriver private constructor(
 
     companion object {
         private const val MAX_ERRORS = 50
+        const val HUMAN_PREFIX = "Human_"
+
+        private fun resolveTeams(config: MatchConfig, stageTeams: List<String>): List<String> {
+            if (config.teams.isNotEmpty()) return config.teams
+            val human = config.humanTeam
+            check(human == null || human in stageTeams) { "team '$human' is not on stage ${config.stage} (teams: $stageTeams)" }
+            if (config.teamCount <= 0 || config.teamCount >= stageTeams.size) return stageTeams
+            val keep = (stageTeams - listOfNotNull(human).toSet()).take(config.teamCount - (if (human != null) 1 else 0)).toSet() + listOfNotNull(human)
+            return stageTeams.filter { it in keep }
+        }
 
         fun boot(config: MatchConfig): MatchDriver {
             val contentDir = GameSim.defaultContentDir()
@@ -117,10 +144,11 @@ class MatchDriver private constructor(
                 // Everyone joins first, then the real lifecycle puts them on their team spawns.
                 val parked = Vec3(0.0, terrain.plan.surfaceY + 1.0, 0.0)
                 val roster = ArrayList<Pair<SimEntity, String>>()
-                for (team in config.teams) {
-                    for (i in 1..config.botsPerTeam) {
-                        val human = team == config.humanTeam && i == 1
-                        val name = if (human) "Human_$team" else "Bot_${team}_$i"
+                val teams = resolveTeams(config, stage.spawnPoints.filter { it.role == SpawnRole.TEAM }.mapNotNull { it.team?.value }.distinct())
+                for (team in teams) {
+                    for (i in 1..(config.teamSizes[team] ?: config.botsPerTeam)) {
+                        val human = team == config.humanTeam && i <= config.humanSeats
+                        val name = if (human) "Human_${team}_$i" else "Bot_${team}_$i"
                         roster += sim.spawnPlayer(name, at = parked, team = TeamId(team), worldId = terrain.world) to team
                     }
                 }
@@ -137,7 +165,7 @@ class MatchDriver private constructor(
                 val objectives = StageObjectives.load(contentDir.toFile(), config.mode)
                 val seats = roster.mapIndexed { index, (entity, team) ->
                     val host = SimBotHost(sim, hub, entity)
-                    val brain = if (entity.name.startsWith("Human_")) null else
+                    val brain = if (entity.name.startsWith(HUMAN_PREFIX)) null else
                         BotBrain(host, BotSkill(), objectives, true, config.mode, Random(config.seed + index)).also { it.mode = BotBrain.Mode.FIGHT }
                     Seat(entity.name, team, entity, brain)
                 }

@@ -32,7 +32,7 @@ class BotEconomyScenarioTest {
 
     @Test
     fun `the shipped shop parses to a shopping list - base armour, upgrades, Mid armour (no tools) - and bag names map to ore ids`() {
-        val ladder = EconomyPlanner.parseLadder(Files.readString(GameSim.defaultContentDir().resolve("shops/match-shop.yaml")))
+        val ladder = EconomyPlanner.parseShoppingList(Files.readString(GameSim.defaultContentDir().resolve("shops/match-shop.yaml"))).map { it.price }
         assertThat(ladder).containsExactly(
             mapOf("ore-iron" to 22), mapOf("ore-gold" to 11), mapOf("ore-gold" to 16),
             mapOf("ore-gold" to 6), mapOf("ore-diamond" to 4), mapOf("ore-emerald" to 3), mapOf("ore-diamond" to 11),
@@ -130,7 +130,7 @@ class BotEconomyScenarioTest {
                 generators = listOf(EconomyPlanner.Site(10.0, 0.0, 10.0, "ore-iron")),
                 nodes = listOf(EconomyPlanner.Site(30.5, 0.0, 30.5, "ore-gold")),
             )
-            val planner = EconomyPlanner(sites, buys.map { it.price })
+            val planner = EconomyPlanner(sites, buys)
             fun have() = bag.filter { it.startsWith("ore-") }.groupingBy { it }.eachCount()
             val bought = ArrayList<String>()
             var clock = 0L
@@ -246,5 +246,41 @@ class BotEconomyScenarioTest {
             assertThat(purchase(inMatch = true, failNew = false).execute(bot.id, offer, listOf(old))).isInstanceOf(Result.Success::class.java)
             assertThat(bag).`as`("success swaps the piece").contains("chain-guard-helmet").doesNotContain(old.value)
         }
+    }
+
+    @Test
+    fun `a rung counts as done once its item is owned, without the 60 s retry, and the timed retry stays only when ownership cannot be read`() {
+        val buys = EconomyPlanner.parseShoppingList(Files.readString(GameSim.defaultContentDir().resolve("shops/match-shop.yaml")))
+        val sites = EconomyPlanner.Sites(
+            shop = EconomyPlanner.Site(0.0, 0.0, 0.0),
+            generators = listOf(EconomyPlanner.Site(10.0, 0.0, 10.0, "ore-iron"), EconomyPlanner.Site(12.0, 0.0, 10.0, "ore-gold")),
+            nodes = emptyList(),
+        )
+        val first = buys.first()
+        val rich = mapOf("ore-iron" to 99, "ore-gold" to 99)
+        fun walkToShopAndWait(p: EconomyPlanner, owned: Set<String>?): Long {
+            var t = 0L
+            while (t <= EconomyPlanner.SHOP_WAIT_MS + 1_000) { p.step(t, 0.0, 0.0, rich, false, owned); t += 400 }
+            return t
+        }
+
+        // Ownership readable and the item is owned: the first rung is passed at once, the bot goes on to the next rung (no waiting at the shop).
+        val ownedPlanner = EconomyPlanner(sites, buys)
+        val st = checkNotNull(ownedPlanner.step(0, 0.0, 0.0, rich, false, first.items.toSet()))
+        assertThat(ownedPlanner.rung).isEqualTo(1)
+        assertThat(st.kind).isEqualTo("shop")
+
+        // Ownership readable, price still in the bag, item not owned (shop refused): the rung is dropped after the wait, not retried in 60 s.
+        val readable = EconomyPlanner(sites, buys)
+        val t = walkToShopAndWait(readable, emptySet())
+        assertThat(readable.rung).`as`("the unsellable rung is passed, not snoozed").isGreaterThanOrEqualTo(1)
+
+        // Ownership unreadable (null): rung is NOT passed, it is snoozed and tried again after SHOP_RETRY_MS.
+        val blind = EconomyPlanner(sites, listOf(first))
+        val tb = walkToShopAndWait(blind, null)
+        assertThat(blind.rung).isZero()
+        assertThat(blind.step(tb, 0.0, 0.0, rich, false, null)?.kind).`as`("snoozed: not at the shop").isNotEqualTo("shop")
+        assertThat(blind.step(tb + EconomyPlanner.SHOP_RETRY_MS + 1, 0.0, 0.0, rich, false, null)?.kind).isEqualTo("shop")
+        assertThat(t).isGreaterThan(0L)
     }
 }

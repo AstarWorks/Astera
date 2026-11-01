@@ -20,6 +20,9 @@ interface TerrainView {
     fun isSolid(x: Int, y: Int, z: Int): Boolean?
     fun knows(x: Double, z: Double): Boolean
     fun floorAt(x: Double, z: Double, feetY: Double, maxStepUp: Int = 0, maxDrop: Int = 2): Double?
+
+    /** Namespaced block id without properties (`minecraft:barrel`); `null` = unknown chunk, unmapped state, or a view that does not track names. */
+    fun blockName(x: Int, y: Int, z: Int): String? = null
 }
 
 class HostLine(val text: String)
@@ -67,6 +70,8 @@ interface BotHost {
     fun hotbarLore(slot: Int): String
     /** (item name, amount) of every non-empty stack in the player inventory window. */
     fun carriedStacks(): List<Pair<String, Int>>
+    /** Item ids (e.g. `iron-warden-helmet`) the player owns; null = the host cannot read ids from its inventory (the economy then falls back to timed retries). */
+    fun carriedItemIds(): Set<String>? = null
 
     fun command(cmd: String)
     fun selectHotbar(slot: Int)

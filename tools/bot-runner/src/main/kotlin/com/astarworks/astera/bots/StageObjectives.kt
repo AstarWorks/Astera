@@ -23,7 +23,7 @@ class StageObjectives private constructor(
         val shops: Map<String, EconomyPlanner.Site> = emptyMap(),
         val generators: Map<String, List<EconomyPlanner.Site>> = emptyMap(),
         val nodes: List<EconomyPlanner.Site> = emptyList(),
-        val ladder: List<Map<String, Int>> = emptyList(),
+        val ladder: List<EconomyPlanner.Companion.Buy> = emptyList(),
     )
 
     override fun economySites(team: String): EconomyPlanner.Sites? {
@@ -31,7 +31,7 @@ class StageObjectives private constructor(
         return EconomyPlanner.Sites(shop, economy.generators[team].orEmpty(), economy.nodes)
     }
 
-    override fun economyLadder(): List<Map<String, Int>> = economy.ladder
+    override fun economyLadder(): List<EconomyPlanner.Companion.Buy> = economy.ladder
 
     override fun starPoints(): List<Pair<Double, Double>> = generators
     override fun cachePoints(): List<ObjectiveSource.CachePoint> = caches
@@ -127,7 +127,7 @@ class StageObjectives private constructor(
                 }
             }
             val shopYaml = File(contentDir, "shops/match-shop.yaml")
-            val ladder = if (shopYaml.isFile) EconomyPlanner.parseLadder(shopYaml.readText()) else emptyList()
+            val ladder = if (shopYaml.isFile) EconomyPlanner.parseShoppingList(shopYaml.readText()) else emptyList()
             return Economy(shops, gens, nodes, ladder)
         }
 
