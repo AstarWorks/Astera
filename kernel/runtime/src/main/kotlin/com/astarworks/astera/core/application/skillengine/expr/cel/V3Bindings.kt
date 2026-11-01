@@ -133,9 +133,9 @@ public object V3Bindings {
     )
 
     /**
-     * `ExprEnv.seed` of one row at play time: `rand()` is seeded by (cast, the row's content seed, call site). [rowSeed] is `Row.seed`, a hash of
-     * the row's own content (kind, tick, copy indices, resolved cells; see `RowSeeds`), never of an op id, so renaming or reordering ops keeps every
-     * spread. The call site is the order of the `rand()` inside the source (the compiler turns the k-th `rand()` into the stream `@k`), so two
+     * `ExprEnv.seed` of one row at play time: `rand()` is seeded by (cast, the row's identity seed, call site). [rowSeed] is `Row.seed`, a hash of
+     * the row's stable identity (skill id, op id path with copy indices, tick, kind; see `RowSeeds`), never of the spec's text or look fields, so
+     * reordering ops or adding a look field keeps every spread. The call site is the order of the `rand()` inside the source (the compiler turns the k-th `rand()` into the stream `@k`), so two
      * `rand()` in one field draw independently and a replay draws the same values.
      */
     public fun rowSeed(castSeed: Long, rowSeed: Long): Long = mix(castSeed xor (rowSeed * -0x61c8864680b583ebL))

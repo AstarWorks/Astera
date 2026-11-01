@@ -6,9 +6,9 @@ import com.astarworks.astera.core.domain.skillengine.model.EngineConfig
  * [tick] is relative to the state entry (static) or to the event (sub-table). [src] is the YAML path the row came from.
  * [maskUntil] lists the events that suppress this candidate row (printed `mask until a, b`); [guard] is a class-L `when` on a point
  * gameplay op, judged at play time (printed `when <expr>`). [sample] marks one of the n rows a segment-sampled particle
- * (`anchor: {of, to, samples}`) lowers to (printed `sample k/n`, k from 0). [seed] is the row's content seed (set once by the table
- * assembler from the row's own content plus a document-order counter for byte-identical rows, never from an op id); `rand()` and the
- * particle spread of the row draw from it.
+ * (`anchor: {of, to, samples}`) lowers to (printed `sample k/n`, k from 0). [seed] is the row's identity seed (set once by the table
+ * assembler from skill id, op id path with copy indices, tick, kind and sample, plus a document-order counter for colliding rows, never
+ * from the spec's text or look fields); `rand()` and the particle spread of the row draw from it.
  */
 public data class Row(
     val tick: Int,

@@ -1,6 +1,6 @@
 # prism-lance: trial skill for the `ray` anchor and the `input.release` event (ADR-0303 3.3, 3.2). While the use input is held the lance
 # burns along the caster's look ray (`tip` is re-read every tick: it follows yaw and pitch, and sits on the first block or enemy body it meets, 24 blocks
-# at most). Letting go ends the channel at once; holding it ends the channel at tick 60 (the fixed maximum). Bound to no item (dev trial).
+# at most; the ray is an anchor, no frame origin reads a ray yet). The beam starts on the `muzzle` frame (the staff end, 0.4 ahead of the eye on the aim). Letting go ends the channel at once; holding it ends the channel at tick 60 (the fixed maximum). Bound to no item (dev trial).
 apiVersion: astera/v3
 kind: Skill
 id: prism-lance
@@ -13,9 +13,10 @@ meta:
 params:
   channel_ticks: {type: ticks, default: 60}
   dmg:           {type: number, default: 3}
+frames:
+  - {id: muzzle, origin: caster.eye, v: aim, w: s x v, s: right, move: [{at: 0, for: 0, to: {v: 0.4, w: -0.25}}]}
 anchors:
-  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.4, up: -0.25}, mode: follow}
-  - {id: tip,    anchor: caster.eye, ray: 24, ray_stops: entities, mode: follow}
+  - {id: tip, anchor: caster.eye, ray: 24, ray_stops: entities, mode: follow}
 machine:
   start: channel
   states:
@@ -27,8 +28,8 @@ machine:
       enter:
         - {id: snd_start, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.6, pitch: 1.5}
       do:
-        - {id: beam_glow, op: ribbon, from: muzzle, to: tip, thickness: 0.18, color: "#554fd0ff", at: 0, for: "${channel_ticks}"}
-        - {id: beam, op: ribbon, from: muzzle, to: tip, thickness: 0.06, color: "#ffeaf6ff", at: 0, for: "${channel_ticks}"}
+        - {id: beam_glow, op: ribbon, from: {frame: muzzle, pos: {v: 0}}, to: tip, thickness: 0.18, color: "#554fd0ff", at: 0, for: "${channel_ticks}"}
+        - {id: beam, op: ribbon, from: {frame: muzzle, pos: {v: 0}}, to: tip, thickness: 0.06, color: "#ffeaf6ff", at: 0, for: "${channel_ticks}"}
         - {id: burn, op: damage, target: {kind: enemies, around: tip, radius: 1.5, max_count: 3}, damage: {electric: "${dmg}"}, every: 4, times: 15}
         - {id: spark, op: particle, particle: electric_spark, anchor: tip, count: 3, offset: [0.2, 0.2, 0.2], extra: 0.1, every: 2, times: 30}
     end: {final: true}
