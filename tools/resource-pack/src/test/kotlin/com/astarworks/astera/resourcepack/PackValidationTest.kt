@@ -166,7 +166,8 @@ class PackValidationTest {
                 resourceKeyById[id] = doc["resource_key"] as? String ?: id
             }
         }
-        val soundId = Regex("""sound_id:\s*['"]?([^'"\s#]+)""")
+        // Skill grammar v3: `{op: sound, sound: "<id>"}` steps (items bind skills and carry no sound field of their own).
+        val soundId = Regex("""op:\s*sound\b[^\n]*?\bsound:\s*['"]?([^'"\s,}#]+)""")
         var checked = 0
         for (dir in listOf("skills", "items")) {
             java.nio.file.Files.walk(contentDir.resolve(dir)).use { stream ->
@@ -178,7 +179,7 @@ class PackValidationTest {
                         if (!key.startsWith("astera:")) continue
                         checked++
                         assertThat(events.has(key.removePrefix("astera:")))
-                            .`as`("${contentDir.relativize(file)}: sound_id $id -> $key has no sound event in sounds.json").isTrue()
+                            .`as`("${contentDir.relativize(file)}: sound $id -> $key has no sound event in sounds.json").isTrue()
                     }
                 }
             }
