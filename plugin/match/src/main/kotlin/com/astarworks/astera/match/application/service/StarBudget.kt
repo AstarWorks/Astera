@@ -12,9 +12,14 @@ import java.util.concurrent.atomic.AtomicLong
  * `share x budget`, per player for per-player sources) and the match-wide bucket (the budget itself). Buckets start
  * empty at match start and hold at most [StarSource.burstMinutes] of refill, so over any span the issued total cannot exceed the
  * budget integral. Requests that do not fit are cut down or refused and counted as cap hits ([stats]).
+ *
+ * A source can be gated ([openAt]: the match second it opens at, 0 = always open; Annihilation's Mid wave opens at P3). A gated
+ * source has no bucket before it opens, its share of the budget moves to the open sources (their caps are raised, see
+ * [com.astarworks.astera.match.domain.star.StarEconomy.sourceRatePerSecond]), and it starts with a full bucket when it opens.
  */
 public class StarBudget(
     private val clock: StarSupplyClock,
+    private val openAt: (MatchId, StarSource) -> Double = { _, _ -> 0.0 },
     private val aliveOf: (MatchId) -> Int,
 ) {
     private class Bucket(var tokens: Double = 0.0, var atSeconds: Double = 0.0)
@@ -39,8 +44,15 @@ public class StarBudget(
         val economy = clock.economyOf(matchId)
         val now = clock.elapsedSeconds(matchId)
         val n = alive(matchId)
-        val own = refill(Key(matchId, source, player.takeIf { source.perPlayer }, lane), now) { t -> economy.sourceRatePerSecond(source, t, n) / lanes.coerceAtLeast(1) to source.burstMinutes }
-        val global = refill(Key(matchId, null, null), now) { t -> economy.budgetPerMinute(t, n) / 60.0 to GLOBAL_BURST_MINUTES }
+        val opens = StarSource.entries.associateWith { openAt(matchId, it) }
+        val since = opens.getValue(source)
+        if (now < since) {
+            stats.add(matchId, "requested:${source.key}", requested)
+            stats.add(matchId, "caphit:${source.key}", 1)
+            return 0
+        }
+        val own = refill(Key(matchId, source, player.takeIf { source.perPlayer }, lane), now, since) { t -> economy.sourceRatePerSecond(source, t, n) { opens.getValue(it) } / lanes.coerceAtLeast(1) to source.burstMinutes }
+        val global = refill(Key(matchId, null, null), now, 0.0) { t -> economy.budgetPerMinute(t, n) / 60.0 to GLOBAL_BURST_MINUTES }
         val granted = minOf(requested, own.tokens.toInt(), global.tokens.toInt())
         own.tokens -= granted
         global.tokens -= granted
@@ -50,9 +62,15 @@ public class StarBudget(
         return granted
     }
 
-    private fun refill(key: Key, now: Double, rateAndBurst: (Double) -> Pair<Double, Double>): Bucket {
+    private fun refill(key: Key, now: Double, since: Double, rateAndBurst: (Double) -> Pair<Double, Double>): Bucket {
         val bucket = buckets.computeIfAbsent(key) { Bucket(0.0, 0.0) }
         val (rateNow, burst) = rateAndBurst(now)
+        if (bucket.atSeconds < since) {
+            // The source was closed until now: it opens with a full bucket (the first wave is sized for a whole period).
+            bucket.tokens = maxOf(rateNow * 60.0 * burst, 1.0)
+            bucket.atSeconds = now
+            return bucket
+        }
         val (rateThen, _) = rateAndBurst(bucket.atSeconds)
         val dt = (now - bucket.atSeconds).coerceAtLeast(0.0)
         bucket.tokens = minOf(maxOf(rateNow * 60.0 * burst, 1.0), bucket.tokens + (rateThen + rateNow) / 2.0 * dt)
