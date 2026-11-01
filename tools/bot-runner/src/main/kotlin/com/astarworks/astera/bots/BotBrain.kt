@@ -560,11 +560,11 @@ class BotBrain(
         }
         economyDest(now)?.let { return it }
         // A cache close by is a short detour even while the mode plan runs (never while carrying the objective).
-        if (goal == Goal.STAR && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
+        if (goal == Goal.STAR && planner?.role != Role.PILLAR_ATTACKER && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
             nearestCache(now, CACHE_DETOUR_RANGE)?.let { return it }
         }
         // A paying block close by (barrel / chest / crafting table) is a short detour while nothing is in sight (never while carrying the objective).
-        if (!starBlocksDry && goal == Goal.STAR && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
+        if (!starBlocksDry && goal == Goal.STAR && planner?.role != Role.PILLAR_ATTACKER && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
             starBlocks.tick(now, bot.x, bot.y, bot.z)
             starBlockTarget = starBlocks.nearest(bot.x, bot.y, bot.z)
             starBlockTarget?.let { return Dest(it.first + 0.5, it.third + 0.5, it.second.toDouble(), STAR_BLOCK_ARRIVE, "block") }
@@ -720,7 +720,9 @@ class BotBrain(
         // Face the block: the tool skill is aimed with the look direction.
         val dx = block.first + 0.5 - bot.x
         val dz = block.third + 0.5 - bot.z
-        val dy = block.second + 0.5 - (bot.y + 1.62)
+        // Aim at the pillar entity's position (block y), the centre of its hit box (y-0.5..y+0.5); the block centre (y+0.5) is the
+        // box's top edge and the ray there lands on the block face above it, which deals no pillar damage.
+        val dy = block.second.toDouble() - (bot.y + 1.62)
         val yaw = Math.toDegrees(atan2(-dx, dz)).toFloat()
         val pitch = (-Math.toDegrees(atan2(dy, hypot(dx, dz).coerceAtLeast(0.01)))).toFloat()
         strikeLook = yaw to pitch
@@ -888,7 +890,9 @@ class BotBrain(
 
     /** The star pick-up to fetch: nearest dropped star item within reach (any distance with the STAR goal, a short detour with KILL). */
     private fun starTarget(now: Long): Dest? {
-        val limit = if (goal == Goal.STAR) STAR_SIGHT_RANGE else KILL_DETOUR_RANGE
+        // A pillar attacker is the team's offence: it only picks up a star on its way (ATTACKER_STAR_RANGE) instead of chasing
+        // every star on the stage while the enemy pillars stand untouched.
+        val limit = if (goal != Goal.STAR) KILL_DETOUR_RANGE else if (planner?.role == Role.PILLAR_ATTACKER) ATTACKER_STAR_RANGE else STAR_SIGHT_RANGE
         var best: Seen? = null
         var bestD = Double.MAX_VALUE
         for (e in bot.entities.values) {
@@ -1232,6 +1236,8 @@ class BotBrain(
         const val LULL_MS = 10_000L
         const val KILL_DETOUR_RANGE = 4.0
         const val STAR_SIGHT_RANGE = 90.0
+        /** How far a pillar attacker leaves its route for a visible star. */
+        const val ATTACKER_STAR_RANGE = 14.0
         const val NORMA_HOME_ARRIVE = 6.0
         val NORMA_READY = Regex("Norma goal met|ノルマ達成")
         const val STAR_CHASE_MS = 20_000L

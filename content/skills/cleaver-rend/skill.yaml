@@ -32,7 +32,7 @@ frames:
     s: v x w
     rotate:
       - {at: 0, for: 0, about: w, to: 5}   # guard
-      - {at: 0, for: 4, about: w, to: 100, ease: out_cubic}   # raise the cleaver high at the left
+      - {at: 0, for: 1, about: w, to: 100, ease: out_cubic}   # raise the cleaver high at the left in one tick (a slow raise sweeps the blade across the first-person view)
       - {at: 5, for: 3, about: w, to: -36, ease: out_cubic}   # the rend: down and across to the right
       - {at: 8, for: 6, about: w, to: 5, ease: in_out_sine}   # back to guard
       - {at: 0, for: 0, about: s, to: -37}
@@ -81,7 +81,7 @@ machine:
       do:
         - id: strike
           op: hit
-          frame: blade
+          anchor: caster.eye
           at: 0
           shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
           targets: enemies

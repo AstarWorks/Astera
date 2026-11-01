@@ -65,11 +65,18 @@ class NormaLayerScenarioTest {
             val yellow = player("yellow-1", team = "yellow")
             val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow to "yellow"), stage = "annihilation-arena")
 
-            // annihilation-base-red (5.5, 65, -58.5) feeds the red team only; Mid has waves, not periodic pops.
-            red.moveTo(Vec3(5.5, 65.0, -58.5))
+            // annihilation-base-red feeds the red team only and rotates over its candidate spots (ADR-0318); Mid has waves, not periodic pops.
+            val baseRed = sim.services.getOrThrow<com.astarworks.astera.match.application.port.outbound.IGeneratorRepository>()
+                .listForMatch(matchId).first { it.id.value == "annihilation-base-red" }
+            red.moveTo(Vec3(400.0, 65.0, 400.0))
             blue.moveTo(Vec3(52.0, 65.0, 30.0))
             yellow.moveTo(Vec3(-52.0, 65.0, 30.0))
             advance(650)
+            // Each spot holds one star until taken: walk the candidate spots the generator actually uses.
+            for (spot in baseRed.spots) {
+                red.moveTo(Vec3(spot.x, spot.y, spot.z))
+                advance(5)
+            }
             assertThat(eventsOf<StarsCollected>().filter { it.playerId == red.id }).`as`("red collected a pop in annihilation").isNotEmpty()
 
             climb(matchId, red, levels = 1)

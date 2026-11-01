@@ -12,7 +12,7 @@ import com.astarworks.astera.core.domain.skillengine.table.Val
  */
 public class OpPlacement(public val anchor: AnchorRef?, public val frame: FrameRef?) {
     /** The live centre cell of a frame placement. */
-    public fun centre(): Val.Live<Vector3d>? = frame?.position()
+    public fun centre(lc: com.astarworks.astera.core.application.skillengine.compose.LowerContext): Val.Live<Vector3d>? = frame?.baked(lc)?.position()
 
     /** The live forward cell of a frame placement: the frame's `v` axis (a direction, no origin). */
     public fun forward(): Val.Live<Vector3d>? = frame?.let { Val.Live(FrameRefs.directionCell(it.frame, Coeff(1.0, 0.0, 0.0)), null) }

@@ -17,7 +17,7 @@ Quarry: radius 42, rim y64, terraces y60 / y55, floor y50. Three spoke ramps rea
 
 Each team's tier 1 is in the gate court, tier 2 in the inner ward, tier 3 in the keep's open sanctum. Each objective is still **one block**, left air until match placement, with its original material / affinity. Tier 1/2 stand at y65; the keep stands on a y68 hill plinth reached from three stepped approaches, with tier 3 at y69, gallery feet y77 and roof feet y85. Monument columns sit at the corners, leaving four clear attack stances five blocks from the target. This is visual architecture, not a new hitbox. All existing pillar YAML block styles and blue-spawn `yaw` parsing are preserved. The `pillar-1-*` regions make the existing generic preview resolve the real enemy objective. `center` remains the Norma centre region, now on the floor.
 
-The ore file retains all 74 cells (emerald 8, diamond 10, gold 6, heartwood 2, silt 6, iron 20, timber 10, clay 12), values and order. Rare veins sit on lower rock faces. Each forge has 3 iron, 2 timber and 2 clay; remaining starter-tier ore is on the upper quarry terrace. Node cells are air pockets against solid rock with a floor and mining stance; the service places the actual blocks. The old ore-file header still describes a flat Mid grid; it is intentionally untouched because ownership permits positions only.
+The ore file retains all 74 cells (emerald 8, diamond 10, gold 6, heartwood 2, silt 6, iron 20, timber 10, clay 12), values and order. Rare veins sit on lower rock faces. Each forge has 3 iron, 2 timber and 2 clay; remaining starter-tier ore is on the upper quarry terrace. Node cells are air pockets against solid rock with a floor and mining stance; the service places the actual blocks. The header describes the terrace-face pockets; phase gates and ore values remain untouched.
 
 ## Review and integration scenario
 
@@ -26,27 +26,30 @@ Compile/distribution and lint only; these commands do not run Gradle test tasks 
 ```sh
 ./gradlew :tools:content-lint:run
 ./gradlew :tools:arena-preview:installDist
-make arena-preview
+./gradlew -q :tools:arena-preview:run
 # Production content decoders + generator + actual capped bot PathFinder:
 tools/map-gen/run-scenario.sh
 ```
 
 `HighmarchScenario` is an executable integration scenario under this track's owned directory. It checks every spawn to its Mid rim (12–18 s), every spawn to both enemy tier-1 courts (30–45 s), four attack stances at all nine pillars, all designed elevated destinations/caches, all 74 mining stances **with pillar and ore blocks placed**, and the full radius-17 wave disk (all touched cells at the half-block generator centre, after ore placement). It loads actual emitted YAML, not a Python navigation model. It uses Kotlin CLI 2.3+ and the compiled `arena-preview` distribution's classpath, with no build-graph changes. Output: `/tmp/claude-1000/anni-map/traversal.md`. Like `TraversalCheck`, seconds count path cells / 5.6; diagonal steps are one cell, so these are comparative routing estimates, not a gameplay stopwatch. The generic preview cannot infer a Mid rim or roof goals from an import without islands; the integration scenario supplies explicit goals from `coordinates.json`.
 
-The preview tool needed changes to display/validate this imported map: scan below y56 (otherwise the quarry floor is shown as void), and validate a wave on its own ground y instead of requiring a y64 iron pedestal. Its section also cuts through the tier-3 sanctum rather than a spawn street. The runtime import loader is unchanged. Legacy `ShippedArenaStagesBuildTest` still assumes **every** generator (including waves) has a y65 iron landmark; its owning track must update that test before the integration window.
-
-Until star-economy applies the handoff, repository generator coordinates are deliberately untouched and `make arena-preview` rejects them. To review the concrete new positions without editing another track's files:
+The preview scans the full imported height and validates waves on their own ground y. Generator/cache coordinates are integrated, and `ShippedArenaStagesBuildTest` now checks each supply spot at its own height. Run against the real repository content; no patched temporary copy is needed:
 
 ```sh
+./gradlew -q :tools:arena-preview:run
+# Equivalent Python entrypoint:
 python3 tools/map-gen/preview-content.py
-# Creates /tmp/claude-1000/anni-map/preview-content; patches generator positions only.
-tools/arena-preview/build/install/arena-preview/bin/arena-preview \
-  /tmp/claude-1000/anni-map/preview-content build/arena-previews
-# Or retain lint + raw make output + temporary-coordinate output/images/timings in a review round:
+# Retain lint, repository preview, images and timings in round-3/:
 python3 tools/map-gen/review-preview.py 3
 ```
 
-Open all four PNGs after each round. The helper retains `make` failures and the full temporary-preview result, never treats temporary success as repository success. `round-N/timings.json` records wall times, arena bytes and exit codes; `report.md` records generation/digest time and production `TraversalCheck` rows. Keep screenshots and round artifacts out of git. Manager runs the batched e2e/game-sim suite and live placement checks; this worker never touches a live container, pushes or runs unit tests.
+Open all four PNGs after each round. `round-N/timings.json` records wall times, arena bytes and exit codes; `report.md` records plan/digest times and production `TraversalCheck` rows. Keep screenshots and round artifacts out of git. Manager runs batched e2e/game-sim suites and live placement checks.
+
+## Continuous-ground art passes (r3/r4)
+
+One tapered floating continent connects the three towns and watchtower outposts. Wooded valleys lead from each gate to a seven-wide stone bridge over the river gorge, then dry approaches lead to the quarry. The winding channel crosses near each gate-to-rim midpoint; paired bank ladders occur every 20 degrees (under 22 blocks) and outlet ladders every 24 blocks. Exits are built after the bridges/towns; the generator and integration scenario verify all 36 ring shafts remain continuous to y64 with clear headroom. Outer void and kill y16 remain. Red is an industrial brick/deepslate town, blue a light-stone harbour, yellow a timber farming town. All spawn, pillar, shop, ore, landmark and star/cache anchors are fixed.
+
+Quarry surface geology uses irregular patches rather than material stripes. Ore/raw-mineral clusters replace existing exposed rock around node pockets, with broad coloured caps so iron (white), gold (yellow), diamond (cyan), emerald (green) and a deep decorative lapis seam (blue) remain readable without preview textures. The scenario requires at least 15 ore/mineral blocks around each quarry pocket, at least 20 exposed top blocks of each colour, the three mid-lane water crossings and wayside shrines, and a route from the channel up the northwest bank stair. Node cells, headroom and approaches retain the same collision geometry. The clear radius-17 wave disk stays open.
 
 ## Star-economy handoff
 
