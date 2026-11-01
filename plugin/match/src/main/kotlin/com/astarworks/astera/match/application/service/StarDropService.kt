@@ -58,7 +58,7 @@ public class StarDropService(
     private val economyOf: (MatchId) -> StarEconomy,
     /** Shows [player] a one-line hint (i18n key + args); the Paper wiring routes it to the action bar. */
     private val hint: (PlayerId, String, Map<String, String>) -> Unit = { _, _, _ -> },
-    private val random: Random = Random.Default,
+    private val random: Random,
     private val log: (String) -> Unit = {},
     /** Carried across a Match rewire: the stars lying in the arena and the id counter. */
     private val drops: MutableMap<Long, StarDrop> = ConcurrentHashMap(),
@@ -93,7 +93,7 @@ public class StarDropService(
             }
         } else {
             // Timer generator of the star economy: next candidate spot in rotation, at most one star per spot, minor budget share.
-            val rotation = rotations.computeIfAbsent(event.matchId to generator.id) { SpotRotation(generator.spots.size, seedOf(event.matchId, generator.id)) }
+            val rotation = rotations.computeIfAbsent(event.matchId to generator.id) { SpotRotation(generator.spots.size, random.nextLong()) }
             val taken = drops.values.filter { it.matchId == event.matchId && it.generatorId == generator.id }.mapNotNull { spotOf[it.id] }.toSet()
             if (!rotation.hasNext { it !in taken }) return
             amount = budget.grant(event.matchId, StarSource.SPOT, null, requested, generator.id.value, generators.listForMatch(event.matchId).count { it.spots.isNotEmpty() && it.cache == null && it.dropItem == null })
@@ -112,9 +112,6 @@ public class StarDropService(
             presentation.play(PresentationMoments.STAR_POP, near, mapOf("amount" to amount.toString()), at, world)
         }
     }
-
-    private fun seedOf(matchId: MatchId, generatorId: GeneratorId): Long =
-        (matchId.toString().hashCode().toLong() shl 32) xor generatorId.value.hashCode().toLong()
 
     /**
      * One star item of a Mid wave lands at [at] (anyone can take it; [generator] only names the source). A short pickup

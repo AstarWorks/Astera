@@ -523,6 +523,10 @@ public class GameSim private constructor(
         /** Default seed: every scenario is reproducible unless it asks for another. */
         public const val DEFAULT_SEED: Long = 20261022L
 
+        /** Per-service random streams (`seed xor constant`): adding a service never shifts the others. */
+        private const val STAR_DROP_STREAM: Long = 0x5354_4152_4452_4F50L
+        private const val STAR_WAVE_STREAM: Long = 0x5354_4152_5741_5645L
+
         /** Boots the whole stack. [contentDir] defaults to the repository's real `content/`. */
         public fun boot(
             scenarioName: String,
@@ -720,7 +724,7 @@ public class GameSim private constructor(
 
             // ---- Match / Stats / Economy ---------------------------------
             val replayRoot = Files.createTempDirectory("astera-sim-replays")
-            sim.core.rewire.register(MatchLifecycle(install = { ctx -> MatchWiring.install(ctx, MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }, starDropWorld = { sim.starDrops }, oreNodeWorld = { sim.oreNodes }, generatorItemDrop = { sim.generatorDrops }, objectiveStage = { sim.objectiveStage }, worldLabels = { sim.worldLabels }, matchCompass = { reg -> sim.matchCompass.also { it.attach(reg.getOrThrow<com.astarworks.astera.core.application.port.outbound.IDomainEventBus>()) } }, playerPositions = { reg -> SimMatchPlayerPositions({ reg.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>() }, sim.spectator) }, normaPresentation = { sim.normaPresentation })) }))
+            sim.core.rewire.register(MatchLifecycle(install = { ctx -> MatchWiring.install(ctx, MatchPlatformPorts(replayExportRoot = replayRoot, starDropRandom = kotlin.random.Random(seed xor STAR_DROP_STREAM), starWaveRandom = kotlin.random.Random(seed xor STAR_WAVE_STREAM), annihilationConfig = annihilation, spectator = { sim.spectator }, starDropWorld = { sim.starDrops }, oreNodeWorld = { sim.oreNodes }, generatorItemDrop = { sim.generatorDrops }, objectiveStage = { sim.objectiveStage }, worldLabels = { sim.worldLabels }, matchCompass = { reg -> sim.matchCompass.also { it.attach(reg.getOrThrow<com.astarworks.astera.core.application.port.outbound.IDomainEventBus>()) } }, playerPositions = { reg -> SimMatchPlayerPositions({ reg.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>() }, sim.spectator) }, normaPresentation = { sim.normaPresentation })) }))
             sim.core.rewire.up(MatchLifecycle.OWNER).let { r -> check(r is com.astarworks.astera.core.domain.Result.Success) { "match up failed: ${(r as com.astarworks.astera.core.domain.Result.Failure).error}" } }
             sim.core.rewire.register(StatsLifecycle { StatsPlatformPorts() })
             sim.core.rewire.register(EconomyLifecycle { EconomyPlatformPorts() })

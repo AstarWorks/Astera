@@ -115,6 +115,7 @@ internal object MatchStarWiring {
             eventBus = eventBus,
             world = dropWorld,
             presentation = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>(),
+            random = env.ports.starDropRandom,
             log = { env.ctx.logger.fine(it) },
             drops = carry.slot("star-drops") { java.util.concurrent.ConcurrentHashMap<Long, com.astarworks.astera.match.domain.star.StarDrop>() },
             nextId = carry.slot("star-drop-next-id") { java.util.concurrent.atomic.AtomicLong(1) },
@@ -151,6 +152,7 @@ internal object MatchStarWiring {
             scheduler = env.scheduler,
             presentation = presentationPort,
             eventBus = eventBus,
+            random = env.ports.starWaveRandom,
             states = carry.slot("star-waves") { java.util.concurrent.ConcurrentHashMap<Pair<MatchId, com.astarworks.astera.match.domain.generator.GeneratorId>, com.astarworks.astera.match.application.service.StarWaveService.State>() },
         )
         val caches = StarCacheService(
