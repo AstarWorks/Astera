@@ -11,6 +11,7 @@ import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.MatchStarted
 import com.astarworks.astera.core.domain.event.NexusDamaged
 import com.astarworks.astera.core.domain.event.NexusDestroyed
+import com.astarworks.astera.core.domain.event.AnnihilationPhaseTransitioned
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.TeamId
@@ -81,6 +82,10 @@ class MatchMetrics(
     private val players = LinkedHashMap<PlayerId, PlayerState>()
     private val teamOf = HashMap<PlayerId, TeamId>()
     private var firstFightTick: Long? = null
+    private var firstPillarHitTick: Long? = null
+    private var firstPillarLossTick: Long? = null
+    private val phaseTicks = LinkedHashMap<String, Long>()
+    private val pillarLosses = mutableListOf<Triple<Long, String, String>>()
     private val normaLevel = HashMap<PlayerId, Int>()
 
     private val kills = HashMap<String, Int>()
@@ -121,6 +126,7 @@ class MatchMetrics(
         val pillarDirect = HashMap<PlayerId, Double>()
         for (e in fresh) when (e) {
             is MatchStarted -> if (matchId == null) onMatchStarted(e)
+            is AnnihilationPhaseTransitioned -> if (e.matchId == matchId) phaseTicks.putIfAbsent(e.newPhase.id.toString(), e.atTick)
             is MatchEnded -> if (e.matchId == matchId && ended == null) { ended = e; endTick = e.atTick }
             is DamageDealt -> {
                 val attacker = e.attacker
@@ -133,7 +139,7 @@ class MatchMetrics(
             is BlockBroken -> miners += e.playerId
             is NexusDamaged -> if (e.matchId == matchId) e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.damageAmount.toDouble(), Double::plus) }
             is PlayerKilled -> onKill(e)
-            is NexusDestroyed -> if (e.matchId == matchId) e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.previousHp.toDouble(), Double::plus) }
+            is NexusDestroyed -> if (e.matchId == matchId) { if (firstPillarLossTick == null) firstPillarLossTick = tick; pillarLosses += Triple(tick, e.owningTeam.value, e.tier.toString()); e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.previousHp.toDouble(), Double::plus) } }
             is StarSupplied -> if (e.matchId == matchId) starsSupplied += e.amount
             is StarsCollected -> if (e.matchId == matchId) { starsCollected += e.amount; collected++ }
             is NormaLevelUp -> if (e.matchId == matchId) normaLevel[e.playerId] = maxOf(normaLevel[e.playerId] ?: 0, e.level)
@@ -190,6 +196,7 @@ class MatchMetrics(
         }
         if (delta <= 0.0) return
         pillarDamageTotal += delta
+        if (firstPillarHitTick == null) firstPillarHitTick = lastTick
         val who = attackers.filter { isPlayer(it) }
         val shares: Map<PlayerId?, Double> = when {
             direct.isNotEmpty() -> direct.mapValues { delta * it.value / direct.values.sum() }
@@ -316,6 +323,10 @@ class MatchMetrics(
 
         scalars["kills_total"] = killTotal.toDouble()
         scalars["pillar_damage_total"] = pillarDamageTotal
+        scalars["first_pillar_hit_s"] = firstPillarHitTick?.let { (it - (start ?: it)) / 20.0 }
+        scalars["first_pillar_loss_s"] = firstPillarLossTick?.let { (it - (start ?: it)) / 20.0 }
+        if (firstPillarHitTick == null) na["first_pillar_hit_s"] = "no pillar took damage"
+        if (firstPillarLossTick == null) na["first_pillar_loss_s"] = "no pillar fell"
         val kpm = if (minutes > 0) killTotal / minutes else null
         scalars["kills_per_min"] = kpm
         scalars["kills_per_min_per_player"] = if (minutes > 0 && playerList.isNotEmpty()) killTotal / minutes / playerList.size else null
@@ -378,6 +389,10 @@ class MatchMetrics(
             put("endReason", reason)
             put("winner", winner)
             put("ttffSeconds", ttff)
+            put("firstPillarHitSeconds", scalars["first_pillar_hit_s"])
+            put("firstPillarLossSeconds", scalars["first_pillar_loss_s"])
+            put("pillarLosses", JsonArray(pillarLosses.map { JsonPrimitive("${(it.first - (start ?: it.first)) / 20.0}s ${it.second} ${it.third}") }))
+            put("phaseStartSeconds", JsonObject(phaseTicks.mapValues { JsonPrimitive(((it.value - (start ?: it.value)) / 20.0)) }))
             put("killsTotal", killTotal)
             put("killsPerMinute", kpm)
             put("killsPerMinutePerPlayer", scalars["kills_per_min_per_player"])
