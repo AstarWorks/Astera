@@ -47,8 +47,5 @@ public class MatchPlatformPorts(
     /** Floating labels over bases, spawns, objectives and pillars (Paper: TextDisplays shown per viewer). `null` = no labels (headless). */
     public val worldLabels: ((ServiceRegistry) -> com.astarworks.astera.match.application.port.outbound.IWorldLabels)? = null,
     /** The locked hotbar navigation compass (Paper: tagged COMPASS in slot index 8). `null` = no compass item, guides stay always on (headless). */
-    /** Random streams of the star services (the simulator seeds them so two runs of one seed are equal; production: the default). */
-    public val starDropRandom: kotlin.random.Random = kotlin.random.Random.Default,
-    public val starWaveRandom: kotlin.random.Random = kotlin.random.Random.Default,
     public val matchCompass: ((ServiceRegistry) -> com.astarworks.astera.match.application.port.outbound.IMatchCompass)? = null,
 )
