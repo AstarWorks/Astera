@@ -88,7 +88,9 @@ class BotLoadoutScenarioTest {
                 assertThat(weapons.map { categoryOf(sim, it) }.toSet()).`as`("fits gun:1,sword:1,staff:1").hasSize(2)
                 weapons.forEach { id ->
                     val rarity = sim.services.getOrThrow<IItemRegistry>().find(ItemId(id))!!.rarity
-                    assertThat(rarity.name).`as`("$id is usable at Norma level 1").isEqualTo("COMMON")
+                    // BotLoadoutService.entryLevel: the lobby's human average (level 1 here) moved by -1/0/+1 per bot, seeded by the random
+                    // match id. So a bot may enter at level 2 and draw UNCOMMON (shipped ladder common:1, uncommon:2); rare and above stay shut.
+                    assertThat(rarity.name).`as`("$id is usable at Norma level 1 or 2 (human average 1, +-1)").isIn("COMMON", "UNCOMMON")
                 }
             }
         } finally {

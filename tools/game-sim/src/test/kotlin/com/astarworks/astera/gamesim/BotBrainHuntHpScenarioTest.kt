@@ -55,9 +55,13 @@ class BotBrainHuntHpScenarioTest {
         override val screens: List<HostScreen> = emptyList()
         override val bossBarTitles: List<String> = emptyList()
         override val sounds: List<String> = emptyList()
-        override val damageNumbers: List<String> = emptyList()
+        // Every shot lands (the 0.1 HP enemy is a real, hittable target): without floating damage numbers the brain would
+        // rightly drop it as an ineffective target after the 5 s grace (IneffectiveTargets) and fall back to the near one.
+        override val damageNumbers: List<String> get() = shotYaws.map { "1" }
         override var lift = 0.0
         val shotYaws = ArrayList<Float>()
+        /** Where the bot stood at each shot: it strafes and closes in, so the bearing of a target changes from shot to shot. */
+        val shotFrom = ArrayList<Pair<Double, Double>>()
 
         override fun now() = clock
         override fun note(text: String) {}
@@ -70,7 +74,7 @@ class BotBrainHuntHpScenarioTest {
         override fun carriedStacks() = emptyList<Pair<String, Int>>()
         override fun command(cmd: String) {}
         override fun selectHotbar(slot: Int) { selectedSlot = slot }
-        override fun useItem(yaw: Float, pitch: Float) { shotYaws += yaw }
+        override fun useItem(yaw: Float, pitch: Float) { shotYaws += yaw; shotFrom += x to z }
         override fun punch() {}
         override fun attack(entityId: Int) {}
         override fun interact(entityId: Int) {}
@@ -96,9 +100,15 @@ class BotBrainHuntHpScenarioTest {
 
         assertThat(brain.shots.get()).`as`("the bot shoots").isGreaterThan(3)
         assertThat(host.shotYaws).isNotEmpty
-        assertThat(host.shotYaws).allSatisfy { yaw ->
-            // Straight ahead (yaw 0) is the healthy near enemy at (0, 6); the 0.1 HP enemy is off to the side (yaw about -50).
-            assertThat(yaw).`as`("aims at the 0.1 HP enemy, not the nearer healthy one").isLessThan(-30f)
+        // The bot moves while it shoots, so judge each shot against the bearing (MC yaw) of both targets from where the bot stood:
+        // every shot must be nearer to the 0.1 HP enemy's bearing than to the healthy near one's.
+        fun bearing(from: Pair<Double, Double>, tx: Double, tz: Double) = Math.toDegrees(Math.atan2(-(tx - from.first), tz - from.second)).toFloat()
+        fun gap(a: Float, b: Float) = Math.abs(((a - b + 540f) % 360f) - 180f)
+        host.shotYaws.indices.forEach { i ->
+            val from = host.shotFrom[i]
+            val toLow = gap(host.shotYaws[i], bearing(from, host.far.x, host.far.z))
+            val toNear = gap(host.shotYaws[i], bearing(from, host.near.x, host.near.z))
+            assertThat(toLow).`as`("shot $i aims at the 0.1 HP enemy (off by $toLow deg), not the nearer healthy one (off by $toNear deg)").isLessThan(toNear)
         }
     }
 }

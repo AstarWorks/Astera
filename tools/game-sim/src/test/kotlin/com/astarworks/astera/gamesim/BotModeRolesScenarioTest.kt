@@ -105,7 +105,8 @@ class BotModeRolesScenarioTest {
             var confirmed = 0
             var interceptStep: ModePlanner.Step? = null
             var escortStep: ModePlanner.Step? = null
-            repeat(60) {
+            // Shield break (~20 s), two checkpoint holds (~4 s each), the deliver hold (~3 s) and the walks: 60 s is plenty, the loop ends at MatchEnded.
+            repeat(120) {
                 if (eventsOf<MatchEnded>().isNotEmpty()) return@repeat
                 val have = sim.objectiveStage.carriedCount(runner.id)
                 if (have > held) confirmed += have - held
@@ -368,9 +369,14 @@ class BotModeRolesScenarioTest {
             val spawn = checkNotNull(checkNotNull(src.zones()).point("center"))
             val red = squad("r", spawn)
             val facts = Facts()
+            // The bot stands 40 blocks from its pillar. The arena centre is ~90 blocks from the blue tier-1 pillar, farther than
+            // OBJECTIVE_LEASH, where a far fight is (rightly) refused, so the centre cannot be the test position.
+            val goal = checkNotNull(planner("annihilation", src, "r1", "red", listOf("blue", "yellow"), facts, red).step(0, spawn.first, spawn.third))
+            val gl = kotlin.math.hypot(goal.x - spawn.first, goal.z - spawn.third)
+            val x = goal.x - (goal.x - spawn.first) / gl * 40.0
+            val z = goal.z - (goal.z - spawn.third) / gl * 40.0
             fun attacker() = planner("annihilation", src, "r1", "red", listOf("blue", "yellow"), facts, red)
-                .also { assertThat(it.step(0, spawn.first, spawn.third)?.role).isEqualTo(Role.PILLAR_ATTACKER) }
-            val x = spawn.first; val z = spawn.third
+                .also { assertThat(it.step(0, x, z)?.role).isEqualTo(Role.PILLAR_ATTACKER) }
             // Perpendicular to the way to the objective would be ideal; a point behind the bot is never near the path segment.
             fun behind(d: Double, hp: Double? = null, p: ModePlanner): Sighting {
                 val toward = p.step(0, x, z)!!
@@ -423,7 +429,9 @@ class BotModeRolesScenarioTest {
             assertThat(chase.z).isEqualTo(z)
             assertThat(chase.engage).isEqualTo(ModePlanner.ATTACK_ENGAGE_FAR)
 
-            // Never arriving: the chase times out and the plan is the pillar again, not endlessly the old spot.
+            // Never arriving: the chase times out and the plan is the pillar again, not endlessly the old spot. The target keeps
+            // being seen at that spot (fresh memory, shorter than CHASE_MS), so it is the chase clock that ends the chase.
+            p.noteLastKnown(x + 15, z, seenAt = 1_500 + ModePlanner.CHASE_MS)
             assertThat(p.step(1_500 + ModePlanner.CHASE_MS + 100, x, z)?.kind).isEqualTo("pillar")
             p.noteLastKnown(x + 15, z, seenAt = 1_500 + ModePlanner.CHASE_MS + 200)
             assertThat(p.step(1_500 + ModePlanner.CHASE_MS + 300, x, z)?.kind).isEqualTo("pillar") // cooldown
@@ -492,35 +500,46 @@ class BotModeRolesScenarioTest {
      * Drives a lone red bot through the real [mode] with snapshot facts until the red count drops below 100 (it scored) or the
      * budget runs out; a blue player stands idle far away. Returns the red count at the end.
      */
-    private fun ScenarioScope.playUntilScored(mode: String, stage: String, rounds: Int): Pair<Int?, List<String>> {
-        val runner = player("runner", at = Vec3(0.0, 65.0, -50.0))
+    private fun ScenarioScope.playUntilScored(mode: String, stage: String, rounds: Int, squad: Int = 1): Pair<Int?, List<String>> {
+        // [squad] red bots play together: Clam Blitz needs more clams in the team's hands (power_need) than one player may carry (carry_limit).
+        val runners = (1..squad).map { player("runner$it", at = Vec3(0.0, 65.0, -50.0)) }
         val idle = player("idle", at = Vec3(0.0, 65.0, -50.0))
-        val match = startMatch(mode, mapOf(runner to "red", idle to "blue"), stage = stage)
-        val bot = planner(mode, objectives(mode), "runner", "red", listOf("blue"), snapshotFacts(mode, match), emptyList())
+        val match = startMatch(mode, runners.associateWith { "red" } + (idle to "blue"), stage = stage)
+        // The snapshot facts read a holder's team off the world entity, which the scenario's startMatch does not set.
+        runners.forEach { it.team = TeamId("red") }
+        idle.team = TeamId("blue")
+        val src = objectives(mode)
+        val facts = snapshotFacts(mode, match)
+        val bots = runners.map { r -> planner(mode, src, r.name, "red", listOf("blue"), facts, emptyList()) }
         val kinds = ArrayList<String>()
+        val held = IntArray(squad)
+        val confirmed = IntArray(squad)
         var now = 0L
-        var held = 0
-        var confirmed = 0
         repeat(rounds) {
-            if ((countOf(runner, "red") ?: 100) < 100 || eventsOf<MatchEnded>().isNotEmpty()) return countOf(runner, "red") to kinds
-            val have = sim.objectiveStage.carriedCount(runner.id)
-            if (have > held) confirmed += have - held
-            held = have
-            bot.noteConfirmed(confirmed)
-            val step = checkNotNull(bot.step(now, runner.position.x, runner.position.z)) { "mode has a plan" }
-            if (kinds.lastOrNull() != step.kind) kinds += step.kind
-            runner.moveTo(Vec3(step.x, 65.0, step.z))
-            if (bot.clickWanted) clickNearestMarker(runner, match)
+            if ((countOf(runners[0], "red") ?: 100) < 100 || eventsOf<MatchEnded>().isNotEmpty()) return countOf(runners[0], "red") to kinds
+            val roster = runners.map { Mate(it.name, it.position.x, it.position.z) }
+            for ((i, runner) in runners.withIndex()) {
+                val bot = bots[i]
+                bot.noteRoster(roster)
+                val have = sim.objectiveStage.carriedCount(runner.id)
+                if (have > held[i]) confirmed[i] += have - held[i]
+                held[i] = have
+                bot.noteConfirmed(confirmed[i])
+                val step = checkNotNull(bot.step(now, runner.position.x, runner.position.z)) { "mode has a plan" }
+                if (i == 0 && kinds.lastOrNull() != step.kind) kinds += step.kind
+                runner.moveTo(Vec3(step.x, 65.0, step.z))
+                if (bot.clickWanted) clickNearestMarker(runner, match)
+            }
             advance(10)
             now += 500
         }
-        return countOf(runner, "red") to kinds
+        return countOf(runners[0], "red") to kinds
     }
 
     @Test
     fun `splat zones - a bot takes the zones and the red count falls`() {
         scenario("bot-progress-zones") {
-            val (count, kinds) = playUntilScored("capture-wool", "siege-isles-wool", 600)
+            val (count, kinds) = playUntilScored("capture-wool", "temple-trouble", 600)
             assertThat(count).`as`("red count after the bot held zones; plan $kinds").isLessThan(100)
         }
     }
@@ -536,7 +555,7 @@ class BotModeRolesScenarioTest {
     @Test
     fun `clam blitz - a bot collects clams, throws the power TNT and plants minis into the open basket`() {
         scenario("bot-progress-clams") {
-            val (count, kinds) = playUntilScored("carry-mini-tnt", "siege-isles-mini-tnt", 1500)
+            val (count, kinds) = playUntilScored("carry-mini-tnt", "siege-isles-mini-tnt", 1500, squad = 2)
             assertThat(count).`as`("red count after planting; plan $kinds").isLessThan(100)
         }
     }

@@ -265,8 +265,10 @@ class ModePlanner(
         val goalName = Regions.goal(enemy, zones) ?: return null
         val goal = zones.point(goalName) ?: return null
         val myDist = hypot(goal.first - x, goal.third - z)
+        // A checkpoint the bot stands on is still ahead: without that, arriving at it (within CHECKPOINT_RADIUS) drops it from the
+        // list before the hold ever runs, the checkpoint is never secured and the server refuses the delivery.
         val ahead = Regions.checkpoints(enemy, zones).filter { it !in secured }.firstOrNull { cp ->
-            zones.point(cp)?.let { hypot(goal.first - it.first, goal.third - it.third) < myDist - CHECKPOINT_RADIUS } == true
+            zones.point(cp)?.let { hypot(it.first - x, it.third - z) <= CHECKPOINT_RADIUS || hypot(goal.first - it.first, goal.third - it.third) < myDist - CHECKPOINT_RADIUS } == true
         }
         if (ahead != null) {
             val s = step(ahead, "checkpoint", CHECKPOINT_RADIUS, Role.CARRIER, CARRY_ENGAGE) ?: return null
