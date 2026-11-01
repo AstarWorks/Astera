@@ -32,6 +32,7 @@ frames:
     rotate:
       - {at: 0, for: 2, about: s, to: 16, ease: out_quad}                      # muzzle flip
       - {at: 2, for: 4, about: s, to: 0, ease: in_out_sine}
+  - {id: aim_chip, origin: {aim: "${chip_ahead}"}, v: aim, w: s x v, s: right}
   - id: hit
     on: event.victim
     each: true
@@ -65,5 +66,5 @@ machine:
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(pos(event.victim) - pos(caster))", strength: "${knockback}"}
               - {id: snd_hit, op: sound, sound: "astera:weapons/gun-impact", frame: hit, detach: true}
               - {id: fx_hit, op: particle_def, def: gun-impact, frame: hit, pos: {v: -0.2}, detach: true}
-        - {id: chip, op: break_area, at: 0, anchor: {of: caster.eye, offset: {forward: "= dist(pos(caster.eye), aim_point(caster, ${chip_ahead}))"}}, shape: {sphere: {radius: 1.0}}, tool: none, block_damage: 30, ripple: 29, revert: 200, outside_arena: false}
+        - {id: chip, op: break_area, at: 0, frame: aim_chip, shape: {sphere: {radius: 1.0}}, tool: none, block_damage: 30, ripple: 29, revert: 200, outside_arena: false}
     end: {final: true}
