@@ -148,10 +148,10 @@ class AnnihilationPhaseFlowScenarioTest {
             val origin = sim.services.getOrThrow<IStageRegistry>().find(StageId("annihilation-arena"))?.origin ?: Vec3(0.0, 0.0, 0.0)
             val nodes = sim.services.getOrThrow<OreNodeService>()
             val pick = ItemId("diamond-pickaxe")
-            fun cell(x: Int, z: Int) = Vec3(origin.x + x, 65.0, origin.z + z)
-            val iron = cell(-15, 0)
-            val gold = cell(-6, -6)
-            val emerald = cell(-3, -3)
+            fun cell(x: Int, y: Int, z: Int) = Vec3(origin.x + x, y.toDouble(), origin.z + z)
+            val iron = cell(-33, 61, 11)
+            val gold = cell(17, 56, 22)
+            val emerald = cell(8, 51, -17)
             fun mine(c: Vec3): OreNodeService.Outcome { advance(7); return nodes.mine(red.id, worldId, c, pick) }
             fun locked(c: Vec3) = (mine(c) as? OreNodeService.Outcome.PhaseLocked)?.required
 
