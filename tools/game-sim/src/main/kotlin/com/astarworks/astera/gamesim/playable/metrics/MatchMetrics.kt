@@ -72,6 +72,9 @@ class MatchMetrics(
     private enum class Activity { FIGHT, MINE, MOVE, IDLE }
 
     private class PlayerState(val id: PlayerId, val name: String) {
+        /** Closest horizontal distance to the own team's shop NPC and the first tick within interact range (null = never). */
+        var shopMinDistance: Double? = null
+        var shopReachTick: Long? = null
         var lastPos: Vec3? = null
         var lastActivity: Activity? = null
         var lastDecision: String? = null
@@ -85,6 +88,8 @@ class MatchMetrics(
 
     private val firstPurchase = HashMap<PlayerId, FirstPurchase>()
     private val pendingOre = HashMap<PlayerId, MutableMap<String, Int>>()
+    private val buyAttempts = HashMap<PlayerId, Int>()
+    private val bagAtFirstAttempt = HashMap<PlayerId, Map<String, Int>>()
     private val purchaseTaps = mutableListOf<ServiceRegistry.Registration>()
 
     /**
@@ -100,6 +105,12 @@ class MatchMetrics(
         val stock = services.get<IOwnedItemStock>()
         if (stock != null) purchaseTaps += services.register<IOwnedItemStock>(object : IOwnedItemStock by stock {
             override fun remove(playerId: PlayerId, itemId: ItemId, amount: Int): Boolean {
+                // The first ore taken out of a bag for a purchase = one attempt (a refunded or failed delivery still counts; a buy that
+                // fails the ore check before taking anything is not visible here). The bag is read before the removal.
+                if (itemId.value.startsWith("ore-") && playerId !in pendingOre) {
+                    buyAttempts.merge(playerId, 1, Int::plus)
+                    if (playerId !in bagAtFirstAttempt) bagAtFirstAttempt[playerId] = oreBag(playerId)
+                }
                 val ok = stock.remove(playerId, itemId, amount)
                 if (ok && itemId.value.startsWith("ore-")) pendingOre.getOrPut(playerId) { linkedMapOf() }.merge(itemId.value, amount, Int::plus)
                 return ok
@@ -115,6 +126,19 @@ class MatchMetrics(
                 return result
             }
         }, priority = TAP_PRIORITY)
+    }
+
+    private fun oreBag(id: PlayerId): Map<String, Int> =
+        sim.server.view(id)?.givenItems?.filter { it.startsWith("ore-") }?.groupingBy { it }?.eachCount() ?: emptyMap()
+
+    private fun trackShopReach(st: PlayerState, entity: SimEntity, team: TeamId) {
+        val stg = stage ?: return
+        val shop = stg.shopNpcs.firstOrNull { it.team == team } ?: return
+        val dx = entity.position.x - (shop.x + stg.origin.x)
+        val dz = entity.position.z - (shop.z + stg.origin.z)
+        val d = sqrt(dx * dx + dz * dz)
+        if (st.shopMinDistance == null || d < st.shopMinDistance!!) st.shopMinDistance = d
+        if (st.shopReachTick == null && d <= SHOP_REACH && kotlin.math.abs(entity.position.y - (shop.y + stg.origin.y)) <= SHOP_REACH_Y) st.shopReachTick = lastTick
     }
 
     init { tapPurchasePath() }
@@ -301,6 +325,7 @@ class MatchMetrics(
             val prev = st.lastPos
             st.lastPos = entity.position
             if (!sim.isAlive(entity.id)) continue
+            if (startTick != null) trackShopReach(st, entity, team)
             val moved = prev != null && prev.distanceSquared(entity.position) > 1e-6
             val act = when {
                 entity.id in fighters -> Activity.FIGHT
@@ -503,6 +528,14 @@ class MatchMetrics(
             put("players", JsonObject(playerList.associate { st ->
                 st.name to buildJsonObject {
                     val fp = firstPurchase[st.id]
+                    put("shop_reach", buildJsonObject {
+                        put("min_distance", st.shopMinDistance)
+                        put("first_in_range_tick", st.shopReachTick)
+                    })
+                    put("buy_attempts", buildJsonObject {
+                        put("count", buyAttempts[st.id] ?: 0)
+                        put("bag_ore_at_first_attempt", bagAtFirstAttempt[st.id]?.let { b -> JsonObject(b.mapValues { JsonPrimitive(it.value) }) } ?: JsonNull)
+                    })
                     put("first_purchase", if (fp == null) JsonNull else buildJsonObject {
                         put("tick", fp.tick)
                         put("seconds", (fp.tick - (start ?: fp.tick)) / 20.0)
@@ -539,6 +572,10 @@ class MatchMetrics(
 }
 
 private const val TAP_PRIORITY = 1_000
+
+/** Interact range of the base shop, same as `MatchShopBotBuyer`. */
+private const val SHOP_REACH = 5.0
+private const val SHOP_REACH_Y = 3.0
 
 /** Phase-1 base-kill radius, blocks (horizontal). */
 private const val ENEMY_BASE_RADIUS = 35.0
