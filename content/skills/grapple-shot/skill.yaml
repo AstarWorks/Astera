@@ -23,6 +23,7 @@ frames:
     s: right
     move:
       - {at: 0, for: 0, to: {v: 0.57, w: -0.51, s: 0.30}}
+  - {id: heading, origin: caster.feet, v: up, w: forward, s: right}   # the caster's own heading, for the wall pull
   - id: hit
     on: event.victim
     each: true
@@ -72,7 +73,7 @@ machine:
               - {id: snd_bite, op: sound, sound: "block.chain.place", frame: hit, volume: 0.8, pitch: 0.8, detach: true}
               - {id: fx_bite, op: particle_def, def: hit-spark, frame: hit, pos: {v: -0.2}, detach: true}
             block:
-              - {id: pull, op: impulse, at: 0, target: caster, vector: {of: caster, forward: "${pull_forward}", up: "${pull_up}"}}
+              - {id: pull, op: impulse, at: 0, target: caster, frame: heading, dir: {v: "${pull_up}", w: "${pull_forward}"}}
               - {id: snd_wall, op: sound, sound: "block.chain.place", frame: blk, volume: 0.8, pitch: 0.8, detach: true}
               - {id: fx_wall, op: particle_def, def: hit-spark, frame: blk, pos: {v: -0.2}, detach: true}
         - {id: hook, op: display, kind: item, item: "minecraft:tripwire_hook", context: fixed, frame: body, pos: {}, scale: [0.9, 0.9, 0.9], at: 0, until: bolt.end}
