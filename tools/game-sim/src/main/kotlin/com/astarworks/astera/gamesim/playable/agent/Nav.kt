@@ -77,6 +77,7 @@ internal class PlayerNavHost(
     override fun note(text: String) {}
     override fun isSpectator(player: UUID): Boolean = false
     override fun teamOf(player: String): String? = null
+    override fun healthOf(entityId: Int): Float? = null
     override fun hotbar(): List<Int> = unsupported("hotbar")
     override fun hotbarName(slot: Int): String = unsupported("hotbarName")
     override fun hotbarLore(slot: Int): String = unsupported("hotbarLore")
