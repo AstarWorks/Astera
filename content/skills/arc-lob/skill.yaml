@@ -27,15 +27,17 @@ machine:
       do:
         - id: shell
           op: display
-          kind: block
-          block: magma_block
+          kind: sprite
+          sprite: flame
           frame: lob
-          scale: [0.6, 0.6, 0.6]
+          size: [1.2, 1.2]
+          color: "#ff9a3c"
+          billboard: center
           brightness: {block: 15, sky: 15}
           at: 0
           for: 24
           motion:
-            - {law: path, points: [{v: 0}, {v: 3, w: 2.5}, {v: 6, w: 3.5}, {v: 8, w: -1.2}], at: 0, for: 24, ease: in_out_sine}
+            - {law: path, points: [{v: 0}, {v: 3, w: 2.5}, {v: 6, w: 3.5}, {v: 8, w: -1.2}], at: 0, for: 24, ease: in_out_sine, orient: none}
         - {id: flash, op: particle, particle: flash, frame: land, count: 1, at: 23, detach: true}
         - {id: blast, op: particle, particle: explosion, frame: land, pos: {w: 0.6}, count: 2, offset: [0.8, 0.3, 0.8], at: 23, detach: true}
         - {id: fire, op: particle, particle: flame, frame: land, count: 30, offset: [1.2, 0.4, 1.2], extra: 0.08, at: 23, every: 2, times: 5, detach: true}
