@@ -257,10 +257,10 @@ class ExtendsTierScenarioTest : SkillEngineScenario() {
         val all = composed(contentDir.resolve("skills"))
         fun default(id: String, param: String): Any? = ((all.getValue(id).tree["params"] as Map<*, *>)[param] as Map<*, *>)["default"]
         for ((id, dmg) in listOf("pistol-shot" to 25.0, "pistol-shot-t2" to 32.0, "pistol-shot-t3" to 41.0, "pistol-shot-t4" to 51.0)) {
-            assertThat(default(id, "dmg")).describedAs(id).isEqualTo(dmg)
+            assertThat((default(id, "dmg") as Number).toDouble()).describedAs(id).isEqualTo(dmg)
         }
         for ((id, dmg) in listOf("sword-slash" to 40.0, "sword-slash-t2" to 52.0, "sword-slash-t3" to 66.0, "sword-slash-t4" to 82.0)) {
-            assertThat(default(id, "dmg")).describedAs(id).isEqualTo(dmg)
+            assertThat((default(id, "dmg") as Number).toDouble()).describedAs(id).isEqualTo(dmg)
         }
         for (family in listOf("axe-fell", "axe-plank-wall", "pickaxe-bore", "pickaxe-shatter", "shovel-earth-bridge", "shovel-excavate")) {
             for (tier in listOf("stone", "iron", "diamond")) {

@@ -33,7 +33,11 @@ class SoundOpScenarioTest : SkillEngineScenario() {
     fun missingAnchorIsRejected() {
         val r = loadInline(skill("{id: snd, op: sound, sound: block.stone.hit}"))
         assertThat(r).isInstanceOf(Result.Failure::class.java)
-        assertThat((r as Result.Failure).error).isInstanceOf(SkillDecodeError.MissingField::class.java)
+        // frame grammar (ADR-0314): the placement is `anchor:` or `frame:`, so the missing placement is an Invalid naming both, not a MissingField
+        val error = (r as Result.Failure).error
+        assertThat(error).isInstanceOf(SkillDecodeError.Invalid::class.java)
+        assertThat(error.path).contains("sound[snd].anchor")
+        assertThat(error.message).contains("anchor: <name> or frame: <id>")
     }
 
     @Test
