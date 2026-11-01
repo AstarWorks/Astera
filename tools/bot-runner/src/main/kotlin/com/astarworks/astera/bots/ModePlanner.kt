@@ -166,7 +166,7 @@ class ModePlanner(
             "carry-mini-tnt" -> miniTnt(now, x, z)
             "steal-jewelry" -> (if (carried > 0) null else recover(now, x, z)) ?: jewelry(now, x, z)
             "capture-wool" -> wool()
-            "annihilation" -> annihilation(x, z)
+            "annihilation" -> annihilation(now, x, z)
             else -> null
         }
         role = s?.role
@@ -382,19 +382,107 @@ class ModePlanner(
 
     // ---- annihilation ------------------------------------------------------------------------------------------------
 
-    private fun annihilation(x: Double, z: Double): Step? {
+    // Own-pillar watch (role switching) and engage / chase state.
+    private val pillarHpSeen = HashMap<Int, Int>()
+    private var pillarHitAt = NEVER
+    private var pillarHit: PillarSite? = null
+    private var lastDamagedAt = NEVER
+    private var farFightSince = NEVER
+    private var farBlockedUntil = 0L
+    private var lastSeenX = Double.NaN
+    private var lastSeenZ = Double.NaN
+    private var lastSeenAt = NEVER
+    private var chaseSince = NEVER
+    private var chaseOriginX = 0.0
+    private var chaseOriginZ = 0.0
+    private var chaseBlockedUntil = 0L
+    private var objectiveX = Double.NaN
+    private var objectiveZ = Double.NaN
+
+    /** The bot took damage at [now] (from whom is not known): an enemy up to [ATTACK_ENGAGE_FAR] away then counts as a threat for [DAMAGED_MEMORY_MS]. */
+    fun noteDamaged(now: Long) { lastDamagedAt = now }
+
+    /**
+     * Where the bot's target was last seen (the target memory of the fight policy), at [seenAt]. An attacker whose enemy
+     * dropped out of sight chases to that spot for at most [CHASE_MS] and [CHASE_LEASH] blocks from where the chase began.
+     */
+    fun noteLastKnown(x: Double, z: Double, seenAt: Long) { lastSeenX = x; lastSeenZ = z; lastSeenAt = seenAt }
+
+    /** Whether the own pillar was hit within the last [DEFEND_QUIET_MS] (hysteresis for the attacker -> defender switch). */
+    fun pillarUnderAttack(now: Long): Boolean = pillarHitAt != NEVER && now - pillarHitAt in 0..DEFEND_QUIET_MS
+
+    /**
+     * Whether the brain should leave the current step and fight [enemy] (call once per tick with the nearest one). Inside the
+     * step's [engage] radius always; a pillar attacker also takes a threat (it was damaged lately, or the enemy stands within
+     * [PATH_THREAT_RADIUS] of its way to the objective) or an easy kill (hp fraction <= [EASY_KILL_HP]) up to [ATTACK_ENGAGE_FAR].
+     * Such a far fight is leashed: it ends after [FAR_FIGHT_MS] or when the bot is [OBJECTIVE_LEASH] blocks from the objective, and
+     * no new far fight starts for [FAR_COOLDOWN_MS] (no flip-flop between walking and fighting).
+     */
+    fun engages(enemy: Sighting, now: Long, x: Double, z: Double): Boolean {
+        val d = hypot(enemy.x - x, enemy.z - z)
+        if (d <= lastEngage) { farFightSince = NEVER; return true }
+        if (role != Role.PILLAR_ATTACKER || d > ATTACK_ENGAGE_FAR || now < farBlockedUntil) { farFightSince = NEVER; return false }
+        val damaged = lastDamagedAt != NEVER && now - lastDamagedAt in 0..DAMAGED_MEMORY_MS
+        val easy = enemy.hpFraction?.let { it <= EASY_KILL_HP } == true
+        val onPath = !objectiveX.isNaN() && distToSegment(enemy.x, enemy.z, x, z, objectiveX, objectiveZ) <= PATH_THREAT_RADIUS
+        if (!(damaged || easy || onPath)) { farFightSince = NEVER; return false }
+        if (farFightSince == NEVER) farFightSince = now
+        val leashed = !objectiveX.isNaN() && hypot(objectiveX - x, objectiveZ - z) > OBJECTIVE_LEASH
+        if (now - farFightSince > FAR_FIGHT_MS || leashed) {
+            farFightSince = NEVER; farBlockedUntil = now + FAR_COOLDOWN_MS; return false
+        }
+        return true
+    }
+
+    private fun distToSegment(px: Double, pz: Double, ax: Double, az: Double, bx: Double, bz: Double): Double {
+        val dx = bx - ax; val dz = bz - az
+        val len2 = dx * dx + dz * dz
+        val t = if (len2 == 0.0) 0.0 else (((px - ax) * dx + (pz - az) * dz) / len2).coerceIn(0.0, 1.0)
+        return hypot(px - (ax + t * dx), pz - (az + t * dz))
+    }
+
+    /** Reads the own pillars' HP; a drop marks the pillar as hit at [now]. */
+    private fun watchOwnPillars(now: Long, own: List<PillarSite>) {
+        for (p in own) {
+            val hp = facts.pillarHp(ownTeam, p.tier)?.hp ?: continue
+            val before = pillarHpSeen.put(p.tier, hp)
+            if (before != null && hp < before) { pillarHitAt = now; pillarHit = p }
+        }
+    }
+
+    /** A chase step to the target's last known spot, or null when there is nothing (any more) to chase. */
+    private fun chase(now: Long, x: Double, z: Double): Step? {
+        if (lastSeenAt == NEVER || now < chaseBlockedUntil || now - lastSeenAt > CHASE_MEMORY_MS) { chaseSince = NEVER; return null }
+        if (chaseSince == NEVER) { chaseSince = now; chaseOriginX = x; chaseOriginZ = z }
+        val arrived = hypot(lastSeenX - x, lastSeenZ - z) <= CHASE_ARRIVE
+        val leashed = hypot(x - chaseOriginX, z - chaseOriginZ) > CHASE_LEASH
+        if (arrived || leashed || now - chaseSince > CHASE_MS) {
+            chaseSince = NEVER; chaseBlockedUntil = now + CHASE_COOLDOWN_MS; lastSeenAt = NEVER; return null
+        }
+        return Step("last-known", lastSeenX, zones.point(TNT_SPAWN)?.second ?: 65.0, lastSeenZ, CHASE_ARRIVE, "chase", Role.PILLAR_ATTACKER, engage = ATTACK_ENGAGE_FAR)
+    }
+
+    private fun annihilation(now: Long, x: Double, z: Double): Step? {
         val all = zones.pillars()
         if (all.isEmpty()) return null
         fun standing(p: PillarSite) = facts.pillarStanding(p.team, p.tier) ?: true
         val mine = all.filter { it.team == ownTeam && standing(it) }.sortedBy { it.tier }
+        watchOwnPillars(now, mine)
         val threatened = facts.enemies().any { e -> mine.any { hypot(e.x - (it.x + 0.5), e.z - (it.z + 0.5)) <= THREAT_RANGE } }
-        val a = assigner().annihilation(threatened)
+        val underAttack = pillarUnderAttack(now)
+        val home = (if (underAttack) pillarHit?.takeIf { h -> mine.any { it.tier == h.tier } } else null) ?: mine.firstOrNull()
+        val a = if (underAttack && home != null)
+            assigner().annihilationUnderAttack(threatened, home.x + 0.5, home.z + 0.5, x, z, sticky = role == Role.PILLAR_DEFENDER)
+        else assigner().annihilation(threatened)
         if (a.role == Role.PILLAR_DEFENDER) {
-            val p = mine.firstOrNull() ?: return null
+            val p = home ?: return null
+            // Switched defenders run to the hit pillar and fight on top of it; the regular guard keeps its post radius.
             return Step("pillar-$ownTeam-${p.tier}", p.x + 0.5, p.y.toDouble(), p.z + 0.5, GUARD_RADIUS, "guard", Role.PILLAR_DEFENDER, GUARD_ENGAGE)
         }
         val target = RoleAssigner.weakestTeam(enemyTeams) { t -> all.count { it.team == t && standing(it) } } ?: return null
         val p = all.filter { it.team == target && standing(it) }.minByOrNull { it.tier } ?: return null
+        objectiveX = p.x + 0.5; objectiveZ = p.z + 0.5
+        chase(now, x, z)?.let { return it }
         return Step("pillar-$target-${p.tier}", p.x + 0.5, p.y.toDouble(), p.z + 0.5, PILLAR_REACH, "pillar", Role.PILLAR_ATTACKER,
             engage = ATTACK_ENGAGE, strike = Triple(p.x, p.y, p.z), affinity = p.toolClass())
     }
@@ -409,6 +497,8 @@ class ModePlanner(
     }
 
     companion object {
+        /** "Not set" for the time stamps above (0 is a valid clock value). */
+        private const val NEVER = Long.MIN_VALUE
         val MODES = setOf("carry-tnt", "carry-mini-tnt", "steal-jewelry", "capture-wool", "annihilation")
         const val TNT_SPAWN = "tnt-spawn"
         const val BASE_RADIUS = 3.0
@@ -436,5 +526,25 @@ class ModePlanner(
         const val HOLD_ENGAGE = 14.0
         /** A pillar attacker only fights an enemy this close; farther ones are walked past so the pillar trip finishes. */
         const val ATTACK_ENGAGE = 12.0
+        /** A pillar attacker also takes a threatening or easy enemy this far away. */
+        const val ATTACK_ENGAGE_FAR = 30.0
+        /** Enemy hp fraction at or below which it is an easy kill. */
+        const val EASY_KILL_HP = 0.4
+        /** An enemy this close to the straight way to the objective is a threat to the trip. */
+        const val PATH_THREAT_RADIUS = 8.0
+        /** How long a damage taken keeps far enemies threatening. */
+        const val DAMAGED_MEMORY_MS = 5_000L
+        /** A far fight ends after this long, or this far from the objective, and does not restart for [FAR_COOLDOWN_MS]. */
+        const val FAR_FIGHT_MS = 12_000L
+        const val FAR_COOLDOWN_MS = 6_000L
+        const val OBJECTIVE_LEASH = 80.0
+        /** Chase: remembered target spot lifetime, max duration, max distance from where it began, arrive radius, pause after. */
+        const val CHASE_MEMORY_MS = 4_000L
+        const val CHASE_MS = 8_000L
+        const val CHASE_LEASH = 40.0
+        const val CHASE_ARRIVE = 2.5
+        const val CHASE_COOLDOWN_MS = 6_000L
+        /** After an own-pillar hit, attackers stay switched to defend until this long without a further hit. */
+        const val DEFEND_QUIET_MS = 20_000L
     }
 }
