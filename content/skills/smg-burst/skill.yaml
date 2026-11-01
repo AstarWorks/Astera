@@ -2,7 +2,7 @@
 # s = right, w = s x v) at the aimed position 0.57 ahead, 0.51 below the eye line, 0.30 right; the rig rides it, so the right arm is pinned
 # onto the frame origin and the gun points along `v`. Recoil is a swing on the arm's 0.60 sphere: the hand kicks up 0.03 over 2 ticks and settles over 4,
 # the muzzle flips up 8 degrees and back. `hit` / `blk`: one frame per victim / block contact, v the way the bullet came in.
-# Flash, smoke, bolt and trail share ONE muzzle point on `gun`, v 0.54 / w 0.22 (grip -> tip x 0.94, content/frames/smg.yaml). No 3D, no ribbon.
+# Flash (the def plus a 3-tick bright `glare`), smoke, bolt and trail share ONE muzzle point on `gun`, v 0.55 / w 0.22 (grip -> tip x 0.94, content/frames/smg.yaml). No 3D, no ribbon.
 # Schedule: hit tick, damage and end tick are arithmetic (speed, life); randomness is not used.
 apiVersion: astera/v3
 kind: Skill
@@ -62,11 +62,12 @@ machine:
       do:
         - {id: rig, op: rig, frame: gun, for: 10, detach: true}
         - {id: snd, op: sound, at: 0, sound: "astera:weapons/gun-shot", frame: gun, volume: 0.5, pitch: 1.6}
-        - {id: flash, op: particle_def, at: 0, def: gun-muzzle-flash, frame: gun, pos: {v: 0.54, w: 0.22}}
+        - {id: flash, op: particle_def, at: 0, def: gun-muzzle-flash, frame: gun, pos: {v: 0.55, w: 0.22}}
+        - {id: glare, op: particle, particle: dust, frame: gun, pos: {v: 0.55, w: 0.22}, count: 2, offset: [0.03, 0.03, 0.03], color: "#fff0a0", size: 1.0, at: 0, every: 1, for: 3}
         - id: bolt
           op: projectile
           frame: gun
-          pos: {v: 0.54, w: 0.22}
+          pos: {v: 0.55, w: 0.22}
           velocity: "= look(caster) * ${speed}"
           for: "${life}"
           radius: 0.5

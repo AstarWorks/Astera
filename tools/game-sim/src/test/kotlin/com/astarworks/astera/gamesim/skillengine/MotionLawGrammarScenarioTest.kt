@@ -71,7 +71,7 @@ class MotionLawGrammarScenarioTest : SkillEngineScenario() {
         // offset(tau) = 1.0 * tau - 0.1 * tau^2 / 2 along forward (z): 0.95, 1.8, 2.55, 3.2 at ticks 1..4
         val s = compiled(
             "{id: d, op: display, kind: item, item: couture-rapier, anchor: caster, " +
-                "motion: [{law: grow, prop: offset, per_tick: {forward: 1.0}, accel: {forward: -0.1}, for: 4}], for: 20}",
+                "motion: [{law: grow, prop: offset, per_tick: {v: 1.0}, accel: {v: -0.1}, for: 4}], for: 20}",
         )
         val rows = keyRows(s)
         assertThat(rows).isNotEmpty()
@@ -93,7 +93,7 @@ class MotionLawGrammarScenarioTest : SkillEngineScenario() {
         }
         // [left, up, forward] = x, y, z
         assertThat(finalScale("[{law: grow, start: [1, 1, 1], to: [3, 5, 7], for: 4}]")).isEqualTo(Triple(3.0, 5.0, 7.0))
-        assertThat(finalScale("[{law: grow, start: {forward: 1, up: 1, left: 1}, to: {forward: 7, up: 5, left: 3}, for: 4}]")).isEqualTo(Triple(3.0, 5.0, 7.0))
+        assertThat(finalScale("[{law: grow, start: {v: 1, w: 1, s: 1}, to: {v: 7, w: 5, s: 3}, for: 4}]")).isEqualTo(Triple(3.0, 5.0, 7.0))
         assertThat(finalScale("[{law: keys, keys: [{t: 0, scale: [1, 1, 1]}, {t: 4, scale: [2, 4, 6]}]}]")).isEqualTo(Triple(2.0, 4.0, 6.0))
         assertThat(loadInline(skill("{id: d, op: display, kind: item, item: couture-rapier, anchor: caster, motion: [{law: grow, start: [1, 1, 1], to: [3, 5], for: 4}], for: 20}")))
             .isInstanceOf(Result.Failure::class.java)

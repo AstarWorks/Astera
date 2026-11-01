@@ -6,8 +6,6 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.Every
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
-import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVec
-import com.astarworks.astera.core.application.skillengine.load.grammar.FrameVecs
 import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
 import com.astarworks.astera.core.application.skillengine.load.grammar.LocalAxes
@@ -41,12 +39,12 @@ import kotlin.math.sqrt
  * ```yaml
  * motion:
  *   - {law: spin, axis: up, deg_per_tick: 12, for: 20, ease: out_cubic}        # 12*20 = 240 deg, decelerating (ease shapes the TOTAL)
- *   - {law: move, velocity: {forward: 0.4}, at: 4, for: 10}                  # blocks per tick in the anchor's axes
+ *   - {law: move, velocity: {v: 0.4}, at: 4, for: 10}                        # blocks per tick in the object frame (v forward, w up, s right)
  *   - {law: grow, start: 1, per_tick: 0.05, for: 10}                           # or `to: 1.5` instead of per_tick
  *   - {law: fade, at: 20, for: 10}                                             # start 1 -> to 0, exponent 1
  *   - {law: spin, axis: left, deg_per_tick: 30, for: 3, every: 8, times: 4}    # four copies, 8 ticks apart
  *   - law: keys
- *     keys: [{t: 0, offset: {up: 0}}, {t: 6, offset: {up: 0.5}, pose: [{axis: left, deg: 40}], ease: out_quad}]
+ *     keys: [{t: 0, offset: {w: 0}}, {t: 6, offset: {w: 0.5}, pose: [{axis: left, deg: 40}], ease: out_quad}]
  * ```
  *
  * Window words: `at` (start tick, default 0; `from` is a load error, it was renamed to match the Timing block), `for` (length in ticks,
@@ -82,16 +80,16 @@ public object MotionLaws {
     private val dragF = Field.optional("drag", Types.number, Value.Literal(0.0), "0 < f < 1: the rate is multiplied by (1 - f) each tick (geometric decay, closed form); excludes accel and ease; spin and move only; absent = none")
 
     // move
-    private val velocityF = Field.required("velocity", FrameVecs.type, "blocks per tick, {forward, up, left}")
+    private val velocityF = Field.required("velocity", MotionVecs.type, "blocks per tick, {v, w, s} (v forward, w up, s right; each a number, \${param} or = expr)")
     private val speedF = Field.optional("speed", Types.nullable(Types.number), null, "when set, velocity is only a direction and speed is blocks per tick")
-    private val moveStartF = Field.optional("start", FrameVecs.type, FrameVec.Parts(Value.Literal(0.0), Value.Literal(0.0), Value.Literal(0.0)), "offset the move begins from")
+    private val moveStartF = Field.optional("start", MotionVecs.type, MotionVec.ZERO, "offset the move begins from, {v, w, s}")
 
     // grow
-    private val growStartF = Field.optional("start", ScaleType(strict = true), ScaleVal.Uniform(Value.Literal(1.0)), "scale the growth begins from (number or all of forward, up, left)")
+    private val growStartF = Field.optional("start", ScaleType(strict = true), ScaleVal.Uniform(Value.Literal(1.0)), "scale the growth begins from (number or all of v, w, s)")
     private val perTickF = Field.optional("per_tick", Types.nullable(ScaleType(strict = false)), null, "scale change per tick (number = uniform); exactly one of per_tick, to, by")
     private val toF = Field.optional("to", Types.nullable(ScaleType(strict = false, deferMissing = true)), null, "scale reached at the end of the window; exactly one of per_tick, to, by")
     private val byF = Field.optional("by", Types.nullable(ScaleType(strict = true)), null, "factor on the held scale: the law ends at start * by (scales compose by multiplication, so the composite ends at its held value * by); exactly one of per_tick, to, by; scale / size only")
-    private val growPropF = Field.optional("prop", Types.enumOf("scale", "offset"), "scale", "scale (default) or offset: with offset, start / per_tick / accel / to are positions {forward, up, left} or [left, up, forward], and the law moves the object (a decaying move)")
+    private val growPropF = Field.optional("prop", Types.enumOf("scale", "offset"), "scale", "scale (default) or offset: with offset, start / per_tick / accel / to are positions {v, w, s}, and the law moves the object (a decaying move)")
     private val growAccelF = Field.optional("accel", ScaleType(strict = false), ScaleVal.Uniform(Value.Literal(0.0)), "scale change per tick^2; excludes ease")
 
     // fade
@@ -101,7 +99,7 @@ public object MotionLaws {
 
     // keys
     private val tF = Field.required("t", Types.number, "tick of the key")
-    private val keyOffsetF = Field.optional("offset", Types.nullable(FrameVecs.type), null, "absolute offset {forward, up, left}")
+    private val keyOffsetF = Field.optional("offset", Types.nullable(MotionVecs.type), null, "absolute offset {v, w, s}")
     private val keyPoseF = Field.optional("pose", Types.nullable(Rotations.type), null, "absolute orientation [{axis, deg}, ...] (literal angles)")
     private val keyScaleF = Field.optional("scale", Types.nullable(ScaleType(strict = true)), null, "absolute scale")
     private val keyAlphaF = Field.optional("alpha", Types.nullable(Types.number), null, "absolute opacity 0..1")
@@ -111,10 +109,10 @@ public object MotionLaws {
     private val keysF = Field.required("keys", Types.list(Types.nested(keyFields)), "irregular choreography only")
 
     // path (ADR-0313)
-    private val pathPointsF = Field.required("points", Types.list(FrameVecs.type), "the curve's points {forward, up, left} in the parent basis, at least 2 (literal); the first is where the law starts, the last where it ends")
+    private val pathPointsF = Field.required("points", Types.list(MotionVecs.type), "the curve's points {v, w, s} in the parent basis, at least 2 (literal); the first is where the law starts, the last where it ends")
 
     // orbit (ADR-0303 section 3; center is a literal frame-local pivot, see LawSegmenter)
-    private val centerF = Field.required("center", FrameVecs.type, "pivot the position rotates about, {forward, up, left} in the parent basis (literal)")
+    private val centerF = Field.required("center", MotionVecs.type, "pivot the position rotates about, {v, w, s} in the parent basis (literal)")
     private val phaseF = Field.optional("phase_deg", Types.number, Value.Literal(0.0), "angle the orbit starts at")
     private val faceF = Field.optional("face", Types.enumOf("keep", "tangent", "center"), "keep", "keep = the object does not turn; center / tangent = it turns with the orbit")
 
@@ -368,13 +366,16 @@ public object MotionLaws {
         if (offsetProp) {
             if (v.isPresent(byF)) ctx.fail("$path.by", "by is a factor on a scale; grow prop: offset moves the object, use per_tick or to")
             for ((f, key) in listOf(growStartF to "start", perTickF to "per_tick", growAccelF to "accel")) {
-                if (v.isPresent(f) && v[f] is ScaleVal.Uniform) ctx.fail("$path.$key", "grow prop: offset takes a position per axis, {forward, up, left} or [left, up, forward], not a single number")
+                if (v.isPresent(f) && v[f] is ScaleVal.Uniform) ctx.fail("$path.$key", "grow prop: offset takes a position per axis {v, w, s}, not a single number")
+            }
+            for ((f, key) in listOf(growStartF to "start", perTickF to "per_tick", growAccelF to "accel", toF to "to")) {
+                if (v.isPresent(f) && (v[f] as? ScaleVal.PerAxis)?.triple == true) ctx.fail("$path.$key", "grow prop: offset takes {v, w, s}; the [left, up, forward] triple is a scale form")
             }
             val rawTo = v[toF]
-            if (rawTo is ScaleVal.Uniform) ctx.fail("$path.to", "grow '${path.substringAfterLast('.')}' (prop: offset): 'to' has no axis; write to: {up: <n>} (axes not written stay 0)")
+            if (rawTo is ScaleVal.Uniform) ctx.fail("$path.to", "grow '${path.substringAfterLast('.')}' (prop: offset): 'to' has no axis; write to: {w: <n>} (axes not written stay 0)")
         } else {
             val rawTo = v[toF]
-            if (rawTo is ScaleVal.PerAxis && rawTo.missing != null) ctx.fail("$path.to", "an absolute scale written per axis needs all of forward, up, left (missing '${rawTo.missing}')")
+            if (rawTo is ScaleVal.PerAxis && rawTo.missing != null) ctx.fail("$path.to", "an absolute scale written per axis needs all of v, w, s (missing '${rawTo.missing}')")
         }
         val start = if (offsetProp && !v.isPresent(growStartF)) Vec3.ZERO else n.scale(startRaw, "$path.start")
         val perTick = v[perTickF]
@@ -393,7 +394,9 @@ public object MotionLaws {
         }
         if (accel.lengthSquared() != 0.0 && ease != null) ctx.fail("$path.ease", "ease and accel are mutually exclusive on one law (accel already defines the time profile)")
         if ((to != null || by != null) && accel.lengthSquared() != 0.0) ctx.fail("$path.accel", "accel and a 'to' / 'by' target both define the end value; use per_tick with accel")
-        if (offsetProp) return { s -> MoveRate(s, forTicks, start, rate, ease, accel) }
+        // prop: offset is a displacement: its s coefficient points right, the local x axis points left
+        fun left(a: Vec3) = Vec3(-a.x, a.y, a.z)
+        if (offsetProp) return { s -> MoveRate(s, forTicks, left(start), left(rate), ease, left(accel)) }
         return { s -> GrowRate(s, forTicks, start, rate, accel, ease) }
     }
 

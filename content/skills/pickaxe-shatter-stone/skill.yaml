@@ -36,9 +36,13 @@ frames:
     w: up
     s: v x w
     rotate:
+      # yaw about w comes first (each key turns the frame the later ones act in): the draw swings out to the right of the eye line, then the pitch lifts the arm there, so the arm and the head stay out of the middle of the first-person view (as C's mace-smash)
+      - {at: 0, for: 0, about: w, to: 0}
+      - {at: 0, for: 3, about: w, to: -90, ease: out_cubic}
+      - {at: 3, for: 3, about: w, to: 0, ease: out_cubic}
       # pitch about s: where the straight arm points (angle from forward, towards up); the arm only turns, the hand rides its end
       - {at: 0, for: 0, about: s, to: -30}                                   # rest: the hand at the hip
-      - {at: 0, for: 3, about: s, to: 95, ease: out_quad}                        # drawn back over the head
+      - {at: 0, for: 3, about: s, to: 55, ease: out_quad}                        # drawn back, hand at head height
       - {at: 3, for: 3, about: s, to: -5, ease: out_cubic}                       # the cut
       - {at: 6, for: 3, about: s, to: -25, ease: out_cubic}                      # follow-through
       - {at: 9, for: 3, about: s, to: -30, ease: in_out_sine}                    # back to the hip

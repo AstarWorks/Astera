@@ -66,6 +66,11 @@ internal object ParticlePlacement {
             val frame = parts.point?.let { "point(${parts.base}, '$it')" } ?: parts.base
             return Result.Success(Base(frame, emptyList(), parts.base))
         }
+        // a frame id (declared under frames:, or a `frames_in` name) as a placement anchor: its origin, read from the per-tick frame table (ADR-0314)
+        if (parts.index == null && parts.point == null && parts.state == null && name in lc.anchors.skillFrames) {
+            val cell = com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs.cellOf(com.astarworks.astera.core.domain.skillengine.frame.grammar.FramePoint(name))
+            return Result.Success(Base(cell, emptyList(), cell))
+        }
         return Result.Success(null)
     }
 

@@ -640,6 +640,8 @@ $rows
         val frameKnock = impulses("{id: kb, op: knockback, target: event.victim, frame: f, dir: {v: 1.0}, strength: 2.0}", true)
         val worldKnock = impulses("{id: kb, op: knockback, target: event.victim, direction: [0.0, 0.0, 1.0], strength: 2.0}", false)
         assertThat(frameKnock).describedAs("knockback along frame f v (caster forward = +z)").isNotEmpty().isEqualTo(worldKnock)
+        val exprKnock = impulses("{id: kb, op: knockback, target: event.victim, frame: f, dir: {v: \"= 0.5 + 0.5\"}, strength: 2.0}", true)
+        assertThat(exprKnock).describedAs("a dir coefficient may be an '= expr' like pos: (here 1.0)").isEqualTo(frameKnock)
         val framePull = impulses("{id: pl, op: pull, target: event.victim, frame: f, dir: {v: -1.0}, distance: 1.5}", true)
         val worldPull = impulses("{id: pl, op: pull, target: event.victim, direction: [0.0, 0.0, -1.0], distance: 1.5}", false)
         assertThat(framePull).describedAs("pull along frame f -v").isNotEmpty().isEqualTo(worldPull)
@@ -810,5 +812,177 @@ $blade
         assertThat((loop as Result.Failure<SkillDecodeError>).error.message).contains("cycle")
         val ghost = skill("              - {id: blade, origin: {frame: nowhere, pos: {v: 0.6}}, v: forward, w: up, s: v x w}")
         assertThat(ghost).describedAs("a parent not under frames:").isInstanceOf(Result.Failure::class.java)
+    }
+
+    @Test
+    fun anAimOriginIsTheAimPointExpressionAndAFrameInNameIsReadByTheCallee() {
+        fun emitted(body: String, frames: String) = GatewayRecorder().also { rec ->
+            play(compiled("""
+            apiVersion: astera/v3
+            kind: Skill
+            id: aim-origin
+            frames:
+$frames
+            machine:
+              start: s
+              states:
+                s:
+                  for: 2
+                  then: end
+                  do:
+                    - $body
+                end: {final: true}
+            """), 1L, emptyList(), 4, rec)
+        }.emittedAt.filter { it.second == "flame" }.map { it.third }
+        val viaFrame = emitted("{id: p, op: particle, particle: flame, frame: aimed, count: 1, at: 0}", "              - {id: aimed, origin: {aim: 6.0}, v: aim, w: up, s: v x w}")
+        val viaExpr = emitted("{id: p, op: particle, particle: flame, frame: eye, pos: {v: \"= dist(pos(caster.eye), aim_point(caster, 6.0))\"}, count: 1, at: 0}", "              - {id: eye, origin: caster.eye, v: aim, w: up, s: v x w}")
+        assertThat(viaFrame).hasSize(1)
+        assertThat(viaFrame[0].distance(viaExpr[0])).describedAs("origin {aim: 6} is the point aim_point(caster, 6) names").isLessThan(1e-6)
+        val ranged = emitted("{id: p, op: particle, particle: flame, frame: aimed, pos: {v: 1.0}, count: 1, at: 0}", "              - {id: aimed, origin: {aim: \"= 2.0 * 3.0\"}, v: aim, w: up, s: v x w}")
+        assertThat(ranged[0].distance(viaFrame[0])).describedAs("the range may be an '= expr'; pos is along the eye's aim axis").isBetween(0.9999, 1.0001)
+    }
+
+    @Test
+    fun aParamInAFrameOriginAndInFrameCoefficientsIsReadFromTheSkillsParams() {
+        fun emitted(params: String, frames: String, pos: String) = GatewayRecorder().also { rec ->
+            play(compiled("""
+            apiVersion: astera/v3
+            kind: Skill
+            id: param-origin
+            params:
+$params
+            frames:
+$frames
+            machine:
+              start: s
+              states:
+                s:
+                  for: 2
+                  then: end
+                  do:
+                    - {id: p, op: particle, particle: flame, frame: aimed, pos: $pos, count: 1, at: 0}
+                end: {final: true}
+            """), 1L, emptyList(), 4, rec)
+        }.emittedAt.filter { it.second == "flame" }.map { it.third }
+        val literal = emitted("              ahead: {type: number, default: 6.0}", "              - {id: aimed, origin: {aim: 6.0}, v: aim, w: up, s: v x w}", "{v: 1.0}")
+        val viaParam = emitted("              ahead: {type: number, default: 6.0}", "              - {id: aimed, origin: {aim: \"\${ahead}\"}, v: aim, w: up, s: v x w}", "{v: \"\${ahead}\"}")
+        assertThat(viaParam).hasSize(1)
+        assertThat(literal[0].distance(viaParam[0])).describedAs("{aim: \${p}} = 6 and pos v \${p} = 6 move the point 5 further along aim").isBetween(4.9999, 5.0001)
+    }
+
+    @Test
+    fun followStretchAndTrailTargetTakeAFrameId() {
+        fun replay(top: String, motion: String, particle: String = ""): GatewayRecorder {
+            val rec = GatewayRecorder()
+            rec.faithfulPose = true
+            val disp = if (motion.isBlank()) "" else "- {id: d, op: display, kind: block, block: stone, anchor: caster, scale: [0.3, 0.3, 0.3], for: 8, motion: [$motion]}"
+            play(compiled("""
+            apiVersion: astera/v3
+            kind: Skill
+            id: ke-frame-roles
+            $top
+            machine:
+              start: s
+              states:
+                s:
+                  for: 8
+                  enter:
+                    $disp
+$particle
+            """), 1L, emptyList(), 8, rec)
+            return rec
+        }
+        val stretched = replay("frames:\n              - {id: foot, origin: caster, v: aim, w: up, s: v x w}", "{law: stretch, base: foot, tip: caster.eye, for: 4, step: 2}")
+        val sized = stretched.writtenPoses.map { it.third.size }
+        assertThat(sized).isNotEmpty
+        assertThat(sized.maxOf { maxOf(it.x, it.y, it.z) }).describedAs("stretch between a declared frame and a built-in frame").isCloseTo(1.62, org.assertj.core.api.Assertions.within(1e-3))
+        val followed = replay("frames:\n              - {id: head, origin: caster.eye, v: aim, w: up, s: v x w}", "{law: follow, anchor: head, for: 6, step: 3}")
+        assertThat(followed.writtenPoses).isNotEmpty
+        val builtin = replay("", "{law: follow, anchor: caster.eye, for: 6, step: 3}")
+        assertThat(builtin.writtenPoses).isNotEmpty
+        val trail = replay(
+            "frames:\n              - {id: head, origin: caster.eye, v: aim, w: up, s: v x w}", "",
+            "                    - {id: tr, op: particle, particle: trail, color: \"#ff0080\", target: head, duration: 12, anchor: caster, at: 0}",
+        )
+        assertThat(trail.calls.filter { it.verb == "particle" }).isNotEmpty
+        assertThat(lastPlayer!!.faults()).isEmpty()
+    }
+
+    @Test
+    fun aFragmentCallPassesACasterPointAsAFramesInArgument() {
+        val callee = """
+        ---
+        apiVersion: astera/v3
+        kind: Skill
+        id: spark
+        meta: {cooldown_ticks: 0, resource_cost: 0}
+        frames_in: {spot: frame}
+        machine:
+          start: s
+          states:
+            s:
+              for: 2
+              then: e
+              enter:
+                - {id: pf, op: particle, particle: flame, frame: spot, pos: {v: 1.0}, count: 1, at: 0}
+            e: {final: true}
+        """.trimIndent()
+        val caller = """
+        apiVersion: astera/v3
+        kind: Skill
+        id: caller
+        meta: {cooldown_ticks: 0, resource_cost: 0}
+        machine:
+          start: s
+          states:
+            s:
+              for: 4
+              then: e
+              enter:
+                - {id: c, use: skill:spark, frames: {spot: caster.eye}}
+                - {id: direct, op: particle, particle: smoke, frame: caster.eye, pos: {v: 1.0}, count: 1, at: 0}
+            e: {final: true}
+        """.trimIndent()
+        val rec = GatewayRecorder()
+        play(compiled(caller + "\n" + callee), 1L, emptyList(), 6, rec)
+        val viaCall = rec.emittedAt.filter { it.second == "flame" }.map { it.third }
+        val direct = rec.emittedAt.filter { it.second == "smoke" }.map { it.third }
+        assertThat(viaCall).hasSize(1)
+        assertThat(viaCall[0].distance(direct[0])).describedAs("caster.eye passed as the frame argument lands where the caller's own caster.eye row does").isLessThan(1e-9)
+    }
+
+    @Test
+    fun aBuiltInCasterFrameNeedsNoDeclarationAndAWeaponPointIsReadFromTheItemsFramesTable() {
+        fun emitted(frames: String, row: String, item: String = "") = GatewayRecorder().also { rec ->
+            play(compiled("""
+            apiVersion: astera/v3
+            kind: Skill
+            id: builtin-frames
+            $item
+            params: {reach: {type: number, default: 1.5}}
+            $frames
+            machine:
+              start: s
+              states:
+                s:
+                  for: 2
+                  then: end
+                  do:
+                    - $row
+                end: {final: true}
+            """), 1L, emptyList(), 4, rec)
+        }.emittedAt.filter { it.second == "flame" }.map { it.third }
+        val declared = emitted("frames:\n              - {id: eye, origin: caster.eye, v: aim, w: up, s: v x w}", "{id: p, op: particle, particle: flame, frame: eye, pos: {v: 1.0, w: 0.5, s: 0.25}, count: 1, at: 0}")
+        val builtin = emitted("", "{id: p, op: particle, particle: flame, frame: caster.eye, pos: {v: 1.0, w: 0.5, s: 0.25}, count: 1, at: 0}")
+        assertThat(builtin).hasSize(1)
+        assertThat(builtin[0].distance(declared[0])).describedAs("caster.eye with no declaration = the declared eye frame").isLessThan(1e-9)
+        val viaParam = emitted("", "{id: p, op: particle, particle: flame, frame: caster.eye, pos: {v: \"\${reach}\"}, count: 1, at: 0}")
+        val literal = emitted("", "{id: p, op: particle, particle: flame, frame: caster.eye, pos: {v: 1.5}, count: 1, at: 0}")
+        assertThat(viaParam[0].distance(literal[0])).describedAs("a top-level \${param} reads like the literal").isLessThan(1e-9)
+        val hand = emitted("", "{id: p, op: particle, particle: flame, frame: caster.hand_r, count: 1, at: 0}")
+        val muzzle = emitted("", "{id: p, op: particle, particle: flame, frame: weapon.muzzle, count: 1, at: 0}", "item: revolver")
+        val tip = emitted("", "{id: p, op: particle, particle: flame, frame: weapon.tip, count: 1, at: 0}", "item: revolver")
+        assertThat(muzzle[0].distance(tip[0])).describedAs("the revolver muzzle is its tip").isLessThan(1e-9)
+        assertThat(muzzle[0].distance(hand[0])).describedAs("muzzle is about 0.7 from the grip (v 0.635 / w 0.286)").isBetween(0.65, 0.75)
     }
 }

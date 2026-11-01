@@ -20,6 +20,7 @@ import java.nio.file.Files
 import kotlin.math.acos
 import kotlin.math.cos
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -53,7 +54,7 @@ class RigHeldParityScenarioTest : SkillEngineScenario() {
         (o[key] as? JsonArray)?.map { it.jsonPrimitive.doubleOrNull ?: 0.0 }?.toDoubleArray()?.takeIf { it.size == 3 } ?: DoubleArray(3) { default }
 
     /** (tip, long) in the display-local frame, from the model JSON's display block [display]. */
-    private fun chain(display: JsonObject, p: DoubleArray, left: Boolean = false): Pair<DoubleArray, DoubleArray> {
+    private fun chain(display: JsonObject, p: DoubleArray, left: Boolean = false, longDir: DoubleArray = doubleArrayOf(0.0, 1.0, 0.0)): Pair<DoubleArray, DoubleArray> {
         // the client mirrors a left-hand display (ItemTransform.apply: rotation y/z and translation x negated), so the pose it draws is the mirror of the authored block
         val r = nums(display, "rotation", 0.0).also { if (left) { it[1] = -it[1]; it[2] = -it[2] } }
         val t = nums(display, "translation", 0.0).map { it / 16.0 }.toDoubleArray().also { if (left) it[0] = -it[0] }
@@ -62,7 +63,7 @@ class RigHeldParityScenarioTest : SkillEngineScenario() {
         val local = DoubleArray(3) { s[it] * (p[it] / 16.0 - 0.5) }
         val moved = apply(m, local).let { DoubleArray(3) { i -> t[i] + it[i] } }
         val y180 = rot('y', 180.0)
-        return apply(y180, moved) to apply(y180, apply(m, doubleArrayOf(0.0, 1.0, 0.0)))
+        return apply(y180, moved) to apply(y180, apply(m, longDir))
     }
 
     /**
@@ -77,18 +78,49 @@ class RigHeldParityScenarioTest : SkillEngineScenario() {
         val png = contentDir.resolve("textures/$layer.png")
         val image = javax.imageio.ImageIO.read(png.toFile()) ?: return Row(item, part.name, Double.NaN, Double.NaN, "texture $layer.png is unreadable")
         val k = 16.0 / image.width
-        var best = Double.NEGATIVE_INFINITY
+        val opaque = (0 until image.height).flatMap { r -> (0 until image.width).filter { c -> (image.getRGB(c, r) ushr 24) != 0 }.map { c -> c to r } }
+        // A gun sprite is drawn level: one barrel row of opaque pixels covers at least 75% of the sprite width AND the principal axis of its opaque pixels lies
+        // within 30 degrees of horizontal (every tool sprite fails one of the two: pickaxes have a long head row but sit at 40+ degrees). Its tip is the muzzle, the right-most opaque
+        // column at the bore (centre of the opaque pixels within two columns of the front), and `long` is +X. Every other handheld sprite is a diagonal tool or
+        // rifle: the tip is the farthest opaque pixel along the handle-to-head diagonal (x + y) and `long` is that diagonal.
+        val mx = opaque.map { it.first.toDouble() }.average()
+        val my = opaque.map { it.second.toDouble() }.average()
+        val sxx = opaque.sumOf { (it.first - mx) * (it.first - mx) }
+        val syy = opaque.sumOf { (it.second - my) * (it.second - my) }
+        val sxy = opaque.sumOf { (it.first - mx) * (it.second - my) }
+        val width = opaque.maxOf { it.first } - opaque.minOf { it.first } + 1
+        val longestRun = opaque.groupBy { it.second }.values.maxOf { row ->
+            val cols = row.map { it.first }.sorted()
+            var best = 1
+            var run = 1
+            for (i in 1 until cols.size) { run = if (cols[i] == cols[i - 1] + 1) run + 1 else 1; best = max(best, run) }
+            best
+        }
+        val level = longestRun >= 0.75 * width && Math.abs(Math.toDegrees(0.5 * Math.atan2(2.0 * sxy, sxx - syy))) < 30.0
         var px = 0.0
         var py = 0.0
-        for (r in 0 until image.height) for (c in 0 until image.width) {
-            if ((image.getRGB(c, r) ushr 24) == 0) continue
-            val x = (c + 0.5) * k
-            val y = 16.0 - (r + 0.5) * k
-            if (x + y > best) { best = x + y; px = x; py = y }
+        if (level) {
+            val front = opaque.maxOf { it.first }
+            val bore = opaque.filter { it.first >= front - 1 }
+            px = (front + 0.5) * k
+            py = 16.0 - (bore.map { it.second }.average() + 0.5) * k
+        } else {
+            var best = Double.NEGATIVE_INFINITY
+            for ((c, r) in opaque) {
+                val x = (c + 0.5) * k
+                val y = 16.0 - (r + 0.5) * k
+                if (x + y > best) { best = x + y; px = x; py = y }
+            }
         }
         val display = when (part.display) {
             "fixed" -> mapOf("rotation" to doubleArrayOf(0.0, 180.0, 0.0), "translation" to doubleArrayOf(0.0, 0.0, 0.0), "scale" to doubleArrayOf(0.5, 0.5, 0.5))
-            "thirdperson_righthand" -> mapOf("rotation" to doubleArrayOf(0.0, -90.0, 55.0), "translation" to doubleArrayOf(0.0, 4.0, 0.5), "scale" to doubleArrayOf(0.85, 0.85, 0.85))
+            // the model JSON's own display block wins (a tool whose grip sits on the display origin authors a translation); otherwise the vanilla chain of its
+            // parent: item/handheld and item/generated draw the main hand differently
+            "thirdperson_righthand" -> json["display"]?.jsonObject?.get("thirdperson_righthand")?.jsonObject?.let {
+                mapOf("rotation" to nums(it, "rotation", 0.0), "translation" to nums(it, "translation", 0.0), "scale" to nums(it, "scale", 1.0))
+            } ?: if (json["parent"]?.jsonPrimitive?.content?.endsWith("generated") == true)
+                mapOf("rotation" to doubleArrayOf(0.0, 0.0, 0.0), "translation" to doubleArrayOf(0.0, 3.0, 1.0), "scale" to doubleArrayOf(0.55, 0.55, 0.55))
+            else mapOf("rotation" to doubleArrayOf(0.0, -90.0, 55.0), "translation" to doubleArrayOf(0.0, 4.0, 0.5), "scale" to doubleArrayOf(0.85, 0.85, 0.85))
             else -> return Row(item, part.name, Double.NaN, Double.NaN, "no vanilla handheld display for ${part.display}")
         }
         val r = display.getValue("rotation")
@@ -99,7 +131,16 @@ class RigHeldParityScenarioTest : SkillEngineScenario() {
         val y180 = rot('y', 180.0)
         val moved = apply(m, local).let { doubleArrayOf(t[0] + it[0], t[1] + it[1], t[2] + it[2]) }
         val tip = apply(y180, moved)
-        val long = apply(y180, apply(m, doubleArrayOf(1.0, 1.0, 0.0)))
+        val long = apply(y180, apply(m, if (level) doubleArrayOf(1.0, 0.0, 0.0) else doubleArrayOf(1.0, 1.0, 0.0)))
+        val fileTip = part.points["tip"] ?: return Row(item, part.name, Double.NaN, Double.NaN, "frames part declares no tip point")
+        val fileLong = part.axes["long"] ?: return Row(item, part.name, Double.NaN, Double.NaN, "frames part declares no long axis")
+        val tipErr = sqrt((tip[0] - fileTip.x).let { it * it } + (tip[1] - fileTip.y).let { it * it } + (tip[2] - fileTip.z).let { it * it })
+        val fl = doubleArrayOf(fileLong.x, fileLong.y, fileLong.z)
+        val dot = (0..2).sumOf { long[it] * fl[it] } / (sqrt(long.sumOf { it * it }) * sqrt(fl.sumOf { it * it }))
+        return Row(item, part.name, tipErr, Math.toDegrees(acos(dot.coerceIn(-1.0, 1.0))), "")
+    }
+
+    private fun compare(item: String, part: ModelPart, tip: DoubleArray, long: DoubleArray): Row {
         val fileTip = part.points["tip"] ?: return Row(item, part.name, Double.NaN, Double.NaN, "frames part declares no tip point")
         val fileLong = part.axes["long"] ?: return Row(item, part.name, Double.NaN, Double.NaN, "frames part declares no long axis")
         val tipErr = sqrt((tip[0] - fileTip.x).let { it * it } + (tip[1] - fileTip.y).let { it * it } + (tip[2] - fileTip.z).let { it * it })
@@ -119,8 +160,19 @@ class RigHeldParityScenarioTest : SkillEngineScenario() {
         val display = json["display"]?.jsonObject?.get(part.display)?.jsonObject
             ?: return Row(item, part.name, Double.NaN, Double.NaN, "model JSON has no display.${part.display}")
         val tips = (json["elements"] as JsonArray).map { it.jsonObject }.filter { tipName.containsMatchIn(it["name"]?.jsonPrimitive?.content ?: "") }
-        if (tips.isEmpty()) return Row(item, part.name, Double.NaN, Double.NaN, "no model element is named tip / *_tip / tip_point")
         fun v(e: JsonObject, k: String) = e[k]!!.jsonArray.map { it.jsonPrimitive.doubleOrNull!! }
+        val all = (json["elements"] as JsonArray).map { it.jsonObject }
+        // A gun model is built barrel-forward along +X (wider than tall): its tip is the muzzle, the elements reaching within half a pixel of the front, centred on y/z; `long` is +X.
+        val extentX = all.maxOf { max(v(it, "from")[0], v(it, "to")[0]) } - all.minOf { min(v(it, "from")[0], v(it, "to")[0]) }
+        val extentY = all.maxOf { max(v(it, "from")[1], v(it, "to")[1]) } - all.minOf { min(v(it, "from")[1], v(it, "to")[1]) }
+        if (tips.isEmpty() && extentX > 1.2 * extentY) {
+            val front = all.maxOf { max(v(it, "from")[0], v(it, "to")[0]) }
+            val muzzle = all.filter { max(v(it, "from")[0], v(it, "to")[0]) >= front - 0.5 }
+            val p = doubleArrayOf(front, muzzle.map { (v(it, "from")[1] + v(it, "to")[1]) / 2.0 }.average(), muzzle.map { (v(it, "from")[2] + v(it, "to")[2]) / 2.0 }.average())
+            val (tip, long) = chain(display, p, left = part.display == ItemFrames.OFF_HAND_DISPLAY, longDir = doubleArrayOf(1.0, 0.0, 0.0))
+            return compare(item, part, tip, long)
+        }
+        if (tips.isEmpty()) return Row(item, part.name, Double.NaN, Double.NaN, "no model element is named tip / *_tip / tip_point")
         val centres = tips.map { e -> DoubleArray(3) { (v(e, "from")[it] + v(e, "to")[it]) / 2.0 } }
         val top = tips.maxOf { e -> max(v(e, "from")[1], v(e, "to")[1]) }
         val p = doubleArrayOf(centres.map { it[0] }.average(), top, centres.map { it[2] }.average())

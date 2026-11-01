@@ -87,7 +87,7 @@ machine:
               - {id: fx_blk, op: particle_def, def: hit-spark, frame: blk, detach: true}
             end:
               - {op: use, use: "fragment:blast", with: {radius: "${blast_radius}", damage: "${blast_damage}"}, frames: {spot: bolt}}
-        - {id: shell, op: display, kind: item, item: "minecraft:slime_ball", context: fixed, frame: body, scale: [0.5, 0.5, 0.5], at: 0, until: bolt.end}
+        - {id: shell, op: display, kind: item, item: "minecraft:slime_ball", context: fixed, frame: body, scale: [0.25, 0.25, 0.25], at: 0, until: bolt.end}
         - {id: smoke, op: particle_def, def: smoke-dark, frame: body, at: 2, every: 1, until: bolt.end}
         - {id: ember, op: particle, particle: dust, along: tail, samples: 2, count: 1, color: "#78c850", size: 1.0, at: 2, every: 1, until: bolt.end}
     end: {final: true}
