@@ -1,3 +1,7 @@
+# mace-quake: ground quake: a slam in front of the caster and a shockwave ring around it (instant, no wind-up).
+# Frames (ADR-0314): the skill moves no weapon, so there is no blade frame; only the places the sounds and fx land are frames:
+#   body   - the caster's feet, v forward / w up / s right: the quake fx: `ground` (w 0.15) is the centre of the shockwave rings, `slam` (1.6 ahead, w 0.15) is the crater.
+#   wound  - one per victim at the victim's centre, v the way the blow came in: the hit spark and the hit sound (only where the skill hits).
 apiVersion: astera/v3
 kind: Skill
 id: mace-quake
@@ -12,10 +16,19 @@ params:
   radius: {type: blocks, default: 3.5}
   dmg_physical: {type: number, default: 30.0}
   tremor_ticks: {type: ticks, default: 60}
-anchors:
-  - {id: ground, anchor: caster, offset: {up: 0.15}, mode: snapshot}
-  - {id: slam,   anchor: caster, offset: {up: 0.15, forward: 1.6}, mode: snapshot}
-  - {id: heart,  anchor: victim.center, mode: follow}
+frames:
+  - id: body
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+  - id: wound
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
 machine:
   start: quake
   states:
@@ -23,12 +36,12 @@ machine:
       for: 1
       then: end
       enter:
-        - {id: snd_quake, op: sound, sound: "astera:weapons/blade-heavy-swing", anchor: caster, volume: 1.0, pitch: 0.6}
-        - {id: snd_thud, op: sound, sound: "astera:weapons/gun-impact-block", anchor: slam, volume: 1.0, pitch: 0.5}
-        - {id: snd_crack, op: sound, sound: "astera:weapons/blade-crit", anchor: slam, volume: 0.8, pitch: 0.55}
+        - {id: snd_quake, op: sound, sound: "astera:weapons/blade-heavy-swing", frame: body, volume: 1.0, pitch: 0.6}
+        - {id: snd_thud, op: sound, sound: "astera:weapons/gun-impact-block", frame: body, pos: {v: 1.6, w: 0.15}, volume: 1.0, pitch: 0.5}
+        - {id: snd_crack, op: sound, sound: "astera:weapons/blade-crit", frame: body, pos: {v: 1.6, w: 0.15}, volume: 0.8, pitch: 0.55}
         - id: burst
           op: hit
-          anchor: caster
+          frame: body
           at: 0
           shape: {sphere: "${radius}"}
           targets: enemies
@@ -39,24 +52,24 @@ machine:
           on:
             hit:
               - {id: st_tremor, op: status, target: event.victim, status: tremor, stacks: 1, for: "${tremor_ticks}"}
-              - {id: fx_hit_crit, op: particle, particle: crit, anchor: heart, count: 10, offset: [0.3, 0.4, 0.3], extra: 0.25, at: 0}
-              - {id: fx_hit_dust, op: particle, particle: dust, anchor: heart, count: 6, offset: [0.3, 0.4, 0.3], color: "#96785a", size: 1.2, at: 0}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
+              - {id: fx_hit_crit, op: particle, particle: crit, frame: wound, pos: {w: 0.2}, count: 10, offset: [0.3, 0.4, 0.3], extra: 0.25, at: 0}
+              - {id: fx_hit_dust, op: particle, particle: dust, frame: wound, pos: {w: 0.2}, count: 6, offset: [0.3, 0.4, 0.3], color: "#96785a", size: 1.2, at: 0}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: wound, volume: 0.7, pitch: 1.0}
       do:
         # --- ground slam in front of the caster: cracked-earth burst, a dust puff, then the shockwave ring flung out over the ground plane (fast inner ring, slower outer ring, a lifted debris ring) ---
-        - {id: fx_crack, op: particle, particle: block, block: "minecraft:coarse_dirt", anchor: slam, at: 0, count: 40, offset: [0.5, 0.15, 0.5], extra: 0.12}
-        - {id: fx_stone, op: particle, particle: block, block: "minecraft:stone", anchor: slam, at: 0, count: 20, offset: [0.4, 0.3, 0.4], extra: 0.2}
-        - {id: fx_dust, op: particle, particle: dust, anchor: slam, at: 0, count: 8, offset: [0.5, 0.2, 0.5], color: "#96785a", size: 1.6}
-        - {id: fx_core, op: particle, particle: crit, anchor: slam, at: 0, count: 12, offset: [0.3, 0.1, 0.3], extra: 0.3}
-        - {id: wave_fast, op: particle, particle: block, block: "minecraft:coarse_dirt", anchor: ground, times: 32, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 32), 0.0, sin(i * 2 * pi / 32))", extra: 0.55}
-        - {id: wave_slow, op: particle, particle: block, block: "minecraft:dirt", anchor: ground, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 0.35}
-        - {id: wave_dust, op: particle, particle: poof, anchor: ground, times: 16, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.05, sin(i * 2 * pi / 16))", extra: 0.45}
-        - {id: wave_debris, op: particle, particle: block, block: "minecraft:stone", anchor: ground, times: 12, at: 0, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 12), 0.8, 0.7 * sin(i * 2 * pi / 12))", extra: 0.3}
+        - {id: fx_crack, op: particle, particle: block, block: "minecraft:coarse_dirt", frame: body, pos: {v: 1.6, w: 0.15}, at: 0, count: 40, offset: [0.5, 0.15, 0.5], extra: 0.12}
+        - {id: fx_stone, op: particle, particle: block, block: "minecraft:stone", frame: body, pos: {v: 1.6, w: 0.15}, at: 0, count: 20, offset: [0.4, 0.3, 0.4], extra: 0.2}
+        - {id: fx_dust, op: particle, particle: dust, frame: body, pos: {v: 1.6, w: 0.15}, at: 0, count: 8, offset: [0.5, 0.2, 0.5], color: "#96785a", size: 1.6}
+        - {id: fx_core, op: particle, particle: crit, frame: body, pos: {v: 1.6, w: 0.15}, at: 0, count: 12, offset: [0.3, 0.1, 0.3], extra: 0.3}
+        - {id: wave_fast, op: particle, particle: block, block: "minecraft:coarse_dirt", frame: body, pos: {w: 0.15}, times: 32, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 32), 0.0, sin(i * 2 * pi / 32))", extra: 0.55}
+        - {id: wave_slow, op: particle, particle: block, block: "minecraft:dirt", frame: body, pos: {w: 0.15}, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 0.35}
+        - {id: wave_dust, op: particle, particle: poof, frame: body, pos: {w: 0.15}, times: 16, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.05, sin(i * 2 * pi / 16))", extra: 0.45}
+        - {id: wave_debris, op: particle, particle: block, block: "minecraft:stone", frame: body, pos: {w: 0.15}, times: 12, at: 0, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 12), 0.8, 0.7 * sin(i * 2 * pi / 12))", extra: 0.3}
         # impact weight: a crater flash, a big debris fountain and a wider, faster outer ring flung out beyond the first
-        - {id: fx_boom, op: particle, particle: explosion, anchor: slam, at: 0, count: 1}
-        - {id: fx_plume, op: particle, particle: large_smoke, anchor: slam, at: 0, count: 14, offset: [0.5, 0.2, 0.5], extra: 0.06}
-        - {id: fx_fountain, op: particle, particle: block, block: "minecraft:stone", anchor: slam, at: 0, count: 36, offset: [0.35, 0.7, 0.35], extra: 0.45}
-        - {id: fx_clods, op: particle, particle: block, block: "minecraft:coarse_dirt", anchor: slam, at: 0, count: 24, offset: [0.5, 0.5, 0.5], extra: 0.3}
-        - {id: wave_outer, op: particle, particle: block, block: "minecraft:coarse_dirt", anchor: ground, times: 40, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 40), 0.0, sin(i * 2 * pi / 40))", extra: 0.8}
-        - {id: wave_outer_dust, op: particle, particle: poof, anchor: ground, times: 20, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 20), 0.05, sin(i * 2 * pi / 20))", extra: 0.65}
+        - {id: fx_boom, op: particle, particle: explosion, frame: body, pos: {v: 1.6, w: 0.15}, at: 0, count: 1}
+        - {id: fx_plume, op: particle, particle: large_smoke, frame: body, pos: {v: 1.6, w: 0.15}, at: 0, count: 14, offset: [0.5, 0.2, 0.5], extra: 0.06}
+        - {id: fx_fountain, op: particle, particle: block, block: "minecraft:stone", frame: body, pos: {v: 1.6, w: 0.15}, at: 0, count: 36, offset: [0.35, 0.7, 0.35], extra: 0.45}
+        - {id: fx_clods, op: particle, particle: block, block: "minecraft:coarse_dirt", frame: body, pos: {v: 1.6, w: 0.15}, at: 0, count: 24, offset: [0.5, 0.5, 0.5], extra: 0.3}
+        - {id: wave_outer, op: particle, particle: block, block: "minecraft:coarse_dirt", frame: body, pos: {w: 0.15}, times: 40, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 40), 0.0, sin(i * 2 * pi / 40))", extra: 0.8}
+        - {id: wave_outer_dust, op: particle, particle: poof, frame: body, pos: {w: 0.15}, times: 20, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 20), 0.05, sin(i * 2 * pi / 20))", extra: 0.65}
     end: {final: true}

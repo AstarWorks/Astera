@@ -376,6 +376,18 @@ def collect():
     return stacks, projects, by_project, orphans
 
 
+FOREIGN_GRACE = 3 * 3600   # HEAVY_RUN_TIMEOUT is 2 h
+
+
+def unseen(path, info):
+    """A heavy-slot runner container mounts only its own checkout (tools/remote/remote-exec.sh), so a neighbour slot's state
+    dir and checkout do not exist here. Missing is then NOT "dead": the lock cannot be probed, so the stack is left to its own
+    run unless its containers are older than any run may last."""
+    if path and os.path.isdir(path):
+        return False
+    return info is not None and NOW - info["created"] < FOREIGN_GRACE
+
+
 def decide(st, evict=False, force=False):
     """-> (reap?, reason)."""
     if force:
@@ -422,6 +434,9 @@ def main():
     reaped = set()
 
     def handle(st, evict=False, force=False, lock_held=False, wait=0.0):
+        if not force and not lock_held and unseen(st.state, projects.get(st.project)):
+            log(f"{st.state}: state dir not visible from this runner (another heavy slot's checkout), skipped")
+            return False
         if not lock_held:
             lk = try_lock(st.state, wait)
             if lk is None and hung_owner(st):
