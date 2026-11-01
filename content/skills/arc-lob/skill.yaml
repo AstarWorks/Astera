@@ -30,7 +30,7 @@ machine:
           kind: sprite
           sprite: flame
           frame: lob
-          size: [0.8, 0.8]
+          size: [1.6, 1.6]
           color: "#ffd080"
           brightness: {block: 15, sky: 15}
           at: 0

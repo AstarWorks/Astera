@@ -1189,6 +1189,9 @@ if v == "top":  # straight down, yaw 0: caster-forward = image top, caster right
     print("%.2f %.2f %.2f 0.0 90.0" % (cx, y + 8.0, cz + 1.0))
     raise SystemExit
 c, look = cams[v]
+up = float(os.environ.get("SHOT_CAM_LOOK_UP") or 0)  # SHOT_CAM_LOOK_UP=<blocks>: aim the side/right camera that much higher (high arcs); default 0 = unchanged
+if look is not None and v in ("side", "right"):
+    look = (look[0], look[1] + up, look[2])
 if look is None:
     yaw, pitch = (90.0 if c[0] > 0 else -90.0), 8.0
 else:
