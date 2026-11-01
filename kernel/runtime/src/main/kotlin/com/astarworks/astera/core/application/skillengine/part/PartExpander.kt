@@ -21,7 +21,7 @@ import com.astarworks.astera.core.domain.skillengine.part.PartError
  * of the call, or on an external event while the call runs (preemption), cannot be folded and are returned in
  * [Machine.links]: they need the runtime Transition op (WP-D D4).
  */
-public class PartExpander(private val parts: Map<String, Part>, private val maxDepth: Int = 6) {
+public class PartExpander(private val parts: Map<String, Part>, private val maxDepth: Int = 6, private val skillFrames: Set<String> = emptySet()) {
 
     public fun expand(machine: Machine): Result<Machine, PartError> = try {
         val out = Out()
@@ -52,7 +52,7 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
             val part = parts[call.part] ?: throw PartAbort(PartError.UnknownPart(where, call.part))
             if (part.id in stack) throw PartAbort(PartError.Cycle(where, stack.dropWhile { it != part.id } + part.id))
             if (depth + 1 > maxDepth) throw PartAbort(PartError.TooDeep(where, maxDepth))
-            val bound = Binding.bind(part, readSiblingOut(call, m), where)
+            val bound = Binding.bind(part, readSiblingOut(call, m), where, skillFrames)
             val callEv = join(evPrefix, s.id)
             val (childEntry, finals) = level(bound, "$where/", callEv, depth + 1, stack + part.id, out)
             entry[s.id] = childEntry
@@ -157,7 +157,7 @@ public class PartExpander(private val parts: Map<String, Part>, private val maxD
 
 /** Parameter and frame binding of one part call, applied to a deep copy of the part's machine. */
 internal object Binding {
-    fun bind(part: Part, call: com.astarworks.astera.core.domain.skillengine.part.PartCall, where: String): Machine {
+    fun bind(part: Part, call: com.astarworks.astera.core.domain.skillengine.part.PartCall, where: String, skillFrames: Set<String> = emptySet()): Machine {
         val values = LinkedHashMap<String, Any?>()
         for (k in call.args.keys) if (k !in part.params) abort("$where.with.$k", "part '${part.id}' has no param '$k' (${part.params.keys.joinToString()})")
         for ((name, spec) in part.params) {
@@ -172,7 +172,7 @@ internal object Binding {
         }
         for (k in call.frames.keys) if (k !in part.framesIn) abort("$where.frames.$k", "part '${part.id}' takes no frame '$k' (${part.framesIn.keys.joinToString()})")
         for (k in part.framesIn.keys) if (k !in call.frames) abort("$where.frames.$k", "frame '$k' of part '${part.id}' is not bound")
-        val env = Env(values, call.frames)
+        val env = Env(values, call.frames, skillFrames)
         val m = part.machine
         if (m.world.isNotEmpty()) abort("$where.world", "part '${part.id}' declares machine.world: only a skill machine owns cast-level rows")
         return Machine(
@@ -197,14 +197,28 @@ internal object Binding {
         },
     )
 
-    class Env(private val params: Map<String, Any?>, private val frames: Map<String, String>) {
+    class Env(private val params: Map<String, Any?>, private val frames: Map<String, String>, private val skillFrames: Set<String> = emptySet()) {
         private companion object {
             /** Op fields typed as a closed keyword set whose words can equal a frame name (`center`, `fixed`...). */
+            val FRAME_PLACED = setOf("sound", "particle", "display")
             val ENUM_KEYS = setOf("billboard", "alignment", "pivot", "face", "mode", "kind", "direction", "forward", "targets", "category", "context", "operation", "tool", "law")
         }
 
         @Suppress("UNCHECKED_CAST")
-        fun op(op: OpMap): OpMap = value(op) as OpMap
+        fun op(op: OpMap): OpMap = placedByFrame(value(op) as OpMap)
+
+        /**
+         * A part names the frame it rides as `anchor: weapon`. When the call bound that name to a frame of the skill's `frames:` (not an
+         * anchor), a draw op is placed by `frame: <id>` (the frame's origin) instead: an op is placed by exactly one of the two.
+         */
+        @Suppress("UNCHECKED_CAST")
+        private fun placedByFrame(op: OpMap): OpMap {
+            val anchor = op["anchor"] as? String ?: return op
+            if (op["op"] !in FRAME_PLACED || anchor !in skillFrames) return op
+            val out = LinkedHashMap<String, Any?>()
+            for ((k, v) in op) if (k == "anchor") out["frame"] = anchor else out[k] = v
+            return out as OpMap
+        }
 
         fun frame(s: String): String {
             for ((name, bound) in frames) {

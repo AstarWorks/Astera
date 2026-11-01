@@ -60,6 +60,7 @@ public object PartInliner {
         val scope = HashSet(AnchorNames.BUILTIN_FRAMES).apply {
             def.anchors.forEach { add(it.id) }
             addAll(def.framesIn.keys)
+            def.frames.forEach { add(it.id) }
             // a frame or projectile body of the machine-level `world:` list lives for the whole cast, so every state may hand it to a part
             for (op in def.machine.world) if (op["op"] == "frame" || op["op"] == "projectile") (op["id"] as? String)?.let { add(it) }
         }
@@ -68,7 +69,7 @@ public object PartInliner {
             is Result.Success -> r.value
             is Result.Failure -> return Result.failure(r.error)
         }
-        return when (val r = PartExpander(resolved, config.maxPartDepth).expand(bound)) {
+        return when (val r = PartExpander(resolved, config.maxPartDepth, def.frames.map { it.id }.toSet()).expand(bound)) {
             is Result.Success -> Result.success(Inlined(def.copy(machine = r.value), w.depth))
             is Result.Failure -> Result.failure(r.error.toDecodeError(def.id))
         }

@@ -415,11 +415,11 @@ public object DisplayOpSpec : OpSpec<DisplayOp> {
                     ?: gc.fail("${src.value}.part", "content/frames/$skillItem.yaml has no part '${op.part}'")).axes
             } else lc.frames.item(literalSubject(op, lc, "item"))?.partFor(null)?.axes
             // a frame-placed display (ADR-0314) turns about the frame's own axes v, w, s; the caster-local names (left, up, forward) are not its vocabulary
-            val axes = if (op.frame != null) AxisResolver { n -> FrameLocal.axis(n) } else AxisResolver { n -> LocalAxes.axis(n) ?: if (n == "face") FACE else itemAxes?.get(n) }
+            val axes = if (op.frame != null) AxisResolver { n -> FrameLocal.axis(n) ?: itemAxes?.get(n) } else AxisResolver { n -> LocalAxes.axis(n) ?: if (n == "face") FACE else itemAxes?.get(n) }
             for ((r, f) in listOf(op.rotate to "rotate", op.right to "right")) {
                 if (r is Rotation.Turns) r.turns.forEachIndexed { i, turn ->
                     if (turn.frame != null) gc.fail("${src.value}.$f[$i].axis", "a frame-qualified axis ('${turn.frame}.${turn.axis}') is not supported on a display rotation; use a plain or item axis")
-                    if (op.frame != null && FrameLocal.axis(turn.axis) == null) gc.fail("${src.value}.$f[$i].axis", "a display on frame '${op.frame.frame}' turns about the frame's axes: write axis v, w or s (optionally '-'), not '${turn.axis}'")
+                    if (op.frame != null && FrameLocal.axis(turn.axis) == null && itemAxes?.get(turn.axis) == null) gc.fail("${src.value}.$f[$i].axis", "a display on frame '${op.frame.frame}' turns about the frame's axes: write axis v, w or s (optionally '-') or an item part axis (long, edge), not '${turn.axis}'")
                     if (op.frame == null && FrameLocal.axis(turn.axis) != null) gc.fail("${src.value}.$f[$i].axis", "axis '${turn.axis}' is a frame axis; it needs frame: <id> (an anchored display turns about forward / up / left or an item part axis)")
                 }
             }
