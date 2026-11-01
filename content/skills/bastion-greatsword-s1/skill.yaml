@@ -106,6 +106,7 @@ frames:
     origin: victim.center
     v: incoming
     w: up
+    w_fallback: [1, 0, 0]
     s: v x w
   - id: burst1
     on: event.victim
@@ -113,6 +114,7 @@ frames:
     origin: victim.center
     v: incoming
     w: up
+    w_fallback: [1, 0, 0]
     s: v x w
     rotate: [{at: 0, for: 2, about: s, to: -40}]
     scale: [{at: 0, for: 2, to: {v: 3.2, w: 3.2, s: 3.2}}]
@@ -122,6 +124,7 @@ frames:
     origin: victim.center
     v: incoming
     w: up
+    w_fallback: [1, 0, 0]
     s: v x w
     rotate: [{at: 0, for: 2, about: v, to: -40}]
     scale: [{at: 0, for: 2, to: {v: 3.2, w: 3.2, s: 3.2}}]

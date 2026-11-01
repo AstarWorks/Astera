@@ -56,6 +56,7 @@ frames:
     origin: victim.center
     v: incoming
     w: up
+    w_fallback: [1, 0, 0]
     s: v x w
 lines:
   edge: {frame: blade, from: {v: 0.7}, to: {v: 1.05}}
