@@ -9,6 +9,7 @@ import com.astarworks.astera.core.domain.event.BlockBroken
 import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.MatchStarted
+import com.astarworks.astera.core.domain.event.NexusDamaged
 import com.astarworks.astera.core.domain.event.NexusDestroyed
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
@@ -123,16 +124,16 @@ class MatchMetrics(
             is MatchEnded -> if (e.matchId == matchId && ended == null) { ended = e; endTick = e.atTick }
             is DamageDealt -> {
                 val attacker = e.attacker
-                if (e.target in pillarIds.keys) {
-                    if (attacker != null) { pillarAttackers += attacker; pillarDirect.merge(attacker, e.resolved.finalAmount, Double::plus) }
-                } else if (attacker != null && isPlayer(attacker) && isPlayer(e.target)) {
+                // Pillar damage of every kind (weapon, tool skill, hand-break) is attributed from NexusDamaged / NexusDestroyed below.
+                if (e.target !in pillarIds.keys && attacker != null && isPlayer(attacker) && isPlayer(e.target)) {
                     fighters += attacker; fighters += e.target
                     if (firstFightTick == null) firstFightTick = e.atTick
                 }
             }
-            is BlockBroken -> { miners += e.playerId; pillarAttackers += e.playerId }
+            is BlockBroken -> miners += e.playerId
+            is NexusDamaged -> if (e.matchId == matchId) e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.damageAmount.toDouble(), Double::plus) }
             is PlayerKilled -> onKill(e)
-            is NexusDestroyed -> e.attackerId?.let { pillarAttackers += it }
+            is NexusDestroyed -> if (e.matchId == matchId) e.attackerId?.let { pillarAttackers += it; pillarDirect.merge(it, e.previousHp.toDouble(), Double::plus) }
             is StarSupplied -> if (e.matchId == matchId) starsSupplied += e.amount
             is StarsCollected -> if (e.matchId == matchId) { starsCollected += e.amount; collected++ }
             is NormaLevelUp -> if (e.matchId == matchId) normaLevel[e.playerId] = maxOf(normaLevel[e.playerId] ?: 0, e.level)
@@ -181,7 +182,8 @@ class MatchMetrics(
         val targets = sim.services.get<IStructureTargets>() ?: return
         var delta = 0.0
         for (id in pillarIds.keys) {
-            val hp = targets.hitPoints(id) ?: 0.0
+            // null = the match no longer tracks the pillar (ended/cleaned up): not damage, so the remaining HP must not count.
+            val hp = targets.hitPoints(id) ?: continue
             val prev = pillarHp[id]
             if (prev != null && hp < prev) delta += prev - hp
             pillarHp[id] = hp

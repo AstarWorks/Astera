@@ -1,5 +1,5 @@
 ## pose yaw=0 pitch=0
-@0 spawn #0 op=fly/shell kind=item item=minecraft:slime_ball part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.500000,0.500000,0.500000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=fly/shell kind=item item=minecraft:slime_ball part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.250000,0.250000,0.250000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=0.8 at=0.000000,1.620000,0.000000
 @0 particle - op=fly/puff type=flame count=2 at=0.000000,1.370000,1.800000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4200540241488501467
 @0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
@@ -10,7 +10,7 @@
 @2 particle - op=fly/smoke[0] type=smoke-dark at=0.000000,1.580000,1.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2524255173329547553
 @2 particle - op=fly/ember[0] type=dust count=1 at=0.000000,1.580000,1.300000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#78c850 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5934978468904740180
 @2 particle - op=fly/ember[0] type=dust count=1 at=0.000000,1.580000,1.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#78c850 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4951324262290283896
-@2 write #0 op=fly/shell dur=1 pos=0.000000,1.580000,1.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.500000,0.500000,0.500000 bb=FIXED
+@2 write #0 op=fly/shell dur=1 pos=0.000000,1.580000,1.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.250000,0.250000,0.250000 bb=FIXED
 @2 frame fly/bolt op=fly/bolt pos=0.000000,1.580000,1.700000 rot=0.000000,0.000000,0.000000,1.000000
 @3 particle - op=fly/smoke[1] type=smoke-dark at=0.000000,1.580000,1.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3429804708152252511
 @3 particle - op=fly/ember[1] type=dust count=1 at=0.000000,1.580000,1.300000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#78c850 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5659612765196214645
@@ -245,7 +245,7 @@ g @60 state-exit reason=TIMER | state=fly
 g @60 cast-end | pose
 r @62 run-end tail=2 | pose
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=fly/shell kind=item item=minecraft:slime_ball part=- pos=-0.282761,1.791010,0.375236 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.500000,0.500000,0.500000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=fly/shell kind=item item=minecraft:slime_ball part=- pos=-0.282761,1.791010,0.375236 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.250000,0.250000,0.250000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=0.8 at=0.000000,1.620000,0.000000
 @0 particle - op=fly/puff type=flame count=2 at=-1.069396,2.000713,1.419137 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4200540241488501467
 @0 frame fly/bolt op=fly/bolt pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916
@@ -257,12 +257,12 @@ r @62 run-end tail=2 | pose
 @2 hit - op=fly/bolt at=-1.300699,2.326646,1.726085 r=1.087523 shape=capsule a=-0.961386,2.161434,1.275802 b=-1.640011,2.491858,2.176368 rad=0.500000
 @2 sound - op=fly/bolt.hit/snd_hit sound=astera:skills/fire-impact cat=master vol=0.7 pitch=1.2 at=-1.504538,0.810000,1.996589
 @2 particle - op=fly/bolt.hit/fx_hit type=hit-spark at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=306515517456321314
-@2 write #0 op=fly/shell dur=1 pos=-0.961386,2.161434,1.275802 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.500000,0.500000,0.500000 bb=FIXED
+@2 write #0 op=fly/shell dur=1 pos=-0.961386,2.161434,1.275802 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.250000,0.250000,0.250000 bb=FIXED
 @2 frame fly/bolt op=fly/bolt pos=-1.640011,2.491858,2.176368 rot=-0.164675,-0.312484,-0.055099,0.933916
 @3 particle - op=fly/smoke[1] type=smoke-dark at=-1.640011,2.491858,2.176368 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3429804708152252511
 @3 particle - op=fly/ember[1] type=dust count=1 at=-1.399285,2.491858,1.856914 off=0.000000,0.000000,0.000000 speed=0.000000 color=#78c850 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5659612765196214645
 @3 particle - op=fly/ember[1] type=dust count=1 at=-1.640011,2.491858,2.176368 off=0.000000,0.000000,0.000000 speed=0.000000 color=#78c850 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3126030960465447442
-@3 write #0 op=fly/shell dur=1 pos=-1.640011,2.491858,2.176368 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.500000,0.500000,0.500000 bb=FIXED
+@3 write #0 op=fly/shell dur=1 pos=-1.640011,2.491858,2.176368 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.250000,0.250000,0.250000 bb=FIXED
 @3 frame fly/bolt op=fly/bolt pos=-1.640011,2.491858,2.176368 rot=-0.164675,-0.312484,-0.055099,0.933916
 @4 particle - op=fly/smoke[2] type=smoke-dark at=-1.640011,2.491858,2.176368 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1956893909068614951
 @4 particle - op=fly/ember[2] type=dust count=1 at=-1.399285,2.491858,1.856914 off=0.000000,0.000000,0.000000 speed=0.000000 color=#78c850 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2920683653728983024
@@ -493,7 +493,7 @@ g @60 state-exit reason=TIMER | state=fly
 g @60 cast-end | pose
 r @62 run-end tail=2 | pose
 ## pose-hit yaw=0 pitch=0
-@0 spawn #0 op=fly/shell kind=item item=minecraft:slime_ball part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.500000,0.500000,0.500000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=fly/shell kind=item item=minecraft:slime_ball part=- pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.250000,0.250000,0.250000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=0.8 at=0.000000,1.620000,0.000000
 @0 particle - op=fly/puff type=flame count=2 at=0.000000,1.370000,1.800000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4200540241488501467
 @0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
@@ -504,7 +504,7 @@ r @62 run-end tail=2 | pose
 @2 particle - op=fly/smoke[0] type=smoke-dark at=0.000000,1.580000,1.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2524255173329547553
 @2 particle - op=fly/ember[0] type=dust count=1 at=0.000000,1.580000,1.300000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#78c850 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5934978468904740180
 @2 particle - op=fly/ember[0] type=dust count=1 at=0.000000,1.580000,1.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#78c850 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4951324262290283896
-@2 write #0 op=fly/shell dur=1 pos=0.000000,1.580000,1.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.500000,0.500000,0.500000 bb=FIXED
+@2 write #0 op=fly/shell dur=1 pos=0.000000,1.580000,1.700000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.250000,0.250000,0.250000 bb=FIXED
 @2 frame fly/bolt op=fly/bolt pos=0.000000,1.580000,1.700000 rot=0.000000,0.000000,0.000000,1.000000
 @3 particle - op=fly/smoke[1] type=smoke-dark at=0.000000,1.580000,1.700000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3429804708152252511
 @3 particle - op=fly/ember[1] type=dust count=1 at=0.000000,1.580000,1.300000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#78c850 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5659612765196214645
@@ -739,7 +739,7 @@ g @60 state-exit reason=TIMER | state=fly
 g @60 cast-end | pose
 r @62 run-end tail=2 | pose
 ## pose-hit yaw=37 pitch=0
-@0 spawn #0 op=fly/shell kind=item item=minecraft:slime_ball part=- pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.500000,0.500000,0.500000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
+@0 spawn #0 op=fly/shell kind=item item=minecraft:slime_ball part=- pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.250000,0.250000,0.250000 bb=FIXED bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=0.8 at=0.000000,1.620000,0.000000
 @0 particle - op=fly/puff type=flame count=2 at=-1.083267,1.370000,1.437544 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4200540241488501467
 @0 frame fly/bolt op=fly/bolt pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324
@@ -750,7 +750,7 @@ r @62 run-end tail=2 | pose
 @2 particle - op=fly/smoke[0] type=smoke-dark at=-1.023086,1.580000,1.357680 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2524255173329547553
 @2 particle - op=fly/ember[0] type=dust count=1 at=-0.782360,1.580000,1.038226 off=0.000000,0.000000,0.000000 speed=0.000000 color=#78c850 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5934978468904740180
 @2 particle - op=fly/ember[0] type=dust count=1 at=-1.023086,1.580000,1.357680 off=0.000000,0.000000,0.000000 speed=0.000000 color=#78c850 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4951324262290283896
-@2 write #0 op=fly/shell dur=1 pos=-1.023086,1.580000,1.357680 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.500000,0.500000,0.500000 bb=FIXED
+@2 write #0 op=fly/shell dur=1 pos=-1.023086,1.580000,1.357680 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.250000,0.250000,0.250000 bb=FIXED
 @2 frame fly/bolt op=fly/bolt pos=-1.023086,1.580000,1.357680 rot=0.000000,-0.317305,0.000000,0.948324
 @3 particle - op=fly/smoke[1] type=smoke-dark at=-1.023086,1.580000,1.357680 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3429804708152252511
 @3 particle - op=fly/ember[1] type=dust count=1 at=-0.782360,1.580000,1.038226 off=0.000000,0.000000,0.000000 speed=0.000000 color=#78c850 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5659612765196214645

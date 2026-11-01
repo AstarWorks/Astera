@@ -33,7 +33,9 @@ import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.domain.world.ToolKind
 import com.astarworks.astera.core.domain.world.WorldId
+import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationPillarTargets
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.platform.wiring.CorePlatformPorts
 import com.astarworks.astera.core.platform.wiring.CoreWiring
@@ -412,6 +414,17 @@ public class GameSim private constructor(
      * Returns whether an event was published.
      */
     public fun breakBlock(entity: SimEntity, cell: Vec3): Boolean {
+        // Same as PaperPillarBlockListener: a break attempt on a standing pillar block never removes it, it damages the pillar.
+        val held = entity.heldItem?.value.orEmpty()
+        val tool = when {
+            held.endsWith("pickaxe") -> ToolKind.PICKAXE
+            held.endsWith("shovel") -> ToolKind.SHOVEL
+            held.endsWith("axe") -> ToolKind.AXE
+            else -> ToolKind.NONE
+        }
+        val verdict = match.pillarTargets.onBlockBreak(entity.id, entity.world, cell, tool)
+        // The hit is published by the match as NexusDamaged / NexusDestroyed with this entity as attacker (MatchMetrics reads it there).
+        if (verdict is AnnihilationPillarTargets.BlockBreakVerdict.Pillar) return true
         val blockId = world.blockAt(entity.world, cell)?.key ?: "minecraft:grass_block"
         world.removeBlock(entity.world, cell)
         val match = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IMatchRepository>().findMatchOf(entity.id)
