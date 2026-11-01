@@ -1,5 +1,7 @@
 package com.astarworks.astera.gamesim.playable.metrics
 
+import com.astarworks.astera.gamesim.playable.MatchConfig
+import com.astarworks.astera.gamesim.playable.MatchDriver
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
@@ -37,5 +39,23 @@ class MatchMetricsScenarioTest {
             assertThat(summary).contains("| $column |")
         }
         println(summary)
+    }
+
+    @Test
+    fun `real bot matches driven by MatchDriver are measured through the same pipeline`() {
+        val out = Path.of(System.getProperty("astera.sim.traceDir")).resolveSibling("play-test-driver")
+        val results = MassPlay.run(listOf(21L, 22L), out, MassPlay.Config(maxTicks = 3_000, frameEveryTicks = 0)) { MatchDriver.boot(MatchConfig(seed = it)) }
+
+        assertThat(results).hasSize(2)
+        for (r in results) {
+            assertThat(out.resolve(r.run).resolve("metrics.json")).exists()
+            assertThat(r.result.scalars["players"]).isEqualTo(9.0)
+            assertThat(r.result.scalars["duration_s"]).isGreaterThan(0.0)
+            for ((key, value) in r.result.scalars) {
+                assertThat(value != null || key in r.result.notAvailable).`as`("$key is n/a without a reason in ${r.run}").isTrue()
+            }
+            assertThat(r.result.scalars["ore_contention"]).`as`("ore_contention of ${r.run}: ${r.result.notAvailable["ore_contention"]}").isNotNull()
+            assertThat(r.result.scalars["ore_per_role"]).`as`("ore_per_role of ${r.run}: ${r.result.notAvailable["ore_per_role"]}").isNotNull().isGreaterThan(0.0)
+        }
     }
 }

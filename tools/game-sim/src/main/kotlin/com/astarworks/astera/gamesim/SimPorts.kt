@@ -409,7 +409,19 @@ public class SimPlayerFeedbackGateway(
 }
 
 /** Holds items "in the main hand" for the entity it is given to; the first item given is the held one. */
-public class SimItemDelivery : IItemDelivery {
+public class SimItemDelivery(private val tick: () -> Long = { 0L }) : IItemDelivery {
+
+    /** One stack handed to a player at [tick]; [SimOreNodeWorld] pairs these with the node mined in the same tick. */
+    public data class Give(val tick: Long, val player: PlayerId, val itemId: String, val amount: Int)
+
+    private val pending = java.util.Collections.synchronizedList(mutableListOf<Give>())
+
+    /** Takes the gives made at [atTick] (older ones are dropped): the drops of the node that was just mined. */
+    internal fun drainGives(atTick: Long): List<Give> = synchronized(pending) {
+        val now = pending.filter { it.tick == atTick }
+        pending.clear()
+        now
+    }
 
     /** Lobby-only (training rack) stacks per player, as `astera:training_item` would tag them on Paper. */
     public val trainingStacks: MutableMap<PlayerId, MutableSet<String>> = ConcurrentHashMap()
@@ -420,6 +432,11 @@ public class SimItemDelivery : IItemDelivery {
     override fun give(target: IMcPlayer, spec: ItemSpec, amount: Int, origin: ItemOrigin): DeliveryResult {
         delivered += spec
         (target as? SimMcPlayer)?.receive(spec.id) ?: return DeliveryResult.UnknownTemplate(spec.id.value)
+        val now = tick()
+        synchronized(pending) {
+            pending.removeAll { it.tick != now }
+            pending += Give(now, target.id, spec.id.value, amount)
+        }
         if (origin == ItemOrigin.TRAINING) {
             trainingStacks.getOrPut(target.id) { ConcurrentHashMap.newKeySet() }.add(spec.id.value)
         }
