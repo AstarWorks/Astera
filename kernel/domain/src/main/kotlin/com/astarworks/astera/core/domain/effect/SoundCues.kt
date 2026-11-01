@@ -16,6 +16,7 @@ public object SoundCues {
     public val MATCH_SUDDEN_DEATH: SoundId = SoundId("astera:match/sudden-death")
 
     public val ORE_MINED: SoundId = SoundId("astera:ore/mined")
+    public val ORE_REFUSED: SoundId = SoundId("astera:ore/refused")
 
     public val COMBAT_HIT: SoundId = SoundId("astera:combat/hit")
     public val COMBAT_CRIT: SoundId = SoundId("astera:combat/crit")

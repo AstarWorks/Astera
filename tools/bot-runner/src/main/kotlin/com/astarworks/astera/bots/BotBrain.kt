@@ -988,6 +988,8 @@ class BotBrain(
     /** Preparation: the own-base cache this bot opens first (caches within [BASE_SWEEP_RADIUS] of the spawn, one per team slot); null once opened or when none. */
     private fun baseCacheDest(now: Long): Dest? {
         if (goal != Goal.STAR || planner?.preparing(now) != true) return null
+        // A bot without a star yet stays at the base for the opening pop (caches do not pay in the opening and the pop is first come): the cache trip is for bots that already have one.
+        if (hungry(now)) return null
         // Only caches on the spawn's level (a roof or gallery cache needs a climb); one opener per cache, the other slots go elsewhere.
         val own = cachePoints.indices.filter { hypot(cachePoints[it].x - spawnX, cachePoints[it].z - spawnZ) <= BASE_SWEEP_RADIUS && cachePoints[it].y - spawnY <= 3.0 }
             .sortedWith(compareBy({ cachePoints[it].x }, { cachePoints[it].z }))

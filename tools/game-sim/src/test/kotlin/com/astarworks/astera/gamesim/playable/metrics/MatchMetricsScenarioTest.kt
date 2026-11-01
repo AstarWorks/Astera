@@ -90,7 +90,8 @@ class MatchMetricsScenarioTest {
             val metrics = MatchMetrics(sim)
             run.onTick { metrics.onTick(it) }
             val catalog = checkNotNull(MatchShopLoaderService().parse(GameSim.defaultContentDir().resolve("shops")).second) { "match-shop.yaml did not load" }
-            val offer = catalog.offers.first { it.upgradeFrom == null && it.price.size == 1 && it.stack == 1 }
+            // A base weapon is refused once owned (the starter kit carries some) and the test buys twice: take a repeatable offer.
+            val offer = catalog.offers.first { !it.isBaseWeapon && it.upgradeFrom == null && it.price.size == 1 && it.stack == 1 }
             val purchase = MatchShopPurchaseUseCase(
                 itemRegistry = sim.services.getOrThrow<IItemRegistry>(),
                 server = sim.server,

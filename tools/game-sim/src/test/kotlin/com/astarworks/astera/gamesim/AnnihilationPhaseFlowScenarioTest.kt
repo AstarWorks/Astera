@@ -1,5 +1,7 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.combat.domain.event.PlayerKilled
+import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.presentation.IPresentationVisuals
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.port.outbound.IStructureTargets
@@ -24,6 +26,7 @@ import com.astarworks.astera.core.domain.world.ToolKind
 import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationPillarTargets
 import com.astarworks.astera.match.application.port.outbound.IMatchPhaseClock
 import com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository
+import com.astarworks.astera.match.application.port.outbound.IOreNodeRegistry
 import com.astarworks.astera.match.application.service.OreNodeService
 import com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig
 import org.assertj.core.api.Assertions.assertThat
@@ -149,10 +152,15 @@ class AnnihilationPhaseFlowScenarioTest {
             val origin = sim.services.getOrThrow<IStageRegistry>().find(StageId("annihilation-arena"))?.origin ?: Vec3(0.0, 0.0, 0.0)
             val nodes = sim.services.getOrThrow<OreNodeService>()
             val pick = ItemId("diamond-pickaxe")
-            fun cell(x: Int, y: Int, z: Int) = Vec3(origin.x + x, y.toDouble(), origin.z + z)
-            val iron = cell(-33, 61, 11)
-            val gold = cell(17, 56, 22)
-            val emerald = cell(8, 51, -17)
+            // The first node of each kind in the shipped content/ore-nodes/annihilation-arena.yaml, so a map move cannot stale the test.
+            val oreConfig = checkNotNull(sim.services.getOrThrow<IOreNodeRegistry>().find("annihilation-arena"))
+            fun firstNode(block: String): Vec3 {
+                val p = oreConfig.nodes.first { it.block == block && it.positions.isNotEmpty() }.positions.first()
+                return Vec3(origin.x + p.x, p.y, origin.z + p.z)
+            }
+            val iron = firstNode("astera:ore_iron_node")
+            val gold = firstNode("astera:ore_gold_node")
+            val emerald = firstNode("astera:ore_emerald_node")
             fun mine(c: Vec3): OreNodeService.Outcome { advance(7); return nodes.mine(red.id, worldId, c, pick) }
             fun locked(c: Vec3) = (mine(c) as? OreNodeService.Outcome.PhaseLocked)?.required
 
@@ -268,21 +276,51 @@ class AnnihilationPhaseFlowScenarioTest {
         }
     }
 
-    @Test
-    fun `an exact pillar HP tie at the top is a draw, never decided by team order`() {
-        scenario("annihilation-phase-flow-hp-draw", config.copy(suddenDeathTicks = 100, bleedIntervalTicks = 100_000)) {
+    private fun tiedAtTop(name: String, body: ScenarioScope.(MatchId, SimEntity, SimEntity, SimEntity) -> Unit): MatchEnded {
+        var ended: MatchEnded? = null
+        scenario(name, config.copy(suddenDeathTicks = 100, bleedIntervalTicks = 100_000)) {
             val (red, blue, yellow) = threeTeams()
             val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow to "yellow"), stage = "annihilation-arena")
             val clock = sim.services.getOrThrow<IMatchPhaseClock>()
             assertThat(advanceUntil(300) { clock.current(matchId)?.phase == NexusPhase.Phase2Engage }).isTrue()
-            // Red and blue untouched (equal totals); yellow is the one that lost HP.
-            hit(matchId, red, "yellow", NexusPillarTier.TIER_1)
-
+            body(matchId, red, blue, yellow)
             assertThat(advanceUntil(1_500) { eventsOf<MatchEnded>().isNotEmpty() }).isTrue()
-            val ended = eventsOf<MatchEnded>().single()
-            assertThat(ended.winningTeam).isNull()
-            assertThat(ended.reason).isEqualTo(EndReason.PillarHpDecision(null))
+            ended = eventsOf<MatchEnded>().single()
         }
+        return checkNotNull(ended)
+    }
+
+    @Test
+    fun `tiebreak step 1 - an exact pillar HP tie goes to the team that dealt more damage to enemy pillars`() {
+        val ended = tiedAtTop("annihilation-phase-flow-tie-damage") { matchId, red, _, _ ->
+            // Red and blue keep full HP (equal totals); only red attacked (yellow's pillar).
+            hit(matchId, red, "yellow", NexusPillarTier.TIER_1)
+        }
+        assertThat(ended.winningTeam).isEqualTo(TeamId("red"))
+        assertThat(ended.reason).isEqualTo(EndReason.PillarHpDecision(TeamId("red"), EndReason.PillarHpDecision.Criterion.DAMAGE_DEALT))
+    }
+
+    @Test
+    fun `tiebreak step 2 - equal HP and equal damage dealt go to the team with more kills`() {
+        val ended = tiedAtTop("annihilation-phase-flow-tie-kills") { matchId, red, blue, yellow ->
+            hit(matchId, red, "yellow", NexusPillarTier.TIER_1)
+            advance(8)
+            hit(matchId, blue, "yellow", NexusPillarTier.TIER_1)
+            sim.services.getOrThrow<IDomainEventBus>().publish(PlayerKilled(yellow.id, blue.id, com.astarworks.astera.combat.domain.damage.DamageSource.Environment.Generic, 1L))
+        }
+        assertThat(ended.winningTeam).isEqualTo(TeamId("blue"))
+        assertThat(ended.reason).isEqualTo(EndReason.PillarHpDecision(TeamId("blue"), EndReason.PillarHpDecision.Criterion.KILLS))
+    }
+
+    @Test
+    fun `tiebreak step 3 - equal HP, damage dealt and kills is a draw, never decided by team order`() {
+        val ended = tiedAtTop("annihilation-phase-flow-tie-draw") { matchId, red, blue, _ ->
+            hit(matchId, red, "yellow", NexusPillarTier.TIER_1)
+            advance(8)
+            hit(matchId, blue, "yellow", NexusPillarTier.TIER_1)
+        }
+        assertThat(ended.winningTeam).isNull()
+        assertThat(ended.reason).isEqualTo(EndReason.PillarHpDecision(null))
     }
 
     @Test
