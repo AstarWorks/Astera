@@ -64,6 +64,76 @@ class ModePlanner(
     fun inSpawnZone(team: String?, x: Double, z: Double): Boolean =
         team != null && spawnZones[team]?.let { hypot(x - it.first, z - it.second) <= it.third } == true
 
+    /** The enemy team whose spawn zone contains (x, z), or null. */
+    fun enemyZoneOf(x: Double, z: Double): String? = enemyTeams.firstOrNull { inSpawnZone(it, x, z) }
+
+    /** True when an attacker standing at (x, z) is on enemy spawn ground: it must not linger or fight there (see [zoneEscape]). */
+    fun inEnemyZone(x: Double, z: Double): Boolean = role == Role.PILLAR_ATTACKER && enemyZoneOf(x, z) != null
+
+    private var zoneSince = NEVER
+
+    /** True once an attacker has failed to leave an enemy spawn zone for [ZONE_TRAP_MS]: it fights back there (the only case). */
+    /** Next to the pillar being dug: tier 1 stands at the edge of its team's spawn zone, so digging there is not camping. */
+    private fun atObjective(x: Double, z: Double) = !objectiveX.isNaN() && hypot(objectiveX - x, objectiveZ - z) <= DIG_EXEMPT_RADIUS
+
+    var zoneTrapped = false; private set
+
+    /**
+     * An attacker inside an enemy spawn zone walks straight out of it (radially, [ZONE_EXIT_MARGIN] past the edge) instead of
+     * fighting or digging there. Null when it is not in one, or when it could not get out for [ZONE_TRAP_MS] (then [zoneTrapped]).
+     */
+    fun zoneEscape(now: Long, x: Double, z: Double): Step? {
+        val team = if (role == Role.PILLAR_ATTACKER && modeId == "annihilation" && !preparing(now)) enemyZoneOf(x, z) else null
+        if (team == null) { zoneSince = NEVER; zoneTrapped = false; return null }
+        if (zoneSince == NEVER) zoneSince = now
+        if (now - zoneSince > ZONE_TRAP_MS) { zoneTrapped = true; return null }
+        val (cx, cz, r) = spawnZones[team] ?: return null
+        val len = hypot(x - cx, z - cz)
+        val ux = if (len < 1.0) 1.0 else (x - cx) / len
+        val uz = if (len < 1.0) 0.0 else (z - cz) / len
+        return Step("leave-$team", cx + ux * (r + ZONE_EXIT_MARGIN), zones.pillars().firstOrNull()?.y?.toDouble() ?: 65.0, cz + uz * (r + ZONE_EXIT_MARGIN),
+            ZONE_EXIT_ARRIVE, "leave-zone", Role.PILLAR_ATTACKER, engage = 0.0)
+    }
+
+    /** A waypoint around an enemy spawn zone when the straight way (x, z) -> (tx, tz) would cut through one; null when the way is clear. */
+    private fun detour(x: Double, z: Double, tx: Double, tz: Double, y: Double, zone: String): Step? {
+        for (team in enemyTeams) {
+            val (cx, cz, r) = spawnZones[team] ?: continue
+            if (hypot(x - cx, z - cz) <= r || hypot(tx - cx, tz - cz) <= r) continue
+            if (distToSegment(cx, cz, x, z, tx, tz) >= r + DETOUR_MARGIN) continue
+            val dx = tx - x; val dz = tz - z
+            val len2 = dx * dx + dz * dz
+            val t = if (len2 == 0.0) 0.0 else (((cx - x) * dx + (cz - z) * dz) / len2).coerceIn(0.0, 1.0)
+            var px = x + t * dx - cx; var pz = z + t * dz - cz
+            if (hypot(px, pz) < 0.1) { px = -dz; pz = dx }
+            val ul = hypot(px, pz).coerceAtLeast(1e-6)
+            return Step(zone, cx + px / ul * (r + DETOUR_OUT), y, cz + pz / ul * (r + DETOUR_OUT), ZONE_EXIT_ARRIVE, "detour", Role.PILLAR_ATTACKER, engage = ATTACK_ENGAGE)
+        }
+        return null
+    }
+
+    // Rally before the squad push (P3+): attackers gather outside the target's spawn zone, then go in together.
+    private val rallied = HashSet<String>()
+    private var rallyStart = NEVER
+    private var rallyTarget: String? = null
+
+    private fun rally(now: Long, x: Double, z: Double, target: String, objX: Double, objZ: Double, y: Double, zone: String): Step? {
+        if (target in rallied) return null
+        val tz = spawnZones[target] ?: return null
+        if (rallyTarget != target) { rallyTarget = target; rallyStart = now }
+        val home = spawnZones[ownTeam]
+        val hx = (home?.first ?: x) - tz.first; val hz = (home?.second ?: z) - tz.second
+        val hl = hypot(hx, hz).coerceAtLeast(1e-6)
+        val rx = tz.first + hx / hl * (tz.third + RALLY_OUT); val rz = tz.second + hz / hl * (tz.third + RALLY_OUT)
+        val mates = roster.filter { it.alive && it.name != botName }
+        val need = minOf(RALLY_MATES, mates.size)
+        val gathered = mates.count { it.known() && hypot(it.x - rx, it.z - rz) <= RALLY_RADIUS }
+        val here = hypot(x - rx, z - rz) <= RALLY_RADIUS
+        val done = (here && gathered >= need) || now - rallyStart > RALLY_TIMEOUT_MS || hypot(objX - x, objZ - z) <= RALLY_SKIP
+        if (done) { rallied += target; return null }
+        return Step(zone, rx, y, rz, RALLY_ARRIVE, "rally", Role.PILLAR_ATTACKER, engage = ATTACK_ENGAGE)
+    }
+
     /** One pillar block of an Annihilation stage: [x]/[y]/[z] are the block coordinates. */
     data class PillarSite(val team: String, val tier: Int, val x: Int, val y: Int, val z: Int, val affinity: String? = null) {
         /** Tool class that digs this pillar fastest: the stage's `affinity`, else the tier default. */
@@ -465,7 +535,11 @@ class ModePlanner(
         // respawning defenders (0 pillar damage in 2,300 player-seconds); being hit, or an enemy within melee range, still fights.
         val hit = lastDamagedAt != NEVER && now - lastDamagedAt in 0..DAMAGED_MEMORY_MS
         // No spawn camping: a defender still inside its own spawn zone is left alone (pillar damage first) until it leaves or hits us.
-        if (role == Role.PILLAR_ATTACKER && !hit && inSpawnZone(enemy.name?.let(teamOf), enemy.x, enemy.z)) { farFightSince = NEVER; return false }
+        if (role == Role.PILLAR_ATTACKER) {
+            // Neither fight from inside an enemy spawn zone (leave it, see [zoneEscape]; trapped = the only exception) nor at an enemy standing in its own.
+            if (!zoneTrapped && enemyZoneOf(x, z) != null && !atObjective(x, z)) { farFightSince = NEVER; return false }
+            if (inSpawnZone(enemy.name?.let(teamOf), enemy.x, enemy.z)) { farFightSince = NEVER; return false }
+        }
         if (role == Role.PILLAR_ATTACKER && !objectiveX.isNaN() && !hit && d > DIG_MELEE_RADIUS &&
             hypot(objectiveX - x, objectiveZ - z) <= DIG_FOCUS_RADIUS) { farFightSince = NEVER; return false }
         if (d <= lastEngage) { farFightSince = NEVER; return true }
@@ -525,6 +599,7 @@ class ModePlanner(
 
     /** A chase step to the target's last known spot, or null when there is nothing (any more) to chase. */
     private fun chase(now: Long, x: Double, z: Double): Step? {
+        if (lastSeenAt != NEVER && enemyZoneOf(lastSeenX, lastSeenZ) != null) { chaseSince = NEVER; lastSeenAt = NEVER; return null }
         if (lastSeenAt != NEVER && offLimits(now, lastSeenX, lastSeenZ)) { chaseSince = NEVER; lastSeenAt = NEVER; return null }
         if (lastSeenAt == NEVER || now < chaseBlockedUntil || now - lastSeenAt > CHASE_MEMORY_MS) { chaseSince = NEVER; return null }
         if (chaseSince == NEVER) { chaseSince = now; chaseOriginX = x; chaseOriginZ = z }
@@ -579,7 +654,11 @@ class ModePlanner(
         val theirs = all.filter { it.team == target && standing(it) }
         val p = (if (focus) theirs.maxByOrNull { it.tier } else theirs.minByOrNull { it.tier }) ?: return null
         objectiveX = p.x + 0.5; objectiveZ = p.z + 0.5
+        zoneEscape(now, x, z)?.let { return it }
         chase(now, x, z)?.let { return it }
+        val objZone = "pillar-$target-${p.tier}"
+        if (focus) rally(now, x, z, target, objectiveX, objectiveZ, p.y.toDouble(), objZone)?.let { return it }
+        detour(x, z, objectiveX, objectiveZ, p.y.toDouble(), objZone)?.let { return it }
         return Step("pillar-$target-${p.tier}", p.x + 0.5, p.y.toDouble(), p.z + 0.5, PILLAR_REACH, "pillar", Role.PILLAR_ATTACKER,
             engage = ATTACK_ENGAGE, strike = Triple(p.x, p.y, p.z), affinity = p.toolClass())
     }
@@ -625,6 +704,21 @@ class ModePlanner(
         /** Blocks added to the spread of a team's respawn points to get its spawn zone. */
         const val SPAWN_ZONE_MARGIN = 12.0
         const val NEXUS_TIER = 3
+        /** An attacker leaves an enemy spawn zone [ZONE_EXIT_MARGIN] blocks past its edge; after [ZONE_TRAP_MS] without success it counts as trapped. */
+        const val ZONE_EXIT_MARGIN = 4.0
+        const val DIG_EXEMPT_RADIUS = 7.0
+        const val ZONE_EXIT_ARRIVE = 3.0
+        const val ZONE_TRAP_MS = 15_000L
+        /** The way to an objective keeps this far (plus the radius) from an enemy spawn zone; a waypoint [DETOUR_OUT] past the edge bends it. */
+        const val DETOUR_MARGIN = 2.0
+        const val DETOUR_OUT = 4.0
+        /** Rally: stand [RALLY_OUT] blocks outside the target's spawn zone until [RALLY_MATES] mates are within [RALLY_RADIUS], at most [RALLY_TIMEOUT_MS]; skipped within [RALLY_SKIP] of the objective. */
+        const val RALLY_OUT = 12.0
+        const val RALLY_RADIUS = 9.0
+        const val RALLY_ARRIVE = 4.0
+        const val RALLY_MATES = 2
+        const val RALLY_TIMEOUT_MS = 40_000L
+        const val RALLY_SKIP = 30.0
         /** An enemy this close to an own pillar that just lost HP is taken as the one who hit it. */
         const val PILLAR_ATTACKER_RADIUS = 20.0
         const val THREAT_RANGE = 30.0
