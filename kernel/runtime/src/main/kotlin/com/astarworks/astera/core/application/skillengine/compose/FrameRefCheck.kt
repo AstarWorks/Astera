@@ -18,10 +18,11 @@ import com.astarworks.astera.core.domain.skillengine.table.Val
 internal object FrameRefCheck {
     fun run(def: SkillDef, table: ExpansionTable): SkillDecodeError? {
         val declared = def.frames.map { it.id }.toSet()
-        val rows = table.states.flatMap { it.rows } + table.subTables.values.flatMap { it.rows }
+        val rows = table.states.flatMap { it.rows } + table.subTables.values.flatMap { it.rows } + table.worldRows
         // an instance-rooted frame (`origin: bolt`) names an op of this skill that spawns an instance; an id no op spawns would wait forever, so it is a load error
-        val spawned = rows.filter { val a = it.action; a is Action.Summon || a is Action.Spawn || (a is Action.Effect && a.spawnsAnchor) }
+        val spawned = rows.filter { val a = it.action; a is Action.Summon || a is Action.Spawn || (a is Action.Effect && (a.spawnsAnchor || a.op.value == "body")) }
             .map { it.instance.text.substringAfterLast('/') }.toSet()
+        // `origin: body_anim.hand_r` names a point of a body / rig instance: its instance id is the part before the dot
         // a frame-point origin (`origin: {frame, pos}`) names a declared plain frame of this skill, and the chain of parents must not loop
         val byId = def.frames.associateBy { it.id }
         for (f in def.frames) {
@@ -37,8 +38,8 @@ internal object FrameRefCheck {
         }
         for (f in def.frames) {
             val origin = f.origin as? com.astarworks.astera.core.domain.skillengine.frame.grammar.OriginSpec.Instance ?: continue
-            if (origin.name !in spawned) {
-                return SkillDecodeError.UndefinedReference(def.id, "frames.${f.id}.origin", "instance '${origin.name}' (frame '${f.id}': no op of this skill spawns a projectile, summon or anchor with that id)")
+            if (origin.name !in spawned && origin.name.substringBefore('.') !in spawned) {
+                return SkillDecodeError.UndefinedReference(def.id, "frames.${f.id}.origin", "instance '${origin.name}' (frame '${f.id}': no op of this skill spawns a projectile, summon, anchor or body with that id)")
             }
         }
         for (row in rows) {

@@ -109,15 +109,15 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
         override fun schema(): Map<String, Any?> = linkedMapOf("type" to "object")
     }
 
-    private val of = Field.optional("of", Types.nullable(Types.id), null, "trail: tip anchor whose history is drawn")
-    private val root = Field.optional("root", Types.nullable(Types.id), null, "trail: second anchor the ribbon fans out from")
-    /** A line end: an anchor name, or a `{frame, pos}` point of a declared frame (ADR-0314), kept as its `frame:<id>#v,w,s` cell text. */
+    /** A ribbon end (line `from`/`to`, trail `of`/`root`): an anchor name, or a `{frame, pos}` point of a declared frame (ADR-0314), kept as its `frame:<id>#v,w,s` cell text. */
     private val lineEndType: FieldType<String> = object : FieldType<String> {
         override val label = "anchor name or {frame: <id>, pos: {v, w, s}}"
         override fun decode(raw: Any?, ctx: GrammarContext, path: String): String =
             if (raw is Map<*, *>) FrameRefs.cellOf(FrameRefs.POINT.decode(raw, ctx, path)) else Types.id.decode(raw, ctx, path)
         override fun schema(): Map<String, Any?> = linkedMapOf("oneOf" to listOf(Types.id.schema(), FrameRefs.POINT.schema()))
     }
+    private val of = Field.optional("of", Types.nullable(lineEndType), null, "trail: tip anchor whose history is drawn, or {frame, pos: {v, w, s}} of a declared frame")
+    private val root = Field.optional("root", Types.nullable(lineEndType), null, "trail: second anchor the ribbon fans out from, or {frame, pos: {v, w, s}} of a declared frame")
     private val from = Field.optional("from", Types.nullable(lineEndType), null, "line: start anchor (a frame instance, or a live name: caster.eye, victim.center, from.center, a document anchor), or {frame, pos: {v, w, s}} of a declared frame")
     private val to = Field.optional("to", Types.nullable(lineEndType), null, "line: end anchor (as from)")
     private val thickness = Field.optional("thickness", Types.nullable(Types.number), null, "line: bar thickness in blocks")
@@ -317,15 +317,26 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
             val look = LinkedHashMap<String, Val<Any>>()
             look["argb"] = Val.Known(op.argb)
             val tipAnchor: InstanceId?
+            var trailTip: Val<Vector3d>? = null
+            var trailRoot: Val<Vector3d>? = null
             val tipName: String
             when (val s = op.shape) {
                 is RibbonShape.Trail -> {
-                    val tip = when (val r = anchorOf(s.of, k, lc, "$p.of")) { is Result.Success -> r.value; is Result.Failure -> return r }
-                    tipAnchor = tip.first; tipName = tip.second
+                    if (s.of.startsWith(FrameRefs.PREFIX)) {
+                        // a frame point tip (ADR-0314): no instance to ride, the cell is read from the frame table at every trail point
+                        tipAnchor = null; tipName = ""; trailTip = Val.Live(s.of, null)
+                    } else {
+                        val tip = when (val r = anchorOf(s.of, k, lc, "$p.of")) { is Result.Success -> r.value; is Result.Failure -> return r }
+                        tipAnchor = tip.first; tipName = tip.second
+                    }
                     s.root?.let { rt ->
-                        val r2 = when (val r = anchorOf(rt, k, lc, "$p.root")) { is Result.Success -> r.value; is Result.Failure -> return r }
-                        look["root"] = Val.Known(r2.second)
-                        look["root_anchor"] = Val.Known(r2.first.text)
+                        if (rt.startsWith(FrameRefs.PREFIX)) {
+                            trailRoot = Val.Live(rt, null)
+                        } else {
+                            val r2 = when (val r = anchorOf(rt, k, lc, "$p.root")) { is Result.Success -> r.value; is Result.Failure -> return r }
+                            look["root"] = Val.Known(r2.second)
+                            look["root_anchor"] = Val.Known(r2.first.text)
+                        }
                     }
                     val hist = when (val r = known(s.history, "$p.history", lc)) { is Result.Success -> r.value; is Result.Failure -> return r }
                     look["shape"] = Val.Known("trail")
@@ -378,7 +389,7 @@ public object RibbonOpSpec : OpSpec<RibbonOp> {
             }
             if (op.shape is RibbonShape.Trail) {
                 for (t in 0 until horizon) {
-                    rows += Row(t, self, Action.TrailPoint(self, Val.Live("anchor:$tipName", null)), lc.src)
+                    rows += Row(t, self, Action.TrailPoint(self, trailTip ?: Val.Live("anchor:$tipName", null), trailRoot), lc.src)
                 }
             }
             if (life != null) rows += Row(life, self, Action.End(self), lc.src)

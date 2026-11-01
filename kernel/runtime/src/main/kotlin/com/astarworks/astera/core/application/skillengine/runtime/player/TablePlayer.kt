@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.runtime.player
 
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.Coeff
 import com.astarworks.astera.core.domain.skillengine.table.drainsAfterExit
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
 import com.astarworks.astera.core.application.skillengine.runtime.CastError
@@ -67,6 +68,7 @@ import com.astarworks.astera.core.domain.animation.skinrig.SkinRigPlayback
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigTransforms
 import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRef
 import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.AxisSpec
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.FrameDecl
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.FrameEvaluator
 import com.astarworks.astera.core.domain.skillengine.frame.grammar.FrameInputs
@@ -1349,7 +1351,7 @@ public class TablePlayer(
         val rec = run.recs[a.ribbon] ?: return
         val h = rec.real ?: return
         val tip = vec(run, a.position, ctx)
-        val root = worldOf(run, rec, rec.localAt(now), ctx.binding, now).pos
+        val root = a.root?.let { vec(run, it, ctx) } ?: if (rec.anchor == null && a.root == null && rec.anchorName.isEmpty()) tip else worldOf(run, rec, rec.localAt(now), ctx.binding, now).pos
         visual.pushTrailPoint(h, Vec3(root.x, root.y, root.z), Vec3(tip.x, tip.y, tip.z))
     }
 
@@ -2273,7 +2275,11 @@ public class TablePlayer(
         var evaluatedTick: Int = Int.MIN_VALUE
         /** The origin the previous evaluation read: `velocity` is its one-tick travel. */
         var prevOrigin: Vec3? = null
+        /** `snapshot:` (ADR-0314): the origin and named directions read once at the snapshot tick, held for the rest of the life. */
+        var frozen: Frozen? = null
     }
+
+    private class Frozen(val origin: Vec3, val directions: Map<String, Vec3>)
 
     /**
      * A `rig` riding a frame (ADR-0314): the held mesh ([held]) sits on the frame with the part's long axis along `v` and its edge along `w`;
@@ -2311,7 +2317,9 @@ public class TablePlayer(
             inst.state = null
             return
         }
-        val origin = try {
+        val snapshotAt = decl.snapshotAt
+        val held = if (snapshotAt != null && now - inst.start >= snapshotAt) inst.frozen else null
+        val origin = held?.origin ?: try {
             if (parentOrigin != null) parentState!!.world(parentOrigin.pos) else frameOrigin(run, decl, binding, scope, now)
         } catch (e: IllegalArgumentException) {
             inst.state = null
@@ -2324,7 +2332,7 @@ public class TablePlayer(
         val aim = turned(lookRot, Vec3(0.0, 0.0, 1.0))
         val prev = inst.prevOrigin
         inst.prevOrigin = origin
-        val direction: (String) -> Vec3? = { name ->
+        val liveDirection: (String) -> Vec3? = { name ->
             when (name) {
                 "aim" -> aim
                 "up" -> Vec3(0.0, 1.0, 0.0)
@@ -2345,7 +2353,13 @@ public class TablePlayer(
                 else -> null
             }
         }
-        when (val out = FrameEvaluator.evaluate(decl, now - inst.start, FrameInputs(origin, direction))) {
+        // snapshot: the first evaluation at or after the snapshot tick reads the live inputs and keeps them; later ticks replay the held ones
+        if (snapshotAt != null && held == null && now - inst.start >= snapshotAt) {
+            inst.frozen = Frozen(origin, AxisSpec.NAMED.mapNotNull { n -> liveDirection(n)?.let { n to it } }.toMap())
+        }
+        val frozen = if (snapshotAt != null) inst.frozen else null
+        val inputs = if (frozen != null) FrameInputs(frozen.origin) { frozen.directions[it] } else FrameInputs(origin, liveDirection)
+        when (val out = FrameEvaluator.evaluate(decl, now - inst.start, inputs)) {
             is FrameEvaluator.Outcome.Ok -> inst.state = out.state
             is FrameEvaluator.Outcome.Degenerate -> {
                 inst.state = null
@@ -2445,7 +2459,13 @@ public class TablePlayer(
         }
 
     /** A `pos` cell: the frame's origin plus the coefficients along its axes; a `dir` cell (ADR-0314): the same weighted axes with no origin. */
-    private fun frameVec(run: Run, ref: FrameRef, binding: EventBinding?): Vector3d {
+    private fun frameVec(run: Run, ref0: FrameRef, binding: EventBinding?, scope: RowScope? = null): Vector3d {
+        // `pos: {v: "= i * 0.2"}`: each expression component is evaluated now (the same path as every `= CEL` cell), then the cell is an ordinary one
+        val ref = ref0.at.exprs?.let { ex ->
+            val sc = scope ?: throw IllegalArgumentException("frame '${ref0.frame}': an '= expr' coefficient is read where a row scope exists (particle, particle_def, sound)")
+            fun c(i: Int, n: Double): Double = ex[i]?.let { live.num(run.cursor.handle, "= $it", binding, sc) } ?: n
+            ref0.copy(at = Coeff(c(0, ref0.at.v), c(1, ref0.at.w), c(2, ref0.at.s)))
+        } ?: ref0
         val st = frameState(run, ref, binding)
         val a = (if (ref.direction) st.basis.direction(ref.at) else st.world(ref.at)).let { Vector3d(it.x, it.y, it.z) }
         if (ref.toFrame == ref.frame) return a
@@ -2750,7 +2770,7 @@ public class TablePlayer(
     }
 
     private fun liveVec(run: Run, name: String, ctx: RowCtx): Vector3d {
-        FrameRefs.parse(name)?.let { return frameVec(run, it, ctx.binding) }
+        FrameRefs.parse(name)?.let { return frameVec(run, it, ctx.binding, ctx.scope) }
         paramOf(run, name)?.let { return toVector(it, name) }
         anchorOf(run, name, ctx.owner)?.let { (rec, part) ->
             if (part == "rotation") throw IllegalArgumentException("'$name' is a rotation, not a vector")
@@ -2771,7 +2791,7 @@ public class TablePlayer(
         if (name == "from" || name.startsWith("from.")) {
             return namedVec(run, "victim" + name.removePrefix("from"), binding?.copy(victim = binding.from), scope)
         }
-        FrameRefs.parse(name)?.let { return frameVec(run, it, binding) }
+        FrameRefs.parse(name)?.let { return frameVec(run, it, binding, scope) }
         val doc = documentOf(run, name) ?: return live.vec(run.cursor.handle, name, binding, scope)
         if (doc.second == "rotation") throw IllegalArgumentException("'$name' is a rotation, not a vector")
         val pose = documentPose(run, doc.first, binding, scope)
