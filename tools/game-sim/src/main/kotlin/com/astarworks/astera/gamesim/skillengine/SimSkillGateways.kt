@@ -307,7 +307,33 @@ internal class SimSkillEntityQuery(
         return lookup.teamOf(PlayerId(b)) == team
     }
 
-    override fun raycastBlock(cast: CastRef, from: Vec3, to: Vec3): BlockHit? = SimBlockRay.cast(world, cast.world, from, to)
+    /**
+     * Same contract as the Paper query: a structure block (an Annihilation pillar) is a hit target, not a wall, so the trace
+     * goes on past it and the hit lands on the pillar as an entity hit.
+     */
+    override fun raycastBlock(cast: CastRef, from: Vec3, to: Vec3): BlockHit? {
+        val delta = to - from
+        val dist = delta.length()
+        if (dist < 1.0e-9) return null
+        val dir = delta * (1.0 / dist)
+        var start = from
+        repeat(MAX_STRUCTURE_SKIPS + 1) {
+            val hit = SimBlockRay.cast(world, cast.world, start, to) ?: return null
+            val isStructure = structures()?.targetAtBlock(
+                cast.world,
+                Vec3(floor(hit.point.x + dir.x * 0.01), floor(hit.point.y + dir.y * 0.01), floor(hit.point.z + dir.z * 0.01)),
+            ) != null
+            if (!isStructure) return hit
+            start = hit.point + dir * STRUCTURE_SKIP
+            if ((to - start).dot(dir) <= 0.0) return null
+        }
+        return null
+    }
+
+    private companion object {
+        const val STRUCTURE_SKIP: Double = 0.05
+        const val MAX_STRUCTURE_SKIPS: Int = 4
+    }
 
     private fun yawOf(e: SimEntity): Double = Math.toDegrees(atan2(-e.direction.x, e.direction.z))
 }
