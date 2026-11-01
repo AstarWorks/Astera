@@ -201,6 +201,7 @@ internal object MatchStarWiring {
             levelOf = { norma.levelOf(it) },
             onInvalid = { id, reason -> env.ctx.logger.warning("Ore nodes of stage $id not placed: $reason") },
             phases = { services.get<com.astarworks.astera.match.application.port.outbound.IMatchPhaseClock>() },
+            sounds = { services.get<com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer>() },
         )
         env.ctx.registrations += services.register<NormaLevelService>(norma, priority = 0)
         env.ctx.registrations += services.register<com.astarworks.astera.match.application.service.OreNodeService>(oreNodes, priority = 0)
