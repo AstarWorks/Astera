@@ -480,8 +480,7 @@ class BotBrain(
                 spectating = bot.isSpectator(e.uuid),
                 x = e.x, y = e.y, z = e.z, listed = name != null,
                 hasLos = LineOfSight.clear(bot.terrain, bot.x, eyeY, bot.z, e.x, e.y + CHEST_HEIGHT, e.z),
-                // The client sees no other player's health (no BotHost field for it): unknown = full health.
-                hpFraction = null,
+                hpFraction = bot.healthOf(e.id)?.toDouble(),
             )
         }
         noteDamageTaken(now, myTeam, candidates)
