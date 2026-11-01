@@ -127,7 +127,7 @@ public class PaperSkillVisualGateway(
         val segments = ArrayDeque<Seg>()
     }
 
-    override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView, glow: String?): VisualHandle {
+    override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView): VisualHandle {
         val castOwner = cast.caster
         val world = worldOf(cast) ?: return dead("mesh $item")
         val model = MeshModels.resolve(item, part, frameTables)
@@ -138,7 +138,7 @@ public class PaperSkillVisualGateway(
         val kind = SkillDisplaySpecs.meshKind(model, look, cast.heldItem)
         // a rig mesh is born on its root (the puppet anchor), every other mesh on its own origin: the first write re-places it either way
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.ITEM_FIXED, pose.billboard, 0, root = pose.root)
-        val spec = SkillDisplaySpecs.mesh(kind, first.transform, brightness, look.rigShading, look.shaderEffect).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
+        val spec = SkillDisplaySpecs.mesh(kind, first.transform, brightness, look.rigShading, look.shaderEffect)
         val handle = spawnDisplay(world, castOwner, first.at, spec, emptyList(), pose.anchorFeet != null, view) ?: return dead("mesh $item")
         if (heldItem) hideHand(castOwner)
         return register(castOwner, MeshEntry(handle, castOwner, heldItem, leftHand = look.mode == com.astarworks.astera.core.domain.effect.DisplayItemMode.THIRDPERSON_LEFTHAND))
@@ -190,7 +190,7 @@ public class PaperSkillVisualGateway(
         presentation()?.release(hide.lease)
     }
 
-    override fun spawnPlate(cast: CastRef, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView, glow: String?): VisualHandle {
+    override fun spawnPlate(cast: CastRef, sprite: String, alpha: Double, tintHex: String?, seeThrough: Boolean, pose: VisualPose, brightness: Int?, view: DisplayView): VisualHandle {
         val castOwner = cast.caster
         val world = worldOf(cast) ?: return dead("plate $sprite")
         val glyph = SpriteGlyphs.text(SpriteId(sprite), 0, tintHex?.let { argb(it) and 0xFFFFFF })
@@ -198,17 +198,17 @@ public class PaperSkillVisualGateway(
         // a `#aarrggbb` tint carries its own opacity (the flat translucent quad of ADR-0303 2.1)
         val shown = alpha * (tintHex?.let { SkillDisplaySpecs.alphaOf(it) } ?: 1.0)
         val first = toDisplayWrite(pose.frame, pose.size, intrinsic, pose.billboard, 0)
-        val spec = SkillDisplaySpecs.plate(glyph, shown, seeThrough, first.transform, pose.billboard, brightness ?: 15).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
+        val spec = SkillDisplaySpecs.plate(glyph, shown, seeThrough, first.transform, pose.billboard, brightness ?: 15)
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, listOf(glyph), pose.anchorFeet != null && pose.billboard == DisplayBillboard.FIXED, view)
             ?: return dead("plate $sprite")
         return register(castOwner, PlateEntry(handle, castOwner, sprite, intrinsic, tintHex?.let { argb(it) and 0xFFFFFF }, SkillDisplaySpecs.opacity(shown)))
     }
 
-    override fun spawnBlock(cast: CastRef, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView, glow: String?): VisualHandle {
+    override fun spawnBlock(cast: CastRef, block: String, pose: VisualPose, brightness: Int?, rigShading: Boolean, view: DisplayView): VisualHandle {
         val castOwner = cast.caster
         val world = worldOf(cast) ?: return dead("block $block")
         val first = toDisplayWrite(pose.frame, pose.size, Intrinsic.BLOCK, DisplayBillboard.FIXED, 0)
-        val spec = SkillDisplaySpecs.block(block, first.transform, brightness, rigShading).copy(glowArgb = SkillDisplaySpecs.glowArgb(glow))
+        val spec = SkillDisplaySpecs.block(block, first.transform, brightness, rigShading)
         val handle = spawnDisplay(world, castOwner, pose.frame.origin, spec, emptyList(), pose.anchorFeet != null, view) ?: return dead("block $block")
         return register(castOwner, BlockEntry(handle, castOwner))
     }
@@ -596,12 +596,13 @@ public class PaperSkillVisualGateway(
         val player = if (anchored) server.getPlayer(owner) else null
         val caster = PlayerId(owner)
         val target = view.target?.let(::PlayerId)
+        val shown = spec.copy(glowing = view.glowing, glowArgb = SkillDisplaySpecs.glowArgb(view.glowColor))
         if (player != null) {
             val feet = player.location
             val scope = DisplayScope(view.audience, caster, target, view.lane)
-            displays.spawnAttached(WorldId(world.name), spec, lines, caster, at - Vec3(feet.x, feet.y, feet.z), scope)?.let { return it }
+            displays.spawnAttached(WorldId(world.name), shown, lines, caster, at - Vec3(feet.x, feet.y, feet.z), scope)?.let { return it }
         }
-        return displays.spawn(WorldId(world.name), at, spec, lines, view.audience, caster, target, view.lane)
+        return displays.spawn(WorldId(world.name), at, shown, lines, view.audience, caster, target, view.lane)
     }
 
     private fun register(owner: UUID, entry: Entry): VisualHandle {

@@ -380,3 +380,17 @@ When reusing one client for several comparison cases, pass its actual FOV in deg
   (`tools/game-sim/build/sim-traces/v2/<skill>.json`). Check one with `python3 -I tools/vfx-shot/trace_v2.py <file>`;
   `--sample <out>` writes a synthetic coin-2 trace. Render: `make skill-preview SKILL=couture-rapier-s2 TRACE=<file>`
   (`tools/skill-viewer/scripts/trace-preview.mjs`).
+
+### Lighting and occlusion comparison
+
+`TIME_OF_DAY=6000` films noon; `TIME_OF_DAY=18000` films midnight. The numeric
+value (0..23999) is also written into the throwaway staged world baseline, since
+its per-player clock would otherwise keep every viewer at noon. Run
+`make vfx-shot-down` before changing this value on a kept stack; a mismatched or
+unknown deployed clock fails loudly. With time and
+weather held fixed. `SHOT_WALL=1` places a stone wall at x=299, y=100..104,
+z=300..309, between the ordinary side camera and the caster-forward demo rows.
+It is cleared on the next take by arena rebuilding. Use `DISTANCE=8` to frame
+`demo-glow-comparison` (A/B/C/D at forward 1/3/5/7), with `ITEM=none` because
+this standalone demo has no item binding. The option is restricted to
+0 or 1 and automatically travels through the remote runner as `SHOT_*`.

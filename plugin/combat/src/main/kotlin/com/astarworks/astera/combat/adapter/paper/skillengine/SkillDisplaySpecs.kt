@@ -34,11 +34,11 @@ public object SkillDisplaySpecs {
     /** The alpha (0..1) a colour string carries: `#aarrggbb` its first byte, `#rrggbb` 1. */
     public fun alphaOf(hex: String): Double = ((argb(hex) ushr 24) and 0xFF) / 255.0
 
-    /** glow_color: `#rrggbb` or `#aarrggbb` (alpha first); null stays unglowing. */
+    /** Vanilla glow colour override; independent of the Entity glowing flag. */
     public fun glowArgb(hex: String?): Int? {
         val h = hex?.removePrefix("#") ?: return null
-        val v = h.toLongOrNull(16) ?: return null
-        return if (h.length == 6) (0xFF000000L or v).toInt() else v.toInt()
+        require(Regex("[0-9a-fA-F]{6}").matches(h)) { "glow_color must be #rrggbb: $hex" }
+        return (0xFF000000L or h.toLong(16)).toInt()
     }
 
     /** The item a pack or vanilla mesh model draws; [heldItem] is the item a main-hand mesh draws (the cast's triggering item, null = none known). */

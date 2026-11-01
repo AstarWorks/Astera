@@ -1,10 +1,10 @@
 ## pose yaw=0 pitch=0
-@0 spawn #0 op=fly/core kind=sprite sprite=frost-shatter alpha=1.000000 tint=#d8f0ff seethrough=false pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@0 write #0 op=fly/core dur=7 pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.994522,0.104528 scale=0.625000,0.625000,1.000000 bb=CENTER
-@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/fx type=frost-cast at=0.000000,1.370000,1.800000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1230421727585577443
-@0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
-@1 hit - op=fly/bolt at=0.000000,1.620000,1.700000 r=1.700000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,2.900000 rad=0.500000
+@0 spawn #0 op=fly/core kind=sprite sprite=frost-shatter alpha=1.000000 tint=#d8f0ff seethrough=false pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=fly/core dur=7 pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.994522,0.104528 scale=0.625000,0.625000,1.000000 bb=CENTER
+@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=-0.250000,1.320000,1.300000
+@0 particle - op=fly/fx type=frost-cast at=-0.250000,1.320000,1.300000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2699599710061880453
+@0 frame fly/bolt op=fly/bolt pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.000000,1.000000
+@1 hit - op=fly/bolt at=-0.250000,1.320000,2.500000 r=1.700000 shape=capsule a=-0.250000,1.320000,1.300000 b=-0.250000,1.320000,3.700000 rad=0.500000
 @1 remove #0 op=fly/core
 g @1 state-exit reason=EVENT | state=fly
 g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
@@ -12,91 +12,93 @@ g @1 dropped reason=owner-exited:fly | sub=fly/bolt.hit
 g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
 g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=fly/core kind=sprite sprite=frost-shatter alpha=1.000000 tint=#d8f0ff seethrough=false pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@0 write #0 op=fly/core dur=7 pos=-0.282761,1.791010,0.375236 rot=-0.327985,0.131109,0.923041,0.152418 scale=0.625000,0.625000,1.000000 bb=CENTER
-@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/fx type=frost-cast at=-1.069396,2.000713,1.419137 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1230421727585577443
-@0 frame fly/bolt op=fly/bolt pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916
-@1 hit - op=fly/bolt at=-0.961386,2.201434,1.275802 r=1.700000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.640011,2.611858,2.176368 rad=0.500000
+@0 spawn #0 op=fly/core kind=sprite sprite=frost-shatter alpha=1.000000 tint=#d8f0ff seethrough=false pos=-0.996586,1.782718,0.907105 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=fly/core dur=7 pos=-0.996586,1.782718,0.907105 rot=-0.327985,0.131109,0.923041,0.152418 scale=0.625000,0.625000,1.000000 bb=CENTER
+@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=-0.996586,1.782718,0.907105
+@0 particle - op=fly/fx type=frost-cast at=-0.996586,1.782718,0.907105 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2699599710061880453
+@0 frame fly/bolt op=fly/bolt pos=-0.996586,1.782718,0.907105 rot=-0.164675,-0.312484,-0.055099,0.933916
+@1 hit - op=fly/bolt at=-1.675212,2.193143,1.807671 r=1.700000 shape=capsule a=-0.996586,1.782718,0.907105 b=-2.353837,2.603567,2.708237 rad=0.500000
 @1 remove #0 op=fly/core
 g @1 state-exit reason=EVENT | state=fly
 g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
+g @1 dropped reason=owner-exited:fly | sub=fly/bolt.hit
+g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
 g @1 cast-end | pose
 ## pose-hit yaw=0 pitch=0
-@0 spawn #0 op=fly/core kind=sprite sprite=frost-shatter alpha=1.000000 tint=#d8f0ff seethrough=false pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@0 write #0 op=fly/core dur=7 pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.994522,0.104528 scale=0.625000,0.625000,1.000000 bb=CENTER
-@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/fx type=frost-cast at=0.000000,1.370000,1.800000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1230421727585577443
-@0 frame fly/bolt op=fly/bolt pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
-@1 hit - op=fly/bolt at=0.000000,1.620000,1.700000 r=1.700000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,2.900000 rad=0.500000
-@1 sound - op=fly/bolt.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=0.7 pitch=1.2 at=0.000000,1.620000,2.200000
-@1 particle - op=fly/bolt.hit/fx_hit type=hit-spark at=0.000000,1.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2399310534705720609
-@1 particle - op=fly/bolt.hit/use_4/ring[0] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=1.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3753157176735237851
-@1 particle - op=fly/bolt.hit/use_4/ring[1] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.923880,0.000000,0.382683 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7348446727566736596
-@1 particle - op=fly/bolt.hit/use_4/ring[2] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.707107,0.000000,0.707107 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1950357009899834628
-@1 particle - op=fly/bolt.hit/use_4/ring[3] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.382683,0.000000,0.923880 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1531691119488097992
-@1 particle - op=fly/bolt.hit/use_4/ring[4] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.000000,0.000000,1.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2637868945338741486
-@1 particle - op=fly/bolt.hit/use_4/ring[5] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=-0.382683,0.000000,0.923880 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4720897154036927857
-@1 particle - op=fly/bolt.hit/use_4/ring[6] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=-0.707107,0.000000,0.707107 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6045590652496661685
-@1 particle - op=fly/bolt.hit/use_4/ring[7] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=-0.923880,0.000000,0.382683 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8926862026182258778
-@1 particle - op=fly/bolt.hit/use_4/ring[8] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=-1.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7275843332013486384
-@1 particle - op=fly/bolt.hit/use_4/ring[9] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=-0.923880,0.000000,-0.382683 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1463207509365026728
-@1 particle - op=fly/bolt.hit/use_4/ring[10] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=-0.707107,0.000000,-0.707107 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6643898383865008578
-@1 particle - op=fly/bolt.hit/use_4/ring[11] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=-0.382683,0.000000,-0.923880 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5204980953913183000
-@1 particle - op=fly/bolt.hit/use_4/ring[12] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.000000,0.000000,-1.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3503016235839788301
-@1 particle - op=fly/bolt.hit/use_4/ring[13] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.382683,0.000000,-0.923880 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4748702284368847898
-@1 particle - op=fly/bolt.hit/use_4/ring[14] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.707107,0.000000,-0.707107 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3963331619963204069
-@1 particle - op=fly/bolt.hit/use_4/ring[15] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.923880,0.000000,-0.382683 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6094483293934493371
-@1 particle - op=fly/bolt.hit/use_4/ring_up[0] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.700000,0.700000,0.000000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5389282145244003493
-@1 particle - op=fly/bolt.hit/use_4/ring_up[1] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.494975,0.700000,0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2595345715810010262
-@1 particle - op=fly/bolt.hit/use_4/ring_up[2] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.000000,0.700000,0.700000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3114995023374335284
-@1 particle - op=fly/bolt.hit/use_4/ring_up[3] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=-0.494975,0.700000,0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7724387534801646515
-@1 particle - op=fly/bolt.hit/use_4/ring_up[4] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=-0.700000,0.700000,0.000000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3659039203618106953
-@1 particle - op=fly/bolt.hit/use_4/ring_up[5] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=-0.494975,0.700000,-0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-436630741222320522
-@1 particle - op=fly/bolt.hit/use_4/ring_up[6] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.000000,0.700000,-0.700000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3404764354142315669
-@1 particle - op=fly/bolt.hit/use_4/ring_up[7] type=snowflake count=0 at=0.000000,1.200000,2.500000 off=0.494975,0.700000,-0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8678301601274127491
-@1 particle - op=fly/bolt.hit/use_4/pop type=snowflake count=5 at=0.000000,1.200000,2.500000 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2119028212036563979
-@1 damage 00000000-0000-0000-0000-00000000000a op=- water=18 skill=frost-rod-sleet at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@0 spawn #0 op=fly/core kind=sprite sprite=frost-shatter alpha=1.000000 tint=#d8f0ff seethrough=false pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=fly/core dur=7 pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.994522,0.104528 scale=0.625000,0.625000,1.000000 bb=CENTER
+@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=-0.250000,1.320000,1.300000
+@0 particle - op=fly/fx type=frost-cast at=-0.250000,1.320000,1.300000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2699599710061880453
+@0 frame fly/bolt op=fly/bolt pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.000000,1.000000
+@1 hit - op=fly/bolt at=-0.250000,1.320000,2.500000 r=1.700000 shape=capsule a=-0.250000,1.320000,1.300000 b=-0.250000,1.320000,3.700000 rad=0.500000
+@1 sound - op=fly/bolt.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=0.7 pitch=1.2 at=0.000000,0.810000,2.500000
+@1 particle - op=fly/bolt.hit/fx_hit type=hit-spark at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8190029431280552174
+@1 particle - op=fly/bolt.hit/ring[0] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=1.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2462512078635158297
+@1 particle - op=fly/bolt.hit/ring[1] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=0.923880,0.000000,0.382683 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-15606764609972303
+@1 particle - op=fly/bolt.hit/ring[2] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=0.707107,0.000000,0.707107 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5486186220136915971
+@1 particle - op=fly/bolt.hit/ring[3] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=0.382683,0.000000,0.923880 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6181005035513163040
+@1 particle - op=fly/bolt.hit/ring[4] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=0.000000,0.000000,1.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6613203060962577254
+@1 particle - op=fly/bolt.hit/ring[5] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=-0.382683,0.000000,0.923880 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6253253390771537092
+@1 particle - op=fly/bolt.hit/ring[6] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=-0.707107,0.000000,0.707107 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6595991868982361700
+@1 particle - op=fly/bolt.hit/ring[7] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=-0.923880,0.000000,0.382683 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4211349076492808319
+@1 particle - op=fly/bolt.hit/ring[8] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=-1.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8603612396126820710
+@1 particle - op=fly/bolt.hit/ring[9] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=-0.923880,0.000000,-0.382683 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1522408869028307394
+@1 particle - op=fly/bolt.hit/ring[10] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=-0.707107,0.000000,-0.707107 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7502054113455434147
+@1 particle - op=fly/bolt.hit/ring[11] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=-0.382683,0.000000,-0.923880 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7535689922293552533
+@1 particle - op=fly/bolt.hit/ring[12] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=0.000000,0.000000,-1.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7137471116733970637
+@1 particle - op=fly/bolt.hit/ring[13] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=0.382683,0.000000,-0.923880 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6538059860395246608
+@1 particle - op=fly/bolt.hit/ring[14] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=0.707107,0.000000,-0.707107 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1740237565773629789
+@1 particle - op=fly/bolt.hit/ring[15] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=0.923880,0.000000,-0.382683 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7643577313664763030
+@1 particle - op=fly/bolt.hit/ring_up[0] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=0.700000,0.700000,0.000000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6221160137311190525
+@1 particle - op=fly/bolt.hit/ring_up[1] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=0.494975,0.700000,0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3368423841164928712
+@1 particle - op=fly/bolt.hit/ring_up[2] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=0.000000,0.700000,0.700000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2509274116082219629
+@1 particle - op=fly/bolt.hit/ring_up[3] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=-0.494975,0.700000,0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8847678534102353061
+@1 particle - op=fly/bolt.hit/ring_up[4] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=-0.700000,0.700000,0.000000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1723162579933102622
+@1 particle - op=fly/bolt.hit/ring_up[5] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=-0.494975,0.700000,-0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6797094936513774290
+@1 particle - op=fly/bolt.hit/ring_up[6] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=0.000000,0.700000,-0.700000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2928789996310060629
+@1 particle - op=fly/bolt.hit/ring_up[7] type=snowflake count=0 at=0.000000,0.810000,2.500000 off=0.494975,0.700000,-0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2920070848051162756
+@1 particle - op=fly/bolt.hit/pop type=snowflake count=5 at=0.000000,0.810000,2.500000 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3964015723065612412
+@1 damage 00000000-0000-0000-0000-00000000000a op=- water=18 skill=frost-rod-sleet at=-0.250000,1.320000,2.200000 ignoreinv=false ignorearmor=false
 @1 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=16
 @1 remove #0 op=fly/core
 g @1 state-exit reason=EVENT | state=fly
 g @1 dropped reason=owner-exited:fly | sub=fly/bolt.end
 g @1 cast-end | pose
 ## pose-hit yaw=37 pitch=0
-@0 spawn #0 op=fly/core kind=sprite sprite=frost-shatter alpha=1.000000 tint=#d8f0ff seethrough=false pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@0 write #0 op=fly/core dur=7 pos=-0.300908,1.620000,0.399318 rot=-0.315566,-0.033167,0.943129,0.099127 scale=0.625000,0.625000,1.000000 bb=CENTER
-@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/fx type=frost-cast at=-1.083267,1.370000,1.437544 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1230421727585577443
-@0 frame fly/bolt op=fly/bolt pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324
-@1 hit - op=fly/bolt at=-1.023086,1.620000,1.357680 r=1.700000 shape=capsule a=-0.300908,1.620000,0.399318 b=-1.745264,1.620000,2.316043 rad=0.500000
-@1 sound - op=fly/bolt.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=0.7 pitch=1.2 at=-1.278471,1.620000,1.696589
-@1 particle - op=fly/bolt.hit/fx_hit type=hit-spark at=-1.504538,1.200000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2399310534705720609
-@1 particle - op=fly/bolt.hit/use_4/ring[0] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=1.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3753157176735237851
-@1 particle - op=fly/bolt.hit/use_4/ring[1] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.923880,0.000000,0.382683 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7348446727566736596
-@1 particle - op=fly/bolt.hit/use_4/ring[2] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.707107,0.000000,0.707107 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1950357009899834628
-@1 particle - op=fly/bolt.hit/use_4/ring[3] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.382683,0.000000,0.923880 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1531691119488097992
-@1 particle - op=fly/bolt.hit/use_4/ring[4] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.000000,0.000000,1.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2637868945338741486
-@1 particle - op=fly/bolt.hit/use_4/ring[5] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=-0.382683,0.000000,0.923880 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4720897154036927857
-@1 particle - op=fly/bolt.hit/use_4/ring[6] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=-0.707107,0.000000,0.707107 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6045590652496661685
-@1 particle - op=fly/bolt.hit/use_4/ring[7] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=-0.923880,0.000000,0.382683 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8926862026182258778
-@1 particle - op=fly/bolt.hit/use_4/ring[8] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=-1.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7275843332013486384
-@1 particle - op=fly/bolt.hit/use_4/ring[9] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=-0.923880,0.000000,-0.382683 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1463207509365026728
-@1 particle - op=fly/bolt.hit/use_4/ring[10] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=-0.707107,0.000000,-0.707107 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6643898383865008578
-@1 particle - op=fly/bolt.hit/use_4/ring[11] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=-0.382683,0.000000,-0.923880 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5204980953913183000
-@1 particle - op=fly/bolt.hit/use_4/ring[12] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.000000,0.000000,-1.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3503016235839788301
-@1 particle - op=fly/bolt.hit/use_4/ring[13] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.382683,0.000000,-0.923880 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4748702284368847898
-@1 particle - op=fly/bolt.hit/use_4/ring[14] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.707107,0.000000,-0.707107 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3963331619963204069
-@1 particle - op=fly/bolt.hit/use_4/ring[15] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.923880,0.000000,-0.382683 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6094483293934493371
-@1 particle - op=fly/bolt.hit/use_4/ring_up[0] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.700000,0.700000,0.000000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5389282145244003493
-@1 particle - op=fly/bolt.hit/use_4/ring_up[1] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.494975,0.700000,0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2595345715810010262
-@1 particle - op=fly/bolt.hit/use_4/ring_up[2] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.000000,0.700000,0.700000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3114995023374335284
-@1 particle - op=fly/bolt.hit/use_4/ring_up[3] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=-0.494975,0.700000,0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7724387534801646515
-@1 particle - op=fly/bolt.hit/use_4/ring_up[4] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=-0.700000,0.700000,0.000000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3659039203618106953
-@1 particle - op=fly/bolt.hit/use_4/ring_up[5] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=-0.494975,0.700000,-0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-436630741222320522
-@1 particle - op=fly/bolt.hit/use_4/ring_up[6] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.000000,0.700000,-0.700000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3404764354142315669
-@1 particle - op=fly/bolt.hit/use_4/ring_up[7] type=snowflake count=0 at=-1.504538,1.200000,1.996589 off=0.494975,0.700000,-0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8678301601274127491
-@1 particle - op=fly/bolt.hit/use_4/pop type=snowflake count=5 at=-1.504538,1.200000,1.996589 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2119028212036563979
-@1 damage 00000000-0000-0000-0000-00000000000a op=- water=18 skill=frost-rod-sleet at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@0 spawn #0 op=fly/core kind=sprite sprite=frost-shatter alpha=1.000000 tint=#d8f0ff seethrough=false pos=-0.982018,1.320000,0.887772 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.625000,0.625000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=fly/core dur=7 pos=-0.982018,1.320000,0.887772 rot=-0.315566,-0.033167,0.943129,0.099127 scale=0.625000,0.625000,1.000000 bb=CENTER
+@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.4 at=-0.982018,1.320000,0.887772
+@0 particle - op=fly/fx type=frost-cast at=-0.982018,1.320000,0.887772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2699599710061880453
+@0 frame fly/bolt op=fly/bolt pos=-0.982018,1.320000,0.887772 rot=0.000000,-0.317305,0.000000,0.948324
+@1 hit - op=fly/bolt at=-1.704196,1.320000,1.846135 r=1.700000 shape=capsule a=-0.982018,1.320000,0.887772 b=-2.426374,1.320000,2.804498 rad=0.500000
+@1 sound - op=fly/bolt.hit/snd_hit sound=astera:skills/frost-impact cat=master vol=0.7 pitch=1.2 at=-1.504538,0.810000,1.996589
+@1 particle - op=fly/bolt.hit/fx_hit type=hit-spark at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8190029431280552174
+@1 particle - op=fly/bolt.hit/ring[0] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=1.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2462512078635158297
+@1 particle - op=fly/bolt.hit/ring[1] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=0.923880,0.000000,0.382683 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-15606764609972303
+@1 particle - op=fly/bolt.hit/ring[2] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=0.707107,0.000000,0.707107 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5486186220136915971
+@1 particle - op=fly/bolt.hit/ring[3] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=0.382683,0.000000,0.923880 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6181005035513163040
+@1 particle - op=fly/bolt.hit/ring[4] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,1.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6613203060962577254
+@1 particle - op=fly/bolt.hit/ring[5] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=-0.382683,0.000000,0.923880 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6253253390771537092
+@1 particle - op=fly/bolt.hit/ring[6] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=-0.707107,0.000000,0.707107 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6595991868982361700
+@1 particle - op=fly/bolt.hit/ring[7] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=-0.923880,0.000000,0.382683 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4211349076492808319
+@1 particle - op=fly/bolt.hit/ring[8] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=-1.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8603612396126820710
+@1 particle - op=fly/bolt.hit/ring[9] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=-0.923880,0.000000,-0.382683 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1522408869028307394
+@1 particle - op=fly/bolt.hit/ring[10] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=-0.707107,0.000000,-0.707107 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7502054113455434147
+@1 particle - op=fly/bolt.hit/ring[11] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=-0.382683,0.000000,-0.923880 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7535689922293552533
+@1 particle - op=fly/bolt.hit/ring[12] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,-1.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7137471116733970637
+@1 particle - op=fly/bolt.hit/ring[13] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=0.382683,0.000000,-0.923880 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6538059860395246608
+@1 particle - op=fly/bolt.hit/ring[14] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=0.707107,0.000000,-0.707107 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1740237565773629789
+@1 particle - op=fly/bolt.hit/ring[15] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=0.923880,0.000000,-0.382683 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7643577313664763030
+@1 particle - op=fly/bolt.hit/ring_up[0] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=0.700000,0.700000,0.000000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6221160137311190525
+@1 particle - op=fly/bolt.hit/ring_up[1] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=0.494975,0.700000,0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3368423841164928712
+@1 particle - op=fly/bolt.hit/ring_up[2] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=0.000000,0.700000,0.700000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2509274116082219629
+@1 particle - op=fly/bolt.hit/ring_up[3] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=-0.494975,0.700000,0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8847678534102353061
+@1 particle - op=fly/bolt.hit/ring_up[4] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=-0.700000,0.700000,0.000000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1723162579933102622
+@1 particle - op=fly/bolt.hit/ring_up[5] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=-0.494975,0.700000,-0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6797094936513774290
+@1 particle - op=fly/bolt.hit/ring_up[6] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=0.000000,0.700000,-0.700000 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2928789996310060629
+@1 particle - op=fly/bolt.hit/ring_up[7] type=snowflake count=0 at=-1.504538,0.810000,1.996589 off=0.494975,0.700000,-0.494975 speed=0.160000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2920070848051162756
+@1 particle - op=fly/bolt.hit/pop type=snowflake count=5 at=-1.504538,0.810000,1.996589 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3964015723065612412
+@1 damage 00000000-0000-0000-0000-00000000000a op=- water=18 skill=frost-rod-sleet at=-1.591505,1.320000,1.696589 ignoreinv=false ignorearmor=false
 @1 status 00000000-0000-0000-0000-00000000000a op=- status=freeze stacks=1 for=16
 @1 remove #0 op=fly/core
 g @1 state-exit reason=EVENT | state=fly

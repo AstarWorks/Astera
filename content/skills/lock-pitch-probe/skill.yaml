@@ -1,4 +1,5 @@
-# e2e probe: holds the look pitch for 40 ticks.
+# e2e probe: holds the look pitch for 40 ticks. Frame grammar (ADR-0314): nothing is drawn or heard, the only row is the gameplay op `lock`
+# (which has no frame), so there is no frame to declare and the file is unchanged apart from this header.
 apiVersion: astera/v3
 kind: Skill
 id: lock-pitch-probe

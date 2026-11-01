@@ -9,7 +9,7 @@
 @7 frame spot op=spot pos=0.000000,0.000000,2.000000 rot=0.000000,0.000000,0.000000,1.000000
 @8 frame spot op=spot pos=0.000000,0.000000,2.000000 rot=0.000000,0.000000,0.000000,1.000000
 @9 sound - op=watch/volley[0]/pew sound=entity.blaze.shoot cat=master vol=0.5 pitch=1.6 at=0.000000,0.000000,2.000000
-@9 particle - op=watch/volley[0]/spark type=hit-spark at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5945156182586978672
+@9 particle - op=watch/volley[0]/spark type=hit-spark at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-677431404867718755
 @9 hit - op=watch/volley[0]/hurt at=0.000000,0.000000,2.000000 r=6.000000 shape=area
 @9 damage 00000000-0000-0000-0000-00000000000a op=- electric=6 skill=sentry-turret at=0.000000,0.000000,2.500000 ignoreinv=false ignorearmor=false
 @9 damage 00000000-0000-0000-0000-00000000000b op=- electric=6 skill=sentry-turret at=0.000000,0.000000,5.000000 ignoreinv=false ignorearmor=false
@@ -24,7 +24,7 @@
 @17 frame spot op=spot pos=0.000000,0.000000,2.000000 rot=0.000000,0.000000,0.000000,1.000000
 @18 frame spot op=spot pos=0.000000,0.000000,2.000000 rot=0.000000,0.000000,0.000000,1.000000
 @19 sound - op=watch/volley[1]/pew sound=entity.blaze.shoot cat=master vol=0.5 pitch=1.6 at=0.000000,0.000000,2.000000
-@19 particle - op=watch/volley[1]/spark type=hit-spark at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6384020648320646608
+@19 particle - op=watch/volley[1]/spark type=hit-spark at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1680161958392043219
 @19 hit - op=watch/volley[1]/hurt at=0.000000,0.000000,2.000000 r=6.000000 shape=area
 @19 damage 00000000-0000-0000-0000-00000000000a op=- electric=6 skill=sentry-turret at=0.000000,0.000000,2.500000 ignoreinv=false ignorearmor=false
 @19 damage 00000000-0000-0000-0000-00000000000b op=- electric=6 skill=sentry-turret at=0.000000,0.000000,5.000000 ignoreinv=false ignorearmor=false
@@ -39,7 +39,7 @@
 @27 frame spot op=spot pos=0.000000,0.000000,2.000000 rot=0.000000,0.000000,0.000000,1.000000
 @28 frame spot op=spot pos=0.000000,0.000000,2.000000 rot=0.000000,0.000000,0.000000,1.000000
 @29 sound - op=watch/volley[2]/pew sound=entity.blaze.shoot cat=master vol=0.5 pitch=1.6 at=0.000000,0.000000,2.000000
-@29 particle - op=watch/volley[2]/spark type=hit-spark at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8168608078219288672
+@29 particle - op=watch/volley[2]/spark type=hit-spark at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3170223143872759436
 @29 hit - op=watch/volley[2]/hurt at=0.000000,0.000000,2.000000 r=6.000000 shape=area
 @29 damage 00000000-0000-0000-0000-00000000000a op=- electric=6 skill=sentry-turret at=0.000000,0.000000,2.500000 ignoreinv=false ignorearmor=false
 @29 damage 00000000-0000-0000-0000-00000000000b op=- electric=6 skill=sentry-turret at=0.000000,0.000000,5.000000 ignoreinv=false ignorearmor=false
@@ -70,7 +70,7 @@ g @41 cast-end | pose
 @7 frame spot op=spot pos=-1.203630,0.000000,1.597271 rot=0.000000,-0.317305,0.000000,0.948324
 @8 frame spot op=spot pos=-1.203630,0.000000,1.597271 rot=0.000000,-0.317305,0.000000,0.948324
 @9 sound - op=watch/volley[0]/pew sound=entity.blaze.shoot cat=master vol=0.5 pitch=1.6 at=-1.203630,0.000000,1.597271
-@9 particle - op=watch/volley[0]/spark type=hit-spark at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5945156182586978672
+@9 particle - op=watch/volley[0]/spark type=hit-spark at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-677431404867718755
 @9 hit - op=watch/volley[0]/hurt at=-1.203630,0.000000,1.597271 r=6.000000 shape=area
 @9 damage 00000000-0000-0000-0000-00000000000a op=- electric=6 skill=sentry-turret at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
 @9 damage 00000000-0000-0000-0000-00000000000b op=- electric=6 skill=sentry-turret at=-3.009075,0.000000,3.993178 ignoreinv=false ignorearmor=false
@@ -85,7 +85,7 @@ g @41 cast-end | pose
 @17 frame spot op=spot pos=-1.203630,0.000000,1.597271 rot=0.000000,-0.317305,0.000000,0.948324
 @18 frame spot op=spot pos=-1.203630,0.000000,1.597271 rot=0.000000,-0.317305,0.000000,0.948324
 @19 sound - op=watch/volley[1]/pew sound=entity.blaze.shoot cat=master vol=0.5 pitch=1.6 at=-1.203630,0.000000,1.597271
-@19 particle - op=watch/volley[1]/spark type=hit-spark at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6384020648320646608
+@19 particle - op=watch/volley[1]/spark type=hit-spark at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1680161958392043219
 @19 hit - op=watch/volley[1]/hurt at=-1.203630,0.000000,1.597271 r=6.000000 shape=area
 @19 damage 00000000-0000-0000-0000-00000000000a op=- electric=6 skill=sentry-turret at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
 @19 damage 00000000-0000-0000-0000-00000000000b op=- electric=6 skill=sentry-turret at=-3.009075,0.000000,3.993178 ignoreinv=false ignorearmor=false
@@ -100,7 +100,7 @@ g @41 cast-end | pose
 @27 frame spot op=spot pos=-1.203630,0.000000,1.597271 rot=0.000000,-0.317305,0.000000,0.948324
 @28 frame spot op=spot pos=-1.203630,0.000000,1.597271 rot=0.000000,-0.317305,0.000000,0.948324
 @29 sound - op=watch/volley[2]/pew sound=entity.blaze.shoot cat=master vol=0.5 pitch=1.6 at=-1.203630,0.000000,1.597271
-@29 particle - op=watch/volley[2]/spark type=hit-spark at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8168608078219288672
+@29 particle - op=watch/volley[2]/spark type=hit-spark at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3170223143872759436
 @29 hit - op=watch/volley[2]/hurt at=-1.203630,0.000000,1.597271 r=6.000000 shape=area
 @29 damage 00000000-0000-0000-0000-00000000000a op=- electric=6 skill=sentry-turret at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
 @29 damage 00000000-0000-0000-0000-00000000000b op=- electric=6 skill=sentry-turret at=-3.009075,0.000000,3.993178 ignoreinv=false ignorearmor=false
@@ -131,7 +131,7 @@ g @41 cast-end | pose
 @7 frame spot op=spot pos=0.000000,0.000000,2.000000 rot=0.000000,0.000000,0.000000,1.000000
 @8 frame spot op=spot pos=0.000000,0.000000,2.000000 rot=0.000000,0.000000,0.000000,1.000000
 @9 sound - op=watch/volley[0]/pew sound=entity.blaze.shoot cat=master vol=0.5 pitch=1.6 at=0.000000,0.000000,2.000000
-@9 particle - op=watch/volley[0]/spark type=hit-spark at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5945156182586978672
+@9 particle - op=watch/volley[0]/spark type=hit-spark at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-677431404867718755
 @9 hit - op=watch/volley[0]/hurt at=0.000000,0.000000,2.000000 r=6.000000 shape=area
 @9 damage 00000000-0000-0000-0000-00000000000a op=- electric=6 skill=sentry-turret at=0.000000,0.000000,2.500000 ignoreinv=false ignorearmor=false
 @9 damage 00000000-0000-0000-0000-00000000000b op=- electric=6 skill=sentry-turret at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
@@ -148,7 +148,7 @@ g @41 cast-end | pose
 @17 frame spot op=spot pos=0.000000,0.000000,2.000000 rot=0.000000,0.000000,0.000000,1.000000
 @18 frame spot op=spot pos=0.000000,0.000000,2.000000 rot=0.000000,0.000000,0.000000,1.000000
 @19 sound - op=watch/volley[1]/pew sound=entity.blaze.shoot cat=master vol=0.5 pitch=1.6 at=0.000000,0.000000,2.000000
-@19 particle - op=watch/volley[1]/spark type=hit-spark at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6384020648320646608
+@19 particle - op=watch/volley[1]/spark type=hit-spark at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1680161958392043219
 @19 hit - op=watch/volley[1]/hurt at=0.000000,0.000000,2.000000 r=6.000000 shape=area
 @19 damage 00000000-0000-0000-0000-00000000000a op=- electric=6 skill=sentry-turret at=0.000000,0.000000,2.500000 ignoreinv=false ignorearmor=false
 @19 damage 00000000-0000-0000-0000-00000000000b op=- electric=6 skill=sentry-turret at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
@@ -165,7 +165,7 @@ g @41 cast-end | pose
 @27 frame spot op=spot pos=0.000000,0.000000,2.000000 rot=0.000000,0.000000,0.000000,1.000000
 @28 frame spot op=spot pos=0.000000,0.000000,2.000000 rot=0.000000,0.000000,0.000000,1.000000
 @29 sound - op=watch/volley[2]/pew sound=entity.blaze.shoot cat=master vol=0.5 pitch=1.6 at=0.000000,0.000000,2.000000
-@29 particle - op=watch/volley[2]/spark type=hit-spark at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8168608078219288672
+@29 particle - op=watch/volley[2]/spark type=hit-spark at=0.000000,0.000000,2.000000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3170223143872759436
 @29 hit - op=watch/volley[2]/hurt at=0.000000,0.000000,2.000000 r=6.000000 shape=area
 @29 damage 00000000-0000-0000-0000-00000000000a op=- electric=6 skill=sentry-turret at=0.000000,0.000000,2.500000 ignoreinv=false ignorearmor=false
 @29 damage 00000000-0000-0000-0000-00000000000b op=- electric=6 skill=sentry-turret at=-2.000000,0.000000,3.000000 ignoreinv=false ignorearmor=false
@@ -199,7 +199,7 @@ g @41 cast-end | pose
 @7 frame spot op=spot pos=-1.203630,0.000000,1.597271 rot=0.000000,-0.317305,0.000000,0.948324
 @8 frame spot op=spot pos=-1.203630,0.000000,1.597271 rot=0.000000,-0.317305,0.000000,0.948324
 @9 sound - op=watch/volley[0]/pew sound=entity.blaze.shoot cat=master vol=0.5 pitch=1.6 at=-1.203630,0.000000,1.597271
-@9 particle - op=watch/volley[0]/spark type=hit-spark at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5945156182586978672
+@9 particle - op=watch/volley[0]/spark type=hit-spark at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-677431404867718755
 @9 hit - op=watch/volley[0]/hurt at=-1.203630,0.000000,1.597271 r=6.000000 shape=area
 @9 damage 00000000-0000-0000-0000-00000000000a op=- electric=6 skill=sentry-turret at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
 @9 damage 00000000-0000-0000-0000-00000000000b op=- electric=6 skill=sentry-turret at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
@@ -216,7 +216,7 @@ g @41 cast-end | pose
 @17 frame spot op=spot pos=-1.203630,0.000000,1.597271 rot=0.000000,-0.317305,0.000000,0.948324
 @18 frame spot op=spot pos=-1.203630,0.000000,1.597271 rot=0.000000,-0.317305,0.000000,0.948324
 @19 sound - op=watch/volley[1]/pew sound=entity.blaze.shoot cat=master vol=0.5 pitch=1.6 at=-1.203630,0.000000,1.597271
-@19 particle - op=watch/volley[1]/spark type=hit-spark at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6384020648320646608
+@19 particle - op=watch/volley[1]/spark type=hit-spark at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1680161958392043219
 @19 hit - op=watch/volley[1]/hurt at=-1.203630,0.000000,1.597271 r=6.000000 shape=area
 @19 damage 00000000-0000-0000-0000-00000000000a op=- electric=6 skill=sentry-turret at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
 @19 damage 00000000-0000-0000-0000-00000000000b op=- electric=6 skill=sentry-turret at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false
@@ -233,7 +233,7 @@ g @41 cast-end | pose
 @27 frame spot op=spot pos=-1.203630,0.000000,1.597271 rot=0.000000,-0.317305,0.000000,0.948324
 @28 frame spot op=spot pos=-1.203630,0.000000,1.597271 rot=0.000000,-0.317305,0.000000,0.948324
 @29 sound - op=watch/volley[2]/pew sound=entity.blaze.shoot cat=master vol=0.5 pitch=1.6 at=-1.203630,0.000000,1.597271
-@29 particle - op=watch/volley[2]/spark type=hit-spark at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8168608078219288672
+@29 particle - op=watch/volley[2]/spark type=hit-spark at=-1.203630,0.000000,1.597271 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3170223143872759436
 @29 hit - op=watch/volley[2]/hurt at=-1.203630,0.000000,1.597271 r=6.000000 shape=area
 @29 damage 00000000-0000-0000-0000-00000000000a op=- electric=6 skill=sentry-turret at=-1.504538,0.000000,1.996589 ignoreinv=false ignorearmor=false
 @29 damage 00000000-0000-0000-0000-00000000000b op=- electric=6 skill=sentry-turret at=-3.402716,0.000000,1.192276 ignoreinv=false ignorearmor=false

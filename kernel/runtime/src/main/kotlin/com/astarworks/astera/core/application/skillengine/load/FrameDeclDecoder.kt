@@ -26,6 +26,7 @@ import com.astarworks.astera.core.domain.skillengine.frame.grammar.ScaleKey
  *   s: v x w
  *   rotate: [{at: 2, for: 5, about: w, from: 120, to: -30, ease: in_quad}]
  *   move:   [{at: 0, for: 3, to: {v: 0.5}}]
+ *   snapshot: cast                 # optional: origin + directions read once at that tick ("cast" or a whole tick), then held in world space
  * - id: stuck
  *   on: event.victim
  *   each: true
@@ -38,8 +39,8 @@ import com.astarworks.astera.core.domain.skillengine.frame.grammar.ScaleKey
  * Every error names the frame and the field; a coplanar literal basis fails here, a coplanar live basis fails at the tick it happens.
  */
 internal object FrameDeclDecoder {
-    private val KEYS = setOf("id", "origin", "v", "w", "s", "rotate", "move", "scale", "on", "each")
-    private val CASTER_POINTS = setOf("", "eye", "feet", "body", "center", "hand_r", "hand_l")
+    private val KEYS = setOf("id", "origin", "v", "w", "s", "rotate", "move", "scale", "on", "each", "snapshot")
+    private val CASTER_POINTS = setOf("", "eye", "feet", "body", "center", "hand_r", "hand_l", "shoulder_r", "shoulder_l")
     private val VICTIM_POINTS = setOf("", "eye", "feet", "body", "center")
     private val CROSS = Regex("""^\s*([vws])\s*x\s*([vws])\s*$""")
 
@@ -58,11 +59,16 @@ internal object FrameDeclDecoder {
             if (id in anchorIds) ctx.fail("$p.id", "frame '$id' collides with an anchor of the same id")
             if (!seen.add(id)) ctx.abort(SkillDecodeError.DuplicateId(ctx.file, p, id))
 
-            val on = m["on"]?.let { it as? String ?: ctx.mismatch("$p.on", "'event.victim' or 'event.block'", it) }
-            if (on != null && on != FrameDecl.ON_VICTIM && on != FrameDecl.ON_BLOCK) ctx.fail("$p.on", "frame '$id': on must be event.victim (one instance per hit victim) or event.block (one per block contact)")
+            val on = m["on"]?.let { it as? String ?: ctx.mismatch("$p.on", "'event.victim', 'event.block', 'event.attacker' or 'state.<name>'", it) }
+            val onState = on != null && on.startsWith(FrameDecl.STATE_PREFIX)
+            if (on != null && !onState && on != FrameDecl.ON_VICTIM && on != FrameDecl.ON_BLOCK && on != FrameDecl.ON_ATTACKER) {
+                ctx.fail("$p.on", "frame '$id': on must be event.victim (one instance per hit victim), event.block (one per block contact), event.attacker (one per attacker) or state.<name> (one per entry of that state), found '$on'")
+            }
+            if (onState && on!!.removePrefix(FrameDecl.STATE_PREFIX).let { it.isBlank() || it.any(Char::isWhitespace) }) ctx.fail("$p.on", "frame '$id': on: state.<name> needs a state name")
             val each = m["each"]?.let { it as? Boolean ?: ctx.mismatch("$p.each", "boolean", it) } ?: false
-            if (on != null && !each) ctx.fail("$p.each", "frame '$id': on: $on needs each: true (one frame per victim / contact; there is no shared one)")
-            if (on == null && each) ctx.fail("$p.each", "frame '$id': each: true needs on: event.victim or on: event.block")
+            if (on != null && !onState && !each) ctx.fail("$p.each", "frame '$id': on: $on needs each: true (one frame per victim / contact / attacker; there is no shared one)")
+            if (onState && each) ctx.fail("$p.each", "frame '$id': on: $on is one frame per state entry; each: is for on: event.*")
+            if (on == null && each) ctx.fail("$p.each", "frame '$id': each: true needs on: event.victim, on: event.block or on: event.attacker")
 
             val origin = origin(ctx, id, p, m["origin"], on)
             val v = axis(ctx, id, p, "v", m["v"])
@@ -89,21 +95,33 @@ internal object FrameDeclDecoder {
             val scale = keys(ctx, "$p.scale", m["scale"], setOf("at", "for", "to", "ease")) { k, kp ->
                 ScaleKey(tick(ctx, k["at"], "$kp.at"), ticks(ctx, k["for"], "$kp.for"), coeff(ctx, k["to"] ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, kp, "to")), "$kp.to", Coeff.ONE), ease(ctx, k["ease"], "$kp.ease"))
             }
-            FrameDecl(id, origin, v, w, s, rotate, move, scale, on, each)
+            val snapshotAt = m["snapshot"]?.let { raw ->
+                if (raw == "cast") 0 else if (raw is Number) tick(ctx, raw, "$p.snapshot") else ctx.mismatch("$p.snapshot", "'cast' or a whole tick", raw)
+            }
+            FrameDecl(id, origin, v, w, s, rotate, move, scale, on, each, snapshotAt = snapshotAt)
         }
     }
 
     private fun origin(ctx: GrammarContext, id: String, p: String, raw: Any?, on: String?): OriginSpec {
         val perVictim = on == FrameDecl.ON_VICTIM
         val perBlock = on == FrameDecl.ON_BLOCK
+        val perAttacker = on == FrameDecl.ON_ATTACKER
+        val onState = on != null && on.startsWith(FrameDecl.STATE_PREFIX)
         if (raw == null) {
             return when {
                 perVictim -> OriginSpec.Victim("center")
                 perBlock -> OriginSpec.Contact
+                perAttacker -> OriginSpec.Attacker("center")
                 else -> ctx.abort(SkillDecodeError.MissingField(ctx.file, p, "origin"))
             }
         }
-        val s = raw as? String ?: ctx.mismatch("$p.origin", "caster[.point], victim[.point], contact or an instance id", raw)
+        if (raw is Map<*, *>) {
+            if (on != null && !onState) ctx.fail("$p.origin", "frame '$id': an on: event frame is rooted on its victim / contact / attacker; a frame-point origin is for plain frames")
+            for (key in raw.keys) if (key != "frame" && key != "pos") ctx.abort(SkillDecodeError.UnknownKey(ctx.file, "$p.origin", key.toString(), "expected frame, pos"))
+            val parent = raw["frame"] as? String ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, "$p.origin", "frame"))
+            return OriginSpec.Frame(parent, coeff(ctx, raw["pos"], "$p.origin.pos", Coeff.ZERO))
+        }
+        val s = raw as? String ?: ctx.mismatch("$p.origin", "caster[.point], victim[.point], attacker[.point], contact, an instance id or {frame, pos}", raw)
         val base = s.substringBefore('.')
         val point = if ('.' in s) s.substringAfter('.') else ""
         if (perBlock) {
@@ -112,20 +130,26 @@ internal object FrameDeclDecoder {
         }
         return when (base) {
             "caster" -> {
-                if (point !in CASTER_POINTS) ctx.fail("$p.origin", "frame '$id': caster point '$point' is not one of eye, feet, body, center, hand_r, hand_l")
+                if (point !in CASTER_POINTS) ctx.fail("$p.origin", "frame '$id': caster point '$point' is not one of eye, feet, body, center, hand_r, hand_l, shoulder_r, shoulder_l")
                 OriginSpec.Caster(point)
             }
             "victim", "event" -> {
-                if (!perVictim) ctx.fail("$p.origin", "frame '$id': a victim origin needs on: event.victim, each: true")
+                if (!perVictim && !onState) ctx.fail("$p.origin", "frame '$id': a victim origin needs on: event.victim, each: true (or on: state.<name>)")
                 val pt = if (base == "event") point.removePrefix("victim").removePrefix(".") else point
                 if (pt !in VICTIM_POINTS) ctx.fail("$p.origin", "frame '$id': victim point '$pt' is not one of eye, feet, body, center")
                 OriginSpec.Victim(pt.ifEmpty { "center" })
             }
+            "attacker" -> {
+                if (!perAttacker && !onState) ctx.fail("$p.origin", "frame '$id': an attacker origin needs on: event.attacker, each: true (or on: state.<name>)")
+                if (point !in VICTIM_POINTS) ctx.fail("$p.origin", "frame '$id': attacker point '$point' is not one of eye, feet, body, center")
+                OriginSpec.Attacker(point.ifEmpty { "center" })
+            }
             "contact" -> ctx.fail("$p.origin", "frame '$id': a contact origin needs on: event.block, each: true")
             else -> {
                 if (perVictim) ctx.fail("$p.origin", "frame '$id': an on: event.victim frame is rooted on the victim; origin must be victim[.point] or absent")
+                if (perAttacker) ctx.fail("$p.origin", "frame '$id': an on: event.attacker frame is rooted on the attacker; origin must be attacker[.point] or absent")
                 if (s.isBlank() || s.any { it.isWhitespace() }) ctx.fail("$p.origin", "frame '$id': '$s' is not an instance id")
-                if (base in AnchorNames.BUILTIN_FRAMES) ctx.fail("$p.origin", "frame '$id': origin '$s' is a builtin frame; only caster[.point], victim[.point] (with on:) or an instance id root a frame")
+                if (base in AnchorNames.BUILTIN_FRAMES) ctx.fail("$p.origin", "frame '$id': origin '$s' is a builtin frame; only caster[.point], victim[.point] / attacker[.point] (with on:) or an instance id root a frame")
                 OriginSpec.Instance(s)
             }
         }

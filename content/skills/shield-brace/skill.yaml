@@ -1,3 +1,7 @@
+# shield-brace: brace: plants the feet, buffs poise (no weapon motion).
+# Frames (ADR-0314): the skill moves no weapon, so there is no blade frame; only the places the sounds and fx land are frames:
+#   body   - the caster's feet, v forward / w up / s right: the chest spark (w 1.0) and the sound.
+#   wound  - one per victim at the victim's centre, v the way the blow came in: the hit spark and the hit sound (only where the skill hits).
 apiVersion: astera/v3
 kind: Skill
 id: shield-brace
@@ -5,8 +9,12 @@ item: shield-bulwark
 meta: {name: {ja: "防御姿勢", en: Brace}, description: {ja: "構えを固め、しばらく踏ん張る。", en: "Plants your feet and braces for a while."}, cooldown_ticks: 180, resource_cost: 0, tags: [support, defense]}
 params:
   poise_ticks: {type: ticks, default: 160}
-anchors:
-  - {id: chest, anchor: caster, offset: {up: 1.0}, mode: follow}
+frames:
+  - id: body
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
 machine:
   start: cast
   states:
@@ -15,6 +23,6 @@ machine:
       then: end
       do:
         - {id: buff, op: status, target: caster, status: poise, stacks: 1, for: "${poise_ticks}"}
-        - {id: snd, op: sound, sound: item.shield.block, anchor: caster, volume: 1.0, pitch: 1.2}
-        - {id: fx, op: particle_def, def: hit-spark, anchor: chest}
+        - {id: snd, op: sound, sound: item.shield.block, frame: body, volume: 1.0, pitch: 1.2}
+        - {id: fx, op: particle_def, def: hit-spark, frame: body, pos: {w: 1.0}}
     end: {final: true}

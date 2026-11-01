@@ -35,11 +35,24 @@ class RewireOwnershipTest {
             .bufferedReader().readLines().map { it.trim() }.filter { it.isNotEmpty() && !it.startsWith("#") }.toSet()
 
         val mainFile = Regex("^(?:plugin|kernel|core)/[^/]+/src/main/.*\\.kt$")
-        val files = java.util.stream.Stream.of("plugin", "kernel", "core").flatMap { Files.walk(root.resolve(it)) }.use { s ->
-            s.filter { Files.isRegularFile(it) }
-                .map { root.relativize(it).toString().replace('\\', '/') }
-                .filter { mainFile.matches(it) && it !in allowlist }
-                .toList()
+        val files = mutableListOf<String>()
+        for (top in listOf("plugin", "kernel", "core")) {
+            val start = root.resolve(top)
+            if (!Files.isDirectory(start)) continue
+            // build/ output dirs are skipped (a compile in the same invocation creates and deletes files there)
+            Files.walkFileTree(start, object : java.nio.file.SimpleFileVisitor<Path>() {
+                override fun preVisitDirectory(dir: Path, attrs: java.nio.file.attribute.BasicFileAttributes) =
+                    if (dir.fileName?.toString() == "build") java.nio.file.FileVisitResult.SKIP_SUBTREE
+                    else java.nio.file.FileVisitResult.CONTINUE
+
+                override fun visitFile(file: Path, attrs: java.nio.file.attribute.BasicFileAttributes): java.nio.file.FileVisitResult {
+                    val rel = root.relativize(file).toString().replace('\\', '/')
+                    if (mainFile.matches(rel) && rel !in allowlist) files += rel
+                    return java.nio.file.FileVisitResult.CONTINUE
+                }
+
+                override fun visitFileFailed(file: Path, exc: java.io.IOException) = java.nio.file.FileVisitResult.CONTINUE
+            })
         }
 
         val violations = files.flatMap { rel ->

@@ -762,4 +762,53 @@ $rows
         assertThat(ghost).isInstanceOf(Result.Failure::class.java)
         assertThat((ghost as Result.Failure<SkillDecodeError>).error.message).contains("ghost")
     }
+
+    @Test
+    fun aFramePointOriginStaysItsReachFromTheParentOnEveryTickUnderARotatingParent() {
+        fun skill(blade: String) = loadInline(
+            """
+            apiVersion: astera/v3
+            kind: Skill
+            id: arm-reach
+            frames:
+              - id: arm
+                origin: caster.shoulder_r
+                v: forward
+                w: up
+                s: v x w
+                rotate:
+                  - {at: 0, for: 4, about: w, to: -70, ease: in_out_sine}
+                  - {at: 4, for: 4, about: s, to: 80, ease: out_quad}
+                  - {at: 8, for: 2, about: w, to: 30}
+$blade
+            machine:
+              start: s
+              states:
+                s:
+                  for: 10
+                  then: end
+                  do:
+                    - {id: a, op: particle, particle: flame, frame: arm, count: 1, at: 0, every: 1, for: 10}
+                    - {id: b, op: particle, particle: smoke, frame: blade, count: 1, at: 0, every: 1, for: 10}
+                end: {final: true}
+            """.trimIndent(),
+        )
+        val ok = skill("              - {id: blade, origin: {frame: arm, pos: {v: 0.6}}, v: forward, w: up, s: v x w, rotate: [{at: 2, for: 5, about: s, to: 60}]}")
+        val compiledOk = (ok as? Result.Success)?.value ?: error("expected to load: $ok")
+        val rec = GatewayRecorder()
+        play(compiledOk, 1L, emptyList(), 12, rec)
+        assertThat(lastPlayer!!.faults()).isEmpty()
+        val arm = rec.emittedAt.filter { it.second == "flame" }.associate { it.first to it.third }
+        val blade = rec.emittedAt.filter { it.second == "smoke" }.associate { it.first to it.third }
+        assertThat(blade.keys).describedAs("the child is drawn every tick").containsExactlyInAnyOrderElementsOf(arm.keys).hasSize(10)
+        for (t in arm.keys) assertThat(blade.getValue(t).distance(arm.getValue(t))).describedAs("tick $t: the child's origin stays 0.6 from the parent's").isBetween(0.5999, 0.6001)
+        assertThat(arm.getValue(0).distance(arm.getValue(9))).describedAs("the parent's origin is the shoulder, not moving with its own rotation").isLessThan(1e-6)
+        assertThat(blade.getValue(0).distance(blade.getValue(9))).describedAs("the child swings round the shoulder").isGreaterThan(0.3)
+
+        val loop = skill("              - {id: blade, origin: {frame: kid, pos: {v: 0.6}}, v: forward, w: up, s: v x w}\n              - {id: kid, origin: {frame: blade, pos: {v: 0.1}}, v: forward, w: up, s: v x w}")
+        assertThat(loop).describedAs("a loop of frame origins").isInstanceOf(Result.Failure::class.java)
+        assertThat((loop as Result.Failure<SkillDecodeError>).error.message).contains("cycle")
+        val ghost = skill("              - {id: blade, origin: {frame: nowhere, pos: {v: 0.6}}, v: forward, w: up, s: v x w}")
+        assertThat(ghost).describedAs("a parent not under frames:").isInstanceOf(Result.Failure::class.java)
+    }
 }

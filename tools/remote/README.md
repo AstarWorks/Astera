@@ -64,8 +64,9 @@ Gradle run, both inside the runner cgroup) + shot server `mem_limit` 3g + pack h
 |---|---|---|
 | `ASTERA_HEAVY_HOST` | `astera@192.168.14.3` | ssh target; **set but empty = run locally** (old behaviour); `ASTERA_HEAVY_INSIDE=1` (inside the runner) also runs locally |
 | `ASTERA_HEAVY_BASE` | `astera-heavy` | VM base dir (relative to its home) |
-| `HEAVY_SLOTS` | 1 (`heavy.env`) | concurrent runner containers on the VM |
-| `HEAVY_MEM` | 4g (vfx and gradle) | runner memory cap (swap = same) |
+| `HEAVY_SLOTS` | 1 (`heavy.env`) | concurrent vfx runner containers on the VM |
+| `GRADLE_SLOTS` | 1 (`heavy.env`) | dedicated lane for `--kind gradle` (lock `gslot.N`); vfx never takes it, gradle never takes a vfx slot |
+| `HEAVY_MEM` | 4g vfx, 8g gradle | runner memory cap (swap = same). Gradle gets 8g because test workers (architecture-test sets maxHeapSize 10g, game-sim 2g) ran past 4g and were cgroup-OOM-killed |
 | `HEAVY_CPUS` | 6 | runner cpu cap, also Gradle workers |
 | `HEAVY_GRADLE_XMX` | 2g | Gradle JVM heap in the runner |
 | `HEAVY_MIN_FREE_GB` | vfx 4 / gradle 3 | wait until the VM has this much MemAvailable |

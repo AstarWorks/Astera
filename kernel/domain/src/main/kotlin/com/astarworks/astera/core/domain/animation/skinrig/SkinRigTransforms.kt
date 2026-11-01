@@ -105,7 +105,8 @@ public object SkinRigTransforms {
     }
 
     /** The grip relative to the right-arm joint, in bone-local px (the arm at rest hangs along -Y; the grip is 10 px down it). */
-    private fun gripFromJointPx(): Vector3d = Vector3d(HAND_OFFSET).rotateX(Math.toRadians(HELD_GRIP_PITCH))
+    private fun gripFromJointPx(left: Boolean = false): Vector3d =
+        Vector3d(if (left) Vector3d(-HAND_OFFSET.x, HAND_OFFSET.y, HAND_OFFSET.z) else HAND_OFFSET).rotateX(Math.toRadians(HELD_GRIP_PITCH))
 
     /** Right-hand grip (the held-item origin) in rig pixels, from the right arm's full chain (the hand pin included). */
     private fun rightGripPx(frame: RigFrame, slim: Boolean): Vector3d {
@@ -121,15 +122,21 @@ public object SkinRigTransforms {
      * IK mirroring [leftArmRot], ADR-0315). The arm is one rigid bone, so the grip lands at grip length along that line;
      * [rightHandReach] says how far the target itself is from there.
      */
-    private fun rightArmRot(frame: RigFrame, slim: Boolean): Quaterniond {
-        val authored = euler(frame.bones.getValue(SkinRigBone.RIGHT_ARM).rotation)
-        val target = frame.rightHandTarget ?: return authored
-        val parent = parentXf(SkinRigBone.RIGHT_ARM, frame, slim)
-        val joint = parent.apply(vec(SkinRigBone.RIGHT_ARM.rest(slim).pivot).add(vec(frame.bones.getValue(SkinRigBone.RIGHT_ARM).position)))
+    private fun rightArmRot(frame: RigFrame, slim: Boolean): Quaterniond = pinnedArmRot(SkinRigBone.RIGHT_ARM, frame.rightHandTarget, false, frame, slim)
+
+    /**
+     * Pinned (or authored) local rotation of an arm [bone]: with a [target] the smallest turn away from the authored rotation
+     * that puts the grip on the line from the joint to the target (look-at IK, ADR-0315).
+     */
+    private fun pinnedArmRot(bone: SkinRigBone, target: Vec3?, left: Boolean, frame: RigFrame, slim: Boolean): Quaterniond {
+        val authored = euler(frame.bones.getValue(bone).rotation)
+        if (target == null) return authored
+        val parent = parentXf(bone, frame, slim)
+        val joint = parent.apply(vec(bone.rest(slim).pivot).add(vec(frame.bones.getValue(bone).position)))
         val dirWorld = Vector3d(target.x, target.y, target.z).div(PX * PLAYER_SCALE).sub(joint)
         if (dirWorld.lengthSquared() < 1e-9) return authored
         val dirLocal = dirWorld.normalize().rotate(Quaterniond(parent.rot).invert())
-        val gripAuthored = gripFromJointPx().rotate(authored).normalize()
+        val gripAuthored = gripFromJointPx(left).rotate(authored).normalize()
         return Quaterniond().rotationTo(gripAuthored, dirLocal).mul(authored)
     }
 
@@ -138,12 +145,24 @@ public object SkinRigTransforms {
      * grip length (about 0.60 blocks). Null without a pin. Non-zero means the grip sits on the line to the target but not
      * on it (the arm cannot stretch or shrink).
      */
-    public fun rightHandReach(frame: RigFrame, slim: Boolean): Double? {
-        val target = frame.rightHandTarget ?: return null
-        val parent = parentXf(SkinRigBone.RIGHT_ARM, frame, slim)
-        val joint = parent.apply(vec(SkinRigBone.RIGHT_ARM.rest(slim).pivot).add(vec(frame.bones.getValue(SkinRigBone.RIGHT_ARM).position)))
+    public fun rightHandReach(frame: RigFrame, slim: Boolean): Double? = pinReach(SkinRigBone.RIGHT_ARM, frame.rightHandTarget, false, frame, slim)
+
+    /** The same reach error for the left-hand pin [RigFrame.leftHandTarget] (a `hand: off` rig, ADR-0315). */
+    public fun leftHandReach(frame: RigFrame, slim: Boolean): Double? = pinReach(SkinRigBone.LEFT_ARM, frame.leftHandTarget, true, frame, slim)
+
+    private fun pinReach(bone: SkinRigBone, target: Vec3?, left: Boolean, frame: RigFrame, slim: Boolean): Double? {
+        if (target == null) return null
+        val parent = parentXf(bone, frame, slim)
+        val joint = parent.apply(vec(bone.rest(slim).pivot).add(vec(frame.bones.getValue(bone).position)))
         val px = PX * PLAYER_SCALE
-        return Vector3d(target.x, target.y, target.z).div(px).sub(joint).length() * px - gripFromJointPx().length() * px
+        return Vector3d(target.x, target.y, target.z).div(px).sub(joint).length() * px - gripFromJointPx(left).length() * px
+    }
+
+    /** The left-hand grip in the rig frame (blocks, `PLAYER_SCALE` applied): where a `hand: off` item sits, the pin included. */
+    public fun leftGrip(frame: RigFrame, slim: Boolean): Vec3 {
+        val arm = parentXf(SkinRigBone.LEFT_ARM, frame, slim) * localXf(SkinRigBone.LEFT_ARM, frame, slim, leftArmRot(frame, slim))
+        val w = arm.apply(gripFromJointPx(true).add(vec(SkinRigBone.LEFT_ARM.rest(slim).pivot)))
+        return Vec3(w.x * PX * PLAYER_SCALE, w.y * PX * PLAYER_SCALE, w.z * PX * PLAYER_SCALE)
     }
 
     /**
@@ -153,6 +172,7 @@ public object SkinRigTransforms {
      */
     private fun leftArmRot(frame: RigFrame, slim: Boolean): Quaterniond {
         val authored = euler(frame.bones.getValue(SkinRigBone.LEFT_ARM).rotation)
+        if (frame.leftHandTarget != null) return pinnedArmRot(SkinRigBone.LEFT_ARM, frame.leftHandTarget, true, frame, slim)
         val w = frame.leftHandGrip.coerceIn(0.0, 1.0)
         if (w <= 0.0) return authored
         val parent = parentXf(SkinRigBone.LEFT_ARM, frame, slim)

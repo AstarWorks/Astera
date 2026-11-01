@@ -11,6 +11,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.LoaderOptions
 import org.yaml.snakeyaml.constructor.SafeConstructor
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import javax.imageio.ImageIO
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -18,7 +21,7 @@ import java.nio.file.Path
 internal object ShaderEffects {
     private val json = ObjectMapper()
     private fun yaml(): Yaml = Yaml(SafeConstructor(LoaderOptions().apply { isAllowDuplicateKeys = false }))
-    private data class Effect(val id: String, val dir: Path, val programs: List<String>, val constants: Map<String, Double>, val tint: Int?)
+    private data class Effect(val id: String, val dir: Path, val programs: List<String>, val constants: Map<String, Double>, val tint: Int?, val particleAlpha: Int?)
 
     fun compose(root: Path, vanilla: VanillaShaders, files: MutableMap<String, ByteArray>) {
         if (!Files.isDirectory(root)) return
@@ -30,10 +33,11 @@ internal object ShaderEffects {
             val id = raw["id"] as String
             require(id == dir.fileName.toString() && Regex("[a-z][a-z0-9-]*").matches(id)) { "$dir: invalid effect id '$id'" }
             val programs = (raw["programs"] as List<*>).map { it as String }
-            require(programs.isNotEmpty() && programs.distinct() == programs && programs.all { it in setOf("item", "entity") }) { "$id: invalid core programs" }
+            require(programs.isNotEmpty() && programs.distinct() == programs && programs.all { it in setOf("item", "entity", "particle") }) { "$id: invalid core programs" }
             val markers = (raw["markers"] as List<*>).map { it as Map<*, *> }
             require(markers.isNotEmpty()) { "$id: markers are required" }
             var tint: Int? = null
+            var particleAlpha: Int? = null
             for (marker in markers) {
                 require(marker.keys.toSet() == setOf("channel", "value")) { "$id: invalid marker fields" }
                 val channel = marker["channel"] as String
@@ -42,7 +46,13 @@ internal object ShaderEffects {
                     require(parts.size == 2) { "$id: invalid light marker '$rawValue'" }
                     parts[0].toInt().toString() + ":" + if (parts[1] == "*") "*" else parts[1].toInt().toString()
                 } else rawValue.toInt().toString()
-                require(channel in setOf("light-uv", "tint-rgb", "vfx-tint")) { "$id: unknown marker channel '$channel'" }
+                require(channel in setOf("light-uv", "tint-rgb", "vfx-tint", "particle-tint-rgb", "particle-sprite-alpha")) { "$id: unknown marker channel '$channel'" }
+                if (channel.startsWith("particle-")) {
+                    require(programs == listOf("particle")) { "$id: particle markers need particle-only program" }
+                    if (channel == "particle-sprite-alpha") {
+                        particleAlpha = value.toInt().also { require(it in 1..254) { "$id: invalid particle alpha" } }
+                    } else require(value == "255") { "$id: particle tint protocol reserves the pure-blue family (255)" }
+                }
                 val claimChannel = if (channel == "vfx-tint") "tint-rgb" else channel
                 if (channel == "light-uv") {
                     require(Regex("""([0-9]+):([0-9]+|[*])""").matches(value)) { "$id: invalid light marker '$value'" }
@@ -59,6 +69,7 @@ internal object ShaderEffects {
                     tint = value.toInt().also { require(it in 0..0xffffff && it != 16711422) { "$id: invalid/reserved tint" } }
                 }
             }
+            if ("particle" in programs) require(markers.map { it["channel"] }.toSet() == setOf("particle-tint-rgb", "particle-sprite-alpha")) { "$id: particle effect requires tint AND sprite confirmation" }
             val snippets = Files.list(dir).use { paths -> paths.filter { it.fileName.toString().endsWith(".patch") }.toList() }
             require(snippets.isNotEmpty() && snippets.all { path -> programs.any { program ->
                 path.fileName.toString() in setOf("$program.vsh.patch", "$program.fsh.patch")
@@ -67,7 +78,7 @@ internal object ShaderEffects {
                 require(key is String && Regex("[A-Z][A-Z0-9_]*").matches(key)) { "$id: invalid constant '$key'" }
                 key to (value as Number).toDouble().also { require(it.isFinite()) { "$id: non-finite constant" } }
             }
-            Effect(id, dir, programs, constants, tint)
+            Effect(id, dir, programs, constants, tint, particleAlpha)
         }
         // A marker ledger is shipped for inspection and integration verification.
         files["assets/astera/shader-effects/markers.json"] = json.writeValueAsBytes(claims.map { (key, id) -> mapOf("effect" to id, "channel" to key.first, "value" to key.second) })
@@ -90,12 +101,33 @@ internal object ShaderEffects {
             check(key !in files) { "$key collides with a pack asset" }
             files[key] = ShaderPatch.apply(name, vanilla.coreShader(name), patches.joinToString("\n") + "\n" + globals).toByteArray()
         }
+        effects.singleOrNull { "particle" in it.programs }?.let { addDustSprites(vanilla, files, requireNotNull(it.particleAlpha)) }
         val references = references(root.parent.parent)
         for ((id, models) in references) {
             val effect = effects.singleOrNull { it.id == id && it.tint != null }
                 ?: error("unknown display shader effect '$id'")
             addVariants(effect, models, files)
         }
+    }
+
+    /** Same vanilla dust frames; only opaque alpha 255 becomes the reserved confirmation byte 254. */
+    private fun addDustSprites(vanilla: VanillaShaders, files: MutableMap<String, ByteArray>, alpha: Int) {
+        val sprites = (7 downTo 0).map { i ->
+            val image = ImageIO.read(ByteArrayInputStream(vanilla.particleSprite("generic_$i.png")))
+            for (y in 0 until image.height) for (x in 0 until image.width) {
+                val argb = image.getRGB(x, y)
+                if (argb ushr 24 == 255) image.setRGB(x, y, (argb and 0xffffff) or (alpha shl 24))
+            }
+            val name = "astera_dust_$i"
+            val bytes = ByteArrayOutputStream().also { check(ImageIO.write(image, "png", it)) }.toByteArray()
+            val path = "assets/minecraft/textures/particle/$name.png"
+            check(path !in files) { "particle protocol sprite collision: $path" }
+            files[path] = bytes
+            "minecraft:$name"
+        }
+        val path = "assets/minecraft/particles/dust.json"
+        check(path !in files) { "particle protocol cannot replace an authored dust skin" }
+        files[path] = json.writeValueAsBytes(mapOf("textures" to sprites))
     }
 
     private fun expand(effect: Effect, patch: String): String {
@@ -107,6 +139,7 @@ internal object ShaderEffects {
                 .replace("\${BLOCK_UV}", (ShaderEffect.BLOCK_LIGHT * 16).toString())
                 .replace("\${SKY_UV}", (ShaderEffect.SKY_LIGHT * 16).toString())
         }
+        effect.particleAlpha?.let { result = result.replace("\${SPRITE_ALPHA}", it.toDouble().toString()) }
         for ((key, value) in effect.constants) result = result.replace("\${$key}", value.toString())
         require(!Regex("""\$\{[^}]+}""").containsMatchIn(result)) { "${effect.id}: unknown snippet constant" }
         return result

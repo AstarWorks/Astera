@@ -1,380 +1,263 @@
 ## pose yaw=0 pitch=0
-@0 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 g @1 state-exit reason=PREEMPT | state=cast/wind
 g @1 state-exit reason=EVENT | state=cast
 g @1 cast-end | pose
 ## pose yaw=37 pitch=-20
-@0 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
 g @1 state-exit reason=PREEMPT | state=cast/wind
 g @1 state-exit reason=EVENT | state=cast
 g @1 cast-end | pose
 ## pose-hit yaw=0 pitch=0
-@0 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@1 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@2 spawn #0 op=cast/fold_0 kind=text text=◆ bg=#00000000 shadow=false seethrough=false pos=0.000000,0.250000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=4.500000,1.500000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@2 spawn #1 op=cast/fold_1 kind=text text=◆ bg=#00000000 shadow=false seethrough=false pos=0.000000,0.650000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=5.750000,1.500000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@2 spawn #2 op=cast/fold_2 kind=text text=◆ bg=#00000000 shadow=false seethrough=false pos=0.000000,1.050000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=3.500000,1.500000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@2 spawn #3 op=cast/fold_3 kind=text text=◆ bg=#00000000 shadow=false seethrough=false pos=0.000000,1.450000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=6.000000,1.500000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@2 spawn #4 op=cast/fold_4 kind=text text=◆ bg=#00000000 shadow=false seethrough=false pos=0.000000,1.800000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=4.500000,1.500000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@2 spawn #5 op=cast/spindle kind=text text=%20 bg=#B2A3CF shadow=false seethrough=false pos=0.000000,1.000000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.480000,7.200000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@2 write #0 op=cast/fold_0 dur=11 pos=0.000000,0.250000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=-3.600180,0.450006,1.000000 bb=CENTER
-@2 write #1 op=cast/fold_1 dur=11 pos=0.000000,0.650000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=-7.474943,0.450006,1.000000 bb=CENTER
-@2 write #2 op=cast/fold_2 dur=11 pos=0.000000,1.050000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=-1.399895,0.450006,1.000000 bb=CENTER
-@2 write #3 op=cast/fold_3 dur=11 pos=0.000000,1.450000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=-8.399880,0.450006,1.000000 bb=CENTER
-@2 write #4 op=cast/fold_4 dur=11 pos=0.000000,1.800000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=-3.600180,0.450006,1.000000 bb=CENTER
+@2 spawn #0 op=cast/fold kind=text text=◆ bg=#00000000 shadow=false seethrough=false pos=0.000000,0.600000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=4.500000,1.500000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@2 spawn #1 op=cast/spindle kind=text text=%20 bg=#B2A3CF shadow=false seethrough=false pos=0.000000,1.000000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.480000,7.200000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
 @2 effect 00000000-0000-0000-0000-000000000001 op=- body=crouch speed=1
-@2 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @2 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@3 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @3 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@4 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
 @4 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@5 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@5 write #0 op=cast/fold dur=0 pos=0.000000,0.600000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=3.825000,1.275000,1.000000 bb=CENTER
 @5 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@6 spawn #6 op=cast/blade_a[0] kind=block block=gray_concrete pos=-0.295000,1.001250,0.847020 rot=0.061049,0.000000,0.000000,0.998135 scale=0.060000,0.190000,0.800000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #7 op=cast/blade_a[1] kind=block block=gray_concrete pos=-0.295000,0.915940,1.541800 rot=0.061049,0.000000,0.000000,0.998135 scale=0.060000,0.120000,0.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #8 op=cast/blade_a[2] kind=block block=gray_concrete pos=-0.295000,0.855010,2.038070 rot=0.061049,0.000000,0.000000,0.998135 scale=0.060000,0.045000,0.400000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #9 op=cast/edge_a[0] kind=block block=iron_block pos=-0.295000,1.060660,0.854310 rot=0.092971,0.000000,0.000000,0.995669 scale=0.060000,0.025000,0.801640 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #10 op=cast/edge_a[1] kind=block block=iron_block pos=-0.295000,0.953460,1.546410 rot=0.087947,0.000000,0.000000,0.996125 scale=0.060000,0.025000,0.600870 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #11 op=cast/edge_a[2] kind=block block=iron_block pos=-0.295000,0.869080,2.039800 rot=0.076195,0.000000,0.000000,0.997093 scale=0.060000,0.025000,0.400180 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #12 op=cast/handle_a[0] kind=block block=black_concrete pos=-0.295000,1.182340,0.274820 rot=-0.898794,0.000000,0.000000,0.438371 scale=0.060000,0.045000,0.311130 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #13 op=cast/handle_a[1] kind=block block=black_concrete pos=-0.295000,1.317450,-0.046100 rot=-0.999614,0.000000,0.000000,0.027799 scale=0.060000,0.045000,0.451000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #14 op=cast/handle_a[2] kind=block block=black_concrete pos=-0.295000,1.242400,-0.337420 rot=0.895201,0.000000,0.000000,0.445662 scale=0.060000,0.045000,0.219540 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #15 op=cast/handle_a[3] kind=block block=black_concrete pos=-0.295000,1.031790,-0.222230 rot=0.293621,0.000000,0.000000,0.955922 scale=0.060000,0.045000,0.438290 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #16 op=cast/handle_a[4] kind=block block=black_concrete pos=-0.295000,0.984260,0.164860 rot=-0.174934,0.000000,0.000000,0.984580 scale=0.060000,0.045000,0.438290 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #17 op=cast/blade_b[0] kind=block block=gray_concrete pos=-0.205000,1.001250,0.847020 rot=-0.477159,0.000000,0.000000,0.878817 scale=0.060000,0.190000,0.800000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #18 op=cast/blade_b[1] kind=block block=gray_concrete pos=-0.205000,0.915940,1.541800 rot=-0.477159,0.000000,0.000000,0.878817 scale=0.060000,0.120000,0.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #19 op=cast/blade_b[2] kind=block block=gray_concrete pos=-0.205000,0.855010,2.038070 rot=-0.477159,0.000000,0.000000,0.878817 scale=0.060000,0.045000,0.400000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #20 op=cast/edge_b[0] kind=block block=iron_block pos=-0.205000,1.060660,0.854310 rot=-0.448780,0.000000,0.000000,0.893642 scale=0.060000,0.025000,0.801640 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #21 op=cast/edge_b[1] kind=block block=iron_block pos=-0.205000,0.953460,1.546410 rot=-0.453283,0.000000,0.000000,0.891367 scale=0.060000,0.025000,0.600870 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #22 op=cast/edge_b[2] kind=block block=iron_block pos=-0.205000,0.869080,2.039800 rot=-0.463761,0.000000,0.000000,0.885960 scale=0.060000,0.025000,0.400180 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #23 op=cast/handle_b[0] kind=block block=black_concrete pos=-0.205000,1.182340,0.274820 rot=0.994522,0.000000,0.000000,0.104528 scale=0.060000,0.045000,0.311130 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #24 op=cast/handle_b[1] kind=block block=black_concrete pos=-0.205000,1.317450,-0.046100 rot=0.862452,0.000000,0.000000,0.506140 scale=0.060000,0.045000,0.451000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #25 op=cast/handle_b[2] kind=block block=black_concrete pos=-0.205000,1.242400,-0.337420 rot=0.523009,0.000000,0.000000,0.852327 scale=0.060000,0.045000,0.219540 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #26 op=cast/handle_b[3] kind=block block=black_concrete pos=-0.205000,1.031790,-0.222230 rot=-0.257557,0.000000,0.000000,0.966263 scale=0.060000,0.045000,0.438290 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #27 op=cast/handle_b[4] kind=block block=black_concrete pos=-0.205000,0.984260,0.164860 rot=-0.670101,0.000000,0.000000,0.742270 scale=0.060000,0.045000,0.438290 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #28 op=cast/hinge_flower[0] kind=block block=white_concrete pos=-0.370000,1.050000,0.450000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.150000,0.150000,0.120000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #29 op=cast/hinge_flower[1] kind=block block=white_concrete pos=-0.130000,1.050000,0.450000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.150000,0.150000,0.120000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #30 op=cast/hinge_flower[2] kind=block block=white_concrete pos=-0.250000,1.170000,0.450000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.150000,0.150000,0.120000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #31 op=cast/hinge_flower[3] kind=block block=white_concrete pos=-0.250000,0.930000,0.450000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.150000,0.150000,0.120000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 write #6 op=cast/blade_a[0] dur=4 pos=-0.295000,1.001250,0.847020 rot=0.250380,0.000000,0.000000,0.968148 scale=0.060000,0.190000,0.800000 bb=FIXED
-@6 write #7 op=cast/blade_a[1] dur=4 pos=-0.295000,0.915940,1.541800 rot=0.250380,0.000000,0.000000,0.968148 scale=0.060000,0.120000,0.600000 bb=FIXED
-@6 write #8 op=cast/blade_a[2] dur=4 pos=-0.295000,0.855010,2.038070 rot=0.250380,0.000000,0.000000,0.968148 scale=0.060000,0.045000,0.400000 bb=FIXED
-@6 write #9 op=cast/edge_a[0] dur=4 pos=-0.295000,1.060660,0.854310 rot=0.281245,0.000000,0.000000,0.959636 scale=0.060000,0.025000,0.801640 bb=FIXED
-@6 write #10 op=cast/edge_a[1] dur=4 pos=-0.295000,0.953460,1.546410 rot=0.276400,0.000000,0.000000,0.961043 scale=0.060000,0.025000,0.600870 bb=FIXED
-@6 write #11 op=cast/edge_a[2] dur=4 pos=-0.295000,0.869080,2.039800 rot=0.265050,0.000000,0.000000,0.964235 scale=0.060000,0.025000,0.400180 bb=FIXED
-@6 write #12 op=cast/handle_a[0] dur=4 pos=-0.295000,1.182340,0.274820 rot=-0.798636,0.000000,0.000000,0.601815 scale=0.060000,0.045000,0.311130 bb=FIXED
-@6 write #13 op=cast/handle_a[1] dur=4 pos=-0.295000,1.317450,-0.046100 rot=-0.975944,0.000000,0.000000,0.218023 scale=0.060000,0.045000,0.451000 bb=FIXED
-@6 write #14 op=cast/handle_a[2] dur=4 pos=-0.295000,1.242400,-0.337420 rot=0.963790,0.000000,0.000000,0.266662 scale=0.060000,0.045000,0.219540 bb=FIXED
-@6 write #15 op=cast/handle_a[3] dur=4 pos=-0.295000,1.031790,-0.222230 rot=0.470624,0.000000,0.000000,0.882334 scale=0.060000,0.045000,0.438290 bb=FIXED
-@6 write #16 op=cast/handle_a[4] dur=4 pos=-0.295000,0.984260,0.164860 rot=0.016146,0.000000,0.000000,0.999870 scale=0.060000,0.045000,0.438290 bb=FIXED
-@6 write #17 op=cast/blade_b[0] dur=4 pos=-0.205000,1.001250,0.847020 rot=-0.333807,0.000000,0.000000,0.942641 scale=0.060000,0.190000,0.800000 bb=FIXED
-@6 write #18 op=cast/blade_b[1] dur=4 pos=-0.205000,0.915940,1.541800 rot=-0.333807,0.000000,0.000000,0.942641 scale=0.060000,0.120000,0.600000 bb=FIXED
-@6 write #19 op=cast/blade_b[2] dur=4 pos=-0.205000,0.855010,2.038070 rot=-0.333807,0.000000,0.000000,0.942641 scale=0.060000,0.045000,0.400000 bb=FIXED
-@6 write #20 op=cast/edge_b[0] dur=4 pos=-0.205000,1.060660,0.854310 rot=-0.303459,0.000000,0.000000,0.952845 scale=0.060000,0.025000,0.801640 bb=FIXED
-@6 write #21 op=cast/edge_b[1] dur=4 pos=-0.205000,0.953460,1.546410 rot=-0.308262,0.000000,0.000000,0.951302 scale=0.060000,0.025000,0.600870 bb=FIXED
-@6 write #22 op=cast/edge_b[2] dur=4 pos=-0.205000,0.869080,2.039800 rot=-0.319457,0.000000,0.000000,0.947601 scale=0.060000,0.025000,0.400180 bb=FIXED
-@6 write #23 op=cast/handle_b[0] dur=4 pos=-0.205000,1.182340,0.274820 rot=-0.998630,0.000000,0.000000,0.052336 scale=0.060000,0.045000,0.311130 bb=FIXED
-@6 write #24 op=cast/handle_b[1] dur=4 pos=-0.205000,1.317450,-0.046100 rot=0.931011,0.000000,0.000000,0.364991 scale=0.060000,0.045000,0.451000 bb=FIXED
-@6 write #25 op=cast/handle_b[2] dur=4 pos=-0.205000,1.242400,-0.337420 rot=0.649903,0.000000,0.000000,0.760017 scale=0.060000,0.045000,0.219540 bb=FIXED
-@6 write #26 op=cast/handle_b[3] dur=4 pos=-0.205000,1.031790,-0.222230 rot=-0.103229,0.000000,0.000000,0.994658 scale=0.060000,0.045000,0.438290 bb=FIXED
-@6 write #27 op=cast/handle_b[4] dur=4 pos=-0.205000,0.984260,0.164860 rot=-0.545734,0.000000,0.000000,0.837958 scale=0.060000,0.045000,0.438290 bb=FIXED
-@6 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@6 spawn #2 op=cast/a_blade kind=block block=gray_concrete pos=-0.300000,0.900000,1.350000 rot=0.061049,0.000000,0.000000,0.998135 scale=0.120000,0.250000,1.800000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #3 op=cast/a_edge kind=block block=iron_block pos=-0.300000,1.000000,1.350000 rot=0.087156,0.000000,0.000000,0.996195 scale=0.120000,0.050000,1.800000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #4 op=cast/a_handle kind=block block=black_concrete pos=-0.300000,1.250000,-0.350000 rot=-0.173648,0.000000,0.000000,0.984808 scale=0.120000,0.100000,0.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #5 op=cast/b_blade kind=block block=gray_concrete pos=-0.200000,1.793159,0.979353 rot=-0.477159,0.000000,0.000000,0.878817 scale=0.120000,0.250000,1.800000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #6 op=cast/b_edge kind=block block=iron_block pos=-0.200000,1.836996,0.889474 rot=-0.453990,0.000000,0.000000,0.891007 scale=0.120000,0.050000,1.800000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #7 op=cast/b_handle kind=block block=black_concrete pos=-0.200000,0.418639,-0.080456 rot=-0.669131,0.000000,0.000000,0.743145 scale=0.120000,0.100000,0.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #8 op=cast/flower[0] kind=block block=white_concrete pos=0.000000,1.050000,0.450000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,0.500000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #9 op=cast/flower[1] kind=block block=white_concrete pos=0.000000,1.050000,0.450000 rot=0.000000,0.000000,0.382683,0.923880 scale=0.060000,0.060000,0.500000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #10 op=cast/flower[2] kind=block block=white_concrete pos=0.000000,1.050000,0.450000 rot=0.000000,0.000000,0.707107,0.707107 scale=0.060000,0.060000,0.500000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #11 op=cast/flower[3] kind=block block=white_concrete pos=0.000000,1.050000,0.450000 rot=0.000000,0.000000,0.923880,0.382683 scale=0.060000,0.060000,0.500000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 write #0 op=cast/fold dur=1 pos=0.000000,0.600000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=3.375000,1.065000,1.000000 bb=CENTER
 @6 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@6 frame cast/shears op=cast/shears pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@6 frame cast/hinge_a op=cast/hinge_a pos=-0.295000,1.050000,0.450000 rot=0.000000,0.000000,0.000000,1.000000
-@6 frame cast/hinge_b op=cast/hinge_b pos=-0.205000,1.050000,0.450000 rot=-0.529919,0.000000,0.000000,0.848048
-@7 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@7 write #0 op=cast/fold dur=1 pos=0.000000,0.600000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=3.150000,0.960000,1.000000 bb=CENTER
+@7 write #2 op=cast/a_blade dur=1 pos=-0.300000,0.814429,1.331480 rot=0.108867,0.000000,0.000000,0.994056 scale=0.120000,0.250000,1.800000 bb=FIXED
+@7 write #3 op=cast/a_edge dur=1 pos=-0.300000,0.913969,1.341064 rot=0.134851,0.000000,0.000000,0.990866 scale=0.120000,0.050000,1.800000 bb=FIXED
+@7 write #4 op=cast/a_handle dur=1 pos=-0.300000,1.325756,-0.327148 rot=-0.126199,0.000000,0.000000,0.992005 scale=0.120000,0.100000,0.600000 bb=FIXED
+@7 write #5 op=cast/b_blade dur=1 pos=-0.200000,1.749335,1.036029 rot=-0.442289,0.000000,0.000000,0.896873 scale=0.120000,0.250000,1.800000 bb=FIXED
+@7 write #6 op=cast/b_edge dur=1 pos=-0.200000,1.800089,0.949866 rot=-0.418660,0.000000,0.000000,0.908143 scale=0.120000,0.050000,1.800000 bb=FIXED
+@7 write #7 op=cast/b_handle dur=1 pos=-0.200000,0.462204,-0.128357 rot=-0.639439,0.000000,0.000000,0.768842 scale=0.120000,0.100000,0.600000 bb=FIXED
 @7 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@7 frame cast/shears op=cast/shears pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@7 frame cast/hinge_a op=cast/hinge_a pos=-0.295000,1.050000,0.450000 rot=0.047978,0.000000,0.000000,0.998848
-@7 frame cast/hinge_b op=cast/hinge_b pos=-0.205000,1.050000,0.450000 rot=-0.496217,0.000000,0.000000,0.868199
-@8 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@8 write #0 op=cast/fold dur=1 pos=0.000000,0.600000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=2.925000,0.855000,1.000000 bb=CENTER
+@8 write #2 op=cast/a_blade dur=1 pos=-0.300000,0.731028,1.304843 rot=0.156434,0.000000,0.000000,0.987688 scale=0.120000,0.250000,1.800000 bb=FIXED
+@8 write #3 op=cast/a_edge dur=1 pos=-0.300000,0.829191,1.323924 rot=0.182236,0.000000,0.000000,0.983255 scale=0.120000,0.050000,1.800000 bb=FIXED
+@8 write #4 op=cast/a_handle dur=1 pos=-0.300000,1.398973,-0.297140 rot=-0.078459,0.000000,0.000000,0.996917 scale=0.120000,0.100000,0.600000 bb=FIXED
+@8 write #5 op=cast/b_blade dur=1 pos=-0.200000,1.701200,1.089092 rot=-0.406737,0.000000,0.000000,0.913545 scale=0.120000,0.250000,1.800000 bb=FIXED
+@8 write #6 op=cast/b_edge dur=1 pos=-0.200000,1.758558,1.007176 rot=-0.382683,0.000000,0.000000,0.923880 scale=0.120000,0.050000,1.800000 bb=FIXED
+@8 write #7 op=cast/b_handle dur=1 pos=-0.200000,0.509394,-0.172692 rot=-0.608761,0.000000,0.000000,0.793353 scale=0.120000,0.100000,0.600000 bb=FIXED
 @8 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@8 frame cast/shears op=cast/shears pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@8 frame cast/hinge_a op=cast/hinge_a pos=-0.295000,1.050000,0.450000 rot=0.095846,0.000000,0.000000,0.995396
-@8 frame cast/hinge_b op=cast/hinge_b pos=-0.205000,1.050000,0.450000 rot=-0.461749,0.000000,0.000000,0.887011
-@9 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@9 write #0 op=cast/fold dur=1 pos=0.000000,0.600000,1.200000 rot=0.000000,0.000000,0.000000,1.000000 scale=2.700000,0.750000,1.000000 bb=CENTER
+@9 write #2 op=cast/a_blade dur=1 pos=-0.300000,0.650563,1.270335 rot=0.203642,0.000000,0.000000,0.979045 scale=0.120000,0.250000,1.800000 bb=FIXED
+@9 write #3 op=cast/a_edge dur=1 pos=-0.300000,0.746445,1.298737 rot=0.229200,0.000000,0.000000,0.973379 scale=0.120000,0.050000,1.800000 bb=FIXED
+@9 write #4 op=cast/a_handle dur=1 pos=-0.300000,1.468976,-0.260253 rot=-0.030539,0.000000,0.000000,0.999534 scale=0.120000,0.100000,0.600000 bb=FIXED
+@9 write #5 op=cast/b_blade dur=1 pos=-0.200000,1.649050,1.138214 rot=-0.370557,0.000000,0.000000,0.928810 scale=0.120000,0.250000,1.800000 bb=FIXED
+@9 write #6 op=cast/b_edge dur=1 pos=-0.200000,1.712658,1.061052 rot=-0.346117,0.000000,0.000000,0.938191 scale=0.120000,0.050000,1.800000 bb=FIXED
+@9 write #7 op=cast/b_handle dur=1 pos=-0.200000,0.559916,-0.213187 rot=-0.577145,0.000000,0.000000,0.816642 scale=0.120000,0.100000,0.600000 bb=FIXED
 @9 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@9 frame cast/shears op=cast/shears pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@9 frame cast/hinge_a op=cast/hinge_a pos=-0.295000,1.050000,0.450000 rot=0.143493,0.000000,0.000000,0.989651
-@9 frame cast/hinge_b op=cast/hinge_b pos=-0.205000,1.050000,0.450000 rot=-0.426569,0.000000,0.000000,0.904455
-@10 write #6 op=cast/blade_a[0] dur=3 pos=-0.295000,1.001250,0.847020 rot=0.017452,0.000000,0.000000,0.999848 scale=0.060000,0.190000,0.800000 bb=FIXED
-@10 write #7 op=cast/blade_a[1] dur=3 pos=-0.295000,0.915940,1.541800 rot=0.017452,0.000000,0.000000,0.999848 scale=0.060000,0.120000,0.600000 bb=FIXED
-@10 write #8 op=cast/blade_a[2] dur=3 pos=-0.295000,0.855010,2.038070 rot=0.017452,0.000000,0.000000,0.999848 scale=0.060000,0.045000,0.400000 bb=FIXED
-@10 write #9 op=cast/edge_a[0] dur=3 pos=-0.295000,1.060660,0.854310 rot=0.049452,0.000000,0.000000,0.998777 scale=0.060000,0.025000,0.801640 bb=FIXED
-@10 write #10 op=cast/edge_a[1] dur=3 pos=-0.295000,0.953460,1.546410 rot=0.044412,0.000000,0.000000,0.999013 scale=0.060000,0.025000,0.600870 bb=FIXED
-@10 write #11 op=cast/edge_a[2] dur=3 pos=-0.295000,0.869080,2.039800 rot=0.032630,0.000000,0.000000,0.999467 scale=0.060000,0.025000,0.400180 bb=FIXED
-@10 write #12 op=cast/handle_a[0] dur=3 pos=-0.295000,1.182340,0.274820 rot=-0.917060,0.000000,0.000000,0.398749 scale=0.060000,0.045000,0.311130 bb=FIXED
-@10 write #13 op=cast/handle_a[1] dur=3 pos=-0.295000,1.317450,-0.046100 rot=0.999875,0.000000,0.000000,0.015830 scale=0.060000,0.045000,0.451000 bb=FIXED
-@10 write #14 op=cast/handle_a[2] dur=3 pos=-0.295000,1.242400,-0.337420 rot=0.874910,0.000000,0.000000,0.484286 scale=0.060000,0.045000,0.219540 bb=FIXED
-@10 write #15 op=cast/handle_a[3] dur=3 pos=-0.295000,1.031790,-0.222230 rot=0.251644,0.000000,0.000000,0.967820 scale=0.060000,0.045000,0.438290 bb=FIXED
-@10 write #16 op=cast/handle_a[4] dur=3 pos=-0.295000,0.984260,0.164860 rot=-0.217715,0.000000,0.000000,0.976012 scale=0.060000,0.045000,0.438290 bb=FIXED
-@10 write #17 op=cast/blade_b[0] dur=3 pos=-0.205000,1.001250,0.847020 rot=-0.017452,0.000000,0.000000,0.999848 scale=0.060000,0.190000,0.800000 bb=FIXED
-@10 write #18 op=cast/blade_b[1] dur=3 pos=-0.205000,0.915940,1.541800 rot=-0.017452,0.000000,0.000000,0.999848 scale=0.060000,0.120000,0.600000 bb=FIXED
-@10 write #19 op=cast/blade_b[2] dur=3 pos=-0.205000,0.855010,2.038070 rot=-0.017452,0.000000,0.000000,0.999848 scale=0.060000,0.045000,0.400000 bb=FIXED
-@10 write #20 op=cast/edge_b[0] dur=3 pos=-0.205000,1.060660,0.854310 rot=0.014565,0.000000,0.000000,0.999894 scale=0.060000,0.025000,0.801640 bb=FIXED
-@10 write #21 op=cast/edge_b[1] dur=3 pos=-0.205000,0.953460,1.546410 rot=0.009520,0.000000,0.000000,0.999955 scale=0.060000,0.025000,0.600870 bb=FIXED
-@10 write #22 op=cast/edge_b[2] dur=3 pos=-0.205000,0.869080,2.039800 rot=-0.002271,0.000000,0.000000,0.999997 scale=0.060000,0.025000,0.400180 bb=FIXED
-@10 write #23 op=cast/handle_b[0] dur=3 pos=-0.205000,1.182340,0.274820 rot=-0.930418,0.000000,0.000000,0.366501 scale=0.060000,0.045000,0.311130 bb=FIXED
-@10 write #24 op=cast/handle_b[1] dur=3 pos=-0.205000,1.317450,-0.046100 rot=0.998713,0.000000,0.000000,0.050716 scale=0.060000,0.045000,0.451000 bb=FIXED
-@10 write #25 op=cast/handle_b[2] dur=3 pos=-0.205000,1.242400,-0.337420 rot=0.857475,0.000000,0.000000,0.514525 scale=0.060000,0.045000,0.219540 bb=FIXED
-@10 write #26 op=cast/handle_b[3] dur=3 pos=-0.205000,1.031790,-0.222230 rot=0.217715,0.000000,0.000000,0.976012 scale=0.060000,0.045000,0.438290 bb=FIXED
-@10 write #27 op=cast/handle_b[4] dur=3 pos=-0.205000,0.984260,0.164860 rot=-0.251644,0.000000,0.000000,0.967820 scale=0.060000,0.045000,0.438290 bb=FIXED
-@10 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
+@10 write #2 op=cast/a_blade dur=1 pos=-0.300000,0.573776,1.228274 rot=0.250380,0.000000,0.000000,0.968148 scale=0.120000,0.250000,1.800000 bb=FIXED
+@10 write #3 op=cast/a_edge dur=1 pos=-0.300000,0.666495,1.265735 rot=0.275637,0.000000,0.000000,0.961262 scale=0.120000,0.050000,1.800000 bb=FIXED
+@10 write #4 op=cast/a_handle dur=1 pos=-0.300000,1.535122,-0.216826 rot=0.017452,0.000000,0.000000,0.999848 scale=0.120000,0.100000,0.600000 bb=FIXED
+@10 write #5 op=cast/b_blade dur=1 pos=-0.200000,1.593207,1.183094 rot=-0.333807,0.000000,0.000000,0.942641 scale=0.120000,0.250000,1.800000 bb=FIXED
+@10 write #6 op=cast/b_edge dur=1 pos=-0.200000,1.662673,1.111160 rot=-0.309017,0.000000,0.000000,0.951057 scale=0.120000,0.050000,1.800000 bb=FIXED
+@10 write #7 op=cast/b_handle dur=1 pos=-0.200000,0.613460,-0.249595 rot=-0.544639,0.000000,0.000000,0.838671 scale=0.120000,0.100000,0.600000 bb=FIXED
 @10 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@10 frame cast/shears op=cast/shears pos=0.000000,0.000000,0.000000 rot=0.000000,0.000000,0.000000,1.000000
-@10 frame cast/hinge_a op=cast/hinge_a pos=-0.295000,1.050000,0.450000 rot=0.190809,0.000000,0.000000,0.981627
-@10 frame cast/hinge_b op=cast/hinge_b pos=-0.205000,1.050000,0.450000 rot=-0.390731,0.000000,0.000000,0.920505
+@11 remove #0 op=cast/fold
+@11 remove #1 op=cast/spindle
 @11 move - op=- to=0,0,1.8 yaw=- pitch=-
 @11 hit - op=cast/dash/dash_hit[0] at=0.000000,0.900000,1.800000 r=0.800000 shape=sphere rad=0.800000
 @11 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=couture-rapier-s1 at=0.000000,0.900000,2.200000 ignoreinv=true ignorearmor=false
-@11 spawn #32 op=cast/crescent kind=block block=white_concrete pos=0.000000,1.950000,2.500000 rot=-0.382683,0.000000,0.000000,0.923880 scale=0.050000,3.300000,0.060000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@11 spawn #33 op=- kind=block block=white_concrete pos=0.000000,1.950000,2.500000 rot=0.382683,0.000000,0.000000,0.923880 scale=0.050000,3.300000,0.060000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@11 spawn #34 op=- kind=text text=%20 bg=#28201C shadow=false seethrough=false pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.960000,0.640000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #35 op=- kind=text text=%20 bg=#28201C shadow=false seethrough=false pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.960000,0.640000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #36 op=- kind=text text=%20 bg=#28201C shadow=false seethrough=false pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.960000,0.640000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #37 op=- kind=text text=%20 bg=#28201C shadow=false seethrough=false pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.960000,0.640000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #38 op=- kind=text text=%20 bg=#EAD9B0 shadow=false seethrough=false pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=4.000000,2.000000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #39 op=- kind=text text=%20 bg=#FFF5E9 shadow=false seethrough=false pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.580000,0.290000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #40 op=- kind=text text=%20 bg=#FFF5E9 shadow=false seethrough=false pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.580000,0.290000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #41 op=- kind=text text=%20 bg=#FFF5E9 shadow=false seethrough=false pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.580000,0.290000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #42 op=- kind=text text=%20 bg=#FFF5E9 shadow=false seethrough=false pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.580000,0.290000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #43 op=- kind=text text=%20 bg=#FFF5E9 shadow=false seethrough=false pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.580000,0.290000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #44 op=- kind=text text=%20 bg=#FFF5E9 shadow=false seethrough=false pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.580000,0.290000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #45 op=- kind=text text=%20 bg=#FFF5E9 shadow=false seethrough=false pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.580000,0.290000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #46 op=- kind=text text=%20 bg=#FFF5E9 shadow=false seethrough=false pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.580000,0.290000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 write #32 op=cast/crescent dur=3 pos=0.000000,1.950000,2.500000 rot=-0.382683,0.000000,0.000000,0.923880 scale=0.049250,3.300000,0.058800 bb=FIXED
-@11 write #33 op=- dur=3 pos=0.000000,1.950000,2.500000 rot=0.382683,0.000000,0.000000,0.923880 scale=0.049250,3.300000,0.058800 bb=FIXED
-@11 write #34 op=- dur=1 pos=0.000000,1.662971,2.120833 rot=0.000000,0.000000,0.000000,1.000000 scale=0.733512,0.553719,1.000000 bb=CENTER
-@11 write #35 op=- dur=1 pos=0.000000,1.789360,2.373611 rot=0.000000,0.000000,0.218806,0.975768 scale=0.733512,0.553719,1.000000 bb=CENTER
-@11 write #36 op=- dur=1 pos=0.000000,1.915749,2.626389 rot=0.000000,0.000000,0.427007,0.904248 scale=0.733512,0.553719,1.000000 bb=CENTER
-@11 write #37 op=- dur=1 pos=0.000000,2.042138,2.879167 rot=0.000000,0.000000,0.614515,0.788905 scale=0.733512,0.553719,1.000000 bb=CENTER
-@11 write #38 op=- dur=0 pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=16.000000,4.000000,1.000000 bb=CENTER
-@11 write #39 op=- dur=3 pos=0.176160,2.297630,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.345846,0.169319,1.000000 bb=CENTER
-@11 write #40 op=- dur=3 pos=-0.209460,2.206640,2.691910 rot=0.000000,0.000000,0.000000,1.000000 scale=0.345846,0.169319,1.000000 bb=CENTER
-@11 write #41 op=- dur=3 pos=0.029490,2.115680,2.163940 rot=0.000000,0.000000,0.000000,1.000000 scale=0.345846,0.169319,1.000000 bb=CENTER
-@11 write #42 op=- dur=3 pos=0.219690,2.024720,2.786530 rot=0.000000,0.000000,0.000000,1.000000 scale=0.345846,0.169319,1.000000 bb=CENTER
-@11 write #43 op=- dur=3 pos=-0.355500,1.933730,2.437120 rot=0.000000,0.000000,0.000000,1.000000 scale=0.345846,0.169319,1.000000 bb=CENTER
-@11 write #44 op=- dur=3 pos=0.284640,1.842770,2.318950 rot=0.000000,0.000000,0.000000,1.000000 scale=0.345846,0.169319,1.000000 bb=CENTER
-@11 write #45 op=- dur=3 pos=-0.073770,1.751780,2.774320 rot=0.000000,0.000000,0.000000,1.000000 scale=0.345846,0.169319,1.000000 bb=CENTER
-@11 write #46 op=- dur=3 pos=-0.081180,1.660820,2.343640 rot=0.000000,0.000000,0.000000,1.000000 scale=0.345846,0.169319,1.000000 bb=CENTER
-@11 particle - op=cast/dash/dash_hit.hit/sparks[0] type=stab-spark at=0.000000,2.000000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1074479212119996635
-@11 sound - op=cast/dash/dash_hit.hit/snd sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=0.000000,0.900000,2.500000
+@11 spawn #12 op=cast/crescent kind=block block=white_concrete pos=0.000000,0.825000,2.500000 rot=0.036352,0.000000,0.000000,0.999339 scale=0.050000,3.300000,0.050000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #13 op=- kind=block block=white_concrete pos=0.000000,0.825000,2.500000 rot=0.732344,0.000000,0.000000,0.680935 scale=0.050000,3.300000,0.050000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #14 op=- kind=text text=%20 bg=#28201C shadow=false seethrough=false pos=0.000000,0.818095,2.441152 rot=0.416015,0.000000,0.000000,0.909358 scale=1.200000,0.800000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@11 spawn #15 op=- kind=text text=%20 bg=#EAD9B0 shadow=false seethrough=false pos=0.000000,0.830000,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=4.000000,2.000000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@11 spawn #16 op=- kind=block block=white_concrete pos=0.000000,0.820000,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=0.050000,0.050000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #17 op=- kind=block block=white_concrete pos=0.000000,0.820000,2.500000 rot=0.384348,-0.159202,0.347996,0.840137 scale=0.050000,0.050000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #18 op=- kind=block block=white_concrete pos=0.000000,0.820000,2.500000 rot=0.294167,-0.294167,0.643013,0.643013 scale=0.050000,0.050000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #19 op=- kind=block block=white_concrete pos=0.000000,0.820000,2.500000 rot=0.159202,-0.384348,0.840137,0.347996 scale=0.050000,0.050000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 write #12 op=cast/crescent dur=3 pos=0.000000,0.825000,2.500000 rot=0.036352,0.000000,0.000000,0.999339 scale=0.040000,3.300000,0.040000 bb=FIXED
+@11 write #13 op=- dur=3 pos=0.000000,0.825000,2.500000 rot=0.732344,0.000000,0.000000,0.680935 scale=0.040000,3.300000,0.040000 bb=FIXED
+@11 write #14 op=- dur=6 pos=0.000000,0.818095,2.441152 rot=0.416015,0.000000,0.000000,0.909358 scale=0.360000,0.240000,1.000000 bb=CENTER
+@11 write #15 op=- dur=1 pos=0.000000,0.830000,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=8.000000,4.000000,1.000000 bb=CENTER
+@11 write #16 op=- dur=7 pos=0.000000,0.820000,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=0.005000,0.005000,0.480000 bb=FIXED
+@11 write #17 op=- dur=7 pos=0.000000,0.820000,2.500000 rot=0.384348,-0.159202,0.347996,0.840137 scale=0.005000,0.005000,0.480000 bb=FIXED
+@11 write #18 op=- dur=7 pos=0.000000,0.820000,2.500000 rot=0.294167,-0.294167,0.643013,0.643013 scale=0.005000,0.005000,0.480000 bb=FIXED
+@11 write #19 op=- dur=7 pos=0.000000,0.820000,2.500000 rot=0.159202,-0.384348,0.840137,0.347996 scale=0.005000,0.005000,0.480000 bb=FIXED
+@11 particle - op=cast/dash/dash_hit.hit/sparks[0] type=stab-spark at=0.000000,0.830000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8629271929592265302
+@11 sound - op=cast/dash/dash_hit.hit/snd sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=0.000000,0.810000,2.500000
 @11 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @11 effect 00000000-0000-0000-0000-00000000000a op=- hurt
-@11 frame cast/windup op=cast/windup pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
+@11 write #2 op=cast/a_blade dur=1 pos=-0.300000,0.701389,1.293190 rot=0.173648,0.000000,0.000000,0.984808 scale=0.120000,0.250000,1.800000 bb=FIXED
+@11 write #3 op=cast/a_edge dur=1 pos=-0.300000,0.798826,1.315686 rot=0.199368,0.000000,0.000000,0.979925 scale=0.120000,0.050000,1.800000 bb=FIXED
+@11 write #4 op=cast/a_handle dur=1 pos=-0.300000,1.424835,-0.284506 rot=-0.061049,0.000000,0.000000,0.998135 scale=0.120000,0.100000,0.600000 bb=FIXED
+@11 write #5 op=cast/b_blade dur=1 pos=-0.200000,1.424083,1.282203 rot=-0.230616,0.000000,0.000000,0.973045 scale=0.120000,0.250000,1.800000 bb=FIXED
+@11 write #6 op=cast/b_edge dur=1 pos=-0.200000,1.507310,1.226767 rot=-0.205065,0.000000,0.000000,0.978748 scale=0.120000,0.050000,1.800000 bb=FIXED
+@11 write #7 op=cast/b_handle dur=1 pos=-0.200000,0.772967,-0.326693 rot=-0.451397,0.000000,0.000000,0.892323 scale=0.120000,0.100000,0.600000 bb=FIXED
 @11 frame cast/anim op=cast/anim pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@11 frame cast/shears op=cast/shears pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@11 frame cast/hinge_a op=cast/hinge_a pos=-0.295000,1.050000,2.250000 rot=0.113203,0.000000,0.000000,0.993572
-@11 frame cast/hinge_b op=cast/hinge_b pos=-0.205000,1.050000,2.250000 rot=-0.289589,0.000000,0.000000,0.957151
-@11 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000
-@11 frame cast/dash/dash_hit.hit/sparks_at op=cast/dash/dash_hit.hit/sparks_at pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000
 @12 hit - op=cast/dash/dash_hit[1] at=0.000000,0.900000,1.800000 r=0.800000 shape=sphere rad=0.800000
-@12 write #34 op=- dur=1 pos=0.000000,1.437051,1.866667 rot=0.000000,0.000000,0.000000,1.000000 scale=0.581690,0.495882,1.000000 bb=CENTER
-@12 write #35 op=- dur=1 pos=0.000000,1.648162,2.288889 rot=0.000000,0.000000,0.360178,0.932884 scale=0.581690,0.495882,1.000000 bb=CENTER
-@12 write #36 op=- dur=1 pos=0.000000,1.859273,2.711111 rot=0.000000,0.000000,0.672008,0.740544 scale=0.581690,0.495882,1.000000 bb=CENTER
-@12 write #37 op=- dur=1 pos=0.000000,2.070384,3.133333 rot=0.000000,0.000000,0.893633,0.448799 scale=0.581690,0.495882,1.000000 bb=CENTER
-@12 write #38 op=- dur=0 pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=48.000000,12.000000,1.000000 bb=CENTER
-@12 frame cast/windup op=cast/windup pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
+@12 write #15 op=- dur=4 pos=0.000000,0.896647,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=10.000000,5.000000,1.000000 bb=CENTER
+@12 write #2 op=cast/a_blade dur=1 pos=-0.300000,0.837585,3.137344 rot=0.095846,0.000000,0.000000,0.995396 scale=0.120000,0.250000,1.800000 bb=FIXED
+@12 write #3 op=cast/a_edge dur=1 pos=-0.300000,0.937341,3.144320 rot=0.121869,0.000000,0.000000,0.992546 scale=0.120000,0.050000,1.800000 bb=FIXED
+@12 write #4 op=cast/a_handle dur=1 pos=-0.300000,1.305318,1.465900 rot=-0.139173,0.000000,0.000000,0.990268 scale=0.120000,0.100000,0.600000 bb=FIXED
+@12 write #5 op=cast/b_blade dur=1 pos=-0.200000,1.237692,3.142901 rot=-0.124756,0.000000,0.000000,0.992187 scale=0.120000,0.250000,1.800000 bb=FIXED
+@12 write #6 op=cast/b_edge dur=1 pos=-0.200000,1.330840,3.106521 rot=-0.098741,0.000000,0.000000,0.995113 scale=0.120000,0.050000,1.800000 bb=FIXED
+@12 write #7 op=cast/b_handle dur=1 pos=-0.200000,0.945261,1.432058 rot=-0.352931,0.000000,0.000000,0.935650 scale=0.120000,0.100000,0.600000 bb=FIXED
+@12 write #8 op=cast/flower[0] dur=1 pos=0.000000,1.050000,2.250000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.060000,0.060000,0.500000 bb=FIXED
+@12 write #9 op=cast/flower[1] dur=1 pos=0.000000,1.050000,2.250000 rot=0.000000,0.000000,0.382683,0.923880 scale=0.060000,0.060000,0.500000 bb=FIXED
+@12 write #10 op=cast/flower[2] dur=1 pos=0.000000,1.050000,2.250000 rot=0.000000,0.000000,0.707107,0.707107 scale=0.060000,0.060000,0.500000 bb=FIXED
+@12 write #11 op=cast/flower[3] dur=1 pos=0.000000,1.050000,2.250000 rot=0.000000,0.000000,0.923880,0.382683 scale=0.060000,0.060000,0.500000 bb=FIXED
+@12 write #12 op=cast/crescent dur=1 pos=0.000000,0.874985,2.500000 rot=0.036352,0.000000,0.000000,0.999339 scale=0.046667,3.300000,0.046667 bb=FIXED
+@12 write #13 op=- dur=1 pos=0.000000,0.874985,2.500000 rot=0.732344,0.000000,0.000000,0.680935 scale=0.046667,3.300000,0.046667 bb=FIXED
+@12 write #14 op=- dur=1 pos=0.000000,0.845071,2.245051 rot=0.416015,0.000000,0.000000,0.909358 scale=1.060000,0.706667,1.000000 bb=CENTER
+@12 write #15 op=- dur=1 pos=0.000000,0.896647,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=8.000000,4.000000,1.000000 bb=CENTER
+@12 write #16 op=- dur=1 pos=0.000000,0.853324,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=0.043571,0.043571,1.440000 bb=FIXED
+@12 write #17 op=- dur=1 pos=0.000000,0.853324,2.500000 rot=0.384348,-0.159202,0.347996,0.840137 scale=0.043571,0.043571,1.440000 bb=FIXED
+@12 write #18 op=- dur=1 pos=0.000000,0.853324,2.500000 rot=0.294167,-0.294167,0.643013,0.643013 scale=0.043571,0.043571,1.440000 bb=FIXED
+@12 write #19 op=- dur=1 pos=0.000000,0.853324,2.500000 rot=0.159202,-0.384348,0.840137,0.347996 scale=0.043571,0.043571,1.440000 bb=FIXED
 @12 frame cast/anim op=cast/anim pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@12 frame cast/shears op=cast/shears pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@12 frame cast/hinge_a op=cast/hinge_a pos=-0.295000,1.050000,2.250000 rot=0.034899,0.000000,0.000000,0.999391
-@12 frame cast/hinge_b op=cast/hinge_b pos=-0.205000,1.050000,2.250000 rot=-0.185095,0.000000,0.000000,0.982721
-@12 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000
-@12 frame cast/dash/dash_hit.hit/sparks_at op=cast/dash/dash_hit.hit/sparks_at pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000
-@13 spawn #47 op=- kind=sprite sprite=couture-cut alpha=1.000000 tint=- seethrough=false pos=0.000000,1.000000,1.600000 rot=0.000000,0.000000,-0.500000,0.866025 scale=1.625000,1.250000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@13 write #6 op=cast/blade_a[0] dur=5 pos=-0.295000,1.001250,2.647020 rot=0.207912,0.000000,0.000000,0.978148 scale=0.060000,0.190000,0.800000 bb=FIXED
-@13 write #7 op=cast/blade_a[1] dur=5 pos=-0.295000,0.915940,3.341800 rot=0.207912,0.000000,0.000000,0.978148 scale=0.060000,0.120000,0.600000 bb=FIXED
-@13 write #8 op=cast/blade_a[2] dur=5 pos=-0.295000,0.855010,3.838070 rot=0.207912,0.000000,0.000000,0.978148 scale=0.060000,0.045000,0.400000 bb=FIXED
-@13 write #9 op=cast/edge_a[0] dur=5 pos=-0.295000,1.060660,2.654310 rot=0.239119,0.000000,0.000000,0.970990 scale=0.060000,0.025000,0.801640 bb=FIXED
-@13 write #10 op=cast/edge_a[1] dur=5 pos=-0.295000,0.953460,3.346410 rot=0.234217,0.000000,0.000000,0.972184 scale=0.060000,0.025000,0.600870 bb=FIXED
-@13 write #11 op=cast/edge_a[2] dur=5 pos=-0.295000,0.869080,3.839800 rot=0.222738,0.000000,0.000000,0.974878 scale=0.060000,0.025000,0.400180 bb=FIXED
-@13 write #12 op=cast/handle_a[0] dur=5 pos=-0.295000,1.182340,2.074820 rot=-0.824126,0.000000,0.000000,0.566406 scale=0.060000,0.045000,0.311130 bb=FIXED
-@13 write #13 op=cast/handle_a[1] dur=5 pos=-0.295000,1.317450,1.753900 rot=-0.984525,0.000000,0.000000,0.175246 scale=0.060000,0.045000,0.451000 bb=FIXED
-@13 write #14 op=cast/handle_a[2] dur=5 pos=-0.295000,1.242400,1.462580 rot=0.951241,0.000000,0.000000,0.308448 scale=0.060000,0.045000,0.219540 bb=FIXED
-@13 write #15 op=cast/handle_a[3] dur=5 pos=-0.295000,1.031790,1.577770 rot=0.431690,0.000000,0.000000,0.902022 scale=0.060000,0.045000,0.438290 bb=FIXED
-@13 write #16 op=cast/handle_a[4] dur=5 pos=-0.295000,0.984260,1.964860 rot=-0.027483,0.000000,0.000000,0.999622 scale=0.060000,0.045000,0.438290 bb=FIXED
-@13 write #17 op=cast/blade_b[0] dur=5 pos=-0.205000,1.001250,2.647020 rot=0.139173,0.000000,0.000000,0.990268 scale=0.060000,0.190000,0.800000 bb=FIXED
-@13 write #18 op=cast/blade_b[1] dur=5 pos=-0.205000,0.915940,3.341800 rot=0.139173,0.000000,0.000000,0.990268 scale=0.060000,0.120000,0.600000 bb=FIXED
-@13 write #19 op=cast/blade_b[2] dur=5 pos=-0.205000,0.855010,3.838070 rot=0.139173,0.000000,0.000000,0.990268 scale=0.060000,0.045000,0.400000 bb=FIXED
-@13 write #20 op=cast/edge_b[0] dur=5 pos=-0.205000,1.060660,2.654310 rot=0.170803,0.000000,0.000000,0.985305 scale=0.060000,0.025000,0.801640 bb=FIXED
-@13 write #21 op=cast/edge_b[1] dur=5 pos=-0.205000,0.953460,3.346410 rot=0.165830,0.000000,0.000000,0.986154 scale=0.060000,0.025000,0.600870 bb=FIXED
-@13 write #22 op=cast/edge_b[2] dur=5 pos=-0.205000,0.869080,3.839800 rot=0.154191,0.000000,0.000000,0.988041 scale=0.060000,0.025000,0.400180 bb=FIXED
-@13 write #23 op=cast/handle_b[0] dur=5 pos=-0.205000,1.182340,2.074820 rot=-0.861629,0.000000,0.000000,0.507538 scale=0.060000,0.045000,0.311130 bb=FIXED
-@13 write #24 op=cast/handle_b[1] dur=5 pos=-0.205000,1.317450,1.753900 rot=-0.994351,0.000000,0.000000,0.106142 scale=0.060000,0.045000,0.451000 bb=FIXED
-@13 write #25 op=cast/handle_b[2] dur=5 pos=-0.205000,1.242400,1.462580 rot=0.927408,0.000000,0.000000,0.374052 scale=0.060000,0.045000,0.219540 bb=FIXED
-@13 write #26 op=cast/handle_b[3] dur=5 pos=-0.205000,1.031790,1.577770 rot=0.367716,0.000000,0.000000,0.929938 scale=0.060000,0.045000,0.438290 bb=FIXED
-@13 write #27 op=cast/handle_b[4] dur=5 pos=-0.205000,0.984260,1.964860 rot=-0.097146,0.000000,0.000000,0.995270 scale=0.060000,0.045000,0.438290 bb=FIXED
-@13 write #47 op=- dur=3 pos=0.000000,0.900001,1.500001 rot=0.000000,0.000000,-0.500000,0.866025 scale=2.015000,1.449999,1.000000 bb=CENTER
+@13 spawn #20 op=- kind=sprite sprite=couture-cut alpha=1.000000 tint=- seethrough=false pos=0.000000,1.000000,1.600000 rot=0.000000,0.000000,-0.500000,0.866025 scale=1.625000,1.250000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @13 hit - op=cast/dash/dash_hit[2] at=0.000000,0.900000,1.800000 r=0.800000 shape=sphere rad=0.800000
-@13 write #34 op=- dur=1 pos=0.000000,1.300018,1.712500 rot=0.000000,0.000000,0.000000,1.000000 scale=0.489602,0.460801,1.000000 bb=CENTER
-@13 write #35 op=- dur=1 pos=0.000000,1.562518,2.237500 rot=0.000000,0.000000,0.442289,0.896873 scale=0.489602,0.460801,1.000000 bb=CENTER
-@13 write #36 op=- dur=1 pos=0.000000,1.825018,2.762500 rot=0.000000,0.000000,0.793353,0.608761 scale=0.489602,0.460801,1.000000 bb=CENTER
-@13 write #37 op=- dur=1 pos=0.000000,2.087518,3.287500 rot=0.000000,0.000000,0.980785,0.195090 scale=0.489602,0.460801,1.000000 bb=CENTER
-@13 write #38 op=- dur=1 pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=56.000000,14.000000,1.000000 bb=CENTER
-@13 frame cast/windup op=cast/windup pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
+@13 write #2 op=cast/a_blade dur=1 pos=-0.300000,0.979011,3.159649 rot=0.017452,0.000000,0.000000,0.999848 scale=0.120000,0.250000,1.800000 bb=FIXED
+@13 write #3 op=cast/a_edge dur=1 pos=-0.300000,1.078630,3.150933 rot=0.043619,0.000000,0.000000,0.999048 scale=0.120000,0.050000,1.800000 bb=FIXED
+@13 write #4 op=cast/a_handle dur=1 pos=-0.300000,1.179514,1.435613 rot=-0.216440,0.000000,0.000000,0.976296 scale=0.120000,0.100000,0.600000 bb=FIXED
+@13 write #5 op=cast/b_blade dur=1 pos=-0.200000,1.042638,3.162385 rot=-0.017452,0.000000,0.000000,0.999848 scale=0.120000,0.250000,1.800000 bb=FIXED
+@13 write #6 op=cast/b_edge dur=1 pos=-0.200000,1.141407,3.146741 rot=0.008727,0.000000,0.000000,0.999962 scale=0.120000,0.050000,1.800000 bb=FIXED
+@13 write #7 op=cast/b_handle dur=1 pos=-0.200000,1.122390,1.428562 rot=-0.250380,0.000000,0.000000,0.968148 scale=0.120000,0.100000,0.600000 bb=FIXED
+@13 write #12 op=cast/crescent dur=1 pos=0.000000,0.910802,2.500000 rot=0.036352,0.000000,0.000000,0.999339 scale=0.043333,3.300000,0.043333 bb=FIXED
+@13 write #13 op=- dur=1 pos=0.000000,0.910802,2.500000 rot=0.732344,0.000000,0.000000,0.680935 scale=0.043333,3.300000,0.043333 bb=FIXED
+@13 write #14 op=- dur=1 pos=0.000000,0.864400,2.104537 rot=0.416015,0.000000,0.000000,0.909358 scale=0.920000,0.613333,1.000000 bb=CENTER
+@13 write #15 op=- dur=1 pos=0.000000,0.944402,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=8.500000,4.250000,1.000000 bb=CENTER
+@13 write #16 op=- dur=1 pos=0.000000,0.877201,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=0.037143,0.037143,1.280000 bb=FIXED
+@13 write #17 op=- dur=1 pos=0.000000,0.877201,2.500000 rot=0.384348,-0.159202,0.347996,0.840137 scale=0.037143,0.037143,1.280000 bb=FIXED
+@13 write #18 op=- dur=1 pos=0.000000,0.877201,2.500000 rot=0.294167,-0.294167,0.643013,0.643013 scale=0.037143,0.037143,1.280000 bb=FIXED
+@13 write #19 op=- dur=1 pos=0.000000,0.877201,2.500000 rot=0.159202,-0.384348,0.840137,0.347996 scale=0.037143,0.037143,1.280000 bb=FIXED
 @13 frame cast/anim op=cast/anim pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@13 frame cast/shears op=cast/shears pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@13 frame cast/hinge_a op=cast/hinge_a pos=-0.295000,1.050000,2.250000 rot=-0.043619,0.000000,0.000000,0.999048
-@13 frame cast/hinge_b op=cast/hinge_b pos=-0.205000,1.050000,2.250000 rot=-0.078459,0.000000,0.000000,0.996917
-@13 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000
-@13 frame cast/passage op=cast/passage pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
 @14 hit - op=cast/dash/dash_hit[3] at=0.000000,0.900000,1.800000 r=0.800000 shape=sphere rad=0.800000
-@14 write #32 op=cast/crescent dur=5 pos=0.000000,1.950000,2.500000 rot=-0.382683,0.000000,0.000000,0.923880 scale=0.047526,3.300000,0.056448 bb=FIXED
-@14 write #33 op=- dur=5 pos=0.000000,1.950000,2.500000 rot=0.382683,0.000000,0.000000,0.923880 scale=0.047526,3.300000,0.056448 bb=FIXED
-@14 write #34 op=- dur=1 pos=0.000000,1.229649,1.633333 rot=0.000000,0.000000,0.000000,1.000000 scale=0.442313,0.442786,1.000000 bb=CENTER
-@14 write #35 op=- dur=1 pos=0.000000,1.518538,2.211111 rot=0.000000,0.000000,0.483113,0.875558 scale=0.442313,0.442786,1.000000 bb=CENTER
-@14 write #36 op=- dur=1 pos=0.000000,1.807427,2.788889 rot=0.000000,0.000000,0.845986,0.533204 scale=0.442313,0.442786,1.000000 bb=CENTER
-@14 write #37 op=- dur=1 pos=0.000000,2.096316,3.366667 rot=0.000000,0.000000,0.998308,0.058145 scale=0.442313,0.442786,1.000000 bb=CENTER
-@14 write #38 op=- dur=1 pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=60.000000,15.000000,1.000000 bb=CENTER
-@14 write #39 op=- dur=4 pos=0.358640,2.605910,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.033640,0.008410,1.000000 bb=CENTER
-@14 write #40 op=- dur=4 pos=-0.426420,2.420720,2.890670 rot=0.000000,0.000000,0.000000,1.000000 scale=0.033640,0.008410,1.000000 bb=CENTER
-@14 write #41 op=- dur=4 pos=0.060050,2.235520,1.815820 rot=0.000000,0.000000,0.000000,1.000000 scale=0.033640,0.008410,1.000000 bb=CENTER
-@14 write #42 op=- dur=4 pos=0.447250,2.050320,3.083330 rot=0.000000,0.000000,0.000000,1.000000 scale=0.033640,0.008410,1.000000 bb=CENTER
-@14 write #43 op=- dur=4 pos=-0.723740,1.865090,2.372000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.033640,0.008410,1.000000 bb=CENTER
-@14 write #44 op=- dur=4 pos=0.579480,1.679890,2.131390 rot=0.000000,0.000000,0.000000,1.000000 scale=0.033640,0.008410,1.000000 bb=CENTER
-@14 write #45 op=- dur=4 pos=-0.150170,1.494660,3.058480 rot=0.000000,0.000000,0.000000,1.000000 scale=0.033640,0.008410,1.000000 bb=CENTER
-@14 write #46 op=- dur=4 pos=-0.165300,1.309460,2.181680 rot=0.000000,0.000000,0.000000,1.000000 scale=0.033640,0.008410,1.000000 bb=CENTER
-@14 particle - op=cast/dash/dash_hit.hit/sparks[1] type=stab-spark at=0.000000,2.000000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4927271760141999960
-@14 frame cast/windup op=cast/windup pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
+@14 write #12 op=cast/crescent dur=5 pos=0.000000,0.934810,2.500000 rot=0.036352,0.000000,0.000000,0.999339 scale=0.010000,3.300000,0.010000 bb=FIXED
+@14 write #13 op=- dur=5 pos=0.000000,0.934810,2.500000 rot=0.732344,0.000000,0.000000,0.680935 scale=0.010000,3.300000,0.010000 bb=FIXED
+@14 particle - op=cast/dash/dash_hit.hit/sparks[1] type=stab-spark at=0.000000,0.976414,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2254547660879320251
+@14 write #2 op=cast/a_blade dur=1 pos=-0.300000,0.909433,3.151521 rot=0.055822,0.000000,0.000000,0.998441 scale=0.120000,0.250000,1.800000 bb=FIXED
+@14 write #3 op=cast/a_edge dur=1 pos=-0.300000,1.009427,3.150474 rot=0.081939,0.000000,0.000000,0.996637 scale=0.120000,0.050000,1.800000 bb=FIXED
+@14 write #4 op=cast/a_handle dur=1 pos=-0.300000,1.241612,1.447950 rot=-0.178802,0.000000,0.000000,0.983885 scale=0.120000,0.100000,0.600000 bb=FIXED
+@14 write #5 op=cast/b_blade dur=1 pos=-0.200000,0.985363,3.160122 rot=0.013962,0.000000,0.000000,0.999903 scale=0.120000,0.250000,1.800000 bb=FIXED
+@14 write #6 op=cast/b_edge dur=1 pos=-0.200000,1.084919,3.150711 rot=0.040132,0.000000,0.000000,0.999194 scale=0.120000,0.050000,1.800000 bb=FIXED
+@14 write #7 op=cast/b_handle dur=1 pos=-0.200000,1.173826,1.434729 rot=-0.219846,0.000000,0.000000,0.975535 scale=0.120000,0.100000,0.600000 bb=FIXED
+@14 write #12 op=cast/crescent dur=1 pos=0.000000,0.934810,2.500000 rot=0.036352,0.000000,0.000000,0.999339 scale=0.040000,3.300000,0.040000 bb=FIXED
+@14 write #13 op=- dur=1 pos=0.000000,0.934810,2.500000 rot=0.732344,0.000000,0.000000,0.680935 scale=0.040000,3.300000,0.040000 bb=FIXED
+@14 write #14 op=- dur=1 pos=0.000000,0.877357,2.010346 rot=0.416015,0.000000,0.000000,0.909358 scale=0.780000,0.520000,1.000000 bb=CENTER
+@14 write #15 op=- dur=1 pos=0.000000,0.976414,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=9.000000,4.500000,1.000000 bb=CENTER
+@14 write #16 op=- dur=1 pos=0.000000,0.893207,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=0.030714,0.030714,1.120000 bb=FIXED
+@14 write #17 op=- dur=1 pos=0.000000,0.893207,2.500000 rot=0.384348,-0.159202,0.347996,0.840137 scale=0.030714,0.030714,1.120000 bb=FIXED
+@14 write #18 op=- dur=1 pos=0.000000,0.893207,2.500000 rot=0.294167,-0.294167,0.643013,0.643013 scale=0.030714,0.030714,1.120000 bb=FIXED
+@14 write #19 op=- dur=1 pos=0.000000,0.893207,2.500000 rot=0.159202,-0.384348,0.840137,0.347996 scale=0.030714,0.030714,1.120000 bb=FIXED
 @14 frame cast/anim op=cast/anim pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@14 frame cast/shears op=cast/shears pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@14 frame cast/hinge_a op=cast/hinge_a pos=-0.295000,1.050000,2.250000 rot=-0.005236,0.000000,0.000000,0.999986
-@14 frame cast/hinge_b op=cast/hinge_b pos=-0.205000,1.050000,2.250000 rot=-0.047107,0.000000,0.000000,0.998890
-@14 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000
-@14 frame cast/passage op=cast/passage pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@14 remove #0 op=cast/fold_0
-@14 remove #1 op=cast/fold_1
-@14 remove #2 op=cast/fold_2
-@14 remove #3 op=cast/fold_3
-@14 remove #4 op=cast/fold_4
-@14 remove #5 op=cast/spindle
 @15 hit - op=cast/dash/dash_hit[4] at=0.000000,0.900000,1.800000 r=0.800000 shape=sphere rad=0.800000
-@15 write #34 op=- dur=1 pos=0.000000,1.203724,1.604167 rot=0.000000,0.000000,0.000000,1.000000 scale=0.424891,0.436149,1.000000 bb=CENTER
-@15 write #35 op=- dur=1 pos=0.000000,1.502335,2.201389 rot=0.000000,0.000000,0.497899,0.867235 scale=0.424891,0.436149,1.000000 bb=CENTER
-@15 write #36 op=- dur=1 pos=0.000000,1.800946,2.798611 rot=0.000000,0.000000,0.863591,0.504193 scale=0.424891,0.436149,1.000000 bb=CENTER
-@15 write #37 op=- dur=1 pos=0.000000,2.099557,3.395833 rot=0.000000,0.000000,0.999974,0.007272 scale=0.424891,0.436149,1.000000 bb=CENTER
-@15 write #38 op=- dur=1 pos=0.000000,2.000000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=64.000000,16.000000,1.000000 bb=CENTER
+@15 write #2 op=cast/a_blade dur=1 pos=-0.300000,0.840683,3.138080 rot=0.094108,0.000000,0.000000,0.995562 scale=0.120000,0.250000,1.800000 bb=FIXED
+@15 write #3 op=cast/a_edge dur=1 pos=-0.300000,0.940463,3.144708 rot=0.120137,0.000000,0.000000,0.992757 scale=0.120000,0.050000,1.800000 bb=FIXED
+@15 write #4 op=cast/a_handle dur=1 pos=-0.300000,1.302579,1.465014 rot=-0.140901,0.000000,0.000000,0.990024 scale=0.120000,0.100000,0.600000 bb=FIXED
+@15 write #5 op=cast/b_blade dur=1 pos=-0.200000,0.928344,3.154268 rot=0.045363,0.000000,0.000000,0.998971 scale=0.120000,0.250000,1.800000 bb=FIXED
+@15 write #6 op=cast/b_edge dur=1 pos=-0.200000,1.028294,3.151126 rot=0.071497,0.000000,0.000000,0.997441 scale=0.120000,0.050000,1.800000 bb=FIXED
+@15 write #7 op=cast/b_handle dur=1 pos=-0.200000,1.224773,1.444113 rot=-0.189095,0.000000,0.000000,0.981959 scale=0.120000,0.100000,0.600000 bb=FIXED
+@15 write #12 op=cast/crescent dur=1 pos=0.000000,0.949373,2.500000 rot=0.036352,0.000000,0.000000,0.999339 scale=0.034000,3.300000,0.034000 bb=FIXED
+@15 write #13 op=- dur=1 pos=0.000000,0.949373,2.500000 rot=0.732344,0.000000,0.000000,0.680935 scale=0.034000,3.300000,0.034000 bb=FIXED
+@15 write #14 op=- dur=1 pos=0.000000,0.885217,1.953214 rot=0.416015,0.000000,0.000000,0.909358 scale=0.640000,0.426667,1.000000 bb=CENTER
+@15 write #15 op=- dur=1 pos=0.000000,0.995831,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=9.500000,4.750000,1.000000 bb=CENTER
+@15 write #16 op=- dur=1 pos=0.000000,0.902915,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=0.024286,0.024286,0.960000 bb=FIXED
+@15 write #17 op=- dur=1 pos=0.000000,0.902915,2.500000 rot=0.384348,-0.159202,0.347996,0.840137 scale=0.024286,0.024286,0.960000 bb=FIXED
+@15 write #18 op=- dur=1 pos=0.000000,0.902915,2.500000 rot=0.294167,-0.294167,0.643013,0.643013 scale=0.024286,0.024286,0.960000 bb=FIXED
+@15 write #19 op=- dur=1 pos=0.000000,0.902915,2.500000 rot=0.159202,-0.384348,0.840137,0.347996 scale=0.024286,0.024286,0.960000 bb=FIXED
 @15 frame cast/anim op=cast/anim pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@15 frame cast/shears op=cast/shears pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@15 frame cast/hinge_a op=cast/hinge_a pos=-0.295000,1.050000,2.250000 rot=0.033155,0.000000,0.000000,0.999450
-@15 frame cast/hinge_b op=cast/hinge_b pos=-0.205000,1.050000,2.250000 rot=-0.015707,0.000000,0.000000,0.999877
-@15 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000
-@15 frame cast/passage op=cast/passage pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@16 write #47 op=- dur=4 pos=0.000000,0.850001,1.400001 rot=0.000000,0.000000,-0.500000,0.866025 scale=2.337400,0.522000,1.000000 bb=CENTER
-@16 write #34 op=- dur=1 pos=0.000000,1.200020,1.600000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.422402,0.435201,1.000000 bb=CENTER
-@16 write #35 op=- dur=1 pos=0.000000,1.500020,2.200000 rot=0.000000,0.000000,0.500000,0.866025 scale=0.422402,0.435201,1.000000 bb=CENTER
-@16 write #36 op=- dur=1 pos=0.000000,1.800020,2.800000 rot=0.000000,0.000000,0.866025,0.500000 scale=0.422402,0.435201,1.000000 bb=CENTER
-@16 write #37 op=- dur=1 pos=0.000000,2.100020,3.400000 rot=0.000000,0.000000,1.000000,0.000000 scale=0.422402,0.435201,1.000000 bb=CENTER
+@16 write #2 op=cast/a_blade dur=1 pos=-0.300000,0.773168,3.119404 rot=0.132256,0.000000,0.000000,0.991216 scale=0.120000,0.250000,1.800000 bb=FIXED
+@16 write #3 op=cast/a_edge dur=1 pos=-0.300000,0.872145,3.133667 rot=0.158158,0.000000,0.000000,0.987414 scale=0.120000,0.050000,1.800000 bb=FIXED
+@16 write #4 op=cast/a_handle dur=1 pos=-0.300000,1.362058,1.486705 rot=-0.102793,0.000000,0.000000,0.994703 scale=0.120000,0.100000,0.600000 bb=FIXED
+@16 write #5 op=cast/b_blade dur=1 pos=-0.200000,0.871804,3.144844 rot=0.076719,0.000000,0.000000,0.997053 scale=0.120000,0.250000,1.800000 bb=FIXED
+@16 write #6 op=cast/b_edge dur=1 pos=-0.200000,0.971755,3.147985 rot=0.102793,0.000000,0.000000,0.994703 scale=0.120000,0.050000,1.800000 bb=FIXED
+@16 write #7 op=cast/b_handle dur=1 pos=-0.200000,1.275030,1.456677 rot=-0.158158,0.000000,0.000000,0.987414 scale=0.120000,0.100000,0.600000 bb=FIXED
+@16 write #12 op=cast/crescent dur=1 pos=0.000000,0.956851,2.500000 rot=0.036352,0.000000,0.000000,0.999339 scale=0.028000,3.300000,0.028000 bb=FIXED
+@16 write #13 op=- dur=1 pos=0.000000,0.956851,2.500000 rot=0.732344,0.000000,0.000000,0.680935 scale=0.028000,3.300000,0.028000 bb=FIXED
+@16 write #14 op=- dur=1 pos=0.000000,0.889252,1.923876 rot=0.416015,0.000000,0.000000,0.909358 scale=0.500000,0.333333,1.000000 bb=CENTER
+@16 write #15 op=- dur=1 pos=0.000000,1.005802,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=10.000000,5.000000,1.000000 bb=CENTER
+@16 write #16 op=- dur=1 pos=0.000000,0.907901,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=0.017857,0.017857,0.800000 bb=FIXED
+@16 write #17 op=- dur=1 pos=0.000000,0.907901,2.500000 rot=0.384348,-0.159202,0.347996,0.840137 scale=0.017857,0.017857,0.800000 bb=FIXED
+@16 write #18 op=- dur=1 pos=0.000000,0.907901,2.500000 rot=0.294167,-0.294167,0.643013,0.643013 scale=0.017857,0.017857,0.800000 bb=FIXED
+@16 write #19 op=- dur=1 pos=0.000000,0.907901,2.500000 rot=0.159202,-0.384348,0.840137,0.347996 scale=0.017857,0.017857,0.800000 bb=FIXED
 @16 frame cast/anim op=cast/anim pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@16 frame cast/shears op=cast/shears pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@16 frame cast/hinge_a op=cast/hinge_a pos=-0.295000,1.050000,2.250000 rot=0.071497,0.000000,0.000000,0.997441
-@16 frame cast/hinge_b op=cast/hinge_b pos=-0.205000,1.050000,2.250000 rot=0.015707,0.000000,0.000000,0.999877
-@16 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000
-@16 frame cast/passage op=cast/passage pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
+@17 write #2 op=cast/a_blade dur=1 pos=-0.300000,0.707284,3.095604 rot=0.170209,0.000000,0.000000,0.985408 scale=0.120000,0.250000,1.800000 bb=FIXED
+@17 write #3 op=cast/a_edge dur=1 pos=-0.300000,0.804875,3.117418 rot=0.195946,0.000000,0.000000,0.980615 scale=0.120000,0.050000,1.800000 bb=FIXED
+@17 write #4 op=cast/a_handle dur=1 pos=-0.300000,1.419698,1.512895 rot=-0.064532,0.000000,0.000000,0.997916 scale=0.120000,0.100000,0.600000 bb=FIXED
+@17 write #5 op=cast/b_blade dur=1 pos=-0.200000,0.815968,3.131890 rot=0.107999,0.000000,0.000000,0.994151 scale=0.120000,0.250000,1.800000 bb=FIXED
+@17 write #6 op=cast/b_edge dur=1 pos=-0.200000,0.915524,3.141300 rot=0.133986,0.000000,0.000000,0.990983 scale=0.120000,0.050000,1.800000 bb=FIXED
+@17 write #7 op=cast/b_handle dur=1 pos=-0.200000,1.324399,1.472372 rot=-0.127065,0.000000,0.000000,0.991894 scale=0.120000,0.100000,0.600000 bb=FIXED
+@17 write #12 op=cast/crescent dur=1 pos=0.000000,0.959606,2.500000 rot=0.036352,0.000000,0.000000,0.999339 scale=0.022000,3.300000,0.022000 bb=FIXED
+@17 write #13 op=- dur=1 pos=0.000000,0.959606,2.500000 rot=0.732344,0.000000,0.000000,0.680935 scale=0.022000,3.300000,0.022000 bb=FIXED
+@17 write #14 op=- dur=1 pos=0.000000,0.890739,1.913067 rot=0.416015,0.000000,0.000000,0.909358 scale=0.360000,0.240000,1.000000 bb=CENTER
+@17 write #15 op=- dur=1 pos=0.000000,1.009475,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=10.000000,5.000000,1.000000 bb=CENTER
+@17 write #16 op=- dur=1 pos=0.000000,0.909738,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=0.011429,0.011429,0.640000 bb=FIXED
+@17 write #17 op=- dur=1 pos=0.000000,0.909738,2.500000 rot=0.384348,-0.159202,0.347996,0.840137 scale=0.011429,0.011429,0.640000 bb=FIXED
+@17 write #18 op=- dur=1 pos=0.000000,0.909738,2.500000 rot=0.294167,-0.294167,0.643013,0.643013 scale=0.011429,0.011429,0.640000 bb=FIXED
+@17 write #19 op=- dur=1 pos=0.000000,0.909738,2.500000 rot=0.159202,-0.384348,0.840137,0.347996 scale=0.011429,0.011429,0.640000 bb=FIXED
 @17 frame cast/anim op=cast/anim pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@17 frame cast/shears op=cast/shears pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@17 frame cast/hinge_a op=cast/hinge_a pos=-0.295000,1.050000,2.250000 rot=0.109734,0.000000,0.000000,0.993961
-@17 frame cast/hinge_b op=cast/hinge_b pos=-0.205000,1.050000,2.250000 rot=0.047106,0.000000,0.000000,0.998890
-@17 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000
-@17 frame cast/passage op=cast/passage pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@17 remove #38 op=-
-@18 write #6 op=cast/blade_a[0] dur=3 pos=-0.295000,1.001250,2.647020 rot=0.333807,0.000000,0.000000,0.942641 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #7 op=cast/blade_a[1] dur=3 pos=-0.295000,0.915940,3.341800 rot=0.333807,0.000000,0.000000,0.942641 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #8 op=cast/blade_a[2] dur=3 pos=-0.295000,0.855010,3.838070 rot=0.333807,0.000000,0.000000,0.942641 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #9 op=cast/edge_a[0] dur=3 pos=-0.295000,1.060660,2.654310 rot=0.363813,0.000000,0.000000,0.931472 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #10 op=cast/edge_a[1] dur=3 pos=-0.295000,0.953460,3.346410 rot=0.359109,0.000000,0.000000,0.933296 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #11 op=cast/edge_a[2] dur=3 pos=-0.295000,0.869080,3.839800 rot=0.348080,0.000000,0.000000,0.937465 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #12 op=cast/handle_a[0] dur=3 pos=-0.295000,1.182340,2.074820 rot=-0.743145,0.000000,0.000000,0.669131 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #13 op=cast/handle_a[1] dur=3 pos=-0.295000,1.317450,1.753900 rot=-0.953228,0.000000,0.000000,0.302253 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #14 op=cast/handle_a[2] dur=3 pos=-0.295000,1.242400,1.462580 rot=0.983364,0.000000,0.000000,0.181647 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #15 op=cast/handle_a[3] dur=3 pos=-0.295000,1.031790,1.577770 rot=0.545734,0.000000,0.000000,0.837958 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #16 op=cast/handle_a[4] dur=3 pos=-0.295000,0.984260,1.964860 rot=0.103229,0.000000,0.000000,0.994658 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #17 op=cast/blade_b[0] dur=3 pos=-0.205000,1.001250,2.647020 rot=0.267238,0.000000,0.000000,0.963630 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #18 op=cast/blade_b[1] dur=3 pos=-0.205000,0.915940,3.341800 rot=0.267238,0.000000,0.000000,0.963630 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #19 op=cast/blade_b[2] dur=3 pos=-0.205000,0.855010,3.838070 rot=0.267238,0.000000,0.000000,0.963630 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #20 op=cast/edge_b[0] dur=3 pos=-0.205000,1.060660,2.654310 rot=0.297950,0.000000,0.000000,0.954581 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #21 op=cast/edge_b[1] dur=3 pos=-0.205000,0.953460,3.346410 rot=0.293131,0.000000,0.000000,0.956072 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #22 op=cast/edge_b[2] dur=3 pos=-0.205000,0.869080,3.839800 rot=0.281838,0.000000,0.000000,0.959462 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #23 op=cast/handle_b[0] dur=3 pos=-0.205000,1.182340,2.074820 rot=-0.788011,0.000000,0.000000,0.615661 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #24 op=cast/handle_b[1] dur=3 pos=-0.205000,1.317450,1.753900 rot=-0.971990,0.000000,0.000000,0.235023 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #25 op=cast/handle_b[2] dur=3 pos=-0.205000,1.242400,1.462580 rot=0.968297,0.000000,0.000000,0.249801 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #26 op=cast/handle_b[3] dur=3 pos=-0.205000,1.031790,1.577770 rot=0.485952,0.000000,0.000000,0.873986 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #27 op=cast/handle_b[4] dur=3 pos=-0.205000,0.984260,1.964860 rot=0.033594,0.000000,0.000000,0.999436 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #28 op=cast/hinge_flower[0] dur=3 pos=-0.370000,1.050000,2.250000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #29 op=cast/hinge_flower[1] dur=3 pos=-0.130000,1.050000,2.250000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #30 op=cast/hinge_flower[2] dur=3 pos=-0.250000,1.170000,2.250000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #31 op=cast/hinge_flower[3] dur=3 pos=-0.250000,0.930000,2.250000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
+@17 remove #15 op=-
+@18 write #2 op=cast/a_blade dur=3 pos=-0.300000,0.643420,3.066819 rot=0.207912,0.000000,0.000000,0.978148 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #3 op=cast/a_edge dur=3 pos=-0.300000,0.739050,3.096056 rot=0.233445,0.000000,0.000000,0.972370 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #4 op=cast/a_handle dur=3 pos=-0.300000,1.475158,1.543431 rot=-0.026177,0.000000,0.000000,0.999657 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #5 op=cast/b_blade dur=3 pos=-0.200000,0.761056,3.115454 rot=0.139173,0.000000,0.000000,0.990268 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #6 op=cast/b_edge dur=3 pos=-0.200000,0.859825,3.131098 rot=0.165048,0.000000,0.000000,0.986286 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #7 op=cast/b_handle dur=3 pos=-0.200000,1.372685,1.491136 rot=-0.095846,0.000000,0.000000,0.995396 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #8 op=cast/flower[0] dur=3 pos=0.000000,1.050000,2.250000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #9 op=cast/flower[1] dur=3 pos=0.000000,1.050000,2.250000 rot=0.000000,0.000000,0.382683,0.923880 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #10 op=cast/flower[2] dur=3 pos=0.000000,1.050000,2.250000 rot=0.000000,0.000000,0.707107,0.707107 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #11 op=cast/flower[3] dur=3 pos=0.000000,1.050000,2.250000 rot=0.000000,0.000000,0.923880,0.382683 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #2 op=cast/a_blade dur=1 pos=-0.300000,0.643420,3.066819 rot=0.207912,0.000000,0.000000,0.978148 scale=0.120000,0.250000,1.800000 bb=FIXED
+@18 write #3 op=cast/a_edge dur=1 pos=-0.300000,0.739050,3.096056 rot=0.233445,0.000000,0.000000,0.972370 scale=0.120000,0.050000,1.800000 bb=FIXED
+@18 write #4 op=cast/a_handle dur=1 pos=-0.300000,1.475158,1.543431 rot=-0.026177,0.000000,0.000000,0.999657 scale=0.120000,0.100000,0.600000 bb=FIXED
+@18 write #5 op=cast/b_blade dur=1 pos=-0.200000,0.761056,3.115454 rot=0.139173,0.000000,0.000000,0.990268 scale=0.120000,0.250000,1.800000 bb=FIXED
+@18 write #6 op=cast/b_edge dur=1 pos=-0.200000,0.859825,3.131098 rot=0.165048,0.000000,0.000000,0.986286 scale=0.120000,0.050000,1.800000 bb=FIXED
+@18 write #7 op=cast/b_handle dur=1 pos=-0.200000,1.372685,1.491136 rot=-0.095846,0.000000,0.000000,0.995396 scale=0.120000,0.100000,0.600000 bb=FIXED
+@18 write #12 op=cast/crescent dur=1 pos=0.000000,0.960000,2.500000 rot=0.036352,0.000000,0.000000,0.999339 scale=0.016000,3.300000,0.016000 bb=FIXED
+@18 write #13 op=- dur=1 pos=0.000000,0.960000,2.500000 rot=0.732344,0.000000,0.000000,0.680935 scale=0.016000,3.300000,0.016000 bb=FIXED
+@18 write #14 op=- dur=1 pos=0.000000,0.890952,1.911523 rot=0.416015,0.000000,0.000000,0.909358 scale=0.360000,0.240000,1.000000 bb=CENTER
+@18 write #16 op=- dur=1 pos=0.000000,0.910000,2.500000 rot=0.416015,0.000000,0.000000,0.909358 scale=0.005000,0.005000,0.480000 bb=FIXED
+@18 write #17 op=- dur=1 pos=0.000000,0.910000,2.500000 rot=0.384348,-0.159202,0.347996,0.840137 scale=0.005000,0.005000,0.480000 bb=FIXED
+@18 write #18 op=- dur=1 pos=0.000000,0.910000,2.500000 rot=0.294167,-0.294167,0.643013,0.643013 scale=0.005000,0.005000,0.480000 bb=FIXED
+@18 write #19 op=- dur=1 pos=0.000000,0.910000,2.500000 rot=0.159202,-0.384348,0.840137,0.347996 scale=0.005000,0.005000,0.480000 bb=FIXED
 @18 frame cast/anim op=cast/anim pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@18 frame cast/shears op=cast/shears pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@18 frame cast/hinge_a op=cast/hinge_a pos=-0.295000,1.050000,2.250000 rot=0.147809,0.000000,0.000000,0.989016
-@18 frame cast/hinge_b op=cast/hinge_b pos=-0.205000,1.050000,2.250000 rot=0.078459,0.000000,0.000000,0.996917
-@18 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000
-@18 frame cast/passage op=cast/passage pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@18 remove #34 op=-
-@18 remove #35 op=-
-@18 remove #36 op=-
-@18 remove #37 op=-
+@18 remove #14 op=-
+@19 write #2 op=cast/a_blade dur=1 pos=-0.300000,0.573776,3.028274 rot=0.250380,0.000000,0.000000,0.968148 scale=0.080000,0.166667,1.200000 bb=FIXED
+@19 write #3 op=cast/a_edge dur=1 pos=-0.300000,0.666495,3.065735 rot=0.275637,0.000000,0.000000,0.961262 scale=0.080000,0.033333,1.200000 bb=FIXED
+@19 write #4 op=cast/a_handle dur=1 pos=-0.300000,1.535122,1.583174 rot=0.017452,0.000000,0.000000,0.999848 scale=0.080000,0.066667,0.400000 bb=FIXED
+@19 write #5 op=cast/b_blade dur=1 pos=-0.200000,0.686726,3.086978 rot=0.182236,0.000000,0.000000,0.983255 scale=0.080000,0.166667,1.200000 bb=FIXED
+@19 write #6 op=cast/b_edge dur=1 pos=-0.200000,0.783756,3.111170 rot=0.207912,0.000000,0.000000,0.978148 scale=0.080000,0.033333,1.200000 bb=FIXED
+@19 write #7 op=cast/b_handle dur=1 pos=-0.200000,1.437597,1.522148 rot=-0.052336,0.000000,0.000000,0.998630 scale=0.080000,0.066667,0.400000 bb=FIXED
 @19 frame cast/anim op=cast/anim pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@19 frame cast/shears op=cast/shears pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@19 frame cast/hinge_a op=cast/hinge_a pos=-0.295000,1.050000,2.250000 rot=0.190809,0.000000,0.000000,0.981627
-@19 frame cast/hinge_b op=cast/hinge_b pos=-0.205000,1.050000,2.250000 rot=0.121869,0.000000,0.000000,0.992546
-@19 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000
-@19 frame cast/passage op=cast/passage pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@19 remove #39 op=-
-@19 remove #40 op=-
-@19 remove #41 op=-
-@19 remove #42 op=-
-@19 remove #43 op=-
-@19 remove #44 op=-
-@19 remove #45 op=-
-@19 remove #46 op=-
+@19 remove #16 op=-
+@19 remove #17 op=-
+@19 remove #18 op=-
+@19 remove #19 op=-
+@20 write #2 op=cast/a_blade dur=1 pos=-0.300000,0.507758,2.983807 rot=0.292372,0.000000,0.000000,0.956305 scale=0.040000,0.083333,0.600000 bb=FIXED
+@20 write #3 op=cast/a_edge dur=1 pos=-0.300000,0.596858,3.029206 rot=0.317305,0.000000,0.000000,0.948324 scale=0.040000,0.016667,0.600000 bb=FIXED
+@20 write #4 op=cast/a_handle dur=1 pos=-0.300000,1.591394,1.627993 rot=0.061049,0.000000,0.000000,0.998135 scale=0.040000,0.033333,0.200000 bb=FIXED
+@20 write #5 op=cast/b_blade dur=1 pos=-0.200000,0.615161,3.052131 rot=0.224951,0.000000,0.000000,0.974370 scale=0.040000,0.083333,0.600000 bb=FIXED
+@20 write #6 op=cast/b_edge dur=1 pos=-0.200000,0.709713,3.084688 rot=0.250380,0.000000,0.000000,0.968148 scale=0.040000,0.016667,0.600000 bb=FIXED
+@20 write #7 op=cast/b_handle dur=1 pos=-0.200000,1.499558,1.558699 rot=-0.008727,0.000000,0.000000,0.999962 scale=0.040000,0.033333,0.200000 bb=FIXED
 @20 frame cast/anim op=cast/anim pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@20 frame cast/shears op=cast/shears pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@20 frame cast/hinge_a op=cast/hinge_a pos=-0.295000,1.050000,2.250000 rot=0.233445,0.000000,0.000000,0.972370
-@20 frame cast/hinge_b op=cast/hinge_b pos=-0.205000,1.050000,2.250000 rot=0.165048,0.000000,0.000000,0.986286
-@20 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=0.000000,0.900000,2.500000 rot=0.000000,0.000000,0.000000,1.000000
-@20 frame cast/passage op=cast/passage pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@20 remove #32 op=cast/crescent
-@20 remove #33 op=-
+@20 remove #12 op=cast/crescent
+@20 remove #13 op=-
+@21 write #2 op=cast/a_blade dur=1 pos=-0.300000,0.445865,2.933755 rot=0.333807,0.000000,0.000000,0.942641 scale=0.000000,0.000000,0.000000 bb=FIXED
+@21 write #3 op=cast/a_edge dur=1 pos=-0.300000,0.530670,2.986747 rot=0.358368,0.000000,0.000000,0.933580 scale=0.000000,0.000000,0.000000 bb=FIXED
+@21 write #4 op=cast/a_handle dur=1 pos=-0.300000,1.643545,1.677545 rot=0.104528,0.000000,0.000000,0.994522 scale=0.000000,0.000000,0.000000 bb=FIXED
+@21 write #5 op=cast/b_blade dur=1 pos=-0.200000,0.546905,3.011180 rot=0.267238,0.000000,0.000000,0.963630 scale=0.000000,0.000000,0.000000 bb=FIXED
+@21 write #6 op=cast/b_edge dur=1 pos=-0.200000,0.638260,3.051854 rot=0.292372,0.000000,0.000000,0.956305 scale=0.000000,0.000000,0.000000 bb=FIXED
+@21 write #7 op=cast/b_handle dur=1 pos=-0.200000,1.558098,1.600511 rot=0.034899,0.000000,0.000000,0.999391 scale=0.000000,0.000000,0.000000 bb=FIXED
 @21 frame cast/anim op=cast/anim pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@21 frame cast/shears op=cast/shears pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@21 frame cast/hinge_a op=cast/hinge_a pos=-0.295000,1.050000,2.250000 rot=0.275637,0.000000,0.000000,0.961262
-@21 frame cast/hinge_b op=cast/hinge_b pos=-0.205000,1.050000,2.250000 rot=0.207912,0.000000,0.000000,0.978148
-@21 frame cast/passage op=cast/passage pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
 @22 frame cast/anim op=cast/anim pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@22 frame cast/shears op=cast/shears pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@22 frame cast/hinge_a op=cast/hinge_a pos=-0.295000,1.050000,2.250000 rot=0.275637,0.000000,0.000000,0.961262
-@22 frame cast/hinge_b op=cast/hinge_b pos=-0.205000,1.050000,2.250000 rot=0.207912,0.000000,0.000000,0.978148
-@22 frame cast/passage op=cast/passage pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
-@22 remove #6 op=cast/blade_a[0]
-@22 remove #7 op=cast/blade_a[1]
-@22 remove #8 op=cast/blade_a[2]
-@22 remove #9 op=cast/edge_a[0]
-@22 remove #10 op=cast/edge_a[1]
-@22 remove #11 op=cast/edge_a[2]
-@22 remove #12 op=cast/handle_a[0]
-@22 remove #13 op=cast/handle_a[1]
-@22 remove #14 op=cast/handle_a[2]
-@22 remove #15 op=cast/handle_a[3]
-@22 remove #16 op=cast/handle_a[4]
-@22 remove #17 op=cast/blade_b[0]
-@22 remove #18 op=cast/blade_b[1]
-@22 remove #19 op=cast/blade_b[2]
-@22 remove #20 op=cast/edge_b[0]
-@22 remove #21 op=cast/edge_b[1]
-@22 remove #22 op=cast/edge_b[2]
-@22 remove #23 op=cast/handle_b[0]
-@22 remove #24 op=cast/handle_b[1]
-@22 remove #25 op=cast/handle_b[2]
-@22 remove #26 op=cast/handle_b[3]
-@22 remove #27 op=cast/handle_b[4]
-@22 remove #28 op=cast/hinge_flower[0]
-@22 remove #29 op=cast/hinge_flower[1]
-@22 remove #30 op=cast/hinge_flower[2]
-@22 remove #31 op=cast/hinge_flower[3]
-@22 remove #47 op=-
+@22 remove #2 op=cast/a_blade
+@22 remove #3 op=cast/a_edge
+@22 remove #4 op=cast/a_handle
+@22 remove #5 op=cast/b_blade
+@22 remove #6 op=cast/b_edge
+@22 remove #7 op=cast/b_handle
+@22 remove #8 op=cast/flower[0]
+@22 remove #9 op=cast/flower[1]
+@22 remove #10 op=cast/flower[2]
+@22 remove #11 op=cast/flower[3]
+@22 remove #20 op=-
 @23 frame cast/anim op=cast/anim pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
 @24 frame cast/anim op=cast/anim pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
 @25 frame cast/anim op=cast/anim pos=0.000000,0.000000,1.800000 rot=0.000000,0.000000,0.000000,1.000000
@@ -396,372 +279,257 @@ g @37 state-exit reason=PREEMPT | state=cast/settle
 g @37 state-exit reason=TIMER | state=cast
 g @37 cast-end | pose
 ## pose-hit yaw=37 pitch=0
-@0 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
-@1 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
-@2 spawn #0 op=cast/fold_0 kind=text text=◆ bg=#00000000 shadow=false seethrough=false pos=-0.722178,0.250000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=4.500000,1.500000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@2 spawn #1 op=cast/fold_1 kind=text text=◆ bg=#00000000 shadow=false seethrough=false pos=-0.722178,0.650000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=5.750000,1.500000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@2 spawn #2 op=cast/fold_2 kind=text text=◆ bg=#00000000 shadow=false seethrough=false pos=-0.722178,1.050000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=3.500000,1.500000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@2 spawn #3 op=cast/fold_3 kind=text text=◆ bg=#00000000 shadow=false seethrough=false pos=-0.722178,1.450000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=6.000000,1.500000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@2 spawn #4 op=cast/fold_4 kind=text text=◆ bg=#00000000 shadow=false seethrough=false pos=-0.722178,1.800000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=4.500000,1.500000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@2 spawn #5 op=cast/spindle kind=text text=%20 bg=#B2A3CF shadow=false seethrough=false pos=-0.722178,1.000000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.480000,7.200000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@2 write #0 op=cast/fold_0 dur=11 pos=-0.722178,0.250000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=-3.600180,0.450006,1.000000 bb=CENTER
-@2 write #1 op=cast/fold_1 dur=11 pos=-0.722178,0.650000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=-7.474943,0.450006,1.000000 bb=CENTER
-@2 write #2 op=cast/fold_2 dur=11 pos=-0.722178,1.050000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=-1.399895,0.450006,1.000000 bb=CENTER
-@2 write #3 op=cast/fold_3 dur=11 pos=-0.722178,1.450000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=-8.399880,0.450006,1.000000 bb=CENTER
-@2 write #4 op=cast/fold_4 dur=11 pos=-0.722178,1.800000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=-3.600180,0.450006,1.000000 bb=CENTER
+@2 spawn #0 op=cast/fold kind=text text=◆ bg=#00000000 shadow=false seethrough=false pos=-0.722178,0.600000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=4.500000,1.500000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@2 spawn #1 op=cast/spindle kind=text text=%20 bg=#B2A3CF shadow=false seethrough=false pos=-0.722178,1.000000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.480000,7.200000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
 @2 effect 00000000-0000-0000-0000-000000000001 op=- body=crouch speed=1
-@2 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
 @2 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
-@3 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
 @3 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
-@4 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
 @4 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
-@5 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@5 write #0 op=cast/fold dur=0 pos=-0.722178,0.600000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=3.825000,1.275000,1.000000 bb=CENTER
 @5 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
-@6 spawn #6 op=cast/blade_a[0] kind=block block=gray_concrete pos=-0.745347,1.001250,0.498925 rot=0.057894,-0.316713,0.019371,0.946555 scale=0.060000,0.190000,0.800000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #7 op=cast/blade_a[1] kind=block block=gray_concrete pos=-1.163476,0.915940,1.053801 rot=0.057894,-0.316713,0.019371,0.946555 scale=0.060000,0.120000,0.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #8 op=cast/blade_a[2] kind=block block=gray_concrete pos=-1.462139,0.855010,1.450140 rot=0.057894,-0.316713,0.019371,0.946555 scale=0.060000,0.045000,0.400000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #9 op=cast/edge_a[0] kind=block block=iron_block pos=-0.749734,1.060660,0.504747 rot=0.088166,-0.315930,0.029500,0.944216 scale=0.060000,0.025000,0.801640 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #10 op=cast/edge_a[1] kind=block block=iron_block pos=-1.166250,0.953460,1.057483 rot=0.083402,-0.316075,0.027906,0.944649 scale=0.060000,0.025000,0.600870 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #11 op=cast/edge_a[2] kind=block block=iron_block pos=-1.463180,0.869080,1.451521 rot=0.072258,-0.316382,0.024177,0.945567 scale=0.060000,0.025000,0.400180 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #12 op=cast/handle_a[0] kind=block block=black_concrete pos=-0.400988,1.182340,0.041946 rot=-0.852348,-0.139097,-0.285192,0.415718 scale=0.060000,0.045000,0.311130 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #13 op=cast/handle_a[1] kind=block block=black_concrete pos=-0.207854,1.317450,-0.214353 rot=-0.947957,-0.008821,-0.317182,0.026362 scale=0.060000,0.045000,0.451000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #14 op=cast/handle_a[2] kind=block block=black_concrete pos=-0.032533,1.242400,-0.447011 rot=0.848941,-0.141411,0.284052,0.422632 scale=0.060000,0.045000,0.219540 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #15 op=cast/handle_a[3] kind=block block=black_concrete pos=-0.101856,1.031790,-0.355016 rot=0.278447,-0.303319,0.093167,0.906523 scale=0.060000,0.045000,0.438290 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #16 op=cast/handle_a[4] kind=block block=black_concrete pos=-0.334813,0.984260,-0.045872 rot=-0.165894,-0.312412,-0.055507,0.933701 scale=0.060000,0.045000,0.438290 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #17 op=cast/blade_b[0] kind=block block=gray_concrete pos=-0.673470,1.001250,0.553088 rot=-0.452501,-0.278853,-0.151405,0.833403 scale=0.060000,0.190000,0.800000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #18 op=cast/blade_b[1] kind=block block=gray_concrete pos=-1.091599,0.915940,1.107964 rot=-0.452501,-0.278853,-0.151405,0.833403 scale=0.060000,0.120000,0.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #19 op=cast/blade_b[2] kind=block block=gray_concrete pos=-1.390261,0.855010,1.504303 rot=-0.452501,-0.278853,-0.151405,0.833403 scale=0.060000,0.045000,0.400000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #20 op=cast/edge_b[0] kind=block block=iron_block pos=-0.677857,1.060660,0.558910 rot=-0.425589,-0.283557,-0.142400,0.847462 scale=0.060000,0.025000,0.801640 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #21 op=cast/edge_b[1] kind=block block=iron_block pos=-1.094373,0.953460,1.111646 rot=-0.429859,-0.282835,-0.143829,0.845304 scale=0.060000,0.025000,0.600870 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #22 op=cast/edge_b[2] kind=block block=iron_block pos=-1.391303,0.869080,1.505685 rot=-0.439796,-0.281119,-0.147154,0.840177 scale=0.060000,0.025000,0.400180 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #23 op=cast/handle_b[0] kind=block block=black_concrete pos=-0.329111,1.182340,0.096109 rot=0.943129,-0.033167,0.315566,0.099127 scale=0.060000,0.045000,0.311130 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #24 op=cast/handle_b[1] kind=block block=black_concrete pos=-0.135977,1.317450,-0.160189 rot=0.817883,-0.160600,0.273660,0.479984 scale=0.060000,0.045000,0.451000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #25 op=cast/handle_b[2] kind=block block=black_concrete pos=0.039344,1.242400,-0.392848 rot=0.495982,-0.270447,0.165953,0.808282 scale=0.060000,0.045000,0.219540 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #26 op=cast/handle_b[3] kind=block block=black_concrete pos=-0.029979,1.031790,-0.300853 rot=-0.244248,-0.306600,-0.081724,0.916330 scale=0.060000,0.045000,0.438290 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #27 op=cast/handle_b[4] kind=block block=black_concrete pos=-0.262936,0.984260,0.008291 rot=-0.635472,-0.235526,-0.212626,0.703912 scale=0.060000,0.045000,0.438290 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #28 op=cast/hinge_flower[0] kind=block block=white_concrete pos=-0.566312,1.050000,0.136714 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.150000,0.150000,0.120000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #29 op=cast/hinge_flower[1] kind=block block=white_concrete pos=-0.374639,1.050000,0.281150 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.150000,0.150000,0.120000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #30 op=cast/hinge_flower[2] kind=block block=white_concrete pos=-0.470476,1.170000,0.208932 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.150000,0.150000,0.120000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 spawn #31 op=cast/hinge_flower[3] kind=block block=white_concrete pos=-0.470476,0.930000,0.208932 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.150000,0.150000,0.120000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@6 write #6 op=cast/blade_a[0] dur=4 pos=-0.745347,1.001250,0.498925 rot=0.237441,-0.307198,0.079447,0.918117 scale=0.060000,0.190000,0.800000 bb=FIXED
-@6 write #7 op=cast/blade_a[1] dur=4 pos=-1.163476,0.915940,1.053801 rot=0.237441,-0.307198,0.079447,0.918117 scale=0.060000,0.120000,0.600000 bb=FIXED
-@6 write #8 op=cast/blade_a[2] dur=4 pos=-1.462139,0.855010,1.450140 rot=0.237441,-0.307198,0.079447,0.918117 scale=0.060000,0.045000,0.400000 bb=FIXED
-@6 write #9 op=cast/edge_a[0] dur=4 pos=-0.749734,1.060660,0.504747 rot=0.266711,-0.304497,0.089240,0.910045 scale=0.060000,0.025000,0.801640 bb=FIXED
-@6 write #10 op=cast/edge_a[1] dur=4 pos=-1.166250,0.953460,1.057483 rot=0.262117,-0.304943,0.087703,0.911379 scale=0.060000,0.025000,0.600870 bb=FIXED
-@6 write #11 op=cast/edge_a[2] dur=4 pos=-1.463180,0.869080,1.451521 rot=0.251353,-0.305956,0.084102,0.914407 scale=0.060000,0.025000,0.400180 bb=FIXED
-@6 write #12 op=cast/handle_a[0] dur=4 pos=-0.400988,1.182340,0.041946 rot=-0.757365,-0.190959,-0.253411,0.570715 scale=0.060000,0.045000,0.311130 bb=FIXED
-@6 write #13 op=cast/handle_a[1] dur=4 pos=-0.207854,1.317450,-0.214353 rot=-0.925510,-0.069180,-0.309671,0.206757 scale=0.060000,0.045000,0.451000 bb=FIXED
-@6 write #14 op=cast/handle_a[2] dur=4 pos=-0.032533,1.242400,-0.447011 rot=0.913985,-0.084613,0.305815,0.252882 scale=0.060000,0.045000,0.219540 bb=FIXED
-@6 write #15 op=cast/handle_a[3] dur=4 pos=-0.101856,1.031790,-0.355016 rot=0.446304,-0.279969,0.149331,0.836738 scale=0.060000,0.045000,0.438290 bb=FIXED
-@6 write #16 op=cast/handle_a[4] dur=4 pos=-0.334813,0.984260,-0.045872 rot=0.015312,-0.317263,0.005123,0.948200 scale=0.060000,0.045000,0.438290 bb=FIXED
-@6 write #17 op=cast/blade_b[0] dur=4 pos=-0.673470,1.001250,0.553088 rot=-0.316557,-0.299105,-0.105918,0.893929 scale=0.060000,0.190000,0.800000 bb=FIXED
-@6 write #18 op=cast/blade_b[1] dur=4 pos=-1.091599,0.915940,1.107964 rot=-0.316557,-0.299105,-0.105918,0.893929 scale=0.060000,0.120000,0.600000 bb=FIXED
-@6 write #19 op=cast/blade_b[2] dur=4 pos=-1.390261,0.855010,1.504303 rot=-0.316557,-0.299105,-0.105918,0.893929 scale=0.060000,0.045000,0.400000 bb=FIXED
-@6 write #20 op=cast/edge_b[0] dur=4 pos=-0.677857,1.060660,0.558910 rot=-0.287777,-0.302342,-0.096289,0.903605 scale=0.060000,0.025000,0.801640 bb=FIXED
-@6 write #21 op=cast/edge_b[1] dur=4 pos=-1.094373,0.953460,1.111646 rot=-0.292332,-0.301852,-0.097813,0.902142 scale=0.060000,0.025000,0.600870 bb=FIXED
-@6 write #22 op=cast/edge_b[2] dur=4 pos=-1.391303,0.869080,1.505685 rot=-0.302949,-0.300678,-0.101365,0.898632 scale=0.060000,0.025000,0.400180 bb=FIXED
-@6 write #23 op=cast/handle_b[0] dur=4 pos=-0.329111,1.182340,0.096109 rot=-0.947024,-0.016606,-0.316870,0.049631 scale=0.060000,0.045000,0.311130 bb=FIXED
-@6 write #24 op=cast/handle_b[1] dur=4 pos=-0.135977,1.317450,-0.160189 rot=0.882900,-0.115813,0.295414,0.346130 scale=0.060000,0.045000,0.451000 bb=FIXED
-@6 write #25 op=cast/handle_b[2] dur=4 pos=0.039344,1.242400,-0.392848 rot=0.616318,-0.241157,0.206217,0.720742 scale=0.060000,0.045000,0.219540 bb=FIXED
-@6 write #26 op=cast/handle_b[3] dur=4 pos=-0.029979,1.031790,-0.300853 rot=-0.097895,-0.315609,-0.032755,0.943257 scale=0.060000,0.045000,0.438290 bb=FIXED
-@6 write #27 op=cast/handle_b[4] dur=4 pos=-0.262936,0.984260,0.008291 rot=-0.517533,-0.265888,-0.173164,0.794656 scale=0.060000,0.045000,0.438290 bb=FIXED
-@6 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@6 spawn #2 op=cast/a_blade kind=block block=gray_concrete pos=-1.052041,0.900000,0.897613 rot=0.057894,-0.316713,0.019371,0.946555 scale=0.120000,0.250000,1.800000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #3 op=cast/a_edge kind=block block=iron_block pos=-1.052041,1.000000,0.897613 rot=0.082652,-0.316097,0.027655,0.944715 scale=0.120000,0.050000,1.800000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #4 op=cast/a_handle kind=block block=black_concrete pos=-0.028955,1.250000,-0.460067 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.120000,0.100000,0.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #5 op=cast/b_blade kind=block block=gray_concrete pos=-0.749117,1.793159,0.661783 rot=-0.452501,-0.278853,-0.151405,0.833403 scale=0.120000,0.250000,1.800000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #6 op=cast/b_edge kind=block block=iron_block pos=-0.695026,1.836996,0.590002 rot=-0.430530,-0.282721,-0.144053,0.844963 scale=0.120000,0.050000,1.800000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #7 op=cast/b_handle kind=block block=black_concrete pos=-0.111308,0.418639,-0.184618 rot=-0.634552,-0.235803,-0.212318,0.704742 scale=0.120000,0.100000,0.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #8 op=cast/flower[0] kind=block block=white_concrete pos=-0.270817,1.050000,0.359386 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,0.500000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #9 op=cast/flower[1] kind=block block=white_concrete pos=-0.270817,1.050000,0.359386 rot=-0.121427,-0.293151,0.362908,0.876137 scale=0.060000,0.060000,0.500000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #10 op=cast/flower[2] kind=block block=white_concrete pos=-0.270817,1.050000,0.359386 rot=-0.224368,-0.224368,0.670566,0.670566 scale=0.060000,0.060000,0.500000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 spawn #11 op=cast/flower[3] kind=block block=white_concrete pos=-0.270817,1.050000,0.359386 rot=-0.293151,-0.121427,0.876137,0.362908 scale=0.060000,0.060000,0.500000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@6 write #0 op=cast/fold dur=1 pos=-0.722178,0.600000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=3.375000,1.065000,1.000000 bb=CENTER
 @6 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
-@6 frame cast/shears op=cast/shears pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
-@6 frame cast/hinge_a op=cast/hinge_a pos=-0.506414,1.050000,0.181851 rot=0.000000,-0.317305,0.000000,0.948324
-@6 frame cast/hinge_b op=cast/hinge_b pos=-0.434537,1.050000,0.236014 rot=-0.502535,-0.269090,-0.168146,0.804224
-@7 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@7 write #0 op=cast/fold dur=1 pos=-0.722178,0.600000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=3.150000,0.960000,1.000000 bb=CENTER
+@7 write #2 op=cast/a_blade dur=1 pos=-1.040895,0.814429,0.882822 rot=0.103241,-0.315419,0.034544,0.942687 scale=0.120000,0.250000,1.800000 bb=FIXED
+@7 write #3 op=cast/a_edge dur=1 pos=-1.046663,0.913969,0.890477 rot=0.127882,-0.314406,0.042789,0.939662 scale=0.120000,0.050000,1.800000 bb=FIXED
+@7 write #4 op=cast/a_handle dur=1 pos=-0.042708,1.325756,-0.441816 rot=-0.119677,-0.314768,-0.040044,0.940742 scale=0.120000,0.100000,0.600000 bb=FIXED
+@7 write #5 op=cast/b_blade dur=1 pos=-0.783225,1.749335,0.707046 rot=-0.419433,-0.284582,-0.140340,0.850526 scale=0.120000,0.250000,1.800000 bb=FIXED
+@7 write #6 op=cast/b_edge dur=1 pos=-0.731371,1.800089,0.638234 rot=-0.397025,-0.288158,-0.132843,0.861214 scale=0.120000,0.050000,1.800000 bb=FIXED
+@7 write #7 op=cast/b_handle dur=1 pos=-0.082480,0.462204,-0.222873 rot=-0.606395,-0.243957,-0.202897,0.729111 scale=0.120000,0.100000,0.600000 bb=FIXED
 @7 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
-@7 frame cast/shears op=cast/shears pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
-@7 frame cast/hinge_a op=cast/hinge_a pos=-0.506414,1.050000,0.181851 rot=0.045499,-0.316939,0.015224,0.947232
-@7 frame cast/hinge_b op=cast/hinge_b pos=-0.434537,1.050000,0.236014 rot=-0.470574,-0.275484,-0.157452,0.823333
-@8 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@8 write #0 op=cast/fold dur=1 pos=-0.722178,0.600000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=2.925000,0.855000,1.000000 bb=CENTER
+@8 write #2 op=cast/a_blade dur=1 pos=-1.024865,0.731028,0.861550 rot=0.148351,-0.313398,0.049637,0.936648 scale=0.120000,0.250000,1.800000 bb=FIXED
+@8 write #3 op=cast/a_edge dur=1 pos=-1.036348,0.829191,0.876788 rot=0.172818,-0.311991,0.057824,0.932444 scale=0.120000,0.050000,1.800000 bb=FIXED
+@8 write #4 op=cast/a_handle dur=1 pos=-0.060767,1.398973,-0.417851 rot=-0.074405,-0.316327,-0.024895,0.945400 scale=0.120000,0.100000,0.600000 bb=FIXED
+@8 write #5 op=cast/b_blade dur=1 pos=-0.815159,1.701200,0.749424 rot=-0.385718,-0.289872,-0.129059,0.866337 scale=0.120000,0.250000,1.800000 bb=FIXED
+@8 write #6 op=cast/b_edge dur=1 pos=-0.765861,1.758558,0.684004 rot=-0.362908,-0.293151,-0.121427,0.876137 scale=0.120000,0.050000,1.800000 bb=FIXED
+@8 write #7 op=cast/b_handle dur=1 pos=-0.055799,0.509394,-0.258281 rot=-0.577303,-0.251735,-0.193163,0.752356 scale=0.120000,0.100000,0.600000 bb=FIXED
 @8 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
-@8 frame cast/shears op=cast/shears pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
-@8 frame cast/hinge_a op=cast/hinge_a pos=-0.506414,1.050000,0.181851 rot=0.090893,-0.315844,0.030412,0.943958
-@8 frame cast/hinge_b op=cast/hinge_b pos=-0.434537,1.050000,0.236014 rot=-0.437887,-0.281453,-0.146515,0.841173
-@9 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@9 write #0 op=cast/fold dur=1 pos=-0.722178,0.600000,0.958363 rot=0.000000,-0.317305,0.000000,0.948324 scale=2.700000,0.750000,1.000000 bb=CENTER
+@9 write #2 op=cast/a_blade dur=1 pos=-1.004098,0.650563,0.833991 rot=0.193118,-0.310656,0.064616,0.928452 scale=0.120000,0.250000,1.800000 bb=FIXED
+@9 write #3 op=cast/a_edge dur=1 pos=-1.021190,0.746445,0.856673 rot=0.217356,-0.308858,0.072726,0.923079 scale=0.120000,0.050000,1.800000 bb=FIXED
+@9 write #4 op=cast/a_handle dur=1 pos=-0.082967,1.468976,-0.388392 rot=-0.028960,-0.317157,-0.009690,0.947881 scale=0.120000,0.100000,0.600000 bb=FIXED
+@9 write #5 op=cast/b_blade dur=1 pos=-0.844721,1.649050,0.788655 rot=-0.351408,-0.294716,-0.117580,0.880812 scale=0.120000,0.250000,1.800000 bb=FIXED
+@9 write #6 op=cast/b_edge dur=1 pos=-0.798284,1.712658,0.727031 rot=-0.328231,-0.297692,-0.109825,0.889709 scale=0.120000,0.050000,1.800000 bb=FIXED
+@9 write #7 op=cast/b_handle dur=1 pos=-0.031428,0.559916,-0.290622 rot=-0.547320,-0.259124,-0.183131,0.774441 scale=0.120000,0.100000,0.600000 bb=FIXED
 @9 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
-@9 frame cast/shears op=cast/shears pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
-@9 frame cast/hinge_a op=cast/hinge_a pos=-0.506414,1.050000,0.181851 rot=0.136077,-0.314021,0.045531,0.938510
-@9 frame cast/hinge_b op=cast/hinge_b pos=-0.434537,1.050000,0.236014 rot=-0.404525,-0.286988,-0.135352,0.857716
-@10 write #6 op=cast/blade_a[0] dur=3 pos=-0.745347,1.001250,0.498925 rot=0.016551,-0.317256,0.005538,0.948179 scale=0.060000,0.190000,0.800000 bb=FIXED
-@10 write #7 op=cast/blade_a[1] dur=3 pos=-1.163476,0.915940,1.053801 rot=0.016551,-0.317256,0.005538,0.948179 scale=0.060000,0.120000,0.600000 bb=FIXED
-@10 write #8 op=cast/blade_a[2] dur=3 pos=-1.462139,0.855010,1.450140 rot=0.016551,-0.317256,0.005538,0.948179 scale=0.060000,0.045000,0.400000 bb=FIXED
-@10 write #9 op=cast/edge_a[0] dur=3 pos=-0.749734,1.060660,0.504747 rot=0.046896,-0.316916,0.015691,0.947163 scale=0.060000,0.025000,0.801640 bb=FIXED
-@10 write #10 op=cast/edge_a[1] dur=3 pos=-1.166250,0.953460,1.057483 rot=0.042117,-0.316992,0.014092,0.947388 scale=0.060000,0.025000,0.600870 bb=FIXED
-@10 write #11 op=cast/edge_a[2] dur=3 pos=-1.463180,0.869080,1.451521 rot=0.030944,-0.317136,0.010354,0.947819 scale=0.060000,0.025000,0.400180 bb=FIXED
-@10 write #12 op=cast/handle_a[0] dur=3 pos=-0.400988,1.182340,0.041946 rot=-0.869670,-0.126525,-0.290987,0.378143 scale=0.060000,0.045000,0.311130 bb=FIXED
-@10 write #13 op=cast/handle_a[1] dur=3 pos=-0.207854,1.317450,-0.214353 rot=0.948205,-0.005023,0.317265,0.015012 scale=0.060000,0.045000,0.451000 bb=FIXED
-@10 write #14 op=cast/handle_a[2] dur=3 pos=-0.032533,1.242400,-0.447011 rot=0.829698,-0.153666,0.277613,0.459260 scale=0.060000,0.045000,0.219540 bb=FIXED
-@10 write #15 op=cast/handle_a[3] dur=3 pos=-0.101856,1.031790,-0.355016 rot=0.238640,-0.307094,0.079848,0.917806 scale=0.060000,0.045000,0.438290 bb=FIXED
-@10 write #16 op=cast/handle_a[4] dur=3 pos=-0.334813,0.984260,-0.045872 rot=-0.206464,-0.309693,-0.069082,0.925576 scale=0.060000,0.045000,0.438290 bb=FIXED
-@10 write #17 op=cast/blade_b[0] dur=3 pos=-0.673470,1.001250,0.553088 rot=-0.016551,-0.317256,-0.005538,0.948179 scale=0.060000,0.190000,0.800000 bb=FIXED
-@10 write #18 op=cast/blade_b[1] dur=3 pos=-1.091599,0.915940,1.107964 rot=-0.016551,-0.317256,-0.005538,0.948179 scale=0.060000,0.120000,0.600000 bb=FIXED
-@10 write #19 op=cast/blade_b[2] dur=3 pos=-1.390261,0.855010,1.504303 rot=-0.016551,-0.317256,-0.005538,0.948179 scale=0.060000,0.045000,0.400000 bb=FIXED
-@10 write #20 op=cast/edge_b[0] dur=3 pos=-0.677857,1.060660,0.558910 rot=0.013812,-0.317271,0.004621,0.948223 scale=0.060000,0.025000,0.801640 bb=FIXED
-@10 write #21 op=cast/edge_b[1] dur=3 pos=-1.094373,0.953460,1.111646 rot=0.009028,-0.317290,0.003021,0.948281 scale=0.060000,0.025000,0.600870 bb=FIXED
-@10 write #22 op=cast/edge_b[2] dur=3 pos=-1.391303,0.869080,1.505685 rot=-0.002153,-0.317304,-0.000720,0.948321 scale=0.060000,0.025000,0.400180 bb=FIXED
-@10 write #23 op=cast/handle_b[0] dur=3 pos=-0.329111,1.182340,0.096109 rot=-0.882337,-0.116293,-0.295226,0.347562 scale=0.060000,0.045000,0.311130 bb=FIXED
-@10 write #24 op=cast/handle_b[1] dur=3 pos=-0.135977,1.317450,-0.160189 rot=0.947103,-0.016092,0.316896,0.048095 scale=0.060000,0.045000,0.451000 bb=FIXED
-@10 write #25 op=cast/handle_b[2] dur=3 pos=0.039344,1.242400,-0.392848 rot=0.813164,-0.163261,0.272081,0.487936 scale=0.060000,0.045000,0.219540 bb=FIXED
-@10 write #26 op=cast/handle_b[3] dur=3 pos=-0.029979,1.031790,-0.300853 rot=0.206464,-0.309693,0.069082,0.925576 scale=0.060000,0.045000,0.438290 bb=FIXED
-@10 write #27 op=cast/handle_b[4] dur=3 pos=-0.262936,0.984260,0.008291 rot=-0.238640,-0.307094,-0.079848,0.917806 scale=0.060000,0.045000,0.438290 bb=FIXED
-@10 frame cast/windup op=cast/windup pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
+@10 write #2 op=cast/a_blade dur=1 pos=-0.978785,0.573776,0.800399 rot=0.237441,-0.307198,0.079447,0.918117 scale=0.120000,0.250000,1.800000 bb=FIXED
+@10 write #3 op=cast/a_edge dur=1 pos=-1.001329,0.666495,0.830317 rot=0.261393,-0.305013,0.087461,0.911587 scale=0.120000,0.050000,1.800000 bb=FIXED
+@10 write #4 op=cast/a_handle dur=1 pos=-0.109102,1.535122,-0.353709 rot=0.016551,-0.317256,0.005538,0.948179 scale=0.120000,0.100000,0.600000 bb=FIXED
+@10 write #5 op=cast/b_blade dur=1 pos=-0.871731,1.593207,0.824497 rot=-0.316557,-0.299105,-0.105918,0.893929 scale=0.120000,0.250000,1.800000 bb=FIXED
+@10 write #6 op=cast/b_edge dur=1 pos=-0.828440,1.662673,0.767048 rot=-0.293048,-0.301775,-0.098053,0.901909 scale=0.120000,0.050000,1.800000 bb=FIXED
+@10 write #7 op=cast/b_handle dur=1 pos=-0.009517,0.613460,-0.319698 rot=-0.516494,-0.266114,-0.172817,0.795331 scale=0.120000,0.100000,0.600000 bb=FIXED
 @10 frame cast/anim op=cast/anim pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
-@10 frame cast/shears op=cast/shears pos=0.000000,0.000000,0.000000 rot=0.000000,-0.317305,0.000000,0.948324
-@10 frame cast/hinge_a op=cast/hinge_a pos=-0.506414,1.050000,0.181851 rot=0.180949,-0.311475,0.060545,0.930900
-@10 frame cast/hinge_b op=cast/hinge_b pos=-0.434537,1.050000,0.236014 rot=-0.370540,-0.292080,-0.123981,0.872937
+@11 remove #0 op=cast/fold
+@11 remove #1 op=cast/spindle
 @11 move - op=- to=-1.0404,0,1.3806 yaw=- pitch=-
 @11 move - op=- add_velocity v=0.000000,0.000000,0.000000
 @11 hit - op=cast/dash/dash_hit[0] at=-1.040369,0.900000,1.380616 r=0.800000 shape=sphere rad=0.800000
 @11 damage 00000000-0000-0000-0000-00000000000a op=- physical=40 skill=couture-rapier-s1 at=-1.204538,0.900000,1.696589 ignoreinv=true ignorearmor=false
-@11 spawn #32 op=cast/crescent kind=block block=white_concrete pos=-1.504538,1.950000,1.996589 rot=-0.362908,-0.293151,-0.121427,0.876137 scale=0.050000,3.300000,0.060000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@11 spawn #33 op=- kind=block block=white_concrete pos=-1.504538,1.950000,1.996589 rot=0.362908,-0.293151,0.121427,0.876137 scale=0.050000,3.300000,0.060000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
-@11 spawn #34 op=- kind=text text=%20 bg=#28201C shadow=false seethrough=false pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.960000,0.640000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #35 op=- kind=text text=%20 bg=#28201C shadow=false seethrough=false pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.960000,0.640000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #36 op=- kind=text text=%20 bg=#28201C shadow=false seethrough=false pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.960000,0.640000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #37 op=- kind=text text=%20 bg=#28201C shadow=false seethrough=false pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.960000,0.640000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #38 op=- kind=text text=%20 bg=#EAD9B0 shadow=false seethrough=false pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=4.000000,2.000000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #39 op=- kind=text text=%20 bg=#FFF5E9 shadow=false seethrough=false pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.580000,0.290000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #40 op=- kind=text text=%20 bg=#FFF5E9 shadow=false seethrough=false pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.580000,0.290000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #41 op=- kind=text text=%20 bg=#FFF5E9 shadow=false seethrough=false pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.580000,0.290000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #42 op=- kind=text text=%20 bg=#FFF5E9 shadow=false seethrough=false pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.580000,0.290000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #43 op=- kind=text text=%20 bg=#FFF5E9 shadow=false seethrough=false pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.580000,0.290000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #44 op=- kind=text text=%20 bg=#FFF5E9 shadow=false seethrough=false pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.580000,0.290000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #45 op=- kind=text text=%20 bg=#FFF5E9 shadow=false seethrough=false pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.580000,0.290000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 spawn #46 op=- kind=text text=%20 bg=#FFF5E9 shadow=false seethrough=false pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.580000,0.290000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
-@11 write #32 op=cast/crescent dur=3 pos=-1.504538,1.950000,1.996589 rot=-0.362908,-0.293151,-0.121427,0.876137 scale=0.049250,3.300000,0.058800 bb=FIXED
-@11 write #33 op=- dur=3 pos=-1.504538,1.950000,1.996589 rot=0.362908,-0.293151,0.121427,0.876137 scale=0.049250,3.300000,0.058800 bb=FIXED
-@11 write #34 op=- dur=1 pos=-1.276349,1.662971,1.693773 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.733512,0.553719,1.000000 bb=CENTER
-@11 write #35 op=- dur=1 pos=-1.428475,1.789360,1.895650 rot=-0.069428,-0.309616,0.207499,0.925344 scale=0.733512,0.553719,1.000000 bb=CENTER
-@11 write #36 op=- dur=1 pos=-1.580600,1.915749,2.097527 rot=-0.135491,-0.286922,0.404941,0.857520 scale=0.733512,0.553719,1.000000 bb=CENTER
-@11 write #37 op=- dur=1 pos=-1.732726,2.042138,2.299405 rot=-0.194988,-0.250323,0.582759,0.748138 scale=0.733512,0.553719,1.000000 bb=CENTER
-@11 write #38 op=- dur=0 pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=16.000000,4.000000,1.000000 bb=CENTER
-@11 write #39 op=- dur=3 pos=-1.363850,2.297630,2.102605 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.345846,0.169319,1.000000 bb=CENTER
-@11 write #40 op=- dur=3 pos=-1.787314,2.206640,2.023799 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.345846,0.169319,1.000000 bb=CENTER
-@11 write #41 op=- dur=3 pos=-1.278740,2.115680,1.745947 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.345846,0.169319,1.000000 bb=CENTER
-@11 write #42 op=- dur=3 pos=-1.501523,2.024720,2.357635 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.345846,0.169319,1.000000 bb=CENTER
-@11 write #43 op=- dur=3 pos=-1.750610,1.933730,1.732425 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.345846,0.169319,1.000000 bb=CENTER
-@11 write #44 op=- dur=3 pos=-1.168255,1.842770,2.023296 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.345846,0.169319,1.000000 bb=CENTER
-@11 write #45 op=- dur=3 pos=-1.728543,1.751780,2.171275 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.345846,0.169319,1.000000 bb=CENTER
-@11 write #46 op=- dur=3 pos=-1.475271,1.660820,1.822859 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.345846,0.169319,1.000000 bb=CENTER
-@11 particle - op=cast/dash/dash_hit.hit/sparks[0] type=stab-spark at=-1.504538,2.000000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1074479212119996635
-@11 sound - op=cast/dash/dash_hit.hit/snd sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=-1.504538,0.900000,1.996589
+@11 spawn #12 op=cast/crescent kind=block block=white_concrete pos=-1.504538,0.825000,1.996589 rot=0.011608,-0.317281,0.003884,0.948253 scale=0.050000,3.300000,0.050000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #13 op=- kind=block block=white_concrete pos=-1.504538,0.825000,1.996589 rot=0.678724,-0.221605,0.227098,0.662308 scale=0.050000,3.300000,0.050000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #14 op=- kind=text text=%20 bg=#28201C shadow=false seethrough=false pos=-1.467187,0.815178,1.947023 rot=0.373605,-0.291643,0.125006,0.871629 scale=1.200000,0.800000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@11 spawn #15 op=- kind=text text=%20 bg=#EAD9B0 shadow=false seethrough=false pos=-1.504538,0.830000,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=4.000000,2.000000,1.000000 bb=CENTER bright=- aud=ALL lane=CORE target=-
+@11 spawn #16 op=- kind=block block=white_concrete pos=-1.504538,0.820000,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.050000,0.050000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #17 op=- kind=block block=white_concrete pos=-1.504538,0.820000,1.996589 rot=0.233559,-0.412415,0.449049,0.757443 scale=0.050000,0.050000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #18 op=- kind=block block=white_concrete pos=-1.504538,0.820000,1.996589 rot=0.057956,-0.470401,0.704728,0.527942 scale=0.050000,0.050000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 spawn #19 op=- kind=block block=white_concrete pos=-1.504538,0.820000,1.996589 rot=-0.126471,-0.456773,0.853118,0.218067 scale=0.050000,0.050000,1.600000 bb=FIXED bright=- rigshade=false glow=- aud=ALL lane=CORE target=-
+@11 write #12 op=cast/crescent dur=3 pos=-1.504538,0.825000,1.996589 rot=0.011608,-0.317281,0.003884,0.948253 scale=0.040000,3.300000,0.040000 bb=FIXED
+@11 write #13 op=- dur=3 pos=-1.504538,0.825000,1.996589 rot=0.678724,-0.221605,0.227098,0.662308 scale=0.040000,3.300000,0.040000 bb=FIXED
+@11 write #14 op=- dur=6 pos=-1.467187,0.815178,1.947023 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.360000,0.240000,1.000000 bb=CENTER
+@11 write #15 op=- dur=1 pos=-1.504538,0.830000,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=8.000000,4.000000,1.000000 bb=CENTER
+@11 write #16 op=- dur=7 pos=-1.504538,0.820000,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.005000,0.005000,0.480000 bb=FIXED
+@11 write #17 op=- dur=7 pos=-1.504538,0.820000,1.996589 rot=0.233559,-0.412415,0.449049,0.757443 scale=0.005000,0.005000,0.480000 bb=FIXED
+@11 write #18 op=- dur=7 pos=-1.504538,0.820000,1.996589 rot=0.057956,-0.470401,0.704728,0.527942 scale=0.005000,0.005000,0.480000 bb=FIXED
+@11 write #19 op=- dur=7 pos=-1.504538,0.820000,1.996589 rot=-0.126471,-0.456773,0.853118,0.218067 scale=0.005000,0.005000,0.480000 bb=FIXED
+@11 particle - op=cast/dash/dash_hit.hit/sparks[0] type=stab-spark at=-1.504538,0.830000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8629271929592265302
+@11 sound - op=cast/dash/dash_hit.hit/snd sound=entity.player.attack.strong cat=master vol=0.7 pitch=1.1 at=-1.504538,0.810000,1.996589
 @11 effect 00000000-0000-0000-0000-00000000000a op=- hurt
-@11 frame cast/windup op=cast/windup pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
+@11 write #2 op=cast/a_blade dur=1 pos=-1.017852,0.701389,0.852243 rot=0.164675,-0.312484,0.055099,0.933916 scale=0.120000,0.250000,1.800000 bb=FIXED
+@11 write #3 op=cast/a_edge dur=1 pos=-1.031390,0.798826,0.870209 rot=0.189065,-0.310935,0.063260,0.929286 scale=0.120000,0.050000,1.800000 bb=FIXED
+@11 write #4 op=cast/a_handle dur=1 pos=-0.068371,1.424835,-0.407761 rot=-0.057894,-0.316713,-0.019371,0.946555 scale=0.120000,0.100000,0.600000 bb=FIXED
+@11 write #5 op=cast/b_blade dur=1 pos=-0.931376,1.424083,0.903650 rot=-0.218698,-0.308752,-0.073175,0.922761 scale=0.120000,0.250000,1.800000 bb=FIXED
+@11 write #6 op=cast/b_edge dur=1 pos=-0.898014,1.507310,0.859377 rot=-0.194468,-0.310561,-0.065068,0.928170 scale=0.120000,0.050000,1.800000 bb=FIXED
+@11 write #7 op=cast/b_handle dur=1 pos=0.036882,0.772967,-0.381272 rot=-0.428070,-0.283138,-0.143230,0.846211 scale=0.120000,0.100000,0.600000 bb=FIXED
 @11 frame cast/anim op=cast/anim pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@11 frame cast/shears op=cast/shears pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@11 frame cast/hinge_a op=cast/hinge_a pos=-1.546783,1.050000,1.562467 rot=0.107353,-0.315265,0.035920,0.942228
-@11 frame cast/hinge_b op=cast/hinge_b pos=-1.474906,1.050000,1.616630 rot=-0.274624,-0.303709,-0.091888,0.907689
-@11 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324
-@11 frame cast/dash/dash_hit.hit/sparks_at op=cast/dash/dash_hit.hit/sparks_at pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324
 @12 hit - op=cast/dash/dash_hit[1] at=-1.040369,0.900000,1.380616 r=0.800000 shape=sphere rad=0.800000
-@12 write #34 op=- dur=1 pos=-1.123388,1.437051,1.490786 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.581690,0.495882,1.000000 bb=CENTER
-@12 write #35 op=- dur=1 pos=-1.377488,1.648162,1.827988 rot=-0.114286,-0.296008,0.341565,0.884676 scale=0.581690,0.495882,1.000000 bb=CENTER
-@12 write #36 op=- dur=1 pos=-1.631587,1.859273,2.165190 rot=-0.213231,-0.234978,0.637281,0.702275 scale=0.581690,0.495882,1.000000 bb=CENTER
-@12 write #37 op=- dur=1 pos=-1.885687,2.070384,2.502391 rot=-0.283554,-0.142406,0.847453,0.425607 scale=0.581690,0.495882,1.000000 bb=CENTER
-@12 write #38 op=- dur=0 pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=48.000000,12.000000,1.000000 bb=CENTER
-@12 frame cast/windup op=cast/windup pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
+@12 write #15 op=- dur=4 pos=-1.504538,0.896647,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=10.000000,5.000000,1.000000 bb=CENTER
+@12 write #2 op=cast/a_blade dur=1 pos=-2.084793,0.837585,2.268122 rot=0.090893,-0.315844,0.030412,0.943958 scale=0.120000,0.250000,1.800000 bb=FIXED
+@12 write #3 op=cast/a_edge dur=1 pos=-2.088991,0.937341,2.273693 rot=0.115572,-0.314940,0.038670,0.941255 scale=0.120000,0.050000,1.800000 bb=FIXED
+@12 write #4 op=cast/a_handle dur=1 pos=-1.078893,1.305318,0.933247 rot=-0.131981,-0.314217,-0.044160,0.939095 scale=0.120000,0.100000,0.600000 bb=FIXED
+@12 write #5 op=cast/b_blade dur=1 pos=-2.008274,1.237692,2.332741 rot=-0.118309,-0.314826,-0.039586,0.940915 scale=0.120000,0.250000,1.800000 bb=FIXED
+@12 write #6 op=cast/b_edge dur=1 pos=-1.986380,1.330840,2.303687 rot=-0.093638,-0.315754,-0.031331,0.943689 scale=0.120000,0.050000,1.800000 bb=FIXED
+@12 write #7 op=cast/b_handle dur=1 pos=-0.978663,0.945261,0.966401 rot=-0.334692,-0.296886,-0.111987,0.887299 scale=0.120000,0.100000,0.600000 bb=FIXED
+@12 write #8 op=cast/flower[0] dur=1 pos=-1.311186,1.050000,1.740002 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.060000,0.060000,0.500000 bb=FIXED
+@12 write #9 op=cast/flower[1] dur=1 pos=-1.311186,1.050000,1.740002 rot=-0.121427,-0.293151,0.362908,0.876137 scale=0.060000,0.060000,0.500000 bb=FIXED
+@12 write #10 op=cast/flower[2] dur=1 pos=-1.311186,1.050000,1.740002 rot=-0.224368,-0.224368,0.670566,0.670566 scale=0.060000,0.060000,0.500000 bb=FIXED
+@12 write #11 op=cast/flower[3] dur=1 pos=-1.311186,1.050000,1.740002 rot=-0.293151,-0.121427,0.876137,0.362908 scale=0.060000,0.060000,0.500000 bb=FIXED
+@12 write #12 op=cast/crescent dur=1 pos=-1.504538,0.874985,1.996589 rot=0.011608,-0.317281,0.003884,0.948253 scale=0.046667,3.300000,0.046667 bb=FIXED
+@12 write #13 op=- dur=1 pos=-1.504538,0.874985,1.996589 rot=0.678724,-0.221605,0.227098,0.662308 scale=0.046667,3.300000,0.046667 bb=FIXED
+@12 write #14 op=- dur=1 pos=-1.342723,0.832434,1.781853 rot=0.373605,-0.291643,0.125006,0.871629 scale=1.060000,0.706667,1.000000 bb=CENTER
+@12 write #15 op=- dur=1 pos=-1.504538,0.896647,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=8.000000,4.000000,1.000000 bb=CENTER
+@12 write #16 op=- dur=1 pos=-1.504538,0.853324,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.043571,0.043571,1.440000 bb=FIXED
+@12 write #17 op=- dur=1 pos=-1.504538,0.853324,1.996589 rot=0.233559,-0.412415,0.449049,0.757443 scale=0.043571,0.043571,1.440000 bb=FIXED
+@12 write #18 op=- dur=1 pos=-1.504538,0.853324,1.996589 rot=0.057956,-0.470401,0.704728,0.527942 scale=0.043571,0.043571,1.440000 bb=FIXED
+@12 write #19 op=- dur=1 pos=-1.504538,0.853324,1.996589 rot=-0.126471,-0.456773,0.853118,0.218067 scale=0.043571,0.043571,1.440000 bb=FIXED
 @12 frame cast/anim op=cast/anim pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@12 frame cast/shears op=cast/shears pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@12 frame cast/hinge_a op=cast/hinge_a pos=-1.546783,1.050000,1.562467 rot=0.033096,-0.317111,0.011074,0.947746
-@12 frame cast/hinge_b op=cast/hinge_b pos=-1.474906,1.050000,1.616630 rot=-0.175530,-0.311822,-0.058731,0.931937
-@12 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324
-@12 frame cast/dash/dash_hit.hit/sparks_at op=cast/dash/dash_hit.hit/sparks_at pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324
-@13 spawn #47 op=- kind=sprite sprite=couture-cut alpha=1.000000 tint=- seethrough=false pos=-0.920006,1.000000,1.220889 rot=0.158652,-0.274794,-0.474162,0.821272 scale=1.625000,1.250000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@13 write #6 op=cast/blade_a[0] dur=5 pos=-1.785716,1.001250,1.879541 rot=0.197168,-0.310371,0.065971,0.927601 scale=0.060000,0.190000,0.800000 bb=FIXED
-@13 write #7 op=cast/blade_a[1] dur=5 pos=-2.203845,0.915940,2.434417 rot=0.197168,-0.310371,0.065971,0.927601 scale=0.060000,0.120000,0.600000 bb=FIXED
-@13 write #8 op=cast/blade_a[2] dur=5 pos=-2.502507,0.855010,2.830756 rot=0.197168,-0.310371,0.065971,0.927601 scale=0.060000,0.045000,0.400000 bb=FIXED
-@13 write #9 op=cast/edge_a[0] dur=5 pos=-1.790103,1.060660,1.885363 rot=0.226762,-0.308100,0.075873,0.920813 scale=0.060000,0.025000,0.801640 bb=FIXED
-@13 write #10 op=cast/edge_a[1] dur=5 pos=-2.206619,0.953460,2.438099 rot=0.222114,-0.308479,0.074318,0.921945 scale=0.060000,0.025000,0.600870 bb=FIXED
-@13 write #11 op=cast/edge_a[2] dur=5 pos=-2.503549,0.869080,2.832137 rot=0.211228,-0.309333,0.070676,0.924500 scale=0.060000,0.025000,0.400180 bb=FIXED
-@13 write #12 op=cast/handle_a[0] dur=5 pos=-1.441357,1.182340,1.422562 rot=-0.781538,-0.179723,-0.261499,0.537136 scale=0.060000,0.045000,0.311130 bb=FIXED
-@13 write #13 op=cast/handle_a[1] dur=5 pos=-1.248223,1.317450,1.166264 rot=-0.933648,-0.055606,-0.312394,0.166190 scale=0.060000,0.045000,0.451000 bb=FIXED
-@13 write #14 op=cast/handle_a[2] dur=5 pos=-1.072902,1.242400,0.933605 rot=0.902085,-0.097872,0.301833,0.292508 scale=0.060000,0.045000,0.219540 bb=FIXED
-@13 write #15 op=cast/handle_a[3] dur=5 pos=-1.142225,1.031790,1.025600 rot=0.409382,-0.286216,0.136977,0.855409 scale=0.060000,0.045000,0.438290 bb=FIXED
-@13 write #16 op=cast/handle_a[4] dur=5 pos=-1.375182,0.984260,1.334744 rot=-0.026062,-0.317185,-0.008720,0.947965 scale=0.060000,0.045000,0.438290 bb=FIXED
-@13 write #17 op=cast/blade_b[0] dur=5 pos=-1.713838,1.001250,1.933704 rot=0.131981,-0.314217,0.044160,0.939095 scale=0.060000,0.190000,0.800000 bb=FIXED
-@13 write #18 op=cast/blade_b[1] dur=5 pos=-2.131968,0.915940,2.488580 rot=0.131981,-0.314217,0.044160,0.939095 scale=0.060000,0.120000,0.600000 bb=FIXED
-@13 write #19 op=cast/blade_b[2] dur=5 pos=-2.430630,0.855010,2.884919 rot=0.131981,-0.314217,0.044160,0.939095 scale=0.060000,0.045000,0.400000 bb=FIXED
-@13 write #20 op=cast/edge_b[0] dur=5 pos=-1.718226,1.060660,1.939526 rot=0.161977,-0.312642,0.054197,0.934388 scale=0.060000,0.025000,0.801640 bb=FIXED
-@13 write #21 op=cast/edge_b[1] dur=5 pos=-2.134742,0.953460,2.492262 rot=0.157261,-0.312911,0.052619,0.935193 scale=0.060000,0.025000,0.600870 bb=FIXED
-@13 write #22 op=cast/edge_b[2] dur=5 pos=-2.431671,0.869080,2.886301 rot=0.146223,-0.313510,0.048926,0.936983 scale=0.060000,0.025000,0.400180 bb=FIXED
-@13 write #23 op=cast/handle_b[0] dur=5 pos=-1.369480,1.182340,1.476725 rot=-0.817103,-0.161044,-0.273399,0.481311 scale=0.060000,0.045000,0.311130 bb=FIXED
-@13 write #24 op=cast/handle_b[1] dur=5 pos=-1.176345,1.317450,1.220427 rot=-0.942967,-0.033679,-0.315512,0.100657 scale=0.060000,0.045000,0.451000 bb=FIXED
-@13 write #25 op=cast/handle_b[2] dur=5 pos=-1.001025,1.242400,0.987768 rot=0.879483,-0.118688,0.294271,0.354722 scale=0.060000,0.045000,0.219540 bb=FIXED
-@13 write #26 op=cast/handle_b[3] dur=5 pos=-1.070348,1.031790,1.079763 rot=0.348714,-0.295074,0.116678,0.881882 scale=0.060000,0.045000,0.438290 bb=FIXED
-@13 write #27 op=cast/handle_b[4] dur=5 pos=-1.303304,0.984260,1.388907 rot=-0.092126,-0.315804,-0.030825,0.943838 scale=0.060000,0.045000,0.438290 bb=FIXED
-@13 write #47 op=- dur=3 pos=-0.859825,0.900001,1.141026 rot=0.158652,-0.274794,-0.474162,0.821272 scale=2.015000,1.449999,1.000000 bb=CENTER
+@13 spawn #20 op=- kind=sprite sprite=couture-cut alpha=1.000000 tint=- seethrough=false pos=-0.920006,1.000000,1.220889 rot=0.158652,-0.274794,-0.474162,0.821272 scale=1.625000,1.250000,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
 @13 hit - op=cast/dash/dash_hit[2] at=-1.040369,0.900000,1.380616 r=0.800000 shape=sphere rad=0.800000
-@13 write #34 op=- dur=1 pos=-1.030608,1.300018,1.367663 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.489602,0.460801,1.000000 bb=CENTER
-@13 write #35 op=- dur=1 pos=-1.346561,1.562518,1.786947 rot=-0.140340,-0.284582,0.419433,0.850526 scale=0.489602,0.460801,1.000000 bb=CENTER
-@13 write #36 op=- dur=1 pos=-1.662514,1.825018,2.206231 rot=-0.251735,-0.193163,0.752356,0.577303 scale=0.489602,0.460801,1.000000 bb=CENTER
-@13 write #37 op=- dur=1 pos=-1.978467,2.087518,2.625514 rot=-0.311208,-0.061903,0.930102,0.185009 scale=0.489602,0.460801,1.000000 bb=CENTER
-@13 write #38 op=- dur=1 pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=56.000000,14.000000,1.000000 bb=CENTER
-@13 frame cast/windup op=cast/windup pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
+@13 write #2 op=cast/a_blade dur=1 pos=-2.098216,0.979011,2.285935 rot=0.016551,-0.317256,0.005538,0.948179 scale=0.120000,0.250000,1.800000 bb=FIXED
+@13 write #3 op=cast/a_edge dur=1 pos=-2.092971,1.078630,2.278975 rot=0.041365,-0.317003,0.013841,0.947421 scale=0.120000,0.050000,1.800000 bb=FIXED
+@13 write #4 op=cast/a_handle dur=1 pos=-1.060666,1.179514,0.909059 rot=-0.205255,-0.309783,-0.068677,0.925845 scale=0.120000,0.100000,0.600000 bb=FIXED
+@13 write #5 op=cast/b_blade dur=1 pos=-2.019999,1.042638,2.348302 rot=-0.016551,-0.317256,-0.005538,0.948179 scale=0.120000,0.250000,1.800000 bb=FIXED
+@13 write #6 op=cast/b_edge dur=1 pos=-2.010585,1.141407,2.335808 rot=0.008276,-0.317293,0.002769,0.948288 scale=0.120000,0.050000,1.800000 bb=FIXED
+@13 write #7 op=cast/b_handle dur=1 pos=-0.976559,1.122390,0.963610 rot=-0.237441,-0.307198,-0.079447,0.918117 scale=0.120000,0.100000,0.600000 bb=FIXED
+@13 write #12 op=cast/crescent dur=1 pos=-1.504538,0.910802,1.996589 rot=0.011608,-0.317281,0.003884,0.948253 scale=0.043333,3.300000,0.043333 bb=FIXED
+@13 write #13 op=- dur=1 pos=-1.504538,0.910802,1.996589 rot=0.678724,-0.221605,0.227098,0.662308 scale=0.043333,3.300000,0.043333 bb=FIXED
+@13 write #14 op=- dur=1 pos=-1.253539,0.844799,1.663503 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.920000,0.613333,1.000000 bb=CENTER
+@13 write #15 op=- dur=1 pos=-1.504538,0.944402,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=8.500000,4.250000,1.000000 bb=CENTER
+@13 write #16 op=- dur=1 pos=-1.504538,0.877201,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.037143,0.037143,1.280000 bb=FIXED
+@13 write #17 op=- dur=1 pos=-1.504538,0.877201,1.996589 rot=0.233559,-0.412415,0.449049,0.757443 scale=0.037143,0.037143,1.280000 bb=FIXED
+@13 write #18 op=- dur=1 pos=-1.504538,0.877201,1.996589 rot=0.057956,-0.470401,0.704728,0.527942 scale=0.037143,0.037143,1.280000 bb=FIXED
+@13 write #19 op=- dur=1 pos=-1.504538,0.877201,1.996589 rot=-0.126471,-0.456773,0.853118,0.218067 scale=0.037143,0.037143,1.280000 bb=FIXED
 @13 frame cast/anim op=cast/anim pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@13 frame cast/shears op=cast/shears pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@13 frame cast/hinge_a op=cast/hinge_a pos=-1.546783,1.050000,1.562467 rot=-0.041365,-0.317003,-0.013841,0.947421
-@13 frame cast/hinge_b op=cast/hinge_b pos=-1.474906,1.050000,1.616630 rot=-0.074405,-0.316327,-0.024895,0.945400
-@13 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324
-@13 frame cast/passage op=cast/passage pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
 @14 hit - op=cast/dash/dash_hit[3] at=-1.040369,0.900000,1.380616 r=0.800000 shape=sphere rad=0.800000
-@14 write #32 op=cast/crescent dur=5 pos=-1.504538,1.950000,1.996589 rot=-0.362908,-0.293151,-0.121427,0.876137 scale=0.047526,3.300000,0.056448 bb=FIXED
-@14 write #33 op=- dur=5 pos=-1.504538,1.950000,1.996589 rot=0.362908,-0.293151,0.121427,0.876137 scale=0.047526,3.300000,0.056448 bb=FIXED
-@14 write #34 op=- dur=1 pos=-0.982965,1.229649,1.304438 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.442313,0.442786,1.000000 bb=CENTER
-@14 write #35 op=- dur=1 pos=-1.330680,1.518538,1.765872 rot=-0.153294,-0.277819,0.458147,0.830313 scale=0.442313,0.442786,1.000000 bb=CENTER
-@14 write #36 op=- dur=1 pos=-1.678395,1.807427,2.227306 rot=-0.268435,-0.169188,0.802269,0.505650 scale=0.442313,0.442786,1.000000 bb=CENTER
-@14 write #37 op=- dur=1 pos=-2.026111,2.096316,2.688740 rot=-0.316768,-0.018450,0.946719,0.055140 scale=0.442313,0.442786,1.000000 bb=CENTER
-@14 write #38 op=- dur=1 pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=60.000000,15.000000,1.000000 bb=CENTER
-@14 write #39 op=- dur=4 pos=-1.218115,2.605910,2.212424 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.033640,0.008410,1.000000 bb=CENTER
-@14 write #40 op=- dur=4 pos=-2.080203,2.420720,2.051966 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.033640,0.008410,1.000000 bb=CENTER
-@14 write #41 op=- dur=4 pos=-1.044830,2.235520,1.486317 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.033640,0.008410,1.000000 bb=CENTER
-@14 write #42 op=- dur=4 pos=-1.498405,2.050320,2.731619 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.033640,0.008410,1.000000 bb=CENTER
-@14 write #43 op=- dur=4 pos=-2.005510,1.865090,1.458806 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.033640,0.008410,1.000000 bb=CENTER
-@14 write #44 op=- dur=4 pos=-0.819909,1.679890,2.050944 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.033640,0.008410,1.000000 bb=CENTER
-@14 write #45 op=- dur=4 pos=-1.960570,1.494660,2.352236 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.033640,0.008410,1.000000 bb=CENTER
-@14 write #46 op=- dur=4 pos=-1.444982,1.309460,1.642887 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.033640,0.008410,1.000000 bb=CENTER
-@14 particle - op=cast/dash/dash_hit.hit/sparks[1] type=stab-spark at=-1.504538,2.000000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4927271760141999960
-@14 frame cast/windup op=cast/windup pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
+@14 write #12 op=cast/crescent dur=5 pos=-1.504538,0.934810,1.996589 rot=0.011608,-0.317281,0.003884,0.948253 scale=0.010000,3.300000,0.010000 bb=FIXED
+@14 write #13 op=- dur=5 pos=-1.504538,0.934810,1.996589 rot=0.678724,-0.221605,0.227098,0.662308 scale=0.010000,3.300000,0.010000 bb=FIXED
+@14 particle - op=cast/dash/dash_hit.hit/sparks[1] type=stab-spark at=-1.504538,0.976414,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2254547660879320251
+@14 write #2 op=cast/a_blade dur=1 pos=-2.093325,0.909433,2.279445 rot=0.052937,-0.316810,0.017712,0.946845 scale=0.120000,0.250000,1.800000 bb=FIXED
+@14 write #3 op=cast/a_edge dur=1 pos=-2.092695,1.009427,2.278608 rot=0.077704,-0.316238,0.025999,0.945135 scale=0.120000,0.050000,1.800000 bb=FIXED
+@14 write #4 op=cast/a_handle dur=1 pos=-1.068090,1.241612,0.918912 rot=-0.169562,-0.312191,-0.056735,0.933041 scale=0.120000,0.100000,0.600000 bb=FIXED
+@14 write #5 op=cast/b_blade dur=1 pos=-2.018638,0.985363,2.346495 rot=0.013241,-0.317274,0.004430,0.948231 scale=0.120000,0.250000,1.800000 bb=FIXED
+@14 write #6 op=cast/b_edge dur=1 pos=-2.012974,1.084919,2.338979 rot=0.038058,-0.317049,0.012734,0.947560 scale=0.120000,0.050000,1.800000 bb=FIXED
+@14 write #7 op=cast/b_handle dur=1 pos=-0.980270,1.173826,0.968534 rot=-0.208485,-0.309542,-0.069758,0.925122 scale=0.120000,0.100000,0.600000 bb=FIXED
+@14 write #12 op=cast/crescent dur=1 pos=-1.504538,0.934810,1.996589 rot=0.011608,-0.317281,0.003884,0.948253 scale=0.040000,3.300000,0.040000 bb=FIXED
+@14 write #13 op=- dur=1 pos=-1.504538,0.934810,1.996589 rot=0.678724,-0.221605,0.227098,0.662308 scale=0.040000,3.300000,0.040000 bb=FIXED
+@14 write #14 op=- dur=1 pos=-1.193757,0.853087,1.584169 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.780000,0.520000,1.000000 bb=CENTER
+@14 write #15 op=- dur=1 pos=-1.504538,0.976414,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=9.000000,4.500000,1.000000 bb=CENTER
+@14 write #16 op=- dur=1 pos=-1.504538,0.893207,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.030714,0.030714,1.120000 bb=FIXED
+@14 write #17 op=- dur=1 pos=-1.504538,0.893207,1.996589 rot=0.233559,-0.412415,0.449049,0.757443 scale=0.030714,0.030714,1.120000 bb=FIXED
+@14 write #18 op=- dur=1 pos=-1.504538,0.893207,1.996589 rot=0.057956,-0.470401,0.704728,0.527942 scale=0.030714,0.030714,1.120000 bb=FIXED
+@14 write #19 op=- dur=1 pos=-1.504538,0.893207,1.996589 rot=-0.126471,-0.456773,0.853118,0.218067 scale=0.030714,0.030714,1.120000 bb=FIXED
 @14 frame cast/anim op=cast/anim pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@14 frame cast/shears op=cast/shears pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@14 frame cast/hinge_a op=cast/hinge_a pos=-1.546783,1.050000,1.562467 rot=-0.004965,-0.317300,-0.001661,0.948311
-@14 frame cast/hinge_b op=cast/hinge_b pos=-1.474906,1.050000,1.616630 rot=-0.044672,-0.316952,-0.014947,0.947271
-@14 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324
-@14 frame cast/passage op=cast/passage pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@14 remove #0 op=cast/fold_0
-@14 remove #1 op=cast/fold_1
-@14 remove #2 op=cast/fold_2
-@14 remove #3 op=cast/fold_3
-@14 remove #4 op=cast/fold_4
-@14 remove #5 op=cast/spindle
 @15 hit - op=cast/dash/dash_hit[4] at=-1.040369,0.900000,1.380616 r=0.800000 shape=sphere rad=0.800000
-@15 write #34 op=- dur=1 pos=-0.965412,1.203724,1.281144 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.424891,0.436149,1.000000 bb=CENTER
-@15 write #35 op=- dur=1 pos=-1.324829,1.502335,1.758107 rot=-0.157986,-0.275178,0.472170,0.822419 scale=0.424891,0.436149,1.000000 bb=CENTER
-@15 write #36 op=- dur=1 pos=-1.684246,1.800946,2.235070 rot=-0.274021,-0.159983,0.818964,0.478138 scale=0.424891,0.436149,1.000000 bb=CENTER
-@15 write #37 op=- dur=1 pos=-2.043664,2.099557,2.712033 rot=-0.317296,-0.002307,0.948299,0.006896 scale=0.424891,0.436149,1.000000 bb=CENTER
-@15 write #38 op=- dur=1 pos=-1.504538,2.000000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=64.000000,16.000000,1.000000 bb=CENTER
+@15 write #2 op=cast/a_blade dur=1 pos=-2.085236,0.840683,2.268710 rot=0.089245,-0.315896,0.029861,0.944115 scale=0.120000,0.250000,1.800000 bb=FIXED
+@15 write #3 op=cast/a_edge dur=1 pos=-2.089225,0.940463,2.274003 rot=0.113929,-0.315007,0.038120,0.941455 scale=0.120000,0.050000,1.800000 bb=FIXED
+@15 write #4 op=cast/a_handle dur=1 pos=-1.078360,1.302579,0.932540 rot=-0.133620,-0.314139,-0.044709,0.938863 scale=0.120000,0.100000,0.600000 bb=FIXED
+@15 write #5 op=cast/b_blade dur=1 pos=-2.015114,0.928344,2.341819 rot=0.043019,-0.316978,0.014394,0.947347 scale=0.120000,0.250000,1.800000 bb=FIXED
+@15 write #6 op=cast/b_edge dur=1 pos=-2.013224,1.028294,2.339311 rot=0.067803,-0.316493,0.022686,0.945897 scale=0.120000,0.050000,1.800000 bb=FIXED
+@15 write #7 op=cast/b_handle dur=1 pos=-0.985918,1.224773,0.976029 rot=-0.179324,-0.311580,-0.060001,0.931215 scale=0.120000,0.100000,0.600000 bb=FIXED
+@15 write #12 op=cast/crescent dur=1 pos=-1.504538,0.949373,1.996589 rot=0.011608,-0.317281,0.003884,0.948253 scale=0.034000,3.300000,0.034000 bb=FIXED
+@15 write #13 op=- dur=1 pos=-1.504538,0.949373,1.996589 rot=0.678724,-0.221605,0.227098,0.662308 scale=0.034000,3.300000,0.034000 bb=FIXED
+@15 write #14 op=- dur=1 pos=-1.157496,0.858115,1.536049 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.640000,0.426667,1.000000 bb=CENTER
+@15 write #15 op=- dur=1 pos=-1.504538,0.995831,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=9.500000,4.750000,1.000000 bb=CENTER
+@15 write #16 op=- dur=1 pos=-1.504538,0.902915,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.024286,0.024286,0.960000 bb=FIXED
+@15 write #17 op=- dur=1 pos=-1.504538,0.902915,1.996589 rot=0.233559,-0.412415,0.449049,0.757443 scale=0.024286,0.024286,0.960000 bb=FIXED
+@15 write #18 op=- dur=1 pos=-1.504538,0.902915,1.996589 rot=0.057956,-0.470401,0.704728,0.527942 scale=0.024286,0.024286,0.960000 bb=FIXED
+@15 write #19 op=- dur=1 pos=-1.504538,0.902915,1.996589 rot=-0.126471,-0.456773,0.853118,0.218067 scale=0.024286,0.024286,0.960000 bb=FIXED
 @15 frame cast/anim op=cast/anim pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@15 frame cast/shears op=cast/shears pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@15 frame cast/hinge_a op=cast/hinge_a pos=-1.546783,1.050000,1.562467 rot=0.031442,-0.317130,0.010520,0.947802
-@15 frame cast/hinge_b op=cast/hinge_b pos=-1.474906,1.050000,1.616630 rot=-0.014896,-0.317266,-0.004984,0.948207
-@15 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324
-@15 frame cast/passage op=cast/passage pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@16 write #47 op=- dur=4 pos=-0.799643,0.850001,1.061163 rot=0.158652,-0.274794,-0.474162,0.821272 scale=2.337400,0.522000,1.000000 bb=CENTER
-@16 write #34 op=- dur=1 pos=-0.962904,1.200020,1.277817 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.422402,0.435201,1.000000 bb=CENTER
-@16 write #35 op=- dur=1 pos=-1.323993,1.500020,1.756998 rot=-0.158652,-0.274794,0.474162,0.821272 scale=0.422402,0.435201,1.000000 bb=CENTER
-@16 write #36 op=- dur=1 pos=-1.685082,1.800020,2.236179 rot=-0.274794,-0.158652,0.821272,0.474162 scale=0.422402,0.435201,1.000000 bb=CENTER
-@16 write #37 op=- dur=1 pos=-2.046171,2.100020,2.715361 rot=0.317305,0.000000,-0.948324,0.000000 scale=0.422402,0.435201,1.000000 bb=CENTER
+@16 write #2 op=cast/a_blade dur=1 pos=-2.073997,0.773168,2.253795 rot=0.125422,-0.314517,0.041966,0.939993 scale=0.120000,0.250000,1.800000 bb=FIXED
+@16 write #3 op=cast/a_edge dur=1 pos=-2.082580,0.872145,2.265186 rot=0.149985,-0.313311,0.050184,0.936388 scale=0.120000,0.050000,1.800000 bb=FIXED
+@16 write #4 op=cast/a_handle dur=1 pos=-1.091414,1.362058,0.949863 rot=-0.097481,-0.315624,-0.032617,0.943300 scale=0.120000,0.100000,0.600000 bb=FIXED
+@16 write #5 op=cast/b_blade dur=1 pos=-2.009443,0.871804,2.334293 rot=0.072754,-0.316369,0.024343,0.945529 scale=0.120000,0.250000,1.800000 bb=FIXED
+@16 write #6 op=cast/b_edge dur=1 pos=-2.011334,0.971755,2.336802 rot=0.097481,-0.315624,0.032617,0.943300 scale=0.120000,0.050000,1.800000 bb=FIXED
+@16 write #7 op=cast/b_handle dur=1 pos=-0.993479,1.275030,0.986063 rot=-0.149985,-0.313311,-0.050184,0.936388 scale=0.120000,0.100000,0.600000 bb=FIXED
+@16 write #12 op=cast/crescent dur=1 pos=-1.504538,0.956851,1.996589 rot=0.011608,-0.317281,0.003884,0.948253 scale=0.028000,3.300000,0.028000 bb=FIXED
+@16 write #13 op=- dur=1 pos=-1.504538,0.956851,1.996589 rot=0.678724,-0.221605,0.227098,0.662308 scale=0.028000,3.300000,0.028000 bb=FIXED
+@16 write #14 op=- dur=1 pos=-1.138875,0.860696,1.511338 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.500000,0.333333,1.000000 bb=CENTER
+@16 write #15 op=- dur=1 pos=-1.504538,1.005802,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=10.000000,5.000000,1.000000 bb=CENTER
+@16 write #16 op=- dur=1 pos=-1.504538,0.907901,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.017857,0.017857,0.800000 bb=FIXED
+@16 write #17 op=- dur=1 pos=-1.504538,0.907901,1.996589 rot=0.233559,-0.412415,0.449049,0.757443 scale=0.017857,0.017857,0.800000 bb=FIXED
+@16 write #18 op=- dur=1 pos=-1.504538,0.907901,1.996589 rot=0.057956,-0.470401,0.704728,0.527942 scale=0.017857,0.017857,0.800000 bb=FIXED
+@16 write #19 op=- dur=1 pos=-1.504538,0.907901,1.996589 rot=-0.126471,-0.456773,0.853118,0.218067 scale=0.017857,0.017857,0.800000 bb=FIXED
 @16 frame cast/anim op=cast/anim pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@16 frame cast/shears op=cast/shears pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@16 frame cast/hinge_a op=cast/hinge_a pos=-1.546783,1.050000,1.562467 rot=0.067803,-0.316493,0.022686,0.945897
-@16 frame cast/hinge_b op=cast/hinge_b pos=-1.474906,1.050000,1.616630 rot=0.014896,-0.317266,0.004984,0.948207
-@16 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324
-@16 frame cast/passage op=cast/passage pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
+@17 write #2 op=cast/a_blade dur=1 pos=-2.059673,0.707284,2.234787 rot=0.161414,-0.312675,0.054008,0.934486 scale=0.120000,0.250000,1.800000 bb=FIXED
+@17 write #3 op=cast/a_edge dur=1 pos=-2.072801,0.804875,2.252208 rot=0.185820,-0.311154,0.062175,0.929940 scale=0.120000,0.050000,1.800000 bb=FIXED
+@17 write #4 op=cast/a_handle dur=1 pos=-1.107176,1.419698,0.970780 rot=-0.061198,-0.316643,-0.020476,0.946347 scale=0.120000,0.100000,0.600000 bb=FIXED
+@17 write #5 op=cast/b_blade dur=1 pos=-2.001647,0.815968,2.323947 rot=0.102418,-0.315449,0.034269,0.942777 scale=0.120000,0.250000,1.800000 bb=FIXED
+@17 write #6 op=cast/b_edge dur=1 pos=-2.007311,0.915524,2.331463 rot=0.127062,-0.314444,0.042514,0.939773 scale=0.120000,0.050000,1.800000 bb=FIXED
+@17 write #7 op=cast/b_handle dur=1 pos=-1.002925,1.324399,0.998598 rot=-0.120498,-0.314733,-0.040318,0.940637 scale=0.120000,0.100000,0.600000 bb=FIXED
+@17 write #12 op=cast/crescent dur=1 pos=-1.504538,0.959606,1.996589 rot=0.011608,-0.317281,0.003884,0.948253 scale=0.022000,3.300000,0.022000 bb=FIXED
+@17 write #13 op=- dur=1 pos=-1.504538,0.959606,1.996589 rot=0.678724,-0.221605,0.227098,0.662308 scale=0.022000,3.300000,0.022000 bb=FIXED
+@17 write #14 op=- dur=1 pos=-1.132015,0.861647,1.502234 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.360000,0.240000,1.000000 bb=CENTER
+@17 write #15 op=- dur=1 pos=-1.504538,1.009475,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=10.000000,5.000000,1.000000 bb=CENTER
+@17 write #16 op=- dur=1 pos=-1.504538,0.909738,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.011429,0.011429,0.640000 bb=FIXED
+@17 write #17 op=- dur=1 pos=-1.504538,0.909738,1.996589 rot=0.233559,-0.412415,0.449049,0.757443 scale=0.011429,0.011429,0.640000 bb=FIXED
+@17 write #18 op=- dur=1 pos=-1.504538,0.909738,1.996589 rot=0.057956,-0.470401,0.704728,0.527942 scale=0.011429,0.011429,0.640000 bb=FIXED
+@17 write #19 op=- dur=1 pos=-1.504538,0.909738,1.996589 rot=-0.126471,-0.456773,0.853118,0.218067 scale=0.011429,0.011429,0.640000 bb=FIXED
 @17 frame cast/anim op=cast/anim pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@17 frame cast/shears op=cast/shears pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@17 frame cast/hinge_a op=cast/hinge_a pos=-1.546783,1.050000,1.562467 rot=0.104064,-0.315388,0.034819,0.942597
-@17 frame cast/hinge_b op=cast/hinge_b pos=-1.474906,1.050000,1.616630 rot=0.044672,-0.316952,0.014947,0.947271
-@17 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324
-@17 frame cast/passage op=cast/passage pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@17 remove #38 op=-
-@18 write #6 op=cast/blade_a[0] dur=3 pos=-1.785716,1.001250,1.879541 rot=0.316557,-0.299105,0.105918,0.893929 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #7 op=cast/blade_a[1] dur=3 pos=-2.203845,0.915940,2.434417 rot=0.316557,-0.299105,0.105918,0.893929 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #8 op=cast/blade_a[2] dur=3 pos=-2.502507,0.855010,2.830756 rot=0.316557,-0.299105,0.105918,0.893929 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #9 op=cast/edge_a[0] dur=3 pos=-1.790103,1.060660,1.885363 rot=0.345012,-0.295560,0.115439,0.883337 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #10 op=cast/edge_a[1] dur=3 pos=-2.206619,0.953460,2.438099 rot=0.340552,-0.296139,0.113947,0.885066 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #11 op=cast/edge_a[2] dur=3 pos=-2.503549,0.869080,2.832137 rot=0.330092,-0.297462,0.110447,0.889020 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #12 op=cast/handle_a[0] dur=3 pos=-1.441357,1.182340,1.422562 rot=-0.704742,-0.212318,-0.235803,0.634552 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #13 op=cast/handle_a[1] dur=3 pos=-1.248223,1.317450,1.166264 rot=-0.903968,-0.095906,-0.302464,0.286634 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #14 op=cast/handle_a[2] dur=3 pos=-1.072902,1.242400,0.933605 rot=0.932547,-0.057637,0.312026,0.172260 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #15 op=cast/handle_a[3] dur=3 pos=-1.142225,1.031790,1.025600 rot=0.517533,-0.265888,0.173164,0.794656 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #16 op=cast/handle_a[4] dur=3 pos=-1.375182,0.984260,1.334744 rot=0.097895,-0.315609,0.032755,0.943257 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #17 op=cast/blade_b[0] dur=3 pos=-1.713838,1.001250,1.933704 rot=0.253428,-0.305764,0.084796,0.913834 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #18 op=cast/blade_b[1] dur=3 pos=-2.131968,0.915940,2.488580 rot=0.253428,-0.305764,0.084796,0.913834 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #19 op=cast/blade_b[2] dur=3 pos=-2.430630,0.855010,2.884919 rot=0.253428,-0.305764,0.084796,0.913834 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #20 op=cast/edge_b[0] dur=3 pos=-1.718226,1.060660,1.939526 rot=0.282553,-0.302893,0.094541,0.905252 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #21 op=cast/edge_b[1] dur=3 pos=-2.134742,0.953460,2.492262 rot=0.277983,-0.303366,0.093012,0.906666 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #22 op=cast/edge_b[2] dur=3 pos=-2.431671,0.869080,2.886301 rot=0.267273,-0.304442,0.089428,0.909881 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #23 op=cast/handle_b[0] dur=3 pos=-1.369480,1.182340,1.476725 rot=-0.747289,-0.195352,-0.250039,0.583846 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #24 op=cast/handle_b[1] dur=3 pos=-1.176345,1.317450,1.220427 rot=-0.921761,-0.074574,-0.308417,0.222878 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #25 op=cast/handle_b[2] dur=3 pos=-1.001025,1.242400,0.987768 rot=0.918259,-0.079263,0.307245,0.236892 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #26 op=cast/handle_b[3] dur=3 pos=-1.070348,1.031790,1.079763 rot=0.460839,-0.277320,0.154195,0.828821 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #27 op=cast/handle_b[4] dur=3 pos=-1.303304,0.984260,1.388907 rot=0.031858,-0.317126,0.010660,0.947788 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #28 op=cast/hinge_flower[0] dur=3 pos=-1.606681,1.050000,1.517330 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #29 op=cast/hinge_flower[1] dur=3 pos=-1.415008,1.050000,1.661766 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #30 op=cast/hinge_flower[2] dur=3 pos=-1.510844,1.170000,1.589548 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
-@18 write #31 op=cast/hinge_flower[3] dur=3 pos=-1.510844,0.930000,1.589548 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
+@17 remove #15 op=-
+@18 write #2 op=cast/a_blade dur=3 pos=-2.042350,0.643420,2.211798 rot=0.197168,-0.310371,0.065971,0.927601 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #3 op=cast/a_edge dur=3 pos=-2.059945,0.739050,2.235148 rot=0.221382,-0.308538,0.074073,0.922121 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #4 op=cast/a_handle dur=3 pos=-1.125552,1.475158,0.995166 rot=-0.024824,-0.317196,-0.008306,0.947999 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #5 op=cast/b_blade dur=3 pos=-1.991756,0.761056,2.310822 rot=0.131981,-0.314217,0.044160,0.939095 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #6 op=cast/b_edge dur=3 pos=-2.001171,0.859825,2.323315 rot=0.156519,-0.312953,0.052370,0.935318 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #7 op=cast/b_handle dur=3 pos=-1.014217,1.372685,1.013583 rot=-0.090893,-0.315844,-0.030412,0.943958 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #8 op=cast/flower[0] dur=3 pos=-1.311186,1.050000,1.740002 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #9 op=cast/flower[1] dur=3 pos=-1.311186,1.050000,1.740002 rot=-0.121427,-0.293151,0.362908,0.876137 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #10 op=cast/flower[2] dur=3 pos=-1.311186,1.050000,1.740002 rot=-0.224368,-0.224368,0.670566,0.670566 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #11 op=cast/flower[3] dur=3 pos=-1.311186,1.050000,1.740002 rot=-0.293151,-0.121427,0.876137,0.362908 scale=0.000000,0.000000,0.000000 bb=FIXED
+@18 write #2 op=cast/a_blade dur=1 pos=-2.042350,0.643420,2.211798 rot=0.197168,-0.310371,0.065971,0.927601 scale=0.120000,0.250000,1.800000 bb=FIXED
+@18 write #3 op=cast/a_edge dur=1 pos=-2.059945,0.739050,2.235148 rot=0.221382,-0.308538,0.074073,0.922121 scale=0.120000,0.050000,1.800000 bb=FIXED
+@18 write #4 op=cast/a_handle dur=1 pos=-1.125552,1.475158,0.995166 rot=-0.024824,-0.317196,-0.008306,0.947999 scale=0.120000,0.100000,0.600000 bb=FIXED
+@18 write #5 op=cast/b_blade dur=1 pos=-1.991756,0.761056,2.310822 rot=0.131981,-0.314217,0.044160,0.939095 scale=0.120000,0.250000,1.800000 bb=FIXED
+@18 write #6 op=cast/b_edge dur=1 pos=-2.001171,0.859825,2.323315 rot=0.156519,-0.312953,0.052370,0.935318 scale=0.120000,0.050000,1.800000 bb=FIXED
+@18 write #7 op=cast/b_handle dur=1 pos=-1.014217,1.372685,1.013583 rot=-0.090893,-0.315844,-0.030412,0.943958 scale=0.120000,0.100000,0.600000 bb=FIXED
+@18 write #12 op=cast/crescent dur=1 pos=-1.504538,0.960000,1.996589 rot=0.011608,-0.317281,0.003884,0.948253 scale=0.016000,3.300000,0.016000 bb=FIXED
+@18 write #13 op=- dur=1 pos=-1.504538,0.960000,1.996589 rot=0.678724,-0.221605,0.227098,0.662308 scale=0.016000,3.300000,0.016000 bb=FIXED
+@18 write #14 op=- dur=1 pos=-1.131035,0.861783,1.500934 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.360000,0.240000,1.000000 bb=CENTER
+@18 write #16 op=- dur=1 pos=-1.504538,0.910000,1.996589 rot=0.373605,-0.291643,0.125006,0.871629 scale=0.005000,0.005000,0.480000 bb=FIXED
+@18 write #17 op=- dur=1 pos=-1.504538,0.910000,1.996589 rot=0.233559,-0.412415,0.449049,0.757443 scale=0.005000,0.005000,0.480000 bb=FIXED
+@18 write #18 op=- dur=1 pos=-1.504538,0.910000,1.996589 rot=0.057956,-0.470401,0.704728,0.527942 scale=0.005000,0.005000,0.480000 bb=FIXED
+@18 write #19 op=- dur=1 pos=-1.504538,0.910000,1.996589 rot=-0.126471,-0.456773,0.853118,0.218067 scale=0.005000,0.005000,0.480000 bb=FIXED
 @18 frame cast/anim op=cast/anim pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@18 frame cast/shears op=cast/shears pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@18 frame cast/hinge_a op=cast/hinge_a pos=-1.546783,1.050000,1.562467 rot=0.140171,-0.313819,0.046901,0.937907
-@18 frame cast/hinge_b op=cast/hinge_b pos=-1.474906,1.050000,1.616630 rot=0.074405,-0.316327,0.024895,0.945400
-@18 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324
-@18 frame cast/passage op=cast/passage pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@18 remove #34 op=-
-@18 remove #35 op=-
-@18 remove #36 op=-
-@18 remove #37 op=-
+@18 remove #14 op=-
+@19 write #2 op=cast/a_blade dur=1 pos=-2.019154,0.573776,2.181015 rot=0.237441,-0.307198,0.079447,0.918117 scale=0.080000,0.166667,1.200000 bb=FIXED
+@19 write #3 op=cast/a_edge dur=1 pos=-2.041698,0.666495,2.210933 rot=0.261393,-0.305013,0.087461,0.911587 scale=0.080000,0.033333,1.200000 bb=FIXED
+@19 write #4 op=cast/a_handle dur=1 pos=-1.149470,1.535122,1.026907 rot=0.016551,-0.317256,0.005538,0.948179 scale=0.080000,0.066667,0.400000 bb=FIXED
+@19 write #5 op=cast/b_blade dur=1 pos=-1.974619,0.686726,2.288079 rot=0.172818,-0.311991,0.057824,0.932444 scale=0.080000,0.166667,1.200000 bb=FIXED
+@19 write #6 op=cast/b_edge dur=1 pos=-1.989178,0.783756,2.307400 rot=0.197168,-0.310371,0.065971,0.927601 scale=0.080000,0.033333,1.200000 bb=FIXED
+@19 write #7 op=cast/b_handle dur=1 pos=-1.032880,1.437597,1.038350 rot=-0.049631,-0.316870,-0.016606,0.947024 scale=0.080000,0.066667,0.400000 bb=FIXED
 @19 frame cast/anim op=cast/anim pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@19 frame cast/shears op=cast/shears pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@19 frame cast/hinge_a op=cast/hinge_a pos=-1.546783,1.050000,1.562467 rot=0.180949,-0.311475,0.060545,0.930900
-@19 frame cast/hinge_b op=cast/hinge_b pos=-1.474906,1.050000,1.616630 rot=0.115571,-0.314940,0.038670,0.941255
-@19 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324
-@19 frame cast/passage op=cast/passage pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@19 remove #39 op=-
-@19 remove #40 op=-
-@19 remove #41 op=-
-@19 remove #42 op=-
-@19 remove #43 op=-
-@19 remove #44 op=-
-@19 remove #45 op=-
-@19 remove #46 op=-
+@19 remove #16 op=-
+@19 remove #17 op=-
+@19 remove #18 op=-
+@19 remove #19 op=-
+@20 write #2 op=cast/a_blade dur=1 pos=-1.992392,0.507758,2.145502 rot=0.277263,-0.303440,0.092771,0.906886 scale=0.040000,0.083333,0.600000 bb=FIXED
+@20 write #3 op=cast/a_edge dur=1 pos=-2.019714,0.596858,2.181759 rot=0.300908,-0.300908,0.100682,0.899318 scale=0.040000,0.016667,0.600000 bb=FIXED
+@20 write #4 op=cast/a_handle dur=1 pos=-1.176443,1.591394,1.062701 rot=0.057894,-0.316713,0.019371,0.946555 scale=0.040000,0.033333,0.200000 bb=FIXED
+@20 write #5 op=cast/b_blade dur=1 pos=-1.953647,0.615161,2.260250 rot=0.213326,-0.309172,0.071378,0.924018 scale=0.040000,0.083333,0.600000 bb=FIXED
+@20 write #6 op=cast/b_edge dur=1 pos=-1.973241,0.709713,2.286251 rot=0.237441,-0.307198,0.079447,0.918117 scale=0.040000,0.016667,0.600000 bb=FIXED
+@20 write #7 op=cast/b_handle dur=1 pos=-1.054877,1.499558,1.067541 rot=-0.008276,-0.317293,-0.002769,0.948288 scale=0.040000,0.033333,0.200000 bb=FIXED
 @20 frame cast/anim op=cast/anim pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@20 frame cast/shears op=cast/shears pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@20 frame cast/hinge_a op=cast/hinge_a pos=-1.546783,1.050000,1.562467 rot=0.221382,-0.308538,0.074073,0.922121
-@20 frame cast/hinge_b op=cast/hinge_b pos=-1.474906,1.050000,1.616630 rot=0.156518,-0.312953,0.052370,0.935318
-@20 frame cast/dash/dash_hit.hit/hit_pt op=cast/dash/dash_hit.hit/hit_pt pos=-1.504538,0.900000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324
-@20 frame cast/passage op=cast/passage pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@20 remove #32 op=cast/crescent
-@20 remove #33 op=-
+@20 remove #12 op=cast/crescent
+@20 remove #13 op=-
+@21 write #2 op=cast/a_blade dur=1 pos=-1.962271,0.445865,2.105529 rot=0.316557,-0.299105,0.105918,0.893929 scale=0.000000,0.000000,0.000000 bb=FIXED
+@21 write #3 op=cast/a_edge dur=1 pos=-1.994162,0.530670,2.147850 rot=0.339849,-0.296229,0.113712,0.885336 scale=0.000000,0.000000,0.000000 bb=FIXED
+@21 write #4 op=cast/a_handle dur=1 pos=-1.206264,1.643545,1.102275 rot=0.099127,-0.315566,0.033167,0.943129 scale=0.000000,0.000000,0.000000 bb=FIXED
+@21 write #5 op=cast/b_blade dur=1 pos=-1.929002,0.546905,2.227545 rot=0.253428,-0.305764,0.084796,0.913834 scale=0.000000,0.000000,0.000000 bb=FIXED
+@21 write #6 op=cast/b_edge dur=1 pos=-1.953481,0.638260,2.260028 rot=0.277263,-0.303440,0.092771,0.906886 scale=0.000000,0.000000,0.000000 bb=FIXED
+@21 write #7 op=cast/b_handle dur=1 pos=-1.080040,1.558098,1.100934 rot=0.033096,-0.317111,0.011074,0.947746 scale=0.000000,0.000000,0.000000 bb=FIXED
 @21 frame cast/anim op=cast/anim pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@21 frame cast/shears op=cast/shears pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@21 frame cast/hinge_a op=cast/hinge_a pos=-1.546783,1.050000,1.562467 rot=0.261393,-0.305013,0.087461,0.911587
-@21 frame cast/hinge_b op=cast/hinge_b pos=-1.474906,1.050000,1.616630 rot=0.197167,-0.310371,0.065971,0.927601
-@21 frame cast/passage op=cast/passage pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
 @22 frame cast/anim op=cast/anim pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@22 frame cast/shears op=cast/shears pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@22 frame cast/hinge_a op=cast/hinge_a pos=-1.546783,1.050000,1.562467 rot=0.261393,-0.305013,0.087461,0.911587
-@22 frame cast/hinge_b op=cast/hinge_b pos=-1.474906,1.050000,1.616630 rot=0.197167,-0.310371,0.065971,0.927601
-@22 frame cast/passage op=cast/passage pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
-@22 remove #6 op=cast/blade_a[0]
-@22 remove #7 op=cast/blade_a[1]
-@22 remove #8 op=cast/blade_a[2]
-@22 remove #9 op=cast/edge_a[0]
-@22 remove #10 op=cast/edge_a[1]
-@22 remove #11 op=cast/edge_a[2]
-@22 remove #12 op=cast/handle_a[0]
-@22 remove #13 op=cast/handle_a[1]
-@22 remove #14 op=cast/handle_a[2]
-@22 remove #15 op=cast/handle_a[3]
-@22 remove #16 op=cast/handle_a[4]
-@22 remove #17 op=cast/blade_b[0]
-@22 remove #18 op=cast/blade_b[1]
-@22 remove #19 op=cast/blade_b[2]
-@22 remove #20 op=cast/edge_b[0]
-@22 remove #21 op=cast/edge_b[1]
-@22 remove #22 op=cast/edge_b[2]
-@22 remove #23 op=cast/handle_b[0]
-@22 remove #24 op=cast/handle_b[1]
-@22 remove #25 op=cast/handle_b[2]
-@22 remove #26 op=cast/handle_b[3]
-@22 remove #27 op=cast/handle_b[4]
-@22 remove #28 op=cast/hinge_flower[0]
-@22 remove #29 op=cast/hinge_flower[1]
-@22 remove #30 op=cast/hinge_flower[2]
-@22 remove #31 op=cast/hinge_flower[3]
-@22 remove #47 op=-
+@22 remove #2 op=cast/a_blade
+@22 remove #3 op=cast/a_edge
+@22 remove #4 op=cast/a_handle
+@22 remove #5 op=cast/b_blade
+@22 remove #6 op=cast/b_edge
+@22 remove #7 op=cast/b_handle
+@22 remove #8 op=cast/flower[0]
+@22 remove #9 op=cast/flower[1]
+@22 remove #10 op=cast/flower[2]
+@22 remove #11 op=cast/flower[3]
+@22 remove #20 op=-
 @23 frame cast/anim op=cast/anim pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
 @24 frame cast/anim op=cast/anim pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324
 @25 frame cast/anim op=cast/anim pos=-1.040369,0.000000,1.380616 rot=0.000000,-0.317305,0.000000,0.948324

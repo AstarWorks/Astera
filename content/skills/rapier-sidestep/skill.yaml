@@ -1,3 +1,7 @@
+# rapier-sidestep: evasive sidestep, no weapon motion.
+# Frames (ADR-0314): the skill moves no weapon, so there is no blade frame; only the places the sounds and fx land are frames:
+#   body   - the caster's feet, v forward / w up / s right: the sound and the dash cloud at the feet (w 0.2).
+#   wound  - one per victim at the victim's centre, v the way the blow came in: the hit spark and the hit sound (only where the skill hits).
 apiVersion: astera/v3
 kind: Skill
 id: rapier-sidestep
@@ -6,8 +10,12 @@ meta: {name: {ja: "受け流し", en: "Parry Step"}, description: {ja: "後方�
 params:
   evasive_ticks: {type: ticks, default: 20}
   propel:        {type: number, default: -0.9}
-anchors:
-  - {id: feet, anchor: caster, offset: {up: 0.2}, mode: follow}
+frames:
+  - id: body
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
 machine:
   start: step
   states:
@@ -17,6 +25,6 @@ machine:
       enter:
         - {id: buff, op: status, target: caster, status: evasive, stacks: 1, for: "${evasive_ticks}"}
         - {id: back, op: impulse, at: 0, target: caster, vector: {of: caster, forward: "${propel}"}}
-        - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 0.8, pitch: 1.4, at: 0}
-        - {id: fx, op: particle_def, def: dash-cloud, anchor: feet, at: 0}
+        - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", frame: body, volume: 0.8, pitch: 1.4, at: 0}
+        - {id: fx, op: particle_def, def: dash-cloud, frame: body, pos: {w: 0.2}, at: 0}
     end: {final: true}

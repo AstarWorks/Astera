@@ -1,5 +1,12 @@
-# Wind-up W = 3 ticks (round_half_up(5 / attack_speed 1.7)): the blade is drawn back, the dash and the every-tick hit start at tick 3.
-# The cast ends with the dash; the rig (draw back -> thrust-slash along the dash -> settle) and trail are detach: true.
+# iron-blade-lunge: the iron blade drawn back, then a thrust-slash along the lunge dash (wind-up 3 ticks, dash 4 ticks, every-tick hit).
+# Frames (ADR-0314, ADR-0315), the gameplay (hit tick, shape, damage, knockback, cooldown, cast length) is unchanged:
+#   arm    - the right arm, rotate keys only. Origin = the right shoulder (`caster.shoulder_r`); the arm is one rigid 0.60 bone, so the hand travels on a sphere about it and a turn of this frame is that travel (about w left/right, about s up/down). Hand path: guard -> drawn back to the right hip -> shot forward -> guard.
+#   blade  - the iron blade. Origin = the hand, 0.60 along the arm frame (the hand path is the arm's turn: guard -> drawn back -> thrust straight ahead along v -> guard). Long axis along v (grip at the origin, tip at v 0.92),
+#            edge along w. The thrust is the hand swinging forward on the arm, the point leads by construction; the wind-up aims the point slightly (-12), `reset` eases back to guard.
+#            The engine pins the right hand to the origin; the origin sits exactly on the 0.60 reach sphere of the shoulder by construction.
+#   body   - the caster's feet, v forward / w up / s right: sounds and the cast fx.
+#   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
+#   edge   - line along the blade (v 0.56 .. 0.92), what the trail rows draw along.
 apiVersion: astera/v3
 kind: Skill
 id: iron-blade-lunge
@@ -14,8 +21,44 @@ params:
   dash_distance: {type: blocks, default: 3}
   dash_ticks: {type: ticks, default: 4}
   dmg_physical: {type: number, default: 30.0}
-anchors:
-  - {id: feet, anchor: caster, offset: {up: 0.2}, mode: snapshot}                  # was pt_caster_0_0p2_0
+frames:
+  - id: arm
+    origin: caster.shoulder_r
+    v: forward
+    w: up
+    s: v x w
+    rotate:
+      - {at: 0, for: 0, about: w, to: -16}   # guard
+      - {at: 0, for: 2, about: w, to: -90, ease: in_out_sine}   # draw back: the hand to the right hip
+      - {at: 2, for: 3, about: w, to: 4, ease: out_cubic}   # the lunge: the hand shoots forward
+      - {at: 5, for: 9, about: w, to: -16, ease: in_out_sine}   # recover to guard
+      - {at: 0, for: 0, about: s, to: -33}
+      - {at: 0, for: 2, about: s, to: -60, ease: in_out_sine}
+      - {at: 2, for: 3, about: s, to: -30, ease: out_cubic}
+      - {at: 5, for: 9, about: s, to: -33, ease: in_out_sine}
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
+    rotate:
+      - {at: 0, for: 2, about: s, to: -12, ease: in_out_sine}  # aim while drawing
+      - {at: 2, for: 3, about: s, to: 0, ease: out_cubic}  # level on the target
+      - {at: 5, for: 9, reset: true, ease: in_out_sine}
+  - id: body
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+  - id: wound
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
+lines:
+  edge: {frame: blade, from: {v: 0.56}, to: {v: 0.92}}
 machine:
   start: windup
   tail: 11
@@ -24,28 +67,19 @@ machine:
       for: 3
       then: dash
       do:
-        - id: rig
-          op: rig
-          parent: caster
-          mount: caster.hand_r
-          rest: [{axis: left, deg: 72}]
-          for: 14
-          detach: true
-          swing:
-            - {at: 0, for: 3, from: {left: 0.1, up: 0.2, forward: 0.9}, to: {left: -0.3, up: -0.4, forward: 0.4}, edge: trailing, ease: in_out_sine}
-            - {at: 3, for: 4, to: {left: 0.5, up: -0.1, forward: 0.85}, edge: leading, ease: out_cubic}
-            - {at: 7, for: 7, to: {left: 0.0, up: 0.5, forward: 0.85}, edge: trailing, ease: in_out_sine}
+        - {id: rig, op: rig, frame: blade, for: 14, detach: true}
     dash:
       for: "= ${dash_ticks}"
       then: end
       enter:
-        - {id: snd_dash, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.1, detach: true}
-        - {id: fx_dash, op: particle_def, def: dash-cloud, anchor: feet, detach: true}
+        - {id: snd_dash, op: sound, sound: "astera:weapons/dash-whoosh", frame: body, volume: 1.0, pitch: 1.1, detach: true}
+        - {id: fx_dash, op: particle_def, def: dash-cloud, frame: body, pos: {w: 0.2}, detach: true}
         - {id: lunge, op: dash, speed: "= ${dash_distance} / ${dash_ticks}", for: "= ${dash_ticks}", direction: {forward: 1}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false, pass_through: true}
         # dash corridor: capsule radius 1.0, hit_once, no early end (the dash runs through everyone).
         - id: strike
           op: hit
-          anchor: caster.body
+          frame: body
+          pos: {w: 0.9}
           at: 0
           every: 1
           for: "= ${dash_ticks}"
@@ -57,6 +91,6 @@ machine:
           damage: {physical: "= ${dmg_physical}"}
           on:
             hit:
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 1.0, pitch: 1.0, detach: true}
-        - {id: trail_fx, use: swing-trail, with: {samples: 3, from: 0.5, span: 8, every: 1}, frames: {weapon: /windup/rig}, detach: true}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: wound, volume: 1.0, pitch: 1.0, detach: true}
+        - {id: trail_fx, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.04, at: 0, every: 1, for: 4, detach: true}
     end: {final: true}
