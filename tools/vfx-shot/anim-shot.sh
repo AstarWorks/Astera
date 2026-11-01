@@ -110,7 +110,10 @@ command -v ffmpeg >/dev/null && command -v xdotool >/dev/null && command -v Xvfb
 run_begin   # stack lock, host-wide slot, watchdog (SHOT_TIMEOUT), straggler reap; the EXIT trap tears everything down
 ensure_client_install
 boot_server
-if [ "$TRIGGER_KIND" = skill ] && ! grep -qw -- "$TRIGGER_SKILL" <<<"$(rcon "astera skill list")"; then
+if [ "$TRIGGER_KIND" = skill ]; then
+  skill_list="$(fetch_skill_list)" || exit 1
+fi
+if [ "$TRIGGER_KIND" = skill ] && ! grep -qw -- "$TRIGGER_SKILL" <<<"$skill_list"; then
   die "skill '$TRIGGER_SKILL' is not registered on the server (see: astera skill list)"
 fi
 mkdir -p "$OUT"

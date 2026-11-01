@@ -11,11 +11,8 @@ meta:
   tags: [tool, cover]
 with:
   length: 9
-  strip_pitch: 0.6
-  break_vol: 1.0
-  break_pitch: 0.7
-  crit: true
-  spark: tool-axe-diamond
   trail_span: 10
-  metallic: true
-  bright: true
+  splinters: 10
+  chips: 7
+  core_color: "#eed095"
+  core_size: 0.6

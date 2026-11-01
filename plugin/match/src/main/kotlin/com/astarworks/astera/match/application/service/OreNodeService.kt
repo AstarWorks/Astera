@@ -8,6 +8,8 @@ import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IOreNodeStrikes
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
+import com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer
+import com.astarworks.astera.core.domain.effect.SoundCues
 import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
 import com.astarworks.astera.core.application.port.outbound.runLaterTicks
 import com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase
@@ -56,10 +58,15 @@ public class OreNodeService(
     private val onInvalid: (stageId: String, reason: String) -> Unit = { _, _ -> },
     /** Phase clock of phase-driven matches (Annihilation): a node whose `phase_gates` entry is later than the match's phase takes no damage. Null = no phase gate. */
     private val phases: () -> IMatchPhaseClock? = { null },
+    /** Plays the `astera:ore/mined` and `astera:ore/refused` cues to the player. Null = silent (no sound system). */
+    private val sounds: () -> ISoundCuePlayer? = { null },
     /** Carried across a Match rewire: which nodes are mined or regrowing, and each player's last hit. */
     private val lastHit: ConcurrentHashMap<PlayerId, Long> = ConcurrentHashMap(),
     private val nodes: ConcurrentHashMap<Key, Node> = ConcurrentHashMap(),
 ) : IAreaBreakExclusion, IOreNodeStrikes {
+    /** Tick of each player's last skill refusal feedback ([refuse] throttle). */
+    private val refusedAt = ConcurrentHashMap<PlayerId, Long>()
+
     /** What one mining attempt did. */
     public sealed interface Outcome {
         /** Not an ore node of a running match: the caller treats the block as it would any other. */
@@ -137,48 +144,44 @@ public class OreNodeService(
         val node = nodes[keyOf(worldId, pos)] ?: return Outcome.NotANode
         if (node.regrowing) return Outcome.Regrowing
         val tool = held?.let { HitCustomBlockUseCase.toolOf(items, it) }
-        gate(player, node)?.let { return it }
-        val target = server.findPlayer(player)
+        gate(player, node, throttled = false)?.let { return it }
         if (tool == null || tool.tier.ordinal < node.spec.requiredTier.ordinal) {
-            target?.postActionBar(NEEDS_TIER, mapOf("tier" to node.spec.requiredTier.name.lowercase()))
+            refuse(player, node, NEEDS_TIER, mapOf("tier" to node.spec.requiredTier.name.lowercase()), throttled = false)
             return Outcome.TooWeak
         }
         val level = levelOf(player) ?: 1
         val damage = OreNodeRules.damage(node.spec, tool.kind, tool.tier, level)
         if (damage <= 0) {
-            target?.postActionBar(WRONG_TOOL, emptyMap())
+            refuse(player, node, WRONG_TOOL, emptyMap(), throttled = false)
             return Outcome.WrongTool
         }
         val now = scheduler.currentTick()
-        val last = lastHit.put(player, now)
+        // Only a landed hit restarts the cooldown: a click inside it must not push the next hit further away.
+        val last = lastHit[player]
         if (last != null && now - last < HIT_COOLDOWN_TICKS) return Outcome.Cooldown
+        lastHit[player] = now
         return hit(node, player, damage)
     }
 
     /**
-     * Phase gate (ADR-0319), then level gate: a refusal [Outcome] (deny sound + action bar) or null when [player] may damage [node].
+     * Phase gate (ADR-0319), then level gate: a refusal [Outcome] (via [refuse]: action bar, cue, puff) or null when [player] may damage [node].
      * The phase gate is the same for everyone: "opens in phase N (in mm:ss)".
      */
-    private fun gate(player: PlayerId, node: Node): Outcome? {
-        phaseGate(player, node)?.let { return it }
+    private fun gate(player: PlayerId, node: Node, throttled: Boolean): Outcome? {
+        phaseGate(player, node, throttled)?.let { return it }
         val level = levelOf(player) ?: return null
         if (level >= node.spec.minNormaLevel) return null
-        server.findPlayer(player)?.postActionBar(NEEDS_LEVEL, mapOf("level" to node.spec.minNormaLevel.toString()))
-        world?.deny(node.world, node.pos)
+        refuse(player, node, NEEDS_LEVEL, mapOf("level" to node.spec.minNormaLevel.toString()), throttled)
         return Outcome.LevelLocked(node.spec.minNormaLevel)
     }
 
-    private fun phaseGate(player: PlayerId, node: Node): Outcome? {
+    private fun phaseGate(player: PlayerId, node: Node, throttled: Boolean): Outcome? {
         val required = node.spec.minPhase
         if (required <= 1) return null
         val target = NexusPhase.byNumber(required) ?: return null
         val remaining = phases()?.ticksUntil(node.matchId, target) ?: return null
         if (remaining <= 0L) return null
-        server.findPlayer(player)?.postActionBar(
-            NEEDS_PHASE,
-            mapOf("phase" to required.toString(), "time" to formatClock(remaining)),
-        )
-        world?.deny(node.world, node.pos)
+        refuse(player, node, NEEDS_PHASE, mapOf("phase" to required.toString(), "time" to formatClock(remaining)), throttled)
         return Outcome.PhaseLocked(required)
     }
 
@@ -188,11 +191,36 @@ public class OreNodeService(
     override fun strike(player: PlayerId, world: WorldId, pos: Vec3, tool: ToolType, blockDamage: Int): IOreNodeStrikes.Result {
         val node = nodes[keyOf(world, pos)] ?: return IOreNodeStrikes.Result.NONE
         if (node.regrowing) return IOreNodeStrikes.Result.NONE
-        if (gate(player, node) != null) return IOreNodeStrikes.Result.NONE
-        if (tool.tier.ordinal < node.spec.requiredTier.ordinal) return IOreNodeStrikes.Result.NONE
+        if (gate(player, node, throttled = true) != null) return IOreNodeStrikes.Result.NONE
+        if (tool.tier.ordinal < node.spec.requiredTier.ordinal) {
+            refuse(player, node, NEEDS_TIER, mapOf("tier" to node.spec.requiredTier.name.lowercase()), throttled = true)
+            return IOreNodeStrikes.Result.NONE
+        }
         val damage = OreNodeRules.damage(node.spec, tool.kind, tool.tier, levelOf(player) ?: 1, blockDamage)
-        if (damage <= 0) return IOreNodeStrikes.Result.NONE
+        if (damage <= 0) {
+            refuse(player, node, WRONG_TOOL, emptyMap(), throttled = true)
+            return IOreNodeStrikes.Result.NONE
+        }
         return if (hit(node, player, damage) is Outcome.Mined) IOreNodeStrikes.Result.MINED else IOreNodeStrikes.Result.HIT
+    }
+
+    /**
+     * A tool or tier refusal must be heard and seen: [key] on the action bar, the `astera:ore/refused` cue and a deny puff at the node.
+     * A skill ([throttled]) can touch many nodes in one cast and [strike] carries no cast id, so the whole feedback fires at most once per
+     * player per [REFUSAL_WINDOW_TICKS] (one cast = the strikes of one tick burst); a hand swing always answers.
+     */
+    private fun refuse(player: PlayerId, node: Node, key: MessageKey, args: Map<String, String>, throttled: Boolean) {
+        if (throttled) {
+            val now = scheduler.currentTick()
+            var fire = false
+            refusedAt.compute(player) { _, prev ->
+                if (prev == null || now - prev >= REFUSAL_WINDOW_TICKS) { fire = true; now } else prev
+            }
+            if (!fire) return
+        }
+        server.findPlayer(player)?.postActionBar(key, args)
+        sounds()?.play(player, SoundCues.ORE_REFUSED, node.pos, node.world)
+        world?.refused(node.world, node.pos)
     }
 
     /** Takes [damage] HP off [node]; the hit that empties it mines it for [player]. */
@@ -211,6 +239,7 @@ public class OreNodeService(
             val spec = items.find(ItemId(id)) ?: continue
             if (target != null && deliver != null) deliver.give(target, spec, count)
         }
+        announceMined(node, player, given)
         world?.setBlock(node.world, node.pos, node.spec.placeholder)
         scheduler.runLaterTicks(ExecutionScope.Global, node.spec.regrowSeconds * TICKS_PER_SECOND) {
             if (nodes[keyOf(node.world, node.pos)] === node) {
@@ -220,6 +249,17 @@ public class OreNodeService(
             }
         }
         return Outcome.Mined(given)
+    }
+
+    /**
+     * The miner must see the mining pay: debris particles at the block, a pickup cue and an action-bar line per drop
+     * (`astera.ore.mined.<item id>`). This only reports; the star for the break is granted separately by the caller through StarBudget.
+     */
+    private fun announceMined(node: Node, player: PlayerId, given: List<Pair<String, Int>>) {
+        world?.mined(node.world, node.pos, node.spec.material)
+        sounds()?.play(player, SoundCues.ORE_MINED, node.pos, node.world)
+        val target = server.findPlayer(player) ?: return
+        for ((id, count) in given) target.postActionBar(MessageKey("astera.ore.mined.$id"), mapOf("amount" to count.toString()))
     }
 
     /** A node cell (mined or regrowing) is never removed by an area skill: nodes are mined one at a time. */
@@ -240,6 +280,7 @@ public class OreNodeService(
         val WRONG_TOOL = MessageKey("astera.ore.wrong-tool")
         const val TICKS_PER_SECOND = 20L
         const val HIT_COOLDOWN_TICKS = 6L
+        const val REFUSAL_WINDOW_TICKS = 10L
         const val PLACE_ATTEMPTS = 10
         const val PLACE_RETRY_TICKS = 20L
     }

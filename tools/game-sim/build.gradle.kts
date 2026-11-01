@@ -67,10 +67,10 @@ tasks.register<Test>("regenSkillOracle") {
     systemProperty("astera.oracle.regen", "true")
 }
 
-// Mass bot-vs-bot play (ADR-0316): `./gradlew :tools:game-sim:massPlay -Pruns=20 [-Pseed=<base>] (run i uses base+i; default base = epoch seconds, printed)` -> build/play/summary.md.
+// Mass bot-vs-bot play (ADR-0316): `./gradlew :tools:game-sim:massPlay -Pruns=20 [-Pseed=<base>] (run i uses base+i; default base = epoch seconds, printed)` -> build/play/summary-<firstSeed>-<lastSeed>.md.
 tasks.register<JavaExec>("massPlay") {
     group = "verification"
-    description = "Runs N headless matches and writes build/play/<run>/metrics.json + build/play/summary.md."
+    description = "Runs N headless matches and writes build/play/<run>/metrics.json + build/play/summary-<firstSeed>-<lastSeed>.md."
     classpath = sourceSets["main"].runtimeClasspath
     mainClass.set("com.astarworks.astera.gamesim.playable.metrics.MassPlayMainKt")
     workingDir = rootDir
@@ -88,6 +88,17 @@ tasks.register<JavaExec>("firstStar") {
     workingDir = rootDir
     jvmArgs("-Djava.awt.headless=true", "-Xmx2g", "-Dastera.sim.contentDir=${rootProject.file("content").absolutePath}")
     args(providers.gradleProperty("seeds").getOrElse("1"), providers.gradleProperty("size").getOrElse("3"), providers.gradleProperty("secs").getOrElse("120"))
+}
+
+// Kill-value probe: `./gradlew -q :tools:game-sim:killValue -Pseeds=1,2,3 -Psizes=3,6,12` (stars per kill vs farming, per N per team).
+tasks.register<JavaExec>("killValue") {
+    group = "verification"
+    description = "Per N: share of stars from kill drops, stars per kill, farm stars per minute and R = per kill / (farm per min x 0.5)."
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.astarworks.astera.gamesim.playable.metrics.KillValueMainKt")
+    workingDir = rootDir
+    jvmArgs("-Djava.awt.headless=true", "-Xmx${providers.gradleProperty("xmx").getOrElse("3g")}", "-Dastera.sim.contentDir=${rootProject.file("content").absolutePath}")
+    args(providers.gradleProperty("seeds").getOrElse("1"), providers.gradleProperty("sizes").getOrElse("3,6,12"), providers.gradleProperty("maxTicks").getOrElse("24000"))
 }
 
 // Playable sim (ADR-0316): a Claude session plays one seat headless over JSON lines.

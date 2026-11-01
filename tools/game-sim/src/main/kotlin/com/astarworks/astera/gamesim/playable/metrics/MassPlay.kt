@@ -6,11 +6,14 @@ import java.nio.file.Path
 import kotlin.math.floor
 
 /**
- * Runs N headless matches (one per seed), writes `<outDir>/<run>/metrics.json` per match and `<outDir>/summary.md`
+ * Runs N headless matches (one per seed), writes `<outDir>/<run>/metrics.json` per match and `<outDir>/summary-<firstSeed>-<lastSeed>.md` (one file per batch, earlier batches survive)
  * (min / median / max and a short distribution per metric). Same content, only the seed differs (design 4.1).
  */
 object MassPlay {
     private val pretty = Json { prettyPrint = true }
+
+    /** Per-batch summary file named after the seed range, so a later batch never overwrites an earlier one. */
+    fun summaryFileName(seeds: List<Long>) = "summary-${seeds.first()}-${seeds.last()}.md"
 
     class Config(
         /** Hard cap of one match, ticks (20/s). A match still running then is reported as `running`. */
@@ -20,7 +23,7 @@ object MassPlay {
         val renderFrames: Boolean = true,
     )
 
-    class RunResult(val run: String, val seed: Long, val result: MatchMetricsResult, val endReason: String)
+    class RunResult(val run: String, val seed: Long, val result: MatchMetricsResult, val endReason: String, val seatOrder: List<String> = emptyList())
 
     fun run(
         seeds: List<Long>,
@@ -32,7 +35,7 @@ object MassPlay {
         require(dup.isEmpty()) { "massPlay: runs in one batch would replay identical matches, duplicate seeds ${dup.joinToString()} in ${seeds.joinToString()}" }
         Files.createDirectories(outDir)
         val results = seeds.map { seed -> playOne(seed, outDir, config, newMatch) }
-        Files.writeString(outDir.resolve("summary.md"), summary(results))
+        Files.writeString(outDir.resolve(summaryFileName(seeds)), summary(results))
         return results
     }
 
@@ -61,10 +64,13 @@ object MassPlay {
             while (!match.ended && ticks < config.maxTicks) { match.step(20); ticks += 20 }
             frame(match.sim.tick)
             val result = metrics.finish()
-            val withSeed = kotlinx.serialization.json.JsonObject(mapOf("seed" to kotlinx.serialization.json.JsonPrimitive(seed)) + result.json)
+            val seatOrder = match.seatOrder
+            val withSeed = kotlinx.serialization.json.JsonObject(
+                mapOf("seed" to kotlinx.serialization.json.JsonPrimitive(seed), "seat_order" to kotlinx.serialization.json.JsonArray(seatOrder.map { kotlinx.serialization.json.JsonPrimitive(it) })) + result.json,
+            )
             Files.writeString(dir.resolve("metrics.json"), pretty.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), withSeed))
             val reason = (result.json["endReason"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: "?"
-            return RunResult(run, seed, result, reason)
+            return RunResult(run, seed, result, reason, seatOrder)
         } finally {
             (match as? AutoCloseable)?.close() ?: match.sim.shutdown()
         }
@@ -103,6 +109,31 @@ object MassPlay {
             appendLine("| $key | ${values.size} | ${fmt(values.first())} | ${fmt(median)} | ${fmt(values.last())} | ${spark(values)} |")
         }
         appendLine()
+        appendLine("Pillar damage per run and team (dealt = to enemy pillars by the attacker's team; taken includes unattributed; hp_left = standing pillar HP at the end):")
+        appendLine()
+        appendLine("| run | seed | end_reason | end_decided_by | team | pillar_damage_dealt | pillar_damage_taken | pillar_hp_left | unattributed (match) | bleed (team) | unknown (team) | first_tier_loss_min |")
+        appendLine("|---|---:|---|---|---|---:|---:|---:|---:|---:|---:|---:|")
+        for (r in results) {
+            val teams = r.result.json["teams"] as? kotlinx.serialization.json.JsonObject ?: continue
+            val endKind = (r.result.json["end_reason"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: "n/a"
+            val decidedBy = (r.result.json["end_decided_by"] as? kotlinx.serialization.json.JsonPrimitive)
+                ?.takeIf { it !is kotlinx.serialization.json.JsonNull }?.content ?: "-"
+            val unattr = r.result.scalars["pillar_damage_unattributed"] ?: 0.0
+            for ((team, v) in teams) {
+                val o = v as kotlinx.serialization.json.JsonObject
+                fun num(k: String) = (o[k] as? kotlinx.serialization.json.JsonPrimitive)?.content?.toDoubleOrNull() ?: 0.0
+                val left = ((o["pillar_hp_left"] as? kotlinx.serialization.json.JsonObject)?.get("sum") as? kotlinx.serialization.json.JsonPrimitive)?.content?.toDoubleOrNull() ?: 0.0
+                appendLine("| ${r.run} | ${r.seed} | $endKind | $decidedBy | $team | ${fmt(num("pillar_damage_dealt"))} | ${fmt(num("pillar_damage_taken"))} | ${fmt(left)} | ${fmt(unattr)} | ${fmt(num("pillar_damage_bleed"))} | ${fmt(num("pillar_damage_unknown"))} | ${firstTierLossMin(o)?.let { "%.2f".format(it) } ?: "none"} |")
+            }
+        }
+        appendLine()
+        appendLine(aggregate(results))
+        appendLine("Seat / spawn order per run (the order MatchDriver seats players and enters them into their team, `name@team`):")
+        appendLine()
+        appendLine("| run | seed | seat_order |")
+        appendLine("|---|---:|---|")
+        for (r in results) appendLine("| ${r.run} | ${r.seed} | ${r.seatOrder.joinToString(", ").ifEmpty { "n/a" }} |")
+        appendLine()
         appendLine("First match-shop purchase per run (seconds from MatchStarted; budget: median at most 150 s):")
         appendLine()
         appendLine("| run | seed | first_buy_median_s | never_bought | players |")
@@ -124,5 +155,55 @@ object MassPlay {
             appendLine("Notes / n/a columns:")
             for ((k, v) in notes) appendLine("- $k: ${v.first()}")
         }
+    }
+
+    private fun firstTierLossMin(team: kotlinx.serialization.json.JsonObject): Double? =
+        (team["first_tier_loss_min"] as? kotlinx.serialization.json.JsonPrimitive)?.takeIf { it !is kotlinx.serialization.json.JsonNull }?.content?.toDoubleOrNull()
+
+    private fun median(sorted: List<Double>): Double =
+        if (sorted.size % 2 == 1) sorted[sorted.size / 2] else (sorted[sorted.size / 2 - 1] + sorted[sorted.size / 2]) / 2
+
+    private fun pct(part: Double, whole: Double) = if (whole > 0.0) "%.1f%%".format(100.0 * part / whole) else "n/a"
+
+    /**
+     * Batch aggregate: per team win share (draws separate), pillar damage taken split into dealt-by-players (taken minus
+     * the unattributed part) and unattributed (bleed + unknown), the minute of the team's first tier loss; and the batch
+     * player share of pillar damage, sum(dealt) / sum(taken).
+     */
+    fun aggregate(results: List<RunResult>): String = buildString {
+        fun teamsOf(r: RunResult) = r.result.json["teams"] as? kotlinx.serialization.json.JsonObject
+        fun kotlinx.serialization.json.JsonObject.num(k: String) = (this[k] as? kotlinx.serialization.json.JsonPrimitive)?.content?.toDoubleOrNull() ?: 0.0
+        val teams = results.flatMap { teamsOf(it)?.keys ?: emptySet() }.distinct().sorted()
+        val draws = results.count { (it.result.json["end_reason"] as? kotlinx.serialization.json.JsonPrimitive)?.content == "draw" }
+        val n = results.size
+        appendLine("## Batch aggregate (${n} runs)")
+        appendLine()
+        appendLine("Draws: $draws of $n (counted separately from wins). Taken = dealt by players + unattributed (bleed + unknown); dealt-by-players here is taken minus unattributed, so it includes self-inflicted.")
+        appendLine()
+        appendLine("| team | wins | runs | win share | pillar taken | taken: by players | taken: unattributed | of which bleed | of which unknown | first tier loss min (median / mean) | runs without a tier loss |")
+        appendLine("|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|")
+        var sumTaken = 0.0; var sumDealt = 0.0
+        for (t in teams) {
+            val wins = results.count {
+                val w = (it.result.json["winner"] as? kotlinx.serialization.json.JsonPrimitive)?.takeIf { p -> p !is kotlinx.serialization.json.JsonNull }?.content
+                w == t && (it.result.json["end_reason"] as? kotlinx.serialization.json.JsonPrimitive)?.content != "draw"
+            }
+            val objs = results.mapNotNull { teamsOf(it)?.get(t) as? kotlinx.serialization.json.JsonObject }
+            val taken = objs.sumOf { it.num("pillar_damage_taken") }
+            val unattr = objs.sumOf { it.num("pillar_damage_taken_unattributed") }
+            val bleed = objs.sumOf { it.num("pillar_damage_bleed") }
+            val unknown = objs.sumOf { it.num("pillar_damage_unknown") }
+            sumDealt += objs.sumOf { it.num("pillar_damage_dealt") }
+            sumTaken += taken
+            val lossMins = objs.mapNotNull { firstTierLossMin(it) }.sorted()
+            val lossCell = if (lossMins.isEmpty()) "n/a" else "%.2f / %.2f".format(median(lossMins), lossMins.average())
+            appendLine("| $t | $wins | $n | ${pct(wins.toDouble(), n.toDouble())} | ${fmt(taken)} | ${fmt(taken - unattr)} (${pct(taken - unattr, taken)}) | ${fmt(unattr)} (${pct(unattr, taken)}) | ${fmt(bleed)} (${pct(bleed, taken)}) | ${fmt(unknown)} (${pct(unknown, taken)}) | $lossCell | ${n - lossMins.size} |")
+        }
+        appendLine()
+        appendLine("Player share of pillar damage (sum dealt / sum taken): ${fmt(sumDealt)} / ${fmt(sumTaken)} = ${pct(sumDealt, sumTaken)}")
+        appendLine()
+        val bleedApps = results.sumOf { it.result.scalars["bleed_applications"] ?: 0.0 }
+        appendLine("Bleed applications (ticks on which the Phase 5 bleed hit a pillar): ${fmt(bleedApps)} over $n runs.")
+        appendLine()
     }
 }

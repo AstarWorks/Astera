@@ -664,6 +664,10 @@ internal object MatchGameplayWiring {
                     lifecycle = facade,
                     scheduler = scheduler,
                     eventBus = eventBus,
+                    killsByTeam = { id ->
+                        val counts = matchTally.peek(id)
+                        matches.findById(id)?.teams.orEmpty().associate { t -> t.id to t.members.sumOf { counts[it]?.kills ?: 0 } }
+                    },
                 )
         // AnnihilationWinConditionListener owns its own `subscribe()` helper
         // that returns both TeamEliminated + AnnihilationPhaseTransitioned

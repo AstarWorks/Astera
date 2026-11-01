@@ -16,8 +16,8 @@ fun main(args: Array<String>) {
     val seeds = args.getOrElse(0) { "1" }.split(',').mapNotNull { it.trim().toLongOrNull() }
     val size = args.getOrNull(1)?.toIntOrNull() ?: 3
     val horizon = (args.getOrNull(2)?.toIntOrNull() ?: 120) * 20
-    println("| seed | team | n | first-star median s | max s | never | near-spawn pop s | all-team pop s |")
-    println("|---|---|---:|---:|---:|---:|---:|---:|")
+    println("| seed | team | n | first-star median s | max s | never | near-spawn pop s | per-player s |")
+    println("|---|---|---:|---:|---:|---:|---:|---|")
     for (seed in seeds) {
         MatchDriver.boot(MatchConfig(seed = seed, botsPerTeam = size)).use { d ->
             val spawn = HashMap<String, Vec3>()
@@ -54,7 +54,7 @@ fun main(args: Array<String>) {
                 val never = seats.size - t.size
                 val med = if (t.isEmpty()) "-" else "%.1f".format(t[t.size / 2])
                 val max = if (t.isEmpty()) "-" else "%.1f".format(t.last())
-                println("| $seed | $team | ${seats.size} | $med | $max | $never | ${nearPop[team]?.let { "%.1f".format(it / 20.0) } ?: "-"} | |")
+                println("| $seed | $team | ${seats.size} | $med | $max | $never | ${nearPop[team]?.let { "%.1f".format(it / 20.0) } ?: "-"} | ${seats.joinToString(", ") { st -> first[st.entity.id]?.let { "%.1f".format(it / 20.0) } ?: "-" }} |")
             }
         }
     }
