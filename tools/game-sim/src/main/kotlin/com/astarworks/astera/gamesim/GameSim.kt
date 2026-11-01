@@ -426,10 +426,18 @@ public class GameSim private constructor(
         val verdict = match.pillarTargets.onBlockBreak(entity.id, entity.world, cell, tool)
         // The hit is published by the match as NexusDamaged / NexusDestroyed with this entity as attacker (MatchMetrics reads it there).
         if (verdict is AnnihilationPillarTargets.BlockBreakVerdict.Pillar) return true
+        // Same order as Paper: the ore-node listener (HIGH) takes a node block first and cancels the break, so a node pays mining stars only.
+        val nodeWorld = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IMatchRepository>().findMatchOf(entity.id)
+            ?.let { services.getOrThrow<com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository>().findByMatch(it.id)?.worldId } ?: entity.world
+        val node = mineNode(entity, nodeWorld, cell, entity.heldItem)
+        if (node !is com.astarworks.astera.match.application.service.OreNodeService.Outcome.NotANode) return node is com.astarworks.astera.match.application.service.OreNodeService.Outcome.Mined
         val blockId = world.blockAt(entity.world, cell)?.key ?: "minecraft:grass_block"
         world.removeBlock(entity.world, cell)
         val match = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IMatchRepository>().findMatchOf(entity.id)
             ?: return false
+        // PaperStarBlockListener (MONITOR): a completed break of a listed material pays through the real StarActionService.
+        services.get<com.astarworks.astera.match.application.service.StarActionService>()
+            ?.onBlockBroken(entity.id, blockId.substringAfter(':').uppercase())
         eventBus.publish(
             com.astarworks.astera.core.domain.event.BlockBroken(
                 matchId = match.id,
@@ -440,6 +448,18 @@ public class GameSim private constructor(
             ),
         )
         return true
+    }
+
+    /**
+     * [entity] swings [held] at the ore node under [cell]: the same `OreNodeService.mine` + `StarActionService.onOreMined` pair as
+     * `PaperOreNodeListener` (a completed mine pays mining stars; every other outcome pays nothing).
+     */
+    public fun mineNode(entity: SimEntity, worldId: WorldId, cell: Vec3, held: ItemId?): com.astarworks.astera.match.application.service.OreNodeService.Outcome {
+        val out = services.getOrThrow<com.astarworks.astera.match.application.service.OreNodeService>().mine(entity.id, worldId, cell, held)
+        if (out is com.astarworks.astera.match.application.service.OreNodeService.Outcome.Mined) {
+            services.get<com.astarworks.astera.match.application.service.StarActionService>()?.onOreMined(entity.id)
+        }
+        return out
     }
 
     /** Raises (or lowers) the entity's max HP and fills it, via the registered health gateway. */
