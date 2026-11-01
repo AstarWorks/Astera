@@ -113,7 +113,7 @@ public class AnnihilationPillarTargets(
         // Beyond the far radius (or a zero multiplier) nothing lands: not even the 1 HP floor below.
         if (effective <= 0.0) return Result.failure(IStructureTargets.Rejection.OUT_OF_RANGE)
         val points = ceil(effective).toInt().coerceAtLeast(1)
-        return when (val outcome = tracker.recordDamage(hit.matchId, hit.view.nexus.id, points, attacker, scheduler.currentTick())) {
+        return when (val outcome = tracker.recordDamage(hit.matchId, hit.view.nexus.id, points, attacker, scheduler.currentTick(), attackerTeam)) {
             is NexusDamageOutcome.Damaged -> Result.success(outcome.currentHp.toDouble())
             is NexusDamageOutcome.Destroyed -> Result.success(0.0)
             is NexusDamageOutcome.Ignored -> Result.failure(

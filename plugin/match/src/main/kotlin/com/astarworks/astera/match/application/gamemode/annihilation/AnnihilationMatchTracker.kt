@@ -115,6 +115,7 @@ public class AnnihilationMatchTracker(
             hpOverrides = placed.mapNotNull { p -> p.hp?.let { (p.team to p.tier) to it } }.toMap(),
         ).copy(phaseEnteredAtTick = atTick)
         matches[matchId] = seeded
+        damageDealt.remove(matchId)
         if (world != null && placed.isNotEmpty()) {
             sites[matchId] = PillarSites(
                 world,
@@ -131,6 +132,7 @@ public class AnnihilationMatchTracker(
         matches.remove(matchId)
         sites.remove(matchId)
         bleedsApplied.remove(matchId)
+        damageDealt.remove(matchId)
     }
 
     /**
@@ -156,6 +158,7 @@ public class AnnihilationMatchTracker(
         amount: Int,
         attackerId: PlayerId?,
         atTick: Long,
+        attackerTeam: TeamId? = null,
     ): NexusDamageOutcome {
         val state = matches[matchId] ?: return NexusDamageOutcome.Ignored(
             reason = com.astarworks.astera.core.domain.nexus.IgnoreReason.ALREADY_DESTROYED,
@@ -165,6 +168,14 @@ public class AnnihilationMatchTracker(
         )
         val (next, outcome) = state.applyDamage(nexusId, amount)
         matches[matchId] = next
+        if (attackerTeam != null && attackerTeam != priorPillar.owningTeam) {
+            val dealt = when (outcome) {
+                is NexusDamageOutcome.Damaged -> outcome.previousHp - outcome.currentHp
+                is NexusDamageOutcome.Destroyed -> outcome.previousHp
+                is NexusDamageOutcome.Ignored -> 0
+            }
+            if (dealt > 0) damageDealt.getOrPut(matchId) { mutableMapOf() }.merge(attackerTeam, dealt, Int::plus)
+        }
 
         when (outcome) {
             is NexusDamageOutcome.Ignored -> Unit
@@ -264,10 +275,23 @@ public class AnnihilationMatchTracker(
      * decides what to do on a non-`InProgress` outcome (typically: end the
      * match via `IMatchLifecycle` — wired in Wave 6 paper adapter).
      */
-    public fun evaluateWinCondition(matchId: MatchId, currentTick: Long): WinConditionRules.Outcome {
+    public fun evaluateWinCondition(
+        matchId: MatchId,
+        currentTick: Long,
+        kills: Map<TeamId, Int> = emptyMap(),
+    ): WinConditionRules.Outcome {
         val state = matches[matchId] ?: return WinConditionRules.Outcome.InProgress
-        return WinConditionRules.evaluate(state, currentTick)
+        return WinConditionRules.evaluate(
+            state,
+            currentTick,
+            WinConditionRules.Tiebreak(damageDealt[matchId]?.toMap().orEmpty(), kills),
+        )
     }
+
+    /** Pillar HP each team has removed from enemy pillars in [matchId] (bleed and environment excluded). */
+    public fun damageDealtBy(matchId: MatchId): Map<TeamId, Int> = damageDealt[matchId]?.toMap().orEmpty()
+
+    private val damageDealt: MutableMap<MatchId, MutableMap<TeamId, Int>> = mutableMapOf()
 
     /**
      * Score snapshot for every team currently tracked in [matchId]. Empty

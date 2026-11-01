@@ -68,6 +68,9 @@ public class MatchTallyService(private val matches: IMatchRepository) {
         bump(matchId, player) { it.copy(objective = it.objective + 1) }
     }
 
+    /** The counters of [matchId] so far, leaving them in place. */
+    public fun peek(matchId: MatchId): Map<PlayerId, Counts> = tallies[matchId]?.toMap().orEmpty()
+
     /** The counters of [matchId], removing them. A second call returns nothing. */
     public fun take(matchId: MatchId): Map<PlayerId, Counts> {
         modeKeys.remove(matchId)

@@ -43,7 +43,13 @@ public sealed interface EndReason {
      * decided it (ADR-0319). [winner] is the team with the most pillar HP; `null` is an exact tie (a draw), never
      * broken by team order. Carried into `MatchEnded.winningTeam` as is.
      */
-    public data class PillarHpDecision(val winner: com.astarworks.astera.core.domain.match.TeamId?) : EndReason
+    public data class PillarHpDecision(
+        val winner: com.astarworks.astera.core.domain.match.TeamId?,
+        /** What decided it: HP first; only after an exact HP tie the damage dealt to enemy pillars, then kills. */
+        val decidedBy: Criterion = Criterion.PILLAR_HP,
+    ) : EndReason {
+        public enum class Criterion { PILLAR_HP, DAMAGE_DEALT, KILLS }
+    }
 
     /** Norma: the time limit ran out; [leader] was ahead on Norma level, then stars carried, then kills; `null` is a draw. */
     public data class NormaTimeLimit(val leader: com.astarworks.astera.core.domain.match.TeamId?) : EndReason
