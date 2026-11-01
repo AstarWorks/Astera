@@ -1,3 +1,4 @@
+# Called by capture-only ASTERA_VFX_STAMP after the engine tick, not the later vanilla datapack tick phase.
 # per-frame tick stamp: 12 coloured block glyphs in a boss bar title. Cell 0 magenta, cell 1 cyan (self-calibrating
 # start marker), cells 2..11 = game time mod 1024, LSB first, magenta 0 / cyan 1. tools/vfx-shot/framestamp.py decodes it.
 execute store result score #g vfxstamp run time query gametime

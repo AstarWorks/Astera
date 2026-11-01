@@ -33,19 +33,13 @@ meta["captureQuality"] = {"maxRepeatedFrames": longest, "reviewRequired": longes
 timing = directory / "director-timing.log"
 if timing.is_file():
     log = timing.read_text()
-    start = re.search(r"^STAMP ([0-9.]+)$", log, re.M)
-    cuts = re.findall(r"^CAMERA (\d+) SENT ([0-9.]+) ACK ([0-9.]+)$", log, re.M)
-    if start and cuts:
-        # stepped (slow-motion) capture: the plan runs on the slowed clock, a plan millisecond lasts 20/rate wall milliseconds
-        scale = 1.0
-        stamp_json = directory / "framestamp.json"
-        if stamp_json.is_file() and json.loads(stamp_json.read_text()).get("mode") == "stepped":
-            scale = 20.0 / float(os.environ.get("SLOW_RATE", "20"))
-        lateness = max(0.0, max((float(ack) - float(start[1])) * 1000 - int(t) * scale for t, sent, ack in cuts))
-        meta["captureQuality"]["cameraMaxLatenessMs"] = round(lateness, 1)
-        if lateness > 100:
+    cuts = re.findall(r"^CAMERA_TICK (\d+) TARGET (\d+) SENT (\d+) ACK (\d+)$", log, re.M)
+    if cuts:
+        lateness = max(0, max(int(ack) - int(target) for _, target, sent, ack in cuts))
+        meta["captureQuality"]["cameraMaxLatenessTicks"] = lateness
+        if lateness > 2:
             meta["captureQuality"].update(invalid=True, reviewRequired=True,
-                reason="Camera command response exceeded its planned time by more than 100 ms; recapture required.")
+                reason="Camera command response exceeded its planned server tick by more than two ticks; recapture required.")
 # viewer session: the client log written while recording and the viewer's position before/after.
 # A defeat, world change or lobby return means the frames do not show the scene.
 VIEWER_MOVE_LIMIT = 40.0

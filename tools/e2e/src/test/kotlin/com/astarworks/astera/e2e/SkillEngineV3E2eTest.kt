@@ -299,6 +299,48 @@ class SkillEngineV3E2eTest : E2eBase() {
         }
     }
 
+    /** Capture's frame zero must be the observed first engine tick, even at a slow tick rate. */
+    @Test
+    fun toolCaptureMarkersObserveFirstEngineTickForEveryTier() {
+        val a = bot("CastStamp")
+        op(a)
+        Thread.sleep(500)
+        rcon("execute in minecraft:overworld run tp ${a.name} 360.5 100 360.5 -90 0")
+        rcon("execute in minecraft:overworld run fill 358 99 358 362 99 362 minecraft:stone")
+        rcon("execute in minecraft:overworld run tp ${a.name} 360.5 100 360.5 -90 0")
+        rcon("astera skill trace on")
+        fun gameTime(): Long = Regex("(\\d+) tick").find(clean(rcon("time query gametime")))!!.groupValues[1].toLong()
+        try {
+            rcon("tick rate 5")
+            for (skill in listOf("pickaxe-shatter-stone", "pickaxe-shatter-iron", "pickaxe-shatter-diamond", "axe-fell-stone", "axe-fell-diamond")) {
+                val mark = ServerLog.lineCount()
+                val before = gameTime()
+                val reply = clean(rcon("astera skill cast $skill ${a.name} --force"))
+                val pattern = Regex("""\[vfx-trace] cast start tick=(\d+) engineTick=(\d+) expectedEngineTick=(\d+) cast=(\d+) skill=$skill caster=""")
+                val deadline = System.currentTimeMillis() + 5_000
+                var markers = emptyList<MatchResult>()
+                while (System.currentTimeMillis() < deadline && markers.isEmpty()) {
+                    markers = ServerLog.read().lineSequence().drop(mark).mapNotNull { pattern.find(it) }.toList()
+                    if (markers.isEmpty()) Thread.sleep(25)
+                }
+                val after = gameTime()
+                E2eReport.check(suite, "$skill capture marker observes exactly its first engine tick", "server log marker + RCON world tick bounds") {
+                    assertThat(reply).contains(skill)
+                    assertThat(markers).hasSize(1)
+                    val row = markers.single().groupValues
+                    assertThat(row[1].toLong()).isBetween(before, after)
+                    assertThat(row[2]).describedAs("observed engine tick equals cast startTick").isEqualTo(row[3])
+                    "world tick=${row[1]}, engine tick=${row[2]}, cast=${row[4]}"
+                }
+                Thread.sleep(3_500) // let this run finish before the next cast
+            }
+        } finally {
+            rcon("tick rate 20")
+            rcon("astera skill trace off")
+            rcon("execute in minecraft:overworld run fill 358 99 358 362 99 362 minecraft:air")
+        }
+    }
+
     private fun posOf(selector: String): Triple<Double, Double, Double>? =
         Regex("(-?\\d+(?:\\.\\d+)?)d").findAll(clean(rcon("data get entity $selector Pos"))).map { it.groupValues[1].toDouble() }.toList()
             .takeIf { it.size >= 3 }?.let { Triple(it[0], it[1], it[2]) }

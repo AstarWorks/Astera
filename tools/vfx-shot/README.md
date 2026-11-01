@@ -98,7 +98,7 @@ Output: `build/vfx-shot/<skill>/<view>/`
 
 | file | what |
 |---|---|
-| `frame_NNN.png` | NNN = ticks after the cast (20 fps, so 1 frame = 1 tick); 1920x1080 for all skill views (`RES=` overrides). With `BEAT_TICKS` only the beat frames exist (frame_NNN keeps its number) |
+| `frame_NNN.png` | NNN = (ticks after the observed first engine tick + pre-roll ticks) × fps / 20. Compare has 6 pre-roll ticks, so at 20 fps frame = tick + 6; 1920x1080 for all skill views (`RES=` overrides). With `BEAT_TICKS` only the beat frames exist (frame_NNN keeps its number) |
 | `frame_NNN.webp` | 転送用の軽量プレビュー。原寸PNGは比較・計測用に保持する |
 | `sheet.png` | contact sheet, 6 columns, every `SHEET_STEP`-th tick labelled `t+N` |
 | `<skill>-<view>.gif` / `.mp4` | the same frames as a loop (gif 640 px wide); not written with `BEAT_TICKS` |
@@ -113,9 +113,12 @@ contiguous PNG sequence); it is for fast pose / VFX iteration.
 
 The old clapperboard fitted wall-clock time against a boss bar seen only at the head and tail of the recording; the bursty software
 client (frames drawn 100-300 ms late) made that fit fail on some views. Now every frame carries the server tick itself.
-The datapack `tools/vfx-shot/stamp-pack` (installed by the sync step, hash-checked) writes `game time mod 1024` every tick into the
+The datapack `tools/vfx-shot/stamp-pack` (installed by the sync step, hash-checked) writes `game time mod 1024` into the
 **title of a boss bar** as 12 coloured `█` cells (2 fixed start cells magenta/cyan + 10 bits, magenta = 0, cyan = 1). Boss bar titles do
-not ease and colour changes are instant, so the stamp is exactly what the client drew in that frame. The viewer's resource pack
+not ease and colour changes are instant, so the stamp is exactly what the client drew in that frame.
+The throwaway compose enables `ASTERA_VFX_STAMP=1`: the Paper adapter calls `vfxstamp:tick` immediately after the engine
+emits the tick's FX. Its vanilla tick tag is empty. Running it in the later vanilla datapack phase labels packets across
+a world-time increment and can make different takes appear one tick apart. No gameplay clock or skill content changes. The viewer's resource pack
 (`overlay-pack`) blanks all `hud/*` sprites, so only the stamp, the hand and the world are on screen (chat is hidden).
 
 `framestamp.py` decodes the stamp in every recorded frame (self-calibrating from the start cells), unwraps it against the game-time
@@ -124,19 +127,23 @@ marks `director.py` reads on the same RCON connection right before and after the
 (at 60 fps: the 3 frames of that tick, in order). The mapping needs no wall-clock fit, so it does not depend on render load. A tick the
 client never drew is reported in `skippedTicks` (nearest frame used) and listed in `meta.json` `tickStamp.gaps`/`skippedFrames`; any skip marks the capture invalid and `publish-capture.mjs` refuses it, so no stand-in frame is ever shown as exact.
 
-**Stepped capture (default at 20 fps, `STEPPED=1`) = slow motion.** The software client draws ~10 fps, which skips 20-50 ticks per realtime take. `director.py` therefore runs `/tick rate SHOT_SLOW_RATE` (default 5) for the whole take: world, plugin scheduler (delay_ticks, rig keys, dashes) and client share ONE clock, just slower, so every tick stays on screen several frames; the recorder runs at 30 fps and `framestamp.py` takes the last settled frame of each tick. A hitch longer than one slow tick can still make the client skip a tick: `vfx-shot.sh` then refilms the whole take at half the rate (`SHOT_TICK_ATTEMPTS`, default 4) and fails loudly (frames deleted, exit != 0) if it still has a gap, so a published capture always has `skippedTicks` 0. (`/tick freeze` + `/tick step` was dropped: it froze the world but not the Bukkit scheduler, so scheduled skill events ran ahead of the frozen world.) `tick rate 20` is always restored. `FPS=60` or `STEPPED=0` (realtime video, drops ticks, never publishable) is refused unless `SHOT_REALTIME=1`. The saved PNGs have the stamp rectangle (and, for the
+**Stepped capture (default at 20 fps, `STEPPED=1`) = slow motion.** The software client draws ~10 fps, which skips 20-50 ticks per realtime take. `director.py` therefore runs `/tick rate SHOT_SLOW_RATE` (default 5) for the whole take: world, plugin scheduler (delay_ticks, rig keys, dashes) and client share ONE clock, just slower, so every tick stays on screen several frames; the recorder runs at `SHOT_REC_FPS` (15 fps by default) and `framestamp.py` takes the last settled frame of each tick. A hitch longer than one slow tick can still make the client skip a tick: `vfx-shot.sh` then refilms the whole take at half the rate (`SHOT_TICK_ATTEMPTS`, default 4) and fails loudly (frames deleted, exit != 0) if it still has a gap, so a published capture always has `skippedTicks` 0. (`/tick freeze` + `/tick step` was dropped: it froze the world but not the Bukkit scheduler, so scheduled skill events ran ahead of the frozen world.) `tick rate 20` is always restored. `FPS=60` or `STEPPED=0` (realtime video, drops ticks, never publishable) is refused unless `SHOT_REALTIME=1`. The saved PNGs have the stamp rectangle (and, for the
 caster/opponent views, the hotbar) overwritten with a mirror of the adjacent rows. Any failure to read the stamp fails the capture.
 
 `framestamp.json` / `meta.json` `tickStamp`: `castTick`, `castTickSpan`, `castTickExact`, `recordedFrames`, `undecodedFrames`,
 `glitchFrames`, `regressions`, `skippedTicks`, `stampRateHz`, and two separate latencies:
-- Frame labelling: frame N is the picture of plan tick N, i.e. the one stamped `castTick + N - 1` (`planTickZeroStamp` = `castTick - 1`).
-  The cast runs between two server ticks, so `time query gametime` already names the NEXT tick, and the plugin scheduler (age++ and spawns,
-  as in `ASTERA_VFX_TRACE` `age=` / `cast+N`) runs before that tick's stamp function: an effect of age a is drawn with stamp `castTick + a - 1`.
-  Labelling frame N with stamp `castTick + N` showed every effect one tick early (S3 slam burst at 63 instead of 64, 2 of 2 runs; after the
-  fix 64 in 3 of 3). Effects that grow from a flipbook / interpolation can still read +-1 tick (client tick phase at slow tick rates).
-- `castStampToStampedFrameMs`: RCON cast time -> video time of the frame stamped with the cast tick (capture offset, not a game property);
-- `firstFxTickAfterCast` / `firstChangeTickAfterCast`: ticks from the cast tick until the first visible change in the picture (the real
-  client display lag of the skill's first effect); camera cuts are excluded from `firstFx` and listed in `cutCheck`.
+- Frame labelling: `castTick` is the world game time observed after the first engine tick. `planTickZeroStamp` is the
+  HUD stamp at the first rendered cast particle marker. This marker is emitted at that same first engine tick, through
+  the same particle path as skill FX, beside the HUD stamp. Its measured pixel bounds are masked from saved images and from the change detector.
+  `castMarkerDelayTicks = planTickZeroStamp - castTick` measures the viewer's particle-render phase for THIS take;
+  it is never a fixed delay or a per-skill correction. Missing markers or a marker region already green before cast fail the take.
+  `castTickSource=server-first-engine-tick` and `castId` identify its server marker in `director-timing.log` / `trace.log`.
+  The former RCON midpoint minus one tick was an estimate of command timing, not the skill's first tick.
+  At 20 fps compare frame N is tick N-6; `cast_tick_ms=300` describes those six pre-roll frames, not command latency.
+- `castTickSpan`: the RCON request brackets, retained for diagnostics; equality does not establish a cast start.
+- `castStampToStampedFrameMs`: RCON request time to video time of the frame stamped with the actual cast tick.
+- `firstFxTickAfterCast` / `firstChangeTickAfterCast`: thresholded pixel-change diagnostics. These can include body movement
+  and depend on noise, colour and particle spread; they are not the server's first FX emission. Camera cuts are excluded from `firstFx`.
 
 比較撮影の`meta.json`は参照・contentの版、撮影日時、実装コミット、カメラ内容のハッシュを保持する。
 `captureQuality.maxRepeatedFrames`が15以上なら停止映像の疑いを目視確認する。静止した場面もあるため、自動で不合格にはしない。
@@ -219,7 +226,7 @@ SKILL=bastion-greatsword-s3 VIEW=compare CASE=zwei-s3 bash tools/vfx-shot/vfx-sh
 
 `tools/skill-compare/data/<case>/intent.json` drives the scene: `actors.enemy` first key = enemy distance, `camera` keys
 (x toward the enemy, y up, z toward the side camera, caster at the origin; world = arena centre + intent) = spectator
-`/tp` hard cuts at `t` ticks after the cast (`director.py` sends the cast + the cuts over one RCON connection on a wall
+`/tp` hard cuts at `t` ticks after the cast (`director.py` sends the cast + the cuts over one RCON connection on the observed server
 clock). The client FOV option is the first key's fov; other keys' fov is emulated by dollying along the view ray
 (`compare_plan.py`). `CAMERA=side` ignores the keys (6 blocks to the side, eye level); `CAMERA=<name>` uses the intent's `camera_presets.<name>` keys instead (skill-preview `--camera <name>` renders the same camera; e.g. the `side` / `front34` / `back` pose-review cameras of `pose-greatsword-deep-coil`). Output
 `build/vfx-shot/<skill>/compare/` has `PRE_TICKS_CMP` (6) frames before the cast and `meta.json` with `cast_tick_ms`,
@@ -264,8 +271,10 @@ guards the end, they equal what was served.
    **Caster view:** the hand is visible (no F1). The hotbar is still drawn by the game (items cannot be blanked by a resource pack),
    so it is masked out of the saved caster/opponent frames. `PaperEntityEffectsGateway.sendHeldItem` sends both hide and restore to
    every player in the world, the caster included.
-4. `ffmpeg -f x11grab` records with wall-clock timestamps; `director.py` stamps the epoch time just before the cast and reads the
-   server game time around it, and `framestamp.py` maps frames to ticks from the stamp inside each frame (see "Tick stamp").
+4. `ffmpeg -f x11grab` records with wall-clock timestamps. `director.py` requires the capture-only
+   `[vfx-trace] cast start` marker emitted after the first engine tick; its world game time identifies the actual cast. A tiny capture-only particle marker links it to the viewer's rendered tick 0.
+   `framestamp.py` selects images by the stamp inside each frame. RCON before/after times are diagnostics, never an origin.
+   Camera commands and recording completion use server tick deadlines. Missing or ambiguous cast markers fail the take.
 5. Clients and the stack are removed when the run exits; with `SHOT_KEEP=1` they stay parked for `SHOT_KEEP_TTL` (see "Lifecycle").
 
 ### Resource pack
@@ -371,7 +380,7 @@ on the approved capture host; it does not call the batched e2e suite.
 - **Client exits / never joins**: `build/vfx-shot/.clients/<name>/client.log`; GL problems -> make sure
   `LIBGL_ALWAYS_SOFTWARE=1` works (`glxinfo` under Xvfb). Needs ~2 GB RAM per client.
 - **Magenta items**: `client.log` lists `Missing textures in model astera:...`; check the overlay pack got zipped.
-- **Frames look early/late**: read `meta.json` `tickStamp` (`skippedTicks`, `regressions`, `undecodedFrames`); the mapping is by stamp, so an offset means the skill itself starts late (see `firstFxTickAfterCast`).
+- **Frames look early/late**: read `meta.json` `tickStamp` (`skippedTicks`, `regressions`, `undecodedFrames`); the mapping is by stamp, check `castTickSource=server-first-engine-tick` and `director-timing.log`. `firstFxTickAfterCast` is a thresholded pixel-change diagnostic, not the server's first FX emission: particle colour, random spread, background noise and body motion affect it.
 - **`tick stamp could not be read`**: re-run with `SHOT_KEEP_REC=1` and inspect `build/vfx-shot/<skill>/<view>/recording.mkv`; usual causes are a missing datapack (`datapack list` over RCON must show `file/vfxstamp`) or a host so loaded that the client barely draws.
 - **Stack looks wrong / half-created**: `make vfx-shot-down`, then run again. `make vfx-shot-status` shows what is stale.
 - **Skill does nothing**: cast needs the skill registered (`astera skill list`) and the caster able to cast in

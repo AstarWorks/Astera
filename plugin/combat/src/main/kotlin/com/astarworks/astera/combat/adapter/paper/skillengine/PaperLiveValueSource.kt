@@ -55,19 +55,63 @@ public class PaperLiveValueSource(
     private val entityVelocity: PaperEntityVelocity,
 ) : LiveValueSource {
     private val requests = ConcurrentHashMap<CastHandle, CastRequest>()
+    // Capture instrumentation only: observe the first engine tick after it ran.
+    private val captureStarts = ConcurrentHashMap<CastHandle, CastRequest>()
     private val cells = CellExprs()
     private val spec: ExprEnvSpec = V3Bindings.spec(null, ExprEnvSpec(frames = setOf(CASTER)))
 
     override fun register(cast: CastHandle, request: CastRequest) {
         requests[cast] = request
+        if (com.astarworks.astera.core.application.skillengine.runtime.VfxTrace.enabled ||
+            com.astarworks.astera.combat.application.trace.SkillEngineTrace.enabled) captureStarts[cast] = request
     }
 
     public fun requestOf(cast: CastHandle): CastRequest? = requests[cast]
 
     /** Drops the casts that ended; [live] is the player's running set. */
     public fun retain(live: Set<CastHandle>) {
+        val now = scheduler.currentTick()
+        captureStarts.entries.removeIf { (cast, request) ->
+            if (request.startTick.toLong() <= now) {
+                org.slf4j.LoggerFactory.getLogger(PaperLiveValueSource::class.java).info(
+                    "[vfx-trace] cast start tick={} engineTick={} expectedEngineTick={} cast={} skill={} caster={}",
+                    server.getWorld(request.world.value)?.gameTime, now, request.startTick, cast.value, request.skill.def.id, request.caster,
+                )
+                if (System.getenv("ASTERA_VFX_STAMP") == "1") captureParticleMarker()
+                true
+            } else cast !in live
+        }
         requests.keys.retainAll(live)
         casterSamples.keys.removeIf { it.first !in live }
+        // Throwaway capture only: stamp AFTER this engine tick's FX packets, on the same
+        // world clock. A vanilla datapack tick runs in a later server phase (after world
+        // time advances), so its bossbar could label those packets as the following tick.
+        if (System.getenv("ASTERA_VFX_STAMP") == "1" &&
+            server.getBossBar(org.bukkit.NamespacedKey("vfxstamp", "tick")) != null) {
+            server.dispatchCommand(server.consoleSender, "function vfxstamp:tick")
+        }
+    }
+
+    /** Same particle queue as skill FX: measures the viewer's render phase, never a skill-specific offset. */
+    private fun captureParticleMarker() {
+        val scores = server.scoreboardManager.mainScoreboard.getObjective("vfxstamp") ?: return
+        val height = scores.getScore("#height").score
+        val fov = scores.getScore("#fov").score / 1000.0
+        if (height <= 0 || fov <= 0) return
+        val half = kotlin.math.tan(Math.toRadians(fov / 2)) * 0.5
+        for (viewer in server.onlinePlayers) {
+            val eye = viewer.eyeLocation
+            val forward = eye.direction
+            val yaw = Math.toRadians(eye.yaw.toDouble())
+            val right = org.bukkit.util.Vector(-kotlin.math.cos(yaw), 0.0, -kotlin.math.sin(yaw))
+            val up = right.clone().crossProduct(forward).normalize()
+            val at = eye.clone().add(forward.multiply(0.5))
+                .add(right.multiply(150.0 / height * half))
+                .add(up.multiply((1.0 - 40.0 / height) * half))
+            // Project beside the HUD stamp; the extractor masks the actual bounds, including client FOV modifiers.
+            viewer.spawnParticle(org.bukkit.Particle.DUST, at, 4, 0.0, 0.0, 0.0, 0.0,
+                org.bukkit.Particle.DustOptions(org.bukkit.Color.LIME, 0.08f))
+        }
     }
 
     public fun envSpec(): ExprEnvSpec = spec

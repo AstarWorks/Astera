@@ -9,12 +9,12 @@ is taken (the settled one). skippedTicks is then expected to be 0 whatever the r
 The server's stamp datapack (tools/vfx-shot/stamp-pack) renders the game time into a boss bar title on every tick: 12 block
 glyphs, cell 0 magenta + cell 1 cyan (start marker, calibrates the cell pitch), cells 2..11 = game time mod 1024, LSB
 first, magenta 0 / cyan 1. The viewer client's own resource pack (overlay-pack) blanks every other HUD sprite, so the
-HUD stays on for the whole recording and EVERY recorded frame carries the tick of the world it shows (the boss bar packet
-and the entity packets of a tick are processed in the same client tick). There is no wall-clock fit: client bursts, render
-load and tick-rate wobble cannot move a frame to another tick.
+HUD stays on for the whole recording and EVERY recorded frame carries a server tick. A cast particle marker links that clock
+to the viewer's rendered skill start: bossbar updates and particle updates need not render in the same client phase.
+There is no wall-clock fit; dropped server stamps are reported as gaps.
 
-Output frame n (fps 20 = 1/tick, 60 = 3/tick) shows stamp  T0 + n * 20 / fps  with  T0 = cast gametime - 1 - pre_ticks:
-plan tick a (age a of an effect, `cast + a` in a VfxPlayer trace) is the picture stamped cast gametime + a - 1 (see "Plan tick 0" in main()). It is taken
+Output frame n (fps 20 = 1/tick, 60 = 3/tick) shows stamp  T0 + n * 20 / fps  with  T0 = rendered cast-marker stamp - pre_ticks:
+plan tick a is the picture stamped rendered cast-marker stamp + a. Both the server start marker and its particle render marker are required; RCON brackets are diagnostics only. It is taken
 from the recorded frames that carry stamp floor(T) (the k-th third of them at 60 fps); a tick the client never drew falls back
 to the nearest stamped frame and is counted in `skippedTicks`. The stamp rectangle (and, for a survival viewer, the hotbar)
 is overwritten by a mirror of the rows next to it in the saved PNGs.
@@ -99,14 +99,21 @@ def main():
     # ---- pass 1: the stamp of every recorded frame (decode only the top-centre crop)
     sx0 = max(0, W // 2 - STAMP_HALF_W * gs)
     sw = min(W - sx0, 2 * STAMP_HALF_W * gs)
-    sh = STAMP_H * gs
+    sh = max(STAMP_H * gs, 120)
     proc = stream_frames(rec, sw, sh, f"crop={sw}:{sh}:{sx0}:0")
-    raw = []
+    raw, cast_pixels, marker_bounds = [], [], []
     for item in read_all(proc, sw * sh * 3):
         if isinstance(item, str):
             rel = [float(x) for x in re.findall(r"pts_time:\s*([0-9.]+)", item)]
         else:
-            raw.append(decode_stamp(np.frombuffer(item, np.uint8).reshape(sh, sw, 3)))
+            crop = np.frombuffer(item, np.uint8).reshape(sh, sw, 3)
+            raw.append(decode_stamp(crop))
+            mx0, mx1 = sw // 2 + 35, min(sw, sw // 2 + 100)
+            patch = crop[:, mx0:mx1].astype(int)
+            yy, xx = np.nonzero((patch[..., 1] > 100) & (patch[..., 0] < 70) & (patch[..., 2] < 70))
+            cast_pixels.append(len(xx) >= 2)
+            if len(xx):
+                marker_bounds.append((sx0 + mx0 + int(xx.min()), int(yy.min()), sx0 + mx0 + int(xx.max()) + 1, int(yy.max()) + 1))
     n_frames = min(len(raw), len(rel))
     raw, rel = raw[:n_frames], rel[:n_frames]
     wall = np.array([first + t for t in rel])
@@ -156,14 +163,18 @@ def main():
     kt = np.array([wall[i] for i in known]); kg = np.array([stamp[i] for i in known], float)
     rate = None if stepped else float(np.polyfit(kt - kt[0], kg, 1)[0])
 
-    g_cast = g_b if g_b == g_a else (g_b + g_a) / 2.0
-    # Plan tick 0 is the cast. The cast command runs on the RCON connection BETWEEN two server ticks: `time query gametime`
-    # already returns the value the NEXT tick's stamp function will write (g_cast), but the effects the cast spawns (age 0)
-    # reach the client before that stamp does. The plugin scheduler then advances every effect one age per tick in the
-    # heartbeat, which runs BEFORE the stamp function of the same tick: age a spawns in the tick stamped g_cast + a - 1.
-    # So plan tick a is the picture stamped g_cast + a - 1 (frame 0 = the last picture of stamp g_cast - 1); labelling it
-    # g_cast + a showed every effect one tick early.
-    base = g_cast - 1
+    marker = re.search(r"^CAST_TICK (\d+) engineTick=\d+ cast=(\d+) skill=(\S+) caster=(\S+)$", open(dstderr).read(), re.M)
+    if not marker:
+        raise SystemExit("no actual CAST_TICK marker; refusing an estimated frame zero")
+    g_cast = int(marker[1])
+    if any(cast_pixels[i] for i in known if wall[i] < cast_stamp):
+        raise SystemExit("cast marker region was not clear before the cast")
+    visible = [i for i in known if cast_pixels[i] and wall[i] >= cast_stamp]
+    if not visible:
+        raise SystemExit("cast particle marker was never rendered; refusing an estimated render phase")
+    base = stamp[visible[0]]
+    marker_mask = (min(b[0] for b in marker_bounds) - 2, max(0, min(b[1] for b in marker_bounds) - 2),
+                   max(b[2] for b in marker_bounds) + 2, min(H, max(b[3] for b in marker_bounds) + 2))
     t0 = base - pre_ticks
     frames_total = (ticks + pre_ticks + 1) * fps // 20
     by_tick = {}
@@ -202,12 +213,15 @@ def main():
         img = np.frombuffer(item, np.uint8).reshape(H, W, 3)
         small = img[:H // 9 * 9, :W // 8 * 8].reshape(gh, (H // 9 * 9) // gh, gw, (W // 8 * 8) // gw, 3).mean(axis=(1, 3, 4))
         top = (slice(0, MASK_TOP_H * gs), slice(W // 2 - MASK_HALF_W * gs, W // 2 + MASK_HALF_W * gs))
+        mx0, my0, mx1, my1 = marker_mask
+        small[int(my0 * gh / H):int(np.ceil(my1 * gh / H)), int(mx0 * gw / W):int(np.ceil(mx1 * gw / W))] = 0
         small[:int(np.ceil(MASK_TOP_H * gs * gh / H)), int(gw * (W / 2 - MASK_HALF_W * gs) / W):int(np.ceil(gw * (W / 2 + MASK_HALF_W * gs) / W))] = 0
         if survival:
             small[int(gh * (H - MASK_BOTTOM_H * gs) / H):, int(gw * (W / 2 - MASK_BOTTOM_HALF_W * gs) / W):int(np.ceil(gw * (W / 2 + MASK_BOTTOM_HALF_W * gs) / W))] = 0
         grey.append(small)
         if idx in need:
             out = img.copy()
+            out[my0:my1, mx0:mx1] = out[my0:my1, mx0 - (mx1 - mx0):mx0][:, ::-1]
             band = out[:, W // 2 - MASK_HALF_W * gs:W // 2 + MASK_HALF_W * gs]
             mirror_fill(band[:MASK_TOP_H * gs * 2], 0, MASK_TOP_H * gs)
             if survival:
@@ -243,7 +257,9 @@ def main():
     if near:
         t_stamp_cast = float(wall[near[0]])
     result = {
-        "castTick": g_cast, "planTickZeroStamp": base, "castTickSpan": [g_b, g_a], "castTickExact": g_b == g_a,
+        "castTick": g_cast, "planTickZeroStamp": base, "castTickSpan": [g_b, g_a], "castTickExact": True,
+        "castTickSource": "server-first-engine-tick", "stampPhase": "post-engine",
+        "castMarkerStamp": base, "castMarkerDelayTicks": base - g_cast, "castMarkerMask": marker_mask, "castId": int(marker[2]), "skill": marker[3], "caster": marker[4],
         "firstFrameTick": t0, "frames": frames_total, "fps": fps,
         "recordedFrames": n_frames, "undecodedFrames": undecoded, "inferredTicks": [int(k - base) for k in inferred_ticks], "glitchFrames": glitches, "regressions": regressions,
         "skippedTicks": skipped_ticks, "stampRateHz": None if rate is None else round(rate, 3),
@@ -257,7 +273,7 @@ def main():
         "map": mapping,
     }
     json.dump(result, open(out_path, "w"), indent=1)
-    print(f"cast tick {g_cast:g}{'' if g_b == g_a else f' (span {g_b}..{g_a})'}, {len(known)}/{n_frames} frames stamped "
+    print(f"cast tick {g_cast:g} (server-first-engine-tick; RCON bracket {g_b}..{g_a}), {len(known)}/{n_frames} frames stamped "
           f"({undecoded} unreadable, {glitches} glitches, {regressions} regressions), {skipped_ticks} ticks never drawn, "
           f"first change +{result['firstChangeTickAfterCast']} ticks, first fx +{result['firstFxTickAfterCast']} ticks")
 

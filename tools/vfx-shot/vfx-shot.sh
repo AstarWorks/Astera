@@ -55,6 +55,7 @@ CLIENTS="$OUT_ROOT/.clients/$SHOT_ID"
 mkdir -p "$STATE/clients" "$CLIENTS"
 
 SERVER_CT="$PROJECT-e2e-1"
+export DIRECTOR_SERVER_CT="$SERVER_CT"
 PACK_CT="$PROJECT-e2e-resource-pack-1"
 NET="${PROJECT}_default"
 RCON_PORT=25575
@@ -1006,8 +1007,10 @@ give_item() { # player
 # frame and writes frame_NNN.png (stamp rectangle masked) + <dir>/framestamp.json (frame <-> tick map).
 film() { # viewer view_dir
   local viewer="$1" dir="$2" rec="$OUT_ROOT/.rec-$SHOT_ID.mkv" d="${DISP[$1]}"
-  local cast_stamp clog="$CLIENTS/$1/client.log" log_off pos_start pos_end fpid i end_wait survival=0
+  local cast_stamp clog="$CLIENTS/$1/client.log" log_off pos_start pos_end fpid i survival=0
   log_off="$(stat -c %s "$clog" 2>/dev/null || echo 0)"
+  rcon "scoreboard players set #height vfxstamp ${RES_FILM#*x}" >/dev/null
+  rcon "scoreboard players set #fov vfxstamp $(awk -v f="${FOV:-90}" 'BEGIN{printf "%d",f*1000}')" >/dev/null
   rm -f "$rec"
   rcon "tick rate 20" >/dev/null 2>&1 || true; rcon "tick unfreeze" >/dev/null 2>&1 || true   # a killed earlier run may have left the server slow
   DISPLAY=":$d" xdotool mousemove 320 180 2>/dev/null || true
@@ -1047,8 +1050,7 @@ print(uuid.UUID(bytes=b"".join((int(g) & 0xFFFFFFFF).to_bytes(4, "big") for g in
     [ -n "$husk_uuid" ] || die "ATTACKER=1: there is no dummy husk to attack with (rcon: ${husk_raw:-<empty>})"
     printf '%s\tastera skill hurt Caster %s 1\n' "$(( ATTACK_TICK * 50 ))" "$husk_uuid" >> "$STATE/camera-plan.tsv"
   fi
-  # one RCON connection: game time, cast, game time, then (compare) the camera cuts of the plan. Stepped: the server is frozen and
-  # advanced one tick at a time until the viewer's screen shows each new tick; realtime: the plan runs on the wall clock.
+  # One RCON connection: request brackets, cast, observed first engine tick, then camera cuts on server tick deadlines.
   local dstep=()
   [ "$STEPPED" = 1 ] && dstep=(DIRECTOR_SLOW_RATE="$SLOW_RATE" DIRECTOR_STEP_PRE="$PRE_TICKS")
   env DIRECTOR_MARK_CMD="time query gametime" "${dstep[@]}" python3 -I "$HERE/director.py" "$SERVER_IP" "$RCON_PORT" "$RCON_PASS" "$STATE/camera-plan.tsv" "astera skill cast $SKILL Caster --force" \
@@ -1061,9 +1063,17 @@ print(uuid.UUID(bytes=b"".join((int(g) & 0xFFFFFFFF).to_bytes(4, "big") for g in
   cast_reply="$(grep -i -m1 -E "cast|cooldown|unknown|offline|not " "$STATE/director.stdout" | head -c 300)"
   log "cast reply: ${cast_reply:-<empty>}"
   case "$cast_reply" in *[Cc]ast*"$SKILL"*) ;; *) kill "$fpid" 2>/dev/null; rcon "tick rate 20" >/dev/null 2>&1; die "the cast was not acknowledged (reply: ${cast_reply:-<empty>}); the skill did not start" ;; esac
-  # film until the motion (plus the pre-ticks of the window) is over
-  end_wait="$(awk -v c="$cast_stamp" -v t="$TICKS" -v n="$(date +%s.%N)" -v st="$STEPPED" -v r="$SLOW_RATE" 'BEGIN{w = (st == 1 ? c + t/r + 1.0 - n : c + t/20 + 0.8 - n); printf "%.2f", (w > 0 ? w : 0)}')"
-  sleep "$end_wait"
+  # Finish on the measured server clock too, independent of command latency or GC.
+  local actual_cast_tick now_tick
+  actual_cast_tick="$(awk '/^CAST_TICK/{print $2}' "$STATE/director.stderr")"
+  [ -n "$actual_cast_tick" ] || die "missing actual cast tick"
+  while :; do
+    now_tick="$(rcon 'time query gametime' | sed -nE 's/.* ([0-9]+) tick.*/\1/p')"
+    [ -n "$now_tick" ] || die "cannot read server tick while recording"
+    [ "$now_tick" -ge "$((actual_cast_tick + TICKS + 1))" ] && break
+    sleep 0.05
+  done
+  sleep 0.8   # let the client draw the final packets before closing the recorder
   kill -TERM "$fpid" 2>/dev/null
   wait "$fpid" 2>/dev/null
   FILM_PID=""
