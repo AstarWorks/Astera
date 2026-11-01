@@ -1,5 +1,6 @@
 package com.astarworks.astera.resourcepack
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -78,14 +79,38 @@ class ResourcePackBuilderTest {
         val itemDefs = files.keys.filter { it.startsWith("assets/astera/items/") && it.endsWith(".json") }
         assertThat(itemDefs).isNotEmpty()
         for (def in itemDefs) {
-            val root = json(files.getValue(def)).path("model")
-            if (root.path("type").asText() == "minecraft:empty") {
-                // an invisible item (weapon_model hide key, `astera_empty`): the vanilla empty model, no model file to point at
-                assertThat(root.has("model")).`as`("$def: an empty definition carries no model reference").isFalse()
-                continue
+            val models = mutableListOf<String>()
+            collectModels(json(files.getValue(def)).path("model"), def, models)
+            for (model in models) {
+                assertThat(model).`as`("$def: model reference namespace").startsWith("astera:")
+                assertThat(files).`as`("$def -> $model").containsKey("assets/astera/models/" + model.substringAfter("astera:") + ".json")
             }
-            val model = root.path("model").asText()
-            assertThat(files).`as`(def).containsKey("assets/astera/models/" + model.substringAfter("astera:") + ".json")
+        }
+    }
+
+    /**
+     * Walks the whole item-definition tree (select / range_dispatch / condition / composite / special, with their nested
+     * `cases`, `entries`, `models`, `on_true`, `on_false`, `fallback`) and collects every `minecraft:model` reference.
+     * A `minecraft:empty` node (weapon_model hide key) must carry no model reference. Any node that names a model without
+     * being `minecraft:model` fails, so an unknown shape cannot hide a dangling reference.
+     */
+    private fun collectModels(node: JsonNode, where: String, out: MutableList<String>) {
+        when {
+            node.isObject -> {
+                val type = node.path("type").asText()
+                when (type) {
+                    "minecraft:model" -> {
+                        val model = node.path("model").asText()
+                        assertThat(model).`as`("$where: minecraft:model names a model").isNotBlank()
+                        out += model
+                    }
+                    "minecraft:empty" ->
+                        assertThat(node.has("model")).`as`("$where: an empty definition carries no model reference").isFalse()
+                    else -> assertThat(node.path("model").isTextual).`as`("$where: $type node with a textual model").isFalse()
+                }
+                node.fields().forEach { (key, child) -> if (key != "model" || child.isContainerNode) collectModels(child, where, out) }
+            }
+            node.isArray -> node.forEach { collectModels(it, where, out) }
         }
     }
 
