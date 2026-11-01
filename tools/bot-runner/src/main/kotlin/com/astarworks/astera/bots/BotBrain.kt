@@ -304,7 +304,8 @@ class BotBrain(
             nav.clear()
             retreating = false
             stuck.reset()
-            planner = buildPlanner(originX, originZ)
+            selector.seedTies(TieBreak.seed(matchKey(originX, originZ), bot.name))
+            planner = buildPlanner(originX, originZ, matchKey(originX, originZ))
             economy = buildEconomy(originX, originZ)
             econSliceStart = 0L
             econCooldownUntil = if (planner != null) now + ECON_OPENING_MS else 0L
@@ -529,7 +530,7 @@ class BotBrain(
             TargetPolicy.eligible(bot.name, myTeam, it) && it.hasLos && hypot(it.x - bot.x, it.z - bot.z) <= WeaponPolicy.FIRE_MAX
         }
         val attacker = threats.firstOrNull { it.id == lastTargetId } ?: threats.minByOrNull { hypot(it.x - bot.x, it.z - bot.z) }
-        if (attacker != null) selector.noteAttackedBy(attacker.id, now)
+        if (attacker != null) { selector.noteAttackedBy(attacker.id, now); planner?.noteAttackerTeam(now, attacker.team) }
     }
 
     /** New life or new match: forget targets, threats, a half-sent skill cast. */
@@ -836,7 +837,10 @@ class BotBrain(
         return Dest(st.x, st.z, null, st.arrive, "econ-${st.kind}", strike = st.strike, affinity = st.strike?.let { LoadoutClassifier.Affinity.PICKAXE })
     }
 
-    private fun buildPlanner(originX: Double, originZ: Double): ModePlanner? {
+    /** Key of the running match for [TieBreak]: mode and stage slot (no match id reaches a bot; no clock, so a pick never changes between ticks). */
+    private fun matchKey(originX: Double, originZ: Double) = "$modeId@${originX.toLong()},${originZ.toLong()}"
+
+    private fun buildPlanner(originX: Double, originZ: Double, matchKey: String): ModePlanner? {
         val id = modeId ?: return null
         val src = objectives ?: return null
         if (id !in ModePlanner.MODES) return null
@@ -854,7 +858,7 @@ class BotBrain(
             tntSpawn = world.point(ModePlanner.TNT_SPAWN)?.let { it.first to it.third },
         ).also { observed = it }
         val modeFacts = src.modeFacts(facts, originX, originZ) ?: facts
-        return ModePlanner(id, bot.name, own, src.teams().filter { it != own }, world, facts = modeFacts).takeIf { it.handles() }
+        return ModePlanner(id, bot.name, own, src.teams().filter { it != own }, world, facts = modeFacts, matchKey = matchKey, teamOf = { bot.teamOf(it) }).takeIf { it.handles() }
     }
 
     /**
