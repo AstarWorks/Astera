@@ -242,12 +242,26 @@ class Session(private val host: MatchHost, contentDir: File) {
 
     fun act(text: String, untilText: String?, max: Int, interrupts: Boolean): StepOutcome = track(text) { actInner(text, untilText, max, interrupts) }
 
+    /** A failed decision: what ran, the stop reason and the note, for the end summary and the timeline. */
+    data class Failure(val tick: Long, val label: String, val stopped: String, val note: String) {
+        fun line() = "t=$tick '$label': stopped=$stopped (${note.take(100)})"
+    }
+    val failureLog = ArrayList<Failure>()
+    private var lastFailure: Failure? = null
+
     /** Counts a decision that failed for a reason of its own (bad target, refusal, ...), not one an interrupt or a timeout ended. */
     private fun track(label: String, body: () -> StepOutcome): StepOutcome {
+        val startTick = host.tick
+        val after = lastFailure?.takeIf { it.tick == startTick }
+        lastFailure = null
         var out = body()
+        if (after != null) out = out.copy(note = "[ran right after failed '${after.label}' (${after.stopped}) at the same tick t=$startTick] ${out.note}")
         if (!out.ok && out.stopped !in SOFT_STOPS && !out.stopped.startsWith("until:")) {
             decisionsFailed++
-            failures += "t=${host.tick} '$label': ${out.stopped} (${out.note.take(100)})"
+            val f = Failure(host.tick, label, out.stopped, out.note)
+            failureLog += f
+            failures += f.line()
+            lastFailure = f
             out = out.copy(failed = true)
         }
         return out
@@ -299,11 +313,20 @@ class Session(private val host: MatchHost, contentDir: File) {
     }
 
     private fun goto(arg: String, until: UntilDsl?, max: Int, interrupts: Boolean, arrive: Double?, target: Poi? = null): StepOutcome {
-        val poi = target ?: resolvePoi(arg) ?: return StepOutcome(false, "unknown_target", "no place '$arg' (see menu / look)")
+        var budget = max
+        var poi = target ?: resolvePoi(arg)
+        if (poi == null && arg == "star" && until?.source?.split('|')?.any { it.trim() == "arrived" } == true) {
+            val t0 = host.tick
+            val waited = run(max, until, interrupts) { if (sim.starDrops.lying().isNotEmpty()) "star_spawned" else null }
+            budget = (max - (host.tick - t0).toInt()).coerceAtLeast(1)
+            if (waited != "star_spawned") return StepOutcome(false, waited, "no star spawned after waiting ${host.tick - t0} ticks")
+            poi = resolvePoi(arg)
+        }
+        if (poi == null) return StepOutcome(false, "unknown_target", "no place '$arg' (see menu / look)")
         val radius = arrive ?: if (poi.kind == "xyz") 1.0 else if (poi.kind == "star") 0.8 else 1.6
         var noPath = 0
         navigator.clear()
-        val why = run(max, until, interrupts) {
+        val why = run(budget, until, interrupts) {
             val gy = poi.y.takeIf { poi.kind == "xyz" && !it.isNaN() }
             when (navigator.follow(navHost, poi.x, poi.z, gy, radius, SPEED, host.tick * 50L, null, 0f)) {
                 Navigator.Status.ARRIVED -> "arrived"
@@ -328,8 +351,48 @@ class Session(private val host: MatchHost, contentDir: File) {
         else -> inventoryTool("pickaxe")
     } ?: inventoryTool("pickaxe")
 
+    /** Block types seen on a node cell right after it was mined: a cell showing one of them is regrowing. */
+    private val placeholders = HashSet<String>()
+
+    private fun nodeCell(poi: Poi): Vec3 = Vec3(floor(poi.x), floor(if (poi.y.isNaN()) me.position.y else poi.y), floor(poi.z))
+
+    private fun nodeReady(poi: Poi): Boolean = sim.world.blockAt(me.world, nodeCell(poi))?.key !in placeholders
+
+    private fun learnPlaceholder(poi: Poi) { sim.world.blockAt(me.world, nodeCell(poi))?.key?.let { placeholders += it } }
+
+    /**
+     * `dig`: one node, as ever, unless an `until` is given on a Mid ore: then it keeps digging the nearest ready node of that
+     * ore (or waits for one to regrow) until the condition holds or [max] ticks are used.
+     */
     private fun dig(arg: String, until: UntilDsl?, max: Int, interrupts: Boolean): StepOutcome {
-        val poi = resolvePoi(arg) ?: return StepOutcome(false, "unknown_target", "no place '$arg'")
+        val first = resolvePoi(arg) ?: return StepOutcome(false, "unknown_target", "no place '$arg'")
+        if (until == null || first.kind != "mid-ore") return digOne(first, arg, until, max, interrupts)
+        val family = pois.ofKind("mid-ore").filter { it.ore == first.ore }
+        val exact = pois.find(arg.trim())
+        val deadline = host.tick + max
+        var mined = 0
+        val before = oreTotal()
+        fun summary(tail: String) = "$tail; mined $mined node${if (mined == 1) "" else "s"}, ore ${before} -> ${oreTotal()}"
+        while (true) {
+            val remaining = (deadline - host.tick).toInt()
+            if (remaining <= 0) return StepOutcome(false, "timeout", summary("max ticks used"))
+            val ready = family.filter(::nodeReady)
+            val target = (exact?.takeIf { it in ready } ?: ready.minByOrNull { it.distanceTo(me.position.x, me.position.z) })
+            if (target == null) {
+                val why = run(minOf(remaining, REGROW_POLL), until, interrupts) { null }
+                if (why != "timeout") return StepOutcome(why.startsWith("until:"), why, summary("waited for regrow"))
+                continue
+            }
+            val out = digOne(target, target.name, until, remaining, interrupts)
+            when (out.stopped) {
+                "mined" -> { mined++; until.fired(probe)?.let { return StepOutcome(true, "until:$it", summary("until holds")) } }
+                "regrowing" -> run(1, until, interrupts) { null }.let { w -> if (w != "timeout") return StepOutcome(w.startsWith("until:"), w, summary("node regrowing")) }
+                else -> return out.copy(note = summary(out.note))
+            }
+        }
+    }
+
+    private fun digOne(poi: Poi, arg: String, until: UntilDsl?, max: Int, interrupts: Boolean): StepOutcome {
         val y = if (poi.y.isNaN()) me.position.y else poi.y
         val cell = Vec3(floor(poi.x), floor(y), floor(poi.z))
         if (hypot(poi.x - me.position.x, poi.z - me.position.z) > REACH) {
@@ -346,12 +409,12 @@ class Session(private val host: MatchHost, contentDir: File) {
             when (val out = nodes.mine(me.id, worldId, cell, tool?.let(::ItemId))) {
                 is OreNodeService.Outcome.Hit -> { result = "hit ${out.hp}/${out.maxHp}"; null }
                 OreNodeService.Outcome.Cooldown -> null
-                is OreNodeService.Outcome.Mined -> { result = "mined"; "mined" }
+                is OreNodeService.Outcome.Mined -> { result = "mined"; learnPlaceholder(poi); "mined" }
                 OreNodeService.Outcome.WrongTool -> { result = "wrong tool class (${tool ?: "no tool"})"; "too_weak" }
                 OreNodeService.Outcome.TooWeak -> { result = "tool too weak (${tool ?: "no tool"})"; "too_weak" }
                 is OreNodeService.Outcome.LevelLocked -> { result = "needs norma lv${out.required}"; "level_locked" }
                 is OreNodeService.Outcome.PhaseLocked -> { result = "needs phase ${out.required}"; "phase_locked" }
-                OreNodeService.Outcome.Regrowing -> { result = "regrowing"; "regrowing" }
+                OreNodeService.Outcome.Regrowing -> { result = "regrowing"; learnPlaceholder(poi); "regrowing" }
                 OreNodeService.Outcome.NotANode ->
                     if (sim.world.blockAt(me.world, cell) != null && sim.breakBlock(me, cell)) { result = "broke block"; "mined" }
                     else { result = "nothing to dig there"; "not_diggable" }
@@ -635,6 +698,7 @@ class Session(private val host: MatchHost, contentDir: File) {
         /** The match's default respawn delay (DeathRespawnConfig), for the "respawn in" read-out only. */
         const val RESPAWN_TICKS = com.astarworks.astera.match.domain.death.DeathRespawnConfig.DEFAULT_RESPAWN_DELAY_SECONDS * 20
         const val REACH = 4.5
+        private const val REGROW_POLL = 20
         private const val HIT_COOLDOWN = 6L
         private const val SHOP_LIST_MAX = 12
         private const val MENU_BUY_AT_SHOP = 6
