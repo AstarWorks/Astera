@@ -1,0 +1,8 @@
+# Sound cue (ADR-0267). Astera OGG synthesized by tools/sound-gen/scripts/synth.sh (ffmpeg, no samples);
+# the event is generated into assets/astera/sounds.json by :tools:resource-pack from this id + ore/mined.ogg.
+# Played to the miner when an ore node is mined (OreNodeService).
+id: "astera:ore/mined"
+resource_key: "astera:ore/mined"
+default_volume: 0.8
+default_pitch: 1.0
+category: ui

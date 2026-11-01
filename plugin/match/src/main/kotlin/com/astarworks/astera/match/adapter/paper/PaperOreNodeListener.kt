@@ -101,6 +101,17 @@ public class PaperOreNodeWorld(private val plugin: JavaPlugin) : IOreNodeWorld {
         })
     }
 
+    override fun mined(world: WorldId, pos: Vec3, material: String) {
+        val w = plugin.server.getWorld(world.value) ?: return
+        val data = (Material.matchMaterial(material) ?: return).createBlockData()
+        val at = Location(w, pos.x, pos.y, pos.z)
+        plugin.server.regionScheduler.execute(plugin, at, Runnable {
+            val centre = at.clone().add(0.5, 0.5, 0.5)
+            at.world.spawnParticle(org.bukkit.Particle.BLOCK, centre, 30, 0.3, 0.3, 0.3, 0.0, data)
+            at.world.playSound(centre, data.soundGroup.breakSound, 1.0f, 1.0f)
+        })
+    }
+
     override fun deny(world: WorldId, pos: Vec3) {
         val w = plugin.server.getWorld(world.value) ?: return
         val at = Location(w, pos.x, pos.y, pos.z)
