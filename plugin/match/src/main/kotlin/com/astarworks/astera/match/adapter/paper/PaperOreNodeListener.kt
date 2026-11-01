@@ -6,7 +6,10 @@ import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.application.port.outbound.IOreNodeWorld
+import com.astarworks.astera.match.application.port.outbound.IOreDigSight
+import com.astarworks.astera.match.application.service.OreDigHold
 import com.astarworks.astera.match.application.service.OreNodeService
+import kotlin.math.floor
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -14,9 +17,12 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.event.block.BlockDamageAbortEvent
 import org.bukkit.event.block.BlockDamageEvent
 import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.entity.EntityExplodeEvent
+import org.bukkit.event.player.PlayerAnimationEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -27,6 +33,7 @@ import org.bukkit.plugin.java.JavaPlugin
 public class PaperOreNodeListener(
     private val service: () -> OreNodeService?,
     private val actions: () -> com.astarworks.astera.match.application.service.StarActionService? = { null },
+    private val hold: () -> OreDigHold? = { null },
 ) : Listener {
     public fun start(plugin: JavaPlugin, listeners: OwnedListeners) {
         listeners.register(this)
@@ -39,12 +46,37 @@ public class PaperOreNodeListener(
         if (outcome is OreNodeService.Outcome.Mined) actions()?.onOreMined(PlayerId(event.player.uniqueId))
     }
 
-    /** Survival dig start: a node never starts vanilla cracking, so the break event only fires for instant mining. */
+    /**
+     * Survival dig start. A node never starts vanilla cracking, so this fires once per click, not once per hit: [OreDigHold] takes the
+     * click's hit and keeps hitting at the node's hit cadence while the button stays down (arm swings) and the crosshair stays on the node.
+     */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public fun onDig(event: BlockDamageEvent) {
-        val outcome = mine(event.player, event.block) ?: return
+        val holder = hold()
+        val block = event.block
+        val outcome = if (holder != null) {
+            holder.begin(PlayerId(event.player.uniqueId), WorldId(block.world.name), Vec3(block.x.toDouble(), block.y.toDouble(), block.z.toDouble()))
+        } else {
+            mine(event.player, block)?.also { if (it is OreNodeService.Outcome.Mined) actions()?.onOreMined(PlayerId(event.player.uniqueId)) }
+        } ?: return
         if (outcome !is OreNodeService.Outcome.NotANode) event.isCancelled = true
-        if (outcome is OreNodeService.Outcome.Mined) actions()?.onOreMined(PlayerId(event.player.uniqueId))
+    }
+
+    /** The button was released or the crosshair left the block. */
+    @EventHandler
+    public fun onDigAbort(event: BlockDamageAbortEvent) {
+        hold()?.release(PlayerId(event.player.uniqueId))
+    }
+
+    /** A held dig swings the arm every tick; that keeps the hold alive. */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public fun onSwing(event: PlayerAnimationEvent) {
+        hold()?.swung(PlayerId(event.player.uniqueId))
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public fun onQuit(event: PlayerQuitEvent) {
+        hold()?.release(PlayerId(event.player.uniqueId))
     }
 
     /** An explosion never eats a node cell (ore or its regrowing cobblestone). */
@@ -79,6 +111,24 @@ public class PaperOreNodeListener(
     private companion object {
         /** Mirrors `PaperItemIdResolver.ITEM_ID_KEY` in the items plugin (sibling plugins are not imported). */
         const val ITEM_ID_KEY = "item_id"
+    }
+}
+
+/** What a digging player holds and aims at, read on the player's own scheduler. */
+public class PaperOreDigSight(private val server: org.bukkit.Server) : IOreDigSight {
+    override fun heldItem(player: PlayerId): ItemId? {
+        val pdc = server.getPlayer(player.uuid)?.inventory?.itemInMainHand?.itemMeta?.persistentDataContainer ?: return null
+        val key = pdc.keys.firstOrNull { it.key == "item_id" } ?: return null
+        return pdc.get(key, PersistentDataType.STRING)?.let { runCatching { ItemId(it) }.getOrNull() }
+    }
+
+    override fun aimsAt(player: PlayerId, world: WorldId, pos: Vec3): Boolean {
+        val target = server.getPlayer(player.uuid)?.getTargetBlockExact(REACH) ?: return false
+        return target.world.name == world.value && target.x == floor(pos.x).toInt() && target.y == floor(pos.y).toInt() && target.z == floor(pos.z).toInt()
+    }
+
+    private companion object {
+        const val REACH = 6
     }
 }
 

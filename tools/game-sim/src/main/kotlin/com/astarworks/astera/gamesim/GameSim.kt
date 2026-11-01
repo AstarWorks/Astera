@@ -152,6 +152,7 @@ public class GameSim private constructor(
     /** Mid ore node blocks and `drop_item` generator drops of the simulated world. */
     public val wornItems: SimWornItems = SimWornItems()
     public val oreNodes: SimOreNodeWorld = SimOreNodeWorld(itemDelivery) { scheduler.currentTick() }
+    public val oreDigSight: SimOreDigSight = SimOreDigSight()
     public val generatorDrops: SimGeneratorItemDrop = SimGeneratorItemDrop()
 
     /** Carrier looks, world markers and boss bars of the objective modes. */
@@ -728,7 +729,7 @@ public class GameSim private constructor(
 
             // ---- Match / Stats / Economy ---------------------------------
             val replayRoot = Files.createTempDirectory("astera-sim-replays")
-            sim.core.rewire.register(MatchLifecycle(install = { ctx -> MatchWiring.install(ctx, MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }, starDropWorld = { sim.starDrops }, oreNodeWorld = { sim.oreNodes }, generatorItemDrop = { sim.generatorDrops }, objectiveStage = { sim.objectiveStage }, worldLabels = { sim.worldLabels }, matchCompass = { reg -> sim.matchCompass.also { it.attach(reg.getOrThrow<com.astarworks.astera.core.application.port.outbound.IDomainEventBus>()) } }, playerPositions = { reg -> SimMatchPlayerPositions({ reg.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>() }, sim.spectator) }, normaPresentation = { sim.normaPresentation })) }))
+            sim.core.rewire.register(MatchLifecycle(install = { ctx -> MatchWiring.install(ctx, MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }, starDropWorld = { sim.starDrops }, oreNodeWorld = { sim.oreNodes }, oreDigSight = { sim.oreDigSight }, generatorItemDrop = { sim.generatorDrops }, objectiveStage = { sim.objectiveStage }, worldLabels = { sim.worldLabels }, matchCompass = { reg -> sim.matchCompass.also { it.attach(reg.getOrThrow<com.astarworks.astera.core.application.port.outbound.IDomainEventBus>()) } }, playerPositions = { reg -> SimMatchPlayerPositions({ reg.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>() }, sim.spectator) }, normaPresentation = { sim.normaPresentation })) }))
             sim.core.rewire.up(MatchLifecycle.OWNER).let { r -> check(r is com.astarworks.astera.core.domain.Result.Success) { "match up failed: ${(r as com.astarworks.astera.core.domain.Result.Failure).error}" } }
             sim.core.rewire.register(StatsLifecycle { StatsPlatformPorts() })
             sim.core.rewire.register(EconomyLifecycle { EconomyPlatformPorts() })

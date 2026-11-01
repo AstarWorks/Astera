@@ -50,6 +50,7 @@ internal object MatchPaperBindings {
         playerPositions = { PaperMatchPlayerPositions(plugin.server) },
         starDropWorld = { PaperStarDropWorld(plugin, listeners) },
         oreNodeWorld = { com.astarworks.astera.match.adapter.paper.PaperOreNodeWorld(plugin) },
+        oreDigSight = { com.astarworks.astera.match.adapter.paper.PaperOreDigSight(plugin.server) },
         generatorItemDrop = { services ->
             com.astarworks.astera.match.adapter.paper.PaperGeneratorItemDrop(
                 server = plugin.server,
@@ -95,6 +96,7 @@ internal object MatchPaperBindings {
         com.astarworks.astera.match.adapter.paper.PaperOreNodeListener(
             { ctx.services.get<com.astarworks.astera.match.application.service.OreNodeService>() },
             { ctx.services.get<com.astarworks.astera.match.application.service.StarActionService>() },
+            { ctx.services.get<com.astarworks.astera.match.application.service.OreDigHold>() },
         ).start(plugin, listeners)
         // Star economy (ADR-0318): breaking a content-listed block pays stars within the per-player cap.
         com.astarworks.astera.match.adapter.paper.PaperStarBlockListener { ctx.services.get<com.astarworks.astera.match.application.service.StarActionService>() }.start(plugin, listeners)
