@@ -103,6 +103,22 @@ object MassPlay {
             appendLine("| $key | ${values.size} | ${fmt(values.first())} | ${fmt(median)} | ${fmt(values.last())} | ${spark(values)} |")
         }
         appendLine()
+        appendLine("Pillar damage per run and team (dealt = to enemy pillars by the attacker's team; taken includes unattributed; hp_left = standing pillar HP at the end):")
+        appendLine()
+        appendLine("| run | seed | end_reason | team | pillar_damage_dealt | pillar_damage_taken | pillar_hp_left | unattributed (match) |")
+        appendLine("|---|---:|---|---|---:|---:|---:|---:|")
+        for (r in results) {
+            val teams = r.result.json["teams"] as? kotlinx.serialization.json.JsonObject ?: continue
+            val endKind = (r.result.json["end_reason"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: "n/a"
+            val unattr = r.result.scalars["pillar_damage_unattributed"] ?: 0.0
+            for ((team, v) in teams) {
+                val o = v as kotlinx.serialization.json.JsonObject
+                fun num(k: String) = (o[k] as? kotlinx.serialization.json.JsonPrimitive)?.content?.toDoubleOrNull() ?: 0.0
+                val left = ((o["pillar_hp_left"] as? kotlinx.serialization.json.JsonObject)?.get("sum") as? kotlinx.serialization.json.JsonPrimitive)?.content?.toDoubleOrNull() ?: 0.0
+                appendLine("| ${r.run} | ${r.seed} | $endKind | $team | ${fmt(num("pillar_damage_dealt"))} | ${fmt(num("pillar_damage_taken"))} | ${fmt(left)} | ${fmt(unattr)} |")
+            }
+        }
+        appendLine()
         appendLine("First match-shop purchase per run (seconds from MatchStarted; budget: median at most 150 s):")
         appendLine()
         appendLine("| run | seed | first_buy_median_s | never_bought | players |")
