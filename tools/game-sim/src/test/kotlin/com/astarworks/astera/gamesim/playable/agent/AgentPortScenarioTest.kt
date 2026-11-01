@@ -1,5 +1,6 @@
 package com.astarworks.astera.gamesim.playable.agent
 
+import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.gamesim.GameSim
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -28,7 +29,7 @@ class AgentPortScenarioTest {
         """{"op":"act","do":"dig mid-ore:iron-8","max":600}""",
         """{"op":"act","do":"goto shop:red","max":2400}""",
         """{"op":"act","do":"buy dagger","max":100,"map":"off"}""",
-        """{"op":"skip","until":"phase=engage","max":3000,"map":"off"}""",
+        """{"op":"skip","until":"phase=engage","max":9000,"interrupts":false,"map":"off"}""",
         """{"op":"act","do":"goto base:red","max":1200,"map":"off"}""",
         """{"op":"act","do":"norma star","max":300,"map":"off"}""",
         """{"op":"end"}""",
@@ -88,6 +89,34 @@ class AgentPortScenarioTest {
         assertThat(end["ended"]!!.jsonPrimitive.content).isEqualTo("true")
         assertThat(end["questions"]!!.jsonArray).hasSize(3)
         assertThat(end["trace"]!!.jsonPrimitive.content).isNotBlank()
+    }
+
+    @Test
+    fun `a dead seat reports died once then waits for the match respawn instead of stopping every tick`() {
+        val host = DriverMatchHost.boot(MatchRequest(botsPerTeam = 1, seed = 7))
+        host.use {
+            val session = Session(it, GameSim.defaultContentDir().toFile())
+            session.skip(null, 60, false)
+            val killer = com.astarworks.astera.core.application.service.arena.VoidFallKiller(
+                health = { it.sim.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>() },
+                currentTick = { it.sim.tick },
+            )
+            assertThat(killer.kill(it.me().id)).isTrue()
+            val died = session.skip(null, 200, true)
+            assertThat(died.stopped).isEqualTo("died")
+            assertThat(session.view().dead).isTrue()
+            assertThat(session.view().respawnIn).isGreaterThan(0)
+            assertThat(session.menu().single()).contains("respawn in")
+
+            // The next skip waits out the respawn timer and carries on to its own end (no instant re-stop).
+            val after = session.skip(null, 300, true)
+            assertThat(after.stopped).isNotEqualTo("died")
+            assertThat(after.note).isEqualTo("skipped 300 ticks")
+            assertThat(session.view().dead).isFalse()
+            assertThat(session.view().hp).isGreaterThan(0)
+            assertThat(session.drainEvents()).anyMatch { e -> e == "respawned" }
+            assertThat(session.act("goto star", null, 60, true).stopped).isNotEqualTo("died")
+        }
     }
 
     private fun JsonObject.bool(key: String): Boolean = this[key]!!.jsonPrimitive.content.toBoolean()

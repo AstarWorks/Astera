@@ -43,7 +43,7 @@ public class StarWaveService(
     private val scheduler: IScheduler,
     private val presentation: IPresentation,
     private val eventBus: IDomainEventBus,
-    private val random: Random = Random.Default,
+    private val random: Random,
     /** Carried across a Match rewire so a wave in progress keeps its schedule. */
     private val states: MutableMap<Pair<MatchId, GeneratorId>, State> = ConcurrentHashMap(),
 ) {

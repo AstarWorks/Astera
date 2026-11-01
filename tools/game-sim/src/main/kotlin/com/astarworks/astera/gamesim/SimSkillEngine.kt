@@ -168,7 +168,7 @@ internal class SimSkillEngine private constructor(
         subscriptions.forEach { runCatching { it.cancel() } }
         subscriptions.clear()
         runCatching { runner.cancelAll() }
-        runCatching { ledger.revertAll() }
+        runCatching { ledger.revertAllNow() }
     }
 
     private fun interceptor(): IIncomingDamageInterceptor = IIncomingDamageInterceptor { target, attacker, _ ->
@@ -205,7 +205,7 @@ internal class SimSkillEngine private constructor(
             val query = SimSkillEntityQuery(sim, alive, { services.get<IMatchTeamLookup>() }, { services.get<com.astarworks.astera.core.application.port.outbound.IStructureTargets>() })
             val live = SimLiveValueSource(sim, { id -> healthRatio(attributes, id) }, scheduler, gameplay, query)
             val movement = SimSkillMovement(sim)
-            val ledger = SimLedgerWorld(SimBlockAccess(sim, services))
+            val ledger = SimLedgerWorld(SimBlockAccess(sim, services, alive))
             val visuals = SimSkillVisuals()
             val player = TablePlayer(
                 visual = visuals,

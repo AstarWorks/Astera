@@ -1,5 +1,6 @@
 package com.astarworks.astera.e2e
 
+import com.astarworks.astera.bots.ObjectiveWalker
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -9,9 +10,9 @@ import org.junit.jupiter.api.Test
  * and then yellow, winner declared, summary/rewards, everyone (spectators included) back in the lobby.
  * Timers and HP come from docker/e2e-tune-content.sh (build 5s, engage 10s, every pillar 150 HP).
  *
- * The arena is a three-island sky stage in a world slot (content/stages/annihilation-arena.yaml, ADR-0255; all coordinates here are stage-local):
- * red island at (0, -46), blue at (40, 23), yellow at (-40, 23) (radius 21), centre island at (0, 0) (radius 18), three
- * outpost islands (radius 10) between the bases; top layer y=64, bots stand at y=65. Pillar cells are read from the stage YAML.
+ * Highmarch is one continuous continent (ADR-0321): red forge town north, blue harbour east, yellow farmland west,
+ * a terraced quarry at Mid, river-gorge bridges and town-to-town ridge crossings. Void exists only outside the rim.
+ * All coordinates are stage-local; pillar anchors and terrain expectations below come from shipped YAML.
  */
 class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
 
@@ -59,11 +60,34 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
     }
 
     private fun teamOfBot(b: Bot): String? = localPosOf(b)?.let { (x, _, z) ->
-        when {
-            z < -30 -> "Red"
-            x > 0 -> "Blue"
-            else -> "Yellow"
+        pillars.minBy { (_, cells) -> cells.first().let { Math.hypot(x - it.first, z - it.third) } }.key
+    }
+
+    private val content = java.io.File(System.getProperty("astera.live.contentDir", "/workspace/content"))
+    private val worldLines by lazy { content.resolve("arenas/annihilation-highmarch.yaml").readLines() }
+    private fun worldVector(key: String): List<Int> = worldLines.first { it.startsWith("$key:") }
+        .substringAfter('[').substringBefore(']').split(',').map { it.trim().toInt() }
+
+    /** Read only the needed ADR-0281 RLE layer; avoid expanding the two-million-block world for a few probes. */
+    private fun worldLayer(y: Int): Map<Pair<Int, Int>, String> {
+        val (ox, oy, oz) = worldVector("origin")
+        val (sx, sy, sz) = worldVector("size")
+        require(y in oy until oy + sy)
+        val palette = listOf("minecraft:air") + worldLines.dropWhile { it != "palette:" }.drop(1)
+            .takeWhile { it != "layers:" }.map { it.trim().removePrefix("- ").trim('"') }
+        val layer = worldLines.dropWhile { it != "layers:" }[y - oy + 1].trim().removePrefix("- ").trim('"')
+        val cells = mutableMapOf<Pair<Int, Int>, String>()
+        var cell = 0
+        for (run in layer.split(' ')) {
+            val token = run.substringBefore(':').toInt()
+            val count = run.substringAfter(':').toInt()
+            repeat(count) {
+                cells[ox + cell % sx to oz + cell / sx] = palette[token]
+                cell++
+            }
         }
+        check(cell == sx * sz)
+        return cells
     }
 
     /** `(tiers, hp)` of a team's sidebar line (`Blue ●●● 180 HP`), or null when the line is not there. */
@@ -128,12 +152,12 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
         if (a == null || blue == null || yellow == null) return
         val idle = listOf(blue, yellow)
 
-        E2eReport.check(suite, "every team spawns standing on a solid island block inside its slot (not the lobby)", "RCON data get Dimension/Pos + execute unless block") {
+        E2eReport.check(suite, "every team spawns standing on solid town ground inside its slot", "RCON data get Dimension/Pos + execute unless block") {
             val problems = bots.mapNotNull { islandStanceProblem(it) }
-            assertThat(problems).describedAs("bots not on an arena island: $problems").isEmpty()
+            assertThat(problems).describedAs("bots not on town ground: $problems").isEmpty()
             "slot ($originX, $originZ), solid block under every bot: ${bots.map { it.name to posOf(it) }}"
         }
-        E2eReport.check(suite, "all nine pillar blocks stand in the arena world on team-coloured footings, with void between the islands", "RCON execute if block") {
+        E2eReport.check(suite, "nine pillars have team-coloured footings and the quarry approach has continuous ground", "RCON execute if block") {
             val wrong = mutableListOf<String>()
             for ((team, cells) in pillars) {
                 cells.forEachIndexed { i, (x, y, z) ->
@@ -142,8 +166,12 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
                 }
             }
             assertThat(wrong).describedAs("pillar anchors: $wrong").isEmpty()
-            assertThat(arenaSolid(40, 64, -10) || arenaSolid(40, 50, -10)).describedAs("gap between the islands at (40 64 -10): the arena is islands, not a plane").isFalse()
-            "9 pillar blocks + 9 coloured footings; void at (40, 64, -10)"
+            val ground = worldLayer(64).getValue(40 to -10)
+            assertThat(ground).describedAs("dry ground beyond the r42 quarry rim").isNotIn("minecraft:air", "minecraft:water")
+            assertThat(arenaBlockIs(40, 64, -10, ground)).describedAs("shipped continent ground at (40,64,-10)").isTrue()
+            val outsideX = worldVector("origin")[0] + worldVector("size")[0]
+            assertThat(arenaSolid(outsideX, 64, 0) || arenaSolid(outsideX, 50, 0)).describedAs("void beyond outer rim").isFalse()
+            "9 pillar blocks + 9 coloured footings; dry approach=$ground; outer void x=$outsideX"
         }
 
         E2eReport.check(suite, "sidebar shows the Build phase and three intact 150 HP pillar sets", "SetObjective/SetScore") {
@@ -279,4 +307,93 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
             "clean"
         }
     }
+
+    @Test
+    fun `gorge fall survives and nearest ladder returns the bot to the bank`() {
+        val bots = (1..3).map { bot("Gorge$it", PackPolicy.DECLINE) }
+        bots.forEach { b -> check(b.waitUntil(15_000) { b.sidebarLines().isNotEmpty() && b.hotbar()[8] != -1 }) }
+        bots.forEach { it.command("astera queue join annihilation") }
+        val active = awaitMatch("ACTIVE", 70_000, keepAlive = bots)
+        assertThat(active).describedAs("Highmarch match must become ACTIVE: ${matchLines()}").isNotNull()
+        check(active?.raw?.contains("annihilation-arena-slot-") == true) { "gorge recovery requires the shipped Highmarch stage: $active" }
+        val b = bots.first()
+        rcon("gamemode survival ${b.name}")
+        val water = worldLayer(56)
+        val low = worldLayer(57)
+        val dropLayer = worldLayer(60)
+        val top = worldLayer(64)
+        // North lane bridge centre is (0,-65) in the r4b route proof. Select actual open water beside its deck.
+        val drop = water.keys.filter { (x, z) ->
+            x in 4..8 && z in -70..-60 && water[x to z] == "minecraft:water" &&
+                low[x to z] == "minecraft:air" && dropLayer[x to z] == "minecraft:air" && top[x to z] == "minecraft:air"
+        }.minBy { (x, z) -> Math.hypot(x.toDouble(), z + 65.0) }
+        val ladder = low.filterValues { it.startsWith("minecraft:ladder[") }.keys
+            .minBy { (x, z) -> Math.hypot((x - drop.first).toDouble(), (z - drop.second).toDouble()) }
+        val facing = low.getValue(ladder).substringAfter("facing=").substringBefore(']')
+        val support = when (facing) {
+            "north" -> 0 to 1
+            "south" -> 0 to -1
+            "east" -> -1 to 0
+            "west" -> 1 to 0
+            else -> error("unknown ladder facing $facing")
+        }
+        val killY = Regex("""kill_y:\s*(-?\d+)""").find(content.resolve("stages/annihilation-arena.yaml").readText())!!.groupValues[1].toDouble()
+        val deaths = b.deaths.size
+        var minY = Double.MAX_VALUE
+        val started = System.nanoTime()
+        fun observe() {
+            val pos = localPosOf(b) ?: error("server lost gorge bot position")
+            minY = minOf(minY, pos.second)
+            check(pos.second > killY && b.deaths.size == deaths && b.health > 0 && gameTypeOf(b) == 0) {
+                "gorge recovery died/respawned: pos=$pos minY=$minY health=${b.health} deaths=${b.deaths.size - deaths}"
+            }
+        }
+        // The protocol client has no gravity/swimming solver. Send bounded client ticks at falling/swimming/climbing
+        // speeds; Paper validates collisions. Never teleport after the initial drop or use flight/effects/block edits.
+        fun move(x: Double, y: Double, z: Double, speed: Double = 0.13) {
+            val ticks = kotlin.math.ceil(maxOf(Math.hypot(x + originX - b.x, z + originZ - b.z), kotlin.math.abs(y - b.y)) / speed).toInt().coerceAtLeast(1)
+            val from = Triple(b.x, b.y, b.z)
+            repeat(ticks) { i ->
+                check((System.nanoTime() - started) / 1_000_000 < 25_000) { "gorge recovery exceeded 25s" }
+                val f = (i + 1.0) / ticks
+                b.moveTo(from.first + (x + originX - from.first) * f, from.second + (y - from.second) * f,
+                    from.third + (z + originZ - from.third) * f, 0f, 0f)
+                Thread.sleep(50)
+                if (i % 10 == 0) observe()
+            }
+            observe()
+        }
+        E2eReport.check(suite, "fall into water beside the north bridge survives above kill_y", "shipped YAML + RCON Pos/game mode + death packets") {
+            assertThat(arenaBlockIs(drop.first, 56, drop.second, "minecraft:water")).isTrue()
+            tpArena(b.name, drop.first + 0.5, 60.0, drop.second + 0.5, 0f, 0f)
+            check(b.waitUntil(3_000) { kotlin.math.abs(b.x - originX - drop.first - 0.5) < 0.5 && kotlin.math.abs(b.y - 60) < 0.5 })
+            move(drop.first + 0.5, 56.25, drop.second + 0.5, 0.2)
+            repeat(20) { b.nudge(); Thread.sleep(50) }
+            observe()
+            assertThat(localPosOf(b)!!.second).isBetween(56.0, 57.0)
+            "drop=$drop minY=$minY kill_y=$killY deaths=0"
+        }
+        E2eReport.check(suite, "swim to the nearest ladder and climb onto the bank within 25s", "RCON Pos/block checks + protocol movement + A* bank walk") {
+            for (y in 57..64) assertThat(arenaBlockIs(ladder.first, y, ladder.second, low.getValue(ladder))).isTrue()
+            // Approach from the exposed face, then ascend within the ladder column before stepping onto its support.
+            move(drop.first + 0.5, 57.05, drop.second + 0.5, 0.05)
+            move(ladder.first - support.first + 0.5, 57.05, ladder.second - support.second + 0.5)
+            move(ladder.first + 0.5, 57.05, ladder.second + 0.5)
+            move(ladder.first + 0.5, 65.05, ladder.second + 0.5, 0.1176)
+            val bankX = ladder.first + support.first + 0.5
+            val bankZ = ladder.second + support.second + 0.5
+            // Reuse A* for the step off the ladder onto its bank support (water/ladder traversal is explicit above).
+            val walked = ObjectiveWalker(b, null).walkTo(bankX + originX, bankZ + originZ, 0.1, 2_000)
+            observe()
+            val pos = localPosOf(b)!!
+            assertThat(walked).isEqualTo(ObjectiveWalker.Result.ARRIVED)
+            assertThat(pos.second).isGreaterThanOrEqualTo(64.0)
+            assertThat(Math.hypot(pos.first - bankX, pos.third - bankZ)).isLessThan(0.75)
+            assertThat(islandStanceProblem(b)).isNull()
+            val elapsed = (System.nanoTime() - started) / 1_000_000
+            assertThat(elapsed).isLessThan(25_000)
+            "nearest ladder=$ladder bank=$pos elapsed=${elapsed}ms minY=$minY deaths=0"
+        }
+    }
+
 }
