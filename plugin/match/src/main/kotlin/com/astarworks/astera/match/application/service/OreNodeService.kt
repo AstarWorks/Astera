@@ -154,8 +154,10 @@ public class OreNodeService(
             return Outcome.WrongTool
         }
         val now = scheduler.currentTick()
-        val last = lastHit.put(player, now)
+        // Only a landed hit restarts the cooldown: a click inside it must not push the next hit further away.
+        val last = lastHit[player]
         if (last != null && now - last < HIT_COOLDOWN_TICKS) return Outcome.Cooldown
+        lastHit[player] = now
         return hit(node, player, damage)
     }
 

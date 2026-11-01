@@ -188,3 +188,17 @@ public class SimWornItems : com.astarworks.astera.combat.application.port.outbou
     override fun wornItems(playerId: PlayerId): Map<com.astarworks.astera.combat.domain.armor.ArmorSlot, com.astarworks.astera.core.domain.item.ItemId> =
         worn[playerId]?.toMap() ?: emptyMap()
 }
+
+/** Held item and crosshair of simulated diggers: a scenario sets [held] and [aimAt] the way a player picks a tool and looks at a block. */
+public class SimOreDigSight : com.astarworks.astera.match.application.port.outbound.IOreDigSight {
+    public val held: MutableMap<PlayerId, com.astarworks.astera.core.domain.item.ItemId> = ConcurrentHashMap()
+    private val aim = ConcurrentHashMap<PlayerId, Triple<Int, Int, Int>>()
+
+    public fun aimAt(player: PlayerId, x: Int, y: Int, z: Int) { aim[player] = Triple(x, y, z) }
+    public fun lookAway(player: PlayerId) { aim.remove(player) }
+
+    override fun heldItem(player: PlayerId): com.astarworks.astera.core.domain.item.ItemId? = held[player]
+
+    override fun aimsAt(player: PlayerId, world: WorldId, pos: Vec3): Boolean =
+        aim[player] == Triple(kotlin.math.floor(pos.x).toInt(), kotlin.math.floor(pos.y).toInt(), kotlin.math.floor(pos.z).toInt())
+}

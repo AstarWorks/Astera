@@ -663,6 +663,22 @@ class Bot private constructor(
         session.send(ServerboundPlayerActionPacket(PlayerAction.FINISH_DIGGING, pos, Direction.UP, sequence.getAndIncrement()))
     }
 
+    /**
+     * Holds the left button on the block for up to [holdMs] like a real client: one START_DIGGING, then an arm swing every
+     * tick ([ServerboundPunchPacket]), then CANCEL_DIGGING (what the client sends on release). Returns early when [until] holds.
+     * The server must keep hitting a block that never starts vanilla cracking (ore nodes) without further START packets.
+     */
+    fun digHeld(bx: Int, by: Int, bz: Int, holdMs: Long, until: () -> Boolean = { false }) {
+        val pos = Vector3i.from(bx, by, bz)
+        session.send(ServerboundPlayerActionPacket(PlayerAction.START_DIGGING, pos, Direction.UP, sequence.getAndIncrement()))
+        val end = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(holdMs)
+        while (System.nanoTime() < end && !until()) {
+            session.send(ServerboundPunchPacket.INSTANCE)
+            Thread.sleep(50)
+        }
+        session.send(ServerboundPlayerActionPacket(PlayerAction.CANCEL_DIGGING, pos, Direction.UP, sequence.getAndIncrement()))
+    }
+
     /** A raw inventory-window click as a client would send it (no predicted slot changes). */
     fun clickSlot(containerId: Int, slot: Int, type: ContainerActionType, param: ContainerAction) = session.send(
         ServerboundContainerClickPacket(containerId, stateIds[containerId] ?: 0, slot, type, param, null, emptyMap<Int, HashedStack?>()),
