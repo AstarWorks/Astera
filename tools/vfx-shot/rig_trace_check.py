@@ -32,23 +32,16 @@ def dist(a, b):
 
 
 def main(trace_path, out_path):
-    hands = {}  # (tick, player) -> fields
-    meshes = {}  # (tick, player) -> fields (right hand only)
-    left = 0
+    hands = {}  # (tick, player, side) -> fields; side is "r" (the main hand) or "l" (a `hand: off` rig)
+    meshes = {}  # (tick, player, side) -> fields
     for line in open(trace_path, encoding="utf-8", errors="replace"):
         m = ROW.search(line)
         if not m:
             continue
         kind, rest = m.groups()
         f = dict(KV.findall(rest))
-        key = (int(f["tick"]), f["player"])
-        if kind == "hand":
-            hands[key] = f
-        else:
-            if f.get("hand") == "l":
-                left += 1
-                continue
-            meshes[key] = f
+        key = (int(f["tick"]), f["player"], f.get("hand", "r"))
+        (hands if kind == "hand" else meshes)[key] = f
     lines = []
     if not meshes and not hands:
         lines.append("no rig rows: no rig mesh or puppet hand was traced in this capture")
@@ -67,17 +60,20 @@ def main(trace_path, out_path):
     worst_reach_tick = None
     checked = 0
     hand_span = {}
-    for tick, player in hands:
+    for tick, player, _side in hands:
         lo, hi = hand_span.get(player, (tick, tick))
         hand_span[player] = (min(lo, tick), max(hi, tick))
+    left_checked = 0
+    worst_left = 0.0
+    worst_left_tick = None
     for key in sorted(meshes):
-        tick, player = key
+        tick, player, side = key
         mesh = meshes[key]
         hand = hands.get(key)
         if hand is None:
             lo, hi = hand_span.get(player, (None, None))
             if lo is not None and lo < tick < hi:
-                failures.append(f"t{tick}: a rig mesh was written but no puppet hand was posed for {player}")
+                failures.append(f"t{tick}: a {'left' if side == 'l' else 'right'}-hand rig mesh was written but no puppet hand was posed for {player}")
             else:
                 lines.append(f"t{tick} mesh only (outside the puppet's driven span {lo}..{hi})")
             continue
@@ -86,7 +82,11 @@ def main(trace_path, out_path):
             if mesh.get(field) != hand.get(field):
                 problems.append(f"{field} mesh={mesh.get(field)} hand={hand.get(field)}")
         gap = dist(vec(mesh["origin"]), vec(hand["grip"]))
-        if gap > worst:
+        if side == "l":
+            left_checked += 1
+            if gap > worst_left:
+                worst_left, worst_left_tick = gap, tick
+        elif gap > worst:
             worst, worst_tick = gap, tick
         if gap > TOL:
             problems.append(f"origin {mesh['origin']} vs grip {hand['grip']} gap={gap:.4f}")
@@ -96,13 +96,13 @@ def main(trace_path, out_path):
         if abs(reach) > TOL:
             problems.append(f"pin {hand.get('target')} out of the arm's reach by {reach:+.4f} (clip and frame not on one clock)")
         checked += 1
-        lines.append(f"t{tick} at={mesh['at']} yaw={mesh['yaw']} tp={mesh['tp']}/{hand['tp']} ip={mesh['ip']}/{hand['ip']} gap={gap:.4f} reach={reach:+.4f}" + (" FAIL " + "; ".join(problems) if problems else ""))
+        lines.append(f"t{tick} hand={side} at={mesh['at']} yaw={mesh['yaw']} tp={mesh['tp']}/{hand['tp']} ip={mesh['ip']}/{hand['ip']} gap={gap:.4f} reach={reach:+.4f}" + (" FAIL " + "; ".join(problems) if problems else ""))
         if problems:
             failures.append(f"t{tick}: " + "; ".join(problems))
     for key in sorted(hands):
         if key not in meshes:
-            lines.append(f"t{key[0]} hand only (no mesh write this tick)")
-    verdict = f"checked={checked} left_hand_rows_skipped={left} worst_gap={worst:.4f}" + (f" at t{worst_tick}" if worst_tick is not None else "") \
+            lines.append(f"t{key[0]} hand={key[2]} hand only (no mesh write this tick)")
+    verdict = f"checked={checked} left_checked={left_checked} worst_left_gap={worst_left:.4f}" + (f" at t{worst_left_tick}" if worst_left_tick is not None else "") + f" worst_gap={worst:.4f}" + (f" at t{worst_tick}" if worst_tick is not None else "") \
         + f" worst_reach={worst_reach:+.4f}" + (f" at t{worst_reach_tick}" if worst_reach_tick is not None else "")
     if failures:
         verdict = "FAIL " + verdict + ": " + failures[0] + (f" (+{len(failures) - 1} more)" if len(failures) > 1 else "")
