@@ -172,6 +172,33 @@ class AnnihilationPhaseFlowScenarioTest {
     }
 
     @Test
+    fun `an attacker-less full length last phase bleeds at most a quarter of the total pillar HP`() {
+        // Shipped bleed cadence (config defaults mirror content/game-modes/annihilation.yaml), full 5 min (6000 tick) phase 5, nobody attacks.
+        val shipped = AnnihilationConfig(
+            pillarHp = 1000,
+            buildPhaseTicks = 200,
+            engagePhaseTicks = 200,
+            centerPhaseTicks = 200,
+            escalationPhaseTicks = 200,
+            suddenDeathTicks = 6000,
+        )
+        scenario("annihilation-phase-flow-bleed-budget", shipped) {
+            val (red, blue, yellow) = threeTeams()
+            val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow to "yellow"), stage = "annihilation-arena")
+            val clock = sim.services.getOrThrow<IMatchPhaseClock>()
+            fun total() = listOf("red", "blue", "yellow").sumOf { t -> NexusPillarTier.ordered().sumOf { pillarHp(matchId, t, it) } }
+
+            val before = total()
+            assertThat(advanceUntil(1200) { clock.current(matchId)?.phase == NexusPhase.Phase5SuddenDeath }).isTrue()
+            assertThat(total()).`as`("no drain before the last phase").isEqualTo(before)
+            advance(5990)
+            val lost = before - total()
+            assertThat(lost).`as`("bleed pressures the pillars").isGreaterThan(0.0)
+            assertThat(lost).`as`("attacker-less bleed loss <= 25% of total max pillar HP (lost=$lost of $before)").isLessThanOrEqualTo(before * 0.25)
+        }
+    }
+
+    @Test
     fun `damage grows in phases 4 and 5 and every pillar bleeds down to the floor in the last phase`() {
         scenario("annihilation-phase-flow-damage-bleed", config.copy(escalationPhaseTicks = 300, suddenDeathTicks = 600)) {
             val (red, blue, yellow) = threeTeams()

@@ -43,8 +43,8 @@ import com.astarworks.astera.core.domain.nexus.NexusPillarTier
  * @property suddenDeathTicks Length of Phase5SuddenDeath before the forced HP tiebreak. Default 6000 = 5 min.
  * @property escalationDamageMult Pillar damage multiplier in Phase4Escalation (default 1.5).
  * @property suddenDeathDamageMult Pillar damage multiplier in Phase5SuddenDeath (default 2.0).
- * @property bleedIntervalTicks Phase5 bleed cadence: every this many ticks each standing pillar loses [bleedPercent] of its max HP. Default 600 = 30 s.
- * @property bleedPercent Percent of a pillar's max HP lost per bleed (default 10).
+ * @property bleedIntervalTicks Phase5 bleed cadence: every this many ticks each standing pillar loses [bleedPercent] of its max HP. Default 240 = 12 s (1% x 25 bleeds = 25% over a full 5 min Phase 5).
+ * @property bleedPercent Percent of a pillar's max HP lost per bleed (default 1).
  * @property bleedFloorPercent The bleed never takes a pillar below this percent of its max HP (default 10), so the bleed alone never destroys a pillar.
  * @property respawnDelaySecondsTier1Lost Extra respawn delay applied to the
  *   owning team after their Tier 1 pillar falls. Default +2 sec.
@@ -64,8 +64,8 @@ public data class AnnihilationConfig(
     public val suddenDeathTicks: Long = 6000L,
     public val escalationDamageMult: Double = 1.5,
     public val suddenDeathDamageMult: Double = 2.0,
-    public val bleedIntervalTicks: Long = 600L,
-    public val bleedPercent: Int = 10,
+    public val bleedIntervalTicks: Long = 240L,
+    public val bleedPercent: Int = 1,
     public val bleedFloorPercent: Int = 10,
     public val respawnDelaySecondsTier1Lost: Int = 2,
     public val resourceRegenMultTier2Lost: Double = 0.5,

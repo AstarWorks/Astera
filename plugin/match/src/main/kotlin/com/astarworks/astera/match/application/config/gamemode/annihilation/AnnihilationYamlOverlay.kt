@@ -36,8 +36,8 @@ import com.astarworks.astera.match.domain.gamemode.annihilation.PillarDamageTuni
  *   sudden_death_ticks: 6000                 # long, phase 5 (then the HP tiebreak ends the match)
  *   escalation_damage_mult: 1.5              # double >= 1, pillar damage in phase 4
  *   sudden_death_damage_mult: 2.0            # double >= escalation_damage_mult, pillar damage in phase 5
- *   bleed_interval_ticks: 600                # long, phase 5: every interval each pillar bleeds
- *   bleed_percent: 10                        # int 1..100, percent of max HP lost per bleed
+ *   bleed_interval_ticks: 240                # long, phase 5: every interval each pillar bleeds
+ *   bleed_percent: 1                         # int 1..100, percent of max HP lost per bleed
  *   bleed_floor_percent: 10                  # int 0..99, the bleed never goes below this percent of max HP
  *   respawn_delay_seconds_tier1_lost: 2      # int
  *   resource_regen_mult_tier2_lost: 0.5      # double 0.0..1.0
