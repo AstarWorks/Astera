@@ -70,6 +70,8 @@ interface BotHost {
     fun hotbarLore(slot: Int): String
     /** (item name, amount) of every non-empty stack in the player inventory window. */
     fun carriedStacks(): List<Pair<String, Int>>
+    /** Item ids (e.g. `iron-warden-helmet`) the player owns; null = the host cannot read ids from its inventory (the economy then falls back to timed retries). */
+    fun carriedItemIds(): Set<String>? = null
 
     fun command(cmd: String)
     fun selectHotbar(slot: Int)

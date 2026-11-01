@@ -67,8 +67,8 @@ fun interface ObjectiveSource {
     /** Stage-local shop, base ore generators and Mid ore nodes of [team] for the lull-time [EconomyPlanner]; null = the stage has no shop. */
     fun economySites(team: String): EconomyPlanner.Sites? = null
 
-    /** Upgrade prices of the base shop, cheapest rung first. */
-    fun economyLadder(): List<Map<String, Int>> = emptyList()
+    /** Shopping list of the base shop in priority order (items and price per rung). */
+    fun economyLadder(): List<EconomyPlanner.Companion.Buy> = emptyList()
 }
 
 /**
@@ -215,6 +215,11 @@ class BotBrain(
     val skillCasts = AtomicInteger()
     private var planner: ModePlanner? = null
     private var economy: EconomyPlanner? = null
+    @Volatile private var decisionKindNow: String = "idle"
+    /** Read-only for metrics: the mode role of the last plan step (null = no mode plan / no role yet). */
+    val currentRole: Role? get() = planner?.role
+    /** Read-only for metrics: `Dest.kind` of the current decision (`fight`, `mode`, `star`, `econ-shop`, `idle`, ...). */
+    val currentDecisionKind: String get() = decisionKindNow
     private var econSliceStart = 0L
     private var econCooldownUntil = 0L
     /** Kind (`shop` / `collect` / `mine`) of the last economy step, for reports and tests. */
@@ -385,6 +390,7 @@ class BotBrain(
 
             // Long way, a different height, a gap in the way, a star to fetch or a retreat: plan a route (A*) instead of steering.
             // A ranged bot with a clear line inside its firing band steers locally (strafe / back off) instead of walking a route.
+            decisionKindNow = "fight"
             val holdsBand = weapon?.kind == WeaponKind.RANGED && hasLos && flat <= WeaponPolicy.RANGED_MAX
             val needRoute = retreating || goForStar || (flat > LOCAL_STEER_RANGE && !holdsBand) || abs(enemy.y - bot.y) > 3.0 ||
                 (flat > 3.0 && now - localBlockedAt < 2_000)
@@ -408,6 +414,7 @@ class BotBrain(
             ineffective.disengage()
             strikeLook = null
             val dest = chasing?.let { Dest(it.lastX, it.lastZ, null, CHASE_ARRIVE, "enemy-chase") } ?: chooseDest(now, starDest)
+            decisionKindNow = dest?.kind ?: "idle"
             if (dest == null) {
                 endTravel()
                 standStill = true
@@ -758,7 +765,7 @@ class BotBrain(
                 return null
             }
         }
-        val st = eco.step(now, bot.x, bot.z, carriedOre(), toolSlots.containsKey(LoadoutClassifier.Affinity.PICKAXE))
+        val st = eco.step(now, bot.x, bot.z, carriedOre(), toolSlots.containsKey(LoadoutClassifier.Affinity.PICKAXE), bot.carriedItemIds())
         if (st == null) { econSliceStart = 0L; return null }
         if (pl != null && econSliceStart == 0L) econSliceStart = now
         economyKind = st.kind
