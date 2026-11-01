@@ -1,7 +1,7 @@
 package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.bots.AimPolicy
-import com.astarworks.astera.bots.SkillUsePolicy
+import com.astarworks.astera.bots.ItemSkillCatalog
 import com.astarworks.astera.bots.TargetPolicy
 import com.astarworks.astera.bots.TargetSelector
 import com.astarworks.astera.bots.VelocityTracker
@@ -16,7 +16,7 @@ import kotlin.math.hypot
 import kotlin.math.sin
 
 /**
- * The bot AI decision policies ([TargetSelector], [AimPolicy], [SkillUsePolicy], [WeaponPolicy] ranges), the very
+ * The bot AI decision policies ([TargetSelector], [AimPolicy], [ItemSkillCatalog], [WeaponPolicy] ranges), the very
  * objects BotBrain calls, driven with real sim entity positions: LOS, HP and threat weighting, memory after a LOS break,
  * lead aim on a moving target and the skill cast decision.
  */
@@ -146,13 +146,14 @@ class BotAiPolicyScenarioTest {
             assertThat(WeaponPolicy.mayFire(39.0, true)).isTrue()
             assertThat(WeaponPolicy.mayFire(41.0, true)).isFalse()
 
-            val skills = SkillUsePolicy.forKind(WeaponKind.MELEE)
+            val catalog = ItemSkillCatalog.load(GameSim.defaultContentDir().toFile())
+            val skills = catalog.policyFor("Knight's Sword")
             assertThat(skills.decide(0, 3.0, true)).`as`("already in melee reach").isNull()
             assertThat(skills.decide(0, 12.0, false)).`as`("no line of sight").isNull()
             assertThat(skills.decide(0, 12.0, true)?.id).isEqualTo("sword-dash")
             assertThat(skills.decide(1_000, 12.0, true)).`as`("on cooldown").isNull()
             assertThat(skills.decide(5_100, 12.0, true)?.id).`as`("ready again").isEqualTo("sword-dash")
-            assertThat(SkillUsePolicy.forKind(WeaponKind.RANGED).decide(0, 12.0, true)).isNull()
+            assertThat(catalog.policyFor("Pistol").decide(0, 12.0, true)).`as`("the pistol's reload is not a combat skill").isNull()
         }
     }
 }

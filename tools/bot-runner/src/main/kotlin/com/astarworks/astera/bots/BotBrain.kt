@@ -89,6 +89,8 @@ class BotBrain(
     private val modeId: String? = null,
     /** Aim-error / jitter source; the default seeds from the bot name (live bots), a sim passes its own. */
     private val rnd: Random = Random(bot.name.hashCode().toLong()),
+    /** What extra skills each item casts, derived from the shipped content ([ItemSkillCatalog]); null = no content, no extra skills. */
+    private val itemSkills: ItemSkillCatalog? = null,
 ) : AutoCloseable {
 
     enum class Mode { IDLE, FIGHT }
@@ -186,8 +188,8 @@ class BotBrain(
     private val ineffective = IneffectiveTargets()
     private val selector = TargetSelector()
     private val velocity = VelocityTracker()
-    private var skillPolicy = SkillUsePolicy(emptyList())
-    private var skillPolicyMelee = false
+    /** Extra-skill policy (own cooldowns) per hotbar slot of a [loadout] weapon, built from the item's content bindings. */
+    private var skillPolicies: Map<Int, SkillUsePolicy> = emptyMap()
     /** Pending SNEAK_RIGHT cast: sneak went out at this time, the click follows on a later tick (0 = none). */
     private var skillSneakAt = 0L
     private var skillYaw = 0f
@@ -1014,14 +1016,16 @@ class BotBrain(
     private var reloadDropSent = 0L
 
     /**
-     * Extra item skills ([SkillUsePolicy], e.g. the sword dash gap closer) while fighting with the melee item in hand. The
+     * Extra item skills ([SkillUsePolicy], from the held item's own content bindings) while fighting with that item in hand,
+     * melee and ranged alike (the primary swing / shot stays [act]'s loop). The
      * policy keeps the cooldowns; RIGHT_CLICK = useItem, LEFT_CLICK = punch + attack, SNEAK_RIGHT = sneak now and click
      * on a later tick (see [tickSkillCast]) so the sneak input reaches the server first.
      */
     private fun trySkill(weapon: Weapon?, dist: Double, hasLos: Boolean, now: Long, yaw: Float, pitch: Float) {
-        if (weapon?.kind != WeaponKind.MELEE || bot.selectedSlot != weapon.slot) return
+        if (weapon == null || bot.selectedSlot != weapon.slot) return
         if (skillSneakAt != 0L || now < reloadBusyUntil || reloadStartedAt != 0L) return
-        val b = skillPolicy.decide(now, dist, hasLos) ?: return
+        if (weapon.kind == WeaponKind.RANGED && !weapon.magazine && bot.food in 0 until MIN_CAST_FOOD) return
+        val b = (skillPolicies[weapon.slot] ?: return).decide(now, dist, hasLos) ?: return
         skillCasts.incrementAndGet()
         when (b.trigger) {
             SkillUsePolicy.Trigger.RIGHT_CLICK -> bot.useItem(yaw, pitch)
@@ -1083,11 +1087,8 @@ class BotBrain(
             found += weapon
         }
         loadout = found
-        val melee = found.any { it.kind == WeaponKind.MELEE }
-        if (melee != skillPolicyMelee) {
-            skillPolicyMelee = melee
-            skillPolicy = SkillUsePolicy.forKind(if (melee) WeaponKind.MELEE else WeaponKind.RANGED)
-        }
+        val catalog = itemSkills
+        skillPolicies = if (catalog == null) emptyMap() else found.associate { it.slot to catalog.policyFor(bot.hotbarName(it.slot)) }
         lastLoadoutSignature = bot.hotbar().take(8).joinToString(",")
         // Start with the sword in hand if there is one, else the first ranged item (never a tool or the compass).
         (found.firstOrNull { it.kind == WeaponKind.MELEE } ?: found.firstOrNull())?.let { bot.selectHotbar(it.slot) }

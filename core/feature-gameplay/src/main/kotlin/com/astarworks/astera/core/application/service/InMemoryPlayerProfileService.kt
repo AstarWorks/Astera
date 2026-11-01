@@ -217,7 +217,7 @@ public class InMemoryPlayerProfileService(
     public fun starterItemIds(): List<com.astarworks.astera.core.domain.item.ItemId> = starterGrant.starterItems
 
     /** Field tools lent to every match participant (pickaxe / axe / shovel). */
-    public fun matchToolIds(): List<com.astarworks.astera.core.domain.item.ItemId> = starterGrant.matchTools
+    public fun matchToolsAt(level: Int): List<com.astarworks.astera.core.domain.item.ItemId> = starterGrant.matchToolsAt(level)
 
     /** Test / adapter helper: items resolved for a created profile. Empty list when nothing was granted. */
     public fun starterItemsFor(playerId: PlayerId): List<com.astarworks.astera.core.domain.item.ItemSpec> =
