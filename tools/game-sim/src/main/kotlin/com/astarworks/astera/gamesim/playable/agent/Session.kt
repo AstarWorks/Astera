@@ -10,6 +10,7 @@ import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.event.AnnihilationPhaseTransitioned
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.PlayerRespawned
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.gui.GuiIntent
 import com.astarworks.astera.core.domain.item.ItemId
@@ -71,6 +72,11 @@ class Session(private val host: MatchHost, contentDir: File) {
     private var ended = false
     private var lastHp = hp()
     private var arrivedFlag = false
+    private var diedFlag = false
+    /** A death the agent has not been told about through a `died` stop yet. */
+    private var deathUnreported = false
+    /** Tick the seat died at while it waits for the match's respawn timer; null while alive. */
+    private var deadSince: Long? = null
     private var readySeen = false
     private var levelSeen = normaLevel()
     private var lastMessageCount = messages().size
@@ -128,7 +134,7 @@ class Session(private val host: MatchHost, contentDir: File) {
         override fun norma() = normaLevel()
         override fun tick() = host.tick
         override fun arrived() = arrivedFlag
-        override fun died() = !sim.isAlive(me.id)
+        override fun died() = diedFlag
     }
 
     fun onNewDecision() { decisions++ }
@@ -144,9 +150,10 @@ class Session(private val host: MatchHost, contentDir: File) {
                     e.attacker == me.id -> pending += "hit ${name(e.target)} -${"%.0f".format(e.resolved.finalAmount)}"
                 }
                 is PlayerKilled -> when {
-                    e.victim == me.id -> { deaths++; pending += "died (${name(e.killer)})" }
+                    e.victim == me.id -> { deaths++; deadSince = host.tick; deathUnreported = true; pending += "died (${name(e.killer)}), respawn in ~$RESPAWN_TICKS ticks" }
                     e.killer == me.id -> { kills++; pending += "killed ${name(e.victim)}" }
                 }
+                is PlayerRespawned -> if (e.playerId == me.id) { deadSince = null; pending += "respawned" }
                 is StarsCollected -> if (e.playerId == me.id) {
                     starsGained += e.amount
                     pending += "star +${e.amount} (${e.total})"
@@ -176,13 +183,20 @@ class Session(private val host: MatchHost, contentDir: File) {
         readySeen = false
         lastHp = hp()
         var used = 0
+        diedFlag = false
+        pump()
+        var wasAlive = sim.isAlive(me.id)
+        if (!wasAlive && deathUnreported) { deathUnreported = false; diedFlag = true; return "died" }
         while (used < max) {
-            onTick()?.let { return it }
+            if (wasAlive) onTick()?.let { return it }
             host.step(1)
             used++
             pump()
             if (ended || host.ended) return "match_ended"
-            if (!sim.isAlive(me.id)) return "died"
+            val alive = sim.isAlive(me.id)
+            if (wasAlive && !alive) { diedFlag = true; deathUnreported = false; return "died" }
+            if (!alive) continue // dead: the match's respawn timer brings the seat back, keep waiting
+            if (!wasAlive) { wasAlive = true; lastHp = hp(); enemyNear = nearestEnemyDistance() <= 12.0; navigator.clear() }
             until?.fired(probe)?.let { return "until:$it" }
             if (!interrupts) continue
             val hpNow = hp()
@@ -423,7 +437,7 @@ class Session(private val host: MatchHost, contentDir: File) {
         val hp: Int, val pos: IntArray, val held: String?, val stars: Int, val ore: Map<String, Int>, val inv: Map<String, Int>,
         val normaLevel: Int, val normaGoal: String, val tool: String?,
         val team: List<Triple<String, IntArray, String>>, val enemies: List<Triple<String, IntArray, String>>,
-        val ready: Boolean, val cooldowns: Map<String, Int>,
+        val ready: Boolean, val cooldowns: Map<String, Int>, val dead: Boolean, val respawnIn: Int,
     )
 
     /** Item id -> remaining cooldown ticks, from the hotbar cooldown sweeps the items side asked for (the latest sweep per item). */
@@ -451,6 +465,8 @@ class Session(private val host: MatchHost, contentDir: File) {
             enemies = foes.map(::entry),
             ready = progress.readyNotified,
             cooldowns = cooldowns(),
+            dead = !sim.isAlive(me.id),
+            respawnIn = deadSince?.let { (it + RESPAWN_TICKS - host.tick).toInt().coerceAtLeast(0) } ?: 0,
         )
     }
 
@@ -511,6 +527,10 @@ class Session(private val host: MatchHost, contentDir: File) {
         others().filter(::hostile).minByOrNull { hypot(it.position.x - px, it.position.z - pz) }?.let {
             m += "attack ${it.name} (${"%.0f".format(hypot(it.position.x - px, it.position.z - pz))})"
         }
+        if (v.dead) {
+            emptyMenus++
+            return listOf("wait <ticks> (dead, respawn in ~${v.respawnIn} ticks; skip / act wait for it by themselves)")
+        }
         val have = inventory()
         catalog.offers.filter { o -> o.upgradeFrom == null || (have[o.upgradeFrom!!.value] ?: 0) > 0 }
             .filter { affordable(it, have) }.take(4).forEach { m += "buy ${it.itemId.value}" }
@@ -532,6 +552,8 @@ class Session(private val host: MatchHost, contentDir: File) {
 
     companion object {
         const val SPEED = 0.28
+        /** The match's default respawn delay (DeathRespawnConfig), for the "respawn in" read-out only. */
+        const val RESPAWN_TICKS = com.astarworks.astera.match.domain.death.DeathRespawnConfig.DEFAULT_RESPAWN_DELAY_SECONDS * 20
         const val REACH = 4.5
         private const val HIT_COOLDOWN = 6L
         private val WEAPON = listOf("sword", "dagger", "spear", "blade", "katana", "axe", "scythe", "hammer", "bow", "wand", "staff")
