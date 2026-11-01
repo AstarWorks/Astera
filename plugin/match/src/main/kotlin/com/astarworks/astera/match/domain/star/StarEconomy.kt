@@ -1,0 +1,105 @@
+package com.astarworks.astera.match.domain.star
+
+/**
+ * The star economy of a match (ADR-0318), read from the `star_*` keys of `content/norma-layer/layer.yaml` (mode
+ * overridable). One formula, every source:
+ *
+ * ```
+ * ramp(t)               = piecewise-linear over match minutes (star_supply_ramp)
+ * budget(t, N)          = basePerPlayerMinute x ramp(t) x N              stars per minute, N = players alive
+ * source rate(t, N)     = share[source] x basePerPlayerMinute x ramp(t)  per player (or x N for shared sources)
+ * ```
+ *
+ * Total supply therefore tracks the number of players: three players get a third of what twelve get, the per-player
+ * income stays the same. Kills move stars between players (see [killShare], [killGroundShare]) and pay a bounty out
+ * of the budget.
+ */
+public data class StarEconomy(
+    val basePerPlayerMinute: Double = DEFAULT_BASE,
+    val ramp: List<RampPoint> = DEFAULT_RAMP,
+    val shares: Map<StarSource, Double> = DEFAULT_SHARES,
+    val miningStars: Int = 1,
+    val blockStars: Int = 1,
+    val blockMaterials: Set<String> = emptySet(),
+    /** Share of a victim's carried stars the killer takes directly. */
+    val killShare: Double = 0.4,
+    /** Share of a victim's carried stars that drops on the ground. The rest is lost. */
+    val killGroundShare: Double = 0.2,
+    /** Bounty = rate x (victim carried - match average carried), clamped to [bountyCap]. */
+    val bountyRate: Double = 0.5,
+    val bountyCap: Int = 12,
+) {
+    public data class RampPoint(val minute: Double, val multiplier: Double)
+
+    init {
+        require(basePerPlayerMinute > 0.0) { "star_supply_per_player_minute must be > 0 (was $basePerPlayerMinute)" }
+        require(ramp.isNotEmpty() && ramp.zipWithNext().all { (a, b) -> a.minute < b.minute }) { "star_supply_ramp needs points with increasing minutes" }
+        require(ramp.all { it.multiplier >= 0.0 }) { "star_supply_ramp multipliers must be >= 0" }
+        require(StarSource.entries.all { shares[it]?.let { s -> s in 0.0..1.0 } == true }) { "a star_share_* key is missing or outside 0..1: $shares" }
+        require(shares.values.sum() <= 1.0 + 1e-9) { "star_share_* must add up to at most 1 (was ${shares.values.sum()})" }
+        require((shares[StarSource.SPOT] ?: 0.0) <= MAX_SPOT_SHARE) { "star_share_spot is a minor source: at most $MAX_SPOT_SHARE" }
+        require(miningStars >= 1 && blockStars >= 1) { "star_mining_per_node / star_block_per_break must be >= 1" }
+        require(killShare in 0.0..1.0 && killGroundShare in 0.0..1.0 && killShare + killGroundShare <= 1.0) { "star_kill_share + star_kill_ground_share must stay within 0..1" }
+        require(bountyRate >= 0.0 && bountyCap >= 0) { "star_bounty_rate / star_bounty_cap must be >= 0" }
+    }
+
+    /** Supply multiplier [seconds] into the match. */
+    public fun rampAt(seconds: Double): Double {
+        val minute = seconds / 60.0
+        if (minute <= ramp.first().minute) return ramp.first().multiplier
+        if (minute >= ramp.last().minute) return ramp.last().multiplier
+        val hi = ramp.indexOfFirst { it.minute >= minute }
+        val a = ramp[hi - 1]
+        val b = ramp[hi]
+        return a.multiplier + (b.multiplier - a.multiplier) * (minute - a.minute) / (b.minute - a.minute)
+    }
+
+    /** Stars per player per minute the match issues [seconds] in. */
+    public fun perPlayerMinuteAt(seconds: Double): Double = basePerPlayerMinute * rampAt(seconds)
+
+    /** The whole match's budget in stars per minute for [players] alive. */
+    public fun budgetPerMinute(seconds: Double, players: Int): Double = perPlayerMinuteAt(seconds) * players
+
+    /** Refill rate of a [source] bucket in stars per second ([players] only matters for shared sources). */
+    public fun sourceRatePerSecond(source: StarSource, seconds: Double, players: Int): Double =
+        (shares.getValue(source) * perPlayerMinuteAt(seconds) * (if (source.perPlayer) 1 else players)) / 60.0
+
+    public companion object {
+        public const val MAX_SPOT_SHARE: Double = 0.15
+        public const val DEFAULT_BASE: Double = 16.0
+        public val DEFAULT_RAMP: List<RampPoint> = listOf(RampPoint(0.0, 0.25), RampPoint(1.0, 0.75), RampPoint(3.0, 1.0), RampPoint(11.0, 1.4), RampPoint(16.0, 1.6))
+        public val DEFAULT_SHARES: Map<StarSource, Double> = mapOf(
+            StarSource.SPOT to 0.12, StarSource.MINING to 0.22, StarSource.BLOCKS to 0.15,
+            StarSource.CACHE to 0.15, StarSource.WAVE to 0.30, StarSource.BOUNTY to 0.04,
+        )
+
+        /** Reads the `star_*` keys of the merged layer + mode config; a missing key keeps its default, a malformed one fails loudly. */
+        public fun parse(raw: Map<String, String>): StarEconomy {
+            val d = StarEconomy()
+            fun number(key: String, fallback: Double): Double =
+                raw[key]?.trim()?.let { it.toDoubleOrNull() ?: throw IllegalArgumentException("$key must be a number (was '$it')") } ?: fallback
+            val ramp = raw["star_supply_ramp"]?.let { text ->
+                text.split(',').map { it.trim() }.filter { it.isNotEmpty() }.map { pair ->
+                    val (m, v) = pair.split(':').also { require(it.size == 2) { "star_supply_ramp entries are minute:multiplier (was '$pair')" } }
+                    RampPoint(
+                        m.trim().toDoubleOrNull() ?: throw IllegalArgumentException("star_supply_ramp minute must be a number (was '$m')"),
+                        v.trim().toDoubleOrNull() ?: throw IllegalArgumentException("star_supply_ramp multiplier must be a number (was '$v')"),
+                    )
+                }
+            } ?: d.ramp
+            val shares = StarSource.entries.associateWith { number("star_share_${it.key}", d.shares.getValue(it)) }
+            return StarEconomy(
+                basePerPlayerMinute = number("star_supply_per_player_minute", d.basePerPlayerMinute),
+                ramp = ramp,
+                shares = shares,
+                miningStars = number("star_mining_per_node", d.miningStars.toDouble()).toInt(),
+                blockStars = number("star_block_per_break", d.blockStars.toDouble()).toInt(),
+                blockMaterials = raw["star_blocks"]?.split(',')?.map { it.trim().uppercase() }?.filter { it.isNotEmpty() }?.toSet() ?: d.blockMaterials,
+                killShare = number("star_kill_share", d.killShare),
+                killGroundShare = number("star_kill_ground_share", d.killGroundShare),
+                bountyRate = number("star_bounty_rate", d.bountyRate),
+                bountyCap = number("star_bounty_cap", d.bountyCap.toDouble()).toInt(),
+            )
+        }
+    }
+}
