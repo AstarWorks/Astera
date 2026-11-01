@@ -345,7 +345,7 @@ class BotModeRolesScenarioTest {
 
             // Everything stands (a tie): one of the enemies is attacked at its tier-1 pillar, which is a block of the stage (which one is
             // a seeded draw, see BotTeamFocusScenarioTest).
-            val first = checkNotNull(make("r1").step(0, spawn.first, spawn.third))
+            val first = checkNotNull(make("r1").stepArrived(0, spawn.first, spawn.third))
             val bluePillar = zones.pillars().single { it.team == "blue" && it.tier == 1 }
             val tied = listOf("blue", "yellow").map { t -> zones.pillars().single { it.team == t && it.tier == 1 } }
             assertThat(first.kind).isEqualTo("pillar")
@@ -425,7 +425,7 @@ class BotModeRolesScenarioTest {
             val facts = Facts()
             val p = planner("annihilation", src, "r1", "red", listOf("blue", "yellow"), facts, squad("r", spawn))
             val x = spawn.first; val z = spawn.third
-            assertThat(p.step(0, x, z)?.kind).isEqualTo("pillar")
+            assertThat(p.stepArrived(0, x, z)?.kind).isEqualTo("pillar")
 
             p.noteLastKnown(x + 15, z, seenAt = 1_000)
             val chase = checkNotNull(p.step(1_500, x, z))
@@ -437,17 +437,17 @@ class BotModeRolesScenarioTest {
             // Never arriving: the chase times out and the plan is the pillar again, not endlessly the old spot. The target keeps
             // being seen at that spot (fresh memory, shorter than CHASE_MS), so it is the chase clock that ends the chase.
             p.noteLastKnown(x + 15, z, seenAt = 1_500 + ModePlanner.CHASE_MS)
-            assertThat(p.step(1_500 + ModePlanner.CHASE_MS + 100, x, z)?.kind).isEqualTo("pillar")
+            assertThat(p.stepArrived(1_500 + ModePlanner.CHASE_MS + 100, x, z)?.kind).isEqualTo("pillar")
             p.noteLastKnown(x + 15, z, seenAt = 1_500 + ModePlanner.CHASE_MS + 200)
-            assertThat(p.step(1_500 + ModePlanner.CHASE_MS + 300, x, z)?.kind).isEqualTo("pillar") // cooldown
+            assertThat(p.stepArrived(1_500 + ModePlanner.CHASE_MS + 300, x, z)?.kind).isEqualTo("pillar") // cooldown
 
             // A stale memory is not chased; reaching the spot ends the chase.
             val q = planner("annihilation", src, "r1", "red", listOf("blue", "yellow"), facts, squad("r", spawn))
             q.step(0, x, z)
             q.noteLastKnown(x + 15, z, seenAt = 0)
-            assertThat(q.step(ModePlanner.CHASE_MEMORY_MS + 1, x, z)?.kind).isEqualTo("pillar")
+            assertThat(q.stepArrived(ModePlanner.CHASE_MEMORY_MS + 1, x, z)?.kind).isEqualTo("pillar")
             q.noteLastKnown(x + 1, z, seenAt = 10_000)
-            assertThat(q.step(10_100, x, z)?.kind).isEqualTo("pillar") // already within CHASE_ARRIVE
+            assertThat(q.stepArrived(10_100, x, z)?.kind).isEqualTo("pillar") // already within CHASE_ARRIVE
         }
     }
 
@@ -481,7 +481,7 @@ class BotModeRolesScenarioTest {
             // Phase 2 opens the pillars: the same bot walks to the pillar and a far enemy in the base can be engaged again.
             facts.phase = 2
             val p2 = attacker()
-            val step = checkNotNull(p2.step(0, x, z))
+            val step = checkNotNull(p2.stepArrived(0, x, z))
             assertThat(step.kind).isEqualTo("pillar")
             // The enemy is a seeded draw between the tied enemies (never the alphabetical first): any enemy tier-1 pillar.
             assertThat(step.strike).isIn(zones.pillars().filter { it.team != "red" && it.tier == 1 }.map { Triple(it.x, it.y, it.z) })
@@ -491,7 +491,7 @@ class BotModeRolesScenarioTest {
             val timed = attacker(Facts().also { it.phase = null })
             assertThat(timed.step(0, x, z)).isNull()
             assertThat(timed.step(ModePlanner.BUILD_PHASE_MS - 1, x, z)).isNull()
-            assertThat(timed.step(ModePlanner.BUILD_PHASE_MS + 1, x, z)?.kind).isEqualTo("pillar")
+            assertThat(timed.stepArrived(ModePlanner.BUILD_PHASE_MS + 1, x, z)?.kind).isEqualTo("pillar")
         }
     }
 
@@ -617,4 +617,13 @@ class BotModeRolesScenarioTest {
             assertThat(count).`as`("red count after banking; plan $kinds").isLessThan(100)
         }
     }
+}
+
+/** The bot's step once it has walked any detour waypoints around an enemy spawn zone: the way to a pillar may bend, the pillar step itself stays. */
+private fun com.astarworks.astera.bots.ModePlanner.stepArrived(now: Long, x0: Double, z0: Double): com.astarworks.astera.bots.ModePlanner.Step? {
+    var x = x0; var z = z0
+    var st = step(now, x, z)
+    var n = 0
+    while (st != null && st.kind == "detour" && n++ < 6) { x = st.x; z = st.z; st = step(now, x, z) }
+    return st
 }
