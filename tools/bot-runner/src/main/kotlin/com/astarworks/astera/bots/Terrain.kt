@@ -60,6 +60,8 @@ class Terrain : TerrainView {
 
     override fun isSolid(x: Int, y: Int, z: Int): Boolean? = stateAt(x, y, z)?.let { it != AIR }
 
+    override fun blockName(x: Int, y: Int, z: Int): String? = stateAt(x, y, z)?.let { BlockStateNames.nameOf(it) }
+
     /**
      * Feet height of the walkable floor in the column of ([x], [z]) within [maxStepUp] above / [maxDrop] below
      * [feetY]: the top of the highest solid block that has air above it. `null` = no floor (a hole or the edge of

@@ -194,7 +194,9 @@ internal object MatchStarWiring {
             nodes = carry.slot("ore-nodes") { java.util.concurrent.ConcurrentHashMap<com.astarworks.astera.match.application.service.OreNodeService.Key, com.astarworks.astera.match.application.service.OreNodeService.Node>() },
             levelOf = { norma.levelOf(it) },
             onInvalid = { id, reason -> env.ctx.logger.warning("Ore nodes of stage $id not placed: $reason") },
+            phases = { services.get<com.astarworks.astera.match.application.port.outbound.IMatchPhaseClock>() },
         )
+        env.ctx.registrations += services.register<NormaLevelService>(norma, priority = 0)
         env.ctx.registrations += services.register<com.astarworks.astera.match.application.service.OreNodeService>(oreNodes, priority = 0)
         env.ctx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion>(oreNodes, priority = 0)
         env.ctx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IOreNodeStrikes>(oreNodes, priority = 0)

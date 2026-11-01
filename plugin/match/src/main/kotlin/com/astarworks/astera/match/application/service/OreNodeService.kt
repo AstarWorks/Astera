@@ -17,11 +17,13 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.nexus.NexusPhase
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.world.ToolType
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.application.config.toSpec
+import com.astarworks.astera.match.application.port.outbound.IMatchPhaseClock
 import com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository
 import com.astarworks.astera.match.application.port.outbound.IOreNodeRegistry
 import com.astarworks.astera.match.application.port.outbound.IOreNodeWorld
@@ -52,6 +54,8 @@ public class OreNodeService(
     /** The player's Norma level, or null outside a Norma match (then no level gate applies and the level-1 multiplier is used). */
     private val levelOf: (PlayerId) -> Int? = { null },
     private val onInvalid: (stageId: String, reason: String) -> Unit = { _, _ -> },
+    /** Phase clock of phase-driven matches (Annihilation): a node whose `phase_gates` entry is later than the match's phase takes no damage. Null = no phase gate. */
+    private val phases: () -> IMatchPhaseClock? = { null },
     /** Carried across a Match rewire: which nodes are mined or regrowing, and each player's last hit. */
     private val lastHit: ConcurrentHashMap<PlayerId, Long> = ConcurrentHashMap(),
     private val nodes: ConcurrentHashMap<Key, Node> = ConcurrentHashMap(),
@@ -69,6 +73,9 @@ public class OreNodeService(
 
         /** The tool class cannot hurt this node at all. */
         public data object WrongTool : Outcome
+
+        /** The match is still before the phase the node opens in (`phase_gates`); [required] is that phase's number. */
+        public data class PhaseLocked(val required: Int) : Outcome
 
         /** The player's Norma level is under the node's `min_norma_level`. */
         public data class LevelLocked(val required: Int) : Outcome
@@ -148,13 +155,31 @@ public class OreNodeService(
         return hit(node, player, damage)
     }
 
-    /** Level gate: a refusal [Outcome] (deny sound + action bar with the required level) or null when [player] may damage [node]. */
+    /**
+     * Phase gate (ADR-0319), then level gate: a refusal [Outcome] (deny sound + action bar) or null when [player] may damage [node].
+     * The phase gate is the same for everyone: "opens in phase N (in mm:ss)".
+     */
     private fun gate(player: PlayerId, node: Node): Outcome? {
+        phaseGate(player, node)?.let { return it }
         val level = levelOf(player) ?: return null
         if (level >= node.spec.minNormaLevel) return null
         server.findPlayer(player)?.postActionBar(NEEDS_LEVEL, mapOf("level" to node.spec.minNormaLevel.toString()))
         world?.deny(node.world, node.pos)
         return Outcome.LevelLocked(node.spec.minNormaLevel)
+    }
+
+    private fun phaseGate(player: PlayerId, node: Node): Outcome? {
+        val required = node.spec.minPhase
+        if (required <= 1) return null
+        val target = NexusPhase.byNumber(required) ?: return null
+        val remaining = phases()?.ticksUntil(node.matchId, target) ?: return null
+        if (remaining <= 0L) return null
+        server.findPlayer(player)?.postActionBar(
+            NEEDS_PHASE,
+            mapOf("phase" to required.toString(), "time" to formatClock(remaining)),
+        )
+        world?.deny(node.world, node.pos)
+        return Outcome.PhaseLocked(required)
     }
 
     override fun isNode(world: WorldId, pos: Vec3): Boolean = nodes.containsKey(keyOf(world, pos))
@@ -202,9 +227,16 @@ public class OreNodeService(
 
     private fun keyOf(world: WorldId, pos: Vec3) = Key(world.value, floor(pos.x).toInt(), floor(pos.y).toInt(), floor(pos.z).toInt())
 
-    private companion object {
+    companion object {
         val NEEDS_TIER = MessageKey("astera.ore.needs-tier")
         val NEEDS_LEVEL = MessageKey("astera.ore.needs-level")
+        val NEEDS_PHASE = MessageKey("astera.annihilation.ore.phase-locked")
+
+        /** `m:ss` of [ticks] (rounded up to the second). */
+        fun formatClock(ticks: Long): String {
+            val seconds = (ticks + TICKS_PER_SECOND - 1) / TICKS_PER_SECOND
+            return "%d:%02d".format(seconds / 60, seconds % 60)
+        }
         val WRONG_TOOL = MessageKey("astera.ore.wrong-tool")
         const val TICKS_PER_SECOND = 20L
         const val HIT_COOLDOWN_TICKS = 6L

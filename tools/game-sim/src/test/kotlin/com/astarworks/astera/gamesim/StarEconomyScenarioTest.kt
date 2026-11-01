@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test
  */
 class StarEconomyScenarioTest {
 
-    private val config = AnnihilationConfig(buildPhaseTicks = 1200, engagePhaseTicks = 12000, tier3PhaseTicks = 6000, suddenDeathTicks = 1200)
+    private val config = AnnihilationConfig(buildPhaseTicks = 1200, engagePhaseTicks = 12000, centerPhaseTicks = 6000, suddenDeathTicks = 1200)
     private val minutes = 15
     private val goals = listOf(10, 30, 60, 100)
     private val sources = StarSource.entries

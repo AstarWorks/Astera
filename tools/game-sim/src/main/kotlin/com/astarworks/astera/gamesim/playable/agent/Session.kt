@@ -300,6 +300,7 @@ class Session(private val host: MatchHost, contentDir: File) {
                 OreNodeService.Outcome.WrongTool -> { result = "wrong tool class (${tool ?: "no tool"})"; "too_weak" }
                 OreNodeService.Outcome.TooWeak -> { result = "tool too weak (${tool ?: "no tool"})"; "too_weak" }
                 is OreNodeService.Outcome.LevelLocked -> { result = "needs norma lv${out.required}"; "level_locked" }
+                is OreNodeService.Outcome.PhaseLocked -> { result = "needs phase ${out.required}"; "phase_locked" }
                 OreNodeService.Outcome.Regrowing -> { result = "regrowing"; "regrowing" }
                 OreNodeService.Outcome.NotANode ->
                     if (sim.world.blockAt(me.world, cell) != null && sim.breakBlock(me, cell)) { result = "broke block"; "mined" }

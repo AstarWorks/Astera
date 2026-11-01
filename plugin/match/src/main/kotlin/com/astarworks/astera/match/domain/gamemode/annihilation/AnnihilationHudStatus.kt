@@ -21,7 +21,7 @@ import com.astarworks.astera.match.domain.gamemode.MatchHudStatus
 public object AnnihilationHudStatus {
 
     public fun of(state: AnnihilationMatchState, match: Match, nowTick: Long): MatchHudStatus {
-        val remaining = AnnihilationPhaseRules.ticksUntilNextPhase(state, nowTick)
+        val remaining = AnnihilationPhaseRules.ticksUntilNextPhase(state, nowTick) ?: AnnihilationPhaseRules.ticksUntilMatchEnd(state, nowTick)
         val phaseLine = HudLine(
             key = MessageKey("astera.hud.sidebar.nexus.${state.phase.id}"),
             placeholders = if (remaining != null) mapOf("time" to clock(remaining)) else emptyMap(),

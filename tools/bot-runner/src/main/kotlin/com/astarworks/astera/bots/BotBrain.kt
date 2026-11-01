@@ -42,6 +42,12 @@ fun interface ObjectiveSource {
     /** Star generator pedestals (x, z) of the stage, where stars wait to be picked up. */
     fun starPoints(): List<Pair<Double, Double>> = emptyList()
 
+    /** One exploration cache spot (ADR-0318): refills [respawnMs] after it was opened. Stage-local coordinates. */
+    class CachePoint(val x: Double, val y: Double, val z: Double, val respawnMs: Long)
+
+    /** Exploration caches of the stage; empty = none. */
+    fun cachePoints(): List<CachePoint> = emptyList()
+
     fun routeGraph(): ArenaRouteGraph? = null
 
     /**
@@ -174,10 +180,17 @@ class BotBrain(
     private var dwellUntil = 0L
     /** Stage-local generator points shifted to the slot the bot plays in (set at each spawn). */
     private var starPoints: List<Pair<Double, Double>> = emptyList()
+    /** Cache spots shifted to the slot, and when each was last visited (a cache is empty until its respawn has passed). */
+    private var cachePoints: List<ObjectiveSource.CachePoint> = emptyList()
+    private val cacheVisitedAt = HashMap<Int, Long>()
     private val visitedAt = HashMap<Int, Long>()
     private val ignoredStars = HashMap<Int, Long>()
     private val starsSeen = HashMap<Int, DoubleArray>()
     private var starApproachId = -1
+    /** Barrels / chests / crafting tables near the bot that pay a star when broken (ADR-0318 `star_blocks`). */
+    private val starBlocks = StarBlockScanner(bot.terrain)
+    private var starBlockTarget: Triple<Int, Int, Int>? = null
+    private var lastBlockDigAt = 0L
     private var starApproachSince = 0L
     private var highY = Double.NEGATIVE_INFINITY
     private var fellRecently = false
@@ -274,6 +287,8 @@ class BotBrain(
             objective = objectives?.objectiveFor(spawnX - originX, spawnZ - originZ)
                 ?.let { it.copy(x = it.x + originX, z = it.z + originZ) }
             starPoints = objectives?.starPoints().orEmpty().map { (x, z) -> (x + originX) to (z + originZ) }
+            cachePoints = objectives?.cachePoints().orEmpty().map { ObjectiveSource.CachePoint(it.x + originX, it.y, it.z + originZ, it.respawnMs) }
+            cacheVisitedAt.clear()
             fightStartedAt = now
             nav.clear()
             retreating = false
@@ -469,8 +484,7 @@ class BotBrain(
                 spectating = bot.isSpectator(e.uuid),
                 x = e.x, y = e.y, z = e.z, listed = name != null,
                 hasLos = LineOfSight.clear(bot.terrain, bot.x, eyeY, bot.z, e.x, e.y + CHEST_HEIGHT, e.z),
-                // The client sees no other player's health (no BotHost field for it): unknown = full health.
-                hpFraction = null,
+                hpFraction = bot.healthOf(e.id)?.toDouble(),
             )
         }
         noteDamageTaken(now, myTeam, candidates)
@@ -532,17 +546,31 @@ class BotBrain(
             }
         }
         economyDest(now)?.let { return it }
+        // A cache close by is a short detour even while the mode plan runs (never while carrying the objective).
+        if (goal == Goal.STAR && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
+            nearestCache(now, CACHE_DETOUR_RANGE)?.let { return it }
+        }
+        // A paying block close by (barrel / chest / crafting table) is a short detour while nothing is in sight (never while carrying the objective).
+        if (goal == Goal.STAR && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
+            starBlocks.tick(now, bot.x, bot.y, bot.z)
+            starBlockTarget = starBlocks.nearest(bot.x, bot.y, bot.z)
+            starBlockTarget?.let { return Dest(it.first + 0.5, it.third + 0.5, it.second.toDouble(), STAR_BLOCK_ARRIVE, "block") }
+        }
         if (now >= modePausedUntil) planner?.step(now, bot.x, bot.z)?.let { st ->
             return Dest(st.x, st.z, st.y, st.arrive, "mode", zone = st.zone, strike = st.strike, affinity = st.affinity)
         }
-        if (goal == Goal.STAR && starPoints.isNotEmpty()) {
+        if (goal == Goal.STAR && (starPoints.isNotEmpty() || cachePoints.isNotEmpty())) {
+            // Nearest valuable source: caches pay a bundle (weighted), candidate spots only hold a star while the rotation is on them
+            // (a star that is visible is already handled by starTarget); no spot is camped, each is skipped for GEN_COOLDOWN_MS after a look.
             var bestI = -1
-            var bestD = Double.MAX_VALUE
+            var bestScore = Double.MAX_VALUE
             for ((i, p) in starPoints.withIndex()) {
                 if (now - (visitedAt[i] ?: -GEN_COOLDOWN_MS) < GEN_COOLDOWN_MS) continue
-                val d = hypot(p.first - bot.x, p.second - bot.z)
-                if (d < bestD) { bestD = d; bestI = i }
+                val score = hypot(p.first - bot.x, p.second - bot.z)
+                if (score < bestScore) { bestScore = score; bestI = i }
             }
+            val cache = nearestCache(now, Double.MAX_VALUE)
+            if (cache != null && hypot(cache.x - bot.x, cache.z - bot.z) / CACHE_VALUE_WEIGHT < bestScore) return cache
             if (bestI >= 0) return Dest(starPoints[bestI].first, starPoints[bestI].second, null, 2.0, "gen", bestI)
         }
         if (now - lastEnemyAt < 8_000) return Dest(lastEnemyX, lastEnemyZ, null, 3.0, "enemy-seen")
@@ -591,9 +619,26 @@ class BotBrain(
         return out
     }
 
+    /** Nearest exploration cache within [range] that is not on its respawn cooldown (visited caches are remembered for their respawn time). */
+    private fun nearestCache(now: Long, range: Double): Dest? {
+        var bestI = -1
+        var bestD = Double.MAX_VALUE
+        for ((i, c) in cachePoints.withIndex()) {
+            val seen = cacheVisitedAt[i]
+            if (seen != null && now - seen < c.respawnMs) continue
+            val d = hypot(c.x - bot.x, c.z - bot.z) + abs(c.y - bot.y) * 0.5
+            if (d <= range && d < bestD) { bestD = d; bestI = i }
+        }
+        if (bestI < 0) return null
+        val c = cachePoints[bestI]
+        return Dest(c.x, c.z, c.y, CACHE_ARRIVE, "cache", bestI)
+    }
+
     private fun arrivedAt(d: Dest, now: Long, unreachable: Boolean = false) {
         if (d.strike != null && hypot(d.x - bot.x, d.z - bot.z) <= STRIKE_REACH) strikeBlock(d.strike, d.affinity, now)
         when (d.kind) {
+            "cache" -> cacheVisitedAt[d.starId] = now
+            "block" -> breakStarBlock(unreachable, now)
             "gen" -> {
                 if (unreachable) { visitedAt[d.starId] = now; return }
                 if (dwellUntil == 0L) dwellUntil = now + GEN_DWELL_MS
@@ -609,6 +654,21 @@ class BotBrain(
             }
             "roam" -> wanderUntil = 0L
         }
+    }
+
+    /** Breaks the targeted star block: face it, one long dig per [STAR_BLOCK_DIG_INTERVAL_MS]; out of reach or unreachable = give up on it. */
+    private fun breakStarBlock(unreachable: Boolean, now: Long) {
+        val b = starBlockTarget ?: return
+        val dx = b.first + 0.5 - bot.x
+        val dz = b.third + 0.5 - bot.z
+        val dy = b.second + 0.5 - (bot.y + EYE_HEIGHT)
+        if (unreachable || sqrt(dx * dx + dy * dy + dz * dz) > STRIKE_REACH) { starBlocks.giveUp(b); starBlockTarget = null; return }
+        strikeLook = Math.toDegrees(atan2(-dx, dz)).toFloat() to (-Math.toDegrees(atan2(dy, hypot(dx, dz).coerceAtLeast(0.01)))).toFloat()
+        if (now - lastBlockDigAt < STAR_BLOCK_DIG_INTERVAL_MS) return
+        lastBlockDigAt = now
+        starBlocks.noteDig(b)
+        blocksBroken.incrementAndGet()
+        bot.digAsync(b.first, b.second, b.third, STAR_BLOCK_HOLD_MS)
     }
 
     private var starArrivedSince = 0L
@@ -1113,6 +1173,9 @@ class BotBrain(
         const val STRIKE_INTERVAL_MS = 450L
         const val TOOL_CAST_INTERVAL_MS = 2_000L
         const val STRIKE_REACH = 4.5
+        const val STAR_BLOCK_ARRIVE = 2.2
+        const val STAR_BLOCK_HOLD_MS = 3_500L
+        const val STAR_BLOCK_DIG_INTERVAL_MS = 4_000L
         const val MELEE_REACH = 2.9
         const val EYE_HEIGHT = 1.62
         const val CHEST_HEIGHT = 1.0
@@ -1134,6 +1197,11 @@ class BotBrain(
         const val STAR_CHASE_MS = 20_000L
         const val LOCAL_STEER_RANGE = 12.0
         const val GEN_COOLDOWN_MS = 12_000L
+        /** Cache open radius is 2 blocks (content/generators/annihilation-cache.yaml); arrive inside it. */
+        const val CACHE_ARRIVE = 1.3
+        const val CACHE_DETOUR_RANGE = 28.0
+        /** A cache bundle (about 4 stars) is worth a longer walk than a single spot star. */
+        const val CACHE_VALUE_WEIGHT = 3.0
         const val GEN_DWELL_MS = 1_500L
         const val FALL_DEPTH = 12.0
         val HEAL_LORE = Regex("single use|使い切り")
