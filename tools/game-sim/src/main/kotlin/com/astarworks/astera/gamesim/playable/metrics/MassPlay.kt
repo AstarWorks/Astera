@@ -14,7 +14,7 @@ object MassPlay {
 
     class Config(
         /** Hard cap of one match, ticks (20/s). A match still running then is reported as `running`. */
-        val maxTicks: Int = 24_000,
+        val maxTicks: Int = System.getProperty("astera.massplay.maxTicks")?.toIntOrNull() ?: 24_000,
         /** Render a PNG every this many ticks (0 = only the final frame). */
         val frameEveryTicks: Int = 1_200,
         val renderFrames: Boolean = true,
@@ -99,6 +99,22 @@ object MassPlay {
             val median = if (values.size % 2 == 1) values[values.size / 2] else (values[values.size / 2 - 1] + values[values.size / 2]) / 2
             appendLine("| $key | ${values.size} | ${fmt(values.first())} | ${fmt(median)} | ${fmt(values.last())} | ${spark(values)} |")
         }
+        appendLine()
+        appendLine("First match-shop purchase per run (seconds from MatchStarted; budget: median at most 150 s):")
+        appendLine()
+        appendLine("| run | first_buy_median_s | never_bought | players |")
+        appendLine("|---|---:|---:|---:|")
+        for (r in results) {
+            val med = r.result.scalars["first_buy_median_s"]
+            appendLine("| ${r.run} | ${med?.let { fmt(it) } ?: "n/a"} | ${fmt(r.result.scalars["never_bought"] ?: 0.0)} | ${fmt(r.result.scalars["players"] ?: 0.0)} |")
+        }
+        val pooled = results.flatMap { it.result.firstBuySeconds }.sorted()
+        val pooledMedian = when {
+            pooled.isEmpty() -> null
+            pooled.size % 2 == 1 -> pooled[pooled.size / 2]
+            else -> (pooled[pooled.size / 2 - 1] + pooled[pooled.size / 2]) / 2
+        }
+        appendLine("| all runs (pooled buyers) | ${pooledMedian?.let { fmt(it) } ?: "n/a"} | ${fmt(results.sumOf { it.result.scalars["never_bought"] ?: 0.0 })} | ${fmt(results.sumOf { it.result.scalars["players"] ?: 0.0 })} |")
         val notes = results.flatMap { it.result.notAvailable.entries }.groupBy({ it.key }, { it.value }).filterKeys { it !in keys }
         if (notes.isNotEmpty()) {
             appendLine()

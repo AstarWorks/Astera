@@ -34,6 +34,8 @@ data class MatchConfig(
     /** The first [humanSeats] seats of this team are human seats: players with no brain, driven by the caller through [hostOf]. */
     val humanTeam: String? = null,
     val humanSeats: Int = 1,
+    /** Server-wide UI language (`en`, `ja`; ADR-0283): the language the boss bar and other i18n text reach the bots in. */
+    val locale: String = "en",
 )
 
 /** One player of the match: [brain] is `null` for a human seat. */
@@ -135,7 +137,7 @@ class MatchDriver private constructor(
 
         fun boot(config: MatchConfig): MatchDriver {
             val contentDir = GameSim.defaultContentDir()
-            val sim = GameSim.boot("playable-${config.mode}", seed = config.seed, snapshots = InMemoryPlayerInventorySnapshotRepository())
+            val sim = GameSim.boot("playable-${config.mode}", seed = config.seed, snapshots = InMemoryPlayerInventorySnapshotRepository(), defaultLocale = com.astarworks.astera.core.domain.i18n.LocaleCode(config.locale))
             try {
                 val stage = checkNotNull(sim.services.getOrThrow<IStageRegistry>().find(StageId(config.stage))) { "unknown stage ${config.stage}" }
                 val terrain = SimTerrainLoader.load(sim, stage, contentDir)

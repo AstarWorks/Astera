@@ -17,3 +17,6 @@ with:
   break_pitch: 0.7
   crit: true
   spark: tool-axe-diamond
+  trail_span: 10
+  metallic: true
+  bright: true

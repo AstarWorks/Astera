@@ -19,6 +19,11 @@ public class SimObjectiveStage : IObjectiveStage {
     private val markers: MutableMap<Pair<MatchId, String>, Marker> = ConcurrentHashMap()
     private val bars: MutableMap<Pair<PlayerId, String>, Bar> = ConcurrentHashMap()
 
+    private companion object {
+        /** MiniMessage open / close tags (`<gold>`, `</white>`); the client shows the text without them. */
+        val TAG = Regex("</?[a-zA-Z_#][^<>]*>")
+    }
+
     /** What [player] carries right now, `null` = nothing. */
     public fun carrying(player: PlayerId): ObjectiveLook? = carrying[player]
 
@@ -31,6 +36,17 @@ public class SimObjectiveStage : IObjectiveStage {
 
     /** Boss bar [key] of [player], `null` = hidden. */
     public fun bar(player: PlayerId, key: String): Bar? = bars[player to key]
+
+    /**
+     * The plain text of every boss bar [player] sees, as the client shows it: the rendered MiniMessage title the plugin
+     * handed to [showBar] (same presenter + i18n path as Paper) with the formatting tags removed. Sorted by bar key.
+     */
+    public fun plainTitles(player: PlayerId): List<String> =
+        bars.filterKeys { it.first == player }.entries.sortedBy { it.key.second }.map { TAG.replace(it.value.title, "") }
+
+    /** The colour name of every boss bar [player] sees, in the order of [plainTitles]. */
+    public fun barColors(player: PlayerId): List<String> =
+        bars.filterKeys { it.first == player }.entries.sortedBy { it.key.second }.map { it.value.color.name }
 
     override fun setCarrying(player: PlayerId, look: ObjectiveLook?, count: Int) {
         if (look == null) {

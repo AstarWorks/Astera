@@ -41,9 +41,9 @@ defaults:
   star_supply_ramp: "0:0.25,1:0.75,3:1.0,11:1.4,16:1.6"
   star_share_spot: "0.12"
   star_share_mining: "0.22"
-  star_share_blocks: "0.15"
-  star_share_cache: "0.15"
-  star_share_wave: "0.30"
+  star_share_blocks: "0.20"
+  star_share_cache: "0.18"
+  star_share_wave: "0.24"
   star_share_bounty: "0.04"
   # Actions: stars per ore-node mine and per listed block break (annihilation matches; Material names).
   star_mining_per_node: "1"
@@ -54,8 +54,8 @@ defaults:
   # victim keeps the rest; nothing is destroyed and nothing goes straight to the killer. Bounty = star_bounty_rate x (victim carried - roster average), capped at
   # star_bounty_cap, paid from the bounty share of the budget (a kill on the leader pays more than one on a trailing player).
   star_death_ground_share: "0.5"
-  star_bounty_rate: "0.5"
-  star_bounty_cap: "12"
+  star_bounty_rate: "1.0"
+  star_bounty_cap: "25"
 
   # F3-5 death / respawn (seconds): death-screen countdown, killer death-cam length, post-respawn invulnerability
   # (ends on attack).
