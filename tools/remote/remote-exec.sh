@@ -4,7 +4,7 @@
 #   remote-exec.sh run <id> <vfx|gradle> <envfile> -- <command...>
 #   remote-exec.sh status
 # Layout under $HB (= ASTERA_HEAVY_BASE, default ~/astera-heavy):
-#   w/<id>/repo      synced working copy of one local checkout      locks/slot.<n>.{lock,owner}
+#   w/<id>/repo      synced working copy of one local checkout      locks/{slot,gslot}.<n>.{lock,owner}
 #   home/            runner $HOME (gradle + MC client caches)       locks/claude-1000  runner /tmp/claude-1000
 #   heavy.env        host defaults (HEAVY_SLOTS=...)                bin/remote-exec.sh copy for `status`
 #
@@ -102,22 +102,25 @@ PY
 }
 
 # ---------------------------------------------------------------- run
-SLOT_N=""; SLOT_FD=""; NAME=""; TIMER=""; WATCH=""; MERGED=""; ABNORMAL=0; RC=1; KIND=""; REPO=""
+SLOT_N=""; SLOT_PFX=slot; SLOT_FD=""; NAME=""; TIMER=""; WATCH=""; MERGED=""; ABNORMAL=0; RC=1; KIND=""; REPO=""
 
-owner_files() { local f; for f in "$HB"/locks/slot.*.owner; do [ -f "$f" ] && printf '[%s] %s ' "$(basename "$f" .owner)" "$(cat "$f")"; done; }
+owner_files() { local f; for f in "$HB"/locks/slot.*.owner "$HB"/locks/gslot.*.owner; do [ -f "$f" ] && printf '[%s] %s ' "$(basename "$f" .owner)" "$(cat "$f")"; done; }
 
+# vfx jobs take slot.N (HEAVY_SLOTS); gradle jobs have their own lane gslot.N (GRADLE_SLOTS, default 1) so short compiles never wait behind capture batches.
 acquire_slot() {
-  local slots="${HEAVY_SLOTS:-1}" timeout="${HEAVY_QUEUE_TIMEOUT:-3600}" start=$SECONDS last=0 announced=0 i f fd
+  local slots="${HEAVY_SLOTS:-1}" pfx=slot lane=vfx timeout="${HEAVY_QUEUE_TIMEOUT:-3600}" start=$SECONDS last=0 announced=0 i f fd
+  if [ "$KIND" = gradle ]; then slots="${GRADLE_SLOTS:-1}"; pfx=gslot; lane=gradle; fi
+  SLOT_PFX=$pfx
   mkdir -p "$HB/locks"
   while :; do
     for i in $(seq 1 "$slots"); do
-      f="$HB/locks/slot.$i.lock"
+      f="$HB/locks/$pfx.$i.lock"
       exec {fd}>"$f" || die "cannot open $f"
       if flock -n "$fd"; then SLOT_N=$i; SLOT_FD=$fd; return 0; fi
       exec {fd}>&-
     done
     if [ "$announced" = 0 ]; then
-      log "queued: all $slots slot(s) busy; held by $(owner_files)"
+      log "queued: all $slots $lane slot(s) busy; held by $(owner_files)"
       announced=1; last=$SECONDS
     elif [ $((SECONDS - last)) -ge 60 ]; then
       log "still queued after $((SECONDS - start))s (limit ${timeout}s): $(owner_files)"
@@ -168,7 +171,7 @@ cleanup() {
   fi
   [ -n "$MERGED" ] && rm -f "$MERGED"
   [ -n "$REPO" ] && touch "$(dirname "$REPO")/.last-use" 2>/dev/null
-  [ -n "$SLOT_N" ] && rm -f "$HB/locks/slot.$SLOT_N.owner"
+  [ -n "$SLOT_N" ] && rm -f "$HB/locks/$SLOT_PFX.$SLOT_N.owner"
   exit "$RC"
 }
 
@@ -188,13 +191,13 @@ cmd_run() {
   exec {USE_FD}>>"$HB/w/$id/.use.lock" && flock -n "$USE_FD" || true   # reapers skip this checkout while the run lives
 
   acquire_slot
-  NAME="astera-heavy-slot$SLOT_N"
+  NAME="astera-heavy-$SLOT_PFX$SLOT_N"
   MERGED="$HB/w/$id/run.$$.merged.env"
   trap 'ABNORMAL=1; RC=143; exit 143' INT TERM HUP
   trap cleanup EXIT
-  log "slot $SLOT_N acquired after $((SECONDS - t0))s"
+  log "$SLOT_PFX $SLOT_N acquired after $((SECONDS - t0))s"
   printf 'caller=%s kind=%s cmd=%.120s start=%s\n' \
-    "$(sed -n 's/^ASTERA_HEAVY_CALLER=//p' "$envfile" | head -1)" "$KIND" "$*" "$(date '+%F %T')" > "$HB/locks/slot.$SLOT_N.owner"
+    "$(sed -n 's/^ASTERA_HEAVY_CALLER=//p' "$envfile" | head -1)" "$KIND" "$*" "$(date '+%F %T')" > "$HB/locks/$SLOT_PFX.$SLOT_N.owner"
   docker rm -f "$NAME" >/dev/null 2>&1   # leftover of a dead run: this slot is ours now
 
   if [ "$KIND" = vfx ]; then mem_need="${HEAVY_MIN_FREE_GB:-4}"; mem_cap="${HEAVY_MEM:-4g}"
@@ -216,6 +219,27 @@ cmd_run() {
   fi
 
   base_args "$NAME"
+  # One Gradle user home per slot/lane: concurrent builds sharing one home fight over caches/journal-1 and time out on each other.
+  # Seeded once from the shared home (build-cache hardlinked = no extra disk); that shared home also stays mounted as a read-only dependency cache.
+  local gh="$HB/home/gradle-homes/$SLOT_PFX$SLOT_N" gb="$HB/home/.gradle"
+  if [ ! -d "$gh/caches" ]; then
+    log "seeding $gh from the shared Gradle home"
+    rm -rf "$gh.tmp"; mkdir -p "$gh.tmp/caches"
+    for d in 9.5.1 jars-9; do [ -d "$gb/caches/$d" ] && cp -a "$gb/caches/$d" "$gh.tmp/caches/$d"; done
+    # hard-link ONLY the immutable cache entries (32-hex names); lock/gc files must stay per-home or the homes share one lock inode
+    if [ -d "$gb/caches/build-cache-1" ]; then
+      mkdir -p "$gh.tmp/caches/build-cache-1"
+      ( cd "$gb/caches/build-cache-1" && find . -maxdepth 1 -type f -regextype posix-extended -regex '\./[0-9a-f]{32}' -print0 \
+          | xargs -0 -r ln -t "$gh.tmp/caches/build-cache-1" )
+    fi
+    [ -d "$gb/wrapper" ] && cp -a "$gb/wrapper" "$gh.tmp/wrapper"
+    rm -rf "$gh"; mv "$gh.tmp" "$gh"
+  fi
+  # repair homes seeded by the earlier cp -al: unshare the lock/gc files (we hold this slot, so no other job uses this home)
+  for f in build-cache-1.lock gc.properties; do
+    [ -e "$gh/caches/build-cache-1/$f" ] && [ "$(stat -c %h "$gh/caches/build-cache-1/$f")" -gt 1 ] && rm -f "$gh/caches/build-cache-1/$f"
+  done
+  BASE_ARGS+=(-e "GRADLE_USER_HOME=/heavy-home/gradle-homes/$SLOT_PFX$SLOT_N" -e "GRADLE_RO_DEP_CACHE=/heavy-home/.gradle/caches")
   local tty=(); [ -t 0 ] && tty=(-t)
   log "run: kind=$KIND mem=$mem_cap cpus=$cpus gradle-xmx=$xmx: $*"
   # Remote end of a dead ssh: with a pty the HUP arrives by itself; without one, stdin EOF means the client is gone.
@@ -250,6 +274,12 @@ cmd_status() {
     f="$HB/locks/slot.$i.lock"
     if [ ! -e "$f" ] || flock -n "$f" true 2>/dev/null; then echo "slot $i     free"
     else echo "slot $i     busy: $(cat "$HB/locks/slot.$i.owner" 2>/dev/null)"; fi
+  done
+  local gslots="${GRADLE_SLOTS:-1}"
+  for i in $(seq 1 "$gslots"); do
+    f="$HB/locks/gslot.$i.lock"
+    if [ ! -e "$f" ] || flock -n "$f" true 2>/dev/null; then echo "gradle $i   free"
+    else echo "gradle $i   busy: $(cat "$HB/locks/gslot.$i.owner" 2>/dev/null)"; fi
   done
   echo "runners    $(docker ps --filter label=astera.heavy=1 --format '{{.Names}} ({{.Status}})' | tr '\n' ' ')"
   echo "shot stacks $(docker ps -a --filter name=astera-shot- --format '{{.Names}}' | wc -l) container(s)"

@@ -33,7 +33,7 @@ r @15 run-end tail=14 | pose
 @0 frame fire/bolt op=fire/bolt pos=-0.351563,0.768016,0.642517 rot=0.000000,0.000000,0.000000,1.000000
 @1 hit - op=fire/bolt at=-0.351563,0.768016,2.342517 r=2.200000 shape=capsule a=-0.351563,0.768016,0.642517 b=-0.351563,0.768016,4.042517 rad=0.500000
 @1 sound - op=fire/bolt.hit/snd_hit sound=astera:weapons/gun-impact cat=master vol=0.8 pitch=0.9 at=0.000000,0.810000,2.500000
-@1 particle - op=fire/bolt.hit/fx_hit type=hit-spark at=0.000000,0.871645,2.309737 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9104070315894238581
+@1 particle - op=fire/bolt.hit/fx_hit type=hit-spark at=0.000000,0.871645,2.309737 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7429280157693163089
 @1 damage 00000000-0000-0000-0000-00000000000a op=- physical=26 skill=repeater-barrage at=-0.300000,0.768016,2.200000 ignoreinv=false ignorearmor=false
 @1 remove #0 op=fire/slug
 @14 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=crossbow-aim
@@ -48,7 +48,7 @@ r @15 run-end tail=14 | pose
 @0 frame fire/bolt op=fire/bolt pos=-0.667446,0.768016,0.301561 rot=0.000000,-0.317305,0.000000,0.948324
 @1 hit - op=fire/bolt at=-1.690532,0.768016,1.659241 r=2.200000 shape=capsule a=-0.667446,0.768016,0.301561 b=-2.713618,0.768016,3.016922 rad=0.500000
 @1 sound - op=fire/bolt.hit/snd_hit sound=astera:weapons/gun-impact cat=master vol=0.8 pitch=0.9 at=-1.504538,0.810000,1.996589
-@1 particle - op=fire/bolt.hit/fx_hit type=hit-spark at=-1.390035,0.871645,1.844638 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-9104070315894238581
+@1 particle - op=fire/bolt.hit/fx_hit type=hit-spark at=-1.390035,0.871645,1.844638 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7429280157693163089
 @1 damage 00000000-0000-0000-0000-00000000000a op=- physical=26 skill=repeater-barrage at=-1.718675,0.768016,1.696589 ignoreinv=false ignorearmor=false
 @1 remove #0 op=fire/slug
 @14 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=crossbow-aim
