@@ -170,7 +170,7 @@ public class StarDropService(
 
     /**
      * A participant leaves the running match (disconnect, lobby command, forfeit): every star they carry bursts at
-     * the position they stand on, whatever `death_drop_ratio` says (MODE-14). Call it before they are moved away.
+     * the position they stand on, (MODE-14). Call it before they are moved away.
      */
     public fun onLeft(matchId: MatchId, player: PlayerId) {
         val carried = store.get(matchId, player)
