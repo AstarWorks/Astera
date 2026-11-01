@@ -10,7 +10,7 @@
 #            moves v towards w: the edge leads by construction. The wind-up turns the tip to the right (-60), the cut carries it across the front to the left
 #            (+80, hit at tick 3 while the blade crosses the middle), `reset` eases the chain back to guard.
 #            The line `edge` (0.65 -> tip 1.09) is what the trail rows draw along.
-#   body   - the caster's feet, v forward / w up / s right: the sound and the sweep fx (1.4 ahead, at chest height).
+#   body   - the caster's feet, v forward / w up / s right: the sound. (The sweep arc sprite `fx` rides the blade frame: a flat crescent in the blade's v-w cut plane, as long as the blade, spawned mid-cut.)
 #   wound  - one per victim at the victim's centre, v the way the blow came in: the hit spark and the hit sound.
 # Gameplay (hit tick, sector, damage, knockback, cooldown, cast length) is unchanged.
 apiVersion: astera/v3
@@ -92,6 +92,6 @@ machine:
             miss:
               - {id: snd_miss, op: sound, at: 2, sound: "astera:weapons/blade-miss", frame: body, detach: true}
         - {id: snd, op: sound, at: 0, sound: "astera:weapons/sword-swing", frame: body, detach: true}
-        - {id: fx, op: particle_def, at: 0, def: slash-sweep, frame: body, pos: {v: 1.4, w: 1.4}, detach: true}
+        - {id: fx, op: display, at: 0, for: 3, kind: sprite, sprite: slash, size: [1.09, 1.09], frame: blade, pos: {v: 0.55}, plane: [w, v], see_through: true, brightness: {block: 15, sky: 15}, detach: true}  # the sweep arc: a flat crescent lying in the blade's cut plane (v, w), as long as the blade, mid-cut
         - {id: trail_fx, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.05, at: 0, every: 1, for: 4, detach: true}
     end: {final: true}
