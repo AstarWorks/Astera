@@ -1,5 +1,6 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.domain.effect.ParticleColor
 import com.astarworks.astera.core.domain.effect.ParticleData
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -114,9 +115,16 @@ class ToolSkillPresentationScenarioTest {
                     }
                 }
                 val contact = calls.filter { kotlin.math.abs(it.at.z - caster.position.z - 5.65) < 0.001 && it.at.y == caster.position.y + 1.0 }
-                assertThat(contact.any { it.spec.data is ParticleData.Block && it.spec.count >= 24 })
-                    .describedAs("$skill dense body contact").isTrue()
-                if (tool == "axe") {
+                if (family == "axe-plank-wall") {
+                    assertThat(calls.map { it.spec.key }).describedAs("$skill defensive wall has no travelling crescent")
+                        .doesNotContain("sweep_attack")
+                    assertThat(calls.filter { it.spec.data is ParticleData.Block }.all { kotlin.math.abs(it.at.z - caster.position.z - 2.0) < 0.001 })
+                        .describedAs("$skill debris stays on the defensive wall").isTrue()
+                } else {
+                    assertThat(contact.any { it.spec.data is ParticleData.Block && it.spec.count >= 24 })
+                        .describedAs("$skill dense body contact").isTrue()
+                }
+                if (family == "axe-fell") {
                     assertThat(calls.any { it.spec.key == "sweep_attack" && kotlin.math.abs(it.at.z - caster.position.z - 5.1) < 0.001 })
                         .describedAs("$skill crescent ends at contact").isTrue()
                     val terminalTick = calls.filter { it.spec.key == "sweep_attack" }.maxOf { it.tick }
@@ -139,8 +147,17 @@ class ToolSkillPresentationScenarioTest {
                     assertThat(footprint.map { kotlin.math.round((it.at.y - caster.position.y) * 100) }.distinct().size)
                         .describedAs("$skill shards rise at varied heights rather than a waist belt").isGreaterThan(8)
                     assertThat(radius).describedAs("$skill 2–3 block eruption footprint").isBetween(1.99, 3.01)
-                    assertThat(calls.any { it.spec.key == "dust" && kotlin.math.abs(it.at.y - caster.position.y - 0.05) < 0.001 })
-                        .describedAs("$skill visible ground ring").isTrue()
+                    // The break_area sphere uses these shipped radii, without clamping (WorldShapes.breakCells).
+                    val hitRadius = when (tier) { "stone" -> 2.0; "iron" -> 3.0; else -> 4.0 }
+                    val ring = calls.filter { it.spec.key == "dust" && kotlin.math.abs(it.at.y - caster.position.y - 0.05) < 0.001 }
+                    assertThat(ring).describedAs("$skill visible ground ring").isNotEmpty()
+                    for (point in ring) {
+                        assertThat(kotlin.math.hypot(point.at.x - caster.position.x, point.at.z - caster.position.z - 6.0))
+                            .describedAs("$skill ground ring matches real break radius").isCloseTo(hitRadius, org.assertj.core.data.Offset.offset(0.001))
+                    }
+                    val ringColor = when (tier) { "stone" -> ParticleColor(85, 85, 85); "iron" -> ParticleColor(255, 255, 255); else -> ParticleColor(100, 245, 239) }
+                    assertThat(ring.map { (it.spec.data as ParticleData.Dust).color }.distinct()).containsExactly(ringColor)
+                    assertThat(ring.map { it.tick }.distinct()).containsExactly(firstDebrisTick, firstDebrisTick + 2, firstDebrisTick + 4, firstDebrisTick + 6)
                 }
                 // Bright cores stay on the material footprint, including the aim-point shatter.
                 val accents = calls.filter { it.spec.key == "electric_spark" }

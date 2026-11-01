@@ -16,3 +16,4 @@ with:
   core_color: "#64f5ef"
   core_size: 0.6
   bright: true
+  ring_color: "#64f5ef"

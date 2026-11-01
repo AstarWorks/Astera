@@ -15,3 +15,4 @@ with:
   chips: 5
   core_color: "#c6bda4"
   core_size: 0.45
+  ring_color: "#ffffff"
