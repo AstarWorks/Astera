@@ -2439,6 +2439,15 @@ public class TablePlayer(
                 else -> v3(live.vec(handle, "caster.${o.point}", binding, scope))
             }
             is OriginSpec.Frame -> error("a frame-point origin is read from its parent's state")
+            // the aim point: the same host query as the expression aim_point(caster, range) (first block within range, else the point at range)
+            is OriginSpec.Aim -> {
+                val range = when (val r = o.range) {
+                    is Value.Literal -> r.value
+                    is Value.ParamRef -> (paramOf(run, "param:${r.name}") as? Number)?.toDouble() ?: throw IllegalArgumentException("frame '${decl.id}': aim param '${r.name}' is not a number")
+                    is Value.Expr -> live.num(handle, "= ${r.source}", binding, scope)
+                }
+                v3(live.vec(handle, "= aim_point(caster, $range)", binding, scope))
+            }
             is OriginSpec.Victim -> v3(live.vec(handle, "victim.${o.point}", binding, scope))
             // the attacker is read as a victim of a binding made for it: the live source already knows an entity's points
             is OriginSpec.Attacker -> {
@@ -2493,7 +2502,9 @@ public class TablePlayer(
 
     /** The live instance a frame cell names: a per-victim frame keyed by the row's victim, instantiated (and evaluated) at its first read. */
     private fun frameInst(run: Run, ref: FrameRef, binding: EventBinding?): FrameInst {
-        val decl = run.cursor.skill.def.frames.firstOrNull { it.id == ref.frame }
+        val def = run.cursor.skill.def
+        val decl = def.frames.firstOrNull { it.id == ref.frame }
+            ?: ref.frame.takeIf { it in def.framesIn }?.let { FrameDecl.inbound(it) }
             ?: throw IllegalArgumentException("frame '${ref.frame}' is not declared under frames:")
         val key = when {
             decl.perVictim -> {
