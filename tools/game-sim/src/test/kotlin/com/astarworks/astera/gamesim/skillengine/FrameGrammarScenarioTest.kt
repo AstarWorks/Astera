@@ -640,6 +640,8 @@ $rows
         val frameKnock = impulses("{id: kb, op: knockback, target: event.victim, frame: f, dir: {v: 1.0}, strength: 2.0}", true)
         val worldKnock = impulses("{id: kb, op: knockback, target: event.victim, direction: [0.0, 0.0, 1.0], strength: 2.0}", false)
         assertThat(frameKnock).describedAs("knockback along frame f v (caster forward = +z)").isNotEmpty().isEqualTo(worldKnock)
+        val exprKnock = impulses("{id: kb, op: knockback, target: event.victim, frame: f, dir: {v: \"= 0.5 + 0.5\"}, strength: 2.0}", true)
+        assertThat(exprKnock).describedAs("a dir coefficient may be an '= expr' like pos: (here 1.0)").isEqualTo(frameKnock)
         val framePull = impulses("{id: pl, op: pull, target: event.victim, frame: f, dir: {v: -1.0}, distance: 1.5}", true)
         val worldPull = impulses("{id: pl, op: pull, target: event.victim, direction: [0.0, 0.0, -1.0], distance: 1.5}", false)
         assertThat(framePull).describedAs("pull along frame f -v").isNotEmpty().isEqualTo(worldPull)
@@ -810,5 +812,33 @@ $blade
         assertThat((loop as Result.Failure<SkillDecodeError>).error.message).contains("cycle")
         val ghost = skill("              - {id: blade, origin: {frame: nowhere, pos: {v: 0.6}}, v: forward, w: up, s: v x w}")
         assertThat(ghost).describedAs("a parent not under frames:").isInstanceOf(Result.Failure::class.java)
+    }
+
+    @Test
+    fun anAimOriginIsTheAimPointExpressionAndAFrameInNameIsReadByTheCallee() {
+        fun emitted(body: String, frames: String) = GatewayRecorder().also { rec ->
+            play(compiled("""
+            apiVersion: astera/v3
+            kind: Skill
+            id: aim-origin
+            frames:
+$frames
+            machine:
+              start: s
+              states:
+                s:
+                  for: 2
+                  then: end
+                  do:
+                    - $body
+                end: {final: true}
+            """), 1L, emptyList(), 4, rec)
+        }.emittedAt.filter { it.second == "flame" }.map { it.third }
+        val viaFrame = emitted("{id: p, op: particle, particle: flame, frame: aimed, count: 1, at: 0}", "              - {id: aimed, origin: {aim: 6.0}, v: aim, w: up, s: v x w}")
+        val viaExpr = emitted("{id: p, op: particle, particle: flame, frame: eye, pos: {v: \"= dist(pos(caster.eye), aim_point(caster, 6.0))\"}, count: 1, at: 0}", "              - {id: eye, origin: caster.eye, v: aim, w: up, s: v x w}")
+        assertThat(viaFrame).hasSize(1)
+        assertThat(viaFrame[0].distance(viaExpr[0])).describedAs("origin {aim: 6} is the point aim_point(caster, 6) names").isLessThan(1e-6)
+        val ranged = emitted("{id: p, op: particle, particle: flame, frame: aimed, pos: {v: 1.0}, count: 1, at: 0}", "              - {id: aimed, origin: {aim: \"= 2.0 * 3.0\"}, v: aim, w: up, s: v x w}")
+        assertThat(ranged[0].distance(viaFrame[0])).describedAs("the range may be an '= expr'; pos is along the eye's aim axis").isBetween(0.9999, 1.0001)
     }
 }

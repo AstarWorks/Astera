@@ -117,7 +117,11 @@ internal object FrameDeclDecoder {
         }
         if (raw is Map<*, *>) {
             if (on != null && !onState) ctx.fail("$p.origin", "frame '$id': an on: event frame is rooted on its victim / contact / attacker; a frame-point origin is for plain frames")
-            for (key in raw.keys) if (key != "frame" && key != "pos") ctx.abort(SkillDecodeError.UnknownKey(ctx.file, "$p.origin", key.toString(), "expected frame, pos"))
+            if (raw.keys == setOf("aim")) {
+                if (on != null) ctx.fail("$p.origin", "frame '$id': an aim origin is for plain frames (not on: event / state)")
+                return OriginSpec.Aim(com.astarworks.astera.core.application.skillengine.load.grammar.Types.number.decode(raw["aim"], ctx, "$p.origin.aim"))
+            }
+            for (key in raw.keys) if (key != "frame" && key != "pos") ctx.abort(SkillDecodeError.UnknownKey(ctx.file, "$p.origin", key.toString(), "expected frame, pos or aim"))
             val parent = raw["frame"] as? String ?: ctx.abort(SkillDecodeError.MissingField(ctx.file, "$p.origin", "frame"))
             return OriginSpec.Frame(parent, coeff(ctx, raw["pos"], "$p.origin.pos", Coeff.ZERO))
         }

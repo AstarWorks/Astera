@@ -37,7 +37,7 @@ public data class FrameRef(val frame: String, val at: Coeff, val to: Coeff? = nu
     private fun cellOf(c: Coeff): String {
         val ex = c.exprs ?: return "${FrameRefs.PREFIX}$frame${if (direction) '^' else '#'}${c.v},${c.w},${c.s}"
         // an expression cell: `frame:<id>#=<v>;<w>;<s>`, each part a CEL source or a number (CEL has no `;`)
-        return "${FrameRefs.PREFIX}$frame#=" + listOf(c.v, c.w, c.s).mapIndexed { i, n -> ex[i] ?: n.toString() }.joinToString(";")
+        return "${FrameRefs.PREFIX}$frame${if (direction) "^=" else "#="}" + listOf(c.v, c.w, c.s).mapIndexed { i, n -> ex[i] ?: n.toString() }.joinToString(";")
     }
 
     /** This reference with every coefficient expression baked for the lowered occurrence (`i`, `n`, the `rand` stream). */
@@ -63,7 +63,7 @@ public object FrameRefs {
     public val TO: Field<Coeff?> = Field.optional("to", Types.nullable(coeffType()), null, "far end {v, w, s} of a segment from pos: (with frame: and samples:)")
 
     /** `dir: {v, w, s}` field (with `frame:`): a direction (no origin) along the frame's axes, for the ops that push or aim (knockback, pull, impulse). */
-    public val DIR: Field<Coeff?> = Field.optional("dir", Types.nullable(coeffType()), null, "direction {v, w, s} along the frame's axes (with frame:)")
+    public val DIR: Field<Coeff?> = Field.optional("dir", Types.nullable(coeffType(allowExpr = true)), null, "direction {v, w, s} along the frame's axes, a number or '= expr' each (with frame:)")
 
     /** `{frame, pos}` point (ADR-0314): the one point type of a ribbon end, an area target centre or a line end. */
     public val POINT: FieldType<FramePoint> = pointType()
@@ -192,11 +192,13 @@ public object FrameRefs {
     public fun parse(name: String): FrameRef? {
         if (!name.startsWith(PREFIX)) return null
         val body = name.removePrefix(PREFIX)
-        val exprAt = body.indexOf("#=")
+        val hashExpr = body.indexOf("#=")
+        val caretExpr = body.indexOf("^=")
+        val exprAt = if (hashExpr >= 0 && (caretExpr < 0 || hashExpr < caretExpr)) hashExpr else caretExpr
         if (exprAt >= 0) {
             val parts = body.substring(exprAt + 2).split(';')
             val ex = parts.map { it.toDoubleOrNull() }
-            return FrameRef(body.substring(0, exprAt), Coeff(ex[0] ?: 0.0, ex[1] ?: 0.0, ex[2] ?: 0.0, parts.mapIndexed { i, t -> if (ex[i] == null) t else null }))
+            return FrameRef(body.substring(0, exprAt), Coeff(ex[0] ?: 0.0, ex[1] ?: 0.0, ex[2] ?: 0.0, parts.mapIndexed { i, t -> if (ex[i] == null) t else null }), direction = exprAt == caretExpr)
         }
         if ('|' in body) {
             val a = body.substringBefore('|')

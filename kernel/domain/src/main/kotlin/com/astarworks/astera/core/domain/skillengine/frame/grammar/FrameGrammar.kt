@@ -115,6 +115,12 @@ public sealed interface OriginSpec {
     /** The entity that hit the caster (`event.attacker` of the event in scope; `on: event.attacker` or `on: state.<name>`), at a victim-style point. */
     public data class Attacker(val point: String) : OriginSpec
 
+    /**
+     * The aim point (`origin: {aim: <range>}`): a ray from `caster.eye` along the look direction; the origin is the first block it hits within
+     * [range] blocks, else the point at [range]. The same semantics as the `aim_point(caster, range)` expression; [range] is a number, `${param}` or `= expr`.
+     */
+    public data class Aim(val range: com.astarworks.astera.core.domain.skillengine.model.Value<Double>) : OriginSpec
+
     /** The block contact the frame is instantiated for (`on: event.block`): the point where the projectile struck the block. */
     public data object Contact : OriginSpec
 }
@@ -199,6 +205,12 @@ public data class FrameDecl(
     fun startsOnState(path: String): Boolean = stateName?.let { path == it || path.substringAfterLast('/') == it } == true
 
     public companion object {
+        /**
+         * The frame a callee receives through `frames_in: {name: frame}`: rooted on the caller's frame the call (or `summon`) binds to [name], with
+         * the legacy placement axes (v = forward, w = up, s = left). A call renames it to the caller's frame id; a `summon` hands the callee an instance of that name.
+         */
+        public fun inbound(name: String): FrameDecl = FrameDecl(name, OriginSpec.Instance(name), AxisSpec.Named("forward"), AxisSpec.Named("up"), AxisSpec.Named("left"))
+
         public const val ON_VICTIM: String = "event.victim"
         public const val ON_BLOCK: String = "event.block"
         public const val ON_ATTACKER: String = "event.attacker"
