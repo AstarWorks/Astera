@@ -1,6 +1,6 @@
 # Mid ore nodes of siege-isles: stage-relative x/z, absolute y. Annihilation-style dense mine: emerald at the very centre, then diamond,
 # gold-tier (gold / goldheart wood / gold silt), and iron-tier (iron / ironwood / iron clay) on the rim. The pickaxe breaks the stone ores,
-# the axe the wood ones, the shovel the clay / silt ones; the wrong tool barely scratches (see content/blocks/ore-*-node.yaml).
+# the axe the wood ones, the shovel the clay / silt ones; a wrong tool class is refused (no damage) (see content/blocks/ore-*-node.yaml).
 # level_speed: break-speed multiplier by Norma level (highest key <= level; level 1 required). skill_mult: a tool skill's damage multiplier
 # (same as the Annihilation pillar tool-skill match mult). min_norma_level: below it the node takes no damage (deny sound + action bar).
 # Sizing: 92 nodes; hand mining ~3.3 hits/s, tool-skill chips scale with the skill block damage.

@@ -11,6 +11,7 @@ import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.match.MatchPhase
 import org.slf4j.LoggerFactory
 
 /**
@@ -19,7 +20,7 @@ import org.slf4j.LoggerFactory
  *
  * # What it does
  *
- * On the `MatchStarted` event the listener schedules five 1-tick-apart
+ * On the `MatchStarted` event the listener schedules five one-second-apart
  * [HudLayout.Subtitle] pushes per participant, counting down "5 → 4 → 3
  * → 2 → 1". Each push uses an i18n key
  * `astera.match.countdown.<n>` so the renderer can swap colour / sound
@@ -63,14 +64,14 @@ public class MatchCountdownListener(
     private val log = LoggerFactory.getLogger(javaClass)
 
     public fun handle(event: MatchStarted) {
-        val match = matches.findById(event.matchId) ?: return
-        val recipients = match.teams.flatMap { it.members }
-        if (recipients.isEmpty()) return
-
         for (n in COUNTDOWN_FROM downTo 1) {
             val offset = (COUNTDOWN_FROM - n).toLong() * TICKS_PER_SECOND
-            for (recipient in recipients) scheduler.run(ExecutionScope.Entity(recipient.uuid), ticks(offset)) {
-                pushCount(listOf(recipient), n, event.matchId.value)
+            // MatchStarted precedes roster entry; read the roster when this number is due.
+            scheduler.run(ExecutionScope.Global, ticks(offset)) {
+                val match = matches.findById(event.matchId)?.takeIf { it.phase != MatchPhase.ENDED } ?: return@run
+                for (recipient in match.teams.flatMap { it.members }) scheduler.run(ExecutionScope.Entity(recipient.uuid), ticks(0)) {
+                    pushCount(listOf(recipient), n, event.matchId.value)
+                }
             }
         }
     }

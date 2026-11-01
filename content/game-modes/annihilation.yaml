@@ -62,8 +62,11 @@ default_config:
   center_phase_ticks: "9600"
   escalation_phase_ticks: "7200"
   sudden_death_ticks: "6000"
-  escalation_damage_mult: "1.5"
-  sudden_death_damage_mult: "2.0"
+  # Late-game push (2026-11-02 re-tune, 24-seed massPlay): with x1.5 / x2 only 7 of 24 matches ended by elimination, the rest idled to the
+  # HP tiebreak; x2 / x3 gets 8 of 24 without moving the first tier loss (Phase 2) or the bleed. Lower tier 2/3 HP did not help (bots
+  # stop sieging a lone Tier 3), so HP stays.
+  escalation_damage_mult: "2.0"
+  sudden_death_damage_mult: "3.0"
   # Phase 5 bleed: 1% of max HP every 12 s => at most 25% of a pillar over a full 5 min (founder: bleed pressures, never decides);
   # floor 10% keeps a pillar standing; the HP tiebreak decides at expiry.
   bleed_interval_ticks: "240"

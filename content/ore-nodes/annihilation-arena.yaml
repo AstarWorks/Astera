@@ -1,7 +1,7 @@
 # Highmarch ore pockets: stage-relative x/z, absolute y; 75 nodes on quarry terrace faces and town forge banks.
 # Emerald/diamond occupy deep ledges (y51); gold/heartwood/silt the middle ledges (y56); starter ores the upper ledges (y61) and town forges (y65).
 # Large visible mineral seams surround the open pockets. The pickaxe breaks stone ores,
-# the axe the wood ones, the shovel the clay / silt ones; the wrong tool barely scratches (see content/blocks/ore-*-node.yaml).
+# the axe the wood ones, the shovel the clay / silt ones; a wrong tool class is refused (no damage) (see content/blocks/ore-*-node.yaml).
 # level_speed: break-speed multiplier by Norma level (highest key <= level; level 1 required). skill_mult: a tool skill's damage multiplier
 # (same as the Annihilation pillar tool-skill match mult). min_norma_level: below it the node takes no damage (deny sound + action bar).
 # Sizing: 75 nodes; hand mining ~3.3 hits/s, tool-skill chips scale with the skill block damage.
@@ -61,10 +61,10 @@ nodes:
     regrow_seconds: 12
     required_tier: STONE
     min_norma_level: 1
-    drops: [{ item_id: ore-iron, count: 3 }]
+    drops: [{ item_id: ore-timber, count: 3 }]
   - block: astera:ore_clay_node
     positions: [{ x: -8, y: 61, z: -33 }, { x: 33, y: 61, z: 10 }, { x: -25, y: 61, z: 23 }, { x: -7, y: 61, z: -34 }, { x: 33, y: 61, z: 11 }, { x: -26, y: 61, z: 23 }, { x: -30, y: 65, z: -92 }, { x: -28, y: 65, z: -92 }, { x: 78, y: 65, z: 24 }, { x: 78, y: 65, z: 26 }, { x: -78, y: 65, z: 84 }, { x: -78, y: 65, z: 82 }]
     regrow_seconds: 12
     required_tier: STONE
     min_norma_level: 1
-    drops: [{ item_id: ore-iron, count: 3 }]
+    drops: [{ item_id: ore-clay, count: 3 }]

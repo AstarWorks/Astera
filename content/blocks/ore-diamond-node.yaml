@@ -12,5 +12,3 @@ base_durability: 2000
 tool_effectiveness:
   "PICKAXE/IRON": 80
   "PICKAXE/DIAMOND": 200
-  "AXE/IRON": 25
-  "SHOVEL/IRON": 25

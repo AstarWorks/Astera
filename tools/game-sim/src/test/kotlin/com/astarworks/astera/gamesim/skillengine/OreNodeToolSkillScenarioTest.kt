@@ -82,17 +82,18 @@ class OreNodeToolSkillScenarioTest : SkillEngineScenario() {
             for ((x, z) in listOf(20 to 0, 4 to 0)) world.setBlock(BlockCell((origin.x + x).toInt(), 65, (origin.z + z).toInt()), "minecraft:stone")
             fun material(cell: Vec3) =sim.oreNodes.materialAt(cell.x.toInt(), cell.y.toInt(), cell.z.toInt())
 
-            // Iron node (800 HP, pickaxe): a stone pickaxe skill hit deals 100 x skill_mult 3.0 = 300; a stone axe only 15 x 3 = 45.
+            // Iron node (800 HP, pickaxe): a stone pickaxe skill hit deals 100 x skill_mult 3.0 = 300; a stone axe skill is refused (wrong tool class, node HP untouched, refusal recorded).
             val iron = Vec3(origin.x + 20, 65.0, origin.z)
             val ironOre = checkNotNull(material(iron))
             cast("stone-axe", "axe", iron, 1L)
-            assertThat(sim.oreNodes.crackAt(iron.x.toInt(), 65, iron.z.toInt())).isEqualTo(755 to 800)
+            assertThat(sim.oreNodes.crackAt(iron.x.toInt(), 65, iron.z.toInt())).isNull()
+            assertThat(sim.oreNodes.refusals).contains(Triple(iron.x.toInt(), 65, iron.z.toInt()))
             cast("stone-pickaxe", "pickaxe", iron, 2L)
-            assertThat(sim.oreNodes.crackAt(iron.x.toInt(), 65, iron.z.toInt())).isEqualTo(455 to 800)
+            assertThat(sim.oreNodes.crackAt(iron.x.toInt(), 65, iron.z.toInt())).isEqualTo(500 to 800)
             cast("stone-pickaxe", "pickaxe", iron, 3L)
             assertThat(inventory).doesNotContain("ore-iron")
             cast("stone-pickaxe", "pickaxe", iron, 4L)
-            // 455 - 300 - 300 = -145: broken -> drops arrive, the block is the placeholder, and the cast never reported BROKEN (no revert).
+            // 500 - 300 - 300 = -100: broken -> drops arrive, the block is the placeholder, and the cast never reported BROKEN (no revert).
             assertThat(inventory).contains("ore-iron")
             assertThat(material(iron)).isNotEqualTo(ironOre)
             advance(20 * 20 + 5)

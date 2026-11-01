@@ -73,7 +73,7 @@ class OreRefusalFeedbackScenarioTest {
             fun puffs() = sim.oreNodes.refusals.size
             fun cracked(c: Vec3) = sim.oreNodes.crackAt(c.x.toInt(), c.y.toInt(), c.z.toInt())
             val needsTier = OreNodeService.NEEDS_TIER.value
-            val wrongTool = OreNodeService.WRONG_TOOL.value
+            val wrongTool = OreNodeService.wrongToolKey(ToolKind.PICKAXE).value
             advance(25)
 
             // Hand, tier too low (bare hand): line + cue + puff, no damage.
@@ -93,31 +93,12 @@ class OreRefusalFeedbackScenarioTest {
             assertThat(puffs()).isEqualTo(2)
             assertThat(cracked(cells[0])).isNull()
 
-            // Wrong tool: shipped ore blocks give every tool class a (weak) entry, so derive a node the pickaxe cannot hurt from the real
-            // iron spec (axe-only affinity) and run it through a service wired like the real one.
-            val axeOnly = spec.copy(hitDamage = spec.hitDamage.filterKeys { it.kind == ToolKind.AXE })
+            // Wrong tool: the shipped iron node is a pickaxe node with no entry for other classes, so an axe is refused (the hint names the pickaxe).
             val wrongCell = cells[1]
-            val map = ConcurrentHashMap<OreNodeService.Key, OreNodeService.Node>()
-            map[OreNodeService.Key(worldId.value, wrongCell.x.toInt(), wrongCell.y.toInt(), wrongCell.z.toInt())] =
-                OreNodeService.Node(matchId, worldId, wrongCell, axeOnly)
-            val variant = OreNodeService(
-                registry = sim.services.getOrThrow<IOreNodeRegistry>(),
-                stages = null,
-                matchWorlds = sim.services.getOrThrow<IMatchWorldRepository>(),
-                customBlocks = customBlocks,
-                items = sim.services.getOrThrow<IItemRegistry>(),
-                delivery = { sim.services.get(IItemDelivery::class) },
-                server = sim.services.getOrThrow<IMcServer>(),
-                world = sim.oreNodes,
-                scheduler = sim.scheduler,
-                properToolOf = properTools::get,
-                sounds = { sim.services.get(ISoundCuePlayer::class) },
-                nodes = map,
-            )
 
-            // Hand, wrong tool (stone pickaxe on an axe-only node).
+            // Hand, wrong tool (stone axe on the pickaxe node).
             advance(20)
-            assertThat(variant.mine(red.id, worldId, wrongCell, ItemId("stone-pickaxe"))).isEqualTo(OreNodeService.Outcome.WrongTool)
+            assertThat(nodes.mine(red.id, worldId, wrongCell, ItemId("stone-axe"))).isEqualTo(OreNodeService.Outcome.WrongTool)
             assertThat(bars(wrongTool)).isEqualTo(1)
             assertThat(cues()).isEqualTo(3)
             assertThat(puffs()).isEqualTo(3)
@@ -125,8 +106,8 @@ class OreRefusalFeedbackScenarioTest {
 
             // Skill, wrong tool.
             advance(20)
-            val stone = ToolType(ToolKind.PICKAXE, ToolTier.STONE)
-            assertThat(variant.strike(red.id, worldId, wrongCell, stone, 100)).isEqualTo(IOreNodeStrikes.Result.NONE)
+            val stone = ToolType(ToolKind.AXE, ToolTier.STONE)
+            assertThat(nodes.strike(red.id, worldId, wrongCell, stone, 100)).isEqualTo(IOreNodeStrikes.Result.NONE)
             assertThat(bars(wrongTool)).isEqualTo(2)
             assertThat(cues()).isEqualTo(4)
             assertThat(puffs()).isEqualTo(4)

@@ -1,6 +1,8 @@
 package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.bots.ModePlanner
+import com.astarworks.astera.bots.PlayerView
+import com.astarworks.astera.bots.SnapshotModeFacts
 import com.astarworks.astera.bots.StageObjectives
 import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
@@ -80,10 +82,8 @@ class SiegeModesScenarioTest {
     /** Waits for [victim] to respawn (alive again), then puts them at [at] without announcing a move. */
     private fun ScenarioScope.respawnAt(victim: SimEntity, at: Vec3) {
         check(advanceUntil(600) { sim.isAlive(victim.id) }) { "${victim.name} did not respawn" }
-        // Status effects outlive the respawn: let a leftover burn tick out (it can kill again).
-        advance(120)
-        check(advanceUntil(600) { sim.isAlive(victim.id) }) { "${victim.name} did not respawn" }
-        victim.position = at
+        // Publish the move as a real client does, so objective polling sees the new position too.
+        victim.moveTo(at)
     }
 
     /** Walks [who] to [at] and stays there long enough for a pickup / deposit channel (default 15 ticks) to complete. */
@@ -146,8 +146,8 @@ class SiegeModesScenarioTest {
             guard.moveTo(nowhere)
 
             // drop_return_seconds: nobody takes it, it goes back to the CENTRE (not a checkpoint) with a fresh shield.
-            advance(20 * 14)
             respawnAt(runner, nowhere)
+            advance(20 * 14)
             val shield = (snapshotOf("carry-tnt", matchId) as ObjectiveSnapshot.Rainmaker)
             assertThat(shield.shieldHp).`as`("the returned TNT is shielded again").isEqualTo(shield.shieldMax)
             takeTnt(runner, spawn.spot(), matchId)
@@ -318,9 +318,14 @@ class SiegeModesScenarioTest {
         scenario("siege-steal-jewelry-bot-repick") {
             val runner = player("runner", at = nowhere)
             val keeper = player("keeper", at = nowhere)
-            startMatch("steal-jewelry", mapOf(runner to "red", keeper to "blue"), stage = "siege-isles-jewelry")
+            val matchId = startMatch("steal-jewelry", mapOf(runner to "red", keeper to "blue"), stage = "siege-isles-jewelry")
             val src = checkNotNull(StageObjectives.load(GameSim.defaultContentDir().toFile(), "steal-jewelry")) { "stage did not load" }
-            val plan = ModePlanner("steal-jewelry", "runner", "red", listOf("blue"), checkNotNull(src.zones()))
+            val query = sim.services.getOrThrow<IGameModeFrameworkRegistry>().get(GameModeId("steal-jewelry")) as IObjectiveStateQuery
+            val facts = SnapshotModeFacts(
+                snapshot = { query.objectiveSnapshot(matchId) },
+                players = { id -> sim.world.find(id)?.let { PlayerView(it.name, it.team?.value, it.position.x, it.position.z) } },
+            )
+            val plan = ModePlanner("steal-jewelry", "runner", "red", listOf("blue"), checkNotNull(src.zones()), facts = facts)
             var now = 0L
             var held = 0
             var confirmed = 0
@@ -338,6 +343,10 @@ class SiegeModesScenarioTest {
 
             repeat(40) { if (sim.objectiveStage.carrying(runner.id) == null) round() }
             assertThat(sim.objectiveStage.carrying(runner.id)).`as`("the bot stole a jewel").isNotNull()
+            // Let the planner observe the server's pickup confirmation before reporting its death.
+            val carried = sim.objectiveStage.carriedCount(runner.id)
+            plan.step(now, runner.position.x, runner.position.z)
+            assertThat(plan.carried).isEqualTo(carried)
 
             keeper.holds("pistol")
             keeper.moveTo(Vec3(runner.position.x, 65.0, runner.position.z + 10.0))

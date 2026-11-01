@@ -188,7 +188,7 @@ class MidMatchReconnectScenarioTest {
             assertThat(sessions.find(red.id)?.state).isEqualTo(SessionState.InMatch)
             assertThat(protection.isProtected(red.id)).isTrue()
             val sidebar = checkNotNull(sim.hud.sidebar(red.id)) { "no sidebar after the rejoin" }
-            assertThat(sidebar.titleKey.value).`as`("match sidebar, not the lobby one").isEqualTo("astera.gamemode.norma.title")
+            assertThat(sidebar.titleKey.value).`as`("match sidebar, not the lobby one").isEqualTo("astera.gamemode.carry-tnt.title")
             assertThat(sim.match.matches.findById(matchId)?.teams?.first { red.id in it.members }?.id).isEqualTo(TeamId("red"))
         }
     }
@@ -204,16 +204,20 @@ class MidMatchReconnectScenarioTest {
             advance(25)
 
             val lines = sim.hud.sidebarText(red.id)
-            assertThat(lines).`as`("goal line").anyMatch { it.startsWith("astera.hud.sidebar.norma.goal") && "max=5" in it }
-            assertThat(lines.filter { it.startsWith("astera.hud.sidebar.norma.team") })
-                .`as`("one kill line per team").hasSize(2).allMatch { "score=0" in it }
+            assertThat(lines).`as`("goal line").anyMatch { it.startsWith("astera.hud.sidebar.level") && "level=1,max=5" in it }
+            assertThat(lines.filter { it.startsWith("astera.hud.sidebar.count{") })
+                .`as`("one objective count per team").hasSize(2).allMatch { "count=100" in it }
+            assertThat(lines).contains("astera.hud.sidebar.kd{kills=0,deaths=0}")
 
             // Kills alone never end the match: twenty kills by red leave it running (no kill-count victory).
             val bus = sim.services.getOrThrow<IDomainEventBus>()
             repeat(20) { bus.publish(PlayerKilled(blue.id, red.id, DamageSource.Environment.Fall(1.0), sim.tick)) }
             advance(20)
             assertThat(eventsOf<MatchEnded>().none { it.matchId == matchId }).`as`("20 kills ended the match").isTrue()
-            assertThat(sim.match.matches.findById(matchId)?.score?.valueFor(TeamId("red"))).`as`("kills still counted").isEqualTo(20)
+            assertThat(sim.services.getOrThrow<com.astarworks.astera.match.application.port.outbound.IMatchNormaStore>().get(matchId, red.id).totalKills)
+                .`as`("kills still counted independently of the objective score").isEqualTo(20)
+            assertThat(sim.match.matches.findById(matchId)?.score?.valueFor(TeamId("red"))).`as`("kills do not score objective points").isZero()
+            assertThat(sim.hud.sidebarText(red.id)).contains("astera.hud.sidebar.kd{kills=20,deaths=0}")
 
             // Reaching the top Norma level only stops levelling (ADR-0288); the match keeps running.
             val stars = sim.services.getOrThrow<IMatchStarStore>()
@@ -221,7 +225,9 @@ class MidMatchReconnectScenarioTest {
             repeat(4) {
                 bus.publish(StarsCollected(matchId, red.id, 1, stars.get(matchId, red.id)))
                 advance(2)
+                normaCheckAtHome(matchId, red)
             }
+            assertThat(sim.services.getOrThrow<com.astarworks.astera.match.application.port.outbound.IMatchNormaStore>().get(matchId, red.id).level).isEqualTo(5)
             advance(20)
             assertThat(eventsOf<MatchEnded>().none { it.matchId == matchId }).`as`("the top Norma level ended the match").isTrue()
         }

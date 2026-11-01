@@ -220,10 +220,10 @@ class AnnihilationPhaseFlowScenarioTest {
             assertThat(base).isGreaterThan(0.0)
 
             assertThat(advanceUntil(600) { clock.current(matchId)?.phase == NexusPhase.Phase4Escalation }).isTrue()
-            assertThat(checkNotNull(hit(matchId, red, "blue", NexusPillarTier.TIER_1))).`as`("phase 4: x1.5").isEqualTo(base * 1.5)
+            assertThat(checkNotNull(hit(matchId, red, "blue", NexusPillarTier.TIER_1))).`as`("phase 4: x2").isEqualTo(base * 2.0)
 
             assertThat(advanceUntil(600) { clock.current(matchId)?.phase == NexusPhase.Phase5SuddenDeath }).isTrue()
-            assertThat(checkNotNull(hit(matchId, red, "yellow", NexusPillarTier.TIER_1))).`as`("phase 5: x2").isEqualTo(base * 2.0)
+            assertThat(checkNotNull(hit(matchId, red, "yellow", NexusPillarTier.TIER_1))).`as`("phase 5: x3").isEqualTo(base * 3.0)
 
             // 10% of max HP per 20 ticks, floor 10%: a few intervals later every standing pillar sits at the floor, none is destroyed.
             advance(300)
