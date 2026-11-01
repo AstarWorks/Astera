@@ -54,12 +54,21 @@ public data class StarGenerator(
     val dropItem: String? = null,
     /** Wave mode (a Mid wave generator) instead of the periodic pop, or `null`. */
     val wave: StarWave? = null,
+    /**
+     * Candidate pop positions (`spots:` in the YAML): each pop of a timer generator lands on the next spot of a seeded
+     * rotation (never the same one twice in a row), at most one uncollected star per spot. Empty = the single [position].
+     * For a cache generator these are the one-shot cache spots.
+     */
+    val spots: List<Vec3> = emptyList(),
+    /** Exploration cache mode (the `spots` are caches that refill on a timer) instead of the periodic pop, or `null`. */
+    val cache: com.astarworks.astera.match.domain.star.StarCache? = null,
 ) {
     init {
         require(amount >= 1) { "StarGenerator.amount must be >= 1 (was $amount)" }
         require(stockpileCap >= 1) { "StarGenerator.stockpileCap must be >= 1 (was $stockpileCap)" }
         require(lateGameMultiplier >= 1.0) { "StarGenerator.lateGameMultiplier must be >= 1 (was $lateGameMultiplier)" }
         require(pickupRadius > 0.0) { "StarGenerator.pickupRadius must be > 0 (was $pickupRadius)" }
+        require(cache == null || spots.isNotEmpty()) { "a cache generator needs spots" }
         require(period.isPositive()) { "StarGenerator.period must be positive (was $period)" }
     }
 

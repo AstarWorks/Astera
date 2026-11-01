@@ -92,7 +92,12 @@ internal object MatchPaperBindings {
         // WP10: enemy block breaks on Annihilation pillar blocks damage the pillar.
         PaperPillarBlockListener(wired.pillarTargets).start(plugin, listeners)
         // Mid ore nodes: tier-gated mining with regrow.
-        com.astarworks.astera.match.adapter.paper.PaperOreNodeListener { ctx.services.get<com.astarworks.astera.match.application.service.OreNodeService>() }.start(plugin, listeners)
+        com.astarworks.astera.match.adapter.paper.PaperOreNodeListener(
+            { ctx.services.get<com.astarworks.astera.match.application.service.OreNodeService>() },
+            { ctx.services.get<com.astarworks.astera.match.application.service.StarActionService>() },
+        ).start(plugin, listeners)
+        // Star economy (ADR-0318): breaking a content-listed block pays stars within the per-player cap.
+        com.astarworks.astera.match.adapter.paper.PaperStarBlockListener { ctx.services.get<com.astarworks.astera.match.application.service.StarActionService>() }.start(plugin, listeners)
         // Game servers: lobby hand-off arrivals appear on their team's arena spawn and are shielded until start.
         ctx.services.get(com.astarworks.astera.match.application.service.matchmaking.IArrivalSpawns::class)
             ?.let { com.astarworks.astera.match.adapter.paper.PaperArrivalSpawnListener(it).start(plugin, listeners) }
