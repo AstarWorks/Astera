@@ -118,6 +118,10 @@ fun main(args: Array<String>) {
         ImageIO.write(ArenaRenderer.top(stage, plan), "png", out.resolve("${stage.id.value}-top.png").toFile())
         ImageIO.write(ArenaRenderer.iso(stage, plan), "png", out.resolve("${stage.id.value}-iso.png").toFile())
         ImageIO.write(ArenaRenderer.section(stage, plan), "png", out.resolve("${stage.id.value}-section.png").toFile())
+        if (stage.id.value == "annihilation-arena") {
+            ImageIO.write(ArenaRenderer.perspective(plan, false), "png", out.resolve("annihilation-arena-perspective.png").toFile())
+            ImageIO.write(ArenaRenderer.perspective(plan, true), "png", out.resolve("annihilation-arena-eye.png").toFile())
+        }
         layout.islands.firstOrNull { it.kind == com.astarworks.astera.core.domain.stage.ArenaIslandKind.CENTER }?.let { hub ->
             val peak = plan.blocks.keys.filter { Math.hypot((it.x - hub.x).toDouble(), (it.z - hub.z).toDouble()) <= hub.radius }.maxByOrNull { it.y }
             if (peak != null) println("  hub r=${hub.radius} landmark top (${peak.x}, ${peak.y}, ${peak.z})")
