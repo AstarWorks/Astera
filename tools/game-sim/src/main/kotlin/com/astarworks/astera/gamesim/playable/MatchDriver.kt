@@ -3,7 +3,9 @@ package com.astarworks.astera.gamesim.playable
 import com.astarworks.astera.bots.BotBrain
 import com.astarworks.astera.bots.BotSkill
 import com.astarworks.astera.bots.StageObjectives
+import com.astarworks.astera.core.application.port.outbound.IBotPlayers
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
+import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.application.service.InMemoryPlayerInventorySnapshotRepository
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.Result
@@ -138,6 +140,8 @@ class MatchDriver private constructor(
             val sim = GameSim.boot("playable-${config.mode}", seed = config.seed, snapshots = InMemoryPlayerInventorySnapshotRepository())
             try {
                 val stage = checkNotNull(sim.services.getOrThrow<IStageRegistry>().find(StageId(config.stage))) { "unknown stage ${config.stage}" }
+                // The server-side base-shop buyer (EconomyWiring) only serves accounts this port calls bots, as on the live server.
+                sim.services.register<IBotPlayers>(IBotPlayers { id -> sim.world.find(id)?.name?.startsWith("Bot_") == true })
                 val terrain = SimTerrainLoader.load(sim, stage, contentDir)
                 val hub = SimHostHub(sim, terrain)
 
