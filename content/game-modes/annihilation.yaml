@@ -6,10 +6,13 @@
 # Wave 5combat-depth combo + focus-fire + target-lock integration.
 #
 # Lifecycle:
-#   Phase 1 Build (60 s playtest value; was 5 min): pillars BUILDING, immune to damage; resource gathering.
-#   Phase 2 Engage (10 min): Tier 1 pillars VULNERABLE. Combat opens.
-#   Phase 3 Tier 3 (5 min): Tier 2 + 3 pillars VULNERABLE. Killing Tier 3 eliminates team.
-#   Phase 4 Sudden Death (60 sec): DoT on surviving Tier 3s + HP-tiebreaker on expiry.
+# Five phases (ADR-0319), ~28 min + at most 5 min sudden death for 12 players:
+#   Phase 1 Build   (6 min): pillars BUILDING, immune; base ores open, the Mid is closed (content/ore-nodes phase_gates).
+#   Phase 2 Engage  (8 min): Tier 1 pillars VULNERABLE; Mid outer ring (gold, diamond) opens.
+#   Phase 3 Center  (8 min): Tier 2 + 3 pillars VULNERABLE; Mid core (emerald) opens. Killing Tier 3 eliminates the team.
+#   Phase 4 Escalation (6 min): pillar damage x escalation_damage_mult.
+#   Phase 5 Sudden Death (<= 5 min): pillar damage x sudden_death_damage_mult + bleed (every bleed_interval_ticks each pillar
+#     loses bleed_percent of its max HP, never below bleed_floor_percent); on expiry the HP tiebreak decides.
 #
 # Per-tier debuffs (applied when the owning team loses the pillar):
 #   Tier 1 lost → respawn delay +2 sec.
@@ -50,10 +53,17 @@ default_config:
   pillar_weapon_mult: "0.18"
   pillar_falloff_near: "8.0"
   pillar_falloff_far: "32.0"
-  build_phase_ticks: "1200"
-  engage_phase_ticks: "12000"
-  tier3_phase_ticks: "6000"
-  sudden_death_ticks: "1200"
-  sudden_death_dot_per_tick: "5"
+  # Phase lengths in ticks (20 = 1 s): 6 / 8 / 8 / 6 min, then sudden death 5 min.
+  build_phase_ticks: "7200"
+  engage_phase_ticks: "9600"
+  center_phase_ticks: "9600"
+  escalation_phase_ticks: "7200"
+  sudden_death_ticks: "6000"
+  escalation_damage_mult: "1.5"
+  sudden_death_damage_mult: "2.0"
+  # Phase 5 bleed: 10% of max HP every 30 s, floor 10% => a pillar bottoms out after ~9 bleeds; the HP tiebreak then decides.
+  bleed_interval_ticks: "600"
+  bleed_percent: "10"
+  bleed_floor_percent: "10"
   respawn_delay_seconds_tier1_lost: "2"
   resource_regen_mult_tier2_lost: "0.5"

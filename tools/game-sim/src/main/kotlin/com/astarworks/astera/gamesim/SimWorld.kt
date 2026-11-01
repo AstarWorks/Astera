@@ -97,13 +97,25 @@ public class SimWorld(
 
     public fun byName(name: String): SimEntity? = byId.values.firstOrNull { it.name == name }
 
+    /** Packed (x, y, z) of every placed block per world: the O(1) occupancy lookup walking bots plan on (thousands of probes per path search). */
+    private val occupied: MutableMap<String, MutableSet<Long>> = mutableMapOf()
+
     public fun placeBlock(world: WorldId, at: Vec3, type: BlockType) {
         blocks[key(world, at)] = type
+        occupied.getOrPut(world.value) { hashSetOf() }.add(pack(floor(at.x), floor(at.y), floor(at.z)))
     }
 
     public fun removeBlock(world: WorldId, at: Vec3) {
         blocks.remove(key(world, at))
+        occupied[world.value]?.remove(pack(floor(at.x), floor(at.y), floor(at.z)))
     }
+
+    /** Whether any block is placed in the cell ([x], [y], [z]) of [world]. */
+    public fun isOccupied(world: WorldId, x: Int, y: Int, z: Int): Boolean =
+        occupied[world.value]?.contains(pack(x, y, z)) == true
+
+    private fun pack(x: Int, y: Int, z: Int): Long =
+        ((x.toLong() and 0x3FFFFFF) shl 38) or ((z.toLong() and 0x3FFFFFF) shl 12) or ((y + 2048).toLong() and 0xFFF)
 
     public fun blockAt(world: WorldId, at: Vec3): BlockType? = blocks[key(world, at)]
 
@@ -144,6 +156,15 @@ public class SimMcPlayer(private var entity: SimEntity) : IMcPlayer {
     public fun receive(item: ItemId) {
         givenItems += item.value
         if (entity.heldItem == null) entity.heldItem = item
+    }
+
+    /** Swaps the first [from] for [to] in the same position (and in hand); `false` when [from] is not carried. */
+    public fun replaceItem(from: ItemId, to: ItemId): Boolean {
+        val index = givenItems.indexOf(from.value)
+        if (index < 0) return false
+        givenItems[index] = to.value
+        if (entity.heldItem == from) entity.heldItem = to
+        return true
     }
 
     override fun heldItemMaterialKey(): String? = entity.heldItem?.value

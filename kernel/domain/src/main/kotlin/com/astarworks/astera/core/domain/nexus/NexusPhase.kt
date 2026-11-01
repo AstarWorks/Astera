@@ -1,119 +1,90 @@
 package com.astarworks.astera.core.domain.nexus
 
 /**
- * Lifecycle phases of an Astera Annihilation match (ADR-0108, Wave 5annihilation).
+ * Lifecycle phases of an Astera Annihilation match (ADR-0108, reshaped by ADR-0319).
  *
  * Lives in `core.domain.nexus.*` rather than `match.domain.gamemode.*`
- * because the phase enum is consumed by Core domain events
+ * because the phase is consumed by Core domain events
  * ([com.astarworks.astera.core.domain.event.AnnihilationPhaseTransitioned])
  * — Core can't import from Match.
  *
- * Hypixel Annihilation has 5 phases (Phase 1 build / Phase 2 spread / Phase 3
- * tier-2 weapons / Phase 4 nexus exposed / Phase 5 sudden death). Astera
- * collapses to **4 phases** that map cleanly onto the 3-pillar structure +
- * a final sudden-death window:
+ * Five phases, Shotbow-style (lengths and multipliers live in `content/game-modes/annihilation.yaml`;
+ * defaults: 6 / 8 / 8 / 6 min + at most 5 min of sudden death):
  *
- *  1. **[Phase1Build]** — Pillars are [NexusState.BUILDING], immune to
- *     damage. Players gather resources (Star + per-weapon Ammo/Stamina/Mana)
- *     and set up defenses. Default duration: 5 minutes (configurable via
- *     `content/game-modes/annihilation.yaml`).
- *  2. **[Phase2Engage]** — All Tier 1 pillars open ([NexusState.VULNERABLE]).
- *     Standard combat phase. Default duration: 10 minutes. May exit early
- *     if any team loses its Tier 1 + Tier 2 pillars (cascades to Phase 3).
- *  3. **[Phase3Tier3]** — Tier 3 pillars (the Nexus proper) unlock. Killing
- *     these eliminates the owning team. The phase exit condition is
- *     "at most one team has a surviving Tier 3" — that team wins.
- *  4. **[Phase4SuddenDeath]** — Final 60-second window (configurable). All
- *     remaining Tier 3 pillars take damage-over-time so a stalled match
- *     forces a resolution. If the timer expires with multiple teams alive,
- *     the team with the most aggregate surviving HP wins (tiebreaker:
- *     fewest pillars destroyed; final tiebreaker: draw).
+ *  1. **[Phase1Build]** — pillars are [NexusState.BUILDING] (immune). Base ores are open, the Mid is closed.
+ *  2. **[Phase2Engage]** — Tier 1 pillars open ([NexusState.VULNERABLE]); the Mid outer ring (gold, diamond) opens.
+ *  3. **[Phase3Center]** — Tier 2 + 3 pillars open; the Mid core (emerald) opens.
+ *  4. **[Phase4Escalation]** — pillar damage is multiplied (default x1.5).
+ *  5. **[Phase5SuddenDeath]** — pillar damage multiplied again (default x2) and every pillar bleeds HP on an
+ *     interval down to a floor; on expiry the HP tiebreak decides.
  *
- * ## Why a sealed interface (not enum)?
- *
- * Phase 2+ may introduce per-phase typed parameters (e.g. `Phase4SuddenDeath`
- * carries the configured DoT rate; `Phase3Tier3` carries the surviving-team
- * threshold). A sealed interface keeps the phase-id surface stable while
- * letting per-phase config live on its own subclass. Phase 1 PoC ships the
- * four bare data objects — config lives in `AnnihilationConfig` (Match
- * domain) and the phase variants stay parameterless until a real need
- * surfaces.
+ * Which Mid ore opens in which phase is authored per ore-node file (`phase_gates`), keyed by [number].
  *
  * ## Relation to [com.astarworks.astera.core.domain.match.MatchPhase]
  *
- * The Core `MatchPhase` enum is the generic match-state-machine vocabulary
- * (`WAITING`/`COUNTDOWN`/`ACTIVE`/`SUDDEN_DEATH`/`ENDED`). Annihilation maps:
- *
- *   MatchPhase                | NexusPhase
- *   --------------------------+------------------------------
- *   WAITING / COUNTDOWN        | (pre-match; no NexusPhase)
- *   ACTIVE (first 5 min)       | Phase1Build
- *   ACTIVE (5–15 min)          | Phase2Engage
- *   ACTIVE (15 min+)           | Phase3Tier3
- *   SUDDEN_DEATH               | Phase4SuddenDeath
- *   ENDED                      | (post-match; no NexusPhase)
- *
- * The two enums coexist because `MatchPhase` is global (every match mode
- * runs through the state machine; Norma uses it too) and `NexusPhase` is
- * Annihilation-specific. The match-side `AnnihilationGameMode` translates
- * between them at the [IGameMode] hooks.
+ * `MatchPhase` is the generic match state machine (`WAITING`/`COUNTDOWN`/`ACTIVE`/`SUDDEN_DEATH`/`ENDED`);
+ * `NexusPhase` is Annihilation-specific and runs inside `ACTIVE`.
  */
 public sealed interface NexusPhase {
 
-    /** Stable string id for logging / persistence / YAML. */
+    /** Stable string id for logging / persistence / i18n keys. */
     public val id: String
 
-    /**
-     * Phase 1: build window. Pillars [NexusState.BUILDING]; immune to damage.
-     * Players gather Star + resources and set up base defenses.
-     */
+    /** 1-based position in [ordered]; the value `phase_gates` in ore-node files uses. */
+    public val number: Int
+
+    /** Phase 1: pillars immune, Mid closed. */
     public data object Phase1Build : NexusPhase {
         override val id: String = "build"
+        override val number: Int = 1
     }
 
-    /**
-     * Phase 2: standard combat. Tier 1 pillars open
-     * ([NexusState.VULNERABLE]); Tier 2/3 remain in [NexusState.BUILDING].
-     */
+    /** Phase 2: Tier 1 pillars vulnerable, Mid outer ring open. */
     public data object Phase2Engage : NexusPhase {
         override val id: String = "engage"
+        override val number: Int = 2
     }
 
-    /**
-     * Phase 3: Tier 3 pillars unlock. Killing a team's Tier 3 eliminates it.
-     */
-    public data object Phase3Tier3 : NexusPhase {
-        override val id: String = "tier3"
+    /** Phase 3: Tier 2 + 3 pillars vulnerable, Mid core open. */
+    public data object Phase3Center : NexusPhase {
+        override val id: String = "center"
+        override val number: Int = 3
     }
 
-    /**
-     * Phase 4: sudden-death window. All surviving Tier 3 pillars take
-     * configurable DoT; timer expiry triggers HP-based tiebreaker.
-     */
-    public data object Phase4SuddenDeath : NexusPhase {
+    /** Phase 4: pillar damage multiplied. */
+    public data object Phase4Escalation : NexusPhase {
+        override val id: String = "escalation"
+        override val number: Int = 4
+    }
+
+    /** Phase 5: larger damage multiplier + pillar bleed; timer expiry triggers the HP tiebreak. */
+    public data object Phase5SuddenDeath : NexusPhase {
         override val id: String = "sudden-death"
+        override val number: Int = 5
     }
 
     public companion object {
 
-        /** Canonical Phase 1 → Phase 4 ordering. */
+        /** Canonical Phase 1 -> Phase 5 ordering. */
         public fun ordered(): List<NexusPhase> = listOf(
-            Phase1Build, Phase2Engage, Phase3Tier3, Phase4SuddenDeath,
+            Phase1Build, Phase2Engage, Phase3Center, Phase4Escalation, Phase5SuddenDeath,
         )
 
         /** Resolve a phase from its [NexusPhase.id]; null on unknown input. */
         public fun byId(id: String): NexusPhase? =
             ordered().firstOrNull { it.id == id }
 
-        /**
-         * Linear forward-only successor. Returns null at [Phase4SuddenDeath]
-         * (no successor — match ends from there).
-         */
+        /** Resolve a phase from its [NexusPhase.number]; null on unknown input. */
+        public fun byNumber(number: Int): NexusPhase? =
+            ordered().firstOrNull { it.number == number }
+
+        /** Linear forward-only successor. Returns null at [Phase5SuddenDeath] (the match ends from there). */
         public fun next(phase: NexusPhase): NexusPhase? = when (phase) {
             Phase1Build -> Phase2Engage
-            Phase2Engage -> Phase3Tier3
-            Phase3Tier3 -> Phase4SuddenDeath
-            Phase4SuddenDeath -> null
+            Phase2Engage -> Phase3Center
+            Phase3Center -> Phase4Escalation
+            Phase4Escalation -> Phase5SuddenDeath
+            Phase5SuddenDeath -> null
         }
     }
 }

@@ -25,7 +25,11 @@ public class MatchShopPurchaseUseCase(
     /** `true` while [PlayerId] is playing a match. */
     private val inMatch: (PlayerId) -> Boolean,
 ) {
-    public fun execute(playerId: PlayerId, offer: MatchShopOffer): Result<MatchShopReceipt, MatchShopError> {
+    /**
+     * [handIn] = lower-tier armour pieces the buyer swaps out for [offer]: they are taken after the price and only once the
+     * purchase is certain to go through, and are given back if the delivery fails, so a failed purchase never leaves a slot empty.
+     */
+    public fun execute(playerId: PlayerId, offer: MatchShopOffer, handIn: List<ItemId> = emptyList()): Result<MatchShopReceipt, MatchShopError> {
         val player = server.findPlayer(playerId) ?: return Result.failure(MatchShopError.PlayerNotOnline)
         if (!inMatch(playerId)) return Result.failure(MatchShopError.NotInMatch)
         val spec = itemRegistry.find(offer.itemId)
@@ -51,9 +55,15 @@ public class MatchShopPurchaseUseCase(
             taken.forEach { refund(items, player, it) }
             return Result.failure(MatchShopError.MissingBaseItem(base))
         }
+        val handedIn = mutableListOf<ItemId>()
+        for (old in handIn) {
+            if (owned.remove(playerId, old, 1)) handedIn += old
+        }
+        fun restore() = handedIn.forEach { id -> itemRegistry.find(id)?.let { items.give(player, it, 1) } }
         return when (val given = items.give(player, spec, offer.stack, ItemOrigin.EQUIP_IF_FREE)) {
             is DeliveryResult.Delivered, is DeliveryResult.InventoryFull -> Result.success(MatchShopReceipt(offer.itemId, offer.stack, offer.price))
             is DeliveryResult.UnknownTemplate -> {
+                restore()
                 taken.forEach { refund(items, player, it) }
                 base?.let { itemRegistry.find(it) }?.let { items.give(player, it, 1) }
                 Result.failure(MatchShopError.DeliveryFailed("Item template '${given.templateKey}' cannot be materialized"))

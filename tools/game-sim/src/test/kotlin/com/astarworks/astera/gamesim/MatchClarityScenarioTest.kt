@@ -131,7 +131,8 @@ class MatchClarityScenarioTest {
             advance(45)
             onTheMove(red, blue, yellow)
             assertThat(sim.hologramGuide.guideOf(red.id)).`as`("compass not held: no guide").isNull()
-            assertThat(sim.hud.changes(red.id, HudRegion.ACTION_BAR).size).`as`("compass not held: no arrow").isEqualTo(arrowsBefore)
+            assertThat(sim.hud.changes(red.id, HudRegion.ACTION_BAR).drop(arrowsBefore).mapNotNull { (it.layout as? com.astarworks.astera.core.domain.hud.HudLayout.ActionBar)?.component }.map { SimHudRecorder.describe(it) })
+                .`as`("compass not held: text-only hints, no arrow").noneMatch { Regex("arrow=[^,}]").containsMatchIn(it) }
 
             // Held: both appear.
             sim.matchCompass.select(red.id, true)

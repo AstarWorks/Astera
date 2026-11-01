@@ -42,6 +42,12 @@ fun interface ObjectiveSource {
     /** Star generator pedestals (x, z) of the stage, where stars wait to be picked up. */
     fun starPoints(): List<Pair<Double, Double>> = emptyList()
 
+    /** One exploration cache spot (ADR-0318): refills [respawnMs] after it was opened. Stage-local coordinates. */
+    class CachePoint(val x: Double, val y: Double, val z: Double, val respawnMs: Long)
+
+    /** Exploration caches of the stage; empty = none. */
+    fun cachePoints(): List<CachePoint> = emptyList()
+
     fun routeGraph(): ArenaRouteGraph? = null
 
     /**
@@ -89,6 +95,8 @@ class BotBrain(
     private val modeId: String? = null,
     /** Aim-error / jitter source; the default seeds from the bot name (live bots), a sim passes its own. */
     private val rnd: Random = Random(bot.name.hashCode().toLong()),
+    /** What extra skills each item casts, derived from the shipped content ([ItemSkillCatalog]); null = no content, no extra skills. */
+    private val itemSkills: ItemSkillCatalog? = null,
 ) : AutoCloseable {
 
     enum class Mode { IDLE, FIGHT }
@@ -172,10 +180,17 @@ class BotBrain(
     private var dwellUntil = 0L
     /** Stage-local generator points shifted to the slot the bot plays in (set at each spawn). */
     private var starPoints: List<Pair<Double, Double>> = emptyList()
+    /** Cache spots shifted to the slot, and when each was last visited (a cache is empty until its respawn has passed). */
+    private var cachePoints: List<ObjectiveSource.CachePoint> = emptyList()
+    private val cacheVisitedAt = HashMap<Int, Long>()
     private val visitedAt = HashMap<Int, Long>()
     private val ignoredStars = HashMap<Int, Long>()
     private val starsSeen = HashMap<Int, DoubleArray>()
     private var starApproachId = -1
+    /** Barrels / chests / crafting tables near the bot that pay a star when broken (ADR-0318 `star_blocks`). */
+    private val starBlocks = StarBlockScanner(bot.terrain)
+    private var starBlockTarget: Triple<Int, Int, Int>? = null
+    private var lastBlockDigAt = 0L
     private var starApproachSince = 0L
     private var highY = Double.NEGATIVE_INFINITY
     private var fellRecently = false
@@ -184,6 +199,20 @@ class BotBrain(
     private var jumpDash = false
     private val stuck = StuckEscapePolicy()
     private val ineffective = IneffectiveTargets()
+    private val selector = TargetSelector()
+    private val velocity = VelocityTracker()
+    /** Extra-skill policy (own cooldowns) per hotbar slot of a [loadout] weapon, built from the item's content bindings. */
+    private var skillPolicies: Map<Int, SkillUsePolicy> = emptyMap()
+    /** Pending SNEAK_RIGHT cast: sneak went out at this time, the click follows on a later tick (0 = none). */
+    private var skillSneakAt = 0L
+    private var skillYaw = 0f
+    private var skillPitch = 0f
+    /** Health at the previous tick (-1 = unknown: just respawned / entered the fight), to detect damage taken. */
+    private var lastHealth = -1f
+    private var lastTargetId = -1
+    private var chaseNoted = false
+    /** Extra skill casts, for reports and tests. */
+    val skillCasts = AtomicInteger()
     private var planner: ModePlanner? = null
     private var economy: EconomyPlanner? = null
     private var econSliceStart = 0L
@@ -234,6 +263,7 @@ class BotBrain(
         }
         if (bot.health == 0f) {
             endTravel()
+            resetCombatMemory()
             planner?.onDeath(bot.x, bot.z)
             if (now - lastRespawnAt > 1_000) { lastRespawnAt = now; bot.respawn() }
             return
@@ -241,12 +271,14 @@ class BotBrain(
         if (bot.spectating) {
             // Death cam: the server owns us until it respawns us. Stay quiet.
             endTravel()
+            resetCombatMemory()
             planner?.onDeath(bot.x, bot.z)
             idleNudge(now)
             return
         }
         if (!wasFighting) {
             wasFighting = true
+            resetCombatMemory()
             spawnX = bot.x; spawnZ = bot.z
             // Stages are authored around (0,0) and pasted into a slot on a fixed grid (ADR-0255): find that slot's origin.
             val originX = Math.round(spawnX / SLOT_PITCH) * SLOT_PITCH
@@ -255,6 +287,8 @@ class BotBrain(
             objective = objectives?.objectiveFor(spawnX - originX, spawnZ - originZ)
                 ?.let { it.copy(x = it.x + originX, z = it.z + originZ) }
             starPoints = objectives?.starPoints().orEmpty().map { (x, z) -> (x + originX) to (z + originZ) }
+            cachePoints = objectives?.cachePoints().orEmpty().map { ObjectiveSource.CachePoint(it.x + originX, it.y, it.z + originZ, it.respawnMs) }
+            cacheVisitedAt.clear()
             fightStartedAt = now
             nav.clear()
             retreating = false
@@ -271,10 +305,24 @@ class BotBrain(
         }
         resolveLoadoutIfNeeded(now)
         tickReload(now)
+        tickSkillCast(now)
 
-        // A step can limit how far an enemy may be for the bot to leave it (a TNT carrier runs, a guard stays at its post).
-        val engage = planner?.engage ?: Double.MAX_VALUE
-        val enemy = nearestEnemy(now)?.takeIf { hypot(it.x - bot.x, it.z - bot.z) <= engage }
+        // The target: visible enemies only (line of sight), remembered for a few seconds after it breaks (chase to the last spot).
+        val foe = pickTarget(now)
+        val chasing = foe?.takeIf { it.remembered }
+        if (chasing != null) {
+            if (!chaseNoted) { chaseNoted = true; planner?.noteLastKnown(chasing.lastX, chasing.lastZ, now) }
+        } else {
+            chaseNoted = false
+        }
+        // A step can limit how far an enemy may be for the bot to leave it (a TNT carrier runs, a guard stays at its post;
+        // a pillar attacker also takes threats and easy kills farther away): ModePlanner.engages decides.
+        val visible = foe?.takeIf { !it.remembered }
+        val enemy = visible?.seen?.takeIf { e ->
+            val pl = planner
+            if (pl != null) pl.engages(Sighting(visible.name, e.x, e.z, visible.hpFraction), now, bot.x, bot.z) else true
+        }
+        val hasLos = visible?.hasLos ?: true
         trackStars(now)
         updateRetreat(enemy, now)
         tryDrinkPotion(now)
@@ -309,13 +357,19 @@ class BotBrain(
             pitch = (-Math.toDegrees(atan2(dy, flat.coerceAtLeast(0.01)))).toFloat()
             val weapon = chooseWeapon(dist, now)
             heading = atan2(dz, dx)
+            if (weapon?.kind == WeaponKind.RANGED) {
+                // Lead + gravity aim at the chest from the eye, with the velocity estimated from the entity positions.
+                val v = velocity.velocity(enemy.id)
+                val sol = AimPolicy.solve(bot.x, bot.y + EYE_HEIGHT, bot.z, enemy.x, enemy.y + CHEST_HEIGHT, enemy.z, v[0], v[1], v[2], AimPolicy.profileFor(weapon))
+                yaw = sol.yaw
+                pitch = sol.pitch
+            }
             when {
                 weapon?.kind == WeaponKind.RANGED -> {
-                    val range = skill.preferredRange
-                    when {
-                        flat > range + 2.5 -> Unit // approach along heading
-                        flat < range - 3.5 -> heading += PI // back off
-                        else -> { heading += strafeSign * PI / 2; speed *= 0.65 }
+                    when (WeaponPolicy.move(weapon, flat, hasLos)) {
+                        WeaponPolicy.Move.APPROACH, WeaponPolicy.Move.CLOSE_IN -> Unit // approach along heading
+                        WeaponPolicy.Move.BACK_OFF -> heading += PI
+                        WeaponPolicy.Move.STRAFE -> { heading += strafeSign * PI / 2; speed *= 0.65 }
                     }
                 }
                 else -> {
@@ -325,17 +379,20 @@ class BotBrain(
                 }
             }
             if (now > strafeUntil) { strafeSign = -strafeSign; strafeUntil = now + 1_000 + rnd.nextInt(1_600) }
-            act(enemy, weapon, dist, now, yaw, pitch)
+            act(enemy, weapon, dist, now, yaw, pitch, hasLos)
+            trySkill(weapon, dist, hasLos, now, yaw, pitch)
             lastKind = "fight>local flat=%.0f".format(flat)
 
             // Long way, a different height, a gap in the way, a star to fetch or a retreat: plan a route (A*) instead of steering.
-            val needRoute = retreating || goForStar || flat > LOCAL_STEER_RANGE || abs(enemy.y - bot.y) > 3.0 ||
+            // A ranged bot with a clear line inside its firing band steers locally (strafe / back off) instead of walking a route.
+            val holdsBand = weapon?.kind == WeaponKind.RANGED && hasLos && flat <= WeaponPolicy.RANGED_MAX
+            val needRoute = retreating || goForStar || (flat > LOCAL_STEER_RANGE && !holdsBand) || abs(enemy.y - bot.y) > 3.0 ||
                 (flat > 3.0 && now - localBlockedAt < 2_000)
             if (needRoute) {
                 val d = when {
                     retreating -> Dest(spawnX, spawnZ, null, 3.0, "retreat")
                     goForStar -> starDest!!
-                    else -> Dest(enemy.x, enemy.z, enemy.y, if (weapon?.kind == WeaponKind.RANGED) skill.preferredRange - 1.0 else 1.8, "enemy")
+                    else -> Dest(enemy.x, enemy.z, enemy.y, if (weapon?.kind == WeaponKind.RANGED) WeaponPolicy.RANGED_MAX - 3.0 else 1.8, "enemy")
                 }
                 // keep the enemy in the crosshair while walking the route
                 val routeSpeed = travel(d, inCombat = fighting)
@@ -350,7 +407,7 @@ class BotBrain(
         } else {
             ineffective.disengage()
             strikeLook = null
-            val dest = chooseDest(now, starDest)
+            val dest = chasing?.let { Dest(it.lastX, it.lastZ, null, CHASE_ARRIVE, "enemy-chase") } ?: chooseDest(now, starDest)
             if (dest == null) {
                 endTravel()
                 standStill = true
@@ -405,11 +462,19 @@ class BotBrain(
 
     // --- target selection ------------------------------------------------------------------------------------------
 
-    private fun nearestEnemy(now: Long): Seen? {
+    /**
+     * The target choice of this tick. [seen] is null for a [remembered] target (out of sight: walk to [lastX]/[lastZ], never
+     * aim or shoot); a visible one always has line of sight ([TargetSelector] only picks those).
+     */
+    private class Foe(val seen: Seen?, val name: String?, val hasLos: Boolean, val hpFraction: Double?, val remembered: Boolean, val lastX: Double, val lastZ: Double)
+
+    private fun pickTarget(now: Long): Foe? {
         val myTeam = bot.teamOf(bot.name)
+        val eyeY = bot.y + EYE_HEIGHT
         val candidates = ArrayList<TargetPolicy.Candidate>()
         for (e in bot.entities.values) {
             if (e.type != "PLAYER" || e.id == bot.selfEntityId) continue
+            velocity.observe(e.id, now, e.x, e.y, e.z)
             if (ineffective.ignored(e.id, now)) continue
             // No Tab-list entry (enemy team hidden from the list): no name, team or game mode - an unlisted player is
             // someone who is not on our team, and a dead one is caught by IneffectiveTargets (no hit lands).
@@ -418,10 +483,46 @@ class BotBrain(
                 id = e.id, name = name ?: "?${e.uuid}", team = name?.let { bot.teamOf(it) },
                 spectating = bot.isSpectator(e.uuid),
                 x = e.x, y = e.y, z = e.z, listed = name != null,
+                hasLos = LineOfSight.clear(bot.terrain, bot.x, eyeY, bot.z, e.x, e.y + CHEST_HEIGHT, e.z),
+                hpFraction = bot.healthOf(e.id)?.toDouble(),
             )
         }
-        val pick = TargetPolicy.nearest(bot.name, myTeam, bot.x, bot.y, bot.z, candidates, SIGHT_RANGE) ?: return null
-        return bot.entities[pick.id]
+        noteDamageTaken(now, myTeam, candidates)
+        val choice = selector.select(now, bot.name, myTeam, bot.x, bot.y, bot.z, candidates, SIGHT_RANGE)
+        val target = choice.target ?: return null
+        lastTargetId = target.id
+        val name = target.name.takeIf { target.listed }
+        if (choice.remembered) return Foe(null, name, false, target.hpFraction, true, choice.lastX, choice.lastZ)
+        val seen = bot.entities[target.id] ?: return null
+        return Foe(seen, name, target.hasLos, target.hpFraction, false, seen.x, seen.z)
+    }
+
+    /**
+     * Damage taken = the bot's health dropped since the last tick. The client does not say who hit, so the attacker is a
+     * heuristic: the current target if it is eligible, has line of sight and is within [WeaponPolicy.FIRE_MAX] (shots and
+     * swings come from something that sees us; a look direction is not observable on [Seen]), else the nearest such enemy.
+     * It gets the selector's threat bonus, and the mode planner learns the bot is under attack ([ModePlanner.noteDamaged]).
+     */
+    private fun noteDamageTaken(now: Long, myTeam: String?, candidates: List<TargetPolicy.Candidate>) {
+        val hp = bot.health
+        val dropped = lastHealth >= 0f && hp < lastHealth - 0.01f
+        lastHealth = hp
+        if (!dropped) return
+        planner?.noteDamaged(now)
+        val threats = candidates.filter {
+            TargetPolicy.eligible(bot.name, myTeam, it) && it.hasLos && hypot(it.x - bot.x, it.z - bot.z) <= WeaponPolicy.FIRE_MAX
+        }
+        val attacker = threats.firstOrNull { it.id == lastTargetId } ?: threats.minByOrNull { hypot(it.x - bot.x, it.z - bot.z) }
+        if (attacker != null) selector.noteAttackedBy(attacker.id, now)
+    }
+
+    /** New life or new match: forget targets, threats, a half-sent skill cast. */
+    private fun resetCombatMemory() {
+        selector.reset()
+        lastTargetId = -1
+        chaseNoted = false
+        lastHealth = -1f
+        if (skillSneakAt != 0L) { skillSneakAt = 0L; bot.sneak(false) }
     }
 
     /**
@@ -436,6 +537,7 @@ class BotBrain(
             observed?.update(markers, sightings())
             observed?.updateRainmaker(bot.bossBarTitles, glowingPlayers())
             pl.noteRoster(roster())
+            observed?.updatePillarLabels(bot.entityTextsById.values.flatten())
             pl.noteMarkers(bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z })
             pl.noteConfirmed(bot.sounds.count { it.contains("objective/pickup") })
             if (pl.clickWanted && now - lastClickAt >= CLICK_INTERVAL_MS) {
@@ -444,17 +546,31 @@ class BotBrain(
             }
         }
         economyDest(now)?.let { return it }
+        // A cache close by is a short detour even while the mode plan runs (never while carrying the objective).
+        if (goal == Goal.STAR && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
+            nearestCache(now, CACHE_DETOUR_RANGE)?.let { return it }
+        }
+        // A paying block close by (barrel / chest / crafting table) is a short detour while nothing is in sight (never while carrying the objective).
+        if (goal == Goal.STAR && planner?.let { it.holdingTnt || it.carried > 0 || it.clickWanted } != true) {
+            starBlocks.tick(now, bot.x, bot.y, bot.z)
+            starBlockTarget = starBlocks.nearest(bot.x, bot.y, bot.z)
+            starBlockTarget?.let { return Dest(it.first + 0.5, it.third + 0.5, it.second.toDouble(), STAR_BLOCK_ARRIVE, "block") }
+        }
         if (now >= modePausedUntil) planner?.step(now, bot.x, bot.z)?.let { st ->
             return Dest(st.x, st.z, st.y, st.arrive, "mode", zone = st.zone, strike = st.strike, affinity = st.affinity)
         }
-        if (goal == Goal.STAR && starPoints.isNotEmpty()) {
+        if (goal == Goal.STAR && (starPoints.isNotEmpty() || cachePoints.isNotEmpty())) {
+            // Nearest valuable source: caches pay a bundle (weighted), candidate spots only hold a star while the rotation is on them
+            // (a star that is visible is already handled by starTarget); no spot is camped, each is skipped for GEN_COOLDOWN_MS after a look.
             var bestI = -1
-            var bestD = Double.MAX_VALUE
+            var bestScore = Double.MAX_VALUE
             for ((i, p) in starPoints.withIndex()) {
                 if (now - (visitedAt[i] ?: -GEN_COOLDOWN_MS) < GEN_COOLDOWN_MS) continue
-                val d = hypot(p.first - bot.x, p.second - bot.z)
-                if (d < bestD) { bestD = d; bestI = i }
+                val score = hypot(p.first - bot.x, p.second - bot.z)
+                if (score < bestScore) { bestScore = score; bestI = i }
             }
+            val cache = nearestCache(now, Double.MAX_VALUE)
+            if (cache != null && hypot(cache.x - bot.x, cache.z - bot.z) / CACHE_VALUE_WEIGHT < bestScore) return cache
             if (bestI >= 0) return Dest(starPoints[bestI].first, starPoints[bestI].second, null, 2.0, "gen", bestI)
         }
         if (now - lastEnemyAt < 8_000) return Dest(lastEnemyX, lastEnemyZ, null, 3.0, "enemy-seen")
@@ -503,9 +619,26 @@ class BotBrain(
         return out
     }
 
+    /** Nearest exploration cache within [range] that is not on its respawn cooldown (visited caches are remembered for their respawn time). */
+    private fun nearestCache(now: Long, range: Double): Dest? {
+        var bestI = -1
+        var bestD = Double.MAX_VALUE
+        for ((i, c) in cachePoints.withIndex()) {
+            val seen = cacheVisitedAt[i]
+            if (seen != null && now - seen < c.respawnMs) continue
+            val d = hypot(c.x - bot.x, c.z - bot.z) + abs(c.y - bot.y) * 0.5
+            if (d <= range && d < bestD) { bestD = d; bestI = i }
+        }
+        if (bestI < 0) return null
+        val c = cachePoints[bestI]
+        return Dest(c.x, c.z, c.y, CACHE_ARRIVE, "cache", bestI)
+    }
+
     private fun arrivedAt(d: Dest, now: Long, unreachable: Boolean = false) {
         if (d.strike != null && hypot(d.x - bot.x, d.z - bot.z) <= STRIKE_REACH) strikeBlock(d.strike, d.affinity, now)
         when (d.kind) {
+            "cache" -> cacheVisitedAt[d.starId] = now
+            "block" -> breakStarBlock(unreachable, now)
             "gen" -> {
                 if (unreachable) { visitedAt[d.starId] = now; return }
                 if (dwellUntil == 0L) dwellUntil = now + GEN_DWELL_MS
@@ -521,6 +654,21 @@ class BotBrain(
             }
             "roam" -> wanderUntil = 0L
         }
+    }
+
+    /** Breaks the targeted star block: face it, one long dig per [STAR_BLOCK_DIG_INTERVAL_MS]; out of reach or unreachable = give up on it. */
+    private fun breakStarBlock(unreachable: Boolean, now: Long) {
+        val b = starBlockTarget ?: return
+        val dx = b.first + 0.5 - bot.x
+        val dz = b.third + 0.5 - bot.z
+        val dy = b.second + 0.5 - (bot.y + EYE_HEIGHT)
+        if (unreachable || sqrt(dx * dx + dy * dy + dz * dz) > STRIKE_REACH) { starBlocks.giveUp(b); starBlockTarget = null; return }
+        strikeLook = Math.toDegrees(atan2(-dx, dz)).toFloat() to (-Math.toDegrees(atan2(dy, hypot(dx, dz).coerceAtLeast(0.01)))).toFloat()
+        if (now - lastBlockDigAt < STAR_BLOCK_DIG_INTERVAL_MS) return
+        lastBlockDigAt = now
+        starBlocks.noteDig(b)
+        blocksBroken.incrementAndGet()
+        bot.digAsync(b.first, b.second, b.third, STAR_BLOCK_HOLD_MS)
     }
 
     private var starArrivedSince = 0L
@@ -550,7 +698,7 @@ class BotBrain(
         if (now - lastStrikeAt < STRIKE_INTERVAL_MS) return
         lastStrikeAt = now
         blocksBroken.incrementAndGet()
-        Thread({ runCatching { bot.dig(block.first, block.second, block.third, 400) } }, "bot-strike-${bot.name}").also { it.isDaemon = true }.start()
+        bot.digAsync(block.first, block.second, block.third, 400)
     }
 
     /** The bot's team as it sees it: every Tab-listed team mate with its entity position (NaN out of sight, then the shared spawn) and whether it is alive. */
@@ -674,7 +822,7 @@ class BotBrain(
         val y = listOf(by + 1, by).firstOrNull { bot.terrain.isSolid(fx, it, fz) == true } ?: return
         lastBreakAt = now
         blocksBroken.incrementAndGet()
-        Thread({ runCatching { bot.dig(fx, y, fz, 400) } }, "bot-dig-${bot.name}").also { it.isDaemon = true }.start()
+        bot.digAsync(fx, y, fz, 400)
         nav.clear()
     }
 
@@ -869,7 +1017,7 @@ class BotBrain(
     private fun chooseWeapon(dist: Double, now: Long): Weapon? =
         WeaponPolicy.choose(loadout, dist, now, reloadBusyUntil, loadout.firstOrNull { it.slot == bot.selectedSlot })
 
-    private fun act(enemy: Seen, weapon: Weapon?, dist: Double, now: Long, yaw: Float, pitch: Float) {
+    private fun act(enemy: Seen, weapon: Weapon?, dist: Double, now: Long, yaw: Float, pitch: Float, hasLos: Boolean) {
         val aimYaw = yaw + ((rnd.nextFloat() - 0.5f) * 2f * skill.aimErrorDeg)
         val aimPitch = pitch + ((rnd.nextFloat() - 0.5f) * skill.aimErrorDeg)
         if (weapon == null) {
@@ -897,7 +1045,7 @@ class BotBrain(
                 if (ammo == 0) { startReload(now); return }
                 // Energy-cost casters (staffs) have no magazine: the food bar is their budget.
                 val energyOk = weapon.magazine || bot.food < 0 || bot.food >= MIN_CAST_FOOD
-                if (dist <= RANGED_REACH && energyOk && now - lastShotAt > skill.shotIntervalMs + rnd.nextInt(120)) {
+                if (WeaponPolicy.mayFire(dist, hasLos) && energyOk && now - lastShotAt > skill.shotIntervalMs + rnd.nextInt(120)) {
                     lastShotAt = now
                     bot.useItem(aimYaw, aimPitch)
                     shots.incrementAndGet(); noteAttack(now)
@@ -926,6 +1074,33 @@ class BotBrain(
         if (t >= 400) { bot.sneak(false); reloadStartedAt = 0L }
     }
     private var reloadDropSent = 0L
+
+    /**
+     * Extra item skills ([SkillUsePolicy], from the held item's own content bindings) while fighting with that item in hand,
+     * melee and ranged alike (the primary swing / shot stays [act]'s loop). The
+     * policy keeps the cooldowns; RIGHT_CLICK = useItem, LEFT_CLICK = punch + attack, SNEAK_RIGHT = sneak now and click
+     * on a later tick (see [tickSkillCast]) so the sneak input reaches the server first.
+     */
+    private fun trySkill(weapon: Weapon?, dist: Double, hasLos: Boolean, now: Long, yaw: Float, pitch: Float) {
+        if (weapon == null || bot.selectedSlot != weapon.slot) return
+        if (skillSneakAt != 0L || now < reloadBusyUntil || reloadStartedAt != 0L) return
+        if (weapon.kind == WeaponKind.RANGED && !weapon.magazine && bot.food in 0 until MIN_CAST_FOOD) return
+        val b = (skillPolicies[weapon.slot] ?: return).decide(now, dist, hasLos) ?: return
+        skillCasts.incrementAndGet()
+        when (b.trigger) {
+            SkillUsePolicy.Trigger.RIGHT_CLICK -> bot.useItem(yaw, pitch)
+            SkillUsePolicy.Trigger.LEFT_CLICK -> { bot.punch(); lastSwingAt = now }
+            SkillUsePolicy.Trigger.SNEAK_RIGHT -> { bot.sneak(true); skillSneakAt = now; skillYaw = yaw; skillPitch = pitch }
+        }
+    }
+
+    /** Second half of a SNEAK_RIGHT cast: a tick after sneaking began, click, then release sneak. */
+    private fun tickSkillCast(now: Long) {
+        if (skillSneakAt == 0L || now <= skillSneakAt) return
+        bot.useItem(skillYaw, skillPitch)
+        bot.sneak(false)
+        skillSneakAt = 0L
+    }
 
     // --- loadout -------------------------------------------------------------------------------------------------
 
@@ -972,6 +1147,8 @@ class BotBrain(
             found += weapon
         }
         loadout = found
+        val catalog = itemSkills
+        skillPolicies = if (catalog == null) emptyMap() else found.associate { it.slot to catalog.policyFor(bot.hotbarName(it.slot)) }
         lastLoadoutSignature = bot.hotbar().take(8).joinToString(",")
         // Start with the sword in hand if there is one, else the first ranged item (never a tool or the compass).
         (found.firstOrNull { it.kind == WeaponKind.MELEE } ?: found.firstOrNull())?.let { bot.selectHotbar(it.slot) }
@@ -981,8 +1158,7 @@ class BotBrain(
     private fun probeForAmmo(slot: Int): Weapon {
         val barsBefore = bot.actionBars.size
         bot.selectHotbar(slot)
-        val end = bot.now() + 1_200
-        while (bot.now() < end && bot.actionBars.drop(barsBefore).none { AMMO.containsMatchIn(it.text) }) Thread.sleep(30)
+        bot.waitUntil(1_200) { bot.actionBars.drop(barsBefore).any { AMMO.containsMatchIn(it.text) } }
         val ammo = bot.actionBars.drop(barsBefore).any { AMMO.containsMatchIn(it.text) }
         return Weapon(slot, if (ammo) WeaponKind.RANGED else WeaponKind.MELEE, magazine = ammo)
     }
@@ -997,8 +1173,13 @@ class BotBrain(
         const val STRIKE_INTERVAL_MS = 450L
         const val TOOL_CAST_INTERVAL_MS = 2_000L
         const val STRIKE_REACH = 4.5
+        const val STAR_BLOCK_ARRIVE = 2.2
+        const val STAR_BLOCK_HOLD_MS = 3_500L
+        const val STAR_BLOCK_DIG_INTERVAL_MS = 4_000L
         const val MELEE_REACH = 2.9
-        const val RANGED_REACH = 40.0
+        const val EYE_HEIGHT = 1.62
+        const val CHEST_HEIGHT = 1.0
+        const val CHASE_ARRIVE = 2.5
         const val MIN_MELEE_FOOD = 4
         const val MIN_CAST_FOOD = 2
         const val PROBE_AHEAD = 0.8
@@ -1016,6 +1197,11 @@ class BotBrain(
         const val STAR_CHASE_MS = 20_000L
         const val LOCAL_STEER_RANGE = 12.0
         const val GEN_COOLDOWN_MS = 12_000L
+        /** Cache open radius is 2 blocks (content/generators/annihilation-cache.yaml); arrive inside it. */
+        const val CACHE_ARRIVE = 1.3
+        const val CACHE_DETOUR_RANGE = 28.0
+        /** A cache bundle (about 4 stars) is worth a longer walk than a single spot star. */
+        const val CACHE_VALUE_WEIGHT = 3.0
         const val GEN_DWELL_MS = 1_500L
         const val FALL_DEPTH = 12.0
         val HEAL_LORE = Regex("single use|使い切り")

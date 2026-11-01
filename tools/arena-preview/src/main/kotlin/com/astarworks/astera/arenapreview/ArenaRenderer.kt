@@ -27,7 +27,7 @@ object ArenaRenderer {
         }
         for ((xz, top) in tops) {
             val north = tops[xz.first to xz.second - 1]?.first ?: top.first
-            g.color = shade(LobbyRenderer.colorOf(top.second), (1.0 + (top.first - north) * .06).coerceIn(.6, 1.3))
+            g.color = shade(colorOf(top.second), (1.0 + (top.first - north) * .06).coerceIn(.6, 1.3))
             g.fillRect(24 + (xz.first - plan.minX) * scale, 48 + (xz.second - plan.minZ) * scale, scale, scale)
         }
         fun label(x: Int, z: Int, text: String, colour: Color) {
@@ -59,7 +59,7 @@ object ArenaRenderer {
         // +x/+z faces look towards the viewer; x+z order handles occlusion across tall structures.
         val ordered = plan.blocks.entries.sortedWith(compareBy({ it.key.x + it.key.z }, { it.key.y }, { it.key.x }))
         for ((p, state) in ordered) {
-            val c = LobbyRenderer.colorOf(state)
+            val c = colorOf(state)
             val px = 24 + (p.x - plan.minX - (p.z - plan.minZ) + d) * sx
             val py = 48 + (p.x - plan.minX + p.z - plan.minZ) * sy + (plan.maxY - p.y) * vertical
             if (!plan.blocks.containsKey(ArenaBlockPos(p.x + 1, p.y, p.z)))
@@ -73,9 +73,10 @@ object ArenaRenderer {
         return image
     }
 
-    /** Vertical cut along X through the centre of the first island: shows flanks, overhangs, shelves and spires in profile. */
+    /** Cut through the tier-3 sanctum when present, otherwise the first island/spawn: exposes the keep and rock taper. */
     fun section(stage: Stage, plan: ArenaBuildPlan): BufferedImage {
-        val z = stage.layout!!.islands.firstOrNull()?.z ?: stage.spawnPoints.first { it.team != null }.position.z.toInt()
+        val z = stage.pillars.firstOrNull { it.tier.ordinalValue == 3 }?.position?.z?.toInt()
+            ?: stage.layout!!.islands.firstOrNull()?.z ?: stage.spawnPoints.first { it.team != null }.position.z.toInt()
         val sx = 3; val sy = 4
         val w = plan.maxX - plan.minX + 1; val h = plan.maxY - plan.minY + 1
         val image = BufferedImage(w * sx + 48, h * sy + 72, BufferedImage.TYPE_INT_RGB)
@@ -85,11 +86,21 @@ object ArenaRenderer {
         g.drawString("${stage.id.value} / section z=$z / west to east", 16, 24)
         for ((p, state) in plan.blocks) {
             if (p.z != z) continue
-            g.color = LobbyRenderer.colorOf(state)
+            g.color = colorOf(state)
             g.fillRect(24 + (p.x - plan.minX) * sx, 48 + (plan.maxY - p.y) * sy, sx, sy)
         }
         g.dispose()
         return image
+    }
+
+    // The shared lobby palette has no yellow entry: authored yellow teams otherwise render white.
+    private fun colorOf(state: String): Color = when (state.substringAfter(':').substringBefore('[')) {
+        "yellow_wool", "yellow_concrete", "yellow_banner", "yellow_wall_banner" -> Color(0xf0c932)
+        "red_banner", "red_wall_banner" -> Color(0xb02e26)
+        "blue_banner", "blue_wall_banner" -> Color(0x3c44aa)
+        "cobbled_deepslate", "deepslate_tiles", "deepslate_tile_stairs" -> Color(0x45454e)
+        "gravel" -> Color(0x99938a)
+        else -> LobbyRenderer.colorOf(state)
     }
 
     private fun shade(c: Color, factor: Double): Color = Color(

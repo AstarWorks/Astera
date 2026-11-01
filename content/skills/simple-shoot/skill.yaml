@@ -1,4 +1,6 @@
-# simple-shoot: a flame-and-ember beam that bursts into a ring where it lands (hit, block or expiry share one fragment).
+# simple-shoot: a flame-and-ember beam that bursts into a ring where it lands , in the frame grammar (ADR-0314).
+# `hand` is the firing hand, rooted in the caster's eye / aim basis (v = aim, s = right, w = s x v) at 0.57 ahead, 0.51 below the eye line, 0.30 right:
+# the beam starts 0.40 ahead of it along the aim (it leaves the hand, not the head); the cast burst plays 1.8 ahead, outside the caster-eye clutter limit. The burst is five particle rows on the `hit` frame (the victim's centre), the `blk` frame (the block contact) or the beam body at expiry; a frame-typed `frames_in` is not read by the part decoder, so there is no shared fragment. The trail rides the beam body.
 apiVersion: astera/v3
 kind: Skill
 id: simple-shoot
@@ -12,36 +14,53 @@ meta:
 params:
   speed: {type: number, default: 2.0}
   life:  {type: ticks, default: 40}
-  dmg:   {type: number, default: 25.0}
+  dmg:   {type: number, default: 25}
   ember: {type: string, default: "#ff6414"}
-anchors:
-  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: front,  anchor: caster, offset: {forward: 1.2}, mode: follow}
-fragments:
-  burst:
-    params:
-      ember: {type: string, default: "#ff6414"}
-    frames_in: {spot: anchor}
-    do:
-      - {id: flame, op: particle, particle: flame, count: 60, extra: 0.2, anchor: spot}
-      - {id: lava, op: particle, particle: lava, count: 8, extra: 0.1, anchor: spot}
-      - {id: ring, op: particle, particle: flame, count: 0, extra: 0.06, anchor: spot}
-      - {id: dust_big, op: particle, particle: dust, count: 1, color: "${ember}", size: 2.5, anchor: spot}
-      - {id: dust_mid, op: particle, particle: dust, count: 1, color: "${ember}", size: 2.0, anchor: spot}
+frames:
+  - id: hand
+    origin: caster.eye
+    v: aim
+    w: s x v
+    s: right
+    move:
+      - {at: 0, for: 0, to: {v: 0.57, w: -0.51, s: 0.30}}
+  - id: body
+    origin: beam
+    v: forward
+    w: up
+    s: v x w
+  - id: hit
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
+  - id: blk
+    on: event.block
+    each: true
+    origin: contact
+    v: incoming
+    w: up
+    s: v x w
+lines:
+  trail: {frame: body, from: {v: -0.25}, to: {v: 0}}
 machine:
   start: fly
+  tail: 10
   states:
     fly:
       on:
         - {event: beam.end, to: end}
       enter:
-        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster}
-        - {id: cast_flame, op: particle, particle: flame, count: 50, extra: 0.2, anchor: front}
-        - {id: cast_dust, op: particle, particle: dust, count: 20, offset: [0.2, 0.2, 0.2], extra: 0, color: "${ember}", size: 1.6, anchor: front}
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", frame: hand}
+        - {id: cast_flame, op: particle, particle: flame, count: 50, extra: 0.2, frame: hand, pos: {v: 1.8}}
+        - {id: cast_dust, op: particle, particle: dust, count: 20, offset: [0.2, 0.2, 0.2], extra: 0, color: "${ember}", size: 1.6, frame: hand, pos: {v: 1.8}}
       do:
         - id: beam
           op: projectile
-          origin: muzzle
+          frame: hand
+          pos: {v: 0.4}
           velocity: "= look(caster) * ${speed}"
           speed: "${speed}"
           for: "${life}"
@@ -51,12 +70,24 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {fire: "${dmg}"}}
-              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact}
-              - {id: fx_hit, op: use, use: "fragment:burst", with: {ember: "${ember}"}, frames: {spot: contact}}
+              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", frame: hit, detach: true}
+              - {id: flame_hit, op: particle, particle: flame, count: 60, extra: 0.2, frame: hit, pos: {}, detach: true}
+              - {id: lava_hit, op: particle, particle: lava, count: 8, extra: 0.1, frame: hit, pos: {}, detach: true}
+              - {id: ring_hit, op: particle, particle: flame, count: 0, extra: 0.06, frame: hit, pos: {}, detach: true}
+              - {id: dust_big_hit, op: particle, particle: dust, count: 1, color: "${ember}", size: 2.5, frame: hit, pos: {}, detach: true}
+              - {id: dust_mid_hit, op: particle, particle: dust, count: 1, color: "${ember}", size: 2.0, frame: hit, pos: {}, detach: true}
             block:
-              - {id: fx_blk, op: use, use: "fragment:burst", with: {ember: "${ember}"}, frames: {spot: contact}}
+              - {id: flame_blk, op: particle, particle: flame, count: 60, extra: 0.2, frame: blk, pos: {}, detach: true}
+              - {id: lava_blk, op: particle, particle: lava, count: 8, extra: 0.1, frame: blk, pos: {}, detach: true}
+              - {id: ring_blk, op: particle, particle: flame, count: 0, extra: 0.06, frame: blk, pos: {}, detach: true}
+              - {id: dust_big_blk, op: particle, particle: dust, count: 1, color: "${ember}", size: 2.5, frame: blk, pos: {}, detach: true}
+              - {id: dust_mid_blk, op: particle, particle: dust, count: 1, color: "${ember}", size: 2.0, frame: blk, pos: {}, detach: true}
             expire:
-              - {id: fx_end, op: use, use: "fragment:burst", with: {ember: "${ember}"}, frames: {spot: contact}}
-        - {id: trail_flame, op: particle, particle: flame, count: 1, anchor: {of: beam, sweep: 0.25}, at: 0, every: 1, until: beam.end}
-        - {id: trail_dust, op: particle, particle: dust, count: 1, color: "${ember}", size: 1.5, anchor: {of: beam, sweep: 0.25}, at: 0, every: 1, until: beam.end}
+              - {id: flame_end, op: particle, particle: flame, count: 60, extra: 0.2, frame: body, pos: {}, detach: true}
+              - {id: lava_end, op: particle, particle: lava, count: 8, extra: 0.1, frame: body, pos: {}, detach: true}
+              - {id: ring_end, op: particle, particle: flame, count: 0, extra: 0.06, frame: body, pos: {}, detach: true}
+              - {id: dust_big_end, op: particle, particle: dust, count: 1, color: "${ember}", size: 2.5, frame: body, pos: {}, detach: true}
+              - {id: dust_mid_end, op: particle, particle: dust, count: 1, color: "${ember}", size: 2.0, frame: body, pos: {}, detach: true}
+        - {id: trail_flame, op: particle, particle: flame, count: 1, along: trail, samples: 2, at: 0, every: 1, until: beam.end}
+        - {id: trail_dust, op: particle, particle: dust, count: 1, color: "${ember}", size: 1.5, along: trail, samples: 2, at: 0, every: 1, until: beam.end}
     end: {final: true}

@@ -2,10 +2,9 @@ package com.astarworks.astera.economy.domain.matchshop
 
 import com.astarworks.astera.core.domain.item.ItemId
 
-/** The five tabs of the in-match ore shop, in GUI order. [key] is the YAML spelling. */
+/** The four tabs of the in-match ore shop, in GUI order. [key] is the YAML spelling. */
 public enum class MatchShopTab(public val key: String) {
     WEAPONS("weapons"),
-    TOOLS("tools"),
     BLOCKS("blocks"),
     ARMOR("armor"),
     UPGRADES("upgrades"),

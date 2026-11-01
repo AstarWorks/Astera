@@ -1,12 +1,18 @@
-# Star generator of the annihilation-arena arena (MODE-15: the Norma layer is a standard layer of every game mode). Stands on a
-# generator landmark of content/stages/annihilation-arena.yaml at the same x/z; mirrors content/generators/arena-*.yaml.
+# Timer star generator of the annihilation-arena "Highmarch" (ADR-0318, ADR-0317 coordinates from anni-map): a MINOR source of the star economy
+# (spot share <= 15% of the budget). It no longer pops at one fixed point (founder 2026-11-01: "stars pop at fixed spots, one at a time" was
+# the complaint): every pop picks the next of the candidate `spots` below by a seeded rotation (never the same spot twice in a row), holds at
+# most one star per spot, and is throttled by the spot budget. `position` is the first candidate (the anchor).
 id: annihilation-flank-north
 match_stage_id: annihilation-arena
-position: { x: 0.5, y: 65.0, z: 72.5 }
-period_seconds: 20.0
-amount: 2
+position: { x: 5.5, y: 65.0, z: 117.5 }
+period_seconds: 12.0
+amount: 1
+stockpile_cap: 1
 tier: iron
 affiliation:
   kind: neutral
-# Sudden death (late game) multiplies each pop.
 late_game_multiplier: 2.0
+spots:
+  - { x: 5.5, y: 65.0, z: 117.5 }
+  - { x: 10.5, y: 65.0, z: 117.5 }
+  - { x: 5.5, y: 65.0, z: 122.5 }

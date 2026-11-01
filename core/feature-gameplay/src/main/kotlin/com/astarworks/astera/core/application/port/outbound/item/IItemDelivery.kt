@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.port.outbound.item
 
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.item.ItemSpec
 
 /**
@@ -27,6 +28,12 @@ public interface IItemDelivery {
         amount: Int = 1,
         origin: ItemOrigin = ItemOrigin.STANDARD,
     ): DeliveryResult
+
+    /**
+     * Swaps one carried unit of [from] for [spec] in the SAME inventory slot; when [from] is not carried, [spec] is
+     * given like [give] (ADR-0319: loaned tools upgrade in place on a Norma level-up).
+     */
+    public fun replace(target: IMcPlayer, from: ItemId, spec: ItemSpec): DeliveryResult
 
     /**
      * Re-apply the visual half of the current [IItemRegistry] specs (name, lore, item model) to every

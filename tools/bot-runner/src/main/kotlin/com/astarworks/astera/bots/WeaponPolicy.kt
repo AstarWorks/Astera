@@ -40,4 +40,32 @@ object WeaponPolicy {
         }
         return ranged ?: melee
     }
+
+    // --- engagement ranges (ranged weapons) -------------------------------------------------------------------------
+
+    /** A ranged bot backs off when the enemy is closer than this ... */
+    const val RANGED_MIN = 10.0
+
+    /** ... and walks up when it is farther than this; in between it strafes. */
+    const val RANGED_MAX = 25.0
+
+    /** The most distant shot taken, and only with line of sight (a shot into a wall is wasted ammo). */
+    const val FIRE_MAX = 40.0
+
+    enum class Move { CLOSE_IN, APPROACH, BACK_OFF, STRAFE }
+
+    /** Fire only with line of sight and within [FIRE_MAX]. A remembered target that is out of sight is chased, never shot at. */
+    fun mayFire(dist: Double, hasLos: Boolean): Boolean = hasLos && dist <= FIRE_MAX
+
+    /**
+     * Movement of the fight: melee closes in; a ranged weapon holds [RANGED_MIN]..[RANGED_MAX], approaches beyond it and
+     * backs off inside it. Without line of sight the bot always approaches (to get one) whatever the weapon.
+     */
+    fun move(weapon: Weapon?, flat: Double, hasLos: Boolean = true): Move = when {
+        weapon == null || weapon.kind == WeaponKind.MELEE -> Move.CLOSE_IN
+        !hasLos -> Move.APPROACH
+        flat > RANGED_MAX -> Move.APPROACH
+        flat < RANGED_MIN -> Move.BACK_OFF
+        else -> Move.STRAFE
+    }
 }

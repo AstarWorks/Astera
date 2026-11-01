@@ -20,6 +20,8 @@ public class FakeItemDelivery(
 
     override fun refreshHeld(items: IItemRegistry): Int = 0
 
+    override fun replace(target: IMcPlayer, from: ItemId, spec: ItemSpec): DeliveryResult = give(target, spec, 1, ItemOrigin.STANDARD)
+
     override fun give(target: IMcPlayer, spec: ItemSpec, amount: Int, origin: ItemOrigin): DeliveryResult {
         if (result is DeliveryResult.Delivered || result is DeliveryResult.InventoryFull) {
             delivered += Call(target.id, spec.id, amount)
