@@ -111,19 +111,20 @@ object MassPlay {
         appendLine()
         appendLine("Pillar damage per run and team (dealt = to enemy pillars by the attacker's team; taken includes unattributed; hp_left = standing pillar HP at the end):")
         appendLine()
-        appendLine("| run | seed | end_reason | end_decided_by | team | pillar_damage_dealt | pillar_damage_taken | pillar_hp_left | unattributed (match) | bleed (team) | unknown (team) | first_tier_loss_min |")
-        appendLine("|---|---:|---|---|---|---:|---:|---:|---:|---:|---:|---:|")
+        appendLine("| run | seed | end_reason | end_decided_by | team | pillar_damage_dealt | pillar_damage_taken | pillar_hp_left | unattributed (match) | taken_by_players (team) | bleed (team) | unknown (team) | first_tier_loss_min | end_play_hp | end_bleed_taken |")
+        appendLine("|---|---:|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
         for (r in results) {
             val teams = r.result.json["teams"] as? kotlinx.serialization.json.JsonObject ?: continue
             val endKind = (r.result.json["end_reason"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: "n/a"
             val decidedBy = (r.result.json["end_decided_by"] as? kotlinx.serialization.json.JsonPrimitive)
                 ?.takeIf { it !is kotlinx.serialization.json.JsonNull }?.content ?: "-"
             val unattr = r.result.scalars["pillar_damage_unattributed"] ?: 0.0
+            fun endMap(k: String, team: String) = ((r.result.json[k] as? kotlinx.serialization.json.JsonObject)?.get(team) as? kotlinx.serialization.json.JsonPrimitive)?.content ?: "n/a"
             for ((team, v) in teams) {
                 val o = v as kotlinx.serialization.json.JsonObject
                 fun num(k: String) = (o[k] as? kotlinx.serialization.json.JsonPrimitive)?.content?.toDoubleOrNull() ?: 0.0
                 val left = ((o["pillar_hp_left"] as? kotlinx.serialization.json.JsonObject)?.get("sum") as? kotlinx.serialization.json.JsonPrimitive)?.content?.toDoubleOrNull() ?: 0.0
-                appendLine("| ${r.run} | ${r.seed} | $endKind | $decidedBy | $team | ${fmt(num("pillar_damage_dealt"))} | ${fmt(num("pillar_damage_taken"))} | ${fmt(left)} | ${fmt(unattr)} | ${fmt(num("pillar_damage_bleed"))} | ${fmt(num("pillar_damage_unknown"))} | ${firstTierLossMin(o)?.let { "%.2f".format(it) } ?: "none"} |")
+                appendLine("| ${r.run} | ${r.seed} | $endKind | $decidedBy | $team | ${fmt(num("pillar_damage_dealt"))} | ${fmt(num("pillar_damage_taken"))} | ${fmt(left)} | ${fmt(unattr)} | ${fmt(num("pillar_damage_taken_by_players"))} | ${fmt(num("pillar_damage_bleed"))} | ${fmt(num("pillar_damage_unknown"))} | ${firstTierLossMin(o)?.let { "%.2f".format(it) } ?: "none"} | ${endMap("end_play_hp", team)} | ${endMap("end_bleed_taken", team)} |")
             }
         }
         appendLine()
@@ -178,7 +179,7 @@ object MassPlay {
         val n = results.size
         appendLine("## Batch aggregate (${n} runs)")
         appendLine()
-        appendLine("Draws: $draws of $n (counted separately from wins). Taken = dealt by players + unattributed (bleed + unknown); dealt-by-players here is taken minus unattributed, so it includes self-inflicted.")
+        appendLine("Draws: $draws of $n (counted separately from wins). Taken = dealt by players + unattributed (bleed + unknown); taken_by_players = taken minus bleed (so it includes self-inflicted and any unknown).")
         appendLine()
         appendLine("| team | wins | runs | win share | pillar taken | taken: by players | taken: unattributed | of which bleed | of which unknown | first tier loss min (median / mean) | runs without a tier loss |")
         appendLine("|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|")
@@ -191,13 +192,14 @@ object MassPlay {
             val objs = results.mapNotNull { teamsOf(it)?.get(t) as? kotlinx.serialization.json.JsonObject }
             val taken = objs.sumOf { it.num("pillar_damage_taken") }
             val unattr = objs.sumOf { it.num("pillar_damage_taken_unattributed") }
+            val byPlayers = objs.sumOf { it.num("pillar_damage_taken_by_players") }
             val bleed = objs.sumOf { it.num("pillar_damage_bleed") }
             val unknown = objs.sumOf { it.num("pillar_damage_unknown") }
             sumDealt += objs.sumOf { it.num("pillar_damage_dealt") }
             sumTaken += taken
             val lossMins = objs.mapNotNull { firstTierLossMin(it) }.sorted()
             val lossCell = if (lossMins.isEmpty()) "n/a" else "%.2f / %.2f".format(median(lossMins), lossMins.average())
-            appendLine("| $t | $wins | $n | ${pct(wins.toDouble(), n.toDouble())} | ${fmt(taken)} | ${fmt(taken - unattr)} (${pct(taken - unattr, taken)}) | ${fmt(unattr)} (${pct(unattr, taken)}) | ${fmt(bleed)} (${pct(bleed, taken)}) | ${fmt(unknown)} (${pct(unknown, taken)}) | $lossCell | ${n - lossMins.size} |")
+            appendLine("| $t | $wins | $n | ${pct(wins.toDouble(), n.toDouble())} | ${fmt(taken)} | ${fmt(byPlayers)} (${pct(byPlayers, taken)}) | ${fmt(unattr)} (${pct(unattr, taken)}) | ${fmt(bleed)} (${pct(bleed, taken)}) | ${fmt(unknown)} (${pct(unknown, taken)}) | $lossCell | ${n - lossMins.size} |")
         }
         appendLine()
         appendLine("Player share of pillar damage (sum dealt / sum taken): ${fmt(sumDealt)} / ${fmt(sumTaken)} = ${pct(sumDealt, sumTaken)}")
