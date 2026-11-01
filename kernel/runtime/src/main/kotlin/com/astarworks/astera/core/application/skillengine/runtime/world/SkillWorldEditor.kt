@@ -11,11 +11,20 @@ import java.util.PriorityQueue
  * Tick-driven ledger of temporary block edits. Every plain block a skill changes is restored after its revert
  * delay (there are no permanent skill edits); overlapping edits keep the very first original and belong to the
  * cast that touched the cell last. [revertCast] restores only that cast's cells and drops its pending ripple
- * (the break-area cancel); [revertAll] (match end, reload, shutdown) restores everything at once. Call [tick] once per server tick.
+ * (the break-area cancel); [revertAll] (match end, reload) restores everything now (bodies get a grace); [revertAllNow] (shutdown) does so unconditionally.
+ * Call [tick] once per server tick.
+ *
+ * A cell is never restored into a living body: when [ISkillBlockAccess.isBodyIn] says an entity's hitbox overlaps it, that
+ * cell is deferred (the edit stays owed) and retried every tick until it is free; the other cells restore normally.
+ * Waiting is unbounded while a match runs. After [revertAll] (match end) the wait is capped at [END_GRACE_TICKS], then the
+ * cell is restored regardless (the match's players are leaving the arena; cover is rebuilt by the match anyway).
  */
 public class SkillWorldEditor(public val blocks: ISkillBlockAccess) {
 
-    private class Edited(val original: String?, var token: Long, var owner: CastRef)
+    private class Edited(val original: String?, var token: Long, var owner: CastRef) {
+        /** Set once the cell is waiting for its body to leave: the tick after which a match-end wait is over (Long.MAX = no cap yet). */
+        var forceAt: Long = Long.MAX_VALUE
+    }
 
     private class Task(val due: Long, val seq: Long, val castId: Long, val action: () -> Unit)
 
@@ -27,15 +36,31 @@ public class SkillWorldEditor(public val blocks: ISkillBlockAccess) {
     private val queue = PriorityQueue<Task>(compareBy<Task>({ it.due }, { it.seq }))
     private val edited = HashMap<Key, Edited>()
 
+    /** Cells whose restore is waiting for a body to step out of them. */
+    private val deferred = LinkedHashSet<Key>()
+
     public val pendingReverts: Int get() = edited.size
+
+    /** Cells currently held back because a living body stands in them. */
+    public val deferredReverts: Int get() = deferred.size
 
     public fun tick() {
         now++
         while (true) {
-            val head = queue.peek() ?: return
-            if (head.due > now) return
+            val head = queue.peek() ?: break
+            if (head.due > now) break
             queue.poll()
             head.action()
+        }
+        retryDeferred()
+    }
+
+    private fun retryDeferred() {
+        if (deferred.isEmpty()) return
+        for (key in deferred.toList()) {
+            val entry = edited[key]
+            if (entry == null) { deferred.remove(key); continue }
+            restore(key, force = now >= entry.forceAt)
         }
     }
 
@@ -59,6 +84,9 @@ public class SkillWorldEditor(public val blocks: ISkillBlockAccess) {
         val token = ++nextToken
         entry.token = token
         entry.owner = cast
+        // A fresh edit owns the cell again: its own revert is due later, so a restore that was waiting for a body is off.
+        deferred.remove(key)
+        entry.forceAt = Long.MAX_VALUE
         later(cast, revertAfterTicks) { if (edited[key]?.token == token) restore(key) }
     }
 
@@ -68,13 +96,34 @@ public class SkillWorldEditor(public val blocks: ISkillBlockAccess) {
         for (key in edited.filterValues { it.owner.castId == cast.castId }.keys) restore(key)
     }
 
+    /** Match end / reload: restore every free cell now; a cell with a body in it keeps waiting for at most [END_GRACE_TICKS]. */
     public fun revertAll() {
         queue.clear()
-        for (key in edited.keys.toList()) restore(key)
+        for ((key, entry) in edited.entries.toList()) {
+            entry.forceAt = minOf(entry.forceAt, now + END_GRACE_TICKS)
+            restore(key)
+        }
     }
 
-    private fun restore(key: Key) {
-        val entry = edited.remove(key) ?: return
+    /** Shutdown: nothing ticks afterwards, so restore every cell now, bodies or not. */
+    public fun revertAllNow() {
+        queue.clear()
+        for (key in edited.keys.toList()) restore(key, force = true)
+    }
+
+    private fun restore(key: Key, force: Boolean = false) {
+        val entry = edited[key] ?: return
+        if (!force && blocks.isBodyIn(entry.owner, key.cell)) {
+            deferred += key
+            return
+        }
+        edited.remove(key)
+        deferred.remove(key)
         if (WorldBlockRules.isAir(entry.original)) blocks.remove(entry.owner, key.cell) else blocks.place(entry.owner, key.cell, entry.original!!)
+    }
+
+    private companion object {
+        /** Ticks a match-end restore waits for a body to leave before it restores anyway (10 s). */
+        const val END_GRACE_TICKS: Long = 200
     }
 }

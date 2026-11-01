@@ -16,7 +16,6 @@ import com.astarworks.astera.core.domain.match.Score
 import com.astarworks.astera.core.domain.match.Team
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.stage.StageId
-import java.util.UUID
 
 /**
  * Creates a new match for [stageId] and transitions it from WAITING → COUNTDOWN.
@@ -52,6 +51,7 @@ public class StartMatchUseCase(
     private val eventBus: IDomainEventBus,
     private val scheduler: IScheduler,
     private val arenas: com.astarworks.astera.core.application.port.outbound.IArenaBuilder = com.astarworks.astera.core.application.service.NoopArenaBuilder(),
+    private val idRandom: kotlin.random.Random = kotlin.random.Random.Default,
 ) {
 
     public fun execute(
@@ -71,7 +71,7 @@ public class StartMatchUseCase(
             ?: defaultTeamIdsFor(modeKey)
         require(resolvedTeamIds.isNotEmpty()) { "StartMatchUseCase requires at least one team id" }
 
-        val matchId = MatchId("match-${UUID.randomUUID().toString().take(8)}")
+        val matchId = MatchId("match-" + "%08x".format(idRandom.nextInt()))
         val initialTeams = resolvedTeamIds.map { teamId ->
             Team(
                 id = teamId,

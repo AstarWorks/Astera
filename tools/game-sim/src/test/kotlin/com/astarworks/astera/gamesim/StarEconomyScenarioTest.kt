@@ -84,8 +84,8 @@ class StarEconomyScenarioTest {
             out.appendLine("total    | %6.2f | 100.0%%".format(issuedAll / r.n / minutes))
             out.appendLine("per minute (stars, whole match): " + r.perMinute.mapIndexed { i, m -> "m$i=${m.values.sum()}" }.joinToString(" "))
             out.appendLine("wave sizes: ${r.waves} (per player at first wave %.1f)".format(r.waves.first().toDouble() / r.n))
-            val direct = r.kill.getValue("kill-direct"); val bounty = r.total.getValue(StarSource.BOUNTY)
-            out.appendLine("kills: direct %d, ground %d, lost %d, bounty payouts %d (%d stars); kill income share of all income %.1f%%".format(direct, r.kill.getValue("kill-ground"), r.kill.getValue("kill-lost"), r.kill.getValue("bounty-paid"), bounty, 100.0 * (direct + bounty) / (issuedAll + direct)))
+            val ground = r.kill.getValue("kill-ground"); val bounty = r.total.getValue(StarSource.BOUNTY)
+            out.appendLine("kills: ground burst %d, bounty payouts %d (%d stars); bounty share of all income %.1f%%; (ground stars are re-picked, not new supply)".format(ground, r.kill.getValue("bounty-paid"), bounty, 100.0 * bounty / issuedAll))
             out.appendLine("leader kill payout %d vs trailing kill payout %d".format(r.leaderPayout, r.trailingPayout))
             out.appendLine("minutes to level (carry 10/30/60/100): " + goals.joinToString(" ") { g -> r.levelMinutes[g]?.let { "%.1f".format(it) } ?: "n/a" })
             out.appendLine("timer generator (spot) share: %.1f%% of issued, %.1f%% of the budget".format(100.0 * r.total.getValue(StarSource.SPOT) / issuedAll, 100.0 * r.total.getValue(StarSource.SPOT) / r.budget))
@@ -216,20 +216,35 @@ class StarEconomyScenarioTest {
                     if ((sec + i * 7) % 20 == 0) p.moveTo(cacheSpots[((sec / 20) * 5 + i * 3) % cacheSpots.size])  // scouting walk to a cache
                 }
                 // The players pick up whatever lies on the map (the item pickup itself, team-locked drops included).
+                // A pickup walk is a short detour: every lying star gets its own walker (a chunk of at most one star per player per
+                // tick), and the walkers are back where they stood afterwards, so how many stars lie around (a bigger kill
+                // burst) neither leaves stars uncollected nor pulls the scouts off their cache spots.
+                val returnTo = mutableMapOf<Int, Vec3>()
+                var spent = 0
                 if (second % 3 == 0) {
-                    // One player walks over each lying star (team-locked base drops: a player of that team), rotating who picks up.
-                    sim.starDrops.lying().forEachIndexed { k, d ->
-                        val owner = baseTeams.entries.firstOrNull { (_, pos) -> pos.distance(d.position) < 14.0 }?.key
-                        val pool = players.indices.filter { owner == null || entries[it].second == owner }
-                        players[pool[(k + second) % pool.size]].moveTo(d.position)
+                    // Team-locked base drops need a player of that team; the rest rotate who picks up.
+                    val chunks = sim.starDrops.lying().withIndex().groupBy { (k, _) -> k / players.size }
+                    for ((_, chunk) in chunks) {
+                        val busy = mutableSetOf<Int>()
+                        for ((k, d) in chunk) {
+                            val owner = baseTeams.entries.firstOrNull { (_, pos) -> pos.distance(d.position) < 14.0 }?.key
+                            val pool = players.indices.filter { owner == null || entries[it].second == owner }
+                            val start = (k + second) % pool.size
+                            val who = pool.indices.map { pool[(start + it) % pool.size] }.firstOrNull { it !in busy } ?: continue
+                            busy += who
+                            returnTo.putIfAbsent(who, players[who].position)
+                            players[who].moveTo(d.position)
+                        }
+                        advance(1); spent += 1
                     }
                 }
+                returnTo.forEach { (who, at) -> players[who].moveTo(at) }
                 if (kills.any { it * 60 == sec } && n >= 2) {
                     val killer = players[0]
                     val victim = players.drop(1).maxBy { stars.get(matchId, it.id) }
                     sim.eventBus.publish(PlayerKilled(victim.id, killer.id, DamageSource.Environment.Generic, sim.tick))
                 }
-                advance(20)
+                advance((20 - spent).coerceAtLeast(0))
                 val warnNow = (sim.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentationVisuals>() as com.astarworks.astera.core.application.service.presentation.LoggingPresentationVisuals).calls.count { it is com.astarworks.astera.core.application.service.presentation.LoggingPresentationVisuals.Call.Title && it.title.toString().contains("wave-warn") }
                 if (warnNow > warnTitles) { warnTitles = warnNow; warnTicks += sim.tick - t0 }
                 val delta = (sim.tick - lastTick) / 20.0 * shippedEconomy.budgetPerMinute((sim.tick - t0) / 20.0, n) / 60.0
@@ -256,7 +271,7 @@ class StarEconomyScenarioTest {
             val waveEvents = waveSupplied.map { (it.atTick - t0) to it.amount }
             val spotPops = spotGens.associate { g -> g.id.value to g.spots.indices.map { budget.stats.get(matchId, "spot:${g.id.value}:$it") } }
 
-            // Leader vs trailing: the same killer takes a leader (100 carried) and a trailing player (5 carried).
+            // Leader vs trailing: the same killer takes a leader (40 above the richest carrier) and a trailing player (1 carried). The payout is the bounty only.
             fun payout(carried: Int, victimIdx: Int): Int {
                 val victim = players[victimIdx]
                 stars.spend(matchId, victim.id, stars.get(matchId, victim.id))
@@ -265,14 +280,14 @@ class StarEconomyScenarioTest {
                 sim.eventBus.publish(PlayerKilled(victim.id, players[0].id, DamageSource.Environment.Generic, sim.tick))
                 return stars.get(matchId, players[0].id) - before
             }
-            val trailingPayout = payout(5, n - 1)
-            val leaderPayout = payout(100, if (n >= 3) n - 2 else 1)
+            val trailingPayout = payout(1, n - 1)
+            val leaderPayout = payout(players.maxOf { stars.get(matchId, it.id) } + 40, if (n >= 3) n - 2 else 1)
             result = Result(
                 n, minutes, perMinute, total,
                 sources.associateWith { budget.stats.get(matchId, "requested:${it.key}") },
                 sources.associateWith { budget.stats.capHits(matchId, it) },
                 budgetIntegral, waves,
-                listOf("kill-direct", "kill-ground", "kill-lost", "bounty-paid").associateWith { budget.stats.get(matchId, it) },
+                listOf("kill-ground", "bounty-paid").associateWith { budget.stats.get(matchId, it) },
                 spotPops, levelMinutes, leaderPayout, trailingPayout,
                 budgetPerMinute, waveEvents, p3StartTick, warnTicks,
             )

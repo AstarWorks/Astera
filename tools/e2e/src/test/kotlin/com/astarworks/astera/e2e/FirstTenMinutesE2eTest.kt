@@ -167,6 +167,10 @@ class FirstTenMinutesE2eTest : PlaythroughBase() {
             bots.forEach { it.command("astera norma choose kill") }
             Thread.sleep(500)
             rcon("effect give ${victim.name} minecraft:instant_health 1 4 true")
+            E2eReport.check(suite, "$kind: the requested weapon is selected before input", "SelectedItem Astera item_id") {
+                assertThat(slot).describedAs("${items[i]} never reached a hotbar slot (0..8)").isNotNull()
+                "${items[i]} selected in slot $slot"
+            }
             val m = mark(learner, victim)
             val killed = when (kind) {
                 "gun" -> duel(learner, victim, keepAlive = bots.filter { it != learner && it != victim }).killed

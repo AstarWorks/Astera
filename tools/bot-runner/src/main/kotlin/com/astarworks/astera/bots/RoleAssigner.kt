@@ -66,7 +66,7 @@ class RoleAssigner(
     // ---- capture-wool ----------------------------------------------------------------------------------------------
 
     /**
-     * Zones the team owns get a holder each (at most one per three mates), everyone else works the zones it does not own:
+     * Zones the team owns get a holder each (at most one per three mates, none for a lone bot), everyone else works the zones it does not own:
      * a zone the team held a moment ago is retaken, any other is contested. With every zone held, the squad spreads out over them.
      */
     fun captureWool(zones: List<String>, facts: ModeFacts, lostBefore: Set<String>): Assignment? {
@@ -75,7 +75,8 @@ class RoleAssigner(
         val mine = sorted.filter { facts.zoneOwner(it) == own }
         val open = sorted.filter { facts.zoneOwner(it) != own }
         if (open.isEmpty()) return Assignment(Role.HOLDER, zone = pick(sorted, index))
-        val holders = minOf(mine.size, maxOf(1, n / 3)).takeIf { mine.isNotEmpty() } ?: 0
+        // A lone bot has nobody to work the open zones while it sits on an owned one: it never holds, it takes the next.
+        val holders = if (n < 2) 0 else minOf(mine.size, maxOf(1, n / 3)).takeIf { mine.isNotEmpty() } ?: 0
         if (index < holders) return Assignment(Role.HOLDER, zone = pick(mine, index))
         val zone = pick(open, index - holders)
         return Assignment(if (zone in lostBefore) Role.RETAKER else Role.CONTESTER, zone = zone)

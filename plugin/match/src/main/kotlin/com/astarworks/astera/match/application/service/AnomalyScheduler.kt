@@ -33,7 +33,7 @@ import kotlin.time.Duration
  * The [random] parameter is exposed so tests can pass a seed/stub
  * [Random] whose `nextDouble()` always falls under [FIRE_PROBABILITY]; the
  * scheduler then fires on every tick step, making the test surface
- * deterministic. Production uses [Random.Default].
+ * deterministic. Wiring injects it from `IMatchRandomSource`.
  *
  * ## Why not coroutines
  *
@@ -48,7 +48,7 @@ public class AnomalyScheduler(
     private val resolve: ResolveAnomalyEffectUseCase,
     private val scheduler: IScheduler,
     private val matches: IMatchRepository,
-    private val random: Random = Random.Default,
+    private val random: Random,
 ) {
 
     /**

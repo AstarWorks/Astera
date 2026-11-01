@@ -43,6 +43,7 @@ frames:
     origin: bolt
     v: velocity
     w: up
+    w_fallback: [1, 0, 0]
     s: v x w
   - id: hit
     on: event.victim
@@ -50,6 +51,7 @@ frames:
     origin: victim.center
     v: incoming
     w: up
+    w_fallback: [1, 0, 0]
     s: v x w
   - id: blk
     on: event.block
@@ -57,6 +59,7 @@ frames:
     origin: contact
     v: incoming
     w: up
+    w_fallback: [1, 0, 0]
     s: v x w
 lines:
   tail: {frame: shot, from: {}, to: {v: -0.4}}                  # the bullet's last 0.4

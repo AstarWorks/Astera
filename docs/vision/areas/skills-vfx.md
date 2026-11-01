@@ -9,6 +9,7 @@ Owner track `wp/skills-vfx`. Items: Board prefix `SKL-`. Sources: handoff `limbu
 - **Done = reviewer PASS + founder approval.** The reviewer judges motion match per beat against the reference and the founder's words, never particle counts.
 
 ## 現状
+- 垂直入射の `incoming` / `velocity` + `up` frame は authored `w_fallback: [1, 0, 0]` で pose を保つ。暗黙の軸置換はしない。`VerticalIncidenceScenarioTest` が上下の hit、fallback 未指定時の fault、fire-staff の上下 aim で cast cue 1 回と bolt shell を検証。skill trace は成功した damage op の会心適用前 `base` を記録し、reload の balance 比率を本番会心から独立して測定する。FirstTenMinutes はコンパス更新ではなく PDC item_id で武器選択を確認する（e2e 再実行は統合 window 待ち）。
 - SKL-07 採用済み `demo-glow-comparison`: A=vanilla Glowing 12 block displays、B=予約純青色+sprite alpha254 の二要素を確認する `emissive-particle` dust 40、C=既存 `emissive-pulse` item displays 6、D=通常 orange dust 40。display の `glowing` と `glow_color` は独立した vanilla field として runtime まで伝達。particle program も effect registry の named hooks / exclusive marker ledger で合成。実クライアントの昼6000 / 夜18000 / 壁越し t10 比較は `/tmp/claude-1000/vfx-craft/glow2/sheet.png`。夜でも B は明るく D は暗くなり、壁越しは A の輪郭だけが残ることを確認。各41 frames / skippedTicks=0。A/B/C の全3方式を founder が採用 (2026-11-01)。
 - 基準点は 079262164 (integrate19, 2026-10-30)。スキル engine は v3 (ADR-0303, Status **Accepted** rev4.22, rev4.17 時点の記述 `docs/adr/0303-natural-skill-schema.md`)。
 - スコープ: `content/skills/` に Limbus は bastion-greatsword (def/s1/s2/ego) と couture-rapier (def/s1/s2/s3/ego) の 9 文書のみ。他 8 family は founder 2026-10-29 の決定で削除 (`content/skills` に id なし)。基本スキルは残し v3 へ移行、sample-* 14 を含め計 131 文書 (ls)。

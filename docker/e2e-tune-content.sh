@@ -126,8 +126,7 @@ done
 patch norma-layer/layer.yaml 's/^(  norma_max_level:).*/\1 "3"/' '^  norma_max_level:'
 patch norma-layer/layer.yaml 's/^(  norma_stars_goal:).*/\1 "2,3"/' '^  norma_stars_goal:'
 patch norma-layer/layer.yaml 's/^(  norma_kills_goal:).*/\1 "1,2"/' '^  norma_kills_goal:'
-patch norma-layer/layer.yaml 's/^(  star_kill_share:).*/\1 "0.0"/' '^  star_kill_share:'
-patch norma-layer/layer.yaml 's/^(  star_kill_ground_share:).*/\1 "1.0"/' '^  star_kill_ground_share:'
+patch norma-layer/layer.yaml 's/^(  star_death_ground_share:).*/\1 "1.0"/' '^  star_death_ground_share:'
 
 # SkillEngineV3E2eTest#reloadOneSkillChangesNextCastOnly: an e2e-only probe skill whose directory is a named volume
 # (docker-compose.e2e.yml `e2e-skill-probe`, mounted read-write into the runner) so the suite can rewrite its YAML and

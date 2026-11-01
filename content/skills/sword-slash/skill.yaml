@@ -59,6 +59,7 @@ frames:
     origin: victim.center
     v: incoming
     w: up
+    w_fallback: [1, 0, 0]
     s: v x w
 lines:
   edge: {frame: blade, from: {v: 0.65}, to: {v: 1.09}}           # outer half of the blade (the inner half stays out of the caster eye volume)

@@ -265,15 +265,19 @@ public object MatchWiring {
                 com.astarworks.astera.match.application.service.InMemoryMatchModeRegistry()
             }
 
+        // Reproducible hosts (the simulator) pre-register a seeded source; Paper draws from Random.Default.
+        val randomSource: com.astarworks.astera.match.application.port.outbound.IMatchRandomSource =
+            services.get() ?: com.astarworks.astera.match.application.port.outbound.IMatchRandomSource { kotlin.random.Random.Default }
+
         // 3. Construct use cases -----------------------------------------------
         val victoryEvaluator = VictoryConditionEvaluator()
-        val startMatch = StartMatchUseCase(stages, matches, eventBus, scheduler, services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>())
+        val startMatch = StartMatchUseCase(stages, matches, eventBus, scheduler, services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>(), randomSource.stream("match-id"))
         val endMatch = EndMatchUseCase(matches, eventBus, scheduler, victoryEvaluator)
         // IWorldGateway is registered by Astera-Core (gate on null for hosts without one).
         val worldGateway = services.get<IWorldGateway>()
         // WP9: one per-team spawn selector shared by entry teleports and respawns.
         val spawnSelector = ctx.stateful<com.astarworks.astera.match.application.service.ISpawnSelector> {
-            com.astarworks.astera.match.application.service.DefaultSpawnSelector(matches)
+            com.astarworks.astera.match.application.service.DefaultSpawnSelector(matches, randomSource.stream("spawn-selector"))
         }
         subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) {
             (spawnSelector as? com.astarworks.astera.match.application.service.DefaultSpawnSelector)?.forget(it.matchId)
@@ -402,6 +406,7 @@ public object MatchWiring {
             resolve = resolveAnomaly,
             scheduler = scheduler,
             matches = matches,
+            random = randomSource.stream("anomaly-scheduler"),
         )
         scheduledTasks += anomalyScheduler.start()
 
