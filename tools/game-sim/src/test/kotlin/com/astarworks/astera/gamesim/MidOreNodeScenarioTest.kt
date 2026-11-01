@@ -126,7 +126,7 @@ class MidOreNodeScenarioTest {
             // Level 1: gold needs Norma level 2, emerald level 4. The swing does nothing, plays the deny sound and shows the level.
             assertThat(nodes.mine(red.id, worldId, gold, ItemId("diamond-pickaxe"))).isEqualTo(OreNodeService.Outcome.LevelLocked(2))
             assertThat(bars.map { it.value }).contains("astera.ore.needs-level")
-            assertThat(sim.oreNodes.denied).contains(Triple(gold.x.toInt(), 65, gold.z.toInt()))
+            assertThat(sim.oreNodes.refusals).contains(Triple(gold.x.toInt(), 65, gold.z.toInt()))
             assertThat(sim.oreNodes.crackAt(gold.x.toInt(), 65, gold.z.toInt())).isNull()
 
             // Ten stars + the base check clear level 1 (STAR goal): gold opens, with the level-2 speed multiplier (1.15 x 120 = 138 per iron-pickaxe hit).

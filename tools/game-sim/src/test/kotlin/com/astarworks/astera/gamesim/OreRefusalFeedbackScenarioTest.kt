@@ -143,6 +143,65 @@ class OreRefusalFeedbackScenarioTest {
             for (c in cells.take(3)) nodes.strike(red.id, worldId, c, wood, 100)
             assertThat(bars(needsTier) - barsBefore).isEqualTo(2)
             assertThat(cues() - cuesBefore).isEqualTo(2)
+
+            // Phase-locked: a Mid gold node (opens in phase 2) in phase 1 answers like any other refusal: its own line, the same cue and puff, no damage.
+            val goldGroup = oreFile.nodes.first { it.block == "astera:ore_gold_node" }
+            val goldSpec = goldGroup.toSpec(oreFile) { customBlocks.find(BlockType(it)) }
+            check(goldSpec.minPhase > 1) { "gold must be phase-gated in annihilation-arena.yaml" }
+            val goldCell = goldSpec.cells.first().let { Vec3(it.x + origin.x, it.y, it.z + origin.z) }
+            val needsPhase = OreNodeService.NEEDS_PHASE.value
+            advance(20)
+            var b = bars(needsPhase); var c = cues(); var p = puffs()
+            assertThat(nodes.mine(red.id, worldId, goldCell, ItemId("diamond-pickaxe"))).isEqualTo(OreNodeService.Outcome.PhaseLocked(goldSpec.minPhase))
+            assertThat(bars(needsPhase) - b).isEqualTo(1)
+            assertThat(cues() - c).isEqualTo(1)
+            assertThat(puffs() - p).isEqualTo(1)
+            assertThat(cracked(goldCell)).isNull()
+            // Skill on the phase-locked node: throttled like the other skill refusals, answers once per cast.
+            advance(20)
+            b = bars(needsPhase); c = cues(); p = puffs()
+            val diamond = ToolType(ToolKind.PICKAXE, ToolTier.DIAMOND)
+            repeat(3) { assertThat(nodes.strike(red.id, worldId, goldCell, diamond, 100)).isEqualTo(IOreNodeStrikes.Result.NONE) }
+            assertThat(bars(needsPhase) - b).isEqualTo(1)
+            assertThat(cues() - c).isEqualTo(1)
+            assertThat(puffs() - p).isEqualTo(1)
+            assertThat(cracked(goldCell)).isNull()
+
+            // Level-locked: an open (phase 1) iron node whose min_norma_level is above the player's level 1.
+            val lockedSpec = spec.copy(minNormaLevel = 3)
+            val levelCell = cells[2]
+            val levelMap = ConcurrentHashMap<OreNodeService.Key, OreNodeService.Node>()
+            levelMap[OreNodeService.Key(worldId.value, levelCell.x.toInt(), levelCell.y.toInt(), levelCell.z.toInt())] =
+                OreNodeService.Node(matchId, worldId, levelCell, lockedSpec)
+            val levelService = OreNodeService(
+                registry = sim.services.getOrThrow<IOreNodeRegistry>(),
+                stages = null,
+                matchWorlds = sim.services.getOrThrow<IMatchWorldRepository>(),
+                customBlocks = customBlocks,
+                items = sim.services.getOrThrow<IItemRegistry>(),
+                delivery = { sim.services.get(IItemDelivery::class) },
+                server = sim.services.getOrThrow<IMcServer>(),
+                world = sim.oreNodes,
+                scheduler = sim.scheduler,
+                levelOf = { 1 },
+                sounds = { sim.services.get(ISoundCuePlayer::class) },
+                nodes = levelMap,
+            )
+            val needsLevel = OreNodeService.NEEDS_LEVEL.value
+            advance(20)
+            b = bars(needsLevel); c = cues(); p = puffs()
+            assertThat(levelService.mine(red.id, worldId, levelCell, ItemId("diamond-pickaxe"))).isEqualTo(OreNodeService.Outcome.LevelLocked(3))
+            assertThat(bars(needsLevel) - b).isEqualTo(1)
+            assertThat(cues() - c).isEqualTo(1)
+            assertThat(puffs() - p).isEqualTo(1)
+            assertThat(cracked(levelCell)).isNull()
+            advance(20)
+            b = bars(needsLevel); c = cues(); p = puffs()
+            repeat(3) { assertThat(levelService.strike(red.id, worldId, levelCell, diamond, 100)).isEqualTo(IOreNodeStrikes.Result.NONE) }
+            assertThat(bars(needsLevel) - b).isEqualTo(1)
+            assertThat(cues() - c).isEqualTo(1)
+            assertThat(puffs() - p).isEqualTo(1)
+            assertThat(cracked(levelCell)).isNull()
         }
     }
 }

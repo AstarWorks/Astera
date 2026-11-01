@@ -325,16 +325,22 @@ class SkillEngineV3E2eTest : E2eBase() {
             for (skill in listOf("katana-iaido", "spear-charge")) {
                 rcon("execute in minecraft:overworld run tp ${a.name} 0.5 -60 0.5 0 0")
                 rcon("kill @e[type=minecraft:zombie,tag=$tag]")
-                Thread.sleep(800)
+                // `kill` only starts the 20-tick death animation; the corpse keeps the fixed UUID registered until it is removed, and a
+                // summon with a UUID already in use is silently dropped. Wait until the selector sees nothing before re-summoning.
+                val goneBy = System.currentTimeMillis() + 5_000
+                while (posOf(dummy) != null && System.currentTimeMillis() < goneBy) Thread.sleep(100)
+                check(posOf(dummy) == null) { "the previous $skill dummy corpse was not removed within 5s" }
+                Thread.sleep(300)
                 rcon("execute in minecraft:overworld run summon minecraft:zombie 0.5 -60 3.5 {UUID:[I;0,0,0,77],NoAI:1b,Silent:1b,PersistenceRequired:1b,Tags:[\"$tag\"],attributes:[{id:\"minecraft:max_health\",base:2000}],Health:2000f,active_effects:[{id:\"minecraft:fire_resistance\",duration:100000,show_particles:0b}]}")
                 Thread.sleep(800)
+                check(posOf(dummy) != null) { "dummy was not summoned before the $skill cast (setup failed)" }
                 rcon("astera skill cast $skill ${a.name} --force")
                 Thread.sleep(2_000)
                 val caster = posOf(a.name)
                 val victim = posOf(dummy)
                 E2eReport.check(suite, "$skill dash does not end with the caster eye inside the dummy hitbox", "RCON data get entity Pos (caster, dummy) after the cast") {
                     assertThat(caster).describedAs("caster Pos").isNotNull()
-                    assertThat(victim).describedAs("dummy Pos (alive)").isNotNull()
+                    assertThat(victim).describedAs("dummy Pos: dummy died or despawned after the $skill cast").isNotNull()
                     val eyeY = caster!!.second + 1.62
                     val inside = Math.abs(caster.first - victim!!.first) < 0.3 && Math.abs(caster.third - victim.third) < 0.3 &&
                         eyeY > victim.second && eyeY < victim.second + 1.95
