@@ -15,14 +15,14 @@ class ShippedShaderDisplayScenarioTest : SkillEngineScenario() {
     @Test
     fun shippedShaderDemosPlayWithTheirShaderSelection() {
         val demos = (SkillComposer(contentDir.resolve("vfx")).composeAll() as Result.Success).value
-        assertThat(demos).hasSize(3)
-        for ((id, tree) in demos) {
+        assertThat(demos.keys).containsExactlyInAnyOrder("demo-shader-dissolve", "demo-shader-uv-flow", "demo-shader-emissive-pulse", "demo-glow-comparison")
+        for ((id, tree) in demos.filterKeys { it.startsWith("demo-shader-") }) {
             val skill = (compileTree(id, tree.tree) as Result.Success).value
             val rec = GatewayRecorder()
             val effects = mutableListOf<String?>()
             val visual = object : ISkillVisualGateway by rec.visual {
-                override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView, glow: String?) =
-                    rec.visual.spawnMesh(cast, item, part, pose, brightness, look, view, glow).also { effects += look.shaderEffect }
+                override fun spawnMesh(cast: CastRef, item: String, part: String?, pose: VisualPose, brightness: Int?, look: MeshLook, view: DisplayView) =
+                    rec.visual.spawnMesh(cast, item, part, pose, brightness, look, view).also { effects += look.shaderEffect }
             }
             val player = playProbe(skill, ticks = 102, rec = rec, visual = visual)
             assertThat(player.faults()).describedAs(id).isEmpty()
