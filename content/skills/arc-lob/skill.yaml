@@ -36,7 +36,7 @@ machine:
           at: 0
           for: 24
           motion:
-            - {law: path, points: [{forward: 0}, {forward: 3, up: 2.5}, {forward: 6, up: 3.5}, {forward: 8, up: -1.2}], at: 0, for: 24, ease: in_out_sine}
+            - {law: path, points: [{v: 0}, {v: 3, w: 2.5}, {v: 6, w: 3.5}, {v: 8, w: -1.2}], at: 0, for: 24, ease: in_out_sine}
         - {id: boom, op: particle, particle: flame, frame: land, count: 20, offset: [0.5, 0.2, 0.5], extra: 0.1, at: 23, detach: true}
         - {id: hurt, op: damage, at: 23, target: {kind: enemies, frame: land, pos: {v: 0}, radius: 3.0}, damage: {fire: "${dmg}"}}
     end: {final: true}
