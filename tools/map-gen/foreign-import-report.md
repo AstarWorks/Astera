@@ -19,8 +19,11 @@ Read-only dev evidence (VM `astera@192.168.14.3`):
 - That footprint and palette identify the pre-relief **annihilation-arena**, not
   siege-isles-loyal. See `git show f32ac73ef^:content/stages/annihilation-arena.yaml`:
   frost theme, seed 20261025, bases `(0,-166)`, `(143,83)`, `(-143,83)`, and outposts
-  `(177,-101)`, `(-177,-101)`, **`(0,203)`**. The southern snow island in the screenshot
-  is `flank-blue-yellow`, world centre **`(4096,64,203)`**. Its straight illuminated
+  `(177,-101)`, `(-177,-101)`, **`(0,203)`**. The matching real-client camera reconstruction
+  from anni-inworld identifies the pictured island as the **west** flank, local
+  **`(-177,64,-101)`**, world centre **`(3919,64,-101)`**, beside the red/yellow towns
+  and west Highmarch outpost `(-85,-50)`. This corrects the earlier south-flank
+  identification; both legacy islands existed in the sampled residual data. Its straight illuminated
   spruce bridges run to the blue/yellow bases. Shape/materials come from
   `ArenaIslandGenerator.bridge` (line 460) and frost terrain/decoration (line 1404 onwards).
 - All current procedural/import/debug stages share `world`; `PaperArenaWorld.placed`
