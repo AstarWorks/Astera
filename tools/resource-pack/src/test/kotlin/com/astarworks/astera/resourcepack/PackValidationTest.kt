@@ -38,7 +38,9 @@ class PackValidationTest {
                 val centre = image.getRGB(image.width / 2, image.height / 2)
                 if (part == "background") {
                     assertThat(centre ushr 24).isBetween(240, 254)
-                    assertThat(maxOf(centre shr 16 and 255, centre shr 8 and 255, centre and 255)).isLessThan(24)
+                    // UI-14 (c13010622, tools/item-art/scripts/tooltip-frames.py): the centre is mix((14,12,22), rarity colour, 0.05)
+                    // at alpha 245, so every rarity stays near-black purple with a faint tint; its brightest channel is 34 (common blue).
+                    assertThat(maxOf(centre shr 16 and 255, centre shr 8 and 255, centre and 255)).isLessThan(36)
                 } else {
                     assertThat(centre ushr 24).isZero()
                     assertThat((0 until image.height).any { y ->
