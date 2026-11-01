@@ -35,6 +35,18 @@ fun main(args: Array<String>) {
     check(nodes.size == 74)
     nodes.forEach { p -> blocks[ArenaBlockPos(p.x.toInt(), p.y.toInt(), p.z.toInt())] = "minecraft:stone" }
     val finder = PathFinder { x, y, z -> blocks.containsKey(ArenaBlockPos(x, y, z)) }
+    // Every fixed supply cell stays open, including candidates not selected by the temporary preview.
+    for ((name, value) in coordinates.getValue("stars").jsonObject) {
+        val p = value.jsonArray.map { it.jsonPrimitive.int }
+        check(finder.standable(p[0], p[1], p[2])) { "fixed star spot obstructed: $name $p" }
+    }
+    // Tier crowns escalate above their objective floors, with a visible team material and light.
+    for (pillar in stage.pillars) {
+        val x = pillar.position.x.toInt(); val y = pillar.position.y.toInt(); val z = pillar.position.z.toInt()
+        val crown = y + 8 + pillar.tier.ordinalValue * 2
+        check(plan.stateAt(x, crown, z) == "minecraft:${pillar.team.value}_concrete")
+        check(plan.stateAt(x, crown + 2, z) == "minecraft:glowstone")
+    }
     val rows = StringBuilder("# Highmarch integration traversal\n\nShipped import, stage and ore loaders + production PathFinder, cap 5000 with at most 12 progress replans; paths count cells as TraversalCheck does (5.6 cells/s). Diagonals count as one cell, so these are comparable estimates, not elapsed play time.\n\n| Scenario | Route | Reached | Path blocks | Sprint s |\n|---|---|---|---:|---:|\n")
     var failures = 0
     fun walk(label: String, start: Triple<Int, Int, Int>, goal: Triple<Int, Int, Int>, arrive: Double = .6): Int? {
@@ -77,6 +89,11 @@ fun main(args: Array<String>) {
         val start = cell(spawns.first().position)
         for (pillar in stage.pillars.filter { it.team.value == team }) {
             val p = cell(pillar.position)
+            for ((dx, dz) in listOf(0 to 1, 0 to -1, 1 to 0, -1 to 0)) {
+                val goal = Triple(p.first + dx, p.second - 1, p.third + dz)
+                check(finder.standable(goal.first, goal.second, goal.third)) { "chest-height shrine stance obstructed: $goal" }
+                walk("$team tier-${pillar.tier.ordinalValue} shrine stance $dx,$dz", start, goal)
+            }
             for ((dx, dz) in listOf(0 to 5, 0 to -5, 5 to 0, -5 to 0)) {
                 val goal = Triple(p.first + dx, p.second, p.third + dz)
                 check(finder.standable(goal.first, goal.second, goal.third)) { "pillar approach is obstructed: $goal" }
@@ -84,14 +101,14 @@ fun main(args: Array<String>) {
             }
         }
         for ((name, value) in coordinates.getValue("climbs").jsonObject) {
-            if (!name.startsWith(team) && name !in listOf("chapel", "east-crane", "south-crane")) continue
+            if (!name.startsWith(team) && name !in listOf("chapel", "chapel-bell-lookout", "east-crane", "south-crane") && !name.startsWith("outpost-")) continue
             val p = value.jsonArray.map { it.jsonPrimitive.int }
             val goal = Triple(p[0], p[1], p[2])
             if (!finder.standable(goal.first, goal.second, goal.third)) { failures++; System.err.println("$name has no standable goal $goal") }
             walk("$team spawn -> $name", start, goal)
         }
         for ((name, value) in coordinates.getValue("stars").jsonObject) {
-            if (!name.startsWith("cache-$team")) continue
+            if (!name.startsWith("cache-$team") && !name.startsWith("flank-")) continue
             val p = value.jsonArray.map { it.jsonPrimitive.int }
             walk("$team spawn -> $name", start, Triple(p[0], p[1], p[2]), 2.0)
         }
