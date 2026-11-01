@@ -26,8 +26,10 @@
 id: annihilation
 title_key: astera.gamemode.annihilation.title
 impl_class: com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationGameMode
-tick_period_ticks: 20
+tick_period_ticks: 10
 default_config:
+  # Particle of the holder-only compass trail (ADR-0319 navigation); drawn every 10 ticks toward the compass target.
+  nav_trail_particle: "minecraft:end_rod"
   # Norma layer (content/norma-layer/layer.yaml): Annihilation runs its own phase clock and sudden death, so the layer's
   # time limit is off here.
   time_limit_seconds: "0"
