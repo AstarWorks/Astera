@@ -10,4 +10,4 @@ if [[ ! -d "$lib" ]]; then
 fi
 classpath=$(find "$lib" -name '*.jar' -printf '%p:' | sed 's/:$//')
 kotlinc -classpath "$classpath" "$repo/tools/map-gen/HighmarchScenario.kt" -d "$proof_dir/highmarch-scenario.jar"
-kotlin -J-Xmx2g -classpath "$proof_dir/highmarch-scenario.jar:$classpath" HighmarchScenarioKt "$repo" "$proof_dir/coordinates.json" "$proof_dir/traversal.md"
+kotlin -J-Xmx2g -classpath "$proof_dir/highmarch-scenario.jar:$classpath" HighmarchScenarioKt "$repo" "$proof_dir/coordinates.json" "$proof_dir/traversal.md" "${2:-}"
