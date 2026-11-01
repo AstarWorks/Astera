@@ -778,6 +778,7 @@ astera:
       not-in-match: "<red>鉱石ショップは試合中のみ使えます。</red>"
       failed: "<red>購入に失敗しました。何も消費していません。</red>"
       need-base: "<red>この強化には {from} の所持が必要です。</red>"
+      already-owned: "<red>{item} は既に持っています。</red>"
     shop:
       example-shop:
         title: "サンプルショップ"
