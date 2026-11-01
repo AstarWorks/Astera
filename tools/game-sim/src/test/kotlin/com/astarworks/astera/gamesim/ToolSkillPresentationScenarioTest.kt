@@ -1,5 +1,6 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.domain.effect.ParticleColor
 import com.astarworks.astera.core.domain.effect.ParticleData
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -17,6 +18,7 @@ class ToolSkillPresentationScenarioTest {
     @Test
     fun `tool families propagate material effects and tier light through the real cast path`() {
         val families = listOf("pickaxe-bore", "pickaxe-shatter", "axe-fell", "axe-plank-wall", "shovel-excavate", "shovel-earth-bridge")
+        val tierStrength = mutableMapOf<String, MutableList<Pair<Int, Double>>>()
         for (family in families) for (tier in listOf("stone", "iron", "diamond")) {
             val skill = "$family-$tier"
             scenario("tool-presentation-$skill") {
@@ -63,6 +65,8 @@ class ToolSkillPresentationScenarioTest {
                         .describedAs("$skill ${call.spec.key} @${call.tick} distance to eye").isGreaterThanOrEqualTo(0.8)
                 }
                 if (tool == "shovel") {
+                    assertThat(calls.any { it.spec.data is ParticleData.Block && it.at.y - caster.position.y >= 2.3 })
+                        .describedAs("$skill raised ballistic clump silhouette").isTrue()
                     assertThat(calls.any { it.spec.key == "falling_dust" }).describedAs("$skill vanilla falling dust").isTrue()
                 }
                 val ticks = sim.recorder.toJson().jsonObject.getValue("ticks").jsonArray
@@ -93,8 +97,8 @@ class ToolSkillPresentationScenarioTest {
                     val extent = if (family == "axe-plank-wall") debris.map { it.at.y } else debris.map { it.at.z }
                     assertThat(extent.max() - extent.min()).describedAs("$skill spatial footprint").isGreaterThan(0.9)
                 }
-                assertThat(calls.map { it.spec.key }).describedAs("$skill no shared sparkle ring or detached crescents")
-                    .doesNotContain("crit", "end_rod", "sweep_attack")
+                assertThat(calls.map { it.spec.key }).describedAs("$skill no shared sparkle ring")
+                    .doesNotContain("crit", "end_rod")
                 assertThat(calls.any { it.spec.key == "electric_spark" }).describedAs("$skill flint sparks only for pickaxe")
                     .isEqualTo(tool == "pickaxe")
                 if (family == "pickaxe-bore" || tool == "shovel") {
@@ -110,16 +114,70 @@ class ToolSkillPresentationScenarioTest {
                         }
                     }
                 }
+                val contact = calls.filter { kotlin.math.abs(it.at.z - caster.position.z - 5.65) < 0.001 && it.at.y == caster.position.y + 1.0 }
+                if (family == "axe-plank-wall") {
+                    assertThat(calls.map { it.spec.key }).describedAs("$skill defensive wall has no travelling crescent")
+                        .doesNotContain("sweep_attack")
+                    assertThat(calls.filter { it.spec.data is ParticleData.Block }.all { kotlin.math.abs(it.at.z - caster.position.z - 2.0) < 0.001 })
+                        .describedAs("$skill debris stays on the defensive wall").isTrue()
+                } else {
+                    assertThat(contact.any { it.spec.data is ParticleData.Block && it.spec.count >= 24 })
+                        .describedAs("$skill dense body contact").isTrue()
+                }
+                if (family == "axe-fell") {
+                    assertThat(calls.any { it.spec.key == "sweep_attack" && kotlin.math.abs(it.at.z - caster.position.z - 5.1) < 0.001 })
+                        .describedAs("$skill crescent ends at contact").isTrue()
+                    val terminalTick = calls.filter { it.spec.key == "sweep_attack" }.maxOf { it.tick }
+                    assertThat(terminalTick - firstDebrisTick).describedAs("$skill terminal sweep beat").isEqualTo(4L)
+                    assertThat(contact.any { it.tick == terminalTick && it.spec.data is ParticleData.Block && it.spec.count >= 15 })
+                        .describedAs("$skill terminal chips remain on the body").isTrue()
+                    val arcCount = when (tier) { "stone" -> 2; "iron" -> 3; else -> 4 }
+                    val crescent = calls.filter { it.spec.key == "dust" && it.spec.count == arcCount && it.at.z > 1.39 }
+                    assertThat(crescent.maxOf { it.at.z }).isLessThanOrEqualTo(6.00001)
+                }
+                if (family == "pickaxe-shatter") {
+                    val eruption = calls.filter { it.spec.count == 0 && it.spec.data is ParticleData.Block }
+                    assertThat(eruption.size).isGreaterThanOrEqualTo(48)
+                    assertThat(eruption.all { kotlin.math.abs(it.at.y - caster.position.y - 0.04) < 0.001 && it.spec.offset.y > 0 }).isTrue()
+                    assertThat(calls.none { it.spec.key == "block_crumble" }).isTrue()
+                    val crown = calls.filter { it.spec.data is ParticleData.Block && it.at.y - caster.position.y >= 1.75 }
+                    assertThat(crown).describedAs("$skill head-height ground eruption").isNotEmpty()
+                    val footprint = calls.filter { it.spec.data is ParticleData.Block && it.at.y - caster.position.y >= 0.4 }
+                    val radius = footprint.maxOf { kotlin.math.hypot(it.at.x - caster.position.x, it.at.z - caster.position.z - 6.0) }
+                    assertThat(footprint.map { kotlin.math.round((it.at.y - caster.position.y) * 100) }.distinct().size)
+                        .describedAs("$skill shards rise at varied heights rather than a waist belt").isGreaterThan(8)
+                    assertThat(radius).describedAs("$skill 2–3 block eruption footprint").isBetween(1.99, 3.01)
+                    // The break_area sphere uses these shipped radii, without clamping (WorldShapes.breakCells).
+                    val hitRadius = when (tier) { "stone" -> 2.0; "iron" -> 3.0; else -> 4.0 }
+                    val ring = calls.filter { it.spec.key == "dust" && kotlin.math.abs(it.at.y - caster.position.y - 0.05) < 0.001 }
+                    assertThat(ring).describedAs("$skill visible ground ring").isNotEmpty()
+                    for (point in ring) {
+                        assertThat(kotlin.math.hypot(point.at.x - caster.position.x, point.at.z - caster.position.z - 6.0))
+                            .describedAs("$skill ground ring matches real break radius").isCloseTo(hitRadius, org.assertj.core.data.Offset.offset(0.001))
+                    }
+                    val ringColor = when (tier) { "stone" -> ParticleColor(85, 85, 85); "iron" -> ParticleColor(255, 255, 255); else -> ParticleColor(100, 245, 239) }
+                    assertThat(ring.map { (it.spec.data as ParticleData.Dust).color }.distinct()).containsExactly(ringColor)
+                    assertThat(ring.map { it.tick }.distinct()).containsExactly(firstDebrisTick, firstDebrisTick + 2, firstDebrisTick + 4, firstDebrisTick + 6)
+                }
                 // Bright cores stay on the material footprint, including the aim-point shatter.
-                val accents = calls.filter { it.spec.key == "electric_spark" || (it.spec.key == "dust" && it.spec.count > 1) }
+                val accents = calls.filter { it.spec.key == "electric_spark" }
                 for (accent in accents) {
                     assertThat(debris.any { it.tick == accent.tick && it.at == accent.at })
                         .describedAs("$skill impact accent @${accent.tick} ${accent.at}").isTrue()
                 }
+                tierStrength.getOrPut(family) { mutableListOf() }.add(
+                    calls.sumOf { maxOf(1, it.spec.count) } to calls.mapNotNull { (it.spec.data as? ParticleData.Dust)?.scale?.toDouble() }.max()
+                )
                 val expectedSize = when (tier) { "stone" -> 0.3; "iron" -> 0.45; else -> 0.6 }
                 val dust = calls.mapNotNull { it.spec.data as? ParticleData.Dust }
                 assertThat(dust.any { kotlin.math.abs(it.scale - expectedSize) < 0.001 })
                     .describedAs("$skill tier core size").isTrue()
+            }
+        }
+        for ((family, strengths) in tierStrength) {
+            for ((lower, higher) in strengths.zipWithNext()) {
+                assertThat(higher.first).describedAs("$family increasing tier density").isGreaterThan(lower.first)
+                assertThat(higher.second).describedAs("$family increasing tier thickness").isGreaterThan(lower.second)
             }
         }
     }

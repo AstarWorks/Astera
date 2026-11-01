@@ -33,6 +33,10 @@
 @5 particle - op=cast/wave_0_puff[2] type=dust count=4 at=0.000000,0.600000,1.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4241325785676975989
 @5 particle - op=cast/wave_0_puff[3] type=dust count=4 at=-1.000000,0.600000,1.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1361851000618899835
 @5 particle - op=cast/wave_0_puff[4] type=dust count=4 at=-2.000000,0.600000,1.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4219589361163902927
+@5 particle - op=cast/contact_chips type=block count=54 at=0.000000,1.000000,5.650000 off=0.180000,0.180000,0.180000 speed=0.130000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6139532541302761364
+@5 particle - op=cast/contact_core type=dust count=28 at=0.000000,1.000000,5.650000 off=0.200000,0.200000,0.200000 speed=0.000000 color=#d5b783 size=1.800000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-971016225336161227
+@5 particle - op=cast/lob_clumps_0 type=block count=11 at=0.000000,0.250000,1.400000 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=893822598507132914
+@5 particle - op=cast/caster_dust[0] type=dust count=26 at=0.000000,0.300000,1.100000 off=0.200000,0.100000,0.200000 speed=0.000000 color=#d5b783 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6333451078435681114
 @5 frame windup/rig op=windup/rig pos=-0.431176,1.318140,0.583141 rot=0.606212,0.000000,0.000000,0.795303
 @6 write #0 op=windup/rig dur=0 pos=-0.309123,1.515982,0.555199 rot=0.412360,0.000000,0.000000,0.911021 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @6 particle - op=cast/wave_quarter[0] type=block count=0 at=-2.000000,0.600000,2.000000 off=0.180000,0.800000,0.120000 speed=0.120000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5624825651592063441
@@ -50,6 +54,7 @@
 @6 particle - op=cast/trail[0] type=dust count=1 at=-0.309123,1.853634,1.110619 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7946060020202125807
 @6 particle - op=cast/trail[0] type=dust count=1 at=-0.309123,1.918567,1.217431 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4866853657068049041
 @6 particle - op=cast/trail[0] type=dust count=1 at=-0.309123,1.983500,1.324243 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3596469433314302401
+@6 particle - op=cast/lob_clumps_1 type=block count=11 at=0.000000,1.860000,2.550000 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1857807518707272774
 @6 frame windup/rig op=windup/rig pos=-0.309123,1.515982,0.555199 rot=0.412360,0.000000,0.000000,0.911021
 @7 write #0 op=windup/rig dur=0 pos=-0.292969,1.542633,0.543785 rot=0.382705,0.000000,0.000000,0.923871 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @7 particle - op=cast/fall_0[0] type=falling_dust count=1 at=2.000000,0.600000,1.000000 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3242338513050239138
@@ -72,6 +77,8 @@
 @7 particle - op=cast/wave_1_puff[2] type=dust count=4 at=0.000000,0.600000,3.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3322206720776896297
 @7 particle - op=cast/wave_1_puff[3] type=dust count=4 at=-1.000000,0.600000,3.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8819546390594365830
 @7 particle - op=cast/wave_1_puff[4] type=dust count=4 at=-2.000000,0.600000,3.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2538252999535414099
+@7 particle - op=cast/lob_clumps_2 type=block count=11 at=0.000000,2.400000,3.700000 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3591101947911674790
+@7 particle - op=cast/caster_dust[1] type=dust count=26 at=0.000000,0.300000,1.100000 off=0.200000,0.100000,0.200000 speed=0.000000 color=#d5b783 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-586223962422333778
 @7 frame windup/rig op=windup/rig pos=-0.292969,1.542633,0.543785 rot=0.382705,0.000000,0.000000,0.923871
 @8 write #0 op=windup/rig dur=0 pos=-0.292969,1.182964,0.590545 rot=0.828327,0.000000,0.000000,0.560245 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @8 particle - op=cast/wave_three_quarters[0] type=block count=0 at=-2.000000,0.600000,4.000000 off=0.180000,0.800000,0.120000 speed=0.120000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1742494465946264026
@@ -89,6 +96,7 @@
 @8 particle - op=cast/trail[1] type=dust count=1 at=-0.292969,0.839943,1.142665 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5060819728888863655
 @8 particle - op=cast/trail[1] type=dust count=1 at=-0.292969,0.773978,1.248842 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=762325184935472309
 @8 particle - op=cast/trail[1] type=dust count=1 at=-0.292969,0.708012,1.355019 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1672176402162560721
+@8 particle - op=cast/lob_clumps_3 type=block count=11 at=0.000000,1.860000,4.850000 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6538660722533935557
 @8 frame windup/rig op=windup/rig pos=-0.292969,1.182964,0.590545 rot=0.828327,0.000000,0.000000,0.560245
 @9 write #0 op=windup/rig dur=0 pos=-0.292969,1.053197,0.551695 rot=0.928758,0.000000,0.000000,0.370686 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @9 particle - op=cast/fall_1[0] type=falling_dust count=1 at=2.000000,0.600000,3.000000 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7839877485450729587
@@ -111,6 +119,10 @@
 @9 particle - op=cast/wave_2_puff[2] type=dust count=4 at=0.000000,0.600000,5.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6066433052761779169
 @9 particle - op=cast/wave_2_puff[3] type=dust count=4 at=-1.000000,0.600000,5.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3155181612972752015
 @9 particle - op=cast/wave_2_puff[4] type=dust count=4 at=-2.000000,0.600000,5.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4376131505540885299
+@9 particle - op=cast/lob_clumps_4 type=block count=11 at=0.000000,0.250000,6.000000 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6115380830543972161
+@9 particle - op=cast/landing type=block count=36 at=0.000000,0.120000,6.000000 off=0.240000,0.060000,0.240000 speed=0.070000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3752933193052804543
+@9 particle - op=cast/low_dust[0] type=dust count=20 at=0.000000,0.160000,6.000000 off=0.280000,0.080000,0.280000 speed=0.000000 color=#d5b783 size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3773538075576748531
+@9 particle - op=cast/caster_dust[2] type=dust count=26 at=0.000000,0.300000,1.100000 off=0.200000,0.100000,0.200000 speed=0.000000 color=#d5b783 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5321164088490989199
 @9 frame windup/rig op=windup/rig pos=-0.292969,1.053197,0.551695 rot=0.928758,0.000000,0.000000,0.370686
 @10 write #0 op=windup/rig dur=0 pos=-0.292969,1.035492,0.543785 rot=0.939701,0.000000,0.000000,0.341998 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @10 particle - op=cast/trail[2] type=dust count=1 at=-0.292969,0.689081,0.743785 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5779605272204957097
@@ -125,6 +137,7 @@
 @11 particle - op=cast/fall_2[2] type=falling_dust count=1 at=0.000000,0.600000,5.000000 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7563886721892550435
 @11 particle - op=cast/fall_2[3] type=falling_dust count=1 at=-1.000000,0.600000,5.000000 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4486360420746293717
 @11 particle - op=cast/fall_2[4] type=falling_dust count=1 at=-2.000000,0.600000,5.000000 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3198156978306234134
+@11 particle - op=cast/low_dust[1] type=dust count=20 at=0.000000,0.160000,6.000000 off=0.280000,0.080000,0.280000 speed=0.000000 color=#d5b783 size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5835208952612260679
 @11 frame windup/rig op=windup/rig pos=-0.292969,1.023689,0.538124 rot=0.887021,0.000000,0.000000,0.461728
 @12 write #0 op=windup/rig dur=0 pos=-0.292969,1.000469,0.526036 rot=0.737293,0.000000,0.000000,0.675573 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @12 particle - op=cast/trail[3] type=dust count=1 at=-0.292969,0.896942,0.912406 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=318756356019779489
@@ -134,6 +147,7 @@
 @12 particle - op=cast/trail[3] type=dust count=1 at=-0.292969,0.767532,1.395369 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1456128260141578913
 @12 frame windup/rig op=windup/rig pos=-0.292969,1.000469,0.526036 rot=0.737293,0.000000,0.000000,0.675573
 @13 write #0 op=windup/rig dur=0 pos=-0.292969,0.989063,0.519615 rot=0.642805,0.000000,0.000000,0.766030 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@13 particle - op=cast/low_dust[2] type=dust count=20 at=0.000000,0.160000,6.000000 off=0.280000,0.080000,0.280000 speed=0.000000 color=#d5b783 size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5229067476384256865
 @13 frame windup/rig op=windup/rig pos=-0.292969,0.989063,0.519615 rot=0.642805,0.000000,0.000000,0.766030
 @13 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=skill-engine-rest-body
 @13 remove #0 op=windup/rig
@@ -175,6 +189,10 @@ r @16 run-end tail=10 | pose
 @5 particle - op=cast/wave_0_puff[2] type=dust count=4 at=-0.601815,0.600000,0.798636 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4241325785676975989
 @5 particle - op=cast/wave_0_puff[3] type=dust count=4 at=-1.400451,0.600000,0.196820 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1361851000618899835
 @5 particle - op=cast/wave_0_puff[4] type=dust count=4 at=-2.199086,0.600000,-0.404995 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4219589361163902927
+@5 particle - op=cast/contact_chips type=block count=54 at=-3.400255,1.000000,4.512291 off=0.180000,0.180000,0.180000 speed=0.130000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6139532541302761364
+@5 particle - op=cast/contact_core type=dust count=28 at=-3.400255,1.000000,4.512291 off=0.200000,0.200000,0.200000 speed=0.000000 color=#d5b783 size=1.800000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-971016225336161227
+@5 particle - op=cast/lob_clumps_0 type=block count=11 at=-0.842541,0.250000,1.118090 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=893822598507132914
+@5 particle - op=cast/caster_dust[0] type=dust count=26 at=-0.661997,0.300000,0.878499 off=0.200000,0.100000,0.200000 speed=0.000000 color=#d5b783 size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6333451078435681114
 @5 frame windup/rig op=windup/rig pos=-0.695295,1.318140,0.206229 rot=0.574886,-0.252353,0.192354,0.754204
 @6 write #0 op=windup/rig dur=0 pos=-0.581004,1.515982,0.257367 rot=0.391051,-0.289071,0.130844,0.863943 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @6 particle - op=cast/wave_quarter[0] type=block count=0 at=-2.800901,0.600000,0.393641 off=0.071537,0.800000,0.204163 speed=0.120000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5624825651592063441
@@ -192,6 +210,7 @@ r @16 run-end tail=10 | pose
 @6 particle - op=cast/trail[0] type=dust count=1 at=-0.915264,1.853634,0.700945 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7946060020202125807
 @6 particle - op=cast/trail[0] type=dust count=1 at=-0.979545,1.918567,0.786249 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4866853657068049041
 @6 particle - op=cast/trail[0] type=dust count=1 at=-1.043826,1.983500,0.871552 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3596469433314302401
+@6 particle - op=cast/lob_clumps_1 type=block count=11 at=-1.534628,1.860000,2.036521 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1857807518707272774
 @6 frame windup/rig op=windup/rig pos=-0.581004,1.515982,0.257367 rot=0.391051,-0.289071,0.130844,0.863943
 @7 write #0 op=windup/rig dur=0 pos=-0.561233,1.542633,0.257973 rot=0.362928,-0.293148,0.121434,0.876128 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @7 particle - op=cast/fall_0[0] type=falling_dust count=1 at=0.995456,0.600000,2.002266 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3242338513050239138
@@ -214,6 +233,8 @@ r @16 run-end tail=10 | pose
 @7 particle - op=cast/wave_1_puff[2] type=dust count=4 at=-1.805445,0.600000,2.395907 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3322206720776896297
 @7 particle - op=cast/wave_1_puff[3] type=dust count=4 at=-2.604081,0.600000,1.794092 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8819546390594365830
 @7 particle - op=cast/wave_1_puff[4] type=dust count=4 at=-3.402716,0.600000,1.192276 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2538252999535414099
+@7 particle - op=cast/lob_clumps_2 type=block count=11 at=-2.226716,2.400000,2.954951 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3591101947911674790
+@7 particle - op=cast/caster_dust[1] type=dust count=26 at=-0.661997,0.300000,0.878499 off=0.200000,0.100000,0.200000 speed=0.000000 color=#d5b783 size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-586223962422333778
 @7 frame windup/rig op=windup/rig pos=-0.561233,1.542633,0.257973 rot=0.362928,-0.293148,0.121434,0.876128
 @8 write #0 op=windup/rig dur=0 pos=-0.589374,1.182964,0.295317 rot=0.785522,-0.177768,0.262832,0.531294 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @8 particle - op=cast/wave_three_quarters[0] type=block count=0 at=-4.004531,0.600000,1.990912 off=0.071537,0.800000,0.204163 speed=0.120000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1742494465946264026
@@ -231,6 +252,7 @@ r @16 run-end tail=10 | pose
 @8 particle - op=cast/trail[1] type=dust count=1 at=-0.921648,0.839943,0.736260 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5060819728888863655
 @8 particle - op=cast/trail[1] type=dust count=1 at=-0.985547,0.773978,0.821056 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=762325184935472309
 @8 particle - op=cast/trail[1] type=dust count=1 at=-1.049446,0.708012,0.905853 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1672176402162560721
+@8 particle - op=cast/lob_clumps_3 type=block count=11 at=-2.918803,1.860000,3.873382 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6538660722533935557
 @8 frame windup/rig op=windup/rig pos=-0.589374,1.182964,0.295317 rot=0.785522,-0.177768,0.262832,0.531294
 @9 write #0 op=windup/rig dur=0 pos=-0.565994,1.053197,0.264290 rot=0.880763,-0.117620,0.294699,0.351530 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @9 particle - op=cast/fall_1[0] type=falling_dust count=1 at=-0.208174,0.600000,3.599537 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7839877485450729587
@@ -253,6 +275,10 @@ r @16 run-end tail=10 | pose
 @9 particle - op=cast/wave_2_puff[2] type=dust count=4 at=-3.009075,0.600000,3.993178 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6066433052761779169
 @9 particle - op=cast/wave_2_puff[3] type=dust count=4 at=-3.807711,0.600000,3.391363 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3155181612972752015
 @9 particle - op=cast/wave_2_puff[4] type=dust count=4 at=-4.606346,0.600000,2.789548 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4376131505540885299
+@9 particle - op=cast/lob_clumps_4 type=block count=11 at=-3.610890,0.250000,4.791813 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6115380830543972161
+@9 particle - op=cast/landing type=block count=36 at=-3.610890,0.120000,4.791813 off=0.240000,0.060000,0.240000 speed=0.070000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3752933193052804543
+@9 particle - op=cast/low_dust[0] type=dust count=20 at=-3.610890,0.160000,4.791813 off=0.280000,0.080000,0.280000 speed=0.000000 color=#d5b783 size=1.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3773538075576748531
+@9 particle - op=cast/caster_dust[2] type=dust count=26 at=-0.661997,0.300000,0.878499 off=0.200000,0.100000,0.200000 speed=0.000000 color=#d5b783 size=1.200000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5321164088490989199
 @9 frame windup/rig op=windup/rig pos=-0.565994,1.053197,0.264290 rot=0.880763,-0.117620,0.294699,0.351530
 @10 write #0 op=windup/rig dur=0 pos=-0.561233,1.035492,0.257973 rot=0.891140,-0.108518,0.298171,0.324325 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @10 particle - op=cast/trail[2] type=dust count=1 at=-0.681596,0.689081,0.417700 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5779605272204957097
@@ -267,6 +293,7 @@ r @16 run-end tail=10 | pose
 @11 particle - op=cast/fall_2[2] type=falling_dust count=1 at=-3.009075,0.600000,3.993178 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-7563886721892550435
 @11 particle - op=cast/fall_2[3] type=falling_dust count=1 at=-3.807711,0.600000,3.391363 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-4486360420746293717
 @11 particle - op=cast/fall_2[4] type=falling_dust count=1 at=-4.606346,0.600000,2.789548 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3198156978306234134
+@11 particle - op=cast/low_dust[1] type=dust count=20 at=-3.610890,0.160000,4.791813 off=0.280000,0.080000,0.280000 speed=0.000000 color=#d5b783 size=1.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5835208952612260679
 @11 frame windup/rig op=windup/rig pos=-0.557826,1.023689,0.253452 rot=0.841183,-0.146508,0.281456,0.437868
 @12 write #0 op=windup/rig dur=0 pos=-0.550552,1.000469,0.243798 rot=0.699192,-0.214363,0.233946,0.640662 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @12 particle - op=cast/trail[3] type=dust count=1 at=-0.783075,0.896942,0.552367 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=318756356019779489
@@ -276,6 +303,7 @@ r @16 run-end tail=10 | pose
 @12 particle - op=cast/trail[3] type=dust count=1 at=-1.073729,0.767532,0.938078 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1456128260141578913
 @12 frame windup/rig op=windup/rig pos=-0.550552,1.000469,0.243798 rot=0.699192,-0.214363,0.233946,0.640662
 @13 write #0 op=windup/rig dur=0 pos=-0.546688,0.989063,0.238670 rot=0.609587,-0.243065,0.203965,0.726444 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@13 particle - op=cast/low_dust[2] type=dust count=20 at=-3.610890,0.160000,4.791813 off=0.280000,0.080000,0.280000 speed=0.000000 color=#d5b783 size=1.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=5229067476384256865
 @13 frame windup/rig op=windup/rig pos=-0.546688,0.989063,0.238670 rot=0.609587,-0.243065,0.203965,0.726444
 @13 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=skill-engine-rest-body
 @13 remove #0 op=windup/rig
@@ -317,6 +345,10 @@ r @16 run-end tail=10 | pose
 @5 particle - op=cast/wave_0_puff[2] type=dust count=4 at=0.000000,0.600000,1.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4241325785676975989
 @5 particle - op=cast/wave_0_puff[3] type=dust count=4 at=-1.000000,0.600000,1.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1361851000618899835
 @5 particle - op=cast/wave_0_puff[4] type=dust count=4 at=-2.000000,0.600000,1.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4219589361163902927
+@5 particle - op=cast/contact_chips type=block count=54 at=0.000000,1.000000,5.650000 off=0.180000,0.180000,0.180000 speed=0.130000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6139532541302761364
+@5 particle - op=cast/contact_core type=dust count=28 at=0.000000,1.000000,5.650000 off=0.200000,0.200000,0.200000 speed=0.000000 color=#d5b783 size=1.800000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-971016225336161227
+@5 particle - op=cast/lob_clumps_0 type=block count=11 at=0.000000,0.250000,1.400000 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=893822598507132914
+@5 particle - op=cast/caster_dust[0] type=dust count=26 at=0.000000,0.300000,1.100000 off=0.200000,0.100000,0.200000 speed=0.000000 color=#d5b783 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6333451078435681114
 @5 frame windup/rig op=windup/rig pos=-0.431176,1.318140,0.583141 rot=0.606212,0.000000,0.000000,0.795303
 @6 write #0 op=windup/rig dur=0 pos=-0.309123,1.515982,0.555199 rot=0.412360,0.000000,0.000000,0.911021 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @6 particle - op=cast/wave_quarter[0] type=block count=0 at=-2.000000,0.600000,2.000000 off=0.180000,0.800000,0.120000 speed=0.120000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5624825651592063441
@@ -334,6 +366,7 @@ r @16 run-end tail=10 | pose
 @6 particle - op=cast/trail[0] type=dust count=1 at=-0.309123,1.853634,1.110619 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7946060020202125807
 @6 particle - op=cast/trail[0] type=dust count=1 at=-0.309123,1.918567,1.217431 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4866853657068049041
 @6 particle - op=cast/trail[0] type=dust count=1 at=-0.309123,1.983500,1.324243 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3596469433314302401
+@6 particle - op=cast/lob_clumps_1 type=block count=11 at=0.000000,1.860000,2.550000 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1857807518707272774
 @6 frame windup/rig op=windup/rig pos=-0.309123,1.515982,0.555199 rot=0.412360,0.000000,0.000000,0.911021
 @7 write #0 op=windup/rig dur=0 pos=-0.292969,1.542633,0.543785 rot=0.382705,0.000000,0.000000,0.923871 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @7 particle - op=cast/fall_0[0] type=falling_dust count=1 at=2.000000,0.600000,1.000000 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3242338513050239138
@@ -356,6 +389,8 @@ r @16 run-end tail=10 | pose
 @7 particle - op=cast/wave_1_puff[2] type=dust count=4 at=0.000000,0.600000,3.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3322206720776896297
 @7 particle - op=cast/wave_1_puff[3] type=dust count=4 at=-1.000000,0.600000,3.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8819546390594365830
 @7 particle - op=cast/wave_1_puff[4] type=dust count=4 at=-2.000000,0.600000,3.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2538252999535414099
+@7 particle - op=cast/lob_clumps_2 type=block count=11 at=0.000000,2.400000,3.700000 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3591101947911674790
+@7 particle - op=cast/caster_dust[1] type=dust count=26 at=0.000000,0.300000,1.100000 off=0.200000,0.100000,0.200000 speed=0.000000 color=#d5b783 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-586223962422333778
 @7 frame windup/rig op=windup/rig pos=-0.292969,1.542633,0.543785 rot=0.382705,0.000000,0.000000,0.923871
 @8 write #0 op=windup/rig dur=0 pos=-0.292969,1.182964,0.590545 rot=0.828327,0.000000,0.000000,0.560245 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @8 particle - op=cast/wave_three_quarters[0] type=block count=0 at=-2.000000,0.600000,4.000000 off=0.180000,0.800000,0.120000 speed=0.120000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1742494465946264026
@@ -373,6 +408,7 @@ r @16 run-end tail=10 | pose
 @8 particle - op=cast/trail[1] type=dust count=1 at=-0.292969,0.839943,1.142665 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5060819728888863655
 @8 particle - op=cast/trail[1] type=dust count=1 at=-0.292969,0.773978,1.248842 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=762325184935472309
 @8 particle - op=cast/trail[1] type=dust count=1 at=-0.292969,0.708012,1.355019 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1672176402162560721
+@8 particle - op=cast/lob_clumps_3 type=block count=11 at=0.000000,1.860000,4.850000 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6538660722533935557
 @8 frame windup/rig op=windup/rig pos=-0.292969,1.182964,0.590545 rot=0.828327,0.000000,0.000000,0.560245
 @9 write #0 op=windup/rig dur=0 pos=-0.292969,1.053197,0.551695 rot=0.928758,0.000000,0.000000,0.370686 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @9 particle - op=cast/fall_1[0] type=falling_dust count=1 at=2.000000,0.600000,3.000000 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7839877485450729587
@@ -395,6 +431,10 @@ r @16 run-end tail=10 | pose
 @9 particle - op=cast/wave_2_puff[2] type=dust count=4 at=0.000000,0.600000,5.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6066433052761779169
 @9 particle - op=cast/wave_2_puff[3] type=dust count=4 at=-1.000000,0.600000,5.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3155181612972752015
 @9 particle - op=cast/wave_2_puff[4] type=dust count=4 at=-2.000000,0.600000,5.000000 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4376131505540885299
+@9 particle - op=cast/lob_clumps_4 type=block count=11 at=0.000000,0.250000,6.000000 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6115380830543972161
+@9 particle - op=cast/landing type=block count=36 at=0.000000,0.120000,6.000000 off=0.240000,0.060000,0.240000 speed=0.070000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3752933193052804543
+@9 particle - op=cast/low_dust[0] type=dust count=20 at=0.000000,0.160000,6.000000 off=0.280000,0.080000,0.280000 speed=0.000000 color=#d5b783 size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3773538075576748531
+@9 particle - op=cast/caster_dust[2] type=dust count=26 at=0.000000,0.300000,1.100000 off=0.200000,0.100000,0.200000 speed=0.000000 color=#d5b783 size=1.200000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5321164088490989199
 @9 frame windup/rig op=windup/rig pos=-0.292969,1.053197,0.551695 rot=0.928758,0.000000,0.000000,0.370686
 @10 write #0 op=windup/rig dur=0 pos=-0.292969,1.035492,0.543785 rot=0.939701,0.000000,0.000000,0.341998 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @10 particle - op=cast/trail[2] type=dust count=1 at=-0.292969,0.689081,0.743785 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5779605272204957097
@@ -409,6 +449,7 @@ r @16 run-end tail=10 | pose
 @11 particle - op=cast/fall_2[2] type=falling_dust count=1 at=0.000000,0.600000,5.000000 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7563886721892550435
 @11 particle - op=cast/fall_2[3] type=falling_dust count=1 at=-1.000000,0.600000,5.000000 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4486360420746293717
 @11 particle - op=cast/fall_2[4] type=falling_dust count=1 at=-2.000000,0.600000,5.000000 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3198156978306234134
+@11 particle - op=cast/low_dust[1] type=dust count=20 at=0.000000,0.160000,6.000000 off=0.280000,0.080000,0.280000 speed=0.000000 color=#d5b783 size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5835208952612260679
 @11 frame windup/rig op=windup/rig pos=-0.292969,1.023689,0.538124 rot=0.887021,0.000000,0.000000,0.461728
 @12 write #0 op=windup/rig dur=0 pos=-0.292969,1.000469,0.526036 rot=0.737293,0.000000,0.000000,0.675573 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @12 particle - op=cast/trail[3] type=dust count=1 at=-0.292969,0.896942,0.912406 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=318756356019779489
@@ -418,6 +459,7 @@ r @16 run-end tail=10 | pose
 @12 particle - op=cast/trail[3] type=dust count=1 at=-0.292969,0.767532,1.395369 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1456128260141578913
 @12 frame windup/rig op=windup/rig pos=-0.292969,1.000469,0.526036 rot=0.737293,0.000000,0.000000,0.675573
 @13 write #0 op=windup/rig dur=0 pos=-0.292969,0.989063,0.519615 rot=0.642805,0.000000,0.000000,0.766030 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
+@13 particle - op=cast/low_dust[2] type=dust count=20 at=0.000000,0.160000,6.000000 off=0.280000,0.080000,0.280000 speed=0.000000 color=#d5b783 size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5229067476384256865
 @13 frame windup/rig op=windup/rig pos=-0.292969,0.989063,0.519615 rot=0.642805,0.000000,0.000000,0.766030
 @13 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=skill-engine-rest-body
 @13 remove #0 op=windup/rig
@@ -460,6 +502,10 @@ r @16 run-end tail=10 | pose
 @5 particle - op=cast/wave_0_puff[2] type=dust count=4 at=-0.601815,0.600000,0.798636 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4241325785676975989
 @5 particle - op=cast/wave_0_puff[3] type=dust count=4 at=-1.400451,0.600000,0.196820 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1361851000618899835
 @5 particle - op=cast/wave_0_puff[4] type=dust count=4 at=-2.199086,0.600000,-0.404995 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4219589361163902927
+@5 particle - op=cast/contact_chips type=block count=54 at=-3.400255,1.000000,4.512291 off=0.180000,0.180000,0.180000 speed=0.130000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6139532541302761364
+@5 particle - op=cast/contact_core type=dust count=28 at=-3.400255,1.000000,4.512291 off=0.200000,0.200000,0.200000 speed=0.000000 color=#d5b783 size=1.800000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-971016225336161227
+@5 particle - op=cast/lob_clumps_0 type=block count=11 at=-0.842541,0.250000,1.118090 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=893822598507132914
+@5 particle - op=cast/caster_dust[0] type=dust count=26 at=-0.661997,0.300000,0.878499 off=0.200000,0.100000,0.200000 speed=0.000000 color=#d5b783 size=1.200000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6333451078435681114
 @5 frame windup/rig op=windup/rig pos=-0.695295,1.318140,0.206229 rot=0.574886,-0.252353,0.192354,0.754204
 @6 write #0 op=windup/rig dur=0 pos=-0.581004,1.515982,0.257367 rot=0.391051,-0.289071,0.130844,0.863943 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @6 particle - op=cast/wave_quarter[0] type=block count=0 at=-2.800901,0.600000,0.393641 off=0.071537,0.800000,0.204163 speed=0.120000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5624825651592063441
@@ -477,6 +523,7 @@ r @16 run-end tail=10 | pose
 @6 particle - op=cast/trail[0] type=dust count=1 at=-0.915264,1.853634,0.700945 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7946060020202125807
 @6 particle - op=cast/trail[0] type=dust count=1 at=-0.979545,1.918567,0.786249 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4866853657068049041
 @6 particle - op=cast/trail[0] type=dust count=1 at=-1.043826,1.983500,0.871552 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3596469433314302401
+@6 particle - op=cast/lob_clumps_1 type=block count=11 at=-1.534628,1.860000,2.036521 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1857807518707272774
 @6 frame windup/rig op=windup/rig pos=-0.581004,1.515982,0.257367 rot=0.391051,-0.289071,0.130844,0.863943
 @7 write #0 op=windup/rig dur=0 pos=-0.561233,1.542633,0.257973 rot=0.362928,-0.293148,0.121434,0.876128 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @7 particle - op=cast/fall_0[0] type=falling_dust count=1 at=0.995456,0.600000,2.002266 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3242338513050239138
@@ -499,6 +546,8 @@ r @16 run-end tail=10 | pose
 @7 particle - op=cast/wave_1_puff[2] type=dust count=4 at=-1.805445,0.600000,2.395907 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3322206720776896297
 @7 particle - op=cast/wave_1_puff[3] type=dust count=4 at=-2.604081,0.600000,1.794092 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8819546390594365830
 @7 particle - op=cast/wave_1_puff[4] type=dust count=4 at=-3.402716,0.600000,1.192276 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2538252999535414099
+@7 particle - op=cast/lob_clumps_2 type=block count=11 at=-2.226716,2.400000,2.954951 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3591101947911674790
+@7 particle - op=cast/caster_dust[1] type=dust count=26 at=-0.661997,0.300000,0.878499 off=0.200000,0.100000,0.200000 speed=0.000000 color=#d5b783 size=1.200000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-586223962422333778
 @7 frame windup/rig op=windup/rig pos=-0.561233,1.542633,0.257973 rot=0.362928,-0.293148,0.121434,0.876128
 @8 write #0 op=windup/rig dur=0 pos=-0.589374,1.182964,0.295317 rot=0.785522,-0.177768,0.262832,0.531294 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @8 particle - op=cast/wave_three_quarters[0] type=block count=0 at=-4.004531,0.600000,1.990912 off=0.071537,0.800000,0.204163 speed=0.120000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1742494465946264026
@@ -516,6 +565,7 @@ r @16 run-end tail=10 | pose
 @8 particle - op=cast/trail[1] type=dust count=1 at=-0.921648,0.839943,0.736260 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5060819728888863655
 @8 particle - op=cast/trail[1] type=dust count=1 at=-0.985547,0.773978,0.821056 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=762325184935472309
 @8 particle - op=cast/trail[1] type=dust count=1 at=-1.049446,0.708012,0.905853 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1672176402162560721
+@8 particle - op=cast/lob_clumps_3 type=block count=11 at=-2.918803,1.860000,3.873382 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6538660722533935557
 @8 frame windup/rig op=windup/rig pos=-0.589374,1.182964,0.295317 rot=0.785522,-0.177768,0.262832,0.531294
 @9 write #0 op=windup/rig dur=0 pos=-0.565994,1.053197,0.264290 rot=0.880763,-0.117620,0.294699,0.351530 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @9 particle - op=cast/fall_1[0] type=falling_dust count=1 at=-0.208174,0.600000,3.599537 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7839877485450729587
@@ -538,6 +588,10 @@ r @16 run-end tail=10 | pose
 @9 particle - op=cast/wave_2_puff[2] type=dust count=4 at=-3.009075,0.600000,3.993178 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6066433052761779169
 @9 particle - op=cast/wave_2_puff[3] type=dust count=4 at=-3.807711,0.600000,3.391363 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3155181612972752015
 @9 particle - op=cast/wave_2_puff[4] type=dust count=4 at=-4.606346,0.600000,2.789548 off=0.120000,0.080000,0.120000 speed=0.000000 color=#d5b783 size=0.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4376131505540885299
+@9 particle - op=cast/lob_clumps_4 type=block count=11 at=-3.610890,0.250000,4.791813 off=0.100000,0.100000,0.100000 speed=0.035000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6115380830543972161
+@9 particle - op=cast/landing type=block count=36 at=-3.610890,0.120000,4.791813 off=0.240000,0.060000,0.240000 speed=0.070000 color=- size=- data=block:minecraft:dirt dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3752933193052804543
+@9 particle - op=cast/low_dust[0] type=dust count=20 at=-3.610890,0.160000,4.791813 off=0.280000,0.080000,0.280000 speed=0.000000 color=#d5b783 size=1.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3773538075576748531
+@9 particle - op=cast/caster_dust[2] type=dust count=26 at=-0.661997,0.300000,0.878499 off=0.200000,0.100000,0.200000 speed=0.000000 color=#d5b783 size=1.200000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5321164088490989199
 @9 frame windup/rig op=windup/rig pos=-0.565994,1.053197,0.264290 rot=0.880763,-0.117620,0.294699,0.351530
 @10 write #0 op=windup/rig dur=0 pos=-0.561233,1.035492,0.257973 rot=0.891140,-0.108518,0.298171,0.324325 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @10 particle - op=cast/trail[2] type=dust count=1 at=-0.681596,0.689081,0.417700 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5779605272204957097
@@ -552,6 +606,7 @@ r @16 run-end tail=10 | pose
 @11 particle - op=cast/fall_2[2] type=falling_dust count=1 at=-3.009075,0.600000,3.993178 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7563886721892550435
 @11 particle - op=cast/fall_2[3] type=falling_dust count=1 at=-3.807711,0.600000,3.391363 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4486360420746293717
 @11 particle - op=cast/fall_2[4] type=falling_dust count=1 at=-4.606346,0.600000,2.789548 off=0.140000,0.140000,0.140000 speed=0.000000 color=- size=- data=block:minecraft:coarse_dirt dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3198156978306234134
+@11 particle - op=cast/low_dust[1] type=dust count=20 at=-3.610890,0.160000,4.791813 off=0.280000,0.080000,0.280000 speed=0.000000 color=#d5b783 size=1.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5835208952612260679
 @11 frame windup/rig op=windup/rig pos=-0.557826,1.023689,0.253452 rot=0.841183,-0.146508,0.281456,0.437868
 @12 write #0 op=windup/rig dur=0 pos=-0.550552,1.000469,0.243798 rot=0.699192,-0.214363,0.233946,0.640662 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @12 particle - op=cast/trail[3] type=dust count=1 at=-0.783075,0.896942,0.552367 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=318756356019779489
@@ -561,6 +616,7 @@ r @16 run-end tail=10 | pose
 @12 particle - op=cast/trail[3] type=dust count=1 at=-1.073729,0.767532,0.938078 off=0.000000,0.000000,0.000000 speed=0.000000 color=#856349 size=0.350000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1456128260141578913
 @12 frame windup/rig op=windup/rig pos=-0.550552,1.000469,0.243798 rot=0.699192,-0.214363,0.233946,0.640662
 @13 write #0 op=windup/rig dur=0 pos=-0.546688,0.989063,0.238670 rot=0.609587,-0.243065,0.203965,0.726444 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
+@13 particle - op=cast/low_dust[2] type=dust count=20 at=-3.610890,0.160000,4.791813 off=0.280000,0.080000,0.280000 speed=0.000000 color=#d5b783 size=1.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5229067476384256865
 @13 frame windup/rig op=windup/rig pos=-0.546688,0.989063,0.238670 rot=0.609587,-0.243065,0.203965,0.726444
 @13 effect 00000000-0000-0000-0000-000000000001 op=- body_stop=skill-engine-rest-body
 @13 remove #0 op=windup/rig
