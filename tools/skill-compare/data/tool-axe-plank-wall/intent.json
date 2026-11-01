@@ -1,0 +1,48 @@
+{
+  "title": "axe-plank-wall",
+  "duration_ticks": 30,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        3.5,
+        5,
+        11
+      ],
+      "target": [
+        3.5,
+        1,
+        0
+      ],
+      "fov": 55
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            6,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ]
+}

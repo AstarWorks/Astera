@@ -1,15 +1,5 @@
-# Bores a 3x3 tunnel straight ahead, in the frame grammar (ADR-0314 / ADR-0315). Base of the pickaxe-bore tiers (this is the stone tier);
-# pickaxe-bore-iron / -diamond extend it (ADR-0303 9.3): same document, other id / item / meta and the `with:` values below.
-# Wind-up W = 4 ticks (round_half_up(5 / attack_speed 1.2 (vanilla pickaxe))):
-# the pickaxe is drawn back over 3 ticks, the cut starts at tick 3 so the head crosses the target at the impact (tick 4) and the blocks give way there; then 6 ticks of follow-through.
-# Gameplay (the tunnel, sounds, cooldown) is unchanged.
-# Three frames carry everything drawn:
-#   arm  - the caster's right shoulder (`caster.shoulder_r`); it only turns (pitch about s), so the arm points where the hand goes.
-#   tool - the held tool: its origin is the point 0.6 along the arm (`origin: {frame: arm, pos: {v: 0.6}}`, the length of the rigid arm), so the
-#          hand reaches it on every tick by construction. The right hand is pinned onto this origin by the engine (ADR-0315): the head leads,
-#          the hand follows. The head turns about its own s (v towards w): drawn back, down through the target, run out, then `reset` eases it
-#          back to the rest pose before the rig ends. The line `edge` (head base -> head) is what the trail draws along.
-#   body - the caster's feet, v forward / w up / s right: the hit area spark and the sounds are points of it.
+# Hand-authored tool presentation. Mechanical shape / timing / damage / cooldown stay unchanged.
+# Dust uses typical tool material; no per-cell surface data is exposed to presentation rows.
 apiVersion: astera/v3
 kind: Skill
 id: pickaxe-bore-stone
@@ -28,6 +18,9 @@ params:
   thud: {type: bool, default: false}
   amethyst: {type: bool, default: false}
   spark: {type: string, default: tool-pick-stone}
+  trail_span: {type: number, default: 6}
+  metallic: {type: bool, default: false}
+  bright: {type: bool, default: false}
 frames:
   - id: arm
     origin: caster.shoulder_r
@@ -35,16 +28,14 @@ frames:
     w: up
     s: v x w
     rotate:
-      # yaw about w comes first (each key turns the frame the later ones act in): the draw swings out to the right of the eye line, then the pitch lifts the arm there, so the arm and the head stay out of the middle of the first-person view (as C's mace-smash)
       - {at: 0, for: 0, about: w, to: 0}
       - {at: 0, for: 3, about: w, to: -90, ease: out_cubic}
       - {at: 3, for: 3, about: w, to: 0, ease: out_cubic}
-      # pitch about s: where the straight arm points (angle from forward, towards up); the arm only turns, the hand rides its end
-      - {at: 0, for: 0, about: s, to: -30}                                   # rest: the hand at the hip
-      - {at: 0, for: 3, about: s, to: 55, ease: out_quad}                        # drawn back, hand at head height
-      - {at: 3, for: 3, about: s, to: -5, ease: out_cubic}                       # the cut
-      - {at: 6, for: 3, about: s, to: -25, ease: out_cubic}                      # follow-through
-      - {at: 9, for: 3, about: s, to: -30, ease: in_out_sine}                    # back to the hip
+      - {at: 0, for: 0, about: s, to: -30}
+      - {at: 0, for: 3, about: s, to: 80, ease: out_quad}
+      - {at: 3, for: 3, about: s, to: -5, ease: out_cubic}
+      - {at: 6, for: 3, about: s, to: -25, ease: out_cubic}
+      - {at: 9, for: 3, about: s, to: -30, ease: in_out_sine}
   - id: tool
     origin: {frame: arm, pos: {v: 0.6}}
     v: forward
@@ -61,7 +52,7 @@ frames:
     w: up
     s: v x w
 lines:
-  edge: {frame: tool, from: {v: 0.4}, to: {v: 0.9}}      # head base -> head
+  edge: {frame: tool, from: {v: 0.4}, to: {v: 0.9}}
 machine:
   start: windup
   tail: 10
@@ -71,7 +62,8 @@ machine:
       then: cast
       do:
         - {id: rig, op: rig, frame: tool, for: 12, detach: true}
-        - {id: trail, op: particle, particle: crit, along: edge, samples: 4, count: 1, extra: 0.04, at: 3, every: 2, for: 6, detach: true}
+        - {id: trail, op: particle, particle: dust, along: edge, samples: 5, count: 1, color: "#999999", size: 0.35, extra: 0, at: 3, every: 2, for: "${trail_span}", detach: true}
+        - {id: wind, op: sound, sound: entity.player.attack.sweep, frame: body, at: 2, volume: 0.35, pitch: 0.65}
     cast:
       for: 1
       then: end
@@ -80,5 +72,17 @@ machine:
         - {id: snd, op: sound, sound: block.stone.break, frame: body, volume: 1.0, pitch: "${stone_pitch}"}
         - {id: snd_2, op: sound, sound: item.trident.hit_ground, frame: body, volume: "${thud_vol}", pitch: "${thud_pitch}", when: "= ${thud}"}
         - {id: snd_3, op: sound, sound: block.amethyst_cluster.break, frame: body, volume: 0.8, pitch: 1.0, when: "= ${amethyst}"}
-        - {id: spark, op: particle_def, def: "${spark}", frame: body, pos: {v: 2.0}}
+        - {id: wave_0, op: particle, particle: block, block: minecraft:stone, frame: body, pos: {v: "= 1 + (0 / 2.0) * (${length} - 1)", w: 0, s: "= i - 1"}, times: 3, count: 6, offset: [0.14, 0.14, 0.14], extra: 0.08, at: 0}
+        - {id: wave_1, op: particle, particle: block, block: minecraft:stone, frame: body, pos: {v: "= 1 + (1 / 2.0) * (${length} - 1)", w: 0, s: "= i - 1"}, times: 3, count: 6, offset: [0.14, 0.14, 0.14], extra: 0.08, at: 2, detach: true}
+        - {id: wave_2, op: particle, particle: block, block: minecraft:stone, frame: body, pos: {v: "= 1 + (2 / 2.0) * (${length} - 1)", w: 0, s: "= i - 1"}, times: 3, count: 6, offset: [0.14, 0.14, 0.14], extra: 0.08, at: 4, detach: true}
+        - {id: wave_quarter, op: particle, particle: block, block: minecraft:stone, frame: body, pos: {v: "= 1 + (0.5 / 2.0) * (${length} - 1)", w: 0, s: "= i - 1"}, times: 3, count: 6, offset: [0.14, 0.14, 0.14], extra: 0.08, at: 1, detach: true}
+        - {id: wave_three_quarters, op: particle, particle: block, block: minecraft:stone, frame: body, pos: {v: "= 1 + (1.5 / 2.0) * (${length} - 1)", w: 0, s: "= i - 1"}, times: 3, count: 6, offset: [0.14, 0.14, 0.14], extra: 0.08, at: 3, detach: true}
+        - {id: material_accent, op: particle_def, def: "${spark}", frame: body, pos: {v: 2, w: 0.4}}
+        - {id: metal, op: particle, particle: electric_spark, frame: body, pos: {v: 2, w: 0.4}, count: 12, offset: [0.14, 0.14, 0.14], extra: 0.12, at: 0, when: "= ${metallic}"}
+        - {id: diamond_flash, op: particle, particle: dust, frame: body, pos: {v: 2, w: 0.4}, count: 12, offset: [0.14, 0.14, 0.14], extra: 0, at: 0, color: "#64f5ef", size: 0.8, when: "= ${bright}"}
+        - {id: diamond_glint, op: particle, particle: end_rod, frame: body, pos: {v: 2, w: 0.4}, count: 6, offset: [0.14, 0.14, 0.14], extra: 0.04, at: 2, detach: true, when: "= ${bright}"}
+        - {id: metal_rim, op: particle, particle: electric_spark, frame: body, pos: {v: "= 2 + 0.8 * cos(i * 2 * pi / 16)", w: 0.4, s: "= 0.8 * sin(i * 2 * pi / 16)"}, times: 16, count: 1, extra: 0.02, when: "= ${metallic}"}
+        - {id: ring, op: sound, sound: block.anvil.land, frame: body, pos: {v: 2, w: 0.4}, volume: 0.18, pitch: 1.4, when: "= ${metallic}"}
+        - {id: chime, op: sound, sound: block.amethyst_block.chime, frame: body, pos: {v: 2, w: 0.4}, volume: 0.6, pitch: 1.3, when: "= ${bright}"}
+        - {id: settle, op: sound, sound: block.stone.step, frame: body, pos: {v: 2, w: 0.4}, at: 5, detach: true, volume: 0.4, pitch: 0.75}
     end: {final: true}

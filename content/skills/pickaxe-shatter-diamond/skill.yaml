@@ -17,3 +17,6 @@ with:
   thud: true
   amethyst: true
   spark: tool-pick-diamond
+  trail_span: 10
+  metallic: true
+  bright: true

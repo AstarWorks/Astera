@@ -19,3 +19,6 @@ with:
   dirt: true
   flatten: true
   spark: tool-shovel-diamond
+  trail_span: 10
+  metallic: true
+  bright: true

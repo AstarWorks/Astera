@@ -1,0 +1,68 @@
+{
+  "id": "tool-pickaxe-shatter",
+  "rev": 0,
+  "videoId": "no-reference",
+  "start_s": 0,
+  "end_s": 1.5,
+  "status": "built",
+  "iterations": 2,
+  "skill": {
+    "name": "pickaxe-shatter",
+    "coins": 1,
+    "asteraSkillId": "pickaxe-shatter-diamond"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "pickaxe-shatter",
+      "start_s": 0,
+      "end_s": 1.5
+    },
+    {
+      "id": "impact",
+      "kind": "hit",
+      "label": "Impact",
+      "t_s": 0.2
+    }
+  ],
+  "beats": [
+    {
+      "tick": 0,
+      "t_s": 0.0,
+      "label": "Wind-up"
+    },
+    {
+      "tick": 4,
+      "t_s": 0.2,
+      "label": "Impact"
+    },
+    {
+      "tick": 7,
+      "t_s": 0.35000000000000003,
+      "label": "Propagation"
+    },
+    {
+      "tick": 10,
+      "t_s": 0.5,
+      "label": "Settle"
+    }
+  ],
+  "notes": "`no-reference` is a marker: no reference video exists.\n\nNo reference video. Stone | iron | diamond: grey/brown material debris | metallic sparks + ring | cyan flash + end_rod + chime. Same mechanics as HEAD. Before = round 0; after = round 1/2.\n\n| stone | iron | diamond |\n| --- | --- | --- |\n| ![stone](/mc/vfx/pickaxe-shatter-stone/compare/frame_012.webp) | ![iron](/mc/vfx/pickaxe-shatter-iron/compare/frame_012.webp) | ![diamond](/mc/vfx/pickaxe-shatter-diamond/compare/frame_012.webp) |\n\nUse the diamond compare sheet current / prev / prev2 for the two presentation rounds and baseline. Sound: not listened.",
+  "editLog": [],
+  "report": "/casefile/tool-pickaxe-shatter/notes.md",
+  "verification": {
+    "evidence": "/casefile/tool-pickaxe-shatter/evidence/presentation.png",
+    "reason": "54 valid real-client captures: baseline + rounds 1 and 2, all 18 tool skills; zero skipped ticks. Round 1 bridge rejected for floor occlusion; round 2 moves dust above the deck. Sound not listened; manager runs integration tests and Konsist."
+  }
+}
