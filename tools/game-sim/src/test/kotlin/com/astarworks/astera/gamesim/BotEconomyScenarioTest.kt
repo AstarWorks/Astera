@@ -206,4 +206,45 @@ class BotEconomyScenarioTest {
             assertThat(delivery.delivered.map { it.id.value }).`as`("no tool is ever bought").noneMatch { it.endsWith("pickaxe") || it.endsWith("shovel") }
         }
     }
+
+    @Test
+    fun `a failed armour purchase never costs the bot its old piece`() {
+        scenario("bot-economy-armour-atomic") {
+            val shopsDir = GameSim.defaultContentDir().resolve("shops")
+            val catalog = checkNotNull(MatchShopLoaderService().parse(shopsDir).second) { "match-shop.yaml did not load" }
+            val offer = catalog.offers.first { it.itemId.value == "chain-guard-helmet" }
+            val realDelivery = sim.services.getOrThrow<IItemDelivery>()
+            val bot = player("Bot_Atomic", team = "red")
+            val bag = checkNotNull(sim.server.view(bot.id)).givenItems
+            val stock = sim.services.getOrThrow<IOwnedItemStock>()
+            fun purchase(inMatch: Boolean, failNew: Boolean) = MatchShopPurchaseUseCase(
+                itemRegistry = sim.services.getOrThrow<IItemRegistry>(),
+                server = sim.server,
+                stock = { stock },
+                delivery = {
+                    if (!failNew) realDelivery else object : IItemDelivery {
+                        override fun give(target: com.astarworks.astera.core.adapter.api.entity.IMcPlayer, spec: com.astarworks.astera.core.domain.item.ItemSpec, amount: Int, origin: com.astarworks.astera.core.application.port.outbound.item.ItemOrigin) =
+                            if (spec.id == offer.itemId) com.astarworks.astera.core.application.port.outbound.item.DeliveryResult.UnknownTemplate(spec.id.value) else realDelivery.give(target, spec, amount, origin)
+                        override fun refreshHeld(items: IItemRegistry): Int = 0
+                        override fun replace(target: com.astarworks.astera.core.adapter.api.entity.IMcPlayer, from: ItemId, spec: com.astarworks.astera.core.domain.item.ItemSpec) = realDelivery.replace(target, from, spec)
+                    }
+                },
+                inMatch = { inMatch },
+            )
+            val old = ItemId("leather-scout-helmet")
+            repeat(2) { bag += "ore-gold" }
+            bag += old.value
+
+            assertThat(purchase(inMatch = false, failNew = false).execute(bot.id, offer, listOf(old))).isInstanceOf(Result.Failure::class.java)
+            assertThat(bag).`as`("not in a match: nothing changes").contains(old.value).containsOnlyOnce(old.value)
+            assertThat(bag.count { it == "ore-gold" }).isEqualTo(2)
+
+            assertThat(purchase(inMatch = true, failNew = true).execute(bot.id, offer, listOf(old))).isInstanceOf(Result.Failure::class.java)
+            assertThat(bag).`as`("delivery of the new piece failed: the old piece is back, no empty slot").containsOnlyOnce(old.value)
+            assertThat(bag.count { it == "ore-gold" }).`as`("price refunded").isEqualTo(2)
+
+            assertThat(purchase(inMatch = true, failNew = false).execute(bot.id, offer, listOf(old))).isInstanceOf(Result.Success::class.java)
+            assertThat(bag).`as`("success swaps the piece").contains("chain-guard-helmet").doesNotContain(old.value)
+        }
+    }
 }
