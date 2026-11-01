@@ -871,6 +871,42 @@ $frames
     }
 
     @Test
+    fun theBuiltInCasterEyeFrameHasVolumeForEveryLookDirectionIncludingStraightUpAndDown() {
+        fun emitted(pitch: Double) = GatewayRecorder().also { rec ->
+            play(compiled("""
+            apiVersion: astera/v3
+            kind: Skill
+            id: eye-poles
+            machine:
+              start: s
+              states:
+                s:
+                  for: 2
+                  then: end
+                  do:
+                    - {id: p, op: particle, particle: flame, frame: caster.eye, pos: {v: 1.0, w: 1.0, s: 0.0}, count: 1, at: 0}
+                end: {final: true}
+            """), 1L, emptyList(), 4, rec, pitchDeg = pitch)
+        }.emittedAt.filter { it.second == "flame" }.map { it.third }
+        val level = emitted(0.0)
+        assertThat(level).hasSize(1)
+        for (pitch in listOf(-90.0, 90.0, 89.9, -89.9, 80.0, 45.0)) {
+            val out = emitted(pitch)
+            assertThat(out).describedAs("a point is placed on the eye frame at pitch $pitch (no coplanar fault)").hasSize(1)
+        }
+        // pitch 0 keeps the world-up basis exactly: eye + forward 1 + up 1 (the recorder's eye height is whatever it reports)
+        val eyeY = level[0].y - 1.0
+        assertThat(level[0].x).isBetween(-1e-6, 1e-6)
+        assertThat(level[0].z).isBetween(0.9999, 1.0001)
+        // straight up / down: v is vertical and w is the head-up (horizontal), so the point stays sqrt(2) from the eye
+        for (pitch in listOf(-90.0, 90.0)) {
+            val p = emitted(pitch)[0]
+            val d = Math.sqrt(p.x * p.x + (p.y - eyeY) * (p.y - eyeY) + p.z * p.z)
+            assertThat(d).describedAs("pitch $pitch").isBetween(1.4141, 1.4143)
+        }
+    }
+
+    @Test
     fun followStretchAndTrailTargetTakeAFrameId() {
         fun replay(top: String, motion: String, particle: String = ""): GatewayRecorder {
             val rec = GatewayRecorder()
@@ -984,5 +1020,88 @@ $particle
         val tip = emitted("", "{id: p, op: particle, particle: flame, frame: weapon.tip, count: 1, at: 0}", "item: revolver")
         assertThat(muzzle[0].distance(tip[0])).describedAs("the revolver muzzle is its tip").isLessThan(1e-9)
         assertThat(muzzle[0].distance(hand[0])).describedAs("muzzle is about 0.7 from the grip (v 0.635 / w 0.286)").isBetween(0.65, 0.75)
+    }
+
+    private fun victimAt(id: UUID, x: Double, z: Double) = HitCandidate(id, Vec3(x, 0.0, z), 0.0, HitBox(Vec3(x - 0.3, 0.0, z - 0.3), Vec3(x + 0.3, 1.8, z + 0.3)), 1.62)
+
+    private fun hitSkill(id: String, frames: String, vararg handler: String): CompiledSkill = compiled(
+        """
+        apiVersion: astera/v3
+        kind: Skill
+        id: $id
+        frames:
+        ${"  " + frames}
+        machine:
+          start: s
+          states:
+            s:
+              for: 6
+              do:
+                - id: sel
+                  op: hit
+                  at: 2
+                  anchor: caster
+                  shape: {sphere: 8.0}
+                  targets: enemies
+                  ignore_invulnerability: false
+                  on:
+                    hit:
+        ${handler.joinToString("\n        ") { "              " + it.trim() }}
+        """,
+    )
+
+    private fun playHit(skill: CompiledSkill, victims: List<HitCandidate>): GatewayRecorder {
+        val rec = GatewayRecorder()
+        rec.faithfulPose = true
+        rec.victims = victims
+        play(skill, 1L, emptyList(), 8, rec)
+        return rec
+    }
+
+    @Test
+    fun aContactFrameOnTheVictimEventMatchesTheContactAnchor() {
+        val v = listOf(victimAt(UUID(0L, 31L), -1.0, 3.0), victimAt(UUID(0L, 32L), 1.5, 4.0))
+        val old = playHit(
+            hitSkill("contact-anchor", "[]", "- {id: fx, op: particle, particle: flame, anchor: contact, count: 1}"),
+            v,
+        )
+        val framed = playHit(
+            hitSkill(
+                "contact-frame",
+                "- {id: hitc, on: event.victim, each: true, origin: contact, v: incoming, w: up, s: v x w}",
+                "- {id: fx, op: particle, particle: flame, frame: hitc, count: 1}",
+            ),
+            v,
+        )
+        val a = old.emittedAt.filter { it.second == "flame" }
+        val b = framed.emittedAt.filter { it.second == "flame" }
+        assertThat(a).describedAs("old form emits").isNotEmpty()
+        assertThat(b.map { it.first }).isEqualTo(a.map { it.first })
+        a.zip(b).forEach { (x, y) ->
+            assertThat(y.third.x).isCloseTo(x.third.x, org.assertj.core.data.Offset.offset(1e-6))
+            assertThat(y.third.y).isCloseTo(x.third.y, org.assertj.core.data.Offset.offset(1e-6))
+            assertThat(y.third.z).isCloseTo(x.third.z, org.assertj.core.data.Offset.offset(1e-6))
+        }
+    }
+
+    @Test
+    fun aVictimFeetFrameOnTheIncomingFeetAxisMatchesTheWorldKnockbackExpression() {
+        val v = listOf(victimAt(UUID(0L, 33L), -1.0, 3.0), victimAt(UUID(0L, 34L), 2.0, 5.0))
+        val old = playHit(
+            hitSkill("kb-expr", "[]", "- {id: kb, op: knockback, target: event.victim, direction: \"= normalize(event.victim - pos(caster)) + vec(0.0, 0.3, 0.0)\", strength: 1.2}"),
+            v,
+        )
+        val framed = playHit(
+            hitSkill(
+                "kb-frame",
+                "- {id: push, on: event.victim, each: true, origin: victim.feet, v: incoming.feet, w: up, s: v x w}",
+                "- {id: kb, op: knockback, target: event.victim, frame: push, dir: {v: 1.0, w: 0.3}, strength: 1.2}",
+            ),
+            v,
+        )
+        val a = old.calls.filter { it.payload.contains("impulse") }
+        val b = framed.calls.filter { it.payload.contains("impulse") }
+        assertThat(a).describedAs("old form pushes").hasSize(2)
+        assertThat(b.map { it.tick to it.payload }).isEqualTo(a.map { it.tick to it.payload })
     }
 }
