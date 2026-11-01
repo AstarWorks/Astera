@@ -71,13 +71,13 @@ class FrameDisplayKeysScaleScenarioTest : SkillEngineScenario() {
                 - {id: bloom, op: display, kind: text, text: " ", background: "#EAD9B0", frame: body, pos: {v: 1.0, w: 1.0}, for: 6, scale: BASE, billboard: center, motion: [{law: keys, keys: [{t: 0, scale: {left: 4, up: 2, forward: 1}, alpha: 0.2}, {t: 1, scale: {left: 12, up: 6, forward: 1}}, {t: 5, scale: {left: 16, up: 8, forward: 1}, alpha: 0}]}]}
             end: {final: true}
         """
-        val sizes = mutableMapOf<String, Float>()
+        val sizes = mutableMapOf<String, Double>()
         for (base in listOf("[4, 2, 1]", "[1, 1, 1]")) {
             val rec = GatewayRecorder()
             play(compiled(yaml.replace("BASE", base)), 1L, emptyList(), 8, rec)
             sizes[base] = rec.writtenPoses.maxOf { it.third.size.x }
         }
-        assertThat(sizes["[1, 1, 1]"]).describedAs("keys are absolute sizes on a unit base").isEqualTo(16.0f)
-        assertThat(sizes["[4, 2, 1]"]).describedAs("a non-unit base multiplies the keys").isEqualTo(64.0f)
+        assertThat(sizes["[1, 1, 1]"]).describedAs("keys are absolute sizes on a unit base").isEqualTo(16.0)
+        assertThat(sizes["[4, 2, 1]"]).describedAs("a non-unit base multiplies the keys").isEqualTo(64.0)
     }
 }
