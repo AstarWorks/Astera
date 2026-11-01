@@ -160,6 +160,13 @@ public class SimOreNodeWorld(
         denied += Triple(kotlin.math.floor(pos.x).toInt(), kotlin.math.floor(pos.y).toInt(), kotlin.math.floor(pos.z).toInt())
     }
 
+    /** Cells a refused swing (tool too weak or wrong) puffed at, in order (x, y, z). */
+    public val refusals: MutableList<Triple<Int, Int, Int>> = java.util.concurrent.CopyOnWriteArrayList()
+
+    override fun refused(world: WorldId, pos: Vec3) {
+        refusals += Triple(kotlin.math.floor(pos.x).toInt(), kotlin.math.floor(pos.y).toInt(), kotlin.math.floor(pos.z).toInt())
+    }
+
     /** The (hp, maxHp) crack now shown at [x],[y],[z], or null when none. */
     public fun crackAt(x: Int, y: Int, z: Int): Pair<Int, Int>? = cracks[Triple(x, y, z)]
 
