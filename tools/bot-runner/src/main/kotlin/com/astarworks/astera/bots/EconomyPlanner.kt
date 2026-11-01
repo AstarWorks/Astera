@@ -7,7 +7,7 @@ import kotlin.math.hypot
  * (`content/shops/match-shop.yaml`: armour tiers, weapon upgrades; see [parseShoppingList]). Pure and deterministic like
  * [ModePlanner]: the clock and the carried ore are passed in, so a game-sim scenario drives the very planner the live [BotBrain] uses.
  *
- * The ladder is the shopping list's prices in priority order ([parseLadder]). A rung the bag already pays goes to the shop first;
+ * The ladder is the shopping list's prices in priority order ([parseShoppingList]); a rung is also passed as soon as the caller reports its items as owned. A rung the bag already pays goes to the shop first;
  * otherwise the bot works on the first unpassed rung whose missing ore it can actually get (an unreachable rung is skipped, never
  * waited on). Working on a rung is one of:
  *  - `shop`: the price is in the bag -> walk to the own team's shop NPC and stand there (the server-side buyer then buys);
@@ -22,8 +22,10 @@ import kotlin.math.hypot
  */
 class EconomyPlanner(
     private val sites: Sites,
-    private val ladder: List<Map<String, Int>>,
+    private val shopping: List<Buy>,
 ) {
+    private val ladder: List<Map<String, Int>> = shopping.map { it.price }
+
     /** One ore source or the shop, in world coordinates ([ore] = item id of what it gives, "" for the shop). */
     data class Site(val x: Double, val y: Double, val z: Double, val ore: String = "")
 
@@ -69,15 +71,17 @@ class EconomyPlanner(
      * The ladder is a priority order, not a queue: the first rung the bag already pays goes to the shop; otherwise the bot works on the
      * first rung whose missing ore it can actually get, so an unreachable rung (no generator, no pickaxe, level-gated node) never stalls it.
      */
-    fun step(now: Long, x: Double, z: Double, have: Map<String, Int>, hasPickaxe: Boolean): Step? {
+    fun step(now: Long, x: Double, z: Double, have: Map<String, Int>, hasPickaxe: Boolean, owned: Set<String>? = null): Step? {
+        if (owned != null) shopping.forEachIndexed { i, b -> if (!passed[i] && b.items.all { it in owned }) passed[i] = true } // owning the item is the proof of the buy
+        if (committed >= 0 && passed[committed]) { committed = -1; shopSince = 0L; toShop = false }
         if (done) return null
         val shop = sites.shop
         if (committed >= 0) {
             val price = ladder[committed]
-            if (affordable(price, have)) return shopStep(now, x, z, have, hasPickaxe)
+            if (affordable(price, have)) return shopStep(now, x, z, have, hasPickaxe, owned)
             if (shopSince != 0L || (toShop && shop != null && hypot(shop.x - x, shop.z - z) <= SHOP_RADIUS + 0.5)) { // the price left the bag at the shop: the server-side buyer bought this rung
                 finishCommitted()
-                return step(now, x, z, have, hasPickaxe)
+                return step(now, x, z, have, hasPickaxe, owned)
             }
             committed = -1
             toShop = false
@@ -85,7 +89,7 @@ class EconomyPlanner(
         val ready = ladder.indices.firstOrNull { !passed[it] && snoozedUntil[it] <= now && affordable(ladder[it], have) }
         if (ready != null) {
             committed = ready
-            return shopStep(now, x, z, have, hasPickaxe)
+            return shopStep(now, x, z, have, hasPickaxe, owned)
         }
         for (i in ladder.indices) {
             if (passed[i]) continue
@@ -109,19 +113,20 @@ class EconomyPlanner(
         toShop = false
     }
 
-    private fun shopStep(now: Long, x: Double, z: Double, have: Map<String, Int>, hasPickaxe: Boolean): Step? {
+    private fun shopStep(now: Long, x: Double, z: Double, have: Map<String, Int>, hasPickaxe: Boolean, owned: Set<String>?): Step? {
         mineTarget = null
-        val shop = sites.shop ?: run { passed[committed] = true; committed = -1; return step(now, x, z, have, hasPickaxe) }
+        val shop = sites.shop ?: run { passed[committed] = true; committed = -1; return step(now, x, z, have, hasPickaxe, owned) }
         val s = Step("shop", shop.x, shop.y, shop.z, SHOP_RADIUS, "")
         toShop = true
         if (hypot(shop.x - x, shop.z - z) > SHOP_RADIUS + 0.5) { shopSince = 0L; return s }
         if (shopSince == 0L) shopSince = now
         if (now - shopSince < SHOP_WAIT_MS) return s
-        snoozedUntil[committed] = now + SHOP_RETRY_MS // the price is still in the bag: nothing was bought, so the rung is NOT passed
+        if (owned != null) passed[committed] = true // ownership is readable and the item is not owned: the shop will not sell it (tier already replaced, no base weapon), do not queue again
+        else snoozedUntil[committed] = now + SHOP_RETRY_MS // ownership unreadable: the price is still in the bag, nothing was bought, so the rung is NOT passed; try again later
         committed = -1
         shopSince = 0L
         toShop = false
-        return step(now, x, z, have, hasPickaxe)
+        return step(now, x, z, have, hasPickaxe, owned)
     }
 
     private fun mineStep(now: Long, x: Double, z: Double, ore: String, held: Int): Step? {
@@ -230,7 +235,5 @@ class EconomyPlanner(
             return out
         }
 
-        /** The prices of [parseShoppingList], one rung each. */
-        fun parseLadder(shopYaml: String): List<Map<String, Int>> = parseShoppingList(shopYaml).map { it.price }
-    }
+            }
 }

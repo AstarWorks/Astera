@@ -1,5 +1,5 @@
 # Mid star wave of the annihilation-arena (founder 2026-10-29, anti-snowball supply). Instead of an always-on pop, a wave
-# lands every wave_period_seconds, announced wave_warn_seconds ahead (title, sound, action bar). Its stars are thrown one
+# lands every wave_period_seconds (from opens_at_phase on: the first one wave_warn_seconds after that phase began), announced wave_warn_seconds ahead (title, sound, action bar). Its stars are thrown one
 # by one over a disc of scatter_radius around this point. Wave size (ADR-0318) = amount (stars PER PLAYER) x players alive x the
 # supply ramp at landing time (content/norma-layer/layer.yaml star_supply_ramp), within the wave share of the budget. The quarry floor of Highmarch is y=50; the disc stays inside it (max scatter radius 17, anni-map).
 id: annihilation-center-wave
@@ -14,3 +14,4 @@ wave:
   wave_warn_seconds: 10.0
   scatter_radius: 16.0
   scatter_seconds: 8.0
+  opens_at_phase: 3   # idle in P1 準備 / P2 交戦; opens at P3 中央 (first wave = wave_warn_seconds after the P3 start); its budget share goes to the open sources meanwhile

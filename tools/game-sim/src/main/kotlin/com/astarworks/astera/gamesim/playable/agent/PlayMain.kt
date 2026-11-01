@@ -17,7 +17,7 @@ fun main(args: Array<String>) {
     val input = if (args.isNotEmpty()) File(args[0]).bufferedReader() else BufferedReader(InputStreamReader(System.`in`, Charsets.UTF_8))
     val content = GameSim.defaultContentDir().toFile()
     val traceDir = GameSim.defaultTraceDir()
-    AgentPort(SoloMatchHost, content, traceDir).run(input, protocol)
+    AgentPort(DriverMatchHost, content, traceDir).run(input, protocol)
     protocol.flush()
     System.exit(0)
 }

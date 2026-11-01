@@ -91,7 +91,8 @@ internal object MatchStarWiring {
             carry.slot("star-clock-start") { java.util.concurrent.ConcurrentHashMap<MatchId, Long>() },
         )
         val presentationPort = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>()
-        val budget = StarBudget(clock) { id ->
+        val gate = com.astarworks.astera.match.application.service.StarGate(clock, generators) { services.get<com.astarworks.astera.match.application.port.outbound.IMatchPhaseClock>() }
+        val budget = StarBudget(clock, openAt = { id, source -> gate.openAtSeconds(id, source) }) { id ->
             env.matches.findById(id)?.teams?.flatMap { it.members }.orEmpty().count { positions.positionOf(it) != null }
         }
         val issuer = StarIssuer(budget, store, presentationPort, eventBus, env.scheduler)
@@ -146,6 +147,7 @@ internal object MatchStarWiring {
             drops = drops,
             clock = clock,
             budget = budget,
+            gate = gate,
             scheduler = env.scheduler,
             presentation = presentationPort,
             eventBus = eventBus,
@@ -169,7 +171,7 @@ internal object MatchStarWiring {
         env.ctx.registrations += services.register<StarSupplyClock>(clock, priority = 0)
         env.ctx.registrations += services.register<StarCacheService>(caches, priority = 0)
         subs += eventBus.subscribe(MatchStarted::class) { clock.onStarted(it.matchId) }
-        subs += eventBus.subscribe(MatchEnded::class) { clock.onEnded(it.matchId); waves.clear(it.matchId); caches.clear(it.matchId); budget.clear(it.matchId) }
+        subs += eventBus.subscribe(MatchEnded::class) { clock.onEnded(it.matchId); waves.clear(it.matchId); gate.clear(it.matchId); caches.clear(it.matchId); budget.clear(it.matchId) }
         subs += eventBus.subscribe(MatchStarted::class) { lifecycle.onStarted(it) }
         subs += eventBus.subscribe(MatchEnded::class) { lifecycle.onEnded(it) }
         subs += eventBus.subscribe(ResourceSpawned::class) { drops.onSpawned(it) }

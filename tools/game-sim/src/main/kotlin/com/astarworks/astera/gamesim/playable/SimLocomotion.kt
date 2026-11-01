@@ -82,8 +82,17 @@ class SimLocomotion(
         var ty = ny
         if (ty > floor.y + MAX_STEP_UP) ty = floor.y + MAX_STEP_UP
         if (ty < floor.y - MAX_DROP) ty = floor.y - MAX_DROP
-        val fy = floor(ty + 0.05).toInt()
-        if (terrain.isOccupied(cx, fy, cz) || terrain.isOccupied(cx, fy + 1, cz)) return
+        var fy = floor(ty + 0.05).toInt()
+        if (terrain.isOccupied(cx, fy, cz) || terrain.isOccupied(cx, fy + 1, cz)) {
+            // A one-block ledge in the way: the player auto-jumps onto it (the path planner's step-up cells are walked
+            // without a separate jump input), provided there is room for the body on top and the ledge is one step high.
+            val ledge = fy + 1
+            val canStep = terrain.isOccupied(cx, fy, cz) && !terrain.isOccupied(cx, ledge, cz) && !terrain.isOccupied(cx, ledge + 1, cz) &&
+                ledge <= floor(floor.y + 0.05).toInt() + MAX_STEP_UP.toInt()
+            if (!canStep) return
+            ty = ledge.toDouble()
+            fy = ledge
+        }
         apply(tx, ty, tz)
     }
 
