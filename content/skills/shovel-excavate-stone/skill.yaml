@@ -59,7 +59,8 @@ machine:
       then: cast
       do:
         - {id: rig, op: rig, frame: tool, for: 13, detach: true}
-        - {id: trail, op: particle, particle: dust, along: edge, samples: 5, count: 1, color: "#856349", size: 0.35, extra: 0, at: 4, every: 2, for: "${trail_span}", detach: true}
+        # First blade sample precedes impact; remaining samples belong to cast.
+        - {id: trail, op: particle, particle: dust, along: edge, samples: 5, count: 1, color: "#856349", size: 0.35, extra: 0, at: 4}
     cast:
       for: 1
       then: end
@@ -68,13 +69,13 @@ machine:
         - {id: snd, op: sound, sound: block.gravel.break, frame: body, volume: 1.0, pitch: 1.0}
         - {id: wave_0, op: particle, particle: block, block: minecraft:dirt, anchor: {of: caster, offset: {forward: "= 1 + (0 / 2.0) * (${length} - 1)", up: 0.6, left: "= i - floor(${width} / 2.0)"}}, times: "${width}", count: 0, offset: {forward: 0.12, up: 0.8, left: 0.18}, extra: 0.12, at: 0}
         - {id: chips_0, op: particle, particle: block, block: minecraft:dirt, frame: body, pos: {v: "= 1 + (0 / 2.0) * (${length} - 1)", w: 0.6, s: "= i - floor(${width} / 2.0)"}, times: "${width}", count: 2, offset: [0.12, 0.04, 0.12], extra: .025, at: 0}
-        - {id: fall_0, op: particle, particle: block_crumble, block: minecraft:coarse_dirt, frame: body, pos: {v: "= 1 + (0 / 2.0) * (${length} - 1)", w: 0.6, s: "= i - floor(${width} / 2.0)"}, times: "${width}", count: 1, offset: [0.14, 0.14, 0.14], extra: 0, at: 2, detach: true}
+        - {id: fall_0, op: particle, particle: falling_dust, block: minecraft:coarse_dirt, frame: body, pos: {v: "= 1 + (0 / 2.0) * (${length} - 1)", w: 0.6, s: "= i - floor(${width} / 2.0)"}, times: "${width}", count: 1, offset: [0.14, 0.14, 0.14], extra: 0, at: 2, detach: true}
         - {id: wave_1, op: particle, particle: block, block: minecraft:dirt, anchor: {of: caster, offset: {forward: "= 1 + (1 / 2.0) * (${length} - 1)", up: 0.6, left: "= i - floor(${width} / 2.0)"}}, times: "${width}", count: 0, offset: {forward: 0.12, up: 0.8, left: 0.18}, extra: 0.12, at: 2, detach: true}
         - {id: chips_1, op: particle, particle: block, block: minecraft:dirt, frame: body, pos: {v: "= 1 + (1 / 2.0) * (${length} - 1)", w: 0.6, s: "= i - floor(${width} / 2.0)"}, times: "${width}", count: 2, offset: [0.12, 0.04, 0.12], extra: .025, at: 2, detach: true}
-        - {id: fall_1, op: particle, particle: block_crumble, block: minecraft:coarse_dirt, frame: body, pos: {v: "= 1 + (1 / 2.0) * (${length} - 1)", w: 0.6, s: "= i - floor(${width} / 2.0)"}, times: "${width}", count: 1, offset: [0.14, 0.14, 0.14], extra: 0, at: 4, detach: true}
+        - {id: fall_1, op: particle, particle: falling_dust, block: minecraft:coarse_dirt, frame: body, pos: {v: "= 1 + (1 / 2.0) * (${length} - 1)", w: 0.6, s: "= i - floor(${width} / 2.0)"}, times: "${width}", count: 1, offset: [0.14, 0.14, 0.14], extra: 0, at: 4, detach: true}
         - {id: wave_2, op: particle, particle: block, block: minecraft:dirt, anchor: {of: caster, offset: {forward: "= 1 + (2 / 2.0) * (${length} - 1)", up: 0.6, left: "= i - floor(${width} / 2.0)"}}, times: "${width}", count: 0, offset: {forward: 0.12, up: 0.8, left: 0.18}, extra: 0.12, at: 4, detach: true}
         - {id: chips_2, op: particle, particle: block, block: minecraft:dirt, frame: body, pos: {v: "= 1 + (2 / 2.0) * (${length} - 1)", w: 0.6, s: "= i - floor(${width} / 2.0)"}, times: "${width}", count: 2, offset: [0.12, 0.04, 0.12], extra: .025, at: 4, detach: true}
-        - {id: fall_2, op: particle, particle: block_crumble, block: minecraft:coarse_dirt, frame: body, pos: {v: "= 1 + (2 / 2.0) * (${length} - 1)", w: 0.6, s: "= i - floor(${width} / 2.0)"}, times: "${width}", count: 1, offset: [0.14, 0.14, 0.14], extra: 0, at: 6, detach: true}
+        - {id: fall_2, op: particle, particle: falling_dust, block: minecraft:coarse_dirt, frame: body, pos: {v: "= 1 + (2 / 2.0) * (${length} - 1)", w: 0.6, s: "= i - floor(${width} / 2.0)"}, times: "${width}", count: 1, offset: [0.14, 0.14, 0.14], extra: 0, at: 6, detach: true}
         - {id: wave_quarter, op: particle, particle: block, block: minecraft:dirt, anchor: {of: caster, offset: {forward: "= 1 + (0.5 / 2.0) * (${length} - 1)", up: 0.6, left: "= i - floor(${width} / 2.0)"}}, times: "${width}", count: 0, offset: {forward: 0.12, up: 0.8, left: 0.18}, extra: 0.12, at: 1, detach: true}
         - {id: chips_quarter, op: particle, particle: block, block: minecraft:dirt, frame: body, pos: {v: "= 1 + (0.5 / 2.0) * (${length} - 1)", w: 0.6, s: "= i - floor(${width} / 2.0)"}, times: "${width}", count: 2, offset: [0.12, 0.04, 0.12], extra: .025, at: 1, detach: true}
         - {id: wave_three_quarters, op: particle, particle: block, block: minecraft:dirt, anchor: {of: caster, offset: {forward: "= 1 + (1.5 / 2.0) * (${length} - 1)", up: 0.6, left: "= i - floor(${width} / 2.0)"}}, times: "${width}", count: 0, offset: {forward: 0.12, up: 0.8, left: 0.18}, extra: 0.12, at: 3, detach: true}
@@ -82,4 +83,5 @@ machine:
         - {id: wave_0_puff, op: particle, particle: dust, frame: body, pos: {v: "= 1 + (0 / 2.0) * (${length} - 1)", w: 0.6, s: "= i - floor(${width} / 2.0)"}, times: "${width}", count: "${chips}", offset: [0.12, 0.08, 0.12], color: "${core_color}", size: "${core_size}", extra: 0}
         - {id: wave_1_puff, op: particle, particle: dust, frame: body, pos: {v: "= 1 + (1 / 2.0) * (${length} - 1)", w: 0.6, s: "= i - floor(${width} / 2.0)"}, times: "${width}", count: "${chips}", offset: [0.12, 0.08, 0.12], color: "${core_color}", size: "${core_size}", extra: 0, at: 2, detach: true}
         - {id: wave_2_puff, op: particle, particle: dust, frame: body, pos: {v: "= 1 + (2 / 2.0) * (${length} - 1)", w: 0.6, s: "= i - floor(${width} / 2.0)"}, times: "${width}", count: "${chips}", offset: [0.12, 0.08, 0.12], color: "${core_color}", size: "${core_size}", extra: 0, at: 4, detach: true}
+        - {id: trail, op: particle, particle: dust, along: edge, samples: 5, count: 1, color: "#856349", size: 0.35, extra: 0, at: 1, every: 2, for: "= ${trail_span} - 2", detach: true}
     end: {final: true}

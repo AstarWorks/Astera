@@ -48,7 +48,7 @@ frames:
     w: up
     s: v x w
 lines:
-  edge: {frame: tool, from: {v: 0.4}, to: {v: 0.9}}
+  edge: {frame: tool, from: {v: 0.5}, to: {v: 0.9}}
 machine:
   start: windup
   tail: 10
@@ -58,7 +58,8 @@ machine:
       then: cast
       do:
         - {id: rig, op: rig, frame: tool, for: 12, detach: true}
-        - {id: trail, op: particle, particle: dust, along: edge, samples: 5, count: 1, color: "#999999", size: 0.35, extra: 0, at: 3, every: 2, for: "${trail_span}", detach: true}
+        # First blade sample precedes impact; remaining samples belong to cast.
+        - {id: trail, op: particle, particle: dust, along: edge, samples: 5, count: 1, color: "#999999", size: 0.35, extra: 0, at: 3}
     cast:
       for: 1
       then: end
@@ -84,4 +85,5 @@ machine:
         - {id: wave_2_core, op: particle, particle: electric_spark, frame: body, pos: {v: "= 1 + (2 / 2.0) * (${length} - 1)", w: 0, s: "= i - 1"}, times: 3, count: 2, offset: [0.06, 0.03, 0.06], extra: 0.02, at: 4, detach: true}
         - {id: wave_2_ore, op: particle, particle: dust, frame: body, pos: {v: "= 1 + (2 / 2.0) * (${length} - 1)", w: 0, s: "= i - 1"}, times: 3, count: "${chips}", color: "${core_color}", size: "${core_size}", extra: 0, at: 4, detach: true}
         - {id: wave_2_cyan, op: particle, particle: dust, frame: body, pos: {v: "= 1 + (2 / 2.0) * (${length} - 1)", w: 0, s: "= i - 1"}, times: 3, count: 4, color: "#64f5ef", size: "${core_size}", extra: 0, when: "= ${bright}", at: 4, detach: true}
+        - {id: trail, op: particle, particle: dust, along: edge, samples: 5, count: 1, color: "#999999", size: 0.35, extra: 0, at: 1, every: 2, for: "= ${trail_span} - 2", detach: true}
     end: {final: true}

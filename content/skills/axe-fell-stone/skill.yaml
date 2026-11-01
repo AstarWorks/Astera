@@ -59,7 +59,8 @@ machine:
       then: cast
       do:
         - {id: rig, op: rig, frame: tool, for: 14, detach: true}
-        - {id: trail, op: particle, particle: dust, along: edge, samples: 5, count: 1, color: "#b88c55", size: 0.35, extra: 0, at: 5, every: 2, for: "${trail_span}", detach: true}
+        # First blade sample precedes impact; remaining samples belong to cast.
+        - {id: trail, op: particle, particle: dust, along: edge, samples: 5, count: 1, color: "#b88c55", size: 0.35, extra: 0, at: 5}
     cast:
       for: 1
       then: end
@@ -74,4 +75,5 @@ machine:
         - {id: wave_0_puff, op: particle, particle: dust, frame: body, pos: {v: "= 1 + (0 / 2.0) * (${length} - 1)", w: 0.6, s: 0.0}, count: "${chips}", offset: [0.12, 0.08, 0.12], color: "${core_color}", size: "${core_size}", extra: 0}
         - {id: wave_1_puff, op: particle, particle: dust, frame: body, pos: {v: "= 1 + (1 / 2.0) * (${length} - 1)", w: 0.6, s: 0.0}, count: "${chips}", offset: [0.12, 0.08, 0.12], color: "${core_color}", size: "${core_size}", extra: 0, at: 2, detach: true}
         - {id: wave_2_puff, op: particle, particle: dust, frame: body, pos: {v: "= 1 + (2 / 2.0) * (${length} - 1)", w: 0.6, s: 0.0}, count: "${chips}", offset: [0.12, 0.08, 0.12], color: "${core_color}", size: "${core_size}", extra: 0, at: 4, detach: true}
+        - {id: trail, op: particle, particle: dust, along: edge, samples: 5, count: 1, color: "#b88c55", size: 0.35, extra: 0, at: 1, every: 2, for: "= ${trail_span} - 2", detach: true}
     end: {final: true}

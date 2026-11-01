@@ -53,6 +53,18 @@ class ToolSkillPresentationScenarioTest {
                 Files.createDirectories(traceDir)
                 Files.writeString(traceDir.resolve("tool-op-$skill.txt"), opTrace.joinToString("\n", postfix = "\n"))
                 val calls = sim.recorder.particleCalls()
+                // Match ShippedNearEyeScenarioTest: held main_hand rigs have their own camera test;
+                // particles are measured at their recorded emission point, in every material/tier cast.
+                for (call in calls) {
+                    val dx = call.at.x - caster.position.x
+                    val dy = call.at.y - caster.position.y - 1.62
+                    val dz = call.at.z - caster.position.z
+                    assertThat(kotlin.math.sqrt(dx * dx + dy * dy + dz * dz))
+                        .describedAs("$skill ${call.spec.key} @${call.tick} distance to eye").isGreaterThanOrEqualTo(0.8)
+                }
+                if (tool == "shovel") {
+                    assertThat(calls.any { it.spec.key == "falling_dust" }).describedAs("$skill vanilla falling dust").isTrue()
+                }
                 val ticks = sim.recorder.toJson().jsonObject.getValue("ticks").jsonArray
                 val soundTicks = ticks.filter { it.jsonObject.getValue("sounds").jsonArray.isNotEmpty() }
                 assertThat(soundTicks).describedAs("$skill single material impact cue").hasSize(1)
