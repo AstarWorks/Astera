@@ -45,7 +45,7 @@ def held_hand_grip_offset(frames_path):
     """PLAYER_SCALE * |grip| of the `held_hand` part (blocks): how far the engine puts the display origin from the pin."""
     if not frames_path:
         return 0.0
-    part = open(frames_path, encoding="utf-8").read().split("held_hand:", 1)
+    part = re.split(r"^\s*held_hand:", open(frames_path, encoding="utf-8").read(), maxsplit=1, flags=re.M)  # the part key, never a comment mentioning it
     m = GRIP.search(part[1]) if len(part) == 2 else None
     if not m:
         return 0.0
