@@ -24,6 +24,15 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
 
 /**
+ * What [MatchShopNpcService] tracks per running match. It is a separate object so a rewire of Economy (ADR-0311) can carry
+ * it: the new generation's service despawns the NPCs and settles the ore of matches the old generation started.
+ */
+public class MatchShopNpcState {
+    internal val npcs: ConcurrentHashMap<MatchId, List<EntityHandle>> = ConcurrentHashMap()
+    internal val participants: ConcurrentHashMap<MatchId, Set<PlayerId>> = ConcurrentHashMap()
+}
+
+/**
  * Per-match lifecycle of the in-match ore shop: at [MatchStarted] one shop NPC per `shop_npcs` entry of the match's stage
  * is spawned in the match world (stage-local coordinates plus the stage origin), its right click bound to
  * `matchshop.open` for its team; at [MatchEnded] the NPCs are despawned and every participant's leftover ore is taken
@@ -39,10 +48,11 @@ public class MatchShopNpcService(
     private val worldOf: (MatchId) -> WorldId?,
     private val stock: () -> IOwnedItemStock?,
     private val catalog: () -> MatchShopCatalog,
+    state: MatchShopNpcState,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
-    private val npcs = ConcurrentHashMap<MatchId, List<EntityHandle>>()
-    private val participants = ConcurrentHashMap<MatchId, Set<PlayerId>>()
+    private val npcs = state.npcs
+    private val participants = state.participants
 
     public fun onStarted(event: MatchStarted) {
         val stage = stages.find(event.stageId)

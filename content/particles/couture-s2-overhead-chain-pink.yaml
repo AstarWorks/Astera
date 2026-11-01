@@ -1,15 +1,8 @@
 # pink beads of the chain trailing the flying shears
 id: couture-s2-overhead-chain-pink
-shape: {kind: burst, spread_blocks: 0.1}
-color: {r: 255, g: 190, b: 215}
+particle: dust_color_transition
 count: 2
-lifetime_ticks: 6
-vanilla_particle: dust_color_transition
-data:
-  kind: dust_color_transition
-  from: {r: 255, g: 240, b: 245}
-  to: {r: 255, g: 150, b: 195}
-  scale: 0.7
-speed: 0.0
+color: "#fff0f5"
+to_color: "#ff96c3"
+size: 0.7
 velocity: {direction: outward, speed: 0.02, spread_degrees: 0, speed_jitter: 0.5}
-force: true

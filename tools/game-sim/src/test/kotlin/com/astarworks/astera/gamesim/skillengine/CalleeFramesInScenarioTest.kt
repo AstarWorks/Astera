@@ -82,7 +82,7 @@ class CalleeFramesInScenarioTest : SkillEngineScenario() {
     @Test
     fun castingACalleeDirectlyIsRefusedNamingTheFrame() {
         val skill = ok(loadInline(spotCallee))
-        assertThatThrownBy { play(skill, seed = 1L, ticks = 4) }.hasMessageContaining("'spot'").hasMessageContaining("cast directly")
+        assertThatThrownBy { play(skill, seed = 1L, ticks = 4) }.hasMessageContaining("CalleeOnly").hasMessageContaining("spot")
     }
 
     private fun fragmentSkill() = """

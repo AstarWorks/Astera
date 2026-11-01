@@ -10,6 +10,10 @@ services:
     build: !reset null
     image: itzg/minecraft-server:java25
     environment:
+      # Lean capture: a single-skill arena needs a small heap and short view/simulation distance (measured, see README).
+      MEMORY: "${SHOT_SERVER_MEM:-1G}"
+      VIEW_DISTANCE: "${SHOT_SERVER_VIEW:-6}"
+      SIMULATION_DISTANCE: "${SHOT_SERVER_SIM:-4}"
       # SHOT_NO_FX=1: motion-only capture, only the performance (body + weapon) plays, no fx / particle effects.
       ASTERA_VFX_PERFORMANCE_ONLY: "${SHOT_NO_FX:-0}"
       ASTERA_VFX_TRACE: "1"

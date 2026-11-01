@@ -90,6 +90,17 @@ public class InMemoryShopStockRepository : IShopStockRepository {
         return Result.success(Unit)
     }
 
+    override fun clampTo(shopId: ShopId, offerId: ShopOfferId, max: Int): Result<Unit, ShopStockError> {
+        require(max >= 0) { "clampTo 'max' must be >= 0, got $max" }
+        store.computeIfPresent(shopId to offerId) { _, current -> minOf(current, max) }
+        return Result.success(Unit)
+    }
+
+    override fun remove(shopId: ShopId, offerId: ShopOfferId): Result<Unit, ShopStockError> {
+        store.remove(shopId to offerId)
+        return Result.success(Unit)
+    }
+
     /** Drop every seeded row. Test-only — production callers must restart the JVM. */
     public fun clear() {
         store.clear()

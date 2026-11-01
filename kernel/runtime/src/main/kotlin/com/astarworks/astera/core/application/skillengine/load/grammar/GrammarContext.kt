@@ -16,6 +16,7 @@ import com.astarworks.astera.core.domain.skillengine.expr.ExprCompiler
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.LineDecl
 import com.astarworks.astera.core.domain.skillengine.model.ParamValue
 import com.astarworks.astera.core.domain.skillengine.model.Value
 
@@ -49,13 +50,15 @@ public class GrammarContext(
     public val partAxes: ((String) -> Map<String, Vec3>?)? = null,
     /** The model constants of the frames with `part:` (`fly_a.length`), folded into every expression source this context checks. */
     public val partConstants: PartConstants? = null,
+    /** The skill's `lines:` by id (ADR-0314), what a draw op's `along:` names; null = no lines declared. */
+    public val lines: Map<String, LineDecl>? = null,
 ) {
     /** The same context with [decoder] as the nested-list decoder. */
-    public fun withOpLists(decoder: OpListDecoder): GrammarContext = GrammarContext(file, params, exprs, env, decoder, paramDefaults, partAxes, partConstants)
+    public fun withOpLists(decoder: OpListDecoder): GrammarContext = GrammarContext(file, params, exprs, env, decoder, paramDefaults, partAxes, partConstants, lines)
 
     /** The context a load-time law is read with: the skill's param defaults are known, and [axes] are the object's own (item part) axes. */
     public fun forLaws(axes: AxisResolver): GrammarContext =
-        GrammarContext(file, paramDefaults ?: params, exprs, env, opLists, paramDefaults, partAxes, partConstants).also { it.axes = axes }
+        GrammarContext(file, paramDefaults ?: params, exprs, env, opLists, paramDefaults, partAxes, partConstants, lines).also { it.axes = axes }
 
     /** The copy ([Occurrence]) whose index `i` / `n` / `parent.i` a law number reads; null = this context has no copy index ([forCopy]). */
     public var occurrence: Occurrence? = null
@@ -63,7 +66,7 @@ public class GrammarContext(
 
     /** The same context bound to one copy of a family / repeat: a law number may then read `i`, `n` and the `parent.` chain (ADR-0303 3.5). */
     public fun forCopy(occurrence: Occurrence): GrammarContext =
-        GrammarContext(file, params, exprs, env, opLists, paramDefaults, partAxes, partConstants).also {
+        GrammarContext(file, params, exprs, env, opLists, paramDefaults, partAxes, partConstants, lines).also {
             it.axes = axes
             it.occurrence = occurrence
         }

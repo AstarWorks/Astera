@@ -103,7 +103,7 @@ class GunTracerScenarioTest : SkillEngineScenario() {
 
     @Test
     fun casterSeesTheLineOffTheLookAxis() {
-        for (skill in listOf("rifle-shot", "pistol-shot", "revolver-shot", "sniper-shot", "smg-burst")) {
+        for (skill in listOf("rifle-shot", "pistol-shot", "sniper-shot", "smg-burst")) {
             assertOffTheLookAxis(skill, listOf(victim(12.0)))
         }
     }

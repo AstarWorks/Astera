@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.domain.skillengine.model
 
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.FrameDecl
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.LineDecl
 import com.astarworks.astera.core.domain.skillengine.part.Machine
 import com.astarworks.astera.core.domain.skillengine.part.Part
 import com.astarworks.astera.core.domain.skillengine.part.ParamSpec
@@ -47,6 +49,10 @@ public data class SkillDef(
     val framesIn: Map<String, String> = emptyMap(),
     val emits: List<String> = emptyList(),
     val anchors: List<AnchorDecl> = emptyList(),
+    /** `frames:` (ADR-0314): origin + v, w, s frames every draw op places by coefficients; evaluated once per tick by the runtime. */
+    val frames: List<FrameDecl> = emptyList(),
+    /** `lines:` (ADR-0314): named segments of a frame, read by draw ops with `along: <id>`. */
+    val lines: List<LineDecl> = emptyList(),
     /** Named conditions (3.8), CEL source. */
     val conditions: Map<String, String> = emptyMap(),
     /** Skill-local fragments (`fragments:`): flat op lists called by `use: fragment:<name>`; part ids are `<skill>#<name>`. */
@@ -55,6 +61,12 @@ public data class SkillDef(
 ) {
     /** Base id without `@variant`. */
     val baseId: String get() = id.substringBefore('@')
+
+    /** `required` params nobody can value on a direct cast (no default). */
+    val unvaluedRequiredParams: List<String> get() = params.values.filter { it.required && it.default == null }.map { it.name }
+
+    /** Callee-only: a caller's `use:` must bind its `frames_in` frames / value its `required` params, so it cannot be cast on its own. */
+    val isCalleeOnly: Boolean get() = framesIn.isNotEmpty() || unvaluedRequiredParams.isNotEmpty()
 }
 
 /** `anchors:` entry (ADR-0303 1): a named point on the caster or a frame, with an optional offset (a number, `${param}` or `= CEL`) and a mandatory [mode]. */
@@ -63,7 +75,14 @@ public data class AnchorDecl(
     val anchor: PointRef,
     val offset: Map<String, Value<Double>>,
     val mode: AnchorMode,
+    /** Ray anchor (ADR-0303 3.3): when set, the anchor sits where the parent's forward ray meets a block within this many blocks, else at the ray's end. */
+    val ray: Double? = null,
+    /** What stops a [ray] anchor (`ray_stops:`, required with `ray`, null without it). */
+    val rayStops: RayStops? = null,
 )
+
+/** `ray_stops` of a ray anchor: [BLOCKS] = only the first block ends the ray; [ENTITIES] = also the first enemy body of the caster (never the caster, never an ally), the anchor then sitting where the ray enters its hitbox. */
+public enum class RayStops { BLOCKS, ENTITIES }
 
 /** `follow` re-reads the parent at every send (the identity); `snapshot` copies the pose once at activation. */
 public enum class AnchorMode { FOLLOW, SNAPSHOT }

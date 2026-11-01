@@ -17,4 +17,6 @@ public data class EngineConfig(
     val maxSweepSteps: Int = 32,
     /** Where `expand` writes its dump (skill-compare mounts this path). */
     val expandDir: String = "build/skill-expand",
+    /** Caster-view clutter caps (load-time check 16). */
+    val casterEye: CasterEyeCaps = CasterEyeCaps(),
 )

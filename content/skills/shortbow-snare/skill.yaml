@@ -13,15 +13,8 @@ params:
   max_lifetime_ticks: {type: ticks, default: 40}
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: follow}
+  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 1.8}, mode: snapshot}
   - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
-fragments:
-  impact:
-    frames_in: {spot: anchor}
-    do:
-      - {id: snd, op: sound, at: 0, sound: "astera:weapons/blade-hit", anchor: spot, volume: 0.7, pitch: 1.0}
-      - {id: spark, op: particle_def, at: 0, def: hit-spark, anchor: spot}
-      - {id: fleck, op: particle, at: 0, particle: dust, anchor: spot, count: 4, offset: [0.15, 0.15, 0.15], color: "#787878", size: 0.9}
 machine:
   start: fly
   tail: 14
@@ -33,8 +26,7 @@ machine:
         - {event: arrow.end, to: end}
       do:
         - {id: draw, op: body, target: caster, anim: bow-draw, speed: 1.0, at: 0, for: 14, detach: true}
-        - {id: snd, op: sound, at: 0, sound: "astera:weapons/sword-swing", anchor: caster, volume: 0.7, pitch: 0.9}
-        - {id: fx, op: particle_def, at: 0, def: gun-muzzle-smoke, anchor: cast_fx}
+        - {id: fire_fx, use: gun-muzzle, with: {snd: "astera:weapons/sword-swing", vol: 0.7, pitch: 0.9, flash: false}, frames: {muzzle: cast_fx}}
         - id: arrow
           op: projectile
           at: 0
@@ -48,17 +40,9 @@ machine:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
               - {id: st_sink, op: status, target: event.victim, status: sinking, stacks: 1, for: "${sink_ticks}"}
-              - {id: hit_fx, use: "fragment:impact", frames: {spot: heart}, detach: true}
+              - {id: hit_fx, use: strike-impact, with: {snd: "astera:weapons/blade-hit", color: "#787878", pitch: 1.0, size: 0.9}, frames: {spot: heart}, detach: true}
             block:
               - {id: block_snd, op: sound, at: 0, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5, detach: true}
               - {id: block_fx, op: particle_def, at: 0, def: hit-spark, anchor: contact.point, detach: true}
-        - {id: shaft, op: display, kind: item, item: "minecraft:spectral_arrow", context: fixed, anchor: arrow, scale: [0.9, 0.9, 0.9], at: 0, until: arrow.end}
-        - id: trail
-          op: group
-          at: 0
-          every: 1
-          until: arrow.end
-          do:
-            - {id: wake, op: particle, particle: crit, count: 1, offset: [0.04, 0.04, 0.04], anchor: {of: arrow, sweep: 0.4}, at: 0}
-            - {id: dust, op: particle, particle: dust, count: 1, color: "#787878", size: 0.9, anchor: {of: arrow, sweep: 0.4}, at: 0}
+        - {id: shaft, use: projectile-body, with: {item: "minecraft:spectral_arrow", scale: 0.9, color: "#787878", size: 0.9}, frames: {body: arrow}, events: {body_end: arrow.end}}
     end: {final: true}

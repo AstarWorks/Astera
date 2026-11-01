@@ -118,6 +118,7 @@ public class AdminSkillsPanel(
         private val K_ERR_DELIVERY = k("err.delivery")
         private val K_ERR_COOLDOWN = k("err.cooldown")
         private val K_ERR_SILENCED = k("err.silenced")
+        private val K_ERR_CALLEE_ONLY = k("err.callee-only")
         private val K_ERR_OTHER = k("err.cast")
         private val K_OPEN_REJECTED = MessageKey("astera.gui.error.open-rejected")
 
@@ -126,11 +127,13 @@ public class AdminSkillsPanel(
             is CastSkillError.SkillNotFound -> K_ERR_UNKNOWN
             is CastSkillError.OnCooldown -> K_ERR_COOLDOWN
             is CastSkillError.Silenced -> K_ERR_SILENCED
+            is CastSkillError.CalleeOnly -> K_ERR_CALLEE_ONLY
             else -> K_ERR_OTHER
         }
 
         public fun errorArgs(e: CastSkillError, skill: SkillId): Map<String, String> = when (e) {
             is CastSkillError.OnCooldown -> mapOf("skill" to skill.value, "seconds" to "%.1f".format(e.remainingMs / 1000.0))
+            is CastSkillError.CalleeOnly -> mapOf("skill" to skill.value, "callers" to e.callers.joinToString(", ").ifEmpty { "-" })
             else -> mapOf("skill" to skill.value)
         }
     }

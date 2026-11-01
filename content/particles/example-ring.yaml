@@ -1,11 +1,5 @@
 id: example-ring
-shape:
-  kind: circle
-  radius_blocks: 2.0
-color:
-  r: 80
-  g: 180
-  b: 220
+particle: end_rod
 count: 36
-lifetime_ticks: 40
+shape: {kind: circle, radius_blocks: 2.0}
 display_name_key: astera.particle.example-ring.name

@@ -59,7 +59,7 @@ machine:
             - {law: move, velocity: {forward: -1.0}, speed: 7.0, at: 32, for: 8, ease: in_quad}          # and is reeled back, accelerating
       do:
         # riders: one display and one hit capsule per blade frame, bound by `blade[i]` (same `times`)
-        - {id: blade_model, op: display, kind: item, item: couture-rapier, anchor: "blade[i]", times: 3, for: 40}
+        - {id: blade_model, op: display, kind: item, item: couture-rapier, anchor: "blade[i]", times: 3, scale: [0.3, 0.3, 0.3], for: 40}
         - {id: blade_hit0, op: hit, anchor: "blade[0]", at: 4, every: 1, for: 7, targets: enemies, shape: {capsule: 0.22, from: root, to: tip}, damage: {physical: "= 18 / 7"}, ignore_invulnerability: false, window: once}
         - {id: blade_hit1, op: hit, anchor: "blade[1]", at: 4, every: 1, for: 7, targets: enemies, shape: {capsule: 0.22, from: root, to: tip}, damage: {physical: "= 18 / 7"}, ignore_invulnerability: false, window: once}
         - {id: blade_hit2, op: hit, anchor: "blade[2]", at: 4, every: 1, for: 7, targets: enemies, shape: {capsule: 0.22, from: root, to: tip}, damage: {physical: "= 18 / 7"}, ignore_invulnerability: false, window: once}

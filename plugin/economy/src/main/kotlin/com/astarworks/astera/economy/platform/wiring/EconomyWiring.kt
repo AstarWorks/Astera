@@ -80,11 +80,19 @@ import com.astarworks.astera.core.platform.wiring.WiringContext
 /** What the host needs after [EconomyWiring.install]. */
 public class EconomyWiringResult(
     public val ledger: ICurrencyLedger,
-    private val shutdownHooks: List<() -> Unit>,
+    private val binders: List<() -> () -> Unit>,
 ) {
-    /** Runs the stop hooks wiring registered; subscriptions / registrations are closed by `WiringContext.close()`. */
-    public fun shutdown() {
-        shutdownHooks.forEach { runCatching(it) }
+    private var stops: List<() -> Unit> = emptyList()
+
+    /** Starts the repeating tasks that [EconomyWiring.install] deliberately did not start. */
+    public fun bind() {
+        stops = binders.map { it() }
+    }
+
+    /** Stops what [bind] started; registrations / subscriptions are closed by `WiringContext.close()`. */
+    public fun unbind() {
+        stops.asReversed().forEach { runCatching(it) }
+        stops = emptyList()
     }
 }
 
@@ -95,21 +103,15 @@ public class EconomyWiringResult(
 public object EconomyWiring {
 
     public fun install(ctx: WiringContext, ports: EconomyPlatformPorts): EconomyWiringResult {
-        val shutdownHooks = mutableListOf<() -> Unit>()
+        val binders = mutableListOf<() -> () -> Unit>()
         val services = ctx.services
         val logger = ctx.logger
         val registrations = ctx.registrations
         val subscriptions = ctx.subscriptions
-        val scheduledTasks = mutableListOf<IScheduler.TaskHandle>()
-        // Wave 5server-harden / ADR-0123: ContentReferenceCheck registrations
-        // retained so shutdown can unregister cleanly across plugin hot-swap.
-        val validationRegistrations = mutableListOf<
-            com.astarworks.astera.core.application.port.outbound.validation.IContentValidator.Registration,
-            >()
 
         // ── Shared services ────────────────────────────────────────────────────
         val eventBus = services.getOrThrow<IDomainEventBus>()
-        val commands = ctx.commandMount("Astera-Economy")
+        val commands = ctx.commandMount()
         val playerGateway = services.getOrThrow<IPlayerGateway>()
         val msgRenderer = services.getOrThrow<IMessageRenderer>()
         val matchRepository = services.getOrThrow<IMatchRepository>()
@@ -118,28 +120,16 @@ public object EconomyWiring {
         // Wave 3 (R2): pick up Postgres impl (priority=100) if Astera-Persistence
         // registered it via loadbefore; otherwise create in-memory at priority=0.
         val ledger: ICurrencyLedger =
-            services.get<ICurrencyLedger>()
-                ?: InMemoryCurrencyLedger().also {
-                    registrations += services.register<ICurrencyLedger>(it, priority = 0)
-                }
+            ctx.stateful<ICurrencyLedger> { InMemoryCurrencyLedger() }
 
         // Wave 5f (ADR-0035): three new economy ports + scheduler hookup.
         // Each falls back to in-memory if Postgres hasn't registered an overlay.
         val issuanceLog: ICurrencyIssuanceLog =
-            services.get<ICurrencyIssuanceLog>()
-                ?: InMemoryCurrencyIssuanceLog().also {
-                    registrations += services.register<ICurrencyIssuanceLog>(it, priority = 0)
-                }
+            ctx.stateful<ICurrencyIssuanceLog> { InMemoryCurrencyIssuanceLog() }
         val marketplace: IMarketplaceRepository =
-            services.get<IMarketplaceRepository>()
-                ?: InMemoryMarketplaceRepository().also {
-                    registrations += services.register<IMarketplaceRepository>(it, priority = 0)
-                }
+            ctx.stateful<IMarketplaceRepository> { InMemoryMarketplaceRepository() }
         val creatorRevenues: ICreatorRevenueRepository =
-            services.get<ICreatorRevenueRepository>()
-                ?: InMemoryCreatorRevenueRepository().also {
-                    registrations += services.register<ICreatorRevenueRepository>(it, priority = 0)
-                }
+            ctx.stateful<ICreatorRevenueRepository> { InMemoryCreatorRevenueRepository() }
 
         // ── Use cases ──────────────────────────────────────────────────────────
         val deposit = DepositUseCase(ledger, eventBus)
@@ -165,10 +155,13 @@ public object EconomyWiring {
 
         // Daily expiry sweep — 20 ticks/s × 60 s × 60 m × 24 h = 1,728,000 ticks.
         // Initial delay 20 ticks so onEnable can finish first.
-        scheduledTasks += services.getOrThrow<IScheduler>().runRepeatingTicks(ExecutionScope.Io,
-            initialDelayTicks = 20L,
-            periodTicks = 1_728_000L,
-        ) { expireCurrency.sweep() }
+        binders += {
+            val task = services.getOrThrow<IScheduler>().runRepeatingTicks(ExecutionScope.Io,
+                initialDelayTicks = 20L,
+                periodTicks = 1_728_000L,
+            ) { expireCurrency.sweep() }
+            task::cancel
+        }
 
         // Marketplace use cases. PurchaseListingUseCase composes γ's
         // CreatorRevenueCalculator (10% default platform fee).
@@ -284,10 +277,7 @@ public object EconomyWiring {
         // immutable spec. Persistence plugin registers the Postgres overlay
         // at priority 100; this in-memory default is the fallback for tests
         // and Postgres-less runs.
-        val shopStockRepository: IShopStockRepository = services.get<IShopStockRepository>()
-            ?: InMemoryShopStockRepository().also {
-                registrations += services.register<IShopStockRepository>(it, priority = 0)
-            }
+        val shopStockRepository: IShopStockRepository = ctx.stateful<IShopStockRepository> { InMemoryShopStockRepository() }
 
         val shopsContentDir = ctx.contentDir.resolve("shops")
         val shopReport = ShopLoaderService(shopRegistry, shopStockRepository).loadFrom(shopsContentDir)
@@ -295,12 +285,9 @@ public object EconomyWiring {
 
         // ADR-0211: ownership ledger + player-facing history. Postgres overlays this at priority 100.
         val shopPurchases: com.astarworks.astera.core.application.port.outbound.IShopPurchaseRepository =
-            services.get<com.astarworks.astera.core.application.port.outbound.IShopPurchaseRepository>()
-                ?: com.astarworks.astera.economy.application.service.InMemoryShopPurchaseRepository().also {
-                    registrations += services.register<
-                        com.astarworks.astera.core.application.port.outbound.IShopPurchaseRepository,
-                        >(it, priority = 0)
-                }
+            ctx.stateful<com.astarworks.astera.core.application.port.outbound.IShopPurchaseRepository> {
+                com.astarworks.astera.economy.application.service.InMemoryShopPurchaseRepository()
+            }
         val carriedItems: (com.astarworks.astera.core.domain.player.PlayerId) -> List<com.astarworks.astera.core.domain.item.ItemId> =
             { playerId ->
                 services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemQuery>()
@@ -349,6 +336,17 @@ public object EconomyWiring {
         val matchShopLoader = com.astarworks.astera.economy.application.service.MatchShopLoaderService()
         val matchShopReport = matchShopLoader.loadFrom(shopsContentDir)
         logger.info("Loaded match shop from $shopsContentDir (loaded: ${matchShopReport.loaded}, failed: ${matchShopReport.failed})")
+        // Reload (`astera admin reload shops`): diff-apply the lobby shops and stage the match catalog for the next match.
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchStarted::class) { matchShopLoader.promotePending() }
+        val shopContents = com.astarworks.astera.economy.application.contents.shop.ShopContents(
+            registry = shopRegistry,
+            stock = shopStockRepository,
+            matchShop = matchShopLoader,
+            matchRunning = { matchRepository.findActiveMatches().isNotEmpty() },
+            onApplied = { services.getOrThrow<IScheduler>().run(ExecutionScope.Global, kotlin.time.Duration.ZERO) { shopBrowse.refreshOpen() } },
+        )
+        services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry>()
+            .register(shopContents, shopsContentDir)
         val matchTeams = com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup { id ->
             services.get<com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup>()?.teamOf(id)
         }
@@ -390,6 +388,7 @@ public object EconomyWiring {
                 },
                 stock = ownedStock,
                 catalog = { matchShopLoader.catalog },
+                state = ctx.stateful { com.astarworks.astera.economy.application.service.MatchShopNpcState() },
             )
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchStarted::class) { event ->
                 matchShopNpcs.onStarted(event)
@@ -406,10 +405,13 @@ public object EconomyWiring {
                 stock = ownedStock,
                 catalog = { matchShopLoader.catalog },
             )
-            scheduledTasks += services.getOrThrow<IScheduler>().runRepeatingTicks(ExecutionScope.Global,
-                initialDelayTicks = 20L,
-                periodTicks = 20L,
-            ) { matchShopBotBuyer.tick() }
+            binders += {
+                val task = services.getOrThrow<IScheduler>().runRepeatingTicks(ExecutionScope.Global,
+                    initialDelayTicks = 20L,
+                    periodTicks = 20L,
+                ) { matchShopBotBuyer.tick() }
+                task::cancel
+            }
         } else {
             logger.severe(
                 "Match shop NPCs DISABLED - players get no base shop: entity spawner=${matchShopSpawner != null}, " +
@@ -471,15 +473,9 @@ public object EconomyWiring {
         // null (returns 0); Items plugin (Wave 5flex follow-up) registers a
         // real valuator if loaded.
         val powerIndexRepo: IPowerIndexRepository =
-            services.get<IPowerIndexRepository>()
-                ?: InMemoryPowerIndexRepository().also {
-                    registrations += services.register<IPowerIndexRepository>(it, priority = 0)
-                }
+            ctx.stateful<IPowerIndexRepository> { InMemoryPowerIndexRepository() }
         val inventoryValuator: IPlayerInventoryValuator =
-            services.get<IPlayerInventoryValuator>()
-                ?: NullInventoryValuator().also {
-                    registrations += services.register<IPlayerInventoryValuator>(it, priority = 0)
-                }
+            ctx.stateful<IPlayerInventoryValuator> { NullInventoryValuator() }
         val recalculatePowerIndex = RecalculatePowerIndexUseCase(
             valuator = inventoryValuator,
             ledger = ledger,
@@ -493,15 +489,9 @@ public object EconomyWiring {
         // Postgres overlays (V38 / V39) win at priority=100; in-memory defaults
         // here are the fallback for tests + Postgres-less runs.
         val bettingMatchRepo: IBettingMatchRepository =
-            services.get<IBettingMatchRepository>()
-                ?: InMemoryBettingMatchRepository().also {
-                    registrations += services.register<IBettingMatchRepository>(it, priority = 0)
-                }
+            ctx.stateful<IBettingMatchRepository> { InMemoryBettingMatchRepository() }
         val bettingEscrow: IBettingEscrowService =
-            services.get<IBettingEscrowService>()
-                ?: InMemoryBettingEscrowService(ledger).also {
-                    registrations += services.register<IBettingEscrowService>(it, priority = 0)
-                }
+            ctx.stateful<IBettingEscrowService> { InMemoryBettingEscrowService(ledger) }
         // History is keyed off the configured default policy's cooldown for the
         // in-memory impl. The Postgres overlay does its own per-row aggregation
         // and uses the same cooldown only for its in-process recordResolution
@@ -509,18 +499,14 @@ public object EconomyWiring {
         val defaultPolicyId = BettingPolicyId("default")
         val bootstrapPolicyForCooldown = BettingPolicy.DEFAULT
         val bettingHistory: IBettingHistoryService =
-            services.get<IBettingHistoryService>()
-                ?: InMemoryBettingHistoryService(
+            ctx.stateful<IBettingHistoryService> {
+                InMemoryBettingHistoryService(
                     matches = bettingMatchRepo,
                     cooldownAfterMatchMs = bootstrapPolicyForCooldown.cooldownAfterMatch.inWholeMilliseconds,
-                ).also {
-                    registrations += services.register<IBettingHistoryService>(it, priority = 0)
-                }
+                )
+            }
         val bettingOptIn: IBettingOptInProvider =
-            services.get<IBettingOptInProvider>()
-                ?: InMemoryBettingOptInProvider().also {
-                    registrations += services.register<IBettingOptInProvider>(it, priority = 0)
-                }
+            ctx.stateful<IBettingOptInProvider> { InMemoryBettingOptInProvider() }
 
         // Policy registry: YAML-backed Contents replaces any in-memory default.
         val bettingPolicies = BettingPolicyContents().also {
@@ -536,9 +522,8 @@ public object EconomyWiring {
         )
         registrations += services.register<IBettingPolicyRegistry>(bettingPolicies, priority = 0)
         // F3-9 (ADR-0224): `/astera admin reload bet-policies`; `reload all` picks it up too.
-        val bettingPolicyReload = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry>()
+        services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry>()
             .register(bettingPolicies, betPoliciesContentDir)
-        shutdownHooks += bettingPolicyReload::unregister
 
         val initiateBetting = InitiateBettingChallengeUseCase(
             matches = bettingMatchRepo,
@@ -585,10 +570,13 @@ public object EconomyWiring {
 
         // Per-minute expiry sweep for pending challenges past their deadline
         // (acceptanceTimeout in BettingPolicy). 20 ticks/s × 60 s = 1,200 ticks.
-        scheduledTasks += services.getOrThrow<IScheduler>().runRepeatingTicks(ExecutionScope.Io,
-            initialDelayTicks = 60L,
-            periodTicks = 1_200L,
-        ) { expireBetting.execute() }
+        binders += {
+            val task = services.getOrThrow<IScheduler>().runRepeatingTicks(ExecutionScope.Io,
+                initialDelayTicks = 60L,
+                periodTicks = 1_200L,
+            ) { expireBetting.execute() }
+            task::cancel
+        }
 
         // ── Commands ───────────────────────────────────────────────────────────
         // `/astera economy balance|grant|withdraw|transfer` and `/astera shop [id]` (ADR-0184).
@@ -607,18 +595,15 @@ public object EconomyWiring {
         services.get<com.astarworks.astera.core.application.port.outbound.validation.IContentValidator>()
             ?.let { validator ->
                 val itemRegistry = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IItemRegistry>()
-                validationRegistrations +=
-                    validator.register(
-                        com.astarworks.astera.economy.application.service.validation
-                            .ShopReferencesItemCheck(shopRegistry, itemRegistry),
-                    )
+                // The validator is a substrate service, so the check is not tag-tracked: unregister it on close.
+                val check = validator.register(
+                    com.astarworks.astera.economy.application.service.validation
+                        .ShopReferencesItemCheck(shopRegistry, itemRegistry),
+                )
+                ctx.onClose { check.unregister() }
                 logger.info("Wave 5server-harden: ShopReferencesItemCheck registered with IContentValidator.")
             }
 
-        // Stop hooks (original onDisable: tasks, then ContentReferenceCheck unregisters).
-        shutdownHooks += { scheduledTasks.forEach { it.cancel() } }
-        shutdownHooks += { validationRegistrations.forEach { it.unregister() } }
-
-        return EconomyWiringResult(ledger = ledger, shutdownHooks = shutdownHooks.toList())
+        return EconomyWiringResult(ledger = ledger, binders = binders.toList())
     }
 }

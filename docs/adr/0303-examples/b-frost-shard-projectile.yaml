@@ -36,9 +36,9 @@ machine:
           every: 1
           until: bolt.end
           do:
-            - {id: t1, op: particle, particle: snowflake, anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], extra: 0.01}
-            - {id: t2, op: particle, particle: dust,      anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.06, 0.06, 0.06], extra: 0, color: "#ebf5ff", size: 1.4}
-            - {id: t3, op: particle, particle: end_rod,   anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.02, 0.02, 0.02], extra: 0}
+            - {id: t1, op: particle, particle: dust,      anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.08, 0.08, 0.08], extra: 0, color: "#e6f4ff", size: 0.3}
+            - {id: t2, op: particle, particle: dust,      anchor: {of: bolt, sweep: 0.3}, count: 2, offset: [0.06, 0.06, 0.06], extra: 0, color: "#ebf5ff", size: 0.3}
+            - {id: t3, op: particle, particle: dust,      anchor: {of: bolt, sweep: 0.3}, count: 1, offset: [0.02, 0.02, 0.02], extra: 0, color: "#f5fbff", size: 0.3}
         - id: bolt
           op: projectile
           at: 0

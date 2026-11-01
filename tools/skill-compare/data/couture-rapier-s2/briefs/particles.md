@@ -4,7 +4,7 @@ Understanding: tools/skill-compare/data/couture-rapier-s2/beat-sheet/understandi
 
 Goal: add THREE small, purposeful particle emitters on top of the approved structure. Concept: cut and stitch. Few, anchored to a named emitter, vanilla-first. Do NOT copy the reference's scattered white specks. No new sprites. Do not touch `couture-s2-coin1`, `couture-s2-hit1`, `couture-s2-trail`, the rig, the thread block geometry, or any model/skill file. Never `git push`; commit only if told (the director commits).
 
-Read first: `docs/contributing/vfx-team/vfx.md` (if present), `docs/reference/vfx/README.md`, existing `content/particles/couture-s2-p-*.yaml` (format: `vanilla_particle`, `data`, `velocity`, `force: true`).
+Read first: `docs/contributing/vfx-team/vfx.md` (if present), `docs/reference/vfx/README.md`, existing `content/particles/couture-s2-p-*.yaml` (format: `particle`, flat data fields `color` / `size` ..., `velocity`, `force: true`; `content/particles/README.md`).
 
 ## Files you may create/edit
 - `content/particles/couture-s2-p-tip.yaml` (P1): blade-tip cut glint. White `end_rod`, count 1, lifetime 6, speed ~0, velocity outward 0.01. Optional second pink dust (`dust_color_transition` white to pink 255,170,205, scale 0.8) in the same emitter is NOT allowed (one particle type per file): use end_rod only.

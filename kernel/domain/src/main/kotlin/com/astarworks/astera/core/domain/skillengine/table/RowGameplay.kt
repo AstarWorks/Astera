@@ -9,6 +9,7 @@ public fun Row.gameplayName(): String? = when (val a = action) {
     is Action.Damage -> "damage"
     is Action.Status -> "status"
     is Action.World -> a.op.value
+    is Action.Summon -> "summon"
     is Action.Lock -> "lock"
     is Action.Emit -> "emit"
     is Action.Cancel -> "cancel"

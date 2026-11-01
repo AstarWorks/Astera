@@ -1,4 +1,8 @@
-# ember-rod-spark: a small fast fire bolt that sometimes ignites. Written from zero on the rev4.10 grammar.
+# ember-rod-spark: a small fast fire bolt that sometimes ignites, on the frame grammar (ADR-0314).
+#   tip  - the rod head on the caster's eye/aim basis (the cast puff, sound and the bolt leave it)
+#   head - the bolt body (sprite core + a trail segment 2.2 long = one tick of flight)
+#   hit / blk - one frame per victim / block contact, v the way the bolt came in; the impact (spark, 16 + 8 flame rings, pop) is drawn on them
+# Gameplay unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: ember-rod-spark
@@ -15,17 +19,11 @@ params:
   dmg_fire:           {type: number, default: 20}
   burn_ticks:         {type: ticks,  default: 20}
   burn_chance:        {type: number, default: 0.5}
-anchors:
-  - {id: muzzle, anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: fx,     anchor: caster.eye, offset: {forward: 0.9, up: -0.25}, mode: follow}
-  - {id: heart,  anchor: victim.root, offset: {up: 1.2}, mode: follow}
-fragments:
-  impact:
-    frames_in: {spot: anchor}
-    do:
-      - {id: ring, op: particle, particle: flame, anchor: spot, times: 16, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.25}
-      - {id: ring_up, op: particle, particle: flame, anchor: spot, times: 8, at: 0, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.2}
-      - {id: pop, op: particle, particle: lava, anchor: spot, count: 5, offset: [0.15, 0.15, 0.15], extra: 0.12, at: 0}
+frames:
+  - {id: tip, origin: caster.eye, v: aim, w: s x v, s: right, move: [{at: 0, for: 0, to: {v: 1.3, w: -0.3, s: 0.25}}]}
+  - {id: head, origin: bolt, v: velocity, w: up, s: v x w}
+  - {id: hit, on: event.victim, each: true, origin: victim.center, v: incoming, w: up, s: v x w}
+  - {id: blk, on: event.block, each: true, origin: contact, v: incoming, w: up, s: v x w}
 machine:
   start: cast
   tail: 2
@@ -36,12 +34,12 @@ machine:
       on:
         - {event: bolt.end, to: end}
       do:
-        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.8, pitch: 1.2, at: 0}
-        - {id: fx1, op: particle_def, def: fire-cast, anchor: fx, at: 0}
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", frame: tip, volume: 0.8, pitch: 1.2, at: 0}
+        - {id: fx1, op: particle, particle: flame, frame: tip, at: 0, count: 2, offset: [0.04, 0.04, 0.04]}
         - id: bolt
           op: projectile
           at: 0
-          origin: muzzle
+          frame: tip
           velocity: "= look(caster) * ${launch_speed}"
           for: "${max_lifetime_ticks}"
           radius: 0.5
@@ -51,18 +49,22 @@ machine:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {fire: "${dmg_fire}"}}
               - {id: burn, op: status, target: event.victim, status: burn, stacks: 1, for: "${burn_ticks}", when: "= rand() < ${burn_chance}"}
-              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: contact.point, volume: 0.7, pitch: 1.2, detach: true}
-              - {id: spark, op: particle_def, def: hit-spark, anchor: heart, detach: true}
-              - {op: use, use: "fragment:impact", frames: {spot: heart}, detach: true}
+              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", frame: hit, volume: 0.7, pitch: 1.2, detach: true}
+              - {id: spark, op: particle_def, def: hit-spark, frame: hit, detach: true}
+              - {id: ring, op: particle, particle: flame, frame: hit, times: 16, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.25, detach: true}
+              - {id: ring_up, op: particle, particle: flame, frame: hit, times: 8, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.2, detach: true}
+              - {id: pop, op: particle, particle: lava, frame: hit, count: 5, offset: [0.15, 0.15, 0.15], extra: 0.12, detach: true}
             block:
-              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5, detach: true}
-              - {id: spark_b, op: particle_def, def: hit-spark, anchor: contact.point, detach: true}
-              - {op: use, use: "fragment:impact", frames: {spot: contact}, detach: true}
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", frame: blk, volume: 0.5, pitch: 1.5, detach: true}
+              - {id: spark_b, op: particle_def, def: hit-spark, frame: blk, detach: true}
+              - {id: ring_blk, op: particle, particle: flame, frame: blk, times: 16, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.25, detach: true}
+              - {id: ring_up_blk, op: particle, particle: flame, frame: blk, times: 8, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.2, detach: true}
+              - {id: pop_blk, op: particle, particle: lava, frame: blk, count: 5, offset: [0.15, 0.15, 0.15], extra: 0.12, detach: true}
         - id: core
           op: display
           kind: sprite
           sprite: flame
-          anchor: bolt
+          frame: head
           size: [0.55, 0.55]
           color: "#ff9030"
           billboard: center
@@ -73,10 +75,10 @@ machine:
           motion:
             - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 45}
         - id: trail
-          at: 0
+          at: 2
           every: 1
           until: bolt.end
           do:
-            - {id: t1, op: particle, particle: flame, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04]}
-            - {id: t2, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, color: "#ff7814", size: 1.0}
+            - {id: t1, op: particle, particle: flame, frame: head, pos: {v: 0}, to: {v: -2.2}, samples: 3, count: 1, offset: [0.04, 0.04, 0.04]}
+            - {id: t2, op: particle, particle: dust, frame: head, pos: {v: 0}, to: {v: -2.2}, samples: 3, count: 1, color: "#ff7814", size: 1.0}
     end: {final: true}

@@ -1,5 +1,6 @@
 # Verdant staff regrowth: on tick 0 the caster and nearby allies are cleansed and gain regen; a leaf burst plays on ticks 0 and 6; the cast ends on tick 7.
-# Re-authored from zero on ADR-0303 rev4.10.
+# Frame grammar (ADR-0314): ground - the plate under the caster's feet (v up, so the ring sprite lies flat without an `align` law); chest - the caster's
+# chest for the heal glow. Gameplay unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: regrowth
@@ -13,9 +14,9 @@ meta:
 params:
   regen_ticks: {type: ticks, default: 160}
   radius:      {type: blocks, default: 3.0}
-anchors:
-  - {id: feet,  anchor: caster, offset: {up: 0.1}, mode: follow}
-  - {id: chest, anchor: caster, offset: {up: 1.0}, mode: follow}
+frames:
+  - {id: ground, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 0.1}}]}
+  - {id: chest, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 1.0}}]}
 machine:
   start: bloom
   states:
@@ -24,14 +25,14 @@ machine:
       then: end
       enter:
         - {id: buff, op: status, target: caster, status: regen, stacks: 1, for: "${regen_ticks}"}
-        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, around: caster, radius: "${radius}", include_self: true}}
-        - {id: st_regen, op: status, target: {kind: allies, around: caster, radius: "${radius}", include_self: false}, status: regen, stacks: 1, for: "${regen_ticks}"}
+        - {id: cleanse, op: cleanse, negative_only: true, target: {kind: allies, frame: ground, pos: {v: -0.1}, radius: "${radius}", include_self: true}}
+        - {id: st_regen, op: status, target: {kind: allies, frame: ground, pos: {v: -0.1}, radius: "${radius}", include_self: false}, status: regen, stacks: 1, for: "${regen_ticks}"}
       do:
         - id: ring
           op: display
           kind: sprite
           sprite: ring
-          anchor: feet
+          frame: ground
           size: [0.8, 0.8]
           color: "#8cff78"
           billboard: fixed
@@ -39,17 +40,14 @@ machine:
           at: 0
           for: 7
           motion:
-            - {law: align, axis: forward, to: world.up, at: 0, for: 7}
             - {law: grow, by: 3.0, at: 0, for: 7, ease: out_cubic}
             - {law: fade, start: 1.0, to: 0.0, at: 0, for: 7}
-        - {id: snd, op: sound, sound: "astera:skills/heal-chime", anchor: caster, volume: 0.5, at: 0}
-        - {id: fx, op: particle_def, def: verdant-heal, anchor: chest, at: 0}
-        - {id: leaf_a, op: particle, particle: happy_villager, anchor: feet, count: 0, extra: 0.02, at: 0}
-        - {id: dust_a, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#5ae65a", size: 1.4, at: 0}
-        - {id: leaf_b, op: particle, particle: happy_villager, anchor: feet, count: 1, extra: 0, at: 0}
-        - {id: dust_b, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#8cff78", size: 1.2, at: 0}
-        - {id: hearts, op: particle, particle: heart, anchor: feet, count: 8, offset: [0.8, 0.8, 0.8], extra: 0, at: 0}
-        - {id: leaves, op: particle, particle: happy_villager, anchor: feet, count: 22, offset: [0.7, 1.0, 0.7], extra: 0, at: 0}
-        - {id: leaf_c, op: particle, particle: happy_villager, anchor: feet, count: 1, extra: 0, at: 6}
-        - {id: dust_c, op: particle, particle: dust, anchor: feet, count: 1, extra: 0, color: "#8cff78", size: 1.2, at: 6}
+        - {id: snd, op: sound, sound: "astera:skills/heal-chime", frame: ground, volume: 0.5, at: 0}
+        - {id: fx, op: particle_def, def: verdant-heal, frame: chest, at: 0}
+        - {id: leaf_a, op: particle, particle: happy_villager, frame: ground, count: 0, extra: 0.02, at: 0}
+        - {id: dust_a, op: particle, particle: dust, frame: ground, count: 1, extra: 0, color: "#5ae65a", size: 1.4, at: 0}
+        - {id: hearts, op: particle, particle: heart, frame: ground, count: 8, offset: [0.8, 0.8, 0.8], extra: 0, at: 0}
+        - {id: leaves, op: particle, particle: happy_villager, frame: ground, count: 22, offset: [0.7, 1.0, 0.7], extra: 0, at: 0}
+        - {id: leaf_c, op: particle, particle: happy_villager, frame: ground, count: 1, extra: 0, at: 6}
+        - {id: dust_c, op: particle, particle: dust, frame: ground, count: 1, extra: 0, color: "#8cff78", size: 1.2, at: 6}
     end: {final: true}

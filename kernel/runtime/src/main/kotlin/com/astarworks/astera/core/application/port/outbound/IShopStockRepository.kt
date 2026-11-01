@@ -65,4 +65,13 @@ public interface IShopStockRepository {
         offerId: ShopOfferId,
         initial: Int,
     ): Result<Unit, ShopStockError>
+
+    /**
+     * Lower the remaining stock of `(shopId, offerId)` to at most [max] (a reload that lowers an
+     * offer's limit; stock below the new limit is kept). No row = no-op.
+     */
+    public fun clampTo(shopId: ShopId, offerId: ShopOfferId, max: Int): Result<Unit, ShopStockError>
+
+    /** Drop the row of `(shopId, offerId)` (offer removed or no longer limited). No row = no-op. */
+    public fun remove(shopId: ShopId, offerId: ShopOfferId): Result<Unit, ShopStockError>
 }

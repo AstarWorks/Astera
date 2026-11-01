@@ -1,10 +1,8 @@
 # r3b impact: small short gold dust (no big puffs).
 id: bastion-s1-p-impact-dust
-shape: { kind: burst, spread_blocks: 0.12 }
-color: { r: 255, g: 200, b: 70 }
+particle: dust_color_transition
 count: 5
-lifetime_ticks: 4
-vanilla_particle: dust_color_transition
-data: { kind: dust_color_transition, from: { r: 255, g: 238, b: 150 }, to: { r: 255, g: 120, b: 24 }, scale: 0.2 }
-speed: 0.0
-force: true
+offset: [0.12, 0.12, 0.12]
+color: "#ffee96"
+to_color: "#ff7818"
+size: 0.2

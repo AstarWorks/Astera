@@ -1,4 +1,5 @@
-# frost-rod-chill: a cold nova around the caster that freezes whoever it touches. Written from zero on the rev4.10 grammar.
+# frost-rod-chill: a cold nova around the caster that freezes whoever it touches, on the frame grammar (ADR-0314).
+# ground - the plate under the caster's feet (v up): the cold wave (24 flakes), the lifted frost ring and the haze are drawn on it. Gameplay unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: frost-rod-chill
@@ -14,8 +15,9 @@ params:
   dmg_water:    {type: number, default: 12.5}
   falloff:      {type: number, default: 0.5}
   freeze_ticks: {type: ticks,  default: 40}
-anchors:
-  - {id: cast_pt, anchor: caster, offset: {up: 0.15}, mode: follow}
+frames:
+  - {id: ground, origin: caster.feet, v: up, w: forward, s: right, move: [{at: 0, for: 0, to: {v: 0.15}}]}
+  - {id: foe, on: event.victim, each: true, origin: victim.center, v: up, w: forward, s: right}
 machine:
   start: cast
   states:
@@ -23,17 +25,18 @@ machine:
       for: 1
       then: done
       do:
-        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 1.0, pitch: 1.0, at: 0}
-        - {id: snow, op: particle, particle: snowflake, anchor: cast_pt, count: 0, extra: 0.03, at: 0}
-        - {id: mist, op: particle, particle: dust, anchor: cast_pt, count: 1, color: "#c8ebff", size: 1.4, at: 0}
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", frame: ground, volume: 1.0, pitch: 1.0, at: 0}
+        - {id: snow, op: particle, particle: snowflake, frame: ground, count: 0, extra: 0.03, at: 0}
+        - {id: mist, op: particle, particle: dust, frame: ground, count: 1, color: "#c8ebff", size: 1.4, at: 0}
         # the cold wave: 24 flakes flung outward on the ground plane, a lifted ring of frost behind it (instant rows: the state lasts one tick)
-        - {id: ring, op: particle, particle: snowflake, anchor: cast_pt, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 0.5}
-        - {id: ring_hi, op: particle, particle: snowflake, anchor: cast_pt, times: 12, at: 0, count: 0, offset: "= vec(0.6 * cos(i * 2 * pi / 12), 0.8, 0.6 * sin(i * 2 * pi / 12))", extra: 0.3}
-        - {id: haze, op: particle, particle: dust, anchor: cast_pt, count: 20, offset: "= vec(1.4, 0.3, 1.4)", color: "#dff3ff", size: 1.2, at: 0}
+        - {id: ring, op: particle, particle: snowflake, frame: ground, times: 24, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 24), 0.0, sin(i * 2 * pi / 24))", extra: 0.5}
+        - {id: ring_hi, op: particle, particle: snowflake, frame: ground, times: 12, at: 0, count: 0, offset: "= vec(0.6 * cos(i * 2 * pi / 12), 0.8, 0.6 * sin(i * 2 * pi / 12))", extra: 0.3}
+        - {id: haze, op: particle, particle: dust, frame: ground, count: 20, offset: "= vec(1.4, 0.3, 1.4)", color: "#dff3ff", size: 1.2, at: 0}
         - id: burst
           op: hit
           at: 0
-          anchor: caster
+          frame: ground
+          pos: {v: -0.15}
           shape: {sphere: "${radius}"}
           targets: enemies
           window: once
@@ -42,5 +45,5 @@ machine:
           on:
             hit:
               - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: "${freeze_ticks}"}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.0}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: foe, volume: 0.7, pitch: 1.0}
     done: {final: true}

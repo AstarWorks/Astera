@@ -62,7 +62,9 @@ internal object MatchHudWiring {
             modes?.let { registry -> (key?.let(registry::get)) ?: registry.get(CarryTntGameMode.ID) }
         }
 
-        val killTally = com.astarworks.astera.match.application.service.hud.MatchKillTally()
+        val killTally = env.ctx.stateful<com.astarworks.astera.match.application.service.hud.MatchKillTally> {
+            com.astarworks.astera.match.application.service.hud.MatchKillTally()
+        }
         val matchSidebar = MatchSidebarService(
             matches = env.matches,
             modeOf = modeOf,

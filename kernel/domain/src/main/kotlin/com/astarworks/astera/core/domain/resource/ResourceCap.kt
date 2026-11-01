@@ -3,9 +3,7 @@ package com.astarworks.astera.core.domain.resource
 /**
  * Per-type ceiling + regen rate config (Wave 5k, ADR-0080).
  *
- * Loaded from `content/balance/resource-defaults.yaml` by Core's
- * `ResourceDefaultsLoader` at boot, then snapshot into the
- * `IResourcePoolService` for fast read access.
+ * Held by the `IResourcePoolService` for fast read access.
  *
  * The values here apply when no equipped item overrides them — when a
  * weapon's [com.astarworks.astera.core.domain.item.ItemSpec.resourceMaxPool]

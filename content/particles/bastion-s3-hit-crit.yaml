@@ -1,9 +1,5 @@
 # Zwei S3: crit burst at the victim's chest on the light beats
 id: bastion-s3-hit-crit
-shape: { kind: burst, spread_blocks: 0.3 }
-color: { r: 255, g: 255, b: 255 }
+particle: crit
 count: 14
-lifetime_ticks: 14
-vanilla_particle: crit
-velocity: { direction: outward, speed: 0.5, spread_degrees: 70 }
-force: true
+velocity: {direction: outward, speed: 0.5, spread_degrees: 70}

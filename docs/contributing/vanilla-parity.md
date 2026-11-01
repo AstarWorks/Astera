@@ -33,7 +33,7 @@ op id, through the table's own ordinals).
 
 ## Goldens
 
-`tools/game-sim/src/test/resources/skill-oracle/<path under content/skills>.txt` (patched variants: `<id>.patched.txt`). One line per
+`tools/game-sim/src/test/resources/skill-oracle/<path under content/skills>.txt` (variants `<base>@<variant>`: `<base>/skill@<variant>.txt`). One line per
 row, `## pose` headers between the two poses. A line is `@tick verb #ordinal op=<id> key=value ...`; numbers have 6 decimals,
 strings are `%`-escaped.
 

@@ -60,7 +60,7 @@ public object SkillCallInliner {
         }
         val viewed = LowerContext(
             lc.skillId, lc.state, lc.self, lc.occurrence, lc.clockOffset, lc.anchors, lc.frames, parts, lc.skills,
-            lc.item, lc.sprites, lc.conditions, lc.exprs, lc.config, lc.seed, lc.src, hitScope = lc.hitScope,
+            lc.item, lc.sprites, lc.conditions, lc.exprs, lc.config, lc.seed, lc.src, hitScope = lc.hitScope, keys = lc.keys,
         )
         return lowerPart(op, viewed).map { lowered ->
             lowered.copy(rows = lowered.rows.map { row ->

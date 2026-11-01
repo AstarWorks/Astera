@@ -1,0 +1,56 @@
+# homing-orb: a bolt that bends toward the nearest enemy (ADR-0313 `homing`); with no enemy in reach it flies straight.
+# Frame grammar (ADR-0314): tip - the wand head (eye / aim basis, 1.2 ahead): the orb leaves it; head - the orb's body (v along its velocity) carries
+# the sprite core; hit - one per victim contact (v the way the orb came in) for the hit spark. Gameplay unchanged.
+apiVersion: astera/v3
+kind: Skill
+id: homing-orb
+meta:
+  name: {ja: "追尾の宝珠", en: Homing orb}
+  description: {ja: "近くの敵へ曲がって追う光弾。", en: "A bolt that bends toward the nearest enemy."}
+  cooldown_ticks: 40
+  resource_cost: 8
+  tags: [ranged, magic]
+params:
+  speed: {type: number, default: 1.0}
+  dmg:   {type: number, default: 12.0}
+frames:
+  - {id: tip, origin: caster.eye, v: aim, w: s x v, s: right, move: [{at: 0, for: 0, to: {v: 1.2}}]}
+  - {id: head, origin: orb, v: velocity, w: up, s: v x w}
+  - {id: hit, on: event.victim, each: true, origin: victim.center, v: incoming, w: up, s: v x w}
+machine:
+  start: fly
+  tail: 2
+  states:
+    fly:
+      for: 50
+      then: end
+      on:
+        - {event: orb.end, to: end}
+      enter:
+        - {id: snd, op: sound, sound: "entity.blaze.shoot", frame: tip, volume: 0.7, pitch: 1.4}
+      do:
+        - id: orb
+          op: projectile
+          frame: tip
+          velocity: "= look(caster) * ${speed}"
+          for: 50
+          radius: 0.5
+          homing: {target: enemy, turn_deg_per_tick: 8, acquire: 14}
+          hit: {targets: enemies, once: true, attach: false}
+          block: {mode: despawn}
+          on:
+            hit:
+              - {id: hurt, op: damage, target: event.victim, damage: {electric: "${dmg}"}}
+              - {id: fx_hit, op: particle_def, def: hit-spark, frame: hit, pos: {w: 0.3}, detach: true}
+        - id: core
+          op: display
+          kind: sprite
+          sprite: flame
+          frame: head
+          size: [0.7, 0.7]
+          color: "#a0c8ff"
+          billboard: center
+          brightness: {block: 15, sky: 15}
+          at: 0
+          for: 50
+    end: {final: true}

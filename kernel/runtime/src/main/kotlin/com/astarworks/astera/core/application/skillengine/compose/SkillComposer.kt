@@ -177,8 +177,10 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
         val result = ArrayList<ComposedSkill>()
         result += ComposedSkill(id, header(base, "Skill", id), sources.distinct(), metaOf(baseApplied))
         for ((v, tree) in variants) {
-            val applied = baseApplied + variantApplied.getValue(v)
-            result += ComposedSkill("$id@$v", header(tree, "Skill", "$id@$v"), (sources + variantSources.getValue(v)).distinct(), metaOf(applied))
+            val own = variantApplied.getValue(v)
+            // the kind is the variant's own (a balance overlay on the base does not make a skin a balance variant: check 14 must still bind it); touched lists every op behind the tree
+            val meta = metaOf(own).copy(touched = metaOf(baseApplied + own).touched)
+            result += ComposedSkill("$id@$v", header(tree, "Skill", "$id@$v"), (sources + variantSources.getValue(v)).distinct(), meta)
         }
         return result
     }
@@ -220,7 +222,7 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
     }
 
     /**
-     * Patch metadata kept beside the tree: `kind` is the strongest patch kind applied (`mechanic` > `balance` > `skin` > `base`
+     * Patch metadata kept beside the tree: `kind` is the strongest patch kind applied (of a variant: of its own patches; `mechanic` > `balance` > `skin` > `base`
      * for no patch); `touched` is the sorted set of op paths the applied patches name.
      */
     private fun metaOf(applied: List<Doc>): PatchMeta {

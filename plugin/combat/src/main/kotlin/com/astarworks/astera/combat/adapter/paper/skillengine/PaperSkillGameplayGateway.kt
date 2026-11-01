@@ -16,7 +16,7 @@ import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry
 import com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway
-import com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator
+import com.astarworks.astera.core.application.port.outbound.animation.ISkinRigPuppet
 import com.astarworks.astera.core.application.port.outbound.runLaterTicks
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.application.skillengine.runtime.port.CastRef
@@ -68,8 +68,8 @@ public class PaperSkillGameplayGateway(
     private val resourcePool: () -> IResourcePoolService?,
     /** Camera kicks, screen flashes and `stop_sound`. Required: a host without it fails the skill engine at enable (wiring error), never per call. */
     private val feedback: IPlayerFeedbackGateway,
-    /** Caster body clips (`body`): a skin-rig clip plays on the rig, any other id is a pose clip. */
-    private val bodyRigs: ISkinRigAnimator,
+    /** Caster body clips (`body`): a skin-rig clip shows the driven puppet the engine poses per tick (ADR-0315), any other id is a pose clip. */
+    private val puppet: ISkinRigPuppet,
     private val bodyRegistry: ISkinRigRegistry,
     private val bodyPoses: IPlayerAnimationGateway,
     /** `content/frames/body.yaml`: the named points every body clip is read through. */
@@ -183,7 +183,7 @@ public class PaperSkillGameplayGateway(
 
     override fun isPlayer(entity: UUID): Boolean = server.getPlayer(entity) != null
 
-    override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double, holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold>) {
+    override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double) {
         val id = CustomAnimationId(anim)
         // the skin rig and the pose clips animate players only: a `body target:` that is not an online player is reported, never dropped silently
         if (server.getPlayer(target) == null) {
@@ -191,7 +191,18 @@ public class PaperSkillGameplayGateway(
             return
         }
         val player = PlayerId(target)
-        if (bodyRegistry.find(id) != null) bodyRigs.play(player, id, holds = holds, ownerVisible = false) else bodyPoses.playCustomAnimation(player, id, POSE_CLIP_TICKS)
+        val clip = bodyRegistry.find(id)
+        if (clip == null) {
+            bodyPoses.playCustomAnimation(player, id, POSE_CLIP_TICKS)
+            return
+        }
+        // a refused puppet (off-region, dead, lease busy) is reported: the clip must never vanish silently
+        // the skill's weapon rig is the one weapon of the cast: the puppet draws no main-hand stack (founder 10/31: the greatsword showed twice)
+        puppet.show(player, clip, heldItem = false).onFailure { log.warn("skill engine: body clip '{}' on {} not shown: {}", anim, target, it) }
+    }
+
+    override fun poseBody(cast: CastRef, target: UUID, frame: com.astarworks.astera.core.domain.animation.skinrig.RigFrame, anchor: com.astarworks.astera.core.domain.animation.skinrig.RigAnchor?) {
+        puppet.pose(PlayerId(target), frame, anchor)
     }
 
     override fun bodyClip(anim: String): com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation? =
@@ -211,8 +222,20 @@ public class PaperSkillGameplayGateway(
     }
 
     override fun stopBodyClip(cast: CastRef, target: UUID, anim: String) {
-        val rig = bodyRigs
-        if (rig.active(PlayerId(target)) == CustomAnimationId(anim)) rig.stop(PlayerId(target))
+        if (puppet.shown(PlayerId(target)) == CustomAnimationId(anim)) puppet.hide(PlayerId(target))
+    }
+
+    override fun showBody(cast: CastRef, target: UUID) {
+        if (server.getPlayer(target) == null) {
+            log.warn("skill engine: rest body dropped, target {} is not an online player", target)
+            return
+        }
+        val rest = com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation.REST_BODY
+        puppet.show(PlayerId(target), rest, heldItem = false).onFailure { log.warn("skill engine: rest body on {} not shown: {}", target, it) }
+    }
+
+    override fun hideBody(cast: CastRef, target: UUID) {
+        if (puppet.shown(PlayerId(target)) == com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation.REST_BODY.id) puppet.hide(PlayerId(target))
     }
 
     /** The item model each caster's weapon had before a `held_model` swap (empty = no `item_model` component). */

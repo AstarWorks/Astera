@@ -1,13 +1,6 @@
 # fire impact: flame burst
 id: fire-impact
-shape:
-  kind: burst
-  spread_blocks: 0.5
-color:
-  r: 255
-  g: 120
-  b: 20
+particle: flame
 count: 30
-lifetime_ticks: 20
-vanilla_particle: flame
-speed: 0.12
+offset: [0.5, 0.5, 0.5]
+extra: 0.12

@@ -35,7 +35,6 @@ import com.astarworks.astera.core.application.service.InMemoryPlayerFoodGateway
 import com.astarworks.astera.core.application.service.InMemoryPlayerHealthGateway
 import com.astarworks.astera.core.application.service.InMemoryPlayerSpeedGateway
 import com.astarworks.astera.core.application.service.InMemoryPlayerPvpStateService
-import com.astarworks.astera.core.application.service.EgoConfigLoader
 import com.astarworks.astera.core.application.service.InMemoryEgoGauge
 import com.astarworks.astera.core.application.service.InMemoryResourcePoolService
 import com.astarworks.astera.core.application.service.InMemorySpawnProtectionGateway
@@ -131,7 +130,7 @@ internal fun CoreWiringState.wirePlayerSystems() {
     // ADR-0231: the E.G.O gauge. Tuning from content/balance/ego.yaml; emptied on
     // match entry (combat resets it on death); drains once a second out of combat.
     val egoGauge: IEgoGauge =
-        InMemoryEgoGauge(scheduler, eventBus, EgoConfigLoader().load(contentDir.resolve("balance/ego.yaml")))
+        InMemoryEgoGauge(scheduler, eventBus, balanceCore.ego)
     services.register<IEgoGauge>(egoGauge, priority = 0)
     scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 20L, periodTicks = 20L) {
         egoGauge.decay(scheduler.currentTick())
@@ -144,8 +143,7 @@ internal fun CoreWiringState.wirePlayerSystems() {
     val healthRegen = com.astarworks.astera.core.application.service.HealthRegenService(
         services.getOrThrow(IPlayerHealthGateway::class),
         egoGauge,
-        com.astarworks.astera.core.application.service.HealthRegenConfigLoader()
-            .load(contentDir.resolve("balance/health-regen.yaml")),
+        balanceCore.healthRegen,
     )
     wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { healthRegen.track(it.playerId) }
     wave5completeSubs += eventBus.subscribe(PlayerQuitServer::class) { healthRegen.untrack(it.playerId) }

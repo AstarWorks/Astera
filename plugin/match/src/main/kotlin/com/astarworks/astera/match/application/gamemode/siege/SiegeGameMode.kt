@@ -151,7 +151,13 @@ public abstract class SiegeGameMode<R : SiegeRun>(
 ) : IGameMode, IObjectiveStateQuery {
 
     private val log = LoggerFactory.getLogger(javaClass)
-    private val runs: MutableMap<MatchId, R> = mutableMapOf()
+    private var runs: MutableMap<MatchId, R> = mutableMapOf()
+
+    /** ADR-0311: keep the per-match runs in [store] (carried across a Match rewire) so a rebuilt mode continues them. */
+    @Suppress("UNCHECKED_CAST")
+    public fun carryRuns(store: MutableMap<MatchId, SiegeRun>) {
+        runs = store as MutableMap<MatchId, R>
+    }
 
     final override fun id(): GameModeId = modeId
 

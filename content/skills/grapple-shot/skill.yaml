@@ -15,7 +15,7 @@ params:
   pull_up:            {type: number, default: 0.4}
 anchors:
   - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
+  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 1.8}, mode: snapshot}
   - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
 fragments:
   bite:
@@ -53,7 +53,7 @@ machine:
         - {id: hook, op: display, kind: item, item: "minecraft:tripwire_hook", context: fixed, anchor: bolt, scale: [0.9, 0.9, 0.9], at: 0, until: bolt.end}
         - id: trail
           op: group
-          at: 0
+          at: 2
           every: 1
           until: bolt.end
           do:

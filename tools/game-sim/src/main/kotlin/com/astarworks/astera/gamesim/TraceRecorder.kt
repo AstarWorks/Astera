@@ -81,9 +81,7 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
         bucket(tick).particles += buildJsonObject {
             put("key", key)
             put("count", count)
-            // ADR-0196: animated particles carry colour / size / speed so a viewer can replay them.
-            spec?.color?.let { put("color", buildJsonObject { put("r", it.r); put("g", it.g); put("b", it.b) }) }
-            spec?.takeIf { it.color != null }?.let { put("scale", it.scale.toDouble()) }
+            // ADR-0196: animated particles carry their typed data (colour / size) and speed so a viewer can replay them.
             spec?.takeIf { it.extra != 0.0 }?.let { put("extra", it.extra) }
             // Directed (count = 0) particles: offset is the unit direction, extra the speed.
             spec?.takeIf { it.count == 0 }?.let {

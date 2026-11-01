@@ -51,6 +51,11 @@ public class ContentLoader<T : Any>(
         val failed: Int,
         /** One entry per failed file (path + cause message), for diagnostics and content-guard tests. */
         val failures: List<LoadFailure> = emptyList(),
+        /**
+         * Operator-facing lines a successful reload wants to show (what was kept, what applies
+         * at the next match, what needs a restart). Printed by `astera admin reload`.
+         */
+        val notes: List<String> = emptyList(),
     )
 
     /** A single file that failed to parse or map into a domain entry. */

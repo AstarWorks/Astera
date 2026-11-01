@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.adapter.paper
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.combat.application.service.PendingVanillaAttribution
 import com.astarworks.astera.combat.application.service.VanillaKillResolver
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -42,8 +43,8 @@ public class PaperVanillaKillPublisher(
     private val pending: MutableMap<PlayerId, PendingVanillaAttribution> = ConcurrentHashMap()
 
     /** Registers the Bukkit listener and the bus subscription; caller keeps the subscription for onDisable. */
-    public fun start(plugin: JavaPlugin): IDomainEventBus.Subscription {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners): IDomainEventBus.Subscription {
+        listeners.register(this)
         return eventBus.subscribe(PlayerHealthChanged::class) { onHealthChanged(it) }
     }
 

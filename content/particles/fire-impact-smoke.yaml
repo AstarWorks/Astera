@@ -1,13 +1,6 @@
 # fire impact: smoke plume
 id: fire-impact-smoke
-shape:
-  kind: burst
-  spread_blocks: 0.4
-color:
-  r: 60
-  g: 60
-  b: 60
+particle: large_smoke
 count: 6
-lifetime_ticks: 20
-vanilla_particle: large_smoke
-speed: 0.02
+offset: [0.4, 0.4, 0.4]
+extra: 0.02

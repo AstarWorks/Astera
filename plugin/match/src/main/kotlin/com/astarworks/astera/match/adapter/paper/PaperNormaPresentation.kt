@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.adapter.paper
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -34,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 public class PaperNormaPresentation(
     private val plugin: JavaPlugin,
+    private val listeners: OwnedListeners,
     private val renderer: IMessageRenderer,
     private val presentation: IPresentation,
 ) : INormaPresentation, Listener {
@@ -43,7 +45,7 @@ public class PaperNormaPresentation(
     private val ours: MutableSet<UUID> = ConcurrentHashMap.newKeySet()
 
     init {
-        server.pluginManager.registerEvents(this, plugin)
+        listeners.register(this)
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

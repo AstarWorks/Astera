@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.adapter.paper
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -95,9 +96,9 @@ public class PaperItemPickupAdapter(
      * Register the Bukkit listener and cache the `astera:item_id`
      * [NamespacedKey] so per-pickup translation does not allocate.
      */
-    public fun start(plugin: JavaPlugin) {
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners) {
         asteraItemIdKey = NamespacedKey(plugin, ASTERA_ITEM_ID_KEY)
-        plugin.server.pluginManager.registerEvents(this, plugin)
+        listeners.register(this)
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

@@ -1,4 +1,6 @@
-# glacier-spike: an ice shard that leaves the target sinking. Written from zero on the rev4.10 grammar.
+# glacier-spike: an ice shard that leaves the target sinking, on the frame grammar (ADR-0314).
+#   tip - the wand head on the caster's eye/aim basis (cast puff, sound and the shard leave it); head - the shard body (core + trail segment 2.2 long);
+#   hit / blk - one frame per victim / block contact (frost dust / spark). Gameplay unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: glacier-spike
@@ -14,17 +16,11 @@ params:
   flight_ticks:  {type: ticks,  default: 40}
   dmg_water:     {type: number, default: 15}
   sinking_ticks: {type: ticks,  default: 60}
-anchors:
-  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
-  - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
-fragments:
-  impact:
-    frames_in: {spot: anchor}
-    do:
-      - {id: ring, op: particle, particle: snowflake, anchor: spot, times: 16, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.25}
-      - {id: ring_up, op: particle, particle: snowflake, anchor: spot, times: 8, at: 0, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.2}
-      - {id: pop, op: particle, particle: snowflake, anchor: spot, count: 8, offset: [0.15, 0.15, 0.15], extra: 0.12, at: 0}
+frames:
+  - {id: tip, origin: caster.eye, v: aim, w: s x v, s: right, move: [{at: 0, for: 0, to: {v: 1.3, w: -0.3, s: 0.25}}]}
+  - {id: head, origin: bolt, v: velocity, w: up, s: v x w}
+  - {id: hit, on: event.victim, each: true, origin: victim.center, v: incoming, w: up, s: v x w}
+  - {id: blk, on: event.block, each: true, origin: contact, v: incoming, w: up, s: v x w}
 machine:
   start: fly
   tail: 2
@@ -35,12 +31,12 @@ machine:
       on:
         - {event: bolt.end, to: end}
       enter:
-        - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 0.7, pitch: 1.3}
-        - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx}
+        - {id: snd, op: sound, sound: "astera:skills/frost-cast", frame: tip, volume: 0.7, pitch: 1.3}
+        - {id: fx, op: particle_def, def: frost-cast, frame: tip}
       do:
         - id: bolt
           op: projectile
-          origin: muzzle
+          frame: tip
           velocity: "= look(caster) * ${speed}"
           for: "${flight_ticks}"
           radius: 0.5
@@ -50,32 +46,30 @@ machine:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {water: "${dmg_water}"}}
               - {id: st_sinking, op: status, target: event.victim, status: sinking, stacks: 1, for: "${sinking_ticks}"}
-              - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: heart, volume: 0.7, pitch: 1.1, detach: true}
-              - {id: fx_hit, op: particle_def, def: frost-impact, anchor: heart, detach: true}
-              - {op: use, use: "fragment:impact", frames: {spot: heart}, detach: true}
+              - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", frame: hit, volume: 0.7, pitch: 1.1, detach: true}
+              - {id: fx_hit, op: particle_def, def: frost-impact-dust, frame: hit, detach: true}
             block:
-              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact.point, volume: 0.5, pitch: 1.5, detach: true}
-              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point, detach: true}
-              - {op: use, use: "fragment:impact", frames: {spot: contact}, detach: true}
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", frame: blk, volume: 0.5, pitch: 1.5, detach: true}
+              - {id: fx_blk, op: particle_def, def: hit-spark, frame: blk, detach: true}
         - id: core
           op: display
           kind: sprite
           sprite: frost-shatter
-          anchor: bolt
+          frame: head
           size: [0.7, 0.7]
           color: "#d8f0ff"
           billboard: center
           brightness: {block: 15, sky: 15}
           flipbook: {frames: 6, every: 1, loop: true}
-          at: 0
-          for: 40
+          at: 2                       # the bolt is 2.2 blocks/tick: from tick 2 the core is past the caster's eye volume (CasterEyeClutter)
+          for: 38
           motion:
-            - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 40}
+            - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 38}
         - id: trail
-          at: 0
+          at: 2                       # same: ticks 0-1 would put long-life snowflake/dust inside the eye volume next to the 8-dust cast puff
           every: 1
           until: bolt.end
           do:
-            - {id: snow, op: particle, particle: snowflake, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04]}
-            - {id: dust, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, color: "#bee6ff", size: 1.0}
+            - {id: snow, op: particle, particle: snowflake, frame: head, pos: {v: 0}, to: {v: -2.2}, samples: 3, count: 1, offset: [0.04, 0.04, 0.04]}
+            - {id: dust, op: particle, particle: dust, frame: head, pos: {v: 0}, to: {v: -2.2}, samples: 3, count: 1, color: "#bee6ff", size: 1.0}
     end: {final: true}

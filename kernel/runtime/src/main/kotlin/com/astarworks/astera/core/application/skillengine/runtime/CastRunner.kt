@@ -34,6 +34,16 @@ public data class CastRequest(
 
 public sealed interface CastError {
     public data class FrameSetup(val reason: String) : CastError
+
+    /**
+     * A callee-only skill was cast on its own: nobody binds its `frames_in` frames or gives its `required` params a value, so no row could
+     * run. Raised by the table player before the cast exists; the platform logs it as `[skill-error]`.
+     */
+    public data class CalleeOnly(val skillId: String, val missingFrames: List<String>, val missingParams: List<String>) : CastError {
+        val reason: String
+            get() = "skill '$skillId' is callee-only (unbound frames_in: ${missingFrames.joinToString(", ").ifEmpty { "-" }}; " +
+                "required params without a value: ${missingParams.joinToString(", ").ifEmpty { "-" }}) and can only be called with `use: skill:$skillId`, not cast directly"
+    }
     public data class ExprFailed(val path: String, val reason: String) : CastError
 }
 
@@ -55,7 +65,7 @@ public interface CastRunner {
 
     public fun isRunning(cast: CastHandle): Boolean
 
-    /** Cancels every running cast of [caster] (quit, death, weapon swap, world change); returns how many ended. */
+    /** Cancels every running cast of [caster] (quit, death, weapon swap, world change) except a summon that `outlives_caster`; returns how many ended. */
     public fun cancelAllOf(caster: UUID): Int
 
     /** Cancels every running cast (plugin disable, reload). */
@@ -93,7 +103,7 @@ public class DefaultCastRunner(private val player: ISkillTablePlayer) : CastRunn
 
     override fun cancelAllOf(caster: UUID): Int {
         // death / quit / world change: a run draining its handler rows (finishing) is still the caster's cast and is cut too
-        val mine = ownedRunning(caster)
+        val mine = ownedRunning(caster).filter { !player.outlivesCaster(it) }
         mine.forEach { player.cancel(it, CancelScope.Cast) }
         return mine.size
     }
@@ -119,9 +129,10 @@ public class DefaultCastRunner(private val player: ISkillTablePlayer) : CastRunn
 
     /** Every unfinalised run of [caster], including one that only drains handler rows or lingers for its detached tail. */
     private fun ownedRunning(caster: UUID): List<CastHandle> {
-        val running = player.running().toSet()
-        owners.keys.retainAll(running)
-        return owners.filterValues { it == caster }.keys.toList()
+        val running = player.running()
+        owners.keys.retainAll(running.toSet())
+        // a summoned run (ADR-0313) is started by the player, not by this runner, so ownership is asked of the player
+        return running.filter { player.ownerOf(it) == caster }
     }
 
     private fun ownedLive(caster: UUID): List<CastHandle> {

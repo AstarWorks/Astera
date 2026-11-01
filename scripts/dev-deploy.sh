@@ -5,10 +5,12 @@
 #   scripts/dev-deploy.sh hotswap   build the 8 shadow jars and apply the changed classes to the RUNNING
 #                                   backends (JBR + agent image, `make dev-hotswap-up`); a backend restarts
 #                                   only when the JVM refuses the change
-#   scripts/dev-deploy.sh deploy    rebuild+restart the resource pack server (docker-cached), build jars AND push content/ into each backend while it still runs, then restart
-#                                   that backend ONCE (players moved, not kicked): it boots with matching jar+content
-#                                   and builds every arena in that single boot. Jars byte-identical and no FORCE:
-#                                   content-only, reloaded in place like `content`.
+#   scripts/dev-deploy.sh deploy    rebuild+restart the resource pack server (docker-cached), build jars AND push content/ into each backend while it still runs. On the hotswap
+#                                   image (ADR-0310, the dev default) changed jars are hot swapped and content reloaded in
+#                                   place; a backend restarts ONCE (players moved, not kicked) only when the change needs boot
+#                                   code (see scripts/hotswap-classify.sh), when FORCE=1 or ASTERA_HOTSWAP=0, or on a plain image;
+#                                   it then boots with matching jar+content and builds every arena in that boot.
+#                                   Jars byte-identical and no FORCE: content-only, reloaded in place like `content`.
 #   scripts/dev-deploy.sh content   push content/ into the backends and reload it in place (no restart)
 #   scripts/dev-deploy.sh pack      re-read the resource pack hash on the backends and re-push the pack
 #   scripts/dev-deploy.sh selftest  offline check of the reload-failure detection (no docker)
@@ -24,6 +26,13 @@
 #
 # ASTERA_DEV_HOST=user@host runs everything against the Docker daemon on that machine (DOCKER_HOST=ssh://...):
 # jars are still built here, `docker compose cp` / `docker exec` go over ssh. Unset = the local daemon.
+#
+# ASTERA_HOTSWAP=0 / ASTERA_RESTART_REASON=<text> (autodeploy): force the restart path for `deploy` and name why.
+# ASTERA_REWIRE=0 (no rewire, every wiring/constructor change restarts as in ADR-0310) / ASTERA_REWIRE_ALL=1 (rewire
+# every changed rewirable plugin even for body-only changes): see scripts/hotswap-classify.sh.
+# ASTERA_DEPLOY_OUTCOME=<file> (autodeploy): lines are appended per backend, `hotswapped <svc>`,
+# `rewired <svc> <plugin>[,<plugin>]` (after the hot swap, ADR-0311 P5), `rewire-reverted <svc> ...` (a rewire failed and the
+# previous jars were put back in the running JVM) or `restart <svc> reason=...`, so the caller can log what really happened.
 #
 # Velocity, Postgres and Redis are never touched. The Docker daemon is shared with the host, so bind
 # mounts of the repo would be empty: everything goes in with `docker compose cp`.
@@ -54,6 +63,7 @@ dexec() { local svc=$1; shift; docker exec "$(cid "$svc")" "$@"; }
 dexec_root() { local svc=$1; shift; docker exec -u root "$(cid "$svc")" "$@"; }
 
 log() { printf '[dev-deploy %s] %s\n' "$(date +%H:%M:%S)" "$*" >&2; }
+outcome() { [ -z "${ASTERA_DEPLOY_OUTCOME:-}" ] || printf '%s\n' "$*" >> "$ASTERA_DEPLOY_OUTCOME"; }
 now() { date +%s.%N; }
 elapsed() { awk -v a="$1" -v b="$(now)" 'BEGIN { printf "%.1fs", b - a }'; }
 
@@ -155,6 +165,17 @@ selftest() {
   t "$RELOAD_OK" "Unknown command" fail
   t "Resource pack 1a2b3c4d" "Resource pack 1a2b3c4d re-pushed to 2 players" ok
   t "Resource pack 1a2b3c4d" "Resource pack hash unchanged" fail
+  rc() { local want=$1 got=0; shift; rewire_classify "$1" || got=$?; n=$((n+1)); [ "$got" = "$want" ] || { echo "selftest #$n FAILED: rewire expected $want got $got for: $1" >&2; bad=$((bad+1)); }; }
+  rc 0 "Rewired economy: Astera-Economy gen 0 -> 1 (services=12 subscriptions=3)"
+  rc 0 "economy を再配線しました: Astera-Economy gen 1 -> 2"
+  rc 1 "Rewire refused (RESTART_REQUIRED): Astera-Core cannot be rewired: no rewire lifecycle yet (restart the server)"
+  rc 1 "再配線できません (RESTART_REQUIRED): Astera-Persistence cannot be rewired"
+  rc 1 "Rewire refused (BIND_FAILED): Astera-Match failed to bind (x); ROLLBACK FAILED, restart the server"
+  rc 1 "Rewire refused (UNAVAILABLE): rewire service is not registered"
+  rc 1 ""
+  rc 2 "Rewire refused (WIRE_FAILED): Astera-Economy failed to wire, old generation kept: NPE"
+  rc 2 "Rewire refused (BIND_FAILED): Astera-Match failed to bind (x); rolled back to the old generation"
+  rc 2 "Rewire refused (IN_PROGRESS): another rewire is running"
   t "リソースパック 1a2b3c4d" "リソースパック 1a2b3c4d（変更: 2）を 2 人へ再送信しました。" ok
   t "リソースパック 1a2b3c4d" "リソースパックを読み込めません（ASTERA_RESOURCE_PACK_URL 未設定）。" fail
   echo "selftest: $n cases, $bad failed"
@@ -236,6 +257,7 @@ changed_jars() {
 # Drain, stop, copy the given jars, start, wait for RCON, bring the parked players back.
 restart_backend() {
   local svc=$1; shift
+  outcome "restart $svc reason=${RESTART_REASON:-${ASTERA_RESTART_REASON:-jar change (restart path)}}"
   local changed=("$@") t t_svc parked jar other boot_since
   t_svc=$(now)
   boot_since=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -307,8 +329,139 @@ hotswap_request() {
   dexec_root "$svc" cat "$reply" | tr -d '\r'
 }
 
+# True when the backend runs the JBR + agent image (docker/docker-compose.hotswap.yml).
+is_hotswap_backend() { [ "$(dexec "$1" printenv ASTERA_DEV_HOTSWAP 2>/dev/null | tr -d '\r')" = 1 ]; }
+
+# Rewire plan helpers (ADR-0311 P5). Dependents are rewired by the coordinator together with their dependency
+# (combat <- items, match <- combat, economy <- stats), so a plugin whose ancestor is also a target is not sent twice.
+REWIRE_ORDER=(items combat match stats economy chat)
+declare -A REWIRE_PARENT=([combat]=items [match]=combat [economy]=stats)
+rewire_roots() { # rewire_roots <plugin>... -> the plugins to send, in load order
+  local want=" $* " p q covered
+  for p in "${REWIRE_ORDER[@]}"; do
+    [[ "$want" == *" $p "* ]] || continue
+    covered=0; q=${REWIRE_PARENT[$p]:-}
+    while [ -n "$q" ]; do [[ "$want" == *" $q "* ]] && covered=1; q=${REWIRE_PARENT[$q]:-}; done
+    [ "$covered" = 1 ] || echo "$p"
+  done
+}
+
+# Send `astera admin rewire <plugin>` and classify the reply: 0 = rewired, 1 = needs a restart, 2 = failed (old generation kept).
+REWIRE_OK='Rewired|再配線しました'
+rewire_classify() { # rewire_classify <reply> -> 0 rewired, 1 restart, 2 failed (old generation kept)
+  local reply=$1 code
+  if grep -Eq "$REWIRE_OK" <<<"$reply" && ! grep -Eq 'Rewire refused|再配線できません' <<<"$reply"; then return 0; fi
+  code=$(sed -n 's/.*(\([A-Z_]*\)).*/\1/p' <<<"$reply" | head -n1)
+  # No answer / command missing / a rollback that failed leave the JVM in an unknown state: restart.
+  case "${code:-NONE}" in
+    RESTART_REQUIRED|UNAVAILABLE|UNKNOWN_PLUGIN|NONE) return 1 ;;
+  esac
+  if grep -q 'ROLLBACK FAILED' <<<"$reply"; then return 1; fi
+  return 2
+}
+rewire_one() { # rewire_one <svc> <plugin>  (the reply is left in REWIRE_REPLY)
+  REWIRE_REPLY=$(rcon "$1" "astera admin rewire $2")
+  log "$1: rewire $2: ${REWIRE_REPLY:-<no output>}"
+  rewire_classify "$REWIRE_REPLY"
+}
+
+# Put the previous jars back into the running JVM (hot swap in the other direction). $1 svc, $2 dir with the old jars.
+revert_jars() { # revert_jars <svc> <old_dir> <jar>...
+  local svc=$1 old_dir=$2 jar name out; shift 2
+  quiet dexec_root "$svc" sh -c "rm -rf $HOTSWAP_DIR.rev && mkdir -p $HOTSWAP_DIR.rev"
+  for jar in "$@"; do
+    name=$(basename "$jar")
+    quiet "${COMPOSE[@]}" cp "$old_dir/$name" "$svc:$HOTSWAP_DIR.rev/$name"
+  done
+  out=$(HOTSWAP_DIR=$HOTSWAP_DIR.rev hotswap_request "$svc" "$@" || true)
+  tail -n1 <<<"$out" | grep -q '^OK'
+}
+
+# Apply the changed jars to a RUNNING hotswap backend, or restart it (loudly, with the reason) when the change needs
+# boot code that cannot be re-run in place. scripts/hotswap-classify.sh diffs the running jars against the new ones and
+# says per jar: hotswap (class bodies), rewire <plugin> (wiring / constructor / field change in a plugin with a rewire
+# lifecycle: hot swap, then `astera admin rewire`), or restart (plugin.yml/resources, Astera*Plugin, core/persistence
+# wiring, carried state or Kotlin object shape). The agent itself still refuses what the JVM cannot redefine.
+apply_jars() { # apply_jars <svc> <jar>...
+  local svc=$1; shift
+  local changed=("$@") t out last jar verdict name old_dir reasons=() rewires=() rc root done_root done_roots=() rr
+  if ! is_hotswap_backend "$svc"; then
+    RESTART_REASON="not the hotswap image (ASTERA_DEV_HOTSWAP unset)" restart_backend "$svc" "${changed[@]}"
+    return 0
+  fi
+  old_dir=$(mktemp -d)
+  for jar in "${changed[@]}"; do
+    name=$(basename "$jar")
+    if "${COMPOSE[@]}" cp "$svc:/plugins/$name" "$old_dir/$name" >/dev/null 2>&1; then
+      rc=0; verdict=$(scripts/hotswap-classify.sh jars "$old_dir/$name" "$jar" 2>&1) || rc=$?
+      if [ "$rc" != 0 ]; then reasons+=("$name ${verdict#restart }")
+      elif [[ "$verdict" == "rewire "* ]]; then verdict=${verdict#rewire }; rewires+=("${verdict%% *}")
+      fi
+    else
+      reasons+=("$name reason=no baseline jar in the container")
+    fi
+  done
+  if [ "${#reasons[@]}" -gt 0 ]; then
+    rm -rf "$old_dir"
+    log "$svc: RESTART needed, resource/plugin/shape change that cannot be rewired: ${reasons[*]}"
+    RESTART_REASON="${reasons[*]}" restart_backend "$svc" "${changed[@]}"
+    return 0
+  fi
+  t=$(now)
+  quiet dexec_root "$svc" sh -c "rm -rf $HOTSWAP_DIR && mkdir -p $HOTSWAP_DIR"
+  for jar in "${changed[@]}"; do quiet "${COMPOSE[@]}" cp "$jar" "$svc:$HOTSWAP_DIR/$(basename "$jar")"; done
+  out=$(hotswap_request "$svc" "${changed[@]}" || true)
+  last=$(tail -n1 <<<"$out")
+  sed -n '/^INFO /s/^INFO /  /p' <<<"$out" >&2
+  case "$last" in
+    OK*)
+      # Keep the next-boot copy in step with the running code.
+      for jar in "${changed[@]}"; do
+        quiet dexec_root "$svc" cp -f "$HOTSWAP_DIR/$(basename "$jar")" "/plugins/$(basename "$jar")"
+      done
+      outcome "hotswapped $svc"
+      log "$svc: hot swapped, no restart (${last#OK }; $(elapsed "$t"))"
+      ;;
+    *)
+      rm -rf "$old_dir"
+      log "$svc: hotswap refused (${last:-no answer from the agent}); restarting instead"
+      RESTART_REASON="agent refused: ${last:-no answer from the agent}" restart_backend "$svc" "${changed[@]}"
+      return 0
+      ;;
+  esac
+  if [ "${#rewires[@]}" -gt 0 ]; then
+    t=$(now)
+    rr=$(rewire_roots "${rewires[@]}")
+    for root in $rr; do
+      rc=0; rewire_one "$svc" "$root" || rc=$?
+      if [ "$rc" = 0 ]; then done_roots+=("$root"); continue; fi
+      if [ "$rc" = 1 ]; then
+        rm -rf "$old_dir"
+        log "$svc: rewire $root needs a restart: ${REWIRE_REPLY:-no answer}"
+        RESTART_REASON="rewire $root: ${REWIRE_REPLY:-no answer}" restart_backend "$svc" "${changed[@]}"
+        return 0
+      fi
+      # The rewire failed and kept (or rolled back to) the old generation: put the old classes back, then re-run the
+      # roots that already rewired so every generation sits on matching code again.
+      if revert_jars "$svc" "$old_dir" "${changed[@]}"; then
+        for jar in "${changed[@]}"; do quiet dexec_root "$svc" cp -f "$HOTSWAP_DIR.rev/$(basename "$jar")" "/plugins/$(basename "$jar")"; done
+        for done_root in "${done_roots[@]}"; do rewire_one "$svc" "$done_root" || true; done
+        outcome "rewire-reverted $svc $root"
+        rm -rf "$old_dir"
+        die_loud "$svc" "rewire of $root failed; previous jars restored in the running JVM" "$REWIRE_REPLY" "$(log_excerpt "$svc")"
+      fi
+      rm -rf "$old_dir"
+      log "$svc: rewire $root failed and the old jars could not be put back; restarting from the previous state is manual"
+      die_loud "$svc" "rewire of $root failed and the revert was refused" "$REWIRE_REPLY" "$(log_excerpt "$svc")"
+    done
+    outcome "rewired $svc $(IFS=,; echo "${done_roots[*]}")"
+    log "$svc: rewired ${done_roots[*]} ($(elapsed "$t"))"
+  fi
+  rm -rf "$old_dir"
+}
+
 hotswap() {
-  local t0 svc t out last jar
+  local t0 svc
   t0=$(now)
   build_jars
   for svc in $BACKENDS; do
@@ -317,30 +470,7 @@ hotswap() {
     mapfile -t changed < <(changed_jars "$svc")
     if [ "${#changed[@]}" = 0 ]; then log "$svc: jars unchanged, nothing to do"; continue; fi
     log "$svc: changed: $(printf '%s ' "${changed[@]##*/}")"
-    if [ "$(dexec "$svc" printenv ASTERA_DEV_HOTSWAP 2>/dev/null | tr -d '\r')" != 1 ]; then
-      log "$svc: not the hotswap image (ASTERA_DEV_HOTSWAP unset), restarting instead; 'make dev-hotswap-up' once enables hotswap"
-      restart_backend "$svc" "${changed[@]}"
-      continue
-    fi
-    t=$(now)
-    quiet dexec_root "$svc" sh -c "rm -rf $HOTSWAP_DIR && mkdir -p $HOTSWAP_DIR"
-    for jar in "${changed[@]}"; do quiet "${COMPOSE[@]}" cp "$jar" "$svc:$HOTSWAP_DIR/$(basename "$jar")"; done
-    out=$(hotswap_request "$svc" "${changed[@]}" || true)
-    last=$(tail -n1 <<<"$out")
-    sed -n '/^INFO /s/^INFO /  /p' <<<"$out" >&2
-    case "$last" in
-      OK*)
-        # Keep the next-boot copy in step with the running code.
-        for jar in "${changed[@]}"; do
-          quiet dexec_root "$svc" cp -f "$HOTSWAP_DIR/$(basename "$jar")" "/plugins/$(basename "$jar")"
-        done
-        log "$svc: hot swapped, no restart (${last#OK }; $(elapsed "$t"))"
-        ;;
-      *)
-        log "$svc: hotswap not possible (${last:-no answer from the agent}); restarting instead"
-        restart_backend "$svc" "${changed[@]}"
-        ;;
-    esac
+    apply_jars "$svc" "${changed[@]}"
   done
   deploy_summary
   log "total: $(elapsed "$t0")"
@@ -426,7 +556,14 @@ deploy() {
       continue
     fi
     log "$svc: changed: $(printf '%s ' "${changed[@]##*/}")"
-    restart_backend "$svc" "${changed[@]}"
+    if [ "${FORCE:-0}" != 1 ] && [ "${ASTERA_HOTSWAP:-1}" != 0 ] && is_hotswap_backend "$svc"; then
+      # Content is already staged; swap the code, then reload content in place (a restart inside apply_jars
+      # boots the staged content itself and the reload is then a no-op confirmation).
+      apply_jars "$svc" "${changed[@]}"
+      reload_checked "$svc"
+    else
+      RESTART_REASON="${ASTERA_RESTART_REASON:-FORCE=1, ASTERA_HOTSWAP=0 or plain image}" restart_backend "$svc" "${changed[@]}"
+    fi
     refresh_items "$svc"
   done
   pack

@@ -9,8 +9,8 @@ Owner track `wp/skills-vfx`. Items: Board prefix `SKL-`. Sources: handoff `limbu
 - **Done = reviewer PASS + founder approval.** The reviewer judges motion match per beat against the reference and the founder's words, never particle counts.
 
 ## 現状
-- SKL-07 試作 `demo-glow-comparison`: A=vanilla Glowing 12 block displays、B=予約純青色+sprite alpha254 の二要素を確認する `emissive-particle` dust 40、C=既存 `emissive-pulse` item displays 6、D=通常 orange dust 40。display の `glowing` と `glow_color` は独立した vanilla field として runtime まで伝達。particle program も effect registry の named hooks / exclusive marker ledger で合成。実クライアントの昼6000 / 夜18000 / 壁越し t10 比較は `/tmp/claude-1000/vfx-craft/glow2/sheet.png`。夜でも B は明るく D は暗くなり、壁越しは A の輪郭だけが残ることを確認。各41 frames / skippedTicks=0。採用方式は founder 未決。
-- 基準点は 079262164 (integrate19, 2026-10-30)。スキル engine は v3 (ADR-0303, Status **Proposed**, rev4.17 `docs/adr/0303-natural-skill-schema.md`)。
+- SKL-07 採用済み `demo-glow-comparison`: A=vanilla Glowing 12 block displays、B=予約純青色+sprite alpha254 の二要素を確認する `emissive-particle` dust 40、C=既存 `emissive-pulse` item displays 6、D=通常 orange dust 40。display の `glowing` と `glow_color` は独立した vanilla field として runtime まで伝達。particle program も effect registry の named hooks / exclusive marker ledger で合成。実クライアントの昼6000 / 夜18000 / 壁越し t10 比較は `/tmp/claude-1000/vfx-craft/glow2/sheet.png`。夜でも B は明るく D は暗くなり、壁越しは A の輪郭だけが残ることを確認。各41 frames / skippedTicks=0。A/B/C の全3方式を founder が採用 (2026-11-01)。
+- 基準点は 079262164 (integrate19, 2026-10-30)。スキル engine は v3 (ADR-0303, Status **Accepted** rev4.22, rev4.17 時点の記述 `docs/adr/0303-natural-skill-schema.md`)。
 - スコープ: `content/skills/` に Limbus は bastion-greatsword (def/s1/s2/ego) と couture-rapier (def/s1/s2/s3/ego) の 9 文書のみ。他 8 family は founder 2026-10-29 の決定で削除 (`content/skills` に id なし)。基本スキルは残し v3 へ移行、sample-* 14 を含め計 131 文書 (ls)。
 - 時間: 事前 compile された tick 表 (TablePlayer) を進める。ランダムは visual のみ (founder 10/29, ADR-0303 rev4 precompute contract, `TablePlayerRulesScenarioTest.kt`)。
 - 継承: tier は `extends` で base skill から派生 (ADR-0303 l.921-933)。
@@ -22,10 +22,13 @@ Owner track `wp/skills-vfx`. Items: Board prefix `SKL-`. Sources: handoff `limbu
 - 銃の tracer: 射線は交差 2 quad の line ribbon (`1288f286d`, `GunTracerScenarioTest.kt`)。1 人称の muzzle は hand 位置 (`0fa37220d`)。
 - end_rod: 撃ち込み・詠唱の burst 13 行を element 別の electric_spark / snowflake / crit に置換。count-1 の trail は end_rod のまま (`0428c51ab`)。content で end_rod を参照するファイルは 12 (grep)。
 - line: `shape: line` の ribbon segment は 1 item_display (両面モデル) で、どの角度からも同じ太さで途切れない (ADR-0303 rev4.15, capture `/tmp/claude-1000/skill-engine/shots-line/` chain-lightning / rifle-shot の side・caster 4 枚で連続を確認)。PoseCompose は instance base scale ∘ reactive scale (rev4.16)、`pull` op は rev4.17。
+- particle frame basis (ADR-0312): `particle` op の `offset` は `{forward, up, left}` で書ける。count 0 は emission tick ごとに anchor の軸で world 方向に解決 (vanilla 1:1)、count > 0 は立方体のみ、非立方体は load error。`content/particles/*.yaml` は op と同一 dialect (94 files 書換、`lifetime_ticks` 等削除)。`ParticleFrameBasisScenarioTest`。
+- homing / path / summon (ADR-0313): projectile `homing`、`law: path` (Catmull-Rom、forward = tangent)、`summon` op (caster 所有の独立 run、`life` で切れる、caster 死亡・試合終了で cleanup、上限 8)。例 skill `homing-orb` `arc-lob` `sentry-totem` `sentry-turret`、検証 `SummonHomingPathScenarioTest.kt`。summon は skill ごとに `outlives_caster` (caster 死亡でも残る) と `body: {hp,width,height}` (敵が倒せる、味方の攻撃は hp 不変) を持てる。壊れると `destroyed` event で `on: destroyed` の state が走り、handler 無しは即 cut。Paper は `Interaction` entity を run と同時に除去。検証 `SummonBodyScenarioTest.kt`。未決: 味方による summon の回復・バフ。
 - 近カメラの crit / electric_spark の拡大は未確認 (shot 待ち、`/tmp/claude-1000/skill-engine/board-pending.md` l.411)。
 - 検証: 079262164 時点の game-sim は 724 件中 30 件 fail (`board-pending.md` l.421)。実クライアントの再撮影と e2e は manager の統合 window 待ち。
 - 14 `sample-*` (machine/display 形式) と shader demo 3 件 (ADR-0305, `content/vfx/demo-shader-{dissolve,uv-flow,emissive-pulse}.yaml`)。旧 capture は v2 世代の記録。v3 での再撮影は未。
 - ツール: skill-compare (`make skill-compare-up`, 192.168.11.5:8097) が閲覧入口。`make live-view SKILL=<id>` が実 Java クライアントの capture (`tools/live-view/README.md`)。sprite は `tools/item-art` の YAML node graph (ADR-0304)。
+- 劣化 fix (founder 10/31): スキンアニメーション消失は `321dae406` (owner-hidden rig) が原因で撤去済み (rig は全 viewer に見える)。bastion greatsword の品質低下は check 16 を行の削除で満たした `499e6632a`/`6ed672133`/`a1ed9c864` が原因。lingering なのは crit 系のみ (dust は size 0.17-0.32 で非 lingering) なので dust/steel/sheath/trail は承認時の密度へ復元し、crit 行は anchor の `from:` (segment の開始位置, 0<=from<1) で刃の外側半分から出す。check 16 の上限・判定は不変、caster から何も隠さない。katana-iaido は刀全体が eye volume 内なので crit trail のみ cadence を落とし、dense な筋は electric_spark の trail_edge が担う。`BastionGreatswordFullDensityScenarioTest` が密度の下限を固定。
 - bastion S1 は v2 世代の r1-r26 が founder に却下 (「S1 got worse」)。v3 での founder 確認は未。couture-ego の look は v1 に戻した (`242c54b39`) が founder 確認待ち。
 - 高速化案 (warm vfx-shot stack, keypoint → IK, local client particle sim) は founder go 待ち。
 

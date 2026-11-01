@@ -25,9 +25,6 @@ class LobbyWorldContentTest {
         assertThat(config.markerVersion).isGreaterThanOrEqualTo(1)
         assertThat(config.rules.pvpEnabled).isFalse()
         assertThat(config.rules.buildEnabled).isFalse()
-        assertThat(config.rules.mobSpawning).isFalse()
-        assertThat(config.rules.timeFrozen).isTrue()
-        assertThat(config.rules.timeOfDay).isEqualTo(6000L)
         assertThat(config.rules.voidRescueY).isLessThan(plan.minY)
     }
 

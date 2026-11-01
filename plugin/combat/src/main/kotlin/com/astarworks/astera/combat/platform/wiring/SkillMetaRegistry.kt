@@ -41,6 +41,7 @@ public class SkillMetaRegistry(private val catalog: SkillCatalog) : ISkillRegist
             reloadTicks = meta.reloadTicks.takeIf { it > 0 },
             readyCue = meta.readyCue,
             egoCost = meta.egoCost.takeIf { it > 0 },
+            calleeOnlyCallers = catalog.calleeOnlyCallers(id.value),
             tags = meta.tags.mapNotNull { runCatching { SkillTag(it) }.getOrNull() }.toSet(),
         )
     }

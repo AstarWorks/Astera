@@ -7,41 +7,42 @@ mechanic emits it at a targeter location.
 
 ## YAML shape
 
+One dialect with the skill `particle` op (ADR-0312): same field names, same value types (`"#rrggbb"` colours, `[x, y, z]`
+world vectors), same data inference. A definition has no anchor frame, so the op's `{forward, up, left}` offset does not
+exist here (a map fails to decode).
+
 ```yaml
 id: speed-streak
-shape: {kind: point}                  # point | burst | line | circle | sphere | ring | arc | helix
-color: {r: 255, g: 255, b: 255}       # dust tint (legacy shorthand, see `data`)
-count: 2
-lifetime_ticks: 10
-vanilla_particle: end_rod             # any Bukkit Particle key (lower case)
-speed: 0.0                            # vanilla `extra` for scattered particles
-size: 1.0                             # legacy dust scale
-data: {kind: ...}                     # typed data, only for particles that need it (below)
+particle: end_rod                     # any Bukkit Particle key (lower case), required
+count: 2                              # vanilla count
+offset: [0.3, 0.3, 0.3]               # vanilla offset, world axes: spread box (count > 0). Not with `shape` / `velocity`
+extra: 0.03                           # vanilla extra (speed)
+color: "#ffb432"                      # particle data, inferred (below)
+size: 0.9
 velocity: {direction: along_tangent, speed: 0.4, spread_degrees: 6}
 force: true                           # default true: long-distance render so opponents see it
-viewers: all                          # all | caster | others
+viewers: all                          # all | caster | target | others
 ```
 
-### `data` (verified against the Paper API `Particle.dataType`, see `PaperParticleDataTest`)
+### Particle data (flat fields, inferred like the op)
 
-| `data.kind` | fields | particles |
+| fields | data | particles |
 |---|---|---|
-| `dust` | `color`, `scale` | `dust` |
-| `dust_color_transition` | `from`, `to`, `scale` | `dust_color_transition` |
-| `tint` | `color` | `entity_effect`, `flash`, `tinted_leaves` |
-| `spell` | `color`, `power` | `effect`, `instant_effect` |
-| `block` | `block: <id>` | `block`, `block_crumble`, `block_marker`, `falling_dust`, `dust_pillar` |
-| `item` | `item: <material>` | `item` |
-| `trail` | `target_offset: [x,y,z]` or `toward: true`, `color`, `duration_ticks` | `trail` |
-| `vibration` | `target_offset` or `toward: true`, `arrival_ticks` | `vibration` |
-| `sculk_charge` | `roll` (radians) | `sculk_charge` |
-| `shriek` | `delay` (ticks) | `shriek` |
-| `power` | `power` | `dragon_breath` |
+| `color` + `size` | dust | `dust` |
+| `color` + `to_color` + `size` | dust_color_transition | `dust_color_transition` |
+| `color` | tint | `entity_effect`, `flash`, `tinted_leaves` |
+| `color` + `power` | spell | `effect`, `instant_effect` |
+| `block: minecraft:<id>` | block | `block`, `block_crumble`, `block_marker`, `falling_dust`, `dust_pillar` |
+| `item: <material>` | item | `item` |
+| `color` + (`toward: true` or `target_offset: [x,y,z]`) + `duration` | trail | `trail` |
+| (`toward` or `target_offset`) + `arrival_ticks` | vibration | `vibration` |
+| `roll` (radians) | sculk_charge | `sculk_charge` |
+| `delay` (ticks) | shriek | `shriek` |
+| `power` | power | `dragon_breath` |
 
 `toward: true` resolves to the emission context's target: the VFX element's `trail_to` point, else 3 blocks
-along the caster look. A particle whose data is missing or of the wrong kind is dropped (debug log), never
-spawned as a plain white one. Without `data`, `dust` / `dust_color_transition` / `entity_effect` / `flash` /
-`effect` keep using `color` + `size` (transition ends at white).
+along the caster look. Data that does not fit the particle fails the load (`ParticleDataRules`); a dust-class
+particle needs its data spelled out, nothing falls back to a white default.
 
 ### `velocity` (directed particles)
 
@@ -60,8 +61,8 @@ trick): `count` particles are emitted individually.
 
 ### Shapes
 
-`burst`/`circle`/`line`/`sphere` without `points` scatter randomly (legacy, cheap). With `points` (or for
-`ring`/`arc`/`helix`, which require it) the shape is sampled through the core `Curve` in the caster frame and
+A plain scatter or a single point is not a shape: it is the vanilla `offset`. `circle`/`line`/`sphere` without `points`
+scatter randomly (cheap). With `points` (or for `ring`/`arc`/`helix`, which require it) the shape is sampled through the core `Curve` in the caster frame and
 `count` is ignored: one particle per point. Rings/arcs/helices are horizontal around the anchor, `arc` angle
 0 = caster forward (positive = left), `line` runs along the caster look.
 
@@ -84,23 +85,23 @@ kind: {type: particle, particle_id: speed-streak, every_ticks: 1,
 
 ## Visual job -> particle + options
 
-| Visual job | `vanilla_particle` | options |
+| Visual job | `particle` | options |
 |---|---|---|
 | Speed lines / streaks | `end_rod` | `velocity: {direction: along_tangent, speed: 0.2}`, VFX `along_path: true` |
-| Streak with a fading tail | `trail` | `data: {kind: trail, toward: true, color, duration_ticks: 8}` + VFX `trail_to` |
+| Streak with a fading tail | `trail` | `toward: true`, `color`, `duration: 8` + VFX `trail_to` |
 | Sparks | `electric_spark`, `crit`, `wax_off` | `velocity: {direction: outward, speed: 0.5, spread_degrees: 25}` |
-| Impact flash | `flash` | `data: {kind: tint, color: {r: 255, g: 240, b: 200}}`, count 1; add `firework` burst |
-| Dust / smoke | `dust_plume`, `poof`, `campfire_cosy_smoke`, `cloud` | `shape: burst`; `velocity: up` for a column |
-| Blood / petals | `dust` (red) or `cherry_leaves` | `data: {kind: dust, color: {r: 150, g: 10, b: 10}, scale: 1.2}`; `falling_dust` + `block: redstone_block` |
+| Impact flash | `flash` | `color: "#fff0c8"`, count 1; add `firework` burst |
+| Dust / smoke | `dust_plume`, `poof`, `campfire_cosy_smoke`, `cloud` | `offset: [s, s, s]`; `velocity: up` for a column |
+| Blood / petals | `dust` (red) or `cherry_leaves` | `color: "#960a0a"`, `size: 1.2`; `falling_dust` + `block: minecraft:redstone_block` |
 | Fire | `flame`, `soul_fire_flame`, `small_flame`, `lava` | `velocity: {direction: up, speed: 0.05, spread_degrees: 20}` |
-| Debris | `block_crumble` / `block` | `data: {kind: block, block: stone}`, `velocity: outward` |
+| Debris | `block_crumble` / `block` | `block: minecraft:stone`, `velocity: outward` |
 | Shockwave | `sweep_attack` / `gust` / `sonic_boom` | `shape: {kind: ring, radius_blocks: 2.5, points: 16}` + `velocity: outward` |
 | Magic glints | `enchant`, `end_rod`, `glow`, `firefly` | `shape: sphere` with `points`, or `helix` for a rising spiral |
 | Electricity | `electric_spark`, `wax_on` | `shape: line` with `points`, `velocity: along_tangent` |
-| Ground cracks / pillar | `dust_pillar` | `data: {kind: block, block: deepslate}` |
-| Water | `splash`, `bubble`, `falling_water`, `dripping_water` | `shape: burst`, `velocity: up` |
-| Colour shift | `dust_color_transition` | `data: {kind: dust_color_transition, from, to, scale}` |
-| Potion-like swirl | `effect` / `instant_effect` | `data: {kind: spell, color, power: 1.0}` |
-| Sculk / sonic | `sculk_charge`, `shriek`, `vibration` | `data: {kind: sculk_charge, roll: 0}` / `{kind: shriek, delay: 0}` |
+| Ground cracks / pillar | `dust_pillar` | `block: minecraft:deepslate` |
+| Water | `splash`, `bubble`, `falling_water`, `dripping_water` | `offset: [s, s, s]`, `velocity: up` |
+| Colour shift | `dust_color_transition` | `color`, `to_color`, `size` |
+| Potion-like swirl | `effect` / `instant_effect` | `color`, `power: 1.0` |
+| Sculk / sonic | `sculk_charge`, `shriek`, `vibration` | `roll: 0` / `delay: 0` |
 
 Examples: `example-streak.yaml`, `example-trail.yaml`, `example-debris.yaml`, `example-shockwave.yaml`.

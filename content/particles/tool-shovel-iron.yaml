@@ -1,13 +1,6 @@
 # tool skill hit area (shovel: earth puff); heavier at iron tier
 id: tool-shovel-iron
-shape:
-  kind: burst
-  spread_blocks: 0.45
-color:
-  r: 255
-  g: 255
-  b: 255
+particle: poof
 count: 8
-lifetime_ticks: 12
-vanilla_particle: poof
-speed: 0.04
+offset: [0.45, 0.45, 0.45]
+extra: 0.04

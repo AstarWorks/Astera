@@ -58,7 +58,7 @@ public class PaperLiveValueSource(
     private val cells = CellExprs()
     private val spec: ExprEnvSpec = V3Bindings.spec(null, ExprEnvSpec(frames = setOf(CASTER)))
 
-    public fun register(cast: CastHandle, request: CastRequest) {
+    override fun register(cast: CastHandle, request: CastRequest) {
         requests[cast] = request
     }
 

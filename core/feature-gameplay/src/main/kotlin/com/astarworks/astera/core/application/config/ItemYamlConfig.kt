@@ -1,5 +1,8 @@
 package com.astarworks.astera.core.application.config
 
+import com.astarworks.astera.core.domain.item.HoldKind
+import com.astarworks.astera.core.domain.item.HoldLevel
+import com.astarworks.astera.core.domain.item.ItemHold
 import com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase
 import com.astarworks.astera.core.domain.world.ToolKind
 import com.astarworks.astera.core.domain.world.ToolTier
@@ -106,6 +109,8 @@ public data class ItemYamlConfig(
     public val role: Map<String, String> = emptyMap(),
     /** Optional one-line flavour at the bottom of the card. Plain text, per locale. */
     public val flavor: Map<String, String> = emptyMap(),
+    /** Weapon hold-table entry (`hold: {kind: knockback, level: medium}`); shown as one generated tooltip row. */
+    public val hold: HoldYaml? = null,
     public val rarity: String = "common",
     @SerialName("level_requirement") public val levelRequirement: Int = 1,
     public val attributes: AttributesYaml = AttributesYaml(),
@@ -213,6 +218,7 @@ public data class ItemYamlConfig(
             resourceReloadable = resourceReloadable,
             role = role.toLocalizedText(),
             flavor = flavor.toLocalizedText(),
+            hold = hold?.toDomain(id),
         )
     }
 
@@ -310,4 +316,18 @@ public data class ToolYaml(
             ?: throw IllegalArgumentException("ItemYamlConfig '$itemId': unknown tool.tier '$tier' (expected WOOD / STONE / IRON / DIAMOND / NETHERITE)")
         return ToolType(kind, tierValue).serialKey()
     }
+}
+
+/** `hold:` block of an item YAML: the weapon hold-table kind plus an optional `level` (light / medium / heavy) or `ticks`. */
+@Serializable
+public data class HoldYaml(
+    public val kind: String,
+    public val level: String? = null,
+    public val ticks: Int? = null,
+) {
+    internal fun toDomain(itemId: String): ItemHold = ItemHold(
+        kind = HoldKind.fromKey(kind) ?: throw IllegalArgumentException("ItemYamlConfig '$itemId': unknown hold.kind '$kind' (expected ${HoldKind.entries.joinToString(" / ") { it.key }})"),
+        level = level?.let { HoldLevel.fromKey(it) ?: throw IllegalArgumentException("ItemYamlConfig '$itemId': unknown hold.level '$it' (expected light / medium / heavy)") },
+        ticks = ticks,
+    )
 }

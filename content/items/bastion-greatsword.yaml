@@ -26,3 +26,4 @@ skills:
   skill_id: bastion-greatsword-ego
 pdc_tags:
   astera:rarity: rare
+hold: {kind: knockback_stop, level: heavy}

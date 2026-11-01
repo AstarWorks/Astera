@@ -56,7 +56,7 @@ This uses stock ffmpeg + Bun + browser APIs, without another gateway, ICE, certi
 | `ITEM` | inferred from skill | Item held by Caster |
 | `SHOT_TIMEOUT` | `2700` | Maximum session duration in seconds; raise for longer authoring |
 | `SHOT_SLOTS` | `1` | Shared host-wide capture slot limit |
-| `SHOT_MIN_FREE_GB` | `8` | Existing capture memory guard |
+| `SHOT_MIN_FREE_GB` | `6` | Existing capture memory guard |
 | `LP_NUM_THREADS` | `4` | llvmpipe worker threads |
 
 Other vfx-shot boot/client knobs apply; sound is always enabled and keeping the stack is disabled. Compare view controls use the case FOV; selecting a different case/preset can restart the viewer to apply it.

@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.world
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.application.config.WorldBaselineYamlConfig
 import com.astarworks.astera.core.application.port.outbound.IWorldRulesGateway
 import com.astarworks.astera.core.application.port.outbound.IWorldTimeGateway
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory
  */
 public class PaperWorldBaseline(
     private val plugin: JavaPlugin,
+    private val listeners: OwnedListeners,
     private val config: WorldBaselineYamlConfig,
     private val rules: IWorldRulesGateway,
     private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
@@ -32,7 +34,7 @@ public class PaperWorldBaseline(
     private val applied = java.util.concurrent.ConcurrentHashMap.newKeySet<WorldId>()
 
     public fun start() {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+        listeners.register(this)
         applyAll()
         plugin.server.globalRegionScheduler.execute(plugin, Runnable { applyAll() })
     }

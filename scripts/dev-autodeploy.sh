@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 # Host-local origin/main watcher. Runtime copy lives outside the detached checkout.
 #
-# Commands: up | down | status | run | once | compose-dry <from> <to> | mark-deployed <sha>
+# Hotswap is the default for jar-only pushes (ADR-0310): deploy.log says `hotswapped <sha>` or `restart <sha> reason=...`.
+# A change to a rewirable plugin's wiring / constructors / fields (ADR-0311 P5) is hot swapped and then re-wired in place
+# over RCON (`astera admin rewire <plugin>`): `hotswapped <sha> [rewire <plugins>]`. Only what rewire cannot take restarts.
+# classify-dry [N | --paths <file>...] prints the plan (hotswap | rewire <plugins> | restart reason=...) for the last N
+# commits of origin/main or for a hand-written list of changed files.
+# Commands: up | down | status | run | once | clean-restart | classify-dry | compose-dry <from> <to> | mark-deployed <sha>
 #   mark-deployed <sha>  Record a MANUAL deploy. Docker/compose changes are deployed automatically (stack step:
 #                        recreate with the remote overlay, then FORCE deploy); only postgres/redis/volume changes log
 #                        "manual deploy needed ... entire range held" and never advance last-sha. After deploying
@@ -90,7 +95,7 @@ if [ "${1:-}" = compose-dry ]; then
 fi
 
 ROOT=/IdeaProjects/Astera
-DEPLOY=$ROOT/.claude/worktrees/dev-deploy
+DEPLOY=${ASTERA_DEPLOY_DIR:-$ROOT/.claude/worktrees/dev-deploy}  # override only for dry runs (classify-dry in another checkout)
 STATE=$ROOT/.claude/state/dev-deploy
 LOCK=/tmp/claude-1000/astera-dev-deploy.lock
 SUPERVISOR=astera-dev-autodeploy
@@ -114,7 +119,8 @@ use_remote_stack() {
   export POSTGRES_BIND="${POSTGRES_BIND:-127.0.0.1}" REDIS_BIND="${REDIS_BIND:-127.0.0.1}"
 }
 compose() {
-  local files=(-f "$DEPLOY/docker/docker-compose.yml")
+  # The dev backends run on JBR + the hotswap agent (ADR-0310): the overlay is part of every stack command.
+  local files=(-f "$DEPLOY/docker/docker-compose.yml" -f "$DEPLOY/docker/docker-compose.hotswap.yml")
   # Same overlay as `make dev-deploy` / scripts/dev-deploy.sh (JAVA_TOOL_OPTIONS + pinned pack URL on the remote VM).
   [ -z "${ASTERA_DEV_HOST:-}" ] || files+=(-f "$DEPLOY/docker/docker-compose.remote.yml")
   docker compose -p astera-dev "${files[@]}" "$@"
@@ -134,13 +140,18 @@ image_of() {
     translator) echo astera/translator:adr0308-cpu ;;
     velocity) echo astera/velocity:dev ;;
     bot-runner) echo astera/bot-runner:dev ;;
-    lobby|game) echo astera/minecraft-server:dev ;;
+    lobby|game) echo astera/minecraft-server:dev-hotswap ;;  # the JBR layer on top of :dev (docker/hotswap/Dockerfile)
     resource-pack) echo astera/resource-pack:dev ;;
     *) return 1 ;;
   esac
 }
 build_local() { # build_local <service>...   (local daemon, no remote overlay needed)
   run env -u DOCKER_HOST docker compose -p astera-dev -f "$DEPLOY/docker/docker-compose.yml" build "$@"
+  # The hotswap overlay builds FROM the :dev image just built; lobby and game share one image.
+  case " $* " in *" lobby "*|*" game "*)
+    run env -u DOCKER_HOST docker compose -p astera-dev -f "$DEPLOY/docker/docker-compose.yml" \
+      -f "$DEPLOY/docker/docker-compose.hotswap.yml" build lobby ;;
+  esac
 }
 ship_images() { # ship_images <service>...   (no-op without a remote host: the local daemon IS the stack)
   [ -n "${ASTERA_DEV_HOST:-}" ] || return 0
@@ -212,7 +223,9 @@ rollback() {
     compose start "$svc" || return
     docker exec -u root "astera-dev-$svc-1" rm -rf /content || return
     docker cp "$STATE/rollback/$svc/content" "astera-dev-$svc-1:/content" || return
-    if [ "$plugins" = 1 ]; then
+    # jars_live_reverted: a failed rewire already put the previous jars (and generation) back in the running JVM, so no
+    # stop/copy/start is needed (set by deploy() only when that is true for every backend that was touched).
+    if [ "$plugins" = 1 ] && [ "${jars_live_reverted:-0}" != 1 ]; then
       docker exec -u root "astera-dev-$svc-1" sh -c 'rm -f /plugins/astera-*.jar /data/plugins/astera-*.jar' || return
       compose stop -t 60 "$svc" || return
       docker cp "$STATE/rollback/$svc/plugins/." "astera-dev-$svc-1:/plugins" || return
@@ -220,7 +233,7 @@ rollback() {
         docker cp "$jar" "astera-dev-$svc-1:/data/plugins/$(basename "$jar")" || return
       done
     fi
-    if [ "$plugins" = 1 ]; then compose start "$svc" || return; fi
+    if [ "$plugins" = 1 ] && [ "${jars_live_reverted:-0}" != 1 ]; then compose start "$svc" || return; fi
   done
   if [ "$pack" = 1 ]; then
     docker tag "$old_pack" astera/resource-pack:dev || return
@@ -236,6 +249,15 @@ rollback() {
     confirm "$svc" "astera admin reload all" "Reloaded all.|再読み込みしました" || return
   done
   make dev-pack || return
+}
+
+# True when the only backends touched so far were hot swapped, failed to rewire and had their previous jars restored in
+# place (dev-deploy.sh outcome: `rewire-reverted <svc>`), so the jar part of the rollback can be skipped.
+rewire_reverted_cleanly() {
+  local f=${outcome_file:-$STATE/outcome}
+  [ -s "$f" ] && grep -q '^rewire-reverted ' "$f" || return 1
+  ! grep -Eq '^(rewired|restart) ' "$f" || return 1
+  [ -z "$(comm -23 <(awk '$1 == "hotswapped" {print $2}' "$f" | sort -u) <(awk '$1 == "rewire-reverted" {print $2}' "$f" | sort -u))" ]
 }
 
 # RCON can return success even for rejected commands. Confirm the actual server reply.
@@ -258,9 +280,9 @@ deploy() (
   flock 9
   cd "$DEPLOY"
   use_remote_stack
-  export COMPOSE_PROJECT_NAME=astera-dev COMPOSE_FILES=docker/docker-compose.yml BACKENDS="lobby game"
+  export COMPOSE_PROJECT_NAME=astera-dev COMPOSE_FILES="docker/docker-compose.yml docker/docker-compose.hotswap.yml" BACKENDS="lobby game"
   export ASTERA_PREBUILT_IMAGES=1  # dev-deploy.sh must not `--build` the pack image on the VM
-  local sha last path step=fetch plugins=0 content=0 pack=0 stack=0 manual=0 old_pack running_before
+  local sha last path step=fetch plugins=0 content=0 pack=0 stack=0 manual=0 old_pack running_before jars_live_reverted=0
   git fetch origin main >> "$STATE/build.log" 2>&1 || { log "FAILED - fetch"; return; }
   sha=$(git rev-parse origin/main)
   [ "$sha" != "$(cat "$STATE/attempted-sha" 2>/dev/null || true)" ] || return 0
@@ -274,7 +296,8 @@ deploy() (
     while IFS= read -r -d '' path; do
       case "$path" in
         # E2E / docs / hotswap-only files never reach the dev stack.
-        docker/e2e-*|docker/*e2e*|docker/README.md|docker/hotswap/*|docker/docker-compose.hotswap.yml|*Dockerfile.e2e-runner*) ;;
+        docker/e2e-*|docker/*e2e*|docker/README.md|*Dockerfile.e2e-runner*) ;;
+        # docker/hotswap/* and docker-compose.hotswap.yml are part of the dev stack now (JBR image + agent): stack step.
         docker/*|scripts/dev-autodeploy.sh|*Dockerfile*|*compose*.yml|*compose*.yaml) stack=1 ;;
         content/models/*|content/textures/*|content/sounds/*|content/sprites/*|content/effects/*|content/hud/*|content/fonts/*|content/pack-assets/*|content/shader-patches/*|content/animations/*) pack=1 ;;
         content/*) content=1 ;;
@@ -315,11 +338,24 @@ deploy() (
   available_kib=$(df -Pk "$DEPLOY" | awk 'NR == 2 {print $4}')
   if [ "$available_kib" -lt 10485760 ]; then log "FAILED $sha disk-space (need 10 GiB free)"; return; fi
   if ! git checkout --detach "$sha" >> "$STATE/build.log" 2>&1; then log "FAILED $sha checkout"; return; fi
-  local steps=() tasks=() svc
+  local steps=() tasks=() svc hs=1 hs_reason="" verdict outcome_file="$STATE/outcome"
   [ "$stack" = 0 ] || steps+=(stack)
   [ "$plugins" = 0 ] || steps+=(plugins)
   [ "$pack" = 0 ] || steps+=(pack)
   [ "$content" = 0 ] || steps+=(content)
+  # Jar-only pushes are hot swapped (ADR-0310). Anything that needs boot code restarts, loudly and before the swap:
+  # decided here from the changed paths (plugin.yml/resources, wiring, build files) and again from the built jars
+  # (constructors, initialisers, field sets) inside scripts/dev-deploy.sh.
+  if [ "$plugins" = 1 ] && [ "$stack" = 0 ]; then
+    if [ -z "$last" ]; then hs=0; hs_reason="first deploy (no previous sha)"
+    elif ! verdict=$(scripts/hotswap-classify.sh paths "$last" "$sha" 2>> "$STATE/build.log"); then hs=0; hs_reason=${verdict#restart reason=}
+    fi
+    # "rewire <plugins>": wiring of rewirable plugins changed; scripts/dev-deploy.sh hot swaps then rewires (jar check is authoritative).
+    [ "$hs" = 0 ] || [[ "${verdict:-}" != rewire* ]] || log "rewire $sha plan=${verdict#rewire }"
+    [ "$hs" = 1 ] || log "restart $sha reason=$hs_reason"
+  fi
+  : > "$outcome_file"
+  export ASTERA_DEPLOY_OUTCOME="$outcome_file" ASTERA_HOTSWAP=$hs ASTERA_RESTART_REASON="$hs_reason"
   log "deploying $sha [${steps[*]:-none}]"
   BUILD_LOG_START=$(stat -c %s "$STATE/build.log" 2>/dev/null || echo 0)
   old_pack=$(docker inspect astera-dev-resource-pack-1 --format '{{.Image}}')
@@ -351,9 +387,12 @@ deploy() (
         : # containers recreated above; the plugins step force-redeploys jars + content
       elif [ "$step" = plugins ] && [ "$content" = 1 ]; then
         # One restart with new jars AND new YAML staged together (no old-jar/new-content mismatch, arenas built once).
+        # dev-deploy hot swaps changed jars on the JBR backends and reloads content in place unless ASTERA_HOTSWAP=0.
         if [ "$stack" = 1 ]; then FORCE=1 make dev-deploy || exit 1; else make dev-deploy || exit 1; fi
       elif [ "$step" = content ] && [ "$plugins" = 1 ]; then
         : # already pushed by dev-deploy; only the reload confirmation below runs
+      elif [ "$step" = plugins ]; then
+        if [ "$hs" = 1 ]; then make dev-hotswap || exit 1; else make dev-plugins || exit 1; fi  # hotswap restarts by itself if the agent refuses
       else
         make "dev-$step" || exit 1
       fi
@@ -371,6 +410,7 @@ deploy() (
       done
     ) >> "$STATE/build.log" 2>&1; then :; else
       fail "$sha $step"
+      rewire_reverted_cleanly && jars_live_reverted=1
       { restore_running; rollback; } >> "$STATE/build.log" 2>&1 || log "FAILED $sha rollback (manual recovery needed)"
       restore_running >> "$STATE/build.log" 2>&1 || true
       return 0
@@ -379,12 +419,38 @@ deploy() (
   printf '%s\n' "$sha" > "$STATE/last-sha.tmp"
   mv "$STATE/last-sha.tmp" "$STATE/last-sha"
   rm -f "$STATE/manual-needed" "$STATE/current-step"
+  if [ "$plugins" = 1 ] && [ "$stack" = 0 ]; then
+    if [ "$hs" = 1 ] && grep -q '^restart ' "$outcome_file"; then
+      log "restart $sha reason=$(sed -n 's/^restart //p' "$outcome_file" | paste -sd';' - | cut -c1-400)"
+    elif grep -q '^hotswapped ' "$outcome_file"; then
+      rewired=$(awk '$1 == "rewired" {n = split($3, a, ","); for (i = 1; i <= n; i++) print a[i]}' "$outcome_file" | sort -u | paste -sd, -)
+      log "hotswapped $sha${rewired:+ [rewire $rewired]}"
+    fi
+  fi
   log "deployed $sha [${steps[*]:-none}]"
   # Minecraft-free skill previews for the skills this push touched (own lock, detached, never blocks or fails a deploy).
   if [ -n "$last" ] && grep -zqE '^content/(skills|vfx|animations|models|sounds|particles|particle-skins|poses|items)/' "$STATE/paths" 2>/dev/null; then
     setsid nohup bash "$DEPLOY/scripts/skill-preview-auto.sh" "$last" "$sha" > /dev/null 2>&1 9>&- 8>&- < /dev/null &
   fi
 ) 9>"$LOCK"
+
+# Hotswap can hide boot-order bugs and drifts from a real boot: one clean restart per night (04:00 by default, ADR-0310).
+clean_restart() (
+  flock 9
+  cd "$DEPLOY"
+  use_remote_stack
+  export COMPOSE_PROJECT_NAME=astera-dev COMPOSE_FILES="docker/docker-compose.yml docker/docker-compose.hotswap.yml" BACKENDS="lobby game"
+  export ASTERA_PREBUILT_IMAGES=1 ASTERA_RESTART_REASON="nightly clean restart"
+  BUILD_LOG_START=$(stat -c %s "$STATE/build.log" 2>/dev/null || echo 0)
+  if FORCE=1 make dev-plugins >> "$STATE/build.log" 2>&1; then
+    log "restart $(git rev-parse HEAD) reason=nightly clean restart"
+  else
+    fail "$(git rev-parse HEAD) nightly-restart"
+  fi
+) 9>"$LOCK"
+nightly_due() {
+  [ "$(date +%H)" = "${ASTERA_NIGHTLY_HOUR:-04}" ] && [ "$(cat "$STATE/nightly-day" 2>/dev/null || true)" != "$(date +%F)" ]
+}
 
 case "${1:-run}" in
   run)
@@ -394,10 +460,16 @@ case "${1:-run}" in
     log "watcher started; deployed=$(cat "$STATE/last-sha" 2>/dev/null || echo none) host=${ASTERA_DEV_HOST:-local}"
     while :; do
       bash "$0" once || log "FAILED - watcher (see build.log)"
+      if nightly_due; then
+        date +%F > "$STATE/nightly-day"
+        bash "$0" clean-restart || log "FAILED - nightly restart (see build.log)"
+      fi
       sleep 60
     done
     ;;
   once) deploy ;;
+  clean-restart) clean_restart ;;
+  classify-dry) shift; exec "$DEPLOY/scripts/hotswap-classify.sh" dry-run "$@" ;;
   stack-dry)
     # Print (never run) the stack step's commands. DRY_AVAIL_MB=<n> exercises the memory guard.
     export DRY_RUN=1; cd "$DEPLOY"; use_remote_stack
@@ -454,5 +526,5 @@ case "${1:-run}" in
       log "deployed $sha [manual]"
     ) 9>"$LOCK"
     ;;
-  *) echo "usage: $0 up|down|status|run|once|stack-dry|compose-dry <from> <to>|mark-deployed <sha>" >&2; exit 2 ;;
+  *) echo "usage: $0 up|down|status|run|once|clean-restart|classify-dry [N]|stack-dry|compose-dry <from> <to>|mark-deployed <sha>" >&2; exit 2 ;;
 esac

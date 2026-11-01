@@ -119,6 +119,22 @@ public class ShopBrowseUseCase(
     }
 
     /**
+     * After a shops reload: repaints every open shop GUI from the new specs (same page and category), and
+     * closes the ones whose shop no longer exists. Returns how many GUIs were touched.
+     */
+    public fun refreshOpen(): Int {
+        var touched = 0
+        for ((playerId, view) in views.entries.toList()) {
+            val player = server.findPlayer(playerId) ?: continue
+            if (adapter.currentSpec(player)?.id != GuiId("shop-${view.shopId.value}")) continue
+            touched++
+            if (registry.resolve(view.shopId) == null) adapter.close(player)
+            else execute(playerId, view.shopId, page = view.page, category = view.category)
+        }
+        return touched
+    }
+
+    /**
      * One page of offers (9 per row, declared order, optionally filtered to one category) plus a footer row:
      * previous page, category cycle, wallet, history, next page. Each offer icon is the item itself (its own
      * name, lore and stats), with ownership, price, live stock and the click hint appended.

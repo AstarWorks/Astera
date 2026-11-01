@@ -1,13 +1,5 @@
 # tool skill hit area (axe: chop arcs); heavier at diamond tier
 id: tool-axe-diamond
-shape:
-  kind: burst
-  spread_blocks: 1.2
-color:
-  r: 255
-  g: 255
-  b: 255
+particle: sweep_attack
 count: 3
-lifetime_ticks: 12
-vanilla_particle: sweep_attack
-speed: 0.0
+offset: [1.2, 1.2, 1.2]

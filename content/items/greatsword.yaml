@@ -30,3 +30,4 @@ skills:
 
 pdc_tags:
   astera:rarity: rare
+hold: {kind: knockback, level: heavy}

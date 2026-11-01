@@ -45,6 +45,9 @@
                 "type": "string"
             }
         },
+        "hold": {
+            "$ref": "#/definitions/com.astarworks.astera.core.application.config.HoldYaml"
+        },
         "rarity": {
             "type": "string"
         },
@@ -141,6 +144,23 @@
                     "type": "number"
                 }
             }
+        },
+        "com.astarworks.astera.core.application.config.HoldYaml": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "type": "string"
+                },
+                "level": {
+                    "type": "string"
+                },
+                "ticks": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "kind"
+            ]
         },
         "com.astarworks.astera.core.application.config.ItemSkillBindingYaml": {
             "type": "object",

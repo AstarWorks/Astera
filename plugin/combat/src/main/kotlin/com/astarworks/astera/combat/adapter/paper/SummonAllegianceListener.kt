@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.adapter.paper
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.combat.application.service.SummonRegistry
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.bukkit.entity.Entity
@@ -24,8 +25,8 @@ public class SummonAllegianceListener(
     private val registry: SummonRegistry,
 ) : Listener {
 
-    public fun start(plugin: JavaPlugin) {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners) {
+        listeners.register(this)
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

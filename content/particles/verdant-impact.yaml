@@ -1,12 +1,5 @@
 # thorn impact: leaf burst
 id: verdant-impact
-shape:
-  kind: burst
-  spread_blocks: 0.4
-color:
-  r: 60
-  g: 160
-  b: 60
+particle: composter
 count: 22
-lifetime_ticks: 20
-vanilla_particle: composter
+offset: [0.4, 0.4, 0.4]

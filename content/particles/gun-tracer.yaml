@@ -1,11 +1,4 @@
 # bullet tracer: a crit spark per step
 id: gun-tracer
-shape:
-  kind: point
-color:
-  r: 255
-  g: 230
-  b: 150
+particle: crit
 count: 1
-lifetime_ticks: 20
-vanilla_particle: crit

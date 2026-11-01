@@ -16,3 +16,4 @@ resource_type: energy
 resource_cost_per_use: 8
 pdc_tags:
   astera:rarity: epic
+hold: {kind: none}

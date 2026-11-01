@@ -110,6 +110,8 @@ object SkillEngineSchemaGenerator {
             linkedMapOf(
                 "id" to string, "anchor" to string, "offset" to linkedMapOf("type" to "object", "additionalProperties" to linkedMapOf("type" to "number")),
                 "mount" to string, "mode" to linkedMapOf("enum" to listOf("follow", "snapshot")),
+                "ray" to linkedMapOf("type" to "number", "exclusiveMinimum" to 0, "maximum" to 32),
+                "ray_stops" to linkedMapOf("enum" to listOf("blocks", "entities")),
             ),
         )
         val fragment = obj(

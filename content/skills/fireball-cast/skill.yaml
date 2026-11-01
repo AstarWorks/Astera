@@ -1,5 +1,12 @@
-# fireball-cast: a straight projectile that bursts where it lands. Written from zero on the rev4.10 grammar.
-# The burst (explosion + area damage) is one skill-local fragment shared by the hit and the block handler.
+# fireball-cast: a straight fire bolt that bursts where it lands, in the frame grammar (ADR-0314). Four frames carry everything drawn:
+#   tip  - the staff head, rooted in the caster's eye / aim basis like the revolver's gun (v = aim, s = right, w = s x v = the up that is
+#          perpendicular to the aim): 1.3 ahead, 0.3 below the eye line, 0.25 to the right = the right hand's staff pointing along the look.
+#          The cast puff (two flames, tip only), the cast sound and the bolt itself leave it (the bolt flies along the look from there).
+#   head - the bolt's body, v along its velocity: the sprite core sits on it and the trail is a segment of it (v 0 -> -1.5 = the
+#          1.5 blocks flown this tick, two flames spread along it).
+#   hit / blk - one per victim / block contact, v the way the bolt came in: the burst (flame ring, raised ring, pop, sound) is drawn on it.
+# The blast (explosion + area damage) is one pair of rows per handler, centred on the hit / blk frame.
+# Gameplay (speed 1.5, flight 60, damage, burn, blast) is unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: fireball-cast
@@ -17,23 +24,11 @@ params:
   blast_radius: {type: blocks, default: 2.5}
   blast_power:  {type: number, default: 1.2}
   burn_ticks:   {type: ticks,  default: 20}
-anchors:
-  - {id: muzzle,  anchor: caster.eye, offset: {forward: 1.7}, mode: snapshot}
-  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
-  - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
-fragments:
-  blast:
-    params:
-      power:  {type: number, required: true}
-      radius: {type: blocks, required: true}
-      dmg:    {type: number, required: true}
-    frames_in: {spot: anchor}
-    do:
-      - {id: boom, op: explode, at: 0, anchor: spot, power: "${power}", break_blocks: false, fire: false}
-      - {id: ring, op: particle, particle: flame, anchor: spot, times: 16, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.35, detach: true}
-      - {id: ring_up, op: particle, particle: flame, anchor: spot, times: 8, at: 0, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.28, detach: true}
-      - {id: pop, op: particle, particle: lava, anchor: spot, count: 10, offset: [0.15, 0.15, 0.15], extra: 0.12, at: 0, detach: true}
-      - {id: boom_dmg, op: damage, target: {kind: enemies, around: spot, radius: "${radius}"}, damage: {fire: "${dmg}"}}
+frames:
+  - {id: tip, origin: caster.eye, v: aim, w: s x v, s: right, move: [{at: 0, for: 0, to: {v: 1.3, w: -0.3, s: 0.25}}]}
+  - {id: head, origin: bolt, v: velocity, w: up, s: v x w}
+  - {id: hit, on: event.victim, each: true, origin: victim.center, v: incoming, w: up, s: v x w}
+  - {id: blk, on: event.block, each: true, origin: contact, v: incoming, w: up, s: v x w}
 machine:
   start: fly
   tail: 2
@@ -44,12 +39,12 @@ machine:
       on:
         - {event: bolt.end, to: end}
       enter:
-        - {id: snd, op: sound, sound: "entity.blaze.shoot", anchor: caster, volume: 0.9, pitch: 0.9}
-        - {id: fx, op: particle_def, def: fire-cast, anchor: cast_fx}
+        - {id: snd, op: sound, frame: tip, sound: "entity.blaze.shoot", volume: 0.9, pitch: 0.9}
+        - {id: fx, op: particle, particle: flame, frame: tip, count: 2, offset: [0.04, 0.04, 0.04]}
       do:
         - id: bolt
           op: projectile
-          origin: muzzle
+          frame: tip
           velocity: "= look(caster) * ${speed}"
           for: "${flight_ticks}"
           radius: 0.5
@@ -57,20 +52,28 @@ machine:
           block: {mode: despawn}
           on:
             hit:
-              - {op: use, use: "fragment:blast", with: {power: "${blast_power}", radius: "${blast_radius}", dmg: "${dmg_fire}"}, frames: {spot: victim}}
+              - {id: boom, op: explode, at: 0, frame: hit, pos: {v: 0}, power: "${blast_power}", break_blocks: false, fire: false}
+              - {id: boom_dmg, op: damage, target: {kind: enemies, frame: hit, pos: {v: 0}, radius: "${blast_radius}"}, damage: {fire: "${dmg_fire}"}}
               - {id: st_burn, op: status, target: event.victim, status: burn, stacks: 1, for: "${burn_ticks}"}
-              - {id: snd_hit, op: sound, sound: "astera:skills/fire-impact", anchor: heart, volume: 0.7, pitch: 1.0, detach: true}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
+              - {id: snd_hit, op: sound, frame: hit, sound: "astera:skills/fire-impact", volume: 0.7, detach: true}
+              - {id: fx_hit, op: particle_def, frame: hit, pos: {v: -0.3}, def: hit-spark, detach: true}
+              - {id: ring, op: particle, particle: flame, frame: hit, times: 16, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.35, detach: true}
+              - {id: ring_up, op: particle, particle: flame, frame: hit, times: 8, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.28, detach: true}
+              - {id: pop, op: particle, particle: lava, frame: hit, count: 10, offset: [0.15, 0.15, 0.15], extra: 0.12, detach: true}
             block:
-              - {op: use, use: "fragment:blast", with: {power: "${blast_power}", radius: "${blast_radius}", dmg: "${dmg_fire}"}, frames: {spot: contact}}
-              - {id: snd_blk, op: sound, sound: "astera:skills/fire-impact", anchor: contact.point, volume: 0.7, pitch: 1.0, detach: true}
-              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact.point, detach: true}
+              - {id: boom_b, op: explode, at: 0, frame: blk, pos: {v: 0}, power: "${blast_power}", break_blocks: false, fire: false}
+              - {id: boom_dmg_b, op: damage, target: {kind: enemies, frame: blk, pos: {v: 0}, radius: "${blast_radius}"}, damage: {fire: "${dmg_fire}"}}
+              - {id: snd_blk, op: sound, frame: blk, sound: "astera:skills/fire-impact", volume: 0.7, detach: true}
+              - {id: fx_blk, op: particle_def, frame: blk, pos: {v: -0.3}, def: hit-spark, detach: true}
+              - {id: ring_blk, op: particle, particle: flame, frame: blk, times: 16, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.35, detach: true}
+              - {id: ring_up_blk, op: particle, particle: flame, frame: blk, times: 8, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.28, detach: true}
+              - {id: pop_blk, op: particle, particle: lava, frame: blk, count: 10, offset: [0.15, 0.15, 0.15], extra: 0.12, detach: true}
         - id: core
           op: display
           kind: sprite
           sprite: flame
-          anchor: bolt
-          size: [1.0, 1.0]
+          frame: head
+          size: [1.8, 1.8]
           color: "#ffc060"
           billboard: center
           brightness: {block: 15, sky: 15}
@@ -81,9 +84,9 @@ machine:
             - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 60}
         - id: trail
           at: 0
-          every: 1
+          every: 3
           until: bolt.end
           do:
-            - {id: flame, op: particle, particle: flame, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.08, 0.08, 0.08]}
-            - {id: smoke, op: particle_def, def: smoke-dark, anchor: bolt}
+            - {id: flame, op: particle, particle: flame, frame: head, pos: {v: -0.75}, count: 1, offset: [0.08, 0.08, 0.08]}
+            - {id: smoke, op: particle_def, def: smoke-dark, frame: head}
     end: {final: true}

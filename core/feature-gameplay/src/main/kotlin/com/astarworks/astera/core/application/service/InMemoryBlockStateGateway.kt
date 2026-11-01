@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service
 
+import com.astarworks.astera.core.application.contents.BalanceRef
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -31,7 +32,7 @@ import kotlin.random.Random
 public class InMemoryBlockStateGateway(
     private val eventBus: IDomainEventBus? = null,
     private val customBlockRegistry: ICustomBlockRegistry? = null,
-    private val durabilityRule: BlockDurabilityRule = BlockDurabilityRule.defaultMatrix(),
+    private val durabilityRef: BalanceRef<BlockDurabilityRule> = BalanceRef(BlockDurabilityRule.defaultMatrix()),
     private val random: Random = Random.Default,
     private val worldGateway: (() -> com.astarworks.astera.core.application.port.outbound.IWorldGateway?)? = null,
     private val initialTick: () -> Long = { 0L },
@@ -42,7 +43,7 @@ public class InMemoryBlockStateGateway(
         damage.hit(world, cellOf(pos), maxHp, amount, initialTick())
     override fun hasDamage(world: WorldId, pos: Vec3): Boolean = damage.damage(world, cellOf(pos)) > 0
     override fun clearDamage(world: WorldId, pos: Vec3) { damage.clear(world, cellOf(pos)) }
-    override fun expireDamage(world: WorldId, currentTick: Long): List<Vec3> = damage.expire(world, currentTick, durabilityRule.idleTicks)
+    override fun expireDamage(world: WorldId, currentTick: Long): List<Vec3> = damage.expire(world, currentTick, durabilityRef.current.idleTicks)
     override fun clearWorldDamage(world: WorldId): List<Vec3> = damage.clearWorld(world)
 
 
@@ -69,7 +70,7 @@ public class InMemoryBlockStateGateway(
         val customSpec = customBlockRegistry?.resolve(blockType)
         val effectiveMaterial = profile.materialOverride
             ?: customSpec?.material
-            ?: durabilityRule.materialOf(blockType)
+            ?: durabilityRef.current.materialOf(blockType)
 
         if (customSpec != null && effectiveMaterial in customSpec.immuneTo) {
             return Result.success(
@@ -232,7 +233,7 @@ public class InMemoryBlockStateGateway(
     ): Int {
         val override = spec?.toolEffectiveness?.get(tool)
         if (override != null) return override
-        return durabilityRule.damageFor(tool, material)
+        return durabilityRef.current.damageFor(tool, material)
     }
 
     /**

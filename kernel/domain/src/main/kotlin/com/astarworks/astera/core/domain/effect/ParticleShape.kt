@@ -13,9 +13,6 @@ package com.astarworks.astera.core.domain.effect
  * supply non-negative dimensions (`init` requires).
  */
 public sealed class ParticleShape {
-    /** Single anchor-point emission (no spatial spread). */
-    public data object Point : ParticleShape()
-
     /**
      * Straight line of [lengthBlocks] blocks from the anchor along the frame forward. With [points]
      * the line is sampled into evenly spaced emission points; without it the legacy random scatter applies.
@@ -78,13 +75,6 @@ public sealed class ParticleShape {
             require(radiusBlocks > 0.0) { "radiusBlocks must be positive: $radiusBlocks" }
             require(turns > 0.0) { "turns must be positive: $turns" }
             require(points >= 1) { "points must be >= 1: $points" }
-        }
-    }
-
-    /** Outward burst spreading up to [spreadBlocks] from the anchor. */
-    public data class Burst(public val spreadBlocks: Double) : ParticleShape() {
-        init {
-            require(spreadBlocks > 0.0) { "spreadBlocks must be positive: $spreadBlocks" }
         }
     }
 }

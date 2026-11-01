@@ -1,13 +1,6 @@
 # reload: mechanical click sparks
 id: reload-click
-shape:
-  kind: burst
-  spread_blocks: 0.08
-color:
-  r: 255
-  g: 230
-  b: 150
+particle: crit
 count: 4
-lifetime_ticks: 20
-vanilla_particle: crit
-speed: 0.05
+offset: [0.08, 0.08, 0.08]
+extra: 0.05

@@ -2,10 +2,8 @@ package com.astarworks.astera.gamesim.skillengine
 
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.animation.skinrig.RigFrame
-import com.astarworks.astera.core.domain.animation.skinrig.SkinRigPlayback
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigTransforms
 import com.astarworks.astera.core.domain.geometry.Vec3
-import com.astarworks.astera.gamesim.SimClips
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
@@ -29,17 +27,16 @@ class RigAttachScenarioTest : SkillEngineScenario() {
         rec.casterPosition = com.astarworks.astera.core.domain.skillengine.math.Vector3d(0.0, 0.0, 0.0)
         playProbe(skill, ticks = ticks, rec = rec)
         val mesh = rec.calls.first { it.verb == "spawn" && it.payload == "kind=item" }
-        val start = rec.writtenPoses.first { it.second == mesh.instance }.first
-        val playback = anim?.let { SkinRigPlayback(SimClips.clip(it) ?: error("clip $it"), 1.0, rec.lastBodyHolds) }
-        val slim = anim != null
+        // ADR-0315: the body the puppet draws is the frame the engine pushed on that tick (none pushed = the rest pose, as a rig without a clip)
+        val pushed = rec.pushedBody.associateBy { it.tick }
+        if (anim != null) assertThat(pushed).describedAs("$skillId pushes its body clip to the puppet").isNotEmpty
         val out = ArrayList<Pair<Int, Double>>()
         for ((i, w) in rec.writtenPoses.withIndex()) {
             val (tick, name, pose) = w
             if (name != mesh.instance) continue
             val c = rec.writtenCasterAt[i]
-            val s = (tick - start - 1).coerceAtLeast(0)
-            val rigFrame = playback?.frameAt(s) ?: RigFrame.REST
-            val hand = SkinRigTransforms.compute(rigFrame, slim).heldItem.translation.let { Vec3(it.x + c.x, it.y + c.y, it.z + c.z) }
+            val rigFrame = pushed[tick]?.frame ?: RigFrame.REST
+            val hand = SkinRigTransforms.compute(rigFrame, false).heldItem.translation.let { Vec3(it.x + c.x, it.y + c.y, it.z + c.z) }
             out += tick to dist(pose.frame.toWorld(grip.scale(SkinRigTransforms.PLAYER_SCALE)), hand)
         }
         return out

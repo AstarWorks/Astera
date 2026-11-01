@@ -1,4 +1,6 @@
 # Glacier wand: raises a 3x3 tempered-glass wall ahead of the caster; it melts back after `melt` ticks. Re-authored from zero on ADR-0303 rev4.10.
+# Frame grammar (ADR-0314): wall - the wall's plane 2 blocks ahead of the caster's feet (v = forward, w = up, s = right): the frost cloud over the
+# footprint (3 wide, 3 tall) is drawn on it, and the cast puff and sound leave its base. The block placement keeps its caster anchor. Gameplay unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: glacier-wall
@@ -12,8 +14,8 @@ meta:
 params:
   width:  {type: number, default: 3}
   height: {type: number, default: 3}
-anchors:
-  - {id: cast_fx, anchor: caster, offset: {up: 0.2, forward: 2.0}, mode: snapshot}
+frames:
+  - {id: wall, origin: caster.feet, v: forward, w: up, s: right, move: [{at: 0, for: 0, to: {v: 2.0}}]}
 machine:
   start: cast
   states:
@@ -21,7 +23,9 @@ machine:
       for: 1
       then: end
       do:
-        - {id: snd, op: sound, sound: "astera:skills/frost-cast", anchor: caster, volume: 1.0, pitch: 1.0}
-        - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx}
-        - {id: place, op: place_shape, at: 0, anchor: caster, shape: {wall: {width: "${width}", height: "${height}"}}, block: "astera:tempered_glass", consume: none, ripple: 29, revert: 160, outside_arena: false}
+        - {id: snd, op: sound, sound: "astera:skills/frost-cast", frame: wall, pos: {v: -2.0}, volume: 1.0, pitch: 1.0}
+        - {id: fx, op: particle_def, def: frost-cast, frame: wall, pos: {w: 0.2}}
+        - {id: wall_snow, op: particle, particle: snowflake, frame: wall, pos: {w: 1.5}, count: 24, offset: [1.5, 1.5, 0.15], extra: 0.02, at: 0}
+        - {id: wall_dust, op: particle, particle: dust, frame: wall, pos: {w: 1.5}, count: 60, offset: [1.5, 1.5, 0.15], color: "#d2ebff", size: 1.2, at: 0}
+        - {id: place, op: place_shape, at: 0, frame: wall, pos: {v: -2.0}, shape: {wall: {width: "${width}", height: "${height}"}}, block: "astera:tempered_glass", consume: none, ripple: 29, revert: 160, outside_arena: false}
     end: {final: true}

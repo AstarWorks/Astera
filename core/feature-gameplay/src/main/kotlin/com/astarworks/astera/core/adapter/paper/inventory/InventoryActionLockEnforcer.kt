@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.inventory
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -70,8 +71,8 @@ public class InventoryActionLockEnforcer(
      * Register all three Bukkit listeners. Called by
      * `AsteraCorePlugin.onEnable` after construction.
      */
-    public fun start(plugin: JavaPlugin) {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners) {
+        listeners.register(this)
     }
 
     /**

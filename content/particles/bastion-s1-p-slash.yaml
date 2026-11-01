@@ -1,9 +1,4 @@
 # r28 vanilla sweep_attack slash on the swept arc (camera-facing, so it reads from every side).
 id: bastion-s1-p-slash
-shape: { kind: point }
-color: { r: 255, g: 255, b: 255 }
+particle: sweep_attack
 count: 1
-lifetime_ticks: 4
-vanilla_particle: sweep_attack
-speed: 0.0
-force: true

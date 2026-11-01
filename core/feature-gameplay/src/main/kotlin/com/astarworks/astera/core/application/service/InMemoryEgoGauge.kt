@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service
 
+import com.astarworks.astera.core.application.contents.BalanceRef
 import com.astarworks.astera.core.application.port.outbound.EgoError
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IEgoGauge
@@ -16,8 +17,10 @@ import com.astarworks.astera.core.domain.player.PlayerId
 public class InMemoryEgoGauge(
     private val scheduler: IScheduler,
     private val eventBus: IDomainEventBus,
-    override val config: EgoConfig = EgoConfig.DEFAULTS,
+    private val configRef: BalanceRef<EgoConfig> = BalanceRef(EgoConfig.DEFAULTS),
 ) : IEgoGauge {
+    override val config: EgoConfig get() = configRef.current
+
 
     private val values: MutableMap<PlayerId, Int> = HashMap()
     private val lastGainTick: MutableMap<PlayerId, Long> = HashMap()

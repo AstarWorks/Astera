@@ -63,7 +63,7 @@ public class ItemTooltip(
             text(spec.role, viewer)?.let { add("<gray>${TooltipWidth.fit(it)}</gray>") }
         }
         val flavor = text(spec.flavor, viewer)?.let { listOf("<dark_gray><italic>${TooltipWidth.fit(it)}</italic></dark_gray>") }.orEmpty()
-        val sections = if (gear) listOf(head, skillLines(spec, viewer), statLines(spec, viewer) + lockedLines(spec, viewer), flavor) else listOf(head, flavor)
+        val sections = if (gear) listOf(head, skillLines(spec, viewer), holdLines(spec, viewer) + statLines(spec, viewer) + lockedLines(spec, viewer), flavor) else listOf(head, flavor)
         return sections.filter { it.isNotEmpty() }.flatMapIndexed { i, part -> if (i == 0) part else listOf("") + part }
     }
 
@@ -97,6 +97,18 @@ public class ItemTooltip(
         if (!compact) out += briefs.flatMap { it.statusLines }.distinct()
         if (briefs.any { it.usesEgo }) out += messages.render(viewer, EGO_NOTE)
         return out
+    }
+
+    /** The one generated hold-table row (`Hold: freeze 40t`, `Hold: none`) from the item's `hold:` entry; none for items without one. */
+    private fun holdLines(spec: ItemSpec, viewer: PlayerId?): List<String> {
+        val hold = spec.hold ?: return emptyList()
+        val kind = messages.render(viewer, MessageKey("$BASE.hold_kind.${hold.kind.key}"))
+        val detail = when {
+            hold.level != null -> messages.render(viewer, MessageKey("$BASE.hold_level.${hold.level.key}"))
+            hold.ticks != null -> messages.render(viewer, MessageKey("$BASE.hold_ticks"), mapOf("ticks" to hold.ticks.toString()))
+            else -> null
+        }
+        return listOf(messages.render(viewer, MessageKey("$BASE.hold"), mapOf("kind" to kind, "detail" to (detail?.let { " $it" } ?: ""))))
     }
 
     /** One greyed line when the item's rarity opens above Norma level 1 (ADR-0292): usable only from that in-match level. */

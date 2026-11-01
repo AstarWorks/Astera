@@ -1,9 +1,5 @@
 # restored: poof burst at the finisher contact.
 id: bastion-s1-p-poof
-shape: { kind: burst, spread_blocks: 0.25 }
-color: { r: 255, g: 255, b: 255 }
+particle: poof
 count: 5
-lifetime_ticks: 6
-vanilla_particle: poof
-velocity: { direction: outward, speed: 0.25, spread_degrees: 0, speed_jitter: 0.5 }
-force: true
+velocity: {direction: outward, speed: 0.25, spread_degrees: 0, speed_jitter: 0.5}

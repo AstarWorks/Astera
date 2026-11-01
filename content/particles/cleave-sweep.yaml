@@ -1,12 +1,5 @@
 # greatsword wide swing arcs
 id: cleave-sweep
-shape:
-  kind: burst
-  spread_blocks: 0.7
-color:
-  r: 255
-  g: 255
-  b: 255
+particle: sweep_attack
 count: 3
-lifetime_ticks: 20
-vanilla_particle: sweep_attack
+offset: [0.7, 0.7, 0.7]

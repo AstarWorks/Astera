@@ -37,6 +37,10 @@ public class PostgresPlayerProfileRepository(private val db: Database) : IPlayer
         }.insertedCount > 0
     }
 
+    override fun allIds(): List<PlayerId> = transaction(db) {
+        PlayerProfilesTable.selectAll().map { PlayerId(it[PlayerProfilesTable.playerId]) }
+    }
+
     override fun updateDisplayName(playerId: PlayerId, displayName: String): Boolean = transaction(db) {
         PlayerProfilesTable.update({ PlayerProfilesTable.playerId eq playerId.uuid }) {
             it[PlayerProfilesTable.displayName] = displayName

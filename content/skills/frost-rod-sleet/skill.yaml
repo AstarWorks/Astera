@@ -1,4 +1,6 @@
-# frost-rod-sleet: a quick ice shard that sometimes freezes. Written from zero on the rev4.10 grammar.
+# frost-rod-sleet: a quick ice shard that sometimes freezes, on the frame grammar (ADR-0314).
+#   tip - the rod head on the caster's eye/aim basis (cast puff, sound and the bolt leave it); head - the shard body (core + trail segment 2.4 long);
+#   hit / blk - one frame per victim / block contact; the impact (spark, snowflake rings, pop) is drawn on them. Gameplay unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: frost-rod-sleet
@@ -13,19 +15,12 @@ params:
   launch_speed:       {type: number, default: 2.4}
   max_lifetime_ticks: {type: ticks,  default: 45}
   dmg_water:          {type: number, default: 18.0}
-  freeze_ticks:       {type: ticks,  default: 40}
-  freeze_chance:      {type: number, default: 0.4}
-anchors:
-  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 0.9}, mode: snapshot}
-  - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
-fragments:
-  impact:
-    frames_in: {spot: anchor}
-    do:
-      - {id: ring, op: particle, particle: snowflake, anchor: spot, times: 16, at: 0, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.2}
-      - {id: ring_up, op: particle, particle: snowflake, anchor: spot, times: 8, at: 0, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.16}
-      - {id: pop, op: particle, particle: snowflake, anchor: spot, count: 5, offset: [0.15, 0.15, 0.15], extra: 0.12, at: 0}
+  freeze_ticks:       {type: ticks,  default: 16}
+frames:
+  - {id: tip, origin: caster.eye, v: aim, w: s x v, s: right, move: [{at: 0, for: 0, to: {v: 1.3, w: -0.3, s: 0.25}}]}
+  - {id: head, origin: bolt, v: velocity, w: up, s: v x w}
+  - {id: hit, on: event.victim, each: true, origin: victim.center, v: incoming, w: up, s: v x w}
+  - {id: blk, on: event.block, each: true, origin: contact, v: incoming, w: up, s: v x w}
 machine:
   start: fly
   states:
@@ -33,11 +28,11 @@ machine:
       on:
         - {event: bolt.end, to: end}
       do:
-        - {id: snd, op: sound, sound: "astera:skill/wand/cast", anchor: caster, volume: 0.8, pitch: 1.4, at: 0}
-        - {id: fx, op: particle_def, def: frost-cast, anchor: cast_fx, at: 0}
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", frame: tip, volume: 0.8, pitch: 1.4, at: 0}
+        - {id: fx, op: particle_def, def: frost-cast, frame: tip, at: 0}
         - id: bolt
           op: projectile
-          origin: muzzle
+          frame: tip
           velocity: "= look(caster) * ${launch_speed}"
           for: "${max_lifetime_ticks}"
           radius: 0.5
@@ -46,19 +41,23 @@ machine:
           on:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {water: "${dmg_water}"}}
-              - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: "${freeze_ticks}", when: "= rand() < ${freeze_chance}"}
-              - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", anchor: contact, volume: 0.7, pitch: 1.2}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart}
-              - {op: use, use: "fragment:impact", frames: {spot: heart}}
+              - {id: st_freeze, op: status, target: event.victim, status: freeze, stacks: 1, for: "${freeze_ticks}"}
+              - {id: snd_hit, op: sound, sound: "astera:skills/frost-impact", frame: hit, volume: 0.7, pitch: 1.2}
+              - {id: fx_hit, op: particle_def, def: hit-spark, frame: hit}
+              - {id: ring, op: particle, particle: snowflake, frame: hit, times: 16, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.2}
+              - {id: ring_up, op: particle, particle: snowflake, frame: hit, times: 8, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.16}
+              - {id: pop, op: particle, particle: snowflake, frame: hit, count: 5, offset: [0.15, 0.15, 0.15], extra: 0.12}
             block:
-              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", anchor: contact, volume: 0.5, pitch: 1.5}
-              - {id: fx_blk, op: particle_def, def: hit-spark, anchor: contact}
-              - {op: use, use: "fragment:impact", frames: {spot: contact}}
+              - {id: snd_blk, op: sound, sound: "astera:weapons/gun-impact-block", frame: blk, volume: 0.5, pitch: 1.5}
+              - {id: fx_blk, op: particle_def, def: hit-spark, frame: blk}
+              - {id: ring_blk, op: particle, particle: snowflake, frame: blk, times: 16, count: 0, offset: "= vec(cos(i * 2 * pi / 16), 0.0, sin(i * 2 * pi / 16))", extra: 0.2}
+              - {id: ring_up_blk, op: particle, particle: snowflake, frame: blk, times: 8, count: 0, offset: "= vec(0.7 * cos(i * 2 * pi / 8), 0.7, 0.7 * sin(i * 2 * pi / 8))", extra: 0.16}
+              - {id: pop_blk, op: particle, particle: snowflake, frame: blk, count: 5, offset: [0.15, 0.15, 0.15], extra: 0.12}
         - id: core
           op: display
           kind: sprite
           sprite: frost-shatter
-          anchor: bolt
+          frame: head
           size: [0.5, 0.5]
           color: "#d8f0ff"
           billboard: center
@@ -69,10 +68,10 @@ machine:
           motion:
             - {law: spin, axis: forward, deg_per_tick: 24, at: 0, for: 45}
         - id: trail
-          at: 0
+          at: 2
           every: 1
           until: bolt.end
           do:
-            - {id: tr0, op: particle, particle: snowflake, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.04, 0.04, 0.04]}
-            - {id: tr1, op: particle, particle: dust, anchor: {of: bolt, sweep: 0.4}, count: 1, color: "#c8ebff", size: 1.0}
+            - {id: tr0, op: particle, particle: dust, frame: head, pos: {v: 0}, to: {v: -2.4}, samples: 3, count: 1, offset: [0.04, 0.04, 0.04], color: "#e6f4ff", size: 0.4}
+            - {id: tr1, op: particle, particle: dust, frame: head, pos: {v: 0}, to: {v: -2.4}, samples: 3, count: 1, color: "#c8ebff", size: 0.45}
     end: {final: true}

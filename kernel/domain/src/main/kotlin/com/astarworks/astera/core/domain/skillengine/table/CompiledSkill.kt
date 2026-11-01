@@ -10,4 +10,6 @@ public data class CompiledSkill(
     val usedParts: Set<String> = emptySet(),
     /** Skill ids this skill calls with `use: skill:<id>` (reload dependency). */
     val usedSkills: Set<String> = emptySet(),
+    /** The strongest patch kind behind this id (`base` for none; a variant: its own patches): `skin`, `balance` or `mechanic`. Set by the catalog from the composer. */
+    val patchKind: String = "base",
 )

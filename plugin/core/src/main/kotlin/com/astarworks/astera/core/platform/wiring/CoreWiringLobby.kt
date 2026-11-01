@@ -430,6 +430,13 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
         when (val lobbyContent = com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.load(contentDir)) {
             is com.astarworks.astera.core.domain.Result.Success -> {
                 val lobbyConfig = lobbyContent.value
+                // `astera admin reload worlds`: spawn/rules/marker_version apply live; id/seed/surface/center need a restart.
+                val lobbyWorldContents = com.astarworks.astera.core.application.contents.LobbyWorldContents(lobbyConfig) {
+                    services.get<com.astarworks.astera.core.application.port.outbound.admin.ILobbyRepaster>()
+                }
+                services.register<com.astarworks.astera.core.application.contents.LobbyWorldContents>(lobbyWorldContents)
+                services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry>()
+                    .register(lobbyWorldContents, contentDir)
                 services.register<com.astarworks.astera.core.application.service.lobby.LobbyLanePadService>(
                     com.astarworks.astera.core.application.service.lobby.LobbyLanePadService(
                         onWalk = { player, world, at ->
@@ -459,11 +466,23 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
                 priority = 100,
             )
         }
-        val lobbyNpcReport = com.astarworks.astera.core.application.service.entity.LobbyNpcLoaderService(
+        val lobbyNpcLoader = com.astarworks.astera.core.application.service.entity.LobbyNpcLoaderService(
             spawner = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner>(),
             interactions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter>(),
             bodies = lobbyNpcBodies,
-        ).loadFrom(contentDir.resolve("lobby-npcs"))
+            onDespawnedFor = { playerId ->
+                val mc = services.getOrThrow<com.astarworks.astera.core.adapter.api.server.IMcServer>().findPlayer(playerId)
+                val gui = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiAdapter>()
+                if (mc != null && gui.currentSpec(mc) != null) {
+                    gui.close(mc)
+                    mc.postActionBar(com.astarworks.astera.core.domain.i18n.MessageKey("astera.lobby.npc.removed-gui-closed"))
+                }
+            },
+        )
+        val lobbyNpcReport = lobbyNpcLoader.loadFrom(contentDir.resolve("lobby-npcs"))
+        // `astera admin reload lobby-npcs`: diff by id (despawn removed/changed, spawn new/changed).
+        services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry>()
+            .register(lobbyNpcLoader, contentDir.resolve("lobby-npcs"))
         logger.info("Lobby NPCs loaded: ${lobbyNpcReport.loaded} ok, ${lobbyNpcReport.failed} failed")
     } else {
         logger.info("Lobby NPCs skipped (server role ${ctx.serverRole}).")

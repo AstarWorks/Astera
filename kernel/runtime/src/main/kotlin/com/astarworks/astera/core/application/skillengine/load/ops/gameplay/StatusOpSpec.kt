@@ -59,6 +59,8 @@ public object StatusOpSpec : OpSpec<StatusOp> {
 
     override fun lower(op: StatusOp, lc: LowerContext): Result<Lowered, SkillDecodeError> {
         val path = lc.src.value
+        val chanceError = holdChanceError(op, lc, path)
+        if (chanceError != null) return Result.Failure(chanceError)
         return GameplayOps.statusId(lc, path, "status", op.status).flatMap { _ -> GameplayOps.targetRule(op.target, lc, path) }.flatMap { targets ->
             GameplayOps.duration(op.timing, lc, path, "for").flatMap { forTicks ->
                 GameplayOps.whole(op.stacks, lc, "$path.stacks").map { stacks ->
@@ -67,4 +69,21 @@ public object StatusOpSpec : OpSpec<StatusOp> {
             }
         }
     }
+
+    /**
+     * Hold table (founder 2026-10-31): a movement-hold status (freeze, shock, root, slow family) always lands. Gating it on `rand()` / `roll()`
+     * in `when:` is a load error; the strength of a hold is its `for:` window, not a dice roll.
+     */
+    private fun holdChanceError(op: StatusOp, lc: LowerContext, path: String): SkillDecodeError? {
+        if (op.status !in HOLD_STATUSES) return null
+        val source = (op.whenExpr as? WhenRef.Expr)?.compiled?.source ?: return null
+        if (!CHANCE_CALL.containsMatchIn(source)) return null
+        return SkillDecodeError.Invalid(
+            lc.skillId, path,
+            "hold status '${op.status}' must not be gated by chance (when: $source); hold strength is the for: window, not rand()/roll() (hold table)",
+        )
+    }
+
+    private val HOLD_STATUSES: Set<String> = setOf("freeze", "shock", "root", "slow", "sinking", "stun")
+    private val CHANCE_CALL = Regex("""\b(rand|roll)\s*\(""")
 }

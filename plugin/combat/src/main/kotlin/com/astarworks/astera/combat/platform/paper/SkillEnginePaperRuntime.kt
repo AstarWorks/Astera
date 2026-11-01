@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.platform.paper
 
+import com.astarworks.astera.core.platform.paper.listeners
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperEntityVelocity
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperLiveValueSource
 import com.astarworks.astera.combat.adapter.paper.skillengine.PaperPlayerHooks
@@ -26,6 +27,7 @@ import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCas
 import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.domain.event.SkillReleased
 import com.astarworks.astera.combat.platform.wiring.CombatPlatformPorts
+import com.astarworks.astera.combat.application.service.skin.SkillVariantResolver
 import com.astarworks.astera.combat.platform.wiring.CombatWiringResult
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -78,9 +80,13 @@ internal class SkillEnginePaperRuntime(
     private var interruptions: org.bukkit.event.Listener? = null
     private var runner: CastRunner? = null
     private var visuals: PaperSkillVisualGateway? = null
+    private var bodies: com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillBodyGateway? = null
     private var hooks: PaperPlayerHooks? = null
     private val notInCatalog = ConcurrentHashMap.newKeySet<String>()
+    private val missingSkins = ConcurrentHashMap.newKeySet<String>()
     private var castSequence = 0L
+    /** The last tick the engine ticked on: a cast handled after it (the click packet lands after the global tasks) starts on the next tick. */
+    private var tickedThrough = Long.MIN_VALUE
 
     private var movement: PaperSkillMovementGateway? = null
     private var worldOps: PaperSkillWorldGateway? = null
@@ -94,6 +100,7 @@ internal class SkillEnginePaperRuntime(
         wired: CombatWiringResult,
     ) {
         val services = ctx.services
+        val listeners = ctx.listeners(plugin)
         val scheduler = services.getOrThrow<IScheduler>()
         val eventBus = services.getOrThrow<IDomainEventBus>()
         val worldGateway = services.get<IWorldGateway>() ?: startFailed("no IWorldGateway")
@@ -141,7 +148,7 @@ internal class SkillEnginePaperRuntime(
             randomizer = services.getOrThrow<IDamageRandomizer>(),
             resourcePool = { services.get<IResourcePoolService>() },
             feedback = ports.playerFeedbackGateway?.invoke(services) ?: startFailed("no player feedback gateway (camera_shake / screen_flash / stop_sound)"),
-            bodyRigs = services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() ?: startFailed("no ISkinRigAnimator (body clips)"),
+            puppet = services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigPuppet>() ?: startFailed("no ISkinRigPuppet (body clips)"),
             bodyRegistry = services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() ?: startFailed("no ISkinRigRegistry (body clips)"),
             bodyPoses = services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>() ?: startFailed("no IPlayerAnimationGateway (body pose clips)"),
             bodySkeleton = wired.bodySkeleton,
@@ -178,11 +185,20 @@ internal class SkillEnginePaperRuntime(
             movement = movementGateway,
             items = itemGateway,
             world = worldGateway3,
+            faultLedger = wired.skillFaults,
         )
         val playerHooks = PaperPlayerHooks(server, scheduler, gameplay, live, visualGateway)
         player.config = wired.engineConfig
+        player.summonSkills = { id -> wired.skillCatalog.get(id) }
         player.hooks = playerHooks
         hooks = playerHooks
+        // summon bodies (ADR-0313 rev): the hitbox entity of a `summon ... body:`; a blow on it is routed back to the kernel's hp and team rules
+        val bodyGateway = com.astarworks.astera.combat.adapter.paper.skillengine.PaperSkillBodyGateway(server) { body, attacker, amount -> player.damageBody(body, attacker, amount) }
+        val strayBodies = bodyGateway.sweepOrphans()
+        if (strayBodies > 0) log.info("skill engine removed {} orphaned summon bodies left by an earlier run", strayBodies)
+        player.bodyGateway = bodyGateway
+        bodies = bodyGateway
+        listeners.register(bodyGateway)
         val cast = DefaultCastRunner(player)
         runner = cast
 
@@ -199,6 +215,7 @@ internal class SkillEnginePaperRuntime(
             val now = scheduler.currentTick()
             // A throw here would kill the repeating task and silently freeze every cast: each stage logs by name and the loop goes on.
             guardStage("cast") { cast.tick(now.toInt()) }
+            tickedThrough = now
             guardStage("hooks") { playerHooks.tick(now.toInt()) }
             guardStage("movement") { movementGateway.tick(now.toInt()) }
             guardStage("live-retain") { live.retain(player.running().toSet()) }
@@ -232,7 +249,7 @@ internal class SkillEnginePaperRuntime(
             }
         }
         interruptions = listener
-        plugin.server.pluginManager.registerEvents(listener, plugin)
+        listeners.register(listener)
 
         ctx.subscriptions += eventBus.subscribe(MatchEnded::class) {
             cast.cancelAll()
@@ -240,11 +257,12 @@ internal class SkillEnginePaperRuntime(
             movementGateway.releaseAll()
             visualGateway.removeAll()
             playerHooks.releaseAll()
+            bodyGateway.removeAll()
         }
         ctx.subscriptions += eventBus.subscribe(SkillReleased::class) { event ->
             cast.raiseAllOf(event.caster.uuid, "input.release", event.atTick.toInt())
         }
-        ctx.subscriptions += eventBus.subscribe(SkillCast::class) { event -> onSkillCast(cast, live, catalog::get, scheduler, event) }
+        ctx.subscriptions += eventBus.subscribe(SkillCast::class) { event -> onSkillCast(cast, live, catalog::get, wired.skillVariantResolver, scheduler, event) }
     }
 
     /** A missing prerequisite stops the engine from starting: every skill would otherwise silently do nothing. */
@@ -265,10 +283,15 @@ internal class SkillEnginePaperRuntime(
         cast: CastRunner,
         live: PaperLiveValueSource,
         find: (String) -> CompiledSkill?,
+        variants: SkillVariantResolver,
         scheduler: IScheduler,
         event: SkillCast,
     ) {
-        val id = event.skillId.value
+        val resolved = variants.resolve(event.caster, event.skillId.value)
+        resolved.missingSkin?.let {
+            if (missingSkins.add(it)) log.error("[skill-fault] {} selected skin {} is not in the catalog; casting the base (caster {})", event.skillId.value, it, event.caster.uuid)
+        }
+        val id = resolved.skillId
         val skill = find(id)
         if (skill == null) {
             if (notInCatalog.add(id)) log.error("[skill-error] skill {} is not in the catalog; the cast did nothing (caster {})", id, event.caster.uuid)
@@ -281,6 +304,10 @@ internal class SkillEnginePaperRuntime(
         }
         val loc = player.location
         val world = WorldId(player.world.name)
+        // One clock per run (TablePlayer.startRun): the run starts on the first tick the engine will run for it, the next one when this
+        // tick's engine tick already went (the click packet lands after the global tasks). Frames, rows and the rig body share that tick.
+        val now = scheduler.currentTick()
+        val startTick = if (tickedThrough >= now) now + 1 else now
         val request = CastRequest(
             skill = skill,
             caster = event.caster.uuid,
@@ -290,7 +317,7 @@ internal class SkillEnginePaperRuntime(
             casterPitchDeg = loc.pitch.toDouble(),
             // Per cast: tick and caster tell casts apart, the counter separates two casts of one caster in the same tick.
             seed = (event.atTick xor event.caster.uuid.leastSignificantBits) xor (castSequence++ * -0x61c8864680b583ebL),
-            startTick = scheduler.currentTick().toInt(),
+            startTick = startTick.toInt(),
             // fixed here, at cast start: the item that fired the cast, else the item the skill is bound to. The live main hand is never read again.
             heldItem = event.sourceItemId?.value ?: skill.def.item?.takeIf { it != "any" },
         )
@@ -348,5 +375,7 @@ internal class SkillEnginePaperRuntime(
         hooks = null
         visuals?.removeAll()
         visuals = null
+        bodies?.let { org.bukkit.event.HandlerList.unregisterAll(it); it.removeAll() }
+        bodies = null
     }
 }

@@ -198,6 +198,83 @@ anchors:
   - {id: heart,  anchor: victim.center, mode: follow}
 ```
 
+## 共有 part で武器を書く (`content/skill-parts`)
+
+新しい武器の YAML には、その武器固有の値だけを書く。型の決まった塊は `content/skill-parts/<id>.yaml` の part を
+`use: <id>` で呼ぶ (`with:` が param、`frames:` が `frames_in` の束縛)。part の先頭コメントに呼び出し例がある。
+
+| part | 何を出すか | 主な param |
+|---|---|---|
+| `strike-impact` | 矢 / ナイフ / 銛の着弾: 音 + `hit-spark` + 粉 (dust) | `snd`, `color` (+ `vol` `pitch` `size`) |
+| `ring-impact` | 属性弾の着弾: 水平リング 16 + 上向きリング 8 + 中心 pop | `particle`, `pop`, `pop_count`, `ring_speed`, `up_speed` |
+| `parry` | ガード窓と受け流し | `window`, `arc`, `range`, `recover`, `whiff_lag` |
+| `jagged-line` | 前方へ揺らぐ電光の線 | `length`, `jitter`, `hold` |
+
+どの archetype も、弾 / 判定 (`projectile` or `hit`) と自分の `on.hit` / `on.block` は skill に書き、着弾の見た目だけを part に渡す。
+
+```yaml
+# 弓・投擲 (shortbow-arrow の on: 部分)
+on:
+  hit:
+    - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
+    - {id: hit_fx, use: strike-impact, with: {snd: "astera:weapons/blade-hit", color: "#bea064", size: 0.9}, frames: {spot: heart}}
+  block:
+    - {id: block_fx, op: particle_def, def: hit-spark, anchor: contact.point}
+```
+
+```yaml
+# 魔法の弾 (ember-rod-spark の on: 部分)。hit と block で同じ part を contact 違いで呼ぶ
+on:
+  hit:
+    - {op: use, use: ring-impact, with: {particle: flame, pop: lava, pop_count: 5, ring_speed: 0.25, up_speed: 0.2}, frames: {spot: heart}, detach: true}
+  block:
+    - {op: use, use: ring-impact, with: {particle: flame, pop: lava, pop_count: 5, ring_speed: 0.25, up_speed: 0.2}, frames: {spot: contact}, detach: true}
+```
+
+```yaml
+# 銃 (pistol-shot): 弾道線は共有 skill gun-tracer を `use: skill:` で呼び、着弾は skill-local fragment
+- {id: tracer_h, use: skill:gun-tracer, with: {thickness: 0.1}, frames: {muzzle: muzzle, tip: contact}}
+- {id: fx_hit, op: use, use: "fragment:impact", frames: {spot: heart}}
+```
+
+```yaml
+# 近接 (bastion-greatsword-def): 受け流しは state ごと part。part の終わりを event で受ける
+guard:
+  use: parry
+  with: {window: 16, arc: 110, range: 4, recover: 4, whiff_lag: 1}
+  frames: {weapon: shield}
+  on:
+    - {event: brace/guard.end, to: held}
+```
+
+発射口・弾体・斬撃の軌跡も part で書く (op レベルの `use:`)。弾体と軌跡は呼び出し側の event で終わるので、part は `events_in` で受ける名前を宣言し、呼び出し側が `events:` で束縛する。
+
+```yaml
+# 銃・弓 (shortbow-arrow): 発射口 + 弾体 + 軌跡。projectile 本体と on.hit / on.block は skill に残す
+- {id: fire_fx, use: gun-muzzle, with: {snd: "astera:weapons/sword-swing", vol: 0.7, pitch: 1.3, flash: false}, frames: {muzzle: cast_fx}}
+- {id: shaft, use: projectile-body, with: {item: "minecraft:arrow", scale: 0.9, color: "#bea064"}, frames: {body: arrow}, events: {body_end: arrow.end}}
+# 銃弾 (pistol-shot): 弾体 + 1〜2 本の軌跡粒子
+- {id: slug, use: bullet-body, with: {item: "minecraft:iron_nugget", scale: 0.5}, frames: {body: bolt}, events: {body_end: bolt.end}}
+# 近接 (sword-slash): rig の root から tip への粒子の筋
+- {id: trail_fx, use: swing-trail, with: {samples: 6, span: 8}, frames: {weapon: /windup/rig}, detach: true}
+```
+
+| part | 何を出すか | 主な param |
+|---|---|---|
+| `gun-muzzle` | 発射口の音 + 閃光 + 煙 (`frames_in: muzzle`) | `snd` (+ `vol` `pitch` `flash` `smoke`) |
+| `projectile-body` | 矢 / ボルト / ナイフの本体 display + wake + 粉の軌跡 (`events_in: body_end`) | `item`, `scale`, `color` (+ `size` `wake` `spread`) |
+| `bullet-body` | 銃弾の display + 軌跡粒子 1〜2 本 (`events_in: body_end`) | `item`, `scale` (+ `sweep` `start` `first` `second` `next`) |
+| `swing-trail` | 近接 rig の root-tip 間に沿う粒子の筋 (`frames_in: weapon`) | `samples`, `span` (+ `extra` `every`) |
+
+`events_in` の規則: part は `events_in: [name]` を宣言し、本体で `until: "${name}"` と書く。呼び出し側は全ての名前を `events: {name: caller.event}` で束縛する (未束縛・未知の名前は load error)。
+`events_in` を持つ part は op レベルの `use:` 専用 (state の `use:` は拒否)。呼び出し instance の終了で rider を止めないので、rider は束縛した event まで生きる。
+op レベルの呼び出しで `every` + `until` だけを書いた繰り返しは、呼び出し元 state の horizon (`for` / projectile の寿命) まで展開される。
+`frames:` に渡す rig は、part 内の frame 名 (`weapon` など) が呼び出し側の別 op と同名にならないようにする。
+
+part を足す時は、呼び出し側の op id (`hit_fx` など) と part 内の id が `skill-oracle` の `op=` に出る点に注意する。op レベルの呼び出しは instance path が 1 段増えるので、
+粒子の `seed=` は変わる (見た目の散らばりだけが再抽選され、tick / 位置 / 数 / 速度は同一)。変換が正しいことは
+`tools/game-sim/scripts/oracle-normalized-diff.sh <base-ref>` (op path ラベルと `seed=` を除いた差分が空) で確かめる。
+
 ## 参考
 
 - [ADR-0303 Natural skill schema](../adr/0303-natural-skill-schema.md)

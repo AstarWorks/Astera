@@ -4,6 +4,8 @@ import com.astarworks.astera.core.application.gui.binding.CompositeGuiBindingRes
 import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.stats.application.service.gui.PlayerAchievementListGuiBindingResolver
+import com.astarworks.astera.economy.platform.wiring.EconomyLifecycle
+import com.astarworks.astera.stats.platform.wiring.StatsLifecycle
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -16,12 +18,12 @@ class ProgressionShutdownScenarioTest {
             assertThat(reloads.categories()).contains("normas", "achievements", "skills-progression", "bet-policies")
             assertThat(bindings.delegateSnapshot().filterIsInstance<PlayerAchievementListGuiBindingResolver>()).hasSize(1)
 
-            sim.stats.shutdown()
+            sim.rewire.down(StatsLifecycle.OWNER)
             assertThat(reloads.categories()).doesNotContain("normas", "achievements", "skills-progression")
             assertThat(reloads.categories()).contains("bet-policies", "stages")
             assertThat(bindings.delegateSnapshot().filterIsInstance<PlayerAchievementListGuiBindingResolver>()).isEmpty()
 
-            sim.economy.shutdown()
+            sim.rewire.down(EconomyLifecycle.OWNER)
             assertThat(reloads.categories()).doesNotContain("bet-policies")
             assertThat(reloads.categories()).contains("stages")
         }

@@ -1,9 +1,5 @@
 # restored: ground puff at the finisher contact.
 id: bastion-s1-p-puff
-shape: { kind: burst, spread_blocks: 0.3 }
-color: { r: 255, g: 255, b: 255 }
+particle: white_smoke
 count: 4
-lifetime_ticks: 8
-vanilla_particle: white_smoke
-velocity: { direction: outward, speed: 0.12, spread_degrees: 0, speed_jitter: 0.5 }
-force: true
+velocity: {direction: outward, speed: 0.12, spread_degrees: 0, speed_jitter: 0.5}

@@ -38,6 +38,7 @@ import com.astarworks.astera.core.domain.geometry.math.Frame as SimFrame
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualHandle
 import com.astarworks.astera.core.application.skillengine.runtime.port.VisualPose
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.skillengine.hit.HitBox
 import com.astarworks.astera.core.domain.skillengine.hit.HitCandidate
 import com.astarworks.astera.core.domain.skillengine.op.TrailBand
 import com.astarworks.astera.core.domain.skillengine.op.TrailEdge
@@ -183,8 +184,15 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     /** Every display `write` as (tick, handle name, pose): kept out of [calls] so the oracle diff still compares verbs and payloads only. */
     val writtenPoses = ArrayList<Triple<Int, String, VisualPose>>()
     /** [casterPosition] at the moment of each entry of [writtenPoses] (same index): lets a scenario compare a mesh with the caster's pose of that tick. */
-    var lastBodyHolds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold> = emptyList()
     val writtenCasterAt = ArrayList<Vector3d>()
+    /** The interpolation length of each entry of [writtenPoses] (same index): a rig mesh must write with [com.astarworks.astera.core.domain.animation.skinrig.RigDisplayContract]. */
+    val writtenInterpolation = ArrayList<Int>()
+
+    /** One `poseBody` push of the driven puppet (ADR-0315): the frame and anchor the engine drew the body with at [tick]. */
+    class PushedBody(val tick: Int, val target: UUID, val frame: com.astarworks.astera.core.domain.animation.skinrig.RigFrame, val anchor: com.astarworks.astera.core.domain.animation.skinrig.RigAnchor?)
+
+    /** Every puppet pose pushed, in order; kept out of [calls] like [writtenPoses] so the oracle diff is unchanged by them. */
+    val pushedBody = ArrayList<PushedBody>()
 
     /** Where a guard sees the guarded caster (feet, yaw): null = the origin facing +z. A duel sets it to the victim's pose. */
     var guardCaster: com.astarworks.astera.core.domain.geometry.math.Frame? = null
@@ -309,6 +317,7 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
         override fun write(handle: VisualHandle, pose: VisualPose, interpolationTicks: Int) {
             writtenPoses += Triple(tick, name(handle), pose)
             writtenCasterAt += Vector3d(casterPosition.x, casterPosition.y, casterPosition.z)
+            writtenInterpolation += interpolationTicks
             add("write", name(handle), "dur=$interpolationTicks", OracleFmt.pose(pose))
         }
 
@@ -334,13 +343,17 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
     /** Every particle burst as (tick, particle, world position). */
     val emittedAt = ArrayList<Triple<Int, String, Vec3>>()
 
+    /** Every particle burst whole, with its tick: the vanilla `count` / `offset` / `extra` the gateway would send. Not part of the oracle text. */
+    val bursts = ArrayList<Pair<Int, ParticleBurst>>()
+
     val particles: ISkillParticleGateway = object : ISkillParticleGateway {
         override fun emit(cast: CastRef, burst: ParticleBurst) {
             seen("particles.emit", cast)
             emittedAt += Triple(tick, burst.particle, burst.at)
+            bursts += tick to burst
             add(
                 "particle", "-", "type=${burst.particle}" + (burst.count?.let { " count=$it" } ?: ""),
-                "at=${OracleFmt.v(burst.at)} off=${OracleFmt.v(burst.offset)} speed=${OracleFmt.f(burst.speed)} color=${OracleFmt.s(burst.colorHex)} size=${burst.dataSize?.let { OracleFmt.f(it) } ?: "-"} " +
+                "at=${OracleFmt.v(burst.at)} off=${OracleFmt.v(burst.offset)} speed=${OracleFmt.f(burst.speed)} color=${OracleFmt.s(OracleFmt.dataColor(burst.data))} size=${OracleFmt.dataSize(burst.data)?.let { OracleFmt.f(it) } ?: "-"}${OracleFmt.dataExtra(burst.data)} " +
                     "dir=${burst.dir?.let { OracleFmt.v(it) } ?: "-"} spread=${OracleFmt.f(burst.spreadDeg)} vel=${burst.inheritVelocity?.let { OracleFmt.v(it) } ?: "-"} look=${OracleFmt.v(burst.look)} seed=${burst.seed}",
             )
         }
@@ -426,15 +439,28 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
         override fun isPlayer(entity: UUID): Boolean = entity !in mobs
 
-        override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double, holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold>) {
-            lastBodyHolds = holds
+        override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double) {
             seen("gameplay.playBodyClip", cast)
             add("effect", target.toString(), "body=$anim speed=${RecordedCall.num(speed)}")
+        }
+
+        override fun poseBody(cast: CastRef, target: UUID, frame: com.astarworks.astera.core.domain.animation.skinrig.RigFrame, anchor: com.astarworks.astera.core.domain.animation.skinrig.RigAnchor?) {
+            pushedBody += PushedBody(tick, target, frame, anchor)
         }
 
         override fun stopBodyClip(cast: CastRef, target: UUID, anim: String) {
             seen("gameplay.stopBodyClip", cast)
             add("effect", target.toString(), "body_stop=$anim")
+        }
+
+        override fun showBody(cast: CastRef, target: UUID) {
+            seen("gameplay.showBody", cast)
+            add("effect", target.toString(), "body=${com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation.REST_BODY.id}")
+        }
+
+        override fun hideBody(cast: CastRef, target: UUID) {
+            seen("gameplay.hideBody", cast)
+            add("effect", target.toString(), "body_stop=${com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation.REST_BODY.id}")
         }
 
         override fun setHeldModel(cast: CastRef, caster: UUID, model: String) {
@@ -470,6 +496,16 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
             val shape = announced?.second?.let { OracleFmt.volume(it) } ?: "shape=area"
             oracleOnly("hit", "-", "at=${OracleFmt.v(point)} r=${OracleFmt.f(radius)} $shape", announced?.first ?: if (faithfulPose) rowOp ?: error("hit query outside any row: no op to attribute it to") else rowOp)
             return victims.filter { it.entityId != excluding }
+        }
+
+        override fun bodiesNear(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitBox> {
+            seen("query.bodiesNear", cast)
+            return victims.filter { it.entityId != excluding }.map { it.box }
+        }
+
+        override fun enemyBodiesNear(cast: CastRef, point: Vec3, radius: Double): List<HitBox> {
+            seen("query.enemyBodiesNear", cast)
+            return victims.filter { it.entityId != caster && it.entityId !in allies }.map { it.box }
         }
 
         override fun rootOf(cast: CastRef, entity: UUID): EntityRoot? {
@@ -816,6 +852,42 @@ class GatewayRecorder(val caster: UUID = UUID(0L, 1L), val castWorld: WorldId = 
 
 /** Number / vector / pose / string formatting of the oracle rows: fixed 6 decimals, no negative zero, no whitespace inside a value. */
 internal object OracleFmt {
+    private fun hex(c: com.astarworks.astera.core.domain.effect.ParticleColor) = "#%02x%02x%02x".format(c.r, c.g, c.b)
+
+    /** The colour a particle's data carries (dust, transition start, tint, spell); null = none. */
+    fun dataColor(d: com.astarworks.astera.core.domain.effect.ParticleData?): String? = when (d) {
+        is com.astarworks.astera.core.domain.effect.ParticleData.Dust -> hex(d.color)
+        is com.astarworks.astera.core.domain.effect.ParticleData.DustTransition -> hex(d.from)
+        is com.astarworks.astera.core.domain.effect.ParticleData.Tint -> hex(d.color)
+        is com.astarworks.astera.core.domain.effect.ParticleData.Spell -> hex(d.color)
+        else -> null
+    }
+
+    /** The size / power a particle's data carries; null = none. */
+    fun dataSize(d: com.astarworks.astera.core.domain.effect.ParticleData?): Double? = when (d) {
+        is com.astarworks.astera.core.domain.effect.ParticleData.Dust -> d.scale.toDouble()
+        is com.astarworks.astera.core.domain.effect.ParticleData.DustTransition -> d.scale.toDouble()
+        is com.astarworks.astera.core.domain.effect.ParticleData.Spell -> d.power.toDouble()
+        else -> null
+    }
+
+    /** ` data=...` for everything colour / size above does not already say (empty for none, dust, tint, spell). */
+    fun dataExtra(d: com.astarworks.astera.core.domain.effect.ParticleData?): String {
+        val text = when (d) {
+            null, is com.astarworks.astera.core.domain.effect.ParticleData.Dust, is com.astarworks.astera.core.domain.effect.ParticleData.Tint,
+            is com.astarworks.astera.core.domain.effect.ParticleData.Spell -> return ""
+            is com.astarworks.astera.core.domain.effect.ParticleData.DustTransition -> "transition:${hex(d.from)}>${hex(d.to)}"
+            is com.astarworks.astera.core.domain.effect.ParticleData.Block -> "block:${d.blockKey}"
+            is com.astarworks.astera.core.domain.effect.ParticleData.Item -> "item:${d.materialKey}"
+            is com.astarworks.astera.core.domain.effect.ParticleData.SculkCharge -> "sculk_charge:${f(d.roll.toDouble())}"
+            is com.astarworks.astera.core.domain.effect.ParticleData.Shriek -> "shriek:${d.delayTicks}"
+            is com.astarworks.astera.core.domain.effect.ParticleData.Power -> "power:${f(d.value.toDouble())}"
+            is com.astarworks.astera.core.domain.effect.ParticleData.Trail -> "trail:${hex(d.color)}:${d.durationTicks}"
+            is com.astarworks.astera.core.domain.effect.ParticleData.Vibration -> "vibration:${d.arrivalTicks}"
+        }
+        return " data=$text"
+    }
+
     fun f(d: Double): String {
         val r = if (kotlin.math.abs(d) < 5e-7) 0.0 else d
         return "%.6f".format(java.util.Locale.ROOT, r)
@@ -832,7 +904,9 @@ internal object OracleFmt {
 
     fun pose(p: VisualPose): String =
         "pos=${v(p.frame.origin)} rot=${q(p.frame.rotation)} scale=${v(p.size)} bb=${p.billboard}" +
-            (p.anchorFeet?.let { " feet=${v(it)}" } ?: "") + (p.teleportTicks?.let { " tp=$it" } ?: "")
+            (p.anchorFeet?.let { " feet=${v(it)}" } ?: "") + (p.teleportTicks?.let { " tp=$it" } ?: "") +
+            // a rig mesh (ADR-0315): the puppet anchor it is rooted on (feet, body yaw) — the same object the body push of the tick carries
+            (p.root?.let { " root=${v(it.feet)} ryaw=${f(it.yawDeg)}" } ?: "")
 
     /** A resolved hit volume: kind and its dimensions (capsule a/b/radius, sphere radius, sector origin/forward/left/deg/range/height, box centre/half/rotation). */
     fun volume(vol: com.astarworks.astera.core.domain.skillengine.hit.ResolvedVolume): String = when (vol) {
@@ -846,7 +920,6 @@ internal object OracleFmt {
 
     fun view(v: DisplayView): String =
         "aud=${v.audience} lane=${v.lane} target=${v.target ?: "-"}" +
-            (if (v.viewers != com.astarworks.astera.core.domain.effect.RowViewers.ALL) " viewers=${v.viewers.yamlName}" else "") +
             (if (v.glowing) " glowing=true" else "")
 
     /** A string value on one token: whitespace and `=` escaped, null = `-`. */

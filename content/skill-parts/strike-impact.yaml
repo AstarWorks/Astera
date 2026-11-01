@@ -1,0 +1,24 @@
+# strike-impact: the impact of a thrown / shot weapon (arrow, bolt, knife, harpoon) on what it hits: one hit sound, the shared hit-spark
+# and a small dust fleck in the weapon's colour. Call it from `on.hit` (and `on.block`) with the contact point as `spot`:
+#   - {id: hit_fx, use: strike-impact, with: {snd: "astera:weapons/blade-hit", color: "#bea064"}, frames: {spot: heart}}
+# The row ids (snd / spark / fleck) are part of the shipped goldens: rename them only together with `regenSkillOracle`.
+---
+apiVersion: astera/v3
+kind: Part
+id: strike-impact
+params:
+  snd:   {type: string, required: true}      # hit sound id
+  color: {type: string, required: true}      # dust fleck colour, "#rrggbb"
+  vol:   {type: number, default: 0.7}
+  pitch: {type: number, default: 1.2}
+  size:  {type: number, default: 1.0}        # dust fleck size
+frames_in: {spot: anchor}
+machine:
+  start: main
+  states:
+    main:
+      final: true
+      do:
+        - {id: snd, op: sound, at: 0, sound: "${snd}", anchor: spot, volume: "${vol}", pitch: "${pitch}"}
+        - {id: spark, op: particle_def, at: 0, def: hit-spark, anchor: spot}
+        - {id: fleck, op: particle, at: 0, particle: dust, anchor: spot, count: 4, offset: [0.15, 0.15, 0.15], color: "${color}", size: "${size}"}

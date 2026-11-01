@@ -1,12 +1,5 @@
 # thorn bolt: green sparkles along the path
 id: verdant-trail
-shape:
-  kind: burst
-  spread_blocks: 0.08
-color:
-  r: 80
-  g: 200
-  b: 80
+particle: happy_villager
 count: 1
-lifetime_ticks: 20
-vanilla_particle: happy_villager
+offset: [0.08, 0.08, 0.08]

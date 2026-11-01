@@ -50,6 +50,7 @@ public class DashOp(
     public val stopOnBlock: Boolean,
     public val invulnerable: Boolean,
     public val faceMovement: Boolean,
+    public val passThrough: Boolean,
 ) : OpNode
 
 /** Value / id plumbing shared by the caster-motion ops (dash, reel, rig, emit). */
@@ -92,21 +93,22 @@ public object DashOpSpec : OpSpec<DashOp> {
     private val stopOnBlock = Field.required("stop_on_block", Types.bool, "stop at a solid block")
     private val invulnerable = Field.required("invulnerable", Types.bool, "caster takes no damage while dashing")
     private val faceMovement = Field.required("face_movement", Types.bool, "turn the caster to the travel direction")
+    private val passThrough = Field.optional("pass_through", Types.bool, Value.Literal(false), "true = the dash runs through bodies in its way and ends behind them; false = it stops at the front edge of the first body. The caster never ends inside a body either way")
 
     override val name: String = "dash"
     override val section: OpSection = OpSection.GAMEPLAY
     override val timing: TimingKind? = TimingKind.EXTENDED
-    override val fields: Fields = Fields.of("dash", speed, direction, ease, followPitch, stopOnBlock, invulnerable, faceMovement)
+    override val fields: Fields = Fields.of("dash", speed, direction, ease, followPitch, stopOnBlock, invulnerable, faceMovement, passThrough)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<DashOp, SkillDecodeError> =
         Grammar.guard {
             val path = "dash(${id.value})"
-            val probe = DashOp(id, src, whenExpr, timing, values[speed], Value.Literal(0.0), values[direction], values[ease], false, true, true, false)
+            val probe = DashOp(id, src, whenExpr, timing, values[speed], Value.Literal(0.0), values[direction], values[ease], false, true, true, false, false)
             val ticks = CasterMotion.ticksOf(probe, ctx, path)
             fun flag(f: Field<Value<Boolean>>): Boolean = (values[f] as? Value.Literal)?.value ?: ctx.fail("$path.${f.name}", "must be a literal true/false")
             DashOp(
                 id, src, whenExpr, timing, values[speed], ticks, values[direction], values[ease],
-                flag(followPitch), flag(stopOnBlock), flag(invulnerable), flag(faceMovement),
+                flag(followPitch), flag(stopOnBlock), flag(invulnerable), flag(faceMovement), flag(passThrough),
             )
         }
 
@@ -128,7 +130,7 @@ public object DashOpSpec : OpSpec<DashOp> {
             "stop_on_block" to CasterMotion.known(op.stopOnBlock),
             "invulnerable" to CasterMotion.known(op.invulnerable),
             "face_movement" to CasterMotion.known(op.faceMovement),
-        )
+        ).also { if (op.passThrough) it["pass_through"] = CasterMotion.known(true) }
         val rows = listOf(
             CasterMotion.row(0, inst, op.id, lc, payload),
             CasterMotion.row(ticks, inst, op.id, lc, mapOf("kind" to CasterMotion.known("dash.end"))),

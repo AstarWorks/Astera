@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.skillengine.load.ops.control.Group
 import com.astarworks.astera.core.application.skillengine.load.ops.control.LockOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.control.UseOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.DamageOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.BlinkOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.DashOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.EmitOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.HealOpSpec
@@ -26,6 +27,7 @@ import com.astarworks.astera.core.application.skillengine.load.ops.presentation.
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.RibbonOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.presentation.SoundOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.CleanseOpSpec
+import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.SummonOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ConsumeItemOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.ConsumeStatusOpSpec
 import com.astarworks.astera.core.application.skillengine.load.ops.gameplay.FreezeOpSpec
@@ -69,6 +71,7 @@ public object SkillEngineSpecs {
         PullOpSpec,
         HealOpSpec,
         ResourceOpSpec,
+        BlinkOpSpec,
         DashOpSpec,
         ReelOpSpec,
         RigOpSpec,
@@ -90,5 +93,6 @@ public object SkillEngineSpecs {
         PlaceShapeOpSpec,
         ExplodeOpSpec,
         LightningOpSpec,
+        SummonOpSpec,
     )
 }

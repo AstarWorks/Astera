@@ -196,6 +196,12 @@ astera:
   skill.reload.ok: "<green>Reloaded <white>{skill}</white>: {ids}.</green>"
   skill.reload.not-loaded: "<red>Skills were not loaded yet; run /astera admin reload first.</red>"
   skill.reload.rejected: "<red>Reload of <white>{skill}</white> rejected, the old version stays: {error}</red>"
+  skill.skin.ok: "<green>Skin {action}: <white>{player}</white> {skill} {skin}.</green>"
+  skill.skin.unknown-variant: "<red>{skill} has no variant <white>{skin}</white>.</red>"
+  skill.skin.not-a-skin: "<red>{skill}@{skin} is a <white>{kind}</white> variant, not a skin.</red>"
+  skill.skin.not-owned: "<red>The player does not own skin <white>{skin}</white> of {skill}; grant it first.</red>"
+  skill.skin.need-skin: "<red>Name the skin: /astera skill skin [action] [player] [skill] [skin].</red>"
+  skill.skin.no-player: "<red>No online player named <white>{player}</white>.</red>"
   skill.preview.started: "<green>Previewing <white>{skill}</white> (view {view}, speed {speed}x). A dummy casts it in 0.5s.</green>"
   skill.preview.again: "<green>Repeating the last preview.</green>"
   skill.preview.slow-warning: "<yellow>Tick rate is slowed for everyone on this backend until the preview ends.</yellow>"
@@ -299,7 +305,9 @@ astera:
       skill-cast: "Cast a skill (no resource cost; --force ignores its cooldown)"
       skill-trace: "Turn the skill engine cast lifecycle log on or off"
       skill-reload: "Reload one skill from content without a restart"
+      skill-faults: "Show the runtime skill faults counted since boot (reset zeroes them)"
       skill-expand: "Print and write the compiled table of a skill (or all; --json adds source rows)"
+      skill-skin: "Grant, revoke, equip or clear a skill skin for a player"
       announce: "Fire a presentation moment on one server or all (name=value args fill the text)"
       norma-check: "Show your Norma progress and what the next level unlocks"
       economy: "Currency"
@@ -350,6 +358,7 @@ astera:
       admin-maintenance: "Toggle maintenance mode"
       admin-teleport: "Teleport a player"
       admin-reload: "Reload a content category from disk"
+      admin-rewire: "Rebuild a plugin generation in place without a restart (--reconnect also reopens its connection, persistence)"
       admin-audit: "Show recent audit events of a player"
       admin-promote: "Assign a role to a player"
       admin-demote: "Revoke a role from a player"
@@ -392,6 +401,11 @@ astera:
       admin-maintenance-status-on: "<yellow>Maintenance mode is ON. Reason: {reason}</yellow>"
       admin-maintenance-status-off: "<green>Maintenance mode is OFF.</green>"
       admin-reload: "<green>Reloaded <gold>{category}</gold>.</green>"
+      admin-reload-note: "<gray>  {note}</gray>"
+      admin-rewire: "<green>Rewired <gold>{plugin}</gold>: {summary}</green>"
+      admin-rewire-status: "<gray>  {line}</gray>"
+      admin-rewire-warning: "<yellow>  {warning}</yellow>"
+      admin-rewire-failed: "<red>Rewire refused ({code}): {reason}</red>"
       admin-restart: "<yellow>Restart scheduled in {minutes} minutes.</yellow>"
       admin-drain: "<yellow>Moving {count} player(s) to <gold>{target}</gold>.</yellow>"
       admin-drain-unavailable: "<red>Cross-server transfer is not available on this server.</red>"
@@ -512,6 +526,22 @@ astera:
         sneak_drop: "<yellow>[Shift+Q]</yellow> <white>{name}</white>"
         shoot: "<yellow>[Release]</yellow> <white>{name}</white>"
       locked: "<dark_gray>Locked until Norma Lv {level} in a match</dark_gray>"
+      hold: "<gray>Hold: <white>{kind}{detail}</white></gray>"
+      hold_ticks: "{ticks}t"
+      hold_kind:
+        none: "none"
+        knockback: "knockback"
+        pull: "pull"
+        knockback_pull: "knockback + pull"
+        knockback_stop: "knockback + stop"
+        slow: "slow"
+        root: "root"
+        freeze: "freeze"
+        shock: "shock"
+      hold_level:
+        light: "(light)"
+        medium: "(medium)"
+        heavy: "(heavy)"
       stat:
         attack_damage: "<gray>Damage: <white>{value}</white></gray>"
         attack_speed: "<gray>Attack speed: <white>{value}/s</white></gray>"
@@ -1862,6 +1892,7 @@ astera:
 
   lobby:
     npc:
+      removed-gui-closed: "<yellow>This NPC was removed; the menu was closed.</yellow>"
       travel:
         name: "Travel Guide"
       refinement:
@@ -2076,6 +2107,7 @@ astera:
       "skills.err.unknown": "<red>Unknown skill <gold>{skill}</gold>.</red>"
       "skills.err.cooldown": "<red><gold>{skill}</gold> is on cooldown for {seconds}s (use --force).</red>"
       "skills.err.silenced": "<red>You are silenced.</red>"
+      "skills.err.callee-only": "<red>callee-only: cast the caller <gold>{callers}</gold> ({skill} cannot be cast on its own).</red>"
       "skills.err.cast": "<red>Could not cast <gold>{skill}</gold>.</red>"
       "skills.err.no-items": "<red>The items plugin is not available.</red>"
       "skills.err.no-template": "<red>content/items/skill-tester.yaml is missing.</red>"
@@ -2381,6 +2413,8 @@ astera:
       name: "Charge"
     immunity:
       name: "Immune"
+    root:
+      name: "Rooted"
 
   # F3-2: message keys referenced from Kotlin (MessageKey / labelKey / button / text literals).
   damage.target_offline: "<red>The target player is offline.</red>"
@@ -2807,6 +2841,7 @@ astera:
   statusdesc.charge: "Stacks on you; charge skills spend it for extra damage."
   statusdesc.immunity: "Takes no damage for a moment."
   statusdesc.silence: "Cannot cast skills for a moment."
+  statusdesc.root: "Rooted: cannot move for a moment, but can still attack and turn."
 
   # Cross-server chat (ADR-0289)
   chat.japanize.on: "Japanize enabled."

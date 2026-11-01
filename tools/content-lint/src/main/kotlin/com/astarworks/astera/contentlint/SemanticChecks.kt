@@ -38,6 +38,24 @@ internal object SemanticChecks {
                 if (px > MAX_LINE_PX) errors += "item-lore: `$field.$lang` is ~${px}px wide (limit $MAX_LINE_PX, about 32 full-width / 40 half-width chars)"
             }
         }
+        root.get("hold")?.let { errors += checkHold(it) }
+        if (root.has("skills") && !root.has("hold")) errors += "item-lore: an item that binds skills must declare `hold:` (the weapon hold table; `kind: none` when its skills hold nothing)"
+        return errors
+    }
+
+    private val HOLD_KINDS = setOf("none", "knockback", "pull", "knockback_pull", "knockback_stop", "slow", "root", "freeze", "shock")
+    private val HOLD_LEVELS = setOf("light", "medium", "heavy")
+
+    /** The generated hold row (the weapon hold table) is the only structured row gear may declare besides role / flavor: kind + optional level xor ticks. */
+    private fun checkHold(hold: JsonNode): List<String> {
+        val errors = mutableListOf<String>()
+        val kind = hold.get("kind")?.takeIf { it.isTextual }?.asText()
+        if (kind == null || kind !in HOLD_KINDS) errors += "item-lore: `hold.kind` must be one of $HOLD_KINDS"
+        val level = hold.get("level")
+        val ticks = hold.get("ticks")
+        if (level != null && level.asText() !in HOLD_LEVELS) errors += "item-lore: `hold.level` must be one of $HOLD_LEVELS"
+        if (level != null && ticks != null) errors += "item-lore: `hold` takes `level` or `ticks`, not both"
+        if (kind == "none" && (level != null || ticks != null)) errors += "item-lore: `hold` kind none takes no level / ticks"
         return errors
     }
 

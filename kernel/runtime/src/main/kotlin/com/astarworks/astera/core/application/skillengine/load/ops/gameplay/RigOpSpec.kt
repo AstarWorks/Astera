@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.skillengine.compose.AnchorRegistry
 import com.astarworks.astera.core.application.skillengine.compose.ExprClass
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.ItemFrames
+import com.astarworks.astera.core.application.skillengine.load.ModelPart
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
@@ -26,7 +27,9 @@ import com.astarworks.astera.core.application.skillengine.load.spec.OpSpec
 import com.astarworks.astera.core.application.skillengine.load.spec.WhenRef
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.geometry.math.Basis
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
+import com.astarworks.astera.core.domain.skillengine.math.Quaterniond
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
 import com.astarworks.astera.core.domain.skillengine.table.Action
@@ -52,7 +55,10 @@ public class RigOp(
     override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
-    public val parent: String,
+    /** The anchor the rig hangs on; null with [frame]. */
+    public val parent: String?,
+    /** ADR-0314: the `frames:` entry the held mesh rides (its `long` axis along `v`, its `edge` along `w`); the swing is the frame's own `rotate:` / `move:`. */
+    public val frame: String?,
     /** R27: the declared frame whose axes the swing drives (block displays anchored to it follow); null = the held item. */
     public val of: String?,
     public val anim: String?,
@@ -72,7 +78,8 @@ public class RigOp(
 ) : OpNode
 
 public object RigOpSpec : OpSpec<RigOp> {
-    private val parent = Field.required("parent", Types.id, "frame the rig hangs on")
+    private val parent = Field.optional("parent", Types.nullable(Types.id), null, "anchor the rig hangs on (or frame: <id>, ADR-0314)")
+    private val frame = Field.optional("frame", Types.nullable(Types.id), null, "frames: entry the held mesh rides (ADR-0314): long axis along v, edge along w; the frame's rotate:/move: keys are the swing")
     private val of = Field.optional("of", Types.nullable(Types.id), null, "frame id whose axes the swing drives; absent = the held item (R27)")
     private val anim = Field.optional("anim", Types.nullable(Types.id), null, "rig animation name")
     private val mount = Field.optional("mount", Types.nullable(Types.id), null, "body point the rig rides: caster.hand_r = the caster's right arm; absent = stands at the pivot of the parent")
@@ -95,7 +102,7 @@ public object RigOpSpec : OpSpec<RigOp> {
     override val section: OpSection = OpSection.GAMEPLAY
     override val timing: TimingKind? = TimingKind.EXTENDED
     override val fields: Fields = Fields.of(
-        "rig", parent, of, anim, mount, pivot, tilt, rest, swing, part, hand,
+        "rig", parent, frame, of, anim, mount, pivot, tilt, rest, swing, part, hand,
         respectHitStop, bodyRespectHitStop, freezes,
     )
 
@@ -120,11 +127,19 @@ public object RigOpSpec : OpSpec<RigOp> {
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<RigOp, SkillDecodeError> =
         Grammar.guard {
             val path = "rig(${id.value})"
-            val probe = DashOp(id, src, whenExpr, timing, Value.Literal(0.0), Value.Literal(0.0), values[pivot], null, false, true, true, false)
+            val probe = DashOp(id, src, whenExpr, timing, Value.Literal(0.0), Value.Literal(0.0), values[pivot], null, false, true, true, false, false)
             val duration = CasterMotion.ticksOf(probe, ctx, path)
             fun flag(f: Field<Value<Boolean>>): Boolean = (values[f] as? Value.Literal)?.value ?: ctx.fail("$path.${f.name}", "must be a literal true/false")
             val mountPoint = values[mount]
             val handName = values[hand]
+            val frameId = values[frame]
+            if (frameId != null) {
+                // a rig on a frame has no pose of its own: the frame's keys turn it; every arm-carried / swing field is the old grammar
+                for (f in listOf(of, mount, pivot, tilt, rest, swing, part, freezes)) if (values.isPresent(f)) ctx.fail("$path.${f.name}", "${f.name}: is not read with frame:; the held mesh rides frame '$frameId' (long along v, edge along w) and its rotate:/move: keys are the swing")
+                if (values[parent] != null) ctx.fail("$path.parent", "parent: and frame: are exclusive")
+            } else if (values[parent] == null) {
+                ctx.abort(SkillDecodeError.MissingField(ctx.file, path, "parent"))
+            }
             if (mountPoint != null && mountPoint != ARM_MOUNT && mountPoint != OFF_ARM_MOUNT) ctx.fail("$path.mount", "'$mountPoint' is not a body point a rig can ride; only $ARM_MOUNT and $OFF_ARM_MOUNT are served")
             if (mountPoint != null && (mountPoint == OFF_ARM_MOUNT) != (handName == "off")) {
                 ctx.fail("$path.mount", "hand: $handName rides ${if (handName == "off") OFF_ARM_MOUNT else ARM_MOUNT}, not '$mountPoint' (the off-hand blade is carried by the left arm)")
@@ -138,7 +153,7 @@ public object RigOpSpec : OpSpec<RigOp> {
                 RigFreezeSpec(a, t)
             }
             RigOp(
-                id, src, whenExpr, timing, values[parent], values[of], values[anim], mountPoint, values[pivot],
+                id, src, whenExpr, timing, values[parent], frameId, values[of], values[anim], mountPoint, values[pivot],
                 rotationVector(values[tilt], ctx, "$path.tilt"), rotationVector(values[rest], ctx, "$path.rest"),
                 steps, values[part], handName, duration,
                 flag(respectHitStop), flag(bodyRespectHitStop), frz,
@@ -165,10 +180,12 @@ public object RigOpSpec : OpSpec<RigOp> {
             is Result.Success -> d.value
             is Result.Failure -> return d
         }
+        op.frame?.let { return lowerOnFrame(op, it, item, duration, lc) }
+        val parentName = op.parent ?: return Result.Failure(SkillDecodeError.MissingField(lc.skillId, path, "parent"))
         // a builtin frame is a valid rig parent it rides the caster by name (the player resolves a non-instance parent by its text)
-        val parentInstance = lc.anchors.resolve(op.parent)?.instance
-            ?: op.parent.takeIf { it in BUILTIN_PARENTS }?.let { InstanceId(listOf(InstanceId.Segment(OpId(it), null))) }
-            ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, op.parent))
+        val parentInstance = lc.anchors.resolve(parentName)?.instance
+            ?: parentName.takeIf { it in BUILTIN_PARENTS }?.let { InstanceId(listOf(InstanceId.Segment(OpId(it), null))) }
+            ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, parentName))
         val driven = op.of?.let { name ->
             lc.anchors.resolve(name)?.instance ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, name))
         }
@@ -256,6 +273,61 @@ public object RigOpSpec : OpSpec<RigOp> {
             part.points.forEach { (name, p) -> payload["point.$name"] = CasterMotion.known(Vector3d(p.x, p.y, p.z)) }
             (lc.anchors as? AnchorRegistry)?.declare(InstanceId(inst.path.dropLast(1) + InstanceId.Segment(op.id, null)), null, ExprClass.L, points = part.points.keys)
         }
+        val rows = listOf(
+            Row(0, inst, Action.Effect(op.id, payload, spawnsAnchor = true), lc.src),
+            Row(duration, inst, Action.End(inst), lc.src),
+        )
+        return Result.Success(Lowered(rows = rows, instances = listOf(inst)))
+    }
+
+    /** The held mesh part of [item] for [hand] (`thirdperson_righthand` / `_lefthand` display), or the load error naming what is missing. */
+    private fun heldPart(op: RigOp, item: String, lc: LowerContext, path: String): Result<ModelPart, SkillDecodeError> {
+        val frames = lc.frames.item(item) ?: return Result.Failure(SkillDecodeError.UndefinedReference(lc.skillId, path, item))
+        val off = op.hand == "off"
+        val wanted = if (off) OFF_DISPLAY else HELD_DISPLAY
+        val hands = if (off) frames.offHandParts() else frames.handParts()
+        return when (hands.size) {
+            0 -> Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "rig '${op.id.value}': content/frames/$item.yaml has no part with display: $wanted"))
+            1 -> Result.Success(hands.single())
+            else -> Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "rig '${op.id.value}': content/frames/$item.yaml has ${hands.size} parts with display: $wanted (${hands.joinToString { it.name }}); exactly one is the held mesh"))
+        }
+    }
+
+    /**
+     * ADR-0314: a rig on a frame. The payload carries the frame id and `align`, the rotation taking the part's `long` axis to local +Z and
+     * its `edge` to local +Y; the runtime draws the mesh at the frame's orientation times `align`, so `long` lies along `v` and `edge` along `w`.
+     */
+    private fun lowerOnFrame(op: RigOp, frameId: String, item: String, duration: Int, lc: LowerContext): Result<Lowered, SkillDecodeError> {
+        val path = lc.src.value
+        op.anim?.let { anim ->
+            val clip = lc.sprites.clipTicks(anim)
+            if (clip != null && clip != duration) {
+                return Result.Failure(
+                    SkillDecodeError.Invalid(lc.skillId, path, "rig '${op.id.value}': clip '$anim' is $clip ticks but for: $duration; a rig with anim: lasts exactly its clip (write for: $clip; use detach: true when the state is shorter)"),
+                )
+            }
+        }
+        val part = when (val r = heldPart(op, item, lc, path)) {
+            is Result.Success -> r.value
+            is Result.Failure -> return r
+        }
+        val long = part.axes["long"] ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "frames of '$item' part '${part.name}' declare no 'long' axis"))
+        val edge = part.axes["edge"] ?: return Result.Failure(SkillDecodeError.Invalid(lc.skillId, path, "frames of '$item' part '${part.name}' declare no 'edge' axis"))
+        val align = Basis.facing(long, edge).conjugate()
+        val inst = CasterMotion.instance(op, lc)
+        val payload = linkedMapOf<String, Val<Any>>(
+            "kind" to CasterMotion.known("rig"),
+            "frame" to CasterMotion.known(frameId),
+            "align" to CasterMotion.known(Quaterniond(align.x, align.y, align.z, align.w)),
+            "duration" to CasterMotion.known(duration.toDouble()),
+            "hand" to CasterMotion.known(op.hand),
+            "held_part" to CasterMotion.known("${part.name} (${part.display})"),
+            "held_length" to CasterMotion.known(part.length),
+        )
+        op.anim?.let { payload["anim"] = CasterMotion.known(it) }
+        if (op.hand == "off") payload["mesh_model"] = CasterMotion.known(part.model)
+        part.points.forEach { (name, p) -> payload["point.$name"] = CasterMotion.known(Vector3d(p.x, p.y, p.z)) }
+        (lc.anchors as? AnchorRegistry)?.declare(InstanceId(inst.path.dropLast(1) + InstanceId.Segment(op.id, null)), null, ExprClass.L, points = part.points.keys)
         val rows = listOf(
             Row(0, inst, Action.Effect(op.id, payload, spawnsAnchor = true), lc.src),
             Row(duration, inst, Action.End(inst), lc.src),

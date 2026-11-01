@@ -3,6 +3,8 @@ package com.astarworks.astera.core.application.skillengine.load.ops.world
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
+import com.astarworks.astera.core.application.skillengine.load.grammar.OpPlacement
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
@@ -25,22 +27,22 @@ public class LightningOp(
     override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
-    public val anchor: com.astarworks.astera.core.application.skillengine.load.grammar.AnchorRef,
+    public val place: com.astarworks.astera.core.application.skillengine.load.grammar.OpPlacement,
     public val visualOnly: Boolean,
 ) : OpNode
 
 public object LightningOpSpec : OpSpec<LightningOp> {
-    private val ANCHOR = WorldOps.anchorField
+    private val ANCHOR = WorldOps.anchorOptional
     private val VISUAL_ONLY: Field<Boolean> = Field.required("visual_only", GameplayOps.flag, "true = effect only, false = damaging strike")
 
     override val name: String = "lightning"
     override val section: OpSection = OpSection.GAMEPLAY
     override val timing: TimingKind? = TimingKind.POINT
-    override val fields: Fields = Fields.of("lightning", ANCHOR, VISUAL_ONLY)
+    override val fields: Fields = Fields.of("lightning", ANCHOR, FrameRefs.FRAME, FrameRefs.POS, VISUAL_ONLY)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<LightningOp, SkillDecodeError> =
-        Result.Success(LightningOp(id, src, whenExpr, timing, values[ANCHOR], values[VISUAL_ONLY]))
+        Result.Success(LightningOp(id, src, whenExpr, timing, OpPlacement.read(values[ANCHOR], values, ctx, "lightning '${id.value}'"), values[VISUAL_ONLY]))
 
     override fun lower(op: LightningOp, lc: LowerContext): Result<Lowered, SkillDecodeError> =
-        WorldOps.lower(OpId(name), op.anchor, mapOf<String, Val<Any>>("visual_only" to Val.Known(op.visualOnly)), lc)
+        WorldOps.lower(OpId(name), op.place, mapOf<String, Val<Any>>("visual_only" to Val.Known(op.visualOnly)), lc)
 }

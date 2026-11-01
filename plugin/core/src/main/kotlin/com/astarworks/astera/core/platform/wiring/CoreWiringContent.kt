@@ -101,6 +101,9 @@ internal fun CoreWiringState.wireContentAndRepositories() {
     reloadRegistry = InMemoryReloadableContentsRegistry()
     services.register<IReloadableContentsRegistry>(reloadRegistry)
 
+    // Core balance (starter-grant, block-durability, ego, health-regen): consumers read the refs at use time.
+    reloadRegistry.register(balanceCore.reloadable, contentDir.resolve("balance"))
+
     // Core's own contents (items, gui) register against the dispatcher with
     // their resolved on-disk directories.
     reloadRegistry.register(itemContents, itemsContentDir)

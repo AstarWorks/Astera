@@ -6,7 +6,6 @@ import com.astarworks.astera.core.domain.effect.ParticleDefinition
 import com.astarworks.astera.core.domain.effect.ParticleEmitContext
 import com.astarworks.astera.core.domain.effect.ParticleEmitter
 import com.astarworks.astera.core.domain.effect.ParticleId
-import com.astarworks.astera.core.domain.effect.ParticleShape
 import com.astarworks.astera.core.domain.effect.ParticleTarget
 import com.astarworks.astera.core.domain.effect.ParticleVelocity
 import com.astarworks.astera.core.domain.effect.Audience
@@ -36,11 +35,8 @@ class ParticleTraceTest {
 
     private fun def(velocity: ParticleVelocity? = null, data: ParticleData? = null, key: String = "end_rod") = ParticleDefinition(
         id = ParticleId("t"),
-        shape = ParticleShape.Point,
-        color = ParticleColor(255, 255, 255),
         count = 2,
-        lifetimeTicks = 10,
-        vanillaParticle = key,
+        particle = key,
         velocity = velocity,
         data = data,
     )

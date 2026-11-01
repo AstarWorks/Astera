@@ -37,16 +37,22 @@ public class LobbyLeaderboardBoard(
     private val world: WorldId,
     private val position: Vec3,
     private val rows: Int = DEFAULT_ROWS,
-    refreshTicks: Long = DEFAULT_REFRESH_TICKS,
+    private val refreshTicks: Long = DEFAULT_REFRESH_TICKS,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
     private var handle: HologramHandle? = null
 
-    private val task: IScheduler.TaskHandle =
-        scheduler.runRepeatingTicks(ExecutionScope.Io, initialDelayTicks = FIRST_REFRESH_TICKS, periodTicks = refreshTicks) { refresh() }
+    private var task: IScheduler.TaskHandle? = null
+
+    /** Starts the refresh loop; the board is built without side effects so it can be wired ahead of time. */
+    public fun start() {
+        task?.cancel()
+        task = scheduler.runRepeatingTicks(ExecutionScope.Io, initialDelayTicks = FIRST_REFRESH_TICKS, periodTicks = refreshTicks) { refresh() }
+    }
 
     public fun stop() {
-        task.cancel()
+        task?.cancel()
+        task = null
         handle?.let { holograms.despawn(it) }
         handle = null
     }

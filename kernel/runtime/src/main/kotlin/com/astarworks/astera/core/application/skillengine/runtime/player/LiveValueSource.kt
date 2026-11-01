@@ -33,4 +33,10 @@ public interface LiveValueSource {
     public fun rot(cast: CastHandle, name: String, binding: EventBinding?, scope: RowScope): Quaterniond
 
     public fun targets(cast: CastHandle, rule: TargetRule, binding: EventBinding?): TargetSet
+
+    /**
+     * A run the table player started by itself (a `summon`, ADR-0313) is announced here with its request, so the host can resolve `caster` /
+     * `target` for it as for a cast it started through the runner. A host that keeps no per-cast request ignores it.
+     */
+    public fun register(cast: CastHandle, request: com.astarworks.astera.core.application.skillengine.runtime.CastRequest) {}
 }

@@ -42,6 +42,7 @@ dependencies {
     // port via ServiceRegistry, so a shared class identity is required
     // (which `compileOnly` preserves by not bundling a duplicate).
     compileOnly(project(":plugin:match"))
+    compileOnly(project(":plugin:combat"))
     // Wave 5refine (ADR-0100): PostgresItemInstanceRepository implements
     // :plugin:items's IItemInstanceRepository. Same compileOnly pattern as
     // marketplace / match — the Items-domain types are on Items' classloader
@@ -67,6 +68,7 @@ dependencies {
     testImplementation(project(":plugin:core"))
     testImplementation(project(":plugin:economy"))
     testImplementation(project(":plugin:match"))
+    testImplementation(project(":plugin:combat"))
     testImplementation(project(":plugin:items"))
     testImplementation(project(":plugin:stats"))
     testImplementation(project(":plugin:test-fixtures"))

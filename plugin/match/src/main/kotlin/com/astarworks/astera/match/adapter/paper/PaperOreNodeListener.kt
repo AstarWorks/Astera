@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.adapter.paper
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -26,8 +27,8 @@ import org.bukkit.plugin.java.JavaPlugin
 public class PaperOreNodeListener(
     private val service: () -> OreNodeService?,
 ) : Listener {
-    public fun start(plugin: JavaPlugin) {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners) {
+        listeners.register(this)
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

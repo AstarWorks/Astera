@@ -17,6 +17,7 @@ import com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.model.AnchorDecl
 import com.astarworks.astera.core.domain.skillengine.model.AnchorMode
+import com.astarworks.astera.core.domain.skillengine.model.RayStops
 import com.astarworks.astera.core.domain.skillengine.model.Value
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.SkillDef
@@ -121,6 +122,8 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
         val framesIn = stringMap(boot, tree["frames_in"], "frames_in")
         val emits = stringList(boot, tree["emits"], "emits")
         val anchors = anchors(boot, tree["anchors"])
+        val frames = FrameDeclDecoder.read(boot, tree["frames"], anchors.map { it.id }.toSet())
+        val lines = FrameDeclDecoder.readLines(boot, tree["lines"], frames.map { it.id }.toSet())
         val docEnv = ExprEnvSpec(
             env.exprEnv.variables + params.mapValues { (_, p) ->
                 when (p.type) {
@@ -131,7 +134,10 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
             },
             (env.exprEnv.frames + anchors.map { it.id } + framesIn.keys + ExprFrames.ofRaw(tree["machine"])),
         )
-        val ctx = GrammarContext(file, null, exprs, docEnv, paramDefaults = loadTimeDefaults(params), partConstants = PartConstants.standIn(ExprFrames.partsOfRaw(tree["machine"])))
+        val ctx = GrammarContext(
+            file, null, exprs, docEnv, paramDefaults = loadTimeDefaults(params), partConstants = PartConstants.standIn(ExprFrames.partsOfRaw(tree["machine"])),
+            lines = lines.associateBy { it.id },
+        )
         val conditions = LinkedHashMap<String, String>()
         for ((name, raw) in mapAt(boot, tree["conditions"], "conditions")) {
             val src = raw as? String ?: boot.mismatch("conditions.$name", "'= expr'", raw)
@@ -149,7 +155,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
         val machine = machine(ctx, tree)
         return SkillDef(
             id = id, item = item, importance = importance, meta = meta,
-            params = params, framesIn = framesIn, emits = emits, anchors = anchors, conditions = conditions, fragments = fragments, machine = machine,
+            params = params, framesIn = framesIn, emits = emits, anchors = anchors, frames = frames, lines = lines, conditions = conditions, fragments = fragments, machine = machine,
         )
     }
 
@@ -264,7 +270,7 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
             val m = e as? Map<*, *> ?: ctx.mismatch(p, "map {id, anchor, offset, mode}", e)
             @Suppress("UNCHECKED_CAST")
             m as Map<String, Any?>
-            checkKeys(ctx, m, p, setOf("id", "anchor", "offset", "mode"))
+            checkKeys(ctx, m, p, setOf("id", "anchor", "offset", "mode", "ray", "ray_stops"))
             val id = m["id"] as? String ?: ctx.abortWith(SkillDecodeError.MissingField(ctx.file, p, "id"))
             com.astarworks.astera.core.application.skillengine.compose.AnchorNames.reservedError(p, id)?.let { ctx.abortWith(SkillDecodeError.Invalid(ctx.file, "$p.id", it)) }
             if (!seen.add(id)) ctx.abortWith(SkillDecodeError.DuplicateId(ctx.file, p, id))
@@ -279,7 +285,19 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
             }
             val offset = LinkedHashMap<String, Value<Double>>()
             for ((axis, v) in mapAt(ctx, m["offset"], "$p.offset")) offset[axis] = ValueDecoding.number(v, ctx.file, "$p.offset.$axis")
-            AnchorDecl(id, PointRef.parse(anchor), offset, mode)
+            val ray = m["ray"]?.let {
+                val n = (it as? Number)?.toDouble() ?: ctx.mismatch("$p.ray", "a number of blocks", it)
+                if (n <= 0.0 || n > MAX_RAY_BLOCKS) ctx.fail("$p.ray", "anchors[$i] '$id': ray must be in (0, $MAX_RAY_BLOCKS] blocks, found $n")
+                n
+            }
+            val rayStops = when (val raw = m["ray_stops"]) {
+                null -> if (ray != null) ctx.fail("$p.ray_stops", "anchors[$i] '$id': ray_stops is required with ray: blocks (only blocks stop the ray) or entities (also the first enemy body)") else null
+                "blocks" -> RayStops.BLOCKS
+                "entities" -> RayStops.ENTITIES
+                else -> ctx.mismatch("$p.ray_stops", "'blocks' or 'entities'", raw)
+            }
+            if (rayStops != null && ray == null) ctx.fail("$p.ray_stops", "anchors[$i] '$id': ray_stops needs a ray length")
+            AnchorDecl(id, PointRef.parse(anchor), offset, mode, ray, rayStops)
         }
     }
 
@@ -311,8 +329,9 @@ public class SkillDocumentDecoder(private val specs: OpSpecRegistry, private val
     private fun GrammarContext.abortWith(error: SkillDecodeError): Nothing = throw DecodeAbort(error)
 
     private companion object {
+        const val MAX_RAY_BLOCKS: Double = 32.0
         val TOP_KEYS = setOf(
-            "apiVersion", "kind", "id", "item", "importance", "meta", "params", "frames_in", "emits", "anchors", "conditions", "fragments", "machine",
+            "apiVersion", "kind", "id", "item", "importance", "meta", "params", "frames_in", "emits", "anchors", "frames", "lines", "conditions", "fragments", "machine",
         )
         val META_KEYS = setOf("name", "description", "cooldown_ticks", "resource_type", "resource_cost", "ego_cost", "reload_ticks", "ready_cue", "tags")
         val STATE_KEYS = setOf("for", "then", "final", "enter", "do", "exit", "on", "use", "with", "frames", "start", "states", "parallel")

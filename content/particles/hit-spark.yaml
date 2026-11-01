@@ -1,13 +1,6 @@
 # melee hit feedback at the victim
 id: hit-spark
-shape:
-  kind: burst
-  spread_blocks: 0.25
-color:
-  r: 255
-  g: 255
-  b: 255
+particle: crit
 count: 8
-lifetime_ticks: 20
-vanilla_particle: crit
-speed: 0.3
+offset: [0.25, 0.25, 0.25]
+extra: 0.3

@@ -68,8 +68,19 @@ internal object RuntimeDecode {
                     is com.astarworks.astera.core.domain.Result.Success -> r.value
                     is com.astarworks.astera.core.domain.Result.Failure -> return@to ContentLoader.LoadReport(0, r.error.size, r.error.map { ContentLoader.LoadFailure(partDir, it.toString()) })
                 }
-                val report = SkillEngineContents(SkillEngineRegistries.catalog(tables, parts, com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(contentDir.resolve("sprites")))).reload(d)
-                val skeletonError = (SkillEngineRegistries.bodySkeleton(contentDir.resolve("frames")) as? com.astarworks.astera.core.domain.Result.Failure)?.error
+                val skeleton = SkillEngineRegistries.bodySkeleton(contentDir.resolve("frames"))
+                val skeletonError = (skeleton as? com.astarworks.astera.core.domain.Result.Failure)?.error
+                val clips = SkinRigContents().also { it.bootstrap(contentDir.resolve("animations")) }
+                val clutter = when (val r = com.astarworks.astera.core.application.skillengine.compose.drycast.ClutterContext.load(
+                    contentDir, (skeleton as? com.astarworks.astera.core.domain.Result.Success)?.value ?: com.astarworks.astera.core.domain.animation.skinrig.BodySkeleton(emptyMap()),
+                ) { clip -> runCatching { clips.find(com.astarworks.astera.core.domain.animation.player.CustomAnimationId(clip)) }.getOrNull() }) {
+                    is com.astarworks.astera.core.domain.Result.Success -> r.value
+                    is com.astarworks.astera.core.domain.Result.Failure ->
+                        return@to ContentLoader.LoadReport(0, 1, listOf(ContentLoader.LoadFailure(contentDir.resolve("engine/particle-lifetimes.yaml"), r.error.toString())))
+                }
+                val engineConfig = (com.astarworks.astera.core.application.skillengine.load.EngineConfigLoader().load(contentDir.resolve("engine/skill-engine.yaml"))
+                    as? com.astarworks.astera.core.domain.Result.Success)?.value ?: com.astarworks.astera.core.domain.skillengine.model.EngineConfig()
+                val report = SkillEngineContents(SkillEngineRegistries.catalog(tables, parts, com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(contentDir.resolve("sprites")), clutter, engineConfig)).reload(d)
                 val frameFailures = (frameErrors + listOfNotNull(skeletonError)).map { ContentLoader.LoadFailure(contentDir.resolve("frames"), "${it.path}: ${it.message}") }
                 ContentLoader.LoadReport(report.loaded, report.failed + frameFailures.size, report.failures + frameFailures)
             },

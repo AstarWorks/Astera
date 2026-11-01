@@ -40,6 +40,8 @@ internal object ParticlePlacement {
         if (parts.index == null && parts.point == null) {
             val doc = lc.anchors.document(parts.base)
             if (doc != null) {
+                // a ray anchor is re-evaluated by the player (look ray + block stop): it cannot be folded into frame terms, so it is read live by name
+                if (doc.ray != null) return Result.Success(Base(parts.base, emptyList(), parts.base))
                 // a sound / particle is a one-shot at its own tick: sampling the anchor then is exactly what `snapshot` means, so both modes place it alike
                 val parent = when (val p = base(lc, doc.anchor.toString(), op)) {
                     is Result.Failure -> return p
@@ -154,14 +156,14 @@ internal object ParticlePlacement {
         val a = end(resolved)
         val b = end(toBase)
         val rows = (0 until n).map { k ->
-            val t = k.toDouble() / (n - 1)
+            val t = anchor.from + (1.0 - anchor.from) * k.toDouble() / (n - 1)
             val source = OccurrenceBake.bake((listOf("lerp($a, $b, $t)") + displacement).joinToString(" + "), lc.occurrence)
             Placed(Val.Live("= $source", null), anchor.sweep, SegmentSample(k, n))
         }
         return Result.Success(rows)
     }
 
-    private fun componentSource(c: Value<Double>): String? = when (c) {
+    fun componentSource(c: Value<Double>): String? = when (c) {
         is Value.Literal -> c.value.toString()
         is Value.Expr -> "(${c.source})"
         is Value.ParamRef -> null

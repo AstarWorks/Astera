@@ -83,11 +83,15 @@ internal class SimSkillEngine private constructor(
     private val runner = DefaultCastRunner(player)
     private var sequence = 0L
     private var tickHandle: IScheduler.TaskHandle? = null
+    /** The last tick the engine ticked on: a scenario casts after `step`, so the cast starts on the next tick, as on Paper. */
+    private var tickedThrough = Long.MIN_VALUE
     private val subscriptions = ArrayList<IDomainEventBus.Subscription>()
     private val lastRightClick = ConcurrentHashMap<UUID, Long>()
 
     /** Problems reported by the host or the player (a skill missing from the catalog, a failed start, a table fault). */
     val problems: MutableList<String> = mutableListOf()
+    /** The catalog id each cast actually played, in order (a selected skin shows as `base@skin`). */
+    val castLog: MutableList<String> = mutableListOf()
 
     fun noteRightClick(caster: UUID) {
         lastRightClick[caster] = scheduler.currentTick()
@@ -98,6 +102,7 @@ internal class SimSkillEngine private constructor(
         tickHandle = scheduler.runRepeatingTicks(ExecutionScope.Global, 1L, 1L) {
             val now = scheduler.currentTick()
             runner.tick(now.toInt())
+            tickedThrough = now
             hooks.tick(now.toInt())
             movement.tick(now.toInt())
             live.retain(player.running().toSet())
@@ -126,7 +131,10 @@ internal class SimSkillEngine private constructor(
     }
 
     private fun onSkillCast(event: SkillCast) {
-        val id = event.skillId.value
+        val resolved = combat.skillVariantResolver.resolve(event.caster, event.skillId.value)
+        resolved.missingSkin?.let { problems += "skin $it of ${event.skillId.value} is not in the catalog; cast the base" }
+        val id = resolved.skillId
+        castLog += id
         val skill = combat.skillCatalog.get(id)
         if (skill == null) {
             problems += "skill $id is not in the catalog"
@@ -134,6 +142,9 @@ internal class SimSkillEngine private constructor(
         }
         val entity = sim.find(PlayerId(event.caster.uuid)) ?: return
         val d = entity.direction
+        // one clock per run (TablePlayer.startRun): the run starts on the first tick the engine will run for it
+        val now = scheduler.currentTick()
+        val startTick = if (tickedThrough >= now) now + 1 else now
         val request = CastRequest(
             skill = skill,
             caster = event.caster.uuid,
@@ -142,7 +153,7 @@ internal class SimSkillEngine private constructor(
             casterYawDeg = atan2(-d.x, d.z) * 180.0 / PI,
             casterPitchDeg = -asin(max(-1.0, min(1.0, d.y))) * 180.0 / PI,
             seed = (event.atTick xor simSeed) xor (sequence++ * -0x61c8864680b583ebL),
-            startTick = scheduler.currentTick().toInt(),
+            startTick = startTick.toInt(),
             heldItem = event.sourceItemId?.value ?: skill.def.item?.takeIf { it != "any" },
         )
         when (val started = runner.start(request)) {
@@ -206,9 +217,11 @@ internal class SimSkillEngine private constructor(
                 movement = movement,
                 items = SimSkillItemGateway(mcServer, combat, { services.get<ICooldownTracker>() }, { services.get<IResourcePoolService>() }),
                 world = ledger,
+                faultLedger = combat.skillFaults,
             )
             val hooks = SimPlayerHooks(scheduler, gameplay, live)
             player.config = combat.engineConfig
+            player.summonSkills = { id -> combat.skillCatalog.get(id) }
             player.hooks = hooks
             val engine = SimSkillEngine(sim, scheduler, services.getOrThrow<IDomainEventBus>(), combat, live, movement, hooks, player, ledger, visuals, simSeed)
             applyDamage.incomingInterceptor = engine.interceptor()

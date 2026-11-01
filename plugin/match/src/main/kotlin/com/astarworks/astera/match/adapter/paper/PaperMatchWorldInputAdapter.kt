@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.adapter.paper
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
@@ -38,8 +39,8 @@ public class PaperMatchWorldInputAdapter(
     private val scheduler: IScheduler,
 ) : Listener {
 
-    public fun start(plugin: JavaPlugin) {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners) {
+        listeners.register(this)
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

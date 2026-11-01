@@ -87,14 +87,22 @@ public class CombatWiringResult(
     public val skillGate: SkillMetaRegistry,
     /** The v2 skill catalog (ADR-0301), loaded from `content/skills` at install; the Paper runtime casts from it. */
     public val skillCatalog: com.astarworks.astera.core.application.skillengine.load.SkillCatalog,
+    /** Which catalog id a cast plays for its caster: the selected owned skin, else the base. */
+    public val skillVariantResolver: com.astarworks.astera.combat.application.service.skin.SkillVariantResolver,
+    /** Grants, revokes and selects skills' skins (admin command; shop and picker call it too). */
+    public val skillSkins: com.astarworks.astera.combat.application.usecase.skin.SkillSkinUseCase,
     /** Reloads `content/skills`; the Paper runtime calls it once the block registries exist so skills that named a custom block retry. */
     public val reloadSkills: () -> com.astarworks.astera.core.application.service.ContentLoader.LoadReport,
+    /** `/astera skill reload <id>`: re-reads only that skill's files (and its patches) and swaps the recomposed skills in. */
+    public val reloadSkill: (String) -> com.astarworks.astera.core.domain.Result<com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents.SkillReload, com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents.SkillReloadError>,
     /** Decoded `content/frames` point tables for the v2 compiler and point source. */
     public val frameTables: Map<String, com.astarworks.astera.core.application.skillengine.load.ItemFrames>,
     /** `content/frames/body.yaml`: the shared named points of the skin rig that `body` clips are read through. */
     public val bodySkeleton: com.astarworks.astera.core.domain.animation.skinrig.BodySkeleton,
     /** `content/engine/skill-engine.yaml`; the Paper runtime hands it to the table player (server caps). */
     public val engineConfig: com.astarworks.astera.core.domain.skillengine.model.EngineConfig,
+    /** Runtime fault counters the table player writes and `/astera skill faults` reads. */
+    public val skillFaults: com.astarworks.astera.core.application.skillengine.runtime.player.SkillFaultLedger,
     public val statusContents: StatusContents,
     public val armorContents: ArmorContents,
     public val applyDamage: ApplyDamageUseCase?,
@@ -102,8 +110,14 @@ public class CombatWiringResult(
     public val castSkill: CastSkillUseCase?,
     /** F3-11: keeps the lobby training dummies alive; `null` when the host supplied no dummy bodies. */
     public val trainingRange: com.astarworks.astera.combat.application.service.training.TrainingRangeService?,
+    private val bindActions: List<() -> Unit>,
     private val shutdownHooks: List<() -> Unit>,
 ) {
+    /** Runs the side effects install deferred (dummy spawns); paired with [shutdown]. */
+    public fun bind() {
+        bindActions.forEach { it() }
+    }
+
     /**
      * Stops the scheduler-driven pieces wiring started (cooldown HUD poll,
      * per-tick cooldown expiry). Subscriptions / registrations are closed by
@@ -128,6 +142,7 @@ public object CombatWiring {
         val registrations = ctx.registrations
         val subscriptions = ctx.subscriptions
         val shutdownHooks = mutableListOf<() -> Unit>()
+        val bindActions = mutableListOf<() -> Unit>()
 
         // 2. Build Combat-owned impls ------------------------------------------
         // Wave _infra-2b (ADR-0065): SkillContents / StatusContents / ArmorContents
@@ -156,9 +171,23 @@ public object CombatWiring {
         if (engine is com.astarworks.astera.core.domain.Result.Failure) logger.severe("[skill-error] engine/skill-engine.yaml: ${engine.error}")
         val engineConfig = (engine as? com.astarworks.astera.core.domain.Result.Success)?.value
             ?: com.astarworks.astera.core.domain.skillengine.model.EngineConfig()
-        val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries.catalog(frameTables, skillParts, com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(ctx.contentDir.resolve("sprites")), engineConfig)
+        // Load-time check 16 needs the vanilla particle lifetimes; without them every particle row fails loudly (an empty table names each id).
+        val clutter = when (val r = com.astarworks.astera.core.application.skillengine.compose.drycast.ClutterContext.load(
+            ctx.contentDir, bodySkeleton,
+        ) { clip -> runCatching { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>()?.find(com.astarworks.astera.core.domain.animation.player.CustomAnimationId(clip)) }.getOrNull() }) {
+            is com.astarworks.astera.core.domain.Result.Success -> r.value
+            is com.astarworks.astera.core.domain.Result.Failure -> {
+                logger.severe("[skill-error] engine/particle-lifetimes.yaml: ${r.error}")
+                com.astarworks.astera.core.application.skillengine.compose.drycast.ClutterContext(
+                    com.astarworks.astera.core.domain.skillengine.model.ParticleLifetimes(emptyMap()), emptyMap(), bodySkeleton, { null },
+                )
+            }
+        }
+        val skillCatalog = com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries.catalog(frameTables, skillParts, com.astarworks.astera.core.application.skillengine.compose.ContentSpriteCatalog.load(ctx.contentDir.resolve("sprites")), clutter, engineConfig, ports.vanillaKeys ?: com.astarworks.astera.core.application.skillengine.load.VanillaRegistryKeys)
         val skillEngineContents = com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents(skillCatalog, engineConfig = engine)
         val skillGate = SkillMetaRegistry(skillCatalog)
+        // runtime fault counters of the table player (read by `/astera skill faults`)
+        val skillFaults = ctx.stateful<com.astarworks.astera.core.application.skillengine.runtime.player.SkillFaultLedger> { com.astarworks.astera.core.application.skillengine.runtime.player.SkillFaultLedger() }
         val skillReport = skillEngineContents.reload(skillsContentDir)
         // A skill file that is not a v3 `kind: Skill` document is rejected here and does not run (never skipped silently).
         skillReport.failures.forEach { logger.severe("[skill-error] ${it.file}: ${it.message}") }
@@ -186,7 +215,8 @@ public object CombatWiring {
         val damageRandomizer = services.get<IDamageRandomizer>() ?: KotlinRandomDamageRandomizer()
 
         // Wave 5a-fix2 — sliding-window damage history for assist attribution (ADR-0063)
-        val damageHistory = InMemoryDamageHistoryService()
+        // Carried across a rewire (ADR-0311): the assist window keeps its hits.
+        val damageHistory: IDamageHistoryService = ctx.stateful<IDamageHistoryService> { InMemoryDamageHistoryService() }
 
         // Wave 5o (ADR-0081) — status-effect interaction matrix.
         // YAML at content/balance/status-effect-interactions.yaml is loaded
@@ -223,7 +253,6 @@ public object CombatWiring {
         if (services.get<IDamageRandomizer>() == null) {
             registrations += services.register<IDamageRandomizer>(damageRandomizer)
         }
-        registrations += services.register<IDamageHistoryService>(damageHistory)
         registrations += services.register<IStatusEffectInteractionRule>(statusInteractionRule)
 
 
@@ -324,22 +353,20 @@ public object CombatWiring {
         // / AllOf) live in :plugin:core and are decodable from YAML today;
         // the lifecycle service learns to evaluate them in Wave 6b via
         // BossPhaseTransitionEvaluator (already wired by AsteraCorePlugin).
-        val depthEventBus = services.getOrThrow<IDomainEventBus>()
+        // Carried trackers publish on the carried bus: a retiring generation must not cancel their subscriptions.
+        val depthEventBus = ctx.carriedEventBus
         val comboRouteContents = ComboRouteContents()
         val comboContentDir = ctx.contentDir.resolve("combat-depth/combos")
         val comboReport = comboRouteContents.bootstrap(comboContentDir)
         logger.info("Combo routes loaded: ${comboReport.loaded} ok, ${comboReport.failed} failed")
 
-        val comboTracker = InMemoryComboTracker(depthEventBus)
+        val comboTracker: IComboTracker = ctx.stateful<IComboTracker> { InMemoryComboTracker(depthEventBus) }
         comboRouteContents.all().forEach { comboTracker.registerRoute(it) }
-        registrations += services.register<IComboTracker>(comboTracker)
         reloadRegistry.register(comboRouteContents, comboContentDir)
 
-        val focusFireTracker = InMemoryFocusFireTracker(depthEventBus)
-        registrations += services.register<IFocusFireTracker>(focusFireTracker)
+        val focusFireTracker: IFocusFireTracker = ctx.stateful<IFocusFireTracker> { InMemoryFocusFireTracker(depthEventBus) }
 
-        val targetLockController = InMemoryTargetLockController(depthEventBus)
-        registrations += services.register<ITargetLockController>(targetLockController)
+        val targetLockController: ITargetLockController = ctx.stateful<ITargetLockController> { InMemoryTargetLockController(depthEventBus) }
 
         // 4. Wire use cases if runtime impls are present -----------------------
         val eventBus = services.getOrThrow<IDomainEventBus>()
@@ -388,8 +415,9 @@ public object CombatWiring {
         // at priority 100. Bukkit PotionEffect is UI mirror only per
         // ADR-0149 §C — Astera-internal map is source of truth. (Paper's
         // companion StatusEffectTickListener is started by the Paper step.)
+        // Carried across a rewire (ADR-0311): active statuses keep counting down on the new generation.
         ports.statusEffectContainer?.let {
-            registrations += services.register<IStatusEffectContainer>(it(services), priority = 100)
+            ctx.stateful<IStatusEffectContainer>(priority = 100) { it(services) }
         }
 
         // WP3: non-player (mob) damage. Optional: without a host impl mobs are
@@ -406,7 +434,8 @@ public object CombatWiring {
                 scheduler = services.getOrThrow<IScheduler>(),
                 messages = services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>(),
             ).also { service ->
-                service.start()
+                // Spawns the dummies: a side effect, so it waits for bind.
+                bindActions += { service.start() }
                 shutdownHooks += { service.stop() }
             }
         }
@@ -439,10 +468,7 @@ public object CombatWiring {
 
         // F1-D (ADR-0183): admin god mode, consulted by ApplyDamageUseCase.
         val godModeService: com.astarworks.astera.combat.application.port.outbound.IGodModeService =
-            services.get<com.astarworks.astera.combat.application.port.outbound.IGodModeService>()
-                ?: com.astarworks.astera.combat.application.service.InMemoryGodModeService().also {
-                    registrations += services.register<com.astarworks.astera.combat.application.port.outbound.IGodModeService>(it, priority = 0)
-                }
+            ctx.stateful<com.astarworks.astera.combat.application.port.outbound.IGodModeService> { com.astarworks.astera.combat.application.service.InMemoryGodModeService() }
 
         // Wave 6a-1 5paper-sweep-knockback (ADR-0144): Paper knockback
         // adapter overlays NoOpKnockbackGateway at priority 100. Reads
@@ -556,8 +582,7 @@ public object CombatWiring {
                 services.get<com.astarworks.astera.core.application.port.outbound.IParticleRegistry>()
             val soundRegistry =
                 services.get<com.astarworks.astera.core.application.port.outbound.effect.ISoundRegistry>()
-            val summonRegistry = SummonRegistry { services.get<IMatchTeamLookup>() }
-            registrations += services.register<SummonRegistry>(summonRegistry)
+            val summonRegistry = ctx.stateful { SummonRegistry { services.get<IMatchTeamLookup>() } }
             val castSkill = CastSkillUseCase(
                 skillRegistry = skillGate,
                 statusContainer = statusContainer,
@@ -725,18 +750,29 @@ public object CombatWiring {
         } else {
             null
         }
-        ctx.commandMount("Astera-Combat").register(
+        // Skill skins (engine-gaps-v2 2.3): Persistence's Postgres repository (priority 100) wins over this in-memory default.
+        ctx.stateful<com.astarworks.astera.combat.application.port.outbound.skin.ISkillSkinRepository> {
+            com.astarworks.astera.combat.application.service.skin.InMemorySkillSkinRepository()
+        }
+        val skinRepository: () -> com.astarworks.astera.combat.application.port.outbound.skin.ISkillSkinRepository = {
+            services.getOrThrow<com.astarworks.astera.combat.application.port.outbound.skin.ISkillSkinRepository>()
+        }
+        val skillVariantResolver = com.astarworks.astera.combat.application.service.skin.SkillVariantResolver(skinRepository, skillCatalog::get)
+        val skillSkins = com.astarworks.astera.combat.application.usecase.skin.SkillSkinUseCase(skinRepository, skillCatalog::get)
+        ctx.commandMount().register(
             com.astarworks.astera.combat.command.skillCommandSpec(
                 adminSkillCaster,
                 services.getOrThrow<com.astarworks.astera.core.adapter.api.server.IMcServer>(),
                 previewService,
                 reload = { id -> skillEngineContents.reloadSkill(skillsContentDir, id) },
                 knownSkillIds = { skillCatalog.ids() },
+                skins = skillSkins,
                 expand = com.astarworks.astera.combat.adapter.paper.command.skillExpandSubcommand(
                     ids = { skillCatalog.ids() },
                     tableOf = { id -> skillCatalog.get(id)?.table },
                     outDir = java.nio.file.Path.of(engineConfig.expandDir),
                 ),
+                faults = skillFaults,
             ),
         )
         // UI-12: `/astera status [id]` lookup and `/astera status codex` (the status codex GUI).
@@ -744,7 +780,7 @@ public object CombatWiring {
         val statusPlayers = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerGateway>()
         if (statusMessages != null && statusPlayers != null) {
             val guiRegistry = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiRegistry>()
-            ctx.commandMount("Astera-Combat").register(
+            ctx.commandMount().register(
                 com.astarworks.astera.combat.command.statusCommandSpec(
                     codex = com.astarworks.astera.combat.application.service.StatusCodex(statusContents, statusMessages),
                     players = statusPlayers,
@@ -758,8 +794,12 @@ public object CombatWiring {
         return CombatWiringResult(
             skillGate = skillGate,
             skillCatalog = skillCatalog,
+            skillVariantResolver = skillVariantResolver,
+            skillSkins = skillSkins,
+            skillFaults = skillFaults,
             engineConfig = engineConfig,
             reloadSkills = { skillEngineContents.reload(skillsContentDir) },
+            reloadSkill = { id -> skillEngineContents.reloadSkill(skillsContentDir, id) },
             frameTables = frameTables,
             bodySkeleton = bodySkeleton,
             statusContents = statusContents,
@@ -768,6 +808,7 @@ public object CombatWiring {
             applyStatus = applyStatusOut,
             castSkill = castSkillOut,
             trainingRange = trainingService,
+            bindActions = bindActions.toList(),
             shutdownHooks = shutdownHooks.toList(),
         )
     }

@@ -12,6 +12,8 @@ import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
 import com.astarworks.astera.core.application.skillengine.load.grammar.Grammar
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRef
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
 import com.astarworks.astera.core.application.skillengine.load.grammar.ItemPart
 import com.astarworks.astera.core.application.skillengine.load.grammar.Span
@@ -84,6 +86,9 @@ public data class ProjectileBlock(
     val fused: Boolean = false,
 )
 
+/** `homing:` (ADR-0313): the body turns its heading toward [target] by at most [turnDegPerTick] each tick; [acquire] is the pick radius in blocks. */
+public data class ProjectileHoming(val target: String, val turnDegPerTick: Value<Double>, val acquire: Value<Double>)
+
 /**
  * Decoded `projectile` op (ADR-0303 3.6). The flight length is the timing block's `for` and/or `range`; `times` makes a family (the unroller supplies `i`), while `every`, `until`
  * and `lasts` are not accepted (repeat a projectile with a group). The handler lists of `on:` are ops of any kind, so they are kept raw in [rawOn] and decoded by
@@ -95,7 +100,10 @@ public class ProjectileOp(
     override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
-    public val origin: String,
+    /** The anchor the body is spawned at; null when [originFrame] places it. */
+    public val origin: String?,
+    /** ADR-0314: the `frames:` entry (and `pos:` coefficients) the body is spawned at, oriented by the frame. */
+    public val originFrame: FrameRef?,
     /** E1: `parts.<name>` of `content/frames/<item>.yaml`; the body takes its points and axes (`volley.tip`), oriented by the body's live rotation. */
     public val part: String?,
     public val velocity: Value<Vec3>,
@@ -107,12 +115,13 @@ public class ProjectileOp(
     public val block: ProjectileBlock,
     public val gravity: Value<Double>?,
     public val drag: Value<Double>?,
+    public val homing: ProjectileHoming?,
     public val rawOn: Map<ProjectileEvent, List<Any?>>,
     public val handlers: Map<ProjectileEvent, List<OpNode>> = emptyMap(),
     public val lowerHandlers: HandlerLowering? = null,
 ) : OpNode {
     public fun withHandlers(decoded: Map<ProjectileEvent, List<OpNode>>, lowering: HandlerLowering): ProjectileOp =
-        ProjectileOp(id, src, whenExpr, timing, origin, part, velocity, speed, range, radius, hit, motion, block, gravity, drag, rawOn, decoded, lowering)
+        ProjectileOp(id, src, whenExpr, timing, origin, originFrame, part, velocity, speed, range, radius, hit, motion, block, gravity, drag, homing, rawOn, decoded, lowering)
 }
 
 public object ProjectileOpSpec : OpSpec<ProjectileOp> {
@@ -198,7 +207,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
 
     private val onFields: Fields = Fields.of("projectile-on", *onEventFields.values.toTypedArray())
 
-    private val origin = Field.required("origin", Types.id, "anchor the body is spawned at (muzzle, caster.eye, contact, a frame id)")
+    private val origin = Field.optional("origin", Types.nullable(Types.id), null, "anchor the body is spawned at (muzzle, caster.eye, contact, an instance id); or frame: <id> + pos: {v, w, s} (ADR-0314)")
     private val velocity = Field.required("velocity", Types.worldVec3, "launch direction (blocks per tick when `speed` is absent)")
     private val partF = ItemPart.field
     private val speed = Field.optional("speed", Types.nullable(speedType), null, "blocks per tick or a ramp; required with `range` (the end tick must be static); absent = |velocity|")
@@ -209,9 +218,14 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
     private val block = Field.required("block", Types.nested(blockFields))
     private val gravity = Field.optional("gravity", Types.nullable(Types.number), null, "blocks per tick squared, down")
     private val drag = Field.optional("drag", Types.nullable(Types.number), null, "speed fraction lost per tick")
+    private val homingTarget = Field.required("target", Types.enumOf("enemy"), "enemy: the nearest living enemy body within `acquire` of the body, re-picked every tick")
+    private val homingTurn = Field.required("turn_deg_per_tick", Types.number, "largest heading change per tick in degrees; > 0")
+    private val homingAcquire = Field.required("acquire", Types.number, "blocks around the body in which a target is picked; none in range = fly straight on the current heading")
+    private val homingFields = Fields.of("projectile-homing", homingTarget, homingTurn, homingAcquire)
+    private val homing = Field.optional("homing", Types.nullable(Types.nested(homingFields)), null, "ADR-0313: steer toward a target each tick instead of flying a fixed line; deterministic, no randomness")
     private val on = Field.optional("on", Types.nullable(Types.nested(onFields)), null, "handlers by event: hit, bounce, stick, unstick, block, expire, end")
 
-    override val fields: Fields = Fields.of("projectile", origin, partF, velocity, speed, range, radius, hit, motion, block, gravity, drag, on)
+    override val fields: Fields = Fields.of("projectile", origin, FrameRefs.FRAME, FrameRefs.POS, partF, velocity, speed, range, radius, hit, motion, block, gravity, drag, homing, on)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<ProjectileOp, SkillDecodeError> =
         Grammar.guard {
@@ -283,8 +297,10 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                 }
             }
 
+            val originFrame = FrameRefs.read(values, ctx, path, anchorGiven = values[origin] != null)
+            if (originFrame == null && values[origin] == null) ctx.fail("$path.origin", "projectile needs origin: <anchor> or frame: <id> (ADR-0314)")
             val keys = values[motion]?.let { m -> LawSource(m, ctx.forLaws(com.astarworks.astera.core.application.skillengine.load.grammar.PartAxes(ctx.lawAxes(values[partF]))), "$path.motion").also { it.probe(timing?.times?.let { t -> ctx.resolveNumber(t) }?.toInt()?.coerceAtLeast(1) ?: 1) } }
-            ProjectileOp(id, src, whenExpr, timing, values[origin], values[partF], values[velocity], values[speed], values[range], values[radius], hitSpec, keys, blockSpec, values[gravity], values[drag], raw)
+            ProjectileOp(id, src, whenExpr, timing, values[origin], originFrame, values[partF], values[velocity], values[speed], values[range], values[radius], hitSpec, keys, blockSpec, values[gravity], values[drag], values[homing]?.let { ProjectileHoming(it[homingTarget], it[homingTurn], it[homingAcquire]) }, raw)
         }
 
     /** The events a body of this mode can fire (3.6): `pass` has no block events; `blocks_only` has no victim hit. */
@@ -416,42 +432,66 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
             if (op.block.mode == "stick") look["block.for"] = Val.Known(stickTicks.toDouble())
             op.gravity?.let { look["gravity"] = num(it) }
             op.drag?.let { look["drag"] = num(it) }
+            op.homing?.let { h ->
+                if (op.origin?.let { lc.anchors.resolve(it)?.instance } != null) return bad("homing needs a world origin (a builtin or document anchor), not the frame instance '${op.origin}': the steering reads world positions")
+                val turn = number("homing.turn_deg_per_tick", h.turnDegPerTick).getOr { return Result.Failure(it) }
+                val acquire = number("homing.acquire", h.acquire).getOr { return Result.Failure(it) }
+                if (turn <= 0.0 || turn > 180.0) return bad("homing.turn_deg_per_tick must be in (0, 180], got $turn")
+                if (acquire <= 0.0) return bad("homing.acquire must be positive, got $acquire")
+                look["homing.target"] = Val.Known(h.target)
+                look["homing.turn"] = Val.Known(turn)
+                look["homing.acquire"] = Val.Known(acquire)
+            }
             op.block.friction?.let { look["block.friction"] = num(it) }
             if (op.block.fused) look["block.fused"] = Val.Known(true)
             if (op.hit.reflect) look["hit.reflect"] = Val.Known(true)
             look["end.min"] = Val.Known(endTicks.min.toDouble())
             look["end.max"] = Val.Known(window.max.toDouble())
 
-            val anchor = lc.anchors.resolve(op.origin)?.instance
-            // a `frames_in` name is spelled by the caller's frame (AnchorNames.host) in every cell the player reads
-            val originHost = AnchorNames.host(lc.anchors, op.origin)
             val one = Val.Known(Vector3d(1.0, 1.0, 1.0))
-            // a document `anchors:` entry (ADR-0303 1) is no frame instance and no live name: it lowers to its parent frame plus its offset as one
-            // `= expr` cell, exactly as a sound / particle placement does; only a builtin or an instance is a bare live anchor cell
+            val anchor: InstanceId?
+            val originHost: String
             val originPosition: Val<Vector3d>
             val originRotation: Val<Quaterniond>
-            if (anchor == null && lc.anchors.document(AnchorNames.split(op.origin)?.base ?: op.origin) != null) {
-                originPosition = when (val r = ParticlePlacement.position(lc, op.origin, "projectile")) {
-                    is Result.Failure -> return r
-                    is Result.Success -> r.value
-                }
-                val base = when (val r = ParticlePlacement.base(lc, op.origin, "projectile")) {
-                    is Result.Failure -> return r
-                    is Result.Success -> r.value ?: return bad("origin '${op.origin}' is not declared in this scope")
-                }
-                // the shot's aim is the rotation of the anchor's parent frame; a `point(frame, 'name')` parent reads as the cell `frame.name`
-                val frameName = Regex("^point\\((.+), '(.+)'\\)$").matchEntire(base.frame)?.let { "${it.groupValues[1]}.${it.groupValues[2]}" } ?: base.frame
-                originRotation = Val.Live("anchor:$frameName", null)
+            val originFrame = op.originFrame
+            val originName = op.origin
+            if (originFrame != null) {
+                // ADR-0314: the body starts at the frame point `pos:` and faces the frame (`v` forward, `w` up); no instance parent, the
+                // frame table is read by cell name at the spawn tick
+                anchor = null
+                originHost = originFrame.cell
+                originPosition = originFrame.position()
+                originRotation = Val.Live(originFrame.cell, null)
             } else {
-                if (anchor == null) {
-                    // not an instance and not a document anchor: it must be a builtin (`caster`, `contact`, ...); an undeclared name would only fail at the first cast
-                    when (val r = ParticlePlacement.base(lc, op.origin, "projectile")) {
+                originName ?: return Result.Failure(SkillDecodeError.MissingField(lc.skillId, src.value, "origin"))
+                anchor = lc.anchors.resolve(originName)?.instance
+                // a `frames_in` name is spelled by the caller's frame (AnchorNames.host) in every cell the player reads
+                originHost = AnchorNames.host(lc.anchors, originName)
+                // a document `anchors:` entry (ADR-0303 1) is no frame instance and no live name: it lowers to its parent frame plus its offset as one
+                // `= expr` cell, exactly as a sound / particle placement does; only a builtin or an instance is a bare live anchor cell
+                if (anchor == null && lc.anchors.document(AnchorNames.split(originName)?.base ?: originName) != null) {
+                    originPosition = when (val r = ParticlePlacement.position(lc, originName, "projectile")) {
                         is Result.Failure -> return r
-                        is Result.Success -> if (r.value == null) return bad("origin '${op.origin}' is not declared in this scope (a builtin, a frame or body id, or an 'anchors:' entry)")
+                        is Result.Success -> r.value
                     }
+                    val base = when (val r = ParticlePlacement.base(lc, originName, "projectile")) {
+                        is Result.Failure -> return r
+                        is Result.Success -> r.value ?: return bad("origin '$originName' is not declared in this scope")
+                    }
+                    // the shot's aim is the rotation of the anchor's parent frame; a `point(frame, 'name')` parent reads as the cell `frame.name`
+                    val frameName = Regex("^point\\((.+), '(.+)'\\)$").matchEntire(base.frame)?.let { "${it.groupValues[1]}.${it.groupValues[2]}" } ?: base.frame
+                    originRotation = Val.Live("anchor:$frameName", null)
+                } else {
+                    if (anchor == null) {
+                        // not an instance and not a document anchor: it must be a builtin (`caster`, `contact`, ...); an undeclared name would only fail at the first cast
+                        when (val r = ParticlePlacement.base(lc, originName, "projectile")) {
+                            is Result.Failure -> return r
+                            is Result.Success -> if (r.value == null) return bad("origin '$originName' is not declared in this scope (a builtin, a frame or body id, or an 'anchors:' entry)")
+                        }
+                    }
+                    originPosition = Val.Live("anchor:$originHost.position", null)
+                    originRotation = Val.Live("anchor:$originHost.rotation", null)
                 }
-                originPosition = Val.Live("anchor:$originHost.position", null)
-                originRotation = Val.Live("anchor:$originHost.rotation", null)
             }
             val rows = ArrayList<Row>()
             rows += Row(
@@ -509,7 +549,7 @@ public object ProjectileOpSpec : OpSpec<ProjectileOp> {
                     val prefix = InstanceId(body.path.dropLast(1) + InstanceId.Segment(OpId(op.id.value + "." + e.key), body.path.last().index))
                     val hc = LowerContext(
                         lc.skillId, lc.state, prefix, lc.occurrence, 0, lc.anchors, lc.frames, lc.parts, lc.skills, lc.item, lc.sprites, lc.conditions, lc.exprs,
-                        lc.config, lc.seed, com.astarworks.astera.core.domain.skillengine.table.SrcPath(src.value + ".on." + e.key), hitScope = e == ProjectileEvent.HIT || e == ProjectileEvent.ABSORBED,
+                        lc.config, lc.seed, com.astarworks.astera.core.domain.skillengine.table.SrcPath(src.value + ".on." + e.key), hitScope = e == ProjectileEvent.HIT || e == ProjectileEvent.ABSORBED, keys = lc.keys,
                     )
                     val lo = when (val r = lowering.lower(handlerNodes, hc)) {
                         is Result.Success -> r.value

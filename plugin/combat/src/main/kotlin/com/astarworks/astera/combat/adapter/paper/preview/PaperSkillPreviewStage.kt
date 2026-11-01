@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.adapter.paper.preview
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.combat.application.port.outbound.ISkillPreviewStage
 import com.astarworks.astera.combat.application.port.outbound.PreviewStage
 import com.astarworks.astera.combat.application.port.outbound.PreviewStageSpec
@@ -27,7 +28,7 @@ import java.util.UUID
  * camera with gamemode + location restore (also on quit). Dummies are non-persistent and tagged so strays
  * from a crash are swept on the next spawn. Main thread only.
  */
-internal class PaperSkillPreviewStage(plugin: JavaPlugin) : ISkillPreviewStage, Listener {
+internal class PaperSkillPreviewStage(plugin: JavaPlugin, listeners: OwnedListeners) : ISkillPreviewStage, Listener {
 
     private class Saved(val mode: GameMode, val location: Location)
 
@@ -37,7 +38,7 @@ internal class PaperSkillPreviewStage(plugin: JavaPlugin) : ISkillPreviewStage, 
     private var swept = false
 
     init {
-        server.pluginManager.registerEvents(this, plugin)
+        listeners.register(this)
     }
 
     override fun spawn(spec: PreviewStageSpec): PreviewStage? {

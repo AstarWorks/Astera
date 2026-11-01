@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.world
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer
 import com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
@@ -40,8 +41,8 @@ public class PaperCoverToolListener(
     private val exclusion: () -> IAreaBreakExclusion?,
 ) : Listener {
 
-    public fun start(plugin: JavaPlugin) {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners) {
+        listeners.register(this)
     }
 
     @EventHandler(priority = EventPriority.HIGH)

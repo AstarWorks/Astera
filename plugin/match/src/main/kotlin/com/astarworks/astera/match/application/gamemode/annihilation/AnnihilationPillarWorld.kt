@@ -35,12 +35,12 @@ public class AnnihilationPillarWorld(
     private val matches: IMatchRepository,
     private val playerGateway: IPlayerGateway,
     private val messages: IMessageRenderer,
+    /** Pillar blocks currently placed per match (nexus id -> block position), to clear at match end; carried across a rewire. */
+    private val placed: MutableMap<MatchId, Placed> = mutableMapOf(),
 ) {
 
-    private data class Placed(val world: WorldId, val blocks: Map<String, Vec3>)
+    public data class Placed(val world: WorldId, val blocks: Map<String, Vec3>)
 
-    /** Pillar blocks currently placed per match (nexus id -> block position), to clear at match end. */
-    private val placed: MutableMap<MatchId, Placed> = mutableMapOf()
 
     /** Subscribe to the pillar and match events. Returns the handles for the wiring's cancel list. */
     public fun subscribe(eventBus: IDomainEventBus): List<IDomainEventBus.Subscription> = listOf(

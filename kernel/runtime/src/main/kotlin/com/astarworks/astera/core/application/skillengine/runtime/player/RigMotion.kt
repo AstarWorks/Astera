@@ -48,12 +48,17 @@ internal class RigBodyTrack(private val animation: SkinRigAnimation, private val
 
     private fun at(tick: Int): Landmark = tick.coerceIn(0, animation.lengthTicks).let { t -> cache.getOrPut(t) { compute(t) } }
 
-    private fun compute(tick: Int): Landmark {
-        val frame = RigFrame(
-            root = pose(animation.root, tick.toDouble()),
-            bones = SkinRigBone.entries.associateWith { pose(animation.bones[it], tick.toDouble()) },
+    /** The whole-body pose at integer rig tick [tick] (clamped to the clip): what the driven puppet is shown (ADR-0315). */
+    fun frameAt(tick: Int): RigFrame = tick.coerceIn(0, animation.lengthTicks).let { t ->
+        RigFrame(
+            root = pose(animation.root, t.toDouble()),
+            bones = SkinRigBone.entries.associateWith { pose(animation.bones[it], t.toDouble()) },
             leftHandGrip = if (animation.twoHandGrip) 1.0 else 0.0,
         )
+    }
+
+    private fun compute(tick: Int): Landmark {
+        val frame = frameAt(tick)
         val arm = if (off) SkinRigTransforms.leftArm(frame, slim) else SkinRigTransforms.rightArm(frame, slim)
         return Landmark(arm.joint, Quaternion(arm.rotation.x, arm.rotation.y, arm.rotation.z, arm.rotation.w))
     }

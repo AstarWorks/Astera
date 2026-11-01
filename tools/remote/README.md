@@ -27,9 +27,15 @@ make vfx-shot SKILL=... | anim-shot | vfx-shot-status|down|reap | build | check 
 3. **Pull** (VM -> local, also after a failed run). `--pull <path-or-glob>` is rsynced back to the same relative path
    (never `--delete`; `.state/`, `.clients/`, `*.lock` skipped; missing paths are fine).
 
+   **Failure diagnostics** (automatic, only when the remote command exits non-zero; an exit-0 run pulls nothing extra):
+   `--kind gradle` pulls every `**/build/test-results/**/*.xml` and prints `FAILED <class>#<name>: <first message line>` per
+   failed/errored testcase (max 30) plus the XML paths; no XML means a compile/config failure (read the log). `--kind vfx`
+   pulls `build/vfx-shot/failed/<skill>-<shotid>/` (`server.log`, `trace.log` = the `[vfx|skill-trace]` lines, `phases.log`,
+   `caster-bot.log`), which vfx-shot's EXIT trap writes before it tears the compose stack down.
+
 Env vars named by `--env NAME|PREFIX*` are forwarded (vfx knobs `VIEW CASE TICKS ... SHOT_*`; `SHOT_CACHE/LOCK/REGISTRY/SLOT_DIR`
 are host paths and dropped). The remote vfx defaults live in one block in `remote-exec.sh`: `SHOT_KEEP=0`, `SHOT_MIN_FREE_GB=3`,
-`SHOT_CLIENT_XMX=1024m`, `LP_NUM_THREADS=3`, `SHOT_REAP_SCOPE=host`, `SHOT_COMPOSE_EXTRA` (caller values win except SHOT_KEEP).
+`SHOT_CLIENT_XMX=1024m` (the caster is a protocol bot, see tools/vfx-shot/README.md), `LP_NUM_THREADS=3`, `SHOT_REAP_SCOPE=host`, `SHOT_COMPOSE_EXTRA` (caller values win except SHOT_KEEP).
 
 `tools/remote/run.sh --dry-run ...` prints the planned git/rsync/ssh commands and the env file without connecting.
 
@@ -58,7 +64,8 @@ Gradle run, both inside the runner cgroup) + shot server `mem_limit` 3g + pack h
 |---|---|---|
 | `ASTERA_HEAVY_HOST` | `astera@192.168.14.3` | ssh target; **set but empty = run locally** (old behaviour); `ASTERA_HEAVY_INSIDE=1` (inside the runner) also runs locally |
 | `ASTERA_HEAVY_BASE` | `astera-heavy` | VM base dir (relative to its home) |
-| `HEAVY_SLOTS` | 1 (`heavy.env`) | concurrent runner containers on the VM |
+| `HEAVY_SLOTS` | 1 (`heavy.env`) | concurrent vfx runner containers on the VM |
+| `GRADLE_SLOTS` | 1 (`heavy.env`) | dedicated lane for `--kind gradle` (lock `gslot.N`); vfx never takes it, gradle never takes a vfx slot |
 | `HEAVY_MEM` | 4g (vfx and gradle) | runner memory cap (swap = same) |
 | `HEAVY_CPUS` | 6 | runner cpu cap, also Gradle workers |
 | `HEAVY_GRADLE_XMX` | 2g | Gradle JVM heap in the runner |

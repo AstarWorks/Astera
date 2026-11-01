@@ -25,6 +25,7 @@ internal object StatusEffectArt {
         "silence" to "#.....#/.#####./..###../#######/..###../.#####./#.....#",
         "immunity" to "#######/#.....#/#.###.#/#.###.#/.#.#.#./..###../...#...",
         "swift" to "...#..#/..#..#./.#..#../#####../.#..#../..#..#./...#..#",
+        "root" to "...#.../...#.../..###../.#.#.#./#..#..#/.#.#.#./..###..",
     )
     private val colors = mapOf(
         "bleed" to 0xFFE45C76.toInt(),
@@ -45,6 +46,7 @@ internal object StatusEffectArt {
         "silence" to 0xFFE1B7FF.toInt(),
         "immunity" to 0xFFFFF2A8.toInt(),
         "swift" to 0xFF9CF2FF.toInt(),
+        "root" to 0xFFC9A66B.toInt(),
     )
     private val digits = listOf(
         "111/101/101/101/111",
@@ -86,7 +88,7 @@ internal object StatusEffectArt {
     /** 9 columns in stable glyph order; 8x nearest-neighbour magnification, including sample seconds/badges. */
     fun preview(): BufferedImage {
         val atlas = atlas()
-        val sheet = BufferedImage(9 * 18 * 8, 2 * 16 * 8, BufferedImage.TYPE_INT_ARGB)
+        val sheet = BufferedImage(9 * 18 * 8, ((StatusEffectHudGlyphs.IDS.size + 8) / 9) * 16 * 8, BufferedImage.TYPE_INT_ARGB)
         for (index in StatusEffectHudGlyphs.IDS.indices) {
             val ox = (index % 9) * 18
             val oy = (index / 9) * 16

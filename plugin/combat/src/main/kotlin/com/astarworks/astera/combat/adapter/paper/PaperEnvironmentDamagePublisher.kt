@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.adapter.paper
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.event.aoe.EnvironmentDamageApplied
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -125,8 +126,8 @@ public class PaperEnvironmentDamagePublisher(
     private val log = LoggerFactory.getLogger(javaClass)
 
     /** Register `@EventHandler`s on the provided plugin instance. */
-    public fun start(plugin: JavaPlugin) {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners) {
+        listeners.register(this)
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)

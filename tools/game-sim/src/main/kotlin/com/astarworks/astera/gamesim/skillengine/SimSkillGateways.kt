@@ -178,7 +178,7 @@ internal class SimSkillGameplayGateway(
             else -> return
         }
         val container = attributes.containerFor(PlayerId(victim))
-        val source = "skill-engine:modify_attribute:${UUID.randomUUID()}"
+        val source = "skill-engine:modify_attribute:${world.nextUuid()}"
         container.addModifier(AttributeModifier(key, op, value, source))
         if (durationTicks != null && durationTicks > 0) {
             scheduler.run(ExecutionScope.Entity(victim), com.astarworks.astera.core.application.port.outbound.ticks(durationTicks.toLong())) {
@@ -229,11 +229,17 @@ internal class SimSkillGameplayGateway(
 
     override fun bodySkeleton() = skeleton
 
-    override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double, holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold>) {}
+    override fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double) {}
+
+    override fun poseBody(cast: CastRef, target: UUID, frame: com.astarworks.astera.core.domain.animation.skinrig.RigFrame, anchor: com.astarworks.astera.core.domain.animation.skinrig.RigAnchor?) {}
 
     override fun isPlayer(entity: UUID): Boolean = world.find(PlayerId(entity))?.kind != com.astarworks.astera.gamesim.SimEntityKind.MOB
 
     override fun stopBodyClip(cast: CastRef, target: UUID, anim: String) {}
+
+    override fun showBody(cast: CastRef, target: UUID) {}
+
+    override fun hideBody(cast: CastRef, target: UUID) {}
 
     override fun setHeldModel(cast: CastRef, caster: UUID, model: String) {}
 
@@ -257,6 +263,12 @@ internal class SimSkillEntityQuery(
     /** Lazy: Match registers the structure targets (Annihilation pillars) after Combat wires; same as the Paper query. */
     private val structures: () -> com.astarworks.astera.core.application.port.outbound.IStructureTargets? = { null },
 ) : ISkillEntityQuery {
+    override fun bodiesNear(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitBox> =
+        nearby(cast, point, radius, excluding).map { it.box }
+
+    override fun enemyBodiesNear(cast: CastRef, point: Vec3, radius: Double): List<HitBox> =
+        nearby(cast, point, radius, cast.caster).filter { !isAlly(cast, cast.caster, it.entityId) }.map { it.box }
+
     override fun nearby(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate> {
         if (radius <= 0.0) return emptyList()
         val out = ArrayList<HitCandidate>()

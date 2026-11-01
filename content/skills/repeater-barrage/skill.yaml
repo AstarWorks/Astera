@@ -27,8 +27,7 @@ machine:
       on:
         - {event: bolt.end, to: end}
       enter:
-        - {id: snd, op: sound, sound: "item.crossbow.shoot", anchor: caster, volume: 0.9, pitch: 0.8}
-        - {id: fl0, op: particle_def, def: gun-muzzle-flash, anchor: muzzle}
+        - {id: fire_fx, use: gun-muzzle, with: {snd: "item.crossbow.shoot", vol: 0.9, pitch: 0.8, smoke: false}, frames: {muzzle: muzzle}}
       do:
         - {id: draw, op: body, target: caster, anim: crossbow-aim, speed: 1.0, at: 0, for: 14, detach: true}
         - id: bolt
@@ -49,6 +48,6 @@ machine:
               - {id: fx_blk0, op: particle_def, def: hit-spark, anchor: contact, detach: true}
         # the visible round, riding the body
         - {id: slug, op: display, kind: item, item: "minecraft:arrow", context: fixed, anchor: bolt, scale: [0.8, 0.8, 0.8], at: 0, until: bolt.end}
-        - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.05, 0.05, 0.05], at: 0, every: 1, until: bolt.end}
-        - {id: trail1, op: particle_def, def: smoke-dark, anchor: bolt, at: 0, every: 1, until: bolt.end}
+        - {id: trail0, op: particle, particle: crit, anchor: {of: bolt, sweep: 0.4}, count: 1, offset: [0.05, 0.05, 0.05], at: 2, every: 1, until: bolt.end}
+        - {id: trail1, op: particle_def, def: smoke-dark, anchor: bolt, at: 2, every: 1, until: bolt.end}
     end: {final: true}

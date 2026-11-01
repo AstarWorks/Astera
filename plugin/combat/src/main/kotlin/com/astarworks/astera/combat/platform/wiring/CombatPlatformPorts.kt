@@ -68,4 +68,6 @@ public class CombatPlatformPorts(
     public val skillPreviewStage: ((ServiceRegistry) -> com.astarworks.astera.combat.application.port.outbound.ISkillPreviewStage)? = null,
     public val tickRateControl: ((ServiceRegistry) -> com.astarworks.astera.combat.application.port.outbound.ITickRateControl)? = null,
     public val trainingDummyShells: ((ServiceRegistry) -> com.astarworks.astera.combat.application.port.outbound.ITrainingDummyShells)? = null,
+    /** Which block states / item keys the host knows, so a skill naming an unknown one fails at load; `null` = the bundled vanilla registry of the same MC version. */
+    public val vanillaKeys: com.astarworks.astera.core.application.skillengine.load.IVanillaKeyCatalog? = null,
 )

@@ -65,7 +65,7 @@ class ChainLightningBeamScenarioTest : SkillEngineScenario() {
         listOf(18.0, 12.6, 8.82, 6.174).forEachIndexed { i, e -> assertThat(amounts[i]).isCloseTo(e, org.assertj.core.data.Offset.offset(0.01)) }
         val shocks = calls.filter { it.verb == "status" && it.tick > hit }
         assertThat(shocks.map { it.payload }).describedAs(shocks.toString()).allMatch { it.contains("status=shock") }
-        assertThat(shocks.map { Regex("""for=(\d+)""").find(it.payload)!!.groupValues[1].toInt() }).containsExactly(16, 12, 8)
+        assertThat(shocks.map { Regex("""for=(\d+)""").find(it.payload)!!.groupValues[1].toInt() }).containsExactly(6, 4, 2)
     }
 
     @Test

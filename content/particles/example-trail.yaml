@@ -1,20 +1,7 @@
 # vanilla Trail particle: flies from the emission point to the VFX element's trail_to point
 id: example-trail
-shape:
-  kind: point
-color:
-  r: 140
-  g: 220
-  b: 255
+particle: trail
 count: 1
-lifetime_ticks: 10
-vanilla_particle: trail
-data:
-  kind: trail
-  toward: true
-  color:
-    r: 140
-    g: 220
-    b: 255
-  duration_ticks: 8
-force: true
+color: "#8cdcff"
+toward: true
+duration: 8

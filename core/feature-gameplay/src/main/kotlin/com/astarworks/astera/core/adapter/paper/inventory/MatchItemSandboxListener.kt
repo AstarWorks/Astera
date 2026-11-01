@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.inventory
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -22,8 +23,8 @@ public class MatchItemSandboxListener(
     private val isHeld: (PlayerId) -> Boolean,
 ) : Listener {
 
-    public fun start(plugin: JavaPlugin) {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners) {
+        listeners.register(this)
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)

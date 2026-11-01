@@ -11,7 +11,7 @@ public object StatusEffectHudGlyphs {
     /** Stable code point order; append new content IDs here. Every `content/status/` id plus the mechanic statuses (silence, immunity) must be here. */
     public val IDS: List<String> = listOf(
         "bleed", "burn", "charge", "dash", "evasive", "freeze", "poise", "poison",
-        "regen", "reloading", "rupture", "shock", "sinking", "tremor", "wet", "silence", "immunity", "swift",
+        "regen", "reloading", "rupture", "shock", "sinking", "tremor", "wet", "silence", "immunity", "swift", "root",
     )
     public fun icon(id: String): Char = (0xE300 + IDS.indexOf(id).also { require(it >= 0) }).toChar()
     public fun digit(value: Int): Char = (0xE320 + value.also { require(it in 0..9) }).toChar()

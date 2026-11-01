@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.hologram
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.HologramError
 import com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities
@@ -926,9 +927,9 @@ public class PaperHologramGateway(
      * `HandlerList.unregisterAll(plugin)` runs first — production code
      * should call this once and trust `onDisable` to clean up.
      */
-    public fun start(plugin: JavaPlugin) {
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners) {
         this.plugin = plugin
-        plugin.server.pluginManager.registerEvents(JoinReapplyListener(), plugin)
+        listeners.register(JoinReapplyListener())
     }
 
     /**

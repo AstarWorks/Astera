@@ -2,9 +2,11 @@ package com.astarworks.astera.combat.adapter.paper.skillengine
 
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayWrite
 import com.astarworks.astera.core.application.skillengine.runtime.port.ParticleBurst
+import com.astarworks.astera.core.domain.animation.skinrig.RigAnchor
+import com.astarworks.astera.core.domain.animation.skinrig.RigDisplayContract
+import com.astarworks.astera.core.domain.animation.skinrig.rigFrame
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayTransform
-import com.astarworks.astera.core.domain.effect.ParticleColor
 import com.astarworks.astera.core.domain.effect.ParticleDefinition
 import com.astarworks.astera.core.domain.effect.ParticleEmitContext
 import com.astarworks.astera.core.domain.effect.ParticleEmitter
@@ -69,6 +71,11 @@ public data class Intrinsic(val unit: Vec3, val centre: Vec3 = Vec3.ZERO) {
  *
  * A viewer-facing billboard owns the rotation, so [world] then carries only the origin and the display is never anchored
  * (a billboard turns the whole local frame: a passenger offset would swing with the camera).
+ *
+ * A rig mesh ([root] set, ADR-0315) is rooted as the puppet's bones are: `location` = the anchor feet with the body yaw (the client
+ * turns a FIXED display by its yaw), the pose expressed in that rig frame as the transformation, and the [RigDisplayContract]
+ * durations, so the weapon's position half and transformation half change in the same client ticks as the hand's. A rooted write
+ * carries no other interpolation length: [ticks] must be the contract's.
  */
 public fun toDisplayWrite(
     world: Frame,
@@ -78,9 +85,26 @@ public fun toDisplayWrite(
     ticks: Int,
     anchor: DisplayWrite.Anchor? = null,
     teleportTicks: Int? = null,
+    root: RigAnchor? = null,
 ): DisplayWrite {
     val scale = Vec3(size.x / intrinsic.unit.x, size.y / intrinsic.unit.y, size.z / intrinsic.unit.z)
     val centre = Vec3(intrinsic.centre.x * scale.x, intrinsic.centre.y * scale.y, intrinsic.centre.z * scale.z)
+    if (root != null) {
+        require(ticks == RigDisplayContract.INTERPOLATION_TICKS) { "a rig mesh writes with the puppet's interpolation (${RigDisplayContract.INTERPOLATION_TICKS}), not $ticks" }
+        require(billboard == DisplayBillboard.FIXED) { "a rig mesh is a FIXED display (the rig frame is its entity yaw), not $billboard" }
+        val rig = root.rigFrame()
+        val inverse = rig.rotation.conjugate()
+        val local = (inverse * world.rotation).normalized()
+        val localOrigin = inverse.rotate(world.origin - rig.origin)
+        return DisplayWrite(
+            at = rig.origin, yaw = root.yawDeg.toFloat(), pitch = 0f,
+            transform = DisplayTransform(localOrigin + local.rotate(centre), local, scale),
+            billboard = billboard,
+            interpolationDelay = 0, interpolationDuration = RigDisplayContract.INTERPOLATION_TICKS,
+            teleportDuration = RigDisplayContract.TELEPORT_TICKS,
+            anchor = null,
+        )
+    }
     return DisplayWrite(
         at = world.origin, yaw = 0f, pitch = 0f,
         transform = DisplayTransform(world.rotation.rotate(centre), world.rotation, scale),
@@ -128,23 +152,21 @@ private val CUSTOM_ID = Regex("^[a-z][a-z0-9-]*$")
  */
 public fun toParticleCalls(burst: ParticleBurst, definitions: (String) -> ParticleDefinition? = { null }): List<ParticleCall> {
     val definition = if (CUSTOM_ID.matches(burst.particle)) definitions(burst.particle) else null
-    val color = burst.colorHex?.let(::particleColor)
     if (definition != null) {
         val ctx = ParticleEmitContext(look = burst.dir ?: burst.look, random = kotlin.random.Random(burst.seed))
         return ParticleEmitter.plan(definition, burst.at, ctx, countOverride = burst.count)
-            .map { ParticleCall(it.at, if (color != null) it.spec.copy(color = color) else it.spec) }
+            .map { ParticleCall(it.at, if (burst.data != null) it.spec.copy(data = burst.data) else it.spec) }
     }
-    val scale = burst.dataSize?.toFloat() ?: 1.0f
     val dir = burst.dir
         ?: return listOf(
-            ParticleCall(burst.at, ParticleSpec(burst.particle, count = burst.count ?: 1, offset = burst.offset, extra = burst.speed, color = color, scale = scale)),
+            ParticleCall(burst.at, ParticleSpec(burst.particle, count = burst.count ?: 1, offset = burst.offset, extra = burst.speed, data = burst.data)),
         )
     val rng = Random(burst.seed)
     val axis = dir.normalize().takeIf { it.lengthSquared() > 0.0 }
     return List((burst.count ?: 1).coerceIn(0, MAX_PER_BURST)) {
         val direction = if (axis != null) cone(axis, burst.spreadDeg, rng) else Vec3.ZERO
         val velocity = direction * burst.speed + (burst.inheritVelocity ?: Vec3.ZERO)
-        ParticleCall(burst.at, ParticleSpec(burst.particle, count = 0, offset = velocity, extra = 1.0, color = color, scale = scale))
+        ParticleCall(burst.at, ParticleSpec(burst.particle, count = 0, offset = velocity, extra = 1.0, data = burst.data))
     }
 }
 
@@ -158,9 +180,4 @@ private fun cone(axis: Vec3, spreadDeg: Double, rng: Random): Vec3 {
     val a = axis.cross(helper).normalize()
     val b = axis.cross(a)
     return (axis + a * (r * cos(phi)) + b * (r * sin(phi))).normalize()
-}
-
-private fun particleColor(hex: String): ParticleColor? {
-    val rgb = hex.removePrefix("#").take(6).toIntOrNull(16) ?: return null
-    return ParticleColor((rgb shr 16) and 0xFF, (rgb shr 8) and 0xFF, rgb and 0xFF)
 }

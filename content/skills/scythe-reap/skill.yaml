@@ -1,4 +1,12 @@
-# scythe-reap: wind-up 4 ticks (rule round(5 / attack_speed)), hit at tick 4. Right-to-left reap: blade drawn back to the right, cut across the front.
+# scythe-reap: right-to-left reap of the scythe (wind-up 4 ticks, hit at tick 4).
+# Frames (ADR-0314, ADR-0315), the gameplay (hit tick, shape, damage, knockback, cooldown, cast length) is unchanged:
+#   arm    - the right arm, rotate keys only. Origin = the right shoulder (`caster.shoulder_r`); the arm is one rigid 0.60 bone, so the hand travels on a sphere about it and a turn of this frame is that travel (about w left/right, about s up/down). Hand path: guard -> wound out to the right -> a wide reap to the left -> guard.
+#   blade  - the scythe. Origin = the hand, 0.60 along the arm frame (the hand path is the arm's turn: guard -> drawn back high at the right -> across to the left -> guard). Long axis along v (grip at the origin), edge along w. Roll -80 about v lays the edge on the left, the cut is then a turn about s (v moves towards w), so the edge leads. The wind-up tips the point to the right (-60),
+#            the cut carries it across the front to the left (90, hit when the blade crosses the middle), `reset` eases back to guard.
+#            The engine pins the right hand to the origin; the origin sits exactly on the 0.60 reach sphere of the shoulder by construction.
+#   body   - the caster's feet, v forward / w up / s right: sounds and the cast fx.
+#   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
+#   edge   - line along the curved blade from its root (v 0.88, s 0.69) to its tip (v 0.13, s 0.82), what the trail rows draw along.
 apiVersion: astera/v3
 kind: Skill
 id: scythe-reap
@@ -9,9 +17,45 @@ params:
   range:        {type: blocks, default: 3.4}
   dmg_physical: {type: number, default: 28}
   knockback:    {type: number, default: 0.3}
-anchors:
-  - {id: sweep, anchor: caster.eye, offset: {up: -0.2, forward: 1.5}, mode: snapshot}
-  - {id: heart, anchor: victim.center, mode: follow}
+frames:
+  - id: arm
+    origin: caster.shoulder_r
+    v: forward
+    w: up
+    s: v x w
+    rotate:
+      - {at: 0, for: 0, about: w, to: -9}   # guard
+      - {at: 0, for: 3, about: w, to: -72, ease: in_out_sine}   # wind out to the right
+      - {at: 3, for: 3, about: w, to: 60, ease: out_cubic}   # the reap: a wide cut to the left
+      - {at: 6, for: 6, about: w, to: -9, ease: in_out_sine}   # back to guard
+      - {at: 0, for: 0, about: s, to: -41}
+      - {at: 0, for: 3, about: s, to: 1, ease: in_out_sine}
+      - {at: 3, for: 3, about: s, to: -34, ease: out_cubic}
+      - {at: 6, for: 6, about: s, to: -41, ease: in_out_sine}
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
+    rotate:
+      - {at: 0, for: 0, about: v, to: -80}  # roll the edge into the cut plane
+      - {at: 0, for: 3, about: s, to: -60, ease: in_out_sine}  # wind-up turn
+      - {at: 3, for: 3, about: s, to: 90, ease: out_cubic}  # the cut, edge first
+      - {at: 6, for: 6, reset: true, ease: in_out_sine}
+  - id: body
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+  - id: wound
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
+lines:
+  edge: {frame: blade, from: {v: 0.88, s: 0.69}, to: {v: 0.13, s: 0.82}}
 machine:
   start: windup
   tail: 10
@@ -20,20 +64,10 @@ machine:
       for: 4
       then: strike
       do:
-        - {id: snd_windup, op: sound, sound: item.armor.equip_chain, anchor: caster, volume: 0.5, pitch: 0.8}
+        - {id: snd_windup, op: sound, sound: item.armor.equip_chain, frame: body, volume: 0.5, pitch: 0.8}
         # weapon rig: right-to-left reap. One performance in the windup state, detached so it plays on through the strike and the tail:
         # drawn back over 3 ticks, the cut starts at tick 3 so the blade crosses the target zone at the hit (tick 4), then 6 ticks of follow-through.
-        - id: rig
-          op: rig
-          parent: caster
-          mount: caster.hand_r
-          rest: [{axis: left, deg: 72}]
-          detach: true
-          for: 12
-          swing:
-            - {at: 0, for: 3, from: {left: 0.000, up: 0.507, forward: 0.862}, to: {left: -0.958, up: 0.202, forward: -0.202}, edge: trailing, roll: 0, ease: out_quad}
-            - {at: 3, for: 3, to: {left: 0.909, up: -0.101, forward: 0.404}, edge: leading, roll: 0, ease: out_cubic}
-            - {at: 6, for: 6, to: {left: 0.834, up: 0.152, forward: -0.531}, edge: leading, roll: 0, ease: out_cubic}
+        - {id: rig, op: rig, frame: blade, for: 12, detach: true}
     strike:
       for: 1
       then: end
@@ -41,7 +75,7 @@ machine:
         - id: swing
           op: hit
           at: 0
-          anchor: caster.eye
+          frame: blade
           shape: {sector: {deg: "${arc_deg}", range: "${range}", height: 2.0, forward: look}}
           targets: enemies
           window: once
@@ -51,9 +85,9 @@ machine:
             hit:
               - {id: react, op: react, target: event.victim, flinch: true, for: 6}
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster))", strength: "${knockback}"}
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, volume: 0.7, pitch: 1.2, detach: true}
-              - {id: fx_hit, op: particle_def, def: hit-spark, anchor: heart, detach: true}
-        - {id: snd, op: sound, sound: entity.player.attack.sweep, anchor: caster, volume: 1.0, pitch: 1.0, detach: true}
-        - {id: fx, op: particle_def, def: slash-sweep, anchor: sweep, detach: true}
-        - {id: trail, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 6}, count: 1, extra: 0.04, at: 0, every: 1, for: 8, detach: true}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: wound, volume: 0.7, pitch: 1.2, detach: true}
+              - {id: fx_hit, op: particle_def, def: hit-spark, frame: wound, pos: {w: 0.2}, detach: true}
+        - {id: snd, op: sound, sound: entity.player.attack.sweep, frame: body, volume: 1.0, pitch: 1.0, detach: true}
+        - {id: fx, op: particle_def, def: slash-sweep, frame: body, pos: {v: 1.5, w: 1.42}, detach: true}
+        - {id: trail, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.04, at: 0, every: 1, for: 4, detach: true}
     end: {final: true}

@@ -1,10 +1,5 @@
 # contact spark where a piece bites in
 id: couture-s2-p-stick
-shape: {kind: burst, spread_blocks: 0.12}
-color: {r: 255, g: 255, b: 255}
+particle: electric_spark
 count: 3
-lifetime_ticks: 8
-vanilla_particle: electric_spark
-speed: 0.0
 velocity: {direction: outward, speed: 0.12, spread_degrees: 0, speed_jitter: 0.4}
-force: true

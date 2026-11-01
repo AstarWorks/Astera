@@ -52,6 +52,9 @@ public class OreNodeService(
     /** The player's Norma level, or null outside a Norma match (then no level gate applies and the level-1 multiplier is used). */
     private val levelOf: (PlayerId) -> Int? = { null },
     private val onInvalid: (stageId: String, reason: String) -> Unit = { _, _ -> },
+    /** Carried across a Match rewire: which nodes are mined or regrowing, and each player's last hit. */
+    private val lastHit: ConcurrentHashMap<PlayerId, Long> = ConcurrentHashMap(),
+    private val nodes: ConcurrentHashMap<Key, Node> = ConcurrentHashMap(),
 ) : IAreaBreakExclusion, IOreNodeStrikes {
     /** What one mining attempt did. */
     public sealed interface Outcome {
@@ -79,8 +82,8 @@ public class OreNodeService(
         public data class Mined(val dropped: List<Pair<String, Int>>) : Outcome
     }
 
-    private data class Key(val world: String, val x: Int, val y: Int, val z: Int)
-    private class Node(
+    public data class Key(val world: String, val x: Int, val y: Int, val z: Int)
+    public class Node(
         val matchId: MatchId,
         val world: WorldId,
         val pos: Vec3,
@@ -89,9 +92,7 @@ public class OreNodeService(
         var hp: Int = spec.maxHp,
     )
 
-    private val lastHit = ConcurrentHashMap<PlayerId, Long>()
 
-    private val nodes = ConcurrentHashMap<Key, Node>()
 
     public fun onStarted(event: MatchStarted) {
         val stage = stages?.find(event.stageId)

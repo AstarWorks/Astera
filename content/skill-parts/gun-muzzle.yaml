@@ -1,0 +1,24 @@
+# gun-muzzle: the report of a shot at the barrel (gun, crossbow, bow, thrown bomb): the shot sound, then a muzzle flash and / or a smoke puff.
+#   - {id: fire_fx, use: gun-muzzle, with: {snd: "astera:weapons/gun-shot", pitch: 1.2}, frames: {muzzle: muzzle}}
+# `flash: false` / `smoke: false` drop that particle. The sound plays at the caster; the particles at the `muzzle` frame.
+# The row ids (snd / flash / smoke) are part of the shipped goldens: rename them only together with `regenSkillOracle`.
+---
+apiVersion: astera/v3
+kind: Part
+id: gun-muzzle
+params:
+  snd:   {type: string, required: true}      # shot sound id
+  vol:   {type: number, default: 0.8}
+  pitch: {type: number, default: 1.2}
+  flash: {type: bool, default: true}         # the muzzle flash particle
+  smoke: {type: bool, default: true}         # the smoke puff particle
+frames_in: {muzzle: anchor}
+machine:
+  start: main
+  states:
+    main:
+      final: true
+      do:
+        - {id: snd, op: sound, at: 0, sound: "${snd}", anchor: caster, volume: "${vol}", pitch: "${pitch}"}
+        - {id: flash, op: particle_def, at: 0, def: gun-muzzle-flash, anchor: muzzle, when: "= ${flash}"}
+        - {id: smoke, op: particle_def, at: 0, def: gun-muzzle-smoke, anchor: muzzle, when: "= ${smoke}"}

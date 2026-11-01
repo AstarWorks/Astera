@@ -293,6 +293,7 @@ internal fun CoreWiringState.wireBossAndAdmin() {
         healthCheck = healthCheck,
         mobSpawner = mobSpawner,
         backupGateway = backupGateway,
+        rewireService = { services.get<com.astarworks.astera.core.application.wiring.IRewireService>() },
         mobIds = { services.get<com.astarworks.astera.core.application.port.outbound.mob.IMobRegistry>()?.all()?.map { it.id.value }.orEmpty() },
     )
     val adminOpsCount = AdminOpsCommands.registerAll(commands, adminOpsCommands)

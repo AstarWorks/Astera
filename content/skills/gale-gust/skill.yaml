@@ -1,5 +1,8 @@
 # Gale fan gust: a wide sector in front of the caster is damaged and shoved away (horizontal push plus a little lift). Re-authored from zero on ADR-0303 rev4.10.
-# One tick: hit, damage and knockback all on tick 0; the cast ends on tick 1.
+# One tick: hit, damage and knockback all on tick 0; the cast ends on tick 1. The wind (a fan of streaks sweeping out over 7 ticks
+# plus a cloud burst) is detached presentation so it outlives the one-tick cast; no gameplay row moves.
+# Frame grammar (ADR-0314): wind - the caster's feet (v forward, w up, s right): the streaks are placed and fly in its coefficients
+# (old `left` = -s), the cloud puff leaves 1.5 ahead of it. The sector selection sits on an eye frame (`sector`), the knockback direction stays a world expression. Gameplay unchanged.
 apiVersion: astera/v3
 kind: Skill
 id: gale-gust
@@ -12,9 +15,11 @@ params:
   knockback:    {type: number, default: 1.6}
   lift:         {type: number, default: 0.2}
   dmg_physical: {type: number, default: 10.0}
-anchors:
-  - {id: cast_fx, anchor: caster, offset: {forward: 1.5}, mode: follow}
+frames:
+  - {id: wind, origin: caster.feet, v: forward, w: up, s: right}
+  - {id: sector, origin: caster.eye, v: aim, w: s x v, s: right}
 machine:
+  tail: 8
   start: cast
   states:
     cast:
@@ -24,7 +29,8 @@ machine:
         - id: sel
           op: hit
           at: 0
-          anchor: caster.eye
+          frame: sector
+          pos: {v: 0}
           shape: {sector: {deg: "${arc_deg}", range: "${reach}", height: "${sector_h}", forward: look}}
           targets: enemies
           window: once
@@ -34,6 +40,14 @@ machine:
             hit:
               - {id: kb, op: knockback, target: event.victim, direction: "= normalize(event.victim - pos(caster)) + vec(0.0, lift, 0.0)", strength: "${knockback}"}
       do:
-        - {id: snd, op: sound, sound: entity.breeze.wind_burst, anchor: caster, volume: 0.9, pitch: 1.2, at: 0}
-        - {id: fx, op: particle_def, def: dash-cloud, anchor: cast_fx, at: 0}
+        - {id: snd, op: sound, sound: entity.breeze.wind_burst, frame: wind, volume: 0.9, pitch: 1.2, at: 0}
+        - {id: fx, op: particle_def, def: dash-cloud, frame: wind, pos: {v: 1.5}, at: 0}
+        - {id: wind_0, op: display, kind: block, block: white_concrete, frame: wind, detach: true, at: 0, for: 6, pos: {v: 0.6, w: 0.5, s: 1.5}, scale: [0.06, 0.06, 1.4], brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {forward: 0.85, left: -0.36}, at: 0, for: 6}, {law: grow, to: 0, at: 3, for: 3}]}
+        - {id: wind_1, op: display, kind: block, block: white_concrete, frame: wind, detach: true, at: 1, for: 6, pos: {v: 0.6, w: 1.4, s: 1}, scale: [0.06, 0.06, 1.4], brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {forward: 0.85, left: -0.24}, at: 0, for: 6}, {law: grow, to: 0, at: 3, for: 3}]}
+        - {id: wind_2, op: display, kind: block, block: white_concrete, frame: wind, detach: true, at: 0, for: 6, pos: {v: 0.6, w: 0.9, s: 0.5}, scale: [0.06, 0.06, 1.4], brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {forward: 0.85, left: -0.12}, at: 0, for: 6}, {law: grow, to: 0, at: 3, for: 3}]}
+        - {id: wind_3, op: display, kind: block, block: white_concrete, frame: wind, detach: true, at: 2, for: 6, pos: {v: 0.6, w: 1.6, s: 0}, scale: [0.06, 0.06, 1.4], brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {forward: 0.85, left: 0}, at: 0, for: 6}, {law: grow, to: 0, at: 3, for: 3}]}
+        - {id: wind_4, op: display, kind: block, block: white_concrete, frame: wind, detach: true, at: 1, for: 6, pos: {v: 0.6, w: 0.9, s: -0.5}, scale: [0.06, 0.06, 1.4], brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {forward: 0.85, left: 0.12}, at: 0, for: 6}, {law: grow, to: 0, at: 3, for: 3}]}
+        - {id: wind_5, op: display, kind: block, block: white_concrete, frame: wind, detach: true, at: 0, for: 6, pos: {v: 0.6, w: 1.4, s: -1}, scale: [0.06, 0.06, 1.4], brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {forward: 0.85, left: 0.24}, at: 0, for: 6}, {law: grow, to: 0, at: 3, for: 3}]}
+        - {id: wind_6, op: display, kind: block, block: white_concrete, frame: wind, detach: true, at: 2, for: 6, pos: {v: 0.6, w: 0.5, s: -1.5}, scale: [0.06, 0.06, 1.4], brightness: {block: 15, sky: 15}, motion: [{law: move, velocity: {forward: 0.85, left: 0.36}, at: 0, for: 6}, {law: grow, to: 0, at: 3, for: 3}]}
+        - {id: gust, op: particle, particle: cloud, frame: wind, pos: {v: 1.5}, count: 45, offset: [1.8, 0.5, 0.8], extra: 0.12, at: 0, detach: true}
     end: {final: true}

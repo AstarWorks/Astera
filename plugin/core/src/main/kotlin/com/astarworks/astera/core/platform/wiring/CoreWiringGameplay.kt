@@ -42,23 +42,29 @@ internal fun CoreWiringState.wireGameplayLoop() {
         services.register<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>(it(services), priority = 100)
     }
 
-    // ── ADR-0250 — keyframed skin-rig animations (`play_animation` + `/astera emote`) ──
+    // ── ADR-0250 / ADR-0315 — the driven skin-rig puppet and the clip player on top of it ──
     //
-    // The headless animator runs the same playback timeline without rendering; the Paper overlay
-    // (Display-entity rig) replaces it at p=100. The animation gateway above looks it up lazily.
-    services.register<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>(
-        com.astarworks.astera.core.application.service.animation.InMemorySkinRigAnimator(
-            registry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
-            scheduler = scheduler,
-        ),
+    // The puppet is posed from outside (the skill engine's frame table, or the clip player below): headless
+    // in-memory at p=0, the Paper Display-entity rig at p=100. The one clip player (`play_animation`,
+    // `/astera emote`) looks the puppet up lazily, so it drives whichever is registered.
+    services.register<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigPuppet>(
+        com.astarworks.astera.core.application.service.animation.InMemorySkinRigPuppet(),
         priority = 0,
     )
-    ports.skinRigAnimator?.let {
-        services.register<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>(
+    ports.skinRigPuppet?.let {
+        services.register<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigPuppet>(
             it(services),
             priority = 100,
         )
     }
+    services.register<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>(
+        com.astarworks.astera.core.application.service.animation.SkinRigClipPlayer(
+            registry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
+            scheduler = scheduler,
+            puppet = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigPuppet>() },
+        ),
+        priority = 0,
+    )
 
     // ── Wave 5transitions (ADR-0115) — DisplayEntity transition foundation ─
     //
@@ -172,10 +178,6 @@ internal fun CoreWiringState.wireGameplayLoop() {
     //    `content/balance/starter-grant.yaml` if present; otherwise the
     //    listener still works with an empty grant (no loadout / wallet
     //    credit / tutorial / dialog) and the join completes silently.
-    val starterGrantPath = contentDir.resolve("balance").resolve("starter-grant.yaml")
-    val starterGrant = com.astarworks.astera.core.application.service
-        .StarterGrantLoader()
-        .load(starterGrantPath)
     // ADR-0197: the "already onboarded" fact is durable (Persistence overlay, V49) so a
     // restart does not re-run the first-time starter grant.
     val profileRepository = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository>()
@@ -184,7 +186,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
         }
     profileService =
         com.astarworks.astera.core.application.service.InMemoryPlayerProfileService(
-            starterGrant = starterGrant,
+            starterGrantRef = balanceCore.starterGrant,
             itemRegistry = itemContents,
             ledgerProvider = ledgerProvider,
             tutorialRegistry = tutorialContents,
@@ -194,6 +196,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
         profileService,
         priority = 0,
     )
+    balanceCore.onStarterGrantChanged = { old, new -> profileService.topUpWallets(old, new) }
 
     // 3. Onboarding listeners (G1 subscribe + G2 + G3).
     val createFirstTimeListener = com.astarworks.astera.core.application.eventbus.listeners

@@ -97,6 +97,9 @@ public class CastSkillUseCase(
         val spec = skillRegistry.find(skillId)
             ?: return Result.failure(CastSkillError.SkillNotFound(skillId))
 
+        // 1b. Callee-only skills are marked at load: refused before anything is checked or spent (item binding and admin cast alike)
+        spec.calleeOnlyCallers?.let { return Result.failure(CastSkillError.CalleeOnly(skillId, it)) }
+
         // 2. Silence check
         if (statusContainer.has(casterId, SILENCE_ID)) {
             return reject(casterId, skillId, CastRejectionReason.SILENCED, CastSkillError.Silenced(casterId))
@@ -253,6 +256,9 @@ public sealed class CastSkillError {
     public data class SkillNotFound(val skillId: SkillId) : CastSkillError()
     public data class OnCooldown(val skillId: SkillId, val remainingMs: Long) : CastSkillError()
     public data class Silenced(val casterId: PlayerId) : CastSkillError()
+
+    /** [skillId] is callee-only (`frames_in` / unvalued `required` params): only its [callers] can cast it. */
+    public data class CalleeOnly(val skillId: SkillId, val callers: List<String>) : CastSkillError()
 
     /** The caster's pool of [type] held [have] but the cast costs [tried]. */
     public data class InsufficientResource(val type: ResourceType, val have: Int, val tried: Int) : CastSkillError()

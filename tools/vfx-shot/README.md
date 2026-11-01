@@ -22,7 +22,7 @@ make vfx-shot-reap                                        # host-wide: kill clie
 
 ## Lifecycle: torn down on exit, serialized, bounded
 
-A shot stack is expensive (server ~2.5 GB, each client ~2.6 GB RSS: the heap is capped by `SHOT_CLIENT_XMX`, default 1536m, ~0.8 GB committed; the rest is software-GL native memory), and leaked clients / stacks once took the
+A shot stack is expensive, so single-view shots are lean by default (measured on astera-mc, `bastion-greatsword-s1 VIEW=side`, 2 runs each): server heap `SHOT_SERVER_MEM` 1G (was 2G) with `SHOT_SERVER_VIEW` 6 / `SHOT_SERVER_SIM` 4 chunks, ONE real client (the viewer, `SHOT_CLIENT_XMX` 1024m, simulation distance `SHOT_CLIENT_SIM` 4) and the second player (the caster that the server casts with) is a ~150 MB protocol bot (`SHOT_CASTER=bot`, default; `SHOT_CASTER=client` restores the 480x270 real client, `SHOT_DUMMY_XMX` 512m / `SHOT_DUMMY_RENDER` 2). Peak: server container 1.8 GB + runner (client, Xvfb, ffmpeg) 2.8-3.4 GB = ~5 GB, against 7.5 GB for the old two-client config (server 2.6 + runner 4.9, which did not fit the 4 GB runner cap at all). The software-GL client is ~2.1 GB RSS regardless of heap (native memory), so the client count is the lever. Leaked clients / stacks once took the
 host into OOM. So, **by default a run removes everything it started**, on every exit path:
 
 - **Ownership.** A run holds `build/vfx-shot/.state/<id>/stack.lock` (flock) for its whole life and records `owner` (pid, start, watchdog,
@@ -87,7 +87,7 @@ Captures **never take `/tmp/claude-1000/astera-e2e.lock`** (do not wrap `make vf
    proof the reaper checks.
 2. **host-wide slot** `/tmp/claude-1000/astera-vfx-shot.lock` (`SHOT_SLOTS`, default 1; `SHOT_LOCK` moves it): at most `SHOT_SLOTS` runs
    (stack + clients) at once across all worktrees, held from before the boot until the teardown is done.
-3. **memory guard**: starting a server or a client waits while `MemAvailable` < `SHOT_MIN_FREE_GB` (default 8; `SHOT_MEM_WAIT`
+3. **memory guard**: starting a server or a client waits while `MemAvailable` < `SHOT_MIN_FREE_GB` (default 6; `SHOT_MEM_WAIT`
    seconds, default 900, then it fails).
 
 **Different worktrees never corrupt each other**: the choice is *one stack per checkout* (own compose project, subnet, volumes,
@@ -144,6 +144,38 @@ caster/opponent views, the hotbar) overwritten with a mirror of the adjacent row
 opponent視点のTargetは最大HP200で全回復してから撮影する(多段ヒットでの死亡を防ぐ)。
 実際に描画停止を確認した撮影には`captureQuality.invalid: true`を付けると比較画面から除外できる。
 ソフトウェア描画は既定で`LP_NUM_THREADS=4`。共有環境では撮影と重いビルドを重ねない。
+
+## Batch: many skills x views in ONE stack boot
+
+A single shot spends most of its time on setup (stack, server, clients). A batch boots once and films every view x skill:
+
+```
+make vfx-shot SKILLS="fireball-cast sword-slash pistol-shot" VIEWS="caster side"
+# = bash tools/remote/run.sh --kind vfx --pull build/vfx-shot [--env ...] -- env SKILLS="..." VIEWS="..." bash tools/vfx-shot/vfx-shot.sh
+```
+
+- Views are the outer loop: the viewer client (and the caster bot for non-caster views) starts once per view, then every skill
+  re-casts in the same scene (husk, arena and held item are reset per shot; per shot cost = warm-up cast + cast length + a few seconds).
+  Clients a view does not need are stopped (a 1080p client is ~3 GB). `VIEW=compare` cannot be batched.
+- Output of an ok shot is the single-run layout, `build/vfx-shot/<skill>/<view>/` (frame_*.png, framestamp.json, trace.log, rig-check.txt, ...);
+  `rig_trace_check` runs per shot. A shot that fails (no fx drawn, rig check, missing ticks, bot dropped) is saved under
+  `build/vfx-shot/failed/<skill>-<view>/` (partial output, `reason.txt`, `shot.log`, `server.log`, `trace.log`, `caster-bot.log`, `director.stderr`)
+  and the batch continues. A dead server (no RCON) skips the rest.
+- Summary: `build/vfx-shot/batch-summary.md` / `.tsv` (ok/failed, seconds, reason per shot). Exit code 0 only if every shot is ok.
+- The run timeout scales with the batch (`SHOT_TIMEOUT` default 2700 + 180 s per shot). tools/remote caps a whole run at
+  `HEAVY_RUN_TIMEOUT` (default 7200 s): for more than ~60 shots pass a larger one (`HEAVY_RUN_TIMEOUT=14400 make vfx-shot ...`) or split the list.
+- Skills are read at the stack boot (same checkout for the whole batch). Per-shot `DISTANCE`/`ITEM`/`DUMMIES` are derived per skill unless the env sets them.
+
+### Concurrent stacks (two heavy slots)
+
+- A heavy-slot runner container mounts only its own checkout, so a neighbour slot's state dir and checkout are not visible to
+  `reap.py`. It used to read that as "run is gone / checkout no longer exists" and tore down the neighbour's LIVE stack at the
+  start of its own run (symptoms: RCON `No route to host`, `server failed to start`, a half-finished batch). `reap.py` now leaves
+  a stack alone whose state dir it cannot see, unless its containers are older than 3 h (`FOREIGN_GRACE`). The fix takes effect
+  per checkout: a run synced from a checkout without it can still reap a neighbour.
+- A leftover compose network `astera-shot-<hash>_default` from a dead run keeps its old subnet (compose reuses networks by name),
+  so the freshly picked static IPs (`10.N.77.x`) fell outside it (`no configured subnet contains IP address ...`).
+  `create_network` now removes such a stale network before the stack is created.
 
 ## Views
 
@@ -287,7 +319,7 @@ Read the result in the browser: `make skill-compare` -> `/anim` (see `tools/skil
 `RES` (default 1920x1080 for skill views; anim-shot defaults to 1280x720), `GUI_SCALE` (1), `BEAT_TICKS`,
 `SETTLE_WARM` (2 s, scene settle when both clients were already parked), `SHOT_KEEP` (0), `SHOT_KEEP_TTL` (= `SHOT_TIMEOUT`), `SHOT_TIMEOUT` (2700 s),
 `SHOT_SLOTS` (1), `SHOT_LOCK` (`/tmp/claude-1000/astera-vfx-shot.lock`), `SHOT_REAP_SCOPE` (host | self | off), `SHOT_REAP_DRY`, `SHOT_DETACHED`,
-`SHOT_CLIENT_XMX` (client heap, 1536m), `SHOT_MIN_FREE_GB` (8), `SHOT_MEM_WAIT` (900 s),
+`SHOT_CLIENT_XMX` (client heap, 1024m), `SHOT_CASTER` (bot | client), `SHOT_SERVER_MEM` (1G), `SHOT_SERVER_VIEW` (6), `SHOT_SERVER_SIM` (4), `SHOT_CLIENT_SIM` (4), `SHOT_MIN_FREE_GB` (6), `SHOT_MEM_WAIT` (900 s),
 `SHOT_KEEP_REC`, `PARK_RUN` / `PARK_STOP` (2 / 8 s parker cycle), `CPU=1 make vfx-shot-status` (samples the parked cost over 10 s), `FOV` (degrees, 30-110; default 90 for caster/opponent/side, compare: the intent's first camera key unless set), `FOV_DOLLY` (compare: 1 = keep the reference framing, 0 = keep camera positions and widen), `FOV_OPT` (raw normalised value, 0.0 = 70), `RENDER_DISTANCE`, `SETTLE` (6 s),
 `PRE_ROLL`, `SHEET_STEP` (2), `SHOT_CACHE` (portablemc venv + game files,
 default `~/.cache/astera-vfx-shot`; first run downloads the client ~ 1 GB).

@@ -20,6 +20,12 @@ import com.astarworks.astera.core.domain.skillengine.world.WorldShapes
  */
 public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess) : ISkillWorldGateway {
     protected val editor: SkillWorldEditor = SkillWorldEditor(blocks)
+    private val log = org.slf4j.LoggerFactory.getLogger(javaClass)
+    private val faults = java.util.concurrent.ConcurrentHashMap<Long, java.util.concurrent.ConcurrentLinkedQueue<String>>()
+
+    override fun drainFaults(cast: CastRef): List<String> {
+        return faults.remove(cast.castId)?.toList() ?: emptyList()
+    }
 
     override fun breakArea(cast: CastRef, spec: BreakAreaSpec, aim: WorldAim) {
         val centre = WorldShapes.breakCentre(aim)
@@ -65,15 +71,24 @@ public abstract class LedgerWorldGateway(protected val blocks: ISkillBlockAccess
         val cover = blocks.isCoverBlock(key)
         if (!cover && WorldBlockRules.isProtected(key)) return
         val ordered = WorldShapes.buildCells(spec.shape, aim).sortedBy { it.distanceSquaredTo(aim.eye) }
+        var placed = 0
+        var denied = 0
+        var settled = 0
         for ((index, cell) in ordered.withIndex()) {
             schedule(cast, index, ordered.size, spec.rippleTicks) {
-                if (!blocks.canEdit(cast, cell, spec.outsideArena)) return@schedule
-                if (!WorldBlockRules.isReplaceable(blocks.blockAt(cast, cell))) return@schedule
-                if (spec.consume != null && !blocks.consumeItem(cast, spec.consume!!)) return@schedule
-                if (cover) {
-                    blocks.placeCover(cast, cell, key)
-                } else {
-                    editor.edit(cast, cell, spec.revertTicks.toLong()) { blocks.place(cast, cell, key); true }
+                val ok = when {
+                    !blocks.canEdit(cast, cell, spec.outsideArena) -> { denied++; false }
+                    !WorldBlockRules.isReplaceable(blocks.blockAt(cast, cell)) -> false
+                    spec.consume != null && !blocks.consumeItem(cast, spec.consume!!) -> false
+                    cover -> blocks.placeCover(cast, cell, key)
+                    else -> { editor.edit(cast, cell, spec.revertTicks.toLong()) { blocks.place(cast, cell, key); true }; true }
+                }
+                if (ok) placed++
+                // A whole shape that places nothing because the world refuses edits (not an arena / lobby) is loud, never a silent no-op.
+                if (++settled == ordered.size && placed == 0 && denied > 0) {
+                    val reason = "place_shape $key placed nothing: $denied of ${ordered.size} cells are not editable for the caster (outside_arena=${spec.outsideArena})"
+                    log.warn("cast {}: {}", cast.castId, reason)
+                    faults.computeIfAbsent(cast.castId) { java.util.concurrent.ConcurrentLinkedQueue() }.add(reason)
                 }
             }
         }

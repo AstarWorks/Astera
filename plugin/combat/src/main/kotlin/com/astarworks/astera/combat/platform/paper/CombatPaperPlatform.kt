@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.platform.paper
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.combat.application.service.VanillaKillResolver
 import com.astarworks.astera.combat.adapter.paper.PaperDamageGateway
 import com.astarworks.astera.combat.adapter.paper.PaperEnvironmentDamagePublisher
@@ -56,11 +57,10 @@ import org.bukkit.plugin.java.JavaPlugin
  *
  * The headless simulator replaces this class with its own ports.
  */
-internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
+internal class CombatPaperPlatform(private val plugin: JavaPlugin, private val listeners: OwnedListeners) {
 
     // Concrete Paper instances the factories create; the post-wiring step
     // needs them (not just their port interface).
-    private var statusContainer: PaperStatusEffectContainer? = null
     private var explosionGateway: PaperExplosionGateway? = null
     private var entityDamageGateway: PaperEntityDamageGateway? = null
 
@@ -68,6 +68,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
     private var skillEngine: SkillEnginePaperRuntime? = null
 
     val ports: CombatPlatformPorts = CombatPlatformPorts(
+        vanillaKeys = com.astarworks.astera.combat.adapter.paper.skillengine.PaperVanillaKeyCatalog(plugin.server),
         toolBlocks = { services ->
             com.astarworks.astera.combat.adapter.paper.PaperToolBlockGateway(
                 plugin.server,
@@ -105,7 +106,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         summonGateway = { PaperSummonGateway(plugin.server) },
         trainingDummyShells = { PaperTrainingDummyShells(plugin) },
         entityCasterBody = { PaperEntityCasterBody(plugin.server, plugin) },
-        skillPreviewStage = { PaperSkillPreviewStage(plugin) },
+        skillPreviewStage = { PaperSkillPreviewStage(plugin, listeners) },
         tickRateControl = { PaperTickRateControl(plugin.server) },
         playerFeedbackGateway = { services -> PaperPlayerFeedbackGateway(plugin.server, services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IActionBarChannel>()) },
         lightningGateway = { services ->
@@ -139,14 +140,13 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
             paperDamageGateway
         },
         statusEffectContainer = { services ->
-            val container = PaperStatusEffectContainer(
+            // Carried across a rewire (ADR-0311): built once, by the first generation only.
+            PaperStatusEffectContainer(
                 server = plugin.server,
                 scheduler = services.getOrThrow<IScheduler>(),
                 eventBus = services.getOrThrow<IDomainEventBus>(),
                 statusEffectRegistry = services.getOrThrow<IStatusEffectRegistry>(),
             )
-            statusContainer = container
-            container
         },
         wornItems = { com.astarworks.astera.combat.adapter.paper.PaperWornItems(plugin.server) },
         knockbackGateway = { PaperKnockbackGateway(plugin.server) },
@@ -170,6 +170,8 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         val services = ctx.services
         val eventBus = services.getOrThrow<IDomainEventBus>()
         val scheduler = services.getOrThrow<IScheduler>()
+        // The container is carried across generations, so it comes from the registry, not from a factory call.
+        val statusContainer = services.get<com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer>() as? PaperStatusEffectContainer
 
         // Wave 6a-N2 (ADR-0155) — StatusEffectTickListener drives Astera-side
         // tick effects (DoT damage / regen) + translates vanilla potion
@@ -186,7 +188,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
                 playerHealthGateway = playerHealthGatewayForTicks,
                 entityDamageGateway = services.get<com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway>(),
             )
-            statusTickHandle = statusTickListener.start(plugin)
+            statusTickHandle = statusTickListener.start(plugin, listeners)
         }
 
         val applyDamage = wired.applyDamage
@@ -194,11 +196,11 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         if (applyDamage != null && applyStatus != null) {
             // Cancels the vanilla BLOCK/ENTITY_EXPLOSION damage raised by its own
             // createExplosion call so explosion damage lands once (Astera path only).
-            explosionGateway?.let { plugin.server.pluginManager.registerEvents(it, plugin) }
+            explosionGateway?.let { listeners.register(it) }
         }
 
         // WP5: summons never target or hurt their owner's side.
-        services.get<SummonRegistry>()?.let { SummonAllegianceListener(it).start(plugin) }
+        services.get<SummonRegistry>()?.let { SummonAllegianceListener(it).start(plugin, listeners) }
 
         // Skill engine v2 (ADR-0301): v2 skills run through the cast runner; SkillCast is published once the gates pass.
         val container = statusContainer ?: error("skill engine v2 cannot start: the status effect container was not built")
@@ -207,11 +209,11 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         skillEngine = SkillEnginePaperRuntime(plugin, ports).also { it.start(ctx, applyDamage, applyStatus, container, wired) }
 
         // F3-11: lobby training dummies are immortal; vanilla damage on their bodies is cancelled.
-        plugin.server.pluginManager.registerEvents(PaperTrainingDummyGuard(), plugin)
+        listeners.register(PaperTrainingDummyGuard())
 
         // WP3: cancel the vanilla copy of a melee hit from an Astera item so it
         // never double-applies next to the melee skill (ADR-0149).
-        VanillaMeleeSuppressor(entityDamageGateway).start(plugin)
+        VanillaMeleeSuppressor(entityDamageGateway).start(plugin, listeners)
 
         // Wave 6a-N3 (ADR-0159): combat-side publisher for vanilla-intrusion
         // EnvironmentDamageApplied. Core BukkitEventAdapter (ADR-0153) Role 2
@@ -222,7 +224,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         PaperEnvironmentDamagePublisher(
             eventBus = eventBus,
             scheduler = scheduler,
-        ).start(plugin)
+        ).start(plugin, listeners)
 
         // Rerouted vanilla damage (melee / mob / environment / DoT) only moves
         // the Astera HP container; this publisher turns the >0 → <=0 edge of
@@ -242,7 +244,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
                         ?.attackerId
                 },
             ),
-        ).start(plugin)
+        ).start(plugin, listeners)
     }
 
     /** Cancels the scheduler-driven Paper pieces. Bukkit reclaims listeners via `HandlerList.unregisterAll(plugin)`. */
@@ -251,7 +253,6 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         skillEngine = null
         statusTickHandle?.cancel()
         statusTickHandle = null
-        statusContainer = null
         explosionGateway = null
         entityDamageGateway = null
     }

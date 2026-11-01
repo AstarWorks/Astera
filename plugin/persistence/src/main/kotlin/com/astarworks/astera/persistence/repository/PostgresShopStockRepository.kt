@@ -9,7 +9,9 @@ import com.astarworks.astera.core.domain.shop.ShopStockError
 import com.astarworks.astera.persistence.table.ShopStockTable
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.greater
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insertIgnore
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -124,4 +126,38 @@ public class PostgresShopStockRepository(private val db: Database) : IShopStockR
             Result.failure(ShopStockError.Storage(ex.message ?: "SQL failure"))
         }
     }
+
+    override fun clampTo(shopId: ShopId, offerId: ShopOfferId, max: Int): Result<Unit, ShopStockError> {
+        require(max >= 0) { "clampTo 'max' must be >= 0, got $max" }
+        return try {
+            transaction(db) {
+                ShopStockTable.update(
+                    {
+                        (ShopStockTable.shopId eq shopId.value) and
+                            (ShopStockTable.offerId eq offerId.value) and
+                            (ShopStockTable.remaining greater max)
+                    },
+                ) {
+                    it[remaining] = max
+                }
+            }
+            Result.success(Unit)
+        } catch (ex: SQLException) {
+            log.warn("clampTo SQL failure for shop={} offer={}", shopId.value, offerId.value, ex)
+            Result.failure(ShopStockError.Storage(ex.message ?: "SQL failure"))
+        }
+    }
+
+    override fun remove(shopId: ShopId, offerId: ShopOfferId): Result<Unit, ShopStockError> =
+        try {
+            transaction(db) {
+                ShopStockTable.deleteWhere {
+                    (ShopStockTable.shopId eq shopId.value) and (ShopStockTable.offerId eq offerId.value)
+                }
+            }
+            Result.success(Unit)
+        } catch (ex: SQLException) {
+            log.warn("remove SQL failure for shop={} offer={}", shopId.value, offerId.value, ex)
+            Result.failure(ShopStockError.Storage(ex.message ?: "SQL failure"))
+        }
 }

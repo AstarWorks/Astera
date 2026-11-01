@@ -14,6 +14,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
@@ -23,10 +24,13 @@ import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerMoveEvent
+import org.bukkit.event.weather.WeatherChangeEvent
+import org.bukkit.event.world.WorldLoadEvent
 
 /**
  * Lobby world rules that vanilla gamerules cannot express (ADR-0180):
- * no build / no break for non-ops, no damage, no hunger, void rescue, and
+ * no build / no break for non-ops, no damage (unless `pvp_enabled`), no hunger, fixed clear weather
+ * (`weather_clear_fixed`), void rescue, and
  * "everyone who joins this server starts at the lobby spawn".
  *
  * Runs at LOWEST so it cancels before the BukkitEventAdapter re-routes
@@ -34,7 +38,7 @@ import org.bukkit.event.player.PlayerMoveEvent
  */
 internal class PaperLobbyRulesListener(
     private val worldName: String,
-    private val rules: LobbyRulesYaml,
+    private val rulesOf: () -> LobbyRulesYaml,
     private val plugin: org.bukkit.plugin.Plugin,
     private val toolBay: () -> ILobbyToolBay? = { null },
     private val onToolBayReset: (Player, Int) -> Unit = { _, _ -> },
@@ -45,7 +49,7 @@ internal class PaperLobbyRulesListener(
         kotlin.math.abs(at.x) < 768 && kotlin.math.abs(at.z) < 768
 
     private fun canBuild(player: Player): Boolean =
-        rules.buildEnabled || player.isOp || player.hasPermission(BUILD_PERMISSION)
+        rulesOf().buildEnabled || player.isOp || player.hasPermission(BUILD_PERMISSION)
 
     private fun deny(event: Cancellable, player: Player) {
         if (!canBuild(player)) event.isCancelled = true
@@ -126,20 +130,44 @@ internal class PaperLobbyRulesListener(
         // The lobby is a no-damage zone (pvp, mobs, fire, void...); admin /kill still works.
         val cause = event.cause
         if (cause == EntityDamageEvent.DamageCause.KILL || cause == EntityDamageEvent.DamageCause.SUICIDE) return
-        if (cause == EntityDamageEvent.DamageCause.FALL && rules.fallDamage) return
+        if (cause == EntityDamageEvent.DamageCause.FALL && rulesOf().fallDamage) return
+        if (rulesOf().pvpEnabled && event is EntityDamageByEntityEvent && attackingPlayer(event.damager) != null) return
         event.isCancelled = true
+    }
+
+    private fun attackingPlayer(damager: org.bukkit.entity.Entity): Player? =
+        damager as? Player ?: (damager as? org.bukkit.entity.Projectile)?.shooter as? Player
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    fun onWeather(event: WeatherChangeEvent) {
+        if (event.world.name == worldName && event.toWeatherState() && rulesOf().weatherClearFixed) event.isCancelled = true
+    }
+
+    @EventHandler
+    fun onWorldLoad(event: WorldLoadEvent) {
+        if (event.world.name == worldName) settleWeather()
+    }
+
+    /** `weather_clear_fixed`: clears rain / thunder now (boot, world load, and after a worlds reload). */
+    fun settleWeather() {
+        if (!rulesOf().weatherClearFixed) return
+        plugin.server.globalRegionScheduler.execute(plugin, Runnable {
+            val world = plugin.server.getWorld(worldName) ?: return@Runnable
+            world.setStorm(false)
+            world.isThundering = false
+        })
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     fun onHunger(event: FoodLevelChangeEvent) {
         val player = event.entity as? Player ?: return
-        if (inLobby(player.location) && !rules.hunger) event.isCancelled = true
+        if (inLobby(player.location) && !rulesOf().hunger) event.isCancelled = true
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onMove(event: PlayerMoveEvent) {
         val to = event.to
-        if (to.blockY >= rules.voidRescueY || !inLobby(to)) return
+        if (to.blockY >= rulesOf().voidRescueY || !inLobby(to)) return
         val target = spawn() ?: return
         val player = event.player
         player.fallDistance = 0f

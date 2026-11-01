@@ -1,9 +1,6 @@
 # r28 a flame licking off the blade (rises slowly, dies in ~8-20 ticks).
 id: bastion-s1-p-lick
-shape: { kind: burst, spread_blocks: 0.03 }
-color: { r: 255, g: 255, b: 255 }
+particle: flame
 count: 1
-lifetime_ticks: 14
-vanilla_particle: flame
-speed: 0.012
-force: true
+offset: [0.03, 0.03, 0.03]
+extra: 0.012

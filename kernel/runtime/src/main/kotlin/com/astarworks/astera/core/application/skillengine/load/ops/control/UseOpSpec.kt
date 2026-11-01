@@ -42,6 +42,8 @@ public class UseOp(
     public val gateCost: Boolean = false,
     /** `chain:` (ADR-0303 9.4): the call is unrolled into `hops` copies `id[1..hops]`, each preceded by a pick row. */
     public val chain: ChainSpec? = null,
+    /** `events:` of an op-level call: the part's `events_in` name -> the caller's event path. */
+    public val events: Map<String, String> = emptyMap(),
 ) : OpNode
 
 /**
@@ -62,9 +64,10 @@ public object UseOpSpec : OpSpec<UseOp> {
     private val useField = Field.required("use", Types.id)
     private val withField = Field.optional("with", RawMap, emptyMap())
     private val framesField = Field.optional("frames", StringMap, emptyMap())
+    private val eventsField = Field.optional("events", StringMap, emptyMap())
     private val gateField = Field.optional("gate", GateType, null)
     private val chainField = Field.optional("chain", ChainType, null)
-    override val fields: Fields = Fields.of("use", useField, withField, framesField, gateField, chainField)
+    override val fields: Fields = Fields.of("use", useField, withField, framesField, eventsField, gateField, chainField)
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<UseOp, SkillDecodeError> {
         val target = values[useField]
@@ -73,15 +76,15 @@ public object UseOpSpec : OpSpec<UseOp> {
         if (rawChain != null) {
             if (gate != null) ctx.fail("gate", "gate: applies to a skill call (use: skill:<id>); a part or fragment call has no cooldown or cost")
             if (!target.startsWith(PartInliner.FRAGMENT_PREFIX)) ctx.fail("chain", "chain: only a use: fragment: call inside an on.hit list takes chain: (found on 'use $target', op ${id.value})")
-            return Result.success(UseOp(id, src, whenExpr, timing, target, values[withField], values[framesField], chain = decodeChain(id, timing, rawChain, ctx)))
+            return Result.success(UseOp(id, src, whenExpr, timing, target, values[withField], values[framesField], chain = decodeChain(id, timing, rawChain, ctx), events = values[eventsField]))
         }
         if (target.startsWith(SkillCallInliner.PREFIX)) {
             if (target.length == SkillCallInliner.PREFIX.length) ctx.fail("use", "'skill:' names no skill")
-            return Result.success(UseOp(id, src, whenExpr, timing, target, values[withField], values[framesField], gate?.cooldown ?: false, gate?.cost ?: false))
+            return Result.success(UseOp(id, src, whenExpr, timing, target, values[withField], values[framesField], gate?.cooldown ?: false, gate?.cost ?: false, events = values[eventsField]))
         }
         if (target.startsWith(PartInliner.FRAGMENT_PREFIX) && target.length == PartInliner.FRAGMENT_PREFIX.length) ctx.fail("use", "'fragment:' names no fragment")
         if (gate != null) ctx.fail("gate", "gate: applies to a skill call (use: skill:<id>); a part or fragment call has no cooldown or cost")
-        return Result.success(UseOp(id, src, whenExpr, timing, target, values[withField], values[framesField]))
+        return Result.success(UseOp(id, src, whenExpr, timing, target, values[withField], values[framesField], events = values[eventsField]))
     }
 
     private fun decodeChain(id: OpId, timing: Timing?, raw: Map<String, Any?>, ctx: GrammarContext): ChainSpec {
@@ -202,7 +205,7 @@ private object UseLowering {
         // ADR-0303 1: a document `anchors:` entry is a valid frame for a call (it resolves to no instance, like a builtin)
         val documented = frameRoots.filter { lc.anchors.document(it) != null }.toSet()
         val visible = frameRoots.filter { it in resolvedRoots || it in AnchorNames.BUILTIN_FRAMES || it in documented }.toSet()
-        PartInliner.checkCall(lc.skillId, at, part, op.args, op.frames, visible + AnchorNames.BUILTIN_FRAMES + frameRoots.filter { it in visible })?.let { return Result.failure(it) }
+        PartInliner.checkCall(lc.skillId, at, part, op.args, op.frames, op.events, visible + AnchorNames.BUILTIN_FRAMES + frameRoots.filter { it in visible })?.let { return Result.failure(it) }
         for ((k, v) in op.frames) {
             val full = lc.anchors.resolve(v)
             val root = v.substringBefore('.').substringBefore('[')

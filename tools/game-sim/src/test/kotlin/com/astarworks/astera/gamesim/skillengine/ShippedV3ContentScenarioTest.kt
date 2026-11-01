@@ -42,25 +42,27 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
                 val defs = LinkedHashMap<String, SkillDef>()
                 val keys = LinkedHashMap<String, String>()
                 for ((id, composed) in c.value) {
-                    val patched = composed.patch != com.astarworks.astera.core.application.skillengine.compose.PatchMeta.BASE
-                    val key = oracleKey(id, patched)
+                    val key = oracleKey(id)
                     when (val d = decodeTree(key, composed.tree, ids)) {
                         is Result.Failure -> problems += "$key: ${d.error}"
                         is Result.Success -> { defs[id] = d.value; keys[id] = key }
                     }
                 }
                 // pass 2: compile, replay, golden each id
+                summonSkills = { sid -> defs[sid]?.let { (compileAgainst(it, defs) as? Result.Success)?.value } }
                 for ((id, def) in defs) {
                     val key = keys.getValue(id)
-                    val patched = key.endsWith("(patched)")
+                    val variant = '@' in id
                     when (val r = compileAgainst(def, defs)) {
                         is Result.Failure -> problems += "$key: ${r.error}"
                         is Result.Success -> {
                             checked++
                             oracle[key] = r.value
-                            writeEvidence(if (patched) id else "shipped-" + id.replace('/', '_') + "_skill", r.value.table, if (patched) "patched composition of $id" else null)
+                            writeEvidence(if (variant) id else "shipped-" + id.replace('/', '_') + "_skill", r.value.table, if (variant) "variant composition of $id" else null)
                             // a callee-only skill (frames_in) cannot be cast directly; it is replayed inside its callers' goldens
-                            if (def.framesIn.isNotEmpty()) continue
+                            if (def.isCalleeOnly) continue
+                            // a summon starts a second run the table oracle does not model (ADR-0313): its rows are in the golden, its behaviour in SummonHomingPathScenarioTest
+                            if (summonReach(r.value) > 0) continue
                             try {
                                 assertPlays(r.value)
                             } catch (e: AssertionError) {
@@ -75,8 +77,7 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
         }
         problems += checkOracle(oracle)
         problems += lateRows(oracle)
-        problems += oracle.keys.flatMap { k -> recordings[k]?.let { CasterEyeClutter.check(k, it, contentDir.resolve("particles")) } ?: emptyList() }
-        problems += oracle.keys.flatMap { k -> recordings[k]?.let { CasterEyeClutter.checkDisplays(k, it) } ?: emptyList() }
+        problems += oracle.entries.flatMap { (k, sk) -> recordings[k]?.let { RiderFollow.check(k, sk, it) } ?: emptyList() }
         // every status id a shipped row names must be a content/status file or a mechanic builtin (the server refuses to enable the engine otherwise)
         val statusFiles = Files.list(contentDir.resolve("status")).use { st -> st.map { it.fileName.toString().substringBeforeLast('.') }.toList().toSet() }
         val builtin = setOf("freeze", "silence", "immunity")
@@ -84,6 +85,12 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
         Files.createDirectories(evidenceDir)
         Files.writeString(evidenceDir.resolve("shipped-summary.txt"), "v3 checked: $checked\n")
         assertThat(problems).`as`("A9 problems ($checked composed skill ids checked)").isEmpty()
+    }
+
+    /** Last tick a `summon` row of [skill] keeps its summoned run alive (row tick + 1 start + life); 0 when it summons nothing. */
+    private fun summonReach(skill: CompiledSkill): Int {
+        val rows = skill.table.worldRows + skill.table.states.flatMap { it.rows } + skill.table.subTables.values.flatMap { it.rows }
+        return rows.mapNotNull { r -> (r.action as? com.astarworks.astera.core.domain.skillengine.table.Action.Summon)?.let { r.tick + 1 + it.lasts } }.maxOrNull() ?: 0
     }
 
     /** One golden per composed id (design 1.6): a skill id that composes without a golden file fails here by name, whatever its file layout. */
@@ -96,13 +103,13 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
             is Result.Success -> c.value
         }
         val missing = composed.filter { (id, v) ->
-            !Files.exists(goldenFile(oracleKey(id, v.patch != com.astarworks.astera.core.application.skillengine.compose.PatchMeta.BASE)))
+            !Files.exists(goldenFile(oracleKey(id)))
         }.keys
         assertThat(missing).`as`("composed skill ids without a golden under skill-oracle/ (run :tools:game-sim:regenSkillOracle)").isEmpty()
     }
 
-    /** Oracle key of a composed id: `<id>/skill` (golden `<id>/skill.txt`), or `<id> (patched)` for a patched variant (`<id>.patched.txt`). */
-    private fun oracleKey(id: String, patched: Boolean): String = if (patched) "$id (patched)" else "$id/skill"
+    /** Oracle key of a composed id: `<id>/skill` (golden `<id>/skill.txt`), or `<base>/skill@<variant>` for a variant `<base>@<variant>` (`<base>/skill@<variant>.txt`). */
+    private fun oracleKey(id: String): String = if ('@' in id) "${id.substringBefore('@')}/skill@${id.substringAfter('@')}" else "$id/skill"
 
     // ---- parity oracle ---------------------------------------------------------------------------------------------
 
@@ -120,8 +127,8 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
     private val hitPoses = listOf(0.0, 37.0)
     private val hitLayout = listOf(2.5 to 0.0, 3.0 to 2.0, 4.5 to 3.0, 5.5 to 4.5)
 
-    /** Golden file of a skill: its file path under content/skills (a patched variant: `<id>.patched` beside the files). */
-    private fun goldenFile(key: String): Path = goldenDir.resolve(key.replace(" (patched)", ".patched") + ".txt")
+    /** Golden file of a skill: its file path under content/skills; a variant's golden sits beside its base's (`skill@<variant>.txt`). */
+    private fun goldenFile(key: String): Path = goldenDir.resolve("$key.txt")
 
     /** The golden lines recorded for each skill this run, kept for [lateRows]. */
     private val recordings = LinkedHashMap<String, List<String>>()
@@ -139,7 +146,8 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
         val problems = ArrayList<String>()
         for ((key, skill) in skills) {
             val lines = recordings[key] ?: continue
-            val pathMax = skill.table.bounds.path.max
+            // a summoned run is cut `life` ticks after it starts (next tick): the summoning skill's visible rows reach that far (ADR-0313)
+            val pathMax = maxOf(skill.table.bounds.path.max, summonReach(skill))
             val tail = skill.table.bounds.tail
             var pose = ""
             var section = ArrayList<String>()
@@ -220,7 +228,7 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
     private fun recordSkill(skill: CompiledSkill): List<String> {
         val out = ArrayList<String>()
         // a callee-only skill (frames_in) is not castable on its own: its golden is the static section; its rows play inside the callers' goldens
-        if (skill.def.framesIn.isEmpty()) {
+        if (!skill.def.isCalleeOnly) {
             for ((yaw, pitch) in poses) out += recordPose(skill, yaw, pitch, "pose", hit = false)
             for (yaw in hitPoses) out += recordPose(skill, yaw, 0.0, "pose-hit", hit = true)
         }

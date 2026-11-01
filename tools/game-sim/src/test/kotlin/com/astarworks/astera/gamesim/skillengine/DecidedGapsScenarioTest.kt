@@ -95,7 +95,7 @@ class DecidedGapsScenarioTest : SkillEngineScenario() {
     // B2
     @Test
     fun particleDefCountOverridesDef() {
-        val s = ok(skill("{id: p, op: particle_def, def: spark, anchor: caster, count: 7}"))
+        val s = ok(skill("{id: p, op: particle_def, def: hit-spark, anchor: caster, count: 7}"))
         assertThat(ExpansionDump.render(s.table)).contains("count")
     }
 

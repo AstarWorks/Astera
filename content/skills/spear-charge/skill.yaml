@@ -1,5 +1,12 @@
-# Wind-up W = 3 ticks (round_half_up(5 / attack_speed 1.6)): the spear is levelled and drawn back, the charge and the every-tick hit start at tick 3.
-# The cast ends with the charge state; the rig (level -> thrust along the charge -> settle) and trail are detach: true.
+# spear-charge: spear levelled, then the charge dash with an every-tick hit (wind-up 3 ticks, charge 6 ticks).
+# Frames (ADR-0314, ADR-0315), the gameplay (hit tick, shape, damage, knockback, cooldown, cast length) is unchanged:
+#   arm    - the right arm, rotate keys only. Origin = the right shoulder (`caster.shoulder_r`); the arm is one rigid 0.60 bone, so the hand travels on a sphere about it and a turn of this frame is that travel (about w left/right, about s up/down). Hand path: guard -> pulled back -> driven forward (held through the charge) -> guard.
+#   blade  - the spear. Origin = the hand, 0.60 along the arm frame (the hand path is the arm's turn: guard -> drawn back -> thrust straight ahead along v -> guard). Long axis along v (grip at the origin, tip at v 1.05),
+#            edge along w. The thrust is the hand swinging forward on the arm, the point leads by construction; the wind-up aims the point slightly (-12), `reset` eases back to guard.
+#            The engine pins the right hand to the origin; the origin sits exactly on the 0.60 reach sphere of the shoulder by construction.
+#   body   - the caster's feet, v forward / w up / s right: sounds and the cast fx.
+#   wound  - one per victim at the victim's centre, v the way the blow came in: the hit sound and the hit spark.
+#   edge   - line along the blade (v 0.7 .. 1.05), what the trail rows draw along.
 apiVersion: astera/v3
 kind: Skill
 id: spear-charge
@@ -14,8 +21,44 @@ params:
   speed:        {type: number, default: 1.0}
   ticks:        {type: ticks, default: 6}
   dmg_physical: {type: number, default: 40}
-anchors:
-  - {id: puff_pt, anchor: caster, offset: {up: 0.2}, mode: follow}
+frames:
+  - id: arm
+    origin: caster.shoulder_r
+    v: forward
+    w: up
+    s: v x w
+    rotate:
+      - {at: 0, for: 0, about: w, to: -16}   # guard
+      - {at: 0, for: 2, about: w, to: -90, ease: in_out_sine}   # pull the hand back to the right hip
+      - {at: 2, for: 2, about: w, to: -12, ease: out_cubic}   # the thrust: the hand drives forward
+      - {at: 5, for: 11, about: w, to: -16, ease: in_out_sine}   # back to guard
+      - {at: 0, for: 0, about: s, to: -33}
+      - {at: 0, for: 2, about: s, to: -60, ease: in_out_sine}
+      - {at: 2, for: 2, about: s, to: -14, ease: out_cubic}
+      - {at: 5, for: 11, about: s, to: -33, ease: in_out_sine}
+  - id: blade
+    origin: {frame: arm, pos: {v: 0.6}}
+    v: forward
+    w: up
+    s: v x w
+    rotate:
+      - {at: 0, for: 2, about: s, to: -12, ease: in_out_sine}  # aim while drawing
+      - {at: 2, for: 3, about: s, to: 0, ease: out_cubic}  # level on the target
+      - {at: 5, for: 11, reset: true, ease: in_out_sine}
+  - id: body
+    origin: caster
+    v: forward
+    w: up
+    s: v x w
+  - id: wound
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
+lines:
+  edge: {frame: blade, from: {v: 0.7}, to: {v: 1.05}}
 machine:
   start: windup
   tail: 13
@@ -24,30 +67,21 @@ machine:
       for: 3
       then: charge
       do:
-        - id: rig
-          op: rig
-          parent: caster
-          mount: caster.hand_r
-          rest: [{axis: left, deg: 72}]
-          for: 16
-          detach: true
-          swing:
-            - {at: 0, for: 3, from: {left: 0.1, up: 0.1, forward: 0.95}, to: {left: -0.25, up: -0.2, forward: 0.5}, edge: trailing, ease: in_out_sine}
-            - {at: 3, for: 3, to: {left: 0.0, up: 0.0, forward: 1.0}, edge: leading, ease: out_cubic}
-            - {at: 6, for: 10, to: {left: -0.1, up: 0.3, forward: 0.9}, edge: trailing, ease: in_out_sine}
+        - {id: rig, op: rig, frame: blade, for: 16, detach: true}
     charge:
       for: 6
       then: end
       enter:
-        - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", anchor: caster, volume: 1.0, pitch: 1.1, detach: true}
-        - {id: puff, op: particle_def, def: dash-cloud, anchor: puff_pt, detach: true}
+        - {id: snd, op: sound, sound: "astera:weapons/dash-whoosh", frame: body, volume: 1.0, pitch: 1.1, detach: true}
+        - {id: puff, op: particle_def, def: dash-cloud, frame: body, pos: {w: 0.2}, detach: true}
         - {id: dash, op: dash, at: 0, speed: "${speed}", for: "${ticks}", until: strike.hit, direction: {forward: 1}, follow_pitch: false, stop_on_block: true, invulnerable: false, face_movement: false}
         - id: strike
           op: hit
           at: 0
           every: 1
           for: "${ticks}"
-          anchor: caster.body
+          frame: body
+          pos: {w: 0.9}
           shape: {sphere: 1.0}
           targets: enemies
           ignore_invulnerability: false
@@ -55,6 +89,6 @@ machine:
           window: once
           on:
             hit:
-              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", anchor: contact, detach: true}
-        - {id: trail_fx, op: particle, particle: crit, anchor: {of: /windup/rig.root, to: /windup/rig.tip, samples: 6}, count: 1, extra: 0.03, at: 0, every: 1, for: 9, detach: true}
+              - {id: snd_hit, op: sound, sound: "astera:weapons/blade-hit", frame: wound, detach: true}
+        - {id: trail_fx, op: particle, particle: crit, along: edge, samples: 2, count: 1, extra: 0.03, at: 0, every: 1, for: 4, detach: true}
     end: {final: true}

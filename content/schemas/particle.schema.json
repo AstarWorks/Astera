@@ -6,35 +6,68 @@
         "id": {
             "type": "string"
         },
-        "shape": {
-            "$ref": "#/definitions/com.astarworks.astera.core.application.config.ShapeDto"
-        },
-        "color": {
-            "$ref": "#/definitions/com.astarworks.astera.core.application.config.ColorDto"
+        "particle": {
+            "type": "string"
         },
         "count": {
             "type": "integer"
         },
-        "lifetime_ticks": {
-            "type": "integer"
+        "offset": {
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
         },
-        "display_name_key": {
-            "type": "string"
-        },
-        "vanilla_particle": {
-            "type": "string"
-        },
-        "speed": {
+        "extra": {
             "type": "number"
+        },
+        "color": {
+            "type": "string"
+        },
+        "to_color": {
+            "type": "string"
         },
         "size": {
             "type": "number"
         },
-        "data": {
-            "$ref": "#/definitions/com.astarworks.astera.core.application.config.ParticleDataDto"
+        "block": {
+            "type": "string"
+        },
+        "item": {
+            "type": "string"
+        },
+        "power": {
+            "type": "number"
+        },
+        "roll": {
+            "type": "number"
+        },
+        "delay": {
+            "type": "integer"
+        },
+        "toward": {
+            "type": "boolean"
+        },
+        "target_offset": {
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
+        },
+        "duration": {
+            "type": "integer"
+        },
+        "arrival_ticks": {
+            "type": "integer"
+        },
+        "shape": {
+            "$ref": "#/definitions/com.astarworks.astera.core.application.config.ShapeDto"
         },
         "velocity": {
             "$ref": "#/definitions/com.astarworks.astera.core.application.config.ParticleVelocityDto"
+        },
+        "display_name_key": {
+            "type": "string"
         },
         "force": {
             "type": "boolean"
@@ -45,84 +78,9 @@
     },
     "required": [
         "id",
-        "shape",
-        "color",
-        "count",
-        "lifetime_ticks"
+        "particle"
     ],
     "definitions": {
-        "com.astarworks.astera.core.application.config.ColorDto": {
-            "type": "object",
-            "properties": {
-                "r": {
-                    "type": "integer"
-                },
-                "g": {
-                    "type": "integer"
-                },
-                "b": {
-                    "type": "integer"
-                }
-            },
-            "required": [
-                "r",
-                "g",
-                "b"
-            ]
-        },
-        "com.astarworks.astera.core.application.config.ParticleDataDto": {
-            "type": "object",
-            "properties": {
-                "kind": {
-                    "type": "string"
-                },
-                "color": {
-                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.ColorDto"
-                },
-                "from": {
-                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.ColorDto"
-                },
-                "to": {
-                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.ColorDto"
-                },
-                "scale": {
-                    "type": "number"
-                },
-                "power": {
-                    "type": "number"
-                },
-                "block": {
-                    "type": "string"
-                },
-                "item": {
-                    "type": "string"
-                },
-                "target_offset": {
-                    "type": "array",
-                    "items": {
-                        "type": "number"
-                    }
-                },
-                "toward": {
-                    "type": "boolean"
-                },
-                "duration_ticks": {
-                    "type": "integer"
-                },
-                "arrival_ticks": {
-                    "type": "integer"
-                },
-                "roll": {
-                    "type": "number"
-                },
-                "delay": {
-                    "type": "integer"
-                }
-            },
-            "required": [
-                "kind"
-            ]
-        },
         "com.astarworks.astera.core.application.config.ParticleVelocityDto": {
             "type": "object",
             "properties": {
@@ -159,9 +117,6 @@
                     "type": "number"
                 },
                 "radius_blocks": {
-                    "type": "number"
-                },
-                "spread_blocks": {
                     "type": "number"
                 },
                 "points": {

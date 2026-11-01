@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.entity
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.application.port.outbound.entity.IManagedEntityRegistry
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.world.WorldId
@@ -23,6 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 public class PaperManagedEntityJanitor(
     private val plugin: JavaPlugin,
+    private val listeners: OwnedListeners,
     private val registry: IManagedEntityRegistry,
 ) : Listener {
 
@@ -33,7 +35,7 @@ public class PaperManagedEntityJanitor(
     public data class LegacyZone(val world: WorldId, val center: Vec3, val radius: Double)
 
     public fun start() {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+        listeners.register(this)
         val removed = PaperManagedEntities.purge(plugin.server)
         if (removed > 0) log.info("Purged {} stale Astera-managed entities on boot", removed)
     }

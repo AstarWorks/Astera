@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.adapter.paper
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -36,7 +37,7 @@ import java.util.UUID
  * vanilla pickup (player, mob, hopper) is always cancelled; a player touching it is reported to the listener, which
  * credits the in-match star count and removes the entity. The drop never reaches an inventory.
  */
-public class PaperStarDropWorld(private val plugin: JavaPlugin) : IStarDropWorld, Listener {
+public class PaperStarDropWorld(private val plugin: JavaPlugin, private val listeners: OwnedListeners) : IStarDropWorld, Listener {
     private val server = plugin.server
     private val key = NamespacedKey(plugin, "star_drop")
     private var listener: ((String, PlayerId) -> Unit)? = null
@@ -45,7 +46,7 @@ public class PaperStarDropWorld(private val plugin: JavaPlugin) : IStarDropWorld
     private val session = UUID.randomUUID().toString().take(8)
 
     init {
-        server.pluginManager.registerEvents(this, plugin)
+        listeners.register(this)
     }
 
     override fun spawn(world: WorldId, position: Vec3, amount: Int, velocity: Vec3?, pickupDelayTicks: Int): String? {

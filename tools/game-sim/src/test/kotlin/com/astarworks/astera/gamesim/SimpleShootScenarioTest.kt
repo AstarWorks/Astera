@@ -35,6 +35,10 @@ class SimpleShootScenarioTest {
             }
         }
 
+    /** The dust size of a recorded burst: typed `data` (kind dust) since ParticleBurst.data replaced the flat colour / size; null for non-dust. */
+    private fun dustScale(s: Seen): Double? =
+        s.p["data"]?.jsonObject?.takeIf { it["kind"]?.jsonPrimitive?.content == "dust" }?.get("scale")?.jsonPrimitive?.content?.toDouble()
+
     @Test
     fun `simple-shoot bursts at the muzzle, trails the flight and bursts where it lands`() {
         var castTick = 0L
@@ -56,7 +60,7 @@ class SimpleShootScenarioTest {
         // Flight: flame + orange dust trail on several ticks while the beam travels.
         val trail = all.filter { it.key == "flame" && it.count == 1 }
         assertThat(trail.map { it.tick }.toSet().size).isGreaterThanOrEqualTo(3)
-        val trailDust = all.filter { it.key == "dust" && it.p["scale"]!!.jsonPrimitive.content.toDouble() == 1.5 }
+        val trailDust = all.filter { it.key == "dust" && dustScale(it) == 1.5 }
         assertThat(trailDust).isNotEmpty()
 
         // Impact at the floor: one burst of 60 flame, 8 lava and the two orange dust discs (sizes 2.5 and 2.0) on one tick.
@@ -65,10 +69,10 @@ class SimpleShootScenarioTest {
         val impactTick = impact.single().tick
         assertThat(all.filter { it.key == "lava" && it.count == 8 }.map { it.tick }).containsExactly(impactTick)
         for (size in listOf(2.5, 2.0)) {
-            assertThat(all.filter { it.key == "dust" && it.p["scale"]!!.jsonPrimitive.content.toDouble() == size }.map { it.tick })
+            assertThat(all.filter { it.key == "dust" && dustScale(it) == size }.map { it.tick })
                 .`as`("dust size $size at the impact").containsExactly(impactTick)
         }
-        val c = all.first { it.key == "dust" && it.p["scale"]!!.jsonPrimitive.content.toDouble() == 2.0 }.p["color"]!!.jsonObject
+        val c = all.first { it.key == "dust" && dustScale(it) == 2.0 }.p["data"]!!.jsonObject["color"]!!.jsonObject
         assertThat(listOf("r", "g", "b").map { c[it]!!.jsonPrimitive.content.toInt() }).containsExactly(255, 100, 20)
         // The impact comes after the flight: no trail sample after it.
         assertThat(impactTick).isGreaterThanOrEqualTo(trail.maxOf { it.tick } - 1)

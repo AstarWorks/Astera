@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.inventory
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer
 import com.astarworks.astera.core.application.service.inventory.WeaponLimitService
 import com.astarworks.astera.core.domain.item.ItemId
@@ -40,8 +41,8 @@ public class MatchWeaponLimitListener(
     private val itemIdKey: NamespacedKey = NamespacedKey(plugin, PaperItemMaterializer.ITEM_ID_KEY)
     private val lastNotice: ConcurrentHashMap<PlayerId, Long> = ConcurrentHashMap()
 
-    public fun start(plugin: JavaPlugin) {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+    public fun start(plugin: JavaPlugin, listeners: OwnedListeners) {
+        listeners.register(this)
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

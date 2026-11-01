@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.skillengine.compose.ComposedSkill
 import com.astarworks.astera.core.application.skillengine.compose.OverlayPartCatalog
 import com.astarworks.astera.core.application.skillengine.compose.PartCatalog
 import com.astarworks.astera.core.application.skillengine.compose.SkillCompiler
+import com.astarworks.astera.core.application.skillengine.compose.SkinGameplayParityCheck
 import com.astarworks.astera.core.application.skillengine.compose.UseCollector
 import com.astarworks.astera.core.application.skillengine.part.PartAbort
 import com.astarworks.astera.core.application.skillengine.part.PartParser
@@ -35,6 +36,21 @@ public class InMemorySkillCatalog(
 
     override fun ids(): Set<String> = skills.keys.toSet()
 
+    @Volatile
+    private var calleeOnly: Map<String, List<String>> = emptyMap()
+
+    override fun calleeOnlyCallers(skillId: String): List<String>? = calleeOnly[skillId]
+
+    /** Rebuilds the callee-only marker from the current skills (called at the end of every load, so a cast never has to expand to find out). */
+    private fun markCalleeOnly() {
+        calleeOnly = skills.values.filter { it.def.isCalleeOnly }.associate { callee ->
+            val base = callee.def.baseId
+            // usedSkills is the closure of what a skill calls (through parts and other skills too), so every skill that reaches the callee is named
+            callee.def.id to skills.values.filter { c -> c.def.baseId != base && c.usedSkills.any { it.substringBefore('@') == base } }
+                .map { it.def.baseId }.distinct().sorted()
+        }
+    }
+
     @Synchronized
     override fun reload(composed: List<ComposedSkill>): SkillLoadReport {
         val failed = LinkedHashMap<String, SkillDecodeError>()
@@ -59,16 +75,27 @@ public class InMemorySkillCatalog(
         val view = object : SkillCatalogView {
             override fun skill(id: String): SkillDef? = batch.skill(id) ?: skills[id]?.def
         }
+        val kinds = composed.filterNot { it.isPart }.associate { it.id to it.patch.kind }
         val ok = LinkedHashMap<String, CompiledSkill>()
         for ((id, def) in defs) {
             when (val r = compiler.compile(def, partOverlay, view)) {
-                is Result.Success -> ok[id] = withUses(r.value, view)
+                is Result.Success -> ok[id] = withUses(r.value, view).copy(patchKind = kinds[id] ?: "base")
                 is Result.Failure -> failed[id] = r.error
             }
+        }
+        // check 14: a skin variant plays its base's gameplay; one that does not never enters the catalog (the previous version, if any, stays)
+        for (c in composed) {
+            if (c.isPart || '@' !in c.id || c.patch.kind != "skin") continue
+            val variant = ok[c.id] ?: continue
+            val baseId = c.id.substringBefore('@')
+            if (baseId in failed) continue
+            val base = ok[baseId] ?: skills[baseId] ?: continue
+            SkinGameplayParityCheck.run(base, variant, c.id)?.let { failed[c.id] = it; ok.remove(c.id) }
         }
         skills.putAll(ok)
         val loaded = ArrayList(ok.keys)
         loaded += recompileDependents(changedParts, ok.keys, ok.keys, failed)
+        markCalleeOnly()
         return SkillLoadReport(loaded, failed)
     }
 
@@ -78,9 +105,11 @@ public class InMemorySkillCatalog(
             val partId = skillId.removePrefix(PART_KEY)
             partOverlay.remove(partId)
             recompileDependents(setOf(partId), emptySet(), emptySet(), LinkedHashMap())
+            markCalleeOnly()
             return
         }
         skills.remove(skillId)
+        markCalleeOnly()
     }
 
     /**
@@ -108,7 +137,7 @@ public class InMemorySkillCatalog(
                 done += id
                 when (val r = compiler.compile(def, partOverlay, view)) {
                     is Result.Success -> {
-                        skills[id] = withUses(r.value, view)
+                        skills[id] = withUses(r.value, view).copy(patchKind = skills[id]?.patchKind ?: "base")
                         next += id
                     }
                     is Result.Failure -> failed[id] = r.error

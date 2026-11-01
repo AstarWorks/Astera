@@ -17,8 +17,9 @@ import com.astarworks.astera.items.domain.glow.GlowProfile
  */
 public class InMemoryGlowProfileRegistry {
 
-    private val profiles: MutableMap<Rarity, GlowProfile> =
-        GlowProfile.DEFAULTS.toMutableMap()
+    // Copy-on-write: readers see a whole table, a reload swaps it in one write.
+    @Volatile
+    private var profiles: Map<Rarity, GlowProfile> = GlowProfile.DEFAULTS.toMap()
 
     /** Read the active profile for [rarity]. Always present (defaults fill). */
     public fun resolve(rarity: Rarity): GlowProfile =
@@ -28,7 +29,7 @@ public class InMemoryGlowProfileRegistry {
 
     /** Replace the entry for [profile.rarity]. */
     public fun register(profile: GlowProfile) {
-        profiles[profile.rarity] = profile
+        profiles = profiles + (profile.rarity to profile)
     }
 
     /**
@@ -37,9 +38,12 @@ public class InMemoryGlowProfileRegistry {
      * [GlowProfile.DEFAULTS]). Re-callable for hot reload.
      */
     public fun registerAll(overrides: List<GlowProfile>) {
-        for (p in overrides) {
-            profiles[p.rarity] = p
-        }
+        profiles = profiles + overrides.associateBy { it.rarity }
+    }
+
+    /** Reload: [GlowProfile.DEFAULTS] plus [overrides], so an override removed from the file reverts to its default. */
+    public fun replaceAll(overrides: List<GlowProfile>) {
+        profiles = GlowProfile.DEFAULTS + overrides.associateBy { it.rarity }
     }
 
     /** Snapshot of every registered profile, ordered by enum declaration. */

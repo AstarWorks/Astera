@@ -2,8 +2,10 @@ package com.astarworks.astera.core.application.skillengine.runtime.port
 
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
+import com.astarworks.astera.core.domain.effect.ParticleData
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
+import com.astarworks.astera.core.domain.skillengine.hit.HitBox
 import com.astarworks.astera.core.domain.skillengine.hit.HitCandidate
 import com.astarworks.astera.core.domain.skillengine.op.TrailBand
 import com.astarworks.astera.core.domain.skillengine.op.TrailEdge
@@ -37,6 +39,12 @@ public data class VisualPose(
     val anchorFeet: Vec3? = null,
     /** `teleport_duration` of the write when it differs from the interpolation length (a followed effect); null = same. */
     val teleportTicks: Int? = null,
+    /**
+     * A rig mesh (ADR-0315): the puppet anchor the caster's body was pushed with this tick. The adapter roots the display on it
+     * (entity position = feet, entity yaw = body yaw, the pose in the rig frame as a transformation, [RigDisplayContract] durations)
+     * exactly as the puppet's bones are, so the weapon and the hand change in the same client ticks.
+     */
+    val root: com.astarworks.astera.core.domain.animation.skinrig.RigAnchor? = null,
 )
 
 /** How a mesh item is drawn: pack model key set on the item, ItemDisplayContext, and whether the weapon-rig shader rule lights it. */
@@ -55,8 +63,6 @@ public data class DisplayView(
     val audience: com.astarworks.astera.core.domain.effect.Audience = com.astarworks.astera.core.domain.effect.Audience.ALL,
     val lane: com.astarworks.astera.core.domain.effect.VfxLane = com.astarworks.astera.core.domain.effect.VfxLane.CORE,
     val target: UUID? = null,
-    /** The row's `viewers:` filter; [audience] is already derived from it (kept so the recorders can print the spelling). */
-    val viewers: com.astarworks.astera.core.domain.effect.RowViewers = com.astarworks.astera.core.domain.effect.RowViewers.ALL,
     val glowing: Boolean = false,
     val glowColor: String? = null,
 )
@@ -151,8 +157,8 @@ public data class ParticleBurst(
     val offset: Vec3,
     /** Vanilla `extra`. */
     val speed: Double,
-    val colorHex: String?,
-    val dataSize: Double?,
+    /** The typed vanilla particle data (dust colour / block / item / sculk roll / ...); null = the particle takes none or its default. */
+    val data: ParticleData?,
     /** `dir` sugar; null = plain vanilla spawn. */
     val dir: Vec3?,
     val spreadDeg: Double,
@@ -258,8 +264,20 @@ public interface ISkillGameplayGateway {
     /** `stop_sound` (R26): stops the named sound for [viewer]. */
     public fun stopSound(cast: CastRef, viewer: UUID, sound: String)
 
-    /** `body` (R41): plays the clip [anim] on [target]'s body (skin rig, else a pose clip) at [speed]; [target] is the caster, or the victim / attacker of the event (`body target:`). */
-    public fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double, holds: List<com.astarworks.astera.core.domain.animation.skinrig.SkinRigHold>)
+    /**
+     * `body` (R41): shows the clip [anim] on [target]'s body: a skin-rig clip puts up the driven puppet, which the engine then
+     * poses every tick through [poseBody] (ADR-0315); any other id plays as a pose clip. [speed] is the clip clock the engine
+     * samples with. [target] is the caster, or the victim / attacker of the event (`body target:`).
+     */
+    public fun playBodyClip(cast: CastRef, target: UUID, anim: String, speed: Double)
+
+    /**
+     * One tick of the driven puppet (ADR-0315): [frame] is the body pose the engine's own frame table used this tick (the
+     * right hand pinned to the weapon frame origin when a `rig frame:` rides it), [anchor] the caster's feet / yaw / pitch
+     * of the same tick; null for a body the engine has no table anchor for (a victim's), the puppet then stands where that
+     * player stands. No puppet shown on [target] is a no-op.
+     */
+    public fun poseBody(cast: CastRef, target: UUID, frame: com.astarworks.astera.core.domain.animation.skinrig.RigFrame, anchor: com.astarworks.astera.core.domain.animation.skinrig.RigAnchor?)
 
     /** True when [entity] is an online player (a body clip only plays on one; `react player:` is skipped for any other living entity). */
     public fun isPlayer(entity: UUID): Boolean
@@ -276,6 +294,16 @@ public interface ISkillGameplayGateway {
     /** Ends the [anim] clip on [target] (the `body` window closed). A clip that is not playing is a no-op. */
     public fun stopBodyClip(cast: CastRef, target: UUID, anim: String)
 
+    /**
+     * ADR-0315: puts up [target]'s driven puppet with no clip (`SkinRigAnimation.REST_BODY`): a `rig frame:` without `anim:`
+     * draws the rest body, its carrying hand pinned onto the frame origin by [poseBody] every tick (an aimed pistol). Until
+     * [hideBody] the puppet shows nothing but what [poseBody] pushes.
+     */
+    public fun showBody(cast: CastRef, target: UUID)
+
+    /** Takes down the puppet [showBody] put up on [target]; a puppet showing a clip is left to [stopBodyClip]. No puppet is a no-op. */
+    public fun hideBody(cast: CastRef, target: UUID)
+
     /** `held_model` (ADR-0303 rev4.6): shows the item model [model] on the weapon [caster] holds. The item's own model is remembered on the first call. */
     public fun setHeldModel(cast: CastRef, caster: UUID, model: String)
 
@@ -290,6 +318,18 @@ public interface ISkillGameplayGateway {
 public interface ISkillEntityQuery {
     /** Living, hittable entities within [radius] of [point], excluding [excluding]. */
     public fun nearby(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitCandidate>
+
+    /**
+     * Hitboxes of the living bodies (and standing structures) within [radius] of [point], excluding [excluding]: what a travelling caster must
+     * not end inside (`dash`). Same set as [nearby], but a pure geometry read that is not a hit query (the oracle does not record it).
+     */
+    public fun bodiesNear(cast: CastRef, point: Vec3, radius: Double, excluding: UUID?): List<HitBox>
+
+    /**
+     * Hitboxes of the living bodies within [radius] of [point] that are enemies of the caster of [cast]: neither the caster nor on its team.
+     * A pure geometry read, not a hit query (the oracle does not record it): what a `ray_stops: entities` ray anchor stops on.
+     */
+    public fun enemyBodiesNear(cast: CastRef, point: Vec3, radius: Double): List<HitBox>
 
     /** Current feet position and body yaw of an entity (the victim / caster root frame). */
     public fun rootOf(cast: CastRef, entity: UUID): EntityRoot?

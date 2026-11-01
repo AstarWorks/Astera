@@ -21,7 +21,7 @@ import com.astarworks.astera.core.domain.permission.Permission
  */
 public class AsteraCommandRegistry : IAsteraCommandRegistry {
 
-    private class Entry(val owner: String, val parent: List<String>, val spec: CommandSpec.Literal)
+    private class Entry(val owner: String, val gen: Int, val parent: List<String>, val spec: CommandSpec.Literal)
 
     private val lock = Any()
     private val entries = mutableListOf<Entry>()
@@ -39,8 +39,8 @@ public class AsteraCommandRegistry : IAsteraCommandRegistry {
             notifyListeners()
         }
 
-    override fun register(owner: String, parent: List<String>, spec: CommandSpec.Literal): ServiceRegistry.Registration {
-        val entry = Entry(owner, parent, spec)
+    override fun register(owner: String, gen: Int, parent: List<String>, spec: CommandSpec.Literal): ServiceRegistry.Registration {
+        val entry = Entry(owner, gen, parent, spec)
         synchronized(lock) {
             val candidate = entries + entry
             build(candidate) // validates; throws before committing
@@ -100,7 +100,10 @@ public class AsteraCommandRegistry : IAsteraCommandRegistry {
 
     private fun build(all: List<Entry>): CommandSpec.Literal {
         val root = Node(ROOT_NAME)
+        // Several generations of one owner may be registered during a rewire (ADR-0311); only the newest is merged.
+        val newest = all.groupBy { it.owner }.mapValues { (_, es) -> es.maxOf { it.gen } }
         for (e in all) {
+            if (e.gen != newest.getValue(e.owner)) continue
             var cursor = root
             for (segment in e.parent) cursor = cursor.children.getOrPut(segment) { Node(segment) }
             merge(cursor, e.spec, "/$ROOT_NAME ${e.parent.joinToString(" ")}".trimEnd())

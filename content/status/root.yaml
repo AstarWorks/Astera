@@ -1,0 +1,15 @@
+# Hold table (founder 2026-10-31): the short pin of the rapier (couture-rapier-s2 needle hit). Locks movement only:
+# attacks and turning stay possible. PARALYSIS = action-disable like shock, but a short, guaranteed duration.
+
+id: root
+
+display_name_key: astera.status.root.name
+
+kind: paralysis
+default_duration_ticks: 10   # 0.5s @ 20 TPS
+
+stackable: false
+max_stacks: 1
+
+params:
+  type: disable

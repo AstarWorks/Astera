@@ -1,13 +1,6 @@
 # thunder staff muzzle burst
 id: thunder-cast
-shape:
-  kind: burst
-  spread_blocks: 0.3
-color:
-  r: 190
-  g: 220
-  b: 255
+particle: electric_spark
 count: 18
-lifetime_ticks: 20
-vanilla_particle: electric_spark
-speed: 0.2
+offset: [0.3, 0.3, 0.3]
+extra: 0.2

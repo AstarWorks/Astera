@@ -25,6 +25,9 @@ public interface ISkillWorldGateway {
     /** `lightning`: [visualOnly] strikes the visual effect only, otherwise a damaging strike. */
     public fun lightning(cast: CastRef, at: Vec3, visualOnly: Boolean)
 
+    /** The world refusals of [cast] since the last call (a `place_shape` that placed nothing because the world refuses edits); the player turns each into a counted fault. */
+    public fun drainFaults(cast: CastRef): List<String> = emptyList()
+
     /** Advance the revert / ripple schedule by one server tick. */
     public fun tick()
 

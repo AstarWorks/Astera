@@ -3,6 +3,7 @@ package com.astarworks.astera.core.application.port.outbound.entity
 import com.astarworks.astera.core.domain.entity.EntityHandle
 import com.astarworks.astera.core.domain.entity.NpcInteractionClick
 import com.astarworks.astera.core.domain.gui.GuiIntent
+import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
  * Outbound port: maps NPC handle + click → [GuiIntent].
@@ -31,7 +32,13 @@ public interface INpcInteractionRouter {
     /** Look up the bound intent, if any. */
     public fun resolve(handle: EntityHandle, click: NpcInteractionClick): GuiIntent?
 
-    /** Remove all bindings for [handle]. Called by the spawner on despawn. */
+    /** Remember that [player] dispatched a click bound on [handle] (so a despawn can close what that click opened). */
+    public fun recordUse(player: PlayerId, handle: EntityHandle)
+
+    /** Players who dispatched a bound click on [handle] since it was bound. */
+    public fun usersOf(handle: EntityHandle): Set<PlayerId>
+
+    /** Remove all bindings (and recorded users) for [handle]. Called by the spawner on despawn. */
     public fun unbind(handle: EntityHandle)
 
     /** Test-only / admin: snapshot of every current binding. */

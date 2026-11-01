@@ -1,0 +1,33 @@
+# projectile-body: the visible body of an arrow / bolt / knife / harpoon riding a `projectile` op, and its trail (a wake particle plus a
+# coloured dust fleck every tick). Call it right after the projectile, with the projectile as `body` and its end event as `body_end`:
+#   - {id: shaft, use: projectile-body, with: {item: "minecraft:arrow", scale: 1.0, color: "#c8aa6e"}, frames: {body: bolt}, events: {body_end: bolt.end}}
+# The display and the trail end on `body_end`, not at the call tick: the part declares `events_in`.
+# The row ids (shaft / trail / wake / dust) are part of the shipped goldens: rename them only together with `regenSkillOracle`.
+---
+apiVersion: astera/v3
+kind: Part
+id: projectile-body
+params:
+  item:   {type: string, required: true}     # the displayed item id
+  scale:  {type: number, required: true}     # uniform display scale
+  color:  {type: string, required: true}     # dust fleck colour, "#rrggbb"
+  size:   {type: number, default: 1.0}       # dust fleck size
+  wake:   {type: string, default: crit}      # the wake particle
+  spread: {type: number, default: 0.04}      # wake particle offset on each axis
+frames_in: {body: anchor}
+events_in: [body_end]
+machine:
+  start: main
+  states:
+    main:
+      final: true
+      do:
+        - {id: shaft, op: display, kind: item, item: "${item}", context: fixed, anchor: body, scale: ["${scale}", "${scale}", "${scale}"], at: 0, until: "${body_end}"}
+        - id: trail
+          op: group
+          at: 0
+          every: 1
+          until: "${body_end}"
+          do:
+            - {id: wake, op: particle, particle: "${wake}", count: 1, offset: ["${spread}", "${spread}", "${spread}"], anchor: {of: body, sweep: 0.4}, at: 0}
+            - {id: dust, op: particle, particle: dust, count: 1, color: "${color}", size: "${size}", anchor: {of: body, sweep: 0.4}, at: 0}

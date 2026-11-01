@@ -1,10 +1,5 @@
 # white/silver crit sparks (name kept for existing references; no orange in the S2 palette)
 id: couture-s2-p-orange
-shape: {kind: burst, spread_blocks: 0.15}
-color: {r: 255, g: 255, b: 255}
+particle: crit
 count: 3
-lifetime_ticks: 8
-vanilla_particle: crit
-speed: 0.0
 velocity: {direction: outward, speed: 0.3, spread_degrees: 0, speed_jitter: 0.5}
-force: true

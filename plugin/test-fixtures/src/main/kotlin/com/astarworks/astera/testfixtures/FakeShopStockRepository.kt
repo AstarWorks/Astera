@@ -55,6 +55,17 @@ public class FakeShopStockRepository : IShopStockRepository {
         return Result.success(Unit)
     }
 
+    override fun clampTo(shopId: ShopId, offerId: ShopOfferId, max: Int): Result<Unit, ShopStockError> {
+        require(max >= 0) { "clampTo 'max' must be >= 0, got $max" }
+        store[shopId to offerId]?.let { store[shopId to offerId] = minOf(it, max) }
+        return Result.success(Unit)
+    }
+
+    override fun remove(shopId: ShopId, offerId: ShopOfferId): Result<Unit, ShopStockError> {
+        store.remove(shopId to offerId)
+        return Result.success(Unit)
+    }
+
     /** Test-only: drop every seeded row. */
     public fun clear() {
         store.clear()

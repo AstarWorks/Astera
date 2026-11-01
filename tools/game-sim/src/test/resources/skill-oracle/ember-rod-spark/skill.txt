@@ -1,13 +1,10 @@
 ## pose yaw=0 pitch=0
-@0 spawn #0 op=cast/core kind=sprite sprite=flame alpha=1.000000 tint=#ff9030 seethrough=false pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.687500,0.687500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@0 write #0 op=cast/core dur=7 pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.994522,0.104528 scale=0.687500,0.687500,1.000000 bb=CENTER
-@0 sound - op=cast/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx1 type=fire-cast at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6523341786660275367
-@0 particle - op=cast/trail[0]/t1 type=flame count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4337410884802707335
-@0 particle - op=cast/trail[0]/t2 type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5257178822861720458
-@1 particle - op=cast/trail[1]/t1 type=flame count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7113630354027015377
-@1 particle - op=cast/trail[1]/t2 type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-180357378418760300
-@1 hit - op=cast/bolt at=0.000000,1.620000,1.600000 r=1.600000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,2.700000 rad=0.500000
+@0 spawn #0 op=cast/core kind=sprite sprite=flame alpha=1.000000 tint=#ff9030 seethrough=false pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.687500,0.687500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=cast/core dur=7 pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.994522,0.104528 scale=0.687500,0.687500,1.000000 bb=CENTER
+@0 sound - op=cast/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.2 at=-0.250000,1.320000,1.300000
+@0 particle - op=cast/fx1 type=flame count=2 at=-0.250000,1.320000,1.300000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8926275999799842768
+@0 frame cast/bolt op=cast/bolt pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.000000,1.000000
+@1 hit - op=cast/bolt at=-0.250000,1.320000,2.400000 r=1.600000 shape=capsule a=-0.250000,1.320000,1.300000 b=-0.250000,1.320000,3.500000 rad=0.500000
 @1 remove #0 op=cast/core
 g @1 state-exit reason=EVENT | state=cast
 g @1 dropped reason=owner-exited:cast | sub=cast/bolt.end
@@ -16,101 +13,94 @@ g @1 dropped reason=owner-exited:cast | sub=cast/bolt.end
 g @1 cast-end | pose
 r @3 run-end tail=2 | pose
 ## pose yaw=37 pitch=-20
-@0 spawn #0 op=cast/core kind=sprite sprite=flame alpha=1.000000 tint=#ff9030 seethrough=false pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.687500,0.687500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@0 write #0 op=cast/core dur=7 pos=-0.282761,1.791010,0.375236 rot=-0.327985,0.131109,0.923041,0.152418 scale=0.687500,0.687500,1.000000 bb=CENTER
-@0 sound - op=cast/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx1 type=fire-cast at=-0.560427,1.692895,0.743712 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=6523341786660275367
-@0 particle - op=cast/trail[0]/t1 type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=4337410884802707335
-@0 particle - op=cast/trail[0]/t2 type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-5257178822861720458
-@1 particle - op=cast/trail[1]/t1 type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7113630354027015377
-@1 particle - op=cast/trail[1]/t2 type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-180357378418760300
-@1 hit - op=cast/bolt at=-0.904834,2.167232,1.200755 r=1.600000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.526907,2.543454,2.026274 rad=0.500000
+@0 spawn #0 op=cast/core kind=sprite sprite=flame alpha=1.000000 tint=#ff9030 seethrough=false pos=-0.996586,1.782718,0.907105 rot=-0.164675,-0.312484,-0.055099,0.933916 scale=0.687500,0.687500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=cast/core dur=7 pos=-0.996586,1.782718,0.907105 rot=-0.327985,0.131109,0.923041,0.152418 scale=0.687500,0.687500,1.000000 bb=CENTER
+@0 sound - op=cast/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.2 at=-0.996586,1.782718,0.907105
+@0 particle - op=cast/fx1 type=flame count=2 at=-0.996586,1.782718,0.907105 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8926275999799842768
+@0 frame cast/bolt op=cast/bolt pos=-0.996586,1.782718,0.907105 rot=-0.164675,-0.312484,-0.055099,0.933916
+@1 hit - op=cast/bolt at=-1.618659,2.158941,1.732624 r=1.600000 shape=capsule a=-0.996586,1.782718,0.907105 b=-2.240733,2.535163,2.558143 rad=0.500000
 @1 remove #0 op=cast/core
 g @1 state-exit reason=EVENT | state=cast
+g @1 dropped reason=owner-exited:cast | sub=cast/bolt.end
+g @1 dropped reason=owner-exited:cast | sub=cast/bolt.hit
 g @1 dropped reason=owner-exited:cast | sub=cast/bolt.end
 g @1 cast-end | pose
 r @3 run-end tail=2 | pose
 ## pose-hit yaw=0 pitch=0
-@0 spawn #0 op=cast/core kind=sprite sprite=flame alpha=1.000000 tint=#ff9030 seethrough=false pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.687500,0.687500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@0 write #0 op=cast/core dur=7 pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.994522,0.104528 scale=0.687500,0.687500,1.000000 bb=CENTER
-@0 sound - op=cast/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx1 type=fire-cast at=0.000000,1.370000,0.900000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6523341786660275367
-@0 particle - op=cast/trail[0]/t1 type=flame count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4337410884802707335
-@0 particle - op=cast/trail[0]/t2 type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5257178822861720458
-@1 particle - op=cast/trail[1]/t1 type=flame count=1 at=0.000000,1.620000,0.500000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7113630354027015377
-@1 particle - op=cast/trail[1]/t2 type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-180357378418760300
-@1 hit - op=cast/bolt at=0.000000,1.620000,1.600000 r=1.600000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,2.700000 rad=0.500000
-@1 sound - op=cast/bolt.hit/snd_hit sound=astera:skills/fire-impact cat=master vol=0.7 pitch=1.2 at=0.000000,1.620000,2.200000
-@1 particle - op=cast/bolt.hit/spark type=hit-spark at=0.000000,1.200000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2399310534705720609
-@1 particle - op=cast/bolt.hit/use_4/ring[0] type=flame count=0 at=0.000000,1.200000,2.500000 off=1.000000,0.000000,0.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1469545307127773292
-@1 particle - op=cast/bolt.hit/use_4/ring[1] type=flame count=0 at=0.000000,1.200000,2.500000 off=0.923880,0.000000,0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1481655457147712495
-@1 particle - op=cast/bolt.hit/use_4/ring[2] type=flame count=0 at=0.000000,1.200000,2.500000 off=0.707107,0.000000,0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5635518788816706441
-@1 particle - op=cast/bolt.hit/use_4/ring[3] type=flame count=0 at=0.000000,1.200000,2.500000 off=0.382683,0.000000,0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7503045282089014220
-@1 particle - op=cast/bolt.hit/use_4/ring[4] type=flame count=0 at=0.000000,1.200000,2.500000 off=0.000000,0.000000,1.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6952353466570291292
-@1 particle - op=cast/bolt.hit/use_4/ring[5] type=flame count=0 at=0.000000,1.200000,2.500000 off=-0.382683,0.000000,0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3642539899807401374
-@1 particle - op=cast/bolt.hit/use_4/ring[6] type=flame count=0 at=0.000000,1.200000,2.500000 off=-0.707107,0.000000,0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-113085492711882674
-@1 particle - op=cast/bolt.hit/use_4/ring[7] type=flame count=0 at=0.000000,1.200000,2.500000 off=-0.923880,0.000000,0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2461262908583741703
-@1 particle - op=cast/bolt.hit/use_4/ring[8] type=flame count=0 at=0.000000,1.200000,2.500000 off=-1.000000,0.000000,0.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1296774377232461516
-@1 particle - op=cast/bolt.hit/use_4/ring[9] type=flame count=0 at=0.000000,1.200000,2.500000 off=-0.923880,0.000000,-0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5501663877454105133
-@1 particle - op=cast/bolt.hit/use_4/ring[10] type=flame count=0 at=0.000000,1.200000,2.500000 off=-0.707107,0.000000,-0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6091737579238807372
-@1 particle - op=cast/bolt.hit/use_4/ring[11] type=flame count=0 at=0.000000,1.200000,2.500000 off=-0.382683,0.000000,-0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7860973839615038137
-@1 particle - op=cast/bolt.hit/use_4/ring[12] type=flame count=0 at=0.000000,1.200000,2.500000 off=0.000000,0.000000,-1.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4636573130798459430
-@1 particle - op=cast/bolt.hit/use_4/ring[13] type=flame count=0 at=0.000000,1.200000,2.500000 off=0.382683,0.000000,-0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-9202150368823859063
-@1 particle - op=cast/bolt.hit/use_4/ring[14] type=flame count=0 at=0.000000,1.200000,2.500000 off=0.707107,0.000000,-0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7032941660157603727
-@1 particle - op=cast/bolt.hit/use_4/ring[15] type=flame count=0 at=0.000000,1.200000,2.500000 off=0.923880,0.000000,-0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3582800177232596839
-@1 particle - op=cast/bolt.hit/use_4/ring_up[0] type=flame count=0 at=0.000000,1.200000,2.500000 off=0.700000,0.700000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8939297452549270909
-@1 particle - op=cast/bolt.hit/use_4/ring_up[1] type=flame count=0 at=0.000000,1.200000,2.500000 off=0.494975,0.700000,0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1530063312511561902
-@1 particle - op=cast/bolt.hit/use_4/ring_up[2] type=flame count=0 at=0.000000,1.200000,2.500000 off=0.000000,0.700000,0.700000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8491274956641752815
-@1 particle - op=cast/bolt.hit/use_4/ring_up[3] type=flame count=0 at=0.000000,1.200000,2.500000 off=-0.494975,0.700000,0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-5626436526321545263
-@1 particle - op=cast/bolt.hit/use_4/ring_up[4] type=flame count=0 at=0.000000,1.200000,2.500000 off=-0.700000,0.700000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4581307188107653645
-@1 particle - op=cast/bolt.hit/use_4/ring_up[5] type=flame count=0 at=0.000000,1.200000,2.500000 off=-0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1130262285463241355
-@1 particle - op=cast/bolt.hit/use_4/ring_up[6] type=flame count=0 at=0.000000,1.200000,2.500000 off=0.000000,0.700000,-0.700000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1144613549651660812
-@1 particle - op=cast/bolt.hit/use_4/ring_up[7] type=flame count=0 at=0.000000,1.200000,2.500000 off=0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4773776763537894371
-@1 particle - op=cast/bolt.hit/use_4/pop type=lava count=5 at=0.000000,1.200000,2.500000 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6861754287296099265
-@1 damage 00000000-0000-0000-0000-00000000000a op=- fire=20 skill=ember-rod-spark at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@0 spawn #0 op=cast/core kind=sprite sprite=flame alpha=1.000000 tint=#ff9030 seethrough=false pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.687500,0.687500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=cast/core dur=7 pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.994522,0.104528 scale=0.687500,0.687500,1.000000 bb=CENTER
+@0 sound - op=cast/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.2 at=-0.250000,1.320000,1.300000
+@0 particle - op=cast/fx1 type=flame count=2 at=-0.250000,1.320000,1.300000 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8926275999799842768
+@0 frame cast/bolt op=cast/bolt pos=-0.250000,1.320000,1.300000 rot=0.000000,0.000000,0.000000,1.000000
+@1 hit - op=cast/bolt at=-0.250000,1.320000,2.400000 r=1.600000 shape=capsule a=-0.250000,1.320000,1.300000 b=-0.250000,1.320000,3.500000 rad=0.500000
+@1 sound - op=cast/bolt.hit/snd_hit sound=astera:skills/fire-impact cat=master vol=0.7 pitch=1.2 at=0.000000,0.810000,2.500000
+@1 particle - op=cast/bolt.hit/spark type=hit-spark at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4855949856269095963
+@1 particle - op=cast/bolt.hit/ring[0] type=flame count=0 at=0.000000,0.810000,2.500000 off=1.000000,0.000000,0.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6600206051268981985
+@1 particle - op=cast/bolt.hit/ring[1] type=flame count=0 at=0.000000,0.810000,2.500000 off=0.923880,0.000000,0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2102744529039214651
+@1 particle - op=cast/bolt.hit/ring[2] type=flame count=0 at=0.000000,0.810000,2.500000 off=0.707107,0.000000,0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-60443462088120557
+@1 particle - op=cast/bolt.hit/ring[3] type=flame count=0 at=0.000000,0.810000,2.500000 off=0.382683,0.000000,0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2232369108953759717
+@1 particle - op=cast/bolt.hit/ring[4] type=flame count=0 at=0.000000,0.810000,2.500000 off=0.000000,0.000000,1.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5667413399325670257
+@1 particle - op=cast/bolt.hit/ring[5] type=flame count=0 at=0.000000,0.810000,2.500000 off=-0.382683,0.000000,0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6005058233932257502
+@1 particle - op=cast/bolt.hit/ring[6] type=flame count=0 at=0.000000,0.810000,2.500000 off=-0.707107,0.000000,0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7987638700446596751
+@1 particle - op=cast/bolt.hit/ring[7] type=flame count=0 at=0.000000,0.810000,2.500000 off=-0.923880,0.000000,0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5409366222252718385
+@1 particle - op=cast/bolt.hit/ring[8] type=flame count=0 at=0.000000,0.810000,2.500000 off=-1.000000,0.000000,0.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3885800201059040496
+@1 particle - op=cast/bolt.hit/ring[9] type=flame count=0 at=0.000000,0.810000,2.500000 off=-0.923880,0.000000,-0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-4425018116245604429
+@1 particle - op=cast/bolt.hit/ring[10] type=flame count=0 at=0.000000,0.810000,2.500000 off=-0.707107,0.000000,-0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7909800200385028521
+@1 particle - op=cast/bolt.hit/ring[11] type=flame count=0 at=0.000000,0.810000,2.500000 off=-0.382683,0.000000,-0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2881544174179187975
+@1 particle - op=cast/bolt.hit/ring[12] type=flame count=0 at=0.000000,0.810000,2.500000 off=0.000000,0.000000,-1.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2241460033190509908
+@1 particle - op=cast/bolt.hit/ring[13] type=flame count=0 at=0.000000,0.810000,2.500000 off=0.382683,0.000000,-0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5516837040873454107
+@1 particle - op=cast/bolt.hit/ring[14] type=flame count=0 at=0.000000,0.810000,2.500000 off=0.707107,0.000000,-0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8865676738805905151
+@1 particle - op=cast/bolt.hit/ring[15] type=flame count=0 at=0.000000,0.810000,2.500000 off=0.923880,0.000000,-0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4232347532722434740
+@1 particle - op=cast/bolt.hit/ring_up[0] type=flame count=0 at=0.000000,0.810000,2.500000 off=0.700000,0.700000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3441889050703839977
+@1 particle - op=cast/bolt.hit/ring_up[1] type=flame count=0 at=0.000000,0.810000,2.500000 off=0.494975,0.700000,0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1110142358871671839
+@1 particle - op=cast/bolt.hit/ring_up[2] type=flame count=0 at=0.000000,0.810000,2.500000 off=0.000000,0.700000,0.700000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1237659406096540105
+@1 particle - op=cast/bolt.hit/ring_up[3] type=flame count=0 at=0.000000,0.810000,2.500000 off=-0.494975,0.700000,0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-7493389431902437
+@1 particle - op=cast/bolt.hit/ring_up[4] type=flame count=0 at=0.000000,0.810000,2.500000 off=-0.700000,0.700000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4279814771462088602
+@1 particle - op=cast/bolt.hit/ring_up[5] type=flame count=0 at=0.000000,0.810000,2.500000 off=-0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3644683888904656807
+@1 particle - op=cast/bolt.hit/ring_up[6] type=flame count=0 at=0.000000,0.810000,2.500000 off=0.000000,0.700000,-0.700000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=9034421406999828561
+@1 particle - op=cast/bolt.hit/ring_up[7] type=flame count=0 at=0.000000,0.810000,2.500000 off=0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8202378392476208308
+@1 particle - op=cast/bolt.hit/pop type=lava count=5 at=0.000000,0.810000,2.500000 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3623901234196635797
+@1 damage 00000000-0000-0000-0000-00000000000a op=- fire=20 skill=ember-rod-spark at=-0.250000,1.320000,2.200000 ignoreinv=false ignorearmor=false
 @1 remove #0 op=cast/core
 g @1 state-exit reason=EVENT | state=cast
 g @1 dropped reason=owner-exited:cast | sub=cast/bolt.end
 g @1 cast-end | pose
 r @3 run-end tail=2 | pose
 ## pose-hit yaw=37 pitch=0
-@0 spawn #0 op=cast/core kind=sprite sprite=flame alpha=1.000000 tint=#ff9030 seethrough=false pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.687500,0.687500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
-@0 write #0 op=cast/core dur=7 pos=-0.300908,1.620000,0.399318 rot=-0.315566,-0.033167,0.943129,0.099127 scale=0.687500,0.687500,1.000000 bb=CENTER
-@0 sound - op=cast/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.2 at=0.000000,0.000000,0.000000
-@0 particle - op=cast/fx1 type=fire-cast at=-0.541634,1.370000,0.718772 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6523341786660275367
-@0 particle - op=cast/trail[0]/t1 type=flame count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4337410884802707335
-@0 particle - op=cast/trail[0]/t2 type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5257178822861720458
-@1 particle - op=cast/trail[1]/t1 type=flame count=1 at=-0.300908,1.620000,0.399318 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7113630354027015377
-@1 particle - op=cast/trail[1]/t2 type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff7814 size=1.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-180357378418760300
-@1 hit - op=cast/bolt at=-0.962904,1.620000,1.277817 r=1.600000 shape=capsule a=-0.300908,1.620000,0.399318 b=-1.624901,1.620000,2.156316 rad=0.500000
-@1 sound - op=cast/bolt.hit/snd_hit sound=astera:skills/fire-impact cat=master vol=0.7 pitch=1.2 at=-1.278471,1.620000,1.696589
-@1 particle - op=cast/bolt.hit/spark type=hit-spark at=-1.504538,1.200000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2399310534705720609
-@1 particle - op=cast/bolt.hit/use_4/ring[0] type=flame count=0 at=-1.504538,1.200000,1.996589 off=1.000000,0.000000,0.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1469545307127773292
-@1 particle - op=cast/bolt.hit/use_4/ring[1] type=flame count=0 at=-1.504538,1.200000,1.996589 off=0.923880,0.000000,0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1481655457147712495
-@1 particle - op=cast/bolt.hit/use_4/ring[2] type=flame count=0 at=-1.504538,1.200000,1.996589 off=0.707107,0.000000,0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5635518788816706441
-@1 particle - op=cast/bolt.hit/use_4/ring[3] type=flame count=0 at=-1.504538,1.200000,1.996589 off=0.382683,0.000000,0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7503045282089014220
-@1 particle - op=cast/bolt.hit/use_4/ring[4] type=flame count=0 at=-1.504538,1.200000,1.996589 off=0.000000,0.000000,1.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6952353466570291292
-@1 particle - op=cast/bolt.hit/use_4/ring[5] type=flame count=0 at=-1.504538,1.200000,1.996589 off=-0.382683,0.000000,0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3642539899807401374
-@1 particle - op=cast/bolt.hit/use_4/ring[6] type=flame count=0 at=-1.504538,1.200000,1.996589 off=-0.707107,0.000000,0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-113085492711882674
-@1 particle - op=cast/bolt.hit/use_4/ring[7] type=flame count=0 at=-1.504538,1.200000,1.996589 off=-0.923880,0.000000,0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2461262908583741703
-@1 particle - op=cast/bolt.hit/use_4/ring[8] type=flame count=0 at=-1.504538,1.200000,1.996589 off=-1.000000,0.000000,0.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1296774377232461516
-@1 particle - op=cast/bolt.hit/use_4/ring[9] type=flame count=0 at=-1.504538,1.200000,1.996589 off=-0.923880,0.000000,-0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5501663877454105133
-@1 particle - op=cast/bolt.hit/use_4/ring[10] type=flame count=0 at=-1.504538,1.200000,1.996589 off=-0.707107,0.000000,-0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6091737579238807372
-@1 particle - op=cast/bolt.hit/use_4/ring[11] type=flame count=0 at=-1.504538,1.200000,1.996589 off=-0.382683,0.000000,-0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7860973839615038137
-@1 particle - op=cast/bolt.hit/use_4/ring[12] type=flame count=0 at=-1.504538,1.200000,1.996589 off=0.000000,0.000000,-1.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4636573130798459430
-@1 particle - op=cast/bolt.hit/use_4/ring[13] type=flame count=0 at=-1.504538,1.200000,1.996589 off=0.382683,0.000000,-0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-9202150368823859063
-@1 particle - op=cast/bolt.hit/use_4/ring[14] type=flame count=0 at=-1.504538,1.200000,1.996589 off=0.707107,0.000000,-0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7032941660157603727
-@1 particle - op=cast/bolt.hit/use_4/ring[15] type=flame count=0 at=-1.504538,1.200000,1.996589 off=0.923880,0.000000,-0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3582800177232596839
-@1 particle - op=cast/bolt.hit/use_4/ring_up[0] type=flame count=0 at=-1.504538,1.200000,1.996589 off=0.700000,0.700000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8939297452549270909
-@1 particle - op=cast/bolt.hit/use_4/ring_up[1] type=flame count=0 at=-1.504538,1.200000,1.996589 off=0.494975,0.700000,0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1530063312511561902
-@1 particle - op=cast/bolt.hit/use_4/ring_up[2] type=flame count=0 at=-1.504538,1.200000,1.996589 off=0.000000,0.700000,0.700000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8491274956641752815
-@1 particle - op=cast/bolt.hit/use_4/ring_up[3] type=flame count=0 at=-1.504538,1.200000,1.996589 off=-0.494975,0.700000,0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-5626436526321545263
-@1 particle - op=cast/bolt.hit/use_4/ring_up[4] type=flame count=0 at=-1.504538,1.200000,1.996589 off=-0.700000,0.700000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4581307188107653645
-@1 particle - op=cast/bolt.hit/use_4/ring_up[5] type=flame count=0 at=-1.504538,1.200000,1.996589 off=-0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1130262285463241355
-@1 particle - op=cast/bolt.hit/use_4/ring_up[6] type=flame count=0 at=-1.504538,1.200000,1.996589 off=0.000000,0.700000,-0.700000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1144613549651660812
-@1 particle - op=cast/bolt.hit/use_4/ring_up[7] type=flame count=0 at=-1.504538,1.200000,1.996589 off=0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4773776763537894371
-@1 particle - op=cast/bolt.hit/use_4/pop type=lava count=5 at=-1.504538,1.200000,1.996589 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6861754287296099265
-@1 damage 00000000-0000-0000-0000-00000000000a op=- fire=20 skill=ember-rod-spark at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@0 spawn #0 op=cast/core kind=sprite sprite=flame alpha=1.000000 tint=#ff9030 seethrough=false pos=-0.982018,1.320000,0.887772 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.687500,0.687500,1.000000 bb=CENTER bright=- glow=- aud=ALL lane=CORE target=-
+@0 write #0 op=cast/core dur=7 pos=-0.982018,1.320000,0.887772 rot=-0.315566,-0.033167,0.943129,0.099127 scale=0.687500,0.687500,1.000000 bb=CENTER
+@0 sound - op=cast/snd sound=astera:skill/wand/cast cat=master vol=0.8 pitch=1.2 at=-0.982018,1.320000,0.887772
+@0 particle - op=cast/fx1 type=flame count=2 at=-0.982018,1.320000,0.887772 off=0.040000,0.040000,0.040000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8926275999799842768
+@0 frame cast/bolt op=cast/bolt pos=-0.982018,1.320000,0.887772 rot=0.000000,-0.317305,0.000000,0.948324
+@1 hit - op=cast/bolt at=-1.644015,1.320000,1.766271 r=1.600000 shape=capsule a=-0.982018,1.320000,0.887772 b=-2.306011,1.320000,2.644771 rad=0.500000
+@1 sound - op=cast/bolt.hit/snd_hit sound=astera:skills/fire-impact cat=master vol=0.7 pitch=1.2 at=-1.504538,0.810000,1.996589
+@1 particle - op=cast/bolt.hit/spark type=hit-spark at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4855949856269095963
+@1 particle - op=cast/bolt.hit/ring[0] type=flame count=0 at=-1.504538,0.810000,1.996589 off=1.000000,0.000000,0.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6600206051268981985
+@1 particle - op=cast/bolt.hit/ring[1] type=flame count=0 at=-1.504538,0.810000,1.996589 off=0.923880,0.000000,0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2102744529039214651
+@1 particle - op=cast/bolt.hit/ring[2] type=flame count=0 at=-1.504538,0.810000,1.996589 off=0.707107,0.000000,0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-60443462088120557
+@1 particle - op=cast/bolt.hit/ring[3] type=flame count=0 at=-1.504538,0.810000,1.996589 off=0.382683,0.000000,0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2232369108953759717
+@1 particle - op=cast/bolt.hit/ring[4] type=flame count=0 at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,1.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5667413399325670257
+@1 particle - op=cast/bolt.hit/ring[5] type=flame count=0 at=-1.504538,0.810000,1.996589 off=-0.382683,0.000000,0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6005058233932257502
+@1 particle - op=cast/bolt.hit/ring[6] type=flame count=0 at=-1.504538,0.810000,1.996589 off=-0.707107,0.000000,0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7987638700446596751
+@1 particle - op=cast/bolt.hit/ring[7] type=flame count=0 at=-1.504538,0.810000,1.996589 off=-0.923880,0.000000,0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5409366222252718385
+@1 particle - op=cast/bolt.hit/ring[8] type=flame count=0 at=-1.504538,0.810000,1.996589 off=-1.000000,0.000000,0.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3885800201059040496
+@1 particle - op=cast/bolt.hit/ring[9] type=flame count=0 at=-1.504538,0.810000,1.996589 off=-0.923880,0.000000,-0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-4425018116245604429
+@1 particle - op=cast/bolt.hit/ring[10] type=flame count=0 at=-1.504538,0.810000,1.996589 off=-0.707107,0.000000,-0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7909800200385028521
+@1 particle - op=cast/bolt.hit/ring[11] type=flame count=0 at=-1.504538,0.810000,1.996589 off=-0.382683,0.000000,-0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2881544174179187975
+@1 particle - op=cast/bolt.hit/ring[12] type=flame count=0 at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,-1.000000 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2241460033190509908
+@1 particle - op=cast/bolt.hit/ring[13] type=flame count=0 at=-1.504538,0.810000,1.996589 off=0.382683,0.000000,-0.923880 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5516837040873454107
+@1 particle - op=cast/bolt.hit/ring[14] type=flame count=0 at=-1.504538,0.810000,1.996589 off=0.707107,0.000000,-0.707107 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8865676738805905151
+@1 particle - op=cast/bolt.hit/ring[15] type=flame count=0 at=-1.504538,0.810000,1.996589 off=0.923880,0.000000,-0.382683 speed=0.250000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4232347532722434740
+@1 particle - op=cast/bolt.hit/ring_up[0] type=flame count=0 at=-1.504538,0.810000,1.996589 off=0.700000,0.700000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3441889050703839977
+@1 particle - op=cast/bolt.hit/ring_up[1] type=flame count=0 at=-1.504538,0.810000,1.996589 off=0.494975,0.700000,0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1110142358871671839
+@1 particle - op=cast/bolt.hit/ring_up[2] type=flame count=0 at=-1.504538,0.810000,1.996589 off=0.000000,0.700000,0.700000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1237659406096540105
+@1 particle - op=cast/bolt.hit/ring_up[3] type=flame count=0 at=-1.504538,0.810000,1.996589 off=-0.494975,0.700000,0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-7493389431902437
+@1 particle - op=cast/bolt.hit/ring_up[4] type=flame count=0 at=-1.504538,0.810000,1.996589 off=-0.700000,0.700000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4279814771462088602
+@1 particle - op=cast/bolt.hit/ring_up[5] type=flame count=0 at=-1.504538,0.810000,1.996589 off=-0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3644683888904656807
+@1 particle - op=cast/bolt.hit/ring_up[6] type=flame count=0 at=-1.504538,0.810000,1.996589 off=0.000000,0.700000,-0.700000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=9034421406999828561
+@1 particle - op=cast/bolt.hit/ring_up[7] type=flame count=0 at=-1.504538,0.810000,1.996589 off=0.494975,0.700000,-0.494975 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8202378392476208308
+@1 particle - op=cast/bolt.hit/pop type=lava count=5 at=-1.504538,0.810000,1.996589 off=0.150000,0.150000,0.150000 speed=0.120000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3623901234196635797
+@1 damage 00000000-0000-0000-0000-00000000000a op=- fire=20 skill=ember-rod-spark at=-1.591505,1.320000,1.696589 ignoreinv=false ignorearmor=false
 @1 remove #0 op=cast/core
 g @1 state-exit reason=EVENT | state=cast
 g @1 dropped reason=owner-exited:cast | sub=cast/bolt.end

@@ -71,9 +71,23 @@ class GrenadeFuseScenarioTest : SkillEngineScenario() {
         assertThat(after.first().to.z).describedAs("reflected off the wall").isLessThan(after.first().from.z)
         assertThat(seen.drop(hit + 1).none { it.from.z > 6.0 }).describedAs("never behind the wall").isTrue()
         // it keeps flying (bouncing / rolling) until the fuse: probes continue to the last flight tick
-        assertThat(seen.maxOf { it.tick }).isGreaterThanOrEqualTo(55)
-        // the blast: one damage call, on the fuse tick (fuse_ticks = 60), wherever the body is
-        assertThat(damageTicks(rec)).containsExactly(60)
+        assertThat(seen.maxOf { it.tick }).isGreaterThanOrEqualTo(30)
+        // the blast: one damage call, on the fuse tick (fuse_ticks = 36), wherever the body is
+        assertThat(damageTicks(rec)).containsExactly(36)
+    }
+
+    @Test
+    fun `frag grenade flies a parabola and is not reflected by an enemy on its path`() {
+        val skill = shipped("frag-grenade-throw")
+        val rec = GatewayRecorder()
+        val seen = scene(rec, wall = false)
+        // an enemy standing right in the flight line
+        rec.victims = listOf(HitCandidate(far, Vec3(0.0, 0.0, 3.0), 0.0, HitBox(Vec3(-0.3, 0.0, 2.7), Vec3(0.3, 1.8, 3.3)), 1.62))
+        play(skill, 7L, emptyList(), 80, rec)
+
+        val flight = seen.filter { it.tick < 36 }
+        assertThat(flight.maxOf { it.to.y }).describedAs("thrown up before it falls").isGreaterThan(flight.first().from.y)
+        assertThat(flight.all { it.to.z >= it.from.z - 1e-9 }).describedAs("z never reverses: the enemy does not send it back").isTrue()
     }
 
     @Test
@@ -83,8 +97,8 @@ class GrenadeFuseScenarioTest : SkillEngineScenario() {
         val open = GatewayRecorder().also { scene(it, wall = false) }
         play(skill, 7L, emptyList(), 80, withWall)
         play(skill, 7L, emptyList(), 80, open)
-        assertThat(damageTicks(withWall)).containsExactly(60)
-        assertThat(damageTicks(open)).containsExactly(60)
+        assertThat(damageTicks(withWall)).containsExactly(36)
+        assertThat(damageTicks(open)).containsExactly(36)
     }
 
     @Test
@@ -102,7 +116,7 @@ class GrenadeFuseScenarioTest : SkillEngineScenario() {
 
     @Test
     fun `smoke bomb and sticky bomb casts end at the fuse, not at the 1200 cap`() {
-        for ((id, fuse) in listOf("smoke-bomb-throw" to 50, "sticky-bomb-throw" to 60, "frag-grenade-throw" to 60, "flash-bang-throw" to 50)) {
+        for ((id, fuse) in listOf("smoke-bomb-throw" to 50, "sticky-bomb-throw" to 60, "frag-grenade-throw" to 36, "flash-bang-throw" to 50)) {
             val max = shipped(id).table.bounds.path.max
             assertThat(max).describedAs("$id cast length").isBetween(fuse, fuse + 3)
         }

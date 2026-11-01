@@ -1,16 +1,8 @@
 # shared dark smoke: a small short-life dark-grey dust puff (client life 8/(0.8U+0.2) * scale = about 6 ticks at 0.5) replacing the vanilla
 # smoke / large_smoke, whose client-fixed life and size hung as big black checker squares in the caster's first-person view.
 id: smoke-dark
-shape:
-  kind: burst
-  spread_blocks: 0.1
-color:
-  r: 45
-  g: 45
-  b: 45
+particle: dust
 count: 2
-lifetime_ticks: 8
-vanilla_particle: dust
-speed: 0.0
+offset: [0.1, 0.1, 0.1]
+color: "#2d2d2d"
 size: 0.5
-data: {kind: dust, color: {r: 45, g: 45, b: 45}, scale: 0.5}

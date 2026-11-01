@@ -5,6 +5,10 @@ import com.astarworks.astera.core.application.skillengine.compose.HandlerLowerin
 import com.astarworks.astera.core.application.skillengine.compose.LowerContext
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.Field
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRef
+import com.astarworks.astera.core.application.skillengine.load.grammar.FrameRefs
+import com.astarworks.astera.core.application.skillengine.load.grammar.OpPlacement
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.Coeff
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldType
 import com.astarworks.astera.core.application.skillengine.load.grammar.FieldValues
 import com.astarworks.astera.core.application.skillengine.load.grammar.Fields
@@ -50,10 +54,14 @@ public enum class HitEvent(public val key: String) {
     }
 }
 
+/** Where a `hit` measures from: an anchor name, or a frame of the per-tick frame table. */
+public class HitPlace(public val anchor: String?, public val frame: FrameRef?)
+
 /** The one volume a `hit` declares (ADR-0303 10.1b). */
 public sealed interface HitShapeDecl {
     public data class Sphere(val radius: Value<Double>) : HitShapeDecl
-    public data class Capsule(val radius: Value<Double>, val from: String, val to: String) : HitShapeDecl
+    /** [from] / [to] are each a point name of the anchor frame (a String) or, with `frame:`, `{v, w, s}` coefficients of the frame's axes (a [Coeff]). */
+    public data class Capsule(val radius: Value<Double>, val from: Any, val to: Any) : HitShapeDecl
 
     /** [deg] is the full opening; [yaw] = `forward: yaw` (flattened to the horizontal), false = `forward: look`. */
     public data class Sector(val deg: Value<Double>, val range: Value<Double>, val height: Value<Double>, val yaw: Boolean) : HitShapeDecl
@@ -68,7 +76,8 @@ public class HitOp(
     override val src: SrcPath,
     override val whenExpr: WhenRef?,
     override val timing: Timing?,
-    public val anchor: String,
+    /** `anchor:` (a frame / point name) or `frame:` + `pos:` (ADR-0314); exactly one place. */
+    public val place: HitPlace,
     public val shape: HitShapeDecl,
     public val targets: String,
     /** null = every victim the shape found (`all`, or `max_count` omitted). */
@@ -81,7 +90,7 @@ public class HitOp(
     public val lowerHandlers: HandlerLowering? = null,
 ) : OpNode {
     public fun withHandlers(decoded: Map<HitEvent, List<OpNode>>, lowering: HandlerLowering): HitOp =
-        HitOp(id, src, whenExpr, timing, anchor, shape, targets, maxCount, window, ignoreInvulnerability, damage, rawOn, decoded, lowering)
+        HitOp(id, src, whenExpr, timing, place, shape, targets, maxCount, window, ignoreInvulnerability, damage, rawOn, decoded, lowering)
 }
 
 public object HitOpSpec : OpSpec<HitOp> {
@@ -128,8 +137,15 @@ public object HitOpSpec : OpSpec<HitOp> {
 
     private val shapeSphere = Field.optional("sphere", Types.nullable(Types.number), null, "sphere radius (centre = the anchor point)")
     private val shapeCapsule = Field.optional("capsule", Types.nullable(Types.number), null, "capsule radius, from/to name points of the anchor frame")
-    private val shapeFrom = Field.optional("from", Types.nullable(Types.id), null, "capsule start point")
-    private val shapeTo = Field.optional("to", Types.nullable(Types.id), null, "capsule end point")
+    /** A capsule end: a point name of the anchor frame, or (with `frame:`) `{v, w, s}` coefficients of the frame's axes. */
+    private val capsuleEnd: FieldType<Any> = object : FieldType<Any> {
+        override val label = "point name or {v, w, s}"
+        override fun decode(raw: Any?, ctx: GrammarContext, path: String): Any =
+            if (raw is Map<*, *>) FrameRefs.COEFF.decode(raw, ctx, path) else Types.id.decode(raw, ctx, path)
+        override fun schema(): Map<String, Any?> = linkedMapOf("oneOf" to listOf(Types.id.schema(), FrameRefs.COEFF.schema()))
+    }
+    private val shapeFrom = Field.optional("from", Types.nullable(capsuleEnd), null, "capsule start point: a point of the anchor frame, or {v, w, s} with frame:")
+    private val shapeTo = Field.optional("to", Types.nullable(capsuleEnd), null, "capsule end point: a point of the anchor frame, or {v, w, s} with frame:")
     private val shapeSector = Field.optional("sector", Types.nullable(Types.nested(sectorFields)), null, "wedge of a sphere: deg, range, height, forward")
     private val shapeFields: Fields = Fields.of("hit.shape", shapeSphere, shapeCapsule, shapeFrom, shapeTo, shapeSector)
 
@@ -142,7 +158,7 @@ public object HitOpSpec : OpSpec<HitOp> {
         HitEvent.entries.associateWith { Field.optional(it.key, rawHandlers, null, "ops run per victim (hit) / once when nobody was hit (miss) / per victim that absorbed the hit (absorbed); event-relative") }
     private val onFields: Fields = Fields.of("hit-on", *onEventFields.values.toTypedArray())
 
-    private val anchorField = Field.required("anchor", Types.id, "frame / point the shape is measured from (caster.body, a frame id, an instance)")
+    private val anchorField = Field.optional("anchor", Types.nullable(Types.id), null, "frame / point the shape is measured from (caster.body, a frame id, an instance); or write frame: + pos: {v, w, s} instead (ADR-0314)")
     private val shapeField = Field.required("shape", Types.nested(shapeFields), "exactly one of sphere / capsule / sector")
     private val targetsField = Field.required("targets", Types.enumOf("enemies", "allies", "all"), "which entities the volume may touch (never the caster)")
     private val maxCountField = GameplayOps.maxCountField("keep the nearest N victims (nearest first from the shape origin); `all` = unlimited")
@@ -152,7 +168,7 @@ public object HitOpSpec : OpSpec<HitOp> {
     private val onField = Field.optional("on", Types.nullable(Types.nested(onFields)), null, "handlers by event: hit (one per victim), miss (once), absorbed (one per victim that absorbed the hit)")
 
     override val fields: Fields = Fields.of(
-        "hit", anchorField, shapeField, targetsField, maxCountField, windowField, ignoreInvulnerabilityField, damageField, onField,
+        "hit", anchorField, FrameRefs.FRAME, FrameRefs.POS, shapeField, targetsField, maxCountField, windowField, ignoreInvulnerabilityField, damageField, onField,
     )
 
     override fun decode(id: OpId, src: SrcPath, whenExpr: WhenRef?, timing: Timing?, values: FieldValues, ctx: GrammarContext): Result<HitOp, SkillDecodeError> =
@@ -164,6 +180,9 @@ public object HitOpSpec : OpSpec<HitOp> {
             if (repeats && window == null) ctx.fail("$path.window", "a repeating hit (every) needs window: once or {every: N}")
             if (!repeats && window is HitWindow.Every) ctx.fail("$path.window", "window: {every: N} re-hits across several firings; this hit fires once (use window: once or leave it out)")
 
+            val anchorName = values[anchorField]
+            val frame = FrameRefs.read(values, ctx, path, anchorGiven = anchorName != null)
+            if (anchorName == null && frame == null) ctx.fail(path, "needs a place: anchor: <id>, or frame: <id> with pos: {v, w, s} (ADR-0314)")
             val shape = values[shapeField]
             val sphere = shape[shapeSphere]
             val capsule = shape[shapeCapsule]
@@ -173,11 +192,14 @@ public object HitOpSpec : OpSpec<HitOp> {
             if (capsule == null && (shape[shapeFrom] != null || shape[shapeTo] != null)) ctx.fail("$path.shape", "from / to belong to a capsule")
             val decoded: HitShapeDecl = when {
                 sphere != null -> HitShapeDecl.Sphere(sphere)
-                capsule != null -> HitShapeDecl.Capsule(
-                    capsule,
-                    shape[shapeFrom] ?: ctx.fail("$path.shape.from", "capsule needs 'from'"),
-                    shape[shapeTo] ?: ctx.fail("$path.shape.to", "capsule needs 'to'"),
-                )
+                capsule != null -> {
+                    val from = shape[shapeFrom] ?: ctx.fail("$path.shape.from", "capsule needs 'from'")
+                    val to = shape[shapeTo] ?: ctx.fail("$path.shape.to", "capsule needs 'to'")
+                    val want = if (frame != null) Coeff::class else String::class
+                    if (from::class != want) ctx.fail("$path.shape.from", if (frame != null) "with frame: a capsule end is {v, w, s}" else "with anchor: a capsule end is a point name")
+                    if (to::class != want) ctx.fail("$path.shape.to", if (frame != null) "with frame: a capsule end is {v, w, s}" else "with anchor: a capsule end is a point name")
+                    HitShapeDecl.Capsule(capsule, from, to)
+                }
                 else -> HitShapeDecl.Sector(sector!![sectorDeg], sector[sectorRange], sector[sectorHeight], sector[sectorForward] == "yaw")
             }
 
@@ -191,7 +213,7 @@ public object HitOpSpec : OpSpec<HitOp> {
             values[onField]?.let { on -> for (e in HitEvent.entries) on[onEventFields.getValue(e)]?.let { raw[e] = it } }
 
             HitOp(
-                id, src, whenExpr, timing, values[anchorField], decoded, values[targetsField], values[maxCountField],
+                id, src, whenExpr, timing, HitPlace(anchorName, frame), decoded, values[targetsField], values[maxCountField],
                 window, values[ignoreInvulnerabilityField], damage, raw,
             )
         }
@@ -201,15 +223,21 @@ public object HitOpSpec : OpSpec<HitOp> {
         fun bad(message: String): Result.Failure<SkillDecodeError> =
             Result.Failure(SkillDecodeError.Invalid(lc.skillId, src.value, "hit '${op.id.value}': $message"))
 
-        val ref = PointRef.parse(op.anchor)
-        val anchorInstance = lc.anchors.resolve(ref.frame)?.instance
+        val placeFrame = op.place.frame
+        val ref = PointRef.parse(op.place.anchor ?: "caster.body")
+        val anchorInstance = if (placeFrame != null) null else lc.anchors.resolve(ref.frame)?.instance
         fun point(name: String?): Vec = Val.Live(GameplayOps.point(anchorInstance?.text ?: ref.frame, name), null)
-        val origin: Vec = point(ref.point)
+        // frame form: every point is a cell of the per-tick frame table, like a draw op's pos:
+        fun framePoint(c: Any): Vec = Val.Live(FrameRef(placeFrame!!.frame, c as Coeff).cell, null)
+        val origin: Vec = if (placeFrame != null) placeFrame.position() else point(ref.point)
         val shape: HitShape = when (val s = op.shape) {
             is HitShapeDecl.Sphere -> HitShape.Sphere(origin, GameplayOps.live(s.radius))
-            is HitShapeDecl.Capsule -> HitShape.Capsule(point(s.from), point(s.to), GameplayOps.live(s.radius))
+            is HitShapeDecl.Capsule ->
+                if (placeFrame != null) HitShape.Capsule(framePoint(s.from), framePoint(s.to), GameplayOps.live(s.radius))
+                else HitShape.Capsule(point(s.from as String), point(s.to as String), GameplayOps.live(s.radius))
             is HitShapeDecl.Sector -> {
-                val forward: Vec = Val.Live((anchorInstance?.text ?: ref.frame) + ".forward", null)
+                val forward: Vec = if (placeFrame != null) Val.Live(FrameRefs.directionCell(placeFrame.frame, Coeff(1.0, 0.0, 0.0)), null)
+                    else Val.Live((anchorInstance?.text ?: ref.frame) + ".forward", null)
                 HitShape.Sector(origin, forward, GameplayOps.live(s.deg), GameplayOps.live(s.range), GameplayOps.live(s.height), s.yaw)
             }
         }
@@ -219,7 +247,7 @@ public object HitOpSpec : OpSpec<HitOp> {
         val hit = Action.Hit(
             shape = shape,
             anchor = anchorInstance,
-            anchorName = AnchorNames.host(lc.anchors, ref.frame),
+            anchorName = if (placeFrame != null) "" else AnchorNames.host(lc.anchors, ref.frame),
             targets = HitTargets(op.targets, op.maxCount),
             window = op.window ?: HitWindow.Once,
             ignoreInvulnerability = op.ignoreInvulnerability,
@@ -245,7 +273,7 @@ public object HitOpSpec : OpSpec<HitOp> {
             val prefix = InstanceId(scope + InstanceId.Segment(OpId(op.id.value + "." + e.key), null))
             val hc = LowerContext(
                 lc.skillId, lc.state, prefix, lc.occurrence, 0, lc.anchors, lc.frames, lc.parts, lc.skills, lc.item, lc.sprites, lc.conditions, lc.exprs,
-                lc.config, lc.seed, SrcPath(src.value + ".on." + e.key), hitScope = e == HitEvent.HIT || e == HitEvent.ABSORBED,
+                lc.config, lc.seed, SrcPath(src.value + ".on." + e.key), hitScope = e == HitEvent.HIT || e == HitEvent.ABSORBED, keys = lc.keys,
             )
             val lo = when (val r = lowering.lower(nodes, hc)) {
                 is Result.Success -> r.value

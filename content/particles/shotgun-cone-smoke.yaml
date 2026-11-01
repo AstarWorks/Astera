@@ -1,13 +1,6 @@
 # shotgun smoke cloud
 id: shotgun-cone-smoke
-shape:
-  kind: burst
-  spread_blocks: 0.3
-color:
-  r: 120
-  g: 120
-  b: 120
+particle: large_smoke
 count: 4
-lifetime_ticks: 20
-vanilla_particle: large_smoke
-speed: 0.03
+offset: [0.3, 0.3, 0.3]
+extra: 0.03

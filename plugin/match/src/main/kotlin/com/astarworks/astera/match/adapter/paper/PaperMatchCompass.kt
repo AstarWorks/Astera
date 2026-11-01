@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.adapter.paper
 
+import com.astarworks.astera.core.adapter.paper.wiring.OwnedListeners
 import com.astarworks.astera.core.adapter.paper.lobby.MatchCompassTag
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
@@ -31,11 +32,12 @@ import org.bukkit.plugin.java.JavaPlugin
  */
 public class PaperMatchCompass(
     private val plugin: JavaPlugin,
+    private val listeners: OwnedListeners,
     private val messages: IMessageRenderer,
 ) : IMatchCompass, Listener {
 
     public fun start() {
-        plugin.server.pluginManager.registerEvents(this, plugin)
+        listeners.register(this)
     }
 
     override fun give(player: PlayerId) {

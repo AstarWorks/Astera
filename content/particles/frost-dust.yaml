@@ -1,13 +1,7 @@
 # frost projectile: white dust (never snowball items)
 id: frost-dust
-shape:
-  kind: burst
-  spread_blocks: 0.06
-color:
-  r: 235
-  g: 245
-  b: 255
+particle: dust
 count: 2
-lifetime_ticks: 20
-vanilla_particle: dust
+offset: [0.06, 0.06, 0.06]
+color: "#ebf5ff"
 size: 0.9

@@ -204,6 +204,12 @@ astera:
   skill.reload.ok: "<green><white>{skill}</white> を再読み込みしました: {ids}</green>"
   skill.reload.not-loaded: "<red>スキルがまだ読み込まれていません。先に /astera admin reload を実行してください。</red>"
   skill.reload.rejected: "<red><white>{skill}</white> の再読み込みを拒否しました(旧版のまま): {error}</red>"
+  skill.skin.ok: "<green>スキン {action}: <white>{player}</white> {skill} {skin}</green>"
+  skill.skin.unknown-variant: "<red>{skill} に <white>{skin}</white> という派生はありません。</red>"
+  skill.skin.not-a-skin: "<red>{skill}@{skin} は <white>{kind}</white> 派生でスキンではありません。</red>"
+  skill.skin.not-owned: "<red>このプレイヤーは {skill} のスキン <white>{skin}</white> を持っていません。先に grant してください。</red>"
+  skill.skin.need-skin: "<red>スキン名が必要です: /astera skill skin [action] [player] [skill] [skin]</red>"
+  skill.skin.no-player: "<red>オンラインに <white>{player}</white> というプレイヤーはいません。</red>"
   skill.preview.started: "<green><white>{skill}</white> をプレビュー中 (視点 {view}、速度 {speed}x)。0.5 秒後にダミーが発動します。</green>"
   skill.preview.again: "<green>直前のプレビューをもう一度再生します。</green>"
   skill.preview.slow-warning: "<yellow>プレビュー終了までこのバックエンドの全員の tick レートが遅くなります。</yellow>"
@@ -307,7 +313,9 @@ astera:
       skill-cast: "スキルを発動（リソース消費なし、--force でクールダウン無視）"
       skill-trace: "スキルエンジンの発動ライフサイクルログをオン/オフする"
       skill-reload: "再起動なしでスキル 1 件を content から再読み込みする"
+      skill-faults: "起動後に数えたスキル実行時フォールトを表示する（reset で 0 に戻す）"
       skill-expand: "スキルのコンパイル済みテーブルを表示して書き出す（all で全件、--json でソース行付き）"
+      skill-skin: "プレイヤーのスキルスキンを付与・剥奪・装備・解除する"
       announce: "演出モーメントを 1 サーバーまたは全サーバーで発火する（name=value 引数で文言を埋める）"
       norma-check: "自分のノルマ進行と次のレベルで解放される内容を表示する"
       economy: "通貨"
@@ -358,6 +366,7 @@ astera:
       admin-maintenance: "メンテナンスモードの切替"
       admin-teleport: "プレイヤーをテレポート"
       admin-reload: "コンテンツカテゴリを再読み込み"
+      admin-rewire: "サーバーを止めずにプラグインの世代を作り直す (--reconnect で persistence の接続も張り直す)"
       admin-audit: "プレイヤーの監査ログを表示"
       admin-promote: "プレイヤーにロールを付与"
       admin-demote: "プレイヤーからロールを剥奪"
@@ -400,6 +409,11 @@ astera:
       admin-maintenance-status-on: "<yellow>メンテナンスモードは ON です。理由: {reason}</yellow>"
       admin-maintenance-status-off: "<green>メンテナンスモードは OFF です。</green>"
       admin-reload: "<green><gold>{category}</gold> を再読み込みしました。</green>"
+      admin-reload-note: "<gray>  {note}</gray>"
+      admin-rewire: "<green><gold>{plugin}</gold> を再配線しました: {summary}</green>"
+      admin-rewire-status: "<gray>  {line}</gray>"
+      admin-rewire-warning: "<yellow>  {warning}</yellow>"
+      admin-rewire-failed: "<red>再配線できません ({code}): {reason}</red>"
       admin-restart: "<yellow>{minutes} 分後の再起動を予約しました。</yellow>"
       admin-drain: "<yellow>{count} 人を <gold>{target}</gold> へ移動します。</yellow>"
       admin-drain-unavailable: "<red>このサーバーではサーバー間移動を利用できません。</red>"
@@ -520,6 +534,22 @@ astera:
         sneak_drop: "<yellow>[Shift+Q]</yellow> <white>{name}</white>"
         shoot: "<yellow>[発射]</yellow> <white>{name}</white>"
       locked: "<dark_gray>試合中はノルマ Lv {level} まで使用不可</dark_gray>"
+      hold: "<gray>移動阻害: <white>{kind}{detail}</white></gray>"
+      hold_ticks: "{ticks}t"
+      hold_kind:
+        none: "なし"
+        knockback: "ノックバック"
+        pull: "引き寄せ"
+        knockback_pull: "ノックバック + 引き寄せ"
+        knockback_stop: "ノックバック + 停止"
+        slow: "鈍足"
+        root: "拘束"
+        freeze: "凍結"
+        shock: "感電"
+      hold_level:
+        light: "(軽)"
+        medium: "(中)"
+        heavy: "(重)"
       stat:
         attack_damage: "<gray>ダメージ: <white>{value}</white></gray>"
         attack_speed: "<gray>攻撃速度: <white>{value}/秒</white></gray>"
@@ -1857,6 +1887,7 @@ astera:
 
   lobby:
     npc:
+      removed-gui-closed: "<yellow>このNPCは撤去されたためメニューを閉じました。</yellow>"
       travel:
         name: "旅の案内人"
       refinement:
@@ -2068,6 +2099,7 @@ astera:
       "skills.err.unknown": "<red>不明なスキル <gold>{skill}</gold></red>"
       "skills.err.cooldown": "<red><gold>{skill}</gold> はクールダウン中です（あと {seconds} 秒、--force で無視）。</red>"
       "skills.err.silenced": "<red>沈黙状態です。</red>"
+      "skills.err.callee-only": "<red>callee-only: 呼び出し元 <gold>{callers}</gold> をキャストしてください({skill} は単独でキャストできません)。</red>"
       "skills.err.cast": "<red><gold>{skill}</gold> を発動できませんでした。</red>"
       "skills.err.no-items": "<red>items プラグインが利用できません。</red>"
       "skills.err.no-template": "<red>content/items/skill-tester.yaml がありません。</red>"
@@ -2369,6 +2401,8 @@ astera:
       name: "チャージ"
     immunity:
       name: "無敵"
+    root:
+      name: "拘束"
 
   # F3-2: message keys referenced from Kotlin (MessageKey / labelKey / button / text literals).
   damage.target_offline: "<red>対象のプレイヤーはオフラインです。</red>"
@@ -2795,6 +2829,7 @@ astera:
   statusdesc.charge: "自分に溜まる。チャージ系スキルが消費して追加ダメージにする。"
   statusdesc.immunity: "一瞬だけダメージを受けない。"
   statusdesc.silence: "少しの間スキルを使えない。"
+  statusdesc.root: "少しの間その場から動けない。攻撃と向きの変更はできる。"
 
   # Cross-server chat (ADR-0289)
   chat.japanize.on: "日本語変換を有効にしました。"

@@ -12,7 +12,15 @@ public sealed interface Action {
     public data class Key(val display: InstanceId, val durationTicks: Int, val translation: Vec, val leftRotation: Rot, val scale: Vec) : Action
     public data class Teleport(val display: InstanceId, val durationTicks: Int, val position: Vec, val yaw: Num, val pitch: Num) : Action
     public data class TrailPoint(val ribbon: InstanceId, val position: Vec) : Action
-    public data class Particle(val type: String, val count: Val<Int>, val offset: Vec, val extra: Num, val data: ParticleData?, val position: Vec, val sweep: Double?) : Action
+    /**
+     * [target] is the per-row destination of a trail / vibration [data] (whose own target is a placeholder); the player evaluates it and
+     * swaps it in as `ParticleTarget.Absolute`. Null for every other data.
+     */
+    public data class Particle(val type: String, val count: Val<Int>, val offset: Vec, val extra: Num, val data: ParticleData?, val position: Vec, val sweep: Double?, val target: Vec? = null) : Action {
+        init {
+            require((target != null) == (data is ParticleData.Trail || data is ParticleData.Vibration)) { "a particle row has a target exactly when its data is a trail or a vibration" }
+        }
+    }
 
     /** A custom particle definition (`op: particle_def, def: <id>`), played with the same timing block as a vanilla particle. */
     public data class ParticleDef(val def: String, val position: Vec, val count: Val<Int>? = null) : Action
@@ -58,6 +66,20 @@ public sealed interface Action {
      * Nobody found = this hop and every later hop of the chain are skipped.
      */
     public data class Pick(val chain: String, val hop: Int, val area: TargetRule.Area) : Action
+    /**
+     * `summon` (ADR-0313): at its tick starts an independent run of [skill] (its own machine and clock) whose single `frames_in` frame sits at [origin]
+     * facing [forward]'s heading. The run is owned by the caster (damage credit, cleanup) and is cut [lasts] ticks later, when the caster dies or the match ends.
+     */
+    public data class Summon(
+        val skill: String,
+        val origin: Vec,
+        val forward: Vec,
+        val lasts: Int,
+        /** True: the caster's death / quit / weapon swap does not cut it (only [lasts], a destroyed [body] and the match end do). */
+        val outlivesCaster: Boolean = false,
+        /** Optional hittable body: enemies' hits, damage, projectiles and area ops see it; null = untargetable. */
+        val body: SummonBody? = null,
+    ) : Action
     public data class Lock(val move: LockMove, val pitch: Boolean, val yaw: Boolean, val until: LockEnd) : Action
 
     // structure
@@ -70,6 +92,9 @@ public sealed interface Action {
     public data class Enter(val state: StatePath) : Action
     public data class Exit(val state: StatePath, val reason: ExitReason) : Action
 }
+
+/** The body a summon may own (ADR-0313 rev): [hp] health points, a box [width] x [height] standing on the spawn point. */
+public data class SummonBody(val hp: Double, val width: Double, val height: Double)
 
 public enum class ExitReason { TIMER, EVENT, PREEMPT, CANCEL }
 
@@ -84,7 +109,7 @@ public val Action.phase: Phase
         is Action.Key, is Action.Teleport, is Action.TrailPoint -> Phase.WRITE
         is Action.Particle, is Action.ParticleDef, is Action.Sound, is Action.Set -> Phase.PRESENTATION
         is Action.Effect -> if (spawnsAnchor) Phase.SPAWN else Phase.GAMEPLAY
-        is Action.Hit, is Action.Damage, is Action.Status, is Action.World -> Phase.GAMEPLAY
+        is Action.Hit, is Action.Damage, is Action.Status, is Action.World, is Action.Summon -> Phase.GAMEPLAY
         is Action.Lock -> Phase.LOCK
         is Action.Call -> Phase.CALL
         is Action.Emit, is Action.Cancel -> Phase.EMIT

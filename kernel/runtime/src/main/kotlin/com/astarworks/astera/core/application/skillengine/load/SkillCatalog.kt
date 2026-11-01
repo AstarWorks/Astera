@@ -17,6 +17,12 @@ public interface SkillCatalog {
     public fun get(id: String): CompiledSkill?
     public fun ids(): Set<String>
 
+    /**
+     * Callee-only marker, scanned once per load: null when [skillId] can be cast on its own, otherwise the (sorted) base ids of the skills whose
+     * `use: skill:` calls it (the only ones that can bind its `frames_in` / value its `required` params). Unknown ids are null.
+     */
+    public fun calleeOnlyCallers(skillId: String): List<String>?
+
     /** Decode + compile + swap atomically for the given composed skills; others are untouched. */
     public fun reload(composed: List<ComposedSkill>): SkillLoadReport
 

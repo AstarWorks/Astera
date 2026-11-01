@@ -15,6 +15,7 @@ import com.astarworks.astera.core.application.port.outbound.admin.ServerBackupEr
 import com.astarworks.astera.core.application.port.outbound.maintenance.IMaintenanceModeService
 import com.astarworks.astera.core.application.port.outbound.mob.IMobSpawner
 import com.astarworks.astera.core.application.usecase.admin.ReloadAllContentUseCase
+import com.astarworks.astera.core.application.wiring.IRewireService
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
@@ -36,6 +37,7 @@ import java.time.Clock
  *  - `/astera admin maintenance <on|off|status> [reason...]`  astera.admin.maintenance
  *  - `/astera admin teleport <player> <world> [x y z]`        astera.admin.teleport
  *  - `/astera admin reload <category|all>`                    astera.admin.reload
+ *  - `/astera admin rewire <plugin|status> [--reconnect]`      astera.admin.rewire
  *  - `/astera admin audit <player> [limit]`                   astera.admin.audit
  *  - `/astera admin promote <player> <role-id>`               astera.admin.role.grant
  *  - `/astera admin demote <player> <role-id>`                astera.admin.role.revoke
@@ -60,6 +62,8 @@ public class AdminOpsCommands(
     private val healthCheck: IServerHealthCheck,
     private val mobSpawner: IMobSpawner,
     private val backupGateway: IServerBackupGateway,
+    /** Resolves the rewire service lazily (it is registered by the Core wiring). */
+    private val rewireService: () -> IRewireService?,
     /** Registered mob type ids, for tab completion of `spawn-mob`. */
     private val mobIds: () -> List<String> = { emptyList() },
     private val clock: Clock = Clock.systemUTC(),
@@ -76,6 +80,7 @@ public class AdminOpsCommands(
         maintenanceCommand(),
         teleportCommand(),
         reloadCommand(),
+        rewireCommand(),
         auditCommand(),
         promoteCommand(),
         demoteCommand(),
@@ -184,6 +189,7 @@ public class AdminOpsCommands(
         log.info("Reloaded all categories: ok={} failed={}", summary.reloaded, summary.failed)
         if (summary.failed.isEmpty()) {
             ctx.reply(MessageKey("astera.command.reply.admin-reload"), mapOf("category" to RELOAD_ALL))
+            summary.notes.forEach { ctx.reply(MessageKey("astera.command.reply.admin-reload-note"), mapOf("note" to it)) }
             return CommandResult.Success
         }
         return CommandResult.Failure(
@@ -207,6 +213,7 @@ public class AdminOpsCommands(
                 is Result.Success -> {
                     log.info("Reloaded category {}: {}", category, outcome.value)
                     ctx.reply(MessageKey("astera.command.reply.admin-reload"), mapOf("category" to category))
+                    outcome.value.notes.forEach { ctx.reply(MessageKey("astera.command.reply.admin-reload-note"), mapOf("note" to it)) }
                     CommandResult.Success
                 }
                 is Result.Failure -> when (val err = outcome.error) {
@@ -222,6 +229,55 @@ public class AdminOpsCommands(
             }
         },
     ).requirePermission(Permission("astera.admin.reload"))
+
+    // ─── admin rewire ────────────────────────────────────────────────────
+
+    private fun rewireCommand(): CommandSpec.Literal = CommandSpec.Literal(
+        name = "rewire",
+        subcommands = listOf(
+            CommandSpec.Argument(
+                name = "plugin",
+                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                completer = { _ -> listOf(REWIRE_STATUS) + rewireService()?.rewirable().orEmpty() },
+            ),
+            CommandSpec.Argument(
+                name = REWIRE_RECONNECT_ARG,
+                type = ArgumentType.Choice(REWIRE_RECONNECT_FLAG),
+                optional = true,
+            ),
+        ),
+        executor = { ctx ->
+            val service = rewireService()
+            val plugin = ctx.required<String>("plugin")
+            when {
+                service == null -> CommandResult.Failure(
+                    MessageKey("astera.command.reply.admin-rewire-failed"),
+                    mapOf("code" to "UNAVAILABLE", "reason" to "rewire service is not registered"),
+                )
+                plugin == REWIRE_STATUS -> {
+                    service.status().forEach { ctx.reply(MessageKey("astera.command.reply.admin-rewire-status"), mapOf("line" to it)) }
+                    CommandResult.Success
+                }
+                else -> when (val outcome = service.rewire(plugin, reconnect = ctx.optional<String>(REWIRE_RECONNECT_ARG) != null)) {
+                    is Result.Success -> {
+                        log.info("Rewired {}: {}", plugin, outcome.value.summary())
+                        ctx.reply(
+                            MessageKey("astera.command.reply.admin-rewire"),
+                            mapOf("plugin" to plugin, "summary" to outcome.value.summary()),
+                        )
+                        outcome.value.warnings.forEach {
+                            ctx.reply(MessageKey("astera.command.reply.admin-rewire-warning"), mapOf("warning" to it))
+                        }
+                        CommandResult.Success
+                    }
+                    is Result.Failure -> CommandResult.Failure(
+                        MessageKey("astera.command.reply.admin-rewire-failed"),
+                        mapOf("code" to outcome.error.code, "reason" to outcome.error.message),
+                    )
+                }
+            }
+        },
+    ).requirePermission(Permission("astera.admin.rewire"))
 
     // ─── admin audit ─────────────────────────────────────────────────────
 
@@ -608,6 +664,9 @@ public class AdminOpsCommands(
         private const val DEFAULT_AUDIT_LIMIT = 25
         private const val MAX_SPAWN_COUNT = 64
         private const val RELOAD_ALL = "all"
+        private const val REWIRE_STATUS = "status"
+        private const val REWIRE_RECONNECT_ARG = "reconnect"
+        private const val REWIRE_RECONNECT_FLAG = "--reconnect"
 
         /** Mount every Core admin command under `/astera admin`; returns how many were mounted. */
         public fun registerAll(commands: CommandMount, admin: AdminOpsCommands): Int {

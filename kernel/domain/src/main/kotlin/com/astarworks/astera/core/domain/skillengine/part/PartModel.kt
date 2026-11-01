@@ -78,6 +78,11 @@ public data class Part(
     val framesOut: Map<String, String>,
     val emits: List<String>,
     val machine: Machine,
+    /**
+     * Events of the caller the part reacts to or rides on (`until: "${name}"`). An op-level call binds each with `events: {name: caller.event}`;
+     * a part that declares any outlives its call tick (the call instance is not ended, its riders end on their own `until`).
+     */
+    val eventsIn: List<String> = emptyList(),
 )
 
 /** Why a part could not be parsed, expanded or lowered. [path] is a dotted location in the YAML or the state path. */

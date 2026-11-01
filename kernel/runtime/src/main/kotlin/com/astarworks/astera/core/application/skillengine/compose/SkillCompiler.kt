@@ -1,8 +1,11 @@
 package com.astarworks.astera.core.application.skillengine.compose
 
+import com.astarworks.astera.core.domain.skillengine.frame.grammar.OriginSpec
 import com.astarworks.astera.core.application.skillengine.load.motion.MotionLaw
 import com.astarworks.astera.core.application.skillengine.expr.cel.V3Bindings
+import com.astarworks.astera.core.application.skillengine.load.IVanillaKeyCatalog
 import com.astarworks.astera.core.application.skillengine.load.OpListDecoder
+import com.astarworks.astera.core.application.skillengine.load.VanillaRegistryKeys
 import com.astarworks.astera.core.application.skillengine.load.SkillCatalogView
 import com.astarworks.astera.core.application.skillengine.load.SkillDecodeError
 import com.astarworks.astera.core.application.skillengine.load.grammar.GrammarContext
@@ -65,14 +68,17 @@ import java.lang.reflect.ParameterizedType
  *      projectile handlers, and hands every op to [GroupUnroller.unroll] (which owns every repetition, instance id and `when`), which
  *      calls the op's own [OpSpec.lower]. An op-level `use:` is expanded in place: the callee body is lowered under the call id and its
  *      rows are pasted behind the marker `Call` row (example j: `splash/dmg`, `splash/lava[k]` inside `volley[k]/ball.hit`).
- *   3. [EventScoper.scope], [TableAssembler.assemble], [StaticChecks.run] (checks 1-12, check 5 against the skill's `emits`).
+ *   3. [EventScoper.scope], [TableAssembler.assemble], [StaticChecks.run] (checks 1-12, check 5 against the skill's `emits`), then check 16
+ *      ([CasterEyeClutterCheck]): a dry cast in each configured caster pose must not fill the caster's own screen.
  */
 public class SkillCompiler(
     private val specs: OpSpecRegistry,
     private val exprs: ExprCompiler,
     private val frames: FrameTables,
     private val config: EngineConfig,
+    private val clutter: com.astarworks.astera.core.application.skillengine.compose.drycast.ClutterContext,
     private val sprites: SpriteCatalog = NoSprites,
+    private val keys: IVanillaKeyCatalog = VanillaRegistryKeys,
 ) {
     public fun compile(def: SkillDef, shared: PartCatalog, skills: SkillCatalogView, sampleSeed: Long = 0L): Result<CompiledSkill, SkillDecodeError> {
         val parts = PartInliner.withFragments(def, shared)
@@ -150,17 +156,28 @@ public class SkillCompiler(
             partDepth = maxOf(inlined.depth, session.maxCallDepth), path = TickRange(0, pathMax), sameTickDepth = sameTick.depth, tail = flat.machine.tail ?: 0,
         )
         PolylineFollow.check(def.id, m.states, subs.values)?.let { return Result.Failure(it) }
-        val table = TableAssembler.assemble(def.id, sampleSeed, emptyMap(), bounds, m.states, subs, m.writes, flat.conditions, config, m.world)
+        val table = TableAssembler.assemble(def.id, sampleSeed, emptyMap(), bounds, m.states, subs, m.writes, flat.conditions, config, m.world, def.frames.mapNotNull { f -> (f.origin as? OriginSpec.Instance)?.let { f.id to it.name } }.toMap())
         when (val r = StaticChecks.run(table, config, def.emits)) {
             is Result.Failure -> return r
             is Result.Success -> Unit
         }
+        FrameRefCheck.run(def, table)?.let { return Result.Failure(it) }
+        val skill = CompiledSkill(def, table, emptySet(), emptySet())
+        val traces = config.casterEye.poses.map { it to com.astarworks.astera.core.application.skillengine.compose.drycast.DryCast.run(skill, it, config, clutter) }
+        CasterEyeClutterCheck.run(traces, config.casterEye, clutter)?.let { return Result.Failure(withSkill(it, def.id)) }
         val usedParts = LinkedHashSet<String>()
         val usedSkills = LinkedHashSet<String>()
         collectUses(def.machine, parts, skills, usedParts, usedSkills, HashSet())
         usedParts += session.usedParts
         usedSkills += session.usedSkills
         return Result.Success(CompiledSkill(def, table, usedParts, usedSkills))
+    }
+
+    private fun withSkill(e: SkillDecodeError, id: String): SkillDecodeError = when (e) {
+        is SkillDecodeError.CasterEyeClutter -> e.copy(skillId = id)
+        is SkillDecodeError.DisplayCoverage -> e.copy(skillId = id)
+        is SkillDecodeError.UnknownParticleLifetime -> e.copy(skillId = id)
+        else -> e
     }
 
     private fun collectUses(m: Machine, parts: PartCatalog, skills: SkillCatalogView, outParts: MutableSet<String>, outSkills: MutableSet<String>, seen: MutableSet<String>) {
@@ -218,6 +235,7 @@ public class SkillCompiler(
         private val decoder = OpListDecoder(specs)
         private val grammar = GrammarContext(original.id, null, exprs, V3Bindings.spec(DEEP, ExprEnvSpec(variables = ANCHOR_AXES.associate { "anchor.$it" to ExprType.VEC3 }, frames = flat.anchors.map { it.id }.toSet() + flat.framesIn.keys + com.astarworks.astera.core.application.skillengine.load.grammar.ExprFrames.ofMachine(flat.machine))),
             paramDefaults = loadTimeDefaults(original.params),
+            lines = original.lines.associateBy { it.id },
             partAxes = flat.item?.takeIf { it != "any" }?.let { item -> { part -> frames.item(item)?.partFor(part)?.axes } },
             partConstants = com.astarworks.astera.core.application.skillengine.load.grammar.PartConstants.of(
                 com.astarworks.astera.core.application.skillengine.load.grammar.ExprFrames.partsOf(flat.machine),
@@ -235,6 +253,9 @@ public class SkillCompiler(
 
         /** Latest `<op>.end` tick of the bodies a state without `for:` has spawned so far (its natural length). */
         private val bodyHorizon = HashMap<String, Int>()
+
+        /** The horizon of the state section being lowered: an op-level call whose callee state has no `for` repeats against it (`every` + `until`). */
+        private var sectionHorizon: Int? = null
 
         /** Instances the sections of a state lowered so far spawned (the lexical lookup of a relative `cancel: <id>`). */
         private val stateSpawned = HashMap<String, MutableList<InstanceId>>()
@@ -281,6 +302,7 @@ public class SkillCompiler(
                     bodyHorizon[state.value],
                     nodes.filterIsInstance<ProjectileOp>().mapNotNull { ((it.timing?.span as? Span.Ticks)?.ticks as? Value.Literal)?.value?.toInt() }.maxOrNull(),
                 ).maxOrNull()
+            sectionHorizon = horizon
             checkQualifiedRefs(state, ops, section).let { if (it != null) return@SectionLowerer Result.Failure(it) }
             val registry = registries.getOrPut(state.value) {
                 DefaultAnchorScope(
@@ -355,7 +377,7 @@ public class SkillCompiler(
 
         private fun rootContext(state: StatePath, anchors: AnchorScope): LowerContext = LowerContext(
             original.id, state, InstanceId(emptyList()), Occurrence(0, 1, null), 0, anchors, frames, parts, skills,
-            flat.item?.takeIf { it != "any" }, sprites, conditions, exprs, config, SeededStream(sampleSeed), SrcPath("machine.states.${state.value}"),
+            flat.item?.takeIf { it != "any" }, sprites, conditions, exprs, config, SeededStream(sampleSeed), SrcPath("machine.states.${state.value}"), keys = keys,
         )
 
         // ---- decoding -------------------------------------------------------------------------------------------------
@@ -449,7 +471,7 @@ public class SkillCompiler(
                 }
                 mapOf("hop" to (lc.occurrence.i + 1).toDouble(), "hops" to lc.occurrence.n.toDouble())
             }
-            val bound = PartInliner.bind(original.id, at, part, args, chainBindings).getOr { return Result.Failure(it) }
+            val bound = PartInliner.bind(original.id, at, part, args, chainBindings + op.events).getOr { return Result.Failure(it) }
 
             val m = bound.machine
             if (m.states.isEmpty()) return Result.Failure(SkillDecodeError.Invalid(original.id, "$at.use", "'${op.target}' has no states"))
@@ -484,9 +506,10 @@ public class SkillCompiler(
                         for (n in nodes) {
                             val base = LowerContext(
                                 original.id, lc.state, call.callId, Occurrence(0, 1, null), lc.clockOffset + acc, calleeAnchors, frames, parts, skills,
-                                lc.item, sprites, lc.conditions, exprs, config, lc.seed, n.src, hitScope = lc.hitScope,
+                                lc.item, sprites, lc.conditions, exprs, config, lc.seed, n.src, hitScope = lc.hitScope, keys = keys,
                             )
-                            val lo = GroupUnroller.unroll(n, base, forTicks, childLowering).getOr { return Result.Failure(it) }
+                            val callHorizon = forTicks ?: sectionHorizon?.minus(lc.clockOffset + acc)
+                            val lo = GroupUnroller.unroll(n, base, callHorizon, childLowering).getOr { return Result.Failure(it) }
                             for (r in lo.rows) {
                                 val a = r.action
                                 val shifted = r.copy(tick = r.tick + acc)
@@ -511,7 +534,8 @@ public class SkillCompiler(
                     cur = st.then
                 }
                 rows += Row(acc, call.callId, Action.Emit(EventPath(call.callId.text + ".end")), callRow.src)
-                rows += Row(acc, call.callId, Action.End(call.callId), callRow.src)
+                // a part with events_in hands its riders to the caller's events: ending the call instance here would end them at the call tick
+                if (part.eventsIn.isEmpty()) rows += Row(acc, call.callId, Action.End(call.callId), callRow.src)
                 return Result.Success(
                     Lowered(
                         lowered.rows + rows, lowered.subTables + subs, lowered.instances + inst, lowered.events + events,
@@ -576,5 +600,5 @@ private fun LowerContext.with(
     src: SrcPath = this.src,
     hitScope: Boolean = this.hitScope,
 ): LowerContext = LowerContext(
-    skillId, state, self, occurrence, clockOffset, anchors, frames, parts, skills, item, sprites, conditions, exprs, config, seed, src, tau, hitScope,
+    skillId, state, self, occurrence, clockOffset, anchors, frames, parts, skills, item, sprites, conditions, exprs, config, seed, src, tau, hitScope, keys,
 )

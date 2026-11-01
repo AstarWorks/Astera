@@ -1,10 +1,13 @@
 package com.astarworks.astera.core.platform
 
+import com.astarworks.astera.core.platform.paper.listeners
 import com.astarworks.astera.core.adapter.paper.packetevents.PacketEventsBootstrap
 import com.astarworks.astera.core.application.services.ServiceRegistry
+import com.astarworks.astera.core.application.wiring.WiringOwner
 import com.astarworks.astera.core.platform.paper.CorePaperBindings
 import com.astarworks.astera.core.platform.wiring.CoreWiring
 import com.astarworks.astera.core.platform.wiring.CoreWiringResult
+import com.astarworks.astera.core.platform.wiring.RewireCoordinator
 import com.astarworks.astera.core.platform.wiring.ServerEnvironment
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import org.bukkit.plugin.java.JavaPlugin
@@ -84,6 +87,10 @@ public class AsteraCorePlugin : JavaPlugin() {
     // wiring-owned tasks, and the Paper-side teardown.
     private var wiringContext: WiringContext? = null
     private var wiringResult: CoreWiringResult? = null
+
+    /** Lifecycle host the leaf plugins (Chat, Economy, Stats) boot and rewire through (ADR-0311). */
+    public val rewire: RewireCoordinator
+        get() = (wiringResult ?: error("Astera-Core is not enabled yet")).rewire
     private var paperBindings: CorePaperBindings? = null
 
     override fun onLoad() {
@@ -115,10 +122,10 @@ public class AsteraCorePlugin : JavaPlugin() {
         contentDir = resolveContentDir()
         logger.info("Content directory: $contentDir")
 
-        val ctx = WiringContext(services, contentDir, logger, serverEnvironment.role, serverEnvironment.name)
+        val ctx = WiringContext(WiringOwner("Astera-Core"), 0, services, contentDir, logger, serverEnvironment.role, serverEnvironment.name)
         logger.info("Server role=${serverEnvironment.role} name=${serverEnvironment.name}")
         wiringContext = ctx
-        val bindings = CorePaperBindings(this, packetEventsInstalled, serverEnvironment)
+        val bindings = CorePaperBindings(this, ctx.listeners(this), packetEventsInstalled, serverEnvironment)
         paperBindings = bindings
 
         val ports = bindings.buildPorts()
