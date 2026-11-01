@@ -196,8 +196,8 @@ class FrameRigScenarioTest : SkillEngineScenario() {
     }
 
     /**
-     * ADR-0315, a frame rig without `anim:`: revolver-shot's `gun` frame is rooted in the eye / aim basis (aim, right, right x aim) at an aimed point (v 0.57,
-     * w -0.51, s 0.30: straight out from the right shoulder, 17 degrees down), the body is the rest pose and the right arm alone is turned
+     * ADR-0315, a frame rig without `anim:`: revolver-shot's `gun` frame is rooted in the eye / aim basis (aim, right, right x aim) at an aimed point (v 0.50,
+     * w -0.63, s 0.30: straight out from the right shoulder, 22 degrees down), the body is the rest pose and the right arm alone is turned
      * onto the frame origin. Every tick of the rig: the pushed body is the rest pose apart from the pin, the pin sits where the frame says
      * (the recoil `move:` keys swing it up at most 0.05 along the arm's sphere), the rigid arm reaches it exactly (no clamp beyond 0.02),
      * and the mesh grip is on it. The rig outlives the cast's end on the hit (detach, tail 10): the pose does not twitch off on the tick the
@@ -213,8 +213,8 @@ class FrameRigScenarioTest : SkillEngineScenario() {
             val t = push.frame.rightHandTarget!!
             // rig frame: +X the player's left, +Y up, +Z front; the caster looks along +Z at yaw 0 with its eye 1.62 above the feet
             assertThat(t.x).describedAs("pin right of the eye line on t$tick (s 0.30)").isCloseTo(-0.30, org.assertj.core.data.Offset.offset(0.02))
-            assertThat(t.y).describedAs("pin below the eye on t$tick (w -0.51..-0.46)").isBetween(1.62 - 0.51 - 0.02, 1.62 - 0.46 + 0.02)
-            assertThat(t.z).describedAs("pin ahead on t$tick (v 0.57..0.59)").isBetween(0.57 - 0.02, 0.59 + 0.02)
+            assertThat(t.y).describedAs("pin below the eye on t$tick (w -0.63..-0.58)").isBetween(1.62 - 0.63 - 0.02, 1.62 - 0.58 + 0.02)
+            assertThat(t.z).describedAs("pin ahead on t$tick (v 0.50..0.52)").isBetween(0.50 - 0.02, 0.52 + 0.02)
         }
         println("FRAME-RIG revolver: puppet grip vs gun origin worst=%.4f at t%d over %d ticks (feet %s); rest bodies %d; reach clamped: %s".format(
             r.worst, r.worstTick, r.judged, feet, restBodies, if (r.reach.isEmpty()) "none" else r.reach.joinToString(" "),
