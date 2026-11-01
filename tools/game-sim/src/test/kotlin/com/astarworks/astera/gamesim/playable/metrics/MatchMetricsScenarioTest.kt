@@ -14,6 +14,7 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
@@ -64,7 +65,12 @@ class MatchMetricsScenarioTest {
         val results = MassPlay.run(listOf(21L, 22L), out, MassPlay.Config(maxTicks = 3_000, frameEveryTicks = 0)) { MatchDriver.boot(MatchConfig(seed = it)) }
 
         assertThat(results).hasSize(2)
+        assertThat(results.map { it.seed }.distinct()).`as`("a batch must not replay one seed").hasSize(2)
+        assertThatThrownBy { MassPlay.run(listOf(5L, 5L), out) { MatchDriver.boot(MatchConfig(seed = it)) } }
+            .isInstanceOf(IllegalArgumentException::class.java).hasMessageContaining("duplicate seeds 5")
+        assertThat(out.resolve("summary.md")).content().contains("| seed |")
         for (r in results) {
+            assertThat(out.resolve(r.run).resolve("metrics.json")).content().contains("\"seed\": ${r.seed}")
             assertThat(out.resolve(r.run).resolve("metrics.json")).exists()
             assertThat(r.result.scalars["players"]).isEqualTo(9.0)
             assertThat(r.result.scalars["duration_s"]).isGreaterThan(0.0)
