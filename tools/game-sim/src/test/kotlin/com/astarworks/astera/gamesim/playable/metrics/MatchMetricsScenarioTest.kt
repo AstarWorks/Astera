@@ -43,11 +43,15 @@ class MatchMetricsScenarioTest {
             assertThat(r.result.scalars["players"]).isEqualTo(6.0)
             assertThat(r.result.scalars["p1_kills_in_enemy_base"]).`as`("p1_kills_in_enemy_base of ${r.run} is a count, with a per-kill list in metrics.json").isNotNull().isGreaterThanOrEqualTo(0.0)
             assertThat(Files.readString(out.resolve(r.run).resolve("metrics.json"))).contains("\"p1KillsInEnemyBaseList\"")
+            assertThat(Files.readString(out.resolve(r.run).resolve("metrics.json"))).contains("\"p2TtffSeconds\"", "\"p2KillsPerMinute\"")
+            assertThat(r.result.scalars).containsKeys("p2_ttff_s", "p2_kills_per_min")
+            r.result.scalars["p2_ttff_s"]?.let { assertThat(it).`as`("p2_ttff_s of ${r.run}").isGreaterThanOrEqualTo(0.0) }
+            r.result.scalars["p2_kills_per_min"]?.let { assertThat(it).`as`("p2_kills_per_min of ${r.run}").isGreaterThanOrEqualTo(0.0) }
         }
         assertThat(results.map { it.result.scalars["pillar_damage_total"] ?: 0.0 }.sum()).`as`("the scripted attackers hurt pillars").isGreaterThan(0.0)
         val summary = Files.readString(out.resolve("summary.md"))
         for (column in listOf("duration_s", "ttff_s", "lead_changes", "comeback", "stars_per_player_minute", "idle_ratio_mean",
-            "decisions_per_min_mean", "kills_total", "kills_per_min", "kills_per_min_per_player", "pillar_damage_total", "heatmap_unvisited_ratio", "ore_contention",
+            "decisions_per_min_mean", "kills_total", "p2_ttff_s", "p2_kills_per_min", "kills_per_min", "kills_per_min_per_player", "pillar_damage_total", "heatmap_unvisited_ratio", "ore_contention",
             "star_pickup_top_cell_share")) {
             assertThat(summary).contains("| $column |")
         }
