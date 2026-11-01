@@ -237,6 +237,44 @@ fun main(args: Array<String>) {
     }
     val baseline = args.getOrNull(3) == "--baseline"
     if (!baseline) {
+        // HighmarchSpawnSeatParity: compare voxel collision, not just successful A* arrival.
+        // Town frames use exact quarter turns (Mid ore orbits use rounded 120-degree turns).
+        // Include the guardhall walls/roof, arcade and the whole first-star approach.
+        for (team in teams) for (u in -7..26) for (v in -10..4) for (y in 63..76) {
+            val a = local("red", u, v, y)
+            val b = local(team, u, v, y)
+            check(plan.isSolid(a.first, a.second, a.third) == plan.isSolid(b.first, b.second, b.third)) {
+                "HighmarchSpawnSeatParity: $team collision differs at local ($u,$y,$v), world $b"
+            }
+        }
+        for (seat in 0..3) {
+            val lengths = teams.map { team ->
+                val spawn = stage.spawnPoints.filter { it.team?.value == team }[seat]
+                val start = cell(spawn.position)
+                check(spawn.position.x == start.first + .5 && spawn.position.y == start.second.toDouble() &&
+                    spawn.position.z == start.third + .5) { "HighmarchSpawnSeatParity: $team#$seat is not centred on its floor cell" }
+                val yaw = Math.toRadians(spawn.yaw.toDouble())
+                val exit = local(team, 1, -8)
+                val origin = local(team, 0, -8)
+                check(kotlin.math.abs(-sin(yaw) - (exit.first - origin.first)) < 1e-6 &&
+                    kotlin.math.abs(cos(yaw) - (exit.third - origin.third)) < 1e-6) {
+                    "HighmarchSpawnSeatParity: $team#$seat faces away from its arcade"
+                }
+                val goal = coordinates.getValue("stars").jsonObject.filterKeys { it.startsWith("base-$team-") }
+                    .values.map { it.jsonArray.map { p -> p.jsonPrimitive.int } }
+                    .minBy { hypot(spawn.position.x - it[0], spawn.position.z - it[2]) }
+                val route = checkNotNull(finder.find(start.first, start.second, start.third,
+                    goal[0] + .5, goal[2] + .5, goal[1].toDouble(), .6)) {
+                    "HighmarchSpawnSeatParity: $team#$seat has no first-star path"
+                }
+                check(route.complete && route.cells.all { p ->
+                    p.y == start.second && !p.jump && finder.standable(p.x, p.y, p.z)
+                }) { "HighmarchSpawnSeatParity: $team#$seat needs a jump, step or lacks headroom: ${route.cells}" }
+                route.cells.size
+            }
+            check(lengths.max() - lengths.min() <= 1) { "HighmarchSpawnSeatParity: seat#$seat paths differ: $lengths" }
+        }
+        println("HighmarchSpawnSeatParity: 12 flat, headroom-safe first-star paths; rotated collision/yaw match; seat lengths within one cell")
         for ((name, values) in coordinates.getValue("ore").jsonObject) {
             val mid = values.jsonArray.map { it.jsonArray.map { p -> p.jsonPrimitive.int } }
                 .filter { hypot(it[0].toDouble(), it[2].toDouble()) <= 43 }
