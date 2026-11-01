@@ -84,6 +84,8 @@ public object V3Bindings {
         exitReason: String = "",
         contact: Binding = Binding(),
         target: Binding = Binding(),
+        /** The feet of the entity that hit the caster (`event.attacker`, a `hurt` handler); null outside one, where the target's is the neutral value. */
+        attacker: Vec3? = null,
         extra: Map<String, ExprValue> = emptyMap(),
     ): Map<String, ExprValue> {
         val out = LinkedHashMap<String, ExprValue>(extra)
@@ -112,8 +114,8 @@ public object V3Bindings {
         }
         // `event.victim` is the victim's feet (its Ref form stays `target`/`victim`); `dist(event.victim, caster)` reads it as a point
         out["event.victim"] = ExprValue.Vec3(target.pos)
-        // `event.attacker` (a `hurt` handler) is likewise read as the attacker's feet; only the runtime knows it, so the neutral value is the target's
-        out["event.attacker"] = ExprValue.Vec3(target.pos)
+        // `event.attacker` (a `hurt` handler) is likewise read as the attacker's feet; only the runtime knows it (the host passes [attacker]), so the neutral value is the target's
+        out["event.attacker"] = ExprValue.Vec3(attacker ?: target.pos)
         out["contact.normal"] = ExprValue.Vec3(contact.normal)
         out["contact.point"] = ExprValue.Vec3(contact.point)
         for (root in ENTITY_ROOTS) {

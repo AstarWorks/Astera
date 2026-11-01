@@ -720,7 +720,7 @@ public class TablePlayer(
 
     /**
      * Offers [ev] to the levels innermost first (item 14.8). Per level the branches are tried in declaration order and the first
-     * match wins; a matched transition on a level that already transitioned this tick does not handle the event, so it bubbles.
+     * match wins. A level entered this tick is offered the events its own entry raised (a part's `emit: parried` reaches the caller's `on: <call>.parried` that was folded onto it).
      * A handled event is consumed: the handler's ancestors are not offered it.
      */
     private fun offer(run: Run, ev: RuntimeEvent, binding: EventBinding, now: Int, only: LevelCursor?): Offered {
@@ -735,7 +735,6 @@ public class TablePlayer(
             val br = st.branches.firstOrNull { b ->
                 b.event == ev.path && lt in b.window.min..b.window.max && guardOk(run, b, binding, lt, now)
             } ?: continue
-            if (br.target != null && lvl.firedTick == now) continue
             any = true
             consumed += lvl
             generateSequence(lvl.parent) { it.parent }.forEach { consumed += it }

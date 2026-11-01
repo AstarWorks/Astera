@@ -82,9 +82,17 @@ public class SimLiveValueSource(
             eventI = binding?.index ?: 0,
             contact = contactOf(binding),
             target = victimOf(binding),
+            attacker = attackerFeet(binding),
             extra = entityState("caster", entity(request(cast).caster)) +
                 entityState("target", binding?.victim?.id?.let { entity(it) }),
         )
+
+    /** `event.attacker` of a `hurt` binding: the attacker's feet, so a parry guard (`in_arc(caster, pos(event.attacker), ...)`) reads where the hit came from. */
+    private fun attackerFeet(binding: EventBinding?): Vec3? {
+        val id = binding?.attacker ?: return null
+        val loc = (entity(id) ?: throw IllegalArgumentException("'event.attacker': entity $id is not loaded")).location
+        return Vec3(loc.x, loc.y, loc.z)
+    }
 
     /** `<root>.on_ground` / `<root>.health_ratio` (3.8 conditions); absent entity = the neutral values of [V3Bindings.values]. */
     private fun entityState(root: String, e: Body?): Map<String, ExprValue> {
