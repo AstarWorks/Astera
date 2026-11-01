@@ -9,7 +9,7 @@ import com.astarworks.astera.core.domain.skillengine.part.Machine
  */
 public object ExprFrames {
     /** The model points a part can name in an expression (`content/frames/<item>.yaml` `points:`). */
-    public val POINTS: List<String> = listOf("tip", "root", "pivot", "grip")
+    public val POINTS: List<String> = listOf("tip", "root", "pivot", "grip", "muzzle")
 
     public fun ofMachine(machine: Machine): Set<String> {
         val out = LinkedHashSet<String>()

@@ -1,5 +1,8 @@
-# shotgun muzzle flash (wide)
+# shotgun muzzle flash (wide): a short orange spark puff. Orange dust (client life 1.4-14 ticks, mean ~5.6) instead of the vanilla flame
+# (client-fixed life 12-44 ticks: it hung in mid-air ahead of the muzzle for over a second). Same family as gun-muzzle-flash, wider and bigger.
 id: shotgun-muzzle
-particle: flame
+particle: dust
 count: 6
+color: "#ffaa32"
+size: 0.5
 velocity: {direction: from_caster_look, speed: 0.055, spread_degrees: 20, speed_jitter: 0.4}

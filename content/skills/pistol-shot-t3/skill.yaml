@@ -4,7 +4,7 @@
 # rides it, so the right arm is pinned onto the frame origin and the gun points along `v`. Recoil is a swing on the arm's 0.60 sphere: `move:`
 # kicks the hand up 0.04 over 2 ticks and settles over 4, `rotate:` about `s` flips the muzzle up 14 degrees and back.
 # `hit` one per victim at the victim's centre, `blk` one per block contact, v the way the bullet came in.
-# Flash, smoke, bolt and trail share ONE muzzle point on `gun`, v 0.40 / w 0.18 (the item's grip -> tip x 0.94, content/frames/pistol.yaml). The sparks sit at v -0.2 of the contact. No 3D, no ribbon: the bolt's dust trail is the tracer.
+# Flash (the def plus a 3-tick bright `glare`), smoke, bolt and trail share ONE muzzle point on `gun`, v 0.40 / w 0.15 (the item's grip -> tip x 0.94, content/frames/pistol-t3.yaml). The sparks sit at v -0.2 of the contact. No 3D, no ribbon: the bolt's dust trail is the tracer.
 # Schedule: the bullet flies `life` ticks at constant speed; hit tick, damage and end tick are arithmetic (speed, life), randomness is not used.
 apiVersion: astera/v3
 kind: Skill
@@ -66,12 +66,13 @@ machine:
       do:
         - {id: rig, op: rig, frame: gun, for: 10, detach: true}
         - {id: snd, op: sound, at: 0, sound: "astera:weapons/gun-shot", frame: gun, volume: 0.8}
-        - {id: flash, op: particle_def, at: 0, def: gun-muzzle-flash, frame: gun, pos: {v: 0.40, w: 0.18}}
-        - {id: smoke, op: particle_def, at: 0, def: gun-muzzle-smoke, frame: gun, pos: {v: 0.40, w: 0.18}}
+        - {id: flash, op: particle_def, at: 0, def: gun-muzzle-flash, frame: gun, pos: {v: 0.40, w: 0.15}}
+        - {id: smoke, op: particle_def, at: 0, def: gun-muzzle-smoke, frame: gun, pos: {v: 0.40, w: 0.15}}
+        - {id: glare, op: particle, particle: dust, frame: gun, pos: {v: 0.40, w: 0.15}, count: 2, offset: [0.03, 0.03, 0.03], color: "#fff0a0", size: 1.0, at: 0, every: 1, for: 3}
         - id: bolt
           op: projectile
           frame: gun
-          pos: {v: 0.40, w: 0.18}
+          pos: {v: 0.40, w: 0.15}
           velocity: "= look(caster) * ${speed}"
           for: "${life}"
           radius: 0.5

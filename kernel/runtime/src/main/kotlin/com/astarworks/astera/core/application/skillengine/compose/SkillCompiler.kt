@@ -157,13 +157,18 @@ public class SkillCompiler(
             partDepth = maxOf(inlined.depth, session.maxCallDepth), path = TickRange(0, pathMax), sameTickDepth = sameTick.depth, tail = flat.machine.tail ?: 0,
         )
         PolylineFollow.check(def.id, m.states, subs.values)?.let { return Result.Failure(it) }
-        val table = TableAssembler.assemble(def.id, sampleSeed, emptyMap(), bounds, m.states, subs, m.writes, flat.conditions, config, m.world, def.frames.mapNotNull { f -> (f.origin as? OriginSpec.Instance)?.let { f.id to it.name } }.toMap())
+        val table = TableAssembler.assemble(def.id, sampleSeed, def.params.values.mapNotNull { p -> (p.default as? Number)?.toDouble()?.let { p.name to it as Any } ?: (p.default as? Boolean)?.let { p.name to it as Any } ?: (p.default as? String)?.let { p.name to it as Any } }.toMap(), bounds, m.states, subs, m.writes, flat.conditions, config, m.world, def.frames.mapNotNull { f -> (f.origin as? OriginSpec.Instance)?.let { f.id to it.name } }.toMap())
         when (val r = StaticChecks.run(table, config, def.emits)) {
             is Result.Failure -> return r
             is Result.Success -> Unit
         }
-        FrameRefCheck.run(def, table)?.let { return Result.Failure(it) }
-        val skill = CompiledSkill(def, table, emptySet(), emptySet())
+        // `caster.<point>` / `weapon.<point>` need no declaration: the compiler adds theirs (BuiltinFrames)
+        val withFrames = when (val r = BuiltinFrames.synthesize(def, table, frames)) {
+            is Result.Failure -> return r
+            is Result.Success -> r.value
+        }
+        FrameRefCheck.run(withFrames, table)?.let { return Result.Failure(it) }
+        val skill = CompiledSkill(withFrames, table, emptySet(), emptySet())
         val traces = config.casterEye.poses.map { it to com.astarworks.astera.core.application.skillengine.compose.drycast.DryCast.run(skill, it, config, clutter) }
         CasterEyeClutterCheck.run(traces, config.casterEye, clutter)?.let { return Result.Failure(withSkill(it, def.id)) }
         val usedParts = LinkedHashSet<String>()
@@ -171,7 +176,7 @@ public class SkillCompiler(
         collectUses(def.machine, parts, skills, usedParts, usedSkills, HashSet())
         usedParts += session.usedParts
         usedSkills += session.usedSkills
-        return Result.Success(CompiledSkill(def, table, usedParts, usedSkills))
+        return Result.Success(CompiledSkill(withFrames, table, usedParts, usedSkills))
     }
 
     private fun withSkill(e: SkillDecodeError, id: String): SkillDecodeError = when (e) {
@@ -479,8 +484,10 @@ public class SkillCompiler(
 
             // a name bound to a frame of the caller's own `frames:` is renamed in the callee's ops, the one rewrite a state-level `use:` applies (PartExpander.Env)
             val skillFrames = lc.anchors.skillFrames
-            val frameBound = op.frames.filter { (_, v) -> v.substringBefore('.').substringBefore('[').let { it in skillFrames && lc.anchors.resolve(it) == null } }
-            val env = Binding.Env(emptyMap(), frameBound, skillFrames)
+            // a `caster.<point>` / `weapon.<point>` bound to a `frames_in` name of kind `frame` is a built-in frame: the callee places by `frame:` on it
+            val builtinBound = op.frames.filter { (k, v) -> part.framesIn[k] == "frame" && BuiltinFrames.isBuiltin(v) }
+            val frameBound = op.frames.filter { (k, v) -> k in builtinBound || v.substringBefore('.').substringBefore('[').let { it in skillFrames && lc.anchors.resolve(it) == null } }
+            val env = Binding.Env(emptyMap(), frameBound, skillFrames + builtinBound.values)
             val bindings = HashMap<String, ResolvedAnchor>()
             for ((name, inst) in call.frames) if (name !in frameBound) bindings[name] = ResolvedAnchor(inst, op.frames[name]?.let { lc.anchors.resolve(it)?.basis } ?: ExprClass.L)
             val calleeAnchors = BoundAnchors(DefaultAnchorScope(Occurrence(0, 1, null), skillFrames = skillFrames), bindings)

@@ -7,8 +7,8 @@
 #   long = root -> tip = model +X (the barrel); edge = model +Y (the top of the gun: sights and hammer side), so a rig with long along
 #   `aim` and edge along `up` holds the gun level and upright. length = grip bottom (2.5, 3.75) to the muzzle.
 # held = under item/generated `fixed` (rot [0,180,0], scale 1); held_hand = under item/handheld `thirdperson_righthand` (rot [0,-90,55],
-# tr [0,4,0.5], scale 0.85), the transform the rig's main-hand mesh draws with; hand_anchor = model centre (8,8,8). Both relative to grip.
-# Muzzle from grip in held_hand: 0.6906 along long, 0.2922 along edge (display units; the rig scales them by PLAYER_SCALE: 0.65 / 0.27).
+# tr [0,4,0.5], scale 0.85), the transform the rig's main-hand mesh draws with; hand_anchor = model centre (8,8,8). Absolute display-local points (the rig puts `grip` on the frame origin).
+# Muzzle from grip in held_hand: 0.6777 along long, 0.3053 along edge (display units; the rig scales them by PLAYER_SCALE 0.94: v 0.64 / w 0.29).
 apiVersion: astera/v3
 kind: ItemFrames
 item: revolver
@@ -16,12 +16,12 @@ parts:
   held:
     model: astera:revolver
     display: fixed
-    length: 0.9303
-    points: { grip: [-0.3438, -0.1562, 0.0], pivot: [-0.3438, -0.1562, 0.0], root: [-0.1875, 0.1875, 0.0], tip: [0.4688, 0.1875, 0.0] }
-    axes: { long: [1.0, 0.0, 0.0], edge: [0.0, 1.0, 0.0] }
+    length: 0.8742
+    points: { grip: [-0.3438, -0.1562, -0.0000], pivot: [-0.3438, -0.1562, -0.0000], root: [-0.1875, 0.1875, -0.0000], tip: [0.4531, 0.2031, 0.0000], muzzle: [0.4531, 0.2031, 0.0000] }
+    axes: { long: [1.0000, 0.0000, 0.0000], edge: [0.0000, 1.0000, 0.0000] }
   held_hand:
     model: astera:revolver
     display: thirdperson_righthand
-    length: 0.7908
-    points: { grip: [0.0, 0.0, 0.0], pivot: [0.0, 0.0, 0.0], root: [0.0, 0.2764, 0.1632], tip: [0.0, 0.7333, -0.1568], hand_anchor: [0.0, 0.3155, -0.0588] }
-    axes: { long: [0.0, 0.8192, -0.5736], edge: [0.0, 0.5736, 0.8192] }
+    length: 0.7431
+    points: { grip: [0.0000, -0.0655, 0.0276], pivot: [0.0000, -0.0655, 0.0276], root: [-0.0000, 0.2109, 0.1907], tip: [0.0000, 0.6645, -0.1107], muzzle: [0.0000, 0.6645, -0.1107], hand_anchor: [0.0000, 0.2500, -0.0312] }
+    axes: { long: [0.0000, 0.8192, -0.5736], edge: [-0.0000, 0.5736, 0.8192] }
