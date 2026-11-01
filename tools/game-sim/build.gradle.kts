@@ -35,9 +35,8 @@ dependencies {
     implementation(libs.slf4j.api)
     runtimeOnly(libs.logback.classic)
 
-    // The bot brain's pure weapon choice (WeaponPolicy) is driven against real wiring by BotTwoWeaponsScenarioTest;
-    // the playable-sim AgentPort walks the human seat with the bot Navigator / StageObjectives (ADR-0316).
-    implementation(project(":tools:bot-runner"))
+    // The real BotBrain runs headless through SimBotHost; AgentPort walks the seat with the bot Navigator (ADR-0316).
+    api(project(":tools:bot-runner"))
     testImplementation(libs.kotlinx.collections.immutable) // GuiSpec.slots is a PersistentMap
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
