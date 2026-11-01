@@ -3,18 +3,18 @@
 @0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=-0.384203,0.879863,0.429223 rot=0.000000,1.000000,0.000000,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=windup/rig dur=0 pos=-0.384203,0.879863,0.429223 rot=0.000000,1.000000,0.000000,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @0 sound - op=windup/snd_windup sound=item.armor.equip_iron cat=master vol=0.6 pitch=0.7 at=0.000000,0.000000,0.000000
-@0 particle - op=windup/charge[0] type=crit count=2 at=0.000000,0.000000,1.300000 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6717995265524651882
+@0 particle - op=windup/charge[0] type=crit count=2 at=0.000000,0.000000,1.300000 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1897283332345857088
 @0 frame windup/rig op=windup/rig pos=-0.384203,0.879863,0.429223 rot=0.000000,1.000000,0.000000,0.000000
 @1 write #0 op=windup/rig dur=0 pos=-0.276787,0.824243,0.379053 rot=0.000000,0.995303,-0.096811,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @1 frame windup/rig op=windup/rig pos=-0.276787,0.824243,0.379053 rot=0.000000,0.995303,-0.096811,0.000000
 @2 write #0 op=windup/rig dur=0 pos=-0.227384,0.794917,0.333944 rot=0.000000,0.987990,-0.154519,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@2 particle - op=windup/charge[1] type=crit count=2 at=0.000000,0.000000,1.300000 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1664958625314235088
+@2 particle - op=windup/charge[1] type=crit count=2 at=0.000000,0.000000,1.300000 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3774033241668382598
 @2 frame windup/rig op=windup/rig pos=-0.227384,0.794917,0.333944 rot=0.000000,0.987990,-0.154519,0.000000
 @3 write #0 op=windup/rig dur=0 pos=-0.213913,0.785860,0.317077 rot=0.000000,0.984808,-0.173648,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @3 frame windup/rig op=windup/rig pos=-0.213913,0.785860,0.317077 rot=0.000000,0.984808,-0.173648,0.000000
 @4 write #0 op=windup/rig dur=0 pos=-0.292969,1.045021,0.548127 rot=0.000000,0.999229,0.039260,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @4 sound - op=strike/snd sound=item.shield.block cat=master vol=1 pitch=0.9 at=0.000000,0.000000,0.000000
-@4 particle - op=strike/fx type=hit-spark at=0.000000,0.000000,1.300000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1463337527600637974
+@4 particle - op=strike/fx type=hit-spark at=0.000000,0.000000,1.300000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8260017338395832677
 @4 hit - op=strike/swing at=-0.213913,0.785860,0.317077 r=4.600000 shape=sector fwd=0.000000,0.996917,0.078459 left=1.000000,0.000000,0.000000 deg=70.000000 range=2.600000 height=2.000000
 @4 hit - op=strike/swing at=-0.292969,1.045021,0.548127 r=4.600000 shape=sector fwd=0.000000,0.996917,0.078459 left=1.000000,0.000000,0.000000 deg=70.000000 range=2.600000 height=2.000000
 @4 frame windup/rig op=windup/rig pos=-0.292969,1.045021,0.548127 rot=0.000000,0.999229,0.039260,0.000000
@@ -40,18 +40,18 @@ r @15 run-end tail=10 | pose
 @0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=-0.565151,0.879863,0.111574 rot=0.000000,0.948324,0.000000,0.317305 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=windup/rig dur=0 pos=-0.565151,0.879863,0.111574 rot=0.000000,0.948324,0.000000,0.317305 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @0 sound - op=windup/snd_windup sound=item.armor.equip_iron cat=master vol=0.6 pitch=0.7 at=0.000000,0.000000,0.000000
-@0 particle - op=windup/charge[0] type=crit count=2 at=-0.782360,0.000000,1.038226 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-6717995265524651882
+@0 particle - op=windup/charge[0] type=crit count=2 at=-0.782360,0.000000,1.038226 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1897283332345857088
 @0 frame windup/rig op=windup/rig pos=-0.565151,0.879863,0.111574 rot=0.000000,0.948324,0.000000,0.317305
 @1 write #0 op=windup/rig dur=0 pos=-0.449172,0.824243,0.136150 rot=0.030719,0.943869,-0.091808,0.315814 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @1 frame windup/rig op=windup/rig pos=-0.449172,0.824243,0.136150 rot=0.030719,0.943869,-0.091808,0.315814
 @2 write #0 op=windup/rig dur=0 pos=-0.382570,0.794917,0.129856 rot=0.049030,0.936934,-0.146534,0.313494 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@2 particle - op=windup/charge[1] type=crit count=2 at=-0.782360,0.000000,1.038226 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1664958625314235088
+@2 particle - op=windup/charge[1] type=crit count=2 at=-0.782360,0.000000,1.038226 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3774033241668382598
 @2 frame windup/rig op=windup/rig pos=-0.382570,0.794917,0.129856 rot=0.049030,0.936934,-0.146534,0.313494
 @3 write #0 op=windup/rig dur=0 pos=-0.361660,0.785860,0.124493 rot=0.055099,0.933916,-0.164675,0.312484 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @3 frame windup/rig op=windup/rig pos=-0.361660,0.785860,0.124493 rot=0.055099,0.933916,-0.164675,0.312484
 @4 write #0 op=windup/rig dur=0 pos=-0.563846,1.045021,0.261441 rot=-0.012457,0.947593,0.037231,0.317060 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @4 sound - op=strike/snd sound=item.shield.block cat=master vol=1 pitch=0.9 at=0.000000,0.000000,0.000000
-@4 particle - op=strike/fx type=hit-spark at=-0.782360,0.000000,1.038226 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1463337527600637974
+@4 particle - op=strike/fx type=hit-spark at=-0.782360,0.000000,1.038226 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8260017338395832677
 @4 hit - op=strike/swing at=-0.361660,0.785860,0.124493 r=4.600000 shape=sector fwd=-0.047218,0.996917,0.062660 left=0.798636,0.000000,0.601815 deg=70.000000 range=2.600000 height=2.000000
 @4 hit - op=strike/swing at=-0.563846,1.045021,0.261441 r=4.600000 shape=sector fwd=-0.047218,0.996917,0.062660 left=0.798636,0.000000,0.601815 deg=70.000000 range=2.600000 height=2.000000
 @4 frame windup/rig op=windup/rig pos=-0.563846,1.045021,0.261441 rot=-0.012457,0.947593,0.037231,0.317060
@@ -77,18 +77,18 @@ r @15 run-end tail=10 | pose
 @0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=-0.384203,0.879863,0.429223 rot=0.000000,1.000000,0.000000,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=windup/rig dur=0 pos=-0.384203,0.879863,0.429223 rot=0.000000,1.000000,0.000000,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @0 sound - op=windup/snd_windup sound=item.armor.equip_iron cat=master vol=0.6 pitch=0.7 at=0.000000,0.000000,0.000000
-@0 particle - op=windup/charge[0] type=crit count=2 at=0.000000,0.000000,1.300000 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-6717995265524651882
+@0 particle - op=windup/charge[0] type=crit count=2 at=0.000000,0.000000,1.300000 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1897283332345857088
 @0 frame windup/rig op=windup/rig pos=-0.384203,0.879863,0.429223 rot=0.000000,1.000000,0.000000,0.000000
 @1 write #0 op=windup/rig dur=0 pos=-0.276787,0.824243,0.379053 rot=0.000000,0.995303,-0.096811,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @1 frame windup/rig op=windup/rig pos=-0.276787,0.824243,0.379053 rot=0.000000,0.995303,-0.096811,0.000000
 @2 write #0 op=windup/rig dur=0 pos=-0.227384,0.794917,0.333944 rot=0.000000,0.987990,-0.154519,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
-@2 particle - op=windup/charge[1] type=crit count=2 at=0.000000,0.000000,1.300000 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1664958625314235088
+@2 particle - op=windup/charge[1] type=crit count=2 at=0.000000,0.000000,1.300000 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3774033241668382598
 @2 frame windup/rig op=windup/rig pos=-0.227384,0.794917,0.333944 rot=0.000000,0.987990,-0.154519,0.000000
 @3 write #0 op=windup/rig dur=0 pos=-0.213913,0.785860,0.317077 rot=0.000000,0.984808,-0.173648,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @3 frame windup/rig op=windup/rig pos=-0.213913,0.785860,0.317077 rot=0.000000,0.984808,-0.173648,0.000000
 @4 write #0 op=windup/rig dur=0 pos=-0.292969,1.045021,0.548127 rot=0.000000,0.999229,0.039260,0.000000 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=0.000000
 @4 sound - op=strike/snd sound=item.shield.block cat=master vol=1 pitch=0.9 at=0.000000,0.000000,0.000000
-@4 particle - op=strike/fx type=hit-spark at=0.000000,0.000000,1.300000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1463337527600637974
+@4 particle - op=strike/fx type=hit-spark at=0.000000,0.000000,1.300000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8260017338395832677
 @4 hit - op=strike/swing at=-0.213913,0.785860,0.317077 r=4.600000 shape=sector fwd=0.000000,0.996917,0.078459 left=1.000000,0.000000,0.000000 deg=70.000000 range=2.600000 height=2.000000
 @4 hit - op=strike/swing at=-0.292969,1.045021,0.548127 r=4.600000 shape=sector fwd=0.000000,0.996917,0.078459 left=1.000000,0.000000,0.000000 deg=70.000000 range=2.600000 height=2.000000
 @4 frame windup/rig op=windup/rig pos=-0.292969,1.045021,0.548127 rot=0.000000,0.999229,0.039260,0.000000
@@ -115,18 +115,18 @@ r @15 run-end tail=10 | pose
 @0 spawn #0 op=windup/rig kind=item item=main_hand part=- pos=-0.565151,0.879863,0.111574 rot=0.000000,0.948324,0.000000,0.317305 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000 bright=- model=- mode=FIXED rigshade=true shader=- glow=- aud=ALL lane=CORE target=-
 @0 write #0 op=windup/rig dur=0 pos=-0.565151,0.879863,0.111574 rot=0.000000,0.948324,0.000000,0.317305 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @0 sound - op=windup/snd_windup sound=item.armor.equip_iron cat=master vol=0.6 pitch=0.7 at=0.000000,0.000000,0.000000
-@0 particle - op=windup/charge[0] type=crit count=2 at=-0.782360,0.000000,1.038226 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-6717995265524651882
+@0 particle - op=windup/charge[0] type=crit count=2 at=-0.782360,0.000000,1.038226 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1897283332345857088
 @0 frame windup/rig op=windup/rig pos=-0.565151,0.879863,0.111574 rot=0.000000,0.948324,0.000000,0.317305
 @1 write #0 op=windup/rig dur=0 pos=-0.449172,0.824243,0.136150 rot=0.030719,0.943869,-0.091808,0.315814 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @1 frame windup/rig op=windup/rig pos=-0.449172,0.824243,0.136150 rot=0.030719,0.943869,-0.091808,0.315814
 @2 write #0 op=windup/rig dur=0 pos=-0.382570,0.794917,0.129856 rot=0.049030,0.936934,-0.146534,0.313494 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
-@2 particle - op=windup/charge[1] type=crit count=2 at=-0.782360,0.000000,1.038226 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1664958625314235088
+@2 particle - op=windup/charge[1] type=crit count=2 at=-0.782360,0.000000,1.038226 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3774033241668382598
 @2 frame windup/rig op=windup/rig pos=-0.382570,0.794917,0.129856 rot=0.049030,0.936934,-0.146534,0.313494
 @3 write #0 op=windup/rig dur=0 pos=-0.361660,0.785860,0.124493 rot=0.055099,0.933916,-0.164675,0.312484 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @3 frame windup/rig op=windup/rig pos=-0.361660,0.785860,0.124493 rot=0.055099,0.933916,-0.164675,0.312484
 @4 write #0 op=windup/rig dur=0 pos=-0.563846,1.045021,0.261441 rot=-0.012457,0.947593,0.037231,0.317060 scale=0.937500,0.937500,0.937500 bb=FIXED root=0.000000,0.000000,0.000000 ryaw=37.000000
 @4 sound - op=strike/snd sound=item.shield.block cat=master vol=1 pitch=0.9 at=0.000000,0.000000,0.000000
-@4 particle - op=strike/fx type=hit-spark at=-0.782360,0.000000,1.038226 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1463337527600637974
+@4 particle - op=strike/fx type=hit-spark at=-0.782360,0.000000,1.038226 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8260017338395832677
 @4 hit - op=strike/swing at=-0.361660,0.785860,0.124493 r=4.600000 shape=sector fwd=-0.047218,0.996917,0.062660 left=0.798636,0.000000,0.601815 deg=70.000000 range=2.600000 height=2.000000
 @4 hit - op=strike/swing at=-0.563846,1.045021,0.261441 r=4.600000 shape=sector fwd=-0.047218,0.996917,0.062660 left=0.798636,0.000000,0.601815 deg=70.000000 range=2.600000 height=2.000000
 @4 frame windup/rig op=windup/rig pos=-0.563846,1.045021,0.261441 rot=-0.012457,0.947593,0.037231,0.317060

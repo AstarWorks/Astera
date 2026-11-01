@@ -3030,7 +3030,7 @@ public class TablePlayer(
     }
 
     private fun rowScope(run: Run, row: Row, binding: EventBinding? = null): RowScope {
-        // the seed is the row's content seed (RowSeeds), never an op id: renaming or reordering ops keeps every spread
+        // the seed is the row's identity seed (RowSeeds), never the spec's text: adding a look field or reordering ops keeps every spread
         val indices = row.instance.path.mapNotNull { it.index }.asReversed()
         return RowScope(V3Bindings.rowSeed(run.request.seed, row.seed), run.request.seed, indices, framesOf(run, row, binding), run.frameNames)
     }
