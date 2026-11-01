@@ -109,6 +109,9 @@ public sealed interface OriginSpec {
     /** The victim the frame is instantiated for (`on: event.victim`); [point] = `center` (default), `eye`, `feet`, `body`. */
     public data class Victim(val point: String) : OriginSpec
 
+    /** The entity that hit the caster (`event.attacker` of the event in scope; `on: event.attacker` or `on: state.<name>`), at a victim-style point. */
+    public data class Attacker(val point: String) : OriginSpec
+
     /** The block contact the frame is instantiated for (`on: event.block`): the point where the projectile struck the block. */
     public data object Contact : OriginSpec
 }
@@ -158,7 +161,11 @@ public data class FrameDecl(
     val rotate: List<RotateKey> = emptyList(),
     val move: List<MoveKey> = emptyList(),
     val scale: List<ScaleKey> = emptyList(),
-    /** `on: event.victim` / `on: event.block`: one instance per victim / block contact of the event in scope (`each: true`), rooted on it. */
+    /**
+     * `on: event.victim` / `event.block` / `event.attacker`: one instance per victim / block contact / attacker of the event in scope (`each: true`),
+     * rooted on it. `on: state.<name>`: one instance per entry of that state (no `each`). Either way the `move:` / `rotate:` / `scale:` keys count
+     * their `at:` from the tick of the event / the state entry that made the instance, not from the cast start.
+     */
     val on: String? = null,
     val each: Boolean = false,
 ) {
@@ -168,12 +175,26 @@ public data class FrameDecl(
     /** `on: event.block`: one instance per block contact, rooted on the contact point. */
     val perBlock: Boolean get() = on == ON_BLOCK
 
-    /** Instantiated by an event binding (a victim or a block contact) at the first row that reads it, not at cast start. */
-    val perEvent: Boolean get() = on != null
+    /** `on: event.attacker`: one instance per attacker, rooted on that attacker. */
+    val perAttacker: Boolean get() = on == ON_ATTACKER
+
+    /** Instantiated by an event binding (a victim, a block contact or an attacker) at the first row that reads it, not at cast start. */
+    val perEvent: Boolean get() = on != null && on.startsWith("event.")
+
+    /** `on: state.<name>`: one instance per entry of the state, its clock starting on the entry tick. */
+    val perState: Boolean get() = on != null && on.startsWith(STATE_PREFIX)
+
+    /** The state name of an `on: state.<name>` frame. */
+    val stateName: String? get() = on?.takeIf { it.startsWith(STATE_PREFIX) }?.removePrefix(STATE_PREFIX)
+
+    /** Whether the state at [path] (`cast/riposte`) is the one an `on: state.<name>` frame names: the whole path or its last segment. */
+    fun startsOnState(path: String): Boolean = stateName?.let { path == it || path.substringAfterLast('/') == it } == true
 
     public companion object {
         public const val ON_VICTIM: String = "event.victim"
         public const val ON_BLOCK: String = "event.block"
+        public const val ON_ATTACKER: String = "event.attacker"
+        public const val STATE_PREFIX: String = "state."
     }
 }
 
