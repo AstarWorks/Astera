@@ -14,8 +14,8 @@ ROOT = Path(__file__).resolve().parents[2]
 SEED = 20261101
 TEAMS = {'red': (0, -108, 0), 'blue': (94, 54, 1), 'yellow': (-94, 54, 3)}
 OUTPOSTS = {'east': (85, -50), 'west': (-85, -50), 'north': (0, 112)}
-PILLARS = [(0, 22), (-25, -4), (0, -27)]
-DISTRICTS = {'plaza': (0, -2), 'market': (25, -2), 'forge': (-27, 24),
+PILLARS = [(0, 9), (-25, -4), (0, -27)]
+DISTRICTS = {'plaza': (23, 1), 'market': (25, -2), 'forge': (-27, 24),
              'gate-court': PILLARS[0], 'inner-ward': PILLARS[1], 'keep': PILLARS[2],
              'house': (25, -27)}
 
@@ -757,6 +757,8 @@ def town_character(w, team):
         overlap = 5 if (u, v) == (0, 39) else 2
         gate.box(-width, overlap, 65, 66, 5, 5, 'stone_bricks')
         gate.box(-overlap, width, 65, 66, 8, 8, 'stone_bricks')
+    # Every ore-quarter gate has the harbour's service opening: equal flank access.
+    t.box(-36, -36, 65, 67, 6, 8, None)
     if team == 'red':
         for u, v in ((-27, -27), (-14, 28), (28, 28)):
             t.box(u - 4, u - 2, 65, 85, v - 1, v + 1, 'deepslate_bricks')
@@ -772,8 +774,6 @@ def town_character(w, team):
         t.box(-21, -21, 65, 66, 32, 34, 'blackstone')
         ramp(t, -35, 21, 12, rise=12, width=1, material='deepslate_bricks')
     elif team == 'blue':
-        # The harbour-side gate tower also opens onto the ore quarter's service alley.
-        t.box(-36, -36, 65, 67, 6, 8, None)
         # Harbour basin and quay on the outer edge, away from fixed cache/keep stairs.
         t.box(-32, -15, 62, 63, -43, -35, 'water')
         t.box(-32, -15, 64, 67, -43, -35, None)
@@ -820,7 +820,7 @@ def town_character(w, team):
 
 
 def quarry_finish(w, data):
-    # Replace rock, never add collision: 32 ore/raw blocks per pocket, plus a
+    # Replace rock, never add collision: 64 ore/raw blocks per pocket, plus a
     # broad coloured mineral cap on the lip. Overlapping pockets merge as veins.
     colours = {'iron': ('iron_ore', 'raw_iron_block', 'calcite'),
                'gold': ('gold_ore', 'raw_gold_block', 'yellow_concrete'),
@@ -836,7 +836,7 @@ def quarry_finish(w, data):
             candidates = []
             for dx, dy, dz in itertools.product(range(-5, 6), range(-2, 5), range(-5, 6)):
                 pos = x + dx, y + dy, z + dz
-                if original.get(pos) not in rock or (pos[0], pos[1] + 1, pos[2]) not in original:
+                if original.get(pos) not in rock:
                     continue
                 # Only visible faces and lips; ignore buried concentric strata.
                 if not any((pos[0] + a, pos[1] + b, pos[2] + c) not in original
@@ -844,7 +844,7 @@ def quarry_finish(w, data):
                     continue
                 candidates.append((dx * dx + dy * dy + dz * dz, pos))
             candidates.sort()
-            for i, (_, pos) in enumerate(candidates[:32]):
+            for i, (_, pos) in enumerate(candidates[:64]):
                 w.set(*pos, materials[0] if i % 5 == 0 else materials[1])
     # Caps are applied after all face seams, so neighbouring pockets cannot
     # overwrite their shared colour. Use the upper lip rather than buried rock.
@@ -858,12 +858,11 @@ def quarry_finish(w, data):
                     pos = x + dx, h, z + dz
                     if original.get(pos) in rock and (pos[0], h + 1, pos[2]) not in original:
                         lips.append((dx * dx + dz * dz, pos))
-            for _, pos in sorted(lips)[:32]:
+            for _, pos in sorted(lips)[:12]:
                 w.set(*pos, materials[2])
     # Exposed ends of the same seams extend onto unobscured lips/floor. These
     # broad patches stay legible in a whole-quarry iso even behind crane roofs.
-    for name, x, z in (('iron', -31, 11), ('gold', 10, -32),
-                        ('diamond', -9, -16), ('emerald', 8, -15), ('lapis', 13, -12)):
+    for name, x, z in (('lapis', -9, -16),):
         materials = colours.get(name, ('lapis_ore', 'lapis_block', 'blue_concrete'))
         for dx, dz in itertools.product(range(-3, 4), range(-2, 3)):
             if dx * dx / 10 + dz * dz / 5 > 1 or (dx, dz) == (2, -1):
@@ -971,6 +970,11 @@ def make_world():
         t.box(19, 29, 64, 64, -5, 3, 'smooth_stone')
         town_fabric(t, team)
         monument(t.frame(*PILLARS[0]), team, tier=1)
+        # Front court: T1 is 29 blocks behind the first gate entry, with a shorter
+        # defender approach from the east plaza. Low cover leaves both lanes open.
+        t.box(-7, 7, 64, 64, 16, 26, 'gravel')
+        for u in (-7, 7):
+            t.box(u, u, 65, 66, 19, 22, 'stone_bricks')
         town_character(w, team)
         # The wider gate court meets the barracks' original interior stair.
         for step in range(5):
@@ -989,12 +993,33 @@ def make_world():
     # Banks and bridge soffits must not overwrite the recovery shafts.
     gorge_exits(w)
     data = coordinates()
+    # Rasterised copies can land one cell inside the terrace face. Extend that
+    # face inward instead of moving the ore away from its rotational anchor.
+    pockets = {tuple(p) for cells in data['ore'].values() for p in cells}
+    for x, y, z in sorted(pockets):
+        if math.hypot(x, z) > 43:
+            continue
+        sides = [(x + dx, y, z + dz) for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))]
+        if not any(p in w.blocks and p not in pockets for p in sides):
+            bx, _, bz = max((p for p in sides if p not in pockets), key=lambda p: math.hypot(p[0], p[2]))
+            w.box(bx, bx, y - 1, y + 1, bz, bz, 'cobbled_deepslate')
     quarry_finish(w, data)
     # Forge pockets are cut into a continuous rock bank; all remaining nodes sit against terrace faces.
     for cells in data['ore'].values():
         for x, y, z in cells:
             w.set(x, y, z, None)
             w.set(x, y + 1, z, None)
+    # Adjacent veins must leave a real cardinal mining stance after runtime ore
+    # placement. Cut only a blocked shoulder, never another node or a full lane.
+    for x, y, z in sorted(pockets):
+        sides = [(x + dx, y, z + dz) for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))]
+        def stance(p):
+            u, h, v = p
+            return p not in pockets and (u, h - 1, v) in w.blocks and p not in w.blocks and (u, h + 1, v) not in w.blocks
+        if not any(stance(p) for p in sides):
+            bx, _, bz = min((p for p in sides if p not in pockets), key=lambda p: math.hypot(p[0], p[2]))
+            w.set(bx, y - 1, bz, 'cobbled_deepslate')
+            w.box(bx, bx, y, y + 2, bz, bz, None)
     return w, data
 
 
@@ -1003,7 +1028,7 @@ def coordinates():
             'landmarks': [], 'stars': {}, 'ore': {}, 'climbs': {}, 'exploration_blocks': {}}
     for team in TEAMS:
         data['districts'][team] = {name: list(point(team, *pos)) for name, pos in DISTRICTS.items()}
-        data['spawns'][team] = [xyz(team, u, -2) for u in (-4, 0, 4, 10)]
+        data['spawns'][team] = [xyz(team, u, 1) for u in (20, 18, 22, 16)]
         data['pillars'][team] = [xyz(team, *p, y=69 if i == 2 else 65) for i, p in enumerate(PILLARS)]
         data['shops'][team] = xyz(team, 24, -2)
         for i, (u, v) in enumerate(((20, -2), (25, -2), (25, 3), (20, 3))):
@@ -1051,28 +1076,49 @@ def coordinates():
         data['climbs'][f'outpost-{name}-lookout'] = [x - 5, 76, z - 5]
     data['climbs']['east-crane'] = [25, 71, -13]
     data['climbs']['south-crane'] = [-7, 71, 29]
-    # Enumerate ledge cells immediately beside higher rock. Exclude the chapel and ramps/scaffolds.
+    # Author one irregular vein per type, rotate its cells about Mid by 120°.
+    # The square voxel lattice requires nearest-cell rounding (<= .71 block).
+    # Select the whole orbit together: every copy must occupy the same ledge
+    # and avoid the chapel, cranes, pool and ramp footprints.
     used = set()
+    def orbit(x, z):
+        return [(round(x * math.cos(a) - z * math.sin(a)),
+                 round(x * math.sin(a) + z * math.cos(a)))
+                for a in (0, 2 * math.pi / 3, 4 * math.pi / 3)]
     def vein(h, count, angle):
         candidates = []
         for x in range(-36, 37):
-            for z in range(-36, 37):
-                if quarry_height(x, z) != h or (x, z) in used:
+            for z in range(-36, 0):
+                if not -math.pi * 5 / 6 <= math.atan2(z, x) < -math.pi / 6:
                     continue
-                if (x + 24) ** 2 + (z + 15) ** 2 < 200 or (x > 15 and z < 0) or (abs(x) < 14 and z > 22):
+                copies = orbit(x, z)
+                if any(quarry_height(u, v) != h or (u, v) in used for u, v in copies):
                     continue
-                if any(abs(x - ox) <= 4 and abs(z - oz) <= 3 for ox, oz in ((-30, 15), (14, -30), (22, 21))):
+                if h == 50 and any(any(abs(u * dz - v * dx) <= 5 and u * dx + v * dz >= 17
+                               for dx, dz in ((0, -1), (.86, .5), (-.86, .5))) for u, v in copies):
                     continue
-                if any((quarry_height(x + dx, z + dz) or 0) > h + 2 for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))):
-                    diff = abs((math.atan2(z, x) - angle + math.pi) % (2 * math.pi) - math.pi)
-                    candidates.append((diff, x, z))
-        chosen = sorted(candidates)[:count]
-        assert len(chosen) == count, (h, count)
-        used.update((x, z) for _, x, z in chosen)
-        return [[x, h + 1, z] for _, x, z in chosen]
-    for name, h, count, angle in [('emerald', 50, 8, -1.1), ('diamond', 50, 10, 1.6),
-                                  ('gold', 55, 6, .8), ('heartwood', 55, 2, 2.4), ('silt', 55, 6, -1.3),
-                                  ('iron', 60, 11, 2.8), ('timber', 60, 4, -1.5), ('clay', 60, 6, .9)]:
+                if any((u + 24) ** 2 + (v + 15) ** 2 < 200 or
+                       (u > 15 and -22 < v < 10) or (abs(u) < 14 and v > 22) or
+                       any(abs(u - ox) <= 4 and abs(v - oz) <= 3
+                           for ox, oz in ((-30, 15), (14, -30), (22, 21))) for u, v in copies):
+                    continue
+                if all(any((quarry_height(u + dx, v + dz) or 0) > h + 2
+                           for dx, dz in ((2, 0), (-2, 0), (0, 2), (0, -2))) for u, v in copies):
+                    candidates.append((abs(math.atan2(z, x) - angle), x, z))
+        cells = []
+        for _, x, z in sorted(candidates):
+            copies = orbit(x, z)
+            if any(p in used for p in copies):
+                continue
+            used.update(copies)
+            cells.extend([[u, h + 1, v] for u, v in copies])
+            if len(cells) == count * 3:
+                break
+        assert len(cells) == count * 3, (h, count, cells)
+        return cells
+    for name, h, count, angle in [('emerald', 50, 3, -1.25), ('diamond', 50, 3, -1.9),
+                                  ('gold', 55, 2, -1.25), ('heartwood', 55, 1, -1.7), ('silt', 55, 2, -1.9),
+                                  ('iron', 60, 4, -1.25), ('timber', 60, 1, -1.7), ('clay', 60, 2, -1.9)]:
         data['ore'][name] = vein(h, count, angle)
     for team in TEAMS:
         for name, us in [('iron', (-31, -29, -27)), ('timber', (-32, -26)), ('clay', (-30, -28))]:
@@ -1085,11 +1131,11 @@ def coordinates():
 def stage_yaml(data):
     lines = ['# Highmarch: original floating highland (ADR-0317); generated by tools/map-gen/highmarch.py.',
              '# Town centres red (0,-108), blue (94,54), yellow (-94,54); each plateau radius ~44.',
-             '# Local wards (u right, v inward): plaza (0,-2), market (25,-2), forge (-27,24),',
-             '# gate court (0,22), inner ward (-25,-4), keep (0,-27), house (25,-27).',
-             '# Ward centres are 20+ blocks apart, joined by broad streets; shops face the plaza edge.',
+             '# Local wards (u right, v inward): plaza (23,1), market (25,-2), forge (-27,24),',
+             '# gate court (0,9), inner ward (-25,-4), keep (0,-27), house (25,-27).',
+             '# Objective wards have broad streets; four market-plaza spawns face a contestable front court.',
              '# Quarry r42: rim y64 / upper y60 / middle y55 / floor y50; three 7-wide ramps.',
-             '# Spawn -> rim ~70-90 blocks; enemy gate court ~180-230 blocks along routes.',
+             '# Spawn -> rim ~70-90 blocks; enemy gate court ~165-230 blocks along routes.',
              '# One continent: wooded valleys to Mid; seven-wide stone bridges cross the river gorge.',
              '# Outposts (85,-50), (-85,-50), (0,112) lie on covered flank ridge paths.',
              '# Keep floor y68 (tier 3 y69); other wards floor y64 (tiers 1/2 y65).',
@@ -1139,7 +1185,6 @@ def ore_yaml(data):
             node = match[1]
         if line.lstrip().startswith('positions:'):
             cells = data['ore'][node]
-            assert len(re.findall(r'\bx:', line)) == len(cells), f'{node}: node count changed'
             line = '    positions: [' + ', '.join(f'{{ x: {x}, y: {y}, z: {z} }}' for x, y, z in cells) + ']\n'
         lines.append(line)
     return ''.join(lines)
@@ -1186,7 +1231,7 @@ def validate(w, data):
     for x, z in data['landmarks']:
         assert (x, 64, z) in w.blocks and (x, 65, z) not in w.blocks, (x, z)
     cells = [tuple(cell) for group in data['ore'].values() for cell in group]
-    assert len(cells) == len(set(cells)) == 74
+    assert len(cells) == len(set(cells)) == 75
     for x, y, z in cells:
         assert (x, y, z) not in w.blocks and (x, y - 1, z) in w.blocks, (x, y, z)
         assert any((x + dx, y, z + dz) in w.blocks for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))), (x, y, z, 'no rock face')
