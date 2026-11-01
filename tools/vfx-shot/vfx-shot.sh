@@ -759,14 +759,17 @@ stop_client() {
 
 # join -> server pack applied (atlas rebuilt after the server/ reload) -> world visible
 wait_client_ready() { # name
-  local name="$1" wd="$CLIENTS/$1" i
+  local name="$1" wd="$CLIENTS/$1" i joined=0
+  # Bounded: 120 polls x 2 s. The join is decided by the poll that saw the name in `list`; it is never re-asked afterwards (the first join of
+  # a boot makes the server create the profile, start the tutorial and push the pack, and RCON drops a connection right then: a second
+  # `rcon list` for the same fact failed with "rcon closed" on a client that had joined, and a join that was fine was reported as never joined).
   for i in $(seq 1 120); do
-    grep -qw -- "$name" <<<"$(rcon list 2>/dev/null)" && break
+    if grep -qw -- "$name" <<<"$(rcon list 2>/dev/null)"; then joined=1; break; fi
     [ "$(docker inspect -f '{{.State.Running}}' "$SERVER_CT" 2>/dev/null)" = true ] || die "the server container $SERVER_CT is gone (torn down by another run's reaper?)"
     kill -0 "${CPID[$name]}" 2>/dev/null || { tail -20 "$wd/client.log" >&2; die "client $name exited before joining"; }
     sleep 2
   done
-  grep -qw -- "$name" <<<"$(rcon list 2>/dev/null)" || { tail -20 "$wd/client.log" >&2; die "client $name never joined"; }
+  [ "$joined" = 1 ] || { tail -20 "$wd/client.log" >&2; die "client $name never joined within 240 s"; }
   # the server pack reload names a "server/" pack; wait for it and then for the items atlas it triggers
   for i in $(seq 1 90); do
     grep -q 'Reloading ResourceManager:.*server/' "$wd/client.log" && break
