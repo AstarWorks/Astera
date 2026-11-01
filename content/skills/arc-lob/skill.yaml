@@ -27,11 +27,10 @@ machine:
       do:
         - id: shell
           op: display
-          kind: item
-          item: "minecraft:fire_charge"
-          context: fixed
+          kind: block
+          block: magma_block
           frame: lob
-          scale: [1.3, 1.3, 1.3]
+          scale: [0.6, 0.6, 0.6]
           brightness: {block: 15, sky: 15}
           at: 0
           for: 24
@@ -40,6 +39,6 @@ machine:
         - {id: flash, op: particle, particle: flash, frame: land, count: 1, at: 23, detach: true}
         - {id: blast, op: particle, particle: explosion, frame: land, pos: {w: 0.6}, count: 2, offset: [0.8, 0.3, 0.8], at: 23, detach: true}
         - {id: fire, op: particle, particle: flame, frame: land, count: 30, offset: [1.2, 0.4, 1.2], extra: 0.08, at: 23, every: 2, times: 5, detach: true}
-        - {id: smoke, op: particle, particle: large_smoke, frame: land, pos: {w: 0.5}, count: 8, offset: [1.0, 0.5, 1.0], extra: 0.04, at: 24, every: 2, times: 5, detach: true}
+        - {id: smoke, op: particle, particle: large_smoke, frame: land, pos: {w: 0.5}, count: 5, offset: [1.0, 0.5, 1.0], extra: 0.04, at: 24, every: 2, times: 2, detach: true}
         - {id: hurt, op: damage, at: 23, target: {kind: enemies, frame: land, pos: {v: 0}, radius: 3.0}, damage: {fire: "${dmg}"}}
     end: {final: true}
