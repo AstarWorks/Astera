@@ -1,0 +1,15 @@
+# error: SkillDecodeError.StateOverrun   (10.4 check 2 + 11.2 check 8: hit3 fires @10..19 but state coin3 lasts 16 ticks)
+apiVersion: astera/v3
+kind: Skill
+id: rejected-r1
+item: couture-rapier
+meta: {cooldown_ticks: 10, resource_cost: 0}
+machine:
+  start: coin3
+  states:
+    coin3:
+      for: 16
+      then: end
+      do:
+        - {id: hit3, op: hit, at: 10, every: 1, for: 10, anchor: caster, targets: enemies, shape: {sector: {deg: 30, range: 3, height: 2.0, forward: look}}, damage: {physical: 8}, ignore_invulnerability: false, window: {every: 1}}
+    end: {final: true}

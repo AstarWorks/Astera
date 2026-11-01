@@ -109,7 +109,7 @@ class SummonHomingPathScenarioTest : SkillEngineScenario() {
 
     // ---- path --------------------------------------------------------------------------------------------------------
 
-    private fun pathSkill(points: String): CompiledSkill {
+    private fun pathSkill(points: String, orient: String? = null, billboard: Boolean = false): CompiledSkill {
         val yaml = """
             apiVersion: astera/v3
             kind: Skill
@@ -131,10 +131,11 @@ class SummonHomingPathScenarioTest : SkillEngineScenario() {
                       sprite: flame
                       anchor: base
                       size: [0.5, 0.5]
+                      ${if (billboard) "billboard: center" else ""}
                       at: 0
                       for: 16
                       motion:
-                        - {law: path, points: $points, at: 0, for: 16}
+                        - {law: path, points: $points, at: 0, for: 16${if (orient != null) ", orient: $orient" else ""}}
                 done: {final: true}
         """.trimIndent()
         return (loadInline(yaml) as? Result.Success)?.value ?: error("expected a clean decode: ${loadInline(yaml)}")
@@ -145,7 +146,7 @@ class SummonHomingPathScenarioTest : SkillEngineScenario() {
     @Test
     fun pathPlacesTheDisplayOnTheSplineAndFacesAlongTheTangent() {
         val rec = GatewayRecorder()
-        play(pathSkill("[{forward: 0}, {forward: 4, up: 2}, {forward: 8}]"), seed = 1L, events = emptyList(), ticks = 24, rec = rec)
+        play(pathSkill("[{v: 0}, {v: 4, w: 2}, {v: 8}]"), seed = 1L, events = emptyList(), ticks = 24, rec = rec)
         val poses = rec.writtenPoses.map { it.third.frame }
         assertThat(poses).isNotEmpty()
         // the curve passes through its points at the matching progress: start, the apex at the half, the end
@@ -162,9 +163,28 @@ class SummonHomingPathScenarioTest : SkillEngineScenario() {
     }
 
     @Test
+    fun orientNoneKeepsThePathPositionsWritesNoRotationAndLetsTheDisplayBillboard() {
+        val pts = "[{v: 0}, {v: 4, w: 2}, {v: 8}]"
+        val tangent = GatewayRecorder()
+        play(pathSkill(pts), seed = 1L, events = emptyList(), ticks = 24, rec = tangent)
+        val none = GatewayRecorder()
+        play(pathSkill(pts, orient = "none", billboard = true), seed = 1L, events = emptyList(), ticks = 24, rec = none)
+        val a = tangent.writtenPoses.map { it.third.frame }
+        val b = none.writtenPoses.map { it.third.frame }
+        assertThat(b).describedAs("the billboarded none-form loads and plays").isNotEmpty()
+        // a write equal to the spawn pose (start) or to the previous pose is not repeated, so the two forms may differ only in the two curve ends
+        val pa = a.map { it.origin }.toSet()
+        val pb = b.map { it.origin }.toSet()
+        assertThat(pa.intersect(pb)).describedAs("same positions as the tangent form").hasSizeGreaterThanOrEqualTo(15)
+        assertThat(pa.union(pb)).describedAs("all on the same 17-point curve").hasSize(17)
+        assertThat(a.map { it.forward() }.distinct().size).describedAs("the tangent form turns").isGreaterThan(1)
+        assertThat(b.map { it.forward() }.distinct()).describedAs("no rotation is written").hasSize(1)
+    }
+
+    @Test
     fun twoPointPathIsAStraightLine() {
         val rec = GatewayRecorder()
-        play(pathSkill("[{forward: 0}, {forward: 8}]"), seed = 1L, events = emptyList(), ticks = 24, rec = rec)
+        play(pathSkill("[{v: 0}, {v: 8}]"), seed = 1L, events = emptyList(), ticks = 24, rec = rec)
         val poses = rec.writtenPoses.map { it.third.frame }
         assertThat(poses.any { near(it.origin, 0.0, rec.casterPosition.y, 4.0) }).describedAs("middle; poses=" + poses.map { it.origin }).isTrue()
         assertThat(poses.all { Math.abs(it.origin.y - rec.casterPosition.y) < 1e-9 && Math.abs(it.origin.x) < 1e-9 }).isTrue()
@@ -172,7 +192,7 @@ class SummonHomingPathScenarioTest : SkillEngineScenario() {
 
     @Test
     fun pathNeedsTwoPoints() {
-        assertThat(runCatching { pathSkill("[{forward: 3}]") }.isFailure).isTrue()
+        assertThat(runCatching { pathSkill("[{v: 3}]") }.isFailure).isTrue()
     }
 
     // ---- summon ------------------------------------------------------------------------------------------------------

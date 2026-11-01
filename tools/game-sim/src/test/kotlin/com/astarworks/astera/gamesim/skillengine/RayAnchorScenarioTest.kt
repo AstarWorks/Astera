@@ -103,6 +103,36 @@ class RayAnchorScenarioTest : SkillEngineScenario() {
         skipped.forEach { assertThat(it).`as`("ally and caster hitboxes on the ray do not stop it").isBetween(9.5, 10.5) }
     }
 
+    private fun lanceOnAFrame(stops: String): CompiledSkill {
+        val text = Files.readString(contentDir.resolve("skills/prism-lance/skill.yaml"))
+            .replace("  - {id: muzzle,", "  - {id: tipf, origin: {aim: 24, stops: $stops}, v: aim, w: up, s: v x w}\n  - {id: muzzle,")
+            .replace("anchor: tip, count: 3", "frame: tipf, count: 3")
+        return when (val r = compileText("skill.yaml", text)) {
+            is Result.Success -> r.value
+            is Result.Failure -> error("prism-lance on a frame ($stops) did not load: ${r.error.message}")
+        }
+    }
+
+    /** The frame form `origin: {aim: 24, stops: entities}` lands exactly where the `ray_stops: entities` anchor did (same enemy at z=5, wall at z=10, near/far/ally cases). */
+    @Test
+    fun anAimOriginThatStopsAtEntitiesMatchesTheRayAnchor() {
+        val setups = listOf<(GatewayRecorder) -> Unit>(
+            { it.victims = listOf(body(UUID(0L, 21L), 5.0)) },
+            { it.victims = emptyList() },
+            { it.victims = listOf(body(UUID(0L, 21L), 7.0), body(UUID(0L, 22L), 3.0)) },
+            { rec -> rec.allies += UUID(0L, 23L); rec.victims = listOf(body(UUID(0L, 23L), 3.0), body(rec.caster, 0.0)) },
+        )
+        for ((i, setup) in setups.withIndex()) {
+            val anchor = tipZ(lanceWith("entities"), setup)
+            val frame = tipZ(lanceOnAFrame("entities"), setup)
+            assertThat(frame).describedAs("setup $i: the frame origin rests where the ray anchor rests").hasSameSizeAs(anchor)
+            for (k in anchor.indices) assertThat(frame[k]).describedAs("setup $i tick $k").isBetween(anchor[k] - 1e-6, anchor[k] + 1e-6)
+        }
+        // the default stops (blocks) ignores the enemy, like ray_stops: blocks
+        val blocks = tipZ(lanceOnAFrame("blocks")) { it.victims = listOf(body(UUID(0L, 21L), 5.0)) }
+        blocks.forEach { assertThat(it).isBetween(9.5, 10.5) }
+    }
+
     @Test
     fun rayStopsIsRequiredWithRayAndForbiddenWithout() {
         val base = Files.readString(contentDir.resolve("skills/prism-lance/skill.yaml"))

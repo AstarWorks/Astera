@@ -1,0 +1,15 @@
+# error: SkillDecodeError.UnboundedRepeat   (2.0 / 11.4 check 11: `every` without `for`, `times` or `until`)
+apiVersion: astera/v3
+kind: Skill
+id: rejected-r3
+item: couture-rapier
+meta: {cooldown_ticks: 10, resource_cost: 0}
+machine:
+  start: s
+  states:
+    s:
+      for: 20
+      then: end
+      do:
+        - {id: tick, op: sound, anchor: caster, sound: block.note_block.hat, volume: 1.0, pitch: 1.0, at: 0, every: 2}
+    end: {final: true}
