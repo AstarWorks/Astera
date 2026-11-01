@@ -88,7 +88,10 @@ class RigHeldParityScenarioTest : SkillEngineScenario() {
         }
         val display = when (part.display) {
             "fixed" -> mapOf("rotation" to doubleArrayOf(0.0, 180.0, 0.0), "translation" to doubleArrayOf(0.0, 0.0, 0.0), "scale" to doubleArrayOf(0.5, 0.5, 0.5))
-            "thirdperson_righthand" -> mapOf("rotation" to doubleArrayOf(0.0, -90.0, 55.0), "translation" to doubleArrayOf(0.0, 4.0, 0.5), "scale" to doubleArrayOf(0.85, 0.85, 0.85))
+            // the model JSON's own display block wins (a tool whose grip sits on the display origin authors a translation); the vanilla handheld chain is the default
+            "thirdperson_righthand" -> json["display"]?.jsonObject?.get("thirdperson_righthand")?.jsonObject?.let {
+                mapOf("rotation" to nums(it, "rotation", 0.0), "translation" to nums(it, "translation", 0.0), "scale" to nums(it, "scale", 1.0))
+            } ?: mapOf("rotation" to doubleArrayOf(0.0, -90.0, 55.0), "translation" to doubleArrayOf(0.0, 4.0, 0.5), "scale" to doubleArrayOf(0.85, 0.85, 0.85))
             else -> return Row(item, part.name, Double.NaN, Double.NaN, "no vanilla handheld display for ${part.display}")
         }
         val r = display.getValue("rotation")
