@@ -14,7 +14,7 @@ interface UntilProbe {
 }
 
 /**
- * The `skip` / `act` stop condition: atoms joined by `|` (or). Atoms: `phase=<name>`, `hp<N`, `hp<=N`, `enemy<=D`, `stars>=N`,
+ * The `skip` / `act` stop condition: atoms joined by `|` (or). Atoms: `phase=<build|engage|center|escalation|sudden-death>`,`hp<N`, `hp<=N`, `enemy<=D`, `stars>=N`,
  * `ore>=N`, `norma>=N`, `tick>=N`, `arrived`, `died`. Parse errors are reported to the caller, never silently ignored.
  */
 class UntilDsl private constructor(private val atoms: List<Atom>, val source: String) {
@@ -25,6 +25,7 @@ class UntilDsl private constructor(private val atoms: List<Atom>, val source: St
     fun fired(probe: UntilProbe): String? = atoms.firstOrNull { it.test(probe) }?.text
 
     companion object {
+        private val PHASES = listOf("build", "engage", "center", "escalation", "sudden-death")
         private val CMP = Regex("""^(phase|hp|enemy|stars|ore|norma|tick)(<=|>=|<|>|=)(.+)$""")
 
         fun parse(source: String): Result<UntilDsl> = runCatching {
@@ -44,6 +45,7 @@ class UntilDsl private constructor(private val atoms: List<Atom>, val source: St
             val rhs = m.groupValues[3]
             if (key == "phase") {
                 require(op == "=") { "phase only supports '=' ($text)" }
+                require(rhs in PHASES) { "unknown phase '$rhs' (${PHASES.joinToString("|")})" }
                 return Atom(text) { it.phase() == rhs }
             }
             val n = rhs.toDoubleOrNull() ?: error("number expected in '$text'")

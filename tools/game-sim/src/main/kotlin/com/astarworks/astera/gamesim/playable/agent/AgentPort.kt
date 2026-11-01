@@ -153,6 +153,7 @@ class AgentPort(
             if (s.isOver()) put("match_over", true)
             putJsonObject("me") {
                 put("hp", v.hp)
+                if (v.dead) { put("dead", true); put("respawn_in", v.respawnIn) }
                 putJsonArray("pos") { v.pos.forEach { add(JsonPrimitive(it)) } }
                 put("held", v.held?.let(::JsonPrimitive) ?: JsonNull)
                 put("stars", v.stars)
