@@ -404,5 +404,5 @@ r @16 run-end tail=10 | pose
 g @0..6 cast-length | cast
 g @5 state-end then=cast final=false | state=windup
 g @1 state-end then=end final=false | state=cast
-g @0 world break_area spec=BreakAreaSpec(shape%3DBox(width%3D3,%20height%3D2,%20length%3D3),%20tool%3Dshovel,%20blockDamage%3D100,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse) | state=cast
+g @0 world break_area spec=BreakAreaSpec(shape%3DBox(width%3D3,%20height%3D2,%20length%3D3),%20tool%3Dshovel,%20blockDamage%3D100,%20rippleTicks%3D29,%20revertTicks%3D200,%20outsideArena%3Dfalse,%20family%3Dsoil) | state=cast
 g @0 state-end then=- final=true | state=end

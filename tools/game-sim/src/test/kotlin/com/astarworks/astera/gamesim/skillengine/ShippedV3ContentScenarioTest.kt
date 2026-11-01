@@ -195,10 +195,12 @@ class ShippedV3ContentScenarioTest : SkillEngineScenario() {
     /** Compares (or, with the regen flag, rewrites) the golden of every skill; returns one problem line per skill that differs. */
     private fun checkOracle(skills: Map<String, CompiledSkill>): List<String> {
         val problems = ArrayList<String>()
-        if (regenerate && Files.exists(goldenDir)) {
+        val toolsOnly = regenerate && System.getenv("ASTERA_ORACLE_TOOLS_ONLY") == "1"
+        if (regenerate && !toolsOnly && Files.exists(goldenDir)) {
             Files.walk(goldenDir).use { s -> s.sorted(Comparator.reverseOrder()).filter { it != goldenDir }.forEach { Files.delete(it) } }
         }
         for ((key, skill) in skills) {
+            if (toolsOnly && key.substringBefore('-') !in setOf("pickaxe", "axe", "shovel")) continue
             val recorded = try {
                 recordSkill(skill).also { recordings[key] = it }
             } catch (e: Throwable) {

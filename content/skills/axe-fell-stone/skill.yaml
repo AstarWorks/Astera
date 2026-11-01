@@ -65,7 +65,7 @@ machine:
       for: 1
       then: end
       do:
-        - {id: fell, op: break_area, frame: body, shape: {line: {length: "${length}", width: 1, height: 3}}, tool: axe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
+        - {id: fell, op: break_area, block_family: wood, frame: body, shape: {line: {length: "${length}", width: 1, height: 3}}, tool: axe, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
         - {id: snd, op: sound, sound: block.wood.break, frame: body, volume: 1.0, pitch: 1.0}
         - {id: wave_0, op: particle, particle: block, block: minecraft:oak_log, frame: body, pos: {v: "= 1 + (0 / 2.0) * (${length} - 1)", w: 0.6, s: 0.0}, count: "${splinters}", offset: [0.14, 0.14, 0.14], extra: 0.04, at: 0}
         - {id: wave_1, op: particle, particle: block, block: minecraft:oak_log, frame: body, pos: {v: "= 1 + (1 / 2.0) * (${length} - 1)", w: 0.6, s: 0.0}, count: "${splinters}", offset: [0.14, 0.14, 0.14], extra: 0.04, at: 2, detach: true}

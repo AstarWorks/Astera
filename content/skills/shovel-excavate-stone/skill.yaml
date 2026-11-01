@@ -65,7 +65,7 @@ machine:
       for: 1
       then: end
       do:
-        - {id: dig, op: break_area, frame: body, shape: {box: {width: "${width}", height: "${height}", length: "${length}"}}, tool: shovel, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
+        - {id: dig, op: break_area, block_family: soil, frame: body, shape: {box: {width: "${width}", height: "${height}", length: "${length}"}}, tool: shovel, block_damage: 100, ripple: 29, revert: 200, outside_arena: false}
         - {id: snd, op: sound, sound: block.gravel.break, frame: body, volume: 1.0, pitch: 1.0}
         - {id: wave_0, op: particle, particle: block, block: minecraft:dirt, anchor: {of: caster, offset: {forward: "= 1 + (0 / 2.0) * (${length} - 1)", up: 0.6, left: "= i - floor(${width} / 2.0)"}}, times: "${width}", count: 0, offset: {forward: 0.12, up: 0.8, left: 0.18}, extra: 0.12, at: 0}
         - {id: chips_0, op: particle, particle: block, block: minecraft:dirt, frame: body, pos: {v: "= 1 + (0 / 2.0) * (${length} - 1)", w: 0.6, s: "= i - floor(${width} / 2.0)"}, times: "${width}", count: 2, offset: [0.12, 0.04, 0.12], extra: .025, at: 0}
