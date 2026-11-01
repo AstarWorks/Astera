@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test
 class StarSupplyPaceScenarioTest {
 
     private val config = AnnihilationConfig(
-        buildPhaseTicks = 1200, engagePhaseTicks = 12000, tier3PhaseTicks = 6000, suddenDeathTicks = 1200,
+        buildPhaseTicks = 1200, engagePhaseTicks = 12000, centerPhaseTicks = 6000, suddenDeathTicks = 1200,
     )
 
     /** Share of the neutral supply, and of the own base supply, the best collector of a 4-player team nets. */

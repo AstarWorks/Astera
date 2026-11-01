@@ -130,6 +130,7 @@ public class AnnihilationMatchTracker(
     public fun unregister(matchId: MatchId) {
         matches.remove(matchId)
         sites.remove(matchId)
+        bleedsApplied.remove(matchId)
     }
 
     /**
@@ -147,7 +148,7 @@ public class AnnihilationMatchTracker(
      *    skip).
      *
      * Note: [attackerId] may be null when damage is environmental (sudden-
-     * death DoT, admin command, etc.).
+     * death bleed, admin command, etc.).
      */
     public fun recordDamage(
         matchId: MatchId,
@@ -226,7 +227,7 @@ public class AnnihilationMatchTracker(
      *    OR at Phase 3 timer expiry; for simplicity Phase 3 entry guarantees
      *    every remaining pillar is [NexusState.VULNERABLE]).
      *
-     *  Phase 4 entry has no tier-opening side-effect (all already open).
+     *  Phases 4 and 5 have no tier-opening side-effect (all already open).
      */
     public fun advancePhasesIfNeeded(matchId: MatchId, currentTick: Long): NexusPhase? {
         val state = matches[matchId] ?: return null
@@ -238,13 +239,13 @@ public class AnnihilationMatchTracker(
             NexusPhase.Phase2Engage -> {
                 advanced = advanced.openTierForCombat(NexusPillarTier.TIER_1)
             }
-            NexusPhase.Phase3Tier3 -> {
+            NexusPhase.Phase3Center -> {
                 advanced = advanced.openTierForCombat(NexusPillarTier.TIER_2)
                 advanced = advanced.openTierForCombat(NexusPillarTier.TIER_3)
             }
-            NexusPhase.Phase4SuddenDeath -> Unit
-            NexusPhase.Phase1Build -> Unit
+            NexusPhase.Phase4Escalation, NexusPhase.Phase5SuddenDeath, NexusPhase.Phase1Build -> Unit
         }
+        bleedsApplied.remove(matchId)
         matches[matchId] = advanced
         eventBus.publish(
             AnnihilationPhaseTransitioned(
@@ -283,21 +284,29 @@ public class AnnihilationMatchTracker(
     }
 
     /**
-     * Apply sudden-death DoT to every surviving Tier 3 pillar of [matchId].
-     * Returns the list of outcomes (one per Tier 3 still in
-     * [NexusState.VULNERABLE]).
+     * Phase 5 bleed (ADR-0319): every `bleedIntervalTicks` since entering [NexusPhase.Phase5SuddenDeath] each standing
+     * pillar loses `bleedPercent` of its max HP, but never drops below `bleedFloorPercent` of its max HP (the bleed
+     * alone never destroys a pillar; the HP tiebreak decides at expiry). Idempotent per interval: a repeated call in the
+     * same interval applies nothing. Returns one outcome per damaged pillar.
      *
-     * Called from `AnnihilationGameMode.onTick` when the match's current
-     * phase is [NexusPhase.Phase4SuddenDeath].
+     * Called from `AnnihilationGameMode.onTick`.
      */
-    public fun applySuddenDeathTick(matchId: MatchId, currentTick: Long): List<NexusDamageOutcome> {
+    public fun applyBleedIfDue(matchId: MatchId, currentTick: Long): List<NexusDamageOutcome> {
         val state = matches[matchId] ?: return emptyList()
-        if (state.phase != NexusPhase.Phase4SuddenDeath) return emptyList()
-        val tier3Ids = state.pillars.values
-            .filter { it.tier == NexusPillarTier.TIER_3 && it.state == NexusState.VULNERABLE }
-            .map { it.id }
-        return tier3Ids.map { id ->
-            recordDamage(matchId, id, state.config.suddenDeathDotPerTick, attackerId = null, atTick = currentTick)
+        if (state.phase != NexusPhase.Phase5SuddenDeath) return emptyList()
+        val cfg = state.config
+        val due = ((currentTick - state.phaseEnteredAtTick) / cfg.bleedIntervalTicks).toInt()
+        val applied = bleedsApplied[matchId] ?: 0
+        if (due <= applied) return emptyList()
+        bleedsApplied[matchId] = due
+        val standing = state.pillars.values.filter { it.state == NexusState.VULNERABLE }
+        return standing.mapNotNull { p ->
+            val floor = p.maxHp * cfg.bleedFloorPercent / 100
+            val amount = minOf(p.maxHp * cfg.bleedPercent / 100, p.hp - floor)
+            if (amount <= 0) null else recordDamage(matchId, p.id, amount, attackerId = null, atTick = currentTick)
         }
     }
+
+    /** Bleeds already applied in the current Phase 5 of each match (reset on every phase entry). */
+    private val bleedsApplied: MutableMap<MatchId, Int> = mutableMapOf()
 }

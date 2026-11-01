@@ -526,6 +526,10 @@ public object MatchWiring {
         val pillarTargets = AnnihilationPillarTargets(annihilationTracker, matches, scheduler) { id ->
             services.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>()?.locate(id)?.position
         }
+        registrations += services.register<com.astarworks.astera.match.application.port.outbound.IMatchPhaseClock>(
+            com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationPhaseClock(annihilationTracker) { scheduler.currentTick() },
+            priority = 0,
+        )
         registrations += services.register<com.astarworks.astera.core.application.port.outbound.IStructureTargets>(
             pillarTargets,
         )
@@ -581,7 +585,18 @@ public object MatchWiring {
                 eventBus = eventBus,
                 defaultConfig = annihilationConfig,
                 clock = { scheduler.currentTick() },
-                clarity = com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationClarity(siegeEnv(AnnihilationGameMode.ID), annihilationTracker),
+                clarity = com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationClarity(
+                    siegeEnv(AnnihilationGameMode.ID),
+                    annihilationTracker,
+                    com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationPhaseClock(annihilationTracker) { scheduler.currentTick() },
+                    levelOf = { id -> services.get<com.astarworks.astera.match.application.service.NormaLevelService>()?.levelOf(id) },
+                    oreLadder = { match ->
+                        val source = stages.find(match.stageId)?.templateId?.value ?: match.stageId.value
+                        services.get<com.astarworks.astera.match.application.port.outbound.IOreNodeRegistry>()?.find(source)?.nodes
+                            ?.map { com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationClarity.OreStep(it.minNormaLevel, it.drops.first().itemId) }
+                            .orEmpty()
+                    },
+                ),
             ),
         )
         logger.info(

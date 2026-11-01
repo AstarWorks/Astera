@@ -29,7 +29,7 @@ public sealed interface TimeChangeReason {
 
     /**
      * A match-phase transition forced the time (e.g., Annihilation
-     * Phase4SuddenDeath jumps the world to dusk for atmosphere). Carries
+     * Phase5SuddenDeath jumps the world to dusk for atmosphere). Carries
      * the match id so subscribers can correlate.
      */
     public data class MatchPhase(public val matchId: String) : TimeChangeReason

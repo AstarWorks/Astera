@@ -3,92 +3,32 @@ package com.astarworks.astera.match.domain.gamemode.annihilation
 import com.astarworks.astera.core.domain.nexus.NexusPhase
 
 /**
- * Pure decision logic for Annihilation phase transitions (ADR-0108,
- * Wave 5annihilation).
+ * Pure decision logic for Annihilation phase transitions (ADR-0108, reshaped by ADR-0319).
  *
- * Stateless — every method takes the [AnnihilationMatchState] and the
- * current tick + returns the next phase to enter (or null = stay put). The
- * tracker calls [evaluate] every `IGameMode.onTick` and acts on a non-null
- * return.
- *
- * ## Transition rules
- *
- *  - **[NexusPhase.Phase1Build] → [NexusPhase.Phase2Engage]** when:
- *      `currentTick - phaseEnteredAtTick >= config.buildPhaseTicks`
- *    Time-driven only — no early exit.
- *  - **[NexusPhase.Phase2Engage] → [NexusPhase.Phase3Tier3]** when:
- *      any team has lost both Tier 1 + Tier 2 pillars, OR
- *      `currentTick - phaseEnteredAtTick >= config.engagePhaseTicks`
- *    Whichever fires first.
- *  - **[NexusPhase.Phase3Tier3] → [NexusPhase.Phase4SuddenDeath]** when:
- *      `currentTick - phaseEnteredAtTick >= config.tier3PhaseTicks`, AND
- *      `survivingTeams.size > 1` (if 1 left, the match ends instead).
- *  - **[NexusPhase.Phase4SuddenDeath]** is terminal — the tracker reads
- *    "surviving teams <= 1 OR currentTick - phaseEnteredAtTick >=
- *    suddenDeathTicks" and ends the match.
- *
- * Win-condition evaluation is a separate concern — see [WinConditionRules].
- *
- * ## Why a separate rules class (not methods on AnnihilationMatchState)?
- *
- * Two callers want this logic without mutating state:
- *
- *  - The tracker (decides whether to call `enterPhase`).
- *  - The HUD overlay (renders "build phase ends in 1:23").
- *
- * Hanging the logic on the state object would mix decision logic with
- * mutation. Keeping it stateless mirrors the established Wave 5c
- * `MatchStateMachine` split (state class + rules class).
+ * Stateless. Every phase but the last ends when `currentTick - phaseEnteredAtTick` reaches that phase's configured
+ * length ([AnnihilationConfig.ticksOf]); the order is [NexusPhase.ordered]. There is no early exit: the Mid ore gates
+ * and the HUD countdowns depend on the clock being the only driver. [NexusPhase.Phase5SuddenDeath] is terminal; its
+ * expiry is a win condition (HP tiebreak, see [WinConditionRules]), not a phase advance.
  */
 public object AnnihilationPhaseRules {
 
-    /**
-     * Decide whether [state] should advance now. Returns the new phase or
-     * null if no transition fires.
-     */
+    /** The phase [state] should advance to now, or null while the current phase still runs. */
     public fun evaluate(state: AnnihilationMatchState, currentTick: Long): NexusPhase? {
+        val next = NexusPhase.next(state.phase) ?: return null
         val elapsed = currentTick - state.phaseEnteredAtTick
-        return when (state.phase) {
-            NexusPhase.Phase1Build -> {
-                if (elapsed >= state.config.buildPhaseTicks) NexusPhase.Phase2Engage else null
-            }
-            NexusPhase.Phase2Engage -> {
-                val anyLowerCascade = state.allTeams.any { state.hasLostBothLowerTiers(it) }
-                if (anyLowerCascade || elapsed >= state.config.engagePhaseTicks) {
-                    NexusPhase.Phase3Tier3
-                } else {
-                    null
-                }
-            }
-            NexusPhase.Phase3Tier3 -> {
-                if (state.survivingTeams.size <= 1) {
-                    // Win condition decides match end — phase doesn't advance.
-                    null
-                } else if (elapsed >= state.config.tier3PhaseTicks) {
-                    NexusPhase.Phase4SuddenDeath
-                } else {
-                    null
-                }
-            }
-            NexusPhase.Phase4SuddenDeath -> null
-        }
+        return if (elapsed >= state.config.ticksOf(state.phase)) next else null
     }
 
-    /**
-     * Ticks remaining until the next time-driven transition fires for the
-     * current phase. Returns null for [NexusPhase.Phase4SuddenDeath] (its
-     * timer expiry triggers the match-end win condition, not a phase advance).
-     *
-     * Useful for the HUD overlay's countdown bar.
-     */
+    /** Ticks until the current phase ends (0 once due); null in [NexusPhase.Phase5SuddenDeath]. Drives the HUD countdowns. */
     public fun ticksUntilNextPhase(state: AnnihilationMatchState, currentTick: Long): Long? {
+        if (NexusPhase.next(state.phase) == null) return null
         val elapsed = currentTick - state.phaseEnteredAtTick
-        val deadline = when (state.phase) {
-            NexusPhase.Phase1Build -> state.config.buildPhaseTicks
-            NexusPhase.Phase2Engage -> state.config.engagePhaseTicks
-            NexusPhase.Phase3Tier3 -> state.config.tier3PhaseTicks
-            NexusPhase.Phase4SuddenDeath -> return null
-        }
-        return (deadline - elapsed).coerceAtLeast(0L)
+        return (state.config.ticksOf(state.phase) - elapsed).coerceAtLeast(0L)
+    }
+
+    /** Ticks until the match ends by timeout while in [NexusPhase.Phase5SuddenDeath]; null in earlier phases. */
+    public fun ticksUntilMatchEnd(state: AnnihilationMatchState, currentTick: Long): Long? {
+        if (state.phase != NexusPhase.Phase5SuddenDeath) return null
+        return (state.config.suddenDeathTicks - (currentTick - state.phaseEnteredAtTick)).coerceAtLeast(0L)
     }
 }

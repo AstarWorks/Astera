@@ -10,11 +10,11 @@ import com.astarworks.astera.core.domain.nexus.NexusPhase
  *
  *  1. **Elimination**: only one team has a surviving Tier 3 pillar →
  *     that team wins. Can fire in any phase from
- *     [NexusPhase.Phase3Tier3] onward (Phase 2 cannot reach this since
+ *     [NexusPhase.Phase3Center] onward (Phase 2 cannot reach this since
  *     Tier 3 is still in [com.astarworks.astera.core.domain.nexus.NexusState.BUILDING]
  *     and cannot be destroyed; defensive checks still cover Phase 2
  *     against bad state).
- *  2. **Sudden-death timer expiry**: in [NexusPhase.Phase4SuddenDeath],
+ *  2. **Sudden-death timer expiry**: in [NexusPhase.Phase5SuddenDeath],
  *     if multiple teams remain when `currentTick - phaseEnteredAtTick
  *     >= config.suddenDeathTicks`, the team with the highest
  *     [AnnihilationScore] wins (tiebreakers in score's compareTo).
@@ -60,7 +60,7 @@ public object WinConditionRules {
         if (survivors.isEmpty()) return Outcome.Draw
 
         // Multiple survivors — only the sudden-death timer can decide.
-        if (state.phase != NexusPhase.Phase4SuddenDeath) return Outcome.InProgress
+        if (state.phase != NexusPhase.Phase5SuddenDeath) return Outcome.InProgress
         val elapsed = currentTick - state.phaseEnteredAtTick
         if (elapsed < state.config.suddenDeathTicks) return Outcome.InProgress
 

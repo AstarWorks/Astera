@@ -38,8 +38,8 @@ class AnnihilationPillarScenarioTest {
         // The siege test casts a plain weapon skill from 5 blocks: count it in full so 40 HP stays a handful of casts.
         pillarDamage = PillarDamageTuning(weaponMult = 1.0),
         buildPhaseTicks = 200,
-        engagePhaseTicks = 100_000,
-        tier3PhaseTicks = 100_000,
+        engagePhaseTicks = 3_000,
+        centerPhaseTicks = 100_000,
     )
 
     @Test
@@ -118,7 +118,7 @@ class AnnihilationPillarScenarioTest {
             val blueT2 = pillar("blue", NexusPillarTier.TIER_2)
             siege(blueT2) { destroyed().any { it.owningTeam.value == "blue" && it.tier == NexusPillarTier.TIER_2 } }
             assertThat(eventsOf<TeamEliminated>()).isEmpty()
-            advance(40) // the mode tick notices the lower-tier cascade -> Phase 3 -> Tier 3 opens
+            advance(3_100) // the Engage clock runs out -> Phase 3 (ADR-0319) -> Tier 3 opens
 
             val blueT3 = pillar("blue", NexusPillarTier.TIER_3)
             siege(blueT3, maxCasts = 200) { eventsOf<TeamEliminated>().any { it.teamId.value == "blue" } }
@@ -155,8 +155,8 @@ class AnnihilationPillarScenarioTest {
             pillarHpTier2 = 300,
             pillarHpTier3 = 100_000,
             buildPhaseTicks = 200,
-            engagePhaseTicks = 100_000,
-            tier3PhaseTicks = 100_000,
+            engagePhaseTicks = 1_000,
+            centerPhaseTicks = 100_000,
         )
         scenario("annihilation-pillar-mining", mining) {
             val red = player("red-1", team = "red")
@@ -214,7 +214,7 @@ class AnnihilationPillarScenarioTest {
             val t2 = pillar("blue", NexusPillarTier.TIER_2)
             val t2Id = id("blue", NexusPillarTier.TIER_2)
             targets.damage(t2Id, red.id, 100.0, DamageSource(DamageKind.TOOL_SKILL, ToolKind.SHOVEL, Vec3(t2.centre.x, t2.position.y, t2.centre.z + 5.0)))
-            advance(40) // the mode tick notices the cascade -> Phase 3 -> Tier 3 opens
+            advance(1_100) // the Engage clock runs out -> Phase 3 (ADR-0319) -> Tier 3 opens
             val t3 = pillar("blue", NexusPillarTier.TIER_3)
             val t3Id = id("blue", NexusPillarTier.TIER_3)
             val t3Before = hp("blue", NexusPillarTier.TIER_3)
