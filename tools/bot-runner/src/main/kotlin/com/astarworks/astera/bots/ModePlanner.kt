@@ -38,8 +38,8 @@ class ModePlanner(
      */
     private val matchKey: String = "",
     private val teamOf: (String) -> String? = { null },
-    /** Teams that actually have players in this match (scoreboard; the default treats every listed enemy as playing). A stage base with nobody on it (a 1v1 on a 4-base map) is not an enemy. */
-    private val liveTeams: () -> Set<String> = { stageEnemyTeams.toSet() },
+    /** Teams that actually have players in this match (scoreboard). A stage base with nobody on it (a 1v1 on a 4-base map) is not an enemy. */
+    private val liveTeams: () -> Set<String>,
 ) {
     /** Stage regions by name (world coordinates). */
     interface Zones {

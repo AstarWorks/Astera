@@ -33,7 +33,7 @@ class BotTeamFocusScenarioTest {
     private val squad = (1..6).map { Mate("r$it", spawn.first, spawn.third) }
 
     private fun planner(name: String, facts: Facts, enemies: List<String> = listOf("blue", "yellow"), key: String = "m0") =
-        ModePlanner("annihilation", name, "red", enemies, zones, facts = facts, matchKey = key).also { it.noteRoster(squad) }
+        ModePlanner("annihilation", name, "red", enemies, zones, facts = facts, matchKey = key, liveTeams = { enemies.toSet() }).also { it.noteRoster(squad) }
 
     /** The objective zone of an attack step (`pillar-<team>-<tier>`; kind pillar, or rally / detour on the way); a defender's guard step or no step is null. */
     private fun attackZone(p: ModePlanner): List<String>? =
@@ -134,7 +134,7 @@ class BotTeamFocusScenarioTest {
         assertThat(blueSpawns).isNotEmpty()
         val sx = blueSpawns.map { it.second }.average()
         val sz = blueSpawns.map { it.third }.average()
-        fun fresh() = ModePlanner("annihilation", "r1", "red", listOf("blue", "yellow"), zones, facts = facts, matchKey = "m0", teamOf = { "blue" })
+        fun fresh() = ModePlanner("annihilation", "r1", "red", listOf("blue", "yellow"), zones, facts = facts, liveTeams = { setOf("blue", "yellow") }, matchKey = "m0", teamOf = { "blue" })
             .also { it.noteRoster(squad); it.step(0, sx, sz) }
         val inside = Sighting("b1", sx + 1.0, sz + 1.0)
         // Standing in the blue spawn zone with a blue defender next to us: not engaged (pillar first).
@@ -156,7 +156,7 @@ class BotTeamFocusScenarioTest {
         assertThat(hurt.enemyZoneOf(x, z)).isNull()
         assertThat(hurt.zoneTrapped).isFalse()
         // Trapped (could not get out for ZONE_TRAP_MS): the only case it fights back.
-        val trapped = ModePlanner("annihilation", "r1", "red", listOf("blue", "yellow"), zones, facts = facts, matchKey = "m0", teamOf = { n -> if (n == "nobody") "red" else "blue" })
+        val trapped = ModePlanner("annihilation", "r1", "red", listOf("blue", "yellow"), zones, facts = facts, liveTeams = { setOf("blue", "yellow") }, matchKey = "m0", teamOf = { n -> if (n == "nobody") "red" else "blue" })
             .also { it.noteRoster(squad); it.step(0, sx, sz); it.noteDamaged(1_000) }
         trapped.zoneEscape(1_000, sx, sz)
         assertThat(trapped.zoneEscape(1_000 + ModePlanner.ZONE_TRAP_MS + 1, sx, sz)).isNull()
@@ -171,7 +171,7 @@ class BotTeamFocusScenarioTest {
     fun `attackers rally outside the target spawn zone and push together`() {
         val facts = Facts().apply { phase = 3 }
         val start = checkNotNull(zones.spawns().firstOrNull { it.first == "red" })
-        fun planner(mates: List<Mate>) = ModePlanner("annihilation", "r1", "red", listOf("blue", "yellow"), zones, facts = facts, matchKey = "m0")
+        fun planner(mates: List<Mate>) = ModePlanner("annihilation", "r1", "red", listOf("blue", "yellow"), zones, facts = facts, liveTeams = { setOf("blue", "yellow") }, matchKey = "m0")
             .also { it.noteRoster(mates) }
         val first = checkNotNull(planner(squad).step(0, start.second, start.third))
         assertThat(first.kind).isEqualTo("rally")
@@ -203,7 +203,7 @@ class BotTeamFocusScenarioTest {
         val dx = cx - (nexus.x + 0.5); val dz = cz - (nexus.z + 0.5)
         val l = Math.hypot(dx, dz)
         val fx = cx + dx / l * 30.0; val fz = cz + dz / l * 30.0
-        val p = ModePlanner("annihilation", "r1", "red", listOf("blue", "yellow"), zones, facts = facts, matchKey = "m0").also { it.noteRoster(listOf(Mate("r2", fx, fz))) }
+        val p = ModePlanner("annihilation", "r1", "red", listOf("blue", "yellow"), zones, facts = facts, liveTeams = { setOf("blue", "yellow") }, matchKey = "m0").also { it.noteRoster(listOf(Mate("r2", fx, fz))) }
         p.step(0, fx, fz)
         val st = checkNotNull(p.step(ModePlanner.RALLY_TIMEOUT_MS + 5, fx, fz))
         assertThat(st.kind).isEqualTo("detour")
