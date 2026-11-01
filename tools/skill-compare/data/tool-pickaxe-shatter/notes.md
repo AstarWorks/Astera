@@ -1,6 +1,6 @@
 # pickaxe-shatter — round 3 presentation review
 
-No reference video. Branch: `wp/tool-skills-polish3c`.
+No reference video. Branch: `wp/tool-skills-polish3d`.
 
 The impact core stays on the same aim_point anchor as break_area. Deepslate chips keep the crater silhouette; the electric ring and end rods are replaced by two compact flint sparks and a grey/beige/cyan ore core.
 
@@ -12,7 +12,7 @@ Round-2 sheet: `/tmp/claude-1000/tool-skills/round-2/tool-pickaxe-shatter.png`.
 Round-3 sheet: `/tmp/claude-1000/tool-skills/round-3/tool-pickaxe-shatter.png`.
 All-tier captures: `/tmp/claude-1000/tool-skills/round-3/captures/pickaxe-shatter-{stone,iron,diamond}/compare/`.
 
-Review status: pending final real-client capture and tier comparison. The first exploratory axe capture was invalidated by edits during capture and is excluded from evidence.
+Review status: final-source tier sheets reviewed below; founder acceptance remains open.
 
 ## Sound measurement
 
@@ -39,9 +39,28 @@ The existing `:tools:game-sim:regenSkillOracle` path is used with a temporary co
 
 The initial blade-trail emission stays in windup; subsequent emissions are in cast at relative tick 1, every 2, for trail_span-2. This removes the old-state detached trail / later-state particle ordering ambiguity while preserving every emission tick and count. No shared test/engine source changed. Only the 18 tool goldens moved; all 105 non-tool goldens remain byte-identical to 0c044c264. Detailed row classification and mechanical equality: `round-3/validation/golden-classification-3c.json`, `rig-golden-classification-3c.json`, and `mechanics-3c.json`. Rig/frame pose differences against the stale round-2 golden already exist in the inherited b60ed3c84 and are unchanged here.
 
-Near-eye minimum for pickaxe-shatter, all three tiers: **0.848279 blocks**. Measured every particle `at=` in all four golden poses against eye=(0,1.62,0), matching the incoming ShippedNearEyeScenarioTest metric (held main_hand rigs are excluded and have a separate camera test). All 18 tool minima are >=0.8. Pickaxe's inner blade trail starts at v=0.5 rather than 0.4, retaining five samples; axe's inherited round-3 sweep already clears the rule. The owned real-cast scenario asserts every emission's distance. The shared new class is not on origin/main as of this verification, so it was not added or edited here.
+Near-eye minimum for pickaxe-shatter, all three tiers: **0.848279 blocks**. Measured every particle `at=` in all four golden poses against eye=(0,1.62,0), matching the incoming ShippedNearEyeScenarioTest metric (held main_hand rigs are excluded and have a separate camera test). All 18 tool minima are >=0.8. Pickaxe's inner blade trail starts at v=0.5 rather than 0.4, retaining five samples; axe's inherited round-3 sweep already clears the rule. The owned real-cast scenario asserts every emission's distance. The shared new class was absent from the polish3c verification base; it was not added or edited here. This is the retained polish3c measurement, not a new shared-test result.
 
 The explicitly authorized `falling_dust: { mean: 57.0273, source: jar-26.3 }` lifetime registry entry is now present; all six shovel fall_* rows use vanilla falling_dust with coarse_dirt block data. The scenario asserts this real particle type. The 24-bit random / float32 expectation is 57.02730482816696 ticks; derivation: `/tmp/claude-1000/tool-skills/round-3/falling-dust-dependency.md`.
 
 Round-0 sheet: `/tmp/claude-1000/tool-skills/round-0/tool-pickaxe-shatter.png`.
-Final-source visual review is pending; final per-tier comparison sheets will be in `round-3/comparisons/tool-pickaxe-shatter-{stone,iron,diamond}.png`. The earlier axe-plank-wall-stone shot with -24% idle brightness is excluded; it is being reshot.
+Final-source visual review is recorded below. Earlier exploratory captures are excluded.
+
+## polish3d: final capture review
+
+Capture-only finish; tool skills and tool particle sources remain identical to `d23fa0642`. Captures use the scoped-reaper merged base (`ad8cf6eec`, resumed at `6862e92e1`). Each accepted take has stepped tick stamps, zero skipped ticks and no invalid flag. The standard compare API checked every selected skill identity. No content, golden or test source changed in this finish.
+
+round-0: `/tmp/claude-1000/tool-skills/round-0/tool-pickaxe-shatter.png`.
+round-2: `/tmp/claude-1000/tool-skills/round-2/tool-pickaxe-shatter.png`.
+round-3: `/tmp/claude-1000/tool-skills/round-3/tool-pickaxe-shatter.png`.
+
+All three current sheets: `/tmp/claude-1000/tool-skills/round-3/tool-pickaxe-shatter-{stone,iron,diamond}.png`. Round-2 tier sheets: `/tmp/claude-1000/tool-skills/round-3/baseline/tool-pickaxe-shatter-{stone,iron,diamond}.png`. Two-row comparisons (round3 above round2): `/tmp/claude-1000/tool-skills/round-3/comparisons/tool-pickaxe-shatter-{stone,iron,diamond}.png`. Additional diamond decay beats t12/18/24/29: `/tmp/claude-1000/tool-skills/round-3/late/tool-pickaxe-shatter.png`.
+
+- stone: PARTIAL: grey radial stone ring/burst centered on dummy aim point, visibly distinct from bore low strip; stable framing/idle147 vs149. No common white/pink ring. The grey crater itself still reads as a ring hovering at target body height, not a ground impact; localized bright sparks are too subtle in the four beats to confidently judge.
+- iron: PARTIAL: round2 white sparkle rim removed; grey particle ring centered on target aim point remains suspended at body height. Larger radius than stone (non-colour tier cue), distinct from bore strip. Few bright sparks are not clearly resolved in these four beats, and no sharply localized hit flash is visually dominant. Stable idle148 vs148.
+- diamond: PARTIAL: grey radial stone ring/burst centered at dummy aim point; round2 white sparkle rim absent. Largest ring radius makes tier growth visible independently of colour, and differs from bore strip. Still reads as a hovering material ring, not a grounded point impact; small bright spark accent is not clearly legible in the sampled beats. Stable idle148 vs148.
+  Viewed late/tool-pickaxe-shatter.png: broad ring collapses to a few falling grey flecks around target by t18-29. Native frames011/012 (t5/6) also inspected: grey ring is clearly visible, bright spark accent remains too subtle to call clearly readable.
+
+ShippedV3ContentScenarioTest and ToolSkillPresentationScenarioTest PASS results above belong to polish3c and are preserved. Merged-base compileKotlin, :tools:e2e:compileTestKotlin, :tools:content-lint:run and :tools:architecture-test:test: PASS (base 6862e92e1, required-checks-3d.log, rc0); see round-3/report.md. No new test is needed for capture-only notes/evidence.
+
+Additional documentation drift: `.claude/rules/coding-posture.md` says Kotlin2.2/JVM24; `gradle/libs.versions.toml` pins Kotlin2.3.21 with JVM25 support. Build configuration was followed.
