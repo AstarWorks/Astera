@@ -314,6 +314,7 @@ astera:
       skill-trace: "スキルエンジンの発動ライフサイクルログをオン/オフする"
       skill-reload: "再起動なしでスキル 1 件を content から再読み込みする"
       skill-faults: "起動後に数えたスキル実行時フォールトを表示する（reset で 0 に戻す）"
+      skill-hurt: "撮影用ツール: 攻撃者エンティティからプレイヤーへ通常のダメージ経路で 1 回ヒットさせる (vfx-shot ATTACKER=1)"
       skill-expand: "スキルのコンパイル済みテーブルを表示して書き出す（all で全件、--json でソース行付き）"
       skill-skin: "プレイヤーのスキルスキンを付与・剥奪・装備・解除する"
       announce: "演出モーメントを 1 サーバーまたは全サーバーで発火する（name=value 引数で文言を埋める）"
