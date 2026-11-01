@@ -177,12 +177,14 @@ public data class BonePose(
  * [rightHandTarget] (rig frame, blocks, `PLAYER_SCALE` applied: +X the player's left, +Y up, +Z front) pins the right
  * hand: when set, the right arm's authored rotation is replaced by a look-at onto this point (ADR-0315), so the grip of
  * the held item is the point. The skill engine fills it with the origin of the weapon frame the rig rides.
+ * [leftHandTarget] pins the left hand the same way for a `hand: off` rig; it takes precedence over [leftHandGrip].
  */
 public data class RigFrame(
     public val root: BonePose,
     public val bones: Map<SkinRigBone, BonePose>,
     public val leftHandGrip: Double = 0.0,
     public val rightHandTarget: Vec3? = null,
+    public val leftHandTarget: Vec3? = null,
 ) {
     public companion object {
         public val REST: RigFrame = RigFrame(BonePose.REST, SkinRigBone.entries.associateWith { BonePose.REST })

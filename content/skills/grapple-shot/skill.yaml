@@ -1,6 +1,8 @@
-# grapple-shot: fires a hook. A wall reels the caster in; an enemy is reeled to the caster. Rewritten from zero on the rev4.10 grammar (ADR-0303):
-# an item display riding the body, one impact fragment, a chain ribbon-less trail; straight flight on purpose (hit tick is balance).
-# The cast ends when the hook body ends. Visuals need a founder look on skill-compare.
+# grapple-shot: fires a hook. A wall reels the caster in; an enemy is reeled to the caster. In the frame grammar (ADR-0314, ADR-0315): `throw` is the firing
+# hand, rooted in the caster's eye / aim basis (v = aim, s = right, w = s x v) at the aimed position 0.57 ahead, 0.51 below the eye line, 0.30 right, so the
+# hook leaves the hand 0.40 ahead along the aim, not the head. The cast spark and sound are points of it. The hook display and its chain trail ride the body;
+# `hit` one per victim at its centre, `blk` one per block contact, v the way the hook came in; the bite (sound + spark) sits at v -0.2 of them.
+# Straight flight on purpose (hit tick is balance). The cast ends when the hook body ends.
 apiVersion: astera/v3
 kind: Skill
 id: grapple-shot
@@ -10,32 +12,53 @@ params:
   launch_speed:       {type: number, default: 2.4}
   max_lifetime_ticks: {type: ticks, default: 40}
   dmg_physical:       {type: number, default: 5}
-  reel_stop:      {type: number, default: 1.5}     # blocks in front of the caster where the enemy comes to rest
+  reel_stop:          {type: number, default: 1.5}     # blocks in front of the caster where the enemy comes to rest
   pull_forward:       {type: number, default: 1.3}     # caster impulse when the hook bites a wall
   pull_up:            {type: number, default: 0.4}
-anchors:
-  - {id: muzzle,  anchor: caster.eye, offset: {forward: 0.5}, mode: snapshot}
-  - {id: cast_fx, anchor: caster.eye, offset: {up: -0.25, forward: 1.8}, mode: snapshot}
-  - {id: heart,   anchor: victim.root, offset: {up: 1.2}, mode: follow}
-fragments:
-  bite:
-    frames_in: {spot: anchor}
-    do:
-      - {id: snd, op: sound, at: 0, sound: "block.chain.place", anchor: spot, volume: 0.8, pitch: 0.8}
-      - {id: spark, op: particle_def, at: 0, def: hit-spark, anchor: spot}
+frames:
+  - id: throw
+    origin: caster.eye
+    v: aim
+    w: s x v
+    s: right
+    move:
+      - {at: 0, for: 0, to: {v: 0.57, w: -0.51, s: 0.30}}
+  - id: hit
+    on: event.victim
+    each: true
+    origin: victim.center
+    v: incoming
+    w: up
+    s: v x w
+  - id: blk
+    on: event.block
+    each: true
+    origin: contact
+    v: incoming
+    w: up
+    s: v x w
+  - id: body
+    origin: bolt
+    v: forward
+    w: up
+    s: v x w
+lines:
+  trail: {frame: body, from: {v: -0.4}, to: {v: 0}}
 machine:
   start: cast
+  tail: 2
   states:
     cast:
       on:
         - {event: bolt.end, to: done}
       do:
-        - {id: snd, op: sound, at: 0, sound: "block.chain.place", anchor: caster, volume: 0.9, pitch: 1.2}
-        - {id: fx, op: particle_def, at: 0, def: hit-spark, anchor: cast_fx}
+        - {id: snd, op: sound, at: 0, sound: "block.chain.place", frame: throw, volume: 0.9, pitch: 1.2}
+        - {id: fx, op: particle_def, at: 0, def: hit-spark, frame: throw, pos: {v: 0.4}}
         - id: bolt
           op: projectile
           at: 0
-          origin: muzzle
+          frame: throw
+          pos: {v: 0.4}
           velocity: "= look(caster) * ${launch_speed}"
           speed: "${launch_speed}"
           for: "${max_lifetime_ticks}"
@@ -46,17 +69,19 @@ machine:
             hit:
               - {id: dmg, op: damage, target: event.victim, damage: {physical: "${dmg_physical}"}}
               - {id: reel, op: pull, target: event.victim, direction: "= flat(pos(caster) - pos(event.victim))", distance: "= length(flat(pos(caster) - pos(event.victim))) - ${reel_stop}"}
-              - {id: bite, use: "fragment:bite", frames: {spot: heart}}
+              - {id: snd_bite, op: sound, sound: "block.chain.place", frame: hit, volume: 0.8, pitch: 0.8, detach: true}
+              - {id: fx_bite, op: particle_def, def: hit-spark, frame: hit, pos: {v: -0.2}, detach: true}
             block:
               - {id: pull, op: impulse, at: 0, target: caster, vector: {of: caster, forward: "${pull_forward}", up: "${pull_up}"}}
-              - {id: bite_wall, use: "fragment:bite", frames: {spot: contact}}
-        - {id: hook, op: display, kind: item, item: "minecraft:tripwire_hook", context: fixed, anchor: bolt, scale: [0.9, 0.9, 0.9], at: 0, until: bolt.end}
+              - {id: snd_wall, op: sound, sound: "block.chain.place", frame: blk, volume: 0.8, pitch: 0.8, detach: true}
+              - {id: fx_wall, op: particle_def, def: hit-spark, frame: blk, pos: {v: -0.2}, detach: true}
+        - {id: hook, op: display, kind: item, item: "minecraft:tripwire_hook", context: fixed, frame: body, pos: {}, scale: [0.9, 0.9, 0.9], at: 0, until: bolt.end}
         - id: trail
           op: group
           at: 2
           every: 1
           until: bolt.end
           do:
-            - {id: wake, op: particle, particle: crit, count: 1, offset: [0.02, 0.02, 0.02], anchor: {of: bolt, sweep: 0.4}, at: 0}
-            - {id: chain, op: particle, particle: dust, count: 1, color: "#787878", size: 0.8, anchor: {of: bolt, sweep: 0.4}, at: 0}
+            - {id: wake, op: particle, particle: crit, count: 1, offset: [0.02, 0.02, 0.02], along: trail, samples: 2, at: 0}
+            - {id: chain, op: particle, particle: dust, count: 1, color: "#787878", size: 0.8, along: trail, samples: 2, at: 0}
     done: {final: true}
