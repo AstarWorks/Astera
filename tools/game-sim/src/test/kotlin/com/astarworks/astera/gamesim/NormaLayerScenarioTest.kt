@@ -8,7 +8,12 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.match.application.gamemode.siege.IObjectiveStateQuery
+import com.astarworks.astera.match.application.gamemode.siege.ObjectiveSnapshot
+import com.astarworks.astera.match.application.port.outbound.IGameModeFrameworkRegistry
 import com.astarworks.astera.match.application.port.outbound.IMatchStarStore
+import com.astarworks.astera.match.domain.event.ObjectiveMarkerInteracted
+import com.astarworks.astera.match.domain.mode.GameModeId
 import com.astarworks.astera.match.domain.event.NormaLevelUp
 import com.astarworks.astera.match.domain.event.StarsCollected
 import org.assertj.core.api.Assertions.assertThat
@@ -105,8 +110,16 @@ class NormaLayerScenarioTest {
             normaCheckAtHome(matchId, blue)
             assertThat(eventsOf<NormaLevelUp>().any { it.playerId == blue.id && it.level == 2 }).isTrue()
 
+            // TNT pickup is a right-click since 85b2e0d15 (6877ee66e): wear the shield down in tnt-spawn, then click the TNT.
             red.moveTo(Vec3(0.0, 65.0, -6.0))
-            advance(40)
+            val rainmaker = {
+                (sim.services.getOrThrow<IGameModeFrameworkRegistry>().get(GameModeId("carry-tnt")) as IObjectiveStateQuery)
+                    .objectiveSnapshot(matchId) as ObjectiveSnapshot.Rainmaker
+            }
+            check(advanceUntil(20 * 90) { rainmaker().shieldHp <= 0.0 }) { "red never broke the TNT shield" }
+            sim.eventBus.publish(ObjectiveMarkerInteracted(matchId, red.id, "tnt"))
+            advance(2)
+            check(sim.objectiveStage.carrying(red.id) != null) { "red never got the TNT" }
             red.moveTo(Vec3(100.0, 65.0, 0.0))
             advance(40)
             advance(18_100)
