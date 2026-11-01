@@ -101,27 +101,32 @@ The original town, spawn, pillar, supply, ore, bridge and ladder anchors stay fi
 Outer turf rolls through gentle terraces, blending to the fixed broad walking
 corridors; riverbank terraces join the existing bridges and climb-outs. The quarry keeps its original
 height envelope. Coherent headlands, exposed stone/coarse dirt and gravel seams
-break up the rim; noisy rock undersides extend 15–30 blocks down at the perimeter
-and taper deeper inward, above kill y16. Winding worn paths blend dirt path,
+break up the rim. The completed footprint (including town corners) contracts
+downward into a noisy inverted cone over roughly 40 blocks, above kill y16.
+Warped stone/andesite/tuff/deepslate bands, occasional ore, tapered rock spires,
+log roots with supported hanging-root tips and river-outlet falls articulate the underside. Winding worn paths blend dirt path,
 coarse dirt, gravel and turf inside the existing walkable corridor. Lantern
 posts, wooden signboards (no block-entity text), barrels, broken walls and the
 existing wagons mark shoulders.
 
 Seeded groves and clearings replace tree rows: oak, birch, spruce and dark oak
-have 5/7/10-block stems, branched broadleaf crowns, spruce cones and multi-stem
-veteran oaks. Ferns, flowers, bushes, fallen logs and small boulders fill woodland
+have 5/7/10-block stems, rounded layered crowns with seeded corner omissions,
+branch-supported overhangs, spruce whorls and 2×2 veteran oak/dark-oak/spruce trunks. Ferns, flowers, bushes, fallen logs and small boulders fill woodland
 shoulders while keeping the through-routes open.
 
-`HighmarchScenario` additionally checks the decoded perimeter thickness, outer
-turf elevations, all four tree species, undergrowth and blended track materials,
+`HighmarchScenario` additionally checks shrinking decoded underside sections,
+a maximum six-block exposed vertical run below y61, roots, outlet falls, rounded
+crowns and giant spruce, outer turf elevations, all four species, undergrowth and blended tracks,
 and rejects turf left above the excavated quarry. Star-distance checks now use
 the founder's tighter 20–25 bounds. `--baseline` omits the new quality checks.
 
-The offline preview emits two fixed-camera perspective images for Highmarch,
+The offline preview emits three fixed-camera perspective images for Highmarch,
 in addition to top/iso/section/height: `annihilation-arena-perspective.png`
 (red base edge toward the western outpost and yellow, eye -38.5/100/-91.5),
-and `annihilation-arena-eye.png` (same corridor, eye -52.5/66.6/-94.5).
+`annihilation-arena-eye.png` (same corridor, eye -52.5/66.6/-94.5),
+and `annihilation-arena-underside.png` (blue south rim, eye 193.5/28.6/154.5
+toward 115/58/80).
 Voxel DDA uses the actual decoded import, flat material colours and depth fog;
 plants render as full voxels, with no Minecraft textures or lighting. These
 views compare terrain and silhouettes; live appearance remains manager review.
-Evidence and before/after fairness tables: `/tmp/claude-1000/anni-map/quality/`.
+Evidence and before/after fairness tables: `/tmp/claude-1000/anni-map/quality2/`.

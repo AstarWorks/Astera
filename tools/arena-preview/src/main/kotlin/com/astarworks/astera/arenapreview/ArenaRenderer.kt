@@ -96,9 +96,10 @@ object ArenaRenderer {
     /** Fixed west-flank cameras: red base edge toward yellow, comparable across art passes.
      * Voxel DDA renders the decoded import with perspective and depth fog, without a server.
      */
-    fun perspective(plan: ArenaBuildPlan, eyeLevel: Boolean): BufferedImage {
-        val eye = if (eyeLevel) doubleArrayOf(-52.5, 66.6, -94.5) else doubleArrayOf(-38.5, 100.0, -91.5)
-        val target = doubleArrayOf(-99.0, if (eyeLevel) 66.6 else 61.0, -38.0)
+    fun perspective(plan: ArenaBuildPlan, eyeLevel: Boolean, underside: Boolean = false): BufferedImage {
+        val eye = if (underside) doubleArrayOf(193.5, 28.6, 154.5) else if (eyeLevel) doubleArrayOf(-52.5, 66.6, -94.5) else doubleArrayOf(-38.5, 100.0, -91.5)
+        val target = if (underside) doubleArrayOf(115.0, 58.0, 80.0)
+            else doubleArrayOf(-99.0, if (eyeLevel) 66.6 else 61.0, -38.0)
         fun normal(v: DoubleArray): DoubleArray {
             val length = kotlin.math.sqrt(v.sumOf { it * it })
             return DoubleArray(3) { v[it] / length }
@@ -136,7 +137,7 @@ object ArenaRenderer {
         }
         val g = image.createGraphics()
         g.color = Color.BLACK; g.fillRect(0, 0, image.width, 28)
-        g.color = Color.WHITE; g.drawString("Highmarch west flank / ${if (eyeLevel) "eye level" else "founder region"} / eye=${eye.joinToString()}", 10, 19)
+        g.color = Color.WHITE; g.drawString("Highmarch west flank / ${if (underside) "blue south rim underside" else if (eyeLevel) "eye level" else "founder region"} / eye=${eye.joinToString()}", 10, 19)
         g.dispose()
         return image
     }
@@ -148,6 +149,7 @@ object ArenaRenderer {
         "blue_banner", "blue_wall_banner" -> Color(0x3c44aa)
         "cobbled_deepslate", "deepslate_tiles", "deepslate_tile_stairs" -> Color(0x45454e)
         "gravel" -> Color(0x99938a)
+        "hanging_roots" -> Color(0x806244)
         "spruce_leaves" -> Color(0x31583c)
         "dark_oak_leaves" -> Color(0x294e24)
         else -> LobbyRenderer.colorOf(state)

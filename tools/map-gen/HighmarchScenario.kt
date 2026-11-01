@@ -160,20 +160,50 @@ fun main(args: Array<String>) {
                 plan.stateAt(p.x + 1, p.y, p.z) == state && plan.stateAt(p.x, p.y, p.z + 1) == state &&
                 plan.stateAt(p.x + 1, p.y, p.z + 1) == state
         }) { "lost multi-trunk veteran trees" }
+        val roundedCrowns = plan.blocks.count { (p, state) ->
+            state.endsWith("_log[axis=y]") && p.y > 67 &&
+                listOf(-2 to 0, 2 to 0, 0 to -2, 0 to 2).all { (dx, dz) ->
+                    plan.stateAt(p.x + dx, p.y, p.z + dz)?.contains("_leaves[") == true
+                } && listOf(-2 to -2, -2 to 2, 2 to -2, 2 to 2).count { (dx, dz) ->
+                    plan.stateAt(p.x + dx, p.y, p.z + dz)?.contains("_leaves[") != true
+                } >= 3
+        }
+        check(roundedCrowns >= 20) { "woodland reverted to square crowns: $roundedCrowns" }
         check(count("spruce_wall_sign") > 0) { "lost roadside posts" }
         check(count("fern") >= 100 && count("short_grass") >= 300) { "lost undergrowth" }
         check(count("dirt_path") >= 500 && count("gravel") >= 500) { "lost blended tracks" }
-        val bottoms = plan.blocks.keys.groupingBy { it.x to it.z }.fold(Int.MAX_VALUE) { y, p -> minOf(y, p.y) }
-        var edges = 0
-        for (x in -146..146) for (z in -158..139) {
-            fun inside(a: Int, b: Int) = hypot(a / 146.0, (b + 9) / 149.0) <= 1
-            if (!inside(x, z) || listOf(1 to 0, -1 to 0, 0 to 1, 0 to -1).all { (dx, dz) -> inside(x + dx, z + dz) }) continue
-            val ground = (55..76).lastOrNull { plan.stateAt(x, it, z) in setOf("minecraft:grass_block", "minecraft:coarse_dirt", "minecraft:stone", "minecraft:gravel", "minecraft:dirt_path") } ?: continue
-            check(bottoms.getValue(x to z) <= ground - 15) { "thin perimeter $x,$z" }
-            edges++
+        // Quality2: the decoded island contracts downward instead of a thick rim extrusion.
+        val rock = setOf("stone", "andesite", "tuff", "deepslate", "dirt", "coal_ore", "deepslate_iron_ore")
+        val sections = listOf(30, 40, 50, 60).map { y ->
+            plan.blocks.count { (p, state) -> p.y == y && state.removePrefix("minecraft:").substringBefore('[') in rock }
         }
-        check(edges >= 400) { "missing perimeter samples: $edges" }
-        println("HighmarchQuality: $edges thick perimeter columns; ${turf.keys.map { it.y }.distinct().sorted()} turf levels; four woodland species and blended tracks")
+        check(sections.zipWithNext().all { (lower, upper) -> lower < upper * .9 }) { "underside no longer narrows: $sections" }
+        val bottoms = plan.blocks.keys.groupingBy { it.x to it.z }.fold(Int.MAX_VALUE) { y, p -> minOf(y, p.y) }
+        check(bottoms.values.distinct().size >= 30) { "flat island bottom" }
+        var maxWall = 0
+        for ((xz, _) in bottoms) {
+            var run = 0
+            for (y in 20..60) {
+                val state = plan.stateAt(xz.first, y, xz.second)?.removePrefix("minecraft:")?.substringBefore('[')
+                val exposed = state in rock && listOf(1 to 0, -1 to 0, 0 to 1, 0 to -1).any { (dx, dz) ->
+                    !plan.isSolid(xz.first + dx, y, xz.second + dz)
+                }
+                run = if (exposed) run + 1 else 0
+                maxWall = maxOf(maxWall, run)
+            }
+        }
+        check(maxWall <= 6) { "vertical underside wall: $maxWall" }
+        check(count("hanging_roots") >= 20) { "lost rim roots" }
+        check(plan.blocks.all { (p, state) ->
+            state != "minecraft:hanging_roots" || plan.isSolid(p.x, p.y + 1, p.z)
+        }) { "unsupported hanging root tip" }
+        check(plan.blocks.count { (p, state) -> p.y < 40 && state.startsWith("minecraft:water") } >= 20) { "lost outlet falls" }
+        check(plan.blocks.any { (p, state) ->
+            state == "minecraft:spruce_log[axis=y]" && p.y > 65 &&
+                plan.stateAt(p.x + 1, p.y, p.z) == state && plan.stateAt(p.x, p.y, p.z + 1) == state &&
+                plan.stateAt(p.x + 1, p.y, p.z + 1) == state
+        }) { "lost giant spruce trunks" }
+        println("HighmarchQuality2: underside slices $sections; longest exposed wall $maxWall; rooted rim, waterfalls and giant spruce")
     }
     val rows = StringBuilder("# Highmarch integration traversal\n\nShipped import, stage and ore loaders + production PathFinder, cap 5000 with at most 12 progress replans; paths count cells as TraversalCheck does (5.6 cells/s). Diagonals count as one cell, so these are comparable estimates, not elapsed play time.\n\n| Scenario | Route | Reached | Path blocks | Sprint s |\n|---|---|---|---:|---:|\n")
     var failures = 0
