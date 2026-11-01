@@ -37,7 +37,22 @@ import kotlin.math.sqrt
  * [IBlockStateGateway], ore nodes and structures through their services, tool class x item tier x block HP for plain blocks)
  * over [SimWorld]'s block map. Every service is looked up lazily, since Match registers some after Combat wires.
  */
-internal class SimBlockAccess(private val sim: SimWorld, private val services: ServiceRegistry) : ISkillBlockAccess {
+internal class SimBlockAccess(
+    private val sim: SimWorld,
+    private val services: ServiceRegistry,
+    private val alive: (PlayerId) -> Boolean = { true },
+) : ISkillBlockAccess {
+
+    /** Same box as [com.astarworks.astera.gamesim.skillengine.SimSkillEntityQuery]: the entity's 0.6 x 1.8 hitbox at its feet, living entities only. */
+    override fun isBodyIn(cast: CastRef, cell: BlockCell): Boolean = sim.entities.any { e ->
+        if (e.world != cast.world || !alive(e.id)) return@any false
+        val h = e.hitboxWidth / 2.0
+        val p = e.position
+        p.x - h < cell.x + 1 && p.x + h > cell.x &&
+            p.y < cell.y + 1 && p.y + e.hitboxHeight > cell.y &&
+            p.z - h < cell.z + 1 && p.z + h > cell.z
+    }
+
 
     private fun pos(cell: BlockCell): Vec3 = Vec3(cell.x.toDouble(), cell.y.toDouble(), cell.z.toDouble())
     private fun isOreNode(cast: CastRef, cell: BlockCell): Boolean = services.get<IOreNodeStrikes>()?.isNode(cast.world, pos(cell)) == true

@@ -7,9 +7,9 @@ import kotlin.math.floor
 
 /**
  * No seat stands inside a solid block after a spawn / respawn (feet and head cells free), and a jump under a low ceiling is
- * cut short instead of lifting the head into the block (SimLocomotion.lift). Not asserted: a block that a skill's
- * SkillWorldEditor.restore puts back into a cell where a bot has meanwhile walked (plugin/combat owns; the match's
- * `-36,61,4` buried bots come from there). That count is only printed.
+ * cut short instead of lifting the head into the block (SimLocomotion.lift). Also asserted: a block that a skill's
+ * SkillWorldEditor.restore would put back into a cell where a bot has meanwhile walked is deferred until the bot
+ * leaves (the match's `-36,61,4` buried bots came from there), so no seat ever stands buried without a jump in progress.
  */
 class BotBuriedSeatScenarioTest {
 
@@ -49,6 +49,7 @@ class BotBuriedSeatScenarioTest {
             println("[buried] spawn=${spawnBuried.size} jump=${jumpBuried.size} walked-in-block-restored seats=$restoreBuried")
             assertThat(spawnBuried).`as`("seats spawned inside solid blocks").isEmpty()
             assertThat(jumpBuried.take(5)).`as`("jumps lifted the head into a block").isEmpty()
+            assertThat(restoreBuried).`as`("seats buried by a restored skill block").isEmpty()
         }
     }
 }

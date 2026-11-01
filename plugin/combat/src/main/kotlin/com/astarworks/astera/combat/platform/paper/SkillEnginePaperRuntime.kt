@@ -367,7 +367,7 @@ internal class SkillEnginePaperRuntime(
         interruptions = null
         runner?.cancelAll()
         runner = null
-        worldOps?.revertAll()
+        worldOps?.revertAllNow()
         worldOps = null
         movement?.releaseAll()
         movement = null
