@@ -331,7 +331,6 @@ def ruined_chapel(w):
     w.box(-6, -6, 79, 81, 0, 0, 'stone_bricks')
     w.box(-8, -4, 79, 79, 0, 0, 'stone_bricks')
     w.box(-5, 6, 67, 67, -4, 4, 'cracked_stone_bricks')
-    w.set(-3, 68, -2, 'chest[facing=east]')
     # Extended roofless nave: asymmetric ruined walls and broken ribs, not a solid box.
     w.box(-8, 7, 67, 67, -8, 7, 'cracked_stone_bricks')
     for edge in (-8, 7):
@@ -351,6 +350,9 @@ def ruined_chapel(w):
     w.box(-8, -3, 78, 78, -6, -1, 'spruce_planks')
     w.box(-7, -4, 79, 83, -5, -2, None)
     w.set(-6, 81, -1, 'bell[attachment=ceiling,facing=south]')
+    # Cache niche in the tower's east wall: chest on the nave floor, open air above for the star spot.
+    w.box(-3, -3, 69, 70, -2, -2, None)
+    w.set(-3, 68, -2, 'chest[facing=east]')
     ramp(w.frame(6, -5, 2), 0, 0, 11, bottom=67, rise=11, width=3)
     w.box(-5, 6, 78, 78, -18, -16, 'spruce_planks')
     w.box(-6, -4, 78, 78, -16, -4, 'spruce_planks')
