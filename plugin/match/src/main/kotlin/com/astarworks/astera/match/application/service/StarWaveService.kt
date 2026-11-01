@@ -15,6 +15,7 @@ import com.astarworks.astera.match.application.port.outbound.IMatchWorldReposito
 import com.astarworks.astera.match.domain.event.StarSupplied
 import com.astarworks.astera.match.domain.generator.GeneratorId
 import com.astarworks.astera.match.domain.generator.StarGenerator
+import com.astarworks.astera.match.domain.star.StarSource
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.PI
 import kotlin.math.cos
@@ -25,8 +26,8 @@ import kotlin.random.Random
 /**
  * Mid star waves: a wave generator (`wave:` in `content/generators/`) does not pop on a period. Wave n lands at
  * `n * wave_period_seconds` of match time; `wave_warn_seconds` before that the whole match gets the warning moment
- * (title, sound, action bar). The wave's size is the generator `amount` times the star supply multiplier at landing
- * time ([StarSupplyClock]); it is thrown as separate star items one by one over a disc around the generator.
+ * (title, sound, action bar). The wave's size is the generator `amount` (stars per player) times the players alive times the
+ * supply ramp at landing time ([StarSupplyClock]), and has to fit the wave cap of the [StarBudget]; it is thrown as separate star items one by one over a disc around the generator.
  * Driven by [poll] (the same 10-tick task as the drop poll), so timing is at most one poll late.
  */
 public class StarWaveService(
@@ -35,6 +36,7 @@ public class StarWaveService(
     private val matchWorlds: IMatchWorldRepository,
     private val drops: StarDropService,
     private val clock: StarSupplyClock,
+    private val budget: StarBudget,
     private val scheduler: IScheduler,
     private val presentation: IPresentation,
     private val eventBus: IDomainEventBus,
@@ -73,10 +75,13 @@ public class StarWaveService(
         states.keys.removeIf { it.first == matchId }
     }
 
+    private fun size(matchId: MatchId, generator: StarGenerator, ramp: Double): Int =
+        Math.round(generator.amount * budget.alive(matchId) * ramp).toInt().coerceAtLeast(1)
+
     private fun members(matchId: MatchId) = matches.findById(matchId)?.teams?.flatMap { it.members }.orEmpty()
 
     private fun warn(matchId: MatchId, generator: StarGenerator, landAt: Double, warnSeconds: Double) {
-        val stars = clock.amountAtSeconds(matchId, generator.amount, landAt)
+        val stars = size(matchId, generator, clock.economyOf(matchId).rampAt(landAt))
         val args = mapOf("seconds" to warnSeconds.toInt().toString(), "stars" to stars.toString())
         for (player in members(matchId)) {
             presentation.play(PresentationMoments.STAR_WAVE_WARN, player, args)
@@ -86,7 +91,8 @@ public class StarWaveService(
     private fun land(matchId: MatchId, generator: StarGenerator) {
         val wave = generator.wave ?: return
         val world = matchWorlds.findByMatch(matchId)?.worldId ?: return
-        val total = clock.amount(matchId, generator.amount)
+        val total = budget.grant(matchId, StarSource.WAVE, null, size(matchId, generator, clock.ramp(matchId)))
+        if (total <= 0) return
         val items = minOf(total, MAX_WAVE_ITEMS)
         val base = total / items
         var extra = total % items

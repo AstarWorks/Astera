@@ -1,6 +1,6 @@
 # In-match ore shop (wp/match-arsenal). Opened from the shop NPC in each team's base; priced in ore items
 # (ore-iron / ore-gold / ore-diamond / ore-emerald), never GOLD. The lobby GOLD shops are the other files in this folder.
-# Offer shape: {item_id, price: {<ore item>: n}, tab: weapons|tools|blocks|armor|upgrades, stack, upgrade_from?}. One offer per block.
+# Offer shape: {item_id, price: {<ore item>: n}, tab: weapons|blocks|armor|upgrades, stack, upgrade_from?}. One offer per block.
 # Weapon upgrades (tab: upgrades, BedWars / Annihilation style): `upgrade_from` names the item the buyer must carry; the purchase
 # takes it and hands over `item_id` (a stronger tier of the same weapon, id `<weapon>-tN`). Open to everyone (no Norma gate).
 # The ladder climbs the ore ladder: tier 2 gold, tier 3 diamond, tier 4 emerald (Mid ore). Match-scoped like every other
@@ -163,30 +163,6 @@ offers:
   - item_id: flash-bang
     price: { ore-iron: 6 }
     tab: weapons
-    stack: 1
-  - item_id: iron-pickaxe
-    price: { ore-iron: 12 }
-    tab: tools
-    stack: 1
-  - item_id: iron-axe
-    price: { ore-iron: 12 }
-    tab: tools
-    stack: 1
-  - item_id: iron-shovel
-    price: { ore-iron: 12 }
-    tab: tools
-    stack: 1
-  - item_id: diamond-pickaxe
-    price: { ore-diamond: 3 }
-    tab: tools
-    stack: 1
-  - item_id: diamond-axe
-    price: { ore-diamond: 3 }
-    tab: tools
-    stack: 1
-  - item_id: diamond-shovel
-    price: { ore-diamond: 3 }
-    tab: tools
     stack: 1
   - item_id: wool-block
     price: { ore-iron: 4 }

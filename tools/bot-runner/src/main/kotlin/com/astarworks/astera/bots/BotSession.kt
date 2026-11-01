@@ -75,7 +75,7 @@ class BotSession(
             queued = true
             group.queued()
 
-            brain = BotBrain(bot, config.skill, objectives, modeId = lane).start()
+            brain = BotBrain(ProtocolBotHost(bot), config.skill, objectives, modeId = lane, itemSkills = config.contentDir?.let(ItemSkillCatalog::cached)).start()
             playUntilBackInLobby(bot, brain)
         } catch (t: Throwable) {
             log.warn("{} crashed: {}", name, t.toString())

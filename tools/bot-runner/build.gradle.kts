@@ -18,6 +18,7 @@ dependencies {
     implementation(project(":plugin:match")) // Reuse the server stage loader for routing topology.
     api(libs.slf4j.api)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.snakeyaml) // ItemSkillCatalog reads content/items + content/skills
     implementation(libs.lettuce.core)
     runtimeOnly(libs.logback.classic)
 }

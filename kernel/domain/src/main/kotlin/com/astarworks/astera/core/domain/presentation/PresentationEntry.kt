@@ -75,6 +75,7 @@ public object PresentationMoments {
     public const val NORMA_LEVEL_UP: String = "norma-level-up"
     public const val NORMA_LEVEL_MAX: String = "norma-level-max"
     public const val NORMA_LOCKED: String = "norma-locked"
+    public const val NORMA_TOOLS_UP: String = "norma-tools-up"
     public const val OBJECTIVE_PICKUP: String = "objective-pickup"
     public const val OBJECTIVE_COLLECT: String = "objective-collect"
     public const val OBJECTIVE_ALERT: String = "objective-alert"

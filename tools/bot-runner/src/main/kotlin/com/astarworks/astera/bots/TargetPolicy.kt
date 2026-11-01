@@ -27,6 +27,10 @@ object TargetPolicy {
         val y: Double,
         val z: Double,
         val listed: Boolean = true,
+        /** Unobstructed line from the bot's eye to this player (the caller's ray cast). Only [TargetSelector] reads it. */
+        val hasLos: Boolean = true,
+        /** health / max health in 0..1 when the snapshot shows it, null = unknown (treated as full health). */
+        val hpFraction: Double? = null,
     )
 
     fun eligible(selfName: String, selfTeam: String?, c: Candidate): Boolean =

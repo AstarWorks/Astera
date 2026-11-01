@@ -17,7 +17,7 @@ import kotlin.math.sqrt
 
 /**
  * Terrain-relief measurements over the generated block model (founder feedback: "so big, yet totally flat").
- * Ground = the standable top of each column below `surfaceY + SCAN`; spires and tall castle shafts are cut off by the
+ * Ground = the highest non-tree block in each column below `surfaceY + SCAN`, down to the imported world bottom; spires and tall castle shafts are cut off by the
  * scan ceiling, so the numbers describe what a player walks on and hides behind.
  */
 object ArenaMetrics {
@@ -44,10 +44,10 @@ object ArenaMetrics {
         val s = plan.surfaceY
         val out = HashMap<Long, Int>()
         for (pos in plan.blocks.keys) {
-            if (pos.y < s - 8 || pos.y > s + SCAN) continue
+            if (pos.y > s + SCAN) continue
             val k = key(pos.x, pos.z)
             if (k in out) continue
-            for (y in s + SCAN downTo s - 8) {
+            for (y in s + SCAN downTo plan.minY) {
                 val here = plan.stateAt(pos.x, y, pos.z)
                 if (!solidBlock(here) || treeLike(here!!)) continue
                 out[k] = y
@@ -162,7 +162,7 @@ object ArenaMetrics {
         for ((k, y) in g) {
             val rel = y - s
             val c = when {
-                rel < 0 -> Color(40, (80 + 30 * rel).coerceAtLeast(30), 200)
+                rel < 0 -> Color.getHSBColor(.48f + (-rel).coerceAtMost(16) * .014f, .8f, .85f)
                 rel == 0 -> Color(60, 150, 70)
                 else -> Color.getHSBColor((0.30f - 0.03f * rel).coerceAtLeast(0f), 0.8f, 1.0f)
             }
@@ -170,8 +170,8 @@ object ArenaMetrics {
             gr.fillRect(10 + (kx(k) - plan.minX) * scale, 30 + (kz(k) - plan.minZ) * scale, scale, scale)
         }
         // legend
-        for (i in -4..12) { gr.color = when { i < 0 -> Color(40, (80 + 30 * i).coerceAtLeast(30), 200); i == 0 -> Color(60, 150, 70); else -> Color.getHSBColor((0.30f - 0.03f * i).coerceAtLeast(0f), 0.8f, 1f) }
-            gr.fillRect(img.width - 100, 30 + (i + 4) * 12, 14, 12); gr.color = Color.WHITE; gr.drawString("${if (i >= 0) "+" else ""}$i", img.width - 80, 40 + (i + 4) * 12) }
+        for (i in -16..12) { gr.color = when { i < 0 -> Color.getHSBColor(.48f + (-i).coerceAtMost(16) * .014f, .8f, .85f); i == 0 -> Color(60, 150, 70); else -> Color.getHSBColor((0.30f - 0.03f * i).coerceAtLeast(0f), 0.8f, 1f) }
+            gr.fillRect(img.width - 100, 30 + (i + 16) * 12, 14, 12); gr.color = Color.WHITE; gr.drawString("${if (i >= 0) "+" else ""}$i", img.width - 80, 40 + (i + 16) * 12) }
         gr.dispose()
         return img
     }

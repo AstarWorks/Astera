@@ -114,7 +114,7 @@ public class MatchShopIntentHandler(
         return GuiSpec.build(id = GUI_ID, title = TITLE, size = size) {
             offers.forEachIndexed { index, offer -> slot(SlotIndex(index), offerSlot(playerId, current, index, offer)) }
             for (col in 0 until 9) slot(SlotIndex(footer + col), GuiSlot.Border(FOOTER_PANE))
-            // Tabs sit side by side in the middle of the footer row (columns 2..6 for five tabs).
+            // Tabs sit side by side in the middle of the footer row (columns 2..5 for four tabs).
             MatchShopTab.entries.forEachIndexed { i, tab -> slot(SlotIndex(footer + 2 + i), tabSlot(tab, tab == current)) }
         }
     }
@@ -186,7 +186,6 @@ public class MatchShopIntentHandler(
         private val MSG_FAILED = MessageKey("astera.economy.matchshop.failed")
         private val TAB_ICONS: Map<MatchShopTab, ItemId> = mapOf(
             MatchShopTab.WEAPONS to ItemId("dagger"),
-            MatchShopTab.TOOLS to ItemId("iron-pickaxe"),
             MatchShopTab.BLOCKS to ItemId("iron-shovel"),
             MatchShopTab.ARMOR to ItemId("gui-admin-cat-all"),
             MatchShopTab.UPGRADES to ItemId("knight-sword-t4"),

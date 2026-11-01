@@ -213,6 +213,15 @@ public class PaperSkinRigPuppet(
             RigDisplayContract.TELEPORT_TICKS, RigDisplayContract.INTERPOLATION_TICKS, fmt(local), fmt(grip),
             target?.let { fmt(it) } ?: "-", reach?.let { "%.4f".format(it) } ?: "-", rig.slim,
         )
+        // a `hand: off` rig pins the left hand: its own row (hand=l), the left grip in the world against the off-hand mesh origin
+        val leftTarget = frame.leftHandTarget ?: return
+        val leftLocal = SkinRigTransforms.leftGrip(frame, rig.slim)
+        log.info(
+            "[vfx-trace] rig hand tick={} hand=l player={} at={} yaw={} tp={} ip={} local={} grip={} target={} reach={} slim={}",
+            player.world.gameTime, player.uniqueId, fmt(anchor.feet), "%.4f".format(anchor.yawDeg.toFloat()),
+            RigDisplayContract.TELEPORT_TICKS, RigDisplayContract.INTERPOLATION_TICKS, fmt(leftLocal), fmt(anchor.rigFrame().toWorld(leftLocal)),
+            fmt(leftTarget), SkinRigTransforms.leftHandReach(frame, rig.slim)?.let { "%.4f".format(it) } ?: "-", rig.slim,
+        )
     }
 
     private fun fmt(v: Vec3): String = "%.4f,%.4f,%.4f".format(v.x, v.y, v.z)

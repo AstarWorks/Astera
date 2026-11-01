@@ -1,71 +1,93 @@
 ## pose yaw=0 pitch=0
-@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/cast_flame type=flame count=50 at=0.000000,0.000000,1.200000 off=0.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8271706515850399150
-@0 particle - op=fly/cast_dust type=dust count=20 at=0.000000,0.000000,1.200000 off=0.200000,0.200000,0.200000 speed=0.000000 color=#ff6414 size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1770167564929602020
-@0 particle - op=fly/trail_flame[0] type=flame count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3200708664431112747
-@0 particle - op=fly/trail_dust[0] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8305699464820252328
-@0 frame fly/beam op=fly/beam pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
-@1 particle - op=fly/trail_flame[1] type=flame count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7310665042819674251
-@1 particle - op=fly/trail_dust[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8222431743763069456
-@1 hit - op=fly/beam at=0.000000,1.620000,1.500000 r=1.500000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,2.500000 rad=0.500000
+@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=-0.300000,1.110000,0.570000
+@0 particle - op=fly/cast_flame type=flame count=50 at=-0.300000,1.110000,2.370000 off=0.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8271706515850399150
+@0 particle - op=fly/cast_dust type=dust count=20 at=-0.300000,1.110000,2.370000 off=0.200000,0.200000,0.200000 speed=0.000000 color=#ff6414 size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1770167564929602020
+@0 particle - op=fly/trail_flame[0] type=flame count=1 at=-0.300000,1.110000,0.720000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3200708664431112747
+@0 particle - op=fly/trail_flame[0] type=flame count=1 at=-0.300000,1.110000,0.970000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2246429531636785048
+@0 particle - op=fly/trail_dust[0] type=dust count=1 at=-0.300000,1.110000,0.720000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8305699464820252328
+@0 particle - op=fly/trail_dust[0] type=dust count=1 at=-0.300000,1.110000,0.970000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1641636777700178231
+@0 frame fly/beam op=fly/beam pos=-0.300000,1.110000,0.970000 rot=0.000000,0.000000,0.000000,1.000000
+@1 particle - op=fly/trail_flame[1] type=flame count=1 at=-0.300000,1.110000,0.720000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7310665042819674251
+@1 particle - op=fly/trail_flame[1] type=flame count=1 at=-0.300000,1.110000,0.970000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3482343789356563045
+@1 particle - op=fly/trail_dust[1] type=dust count=1 at=-0.300000,1.110000,0.720000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8222431743763069456
+@1 particle - op=fly/trail_dust[1] type=dust count=1 at=-0.300000,1.110000,0.970000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3010712776877435159
+@1 hit - op=fly/beam at=-0.300000,1.110000,1.970000 r=1.500000 shape=capsule a=-0.300000,1.110000,0.970000 b=-0.300000,1.110000,2.970000 rad=0.500000
 g @1 state-exit reason=EVENT | state=fly
 g @1 dropped reason=owner-exited:fly | sub=fly/beam.end
 g @1 dropped reason=owner-exited:fly | sub=fly/beam.hit
 g @1 dropped reason=owner-exited:fly | sub=fly/beam.end
 g @1 cast-end | pose
+r @11 run-end tail=10 | pose
 ## pose yaw=37 pitch=-20
-@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/cast_flame type=flame count=50 at=-0.722178,0.000000,0.958363 off=0.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8271706515850399150
-@0 particle - op=fly/cast_dust type=dust count=20 at=-0.722178,0.000000,0.958363 off=0.200000,0.200000,0.200000 speed=0.000000 color=#ff6414 size=1.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1770167564929602020
-@0 particle - op=fly/trail_flame[0] type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3200708664431112747
-@0 particle - op=fly/trail_dust[0] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8305699464820252328
-@0 frame fly/beam op=fly/beam pos=-0.282761,1.791010,0.375236 rot=-0.164675,-0.312484,-0.055099,0.933916
-@1 particle - op=fly/trail_flame[1] type=flame count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7310665042819674251
-@1 particle - op=fly/trail_dust[1] type=dust count=1 at=-0.282761,1.791010,0.375236 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8222431743763069456
-@1 hit - op=fly/beam at=-0.848282,2.133030,1.125708 r=1.500000 shape=capsule a=-0.282761,1.791010,0.375236 b=-1.413803,2.475050,1.876180 rad=0.500000
+@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=-0.666912,1.335708,0.386531
+@0 particle - op=fly/cast_flame type=flame count=50 at=-1.684851,1.951345,1.737380 off=0.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8271706515850399150
+@0 particle - op=fly/cast_dust type=dust count=20 at=-1.684851,1.951345,1.737380 off=0.200000,0.200000,0.200000 speed=0.000000 color=#ff6414 size=1.600000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=1770167564929602020
+@0 particle - op=fly/trail_flame[0] type=flame count=1 at=-0.742667,1.472516,0.487061 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3200708664431112747
+@0 particle - op=fly/trail_flame[0] type=flame count=1 at=-0.893121,1.472516,0.686719 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-2246429531636785048
+@0 particle - op=fly/trail_dust[0] type=dust count=1 at=-0.742667,1.472516,0.487061 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=8305699464820252328
+@0 particle - op=fly/trail_dust[0] type=dust count=1 at=-0.893121,1.472516,0.686719 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-1641636777700178231
+@0 frame fly/beam op=fly/beam pos=-0.893121,1.472516,0.686719 rot=-0.164675,-0.312484,-0.055099,0.933916
+@1 particle - op=fly/trail_flame[1] type=flame count=1 at=-0.742667,1.472516,0.487061 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=7310665042819674251
+@1 particle - op=fly/trail_flame[1] type=flame count=1 at=-0.893121,1.472516,0.686719 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3482343789356563045
+@1 particle - op=fly/trail_dust[1] type=dust count=1 at=-0.742667,1.472516,0.487061 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-8222431743763069456
+@1 particle - op=fly/trail_dust[1] type=dust count=1 at=-0.893121,1.472516,0.686719 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=-3010712776877435159
+@1 hit - op=fly/beam at=-1.458642,1.814536,1.437191 r=1.500000 shape=capsule a=-0.893121,1.472516,0.686719 b=-2.024163,2.156557,2.187663 rad=0.500000
 g @1 state-exit reason=EVENT | state=fly
 g @1 dropped reason=owner-exited:fly | sub=fly/beam.end
+g @1 dropped reason=owner-exited:fly | sub=fly/beam.hit
+g @1 dropped reason=owner-exited:fly | sub=fly/beam.end
 g @1 cast-end | pose
+r @11 run-end tail=10 | pose
 ## pose-hit yaw=0 pitch=0
-@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/cast_flame type=flame count=50 at=0.000000,0.000000,1.200000 off=0.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8271706515850399150
-@0 particle - op=fly/cast_dust type=dust count=20 at=0.000000,0.000000,1.200000 off=0.200000,0.200000,0.200000 speed=0.000000 color=#ff6414 size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1770167564929602020
-@0 particle - op=fly/trail_flame[0] type=flame count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3200708664431112747
-@0 particle - op=fly/trail_dust[0] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8305699464820252328
-@0 frame fly/beam op=fly/beam pos=0.000000,1.620000,0.500000 rot=0.000000,0.000000,0.000000,1.000000
-@1 particle - op=fly/trail_flame[1] type=flame count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7310665042819674251
-@1 particle - op=fly/trail_dust[1] type=dust count=1 at=0.000000,1.620000,0.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8222431743763069456
-@1 hit - op=fly/beam at=0.000000,1.620000,1.500000 r=1.500000 shape=capsule a=0.000000,1.620000,0.500000 b=0.000000,1.620000,2.500000 rad=0.500000
-@1 sound - op=fly/beam.hit/snd_hit sound=astera:skills/fire-impact cat=master vol=1 pitch=1 at=0.000000,1.620000,2.200000
-@1 particle - op=fly/beam.hit/fx_hit/flame type=flame count=60 at=0.000000,1.620000,2.200000 off=0.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1000513736928962967
-@1 particle - op=fly/beam.hit/fx_hit/lava type=lava count=8 at=0.000000,1.620000,2.200000 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=35574000634900702
-@1 particle - op=fly/beam.hit/fx_hit/ring type=flame count=0 at=0.000000,1.620000,2.200000 off=0.000000,0.000000,0.000000 speed=0.060000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=4563227178357073757
-@1 particle - op=fly/beam.hit/fx_hit/dust_big type=dust count=1 at=0.000000,1.620000,2.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=2.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6687946834066385358
-@1 particle - op=fly/beam.hit/fx_hit/dust_mid type=dust count=1 at=0.000000,1.620000,2.200000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=2.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=6096568349405600836
-@1 damage 00000000-0000-0000-0000-00000000000a op=- fire=25 skill=simple-shoot at=0.000000,1.620000,2.200000 ignoreinv=false ignorearmor=false
+@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=-0.300000,1.110000,0.570000
+@0 particle - op=fly/cast_flame type=flame count=50 at=-0.300000,1.110000,2.370000 off=0.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8271706515850399150
+@0 particle - op=fly/cast_dust type=dust count=20 at=-0.300000,1.110000,2.370000 off=0.200000,0.200000,0.200000 speed=0.000000 color=#ff6414 size=1.600000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1770167564929602020
+@0 particle - op=fly/trail_flame[0] type=flame count=1 at=-0.300000,1.110000,0.720000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3200708664431112747
+@0 particle - op=fly/trail_flame[0] type=flame count=1 at=-0.300000,1.110000,0.970000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-2246429531636785048
+@0 particle - op=fly/trail_dust[0] type=dust count=1 at=-0.300000,1.110000,0.720000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=8305699464820252328
+@0 particle - op=fly/trail_dust[0] type=dust count=1 at=-0.300000,1.110000,0.970000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-1641636777700178231
+@0 frame fly/beam op=fly/beam pos=-0.300000,1.110000,0.970000 rot=0.000000,0.000000,0.000000,1.000000
+@1 particle - op=fly/trail_flame[1] type=flame count=1 at=-0.300000,1.110000,0.720000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=7310665042819674251
+@1 particle - op=fly/trail_flame[1] type=flame count=1 at=-0.300000,1.110000,0.970000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3482343789356563045
+@1 particle - op=fly/trail_dust[1] type=dust count=1 at=-0.300000,1.110000,0.720000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8222431743763069456
+@1 particle - op=fly/trail_dust[1] type=dust count=1 at=-0.300000,1.110000,0.970000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-3010712776877435159
+@1 hit - op=fly/beam at=-0.300000,1.110000,1.970000 r=1.500000 shape=capsule a=-0.300000,1.110000,0.970000 b=-0.300000,1.110000,2.970000 rad=0.500000
+@1 sound - op=fly/beam.hit/snd_hit sound=astera:skills/fire-impact cat=master vol=1 pitch=1 at=0.000000,0.810000,2.500000
+@1 particle - op=fly/beam.hit/flame_hit type=flame count=60 at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=5174921829701779359
+@1 particle - op=fly/beam.hit/lava_hit type=lava count=8 at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8419626924496899398
+@1 particle - op=fly/beam.hit/ring_hit type=flame count=0 at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.060000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=2170140595347090113
+@1 particle - op=fly/beam.hit/dust_big_hit type=dust count=1 at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=2.500000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=-8095860023154547093
+@1 particle - op=fly/beam.hit/dust_mid_hit type=dust count=1 at=0.000000,0.810000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=2.000000 dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=1094110399840762806
+@1 damage 00000000-0000-0000-0000-00000000000a op=- fire=25 skill=simple-shoot at=-0.300000,1.110000,2.200000 ignoreinv=false ignorearmor=false
 g @1 state-exit reason=EVENT | state=fly
 g @1 dropped reason=owner-exited:fly | sub=fly/beam.end
 g @1 cast-end | pose
+r @11 run-end tail=10 | pose
 ## pose-hit yaw=37 pitch=0
-@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=0.000000,0.000000,0.000000
-@0 particle - op=fly/cast_flame type=flame count=50 at=-0.722178,0.000000,0.958363 off=0.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8271706515850399150
-@0 particle - op=fly/cast_dust type=dust count=20 at=-0.722178,0.000000,0.958363 off=0.200000,0.200000,0.200000 speed=0.000000 color=#ff6414 size=1.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1770167564929602020
-@0 particle - op=fly/trail_flame[0] type=flame count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3200708664431112747
-@0 particle - op=fly/trail_dust[0] type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8305699464820252328
-@0 frame fly/beam op=fly/beam pos=-0.300908,1.620000,0.399318 rot=0.000000,-0.317305,0.000000,0.948324
-@1 particle - op=fly/trail_flame[1] type=flame count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7310665042819674251
-@1 particle - op=fly/trail_dust[1] type=dust count=1 at=-0.300908,1.620000,0.399318 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8222431743763069456
-@1 hit - op=fly/beam at=-0.902723,1.620000,1.197953 r=1.500000 shape=capsule a=-0.300908,1.620000,0.399318 b=-1.504538,1.620000,1.996589 rad=0.500000
-@1 sound - op=fly/beam.hit/snd_hit sound=astera:skills/fire-impact cat=master vol=1 pitch=1 at=-1.278471,1.620000,1.696589
-@1 particle - op=fly/beam.hit/fx_hit/flame type=flame count=60 at=-1.278471,1.620000,1.696589 off=0.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1000513736928962967
-@1 particle - op=fly/beam.hit/fx_hit/lava type=lava count=8 at=-1.278471,1.620000,1.696589 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=35574000634900702
-@1 particle - op=fly/beam.hit/fx_hit/ring type=flame count=0 at=-1.278471,1.620000,1.696589 off=0.000000,0.000000,0.000000 speed=0.060000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=4563227178357073757
-@1 particle - op=fly/beam.hit/fx_hit/dust_big type=dust count=1 at=-1.278471,1.620000,1.696589 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=2.500000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6687946834066385358
-@1 particle - op=fly/beam.hit/fx_hit/dust_mid type=dust count=1 at=-1.278471,1.620000,1.696589 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=2.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=6096568349405600836
-@1 damage 00000000-0000-0000-0000-00000000000a op=- fire=25 skill=simple-shoot at=-1.278471,1.620000,1.696589 ignoreinv=false ignorearmor=false
+@0 sound - op=fly/snd sound=astera:skill/wand/cast cat=master vol=1 pitch=1 at=-0.582625,1.110000,0.274678
+@0 particle - op=fly/cast_flame type=flame count=50 at=-1.665892,1.110000,1.712222 off=0.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8271706515850399150
+@0 particle - op=fly/cast_dust type=dust count=20 at=-1.665892,1.110000,1.712222 off=0.200000,0.200000,0.200000 speed=0.000000 color=#ff6414 size=1.600000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1770167564929602020
+@0 particle - op=fly/trail_flame[0] type=flame count=1 at=-0.672897,1.110000,0.394473 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3200708664431112747
+@0 particle - op=fly/trail_flame[0] type=flame count=1 at=-0.823351,1.110000,0.594132 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-2246429531636785048
+@0 particle - op=fly/trail_dust[0] type=dust count=1 at=-0.672897,1.110000,0.394473 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=8305699464820252328
+@0 particle - op=fly/trail_dust[0] type=dust count=1 at=-0.823351,1.110000,0.594132 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-1641636777700178231
+@0 frame fly/beam op=fly/beam pos=-0.823351,1.110000,0.594132 rot=0.000000,-0.317305,0.000000,0.948324
+@1 particle - op=fly/trail_flame[1] type=flame count=1 at=-0.672897,1.110000,0.394473 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=7310665042819674251
+@1 particle - op=fly/trail_flame[1] type=flame count=1 at=-0.823351,1.110000,0.594132 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3482343789356563045
+@1 particle - op=fly/trail_dust[1] type=dust count=1 at=-0.672897,1.110000,0.394473 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8222431743763069456
+@1 particle - op=fly/trail_dust[1] type=dust count=1 at=-0.823351,1.110000,0.594132 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=1.500000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-3010712776877435159
+@1 hit - op=fly/beam at=-1.425166,1.110000,1.392767 r=1.500000 shape=capsule a=-0.823351,1.110000,0.594132 b=-2.026981,1.110000,2.191403 rad=0.500000
+@1 sound - op=fly/beam.hit/snd_hit sound=astera:skills/fire-impact cat=master vol=1 pitch=1 at=-1.504538,0.810000,1.996589
+@1 particle - op=fly/beam.hit/flame_hit type=flame count=60 at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,0.000000 speed=0.200000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=5174921829701779359
+@1 particle - op=fly/beam.hit/lava_hit type=lava count=8 at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,0.000000 speed=0.100000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8419626924496899398
+@1 particle - op=fly/beam.hit/ring_hit type=flame count=0 at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,0.000000 speed=0.060000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=2170140595347090113
+@1 particle - op=fly/beam.hit/dust_big_hit type=dust count=1 at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=2.500000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=-8095860023154547093
+@1 particle - op=fly/beam.hit/dust_mid_hit type=dust count=1 at=-1.504538,0.810000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=#ff6414 size=2.000000 dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=1094110399840762806
+@1 damage 00000000-0000-0000-0000-00000000000a op=- fire=25 skill=simple-shoot at=-1.654112,1.110000,1.696589 ignoreinv=false ignorearmor=false
 g @1 state-exit reason=EVENT | state=fly
 g @1 dropped reason=owner-exited:fly | sub=fly/beam.end
 g @1 cast-end | pose
+r @11 run-end tail=10 | pose
 ## gameplay-static
 g @0..1200 cast-length | cast
 g @0..1200 state-end then=- final=false | state=fly

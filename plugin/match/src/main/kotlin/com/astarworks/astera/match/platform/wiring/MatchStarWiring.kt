@@ -36,7 +36,11 @@ import com.astarworks.astera.match.application.service.NormaLevelService
 import com.astarworks.astera.match.application.service.StarDropService
 import com.astarworks.astera.match.application.service.StarSupplyClock
 import com.astarworks.astera.match.application.service.StarWaveService
-import com.astarworks.astera.match.domain.star.StarSupply
+import com.astarworks.astera.match.application.service.StarActionService
+import com.astarworks.astera.match.application.service.StarBudget
+import com.astarworks.astera.match.application.service.StarCacheService
+import com.astarworks.astera.match.application.service.StarIssuer
+import com.astarworks.astera.match.domain.star.StarEconomy
 import com.astarworks.astera.match.domain.event.ResourceSpawned
 import com.astarworks.astera.match.domain.event.StarsCollected
 import com.astarworks.astera.match.domain.norma.NormaConfig
@@ -83,12 +87,24 @@ internal object MatchStarWiring {
         val carry = env.ctx.stateful<com.astarworks.astera.match.application.service.MatchCarriedState> { com.astarworks.astera.match.application.service.MatchCarriedState() }
         val clock = StarSupplyClock(
             env.scheduler,
-            { id -> StarSupply.parse(env.modeConfigOf(id)) },
+            { id -> StarEconomy.parse(env.modeConfigOf(id)) },
             carry.slot("star-clock-start") { java.util.concurrent.ConcurrentHashMap<MatchId, Long>() },
         )
         val presentationPort = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>()
+        val budget = StarBudget(clock) { id ->
+            env.matches.findById(id)?.teams?.flatMap { it.members }.orEmpty().count { positions.positionOf(it) != null }
+        }
+        val issuer = StarIssuer(budget, store, presentationPort, eventBus, env.scheduler)
         val drops = StarDropService(
-            clock = clock,
+            budget = budget,
+            issuer = issuer,
+            economyOf = clock.economyOf,
+            hint = { id, key, params ->
+                services.get<IHudGateway>()?.showFor(
+                    id,
+                    HudLayout.ActionBar(HudComponent.Text(messageKey = MessageKey(key), placeholders = params), ttlTicks = HINT_TTL_TICKS, priority = 1),
+                )
+            },
             scheduler = env.scheduler,
             matches = env.matches,
             generators = generators,
@@ -98,7 +114,6 @@ internal object MatchStarWiring {
             eventBus = eventBus,
             world = dropWorld,
             presentation = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>(),
-            deathDropRatio = { id -> configOf(id).deathDropRatio },
             log = { env.ctx.logger.fine(it) },
             drops = carry.slot("star-drops") { java.util.concurrent.ConcurrentHashMap<Long, com.astarworks.astera.match.domain.star.StarDrop>() },
             nextId = carry.slot("star-drop-next-id") { java.util.concurrent.atomic.AtomicLong(1) },
@@ -130,13 +145,31 @@ internal object MatchStarWiring {
             matchWorlds = services.getOrThrow<IMatchWorldRepository>(),
             drops = drops,
             clock = clock,
+            budget = budget,
             scheduler = env.scheduler,
             presentation = presentationPort,
             eventBus = eventBus,
             states = carry.slot("star-waves") { java.util.concurrent.ConcurrentHashMap<Pair<MatchId, com.astarworks.astera.match.domain.generator.GeneratorId>, com.astarworks.astera.match.application.service.StarWaveService.State>() },
         )
+        val caches = StarCacheService(
+            matches = env.matches,
+            generators = generators,
+            matchWorlds = services.getOrThrow<IMatchWorldRepository>(),
+            positions = positions,
+            issuer = issuer,
+            budget = budget,
+            clock = clock,
+            scheduler = env.scheduler,
+            presentation = presentationPort,
+            readyAt = carry.slot("star-cache-ready-at") { java.util.concurrent.ConcurrentHashMap<Triple<MatchId, com.astarworks.astera.match.domain.generator.GeneratorId, Int>, Long>() },
+        )
+        val actions = StarActionService(env.matches, generators, issuer, clock)
+        env.ctx.registrations += services.register<StarActionService>(actions, priority = 0)
+        env.ctx.registrations += services.register<StarBudget>(budget, priority = 0)
+        env.ctx.registrations += services.register<StarSupplyClock>(clock, priority = 0)
+        env.ctx.registrations += services.register<StarCacheService>(caches, priority = 0)
         subs += eventBus.subscribe(MatchStarted::class) { clock.onStarted(it.matchId) }
-        subs += eventBus.subscribe(MatchEnded::class) { clock.onEnded(it.matchId); waves.clear(it.matchId) }
+        subs += eventBus.subscribe(MatchEnded::class) { clock.onEnded(it.matchId); waves.clear(it.matchId); caches.clear(it.matchId); budget.clear(it.matchId) }
         subs += eventBus.subscribe(MatchStarted::class) { lifecycle.onStarted(it) }
         subs += eventBus.subscribe(MatchEnded::class) { lifecycle.onEnded(it) }
         subs += eventBus.subscribe(ResourceSpawned::class) { drops.onSpawned(it) }
@@ -215,7 +248,7 @@ internal object MatchStarWiring {
             )
         }
         // Command teleports raise no move event: a short poll covers them and redraws the drop markers.
-        env.scheduledTasks += env.scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 10L, periodTicks = 10L) { drops.poll(); norma.autoCheckReady(); waves.poll() }
+        env.scheduledTasks += env.scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 10L, periodTicks = 10L) { drops.poll(); norma.autoCheckReady(); waves.poll(); caches.poll() }
         return Wired(store, registry, env.stages, norma, drops, configOf)
     }
 }

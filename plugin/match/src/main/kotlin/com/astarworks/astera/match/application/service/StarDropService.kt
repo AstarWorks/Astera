@@ -23,7 +23,11 @@ import com.astarworks.astera.match.domain.event.StarsCollected
 import com.astarworks.astera.match.domain.event.StarSupplied
 import com.astarworks.astera.match.domain.generator.Affiliation
 import com.astarworks.astera.match.domain.generator.StarGenerator
+import com.astarworks.astera.match.domain.generator.GeneratorId
+import com.astarworks.astera.match.domain.star.SpotRotation
 import com.astarworks.astera.match.domain.star.StarDrop
+import com.astarworks.astera.match.domain.star.StarEconomy
+import com.astarworks.astera.match.domain.star.StarSource
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.cos
@@ -33,8 +37,8 @@ import kotlin.random.Random
 
 /**
  * Stars lying on the map. A generator pop becomes a [StarDrop] at the generator (a generator holds at most its
- * `stockpile_cap` separate drops; further pops add to the newest one). When a player is killed in a match,
- * `floor(carried * death_drop_ratio)` of their stars burst into a few drops scattered around the death position.
+ * `stockpile_cap` separate drops; further pops add to the newest one; generators with candidate `spots` pop on the next
+ * spot of a rotation, one star per spot, within the budget). A kill pays the killer and drops part of the victim's stars (ADR-0318).
  * A drop is a record plus an item entity ([IStarDropWorld]); it is collected only by the host's real item pickup
  * ([onTouched]: vanilla pickup range, pickup delay, animation). There is no proximity crediting. The item never
  * enters an inventory; the carried count lives only in [IMatchStarStore].
@@ -49,38 +53,68 @@ public class StarDropService(
     private val world: IStarDropWorld?,
     private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
     private val presentation: IPresentation,
-    private val clock: StarSupplyClock,
-    private val deathDropRatio: (MatchId) -> Double,
+    private val budget: StarBudget,
+    private val issuer: StarIssuer,
+    private val economyOf: (MatchId) -> StarEconomy,
+    /** Shows [player] a one-line hint (i18n key + args); the Paper wiring routes it to the action bar. */
+    private val hint: (PlayerId, String, Map<String, String>) -> Unit = { _, _, _ -> },
     private val random: Random = Random.Default,
     private val log: (String) -> Unit = {},
     /** Carried across a Match rewire: the stars lying in the arena and the id counter. */
     private val drops: MutableMap<Long, StarDrop> = ConcurrentHashMap(),
     private val nextId: AtomicLong = AtomicLong(1),
+    /** Which candidate spot each live spot-drop lies on, and the rotation per spot generator (ADR-0318). */
+    private val spotOf: MutableMap<Long, Int> = ConcurrentHashMap(),
+    private val rotations: MutableMap<Pair<MatchId, GeneratorId>, SpotRotation> = ConcurrentHashMap(),
 ) {
 
     public fun onSpawned(event: ResourceSpawned) {
         if (event.dropItem != null) return // item generators are GeneratorItemDropService's
         val generator = generators.listForMatch(event.matchId).firstOrNull { it.id == event.generatorId } ?: return
+        if (generator.cache != null) return // caches are StarCacheService's
         val world = matchWorlds.findByMatch(event.matchId)?.worldId ?: return
         val late = matches.findById(event.matchId)?.phase == MatchPhase.SUDDEN_DEATH
-        // Supply formula first (StarSupply: the pop grows with match progress), then the sudden-death factor on top.
-        val scaled = clock.amount(event.matchId, event.amount)
-        val amount = if (late) (scaled * generator.lateGameMultiplier).toInt().coerceAtLeast(scaled) else scaled
         val team = (generator.affiliation as? Affiliation.Team)?.teamId
-        val own = drops.values.filter { it.matchId == event.matchId && it.generatorId == generator.id }
-        val drop = if (own.size >= generator.stockpileCap) {
-            val newest = own.maxBy { it.id }
-            newest.copy(amount = newest.amount + amount).also { drops[it.id] = it; it.entity?.let { h -> this.world?.relabel(h, it.amount) } }
+        val base = event.amount
+        val requested = if (late) (base * generator.lateGameMultiplier).toInt().coerceAtLeast(base) else base
+        val at: Vec3
+        val amount: Int
+        if (generator.spots.isEmpty()) {
+            // A stage without candidate spots (arena / siege / tt): the authored pop at the generator, outside the ledger.
+            amount = requested
+            at = generator.position
+            val own = drops.values.filter { it.matchId == event.matchId && it.generatorId == generator.id }
+            if (own.size >= generator.stockpileCap) {
+                val newest = own.maxBy { it.id }
+                newest.copy(amount = newest.amount + amount).also { drops[it.id] = it; it.entity?.let { h -> this.world?.relabel(h, it.amount) } }
+            } else {
+                StarDrop(nextId.getAndIncrement(), event.matchId, world, at, amount, generator.pickupRadius, generator.id, team = team)
+                    .let { withEntity(it, null) }.also { drops[it.id] = it }
+            }
         } else {
-            StarDrop(nextId.getAndIncrement(), event.matchId, world, generator.position, amount, generator.pickupRadius, generator.id, team = team)
-                .let { withEntity(it, null) }.also { drops[it.id] = it }
+            // Timer generator of the star economy: next candidate spot in rotation, at most one star per spot, minor budget share.
+            val rotation = rotations.computeIfAbsent(event.matchId to generator.id) { SpotRotation(generator.spots.size, seedOf(event.matchId, generator.id)) }
+            val taken = drops.values.filter { it.matchId == event.matchId && it.generatorId == generator.id }.mapNotNull { spotOf[it.id] }.toSet()
+            if (!rotation.hasNext { it !in taken }) return
+            amount = budget.grant(event.matchId, StarSource.SPOT, null, requested, generator.id.value, generators.listForMatch(event.matchId).count { it.spots.isNotEmpty() && it.cache == null && it.dropItem == null })
+            if (amount <= 0) return
+            val index = rotation.next { it !in taken } ?: return
+            at = generator.spots[index]
+            val drop = StarDrop(nextId.getAndIncrement(), event.matchId, world, at, amount, generator.pickupRadius, generator.id, team = team)
+                .let { withEntity(it, null) }
+            drops[drop.id] = drop
+            spotOf[drop.id] = index
+            budget.stats.add(event.matchId, "spot:${generator.id.value}:$index", 1)
         }
         eventBus.publish(StarSupplied(event.matchId, generator.id, amount, team, scheduler.currentTick()))
-        // FX-04: a new star lights up at the generator for everyone close enough to see it.
-        for (near in nearby(event.matchId, world, generator.position, POP_RADIUS)) {
-            presentation.play(PresentationMoments.STAR_POP, near, mapOf("amount" to amount.toString()), generator.position, world)
+        // FX-04: a new star lights up where it lies for everyone close enough to see it.
+        for (near in nearby(event.matchId, world, at, POP_RADIUS)) {
+            presentation.play(PresentationMoments.STAR_POP, near, mapOf("amount" to amount.toString()), at, world)
         }
     }
+
+    private fun seedOf(matchId: MatchId, generatorId: GeneratorId): Long =
+        (matchId.toString().hashCode().toLong() shl 32) xor generatorId.value.hashCode().toLong()
 
     /**
      * One star item of a Mid wave lands at [at] (anyone can take it; [generator] only names the source). A short pickup
@@ -99,20 +133,44 @@ public class StarDropService(
         }
     }
 
-    /** A kill inside a match: the victim's stars burst out as drops around the death position. */
+    /**
+     * A kill inside a match (ADR-0318). The victim loses every carried star: the killer gets `kill_share` of them straight
+     * into their counter, `kill_ground_share` bursts on the ground, the rest is gone. On top the killer earns a bounty
+     * that grows with how far the victim carried above the roster average (capped, drawn from the bounty budget).
+     * A death without a killer drops both shares on the ground.
+     */
     public fun onKilled(event: PlayerKilled) {
         if (event.context !is CombatContext.Match) { log("star burst skipped: context ${event.context}"); return }
         val match = matches.findMatchOf(event.victim) ?: return
         if (match.phase == MatchPhase.ENDED) return
+        val members = match.teams.flatMap { it.members }
         val carried = store.get(match.id, event.victim)
-        val burst = floor(carried * deathDropRatio(match.id)).toInt()
-        log("star burst: victim=${event.victim} carried=$carried burst=$burst")
-        scatter(match.id, event.victim, burst, event.killer)
+        if (carried <= 0) return
+        val economy = economyOf(match.id)
+        val killer = event.killer?.takeIf { it != event.victim && it in members }
+        val average = members.map { store.get(match.id, it) }.average()
+        val direct = if (killer != null) floor(carried * economy.killShare).toInt() else 0
+        val ground = floor(carried * (economy.killGroundShare + if (killer == null) economy.killShare else 0.0)).toInt().coerceAtMost(carried - direct)
+        val lost = carried - direct - ground
+        log("star kill: victim=${event.victim} carried=$carried direct=$direct ground=$ground lost=$lost")
+        if (store.spend(match.id, event.victim, carried - ground) is com.astarworks.astera.core.domain.Result.Failure) return
+        budget.stats.add(match.id, "kill-direct", direct)
+        budget.stats.add(match.id, "kill-ground", ground)
+        budget.stats.add(match.id, "kill-lost", lost)
+        if (killer != null) {
+            val wanted = Math.round(economy.bountyRate * (carried - average)).toInt().coerceIn(0, economy.bountyCap)
+            val bounty = budget.grant(match.id, StarSource.BOUNTY, null, wanted)
+            if (bounty > 0) budget.stats.add(match.id, "bounty-paid", 1)
+            if (direct + bounty > 0) issuer.credit(match.id, killer, if (bounty > 0) StarSource.BOUNTY else null, direct + bounty)
+            val args = mapOf("amount" to direct.toString(), "bounty" to bounty.toString(), "victim" to event.victim.toString())
+            hint(killer, if (bounty > 0) "astera.match.star.bounty" else "astera.match.star.kill-income", args)
+        }
+        scatter(match.id, event.victim, ground, killer)
     }
 
     /**
      * A participant leaves the running match (disconnect, lobby command, forfeit): every star they carry bursts at
-     * the position they stand on, whatever `death_drop_ratio` says (MODE-14). Call it before they are moved away.
+     * the position they stand on, (MODE-14). Call it before they are moved away.
      */
     public fun onLeft(matchId: MatchId, player: PlayerId) {
         val carried = store.get(matchId, player)
@@ -168,6 +226,7 @@ public class StarDropService(
                 val live = matches.findById(drop.matchId)?.let { it.phase != MatchPhase.ENDED } == true
                 if (!live) {
                     drops.remove(drop.id)
+                    spotOf.remove(drop.id)
                     drop.entity?.let(w::remove)
                     continue
                 }
@@ -213,8 +272,10 @@ public class StarDropService(
     public fun clear(matchId: MatchId) {
         drops.values.filter { it.matchId == matchId }.forEach { d ->
             drops.remove(d.id)
+            spotOf.remove(d.id)
             d.entity?.let { world?.remove(it) }
         }
+        rotations.keys.removeIf { it.first == matchId }
     }
 
     /** Stars lying on the map for [matchId] (diagnostics / tests). */
@@ -245,6 +306,7 @@ public class StarDropService(
 
     private fun take(drop: StarDrop, taker: PlayerId) {
         val taken = drops.remove(drop.id) ?: return
+        spotOf.remove(drop.id)
         taken.entity?.let { world?.take(it, taker) }
         val total = store.add(drop.matchId, taker, taken.amount)
         presentation.play(
