@@ -2941,7 +2941,7 @@ astera:
   rules.header: "<gold>== Rules ==</gold> <gray>(/astera rules to read again)</gray>"
   rules.not-in-match: "<red>You are not in a match.</red>"
   rules.annihilation.goal: "<gold>Goal</gold> <white>Be the last team standing.</white>"
-  rules.annihilation.how: "<gold>How</gold> <white>Each team has pillars in 3 tiers. Break the enemy pillars of the current tier; when a whole tier is down the next tier opens. A team whose last tier falls is out.</white>"
+  rules.annihilation.how: "<gold>How</gold> <white>Break the enemy pillars tier by tier; a team whose last tier falls is out. 1 Prep 6m: pillars are invulnerable, mine and level up. 2 Clash 8m: pillars attackable, Mid gold and diamond open. 3 Center 8m: Mid emerald opens. 4 Escalation 6m: pillar damage x1.5. 5 Showdown up to 5m: x2 and pillars bleed, then the higher total HP wins. Tools upgrade with your Norma level (Lv2 iron, Lv4 diamond).</white>"
   rules.annihilation.tip: "<gold>Tip</gold> <white>Defend your own pillars too. Each pillar shows its tier and HP above it.</white>"
   rules.carry-tnt.goal: "<gold>Goal</gold> <white>Carry the TNT into the enemy base.</white>"
   rules.carry-tnt.how: "<gold>How</gold> <white>Break the shield, right-click the TNT in the middle to grab it and run it to the enemy goal. Reaching the goal wins at once; the further you carry it, the lower your count.</white>"
