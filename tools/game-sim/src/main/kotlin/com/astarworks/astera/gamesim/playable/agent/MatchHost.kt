@@ -2,7 +2,7 @@ package com.astarworks.astera.gamesim.playable.agent
 
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
-import com.astarworks.astera.core.application.service.StarterGrantLoader
+import com.astarworks.astera.core.application.service.InMemoryPlayerInventorySnapshotRepository
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.stage.SpawnRole
@@ -75,7 +75,7 @@ class SoloMatchHost private constructor(
 
     companion object : MatchHostFactory {
         override fun boot(request: MatchRequest): SoloMatchHost {
-            val sim = GameSim.boot("play-${request.mode}-${request.seed}", seed = request.seed)
+            val sim = GameSim.boot("play-${request.mode}-${request.seed}", seed = request.seed, snapshots = InMemoryPlayerInventorySnapshotRepository())
             val scope = ScenarioScope(sim)
             val stageId = request.stage ?: StageLookup.laneStage(request.mode)
             val stage = checkNotNull(sim.services.getOrThrow<IStageRegistry>().find(StageId(stageId))) { "unknown stage '$stageId'" }
@@ -88,9 +88,8 @@ class SoloMatchHost private constructor(
                 scope.player("idle-$team", team = team) to team
             }
             val matchId = scope.startMatch(request.mode, mapOf(seat to request.me) + standIns, stageId)
-            // The Paper adapter lends the field tools on match entry (starter-grant.yaml `match_tools`); the sim has no inventory adapter.
-            StarterGrantLoader().load(GameSim.defaultContentDir().resolve("balance/starter-grant.yaml")).matchTools
-                .forEach { sim.server.view(seat.id)?.receive(it) }
+            // Match entry lends the field tools of the seat's Norma level (ADR-0319) when a snapshot repository is wired, and a
+            // NormaLevelUp upgrades them in place, both through the real match wiring GameSim boots.
             return SoloMatchHost(sim, request, seat, matchId, stageId)
         }
     }
