@@ -11,10 +11,7 @@ meta:
   tags: [tool, cover]
 with:
   radius: 3
-  stone_pitch: 0.7
-  thud_vol: 0.7
-  thud_pitch: 1.2
-  thud: true
-  spark: tool-pick-iron
   trail_span: 8
-  metallic: true
+  chips: 5
+  core_color: "#c6bda4"
+  core_size: 0.45

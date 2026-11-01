@@ -1,0 +1,35 @@
+# Skill targeting only; hand mining, HP, drops and damage matrices are unchanged.
+# Vanilla mineable tags are versioned snapshots bundled with the engine registry.
+stone:
+  tags: [minecraft:mineable/pickaxe]
+  blocks:
+    # Mineral ore nodes and stone/metal cover.
+    - astera:ore_iron_node
+    - astera:ore_gold_node
+    - astera:ore_diamond_node
+    - astera:ore_emerald_node
+    - astera:reinforced_wall
+    - astera:stone_bulwark
+    - astera:obsidian_plate
+wood:
+  tags: [minecraft:mineable/axe]
+  blocks:
+    # Timber ore nodes and wooden cover.
+    - astera:ore_timber_node
+    - astera:ore_heartwood_node
+    - astera:barricade
+    - astera:reinforced_planks
+soil:
+  tags: [minecraft:mineable/shovel]
+  blocks:
+    # Earth ore nodes and soil cover; hardened soil remains earth despite its hand-tool override.
+    - astera:ore_clay_node
+    - astera:ore_silt_node
+    - astera:hardened_soil
+    - astera:packed_clay
+    - astera:sandbags
+none:
+  tags: []
+  blocks:
+    # Glass is neither stone/ore, wood nor earth; no tool skill breaks it.
+    - astera:tempered_glass

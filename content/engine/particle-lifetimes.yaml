@@ -27,6 +27,7 @@ particles:
   dust: { mean: 16.09, scale_with_size: true, source: jar-26.3 }
   dust_color_transition: { mean: 16.09, scale_with_size: true, source: jar-26.3 }
   block: { mean: 16.0, source: carried-default-16 }
+  falling_dust: { mean: 57.0273, source: jar-26.3 }
   block_crumble: { mean: 16.0, source: carried-default-16 }
   cherry_leaves: { mean: 16.0, source: carried-default-16 }
   damage_indicator: { mean: 16.0, source: carried-default-16 }
