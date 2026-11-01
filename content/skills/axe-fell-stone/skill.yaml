@@ -85,7 +85,7 @@ machine:
         - {"id": "contact_chips", "op": "particle", "frame": "body", "pos": {"v": 5.65, "w": 1.0}, "at": 0, "detach": true, "particle": "block", "block": "minecraft:oak_log", "count": "= 12 + 6 * ${chips}", "offset": [0.18, 0.18, 0.18], "extra": 0.13}
         - {"id": "contact_core", "op": "particle", "frame": "body", "pos": {"v": 5.65, "w": 1.0}, "at": 0, "detach": true, "particle": "dust", "count": "= 6 + 2 * ${chips}", "offset": [0.12, 0.12, 0.12], "color": "${core_color}", "size": "= ${core_size} * 2", "extra": 0}
         - {"id": "crescent_4", "op": "particle", "particle": "dust", "frame": "body", "times": 15, "pos": {"v": "= 6.0 - 0.55 * cos(-pi / 2 + i * pi / 14)", "w": "= 1.0 + 0.8 * sin(-pi / 2 + i * pi / 14)"}, "count": 1, "color": "#dfba7a", "size": "= ${core_size} + 0.4", "extra": 0, "at": 4, "detach": true}
-        - {"id": "contact_sweep", "op": "particle", "frame": "body", "pos": {"v": 6, "w": 1.0}, "at": 0, "detach": true, "particle": "sweep_attack", "count": 1, "extra": 0}
+        - {"id": "contact_sweep", "op": "particle", "frame": "body", "pos": {"v": 5.1, "w": 1.0}, "at": 0, "detach": true, "particle": "sweep_attack", "count": 1, "extra": 0}
         - {"id": "terminal_chips", "op": "particle", "frame": "body", "pos": {"v": 5.65, "w": 1.0}, "at": 4, "detach": true, "particle": "block", "block": "minecraft:oak_log", "count": "= 6 + 3 * ${chips}", "offset": [0.18, 0.18, 0.18], "extra": 0.13}
-        - {"id": "terminal_sweep", "op": "particle", "frame": "body", "pos": {"v": 6, "w": 1.0}, "at": 4, "detach": true, "particle": "sweep_attack", "count": 1, "extra": 0}
+        - {"id": "terminal_sweep", "op": "particle", "frame": "body", "pos": {"v": 5.1, "w": 1.0}, "at": 4, "detach": true, "particle": "sweep_attack", "count": 1, "extra": 0}
     end: {final: true}

@@ -116,7 +116,7 @@ class ToolSkillPresentationScenarioTest {
                 assertThat(contact.any { it.spec.data is ParticleData.Block && it.spec.count >= 24 })
                     .describedAs("$skill dense body contact").isTrue()
                 if (tool == "axe") {
-                    assertThat(calls.any { it.spec.key == "sweep_attack" && it.at.z == 6.0 })
+                    assertThat(calls.any { it.spec.key == "sweep_attack" && kotlin.math.abs(it.at.z - caster.position.z - 5.1) < 0.001 })
                         .describedAs("$skill crescent ends at contact").isTrue()
                     val terminalTick = calls.filter { it.spec.key == "sweep_attack" }.maxOf { it.tick }
                     assertThat(terminalTick - firstDebrisTick).describedAs("$skill terminal sweep beat").isEqualTo(4L)
