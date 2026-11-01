@@ -17,3 +17,5 @@ with:
   break_pitch: 0.8
   strong: true
   spark: tool-axe-iron
+  trail_span: 8
+  metallic: true

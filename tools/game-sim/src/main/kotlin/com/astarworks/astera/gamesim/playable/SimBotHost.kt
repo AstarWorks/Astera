@@ -126,7 +126,7 @@ class SimBotHost(
         get() = sim.world.entities.filter { it.kind == SimEntityKind.PLAYER }.associate { it.id.uuid to it.name }
     override val actionBars: List<HostLine> get() = bars
     override val screens: List<HostScreen> get() = emptyList()
-    override val bossBarTitles: List<String> get() = emptyList()
+    override val bossBarTitles: List<String> get() = sim.objectiveStage.plainTitles(entity.id)
     override val sounds: List<String> get() = emptyList()
     override val damageNumbers: List<String> get() = hits
     override var lift: Double
