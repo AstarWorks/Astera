@@ -720,7 +720,9 @@ class BotBrain(
         // Face the block: the tool skill is aimed with the look direction.
         val dx = block.first + 0.5 - bot.x
         val dz = block.third + 0.5 - bot.z
-        val dy = block.second + 0.5 - (bot.y + 1.62)
+        // Aim at the pillar entity's position (block y), the centre of its hit box (y-0.5..y+0.5); the block centre (y+0.5) is the
+        // box's top edge and the ray there lands on the block face above it, which deals no pillar damage.
+        val dy = block.second.toDouble() - (bot.y + 1.62)
         val yaw = Math.toDegrees(atan2(-dx, dz)).toFloat()
         val pitch = (-Math.toDegrees(atan2(dy, hypot(dx, dz).coerceAtLeast(0.01)))).toFloat()
         strikeLook = yaw to pitch
