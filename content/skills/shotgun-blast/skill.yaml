@@ -1,5 +1,5 @@
 # shotgun-blast: one close-range cone hit with a push on the cast tick, in the frame grammar (ADR-0314, ADR-0315). Same hand as revolver-shot:
-# `gun` is rooted in the caster's eye / aim basis at the aimed position 0.75 ahead, 0.51 below the eye line, 0.30 right; the rig rides it, so the
+# `gun` is rooted in the caster's eye / aim basis at the aimed position 0.42 ahead, 0.76 below the eye line (a low ready: the long mesh stays out of the caster view), 0.30 right; the rig rides it, so the
 # right arm is pinned onto the frame origin. Recoil is the arm's swing on its 0.60 sphere: the hand kicks up 0.06 over 2 ticks and settles over 4,
 # the muzzle flips up 16 degrees and back. Flash and the cone smoke are points of `gun` (muzzle v 1.03 / w 0.18, content/frames/shotgun.yaml;
 # the cloud 2 ahead). `hit` one per victim at its centre. The chip is a block hit where the look ray ends (first block within `chip_ahead`, else that far).
@@ -26,9 +26,9 @@ frames:
     w: s x v
     s: right
     move:
-      - {at: 0, for: 0, to: {v: 0.75, w: -0.51, s: 0.30}}                      # aimed: straight out from the right shoulder
-      - {at: 0, for: 2, to: {v: 0.76, w: -0.46, s: 0.30}, ease: out_quad}      # recoil: the arm kicks up
-      - {at: 2, for: 4, to: {v: 0.75, w: -0.51, s: 0.30}, ease: in_out_sine}   # settle
+      - {at: 0, for: 0, to: {v: 0.42, w: -0.76, s: 0.30}}                      # aimed: straight out from the right shoulder
+      - {at: 0, for: 2, to: {v: 0.43, w: -0.71, s: 0.30}, ease: out_quad}      # recoil: the arm kicks up
+      - {at: 2, for: 4, to: {v: 0.42, w: -0.76, s: 0.30}, ease: in_out_sine}   # settle
     rotate:
       - {at: 0, for: 2, about: s, to: 16, ease: out_quad}                      # muzzle flip
       - {at: 2, for: 4, about: s, to: 0, ease: in_out_sine}
