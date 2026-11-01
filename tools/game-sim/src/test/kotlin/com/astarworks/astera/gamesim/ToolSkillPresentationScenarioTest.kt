@@ -93,8 +93,8 @@ class ToolSkillPresentationScenarioTest {
                     val extent = if (family == "axe-plank-wall") debris.map { it.at.y } else debris.map { it.at.z }
                     assertThat(extent.max() - extent.min()).describedAs("$skill spatial footprint").isGreaterThan(0.9)
                 }
-                assertThat(calls.map { it.spec.key }).describedAs("$skill no shared sparkle ring or detached crescents")
-                    .doesNotContain("crit", "end_rod", "sweep_attack")
+                assertThat(calls.map { it.spec.key }).describedAs("$skill no shared sparkle ring")
+                    .doesNotContain("crit", "end_rod")
                 assertThat(calls.any { it.spec.key == "electric_spark" }).describedAs("$skill flint sparks only for pickaxe")
                     .isEqualTo(tool == "pickaxe")
                 if (family == "pickaxe-bore" || tool == "shovel") {
@@ -110,8 +110,23 @@ class ToolSkillPresentationScenarioTest {
                         }
                     }
                 }
+                val contact = calls.filter { it.at.z == caster.position.z + 6.0 && it.at.y == caster.position.y + 1.0 }
+                assertThat(contact.any { it.spec.data is ParticleData.Block && it.spec.count >= 24 })
+                    .describedAs("$skill dense body contact").isTrue()
+                if (tool == "axe") {
+                    assertThat(calls.any { it.spec.key == "sweep_attack" && it.at.z == 6.0 })
+                        .describedAs("$skill crescent ends at contact").isTrue()
+                    val crescent = calls.filter { it.spec.key == "dust" && it.spec.count == 1 && it.at.z > 1.39 }
+                    assertThat(crescent.maxOf { it.at.z }).isLessThanOrEqualTo(6.00001)
+                }
+                if (family == "pickaxe-shatter") {
+                    val eruption = calls.filter { it.spec.count == 0 && it.spec.data is ParticleData.Block }
+                    assertThat(eruption).hasSize(24)
+                    assertThat(eruption.all { kotlin.math.abs(it.at.y - caster.position.y - 0.04) < 0.001 && it.spec.offset.y > 0 }).isTrue()
+                    assertThat(calls.none { it.spec.key == "block_crumble" }).isTrue()
+                }
                 // Bright cores stay on the material footprint, including the aim-point shatter.
-                val accents = calls.filter { it.spec.key == "electric_spark" || (it.spec.key == "dust" && it.spec.count > 1) }
+                val accents = calls.filter { it.spec.key == "electric_spark" }
                 for (accent in accents) {
                     assertThat(debris.any { it.tick == accent.tick && it.at == accent.at })
                         .describedAs("$skill impact accent @${accent.tick} ${accent.at}").isTrue()

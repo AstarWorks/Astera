@@ -62,6 +62,12 @@ machine:
         - {id: rig, op: rig, frame: tool, for: 14, detach: true}
         # First blade sample precedes impact; remaining samples belong to cast.
         - {id: trail, op: particle, particle: dust, along: edge, samples: 5, count: 1, color: "#b88c55", size: 0.35, extra: 0, at: 5}
+        - {"id": "crescent_0", "op": "particle", "particle": "dust", "frame": "body", "times": 15, "pos": {"v": "= 1.4 - 0.55 * cos(-pi / 2 + i * pi / 14)", "w": "= 1.0 + 0.8 * sin(-pi / 2 + i * pi / 14)"}, "count": 1, "color": "#dfba7a", "size": "${core_size}", "extra": 0, "at": 2}
+        - {"id": "crescent_1", "op": "particle", "particle": "dust", "frame": "body", "times": 15, "pos": {"v": "= 2.55 - 0.55 * cos(-pi / 2 + i * pi / 14)", "w": "= 1.0 + 0.8 * sin(-pi / 2 + i * pi / 14)"}, "count": 1, "color": "#dfba7a", "size": "${core_size}", "extra": 0, "at": 3}
+        - {"id": "crescent_2", "op": "particle", "particle": "dust", "frame": "body", "times": 15, "pos": {"v": "= 3.6999999999999997 - 0.55 * cos(-pi / 2 + i * pi / 14)", "w": "= 1.0 + 0.8 * sin(-pi / 2 + i * pi / 14)"}, "count": 1, "color": "#dfba7a", "size": "${core_size}", "extra": 0, "at": 4}
+        - {"id": "crescent_3", "op": "particle", "particle": "dust", "frame": "body", "times": 15, "pos": {"v": "= 4.85 - 0.55 * cos(-pi / 2 + i * pi / 14)", "w": "= 1.0 + 0.8 * sin(-pi / 2 + i * pi / 14)"}, "count": 1, "color": "#dfba7a", "size": "${core_size}", "extra": 0, "at": 5}
+        - {"id": "travel_sweep_0", "op": "particle", "particle": "sweep_attack", "frame": "body", "pos": {"v": 1.4, "w": 1}, "count": 1, "extra": 0, "at": 2}
+        - {"id": "travel_sweep_2", "op": "particle", "particle": "sweep_attack", "frame": "body", "pos": {"v": 3.7, "w": 1}, "count": 1, "extra": 0, "at": 4}
     cast:
       for: 1
       then: end
@@ -77,4 +83,8 @@ machine:
         - {id: rise_1_puff, op: particle, particle: dust, frame: body, pos: {v: 2, w: "= 0.25 + (1 / 2.0) * (${height} - 1)", s: "= i - floor(${width} / 2.0)"}, times: "${width}", count: "${chips}", offset: [0.12, 0.08, 0.12], color: "${core_color}", size: "${core_size}", extra: 0, at: 2, detach: true}
         - {id: rise_2_puff, op: particle, particle: dust, frame: body, pos: {v: 2, w: "= 0.25 + (2 / 2.0) * (${height} - 1)", s: "= i - floor(${width} / 2.0)"}, times: "${width}", count: "${chips}", offset: [0.12, 0.08, 0.12], color: "${core_color}", size: "${core_size}", extra: 0, at: 4, detach: true}
         - {id: trail, op: particle, particle: dust, along: edge, samples: 5, count: 1, color: "#b88c55", size: 0.35, extra: 0, at: 1, every: 2, for: "= ${trail_span} - 2", detach: true}
+        - {"id": "contact_chips", "op": "particle", "frame": "body", "pos": {"v": 6, "w": 1.0}, "at": 0, "detach": true, "particle": "block", "block": "minecraft:oak_planks", "count": "= 12 + 6 * ${chips}", "offset": [0.18, 0.18, 0.18], "extra": 0.13}
+        - {"id": "contact_core", "op": "particle", "frame": "body", "pos": {"v": 6, "w": 1.0}, "at": 0, "detach": true, "particle": "dust", "count": "= 6 + 2 * ${chips}", "offset": [0.12, 0.12, 0.12], "color": "${core_color}", "size": "= ${core_size} * 2", "extra": 0}
+        - {"id": "crescent_4", "op": "particle", "particle": "dust", "frame": "body", "times": 15, "pos": {"v": "= 6.0 - 0.55 * cos(-pi / 2 + i * pi / 14)", "w": "= 1.0 + 0.8 * sin(-pi / 2 + i * pi / 14)"}, "count": 1, "color": "#dfba7a", "size": "${core_size}", "extra": 0, "at": 0, "detach": true}
+        - {"id": "contact_sweep", "op": "particle", "frame": "body", "pos": {"v": 6, "w": 1.0}, "at": 0, "detach": true, "particle": "sweep_attack", "count": 1, "extra": 0}
     end: {final: true}
