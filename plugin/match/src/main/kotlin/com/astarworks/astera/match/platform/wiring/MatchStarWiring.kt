@@ -210,7 +210,7 @@ internal object MatchStarWiring {
         env.ctx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion>(oreNodes, priority = 0)
         env.ctx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IOreNodeStrikes>(oreNodes, priority = 0)
         env.ctx.registrations += services.register<com.astarworks.astera.match.application.port.inbound.IOreNodeAccess>(
-            com.astarworks.astera.match.application.service.OreNodeAccessService(oreNodeContents, services.getOrThrow<com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry>()),
+            com.astarworks.astera.match.application.service.OreNodeAccessService(oreNodeContents, services.getOrThrow<com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry>(), { properTools[it] }),
             priority = 0,
         )
         env.ports.oreDigSight?.invoke(services)?.let { sight ->

@@ -118,11 +118,7 @@ public fun OreNodeGroupYaml.toSpec(
     val cells = positions.map { Vec3(it.x, it.y, it.z) } + filled
     require(cells.isNotEmpty()) { "ore node '$block': give positions or region" }
     return OreNodeSpec(
-<<<<<<< HEAD
-        material, placeholder.trim().uppercase(), regrowSeconds, gate.requiredTier, drops.map { OreDrop(it.itemId, it.count) }, cells,
-=======
-        material, requiredTool, placeholder.trim().uppercase(), regrowSeconds, tier, drops.map { OreDrop(it.itemId, it.count) }, cells,
->>>>>>> worktree-agent-ab3a7c2fc489bea05
+        material, requiredTool, placeholder.trim().uppercase(), regrowSeconds, gate.requiredTier, drops.map { OreDrop(it.itemId, it.count) }, cells,
         blockSpec.baseDurability, hitDamage, minNormaLevel, file.levelSpeed, file.skillMult,
         minPhase = gate.minPhase,
     )

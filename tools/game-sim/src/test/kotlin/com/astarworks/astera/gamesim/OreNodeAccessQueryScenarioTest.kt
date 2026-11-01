@@ -71,8 +71,11 @@ class OreNodeAccessQueryScenarioTest {
             val tools: List<ItemId?> = listOf(null, ItemId("stone-pickaxe"), ItemId("iron-pickaxe"), ItemId("diamond-pickaxe"))
             fun toolOf(id: ItemId?): ToolType? = id?.let { HitCustomBlockUseCase.toolOf(items, it) }
 
+            val properTools = com.astarworks.astera.core.application.skillengine.compose.blockProperTools(java.nio.file.Paths.get(System.getProperty("astera.sim.contentDir")))
+
             fun serviceAt(phase: NexusPhase, level: Int, map: ConcurrentHashMap<OreNodeService.Key, OreNodeService.Node>) = OreNodeService(
                 registry = registry,
+                properToolOf = properTools::get,
                 stages = null,
                 matchWorlds = sim.services.getOrThrow<IMatchWorldRepository>(),
                 customBlocks = customBlocks,
@@ -103,7 +106,7 @@ class OreNodeAccessQueryScenarioTest {
 
             var compared = 0
             for (group in file.nodes) {
-                val spec = group.toSpec(file) { customBlocks.find(BlockType(it)) }
+                val spec = group.toSpec(file, { customBlocks.find(BlockType(it)) }, properTools::get)
                 val cell = spec.cells.first().let { Vec3(it.x + origin.x, it.y, it.z + origin.z) }
                 val key = OreNodeService.Key(worldId.value, cell.x.toInt(), cell.y.toInt(), cell.z.toInt())
                 for (phase in (1..5).map { checkNotNull(NexusPhase.byNumber(it)) }) for (level in 1..5) for (held in tools) {
@@ -121,7 +124,7 @@ class OreNodeAccessQueryScenarioTest {
             assertThat(compared).isEqualTo(file.nodes.size * 5 * 5 * tools.size)
 
             // Wrong tool: the shipped blocks hurt every tool class a little, so derive an axe-only node from the real iron spec.
-            val iron = file.nodes.first { it.block == "astera:ore_iron_node" }.toSpec(file) { customBlocks.find(BlockType(it)) }
+            val iron = file.nodes.first { it.block == "astera:ore_iron_node" }.toSpec(file, { customBlocks.find(BlockType(it)) }, properTools::get)
             val axeOnly = iron.copy(hitDamage = iron.hitDamage.filterKeys { it.kind == ToolKind.AXE })
             val wrongCell = iron.cells.first().let { Vec3(it.x + origin.x, it.y, it.z + origin.z) }
             val wrongMap = ConcurrentHashMap<OreNodeService.Key, OreNodeService.Node>()
