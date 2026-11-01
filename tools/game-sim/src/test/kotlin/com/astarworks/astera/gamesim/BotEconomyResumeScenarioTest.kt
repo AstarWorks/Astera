@@ -121,6 +121,8 @@ class BotEconomyResumeScenarioTest {
         val price = first.price.getValue("ore-iron")
         val brain = BotBrain(host, BotSkill(aimErrorDeg = 0f), stage, chooseNormaGoal = true, rnd = Random(5))
         brain.mode = BotBrain.Mode.FIGHT
+        brain.tick() // the match clock starts here; the opening (first star before any economy detour) is over 90 s later
+        host.clock += 95_000
         host.stars[10] = StarItem(10, -60.0, 64.0, 50.0) // far from the generator and from the bot: not a detour
         var reachedGenerator = false
         var wentToStar = false

@@ -558,7 +558,7 @@ class BotBrain(
     private fun chooseDest(now: Long, starDest: Dest?): Dest? {
         if (starDest != null) {
             // A bot on an economy trip finishes it (mine until a piece is affordable, then buy) unless the star is right here or it is being hit.
-            if (!normaCheckPending && starPickupCues() > 0 && now - lastHitAt > ECON_HIT_MS && hypot(starDest.x - bot.x, starDest.z - bot.z) > ECON_STAR_DETOUR) economyDest(now)?.let { return it }
+            if (!normaCheckPending && (starPickupCues() > 0 || now - fightStartedAt > ECON_STAR_FIRST_MS) && now - lastHitAt > ECON_HIT_MS && hypot(starDest.x - bot.x, starDest.z - bot.z) > ECON_STAR_DETOUR) economyDest(now)?.let { return it }
             return starDest
         }
         normaHomeDest()?.let { return it }
@@ -849,7 +849,7 @@ class BotBrain(
             if (st.kind != "shop") {
                 if (gap in 1..300) econActiveMs += gap
                 if (econActiveMs > ECON_SLICE_MS) {
-                    econActiveMs = 0L; econLastTickAt = 0L; econCooldownUntil = now + OBJECTIVE_SLICE_MS
+                    econActiveMs = 0L; econLastTickAt = 0L; econCooldownUntil = now + (if (pl.role == Role.PILLAR_ATTACKER) ATTACKER_OBJECTIVE_SLICE_MS else OBJECTIVE_SLICE_MS)
                     return null
                 }
             }
@@ -1353,10 +1353,14 @@ class BotBrain(
         const val ECON_OPENING_MS = 30_000L
         const val ECON_SLICE_MS = 60_000L
         const val OBJECTIVE_SLICE_MS = 45_000L
+        /** A pillar attacker's walk to the enemy pillar is long: after an economy slice it digs for this long before the next trip. */
+        const val ATTACKER_OBJECTIVE_SLICE_MS = 240_000L
         const val LULL_MS = 4_000L
         /** An enemy farther than this does not pull a bot off its economy trip (unless it was hit within [ECON_HIT_MS]). */
         const val ECON_ENGAGE_RANGE = 16.0
         const val ECON_HIT_MS = 6_000L
+        /** A bot still unpaid this long after the match start stops waiting for its first star before an economy trip (the opening sweep owns the first stars; same as HUNGRY_MAX_MS). */
+        const val ECON_STAR_FIRST_MS = 50_000L
         /** A star this close is picked up even on an economy trip. */
         const val ECON_STAR_DETOUR = 8.0
         const val KILL_DETOUR_RANGE = 4.0
