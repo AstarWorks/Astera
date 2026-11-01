@@ -43,7 +43,7 @@ machine:
               - {id: hurt, op: damage, target: event.victim, damage: {electric: "${dmg}"}}
               - {id: fx_hit, op: particle_def, def: hit-spark, frame: hit, pos: {w: 0.3}, detach: true}
               - {id: flash, op: display, kind: sprite, sprite: sparkle-cross, frame: hit, pos: {v: 0}, size: [2.4, 2.4], color: "#ffffff", billboard: center, brightness: {block: 15, sky: 15}, detach: true, at: 0, for: 5, motion: [{law: grow, by: 1.2, at: 0, for: 5}, {law: fade, start: 1.0, to: 0.0, at: 1, for: 4}]}
-              - {id: burst_flame, op: particle, particle: flame, frame: hit, count: 24, offset: [0.4, 0.4, 0.4], extra: 0.12, detach: true}
+              - {id: burst_flame, op: particle, particle: flame, frame: hit, count: 24, offset: [0.35, 0.35, 0.35], extra: 0.02, detach: true}
               - {id: burst_crit, op: particle, particle: crit, frame: hit, count: 24, offset: [0.3, 0.3, 0.3], extra: 0.45, detach: true}
         - id: core
           op: display
