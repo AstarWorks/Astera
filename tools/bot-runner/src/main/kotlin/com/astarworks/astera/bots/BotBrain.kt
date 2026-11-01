@@ -436,7 +436,7 @@ class BotBrain(
         } else {
             ineffective.disengage()
             strikeLook = null
-            val dest = chasing?.takeIf { !offLimits(now, it.lastX, it.lastZ) }?.let { Dest(it.lastX, it.lastZ, null, CHASE_ARRIVE, "enemy-chase") } ?: chooseDest(now, starDest)
+            val dest = chasing?.takeIf { !offLimits(now, it.lastX, it.lastZ) && planner?.inEnemyZone(it.lastX, it.lastZ) != true }?.let { Dest(it.lastX, it.lastZ, null, CHASE_ARRIVE, "enemy-chase") } ?: chooseDest(now, starDest)
             decisionKindNow = dest?.kind ?: "idle"
             if (dest == null) {
                 endTravel()
@@ -566,6 +566,11 @@ class BotBrain(
     private fun offLimits(now: Long, x: Double, z: Double) = planner?.offLimits(now, x, z) == true
 
     private fun chooseDest(now: Long, starDest: Dest?): Dest? {
+        // An attacker on enemy spawn ground leaves it before anything else (no fighting, digging or star fetching there).
+        planner?.zoneEscape(now, bot.x, bot.z)?.let { st ->
+            return Dest(st.x, st.z, st.y, st.arrive, "mode", zone = st.zone)
+        }
+        if (planner?.zoneTrapped == true && "trapped" !in trace) trace += "trapped"
         if (starDest != null) {
             // A bot on an economy trip finishes it (mine until a piece is affordable, then buy) unless the star is right here or it is being hit.
             if (!normaCheckPending && (starPickupCues() > 0 || now - fightStartedAt > ECON_STAR_FIRST_MS) && now - lastHitAt > ECON_HIT_MS && hypot(starDest.x - bot.x, starDest.z - bot.z) > ECON_STAR_DETOUR) economyDest(now)?.let { return it }
@@ -622,7 +627,7 @@ class BotBrain(
             if (cache != null && hypot(cache.x - bot.x, cache.z - bot.z) / CACHE_VALUE_WEIGHT < bestScore) return cache
             if (bestI >= 0) return Dest(starPoints[bestI].first, starPoints[bestI].second, null, 2.0, "gen", bestI)
         }
-        if (now - lastEnemyAt < 8_000 && !offLimits(now, lastEnemyX, lastEnemyZ)) return Dest(lastEnemyX, lastEnemyZ, null, 3.0, "enemy-seen")
+        if (now - lastEnemyAt < 8_000 && !offLimits(now, lastEnemyX, lastEnemyZ) && planner?.inEnemyZone(lastEnemyX, lastEnemyZ) != true) return Dest(lastEnemyX, lastEnemyZ, null, 3.0, "enemy-seen")
         val patrol = patrolPoints().filter { !offLimits(now, it.first, it.second) }
         if (patrol.isNotEmpty()) {
             val i = patrolIndex % patrol.size
@@ -903,6 +908,7 @@ class BotBrain(
             override fun point(name: String) = base.point(name)?.let { Triple(it.first + originX, it.second, it.third + originZ) }
             override fun names(prefix: String) = base.names(prefix)
             override fun pillars() = base.pillars().map { it.copy(x = it.x + originX.toInt(), z = it.z + originZ.toInt()) }
+            override fun spawns() = base.spawns().map { Triple(it.first, it.second + originX, it.third + originZ) }
         }
         val facts = ObservedModeFacts(
             id,

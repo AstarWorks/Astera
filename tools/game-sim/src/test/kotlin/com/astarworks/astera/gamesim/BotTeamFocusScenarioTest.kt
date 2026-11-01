@@ -35,9 +35,9 @@ class BotTeamFocusScenarioTest {
     private fun planner(name: String, facts: Facts, enemies: List<String> = listOf("blue", "yellow"), key: String = "m0") =
         ModePlanner("annihilation", name, "red", enemies, zones, facts = facts, matchKey = key).also { it.noteRoster(squad) }
 
-    /** The zone of an attack step (`pillar-<team>-<tier>`); a defender's guard step or no step is null. */
+    /** The objective zone of an attack step (`pillar-<team>-<tier>`; kind pillar, or rally / detour on the way); a defender's guard step or no step is null. */
     private fun attackZone(p: ModePlanner): List<String>? =
-        p.step(0, spawn.first, spawn.third)?.takeIf { it.kind == "pillar" }?.zone?.split('-')
+        p.step(0, spawn.first, spawn.third)?.takeIf { it.kind in setOf("pillar", "rally", "detour") }?.zone?.split('-')
 
     private fun targetOf(p: ModePlanner): String? = attackZone(p)?.get(1)
 
@@ -139,11 +139,75 @@ class BotTeamFocusScenarioTest {
         val inside = Sighting("b1", sx + 1.0, sz + 1.0)
         // Standing in the blue spawn zone with a blue defender next to us: not engaged (pillar first).
         assertThat(inside.let { fresh().engages(it, 1_000, sx, sz) }).isFalse()
-        // Hit lately: engaged again.
-        assertThat(fresh().also { it.noteDamaged(900) }.engages(inside, 1_000, sx, sz)).isTrue()
+        // Hit inside the zone: still not engaged (it leaves instead of fighting back); the step goes outward past the zone edge.
+        val hurt = fresh().also { it.noteDamaged(900) }
+        assertThat(hurt.engages(inside, 1_000, sx, sz)).isFalse()
+        val out = checkNotNull(hurt.zoneEscape(1_000, sx, sz))
+        assertThat(out.kind).isEqualTo("leave-zone")
+        assertThat(hurt.enemyZoneOf(out.x, out.z)).isNull()
+        // Walking out step by step: never engaged on the way, no trap, and it ends outside every enemy zone.
+        var x = sx; var z = sz; var t = 1_000L
+        while (hurt.enemyZoneOf(x, z) != null && t < 20_000L) {
+            assertThat(hurt.engages(Sighting("b1", x + 1.0, z), t, x, z)).isFalse()
+            val st = checkNotNull(hurt.zoneEscape(t, x, z))
+            val d = Math.hypot(st.x - x, st.z - z)
+            x += (st.x - x) / d * 1.0; z += (st.z - z) / d * 1.0; t += 200L
+        }
+        assertThat(hurt.enemyZoneOf(x, z)).isNull()
+        assertThat(hurt.zoneTrapped).isFalse()
+        // Trapped (could not get out for ZONE_TRAP_MS): the only case it fights back.
+        val trapped = ModePlanner("annihilation", "r1", "red", listOf("blue", "yellow"), zones, facts = facts, matchKey = "m0", teamOf = { n -> if (n == "nobody") "red" else "blue" })
+            .also { it.noteRoster(squad); it.step(0, sx, sz); it.noteDamaged(1_000) }
+        trapped.zoneEscape(1_000, sx, sz)
+        assertThat(trapped.zoneEscape(1_000 + ModePlanner.ZONE_TRAP_MS + 1, sx, sz)).isNull()
+        assertThat(trapped.zoneTrapped).isTrue()
+        assertThat(trapped.engages(Sighting("nobody", sx + 1.0, sz), 1_000 + ModePlanner.ZONE_TRAP_MS + 2, sx, sz)).isTrue()
         // The same defender far outside the zone, within engage range of an attacker next to it: engaged.
         val ox = sx + 80.0
         assertThat(fresh().engages(Sighting("b1", ox, sz), 1_000, ox - 3.0, sz)).isTrue()
+    }
+
+    @Test
+    fun `attackers rally outside the target spawn zone and push together`() {
+        val facts = Facts().apply { phase = 3 }
+        val start = checkNotNull(zones.spawns().firstOrNull { it.first == "red" })
+        fun planner(mates: List<Mate>) = ModePlanner("annihilation", "r1", "red", listOf("blue", "yellow"), zones, facts = facts, matchKey = "m0")
+            .also { it.noteRoster(mates) }
+        val first = checkNotNull(planner(squad).step(0, start.second, start.third))
+        assertThat(first.kind).isEqualTo("rally")
+        val target = first.zone.split('-')[1]
+        // The rally point lies outside every enemy spawn zone.
+        assertThat(planner(squad).enemyZoneOf(first.x, first.z)).isNull()
+        // Mates around the point: once the bot stands there with enough of them, it leaves the rally and heads for the pillar.
+        val around = (1..2).map { Mate("r$it", first.x + it, first.z) }
+        val p = planner(around)
+        assertThat(p.step(0, start.second, start.third)?.kind).isEqualTo("rally")
+        val go = checkNotNull(p.step(1_000, first.x, first.z))
+        assertThat(go.kind).isIn("pillar", "detour")
+        assertThat(go.zone).startsWith("pillar-$target-")
+        // Nobody comes: the timeout releases the push (deterministic, driven by the passed clock).
+        val lonely = planner(squad)
+        assertThat(lonely.step(0, first.x, first.z)?.kind).isEqualTo("rally")
+        assertThat(lonely.step(ModePlanner.RALLY_TIMEOUT_MS - 1, first.x, first.z)?.kind).isEqualTo("rally")
+        assertThat(lonely.step(ModePlanner.RALLY_TIMEOUT_MS + 1, first.x, first.z)?.kind).isIn("pillar", "detour")
+    }
+
+    @Test
+    fun `the way to a pillar does not run through an enemy spawn zone`() {
+        val facts = Facts().apply { phase = 3 }
+        facts.gone += "yellow" to 3
+        val nexus = zones.pillars().first { it.team == "blue" && it.tier == 3 }
+        val blue = zones.spawns().filter { it.first == "blue" }
+        val cx = blue.map { it.second }.average(); val cz = blue.map { it.third }.average()
+        // A bot on the far side of the spawn from the Nexus: the straight line crosses the zone, so the first step is a waypoint around it.
+        val dx = cx - (nexus.x + 0.5); val dz = cz - (nexus.z + 0.5)
+        val l = Math.hypot(dx, dz)
+        val fx = cx + dx / l * 30.0; val fz = cz + dz / l * 30.0
+        val p = ModePlanner("annihilation", "r1", "red", listOf("blue", "yellow"), zones, facts = facts, matchKey = "m0").also { it.noteRoster(listOf(Mate("r2", fx, fz))) }
+        p.step(0, fx, fz)
+        val st = checkNotNull(p.step(ModePlanner.RALLY_TIMEOUT_MS + 5, fx, fz))
+        assertThat(st.kind).isEqualTo("detour")
+        assertThat(p.enemyZoneOf(st.x, st.z)).isNull()
     }
 
     @Test
