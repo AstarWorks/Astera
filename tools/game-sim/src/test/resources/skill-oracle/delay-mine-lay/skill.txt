@@ -6,7 +6,7 @@
 @0 write #2 op=armed/lamp dur=0 pos=0.000000,0.240000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.019600,0.003600,0.019600 bb=FIXED
 @0 write #3 op=armed/ring dur=2 pos=0.000000,0.160000,2.500000 rot=-0.707107,0.000000,0.000000,0.707107 scale=1.875000,1.875000,1.000000 bb=FIXED
 @0 sound - op=armed/click sound=block.stone_pressure_plate.click_on cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=armed/smoke type=gun-smoke at=0.000000,0.100000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3301030241687634875
+@0 particle - op=armed/smoke type=gun-smoke at=0.000000,0.100000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3674054576790983378
 @1 write #2 op=armed/lamp dur=1 pos=0.000000,0.240000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.023184,0.004368,0.023184 bb=FIXED
 @2 write #2 op=armed/lamp dur=1 pos=0.000000,0.240000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.027216,0.005232,0.027216 bb=FIXED
 @2 write #3 op=armed/ring dur=2 pos=0.000000,0.160000,2.500000 rot=-0.707107,0.000000,0.000000,0.707107 scale=1.875000,1.875000,1.000000 bb=FIXED
@@ -69,7 +69,7 @@
 @0 write #2 op=armed/lamp dur=0 pos=-1.504538,0.240000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.019600,0.003600,0.019600 bb=FIXED
 @0 write #3 op=armed/ring dur=2 pos=-1.504538,0.160000,1.996589 rot=-0.670566,-0.224368,-0.224368,0.670566 scale=1.875000,1.875000,1.000000 bb=FIXED
 @0 sound - op=armed/click sound=block.stone_pressure_plate.click_on cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=armed/smoke type=gun-smoke at=-1.504538,0.100000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3301030241687634875
+@0 particle - op=armed/smoke type=gun-smoke at=-1.504538,0.100000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.565521,0.342020,0.750472 seed=3674054576790983378
 @1 write #2 op=armed/lamp dur=1 pos=-1.504538,0.240000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.023184,0.004368,0.023184 bb=FIXED
 @2 write #2 op=armed/lamp dur=1 pos=-1.504538,0.240000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.027216,0.005232,0.027216 bb=FIXED
 @2 write #3 op=armed/ring dur=2 pos=-1.504538,0.160000,1.996589 rot=-0.670566,-0.224368,-0.224368,0.670566 scale=1.875000,1.875000,1.000000 bb=FIXED
@@ -132,7 +132,7 @@
 @0 write #2 op=armed/lamp dur=0 pos=0.000000,0.240000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.019600,0.003600,0.019600 bb=FIXED
 @0 write #3 op=armed/ring dur=2 pos=0.000000,0.160000,2.500000 rot=-0.707107,0.000000,0.000000,0.707107 scale=1.875000,1.875000,1.000000 bb=FIXED
 @0 sound - op=armed/click sound=block.stone_pressure_plate.click_on cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=armed/smoke type=gun-smoke at=0.000000,0.100000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3301030241687634875
+@0 particle - op=armed/smoke type=gun-smoke at=0.000000,0.100000,2.500000 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=0.000000,0.000000,1.000000 seed=3674054576790983378
 @1 write #2 op=armed/lamp dur=1 pos=0.000000,0.240000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.023184,0.004368,0.023184 bb=FIXED
 @2 write #2 op=armed/lamp dur=1 pos=0.000000,0.240000,2.500000 rot=0.000000,0.000000,0.000000,1.000000 scale=0.027216,0.005232,0.027216 bb=FIXED
 @2 write #3 op=armed/ring dur=2 pos=0.000000,0.160000,2.500000 rot=-0.707107,0.000000,0.000000,0.707107 scale=1.875000,1.875000,1.000000 bb=FIXED
@@ -199,7 +199,7 @@ g @51 cast-end | pose
 @0 write #2 op=armed/lamp dur=0 pos=-1.504538,0.240000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.019600,0.003600,0.019600 bb=FIXED
 @0 write #3 op=armed/ring dur=2 pos=-1.504538,0.160000,1.996589 rot=-0.670566,-0.224368,-0.224368,0.670566 scale=1.875000,1.875000,1.000000 bb=FIXED
 @0 sound - op=armed/click sound=block.stone_pressure_plate.click_on cat=master vol=1 pitch=0.8 at=0.000000,0.000000,0.000000
-@0 particle - op=armed/smoke type=gun-smoke at=-1.504538,0.100000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3301030241687634875
+@0 particle - op=armed/smoke type=gun-smoke at=-1.504538,0.100000,1.996589 off=0.000000,0.000000,0.000000 speed=0.000000 color=- size=- dir=- spread=0.000000 vel=- look=-0.601815,0.000000,0.798636 seed=3674054576790983378
 @1 write #2 op=armed/lamp dur=1 pos=-1.504538,0.240000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.023184,0.004368,0.023184 bb=FIXED
 @2 write #2 op=armed/lamp dur=1 pos=-1.504538,0.240000,1.996589 rot=0.000000,-0.317305,0.000000,0.948324 scale=0.027216,0.005232,0.027216 bb=FIXED
 @2 write #3 op=armed/ring dur=2 pos=-1.504538,0.160000,1.996589 rot=-0.670566,-0.224368,-0.224368,0.670566 scale=1.875000,1.875000,1.000000 bb=FIXED
