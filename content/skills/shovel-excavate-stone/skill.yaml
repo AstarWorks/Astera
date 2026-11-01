@@ -35,11 +35,20 @@ frames:
     w: up
     s: v x w
     move:
-      - {at: 0, for: 0, to: {v: 0.20, w: 0.95, s: 0.45}}
-      - {at: 0, for: 4, to: {v: 0.30, w: 1.35, s: 0.52}, ease: out_quad}      # drawn back
-      - {at: 4, for: 3, to: {v: 0.55, w: 1.15, s: 0.42}, ease: out_cubic}      # the cut
-      - {at: 7, for: 3, to: {v: 0.55, w: 1.00, s: 0.40}, ease: out_cubic}      # follow-through
-      - {at: 10, for: 3, to: {v: 0.20, w: 0.95, s: 0.45}, ease: in_out_sine}      # back to the hip
+      - {at: 0, for: 0, to: {v: 0.51, w: 0.98, s: 0.42}}      # on the arm's reach sphere (0.60 about the shoulder), one key a tick
+      - {at: 0, for: 1, to: {v: 0.53, w: 1.53, s: 0.42}}      # drawn back
+      - {at: 1, for: 1, to: {v: 0.26, w: 1.82, s: 0.37}}
+      - {at: 2, for: 1, to: {v: 0.03, w: 1.88, s: 0.32}}
+      - {at: 3, for: 1, to: {v: -0.05, w: 1.88, s: 0.30}}
+      - {at: 4, for: 1, to: {v: 0.53, w: 1.53, s: 0.42}}      # the cut
+      - {at: 5, for: 1, to: {v: 0.59, w: 1.27, s: 0.43}}
+      - {at: 6, for: 1, to: {v: 0.58, w: 1.23, s: 0.43}}
+      - {at: 7, for: 1, to: {v: 0.55, w: 1.08, s: 0.43}}      # follow-through
+      - {at: 8, for: 1, to: {v: 0.54, w: 1.03, s: 0.42}}
+      - {at: 9, for: 1, to: {v: 0.53, w: 1.03, s: 0.42}}
+      - {at: 10, for: 1, to: {v: 0.53, w: 1.01, s: 0.42}}      # back to the hip
+      - {at: 11, for: 1, to: {v: 0.51, w: 0.99, s: 0.42}}
+      - {at: 12, for: 1, to: {v: 0.51, w: 0.98, s: 0.42}}
     rotate:
       - {at: 0, for: 4, about: s, to: 95, ease: out_quad}
       - {at: 4, for: 3, about: s, to: -35, ease: out_cubic}
