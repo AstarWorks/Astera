@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run a review round; retain raw failures and explicitly labelled temporary generator-coordinate preview."""
+"""Run a review round against shipped content, retaining failures, images and timings."""
 import json
 from pathlib import Path
 import shutil
@@ -22,11 +22,7 @@ def run(label, command):
     return result.returncode
 
 check = run('content-lint', ['./gradlew', ':tools:content-lint:run'])
-raw = run('make-arena-preview-repository', ['make', 'arena-preview'])
-# The temporary content is authorised in the brief; only generator coordinates are patched.
-subprocess.run(['python3', 'tools/map-gen/preview-content.py'], cwd=ROOT, check=True)
-preview = run('preview-temporary-coordinates', [str(ROOT / 'tools/arena-preview/build/install/arena-preview/bin/arena-preview'),
-                                               str(PROOF / 'preview-content'), str(ROOT / 'build/arena-previews')])
+preview = run('arena-preview-repository', ['./gradlew', '-q', ':tools:arena-preview:run'])
 for kind in ('top', 'iso', 'height', 'section'):
     shutil.copy2(ROOT / f'build/arena-previews/annihilation-arena-{kind}.png', round_dir)
 shutil.copy2(ROOT / 'build/arena-previews/report.md', round_dir / 'report.md')
