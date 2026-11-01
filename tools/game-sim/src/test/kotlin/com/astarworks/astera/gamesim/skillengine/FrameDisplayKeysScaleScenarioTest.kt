@@ -68,7 +68,7 @@ class FrameDisplayKeysScaleScenarioTest : SkillEngineScenario() {
               for: 8
               then: end
               do:
-                - {id: bloom, op: display, kind: text, text: " ", background: "#EAD9B0", frame: body, pos: {v: 1.0, w: 1.0}, for: 6, scale: BASE, billboard: center, motion: [{law: keys, keys: [{t: 0, scale: {left: 4, up: 2, forward: 1}, alpha: 0.2}, {t: 1, scale: {left: 12, up: 6, forward: 1}}, {t: 5, scale: {left: 16, up: 8, forward: 1}, alpha: 0}]}]}
+                - {id: bloom, op: display, kind: text, text: " ", background: "#EAD9B0", frame: body, pos: {v: 1.0, w: 1.0}, for: 6, scale: BASE, billboard: center, motion: [{law: keys, keys: [{t: 0, scale: {s: 4, w: 2, v: 1}, alpha: 0.2}, {t: 1, scale: {s: 12, w: 6, v: 1}}, {t: 5, scale: {s: 16, w: 8, v: 1}, alpha: 0}]}]}
             end: {final: true}
         """
         val sizes = mutableMapOf<String, Double>()
