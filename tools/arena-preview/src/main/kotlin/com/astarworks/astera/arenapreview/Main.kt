@@ -119,6 +119,7 @@ fun main(args: Array<String>) {
         ImageIO.write(ArenaRenderer.iso(stage, plan), "png", out.resolve("${stage.id.value}-iso.png").toFile())
         ImageIO.write(ArenaRenderer.section(stage, plan), "png", out.resolve("${stage.id.value}-section.png").toFile())
         if (stage.id.value == "annihilation-arena") {
+            ImageIO.write(ArenaRenderer.perspective(plan, false, true), "png", out.resolve("annihilation-arena-underside.png").toFile())
             ImageIO.write(ArenaRenderer.perspective(plan, false), "png", out.resolve("annihilation-arena-perspective.png").toFile())
             ImageIO.write(ArenaRenderer.perspective(plan, true), "png", out.resolve("annihilation-arena-eye.png").toFile())
         }

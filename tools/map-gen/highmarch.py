@@ -610,27 +610,127 @@ def gorge_exits(w):
 
 
 def tree(w, x, h, z, species, size):
-    """Three scales, branched broadleaf crowns, conical spruce and multi-stem veteran oaks."""
-    trunks = ((0, 0), (1, 0), (0, 1), (1, 1)) if size == 10 and species in ('oak', 'dark_oak') else ((0, 0),)
-    for dx, dz in trunks:
-        w.box(x + dx, x + dx, h + 1, h + size, z + dz, z + dz, f'{species}_log[axis=y]')
+    """Vanilla-style layered crowns, clipped corners and branch-supported overhangs."""
+    rng = random.Random(SEED + x * 73856093 + z * 19349663 + size)
+    wide = size == 10 and species in ('dark_oak', 'spruce', 'oak')
+    width = 2 if wide else 1
+    log = f'{species}_log[axis=y]'
+    for dx, dz in itertools.product(range(width), repeat=2):
+        w.box(x + dx, x + dx, h + 1, h + size, z + dz, z + dz, log)
+
+    def leaves(cx, cy, cz, radius):
+        for dx, dz in itertools.product(range(-radius, radius + 1), repeat=2):
+            # Circular cross-sections with seeded corner/edge omissions, never square slabs.
+            if dx * dx + dz * dz > (radius + .25) ** 2:
+                continue
+            if abs(dx) + abs(dz) >= radius * 2 - 1 and rng.random() < .35:
+                continue
+            p = x + cx + dx, h + cy, z + cz + dz
+            if p not in w.blocks:
+                w.set(*p, f'{species}_leaves[persistent=true]')
+
     if species == 'spruce':
-        crowns = [(0, 0, size - 1)]
+        for dy in range(3, size + 2):
+            radius = min(4 if wide else 3, 1 + (size - dy + 1) // 2)
+            if dy % 2 == 0 and dy < size - 1:
+                radius = max(1, radius - 1)
+            leaves(0, dy, 0, max(0, radius))
+        if wide:
+            for dx, dz in ((-2, 0), (3, 1), (0, -2), (1, 3)):
+                w.set(x + dx // 2, h + 5, z + dz // 2, log)
+                leaves(dx, 5, dz, 2)
     else:
-        crowns = [(0, 0, size), (-2, 1, size - 2), (2, -1, size - 1)] if size >= 7 else [(0, 0, size)]
-        for dx, dz, dy in crowns[1:]:
-            for i in range(1, 3):
-                w.set(x + round(dx * i / 2), h + dy - 1, z + round(dz * i / 2), f'{species}_log[axis=y]')
-    for cx, cz, cy in crowns:
-        for dy in range(-3, 3):
-            radius = max(1, (size - (cy + dy)) // 2 + 1) if species == 'spruce' else (3 if size == 10 else 2)
-            for dx in range(-radius, radius + 1):
-                for dz in range(-radius, radius + 1):
-                    if species != 'spruce' and (dx / (radius + .3)) ** 2 + (dz / (radius + .3)) ** 2 + (dy / 3) ** 2 > 1.4:
-                        continue
-                    p = x + cx + dx, h + cy + dy, z + cz + dz
-                    if p not in w.blocks:
-                        w.set(*p, f'{species}_leaves[persistent=true]')
+        radius = 3 if size >= 7 else 2
+        for dy, r in ((size - 3, radius - 1), (size - 2, radius),
+                      (size - 1, radius), (size, radius - 1), (size + 1, 1)):
+            leaves(0, dy, 0, r)
+            if wide:
+                leaves(1, dy, 1, r)
+        if size >= 7:
+            # Ascending limbs carry separate lobes beyond the trunk's crown.
+            for dx, dz in ((-3, 1), (2, -3), (3, 2)):
+                dy = size - rng.randint(2, 3)
+                for i in range(1, 4):
+                    w.set(x + round(dx * i / 3), h + dy - 2 + i // 2,
+                          z + round(dz * i / 3), log)
+                for layer, r in ((-1, 1), (0, 2), (1, 2), (2, 1)):
+                    leaves(dx, dy + layer, dz, r)
+
+
+def underside(w):
+    """Reshape the completed footprint, including town plinths, below playable ground."""
+    tops = {}
+    original_bottoms = {}
+    for x, y, z in w.blocks:
+        if y <= 64:
+            tops[x, z] = max(tops.get((x, z), y), y)
+            original_bottoms[x, z] = min(original_bottoms.get((x, z), y), y)
+    # Distance from the actual silhouette includes the squared town corners.
+    distance = {}
+    queue = collections.deque()
+    neighbours = ((1, 0), (-1, 0), (0, 1), (0, -1))
+    for x, z in tops:
+        if any((x + dx, z + dz) not in tops for dx, dz in neighbours):
+            distance[x, z] = 0
+            queue.append((x, z))
+    while queue:
+        x, z = queue.popleft()
+        for dx, dz in neighbours:
+            p = x + dx, z + dz
+            if p in tops and p not in distance:
+                distance[p] = distance[x, z] + 1
+                queue.append(p)
+    bottoms = {}
+    for (x, z), surface in tops.items():
+        if w.blocks.get((x, 56, z)) == 'minecraft:water':
+            surface = min(surface, 56)
+        d = distance[x, z]
+        noise = 1.8 * math.sin(x / 8 + math.sin(z / 12)) + 1.4 * math.cos(z / 7 - x / 15)
+        bottom = max(20, min(surface - 3, round(61 - .29 * d + noise)))
+        bottoms[x, z] = bottom
+        cap = min(60, surface - 3)
+        for y in range(17, cap + 1):
+            if y < bottom:
+                w.set(x, y, z, None)
+                continue
+            existing = w.blocks.get((x, y, z))
+            if y >= original_bottoms[x, z] and (existing is None or existing.split('[')[0].removeprefix('minecraft:') not in
+                    ('stone', 'andesite', 'tuff', 'deepslate', 'dirt', 'gravel')):
+                continue
+            band = y + round(2 * math.sin(x / 13) + 2 * math.cos(z / 17))
+            material = ('deepslate' if band < 33 else 'tuff' if band % 13 < 3
+                        else 'andesite' if band % 13 < 6 else 'stone')
+            if y >= surface - 5:
+                material = 'dirt'
+            if y == bottom and (x * 37 + z * 61) % 263 == 0:
+                material = 'coal_ore' if y > 40 else 'deepslate_iron_ore'
+            w.set(x, y, z, material)
+    rng = random.Random(SEED + 42)
+    # Block-built hanging spires taper on every layer instead of extruding columns.
+    for (x, z), bottom in bottoms.items():
+        if not 8 < distance[x, z] < 65 or rng.random() > .004:
+            continue
+        length = rng.randint(5, 10)
+        for drop in range(length):
+            radius = 3 * (1 - drop / length)
+            for dx in range(-3, 4):
+                for dz in range(-3, 4):
+                    y = bottom - drop
+                    if y > 18 and dx * dx + dz * dz <= radius * radius:
+                        w.set(x + dx, y, z + dz, 'tuff' if drop < 3 else 'deepslate')
+    for (x, z), surface in tops.items():
+        if distance[x, z] != 0:
+            continue
+        if w.blocks.get((x, surface, z)) == 'minecraft:grass_block' and rng.random() < .2:
+            # Roots cling to the overhang and bend sideways as they descend.
+            length = rng.randint(3, 7)
+            for drop in range(length):
+                dx = min(drop, length - 2) // 3 * (1 if x > 0 else -1)
+                w.set(x + dx, surface - 3 - drop, z, 'hanging_roots' if drop == length - 1 else 'oak_log[axis=y]')
+        # The two river outlets spill beyond the rim; no new water across routes.
+        if w.blocks.get((x, 56, z)) == 'minecraft:water' and abs(z + 25) <= 2 and abs(x) > 135:
+            for y in range(20, 56):
+                w.set(x, y, z, 'water[level=8]')
 
 
 def continent(w):
@@ -810,6 +910,7 @@ def continent(w):
 
 
 def valley_cover(w):
+    underside(w)
     # Ruined wayside shrines occupy the broad shoulder before each crossing.
     # All are off the seven-wide through-route and outside the fixed town wards.
     for x, z in ((-14, -62), (41, 53), (-41, 53)):
@@ -832,11 +933,7 @@ def valley_cover(w):
             px, pz = x + u, z + v
             if gorge_distance(px, pz) < 8 or (px, 65, pz) in w.blocks:
                 continue
-            t.box(u, u, 65, 69, v, v, species + '_log[axis=y]')
-            for h, radius in ((68, 2), (69, 2), (70, 1)):
-                for du, dv in itertools.product(range(-radius, radius + 1), repeat=2):
-                    if du or dv or h == 70:
-                        t.set(u + du, h, v + dv, species + '_leaves[persistent=true]')
+            tree(w, px, 64, pz, species, 5)
 
     # Inner-bank groves and low rock cover make the rim-to-river land band
     # readable at preview scale while keeping all three seven-wide lanes open.
@@ -848,11 +945,7 @@ def valley_cover(w):
             continue
         h = max(y for y in range(64, 68) if (x, y, z) in w.blocks)
         species = ('oak', 'birch', 'spruce')[degrees // 30 % 3]
-        w.box(x, x, h + 1, h + 5, z, z, species + '_log[axis=y]')
-        for dy, radius in ((3, 2), (4, 2), (5, 1), (6, 1)):
-            for dx, dz in itertools.product(range(-radius, radius + 1), repeat=2):
-                if dx or dz or dy == 6:
-                    w.set(x + dx, h + dy, z + dz, species + '_leaves[persistent=true]')
+        tree(w, x, h, z, species, 5)
         w.box(x + 3, x + 4, 65, 66, z, z + 1, 'tuff')
 
 
