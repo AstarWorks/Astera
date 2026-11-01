@@ -41,6 +41,7 @@ frames:
       - {at: 0, for: 0, about: v, to: -80}  # roll the edge into the cut plane
       - {at: 0, for: 3, about: s, to: -60, ease: in_out_sine}  # wind-up turn
       - {at: 3, for: 3, about: s, to: 90, ease: out_cubic}  # the cut, edge first
+      - {at: 3, for: 3, about: v, to: -35, ease: out_cubic}  # roll the edge forward through the cut so the blade finishes edge-first, not flat
       - {at: 6, for: 6, reset: true, ease: in_out_sine}
   - id: body
     origin: caster
