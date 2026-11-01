@@ -21,6 +21,9 @@ import kotlin.math.sin
  * participant standing there takes it by item pickup (no proximity crediting); a kill pays the killer kill_share of the victim's carried stars, bursts kill_ground_share as drops anyone can pick up and loses the rest (ADR-0318); the
  * Norma level goal (stars carried) levels the player up; nothing outlives the match.
  */
+// carry-tnt's default_config time_limit_seconds (900) beats the layer default (600); the limit ends the match after this many ACTIVE ticks.
+private const val TIME_LIMIT_TICKS = 900 * 20
+
 class StarsNormaScenarioTest {
 
     @Test
@@ -121,7 +124,7 @@ class StarsNormaScenarioTest {
             sim.eventBus.publish(StarsCollected(matchId, red.id, 10, 10))
             normaCheckAtHome(matchId, red)
             stars.add(matchId, blue.id, 9)
-            advance(12_100)
+            advance(TIME_LIMIT_TICKS + 100)
             val ended = eventsOf<MatchEnded>().single { it.matchId == matchId }
             assertThat(ended.reason).isEqualTo(EndReason.NormaTimeLimit(TeamId("red")))
             assertThat(ended.winningTeam).isEqualTo(TeamId("red"))
@@ -136,7 +139,7 @@ class StarsNormaScenarioTest {
             val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "example-arena")
             val stars = sim.services.getOrThrow<IMatchStarStore>()
             stars.add(matchId, blue.id, 2)
-            advance(12_100)
+            advance(TIME_LIMIT_TICKS + 100)
             val ended = eventsOf<MatchEnded>().single { it.matchId == matchId }
             assertThat(ended.reason).isEqualTo(EndReason.NormaTimeLimit(TeamId("blue")))
         }
@@ -144,7 +147,7 @@ class StarsNormaScenarioTest {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
             val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "example-arena")
-            advance(12_100)
+            advance(TIME_LIMIT_TICKS + 100)
             val ended = eventsOf<MatchEnded>().single { it.matchId == matchId }
             assertThat(ended.reason).isEqualTo(EndReason.NormaTimeLimit(null))
             assertThat(ended.winningTeam).isNull()
@@ -161,7 +164,7 @@ class StarsNormaScenarioTest {
             // Pops pile up unattended in the first match, then it ends on the time limit.
             advance(450)
             assertThat(sim.starDrops.lying()).`as`("pops lie on the map during the match").isNotEmpty()
-            advance(12_100)
+            advance(TIME_LIMIT_TICKS + 100)
             assertThat(eventsOf<MatchEnded>().any { it.matchId == first }).isTrue()
             assertThat(sim.starDrops.lying()).`as`("no star of the ended match is left lying").isEmpty()
 
