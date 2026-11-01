@@ -36,6 +36,6 @@ class BotOpeningStarSweepScenarioTest {
     }
 
     private companion object {
-        const val LIMIT_S = 100L
+        const val LIMIT_S = 60L
     }
 }
