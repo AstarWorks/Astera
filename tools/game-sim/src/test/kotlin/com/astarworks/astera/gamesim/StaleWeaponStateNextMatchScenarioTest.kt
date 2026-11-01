@@ -54,9 +54,12 @@ class StaleWeaponStateNextMatchScenarioTest {
             val ammo = checkNotNull(pools.currentPool(red.id)).ammo
             pools.spendResource(red.id, ResourceType.Ammo, ammo)
 
+            assertThat(effects.has(red.id, silence)).`as`("match 1 ends with silence still active").isTrue()
+            assertThat(cooldowns.isCoolingDown(red.id, cooldownKey)).isTrue()
+            assertThat(checkNotNull(pools.currentPool(red.id)).ammo).isZero()
             sim.services.getOrThrow<IMatchLifecycle>().end(first, EndReason.AdminEnded)
             advance(5)
-            assertThat(effects.has(red.id, silence)).`as`("the stale state is really there before match 2").isTrue()
+            assertThat(effects.has(red.id, silence)).`as`("status effects are cleared on the way back to the lobby").isFalse()
 
             startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow0 to "yellow"), stage = "annihilation-arena")
             assertThat(effects.has(red.id, silence)).`as`("silence cleared at match start").isFalse()

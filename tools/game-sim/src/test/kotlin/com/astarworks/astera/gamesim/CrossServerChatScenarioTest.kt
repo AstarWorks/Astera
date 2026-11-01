@@ -56,7 +56,7 @@ class CrossServerChatScenarioTest {
                 "see example.museum/path" to "see example.museum/path",
                 "<red>hi</red>" to "<red>ひ</red> (<red>hi</red>)",
                 "konnnitiha red" to "こんにちは red (konnnitiha red)",
-                "red" to "red", "HELLO red xyz" to "HELLO red xyz",
+                "red" to "red", "HELLO red xyz" to "へっぉ red xyz (HELLO red xyz)",
                 "konnnitiha  RED!" to "こんにちは  RED! (konnnitiha  RED!)",
                 "ko-hi-" to "こーひー (ko-hi-)", "n'" to "ん (n')",
                 "&cX" to "&cX", "&#12abefX" to "&#12abefX",

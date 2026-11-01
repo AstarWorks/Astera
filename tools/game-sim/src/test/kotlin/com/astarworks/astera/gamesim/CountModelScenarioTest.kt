@@ -98,7 +98,9 @@ class CountModelScenarioTest {
 
             bank(red, "red", "blue") // red 80, blue 100: blue trails
             advance(17_300)
-            hold(blue, spotOf("jewelry-red"), 110) // blue is carrying a jewel when the clock runs out
+            hold(blue, spotOf("jewelry-red"), 110)
+            assertThat(sim.objectiveStage.carriedCount(blue.id)).isEqualTo(1)
+            blue.moveTo(nowhere) // Carry one jewel through timeout without stealing more from the pedestal.
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
             advance(500)

@@ -139,7 +139,8 @@ class MidMatchLeaveScenarioTest {
         scenario("leave-by-command", standaloneTeams = false) {
             val red = player("red", team = "red")
             val blue = player("blue", team = "blue")
-            val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"))
+            val teammate = player("red-stayer", team = "red")
+            val matchId = startMatch("carry-tnt", mapOf(red to "red", teammate to "red", blue to "blue"))
             val stars = sim.services.getOrThrow<IMatchStarStore>()
             val sessions = sim.services.getOrThrow<IPlayerSessionRepository>()
 
@@ -153,6 +154,7 @@ class MidMatchLeaveScenarioTest {
             assertThat(eventsOf<PlayerForfeited>().map { it.playerId }).`as`("no rejoin grace: forfeited at once").containsExactly(red.id)
             assertThat(sessions.find(red.id)?.state).isNotEqualTo(SessionState.Disconnected)
             assertThat(stars.get(matchId, red.id)).isZero()
+            assertThat(sim.match.matches.findById(matchId)?.phase).`as`("a teammate keeps the match and its drops alive").isEqualTo(MatchPhase.ACTIVE)
             assertThat(sim.starDrops.lying().filter { it.world == world && it.position.distance(spot) < 4.0 }.sumOf { it.amount })
                 .`as`("the stars burst at the arena position, not at the lobby").isEqualTo(4)
 
