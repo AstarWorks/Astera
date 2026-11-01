@@ -18,7 +18,7 @@ public enum class MatchShopTab(public val key: String) {
 /**
  * One thing the in-match shop sells: [stack] units of [itemId] for [price] (ore item id to count, all of them).
  * A weapon upgrade sets [upgradeFrom]: the buyer must carry one of that item, the purchase takes it and hands over [itemId]
- * (the next tier of the same weapon) instead of adding to the inventory.
+ * (the next tier of the same weapon) instead of adding to the inventory. [restock] marks a throwable that stays buyable while carried.
  */
 public data class MatchShopOffer(
     val itemId: ItemId,
@@ -26,9 +26,10 @@ public data class MatchShopOffer(
     val tab: MatchShopTab,
     val stack: Int = 1,
     val upgradeFrom: ItemId? = null,
+    val restock: Boolean = false,
 ) {
-    /** A plain weapons-tab offer: the shop never sells one to a player who already carries it (upgrade tiers and other tabs stay buyable). */
-    val isBaseWeapon: Boolean get() = tab == MatchShopTab.WEAPONS && upgradeFrom == null
+    /** A plain weapons-tab offer that is not a [restock] throwable: the shop never sells one to a player who already carries it (upgrade tiers and other tabs stay buyable). */
+    val isBaseWeapon: Boolean get() = tab == MatchShopTab.WEAPONS && upgradeFrom == null && !restock
 
     init {
         require(price.isNotEmpty() && price.values.all { it > 0 }) { "match-shop offer '${itemId.value}' needs a positive price" }

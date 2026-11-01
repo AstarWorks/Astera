@@ -70,6 +70,14 @@ class MatchShopOwnedWeaponScenarioTest {
             buy(red, MatchShopTab.BLOCKS, "wool-block")
             assertThat(items(red).count { it == "wool-block" }).isGreaterThan(woolBefore)
 
+            // A carried throwable (restock offer) can be bought again.
+            items(red) += "sticky-bomb"
+            dispatch(red, "matchshop.tab", "tab" to "weapons")
+            assertThat(listed(red)).contains("sticky-bomb")
+            val bombsBefore = items(red).count { it == "sticky-bomb" }
+            buy(red, MatchShopTab.WEAPONS, "sticky-bomb")
+            assertThat(items(red).count { it == "sticky-bomb" }).isEqualTo(bombsBefore + 1)
+
             // Blue has no pistol: the offer is listed and the purchase works (ore-gold 5).
             dispatch(blue, "matchshop.open", "team" to "blue")
             assertThat(listed(blue)).contains("pistol")
