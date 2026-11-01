@@ -120,18 +120,19 @@ abstract class PlaythroughBase : E2eBase() {
     /** Gives [item] to the bot over the console, selects it and returns the hotbar index (null if it never arrived). */
     protected fun equip(b: Bot, item: String): Int? {
         rcon("clear ${b.name}")
-        val before = b.slotUpdates.size
         rcon("astera items give ${b.name} $item")
-        b.waitUntil(5_000) { b.slotUpdates.drop(before).any { it.containerId == 0 && it.amount > 0 && it.slot in 36..44 } }
-        // Hotbar slot 9 (window slot 44) belongs to the locked match navigation compass in compass modes (Annihilation): its update can
-        // land after the item's, so prefer the last update in slots 1-8 and fall back to slot 9 only when nothing else arrived.
-        val updates = b.slotUpdates.drop(before).filter { it.containerId == 0 && it.amount > 0 && it.slot in 36..44 }
-        val slot = (updates.lastOrNull { it.slot != 44 } ?: updates.lastOrNull())?.slot?.minus(36)
-            ?: return null
+        fun itemAt(slot: Int): Boolean = rcon(
+            "data get entity ${b.name} Inventory[{Slot:${slot}b}].components.\"minecraft:custom_data\".PublicBukkitValues.\"astera-items:item_id\"",
+        ).contains("\"$item\"")
+        var found: Int? = null
+        b.waitUntil(5_000) { (0..8).firstOrNull(::itemAt)?.also { found = it } != null }
+        val slot = found ?: return null
         b.selectHotbar((slot + 1) % 9)
         Thread.sleep(150)
         b.selectHotbar(slot)
-        Thread.sleep(300)
+        check(b.waitUntil(3_000) {
+            rcon("data get entity ${b.name} SelectedItem.components.\"minecraft:custom_data\".PublicBukkitValues.\"astera-items:item_id\"").contains("\"$item\"")
+        }) { "${b.name} did not hold $item after selecting slot $slot" }
         return slot
     }
 
