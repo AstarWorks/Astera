@@ -70,6 +70,7 @@ class BotBrainHuntScenarioTest {
         override fun note(text: String) {}
         override fun isSpectator(player: UUID) = false
         override fun teamOf(player: String) = if (player == name) "red" else "blue"
+        override fun healthOf(entityId: Int): Float? = null
         override fun hotbar() = listOf(1, -1, -1, -1, -1, -1, -1, -1, -1)
         override fun hotbarName(slot: Int) = "Pistol"
         override fun hotbarLore(slot: Int) = "[RMB] Shoot | Reload with Shift+Q"
