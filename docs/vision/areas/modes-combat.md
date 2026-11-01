@@ -42,6 +42,7 @@ Play shows Norma-based modes and PvE first; siege variants sit in an "advanced" 
 - Limbus weapons require level 4-5: right gate given real XP speed?
 - Last-victim race at match end: fixed (a victim stranded mid-countdown is revived when the match ends) and covered by MatchEndKillRaceScenarioTest; not yet run by the manager batch.
 - Unverified from the old loop checklist: pistol bullets vs pillars, block-break speed on pillars/cores, the arena shared between lanes.
+- Annihilation 5-phase flow (ADR-0319): clock-driven preparation 6 min (pillars immune, Mid closed) -> engage 8 min (tier 1 + Mid gold/diamond) -> center 8 min (tier 2/3 + Mid emerald) -> escalation 6 min (damage x1.5) -> decisive up to 5 min (x2 + bleed: every pillar loses 10% max HP per 30 s, floor 10%; HP tiebreak at expiry). Lengths/multipliers are yaml tunables in `content/game-modes/annihilation.yaml`. Mid ore gate = `phase_gates` in `content/ore-nodes/annihilation-arena.yaml` (checked in `OreNodeService`). Every phase change: title + sound + boss bar + sidebar countdown; `AnnihilationClarity` shows a per-player next-objective line / compass target (defend, mine, attack weakest). Query: `IMatchPhaseClock` + event `AnnihilationPhaseTransitioned`. Game-sim `AnnihilationPhaseFlowScenarioTest`; pacing and the feel of the navigation are founder-check.
 
 ## Governing ADRs
-0032, 0036, 0063, 0073, 0174, 0237, 0247, 0248, 0249, 0271 (stars-are-match-scoped), 0280 (cover damage), 0297 (shared sparse block HP).
+0319 (annihilation phase flow), 0032, 0036, 0063, 0073, 0174, 0237, 0247, 0248, 0249, 0271 (stars-are-match-scoped), 0280 (cover damage), 0297 (shared sparse block HP).

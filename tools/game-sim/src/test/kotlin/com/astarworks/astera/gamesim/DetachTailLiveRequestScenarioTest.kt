@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 class DetachTailLiveRequestScenarioTest {
     @Test
     fun `sword-slash tail rows run to the end without a fault`() {
-        scenario("detach-tail-live-request", AnnihilationConfig(buildPhaseTicks = 200, engagePhaseTicks = 100_000, tier3PhaseTicks = 100_000)) {
+        scenario("detach-tail-live-request", AnnihilationConfig(buildPhaseTicks = 200, engagePhaseTicks = 100_000, centerPhaseTicks = 100_000)) {
             val red = player("red-1", team = "red")
             red.position = Vec3(0.0, groundY, 0.0)
             red.holds("knight-sword")

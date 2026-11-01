@@ -34,7 +34,7 @@ import com.astarworks.astera.match.domain.mode.GameModeId
  *    driven by [AnnihilationPhaseRules] inside [onTick], not by the
  *    framework's match-state-machine phase changes.
  *  - **onTick**: advances Annihilation phases if the timer / cascade rules
- *    fire, applies sudden-death DoT in Phase 4, and evaluates the win
+ *    fire, applies the phase-5 bleed, and evaluates the win
  *    condition. The match-end action itself (calling `IMatchLifecycle.end`)
  *    is published as a framework event and picked up by the lifecycle
  *    integration in `AsteraMatchPlugin`; we keep the win-condition
@@ -128,8 +128,7 @@ public class AnnihilationGameMode @JvmOverloads constructor(
     /**
      * Per-tick driver:
      *  1. Try to advance the Annihilation phase (timer / cascade rules).
-     *  2. If currently in Phase 4 sudden-death, apply DoT to surviving
-     *     Tier 3 pillars.
+     *  2. In phase 5 (sudden death), bleed every standing pillar (ADR-0319).
      *  (The win condition is decided by `AnnihilationWinConditionListener`.)
      *
      * Bus-less variant: still drives the tracker (the tracker can publish
@@ -139,7 +138,7 @@ public class AnnihilationGameMode @JvmOverloads constructor(
     override fun onTick(context: GameModeContext, tick: Long) {
         val tr = tracker ?: return
         tr.advancePhasesIfNeeded(context.matchId, tick)
-        tr.applySuddenDeathTick(context.matchId, tick)
+        tr.applyBleedIfDue(context.matchId, tick)
         clarity?.tick(context.matchId)
         // The win condition is not evaluated here: AnnihilationWinConditionListener
         // ends the match on TeamEliminated and on the sudden-death timer.
